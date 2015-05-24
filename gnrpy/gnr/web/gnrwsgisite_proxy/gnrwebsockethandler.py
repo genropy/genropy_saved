@@ -25,19 +25,40 @@ import httplib
 import socket
 import urllib
 from gnr.app.gnrconfig import gnrConfigPath
-
+from gnr.core.gnrbag import Bag
 class WebSocketHandler(object):
     def __init__(self,site):
         self.site = site
-        
-    def setInClientData(self,dest_page_id=None,client_path=None,data=None):
-        socket_path= os.path.join(gnrConfigPath(), 'sockets', '%s.tornado'%self.site.site_name)
-        http_conn = HTTPSocketConnection(socket_path)
+        self.socket_path= os.path.join(gnrConfigPath(), 'sockets', '%s.tornado'% site.site_name)
+        self.proxyurl='/wsproxy'
+    
+    @property
+    def socketConnection(self):
+        http_conn = HTTPSocketConnection(self.socket_path)
         http_conn.connect()
-        params = dict(client_path=client_path, page_id=dest_page_id, value=data)
+        return http_conn
+        
+    def sendCommandToPage(self,page_id,command,data):
         headers = {'Content-type': 'application/x-www-form-urlencoded'}
-        result = http_conn.request('POST','/wsproxy',headers=headers, body=urllib.urlencode(params))
-        return result
+        envelope=Bag(dict(command=command,data=data))
+        body=urllib.urlencode(dict(page_id=page_id,envelope=envelope.toXml(unresolved=True)))
+        self.socketConnection.request('POST',self.proxyurl,headers=headers, body=body)
+        
+    def wsServerCall(self,command,**kwargs):
+        headers = {'Content-type': 'application/x-www-form-urlencoded'}
+        body=urllib.urlencode(dict(command=command,kwargs=kwargs))
+        self.socketConnection.request('POST',self.proxyurl,headers=headers, body=body)
+
+    def setInClientData(self,dest_page_id=None,client_path=None,data=None):
+        self.sendCommandToPage(dest_page_id,'set',Bag(dict(path=client_path,data=data)))
+     
+    
+
+
+        
+    def setInClientData_new(self,path, value=None, attributes=None, page_id=None, filters=None,
+                                fired=False, reason=None, replace=False,public=None):
+        pass
 
 
 def has_timeout(timeout): # python 2.6

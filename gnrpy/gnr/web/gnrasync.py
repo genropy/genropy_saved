@@ -63,40 +63,7 @@ class DummyExecutor(Executor):
         with self._shutdownLock:
             self._shutdown = True
             
-
-class GnrWsProxyHandler(tornado.web.RequestHandler):
-
-    @property
-    def server(self):
-        return self.application.server
-        
-    @property
-    def channels(self):
-        return self.application.server.channels
-        
-    def sendToPage(self, dest_page_id,message):
-        self.get
-        self.channels.get(dest_page_id).write_message(message)
-        
-    def post(self, *args, **kwargs):
-        page_id = self.get_argument('page_id')
-        client_path = self.get_argument('client_path')
-        value = self.get_argument('value')
-        data = Bag(path=client_path, data=value)
-        message=Bag(data=data,command='set')
-        message_xml = message.toXml()
-        if page_id == '*':
-            page_ids = self.channels.keys()
-        else:
-            page_ids = page_id.split(',')
-        for dest_page_id in page_ids:
-            self.channels.get(dest_page_id).write_message(message_xml)
-
-    def get(self, *args, **kwargs):
-        pass
-
-class GnrWebSocketHandler(websocket.WebSocketHandler):
-   
+class GnrMixin(object):
     @property
     def server(self):
         return self.application.server
@@ -120,6 +87,38 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
     @property
     def gnrsite(self):
         return self.application.server.gnrsite
+    
+    
+class GnrWsProxyHandler(tornado.web.RequestHandler,GnrMixin):
+
+    def post(self, *args, **kwargs):
+        page_id = self.get_argument('page_id')
+        envelope = self.get_argument('envelope')
+        if page_id == '*':
+            page_ids = self.channels.keys()
+        else:
+            page_ids = page_id.split(',')
+        for dest_page_id in page_ids:
+            self.channels.get(dest_page_id).write_message(envelope)
+            
+    def post_x(self, *args, **kwargs):
+        page_id = self.get_argument('page_id')
+        client_path = self.get_argument('client_path')
+        value = self.get_argument('value')
+        data = Bag(path=client_path, data=value)
+        message=Bag(data=data,command='set')
+        message_xml = message.toXml()
+        if page_id == '*':
+            page_ids = self.channels.keys()
+        else:
+            page_ids = page_id.split(',')
+        for dest_page_id in page_ids:
+            self.channels.get(dest_page_id).write_message(message_xml)
+
+    def get(self, *args, **kwargs):
+        pass
+
+class GnrWebSocketHandler(websocket.WebSocketHandler,GnrMixin):
     
     def getExecutor(self,method):
         return self.server.executors.get(getattr(method,'_executor','dummy'))
@@ -177,14 +176,6 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
         else:
             pass
             #print 'already in pages',self.page_id
-       
-  
-    def do_channels(self,**kwargs):
-        return self.channels.keys()
-        
-    def do_setInClient(self,dest_page_id=None,dest_path=None,value=None):
-        message=dict(path=dest_path,data=value)
-        self.channels.get(dest_page_id).write_message(message)
 
     @threadpool
     def do_call(self,method=None, result_token=None, _time_start=None,**kwargs):
