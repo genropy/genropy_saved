@@ -197,4 +197,4 @@ def code_monitor_reload(sig):
         uwsgi.reload()
 
 def application(environ,start_response):
-    return server(environ,start_response)
+    return server(dict(environ),start_response)
