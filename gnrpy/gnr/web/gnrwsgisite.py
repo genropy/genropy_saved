@@ -266,10 +266,10 @@ class GnrWsgiSite(object):
 
 
     @property
-    def websockethandler(self):
-        if not self._websockethandler:
-            self._websockethandler = WebSocketHandler(self)
-        return self._websockethandler
+    def wsk(self):
+        if not hasattr(self,'_wsk'):
+            self._wsk = WebSocketHandler(self)
+        return self._wsk
 
     @property
     def register(self):

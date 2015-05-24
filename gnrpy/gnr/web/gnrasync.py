@@ -19,22 +19,23 @@
 #You should have received a copy of the GNU Lesser General Public
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+import time
+import os
+from concurrent.futures import ThreadPoolExecutor,Future, Executor
 
+from threading import Lock
 import tornado.web
 from tornado import gen
 import tornado.websocket as websocket
 import tornado.ioloop
 from tornado.netutil import bind_unix_socket
 from tornado.httpserver import HTTPServer
+
+from gnr.app.gnrconfig import gnrConfigPath
 from gnr.core.gnrbag import Bag,BagException,TraceBackResolver
 from gnr.web.gnrwsgisite import GnrWsgiSite
 from gnr.core.gnrstring import fromJson
-from concurrent.futures import ThreadPoolExecutor,Future, Executor
-from threading import Lock
-import os
-from gnr.app.gnrconfig import gnrConfigPath
-import time
-
+    
 def threadpool(func):
     func._executor='threadpool'
     return func
@@ -63,7 +64,7 @@ class DummyExecutor(Executor):
             self._shutdown = True
             
 
-class GnrClientDataHandler(tornado.web.RequestHandler):
+class GnrWsProxyHandler(tornado.web.RequestHandler):
 
     @property
     def server(self):
@@ -73,26 +74,23 @@ class GnrClientDataHandler(tornado.web.RequestHandler):
     def channels(self):
         return self.application.server.channels
         
-    #def post(self, dest_page_id, message):
+    def sendToPage(self, dest_page_id,message):
+        self.get
+        self.channels.get(dest_page_id).write_message(message)
+        
     def post(self, *args, **kwargs):
-        print self.request.body
         page_id = self.get_argument('page_id')
-        print page_id
         client_path = self.get_argument('client_path')
-        print client_path
         value = self.get_argument('value')
-        print value
         data = Bag(path=client_path, data=value)
         message=Bag(data=data,command='set')
         message_xml = message.toXml()
-        print message_xml
         if page_id == '*':
             page_ids = self.channels.keys()
         else:
             page_ids = page_id.split(',')
         for dest_page_id in page_ids:
             self.channels.get(dest_page_id).write_message(message_xml)
-        #self.channels.get(dest_page_id).write_message(message)
 
     def get(self, *args, **kwargs):
         pass
@@ -130,12 +128,11 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
         return getattr(self,'do_%s' % command,self.wrongCommand)  
         
     def open(self):
-        print "WebSocket open - page_id:",self.page_id
+        #print "WebSocket open - page_id:",self.page_id
         pass
         
     def close(self):
-        self.page_id
-        print "WebSocket close. page_id:",self.page_id
+        #print "WebSocket close. page_id:",self.page_id
         pass
         
         
@@ -143,6 +140,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
     def on_message(self, message):
         if message=='PING':
             self.write_message('PONG')
+            return
         command,kwargs=self.parseMessage(message)
         handler=self.getHandler(command)
         if handler:
@@ -152,7 +150,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
                 self.write_message(result)
                 
     def on_close(self):
-        print "WebSocket on_close",self.page_id
+        #print "WebSocket on_close",self.page_id
         self.channels.pop(self.page_id,None)
         self.pages.pop(self.page_id,None)
         
@@ -163,20 +161,22 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
         return data
 
     def do_connected(self,page_id=None,**kwargs):
-        print 'do_connected:',page_id
+        #print 'do_connected:',page_id
         self._page_id=page_id
         if not page_id in self.channels:
-            print 'setting in channels',self.page_id
+            #print 'setting in channels',self.page_id
             self.channels[page_id]=self
         else:
-             print 'already in channels',self.page_id
+            pass
+             #print 'already in channels',self.page_id
         if not page_id in self.pages:
-            print 'creating page',self.page_id
+           # print 'creating page',self.page_id
             page = self.gnrsite.resource_loader.get_page_by_id(page_id)
-            print 'setting in pages',self.page_id
+            #print 'setting in pages',self.page_id
             self.pages[page_id] = page
         else:
-            print 'already in pages',self.page_id
+            pass
+            #print 'already in pages',self.page_id
        
   
     def do_channels(self,**kwargs):
@@ -270,8 +270,8 @@ class GnrAsyncServer(GnrBaseAsyncServer):
         self.addExecutor('threadpool',ThreadPoolExecutor(max_workers=20))
         self.addExecutor('dummy',DummyExecutor())
         self.addHandler(r"/websocket", GnrWebSocketHandler)
-        self.addHandler(r"/set_in_client_data", GnrClientDataHandler)
-        
+        self.addHandler(r"/wsproxy", GnrWsProxyHandler)
+    
     
 if __name__ == '__main__':
     server=GnrAsyncServer(port=8888,instance='sandbox')

@@ -296,6 +296,10 @@ class GnrWebPage(GnrBaseWebPage):
     frontend = property(_get_frontend)
             
     @property 
+    def wsk(self):
+        return self.site.wsk
+        
+    @property 
     def dev(self):
         if not hasattr(self, '_dev'):
             self._dev = GnrWebDeveloper(self)
