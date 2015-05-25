@@ -52,6 +52,7 @@ disable-logging = true
 module = gnr.web.serveruwsgi
 pyargv = %(site_name)s
 offload-threads = %(offload_threads)i
+wsgi-env-behaviour = holy
 %(websockets)s
 """
 
