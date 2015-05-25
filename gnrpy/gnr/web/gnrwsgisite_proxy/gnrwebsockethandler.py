@@ -43,23 +43,14 @@ class WebSocketHandler(object):
         envelope=Bag(dict(command=command,data=data))
         body=urllib.urlencode(dict(page_id=page_id,envelope=envelope.toXml(unresolved=True)))
         self.socketConnection.request('POST',self.proxyurl,headers=headers, body=body)
-        
-    def wsServerCall(self,command,**kwargs):
-        headers = {'Content-type': 'application/x-www-form-urlencoded'}
-        body=urllib.urlencode(dict(command=command,kwargs=kwargs))
-        self.socketConnection.request('POST',self.proxyurl,headers=headers, body=body)
 
-    def setInClientData(self,dest_page_id=None,client_path=None,data=None):
-        self.sendCommandToPage(dest_page_id,'set',Bag(dict(path=client_path,data=data)))
-     
-    
-
-
-        
-    def setInClientData_new(self,path, value=None, attributes=None, page_id=None, filters=None,
-                                fired=False, reason=None, replace=False,public=None):
-        pass
-
+    def sendDatachanges(self,datachanges):
+        data=Bag()
+        for j, change in enumerate(datachanges):
+            data.setItem('sc_%i' % j, change.value, change_path=change.path, change_reason=change.reason,
+                           change_fired=change.fired, change_attr=change.attributes,
+                           change_ts=change.change_ts, change_delete=change.delete)
+        self.sendCommandToPage(page_id,'datachanges',data)
 
 def has_timeout(timeout): # python 2.6
     if hasattr(socket, '_GLOBAL_DEFAULT_TIMEOUT'):

@@ -113,6 +113,9 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         var value=data.getItem('data')
         genro.setData(path,value)
     },
+    do_datachanges:function(datachanges){
+        genro.rpc.setDatachangesInData(datachanges)
+    },
     do_publish:function(data){
         var topic=data.getItem('topic')
         if (!topic){

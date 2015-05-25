@@ -1530,8 +1530,15 @@ class GnrWebPage(GnrBaseWebPage):
         if parent:
             value['parent'] = parent
         self.setInClientData('gnr.publisher',value=value,page_id=page_id or self.page_id,fired=True)
-
+        
     def setInClientData(self, path, value=None, attributes=None, page_id=None, filters=None,
+                        fired=False, reason=None, replace=False,public=None):
+        print 'path',path,'value',value
+        handler = self.setInClientData_websocket if self.site.websockets else self.setInClientData_legacy
+        handler(path, value=value, attributes=attributes, page_id=page_id, filters=filters,
+                        fired=fired, reason=reason, replace=replace,public=public)
+                        
+    def setInClientData_legacy(self, path, value=None, attributes=None, page_id=None, filters=None,
                         fired=False, reason=None, replace=False,public=None):
         if public or filters or page_id:
             self.site.register.setInClientData(path=path, value=value, attributes=attributes, page_id=page_id or self.page_id, filters=filters,
@@ -1546,6 +1553,23 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             datachange = ClientDataChange(path, value, reason=reason, attributes=attributes, fired=fired)
             self.local_datachanges.append(datachange)
+            
+    def setInClientData_websocket(self, path, value=None, attributes=None, page_id=None, filters=None,
+                        fired=False, reason=None, replace=False,public=None):
+        if public or filters or page_id:
+            self.site.register.setInClientData(path=path, value=value, attributes=attributes, page_id=page_id or self.page_id, filters=filters,
+                        fired=fired, reason=reason, replace=replace,register_name='page')
+        elif isinstance(path, Bag):
+            changeBag = path
+            for changeNode in changeBag:
+                attr = changeNode.attr
+                datachange = ClientDataChange(attr.pop('_client_path'), changeNode.value,
+                    attributes=attr, fired=attr.pop('fired', None))
+                self.local_datachanges.append(datachange)
+        else:
+            datachange = ClientDataChange(path, value, reason=reason, attributes=attributes, fired=fired)
+            self.local_datachanges.append(datachange)
+            
             
     @public_method          
     def sendMessageToClient(self, message, pageId=None, filters=None, msg_path=None):
