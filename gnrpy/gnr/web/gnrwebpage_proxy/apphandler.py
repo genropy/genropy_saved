@@ -863,11 +863,9 @@ class GnrWebAppHandler(GnrBaseProxy):
             expr_dict = getattr(self.page, 'expr_%s' % expressions)()
             expr_dict = dict([(k, '%s AS %s' % (v, k)) for k, v in expr_dict.items()])
             columns = templateReplace(columns, expr_dict, safeMode=True)
-
-        if tblobj.attributes.get('protectionColumn'):
-            columns = '%s, $%s AS _is_readonly_row' %(columns,tblobj.attributes.get('protectionColumn'))
-            if tblobj.column('__protection_tag') is not None and not '__protection_tag' in columns:
-                columns = '%s,$__protection_tag' %columns
+        protectionColumn = tblobj.getProtectionColumn()
+        if protectionColumn:
+            columns = '%s,$%s AS _is_readonly_row' %(columns,protectionColumn)
 
         return columns,external_queries
     
