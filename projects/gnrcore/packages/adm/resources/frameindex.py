@@ -200,7 +200,10 @@ class FrameIndex(BaseComponent):
                                         },1,this);
                                     }
                                 }else{
-                                    genro.framedIndexManager.createTablist(tabroot,data,onCreatingTablist);
+                                    genro.callAfter(function(){
+                                        genro.framedIndexManager.createTablist(tabroot,data,onCreatingTablist);
+                                    },200,this);
+
                                 }
                                 """,
                             data="=iframes",externalWindows='=externalWindows',_refreshTablist='^refreshTablist',tabroot=tabroot,indexTab=self.indexTab,
