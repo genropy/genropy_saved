@@ -3741,7 +3741,7 @@ dojo.declare("gnr.stores._Collection",null,{
                     return true;
                 }
             });
-            if(fiteredIndex && result>=0 && this._filtered){
+            if(fiteredIndex!==false && result>=0 && this._filtered){
                 return this._filtered.indexOf(result);
             }
             return result;
@@ -3753,6 +3753,7 @@ dojo.declare("gnr.stores._Collection",null,{
             return this.itemByIdx(idx);
         }
     },
+
     rowByIndex:function(idx,bagFields){
         var rowdata={};
         var node=this.itemByIdx(idx);
@@ -4248,6 +4249,12 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
                         isExternalDict[change.pkey] = change._isExternal;
                     }
                 }
+                if(change.old_pkey && change.old_pkey!=change.pkey){
+                    var changedNode = data.getNodeByAttr('_pkey',change.old_pkey);
+                    if(changedNode){
+                        changedNode.attr['_pkey'] = change.pkey;
+                    }
+                }
             }
         });
 
@@ -4283,6 +4290,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         var linkedGrids = this.linkedGrids();
         var selectedPkeysDict = {};
         var selectedIndex,selectedPkey;
+        var data = this.getData();
         dojo.forEach(linkedGrids,function(grid){
             //grid.batchUpdating(true);
             genro.dom.removeClass(grid.sourceNode,'onExternalChanged');
@@ -4297,7 +4305,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         var changedRows = {};
         var wasInSelection;
         var changed = false;
-        var data = this.getData();
+       
         var that = this;
         var toUpdate = false;
         var isExternalChange;
