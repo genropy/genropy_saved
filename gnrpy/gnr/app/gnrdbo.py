@@ -345,14 +345,24 @@ class TableBase(object):
                         onInserted='syncRecordInserted',_sysfield=True)
         if df:
             self.sysFields_df(tbl)
-
+        tbl.formulaColumn('__is_protected_row',sql_formula=True,group=group,name_long='!!Row Protected')
+        
+        if filter(lambda r: r!='sysRecord_' and r.startswith('sysRecord_'), dir(self)):
+            tbl.column('__syscode',size=':16',unique=True,indexed=True,
+                _sysfield=True,group=group,name_long='!!Internal code')
+            tbl.formulaColumn('__protected_by_syscode',
+                                """ ( CASE WHEN $__syscode IS NULL THEN NULL 
+                                   ELSE NOT (',' || :env_userTags || ',' LIKE '%%,'|| :systag || ',%%')
+                                   END ) """,
+                                dtype='B',var_systag=tbl.attributes.get('syscodeTag') or 'superadmin')
 
     def sysFields_protectionTag(self,tbl,protectionTag=None,group=None):
-        tbl.attributes['protectionTag'] = protectionTag
-        tbl.attributes['protectionColumn'] = '__is_protected_row'
         tbl.column('__protection_tag', name_long='!!Protection tag', group=group,_sysfield=True,_sendback=True,onInserting='setProtectionTag')
-        tbl.formulaColumn('__is_protected_row',""" $__protection_tag IS NOT NULL AND NOT (',' || :env_userTags || ',' LIKE '%%,'|| $__protection_tag || ',%%')""",dtype='B')
-        
+        tbl.formulaColumn('__protected_by_tag',""" ( CASE WHEN $__protection_tag IS NULL THEN NULL 
+                                                    ELSE NOT (',' || :env_userTags || ',' LIKE '%%,'|| $__protection_tag || ',%%')
+                                                    END ) """,dtype='B')
+        #doctor,staff,superadmin               ,doctor,staff,superadmin, LIKE %%,admin,%%
+
     def sysFields_df(self,tbl):
         tbl.column('df_fields',dtype='X',group='_',_sendback=True)
         tbl.column('df_fbcolumns','L',group='_')
@@ -362,6 +372,29 @@ class TableBase(object):
     def sysFields_counter(self,tbl,fldname,counter=None,group=None,name_long='!!Counter'):
         tbl.column(fldname, dtype='L', name_long=name_long, onInserting='setRowCounter',counter=True,
                             _counter_fkey=counter,group=group,_sysfield=True)
+
+        
+
+    def getProtectionColumn(self):
+        if filter(lambda r: r.startswith('__protected_by_'), self.model.virtual_columns.keys()) or self.attributes.get('protectionColumn'):
+            return '__is_protected_row'
+
+    def sql_formula___is_protected_row(self,attr):
+        protections= []
+        if self.attributes.get('protectionColumn'):
+            pcol = self.attributes['protectionColumn']
+            protections.append('( CASE WHEN $%s IS NULL THEN NULL ELSE TRUE END ) ' %pcol)
+        for field in filter(lambda r: r.startswith('__protected_by_'), self.model.virtual_columns.keys()):
+            protections.append(' $%s  ' %field)
+        if protections:
+            arr = " %s  " %' , '.join(protections)
+            return """( CASE WHEN ( TRUE IN ( %s ) ) 
+                      THEN TRUE 
+                      WHEN ( FALSE IN ( %s ) ) 
+                      THEN FALSE 
+                      ELSE NULL END )""" %(arr,arr)
+        else:
+            return " NULL "
 
     def addPhonetic(self,tbl,column,mode=None,size=':5',group=None):
         mode = mode or 'dmetaphone'
@@ -396,6 +429,13 @@ class TableBase(object):
         return self.hierarchicalHandler.getHierarchicalData(caption_field=caption_field,condition=condition,
                                                 condition_kwargs=condition_kwargs,caption=caption,dbstore=dbstore,columns=columns,
                                                 related_kwargs=related_kwargs,resolved=resolved,**kwargs)
+
+    def sysRecord(self,syscode):
+        def createCb(key):
+            r = getattr(self,'sysRecord_%s' %syscode)()
+            r['__syscode'] = key
+            return r
+        return self.cachedRecord(syscode,keyField='__syscode',createCb=createCb)
 
     @public_method
     def pathFromPkey(self,pkey=None,dbstore=None):
