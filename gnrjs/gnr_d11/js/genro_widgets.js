@@ -4248,7 +4248,7 @@ dojo.declare("gnr.widgets.VirtualGrid", gnr.widgets.DojoGrid, {
     patch_onStyleRow:function(row) {
         var attr = this.rowByIndex(row.index);
         if (attr) {
-            if (attr._is_readonly_row){
+            if (attr._protection_info=='DU'){
                 row.customClasses = row.customClasses?row.customClasses + ' _gnrReadOnlyRow': '_gnrReadOnlyRow';
             }else if(attr.__protection_tag){
                 row.customClasses = row.customClasses?row.customClasses + ' _gnrProtectionPass': '_gnrProtectionPass';
@@ -4515,6 +4515,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                     }
                 } else if (kw.evt == 'del') {
                     if (parent_lv == 1) {
+                        this.filterToRebuild(true);
                         this.updateRowCount();
                         //this.setSelectedIndex(kw.ind); contrario al meccanismo dei dbevent
                     } else {
@@ -4586,7 +4587,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         var customClasses = null;
         if (attr._is_readonly_row){
             row.customClasses = row.customClasses?row.customClasses + ' _gnrReadOnlyRow': '_gnrReadOnlyRow';
-        }else if(attr.__protection_tag){
+        }else if(attr._is_readonly_row === false){
             row.customClasses = row.customClasses?row.customClasses + ' _gnrProtectionPass': '_gnrProtectionPass';
         }
         if(this.rowCustomClassesCb){

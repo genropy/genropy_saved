@@ -49,7 +49,7 @@ class GnrWsgiWebApp(GnrApp):
         broadcast = tblobj.attributes.get('broadcast')
         if broadcast is not False and broadcast != '*old*':
             dbevents=currentEnv['dbevents']
-            r=dict(dbevent=event,pkey=record.get(tblobj.pkey))
+            r=dict(dbevent=event,pkey=record.get(tblobj.pkey),old_pkey=old_record.get(tblobj.pkey) if old_record else None)
             if broadcast and broadcast is not True:
                 for field in broadcast.split(','):
                     newvalue = record.get(field)
@@ -191,6 +191,8 @@ class GnrWsgiWebApp(GnrApp):
                     else:
                         attributes['file'] = self.site.home_uri + filepath.lstrip('/')
             result.setItem(node.label, value, attributes)
+        if len(result) == 1:
+            result = result['#0']
         return result
 
 

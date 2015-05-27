@@ -209,6 +209,8 @@ class SqlQueryCompiler(object):
             elif fldalias.sql_formula or fldalias.select or fldalias.exists:
                 sql_formula = fldalias.sql_formula
                 attr = dict(fldalias.attributes)
+                if sql_formula is True:
+                    sql_formula = getattr(curr_tblobj,'sql_formula_%s' %fld)(attr)
                 select_dict = dictExtract(attr,'select_')
                 if not sql_formula:
                     sql_formula = '#default' if fldalias.select else 'EXISTS(#default)'

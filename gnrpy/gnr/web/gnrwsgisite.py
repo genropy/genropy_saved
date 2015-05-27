@@ -263,7 +263,9 @@ class GnrWsgiSite(object):
         self.page_max_age = int(cleanup.get('page_max_age') or 120)
         self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
 
-
+    def startDebug(self):
+        import rpdb
+        rpdb.set_trace()
 
     @property
     def wsk(self):
@@ -327,6 +329,8 @@ class GnrWsgiSite(object):
             if not os.path.exists(dest_dir):
                 os.makedirs(dest_dir)
         return dest_path
+
+
         
     def getStaticUrl(self, static, *args, **kwargs):
         """TODO
