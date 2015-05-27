@@ -50,6 +50,11 @@ var gnrwebsocket = {
         var datanode=data.getNode('data')
         genro.setData(path,datanode)
     },
+    do_debug_output:function(data){
+        console.log('from debugger: ', data);
+        genro.publish('fromdebugger',{'data':data})
+        
+    },
     do_publish:function(data){
         var topic=data.getItem('topic')
         if (!topic){

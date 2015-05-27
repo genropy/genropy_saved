@@ -22,19 +22,23 @@
 import time
 import os
 from concurrent.futures import ThreadPoolExecutor,Future, Executor
-
+import socket
 from threading import Lock
 import tornado.web
 from tornado import gen
 import tornado.websocket as websocket
 import tornado.ioloop
 from tornado.netutil import bind_unix_socket
+from tornado.tcpserver import TCPServer
+import toro
+from collections import defaultdict
 from tornado.httpserver import HTTPServer
 
 from gnr.app.gnrconfig import gnrConfigPath
 from gnr.core.gnrbag import Bag,BagException,TraceBackResolver
 from gnr.web.gnrwsgisite import GnrWsgiSite
 from gnr.core.gnrstring import fromJson
+
     
 def threadpool(func):
     func._executor='threadpool'
@@ -63,7 +67,7 @@ class DummyExecutor(Executor):
         with self._shutdownLock:
             self._shutdown = True
             
-class GnrMixin(object):
+class GnrBaseHandler(object):
     @property
     def server(self):
         return self.application.server
@@ -84,12 +88,105 @@ class GnrMixin(object):
     def page_id(self):
         return getattr(self,'_page_id',None)
     
+    @page_id.setter
+    def page_id(self, page_id):
+        self._page_id = page_id
+
     @property
     def gnrsite(self):
         return self.application.server.gnrsite
+
+    @property
+    def debug_queues(self):
+        return self.application.server.debug_queues
+
+
+
+        
+
+class DebugSession(GnrBaseHandler):
     
+    def __init__(self, stream, application):
+        self.stream = stream
+        self.application = application
+        self.stream.set_close_callback(self.on_disconnect)
+        self.socket_input_queue = toro.Queue(maxsize=40)
+        self.socket_output_queue = toro.Queue(maxsize=40)
+        self.websocket_output_queue = toro.Queue(maxsize=40)
+        self.consume_socket_input_queue()
+
+    def link_page(self, page_id):
+        self.page_id = page_id
+        if not page_id in self.debug_queues:
+            self.debug_queues[page_id] = toro.Queue(maxsize=40)
+        self.websocket_input_queue = self.debug_queues[page_id]
+        self.consume_websocket_output_queue()
+        self.consume_websocket_input_queue()
+        #self.consume_websocket_output_queue()
+        self.consume_socket_output_queue()
     
-class GnrWsProxyHandler(tornado.web.RequestHandler,GnrMixin):
+    @gen.coroutine
+    def handle_socket_message(self, message):
+        if message.startswith('\0') or message.startswith('|'):
+            self.link_page(message[1:])
+        else:
+            yield self.websocket_output_queue.put(message)
+
+
+    @gen.coroutine
+    def consume_socket_input_queue(self):
+        while True:
+            message = yield self.socket_input_queue.get()
+            print 'gnrpdb %s'%message
+            yield self.handle_socket_message(message)
+ 
+    @gen.coroutine
+    def consume_socket_output_queue(self):
+        while True:
+            message = yield self.socket_output_queue.get()
+            yield self.stream.write(str("%s\n"%message))
+
+    @gen.coroutine
+    def consume_websocket_input_queue(self):
+        while True:
+            message = yield self.websocket_input_queue.get()
+            yield self.socket_output_queue.put("%s"%message)
+
+    @gen.coroutine
+    def consume_websocket_output_queue(self):
+        while True:
+            message = yield self.websocket_output_queue.get()
+            envelope=Bag(dict(command='debug_output',data=message))
+            envelope_xml=envelope.toXml(unresolved=True)
+            self.channels.get(self.page_id).write_message(envelope_xml)
+            
+    @gen.coroutine 
+    def on_disconnect(self):
+        yield []
+ 
+    @gen.coroutine 
+    def dispatch_client(self):
+        try:
+            while True:
+                line = yield self.stream.read_until(b'\n')
+                line = line[:-1]
+                yield self.socket_input_queue.put(line)
+        except tornado.iostream.StreamClosedError:
+            pass
+ 
+    @gen.coroutine 
+    def on_connect(self):
+        yield self.dispatch_client()
+
+    
+class GnrDebugServer(TCPServer):
+
+    @gen.coroutine
+    def handle_stream(self, stream, address):
+        debug_session = DebugSession(stream, application = self.application)
+        yield debug_session.on_connect()
+        
+class GnrWsProxyHandler(tornado.web.RequestHandler,GnrBaseHandler):
 
     def post(self, *args, **kwargs):
         page_id = self.get_argument('page_id')
@@ -118,7 +215,7 @@ class GnrWsProxyHandler(tornado.web.RequestHandler,GnrMixin):
     def get(self, *args, **kwargs):
         pass
 
-class GnrWebSocketHandler(websocket.WebSocketHandler,GnrMixin):
+class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
     
     def getExecutor(self,method):
         return self.server.executors.get(getattr(method,'_executor','dummy'))
@@ -177,6 +274,14 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrMixin):
             pass
             #print 'already in pages',self.page_id
 
+    def do_debugcommand(self, cmd=None, **kwargs):
+        #self.debugger.put_data(data)
+        if not self.page_id in self.debug_queues:
+            self.debug_queues[self.page_id] = toro.Queue(maxsize=40)
+        data_queue = self.debug_queues[self.page_id]
+        data_queue.put(cmd)
+        
+
     @threadpool
     def do_call(self,method=None, result_token=None, _time_start=None,**kwargs):
         error = None
@@ -231,6 +336,7 @@ class GnrBaseAsyncServer(object):
         self.executors=dict()
         self.channels=dict()
         self.pages=dict()
+        self.debug_queues=dict()
         self.instance_name = instance
         self.gnrsite=GnrWsgiSite(instance)
         self.gnrsite.ws_site = self
@@ -249,10 +355,17 @@ class GnrBaseAsyncServer(object):
             self.tornadoApp.listen(int(self.port))
         else:
             socket_path = os.path.join(gnrConfigPath(), 'sockets', '%s.tornado'%self.instance_name)
-            socket = bind_unix_socket(socket_path)
+            main_socket = bind_unix_socket(socket_path)
             server = HTTPServer(self.tornadoApp)
-            server.add_socket(socket)
-        tornado.ioloop.IOLoop.instance().start()
+            server.add_socket(main_socket)
+        debug_socket_path = os.path.join(gnrConfigPath(), 'sockets', '%s_debug.tornado'%self.instance_name)
+        debug_socket = bind_unix_socket(debug_socket_path)
+        io_loop =tornado.ioloop.IOLoop.instance()
+        debug_server = GnrDebugServer(io_loop)
+        #debug_server.listen(8888)
+        debug_server.add_socket(debug_socket)
+        debug_server.application = self.tornadoApp
+        io_loop.start()
        
 
 class GnrAsyncServer(GnrBaseAsyncServer):

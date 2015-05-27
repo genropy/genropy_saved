@@ -2179,6 +2179,16 @@ class GnrWebPage(GnrBaseWebPage):
         bag.makePicklable()
         bag.pickle('%s.pik' % freeze_path)
         return LazyBagResolver(resolverName=name, location=location, _page=self, sourceBag=bag)
+
+    def set_trace(self):
+        from gnr.core.gnrpdb import GnrPdb
+        import traceback
+        import sys
+        debugger = GnrPdb(instance_name=self.site.site_name, page_id=self.page_id)
+        try:
+            debugger.set_trace(sys._getframe().f_back)
+        except Exception:
+            traceback.print_exc()
         
     ##### BEGIN: DEPRECATED METHODS ###
     @deprecated
