@@ -200,16 +200,36 @@ class GnrPyDebugger(object):
         bc = pane.borderContainer()
 
         self.sourceEditor.mainPane(bc.contentPane(region='center',overflow='hidden'))
-        self.debuggerCommands(bc.framePane('debuggerCommands',region='bottom',splitter=True,height='130px'))
+        self.debuggerCommands(bc.framePane('debuggerCommands',region='bottom',splitter=True,height='130px',datapath='.debugger'))
 
     def debuggerCommands(self,frame):
         bar = frame.top.slotToolbar('2,stepover,stepin,stepout,*,send,2',height='20px')
         bar.stepover.slotButton('Step over')
         bar.stepin.slotButton('Step in')
         bar.stepout.slotButton('Step out')
-        bar.send.slotButton('Send',action='alert("sending")')
-        pane = frame.center.contentPane()
-        pane.simpleTextArea(value='^.scriptcontent')
+        #bar.send.slotButton('Send',action='alert("sending")')
+        center = frame.center.contentPane()
+        out_div = center.div('^.output', style='font-family:monospace; white-space:pre;')
+        center.dataController("""console.log('dataController', data);            SET .output = output+_lf+data""",output='=.output',
+            subscribe_fromdebugger=True)
+        self.debuggerBottom(frame)
+        
+    def debuggerBottom(self,frame):
+        bottom=frame.bottom.contentPane()
+        fb = bottom.formbuilder(cols=2)
+        fb.textBox(lbl='Command',value='^.command', nodeId='commandField',
+                    connect_onkeyup="""
+                                      var target = $1.target;
+                                      var value = $1.target.value;
+                                      var key = $1.keyCode;
+                                      if(key==13){
+                                         var cmd = value.replace(_lf,"");
+                                         genro.wsk.send("debugcommand",{cmd:cmd});
+                                         $1.target.value = null;
+                                      }""")
+    
+        fb.button('Send', action='genro.wsk.send("debugcommand",{cmd:cmd}); SET .command=null;', cmd='=.command')
+
 
 class GnrSourceEditor(object):
     def __init__(self,page=None,frameName=None,readOnly=True,dataInspector=False):
