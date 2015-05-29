@@ -277,6 +277,19 @@ dojo.declare("gnr.GnrDevHandler", null, {
         treeattr.getIconClass = 'return "treeNoIcon";';
         pane._('tree', treeattr);
     },
+
+    openPdbDebugger:function(){
+        var root = genro.src.newRoot();
+        genro.src.getNode()._('div', '_pdbDebugger_');
+        var node = genro.src.getNode('_pdbDebugger_').clearValue();
+        node.freeze();
+        var bc = node._('palettePane',{'paletteCode':'codeDebugger',title:'Server debugger ['+genro._('gnr.pagename')+']',id:'gnr_devPyDebuggr',
+                        contentWidget:'borderContainer',frameCode:'codeDebugger',width:'800px',height:'700px',dockTo:false,
+                        maxable:true});
+        bc._('contentPane',{region:'center',remote:'pdb.debuggerPane',overflow:'hidden',datapath:'_dev.pdb.debugger'})
+        node.unfreeze();
+
+    },
     
     openInspector:function(){
         var root = genro.src.newRoot();
@@ -311,7 +324,6 @@ dojo.declare("gnr.GnrDevHandler", null, {
         genro.setDataFromRemote('gnr.palettes.dbmodel.store', "app.dbStructure");
         this.sqlDebugPalette(pg);
         this.devUtilsPalette(pg);
-        this.codeDebuggerPalette(pg);
         node.unfreeze();
     },
     
@@ -336,11 +348,6 @@ dojo.declare("gnr.GnrDevHandler", null, {
     _getHeaderInfo_getcell:function(row,field){
         var h = genro.rpcHeaderInfo[row['r_count']];
         return h?h[field]:'';
-    },
-
-    codeDebuggerPalette:function(parent){
-        var bc = parent._('palettePane',{'paletteCode':'codeDebugger',title:'Debugger',contentWidget:'borderContainer',frameCode:'codeDebugger',rounded:4});
-        bc._('contentPane',{region:'center',remote:'pdb.debuggerPane',overflow:'hidden'})
     },
 
     sqlDebugPalette:function(parent){
@@ -502,11 +509,18 @@ dojo.declare("gnr.GnrDevHandler", null, {
             return genro.dev.dictToHtml(item.attr, 'bagAttributesTable');
         }
     },
-    showDebugger:function(){
+    showInspector:function(){
         if(!dijit.byId("gnr_devTools")){
              genro.dev.openInspector();
         }
     },
+
+    showDebugger:function(){
+        if(!dijit.byId("gnr_devPyDebuggr")){
+             genro.dev.openPdbDebugger();
+        }
+    },
+
     shortcut: function(shortcut, callback, opt) {
         var default_options = {
             'type':'keydown',

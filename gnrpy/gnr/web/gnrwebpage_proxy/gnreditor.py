@@ -41,7 +41,7 @@ class GnrCodeEditor(GnrBaseProxy):
             sc._('ContentPane',label,{title:title,datapath:'.page_'+sc._value.len(),
                                         remote:remotemethod,remote_docPath:docPath,overflow:'hidden',
                                         closable:true})
-            """,docPath='^.new_source_viewer_page',sc=sc,remotemethod='dev.buildEditorTab',readOnly=readOnly)
+            """,docPath='^.new_source_viewer_page',sc=sc,remotemethod='codeEditor.buildEditorTab',readOnly=readOnly)
         pane = sc.contentPane(title='Main',datapath='.main',overflow='hidden')
         pane.remote('codeEditor.buildEditorTab',docPath=mainModule,readOnly=readOnly)
         if not readOnly:
