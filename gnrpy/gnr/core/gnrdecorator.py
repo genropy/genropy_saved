@@ -164,7 +164,7 @@ def extract_kwargs(_adapter=None,_dictkwargs=None,**extract_kwargs):
             for extract_key,extract_value in extract_kwargs.items():
                 grp_key='%s_kwargs' %extract_key
                 curr=kwargs.pop(grp_key,dict())
-                dfltExtract=dict(slice_prefix=True,pop=False)
+                dfltExtract=dict(slice_prefix=True,pop=False,is_list=False)
                 if extract_value is True:
                     dfltExtract['pop']=True
                 elif isinstance(extract_value,dict):

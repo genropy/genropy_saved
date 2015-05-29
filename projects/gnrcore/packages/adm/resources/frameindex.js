@@ -390,14 +390,15 @@ dojo.declare("gnr.FramedIndexManager", null, {
                 treeItem.setAttribute('labelClass',itemclass);
             }
         }
-        this.stackSourceNode.fireEvent('refreshTablist',true);
         var tablist = genro.nodeById('frameindex_tab_button_root');
-        var curlen = tablist.getValue().len();
+        var curlen = tablist.getValue().len()-1;
         curlen = this.externalWindowsBag().len()>0?curlen-1:curlen;
         selected = selected>=curlen? curlen-1:selected;
         selected = selected<0? 0:selected;
         var nextPageName = tablist.getValue().getNode('#'+selected)? tablist.getValue().getNode('#'+selected).attr.pageName:'indexpage';
         this.stackSourceNode.setRelativeData('selectedFrame',nextPageName); //PUT
+        this.stackSourceNode.fireEvent('refreshTablist',true);
+
     },
 
     reloadSelectedIframe:function(rootPageName,modifiers){

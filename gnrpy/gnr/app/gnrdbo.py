@@ -432,9 +432,20 @@ class TableBase(object):
 
     def sysRecord(self,syscode):
         def createCb(key):
-            r = getattr(self,'sysRecord_%s' %syscode)()
-            r['__syscode'] = key
-            return r
+            record = getattr(self,'sysRecord_%s' %syscode)()
+            record['__syscode'] = key
+            pkey = record[self.pkey]
+            if pkey:
+                oldrecord = self.query(where='$%s=:pk' %self.pkey,pk=pkey,
+                                            addPkeyColumn=False).fetch()
+                if oldrecord:
+                    oldrecord = oldrecord[0]
+                    record = dict(oldrecord)
+                    record['__syscode'] = syscode
+                    self.update(record,oldrecord)
+                    return record
+            self.insert(record)
+            return record
         return self.cachedRecord(syscode,keyField='__syscode',createCb=createCb)
 
     @public_method
