@@ -116,10 +116,8 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     do_datachanges:function(datachanges){
         genro.rpc.setDatachangesInData(datachanges)
     },
-    do_debug_output:function(data){
-        console.log('from debugger: ', data)
-        genro.publish('fromdebugger',{'data':data})
-        
+    do_frompdb:function(data){
+        genro.setData('gnr.debugger.frompdb',data)
     },
     do_publish:function(data){
         var topic=data.getItem('topic')

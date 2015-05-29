@@ -21,6 +21,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 import time
 import os
+import base64
 from concurrent.futures import ThreadPoolExecutor,Future, Executor
 import socket
 from threading import Lock
@@ -137,7 +138,6 @@ class DebugSession(GnrBaseHandler):
     def consume_socket_input_queue(self):
         while True:
             message = yield self.socket_input_queue.get()
-            print 'gnrpdb %s'%message
             yield self.handle_socket_message(message)
  
     @gen.coroutine
@@ -155,8 +155,12 @@ class DebugSession(GnrBaseHandler):
     @gen.coroutine
     def consume_websocket_output_queue(self):
         while True:
-            message = yield self.websocket_output_queue.get()
-            envelope=Bag(dict(command='debug_output',data=message))
+            data = yield self.websocket_output_queue.get()
+            print 'DATA:',data
+            if data.startswith('B64:'):
+                data=Bag(base64.b64decode(data[4:]))
+                print 'DATA converted:',data
+            envelope=Bag(dict(command='frompdb',data=data))
             envelope_xml=envelope.toXml(unresolved=True)
             self.channels.get(self.page_id).write_message(envelope_xml)
             
