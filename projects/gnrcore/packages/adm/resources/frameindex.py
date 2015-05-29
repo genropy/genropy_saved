@@ -164,7 +164,7 @@ class FrameIndex(BaseComponent):
         
     def prepareTablist(self,pane,onCreatingTablist=False):
 
-        menu = pane.div().menu(modifiers='Shift',_class='smallMenu',id='_menu_tab_opt_',
+        menu = pane.div().menu(_class='smallMenu',id='_menu_tab_opt_',
                                 action="genro.framedIndexManager.menuAction($1,$2,$3);")
         pane.div().menu(modifiers='*',_class='_menu_open_windows_',id='_menu_open_windows_',
                                 action="genro.framedIndexManager.selectWindow($1,$2,$3);",

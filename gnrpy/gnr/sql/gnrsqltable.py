@@ -485,23 +485,22 @@ class SqlTable(GnrObject):
             newrecord[self.pkey] = self.newPkeyValue(record=newrecord)
         return newrecord
 
-    def cachedRecord(self,key,virtual_columns=None,keyField=None,createCb=None):
+    def cachedRecord(self,pkey=None,virtual_columns=None,keyField=None,createCb=None):
         keyField = keyField or self.pkey
         ignoreMissing = createCb is not None
-        def recordFromCache(cacheKey,cache,virtual_columns_set):
-            result,cached_virtual_columns_set = cache.get(cacheKey,(None,None))
+        def recordFromCache(pkey,cache,virtual_columns_set):
+            result,cached_virtual_columns_set = cache.get(pkey,(None,None))
             in_cache = bool(result)
             if in_cache and not virtual_columns_set.issubset(cached_virtual_columns_set):
                 in_cache = False
                 virtual_columns_set = virtual_columns_set.union(cached_virtual_columns_set)
             if not in_cache:
-                result = self.record(virtual_columns=','.join(virtual_columns_set),ignoreMissing=ignoreMissing,**{keyField:key}).output('dict')
-                if not result and createCb:
-                    result = createCb(key)
-                    self.insert(result)
+                result = self.record(virtual_columns=','.join(virtual_columns_set),ignoreMissing=ignoreMissing,**{keyField:pkey}).output('dict')
+                if (not result) and createCb:
+                    result = createCb(pkey)
                     if virtual_columns and result:
-                        result = self.record(virtual_columns=','.join(virtual_columns_set),**{keyField:key}).output('dict')
-                cache[cacheKey] = (result,virtual_columns_set)
+                        result = self.record(virtual_columns=','.join(virtual_columns_set),**{keyField:pkey}).output('dict')
+                cache[pkey] = (result,virtual_columns_set)
             return result,in_cache
         virtual_columns_set = set(virtual_columns.split(',')) if virtual_columns else set()
         cacheKey = '%s_cache' %self.fullname
@@ -509,15 +508,42 @@ class SqlTable(GnrObject):
         if currentPage:
             with currentPage.pageStore() as store:
                 tablecache = store.getItem(cacheKey) or dict()
-                record,in_cache = recordFromCache(cacheKey,tablecache,virtual_columns_set)
+                record,in_cache = recordFromCache(pkey,tablecache,virtual_columns_set)
                 if not in_cache:
                     store.setItem(cacheKey,tablecache)
         else:
             tablecache = self.db.currentEnv.setdefault(cacheKey,dict())
-            record,in_cache = recordFromCache(cacheKey,tablecache,virtual_columns_set)
+            record,in_cache = recordFromCache(pkey,tablecache,virtual_columns_set)
         return record
 
         
+
+  #def cachedRecord(self,pkey,virtual_columns=None):
+  #    def recordFromCache(pkey,cache,virtual_columns_set):
+  #        result,cached_virtual_columns_set = cache.get(pkey,(None,None))
+  #        in_cache = bool(result)
+  #        if in_cache and not virtual_columns_set.issubset(cached_virtual_columns_set):
+  #            in_cache = False
+  #            virtual_columns_set = virtual_columns_set.union(cached_virtual_columns_set)
+  #        if not in_cache:
+  #            result = self.record(pkey=pkey,virtual_columns=','.join(virtual_columns_set)).output('dict')
+  #            cache[pkey] = (result,virtual_columns_set)
+  #        return result,in_cache
+  #    virtual_columns_set = set(virtual_columns.split(',')) if virtual_columns else set()
+  #    key = '%s_cache' %self.fullname
+  #    currentPage = self.db.currentPage
+  #    if currentPage:
+  #        with currentPage.pageStore() as store:
+  #            tablecache = store.getItem(key) or dict()
+  #            record,in_cache = recordFromCache(pkey,tablecache,virtual_columns_set)
+  #            if not in_cache:
+  #                store.setItem(key,tablecache)
+  #    else:
+  #        tablecache = self.db.currentEnv.setdefault(key,dict())
+  #        record,in_cache = recordFromCache(pkey,tablecache,virtual_columns_set)
+   #     return record
+
+
     def record(self, pkey=None, where=None,
                lazy=None, eager=None, mode=None, relationDict=None, ignoreMissing=False, virtual_columns=None,
                ignoreDuplicate=False, bagFields=True, joinConditions=None, sqlContextName=None,
