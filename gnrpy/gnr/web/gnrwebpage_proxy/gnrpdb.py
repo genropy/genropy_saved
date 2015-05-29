@@ -59,7 +59,7 @@ class GnrPdbClient(GnrBaseProxy):
         pane=bottom.contentPane(height='40px',border_top='1px solid silver',splitter=True)
         
         fb = pane.formbuilder(cols=2)
-        fb.textBox(lbl='Command',value='^.command', nodeId='commandField',
+        fb.textBox(lbl='Command',value='^.command', 
                     connect_onkeyup="""
                                       var target = $1.target;
                                       var value = $1.target.value;
@@ -75,8 +75,10 @@ class GnrPdbClient(GnrBaseProxy):
     def set_trace(self):
         self.debugger = GnrPdb(instance_name=self.page.site.site_name, page_id=self.page.page_id)
         try:
+            print 'TRYING'
             self.debugger.set_trace(sys._getframe().f_back)
-        except Exception:
+        except Exception,e:
+            print '###### ERRORE',str(e)
             traceback.print_exc()
 
 
@@ -95,14 +97,15 @@ class GnrPdb(pdb.Pdb):
         return self.sock.makefile('rw')
         
     def makeEnvelope(self,data):
-        envelope=Bag(dict(command='set',path='gnr.pdb.output',data=data))
-        return 'B64:%s'%base64.b64encode(result.toXml(unresolved=True))
+        envelope=Bag(dict(command='set',path='_dev.pdb.output',data=data))
+        return 'B64:%s'%base64.b64encode(envelope.toXml(unresolved=True))
         
     def print_stack_entry(self, frame_lineno, prompt_prefix=None):
         print >>self.stdout, self.format_stack_entry(frame_lineno)
             
     def format_stack_entry(self, frame_lineno, lprefix=': '):
-        import linecache, repr
+        print '\n format_stack_entry'
+        import repr
         frame, lineno = frame_lineno
         filename = self.canonic(frame.f_code.co_filename)
         result=Bag(lineno=lineno,filename=filename,functionName=frame.f_code.co_name or '"<lambda>"')
@@ -110,6 +113,7 @@ class GnrPdb(pdb.Pdb):
         if '__return__' in frame.f_locals:
             rv = frame.f_locals['__return__']
             result['return']=repr.repr(rv)
+        print 'result',result
         return self.makeEnvelope(result)
 
 

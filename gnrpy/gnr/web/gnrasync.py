@@ -157,6 +157,7 @@ class DebugSession(GnrBaseHandler):
             data = yield self.websocket_output_queue.get()
             if data.startswith('B64:'):
                 data=Bag(base64.b64decode(data[4:]))
+                print 'sending to WebSocket',data
             self.channels.get(self.page_id).write_message(data)
             
     @gen.coroutine 

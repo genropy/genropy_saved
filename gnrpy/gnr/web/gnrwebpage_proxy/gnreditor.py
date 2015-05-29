@@ -41,9 +41,9 @@ class GnrCodeEditor(GnrBaseProxy):
             sc._('ContentPane',label,{title:title,datapath:'.page_'+sc._value.len(),
                                         remote:remotemethod,remote_docPath:docPath,overflow:'hidden',
                                         closable:true})
-            """,docPath='^.new_source_viewer_page',sc=sc,remotemethod='codeEditor.buildEditorTab',readOnly=readOnly)
+            """,docPath='^.new_source_viewer_page',sc=sc,remotemethod='codeEditor.buildEditorTab',editorName=editorName,readOnly=readOnly)
         pane = sc.contentPane(title='Main',datapath='.main',overflow='hidden')
-        pane.remote('codeEditor.buildEditorTab',docPath=mainModule,readOnly=readOnly)
+        pane.remote('codeEditor.buildEditorTab',docPath=mainModule,readOnly=readOnly,editorName=editorName)
         if not readOnly:
             pane.dataController("""genro.src.updatePageSource('_pageRoot')""",
                         subscribe_rebuildPage=True,_delay=100)
@@ -64,8 +64,8 @@ class GnrCodeEditor(GnrBaseProxy):
             return f.read()
 
     @public_method
-    def buildEditorTab(self,pane,docPath=None,readOnly=None,**kwargs):
-        center = pane.framePane('sourcePane_%s' %docPath.replace('/','_').replace('.','_'),region='center',_class='viewer_box selectable')
+    def buildEditorTab(self,pane,editorName=None,docPath=None,readOnly=None,**kwargs):
+        center = pane.framePane('%s_%s' %(editorName,docPath.replace('/','_').replace('.','_')) ,region='center',_class='viewer_box selectable')
         source = self.__readsource(docPath)
         self.buildSourceEditor(center,source=source,readOnly=readOnly)
         pane.data('.docPath',docPath)
