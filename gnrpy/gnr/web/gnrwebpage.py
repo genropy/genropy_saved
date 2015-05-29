@@ -23,13 +23,13 @@
 #Created by Giovanni Porcari on 2007-03-24.
 #Copyright (c) 2007 Softwell. All rights reserved.
 
+import os
+import sys
+import shutil
 import urllib
 from time import time
 from datetime import timedelta
 from gnr.web._gnrbasewebpage import GnrBaseWebPage
-import os
-import shutil
-
 from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip,boolean,asDict
 from mako.lookup import TemplateLookup
 from gnr.core.gnrdict import dictExtract
@@ -40,6 +40,7 @@ from gnr.web.gnrwebpage_proxy.serverbatch import GnrWebBatch
 from gnr.web.gnrwebpage_proxy.rpc import GnrWebRpc
 from gnr.web.gnrwebpage_proxy.developer import GnrWebDeveloper
 from gnr.web.gnrwebpage_proxy.gnrpdb import GnrPdbClient
+from gnr.web.gnrwebpage_proxy.gnreditor import GnrCodeEditor
 from gnr.web.gnrwebpage_proxy.utils import GnrWebUtils
 from gnr.web.gnrwebpage_proxy.pluginhandler import GnrWebPluginHandler
 from gnr.web.gnrwebpage_proxy.jstools import GnrWebJSTools
@@ -311,7 +312,13 @@ class GnrWebPage(GnrBaseWebPage):
         if not hasattr(self, '_pdb'):
             self._pdb = GnrPdbClient(self)
         return self._pdb
-      
+
+    @property 
+    def codeEditor(self):
+        if not hasattr(self, '_codeEditor'):
+            self._codeEditor = GnrCodeEditor(self)
+        return self._codeEditor
+
     @property
     def utils(self):
         if not hasattr(self, '_utils'):
@@ -353,6 +360,10 @@ class GnrWebPage(GnrBaseWebPage):
             return self.package.name
         return maintable.split('.')[0]
 
+    @property
+    def modulePath(self):
+        return  '%s.py' %os.path.splitext(sys.modules[self.__module__].__file__)[0]
+        
     @property 
     def db(self):
         if not getattr(self, '_db',None):

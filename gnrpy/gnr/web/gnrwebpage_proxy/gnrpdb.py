@@ -26,10 +26,9 @@ class GnrPdbClient(GnrBaseProxy):
         
     @public_method
     def debuggerPane(self,pane):
-        self.editor =self.page.dev.newSourceEditor(name='pdbEditor',readOnly=True,dataInspector=False)
         bc = pane.borderContainer()
-        self.editor.mainPane(bc.contentPane(region='center',overflow='hidden'))
-        self.commands(bc.framePane('pdbCommands',region='bottom',splitter=True,height='250px',datapath='.debugger'))
+        self.page.codeEditor.mainPane(bc.contentPane(region='center',overflow='hidden'),editorName='pdbEditor',readOnly=True,dataInspector=False)
+        self.debuggerCommands(bc.framePane('pdbCommands',region='bottom',splitter=True,height='250px',datapath='.debugger'))
 
     def debuggerCommands(self,frame):
         self.debuggerTop(frame.top)
@@ -39,7 +38,7 @@ class GnrPdbClient(GnrBaseProxy):
         self.debuggerCenter(frame.center)
         
     def debuggerTop(self,top):
-        bar = frame.top
+        bar = top.slotToolbar('5,stepover,stepin,stepout,*')
         bar.stepover.slotButton('Step over')
         bar.stepin.slotButton('Step in')
         bar.stepout.slotButton('Step out')
