@@ -4624,3 +4624,13 @@ div[disabled='true'], div[disabled='disabled']{
 }
 
 
+.pdb_breakpoints{
+    width:.8em;
+}
+
+.pdb_breakpoint{
+    color:red;
+}
+.pdb_conditional_breakpoint{
+    color:orange;
+}

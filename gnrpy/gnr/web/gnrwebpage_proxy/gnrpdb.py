@@ -25,10 +25,12 @@ from gnr.app.gnrconfig import gnrConfigPath
 class GnrPdbClient(GnrBaseProxy):
         
     @public_method
-    def debuggerPane(self,pane):
+    def debuggerPane(self,pane,mainModule=None,**kwargs):
         bc = pane.borderContainer()
-        self.page.codeEditor.mainPane(bc.contentPane(region='center',overflow='hidden'),editorName='pdbEditor',readOnly=True,dataInspector=False)
+        self.page.codeEditor.mainPane(bc.contentPane(region='center',overflow='hidden'),editorName='pdbEditor',
+                                    mainModule=mainModule,readOnly=True,dataInspector=False,datapath='.editor',**kwargs)
         self.debuggerCommands(bc.framePane('pdbCommands',region='bottom',splitter=True,height='250px',datapath='.debugger'))
+
 
     def debuggerCommands(self,frame):
         self.debuggerTop(frame.top)
@@ -45,7 +47,7 @@ class GnrPdbClient(GnrBaseProxy):
         
     def debuggerLeft(self,left):
         pane=left.contentPane(width='120px',border_right='1px solid silver',splitter=True)
-        pane.tree(storepath='gnr.pdb.output')
+        pane.tree(storepath='_dev.pdb.output')
         
     def debuggerRight(self,right):
         pane=right.contentPane(width='120px',border_left='1px solid silver',splitter=True)
@@ -97,23 +99,23 @@ class GnrPdb(pdb.Pdb):
         return self.sock.makefile('rw')
         
     def makeEnvelope(self,data):
-        envelope=Bag(dict(command='set',path='_dev.pdb.output',data=data))
+        envelope=Bag(dict(command='set',data=Bag(dict(path='_dev.pdb.output',data=data))))
+        envelope=Bag(dict(command='pdb_out',data=data))
+
         return 'B64:%s'%base64.b64encode(envelope.toXml(unresolved=True))
         
     def print_stack_entry(self, frame_lineno, prompt_prefix=None):
         print >>self.stdout, self.format_stack_entry(frame_lineno)
             
     def format_stack_entry(self, frame_lineno, lprefix=': '):
-        print '\n format_stack_entry'
         import repr
         frame, lineno = frame_lineno
         filename = self.canonic(frame.f_code.co_filename)
         result=Bag(lineno=lineno,filename=filename,functionName=frame.f_code.co_name or '"<lambda>"')
-        result['args']=frame.f_locals
+        result['locals']=Bag(dict(frame.f_locals))
         if '__return__' in frame.f_locals:
             rv = frame.f_locals['__return__']
             result['return']=repr.repr(rv)
-        print 'result',result
         return self.makeEnvelope(result)
 
 

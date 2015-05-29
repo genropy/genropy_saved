@@ -149,6 +149,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.dom = new gnr.GnrDomHandler(this);
         this.vld = new gnr.GnrValidator(this);
         this.wsk = new gnr.GnrWebSocketHandler(this,this.websockets_url,{debug:false});
+        this.pdb = new gnr.GnrPdbHandler(this)
         
        //var onerrorcb = function(errorMsg,url,linenumber){
        //    genro.onError(errorMsg,url,linenumber);
@@ -378,7 +379,7 @@ dojo.declare('gnr.GenroClient', null, {
          It calls the remoteCall to receive the page contained in the bag called 'main'.
          */
         //genro.timeIt('** dostart **');
-        this.wsk.create()
+        
         
         this._dataroot = new gnr.GnrBag();
         this._dataroot.setBackRef();
@@ -392,7 +393,8 @@ dojo.declare('gnr.GenroClient', null, {
         this.isTouchDevice = ( (navigator.appVersion.indexOf('iPad') >= 0 ) || (navigator.appVersion.indexOf('iPhone') >= 0));
         this.isChrome = ( (navigator.appVersion.indexOf('Chrome') >= 0 ));
         //genro.timeIt('** getting main **');
-
+        this.wsk.create();
+        this.pdb.start();
         this.root_page_id = null;
         if(this.startArgs['_parent_page_id']){
             this.parent_page_id = this.startArgs['_parent_page_id'];
@@ -463,7 +465,7 @@ dojo.declare('gnr.GenroClient', null, {
         });
 
         genro.dev.shortcut("Ctrl+Shift+D", function() {
-            genro.dev.showDebugger();
+            genro.pdb.showDebugger();
         });
 
         genro.dev.shortcut("Ctrl+Shift+T", function() {

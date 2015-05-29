@@ -278,18 +278,6 @@ dojo.declare("gnr.GnrDevHandler", null, {
         pane._('tree', treeattr);
     },
 
-    openPdbDebugger:function(){
-        var root = genro.src.newRoot();
-        genro.src.getNode()._('div', '_pdbDebugger_');
-        var node = genro.src.getNode('_pdbDebugger_').clearValue();
-        node.freeze();
-        var bc = node._('palettePane',{'paletteCode':'codeDebugger',title:'Server debugger ['+genro._('gnr.pagename')+']',id:'gnr_devPyDebuggr',
-                        contentWidget:'borderContainer',frameCode:'codeDebugger',width:'800px',height:'700px',dockTo:false,
-                        maxable:true});
-        bc._('contentPane',{region:'center',remote:'pdb.debuggerPane',overflow:'hidden',datapath:'_dev.pdb.debugger'})
-        node.unfreeze();
-
-    },
     
     openInspector:function(){
         var root = genro.src.newRoot();
@@ -512,12 +500,6 @@ dojo.declare("gnr.GnrDevHandler", null, {
     showInspector:function(){
         if(!dijit.byId("gnr_devTools")){
              genro.dev.openInspector();
-        }
-    },
-
-    showDebugger:function(){
-        if(!dijit.byId("gnr_devPyDebuggr")){
-             genro.dev.openPdbDebugger();
         }
     },
 
