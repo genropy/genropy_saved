@@ -100,9 +100,9 @@
 <en_word_start fr="début de la Parole" de="Word starten" en="Word start" it="Inizia con" base="Word start"></en_word_start>
 <en_contains fr="Contient" de="Enthält" en="Contains" it="Contiene" base="Contains"></en_contains>
 <en_similar fr="Similaire" de="Ähnlich" en="Similar" it="Simile" base="Similar"></en_similar>
-<en_greater_than fr="Plus grand que" de="Größer als" en="Greater than" it="Più grande di" base="Greater than"></en_greater_than>
+<en_greater_than fr="Plus grand que" en="Greater than" de="Größer als" it="Maggiore di" base="Greater than"></en_greater_than>
 <en_greater_or_equal_to fr="Supérieure ou égale à" de="Größer oder gleich" en="Greater or equal to" it="Maggiore o uguale a" base="Greater or equal to"></en_greater_or_equal_to>
-<en_less_than fr="Moins de" de="Weniger als" en="Less than" it="Meno di" base="Less than"></en_less_than>
+<en_less_than fr="Moins de" en="Less than" de="Weniger als" it="Minore di" base="Less than"></en_less_than>
 <en_less_or_equal_to fr="Inférieur ou égal à" de="Kleiner oder gleich" en="Less or equal to" it="Minore o uguale a" base="Less or equal to"></en_less_or_equal_to>
 <en_between fr="Entre" de="Zwischen" en="Between" it="Tra" base="Between"></en_between>
 <en_is_null base="Is null" en="Is null" it="È nullo"></en_is_null>
