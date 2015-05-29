@@ -123,7 +123,6 @@ class DebugSession(GnrBaseHandler):
         self.websocket_input_queue = self.debug_queues[page_id]
         self.consume_websocket_output_queue()
         self.consume_websocket_input_queue()
-        #self.consume_websocket_output_queue()
         self.consume_socket_output_queue()
     
     @gen.coroutine
@@ -156,13 +155,9 @@ class DebugSession(GnrBaseHandler):
     def consume_websocket_output_queue(self):
         while True:
             data = yield self.websocket_output_queue.get()
-            print 'DATA:',data
             if data.startswith('B64:'):
                 data=Bag(base64.b64decode(data[4:]))
-                print 'DATA converted:',data
-            envelope=Bag(dict(command='frompdb',data=data))
-            envelope_xml=envelope.toXml(unresolved=True)
-            self.channels.get(self.page_id).write_message(envelope_xml)
+            self.channels.get(self.page_id).write_message(data)
             
     @gen.coroutine 
     def on_disconnect(self):

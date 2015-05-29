@@ -39,6 +39,7 @@ from gnr.web.gnrwebpage_proxy.connection import GnrWebConnection
 from gnr.web.gnrwebpage_proxy.serverbatch import GnrWebBatch
 from gnr.web.gnrwebpage_proxy.rpc import GnrWebRpc
 from gnr.web.gnrwebpage_proxy.developer import GnrWebDeveloper
+from gnr.web.gnrwebpage_proxy.gnrpdb import GnrPdbClient
 from gnr.web.gnrwebpage_proxy.utils import GnrWebUtils
 from gnr.web.gnrwebpage_proxy.pluginhandler import GnrWebPluginHandler
 from gnr.web.gnrwebpage_proxy.jstools import GnrWebJSTools
@@ -305,6 +306,12 @@ class GnrWebPage(GnrBaseWebPage):
             self._dev = GnrWebDeveloper(self)
         return self._dev
         
+    @property 
+    def pdb(self):
+        if not hasattr(self, '_pdb'):
+            self._pdb = GnrPdbClient(self)
+        return self._pdb
+      
     @property
     def utils(self):
         if not hasattr(self, '_utils'):
@@ -2179,16 +2186,6 @@ class GnrWebPage(GnrBaseWebPage):
         bag.makePicklable()
         bag.pickle('%s.pik' % freeze_path)
         return LazyBagResolver(resolverName=name, location=location, _page=self, sourceBag=bag)
-
-    def set_trace(self):
-        from gnr.core.gnrpdb import GnrPdb
-        import traceback
-        import sys
-        debugger = GnrPdb(instance_name=self.site.site_name, page_id=self.page_id)
-        try:
-            debugger.set_trace(sys._getframe().f_back)
-        except Exception:
-            traceback.print_exc()
         
     ##### BEGIN: DEPRECATED METHODS ###
     @deprecated

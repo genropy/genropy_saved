@@ -19,15 +19,9 @@ class GnrWebDeveloper(GnrBaseProxy):
         #self.db = self.page.db
         self.debug = getattr(self.page, 'debug', False)
         self._sqlDebugger = None
-        self._pyDebugger = None
 
-
-    @property
-    def pyDebugger(self):
-        if not self._pyDebugger:
-            self._pyDebugger = GnrPyDebugger(self)
-        return self._pyDebugger
-
+    def newSourceEditor(self,name=None,readOnly=True,dataInspector=False):
+        return GnrSourceEditor(self.page,frameName=name,readOnly=readOnly,dataInspector=dataInspector)
 
     @property
     def sqlDebugger(self):
@@ -191,44 +185,6 @@ class GnrSqlDebugger(object):
             attributes['r_count'] = page.callcounter
             page.setInClientData(path, self._debug_calls,attributes=attributes)
 
-class GnrPyDebugger(object):
-    def __init__(self,parent):
-        self.parent = parent
-        self.sourceEditor = GnrSourceEditor(self.parent.page,frameName='pyDebuggerFrame',readOnly=True,dataInspector=False)
-    @public_method
-    def debuggerPane(self,pane):
-        bc = pane.borderContainer()
-
-        self.sourceEditor.mainPane(bc.contentPane(region='center',overflow='hidden'))
-        self.debuggerCommands(bc.framePane('debuggerCommands',region='bottom',splitter=True,height='130px',datapath='.debugger'))
-
-    def debuggerCommands(self,frame):
-        bar = frame.top.slotToolbar('2,stepover,stepin,stepout,*,send,2',height='20px')
-        bar.stepover.slotButton('Step over')
-        bar.stepin.slotButton('Step in')
-        bar.stepout.slotButton('Step out')
-        #bar.send.slotButton('Send',action='alert("sending")')
-        center = frame.center.contentPane()
-        out_div = center.div('^.output', style='font-family:monospace; white-space:pre;')
-        center.dataController("""console.log('dataController', data);            SET .output = output+_lf+data""",output='=.output',
-            subscribe_fromdebugger=True)
-        self.debuggerBottom(frame)
-        
-    def debuggerBottom(self,frame):
-        bottom=frame.bottom.contentPane()
-        fb = bottom.formbuilder(cols=2)
-        fb.textBox(lbl='Command',value='^.command', nodeId='commandField',
-                    connect_onkeyup="""
-                                      var target = $1.target;
-                                      var value = $1.target.value;
-                                      var key = $1.keyCode;
-                                      if(key==13){
-                                         var cmd = value.replace(_lf,"");
-                                         genro.wsk.send("debugcommand",{cmd:cmd});
-                                         $1.target.value = null;
-                                      }""")
-    
-        fb.button('Send', action='genro.wsk.send("debugcommand",{cmd:cmd}); SET .command=null;', cmd='=.command')
 
 
 class GnrSourceEditor(object):
@@ -265,7 +221,9 @@ class GnrSourceEditor(object):
                                         closable:true})
             """,docname='^.new_source_viewer_page',sc=sc,remotemethod='dev.pyDebugger.sourceEditor.buildEditorTab')
         pane = sc.contentPane(title='Main',datapath='.main',overflow='hidden')
-        pane.remote('dev.pyDebugger.sourceEditor.buildEditorTab',docname=self.mainDocName)
+        #pane.remote('dev.pyDebugger.sourceEditor.buildEditorTab',
+        #        docname=self.mainDocName)
+        pane.remote('dev.newEditorTab',docname=self.mainDocName),editorName=self.frameName)
         if not self.readOnly:
             parent.dataController("""genro.src.updatePageSource('_pageRoot')""",
                         subscribe_rebuildPage=True,_delay=100)
@@ -357,5 +315,3 @@ class GnrSourceEditor(object):
                 }})
 
             """,error='^.error',cmNode=cm)
-
-
