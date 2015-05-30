@@ -50,7 +50,6 @@ dojo.declare("gnr.GnrPdbHandler", null, {
     showDebugger:function(module,lineno){
         var palette = this.paletteNode();
         if(palette){
-            palette.widget.show();
             palette.widget.bringToTop();
         }else{
             var root = genro.src.newRoot();
@@ -68,14 +67,19 @@ dojo.declare("gnr.GnrPdbHandler", null, {
         }
         if(module){
             this.selectModule(module);
-            if(lineno){
-                var that = this;
-                this.paletteNode().watch('codemirrorReady',function(){
-                    var editorNode = that.getEditorNode();
-                    return editorNode?editorNode.externalWidget:false;
-                },function(){
-                    that.selectLine(lineno-1)
-                })
+            if(lineno!=null){
+                var editorNode = this.getEditorNode();
+                if(!editorNode){
+                    var that = this;
+                    this.paletteNode().watch('codemirrorReady',function(){
+                        var editorNode = that.getEditorNode();
+                        return editorNode?editorNode.externalWidget:false;
+                    },function(){
+                        that.selectLine(lineno);
+                    })
+                }else{
+                    this.selectLine(lineno);
+                }
             }
         }
     },
@@ -103,7 +107,7 @@ dojo.declare("gnr.GnrPdbHandler", null, {
         genro.setData('_dev.pdb.lastAnswer',data.deepCopy())
         var current = data.getItem('current');
         genro.setData('_dev.pdb.current',current)
-        genro.setData('_dev.pdb.stackMenu',data.getItem('stackMenu'))
+        //genro.setData('_dev.pdb.stackMenu',data.getItem('stackMenu'))
         this.showDebugger(current.getItem('filename'),current.getItem('lineno'));
     },
 
@@ -122,11 +126,14 @@ dojo.declare("gnr.GnrPdbHandler", null, {
         var cm = this.getEditorNode().externalWidget;
         if(triggerKw.reason==true){
             var kw = triggerKw.node.attr;
-            if(triggerKw.evt=='ins'){
-                cm.setGutterMarker(kw.line, "pdb_breakpoints", cm.gnrMakeMarker(kw.condition));
-            }else if(triggerKw.evt=='del'){
-                cm.setGutterMarker(kw.line, "pdb_breakpoints",null);
+            kw.evt = triggerKw.evt;
+            if(kw.evt=='ins'){
+                cm.setGutterMarker(kw.line-1, "pdb_breakpoints", cm.gnrMakeMarker(kw.condition));
+                
+            }else if(kw.evt=='del'){
+                cm.setGutterMarker(kw.line-1, "pdb_breakpoints",null);
             }
+            genro.wsk.send("pdb_breakpoint",kw);
         }
     },
 
@@ -156,13 +163,14 @@ dojo.declare("gnr.GnrPdbHandler", null, {
             return marker;
         }
         cm.gnrSetCurrentLine = function(line) {
+            var cm_line = line-1;
             if(cm.currentLine){
                 cm.removeLineClass(cm.currentLine,'wrap','pdb_currentLine_wrap');
                 cm.removeLineClass(cm.currentLine,'background','pdb_currentLine_background');  
                 cm.removeLineClass(cm.currentLine,'text','pdb_currentLine_text');
                 cm.removeLineClass(cm.currentLine,'gutter','pdb_currentLine_gutter');   
             }
-            cm.currentLine = line;
+            cm.currentLine = cm_line;
             cm.addLineClass(cm.currentLine,'wrap','pdb_currentLine_wrap');
             cm.addLineClass(cm.currentLine,'background','pdb_currentLine_background');
             cm.addLineClass(cm.currentLine,'text','pdb_currentLine_text');
@@ -171,7 +179,8 @@ dojo.declare("gnr.GnrPdbHandler", null, {
 
         cm.on("gutterClick", function(cm, n,gutter,evt) {
             var info = cm.lineInfo(n);
-            genro.pdb.setBreakpoint({line:n,modifier:genro.dom.getEventModifiers(evt)});
+            var code_line = n+1;
+            genro.pdb.setBreakpoint({line:code_line,modifier:genro.dom.getEventModifiers(evt)});
         });
 
        //var lineno = error.lineno-1;

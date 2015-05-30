@@ -29,7 +29,7 @@ class GnrPdbClient(GnrBaseProxy):
     def debuggerPane(self,pane,mainModule=None,**kwargs):
         bc = pane.borderContainer()
         self.page.codeEditor.mainPane(bc.contentPane(region='center',overflow='hidden'),editorName='pdbEditor',
-                                    mainModule=mainModule,readOnly=True,dataInspector=False,datapath='.editor',
+                                    mainModule=True,readOnly=True,dataInspector=False,datapath='.editor',
                                     onSelectedPage="""if($1.selected==true){
                                         genro.pdb.onSelectedEditorPage($1.page);
                                     }""",**kwargs)
@@ -44,9 +44,9 @@ class GnrPdbClient(GnrBaseProxy):
         
     def debuggerTop(self,top):
         bar = top.slotToolbar('5,stepover,stepin,stepout,*,stackmenu,5')
-        bar.stepover.slotButton('Step over')
-        bar.stepin.slotButton('Step in')
-        bar.stepout.slotButton('Step out')
+        bar.stepover.slotButton('Step over',action='genro.wsk.send("pdb_command(",{cmd:cmd});',cmd='n')
+        bar.stepin.slotButton('Step in',action='genro.wsk.send("pdb_command(",{cmd:cmd});',cmd='s')
+        bar.stepout.slotButton('Step out',action='genro.wsk.send("pdb_command(",{cmd:cmd});',cmd='n')
         bar.stackmenu.dropDownButton('Stack').menu(storepath='_dev.pdb.stackMenu',action='genro.pdb.onSelectStackMenu($1)')
         
     def debuggerLeft(self,left):
@@ -60,7 +60,7 @@ class GnrPdbClient(GnrBaseProxy):
     def debuggerCenter(self,center):
         center.div('^.output', style='font-family:monospace; white-space:pre;')
 
-        
+    
     def debuggerBottom(self,bottom):
         pane=bottom.contentPane(height='40px',border_top='1px solid silver',splitter=True)
         fb = pane.formbuilder(cols=2)
@@ -71,11 +71,11 @@ class GnrPdbClient(GnrBaseProxy):
                                       var key = $1.keyCode;
                                       if(key==13){
                                          var cmd = value.replace(_lf,"");
-                                         genro.wsk.send("debugcommand",{cmd:cmd});
+                                         genro.wsk.send("pdb_command(",{cmd:cmd});
                                          $1.target.value = null;
                                       }""")
     
-        fb.button('Send', action='genro.wsk.send("debugcommand",{cmd:cmd}); SET .command=null;', cmd='=.command')
+        fb.button('Send', action='genro.wsk.send("pdb_command(",{cmd:cmd}); SET .command=null;', cmd='=.command')
         
     def set_trace(self):
         self.debugger = GnrPdb(instance_name=self.page.site.site_name, page_id=self.page.page_id)
@@ -85,6 +85,19 @@ class GnrPdbClient(GnrBaseProxy):
         except Exception,e:
             print '###### ERRORE',str(e)
             traceback.print_exc()
+
+
+    def onPageStart(self):
+        breakpoints = self.page.pageStore().getItem('_pdb.breakpoints')
+        bp = 0
+        if breakpoints:
+            self.debugger = GnrPdb(instance_name=self.page.site.site_name, page_id=self.page.page_id)
+            for modulebag in breakpoints.values():
+                for module,line,condition in modulebag.digest('#a.module,#a.line,#a.condition'):
+                    bp +=1
+                    self.debugger.set_break(filename=module,lineno=line,cond=condition)
+            if bp:
+                self.debugger.set_continue()
 
 
 class GnrPdb(pdb.Pdb):
@@ -119,9 +132,7 @@ class GnrPdb(pdb.Pdb):
 
 
     def print_stack_entry(self, frame_lineno, prompt_prefix=None):
-        zz = self.format_stack_entry(frame_lineno)
-        print 'print_stack_entry',zz
-        print >>self.stdout,zz
+        print >>self.stdout,self.format_stack_entry(frame_lineno)
             
     def format_stack_entry(self, frame_lineno, lprefix=': '):
         frame, lineno = frame_lineno
