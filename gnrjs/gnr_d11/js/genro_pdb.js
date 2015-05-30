@@ -36,6 +36,12 @@ dojo.declare("gnr.GnrPdbHandler", null, {
         breakpoints.subscribe('breakpoint_subscriber',{'upd':dojo.hitch(this, "breakpointTrigger"),
                                                         'ins':dojo.hitch(this, "breakpointTrigger"),
                                                         'del':dojo.hitch(this, "breakpointTrigger")});
+        var current = new gnr.GnrBag();
+        genro.setData('_dev.pdb.current',current)
+        current.subscribe('changedCurrent',{'upd':dojo.hitch(this, "onChangedCurrent"),
+                                                        'ins':dojo.hitch(this, "onChangedCurrent"),
+                                                        'del':dojo.hitch(this, "onChangedCurrent")});
+        
     },
 
     showDebugger:function(module){
@@ -72,9 +78,12 @@ dojo.declare("gnr.GnrPdbHandler", null, {
     getBreakpoints:function(){
         return  genro.getData(this.breakpoint_path);
     },
-
-    fromServer:function(data){
-        this.open(data);
+    onChangedCurrent:function(kw){
+        console.log('onChangedCurrent',kw)
+        //sthis.showDebugger();
+    },
+    onPdbAnswer:function(data){
+        genro.setData('_dev.pdb.current',data)
     },
     breakpointTrigger:function(triggerKw){
         var cm = this.getEditorNode().externalWidget;

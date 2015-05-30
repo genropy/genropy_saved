@@ -117,7 +117,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         genro.rpc.setDatachangesInData(datachanges)
     },
     do_pdb_out:function(data){
-        genro.pdb.fromServer(data);
+        genro.pdb.onPdbAnswer(data);
     },
     do_publish:function(data){
         var topic=data.getItem('topic')
