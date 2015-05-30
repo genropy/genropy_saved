@@ -157,7 +157,6 @@ class DebugSession(GnrBaseHandler):
             data = yield self.websocket_output_queue.get()
             if data.startswith('B64:'):
                 data=base64.b64decode(data[4:])
-                print 'sending to MYWebSocket',data
             self.channels.get(self.page_id).write_message(data)
             
     @gen.coroutine 
@@ -276,6 +275,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
 
     def do_debugcommand(self, cmd=None, **kwargs):
         #self.debugger.put_data(data)
+        print 'CMD',cmd
         if not self.page_id in self.debug_queues:
             self.debug_queues[self.page_id] = toro.Queue(maxsize=40)
         data_queue = self.debug_queues[self.page_id]

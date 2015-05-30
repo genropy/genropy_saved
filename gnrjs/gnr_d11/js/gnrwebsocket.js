@@ -146,6 +146,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         var kw=kw || {};
         kw['command']=command
         kw=genro.rpc.serializeParameters(genro.src.dynamicParameters(kw));
+        console.log('sending',kw)
         this.socket.send(dojo.toJson(kw))
     },
     parseResponse:function(response){

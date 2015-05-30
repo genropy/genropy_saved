@@ -36,36 +36,50 @@ dojo.declare("gnr.GnrPdbHandler", null, {
         breakpoints.subscribe('breakpoint_subscriber',{'upd':dojo.hitch(this, "breakpointTrigger"),
                                                         'ins':dojo.hitch(this, "breakpointTrigger"),
                                                         'del':dojo.hitch(this, "breakpointTrigger")});
-        var current = new gnr.GnrBag();
-        genro.setData('_dev.pdb.current',current)
-        current.subscribe('changedCurrent',{'upd':dojo.hitch(this, "onChangedCurrent"),
-                                                        'ins':dojo.hitch(this, "onChangedCurrent"),
-                                                        'del':dojo.hitch(this, "onChangedCurrent")});
-        
+        genro.setData('_dev.pdb.current',new gnr.GnrBag())
     },
 
-    showDebugger:function(module){
-        var palette = genro.nodeById('pdbDebugger_floating');
+    paletteNode:function(){
+        return genro.nodeById('pdbDebugger_floating');
+    },
+
+    selectModule:function(module){
+        genro.setData('_dev.pdb.editor.selectedModule',module);
+    },
+
+    showDebugger:function(module,lineno){
+        var palette = this.paletteNode();
         if(palette){
             palette.widget.show();
             palette.widget.bringToTop();
-            if(module && this.getEditorNode(module)){
-                palette.setRelativeData('.editor.selectedModule',module);
-            }
-            return
+        }else{
+            var root = genro.src.newRoot();
+            genro.src.getNode()._('div', '_pdbDebugger_');
+            var node = genro.src.getNode('_pdbDebugger_').clearValue();
+            node.freeze();
+            var bc = node._('palettePane',{'paletteCode':'pdbDebugger',title:'Server debugger ['+genro._('gnr.pagename')+']',
+                            contentWidget:'borderContainer',frameCode:'codeDebugger',width:'800px',height:'700px',dockTo:false,
+                            maxable:true});
+            bc._('contentPane',{region:'center',remote:'pdb.debuggerPane',overflow:'hidden',datapath:'_dev.pdb',
+                                remote_cm_config_gutters:["CodeMirror-linenumbers", "pdb_breakpoints"],
+                                remote_cm_onCreated:'genro.pdb.onCreatedEditor(this);',
+                                remote_mainModule:module})
+            node.unfreeze();
         }
-        var root = genro.src.newRoot();
-        genro.src.getNode()._('div', '_pdbDebugger_');
-        var node = genro.src.getNode('_pdbDebugger_').clearValue();
-        node.freeze();
-        var bc = node._('palettePane',{'paletteCode':'pdbDebugger',title:'Server debugger ['+genro._('gnr.pagename')+']',
-                        contentWidget:'borderContainer',frameCode:'codeDebugger',width:'800px',height:'700px',dockTo:false,
-                        maxable:true});
-        bc._('contentPane',{region:'center',remote:'pdb.debuggerPane',remote_mainModule:module,overflow:'hidden',datapath:'_dev.pdb',
-                            remote_cm_config_gutters:["CodeMirror-linenumbers", "pdb_breakpoints"],
-                            remote_cm_onCreated:'genro.pdb.onCreatedEditor(this);'})
-        node.unfreeze();
+        if(module){
+            this.selectModule(module);
+            if(lineno){
+                var that = this;
+                this.paletteNode().watch('codemirrorReady',function(){
+                    var editorNode = that.getEditorNode();
+                    return editorNode?editorNode.externalWidget:false;
+                },function(){
+                    that.selectLine(lineno-1)
+                })
+            }
+        }
     },
+
     getModuleKey:function(module){
         return module.replace(/[\.|\/]/g,'_');
     },
@@ -74,17 +88,36 @@ dojo.declare("gnr.GnrPdbHandler", null, {
         module = module || this.getCurrentModule();
         return genro.nodeById('pdbEditor_'+this.getModuleKey(module)+'_cm');
     },
+    selectLine:function(lineno){
+        var cm = this.getEditorNode().externalWidget;
+        cm.gnrSetCurrentLine(lineno)
+        cm.scrollIntoView({line:lineno});
+    },
 
     getBreakpoints:function(){
         return  genro.getData(this.breakpoint_path);
     },
-    onChangedCurrent:function(kw){
-        console.log('onChangedCurrent',kw)
-        //sthis.showDebugger();
-    },
+
     onPdbAnswer:function(data){
-        genro.setData('_dev.pdb.current',data)
+        console.log('onPdbAnswer',data)
+        genro.setData('_dev.pdb.lastAnswer',data.deepCopy())
+        var current = data.getItem('current');
+        genro.setData('_dev.pdb.current',current)
+        genro.setData('_dev.pdb.stackMenu',data.getItem('stackMenu'))
+        this.showDebugger(current.getItem('filename'),current.getItem('lineno'));
     },
+
+    onSelectedEditorPage:function(module){
+
+    },
+
+    onSelectStackMenu:function(kw){
+        var paletteNode = this.paletteNode();
+        var stackData = paletteNode.getRelativeData('_dev.pdb.current.stack.content.'+kw.fullpath);
+        this.selectModule(stackData.getItem('filename'));
+        //paletteNode.setRelativeData('_dev.pdb.editor.selectedModule',stackData.getItem('filename'));
+    },
+
     breakpointTrigger:function(triggerKw){
         var cm = this.getEditorNode().externalWidget;
         if(triggerKw.reason==true){
@@ -122,6 +155,20 @@ dojo.declare("gnr.GnrPdbHandler", null, {
             marker.innerHTML = "●";
             return marker;
         }
+        cm.gnrSetCurrentLine = function(line) {
+            if(cm.currentLine){
+                cm.removeLineClass(cm.currentLine,'wrap','pdb_currentLine_wrap');
+                cm.removeLineClass(cm.currentLine,'background','pdb_currentLine_background');  
+                cm.removeLineClass(cm.currentLine,'text','pdb_currentLine_text');
+                cm.removeLineClass(cm.currentLine,'gutter','pdb_currentLine_gutter');   
+            }
+            cm.currentLine = line;
+            cm.addLineClass(cm.currentLine,'wrap','pdb_currentLine_wrap');
+            cm.addLineClass(cm.currentLine,'background','pdb_currentLine_background');
+            cm.addLineClass(cm.currentLine,'text','pdb_currentLine_text');
+            cm.addLineClass(cm.currentLine,'gutter','pdb_currentLine_gutter'); 
+        }
+
         cm.on("gutterClick", function(cm, n,gutter,evt) {
             var info = cm.lineInfo(n);
             genro.pdb.setBreakpoint({line:n,modifier:genro.dom.getEventModifiers(evt)});

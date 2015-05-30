@@ -4634,3 +4634,21 @@ div[disabled='true'], div[disabled='disabled']{
 .pdb_conditional_breakpoint{
     color:orange;
 }
+
+
+
+.pdb_currentLine_wrap{
+    background: yellow;
+}
+.pdb_currentLine_background{
+}
+
+.pdb_currentLine_text{
+
+}
+
+.pdb_currentLine_gutter{
+
+}
+
+

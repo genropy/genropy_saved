@@ -17,8 +17,8 @@ from gnr.core.gnrdecorator import public_method,extract_kwargs
 
 class GnrCodeEditor(GnrBaseProxy):
     @extract_kwargs(cm=True)
-    def mainPane(self,pane,editorName=None,readOnly=True,dataInspector=False,mainModule=None,datapath=None,cm_kwargs=None,**kwargs):
-        mainModule = mainModule or self.page.modulePath
+    def mainPane(self,pane,editorName=None,readOnly=True,dataInspector=False,mainModule=None,datapath=None,cm_kwargs=None,onSelectedPage=None,**kwargs):
+        
         frame = pane.framePane(frameCode=editorName,_class='source_viewer',margin='2px',datapath=datapath,**kwargs)
         slots = ['2','sb','*']
         if not readOnly:
@@ -30,7 +30,7 @@ class GnrCodeEditor(GnrBaseProxy):
         stackNodeId = '%s_stack' %editorName
         sb = bar.sb.stackButtons(stackNodeId=stackNodeId)
         self.sourceFileMenu(sb.div('<div class="multibutton_caption">+</div>',_class='multibutton'))
-        sc = frame.center.stackContainer(nodeId=stackNodeId,selectedPage='^.selectedModule')
+        sc = frame.center.stackContainer(nodeId=stackNodeId,selectedPage='^.selectedModule',selfsubscribe_selected=onSelectedPage)
         bar.dataController("""
             if(docPath in sc.widget.gnrPageDict){
                 return
@@ -45,12 +45,19 @@ class GnrCodeEditor(GnrBaseProxy):
             sc._('ContentPane',label,{title:title,datapath:'.page_'+sc._value.len(),
                                         remote:remotemethod,remote_docPath:docPath,overflow:'hidden',
                                         remote_cm_kwargs:cm_kwargs,
+                                        remote_editorName:editorName,
                                         pageName:docPath,closable:true})
             SET .selectedModule = docPath;
             """,docPath='^.selectedModule',sc=sc,remotemethod='codeEditor.buildEditorTab',editorName=editorName,readOnly=readOnly,
             cm_kwargs=cm_kwargs)
-        pane = sc.contentPane(title='Main',datapath='.main',overflow='hidden',pageName=mainModule)
-        pane.remote('codeEditor.buildEditorTab',docPath=mainModule,readOnly=readOnly,editorName=editorName,cm_kwargs=cm_kwargs)
+        if mainModule:
+            if mainModule is True:
+                mainModule = self.page.modulePath
+            p,title = os.path.split(mainModule)
+            pane = sc.contentPane(title=title,datapath='.main',overflow='hidden',pageName=mainModule)
+            pane.remote('codeEditor.buildEditorTab',docPath=mainModule,readOnly=readOnly,editorName=editorName,cm_kwargs=cm_kwargs)
+        
+        
         if not readOnly:
             pane.dataController("""genro.src.updatePageSource('_pageRoot')""",
                         subscribe_rebuildPage=True,_delay=100)
