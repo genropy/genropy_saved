@@ -114,7 +114,7 @@ dojo.declare("gnr.GnrPdbHandler", null, {
         if (functionName=='_pdb_start_'){
             this.do_continue()
         }else{
-            genro.setData('_dev.pdb.lastAnswer',data.deepCopy())
+           // genro.setData('_dev.pdb.lastAnswer',data.deepCopy())
             genro.setData('_dev.pdb.current',current)
             //genro.setData('_dev.pdb.stackMenu',data.getItem('stackMenu'))
             this.showDebugger(current.getItem('filename'),current.getItem('lineno'));

@@ -53,7 +53,7 @@ class GnrPdbClient(GnrBaseProxy):
         
     def debuggerLeft(self,left):
         pane=left.contentPane(width='120px',border_right='1px solid silver',splitter=True)
-        pane.tree(storepath='_dev.pdb.lastAnswer')
+        pane.tree(storepath='_dev.pdb.current.locals')
         
     def debuggerRight(self,right):
         pane=right.contentPane(width='120px',border_left='1px solid silver',splitter=True)
