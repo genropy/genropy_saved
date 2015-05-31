@@ -103,16 +103,44 @@ dojo.declare("gnr.GnrPdbHandler", null, {
     },
 
     onPdbAnswer:function(data){
-        console.log('onPdbAnswer',data)
-        genro.setData('_dev.pdb.lastAnswer',data.deepCopy())
         var current = data.getItem('current');
-        genro.setData('_dev.pdb.current',current)
-        //genro.setData('_dev.pdb.stackMenu',data.getItem('stackMenu'))
-        this.showDebugger(current.getItem('filename'),current.getItem('lineno'));
+        var module=current.getItem('filename')
+        var lineno=current.getItem('lineno')
+        var functionName=current.getItem('functionName')
+        console.log('onPdbAnswer: module=',module,'  lineno=',lineno,' functionName=',functionName)
+        if (functionName=='_pdb_start_'){
+            this.do_next()
+        }else{
+            genro.setData('_dev.pdb.lastAnswer',data.deepCopy())
+            genro.setData('_dev.pdb.current',current)
+            //genro.setData('_dev.pdb.stackMenu',data.getItem('stackMenu'))
+            this.showDebugger(current.getItem('filename'),current.getItem('lineno'));
+        }
+ 
     },
-
+        
+    sendPdbCommand:function(command){
+        console.log('sending command',command)
+        genro.wsk.send("pdb_command(",{cmd:command});
+    },
+    
     onSelectedEditorPage:function(module){
 
+    },
+    do_next:function(){
+        this.sendPdbCommand('next')
+    },
+    do_step:function(){
+        this.sendPdbCommand('step')
+    },
+    do_until:function(){
+        this.sendPdbCommand('until')
+    },
+    do_continue:function(module){
+        this.sendPdbCommand('continue')
+    },
+    do_jump:function(lineno){
+        this.sendPdbCommand('jump '+lineno)
     },
 
     onSelectStackMenu:function(kw){

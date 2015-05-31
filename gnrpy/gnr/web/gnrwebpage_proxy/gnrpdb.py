@@ -43,10 +43,11 @@ class GnrPdbClient(GnrBaseProxy):
         self.debuggerCenter(frame.center)
         
     def debuggerTop(self,top):
-        bar = top.slotToolbar('5,stepover,stepin,stepout,*,stackmenu,5')
-        bar.stepover.slotButton('Step over',action='genro.wsk.send("pdb_command(",{cmd:cmd});',cmd='n')
-        bar.stepin.slotButton('Step in',action='genro.wsk.send("pdb_command(",{cmd:cmd});',cmd='s')
-        bar.stepout.slotButton('Step out',action='genro.wsk.send("pdb_command(",{cmd:cmd});',cmd='n')
+        bar = top.slotToolbar('5,stepover,stepin,stepout,continue*,stackmenu,5')
+        bar.stepover.slotButton('Step over',action='genro.pdb.do_next()')
+        bar.stepin.slotButton('Step in',action='genro.pdb.do_step()')
+        bar.stepout.slotButton('Step out',action='genro.pdb.do_until()')
+        bar.stepout.slotButton('Continue',action='genro.pdb.do_continue()')
         bar.stackmenu.dropDownButton('Stack').menu(storepath='_dev.pdb.stackMenu',action='genro.pdb.onSelectStackMenu($1)')
         
     def debuggerLeft(self,left):
@@ -71,17 +72,17 @@ class GnrPdbClient(GnrBaseProxy):
                                       var key = $1.keyCode;
                                       if(key==13){
                                          var cmd = value.replace(_lf,"");
-                                         genro.wsk.send("pdb_command(",{cmd:cmd});
+                                         genro.wsk.send("pdb_command",{cmd:cmd});
                                          $1.target.value = null;
                                       }""")
     
-        fb.button('Send', action='genro.wsk.send("pdb_command(",{cmd:cmd}); SET .command=null;', cmd='=.command')
+        fb.button('Send', action='genro.wsk.send("pdb_command",{cmd:cmd}); SET .command=null;', cmd='=.command')
         
     def set_trace(self):
-        self.debugger = GnrPdb(instance_name=self.page.site.site_name, page_id=self.page.page_id)
+        debugger = GnrPdb(instance_name=self.page.site.site_name, page_id=self.page.page_id)
         try:
             print 'TRYING'
-            self.debugger.set_trace(sys._getframe().f_back)
+            debugger.set_trace(sys._getframe().f_back)
         except Exception,e:
             print '###### ERRORE',str(e)
             traceback.print_exc()
@@ -92,13 +93,17 @@ class GnrPdbClient(GnrBaseProxy):
         bp = 0
         if breakpoints:
             self.debugger = GnrPdb(instance_name=self.page.site.site_name, page_id=self.page.page_id)
+            
             for modulebag in breakpoints.values():
                 for module,line,condition in modulebag.digest('#a.module,#a.line,#a.condition'):
                     bp +=1
                     self.debugger.set_break(filename=module,lineno=line,cond=condition)
             if bp:
-                self.debugger.set_continue()
-
+               self._pdb_start_()
+                
+    def _pdb_start_(self):
+        print '********* START DEBUG ******'
+        self.debugger.set_trace(sys._getframe())
 
 class GnrPdb(pdb.Pdb):
     
@@ -129,8 +134,7 @@ class GnrPdb(pdb.Pdb):
             key = 'r_%i' %level
             menu.setItem(key,None,caption='%(filename)s (%(functionName)s -->%(lineno)s)' %framebag,level=level)
         return menu
-
-
+        
     def print_stack_entry(self, frame_lineno, prompt_prefix=None):
         print >>self.stdout,self.format_stack_entry(frame_lineno)
             
@@ -153,7 +157,77 @@ class GnrPdb(pdb.Pdb):
             rv = frame.f_locals['__return__']
             result['return']=repr.repr(rv)
         return result
+        
+    def preloop(self):
+        print '******** preloop'
+    def postloop(self):
+        print '******** postloop'
 
+    def cmdloop(self, intro=None):
+        """Repeatedly issue a prompt, accept input, parse an initial prefix
+        off the received input, and dispatch to action methods, passing them
+        the remainder of the line as argument.
+
+        """
+
+        self.preloop()
+        if self.use_rawinput and self.completekey:
+            try:
+                print '********* self.use_rawinput and self.completekey'
+                import readline
+                self.old_completer = readline.get_completer()
+                readline.set_completer(self.complete)
+                readline.parse_and_bind(self.completekey+": complete")
+            except ImportError:
+                pass
+        try:
+            print '********* not using rawinput'
+            if intro is not None:
+                self.intro = intro
+            if self.intro:
+                self.stdout.write(str(self.intro)+"\n")
+            stop = None
+            while not stop:
+                if self.cmdqueue:
+                    print'***** getting line from cmdqueue'
+                    line = self.cmdqueue.pop(0)
+                else:
+                    if self.use_rawinput:
+                        try:
+                            line = raw_input(self.prompt)
+                        except EOFError:
+                            line = 'EOF'
+                    else:
+                        self.stdout.write(self.prompt)
+                        self.stdout.flush()
+                        print '_________ WAITING COMMAND'
+                        line = self.stdin.readline()
+                        print '_________ ARRIVED COMMAND',line
+                        if not len(line):
+                            line = 'EOF'
+                        else:
+                            line = line.rstrip('\r\n')
+                line = self.precmd(line)
+                stop = self.onecmd(line)
+                stop = self.postcmd(stop, line)
+            self.postloop()
+        finally:
+            if self.use_rawinput and self.completekey:
+                try:
+                    import readline
+                    readline.set_completer(self.old_completer)
+                except ImportError:
+                    pass
+
+    def precmd(self, line):
+        print '******** precmd',line
+        return line
+
+    def postcmd(self, stop, line):
+        """Hook method executed just after a command dispatch is finished."""
+        print '******** postcmd',stop,line
+        return stop
+    
     def do_level(self,level):
         maxlevel = len(self.stack)-1
         if not level or level>maxlevel:
