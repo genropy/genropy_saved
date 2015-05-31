@@ -50,6 +50,9 @@ dojo.declare("gnr.GnrPdbHandler", null, {
     showDebugger:function(module,lineno){
         var palette = this.paletteNode();
         if(palette){
+            if(palette.widget._isDocked){
+                palette.widget.show();
+            }
             palette.widget.bringToTop();
         }else{
             var root = genro.src.newRoot();
@@ -57,7 +60,7 @@ dojo.declare("gnr.GnrPdbHandler", null, {
             var node = genro.src.getNode('_pdbDebugger_').clearValue();
             node.freeze();
             var bc = node._('palettePane',{'paletteCode':'pdbDebugger',title:'Server debugger ['+genro._('gnr.pagename')+']',
-                            contentWidget:'borderContainer',frameCode:'codeDebugger',width:'800px',height:'700px',dockTo:false,
+                            contentWidget:'borderContainer',frameCode:'codeDebugger',width:'800px',height:'700px',dockTo:'dummyDock:open',
                             maxable:true});
             bc._('contentPane',{region:'center',remote:'pdb.debuggerPane',overflow:'hidden',datapath:'_dev.pdb',
                                 remote_cm_config_gutters:["CodeMirror-linenumbers", "pdb_breakpoints"],
@@ -142,11 +145,12 @@ dojo.declare("gnr.GnrPdbHandler", null, {
         this.sendPdbCommand('jump '+lineno)
     },
 
+    do_level:function(level){
+        this.sendPdbCommand('level '+level)
+    },
+
     onSelectStackMenu:function(kw){
-        var paletteNode = this.paletteNode();
-        var stackData = paletteNode.getRelativeData('_dev.pdb.current.stack.content.'+kw.fullpath);
-        this.selectModule(stackData.getItem('filename'));
-        //paletteNode.setRelativeData('_dev.pdb.editor.selectedModule',stackData.getItem('filename'));
+        this.do_level(kw.level);
     },
 
     breakpointTrigger:function(triggerKw){

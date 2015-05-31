@@ -14,9 +14,10 @@ import socket
 import base64
 import traceback
 import repr
-
+import thread
 from time import time
 from gnr.core.gnrbag import Bag,DirectoryResolver
+
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.core.gnrdecorator import public_method
 from gnr.app.gnrconfig import gnrConfigPath
@@ -43,11 +44,11 @@ class GnrPdbClient(GnrBaseProxy):
         self.debuggerCenter(frame.center)
         
     def debuggerTop(self,top):
-        bar = top.slotToolbar('5,stepover,stepin,stepout,continue*,stackmenu,5')
+        bar = top.slotToolbar('5,stepover,stepin,stepout,cont,*,stackmenu,5')
         bar.stepover.slotButton('Step over',action='genro.pdb.do_next()')
         bar.stepin.slotButton('Step in',action='genro.pdb.do_step()')
         bar.stepout.slotButton('Step out',action='genro.pdb.do_until()')
-        bar.stepout.slotButton('Continue',action='genro.pdb.do_continue()')
+        bar.cont.slotButton('Continue',action='genro.pdb.do_continue()')
         bar.stackmenu.dropDownButton('Stack').menu(storepath='_dev.pdb.stackMenu',action='genro.pdb.onSelectStackMenu($1)')
         
     def debuggerLeft(self,left):
@@ -89,21 +90,18 @@ class GnrPdbClient(GnrBaseProxy):
 
 
     def onPageStart(self):
+        print 'onPageStart',self.page.pagename,thread.get_ident()
         breakpoints = self.page.pageStore().getItem('_pdb.breakpoints')
         bp = 0
         if breakpoints:
-            self.debugger = GnrPdb(instance_name=self.page.site.site_name, page_id=self.page.page_id)
-            
+            debugger = GnrPdb(instance_name=self.page.site.site_name, page_id=self.page.page_id)
             for modulebag in breakpoints.values():
                 for module,line,condition in modulebag.digest('#a.module,#a.line,#a.condition'):
                     bp +=1
-                    self.debugger.set_break(filename=module,lineno=line,cond=condition)
+                    debugger.set_break(filename=module,lineno=line,cond=condition)
             if bp:
-               self._pdb_start_()
-                
-    def _pdb_start_(self):
-        print '********* START DEBUG ******'
-        self.debugger.set_trace(sys._getframe())
+                debugger.start_debug(sys._getframe().f_back)
+
 
 class GnrPdb(pdb.Pdb):
     
@@ -121,9 +119,7 @@ class GnrPdb(pdb.Pdb):
         return self.sock.makefile('rw')
         
     def makeEnvelope(self,data):
-        
         envelope=Bag(dict(command='pdb_out',data=data))
-
         return 'B64:%s'%base64.b64encode(envelope.toXml(unresolved=True))
 
     def getStackMenu(self,frame):
@@ -146,6 +142,21 @@ class GnrPdb(pdb.Pdb):
         result['watches'] = self.getWatches(frame)
         return self.makeEnvelope(result)
 
+    def start_debug(self, frame=None):
+        """Start debugging from `frame`.
+    
+        If frame is not specified, debugging starts from caller's frame.
+        """
+        if frame is None:
+            frame = sys._getframe().f_back
+        self.reset()
+        while frame:
+            frame.f_trace = self.trace_dispatch
+            self.botframe = frame
+            frame = frame.f_back
+        self.set_continue()
+        sys.settrace(self.trace_dispatch)
+
     def getWatches(self,frame):
         return Bag()
 
@@ -157,78 +168,10 @@ class GnrPdb(pdb.Pdb):
             rv = frame.f_locals['__return__']
             result['return']=repr.repr(rv)
         return result
-        
-    def preloop(self):
-        print '******** preloop'
-    def postloop(self):
-        print '******** postloop'
 
-    def cmdloop(self, intro=None):
-        """Repeatedly issue a prompt, accept input, parse an initial prefix
-        off the received input, and dispatch to action methods, passing them
-        the remainder of the line as argument.
 
-        """
-
-        self.preloop()
-        if self.use_rawinput and self.completekey:
-            try:
-                print '********* self.use_rawinput and self.completekey'
-                import readline
-                self.old_completer = readline.get_completer()
-                readline.set_completer(self.complete)
-                readline.parse_and_bind(self.completekey+": complete")
-            except ImportError:
-                pass
-        try:
-            print '********* not using rawinput'
-            if intro is not None:
-                self.intro = intro
-            if self.intro:
-                self.stdout.write(str(self.intro)+"\n")
-            stop = None
-            while not stop:
-                if self.cmdqueue:
-                    print'***** getting line from cmdqueue'
-                    line = self.cmdqueue.pop(0)
-                else:
-                    if self.use_rawinput:
-                        try:
-                            line = raw_input(self.prompt)
-                        except EOFError:
-                            line = 'EOF'
-                    else:
-                        self.stdout.write(self.prompt)
-                        self.stdout.flush()
-                        print '_________ WAITING COMMAND'
-                        line = self.stdin.readline()
-                        print '_________ ARRIVED COMMAND',line
-                        if not len(line):
-                            line = 'EOF'
-                        else:
-                            line = line.rstrip('\r\n')
-                line = self.precmd(line)
-                stop = self.onecmd(line)
-                stop = self.postcmd(stop, line)
-            self.postloop()
-        finally:
-            if self.use_rawinput and self.completekey:
-                try:
-                    import readline
-                    readline.set_completer(self.old_completer)
-                except ImportError:
-                    pass
-
-    def precmd(self, line):
-        print '******** precmd',line
-        return line
-
-    def postcmd(self, stop, line):
-        """Hook method executed just after a command dispatch is finished."""
-        print '******** postcmd',stop,line
-        return stop
-    
     def do_level(self,level):
+        print 'setting stacklevel',level
         maxlevel = len(self.stack)-1
         if not level or level>maxlevel:
             level = maxlevel
