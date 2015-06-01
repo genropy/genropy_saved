@@ -40,57 +40,65 @@ class GnrPdbClient(GnrBaseProxy):
         self.debuggerTop(frame.top)
         self.debuggerLeft(frame.left)
         self.debuggerRight(frame.right)
-        self.debuggerBottom(frame.bottom)
+       # self.debuggerBottom(frame.bottom)
         self.debuggerCenter(frame.center)
         
     def debuggerTop(self,top):
         bar = top.slotToolbar('5,stepover,stepin,stepout,cont,*,stackmenu,5')
-        bar.stepover.slotButton('Step over',action='genro.pdb.do_next()')
-        bar.stepin.slotButton('Step in',action='genro.pdb.do_step()')
-        bar.stepout.slotButton('Step out',action='genro.pdb.do_until()')
+        bar.stepover.slotButton('Step over',action='genro.pdb.do_stepOver()')
+        bar.stepin.slotButton('Step in',action='genro.pdb.do_stepIn()')
+        bar.stepout.slotButton('Step out',action='genro.pdb.do_stepOut()')
         bar.cont.slotButton('Continue',action='genro.pdb.do_continue()')
         bar.stackmenu.dropDownButton('Stack').menu(storepath='_dev.pdb.stackMenu',action='genro.pdb.onSelectStackMenu($1)')
         
-    def debuggerLeft(self,left):
-        pane=left.contentPane(width='120px',border_right='1px solid silver',splitter=True)
-        pane.tree(storepath='_dev.pdb.current.locals')
+    def debuggerLeft(self,pane):
+        bc=pane.borderContainer(width='250px',splitter=True)
+        bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Stack')
+        bc.contentPane(region='center',padding='2px').tree(storepath='_dev.pdb.stack',
+                     labelAttribute='caption',_class='branchtree noIcon')
         
-    def debuggerRight(self,right):
-        pane=right.contentPane(width='120px',border_left='1px solid silver',splitter=True)
-        pane.div('watches')
-        
-    def debuggerCenter(self,center):
+    def debuggerRight(self,pane):
+        bc=pane.borderContainer(width='250px',splitter=True)
+        bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Current')
+        bc.contentPane(region='center',padding='2px').tree(storepath='_dev.pdb.result',
+                 labelAttribute='caption',_class='branchtree noIcon')
+
+    def debuggerCenter(self,pane):
+        bc=pane.borderContainer(border='1px solid silver',border_top='0px')
+        bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Output')
+        center=bc.contentPane(region='center',padding='2px',border_bottom='1px solid silver',)
         center.div('^.output', style='font-family:monospace; white-space:pre;')
+        bottom=bc.contentPane(region='bottom',padding='2px',splitter=True)
+        fb = bottom.formbuilder(cols=2)
+        fb.textBox(lbl='Command',value='^.command',onEnter='FIRE .sendCommand')
+        #fb.textBox(lbl='Command',value='^.command', connect_onkeyup="""
+        #                              var target = $1.target;
+        #                              var value = $1.target.value;
+        #                              var key = $1.keyCode;
+        #                              if(key==13){
+        #                                 var cmd = value.replace(_lf,"");
+        #                                 genro.pdb.sendCommand(cmd);
+        #                                 $1.target.value = null;
+        #                              }""")
+    
+        fb.button('Send', fire='.sendCommand')
+        fb.dataController('genro.pdb.sendCommand(command);SET .command=null;',command='=.command')
+        
 
     
     def debuggerBottom(self,bottom):
-        pane=bottom.contentPane(height='40px',border_top='1px solid silver',splitter=True)
-        fb = pane.formbuilder(cols=2)
-        fb.textBox(lbl='Command',value='^.command', 
-                    connect_onkeyup="""
-                                      var target = $1.target;
-                                      var value = $1.target.value;
-                                      var key = $1.keyCode;
-                                      if(key==13){
-                                         var cmd = value.replace(_lf,"");
-                                         genro.wsk.send("pdb_command",{cmd:cmd});
-                                         $1.target.value = null;
-                                      }""")
-    
-        fb.button('Send', action='genro.wsk.send("pdb_command",{cmd:cmd}); SET .command=null;', cmd='=.command')
+        pass
+     
         
     def set_trace(self):
         debugger = GnrPdb(instance_name=self.page.site.site_name, page_id=self.page.page_id)
         try:
-            print 'TRYING'
             debugger.set_trace(sys._getframe().f_back)
         except Exception,e:
-            print '###### ERRORE',str(e)
             traceback.print_exc()
 
 
     def onPageStart(self):
-        print 'onPageStart',self.page.pagename,thread.get_ident()
         breakpoints = self.page.pageStore().getItem('_pdb.breakpoints')
         bp = 0
         if breakpoints:
@@ -122,14 +130,18 @@ class GnrPdb(pdb.Pdb):
         envelope=Bag(dict(command='pdb_out',data=data))
         return 'B64:%s'%base64.b64encode(envelope.toXml(unresolved=True))
 
-    def getStackMenu(self,frame):
-        menu = Bag()
+    def getStackBag(self,frame):
+        result = Bag()
         for frame,lineno in self.stack:
             framebag = self.frameAsBag(frame, lineno)
-            level = len(menu)
+            module=framebag['filename']
+            lineno=framebag['lineno']
+            functionName=framebag['functionName']
+            level = len(result)
             key = 'r_%i' %level
-            menu.setItem(key,None,caption='%(filename)s (%(functionName)s -->%(lineno)s)' %framebag,level=level)
-        return menu
+            caption = '%s - %s [%i])' % (os.path.basename(module),functionName,lineno)
+            result.setItem(key,framebag,caption= caption,level=level)
+        return result
         
     def print_stack_entry(self, frame_lineno, prompt_prefix=None):
         print >>self.stdout,self.format_stack_entry(frame_lineno)
@@ -138,7 +150,7 @@ class GnrPdb(pdb.Pdb):
         frame, lineno = frame_lineno
         result = Bag()
         result['current'] = self.frameAsBag(frame,lineno)
-        result['stackMenu'] = self.getStackMenu(frame)
+        result['stack'] = self.getStackBag(frame)
         result['watches'] = self.getWatches(frame)
         return self.makeEnvelope(result)
 
@@ -166,11 +178,12 @@ class GnrPdb(pdb.Pdb):
         result['locals']=Bag(dict(frame.f_locals))
         if '__return__' in frame.f_locals:
             rv = frame.f_locals['__return__']
-            result['return']=repr.repr(rv)
+            result['returnValue']=repr.repr(rv)
         return result
 
 
     def do_level(self,level):
+        level = int(level)
         print 'setting stacklevel',level
         maxlevel = len(self.stack)-1
         if not level or level>maxlevel:

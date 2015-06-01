@@ -111,17 +111,21 @@ dojo.declare("gnr.GnrPdbHandler", null, {
         var lineno=current.getItem('lineno')
         var functionName=current.getItem('functionName')
         console.log('onPdbAnswer: module=',module,'  lineno=',lineno,' functionName=',functionName)
-        if (functionName=='_pdb_start_'){
-            this.do_continue()
-        }else{
-           // genro.setData('_dev.pdb.lastAnswer',data.deepCopy())
-            genro.setData('_dev.pdb.current',current)
-            //genro.setData('_dev.pdb.stackMenu',data.getItem('stackMenu'))
-            this.showDebugger(current.getItem('filename'),current.getItem('lineno'));
-        }
+        genro.setData('_dev.pdb.stack',data.getItem('stack'),{caption:'Stack'})
+        
+        var result=new gnr.GnrBag();
+        result.setItem('locals',current.getItem('locals'),{caption:'Locals'})
+     // if (current.getItem('returnValue'){
+     //       result.setItem('returnValue',current.getItem('returnValue'),{caption:'Return Value'})       
+     // }
+     // if (data.getItem('watches'){
+     //     result.setItem('watches',data.getItem('watches'),{caption:'Watches'})
+     // }
+        genro.setData('_dev.pdb.result',result)
+        this.showDebugger(current.getItem('filename'),current.getItem('lineno'));
     },
         
-    sendPdbCommand:function(command){
+    sendCommand:function(command){
         console.log('sending command',command)
         genro.wsk.send("pdb_command",{cmd:command});
     },
@@ -129,24 +133,24 @@ dojo.declare("gnr.GnrPdbHandler", null, {
     onSelectedEditorPage:function(module){
 
     },
-    do_next:function(){
-        this.sendPdbCommand('next')
+    do_stepOver:function(){
+        this.sendCommand('next')
     },
-    do_step:function(){
-        this.sendPdbCommand('step')
+    do_stepIn:function(){
+        this.sendCommand('step')
     },
-    do_until:function(){
-        this.sendPdbCommand('until')
+    do_stepOut:function(){
+        this.sendCommand('return')
     },
     do_continue:function(module){
-        this.sendPdbCommand('continue')
+        this.sendCommand('continue')
     },
     do_jump:function(lineno){
-        this.sendPdbCommand('jump '+lineno)
+        this.sendCommand('jump '+lineno)
     },
 
     do_level:function(level){
-        this.sendPdbCommand('level '+level)
+        this.sendCommand('level '+level)
     },
 
     onSelectStackMenu:function(kw){
