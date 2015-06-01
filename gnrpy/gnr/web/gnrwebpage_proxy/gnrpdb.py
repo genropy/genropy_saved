@@ -72,7 +72,8 @@ class GnrPdbClient(GnrBaseProxy):
         fb = bottom.div(margin_right='20px').formbuilder(cols=2,width='100%')
         fb.textBox(lbl='Command',value='^.command',onEnter='FIRE .sendCommand',width='100%',padding='2px')
         fb.button('Send', fire='.sendCommand')
-        fb.dataController('genro.pdb.sendCommand(command);SET .command=null;',command='=.command')
+        fb.dataController('genro.pdb.sendCommand(command);SET .command=null;',command='=.command',
+                        _fired='^.sendCommand')
         
 
     
@@ -170,6 +171,7 @@ class GnrPdb(pdb.Pdb):
             rv = frame.f_locals['__return__']
             result['returnValue']=repr.repr(rv)
         return result
+
 
 
     def do_level(self,level):
