@@ -82,7 +82,8 @@ class GnrPdbClient(GnrBaseProxy):
         #                              }""")
     
         fb.button('Send', fire='.sendCommand')
-        fb.dataController('genro.pdb.sendCommand(command);SET .command=null;',command='=.command')
+        fb.dataController('genro.pdb.sendCommand(command);SET .command=null;',command='=.command',
+                        _fired='^.sendCommand')
         
 
     
@@ -180,6 +181,7 @@ class GnrPdb(pdb.Pdb):
             rv = frame.f_locals['__return__']
             result['returnValue']=repr.repr(rv)
         return result
+
 
 
     def do_level(self,level):
