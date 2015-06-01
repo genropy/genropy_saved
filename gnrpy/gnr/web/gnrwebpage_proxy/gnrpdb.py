@@ -34,53 +34,43 @@ class GnrPdbClient(GnrBaseProxy):
                                     onSelectedPage="""if($1.selected==true){
                                         genro.pdb.onSelectedEditorPage($1.page);
                                     }""",**kwargs)
-        self.debuggerCommands(bc.framePane('pdbCommands',region='bottom',splitter=True,height='250px',datapath='.debugger'))
+        self.debuggerCommands(bc.framePane('pdbCommands',region='bottom',height='250px',datapath='.debugger'))
         
     def debuggerCommands(self,frame):
+        bc =  frame.center.borderContainer()
         self.debuggerTop(frame.top)
-        self.debuggerLeft(frame.left)
-        self.debuggerRight(frame.right)
+        self.debuggerLeft(bc)
+        self.debuggerRight(bc)
        # self.debuggerBottom(frame.bottom)
-        self.debuggerCenter(frame.center)
+        self.debuggerCenter(bc)
         
     def debuggerTop(self,top):
-        bar = top.slotToolbar('5,stepover,stepin,stepout,cont,*,stackmenu,5')
+        bar = top.slotToolbar('5,stepover,stepin,stepout,cont,*')
         bar.stepover.slotButton('Step over',action='genro.pdb.do_stepOver()')
         bar.stepin.slotButton('Step in',action='genro.pdb.do_stepIn()')
         bar.stepout.slotButton('Step out',action='genro.pdb.do_stepOut()')
         bar.cont.slotButton('Continue',action='genro.pdb.do_continue()')
-        bar.stackmenu.dropDownButton('Stack').menu(storepath='_dev.pdb.stackMenu',action='genro.pdb.onSelectStackMenu($1)')
         
-    def debuggerLeft(self,pane):
-        bc=pane.borderContainer(width='250px',splitter=True)
+    def debuggerLeft(self,bc):
+        bc=bc.borderContainer(width='250px',splitter=True,region='left',margin='2px', border='1px solid #efefef',margin_right=0,rounded=4)
         bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Stack')
         bc.contentPane(region='center',padding='2px').tree(storepath='_dev.pdb.stack',
-                     labelAttribute='caption',_class='branchtree noIcon')
+                     labelAttribute='caption',_class='branchTree noIcon',openOnClick=True,autoCollapse=True)
         
-    def debuggerRight(self,pane):
-        bc=pane.borderContainer(width='250px',splitter=True)
+    def debuggerRight(self,bc):
+        bc=bc.borderContainer(width='250px',splitter=True,region='right',margin='2px',border='1px solid #efefef',margin_left=0,rounded=4)
         bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Current')
-        bc.contentPane(region='center',padding='2px').tree(storepath='_dev.pdb.result',
-                 labelAttribute='caption',_class='branchtree noIcon')
+        bc.contentPane(region='center',padding='2px').tree(storepath='_dev.pdb.result',openOnClick=True,autoCollapse=True,
+                 labelAttribute='caption',_class='branchTree noIcon')
 
-    def debuggerCenter(self,pane):
-        bc=pane.borderContainer(border='1px solid silver',border_top='0px')
+    def debuggerCenter(self,bc):
+        bc=bc.borderContainer(region='center',border='1px solid #efefef',margin='2px',margin_right=0,margin_left=0,rounded=4)
         bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Output')
-        center=bc.contentPane(region='center',padding='2px',border_bottom='1px solid silver',)
+        center=bc.contentPane(region='center',padding='2px',border_bottom='1px solid silver')
         center.div('^.output', style='font-family:monospace; white-space:pre;')
         bottom=bc.contentPane(region='bottom',padding='2px',splitter=True)
-        fb = bottom.formbuilder(cols=2)
-        fb.textBox(lbl='Command',value='^.command',onEnter='FIRE .sendCommand')
-        #fb.textBox(lbl='Command',value='^.command', connect_onkeyup="""
-        #                              var target = $1.target;
-        #                              var value = $1.target.value;
-        #                              var key = $1.keyCode;
-        #                              if(key==13){
-        #                                 var cmd = value.replace(_lf,"");
-        #                                 genro.pdb.sendCommand(cmd);
-        #                                 $1.target.value = null;
-        #                              }""")
-    
+        fb = bottom.div(margin_right='20px').formbuilder(cols=2,width='100%')
+        fb.textBox(lbl='Command',value='^.command',onEnter='FIRE .sendCommand',width='100%',padding='2px')
         fb.button('Send', fire='.sendCommand')
         fb.dataController('genro.pdb.sendCommand(command);SET .command=null;',command='=.command')
         
