@@ -55,13 +55,13 @@ class GnrPdbClient(GnrBaseProxy):
         bc=bc.borderContainer(width='250px',splitter=True,region='left',margin='2px', border='1px solid #efefef',margin_right=0,rounded=4)
         bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Stack')
         bc.contentPane(region='center',padding='2px').tree(storepath='_dev.pdb.stack',
-                     labelAttribute='caption',_class='branchTree noIcon',openOnClick=True,autoCollapse=True)
+                     labelAttribute='caption',_class='branchtree noIcon',autoCollapse=True)
         
     def debuggerRight(self,bc):
         bc=bc.borderContainer(width='250px',splitter=True,region='right',margin='2px',border='1px solid #efefef',margin_left=0,rounded=4)
         bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Current')
         bc.contentPane(region='center',padding='2px').tree(storepath='_dev.pdb.result',openOnClick=True,autoCollapse=True,
-                 labelAttribute='caption',_class='branchTree noIcon')
+                 labelAttribute='caption',_class='branchtree noIcon',hideValues='*')
 
     def debuggerCenter(self,bc):
         bc=bc.borderContainer(region='center',border='1px solid #efefef',margin='2px',margin_right=0,margin_left=0,rounded=4)
@@ -130,8 +130,11 @@ class GnrPdb(pdb.Pdb):
             functionName=framebag['functionName']
             level = len(result)
             key = 'r_%i' %level
-            caption = '%s - %s [%i])' % (os.path.basename(module),functionName,lineno)
-            result.setItem(key,framebag,caption= caption,level=level)
+            caption = '<span class="pdb_caption_module">%s</span><span class="pdb_caption_function"> %s </span><span class="pdb_caption_lineno">%i</span>' % (os.path.basename(module),functionName,lineno)
+           #if level == self.curindex:
+           #    caption = '<span class="pdb_current_stack"> %s </span>' %caption
+            caption = 'innerHTML:%s' %caption
+            result.setItem(key,framebag,caption= caption,level=level,labelClass='pdb_current_stack' if level == self.curindex else None)
         return result
         
     def print_stack_entry(self, frame_lineno, prompt_prefix=None):
@@ -143,7 +146,12 @@ class GnrPdb(pdb.Pdb):
         result['current'] = self.frameAsBag(frame,lineno)
         result['stack'] = self.getStackBag(frame)
         result['watches'] = self.getWatches(frame)
+        result['bplist'] = self.getBreakpointList()
+        result['level'] = self.curindex
         return self.makeEnvelope(result)
+
+    def getBreakpointList(self):
+        return Bag()
 
     def start_debug(self, frame=None):
         """Start debugging from `frame`.

@@ -4401,6 +4401,17 @@ div[disabled='true'], div[disabled='disabled']{
     margin-left: 0px;
 }
 
+.tree_captionvalue{
+    border: 1px solid silver;
+    display: inline-flex;
+}
+.tree_captionvalue_label{
+    background-color: #efefef;
+}
+.tree_captionvalue_value{
+    
+}
+
 ._logical_delete.delete_row{
     background: url(/_rsrc/common/css_icons/retina/blue/16/delete_row.png) no-repeat center center;
 }
@@ -4622,8 +4633,9 @@ div[disabled='true'], div[disabled='disabled']{
 ._common_d11 .no_selected .dojoxGrid-row-selected .dojoxGrid-cell {
     background-color: whitesmoke;
 }
+/* @end */
 
-
+/* @group PDB*/
 .pdb_breakpoints{
     width:.8em;
 }
@@ -4634,7 +4646,6 @@ div[disabled='true'], div[disabled='disabled']{
 .pdb_conditional_breakpoint{
     color:orange;
 }
-
 
 
 .pdb_currentLine_wrap{
@@ -4650,5 +4661,23 @@ div[disabled='true'], div[disabled='disabled']{
 .pdb_currentLine_gutter{
 
 }
+.pdb_caption_module{
+    font-weight: bold;
+}
+
+.pdb_caption_function{
+    font-style: italic;
+}
+
+.pdb_caption_lineno{
+
+}
+
+.pdb_current_stack{
+    background-color: yellow;
+    display: inline-flex;
+;
+}
+/* @end */
 
 

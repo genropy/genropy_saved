@@ -314,6 +314,11 @@ dojo.declare("gnr.GnrStoreBag", null, {
     getLabel: function(/* item */ item) {
         if (this.isItem(item)) {
             genro.debug('getLabel: item=' + item.label);
+            if(this.hideValues == '*' && !this.hasAttribute(item,'#v')){
+                var label = item.attr[this.labelAttribute] || item.label;
+                var caption =  '<span class="tree_captionvalue_label"> '+label+'</span><span=class="tree_captionvalue_value">'+item._value+'</span>';
+                return 'innerHTML:<span class="tree_captionvalue">'+caption+'</span>'
+            }
             if (this.labelAttribute) {
                 return item.attr[this.labelAttribute] || item.label;
             } else if (this.labelCb) {
