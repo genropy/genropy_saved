@@ -67,16 +67,24 @@ class GnrPdbClient(GnrBaseProxy):
         bc=bc.borderContainer(region='center',border='1px solid #efefef',margin='2px',margin_right=0,margin_left=0,rounded=4)
         bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Output')
         center=bc.contentPane(region='center',padding='2px',border_bottom='1px solid silver')
-        center.div('^.output', style='font-family:monospace; white-space:pre;')
-        bottom=bc.contentPane(region='bottom',padding='2px',splitter=True)
-        fb = bottom.div(margin_right='20px').formbuilder(cols=2,width='100%')
-        fb.textBox(lbl='Command',value='^.command',onEnter='FIRE .sendCommand',width='100%',padding='2px')
-        fb.button('Send', fire='.sendCommand')
-        fb.dataController('genro.pdb.sendCommand(command);SET .command=null;',command='=.command',
-                        _fired='^.sendCommand')
+        center.div(value='^.output', style='font-family:monospace; white-space:pre')
+        lastline=center.div(position='relative')
+        lastline.div('>>>',position='absolute',top='1px',left='0px')
+        debugger_input=lastline.div(position='absolute',top='0px',left='20px',right='5px').input(value='^.command',width='100%',border='0px')
+        center.dataController("""SET .output=output? output+_lf+line:line;""",line='^_dev.pdb.debugger.output_line',output='=.output')
+        center.dataController("""SET _dev.pdb.debugger.output_line=command; 
+                                 command='!'+command;
+                                 genro.pdb.sendCommand(command);
+                                 SET .command=null;
+                                 debugger_input.domNode.focus();
+                                 """,command='^.command',debugger_input=debugger_input,_if='command')
+        
+       #bottom=bc.contentPane(region='bottom',padding='2px',splitter=True)
+       #fb = bottom.div(margin_right='20px').formbuilder(cols=2,width='100%')
+       #fb.textBox(lbl='Command',value='^.command',onEnter='FIRE .sendCommand',width='100%',padding='2px')
+       #fb.button('Send', fire='.sendCommand')
         
 
-    
     def debuggerBottom(self,bottom):
         pass
      
@@ -118,8 +126,8 @@ class GnrPdb(pdb.Pdb):
         return self.sock.makefile('rw')
         
     def makeEnvelope(self,data):
-        envelope=Bag(dict(command='pdb_out',data=data))
-        return 'B64:%s'%base64.b64encode(envelope.toXml(unresolved=True))
+        envelope=Bag(dict(command='pdb_out_bag',data=data))
+        return 'B64:%s'%base64.b64encode(envelope.toXml())
 
     def getStackBag(self,frame):
         result = Bag()
@@ -173,7 +181,19 @@ class GnrPdb(pdb.Pdb):
         return result
 
 
+    def do_p(self, arg):
+        print 'do_p'
+        try:
+            print >>self.stdout, repr(self._getval(arg))
+        except:
+            pass
 
+    def do_pp(self, arg):
+        print 'do_p'
+        try:
+            pprint.pprint(self._getval(arg), self.stdout)
+        except:
+            pass
     def do_level(self,level):
         level = int(level)
         print 'setting stacklevel',level
