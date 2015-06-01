@@ -116,8 +116,11 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     do_datachanges:function(datachanges){
         genro.rpc.setDatachangesInData(datachanges)
     },
-    do_pdb_out:function(data){
-        genro.pdb.onPdbAnswer(data);
+    do_pdb_out_bag:function(data){
+        genro.pdb.onPdbAnswer_bag(data);
+    },
+    do_pdb_out_line:function(data){
+        genro.pdb.onPdbAnswer_line(data);
     },
     do_publish:function(data){
         var topic=data.getItem('topic')

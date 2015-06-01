@@ -157,6 +157,8 @@ class DebugSession(GnrBaseHandler):
             data = yield self.websocket_output_queue.get()
             if data.startswith('B64:'):
                 data=base64.b64decode(data[4:])
+            else:
+                data=Bag(dict(command='pdb_out_line',data=data)).toXml()
             self.channels.get(self.page_id).write_message(data)
             
     @gen.coroutine 

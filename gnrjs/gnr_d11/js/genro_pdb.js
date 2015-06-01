@@ -104,8 +104,10 @@ dojo.declare("gnr.GnrPdbHandler", null, {
     getBreakpoints:function(){
         return  genro.getData(this.breakpoint_path);
     },
-
-    onPdbAnswer:function(data){
+    onPdbAnswer_line:function(line){
+        genro.setData('_dev.pdb.debugger.output_line',line)
+    },
+    onPdbAnswer_bag:function(data){
         var current = data.getItem('current');
         var module=current.getItem('filename')
         var lineno=current.getItem('lineno')
