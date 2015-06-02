@@ -4323,7 +4323,7 @@ div[disabled='true'], div[disabled='disabled']{
 
 .treegrid .dijitTreeContent{
     position: relative;
-    height: 16px;
+    height: 15px;
     left:20px;
 }
 
@@ -4403,12 +4403,16 @@ div[disabled='true'], div[disabled='disabled']{
 
 .tree_captionvalue{
     border: 1px solid silver;
-    display: inline-flex;
+    display: inline-blo;
 }
 .tree_captionvalue_label{
     background-color: #efefef;
+    width:150px;
+    display: inline-block;
 }
 .tree_captionvalue_value{
+    width:250px;
+    display: inline-block;
     
 }
 
@@ -4678,6 +4682,13 @@ div[disabled='true'], div[disabled='disabled']{
     display: inline-flex;
 ;
 }
+
+.pdb_pane .treegrid .treecell, .pdb_pane .treegrid .treecell:last-child{
+    border-bottom: 0;
+    border-left: 0;
+    border-right:0;
+}
+
 /* @end */
 
 

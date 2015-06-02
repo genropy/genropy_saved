@@ -28,20 +28,21 @@ class GnrPdbClient(GnrBaseProxy):
         
     @public_method
     def debuggerPane(self,pane,mainModule=None,**kwargs):
-        bc = pane.borderContainer()
+        bc = pane.borderContainer(_class='pdb_pane')
         self.page.codeEditor.mainPane(bc.contentPane(region='center',overflow='hidden'),editorName='pdbEditor',
                                     mainModule=True,readOnly=True,dataInspector=False,datapath='.editor',
                                     onSelectedPage="""if($1.selected==true){
                                         genro.pdb.onSelectedEditorPage($1.page);
                                     }""",**kwargs)
-        self.debuggerCommands(bc.framePane('pdbCommands',region='bottom',height='250px',datapath='.debugger'))
+        self.debuggerCommands(bc.framePane('pdbCommands',region='bottom',height='250px',
+                               splitter=True,datapath='.debugger'))
         
     def debuggerCommands(self,frame):
         bc =  frame.center.borderContainer()
         self.debuggerTop(frame.top)
         self.debuggerLeft(bc)
         self.debuggerRight(bc)
-       # self.debuggerBottom(frame.bottom)
+        self.debuggerBottom(bc)
         self.debuggerCenter(bc)
         
     def debuggerTop(self,top):
@@ -55,25 +56,38 @@ class GnrPdbClient(GnrBaseProxy):
         bc=bc.borderContainer(width='250px',splitter=True,region='left',margin='2px', border='1px solid #efefef',margin_right=0,rounded=4)
         bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Stack')
         bc.contentPane(region='center',padding='2px').tree(storepath='_dev.pdb.stack',
-                     labelAttribute='caption',_class='branchtree noIcon',autoCollapse=True)
+                     labelAttribute='caption',_class='branchtree noIcon',autoCollapse=True,
+                     connect_onClick="""level=$1.attr.level;genro.pdb.do_level(level) """)
         
     def debuggerRight(self,bc):
         bc=bc.borderContainer(width='250px',splitter=True,region='right',margin='2px',border='1px solid #efefef',margin_left=0,rounded=4)
         bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Current')
-        bc.contentPane(region='center',padding='2px').tree(storepath='_dev.pdb.result',openOnClick=True,autoCollapse=True,
-                 labelAttribute='caption',_class='branchtree noIcon',hideValues='*')
+        paneTree=bc.contentPane(region='center',padding='2px')
+       #paneTree.tree(storepath='_dev.pdb.result',openOnClick=True,autoCollapse=True,
+       #         labelAttribute='caption',_class='branchtree noIcon',hideValues=True)
+       #         
+        tree = paneTree.treeGrid(storepath='_dev.pdb.result',noHeaders=True)
+        tree.column('__label__',contentCb="""return this.attr.caption || this.label""",
+                      background='#888',color='white')
+                                                          
+        tree.column('__value__',size='85%',contentCb="""var v=this.getValue();
+                                                          return (v instanceof gnr.GnrBag)?'':_F(v)""")
 
     def debuggerCenter(self,bc):
         bc=bc.borderContainer(region='center',border='1px solid #efefef',margin='2px',margin_right=0,margin_left=0,rounded=4)
         bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Output')
         center=bc.contentPane(region='center',padding='2px',border_bottom='1px solid silver')
-        center.div(value='^.output', style='font-family:monospace; white-space:pre')
+        center.div(value='^.output', style='font-family:monospace; white-space:pre-wrap')
         lastline=center.div(position='relative')
         lastline.div('>>>',position='absolute',top='1px',left='0px')
         debugger_input=lastline.div(position='absolute',top='0px',left='20px',right='5px').input(value='^.command',width='100%',border='0px')
         center.dataController("""SET .output=output? output+_lf+line:line;""",line='^_dev.pdb.debugger.output_line',output='=.output')
         center.dataController("""SET _dev.pdb.debugger.output_line=command; 
-                                 command='!'+command;
+                                 if (command.startsWith('/')){
+                                    command=command.slice(1)
+                                 }else if(!command.startsWith('!')){
+                                     command='!'+command;
+                                 }
                                  genro.pdb.sendCommand(command);
                                  SET .command=null;
                                  debugger_input.domNode.focus();
@@ -127,8 +141,14 @@ class GnrPdb(pdb.Pdb):
         
     def makeEnvelope(self,data):
         envelope=Bag(dict(command='pdb_out_bag',data=data))
-        return 'B64:%s'%base64.b64encode(envelope.toXml())
-
+        return 'B64:%s'%base64.b64encode(envelope.toXml(unresolved=True))
+        #onBuildTag=self.onBuildTag))
+    
+    def onBuildTag(self,label=None,value=None,attributes=None):
+        if not isinstance(value,Bag):
+            attributes['__value__']=repr.repr(value)
+        
+            
     def getStackBag(self,frame):
         result = Bag()
         for frame,lineno in self.stack:

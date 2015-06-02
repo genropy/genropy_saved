@@ -220,17 +220,6 @@ dojo.declare("gnr.GnrPdbHandler", null, {
             genro.pdb.setBreakpoint({line:code_line,modifier:genro.dom.getEventModifiers(evt)});
         });
 
-       //var lineno = error.lineno-1;
-       //var offset = error.offset-1;
-       //var ch_start = error.offset>1?error.offset-1:error.offset;
-       //var ch_end = error.offset;
-       //cm.scrollIntoView({line:lineno,ch:ch_start});
-       //var tm = cm.doc.markText({line:lineno,ch:ch_start},{line:lineno, ch:ch_end},
-       //                {clearOnEnter:true,className:'source_viewer_error'});
-       //genro.dlg.floatingMessage(cmNode.getParentNode(),{messageType:'error',
-       //            message:error.msg,onClosedCb:function(){
-       //        tm.clear();
-       //    }})
-
     }
+    
 });
