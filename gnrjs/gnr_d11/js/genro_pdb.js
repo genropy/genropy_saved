@@ -188,8 +188,15 @@ dojo.declare("gnr.GnrPdbHandler", null, {
             breakpoints.setItem(bpkey,null,kw);
         }
     },
-
     onCreatedEditor:function(sourceNode){
+        var that = this;
+        sourceNode.watch('externalWidgetReady',function(){
+            return sourceNode.externalWidget;
+        },function(){
+            that.onCreatedEditorDo(sourceNode);
+        })
+    },
+    onCreatedEditorDo:function(sourceNode){
         console.log('onCreatedEditor',sourceNode)
         var cm = sourceNode.externalWidget;
         cm.gnrMakeMarker = function(conditional) {
