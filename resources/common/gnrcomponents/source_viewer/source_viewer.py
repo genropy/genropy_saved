@@ -99,16 +99,18 @@ class SourceViewer(BaseComponent):
         except SyntaxError,e:
             return dict(lineno=e.lineno,msg=e.msg,offset=e.offset)
 
+    def __writesource(self,sourceCode,docname):
+        if self.source_viewer_edit_allowed():
+            with open(docname,'w') as f:
+                f.write(sourceCode)
+
     def __readsource(self,docname):
         if not os.path.exists(docname):
             return
         with open(docname,'r') as f:
             return f.read()
 
-    def __writesource(self,sourceCode,docname):
-        if self.source_viewer_edit_allowed():
-            with open(docname,'w') as f:
-                f.write(sourceCode)
+
 
     @public_method
     def source_viewer_rst2html(self,rstdoc=None,**kwargs):
