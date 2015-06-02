@@ -284,16 +284,6 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
         data_queue.put(cmd)
 
     @threadpool
-    def do_pdb_breakpoint(self,  line=None,evt=None,module=None,condition=None,**kwargs):
-        print 'do_pdb_breakpoint',kwargs
-        bpkey = '_pdb.breakpoints.%s.r_%i' %(module.replace('.','_').replace('/','_'),line)
-        with self.gnrsite.register.pageStore(self.page_id) as store:
-            if evt=='del':
-                store.pop(bpkey)
-            else:
-                store.setItem(bpkey,None,line=line,module=module,condition=condition)
-
-    @threadpool
     def do_call(self,method=None, result_token=None, _time_start=None,**kwargs):
         error = None
         result = None
