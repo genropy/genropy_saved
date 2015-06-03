@@ -104,27 +104,50 @@ dojo.declare("gnr.GnrPdbHandler", null, {
     getBreakpoints:function(){
         return  genro.getData(this.breakpoint_path);
     },
+    
+    openExernalDebug:function(data){
+        genro.openWindow(window.location.host+'/sys/gnride/'+genro._page_id+'/'+data.getItem('pdb_id'));
+        
+    },
     onPdbAnswer_line:function(line){
         genro.setData('_dev.pdb.debugger.output_line',line)
     },
     onPdbAnswer_bag:function(data){
+        var pdb_mode = data.getItem('pdb_mode');
+        var pdb_id = data.getItem('pdb_id');
+        var pdb_counter = data.getItem('pdb_counter');
         var current = data.getItem('current');
         var module=current.getItem('filename')
         var lineno=current.getItem('lineno')
         var functionName=current.getItem('functionName')
-        console.log('onPdbAnswer: module=',module,'  lineno=',lineno,' functionName=',functionName)
-        genro.setData('_dev.pdb.stack',data.getItem('stack'),{caption:'Stack'})
+        if (pdb_mode=='D'){
+            
+        }else if (pdb_mode=='C'){
+            if (pdb_counter==0){
+                genro.dlg.ask('Breakpoint found',
+                '<h2 align="">Breakpoint found at module:<br/>'+module+'<br/>at line'+lineno+'</h2>',
+                {confirm:'Debug',cancel:'Continue'},{confirm:function(){genro.pdb.openExernalDebug(data);},cancel:function(){genro.pdb.do_continue()}
+               });
+            }
+        }
+        else if (pdb_mode=='P'){
+            console.log('onPdbAnswer: module=',module,'  lineno=',lineno,' functionName=',functionName)
+            genro.setData('_dev.pdb.stack',data.getItem('stack'),{caption:'Stack'})
         
-        var result=new gnr.GnrBag();
-        result.setItem('locals',current.getItem('locals'),{caption:'Locals'})
-     // if (current.getItem('returnValue'){
-     //       result.setItem('returnValue',current.getItem('returnValue'),{caption:'Return Value'})       
-     // }
-     // if (data.getItem('watches'){
-     //     result.setItem('watches',data.getItem('watches'),{caption:'Watches'})
-     // }
-        genro.setData('_dev.pdb.result',result)
-        this.showDebugger(current.getItem('filename'),current.getItem('lineno'));
+            var result=new gnr.GnrBag();
+            result.setItem('locals',current.getItem('locals'),{caption:'Locals'})
+            genro.setData('_dev.pdb.result',result)
+       
+            // if (current.getItem('returnValue'){
+            //       result.setItem('returnValue',current.getItem('returnValue'),{caption:'Return Value'})       
+            // }
+            // if (data.getItem('watches'){
+            //     result.setItem('watches',data.getItem('watches'),{caption:'Watches'})
+            // }
+      
+            this.showDebugger(current.getItem('filename'),current.getItem('lineno'));
+        }
+
     },
         
     sendCommand:function(command){
@@ -145,7 +168,7 @@ dojo.declare("gnr.GnrPdbHandler", null, {
         this.sendCommand('return')
     },
     do_continue:function(module){
-        this.sendCommand('continue')
+        this.sendCommand('c')
     },
     do_jump:function(lineno){
         this.sendCommand('jump '+lineno)

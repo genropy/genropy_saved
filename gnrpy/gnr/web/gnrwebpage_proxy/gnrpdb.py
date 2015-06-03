@@ -101,7 +101,44 @@ class GnrPdbClient(GnrBaseProxy):
 
     def debuggerBottom(self,bottom):
         pass
-     
+        
+    @public_method
+    def setConnectionBreakpoint(self,module=None,line=None,condition=None,evt=None):
+        print'gggggg'
+        bpkey = '_pdb.breakpoints.%s.r_%i' %(module.replace('.','_').replace('/','_'),line)
+        with self.page.connectionStore() as store:
+            if evt=='del':
+                store.pop(bpkey)
+                print 'POPPED BP FROM CONNECTION',bpkey
+            else:
+                store.setItem(bpkey,None,line=line,module=module,condition=condition)
+                print 'STORED BP IN CONNECTION',bpkey
+
+    @public_method
+    def getBreakpoints(self,module=None):
+        bpkey = '_pdb.breakpoints'
+        if module:
+            bpkey = '%s.%s' %(bpkey,module.replace('.','_').replace('/','_'))
+        return self.page.connectionStore().getItem(bpkey)
+    
+    @public_method
+    def saveDebugDataInConnection(self,pdb_page_id,pdb_id,data):
+        bpkey = '_pdb.debugdata.%s.%s' %(pdb_page_id,pdb_id)
+        with self.page.connectionStore() as store:
+            store.setItem(bpkey,data)
+        print 'STORED DEBUGDATA IN CONNECTION',bpkey,data
+        
+    @public_method
+    def loadDebugDataFromConnection(self,pdb_page_id,pdb_id):
+        bpkey = '_pdb.debugdata.%s.%s' %(pdb_page_id,pdb_id)
+        with self.page.connectionStore() as store:
+            data=store.popItem(bpkey)
+        print 'LOADED DEBUGDATA IN CONNECTION',bpkey,data
+        return data
+
+    
+        
+        
         
     def set_trace(self):
         debugger = GnrPdb(instance_name=self.page.site.site_name, page_id=self.page.page_id)
@@ -112,21 +149,42 @@ class GnrPdbClient(GnrBaseProxy):
 
 
     def onPageStart(self):
-        breakpoints = self.page.pageStore().getItem('_pdb.breakpoints')
+        if getattr(self.page,'pdb_ignore',None):
+            return
+        page_breakpoints = self.page.pageStore().getItem('_pdb.breakpoints')
+        
         bp = 0
-        if breakpoints:
-            debugger = GnrPdb(instance_name=self.page.site.site_name, page_id=self.page.page_id)
-            for modulebag in breakpoints.values():
+        if page_breakpoints:
+            debugger = GnrPdb(page=self,instance_name=self.page.site.site_name,
+             page_id=self.page.page_id, pdb_mode='P')
+
+            for modulebag in page_breakpoints.values():
                 for module,line,condition in modulebag.digest('#a.module,#a.line,#a.condition'):
                     bp +=1
                     debugger.set_break(filename=module,lineno=line,cond=condition)
             if bp:
                 debugger.start_debug(sys._getframe().f_back)
-
+        else:
+            connection_breakpoints = self.page.pdb.getBreakpoints()
+            if connection_breakpoints:
+                debugger = GnrPdb(page=self,instance_name=self.page.site.site_name,
+                               page_id=self.page.page_id, pdb_mode='C')
+                debugger.pdb_id=id(debugger)
+                for modulebag in connection_breakpoints.values():
+                    for module,line,condition in modulebag.digest('#a.module,#a.line,#a.condition'):
+                        bp +=1
+                        debugger.set_break(filename=module,lineno=line,cond=condition)
+                if bp:
+                    debugger.start_debug(sys._getframe().f_back)
 
 class GnrPdb(pdb.Pdb):
     
-    def __init__(self, instance_name=None, page_id=None, completekey='tab', skip=None):
+    def __init__(self, page=None,instance_name=None, page_id=None, completekey='tab', skip=None,pdb_mode=None):
+        self.page=page
+        page.debugger=self
+        self.pdb_id=id(self)
+        self.pdb_mode=pdb_mode
+        self.pdb_counter=0
         self.page_id = page_id
         self.socket_path = os.path.join(gnrConfigPath(), 'sockets', '%s_debug.tornado'%instance_name)
         iostream = self.get_iostream()
@@ -176,6 +234,13 @@ class GnrPdb(pdb.Pdb):
         result['watches'] = self.getWatches(frame)
         result['bplist'] = self.getBreakpointList()
         result['level'] = self.curindex
+        result['pdb_mode'] = self.pdb_mode
+        result['pdb_id'] = self.pdb_id
+        result['pdb_counter'] = self.pdb_counter
+        if self.pdb_mode=='C':
+            self.page.pdb.saveDebugDataInConnection(self.page_id,self.pdb_id,result)
+        self.pdb_counter +=1
+
         return self.makeEnvelope(result)
 
     def getBreakpointList(self):

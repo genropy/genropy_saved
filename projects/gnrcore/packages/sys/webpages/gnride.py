@@ -10,9 +10,21 @@ import os
 import sys
 
 class GnrCustomWebPage(object):
-    js_requires='codeeditor'
-    def main(self,root,**kwargs):
+    js_requires='gnride'
+    pdb_ignore=True
+    def main(self,root,*args,**kwargs):
         root.attributes.update(overflow='hidden')
+        debugger_drawer='close'
+        if self._call_args:
+            self.dest_page_id,self.dest_pdb_id=self._call_args
+            debug_data=self.pdb.loadDebugDataFromConnection(self.dest_page_id,self.dest_pdb_id,result)
+            root.data('curr_pdb',Bag(dict(page_id=dest_page_id,pdb_id=dest_pdb_id,debug_data=debug_data)))
+            debugger_drawer=True
+            debugData=self.pdb.loadDebugDataFromConnection(self.dest_page_id,self.dest_pdb_id,result)
+            root.dataController("""
+            genro.bp(true)
+            """,_onStart=True)
+            
         bc = root.borderContainer(datapath='main')
         self.drawerPane(bc.framePane(frameCode='drawer',region='left',width='250px',splitter=True,drawer=True,background='rgba(230, 230, 230, 1)'))
         self.dbstructPane(bc.framePane(frameCode='dbstruct',region='right',width='250px',splitter=True,drawer='close',background='rgba(230, 230, 230, 1)'))
@@ -22,7 +34,7 @@ class GnrCustomWebPage(object):
         bar.data('main.readOnly',True)
         bar.readOnlySlot.div().checkbox(value='^main.readOnly', label='Read Only')
         sc = frame.center.stackContainer(nodeId='codeEditor',selectedPage='^.selectedModule')
-        bar.dataRpc('dummy',self.setConnectionBreakpoint,
+        bar.dataRpc('dummy',self.pdb.setConnectionBreakpoint,
                 subscribe_setBreakpoint=True,
                 #httpMethod='WSK'
                 )
@@ -38,7 +50,8 @@ class GnrCustomWebPage(object):
             SET .selectedModule = abs_path;
             """,sc=sc,remotemethod=self.buildEditorTab,editorName='codeEditor',
             subscribe_openEditorPage=True)
-        self.debuggerPane(bc.framePane(frameCode='pdbDebugger',height='400px',splitter=True,drawer='close',region='bottom'))
+            
+        self.debuggerPane(bc.framePane(frameCode='pdbDebugger',height='400px',splitter=True,drawer=debugger_drawer,region='bottom'))
 
 
     def dbstructPane(self,frame):
@@ -47,19 +60,6 @@ class GnrCustomWebPage(object):
         pane = frame.center.contentPane(overflow='auto')
         pane.div(padding='10px').tree(nodeId='dbstructure_tree',storepath='main.dbstructure',_class='branchtree noIcon',
             hideValues=True,openOnClick=True)
-    @public_method
-    def setConnectionBreakpoint(self,module=None,line=None,condition=None,evt=None):
-        bpkey = '_pdb.breakpoints.%s.r_%i' %(module.replace('.','_').replace('/','_'),line)
-        with self.connectionStore() as store:
-            if evt=='del':
-                store.pop(bpkey)
-            else:
-                store.setItem(bpkey,None,line=line,module=module,condition=condition)
-
-    @public_method
-    def getBreakpoints(self,module):
-        bpkey = '_pdb.breakpoints.%s' %module.replace('.','_').replace('/','_')
-        return self.connectionStore().getItem(bpkey)
 
 
     def drawerPane(self,frame):
@@ -72,7 +72,7 @@ class GnrCustomWebPage(object):
         
         frame.data('.directories.root',b,nodecaption='Project')
         pane = frame.center.contentPane(overflow='auto')
-        pane.div(padding='10px').tree(nodeId='drawer_tree',storepath='.directories',
+        pane.div(padding='10px').tree(nodeId='drawer_tree',storepath='.directories',persist=True,
                         connect_ondblclick="""var ew = dijit.getEnclosingWidget($1.target);
                                               console.log('ew',ew)
                                               if(ew.item && ew.item.attr.file_ext!='directory'){
@@ -89,7 +89,7 @@ class GnrCustomWebPage(object):
         frameCode = docPath.replace('/','_').replace('.','_')
         frame = pane.framePane(frameCode=frameCode ,region='center',_class='viewer_box selectable')
         source = self.__readsource(docPath)
-        breakpoints = self.getBreakpoints(docPath)
+        breakpoints = self.pdb.getBreakpoints(docPath)
         pane.data('.docPath',docPath)
         bar = frame.bottom.slotBar('5,fpath,*',height='18px',background='#efefef')
         bar.fpath.div('^.docPath',font_size='9px')
@@ -145,17 +145,20 @@ class GnrCustomWebPage(object):
                                 config_indentUnit=4,config_keyMap='softTab',
                                 height='100%',
                                 config_gutters=["CodeMirror-linenumbers", "pdb_breakpoints"],
-                                onCreated="ce.onCreatedEditor(this);",
+                                onCreated="gnride.onCreatedEditor(this);",
                                 readOnly='^main.readOnly',
                                 modulePath=docPath)
         frame.dataController("""
             var cm = cm.externalWidget;
             cm.clearGutter('pdb_breakpoints');
-            breakpoints.forEach(function(n){
-                console.log(n.attr)
-                var line_cm = n.attr.line -1;
-                cm.setGutterMarker(line_cm, "pdb_breakpoints",cm.gnrMakeMarker(n.attr.condition));
-            });
+            if(breakpoints){
+                breakpoints.forEach(function(n){
+                    console.log(n.attr)
+                    var line_cm = n.attr.line -1;
+                    cm.setGutterMarker(line_cm, "pdb_breakpoints",cm.gnrMakeMarker(n.attr.condition));
+                });
+            }
+   
             """,breakpoints='^.breakpoints',cm=cm,_fired='^.editorCompleted')
 
     def __readsource(self,docPath):

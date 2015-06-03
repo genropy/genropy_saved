@@ -117,9 +117,11 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         genro.rpc.setDatachangesInData(datachanges)
     },
     do_pdb_out_bag:function(data){
+        console.log('do_pdb_out_bag',data)
         genro.pdb.onPdbAnswer_bag(data);
     },
     do_pdb_out_line:function(data){
+        console.log('do_pdb_out_line',data)
         genro.pdb.onPdbAnswer_line(data);
     },
     do_publish:function(data){
@@ -149,7 +151,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         var kw=kw || {};
         kw['command']=command
         kw=genro.rpc.serializeParameters(genro.src.dynamicParameters(kw));
-        console.log('sending',kw)
+        console.log('sending to ws',kw)
         this.socket.send(dojo.toJson(kw))
     },
     parseResponse:function(response){
@@ -159,13 +161,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
                                             ,genro.clsdict);
         return result
     }
-    
-    
-    
-    
-    
-    
-    
+
 });
 
 // MIT License:

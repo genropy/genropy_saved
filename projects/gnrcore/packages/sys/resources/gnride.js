@@ -1,4 +1,8 @@
-var ce = {
+var gnride = {
+    
+    
+    
+    
     onCreatedEditor:function(sourceNode){
         var that = this;
         sourceNode.watch('externalWidgetReady',function(){
