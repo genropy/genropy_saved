@@ -132,12 +132,9 @@ class GnrPdbClient(GnrBaseProxy):
     def loadDebugDataFromConnection(self,pdb_page_id,pdb_id):
         bpkey = '_pdb.debugdata.%s.%s' %(pdb_page_id,pdb_id)
         with self.page.connectionStore() as store:
-            data=store.popItem(bpkey)
+            data = store.getItem(bpkey)
         print 'LOADED DEBUGDATA IN CONNECTION',bpkey,data
         return data
-
-    
-        
         
         
     def set_trace(self):
@@ -155,7 +152,7 @@ class GnrPdbClient(GnrBaseProxy):
         
         bp = 0
         if page_breakpoints:
-            debugger = GnrPdb(page=self,instance_name=self.page.site.site_name,
+            debugger = GnrPdb(page=self.page,instance_name=self.page.site.site_name,
              page_id=self.page.page_id, pdb_mode='P')
 
             for modulebag in page_breakpoints.values():
@@ -167,7 +164,7 @@ class GnrPdbClient(GnrBaseProxy):
         else:
             connection_breakpoints = self.page.pdb.getBreakpoints()
             if connection_breakpoints:
-                debugger = GnrPdb(page=self,instance_name=self.page.site.site_name,
+                debugger = GnrPdb(page=self.page,instance_name=self.page.site.site_name,
                                page_id=self.page.page_id, pdb_mode='C')
                 debugger.pdb_id=id(debugger)
                 for modulebag in connection_breakpoints.values():
@@ -237,8 +234,12 @@ class GnrPdb(pdb.Pdb):
         result['pdb_mode'] = self.pdb_mode
         result['pdb_id'] = self.pdb_id
         result['pdb_counter'] = self.pdb_counter
+        result['status'] = Bag(dict(level=self.curindex,pdb_mode=self.pdb_mode,pdb_id=self.pdb_id,
+                                    module = result['current.filename'],
+                                    lineno = result['current.lineno'],
+                                    functionName=result['functionName']))
         if self.pdb_mode=='C':
-            self.page.pdb.saveDebugDataInConnection(self.page_id,self.pdb_id,result)
+            self.page.pdb.saveDebugDataInConnection(self.page_id,self.pdb_id,result.toXml(unresolved=True))
         self.pdb_counter +=1
 
         return self.makeEnvelope(result)

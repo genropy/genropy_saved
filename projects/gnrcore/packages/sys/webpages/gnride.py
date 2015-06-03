@@ -17,13 +17,16 @@ class GnrCustomWebPage(object):
         debugger_drawer='close'
         if self._call_args:
             self.dest_page_id,self.dest_pdb_id=self._call_args
-            debug_data=self.pdb.loadDebugDataFromConnection(self.dest_page_id,self.dest_pdb_id,result)
-            root.data('curr_pdb',Bag(dict(page_id=dest_page_id,pdb_id=dest_pdb_id,debug_data=debug_data)))
+            debug_data=Bag(self.pdb.loadDebugDataFromConnection(self.dest_page_id,self.dest_pdb_id))
+            root.data('debug_data',debug_data)
             debugger_drawer=True
-            debugData=self.pdb.loadDebugDataFromConnection(self.dest_page_id,self.dest_pdb_id,result)
             root.dataController("""
-            genro.bp(true)
-            """,_onStart=True)
+            genro.pdb.onDebugStep(debug_data);
+            var current = debug_data.getItem('current');
+            var module=current.getItem('filename')
+            var lineno=current.getItem('lineno')
+            genro.publish('openEditorPage',{module:module})
+            """,_onStart=True,debug_data='=debug_data')
             
         bc = root.borderContainer(datapath='main')
         self.drawerPane(bc.framePane(frameCode='drawer',region='left',width='250px',splitter=True,drawer=True,background='rgba(230, 230, 230, 1)'))
@@ -34,20 +37,23 @@ class GnrCustomWebPage(object):
         bar.data('main.readOnly',True)
         bar.readOnlySlot.div().checkbox(value='^main.readOnly', label='Read Only')
         sc = frame.center.stackContainer(nodeId='codeEditor',selectedPage='^.selectedModule')
-        bar.dataRpc('dummy',self.pdb.setConnectionBreakpoint,
+        bar.dataRpc('dummy','pdb.setConnectionBreakpoint',
                 subscribe_setBreakpoint=True,
                 #httpMethod='WSK'
                 )
         bar.dataController("""
-            if(abs_path in sc.widget.gnrPageDict){
+            if(module in sc.widget.gnrPageDict){
+                SET .selectedModule = module;
                 return
             }
-            var label = abs_path.replace(/\./g, '_').replace(/\//g, '_');
-            sc._('ContentPane',label,{title:nodecaption,datapath:'.page_'+sc._value.len(),
+            var label = module.replace(/\./g, '_').replace(/\//g, '_');
+            var l = module.split('/');
+            var title = l[l.length-1];
+            sc._('ContentPane',label,{title:title,datapath:'.page_'+sc._value.len(),
                                         overflow:'hidden',
-                                        pageName:abs_path,closable:true
-                                        })._('ContentPane',{remote:remotemethod,remote_docPath:abs_path,overflow:'hidden'})
-            SET .selectedModule = abs_path;
+                                        pageName:module,closable:true
+                                        })._('ContentPane',{remote:remotemethod,remote_docPath:module,overflow:'hidden'})
+            SET .selectedModule = module;
             """,sc=sc,remotemethod=self.buildEditorTab,editorName='codeEditor',
             subscribe_openEditorPage=True)
             
@@ -76,7 +82,7 @@ class GnrCustomWebPage(object):
                         connect_ondblclick="""var ew = dijit.getEnclosingWidget($1.target);
                                               console.log('ew',ew)
                                               if(ew.item && ew.item.attr.file_ext!='directory'){
-                                                    genro.publish('openEditorPage',ew.item.attr)
+                                                    genro.publish('openEditorPage',{module:ew.item.attr.abs_path})
                                               }
                                              """,_class='branchtree noIcon',
             hideValues=True,openOnClick=True,labelAttribute='nodecaption',font_size='')

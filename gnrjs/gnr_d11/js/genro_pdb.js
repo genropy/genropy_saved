@@ -106,20 +106,23 @@ dojo.declare("gnr.GnrPdbHandler", null, {
     },
     
     openExernalDebug:function(data){
-        genro.openWindow(window.location.host+'/sys/gnride/'+genro._page_id+'/'+data.getItem('pdb_id'));
+        var url = window.location.host+'/sys/gnride/'+genro.page_id+'/'+data.getItem('pdb_id');
+        console.log('aaa',url)
+        url = window.location.protocol+'//'+url;
+        genro.openWindow(url,'debugger',{location:'no',menubar:'no'});
         
     },
     onPdbAnswer_line:function(line){
         genro.setData('_dev.pdb.debugger.output_line',line)
     },
     onPdbAnswer_bag:function(data){
-        var pdb_mode = data.getItem('pdb_mode');
-        var pdb_id = data.getItem('pdb_id');
-        var pdb_counter = data.getItem('pdb_counter');
-        var current = data.getItem('current');
-        var module=current.getItem('filename')
-        var lineno=current.getItem('lineno')
-        var functionName=current.getItem('functionName')
+        var status = data.getItem('status');
+        var pdb_mode = status.getItem('pdb_mode');
+        var pdb_id = status.getItem('pdb_id');
+        var pdb_counter = status.getItem('pdb_counter');
+        var module=status.getItem('filename')
+        var lineno=status.getItem('lineno')
+        var functionName=status.getItem('functionName')
         if (pdb_mode=='D'){
             
         }else if (pdb_mode=='C'){
@@ -132,22 +135,27 @@ dojo.declare("gnr.GnrPdbHandler", null, {
         }
         else if (pdb_mode=='P'){
             console.log('onPdbAnswer: module=',module,'  lineno=',lineno,' functionName=',functionName)
-            genro.setData('_dev.pdb.stack',data.getItem('stack'),{caption:'Stack'})
-        
-            var result=new gnr.GnrBag();
-            result.setItem('locals',current.getItem('locals'),{caption:'Locals'})
-            genro.setData('_dev.pdb.result',result)
-       
-            // if (current.getItem('returnValue'){
-            //       result.setItem('returnValue',current.getItem('returnValue'),{caption:'Return Value'})       
-            // }
-            // if (data.getItem('watches'){
-            //     result.setItem('watches',data.getItem('watches'),{caption:'Watches'})
-            // }
-      
+            this.onDebugStep(data)
             this.showDebugger(current.getItem('filename'),current.getItem('lineno'));
         }
 
+    },
+
+    onDebugStep:function(data){
+        genro.setData('_dev.pdb.stack',data.getItem('stack'),{caption:'Stack'})
+        var result=new gnr.GnrBag();
+        result.setItem('locals',data.getItem('current.locals'),{caption:'Locals'})
+        var returnValue = data.getItem('current.returnValue');
+        var watches = data.getItem('watches');
+        if (returnValue!==undefined){
+            result.setItem('returnValue',returnValue,{caption:'Return Value'})       
+        }
+        if (watches){
+            result.setItem('watches',watches,{caption:'Watches'})
+        }
+        genro.setData('_dev.pdb.result',result)
+        genro.setData('_dev.pdb.status',data.getItem('status'));
+        
     },
         
     sendCommand:function(command){

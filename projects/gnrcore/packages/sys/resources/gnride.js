@@ -13,7 +13,7 @@ var gnride = {
         })
     },
     onCreatedEditorDo:function(sourceNode){
-        console.log('onCreatedEditor',sourceNode)
+        var selectedLine = genro.getData('_dev.pdb.status.lineno'); 
         var cm = sourceNode.externalWidget;
         cm.gnrMakeMarker = function(conditional) {
             var marker = document.createElement("div");
@@ -54,8 +54,33 @@ var gnride = {
             }else{
                 cb();
             }
-            
         });
-    }
+        if(selectedLine){
+            this.selectLine(selectedLine);
+            
+        }
+    },
+
+
+    getCurrentModule:function(){
+        return genro.getData('main.selectedModule');
+    },
+
+    getEditorNode:function(module){
+        module = module || this.getCurrentModule();
+        return genro.nodeById(this.getModuleKey(module)+'_cm');
+    },
+
+    getModuleKey:function(module){
+        return module.replace(/[\.|\/]/g,'_');
+    },
+
+
+    selectLine:function(lineno){
+        var cm = this.getEditorNode().externalWidget;
+        cm.gnrSetCurrentLine(lineno)
+        cm.scrollIntoView({line:lineno});
+    },
+
 
 }
