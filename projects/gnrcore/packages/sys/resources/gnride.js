@@ -1,7 +1,7 @@
 var gnride = {
     start:function(){
-        genro.wsk.addHandler('do_pdb_out_bag',this.onPdbAnswer_bag);
-        genro.wsk.addHandler('do_pdb_out_line',this.onPdbAnswer_line);
+        genro.wsk.addhandler('do_pdb_out_bag',this.onPdbAnswer_bag);
+        genro.wsk.addhandler('do_pdb_out_line',this.onPdbAnswer_line);
     },
 
     getStackEditor:function(ide_page){

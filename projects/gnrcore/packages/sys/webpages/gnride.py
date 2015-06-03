@@ -33,6 +33,7 @@ class GnrCustomWebPage(object):
            #""",_onStart=True,debug_data='=debug_data')
             
         bc = root.borderContainer(datapath='main')
+        bc.dataController("gnride.start()",_onStart=True)
         self.drawerPane(bc.framePane(frameCode='drawer',region='left',width='250px',splitter=True,drawer=True,background='rgba(230, 230, 230, 1)'))
         self.dbstructPane(bc.framePane(frameCode='dbstruct',region='right',width='250px',splitter=True,drawer='close',background='rgba(230, 230, 230, 1)'))
         center = bc.framePane(frameCode='centerStack',region='center')
