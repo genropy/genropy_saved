@@ -237,7 +237,8 @@ class GnrPdb(pdb.Pdb):
         result['status'] = Bag(dict(level=self.curindex,pdb_mode=self.pdb_mode,pdb_id=self.pdb_id,
                                     module = result['current.filename'],
                                     lineno = result['current.lineno'],
-                                    functionName=result['functionName']))
+                                    functionName=result['functionName'],
+                                    pdb_counter=result['pdb_counter']))
         if self.pdb_mode=='C':
             self.page.pdb.saveDebugDataInConnection(self.page_id,self.pdb_id,result.toXml(unresolved=True))
         self.pdb_counter +=1

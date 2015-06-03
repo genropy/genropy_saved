@@ -120,7 +120,7 @@ dojo.declare("gnr.GnrPdbHandler", null, {
         var pdb_mode = status.getItem('pdb_mode');
         var pdb_id = status.getItem('pdb_id');
         var pdb_counter = status.getItem('pdb_counter');
-        var module=status.getItem('filename')
+        var module=status.getItem('module')
         var lineno=status.getItem('lineno')
         var functionName=status.getItem('functionName')
         if (pdb_mode=='D'){
@@ -128,7 +128,7 @@ dojo.declare("gnr.GnrPdbHandler", null, {
         }else if (pdb_mode=='C'){
             if (pdb_counter==0){
                 genro.dlg.ask('Breakpoint found',
-                '<h2 align="">Breakpoint found at module:<br/>'+module+'<br/>at line'+lineno+'</h2>',
+                '<br/><b>Module:</b>'+module.split('/').pop()+'<br/><b>Line:</>'+lineno,
                 {confirm:'Debug',cancel:'Continue'},{confirm:function(){genro.pdb.openExernalDebug(data);},cancel:function(){genro.pdb.do_continue()}
                });
             }
@@ -257,7 +257,6 @@ dojo.declare("gnr.GnrPdbHandler", null, {
             var code_line = n+1;
             genro.pdb.setBreakpoint({line:code_line,modifier:genro.dom.getEventModifiers(evt)});
         });
-
     }
     
 });
