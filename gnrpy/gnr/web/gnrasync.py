@@ -258,7 +258,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
         return data
 
     def do_connected(self,page_id=None,**kwargs):
-        #print 'do_connected:',page_id
+        print 'do_connected:',page_id
         self._page_id=page_id
         if not page_id in self.channels:
             #print 'setting in channels',self.page_id

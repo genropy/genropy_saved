@@ -52,6 +52,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
                 that.onerror(error)
             }
         }
+        
     },
     onopen:function(){
         console.log('connetting websocket')

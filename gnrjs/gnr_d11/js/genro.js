@@ -396,6 +396,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.wsk.create();
         this.pdb.start();
         this.root_page_id = null;
+
         if(this.startArgs['_parent_page_id']){
             this.parent_page_id = this.startArgs['_parent_page_id'];
         }
@@ -416,21 +417,23 @@ dojo.declare('gnr.GenroClient', null, {
                 parentGenro = false;
             }
         }
-        var mainBagPage = genro.src.getMainSource();
-        if (mainBagPage  &&  mainBagPage.attr && mainBagPage.attr.redirect) {
-            var pageUrl = this.absoluteUrl()
-            if (pageUrl.slice(0,genro.baseUrl.length-1)==genro.baseUrl.slice(0,genro.baseUrl.length-1))
-            {
-                pageUrl = pageUrl.slice(genro.baseUrl.length-1) || '/';
+        genro.src.getMainSource(function(mainBagPage){
+            if (mainBagPage  &&  mainBagPage.attr && mainBagPage.attr.redirect) {
+                var pageUrl = genro.absoluteUrl()
+                if (pageUrl.slice(0,genro.baseUrl.length-1)==genro.baseUrl.slice(0,genro.baseUrl.length-1))
+                {
+                    pageUrl = pageUrl.slice(genro.baseUrl.length-1) || '/';
+                }
+                var url = genro.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':pageUrl});
+               // genro.currentUrl=mainBagPage.attr.redirect
+                //var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
+                //this.dostart(mainBagPage)
+               genro.gotoURL(url);
+            }else{
+                genro.dostart(mainBagPage)
             }
-            var url = this.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':pageUrl});
-           // genro.currentUrl=mainBagPage.attr.redirect
-            //var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
-            //this.dostart(mainBagPage)
-           this.gotoURL(url);
-        }else{
-            this.dostart(mainBagPage)
-        }
+        });
+        
     },
         
     dostart: function(mainBagPage) {

@@ -104,7 +104,6 @@ class GnrPdbClient(GnrBaseProxy):
         
     @public_method
     def setConnectionBreakpoint(self,module=None,line=None,condition=None,evt=None):
-        print'gggggg'
         bpkey = '_pdb.breakpoints.%s.r_%i' %(module.replace('.','_').replace('/','_'),line)
         with self.page.connectionStore() as store:
             if evt=='del':
@@ -133,7 +132,7 @@ class GnrPdbClient(GnrBaseProxy):
         bpkey = '_pdb.debugdata.%s.%s' %(pdb_page_id,pdb_id)
         with self.page.connectionStore() as store:
             data = store.getItem(bpkey)
-        print 'LOADED DEBUGDATA IN CONNECTION',bpkey,data
+        #print 'LOADED DEBUGDATA IN CONNECTION',bpkey,data
         return data
         
         
@@ -240,7 +239,8 @@ class GnrPdb(pdb.Pdb):
                                     functionName=result['functionName'],
                                     pdb_counter=result['pdb_counter']))
         if self.pdb_mode=='C':
-            self.page.pdb.saveDebugDataInConnection(self.page_id,self.pdb_id,result.toXml(unresolved=True))
+            debug_data = result.toXml(unresolved=True)
+            self.page.pdb.saveDebugDataInConnection(self.page_id,self.pdb_id,debug_data)
         self.pdb_counter +=1
 
         return self.makeEnvelope(result)

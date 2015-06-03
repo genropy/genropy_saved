@@ -127,10 +127,13 @@ dojo.declare("gnr.GnrPdbHandler", null, {
             
         }else if (pdb_mode=='C'){
             if (pdb_counter==0){
-                genro.dlg.ask('Breakpoint found',
-                '<br/><b>Module:</b>'+module.split('/').pop()+'<br/><b>Line:</>'+lineno,
-                {confirm:'Debug',cancel:'Continue'},{confirm:function(){genro.pdb.openExernalDebug(data);},cancel:function(){genro.pdb.do_continue()}
-               });
+                if(window.confirm("Breakpoint found in module "+module.split('/').pop()+' at line '+lineno+'. Press Ok to debug')){
+                    genro.pdb.openExernalDebug(data);
+                }else{
+                    genro.pdb.do_continue();
+                }
+            }else{
+                alert('Unexpected breakpoint')
             }
         }
         else if (pdb_mode=='P'){
