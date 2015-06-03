@@ -54,6 +54,11 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         }
         
     },
+
+    addhandler:function(name,cb){
+        this[name] = cb;
+    },
+
     onopen:function(){
         console.log('connetting websocket')
         that=this
@@ -116,14 +121,6 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     },
     do_datachanges:function(datachanges){
         genro.rpc.setDatachangesInData(datachanges)
-    },
-    do_pdb_out_bag:function(data){
-        console.log('do_pdb_out_bag',data)
-        genro.pdb.onPdbAnswer_bag(data);
-    },
-    do_pdb_out_line:function(data){
-        console.log('do_pdb_out_line',data)
-        genro.pdb.onPdbAnswer_line(data);
     },
     do_publish:function(data){
         var topic=data.getItem('topic')

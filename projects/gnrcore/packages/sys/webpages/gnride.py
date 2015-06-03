@@ -15,49 +15,47 @@ class GnrCustomWebPage(object):
     def main(self,root,*args,**kwargs):
         root.attributes.update(overflow='hidden')
         debugger_drawer='close'
-        if self._call_args:
-            self.dest_page_id,self.dest_pdb_id=self._call_args
-            debug_data=Bag(self.pdb.loadDebugDataFromConnection(self.dest_page_id,self.dest_pdb_id))
-            root.data('debug_data',debug_data)
-            debugger_drawer=True
-            root.dataController("""
-            genro.pdb.onDebugStep(debug_data);
-            var current = debug_data.getItem('current');
-            var module=current.getItem('filename')
-            var lineno=current.getItem('lineno')
-            genro.publish('openEditorPage',{module:module})
-            """,_onStart=True,debug_data='=debug_data')
+        callArgs = self.getCallArgs('master_page_id')
+        if callArgs:
+            self.master_page_id = callArgs['master_page_id']
+            root.data('main.master_page_id',self.master_page_id)
+            with self.pageStore(self.master_page_id) as store:
+                store.setItem('_pdb.debugger_page_id',self.page_id)
+           #debug_data=Bag(self.pdb.loadDebugDataFromConnection())
+           #root.data('debug_data',debug_data)
+           #debugger_drawer=True
+           #root.dataController("""
+           #genro.pdb.onDebugStep(debug_data);
+           #var current = debug_data.getItem('current');
+           #var module=current.getItem('filename')
+           #var lineno=current.getItem('lineno')
+           #genro.publish('openEditorPage',{module:module})
+           #""",_onStart=True,debug_data='=debug_data')
             
         bc = root.borderContainer(datapath='main')
         self.drawerPane(bc.framePane(frameCode='drawer',region='left',width='250px',splitter=True,drawer=True,background='rgba(230, 230, 230, 1)'))
         self.dbstructPane(bc.framePane(frameCode='dbstruct',region='right',width='250px',splitter=True,drawer='close',background='rgba(230, 230, 230, 1)'))
+        center = bc.framePane(frameCode='centerStack',region='center')
+        bar = center.top.slotToolbar('5,stackButtons,*,addIdeBtn,5')
+        bar.addIdeBtn.slotButton('Add ide',action='gnride.newIde({ide_page:"ide_"+genro.getCounter()})')
+        sc = center.center.stackContainer(selectedPage='^.#parent.ide_page',nodeId='ideStack',datapath='.instances')
+        self.makeEditorStack(sc.contentPane(pageName='mainEditor',title='Main Editor',overflow='hidden',datapath='.mainEditor'),'mainEditor')
+        bc.dataRpc('dummy','pdb.setBreakpoint',subscribe_setBreakpoint=True)
+        bc.dataController("""
+            gnride.openModuleToEditorStack(_subscription_kwargs);
+            """,subscribe_openEditorPage=True)
 
-        frame = bc.framePane(frameCode='editingPages',datapath='main',selectedPage='^.selectedPage',region='center')
+    @public_method
+    def makeEditorStack(self,pane,frameCode=None,isDebugger=False):
+        bc = pane.borderContainer()
+        if isDebugger:
+            self.debuggerPane(bc.framePane(frameCode='%s_debugger' %frameCode,height='400px',splitter=True,drawer=True,region='bottom'))
+        frame = bc.framePane(frameCode=frameCode,region='center')
         bar = frame.top.slotToolbar('5,stackButtons,*,readOnlySlot,5',height='20px')
-        bar.data('main.readOnly',True)
-        bar.readOnlySlot.div().checkbox(value='^main.readOnly', label='Read Only')
-        sc = frame.center.stackContainer(nodeId='codeEditor',selectedPage='^.selectedModule')
-        bar.dataRpc('dummy','pdb.setConnectionBreakpoint',
-                subscribe_setBreakpoint=True,
-                #httpMethod='WSK'
-                )
-        bar.dataController("""
-            if(module in sc.widget.gnrPageDict){
-                SET .selectedModule = module;
-                return
-            }
-            var label = module.replace(/\./g, '_').replace(/\//g, '_');
-            var l = module.split('/');
-            var title = l[l.length-1];
-            sc._('ContentPane',label,{title:title,datapath:'.page_'+sc._value.len(),
-                                        overflow:'hidden',
-                                        pageName:module,closable:true
-                                        })._('ContentPane',{remote:remotemethod,remote_docPath:module,overflow:'hidden'})
-            SET .selectedModule = module;
-            """,sc=sc,remotemethod=self.buildEditorTab,editorName='codeEditor',
-            subscribe_openEditorPage=True)
-            
-        self.debuggerPane(bc.framePane(frameCode='pdbDebugger',height='400px',splitter=True,drawer=debugger_drawer,region='bottom'))
+        bar.data('.readOnly',True)
+        bar.readOnlySlot.div().checkbox(value='^.readOnly', label='Read Only')
+        stackNodeId = '%s_sc' %frameCode
+        frame.center.stackContainer(nodeId=stackNodeId,selectedPage='^.selectedModule')
 
 
     def dbstructPane(self,frame):
@@ -80,7 +78,6 @@ class GnrCustomWebPage(object):
         pane = frame.center.contentPane(overflow='auto')
         pane.div(padding='10px').tree(nodeId='drawer_tree',storepath='.directories',persist=True,
                         connect_ondblclick="""var ew = dijit.getEnclosingWidget($1.target);
-                                              console.log('ew',ew)
                                               if(ew.item && ew.item.attr.file_ext!='directory'){
                                                     genro.publish('openEditorPage',{module:ew.item.attr.abs_path})
                                               }
@@ -90,18 +87,16 @@ class GnrCustomWebPage(object):
 
 
     @public_method
-    def buildEditorTab(self,pane,docPath=None,**kwargs):
-
-        frameCode = docPath.replace('/','_').replace('.','_')
+    def buildEditorTab(self,pane,module=None,ide_page=None,**kwargs):
+        frameCode = '%s_%s' %(ide_page,module.replace('/','_').replace('.','_'))
         frame = pane.framePane(frameCode=frameCode ,region='center',_class='viewer_box selectable')
-        source = self.__readsource(docPath)
-        breakpoints = self.pdb.getBreakpoints(docPath)
-        pane.data('.docPath',docPath)
+        source = self.__readsource(module)
+        breakpoints = self.pdb.getBreakpoints(module)
+        pane.data('.module',module)
         bar = frame.bottom.slotBar('5,fpath,*',height='18px',background='#efefef')
-        bar.fpath.div('^.docPath',font_size='9px')
+        bar.fpath.div('^.module',font_size='9px')
         frame.data('.source',source)
         frame.data('.breakpoints',breakpoints)
-
         commandbar = frame.top.slotBar(',*,savebtn,revertbtn,5',childname='commandbar',toolbar=True,background='#efefef')
         commandbar.savebtn.slotButton('Save',iconClass='iconbox save',
                                 _class='source_viewer_button',
@@ -153,7 +148,7 @@ class GnrCustomWebPage(object):
                                 config_gutters=["CodeMirror-linenumbers", "pdb_breakpoints"],
                                 onCreated="gnride.onCreatedEditor(this);",
                                 readOnly='^main.readOnly',
-                                modulePath=docPath)
+                                modulePath=module)
         frame.dataController("""
             var cm = cm.externalWidget;
             cm.clearGutter('pdb_breakpoints');
@@ -272,10 +267,3 @@ class GnrCustomWebPage(object):
     def debuggerBottom(self,bottom):
         pass
      
-        
-    def set_trace(self):
-        debugger = GnrPdb(instance_name=self.page.site.site_name, page_id=self.page.page_id)
-        try:
-            debugger.set_trace(sys._getframe().f_back)
-        except Exception,e:
-            traceback.print_exc()

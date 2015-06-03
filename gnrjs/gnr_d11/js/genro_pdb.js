@@ -117,31 +117,28 @@ dojo.declare("gnr.GnrPdbHandler", null, {
     },
     onPdbAnswer_bag:function(data){
         var status = data.getItem('status');
-        var pdb_mode = status.getItem('pdb_mode');
-        var pdb_id = status.getItem('pdb_id');
-        var pdb_counter = status.getItem('pdb_counter');
+        //var pdb_mode = status.getItem('pdb_mode');
+        //var pdb_id = status.getItem('pdb_id');
+        //var pdb_counter = status.getItem('pdb_counter');
         var module=status.getItem('module')
         var lineno=status.getItem('lineno')
         var functionName=status.getItem('functionName')
-        if (pdb_mode=='D'){
-            
-        }else if (pdb_mode=='C'){
-            if (pdb_counter==0){
-                if(window.confirm("Breakpoint found in module "+module.split('/').pop()+' at line '+lineno+'. Press Ok to debug')){
-                    genro.pdb.openExernalDebug(data);
-                }else{
-                    genro.pdb.do_continue();
-                }
-            }else{
-                alert('Unexpected breakpoint')
-            }
-        }
-        else if (pdb_mode=='P'){
-            console.log('onPdbAnswer: module=',module,'  lineno=',lineno,' functionName=',functionName)
-            this.onDebugStep(data)
-            this.showDebugger(current.getItem('filename'),current.getItem('lineno'));
-        }
-
+        //if (pdb_mode=='D'){
+        //    
+        //}else if (pdb_mode=='C'){
+        //    if (pdb_counter==0){
+        //        if(window.confirm("Breakpoint found in module "+module.split('/').pop()+' at line '+lineno+'. Press Ok to debug')){
+        //            genro.pdb.openExernalDebug(data);
+        //        }else{
+        //            genro.pdb.do_continue();
+        //        }
+        //    }else{
+        //        alert('Unexpected breakpoint')
+        //    }
+        //}
+        console.log('onPdbAnswer: module=',module,'  lineno=',lineno,' functionName=',functionName)
+        this.onDebugStep(data)
+        //this.showDebugger(current.getItem('filename'),current.getItem('lineno'));
     },
 
     onDebugStep:function(data){

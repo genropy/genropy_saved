@@ -103,9 +103,9 @@ class GnrPdbClient(GnrBaseProxy):
         pass
         
     @public_method
-    def setConnectionBreakpoint(self,module=None,line=None,condition=None,evt=None):
+    def setBreakpoint(self,module=None,line=None,condition=None,evt=None):
         bpkey = '_pdb.breakpoints.%s.r_%i' %(module.replace('.','_').replace('/','_'),line)
-        with self.page.connectionStore() as store:
+        with self.page.pageStore() as store:
             if evt=='del':
                 store.pop(bpkey)
                 print 'POPPED BP FROM CONNECTION',bpkey
@@ -118,23 +118,7 @@ class GnrPdbClient(GnrBaseProxy):
         bpkey = '_pdb.breakpoints'
         if module:
             bpkey = '%s.%s' %(bpkey,module.replace('.','_').replace('/','_'))
-        return self.page.connectionStore().getItem(bpkey)
-    
-    @public_method
-    def saveDebugDataInConnection(self,pdb_page_id,pdb_id,data):
-        bpkey = '_pdb.debugdata.%s.%s' %(pdb_page_id,pdb_id)
-        with self.page.connectionStore() as store:
-            store.setItem(bpkey,data)
-        print 'STORED DEBUGDATA IN CONNECTION',bpkey,data
-        
-    @public_method
-    def loadDebugDataFromConnection(self,pdb_page_id,pdb_id):
-        bpkey = '_pdb.debugdata.%s.%s' %(pdb_page_id,pdb_id)
-        with self.page.connectionStore() as store:
-            data = store.getItem(bpkey)
-        #print 'LOADED DEBUGDATA IN CONNECTION',bpkey,data
-        return data
-        
+        return self.page.pageStore().getItem(bpkey)
         
     def set_trace(self):
         debugger = GnrPdb(instance_name=self.page.site.site_name, page_id=self.page.page_id)
@@ -145,43 +129,34 @@ class GnrPdbClient(GnrBaseProxy):
 
 
     def onPageStart(self):
-        if getattr(self.page,'pdb_ignore',None):
+        debugger_page_id = self.page.pageStore().getItem('_pdb.debugger_page_id')
+        print 'debugger_page_id',debugger_page_id
+        if not debugger_page_id:
             return
-        page_breakpoints = self.page.pageStore().getItem('_pdb.breakpoints')
+
+        page_breakpoints = self.page.pageStore(debugger_page_id).getItem('_pdb.breakpoints')
         
         bp = 0
         if page_breakpoints:
-            debugger = GnrPdb(page=self.page,instance_name=self.page.site.site_name,
-             page_id=self.page.page_id, pdb_mode='P')
+            debugger = GnrPdb(page=self.page,instance_name=self.page.site.site_name,debugger_page_id=debugger_page_id)
 
             for modulebag in page_breakpoints.values():
                 for module,line,condition in modulebag.digest('#a.module,#a.line,#a.condition'):
                     bp +=1
                     debugger.set_break(filename=module,lineno=line,cond=condition)
             if bp:
+                print 'debugger start'
                 debugger.start_debug(sys._getframe().f_back)
-        else:
-            connection_breakpoints = self.page.pdb.getBreakpoints()
-            if connection_breakpoints:
-                debugger = GnrPdb(page=self.page,instance_name=self.page.site.site_name,
-                               page_id=self.page.page_id, pdb_mode='C')
-                debugger.pdb_id=id(debugger)
-                for modulebag in connection_breakpoints.values():
-                    for module,line,condition in modulebag.digest('#a.module,#a.line,#a.condition'):
-                        bp +=1
-                        debugger.set_break(filename=module,lineno=line,cond=condition)
-                if bp:
-                    debugger.start_debug(sys._getframe().f_back)
 
 class GnrPdb(pdb.Pdb):
     
-    def __init__(self, page=None,instance_name=None, page_id=None, completekey='tab', skip=None,pdb_mode=None):
+    def __init__(self, page=None,instance_name=None, debugger_page_id=None, completekey='tab', skip=None,pdb_mode=None):
         self.page=page
         page.debugger=self
         self.pdb_id=id(self)
         self.pdb_mode=pdb_mode
         self.pdb_counter=0
-        self.page_id = page_id
+        self.debugger_page_id = debugger_page_id
         self.socket_path = os.path.join(gnrConfigPath(), 'sockets', '%s_debug.tornado'%instance_name)
         iostream = self.get_iostream()
         pdb.Pdb.__init__(self,completekey=completekey, skip=skip, stdin=iostream, stdout=iostream)
@@ -190,11 +165,12 @@ class GnrPdb(pdb.Pdb):
     def get_iostream(self):
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.sock.connect(self.socket_path)
-        self.sock.sendall('\0%s\n'%self.page_id)
+        self.sock.sendall('\0%s\n'%self.debugger_page_id)
         return self.sock.makefile('rw')
         
     def makeEnvelope(self,data):
         envelope=Bag(dict(command='pdb_out_bag',data=data))
+        print 'sending envelope',envelope
         return 'B64:%s'%base64.b64encode(envelope.toXml(unresolved=True))
         #onBuildTag=self.onBuildTag))
     
@@ -238,11 +214,7 @@ class GnrPdb(pdb.Pdb):
                                     lineno = result['current.lineno'],
                                     functionName=result['functionName'],
                                     pdb_counter=result['pdb_counter']))
-        if self.pdb_mode=='C':
-            debug_data = result.toXml(unresolved=True)
-            self.page.pdb.saveDebugDataInConnection(self.page_id,self.pdb_id,debug_data)
         self.pdb_counter +=1
-
         return self.makeEnvelope(result)
 
     def getBreakpointList(self):

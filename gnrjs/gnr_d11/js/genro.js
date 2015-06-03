@@ -255,7 +255,7 @@ dojo.declare('gnr.GenroClient', null, {
         if(genro.external_window_key){
             genro.mainGenroWindow.genro.publish('closeExternalWindow',{windowKey:genro.external_window_key});
         }
-        this.rpc.remoteCall('onClosePage', {sync:true});
+        this.rpc.remoteCall('onClosePage', {sync:true,_restartingPage:genro._restartingPage});
         genro.publish('onClosePage');
         if (genro._data) {
             genro.saveContextCookie();
@@ -463,12 +463,12 @@ dojo.declare('gnr.GenroClient', null, {
         this._dataroot.subscribe('dataTriggers', {'any':dojo.hitch(this, "dataTrigger")});
         dojo.subscribe('ping',genro.ping);
         
-        genro.dev.shortcut("Ctrl+Shift+I", function() {
+        genro.dev.shortcut("Ctrl+Shift+D", function() {
             genro.dev.showInspector();
         });
 
-        genro.dev.shortcut("Ctrl+Shift+D", function() {
-            genro.pdb.showDebugger();
+        genro.dev.shortcut("Ctrl+Shift+E", function() {
+            genro.dev.openGnrIde();
         });
 
         genro.dev.shortcut("Ctrl+Shift+T", function() {
@@ -1775,6 +1775,11 @@ dojo.declare('gnr.GenroClient', null, {
             objToCall['obj'][objToConnect['func']].apply(objToCall['obj'], arguments);
         }
     },
+    pageRestart:function(params,replaceParams) {
+        genro._restartingPage = true;
+        genro.pageReload({page_id:genro.page_id});
+    },
+
 
     pageReload:function(params,replaceParams) {
         if (params) {

@@ -449,7 +449,7 @@ class GnrWebPage(GnrBaseWebPage):
                 store_mixin_set = store.get('mixin_set') or set()
                 store.setItem('mixin_set', store_mixin_set.union(self.mixin_set))
         self._onEnd()
-        if getattr(self,'_closed',False):
+        if getattr(self,'_closed',False) and not getattr(self,'_restartingPage',False):
             self.site.register.drop_page(self.page_id, cascade=False)
         return result
         
@@ -1796,8 +1796,9 @@ class GnrWebPage(GnrBaseWebPage):
             getattr(self, m)()
         self.onMain()
         
-    def rpc_onClosePage(self, **kwargs):
+    def rpc_onClosePage(self, _restartingPage=None,**kwargs):
         """An rpc on page closure"""
+        self._restartingPage = _restartingPage
         self.onClosePage()
         self.site.onClosePage(self)
         

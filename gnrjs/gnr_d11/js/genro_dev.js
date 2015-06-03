@@ -278,6 +278,12 @@ dojo.declare("gnr.GnrDevHandler", null, {
         pane._('tree', treeattr);
     },
 
+    openGnrIde :function(){
+        var url = window.location.host+'/sys/gnride/'+genro.page_id;
+        url = window.location.protocol+'//'+url;
+        genro.openWindow(url,'debugger',{location:'no',menubar:'no'});
+
+    },
     
     openInspector:function(){
         var root = genro.src.newRoot();
