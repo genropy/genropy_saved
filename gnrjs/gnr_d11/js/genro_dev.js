@@ -280,7 +280,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
     openGnrIde :function(){
         var url = window.location.host+'/sys/gnride/'+genro.page_id;
-        url = window.location.protocol+'//'+url;
+        url = window.location.protocol+'//'+url+'?module='+escape(genro.pageModule);
+        console.log(url)
         genro.openWindow(url,'debugger',{location:'no',menubar:'no'});
 
     },

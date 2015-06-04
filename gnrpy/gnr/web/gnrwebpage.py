@@ -216,6 +216,7 @@ class GnrWebPage(GnrBaseWebPage):
     @property
     def pagename(self):
         return os.path.splitext(os.path.basename(self.filepath))[0].split(os.path.sep)[-1]
+    
 
     @property
     def call_args(self):
@@ -943,6 +944,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.frontend.frontend_arg_dict(arg_dict)
         arg_dict['customHeaders'] = self._htmlHeaders
         arg_dict['charset'] = self.charset
+        arg_dict['pageModule'] = self.filepath
         arg_dict['filename'] = self.pagename
         arg_dict['pageMode'] = 'wsgi_10'
         arg_dict['baseUrl'] = self.site.home_uri

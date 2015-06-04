@@ -12,7 +12,7 @@ import sys
 class GnrCustomWebPage(object):
     js_requires='gnride'
     pdb_ignore=True
-    def main(self,root,*args,**kwargs):
+    def main(self,root,module=None,**kwargs):
         root.attributes.update(overflow='hidden')
         debugger_drawer='close'
         callArgs = self.getCallArgs('master_page_id')
@@ -40,14 +40,16 @@ class GnrCustomWebPage(object):
         bar = center.top.slotToolbar('5,stackButtons,*,addIdeBtn,5')
         bar.addIdeBtn.slotButton('Add ide',action='gnride.newIde({ide_page:"ide_"+genro.getCounter()})')
         sc = center.center.stackContainer(selectedPage='^.#parent.ide_page',nodeId='ideStack',datapath='.instances')
-        self.makeEditorStack(sc.contentPane(pageName='mainEditor',title='Main Editor',overflow='hidden',datapath='.mainEditor'),'mainEditor')
+        self.makeEditorStack(sc.contentPane(pageName='mainEditor',title='Main Editor',overflow='hidden',datapath='.mainEditor'),'mainEditor',
+                         startingModule=module)
         bc.dataRpc('dummy','pdb.setBreakpoint',subscribe_setBreakpoint=True)
         bc.dataController("""
             gnride.openModuleToEditorStack(_subscription_kwargs);
             """,subscribe_openEditorPage=True)
+     
 
     @public_method
-    def makeEditorStack(self,pane,frameCode=None,isDebugger=False):
+    def makeEditorStack(self,pane,frameCode=None,startingModule=None,isDebugger=False):
         bc = pane.borderContainer()
         if isDebugger:
             self.debuggerPane(bc.framePane(frameCode='%s_debugger' %frameCode,height='400px',splitter=True,drawer=True,region='bottom'))
@@ -57,6 +59,9 @@ class GnrCustomWebPage(object):
         bar.readOnlySlot.div().checkbox(value='^.readOnly', label='Read Only')
         stackNodeId = '%s_sc' %frameCode
         frame.center.stackContainer(nodeId=stackNodeId,selectedPage='^.selectedModule')
+        if startingModule:
+            frame.dataController("""alert(startingModule)""",startingModule=startingModule,onBuilt=True)
+        
 
 
     def dbstructPane(self,frame):
@@ -117,25 +122,26 @@ class GnrCustomWebPage(object):
                                 genro.dom.setClass(bar,"changed_editor",currval!=oldval);""",
                             currval='^.source',
                             oldval='^.source_oldvalue',bar=commandbar,_onBuilt=True)
-        frame.dataRpc('dummy',self.save_source_code,docPath='=.docPath',
+        frame.dataRpc('dummy',self.save_source_code,docPath='=.module',
                         subscribe_sourceCodeUpdate=True,
                         sourceCode='=.source',_if='sourceCode && _source_changed',
                         _source_changed='=.changed_editor',
                         _onResult="""if(result=='OK'){
                                             SET .source_oldvalue = kwargs.sourceCode;
-                                            genro.publish('rebuildPage');
-                                        }else if(result.newpath){
-                                            if(genro.mainGenroWindow){
-                                                var treeMenuPath = genro.parentIframeSourceNode?genro.parentIframeSourceNode.attr.treeMenuPath:null;
-                                                if(treeMenuPath){
-                                                    treeMenuPath = treeMenuPath.split('.');
-                                                    var l = result.newpath.split('/');
-                                                    treeMenuPath.pop();
-                                                    treeMenuPath.push(l[l.length-1].replace('.py',''));
-                                                    fullpath = treeMenuPath.join('.');
-                                                }
-                                                genro.dom.windowMessage(genro.mainGenroWindow,{topic:'refreshApplicationMenu',selectPath:fullpath});
-                                            }
+                                        
+                                           // genro.publish('rebuildPage');
+                                        //}else if(result.newpath){
+                                        //    if(genro.mainGenroWindow){
+                                        //        var treeMenuPath = genro.parentIframeSourceNode?genro.parentIframeSourceNode.attr.treeMenuPath:null;
+                                        //        if(treeMenuPath){
+                                        //            treeMenuPath = treeMenuPath.split('.');
+                                        //            var l = result.newpath.split('/');
+                                        //            treeMenuPath.pop();
+                                        //            treeMenuPath.push(l[l.length-1].replace('.py',''));
+                                        //            fullpath = treeMenuPath.join('.');
+                                        //        }
+                                        //        genro.dom.windowMessage(genro.mainGenroWindow,{topic:'refreshApplicationMenu',selectPath:fullpath});
+                                        //    }
                                         }
                                         else{
                                             FIRE .error = result;
@@ -148,7 +154,7 @@ class GnrCustomWebPage(object):
                                 height='100%',
                                 config_gutters=["CodeMirror-linenumbers", "pdb_breakpoints"],
                                 onCreated="gnride.onCreatedEditor(this);",
-                                readOnly='^main.readOnly',
+                                readOnly='^.#parent.readOnly',
                                 modulePath=module)
         frame.dataController("""
             var cm = cm.externalWidget;

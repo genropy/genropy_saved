@@ -59,6 +59,7 @@ dojo.declare('gnr.GenroClient', null, {
         //this.debug_py = kwargs.startArgs.debug_py;
         this.websockets_url=kwargs.startArgs.websockets_url;
         this.pageMode = kwargs.pageMode;
+        this.pageModule = kwargs.pageModule;
         this.baseUrl = kwargs.baseUrl;
         this.serverTime =objectPop(kwargs.startArgs,'servertime');
         var start_ts = new Date();
