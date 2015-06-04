@@ -21,7 +21,7 @@ class GnrPdbClient(GnrBaseProxy):
     @public_method
     def setBreakpoint(self,module=None,line=None,condition=None,evt=None):
         bpkey = '_pdb.breakpoints.%s.r_%i' %(module.replace('.','_').replace('/','_'),line)
-        with self.page.pageStore() as store:
+        with self.page.connectionStore() as store:
             if evt=='del':
                 store.pop(bpkey)
             else:
@@ -32,24 +32,24 @@ class GnrPdbClient(GnrBaseProxy):
         bpkey = '_pdb.breakpoints'
         if module:
             bpkey = '%s.%s' %(bpkey,module.replace('.','_').replace('/','_'))
-        return self.page.pageStore().getItem(bpkey)
+        return self.page.connectionStore().getItem(bpkey)
         
 
     def onPageStart(self):
-        debugger_page_id = self.page.pageStore().getItem('_pdb.debugger_page_id')
-        if not debugger_page_id:
-            return
-        page_breakpoints = self.page.pageStore(debugger_page_id).getItem('_pdb.breakpoints')
+        with self.page.connectionStore() as store:
+            debugger_page_id = store.getItem('_dev.gnride_page_id')
+            if not debugger_page_id:
+                return
+            breakpoints = store.getItem('_pdb.breakpoints')
         bp = 0
-        if page_breakpoints:
+        if breakpoints:
             debugger = GnrPdb(page=self.page,instance_name=self.page.site.site_name,debugger_page_id=debugger_page_id,callcounter=self.page.callcounter,
                             methodname=self.page._call_kwargs.get('method'))
-            for modulebag in page_breakpoints.values():
+            for modulebag in breakpoints.values():
                 for module,line,condition in modulebag.digest('#a.module,#a.line,#a.condition'):
                     bp +=1
                     debugger.set_break(filename=module,lineno=line,cond=condition)
             if bp:
-                print 'debugger start'
                 debugger.start_debug(sys._getframe().f_back)
 
 class GnrPdb(pdb.Pdb):
@@ -69,12 +69,11 @@ class GnrPdb(pdb.Pdb):
     def get_iostream(self):
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.sock.connect(self.socket_path)
-        self.sock.sendall('\0%s\n'%self.debugger_page_id)
+        self.sock.sendall('\0%s,%s\n'%(self.debugger_page_id,self.pdb_id))
         return self.sock.makefile('rw')
         
     def makeEnvelope(self,data):
         envelope=Bag(dict(command='pdb_out_bag',data=data))
-        print 'sending envelope',envelope
         return 'B64:%s'%base64.b64encode(envelope.toXml(unresolved=True))
         #onBuildTag=self.onBuildTag))
     

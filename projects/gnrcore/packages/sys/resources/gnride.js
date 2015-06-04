@@ -78,14 +78,15 @@ var gnride = {
                                                         remote__onRemote:finalize})
     },
 
-    onPdbAnswer_line:function(line){
-        genro.setData('_dev.pdb.debugger.output_line',line)
-        window.focus();
+    onPdbAnswer_line:function(data){
+        console.log('data',data)
+        this.getStackEditor(data.getItem('pdb_id')).setRelativeData('.output_line',data.getItem('line'));
     },
     onPdbAnswer_bag:function(data){
         var status = data.getItem('status');
         var module = status.getItem('module');
         var lineno = status.getItem('lineno');
+        var callcounter = data.getItem('callcounter');
         var functionName = status.getItem('functionName');
         console.log('onPdbAnswer: module=',module,'  lineno=',lineno,' functionName=',functionName);
         var that = this;
@@ -95,8 +96,7 @@ var gnride = {
         }
         this.openModuleToEditorStack({ide_page:data.getItem('pdb_id'),ide_name:data.getItem('methodname'),
                                                 module:module,isDebugger:true},finalize);
-        window.focus();
-    },
+     },
 
     setDebugData:function(data){
         var ideNode = this.getStackEditor();
@@ -189,9 +189,20 @@ var gnride = {
     },
 
     selectLine:function(lineno){
-        var cm = this.getEditorNode().externalWidget;
-        cm.gnrSetCurrentLine(lineno)
-        cm.scrollIntoView({line:lineno});
+        var editorNode = this.getEditorNode();
+        var doselect = function(cm){
+            cm.gnrSetCurrentLine(lineno)
+            cm.scrollIntoView({line:lineno});
+        }
+        if(editorNode.externalWidget){
+            doselect(editorNode.externalWidget);
+        }else{
+            editorNode.watch('editorReady',function(){
+                return editorNode.externalWidget;
+            },function(){
+                doselect(editorNode.externalWidget);
+            })
+        }
     },
     closeDebugger:function(pdb_id){
         var mainstack = this.getIdeStack();
@@ -200,7 +211,7 @@ var gnride = {
 
     sendCommand:function(command){
         console.log('sending command',command)
-        genro.wsk.send("pdb_command",{cmd:command});
+        genro.wsk.send("pdb_command",{cmd:command,pdb_id:this.getCurrentIdePage()});
     },
     
     do_stepOver:function(){

@@ -149,9 +149,7 @@ dojo.declare('gnr.GenroClient', null, {
 
         this.dom = new gnr.GnrDomHandler(this);
         this.vld = new gnr.GnrValidator(this);
-        this.wsk = new gnr.GnrWebSocketHandler(this,this.websockets_url,{debug:false});
-        this.pdb = new gnr.GnrPdbHandler(this)
-        
+        this.wsk = new gnr.GnrWebSocketHandler(this,this.websockets_url,{debug:false});        
        //var onerrorcb = function(errorMsg,url,linenumber){
        //    genro.onError(errorMsg,url,linenumber);
        //};
@@ -395,7 +393,6 @@ dojo.declare('gnr.GenroClient', null, {
         this.isChrome = ( (navigator.appVersion.indexOf('Chrome') >= 0 ));
         //genro.timeIt('** getting main **');
         this.wsk.create();
-        this.pdb.start();
         this.root_page_id = null;
 
         if(this.startArgs['_parent_page_id']){
@@ -468,7 +465,7 @@ dojo.declare('gnr.GenroClient', null, {
             genro.dev.showInspector();
         });
 
-        genro.dev.shortcut("Ctrl+Shift+E", function() {
+        genro.dev.shortcut("Ctrl+Shift+I", function() {
             genro.dev.openGnrIde();
         });
 

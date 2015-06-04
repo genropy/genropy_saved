@@ -233,7 +233,7 @@ class FrameIndex(BaseComponent):
 
     def prepareBottom(self,pane):
         pane.attributes.update(dict(overflow='hidden',background='silver'))
-        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,manageDocumentation,count_errors,5,appInfo,*,debugping,5,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='20px',
+        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,manageDocumentation,5,openGnrIDE,count_errors,5,appInfo,*,debugping,5,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='20px',
                         gradient_from='gray',gradient_to='silver',gradient_deg=90)
         sb.appInfo.div('^gnr.appInfo')
         applogo = sb.applogo.div()
@@ -258,6 +258,10 @@ class FrameIndex(BaseComponent):
         sb.devlink.a(href=formula,_iframes='=iframes',_selectedFrame='^selectedFrame').div(_class="iconbox flash",tip='!!Open the page outside frame',_tags='_DEV_')
         sb.manageDocumentation.slotButton("!!Open documentation",iconClass='iconbox icnBottomDocumentation',
                             action='genro.framedIndexManager.openDocForCurrentIframe();')
+
+        sb.openGnrIDE.div().slotButton("!!Open Genro IDE",iconClass='iconbox laptop',
+                            action='genro.framedIndexManager.openGnrIDE();',_tags='_DEV_')
+
         appPref.dataController("""genro.dlg.iframePalette({top:'10px',left:'10px',url:url,
                                                         title:preftitle,height:'450px', width:'800px',
                                                         palette_nodeId:'mainpreference'});""",

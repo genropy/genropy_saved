@@ -277,23 +277,33 @@ dojo.declare("gnr.GnrDevHandler", null, {
         treeattr.getIconClass = 'return "treeNoIcon";';
         pane._('tree', treeattr);
     },
+    startDebug:function(callcounter){
+        if(this._debuggerWindow){
+            console.log('callcounter',callcounter)
+            this._debuggerWindow.focus();
+        }else{
+            this.openGnrIde();
+        }
+    },
 
     openGnrIde :function(){
         var url = window.location.host+'/sys/gnride/'+genro.page_id;
-        url = window.location.protocol+'//'+url; //+'?module='+escape(genro.pageModule);
-        console.log(url)
+        url = window.location.protocol+'//'+url;
         var w = genro.openWindow(url,'debugger',{location:'no',menubar:'no'});
         console.log('w,h',window.clientWidth,window.clientHeight)
         w.resizeTo(window.screen.width,window.screen.height);
         var debuggedModule = genro.pageModule;
+        var mainGenro = genro;
+        this._debuggerWindow = w;
+        genro.wsk.addhandler('do_focus_debugger',function(callcounter){
+            setTimeout(function(){
+                genro.dev.startDebug(callcounter);
+            },100)
+        });
         w.addEventListener('load',function(){
-            var wg = this.genro;     
-            wg.ext['startingModule'] = debuggedModule;
-           //wg.root_page_id = parentGenro.page_id;
-           //wg.parent_page_id = parentGenro.page_id;
-           //wg.startArgs['_root_page_id'] = wg.root_page_id;
-           //wg.startArgs['_parent_page_id'] = wg.parent_page_id;
-           //wg.external_window_key = windowKey;
+            var dbg_genro = this.genro;     
+            dbg_genro.ext.mainGenro = mainGenro;
+            dbg_genro.ext['startingModule'] = debuggedModule;
         });
 
     },

@@ -13,24 +13,19 @@ class GnrCustomWebPage(object):
     js_requires='gnride'
     pdb_ignore=True
     def main(self,root,**kwargs):
+        with self.connectionStore() as store:
+            gnride_page_id = store.getItem('_dev.gnride_page_id')
+            if gnride_page_id:
+                raise
+            else:
+                store.setItem('_dev.gnride_page_id',self.page_id)
         root.attributes.update(overflow='hidden')
-        callArgs = self.getCallArgs('master_page_id')
-        if callArgs:
-            self.master_page_id = callArgs['master_page_id']
-            root.data('main.master_page_id',self.master_page_id)
-            with self.pageStore(self.master_page_id) as store:
-                store.setItem('_pdb.debugger_page_id',self.page_id)
-           #debug_data=Bag(self.pdb.loadDebugDataFromConnection())
-           #root.data('debug_data',debug_data)
-           #debugger_drawer=True
-           #root.dataController("""
-           #genro.pdb.onDebugStep(debug_data);
-           #var current = debug_data.getItem('current');
-           #var module=current.getItem('filename')
-           #var lineno=current.getItem('lineno')
-           #genro.publish('openEditorPage',{module:module})
-           #""",_onStart=True,debug_data='=debug_data')
-            
+       #callArgs = self.getCallArgs('master_page_id')
+       #if callArgs:
+       #    self.master_page_id = callArgs['master_page_id']
+       #    root.data('main.master_page_id',self.master_page_id)
+       #    with self.pageStore(self.master_page_id) as store:
+       #        store.setItem('_pdb.debugger_page_id',self.page_id)
         bc = root.borderContainer(datapath='main')
         bc.dataController("gnride.start()",_onStart=True)
         self.drawerPane(bc.framePane(frameCode='drawer',region='left',width='250px',splitter=True,drawer=True,background='rgba(230, 230, 230, 1)'))
@@ -81,7 +76,7 @@ class GnrCustomWebPage(object):
         pane.div(padding='10px').tree(nodeId='drawer_tree',storepath='.directories',persist=True,
                         connect_ondblclick="""var ew = dijit.getEnclosingWidget($1.target);
                                               if(ew.item && ew.item.attr.file_ext!='directory'){
-                                                    genro.publish('openEditorPage',{module:ew.item.attr.abs_path})
+                                                    genro.publish('openModuleToEditorStack',{module:ew.item.attr.abs_path})
                                               }
                                              """,_class='branchtree noIcon',
             hideValues=True,openOnClick=True,labelAttribute='nodecaption',font_size='')
@@ -202,8 +197,6 @@ class GnrCustomWebPage(object):
     def source_viewer_edit_allowed(self):
         return self.site.remote_edit
 
-
-
         
     def debuggerPane(self,frame):
         bc =  frame.center.borderContainer()
@@ -246,14 +239,14 @@ class GnrCustomWebPage(object):
         lastline=center.div(position='relative')
         lastline.div('>>>',position='absolute',top='1px',left='0px')
         debugger_input=lastline.div(position='absolute',top='0px',left='20px',right='5px').input(value='^.command',width='100%',border='0px')
-        center.dataController("""SET .output=output? output+_lf+line:line;""",line='^_dev.pdb.debugger.output_line',output='=.output')
-        center.dataController("""SET _dev.pdb.debugger.output_line=command; 
+        center.dataController("""SET .output=output? output+_lf+line:line;""",line='^.output_line',output='=.output')
+        center.dataController("""SET .output_line=command; 
                                  if (command.startsWith('/')){
                                     command=command.slice(1)
                                  }else if(!command.startsWith('!')){
                                      command='!'+command;
                                  }
-                                 genro.pdb.sendCommand(command);
+                                 gnride.sendCommand(command);
                                  SET .command=null;
                                  debugger_input.domNode.focus();
                                  """,command='^.command',debugger_input=debugger_input,_if='command')
@@ -266,4 +259,11 @@ class GnrCustomWebPage(object):
 
     def debuggerBottom(self,bottom):
         pass
+
+
+    def onClosePage(self):
+        """TODO"""
+        with self.connectionStore() as store:
+            store.popNode('_dev.gnride_page_id')
+
      

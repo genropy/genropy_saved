@@ -23,7 +23,6 @@ import time
 import os
 import base64
 from concurrent.futures import ThreadPoolExecutor,Future, Executor
-import socket
 from threading import Lock
 import tornado.web
 from tornado import gen
@@ -32,11 +31,10 @@ import tornado.ioloop
 from tornado.netutil import bind_unix_socket
 from tornado.tcpserver import TCPServer
 import toro
-from collections import defaultdict
 from tornado.httpserver import HTTPServer
 
 from gnr.app.gnrconfig import gnrConfigPath
-from gnr.core.gnrbag import Bag,BagException,TraceBackResolver
+from gnr.core.gnrbag import Bag,TraceBackResolver
 from gnr.web.gnrwsgisite import GnrWsgiSite
 from gnr.core.gnrstring import fromJson
 
@@ -110,17 +108,21 @@ class DebugSession(GnrBaseHandler):
     def __init__(self, stream, application):
         self.stream = stream
         self.application = application
+        self.pdb_id = None
+        self.page_id = None
         self.stream.set_close_callback(self.on_disconnect)
         self.socket_input_queue = toro.Queue(maxsize=40)
         self.socket_output_queue = toro.Queue(maxsize=40)
         self.websocket_output_queue = toro.Queue(maxsize=40)
         self.consume_socket_input_queue()
 
-    def link_page(self, page_id):
+    def link_debugger(self, debugkey):
+        page_id,pdb_id = debugkey.split(',')
         self.page_id = page_id
-        if not page_id in self.debug_queues:
-            self.debug_queues[page_id] = toro.Queue(maxsize=40)
-        self.websocket_input_queue = self.debug_queues[page_id]
+        self.pdb_id = pdb_id
+        if not debugkey in self.debug_queues:
+            self.debug_queues[debugkey] = toro.Queue(maxsize=40)
+        self.websocket_input_queue = self.debug_queues[debugkey]
         self.consume_websocket_output_queue()
         self.consume_websocket_input_queue()
         self.consume_socket_output_queue()
@@ -128,7 +130,7 @@ class DebugSession(GnrBaseHandler):
     @gen.coroutine
     def handle_socket_message(self, message):
         if message.startswith('\0') or message.startswith('|'):
-            self.link_page(message[1:])
+            self.link_debugger(message[1:])
         else:
             yield self.websocket_output_queue.put(message)
 
@@ -156,10 +158,11 @@ class DebugSession(GnrBaseHandler):
         while True:
             data = yield self.websocket_output_queue.get()
             if data.startswith('B64:'):
-                data=base64.b64decode(data[4:])
+                envelope = base64.b64decode(data[4:])
             else:
-                data=Bag(dict(command='pdb_out_line',data=data)).toXml()
-            self.channels.get(self.page_id).write_message(data)
+                data = Bag(dict(line=data,pdb_id=self.pdb_id))
+                envelope = Bag(dict(command='pdb_out_line',data=data)).toXml()
+            self.channels.get(self.page_id).write_message(envelope)
             
     @gen.coroutine 
     def on_disconnect(self):
@@ -258,7 +261,6 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
         return data
 
     def do_connected(self,page_id=None,**kwargs):
-        print 'do_connected:',page_id
         self._page_id=page_id
         if not page_id in self.channels:
             #print 'setting in channels',self.page_id
@@ -275,24 +277,15 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
             pass
             #print 'already in pages',self.page_id
 
-    def do_pdb_command(self, cmd=None, **kwargs):
+    def do_pdb_command(self, cmd=None, pdb_id=None,**kwargs):
         #self.debugger.put_data(data)
         print 'CMD',cmd
-        if not self.page_id in self.debug_queues:
-            self.debug_queues[self.page_id] = toro.Queue(maxsize=40)
-        data_queue = self.debug_queues[self.page_id]
+        debugkey = '%s,%s' %(self.page_id,pdb_id)
+        if not debugkey in self.debug_queues:
+            self.debug_queues[debugkey] = toro.Queue(maxsize=40)
+        data_queue = self.debug_queues[debugkey]
         data_queue.put(cmd)
         
-    @threadpool
-    def do_pdb_breakpoint(self,  line=None,evt=None,module=None,condition=None,**kwargs):
-        print 'do_pdb_breakpoint',kwargs
-        bpkey = '_pdb.breakpoints.%s.r_%i' %(module.replace('.','_').replace('/','_'),line)
-        with self.gnrsite.register.pageStore(self.page_id) as store:
-            if evt=='del':
-                store.pop(bpkey)
-            else:
-                store.setItem(bpkey,None,line=line,module=module,condition=condition)
-
     @threadpool
     def do_call(self,method=None, result_token=None, _time_start=None,**kwargs):
         error = None
