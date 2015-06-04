@@ -12,9 +12,8 @@ import sys
 class GnrCustomWebPage(object):
     js_requires='gnride'
     pdb_ignore=True
-    def main(self,root,module=None,**kwargs):
+    def main(self,root,**kwargs):
         root.attributes.update(overflow='hidden')
-        debugger_drawer='close'
         callArgs = self.getCallArgs('master_page_id')
         if callArgs:
             self.master_page_id = callArgs['master_page_id']
@@ -38,31 +37,28 @@ class GnrCustomWebPage(object):
         self.dbstructPane(bc.framePane(frameCode='dbstruct',region='right',width='250px',splitter=True,drawer='close',background='rgba(230, 230, 230, 1)'))
         center = bc.framePane(frameCode='centerStack',region='center')
         bar = center.top.slotToolbar('5,stackButtons,*,addIdeBtn,5')
-        bar.addIdeBtn.slotButton('Add ide',action='gnride.newIde({ide_page:"ide_"+genro.getCounter()})')
+        bar.addIdeBtn.slotButton('Add ide',action='gnride.newIde({ide_page:"ide_"+genro.getCounter(),isDebugger:true})')
         sc = center.center.stackContainer(selectedPage='^.#parent.ide_page',nodeId='ideStack',datapath='.instances')
-        self.makeEditorStack(sc.contentPane(pageName='mainEditor',title='Main Editor',overflow='hidden',datapath='.mainEditor'),'mainEditor',
-                         startingModule=module)
+        self.makeEditorStack(sc.contentPane(pageName='mainEditor',title='Main Editor',overflow='hidden',datapath='.mainEditor'),'mainEditor')
         bc.dataRpc('dummy','pdb.setBreakpoint',subscribe_setBreakpoint=True)
         bc.dataController("""
             gnride.openModuleToEditorStack(_subscription_kwargs);
-            """,subscribe_openEditorPage=True)
+            """,subscribe_openModuleToEditorStack=True)
      
 
     @public_method
-    def makeEditorStack(self,pane,frameCode=None,startingModule=None,isDebugger=False):
+    def makeEditorStack(self,pane,frameCode=None,isDebugger=False):
         bc = pane.borderContainer()
         if isDebugger:
             self.debuggerPane(bc.framePane(frameCode='%s_debugger' %frameCode,height='400px',splitter=True,drawer=True,region='bottom'))
         frame = bc.framePane(frameCode=frameCode,region='center')
-        bar = frame.top.slotToolbar('5,stackButtons,*,readOnlySlot,5',height='20px')
+        slots = '5,stackButtons,*' if isDebugger else '5,stackButtons,*,readOnlySlot,5'
+        bar = frame.top.slotToolbar(slots,height='20px')
         bar.data('.readOnly',True)
-        bar.readOnlySlot.div().checkbox(value='^.readOnly', label='Read Only')
+        if not isDebugger:
+            bar.readOnlySlot.div().checkbox(value='^.readOnly', label='Read Only')
         stackNodeId = '%s_sc' %frameCode
         frame.center.stackContainer(nodeId=stackNodeId,selectedPage='^.selectedModule')
-        if startingModule:
-            frame.dataController("""alert(startingModule)""",startingModule=startingModule,onBuilt=True)
-        
-
 
     def dbstructPane(self,frame):
         frame.data('main.dbstructure',self.app.dbStructure())
@@ -219,26 +215,23 @@ class GnrCustomWebPage(object):
         
     def debuggerTop(self,top):
         bar = top.slotToolbar('5,stepover,stepin,stepout,cont,*')
-        bar.stepover.slotButton('Step over',action='genro.pdb.do_stepOver()')
-        bar.stepin.slotButton('Step in',action='genro.pdb.do_stepIn()')
-        bar.stepout.slotButton('Step out',action='genro.pdb.do_stepOut()')
-        bar.cont.slotButton('Continue',action='genro.pdb.do_continue()')
+        bar.stepover.slotButton('Step over',action='gnride.do_stepOver()')
+        bar.stepin.slotButton('Step in',action='gnride.do_stepIn()')
+        bar.stepout.slotButton('Step out',action='gnride.do_stepOut()')
+        bar.cont.slotButton('Continue',action='gnride.do_continue()')
         
     def debuggerLeft(self,bc):
         bc=bc.borderContainer(width='250px',splitter=True,region='left',margin='2px', border='1px solid #efefef',margin_right=0,rounded=4)
         bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Stack')
-        bc.contentPane(region='center',padding='2px').tree(storepath='_dev.pdb.stack',
+        bc.contentPane(region='center',padding='2px').tree(storepath='.stack',
                      labelAttribute='caption',_class='branchtree noIcon',autoCollapse=True,
-                     connect_onClick="""level=$1.attr.level;genro.pdb.do_level(level) """)
+                     connect_onClick="""level=$1.attr.level;gnride.do_level(level);""")
         
     def debuggerRight(self,bc):
         bc=bc.borderContainer(width='250px',splitter=True,region='right',margin='2px',border='1px solid #efefef',margin_left=0,rounded=4)
         bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Current')
-        paneTree=bc.contentPane(region='center',padding='2px')
-       #paneTree.tree(storepath='_dev.pdb.result',openOnClick=True,autoCollapse=True,
-       #         labelAttribute='caption',_class='branchtree noIcon',hideValues=True)
-       #         
-        tree = paneTree.treeGrid(storepath='_dev.pdb.result',noHeaders=True)
+        paneTree=bc.contentPane(region='center',padding='2px')   
+        tree = paneTree.treeGrid(storepath='.result',noHeaders=True)
         tree.column('__label__',contentCb="""return this.attr.caption || this.label""",
                       background='#888',color='white')
                                                           

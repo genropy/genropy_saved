@@ -247,8 +247,8 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             if(genro.debug_sql){
                 content.debug_sql = genro.debug_sql;
             }
-            content.callcounter =  genro.getCounter('debug');   
         }
+        content.callcounter =  genro.getCounter('debug'); 
         kw.content = content;
         //kw.preventCache = kw.preventCache - just to remember that we can have it
         kw.handleAs = kw.handleAs || 'xml';

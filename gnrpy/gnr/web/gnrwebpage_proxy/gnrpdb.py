@@ -138,7 +138,8 @@ class GnrPdbClient(GnrBaseProxy):
         
         bp = 0
         if page_breakpoints:
-            debugger = GnrPdb(page=self.page,instance_name=self.page.site.site_name,debugger_page_id=debugger_page_id)
+            debugger = GnrPdb(page=self.page,instance_name=self.page.site.site_name,debugger_page_id=debugger_page_id,callcounter=self.page.callcounter,
+                            methodname=self.page._call_kwargs.get('method'))
 
             for modulebag in page_breakpoints.values():
                 for module,line,condition in modulebag.digest('#a.module,#a.line,#a.condition'):
@@ -150,14 +151,15 @@ class GnrPdbClient(GnrBaseProxy):
 
 class GnrPdb(pdb.Pdb):
     
-    def __init__(self, page=None,instance_name=None, debugger_page_id=None, completekey='tab', skip=None,pdb_mode=None):
+    def __init__(self, page=None,instance_name=None, debugger_page_id=None, completekey='tab',callcounter=None,methodname=None, skip=None):
         self.page=page
         page.debugger=self
-        self.pdb_id=id(self)
-        self.pdb_mode=pdb_mode
+        self.pdb_id='D_%s' %id(self)
         self.pdb_counter=0
         self.debugger_page_id = debugger_page_id
         self.socket_path = os.path.join(gnrConfigPath(), 'sockets', '%s_debug.tornado'%instance_name)
+        self.callcounter = callcounter
+        self.methodname = methodname
         iostream = self.get_iostream()
         pdb.Pdb.__init__(self,completekey=completekey, skip=skip, stdin=iostream, stdout=iostream)
         self.prompt = ''
@@ -206,10 +208,11 @@ class GnrPdb(pdb.Pdb):
         result['watches'] = self.getWatches(frame)
         result['bplist'] = self.getBreakpointList()
         result['level'] = self.curindex
-        result['pdb_mode'] = self.pdb_mode
         result['pdb_id'] = self.pdb_id
         result['pdb_counter'] = self.pdb_counter
-        result['status'] = Bag(dict(level=self.curindex,pdb_mode=self.pdb_mode,pdb_id=self.pdb_id,
+        result['callcounter'] = self.callcounter
+        result['methodname'] = self.methodname
+        result['status'] = Bag(dict(level=self.curindex,pdb_id=self.pdb_id,
                                     module = result['current.filename'],
                                     lineno = result['current.lineno'],
                                     functionName=result['functionName'],

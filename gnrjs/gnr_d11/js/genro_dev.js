@@ -280,9 +280,21 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
     openGnrIde :function(){
         var url = window.location.host+'/sys/gnride/'+genro.page_id;
-        url = window.location.protocol+'//'+url+'?module='+escape(genro.pageModule);
+        url = window.location.protocol+'//'+url; //+'?module='+escape(genro.pageModule);
         console.log(url)
-        genro.openWindow(url,'debugger',{location:'no',menubar:'no'});
+        var w = genro.openWindow(url,'debugger',{location:'no',menubar:'no'});
+        console.log('w,h',window.clientWidth,window.clientHeight)
+        w.resizeTo(window.screen.width,window.screen.height);
+        var debuggedModule = genro.pageModule;
+        w.addEventListener('load',function(){
+            var wg = this.genro;     
+            wg.ext['startingModule'] = debuggedModule;
+           //wg.root_page_id = parentGenro.page_id;
+           //wg.parent_page_id = parentGenro.page_id;
+           //wg.startArgs['_root_page_id'] = wg.root_page_id;
+           //wg.startArgs['_parent_page_id'] = wg.parent_page_id;
+           //wg.external_window_key = windowKey;
+        });
 
     },
     

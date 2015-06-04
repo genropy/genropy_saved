@@ -1,53 +1,81 @@
 var gnride = {
     start:function(){
-        genro.wsk.addhandler('do_pdb_out_bag',this.onPdbAnswer_bag);
-        genro.wsk.addhandler('do_pdb_out_line',this.onPdbAnswer_line);
+        var that = this;
+        genro.wsk.addhandler('do_pdb_out_bag',function(data){that.onPdbAnswer_bag(data)});
+        genro.wsk.addhandler('do_pdb_out_line',function(data){that.onPdbAnswer_line(data)});
+        genro.wsk.addhandler('do_close_debugger',function(pdb_id){that.closeDebugger(pdb_id)});
+
+        if(genro.ext.startingModule){
+            this.openModuleToEditorStack({module:genro.ext.startingModule});
+        }
+    },
+
+
+    selectStackEditor:function(kw,onSelected){
+        var scNode = this.getStackEditor(kw.ide_page);
+        var ide_page = kw.ide_page || this.getCurrentIdePage();
+        if(scNode){
+            genro.setData('main.ide_page',ide_page)
+            onSelected()
+        }else{
+            this.newIde(kw,onSelected);
+            genro.setData('main.ide_page',ide_page)
+        }
     },
 
     getStackEditor:function(ide_page){
         ide_page = ide_page || this.getCurrentIdePage();
         return genro.nodeById(ide_page+'_sc');
     },
+
     getIdeStack:function(){
         return genro.nodeById('ideStack');
     },
 
-    newIde:function(kw){
+    newIde:function(kw,finalize){
         var mainstack = this.getIdeStack();
         var ide_page = kw.ide_page;
         var ide_name = kw.ide_name || ide_page;
-        if(ide_page in mainstack.widget.gnrPageDict){
-            return;
-        }
-        mainstack._('ContentPane',ide_page,{title:ide_name,
+        mainstack._('ContentPane',ide_page,{title:ide_name,_anchor:true,
                                     overflow:'hidden',pageName:ide_page,closable:true,
-                                    datapath:'.'+ide_name
+                                    datapath:'.'+ide_page
                         })._('ContentPane',{remote:'makeEditorStack',remote_frameCode:ide_page,
-                                            remote_isDebugger:kw.isDebugger,overflow:'hidden'})
+                                            remote_isDebugger:kw.isDebugger,overflow:'hidden',
+                                            remote__onRemote:finalize});
+        
     },
 
-    openModuleToEditorStack:function(kw){
+    openModuleToEditorStack:function(kw,finalize){
         var module = kw.module;
         var ide_page = kw.ide_page || this.getCurrentIdePage();
-        var scNode = gnride.getStackEditor(ide_page);
-        var module = kw.module;
-        if(!(module in scNode.widget.gnrPageDict)){
-            this.addModuleToEditorStack(ide_page,module);
-        }
-        scNode.setRelativeData('.selectedModule',module)
+        var that = this;
+        gnride.selectStackEditor(kw,function(){
+            var scNode = that.getStackEditor(kw.ide_page);
+            var module = kw.module;
+            if(!(module in scNode.widget.gnrPageDict)){
+                that.addModuleToEditorStack(ide_page,module,finalize);
+                scNode.setRelativeData('.selectedModule',module);
+            }else{
+                scNode.setRelativeData('.selectedModule',module);
+                if(finalize){
+                    finalize()
+                }
+            }
+        })  
     },
 
-    addModuleToEditorStack:function(ide_page,module){
+    addModuleToEditorStack:function(ide_page,module,finalize){
         ide_page = ide_page || this.getCurrentIdePage();
         var scNode = gnride.getStackEditor(ide_page);
         var label = this.getModuleKey(module);
         var l = module.split('/');
         var title = l[l.length-1];
-        scNode._('ContentPane',label,{title:title,datapath:'.page_'+scNode._value.len(),
+        scNode._('ContentPane',label,{title:title,datapath:'.editors.page_'+scNode._value.len(),
                                     overflow:'hidden',
                                     pageName:module,closable:true
                                     })._('ContentPane',{remote:'buildEditorTab',remote_ide_page:ide_page,
-                                                        remote_module:module,overflow:'hidden'})
+                                                        remote_module:module,overflow:'hidden',
+                                                        remote__onRemote:finalize})
     },
 
     onPdbAnswer_line:function(line){
@@ -56,16 +84,23 @@ var gnride = {
     },
     onPdbAnswer_bag:function(data){
         var status = data.getItem('status');
-        var module=status.getItem('module')
-        var lineno=status.getItem('lineno')
-        var functionName=status.getItem('functionName')
-        console.log('onPdbAnswer: module=',module,'  lineno=',lineno,' functionName=',functionName)
-        this.onDebugStep(data)
+        var module = status.getItem('module');
+        var lineno = status.getItem('lineno');
+        var functionName = status.getItem('functionName');
+        console.log('onPdbAnswer: module=',module,'  lineno=',lineno,' functionName=',functionName);
+        var that = this;
+        var finalize = function(){
+            that.setDebugData(data);
+            that.selectLine(lineno);
+        }
+        this.openModuleToEditorStack({ide_page:data.getItem('pdb_id'),ide_name:data.getItem('methodname'),
+                                                module:module,isDebugger:true},finalize);
         window.focus();
     },
 
-    onDebugStep:function(data){
-        genro.setData('main.stack',data.getItem('stack'),{caption:'Stack'})
+    setDebugData:function(data){
+        var ideNode = this.getStackEditor();
+        ideNode.setRelativeData('.stack',data.getItem('stack'),{caption:'Stack'})
         var result=new gnr.GnrBag();
         result.setItem('locals',data.getItem('current.locals'),{caption:'Locals'})
         var returnValue = data.getItem('current.returnValue');
@@ -76,8 +111,9 @@ var gnride = {
         if (watches){
             result.setItem('watches',watches,{caption:'Watches'})
         }
-        genro.setData('main.result',result)
-        genro.setData('main.status',data.getItem('status'));
+        ideNode.setRelativeData('.result',result)
+        ideNode.setRelativeData('.status',data.getItem('status'));
+        
     },
  
     onCreatedEditor:function(sourceNode){
@@ -90,7 +126,6 @@ var gnride = {
         })
     },
     onCreatedEditorDo:function(sourceNode){
-        var selectedLine = genro.getData('_dev.pdb.status.lineno'); 
         var cm = sourceNode.externalWidget;
         cm.gnrMakeMarker = function(conditional) {
             var marker = document.createElement("div");
@@ -132,10 +167,6 @@ var gnride = {
                 cb();
             }
         });
-        if(selectedLine){
-            this.selectLine(selectedLine);
-            
-        }
     },
 
 
@@ -161,6 +192,39 @@ var gnride = {
         var cm = this.getEditorNode().externalWidget;
         cm.gnrSetCurrentLine(lineno)
         cm.scrollIntoView({line:lineno});
+    },
+    closeDebugger:function(pdb_id){
+        var mainstack = this.getIdeStack();
+        mainstack._value.popNode(pdb_id);
+    },
+
+    sendCommand:function(command){
+        console.log('sending command',command)
+        genro.wsk.send("pdb_command",{cmd:command});
+    },
+    
+    do_stepOver:function(){
+        this.sendCommand('next')
+    },
+    do_stepIn:function(){
+        this.sendCommand('step')
+    },
+    do_stepOut:function(){
+        this.sendCommand('return')
+    },
+    do_continue:function(module){
+        this.sendCommand('c')
+    },
+    do_jump:function(lineno){
+        this.sendCommand('jump '+lineno)
+    },
+
+    do_level:function(level){
+        this.sendCommand('level '+level)
+    },
+
+    onSelectStackMenu:function(kw){
+        this.do_level(kw.level);
     },
 
 
