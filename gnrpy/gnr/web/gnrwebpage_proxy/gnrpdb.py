@@ -8,110 +8,24 @@
 
 import os
 import sys
-import datetime
 import pdb
 import socket
 import base64
-import traceback
 import repr
-import thread
-from time import time
-from gnr.core.gnrbag import Bag,DirectoryResolver
-
+from gnr.core.gnrbag import Bag
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.core.gnrdecorator import public_method
 from gnr.app.gnrconfig import gnrConfigPath
 
-
-
 class GnrPdbClient(GnrBaseProxy):
-        
-    @public_method
-    def debuggerPane(self,pane,mainModule=None,**kwargs):
-        bc = pane.borderContainer(_class='pdb_pane')
-        self.page.codeEditor.mainPane(bc.contentPane(region='center',overflow='hidden'),editorName='pdbEditor',
-                                    mainModule=True,readOnly=True,dataInspector=False,datapath='.editor',
-                                    onSelectedPage="""if($1.selected==true){
-                                        genro.pdb.onSelectedEditorPage($1.page);
-                                    }""",**kwargs)
-        self.debuggerCommands(bc.framePane('pdbCommands',region='bottom',height='250px',
-                               splitter=True,datapath='.debugger'))
-        
-    def debuggerCommands(self,frame):
-        bc =  frame.center.borderContainer()
-        self.debuggerTop(frame.top)
-        self.debuggerLeft(bc)
-        self.debuggerRight(bc)
-        self.debuggerBottom(bc)
-        self.debuggerCenter(bc)
-        
-    def debuggerTop(self,top):
-        bar = top.slotToolbar('5,stepover,stepin,stepout,cont,*')
-        bar.stepover.slotButton('Step over',action='genro.pdb.do_stepOver()')
-        bar.stepin.slotButton('Step in',action='genro.pdb.do_stepIn()')
-        bar.stepout.slotButton('Step out',action='genro.pdb.do_stepOut()')
-        bar.cont.slotButton('Continue',action='genro.pdb.do_continue()')
-        
-    def debuggerLeft(self,bc):
-        bc=bc.borderContainer(width='250px',splitter=True,region='left',margin='2px', border='1px solid #efefef',margin_right=0,rounded=4)
-        bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Stack')
-        bc.contentPane(region='center',padding='2px').tree(storepath='_dev.pdb.stack',
-                     labelAttribute='caption',_class='branchtree noIcon',autoCollapse=True,
-                     connect_onClick="""level=$1.attr.level;genro.pdb.do_level(level) """)
-        
-    def debuggerRight(self,bc):
-        bc=bc.borderContainer(width='250px',splitter=True,region='right',margin='2px',border='1px solid #efefef',margin_left=0,rounded=4)
-        bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Current')
-        paneTree=bc.contentPane(region='center',padding='2px')
-       #paneTree.tree(storepath='_dev.pdb.result',openOnClick=True,autoCollapse=True,
-       #         labelAttribute='caption',_class='branchtree noIcon',hideValues=True)
-       #         
-        tree = paneTree.treeGrid(storepath='_dev.pdb.result',noHeaders=True)
-        tree.column('__label__',contentCb="""return this.attr.caption || this.label""",
-                      background='#888',color='white')
-                                                          
-        tree.column('__value__',size='85%',contentCb="""var v=this.getValue();
-                                                          return (v instanceof gnr.GnrBag)?'':_F(v)""")
-
-    def debuggerCenter(self,bc):
-        bc=bc.borderContainer(region='center',border='1px solid #efefef',margin='2px',margin_right=0,margin_left=0,rounded=4)
-        bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Output')
-        center=bc.contentPane(region='center',padding='2px',border_bottom='1px solid silver')
-        center.div(value='^.output', style='font-family:monospace; white-space:pre-wrap')
-        lastline=center.div(position='relative')
-        lastline.div('>>>',position='absolute',top='1px',left='0px')
-        debugger_input=lastline.div(position='absolute',top='0px',left='20px',right='5px').input(value='^.command',width='100%',border='0px')
-        center.dataController("""SET .output=output? output+_lf+line:line;""",line='^_dev.pdb.debugger.output_line',output='=.output')
-        center.dataController("""SET _dev.pdb.debugger.output_line=command; 
-                                 if (command.startsWith('/')){
-                                    command=command.slice(1)
-                                 }else if(!command.startsWith('!')){
-                                     command='!'+command;
-                                 }
-                                 genro.pdb.sendCommand(command);
-                                 SET .command=null;
-                                 debugger_input.domNode.focus();
-                                 """,command='^.command',debugger_input=debugger_input,_if='command')
-        
-       #bottom=bc.contentPane(region='bottom',padding='2px',splitter=True)
-       #fb = bottom.div(margin_right='20px').formbuilder(cols=2,width='100%')
-       #fb.textBox(lbl='Command',value='^.command',onEnter='FIRE .sendCommand',width='100%',padding='2px')
-       #fb.button('Send', fire='.sendCommand')
-        
-
-    def debuggerBottom(self,bottom):
-        pass
-        
     @public_method
     def setBreakpoint(self,module=None,line=None,condition=None,evt=None):
         bpkey = '_pdb.breakpoints.%s.r_%i' %(module.replace('.','_').replace('/','_'),line)
         with self.page.pageStore() as store:
             if evt=='del':
                 store.pop(bpkey)
-                print 'POPPED BP FROM CONNECTION',bpkey
             else:
                 store.setItem(bpkey,None,line=line,module=module,condition=condition)
-                print 'STORED BP IN CONNECTION',bpkey
 
     @public_method
     def getBreakpoints(self,module=None):
@@ -120,27 +34,16 @@ class GnrPdbClient(GnrBaseProxy):
             bpkey = '%s.%s' %(bpkey,module.replace('.','_').replace('/','_'))
         return self.page.pageStore().getItem(bpkey)
         
-    def set_trace(self):
-        debugger = GnrPdb(instance_name=self.page.site.site_name, page_id=self.page.page_id)
-        try:
-            debugger.set_trace(sys._getframe().f_back)
-        except Exception,e:
-            traceback.print_exc()
-
 
     def onPageStart(self):
         debugger_page_id = self.page.pageStore().getItem('_pdb.debugger_page_id')
-        print 'debugger_page_id',debugger_page_id
         if not debugger_page_id:
             return
-
         page_breakpoints = self.page.pageStore(debugger_page_id).getItem('_pdb.breakpoints')
-        
         bp = 0
         if page_breakpoints:
             debugger = GnrPdb(page=self.page,instance_name=self.page.site.site_name,debugger_page_id=debugger_page_id,callcounter=self.page.callcounter,
                             methodname=self.page._call_kwargs.get('method'))
-
             for modulebag in page_breakpoints.values():
                 for module,line,condition in modulebag.digest('#a.module,#a.line,#a.condition'):
                     bp +=1
@@ -150,7 +53,6 @@ class GnrPdbClient(GnrBaseProxy):
                 debugger.start_debug(sys._getframe().f_back)
 
 class GnrPdb(pdb.Pdb):
-    
     def __init__(self, page=None,instance_name=None, debugger_page_id=None, completekey='tab',callcounter=None,methodname=None, skip=None):
         self.page=page
         page.debugger=self
@@ -250,23 +152,20 @@ class GnrPdb(pdb.Pdb):
             result['returnValue']=repr.repr(rv)
         return result
 
-
     def do_p(self, arg):
-        print 'do_p'
         try:
             print >>self.stdout, repr(self._getval(arg))
         except:
             pass
 
     def do_pp(self, arg):
-        print 'do_p'
         try:
+            import pprint
             pprint.pprint(self._getval(arg), self.stdout)
         except:
             pass
     def do_level(self,level):
         level = int(level)
-        print 'setting stacklevel',level
         maxlevel = len(self.stack)-1
         if not level or level>maxlevel:
             level = maxlevel

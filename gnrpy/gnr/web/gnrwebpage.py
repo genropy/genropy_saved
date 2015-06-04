@@ -40,7 +40,6 @@ from gnr.web.gnrwebpage_proxy.serverbatch import GnrWebBatch
 from gnr.web.gnrwebpage_proxy.rpc import GnrWebRpc
 from gnr.web.gnrwebpage_proxy.developer import GnrWebDeveloper
 from gnr.web.gnrwebpage_proxy.gnrpdb import GnrPdbClient
-from gnr.web.gnrwebpage_proxy.gnreditor import GnrCodeEditor
 from gnr.web.gnrwebpage_proxy.utils import GnrWebUtils
 from gnr.web.gnrwebpage_proxy.pluginhandler import GnrWebPluginHandler
 from gnr.web.gnrwebpage_proxy.jstools import GnrWebJSTools
@@ -313,12 +312,6 @@ class GnrWebPage(GnrBaseWebPage):
         if not hasattr(self, '_pdb'):
             self._pdb = GnrPdbClient(self)
         return self._pdb
-
-    @property 
-    def codeEditor(self):
-        if not hasattr(self, '_codeEditor'):
-            self._codeEditor = GnrCodeEditor(self)
-        return self._codeEditor
 
     @property
     def utils(self):
