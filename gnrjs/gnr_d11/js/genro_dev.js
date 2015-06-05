@@ -307,7 +307,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
         });
 
     },
-    
+    onDebugstep:function(data){
+        console.log('debugstep',data)
+    },
     openInspector:function(){
         var root = genro.src.newRoot();
         genro.src.getNode()._('div', '_devInspector_');

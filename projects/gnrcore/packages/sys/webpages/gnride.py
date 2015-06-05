@@ -16,16 +16,11 @@ class GnrCustomWebPage(object):
         with self.connectionStore() as store:
             gnride_page_id = store.getItem('_dev.gnride_page_id')
             if gnride_page_id:
-                raise
+                self.publishToClient(gnride_page_id,topic='closePage'):
+                store.setItem('_dev.gnride_page_id',self.page_id)
             else:
                 store.setItem('_dev.gnride_page_id',self.page_id)
         root.attributes.update(overflow='hidden')
-       #callArgs = self.getCallArgs('master_page_id')
-       #if callArgs:
-       #    self.master_page_id = callArgs['master_page_id']
-       #    root.data('main.master_page_id',self.master_page_id)
-       #    with self.pageStore(self.master_page_id) as store:
-       #        store.setItem('_pdb.debugger_page_id',self.page_id)
         bc = root.borderContainer(datapath='main')
         bc.dataController("gnride.start()",_onStart=True)
         self.drawerPane(bc.framePane(frameCode='drawer',region='left',width='250px',splitter=True,drawer=True,background='rgba(230, 230, 230, 1)'))
@@ -145,7 +140,7 @@ class GnrCustomWebPage(object):
                                 height='100%',
                                 config_gutters=["CodeMirror-linenumbers", "pdb_breakpoints"],
                                 onCreated="gnride.onCreatedEditor(this);",
-                                readOnly='^.#parent.readOnly',
+                                readOnly='^.#parent.#parent.readOnly',
                                 modulePath=module)
         frame.dataController("""
             var cm = cm.externalWidget;
@@ -264,6 +259,7 @@ class GnrCustomWebPage(object):
     def onClosePage(self):
         """TODO"""
         with self.connectionStore() as store:
-            store.popNode('_dev.gnride_page_id')
+            if store.getItem('_dev.gnride_page_id')==self.page_id:
+                store.popNode('_dev.gnride_page_id')
 
      

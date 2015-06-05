@@ -43,6 +43,15 @@ class WebSocketHandler(object):
         envelope=Bag(dict(command=command,data=data))
         body=urllib.urlencode(dict(page_id=page_id,envelope=envelope.toXml(unresolved=True)))
         self.socketConnection.request('POST',self.proxyurl,headers=headers, body=body)
+        
+    def setInClientData(page_id,path=None,data=None):
+        self.sendCommandToPage(page_id,'set',Bag(data=data,path=path))
+        
+    def fireInClientData(page_id,path=None,data=None):
+        self.sendCommandToPage(page_id,'set',Bag(data=data,path=path,fired=true))
+        
+    def publishToClient(page_id,topic=None,data=None):
+        self.sendCommandToPage(page_id,'publish',Bag(data=data,topic=path))
 
     def sendDatachanges(self,datachanges):
         data=Bag()
