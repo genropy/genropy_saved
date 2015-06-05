@@ -4688,6 +4688,59 @@ div[disabled='true'], div[disabled='disabled']{
     border-left: 0;
     border-right:0;
 }
+#pdb_root{
+    position: fixed;
+    bottom: 0;
+    z-index: 1000;
+}
+
+.pdb_debugger_step{
+    height: 100px;
+    width: 250px;
+    padding: 10px;
+    background-color: rgb(255, 209, 0);
+    border-radius: 10px;
+    position: relative;
+    box-shadow: 3px 3px 4px #888;
+    margin: 3px;
+    display: inline-block;
+}
+
+.pdb_debugger_step.pdb_running{
+    opacity: .5;
+}
+
+.pdb_debugger_step_footer{
+    position: absolute;
+    bottom:0;
+    left: 0;
+    right:0;
+    height: 20px;
+    padding-right: 10px;
+}
+.pdb_footer_button {
+    display: block;
+    position: absolute;
+    text-decoration: underline;
+    font-weight: bold;
+    bottom: 2px;
+    color: #444;
+    cursor: pointer;
+}
+.pdb_footer_button_left{
+    left: 5px;
+}
+.pdb_footer_button_right{
+    right: 5px;
+}
+
+.pdb_tree .dijitTreeLabel:hover{
+    text-decoration: underline;
+}
+.pdb_tree .dijitTreeLabel:focus{
+    text-decoration: underline;
+    font-weight: bold;
+}
 
 /* @end */
 

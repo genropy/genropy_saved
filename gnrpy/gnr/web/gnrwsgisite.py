@@ -813,7 +813,7 @@ class GnrWsgiSite(object):
         """clean up"""
         debugger = getattr(self.currentPage,'debugger',None)
         if debugger:
-            self.wsk.sendCommandToPage(debugger.debugger_page_id,'close_debugger',debugger.pdb_id)
+            debugger.onClosePage()
         self.currentPage = None
         self.db.closeConnection()
         #self.shared_data.disconnect_all()

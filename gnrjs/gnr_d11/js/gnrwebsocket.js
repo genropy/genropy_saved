@@ -154,9 +154,9 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         var kw=kw || {};
         kw['command']=command
         kw=genro.rpc.serializeParameters(genro.src.dynamicParameters(kw));
-        console.log('sending to ws',kw)
         this.socket.send(dojo.toJson(kw))
     },
+    
     parseResponse:function(response){
         var result = new gnr.GnrBag();
         var parser=new window.DOMParser()
@@ -164,9 +164,6 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
                                             ,genro.clsdict);
         return result
     },
-    
-    
-    
     
     sendCommandToPage:function(page_id,command,data){
         var envelope=new gnr.GnrBag({'command':command,'data':data})

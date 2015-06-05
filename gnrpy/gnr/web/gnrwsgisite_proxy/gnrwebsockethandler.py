@@ -44,22 +44,22 @@ class WebSocketHandler(object):
         body=urllib.urlencode(dict(page_id=page_id,envelope=envelope.toXml(unresolved=True)))
         self.socketConnection.request('POST',self.proxyurl,headers=headers, body=body)
         
-    def setInClientData(page_id,path=None,data=None):
+    def setInClientData(self,page_id,path=None,data=None):
         self.sendCommandToPage(page_id,'set',Bag(data=data,path=path))
         
-    def fireInClientData(page_id,path=None,data=None):
-        self.sendCommandToPage(page_id,'set',Bag(data=data,path=path,fired=true))
+    def fireInClientData(self,page_id,path=None,data=None):
+        self.sendCommandToPage(page_id,'set',Bag(data=data,path=path,fired=True))
         
-    def publishToClient(page_id,topic=None,data=None):
-        self.sendCommandToPage(page_id,'publish',Bag(data=data,topic=path))
+    def publishToClient(self,page_id,topic=None,data=None):
+        self.sendCommandToPage(page_id,'publish',Bag(data=data,topic=topic))
 
-    def sendDatachanges(self,datachanges):
-        data=Bag()
-        for j, change in enumerate(datachanges):
-            data.setItem('sc_%i' % j, change.value, change_path=change.path, change_reason=change.reason,
-                           change_fired=change.fired, change_attr=change.attributes,
-                           change_ts=change.change_ts, change_delete=change.delete)
-        self.sendCommandToPage(page_id,'datachanges',data)
+    #def sendDatachanges(self,datachanges):
+    #    data=Bag()
+    #    for j, change in enumerate(datachanges):
+    #        data.setItem('sc_%i' % j, change.value, change_path=change.path, change_reason=change.reason,
+    #                       change_fired=change.fired, change_attr=change.attributes,
+    #                       change_ts=change.change_ts, change_delete=change.delete)
+    #    self.sendCommandToPage(page_id,'datachanges',data)
 
 def has_timeout(timeout): # python 2.6
     if hasattr(socket, '_GLOBAL_DEFAULT_TIMEOUT'):

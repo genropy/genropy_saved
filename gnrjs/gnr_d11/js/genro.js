@@ -72,6 +72,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.isDeveloper = objectPop(this.startArgs,'isDeveloper');
         this.theme = {};
         this.dojo = dojo;
+        this.debugged_rpc = {};
         this.ext={};
         this.userInfoCb = [];
         this.formatter = gnrformatter;
@@ -256,7 +257,7 @@ dojo.declare('gnr.GenroClient', null, {
         if(genro.external_window_key){
             genro.mainGenroWindow.genro.publish('closeExternalWindow',{windowKey:genro.external_window_key});
         }
-        this.rpc.remoteCall('onClosePage', {sync:true,_restartingPage:genro._restartingPage});
+        this.rpc.remoteCall('onClosePage', {sync:true});
         genro.publish('onClosePage');
         if (genro._data) {
             genro.saveContextCookie();
@@ -347,6 +348,9 @@ dojo.declare('gnr.GenroClient', null, {
         for (var k in genro.rpc.rpc_register){
             var kw = genro.rpc.rpc_register[k];
             var age = now-kw.__rpc_started;
+            if(k in this.debugged_rpc){
+                return;
+            }
             if (age>5000){
                 console.warn('slow rpc pending',kw,age);
                 objectPop(genro.rpc.rpc_register,k);
@@ -396,6 +400,12 @@ dojo.declare('gnr.GenroClient', null, {
         //genro.timeIt('** getting main **');
         this.wsk.create();
         this.root_page_id = null;
+        dojo.subscribe('debugstep',
+                       function(data){genro.dev.onDebugstep(data)}
+                     )
+        dojo.subscribe('closePage',function(){
+            genro.closePage()
+        });
 
         if(this.startArgs['_parent_page_id']){
             this.parent_page_id = this.startArgs['_parent_page_id'];
@@ -460,12 +470,7 @@ dojo.declare('gnr.GenroClient', null, {
             genro.dom.addClass(dojo.body(),'workInProgress');
         }
         var _this = this;
-        dojo.subscribe('debugstep',
-                       function(data){genro.dev.onDebugstep(data)}
-                     )
-        dojo.subscribe('closePage',function(){
-            genro.closePage()
-       })
+
         this._dataroot.subscribe('dataTriggers', {'any':dojo.hitch(this, "dataTrigger")});
         dojo.subscribe('ping',genro.ping);
         
@@ -1781,11 +1786,6 @@ dojo.declare('gnr.GenroClient', null, {
             objToCall['obj'][objToConnect['func']].apply(objToCall['obj'], arguments);
         }
     },
-    pageRestart:function(params,replaceParams) {
-        genro._restartingPage = true;
-        genro.pageReload({page_id:genro.page_id});
-    },
-
 
     pageReload:function(params,replaceParams) {
         if (params) {

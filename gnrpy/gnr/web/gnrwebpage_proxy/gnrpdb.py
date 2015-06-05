@@ -16,6 +16,7 @@ from gnr.core.gnrbag import Bag
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.core.gnrdecorator import public_method
 from gnr.app.gnrconfig import gnrConfigPath
+from bdb import Breakpoint
 
 class GnrPdbClient(GnrBaseProxy):
     @public_method
@@ -51,7 +52,7 @@ class GnrPdbClient(GnrBaseProxy):
                     debugger.set_break(filename=module,lineno=line,cond=condition)
             if bp:
                 debugger.start_debug(sys._getframe().f_back)
-
+            
 class GnrPdb(pdb.Pdb):
     def __init__(self, page=None,instance_name=None, debugger_page_id=None, completekey='tab',callcounter=None,methodname=None, skip=None):
         self.page=page
@@ -62,6 +63,7 @@ class GnrPdb(pdb.Pdb):
         self.socket_path = os.path.join(gnrConfigPath(), 'sockets', '%s_debug.tornado'%instance_name)
         self.callcounter = callcounter
         self.methodname = methodname
+        self.mybp = []
         iostream = self.get_iostream()
         pdb.Pdb.__init__(self,completekey=completekey, skip=skip, stdin=iostream, stdout=iostream)
         self.prompt = ''
@@ -76,6 +78,12 @@ class GnrPdb(pdb.Pdb):
         envelope=Bag(dict(command='pdb_out_bag',data=data))
         return 'B64:%s'%base64.b64encode(envelope.toXml(unresolved=True))
         #onBuildTag=self.onBuildTag))
+
+    def onClosePage(self):
+        for bpinstance in self.mybp:
+            bpinstance.deleteMe()
+        self.page.wsk.sendCommandToPage(self.debugger_page_id,'close_debugger',self.pdb_id)
+
     
     def onBuildTag(self,label=None,value=None,attributes=None):
         if not isinstance(value,Bag):
@@ -113,13 +121,19 @@ class GnrPdb(pdb.Pdb):
         result['pdb_counter'] = self.pdb_counter
         result['callcounter'] = self.callcounter
         result['methodname'] = self.methodname
+        result['debugged_page_id'] = self.page.page_id
         result['status'] = Bag(dict(level=self.curindex,pdb_id=self.pdb_id,
                                     module = result['current.filename'],
                                     lineno = result['current.lineno'],
                                     functionName=result['functionName'],
                                     pdb_counter=result['pdb_counter']))
         self.page.wsk.publishToClient(self.page.page_id,'debugstep',
-                data=Bag(dict(current=result['current'],callcounter=self.callcounter)))
+                data=Bag(dict(current=result['current'],pdb_id=self.pdb_id,methodname=self.methodname,
+                                                        functionName=result['current.functionName'],
+                                                        lineno=result['current.lineno'],
+                                                        debugger_page_id=self.debugger_page_id,
+                                                        filename=os.path.basename(result['current.filename']),
+                                                        callcounter=self.callcounter)))
         self.pdb_counter +=1
         return self.makeEnvelope(result)
 
@@ -140,6 +154,36 @@ class GnrPdb(pdb.Pdb):
             frame = frame.f_back
         self.set_continue()
         sys.settrace(self.trace_dispatch)
+
+    def set_break(self, filename, lineno, temporary=0, cond = None,
+                  funcname=None):
+        filename = self.canonic(filename)
+        import linecache # Import as late as possible
+        line = linecache.getline(filename, lineno)
+        if not line:
+            return 'Line %s:%d does not exist' % (filename,
+                                   lineno)
+        if not filename in self.breaks:
+            self.breaks[filename] = []
+        list = self.breaks[filename]
+        if not lineno in list:
+            list.append(lineno)
+        bp = Breakpoint(filename, lineno, temporary, cond, funcname)
+        self.mybp.append(bp)
+
+    def clear_break(self, filename, lineno):
+        filename = self.canonic(filename)
+        if not filename in self.breaks:
+            return 'There are no breakpoints in %s' % filename
+        if lineno not in self.breaks[filename]:
+            return 'There is no breakpoint at %s:%d' % (filename,
+                                    lineno)
+        # If there's only one bp in the list for that file,line
+        # pair, then remove the breaks entry
+        for bp in Breakpoint.bplist[filename, lineno][:]:
+            bp.deleteMe()
+            self.mybp.remove(bp)
+        self._prune_breaks(filename, lineno)
 
     def getWatches(self,frame):
         return Bag()

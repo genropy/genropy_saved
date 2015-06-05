@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+ # -*- coding: UTF-8 -*-
 
 # thpage.py
 # Created by Francesco Porcari on 2011-05-05.
@@ -16,7 +16,7 @@ class GnrCustomWebPage(object):
         with self.connectionStore() as store:
             gnride_page_id = store.getItem('_dev.gnride_page_id')
             if gnride_page_id:
-                self.publishToClient(gnride_page_id,topic='closePage'):
+                self.wsk.publishToClient(gnride_page_id,topic='closePage')
                 store.setItem('_dev.gnride_page_id',self.page_id)
             else:
                 store.setItem('_dev.gnride_page_id',self.page_id)
@@ -30,11 +30,14 @@ class GnrCustomWebPage(object):
         bar.addIdeBtn.slotButton('Add ide',action='gnride.newIde({ide_page:"ide_"+genro.getCounter(),isDebugger:true})')
         sc = center.center.stackContainer(selectedPage='^.#parent.ide_page',nodeId='ideStack',datapath='.instances')
         self.makeEditorStack(sc.contentPane(pageName='mainEditor',title='Main Editor',overflow='hidden',datapath='.mainEditor'),'mainEditor')
+        #bc.dataController('gnride.setBreakpoint(_subscription_kwargs)',subscribe_setBreakpoint=True)
         bc.dataRpc('dummy','pdb.setBreakpoint',subscribe_setBreakpoint=True)
         bc.dataController("""
             gnride.openModuleToEditorStack(_subscription_kwargs);
             """,subscribe_openModuleToEditorStack=True)
-        
+        bc.dataController("gnride.sendCommand(cmd,pdb_id)",subscribe_debugCommand=True)
+        bc.dataController("""window.focus();""",subscribe_bringToTop=True)
+
         
      
 
@@ -75,7 +78,7 @@ class GnrCustomWebPage(object):
                                               if(ew.item && ew.item.attr.file_ext!='directory'){
                                                     genro.publish('openModuleToEditorStack',{module:ew.item.attr.abs_path})
                                               }
-                                             """,_class='branchtree noIcon',
+                                             """,_class='branchtree noIcon pdb_tree',
             hideValues=True,openOnClick=True,labelAttribute='nodecaption',font_size='')
 
 
@@ -204,12 +207,14 @@ class GnrCustomWebPage(object):
         self.debuggerCenter(bc)
         
     def debuggerTop(self,top):
-        bar = top.slotToolbar('5,stepover,stepin,stepout,cont,*')
+        bar = top.slotToolbar('5,stepover,stepin,stepout,cont,clearconsole,*')
         bar.stepover.slotButton('Step over',action='gnride.do_stepOver()')
         bar.stepin.slotButton('Step in',action='gnride.do_stepIn()')
         bar.stepout.slotButton('Step out',action='gnride.do_stepOut()')
         bar.cont.slotButton('Continue',action='gnride.do_continue()')
-        
+
+        bar.clearconsole.slotButton('Clear console',action='gnride.clearConsole()')
+
     def debuggerLeft(self,bc):
         bc=bc.borderContainer(width='250px',splitter=True,region='left',margin='2px', border='1px solid #efefef',margin_right=0,rounded=4)
         bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Stack')
@@ -231,7 +236,7 @@ class GnrCustomWebPage(object):
     def debuggerCenter(self,bc):
         bc=bc.borderContainer(region='center',border='1px solid #efefef',margin='2px',margin_right=0,margin_left=0,rounded=4)
         bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Output')
-        center=bc.contentPane(region='center',padding='2px',border_bottom='1px solid silver')
+        center=bc.contentPane(region='center',padding='2px',border_bottom='1px solid silver',_class='selectable',overflow='auto')
         center.div(value='^.output', style='font-family:monospace; white-space:pre-wrap')
         lastline=center.div(position='relative')
         lastline.div('>>>',position='absolute',top='1px',left='0px')

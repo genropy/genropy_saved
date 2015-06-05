@@ -129,6 +129,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         //if(this.rpc_level>5){
         //    console.log('rpc_level',this.rpc_level);
         //}
+        kw.content.callcounter = this.rpc_counter;
         kw['__rpc_counter'] = this.rpc_counter;
         kw['__rpc_started'] = new Date();
         this.rpc_register['r_' + this.rpc_counter] = kw;
@@ -137,8 +138,18 @@ dojo.declare("gnr.GnrRpcHandler", null, {
     unregister_call:function(ioArgs) {
         this.rpc_level = this.rpc_level - 1;
         var rpc_counter = ioArgs.args['__rpc_counter'];
+        genro.dev.removeFromDebugged(rpc_counter);
         delete this.rpc_register['r_' + rpc_counter];
     },
+    suspend_call:function(rpc_counter){
+        var c = this.rpc_register['r_'+rpc_counter];
+        if(c._deferred_){
+            c._deferred_.ioArgs.args.timeout = 3600*1000;
+        }
+    },
+
+
+
 
     /* callbackArgs 
      args: Object
@@ -247,8 +258,9 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             if(genro.debug_sql){
                 content.debug_sql = genro.debug_sql;
             }
+            content.callcounter =  genro.getCounter('debug'); 
         }
-        content.callcounter =  genro.getCounter('debug'); 
+        
         kw.content = content;
         //kw.preventCache = kw.preventCache - just to remember that we can have it
         kw.handleAs = kw.handleAs || 'xml';
@@ -265,6 +277,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             //add this stuff to handle it
         } else {
             var deferred= this._serverCall_execute(httpMethod, kw, callKwargs);
+            kw._deferred_ = deferred;
             return deferred;
         }
 

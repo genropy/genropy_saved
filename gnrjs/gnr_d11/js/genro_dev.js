@@ -308,8 +308,73 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
     },
     onDebugstep:function(data){
-        console.log('debugstep',data)
+        var callcounter = data.getItem('callcounter');
+        if (!('r_'+callcounter in genro.debugged_rpc)){
+            this.addToDebugged(callcounter,data)
+            this.updateDebuggerStepBox(callcounter,data);
+            
+        }
     },
+
+    updateDebuggerStepBox:function(callcounter,data){
+        var debugger_box = dojo.byId('pdb_root')
+        var debuggerStepBox = dojo.byId('_debugger_step_'+callcounter);
+        if(!debuggerStepBox){
+            debuggerStepBox = document.createElement('div');
+            debuggerStepBox.setAttribute('id','_debugger_step_'+callcounter);
+            debuggerStepBox.setAttribute('class','pdb_debugger_step');
+            debugger_box.appendChild(debuggerStepBox)
+        }else{
+            dojo.removeClass(debuggerStepBox,'pdb_running');
+            debuggerStepBox.removeChild(debuggerStepBox.firstChild);
+        }
+        var container = document.createElement('div');
+        var message = document.createElement('div');
+        var footer = document.createElement('div');
+        footer.setAttribute('class','pdb_debugger_step_footer')
+        container.appendChild(message)
+        container.appendChild(footer)
+        debuggerStepBox.appendChild(container)
+        message.innerHTML = dataTemplate('Rpc:$methodname<br/>Module: $filename<br/>Function: $functionName<br/>Line: $lineno</div>',data);
+        var link = document.createElement('div');
+        link.setAttribute('class','pdb_footer_button pdb_footer_button_right')
+        link.innerHTML = 'Debug'
+        link.setAttribute('onclick',dataTemplate("genro.dev.openDebugInIde('$pdb_id','$debugger_page_id');",data))
+        footer.appendChild(link)
+        link = document.createElement('div');
+        link.setAttribute('class','pdb_footer_button pdb_footer_button_left')
+        link.innerHTML = 'Continue'
+        link.setAttribute('onclick',dataTemplate("dojo.addClass(dojo.byId('_debugger_step_"+callcounter+"'),'pdb_running'); genro.dev.continueDebugInIde('$pdb_id','$debugger_page_id');",data))
+        footer.appendChild(link)
+    },
+
+    continueDebugInIde:function(pdb_id,debugger_page_id){
+        genro.wsk.publishToClient(debugger_page_id,"debugCommand",{cmd:'c',pdb_id:pdb_id});
+    },
+
+    openDebugInIde:function(pdb_id,debugger_page_id){
+        if(genro.mainGenroWindow){
+            genro.mainGenroWindow.genro.framedIndexManager.openGnrIDE();
+        }else{
+            genro.wsk.publishToClient(debugger_page_id,'bringToTop')
+        }
+    },
+
+
+    addToDebugged:function(callcounter,data){
+        var dbgpars = {debugger_page_id:data.getItem('debugger_page_id'),pdb_id:data.getItem('pdb_id')};
+        genro.debugged_rpc['r_'+callcounter] = dbgpars;
+        genro.rpc.suspend_call(callcounter)
+    },
+
+    removeFromDebugged:function(callcounter){
+        var dbgpars = objectPop(genro.debugged_rpc,'r_'+callcounter);
+        var debuggerStepBox = dojo.byId('_debugger_step_'+callcounter);
+        if(debuggerStepBox){
+            dojo.byId('pdb_root').removeChild(debuggerStepBox);
+        }
+    },
+
     openInspector:function(){
         var root = genro.src.newRoot();
         genro.src.getNode()._('div', '_devInspector_');

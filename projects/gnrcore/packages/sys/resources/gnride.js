@@ -36,6 +36,8 @@ var gnride = {
         var mainstack = this.getIdeStack();
         var ide_page = kw.ide_page;
         var ide_name = kw.ide_name || ide_page;
+        var debugged_page_id = kw.debugged_page_id;
+        mainstack.setRelativeData('.'+ide_page+'.debugged_page_id',debugged_page_id)
         mainstack._('ContentPane',ide_page,{title:ide_name,_anchor:true,
                                     overflow:'hidden',pageName:ide_page,closable:true,
                                     datapath:'.'+ide_page
@@ -79,7 +81,6 @@ var gnride = {
     },
 
     onPdbAnswer_line:function(data){
-        console.log('data',data)
         this.getStackEditor(data.getItem('pdb_id')).setRelativeData('.output_line',data.getItem('line'));
     },
     onPdbAnswer_bag:function(data){
@@ -88,14 +89,14 @@ var gnride = {
         var lineno = status.getItem('lineno');
         var callcounter = data.getItem('callcounter');
         var functionName = status.getItem('functionName');
-        console.log('onPdbAnswer: module=',module,'  lineno=',lineno,' functionName=',functionName);
+        var debugged_page_id = data.pop('debugged_page_id')
         var that = this;
         var finalize = function(){
             that.setDebugData(data);
             that.selectLine(lineno);
         }
         this.openModuleToEditorStack({ide_page:data.getItem('pdb_id'),ide_name:data.getItem('methodname'),
-                                                module:module,isDebugger:true},finalize);
+                                                module:module,isDebugger:true,debugged_page_id:debugged_page_id},finalize);
      },
 
     setDebugData:function(data){
@@ -158,8 +159,7 @@ var gnride = {
 
             var cb = function(condition){
                 cm.setGutterMarker(n, "pdb_breakpoints", evt=='del' ? null : cm.gnrMakeMarker(condition));
-                genro.publish('setBreakpoint',{line:code_line,module:module,condition:condition,evt:evt});
-                
+                gnride.setBreakpoint({line:code_line,module:module,condition:condition,evt:evt});
             };
             if(modifier=='Shift'){
                 genro.dlg.prompt(_T("Breakpoint condition"),{lbl:_T('Condition'),action:cb})
@@ -167,6 +167,22 @@ var gnride = {
                 cb();
             }
         });
+    },
+    setBreakpoint:function(kw){
+        var debugged_page_id = this.getStackEditor().getRelativeData('.debugged_page_id');
+        if(debugged_page_id){
+            if(kw.evt=='del'){
+                this.sendCommand('cl '+kw.module+':'+kw.line);
+            }else{
+                var cmdstring = 'b '+kw.module+':'+kw.line
+                if(kw.condition){
+                    cmdstring+=','+kw.condition
+                }
+                this.sendCommand(cmdstring);
+            }
+            
+        }
+        genro.publish('setBreakpoint',kw);
     },
 
 
@@ -206,17 +222,35 @@ var gnride = {
     },
     closeDebugger:function(pdb_id){
         var mainstack = this.getIdeStack();
-        mainstack._value.popNode(pdb_id);
+        var instances = genro.getData('main.instances');
+        if(genro.getData('main.ide_page')==pdb_id){
+            genro.setData('main.ide_page','mainEditor');
+        }
+        if(instances.getNode(pdb_id)){
+            mainstack._value.popNode(pdb_id);
+            instances.popNode(pdb_id);
+        }
     },
 
-    sendCommand:function(command){
-        console.log('sending command',command)
-        genro.wsk.send("pdb_command",{cmd:command,pdb_id:this.getCurrentIdePage()});
+    isDebugging:function(){
+        return this.getStackEditor().getRelativeData('.status.functionName') != null;
+    },
+
+    clearConsole:function(){
+        this.getStackEditor().setRelativeData('.output','')
+    },
+
+    sendCommand:function(command,pdb_id){
+        genro.wsk.send("pdb_command",{cmd:command,pdb_id:pdb_id || this.getCurrentIdePage()});
     },
     
     do_stepOver:function(){
         this.sendCommand('next')
     },
+    do_setBp:function(){
+        this.sendCommand('setbp')
+    },
+
     do_stepIn:function(){
         this.sendCommand('step')
     },
