@@ -20,12 +20,6 @@ class GnrCustomWebPage(object):
             else:
                 store.setItem('_dev.gnride_page_id',self.page_id)
         root.attributes.update(overflow='hidden')
-       #callArgs = self.getCallArgs('master_page_id')
-       #if callArgs:
-       #    self.master_page_id = callArgs['master_page_id']
-       #    root.data('main.master_page_id',self.master_page_id)
-       #    with self.pageStore(self.master_page_id) as store:
-       #        store.setItem('_pdb.debugger_page_id',self.page_id)
         bc = root.borderContainer(datapath='main')
         bc.dataController("gnride.start()",_onStart=True)
         self.drawerPane(bc.framePane(frameCode='drawer',region='left',width='250px',splitter=True,drawer=True,background='rgba(230, 230, 230, 1)'))
@@ -39,6 +33,8 @@ class GnrCustomWebPage(object):
         bc.dataController("""
             gnride.openModuleToEditorStack(_subscription_kwargs);
             """,subscribe_openModuleToEditorStack=True)
+        
+        
      
 
     @public_method
