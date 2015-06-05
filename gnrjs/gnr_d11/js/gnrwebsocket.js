@@ -116,8 +116,13 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     },
     do_set:function(data){
         var path=data.getItem('path')
-        var value=data.getItem('data')
-        genro.setData(path,value)
+        var valueNode=data.getNode('data')
+        var fired=data.getItem('fired')
+        genro.setData(path,valueNode._value,valueNode.attr, true)
+        if (fired){
+            genro.setData(path,null,null,false)
+        }
+        
     },
     do_datachanges:function(datachanges){
         genro.rpc.setDatachangesInData(datachanges)
@@ -158,6 +163,23 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         result.fromXmlDoc(parser.parseFromString(response, "text/xml")
                                             ,genro.clsdict);
         return result
+    },
+    
+    
+    
+    
+    sendCommandToPage:function(page_id,command,data){
+        var envelope=new gnr.GnrBag({'command':command,'data':data})
+         this.send('route',{'target_page_id':page_id,'envelope':envelope.toXml()})
+    },
+    setInClientData:function(page_id,path,data){
+        this.sendCommandToPage(page_id,'set',new gnr.GnrBag({'data':data,'path':path}))
+    },
+    fireInClientData:function(page_id,path,data){
+        this.sendCommandToPage(page_id,'set',new gnr.GnrBag({'data':data,'path':path,'fired':true}))
+    },
+    publishToClient:function(page_id,topic,data){
+        this.sendCommandToPage(page_id,'publish',new gnr.GnrBag({'data':data,'topic':topic}))
     }
 
 });

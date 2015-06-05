@@ -118,6 +118,8 @@ class GnrPdb(pdb.Pdb):
                                     lineno = result['current.lineno'],
                                     functionName=result['functionName'],
                                     pdb_counter=result['pdb_counter']))
+        self.page.wsk.publishToClient(self.page.page_id,'debugstep',
+                data=Bag(dict(current=result['current'],callcounter=self.callcounter)))
         self.pdb_counter +=1
         return self.makeEnvelope(result)
 

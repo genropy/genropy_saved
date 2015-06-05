@@ -259,6 +259,11 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
 
     def do_echo(self,data=None,**kwargs):
         return data
+        
+    def do_route(self,target_page_id=None,envelope=None,**kwargs):
+        websocket=self.channels.get(target_page_id)
+        if websocket:
+            websocket.write_message(envelope)
 
     def do_connected(self,page_id=None,**kwargs):
         self._page_id=page_id
