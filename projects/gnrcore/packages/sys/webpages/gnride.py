@@ -56,11 +56,18 @@ class GnrCustomWebPage(object):
         frame.center.stackContainer(nodeId=stackNodeId,selectedPage='^.selectedModule')
 
     def dbstructPane(self,frame):
-        frame.data('main.dbstructure',self.app.dbStructure())
+        dbstruct=Bag()
+        for pkg in self.db.packages.values():
+            if pkg['tables']:
+                dbstruct.setItem(pkg.name,self.app.dbStructure('%s.tables'%pkg.name)
+          )
+        frame.data('main.dbstructure',dbstruct)
         frame.top.slotToolbar('*,searchOn,2',height='20px')
         pane = frame.center.contentPane(overflow='auto')
-        pane.div(padding='10px').tree(nodeId='dbstructure_tree',storepath='main.dbstructure',_class='branchtree noIcon',
+        treebox=pane.div(padding='10px')
+        treebox.tree(nodeId='dbstructure_tree',storepath='main.dbstructure',_class='branchtree noIcon',
             hideValues=True,openOnClick=True)
+            
 
 
     def drawerPane(self,frame):
@@ -253,12 +260,6 @@ class GnrCustomWebPage(object):
                                  debugger_input.domNode.focus();
                                  """,command='^.command',debugger_input=debugger_input,_if='command')
         
-       #bottom=bc.contentPane(region='bottom',padding='2px',splitter=True)
-       #fb = bottom.div(margin_right='20px').formbuilder(cols=2,width='100%')
-       #fb.textBox(lbl='Command',value='^.command',onEnter='FIRE .sendCommand',width='100%',padding='2px')
-       #fb.button('Send', fire='.sendCommand')
-        
-
     def debuggerBottom(self,bottom):
         pass
 
