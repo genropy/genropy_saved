@@ -21,15 +21,28 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 from gnr.core.gnrbag import Bag, BagResolver
-from gnr.core.gnrlang import GnrObject
+from gnr.core.gnrlang import GnrObject,GnrException
 from gnr.core.gnrdict import GnrDict
 from gnr.core import gnrstring
 from gnr.core.gnrdecorator import deprecated
 
+
+def valid_children(**kwargs):
+    """TODO"""
+    def decore(func):
+        setattr(func,'_valid_children',kwargs)
+        return func
+    return decore
+
 class GnrStructData(Bag):
     """This is a subclass of the :class:`Bag <gnr.core.gnrbag.Bag>` class that implements
     functional syntax for adding particular elements to the tree"""
-    
+
+    exceptions = dict(invalid_child_tag='Wrong insert child %(tag)s',
+                        missing_child_tag='Missing child %(tag)s',
+                        already_inserted_child_tag='You have already inserted %(maxval)s %(tag)s',
+                        missing_mandatory_children='Missing mandatory children: %(mandatory_children)s')
+
     def makeRoot(cls, source=None, protocls=None):
         """Build the root instance for the given class and return it
         
@@ -82,7 +95,56 @@ class GnrStructData(Bag):
             return self.parent.root
             
     root = property(_get_root)
-        
+
+    def _parseValidChildrenValues(self,valid_children):
+        mandatoryTags = dict()
+        for tag,validpars in valid_children.items():
+            validpars = '0:' if validpars is True else validpars
+            if isinstance(validpars,int):
+                validpars = str(validpars)
+            l = validpars.split(':') if isinstance(validpars,basestring) else validpars
+            if len(l)==1:
+                minval = validpars
+                maxval = minval
+            else:
+                minval,maxval = l
+            valid_children[tag] = (minval,maxval)
+            if minval:
+                mandatoryTags[tag] = int(minval)
+        return mandatoryTags
+
+    def validate(self):
+        def validateNode(node):
+            method = getattr(self,node.attr.get('tag'),None)
+            if not method:
+                return
+            valid_children = getattr(method,'_valid_children',None)
+            if not valid_children:
+                return
+            mandatoryTags = self._parseValidChildrenValues(valid_children)
+            for n in node.value:
+                tag = n.attr.get('tag')
+                if not tag:
+                    return
+                validpars = valid_children.get(tag)
+                if not validpars:
+                    raise GnrException(self.exceptions['invalid_child_tag'] %dict(tag=tag))
+                mandatory_val = mandatoryTags.get(tag)
+                if mandatory_val:
+                    mandatory_val -= 1
+                    if mandatory_val:
+                        mandatoryTags[tag] = mandatory_val
+                    else:
+                        mandatoryTags.pop(tag)
+                minval,maxval = validpars
+                if maxval and len(n.value.filter(lambda n: n.attr['tag'] == tag))>=int(maxval):
+                    raise GnrException(self.exceptions['already_inserted_child_tag'] %dict(tag=tag,maxval=maxval))
+            if mandatoryTags:
+                raise GnrException(self.exceptions['missing_mandatory_children'] %dict(mandatory_children=','.join(mandatoryTags.keys())))
+        self.walk(validateNode)
+ 
+
+
     def child(self, tag, childname='*_#', childcontent=None, content=None,_parentTag=None, _attributes=None,
               _returnStruct=True, _position=None, **kwargs):
         """Set a new item of the ``tag`` type into the current structure. Return the new structure
@@ -95,7 +157,7 @@ class GnrStructData(Bag):
         :param _attributes: TODO
         :param childname: the :ref:`childname`
         """
-        where = self
+        where = self   
        #if childname and childname != '*_#':
        #    kwargs['_childname'] = childname
         if childcontent is None:
