@@ -22,22 +22,30 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from gnr.web.gnrwebpage import GnrWebPage
 from time import time
 from gnr.core.gnrstring import boolean
+from gnr.web.gnrwebpage import GnrWebPage
+from gnr.web.gnrwebpage_proxy.connection import GnrWebConnection
 
 class GnrSimplePage(GnrWebPage):
     
     def __init__(self, site=None, page_id=None, request_kwargs=None, request_args=None,
-                 filepath=None, packageId=None, pluginId=None, basename=None):
+                 filepath=None, packageId=None, pluginId=None, basename=None,page_info=None):
         self._inited = False
         self._start_time = time()
         self.workspace = dict()
         self.sql_count = 0
         self.sql_time = 0
         self.site = site
+        if page_info:
+            for k,v in page_info.items():
+                setattr(self,k,v)
+            self.connection =  GnrWebConnection(self,connection_id=self.connection_id,user=self.user)
+        self.page_item = self._check_page_id(page_id, kwargs=request_kwargs)
         #dbstore = request_kwargs.pop('temp_dbstore',None) or None
         #self.dbstore = dbstore if dbstore != self.application.db.rootstore else None
+        self.dbstore=None  # find a way to handle it based on call/thread
+        self._locale='en'  # find a way to handle it based on call/thread
         self._event_subscribers = {}
         self.filepath = filepath
         self.packageId = packageId
@@ -60,10 +68,11 @@ class GnrSimplePage(GnrWebPage):
         self.onIniting(request_args, request_kwargs)
         self._call_args = request_args or tuple()
         self._call_kwargs = dict(request_kwargs)
-        self.page_item = self._check_page_id(page_id, kwargs=request_kwargs)
         self._workdate = self.page_item['data']['rootenv.workdate'] #or datetime.date.today()
         self._language = self.page_item['data']['rootenv.language']
         self._inited = True
+
+
     
     def _check_page_id(self, page_id=None, kwargs=None):
         page_item = self.site.register.page(page_id,include_data='lazy')

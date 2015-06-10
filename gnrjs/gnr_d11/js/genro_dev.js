@@ -277,7 +277,104 @@ dojo.declare("gnr.GnrDevHandler", null, {
         treeattr.getIconClass = 'return "treeNoIcon";';
         pane._('tree', treeattr);
     },
-    
+    startDebug:function(callcounter){
+        if(this._debuggerWindow){
+            console.log('callcounter',callcounter)
+            this._debuggerWindow.focus();
+        }else{
+            this.openGnrIde();
+        }
+    },
+
+    openGnrIde :function(){
+        var url = window.location.host+'/sys/gnride/'+genro.page_id;
+        url = window.location.protocol+'//'+url;
+        var w = genro.openWindow(url,'debugger',{location:'no',menubar:'no'});
+        console.log('w,h',window.clientWidth,window.clientHeight)
+        w.resizeTo(window.screen.width,window.screen.height);
+        var debuggedModule = genro.pageModule;
+        var mainGenro = genro;
+        this._debuggerWindow = w;
+        genro.wsk.addhandler('do_focus_debugger',function(callcounter){
+            setTimeout(function(){
+                genro.dev.startDebug(callcounter);
+            },100)
+        });
+        w.addEventListener('load',function(){
+            var dbg_genro = this.genro;     
+            dbg_genro.ext.mainGenro = mainGenro;
+            dbg_genro.ext['startingModule'] = debuggedModule;
+        });
+
+    },
+    onDebugstep:function(data){
+        var callcounter = data.getItem('callcounter');
+        if (!('r_'+callcounter in genro.debugged_rpc)){
+            this.addToDebugged(callcounter,data)
+            this.updateDebuggerStepBox(callcounter,data);
+            
+        }
+    },
+
+    updateDebuggerStepBox:function(callcounter,data){
+        var debugger_box = dojo.byId('pdb_root')
+        var debuggerStepBox = dojo.byId('_debugger_step_'+callcounter);
+        if(!debuggerStepBox){
+            debuggerStepBox = document.createElement('div');
+            debuggerStepBox.setAttribute('id','_debugger_step_'+callcounter);
+            debuggerStepBox.setAttribute('class','pdb_debugger_step');
+            debugger_box.appendChild(debuggerStepBox)
+        }else{
+            dojo.removeClass(debuggerStepBox,'pdb_running');
+            debuggerStepBox.removeChild(debuggerStepBox.firstChild);
+        }
+        var container = document.createElement('div');
+        var message = document.createElement('div');
+        var footer = document.createElement('div');
+        footer.setAttribute('class','pdb_debugger_step_footer')
+        container.appendChild(message)
+        container.appendChild(footer)
+        debuggerStepBox.appendChild(container)
+        message.innerHTML = dataTemplate('Rpc:$methodname<br/>Module: $filename<br/>Function: $functionName<br/>Line: $lineno</div>',data);
+        var link = document.createElement('div');
+        link.setAttribute('class','pdb_footer_button pdb_footer_button_right')
+        link.innerHTML = 'Debug'
+        link.setAttribute('onclick',dataTemplate("genro.dev.openDebugInIde('$pdb_id','$debugger_page_id');",data))
+        footer.appendChild(link)
+        link = document.createElement('div');
+        link.setAttribute('class','pdb_footer_button pdb_footer_button_left')
+        link.innerHTML = 'Continue'
+        link.setAttribute('onclick',dataTemplate("dojo.addClass(dojo.byId('_debugger_step_"+callcounter+"'),'pdb_running'); genro.dev.continueDebugInIde('$pdb_id','$debugger_page_id');",data))
+        footer.appendChild(link)
+    },
+
+    continueDebugInIde:function(pdb_id,debugger_page_id){
+        genro.wsk.publishToClient(debugger_page_id,"debugCommand",{cmd:'c',pdb_id:pdb_id});
+    },
+
+    openDebugInIde:function(pdb_id,debugger_page_id){
+        if(genro.mainGenroWindow){
+            genro.mainGenroWindow.genro.framedIndexManager.openGnrIDE();
+        }else{
+            genro.wsk.publishToClient(debugger_page_id,'bringToTop')
+        }
+    },
+
+
+    addToDebugged:function(callcounter,data){
+        var dbgpars = {debugger_page_id:data.getItem('debugger_page_id'),pdb_id:data.getItem('pdb_id')};
+        genro.debugged_rpc['r_'+callcounter] = dbgpars;
+        genro.rpc.suspend_call(callcounter)
+    },
+
+    removeFromDebugged:function(callcounter){
+        var dbgpars = objectPop(genro.debugged_rpc,'r_'+callcounter);
+        var debuggerStepBox = dojo.byId('_debugger_step_'+callcounter);
+        if(debuggerStepBox){
+            dojo.byId('pdb_root').removeChild(debuggerStepBox);
+        }
+    },
+
     openInspector:function(){
         var root = genro.src.newRoot();
         genro.src.getNode()._('div', '_devInspector_');
@@ -311,7 +408,6 @@ dojo.declare("gnr.GnrDevHandler", null, {
         genro.setDataFromRemote('gnr.palettes.dbmodel.store', "app.dbStructure");
         this.sqlDebugPalette(pg);
         this.devUtilsPalette(pg);
-        this.codeDebuggerPalette(pg);
         node.unfreeze();
     },
     
@@ -336,11 +432,6 @@ dojo.declare("gnr.GnrDevHandler", null, {
     _getHeaderInfo_getcell:function(row,field){
         var h = genro.rpcHeaderInfo[row['r_count']];
         return h?h[field]:'';
-    },
-
-    codeDebuggerPalette:function(parent){
-        var bc = parent._('palettePane',{'paletteCode':'codeDebugger',title:'Debugger',contentWidget:'borderContainer',frameCode:'codeDebugger',rounded:4});
-        bc._('contentPane',{region:'center',remote:'dev.pyDebugger.debuggerPane',overflow:'hidden'})
     },
 
     sqlDebugPalette:function(parent){
@@ -502,11 +593,12 @@ dojo.declare("gnr.GnrDevHandler", null, {
             return genro.dev.dictToHtml(item.attr, 'bagAttributesTable');
         }
     },
-    showDebugger:function(){
+    showInspector:function(){
         if(!dijit.byId("gnr_devTools")){
              genro.dev.openInspector();
         }
     },
+
     shortcut: function(shortcut, callback, opt) {
         var default_options = {
             'type':'keydown',

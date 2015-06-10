@@ -414,7 +414,16 @@ dojo.declare("gnr.FramedIndexManager", null, {
             pageName:'DOCUMENTATION',
             file:'/sys/docpage',
             label: _T("Documentation")
-        })
+        });
+    },
+
+
+    openGnrIDE:function(){
+        this.newBrowserWindowPage({
+            pageName:'GNRIDE',
+            file:'/sys/gnride',
+            label: _T("Genro IDE")
+        });
     },
 
     callOnCurrentIframe:function(objpath,method,args){

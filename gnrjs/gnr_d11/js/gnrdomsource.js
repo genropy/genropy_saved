@@ -305,23 +305,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 }
                 expr = _else;
             }
-            if (tag == 'dataws' && (expr != _else)) {
-                console.log('dataws', expr, kwargs);
-
-                var method = expr;
-                objectExtract(kwargs, '_*');
-                kwargs = objectUpdate({'method':method,
-                        'dest_path':destinationPath},kwargs);
-                genro.wsk.send('wsmethod',kwargs)
-                return;
-            }
             if (tag == 'datarpc' && (expr != _else)) {
                 var doCall = true;
                 var domsource_id = this.getStringId();
                 var method = expr;
-                // var httpMethod = objectPop(kwargs, '_POST') ? 'POST' : 'GET';
+                var httpMethod = objectPop(kwargs, 'httpMethod') 
+                var httpMethod = httpMethod || (objectPop(kwargs, '_POST') === false? 'GET' : 'POST');
 
-                var httpMethod = objectPop(kwargs, '_POST') === false? 'GET' : 'POST';
                 var _onResult = objectPop(kwargs, '_onResult');
                 var _onError = objectPop(kwargs, '_onError');
                 var _lockScreen = objectPop(kwargs, '_lockScreen');

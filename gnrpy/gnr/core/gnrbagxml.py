@@ -381,7 +381,7 @@ class BagToXml(object):
         :param xmlMode: TODO"""
         #if value == None:
         #    value = ''
-        if self.onBuildTag:
+        if self.onBuildTag and not xmlMode:
             self.onBuildTag(label=tagName,value=value,attributes=attributes)
         t = cls
         if not t:

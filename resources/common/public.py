@@ -272,14 +272,17 @@ class PublicSlots(BaseComponent):
     @struct_method
     def public_publicRoot_devBtn(self,pane,**kwargs):
         if self.isDeveloper():
-            pane.div(connect_onclick='genro.dev.showDebugger();',
+            pane.div(connect_onclick='genro.dev.showInspector();',
                       _class='icnBaseEye buttonIcon', float='right', margin_right='5px')
         else:
             pane.div()
 
 
 class TableHandlerMain(BaseComponent):
-    py_requires = """public:Public,th/th:TableHandler,gnrcomponents/doc_handler/doc_handler:DocHandler,gnrcomponents/ticket_handler/ticket_handler:TicketHandler"""
+    py_requires = """public:Public,
+                    th/th:TableHandler,
+                    gnrcomponents/doc_handler/doc_handler:DocHandler,
+                    gnrcomponents/ticket_handler/ticket_handler:TicketHandler"""
     formResource = None
     viewResource = None
     formInIframe = False

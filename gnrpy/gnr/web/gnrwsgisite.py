@@ -268,10 +268,10 @@ class GnrWsgiSite(object):
         rpdb.set_trace()
 
     @property
-    def websockethandler(self):
-        if not self._websockethandler:
-            self._websockethandler = WebSocketHandler(self)
-        return self._websockethandler
+    def wsk(self):
+        if not hasattr(self,'_wsk'):
+            self._wsk = WebSocketHandler(self)
+        return self._wsk
 
     @property
     def register(self):
@@ -811,6 +811,9 @@ class GnrWsgiSite(object):
         
     def cleanup(self):
         """clean up"""
+        debugger = getattr(self.currentPage,'debugger',None)
+        if debugger:
+            debugger.onClosePage()
         self.currentPage = None
         self.db.closeConnection()
         #self.shared_data.disconnect_all()

@@ -19,5 +19,6 @@
     </head>
     <body class="${bodyclasses}" >
         <div id="mainWindow" class='waiting'></div>
+        <div id="pdb_root"></div>
     </body>
 </html>

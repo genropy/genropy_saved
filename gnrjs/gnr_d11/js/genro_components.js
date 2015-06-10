@@ -1177,6 +1177,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         var boxpars = objectExtract(kw,'box_*');
         gnrwdg.width = 0;
         gnrwdg.labelAttribute = objectPop(kw,'labelAttribute');
+        gnrwdg.noHeaders=objectPop(kw,'noHeaders')
         if(!columns){ 
             columns = '^#WORKSPACE.columns';
             sourceNode.registerDynAttr('columns');
@@ -1201,7 +1202,9 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
             },function(){});
         }},boxpars));
         gnrwdg.layoutNode = box.getParentNode();
-        gnrwdg.headerNode = box._('div',{_class:'treeGridHeader'}).getParentNode();
+        if (!gnrwdg.noHeaders){
+            gnrwdg.headerNode = box._('div',{_class:'treeGridHeader'}).getParentNode();
+        }
         var center = box._('div',{_class:'treeGridCenter'});
         gnrwdg.centerNode = center.getParentNode();
         var tree = center._('tree',objectUpdate(defaultKw,kw));
@@ -1217,7 +1220,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_setHeader:function(){
-        if(!this.width){
+        if(!this.width || this.noHeaders){
             return;
         }
         var maxwidth = this.width-15;
@@ -1234,8 +1237,12 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
             n = columns_bag.getNode(key);
             cell = sn.evaluateOnNode(n.attr);
             if(!cell.hidden){
-                l.unshift('<div class="treeHeaderCell '+(cell.headerClass || '')+'" style="right:'+currx+'px;width:'+cell.size+'px;">'+(cell.name || cell.field) +'</div>');
-                currx += cell.size+1 || 0;
+                var size=cell.size
+                if ((size+'').endsWith('%')){
+                    size=Math.round(maxwidth*parseInt(size)/100)
+                }
+                l.unshift('<div class="treeHeaderCell '+(cell.headerClass || '')+'" style="right:'+currx+'px;width:'+size+'px;">'+(cell.name || cell.field) +'</div>');
+                currx += size+1 || 0;
             }
         });
         var storeNode = genro.getDataNode(this.absStorepath);
@@ -1275,15 +1282,31 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
             n = columns_bag.getNode(key);
             cell = sn.evaluateOnNode(n.attr);
             if(!cell.hidden){
-                l.unshift('<div class="treecell cell_'+(cell.dtype || 'T') +' '+(cell.cellClass || '')+' " style="right:'+currx+'px;width:'+cell.size+'px;">'+htmlCellContent(item,cell)+'</div>');
-                currx += cell.size+1 || 0;
+                var size=cell.size
+                if ((size+'').endsWith('%')){
+                    size=Math.round(maxwidth*parseInt(size)/100)
+                }
+                var objStyle=objectUpdate(objectFromStyle(cell._style),
+                                         sn.evaluateOnNode(genro.dom.getStyleDict(objectUpdate({},cell), [ 'width','right'])))
+                objStyle['width']=size+'px'
+                objStyle['right']=currx+'px'   
+                var cellstyle=objectAsStyle(objStyle)       
+                
+                l.unshift('<div class="treecell cell_'+(cell.dtype || 'T') +' '+(cell.cellClass || '')+' " style="'+cellstyle+'">'+htmlCellContent(item,cell)+'</div>');
+                currx += size+1 || 0;
             }
         })
         var storeNode = genro.getDataNode(this.absStorepath);
         var level = (item.parentshipLevel(storeNode)-1);
         rowwidth = maxwidth-level*k;
         var mainCell = columns_bag.getAttr('#0');
-        l.unshift('<div class="treecell cell_'+(mainCell.dtype || 'T')+' '+(mainCell.cellClass || '')+' " style="left:0;width:'+(rowwidth-currx)+'px">'+htmlCellContent(item,mainCell)+'</div>');
+        var objStyle=objectUpdate(objectFromStyle(mainCell._style),
+        sn.evaluateOnNode(genro.dom.getStyleDict(objectUpdate({},mainCell), [ 'width','left'])))
+        objStyle['width']=(rowwidth-currx-1)+'px'
+        objStyle['left']='0px'   
+        var cellstyle=objectAsStyle(objStyle)
+        
+        l.unshift('<div class="treecell cell_'+(mainCell.dtype || 'T')+' '+(mainCell.cellClass || '')+' " style="'+cellstyle+'">'+htmlCellContent(item,mainCell)+'</div>');
         return "innerHTML:<div class='treerow treerow_level_"+level+"' style='width:"+rowwidth+"px;'>"+l.join('')+"</div>";
     },
 

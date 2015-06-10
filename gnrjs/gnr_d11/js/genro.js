@@ -59,6 +59,7 @@ dojo.declare('gnr.GenroClient', null, {
         //this.debug_py = kwargs.startArgs.debug_py;
         this.websockets_url=kwargs.startArgs.websockets_url;
         this.pageMode = kwargs.pageMode;
+        this.pageModule = kwargs.pageModule;
         this.baseUrl = kwargs.baseUrl;
         this.serverTime =objectPop(kwargs.startArgs,'servertime');
         var start_ts = new Date();
@@ -71,6 +72,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.isDeveloper = objectPop(this.startArgs,'isDeveloper');
         this.theme = {};
         this.dojo = dojo;
+        this.debugged_rpc = {};
         this.ext={};
         this.userInfoCb = [];
         this.formatter = gnrformatter;
@@ -148,8 +150,7 @@ dojo.declare('gnr.GenroClient', null, {
 
         this.dom = new gnr.GnrDomHandler(this);
         this.vld = new gnr.GnrValidator(this);
-        this.wsk = new gnr.GnrWebSocketHandler(this,this.websockets_url,{debug:false});
-        
+        this.wsk = new gnr.GnrWebSocketHandler(this,this.websockets_url,{debug:false});        
        //var onerrorcb = function(errorMsg,url,linenumber){
        //    genro.onError(errorMsg,url,linenumber);
        //};
@@ -249,7 +250,9 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dev.addError(msg,'js',true);
     },
 
-
+    closePage:function(){
+        window.close();
+    },
     onWindowUnload:function(e) {
         if(genro.external_window_key){
             genro.mainGenroWindow.genro.publish('closeExternalWindow',{windowKey:genro.external_window_key});
@@ -345,6 +348,9 @@ dojo.declare('gnr.GenroClient', null, {
         for (var k in genro.rpc.rpc_register){
             var kw = genro.rpc.rpc_register[k];
             var age = now-kw.__rpc_started;
+            if(k in this.debugged_rpc){
+                return;
+            }
             if (age>5000){
                 console.warn('slow rpc pending',kw,age);
                 objectPop(genro.rpc.rpc_register,k);
@@ -378,7 +384,7 @@ dojo.declare('gnr.GenroClient', null, {
          It calls the remoteCall to receive the page contained in the bag called 'main'.
          */
         //genro.timeIt('** dostart **');
-        this.wsk.create()
+        
         
         this._dataroot = new gnr.GnrBag();
         this._dataroot.setBackRef();
@@ -392,8 +398,15 @@ dojo.declare('gnr.GenroClient', null, {
         this.isTouchDevice = ( (navigator.appVersion.indexOf('iPad') >= 0 ) || (navigator.appVersion.indexOf('iPhone') >= 0));
         this.isChrome = ( (navigator.appVersion.indexOf('Chrome') >= 0 ));
         //genro.timeIt('** getting main **');
-
+        this.wsk.create();
         this.root_page_id = null;
+        dojo.subscribe('debugstep',
+                       function(data){genro.dev.onDebugstep(data)}
+                     )
+        dojo.subscribe('closePage',function(){
+            genro.closePage()
+        });
+
         if(this.startArgs['_parent_page_id']){
             this.parent_page_id = this.startArgs['_parent_page_id'];
         }
@@ -414,21 +427,23 @@ dojo.declare('gnr.GenroClient', null, {
                 parentGenro = false;
             }
         }
-        var mainBagPage = genro.src.getMainSource();
-        if (mainBagPage  &&  mainBagPage.attr && mainBagPage.attr.redirect) {
-            var pageUrl = this.absoluteUrl()
-            if (pageUrl.slice(0,genro.baseUrl.length-1)==genro.baseUrl.slice(0,genro.baseUrl.length-1))
-            {
-                pageUrl = pageUrl.slice(genro.baseUrl.length-1) || '/';
+        genro.src.getMainSource(function(mainBagPage){
+            if (mainBagPage  &&  mainBagPage.attr && mainBagPage.attr.redirect) {
+                var pageUrl = genro.absoluteUrl()
+                if (pageUrl.slice(0,genro.baseUrl.length-1)==genro.baseUrl.slice(0,genro.baseUrl.length-1))
+                {
+                    pageUrl = pageUrl.slice(genro.baseUrl.length-1) || '/';
+                }
+                var url = genro.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':pageUrl});
+               // genro.currentUrl=mainBagPage.attr.redirect
+                //var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
+                //this.dostart(mainBagPage)
+               genro.gotoURL(url);
+            }else{
+                genro.dostart(mainBagPage)
             }
-            var url = this.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':pageUrl});
-           // genro.currentUrl=mainBagPage.attr.redirect
-            //var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
-            //this.dostart(mainBagPage)
-           this.gotoURL(url);
-        }else{
-            this.dostart(mainBagPage)
-        }
+        });
+        
     },
         
     dostart: function(mainBagPage) {
@@ -455,11 +470,16 @@ dojo.declare('gnr.GenroClient', null, {
             genro.dom.addClass(dojo.body(),'workInProgress');
         }
         var _this = this;
+
         this._dataroot.subscribe('dataTriggers', {'any':dojo.hitch(this, "dataTrigger")});
         dojo.subscribe('ping',genro.ping);
         
         genro.dev.shortcut("Ctrl+Shift+D", function() {
-            genro.dev.showDebugger();
+            genro.dev.showInspector();
+        });
+
+        genro.dev.shortcut("Ctrl+Shift+I", function() {
+            genro.dev.openGnrIde();
         });
 
         genro.dev.shortcut("Ctrl+Shift+T", function() {

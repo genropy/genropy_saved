@@ -23,13 +23,13 @@
 #Created by Giovanni Porcari on 2007-03-24.
 #Copyright (c) 2007 Softwell. All rights reserved.
 
+import os
+import sys
+import shutil
 import urllib
 from time import time
 from datetime import timedelta
 from gnr.web._gnrbasewebpage import GnrBaseWebPage
-import os
-import shutil
-
 from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip,boolean,asDict
 from mako.lookup import TemplateLookup
 from gnr.core.gnrdict import dictExtract
@@ -39,6 +39,7 @@ from gnr.web.gnrwebpage_proxy.connection import GnrWebConnection
 from gnr.web.gnrwebpage_proxy.serverbatch import GnrWebBatch
 from gnr.web.gnrwebpage_proxy.rpc import GnrWebRpc
 from gnr.web.gnrwebpage_proxy.developer import GnrWebDeveloper
+from gnr.web.gnrwebpage_proxy.gnrpdb import GnrPdbClient
 from gnr.web.gnrwebpage_proxy.utils import GnrWebUtils
 from gnr.web.gnrwebpage_proxy.pluginhandler import GnrWebPluginHandler
 from gnr.web.gnrwebpage_proxy.jstools import GnrWebJSTools
@@ -57,6 +58,8 @@ AUTH_EXPIRED = 2
 AUTH_FORBIDDEN = -1
 PAGE_TIMEOUT = 60
 PAGE_REFRESH = 20
+
+ATTRIBUTES_SIMPLEWEBPAGE = ('_workdate','_language','_call_args','_call_kwargs','user','connection_id','user_ip','dbstore','user_agent','siteName')
 
 
 
@@ -164,6 +167,7 @@ class GnrWebPage(GnrBaseWebPage):
             self.dojo_source = self.site.config['dojo?source']
         if 'dojo_source' in request_kwargs:
             self.dojo_source = request_kwargs.pop('dojo_source')
+
         self.connection = GnrWebConnection(self,
                                            connection_id=request_kwargs.pop('_connection_id', None),
                                            user=request_kwargs.pop('_user', None))
@@ -186,17 +190,19 @@ class GnrWebPage(GnrBaseWebPage):
             return
         if page_id:
             self.page_item = self._check_page_id(page_id, kwargs=request_kwargs)
+            self._workdate = self.page_item['data']['rootenv.workdate'] #or datetime.date.today()
+            self._language = self.page_item['data']['rootenv.language']
         elif self._call_handler_type in ('pageCall', 'externalCall'):
             raise self.site.client_exception('The request must reference a page_id', self._environ)
         else:
             self.page_item = self._register_new_page(kwargs=request_kwargs)
+            self._workdate = self.page_item['data']['rootenv.workdate'] #or datetime.date.today()
+            self._language = self.page_item['data']['rootenv.language']
             if class_info:
                 self.page_item['data']['class_info'] = class_info
                 self.page_item['data']['init_info'] = dict(request_kwargs=request_kwargs, request_args=request_args,
                           filepath=filepath, packageId=packageId, pluginId=pluginId,  basename=basename)
-        
-        self._workdate = self.page_item['data']['rootenv.workdate'] #or datetime.date.today()
-        self._language = self.page_item['data']['rootenv.language']
+                self.page_item['data']['page_info'] = dict([(k,getattr(self,k)) for k in ATTRIBUTES_SIMPLEWEBPAGE])
         self._inited = True
 
     def _T(self,value,lockey=None):
@@ -209,6 +215,7 @@ class GnrWebPage(GnrBaseWebPage):
     @property
     def pagename(self):
         return os.path.splitext(os.path.basename(self.filepath))[0].split(os.path.sep)[-1]
+    
 
     @property
     def call_args(self):
@@ -291,11 +298,21 @@ class GnrWebPage(GnrBaseWebPage):
     frontend = property(_get_frontend)
             
     @property 
+    def wsk(self):
+        return self.site.wsk
+        
+    @property 
     def dev(self):
         if not hasattr(self, '_dev'):
             self._dev = GnrWebDeveloper(self)
         return self._dev
         
+    @property 
+    def pdb(self):
+        if not hasattr(self, '_pdb'):
+            self._pdb = GnrPdbClient(self)
+        return self._pdb
+
     @property
     def utils(self):
         if not hasattr(self, '_utils'):
@@ -337,6 +354,10 @@ class GnrWebPage(GnrBaseWebPage):
             return self.package.name
         return maintable.split('.')[0]
 
+    @property
+    def modulePath(self):
+        return  '%s.py' %os.path.splitext(sys.modules[self.__module__].__file__)[0]
+        
     @property 
     def db(self):
         if not getattr(self, '_db',None):
@@ -411,6 +432,7 @@ class GnrWebPage(GnrBaseWebPage):
         
     def __call__(self):
         """Internal method dispatcher"""
+        self.pdb.onPageStart()    
         self.onInit() ### kept for compatibility
         self._onBegin()
         args = self._call_args
@@ -812,7 +834,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self.localizer.getTranslation(txt,language=language or self.locale)
 
     def localize(self, txt):
-        return self.localizer.translate(txt)
+        return self.localizer.translate(txt,language=self.locale)
     _ = localize
 
 
@@ -856,13 +878,13 @@ class GnrWebPage(GnrBaseWebPage):
             __mixin_path_list = __mixin_path.split('/')
             self.mixinComponent(*__mixin_path_list, pkg=__mixin_pkg)
         if '.' in method:
-            proxy_object,submethod = self._getProxyObject(method)
+            proxy_object,submethod = self._getProxyObject(method)                 
         else:
             proxy_object = self
             submethod = method
         handler = getattr(proxy_object, submethod, None)
         if not handler or not getattr(handler, 'is_rpc', False):
-            handler = getattr(proxy_object, '%s_%s' % (prefix, submethod), None)
+            handler = getattr(proxy_object, '%s_%s' % (prefix, submethod),None)
         
         if handler and getattr(handler, 'tags',None):
             if not self.application.checkResourcePermission(handler.tags, self.userTags):
@@ -915,6 +937,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.frontend.frontend_arg_dict(arg_dict)
         arg_dict['customHeaders'] = self._htmlHeaders
         arg_dict['charset'] = self.charset
+        arg_dict['pageModule'] = self.filepath
         arg_dict['filename'] = self.pagename
         arg_dict['pageMode'] = 'wsgi_10'
         arg_dict['baseUrl'] = self.site.home_uri
@@ -1137,15 +1160,27 @@ class GnrWebPage(GnrBaseWebPage):
         """TODO"""
         return self.connection.user_tags
         
-    @property
-    def user(self):
-        """TODO"""
-        return self.connection.user
-        
-    @property
-    def connection_id(self):
-        """TODO"""
-        return self.connection.connection_id
+
+    def _get_user(self):
+        if not getattr(self,'_user',None):
+            self._user = self.connection.user
+        return self._user
+
+    def _set_user(self,user):
+        self._user = user
+
+    user = property(_get_user, _set_user)
+
+    def _get_connection_id(self):
+        if not getattr(self,'_connection_id',None):
+            self._connection_id = self.connection.connection_id
+        return self._connection_id
+
+    def _set_connection_id(self,connection_id):
+        self._connection_id = connection_id
+
+    connection_id = property(_get_connection_id, _set_connection_id)
+
         
     def _set_avatar(self, avatar):
         self._avatar = avatar
@@ -1161,6 +1196,17 @@ class GnrWebPage(GnrBaseWebPage):
         return self._avatar
         
     avatar = property(_get_avatar, _set_avatar)
+
+    def _get_siteName(self):
+        if not getattr(self,'_siteName',None):
+            self._siteName = os.path.basename(self.siteFolder.rstrip('/'))
+        return self._siteName
+
+    def _set_siteName(self,siteName):
+        self._siteName = siteName
+
+    siteName = property(_get_siteName, _set_siteName)
+        
         
     def checkPermission(self, pagepath, relative=True):
         """TODO
@@ -1498,8 +1544,15 @@ class GnrWebPage(GnrBaseWebPage):
         if parent:
             value['parent'] = parent
         self.setInClientData('gnr.publisher',value=value,page_id=page_id or self.page_id,fired=True)
-
+        
     def setInClientData(self, path, value=None, attributes=None, page_id=None, filters=None,
+                        fired=False, reason=None, replace=False,public=None):
+        print 'path',path,'value',value
+        handler = self.setInClientData_websocket if self.site.websockets else self.setInClientData_legacy
+        handler(path, value=value, attributes=attributes, page_id=page_id, filters=filters,
+                        fired=fired, reason=reason, replace=replace,public=public)
+                        
+    def setInClientData_legacy(self, path, value=None, attributes=None, page_id=None, filters=None,
                         fired=False, reason=None, replace=False,public=None):
         if public or filters or page_id:
             self.site.register.setInClientData(path=path, value=value, attributes=attributes, page_id=page_id or self.page_id, filters=filters,
@@ -1514,6 +1567,23 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             datachange = ClientDataChange(path, value, reason=reason, attributes=attributes, fired=fired)
             self.local_datachanges.append(datachange)
+            
+    def setInClientData_websocket(self, path, value=None, attributes=None, page_id=None, filters=None,
+                        fired=False, reason=None, replace=False,public=None):
+        if public or filters or page_id:
+            self.site.register.setInClientData(path=path, value=value, attributes=attributes, page_id=page_id or self.page_id, filters=filters,
+                        fired=fired, reason=reason, replace=replace,register_name='page')
+        elif isinstance(path, Bag):
+            changeBag = path
+            for changeNode in changeBag:
+                attr = changeNode.attr
+                datachange = ClientDataChange(attr.pop('_client_path'), changeNode.value,
+                    attributes=attr, fired=attr.pop('fired', None))
+                self.local_datachanges.append(datachange)
+        else:
+            datachange = ClientDataChange(path, value, reason=reason, attributes=attributes, fired=fired)
+            self.local_datachanges.append(datachange)
+            
             
     @public_method          
     def sendMessageToClient(self, message, pageId=None, filters=None, msg_path=None):
