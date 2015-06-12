@@ -683,7 +683,7 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                     result = [];
                     this.lastFetchAttrs = {};
                 }
-                console.log('dbselect execution',(new Date()-s_time))
+                //console.log('dbselect execution',(new Date()-s_time))
                 findCallback(result, request);
             });
             if(this._parentSourceNode && this._parentSourceNode.widget &&!this._parentSourceNode.widget._focused){

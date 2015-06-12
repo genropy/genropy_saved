@@ -273,7 +273,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                              ignoreDuplicate=True,
                              js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
                              sqlContextName=None, virtual_columns=None,_eager_level=0,_eager_record_stack=None,_storename=None,resolver_kwargs=None,
-                             loadingParameters=None, **kwargs):
+                             loadingParameters=None,_debug_info=None, **kwargs):
         """TODO
         
         ``getRelatedRecord()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
