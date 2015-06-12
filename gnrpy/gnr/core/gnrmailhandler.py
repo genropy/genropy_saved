@@ -234,7 +234,7 @@ class MailHandler(GnrBaseService):
             return msg
         else:
             msg = MIMEMultipart()
-            msg.attach(MIMEText(body, 'text', charset))
+            msg.attach(MIMEText(body))
             self._attachments(msg, attachments)
             msg['Subject'] = subject
             return msg
