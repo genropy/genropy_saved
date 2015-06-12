@@ -7208,7 +7208,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                 _this.showNodeAtPath(fullpath);
             }
         };
-        root.walk(cb,'static');
+        root.walk(cb); //'static'
         treeNodes.addClass('hidden');
         treeNodes.forEach(function(n){
             var tn = dijit.getEnclosingWidget(n);
