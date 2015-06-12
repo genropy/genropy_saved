@@ -32,6 +32,8 @@ from decimal import Decimal
 from gnr.core import gnrstring
 from gnr.core import gnrclasses
 import time
+import StringIO
+
 REGEX_XML_ILLEGAL = re.compile(r'<|>|&')
 ZERO_TIME=datetime.time(0,0)
 
@@ -334,7 +336,9 @@ class BagToXml(object):
         >>> mybag['aa.bb'] = 4567
         >>> mybag.toXml()
         '<?xml version=\'1.0\' encoding=\'iso-8859-15\'?><GenRoBag><aa><bb T="L">4567</bb></aa></GenRoBag>'"""
-        result = docHeader or "<?xml version='1.0' encoding='" + encoding + "'?>\n"
+        result = ''
+        if docHeader!=False:
+            result = docHeader or "<?xml version='1.0' encoding='" + encoding + "'?>\n"
         if not catalog:
             catalog = gnrclasses.GnrClassCatalog()
         self.translate_cb = translate_cb
@@ -469,3 +473,63 @@ class BagToXml(object):
             result = '%s>%s</%s>' % (result, value, tagName)
 
         return result
+
+class XmlOutputBag(object):
+    
+    """
+    with XmlOutputBag('miofile',docHeader = None, omitRoot=False, ) as b
+        for n in collection:
+            b.addItemBag('elemento', n.getValue(), bello=True)
+    result = b.content
+    """
+    def __init__(self, filepath=None, output=None, docHeader=True, encoding='UTF-8', omitRoot=False, counter=None,
+                 typeattrs=False, typevalue=False):
+        self.filepath = filepath
+        self.docHeader =docHeader
+        self.omitRoot =omitRoot
+        self.counter = counter
+        self.encoding = encoding
+        self.typeattrs=typeattrs
+        self.typevalue=typevalue
+        if not output:
+            if filepath:
+                output=open(filepath,'w')
+    
+            else:
+                output = StringIO.StringIO()
+        self.output = output
+
+    def __enter__(self):
+        if self.docHeader:
+            if self.docHeader == True:
+                docHeader = "<?xml version='1.0' encoding='" + self.encoding + "'?>\n"
+            else:
+                docHeader = self.docHeader
+            self.output.write(docHeader)
+        if not self.omitRoot:
+            if self.counter!=None:
+                root = '<GenRoBag len="%s">' % self.counter
+            else:
+                root = '<GenRoBag>'
+            self.output.write(root)
+        return self
+    
+    def addItemBag(self, label, value, _attributes=None, **kwargs):
+        tempbag = Bag()
+        tempbag.addItem(label, value, _attributes=_attributes, **kwargs)
+        bagxml= BagToXml().build(tempbag,typeattrs=self.typeattrs, typevalue=self.typevalue,
+                                unresolved=True, omitRoot=True,
+                                docHeader=False,pretty=False)
+        self.output.write(bagxml)
+                          
+    def __exit__(self, type, value, traceback):
+        if not self.omitRoot:
+            self.output.write('</GenRoBag>')
+        if not self.filepath:
+            self.content = self.output.getvalue()
+            print self.content
+        self.output.close()
+        
+
+
+            

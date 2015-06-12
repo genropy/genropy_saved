@@ -37,7 +37,7 @@ def valid_children(**kwargs):
 class GnrStructData(Bag):
     """This is a subclass of the :class:`Bag <gnr.core.gnrbag.Bag>` class that implements
     functional syntax for adding particular elements to the tree"""
-
+    default_childname= '*_#'
     exceptions = dict(invalid_child_tag='Wrong insert child %(tag)s',
                         missing_child_tag='Missing child %(tag)s',
                         already_inserted_child_tag='You have already inserted %(maxval)s %(tag)s',
@@ -145,7 +145,7 @@ class GnrStructData(Bag):
  
 
 
-    def child(self, tag, childname='*_#', childcontent=None, content=None,_parentTag=None, _attributes=None,
+    def child(self, tag, childname=None, childcontent=None, content=None,_parentTag=None, _attributes=None,
               _returnStruct=True, _position=None, **kwargs):
         """Set a new item of the ``tag`` type into the current structure. Return the new structure
         if content is ``None``, else the parent
@@ -158,6 +158,9 @@ class GnrStructData(Bag):
         :param childname: the :ref:`childname`
         """
         where = self   
+        original_childname = childname
+        childname = childname or self.default_childname
+
        #if childname and childname != '*_#':
        #    kwargs['_childname'] = childname
         if childcontent is None:
@@ -166,8 +169,6 @@ class GnrStructData(Bag):
             kwargs.update(_attributes)
         if '_content' in kwargs:
             kwargs['content'] = kwargs.pop('_content')
-        if not childname:
-            childname = '*_#'
         if '.' in childname:
             namelist = childname.split('.')
             childname = namelist.pop()
@@ -191,6 +192,9 @@ class GnrStructData(Bag):
             actualParentTag = where.getAttr('', tag)
             if not actualParentTag in _parentTag:
                 raise GnrStructureError('%s "%s" cannot be inserted in a %s' % (tag, childname, actualParentTag))
+        if not original_childname:
+            where.addItem(childname, childcontent, tag=tag, _position=_position,_attributes=kwargs)
+            return result
         if childname in where and where[childname] != '' and where[childname] is not None:
             if where.getAttr(childname, 'tag') != tag:
                 raise GnrStructureError(
