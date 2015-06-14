@@ -472,6 +472,8 @@ class TableHandlerMain(BaseComponent):
                 th_unifyrecord(kw);
             }
             """
+        if th_options.get('fileImport'):
+            self.__th_fileImporter(th,th_options['fileImport'])
         if hasattr(th,'form'):
             self._th_parentFrameMessageSubscription(th.form)
         return th
@@ -525,6 +527,35 @@ class TableHandlerMain(BaseComponent):
             currCodes.append(tcode)
             gridattr['onDrop_%s' %tcode] = "genro.serverCall('developer.importMoverLines',{table:data.table,pkeys:data.pkeys,objtype:data.objtype});"
         gridattr.update(dropTarget_grid=','.join(currCodes))
+    
+    def __th_fileImporter(self,th,fileImport=None):
+        print 'fff'
+        gridattr = th.view.grid.attributes
+        currCodes = gridattr.get('dropTarget_grid')
+        th.view.grid.attributes.update(dropTarget_grid='%s,Files' %currCodes if currCodes else 'Files',
+                                    importer_ext=fileImport,
+                                    onDrop='th_dropFileImporter(this,files,"scheme_row_uploader");',
+                                        selfsubscribe_importstatus="""
+                                            var importing = $1.importing;
+                                            var store = this.widget.collectionStore();
+                                            store.freezed = importing;
+                                            genro.lockScreen(importing,this);
+                                        """,
+                                        selfsubscribe_import_match="""
+                                            genro.bp(true)
+                                        """,
+                                        dropTypes='Files',_uploader_onUploadingMethod=self._th_filePreImport)
+
+    @public_method
+    def _th_filePreImport(self,kwargs):
+        content = kwargs['file_handle'].file.read()
+        fpath = self.pageLocalDocument(kwargs.get('filename'))
+      
+        testresult = Bag()
+        testresult['r_0'] = Bag(dict(foo='pippo',bar='paperino',span='pluto'))
+        testresult['r_1'] = Bag(dict(foo='zzz',bar='mmm',span='lll'))
+        self.clientPublish('import_match' ,nodeId=kwargs['importer_nodeId'],value=testresult)
+        return testresult
         
     def __th_title(self,th,widget,insidePublic,extendedQuery=None):
         if insidePublic:

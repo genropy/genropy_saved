@@ -125,7 +125,6 @@ class GnrSqlDb(GnrObject):
         self.main_schema = main_schema
         self._connections = {}
         self.started = False
-        self._localizer = DbLocalizer()
         self._currentEnv = {}
         self.stores_handler = DbStoresHandler(self)
 
@@ -146,10 +145,6 @@ class GnrSqlDb(GnrObject):
         """TODO"""
         return self.stores_handler.dbstores
 
-    @property
-    def localizer(self):
-        return self._localizer
-        
     def createModel(self):
         """TODO"""
         from gnr.sql.gnrsqlmodel import DbModel
@@ -162,6 +157,10 @@ class GnrSqlDb(GnrObject):
             self.autoRestore(restorepath)
         self.model.build()
         self.started = True
+
+    @property
+    def localizer(self):
+        return self.application.localizer if self.application else DbLocalizer
         
     def autoRestore(self,path):
         assert os.path.exists(path),'Restore archive %s does not exist' %path
@@ -310,12 +309,6 @@ class GnrSqlDb(GnrObject):
         currentStore = self.currentEnv.get('storename')
         return  (currentStore is None) or (currentStore == self.rootstore)
             
-    def _get_localizer(self):
-        if self.application and self.application.site and self.application.site.currentPage:
-            return self.application.site.currentPage.localizer
-            
-    localizer = property(_get_localizer)
-    
     def _get_store_connection(self, storename):
         thread_ident = thread.get_ident()
         thread_connections = self._connections.setdefault(thread_ident, {})
@@ -1015,8 +1008,6 @@ class DbStoresHandler(object):
 
 class DbLocalizer(object):
     def translate(self,v):
-        if isinstance(v,basestring) and v.startswith('!!'):
-            return v[2:]
         return v
 
             

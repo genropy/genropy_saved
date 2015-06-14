@@ -1995,13 +1995,8 @@ class SqlSelection(object):
     def colHeaders(self):
         """TODO"""
         def translate(txt):
-            if txt.startswith('!!'):
-                txt = txt[2:]
-                
-                #app = getattr(self.dbtable.db, 'application', None)
-                #if app:
-                #    txt = app.localization.get(txt, txt)
-            return txt
+            return self.dbtable.db.localizer.translate(txt)
+            
                 
         columns = [c for c in self.columns if not c in ('pkey', 'rowidx')]
         headers = []
@@ -2014,20 +2009,9 @@ class SqlSelection(object):
         """TODO
         
         :param outsource: TODO"""
-        def translate(txt):
-            if txt.startswith('!!'):
-                txt = txt[2:]
-                
-                #app = getattr(self.dbtable.db, 'application', None)
-                #if app:
-                #    txt = app.localization.get(txt, txt)
-            return txt
-            
+        
+        headers = self.colHeaders()
         columns = [c for c in self.columns if not c in ('pkey', 'rowidx')]
-        headers = []
-        for colname in columns:
-            colattr = self.colAttrs.get(colname, dict())
-            headers.append(translate(colattr.get('label', colname)))
         result = ['\t'.join(headers)]
         for row in outsource:
             r = dict(row)
