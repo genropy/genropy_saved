@@ -163,7 +163,7 @@ class GnrWsgiSite(object):
 
     def setDebugAttribute(self, options):
         self.force_debug = False
-        if False and options:
+        if options:
             self.debug = boolean(options.debug)
             if self.debug:
                 self.force_debug = True
