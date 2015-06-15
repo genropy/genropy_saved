@@ -109,7 +109,7 @@ class GnrStructData(Bag):
             else:
                 minval,maxval = l
             valid_children[tag] = (minval,maxval)
-            if minval:
+            if minval and int(minval):
                 mandatoryTags[tag] = int(minval)
         return mandatoryTags
 
