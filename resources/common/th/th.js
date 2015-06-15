@@ -41,27 +41,6 @@ var th_view_batch_caller = function(kw){
     genro.publish("table_script_run",kw);
 }
 
-var th_dropFileImporter = function(sourceNode,files,uploaderId){
-    var params = {onUploadingMethod:sourceNode.getAttributeFromDatasource('_uploader_onUploadingMethod'),
-                  maintable_id:sourceNode.form?sourceNode.form.getCurrentPkey():null,table:sourceNode.attr.table,
-                  importer_ext:sourceNode.attr.importer_ext,importer_nodeId:sourceNode.attr.nodeId}
-    var kw = {uploaderId:uploaderId,
-              onProgress:function(e){console.log('onProgress',e)},
-              onResult:function(e){
-                    sourceNode.publish('importstatus',{importing:false});
-              }
-            }
-    var sendKw,sendParams;
-    dojo.forEach(files,function(file){
-        sendKw = objectUpdate({filename:file.name},kw);
-        sendParams = objectUpdate({mimetype:file.type},params);
-
-        sourceNode.publish('importstatus',{importing:true});
-        sendParams.importerGrid = sourceNode.attr.nodeId;
-        genro.rpc.uploadMultipart_oneFile(file, sendParams, sendKw);
-    });
-}
-
 var th_usersettings = function(th){
     var attr = th.attr;
     var formResource = attr.th_formResource;
