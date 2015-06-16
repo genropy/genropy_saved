@@ -404,8 +404,9 @@ dojo.declare("gnr.FramedIndexManager", null, {
     reloadSelectedIframe:function(rootPageName,modifiers){
         var iframe = this.getCurrentIframe(rootPageName);
         if(iframe){
-            var dodebug = modifiers=='ShiftAlt';
-            iframe.sourceNode._genro.pageReload({debug_sql:dodebug,pageReloading:true,dojo_source:true});
+            var dodebug = modifiers=='ShiftAlt'; 
+            //{debug_sql:dodebug,pageReloading:true,dojo_source:true}
+            iframe.sourceNode.reloadIframe();
         }
     },
 
