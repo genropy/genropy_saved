@@ -40,8 +40,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 class SqlDbAdapter(SqlDbBaseAdapter):
-    typesDict = {'charactervarying': 'A', 'character varying': 'A', 'character': 'C', 'text': 'T', 'blob': 'X',
-                 'boolean': 'B', 'date': 'D', 'time': 'H', 'timestamp': 'DH', 'numeric': 'N',
+    typesDict = {'charactervarying': 'A','nvarchar':'A', 'character varying': 'A', 'character': 'C', 'text': 'T', 'blob': 'X',
+                 'boolean': 'B', 'date': 'D', 'time': 'H', 'datetime':'DH','timestamp': 'DH', 'numeric': 'N',
                  'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'double precision': 'R', 'real': 'R', 'serial8': 'L'}
 
     revTypesDict = {'A': 'character varying', 'T': 'text', 'C': 'character',
@@ -159,7 +159,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                     ref = tbl
                     un_ref = un_tbl
 
-                    result.append([ref, schema, tbl, [col], un_ref, un_schema, un_tbl, [un_col]], None, None, None)
+                    result.append([ref, schema, tbl, cols, un_ref, un_schema, un_tbl, un_cols,None,None,None])
         return result
 
     def getPkey(self, table, schema):
