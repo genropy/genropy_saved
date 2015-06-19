@@ -472,8 +472,6 @@ class TableHandlerMain(BaseComponent):
                 th_unifyrecord(kw);
             }
             """
-        if th_options.get('fileImport'):
-            self.__th_fileImporter(th,th_options['fileImport'])
         if hasattr(th,'form'):
             self._th_parentFrameMessageSubscription(th.form)
         return th
