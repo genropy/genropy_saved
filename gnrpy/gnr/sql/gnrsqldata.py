@@ -905,7 +905,7 @@ class SqlQuery(object):
         self.sqlparams = sqlparams or {}
         self.querypars = dict(columns=columns, where=where, order_by=order_by,
                               distinct=distinct, group_by=group_by,
-                              limit=limit, offset=offset,
+                              limit=limit, offset=offset,for_update=for_update,
                               having=having)
         self.joinConditions = joinConditions or {}
         self.sqlContextName = sqlContextName
