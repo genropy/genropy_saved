@@ -180,15 +180,12 @@ class Table(object):
 
     def _writeColumn(self,f,col):
         attributes = Bag()
-
         name = col.pop('name')
         dtype = col.pop('dtype')
         size = col.pop('size')
         name_long = col.pop('name_long')
         name_short = col.pop('name_short')
-
         more_attributes = col.pop('_more_attributes')
-
         if dtype and dtype not in ('A','T','C'):
             attributes['dtype'] = dtype
         if size:
@@ -197,15 +194,17 @@ class Table(object):
         if name_short:
             attributes.setItem('name_short', name_short,localized=True)
         attributes.update(col)
-        
-        
-       #if more_attributes:
-       #    for key,dtype,value in more_attributes.digest('#v.attribute_key,#v.attribute_dtype,#v.attribute_value'):
-       #        if v not in (None,''):
-       #            pass
-       #            attributes[key] = 
-       #        
-       #f.write("        tbl.column('%s', %s)" % (name, ', '.join(atlst)))
+        if more_attributes:
+            for key,dtype,value in more_attributes.digest('#v.attribute_key,#v.attribute_dtype,#v.attribute_value'):
+                dtype = dtype or 'T'
+                if value not in (None,''):
+                    attributes[key] = self.catalog.fromText(value,dtype)
+        atlst = []
+        for k,v,localized in attributes.digest('#k,#v,#a.localized'):
+            if isinstance(v,basestring):
+                v = ("'%s'" if not "'" in v else '"%s"') %v
+            atlst.append("%s=%s" %(k,v))
+        f.write("        tbl.column('%s', %s)" % (name, ', '.join(atlst)))
 
     def _writeRelation(self,f,relation):
         pkg,table,id = relation['relation'].split('.')
@@ -215,15 +214,14 @@ class Table(object):
         relation_name = relation.pop('relation_name')
         one_one = relation.pop('one_one')
         deferred = relation.pop('deferred')
+        attributes = Bag()
 
         if relation_name:
-            atlst.append("relation_name='%s'" %relation_name)
+            attributes['relation_name'] = relation_name
         if one_one:
-            atlst.append("one_one='*'" if not relation_name else "one_one=True")
-        if relation['onDelete']:
-            atlst.append("onDelete='%s'" %relation.pop('onDelete'))
-        if relation['mode']:
-            atlst.append("mode='%s'" %relation.pop('mode'))
+            attributes['one_one'] = '*' if not relation_name else True
+
+        
         if deferred:
             atlst.append('deferred=True')
         for k, v in relation.items():
@@ -461,7 +459,6 @@ class Table(object):
 
     @public_method
     def getDbStructure(self,connection_params=None):
-        print x
         config = self.site.gnrapp.config
         dbname=connection_params['dbname'] or connection_params['filename']
         if connection_params['implementation']!='sqlite':
