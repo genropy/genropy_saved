@@ -330,7 +330,9 @@ class PackageMaker(object):
         sqlprefixstring = ''
         if not os.path.exists(self.main_py_path):
             if self.sqlprefix is not None:
-                sqlprefixstring = "sqlprefix='%s',"%(self.sqlprefix)
+                if self.sqlprefix not in (True, False):
+                    self.sqlprefix = "'%s'" % self.sqlprefix
+                sqlprefixstring = "sqlprefix=%s,"%(self.sqlprefix)
             main_py_options = dict(comment=self.comment, sqlschema=self.sqlschema, sqlprefixstring=sqlprefixstring, name_short=self.name_short,
                                    name_long=self.name_long, name_full=self.name_full, login_url=self.login_url)
             main_py = open(self.main_py_path, 'w')
