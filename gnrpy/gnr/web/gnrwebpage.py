@@ -1547,7 +1547,6 @@ class GnrWebPage(GnrBaseWebPage):
         
     def setInClientData(self, path, value=None, attributes=None, page_id=None, filters=None,
                         fired=False, reason=None, replace=False,public=None):
-        print 'path',path,'value',value
         handler = self.setInClientData_websocket if self.site.websockets else self.setInClientData_legacy
         handler(path, value=value, attributes=attributes, page_id=page_id, filters=filters,
                         fired=fired, reason=reason, replace=replace,public=public)

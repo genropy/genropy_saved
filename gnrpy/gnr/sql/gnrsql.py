@@ -144,6 +144,12 @@ class GnrSqlDb(GnrObject):
     def dbstores(self):
         """TODO"""
         return self.stores_handler.dbstores
+        
+    @property
+    def reuse_relation_tree(self):
+        if self.application:
+            return self.application.config['db?reuse_relation_tree']
+        return
 
     def createModel(self):
         """TODO"""

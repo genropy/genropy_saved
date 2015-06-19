@@ -113,7 +113,7 @@ class SqlQueryCompiler(object):
         self.tblobj = tblobj
         self.db = tblobj.db
         self.dbmodel = tblobj.db.model
-        if tblobj.db.application.config['db?reuse_relation_tree']:
+        if tblobj.db.reuse_relation_tree:
             self.relations = tblobj.relations
         else:
             self.relations = tblobj.newRelationResolver(cacheTime=-1)

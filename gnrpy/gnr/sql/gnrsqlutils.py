@@ -72,6 +72,8 @@ class ModelExtractor(object):
         if len(pkey) == 1:
             tbl.parentNode.setAttr(pkey=pkey[0])
         elif len(pkey) > 1:
+            tbl.parentNode.setAttr(pkey='_multikey',pkey_columns=','.join(pkey))
+            tbl.column('_multikey',group='_')
             pass #multiple pkey
         else:
             pass #there's no pkey

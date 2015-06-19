@@ -169,7 +169,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         @return: list of columns wich are the primary key for the table"""
         query = "PRAGMA %s.table_info(%s);" % (schema, table)
         l = self.dbroot.execute(query).fetchall()
-        return [r[1] for r in l if r[5] == 1]
+        return [r[1] for r in l if r[5] > 0]
 
 
     def getColInfo(self, table, schema, column=None):
