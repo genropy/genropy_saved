@@ -30,34 +30,38 @@ class GnrCustomWebPage(object):
 
     def main(self, root, **kwargs):
         bc = root.rootBorderContainer(title='Package maker',datapath='main',design='sidebar')
-        self.dbSourceTree(bc.contentPane(region='left',width='300px',background='silver',
-                                            splitter=True,overflow='auto',drawer='close'))
         self.packageForm(bc.frameForm(frameCode='packageMaker',region='center',
                                         datapath='.packagemaker',store='memory',
                                         store_startKey='*newrecord*'))
 
 
-    def dbSourceTree(self,pane):
-        fb = pane.div(margin_right='10px').formbuilder(cols=1,border_spacing='3px',
-                        datapath='.connection_params',width='100%',colswidth='auto')
-        fb.filteringSelect(value='^.implementation',values='postgres,sqlite,mysql,mssql',
-                            lbl='Implementation',default='postgres')
-        fb.textbox(value='^.dbname',lbl='Dbname',hidden='^.implementation?=#v=="sqlite"')
-        fb.textbox(value='^.host',lbl='Host',hidden='^.implementation?=#v=="sqlite"')
-        fb.textbox(value='^.port',lbl='Port',hidden='^.implementation?=#v=="sqlite"')
-        fb.textbox(value='^.user',lbl='User',hidden='^.implementation?=#v=="sqlite"')
-        fb.textbox(value='^.password',lbl='Password',hidden='^.implementation?=#v=="sqlite"')
+
+    def dbConnectionPalette(self,pane):
+        palette = pane.palettePane(paletteCode='dbConnectionPalette',title='DB Connection',
+                        height='700px',width='900px',center_widget='BorderContainer',
+                        #palette_persist=False,
+                        dockButton=True)
+        bc = palette.borderContainer(datapath='main')
+        top = bc.contentPane(region='top').slotToolbar('2,fbconnection,*,connecbutton')
+        fb = top.fbconnection.formbuilder(cols=7,border_spacing='3px',datapath='.connection_params')
         
-        fb.simpleTextArea(value='^.filename',lbl='Filepath',
-                    hidden='^.implementation?=#v!="sqlite"',width='100%')
-        fb.button('Connect',fire='main.connect')
-        pane.dataRpc('.connection_result',
+        fb.filteringSelect(value='^.implementation',values='postgres,sqlite,mysql,mssql',
+                            lbl='Implementation',width='7em')
+        fb.textbox(value='^.dbname',lbl='Dbname',width='8em',hidden='^.implementation?=#v=="sqlite"')
+        fb.textbox(value='^.host',lbl='Host',width='8em',hidden='^.implementation?=#v=="sqlite"')
+        fb.textbox(value='^.port',lbl='Port',width='5em',hidden='^.implementation?=#v=="sqlite"')
+        fb.textbox(value='^.user',lbl='User',width='7em',hidden='^.implementation?=#v=="sqlite"')
+        fb.textbox(value='^.password',lbl='Password',width='5em',hidden='^.implementation?=#v=="sqlite"')
+        fb.textbox(value='^.filename',lbl='Filename',width='50em',hidden='^.implementation?=#v!="sqlite"')
+        top.connecbutton.slotButton('Connect',fire='main.connect')
+        top.dataRpc('.connection_result',
                     self.getDbStructure,
                     connection_params='=.connection_params',
                     _fired='^.connect',
                     _lockScreen=True)
-
-        pane.tree(storepath='.connection_result', persist=False,
+        center = bc.borderContainer(region='center')
+        left = center.contentPane(region='left',width='300px',padding='10px',overflow='auto',splitter=True)
+        left.tree(storepath='.connection_result', persist=False,
                     inspect='shift', labelAttribute='name',
                     _class='fieldsTree',
                     hideValues=True,
@@ -66,12 +70,47 @@ class GnrCustomWebPage(object):
                     draggable=True,
                     dragClass='draggedItem',
                     onChecked=True,
+                    connect_ondblclick="""
+                    var ew = dijit.getEnclosingWidget($1.target);
+                    if(ew.item){
+                        var attr = ew.item.attr;
+                        if(attr.tag=='table'){
+                            dojo.query('.dijitTreeLabel',ew.tree.domNode).forEach(function(n){genro.dom.removeClass(n,'selectedTreeNode')})
+                            genro.dom.addClass(ew.labelNode,'selectedTreeNode')
+                            this.setRelativeData('main.source.current_table',attr.name);
+                            this.setRelativeData('main.source.current_columns',ew.item.getValue().deepCopy());
+                            this.fireEvent('main.source.getPreviewData',attr.fullname);
+                        }
+                    }
+                    """,
                     selected_fieldpath='.selpath',
-                    getLabelClass="""if (!node.attr.fieldpath && node.attr.table){return "tableTreeNode"}
-                                        else if(node.attr.relation_path){return "aliasColumnTreeNode"}
-                                        else if(node.attr.sql_formula){return "formulaColumnTreeNode"}""",
-                    getIconClass="""if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}
-                                     else {return opened?'dijitFolderOpened':'dijitFolderClosed'}""")
+                    getLabelClass="""var ct = this.sourceNode.getRelativeData('main.source.current_table');
+                                        if (node.label==ct){
+                                            return "selectedTreeNode"
+                                        }
+                                        """)
+        bccenter = center.borderContainer(region='center')
+        frame= bccenter.framePane(frameCode='previewGrid',region='top',height='300px',_class='pbl_roundedGroup',margin='2px')
+        bar = frame.top.slotBar('2,vtitle,*',height='20px',_class='pbl_roundedGroupLabel')
+        bar.vtitle.div('==_current_table?_current_table+" columns":"No table selected"',_current_table='^main.source.current_table')
+        g = frame.quickGrid(value='^main.source.current_columns')
+        g.column('name',width='10em',name='Name')
+        g.column('dtype',width='5em',name='Dtype')
+        g.column('pkeyColumn',width='5em',name='Pkey',dtype='B')
+        g.column('indexed',width='5em',name='Indexed',dtype='B')
+        g.column('unique',width='5em',name='Unique',dtype='B')
+        g.column('size',width='5em',name='Size')
+        frame = bccenter.roundedGroupFrame(title='Data',region='center')
+        frame.center.contentPane().quickGrid(value='^main.source.previewData')
+        frame.dataRpc('main.source.previewData',self.getPreviewData,
+                    connection_params='=.connection_params',
+                    table='^main.source.getPreviewData',
+                    _frame=frame,
+                    _onCalling=""" 
+                    kwargs._frame.setHiderLayer(true,{message:'Loading data'})
+                    """,_onResult="""
+                    kwargs._frame.setHiderLayer(false);
+                    """)
 
     def dbSourceTree_onDrag(self):
         return """var modifiers=dragInfo.modifiers;
@@ -159,8 +198,8 @@ class GnrCustomWebPage(object):
         path_resolver = PathResolver()
         project_path = path_resolver.project_name_to_path(project)
         for table_data in tables.values():
-            filpath = os.path.join(project_path,'packages',package,'model','%s.py' %table_data['name'])
-            self.makeOneTable(filpath,table_data)
+            filepath = os.path.join(project_path,'packages',package,'model','%s.py' %table_data['name'])
+            self.makeOneTable(filepath,table_data)
 
         app = GnrApp(instance)
         destdb = app.db
@@ -260,7 +299,21 @@ class Table(object):
         f.write(""".relation('%s',%s)"""  %(relpath,', '.join(atlst)))
 
     def packageForm(self,form):
-        bar = form.top.slotToolbar('2,fbinfo,*,applyChanges,semaphore,5')
+        bar = form.top.slotToolbar('2,fbinfo,10,dbConnectionPalette,10,connectionTpl,*,applyChanges,semaphore,5')
+        bar.connectionTpl.div('^main.connectionTpl')
+        bar.dataController("""
+                var implementation = connection_params.getItem('implementation');
+                var filename = connection_params.getItem('filename');
+                var dbname = connection_params.getItem('dbname');
+                var r = '<b>Missing connection</b>'
+                if(implementation=='sqlite' && connection_params.getItem('filename')){
+                    r = dataTemplate('<b>$implementation:</b>$filename',connection_params)
+                }else if(implementation && connection_params.getItem('dbname')){
+                    r = dataTemplate('<b>$implementation:</b>$dbname',connection_params)
+                }
+                SET main.connectionTpl = r;
+                """,connection_params='^main.connection_params',_onStart=True)
+        self.dbConnectionPalette(bar.dbConnectionPalette)
         bar.applyChanges.slotButton('Apply',action="""if(this.form.isValid()){
                 FIRE #FORM.makePackage;
             }else{
@@ -546,6 +599,7 @@ class Table(object):
                     if n:
                         n.attr['indexed'] = True
                         n.attr['unique'] = boolean(unique)
+                        n.attr['pkeyColumn'] = tblattr['pkey'] == column
         return result
 
     @public_method
@@ -576,4 +630,15 @@ class Table(object):
                 progressDetail['current'] = i
                 status = r""" %(status)s <progress style='width:12em' max='%(total)s' value='%(current)s'></progress>""" %progressDetail
                 self.clientPublish('update_import_status',status=status,table=table)
-
+    @public_method
+    def getPreviewData(self,table=None,connection_params=None,**kwargs):
+        sourcedb = self.getSourceDb(connection_params)
+        sourcedb.model.build()
+        result = Bag()
+        tbl = sourcedb.table(table)
+        cols = ','.join(['$%s' %c.name for c in sourcedb.table(table).columns.values() if c.name!='_multikey'])
+        f = tbl.query(columns=cols,addPkeyColumn=False,limit=200).fetch()
+        sourcedb.closeConnection()
+        for i,r in enumerate(f):
+            result['r_%s' %i] = Bag(r)
+        return result
