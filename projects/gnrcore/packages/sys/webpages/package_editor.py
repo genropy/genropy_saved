@@ -13,6 +13,7 @@ from gnr.core.gnrstring import boolean
 from gnr.sql.gnrsql import GnrSqlDb
 from gnr.app.gnrapp import GnrApp
 from gnr.app.gnrdeploy import ProjectMaker, InstanceMaker, SiteMaker,PackageMaker, PathResolver,ThPackageResourceMaker
+from time import time
 
 MORE_ATTRIBUTES = 'cell_,format,validate_notnull,validate_case'
 
@@ -192,7 +193,8 @@ class GnrCustomWebPage(object):
         project_path = path_resolver.project_name_to_path(project)
         for table_data in tables.values():
             filepath = os.path.join(project_path,'packages',package,'model','%s.py' %table_data['name'])
-            self.makeOneTable(filepath,table_data)
+            if not os.path.exists(filepath):
+                self.makeOneTable(filepath,table_data)
         app = GnrApp(instance)
         destdb = app.db
         if destdb.model.check():
@@ -205,7 +207,7 @@ class GnrCustomWebPage(object):
                 destdb.commit()
             sourcedb.closeConnection()
             destdb.closeConnection()
-        ThPackageResourceMaker(app,package=package,menu=True,force=True).makeResources()
+        ThPackageResourceMaker(app,package=package,menu=True).makeResources()
         return 'ok'
 
 
@@ -315,7 +317,7 @@ class Table(object):
         bar.dataRpc('dummy',self.applyPackageChanges,project='=#FORM.record.project_name',package='=#FORM.record.package_name',
                     instance='=#FORM.record.selected_instance',connection_params='=main.connection_params',
                     tables='=#FORM.record.tables',_fired='^#FORM.makePackage',_onResult='genro.dlg.alert("Package Done","Message");',
-                    _lockScreen=True)
+                    _lockScreen=True,timeout=0)
         bar.dataRpc('dummy',self.importTable,package='=#FORM.record.package_name',
                     instance='=#FORM.record.selected_instance',
                     subscribe_import_table=True,connection_params='=main.connection_params')
@@ -609,9 +611,8 @@ class Table(object):
         destdb.commit()
         sourcedb.closeConnection()
         destdb.closeConnection()
-        self.clientPublish('update_import_status',status='<b>Imported</b>',table=table)
 
-    def _importTableOne(self,sourcedb,destdb,package,table,thermo=False):
+    def _importTableOne(self,sourcedb,destdb,package,table):
         desttable = destdb.table('%s.%s' %(package,table))
         if desttable.query().count():
             return
@@ -624,12 +625,16 @@ class Table(object):
         columns = ', '.join(columns)
         f = sourcetable.query(columns=columns,addPkeyColumn=False).fetch()
         progressDetail = dict(status='Importing records',total=len(f),current=0)
+        t0 = time()
         for i,r in enumerate(f):
             desttable.insert(r)
-            if thermo:
+            if time()-t0>1:
+                t0 = time()
                 progressDetail['current'] = i
                 status = r""" %(status)s <progress style='width:12em' max='%(total)s' value='%(current)s'></progress>""" %progressDetail
                 self.clientPublish('update_import_status',status=status,table=table)
+        self.clientPublish('update_import_status',status='<b>Imported</b>',table=table)
+
     @public_method
     def getPreviewData(self,table=None,connection_params=None,**kwargs):
         sourcedb = self.getSourceDb(connection_params)
