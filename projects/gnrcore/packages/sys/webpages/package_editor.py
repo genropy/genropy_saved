@@ -597,12 +597,13 @@ class Table(object):
                         relnode = colval.getNode('relation')
                         cv['relate_to'] = relnode.attr['related_column']
                     tableval.setItem(column,None,**cv)
-                for column,unique in tblval['indexes'].digest('#a.columns,#a.unique'):
-                    n = tableval.getNode(column)
-                    if n:
-                        n.attr['is_pkey'] = column == tblattr['pkey']
-                        n.attr['indexed'] = True
-                        n.attr['unique'] = boolean(unique)
+                if tblval['indexes']:
+                    for column,unique in tblval['indexes'].digest('#a.columns,#a.unique'):
+                        n = tableval.getNode(column)
+                        if n:
+                            n.attr['is_pkey'] = column == tblattr['pkey']
+                            n.attr['indexed'] = True
+                            n.attr['unique'] = boolean(unique)
         return result
 
     @public_method
