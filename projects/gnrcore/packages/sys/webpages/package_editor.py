@@ -578,7 +578,10 @@ class Table(object):
         for pkg in src['packages'].keys():
             pkgval = Bag()
             result.setItem(pkg, pkgval,name=pkg,checked=False)
-            for table,tblattr,tblval in src['packages'][pkg]['tables'].digest('#k,#a,#v'):
+            tables = src['packages'][pkg]['tables']
+            if not tables:
+                continue
+            for table,tblattr,tblval in tables.digest('#k,#a,#v'):
                 tblattr = dict(tblattr)
                 tblattr['checked'] = False
                 tblattr['name'] = table
