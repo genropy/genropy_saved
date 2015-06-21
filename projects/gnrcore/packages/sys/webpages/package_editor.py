@@ -12,8 +12,7 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import boolean
 from gnr.sql.gnrsql import GnrSqlDb
 from gnr.app.gnrapp import GnrApp
-from gnr.app.gnrdeploy import ProjectMaker, InstanceMaker, SiteMaker,PackageMaker, PathResolver
-from time import sleep
+from gnr.app.gnrdeploy import ProjectMaker, InstanceMaker, SiteMaker,PackageMaker, PathResolver,ThPackageResourceMaker
 
 MORE_ATTRIBUTES = 'cell_,format,validate_notnull,validate_case'
 
@@ -22,14 +21,10 @@ class GnrCustomWebPage(object):
 
 
     def windowTitle(self):
-        return '!!Package maker'
-
-    def isDeveloper(self):
-        return True
-
+        return '!!Package editor'
 
     def main(self, root, **kwargs):
-        bc = root.rootBorderContainer(title='Package maker',datapath='main',design='sidebar')
+        bc = root.rootBorderContainer(title='Package editor',datapath='main',design='sidebar')
         self.packageForm(bc.frameForm(frameCode='packageMaker',region='center',
                                         datapath='.packagemaker',store='memory',
                                         store_startKey='*newrecord*'))
@@ -38,9 +33,7 @@ class GnrCustomWebPage(object):
 
     def dbConnectionPalette(self,pane):
         palette = pane.palettePane(paletteCode='dbConnectionPalette',title='DB Connection',
-                        height='700px',width='900px',center_widget='BorderContainer',
-                        #palette_persist=False,
-                        dockButton=True)
+                        height='700px',width='900px',dockButton_label='Migration Tool')
         bc = palette.borderContainer(datapath='main')
         top = bc.contentPane(region='top').slotToolbar('2,fbconnection,*,connecbutton')
         fb = top.fbconnection.formbuilder(cols=7,border_spacing='3px',datapath='.connection_params')
@@ -96,7 +89,7 @@ class GnrCustomWebPage(object):
         g = frame.quickGrid(value='^main.source.current_columns')
         g.column('name',width='10em',name='Name')
         g.column('dtype',width='5em',name='Dtype')
-        g.column('pkeyColumn',width='5em',name='Pkey',dtype='B')
+        g.column('is_pkey',width='5em',name='Pkey',dtype='B')
         g.column('indexed',width='5em',name='Indexed',dtype='B')
         g.column('unique',width='5em',name='Unique',dtype='B')
         g.column('size',width='5em',name='Size')
@@ -200,7 +193,6 @@ class GnrCustomWebPage(object):
         for table_data in tables.values():
             filepath = os.path.join(project_path,'packages',package,'model','%s.py' %table_data['name'])
             self.makeOneTable(filepath,table_data)
-
         app = GnrApp(instance)
         destdb = app.db
         if destdb.model.check():
@@ -213,6 +205,7 @@ class GnrCustomWebPage(object):
                 destdb.commit()
             sourcedb.closeConnection()
             destdb.closeConnection()
+        ThPackageResourceMaker(app,package=package,menu=True,force=True).makeResources()
         return 'ok'
 
 
@@ -305,14 +298,14 @@ class Table(object):
                 var implementation = connection_params.getItem('implementation');
                 var filename = connection_params.getItem('filename');
                 var dbname = connection_params.getItem('dbname');
-                var r = '<b>Missing connection</b>'
+                var r = ''
                 if(implementation=='sqlite' && connection_params.getItem('filename')){
                     r = dataTemplate('<b>$implementation:</b>$filename',connection_params)
                 }else if(implementation && connection_params.getItem('dbname')){
                     r = dataTemplate('<b>$implementation:</b>$dbname',connection_params)
                 }
                 SET main.connectionTpl = r;
-                """,connection_params='^main.connection_params',_onStart=True)
+                """,connection_params='^main.connection_params',_onStart=True,color='#444')
         self.dbConnectionPalette(bar.dbConnectionPalette)
         bar.applyChanges.slotButton('Apply',action="""if(this.form.isValid()){
                 FIRE #FORM.makePackage;
@@ -370,10 +363,13 @@ class Table(object):
         r = struct.view().rows()
         r.cell('legacy_name',width='10em',name='Legacy Name')
         r.cell('name',width='10em',name='Name',edit=True)
-        r.cell('pkey',width='10em',name='Pkey')
+        r.cell('pkey',width='10em',name='Pkey',
+                edit=dict(tag='filteringSelect',values="==this.getRelativeData('._columns').keys().join(',')"))
         r.cell('name_long',width='20em',name='Name long',edit=True)
         r.cell('name_plural',width='20em',name='Name plural',edit=True)
-        r.cell('caption_field',width='20em',name='Caption field',edit=True)
+        r.cell('caption_field',width='20em',name='Caption field',
+                            edit=dict(tag='filteringSelect',
+                                      values="==this.getRelativeData('._columns').keys().join(',')"))
         r.cell('status',width='20em',name='Import status')
 
     def columns_struct(self,struct):
@@ -387,6 +383,7 @@ class Table(object):
         r.cell('name_short',width='10em',name='Name short',edit=True)
         r.cell('indexed',width='5em',name='Indexed',edit=True,dtype='B')
         r.cell('unique',width='5em',name='Unique',edit=True,dtype='B')
+        r.cell('_sysfield',width='5em',name='Sysfield',edit=True,dtype='B')
         r.cell('_more_attributes',width='20em',name='More attributes',edit=True,editOnOpening=""" 
                                         var more_attributes = rowData.getItem(field);
                                         genro.publish('edit_more_attributes',{more_attributes:more_attributes,rowIndex:rowIndex})
@@ -413,10 +410,10 @@ class Table(object):
         fb.textbox(value='^.relation',lbl='Relation')
         fb.textbox(value='^.relation_name',lbl='Relation name')
         fb.checkbox(value='^.foreignkey',label='Foreignkey')
-        fb.textbox(value='^.onDelete',lbl='onDelete',values='raise,cascade,setnull')
-        fb.textbox(value='^.onDelete_sql',lbl='onDelete(sql)',values='raise,cascade,setnull')
-        fb.textbox(value='^.onUpdate',lbl='onUpdate',values='cascade,raise')
-        fb.textbox(value='^.onUpdate_sql',lbl='onUpdate(sql)',values='cascade,raise')
+        fb.filteringSelect(value='^.onDelete',lbl='onDelete',values='raise,cascade,setnull')
+        fb.filteringSelect(value='^.onDelete_sql',lbl='onDelete(sql)',values='raise,cascade,setnull')
+        fb.filteringSelect(value='^.onUpdate',lbl='onUpdate',values='cascade,raise')
+        fb.filteringSelect(value='^.onUpdate_sql',lbl='onUpdate(sql)',values='cascade,raise')
         fb.textbox(value='^.one_name',lbl='One name')
         fb.textbox(value='^.many_name',lbl='Many name')
         fb.checkbox(value='^.deferred',label='Deferred')
@@ -504,11 +501,11 @@ class Table(object):
                             col_legacy_name = null;
                         }
                         columnNode = columns.setItem(colname,new gnr.GnrBag({name:colname,legacy_name:col_legacy_name,
-                                                                name_long:col.name,dtype:col.dtype,size:col.size,
+                                                                name_long:stringCapitalize(col.name),dtype:col.dtype,size:col.size,
                                                                 indexed:col.indexed,unique:col.unique}));
                         if(relate_to){
                             columnNode._value.setItem('_relation',new gnr.GnrBag({relation:relate_to,relation_name:null,
-                                                                                  mode:'foreignkey',onDelete:'raise',one_name:null,
+                                                                                  onDelete:'raise',one_name:null,
                                                                                   many_name:null,deferred:false}));
                         }
                     }
@@ -526,6 +523,7 @@ class Table(object):
         bc.dataController("columnsframe.setHiderLayer(!current_table,{message:'Select table'})",
                             columnsframe=columnsframe,current_table='^#FORM.current_table')
 
+    
         bc.dataController(
             """ var oldvalue = _triggerpars.kw.oldvalue;
                 var columns;
@@ -597,9 +595,9 @@ class Table(object):
                 for column,unique in tblval['indexes'].digest('#a.columns,#a.unique'):
                     n = tableval.getNode(column)
                     if n:
+                        n.attr['is_pkey'] = column == tblattr['pkey']
                         n.attr['indexed'] = True
                         n.attr['unique'] = boolean(unique)
-                        n.attr['pkeyColumn'] = tblattr['pkey'] == column
         return result
 
     @public_method
@@ -615,6 +613,8 @@ class Table(object):
 
     def _importTableOne(self,sourcedb,destdb,package,table,thermo=False):
         desttable = destdb.table('%s.%s' %(package,table))
+        if desttable.query().count():
+            return
         sourcetable = sourcedb.table(desttable.attributes['legacy_name'])
         columns = []
         for k,c in desttable.columns.items():
