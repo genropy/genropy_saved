@@ -295,7 +295,7 @@ class Table(object):
 
     def packageForm(self,form):
         bar = form.top.slotToolbar('2,fbinfo,10,dbConnectionPalette,10,connectionTpl,*,applyChanges,semaphore,5')
-        bar.connectionTpl.div('^main.connectionTpl')
+        bar.connectionTpl.div('^main.connectionTpl',font_size='.7em')
         bar.dataController("""
                 var implementation = connection_params.getItem('implementation');
                 var filename = connection_params.getItem('filename');

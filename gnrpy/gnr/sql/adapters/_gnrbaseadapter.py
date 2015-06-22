@@ -218,6 +218,9 @@ class SqlDbAdapter(object):
             sql = re.sub(':%s(\W|$)' % k, sqllist+'\\1', sql)
         return sql
 
+    def adaptSqlName(self,name):
+        return name
+
     def existsRecord(self, dbtable, record_data):
         """Test if a record yet exists in the db.
         

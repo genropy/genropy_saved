@@ -194,8 +194,8 @@ class SqlQueryCompiler(object):
             alias, curr = self._findRelationAlias(list(pathlist), curr, basealias, newpath)
         else:
             alias = basealias
+        curr_tblobj = self.db.table(curr.tbl_name, pkg=curr.pkg_name)
         if not fld in curr.keys():
-            curr_tblobj = self.db.table(curr.tbl_name, pkg=curr.pkg_name)
             fldalias = curr_tblobj.model.virtual_columns[fld]
             if fldalias == None:
                 raise GnrSqlMissingField('Missing field %s in table %s.%s (requested field %s)' % (
@@ -256,7 +256,7 @@ class SqlQueryCompiler(object):
             else:
                 raise GnrSqlMissingColumn('Invalid column %s in table %s.%s (requested field %s)' % (
                 fld, curr.pkg_name, curr.tbl_name, '.'.join(newpath)))
-        return '%s.%s' % (alias, fld)
+        return '%s.%s' % (alias, curr_tblobj.column(fld).adapted_sqlname)
         
     def _findRelationAlias(self, pathlist, curr, basealias, newpath):
         """Internal method: called by getFieldAlias to get the alias (t1, t2...) for the join table.
