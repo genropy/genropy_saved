@@ -577,9 +577,7 @@ class GnrApp(object):
         if instanceFolder:
             if ':' in instanceFolder:
                 instanceFolder,self.remote_db  = instanceFolder.split(':',1)
-
-            if not os.path.isdir(instanceFolder):
-                instanceFolder = self.instance_name_to_path(instanceFolder)
+            instanceFolder = self.instance_name_to_path(instanceFolder)
         self.instanceFolder = instanceFolder or ''
         sys.path.append(os.path.join(self.instanceFolder, 'lib'))
         sys.path_hooks.append(self.get_modulefinder)
