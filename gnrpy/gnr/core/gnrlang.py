@@ -313,9 +313,9 @@ class GnrException(Exception):
     caption = """!!Error code %(code)s : %(description)s."""
     localizer = None
     
-    def __init__(self, description=None, **kwargs):
-        if description:
-            self.description = description
+    def __init__(self, description=None, localizer=None,**kwargs):
+        self.description = description
+        self.localizer = localizer
         self.msgargs = kwargs
         self.localizer = None
         
@@ -334,7 +334,7 @@ class GnrException(Exception):
         """TODO
         
         :param v: TODO"""
-        return self.localizer.translateText(v[2:])
+        return self.localizer.translate(v)
         
     def localizedMsg(self, msg, msgargs):
         """TODO

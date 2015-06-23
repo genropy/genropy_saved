@@ -19,12 +19,31 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.core.gnrbag import Bag
+from dateutil import parser as dtparser
+import datetime
+from gnr.core.gnrdecorator import public_method
 
 class BaseRpc(BaseComponent):
 
     skip_connection = True
 
+ #def rootPageNew(self,*args, **kwargs):
+ #    self.response.content_type = 'application/xml'
+ #    request_method = self.request.method
+ #    if args:
+ #        method_name = '%s_%s'%(request_method.upper(),args[0])
+ #        method = getattr(self,method_name,self._default)
+ #        args = args[1:]
+ #    else:
+ #        method = self._default
+ #    result = method(*args, **kwargs)
+ #    if isinstance(result, Bag):
+ #        result = result.toXml()
+ #    return result
+
     def rootPage(self, *args, **kwargs):
+        #request_method = self.request.method
         if 'pagetemplate' in kwargs:
             kwargs.pop('pagetemplate')
         if args:
@@ -46,3 +65,146 @@ class BaseRpc(BaseComponent):
 
     def rpc_error(self, method, *args, **kwargs):
         return 'Not existing method %s' % method
+        
+class XmlRpc(BaseComponent):
+    skip_connection = True
+    
+    def rootPage(self, *args, **kwargs):
+        methodCall=Bag(self.request.body)['methodCall']
+        method=methodCall['methodName']
+        if not method:
+            return self.returnFault(-1,'Missing methodName')
+            
+        method=method.replace('.','_')
+        handler = self.getPublicMethod('rpc',method)
+        if not handler:
+            return self.returnFault(-2,'Not existing method:%s' % method)
+
+        try:
+            methodResponse=Bag()
+            args=[]
+            params=methodCall['params']
+            if params:
+                args=self.decodeItems(params.digest('value'))
+            result = handler(*args, **kwargs)
+            methodResponse['methodResponse.params.param.value']=self.encodeValue(result)
+            return methodResponse.toXml(omitRoot=True,pretty=True)
+        except Exception,e:
+            import sys,os
+            tb = sys.exc_info()[2]
+            while tb is not None :
+                f = tb.tb_frame
+                lineno = tb.tb_lineno
+                tb = tb.tb_next
+            co = f.f_code
+            filename = co.co_filename
+            module=os.path.basename(os.path.splitext(filename)[0])
+            funcname = co.co_name
+            faultString="""Error in module '%s' calling method '%s' at line %i : %s""" %(module,funcname,lineno,str(e))
+            return self.returnFault(1,faultString)
+        
+    def decodeItems(self,items):
+        result=[]
+        for item in items:
+            result.append(self.decodeValue(item))
+        return result
+        
+    def decodeValue(self,value):
+        t,v = value.items()[0]
+        converter=getattr(self,'decode_%s'%t.replace('.','_'), None)
+        if converter:
+            v= converter(v)
+        else:
+            print 'missing converter:' ,t,v
+        return v
+        
+    def decode_string(self,v):
+        return v
+     
+    def decode_int(self,v):
+        return int(v)
+        
+    def decode_boolean(self,v):
+        return bool(int(v))
+        
+    def decode_double(self,v):
+        return float(v)
+        
+    def decode_dateTime_iso8601(self,v):
+        return dtparser.parse(v)
+        
+    def decode_array(self,v):
+        return self.decodeItems(v['data'].values())
+   
+    def decode_struct(self,struct):
+        result=dict()
+        for v in struct.values():
+            result[v['name']]=self.decodeValue(v['value'])
+        return result
+
+    def encodeValue(self,value):
+        result=Bag()
+        if isinstance(value,basestring):
+            result['string']= value
+        elif isinstance(value,int):
+            result['int']= str(value)
+        elif isinstance(value,float):
+            result['double']= str(value)
+        elif isinstance(value,bool):
+            result['boolean']= '1' if value else '0'
+        elif isinstance(value,datetime.datetime):
+            result[['dateTime.iso8601']]= value.isoformat()
+        elif isinstance(value,list) or isinstance(value,tuple):
+            data=Bag()
+            for item in value:
+                data.addItem('value',self.encodeValue(item))
+            result['data']= data
+            
+        elif isinstance(value,dict):
+            struct=Bag()
+            for k,v in value.items():
+                print k,v
+                struct.addItem('member',Bag(dict(name=k,value=self.encodeValue(v))))
+            result['struct']= struct
+            print struct
+        return result
+
+    def returnFault(self,faultCode=0,faultString=''):
+        methodResponse=Bag()
+        methodResponse['methodResponse.fault.value']=self.encodeValue(dict(faultCode=faultCode,faultString=faultString))
+        return methodResponse.toXml(omitRoot=True,pretty=True)
+    
+    def isPublicMethod(self,name):
+        h=getattr(self,name,None)
+        if not h:
+            return
+        f=getattr(h,'im_func',None)
+        return (f and f.__module__==self.__module__)
+        
+    @public_method
+    def system_listMethods(self):
+        result=[]
+        for name in dir(self):
+            if self.isPublicMethod(name):
+                result.append(name)
+        return result
+        
+    @public_method
+    def system_methodSignature(self,methodName):
+        try :
+            from funcsigs import signature
+        except:
+            return self.returnFault(-10,'You have to install funcsigs to get method signature')
+        if not self.isPublicMethod(methodName):
+            return self.returnFault(-5,'Not Existing Method: %s' % methodName)
+        h=getattr(self,methodName)
+        sig = signature(h).parameters
+        return sig
+        
+    @public_method
+    def system_methodHelp(self,methodName):
+        if not self.isPublicMethod(methodName):
+            return self.returnFault(-5,'Not Existing Method: %s' % methodName)
+        h=getattr(self,methodName)
+        return h.__doc__
+

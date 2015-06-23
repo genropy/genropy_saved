@@ -16,8 +16,9 @@ class THPicker(BaseComponent):
                          title=None,autoInsert=None,dockButton=True,picker_kwargs=None,
                          height=None,width=None,**kwargs):
         
-        one = False
+        
         picker_kwargs = picker_kwargs or dict()
+        one = picker_kwargs.get('one',False)
         picker_kwargs.setdefault('uniqueRow',True)
         condition=picker_kwargs.pop('condition',None)
         condition_kwargs = dictExtract(picker_kwargs,'condition_',pop=True,slice_prefix=True)
@@ -62,7 +63,7 @@ class THPicker(BaseComponent):
                                                     grid_onDrag='dragValues["%s"]=dragValues.gridrow.rowset;' %paletteCode,
                                                     grid_multiSelect=multiSelect,
                                                     title=title,searchOn=searchOn,configurable=False,
-                                                  childname='picker_tablehandler')
+                                                  childname='picker_tablehandler',nodeId='%s_th' %paletteCode)
             if condition:
                 paletteth.view.store.attributes.update(where=condition,**condition_kwargs)
             if not condition_kwargs:
@@ -88,7 +89,7 @@ class THPicker(BaseComponent):
             if autoInsert:
                 method = getattr(tblobj,'insertPicker',self._th_insertPicker)
                 formNode = pane.parentNode.attributeOwnerNode('formId')
-                if formNode:
+                if not one and formNode:
                     formtblobj = self.db.table(formNode.attr.get('table'))
                     oneJoiner = formtblobj.model.getJoiner(maintable)
                     one = oneJoiner.get('many_relation').split('.')[-1]  

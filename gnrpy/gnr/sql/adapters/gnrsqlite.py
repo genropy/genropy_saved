@@ -40,8 +40,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 class SqlDbAdapter(SqlDbBaseAdapter):
-    typesDict = {'charactervarying': 'A', 'character varying': 'A', 'character': 'C', 'text': 'T', 'blob': 'X',
-                 'boolean': 'B', 'date': 'D', 'time': 'H', 'timestamp': 'DH', 'numeric': 'N',
+    typesDict = {'charactervarying': 'A','nvarchar':'A', 'character varying': 'A', 'character': 'C', 'text': 'T', 'blob': 'X',
+                 'boolean': 'B', 'date': 'D', 'time': 'H', 'datetime':'DH','timestamp': 'DH', 'numeric': 'N',
                  'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'double precision': 'R', 'real': 'R', 'serial8': 'L'}
 
     revTypesDict = {'A': 'character varying', 'T': 'text', 'C': 'character',
@@ -159,7 +159,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                     ref = tbl
                     un_ref = un_tbl
 
-                    result.append([ref, schema, tbl, [col], un_ref, un_schema, un_tbl, [un_col]], None, None, None)
+                    result.append([ref, schema, tbl, cols, un_ref, un_schema, un_tbl, un_cols,None,None,None])
         return result
 
     def getPkey(self, table, schema):
@@ -169,7 +169,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         @return: list of columns wich are the primary key for the table"""
         query = "PRAGMA %s.table_info(%s);" % (schema, table)
         l = self.dbroot.execute(query).fetchall()
-        return [r[1] for r in l if r[5] == 1]
+        return [r[1] for r in l if r[5] > 0]
 
 
     def getColInfo(self, table, schema, column=None):
@@ -191,7 +191,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                 col['length'] = colType[colType.find('(') + 1:colType.find(')')]
                 col['size'] = col['length']
                 colType = colType[:colType.find('(')]
-            col['dtype'] = self.typesDict[colType]
+            col['dtype'] = self.typesDict[colType] if colType else 'T'
             col['notnull'] = (col['notnull'] == 'NO')
             col = self._filterColInfo(col, '_sl_')
             if col['dtype'] in ('A','C') and col.get('length'):

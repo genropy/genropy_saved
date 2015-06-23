@@ -39,6 +39,14 @@ class TestEditInlineCheckbox(BaseComponent):
         return dict(tags=None)
 
 
+
+class TestHiddenStruct(BaseComponent):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('sigla')
+        r.fieldcell('nome',hidden='^nascondi')
+
+
 class TestDyinCheckboxForm(BaseComponent):
     def th_form(self,form):
         fb = form.record.formbuilder(cols=1,border_spacing='3px')

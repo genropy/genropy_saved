@@ -2120,6 +2120,11 @@ dojo.declare("gnr.formstores.Base", null, {
 
     save_document:function(kw){
         var data = this.form.getFormData();
+        if(this.handlers.save.stripLoadedValue){
+            data.walk(function(n){
+                delete n.attr._loadedValue;
+            });
+        }
         this.handlers.save.rpcmethod = this.handlers.save.rpcmethod  || 'saveSiteDocument';
         var saver = this.handlers.save;
         var that = this;
@@ -2130,9 +2135,6 @@ dojo.declare("gnr.formstores.Base", null, {
             path = funcApply(this.getNewPath,{record:formData},form);
         }
         var data = data.deepCopy();
-        data.walk(function(n){
-            delete n.attr._loadedValue;
-        });
         rpc_kw.data = data;
         var deferred = genro.rpc.remoteCall(saver.rpcmethod ,rpc_kw,null,'POST',null,function(){});
         deferred.addCallback(function(result){
@@ -2217,7 +2219,7 @@ dojo.declare("gnr.formstores.Base", null, {
         if (howmany=='?'){
             var that = this;
             genro.dlg.prompt('How many', {msg:_T('How many copies of current record?'),
-                                          lbl:'How many',
+                                          lbl:_T('How many'),
                                           widget:'numberTextBox',
                                           action:function(value){that.duplicateRecord(srcPkey,value);}
                                           });

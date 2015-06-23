@@ -4323,7 +4323,7 @@ div[disabled='true'], div[disabled='disabled']{
 
 .treegrid .dijitTreeContent{
     position: relative;
-    height: 16px;
+    height: 15px;
     left:20px;
 }
 
@@ -4399,6 +4399,21 @@ div[disabled='true'], div[disabled='disabled']{
 }
 .branchtree .dijitTreeIsRoot{
     margin-left: 0px;
+}
+
+.tree_captionvalue{
+    border: 1px solid silver;
+    display: inline-blo;
+}
+.tree_captionvalue_label{
+    background-color: #efefef;
+    width:150px;
+    display: inline-block;
+}
+.tree_captionvalue_value{
+    width:250px;
+    display: inline-block;
+    
 }
 
 ._logical_delete.delete_row{
@@ -4622,5 +4637,111 @@ div[disabled='true'], div[disabled='disabled']{
 ._common_d11 .no_selected .dojoxGrid-row-selected .dojoxGrid-cell {
     background-color: whitesmoke;
 }
+/* @end */
+
+/* @group PDB*/
+.pdb_breakpoints{
+    width:.8em;
+}
+
+.pdb_breakpoint{
+    color:red;
+}
+.pdb_conditional_breakpoint{
+    color:orange;
+}
+
+
+.pdb_currentLine_wrap{
+    background: yellow;
+}
+.pdb_currentLine_background{
+}
+
+.pdb_currentLine_text{
+
+}
+
+.pdb_currentLine_gutter{
+
+}
+.pdb_caption_module{
+    font-weight: bold;
+}
+
+.pdb_caption_function{
+    font-style: italic;
+}
+
+.pdb_caption_lineno{
+
+}
+
+.pdb_current_stack{
+    background-color: yellow;
+    display: inline-flex;
+;
+}
+
+.pdb_pane .treegrid .treecell, .pdb_pane .treegrid .treecell:last-child{
+    border-bottom: 0;
+    border-left: 0;
+    border-right:0;
+}
+#pdb_root{
+    position: fixed;
+    bottom: 0;
+    z-index: 1000;
+}
+
+.pdb_debugger_step{
+    height: 100px;
+    width: 250px;
+    padding: 10px;
+    background-color: rgb(255, 209, 0);
+    border-radius: 10px;
+    position: relative;
+    box-shadow: 3px 3px 4px #888;
+    margin: 3px;
+    display: inline-block;
+}
+
+.pdb_debugger_step.pdb_running{
+    opacity: .5;
+}
+
+.pdb_debugger_step_footer{
+    position: absolute;
+    bottom:0;
+    left: 0;
+    right:0;
+    height: 20px;
+    padding-right: 10px;
+}
+.pdb_footer_button {
+    display: block;
+    position: absolute;
+    text-decoration: underline;
+    font-weight: bold;
+    bottom: 2px;
+    color: #444;
+    cursor: pointer;
+}
+.pdb_footer_button_left{
+    left: 5px;
+}
+.pdb_footer_button_right{
+    right: 5px;
+}
+
+.pdb_tree .dijitTreeLabel:hover{
+    text-decoration: underline;
+}
+.pdb_tree .dijitTreeLabel:focus{
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+/* @end */
 
 

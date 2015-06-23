@@ -579,8 +579,12 @@ class DbModelObj(GnrStructObj):
         
     def _get_sqlname(self):
         return self.attributes.get('sqlname', self.name)
-        
     sqlname = property(_get_sqlname)
+
+    @property
+    def adapted_sqlname(self):
+        return self.adapter.adaptSqlName(self.sqlname)
+        
         
     def _set_name_short(self, name):
         self.attributes['name_short'] = name
@@ -657,11 +661,14 @@ class DbPackageObj(DbModelObj):
         :param tblobj: an instance of SqlTable
         :returns: the name of the given SqlTable
         """
-        sqlprefix = self.attributes.get('sqlprefix')
-        if sqlprefix == '':
+        sqlprefix = self.attributes.get('sqlprefix',True)
+        if not sqlprefix:
             return tblobj.name
         else:
-            return '%s_%s' % (sqlprefix or self.name, tblobj.name)
+            if sqlprefix is True:
+                sqlprefix = self.name
+            return '%s_%s' % (sqlprefix, tblobj.name)
+
             
     def _get_sqlschema(self):
         return self.attributes.get('sqlschema', self.dbroot.main_schema)

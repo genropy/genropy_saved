@@ -25,6 +25,7 @@ genropatches.setStateClass=function(){
         }
     }
 }
+
 genropatches.getDocumentWindow = function(){
     dijit.getDocumentWindow = function(doc){
     //  summary
@@ -49,7 +50,11 @@ genropatches.getDocumentWindow = function(){
                 
             }
         }
-        fix(window.top);
+        try{
+            fix(window.top);
+        }catch(e){
+            
+        }
     }
 
     //In some IE versions (at least 6.0), document.parentWindow does not return a
@@ -399,6 +404,145 @@ genropatches.comboBox = function() {
             }
         }
     });
+    dijit.form.ComboBoxMixin.prototype._onKeyPress = function(/*Event*/ evt){
+            // summary: handles keyboard events
+
+            //except for pasting case - ctrl + v(118)
+            if(evt.altKey || (evt.ctrlKey && evt.charCode != 118)){
+                return;
+            }
+            var doSearch = false;
+            var pw = this._popupWidget;
+            var dk = dojo.keys;
+            if(this._isShowingNow){
+                pw.handleKey(evt);
+            }
+            var evt_keycode = evt.keyCode;
+            if(evt_keycode==dk.UP_ARROW && evt.keyChar=='&'){
+                evt_keycode = 0; //L.A. fix for evt.keyChar=='&'
+            }
+            switch(evt_keycode){
+                case dk.PAGE_DOWN:
+                case dk.DOWN_ARROW:
+                    if(!this._isShowingNow||this._prev_key_esc){
+                        this._arrowPressed();
+                        doSearch=true;
+                    }else{
+                        this._announceOption(pw.getHighlightedOption());
+                    }
+                    dojo.stopEvent(evt);
+                    this._prev_key_backspace = false;
+                    this._prev_key_esc = false;
+                    break;
+
+                case dk.PAGE_UP:
+                case dk.UP_ARROW:
+                    if(this._isShowingNow){
+                        this._announceOption(pw.getHighlightedOption());
+                    }
+                    dojo.stopEvent(evt);
+                    this._prev_key_backspace = false;
+                    this._prev_key_esc = false;
+                    break;
+
+                case dk.ENTER:
+                    // prevent submitting form if user presses enter. Also
+                    // prevent accepting the value if either Next or Previous
+                    // are selected
+                    var highlighted;
+                    if( this._isShowingNow && 
+                        (highlighted = pw.getHighlightedOption())
+                    ){
+                        // only stop event on prev/next
+                        if(highlighted == pw.nextButton){
+                            this._nextSearch(1);
+                            dojo.stopEvent(evt);
+                            break;
+                        }else if(highlighted == pw.previousButton){
+                            this._nextSearch(-1);
+                            dojo.stopEvent(evt);
+                            break;
+                        }
+                    }else{
+                        this.setDisplayedValue(this.getDisplayedValue());
+                    }
+                    // default case:
+                    // prevent submit, but allow event to bubble
+                    evt.preventDefault();
+                    // fall through
+
+                case dk.TAB:
+                    var newvalue = this.getDisplayedValue();
+                    // #4617: 
+                    //      if the user had More Choices selected fall into the
+                    //      _onBlur handler
+                    if(pw && (
+                        newvalue == pw._messages["previousMessage"] ||
+                        newvalue == pw._messages["nextMessage"])
+                    ){
+                        break;
+                    }
+                    if(this._isShowingNow){
+                        this._prev_key_backspace = false;
+                        this._prev_key_esc = false;
+                        if(pw.getHighlightedOption()){
+                            pw.setValue({ target: pw.getHighlightedOption() }, true);
+                        }
+                        this._hideResultList();
+                    }
+                    break;
+
+                case dk.SPACE:
+                    this._prev_key_backspace = false;
+                    this._prev_key_esc = false;
+                    if(this._isShowingNow && pw.getHighlightedOption()){
+                        dojo.stopEvent(evt);
+                        this._selectOption();
+                        this._hideResultList();
+                    }else{
+                        doSearch = true;
+                    }
+                    break;
+
+                case dk.ESCAPE:
+                    this._prev_key_backspace = false;
+                    this._prev_key_esc = true;
+                    if(this._isShowingNow){
+                        dojo.stopEvent(evt);
+                        this._hideResultList();
+                    }
+                    this.inherited(arguments);
+                    break;
+
+                case dk.DELETE:
+                case dk.BACKSPACE:
+                    this._prev_key_esc = false;
+                    this._prev_key_backspace = true;
+                    doSearch = true;
+                    break;
+
+                case dk.RIGHT_ARROW: // fall through
+                case dk.LEFT_ARROW: 
+                    this._prev_key_backspace = false;
+                    this._prev_key_esc = false;
+                    break;
+
+                default: // non char keys (F1-F12 etc..)  shouldn't open list
+                    this._prev_key_backspace = false;
+                    this._prev_key_esc = false;
+                    if(dojo.isIE || evt.charCode != 0){
+                        doSearch = true;
+                    }
+            }
+            if(this.searchTimer){
+                clearTimeout(this.searchTimer);
+            }
+            if(doSearch){
+                // need to wait a tad before start search so that the event
+                // bubbles through DOM and we have value visible
+                setTimeout(dojo.hitch(this, "_startSearchFromInput"),1);
+            }
+        }
 };
 genropatches.borderContainer = function() {
     dojo.require("dijit.layout.BorderContainer");

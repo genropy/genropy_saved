@@ -95,8 +95,6 @@ class FilePicker(BaseComponent):
                                     that.fireEvent('.reloadStore',true);
                             });
                         }
-                        
-
             """,uploadPath='=.currentFolder',_fired='^.takeSnapshot',externalSnapshot=externalSnapshot)
         bar.multiFolder.multiButton(value='^.currentFolder',values='^.folderValues')
         view.data('.grid.sorted','created_ts:d')
@@ -110,7 +108,6 @@ class FilePicker(BaseComponent):
                     var row = grid.rowByIndex(r.gridRowIndex);
                     var tpl = "<img src='$fileurl' style='max-height:300px'></img>";
                     var result = dataTemplate(tpl,row);
-                    console.log('result',result)
                     return result;
                 """,modifiers='Ctrl',validclass='dojoxGrid-cell,cellContent')
 

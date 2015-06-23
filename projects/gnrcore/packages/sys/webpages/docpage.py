@@ -12,9 +12,6 @@ class GnrCustomWebPage(object):
 
     documentation = 'auto'
 
-   # @classmethod
-   # def getMainPackage(cls,request_args=None,request_kwargs=None):
-   #     return request_kwargs.get('th_from_package') or request_args[0]
         
 
     def main(self,root,**kwargs):
@@ -25,7 +22,12 @@ class GnrCustomWebPage(object):
 
         root.dataController("""var fm = genro.getParentGenro().framedIndexManager;
                                 SET gnr.doc.main.pages = fm.callOnCurrentIframe('docHandler','getDocumentationPages');
-                                SET tickets.folders = fm.callOnCurrentIframe('ticketHandler','getTicketFolders');
+                                var r = fm.callOnCurrentIframe('ticketHandler','getTicketInfo');
+                                SET tickets_info.project_code = r.project_code;
+                                SET tickets_info.package_identifier = r.package_identifier;
+                                SET tickets_info.table_identifier = r.table_identifier;
+                                SET tickets_info.pagename = r.pagename;
+                                FIRE tickets.run;
 
                             """,
                             subscribe_onSelectedFrame=True,
@@ -34,4 +36,7 @@ class GnrCustomWebPage(object):
                             overflow='hidden',pageName='docs')
         docpane.docFrameMulti()
         ticketpane = tc.contentPane(title='!!Tickets',xiconTitle='icnBottomTicket',overflow='hidden',pageName='tickets',datapath='tickets')
-        ticketpane.ticketFrame(code='main',folders='^tickets.folders')
+        if self.db.package('uke'):
+            ticketpane.ticketFrame(pagename='=tickets_info.pagename',project_code='=tickets_info.project_code',
+                                        package_identifier='=tickets_info.package_identifier',
+                                        table_identifier='=tickets_info.table_identifier')

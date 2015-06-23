@@ -1130,6 +1130,7 @@ dojo.declare("gnr.GridEditor", null, {
         this.updateStatus();
         this.grid.collectionStore().sort();
         this.grid.updateRowCount();
+        this.lastEditTs = new Date()
     },
     addNewRows_one:function(row){
         var grid = this.grid;
@@ -1664,8 +1665,8 @@ dojo.declare("gnr.GridChangeManager", null, {
         var cellmap = this.grid.cellmap;
         var rebuildStructure = false;
         for(var p in this.cellpars){
-            var abspath = this.sourceNode.absDatapath(p);
-            if(dpath==abspath){
+            var trigger_reason = this.sourceNode.getTriggerReason(this.sourceNode.absDatapath(p),kw);
+            if(trigger_reason && trigger_reason!='child'){
                 for(var f in this.cellpars[p]){
                     var reasons = this.cellpars[p][f];
                     for(var reason in reasons){
@@ -1683,7 +1684,10 @@ dojo.declare("gnr.GridChangeManager", null, {
             }
         }
         if(rebuildStructure){
-            this.grid.setStructpath();
+            var grid = this.grid;
+            this.sourceNode.delayedCall(function(){
+                grid.setStructpath();
+            },1);
         }
     }, 
     addDynamicCellPar:function(cell,parname,parpath){
@@ -1743,7 +1747,8 @@ dojo.declare("gnr.GridChangeManager", null, {
         }
         if(kw.updvalue){
             var gridEditor = this.grid.gridEditor;
-            if(kw.value!=kw.oldvalue && gridEditor && (kw.node.label in gridEditor.columns)){
+            var cell = this.grid.cellmap[kw.node.label];
+            if(kw.value!=kw.oldvalue && gridEditor && ((kw.node.label in gridEditor.columns) || (cell && cell.counter))){
                 var attr = kw.node.attr;
                 if(!('_loadedValue' in attr)){
                     attr['_loadedValue'] = kw.oldvalue;

@@ -42,12 +42,12 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         this.afterBuildCalls = [];
         this.building = false;
         this.datatags = {'data':null,'dataformula':null,'datascript':null,
-            'datarpc':null,'dataremote':null,'datacontroller':null};
+            'datarpc':null,'dataremote':null,'datacontroller':null, 'dataws':null};
         this.highlightedNode = null;
 
     },
-    getMainSource:function(){
-        return genro.rpc.remoteCall('main',objectUpdate({timeout:6000},genro.startArgs), 'bag');
+    getMainSource:function(cb){
+        return genro.rpc.remoteCall('main',objectUpdate({timeout:6000},genro.startArgs), 'bag',null,null,cb);
     },
 
 

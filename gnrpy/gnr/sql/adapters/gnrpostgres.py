@@ -117,6 +117,9 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         sql = self.adaptTupleListSet(sql,kwargs)
         return RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP', '~*'), kwargs
         
+    def adaptSqlName(self,name):
+        return '"%s"' %name
+
     def _managerConnection(self):
         dbroot = self.dbroot
         kwargs = dict(host=dbroot.host, database='template1', user=dbroot.user,

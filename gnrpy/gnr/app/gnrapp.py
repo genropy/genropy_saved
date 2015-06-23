@@ -24,7 +24,7 @@ import tempfile
 import atexit
 import logging
 import shutil
-
+import locale
 import sys
 import imp
 import os
@@ -44,6 +44,7 @@ from gnr.core.gnrlang import  gnrImport, instanceMixin, GnrException
 from gnr.core.gnrstring import makeSet, toText, splitAndStrip, like, boolean
 from gnr.core.gnrsys import expandpath
 from gnr.sql.gnrsql import GnrSqlDb
+from gnr.app.gnrlocalization import AppLocalizer
 
 log = logging.getLogger(__name__)
 
@@ -174,6 +175,11 @@ class GnrSqlAppDb(GnrSqlDb):
                     tblobj.attributes.get('transaction', tblobj.pkg.attributes.get('transaction', '')))
         if not self.inTransactionDaemon and tblobj._usesTransaction:
             raise GnrWriteInReservedTableError('%s.%s' % (tblobj.pkg.name, tblobj.name))
+
+    @property
+    def localizer(self):
+        return self.application.localizer
+
 
     def notifyDbUpdate(self,tblobj,recordOrPkey=None,**kwargs):
         pass
@@ -319,8 +325,6 @@ class GnrSqlAppDb(GnrSqlDb):
                 result.setItem(b.pop('fieldname'),None,**kw)
             return result
 
-
-
 class GnrPackagePlugin(object):
     """TODO"""
     def __init__(self, pkg, path):
@@ -354,9 +358,16 @@ class GnrPackage(object):
         self.tableMixins = {}
         self.plugins = {}
         self.loadPlugins()
+        self._pkgMenu = None
+        self.projectInfo = None
         if not project:
             projectPath = os.path.normpath(os.path.join(self.packageFolder,'..','..'))
+            projectInfoPath = os.path.join(projectPath,'info.xml')
             project = os.path.split(projectPath)[1]
+            if os.path.exists(projectInfoPath):
+                self.projectInfo = Bag(projectInfoPath)
+        if not self.projectInfo:
+            self.projectInfo = Bag(('project',None,dict(name=project,code=project,language='en'))) 
         self.project = project 
         self.customFolder = os.path.join(self.application.instanceFolder, 'custom', pkg_id)
         try:
@@ -364,14 +375,7 @@ class GnrPackage(object):
         except Exception, e:
             log.exception(e)
             raise GnrImportException(
-                    "Cannot import package %s from %s" % (pkg_id, os.path.join(self.packageFolder, 'main.py')))
-        try:
-            self.pkgMenu = MenuStruct(os.path.join(self.packageFolder, 'menu'),application=self.application,autoconvert=True)
-            for pluginname,plugin in self.plugins.items():
-                self.pkgMenu.update(plugin.menuBag)
-        except:
-            self.pkgMenu = Bag()
-        
+                    "Cannot import package %s from %s" % (pkg_id, os.path.join(self.packageFolder, 'main.py')))    
         self.pkgMixin = GnrMixinObj()
         instanceMixin(self.pkgMixin, getattr(self.main_module, 'Package', None))
         
@@ -409,7 +413,20 @@ class GnrPackage(object):
             customModelFolder = os.path.join(self.customFolder, 'model')
             self.loadTableMixinDict(self.custom_module, customModelFolder, model_prefix='custom_')
         self.configure()
-        
+
+    @property
+    def language(self):
+        return self.attributes.get('language') or self.projectInfo['project?language']
+
+    @property
+    def pkgMenu(self):
+        if self._pkgMenu is None:
+            pkgMenu = MenuStruct(os.path.join(self.packageFolder, 'menu'),application=self.application,autoconvert=True)
+            for pluginname,plugin in self.plugins.items():
+                pkgMenu.update(plugin.menuBag)
+            self._pkgMenu = pkgMenu
+        return self._pkgMenu
+
     @property
     def db(self):
         return self.application.db
@@ -560,9 +577,7 @@ class GnrApp(object):
         if instanceFolder:
             if ':' in instanceFolder:
                 instanceFolder,self.remote_db  = instanceFolder.split(':',1)
-
-            if not os.path.isdir(instanceFolder):
-                instanceFolder = self.instance_name_to_path(instanceFolder)
+            instanceFolder = self.instance_name_to_path(instanceFolder)
         self.instanceFolder = instanceFolder or ''
         sys.path.append(os.path.join(self.instanceFolder, 'lib'))
         sys.path_hooks.append(self.get_modulefinder)
@@ -678,6 +693,7 @@ class GnrApp(object):
         self.base_lang = self.config['i18n?base_lang'] or 'en'
         self.catalog = GnrClassCatalog()
         self.localization = {}
+        
         if not forTesting:
             dbattrs = self.config.getAttr('db') or {}
             
@@ -699,11 +715,9 @@ class GnrApp(object):
             def removeTemporaryDirectory():
                 shutil.rmtree(tempdir)
         dbattrs['application'] = self
-        self.db = GnrSqlAppDb(debugger=getattr(self, 'debugger', None), **dbattrs)
+        self.db = GnrSqlAppDb(debugger=getattr(self, 'sqlDebugger', None), **dbattrs)
         
-        pkgMenus = self.config['menu?package'] or []
-        if pkgMenus:
-            pkgMenus = pkgMenus.split(',')
+        
 
         for pkgid, attrs in self.config['packages'].digest('#k,#a'):
             if ':' in pkgid:
@@ -720,19 +734,9 @@ class GnrApp(object):
 
         for pkgid, apppkg in self.packages.items():
             apppkg.initTableMixinDict()
-            if apppkg.pkgMenu and (not pkgMenus or pkgid in pkgMenus):
-                #self.config['menu.%s' %pkgid] = apppkg.pkgMenu
-                if len(apppkg.pkgMenu) == 1:
-                    self.config['menu.%s' % pkgid] = apppkg.pkgMenu.getNode('#0')
-                else:
-                    self.config.setItem('menu.%s' % pkgid, apppkg.pkgMenu,
-                                        {'label': apppkg.config_attributes().get('name_long', pkgid),'pkg_menu':pkgid})
-
-
             self.db.packageMixin('%s' % (pkgid), apppkg.pkgMixin)
             for tblname, mixobj in apppkg.tableMixinDict.items():
                 self.db.tableMixin('%s.%s' % (pkgid, tblname), mixobj)
-
         self.db.inTransactionDaemon = False
         self.pkgBroadcast('onDbStarting')
         self.db.startup(restorepath=restorepath)
@@ -740,16 +744,32 @@ class GnrApp(object):
             self.config['menu'] = self.config['menu']['#0']
         if self.instanceMenu:
             self.config['menu']=self.instanceMenu
-
-        self.buildLocalization()
+            
+        self.localizer = AppLocalizer(self)
         if forTesting:
             # Create tables in temporary database
             self.db.model.check(applyChanges=True)
                 
             if isinstance(forTesting, Bag):
                 self.loadTestingData(forTesting)
+
+        
         self.onInited()
-            
+
+    def applicationMenuBag(self):
+        pkgMenus = self.config['menu?package']
+        if pkgMenus:
+            pkgMenus = pkgMenus.split(',')
+        menuBag = Bag()
+        for pkgid, apppkg in self.packages.items():
+            pkgMenuBag = apppkg.pkgMenu
+            if pkgMenuBag and (not pkgMenus or pkgid in pkgMenus):
+                #self.config['menu.%s' %pkgid] = apppkg.pkgMenu
+                if len(pkgMenuBag) == 1:
+                    menuBag[pkgid] = pkgMenuBag.getNode('#0')
+                else:
+                    menuBag.setItem(pkgid, pkgMenuBag,{'label': apppkg.config_attributes().get('name_long', pkgid),'pkg_menu':pkgid})
+        return menuBag
 
     def importFromSourceInstance(self,source_instance=None):
         to_import = ''
@@ -887,67 +907,11 @@ class GnrApp(object):
             handler = getattr(pkg,method,None)
             if handler:
                 handler(*args,**kwargs)
-        
 
-    def buildLocalization(self):
-        """TODO"""
-        self.localization = {}
-        for pkg in self.packages.values():
-            try:
-                pkgloc = Bag(os.path.join(pkg.packageFolder, 'localization.xml'))
-            except:
-                pkgloc = Bag()
-            try:
-                customLoc = Bag(os.path.join(pkg.customFolder, 'localization.xml'))
-            except:
-                customLoc = Bag()
-            pkgloc.update(customLoc)
-
-            self.localization.update(self._compileLocalization(pkgloc, pkgname=pkg.id))
-        self.localizationTime = time.time()
+    @property
+    def locale(self):
+        return locale.getdefaultlocale()[0].replace('_','-')
         
-    def _compileLocalization(self, locbag, pkgname=None):
-        loc = {}
-        for attrs in locbag.digest('#a'):
-            _key = attrs.get('_key')
-            if _key:
-                if pkgname: _key = '%s|%s' % (pkgname, _key.lower())
-                loc[_key] = dict([(k, v) for k, v in attrs.items() if not k.startswith('_')])
-        return loc
-        
-    def updateLocalization(self, pkg, data, locale):
-        """TODO
-
-        :param pkg: the :ref:`package <packages>` object
-        :param data: TODO
-        :param locale: the current locale (e.g: en, en_us, it)"""
-        pkgobj = self.packages[pkg]
-        locpath = os.path.join(pkgobj.packageFolder, 'localization.xml')
-        pkglocbag = Bag(locpath)
-        for k, v in data.digest('#v.key,#v.txt'):
-            lbl = re.sub('\W', '_', k).replace('__', '_')
-            if not lbl in pkglocbag:
-                pkglocbag.setItem(lbl, None, _key=k, it=k, en='', fr='', de='')
-            pkglocbag.setAttr(lbl, {locale: v})
-        pkglocbag.toXml(os.path.join(pkgobj.packageFolder, 'localization.xml'))
-    
-    def localizeText(self, txt,pkg=None,localelang=None):
-        """Translate the *txt* string following the browser's locale
-        
-        :param txt: the text to be translated"""
-        loc = None
-        txtlower = txt.lower()
-        if pkg:
-            key = '%s|%s' % (pkg, txtlower)
-            loc = self.localization.get(key)
-        if not loc:
-            loc = self.localization.get(txtlower)
-        if loc:
-            loctxt = loc.get(localelang)
-            if loctxt:
-                txt = loctxt
-        return txt
-    
 
     def setPreference(self, path, data, pkg):
         if self.db.package('adm'):

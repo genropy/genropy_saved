@@ -22,7 +22,7 @@ class Main(BaseResourceAction):
         if not hasattr(tblobj,'communication_quicksender'):
             pane.div('!!Missing Communication fields',padding='20px')
         fp = pane.framePane(height='200px',width='300px')
-        bar = fp.top.slotToolbar('*,communications,*')
+        bar = fp.top.slotToolbar('*,communications,*',height='20px')
         cdict = tblobj.communication_quicksender()
         buttons = []
         availableCommunications = []
@@ -35,7 +35,7 @@ class Main(BaseResourceAction):
         for c,lbl in availableCommunications:
             if c in cdict:
                 buttons.append('%s:%s' %(c,lbl))
-        bar.communications.multiButton(values='!!%s' %','.join(buttons),value='^.communication')
+        bar.communications.multiButton(values='%s' %','.join(buttons),value='^.communication')
         fp.center.simpleTextArea(value='^.message')
 
     def do(self):

@@ -34,11 +34,11 @@ class View(BaseComponent):
 
 
     def th_sections_zone(self):
-        return [dict(code='nord_est',caption='!!Nord Est',condition='@regione.zona=:zona',condition_zona='Nord-est'),
-                dict(code='nord_ovest',caption='!!Nord Ovest',condition='@regione.zona=:zona',condition_zona='Nord-ovest'),
-                dict(code='centro',caption='!!Centro',condition='@regione.zona=:zona',condition_zona='Centro'),
-                dict(code='sud',caption='!!Sud',condition='@regione.zona=:zona',condition_zona='Sud'),
-                dict(code='isole',caption='!!Isole',condition='@regione.zona=:zona',condition_zona='Isole')
+        return [dict(code='nord_est',caption='!![it]Nord Est',condition='@regione.zona=:zona',condition_zona='Nord-est'),
+                dict(code='nord_ovest',caption='!![it]Nord Ovest',condition='@regione.zona=:zona',condition_zona='Nord-ovest'),
+                dict(code='centro',caption='!![it]Centro',condition='@regione.zona=:zona',condition_zona='Centro'),
+                dict(code='sud',caption='!![it]Sud',condition='@regione.zona=:zona',condition_zona='Sud'),
+                dict(code='isole',caption='!![it]Isole',condition='@regione.zona=:zona',condition_zona='Isole')
                 ]
                 
     def th_top_custom(self,top):

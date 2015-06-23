@@ -40,7 +40,7 @@ from gnr.core.gnrbag import Bag,DirectoryResolver
 from gnr.core import gnrlist
 
 from gnr.core.gnrlang import uniquify
-from gnr.core.gnrdecorator import extract_kwargs,public_method,debug_info
+from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson,fromJson
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.web.gnrwebstruct import cellFromField
@@ -55,9 +55,6 @@ class GnrWebAppHandler(GnrBaseProxy):
     def init(self, **kwargs):
         """TODO"""
         self.gnrapp = self.page.site.gnrapp
-        siteStatus = self.page.siteStatus
-        if siteStatus['resetLocalizationTime'] and self.gnrapp.localizationTime < siteStatus['resetLocalizationTime']:
-            self.gnrapp.buildLocalization()
 
     def event_onEnd(self):
         """TODO"""
@@ -276,7 +273,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                              ignoreDuplicate=True,
                              js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
                              sqlContextName=None, virtual_columns=None,_eager_level=0,_eager_record_stack=None,_storename=None,resolver_kwargs=None,
-                             loadingParameters=None, _debug_info=None,**kwargs):
+                             loadingParameters=None,_debug_info=None, **kwargs):
         """TODO
         
         ``getRelatedRecord()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
@@ -866,11 +863,9 @@ class GnrWebAppHandler(GnrBaseProxy):
             expr_dict = getattr(self.page, 'expr_%s' % expressions)()
             expr_dict = dict([(k, '%s AS %s' % (v, k)) for k, v in expr_dict.items()])
             columns = templateReplace(columns, expr_dict, safeMode=True)
-
-        if tblobj.attributes.get('protectionColumn'):
-            columns = '%s, $%s AS _is_readonly_row' %(columns,tblobj.attributes.get('protectionColumn'))
-            if tblobj.column('__protection_tag') is not None and not '__protection_tag' in columns:
-                columns = '%s,$__protection_tag' %columns
+        protectionColumn = tblobj.getProtectionColumn()
+        if protectionColumn:
+            columns = '%s,$%s AS _is_readonly_row' %(columns,protectionColumn)
 
         return columns,external_queries
     
@@ -1127,13 +1122,17 @@ class GnrWebAppHandler(GnrBaseProxy):
             c = updated.getNode(key)
             if c:
                 for n in c.value:
-                    if '_loadedValue' in n.attr and row[n.label] != n.attr['_loadedValue']:
-                        wrongUpdates[key] = row
-                        return
-                    row[n.label] = n.value
+                    if n.label in row:
+                        if '_loadedValue' in n.attr and row[n.label] != n.attr['_loadedValue']:
+                            wrongUpdates[key] = row
+                            return
+                        row[n.label] = n.value
+                    else:
+                        if '_loadedValue' in n.attr:
+                            row[n.label] = n.value
         if updated:
             pkeys = [pkey for pkey in updated.digest('#a._pkey') if pkey]
-            tblobj.batchUpdate(cb,where='$%s IN :pkeys' %pkeyfield,pkeys=pkeys)
+            tblobj.batchUpdate(cb,where='$%s IN :pkeys' %pkeyfield,pkeys=pkeys,bagFields=True)
         if inserted:
             for k,r in inserted.items():
                 tblobj.insert(r)

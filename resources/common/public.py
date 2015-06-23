@@ -270,26 +270,19 @@ class PublicSlots(BaseComponent):
         pane.dock(id='default_dock', background='none', border=0)
         
     @struct_method
-    def public_publicRoot_locBtn(self,pane,**kwargs):
-        if self.isLocalizer():
-            pane.div(connect_onclick='genro.dev.openLocalizer()', _class='^gnr.localizerClass', float='right')
-            pane.dataFormula('gnr.localizerClass', """ 'localizer_'+status;""",
-                            status='^gnr.localizerStatus', _init=True, 
-                            _else="return 'localizer_hidden'")
-        else:
-            pane.div()
-            
-    @struct_method
     def public_publicRoot_devBtn(self,pane,**kwargs):
         if self.isDeveloper():
-            pane.div(connect_onclick='genro.dev.showDebugger();',
+            pane.div(connect_onclick='genro.dev.showInspector();',
                       _class='icnBaseEye buttonIcon', float='right', margin_right='5px')
         else:
             pane.div()
 
 
 class TableHandlerMain(BaseComponent):
-    py_requires = """public:Public,th/th:TableHandler,gnrcomponents/doc_handler/doc_handler:DocHandler,gnrcomponents/ticket_handler/ticket_handler:TicketHandler"""
+    py_requires = """public:Public,
+                    th/th:TableHandler,
+                    gnrcomponents/doc_handler/doc_handler:DocHandler,
+                    gnrcomponents/ticket_handler/ticket_handler:TicketHandler"""
     formResource = None
     viewResource = None
     formInIframe = False
@@ -466,7 +459,7 @@ class TableHandlerMain(BaseComponent):
                 if(targetRowData['_pkey']==dragRowData['_pkey']){
                     return false;
                 }
-                if(modifiers=='Shift,Meta'||modifiers=='Shift,Alt'){ 
+                if(modifiers=='Shift,Meta'||modifiers=='Shift,Ctrl'){ 
                     return funcApply("%(allowUnifyCb)s",{targetRowData:targetRowData,dragRowData:dragRowData});
                 }else{
                     return funcApply("%(onSelfDragRows)s",{targetRowData:targetRowData,dragRowData:dragRowData});

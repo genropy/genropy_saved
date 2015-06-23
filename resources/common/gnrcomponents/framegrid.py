@@ -108,9 +108,10 @@ class FrameGrid(BaseComponent):
         grid_kwargs['selfsubscribe_addrow'] = grid_kwargs.get('selfsubscribe_addrow','this.widget.addRows($1._counter,$1.evt);')
         grid_kwargs['selfsubscribe_delrow'] = grid_kwargs.get('selfsubscribe_delrow','this.widget.deleteSelectedRows();')
         #grid_kwargs['selfsubscribe_setSortedBy'] = """this.setRelativeData(this.attr.sortedBy,$1);"""
+        grid_kwargs.setdefault('selectedId','.selectedId')
         frame.includedView(autoWidth=False,
                           storepath=storepath,datamode=datamode,
-                          datapath='.grid',selectedId='.selectedId',
+                          datapath='.grid',
                           struct=struct,table=table,
                           **grid_kwargs)
         if top_kwargs:
@@ -127,6 +128,9 @@ class FrameGrid(BaseComponent):
                     store_kwargs=True,parentForm=None,**kwargs):
         if pbl_classes:
             kwargs['_class'] = 'pbl_roundedGroup'
+            if pbl_classes=='*':
+                kwargs['_class'] = 'pbl_roundedGroup noheader'
+
         if gridEditor:
             kwargs['grid_gridEditor'] = dict(default_kwargs=default_kwargs)
         kwargs.setdefault('grid_parentForm',parentForm)

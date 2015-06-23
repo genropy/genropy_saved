@@ -16,7 +16,6 @@ import urllib2
 import httplib2
 import locale
 
-
 from time import time
 from gnr.core.gnrlang import deprecated,GnrException,tracebackBag
 from gnr.core.gnrdecorator import public_method
@@ -39,8 +38,15 @@ from gnr.web.services.gnrmail import WebMailHandler
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import SiteRegisterClient
+from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import WebSocketHandler
+import pdb
 
 import warnings
+try:
+    import uwsgi
+    UWSGIMODE = True
+except:
+    UWSGIMODE = False
 mimetypes.init()
 site_cache = {}
 
@@ -162,12 +168,12 @@ class GnrWsgiSite(object):
             if self.debug:
                 self.force_debug = True
         else:
-            if (self.config['wsgi?debug'] or '').lower()=='force':
+            if self.config['wsgi?debug'] is not True and (self.config['wsgi?debug'] or '').lower()=='force':
                 self.debug = True
                 self.force_debug = True
             else:
                 self.debug = boolean(self.config['wsgi?debug'])
-
+            
                 
     def __call__(self, environ, start_response):
         return self.wsgiapp(environ, start_response)
@@ -202,12 +208,13 @@ class GnrWsgiSite(object):
             self.set_environment()
             
         self.config = self.load_site_config()
-        self.cache_max_age = int(self.config['wsgi?cache_max_age'] or 2592000)
+        self.cache_max_age = int(self.config['wsgi?cache_max_age'] or 5356800)
         self.default_uri = self.config['wsgi?home_uri'] or '/'
         if self.default_uri[-1] != '/':
             self.default_uri += '/'
         self.mainpackage = self.config['wsgi?mainpackage']
         self.default_page = self.config['wsgi?default_page']
+        self.websockets= boolean(self.config['wsgi?websockets']) and UWSGIMODE
         self.allConnectionsFolder = os.path.join(self.site_path, 'data', '_connections')
         self.allUsersFolder = os.path.join(self.site_path, 'data', '_users')
         
@@ -230,9 +237,9 @@ class GnrWsgiSite(object):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path, self.site_static_dir))
         self.find_gnrjs_and_dojo()
         self.gnrapp = self.build_gnrapp(options=options)
-        self.server_locale = self.gnrapp.config('default?server_locale') or locale.getdefaultlocale()[0]
+        default_locale = locale.getdefaultlocale()[0]
+        self.server_locale = self.gnrapp.config('default?server_locale') or (locale.getdefaultlocale()[0].replace('_','-') if default_locale else 'en')
         self.wsgiapp = self.build_wsgiapp(options=options)
-
         self.db = self.gnrapp.db
         self.dbstores = self.db.dbstores
         self.resource_loader = ResourceLoader(self)
@@ -256,6 +263,16 @@ class GnrWsgiSite(object):
         self.cleanup_interval = int(cleanup.get('interval') or 120)
         self.page_max_age = int(cleanup.get('page_max_age') or 120)
         self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
+
+    def startDebug(self):
+        import rpdb
+        rpdb.set_trace()
+
+    @property
+    def wsk(self):
+        if not hasattr(self,'_wsk'):
+            self._wsk = WebSocketHandler(self)
+        return self._wsk
 
     @property
     def register(self):
@@ -313,6 +330,8 @@ class GnrWsgiSite(object):
             if not os.path.exists(dest_dir):
                 os.makedirs(dest_dir)
         return dest_path
+
+
         
     def getStaticUrl(self, static, *args, **kwargs):
         """TODO
@@ -352,10 +371,10 @@ class GnrWsgiSite(object):
         """TODO
         
         :param message: TODO"""
-        e = GnrSiteException(message=message)
+        localizerKw=None
         if self.currentPage:
-            e.setLocalizer(self.currentPage.localizer)
-        return e
+            localizerKw = self.currentPage.localizerKw
+        return  GnrSiteException(message=message,localizerKw=localizerKw)
         
         #def connFolderRemove(self, connection_id, rnd=True):
         #    shutil.rmtree(os.path.join(self.allConnectionsFolder, connection_id),True)
@@ -365,12 +384,7 @@ class GnrWsgiSite(object):
         #        for connection_id in connection_to_remove:
         #            self.connFolderRemove(connection_id, rnd=False)
         #
-        
-  # def _get_automap(self):
-  #     return self.resource_loader.automap
-  #     
-  # automap = property(_get_automap)
-  #     
+
     def onInited(self, clean):
         """TODO
         
@@ -475,6 +489,11 @@ class GnrWsgiSite(object):
             self._custom_config = custom_config
         return self._custom_config
 
+    @property
+    def locale(self):
+        if self.currentPage:
+            return self.currentPage.locale
+        return self.site.server_locale
 
    #def _get_sitemap(self):
    #    return self.resource_loader.sitemap
@@ -793,6 +812,9 @@ class GnrWsgiSite(object):
         
     def cleanup(self):
         """clean up"""
+        debugger = getattr(self.currentPage,'debugger',None)
+        if debugger:
+            debugger.onClosePage()
         self.currentPage = None
         self.db.closeConnection()
         #self.shared_data.disconnect_all()
@@ -1038,12 +1060,22 @@ class GnrWsgiSite(object):
         if self.db.package('adm'):
             pkg = pkg or self.currentPage.packageId
             username = username or self.currentPage.user
-            self.db.table('adm.user').setPreference(path, data, pkg=pkg, username=username)
+            self.db.table('adm.user').setPreference(path, data, pkg=pkg, username=username) 
+
+    @property
+    def ukeInstanceId(self):
+        if not getattr(self,'_ukeInstanceId',None):
+            r = self.db.table('uke.instance').getInstanceRecord()
+            self._ukeInstanceId = r['id']
+            ukeInstance = self.db.application.getAuxInstance('uke')
+            if ukeInstance:
+                if not ukeInstance.db.table('uke.instance').existsRecord(r['id']):
+                    ukeInstance.db.table('uke.instance').insert(r)
+                    ukeInstance.db.commit()
+        return self._ukeInstanceId
             
     def dropConnectionFolder(self, connection_id=None):
-        """TODO
-        
-        :param connection_id: TODO"""
+        """:param connection_id: TODO"""
         pathlist = ['data', '_connections']
         if connection_id:
             pathlist.append(connection_id)
@@ -1091,18 +1123,12 @@ class GnrWsgiSite(object):
         self.clearRecordLocks(page_id=page_id)
         page._closed = True
 
-    def debugger(self, debugtype, **kwargs):
-        """Send debug information to the client, if debugging is enabled.
-        Press ``Ctrl+Shift+D`` to open the debug pane in your browser
-        
-        :param debugtype: string (values: 'sql' or 'py')"""
-        if self.currentPage:
-            page = self.currentPage
-            if self.debug or page.isDeveloper():
-                page.developer.output(debugtype, **kwargs)
-            if debugtype=='sql':
-                page.sql_count = page.sql_count + 1
-                page.sql_time = page.sql_time + kwargs.get('delta_time',0)
+    def sqlDebugger(self,**kwargs):
+        page = self.currentPage
+        if page and (self.debug or page.isDeveloper()):
+            page.dev.sqlDebugger.output(page, **kwargs)
+            page.sql_count = page.sql_count + 1
+            page.sql_time = page.sql_time + kwargs.get('delta_time',0)
 
     def _get_currentPage(self):
         """property currentPage it returns the page currently used in this thread"""
@@ -1127,7 +1153,7 @@ class GnrWsgiSite(object):
 
     def _get_currentRequest(self):
         """property currentRequest it returns the request currently used in this thread"""
-        return self._currentRequests[thread.get_ident()]
+        return self._currentRequests.get(thread.get_ident())
         
     def _set_currentRequest(self, request):
         """set currentRequest for this thread"""
@@ -1139,8 +1165,9 @@ class GnrWsgiSite(object):
     def heartbeat_options(self):
         heartbeat = boolean(self.config['wsgi?heartbeat'])
         if heartbeat:
-            site_url = self.config['wsgi?external_host'] or self.currentRequest.host_url
-            return dict(interval=60,site_url=site_url)
+            site_url = self.config['wsgi?external_host'] or (self.currentRequest and self.currentRequest.host_url)
+            if site_url:
+                return dict(interval=60,site_url=site_url)
         
     def callTableScript(self, page=None, table=None, respath=None, class_name=None, runKwargs=None, **kwargs):
         """Call a script from a table's resources (e.g: ``_resources/tables/<table>/<respath>``).

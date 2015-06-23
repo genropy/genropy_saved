@@ -49,7 +49,7 @@ class GnrWsgiWebApp(GnrApp):
         broadcast = tblobj.attributes.get('broadcast')
         if broadcast is not False and broadcast != '*old*':
             dbevents=currentEnv['dbevents']
-            r=dict(dbevent=event,pkey=record.get(tblobj.pkey))
+            r=dict(dbevent=event,pkey=record.get(tblobj.pkey),old_pkey=old_record.get(tblobj.pkey) if old_record else None)
             if broadcast and broadcast is not True:
                 for field in broadcast.split(','):
                     newvalue = record.get(field)
@@ -139,8 +139,8 @@ class GnrWsgiWebApp(GnrApp):
             loginUrl = authpkg.loginUrl()
         return loginUrl
 
-    def debugger(self, debugtype, **kwargs):
-        self.site.debugger(debugtype, **kwargs)
+    def sqlDebugger(self, **kwargs):
+        self.site.sqlDebugger(**kwargs)
 
     def clearSiteMenu(self):
         self._siteMenuDict = dict()
@@ -149,21 +149,14 @@ class GnrWsgiWebApp(GnrApp):
         dbstore = self.site.currentPage.dbstore
         siteMenu = self._siteMenuDict.get(dbstore)
         if not siteMenu:
-            siteMenu = self._buildSiteMenu()
+            siteMenu = self.compileSiteMenu(self.config['menu'] or self.applicationMenuBag())
             self._siteMenuDict[dbstore] = siteMenu
         return siteMenu
 
     siteMenu = property(_get_siteMenu)
 
-    def _buildSiteMenu(self):
-        menubag = self.config['menu']
-        if not menubag:
-            print x
-            menubag = self._buildSiteMenu_autoBranch()
-        menubag = self._buildSiteMenu_prepare(menubag)
-        return menubag
 
-    def _buildSiteMenu_prepare(self, menubag, basepath=None):
+    def compileSiteMenu(self, menubag, basepath=None):
         basepath = basepath or []
         result = Bag()
         for node in menubag.nodes:
@@ -188,7 +181,7 @@ class GnrWsgiWebApp(GnrApp):
                 else:
                     currbasepath = basepath + [newbasepath]
             if isinstance(value, Bag):
-                value = self._buildSiteMenu_prepare(value, currbasepath)
+                value = self.compileSiteMenu(value, currbasepath)
             elif not isinstance(value, DirectoryResolver):
                 value = None
                 filepath = attributes.get('file')
@@ -198,22 +191,11 @@ class GnrWsgiWebApp(GnrApp):
                     else:
                         attributes['file'] = self.site.home_uri + filepath.lstrip('/')
             result.setItem(node.label, value, attributes)
+        if len(result) == 1:
+            result = result['#0']
         return result
 
-    def _buildSiteMenu_autoBranch(self,pkg=None,path=None):
-        menubag = Bag()
-        automap = self.site.automap
-        basepath = []
-        if pkg and path:
-            basepath = [pkg,path]
-            automap = self.site.automap.getItem('%s.%s' %(pkg,path))
-        mapindex=automap.getIndex()
-        mapindex.sort()
-        for pathlist, node in mapindex:
-            attr = dict(label=node.getAttr('name') or node.label)
-            if isinstance(node.getValue(), Bag):
-                attr['basepath'] = '/%s' % ('/'.join(basepath+pathlist))
-            else:
-                attr['file'] = node.label
-            menubag.setItem(pathlist, None, attr)
-        return menubag
+
+    @property
+    def locale(self):
+        return self.site.locale

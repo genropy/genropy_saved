@@ -164,7 +164,7 @@ class FrameIndex(BaseComponent):
         
     def prepareTablist(self,pane,onCreatingTablist=False):
 
-        menu = pane.div().menu(modifiers='Shift',_class='smallMenu',id='_menu_tab_opt_',
+        menu = pane.div().menu(_class='smallMenu',id='_menu_tab_opt_',
                                 action="genro.framedIndexManager.menuAction($1,$2,$3);")
         pane.div().menu(modifiers='*',_class='_menu_open_windows_',id='_menu_open_windows_',
                                 action="genro.framedIndexManager.selectWindow($1,$2,$3);",
@@ -200,7 +200,10 @@ class FrameIndex(BaseComponent):
                                         },1,this);
                                     }
                                 }else{
-                                    genro.framedIndexManager.createTablist(tabroot,data,onCreatingTablist);
+                                    genro.callAfter(function(){
+                                        genro.framedIndexManager.createTablist(tabroot,data,onCreatingTablist);
+                                    },200,this);
+
                                 }
                                 """,
                             data="=iframes",externalWindows='=externalWindows',_refreshTablist='^refreshTablist',tabroot=tabroot,indexTab=self.indexTab,
@@ -230,7 +233,7 @@ class FrameIndex(BaseComponent):
 
     def prepareBottom(self,pane):
         pane.attributes.update(dict(overflow='hidden',background='silver'))
-        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,manageDocumentation,count_errors,5,appInfo,*,debugping,5,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='20px',
+        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,manageDocumentation,5,openGnrIDE,count_errors,5,appInfo,*,debugping,5,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='20px',
                         gradient_from='gray',gradient_to='silver',gradient_deg=90)
         sb.appInfo.div('^gnr.appInfo')
         applogo = sb.applogo.div()
@@ -255,6 +258,10 @@ class FrameIndex(BaseComponent):
         sb.devlink.a(href=formula,_iframes='=iframes',_selectedFrame='^selectedFrame').div(_class="iconbox flash",tip='!!Open the page outside frame',_tags='_DEV_')
         sb.manageDocumentation.slotButton("!!Open documentation",iconClass='iconbox icnBottomDocumentation',
                             action='genro.framedIndexManager.openDocForCurrentIframe();')
+
+        sb.openGnrIDE.div().slotButton("!!Open Genro IDE",iconClass='iconbox laptop',
+                            action='genro.framedIndexManager.openGnrIDE();',_tags='_DEV_')
+
         appPref.dataController("""genro.dlg.iframePalette({top:'10px',left:'10px',url:url,
                                                         title:preftitle,height:'450px', width:'800px',
                                                         palette_nodeId:'mainpreference'});""",

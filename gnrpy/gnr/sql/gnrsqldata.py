@@ -39,7 +39,6 @@ from gnr.core import gnrlist
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrbag import Bag, BagResolver, BagAsXml
 from gnr.core.gnranalyzingbag import AnalyzingBag
-from gnr.core.gnrdecorator import debug_info
 from gnr.sql.gnrsql_exceptions import GnrSqlException,SelectionExecutionError, RecordDuplicateError,\
     RecordNotExistingError, RecordSelectionError,\
     GnrSqlMissingField, GnrSqlMissingColumn
@@ -114,7 +113,7 @@ class SqlQueryCompiler(object):
         self.tblobj = tblobj
         self.db = tblobj.db
         self.dbmodel = tblobj.db.model
-        if tblobj.db.application.config['db?reuse_relation_tree']:
+        if tblobj.db.reuse_relation_tree:
             self.relations = tblobj.relations
         else:
             self.relations = tblobj.newRelationResolver(cacheTime=-1)
@@ -195,8 +194,8 @@ class SqlQueryCompiler(object):
             alias, curr = self._findRelationAlias(list(pathlist), curr, basealias, newpath)
         else:
             alias = basealias
+        curr_tblobj = self.db.table(curr.tbl_name, pkg=curr.pkg_name)
         if not fld in curr.keys():
-            curr_tblobj = self.db.table(curr.tbl_name, pkg=curr.pkg_name)
             fldalias = curr_tblobj.model.virtual_columns[fld]
             if fldalias == None:
                 raise GnrSqlMissingField('Missing field %s in table %s.%s (requested field %s)' % (
@@ -210,6 +209,8 @@ class SqlQueryCompiler(object):
             elif fldalias.sql_formula or fldalias.select or fldalias.exists:
                 sql_formula = fldalias.sql_formula
                 attr = dict(fldalias.attributes)
+                if sql_formula is True:
+                    sql_formula = getattr(curr_tblobj,'sql_formula_%s' %fld)(attr)
                 select_dict = dictExtract(attr,'select_')
                 if not sql_formula:
                     sql_formula = '#default' if fldalias.select else 'EXISTS(#default)'
@@ -255,7 +256,7 @@ class SqlQueryCompiler(object):
             else:
                 raise GnrSqlMissingColumn('Invalid column %s in table %s.%s (requested field %s)' % (
                 fld, curr.pkg_name, curr.tbl_name, '.'.join(newpath)))
-        return '%s.%s' % (alias, fld)
+        return '%s.%s' % (alias, curr_tblobj.column(fld).adapted_sqlname)
         
     def _findRelationAlias(self, pathlist, curr, basealias, newpath):
         """Internal method: called by getFieldAlias to get the alias (t1, t2...) for the join table.
@@ -911,7 +912,7 @@ class SqlQuery(object):
         self.sqlparams = sqlparams or {}
         self.querypars = dict(columns=columns, where=where, order_by=order_by,
                               distinct=distinct, group_by=group_by,
-                              limit=limit, offset=offset,
+                              limit=limit, offset=offset,for_update=for_update,
                               having=having)
         self.joinConditions = joinConditions or {}
         self.sqlContextName = sqlContextName
@@ -1994,13 +1995,8 @@ class SqlSelection(object):
     def colHeaders(self):
         """TODO"""
         def translate(txt):
-            if txt.startswith('!!'):
-                txt = txt[2:]
-                
-                #app = getattr(self.dbtable.db, 'application', None)
-                #if app:
-                #    txt = app.localization.get(txt, txt)
-            return txt
+            return self.dbtable.db.localizer.translate(txt)
+            
                 
         columns = [c for c in self.columns if not c in ('pkey', 'rowidx')]
         headers = []
@@ -2013,20 +2009,9 @@ class SqlSelection(object):
         """TODO
         
         :param outsource: TODO"""
-        def translate(txt):
-            if txt.startswith('!!'):
-                txt = txt[2:]
-                
-                #app = getattr(self.dbtable.db, 'application', None)
-                #if app:
-                #    txt = app.localization.get(txt, txt)
-            return txt
-            
+        
+        headers = self.colHeaders()
         columns = [c for c in self.columns if not c in ('pkey', 'rowidx')]
-        headers = []
-        for colname in columns:
-            colattr = self.colAttrs.get(colname, dict())
-            headers.append(translate(colattr.get('label', colname)))
         result = ['\t'.join(headers)]
         for row in outsource:
             r = dict(row)
@@ -2295,7 +2280,6 @@ class SqlRecord(object):
         sqlparams = dict()
         if order_by:
             sqlparams['order_by'] = order_by
-
         #if True or resolver_many is True:
         value = SqlRelatedSelectionResolver(
                 columns='*', db=self.db, cacheTime=-1,
@@ -2305,6 +2289,7 @@ class SqlRecord(object):
                 sqlContextName=self.sqlContextName,
                 virtual_columns=virtual_columns,
                 sqlparams = sqlparams,
+
                 )
         #else:
         info['_many_order_by'] = order_by

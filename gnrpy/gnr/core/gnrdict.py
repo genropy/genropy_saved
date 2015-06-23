@@ -20,7 +20,7 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-def dictExtract(mydict, prefix, pop=False, slice_prefix=True):
+def dictExtract(mydict, prefix, pop=False, slice_prefix=True,is_list=False):
     """Return a dict of the items with keys starting with prefix.
     
     :param mydict: sourcedict 

@@ -78,15 +78,30 @@ class ResourceLoader(object):
             return None
         page_class = self.get_page_class(basepath=info.basepath,relpath=info.relpath, pkg=info.pkg,
                                         request_args=info.request_args,request_kwargs=request_kwargs)
+        class_info = dict(basepath=info.basepath,relpath=info.relpath, pkg=info.pkg,
+                            request_args=info.request_args,request_kwargs=request_kwargs)
         page = page_class(site=self.site, request=request, response=response,
                           request_kwargs=request_kwargs, request_args=info.request_args,
                           filepath=info.relpath, packageId=page_class._packageId, 
-                          pluginId=info.plugin,  basename=info.relpath, environ=environ)
+                          pluginId=info.plugin,  basename=info.relpath, environ=environ, class_info=class_info)
+        return page
+
+    def get_page_by_id(self, page_id):
+        from gnr.web.gnrsimplepage import GnrSimplePage
+        page_item = self.site.register.page(page_id,include_data='lazy')
+        if not page_item:
+            return
+        class_info = page_item['data']['class_info']
+        init_info = page_item['data']['init_info']
+        page_info = page_item['data']['page_info']
+        class_info['page_factory'] = GnrSimplePage
+        page_class = self.get_page_class(**class_info)
+        page = page_class(site=self.site, page_id=page_id,page_info=page_info, **init_info)
+        page.replayComponentMixins()
         return page
 
 
-
-    def get_page_class(self, basepath=None,relpath=None, pkg=None, plugin=None,request_args=None,request_kwargs=None):
+    def get_page_class(self, basepath=None,relpath=None, pkg=None, plugin=None,request_args=None,request_kwargs=None, page_factory=None):
         """TODO
         
         :param path: TODO
@@ -94,7 +109,7 @@ class ResourceLoader(object):
 
         module_path = os.path.join(basepath,relpath)
         page_module = gnrImport(module_path, avoidDup=True,silent=False)
-        page_factory = getattr(page_module, 'page_factory', GnrWebPage)
+        page_factory = page_factory or getattr(page_module, 'page_factory', GnrWebPage)
         custom_class = getattr(page_module, 'GnrCustomWebPage')
         mainPkg = pkg
         if hasattr(custom_class,'getMainPackage'):
@@ -455,7 +470,9 @@ class ResourceLoader(object):
             if js and not js in page.dynamic_js_requires and not js in page.js_requires:
                 page.dynamic_js_requires[js] = page.getResourceUri(js,'js',add_mtime=True,pkg=pkg)
         page.mixin(component,**kwargs)
-    
+        if not hasattr(page,'mixin_set'):
+            page.mixin_set = set()
+        page.mixin_set.add(((tuple(path),tuple(kwargs.items()))))
         
     def loadTableScript(self, page, table=None, respath=None, class_name=None):
         """TODO

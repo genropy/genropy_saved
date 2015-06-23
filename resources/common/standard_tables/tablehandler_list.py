@@ -215,7 +215,7 @@ class TableHandlerForm(BaseComponent):
                             )
         act_bag = Bag()
         for action in [m[7:] for m in dir(self) if m.startswith('action_')]:
-            act_bag[action] = '!!%s' % action.capitalize().replace('_', ' ')
+            act_bag[action] = action.capitalize().replace('_', ' ')
         pane.data('list.act_store', act_bag, id='#k', caption='#v')
         pane.dataController("""var selectedRowidx = genro.wdgById("maingrid").getSelectedRowidx();
                                    genro.serverCall('app.onSelectionDo', {table:table, selectionName:selectionName, command:'action',
@@ -514,7 +514,7 @@ class TableHandlerForm(BaseComponent):
         not_caption = '&nbsp;' if op_not == 'yes' else '!!not'
         result.setItem('c_0', querybase.get('val'),
                        {'op': querybase.get('op'), 'column': column,
-                        'op_caption': '!!%s' % self.db.whereTranslator.opCaption(querybase.get('op')),
+                        'op_caption': self.db.whereTranslator.opCaption(querybase.get('op')),
                         'not': op_not, 'not_caption': not_caption,
                         'column_dtype': column_dtype,
                         'column_caption': self.app._relPathToCaption(self.maintable, column)})

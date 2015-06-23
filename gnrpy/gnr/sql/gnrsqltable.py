@@ -228,11 +228,7 @@ class SqlTable(GnrObject):
                 rowcaption = self.recordCaption(record)
             except:
                 rowcaption = 'Current Record'
-        e = exception(tablename=self.fullname,rowcaption=rowcaption,msg=msg, **kwargs)
-        
-        if self.db.application and hasattr(self.db.application,'site') and self.db.application.site.currentPage:
-            e.setLocalizer(self.db.application.site.currentPage.localizer)
-        return e
+        return exception(tablename=self.fullname,rowcaption=rowcaption,msg=msg,localizer=self.db.localizer, **kwargs)
         
     def __repr__(self):
         return "<SqlTable %s>" % repr(self.fullname)
@@ -489,32 +485,42 @@ class SqlTable(GnrObject):
             newrecord[self.pkey] = self.newPkeyValue(record=newrecord)
         return newrecord
 
-    def cachedRecord(self,pkey,virtual_columns=None):
-        def recordFromCache(pkey,cache,virtual_columns_set):
+    def cachedRecord(self,pkey=None,virtual_columns=None,keyField=None,createCb=None):
+        keyField = keyField or self.pkey
+        ignoreMissing = createCb is not None
+        def recordFromCache(cache=None,pkey=None,virtual_columns_set=None):
             result,cached_virtual_columns_set = cache.get(pkey,(None,None))
             in_cache = bool(result)
             if in_cache and not virtual_columns_set.issubset(cached_virtual_columns_set):
                 in_cache = False
                 virtual_columns_set = virtual_columns_set.union(cached_virtual_columns_set)
             if not in_cache:
-                result = self.record(pkey=pkey,virtual_columns=','.join(virtual_columns_set)).output('dict')
+                result = self.record(virtual_columns=','.join(virtual_columns_set),ignoreMissing=ignoreMissing,**{keyField:pkey}).output('dict')
+                if (not result) and createCb:
+                    result = createCb(pkey)
+                    if virtual_columns and result:
+                        result = self.record(virtual_columns=','.join(virtual_columns_set),**{keyField:pkey}).output('dict')
                 cache[pkey] = (result,virtual_columns_set)
             return result,in_cache
         virtual_columns_set = set(virtual_columns.split(',')) if virtual_columns else set()
-        key = '%s_cache' %self.fullname
+        return self.tableCachedData('cachedRecord',recordFromCache,pkey=pkey,
+                                virtual_columns_set=virtual_columns_set)
+
+    def tableCachedData(self,topic,cb,**kwargs):
         currentPage = self.db.currentPage
+        cacheKey = '%s_%s' %(topic,self.fullname)
         if currentPage:
             with currentPage.pageStore() as store:
-                tablecache = store.getItem(key) or dict()
-                record,in_cache = recordFromCache(pkey,tablecache,virtual_columns_set)
+                localcache = store.getItem(cacheKey) or dict()
+                data,in_cache = cb(cache=localcache,**kwargs)
                 if not in_cache:
-                    store.setItem(key,tablecache)
+                    store.setItem(cacheKey,localcache)
         else:
-            tablecache = self.db.currentEnv.setdefault(key,dict())
-            record,in_cache = recordFromCache(pkey,tablecache,virtual_columns_set)
-        return record
+            localcache = self.db.currentEnv.setdefault(cacheKey,dict())
+            data,in_cache = cb(cache=localcache,**kwargs)
+        return data
 
-        
+
     def record(self, pkey=None, where=None,
                lazy=None, eager=None, mode=None, relationDict=None, ignoreMissing=False, virtual_columns=None,
                ignoreDuplicate=False, bagFields=True, joinConditions=None, sqlContextName=None,
@@ -1252,6 +1258,10 @@ class SqlTable(GnrObject):
             trgFunc = getattr(self, 'trigger_%s_%s'%(triggerEvent, pkg_id), None)
             if callable(trgFunc):
                 trgFunc(record, **kwargs)
+
+    def getProtectionColumn(self):
+        #override
+        return
 
 
     def newPkeyValue(self,record=None):

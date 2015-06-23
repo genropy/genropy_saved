@@ -390,21 +390,23 @@ dojo.declare("gnr.FramedIndexManager", null, {
                 treeItem.setAttribute('labelClass',itemclass);
             }
         }
-        this.stackSourceNode.fireEvent('refreshTablist',true);
         var tablist = genro.nodeById('frameindex_tab_button_root');
-        var curlen = tablist.getValue().len();
+        var curlen = tablist.getValue().len()-1;
         curlen = this.externalWindowsBag().len()>0?curlen-1:curlen;
         selected = selected>=curlen? curlen-1:selected;
         selected = selected<0? 0:selected;
         var nextPageName = tablist.getValue().getNode('#'+selected)? tablist.getValue().getNode('#'+selected).attr.pageName:'indexpage';
         this.stackSourceNode.setRelativeData('selectedFrame',nextPageName); //PUT
+        this.stackSourceNode.fireEvent('refreshTablist',true);
+
     },
 
     reloadSelectedIframe:function(rootPageName,modifiers){
         var iframe = this.getCurrentIframe(rootPageName);
         if(iframe){
-            var dodebug = modifiers=='ShiftAlt';
-            iframe.sourceNode._genro.pageReload({debug_sql:dodebug,pageReloading:true,dojo_source:true});
+            var dodebug = modifiers=='ShiftAlt'; 
+            //{debug_sql:dodebug,pageReloading:true,dojo_source:true}
+            iframe.sourceNode.reloadIframe();
         }
     },
 
@@ -413,7 +415,16 @@ dojo.declare("gnr.FramedIndexManager", null, {
             pageName:'DOCUMENTATION',
             file:'/sys/docpage',
             label: _T("Documentation")
-        })
+        });
+    },
+
+
+    openGnrIDE:function(){
+        this.newBrowserWindowPage({
+            pageName:'GNRIDE',
+            file:'/sys/gnride',
+            label: _T("Genro IDE")
+        });
     },
 
     callOnCurrentIframe:function(objpath,method,args){
@@ -539,6 +550,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
             }else{
                 setTimeout(function(){
                     that.stackSourceNode.setRelativeData('selectedFrame',startPage || pageName);
+                    that.stackSourceNode.fireEvent('refreshTablist',true);
                 },100);
             }
         }

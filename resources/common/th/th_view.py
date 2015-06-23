@@ -781,7 +781,7 @@ class TableHandlerView(BaseComponent):
         not_caption = '&nbsp;' if op_not == 'yes' else '!!not'
         result.setItem('c_0', val,
                        {'op': querybase.get('op'), 'column': column,
-                        'op_caption': '!!%s' % self.db.whereTranslator.opCaption(querybase.get('op')),
+                        'op_caption': self.db.whereTranslator.opCaption(querybase.get('op')),
                         'not': op_not, 'not_caption': not_caption,
                         'column_dtype': column_dtype,
                         'column_caption': self.app._relPathToCaption(table, column),
@@ -877,16 +877,16 @@ class THViewUtils(BaseComponent):
                            number=['equal', 'greater', 'greatereq', 'less', 'lesseq', 'isnull', 'in'],
                            boolean=['istrue', 'isfalse', 'isnull'],
                            others=['equal', 'greater', 'greatereq', 'less', 'lesseq', 'in'])
-        queryModes = (('S','Search'),('U','Union'),('I','Intersect'),('D','Difference'))
+        queryModes = (('S','!!Search'),('U','!!Union'),('I','!!Intersect'),('D','!!Difference'))
         wt = self.db.whereTranslator
         for op,caption in queryModes:
-            result.setItem('queryModes.%s' % op, None, caption='!!%s' % caption)
+            result.setItem('queryModes.%s' % op, None, caption=caption)
         for op in listop:
-            result.setItem('op.%s' % op, None, caption='!!%s' % wt.opCaption(op))
+            result.setItem('op.%s' % op, None, caption=wt.opCaption(op))
         for optype, values in optype_dict.items():
             for operation in values:
                 result.setItem('op_spec.%s.%s' % (optype, operation), operation,
-                               caption='!!%s' % wt.opCaption(operation))
+                               caption=wt.opCaption(operation))
         customOperatorsHandlers = [(x[12:], getattr(self, x)) for x in dir(self) if x.startswith('customSqlOp_')]
         for optype, handler in customOperatorsHandlers:
             operation, caption = handler(optype_dict=optype_dict)

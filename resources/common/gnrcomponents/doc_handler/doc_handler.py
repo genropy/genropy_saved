@@ -61,7 +61,7 @@ class DocHandler(BaseComponent):
             return {
             title:kw._pages.getItem(kw._current+'?caption')
             };""",_pages='=.pages',_current='=.current')
-        form.store.handler('save',rpcmethod=self.de_saveStoreFile)
+        form.store.handler('save',rpcmethod=self.de_saveStoreFile,stripLoadedValue=True)
         form.dataController("""
             var fm = genro.getParentGenro().framedIndexManager;
             fm.callOnCurrentIframe(null,'publish',[{'topic':'docUpdated'}]);

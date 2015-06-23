@@ -218,6 +218,9 @@ class SqlDbAdapter(object):
             sql = re.sub(':%s(\W|$)' % k, sqllist+'\\1', sql)
         return sql
 
+    def adaptSqlName(self,name):
+        return name
+
     def existsRecord(self, dbtable, record_data):
         """Test if a record yet exists in the db.
         
@@ -497,7 +500,7 @@ class SqlDbAdapter(object):
         command = """
             ALTER TABLE %(sqltable)s RENAME COLUMN %(sqlname)s TO %(sqlnewname)s;
             DROP INDEX IF EXISTS %(old_index_name)s;
-            ALTER TABLE %(sqltable)s DROP CONSTRAINT %(old_fkey_name)s;
+            ALTER TABLE %(sqltable)s DROP CONSTRAINT IF EXISTS %(old_fkey_name)s;
         """
         self.dbroot.execute(command %kwargs)
 
@@ -769,79 +772,79 @@ class GnrWhereTranslator(object):
         return argLbl
 
     def op_startswithchars(self, column, value, dtype, sqlArgs,tblobj):
-        "Starts with Chars"
+        "!!Starts with Chars"
         return '%s LIKE :%s' % (column, self.storeArgs('%s%%' % value, dtype, sqlArgs))
 
     def op_equal(self, column, value, dtype, sqlArgs,tblobj):
-        "Equal to"
+        "!!Equal to"
         return '%s = :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
 
     def op_startswith(self, column, value, dtype, sqlArgs,tblobj):
-        "Starts with"
+        "!!Starts with"
         return '%s ILIKE :%s' % (column, self.storeArgs('%s%%' % value, dtype, sqlArgs))
 
     def op_wordstart(self, column, value, dtype, sqlArgs,tblobj):
-        "Word start"
+        "!!Word start"
         value = value.replace('(', '\(').replace(')', '\)').replace('[', '\[').replace(']', '\]')
         return '%s ~* :%s' % (column, self.storeArgs('(^|\\W)%s' % value, dtype, sqlArgs))
 
     def op_contains(self, column, value, dtype, sqlArgs,tblobj):
-        "Contains"
+        "!!Contains"
         return '%s ILIKE :%s' % (column, self.storeArgs('%%%s%%' % value, dtype, sqlArgs))
 
     def op_similar(self, column, value, dtype, sqlArgs,tblobj):
-        "Similar"
+        "!!Similar"
         phonetic_column =  tblobj.column(column).attributes['phonetic']
         phonetic_mode = tblobj.column(column).table.column(phonetic_column).attributes['phonetic_mode']
         return '%s = %s(:%s)' % (phonetic_column, phonetic_mode, self.storeArgs(value, dtype, sqlArgs))
 
     def op_greater(self, column, value, dtype, sqlArgs,tblobj):
-        "Greater than"
+        "!!Greater than"
         return '%s > :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
 
     def op_greatereq(self, column, value, dtype, sqlArgs,tblobj):
-        "Greater or equal to"
+        "!!Greater or equal to"
         return '%s >= :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
 
     def op_less(self, column, value, dtype, sqlArgs,tblobj):
-        "Less than"
+        "!!Less than"
         return '%s < :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
 
     def op_lesseq(self, column, value, dtype, sqlArgs,tblobj):
-        "Less or equal to"
+        "!!Less or equal to"
         return '%s <= :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
 
     def op_between(self, column, value, dtype, sqlArgs,tblobj):
-        "Between"
+        "!!Between"
         v1, v2 = value.split(';')
         return '%s BETWEEN :%s AND :%s' % (
         column, self.storeArgs(v1, dtype, sqlArgs), self.storeArgs(v2, dtype, sqlArgs))
 
     def op_isnull(self, column, value, dtype, sqlArgs,tblobj):
-        "Is null"
+        "!!Is null"
         return '%s IS NULL' % column
 
     def op_istrue(self, column, value, dtype, sqlArgs,tblobj):
-        "Is true"
+        "!!Is true"
         return '%s IS TRUE' % column
 
     def op_isfalse(self, column, value, dtype, sqlArgs,tblobj):
-        "Is false"
+        "!!Is false"
         return '%s IS FALSE' % column
 
     def op_nullorempty(self, column, value, dtype, sqlArgs,tblobj):
-        "Is null or empty"
+        "!!Is null or empty"
         if dtype in ('L', 'N', 'M', 'R'):
             return self.op_isnull(column, value, dtype, sqlArgs)
         return " (%s IS NULL OR %s ='')" % (column, column)
 
     def op_in(self, column, value, dtype, sqlArgs,tblobj):
-        "In"
+        "!!In"
         values_string = self.storeArgs(value.split(','), dtype, sqlArgs)
         return '%s IN :%s' % (column, values_string)
 
     def op_regex(self, column, value, dtype, sqlArgs,tblobj):
-        "Regular expression"
+        "!!Regular expression"
         return '%s ~* :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
 
 

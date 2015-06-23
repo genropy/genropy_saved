@@ -327,11 +327,7 @@ class GnrBaseWebPage(GnrObject):
             rp = rp + '../' * (len(path_info.split('/')) - 1)
         return '%s%s' % (rp, relUrl)
         
-    def _get_siteName(self):
-        return os.path.basename(self.siteFolder.rstrip('/'))
-        
-    siteName = property(_get_siteName)
-        
+
     def _get_dbconnection(self):
         if not self._dbconnection:
             self._dbconnection = self.db.adapter.connect()
@@ -772,12 +768,7 @@ class GnrBaseWebPage(GnrObject):
             resolver._page = self
             return resolver()
     
-    @public_method    
-    def resetApp(self, **kwargs):
-        """TODO"""
-        self.siteStatus['resetTime'] = time.time()
-        self.siteStatusSave()
-    
+
     @public_method
     def applyChangesToDb(self, **kwargs):
         """TODO"""

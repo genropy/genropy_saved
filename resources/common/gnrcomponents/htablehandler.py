@@ -656,7 +656,7 @@ class HTableHandler(HTableHandlerBase):
                 }
             if(dropInfo.modifiers=='Shift' && types.length==1){
                 var dlg = genro.dlg.quickDialog('Multiple insertion',{_showParent:true,width:'250px'});
-                var msg = 'How many copies do you want to insert?';
+                var msg = '!!How many copies do you want to insert?';
    
                 dlg.center._('div',{innerHTML:_T(msg), text_align:'center',height:'20px'});
                 var that = this;

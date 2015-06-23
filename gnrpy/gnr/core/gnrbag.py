@@ -2158,6 +2158,23 @@ class Bag(GnrObject):
                 result.setItem(node.label,value,node.attr)
         return result
 
+    def isEmpty(self,zeroIsNone=False,blankIsNone=False):
+        isEmpty = True
+        empties = [None]
+        if zeroIsNone:
+            empties.append(0)
+        if blankIsNone:
+            empties.append('')
+        for node in self.nodes:
+            if any(map(lambda a: a not in empties, node.attr.values())):
+                return False
+            if isinstance(node.value,Bag):
+                if not node.value.isEmpty():
+                    return False
+            elif node.value not in empties:
+                return False
+        return isEmpty
+
     def walk(self, callback, _mode='static', **kwargs):
         """Calls a function for each node of the Bag
         
@@ -2723,9 +2740,9 @@ class DirectoryResolver(BagResolver):
                     mtime = stat.st_mtime
                 except OSError:
                     mtime = ''
-                fname = fname.replace('_',' ').strip()
-                m=re.match(r'(\d+) (.*)',fname)
-                caption = '!!%s %s' % (str(int(m.group(1))),m.group(2).capitalize()) if m else fname.capitalize()
+                caption = fname.replace('_',' ').strip()
+                m=re.match(r'(\d+) (.*)',caption)
+                caption = '!!%s %s' % (str(int(m.group(1))),m.group(2).capitalize()) if m else caption.capitalize()
                 nodeattr = dict(file_name=fname, file_ext=ext, rel_path=relpath,
                                abs_path=fullpath, mtime=mtime, nodecaption=nodecaption,
                                caption=caption)

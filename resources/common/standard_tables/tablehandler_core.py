@@ -226,11 +226,11 @@ class LstQueryHandler(BaseComponent):
 
         wt = self.db.whereTranslator
         for op in listop:
-            result.setItem('op.%s' % op, None, caption='!!%s' % wt.opCaption(op))
+            result.setItem('op.%s' % op, None, caption=wt.opCaption(op))
         for optype, values in optype_dict.items():
             for operation in values:
                 result.setItem('op_spec.%s.%s' % (optype, operation), operation,
-                               caption='!!%s' % wt.opCaption(operation))
+                               caption=wt.opCaption(operation))
         customOperatorsHandlers = [(x[12:], getattr(self, x)) for x in dir(self) if x.startswith('customSqlOp_')]
         for optype, handler in customOperatorsHandlers:
             operation, caption = handler(optype_dict=optype_dict)
