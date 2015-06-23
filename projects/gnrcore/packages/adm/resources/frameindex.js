@@ -376,7 +376,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var sc = this.stackSourceNode.widget;
         var selected = sc.getSelectedIndex();
         var iframesbag= genro.getData('iframes');
-        var node = iframesbag.getNode(pageName);
+        var node = iframesbag.popNode(pageName);
         genro.publish({topic:'onDeletingIframePage',iframe:'iframe_'+pageName},pageName);
         if(node.attr.subtab=='recyclable'){
             node.updAttributes({'hiddenPage':true});
@@ -394,8 +394,10 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var curlen = tablist.getValue().len()-1;
         curlen = this.externalWindowsBag().len()>0?curlen-1:curlen;
         selected = selected>=curlen? curlen-1:selected;
-        selected = selected<0? 0:selected;
-        var nextPageName = tablist.getValue().getNode('#'+selected)? tablist.getValue().getNode('#'+selected).attr.pageName:'indexpage';
+        var nextPageName = 'indexpage';
+        if(selected>=0){
+            nextPageName = tablist.getValue().getNode('#'+selected)? tablist.getValue().getNode('#'+selected).attr.pageName:'indexpage';
+        }
         this.stackSourceNode.setRelativeData('selectedFrame',nextPageName); //PUT
         this.stackSourceNode.fireEvent('refreshTablist',true);
 
