@@ -268,9 +268,11 @@ class Table(object):
 
     def _writeRelation(self,f,relation):
         relpath = relation.pop('relation')
-        pkg,table,id = relpath.split('.')
-        if pkg == 'main':
-            relpath = '%s.%s' %(table,id)
+        r = relpath.split('.')
+        if len(r)==3:
+            pkg,table,id = r
+            if pkg == 'main':
+                relpath = '%s.%s' %(table,id)
         relation_name = relation.pop('relation_name')
         one_one = relation.pop('one_one')
         foreignkey = relation.pop('foreignkey')
@@ -469,7 +471,7 @@ class Table(object):
                                                 struct=self.tables_struct,
                                                 grid_autoSelect=True,
                                                 grid_multiSelect=False,
-                                                grid_selected_name='#FORM.current_table',
+                                                grid_selectedLabel='#FORM.current_table',
                                                 grid_subscribe_update_import_status="""
                                                     var b = this.widget.storebag();
                                                     var r = b.getItem($1.table);

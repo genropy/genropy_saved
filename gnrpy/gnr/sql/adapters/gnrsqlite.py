@@ -34,6 +34,7 @@ except:
 from gnr.sql.adapters._gnrbaseadapter import GnrDictRow, GnrWhereTranslator
 from gnr.sql.adapters._gnrbaseadapter import SqlDbAdapter as SqlDbBaseAdapter
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrstring import boolean
 
 import logging
 
@@ -362,3 +363,10 @@ def convert_date(val):
     return datetime.date(*map(int, val.split("-")))
 
 pysqlite.register_converter("date", convert_date)
+
+
+def convert_boolean(val):
+    return boolean(val)
+
+pysqlite.register_converter("bool", convert_boolean)
+
