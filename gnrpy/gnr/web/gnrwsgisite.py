@@ -237,6 +237,7 @@ class GnrWsgiSite(object):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path, self.site_static_dir))
         self.find_gnrjs_and_dojo()
         self.gnrapp = self.build_gnrapp(options=options)
+        print 'getdefaultlocale',locale.getdefaultlocale()
         self.server_locale = self.gnrapp.config('default?server_locale') or locale.getdefaultlocale()[0].replace('_','-')
         self.wsgiapp = self.build_wsgiapp(options=options)
         self.db = self.gnrapp.db
