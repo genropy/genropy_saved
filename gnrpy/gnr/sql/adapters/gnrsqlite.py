@@ -191,7 +191,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                 col['length'] = colType[colType.find('(') + 1:colType.find(')')]
                 col['size'] = col['length']
                 colType = colType[:colType.find('(')]
-            col['dtype'] = self.typesDict[colType]
+            col['dtype'] = self.typesDict[colType] if colType else 'T'
             col['notnull'] = (col['notnull'] == 'NO')
             col = self._filterColInfo(col, '_sl_')
             if col['dtype'] in ('A','C') and col.get('length'):

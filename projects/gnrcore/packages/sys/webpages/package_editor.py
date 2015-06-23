@@ -191,15 +191,17 @@ class GnrCustomWebPage(object):
     def applyPackageChanges(self,project=None,instance=None,package=None,tables=None,connection_params=None,**kwargs):
         path_resolver = PathResolver()
         project_path = path_resolver.project_name_to_path(project)
-        for table_data in tables.values():
-            filepath = os.path.join(project_path,'packages',package,'model','%s.py' %table_data['name'])
-            if not os.path.exists(filepath):
-                self.makeOneTable(filepath,table_data)
+       
+        if tables and not tables.isEmpty():
+            for table_data in tables.values():
+                filepath = os.path.join(project_path,'packages',package,'model','%s.py' %table_data['name'])
+                if not os.path.exists(filepath):
+                    self.makeOneTable(filepath,table_data)
         app = GnrApp(instance)
         destdb = app.db
         if destdb.model.check():
             destdb.model.applyModelChanges()
-        if connection_params:
+        if connection_params and not connection_params.isEmpty():
             sourcedb = self.getSourceDb(connection_params)
             sourcedb.model.build()
             for table in destdb.tablesMasterIndex()[package].keys():
@@ -295,14 +297,16 @@ class Table(object):
 
     def packageForm(self,form):
         bar = form.top.slotToolbar('2,fbinfo,10,dbConnectionPalette,10,connectionTpl,*,applyChanges,semaphore,5')
-        bar.connectionTpl.div('^main.connectionTpl',font_size='.7em')
+        bar.connectionTpl.div('^main.connectionTpl')
         bar.dataController("""
                 var implementation = connection_params.getItem('implementation');
                 var filename = connection_params.getItem('filename');
                 var dbname = connection_params.getItem('dbname');
                 var r = ''
-                if(implementation=='sqlite' && connection_params.getItem('filename')){
-                    r = dataTemplate('<b>$implementation:</b>$filename',connection_params)
+                var filepath = connection_params.getItem('filename');
+                if(implementation=='sqlite' && filepath){
+                    var f = filepath.split(/\//);
+                    r = '<b>sqlite:</b>'+f[f.length-1];
                 }else if(implementation && connection_params.getItem('dbname')){
                     r = dataTemplate('<b>$implementation:</b>$dbname',connection_params)
                 }
@@ -323,7 +327,9 @@ class Table(object):
                     subscribe_import_table=True,connection_params='=main.connection_params')
 
         fb = bar.fbinfo.formbuilder(cols=5,border_spacing='3px',datapath='.record')
-        fb.textbox(value='^.project_name',validate_notnull=True,validate_remote=self.getProjectPath,lbl='Project')
+        fb.textbox(value='^.project_name',validate_onAccept='SET .package_name=null;',
+                    validate_notnull=True,
+                    validate_remote=self.getProjectPath,lbl='Project')
         p = PathResolver()
         fb.data('projectFolders',','.join(p.gnr_config['gnr.environment_xml.projects'].keys()))
         fb.dataRpc('dummy',self.makeNewProject,subscribe_makeNewProject=True,
@@ -345,7 +351,7 @@ class Table(object):
                     validate_remote=self.getProjectPackage,
                     validate_project_name='=.project_name',
                     width='7em')
-
+        fb.dataController('SET #FORM.record.tables = null; SET #FORM.current_table = null; SET #FORM.current_columns=null;',_fired='^.package_name')
         fb.button('New Package',action="""
             genro.publish('makeNewPackage',{package_name:package_name,project_name:project_name,
                                             is_main_package:is_main_package,name_long:name_long});
@@ -486,7 +492,7 @@ class Table(object):
 
                     if(!tableNode){
                         pkeycol = tblpars.pkey.toLowerCase()
-                        status = dataTemplate(tpl,{tblname:tblname});
+                        status = ''; //dataTemplate(tpl,{tblname:tblname});
                         tblVal = new gnr.GnrBag({name:tblname,legacy_name:tblpars['fullname'],
                                                 pkey:pkeycol,
                                                 _columns:new gnr.GnrBag(),

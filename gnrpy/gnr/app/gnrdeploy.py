@@ -498,10 +498,9 @@ class ThPackageResourceMaker(object):
         columns = []
         max_size = 35
         tbl_obj =  self.app.db.table('%s.%s'%(self.package,table))
-        for col_name,col_obj in tbl_obj.columns.items():
-            if col_obj.attributes.get('_sysfield'):
+        for col_name,column in tbl_obj.columns.items():
+            if column.attributes.get('_sysfield') or column.dtype in ('X','O'): 
                 continue
-            column = tbl_obj.columns[col_name]
             if column.dtype=='A':
                 size = column.attributes.get('size','')
                 if size:
