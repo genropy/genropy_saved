@@ -390,11 +390,11 @@ dojo.declare("gnr.GnrDevHandler", null, {
                                         title:'Developer tools ['+genro._('gnr.pagename')+']',
                                         width:'500px',maxable:true});
         pg._('paletteTree',{'paletteCode':'cliDatastore',title:'Data',
-                           storepath:'*D',searchOn:true,tree_inspect:'shift',
+                           storepath:'*D',searchOn:true,tree_inspect:'shift',tree_searchMode:'static',
                            'tree_connect_onclick':cbLog,
                            editable:true,tree_labelAttribute:null,tree_hideValues:false});
         var sourcePane = pg._('paletteTree',{'paletteCode':'cliSourceStore',title:'Source',
-                           storepath:'*S',searchOn:true,tree_inspect:'shift',
+                           storepath:'*S',searchOn:true,tree_inspect:'shift',tree_searchMode:'static',
                            editable:true,
                            'tree_connect_onclick':cbLog,
                            tree_getLabel:function(n){
@@ -403,7 +403,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
                            tree_selectedPath:'.tree.selectedPath'});
         sourcePane._('dataController',{'script':'genro.src.highlightNode(fpath)', 
                                        'fpath':'^gnr.palettes.cliSourceStore.tree.selectedPath'});
-        pg._('paletteTree',{'paletteCode':'dbmodel',title:'Model',
+        pg._('paletteTree',{'paletteCode':'dbmodel',title:'Model',tree_searchMode:'static',
                             searchOn:true,tree_inspect:'shift',tree_labelAttribute:null,editable:true});
         genro.setDataFromRemote('gnr.palettes.dbmodel.store', "app.dbStructure");
         this.sqlDebugPalette(pg);

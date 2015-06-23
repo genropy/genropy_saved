@@ -1313,6 +1313,10 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
         dojo.connect(newobj.domNode, 'onchange', dojo.hitch(this, function() {
             this.onChanged(newobj);
         }));
+        dojo.connect(sourceNode,'setValidationError',function(result){
+            newobj.state = result.error?'Error':null;
+
+        })
     },
 
     cell_onCreating:function(gridEditor,colname,colattr){
@@ -1335,6 +1339,9 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
 		// summary:
 		//		User overridable method to display validation errors/hints.
 		//		By default uses a tooltip.
+        if(isNullOrBlank(this.value)){
+            return;
+        }
 		if(this._message == message){ return; }
 		this._message = message;
 		dijit.hideTooltip(this.domNode);
@@ -7208,7 +7215,8 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                 _this.showNodeAtPath(fullpath);
             }
         };
-        root.walk(cb); //'static'
+        var mode = this.sourceNode.attr.searchMode;
+        root.walk(cb,mode)
         treeNodes.addClass('hidden');
         treeNodes.forEach(function(n){
             var tn = dijit.getEnclosingWidget(n);

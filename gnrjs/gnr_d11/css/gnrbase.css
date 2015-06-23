@@ -3138,6 +3138,9 @@ body *{
     padding-top:0;
 }
 
+.dijitError.dijitFocused{
+    background: none;
+}
 .dijitError.th_linkerField{
 	background: transparent url(icons/base12/invalid.png) no-repeat right center !important;
 }
