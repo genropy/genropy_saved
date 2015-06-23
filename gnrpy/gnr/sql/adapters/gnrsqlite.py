@@ -40,9 +40,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 class SqlDbAdapter(SqlDbBaseAdapter):
-    typesDict = {'charactervarying': 'A','nvarchar':'A', 'character varying': 'A', 'character': 'C', 'text': 'T', 'blob': 'X',
-                 'boolean': 'B', 'date': 'D', 'time': 'H', 'datetime':'DH','timestamp': 'DH', 'numeric': 'N',
-                 'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'double precision': 'R', 'real': 'R', 'serial8': 'L'}
+    typesDict = {'charactervarying': 'A','nvarchar':'A', 'character varying': 'A', 'character': 'C', 'text': 'T','varchar':'A', 'blob': 'X',
+                 'boolean': 'B','bool':'B', 'date': 'D', 'time': 'H', 'datetime':'DH','timestamp': 'DH', 'numeric': 'N',
+                 'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'double precision': 'R', 'real': 'R', 'smallint unsigned':'I',
+                 'decimal':'N','serial8': 'L'}
 
     revTypesDict = {'A': 'character varying', 'T': 'text', 'C': 'character',
                     'X': 'blob', 'P': 'text', 'Z': 'text',
