@@ -7,6 +7,7 @@
 
 class GnrCustomWebPage(object):
     py_requires='public:TableHandlerMain'
+    auth_main='user'
     
     @classmethod
     def getMainPackage(cls,request_args=None,request_kwargs=None):
@@ -23,7 +24,7 @@ class GnrCustomWebPage(object):
         if hasattr(self,'root_form') and self.root_form.attributes.get('_notallowed'):
             return False
         return True
-    
+
     @property
     def pagename(self):
         callArgs = self.getCallArgs('th_pkg','th_table','th_pkey')  

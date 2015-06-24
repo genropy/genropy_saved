@@ -173,7 +173,7 @@ class TableHandler(BaseComponent):
 
 
     def th_checkPermission(self,pane):
-        dflt = self.pageAuthTags() or 'user'
+        dflt = self.pageAuthTags(method='main')
         tags = self._th_hook('tags',mangler=pane,dflt=dflt)()
         if tags:
             if not self.application.checkResourcePermission(tags, self.userTags):
