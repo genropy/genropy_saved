@@ -24,13 +24,12 @@ class GnrCustomWebPage(object):
             maintable = '%s.%s' %(pkg,tbl)
         if not maintable:
             return
-        pageResourceClass = self._th_getResClass(table=maintable,resourceName=pageResource,defaultClass='Page')()
-        if pageResourceClass:
-            defaultModule = 'th_%s' %tbl
-            resourcePath = self._th_getResourceName(pageResource,defaultModule,'Page')
-            self.mixinComponent(resourcePath,safeMode=True,only_callables=False)
-            self.mixinComponent('tables',tbl,resourcePath,pkg=pkg,pkgOnly=True,safeMode=True,only_callables=False)
-            self.mixinComponent('tables','_packages',pkg,tbl,resourcePath,pkg=self.packageId,pkgOnly=True,safeMode=True,only_callables=False)
+
+        defaultModule = 'th_%s' %tbl
+        resourcePath = self._th_getResourceName(pageResource,defaultModule,'Page')
+        self.mixinComponent(resourcePath,safeMode=True,only_callables=False)
+        self.mixinComponent('tables',tbl,resourcePath,pkg=pkg,pkgOnly=True,safeMode=True,only_callables=False)
+        self.mixinComponent('tables','_packages',pkg,tbl,resourcePath,pkg=self.packageId,pkgOnly=True,safeMode=True,only_callables=False)
 
     @property
     def maintable(self):
