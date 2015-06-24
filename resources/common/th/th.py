@@ -173,7 +173,7 @@ class TableHandler(BaseComponent):
 
 
     def th_checkPermission(self,pane):
-        tags = self._th_hook('tags',mangler=pane,dflt='user')()
+        tags = self._th_hook('tags',mangler=pane,dflt=None)()
         if tags:
             if not self.application.checkResourcePermission(tags, self.userTags):
                 return False
