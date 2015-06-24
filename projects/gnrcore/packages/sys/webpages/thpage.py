@@ -12,7 +12,26 @@ class GnrCustomWebPage(object):
     @classmethod
     def getMainPackage(cls,request_args=None,request_kwargs=None):
         return request_kwargs.get('th_from_package') or request_args[0]
-        
+
+    def onIniting(self, request_args, request_kwargs):
+        pageResource = request_kwargs.get('th_pageResource')
+        maintable = None
+        if len(request_args)==3:
+            pkg,tbl,pkey = request_args
+            maintable = '%s.%s' %(pkg,tbl)
+        else:
+            pkg,tbl = request_args
+            maintable = '%s.%s' %(pkg,tbl)
+        if not maintable:
+            return
+        pageResourceClass = self._th_getResClass(table=maintable,resourceName=pageResource,defaultClass='Page')()
+        if pageResourceClass:
+            defaultModule = 'th_%s' %tbl
+            resourcePath = self._th_getResourceName(pageResource,defaultModule,'Page')
+            self.mixinComponent(resourcePath,safeMode=True,only_callables=False)
+            self.mixinComponent('tables',tbl,resourcePath,pkg=pkg,pkgOnly=True,safeMode=True,only_callables=False)
+            self.mixinComponent('tables','_packages',pkg,tbl,resourcePath,pkg=self.packageId,pkgOnly=True,safeMode=True,only_callables=False)
+
     @property
     def maintable(self):
         callArgs = self.getCallArgs('th_pkg','th_table','th_pkey')

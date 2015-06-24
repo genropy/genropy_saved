@@ -1394,7 +1394,7 @@ class GnrWebPage(GnrBaseWebPage):
         pkg,table = table.split('.')
         path,classname= path.split(':')
         try:
-            resource = self.importResource('tables/_packages/%s/%s/%s' %(pkg,table,path),classname=classname,pkg=self.package.name,importAs='%s_packages_%s_%s_%s' %(self.package.name,pkg,table,path))
+            resource = self.importResource('tables/_packages/%s/%s/%s' %(pkg,table,path),classname=classname,pkg=self.packageId,importAs='%s_packages_%s_%s_%s' %(self.packageId,pkg,table,path))
         except GnrMissingResourceException:
             resource = None
         if not resource:
