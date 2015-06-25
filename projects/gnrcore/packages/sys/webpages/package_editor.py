@@ -201,7 +201,7 @@ class GnrCustomWebPage(object):
         destdb = app.db
         if destdb.model.check():
             destdb.model.applyModelChanges()
-        if connection_params and not connection_params.isEmpty():
+        if connection_params and (connection_params['dbname'] or connection_params['filename']):
             sourcedb = self.getSourceDb(connection_params)
             sourcedb.model.build()
             for table in destdb.tablesMasterIndex()[package].keys():
@@ -230,6 +230,7 @@ class Table(object):
         with open(filepath,'w') as f:
             f.write(header)
             for col in columns.digest('#v'):
+                col.pop('_newrecord')
                 relation = col.pop('_relation')
                 self._writeColumn(f,col)
                 if relation:
@@ -374,12 +375,12 @@ class Table(object):
         r.cell('legacy_name',width='10em',name='Legacy Name')
         r.cell('name',width='10em',name='Name',edit=True)
         r.cell('pkey',width='10em',name='Pkey',
-                edit=dict(tag='filteringSelect',values="==this.getRelativeData('._columns').keys().join(',')"))
+                edit=dict(tag='ComboBox',values="==this.getRelativeData('._columns').values().map(function(v){return v.getItem('name')}).join(',')"))
         r.cell('name_long',width='20em',name='Name long',edit=True)
         r.cell('name_plural',width='20em',name='Name plural',edit=True)
         r.cell('caption_field',width='20em',name='Caption field',
-                            edit=dict(tag='filteringSelect',
-                                      values="==this.getRelativeData('._columns').keys().join(',')"))
+                            edit=dict(tag='ComboBox',
+                                      values="==this.getRelativeData('._columns').values().map(function(v){return v.getItem('name')}).join(',')"))
         r.cell('status',width='20em',name='Import status')
 
     def columns_struct(self,struct):

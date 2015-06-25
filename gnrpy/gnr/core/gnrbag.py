@@ -1936,12 +1936,16 @@ class Bag(GnrObject):
         converter = GnrClassCatalog()
         result = Bag()
         if isinstance(json,list):
+            if not json:
+                return
             if listJoiner and all(map(lambda r: isinstance(r,basestring) and not converter.isTypedText(r),json)):
                 return listJoiner.join(json)
             for n,v in enumerate(json):
                 result.setItem('r_%i' %n,self._fromJson(v,listJoiner=listJoiner),_autolist=True)
 
         elif isinstance(json,dict):
+            if not json:
+                return
             for k,v in json.items():
                 result.setItem(k,self._fromJson(v,listJoiner=listJoiner))
         else:
