@@ -14,6 +14,8 @@ from gnr.sql.gnrsql import GnrSqlDb
 from gnr.app.gnrapp import GnrApp
 from gnr.app.gnrdeploy import ProjectMaker, InstanceMaker, SiteMaker,PackageMaker, PathResolver,ThPackageResourceMaker
 from time import time
+from redbaron import RedBaron
+
 
 MORE_ATTRIBUTES = 'cell_,format,validate_notnull,validate_case'
 
@@ -27,7 +29,7 @@ class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         bc = root.rootBorderContainer(title='Package editor',datapath='main',design='sidebar')
         self.packageForm(bc.frameForm(frameCode='packageMaker',region='center',
-                                        datapath='.packagemaker',store='memory',
+                                        datapath='.packageform',store='memory',
                                         store_startKey='*newrecord*'))
 
 
@@ -127,24 +129,16 @@ class GnrCustomWebPage(object):
         try:
             path = p.project_name_to_path(value)
             instances_path = os.path.join(path,'instances')
+            packages_path = os.path.join(path,'packages')
             instances = [l for l in os.listdir(instances_path) if os.path.isfile(os.path.join(instances_path,l,'instanceconfig.xml'))]
-            selected_instance = instances[0]
-            return Bag(dict(errorcode=None,data=Bag(instances=','.join(instances),selected_instance=selected_instance)))
+            packages = [l for l in os.listdir(packages_path) if os.path.isdir(os.path.join(packages_path,l))]
+            data = Bag()
+            data['instances'] = ','.join(instances) if instances else None
+            data['packages'] =','.join(packages) if packages else None
+            return Bag(dict(errorcode=None,data=data))
         except Exception:
             return 'Not existing project'
 
-    @public_method
-    def getProjectPackage(self,value=None,project_name=None,**kwargs):
-        if not project_name:
-            return 'Missing project'
-        p = PathResolver()
-        try:
-            project_path = p.project_name_to_path(project_name)
-            if os.path.exists(os.path.join(project_path,'packages',value)):
-                return True
-            return 'Not existing package'
-        except Exception:
-            return 'Not existing project'
 
 
     @public_method
@@ -195,49 +189,62 @@ class GnrCustomWebPage(object):
         if tables and not tables.isEmpty():
             for table_data in tables.values():
                 filepath = os.path.join(project_path,'packages',package,'model','%s.py' %table_data['name'])
-                if not os.path.exists(filepath):
-                    self.makeOneTable(filepath,table_data)
-        app = GnrApp(instance)
-        destdb = app.db
-        if destdb.model.check():
-            destdb.model.applyModelChanges()
-        if connection_params and (connection_params['dbname'] or connection_params['filename']):
-            sourcedb = self.getSourceDb(connection_params)
-            sourcedb.model.build()
-            for table in destdb.tablesMasterIndex()[package].keys():
-                self._importTableOne(sourcedb,destdb,package,table)
-                destdb.commit()
-            sourcedb.closeConnection()
-            destdb.closeConnection()
+                self.makeOneTable(filepath,table_data)
+        if instance:
+            app = GnrApp(instance)
+            destdb = app.db
+            if destdb.model.check():
+                destdb.model.applyModelChanges()
+            if connection_params and (connection_params['dbname'] or connection_params['filename']):
+                sourcedb = self.getSourceDb(connection_params)
+                sourcedb.model.build()
+                for table in destdb.tablesMasterIndex()[package].keys():
+                    self._importTableOne(sourcedb,destdb,package,table)
+                    destdb.commit()
+                sourcedb.closeConnection()
+                destdb.closeConnection()
+        else:
+            app = self.getFakeApplication(project,package)
         ThPackageResourceMaker(app,package=package,menu=True).makeResources()
         return 'ok'
 
+    def get_redbaron(self,filepath):
+        if os.path.exists(filepath):
+
+            with open(filepath, "r") as f:
+                source_code = f.read()
+        else:
+            source_code = """# encoding: utf-8
+
+class Table(object):
+    def config_db(self, pkg):
+        pass
+""" 
+        red = RedBaron(source_code)
+        return red
+
+
+            
 
     def makeOneTable(self,filepath=None,table_data=None):
+        red = self.get_redbaron(filepath)
+        config_db_node = red.find('def','config_db')
         table = table_data['name']
         table_data['name_long'] = table_data['name_long'] or table
         table_data['name_plural'] = table_data['name_plural'] or table
         table_data['caption_field'] = table_data['caption_field'] or table_data['pkey']
         columns = table_data['_columns']
-        header = """# encoding: utf-8
-
-class Table(object):
-    def config_db(self, pkg):
-        tbl =  pkg.table('%(name)s', pkey='%(pkey)s', name_long='!!%(name_long)s', 
+        config_db_node[0].value = """tbl =  pkg.table('%(name)s', pkey='%(pkey)s', name_long='!!%(name_long)s', 
                             name_plural='!!%(name_plural)s',caption_field='%(caption_field)s',
-                            legacy_name='%(legacy_name)s')
-""" %table_data
+                            legacy_name='%(legacy_name)s')""" %table_data
+        for col in columns.digest('#v'):
+            relation = col.pop('_relation')
+            config_db_node.append(self._columnPythonCode(col,relation))
         with open(filepath,'w') as f:
-            f.write(header)
-            for col in columns.digest('#v'):
-                col.pop('_newrecord')
-                relation = col.pop('_relation')
-                self._writeColumn(f,col)
-                if relation:
-                    self._writeRelation(f,relation)
-                f.write('\n')
-
-    def _writeColumn(self,f,col):
+            f.write(red.dumps())
+            
+    
+    def _columnPythonCode(self,col,relation=None):
         attributes = Bag()
         name = col.pop('name')
         dtype = col.pop('dtype')
@@ -245,6 +252,7 @@ class Table(object):
         name_long = col.pop('name_long')
         name_short = col.pop('name_short')
         more_attributes = col.pop('_more_attributes')
+
         if dtype and dtype not in ('A','T','C'):
             attributes['dtype'] = dtype
         if size:
@@ -265,9 +273,20 @@ class Table(object):
             if isinstance(v,basestring):
                 v = ("'%s'" if not "'" in v else '"%s"') %v
             atlst.append("%s=%s" %(k,v))
-        f.write("        tbl.column('%s', %s)" % (name, ', '.join(atlst)))
+        relationCode = ''
+        if relation:
+            relationCode = '.%s' %self._relationPythonCode(relation)
 
-    def _writeRelation(self,f,relation):
+        coltype = 'column'
+        if attributes['sql_formula'] or attributes['select'] or attributes['exists']:
+            coltype = 'formulaColumn'
+        elif attributes['relation_path']:
+            coltype = 'aliasColumn'
+        elif attributes['pymethod']:
+            coltype = 'pyColumn'
+        return "tbl.%s('%s', %s)%s" % (coltype,name, ', '.join(atlst),relationCode)
+
+    def _relationPythonCode(self,relation):
         relpath = relation.pop('relation')
         r = relpath.split('.')
         if len(r)==3:
@@ -296,7 +315,7 @@ class Table(object):
                 else:
                     v = "'%s'" %v
             atlst.append("%s=%s" %(k,v))
-        f.write(""".relation('%s',%s)"""  %(relpath,', '.join(atlst)))
+        return """.relation('%s',%s)"""  %(relpath,', '.join(atlst))
 
     def packageForm(self,form):
         bar = form.top.slotToolbar('2,fbinfo,10,dbConnectionPalette,10,connectionTpl,*,applyChanges,semaphore,5')
@@ -323,14 +342,24 @@ class Table(object):
             }""")
         bar.dataRpc('dummy',self.applyPackageChanges,project='=#FORM.record.project_name',package='=#FORM.record.package_name',
                     instance='=#FORM.record.selected_instance',connection_params='=main.connection_params',
-                    tables='=#FORM.record.tables',_fired='^#FORM.makePackage',_onResult='genro.dlg.alert("Package Done","Message");',
+                    tables='=#FORM.record.tables',
+                    _onCalling="""
+                        var tables_to_send = new gnr.GnrBag();
+                        kwargs.tables.forEach(function(n){
+                            if(n.attr._loadedValue || n._value.getNodeByAttr('_loadedValue')){
+                                tables_to_send.setItem(n.label,n._value.deepCopy(),n.attr);
+                            }
+                        });
+                        kwargs.tables=tables_to_send;
+                    """,
+                    _fired='^#FORM.makePackage',_onResult='genro.dlg.alert("Package Done","Message");',
                     _lockScreen=True,timeout=0)
         bar.dataRpc('dummy',self.importTable,package='=#FORM.record.package_name',
                     instance='=#FORM.record.selected_instance',
                     subscribe_import_table=True,connection_params='=main.connection_params')
 
         fb = bar.fbinfo.formbuilder(cols=5,border_spacing='3px',datapath='.record')
-        fb.textbox(value='^.project_name',validate_onAccept='SET .package_name=null;',
+        fb.textbox(value='^.project_name',validate_onAccept='SET .package_name=null;',validate_onReject='SET .package_name = null;',
                     validate_notnull=True,
                     validate_remote=self.getProjectPath,lbl='Project')
         p = PathResolver()
@@ -350,11 +379,17 @@ class Table(object):
                         dict(name='included_packages',lbl='Packages',wdg='simpleTextArea'),
                         ]),included_packages='gnrcore:sys,gnrcore:adm',language='EN',project_folder_code='',
                     base_instance_name='=.project_name')
-        fb.textbox(value='^.package_name',validate_notnull=True,lbl='Package',
-                    validate_remote=self.getProjectPackage,
-                    validate_project_name='=.project_name',
+        fb.filteringSelect(value='^.package_name',validate_notnull=True,lbl='Package',
+                    validate_onAccept='FIRE #FORM.resetPackageData; FIRE #FORM.loadPackage = value;',validate_onReject="""FIRE #FORM.resetPackageData;""",
+                    values='^.packages',
                     width='7em')
-        fb.dataController('SET #FORM.record.tables = null; SET #FORM.current_table = null; SET #FORM.current_columns=null;',_fired='^.package_name')
+        fb.dataController("""
+                    SET #FORM.current_columns = null;
+                    SET #FORM.record.tables = null;
+                    """,_fired='^#FORM.resetPackageData')
+        fb.dataRpc('#FORM.record.tables',self.loadPackageTables,package='^#FORM.loadPackage',
+                project='=#FORM.record.project_name',
+                _if='project&&package',_else='return gnr.GnrBag();')
         fb.button('New Package',action="""
             genro.publish('makeNewPackage',{package_name:package_name,project_name:project_name,
                                             is_main_package:is_main_package,name_long:name_long});
@@ -372,20 +407,17 @@ class Table(object):
 
     def tables_struct(self,struct):
         r = struct.view().rows()
-        r.cell('legacy_name',width='10em',name='Legacy Name')
-        r.cell('name',width='10em',name='Name',edit=True)
-        r.cell('pkey',width='10em',name='Pkey',
-                edit=dict(tag='ComboBox',values="==this.getRelativeData('._columns').values().map(function(v){return v.getItem('name')}).join(',')"))
-        r.cell('name_long',width='20em',name='Name long',edit=True)
-        r.cell('name_plural',width='20em',name='Name plural',edit=True)
-        r.cell('caption_field',width='20em',name='Caption field',
-                            edit=dict(tag='ComboBox',
-                                      values="==this.getRelativeData('._columns').values().map(function(v){return v.getItem('name')}).join(',')"))
+        r.cell('legacy_name',width='10em',name='Legacy Name',hidden='^main.connectionTpl?=!#v')
+        r.cell('name',width='10em',name='Name')
+        r.cell('pkey',width='10em',name='Pkey')
+        r.cell('name_long',width='20em',name='Name long')
+        r.cell('name_plural',width='20em',name='Name plural')
+        r.cell('caption_field',width='20em',name='Caption field')
         r.cell('status',width='20em',name='Import status')
 
     def columns_struct(self,struct):
         r = struct.view().rows()
-        r.cell('legacy_name',width='10em',name='Legacy Name')
+        r.cell('legacy_name',width='10em',name='Legacy Name',hidden='^main.connectionTpl?=!#v')
         r.cell('name',width='10em',name='Name',edit=True)
         r.cell('dtype',width='5em',name='Dtype',edit=dict(tag='filteringSelect',values='T:Text,I:Int,N:Decimal,B:Bool,D:Date,DH:Timestamp,X:Bag'))
         r.cell('size',width='5em',name='Size',edit=True)
@@ -394,7 +426,6 @@ class Table(object):
         r.cell('name_short',width='10em',name='Name short',edit=True)
         r.cell('indexed',width='5em',name='Indexed',edit=True,dtype='B')
         r.cell('unique',width='5em',name='Unique',edit=True,dtype='B')
-        r.cell('_sysfield',width='5em',name='Sysfield',edit=True,dtype='B')
         r.cell('_more_attributes',width='20em',name='More attributes',edit=True,editOnOpening=""" 
                                         var more_attributes = rowData.getItem(field);
                                         genro.publish('edit_more_attributes',{more_attributes:more_attributes,rowIndex:rowIndex})
@@ -466,13 +497,11 @@ class Table(object):
     def packageGrids(self,bc):
         self.relationEditorDialog(bc)
         self.moreAttributesDialog(bc)
-        tablesframe = bc.contentPane(region='top',height='50%',splitter=True).bagGrid(frameCode='tables',title='Tables',
+        tablesframe = bc.contentPane(region='top',height='200px',splitter=True).bagGrid(frameCode='tables',title='Tables',
                                                 storepath='#FORM.record.tables',
                                                 datapath='#FORM.tablesFrame',
                                                 struct=self.tables_struct,
-                                                grid_autoSelect=True,
                                                 grid_multiSelect=False,
-                                                grid_selectedLabel='#FORM.current_table',
                                                 grid_subscribe_update_import_status="""
                                                     var b = this.widget.storebag();
                                                     var r = b.getItem($1.table);
@@ -485,7 +514,6 @@ class Table(object):
                                                 addrow=True,delrow=True)
         tablesgrid = tablesframe.grid
         tablesgrid.dragAndDrop('source_columns')
-
         tablesgrid.dataController("""
             var tblpars,tableNode,tblVal,columnNode,colVal,colpars,columns,pkeycol,status,col_legacy_name;
             data.forEach(function(col){
@@ -525,42 +553,40 @@ class Table(object):
                 tables='=#FORM.record.tables',
                 tpl="""<a style="cursor:pointer; text-align:center;" href="javascript:genro.publish('import_table',{table:'$tblname'})">import</a>""")
 
+        tablesform = tablesgrid.linkedForm(frameCode='tableform',
+                                 datapath='.tableform',loadEvent='onSelected',
+                                 childname='form',
+                                 formRoot=bc.contentPane(region='center',overflow='hidden'),
+                                 store='memory',
+                                 form_locked=True,
+                                 form_parentLock=False,
+                                 store_pkeyField='name')
+        self.tablesForm(tablesform)
+
+    def tablesForm(self,form):
+        bar = form.top.slotToolbar('2,navigation,5,formtitle,*,form_locker,semaphore,2')
+        bar.formtitle.div('^.record.name',color='#444',font_weight='bold')
+        form.store.attributes.update(autoSave=True)
+        form.dataController("this.form.setLocked(true)",_onStart=True)
+        form.dataController("genro.dlg.alert('Wrong info','Table has wrong data');",save_failed='^#FORM.controller.save_failed')
+        bc = form.center.borderContainer()
+        top = bc.contentPane(datapath='.record',region='top')
+        fb = top.formbuilder(cols=3)
+        fb.dataFormula('#FORM.columnsValues',"""columns.values().map(function(v){return v.getItem('name')}).join(',')""",
+                        columns='^._columns',_if='columns && columns.len()',_else='null')
+        fb.textbox(value='^.name',lbl='Name',validate_notnull=True,validate_case='l')
+        fb.textbox(value='^.name_long',lbl='Name Long')
+        fb.textbox(value='^.name_plural',lbl='Name Plural')
+        fb.comboBox(value='^.pkey',lbl='Pkey',validate_notnull=True,values='^#FORM.columnsValues')
+        fb.comboBox(value='^.caption_field',lbl='Caption field',values='^#FORM.columnsValues')        
         columnsframe = bc.contentPane(region='center').bagGrid(frameCode='columns',title='Columns',
-                                                        datapath='#FORM.columnsFrame',
-                                                    storepath='#FORM.current_columns',
+                                                        datapath='#FORM.columnsGrid',
+                                                    storepath='#FORM.record._columns',
                                                     struct=self.columns_struct,
                                                     pbl_classes=True,margin='2px',
+                                                    grid_selfDragRows=True,
                                                     addrow=True,delrow=True)
-        bc.dataController("columnsframe.setHiderLayer(!current_table,{message:'Select table'})",
-                            columnsframe=columnsframe,current_table='^#FORM.current_table')
 
-    
-        bc.dataController(
-            """ var oldvalue = _triggerpars.kw.oldvalue;
-                var columns;
-                if(oldvalue && current_table!=oldvalue && current_columns){
-                    tables.setItem(oldvalue+'._columns',current_columns.deepCopy(),null,{doTrigger:false});
-                }
-                if(current_table){
-                    columns = tables.getItem(current_table+'._columns');
-                    if(columns){
-                        columns = columns.deepCopy();
-                    }
-                }
-                SET #FORM.current_columns = columns;
-                """,
-                current_table='^#FORM.current_table',
-                current_columns='=#FORM.current_columns',
-                tables='=#FORM.record.tables')
-        bc.dataController("""
-            if(_node.label=='current_columns'){
-                return;
-            }
-            if(_reason=='child'){
-                tables.setItem(current_table+'._columns',current_columns.deepCopy(),null,{doTrigger:false});
-            }
-            """,current_columns='^#FORM.current_columns',current_table='=#FORM.current_table',
-            tables='=#FORM.record.tables')
 
     def getSourceDb(self,connection_params=None):
         config = self.site.gnrapp.config
@@ -660,3 +686,62 @@ class Table(object):
         for i,r in enumerate(f):
             result['r_%s' %i] = Bag(r)
         return result
+
+    def getFakeApplication(self,project,package):
+        custom_config = Bag()
+        pkgcode='%s:%s' %(project,package)
+        custom_config.setItem('packages.%s' %pkgcode,None,pkgcode=pkgcode)
+        return GnrApp(custom_config=custom_config)
+
+    @public_method
+    def loadPackageTables(self,package=None,project=None):
+        app = self.getFakeApplication(project,package)
+        result = Bag()
+        for tablename,tblobj in app.db.packages[package].tables.items():
+            tablevalue = Bag(tblobj.attributes)
+            tablevalue['name'] = tablename
+            result[tblobj.name] = tablevalue
+            columnsvalue = Bag()
+            tablevalue['_columns'] = columnsvalue
+            for colname,colobj in tblobj.columns.items():
+                cbag = self._columnVal(colname,colobj)
+                if not cbag:
+                    continue
+                columnsvalue[colname] = cbag
+                joiner = colobj.relatedColumnJoiner()
+                if joiner and joiner.get('mode')=='O':
+                    _relation = Bag()
+                    _relation['foreignkey'] = joiner.get('foreignkey')
+                    _relation['relation_name'] = joiner.get('relation_name')
+                    _relation['relation'] = joiner.get('one_relation')
+                    _relation['onDelete'] = joiner.get('onDelete')
+                    _relation['onDelete_sql'] = joiner.get('onDelete_sql')
+                    _relation['onUpdate'] = joiner.get('onUpdate')
+                    _relation['onUpdate_sql'] = joiner.get('onUpdate_sql')
+                    cbag['_relation'] = _relation
+            for colname,colobj in tblobj.virtual_columns.items():
+                cbag = self._columnVal(colname,colobj)
+                if not cbag:
+                    continue
+                columnsvalue[colname] = cbag
+                #print x
+        return result
+
+    def _columnVal(self,colname,colobj):
+        cbag = Bag()
+        cattr = dict(colobj.attributes)
+        _sysfield = cattr.pop('_sysfield',None)
+        if _sysfield:
+            return
+        cbag['name'] = colname
+        for attrname,attrvalue in cattr.items():
+            if attrname in ('name','dtype','size','group','name_long','name_short','indexed','unique'):
+                cbag[attrname] = cattr.pop(attrname)
+        more_attributes = Bag()
+        for attrname,attrvalue in cattr.items():
+            more_attributes[attrname] = Bag(dict(attribute_key=attrname,attribute_value=attrvalue,dtype=self.catalog.names[type(attrvalue)]))
+        cbag['_more_attributes'] = more_attributes
+        return cbag
+
+
+
