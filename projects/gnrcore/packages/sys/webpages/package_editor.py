@@ -693,8 +693,32 @@ class Table(object):
         custom_config.setItem('packages.%s' %pkgcode,None,pkgcode=pkgcode)
         return GnrApp(custom_config=custom_config)
 
+
+    def getPackagePath(self,project,package):
+        path_resolver = PathResolver()
+        project_path = path_resolver.project_name_to_path(project)
+        return os.path.join(project_path,'packages',package)
+
     @public_method
     def loadPackageTables(self,package=None,project=None):
+        model_path = os.path.join(self.getPackagePath(project,package),'model')
+        result = Bag()
+        for m in os.listdir(model_path):
+            tname,ext = os.path.splitext(m)
+            if ext=='.py':
+                result[tname] = self.loadTableFromModule(tname,os.path.join(model_path,m))
+                break
+
+    def loadTableFromModule(self,tblname,filepath):
+        red = self.get_redbaron(filepath)
+        config_db_node = red.find('def','config_db')
+        lbl,content,attrs = self.baronToBag(config_db_node.fst())
+        print x
+        for i,line in enumerate(config_db_node.value.fst()):
+            print i,line['type']
+
+    @public_method
+    def loadPackageTables_old(self,package=None,project=None):
         app = self.getFakeApplication(project,package)
         result = Bag()
         for tablename,tblobj in app.db.packages[package].tables.items():
@@ -742,6 +766,44 @@ class Table(object):
             more_attributes[attrname] = Bag(dict(attribute_key=attrname,attribute_value=attrvalue,dtype=self.catalog.names[type(attrvalue)]))
         cbag['_more_attributes'] = more_attributes
         return cbag
+
+    def baronToBag(self,fred,formatting=False):
+        if isinstance(fred,dict):
+            fred = dict(fred)
+            value = fred.pop('value',None)
+            t = fred.pop('type')
+            if not formatting:
+                fred = dict([(k,v) for k,v in fred.items() if not k.endswith('_formatting')])
+            value = getattr(self,'baronToBag_%s' %t,self.baronToBag_default)(value,fred)
+            return (t,value,fred)
+        elif isinstance(fred,list):
+            result = Bag()
+            for f in fred:
+                label,value,attrs = self.baronToBag(f,formatting=formatting)
+                if isinstance(value,tuple):
+                    l,v,a = value
+                    value = Bag()   
+                    value.setItem(l,v,**a)                 
+                result.addItem(label,value,**attrs)
+            return result
+        else:
+            return fred
+
+    def baronToBag_default(self,value,attributes):
+        return self.baronToBag(value)
+
+    def baronToBag_call(self,value,attributes):
+        args = []
+        kwargs = dict()
+        for v in value:
+            if v['type'] =='call_argument':
+                target,value = v['target'].get('value'),v['value']['value']
+                if not target:
+                    args.append(value)
+                else:
+                    kwargs[target] = value
+        attributes['args'] = args
+        attributes['kwargs'] = kwargs
 
 
 
