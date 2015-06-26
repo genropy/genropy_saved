@@ -15,6 +15,14 @@ from gnr.app.gnrapp import GnrApp
 from gnr.app.gnrdeploy import ProjectMaker, InstanceMaker, SiteMaker,PackageMaker, PathResolver,ThPackageResourceMaker
 from time import time
 from redbaron import RedBaron
+from collections import OrderedDict
+SYSFIELDS_DEFAULT = OrderedDict(id=True, ins=True, upd=True, 
+                                    ldel=True, user_ins=False, 
+                                    user_upd=False, 
+                                    draftField=False, 
+                                    counter=False,
+                                    hierarchical=False,
+                                    df=False)
 
 
 MORE_ATTRIBUTES = 'cell_,format,validate_notnull,validate_case'
@@ -223,29 +231,43 @@ class Table(object):
         red = RedBaron(source_code)
         return red
 
-
+    def bagToArglist(self,arguments):
+        if not arguments:
+            return ''
+        atlst = []
+        for k,v in arguments.items():
+            if isinstance(v,basestring):
+                v = ("'%s'" if not "'" in v else '"%s"') %v
+                atlst.append("%s=%s" %(k,v))
+        return ',%s' %','.join(atlst)
             
-
     def makeOneTable(self,filepath=None,table_data=None):
         red = self.get_redbaron(filepath)
         config_db_node = red.find('def','config_db')
-        table = table_data['name']
+        table = table_data.pop('name')
         table_data['name_long'] = table_data['name_long'] or table
         table_data['name_plural'] = table_data['name_plural'] or table
         table_data['caption_field'] = table_data['caption_field'] or table_data['pkey']
-        columns = table_data['_columns']
-        config_db_node[0].value = """tbl =  pkg.table('%(name)s', pkey='%(pkey)s', name_long='!!%(name_long)s', 
-                            name_plural='!!%(name_plural)s',caption_field='%(caption_field)s',
-                            legacy_name='%(legacy_name)s')""" %table_data
-        for col in columns.digest('#v'):
+        sysFields = table_data.pop('_sysFields')
+        columns = table_data.pop('_columns')
+        config_db_node[0].value = """tbl =  pkg.table('%s'%s)""" %(table,self.bagToArglist(table_data))
+        if sysFields.pop('_enabled'):
+            arguments = OrderedDict()
+            for k,v in sysFields.items():
+                if SYSFIELDS_DEFAULT.get(k) == v:
+                    arguments[k] = v                
+            config_db_node.append('sysFields(tbl%s)' %self.bagToArglist(arguments))
+        for col in columns.values():
             relation = col.pop('_relation')
-            config_db_node.append(self._columnPythonCode(col,relation))
+            s = self._columnPythonCode(col,relation)
+            config_db_node.append(s)
         with open(filepath,'w') as f:
             f.write(red.dumps())
             
     
     def _columnPythonCode(self,col,relation=None):
         attributes = Bag()
+        col = col.deepcopy()
         name = col.pop('name')
         dtype = col.pop('dtype')
         size = col.pop('size')
@@ -274,7 +296,7 @@ class Table(object):
                 v = ("'%s'" if not "'" in v else '"%s"') %v
             atlst.append("%s=%s" %(k,v))
         relationCode = ''
-        if relation:
+        if relation and relation['relation']:
             relationCode = '.%s' %self._relationPythonCode(relation)
 
         coltype = 'column'
@@ -284,6 +306,7 @@ class Table(object):
             coltype = 'aliasColumn'
         elif attributes['pymethod']:
             coltype = 'pyColumn'
+
         return "tbl.%s('%s', %s)%s" % (coltype,name, ', '.join(atlst),relationCode)
 
     def _relationPythonCode(self,relation):
@@ -315,7 +338,7 @@ class Table(object):
                 else:
                     v = "'%s'" %v
             atlst.append("%s=%s" %(k,v))
-        return """.relation('%s',%s)"""  %(relpath,', '.join(atlst))
+        return """relation('%s',%s)"""  %(relpath,', '.join(atlst))
 
     def packageForm(self,form):
         bar = form.top.slotToolbar('2,fbinfo,10,dbConnectionPalette,10,connectionTpl,*,applyChanges,semaphore,5')
@@ -578,7 +601,10 @@ class Table(object):
         fb.textbox(value='^.name_long',lbl='Name Long')
         fb.textbox(value='^.name_plural',lbl='Name Plural')
         fb.comboBox(value='^.pkey',lbl='Pkey',validate_notnull=True,values='^#FORM.columnsValues')
-        fb.comboBox(value='^.caption_field',lbl='Caption field',values='^#FORM.columnsValues')        
+        fb.comboBox(value='^.caption_field',lbl='Caption field',values='^#FORM.columnsValues')       
+        fb.checkbox(value='^.lookup',lbl='Lookup')
+
+        fb.button('Handle Sysfields') 
         columnsframe = bc.contentPane(region='center').bagGrid(frameCode='columns',title='Columns',
                                                         datapath='#FORM.columnsGrid',
                                                     storepath='#FORM.record._columns',
@@ -699,34 +725,117 @@ class Table(object):
         project_path = path_resolver.project_name_to_path(project)
         return os.path.join(project_path,'packages',package)
 
+
     @public_method
     def loadPackageTables(self,package=None,project=None):
-        model_path = os.path.join(self.getPackagePath(project,package),'model')
         result = Bag()
-        for m in os.listdir(model_path):
-            tname,ext = os.path.splitext(m)
-            if ext=='.py':
-                result[tname] = self.loadTableFromModule(tname,os.path.join(model_path,m))
-                break
+        models_path = os.path.join(self.getPackagePath(project,package),'model')
+        for m in os.listdir(models_path):
+            tablename,ext = os.path.splitext(m)
+            if ext!='.py':
+                continue
+            red = self.get_redbaron(os.path.join(models_path,m))
+            config_db = red.find('def','config_db')
+            targs,tkwargs = self.parsBaronNodeCall(config_db.find('name','table').parent[2])
+            tablevalue = Bag(tkwargs)
+            tablevalue['name'] = tablename
+            result[tablename] = tablevalue
+            tablevalue['_sysFields'] =self.handleSysFields(red)
+            columnsvalue = Bag()
+            tablevalue['_columns'] = columnsvalue
+            for colNode in red.find_all('name','column'):
+                cbag = self._loadColumnBag(colNode)
+                cbag['tag'] = 'column'
+                columnsvalue[cbag['name']] = cbag
+            for colNode in red.find_all('name','aliasColumn'):
+                cbag = self._getColBag(colNode,'relation_path')
+                cbag['tag'] = 'aliasColumn'
+                columnsvalue[cbag['name']] = cbag
+            for colNode in red.find_all('name','formulaColumn'):
+                cbag = self._getColBag(colNode,'sql_formula')
+                cbag['tag'] = 'formulaColumn'
+                columnsvalue[cbag['name']] = cbag
+            for colNode in red.find_all('name','pyColumn'):
+                cbag = self._getColBag(colNode,'py_method')
+                cbag['tag'] = 'pyColumn'
+                columnsvalue[cbag['name']] = cbag
+        return result
 
-    def loadTableFromModule(self,tblname,filepath):
-        red = self.get_redbaron(filepath)
-        config_db_node = red.find('def','config_db')
-        lbl,content,attrs = self.baronToBag(config_db_node.fst())
-        print x
-        for i,line in enumerate(config_db_node.value.fst()):
-            print i,line['type']
+    def handleSysFields(self,red):
+        sysFieldBaronNode = red.find('name','sysFields')
+        if not sysFieldBaronNode:
+            return Bag()
+        result = Bag(SYSFIELDS_DEFAULT) #counter_kwargs=None
+        result['_enabled'] = True
+        args,kwargs = self.parsBaronNodeCall(sysFieldBaronNode.parent[2])
+        for k,v in kwargs.items():
+            result[k] = v
+        return result
+
+    def _getColBag(self,node,firstArg=None,firstArgDefault=None):
+        cbag = Bag()
+        p = node.parent
+        cargs,ckwargs = self.parsBaronNodeCall(p[2])
+        colname = cargs[0]
+        cbag = Bag()
+        cbag['name'] = colname
+        if len(cargs)>1:
+            fval = cargs[1]
+        else:
+            fval = ckwargs.pop(firstArg,firstArgDefault)
+        cbag[firstArg] = fval
+        for k,v in ckwargs.items():
+            cbag[k] = v
+        return cbag
+
+    def parsBaronNodeCall(self,node):
+        args = []
+        kwargs = OrderedDict()
+        for argNode in node.find_all('call_argument'):
+            key = argNode.target.value if argNode.target else None
+            value = argNode.value.value
+            argtype = argNode.value.type
+            if argtype=='string':
+                value = value.strip("'") if "'" in value else value.strip('"')
+            elif value in ('True','False'):
+                value = boolean(value)
+            elif hasattr(value,'value'):
+                value = Bag(self.parsBaronNodeCall(value)[1])
+            if not key:
+                args.append(value)
+            else:
+                kwargs[key] = value
+        return args,kwargs
+
+    def _loadColumnBag(self,colNode,aliasColumn=False):
+        cbag = self._getColBag(colNode,'dtype','T')
+        p = colNode.parent
+        if p.find('name','relation'):
+            _relation = Bag()
+            rargs,rkwargs = self.parsBaronNodeCall(p[4])
+            mode = rkwargs.pop('mode',None)
+            _relation['relation'] = rargs[0]
+            _relation['foreignkey'] = mode=='foreignkey'
+            for k,v in rkwargs.items():
+                _relation[k] = v
+            cbag['_relation'] = _relation
+        return cbag
+
 
     @public_method
     def loadPackageTables_old(self,package=None,project=None):
         app = self.getFakeApplication(project,package)
         result = Bag()
+        package_path = self.getPackagePath(project,package)
         for tablename,tblobj in app.db.packages[package].tables.items():
-            tablevalue = Bag(tblobj.attributes)
+            red = self.get_redbaron(os.path.join(package_path,'model','%s.py' %tablename))
+            targs,tkwargs = self.parsBaronNodeCall(red.find('name','table'))
+            tablevalue = Bag(tkwargs)
             tablevalue['name'] = tablename
-            result[tblobj.name] = tablevalue
+            result[tablename] = tablevalue
             columnsvalue = Bag()
             tablevalue['_columns'] = columnsvalue
+            tablevalue['_sysFields'] =self.handleSysFields(red)
             for colname,colobj in tblobj.columns.items():
                 cbag = self._columnVal(colname,colobj)
                 if not cbag:
@@ -766,44 +875,4 @@ class Table(object):
             more_attributes[attrname] = Bag(dict(attribute_key=attrname,attribute_value=attrvalue,dtype=self.catalog.names[type(attrvalue)]))
         cbag['_more_attributes'] = more_attributes
         return cbag
-
-    def baronToBag(self,fred,formatting=False):
-        if isinstance(fred,dict):
-            fred = dict(fred)
-            value = fred.pop('value',None)
-            t = fred.pop('type')
-            if not formatting:
-                fred = dict([(k,v) for k,v in fred.items() if not k.endswith('_formatting')])
-            value = getattr(self,'baronToBag_%s' %t,self.baronToBag_default)(value,fred)
-            return (t,value,fred)
-        elif isinstance(fred,list):
-            result = Bag()
-            for f in fred:
-                label,value,attrs = self.baronToBag(f,formatting=formatting)
-                if isinstance(value,tuple):
-                    l,v,a = value
-                    value = Bag()   
-                    value.setItem(l,v,**a)                 
-                result.addItem(label,value,**attrs)
-            return result
-        else:
-            return fred
-
-    def baronToBag_default(self,value,attributes):
-        return self.baronToBag(value)
-
-    def baronToBag_call(self,value,attributes):
-        args = []
-        kwargs = dict()
-        for v in value:
-            if v['type'] =='call_argument':
-                target,value = v['target'].get('value'),v['value']['value']
-                if not target:
-                    args.append(value)
-                else:
-                    kwargs[target] = value
-        attributes['args'] = args
-        attributes['kwargs'] = kwargs
-
-
 
