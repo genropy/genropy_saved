@@ -1833,7 +1833,7 @@ class Bag(GnrObject):
         elif isinstance(source, Bag):
             self._nodes = [BagNode(self, *x.asTuple()) for x in source]
             
-        elif hasattr(source, 'items'):
+        elif callable(getattr(source, 'items',None)):
             for key, value in source.items():
                 if not isinstance(value,Bag) and hasattr(value, 'items'):
                     value = Bag(value)
