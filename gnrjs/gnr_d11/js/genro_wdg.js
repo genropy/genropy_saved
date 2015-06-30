@@ -1751,7 +1751,11 @@ dojo.declare("gnr.GridChangeManager", null, {
             if(kw.value!=kw.oldvalue && gridEditor && ((kw.node.label in gridEditor.columns) || (cell && cell.counter))){
                 var attr = kw.node.attr;
                 if(!('_loadedValue' in attr)){
-                    attr['_loadedValue'] = kw.oldvalue;
+                    if(kw.oldvalue instanceof gnr.GnrBag){
+                        attr['_loadedValue'] = kw.oldvalue.deepCopy()
+                    }else{
+                        attr['_loadedValue'] = kw.oldvalue;
+                    }
                 }else if (attr._loadedValue == kw.value || ( isNullOrBlank(kw.value) && isNullOrBlank(attr._loadedValue) )) {//value = _loadedValue
                     delete attr._loadedValue;
                 }
