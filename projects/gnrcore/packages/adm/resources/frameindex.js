@@ -406,9 +406,19 @@ dojo.declare("gnr.FramedIndexManager", null, {
     reloadSelectedIframe:function(rootPageName,modifiers){
         var iframe = this.getCurrentIframe(rootPageName);
         if(iframe){
-            var dodebug = modifiers=='ShiftAlt'; 
-            //{debug_sql:dodebug,pageReloading:true,dojo_source:true}
-            iframe.sourceNode.reloadIframe();
+            var dodebug = modifiers=='ShiftAlt';
+            var finalizeCb = function(){
+                iframe.sourceNode.reloadIframe();
+            }
+            if(iframe.sourceNode._genro && iframe.sourceNode._genro.checkBeforeUnload()){
+                genro.dlg.ask(_T('Reloading current frame'),_T("There is a pending operation in this tab"),{confirm:_T('Close anyway'),cancel:_T('Cancel')},
+                            {confirm:function(){ 
+                                iframe.sourceNode._genro._checkedUnload = true;
+                                finalizeCb();
+                            }})
+            }else{
+                finalizeCb()
+            }
         }
     },
 
