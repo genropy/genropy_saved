@@ -26,6 +26,7 @@
 import os
 import sys
 import glob
+import gnr
 from gnr.core.gnrsys import expandpath
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrlang import gnrImport
@@ -114,7 +115,7 @@ def config(root,application=None):"""
                 filehandle.write('    %s.webpage(%s)' %(rootname,', '.join(attrlist)))
             filehandle.write('\n')
 
-
+########################################
 def getSiteHandler(site_name, gnr_config=None):
     gnr_config = gnr_config or getGnrConfig()
     path_list = []
@@ -161,6 +162,9 @@ def gnrConfigPath():
     config_path = expandpath('/etc/gnr')
     if os.path.isdir(config_path):
         return config_path
+
+def getGenroRoot():
+    return os.path.abspath(os.path.join(gnr.__file__,'..','..','..'))
         
 
 

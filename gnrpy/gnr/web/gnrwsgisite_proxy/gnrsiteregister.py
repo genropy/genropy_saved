@@ -30,6 +30,8 @@ from gnr.core.gnrbag import Bag,BagResolver
 from gnr.web.gnrwebpage import ClientDataChange
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.app.gnrconfig import gnrConfigPath
+import thread
+
 
 try:
     import cPickle as pickle
@@ -156,17 +158,28 @@ class BaseRegister(BaseRemoteObject):
         self.itemsTS = dict()
         self.locked_items = dict()
 
-    def lock_item(self,register_item_id):
-        #print 'locking ',self.registerName,register_item_id,
-        if not register_item_id in self.locked_items:
-            self.locked_items[register_item_id] = True
+
+    def lock_item(self,register_item_id,reason=None):
+        #print 'locking ',self.registerName,register_item_id,reason
+        locker = self.locked_items.get(register_item_id)
+        if not locker:
+            self.locked_items[register_item_id] = dict(reason=reason,count=1)
             #print 'ok'
+            return True
+        elif locker['reason']==reason:
+            locker['count'] += 1
             return True
         #print 'failed'
         return False
 
-    def unlock_item(self,register_item_id):
-        self.locked_items.pop(register_item_id,None)
+    def unlock_item(self,register_item_id,reason=None):
+        locker = self.locked_items.get(register_item_id)
+        if locker:
+            if locker['reason'] != reason:
+                return False
+            locker['count'] -= 1
+            if not locker['count']:
+                self.locked_items.pop(register_item_id,None)
 
     def addRegisterItem(self,register_item,data=None):
         register_item_id = register_item['register_item_id']
@@ -494,13 +507,6 @@ class PageRegister(BaseRegister):
         for serverpath,value,attr in pendingContext:
             data.setItem(serverpath, value, attr)
             self.subscribe_path(page_id,serverpath)
-
-    def updateLocalization(self,page_id=None,localizer_dict=None):
-        localization = {}
-        data = self.get_item_data(page_id)
-        localization.update(data.getItem('localization') or {})
-        localization.update(localizer_dict)
-        data.setItem('localization', localization)
 
     def pageInMaintenance(self,page_id=None):
         page_item = self.get_item(page_id)
@@ -1096,11 +1102,12 @@ class ServerStore(object):
         self.max_retry = max_retry or LOCK_MAX_RETRY
         self.retry_delay = retry_delay or RETRY_DELAY
         self._register_item = '*'
+        self.thread_id = thread.get_ident()
 
     def __enter__(self):
         k = 0
         self.start_locking_time = time.time()
-        while not self.siteregister.lock_item(self.register_item_id,register_name=self.register_name):
+        while not self.siteregister.lock_item(self.register_item_id,reason=self.thread_id,register_name=self.register_name):
             time.sleep(self.retry_delay)
             k += 1
             if k>self.max_retry:
@@ -1110,7 +1117,7 @@ class ServerStore(object):
         return self
 
     def __exit__(self, type, value, tb):
-        self.siteregister.unlock_item(self.register_item_id,register_name=self.register_name)
+        self.siteregister.unlock_item(self.register_item_id,reason=self.thread_id,register_name=self.register_name)
         #print 'locked',self.register_name,self.register_item_id,'time to lock',self.success_locking_time-self.start_locking_time,'locking time',time.time()-self.success_locking_time
 
     def reset_datachanges(self):

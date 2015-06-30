@@ -1,0 +1,684 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><gnrpy><gnr><app><gnrapp path="gnrpy/gnr/app/gnrapp.py" ext="py"><en_user_not_allowed fr="Utilisateur non autorisé" de="Benutzer nicht erlaubt" en="User not allowed" it="Utente non autorizzato" base="User not allowed"></en_user_not_allowed></gnrapp>
+<gnrbatch_new path="gnrpy/gnr/app/gnrbatch_new.py" ext="py"><en_pre_processing fr="Le traitement préalable" de="Pre Verarbeitung" en="Pre processing" it="Elaborazione Pre" base="Pre processing"></en_pre_processing>
+<en_executing fr="Exécution" de="Ausführen" en="Executing" it="Esecuzione" base="Executing"></en_executing>
+<en_post_processing fr="Post-traitement" de="Nachbearbeitung" en="Post processing" it="Post produzione" base="Post processing"></en_post_processing>
+<en_collecting_results fr="Collecte des résultats" de="Sammeln Ergebnisse" en="Collecting results" it="Raccolta risultati" base="Collecting results"></en_collecting_results></gnrbatch_new>
+<gnrdbo path="gnrpy/gnr/app/gnrdbo.py" ext="py"><en_system fr="Système" de="System" en="System" it="Sistema" base="System"></en_system>
+<en_id fr="Ça" de="Identifikation" en="Id" it="Id" base="Id"></en_id>
+<en_insert_date fr="Date d'insertion" de="Datum einfügen" en="Insert date" it="Data di inserimento" base="Insert date"></en_insert_date>
+<en_logical_delete_date fr="Date de suppression logique" de="Logical Löschdatum" en="Logical delete date" it="Logical data di eliminazione" base="Logical delete date"></en_logical_delete_date>
+<en_update_date fr="Mise à jour de la date" de="Datum der Aktualisierung" en="Update date" it="Data aggiornamento" base="Update date"></en_update_date>
+<en_parent_id fr="Id Parent" de="Parent ID" en="Parent id" it="Id Parent" base="Parent id"></en_parent_id>
+<en_parent fr="Mère" de="Elternteil" en="Parent" it="Genitore" base="Parent"></en_parent>
+<en_children fr="Enfants" de="Kinder" en="Children" it="Bambini" base="Children"></en_children>
+<en_hierarchical_s fr="Hiérarchique%s" de="Hierarchischen  %s" en="Hierarchical  %s" it="Gerarchica% s" base="Hierarchical %s"></en_hierarchical_s>
+<en_parent_hierarchical_s fr="Parent hiérarchique%s" de="Mutter Hierarchical  %s" en="Parent Hierarchical  %s" it="Parent gerarchica% s" base="Parent Hierarchical %s"></en_parent_hierarchical_s>
+<en_counter fr="Compteur" de="Zähler" en="Counter" it="Contatore" base="Counter"></en_counter>
+<en_counter_s fr="Contre%s" de="Gegen  %s" en="Counter  %s" it="Contatore% s" base="Counter %s"></en_counter_s>
+<en_warnings fr="Avertissements" de="Warnungen" en="Warnings" it="Avvertenze" base="Warnings"></en_warnings>
+<en_errors fr="Erreurs" de="Fehler" en="Errors" it="Errori" base="Errors"></en_errors>
+<en_user_insert fr="Insertion de l'utilisateur" de="User-Insert" en="User Insert" it="Inserisci User" base="User Insert"></en_user_insert>
+<en_user_modify fr="Modifier l'utilisateur" de="Benutzer ändern" en="User Modify" it="Modifica utente" base="User Modify"></en_user_modify>
+<en_is_draft base="Is Draft" en="Is Draft" it="È Draft"></en_is_draft>
+<en_invalids fr="Invalides" de="Invaliden" en="Invalids" it="Invalidi" base="Invalids"></en_invalids>
+<en_protection_tag fr="étiquette de protection" de="Schutzschild" en="Protection tag" it="Protezione tag" base="Protection tag"></en_protection_tag>
+<en_fake_field_always_null fr="Faux champ toujours NULL" de="Fake-Feld immer NULL" en="Fake field always NULL" it="Campo Falso sempre NULL" base="Fake field always NULL"></en_fake_field_always_null>
+<en_subscribed_by_default fr="Souscrit par défaut" de="Standardmäßig gezeichnet" en="Subscribed by default" it="Sottoscritto per impostazione predefinita" base="Subscribed by default"></en_subscribed_by_default>
+<en_subscribed fr="Inscrit" de="Gezeichnet" en="Subscribed" it="Sottoscritta" base="Subscribed"></en_subscribed>
+<en_fieldname_s_promised_value_recycled_ _tag="en__fieldname_s_promised_value_recycled_" fr=" %(fieldname)s valeur promis (recyclé)" en=" %(fieldname)s promised value (recycled)" de=" %(fieldname)s versprochen Wert (recycelt)" it=" %(fieldname)s valore promesso (riciclato)" base="%(fieldname)s promised value (recycled)"></en_fieldname_s_promised_value_recycled_>
+<en_filepath fr="Chemin Du Fichier" de="Dateipfad" en="Filepath" it="Filepath" base="Filepath"></en_filepath>
+<en_description fr="Description" de="Beschreibung" en="Description" it="Descrizione" base="Description"></en_description>
+<en_mimetype fr="Mimetype" de="Mimetype" en="Mimetype" it="Mimetype" base="Mimetype"></en_mimetype>
+<en_content fr="Content" de="Inhalt" en="Content" it="Contenuto" base="Content"></en_content>
+<en_additional_info fr="Information additionnelle" de="Zusatzinfo" en="Additional info" it="Informazioni addizionali" base="Additional info"></en_additional_info>
+<en_sync_event fr="Événement Sync" de="Sync Event" en="Sync event" it="Sync evento" base="Sync event"></en_sync_event>
+<en_table fr="Table" de="Tabelle" en="Table" it="Tavolo" base="Table"></en_table>
+<en_event fr="Événement" de="Ereignis" en="Event" it="Evento" base="Event"></en_event>
+<en_pkey fr="Pkey" de="Pkey" en="Pkey" it="PKEY" base="Pkey"></en_pkey>
+<en_data fr="Données" de="Daten" en="Data" it="Data" base="Data"></en_data>
+<en_event_check_ts fr="contrôle de l'événement ts" de="Event-Check ts" en="Event check ts" it="Ts controllo Evento" base="Event check ts"></en_event_check_ts>
+<en_status fr="Statut" de="Status" en="Status" it="Stato" base="Status"></en_status>
+<en_topic fr="Sujet" de="Thema" en="Topic" it="Argomento" base="Topic"></en_topic>
+<en_author fr="Auteur" de="Verfasser" en="Author" it="Autore" base="Author"></en_author>
+<en_server_timestamp fr="horodatage Server" de="Server-Zeitstempel" en="Server timestamp" it="Timestamp Server" base="Server timestamp"></en_server_timestamp>
+<en_codekey fr="Codekey" de="Codeschlüssel" en="Codekey" it="Codekey" base="Codekey"></en_codekey>
+<en_code fr="Code" de="Code" en="Code" it="Codice" base="Code"></en_code>
+<en_package fr="Paquet" de="Paket" en="Package" it="Pacchetto" base="Package"></en_package>
+<en_name fr="Nom" de="Name" en="Name" it="Nome" base="Name"></en_name>
+<en_holes fr="Trous" de="Löcher" en="Holes" it="Holes" base="Holes"></en_holes></gnrdbo>
+<gnrdbo_legacy path="gnrpy/gnr/app/gnrdbo_legacy.py" ext="py"><en_code fr="Code" de="Code" en="Code" it="Codice" base="Code"></en_code>
+<en_description fr="Description" de="Beschreibung" en="Description" it="Descrizione" base="Description"></en_description>
+<en_child_code fr="Code de l'enfant" de="Child Code" en="Child code" it="Codice subordinato" base="Child code"></en_child_code>
+<en_required fr="Requis" de="Erforderlich" en="Required" it="Richiesto" base="Required"></en_required>
+<en_invalid_code_char_is_not_allowed fr='Code invalide: "." omble est pas autorisé' de='Invalid code: "." char ist nicht erlaubt' en='Invalid code: "." char is not allowed' it='Codice non VALIDO: "." char non è consentito' base='Invalid code: "." char is not allowed'></en_invalid_code_char_is_not_allowed>
+<en_parent_code fr="Code Parent" de="Geordneten Code" en="Parent code" it="Codice Parent" base="Parent code"></en_parent_code>
+<en_level fr="Niveau" de="Höhe" en="Level" it="Livello" base="Level"></en_level>
+<en_type fr="Type" de="Art" en="Type" it="Tipo" base="Type"></en_type>
+<en_default_value fr="Valeur par défaut" de="Standardwert" en="Default value" it="Valore predefinito" base="Default value"></en_default_value>
+<en_data_type fr="Type de données" de="Datentyp" en="Data type" it="Tipo di dati" base="Data Type"></en_data_type>
+<en_enterable fr="Saisissable" de="Eingebbar" en="Enterable" it="Enterable" base="Enterable"></en_enterable>
+<en_wdg_type fr="Type Wdg" de="Wdg Typ" en="Wdg type" it="Tipo WDG" base="Wdg type"></en_wdg_type>
+<en_colspan fr="Colspan" de="Colspan" en="Colspan" it="Colspan" base="Colspan"></en_colspan>
+<en_wdg_kwargs fr="Kwargs wdg" de="Wdg kwargs" en="Wdg kwargs" it="Kwargs WDG" base="Wdg kwargs"></en_wdg_kwargs>
+<en_suggested_values fr="Les valeurs suggérées" de="Empfohlene Werte" en="Suggested Values" it="I valori suggeriti" base="Suggested Values"></en_suggested_values>
+<en_db_table base="Db Table" en="Db Table" it="Tabella Db"></en_db_table>
+<en_allowed_values fr="Valeurs autorisées" de="Zulässige Werte" en="Allowed Values" it="Valori ammessi" base="Allowed Values"></en_allowed_values>
+<en_checkbox_values fr="Checkbox Valeurs" de="Checkbox Werte" en="Checkbox Values" it="Valori Checkbox" base="Checkbox Values"></en_checkbox_values>
+<en_checkbox_cols fr="Cochez les cols" de="Checkbox cols" en="Checkbox cols" it="Cols Checkbox" base="Checkbox cols"></en_checkbox_cols>
+<en_multiple_values fr="Valeurs multiples" de="Mehrere Werte" en="Multiple Values" it="Valori multipli" base="Multiple Values"></en_multiple_values>
+<en_style fr="Style" de="Stil" en="Style" it="Stile" base="Style"></en_style>
+<en_visible_if fr="Visible si" de="Sichtbar, wenn" en="Visible if" it="Visibile se" base="Visible if"></en_visible_if>
+<en_format fr="Format" de="Format" en="Format" it="Formato" base="Format"></en_format>
+<en_placeholder fr="Espace réservé" de="Platzhalter" en="Placeholder" it="Segnaposto" base="Placeholder"></en_placeholder>
+<en_mask fr="Masquer" de="Maske" en="Mask" it="Maschera" base="Mask"></en_mask>
+<en_tip fr="Pointe" de="Spitze" en="Tip" it="Punta" base="Tip"></en_tip>
+<en_u_uppercase_l_lowercase_c_capitalize fr="u: majuscules, l: Minuscules, c: Capitaliser" de="u: Großbuchstaben, l: Kleinbuchstaben, c: Profitieren" en="u:Uppercase,l:Lowercase,c:Capitalize" it="u: Maiuscolo, l: minuscola, c: Capitalizzare" base="u:Uppercase,l:Lowercase,c:Capitalize"></en_u_uppercase_l_lowercase_c_capitalize>
+<en_case fr="Cas" de="Fall" en="Case" it="Caso" base="Case"></en_case>
+<en_range fr="Gamme" de="Angebot" en="Range" it="Gamma" base="Range"></en_range>
+<en_std_range fr="Std.Range" de="Std.Range" en="Std.Range" it="Std.Range" base="Std range"></en_std_range>
+<en_formula fr="Formule" de="Formel" en="Formula" it="Formula" base="Formula"></en_formula>
+<en_do_summary base="Do summary" en="Do summary" it="Fare sintesi"></en_do_summary>
+<en_mandatory fr="Obligatoire" de="Verpflichtend" en="Mandatory" it="Obbligatorio" base="Mandatory"></en_mandatory></gnrdbo_legacy></app>
+<core><gnrbag path="gnrpy/gnr/core/gnrbag.py" ext="py"><en_s_s _tag="en__s_s" base="%s %s" en="%s %s" it="%s %s"></en_s_s></gnrbag>
+<gnrlang path="gnrpy/gnr/core/gnrlang.py" ext="py"><en_genro_base_exception fr="Genro exception de base" de="Genro Basis Ausnahme" en="Genro base exception" it="Genro eccezione di base" base="Genro base exception"></en_genro_base_exception>
+<en_error_code_code_s_description_s_ fr="Code d'erreur  %(code)s :  %(description)s." de="Fehlercode   %(code)s :  %(description)s." en="Error code  %(code)s :  %(description)s." it="Codice di errore  %(code)s :  %(description)s." base="Error code %(code)s : %(description)s."></en_error_code_code_s_description_s_></gnrlang>
+<gnrprinthandler path="gnrpy/gnr/core/gnrprinthandler.py" ext="py"><en_a4 fr="A4" de="A4" en="A4" it="A4" base="A4"></en_a4>
+<en_legal fr="Juridique" de="Rechts-" en="Legal" it="Legale" base="Legal"></en_legal>
+<en_a4_with_margins base="A4 with margins" en="A4 with margins" it="A4 con margini"></en_a4_with_margins>
+<en_com10 fr="COM10" de="COM10" en="COM10" it="COM10" base="COM10"></en_com10>
+<en_dl fr="DL" de="DL" en="DL" it="DL" base="DL"></en_dl>
+<en_letter fr="Lettre" de="Schreiben" en="Letter" it="Lettera" base="Letter"></en_letter>
+<en_multipurpose fr="MultiPurpose" de="Multipurpose" en="MultiPurpose" it="MultiPurpose" base="MultiPurpose"></en_multipurpose>
+<en_transparency fr="Transparence" de="Transparenz" en="Transparency" it="Trasparenza" base="Transparency"></en_transparency>
+<en_upper fr="Supérieur" de="Obere" en="Upper" it="Superiore" base="Upper"></en_upper>
+<en_lower fr="Inférieur" de="Niedriger" en="Lower" it="Inferiore" base="Lower"></en_lower>
+<en_largecapacity fr="LargeCapacity" de="Largecapacity" en="LargeCapacity" it="LargeCapacity" base="LargeCapacity"></en_largecapacity></gnrprinthandler></core>
+<sql><adapters><_gnrbaseadapter path="gnrpy/gnr/sql/adapters/_gnrbaseadapter.py" ext="py"><en_starts_with_chars fr="Commençant par Chars" de="Beginnt mit Chars" en="Starts with Chars" it="Inizia con Caratteri" base="Starts with Chars"></en_starts_with_chars>
+<en_equal_to fr="Égal à" de="Gleich" en="Equal to" it="Uguale a" base="Equal to"></en_equal_to>
+<en_starts_with fr="Commence avec" de="Beginnt mit" en="Starts with" it="Inizia con" base="Starts with"></en_starts_with>
+<en_word_start fr="début de la Parole" de="Word starten" en="Word start" it="Inizia con" base="Word start"></en_word_start>
+<en_contains fr="Contient" de="Enthält" en="Contains" it="Contiene" base="Contains"></en_contains>
+<en_similar fr="Similaire" de="Ähnlich" en="Similar" it="Simile" base="Similar"></en_similar>
+<en_greater_than fr="Plus grand que" en="Greater than" de="Größer als" it="Maggiore di" base="Greater than"></en_greater_than>
+<en_greater_or_equal_to fr="Supérieure ou égale à" de="Größer oder gleich" en="Greater or equal to" it="Maggiore o uguale a" base="Greater or equal to"></en_greater_or_equal_to>
+<en_less_than fr="Moins de" en="Less than" de="Weniger als" it="Minore di" base="Less than"></en_less_than>
+<en_less_or_equal_to fr="Inférieur ou égal à" de="Kleiner oder gleich" en="Less or equal to" it="Minore o uguale a" base="Less or equal to"></en_less_or_equal_to>
+<en_between fr="Entre" de="Zwischen" en="Between" it="Tra" base="Between"></en_between>
+<en_is_null base="Is null" en="Is null" it="È nullo"></en_is_null>
+<en_is_true base="Is true" en="Is true" it="È vero"></en_is_true>
+<en_is_false base="Is false" en="Is false" it="È falso"></en_is_false>
+<en_is_null_or_empty base="Is null or empty" en="Is null or empty" it="È nullo o vuoto"></en_is_null_or_empty>
+<en_in fr="EN" de="IN" en="IN" it="IN" base="In"></en_in>
+<en_regular_expression fr="Expression régulière" de="Regulärer Ausdruck" en="Regular expression" it="Espressione regolare" base="Regular expression"></en_regular_expression></_gnrbaseadapter></adapters>
+<gnrsql path="gnrpy/gnr/sql/gnrsql.py" ext="py"><en_genro_sql_base_exception fr="Genro SQL de base exception" de="Genro SQL Basis Ausnahme" en="Genro SQL base exception" it="Eccezione Base Genro SQL" base="Genro SQL base exception"></en_genro_sql_base_exception>
+<en_genro_sql_execution_exception fr="Genro SQL exécution exception" de="Genro SQL Ausführungsausnahme" en="Genro SQL execution exception" it="Eccezione esecuzione Genro SQL" base="Genro SQL execution exception"></en_genro_sql_execution_exception></gnrsql>
+<gnrsqltable path="gnrpy/gnr/sql/gnrsqltable.py" ext="py"><en_genro_sql_save_exception fr="Genro SQL, sauf exception" de="Exception Genro SQL speichern" en="Genro SQL Save Exception" it="Genro SQL Salva Eccezione" base="Genro SQL Save Exception"></en_genro_sql_save_exception>
+<en_the_record_rowcaption_s_in_table_tablename_s_cannot_be_saved_msg_s fr="Le record  %(rowcaption)s dans le tableau  %(tablename)s ne peut pas être sauvé:  %(msg)s" de="Der Rekord  %(rowcaption)s s in Tabelle   %(tablename)s kann nicht gespeichert werden:  %(msg)s" en="The record  %(rowcaption)s in table  %(tablename)s cannot be saved: %(msg)s" it="Il record  %(rowcaption)s nella tabella  %(tablename)s non può essere salvato:  %(msg)s" base="The record %(rowcaption)s in table %(tablename)s cannot be saved:%(msg)s"></en_the_record_rowcaption_s_in_table_tablename_s_cannot_be_saved_msg_s>
+<en_genro_sql_delete_exception fr="Genro SQL Supprimer Exception" de="Genro SQL Delete Exception" en="Genro SQL Delete Exception" it="Genro SQL Elimina Eccezione" base="Genro SQL Delete Exception"></en_genro_sql_delete_exception>
+<en_the_record_rowcaption_s_in_table_tablename_s_cannot_be_deleted_msg_s fr="Le record  %(rowcaption)s dans le tableau  %(tablename)s peuvent pas être supprimées: %(msg)s" de="Der Rekord  %(rowcaption)s in Tabelle  %(tablename)s kann nicht gelöscht werden:  %(msg)s" en="The record  %(rowcaption)s in table  %(tablename)s cannot be deleted: %(msg)s" it="Il record  %(rowcaption)s nella tabella  %(tablename)s non può essere eliminato: %(msg)s" base="The record %(rowcaption)s in table %(tablename)s cannot be deleted:%(msg)s"></en_the_record_rowcaption_s_in_table_tablename_s_cannot_be_deleted_msg_s>
+<en_genro_sql_protect_update_exception fr="Genro SQL Protect Update Exception" de="Genro SQL Protect Update-Exception" en="Genro SQL Protect Update Exception" it="Genro SQL Protezione Aggiornamento" base="Genro SQL Protect Update Exception"></en_genro_sql_protect_update_exception>
+<en_the_record_rowcaption_s_in_table_tablename_s_is_not_updatable_msg_s fr="Le record  %(rowcaption)s dans le tableau  %tablename)s est pas modifiable:  %(msg)s" de="Der Rekord  %(rowcaption)s in Tabelle  %(tablename)s kann nicht aktualisiert werden:  %(msg)s" en="The record  %(rowcaption)s in table  %(tablename)s is not updatable: %(msg)s" it="Il record  %(rowcaption)s nella tabella  %(tablename)s non è aggiornabile:  %(msg)s" base="The record %(rowcaption)s in table %(tablename)s is not updatable:%(msg)s"></en_the_record_rowcaption_s_in_table_tablename_s_is_not_updatable_msg_s>
+<en_genro_sql_protect_delete_exception fr="Genro SQL Protégez Exception Supprimer" de="Genro SQL Schützen Löschen Exception" en="Genro SQL Protect Delete Exception" it="Genro SQL proteggere Cancellare Eccezione" base="Genro SQL Protect Delete Exception"></en_genro_sql_protect_delete_exception>
+<en_the_record_rowcaption_s_in_table_tablename_s_is_not_deletable_msg_s fr="Le record%(rowcaption)s dans le tableau  %(tablename)s est pas supprimable:  %(msg)s" de="Der Rekord  %(rowcaption)s in Tabelle  %(tablename)s kann nicht gelöscht:  %(msg)s" en="The record  %(rowcaption)s in table  %(tablename)s is not deletable: %(msg)s" it="Il record%(rowcaption)s nella tabella%(tablename)s non è eliminabile: %(msg)s" base="The record %(rowcaption)s in table %(tablename)s is not deletable:%(msg)s"></en_the_record_rowcaption_s_in_table_tablename_s_is_not_deletable_msg_s>
+<en_genro_sql_protect_validate_exception fr="Genro SQL Protégez Valider Exception" de="Genro SQL Schützen Validate Exception" en="Genro SQL Protect Validate Exception" it="Genro SQL Protect Convalida Eccezione" base="Genro SQL Protect Validate Exception"></en_genro_sql_protect_validate_exception>
+<en_the_record_rowcaption_s_in_table_tablename_s_contains_invalid_data_msg_s fr="Le record%(rowcaption)s dans le tableau%(tablename)s contient des données non valides: %(msg)s" de="Der Rekord%(rowcaption)s in Tabelle%(tablename)s enthält ungültige Daten: %(msg)s" en="The record  %(rowcaption)s in table  %(tablename)s contains invalid data: %(msg)s" it="Il record  %(rowcaption)s nella tabella%(tablename)s contiene dati non validi: %(msg)s" base="The record %(rowcaption)s in table %(tablename)s contains invalid data:%(msg)s"></en_the_record_rowcaption_s_in_table_tablename_s_contains_invalid_data_msg_s>
+<en_genro_sql_business_logic_exception fr="Genro SQL Business Logic Exception" de="Genro SQL Business Logic Exception" en="Genro SQL Business Logic Exception" it="Eccezione Genro SQL business logic" base="Genro SQL Business Logic Exception"></en_genro_sql_business_logic_exception>
+<en_the_requested_operation_violates_the_internal_business_logic_msg_s fr="L'opération demandée viole la logique interne de l'entreprise: %(msg)s" de="Die angeforderte Operation gegen den internen Business-Logik: %(msg)s" en="The requested operation violates the internal business logic:  %(msg)s" it="L'operazione richiesta viola la logica di business interno: %(msg)s" base="The requested operation violates the internal business logic: %(msg)s"></en_the_requested_operation_violates_the_internal_business_logic_msg_s>
+<en_description_s _tag="en__description_s" fr="  %(la description)s" en=" %(description)s" de=" %(description)s" it="  %(descrizione)s" base="%(description)s"></en_description_s>
+<en_msg_s _tag="en__msg_s" fr=" %(msg)s" en=" %(msg)s" de=" %(msg)s" it=" %(msg)s" base="%(msg)s"></en_msg_s>
+<en_genro_sql_not_existing_column_exception fr="Genro SQL Non existant Colonne Exception" de="Genro SQL nicht vorhandenen Spalte Exception" en="Genro SQL Not Existing Column Exception" it="Genro SQL inesistente Colonna Eccezione" base="Genro SQL Not Existing Column Exception"></en_genro_sql_not_existing_column_exception>
+<en_column_column_s_not_existing_in_table_tablename_s_ fr="Colonne  %(column)s ne pas exister dans le tableau %(tablename)s" de="Spalte  %(column)s nicht in  %Tabelle vorhandenen %(tablename)s" en="Column  %(column)s not existing in table  %(tablename)s" it="Colonna  %(colonna)s non esistente nella tabella%(tablename)s" base="Column %(column)s not existing in table %(tablename)s "></en_column_column_s_not_existing_in_table_tablename_s_>
+<en_record_referenced_in_table_reltable_s fr="Enregistrez référencé dans le tableau  %(reltable)s" de="In Tabelle  %(reltable) Nehmensie verwiesen s" en="Record referenced in table  %(reltable)s" it="Record riferimento nella tabella  %(reltable)s" base="Record referenced in table %(reltable)s"></en_record_referenced_in_table_reltable_s></gnrsqltable>
+<gnrsqlxml2py path="gnrpy/gnr/sql/gnrsqlxml2py.py" ext="py"><en_s _tag="en__s" fr="% S" en="%s" de="% S" it="% S" base="%s"></en_s></gnrsqlxml2py></sql>
+<web><_gnrbasewebpage path="gnrpy/gnr/web/_gnrbasewebpage.py" ext="py"><en_saving_error fr="Erreur de sauvegarde" de="Saving Fehler" en="Saving error" it="Errore di Salvataggio" base="Saving error"></en_saving_error>
+<en_fieldname_s_sequence_s_instead_of_promised_sequence_s _tag="en__fieldname_s_sequence_s_instead_of_promised_sequence_s" fr="  %(Fieldname)s:  %(séquence)s au lieu de  %(promised_sequence)s" en=" %(fieldname)s:  %(sequence)s instead of  %(promised_sequence)s" de="  %(Fieldname)s:  %(Sequenz)s statt  %(promised_sequence)s" it="  %(Fieldname)s:  %(sequenza)s invece di  %(promised_sequence)s" base="%(fieldname)s: %(sequence)s instead of %(promised_sequence)s"></en_fieldname_s_sequence_s_instead_of_promised_sequence_s></_gnrbasewebpage>
+<batch><btcbase path="gnrpy/gnr/web/batch/btcbase.py" ext="py"><en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_confirm fr="Confirmer" de="Bestätigen" en="Confirm" it="Ok" base="Confirm"></en_confirm></btcbase>
+<btcmail path="gnrpy/gnr/web/batch/btcmail.py" ext="py"><en_cc fr="CC" de="CC" en="CC" it="CC" base="CC"></en_cc>
+<en_subject fr="Sujet" de="Gegenstand" en="Subject" it="Soggetto" base="Subject"></en_subject>
+<en_previous fr="Précédent" de="Früher" en="Previous" it="Precedente" base="Previous"></en_previous>
+<en_next fr="Prochaine" de="Nächste" en="Next" it="Il Prossimo" base="Next"></en_next></btcmail>
+<btcprint path="gnrpy/gnr/web/batch/btcprint.py" ext="py"><en_print_options fr="Les options d'impression" de="Druckoptionen" en="Print options" it="Opzioni di stampa" base="Print Options"></en_print_options>
+<en_letterhead fr="Tête" de="Briefkopf" en="Letterhead" it="Carta intestata" base="Letterhead"></en_letterhead>
+<en_notes fr="Remarques" de="Aufzeichnungen" en="Notes" it="Note" base="Notes"></en_notes>
+<en_server_print fr="Serveur d'impression" de="Print Server" en="Server Print" it="Server di stampa" base="Server Print"></en_server_print>
+<en_pdf fr="Pdf" de="Pdf" en="Pdf" it="Pdf" base="Pdf"></en_pdf>
+<en_file_name fr="Nom du fichier" de="Dateiname" en="File name" it="Nome del file" base="File Name"></en_file_name>
+<en_zip_folder fr="dossier postal" de="Zip-Ordner" en="Zip folder" it="Cartella Zip" base="Zip folder"></en_zip_folder>
+<en_pdf_by_email fr="Pdf par email" de="Pdf per E-Mail" en="Pdf by email" it="Pdf via e-mail" base="Pdf by email"></en_pdf_by_email>
+<en_to fr="À" de="Bis" en="To" it="A" base="To"></en_to>
+<en_cc fr="CC" de="CC" en="CC" it="CC" base="CC"></en_cc>
+<en_subject fr="Sujet" de="Gegenstand" en="Subject" it="Soggetto" base="Subject"></en_subject>
+<en_body fr="Corps" de="Körper" en="Body" it="Corpo" base="Body"></en_body>
+<en_deliver_mail fr="Distribuer le courrier" de="Geben Sie mail" en="Deliver mail" it="Consegna posta" base="Deliver mail"></en_deliver_mail>
+<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_print fr="Imprimer" de="Druck" en="Print" it="Stampa" base="Print"></en_print>
+<en_download fr="Télécharger" de="Herunterladen" en="Download" it="Scarica" base="Download"></en_download>
+<en_confirm fr="Confirmer" de="Bestätigen" en="Confirm" it="Ok" base="Confirm"></en_confirm></btcprint></batch>
+<gnrwebpage path="gnrpy/gnr/web/gnrwebpage.py" ext="py"><en_genro_not_allowed_public_call fr="Genro non autorisés Appel public" de="Genro erlaubt Öffentlicher Aufruf" en="Genro Not Allowed Public call" it="Genro non sono ammessi chiamata pubblica" base="Genro Not Allowed Public call"></en_genro_not_allowed_public_call>
+<en_user_user_s_is_not_allowed_to_call_method_method_s fr="L'utilisateur  %(utilisateur)s est pas autorisé à appeler la méthode  %(méthode)s" de="Benutzer  %(user)s ist nicht erlaubt, Methode  %(Methode) aufrufens" en="User  %(user)s is not allowed to call method  %(method)s" it="Utente  %(utente)s non è permesso di chiamare il metodo  %(metodo)s" base="User %(user)s is not allowed to call method %(method)s"></en_user_user_s_is_not_allowed_to_call_method_method_s>
+<en_print fr="Imprimer" de="Druck" en="Print" it="Stampa" base="Print"></en_print></gnrwebpage>
+<gnrwebpage_proxy><apphandler path="gnrpy/gnr/web/gnrwebpage_proxy/apphandler.py" ext="py"><en_execution_completed fr="Exécution terminée" de="Ausführung abgeschlossen" en="Execution completed" it="Esecuzione completata" base="Execution completed"></en_execution_completed>
+<en_execution_stopped fr="Exécution arrêté" de="Ausführung gestoppt" en="Execution stopped" it="Esecuzione arrestata" base="Execution stopped"></en_execution_stopped>
+<en_sample_data fr="Les données d'échantillon" de="Beispieldaten" en="Sample data" it="Dati campione" base="Sample data"></en_sample_data></apphandler>
+<rpc path="gnrpy/gnr/web/gnrwebpage_proxy/rpc.py" ext="py"><en_user_connection_lost_ fr="connexion de l'utilisateur perdu." de="User-Verbindung verloren." en="User connection lost." it="Collegamento utente persa." base="User connection lost."></en_user_connection_lost_></rpc></gnrwebpage_proxy>
+<gnrwsgisite path="gnrpy/gnr/web/gnrwsgisite.py" ext="py"><en_genro_site_exception fr="Exception Genro site" de="Genro Website Ausnahme" en="Genro Site exception" it="Eccezione Genro sito" base="Genro Site exception"></en_genro_site_exception>
+<en_site_error_message_s _tag="en__site_error_message_s" fr="Site erreur:  %(message)s" en="Site Error :  %(message)s" de="Website-Fehler:  %(Meldung)s" it="Errore del sito:  %(messaggio)s" base=" Site Error : %(message)s"></en_site_error_message_s></gnrwsgisite></web></gnr></gnrpy>
+<gnrjs><gnr_d11><js><genro_components path="gnrjs/gnr_d11/js/genro_components.js" ext="js"><en_you_are_about_to_delete_the_selected_record_br_you_can_t_undo_this base="You are about to delete the selected record.&lt;br/&gt;You can't undo this" en="You are about to delete the selected record.&lt;br/&gt;You can't undo this" it="Stai per cancellare il record selezionato. &lt;br/&gt; Non è possibile annullare questa operazione"></en_you_are_about_to_delete_the_selected_record_br_you_can_t_undo_this>
+<en_the_record_cannot_be_removed_br_it_will_be_hidden_instead_ base="The record cannot be removed.&lt;br/&gt;It will be hidden instead." en="The record cannot be removed.&lt;br/&gt;It will be hidden instead." it="Il record non può essere rimosso. &lt;br/&gt; Sarà nascosto, invece."></en_the_record_cannot_be_removed_br_it_will_be_hidden_instead_>
+<en_you_are_about_to_delete_count_records_br_you_can_t_undo_this base="You are about to delete $count records.&lt;br/&gt;You can't undo this" en="You are about to delete $count records.&lt;br/&gt;You can't undo this" it="Stai per eliminare $count record. &lt;br/&gt; Non è possibile annullare questa operazione"></en_you_are_about_to_delete_count_records_br_you_can_t_undo_this>
+<en_you_are_about_to_delete_count_records_br_some_of_them_cannot_be_deleted_but_will_be_hidden_instead_ base="You are about to delete $count records &lt;br/&gt; Some of them cannot be deleted but will be hidden instead." en="You are about to delete $count records &lt;br/&gt; Some of them cannot be deleted but will be hidden instead." it="Stai per eliminare $count record&lt;br/&gt; Alcuni di loro non possono essere eliminati, ma verranno invece nascosti."></en_you_are_about_to_delete_count_records_br_some_of_them_cannot_be_deleted_but_will_be_hidden_instead_>
+<en_you_are_about_to_remove_the_selected_record_from_current_master base="You are about to remove the selected record from current $master" en="You are about to remove the selected record from current $master" it="Stai per rimuovere il record selezionato dagli attuali $master"></en_you_are_about_to_remove_the_selected_record_from_current_master>
+<en_you_are_about_to_discard_the_selected_count_records_from_current_master base="You are about to discard the selected $count records from current $master" en="You are about to discard the selected $count records from current $master" it="Stai per scartare $count record selezionati corrente $master"></en_you_are_about_to_discard_the_selected_count_records_from_current_master></genro_components></js></gnr_d11></gnrjs>
+<resources><common><_unused><standardRecordViews path="resources/common/_unused/standardRecordViews.py" ext="py"><en_unlock fr="Ouvrir" de="Öffnen" en="Unlock" it="Sbloccare" base="Unlock"></en_unlock>
+<en_lock fr="Bloquer" de="Sperren" en="Lock" it="Serratura" base="Lock"></en_lock>
+<en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
+<en_revert fr="Revenir" de="Zurückkehren" en="Revert" it="Ritornare" base="Revert"></en_revert>
+<en_you_cannot_unlock_this_table fr="Vous ne pouvez pas déverrouiller ce tableau" de="Sie können diese Tabelle nicht entsperren" en="You cannot unlock this table" it="Non puoi sbloccare questa tabella" base="You cannot unlock this table"></en_you_cannot_unlock_this_table>
+<en_unsaved_changes fr="Les modifications non enregistrées" de="Nicht gespeicherte Änderungen" en="Unsaved changes" it="Le modifiche non salvate" base="Unsaved changes"></en_unsaved_changes>
+<en_there_are_unsaved_changes fr="Il ya des modifications non enregistrées" de="Es gibt nicht gespeicherte Änderungen" en="There are unsaved changes" it="Ci sono modifiche non salvate" base="There are unsaved changes"></en_there_are_unsaved_changes>
+<en_save_changes fr="Sauvegarder les changements" de="Änderungen speichern" en="Save changes" it="Salva i cambiamenti" base="Save changes"></en_save_changes>
+<en_forget_changes fr="Oubliez changements" de="Vergessen Änderungen" en="Forget changes" it="Dimenticate modifiche" base="Forget changes"></en_forget_changes>
+<en_record_saved fr="Notice sauvée" de="Datensatz gespeichert" en="Record saved" it="Record salvato" base="Record saved"></en_record_saved></standardRecordViews></_unused>
+<foundation><dialogs path="resources/common/foundation/dialogs.py" ext="py"><en_confirm fr="Confirmer" de="Bestätigen" en="Confirm" it="Ok" base="Confirm"></en_confirm>
+<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_are_you_sure_ fr="Êtes-vous sûr?" de="Sind Sie sicher?" en="Are you sure?" it="Sei sicuro?" base="Are you sure?"></en_are_you_sure_></dialogs>
+<htmltoframe path="resources/common/foundation/htmltoframe.py" ext="py"><en_pdf fr="Pdf" de="Pdf" en="Pdf" it="Pdf" base="PDF"></en_pdf>
+<en_print fr="Imprimer" de="Druck" en="Print" it="Stampa" base="Print"></en_print></htmltoframe>
+<includedview path="resources/common/foundation/includedview.py" ext="py"><en_edit fr="Éditer" de="Bearbeiten" en="Edit" it="Modifica" base="Edit"></en_edit>
+<en_delete fr="Effacer" de="Löschen" en="Delete" it="Cancellare" base="Delete"></en_delete>
+<en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add>
+<en_first fr="Premier" de="Erste" en="First" it="Primo" base="First"></en_first>
+<en_previous fr="Précédent" de="Früher" en="Previous" it="Precedente" base="Previous"></en_previous>
+<en_next fr="Prochaine" de="Nächste" en="Next" it="Il Prossimo" base="Next"></en_next>
+<en_last fr="Dernier" de="Letzte" en="Last" it="Ultimo" base="Last"></en_last>
+<en_close fr="Près" de="Schließen" en="Close" it="Vicino" base="Close"></en_close>
+<en_add_and_close fr="Ajouter et fermer" de="Hinzufügen und Schließen" en="Add and Close" it="Aggiungi e chiudi" base="Add and Close"></en_add_and_close></includedview>
+<macrowidgets path="resources/common/foundation/macrowidgets.py" ext="py"><en_prev fr="Précédent" de="Zurück" en="Prev" it="Prev" base="Prev"></en_prev>
+<en_next fr="Prochaine" de="Nächste" en="Next" it="Il Prossimo" base="Next"></en_next>
+<en_period fr="Période" de="Zeit" en="Period" it="Periodo" base="Period"></en_period>
+<en_first fr="Premier" de="Erste" en="First" it="Primo" base="First"></en_first>
+<en_previous fr="Précédent" de="Früher" en="Previous" it="Precedente" base="Previous"></en_previous>
+<en_last fr="Dernier" de="Letzte" en="Last" it="Ultimo" base="Last"></en_last></macrowidgets>
+<menu path="resources/common/foundation/menu.py" ext="py"><en_menu fr="Menu" de="Menü" en="Menu" it="Menu" base="Menu"></en_menu></menu>
+<recorddialog path="resources/common/foundation/recorddialog.py" ext="py"><en_not_valid_data_please_check_the_form fr="Les données ne sont pas valables. S'il vous plaît vérifier la forme" de="Keine gültigen Daten. Überprüfen Sie bitte das Formular" en="Not valid data. Please check the form" it="Dati non validi. Si prega di verificare la forma" base="Not valid data. Please check the form"></en_not_valid_data_please_check_the_form>
+<en_warning fr="Avertissement" de="Warnung" en="Warning" it="Avvertimento" base="Warning"></en_warning>
+<en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
+<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel></recorddialog>
+<thermo path="resources/common/foundation/thermo.py" ext="py"><en_stop_the_batch_execution_ fr="Arrêter l'exécution du lot?" de="Stoppen Sie die Batch-Ausführung?" en="Stop the batch execution?" it="Interrompere l'esecuzione del batch?" base="Stop the batch execution?"></en_stop_the_batch_execution_></thermo>
+<userobject path="resources/common/foundation/userobject.py" ext="py"><en_you_cannot_undo_this_operation_are_you_sure_ fr="Vous ne pouvez pas annuler cette opération. Êtes-vous sûr?" de="Sie können diesen Vorgang nicht rückgängig gemacht werden. Sind Sie sicher?" en="You cannot undo this operation. Are you sure?" it="Non è possibile annullare questa operazione. Sei sicuro?" base="You cannot undo this operation. Are you sure?"></en_you_cannot_undo_this_operation_are_you_sure_>
+<en_quicklist fr="Quicklist" de="Quicklist" en="Quicklist" it="QuickList" base="Quicklist"></en_quicklist>
+<en_available_in_shortcuts fr="Disponible en raccourcis" de="Erhältlich in Verknüpfungen" en="Available in shortcuts" it="Disponibile in scorciatoie" base="Available in shortcuts"></en_available_in_shortcuts>
+<en_private fr="Privé" de="Privat" en="Private" it="Privato" base="Private"></en_private>
+<en_only_for_me_ fr="Seulement pour moi." de="Nur für mich." en="Only for me." it="Solo per me." base="Only for me."></en_only_for_me_>
+<en_dotted_path_and_name fr="Dotted chemin et le nom" de="Gepunktete Pfad und Namen" en="Dotted path and name" it="Percorso punteggiato e nome" base="Dotted path and name"></en_dotted_path_and_name>
+<en_permissions fr="Autorisations" de="Berechtigungen" en="Permissions" it="Permessi" base="Permissions"></en_permissions>
+<en_comma_separated_list_of_auth_tags_ fr="Comma liste des balises auth séparé." de="Kommagetrennte Liste von auth-Tags." en="Comma separated list of auth tags." it="Comma lista dei tag auth separati." base="Comma separated list of auth tags."></en_comma_separated_list_of_auth_tags_>
+<en_description fr="Description" de="Beschreibung" en="Description" it="Descrizione" base="Description"></en_description>
+<en_save_s fr="Économisez%s" de="Sparen Sie  %s" en="Save  %s" it="Risparmi% s" base="Save %s"></en_save_s>
+<en_close fr="Près" de="Schließen" en="Close" it="Vicino" base="Close"></en_close>
+<en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
+<en_code fr="Code" de="Code" en="Code" it="Codice" base="Code"></en_code>
+<en_shortlist fr="Sélection" de="Auswahlliste" en="Shortlist" it="Selezione" base="Shortlist"></en_shortlist>
+<en_load_s fr="Charge%s" de="Last  %s" en="Load  %s" it="Load% s" base="Load %s"></en_load_s>
+<en_load fr="Charge" de="Last" en="Load" it="Carico" base="Load"></en_load>
+<en_confirm_deletion fr="Confirmez la suppression" de="Löschvorgang zu bestätigen" en="Confirm deletion" it="Confermare l'eliminazione" base="Confirm deletion"></en_confirm_deletion>
+<en_yes fr="Oui" de="Ja" en="Yes" it="Sì" base="Yes"></en_yes>
+<en_no fr="Aucun" de="Keine" en="No" it="No" base="No"></en_no>
+<en_the_selected_object_will_be_permanently_deleted_ fr="L'objet sélectionné sera définitivement supprimé:" de="Das ausgewählte Objekt dauerhaft gelöscht werden:" en="The selected object will be permanently deleted:" it="L'oggetto selezionato verrà eliminato definitivamente:" base="The selected object will be permanently deleted:"></en_the_selected_object_will_be_permanently_deleted_></userobject></foundation>
+<gnrcomponents><attachmanager><attachmanager path="resources/common/gnrcomponents/attachmanager/attachmanager.py" ext="py"><en_filepath fr="Chemin Du Fichier" de="Dateipfad" en="Filepath" it="Filepath" base="Filepath"></en_filepath>
+<en_imp_ fr="Imp." de="Imp." en="Imp." it="Imp." base="Imp."></en_imp_>
+<en_drop_area fr="Zone baisse" en="Drop Area" de="Drop Bereich" it="Trascina qui" base="Drop Area"></en_drop_area>
+<en_attachment fr="Attachement" de="Befestigung" en="Attachment" it="Attaccamento" base="Attachment"></en_attachment>
+<en_attachments fr="Pièces jointes" de="Zubehör" en="Attachments" it="Allegati" base="Attachments"></en_attachments>
+<en_delete_attachment fr="Supprimer la pièce jointe" de="Anhang löschen" en="Delete attachment" it="Elimina allegato" base="Delete attachment"></en_delete_attachment>
+<en_change_description fr="Modifier la description" de="Beschreibung verändern" en="Change description" it="Cambia la descrizione" base="Change description"></en_change_description>
+<en_description fr="Description" de="Beschreibung" en="Description" it="Descrizione" base="Description"></en_description></attachmanager></attachmanager>
+<batch_handler><batch_handler path="resources/common/gnrcomponents/batch_handler/batch_handler.py" ext="py"><en_batch fr="Lot" de="Stapel" en="Batch" it="Partita" base="Batch"></en_batch>
+<en_batch_monitor fr="Batch Monitor" de="Batch Monitor" en="Batch monitor" it="Monitor Batch" base="Batch monitor"></en_batch_monitor>
+<en_s_i_ _tag="en__s_i_" base="%s (%i)" en="%s (%i)" it="%s (%i)"></en_s_i_></batch_handler></batch_handler>
+<bottomplugins path="resources/common/gnrcomponents/bottomplugins.py" ext="py"><en_documentation fr="Documentation" de="Dokumentation" en="Documentation" it="Documentazione" base="Documentation"></en_documentation>
+<en_tickets fr="Billets" de="Tickets" en="Tickets" it="Biglietti" base="Tickets"></en_tickets></bottomplugins>
+<chat_component><chat_component path="resources/common/gnrcomponents/chat_component/chat_component.py" ext="py"><en_chat fr="Bavarder" de="Unterhaltung" en="Chat" it="Chiacchierare" base="Chat"></en_chat>
+<en_connected_users fr="Utilisateurs connectés" de="Verbundenen Benutzer" en="Connected users" it="Utenti connessi" base="Connected users"></en_connected_users>
+<en_chat_plug_in fr="Chat plug-in" de="Chat-Plug-in" en="Chat plug-in" it="Chat plug-in" base="Chat plug-in"></en_chat_plug_in>
+<en_start_chat fr="Démarrer un chat" de="Chat starten" en="Start chat" it="Comincia chat" base="Start chat"></en_start_chat>
+<en_users fr="Utilisateurs" de="Benutzer" en="Users" it="Utenti" base="Users"></en_users></chat_component></chat_component>
+<datamover path="resources/common/gnrcomponents/datamover.py" ext="py"><en_save_mover fr="Sauvegarder Mover" de="Speichern Mover" en="Save Mover" it="Salva Mover" base="Save Mover"></en_save_mover>
+<en_name fr="Nom" de="Name" en="Name" it="Nome" base="Name"></en_name>
+<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
+<en_type fr="Type" de="Art" en="Type" it="Tipo" base="Type"></en_type>
+<en_table fr="Table" de="Tabelle" en="Table" it="Tavolo" base="Table"></en_table>
+<en_n fr="N" de="N" en="N" it="N" base="N"></en_n>
+<en_db fr="Db" de="Db" en="Db" it="Db" base="Db"></en_db>
+<en_mover fr="Déménageur" de="Antragsteller" en="Mover" it="Motore" base="Mover"></en_mover>
+<en_mover_plug_in fr="Mover plug-in" de="Mover-Plug-in" en="Mover plug-in" it="Plug-in Mover" base="Mover plug-in"></en_mover_plug_in>
+<en_data_mover fr="Data Mover" de="Data Mover" en="Data Mover" it="Data Mover" base="Data Mover"></en_data_mover>
+<en_download fr="Télécharger" de="Herunterladen" en="Download" it="Scarica" base="Download"></en_download></datamover>
+<doc_handler><doc_handler path="resources/common/gnrcomponents/doc_handler/doc_handler.py" ext="py"><en_revert fr="Revenir" de="Zurückkehren" en="Revert" it="Ritornare" base="Revert"></en_revert>
+<en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
+<en_view fr="Vue" de="Ansicht" en="View" it="Vista" base="View"></en_view>
+<en_edit fr="Éditer" de="Bearbeiten" en="Edit" it="Modifica" base="Edit"></en_edit></doc_handler></doc_handler>
+<drop_uploader path="resources/common/gnrcomponents/drop_uploader.py" ext="py"><en_upload fr="Télécharger" de="Hochladen" en="Upload" it="Carica" base="Upload"></en_upload>
+<en_uploader fr="Uploader" de="Uploader" en="Uploader" it="Uploader" base="Uploader"></en_uploader>
+<en_file_name fr="Nom du fichier" de="Dateiname" en="File name" it="Nome del file" base="File name"></en_file_name>
+<en_size fr="Taille" de="Größe" en="Size" it="Taglia" base="Size"></en_size>
+<en_type fr="Type" de="Art" en="Type" it="Tipo" base="Type"></en_type>
+<en_preview fr="Avant-première" de="Vorschau" en="Preview" it="Anteprima" base="Preview"></en_preview>
+<en_no_preview_available base="No preview available" en="No preview available" it="Nessuna anteprima disponibile"></en_no_preview_available>
+<en_thumb fr="Pouce" de="Daumen" en="Thumb" it="Pollice" base="Thumb"></en_thumb>
+<en_uploaded_elements fr="Éléments téléchargés" de="Hochgeladene Elemente" en="Uploaded elements" it="Elementi caricati" base="Uploaded elements"></en_uploaded_elements></drop_uploader>
+<dynamicform><dynamicform path="resources/common/gnrcomponents/dynamicform/dynamicform.py" ext="py"><en_required fr="Requis" de="Erforderlich" en="Required" it="Richiesto" base="Required"></en_required>
+<en_invalid_code_char_is_not_allowed fr='Code invalide: "." omble est pas autorisé' de='Invalid code: "." char ist nicht erlaubt' en='Invalid code: "." char is not allowed' it='Codice non VALIDO: "." char non è consentito' base='Invalid code: "." char is not allowed'></en_invalid_code_char_is_not_allowed>
+<en_already_existing_code fr="Déjà code existant" de="Bereits vorhandenen Code" en="Already existing code" it="Codice esistente" base="Already existing code"></en_already_existing_code>
+<en_field_code fr="Code champs" de="Feldcode" en="Field code" it="Codice Campo" base="Field code"></en_field_code>
+<en_field_description fr="Description du champ" de="Feldbeschreibung" en="Field description" it="Descrizione del campo" base="Field description"></en_field_description>
+<en_t_text_l_integer_n_decimal_d_date_b_boolean_h_time_p_image fr="T: texte, L: Integer, N: décimal, D: Date, B: Boolean, H: Temps, P: Image" de="T: Text, L: Integer, N: Dezimal, D: Datum, B: Boolean, H: Zeit, P: Bild" en="T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image" it="T: Testo, L: Integer, N: Decimale, D: Data, B: booleano, H: Tempo, P: Immagine" base="T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image"></en_t_text_l_integer_n_decimal_d_date_b_boolean_h_time_p_image>
+<en_calculated fr="Calculé" de="Berechnet" en="Calculated" it="Calcolato" base="Calculated"></en_calculated>
+<en_colspan fr="Colspan" de="Colspan" en="Colspan" it="Colspan" base="Colspan"></en_colspan>
+<en_width fr="Largeur" de="Breite" en="Width" it="Larghezza" base="Width"></en_width>
+<en_height fr="Hauteur" de="Höhe" en="Height" it="Altezza" base="Height"></en_height>
+<en_keepable_value fr="Valeur keepable" de="Keepable Wert" en="Keepable value" it="Valore keepable" base="Keepable value"></en_keepable_value>
+<en_vocal_input fr="Entrée Vocal" de="Vocal Eingang" en="Vocal input" it="Ingresso Vocal" base="Vocal input"></en_vocal_input>
+<en_full_text_editor fr="Complet éditeur de texte" de="Volltext-Editor" en="Full text editor" it="Editor di testo completo" base="Full text editor"></en_full_text_editor>
+<en_c1_description1_n_c2_description2 base="c1:description1\n c2:description2" en="c1:description1\n c2:description2" it="c1: description1 \ n c2: description2"></en_c1_description1_n_c2_description2>
+<en_description1_n_description2 fr="description1 \ n description2" de="description1 \ n description2" en="description1\n description2" it="description1 \ n description2" base="description1\n description2"></en_description1_n_description2>
+<en_pkg_table fr="pkg.table" de="pkg.table" en="pkg.table" it="pkg.table" base="pkg.table"></en_pkg_table>
+<en_crop_h fr="Crop H" de="Crop H" en="Crop H" it="Crop H" base="Crop H"></en_crop_h>
+<en_crop_w fr="En culture" de="Crop In" en="Crop In" it="Crop In" base="Crop W"></en_crop_w>
+<en_mandatory fr="Obligatoire" de="Verpflichtend" en="Mandatory" it="Obbligatorio" base="Mandatory"></en_mandatory>
+<en_code fr="Code" de="Code" en="Code" it="Codice" base="Code"></en_code>
+<en_description fr="Description" de="Beschreibung" en="Description" it="Descrizione" base="Description"></en_description>
+<en_type fr="Type" de="Art" en="Type" it="Tipo" base="Type"></en_type>
+<en_widget fr="Widget" de="Widget" en="Widget" it="Widget" base="Widget"></en_widget>
+<en_page fr="Page" de="Seite" en="Page" it="Pagina" base="Page"></en_page>
+<en_querable fr="Querable" de="Querable" en="Querable" it="Querable" base="Querable"></en_querable>
+<en_new_field fr="New Field" de="Neues Feld" en="New Field" it="Nuovo campo" base="New Field"></en_new_field>
+<en_t_text_l_integer_n_decimal_d_date_b_boolean_h_time_p_image_gr_graph fr="T: texte, L: Integer, N: décimal, D: Date, B: Boolean, H: Temps, P: Image, GR: Graphique" de="T: Text, L: Integer, N: Dezimal, D: Datum, B: Boolean, H: Zeit, P: Bild, GR: Graph" en="T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image,GR:Graph" it="T: Testo, L: Integer, N: Decimale, D: Data, B: booleano, H: Tempo, P: Immagine, GR: grafico" base="T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image,GR:Graph"></en_t_text_l_integer_n_decimal_d_date_b_boolean_h_time_p_image_gr_graph>
+<en_source fr="Source" de="Quelle" en="Source" it="Fonte" base="Source"></en_source>
+<en_case fr="Cas" de="Fall" en="Case" it="Caso" base="Case"></en_case>
+<en_range fr="Gamme" de="Angebot" en="Range" it="Gamma" base="Range"></en_range>
+<en_std_range fr="Std.Range" de="Std.Range" en="Std.Range" it="Std.Range" base="Std.Range"></en_std_range>
+<en_graph fr="Graphique" de="Graph" en="Graph" it="Grafico" base="Graph"></en_graph>
+<en_formula fr="Formule" de="Formel" en="Formula" it="Formula" base="Formula"></en_formula>
+<en_access fr="Accès" de="Zugriff" en="Access" it="Accesso" base="Access"></en_access>
+<en_visible_if fr="Visible si" de="Sichtbar, wenn" en="Visible if" it="Visibile se" base="Visible if"></en_visible_if>
+<en_tip fr="Pointe" de="Spitze" en="Tip" it="Punta" base="Tip"></en_tip>
+<en_placeholder fr="Espace réservé" de="Platzhalter" en="Placeholder" it="Segnaposto" base="Placeholder"></en_placeholder>
+<en_format_and_mask fr="Format et le masque" de="Format und Mask" en="Format and Mask" it="Formato e Maschera" base="Format and Mask"></en_format_and_mask>
+<en_format fr="Format" de="Format" en="Format" it="Formato" base="Format"></en_format>
+<en_mask fr="Masquer" de="Maske" en="Mask" it="Maschera" base="Mask"></en_mask>
+<en_styles fr="Styles" de="Styles" en="Styles" it="Stili" base="Styles"></en_styles>
+<en_data_getter fr="Getter données" de="Daten Getter" en="Data getter" it="Getter dati" base="Data getter"></en_data_getter>
+<en_add_custom_template fr="Ajouter template personnalisé" de="Fügen Sie benutzerdefinierte Vorlage" en="Add custom template" it="Aggiungi modello personalizzato" base="Add custom template"></en_add_custom_template>
+<en_new_template fr="Nouveau modèle" de="Neue Vorlage" en="New template" it="Nuovo modello" base="New template"></en_new_template>
+<en_name fr="Nom" de="Name" en="Name" it="Nome" base="Name"></en_name>
+<en_delete_selected_template fr="Supprimer le modèle sélectionné" de="Löschen ausgewählte Vorlage" en="Delete selected template" it="Cancella modello selezionato" base="Delete selected template"></en_delete_selected_template>
+<en_fields fr="Les champs" de="Felder" en="Fields" it="Campi" base="Fields"></en_fields>
+<en_dynamic_fields fr="Les champs dynamiques" de="Dynamische Felder" en="Dynamic fields" it="Campi dinamici" base="Dynamic fields"></en_dynamic_fields>
+<en_preview fr="Avant-première" de="Vorschau" en="Preview" it="Anteprima" base="Preview"></en_preview>
+<en_summary_templates fr="Résumé Templates" de="Zusammenfassung Templates" en="Summary Templates" it="Sommario Modelli" base="Summary Templates"></en_summary_templates>
+<en_n_col fr="N. Col" de="N. Col" en="N. Col" it="N. Col" base="N. Col"></en_n_col>
+<en_colswith fr="Colswith" de="Colswith" en="Colswith" it="Colswith" base="Colswith"></en_colswith>
+<en_under_min_value_s fr="Sous min valeur%s" de="Unter min Wert  %s" en="Under min value  %s" it="In valore minimo% s" base="Under min value %s"></en_under_min_value_s>
+<en_over_max_value_s fr="Au cours de la valeur max%s" de="Über Max-Wert  %s" en="Over max value  %s" it="Oltre valore massimo% s" base="Over max value %s"></en_over_max_value_s></dynamicform></dynamicform>
+<explorer_manager path="resources/common/gnrcomponents/explorer_manager.py" ext="py"><en_explorers fr="Explorateurs" de="Explorers" en="Explorers" it="Explorers" base="Explorers"></en_explorers></explorer_manager>
+<filepicker path="resources/common/gnrcomponents/filepicker.py" ext="py"><en_image fr="Image" de="Bild" en="Image" it="Immagine" base="Image"></en_image>
+<en_title fr="Titre" de="Titel" en="Title" it="Titolo" base="Title"></en_title>
+<en_created fr="Établi" de="Erstellt" en="Created" it="Creato" base="Created"></en_created>
+<en_size fr="Taille" de="Größe" en="Size" it="Taglia" base="Size"></en_size></filepicker>
+<formhandler path="resources/common/gnrcomponents/formhandler.py" ext="py"><en_navigation fr="Navigation" de="Navigation" en="Navigation" it="Navigazione" base="Navigation"></en_navigation>
+<en_form_commands fr="Commandes Formulaire" de="Form-Befehle" en="Form Commands" it="Modulo Comandi" base="Form Commands"></en_form_commands>
+<en_dismiss fr="Rejeter" de="Entlassen" en="Dismiss" it="Respingere" base="Dismiss"></en_dismiss>
+<en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
+<en_revert fr="Revenir" de="Zurückkehren" en="Revert" it="Ritornare" base="Revert"></en_revert>
+<en_this_record_cannot_be_deleted fr="Cet enregistrement ne peut pas être supprimé" de="Dieser Datensatz kann nicht gelöscht werden" en="This record cannot be deleted" it="Questo record non può essere eliminato" base="This record cannot be deleted"></en_this_record_cannot_be_deleted>
+<en_delete_current_record fr="Supprimer enregistrement en cours" de="Aktuellen Datensatz löschen" en="Delete current record" it="Elimina record corrente" base="Delete current record"></en_delete_current_record>
+<en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add>
+<en_duplicate fr="Dupliquer" de="Duplikat" en="Duplicate" it="Duplicare" base="Duplicate"></en_duplicate>
+<en_first fr="Premier" de="Erste" en="First" it="Primo" base="First"></en_first>
+<en_prev fr="Précédent" de="Zurück" en="Prev" it="Prev" base="Prev"></en_prev>
+<en_next fr="Prochaine" de="Nächste" en="Next" it="Il Prossimo" base="Next"></en_next>
+<en_hidden fr="Caché" de="Versteckt" en="Hidden" it="Nascosto" base="Hidden"></en_hidden>
+<en_last fr="Dernier" de="Letzte" en="Last" it="Ultimo" base="Last"></en_last>
+<en_locker fr="Casier" en="Locker" de="Schließfach" it="Blocca/Sblocca" base="Locker"></en_locker></formhandler>
+<framegrid path="resources/common/gnrcomponents/framegrid.py" ext="py"><en_export fr="Exportation" de="Export" en="Export" it="Esportazione" base="Export"></en_export>
+<en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add>
+<en_delete fr="Effacer" de="Löschen" en="Delete" it="Cancellare" base="Delete"></en_delete>
+<en_locker fr="Casier" en="Locker" de="Schließfach" it="Blocca/Sblocca" base="Locker"></en_locker>
+<en_update fr="Mettre à jour" de="Aktualisierung" en="Update" it="Aggiornare" base="Update"></en_update>
+<en_reload fr="Recharger" de="Nachladen" en="Reload" it="Ricaricare" base="Reload"></en_reload>
+<en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save></framegrid>
+<htablehandler path="resources/common/gnrcomponents/htablehandler.py" ext="py"><en_hierarchical fr="Hiérarchique" de="Hierarchische" en="Hierarchical" it="Gerarchica" base="Hierarchical"></en_hierarchical>
+<en_plain fr="Plaine" de="Ebene" en="Plain" it="Pianura" base="Plain"></en_plain>
+<en_close fr="Près" de="Schließen" en="Close" it="Vicino" base="Close"></en_close>
+<en_lock fr="Bloquer" de="Sperren" en="Lock" it="Serratura" base="Lock"></en_lock>
+<en_unlock fr="Ouvrir" de="Öffnen" en="Unlock" it="Sbloccare" base="Unlock"></en_unlock>
+<en_deleting_record fr="Suppression fiche" de="Löschen Rekord" en="Deleting record" it="Eliminazione di record di" base="Deleting record"></en_deleting_record>
+<en_you_cannot_undo_this_operation_do_you_want_to_proceed_ fr="Vous ne pouvez pas annuler cette opération. Voulez-vous procéder?" de="Sie können diesen Vorgang nicht rückgängig gemacht werden. Möchten Sie fortfahren?" en="You cannot undo this operation. Do you want to proceed?" it="Non è possibile annullare questa operazione. Vuoi continuare?" base="You cannot undo this operation. Do you want to proceed?"></en_you_cannot_undo_this_operation_do_you_want_to_proceed_>
+<en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add>
+<en_add_sibling fr="Ajouter fratrie" de="Geschwister hinzufügen" en="Add sibling" it="Aggiungere fratello" base="Add Sibling"></en_add_sibling>
+<en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
+<en_revert fr="Revenir" de="Zurückkehren" en="Revert" it="Ritornare" base="Revert"></en_revert>
+<en_delete fr="Effacer" de="Löschen" en="Delete" it="Cancellare" base="Delete"></en_delete>
+<en_tree fr="Arbre" de="Baum" en="Tree" it="Albero" base="Tree"></en_tree>
+<en_picker fr="Cueilleur" de="Pflücker" en="Picker" it="Picker" base="Picker"></en_picker>
+<en_how_many_copies_do_you_want_to_insert_ fr="Combien de copies que vous souhaitez insérer?" de="Wie viele Exemplare möchten Sie ein?" en="How many copies do you want to insert?" it="Quante copie vuoi inserire?" base="How many copies do you want to insert?"></en_how_many_copies_do_you_want_to_insert_>
+<en_confirm fr="Confirmer" de="Bestätigen" en="Confirm" it="Ok" base="Confirm"></en_confirm></htablehandler>
+<htmlchunkeditor path="resources/common/gnrcomponents/htmlchunkeditor.py" ext="py"><en_chunk_editor fr="éditeur de Chunk" de="Chunk Editor" en="Chunk editor" it="Editor Chunk" base="Chunk editor"></en_chunk_editor></htmlchunkeditor>
+<maintenance path="resources/common/gnrcomponents/maintenance.py" ext="py"><en_maintenance fr="Entretien" de="Wartung" en="Maintenance" it="Manutenzione" base="Maintenance"></en_maintenance>
+<en_users_connections fr="Utilisateurs &amp; Connexions" de="Anwender &amp; Anschlüsse" en="Users &amp; Connections" it="Utenti e Connessioni" base="Users &amp; Connections"></en_users_connections>
+<en_backups fr="Sauvegardes" de="Backups" en="Backups" it="Backup" base="Backups"></en_backups>
+<en_message fr="Message" de="Nachricht" en="Message" it="Messaggio" base="Message"></en_message>
+<en_the_system_is_going_to_be_restarted_finish_your_pending_tasks fr="Le système va être redémarré. Terminez vos tâches en attente" de="Das System wird neu gestartet werden. Beenden Sie Ihre anstehenden Aufgaben" en="The system is going to be restarted. Finish your pending tasks" it="Il sistema sta per essere riavviato. Finite le vostre attività in corso" base="The system is going to be restarted. Finish your pending tasks"></en_the_system_is_going_to_be_restarted_finish_your_pending_tasks>
+<en_exclude_guest fr="Exclure invité" de="Ausschließen Gast" en="Exclude guest" it="Escludi ospite" base="Exclude guest"></en_exclude_guest>
+<en_rpc_details fr="Détails Rpc" de="RPC-Details" en="Rpc details" it="Dettagli Rpc" base="Rpc details"></en_rpc_details></maintenance>
+<multiselect path="resources/common/gnrcomponents/multiselect.py" ext="py"><en_select_all fr="Tout Sélectionner" de="Alle auswählen" en="Select All" it="Seleziona Tutto" base="Select All"></en_select_all>
+<en_unselect_all fr="Tout Déselectionner" de="Auswahl aufheben" en="Unselect All" it="Deseleziona tutto" base="Unselect All"></en_unselect_all></multiselect>
+<printer_option_dialog path="resources/common/gnrcomponents/printer_option_dialog.py" ext="py"><en_printer fr="Imprimeur" de="Drucker" en="Printer" it="Stampante" base="Printer"></en_printer>
+<en_no_printer base="No printer" en="No printer" it="No stampante"></en_no_printer>
+<en_paper fr="Papier" de="Papier" en="Paper" it="Carta" base="Paper"></en_paper>
+<en_tray fr="Plateau" de="Tablett" en="Tray" it="Vassoio" base="Tray"></en_tray>
+<en_server_printer_options fr="Les options du serveur d'imprimante" de="Server Drucker-Optionen" en="Server Printer options" it="Opzioni stampante Server" base="Server Printer options"></en_server_printer_options></printer_option_dialog>
+<recordlinker path="resources/common/gnrcomponents/recordlinker.py" ext="py"><en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add>
+<en_edit fr="Éditer" de="Bearbeiten" en="Edit" it="Modifica" base="Edit"></en_edit></recordlinker>
+<selectionhandler path="resources/common/gnrcomponents/selectionhandler.py" ext="py"><en_unsaved_changes fr="Les modifications non enregistrées" de="Nicht gespeicherte Änderungen" en="Unsaved changes" it="Le modifiche non salvate" base="Unsaved changes"></en_unsaved_changes>
+<en_the_main_record_has_some_changes_do_you_want_to_save_them_ fr="Le dossier principal a quelques changements. Voulez-vous pour les sauver?" de="Der Hauptsatz hat einige Änderungen. Wollen Sie, um sie zu retten?" en="The main record has some changes. Do you want to save them?" it="Il record principale ha alcuni cambiamenti. Vuoi per salvarli?" base="The main record has some changes. Do you want to save them?"></en_the_main_record_has_some_changes_do_you_want_to_save_them_>
+<en_the_main_record_contains_some_invalid_field_please_check_before_adding_new_sub_records fr="Le dossier principal contient un champ non valide. S'il vous plaît vérifier avant l'ajout de nouveaux sous-dossiers" de="Der Hauptsatz enthält einige ungültige Feld. Bitte prüfen Sie vor Hinzufügen neuer Untersätzen" en="The main record contains some invalid field. Please check before adding new sub-records" it="Il record principale contiene qualche campo non valido. Si prega di controllare prima di aggiungere nuove sotto-record" base="The main record contains some invalid field. Please check before adding new sub-records"></en_the_main_record_contains_some_invalid_field_please_check_before_adding_new_sub_records>
+<en_warning fr="Avertissement" de="Warnung" en="Warning" it="Avvertimento" base="Warning"></en_warning>
+<en_you_have_to_save_the_main_record_before_do_you_want_to_save_ fr="Vous devez sauvegarder l'enregistrement principal avant. Voulez-vous sauver?" de="Sie müssen den Hauptsatz, bevor zu speichern. Wollen Sie sparen?" en="You have to save the main record before. Do you want to save?" it="È necessario salvare il record principale prima. Vuoi risparmiare?" base="You have to save the main record before. Do you want to save?"></en_you_have_to_save_the_main_record_before_do_you_want_to_save_>
+<en_lock fr="Bloquer" de="Sperren" en="Lock" it="Serratura" base="Lock"></en_lock>
+<en_unlock fr="Ouvrir" de="Öffnen" en="Unlock" it="Sbloccare" base="Unlock"></en_unlock>
+<en_you_cannot_undo_this_operation_do_you_want_to_proceed_ fr="Vous ne pouvez pas annuler cette opération. Voulez-vous procéder?" de="Sie können diesen Vorgang nicht rückgängig gemacht werden. Möchten Sie fortfahren?" en="You cannot undo this operation. Do you want to proceed?" it="Non è possibile annullare questa operazione. Vuoi continuare?" base="You cannot undo this operation. Do you want to proceed?"></en_you_cannot_undo_this_operation_do_you_want_to_proceed_>
+<en_there_are_unsaved_changes fr="Il ya des modifications non enregistrées" de="Es gibt nicht gespeicherte Änderungen" en="There are unsaved changes" it="Ci sono modifiche non salvate" base="There are unsaved changes"></en_there_are_unsaved_changes>
+<en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
+<en_do_not_save base="Do not save" en="Do not save" it="Non salvare"></en_do_not_save>
+<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_first fr="Premier" de="Erste" en="First" it="Primo" base="First"></en_first>
+<en_previous fr="Précédent" de="Früher" en="Previous" it="Precedente" base="Previous"></en_previous>
+<en_next fr="Prochaine" de="Nächste" en="Next" it="Il Prossimo" base="Next"></en_next>
+<en_last fr="Dernier" de="Letzte" en="Last" it="Ultimo" base="Last"></en_last>
+<en_save_changes fr="Sauvegarder les changements" de="Änderungen speichern" en="Save changes" it="Salva i cambiamenti" base="Save changes"></en_save_changes>
+<en_revert fr="Revenir" de="Zurückkehren" en="Revert" it="Ritornare" base="Revert"></en_revert>
+<en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add>
+<en_delete fr="Effacer" de="Löschen" en="Delete" it="Cancellare" base="Delete"></en_delete></selectionhandler>
+<ticket_handler><ticket_handler path="resources/common/gnrcomponents/ticket_handler/ticket_handler.py" ext="py"><en_description fr="Description" de="Beschreibung" en="Description" it="Descrizione" base="Description"></en_description>
+<en_title fr="Titre" de="Titel" en="Title" it="Titolo" base="Title"></en_title>
+<en_type fr="Type" de="Art" en="Type" it="Tipo" base="Type"></en_type>
+<en_date fr="Date" de="Datum" en="Date" it="Data" base="Date"></en_date>
+<en_status fr="Statut" de="Status" en="Status" it="Stato" base="Status"></en_status></ticket_handler></ticket_handler>
+<timetable path="resources/common/gnrcomponents/timetable.py" ext="py"><en_configuration fr="Configuration" de="Konfiguration" en="Configuration" it="Configurazione" base="Configuration"></en_configuration></timetable>
+<tpleditor path="resources/common/gnrcomponents/tpleditor.py" ext="py"><en_metadata fr="Métadonnées" de="Metadata" en="Metadata" it="Metadata" base="Metadata"></en_metadata>
+<en_edit fr="Éditer" de="Bearbeiten" en="Edit" it="Modifica" base="Edit"></en_edit>
+<en_preview fr="Avant-première" de="Vorschau" en="Preview" it="Anteprima" base="Preview"></en_preview>
+<en_help fr="Aider" de="Hilfe" en="Help" it="Aiuto" base="Help"></en_help>
+<en_edit_pars fr="Modifier pars" de="Pars bearbeiten" en="Edit pars" it="Modifica pars" base="Edit pars"></en_edit_pars>
+<en_author fr="Auteur" de="Verfasser" en="Author" it="Autore" base="Author"></en_author>
+<en_version fr="Version" de="Version" en="Version" it="Versione" base="Version"></en_version>
+<en_date fr="Date" de="Datum" en="Date" it="Data" base="Date"></en_date>
+<en_print fr="Imprimer" de="Druck" en="Print" it="Stampa" base="Print"></en_print>
+<en_mail fr="Courrier" de="Post" en="Mail" it="Posta" base="Mail"></en_mail>
+<en_row fr="Rangée" de="Reihe" en="Row" it="Fila" base="Row"></en_row>
+<en_letterhead fr="Tête" de="Briefkopf" en="Letterhead" it="Carta intestata" base="Letterhead"></en_letterhead>
+<en_summary fr="Résumé" de="Zusammenfassung" en="Summary" it="Sommario" base="Summary"></en_summary>
+<en_flags fr="Drapeaux" de="Flags" en="Flags" it="Bandiere" base="Flags"></en_flags>
+<en_variables fr="Variables" de="Variablen" en="Variables" it="Variabili" base="Variables"></en_variables>
+<en_parameters fr="Paramètres" de="Parameter" en="Parameters" it="Parametri" base="Parameters"></en_parameters>
+<en_fields fr="Les champs" de="Felder" en="Fields" it="Campi" base="Fields"></en_fields>
+<en_files fr="Fichiers" de="Dateien" en="Files" it="File" base="Files"></en_files>
+<en_email_metadata fr="Email métadonnées" de="E-Mail-Metadaten" en="Email metadata" it="Metadati Email" base="Email metadata"></en_email_metadata>
+<en_subject fr="Sujet" de="Gegenstand" en="Subject" it="Soggetto" base="Subject"></en_subject>
+<en_to fr="À" de="Bis" en="To" it="A" base="To"></en_to>
+<en_from fr="À partir de" de="Von" en="From" it="Da" base="From"></en_from>
+<en_cc fr="CC" de="CC" en="CC" it="CC" base="CC"></en_cc>
+<en_bcc fr="BCC" de="BCC" en="BCC" it="BCC" base="BCC"></en_bcc>
+<en_attachments fr="Pièces jointes" de="Zubehör" en="Attachments" it="Allegati" base="Attachments"></en_attachments>
+<en_record fr="Record" de="Aufzeichnung" en="Record" it="Record" base="Record"></en_record>
+<en_code fr="Code" de="Code" en="Code" it="Codice" base="Code"></en_code>
+<en_description fr="Description" de="Beschreibung" en="Description" it="Descrizione" base="Description"></en_description>
+<en_fieldtype fr="FieldType" de="Fieldtype" en="FieldType" it="FieldType" base="Fieldtype"></en_fieldtype>
+<en_t_text_l_integer_d_date_n_decimal_b_boolean_tl_long_text fr="T: texte, L: Integer, D: Date, N: Décimal, B: Boolean, TL: texte long" de="T: Text, L: Integer, D: Datum, N: Dezimal, B: Boolean, TL: Langtext" en="T:Text,L:Integer,D:Date,N:Decimal,B:Boolean,TL:Long Text" it="T: Testo, L: Integer, D: Data, N: Decimale, B: booleano, TL: Testo lungo" base="T:Text,L:Integer,D:Date,N:Decimal,B:Boolean,TL:Long Text"></en_t_text_l_integer_d_date_n_decimal_b_boolean_tl_long_text>
+<en_format fr="Format" de="Format" en="Format" it="Formato" base="Format"></en_format>
+<en_mask fr="Masquer" de="Maske" en="Mask" it="Maschera" base="Mask"></en_mask>
+<en_values fr="Valeurs" de="Werte" en="Values" it="Valori" base="Values"></en_values>
+<en_delete_current fr="Supprimer actuelle" de="Strom löschen" en="Delete current" it="Corrente Cancella" base="Delete current"></en_delete_current>
+<en_edit_ fr="Éditer" de="Bearbeiten" en="Edit" it="Modifica" base="Edit "></en_edit_>
+<en_save_template fr="Enregistrer le modèle" de="Vorlage speichern" en="Save template" it="Salva modello" base="Save template"></en_save_template>
+<en_new_template fr="Nouveau modèle" de="Neue Vorlage" en="New template" it="Nuovo modello" base="New template"></en_new_template>
+<en_copy_from fr="Copiez De" de="Kopieren Sie aus" en="Copy From" it="Copia da" base="Copy From"></en_copy_from>
+<en_custom fr="Coutume" de="Brauch" en="Custom" it="Abitudine" base="Custom"></en_custom>
+<en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save></tpleditor></gnrcomponents>
+<print_utils path="resources/common/print_utils.py" ext="py"><en_no_printer_selected base="No printer selected" en="No printer selected" it="Nessun stampante selezionata"></en_no_printer_selected>
+<en_warning fr="Avertissement" de="Warnung" en="Warning" it="Avvertimento" base="Warning"></en_warning>
+<en_print_options fr="Les options d'impression" de="Druckoptionen" en="Print options" it="Opzioni di stampa" base="Print options"></en_print_options>
+<en_close fr="Près" de="Schließen" en="Close" it="Vicino" base="Close"></en_close>
+<en_pdf fr="Pdf" de="Pdf" en="Pdf" it="Pdf" base="Pdf"></en_pdf>
+<en_print fr="Imprimer" de="Druck" en="Print" it="Stampa" base="Print"></en_print>
+<en_select_printer fr="Sélectionner l'imprimante" de="Wählen Sie Drucker" en="Select printer" it="Seleziona stampante" base="Select printer"></en_select_printer>
+<en_printer fr="Imprimeur" de="Drucker" en="Printer" it="Stampante" base="Printer"></en_printer>
+<en_paper_ fr="Papier:" de="Papier:" en="Paper:" it="Carta:" base="Paper:"></en_paper_>
+<en_tray_ fr="Plateau:" de="Fach:" en="Tray:" it="Vassoio:" base="Tray:"></en_tray_>
+<en_zip_folder fr="dossier postal" de="Zip-Ordner" en="Zip folder" it="Cartella Zip" base="Zip folder"></en_zip_folder>
+<en_forked_process fr="Processus fourchue" de="Gegabelten Prozess" en="Forked process" it="Processo a forcella" base="Forked process"></en_forked_process>
+<en_general fr="Général" de="General" en="General" it="Generale" base="General"></en_general>
+<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel></print_utils>
+<print_utils_new path="resources/common/print_utils_new.py" ext="py"><en_no_printer_selected base="No printer selected" en="No printer selected" it="Nessun stampante selezionata"></en_no_printer_selected>
+<en_warning fr="Avertissement" de="Warnung" en="Warning" it="Avvertimento" base="Warning"></en_warning>
+<en_print_options fr="Les options d'impression" de="Druckoptionen" en="Print options" it="Opzioni di stampa" base="Print options"></en_print_options>
+<en_close fr="Près" de="Schließen" en="Close" it="Vicino" base="Close"></en_close>
+<en_pdf fr="Pdf" de="Pdf" en="Pdf" it="Pdf" base="Pdf"></en_pdf>
+<en_print fr="Imprimer" de="Druck" en="Print" it="Stampa" base="Print"></en_print>
+<en_forked_process fr="Processus fourchue" de="Gegabelten Prozess" en="Forked process" it="Processo a forcella" base="Forked process"></en_forked_process>
+<en_note fr="Note" de="Note" en="Note" it="Note" base="Note"></en_note>
+<en_select_printer fr="Sélectionner l'imprimante" de="Wählen Sie Drucker" en="Select printer" it="Seleziona stampante" base="Select printer"></en_select_printer>
+<en_printer fr="Imprimeur" de="Drucker" en="Printer" it="Stampante" base="Printer"></en_printer>
+<en_paper_ fr="Papier:" de="Papier:" en="Paper:" it="Carta:" base="Paper:"></en_paper_>
+<en_tray_ fr="Plateau:" de="Fach:" en="Tray:" it="Vassoio:" base="Tray:"></en_tray_>
+<en_zip_folder fr="dossier postal" de="Zip-Ordner" en="Zip folder" it="Cartella Zip" base="Zip folder"></en_zip_folder></print_utils_new>
+<public path="resources/common/public.py" ext="py"><en_logout fr="Se Déconnecter" de="Logout" en="Logout" it="Uscire" base="Logout"></en_logout>
+<en_continue fr="Continuer" de="Fortsetzen" en="Continue" it="Continuare" base="Continue"></en_continue>
+<en_the_date_is_changed_since_you_logged_in_logout_to_use_the_right_workdate fr="La date est changée depuis que vous avez connecté. Se déconnecter d'utiliser le droit workdate" de="Das Datum wird geändert, nachdem Sie angemeldet. Logout, um die richtige workdate verwenden" en="The date is changed since you logged in. Logout to use the right workdate" it="La data è cambiata da quando sei loggato. Logout per usare il dataLavoro destra" base="The date is changed since you logged in. Logout to use the right workdate"></en_the_date_is_changed_since_you_logged_in_logout_to_use_the_right_workdate>
+<en_wrong_date fr="Mauvaise date" de="Falsches Datum" en="Wrong date" it="Data errata" base="Wrong date"></en_wrong_date>
+<en_errors_ fr="Erreurs:" de="Fehler:" en="Errors:" it="Errori:" base="Errors:"></en_errors_>
+<en_back fr="Dos" de="Zurück" en="Back" it="Indietro" base="Back"></en_back>
+<en_english fr="Anglais" de="Englisch" en="English" it="Inglese" base="English"></en_english>
+<en_italian fr="Italien" de="Italienisch" en="Italian" it="Italiano" base="Italian"></en_italian>
+<en_set_filter fr="Définir le filtre" de="Filter setzen" en="Set Filter" it="Imposta filtro" base="Set Filter"></en_set_filter>
+<en_main_view fr="Vue principale" de="Hauptansicht" en="Main view" it="Vista principale" base="Main View"></en_main_view>
+<en_statistical_view fr="Voir statistique" de="Statistische anzeigen" en="Statistical View" it="Visualizza statistica" base="Statistical View"></en_statistical_view></public>
+<standard_tables><tablehandler path="resources/common/standard_tables/tablehandler.py" ext="py"><en_there_are_unsaved_changes_do_you_want_to_close_the_page_without_saving_ fr="Il ya des modifications non enregistrées, voulez-vous fermer la page sans enregistrer?" de="Es gibt nicht gespeicherte Änderungen, haben Sie, um die Seite ohne Speichern schließen möchten?" en="There are unsaved changes, do you want to close the page without saving?" it="Ci sono modifiche non salvate, vuoi chiudere la pagina senza salvare?" base="There are unsaved changes, do you want to close the page without saving?"></en_there_are_unsaved_changes_do_you_want_to_close_the_page_without_saving_>
+<en_errors_in_batch_execution fr="Des erreurs dans l'exécution de lot" de="Fehler im Batch-Ausführung" en="Errors in batch execution" it="Errori in esecuzione in batch" base="Errors in batch execution"></en_errors_in_batch_execution>
+<en_caption fr="Légende" de="Bildunterschrift" en="Caption" it="Titolo" base="Caption"></en_caption>
+<en_error fr="Erreur" de="Fehler" en="Error" it="Errore" base="Error"></en_error></tablehandler>
+<tablehandler_core path="resources/common/standard_tables/tablehandler_core.py" ext="py"><en_show_hidden_records fr="Afficher les dossiers cachés" de="Zeigen Sie versteckte Aufzeichnungen" en="Show hidden records" it="Mostra record nascosti" base="Show hidden records"></en_show_hidden_records>
+<en_show_total_count fr="Afficher comptage total" de="Zeigen Gesamtzählung" en="Show total count" it="Mostra conteggio totale" base="Show total count"></en_show_total_count>
+<en_queries fr="Requêtes" de="Anfragen" en="Queries" it="Query" base="Queries"></en_queries>
+<en_views fr="Vues" de="Ansichten" en="Views" it="Visualizzazioni" base="Views"></en_views>
+<en_actions fr="Actes" de="Aktionen" en="Actions" it="Azioni" base="Actions"></en_actions>
+<en_mails fr="Mails" de="Mails" en="Mails" it="Mail" base="Mails"></en_mails>
+<en_prints fr="Affiches" de="Drucke" en="Prints" it="Stampe" base="Prints"></en_prints>
+<en_new_s fr="Nouveau%s" de="Neue  %s" en="New  %s" it="Nuovo% s" base="New %s"></en_new_s>
+<en_save_s fr="Économisez%s" de="Sparen Sie  %s" en="Save  %s" it="Risparmi% s" base="Save %s"></en_save_s>
+<en_delete_s fr="Supprimer%s" de="Löschen  %s" en="Delete  %s" it="Elimina% s" base="Delete %s"></en_delete_s>
+<en_please_select_the_column fr="S'il vous plaît sélectionnez la colonne" de="Bitte wählen Sie die Spalte" en="Please select the column" it="Si prega di selezionare la colonna" base="Please select the column"></en_please_select_the_column>
+<en_and fr="ET" de="UND" en="AND" it="E" base="AND"></en_and>
+<en_or fr="OU" de="ODER" en="OR" it="OR" base="OR"></en_or>
+<en_not fr="pas" de="nicht" en="not" it="non" base="NOT"></en_not>
+<en_custom_query fr="Requête personnalisée" de="Benutzerdefinierte Abfrage" en="Custom query" it="Domanda su ordinazione" base="Custom query"></en_custom_query></tablehandler_core>
+<tablehandler_extra path="resources/common/standard_tables/tablehandler_extra.py" ext="py"><en_enter_a_list_of_values_ fr="Entrez une liste de valeurs:" de="Geben Sie eine Liste von Werten:" en="Enter a list of values:" it="Inserisci un elenco di valori:" base="Enter a list of values:"></en_enter_a_list_of_values_>
+<en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
+<en_save_as fr="Enregistrer sous" de="Speichern unter" en="Save as" it="Salva come" base="Save as"></en_save_as>
+<en_delete_ fr="Effacer" de="Löschen" en="Delete" it="Cancellare" base="Delete "></en_delete_>
+<en_load fr="Charge" de="Last" en="Load" it="Carico" base="Load"></en_load>
+<en_command fr="Commandement" de="Befehl" en="Command" it="Comando" base="Command"></en_command>
+<en_save_list fr="Sauvegarder la liste" de="Liste speichern" en="Save list" it="Salva lista" base="Save list"></en_save_list>
+<en_delete_list_of_values fr="Liste de valeurs supprimer" de="Werteliste löschen" en="Delete list of values" it="Elenco di valori Elimina" base="Delete list of values"></en_delete_list_of_values>
+<en_helper_tag fr="TAG Helper" de="Helper TAG" en="Helper TAG" it="TAG Helper" base="Helper TAG"></en_helper_tag>
+<en_set_filter fr="Définir le filtre" de="Filter setzen" en="Set Filter" it="Imposta filtro" base="Set Filter"></en_set_filter>
+<en_add_to_current_filter fr="Ajouter au filtre actuel" de="In den aktuellen Filter" en="Add to current filter" it="Aggiungi a filtro corrente" base="Add to current filter"></en_add_to_current_filter>
+<en_remove_filter fr="Enlever le filtre" de="Filter aufheben" en="Remove filter" it="Elimina filtro" base="Remove filter"></en_remove_filter>
+<en_custom_filter fr="Filtre Personnalisé" de="Personalisierte Filter" en="Custom filter" it="Filtro personalizzato" base="Custom filter"></en_custom_filter>
+<en_tags fr="Mots clés" de="Schlagwörter" en="Tags" it="Tag" base="Tags"></en_tags>
+<en_tag_in fr="Tag dans" de="Tag in" en="Tag in" it="Tag in" base="Tag in"></en_tag_in>
+<en_close fr="Près" de="Schließen" en="Close" it="Vicino" base="Close"></en_close>
+<en_edit_tags fr="Modifier les mots clés" de="Schlagworte bearbeiten" en="Edit tags" it="Modifica tags" base="Edit tags"></en_edit_tags>
+<en_record_tag fr="Tag d'enregistrement" de="Tag hinzu" en="Record Tag" it="Record Tag" base="Record Tag"></en_record_tag>
+<en_edit_tag fr="Modifier tag" de="Tag bearbeiten" en="Edit tag" it="Modifica tag" base="Edit tag"></en_edit_tag>
+<en_link_tag fr="Lien tag" de="Link-Tag" en="Link tag" it="Tag link" base="Link tag"></en_link_tag>
+<en_yes fr="Oui" de="Ja" en="Yes" it="Sì" base="Yes"></en_yes>
+<en_no fr="Aucun" de="Keine" en="No" it="No" base="No"></en_no>
+<en_mode fr="Mode" de="Mode" en="Mode" it="Modo" base="Mode"></en_mode>
+<en_loading fr="Chargement" de="Laden" en="Loading" it="Caricamento" base="Loading"></en_loading>
+<en_analyze_grid fr="Analyser Grille" de="Analysieren Grid" en="Analyze Grid" it="Analizzare griglia" base="Analyze Grid"></en_analyze_grid>
+<en_auto_update fr="Mise à jour automatique" de="Auto-Update" en="Auto update" it="Aggiornamento automatico" base="Auto update"></en_auto_update>
+<en_add_child fr="Ajouter un enfant" de="Kind hinzufügen" en="Add child" it="Aggiungi bambino" base="Add child"></en_add_child>
+<en_add_sibling fr="Ajouter fratrie" de="Geschwister hinzufügen" en="Add sibling" it="Aggiungere fratello" base="Add sibling"></en_add_sibling>
+<en_saving_ fr="Sauvegarde en cours ..." de="Saving ..." en="Saving..." it="Salvataggio in corso ..." base="Saving..."></en_saving_>
+<en_revert fr="Revenir" de="Zurückkehren" en="Revert" it="Ritornare" base="Revert"></en_revert></tablehandler_extra>
+<tablehandler_form path="resources/common/standard_tables/tablehandler_form.py" ext="py"><en_hidden _tag="en__hidden" fr="Caché" en="Hidden" de="Versteckt" it="Nascosto" base=" Hidden"></en_hidden>
+<en_lock fr="Bloquer" de="Sperren" en="Lock" it="Serratura" base="Lock"></en_lock>
+<en_unlock fr="Ouvrir" de="Öffnen" en="Unlock" it="Sbloccare" base="Unlock"></en_unlock>
+<en_saving_ fr="Sauvegarde en cours ..." de="Saving ..." en="Saving..." it="Salvataggio in corso ..." base="Saving..."></en_saving_>
+<en_no_change_to_save_ base="No change to save." en="No change to save." it="Nessuna modifica per salvare."></en_no_change_to_save_>
+<en_invalid_data_please_check_the_form_ fr="Des données non valides, s'il vous plaît vérifier la forme." de="Ungültige Daten, überprüfen Sie bitte das Formular aus." en="Invalid data, please check the form." it="Dati non validi, si prega di consultare il modulo." base="Invalid data, please check the form."></en_invalid_data_please_check_the_form_>
+<en_warning fr="Avertissement" de="Warnung" en="Warning" it="Avvertimento" base="Warning"></en_warning>
+<en_unsaved_changes fr="Les modifications non enregistrées" de="Nicht gespeicherte Änderungen" en="Unsaved changes" it="Le modifiche non salvate" base="Unsaved changes"></en_unsaved_changes>
+<en_there_are_unsaved_changes fr="Il ya des modifications non enregistrées" de="Es gibt nicht gespeicherte Änderungen" en="There are unsaved changes" it="Ci sono modifiche non salvate" base="There are unsaved changes"></en_there_are_unsaved_changes>
+<en_save_changes fr="Sauvegarder les changements" de="Änderungen speichern" en="Save changes" it="Salva i cambiamenti" base="Save changes"></en_save_changes>
+<en_forget_changes fr="Oubliez changements" de="Vergessen Änderungen" en="Forget changes" it="Dimenticate modifiche" base="Forget changes"></en_forget_changes>
+<en_review_changes fr="changements de la revue" de="Bewertungsänderungen" en="Review changes" it="Modifiche Recensione" base="Review changes"></en_review_changes>
+<en_record_saved fr="Notice sauvée" de="Datensatz gespeichert" en="Record saved" it="Record salvato" base="Record saved"></en_record_saved>
+<en_record_deleted fr="Enregistrement supprimé" de="Datensatz gelöscht" en="Record deleted" it="Record cancellato" base="Record deleted"></en_record_deleted>
+<en_confirm_record_deletion fr="Confirmez la suppression d'enregistrements" de="Bestätigen Rekord Löschen" en="Confirm record deletion" it="Conferma cancellazione del record" base="Confirm record deletion"></en_confirm_record_deletion>
+<en_are_you_sure_to_delete_ fr="Êtes-vous sûr de vouloir supprimer?" de="Sind Sie sicher, dass Sie löschen?" en="Are you sure to delete?" it="Sei sicuro di voler eliminare?" base="Are you sure to delete?"></en_are_you_sure_to_delete_>
+<en_delete fr="Effacer" de="Löschen" en="Delete" it="Cancellare" base="Delete"></en_delete>
+<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_first fr="Premier" de="Erste" en="First" it="Primo" base="First"></en_first>
+<en_previous fr="Précédent" de="Früher" en="Previous" it="Precedente" base="Previous"></en_previous>
+<en_next fr="Prochaine" de="Nächste" en="Next" it="Il Prossimo" base="Next"></en_next>
+<en_last fr="Dernier" de="Letzte" en="Last" it="Ultimo" base="Last"></en_last>
+<en_tags fr="Mots clés" de="Schlagwörter" en="Tags" it="Tag" base="Tags"></en_tags>
+<en_list_view fr="Voir la liste" de="Listenansicht" en="List view" it="Visualizzazione elenco" base="List view"></en_list_view>
+<en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
+<en_revert fr="Revenir" de="Zurückkehren" en="Revert" it="Ritornare" base="Revert"></en_revert>
+<en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add></tablehandler_form>
+<tablehandler_list path="resources/common/standard_tables/tablehandler_list.py" ext="py"><en_custom_view fr="Vue personnalisée" de="Benutzerdefinierte Ansicht" en="Custom view" it="Vista personalizzata" base="Custom view"></en_custom_view>
+<en_edit_view fr="Modifier vue" de="Ansicht bearbeiten" en="Edit view" it="Modifica vista" base="Edit view"></en_edit_view>
+<en_save_view fr="Sauvegarder Voir" de="Ansicht speichern" en="Save View" it="Salva vista" base="Save view"></en_save_view>
+<en_you_cannot_unlock_this_table fr="Vous ne pouvez pas déverrouiller ce tableau" de="Sie können diese Tabelle nicht entsperren" en="You cannot unlock this table" it="Non puoi sbloccare questa tabella" base="You cannot unlock this table"></en_you_cannot_unlock_this_table>
+<en_commands fr="Commandes" de="Befehle" en="Commands" it="Comandi" base="Commands"></en_commands>
+<en_export_or_print_the_selection fr="Exporter ou Imprimer la sélection" de="Exportieren oder Drucken der Auswahl" en="Export or Print the selection" it="Esporta o Stampa la selezione" base="Export or Print the selection"></en_export_or_print_the_selection>
+<en_export fr="Exportation" de="Export" en="Export" it="Esportazione" base="Export"></en_export>
+<en_print fr="Imprimer" de="Druck" en="Print" it="Stampa" base="Print"></en_print>
+<en_pdf fr="Pdf" de="Pdf" en="Pdf" it="Pdf" base="Pdf"></en_pdf>
+<en_actions fr="Actes" de="Aktionen" en="Actions" it="Azioni" base="Actions"></en_actions>
+<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_choose_the_action_to_execute_ fr="Choisissez l'action à exécuter:" de="Wählen Sie die Aktion ausführen:" en="Choose the action to execute:" it="Scegliere l'azione da eseguire:" base="Choose the action to execute: "></en_choose_the_action_to_execute_>
+<en_confirm fr="Confirmer" de="Bestätigen" en="Confirm" it="Ok" base="Confirm"></en_confirm>
+<en_search fr="Recherche" de="Suche" en="Search" it="Ricerca" base="Search"></en_search>
+<en_op_ base="Op." en="Op." it="Op."></en_op_>
+<en_value fr="Valeur" de="Wert" en="Value" it="Valore" base="Value"></en_value>
+<en_run_query fr="Requête exécutée" de="Abfrage ausführen" en="Run query" it="Interrogazione Run" base="Run query"></en_run_query>
+<en_select_view fr="Sélectionnez Affichage" de="Wählen Sie die Ansicht" en="Select view" it="Seleziona vista" base="Select view"></en_select_view>
+<en_tag fr="Balise" de="Anhänger" en="Tag" it="Etichetta" base="Tag"></en_tag>
+<en_current_query_will_return_rec_items _tag="en_current_query_will_return__rec__items" fr="Requête en cours sera de retour _rec_ articles" en="Current query will return _rec_ items" de="Aktuelle Abfrage _rec_ Einzelteile zurück" it="Query corrente tornerà _rec_ articoli" base="Current query will return _rec_ items"></en_current_query_will_return_rec_items>
+<en_working_ fr="Travailler ....." de="Arbeiten ....." en="Working....." it="Sto elaborando" base="Working....."></en_working_>
+<en_current_query_record_count fr="Requête actuelle nombre d'enregistrements" de="Aktuelle Abfrage Datenanzahl" en="Current query record count" it="Query corrente conteggio dei record" base="Current query record count"></en_current_query_record_count>
+<en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add>
+<en_standard_view fr="Mode d'affichage standard" de="Standard-Ansicht" en="Standard view" it="Visualizzazione standard" base="Standard view"></en_standard_view>
+<en_statistical_view fr="Voir statistique" de="Statistische anzeigen" en="Statistical View" it="Visualizza statistica" base="Statistical view"></en_statistical_view>
+<en_hierarchical_view fr="Voir hiérarchique" de="Hierarchische Ansicht" en="Hierarchical View" it="Gerarchica View" base="Hierarchical view"></en_hierarchical_view>
+<en_hierarchical_edit fr="Modifier hiérarchique" de="Hierarchische bearbeiten" en="Hierarchical edit" it="Modifica gerarchica" base="Hierarchical edit"></en_hierarchical_edit>
+<en_not fr="pas" de="nicht" en="not" it="non" base="not"></en_not></tablehandler_list></standard_tables>
+<tables><_default><action><_common><_doc path="resources/common/tables/_default/action/_common/_doc.py" ext="py"><en_common fr="Commun" de="Gemeinsam" en="Common" it="Comune" base="Common"></en_common>
+<en_common_actions fr="Actions communes" de="Gemeinsame Maßnahmen" en="Common Actions" it="Azioni comuni" base="Common Actions"></en_common_actions></_doc>
+<align_counter path="resources/common/tables/_default/action/_common/align_counter.py" ext="py"><en_align_counter fr="Alignez compteur" de="Richten Gegen" en="Align counter" it="Allineare contatore" base="Align counter"></en_align_counter>
+<en_this_table_has_no_counter_field fr="Ce tableau n'a pas de champ de compteur" de="Diese Tabelle hat keine Zählerfeld" en="This table has no counter field" it="La tabella non ha un campo contatore" base="This table has no counter field"></en_this_table_has_no_counter_field>
+<en_align_counter_for_all_records fr="Alignez compteur pour tous les enregistrements" de="Richten Zähler für alle Datensätze" en="Align counter for all records" it="Allineare contatore per tutti i record" base="Align counter for all records"></en_align_counter_for_all_records></align_counter>
+<btcsmsmobyt path="resources/common/tables/_default/action/_common/btcsmsmobyt.py" ext="py"><en_receiver fr="Récepteur" de="Empfänger" en="Receiver" it="Ricevitore" base="Receiver"></en_receiver></btcsmsmobyt>
+<export path="resources/common/tables/_default/action/_common/export.py" ext="py"><en_export fr="Exportation" de="Export" en="Export" it="Esportazione" base="Export"></en_export>
+<en_export_to_xls_cvs_html fr="Exporter vers XLS, CVS, html" de="Exportieren nach xls, cvs, html" en="Export to xls,cvs,html" it="Esporta in xls, cvs, html" base="Export to xls,cvs,html"></en_export_to_xls_cvs_html>
+<en_mode fr="Mode" de="Mode" en="Mode" it="Modo" base="Mode"></en_mode>
+<en_save_as fr="Enregistrer sous" de="Speichern unter" en="Save as" it="Salva come" base="Save as"></en_save_as></export>
+<send_communication path="resources/common/tables/_default/action/_common/send_communication.py" ext="py"><en_missing_communication_fields fr="Champs de communication manquant" de="Fehlende Kommunikation Felder" en="Missing Communication fields" it="Manca campi di comunicazione" base="Missing Communication fields"></en_missing_communication_fields></send_communication>
+<touch_selection path="resources/common/tables/_default/action/_common/touch_selection.py" ext="py"><en_touch_selection fr="Sélection tactile" de="Touch-Auswahl" en="Touch Selection" it="Selezione di tocco" base="Touch Selection"></en_touch_selection></touch_selection></_common></action>
+<mail><mail_template path="resources/common/tables/_default/mail/mail_template.py" ext="py"><en_s_i_ _tag="en__s_i_" base="%s (%i)" en="%s (%i)" it="%s (%i)"></en_s_i_>
+<en_letterhead fr="Tête" de="Briefkopf" en="Letterhead" it="Carta intestata" base="Letterhead"></en_letterhead>
+<en_send_as_pdf fr="Envoyer comme pdf" de="Als pdf" en="Send as pdf" it="Invia come pdf" base="Send as pdf"></en_send_as_pdf></mail_template></mail>
+<print><_common><_doc path="resources/common/tables/_default/print/_common/_doc.py" ext="py"><en_common fr="Commun" de="Gemeinsam" en="Common" it="Comune" base="Common"></en_common>
+<en_common_prints fr="Affiches communes" de="Gemeinsame Drucke" en="Common Prints" it="Stampe comuni" base="Common Prints"></en_common_prints></_doc>
+<print_rowtemplate path="resources/common/tables/_default/print/_common/print_rowtemplate.py" ext="py"><en_print_grid fr="Imprimer grille" de="Print Gitter" en="Print grid" it="Griglia Stampa" base="Print grid"></en_print_grid>
+<en_print_grid_with_template_ fr="Imprimer grille avec un modèle ..." de="Print Raster mit Vorlage ..." en="Print grid with template..." it="Griglia di stampa con template ..." base="Print grid with template..."></en_print_grid_with_template_>
+<en_row_template fr="modèle de Row" de="Row-Vorlage" en="Row template" it="Modello Row" base="Row template"></en_row_template>
+<en_letterhead fr="Tête" de="Briefkopf" en="Letterhead" it="Carta intestata" base="Letterhead"></en_letterhead></print_rowtemplate></_common>
+<print_template path="resources/common/tables/_default/print/print_template.py" ext="py"><en_s_i_ _tag="en__s_i_" base="%s (%i)" en="%s (%i)" it="%s (%i)"></en_s_i_>
+<en_letterhead fr="Tête" de="Briefkopf" en="Letterhead" it="Carta intestata" base="Letterhead"></en_letterhead></print_template></print></_default></tables>
+<th><th path="resources/common/th/th.py" ext="py"><en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
+<en_f_height fr="F. hauteur" de="F. Höhe" en="F. height" it="Altezza F." base="F. height"></en_f_height>
+<en_f_width fr="F. largeur" de="F. Breite" en="F. width" it="F. larghezza" base="F. width"></en_f_width>
+<en_no_record_selected base="No Record Selected" en="No Record Selected" it="Nessun record selezionato"></en_no_record_selected>
+<en_operation_forbidden fr="Opération interdite" de="Operation verboten" en="Operation forbidden" it="Operazione proibito" base="Operation forbidden"></en_operation_forbidden>
+<en_you_cannot_change_record_the_record_is_not_saved fr="Vous ne pouvez pas modifier l'enregistrement. Le dossier ne sont pas sauvegardées" de="Sie können Datensatz nicht ändern. Der Datensatz wird nicht gespeichert" en="You cannot change record. The record is not saved" it="Non è possibile modificare record. Il record non viene salvato" base="You cannot change record. The record is not saved"></en_you_cannot_change_record_the_record_is_not_saved>
+<en_link_current_table1_record_to_an_existing_record_of_table2 fr="Lien actuel record de table1 à un enregistrement existant de table2 $" de="Kreisstrom $ table1 Rekord zu einem bestehenden Rekord von $ table2" en="Link current $table1 record to an existing record of $table2" it="Collegare attuale record di $ table1 a un record esistente di $ table2" base="Link current $table1 record to an existing record of $table2"></en_link_current_table1_record_to_an_existing_record_of_table2>
+<en_add_a_new_table2 fr="Ajouter une nouvelle $ table2" de="Fügen Sie einen neuen $ table2" en="Add a new $table2" it="Aggiungi un nuovo $ table2" base="Add a new $table2"></en_add_a_new_table2></th>
+<th_dynamic path="resources/common/th/th_dynamic.py" ext="py"><en_select_a_table_from_the_popup_menu fr="Sélectionnez une table dans le menu contextuel" de="Wählen Sie eine Tabelle aus dem Kontextmenü" en="Select a table from the popup menu" it="Selezionare una tabella dal menu a comparsa" base="Select a table from the popup menu"></en_select_a_table_from_the_popup_menu></th_dynamic>
+<th_extra path="resources/common/th/th_extra.py" ext="py"><en_statistical_view fr="Voir statistique" de="Statistische anzeigen" en="Statistical View" it="Visualizza statistica" base="Statistical View"></en_statistical_view>
+<en_main_view fr="Vue principale" de="Hauptansicht" en="Main view" it="Vista principale" base="Main view"></en_main_view>
+<en_mode fr="Mode" de="Mode" en="Mode" it="Modo" base="Mode"></en_mode>
+<en_loading fr="Chargement" de="Laden" en="Loading" it="Caricamento" base="Loading"></en_loading>
+<en_analyze_grid fr="Analyser Grille" de="Analysieren Grid" en="Analyze Grid" it="Analizzare griglia" base="Analyze Grid"></en_analyze_grid>
+<en_details_grid fr="Détails Grille" de="Details Grid" en="Details Grid" it="Dettagli Griglia" base="Details Grid"></en_details_grid>
+<en_hierarchical_view fr="Voir hiérarchique" de="Hierarchische Ansicht" en="Hierarchical View" it="Gerarchica View" base="Hierarchical View"></en_hierarchical_view>
+<en_locker fr="Casier" en="Locker" de="Schließfach" it="Blocca/Sblocca" base="Locker"></en_locker></th_extra>
+<th_form path="resources/common/th/th_form.py" ext="py"><en_save_failed fr="Echec de la sauvegarde" de="Speichern fehlgeschlagen" en="Save failed" it="Salva fallita" base="Save failed"></en_save_failed>
+<en_you_cannot_save fr="Vous ne pouvez pas enregistrer" de="Sie können nicht speichern" en="You cannot save" it="Non è possibile salvare" base="You cannot save"></en_you_cannot_save>
+<en_invalid_record fr="Enregistrement invalide" de="Ungültige Rekord" en="Invalid record" it="Campo non valido" base="Invalid record"></en_invalid_record>
+<en_no_change_to_save base="No change to save" en="No change to save" it="Nessuna modifica per salvare"></en_no_change_to_save>
+<en_revert fr="Revenir" de="Zurückkehren" en="Revert" it="Ritornare" base="Revert"></en_revert>
+<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
+<en_copy_and_paste fr="Copier coller" de="Kopieren und Einfügen" en="Copy and paste" it="Copia e incolla" base="Copy and paste"></en_copy_and_paste></th_form>
+<th_picker path="resources/common/th/th_picker.py" ext="py"><en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add></th_picker>
+<th_tree path="resources/common/th/th_tree.py" ext="py"><en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add>
+<en_show_inherited fr="Afficher Hérité" de="Geerbte anzeigen" en="Show Inherited" it="Mostra Inherited" base="Show Inherited"></en_show_inherited></th_tree>
+<th_view path="resources/common/th/th_view.py" ext="py"><en_favorite_view fr="Voir Favorite" de="Bevorzugte Ansicht" en="Favorite View" it="Vista Favorite" base="Favorite View"></en_favorite_view>
+<en_save_view fr="Sauvegarder Voir" de="Ansicht speichern" en="Save View" it="Salva vista" base="Save View"></en_save_view>
+<en_delete_view fr="Supprimer la vue" de="Löschen anzeigen" en="Delete View" it="Elimina vista" base="Delete View"></en_delete_view>
+<en_limit fr="Limite" de="Limit" en="Limit" it="Limite" base="Limit"></en_limit>
+<en_totals_count fr="nombre de Totaux" de="Totals Zahl" en="Totals count" it="Conteggio Totali" base="Totals count"></en_totals_count>
+<en_show_logical_deleted fr="Afficher logique supprimé" de="Zeigen logische gelöscht" en="Show logical deleted" it="Mostra logico cancellato" base="Show logical deleted"></en_show_logical_deleted>
+<en_configure_table fr="Configurer le tableau" de="Konfigurieren Tabelle" en="Configure Table" it="Configura Tabella" base="Configure Table"></en_configure_table>
+<en_configure_view fr="Configurer la vue" de="Konfigurieren anzeigen" en="Configure View" it="Configura vista" base="Configure View"></en_configure_view>
+<en_all fr="Tous" de="Alle" en="All" it="Tutto" base="All"></en_all>
+<en_custom_columns fr="Les colonnes personnalisées" de="Benutzerdefinierte Spalten" en="Custom columns" it="Colonne personalizzate" base="Custom columns"></en_custom_columns>
+<en_export fr="Exportation" de="Export" en="Export" it="Esportazione" base="Export"></en_export>
+<en_selected_only fr="Sélectionné seulement" de="Nur ausgewählte" en="Selected only" it="Solo selezionati" base="Selected only"></en_selected_only>
+<en_depending_from_ fr="En fonction de" de="Abhängig von" en="Depending from" it="A seconda da" base="Depending from "></en_depending_from_>
+<en_in_sync_with_ base="In sync with " en="In sync with" it="In sincronia con"></en_in_sync_with_>
+<en_run_query fr="Requête exécutée" de="Abfrage ausführen" en="Run query" it="Interrogazione Run" base="Run query"></en_run_query>
+<en_only_highlighted fr="Seulement en surbrillance" de="Nur hervorgehoben" en="Only highlighted" it="Solo evidenziato" base="Only highlighted"></en_only_highlighted>
+<en_user_sets fr="ensembles de l'utilisateur" de="Benutzersätze" en="User sets" it="Impostazioni utente" base="User sets"></en_user_sets>
+<en_current_query_will_return_rec_items _tag="en_current_query_will_return__rec__items" fr="Requête en cours sera de retour _rec_ articles" en="Current query will return _rec_ items" de="Aktuelle Abfrage _rec_ Einzelteile zurück" it="Query corrente tornerà _rec_ articoli" base="Current query will return _rec_ items"></en_current_query_will_return_rec_items>
+<en_working_ fr="Travailler ....." de="Arbeiten ....." en="Working....." it="Sto elaborando" base="Working....."></en_working_>
+<en_current_query_record_count fr="Requête actuelle nombre d'enregistrements" de="Aktuelle Abfrage Datenanzahl" en="Current query record count" it="Query corrente conteggio dei record" base="Current query record count"></en_current_query_record_count>
+<en_search fr="Recherche" de="Suche" en="Search" it="Ricerca" base="Search"></en_search>
+<en_op_ base="Op." en="Op." it="Op."></en_op_>
+<en_value fr="Valeur" de="Wert" en="Value" it="Valore" base="Value"></en_value>
+<en_not fr="pas" de="nicht" en="not" it="non" base="not"></en_not>
+<en_new_set fr="Nouveau jeu" de="New Set" en="New Set" it="Nuovo set" base="New Set"></en_new_set>
+<en_plain_query fr="Plaine de requêtes" de="Plain-Abfrage" en="Plain Query" it="Plain Query" base="Plain Query"></en_plain_query>
+<en_query_editor fr="Editeur de requêtes" de="Abfrage-Editor" en="Query editor" it="Editor Query" base="Query editor"></en_query_editor>
+<en_new_query fr="Nouvelle recherche" de="Neue Abfrage" en="New query" it="Nuova ricerca" base="New query"></en_new_query>
+<en_union fr="Union" de="Union" en="Union" it="Unione" base="Union"></en_union>
+<en_intersect fr="Couper" de="Schneiden" en="Intersect" it="Intersecare" base="Intersect"></en_intersect>
+<en_difference fr="Différence" de="Unterschied" en="Difference" it="Differenza" base="Difference"></en_difference>
+<en_please_select_the_column fr="S'il vous plaît sélectionnez la colonne" de="Bitte wählen Sie die Spalte" en="Please select the column" it="Si prega di selezionare la colonna" base="Please select the column"></en_please_select_the_column>
+<en_and fr="ET" de="UND" en="AND" it="E" base="AND"></en_and>
+<en_or fr="OU" de="ODER" en="OR" it="OR" base="OR"></en_or></th_view></th>
+<thermo_utils path="resources/common/thermo_utils.py" ext="py"><en_execution_completed fr="Exécution terminée" de="Ausführung abgeschlossen" en="Execution completed" it="Esecuzione completata" base="Execution completed"></en_execution_completed>
+<en_execution_stopped fr="Exécution arrêté" de="Ausführung gestoppt" en="Execution stopped" it="Esecuzione arrestata" base="Execution stopped"></en_execution_stopped>
+<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_confirm fr="Confirmer" de="Bestätigen" en="Confirm" it="Ok" base="Confirm"></en_confirm>
+<en_stop_the_batch_execution_ fr="Arrêter l'exécution du lot?" de="Stoppen Sie die Batch-Ausführung?" en="Stop the batch execution?" it="Interrompere l'esecuzione del batch?" base="Stop the batch execution?"></en_stop_the_batch_execution_></thermo_utils></common></resources></GenRoBag>

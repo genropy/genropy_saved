@@ -24,7 +24,7 @@ import tempfile
 import atexit
 import logging
 import shutil
-
+import locale
 import sys
 import imp
 import os
@@ -39,14 +39,20 @@ from gnr.app.gnrdeploy import PathResolver
 from gnr.app.gnrconfig import MenuStruct
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrlang import getUuid
 
 from gnr.core.gnrlang import  gnrImport, instanceMixin, GnrException
 from gnr.core.gnrstring import makeSet, toText, splitAndStrip, like, boolean
 from gnr.core.gnrsys import expandpath
 from gnr.sql.gnrsql import GnrSqlDb
+from gnr.app.gnrlocalization import AppLocalizer
 
 log = logging.getLogger(__name__)
+
+class GnrRestrictedAccessException(GnrException):
+    """GnrRestrictedAccessException"""
+    code = 'GNRAPP-001'
+    description = '!!User not allowed'
+
 
 class NullLoader(object):
     """TODO"""
@@ -170,24 +176,14 @@ class GnrSqlAppDb(GnrSqlDb):
         if not self.inTransactionDaemon and tblobj._usesTransaction:
             raise GnrWriteInReservedTableError('%s.%s' % (tblobj.pkg.name, tblobj.name))
 
+    @property
+    def localizer(self):
+        return self.application.localizer
+
+
     def notifyDbUpdate(self,tblobj,recordOrPkey=None,**kwargs):
-        if isinstance(recordOrPkey,list):
-            records = recordOrPkey
-        elif not recordOrPkey and kwargs:
-            records = tblobj.query(**kwargs).fetch()
-        else:
-            broadcast = tblobj.attributes.get('broadcast')
-            if broadcast is False:
-                return
-            if isinstance(recordOrPkey,basestring):
-                if isinstance(broadcast,basestring):
-                    records = [tblobj.record(pkey=recordOrPkey).output('dict')]
-                else:
-                    records = [{tblobj.pkey:recordOrPkey}]
-            else:
-                records = [recordOrPkey]
-        for record in records:
-            self.application.notifyDbEvent(tblobj, record, 'U')
+        pass
+    
         
     def delete(self, tblobj, record, **kwargs):
         """Delete a record in the database
@@ -329,8 +325,6 @@ class GnrSqlAppDb(GnrSqlDb):
                 result.setItem(b.pop('fieldname'),None,**kw)
             return result
 
-
-
 class GnrPackagePlugin(object):
     """TODO"""
     def __init__(self, pkg, path):
@@ -364,9 +358,16 @@ class GnrPackage(object):
         self.tableMixins = {}
         self.plugins = {}
         self.loadPlugins()
+        self._pkgMenu = None
+        self.projectInfo = None
         if not project:
             projectPath = os.path.normpath(os.path.join(self.packageFolder,'..','..'))
+            projectInfoPath = os.path.join(projectPath,'info.xml')
             project = os.path.split(projectPath)[1]
+            if os.path.exists(projectInfoPath):
+                self.projectInfo = Bag(projectInfoPath)
+        if not self.projectInfo:
+            self.projectInfo = Bag(('project',None,dict(name=project,code=project,language='en'))) 
         self.project = project 
         self.customFolder = os.path.join(self.application.instanceFolder, 'custom', pkg_id)
         try:
@@ -374,14 +375,7 @@ class GnrPackage(object):
         except Exception, e:
             log.exception(e)
             raise GnrImportException(
-                    "Cannot import package %s from %s" % (pkg_id, os.path.join(self.packageFolder, 'main.py')))
-        try:
-            self.pkgMenu = MenuStruct(os.path.join(self.packageFolder, 'menu'),application=self.application,autoconvert=True)
-            for pluginname,plugin in self.plugins.items():
-                self.pkgMenu.update(plugin.menuBag)
-        except:
-            self.pkgMenu = Bag()
-        
+                    "Cannot import package %s from %s" % (pkg_id, os.path.join(self.packageFolder, 'main.py')))    
         self.pkgMixin = GnrMixinObj()
         instanceMixin(self.pkgMixin, getattr(self.main_module, 'Package', None))
         
@@ -419,7 +413,20 @@ class GnrPackage(object):
             customModelFolder = os.path.join(self.customFolder, 'model')
             self.loadTableMixinDict(self.custom_module, customModelFolder, model_prefix='custom_')
         self.configure()
-        
+
+    @property
+    def language(self):
+        return self.attributes.get('language') or self.projectInfo['project?language']
+
+    @property
+    def pkgMenu(self):
+        if self._pkgMenu is None:
+            pkgMenu = MenuStruct(os.path.join(self.packageFolder, 'menu'),application=self.application,autoconvert=True)
+            for pluginname,plugin in self.plugins.items():
+                pkgMenu.update(plugin.menuBag)
+            self._pkgMenu = pkgMenu
+        return self._pkgMenu
+
     @property
     def db(self):
         return self.application.db
@@ -570,9 +577,7 @@ class GnrApp(object):
         if instanceFolder:
             if ':' in instanceFolder:
                 instanceFolder,self.remote_db  = instanceFolder.split(':',1)
-
-            if not os.path.isdir(instanceFolder):
-                instanceFolder = self.instance_name_to_path(instanceFolder)
+            instanceFolder = self.instance_name_to_path(instanceFolder)
         self.instanceFolder = instanceFolder or ''
         sys.path.append(os.path.join(self.instanceFolder, 'lib'))
         sys.path_hooks.append(self.get_modulefinder)
@@ -688,6 +693,7 @@ class GnrApp(object):
         self.base_lang = self.config['i18n?base_lang'] or 'en'
         self.catalog = GnrClassCatalog()
         self.localization = {}
+        
         if not forTesting:
             dbattrs = self.config.getAttr('db') or {}
             
@@ -709,11 +715,9 @@ class GnrApp(object):
             def removeTemporaryDirectory():
                 shutil.rmtree(tempdir)
         dbattrs['application'] = self
-        self.db = GnrSqlAppDb(debugger=getattr(self, 'debugger', None), **dbattrs)
+        self.db = GnrSqlAppDb(debugger=getattr(self, 'sqlDebugger', None), **dbattrs)
         
-        pkgMenus = self.config['menu?package'] or []
-        if pkgMenus:
-            pkgMenus = pkgMenus.split(',')
+        
 
         for pkgid, attrs in self.config['packages'].digest('#k,#a'):
             if ':' in pkgid:
@@ -730,19 +734,9 @@ class GnrApp(object):
 
         for pkgid, apppkg in self.packages.items():
             apppkg.initTableMixinDict()
-            if apppkg.pkgMenu and (not pkgMenus or pkgid in pkgMenus):
-                #self.config['menu.%s' %pkgid] = apppkg.pkgMenu
-                if len(apppkg.pkgMenu) == 1:
-                    self.config['menu.%s' % pkgid] = apppkg.pkgMenu.getNode('#0')
-                else:
-                    self.config.setItem('menu.%s' % pkgid, apppkg.pkgMenu,
-                                        {'label': apppkg.config_attributes().get('name_long', pkgid),'pkg_menu':pkgid})
-
-
             self.db.packageMixin('%s' % (pkgid), apppkg.pkgMixin)
             for tblname, mixobj in apppkg.tableMixinDict.items():
                 self.db.tableMixin('%s.%s' % (pkgid, tblname), mixobj)
-
         self.db.inTransactionDaemon = False
         self.pkgBroadcast('onDbStarting')
         self.db.startup(restorepath=restorepath)
@@ -750,16 +744,32 @@ class GnrApp(object):
             self.config['menu'] = self.config['menu']['#0']
         if self.instanceMenu:
             self.config['menu']=self.instanceMenu
-
-        self.buildLocalization()
+            
+        self.localizer = AppLocalizer(self)
         if forTesting:
             # Create tables in temporary database
             self.db.model.check(applyChanges=True)
                 
             if isinstance(forTesting, Bag):
                 self.loadTestingData(forTesting)
+
+        
         self.onInited()
-            
+
+    def applicationMenuBag(self):
+        pkgMenus = self.config['menu?package']
+        if pkgMenus:
+            pkgMenus = pkgMenus.split(',')
+        menuBag = Bag()
+        for pkgid, apppkg in self.packages.items():
+            pkgMenuBag = apppkg.pkgMenu
+            if pkgMenuBag and (not pkgMenus or pkgid in pkgMenus):
+                #self.config['menu.%s' %pkgid] = apppkg.pkgMenu
+                if len(pkgMenuBag) == 1:
+                    menuBag[pkgid] = pkgMenuBag.getNode('#0')
+                else:
+                    menuBag.setItem(pkgid, pkgMenuBag,{'label': apppkg.config_attributes().get('name_long', pkgid),'pkg_menu':pkgid})
+        return menuBag
 
     def importFromSourceInstance(self,source_instance=None):
         to_import = ''
@@ -897,68 +907,20 @@ class GnrApp(object):
             handler = getattr(pkg,method,None)
             if handler:
                 handler(*args,**kwargs)
+
+    @property
+    def locale(self):
+        return locale.getdefaultlocale()[0].replace('_','-')
         
 
-    def buildLocalization(self):
-        """TODO"""
-        self.localization = {}
-        for pkg in self.packages.values():
-            try:
-                pkgloc = Bag(os.path.join(pkg.packageFolder, 'localization.xml'))
-            except:
-                pkgloc = Bag()
-            try:
-                customLoc = Bag(os.path.join(pkg.customFolder, 'localization.xml'))
-            except:
-                customLoc = Bag()
-            pkgloc.update(customLoc)
+    def setPreference(self, path, data, pkg):
+        if self.db.package('adm'):
+            self.db.table('adm.preference').setPreference(path, data, pkg=pkg)
 
-            self.localization.update(self._compileLocalization(pkgloc, pkgname=pkg.id))
-        self.localizationTime = time.time()
-        
-    def _compileLocalization(self, locbag, pkgname=None):
-        loc = {}
-        for attrs in locbag.digest('#a'):
-            _key = attrs.get('_key')
-            if _key:
-                if pkgname: _key = '%s|%s' % (pkgname, _key.lower())
-                loc[_key] = dict([(k, v) for k, v in attrs.items() if not k.startswith('_')])
-        return loc
-        
-    def updateLocalization(self, pkg, data, locale):
-        """TODO
-
-        :param pkg: the :ref:`package <packages>` object
-        :param data: TODO
-        :param locale: the current locale (e.g: en, en_us, it)"""
-        pkgobj = self.packages[pkg]
-        locpath = os.path.join(pkgobj.packageFolder, 'localization.xml')
-        pkglocbag = Bag(locpath)
-        for k, v in data.digest('#v.key,#v.txt'):
-            lbl = re.sub('\W', '_', k).replace('__', '_')
-            if not lbl in pkglocbag:
-                pkglocbag.setItem(lbl, None, _key=k, it=k, en='', fr='', de='')
-            pkglocbag.setAttr(lbl, {locale: v})
-        pkglocbag.toXml(os.path.join(pkgobj.packageFolder, 'localization.xml'))
+    def getPreference(self, path, pkg, dflt=''):
+        if self.db.package('adm'):
+            return self.db.table('adm.preference').getPreference(path, pkg=pkg, dflt=dflt)
     
-    def localizeText(self, txt,pkg=None,localelang=None):
-        """Translate the *txt* string following the browser's locale
-        
-        :param txt: the text to be translated"""
-        loc = None
-        txtlower = txt.lower()
-        if pkg:
-            key = '%s|%s' % (pkg, txtlower)
-            loc = self.localization.get(key)
-        if not loc:
-            loc = self.localization.get(txtlower)
-        if loc:
-            loctxt = loc.get(localelang)
-            if loctxt:
-                txt = loctxt
-        return txt
-    
-
     def getResource(self, path, pkg=None, locale=None):
         """TODO
 
@@ -968,7 +930,7 @@ class GnrApp(object):
         if not pkg:
             pkg = self.config.getAttr('packages', 'default')
         return self.packages[pkg].getResource(path, locale=locale)
-        
+   
     def guestLogin(self):
         """TODO"""
         return self.config.getAttr('authentication', 'guestName')
@@ -1105,9 +1067,13 @@ class GnrApp(object):
                                    login_pwd=password, authenticate=authenticate, defaultTags=defaultTags, **result)
         except:
             return None
+
+    def checkAllowedIp(self,allowed_ip):
+        "override"
+        return False
             
     def makeAvatar(self, user, user_name=None, user_id=None, login_pwd=None,
-                   authenticate=False, defaultTags=None, pwd=None, tags='', **kwargs):
+                   authenticate=False, defaultTags=None, pwd=None, tags='',allowed_ip=None, **kwargs):
         """TODO
         
         :param user: TODO
@@ -1122,6 +1088,8 @@ class GnrApp(object):
             tags = ','.join(makeSet(defaultTags, tags or ''))
         if authenticate:
             valid = self.validatePassword(login_pwd, pwd)
+            if valid and allowed_ip and not self.checkAllowedIp(allowed_ip):
+                raise GnrRestrictedAccessException('Not allowed access')
         else:
             valid = True
         if valid:
@@ -1301,37 +1269,10 @@ class GnrApp(object):
         for s in _storesToCommit:
             with self.db.tempEnv(storename=s,_systemDbEvent=True):
                 self.db.commit()
-        
 
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
-        """TODO
-        
-        :param tblobj: the :ref:`database table <table>` object
-        :param record: TODO
-        :param event: TODO
-        :param old_record: TODO. """
-        currentEnv = self.db.currentEnv
-        if currentEnv.get('hidden_transaction'):
-            return
-        if not currentEnv.get('env_transaction_id'):
-            self.db.updateEnv(env_transaction_id= getUuid(),dbevents=dict())
-        broadcast = tblobj.attributes.get('broadcast')
-        if broadcast is not False and broadcast != '*old*':
-            dbevents=currentEnv['dbevents']
-            r=dict(dbevent=event,pkey=record.get(tblobj.pkey))
-            if broadcast and broadcast is not True:
-                for field in broadcast.split(','):
-                    newvalue = record.get(field)
-                    r[field] = self.catalog.asTypedText(newvalue) #2011/01/01::D
-                    if old_record:
-                        oldvalue = old_record.get(field)
-                        if newvalue!=oldvalue:
-                            r['old_%s' %field] = self.catalog.asTypedText(old_record.get(field))
-            dbevents.setdefault(tblobj.fullname,[]).append(r)
-        audit_mode = tblobj.attributes.get('audit')
-        if audit_mode:
-            self.db.table('adm.audit').audit(tblobj,event,audit_mode=audit_mode,record=record, old_record=old_record)
-                
+        pass
+
     def getAuxInstance(self, name=None,check=False):
         """TODO
         

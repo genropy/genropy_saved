@@ -29,8 +29,6 @@ from gnr.core.gnrstructures import GnrStructData
 from gnr.core import gnrstring
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrdecorator import extract_kwargs,deprecated
-
-from time import time
 from copy import copy
 
 
@@ -40,6 +38,9 @@ def cellFromField(field,tableobj):
     fldobj = tableobj.column(field)
     fldattr = dict(fldobj.attributes or dict())
     if 'values' in fldattr:
+        values = fldattr['values']
+        values = getattr(fldobj.table.dbtable, values ,lambda: values)()
+        fldattr['values'] = values
         kwargs['values'] = fldattr['values']
     kwargs.update(dictExtract(fldattr,'cell_'))
     kwargs.setdefault('format_pattern',fldattr.get('format'))
@@ -318,6 +319,9 @@ class GnrDomSrc(GnrStructData):
                 self.data(clientpath,value,**sourceNodeValueAttr)
         if childname and childname != '*_#':
             kwargs['_childname'] = childname
+        _strippedKwargs=','.join([k for k,v in kwargs.items() if v is None])
+        if _strippedKwargs:
+            kwargs['_strippedKwargs'] = _strippedKwargs
         return GnrStructData.child(obj, tag, childname=childname, childcontent=childcontent,**kwargs)
         
     def htmlChild(self, tag, childcontent, value=None, **kwargs):
@@ -326,10 +330,10 @@ class GnrDomSrc(GnrStructData):
         :param tag: the html tag
         :param childcontent: the html content
         :param value: TODO"""
-        if childcontent :
+        if childcontent is not None :
             kwargs['innerHTML'] = childcontent
             childcontent = None
-        elif value:
+        elif value is not None:
             kwargs['innerHTML'] = value
             value = None
         return self.child(tag, childcontent=childcontent, **kwargs)
@@ -436,6 +440,9 @@ class GnrDomSrc(GnrStructData):
 
     def multibutton_store(self,table=None,**kwargs):
         return self.child('multibutton_store',childname='itemsStore',table=table,**kwargs)
+
+    def treegrid_column(self,field,**kwargs):
+        return self.child('treegrid_column',field=field,**kwargs)  
 
     def quickgrid_column(self,field,**kwargs):
         return self.child('quickgrid_column',field=field,**kwargs)  
@@ -851,12 +858,12 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     #gnrNS=['menu','menuBar','menuItem','Tree','Select','DbSelect','Combobox','Data',
     #'Css','Script','Func','BagFilteringTable','DbTableFilter','TreeCheck']
     gnrNS = ['DbSelect', 'DbComboBox', 'DbView', 'DbForm', 'DbQuery', 'DbField',
-             'dataFormula', 'dataScript', 'dataRpc', 'dataController', 'dataRemote',
+             'dataFormula', 'dataScript', 'dataRpc','dataWs', 'dataController', 'dataRemote',
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
              'tinyMCE', 'protovis','codemirror','MultiButton','PaletteGroup','DocumentFrame','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','GeoSearch','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
-             'FramePane', 'FrameForm','QuickEditor','QuickGrid','QuickTree','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
+             'FramePane', 'FrameForm','QuickEditor','TreeGrid','QuickGrid','QuickTree','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -904,6 +911,20 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """
         return self.child('dataRpc', path=path, method=method, **kwargs)
         
+    def dataWs(self, path, method, **kwargs):
+        """Create a :ref:`dataws` and returns it. dataWs allows the client to make a call
+        to the server to perform an action and returns it.
+        
+        :param path: MANDATORY - it contains the folder path of the result of the ``dataWs`` action;
+                     you have to write it even if you don't return any value in the ``dataWs``
+                     (in this situation it will become a "mandatory but dummy" parameter)
+        :param method: the name of your ``dataWs`` method
+        :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
+                           check the :ref:`rpc_attributes` section
+        """
+        return self.child('dataWs', path=path, method=method, **kwargs)
+        
+
     def selectionstore_addcallback(self, *args, **kwargs):
         """TODO"""
         self.datarpc_addcallback(*args,**kwargs)
@@ -1060,6 +1081,28 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                             nodeId=nodeId,method='app.getFileSystemSelection',
                             folders=folders,include=include,columns=columns,
                             **kwargs)
+
+    def rpcStore(self,rpcmethod=None,storepath=None,storeCode=None,include='*.xml',columns=None,**kwargs):
+        """RpcBase Store
+        """
+        attr = self.attributes
+        parentTag = attr.get('tag')
+        parent = self
+        if parentTag:
+            parentTag = parentTag.lower()
+        if parentTag =='includedview' or  parentTag =='newincludedview':
+            storepath = storepath or attr.get('storepath') or '.store'
+            storeCode = storeCode or attr.get('nodeId') or  attr.get('frameCode') 
+            attr['store'] = storeCode
+            attr['tag'] = 'newincludedview'
+            parent = self.parent
+        if parentTag == 'palettegrid':            
+            storeCode=storeCode or attr.get('paletteCode')
+            attr['store'] = storeCode
+            storepath = storepath or attr.get('storepath') or '.store'
+        nodeId = '%s_store' %storeCode
+        return parent.child('SelectionStore',storepath=storepath,storeType='RpcBase',
+                            nodeId=nodeId,method=rpcmethod,**kwargs)
 
     def onDbChanges(self, action=None, table=None, **kwargs):
         """TODO
@@ -1737,6 +1780,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         #    result['tag']='bagfilteringtable'
         elif dtype in ('A', 'T') and fldattr.get('values', False):
             values = fldattr['values']
+            values = getattr(fieldobj.table.dbtable, values ,lambda: values)()
+            fldattr['values'] = values
             result['tag'] = 'filteringselect' if ':' in values else 'combobox'
             result['values'] = values
         elif dtype == 'A':

@@ -16,8 +16,10 @@ class THPicker(BaseComponent):
                          title=None,autoInsert=None,dockButton=True,picker_kwargs=None,
                          height=None,width=None,**kwargs):
         
-        one = False
+        
         picker_kwargs = picker_kwargs or dict()
+        one = picker_kwargs.get('one',False)
+        picker_kwargs.setdefault('uniqueRow',True)
         condition=picker_kwargs.pop('condition',None)
         condition_kwargs = dictExtract(picker_kwargs,'condition_',pop=True,slice_prefix=True)
         
@@ -61,12 +63,12 @@ class THPicker(BaseComponent):
                                                     grid_onDrag='dragValues["%s"]=dragValues.gridrow.rowset;' %paletteCode,
                                                     grid_multiSelect=multiSelect,
                                                     title=title,searchOn=searchOn,configurable=False,
-                                                  childname='picker_tablehandler')
+                                                  childname='picker_tablehandler',nodeId='%s_th' %paletteCode)
             if condition:
                 paletteth.view.store.attributes.update(where=condition,**condition_kwargs)
             if not condition_kwargs:
                 paletteth.view.store.attributes.update(_onStart=True)
-            if grid:
+            if grid and picker_kwargs.get('uniqueRow'):
                 paletteth.view.grid.attributes.update(filteringGrid=grid.js_sourceNode(),filteringColumn='_pkey:%s' %many)
         elif tblobj.attributes.get('caption_field'):
             def struct(struct):
@@ -77,7 +79,7 @@ class THPicker(BaseComponent):
                             grid_multiSelect=multiSelect,
                             title=title,searchOn=searchOn,
                             width=width,height=height)
-            if grid:
+            if grid and picker_kwargs.get('uniqueRow'):
                 paletteGridKwargs['grid_filteringGrid']=grid
                 paletteGridKwargs['grid_filteringColumn'] = '_pkey:%s' %many
             condition_kwargs.setdefault('_onStart',True)
@@ -87,18 +89,40 @@ class THPicker(BaseComponent):
             if autoInsert:
                 method = getattr(tblobj,'insertPicker',self._th_insertPicker)
                 formNode = pane.parentNode.attributeOwnerNode('formId')
-                if formNode:
+                if not one and formNode:
                     formtblobj = self.db.table(formNode.attr.get('table'))
                     oneJoiner = formtblobj.model.getJoiner(maintable)
                     one = oneJoiner.get('many_relation').split('.')[-1]  
                 grid.dataController("""
                     var kw = {dropPkey:mainpkey,tbl:tbl,one:one,many:many};
+                    var cbdef = function(destrow,sourcerow,d){
+                        var l = d.split(':');
+                        var sfield = l[0];
+                        var dfield = l.length==1?l[0]:l[1];
+                        destrow[dfield] = sourcerow[sfield];
+                    }
                     if(treepicker){
                         kw.dragPkeys = [data['pkey']];
+                        if(defaults){
+                            var drow = {};
+                            kw.dragDefaults = {}
+                            defaults.split(',').forEach(function(d){cbdef(drow,data['_record'],d);});
+                            kw.dragDefaults[data['pkey']] = drow;
+                        }
                     }else{
                         var pkeys = [];
-                        dojo.forEach(data,function(n){pkeys.push(n['_pkey'])});
+                        var dragDefaults = {};
+                        dojo.forEach(data,function(n){
+                            pkeys.push(n['_pkey'])
+                            if(defaults){
+                                var drow = {};
+                                defaults.split(',').forEach(function(d){cbdef(drow,n,d);});
+                                dragDefaults[n['_pkey']] = drow;
+                            }
+                            
+                        });
                         kw.dragPkeys = pkeys;
+                        kw.dragDefaults = dragDefaults;
                     }
                     kw['_sourceNode'] = this;
                     if(grid.gridEditor && grid.gridEditor.editorPars){
@@ -106,6 +130,9 @@ class THPicker(BaseComponent):
                         dojo.forEach(kw.dragPkeys,function(fkey){
                             var r = {};
                             r[many] = fkey;
+                            if(kw.dragDefaults){
+                                objectUpdate(r,kw.dragDefaults[fkey]);
+                            }
                             rows.push(r);
                         });
                         grid.gridEditor.addNewRows(rows);
@@ -115,7 +142,7 @@ class THPicker(BaseComponent):
 
                 """,data='^.dropped_%s' %paletteCode,mainpkey='=#FORM.pkey',
                         rpcmethod=method,treepicker=oldtreePicker or treepicker or False,tbl=maintable,
-                        one=one,many=many,grid=grid.js_widget)  
+                        one=one,many=many,grid=grid.js_widget,defaults=picker_kwargs.get('defaults',False))  
         return palette
 
     @struct_method
@@ -125,12 +152,15 @@ class THPicker(BaseComponent):
         return pane.palettePicker(grid,relation_field=relation_field,**kwargs)
 
     @public_method
-    def _th_insertPicker(self,dragPkeys=None,dropPkey=None,tbl=None,one=None,many=None,**kwargs):
+    def _th_insertPicker(self,dragPkeys=None,dropPkey=None,tbl=None,one=None,many=None,dragDefaults=None,**kwargs):
         tblobj = self.db.table(tbl)
         commit = False
         for fkey in dragPkeys:
             commit = True
-            tblobj.insert({one:dropPkey,many:fkey})
+            r = {one:dropPkey,many:fkey}
+            if dragDefaults:
+                r.update(dragDefaults[fkey])
+            tblobj.insert(r)
         if commit:
             self.db.commit()
 
@@ -152,7 +182,8 @@ class THPicker(BaseComponent):
         if formNode:
             formtblobj = self.db.table(formNode.attr.get('table'))
             oneJoiner = formtblobj.model.getJoiner(maintable)
-            one = oneJoiner.get('many_relation').split('.')[-1] 
+            if oneJoiner:
+                one = oneJoiner.get('many_relation').split('.')[-1] 
 
         hiddenItemCb = None
         if unique:

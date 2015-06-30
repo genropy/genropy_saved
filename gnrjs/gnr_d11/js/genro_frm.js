@@ -47,6 +47,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.parentLock = this.parentLock ==null? 'auto':this.parentLock;
         this.current_field = null;
         this.controllerPath = controllerPath;
+        this.formErrors = new gnr.GnrBag();
         if(!this.store){
             this.controllerPath = this.controllerPath || 'gnr.forms.' + this.formId;
         }
@@ -387,7 +388,15 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     r.setItem('fieldname','<div style="font-weight: bold;">'+n.attr._valuelabel+'</div>',{_valuelabel:'Field'});
                     r.setItem('error','Invalid data',{_valuelabel:'Error'});
                     content.setItem('r_'+i,r)
+                    i++;
                 });
+            }
+            var formErrorsMessages = this.getFormErrors();
+            if(formErrorsMessages.length){
+                formErrorsMessages.forEach(function(message){
+                    content.setItem('r_'+i+'.error',message);
+                    i++;
+                })
             }
             content = content.asHtmlTable({cells:'fieldname,error',headers:true});
             return '<div class="form_errorslogger">Wrong fields</div><div class="form_contentlogger">'+content+'</div>';
@@ -618,6 +627,25 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     waitingStatus:function(waiting){
         this.sourceNode.setHiderLayer(waiting,{message:'<div class="form_waiting"></div>',z_index:999999});
+    },
+
+    setFormError:function(errorcode,message){
+        if(message==false){
+            this.formErrors.popNode(errorcode);
+        }else{
+            this.formErrors.setItem(errorcode,message)
+        }
+    },
+
+    getFormErrors:function(){
+        var result = [];
+        this.formErrors.walk(function(n){
+            var v = n.getValue();
+            if(typeof(v)=='string'){
+                result.push(v);
+            }
+        })
+        return result;
     },
     
     openPendingChangesDlg:function(kw){
@@ -1515,7 +1543,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     isValid:function(){
-        return ((this.getInvalidFields().len() == 0) && (this.getInvalidDojo().len()==0)) && this.registeredGridsStatus()!='error';
+        return ((this.formErrors.len()) == 0 && (this.getInvalidFields().len() == 0) && (this.getInvalidDojo().len()==0)) && this.registeredGridsStatus()!='error';
     },
 
     registeredGridsStatus:function(){
@@ -1650,6 +1678,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     resetInvalidFields:function(){
         this.getControllerData().setItem('invalidFields',new gnr.GnrBag());
         this.getControllerData().setItem('invalidDojo',new gnr.GnrBag());
+        this.formErrors = new gnr.GnrBag();
         this.updateStatus();
     },
     getChangesLogger: function() {
@@ -1825,17 +1854,29 @@ dojo.declare("gnr.GnrValidator", null, {
         if (dojo.isIE > 0) {
             return;
         }
-        var validate_notnull = sourceNode.attr.validate_notnull;
+        var validate_notnull = sourceNode.getAttributeFromDatasource('validate_notnull');//.attr.validate_notnull;
         var result;
         if ((value == undefined) || (value == '') || (value == null)) {
             if (sourceNode.widget._lastDisplayedValue != "") {
                 sourceNode.widget._updateSelect();
-                result = validate_notnull?{'errorcode':'missing'}:{};
+                result = validate_notnull?{'errorcode':'missing'}:null;
+                if(!validate_notnull){
+                    genro.callAfter(function(){
+                        if(isNullOrBlank(sourceNode.widget.getValue())){
+                            sourceNode.widget.setDisplayedValue('');
+                        }
+                    },1);
+                    if(sourceNode._wrongSearch){
+                        result = {'iswarning':'Not existing','errorcode':'missing'}
+                    }
+                }
+                delete sourceNode._wrongSearch;
             }
             sourceNode.widget._lastValueReported = null;
             return result;
         }
     },
+
     validate_empty: function(param, value) {
         if (value == null || value === '') {
             return {'value':param};
@@ -2079,19 +2120,21 @@ dojo.declare("gnr.formstores.Base", null, {
 
     save_document:function(kw){
         var data = this.form.getFormData();
+        if(this.handlers.save.stripLoadedValue){
+            data.walk(function(n){
+                delete n.attr._loadedValue;
+            });
+        }
         this.handlers.save.rpcmethod = this.handlers.save.rpcmethod  || 'saveSiteDocument';
         var saver = this.handlers.save;
         var that = this;
         var path = this.form.getCurrentPkey();
-        var rpc_kw = {};
+        var rpc_kw = this.form.sourceNode.evaluateOnNode(this.handlers.save.kw);
         rpc_kw.path = path;
         if(path=='*newrecord*' && this.getNewPath){
             path = funcApply(this.getNewPath,{record:formData},form);
         }
         var data = data.deepCopy();
-        data.walk(function(n){
-            delete n.attr._loadedValue;
-        });
         rpc_kw.data = data;
         var deferred = genro.rpc.remoteCall(saver.rpcmethod ,rpc_kw,null,'POST',null,function(){});
         deferred.addCallback(function(result){
@@ -2176,7 +2219,7 @@ dojo.declare("gnr.formstores.Base", null, {
         if (howmany=='?'){
             var that = this;
             genro.dlg.prompt('How many', {msg:_T('How many copies of current record?'),
-                                          lbl:'How many',
+                                          lbl:_T('How many'),
                                           widget:'numberTextBox',
                                           action:function(value){that.duplicateRecord(srcPkey,value);}
                                           });

@@ -51,4 +51,20 @@ class GnrCustomWebPage(object):
         bc.contentPane(region='right',width='100px',background='lightgray',drawer='close',splitter=True,
                         border_left='1px solid silver',drawer_background='red')
         bc.contentPane(region='center')
-        
+
+    def test_6_regions(self,pane):
+        bc = pane.borderContainer(height='600px')
+        fb = bc.contentPane(region='top',height='50px').formbuilder(cols=4,border_spacing='3px',datapath='.regions')
+        fb.textBox(value='^.top',lbl='top')
+        fb.textBox(value='^.left',lbl='left')
+        fb.textBox(value='^.bottom',lbl='bottom')
+        fb.textBox(value='^.right',lbl='right')
+
+        bc = bc.borderContainer(regions='^.regions',region='center')
+        bc.contentPane(region='top',background='red',splitter=True)
+        bc.contentPane(region='bottom',background='green',splitter=True)
+        bc.contentPane(region='left',background='blue',splitter=True)
+        bc.contentPane(region='right',background='green',splitter=True)
+        bc.contentPane(region='center',background='white')
+
+

@@ -42,6 +42,9 @@ dojo.declare("gnr.QueryManager", null, {
         var node = genro.src.getNode(this.relativeId('_qbmenues'));
         node.clearValue();
         node.freeze();
+        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.queryModes',
+                                        id:this.relativeId('qb_queryModes_menu'),
+                                       action:'$2.setRelativeData(".#parent.queryMode",$1.fullpath,{caption:$1.caption})'});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.jc',id:this.relativeId('qb_jc_menu')});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.not',id:this.relativeId('qb_not_menu')});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.'+this.tablecode+'.fieldsmenu',id:this.relativeId('qb_fields_menu'),
@@ -130,13 +133,13 @@ dojo.declare("gnr.QueryManager", null, {
                                                  padding_right:'10px',padding_left:'2px',
                                     color:'#555',font_weight:'bold',_class:'floatingPopup',cursor:'pointer'})
         qtitle._('menu',{'_class':'smallmenu',storepath:'.savedqueries',modifiers:'*',action:'SET .currentQuery = $1.fullpath;'});
-        topbar._('slotButton','savebtn',{'label':_T('!!Save'),iconClass:'iconbox save',action:function(){that.saveQuery()}});
-        topbar._('slotButton','deletebtn',{'label':_T('!!Delete'),iconClass:'iconbox trash',action:'FIRE .delete;',disabled:'^.queryAttributes.pkey?=!#v'});
+        topbar._('slotButton','savebtn',{'label':_T('Save'),iconClass:'iconbox save',action:function(){that.saveQuery()}});
+        topbar._('slotButton','deletebtn',{'label':_T('Delete'),iconClass:'iconbox trash',action:'FIRE .delete;',disabled:'^.queryAttributes.pkey?=!#v'});
         
-        topbar._('slotButton','favoritebtn',{'label':_T('!!Default Query'),action:function(){that.setCurrentAsDefault()},
+        topbar._('slotButton','favoritebtn',{'label':_T('Default Query'),action:function(){that.setCurrentAsDefault()},
                                iconClass:'th_favoriteIcon iconbox star'});
                                
-        topbar._('slotButton','runbtn',{'label':_T('!!Run Query'),action:'FIRE .#parent.runQuery;',
+        topbar._('slotButton','runbtn',{'label':_T('Run Query'),action:'FIRE .#parent.runQuery;',
                                iconClass:'iconbox run'});
 
 
@@ -180,7 +183,7 @@ dojo.declare("gnr.QueryManager", null, {
             }
         }
         if (currentQuery=='__newquery__'){
-            sourceNode.setRelativeData('.query.queryAttributes',new gnr.GnrBag({extended:true,caption:_T('!!New Query')}));
+            sourceNode.setRelativeData('.query.queryAttributes',new gnr.GnrBag({extended:true,caption:_T('New Query')}));
             finalize(new gnr.GnrBag());
             return
         }

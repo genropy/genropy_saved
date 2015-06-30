@@ -49,31 +49,46 @@ class RecordUpdater(object):
             # do something
             pass"""
     
-    def __init__(self, tblobj,pkey=None,mode=None,raw=False,insertMissing=False,**kwargs):
+    def __init__(self, tblobj,pkey=None,mode=None,raw=False,insertMissing=False,ignoreMissing=None,**kwargs):
         self.tblobj = tblobj
         self.pkey = pkey
-        self.mode = mode or 'dict'
+        self.mode = mode or 'record'
         self.kwargs = kwargs
         self.raw = raw
         self.insertMissing = insertMissing
+        self.ignoreMissing = ignoreMissing
         self.insertMode = False
 
     def __enter__(self):
-        self.record = self.tblobj.record(pkey=self.pkey,for_update=True,ignoreMissing=self.insertMissing,**self.kwargs).output(self.mode)
-        self.insertMode = self.record.get(self.tblobj.pkey) is None
-        self.oldrecord = None if self.insertMode else dict(self.record)
+        self.record = self.tblobj.record(pkey=self.pkey,for_update=True,ignoreMissing=self.insertMissing or self.ignoreMissing,
+                                                    **self.kwargs).output(self.mode)
+        if self.record.get(self.tblobj.pkey) is None:
+            oldrecord = None
+            if self.insertMissing:
+                self.insertMode = True
+            else:
+                self.record = None
+        else:
+            oldrecord = dict(self.record)
+        self.oldrecord = oldrecord
         return self.record
         
         
     def __exit__(self, exception_type, value, traceback):
         if not exception_type:
+            if not self.record:
+                return
             if self.raw:
-                if self.insertMode:
+                if self.record.get(self.tblobj.pkey) is False:
+                    self.tblobj.raw_delete(self.oldrecord)
+                elif self.insertMode:
                     self.tblobj.raw_insert(self.record)
                 else:
                     self.tblobj.raw_update(self.record,self.oldrecord)
             else:
-                if self.insertMode:
+                if self.record.get(self.tblobj.pkey) is False:
+                    self.tblobj.delete(self.oldrecord)
+                elif self.insertMode:
                     self.tblobj.insert(self.record)
                 else:
                     self.tblobj.update(self.record,self.oldrecord)
@@ -213,11 +228,7 @@ class SqlTable(GnrObject):
                 rowcaption = self.recordCaption(record)
             except:
                 rowcaption = 'Current Record'
-        e = exception(tablename=self.fullname,rowcaption=rowcaption,msg=msg, **kwargs)
-        
-        if self.db.application and hasattr(self.db.application,'site') and self.db.application.site.currentPage:
-            e.setLocalizer(self.db.application.site.currentPage.localizer)
-        return e
+        return exception(tablename=self.fullname,rowcaption=rowcaption,msg=msg,localizer=self.db.localizer, **kwargs)
         
     def __repr__(self):
         return "<SqlTable %s>" % repr(self.fullname)
@@ -474,32 +485,42 @@ class SqlTable(GnrObject):
             newrecord[self.pkey] = self.newPkeyValue(record=newrecord)
         return newrecord
 
-    def cachedRecord(self,pkey,virtual_columns=None):
-        def recordFromCache(pkey,cache,virtual_columns_set):
+    def cachedRecord(self,pkey=None,virtual_columns=None,keyField=None,createCb=None):
+        keyField = keyField or self.pkey
+        ignoreMissing = createCb is not None
+        def recordFromCache(cache=None,pkey=None,virtual_columns_set=None):
             result,cached_virtual_columns_set = cache.get(pkey,(None,None))
             in_cache = bool(result)
             if in_cache and not virtual_columns_set.issubset(cached_virtual_columns_set):
                 in_cache = False
                 virtual_columns_set = virtual_columns_set.union(cached_virtual_columns_set)
             if not in_cache:
-                result = self.record(pkey=pkey,virtual_columns=','.join(virtual_columns_set)).output('dict')
+                result = self.record(virtual_columns=','.join(virtual_columns_set),ignoreMissing=ignoreMissing,**{keyField:pkey}).output('dict')
+                if (not result) and createCb:
+                    result = createCb(pkey)
+                    if virtual_columns and result:
+                        result = self.record(virtual_columns=','.join(virtual_columns_set),**{keyField:pkey}).output('dict')
                 cache[pkey] = (result,virtual_columns_set)
             return result,in_cache
         virtual_columns_set = set(virtual_columns.split(',')) if virtual_columns else set()
-        key = '%s_cache' %self.fullname
+        return self.tableCachedData('cachedRecord',recordFromCache,pkey=pkey,
+                                virtual_columns_set=virtual_columns_set)
+
+    def tableCachedData(self,topic,cb,**kwargs):
         currentPage = self.db.currentPage
+        cacheKey = '%s_%s' %(topic,self.fullname)
         if currentPage:
             with currentPage.pageStore() as store:
-                tablecache = store.getItem(key) or dict()
-                record,in_cache = recordFromCache(pkey,tablecache,virtual_columns_set)
+                localcache = store.getItem(cacheKey) or dict()
+                data,in_cache = cb(cache=localcache,**kwargs)
                 if not in_cache:
-                    store.setItem(key,tablecache)
+                    store.setItem(cacheKey,localcache)
         else:
-            tablecache = self.currentEnv.setdefault(key,dict())
-            record,in_cache = recordFromCache(pkey,tablecache,virtual_columns_set)
-        return record
+            localcache = self.db.currentEnv.setdefault(cacheKey,dict())
+            data,in_cache = cb(cache=localcache,**kwargs)
+        return data
 
-        
+
     def record(self, pkey=None, where=None,
                lazy=None, eager=None, mode=None, relationDict=None, ignoreMissing=False, virtual_columns=None,
                ignoreDuplicate=False, bagFields=True, joinConditions=None, sqlContextName=None,
@@ -756,7 +777,9 @@ class SqlTable(GnrObject):
         for row in fetch:
             new_row = dict(row)
             if callable(updater):
-                updater(new_row)
+                doUpdate = updater(new_row)
+                if doUpdate is False:
+                    continue
             elif isinstance(updater, dict):
                 new_row.update(updater)
             record_pkey = row[pkeycol]
@@ -1095,7 +1118,10 @@ class SqlTable(GnrObject):
         :param record: TODO
         :param old_record: TODO
         :param pkey: the record :ref:`primary key <pkey>`"""
-        pkey = old_record[self.pkey] if old_record and old_record.get(self.pkey) != record.get(self.pkey) else None
+        if old_record and not pkey:
+            pkey = old_record.get(self.pkey)
+        if record.get(self.pkey) == pkey:
+            pkey = None
         self.db.update(self, record, old_record=old_record, pkey=pkey,**kwargs)
         
     def writeRecordCluster(self, recordCluster, recordClusterAttr, debugPath=None):
@@ -1235,6 +1261,10 @@ class SqlTable(GnrObject):
             trgFunc = getattr(self, 'trigger_%s_%s'%(triggerEvent, pkg_id), None)
             if callable(trgFunc):
                 trgFunc(record, **kwargs)
+
+    def getProtectionColumn(self):
+        #override
+        return
 
 
     def newPkeyValue(self,record=None):
@@ -1640,7 +1670,7 @@ class SqlTable(GnrObject):
                       raw_insert=raw_insert,
                       source_tbl_name=source_tbl_name,_converters=converters,**querykwargs)
                       
-    def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, **kwargs):
+    def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, relationStack='',**kwargs):
         """TODO
         
         :param omit: TODO
@@ -1658,7 +1688,8 @@ class SqlTable(GnrObject):
                 targettbl = self.db.table('%s.%s' % (relpkg, reltbl))
                 return BagCbResolver(targettbl.relationExplorer, omit=omit,
                                      prevRelation=attributes['fieldpath'], dosort=dosort,
-                                     pyresolver=pyresolver, **kwargs)
+                                     pyresolver=pyresolver,relationStack=relationStack, 
+                                     **kwargs)
                                      
         def resultAppend(result, label, attributes, omit):
             gr = attributes.get('group') or ' '
@@ -1672,7 +1703,7 @@ class SqlTable(GnrObject):
             if grin not in omit:
                 result.setItem(label, xvalue(attributes), attributes)
                 
-        def convertAttributes(result, relnode, prevRelation, omit):
+        def convertAttributes(result, relnode, prevRelation, omit,relationStack):
             attributes = dict(relnode.getAttr())
             attributes['fieldpath'] = gnrstring.concat(prevRelation, relnode.label)
             if 'joiner' in attributes:
@@ -1682,17 +1713,27 @@ class SqlTable(GnrObject):
                 if attributes['mode'] == 'M':
                     attributes['group'] = attributes.get('many_group') or 'zz'
                     attributes['dtype'] = 'RM'
+                    relkey = '%(one_relation)s/%(many_relation)s' %attributes
+
                 else:
                     attributes['group'] = attributes.get('one_group')
                     attributes['dtype'] = 'RO'
+                    relkey = '%(many_relation)s/%(one_relation)s' %attributes
+                relkey = str(hash(relkey) & 0xffffffff)
+                if relkey in relationStack.split('|'):
+                    return 
+                attributes['relationStack'] = gnrstring.concat(relationStack, relkey,'|')
             else:
                 attributes['name_long'] = attributes.get('name_long') or relnode.label
-            resultAppend(result, relnode.label, attributes, omit)
+            return attributes
+            
             
         tblmodel = self.model
         result = Bag()
         for relnode in tblmodel.relations: # add columns relations
-            convertAttributes(result, relnode, prevRelation, omit)
+            attributes = convertAttributes(result, relnode, prevRelation, omit,relationStack)
+            if attributes:
+                resultAppend(result, relnode.label, attributes, omit)
             
         for vcolname, vcol in tblmodel.virtual_columns.items():
             targetcol = self.column(vcolname)

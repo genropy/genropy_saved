@@ -8,32 +8,26 @@ class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('df_fields')
-        r.fieldcell('df_fbcolumns')
-        r.fieldcell('df_custom_templates')
-        r.fieldcell('df_colswith')
         r.fieldcell('code')
         r.fieldcell('description')
 
     def th_order(self):
-        return 'df_fields'
+        return 'description'
 
     def th_query(self):
-        return dict(column='df_fields', op='contains', val='')
+        return dict(column='description', op='contains', val='')
 
 
 
 class Form(BaseComponent):
+    py_requires = 'gnrcomponents/dynamicform/dynamicform:DynamicForm'
 
     def th_form(self, form):
-        pane = form.record
-        fb = pane.formbuilder(cols=2, border_spacing='4px')
-        fb.field('df_fields')
-        fb.field('df_fbcolumns')
-        fb.field('df_custom_templates')
-        fb.field('df_colswith')
+        bc = form.center.borderContainer()
+        fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=2, border_spacing='4px')
         fb.field('code')
         fb.field('description')
+        bc.contentPane(region='center').fieldsGrid(title='!!Fields',pbl_classes=True,margin='2px')
 
 
     def th_options(self):

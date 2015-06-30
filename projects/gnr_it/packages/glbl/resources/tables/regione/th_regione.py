@@ -30,3 +30,12 @@ class View(BaseComponent):
 
     def th_query(self):
         return dict(column='nome',op='contains', val='')
+
+class ViewEditable(BaseComponent):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('nome', width='20em',edit=True)
+        r.fieldcell('sigla',width='3em')
+        r.fieldcell('codice_istat',width='7em',sortable=False)
+        r.fieldcell('zona',width='10em',name='Zona',edit=True)
+        

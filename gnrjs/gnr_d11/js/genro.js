@@ -56,8 +56,10 @@ dojo.declare('gnr.GenroClient', null, {
         this.startArgs = kwargs.startArgs || {};
         this.debuglevel = kwargs.startArgs.debug || null;
         this.debug_sql = kwargs.startArgs.debug_sql;
-        this.debug_py = kwargs.startArgs.debug_py;
+        //this.debug_py = kwargs.startArgs.debug_py;
+        this.websockets_url=kwargs.startArgs.websockets_url;
         this.pageMode = kwargs.pageMode;
+        this.pageModule = kwargs.pageModule;
         this.baseUrl = kwargs.baseUrl;
         this.serverTime =objectPop(kwargs.startArgs,'servertime');
         var start_ts = new Date();
@@ -70,6 +72,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.isDeveloper = objectPop(this.startArgs,'isDeveloper');
         this.theme = {};
         this.dojo = dojo;
+        this.debugged_rpc = {};
         this.ext={};
         this.userInfoCb = [];
         this.formatter = gnrformatter;
@@ -82,7 +85,6 @@ dojo.declare('gnr.GenroClient', null, {
         this._lastChildUserEventTs = start_ts;
         this._lastGlobalUserEventTs = start_ts;
         this._lastRpc = start_ts;
-
         for (var i = 0; i < this.profile_count; i++) {
             this.timeProfilers.push({nc:0,st:0,sqlt:0,sqlc:0});  
         };
@@ -120,8 +122,9 @@ dojo.declare('gnr.GenroClient', null, {
                              '!%' : function(a, b) {return (a.indexOf(b) < 0);}
                              };
         window.onbeforeunload = function(e) {
+            genro._windowClosing = true;
             var exit;
-            if (genro.checkBeforeUnload) {
+            if (genro.checkBeforeUnload && !genro._checkedUnload) {
                 exit = genro.checkBeforeUnload();
             }
             if (exit) {
@@ -147,6 +150,7 @@ dojo.declare('gnr.GenroClient', null, {
 
         this.dom = new gnr.GnrDomHandler(this);
         this.vld = new gnr.GnrValidator(this);
+        this.wsk = new gnr.GnrWebSocketHandler(this,this.websockets_url,{debug:false});        
        //var onerrorcb = function(errorMsg,url,linenumber){
        //    genro.onError(errorMsg,url,linenumber);
        //};
@@ -221,6 +225,12 @@ dojo.declare('gnr.GenroClient', null, {
         }
 
     },
+    locale:function(){
+        if(!this._locale){
+            this._locale = genro.getData('gnr.locale');
+        }
+        return this._locale;
+    },
 
     bp:function(aux) {
         console.log('bp ',arguments);
@@ -240,7 +250,13 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dev.addError(msg,'js',true);
     },
 
+    closePage:function(){
+        window.close();
+    },
     onWindowUnload:function(e) {
+        if(genro.external_window_key){
+            genro.mainGenroWindow.genro.publish('closeExternalWindow',{windowKey:genro.external_window_key});
+        }
         this.rpc.remoteCall('onClosePage', {sync:true});
         genro.publish('onClosePage');
         if (genro._data) {
@@ -332,6 +348,9 @@ dojo.declare('gnr.GenroClient', null, {
         for (var k in genro.rpc.rpc_register){
             var kw = genro.rpc.rpc_register[k];
             var age = now-kw.__rpc_started;
+            if(k in this.debugged_rpc){
+                return;
+            }
             if (age>5000){
                 console.warn('slow rpc pending',kw,age);
                 objectPop(genro.rpc.rpc_register,k);
@@ -365,6 +384,8 @@ dojo.declare('gnr.GenroClient', null, {
          It calls the remoteCall to receive the page contained in the bag called 'main'.
          */
         //genro.timeIt('** dostart **');
+        
+        
         this._dataroot = new gnr.GnrBag();
         this._dataroot.setBackRef();
         this._data = new gnr.GnrBag();
@@ -377,39 +398,52 @@ dojo.declare('gnr.GenroClient', null, {
         this.isTouchDevice = ( (navigator.appVersion.indexOf('iPad') >= 0 ) || (navigator.appVersion.indexOf('iPhone') >= 0));
         this.isChrome = ( (navigator.appVersion.indexOf('Chrome') >= 0 ));
         //genro.timeIt('** getting main **');
-        this.mainGenroWindow = window;
+        this.wsk.create();
         this.root_page_id = null;
+        dojo.subscribe('debugstep',
+                       function(data){genro.dev.onDebugstep(data)}
+                     )
+        dojo.subscribe('closePage',function(){
+            genro.closePage()
+        });
+
         if(this.startArgs['_parent_page_id']){
             this.parent_page_id = this.startArgs['_parent_page_id'];
         }
-        var parentGenro;
-        try{
-            parentGenro = window.frameElement && window.parent.genro;
-            this.mainGenroWindow = parentGenro.mainGenroWindow;
-            this.root_page_id = this.mainGenroWindow.genro.page_id;
-            this.parent_page_id = this.parent_page_id || parentGenro.page_id;
-            this.startArgs['_root_page_id'] = this.root_page_id;
-            this.startArgs['_parent_page_id'] = this.parent_page_id;
-            this.parentIframeSourceNode = window.frameElement.sourceNode;
-        }catch(e){
-            parentGenro = false;
-        }
-        
-        var mainBagPage = genro.src.getMainSource();
-        if (mainBagPage  &&  mainBagPage.attr && mainBagPage.attr.redirect) {
-            var pageUrl = this.absoluteUrl()
-            if (pageUrl.slice(0,genro.baseUrl.length-1)==genro.baseUrl.slice(0,genro.baseUrl.length-1))
-            {
-                pageUrl = pageUrl.slice(genro.baseUrl.length-1) || '/';
-            }
-            var url = this.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':pageUrl});
-           // genro.currentUrl=mainBagPage.attr.redirect
-            //var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
-            //this.dostart(mainBagPage)
-           this.gotoURL(url);
+        if(this.externalParentWindow){
+            this.mainGenroWindow = this.externalParentWindow;
         }else{
-            this.dostart(mainBagPage)
+            this.mainGenroWindow = window;
+            var parentGenro;
+            try{
+                parentGenro = window.frameElement && window.parent.genro;
+                this.mainGenroWindow = parentGenro.mainGenroWindow;
+                this.root_page_id = this.mainGenroWindow.genro.page_id;
+                this.parent_page_id = this.parent_page_id || parentGenro.page_id;
+                this.startArgs['_root_page_id'] = this.root_page_id;
+                this.startArgs['_parent_page_id'] = this.parent_page_id;
+                this.parentIframeSourceNode = window.frameElement.sourceNode;
+            }catch(e){
+                parentGenro = false;
+            }
         }
+        genro.src.getMainSource(function(mainBagPage){
+            if (mainBagPage  &&  mainBagPage.attr && mainBagPage.attr.redirect) {
+                var pageUrl = genro.absoluteUrl()
+                if (pageUrl.slice(0,genro.baseUrl.length-1)==genro.baseUrl.slice(0,genro.baseUrl.length-1))
+                {
+                    pageUrl = pageUrl.slice(genro.baseUrl.length-1) || '/';
+                }
+                var url = genro.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':pageUrl});
+               // genro.currentUrl=mainBagPage.attr.redirect
+                //var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
+                //this.dostart(mainBagPage)
+               genro.gotoURL(url);
+            }else{
+                genro.dostart(mainBagPage)
+            }
+        });
+        
     },
         
     dostart: function(mainBagPage) {
@@ -436,11 +470,20 @@ dojo.declare('gnr.GenroClient', null, {
             genro.dom.addClass(dojo.body(),'workInProgress');
         }
         var _this = this;
+
         this._dataroot.subscribe('dataTriggers', {'any':dojo.hitch(this, "dataTrigger")});
         dojo.subscribe('ping',genro.ping);
         
         genro.dev.shortcut("Ctrl+Shift+D", function() {
-            genro.dev.showDebugger();
+            genro.dev.showInspector();
+        });
+
+        genro.dev.shortcut("Ctrl+Shift+I", function() {
+            genro.dev.openGnrIde();
+        });
+
+        genro.dev.shortcut("Ctrl+Shift+T", function() {
+            //genro.dev.showLocalizer();
         });
 
         genro.dev.shortcut("Ctrl+Shift+S", function() {
@@ -448,7 +491,14 @@ dojo.declare('gnr.GenroClient', null, {
         });
 
         genro.dev.shortcut("Shift+space", function(e) {
-            var sn = dijit.getEnclosingWidget(e.target).sourceNode;
+            var wdg =dijit.getEnclosingWidget(e.target)
+            if(!wdg){
+                return;
+            }
+            var sn = wdg.sourceNode;
+            if(sn.grid){
+                sn.grid.gridEditor.copyFromCellAbove(sn);
+            }
             if('_lastSavedValue' in sn){
                 if(sn.form && sn.form.isNewRecord() && isNullOrBlank(sn.widget.getValue())){
                     sn.widget.setValue(sn._lastSavedValue,false);
@@ -458,7 +508,7 @@ dojo.declare('gnr.GenroClient', null, {
         genro.setDefaultShortcut();
         dojo.subscribe("setWindowTitle",function(title){genro.dom.windowTitle(title);});
         genro.setData('gnr.debugger.debug_sql',this.debug_sql);
-        genro.setData('gnr.debugger.debug_py',this.debug_py);
+        //genro.setData('gnr.debugger.debug_py',this.debug_py);
         this._registerUserEvents();
         if(!this.root_page_id){
             this.setAutoPolling();
@@ -510,6 +560,7 @@ dojo.declare('gnr.GenroClient', null, {
             genro.windowMessageListener();
             genro.fireEvent('gnr.onStart');
             genro.publish('onPageStart');
+            
             genro._pageStarted = true;
         }, 100);
     },
@@ -565,6 +616,16 @@ dojo.declare('gnr.GenroClient', null, {
         return this.parentIframeSourceNode;
     },
 
+    getParentGenro:function(){
+        if(this.parentIframeSourceNode){
+            return window.parent.genro;
+        }
+        if(this.page_id != this.root_page_id){
+            //external window
+            return this.mainGenroWindow.genro;
+        }
+    },
+
     setDefaultShortcut:function(){
         genro.dev.shortcut('f1', function(e) {
             if(genro.activeForm){
@@ -586,7 +647,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     
     _connectToParentIframe:function(parentIframe){
-        var parentGenroData = window.parent.genro._data;
+        var parentGenroData = genro.getParentGenro()._data;
         genro._data.setCallBackItem('_frames._parent',
             function(){
                 return parentGenroData;
@@ -603,22 +664,31 @@ dojo.declare('gnr.GenroClient', null, {
         parentIframeSourceNode.publish('pageStarted');
     },
     
-    getChildFramePage:function(page_id){
+    getChildWindow:function(page_id){
         var result;
         var cb = function(f,r){
             if (f.genro){
                 if(f.genro.page_id==page_id){
                     return f;
                 }
-                return f.genro.getChildFramePage(page_id);
+                return f.genro.getChildWindow(page_id);
             }
         };
         for (var i=0;i<window.frames.length; i++){
             result = cb(window.frames[i]);
             if(result){
-                break;
+                return result;
             }
         }
+        if(this.externalWindowsObjects){
+            for (var k in this.externalWindowsObjects){
+                result = cb(this.externalWindowsObjects[k]);
+                if(result){
+                    return result;
+                }
+            }
+        }
+
         return result;
     },
     getValueFromFrame: function(object_name, attribute_name, dtype){
@@ -654,6 +724,15 @@ dojo.declare('gnr.GenroClient', null, {
                 //console.log('external iframe detected: error ',e);
             }
         });
+        if(this.externalWindowsObjects){
+            objectValues(this.externalWindowsObjects).forEach(function(f){
+            try{
+                cb(f,result);
+            }catch(e){
+                //console.log('external iframe detected: error ',e);
+            }
+        });
+        }
         return objectUpdate({},result);
     },
     
@@ -694,6 +773,20 @@ dojo.declare('gnr.GenroClient', null, {
                 destform.onFocusForm();
             }
         }
+    },
+
+
+    checkBeforeUnload:function(){
+        var parentGenro = this.getParentGenro();
+        if (parentGenro && parentGenro._windowClosing){
+            return
+        }
+        if(genro.activeForm){
+            if(genro.activeForm.changed){
+                return _T('You have an active form with pending changes')
+            }
+        }
+
     },
 
     standardEventConnection:function(pane){
@@ -1306,6 +1399,27 @@ dojo.declare('gnr.GenroClient', null, {
         var objId = object.widgetId;
         dojo.subscribe(objId + '/' + eventname, obj, func);
     },
+
+    _publish_new:function(topic,kw) {
+        var args = [];  
+        if(typeof(topic)=='string'){
+            //console.log('publishing:'+topic,args);
+            //console.log(args)
+            for (var i = 1; i < arguments.length; i++) {
+                args.push(arguments[i]);
+            }
+            dojo.publish(topic, args);
+            return ;
+        }
+        var target = objectPop(topic,'target');
+        /*
+            target = 'target1,target2,target3...'
+            target_x = 'self,parent,iframe:framename,extwin:extwinname' framename e extwin possono valere *
+            the publish is then called on genro, if no nodeId or form else on sourceNode or form
+        */
+
+    },
+
     publish:function(topic,kw) {
         var args = [];  
         if(typeof(topic)=='string'){
@@ -1317,8 +1431,15 @@ dojo.declare('gnr.GenroClient', null, {
             dojo.publish(topic, args);
             return ;
         }
+        /*new publish switch to implement
+        if('target' in topic){ 
+            genro._publish_new(topic,kw);
+            return;
+        }
+        */
         var parent=topic['parent'];
         var iframe=topic['iframe'];
+        var extWin = topic['extWin'];
         var kw=topic['kw'] || kw;
         if('nodeId' in topic){
             var node= genro.nodeById(topic['nodeId']);
@@ -1330,11 +1451,18 @@ dojo.declare('gnr.GenroClient', null, {
             if (form){
                 form.publish(topic['topic'],kw);
             }
-        }
-        else{
+        }else{
             genro.publish(topic['topic'], kw);
         }
-
+        if(extWin){
+            var extWindow = genro.externalWindowsObjects[extWin];
+            if(extWindow){
+                kw = kw || {};
+                kw.topic = topic.topic;
+                genro.dom.windowMessage(extWindow,kw);
+            }
+            return;
+        }
         if (iframe){
             var t=objectUpdate({},topic);
             objectPop(t,'parent');
@@ -1358,12 +1486,12 @@ dojo.declare('gnr.GenroClient', null, {
                 }
             }     
         }
-        
-        if(parent && (window.parent!=window) && window.parent.genro ){
+        if(parent){
+            var parentGenro = this.getParentGenro();
             var t=objectUpdate({},topic);
             objectPop(t,'iframe');
             objectPop(t,'parent');
-            window.parent.genro.publish(t,kw);
+            parentGenro.publish(t,kw);
         }
     },
 
@@ -1705,7 +1833,7 @@ dojo.declare('gnr.GenroClient', null, {
         }
     },
     openWindow:function(url, name, params) {
-        params = params || {height:'700',width:'800'};
+        params = params || {height:'600',width:'900'};
         if (params) {
             if (typeof(params) != 'string') {
                 parlist = [];
@@ -1719,6 +1847,8 @@ dojo.declare('gnr.GenroClient', null, {
         if (window.focus) {
             newwindow.focus();
         }
+        return newwindow
+
     },
     openBrowserTab:function(url){
         window.open(url)

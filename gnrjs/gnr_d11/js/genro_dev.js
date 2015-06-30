@@ -277,7 +277,104 @@ dojo.declare("gnr.GnrDevHandler", null, {
         treeattr.getIconClass = 'return "treeNoIcon";';
         pane._('tree', treeattr);
     },
-    
+    startDebug:function(callcounter){
+        if(this._debuggerWindow){
+            console.log('callcounter',callcounter)
+            this._debuggerWindow.focus();
+        }else{
+            this.openGnrIde();
+        }
+    },
+
+    openGnrIde :function(){
+        var url = window.location.host+'/sys/gnride/'+genro.page_id;
+        url = window.location.protocol+'//'+url;
+        var w = genro.openWindow(url,'debugger',{location:'no',menubar:'no'});
+        console.log('w,h',window.clientWidth,window.clientHeight)
+        w.resizeTo(window.screen.width,window.screen.height);
+        var debuggedModule = genro.pageModule;
+        var mainGenro = genro;
+        this._debuggerWindow = w;
+        genro.wsk.addhandler('do_focus_debugger',function(callcounter){
+            setTimeout(function(){
+                genro.dev.startDebug(callcounter);
+            },100)
+        });
+        w.addEventListener('load',function(){
+            var dbg_genro = this.genro;     
+            dbg_genro.ext.mainGenro = mainGenro;
+            dbg_genro.ext['startingModule'] = debuggedModule;
+        });
+
+    },
+    onDebugstep:function(data){
+        var callcounter = data.getItem('callcounter');
+        if (!('r_'+callcounter in genro.debugged_rpc)){
+            this.addToDebugged(callcounter,data)
+            this.updateDebuggerStepBox(callcounter,data);
+            
+        }
+    },
+
+    updateDebuggerStepBox:function(callcounter,data){
+        var debugger_box = dojo.byId('pdb_root')
+        var debuggerStepBox = dojo.byId('_debugger_step_'+callcounter);
+        if(!debuggerStepBox){
+            debuggerStepBox = document.createElement('div');
+            debuggerStepBox.setAttribute('id','_debugger_step_'+callcounter);
+            debuggerStepBox.setAttribute('class','pdb_debugger_step');
+            debugger_box.appendChild(debuggerStepBox)
+        }else{
+            dojo.removeClass(debuggerStepBox,'pdb_running');
+            debuggerStepBox.removeChild(debuggerStepBox.firstChild);
+        }
+        var container = document.createElement('div');
+        var message = document.createElement('div');
+        var footer = document.createElement('div');
+        footer.setAttribute('class','pdb_debugger_step_footer')
+        container.appendChild(message)
+        container.appendChild(footer)
+        debuggerStepBox.appendChild(container)
+        message.innerHTML = dataTemplate('Rpc:$methodname<br/>Module: $filename<br/>Function: $functionName<br/>Line: $lineno</div>',data);
+        var link = document.createElement('div');
+        link.setAttribute('class','pdb_footer_button pdb_footer_button_right')
+        link.innerHTML = 'Debug'
+        link.setAttribute('onclick',dataTemplate("genro.dev.openDebugInIde('$pdb_id','$debugger_page_id');",data))
+        footer.appendChild(link)
+        link = document.createElement('div');
+        link.setAttribute('class','pdb_footer_button pdb_footer_button_left')
+        link.innerHTML = 'Continue'
+        link.setAttribute('onclick',dataTemplate("dojo.addClass(dojo.byId('_debugger_step_"+callcounter+"'),'pdb_running'); genro.dev.continueDebugInIde('$pdb_id','$debugger_page_id');",data))
+        footer.appendChild(link)
+    },
+
+    continueDebugInIde:function(pdb_id,debugger_page_id){
+        genro.wsk.publishToClient(debugger_page_id,"debugCommand",{cmd:'c',pdb_id:pdb_id});
+    },
+
+    openDebugInIde:function(pdb_id,debugger_page_id){
+        if(genro.mainGenroWindow){
+            genro.mainGenroWindow.genro.framedIndexManager.openGnrIDE();
+        }else{
+            genro.wsk.publishToClient(debugger_page_id,'bringToTop')
+        }
+    },
+
+
+    addToDebugged:function(callcounter,data){
+        var dbgpars = {debugger_page_id:data.getItem('debugger_page_id'),pdb_id:data.getItem('pdb_id')};
+        genro.debugged_rpc['r_'+callcounter] = dbgpars;
+        genro.rpc.suspend_call(callcounter)
+    },
+
+    removeFromDebugged:function(callcounter){
+        var dbgpars = objectPop(genro.debugged_rpc,'r_'+callcounter);
+        var debuggerStepBox = dojo.byId('_debugger_step_'+callcounter);
+        if(debuggerStepBox){
+            dojo.byId('pdb_root').removeChild(debuggerStepBox);
+        }
+    },
+
     openInspector:function(){
         var root = genro.src.newRoot();
         genro.src.getNode()._('div', '_devInspector_');
@@ -293,11 +390,11 @@ dojo.declare("gnr.GnrDevHandler", null, {
                                         title:'Developer tools ['+genro._('gnr.pagename')+']',
                                         width:'500px',maxable:true});
         pg._('paletteTree',{'paletteCode':'cliDatastore',title:'Data',
-                           storepath:'*D',searchOn:true,tree_inspect:'shift',
+                           storepath:'*D',searchOn:true,tree_inspect:'shift',tree_searchMode:'static',
                            'tree_connect_onclick':cbLog,
                            editable:true,tree_labelAttribute:null,tree_hideValues:false});
         var sourcePane = pg._('paletteTree',{'paletteCode':'cliSourceStore',title:'Source',
-                           storepath:'*S',searchOn:true,tree_inspect:'shift',
+                           storepath:'*S',searchOn:true,tree_inspect:'shift',tree_searchMode:'static',
                            editable:true,
                            'tree_connect_onclick':cbLog,
                            tree_getLabel:function(n){
@@ -306,7 +403,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
                            tree_selectedPath:'.tree.selectedPath'});
         sourcePane._('dataController',{'script':'genro.src.highlightNode(fpath)', 
                                        'fpath':'^gnr.palettes.cliSourceStore.tree.selectedPath'});
-        pg._('paletteTree',{'paletteCode':'dbmodel',title:'Model',
+        pg._('paletteTree',{'paletteCode':'dbmodel',title:'Model',tree_searchMode:'static',
                             searchOn:true,tree_inspect:'shift',tree_labelAttribute:null,editable:true});
         genro.setDataFromRemote('gnr.palettes.dbmodel.store', "app.dbStructure");
         this.sqlDebugPalette(pg);
@@ -340,24 +437,12 @@ dojo.declare("gnr.GnrDevHandler", null, {
     sqlDebugPalette:function(parent){
         var bc = parent._('palettePane',{'paletteCode':'devSqlDebug',title:'Sql',contentWidget:'borderContainer',frameCode:'devSqlDebug',margin:'2px',rounded:4});
         bc._('dataController',{'script':"genro.debug_sql=sqldebug",'sqldebug':'^gnr.debugger.sqldebug'});
-        bc._('dataController',{'script':"SET gnr.debugger.pydebug = pydebug_methods?true:false; genro.debug_py=pydebug_methods;",'pydebug_methods':'^gnr.debugger.pydebug_methods',_delay:1});
+        //bc._('dataController',{'script':"SET gnr.debugger.pydebug = pydebug_methods?true:false; genro.debug_py=pydebug_methods;",'pydebug_methods':'^gnr.debugger.pydebug_methods',_delay:1});
 
         var top = bc._('framePane',{frameCode:'debugger_rpcgrid',region:'top',height:'200px',splitter:true,_class:'pbl_roundedGroup',margin:'2px',center_overflow:'hidden'});
-        var topbar = top._('SlotBar',{_class:'pbl_roundedGroupLabel',slots:'5,vtitle,*,activator_py,activator_sql,5,clearConsole,5',side:'top'})
+        var topbar = top._('SlotBar',{_class:'pbl_roundedGroupLabel',slots:'5,vtitle,*,activator_sql,5,clearConsole,5',side:'top'})
         topbar._('div','vtitle',{innerHTML:'RPC grid'})
         var sn = bc.getParentNode();
-        topbar._('checkbox','activator_py',{'value':'^gnr.debugger.pydebug','label':'Debug py',
-            validate_onAccept:function(value,userChange){
-                if(userChange){
-                    var currval = genro.getData('gnr.debugger.pydebug_methods') || '';
-                    genro.setData('gnr.debugger.pydebug_methods',currval);
-                    genro.dlg.prompt('Methods',{dflt:currval,widget:'simpleTextArea',action:function(value){
-                        sn.setRelativeData('gnr.debugger.pydebug_methods',value);
-                    }});
-                }
-            }
-        });
-
         topbar._('checkbox','activator_sql',{'value':'^gnr.debugger.sqldebug','label':'Debug sql'});
         topbar._('slotButton','clearConsole',{'label':'Clear',action:'genro.setData("gnr.debugger.main",null);genro.rpcHeaderInfo = {};genro.getCounter("debug",true);'});
         if(!genro.getData('gnr.debugger.main')){
@@ -447,36 +532,6 @@ dojo.declare("gnr.GnrDevHandler", null, {
                                     style:'white-space: pre;'});
     },
 
-    openLocalizer:function() {
-        noValueIndicator = "<span >&nbsp;</span>";
-        genro.src.getNode()._('div', '_localizer');
-        var node = genro.src.getNode('_localizer').clearValue().freeze();
-        genro.setData('gnr.pageLocalization', genro.rpc.remoteCall('localizer.pageLocalizationLoad'));
-        var dlg = node._('dialog', {nodeId:'_localizer',title:'Localizer',width:'40em','padding':'2px'});
-        var xx = dlg._('div', {height:'400px',overflow:'auto',background_color:'#eee',border:'1px inset'});
-        var saveData = function() {
-            var data = genro.getData('gnr.pageLocalization');
-            var cb = function() {
-                genro.pageReload();
-            };
-            genro.rpc.remoteCall('localizer.pageLocalizationSave', {data:data}, 'bag', 'POST', null, cb);
-        };
-        dlg._('button', {label:'Save',margin:'4px','float':'right',onClick:saveData});
-        var nodes = genro.getData('gnr.pageLocalization').getNodes();
-        var tbl = xx._('table', {_class:'localizationTable',width:'100%'});
-        var thead = tbl._('thead');
-        var r = thead._('tr');
-        r._('th', {content:'Key'});
-        r._('th', {content:'Value'});
-        var tbody = tbl._('tbody');
-        for (var i = 0; i < nodes.length; i++) {
-            var r = tbody._('tr', {datapath:'gnr.pageLocalization.r_' + i});
-            r._('td', {width:'15em'})._('div', {innerHTML:'^.key'});
-            r._('td')._('inlineeditbox', {value:'^.txt',noValueIndicator:noValueIndicator});
-        }
-        node.unfreeze();
-        genro.wdgById('_localizer').show();
-    },
     printUrl: function(url) {
         genro.dev.deprecation("genro.dev.printUrl(url)", "genro.download(url,'print')");
         genro.download(url, null, 'print');
@@ -538,11 +593,12 @@ dojo.declare("gnr.GnrDevHandler", null, {
             return genro.dev.dictToHtml(item.attr, 'bagAttributesTable');
         }
     },
-    showDebugger:function(){
+    showInspector:function(){
         if(!dijit.byId("gnr_devTools")){
              genro.dev.openInspector();
         }
     },
+
     shortcut: function(shortcut, callback, opt) {
         var default_options = {
             'type':'keydown',
@@ -765,7 +821,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
 
 
-    takePicture:function(uploadPath,onResult){
+    takePicture:function(sendPars,onResult){
         genro.publish('onPageSnapshot',{setting:true});
         const divOffset = 1;
         var overlay = document.createElement('div');
@@ -774,6 +830,11 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var sel = document.createElement('div');
         dojo.style(sel,{position:'absolute',top:'0',width:'0',height:'0',display:'none',border:'2px solid black'});
         overlay.appendChild(sel);
+
+        sendPars = sendPars || {uploadPath:'site:screenshots/'+genro.getData('gnr.pagename')};
+        if(typeof(sendPars)=='string'){
+             sendPars = {uploadPath:sendPars}
+        }
         var pos = [0, 0];
         var x1,x2,y1,y2, xDif, yDif = 0;
         var isSelection, 
@@ -826,9 +887,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
                 }
                 genro.publish('onPageSnapshot',{setting:false});
            }
-           genro.dom.htmlToCanvas(dojo.body(),{uploadPath:uploadPath || 'site:screenshots/'+genro.getData('gnr.pagename'),
-                                               onResult:onResultSnapshot,
-                                               crop:{x:x1,y:y1,deltaX:xDif,deltaY:yDif}})
+           var kw = {sendPars:sendPars,onResult:onResultSnapshot,crop:{x:x1,y:y1,deltaX:xDif,deltaY:yDif}};
+           genro.dom.htmlToCanvas(dojo.body(),kw)
         });
 
         dojo.connect(overlay,'mousemove',function(event){

@@ -39,7 +39,6 @@ from gnr.core import gnrlist
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrbag import Bag, BagResolver, BagAsXml
 from gnr.core.gnranalyzingbag import AnalyzingBag
-from gnr.core.gnrdecorator import debug_info
 from gnr.sql.gnrsql_exceptions import GnrSqlException,SelectionExecutionError, RecordDuplicateError,\
     RecordNotExistingError, RecordSelectionError,\
     GnrSqlMissingField, GnrSqlMissingColumn
@@ -114,7 +113,10 @@ class SqlQueryCompiler(object):
         self.tblobj = tblobj
         self.db = tblobj.db
         self.dbmodel = tblobj.db.model
-        self.relations = tblobj.newRelationResolver(cacheTime=-1)
+        if tblobj.db.reuse_relation_tree:
+            self.relations = tblobj.relations
+        else:
+            self.relations = tblobj.newRelationResolver(cacheTime=-1)
         self.sqlparams = sqlparams
         self.joinConditions = joinConditions
         self.sqlContextName = sqlContextName
@@ -192,8 +194,8 @@ class SqlQueryCompiler(object):
             alias, curr = self._findRelationAlias(list(pathlist), curr, basealias, newpath)
         else:
             alias = basealias
+        curr_tblobj = self.db.table(curr.tbl_name, pkg=curr.pkg_name)
         if not fld in curr.keys():
-            curr_tblobj = self.db.table(curr.tbl_name, pkg=curr.pkg_name)
             fldalias = curr_tblobj.model.virtual_columns[fld]
             if fldalias == None:
                 raise GnrSqlMissingField('Missing field %s in table %s.%s (requested field %s)' % (
@@ -207,6 +209,8 @@ class SqlQueryCompiler(object):
             elif fldalias.sql_formula or fldalias.select or fldalias.exists:
                 sql_formula = fldalias.sql_formula
                 attr = dict(fldalias.attributes)
+                if sql_formula is True:
+                    sql_formula = getattr(curr_tblobj,'sql_formula_%s' %fld)(attr)
                 select_dict = dictExtract(attr,'select_')
                 if not sql_formula:
                     sql_formula = '#default' if fldalias.select else 'EXISTS(#default)'
@@ -246,12 +250,13 @@ class SqlQueryCompiler(object):
                 sql_formula = gnrstring.templateReplace(sql_formula, subColPars, safeMode=True)
                 return sql_formula
             elif fldalias.py_method:
-                self.cpl.pyColumns.append((fld,getattr(self.tblobj.dbtable,fldalias.py_method,None)))
+                #self.cpl.pyColumns.append((fld,getattr(self.tblobj.dbtable,fldalias.py_method,None)))
+                self.cpl.pyColumns.append((fld,getattr(fldalias.table.dbtable,fldalias.py_method,None)))
                 return 'NULL'
             else:
                 raise GnrSqlMissingColumn('Invalid column %s in table %s.%s (requested field %s)' % (
                 fld, curr.pkg_name, curr.tbl_name, '.'.join(newpath)))
-        return '%s.%s' % (alias, fld)
+        return '%s.%s' % (alias, curr_tblobj.column(fld).adapted_sqlname)
         
     def _findRelationAlias(self, pathlist, curr, basealias, newpath):
         """Internal method: called by getFieldAlias to get the alias (t1, t2...) for the join table.
@@ -698,7 +703,7 @@ class SqlQueryCompiler(object):
             extracnd, isOneOne = self.getJoinCondition(target_fld, from_fld, '%s0' %self.aliasPrefix)
         return 'DynItemOneOne' if isOneOne else 'DynItemMany'
 
-    
+
     def _handle_virtual_columns(self, virtual_columns):
         if isinstance(virtual_columns, basestring):
             virtual_columns = gnrstring.splitAndStrip(virtual_columns, ',')
@@ -710,11 +715,13 @@ class SqlQueryCompiler(object):
             if column is None:
                 # print 'not existing col:%s' % col_name  # jbe commenting out the print
                 continue
+            column_attributes = self.tblobj.virtualColumnAttributes(col_name)
             self._currColKey = col_name
             field = self.getFieldAlias(column.name)
-            xattrs = dict([(k, v) for k, v in column.attributes.items() if not k in ['tag', 'comment', 'table', 'pkg']])
+
+            xattrs = dict([(k, v) for k, v in column_attributes.items() if not k in ['tag', 'comment', 'table', 'pkg']])
             
-            if column.attributes['tag'] == 'virtual_column':
+            if column_attributes['tag'] == 'virtual_column':
                 as_name = '%s_%s' % (self.aliasCode(0), column.name)
                 path_name = column.name
             else:
@@ -1005,7 +1012,9 @@ class SqlQuery(object):
         for field,handler in self.compiled.pyColumns:
             if handler:
                 for d in data:
-                    d[field] = handler(d,field=field)
+                    #d[field] = handler(d,field=field)
+                    result = handler(d,field=field)
+                    d[field] = result
 
     def fetchPkeys(self):
         fetch = self.fetch()
@@ -1387,7 +1396,17 @@ class SqlSelection(object):
         else:
             with open(pik_path) as f:
                 self._data = cPickle.load(f)
-        f.close()
+
+    def _freeze_pkeys(self, readwrite):
+        pik_path = '%s_pkeys.pik' % self.freezepath
+        if readwrite == 'w':
+            dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection_data',suffix='.pik')
+            with os.fdopen(dumpfile_handle, "w") as f:
+                cPickle.dump(self.output('pkeylist'), f)
+            shutil.move(dumpfile_path, pik_path)
+        else:
+            with open(pik_path) as f:
+                return cPickle.load(f)
         
     def _freeze_filtered(self, readwrite):
         fpath = '%s_filtered.pik' % self.freezepath
@@ -1420,7 +1439,8 @@ class SqlSelection(object):
         self._freezeme()
         self._freeze_data('w')
         self._freeze_filtered('w')
-        
+        self._freeze_pkeys('w')
+
     def freezeUpdate(self):
         """TODO"""
         if self.isChangedData:
@@ -1975,13 +1995,8 @@ class SqlSelection(object):
     def colHeaders(self):
         """TODO"""
         def translate(txt):
-            if txt.startswith('!!'):
-                txt = txt[2:]
-                
-                #app = getattr(self.dbtable.db, 'application', None)
-                #if app:
-                #    txt = app.localization.get(txt, txt)
-            return txt
+            return self.dbtable.db.localizer.translate(txt)
+            
                 
         columns = [c for c in self.columns if not c in ('pkey', 'rowidx')]
         headers = []
@@ -1994,20 +2009,9 @@ class SqlSelection(object):
         """TODO
         
         :param outsource: TODO"""
-        def translate(txt):
-            if txt.startswith('!!'):
-                txt = txt[2:]
-                
-                #app = getattr(self.dbtable.db, 'application', None)
-                #if app:
-                #    txt = app.localization.get(txt, txt)
-            return txt
-            
+        
+        headers = self.colHeaders()
         columns = [c for c in self.columns if not c in ('pkey', 'rowidx')]
-        headers = []
-        for colname in columns:
-            colattr = self.colAttrs.get(colname, dict())
-            headers.append(translate(colattr.get('label', colname)))
         result = ['\t'.join(headers)]
         for row in outsource:
             r = dict(row)
@@ -2249,8 +2253,11 @@ class SqlRecord(object):
         
     def out_dict(self):
         """TODO"""
-        return dict([(str(k)[3:], self.result[k]) for k in self.result.keys()])
-    
+        pyColumnsDict = dict([(k,h) for k,h in self.compiled.pyColumns])
+        result = dict([(str(k)[3:], self.result[k]) for k in self.result.keys()])
+        for k,v in result.items():
+            result[k] =  pyColumnsDict[k](result,field=k) if k in pyColumnsDict else result[k]
+        return result 
 
     def loadRecord(self,result,resolver_one=None,resolver_many=None):
         self._loadRecord(result,self.result,self.compiled.resultmap,resolver_one=resolver_one,resolver_many=resolver_many)
@@ -2273,7 +2280,6 @@ class SqlRecord(object):
         sqlparams = dict()
         if order_by:
             sqlparams['order_by'] = order_by
-
         #if True or resolver_many is True:
         value = SqlRelatedSelectionResolver(
                 columns='*', db=self.db, cacheTime=-1,
@@ -2283,6 +2289,7 @@ class SqlRecord(object):
                 sqlContextName=self.sqlContextName,
                 virtual_columns=virtual_columns,
                 sqlparams = sqlparams,
+
                 )
         #else:
         info['_many_order_by'] = order_by

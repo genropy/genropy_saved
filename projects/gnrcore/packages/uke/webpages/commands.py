@@ -29,8 +29,9 @@ class GnrCustomWebPage(object):
                 tbl_to_del = ''
             p['status'] = """<a href="javascript:genro.publish('update_uke_pkg',{package_identifier:'%s',tables_to_add:'%s',tables_to_del:'%s'})" title="%s">%s</a>""" %(package_identifier,tbl_to_add,tbl_to_del,tip,command)
         return pkgbag
-
-    def rpc_updatePackage(self,package_identifier=None,tables_to_add=None,tables_to_del=None):
+        
+    @public_method
+    def updatePackage(self,package_identifier=None,tables_to_add=None,tables_to_del=None):
         pkg_table = self.db.table('uke.package')
         if not pkg_table.existsRecord(package_identifier):
             prj_tbl = self.db.table('uke.project')

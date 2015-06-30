@@ -10,6 +10,7 @@ from gnr.core.gnrdecorator import public_method
 from gnr.web.gnrwebstruct import struct_method
 from datetime import date
 from gnr.core.gnrbag import Bag
+from gnr.app.gnrapp import GnrRestrictedAccessException
 
 #foundation/menu:MenuIframes,
 class FrameIndex(BaseComponent):
@@ -158,22 +159,24 @@ class FrameIndex(BaseComponent):
         if self.custom_plugin_list:
             for btn in self.custom_plugin_list.split(','):
                 getattr(self,'btn_%s' %btn)(leftbar)
-                
-        rightbar = bc.contentPane(region='right',overflow='hidden').div(display='inline-block', margin_right='10px')
-        for btn in ['refresh','delete','newWindow']:
-            getattr(self,'btn_%s' %btn)(rightbar)
         
         self.prepareTablist(bc.contentPane(region='center'),onCreatingTablist=onCreatingTablist)
         
     def prepareTablist(self,pane,onCreatingTablist=False):
 
-        menu = pane.div().menu(modifiers='Shift',_class='smallMenu',id='_menu_tab_opt_',
+        menu = pane.div().menu(_class='smallMenu',id='_menu_tab_opt_',
                                 action="genro.framedIndexManager.menuAction($1,$2,$3);")
+        pane.div().menu(modifiers='*',_class='_menu_open_windows_',id='_menu_open_windows_',
+                                action="genro.framedIndexManager.selectWindow($1,$2,$3);",
+                                storepath='externalWindows')
+
         menu.menuline('!!Add to favorites',code='fav')
         menu.menuline('!!Set as start page',code='start')
-        menu.menuline('!!Detach',code='detach') 
         menu.menuline('!!Remove from favorites',code='remove')
         menu.menuline('!!Clear favorites',code='clearfav')
+        menu.menuline('-')
+        menu.menuline('!!Reload',code='reload')
+
         box = pane.div(zoomToFit='x',overflow='hidden')
         tabroot = box.div(connect_onclick="""
                                             if(genro.dom.getEventModifiers($1)=='Shift'){
@@ -188,7 +191,7 @@ class FrameIndex(BaseComponent):
 
                                             """,margin_left='20px',
                                             nodeId='frameindex_tab_button_root',white_space='nowrap')
-        pane.dataController("""if(!data){
+        pane.dataController("""if(!data && !externalWindows){
                                     if(indexTab){
                                         genro.callAfter(function(){
                                             var data = new gnr.GnrBag();
@@ -197,35 +200,46 @@ class FrameIndex(BaseComponent):
                                         },1,this);
                                     }
                                 }else{
-                                    genro.framedIndexManager.createTablist(tabroot,data,onCreatingTablist);
+                                    genro.callAfter(function(){
+                                        genro.framedIndexManager.createTablist(tabroot,data,onCreatingTablist);
+                                    },200,this);
+
                                 }
                                 """,
-                            data="^iframes",tabroot=tabroot,indexTab=self.indexTab,
+                            data="=iframes",externalWindows='=externalWindows',_refreshTablist='^refreshTablist',tabroot=tabroot,indexTab=self.indexTab,
                             onCreatingTablist=onCreatingTablist or False,_onStart=True)
         pane.dataController("genro.framedIndexManager.loadFavorites();",_onStart=100)
-        pane.dataController("""  var iframetab = tabroot.getValue().getNode(page);
-                                    if(iframetab){
-                                        genro.dom.setClass(iframetab,'iframetab_selected',selected);                                        
-                                        var node = genro._data.getNode('iframes.'+page);
-                                        var treeItem = genro.getDataNode(node.attr.fullpath);
-                                        if(!treeItem){
-                                            return;
-                                        }
-                                        var labelClass = treeItem.attr.labelClass;
-                                        labelClass = selected? labelClass+ ' menu_current_page': labelClass.replace('menu_current_page','')
-                                        treeItem.setAttribute('labelClass',labelClass);
-                                    }
-                                    """,subscribe_iframe_stack_selected=True,tabroot=tabroot,_if='page')
+        pane.dataController(""" var cb = function(){
+                                                var iframetab = tabroot.getValue().getNode(page);
+                                                if(iframetab){
+                                                    genro.dom.setClass(iframetab,'iframetab_selected',selected);                                        
+                                                    var node = genro._data.getNode('iframes.'+page);
+                                                    var treeItem = genro.getDataNode(node.attr.fullpath);
+                                                    if(!treeItem){
+                                                        return;
+                                                    }
+                                                    var labelClass = treeItem.attr.labelClass;
+                                                    labelClass = selected? labelClass+ ' menu_current_page': labelClass.replace('menu_current_page','')
+                                                    treeItem.setAttribute('labelClass',labelClass);
+                                                }
+                                            }
+                                if(selected){
+                                    setTimeout(cb,1);
+                                }else{
+                                    cb();
+                                }
+                                    
+        """,subscribe_iframe_stack_selected=True,tabroot=tabroot,_if='page')
 
     def prepareBottom(self,pane):
         pane.attributes.update(dict(overflow='hidden',background='silver'))
-        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,manageTickets,count_errors,5,appInfo,*,debugping,5,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='20px',
+        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,manageDocumentation,5,openGnrIDE,count_errors,5,appInfo,*,debugping,5,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='20px',
                         gradient_from='gray',gradient_to='silver',gradient_deg=90)
         sb.appInfo.div('^gnr.appInfo')
         applogo = sb.applogo.div()
         if hasattr(self,'application_logo'):
             applogo.img(src=self.application_logo,height='20px')
-        sb.genrologo.img(src='/_rsrc/common/images/made_with_genropy.png',height='20px')
+        sb.genrologo.img(src='/_rsrc/common/images/made_with_genropy_small.png',height='20px')
         sb.dataController("""SET gnr.appInfo = dataTemplate(tpl,{msg:msg,dbremote:dbremote}); """,
             msg="!!Connected to:",dbremote=(self.site.remote_db or False),_if='dbremote',
                         tpl="<div class='remote_db_msg'>$msg $dbremote</div>",_onStart=True)
@@ -242,9 +256,12 @@ class FrameIndex(BaseComponent):
         sb.count_errors.div('^gnr.errors?counter',hidden='==!_error_count',_error_count='^gnr.errors?counter',
                             _msg='!!Errors:',_class='countBoxErrors',connect_onclick='genro.dev.errorPalette();')
         sb.devlink.a(href=formula,_iframes='=iframes',_selectedFrame='^selectedFrame').div(_class="iconbox flash",tip='!!Open the page outside frame',_tags='_DEV_')
-        sb.manageTickets.slotButton('!!Report bug',action='genro.framedIndexManager.reportBugInCurrentIframe(sf);',
-                                sf='=selectedFrame',
-                                iconClass='iconbox icnBottomTicket')
+        sb.manageDocumentation.slotButton("!!Open documentation",iconClass='iconbox icnBottomDocumentation',
+                            action='genro.framedIndexManager.openDocForCurrentIframe();')
+
+        sb.openGnrIDE.div().slotButton("!!Open Genro IDE",iconClass='iconbox laptop',
+                            action='genro.framedIndexManager.openGnrIDE();',_tags='_DEV_')
+
         appPref.dataController("""genro.dlg.iframePalette({top:'10px',left:'10px',url:url,
                                                         title:preftitle,height:'450px', width:'800px',
                                                         palette_nodeId:'mainpreference'});""",
@@ -266,6 +283,7 @@ class FrameIndex(BaseComponent):
         sc.dataController("""setTimeout(function(){
                                 genro.framedIndexManager.selectIframePage(selectIframePage[0])
                             },1);""",subscribe_selectIframePage=True)
+        sc.dataController("genro.framedIndexManager.onSelectedFrame(selectedPage);",selectedPage='^selectedFrame')
 
         scattr = sc.attributes
         scattr['subscribe_reloadFrame'] = """var currentPage = GET selectedFrame
@@ -293,6 +311,8 @@ class FrameIndex(BaseComponent):
                 indexpane.htmliframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px',shield=True)         
         page.dataController("""genro.publish('selectIframePage',_menutree__selected[0]);""",
                                subscribe__menutree__selected=True)
+        page.dataController("""genro.framedIndexManager.newBrowserWindowPage(newBrowserWindowPage[0]);""",
+                               subscribe_newBrowserWindowPage=True)
                        
     def prepareLeft(self,pane):
         pane.attributes.update(dict(splitter=True,width='210px',datapath='left',
@@ -336,14 +356,16 @@ class FrameIndex(BaseComponent):
         pane.div(_class='button_block iframetab').div(_class='icnFrameDelete',tip='!!Close the current page',
                                                       connect_onclick='PUBLISH closeFrame;')
     
-    def btn_newWindow(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='plus',tip='!!New Window',connect_onclick='genro.openBrowserTab(genro.addParamsToUrl(window.location.href,{new_window:true}));')
+    @struct_method
+    def fi_slotbar_newWindow(self,pane,**kwargs):
+        pane.div(_class='windowaddIcon iconbox',tip='!!New Window',connect_onclick='genro.openBrowserTab(genro.addParamsToUrl(window.location.href,{new_window:true}));')
+
 
     def windowTitle(self):
-        return self.package.attributes.get('name_long')
+        return self.getPreference('instance_data.owner_name',pkg='adm') or self.package.attributes.get('name_long')
         
     def windowTitleTemplate(self):
-        return "%s $workdate" %self.package.attributes.get('name_long')
+        return "%s $workdate" %self.windowTitle()
         
 class FramedIndexLogin(BaseComponent):
     """docstring for FramedIndexLogin"""
@@ -527,7 +549,14 @@ class FramedIndexLogin(BaseComponent):
                         _if='user&&password&&!_avatar_user',_else='SET gnr.avatar = null;',
                         _avatar_user='=gnr.avatar.user',
                         _onResult="""var avatar = result.getItem('avatar');
+                                     var error_message = result.getItem('login_error_msg');
+                                    if(error_message){
+                                        genro.publish('failed_login_msg',{'message':error_message});
+                                        SET gnr.avatar = error_message;
+                                        return;
+                                    }
                                     if (!avatar){
+                                        SET gnr.avatar = null;
                                         return;
                                     }
                                     if(avatar.getItem('status')!='conf'){
@@ -598,6 +627,10 @@ class FramedIndexLogin(BaseComponent):
 
 
         footer.dataController("""
+        if(!avatar || typeof(avatar)=='string'){
+            genro.publish('failed_login_msg',{'message':avatar || error_msg});
+            return;
+        }
         dlg.hide();
         genro.lockScreen(true,'login');
         genro.serverCall(rpcmethod,{'rootenv':rootenv,login:login},function(result){
@@ -616,8 +649,8 @@ class FramedIndexLogin(BaseComponent):
                 genro.publish('logged');
             }
         },null,'POST');
-        """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',_if='avatar',
-            avatar='=gnr.avatar',_else="genro.publish('failed_login_msg',{'message':error_msg});",
+        """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',
+            avatar='=gnr.avatar',
             rootpage='=gnr.rootenv.rootpage',loginOnBuilt=loginOnBuilt,
             error_msg=self.login_error_msg,dlg=dlg.js_widget,_delay=1)  
         return dlg
@@ -625,9 +658,6 @@ class FramedIndexLogin(BaseComponent):
     @public_method
     def login_doLogin(self, rootenv=None,login=None,guestName=None, **kwargs):
         self.doLogin(login=login,guestName=guestName,rootenv=rootenv,**kwargs)
-        if not self.avatar or rootenv['login_error_msg']:
-            error = rootenv['login_error_msg'] or login['error']
-            return dict(error=error) if error else False
         rootenv['user'] = self.avatar.user
         rootenv['user_id'] = self.avatar.user_id
         rootenv['workdate'] = rootenv['workdate'] or self.workdate
@@ -639,9 +669,12 @@ class FramedIndexLogin(BaseComponent):
     @public_method
     def login_checkAvatar(self,password=None,user=None,serverTimeDelta=None,**kwargs):
         result = Bag()
-        avatar = self.application.getAvatar(user, password=password,authenticate=True)
-        if not avatar:
-            return result
+        try:
+            avatar = self.application.getAvatar(user, password=password,authenticate=True)
+            if not avatar:
+                return result
+        except GnrRestrictedAccessException, e:
+            return Bag(login_error_msg=e.description)
         status = getattr(avatar,'status',None)
         if not status:
             avatar.extra_kwargs['status'] = 'conf'
@@ -649,12 +682,10 @@ class FramedIndexLogin(BaseComponent):
         if avatar.status != 'conf':
             return result
         data = Bag()
-
         data['serverTimeDelta'] = serverTimeDelta
         self.onUserSelected(avatar,data)
         canBeChanged = self.application.checkResourcePermission(self.pageAuthTags(method='workdate'),avatar.user_tags)
         result['rootenv'] = data
-        result['login_error_msg'] = data['login_error_msg']
         default_workdate = self.clientDatetime(serverTimeDelta=serverTimeDelta).date()
         data.setItem('workdate',default_workdate, hidden= not canBeChanged)
         return result

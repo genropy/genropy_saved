@@ -1,0 +1,15 @@
+.documentationTable{
+    border-collapse: collapse;
+    margin-top: 40px;
+    margin:20px;
+    font-family: courier;
+}
+
+.documentationTable td{
+    border: 1px solid silver;
+    color:#666;
+}
+.documentationTable th{
+    background:gray;
+    color:white;
+}

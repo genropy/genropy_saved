@@ -32,6 +32,8 @@ from decimal import Decimal
 from gnr.core import gnrstring
 from gnr.core import gnrclasses
 import time
+import StringIO
+
 REGEX_XML_ILLEGAL = re.compile(r'<|>|&')
 ZERO_TIME=datetime.time(0,0)
 
@@ -143,12 +145,15 @@ class _SaxImporter(sax.handler.ContentHandler):
         self.currType = None
         self.currArray = None
 
-    def getValue(self):
+    def getValue(self, dtype=None):
         if self.valueList:
             if self.valueList[0] == '\n': self.valueList[:] = self.valueList[1:]
             if self.valueList:
                 if(self.valueList[-1] == '\n'): self.valueList.pop()
-        return saxutils.unescape(''.join(self.valueList))
+        value = ''.join(self.valueList)
+        if dtype!='BAG':
+            value = saxutils.unescape(value)
+        return value
 
     def startElement(self, tagLabel, attributes):
         attributes = dict([(str(k), self.catalog.fromTypedText(saxutils.unescape(v))) for k, v in attributes.items()])
@@ -187,7 +192,7 @@ class _SaxImporter(sax.handler.ContentHandler):
         if s != '': self.valueList.append(s)
 
     def endElement(self, tagLabel):
-        value = self.getValue()
+        value = self.getValue(dtype = self.currType)
         self.valueList = []
         dest = self.bags[-1][0]
         if (self.format == 'GenRoBag'):
@@ -255,7 +260,7 @@ class BagToXml(object):
         nodeValue = node.getValue()
         if isinstance(nodeValue, Bag) and nodeValue: #<---Add the second condition in order to type the empty bag.
             result = self.buildTag(node.label,
-                                   self.bagToXmlBlock(nodeValue), nodeattr, '', xmlMode=True)
+                                   self.bagToXmlBlock(nodeValue), nodeattr, '', xmlMode=True,localize=False)
 
         elif isinstance(nodeValue, BagAsXml):
             result = self.buildTag(node.label, nodeValue, nodeattr, '', xmlMode=True)
@@ -331,7 +336,9 @@ class BagToXml(object):
         >>> mybag['aa.bb'] = 4567
         >>> mybag.toXml()
         '<?xml version=\'1.0\' encoding=\'iso-8859-15\'?><GenRoBag><aa><bb T="L">4567</bb></aa></GenRoBag>'"""
-        result = docHeader or "<?xml version='1.0' encoding='" + encoding + "'?>\n"
+        result = ''
+        if docHeader!=False:
+            result = docHeader or "<?xml version='1.0' encoding='" + encoding + "'?>\n"
         if not catalog:
             catalog = gnrclasses.GnrClassCatalog()
         self.translate_cb = translate_cb
@@ -351,7 +358,7 @@ class BagToXml(object):
         if omitRoot:
             result = result + self.bagToXmlBlock(bag)
         else:
-            result = result + self.buildTag('GenRoBag', self.bagToXmlBlock(bag), xmlMode=True)
+            result = result + self.buildTag('GenRoBag', self.bagToXmlBlock(bag), xmlMode=True, localize=False)
         result = unicode(result).encode(encoding, 'replace')
         if pretty:
             from xml.dom.minidom import parseString
@@ -368,7 +375,7 @@ class BagToXml(object):
             output.close()
         return result
         
-    def buildTag(self, tagName, value, attributes=None, cls='', xmlMode=False):
+    def buildTag(self, tagName, value, attributes=None, cls='', xmlMode=False,localize=True):
         """TODO Return the XML tag that represent self BagNode
         
         :param tagName: TODO
@@ -378,7 +385,7 @@ class BagToXml(object):
         :param xmlMode: TODO"""
         #if value == None:
         #    value = ''
-        if self.onBuildTag:
+        if self.onBuildTag and not xmlMode:
             self.onBuildTag(label=tagName,value=value,attributes=attributes)
         t = cls
         if not t:
@@ -394,7 +401,7 @@ class BagToXml(object):
                 else:
                     if self.mode4d and isinstance(value, Decimal):
                         value = float(value)
-                    value, t = self.catalog.asTextAndType(value, translate_cb=self.translate_cb)
+                    value, t = self.catalog.asTextAndType(value, translate_cb=self.translate_cb if localize else None)
                 if isinstance(value, BagAsXml):
                     print x
                 try:
@@ -410,13 +417,13 @@ class BagToXml(object):
                 return value
             if self.omitUnknownTypes:
                 attributes = dict([(k, v) for k, v in attributes.items()
-                                   if type(v) in (basestring, str, unicode, int, float, long,
+                                    if isinstance(v,basestring) or 
+                                                ( type(v) in (int, float, long,
                                                   datetime.date, datetime.time, datetime.datetime,
-                                                  bool, type(None), list, tuple, dict, Decimal) or 
-                                     (callable(v) and 
+                                                  bool, type(None), list, tuple, dict, Decimal) ) or (callable(v) and 
                                             (hasattr(v,'is_rpc') or 
-                                            (hasattr(v,'__name__') and v.__name__.startswith('rpc_'))))
-                                   ])
+                                            (hasattr(v,'__name__') and v.__name__.startswith('rpc_')))
+                                            )])
             else:
                 attributes = dict([(k, v) for k, v in attributes.items()])
             if self.typeattrs:
@@ -466,3 +473,63 @@ class BagToXml(object):
             result = '%s>%s</%s>' % (result, value, tagName)
 
         return result
+
+class XmlOutputBag(object):
+    
+    """
+    with XmlOutputBag('miofile',docHeader = None, omitRoot=False, ) as b
+        for n in collection:
+            b.addItemBag('elemento', n.getValue(), bello=True)
+    result = b.content
+    """
+    def __init__(self, filepath=None, output=None, docHeader=True, encoding='UTF-8', omitRoot=False, counter=None,
+                 typeattrs=False, typevalue=False):
+        self.filepath = filepath
+        self.docHeader =docHeader
+        self.omitRoot =omitRoot
+        self.counter = counter
+        self.encoding = encoding
+        self.typeattrs=typeattrs
+        self.typevalue=typevalue
+        if not output:
+            if filepath:
+                output=open(filepath,'w')
+    
+            else:
+                output = StringIO.StringIO()
+        self.output = output
+
+    def __enter__(self):
+        if self.docHeader:
+            if self.docHeader == True:
+                docHeader = "<?xml version='1.0' encoding='" + self.encoding + "'?>\n"
+            else:
+                docHeader = self.docHeader
+            self.output.write(docHeader)
+        if not self.omitRoot:
+            if self.counter!=None:
+                root = '<GenRoBag len="%s">' % self.counter
+            else:
+                root = '<GenRoBag>'
+            self.output.write(root)
+        return self
+    
+    def addItemBag(self, label, value, _attributes=None, **kwargs):
+        tempbag = Bag()
+        tempbag.addItem(label, value, _attributes=_attributes, **kwargs)
+        bagxml= BagToXml().build(tempbag,typeattrs=self.typeattrs, typevalue=self.typevalue,
+                                unresolved=True, omitRoot=True,
+                                docHeader=False,pretty=False)
+        self.output.write(bagxml)
+                          
+    def __exit__(self, type, value, traceback):
+        if not self.omitRoot:
+            self.output.write('</GenRoBag>')
+        if not self.filepath:
+            self.content = self.output.getvalue()
+            print self.content
+        self.output.close()
+        
+
+
+            

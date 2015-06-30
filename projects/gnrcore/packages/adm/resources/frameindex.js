@@ -37,6 +37,20 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var lookup_url = 'sys/lookuptables';
         this.thpage_url = this.dbstore?(default_uri+this.dbstore+'/'+thurl):(default_uri+thurl);
         this.lookup_url = this.dbstore?(default_uri+this.dbstore+'/'+lookup_url):(default_uri+lookup_url);
+        genro.externalWindowsObjects = {};
+        var that = this;
+        genro.checkBeforeUnload = function(){
+            return genro.getData('gnr.windowTitle');
+        }
+        genro.onWindowUnload_replaced = genro.onWindowUnload;
+        genro.onWindowUnload = function(){
+            that.closeAllExternalWindows();
+            genro.onWindowUnload_replaced();
+        }
+        this.stackSourceNode.registerSubscription('closeExternalWindow',function(kw){
+            that.onExternalWindowClosed(kw.windowKey);
+        });
+        
 
     },
     
@@ -91,11 +105,20 @@ dojo.declare("gnr.FramedIndexManager", null, {
             var iframePageName = 'm_'+genro.getCounter();
             var multipageIframePagePath = 'iframes.'+rootPageName+'.'+iframePageName;
             pane_kw = {_lazyBuild:true,overflow:'hidden',title:'^'+multipageIframePagePath+'.title',
-                      pageName:iframePageName,closable:true,stackbutton_tooltip:'^'+multipageIframePagePath+'.title?titleFullDesc'}
+                      pageName:iframePageName,closable:true,
+                      stackbutton_tooltip:'^'+multipageIframePagePath+'.title?titleFullDesc'}
             genro.setData(multipageIframePagePath+'.title',label+'...');
-            objectUpdate(iframeattr,{'id':'iframe_'+rootPageName+'_'+iframePageName,
+            objectUpdate(iframeattr,{'id':'iframe_'+rootPageName+'_'+iframePageName,treeMenuPath:kw.fullpath,
                             frameName:rootPageName+'_'+iframePageName,multipage_childpath:multipageIframePagePath})
         }
+        pane_kw.onClosingCb = function(evt){
+            if(evt.shiftKey){
+                return true;
+            }
+            var iframeSourceNode = this.getValue().getNode('iframecontainer.iframenode');
+            return iframeSourceNode.domNode.contentWindow.genro.checkBeforeUnload();
+        };
+
         var center = root._('ContentPane',iframePageName,pane_kw);
         var that = this;
         var onStartCallbacks = objectPop(kw,'onStartCallbacks');
@@ -106,7 +129,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
                 };
             }
         }
-        var iframe = center._('div',{'height':'100%','width':'100%',overflow:'hidden'})._('iframe',iframeattr);
+        var iframe = center._('div','iframecontainer',{'height':'100%','width':'100%',overflow:'hidden'})._('iframe','iframenode',iframeattr);
         return root.popNode('#0');
     },
 
@@ -145,6 +168,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
                     iframe.gnr.postMessage(iframe.sourceNode,openKw);
                 })
             }
+            that.stackSourceNode.fireEvent('refreshTablist',true);
         };
         var n = this.iframesbag.getNode(kw.rootPageName);
         var hasBeenSelected = this.iframesbag.getNode(kw.rootPageName).attr.hasBeenCreated;
@@ -156,10 +180,94 @@ dojo.declare("gnr.FramedIndexManager", null, {
         }else{
             cb();
         }
-        
         //setTimeout(function(){iframe.getParentNode().domNode.src = url;},1); non serve
     },
-    
+
+    onSelectedFrame:function(rootPageName){
+        if(rootPageName=='indexpage'){
+            return
+        }
+        var that = this;
+        this.stackSourceNode.watch('pageReady',function(){
+            var iframe = that.getCurrentIframe(rootPageName);
+            if(iframe && iframe.contentWindow && iframe.contentWindow.genro && iframe.contentWindow.genro._pageStarted){
+                return true
+            }
+        },function(){
+             genro.publish({extWin:'DOCUMENTATION',topic:'onSelectedFrame'});
+        })
+    },
+
+    newBrowserWindowPage:function(kw){
+        this.makePageUrl(kw)
+        if(kw.rootPageName in genro.externalWindowsObjects){
+            genro.externalWindowsObjects[kw.rootPageName].focus();
+            return;
+        }
+        var dn = this.stackSourceNode.widget.domNode;
+        var externalWindowKw = {height:dn.clientHeight,width:dn.clientWidth,
+                                left:window.screenLeft+dn.offsetLeft+20,top:window.screenTop+dn.offsetTop+(window.outerHeight-window.innerHeight)+20};
+        objectUpdate(externalWindowKw,objectExtract(kw,'externalWindow_*'));
+        var w = genro.openWindow(kw.url,kw.label,{location:externalWindowKw.location || 'no',menubar:externalWindowKw.menubar || 'no'});
+        w.moveTo(externalWindowKw.left,externalWindowKw.top);
+        w.resizeTo(externalWindowKw.width,externalWindowKw.height);
+        var that = this;
+        var url = kw.url;
+        var windowKey = kw.rootPageName
+        this.subscribeExternalWindow(w,windowKey);
+        var b = this.externalWindowsBag();
+        b.setItem(windowKey, null,{caption:kw.label,url:url,windowKey:windowKey});
+        this.stackSourceNode.fireEvent('refreshTablist',true);
+    },
+
+
+    selectWindow:function(menuitem,ctxSourceNode,event){
+        genro.externalWindowsObjects[menuitem.windowKey].focus()
+    },
+
+
+    subscribeExternalWindow:function(w,windowKey){
+        genro.externalWindowsObjects[windowKey] = w;
+        var parentGenro = genro;
+        var parentWindow = window;
+        w.addEventListener('load',function(){
+            var wg = this.genro;       
+            wg.externalParentWindow = parentWindow;
+            wg.root_page_id = parentGenro.page_id;
+            wg.parent_page_id = parentGenro.page_id;
+            wg.startArgs['_root_page_id'] = wg.root_page_id;
+            wg.startArgs['_parent_page_id'] = wg.parent_page_id;
+            wg.external_window_key = windowKey;
+        });
+    },
+
+    closeAllExternalWindows:function(){
+        for(var k in genro.externalWindowsObjects){
+            var closingWindow = genro.externalWindowsObjects[k];
+            closingWindow.close();
+        }
+        if(!genro._windowClosing){
+            this.stackSourceNode.fireEvent('refreshTablist',true);
+        }
+    },
+
+    onExternalWindowClosed:function(windowKey){
+        if(genro._windowClosing){
+            return;
+        }
+        delete genro.externalWindowsObjects[windowKey];
+        this.externalWindowsBag().popNode(windowKey);
+        this.stackSourceNode.fireEvent('refreshTablist',true);
+    },
+
+    externalWindowsBag:function(){
+        var b = genro.getData('externalWindows');
+        if(!b){
+            b = new gnr.GnrBag();
+            genro.setData('externalWindows',b);
+        }
+        return b;
+    },
     
     makePageUrl:function(kw){
         var url = kw.file;
@@ -192,10 +300,29 @@ dojo.declare("gnr.FramedIndexManager", null, {
         kw.rootPageName = kw.pageName || kw.url.replace(/\W/g,'_');
     },
     
+    closeRootFramPage:function(frameName,title,evt){
+        var that = this;
+        var finalizeCb = function(){
+            that.deleteFramePage(frameName);
+        }
+        if(evt.shiftKey){
+            finalizeCb();
+        }
+        var iframes = dojo.query('iframe',this.stackSourceNode.getValue().getNode(frameName).getWidget().domNode);
+        if(iframes.some(function(n){return n.contentWindow.genro.checkBeforeUnload();})){
+            genro.dlg.ask(_T('Closing ')+title,_T("There is a pending operation in this tab"),{confirm:_T('Close anyway'),cancel:_T('Cancel')},
+                            {confirm:function(){ finalizeCb();}})
+        }else{
+            finalizeCb();
+        }
+    },
+
     createTablist:function(sourceNode,data,onCreatingTablist){
         var root = genro.src.newRoot();
         var selectedFrame = this.selectedFrame();
         var button,kw,pageName;
+        var deleteSelectedOnly = false;
+        var that = this;
         var cb = function(n){
             pageName = n.attr.pageName;
             kw = {'_class':'iframetab',pageName:pageName};
@@ -211,11 +338,25 @@ dojo.declare("gnr.FramedIndexManager", null, {
             button = root._('div',pageName,kw);
             
             button._('div',{'innerHTML':n.attr.fullname,'_class':'iframetab_caption',connectedMenu:'_menu_tab_opt_'});
+            button._('div',{_class:'framecloser framecloserIcon',
+                                    connect_onclick:function(e){
+                                       dojo.stopEvent(e);
+                                       that.closeRootFramPage(n.label,n.attr.fullname,e);
+                                    }
+                            })
+
+
         }
-        data.forEach(cb,'static');
-        if(onCreatingTablist){
-            onCreatingTablist = funcCreate(onCreatingTablist,'root,selectedPage',this)
-            onCreatingTablist(root,selectedFrame);
+        if(data){
+            data.forEach(cb,'static');
+            if(onCreatingTablist){
+                onCreatingTablist = funcCreate(onCreatingTablist,'root,selectedPage',this)
+                onCreatingTablist(root,selectedFrame);
+            }
+        }
+        if(this.externalWindowsBag().len()){
+            var m = root._('div','externalPagesMenu',{_class:'iframetab windowmenu',connectedMenu:'_menu_open_windows_'})._('div',{innerHTML:'&nbsp;',_class:'iframetab_caption windowmenuIcon',
+                                                                                            width:'18px'});
         }
         sourceNode.setValue(root, true);
     },
@@ -228,13 +369,14 @@ dojo.declare("gnr.FramedIndexManager", null, {
 
     changeFrameLabel:function(kw){
         this.iframesbag.getNode(kw.pageName).updAttributes({fullname:kw.title});
+        this.stackSourceNode.fireEvent('refreshTablist',true);
     },
 
     deleteFramePage:function(pageName){
         var sc = this.stackSourceNode.widget;
         var selected = sc.getSelectedIndex();
         var iframesbag= genro.getData('iframes');
-        var node = iframesbag.getNode(pageName);
+        var node = iframesbag.popNode(pageName);
         genro.publish({topic:'onDeletingIframePage',iframe:'iframe_'+pageName},pageName);
         if(node.attr.subtab=='recyclable'){
             node.updAttributes({'hiddenPage':true});
@@ -249,28 +391,72 @@ dojo.declare("gnr.FramedIndexManager", null, {
             }
         }
         var tablist = genro.nodeById('frameindex_tab_button_root');
-        var curlen = tablist.getValue().len();
+        var curlen = tablist.getValue().len()-1;
+        curlen = this.externalWindowsBag().len()>0?curlen-1:curlen;
         selected = selected>=curlen? curlen-1:selected;
-        selected = selected<0? 0:selected;
-        var nextPageName = tablist.getValue().getNode('#'+selected)? tablist.getValue().getNode('#'+selected).attr.pageName:'indexpage';
+        var nextPageName = 'indexpage';
+        if(selected>=0){
+            nextPageName = tablist.getValue().getNode('#'+selected)? tablist.getValue().getNode('#'+selected).attr.pageName:'indexpage';
+        }
         this.stackSourceNode.setRelativeData('selectedFrame',nextPageName); //PUT
+        this.stackSourceNode.fireEvent('refreshTablist',true);
+
     },
 
     reloadSelectedIframe:function(rootPageName,modifiers){
         var iframe = this.getCurrentIframe(rootPageName);
         if(iframe){
-            var dodebug = modifiers=='Shift';
-            iframe.sourceNode._genro.pageReload({debug_sql:dodebug,pageReloading:true,dojo_source:true});
+            var dodebug = modifiers=='ShiftAlt';
+            var finalizeCb = function(){
+                iframe.sourceNode.reloadIframe();
+            }
+            if(iframe.sourceNode._genro && iframe.sourceNode._genro.checkBeforeUnload()){
+                genro.dlg.ask(_T('Reloading current frame'),_T("There is a pending operation in this tab"),{confirm:_T('Close anyway'),cancel:_T('Cancel')},
+                            {confirm:function(){ 
+                                iframe.sourceNode._genro._checkedUnload = true;
+                                finalizeCb();
+                            }})
+            }else{
+                finalizeCb()
+            }
         }
     },
 
-    reportBugInCurrentIframe:function(rootPageName){
-        var iframe = this.getCurrentIframe(rootPageName);
-        if(iframe){
-            iframe.sourceNode._genro.publish('genro_report_bug');
-        }
+    openDocForCurrentIframe:function(){
+        this.newBrowserWindowPage({
+            pageName:'DOCUMENTATION',
+            file:'/sys/docpage',
+            label: _T("Documentation")
+        });
     },
 
+
+    openGnrIDE:function(){
+        this.newBrowserWindowPage({
+            pageName:'GNRIDE',
+            file:'/sys/gnride',
+            label: _T("Genro IDE")
+        });
+    },
+
+    callOnCurrentIframe:function(objpath,method,args){
+        var rootPageName = this.stackSourceNode.getRelativeData('selectedFrame');
+        var selectedIframe =  rootPageName && rootPageName!='indexpage'?this.getCurrentIframe(rootPageName):null; //documentazione della index da vedere poi
+        if(!selectedIframe){
+            //da verificare
+            return;
+        }
+        var result = {};
+        var cw = selectedIframe.contentWindow;
+        var scope = cw.genro;
+        var l = objpath?objpath.split('.'):[];
+        l.forEach(function(chunk){
+            scope = scope[chunk];
+        });
+        if(scope){
+            return scope[method].apply(scope,args);
+        }
+    },
 
     getCurrentIframe:function(rootPageName){
         var iframesbag= genro.getData('iframes');
@@ -281,6 +467,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         }
         return dojo.byId("iframe_"+iframeId);
     },
+
 
     menuAction:function(menuitem,ctxSourceNode,event){
         var action = menuitem.code;
@@ -294,6 +481,8 @@ dojo.declare("gnr.FramedIndexManager", null, {
         }
         else if(action=='clearfav'){
             this.removeFromFavorite(true);
+        }else if(action=='reload'){
+            this.reloadSelectedIframe(pageattr.pageName);
         }
         else{
             if(fullpath){
@@ -373,6 +562,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
             }else{
                 setTimeout(function(){
                     that.stackSourceNode.setRelativeData('selectedFrame',startPage || pageName);
+                    that.stackSourceNode.fireEvent('refreshTablist',true);
                 },100);
             }
         }

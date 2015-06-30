@@ -102,7 +102,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                 if not isinstance(v,tuple):
                     sqlargs[k] = tuple(v)
                 if len(v)==0:
-                    re_pattern = "((t\\d+)(_t\\d+)*.\\w+ +)(NOT +)*(IN) *:%s" %k
+                    re_pattern = """((t\\d+)(_t\\d+)*.\\"?\\w+\\"?" +)(NOT +)*(IN) *:%s""" %k
                     sql = re.sub(re_pattern,lambda m: 'TRUE' if m.group(4) else 'FALSE',sql,flags=re.I)
         return sql
 
@@ -117,6 +117,9 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         sql = self.adaptTupleListSet(sql,kwargs)
         return RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP', '~*'), kwargs
         
+    def adaptSqlName(self,name):
+        return '"%s"' %name
+
     def _managerConnection(self):
         dbroot = self.dbroot
         kwargs = dict(host=dbroot.host, database='template1', user=dbroot.user,

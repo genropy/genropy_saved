@@ -726,71 +726,75 @@
 
 ._common_d11 .dojoxGrid-row .dojoxGrid-cell,
 ._common_d11 .dojoxGrid-row-odd .dojoxGrid-cell,
-._common_d11 .dojoxGrid-row-selected .dojoxGrid-cell{
+._common_d11 .dojoxGrid-row.dojoxGrid-row-selected .dojoxGrid-cell{
     border-left: 0px !important;
     border-top: 0 !important;
     border-right: 1px solid #dee;
     border-bottom: 0px !important;
     /*height: 21px;*/
     height:0px;
-    padding-top:2px;
-    padding-bottom:2px;
     background:none;
     vertical-align:top;
 }
-._common_d11 .widgetInCell {
-    color: #444;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    margin-right: 5px;
-    width: 100%;
-    border:0px;
-    -moz-border-radius: 2px;
-    -webkit-border-radius: 2px;
-    box-shadow: 1px 1px 1px #777 inset;
-}
-._common_d11 .cell_B .widgetInCell {
-    width: 16px;
-    margin: auto;
+
+.touchDevice._common_d11 .dojoxGrid-row .dojoxGrid-cell,
+.touchDevice._common_d11 .dojoxGrid-row-odd .dojoxGrid-cell,
+.touchDevice._common_d11 .dojoxGrid-row-selected .dojoxGrid-cell{
+    border-left: 0px !important;
+    border-top: 0 !important;
+    border-right: 1px solid #dee;
+    border-bottom: 0px !important;
+    /*height: 21px;*/
+    height:0px;
+    padding-top:4px;
+    padding-bottom:4px;
+    background:none;
+    vertical-align:top;
 }
 
+
+.tundra._common_d11 .dojoxGrid-content>div{
+    border-bottom: 1px solid #DDEEEE;
+}
+
+.tundra._common_d11 .editingGrid .dojoxGrid-row-odd.dojoxGrid-row-selected{
+    background-color: #F3F6FA;
+}
+
+.tundra._common_d11 .editingGrid .dojoxGrid-row-selected{
+    background-color:#fff; 
+}
+
+
 .tundra._common_d11 .dojoxGrid-row{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#FFFFFF), to(#f6f6f6));
-    background-image: -moz-linear-gradient(-90deg, #FFFFFF, #f6f6f6);
+    background-color:#fff; 
 }
 
 .tundra._common_d11 .dojoxGrid-row-odd{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#FAFCFF), to(#f6f6f6));
-    background-image: -moz-linear-gradient(-90deg, #FAFCFF, #f6f6f6);
-}
-.tundra._common_d11 .dojoxGrid-row-selected{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(white), to(#c2d3e7));
-    background-image: -moz-linear-gradient(-90deg, white, #c2d3e7);
-    border-bottom: 0px solid !important;
-    border-right: 1px solid #dee;
+    background-color: #F3F6FA;
 }
 
-
-._common_d11 .canBeDropped.dojoxGrid-row,
-._common_d11 .canBeDropped.dojoxGrid-row-selected,
-._common_d11 .canBeDropped .dojoxGrid-row,
-._common_d11 .canBeDropped .dojoxGrid-row-selected,
-._common_d11 .canBeDropped .dojoxGrid-cell,
-._common_d11 .canBeDropped.dojoxGrid-cell,
-._common_d11 .dojoxGrid-row-selected.canBeDropped .dojoxGrid-cell,
-._common_d11 .dojoxGrid-row-selected .canBeDropped.dojoxGrid-cell{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(white), to(#8fff9d));
-    background-image: -moz-linear-gradient(-90deg, white, #8fff9d);
+.tundra._common_d11 .dojoxGrid-row{
+    background-color:#fff; 
 }
 
-._common_d11 .cannotBeDropped.dojoxGrid-row,
-._common_d11 .cannotBeDropped.dojoxGrid-row-selected,
-._common_d11 .cannotBeDropped .dojoxGrid-cell,
-._common_d11 .cannotBeDropped.dojoxGrid-cell,
-._common_d11 .dojoxGrid-row-selected.cannotBeDropped .dojoxGrid-cell,
-._common_d11 .dojoxGrid-row-selected .cannotBeDropped.dojoxGrid-cell{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(white), to(#ffa997));
-    background-image: -moz-linear-gradient(-90deg, white, #ffa997);
+.tundra._common_d11 .dojoxGrid-row-odd{
+    background-color: #F3F6FA;
+}
+
+.tundra._common_d11 .dojoxGrid-row.dojoxGrid-row-selected{
+    background-color: #AFCBEC;
+}
+.tundra._common_d11 .dojoxGrid-row-selected.dojoxGrid-row-odd{
+    background-color: #AFCBEC;
+}
+
+._common_d11 .canBeDropped .dojoxGrid-row.dojoxGrid-row-odd{
+    background-color:rgba(243, 246, 250, 0.5)
+}
+
+._common_d11 .canBeDropped .dojoxGrid-row{
+    background-color:rgba(255, 255, 255, 0.5)
 }
 
 .common_d11 .draggedItem .dojoxGrid-cell,.common_d11 .draggedItem.dojoxGrid-cell{
@@ -815,7 +819,7 @@
     background:none !important;
     height:14px;
     padding-top:2px;
-    color:#4b4955 !important;
+    color:#555 !important;
     border-bottom:0 !important;
     border-color:silver !important;
 }
@@ -883,7 +887,7 @@
 }
 
 
-.tundra .dijitSplitter.dijitSplitterV:hover{
+.tundra .dijitSplitter.dijitSplitterV:hover,.tundra .dijitSplitter.dijitSplitterH:hover{
     background:silver;
     opacity:.5;
 }
@@ -893,6 +897,7 @@
     background: transparent;
 }
 
+
 .tundra._common_d11 .dijitSplitterThumb{
     display:none;
 }
@@ -901,9 +906,5 @@
     background:silver;
     opacity:.5;
 }
-
-
-
-
 
 

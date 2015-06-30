@@ -14,10 +14,6 @@ class GnrBaseProxy(object):
         ## For every method starting with 'event_' self.page._subscribe_event is called
         self.init(**kwargs)
 
-    @property
-    def debugger(self):
-        return self.page.debugger
-
         
     def init(self, **kwargs):
         """Hook method. You can customize the ``__init__`` method"""

@@ -85,7 +85,7 @@ class BaseResourceExport(BaseResourceBatch):
                     
     def getFileName(self):
         return 'export'
-        
+
     def _pre_process(self):
         self.pre_process()
         self.fileurl = None

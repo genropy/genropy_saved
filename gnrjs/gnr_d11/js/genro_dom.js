@@ -132,6 +132,51 @@ dojo.declare("gnr.GnrDomHandler", null, {
         });
     },
 
+    addHeaders:function(headers,cb){
+        /*
+        [{htype:'script',url:''},{htype:'link',url:''}]
+        */
+
+        if (typeof(headers)=='string'){
+            headers = headers.split(',')
+        }
+        var pendingHeaders = {};
+        var firstHead = document.getElementsByTagName("head")[0];
+        var waitCb = function(url){
+            objectPop(pendingHeaders,url);
+            if(!objectNotEmpty(pendingHeaders)){
+                cb();
+            }
+        }
+        headers.forEach(function(h){
+            if(typeof(h)=='string'){
+                h = {url:h,htype:h.endsWith('.js')?'script':'link'};
+            }
+            var htype = objectPop(h,'htype');
+            var e = document.createElement(htype);
+            var url = objectPop(h,'url');
+            if(htype=='script'){
+                e.type = "text/javascript";
+                e.src = objectPop(h,'src') ||  url;
+                url = e.src;
+            }else if(htype=='link'){
+                e.href = objectPop(h,'href') || url;
+                e.type = objectPop(h,'type') || "text/css";
+                e.rel = objectPop(h,'rel') || "stylesheet";
+                e.media =objectPop(h,'media') || "screen";
+                url = e.href;
+            }
+            for (var k in h){
+                e[k] = h[k];
+            }
+            pendingHeaders[url] = true;
+            firstHead.appendChild(e);
+            e.onload = function(){
+                waitCb(url)
+            }
+        });
+    },
+
     addClass: function(where, cls) {
         if (typeof(cls) == 'string') {
             var domnode = this.getDomNode(where);
@@ -396,6 +441,10 @@ dojo.declare("gnr.GnrDomHandler", null, {
         if('translate_x' in valuedict){result+='translatex('+(valuedict['translate_x']||'0')+'px) ';}
         if('translate_y' in valuedict){result+='translatey('+(valuedict['translate_y']||'0')+'px) ';}
         if('scale' in valuedict){result+='scale('+(valuedict['scale']||0)+') ';}
+        if('origin' in valuedict){
+            styledict['transform-origin'] = valuedict['origin'];
+        }
+
         if('scale_x' in valuedict){result+='scalex('+(valuedict['scale_x']||1)+') ';}
         if('scale_y' in valuedict){result+='scaley('+(valuedict['scale_y']||1)+') ';}
         if('skew' in valuedict){result+='skew('+valuedict['skew']+') ';}
@@ -1022,13 +1071,12 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
     },
     
-    _datatransfer:function(){
-        var _transferObj = genro.mainGenroWindow.genro._transferObj;
-        if (!_transferObj){
-            _transferObj = {};
-            genro.mainGenroWindow.genro._transferObj = _transferObj;
+    _datatransfer:function(dt){
+        if(dt){
+            genro.setInStorage('local','_transferObj',dt);
+            return;
         }
-        return _transferObj;
+        return  genro.getFromStorage('local','_transferObj') || {};
     },
     
     onDragStart:function(event) {
@@ -1077,7 +1125,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
 
         var domnode = dragInfo.target;
         var widget = dragInfo.widget;
-        objectPopAll(genro.dom._datatransfer());        
+        genro.dom._datatransfer({});        
         var dataTransfer = event.dataTransfer;
         if (!dragInfo.dragImageNode) {
             var dragClass = inherited['dragClass'] || 'draggedItem';
@@ -1104,7 +1152,9 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var v = convertToText(v);
         v = ((k.indexOf('text/') == 0) || (v[0] == '') || (v[0] == 'T')) ? v[1] : v[1] + '::' + v[0];
         dataTransfer.setData(k, v);
-        genro.dom._datatransfer()[k] = v;
+        var dt = genro.dom._datatransfer();
+        dt[k] = v;
+        genro.dom._datatransfer(dt);
     },
 
     setDragSourceInfo:function(dragInfo, dragValues, dragTags) {
@@ -1396,7 +1446,13 @@ dojo.declare("gnr.GnrDomHandler", null, {
         return hider;
     },
 
-
+    isWindowVisible:function(){
+        if(genro.parentIframeSourceNode){
+            return window.parent.genro.dom.isVisible(genro.parentIframeSourceNode);
+        }
+        return true;
+    },
+    
     isVisible:function(what){
         var what = this.getDomNode(what);
         if (what){
@@ -1407,10 +1463,11 @@ dojo.declare("gnr.GnrDomHandler", null, {
             if(what.clientHeight ==0 || what.clientWidth == 0){
                 return false;
             }
-            return true;
+            return this.isWindowVisible();
         }
         return false;
     },
+
     autoSize:function(widget){
         var box;
         var maxHeight=0;
@@ -1505,7 +1562,12 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var domNode = this.getDomNode(where);
         var onrendered = kw.cb;
         var uploadPath = kw.uploadPath;
-        if(uploadPath){
+        var sendPars = objectPop(kw,'sendPars');
+        var uploaderId;
+        if(sendPars){
+            uploaderId = objectPop(sendPars,'uploaderId');
+        }
+        if(uploadPath || sendPars){
             onrendered = function(canvas){
                 var data;
                 if(kw.crop){
@@ -1518,13 +1580,12 @@ dojo.declare("gnr.GnrDomHandler", null, {
                     canvas = tempcanvas;
                 }
                 data = canvas.toDataURL("image/png");
-
                 genro.dlg.prompt('Upload screenshot',{
                     cancelCb:kw.onResult,
                     widget:function(center){
-                        var preview = center._('div',{margin:'2px',max_height:'150px',border:'1px solid silver', 
+                        var preview = center._('div',{margin:'2px',height:'150px',border:'1px solid silver', overflow:'auto',
                                                         onCreated:function(domnode){
-                                                            dojo.style(canvas,{height:'100%'})
+                                                            dojo.style(canvas,{zoom:'.5'})
                                                             domnode.appendChild(canvas)
                                                         }})
                         
@@ -1534,15 +1595,15 @@ dojo.declare("gnr.GnrDomHandler", null, {
                     action:function(result){
                         var filename = result.getItem('filename');
                         filename = (filename || 'img_'+genro.getCounter()) +'.png';
-                        genro.rpc.uploadMultipart_oneFile(data,null,{uploadPath:uploadPath,
-                              filename:filename,
+                        sendKw = {uploadPath:uploadPath,uploaderId:uploaderId,
                               onResult:function(result){
                                   var url = this.responseText;
                                   if(kw.onResult){
                                      kw.onResult(result);
                                   }
-                                  //sourceNode.setRelativeData(src,that.decodeUrl(sourceNode,url).formattedUrl);
-                               }});
+                               }}
+                        sendKw.filename = filename;
+                        genro.rpc.uploadMultipart_oneFile(data,sendPars,sendKw);
                 }})
             }
         }

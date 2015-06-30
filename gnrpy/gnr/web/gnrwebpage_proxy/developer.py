@@ -1,4 +1,4 @@
-#!/usr/bin/env pythonw
+ #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
 #  developer.py
@@ -17,53 +17,24 @@ class GnrWebDeveloper(GnrBaseProxy):
     def init(self, **kwargs):
         #self.db = self.page.db
         self.debug = getattr(self.page, 'debug', False)
-        self._debug_calls = Bag()
+        self._sqlDebugger = None
+
+
+    @property
+    def sqlDebugger(self):
+        if not self._sqlDebugger:
+            self._sqlDebugger = GnrSqlDebugger(self)
+        return self._sqlDebugger
 
     @property
     def db(self):
         return self.page.db
 
-    def output(self, debugtype, **kwargs):
-        page = self.page
-        if getattr(page, 'debug_%s' %debugtype, None):
-            getattr(self, 'output_%s' % debugtype)(page, **kwargs)
-
-    def output_sql(self, page, sql=None, sqlargs=None, dbtable=None, error=None,delta_time=None):
-        dbtable = dbtable or '-no table-'
-        kwargs=dict(sqlargs)
-        kwargs.update(sqlargs)
-        delta_time = int((delta_time or 0)*1000)
-        if sqlargs and sql:
-            formatted_sqlargs = dict([(k,'<span style="background-color:yellow;cursor:pointer;" title="%s" >%%(%s)s</span>' %(v,k)) for k,v in sqlargs.items()])
-            value = sql %(formatted_sqlargs)
-        if error:
-            kwargs['sqlerror'] = str(error)
-        self._debug_calls.addItem('%03i Table %s' % (len(self._debug_calls), dbtable.replace('.', '_')), value,_execution_time=delta_time,_time_sql=delta_time,_description=dbtable,_type='sql',
-                                  **kwargs)
-    def output_py(self,page,methodname=None,code=None,delta_time=None,**kwargs):
-        delta_time = int((delta_time or 0)*1000)
-        mlist = page.debug_py.split(',')
-        if page.debug_py=='*' or methodname in mlist:
-            self._debug_calls.addItem('%03i Call %s' % (len(self._debug_calls),methodname), code,_execution_time=delta_time,_time_py=delta_time,_description=methodname,_type='py')
 
     def event_onCollectDatachanges(self):
-        page = self.page
-        if (page.debug_sql or page.debug_py) and self._debug_calls:
-            path = 'gnr.debugger.main.c_%s' % self.page.callcounter
-            attributes=dict(server_time=int((time()-page._start_time)*1000))
-            call_kwargs = dict(page._call_kwargs)
-            attributes['methodname'] = call_kwargs.pop('method')
-            call_kwargs.pop('_lastUserEventTs',None)
-            if not call_kwargs.get('_debug_info') and ('table' in call_kwargs or 'dbtable' in call_kwargs):
-                call_kwargs['_debug_info'] = 'table: %s' %(call_kwargs.get('table') or call_kwargs.get('dbtable'))
-            attributes['debug_info'] = call_kwargs.pop('_debug_info',None)
-            #attributes['_method_parameters'] = call_kwargs
-            attributes['sql_count'] = len(self._debug_calls)
-            attributes['sql_total_time'] = self._debug_calls.sum('#a._time_sql')
-            attributes['not_sql_time'] = attributes['server_time'] - attributes['sql_total_time']
-            attributes['r_count'] = self.page.callcounter
+        if self._sqlDebugger:
+            self.sqlDebugger.onCollectDatachanges()
 
-            page.setInClientData(path, self._debug_calls,attributes=attributes)
 
     def onDroppedMover(self,file_path=None):
         import tarfile
@@ -173,3 +144,40 @@ class GnrWebDeveloper(GnrBaseProxy):
         return self._logfile
 
     logfile = property(_get_logfile)
+
+
+class GnrSqlDebugger(object):
+    def __init__(self,parent):
+        self.parent = parent
+        self._debug_calls = Bag()
+
+    def output(self, page, sql=None, sqlargs=None, dbtable=None, error=None,delta_time=None):
+        dbtable = dbtable or '-no table-'
+        kwargs=dict(sqlargs)
+        kwargs.update(sqlargs)
+        delta_time = int((delta_time or 0)*1000)
+        if sqlargs and sql:
+            formatted_sqlargs = dict([(k,'<span style="background-color:yellow;cursor:pointer;" title="%s" >%%(%s)s</span>' %(v,k)) for k,v in sqlargs.items()])
+            value = sql %(formatted_sqlargs)
+        if error:
+            kwargs['sqlerror'] = str(error)
+        self._debug_calls.addItem('%03i Table %s' % (len(self._debug_calls), dbtable.replace('.', '_')), value,_execution_time=delta_time,_time_sql=delta_time,_description=dbtable,_type='sql',
+                                  **kwargs)
+
+    def onCollectDatachanges(self):
+        page = self.parent.page
+        if page.debug_sql and self._debug_calls:
+            path = 'gnr.debugger.main.c_%s' % page.callcounter
+            attributes=dict(server_time=int((time()-page._start_time)*1000))
+            call_kwargs = dict(page._call_kwargs)
+            attributes['methodname'] = call_kwargs.pop('method')
+            call_kwargs.pop('_lastUserEventTs',None)
+            if not call_kwargs.get('_debug_info') and ('table' in call_kwargs or 'dbtable' in call_kwargs):
+                call_kwargs['_debug_info'] = 'table: %s' %(call_kwargs.get('table') or call_kwargs.get('dbtable'))
+            attributes['debug_info'] = call_kwargs.pop('_debug_info',None)
+            #attributes['_method_parameters'] = call_kwargs
+            attributes['sql_count'] = len(self._debug_calls)
+            attributes['sql_total_time'] = self._debug_calls.sum('#a._time_sql')
+            attributes['not_sql_time'] = attributes['server_time'] - attributes['sql_total_time']
+            attributes['r_count'] = page.callcounter
+            page.setInClientData(path, self._debug_calls,attributes=attributes)

@@ -262,13 +262,13 @@ class TableBase(object):
             tbl.column('parent_id',size='22',name_long='!!Parent id',
                                              onUpdating='hierarchical_before',
                                              onUpdated='hierarchical_after',
-                                             onInserting='hierarchical_before',_sysfield=True).relation('%s.id' %tblname,mode='foreignkey', 
+                                             onInserting='hierarchical_before',group='*',_sysfield=True).relation('%s.id' %tblname,mode='foreignkey', 
                                                                                         onDelete='cascade',relation_name='_children',
                                                                                         one_name='!!Parent',many_name='!!Children',
                                                                                         deferred=True,
                                                                                         one_group=group,many_group=group)
-            tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname))
-            tbl.formulaColumn('hlevel',"""length($hierarchical_pkey)-length(replace($hierarchical_pkey,'/',''))+1""")
+            tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname),group='*')
+            tbl.formulaColumn('hlevel',"""length($hierarchical_pkey)-length(replace($hierarchical_pkey,'/',''))+1""",group='*')
 
             hfields = hierarchical.split(',')
             for fld in hfields:
@@ -278,7 +278,7 @@ class TableBase(object):
                 else:
                     hcol = tbl.column(fld)
                     fld_caption=hcol.attributes.get('name_long',fld).replace('!!','')                   
-                    tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption,_sysfield=True)
+                    tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption,group=group,_sysfield=True)
                     tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption,group=group,_sysfield=True)
             tbl.attributes['hierarchical'] = hierarchical  
             if not counter:
@@ -297,7 +297,7 @@ class TableBase(object):
                 tbl.column('_parent_h_count',group=group,_sysfield=True) 
                 tbl.column('_row_count', dtype='L', name_long='!!Counter', counter=True,group=group,_sysfield=True)
                 default_order_by = '$_h_count' if hierarchical == 'pkey' else " COALESCE($_h_count,$%s) " %hierarchical.split(',')[0]
-                tbl.formulaColumn('_h_sortcol',default_order_by,_sysfield=True)
+                tbl.formulaColumn('_h_sortcol',default_order_by,_sysfield=True, group=group)
                 tbl.attributes.setdefault('order_by','$_h_sortcol')
             else:
                 self.sysFields_counter(tbl,'_row_count',counter=counter,group=group,name_long='!!Counter')
@@ -324,7 +324,7 @@ class TableBase(object):
             draftField = '__is_draft' if draftField is True else draftField
             tbl.attributes['draftField'] = draftField
             tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group,_sysfield=True)
-        if multidb:
+        if multidb and self.db.model.src['packages.multidb']:
             self.setMultidbSubscription(tbl,allRecords=(multidb=='*'),forcedStore=(multidb=='**'),group=group)
         if invalidFields or invalidRelations:
             if invalidFields:
@@ -345,16 +345,26 @@ class TableBase(object):
                         onInserted='syncRecordInserted',_sysfield=True)
         if df:
             self.sysFields_df(tbl)
-
+        tbl.formulaColumn('__is_protected_row',sql_formula=True,group=group,name_long='!!Row Protected')
+        
+        if filter(lambda r: r!='sysRecord_' and r.startswith('sysRecord_'), dir(self)):
+            tbl.column('__syscode',size=':16',unique=True,indexed=True,
+                _sysfield=True,group=group,name_long='!!Internal code')
+            tbl.formulaColumn('__protected_by_syscode',
+                                """ ( CASE WHEN $__syscode IS NULL THEN NULL 
+                                   ELSE NOT (',' || :env_userTags || ',' LIKE '%%,'|| :systag || ',%%')
+                                   END ) """,
+                                dtype='B',var_systag=tbl.attributes.get('syscodeTag') or 'superadmin')
 
     def sysFields_protectionTag(self,tbl,protectionTag=None,group=None):
-        tbl.attributes['protectionTag'] = protectionTag
-        tbl.attributes['protectionColumn'] = '__is_protected_row'
         tbl.column('__protection_tag', name_long='!!Protection tag', group=group,_sysfield=True,_sendback=True,onInserting='setProtectionTag')
-        tbl.formulaColumn('__is_protected_row',""" $__protection_tag IS NOT NULL AND NOT (',' || :env_userTags || ',' LIKE '%%,'|| $__protection_tag || ',%%')""",dtype='B')
-        
+        tbl.formulaColumn('__protected_by_tag',""" ( CASE WHEN $__protection_tag IS NULL THEN NULL 
+                                                    ELSE NOT (',' || :env_userTags || ',' LIKE '%%,'|| $__protection_tag || ',%%')
+                                                    END ) """,dtype='B')
+        #doctor,staff,superadmin               ,doctor,staff,superadmin, LIKE %%,admin,%%
+
     def sysFields_df(self,tbl):
-        tbl.column('df_fields',dtype='X',group='_')
+        tbl.column('df_fields',dtype='X',group='_',_sendback=True)
         tbl.column('df_fbcolumns','L',group='_')
         tbl.column('df_custom_templates','X',group='_')
         tbl.column('df_colswith',group='_')
@@ -362,6 +372,29 @@ class TableBase(object):
     def sysFields_counter(self,tbl,fldname,counter=None,group=None,name_long='!!Counter'):
         tbl.column(fldname, dtype='L', name_long=name_long, onInserting='setRowCounter',counter=True,
                             _counter_fkey=counter,group=group,_sysfield=True)
+
+        
+
+    def getProtectionColumn(self):
+        if filter(lambda r: r.startswith('__protected_by_'), self.model.virtual_columns.keys()) or self.attributes.get('protectionColumn'):
+            return '__is_protected_row'
+
+    def sql_formula___is_protected_row(self,attr):
+        protections= []
+        if self.attributes.get('protectionColumn'):
+            pcol = self.attributes['protectionColumn']
+            protections.append('( CASE WHEN $%s IS NULL THEN NULL ELSE TRUE END ) ' %pcol)
+        for field in filter(lambda r: r.startswith('__protected_by_'), self.model.virtual_columns.keys()):
+            protections.append(' $%s  ' %field)
+        if protections:
+            arr = " %s  " %' , '.join(protections)
+            return """( CASE WHEN ( TRUE IN ( %s ) ) 
+                      THEN TRUE 
+                      WHEN ( FALSE IN ( %s ) ) 
+                      THEN FALSE 
+                      ELSE NULL END )""" %(arr,arr)
+        else:
+            return " NULL "
 
     def addPhonetic(self,tbl,column,mode=None,size=':5',group=None):
         mode = mode or 'dmetaphone'
@@ -397,6 +430,24 @@ class TableBase(object):
                                                 condition_kwargs=condition_kwargs,caption=caption,dbstore=dbstore,columns=columns,
                                                 related_kwargs=related_kwargs,resolved=resolved,**kwargs)
 
+    def sysRecord(self,syscode):
+        def createCb(key):
+            record = getattr(self,'sysRecord_%s' %syscode)()
+            record['__syscode'] = key
+            pkey = record[self.pkey]
+            if pkey:
+                oldrecord = self.query(where='$%s=:pk' %self.pkey,pk=pkey,
+                                            addPkeyColumn=False).fetch()
+                if oldrecord:
+                    oldrecord = oldrecord[0]
+                    record = dict(oldrecord)
+                    record['__syscode'] = syscode
+                    self.update(record,oldrecord)
+                    return record
+            self.insert(record)
+            return record
+        return self.cachedRecord(syscode,keyField='__syscode',createCb=createCb)
+
     @public_method
     def pathFromPkey(self,pkey=None,dbstore=None):
         return self.hierarchicalHandler.pathFromPkey(pkey=pkey,dbstore=dbstore)
@@ -424,7 +475,7 @@ class TableBase(object):
         last_counter_fetch = self.query(columns='$%s' %fldname,where=where,
                                     order_by='$%s desc' %fldname,limit=1,
                                     **wherekw).fetch()
-        last_counter = last_counter_fetch[0].get(fldname) or 1 if last_counter_fetch else 1
+        last_counter = last_counter_fetch[0].get(fldname) or 1 if last_counter_fetch else 0
         record[fldname] = last_counter +1
         
     def trigger_setTSNow(self, record, fldname,**kwargs):
@@ -664,7 +715,7 @@ class TableBase(object):
                               size=pkeycolAttrs.get('size'), group=group).relation(rel, relation_name='subscriptions',
                                                                                  many_group=group, one_group=group)
     def hasMultidbSubscription(self):
-        return self.attributes.get('multidb')==True
+        return self.attributes.get('multidb')==True and self.db.model.src['packages.multidb']
 
     def _onUnifying(self,destRecord=None,sourceRecord=None,moved_relations=None,relations=None):
         if self.hasMultidbSubscription():
@@ -713,8 +764,16 @@ class TableBase(object):
         if not tpl:
             tpl = self.db.currentPage.loadTemplate(tplpath)
             currEnv[tplkey] = tpl
+        kwargs = dict()
+        if isinstance(tpl,Bag):
+            kwargs['locale'] = self.db.currentPage.locale #tpl.getItem('main?locale')
+            kwargs['masks'] = tpl.getItem('main?masks')
+            kwargs['formats'] = tpl.getItem('main?formats')
+            kwargs['df_templates'] = tpl.getItem('main?df_templates')
+            kwargs['dtypes'] = tpl.getItem('main?dtypes')
+            #virtual_columns = tpl.getItem('main?virtual_columns')
         r = Bag(dict(record))
-        return templateReplace(tpl,r)
+        return templateReplace(tpl,r,**kwargs)
 
 
     def hosting_copyToInstance(self,source_instance=None,dest_instance=None,_commit=False,logger=None,onSelectedSourceRows=None,**kwargs):

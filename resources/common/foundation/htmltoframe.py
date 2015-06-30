@@ -66,7 +66,6 @@ class RecordToHtmlFrame(BaseComponent):
                                                'print_button':false,
                                                runKwargs:runKwargs}
                              objectUpdate(parameters,moreargs);
-                             console.log(parameters);
                              genro.rpcDownload("callTableScript",parameters);
                              """ % (table, respath),
                            _fired='^%s.downloadPdf' % controllerPath,

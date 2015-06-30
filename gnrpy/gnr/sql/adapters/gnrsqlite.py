@@ -34,15 +34,17 @@ except:
 from gnr.sql.adapters._gnrbaseadapter import GnrDictRow, GnrWhereTranslator
 from gnr.sql.adapters._gnrbaseadapter import SqlDbAdapter as SqlDbBaseAdapter
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrstring import boolean
 
 import logging
 
 logger = logging.getLogger(__name__)
 
 class SqlDbAdapter(SqlDbBaseAdapter):
-    typesDict = {'charactervarying': 'A', 'character varying': 'A', 'character': 'C', 'text': 'T', 'blob': 'X',
-                 'boolean': 'B', 'date': 'D', 'time': 'H', 'timestamp': 'DH', 'numeric': 'N',
-                 'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'double precision': 'R', 'real': 'R', 'serial8': 'L'}
+    typesDict = {'charactervarying': 'A','nvarchar':'A', 'character varying': 'A', 'character': 'C', 'text': 'T','varchar':'A', 'blob': 'X',
+                 'boolean': 'B','bool':'B', 'date': 'D', 'time': 'H', 'datetime':'DH','timestamp': 'DH', 'numeric': 'N',
+                 'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'double precision': 'R', 'real': 'R', 'smallint unsigned':'I',
+                 'decimal':'N','serial8': 'L'}
 
     revTypesDict = {'A': 'character varying', 'T': 'text', 'C': 'character',
                     'X': 'blob', 'P': 'text', 'Z': 'text',
@@ -159,7 +161,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                     ref = tbl
                     un_ref = un_tbl
 
-                    result.append([ref, schema, tbl, [col], un_ref, un_schema, un_tbl, [un_col]], None, None, None)
+                    result.append([ref, schema, tbl, cols, un_ref, un_schema, un_tbl, un_cols,None,None,None])
         return result
 
     def getPkey(self, table, schema):
@@ -169,7 +171,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         @return: list of columns wich are the primary key for the table"""
         query = "PRAGMA %s.table_info(%s);" % (schema, table)
         l = self.dbroot.execute(query).fetchall()
-        return [r[1] for r in l if r[5] == 1]
+        return [r[1] for r in l if r[5] > 0]
 
 
     def getColInfo(self, table, schema, column=None):
@@ -191,7 +193,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                 col['length'] = colType[colType.find('(') + 1:colType.find(')')]
                 col['size'] = col['length']
                 colType = colType[:colType.find('(')]
-            col['dtype'] = self.typesDict[colType]
+            col['dtype'] = self.typesDict[colType] if colType else 'T'
             col['notnull'] = (col['notnull'] == 'NO')
             col = self._filterColInfo(col, '_sl_')
             if col['dtype'] in ('A','C') and col.get('length'):
@@ -361,3 +363,10 @@ def convert_date(val):
     return datetime.date(*map(int, val.split("-")))
 
 pysqlite.register_converter("date", convert_date)
+
+
+def convert_boolean(val):
+    return boolean(val)
+
+pysqlite.register_converter("bool", convert_boolean)
+

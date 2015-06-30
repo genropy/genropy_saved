@@ -13,3 +13,4 @@ class Table(object):
         tbl.column('customer_id',size='22',name_long='!!Customer',group='_').relation('customer.id', mode='foreignkey',
                                                                                 relation_name='projects',
                                                                                  onDelete='raise')
+        tbl.column('languages' ,size=':50',name_long='!!Languages')

@@ -101,7 +101,7 @@ class AttachManager(BaseComponent):
     js_requires='gnrcomponents/attachmanager/attachmanager'
 
     @struct_method
-    def at_attachmentGrid(self,pane,title=None,searchOn=False,pbl_classes=True,datapath='.attachments',**kwargs):
+    def at_attachmentGrid(self,pane,title=None,searchOn=False,pbl_classes=True,datapath='.attachments',screenshot=False,**kwargs):
         bc = pane.borderContainer()
 
         th = bc.contentPane(region='left',width='400px',splitter=True).inlineTableHandler(relation='@atc_attachments',
@@ -114,11 +114,29 @@ class AttachManager(BaseComponent):
         th.view.grid.attributes.update(dropTarget_grid='Files',onDrop='AttachManager.onDropFiles(this,files);',
                                         dropTypes='Files',_uploader_fkey='=#FORM.pkey',
                                         _uploader_onUploadingMethod=self.onUploadingAttachment)
+        if screenshot:
+            th.view.top.bar.replaceSlots('delrow','delrow,screenshot,5')
+            
 
         readerpane = bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid silver')
         readerpane.dataController('SET .reader_url=fileurl',fileurl='^.view.grid.selectedId?fileurl')
         readerpane.iframe(src='^.reader_url',height='100%',width='100%',border=0,documentClasses=True)
         return th
+
+    @struct_method
+    def at_slotbar_screenshot(self,pane,**kwargs):
+        pane.slotButton('"Snapshot',iconClass='iconbox photo',action="""FIRE .takeSnapshot;""")
+        pane.dataController("""
+                        var attachment_table = this.getInheritedAttributes()['table'];
+                        var kw = {attachment_table:attachment_table,maintable_id:fkey,onUploadingMethod:onUploadingMethod,uploaderId:'attachmentManager'};
+                        var fm = genro.getParentGenro().framedIndexManager;
+                        if(fm){
+                            fm.callOnCurrentIframe('dev','takePicture',[kw]);
+                        }else{
+                            genro.dev.takePicture(kw);
+                        }
+            """,_fired='^.takeSnapshot',fkey='=#FORM.pkey',onUploadingMethod=self.onUploadingAttachment)
+
 
     @struct_method
     def at_attachmentPane(self,pane,title=None,searchOn=False,pbl_classes=True,
@@ -169,16 +187,21 @@ class AttachManager(BaseComponent):
             ).div(padding='10px').formbuilder(cols=1,border_spacing='3px')
         fb.textbox(value='^.form.record.description',lbl='!!Description')
         frame.dataController("""
-            frm.newrecord();
+            if(frm.getParentForm().isNewRecord()){
+                frame.setHiderLayer(true);
+            }else{
+                frame.setHiderLayer(false);
+                frm.newrecord();
+            }
             """,store='^.store',_delay=100,
-            _if='!store || store.len()==0',frm=frame.form.js_form)
+            _if='!store || store.len()==0',frm=frame.form.js_form,frame=frame)
         frame.dataController("frm.lazySave()",frm=frame.form.js_form,_fired='^.saveDescription')
         frame.onDbChanges(action="""
             var that = this;
+            if(_node.attr.from_page_id!=genro.page_id){
+                return;
+            }   
             dbChanges.forEach(function(c){
-                if(c._isExternal){
-                    return;
-                }
                 if(c.dbevent=='I'){
                     frm.goToRecord(c.pkey);
                 }else if(c.dbevent=='D'){

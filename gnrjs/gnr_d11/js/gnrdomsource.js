@@ -114,37 +114,32 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
     },
 
-    trigger_data:function(prop, kw) {
-        var dpath = kw.pathlist.slice(1).join('.');
-        var mydpath = this.attrDatapath(prop);
-        if (mydpath == null) {
+    getTriggerReason:function(pathToCheck,kw){
+        if(!pathToCheck){
             return;
         }
-        if (mydpath.indexOf('#parent') > 0) {
-            mydpath = gnr.bagRealPath(mydpath);
+        var eventpath = kw.pathlist.slice(1).join('.');
+        if (pathToCheck.indexOf('#parent') > 0) {
+            pathToCheck = gnr.bagRealPath(pathToCheck);
         }
-        if (mydpath.indexOf('?') >= 0) {
-            if ((kw.updattr) || (kw.evt=='fired') ||(mydpath.indexOf('?=') >= 0)) {
-                mydpath = mydpath.split('?')[0];
+        if (pathToCheck.indexOf('?') >= 0) {
+            if ((kw.updattr) || (kw.evt=='fired') ||(pathToCheck.indexOf('?=') >= 0)) {
+                pathToCheck = pathToCheck.split('?')[0];
             }
         }
+        if (pathToCheck == eventpath) {
+            return 'node';
+        }else if (pathToCheck.indexOf(eventpath + '.') == 0) { 
+            return 'container';
+        }
+        else if (eventpath.indexOf(pathToCheck + '.') == 0) {
+            return 'child';
+        }
+    },
 
-        var trigger_reason = null;
-        var eqpath = (mydpath == dpath);
-        if (eqpath) {
-            trigger_reason = 'node';
-        }
-        var changed_container = (mydpath.indexOf(dpath + '.') == 0);
-        if (changed_container) { 
-            trigger_reason = 'container';
-        }
-        var changed_child = (dpath.indexOf(mydpath + '.') == 0);
-        if (changed_child) {
-            trigger_reason = 'child';
-        }
+    trigger_data:function(prop, kw) {
+        var trigger_reason = this.getTriggerReason(this.attrDatapath(prop),kw)
         if (trigger_reason) {
-            //if((mydpath==dpath)|| (mydpath.indexOf(dpath+'.')==0)  ||(dpath.indexOf(mydpath+'.')==0)){
-            //genro.debug(kw.evt+' data node at path:'+dpath+' ('+prop+') - updating sourceNode:'+mydpath,null,'trigger_data');
             if ((kw.evt == 'fired') && (trigger_reason == 'child')) {
                 // pass fired event on child datapath: get only parent changes for variable datapaths
             } else if (kw.evt == 'invalid') {
@@ -157,7 +152,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 }else{
                     this.setDataNodeValue(kw.node, kw, trigger_reason);
                 }
-                
             }
             else {
                 if (kw.reason != this) {
@@ -209,6 +203,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             node = nodeOrRunKwargs;
         }
         var attributes = objectUpdate({}, this.attr);
+
+        var strippedKw = objectPop(attributes,'_strippedKwargs');
+
         var _userChanges = objectPop(attributes, '_userChanges');
         var _trace = objectPop(attributes, '_trace');
         var _trace_level = objectPop(attributes, '_trace_level') || 0;
@@ -255,6 +252,15 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var argValues = [node, {'kw':kw, 'trigger_reason':trigger_reason},trigger_reason];
         var argNames = ['_node', '_triggerpars','_reason']; //_node is also in _triggerpars.kw.node: todo remove (could be used as $1)
         var kwargs = {};
+        var strippedKwargs = {};
+        if(strippedKw){
+            strippedKw.split(',').forEach(function(attr){
+                if (!(attr in attributes)){
+                    argNames.push(attr);
+                    argValues.push(null);
+                }
+            })
+        }
         if (subscription_args) {
             argNames.push(trigger_reason);
             argValues.push(subscription_args);
@@ -291,7 +297,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 console.log("_if=" + if_result);
             }
         }
-        if (tag == 'dataformula' || tag == 'datascript' || tag == 'datacontroller' || tag == 'datarpc') {
+        if (tag == 'dataformula' || tag == 'datascript' || tag == 'datacontroller' || tag == 'datarpc' || tag == 'dataws') {
             var val;
             if (! if_result) {
                 if (!_else) {
@@ -299,14 +305,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 }
                 expr = _else;
             }
-
             if (tag == 'datarpc' && (expr != _else)) {
                 var doCall = true;
                 var domsource_id = this.getStringId();
                 var method = expr;
-                // var httpMethod = objectPop(kwargs, '_POST') ? 'POST' : 'GET';
+                var httpMethod = objectPop(kwargs, 'httpMethod') 
+                var httpMethod = httpMethod || (objectPop(kwargs, '_POST') === false? 'GET' : 'POST');
 
-                var httpMethod = objectPop(kwargs, '_POST') === false? 'GET' : 'POST';
                 var _onResult = objectPop(kwargs, '_onResult');
                 var _onError = objectPop(kwargs, '_onError');
                 var _lockScreen = objectPop(kwargs, '_lockScreen');
@@ -388,7 +393,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     result = new gnr.GnrBag(kwargs);
                 } else {
                     expr = (tag == 'dataformula') ? 'return ' + expr : expr;
-                    result = funcCreate(expr, (['_kwargs'].concat(argNames)).join(',')).apply(this, ([kwargs].concat(argValues)));
+                    var f = funcCreate(expr, (['_kwargs'].concat(argNames)).join(','));
+                    result = f.apply(this, ([kwargs].concat(argValues)));
                 }
                 if (destinationPath) { // if it has a dataNode set it to the returned value
                     this.setRelativeData(destinationPath,result);
@@ -668,6 +674,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     _bld_datarpc: function() {
         this._callbacks = this.getValue();
         this._value = null;
+    },
+    _bld_dataws: function() {
+        console.log('Istanziando ws con: ',this)
     },
     _bld_script: function() {
         if (this.attr.src) {

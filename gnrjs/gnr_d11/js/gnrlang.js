@@ -36,7 +36,22 @@ function _px(v){
     return v;
 };
 function _T(str){
-  return str.replace('!!','');  
+    var language = genro.locale().split('-')[0];
+    var localekey = 'localsdict_'+language;
+    var localsdict = genro.getFromStorage('local',localekey) || {};
+    if(!(str in localsdict)){
+        var toTranslate = (str.search(/^!!|\[!!/)<0)?'!!'+str:str;
+        var result = genro.serverCall('getRemoteTranslation',{txt:toTranslate,language:language});
+        var localizedString = result['translation'];
+        if(result.status=='OK'){
+            localsdict[str] = localizedString;
+            genro.setInStorage('local',localekey,localsdict);
+        }
+        return localizedString;
+    }else{
+        return localsdict[str]
+    }
+    return str;
 };
 
 function _F(val,format,dtype){
@@ -1147,7 +1162,7 @@ var gnrformatter = {
         //}
     },
     format_AR:function(value,format,formatKw){
-        value = dojo.map(value,this.asText);
+        value = dojo.map(value,function(n){return _F(n)});
         return value.join(format || ',');
     },
     format_NN:function(value,format,formatKw){
@@ -1869,6 +1884,14 @@ function localeParser(/*String*/value, /*Object?*/options) {
 }
 ;
 
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
 
 function flattenString(str,forbidden){
     var forbidden = forbidden || ['.'];

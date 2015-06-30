@@ -1833,9 +1833,9 @@ class Bag(GnrObject):
         elif isinstance(source, Bag):
             self._nodes = [BagNode(self, *x.asTuple()) for x in source]
             
-        elif hasattr(source, 'items'):
+        elif callable(getattr(source, 'items',None)):
             for key, value in source.items():
-                if hasattr(value, 'items'):
+                if not isinstance(value,Bag) and hasattr(value, 'items'):
                     value = Bag(value)
                 self.setItem(key, value)
         
@@ -1936,12 +1936,16 @@ class Bag(GnrObject):
         converter = GnrClassCatalog()
         result = Bag()
         if isinstance(json,list):
+            if not json:
+                return
             if listJoiner and all(map(lambda r: isinstance(r,basestring) and not converter.isTypedText(r),json)):
                 return listJoiner.join(json)
             for n,v in enumerate(json):
                 result.setItem('r_%i' %n,self._fromJson(v,listJoiner=listJoiner),_autolist=True)
 
         elif isinstance(json,dict):
+            if not json:
+                return
             for k,v in json.items():
                 result.setItem(k,self._fromJson(v,listJoiner=listJoiner))
         else:
@@ -2157,6 +2161,23 @@ class Bag(GnrObject):
             elif cb(node):
                 result.setItem(node.label,value,node.attr)
         return result
+
+    def isEmpty(self,zeroIsNone=False,blankIsNone=False):
+        isEmpty = True
+        empties = [None]
+        if zeroIsNone:
+            empties.append(0)
+        if blankIsNone:
+            empties.append('')
+        for node in self.nodes:
+            if any(map(lambda a: a not in empties, node.attr.values())):
+                return False
+            if isinstance(node.value,Bag):
+                if not node.value.isEmpty():
+                    return False
+            elif node.value not in empties:
+                return False
+        return isEmpty
 
     def walk(self, callback, _mode='static', **kwargs):
         """Calls a function for each node of the Bag
@@ -2577,26 +2598,6 @@ class BagResolver(object):
     def __str__(self):
         return self.resolverDescription()
         
-class GeoCoderBag(Bag):
-    def setGeocode(self, key, address):
-        """TODO
-
-        :param key: TODO
-        :param address: TODO"""
-        url = "http://maps.google.com/maps/geo?%s" % urllib.urlencode(dict(q=address, output='xml'))
-        result = Bag()
-
-        def setData(n):
-            v = n.getValue()
-            if isinstance(v, basestring):
-                result[n.label] = v
-
-
-        answer = Bag(url)['#0.#0.Placemark']
-        if answer:
-            answer.walk(setData)
-        self[key] = result
-
 
 class VObjectBag(Bag):
     def fillFrom(self,source):
@@ -2639,7 +2640,7 @@ class VObjectBag(Bag):
                 counters[vtag]=counters[vtag]+1       
                 
                 
-class GeoCoderBagNew(Bag):
+class GeoCoderBag(Bag):
     def setGeocode(self, key, address, language='it'):
         """TODO
 
@@ -2668,7 +2669,9 @@ class GeoCoderBagNew(Bag):
         attr[node['type']]=node['long_name']
         self._result['details.%s'%node['type']]=node['short_name']
         self._result.setAttr('formatted_address',**attr)
-        
+
+GeoCoderBagNew = GeoCoderBag #compatibility
+
 class BagCbResolver(BagResolver):
     """A standard resolver. Call a callback method, passing its kwargs parameters"""
     classArgs = ['method']
@@ -2741,11 +2744,12 @@ class DirectoryResolver(BagResolver):
                     mtime = stat.st_mtime
                 except OSError:
                     mtime = ''
-                m=re.match(r'(\d+)_(.*)',fname)
-                caption = '!!%s_%s' % (str(int(m.group(1))),m.group(2).capitalize()) if m else fname.capitalize()
+                caption = fname.replace('_',' ').strip()
+                m=re.match(r'(\d+) (.*)',caption)
+                caption = '!!%s %s' % (str(int(m.group(1))),m.group(2).capitalize()) if m else caption.capitalize()
                 nodeattr = dict(file_name=fname, file_ext=ext, rel_path=relpath,
                                abs_path=fullpath, mtime=mtime, nodecaption=nodecaption,
-                               caption=caption.replace('_',' '))
+                               caption=caption)
                 if self.callback:
                     self.callback(nodeattr=nodeattr)
                 result.setItem(label, handler(fullpath),**nodeattr)

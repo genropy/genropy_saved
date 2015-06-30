@@ -72,6 +72,8 @@ class ModelExtractor(object):
         if len(pkey) == 1:
             tbl.parentNode.setAttr(pkey=pkey[0])
         elif len(pkey) > 1:
+            tbl.parentNode.setAttr(pkey='_multikey',pkey_columns=','.join(pkey))
+            tbl.column('_multikey',group='_')
             pass #multiple pkey
         else:
             pass #there's no pkey
@@ -423,7 +425,7 @@ class SqlModelChecker(object):
     def _alterUnique(self, col, new_unique=None, old_unique=None):
         alter_unique=''
         if old_unique:
-            alter_unique+=' DROP CONSTRAINT %s'%old_unique
+            alter_unique+=' DROP CONSTRAINT IF EXISTS %s'%old_unique
         if new_unique:
             alter_unique+=' ADD CONSTRAINT un_%s_%s UNIQUE(%s)'%(col.table.sqlfullname.replace('.','_'), col.sqlname,col.sqlname)
         return 'ALTER TABLE %s %s' % (col.table.sqlfullname, alter_unique)
@@ -438,7 +440,7 @@ class SqlModelChecker(object):
     def _dropForeignKey(self, referencing_package, referencing_table, referencing_field, actual_name=None):
         """Prepare the sql statement for dropping the givent constraint from the given table and return it"""
         constraint_name = actual_name or 'fk_%s_%s' % (referencing_table, referencing_field)
-        statement = 'ALTER TABLE %s.%s DROP CONSTRAINT %s' % (referencing_package, referencing_table, constraint_name)
+        statement = 'ALTER TABLE %s.%s DROP CONSTRAINT IF EXISTS %s' % (referencing_package, referencing_table, constraint_name)
         return statement
         
     def _sqlTable(self, tbl):

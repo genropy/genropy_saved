@@ -99,7 +99,6 @@
 
 .pbl_root_center{
     overflow:hidden;
-    bottom:0px;
 }
 /* @end */
 
@@ -512,9 +511,9 @@ element.style {
     background-color: transparent;
 }
 
-._common_d11 .canBeDropped .dojoxGrid-cell {
+/*._common_d11 .canBeDropped .dojoxGrid-cell {
     background-color: #8fff9d !important;
-}
+}*/
 
 /*._common_d11 .cannotBeDropped .dojoxGrid-cell {
     background-color: #ffa997 !important;

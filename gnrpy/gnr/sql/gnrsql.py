@@ -145,6 +145,12 @@ class GnrSqlDb(GnrObject):
         """TODO"""
         return self.stores_handler.dbstores
         
+    @property
+    def reuse_relation_tree(self):
+        if self.application:
+            return self.application.config['db?reuse_relation_tree']
+        return
+
     def createModel(self):
         """TODO"""
         from gnr.sql.gnrsqlmodel import DbModel
@@ -157,6 +163,10 @@ class GnrSqlDb(GnrObject):
             self.autoRestore(restorepath)
         self.model.build()
         self.started = True
+
+    @property
+    def localizer(self):
+        return self.application.localizer if self.application else DbLocalizer
         
     def autoRestore(self,path):
         assert os.path.exists(path),'Restore archive %s does not exist' %path
@@ -305,12 +315,6 @@ class GnrSqlDb(GnrObject):
         currentStore = self.currentEnv.get('storename')
         return  (currentStore is None) or (currentStore == self.rootstore)
             
-    def _get_localizer(self):
-        if self.application and self.application.site and self.application.site.currentPage:
-            return self.application.site.currentPage.localizer
-            
-    localizer = property(_get_localizer)
-    
     def _get_store_connection(self, storename):
         thread_ident = thread.get_ident()
         thread_connections = self._connections.setdefault(thread_ident, {})
@@ -361,8 +365,6 @@ class GnrSqlDb(GnrObject):
         """
         # transform list and tuple parameters in named values.
         # Eg.   WHERE foo IN:bar ----> WHERE foo in (:bar_1, :bar_2..., :bar_n)
-        #if 'adm.user' == dbtable:
-        #    print x
         envargs = dict([('env_%s' % k, v) for k, v in self.currentEnv.items()])
         if not 'env_workdate' in envargs:
             envargs['env_workdate'] = self.workdate
@@ -392,13 +394,13 @@ class GnrSqlDb(GnrObject):
                 else:
                     cursor.execute(sql, sqlargs)
                 if self.debugger:
-                    self.debugger(debugtype='sql', sql=sql, sqlargs=sqlargs, dbtable=dbtable,delta_time=time()-t_0)
+                    self.debugger(sql=sql, sqlargs=sqlargs, dbtable=dbtable,delta_time=time()-t_0)
             
             except Exception, e:
                 #print sql
                 gnrlogger.warning('error executing:%s - with kwargs:%s \n\n', sql, unicode(sqlargs))
                 if self.debugger:
-                    self.debugger(debugtype='sql', sql=sql, sqlargs=sqlargs, dbtable=dbtable, error=str(e))
+                    self.debugger(sql=sql, sqlargs=sqlargs, dbtable=dbtable, error=str(e))
                 print str('error %s executing:%s - with kwargs:%s \n\n' % (
                 str(e), sql, unicode(sqlargs).encode('ascii', 'ignore')))
                 self.rollback()
@@ -493,11 +495,14 @@ class GnrSqlDb(GnrObject):
 
     def onCommitting(self):
         deferreds = self.currentEnv.setdefault('deferredCalls',Bag()) 
-        while deferreds:
-            node =  deferreds.popNode('#0')
-            cb,args,kwargs = node.value
-            cb(*args,**kwargs)
-            deferreds.popNode(node.label) #pop again because during triggers it could adding the same key to deferreds bag
+        with self.tempEnv(onCommittingStep=True):
+            while deferreds:
+                node =  deferreds.popNode('#0')
+                cb,args,kwargs = node.value
+                cb(*args,**kwargs)
+                allowRecursion = getattr(cb,'deferredCommitRecursion',False)
+                if not allowRecursion:
+                    deferreds.popNode(node.label) #pop again because during triggers it could adding the same key to deferreds bag
 
     def deferToCommit(self,cb,*args,**kwargs):
         deferreds = self.currentEnv.setdefault('deferredCalls',Bag())
@@ -797,7 +802,14 @@ class GnrSqlDb(GnrObject):
         for table, pkg in data.digest('#k,#a.pkg'):
             for n in data[table]:
                 self.table(table, pkg=pkg).insertOrUpdate(n.attr)
-                
+
+    def freezedPkeys(self,fpath):
+        filename = '%s_pkeys.pik' % fpath
+        if not os.path.exists(filename):
+            return []
+        with open(filename) as f:
+            return cPickle.load(f)
+
     def unfreezeSelection(self, fpath):
         """Get a pickled selection and return it
         
@@ -999,6 +1011,11 @@ class DbStoresHandler(object):
             changes = changes or self.db.model.check()
             if changes:
                 self.db.model.applyModelChanges()
+
+class DbLocalizer(object):
+    def translate(self,v):
+        return v
+
             
 if __name__ == '__main__':
     pass

@@ -23,8 +23,22 @@ PAGEHTML = """
 </html>
 """
 
-class DocHandler(BaseComponent):   
+class DocHandler(BaseComponent):
+    documentation = False
     py_requires='gnrcomponents/filepicker:FilePicker'
+    def onMain_docHandler(self):
+        page = self.pageSource()
+        page.script("""genro.docHandler = {
+                getDocumentationPages:function(){
+                    var b = genro.getData('gnr.doc.main.pages');
+                    return b?b.deepCopy():new gnr.GnrBag();
+                }
+            }""")
+        if self.documentation:
+            page.addToDocumentation()
+
+
+
     @struct_method
     def de_docFrame(self,pane,code=None,storeKey=None,title=None,**kwargs):
         frameCode = code
@@ -47,11 +61,16 @@ class DocHandler(BaseComponent):
             return {
             title:kw._pages.getItem(kw._current+'?caption')
             };""",_pages='=.pages',_current='=.current')
-        form.store.handler('save',rpcmethod=self.de_saveStoreFile)
+        form.store.handler('save',rpcmethod=self.de_saveStoreFile,stripLoadedValue=True)
+        form.dataController("""
+            var fm = genro.getParentGenro().framedIndexManager;
+            fm.callOnCurrentIframe(null,'publish',[{'topic':'docUpdated'}]);
+
+            """,formsubscribe_onSaved=True)
         slots = '5,docSelector,*'
         if self.de_isDocWriter():
             slots= '%s,imgPick,10,labelTooltip,revertbtn,savebtn,docsemaphore,5,stackButtons,5' %slots
-        bar = form.top.slotToolbar(slots)
+        bar = form.top.slotToolbar(slots,height='20px')
         pagedocpars = self.documentation
         if pagedocpars == 'auto':
             pagedocpars = dict(title='Main')
@@ -59,11 +78,14 @@ class DocHandler(BaseComponent):
             bar.addToDocumentation(key='__page__',**pagedocpars)
         bar.docSelector.multiButton(value='^.current',items='^.pages',showAlways=True)
         if self.de_isDocWriter():
-            fb = bar.labelTooltip.div(_class='dijitButtonNode',hidden='^#FORM.selectedPage?=#v!="editor"').div(_class='iconbox tag').tooltipPane().formbuilder(cols=1,border_spacing='3px')
-            fb.textbox(value='^.record.title',lbl='Title')
-            fb.dataController("""
-                pages.setItem(current+'.?caption',newtitle);
-                """,current='=.current',pages='=.pages',newtitle='^.record.title')
+            fb = bar.labelTooltip.div(hidden='^#FORM.selectedPage?=#v!="editor"').div(_class='iconbox tag').tooltipPane().formbuilder(cols=1,border_spacing='3px')
+            fb.textbox(value='^.record.title',lbl='Title',validate_onAccept="""
+                if(userChange){
+                    var pages = GET .pages;
+                    var current = GET .current;
+                    pages.getNode(current).updAttributes({caption:value});
+                }
+                """)
             bar.revertbtn.slotButton('!!Revert',action="""this.form.reload();""",
                             hidden='^#FORM.selectedPage?=#v!="editor"',
                             iconClass='iconbox revert')
@@ -78,16 +100,16 @@ class DocHandler(BaseComponent):
                             var attr = pages.getNode(current).attr;
                             var filepath = attr.filepath;
                             var imagespath = attr.imagespath;
-                            this.form.goToRecord(filepath);
+                            this.form.load({destPkey:filepath,modifiers:'Shift'});
                             SET #FORM.imgFolders = imagespath;
                             """,
-                            current='^#FORM.current',pages='=#FORM.pages',_onBuilt=True,_if='current',_delay=1)
+                            current='^#FORM.current',pages='=#FORM.pages',_if='current')
         iframepars = dict(border=0,height='100%',width='100%')
         iframepars.update(kwargs)
         iframe = viewer.htmliframe(
                             shield=True,
                             onCreated="""
-                            var cssurl = '%s';
+                            var cssurl = '%s?nocache='+new Date();
                             var e = document.createElement("link");
                             e.href = cssurl;
                             e.type = "text/css";
@@ -97,8 +119,10 @@ class DocHandler(BaseComponent):
                             """ %cssurl,**iframepars)
         iframe.dataController('iframe.domNode.contentWindow.document.body.innerHTML = previewHTML',
                                 previewHTML='^.body',iframe=iframe)
+        iframe.dataController('iframe.domNode.contentWindow.document.head.innerHTML = head',
+                                head='^.head',iframe=iframe)
         editorpane = sc.contentPane(pageName='editor',datapath='.record',title='!!Edit',iconTitle='icnBottomEditor',overflow='hidden')
-        palette = editorpane.imgPickerPalette(code=code,folders='^#FORM.imgFolders',dockTo='dummyDock')
+        palette = editorpane.imgPickerPalette(code=code,folders='^#FORM.imgFolders',dockTo='dummyDock',externalSnapshot=True)
         palette.dataController("this.getParentWidget('floatingPane').show()",_fired='^#FORM.showImagesPicker');
         editorpane.ckeditor(value='^.body',config_contentsCss=cssurl,toolbar='standard') 
         return form
@@ -107,6 +131,7 @@ class DocHandler(BaseComponent):
     def de_loadStoreFromFile(self,path,default_title=None,**kwargs):
         html= ''
         title=''
+        head = ''
         path = self.site.getStaticPath(path)
         if os.path.exists(path):
             with open(path,'r') as f:
@@ -115,9 +140,13 @@ class DocHandler(BaseComponent):
                 if m:
                     html = m.group(1)
                 m = re.search("<title>(.*)</title>", result, re.I | re.S)
+
                 if m:
                     title = m.group(1)
-        return Bag(content=Bag(body=html,title=title or default_title))
+                m = re.search("<head>(.*)</head>", result, re.I | re.S)
+                if m:
+                    head = m.group(1)
+        return Bag(content=Bag(body=html,title=title or default_title,head=head))
             
 
     @public_method
@@ -137,7 +166,7 @@ class DocHandler(BaseComponent):
         code = code or 'main'
         key = key or os.path.splitext(os.path.split(filepath)[1])[0]
         commonpath = os.path.join(filepath.split(os.path.sep,1)[0],'doc','images')
-        caption=self.de_caption_from_module(filepath) or title
+        caption=self.de_caption_from_module(filepath) or title or self.pagename.capitalize().replace('_',' ')
         pane.data('gnr.doc.%s.pages.%s' %(code,key),None,
                     caption=caption,
                     filepath=filepath,
@@ -180,18 +209,15 @@ class DocHandler(BaseComponent):
                     return m.group(1)
 
 class DocumentationPage(DocHandler):
-    documentation = 'auto'
-    ticket = False
-    py_requires='gnrcomponents/bottomplugins:BottomPlugins'
-
     def main(self,root,**kwargs):
         root.attributes.update(overflow='hidden')
+        root.addToDocumentation()
         cssurl = self.site.getStaticUrl('rsrc:common','gnrcomponents','source_viewer','doceditor.css')
         iframepars = dict(border=0,height='100%',width='100%')
         url = self.de_documentPath(asUrl=True)
         root.data('main.src',url)
         root.dataController('SET main.src = currurl+"?nocache="+genro.getCounter();',
-                        subscribe_form_docFrame_main_form_onSaved=True,currurl=url)
+                        subscribe_docUpdated=True,currurl=url)
         root.iframe(src='^main.src',shield=True,
                         onLoad="""
                             var cssurl = '%s';
@@ -201,7 +227,8 @@ class DocumentationPage(DocHandler):
                             e.rel = "stylesheet";
                             e.media = "screen";
                             window.document.head.appendChild(e);
-                            """ %cssurl,**iframepars)
+                            """ %cssurl,
+                            **iframepars)
 
     
     def source_viewer_open(self):

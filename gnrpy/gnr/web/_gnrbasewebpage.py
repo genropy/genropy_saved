@@ -221,6 +221,12 @@ class GnrBaseWebPage(GnrObject):
             assert dbtable == selection.dbtable, 'unfrozen selection does not belong to the given table'
         return selection
     
+    def freezedPkeys(self,dbtable=None,name=None,page_id=None):
+        assert name, 'name is mandatory'
+        if isinstance(dbtable, basestring):
+            dbtable = self.db.table(dbtable)
+        return self.db.freezedPkeys(self.pageLocalDocument(name,page_id=page_id))
+
     @public_method
     def getUserSelection(self, selectionName=None, selectedRowidx=None, filterCb=None, columns=None,
                          sortBy=None,condition=None, table=None, condition_args=None):
@@ -321,11 +327,7 @@ class GnrBaseWebPage(GnrObject):
             rp = rp + '../' * (len(path_info.split('/')) - 1)
         return '%s%s' % (rp, relUrl)
         
-    def _get_siteName(self):
-        return os.path.basename(self.siteFolder.rstrip('/'))
-        
-    siteName = property(_get_siteName)
-        
+
     def _get_dbconnection(self):
         if not self._dbconnection:
             self._dbconnection = self.db.adapter.connect()
@@ -701,11 +703,7 @@ class GnrBaseWebPage(GnrObject):
                color='#c90031')
         cell = tbl.tr().td()
         cell.div(float='right', padding='2px').button('Back', action='genro.pageBack()')
-        
-    def windowTitle(self):
-        """Return the window title"""
-        return os.path.splitext(os.path.basename(self.filename))[0].replace('_', ' ').capitalize()
-        
+
     def _errorPage(self, err, method=None, kwargs=None):
         page = self.domSrcFactory.makeRoot(self)
         sc = page.stackContainer(height='80ex', width='50em', selected='^_dev.traceback.page')
@@ -770,12 +768,7 @@ class GnrBaseWebPage(GnrObject):
             resolver._page = self
             return resolver()
     
-    @public_method    
-    def resetApp(self, **kwargs):
-        """TODO"""
-        self.siteStatus['resetTime'] = time.time()
-        self.siteStatusSave()
-    
+
     @public_method
     def applyChangesToDb(self, **kwargs):
         """TODO"""

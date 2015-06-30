@@ -34,21 +34,6 @@ def metadata(**kwargs):
         return func
         
     return decore
-
-def debug_info(func):
-    def newFunc(self,*args,**kwargs):
-        #ncalling_result = customize(self,'%s_oncalling_' %func.__name__,*args,**kwargs)
-       #if oncalling_result is False:
-       #    return
-        tstart = time()
-        result = func(self,*args,**kwargs)
-        if hasattr(self,'debugger'):
-            self.debugger(debugtype='py', methodname=func.__name__, py_args=args,py_kwargs=kwargs,delta_time=time()-tstart)
-        else:
-            print func.__name__,time()-tstart
-
-        return result
-    return newFunc
     
 def public_method(*args,**metadata):
     """A decorator. It can be used to mark methods/functions as :ref:`datarpc`\s
@@ -65,6 +50,24 @@ def public_method(*args,**metadata):
     else:
         func = args[0]
         func.is_rpc = True # @public_method
+        return func
+
+def websocket_method(*args,**metadata):
+    """A decorator. It can be used to mark methods/functions as :ref:`datarpc`\s
+    
+    :param func: the function to set as public method"""
+    if metadata:
+        def decore(func):
+            prefix = metadata.pop('prefix',None)
+            func.is_rpc = True
+            for k, v in metadata.items():
+                setattr(func, '%s_%s' %(prefix,k) if prefix else k, v)
+            return func
+        return decore
+    else:
+        func = args[0]
+        func.is_rpc = True # @public_method
+        func.is_websocket = True
         return func
     
 def timer_call(time_list=[], print_time=True):
@@ -161,7 +164,7 @@ def extract_kwargs(_adapter=None,_dictkwargs=None,**extract_kwargs):
             for extract_key,extract_value in extract_kwargs.items():
                 grp_key='%s_kwargs' %extract_key
                 curr=kwargs.pop(grp_key,dict())
-                dfltExtract=dict(slice_prefix=True,pop=False)
+                dfltExtract=dict(slice_prefix=True,pop=False,is_list=False)
                 if extract_value is True:
                     dfltExtract['pop']=True
                 elif isinstance(extract_value,dict):

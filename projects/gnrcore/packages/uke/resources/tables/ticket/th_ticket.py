@@ -56,7 +56,7 @@ class Form(BaseComponent):
                                 viewResource='ViewFromTicket')
 
     def ticket_attachments(self,pane):
-        pane.attachmentGrid()
+        pane.attachmentGrid(screenshot=True)
 
     def ticket_head(self,pane):
         fb = pane.div(margin_right='30px').formbuilder(cols=2, border_spacing='4px',colswidth='auto',fld_width='100%')
@@ -68,6 +68,19 @@ class Form(BaseComponent):
 
     def th_options(self):
         return dict(dialog_height='400px', dialog_width='600px')
+
+class FormExternal(Form):
+    py_requires = """gnrcomponents/attachmanager/attachmanager:AttachManager,gnrcomponents/filepicker:FilePicker""" 
+
+    def ticket_head(self,pane):
+        fb = pane.div(margin_right='30px').formbuilder(cols=2, border_spacing='4px',colswidth='auto',fld_width='100%')
+        fb.field('subject',colspan=2)
+        fb.field('ticket_type_code',colspan=2)
+        fb.field('summary',colspan=2,tag='simpleTextArea')
+
+    def th_options(self):
+        return dict(dialog_height='400px', dialog_width='600px')
+
 
 class FormFromPkgTable(Form):
 
