@@ -15,6 +15,7 @@ import atexit
 import signal
 import os
 from gnr.core.gnrstring import boolean
+import time
 
 wsgi_options = dict(
         port=8080,
@@ -36,6 +37,7 @@ wsgi_options = dict(
         )
 
 
+
 class UwsgiRunner(object):
     default_port = 8080
     default_processes = 1
@@ -53,6 +55,7 @@ module = gnr.web.serveruwsgi
 pyargv = %(site_name)s
 offload-threads = %(offload_threads)i
 wsgi-env-behaviour = holy
+pidfile = %(pidfile_path)s
 %(websockets)s
 """
 
@@ -67,6 +70,7 @@ wsgi-env-behaviour = holy
         self.gnr_path = gnrConfigPath()
         self.socket_path = os.path.join(self.gnr_path, 'sockets')
         self.vassals_path = os.path.join(self.gnr_path, 'uwsgi', 'vassals')
+        self.pidfile_path = os.path.join(self.vassals_path, '%s.pid' % site_name)
         self.vassal_ini_path = os.path.join(self.vassals_path, '%s.ini' % site_name)
         self.websocket_socket_path = os.path.join(self.socket_path, '%s.tornado' % site_name)
         self.create_dirs()
@@ -113,6 +117,7 @@ wsgi-env-behaviour = holy
         pars['threads'] = int(opt.threads or self.default_threads)
         pars['stats_port'] = int(opt.stats_port or pars['port']+1000)
         pars['offload_threads'] = int(opt.offload_threads or pars['processes'])
+        pars['pidfile_path'] = self.pidfile_path
         if boolean(opt.websockets):
             pars['websockets'] = """http-websockets = true
 route = ^/websocket httpdumb:%s
@@ -135,6 +140,7 @@ Connect on:\t\thttp://127.0.0.1:%(port)i"""%self.pars
 
     def run(self):
         uwsgi_args = ['uwsgi', self.vassal_ini_path]
+        self.stop_from_pidfile()
         if not self.verbose:
             with open(os.devnull, 'w') as fp:
                 self.uwsgi_master = subprocess.Popen(uwsgi_args,stderr=fp)
@@ -144,8 +150,18 @@ Connect on:\t\thttp://127.0.0.1:%(port)i"""%self.pars
         self.print_pars()
         self.uwsgi_master.wait()
 
+    def stop_from_pidfile(self):
+        if os.path.exists(self.pidfile_path):
+            with open(os.devnull, 'w') as fp:
+                uwsgi_stopper = subprocess.Popen(['uwsgi','--stop',self.pidfile_path],stderr=fp)
+                uwsgi_stopper.wait()
+                os.remove(self.pidfile_path)
+                time.sleep(1)
+
     def stop(self):
-        self.uwsgi_master.send_signal(signal.SIGINT)
+        self.uwsgi_master.terminate()
+        os.remove(self.pidfile_path)
+        #self.uwsgi_master.send_signal(signal.SIGINT)
 
 
 
@@ -191,6 +207,9 @@ if __name__ == '__main__':
                       dest='remote_edit',
                       action='store_true',
                       help="Enable remote edit")
+    parser.add_option('--stop', dest='stop',
+                        action='store_true',
+                        help="Stop (orphan?) instance")
 
     (options, args) = parser.parse_args()
 
@@ -198,5 +217,8 @@ if __name__ == '__main__':
         parser.print_help()
     else:
         uwsgi_runner = UwsgiRunner(args[0], options=options, verbose=getattr(options,'verbose', True))
-        uwsgi_runner.write_ini()
-        uwsgi_runner.run()
+        if options.stop:
+            uwsgi_runner.stop_from_pidfile()
+        else:
+            uwsgi_runner.write_ini()
+            uwsgi_runner.run()
