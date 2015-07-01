@@ -4244,9 +4244,6 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
                 return true;
             }
         }
-        if(this.storeNode.form && this.storeNode.form.status=='noItem'){
-            return true;
-        }
         return false;
     },
     
