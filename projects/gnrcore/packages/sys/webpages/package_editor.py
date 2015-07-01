@@ -13,32 +13,37 @@ from gnr.app.gnrapp import GnrApp
 from gnr.app.gnrdeploy import ProjectMaker, InstanceMaker, SiteMaker,PackageMaker, PathResolver,ThPackageResourceMaker
 
 class GnrCustomWebPage(object):
-    py_requires='public:Public,gnrcomponents/framegrid:FrameGrid,gnrcomponents/formhandler:FormHandler,extdb_explorer:ExtDbExplorer'
+    py_requires="""public:Public,
+                   gnrcomponents/framegrid:FrameGrid,
+                   gnrcomponents/formhandler:FormHandler,
+                   extdb_explorer:ExtDbExplorer,
+                   table_module_editor:TableModuleEditor"""
 
     def windowTitle(self):
         return '!!Package editor'
 
     def main(self, root, **kwargs):
         bc = root.rootBorderContainer(title='Package editor',datapath='main',design='sidebar')
-        self.packageForm(bc.frameForm(frameCode='packageMaker',region='center',
-                                        datapath='.packageform',store='memory',
-                                        store_startKey='*newrecord*'))
+        self.extDbConnectionDialog(bc,datapath='main.external_db')
+        self.packageForm(bc.frameForm(frameCode='packageMaker',region='center',datapath='.data',store='memory',store_startKey='*newrecord*'))
 
     @public_method
     def getProjectPath(self,value=None,**kwargs):
         p = PathResolver()
+        data = Bag()
         try:
             path = p.project_name_to_path(value)
             instances_path = os.path.join(path,'instances')
             packages_path = os.path.join(path,'packages')
             instances = [l for l in os.listdir(instances_path) if os.path.isfile(os.path.join(instances_path,l,'instanceconfig.xml'))]
             packages = [l for l in os.listdir(packages_path) if os.path.isdir(os.path.join(packages_path,l))]
-            data = Bag()
             data['instances'] = ','.join(instances) if instances else None
             data['packages'] =','.join(packages) if packages else None
+            data['instance_name'] = instances[0] if instances else None
+
             return Bag(dict(errorcode=None,data=data))
         except Exception:
-            return 'Not existing project'
+            return Bag(dict(errorcode='Not existing project',data=data))
 
     @public_method
     def makeNewProject(self,project_name=None,project_folder_code=None,language=None,base_instance_name=None,included_packages=None):
@@ -94,44 +99,8 @@ class GnrCustomWebPage(object):
         ThPackageResourceMaker(app,package=package,menu=True).makeResources()
         return 'ok'
 
-
     def packageForm(self,form):
-        bar = form.top.slotToolbar('2,fbinfo,10,extdbcon,10,connectionTpl,*,applyChanges,semaphore,5')
-        bar.connectionTpl.div('^main.connectionTpl')
-        bar.dataController("""
-                var implementation = connection_params.getItem('implementation');
-                var filename = connection_params.getItem('filename');
-                var dbname = connection_params.getItem('dbname');
-                var r = ''
-                var filepath = connection_params.getItem('filename');
-                if(implementation=='sqlite' && filepath){
-                    var f = filepath.split(/\//);
-                    r = '<b>sqlite:</b>'+f[f.length-1];
-                }else if(implementation && connection_params.getItem('dbname')){
-                    r = dataTemplate('<b>$implementation:</b>$dbname',connection_params)
-                }
-                SET main.connectionTpl = r;
-                """,connection_params='^main.connection_params',_onStart=True,color='#444')
-        bar.extdbcon.dbConnectionPalette(datapath='main')
-        bar.applyChanges.slotButton('Apply',action="""if(this.form.isValid()){
-                FIRE #FORM.makePackage;
-            }else{
-                genro.dlg.alert('Invalid data','Error');
-            }""")
-        bar.dataRpc('dummy',self.applyPackageChanges,project='=#FORM.record.project_name',package='=#FORM.record.package_name',
-                    instance='=#FORM.record.selected_instance',connection_params='=main.connection_params',
-                    tables='=#FORM.record.tables',
-                    _onCalling="""
-                        var tables_to_send = new gnr.GnrBag();
-                        kwargs.tables.forEach(function(n){
-                            if(n.attr._loadedValue || n._value.getNodeByAttr('_loadedValue')){
-                                tables_to_send.setItem(n.label,n._value.deepCopy(),n.attr);
-                            }
-                        });
-                        kwargs.tables=tables_to_send;
-                    """,
-                    _fired='^#FORM.makePackage',_onResult='genro.dlg.alert("Package Done","Message");',
-                    _xlockScreen=True,timeout=0)
+        bar = form.top.slotToolbar('2,fbinfo,10,extdbcon,10,*')
         fb = bar.fbinfo.formbuilder(cols=5,border_spacing='3px',datapath='.record')
         fb.textbox(value='^.project_name',validate_onAccept='SET .package_name=null;',validate_onReject='SET .package_name = null;',
                     validate_notnull=True,
@@ -139,30 +108,20 @@ class GnrCustomWebPage(object):
         p = PathResolver()
         fb.data('projectFolders',','.join(p.gnr_config['gnr.environment_xml.projects'].keys()))
         fb.dataRpc('dummy',self.makeNewProject,subscribe_makeNewProject=True,
-                    _onResult='PUT .project_name=null; SET .project_name=result')
+                    _onResult='SET .project_name=null; SET .project_name=result')
         fb.button('New Project',action="""
             genro.publish('makeNewProject',{project_name:project_name,project_folder_code:project_folder_code,
-                                            language:language,base_instance_name:base_instance_name,
-                                            included_packages:included_packages});
-            """,project_name='=.project_name',
-                    ask=dict(title='New Project',fields=[
+                                            language:language,included_packages:included_packages});
+            """,ask=dict(title='New Project',fields=[
                         dict(name='project_name',lbl='Project name'),
                         dict(name='project_folder_code',lbl='Folder',wdg='filteringSelect',values='^projectFolders'),
                         dict(name='language',lbl='Language',wdg='filteringSelect',values='EN:English,IT:Italian'),
-                        dict(name='base_instance_name',lbl='Instance name'),
                         dict(name='included_packages',lbl='Packages',wdg='simpleTextArea'),
-                        ]),included_packages='gnrcore:sys,gnrcore:adm',language='EN',project_folder_code='',
-                    base_instance_name='=.project_name')
-        fb.filteringSelect(value='^.package_name',validate_notnull=True,lbl='Package',
-                    validate_onAccept='FIRE #FORM.resetPackageData; FIRE #FORM.loadPackage = value;',validate_onReject="""FIRE #FORM.resetPackageData;""",
-                    values='^.packages',
-                    width='7em')
-        fb.dataController("""
-                    SET #FORM.record.tables = null;
-                    """,_fired='^#FORM.resetPackageData')
-        fb.dataRpc('#FORM.record.tables',self.table_editor_loadPackageTables,package='^#FORM.loadPackage',
-                project='=#FORM.record.project_name',
-                _if='project&&package',_else='return gnr.GnrBag();')
+                        ]),included_packages='gnrcore:sys,gnrcore:adm',language='EN',project_name='=.project_name')
+        fb.filteringSelect(value='^.package_name',lbl='Package',validate_notnull=True,
+                    values='^.packages',width='7em')
+
+        
         fb.button('New Package',action="""
             genro.publish('makeNewPackage',{package_name:package_name,project_name:project_name,
                                             is_main_package:is_main_package,name_long:name_long});
@@ -172,14 +131,28 @@ class GnrCustomWebPage(object):
                         dict(name='name_long',lbl='Name long'),
                         dict(name='is_main_package',label='Is main package',wdg='checkbox'),
                         ]))
-        fb.filteringSelect(value='^.selected_instance',lbl='Instance',values='^.instances')
+        fb.filteringSelect(value='^.instance_name',lbl='Instance',values='^.instances')
         fb.dataRpc('dummy',self.makeNewPackage,subscribe_makeNewPackage=True,
-                    _onResult='PUT .package_name=null; SET .package_name=result')
-        self.packageGrids(form.center.borderContainer())
+                    _onResult="""PUT .project_name=null; PUT .package_name=null; 
+                                SET .project_name=kwargs.project_name;""")
+        bar.extdbcon.slotButton('External Db',
+                        action="""
+                        genro.publish('openDbConnectionDialog',{project:project,package:package,instance:instance})
+                        """,package='^.record.package_name',project='^.record.project_name',
+                        instance='^.record.instance_name',
+                        hidden='==!package || !project || !instance')
+        bc =form.center.borderContainer()
+        self.tablesModulesEditor(bc.contentPane(region='top',height='200px',splitter=True),storepath='#FORM.record.tables')
+        bc.dataRpc('.record.tables',self.table_editor_loadPackageTables,package='^.record.package_name',
+                project='=.record.project_name',
+                _if='project&&package',_else='return new gnr.GnrBag();',
+                subscribe_closeDbConnectionDialog=True)
+        bc.contentPane(region='center',overflow='hidden')
+
 
     def tables_struct(self,struct):
         r = struct.view().rows()
-        r.cell('legacy_name',width='10em',name='Legacy Name',hidden='^main.connectionTpl?=!#v')
+        #r.cell('legacy_name',width='10em',name='Legacy Name',hidden='^#FORM.recort.tables?h=!#v')
         r.cell('name',width='10em',name='Name')
         r.cell('pkey',width='10em',name='Pkey')
         r.cell('name_long',width='20em',name='Name long')
@@ -187,63 +160,16 @@ class GnrCustomWebPage(object):
         r.cell('caption_field',width='20em',name='Caption field')
         r.cell('status',width='20em',name='Import status')
 
-    def packageGrids(self,bc):
-        tablesframe = bc.contentPane(region='top',height='200px',splitter=True).bagGrid(frameCode='tables',title='Tables',
-                                                storepath='#FORM.record.tables',
-                                                datapath='#FORM.tablesFrame',
+    def tablesModulesEditor(self,pane,storepath=None,datapath='.tablesFrame'):
+
+        tablesframe = pane.bagGrid(frameCode='tablesModulesEditor',title='Tables',
+                                                storepath=storepath,
+                                                datapath=datapath,
                                                 struct=self.tables_struct,
                                                 grid_multiSelect=False,
-                                                grid_subscribe_update_import_status="""
-                                                    var b = this.widget.storebag();
-                                                    var r = b.getItem($1.table);
-                                                    if(!r){
-                                                        return;
-                                                    }
-                                                    r.setItem('status',$1.status);
-                                                    """,
                                                 pbl_classes=True,margin='2px',
                                                 addrow=True,delrow=True)
-        tablesgrid = tablesframe.grid
-        tablesgrid.dragAndDrop('source_columns')
-        tablesgrid.dataController("""
-            var tblpars,tableNode,tblVal,columnNode,colVal,colpars,columns,pkeycol,status,col_legacy_name;
-            data.forEach(function(col){
-                    tblpars = objectExtract(col,'table_*');
-                    var tblname = tblpars['name'].toLowerCase();
-                    tableNode = tables.getNode(tblname);
 
-                    if(!tableNode){
-                        pkeycol = tblpars.pkey.toLowerCase()
-                        status = ''; //dataTemplate(tpl,{tblname:tblname});
-                        tblVal = new gnr.GnrBag({name:tblname,legacy_name:tblpars['fullname'],
-                                                pkey:pkeycol,
-                                                _columns:new gnr.GnrBag(),
-                                                status:status});
-                        tableNode = tables.setItem(tblname,tblVal);
-                    }
-                    columns = tableNode.getValue().getItem('_columns');
-                    var colname = col.name.toLowerCase()
-                    columnNode =  columns.getNode(colname);
-                    if(!columnNode){
-                        var relate_to = col.relate_to?col.relate_to.toLowerCase():null
-                        col_legacy_name = col.name;
-                        if(col_legacy_name=='_multikey'){
-                            col_legacy_name = null;
-                        }
-                        columnNode = columns.setItem(colname,new gnr.GnrBag({name:colname,legacy_name:col_legacy_name,
-                                                                name_long:stringCapitalize(col.name),dtype:col.dtype,size:col.size,
-                                                                indexed:col.indexed,unique:col.unique}));
-                        if(relate_to){
-                            columnNode._value.setItem('_relation',new gnr.GnrBag({relation:relate_to,relation_name:null,
-                                                                                  onDelete:'raise',one_name:null,
-                                                                                  many_name:null,deferred:false}));
-                        }
-                    }
-                })
-            """,data='^.dropped_source_columns',dropInfo='=.droppedInfo_source_columns',
-                tables='=#FORM.record.tables',
-                tpl="""<a style="cursor:pointer; text-align:center;" href="javascript:genro.publish('import_table',{table:'$tblname'})">import</a>""")
-        bc.contentPane(region='center',overflow='hidden')
 
     def getFakeApplication(self,project,package):
         custom_config = Bag()

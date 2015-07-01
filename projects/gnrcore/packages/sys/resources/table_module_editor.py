@@ -11,6 +11,7 @@ from gnr.core.gnrstring import boolean
 from gnr.core.gnrbag import Bag
 from collections import OrderedDict
 import os
+
 SYSFIELDS_DEFAULT = OrderedDict(id=True, ins=True, upd=True, 
                                     ldel=True, user_ins=False, 
                                     user_upd=False, 
@@ -21,7 +22,17 @@ SYSFIELDS_DEFAULT = OrderedDict(id=True, ins=True, upd=True,
 
 MORE_ATTRIBUTES = 'cell_,format,validate_notnull,validate_case'
 
-class TableModuleEditor(BaseComponent):
+class TableModuleWriter(BaseComponent):
+    def bagToArglist(self,arguments):
+        if not arguments:
+            return ''
+        atlst = []
+        for k,v in arguments.items():
+            if isinstance(v,basestring):
+                v = ("'%s'" if not "'" in v else '"%s"') %v
+                atlst.append("%s=%s" %(k,v))
+        return ',%s' %','.join(atlst)
+
     def get_redbaron(self,filepath):
         if os.path.exists(filepath):
 
@@ -36,16 +47,6 @@ class Table(object):
 """ 
         red = RedBaron(source_code)
         return red
-
-    def bagToArglist(self,arguments):
-        if not arguments:
-            return ''
-        atlst = []
-        for k,v in arguments.items():
-            if isinstance(v,basestring):
-                v = ("'%s'" if not "'" in v else '"%s"') %v
-                atlst.append("%s=%s" %(k,v))
-        return ',%s' %','.join(atlst)
             
     def makeOneTable(self,filepath=None,table_data=None):
         red = self.get_redbaron(filepath)
@@ -69,8 +70,7 @@ class Table(object):
             config_db_node.append(s)
         with open(filepath,'w') as f:
             f.write(red.dumps())
-            
-    
+
     def _columnPythonCode(self,col,relation=None):
         attributes = Bag()
         col = col.deepcopy()
@@ -114,6 +114,7 @@ class Table(object):
             coltype = 'pyColumn'
 
         return "tbl.%s('%s', %s)%s" % (coltype,name, ', '.join(atlst),relationCode)
+        
 
     def _relationPythonCode(self,relation):
         relpath = relation.pop('relation')
@@ -145,6 +146,11 @@ class Table(object):
                     v = "'%s'" %v
             atlst.append("%s=%s" %(k,v))
         return """relation('%s',%s)"""  %(relpath,', '.join(atlst))
+
+
+class TableModuleEditor(BaseComponent):
+    py_requires='table_module_editor:TableModuleWriter'
+
 
     def handleSysFields(self,red):
         sysFieldBaronNode = red.find('name','sysFields')

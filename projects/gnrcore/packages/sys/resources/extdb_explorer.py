@@ -12,14 +12,56 @@ from gnr.sql.gnrsql import GnrSqlDb
 from gnr.app.gnrapp import GnrApp
 from gnr.core.gnrstring import boolean
 from time import time
+from gnr.app.gnrdeploy import PathResolver
+import os
 
 class ExtDbExplorer(BaseComponent):
+    py_requires='table_module_editor:TableModuleWriter'
+
     @struct_method
-    def dbext_dbConnectionPalette(self,pane,label='Ext DB Connection',paletteCode='dbConnectionPalette',datapath=None):
-        palette = pane.palettePane(paletteCode=paletteCode,title=label,
-                        height='700px',width='900px',dockButton_label=label)
-        bc = palette.borderContainer(datapath=datapath)
-        top = bc.contentPane(region='top').slotToolbar('2,fbconnection,*,connecbutton')
+    def extDbConnectionDialog(self,pane,title='Ext DB Connection',datapath='exdb',
+                            project=None,package=None,instance=None,**kwargs):
+        dialog = pane.dialog(title=title,datapath=datapath,closable=True,
+                            subscribe_openDbConnectionDialog="""
+                                this.widget.show();
+                                if($1===true){
+                                    return;
+                                }
+                                SET .project = $1.project;
+                                SET .package = $1.package;
+                                SET .instance = $1.instance;
+                                SET .existing_tables = $1.existing_tables;
+                            """,subscribe_closeDbConnectionDialog="this.widget.hide();",**kwargs)
+        frame = dialog.framePane(frameCode='externaldb',height='700px',width='1000px')
+        self.extdb_contentFrame(frame)
+        frame.dataRpc('dummy',self.extdb_buildTableModules,
+                    connection_params='=.connection_params',
+                    package='=.package',
+                    instance='=.instance',
+                    project='=.project',
+                    data='=.data',
+                    _fired='^.addToModel',
+                    _onCalling="""
+                    var columns = new gnr.GnrBag();
+                    kwargs['data'].walk(function(n){if (n.attr.checked && n.attr.tag=='column'){
+                            var table_data = new gnr.GnrBag();
+                            columns.setItem(n.attr.table_fullname+'.'+name,null,n.attr)
+                        }
+                    });
+                    kwargs['data'] = columns
+                    """,
+                    _onResult="""
+                    genro.publish('closeDbConnectionDialog');""")
+        bar = frame.bottom.slotBar('*,cancel,confirm,5',margin_bottom='2px',_class='slotbar_dialog_footer')
+        bar.cancel.slotButton("Cancel",action="genro.publish('closeDbConnectionDialog');",dlg=dialog.js_widget)
+        bar.confirm.div(hidden='^.instance?=!#v').button('Add to model',action="""
+            FIRE .addToModel;
+        """)
+
+
+    def extdb_contentFrame(self,frame):
+        top = frame.top.slotToolbar('2,fbconnection,5,connecbutton,*,2',height='22px')
+        bc = frame.center.borderContainer()
         fb = top.fbconnection.formbuilder(cols=7,border_spacing='3px',datapath='.connection_params')
         fb.filteringSelect(value='^.implementation',values='postgres,sqlite,mysql,mssql',
                             lbl='Implementation',width='7em')
@@ -30,19 +72,18 @@ class ExtDbExplorer(BaseComponent):
         fb.textbox(value='^.password',lbl='Password',width='5em',hidden='^.implementation?=#v=="sqlite"')
         fb.textbox(value='^.filename',lbl='Filename',width='50em',hidden='^.implementation?=#v!="sqlite"')
         top.connecbutton.slotButton('Connect',fire='.connect')
-        top.dataRpc('.connection_result',
+        top.dataRpc('.data',
                     self.extdb_getDbStructure,
                     connection_params='=.connection_params',
                     _fired='^.connect',
                     _lockScreen=True)
         center = bc.borderContainer(region='center')
         left = center.contentPane(region='left',width='300px',padding='10px',overflow='auto',splitter=True)
-        left.tree(storepath='.connection_result', persist=False,
+        left.tree(storepath='.data', persist=False,
                     inspect='shift', labelAttribute='name',
                     _class='fieldsTree',
                     hideValues=True,
                     margin='6px',
-                    onDrag=self.extdb_onDrag(),
                     draggable=True,
                     dragClass='draggedItem',
                     onChecked=True,
@@ -88,19 +129,48 @@ class ExtDbExplorer(BaseComponent):
                     kwargs._frame.setHiderLayer(false);
                     """)
 
-    def extdb_onDrag(self):
-        return """var modifiers=dragInfo.modifiers;
-                  var children=treeItem.getValue()
-                  var result;
-                  if(!children){
-                     result = [treeItem.attr]
-                  }else{
-                    result=[];
-                    children.walk(function(n){if (n.attr.checked && n.attr.tag=='column'){result.push(n.attr);}});
-                  }
-                  dragValues['source_columns']= result; 
-                  
-               """
+
+
+    @public_method
+    def extdb_buildTableModules(self,project=None,package=None,instance=None,data=None,connection_params=None,**kwargs):
+        p = PathResolver()
+        project_path = p.project_name_to_path(project)
+        modelpath = os.path.join(project_path,'packages',package,'model')
+        instance_path = os.path.join(p.instance_name_to_path(instance),'instanceconfig.xml')
+        instance_bag = Bag(instance_path)
+        dbname = connection_params['dbname'] or connection_params['filename']
+        legacydb,ext = os.path.splitext(os.path.basename(dbname))
+        parsdict = dict()
+        for k,v in connection_params.items():
+            if v not in ('',None):
+                parsdict[k] = v
+        instance_bag.setItem('legacy_db.%s' %legacydb,None,**parsdict)
+        instance_bag.toXml(instance_path,typevalue=False,pretty=True)
+        for srcpkg,tables in data.items():
+            for tablename,columns in tables.items():
+                firstColAttr = columns.getAttr('#0')
+                tablename = tablename.lower()
+                table_data = Bag()
+                table_data['name'] = tablename
+                table_data['legacy_name'] = firstColAttr.get('table_fullname')
+                table_data['legacy_db'] = legacydb
+                table_data['pkey'] = firstColAttr.get('table_pkey').lower()
+                columns_bag = Bag()
+                table_data['_columns'] = columns_bag
+                for colattr in columns.digest('#a'):
+                    legacy_name = colattr['name']
+                    if legacy_name=='_multikey':
+                        legacy_name = None
+                    colname = colattr['name'].lower()
+                    b = Bag(dict(name=colname,legacy_name=legacy_name,
+                                                        name_long=None,dtype=colattr.get('dtype'),
+                                                        size=colattr.get('size'),indexed=colattr.get('indexed'),
+                                                        unique=colattr.get('unique')))
+                    columns_bag.setItem(colname,b)
+                    if colattr.get('relate_to'):
+                        b.setItem('_relation',Bag(dict(relation=colattr['relate_to'].lower(),onDelete='raise')))
+                self.makeOneTable(os.path.join(modelpath,'%s.py' %tablename),table_data=table_data)
+
 
     @public_method
     def extdb_getPreviewData(self,table=None,connection_params=None,**kwargs):
