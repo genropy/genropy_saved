@@ -527,7 +527,6 @@ class XmlOutputBag(object):
             self.output.write('</GenRoBag>')
         if not self.filepath:
             self.content = self.output.getvalue()
-            print self.content
         self.output.close()
         
 
