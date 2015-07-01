@@ -357,6 +357,7 @@ class TableHandlerHierarchicalView(BaseComponent):
             """ %(relation_name,rel_fkey_name,relation_name,rel_fkey_name))
             hiddencolumns.append('@%s.@%s.hierarchical_pkey AS many_hpkey' %(relation_name,rel_fkey_name))
         vstoreattr['condition'] = ' OR '.join(condlist)
+        vstoreattr['fullReloadOnChange'] = True
         vstoreattr.update(condpars)
         dragCode = 'hrows_%s' %dragTable.replace('.','_')
         trashId = False
