@@ -30,9 +30,8 @@ class ExtDbExplorer(BaseComponent):
                                 SET .project = $1.project;
                                 SET .package = $1.package;
                                 SET .instance = $1.instance;
-                                SET .existing_tables = $1.existing_tables;
                             """,subscribe_closeDbConnectionDialog="this.widget.hide();",**kwargs)
-        frame = dialog.framePane(frameCode='externaldb',height='700px',width='1000px')
+        frame = dialog.framePane(frameCode='externaldb',height='500px',width='1000px')
         self.extdb_contentFrame(frame)
         frame.dataRpc('dummy',self.extdb_buildTableModules,
                     connection_params='=.connection_params',
@@ -43,7 +42,11 @@ class ExtDbExplorer(BaseComponent):
                     _fired='^.addToModel',
                     _onCalling="""
                     var columns = new gnr.GnrBag();
-                    kwargs['data'].walk(function(n){if (n.attr.checked && n.attr.tag=='column'){
+                    kwargs['data'].walk(function(n){
+                        if((n.attr.checked+'').startsWith('disabled')){
+                            return;
+                        }
+                        if (n.attr.checked && n.attr.tag=='column'){
                             var table_data = new gnr.GnrBag();
                             columns.setItem(n.attr.table_fullname+'.'+name,null,n.attr)
                         }
@@ -74,7 +77,7 @@ class ExtDbExplorer(BaseComponent):
         fb.textbox(value='^.filename',lbl='Filename',width='50em',hidden='^.implementation?=#v!="sqlite"')
         top.connecbutton.slotButton('Connect',fire='.connect')
         top.dataRpc('.data',
-                    self.extdb_getDbStructure,
+                    self.extdb_getDbStructure,project='=.project',package='=.package',
                     connection_params='=.connection_params',
                     _fired='^.connect',
                     _lockScreen=True)
@@ -201,8 +204,15 @@ class ExtDbExplorer(BaseComponent):
         return externaldb
 
     @public_method
-    def extdb_getDbStructure(self,connection_params=None):
+    def extdb_getDbStructure(self,connection_params=None,project=None,package=None):
         externaldb = self.extdb_getSourceDb(connection_params)
+        existing_tables = []
+        if project and package:
+            p = PathResolver()
+            project_path = p.project_name_to_path(project)
+            modelpath = os.path.join(project_path,'packages',package,'model')
+            if os.path.isdir(modelpath):
+                existing_tables = map(lambda r: os.path.splitext(r)[0], filter(lambda r: r.endswith('.py'), os.listdir(modelpath)))
         src = externaldb.model.src
         result = Bag()
         for pkg in src['packages'].keys():
@@ -213,7 +223,7 @@ class ExtDbExplorer(BaseComponent):
                 continue
             for table,tblattr,tblval in tables.digest('#k,#a,#v'):
                 tblattr = dict(tblattr)
-                tblattr['checked'] = False
+                tblattr['checked'] = 'disabled:on' if table.lower() in existing_tables else False
                 tblattr['name'] = table
                 tableval = Bag()
                 pkgval.setItem(table,tableval,**tblattr)
@@ -221,7 +231,7 @@ class ExtDbExplorer(BaseComponent):
                     cv = dict(colattr)
                     for t,v in tblattr.items():
                         cv['table_%s' %t] = v
-                    cv['checked'] = False
+                    #cv['checked'] = False
                     cv['name'] = column
                     if colval:
                         relnode = colval.getNode('relation')

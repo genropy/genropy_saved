@@ -124,7 +124,7 @@ dojo.declare('gnr.GenroClient', null, {
         window.onbeforeunload = function(e) {
             genro._windowClosing = true;
             var exit;
-            if (genro.checkBeforeUnload) {
+            if (genro.checkBeforeUnload && !genro._checkedUnload) {
                 exit = genro.checkBeforeUnload();
             }
             if (exit) {

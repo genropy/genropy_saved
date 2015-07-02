@@ -18,7 +18,9 @@ class GnrCustomWebPage(object):
                    gnrcomponents/formhandler:FormHandler,
                    extdb_explorer:ExtDbExplorer,
                    table_module_editor:TableModuleEditor"""
+    pageOptions={'openMenu':False,'enableZoom':False}
 
+                
     def windowTitle(self):
         return '!!Package editor'
 
@@ -140,6 +142,7 @@ class GnrCustomWebPage(object):
                         genro.publish('openDbConnectionDialog',{project:project,package:package,instance:instance})
                         """,package='^.record.package_name',project='^.record.project_name',
                         instance='^.record.instance_name',
+                        tables='=.record.tables',
                         hidden='==!package || !project || !instance')
         bc =form.center.borderContainer()
         self.tablesModulesEditor(bc.contentPane(region='top',height='200px',splitter=True),storepath='#FORM.record.tables',

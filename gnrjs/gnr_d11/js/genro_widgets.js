@@ -7021,9 +7021,17 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                     return;
                 }
                 if (node.attr) {
+                    var checked = 'checked' in node.attr? node.attr.checked : node.getInheritedAttributes()['checked'];
+                    if(checked=='disabled:on'){
+                        return 'checkboxOn dimmed';
+                    }else if(checked=='disabled:off'){
+                        return 'checkboxOff dimmed';
+                    }
+
                     if (!('checked' in node.attr)) {
                         node.attr.checked = this.tree.checkBoxCalcStatus(node);
-                    }
+                    } 
+                    
                     return (node.attr.checked == -1) ? "checkboxOnOff" : node.attr.checked ? "checkboxOn" : "checkboxOff";
                 }
             };
@@ -7247,10 +7255,16 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
     },
 
     mixin_clickOnCheckbox:function(bagnode, e) {
+        if(bagnode.attr.checked=='disabled:on' || bagnode.attr.checked=='disabled:off'){
+            return;
+        }
         var checked = bagnode.attr.checked ? false : true;
         var walkmode = this.sourceNode.attr.eagerCheck ? null : 'static';
         var updBranchCheckedStatus = function(bag) {
             bag.forEach(function(n) {
+                if(n.attr.checked == 'disabled:on' || n.attr.checked=='disabled:off'){
+                    return
+                }
                 var v = n.getValue(walkmode);
                 if ((v instanceof gnr.GnrBag) && v.len()) {
                     updBranchCheckedStatus(v);

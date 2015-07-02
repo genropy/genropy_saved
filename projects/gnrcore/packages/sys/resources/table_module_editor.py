@@ -326,7 +326,7 @@ class TableModuleEditor(BaseComponent):
 
         form = tablesframe.grid.linkedForm(frameCode='tableModule',
                                  datapath='.form',loadEvent='onRowDblClick',
-                                 dialog_height='600px',dialog_width='900px',
+                                 dialog_height='500px',dialog_width='1100px',
                                  dialog_title='^.form.record.name',handlerType='dialog',
                                  childname='form',attachTo=pane,store=True,
                                  store_pkeyField='_pkey')

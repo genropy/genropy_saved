@@ -2666,7 +2666,8 @@ dojo.declare("gnr.widgets.ComboMenu", gnr.widgets.gnrwdg, {
 });
 
 
-dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {checker : 'checkbox',
+dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
+    checker : 'checkbox',
     contentKwargs: function(sourceNode, attributes) {
         return attributes;
     },
@@ -4243,9 +4244,6 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             if(!if_result){
                 return true;
             }
-        }
-        if(this.storeNode.form && this.storeNode.form.status=='noItem'){
-            return true;
         }
         return false;
     },
