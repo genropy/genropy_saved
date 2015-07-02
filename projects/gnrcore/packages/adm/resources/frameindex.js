@@ -68,12 +68,9 @@ dojo.declare("gnr.FramedIndexManager", null, {
             this.iframesbag = new gnr.GnrBag();
             genro._data.setItem('iframes',this.iframesbag);
         }
-        var sc = stackSourceNode.getValue();
-        if(!kw.subtab){
-            var sc = this.makeMultiPageStack(sc,kw);
-        }
+        var multipageStack = this.makeMultiPageStack(stackSourceNode.getValue(),kw);
         var node = this.createIframePage(kw);
-        sc.setItem(node.label,node);
+        multipageStack.setItem(node.label,node);
         this.iframesbag.setItem(rootPageName,null,{'fullname':kw.label,pageName:rootPageName,fullpath:kw.fullpath,url:url,subtab:kw.subtab,selectedPage:node.attr.pageName});
         return rootPageName;
     },
