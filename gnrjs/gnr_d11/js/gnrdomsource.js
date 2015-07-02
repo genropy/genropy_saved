@@ -564,7 +564,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var nodeId = pathlist[0].slice(1);
         var relpath = pathlist.slice(1).join('.');
         if(nodeId=='ROW'){
-            return this.widget.cellCurrentDatapath(path)
+            return this.widget?this.widget.cellCurrentDatapath(path):null;
         }
         if(nodeId=='WORKSPACE'){
             node=this.attributeOwnerNode('_workspace');

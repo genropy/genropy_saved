@@ -95,3 +95,24 @@ class GnrCustomWebPage(object):
         b = Bag('/Users/fporcari/sviluppo/goodsoftware/projects/mbe/instances/western/xmenu.xml')
         pane.data('.treestore.root', b,label='Root')
         pane.borderContainer(height='600px').contentPane(region='center').bagEditor(storepath='.treestore.root',labelAttribute='label',addrow=True,delrow=True,addcol=True)
+
+
+
+    def test_3_multiValueEditor(self,pane):
+        box = pane.div(padding='10px',border='1px solid black')
+        dati = Bag()
+        dati.setItem('r_1',Bag(dict(attribute_key='name_long',attribute_value='Artisti')))
+        dati.setItem('r_2',Bag(dict(attribute_key='multidb',attribute_value=True)))
+        dati.setItem('r_2.attribute_value?wdg_dtype','B')
+        pane.data('.dati_1',dati)
+
+        box.div("""==dati.asHtmlTable({cells:'attribute_key,attribute_value',headers:false});""",
+                    dati='^.dati')
+
+
+        pane.multiValueEditor(value='^.dati_1')
+
+    def test_4_multiValueEditor(self,pane):
+        pane.multiValueEditor(value=dict(nome='Gianni',eta=33,indirizzo='via del pero 12'))
+
+

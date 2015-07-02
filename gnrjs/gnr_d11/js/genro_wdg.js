@@ -648,7 +648,8 @@ dojo.declare("gnr.RowEditor", null, {
         var default_kwargs = objectUpdate({},this.gridEditor.editorPars.default_kwargs);
         for(var k in cellmap){
             objectPop(default_kwargs,k);
-            data.setItem(k,this.original_values[k],{dtype:cellmap[k].dtype});
+            var wdg_dtype = data.getAttr(k,'wdg_dtype') ;
+            data.setItem(k,this.original_values[k],{dtype:cellmap[k].dtype || wdg_dtype,wdg_dtype:wdg_dtype});
         }
         if(this.newrecord){
             for (var k in default_kwargs){
@@ -1427,9 +1428,11 @@ dojo.declare("gnr.GridEditor", null, {
         attr._autoselect = true;
         attr._inGridEditor = true;
         var wdgtag = fldDict.tag;
-        if (!wdgtag || attr.autoWdg) {
-            var dt = convertToText(cellDataNode.getValue())[0];
-            wdgtag = {'L':'NumberTextBox','I':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'}[dt] || 'Textbox';
+
+        if (!wdgtag || attr.autoWdg ||  cellDataNode.attr.wdg_dtype) {
+            var dt = cellDataNode.attr.wdg_dtype || convertToText(cellDataNode.getValue())[0];
+            wdgtag = {'L':'NumberTextBox','I':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'}[dt] || 'Textbox';
+            attr.tag = wdgtag;
         }
         this.onEditCell(true,row);
         var editWidgetNode = this.widgetRootNode._(wdgtag,'cellWidget', attr).getParentNode();

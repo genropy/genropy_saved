@@ -5671,7 +5671,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         if(!duplicate){
             this.editBagRow(this.storebag().index(firstRow.label));
         }
-
+        return firstRow;
     },
 
     mixin_batchUpdating: function(state) {

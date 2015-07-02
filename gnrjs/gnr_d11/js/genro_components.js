@@ -851,6 +851,59 @@ dojo.declare("gnr.widgets.VideoPickerPalette", gnr.widgets.gnrwdg, {
 });
 
 
+dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw) {
+        var value = kw.value;
+        var valuepath =  kw.value;
+        var useWorkSpace = typeof(value)!='string';
+        
+        if(useWorkSpace){
+            valuepath = '^#WORKSPACE.value';
+        }
+        var grid = sourceNode._('quickGrid',{value:valuepath,height:kw.height || '500px',width:kw.width,_workspace:true,
+                                                selfsubscribe_addrow:function(kw){
+                                                    var addedNode = this.widget.addRows();
+                                                    addedNode._value.getNode('attribute_value').attr.wdg_dtype = kw.dtype || 'T';
+                                                }
+                                            });
+        if(useWorkSpace){
+            var original_value = value;
+            var value = new gnr.GnrBag();
+            var r;
+            for(var k in original_value){
+                r = new gnr.GnrBag();
+                r.setItem('attribute_key',k);
+                r.setItem('attribute_value',original_value[k],{wdg_dtype:guessDtype(original_value[k])});
+                value.setItem('#id',r);
+            }
+            var gridNode = grid.getParentNode();
+            gridNode.setRelativeData(valuepath,value);
+            var dc = gridNode._('dataController',{script:'this._onGridChangedData(data,_triggerpars)',data:valuepath})
+            dc.getParentNode()._onGridChangedData = function(gridData,_triggerpars){
+                var trigger_kwargs = _triggerpars.kw;
+                var evt = trigger_kwargs.evt;
+                if(evt=='upd'){
+                    var k = trigger_kwargs.node.getParentBag().getItem('attribute_key');
+                    var v = trigger_kwargs.value;
+                    original_value[k] = v;
+
+                }else if(evt=='del'){
+                    objectPop(original_value,kw.node.label);
+                }
+                console.log('data',_triggerpars)
+            }
+        }
+
+        grid._('column',{name:'Key',field:'attribute_key',edit:true,width:'30%'})
+        grid._('column',{name:'Value',field:'attribute_value',edit:true,width:'70%'})
+        var t = grid._('tools',{tools:'delrow,addrow',
+            custom_tools:{addrow:{content_class:'iconbox add_row',ask:{title:'New Line',askOn:'Shift',
+                                                 fields:[{name:'dtype',lbl:'Datatype',values:'T:Text,B:Boolean,L:Integer,N:Decimal,D:Date,H:Time',wdg:'filteringSelect'}]
+                                             }},
+            }})
+        return grid
+    }
+});
 
 dojo.declare("gnr.widgets.PaletteBagNodeEditor", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
@@ -1329,6 +1382,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
                tools:true},
 
     createContent:function(sourceNode, kw,children,subTagItems) {
+        objectPop(kw,'_workspace')
         sourceNode.attr._workspace = true;
         var gnrwdg = sourceNode.gnrwdg;
         var value = objectPop(kw,'value');
@@ -1383,6 +1437,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
                         nodeId:kw.nodeId+'_store',datapath:kw.controllerPath});
         var tools = subTagItems.tools;
         var gridRoot= tools.len()? this.toolsGridRoot(sourceNode,kw,tools.getAttr('#0')) : sourceNode;
+        kw.datapath = kw.controllerPath;
         var grid = gridRoot._('newIncludedView',kw);
         gnrwdg.gridNode = grid.getParentNode();
         gnrwdg.setColumns(sourceNode.getRelativeData(columns));
@@ -1401,6 +1456,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
 
     toolsGridRoot:function(sourceNode,kw,tools_kw){
         var tools = objectPop(tools_kw,'tools');
+        var custom_tools = objectPop(tools_kw,'custom_tools');
         var default_tools={ 'addrow': {content_class:'iconbox add_row',_delay:500},
                             'delrow':{content_class:'iconbox delete_row'}, 
                             'duprow': {content_class:'iconbox copy'}, 
@@ -1412,11 +1468,9 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
                                                          {name:'export_mode',wdg:'filteringSelect',values:'xls:Excel,csv:CSV',lbl:'Mode'}]
                                              }}
                            }
-                           
-                           
-                           
-                           
-                           
+        if(custom_tools){
+            objectUpdate(default_tools,custom_tools);
+        }
         tools=tools==true? 'addrow,delrow' : tools;
         var tools_position = objectPop(tools_kw,'position') || 'TR';
         var tool_region=(tools_position[0]=='T') ? 'top':'bottom'
@@ -3548,6 +3602,7 @@ dojo.declare("gnr.stores._Collection",null,{
     constructor:function(node,kw){
         this.storeNode = node;
         this.storepath = this.storeNode.attr.storepath;
+        var startData = this.storeNode.getRelativeData(this.storepath);
         this.storeNode.setRelativeData(this.storepath,null,null,null,'initStore');
         this.locked = null;
         var deleteRows = objectPop(kw,'deleteRows');
@@ -3576,6 +3631,9 @@ dojo.declare("gnr.stores._Collection",null,{
             dojo.subscribe('onPageStart',function(){
                 startLocked = parentForm?parentForm.isDisabled():startLocked;
                 that.setLocked(startLocked);
+                if(startData){
+                    that.loadData(startData);
+                }
             });
         };
         genro.src.onBuiltCall(cb);
