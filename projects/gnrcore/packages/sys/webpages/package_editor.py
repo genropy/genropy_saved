@@ -142,11 +142,8 @@ class GnrCustomWebPage(object):
                         instance='^.record.instance_name',
                         hidden='==!package || !project || !instance')
         bc =form.center.borderContainer()
-        self.tablesModulesEditor(bc.contentPane(region='top',height='200px',splitter=True),storepath='#FORM.record.tables')
-        bc.dataRpc('.record.tables',self.table_editor_loadPackageTables,package='^.record.package_name',
-                project='=.record.project_name',
-                _if='project&&package',_else='return new gnr.GnrBag();',
-                subscribe_closeDbConnectionDialog=True)
+        self.tablesModulesEditor(bc.contentPane(region='top',height='200px',splitter=True),storepath='#FORM.record.tables',
+                                project='=.record.project_name',package='^.record.package_name')
         bc.contentPane(region='center',overflow='hidden')
 
 
@@ -159,16 +156,6 @@ class GnrCustomWebPage(object):
         r.cell('name_plural',width='20em',name='Name plural')
         r.cell('caption_field',width='20em',name='Caption field')
         r.cell('status',width='20em',name='Import status')
-
-    def tablesModulesEditor(self,pane,storepath=None,datapath='.tablesFrame'):
-
-        tablesframe = pane.bagGrid(frameCode='tablesModulesEditor',title='Tables',
-                                                storepath=storepath,
-                                                datapath=datapath,
-                                                struct=self.tables_struct,
-                                                grid_multiSelect=False,
-                                                pbl_classes=True,margin='2px',
-                                                addrow=True,delrow=True)
 
 
     def getFakeApplication(self,project,package):

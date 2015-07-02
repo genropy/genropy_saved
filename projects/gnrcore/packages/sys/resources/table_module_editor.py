@@ -310,9 +310,35 @@ class TableModuleEditor(BaseComponent):
                                     genro.publish('edit_relation',{relation:relation,rowIndex:rowIndex})
                                     return false;
                                     """)
+
+    def tablesModulesEditor(self,pane,storepath=None,datapath='.tablesFrame',project=None,package=None):
+
+        tablesframe = pane.bagGrid(frameCode='tablesModulesEditor',title='Tables',
+                                                storepath=storepath,
+                                                datapath=datapath,
+                                                struct=self.tables_struct,
+                                                grid_multiSelect=False,
+                                                pbl_classes=True,margin='2px',
+                                                addrow=True,delrow=True)
+        pane.dataRpc(storepath,self.table_editor_loadPackageTables,package=package,project=project,
+                _if='project&&package',_else='return new gnr.GnrBag();',
+                subscribe_tableModuleWritten=True)
+
+        form = tablesframe.grid.linkedForm(frameCode='tableModule',
+                                 datapath='.form',loadEvent='onRowDblClick',
+                                 dialog_height='600px',dialog_width='900px',
+                                 dialog_title='^.form.record.name',handlerType='dialog',
+                                 childname='form',attachTo=pane,store=True,
+                                 store_pkeyField='_pkey')
+        self.tablesForm(form)
+
     def tablesForm(self,form):
+        saverpc = form.store.handler('save',rpcmethod=self.saveTableModule,fullRecord=True)
+        saverpc.addCallback("genro.publish('tableModuleWritten')")
+        form.store.handler('load',rpcmethod=self.loadTableModule,
+                            default_project='=#FORM/parent/#FORM.record.project_name',
+                            default_package='=#FORM/parent/#FORM.record.package_name')
         form.top.slotToolbar('2,navigation,*,form_delete,form_add,form_revert,form_save,semaphore,2')
-        form.store.attributes.update(autoSave=True)
         form.dataController("this.form.setLocked(true)",_onStart=True)
         form.dataController("genro.dlg.alert('Wrong info','Table has wrong data');",save_failed='^#FORM.controller.save_failed')
         bc = form.center.borderContainer()
@@ -337,6 +363,69 @@ class TableModuleEditor(BaseComponent):
                                                     addrow=True,delrow=True)
         self.relationEditorDialog(bc,grid=columnsframe.grid)
 
+    @public_method
+    def saveTableModule(self,data=None,**kwargs):
+        recordNode = data.getNode('record')
+        record = recordNode.value
+        recInfo = recordNode.attr
+        oldpath = None
+        resultAttr = dict()
+        if recInfo['_newrecord']:
+            table = record['name']
+            package = record.pop('package')
+            project = record.pop('project')
+        else:
+            project,package,old_table = recInfo['_pkey'].split('.')
+            table = record['name']
+            if table!=old_table:
+                oldpath = os.path.join(os.path.join(self.getPackagePath(project,package),'model','%s.py' %old_table))
+
+        filepath = os.path.join(os.path.join(self.getPackagePath(project,package),'model','%s.py' %table))    
+        newPkey = '%s.%s.%s' %(project,package,table)
+        self.makeOneTable(filepath=filepath,table_data=record)
+        if oldpath and os.path.exists(oldpath):
+            os.remove(oldpath)
+
+        return (newPkey, resultAttr)
+
+        
+
+    @public_method
+    def loadTableModule(self,pkey=None,default_project=None,default_package=None,**kwargs):
+        if pkey=='*newrecord*':
+            record = Bag()
+            record['project'] = default_project
+            record['package'] = default_package
+            return record,dict(_pkey=pkey,_newrecord=True)
+        project,package,table = pkey.split('.')
+        red = self.get_redbaron(os.path.join(os.path.join(self.getPackagePath(project,package),'model','%s.py' %table)))
+        config_db = red.find('def','config_db')
+        targs,tkwargs = self.parsBaronNodeCall(config_db.find('name','table').parent[2])
+        record = Bag(tkwargs)
+        record['name'] = table
+        record['project'] = project
+        record['package'] = package
+        record['_module_pkey'] = pkey
+        record['_sysFields'] = self.handleSysFields(red)
+        columnsvalue = Bag()
+        record.setItem('_columns',columnsvalue,_sendback=True)
+        for colNode in red.find_all('name','column'):
+            cbag = self._loadColumnBag(colNode)
+            cbag['tag'] = 'column'
+            columnsvalue[cbag['name']] = cbag
+        for colNode in red.find_all('name','aliasColumn'):
+            cbag = self._getColBag(colNode,'relation_path')
+            cbag['tag'] = 'aliasColumn'
+            columnsvalue[cbag['name']] = cbag
+        for colNode in red.find_all('name','formulaColumn'):
+            cbag = self._getColBag(colNode,'sql_formula')
+            cbag['tag'] = 'formulaColumn'
+            columnsvalue[cbag['name']] = cbag
+        for colNode in red.find_all('name','pyColumn'):
+            cbag = self._getColBag(colNode,'py_method')
+            cbag['tag'] = 'pyColumn'
+            columnsvalue[cbag['name']] = cbag
+        return record,dict(_pkey=pkey,_newrecord=False)
 
     @public_method
     def table_editor_loadPackageTables(self,package=None,project=None):
@@ -355,22 +444,3 @@ class TableModuleEditor(BaseComponent):
             result[tablename] = tablevalue
         return result
 
-           #tablevalue['_sysFields'] =self.handleSysFields(red)
-           #columnsvalue = Bag()
-           #tablevalue.setItem('_columns',columnsvalue,_sendback=True)
-           #for colNode in red.find_all('name','column'):
-           #    cbag = self._loadColumnBag(colNode)
-           #    cbag['tag'] = 'column'
-           #    columnsvalue[cbag['name']] = cbag
-           #for colNode in red.find_all('name','aliasColumn'):
-           #    cbag = self._getColBag(colNode,'relation_path')
-           #    cbag['tag'] = 'aliasColumn'
-           #    columnsvalue[cbag['name']] = cbag
-           #for colNode in red.find_all('name','formulaColumn'):
-           #    cbag = self._getColBag(colNode,'sql_formula')
-           #    cbag['tag'] = 'formulaColumn'
-           #    columnsvalue[cbag['name']] = cbag
-           #for colNode in red.find_all('name','pyColumn'):
-           #    cbag = self._getColBag(colNode,'py_method')
-           #    cbag['tag'] = 'pyColumn'
-           #    columnsvalue[cbag['name']] = cbag
