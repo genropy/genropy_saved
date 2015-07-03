@@ -18,7 +18,7 @@ class Main(BaseResourceAction):
     batch_immediate = True
     
     def do(self):
-        if not self.tblobj.getConverters()[0]:
+        if not self.tblobj.getReleases()[0]:
             return
         self.tblobj.updateRecordsToLastRelease_raw(_wrapper=self.btc.thermo_wrapper, _wrapperKwargs=dict(line_code='touch',message = 'Record',tblobj=self.tblobj),commit=self.batch_parameters.get('commit_frequency'))
         self.db.commit()

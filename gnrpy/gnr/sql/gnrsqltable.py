@@ -1670,7 +1670,7 @@ class SqlTable(GnrObject):
                       raw_insert=raw_insert,
                       source_tbl_name=source_tbl_name,_converters=converters,**querykwargs)
                       
-    def getReleasePars(self):
+    def getReleases(self):
         prefix = '_release_'
         parslist = []
         extra_columns_list = []
@@ -1688,7 +1688,7 @@ class SqlTable(GnrObject):
         return parslist, ','.join(set(extra_columns_list))
 
     def updateRecordsToLastRelease_raw(self, commit=None, _wrapper=None, _wrapperKwargs=None):
-        releases, extra_columns = self.getReleasePars()
+        releases, extra_columns = self.getReleases()
         if not releases:
             return
         release = len(releases)
