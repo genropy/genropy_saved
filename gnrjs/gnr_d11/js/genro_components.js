@@ -867,7 +867,14 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
                                                 }
                                             });
         if(useWorkSpace){
-            var original_value = value;
+            var edited_node,original_value;
+            if(value instanceof gnr.GnrBagNode){
+                edited_node = value;
+                original_value = edited_node.attr;
+            }else{
+                original_value = value;
+            }
+            
             var value = new gnr.GnrBag();
             var r;
             for(var k in original_value){
@@ -888,9 +895,11 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
                     original_value[k] = v;
 
                 }else if(evt=='del'){
-                    objectPop(original_value,kw.node.label);
+                    objectPop(original_value,trigger_kwargs.node.label);
                 }
-                console.log('data',_triggerpars)
+                if(edited_node){
+                    edited_node.updAttributes(original_value);
+                }
             }
         }
 
@@ -907,9 +916,14 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
 
 dojo.declare("gnr.widgets.PaletteBagNodeEditor", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
-        var nodeId = objectPop(kw, 'nodeId');
         var pane = sourceNode._('PalettePane', kw);
-        pane._('BagNodeEditor', {nodeId:nodeId,datapath:'.bagNodeEditor',bagpath:kw.bagpath});
+        var inspectedNode = objectPop(kw,'inspectedNode');
+        var bc = pane._('BorderContainer', {_class:'bagNodeEditor'});
+        var top = bc._('ContentPane', {'region':'top',background_color:'navy',color:'white'});
+        top._('span', {'innerHTML':'Path : '});
+        top._('span', {'innerHTML':kw.bagpath});
+        bc._('ContentPane',{region:'center'})._('MultiValueEditor',{value:inspectedNode})
+        //pane._('BagNodeEditor', {nodeId:nodeId,datapath:'.bagNodeEditor',bagpath:kw.bagpath});
         return pane;
     }
 });
@@ -3631,12 +3645,14 @@ dojo.declare("gnr.stores._Collection",null,{
             dojo.subscribe('onPageStart',function(){
                 startLocked = parentForm?parentForm.isDisabled():startLocked;
                 that.setLocked(startLocked);
-                if(startData){
-                    that.loadData(startData);
-                }
             });
         };
         genro.src.onBuiltCall(cb);
+        if(startData){
+            genro.src.onBuiltCall(function(){
+                that.loadData(startData);
+            })
+        }
     },
     clear:function(){
         this.storeNode.setRelativeData(this.storepath,new gnr.GnrBag());

@@ -1812,6 +1812,9 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         dojo.connect(widget,'maximize',function(){
             this.resize({'t':'0','l':'0'});
         });
+        dojo.connect(sourceNode,'_onDeleting',function(){
+            widget.destroyRecursive();
+        });
     },
     patch_close:function(cb){
         this.saveRect();

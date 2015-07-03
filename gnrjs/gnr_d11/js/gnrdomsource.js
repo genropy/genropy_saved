@@ -1692,6 +1692,7 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
     _ : function(tag, name/*optional*/, attributes/*Object*/, extrakw) {
         var tag_UpperLower = null;
         var content;
+        extrakw = extrakw || {};
         tag = tag.toLowerCase();
         if (tag) {
             var tagHandler = genro.wdg.getHandler(tag);
@@ -1703,7 +1704,7 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
                 }
             }
             if (name instanceof Object) {
-                var extrakw = attributes || {};
+                extrakw = attributes || {};
                 var attributes = name || {};
                 var name = '';
                 if('childname' in attributes){
@@ -1737,6 +1738,11 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
             var handler=genro.wdg.getHandler(tag);
             if(handler && handler.onStructChild){
                 handler.onStructChild(attributes,this);
+            }
+            var nIndex = this.index(name);
+            if(nIndex>=0){
+                this.popNode(name);
+                extrakw._position = nIndex;
             }
             this.setItem(name, content, attributes, extrakw);
             return content;
