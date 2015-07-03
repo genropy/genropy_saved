@@ -1670,34 +1670,31 @@ class SqlTable(GnrObject):
                       raw_insert=raw_insert,
                       source_tbl_name=source_tbl_name,_converters=converters,**querykwargs)
                       
-    def setRecordVersion(self, record, version):
-        record['__version'] = version
-
-    def getConverters(self):
-        prefix = '_converter_'
-        converters = []
+    def getReleasePars(self):
+        prefix = '_release_'
+        parslist = []
         extra_columns_list = []
         for fname in sorted(dir(self)):
              if fname.startswith(prefix):
                 handler = getattr(self,fname)
-                assert (int(fname[11:]) == len(converters)+1) , 'Missing converter'
-                converter_pars  = handler()
-                updater = converter_pars.pop('updater')
-                extra_columns = converter_pars.pop('extra_columns',None)
+                assert (int(fname[9:]) == len(parslist)+1) , 'Missing release'
+                pars  = handler()
+                updater = pars.pop('updater')
+                extra_columns = pars.pop('extra_columns',None)
                 if extra_columns:
                     extra_columns_list.extend(extra_columns.split(','))
-                converters.append((updater,converter_pars))
+                parslist.append((updater,pars))
 
-        return converters, ','.join(set(extra_columns_list))
+        return parslist, ','.join(set(extra_columns_list))
 
-    def updateRecordsToLastVersion_raw(self, commit=None, _wrapper=None, _wrapperKwargs=None):
-        converters, extra_columns = self.getConverters()
-        if not converters:
+    def updateRecordsToLastRelease_raw(self, commit=None, _wrapper=None, _wrapperKwargs=None):
+        releases, extra_columns = self.getReleasePars()
+        if not releases:
             return
-        version = len(converters)
+        release = len(releases)
         toupdate = self.query(columns='*,%s' % extra_columns,
-                             where='$__version IS NULL OR $__version < :version',
-                            version=version , for_update=True,excludeLogicalDeleted=False,
+                             where='$__release IS NULL OR $__release < :release',
+                            release=release , for_update=True,excludeLogicalDeleted=False,
                             excludeDraft=False).fetch()
         if _wrapper:
             _wrapperKwargs = _wrapperKwargs or dict()
@@ -1708,10 +1705,10 @@ class SqlTable(GnrObject):
         for record in toupdate:
             record = dict(record)
             oldrecord=dict(record)
-            record_version = record['__version'] or 0
-            for updater, kwargs in converters[record_version:]:
+            record_release = record['__release'] or 0
+            for updater, kwargs in releases[record_release:]:
                 updater(record, **kwargs)
-            record['__version'] = version
+            record['__release'] = release
             self.raw_update(record,oldrecord)
             if commit_frequency and n%commit_frequency==0:
                 self.db.commit()

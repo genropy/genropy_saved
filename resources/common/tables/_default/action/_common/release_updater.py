@@ -6,13 +6,13 @@
 
 from gnr.web.batch.btcaction import BaseResourceAction
 
-caption = '!!Update to version'
+caption = '!!Update to release'
 tags = '_DEV_'
-description = '!!Update records to last version'
+description = '!!Update records to last release'
 
 class Main(BaseResourceAction):
     batch_prefix = 'tch'
-    batch_title = 'Update to version'
+    batch_title = 'Update to release'
     batch_cancellable = False
     batch_delay = 0.5
     batch_immediate = True
@@ -20,7 +20,7 @@ class Main(BaseResourceAction):
     def do(self):
         if not self.tblobj.getConverters()[0]:
             return
-        self.tblobj.updateRecordsToLastVersion_raw(_wrapper=self.btc.thermo_wrapper, _wrapperKwargs=dict(line_code='touch',message = 'Record',tblobj=self.tblobj),commit=self.batch_parameters.get('commit_frequency'))
+        self.tblobj.updateRecordsToLastRelease_raw(_wrapper=self.btc.thermo_wrapper, _wrapperKwargs=dict(line_code='touch',message = 'Record',tblobj=self.tblobj),commit=self.batch_parameters.get('commit_frequency'))
         self.db.commit()
 
     def table_script_parameters_pane(self, pane, table=None,**kwargs):
