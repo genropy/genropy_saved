@@ -616,7 +616,7 @@ dojo.declare("gnr.GnrBag", null, {
             h+='</thead>';
         }
         var rows =''
-        var r,b,v,vnode,format,cells;
+        var r,b,v,vnode,cell_kw,format,cells,dtype,style;
         if(kw.cells===true){
             cells = hheadcel.keys();
         }else{
@@ -631,27 +631,32 @@ dojo.declare("gnr.GnrBag", null, {
             dojo.forEach(cells,function(cell){
                 var align = 'left'
                 vnode = b.getNode(cell);
+                cell_kw = kw[cell] || {};
                 if(vnode){
                     v = vnode._value;
-
                     if(v instanceof gnr.GnrBag){
                         v = v.getFormattedValue(kw,mode);
                     }else if(v==null){
                         v='';
                     }
                     else{
-                        format = kw[cell];
+                        
+                        dtype = cell_kw.dtype || vnode.attr.dtype || guessDtype(v);
+                        format = cell_kw.format;
                         if(format){
-                            v = _F(v,format,vnode.attr.dtype);
+                            v = _F(v,format,dtype);
                         }else{
                             v = vnode.attr._formattedValue || vnode.attr._displayedValue || v;
                         }
-                        if(typeof(v)=='number'){
+                        if(dtype=='N' || dtype=='L'){
                             align ='right';
                         }
                     }
                 }else{
                     v = '';
+                }
+                if (cell_kw.width){
+                    v = '<div style="width:'+cell_kw.width+';">'+v+'</div>'
                 }
                 r+='<td style="text-align:'+align+'">'+v+'</td>';
             });

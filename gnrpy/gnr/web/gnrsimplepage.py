@@ -86,9 +86,10 @@ class GnrSimplePage(GnrWebPage):
 
 
     def replayComponentMixins(self):
-    	with self.pageStore() as store:
-    		mixin_set = store.get('mixin_set') or []
-    		for (path,kwargs_list) in mixin_set:
-    			print path, kwargs_list
-    			kwargs = dict(kwargs_list)
-    			self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
+        with self.pageStore() as store:
+            mixin_set = store.get('mixin_set') or []
+            for (path,kwargs_list) in mixin_set:
+                kwargs = dict(kwargs_list)
+                self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
+
+

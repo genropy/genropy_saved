@@ -346,6 +346,8 @@ class TableBase(object):
         if df:
             self.sysFields_df(tbl)
         tbl.formulaColumn('__is_protected_row',sql_formula=True,group=group,name_long='!!Row Protected')
+        if filter(lambda r: r!='_converter_' and r.startswith('_converter_'), dir(self)):
+            tbl.column('__version', dtype='L', name_long='Sys Version', group=group,_sysfield=True)
         
         if filter(lambda r: r!='sysRecord_' and r.startswith('sysRecord_'), dir(self)):
             tbl.column('__syscode',size=':16',unique=True,indexed=True,
