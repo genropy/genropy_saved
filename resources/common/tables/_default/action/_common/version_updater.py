@@ -20,7 +20,7 @@ class Main(BaseResourceAction):
     def do(self):
         if not self.tblobj.getConverters()[0]:
             return
-        self.tblobj.updateRecordsToLastVersion_raw(_wrapper=self.btc.thermo_wrapper, commit=self.batch_parameters.get('commit_frequency'))
+        self.tblobj.updateRecordsToLastVersion_raw(_wrapper=self.btc.thermo_wrapper, _wrapperKwargs=dict(line_code='touch',message = 'Record',tblobj=self.tblobj),commit=self.batch_parameters.get('commit_frequency'))
         self.db.commit()
 
     def table_script_parameters_pane(self, pane, table=None,**kwargs):

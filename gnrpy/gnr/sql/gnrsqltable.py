@@ -1697,7 +1697,8 @@ class SqlTable(GnrObject):
         version = len(converters)
         toupdate = self.query(columns='*,%s' % extra_columns,
                              where='$__version IS NULL OR $__version < :version',
-                            version=version , for_update=True).fetch()
+                            version=version , for_update=True,excludeLogicalDeleted=False,
+                            excludeDraft=False).fetch()
         if _wrapper:
             _wrapperKwargs = _wrapperKwargs or dict()
             toupdate = _wrapper(toupdate, **(_wrapperKwargs or dict()))
