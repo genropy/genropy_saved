@@ -4746,5 +4746,7 @@ div[disabled='true'], div[disabled='disabled']{
 }
 
 /* @end */
-
+.multiValueEditor .cellContent{
+    padding-left: 5px;
+}
 

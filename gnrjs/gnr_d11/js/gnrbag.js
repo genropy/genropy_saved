@@ -420,7 +420,7 @@ dojo.declare("gnr.GnrBagNode", null, {
     setAttribute:function(label, value, doTrigger) {
         var updDict = {};
         updDict[label] = value;
-        this.setAttr(updDict, doTrigger, true,label);
+        this.setAttr(updDict, doTrigger, '*',label);
     },
 
     updAttributes:function(attrDict, doTrigger) {

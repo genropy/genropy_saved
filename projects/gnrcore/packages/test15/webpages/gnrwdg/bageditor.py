@@ -104,13 +104,16 @@ class GnrCustomWebPage(object):
         dati.setItem('r_1',Bag(dict(attribute_key='name_long',attribute_value='Artisti')))
         dati.setItem('r_2',Bag(dict(attribute_key='multidb',attribute_value=True)))
         dati.setItem('r_2.attribute_value?wdg_dtype','B')
-        pane.data('.dati_1',dati)
-
-        box.div("""==dati.asHtmlTable({cells:'attribute_key,attribute_value',headers:false});""",
+        pane.data('.dati',dati)
+        box.div('^.dati_formattati')
+        box.dataController("""
+            var dati_formattati = dati.asHtmlTable({cells:'attribute_key,attribute_value',headers:false});
+            SET .dati_formattati = dati_formattati;
+            """,
                     dati='^.dati')
 
 
-        pane.multiValueEditor(value='^.dati_1')
+        pane.multiValueEditor(value='^.dati')
 
     def test_4_multiValueEditor(self,pane):
         pane.multiValueEditor(value=dict(nome='Gianni',eta=33,indirizzo='via del pero 12'))

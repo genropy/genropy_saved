@@ -856,20 +856,30 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
         var value = kw.value;
         var valuepath =  kw.value;
         var useWorkSpace = typeof(value)!='string';
-        
+        var editNodeValue;
+        var gnrwdg = sourceNode.gnrwdg;
         if(useWorkSpace){
             valuepath = '^#WORKSPACE.value';
         }
-        var grid = sourceNode._('quickGrid',{value:valuepath,height:kw.height || '500px',width:kw.width,_workspace:true,
+        var grid = sourceNode._('quickGrid',{value:valuepath,height:kw.height || '500px',width:kw.width,_workspace:true,border:'1px solid silver',
+                                            _class:'multiValueEditor noheader',
                                                 selfsubscribe_addrow:function(kw){
                                                     var addedNode = this.widget.addRows();
                                                     addedNode._value.getNode('attribute_value').attr.wdg_dtype = kw.dtype || 'T';
                                                 }
                                             });
+        grid._('column',{name:'Key',field:'attribute_key',edit:true,width:'15em',cellStyles:'background:#BBB;color:#333;border-bottom:1px solid white;font-weight:bold;'})
+        grid._('column',{name:'Value',field:'attribute_value',edit:true,width:'100%',cellStyles:'border-bottom:1px solid lightgray;'})
+        var t = grid._('tools',{tools:'delrow,addrow',
+            custom_tools:{addrow:{content_class:'iconbox add_row',ask:{title:'New Line',askOn:'Shift',
+                                                 fields:[{name:'dtype',lbl:'Datatype',values:'T:Text,B:Boolean,L:Integer,N:Decimal,D:Date,H:Time',wdg:'filteringSelect'}]
+                                             }},
+            }})
         if(useWorkSpace){
-            var edited_node,original_value;
+            /*var edited_node,original_value;
             if(value instanceof gnr.GnrBagNode){
                 edited_node = value;
+                editNodeValue = objectPop(kw,'editNodeValue');
                 original_value = edited_node.attr;
             }else{
                 original_value = value;
@@ -877,40 +887,99 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
             
             var value = new gnr.GnrBag();
             var r;
+
+            if(editNodeValue){
+                var nodeValue = edited_node.getValue('static');
+                var nodeValueDtype = guessDtype(nodeValue)
+                r = new gnr.GnrBag();
+                r.setItem('attribute_key','*value',{editDisabled:true});
+                r.setItem('attribute_value',nodeValue,{wdg_dtype:nodeValueDtype,editDisabled:nodeValueDtype=='X'});
+                value.setItem('#id',r,{_protect_delete:true});
+            }
             for(var k in original_value){
                 r = new gnr.GnrBag();
                 r.setItem('attribute_key',k);
                 r.setItem('attribute_value',original_value[k],{wdg_dtype:guessDtype(original_value[k])});
                 value.setItem('#id',r);
-            }
+            }*/
+            gnrwdg.editNodeValue = objectPop(kw,'editNodeValue');
+            value = gnrwdg.getTempStore(value);
             var gridNode = grid.getParentNode();
             gridNode.setRelativeData(valuepath,value);
             var dc = gridNode._('dataController',{script:'this._onGridChangedData(data,_triggerpars)',data:valuepath})
             dc.getParentNode()._onGridChangedData = function(gridData,_triggerpars){
                 var trigger_kwargs = _triggerpars.kw;
+                if(trigger_kwargs.reason=='initStore' || trigger_kwargs.reason=='loadData'){
+                    return;
+                }
                 var evt = trigger_kwargs.evt;
+                var k,v;
                 if(evt=='upd'){
-                    var k = trigger_kwargs.node.getParentBag().getItem('attribute_key');
-                    var v = trigger_kwargs.value;
-                    original_value[k] = v;
+                    k = trigger_kwargs.node.getParentBag().getItem('attribute_key');
+                    v = trigger_kwargs.value;
+                    if(gnrwdg.edited_node){
+                        if(k=='*value'){
+                            gnrwdg.edited_node.setValue(v,true);
+                        }else{
+                            gnrwdg.edited_node.setAttribute(k,v,true);
+                        }
+                    }else{
+                        gnrwdg.source[k] = v;
+                    }
 
                 }else if(evt=='del'){
-                    objectPop(original_value,trigger_kwargs.node.label);
-                }
-                if(edited_node){
-                    edited_node.updAttributes(original_value);
+                    if(edited_node){
+                        k = trigger_kwargs.node._value.getItem('attribute_key');
+                        edited_node.setAttribute(k,null);
+                    }else{
+                        objectPop(gnrwdg.source,k);
+                    }
                 }
             }
         }
 
-        grid._('column',{name:'Key',field:'attribute_key',edit:true,width:'30%'})
-        grid._('column',{name:'Value',field:'attribute_value',edit:true,width:'70%'})
-        var t = grid._('tools',{tools:'delrow,addrow',
-            custom_tools:{addrow:{content_class:'iconbox add_row',ask:{title:'New Line',askOn:'Shift',
-                                                 fields:[{name:'dtype',lbl:'Datatype',values:'T:Text,B:Boolean,L:Integer,N:Decimal,D:Date,H:Time',wdg:'filteringSelect'}]
-                                             }},
-            }})
+
         return grid
+    },
+    gnrwdg_setCurrentNode:function(){
+
+    },
+
+    gnrwdg_getTempStore:function(item){
+        var addRow = function(where,key,value){
+            var r = new gnr.GnrBag();
+            var keyattr,rowattr;
+            if(key=='*value'){
+                keyattr = {editDisabled:true};
+                rowattr = {_protect_delete:true};
+            }
+            r.setItem('attribute_key',key,keyattr);
+            var value_attr = {wdg_dtype:guessDtype(value) || 'T'};
+            if(value_attr.wdg_dtype=='X'){
+                value_attr['editDisabled'] = true;
+            }
+            r.setItem('attribute_value',value,value_attr);
+            where.setItem('#id',r,rowattr);
+        }
+        var edited_node,source;
+        if(item instanceof gnr.GnrBagNode){
+            edited_node = item;
+            this.edited_node = edited_node;
+            source = edited_node.attr;
+        }else{
+            source = item;
+        }
+        this.source = source;
+
+        var result = new gnr.GnrBag();
+        var r;
+        if(this.editNodeValue){
+            addRow(result,'*value', edited_node.getValue('static'));
+        }
+        for(var k in source){
+            addRow(result,k,source[k]);
+        }
+        return result;
     }
 });
 
@@ -919,116 +988,45 @@ dojo.declare("gnr.widgets.PaletteBagNodeEditor", gnr.widgets.gnrwdg, {
         var pane = sourceNode._('PalettePane', kw);
         var inspectedNode = objectPop(kw,'inspectedNode');
         var bc = pane._('BorderContainer', {_class:'bagNodeEditor'});
-        var top = bc._('ContentPane', {'region':'top',background_color:'navy',color:'white'});
-        top._('span', {'innerHTML':'Path : '});
-        top._('span', {'innerHTML':kw.bagpath});
-        bc._('ContentPane',{region:'center'})._('MultiValueEditor',{value:inspectedNode})
-        //pane._('BagNodeEditor', {nodeId:nodeId,datapath:'.bagNodeEditor',bagpath:kw.bagpath});
+        var bottom = bc._('ContentPane', {'region':'bottom',color:'#666',font_style:'italic'});
+        bottom._('span', {'innerHTML':'Path : '});
+        bottom._('span', {'innerHTML':inspectedNode.getFullpath()});
+        bc._('ContentPane',{region:'center',margin:'2px'})._('MultiValueEditor',{value:inspectedNode})
         return pane;
     }
 });
 
+
+
 dojo.declare("gnr.widgets.BagNodeEditor", gnr.widgets.gnrwdg, {
+
     createContent:function(sourceNode, kw) {
         var gnrwdg = sourceNode.gnrwdg;
         var nodeId = objectPop(kw, 'nodeId');
         var readOnly = objectPop(kw, 'readOnly', false);
-        var valuePath = objectPop(kw, 'valuePath');
         var showBreadcrumb = objectPop(kw, 'showBreadcrumb', true);
-        var bc = sourceNode._('BorderContainer', {'nodeId':nodeId+'_bc',detachable:true,_class:'bagNodeEditor'});
+        sourceNode.attr.nodeId = nodeId
+        var bc = sourceNode._('BorderContainer', {detachable:true,_class:'bagNodeEditor'});
         if (showBreadcrumb) {
-            var top = bc._('ContentPane', {'region':'top',background_color:'navy',color:'white'});
-            top._('span', {'innerHTML':'Path : '});
-            top._('span', {'innerHTML':'^.currentEditPath'});
+            var bottom = bc._('ContentPane', {'region':'bottom',color:'#666',font_style:'italic'});
+            bottom._('span', {'innerHTML':'Path : '});
+            bottom._('span', {'innerHTML':'^.currentEditedPath'});
         }
         var box = bc._('ContentPane', {'region':'center',_class:'formgrid'});
-        var gridId = nodeId + '_grid';
-        var topic = nodeId + '_editnode';
         var bagpath = objectPop(kw, 'bagpath');
-        this.prepareStruct();
         gnrwdg.bagpath = bagpath;
-        gnrwdg.valuePath = valuePath;
         gnrwdg.readOnly = readOnly;
-        sourceNode.registerSubscription(topic, this, function(item) {
-            gnrwdg.gnr.setCurrentNode(gnrwdg, item);
-        });
-        var grid = box._('includedview', {'storepath':'.data','structpath':'gnr._dev.bagNodeEditorStruct',
-            'datamode':'bag','relativeWorkspace':true,'nodeId':gridId,
-            autoWidth:false,'editorEnabled':true});
-        if (!readOnly) {
-            var gridEditor = grid._('gridEditor');
-            var cellattr = {'gridcell':'attr_value','autoWdg':true};
-            cellattr.validate_onAccept = function(value, result, validations, rowIndex, userChange) {
-                var dataNode = this.grid.storebag().getParentNode().attr.dataNode;
-                var attr_name = this.getRelativeData('.attr_name');
-                if (attr_name == '*value') {
-                    dataNode.setValue(value);
-                } else {
-                    var newattr = !('attr_name' in dataNode.attr);
-                    dataNode.setAttribute(attr_name, value);
-                    if (!value) {
-                        objectPop(dataNode.attr, attr_name);
-                    }
-                    if (newattr || !value)
-                        setTimeout(function() {
-                            genro.publish(topic, dataNode);
-                        }, 300);
-                }
-            };
-            gridEditor._('textbox', {gridcell:'attr_name'});
-            gridEditor._('textbox', cellattr);
-        }
+        gnrwdg.center = box;
+        gnrwdg.center._('MultiValueEditor','mve',{value:bagpath})
+        sourceNode.subscribe('currentNode',function(kw){
+            gnrwdg.setCurrentNode(kw.node);
+        })
         return box;
     },
-    setCurrentNode:function(gnrwdg, item) {
-        var bagpath = gnrwdg.bagpath;
-        var sourceNode = gnrwdg.sourceNode;
-        if (typeof(item) == 'string') {
-            item = sourceNode.getRelativeData(bagpath).getNode(item);
-        }
-        var itempath = item.getFullpath(null, sourceNode.getRelativeData(bagpath));
-        sourceNode.setRelativeData('.currentEditPath', itempath);
-        gnrwdg.currentEditPath = itempath;
-        var newstore = new gnr.GnrBag();
-        for (var k in item.attr) {
-            var row = new gnr.GnrBag();
-            row.setItem('attr_name', k, {_editable:false});
-            row.setItem('attr_value', item.attr[k]);
-            newstore.setItem('#id', row);
-        }
-        var itemvalue = item.getValue('static');
 
-        if (gnrwdg.valuePath) {
-            sourceNode.setRelativeData(gnrwdg.valuePath, itemvalue);
-        } else {
-            var editable = true;
-            row = new gnr.GnrBag();
-            row.setItem('attr_name', '*value', {_editable:false});
-            if (itemvalue instanceof gnr.GnrBag) {
-                var editable = false;
-                itemvalue = '*bag*';
-            }
-            row.setItem('attr_value', itemvalue, {_editable:editable});
-            newstore.setItem('#id', row);
-        }
-
-        newstore.sort('attr_name');
-        //newstore.forEach(function(n){if(n.label.indexOf('~~')==0){n.label=n.label.slice(2);}});
-        if (!gnrwdg.readOnly) {
-            newstore.setItem('#id', new gnr.GnrBag({'attr_name':null,'attr_value':null}));
-        }
-        sourceNode.setRelativeData('.data', newstore, {'dataNode':item});
-    },
-    prepareStruct:function() {
-        if (genro.getData('gnr._dev.bagNodeEditorStruct')) {
-            return;
-        }
-        var rowstruct = new gnr.GnrBag();
-        rowstruct.setItem('cell_0', null, {field:'attr_name',name:'Name',width:'30%',
-            cellStyles:'background:gray;color:white;border-bottom:1px solid white;'});
-        rowstruct.setItem('cell_1', null, {field:'attr_value',name:'Value',width:'70%',
-            cellStyles:'border-bottom:1px solid lightgray;'});
-        genro.setData('gnr._dev.bagNodeEditorStruct.view_0.row_0', rowstruct);
+    gnrwdg_setCurrentNode:function(bagNode) {
+        this.sourceNode.setRelativeData('.currentEditedPath',bagNode.getFullpath());
+        //this.center._('MultiValueEditor','mve',{value:bagNode}) //editNodeValue:true
     }
 });
 
@@ -1487,7 +1485,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         }
         tools=tools==true? 'addrow,delrow' : tools;
         var tools_position = objectPop(tools_kw,'position') || 'TR';
-        var tool_region=(tools_position[0]=='T') ? 'top':'bottom'
+        var tool_region=(tools_position[0]=='T') ? 'top':'bottom';
         var bckw = {height: objectPop(kw,'height'),
                     width: objectPop(kw,'width'),
                    _class:'quickgrid_container'}
@@ -3617,7 +3615,9 @@ dojo.declare("gnr.stores._Collection",null,{
         this.storeNode = node;
         this.storepath = this.storeNode.attr.storepath;
         var startData = this.storeNode.getRelativeData(this.storepath);
-        this.storeNode.setRelativeData(this.storepath,null,null,null,'initStore');
+        if(!startData){
+            this.storeNode.setRelativeData(this.storepath,null,null,null,'initStore');
+        }
         this.locked = null;
         var deleteRows = objectPop(kw,'deleteRows');
         if (deleteRows){
@@ -3645,15 +3645,18 @@ dojo.declare("gnr.stores._Collection",null,{
             dojo.subscribe('onPageStart',function(){
                 startLocked = parentForm?parentForm.isDisabled():startLocked;
                 that.setLocked(startLocked);
+                if(startData){
+                    that.loadData(startData);
+                }
             });
+            if(startData){
+                that.loadData(startData);
+            }
         };
         genro.src.onBuiltCall(cb);
-        if(startData){
-            genro.src.onBuiltCall(function(){
-                that.loadData(startData);
-            })
-        }
+
     },
+
     clear:function(){
         this.storeNode.setRelativeData(this.storepath,new gnr.GnrBag());
     },
@@ -3975,7 +3978,7 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
             });
         }
         data = data?data.deepCopy(): new gnr.GnrBag();
-        this.storeNode.setRelativeData(this.storepath,data);
+        this.storeNode.setRelativeData(this.storepath,data,null,null,'loadData');
         if(this.sortedBy){
             this.sort();
         }

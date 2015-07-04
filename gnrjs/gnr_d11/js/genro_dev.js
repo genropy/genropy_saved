@@ -64,17 +64,21 @@ dojo.declare("gnr.GnrDevHandler", null, {
   
     },
     openSrcInspector:function(inspectedNode){
+        this.openBagNodeEditorPalette(inspectedNode,{name:'_devSrcInspector_',title:'Sourcenode Inspector'});
+    },
+
+    openBagNodeEditorPalette:function(bagNode,kw){
         var root = genro.src.newRoot();
-        genro.src.getNode()._('div', '_devSrcInspector_');
-        var node = genro.src.getNode('_devSrcInspector_').clearValue();
+        var name = kw.name || '_currentBagNodeEditor_'
+        genro.src.getNode()._('div', name);
+
+        var node = genro.src.getNode(name).clearValue();
         node.freeze();
-        node._('PaletteBagNodeEditor','currentEditor',{'paletteCode':'srcInspector','dockTo':false,
-                                        title:'Source Node Inspector',
-                                        'inspectedNode':inspectedNode});
-        
+        node._('PaletteBagNodeEditor','currentEditor',{'paletteCode':name,'dockTo':false,
+                                        title:kw.title || 'BagNode editor',
+                                        'inspectedNode':bagNode});
         node.unfreeze();
         
-
     },
 
 

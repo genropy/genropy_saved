@@ -3089,7 +3089,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         if (!sourceNode.dropTarget && objectNotEmpty(sourceNode.dropModes)) {
             sourceNode.dropTarget = true;
         }
-        var attributesToKeep = 'autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure,'; //continue
+        var attributesToKeep = '_class,autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure,'; //continue
         var styleDict=genro.dom.getStyleDict(attributes);
         if (styleDict.width=='auto'){
             delete styleDict.width;
@@ -7047,7 +7047,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             sourceNode.registerDynAttr('selectedPath');
         }
         var tooltipAttrs = objectExtract(attributes, 'tooltip_*');
-        var savedAttrs = objectExtract(attributes, 'inspect,autoCollapse,onChecked');
+        var savedAttrs = objectExtract(attributes, 'inspect,autoCollapse,onChecked,editable');
         if (objectNotEmpty(tooltipAttrs)) {
             savedAttrs['tooltipAttrs'] = tooltipAttrs;
         }
@@ -7111,6 +7111,15 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             });
         }
         var nodeId = sourceNode.attr.nodeId;
+        if(savedAttrs.editable){
+            var editmodifiers = savedAttrs.editable==true?'Shift':savedAttrs.editable;
+            dojo.connect(widget,'onClick',function(item,treeNode){
+                if(treeNode.__eventmodifier==editmodifiers){
+                    genro.dev.openBagNodeEditorPalette(item,{name:nodeId || 'inspector_'+sourceNode.getPathId()});
+                }
+            });
+        }
+        
         if(nodeId){
             var searchBoxCode = (sourceNode.attr.frameCode || nodeId)+'_searchbox';
             var searchBoxNode = genro.nodeById(searchBoxCode);
@@ -7119,18 +7128,18 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                     this.applyFilter(v);
                 });
             }
-            var editBagBoxNode = genro.nodeById(nodeId+'_editbagbox_grid');
-            if (editBagBoxNode){
-                dojo.connect(widget,'_updateSelect',function(item,node){
-                    if(!(item instanceof gnr.GnrBagNode)){
-                        if(item===null){
-                            return;
-                        }
-                        item = node.getParent().item;
-                    }
-                    genro.publish(nodeId+'_editbagbox_editnode',item);
-                });
-            }
+           //var editBagBoxNode = genro.nodeById(nodeId+'_editbagbox');
+           //if (editBagBoxNode){
+           //    dojo.connect(widget,'_updateSelect',function(item,node){
+           //        if(!(item instanceof gnr.GnrBagNode)){
+           //            if(item===null){
+           //                return;
+           //            }
+           //            item = node.getParent().item;
+           //        }
+           //        editBagBoxNode.gnrwdg.setCurrentNode(item);
+           //    });
+           //}
         }
     },
 
