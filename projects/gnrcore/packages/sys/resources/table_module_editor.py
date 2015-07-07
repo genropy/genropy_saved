@@ -325,8 +325,8 @@ class TableModuleEditor(BaseComponent):
                 subscribe_tableModuleWritten=True)
 
         form = tablesframe.grid.linkedForm(frameCode='tableModule',
-                                 datapath='.form',loadEvent='onRowDblClick',
-                                 dialog_height='500px',dialog_width='1100px',
+                                 datapath='.tableForm',loadEvent='onRowDblClick',
+                                 dialog_height='550px',dialog_width='1100px',
                                  dialog_title='^.form.record.name',handlerType='dialog',
                                  childname='form',attachTo=pane,store=True,
                                  store_pkeyField='_pkey')
@@ -343,14 +343,15 @@ class TableModuleEditor(BaseComponent):
         form.dataController("genro.dlg.alert('Wrong info','Table has wrong data');",save_failed='^#FORM.controller.save_failed')
         bc = form.center.borderContainer()
         self.moreAttributesDialog(bc)
-        top = bc.contentPane(datapath='.record',region='top')
-        fb = top.formbuilder(cols=3)
+        top = bc.borderContainer(datapath='.record',region='top',height='150px')
+
+        fb = top.contentPane(region='left',width='600px').formbuilder(cols=2)
         fb.dataFormula('#FORM.columnsValues',"""columns.values().map(function(v){return v.getItem('name')}).join(',')""",
                         columns='^._columns',_if='columns && columns.len()',_else='null')
         fb.textbox(value='^.name',lbl='Name',validate_notnull=True,validate_case='l')
-        fb.textbox(value='^.name_long',lbl='Name Long')
-        fb.textbox(value='^.name_plural',lbl='Name Plural')
         fb.comboBox(value='^.pkey',lbl='Pkey',validate_notnull=True,values='^#FORM.columnsValues')
+        fb.textbox(value='^.name_long',lbl='Name Long',colspan=2,width='100%')
+        fb.textbox(value='^.name_plural',lbl='Name Plural',colspan=2,width='100%')
         fb.comboBox(value='^.caption_field',lbl='Caption field',values='^#FORM.columnsValues')       
         fb.checkbox(value='^.lookup',lbl='Lookup')
         fb.button('Handle Sysfields') 
@@ -361,6 +362,8 @@ class TableModuleEditor(BaseComponent):
                                                     pbl_classes=True,margin='2px',
                                                     grid_selfDragRows=True,
                                                     addrow=True,delrow=True)
+        top.contentPane(region='center',overflow='hidden').multiValueEditor(value='^#FORM.record',
+                                            exclude='%s,_columns,_sysFields' %','.join(fb.fbuilder.field_list))
         self.relationEditorDialog(bc,grid=columnsframe.grid)
 
     @public_method
@@ -372,8 +375,8 @@ class TableModuleEditor(BaseComponent):
         resultAttr = dict()
         if recInfo['_newrecord']:
             table = record['name']
-            package = record.pop('package')
-            project = record.pop('project')
+            package = recInfo['package']
+            project = recInfo['project']
         else:
             project,package,old_table = recInfo['_pkey'].split('.')
             table = record['name']
@@ -385,7 +388,6 @@ class TableModuleEditor(BaseComponent):
         self.makeOneTable(filepath=filepath,table_data=record)
         if oldpath and os.path.exists(oldpath):
             os.remove(oldpath)
-
         return (newPkey, resultAttr)
 
         
@@ -394,18 +396,15 @@ class TableModuleEditor(BaseComponent):
     def loadTableModule(self,pkey=None,default_project=None,default_package=None,**kwargs):
         if pkey=='*newrecord*':
             record = Bag()
-            record['project'] = default_project
-            record['package'] = default_package
-            return record,dict(_pkey=pkey,_newrecord=True)
+            resultAttr = dict(_pkey=pkey,_newrecord=True,project=default_project,package=default_package)
+            return record,resultAttr
         project,package,table = pkey.split('.')
         red = self.get_redbaron(os.path.join(os.path.join(self.getPackagePath(project,package),'model','%s.py' %table)))
         config_db = red.find('def','config_db')
         targs,tkwargs = self.parsBaronNodeCall(config_db.find('name','table').parent[2])
+        resultAttr = dict(_pkey=pkey,_newrecord=False,project=project,package=package)
         record = Bag(tkwargs)
         record['name'] = table
-        record['project'] = project
-        record['package'] = package
-        record['_module_pkey'] = pkey
         record['_sysFields'] = self.handleSysFields(red)
         columnsvalue = Bag()
         record.setItem('_columns',columnsvalue,_sendback=True)
@@ -425,7 +424,7 @@ class TableModuleEditor(BaseComponent):
             cbag = self._getColBag(colNode,'py_method')
             cbag['tag'] = 'pyColumn'
             columnsvalue[cbag['name']] = cbag
-        return record,dict(_pkey=pkey,_newrecord=False)
+        return record,resultAttr
 
     @public_method
     def table_editor_loadPackageTables(self,package=None,project=None):

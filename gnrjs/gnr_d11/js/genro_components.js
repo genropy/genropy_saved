@@ -861,8 +861,9 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
         var gnrwdg = sourceNode.gnrwdg;
         gnrwdg.editNodeValue = objectPop(kw,'editNodeValue');
         gnrwdg.origin = kw.origin;
-        
-
+        gnrwdg.exclude = (objectPop(kw,'exclude') || '').split(',')
+        console.log('bbbb',gnrwdg.exclude)
+        sourceNode.attr.value = kw.value;
         var grid = sourceNode._('quickGrid',{value:'^#WORKSPACE.value',height:kw.height || '500px',width:kw.width,_workspace:true,border:'1px solid silver',
                                             _class:'multiValueEditor noheader',
                                                 selfsubscribe_addrow:function(kw){
@@ -879,7 +880,7 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
             }})
         gnrwdg.gridNode = grid.getParentNode();
         if(kw.value){
-            gnrwdg.setValue(kw.value);
+            gnrwdg.setSource(kw.value);
         }
         var dc = gnrwdg.gridNode._('dataController',{script:'this._onGridChangedData(data,_triggerpars)',data:'^#WORKSPACE.value'})
         dc.getParentNode()._onGridChangedData = function(data,_triggerpars){
@@ -888,7 +889,14 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
         return grid
     },
 
-    gnrwdg_setValue:function(value){
+    gnrwdg_setValue:function(value,kw,reason){
+        if(reason=='child'){
+            return;
+        }
+        this.setTempStore();
+    },
+
+    gnrwdg_setSource:function(value){
         if(typeof(value)!='string'){
             this.source_item = value;
         }else{
@@ -902,7 +910,6 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
         }
         this.setTempStore();
     },
-
     
     gnrwdg_getSource:function(){
         if(this.source_item){
@@ -912,7 +919,12 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_setTempStore:function(){
+        var exclude = this.exclude;
+        console.log('exclude',exclude)
         var addRow = function(where,key,value){
+            if(exclude.indexOf(key)>=0){
+                return;
+            }
             var r = new gnr.GnrBag();
             var keyattr,rowattr;
             if(value instanceof gnr.GnrBag){
@@ -1031,7 +1043,7 @@ dojo.declare("gnr.widgets.BagNodeEditor", gnr.widgets.gnrwdg, {
 
     gnrwdg_setCurrentPath:function(nodePath) {
         this.sourceNode.setRelativeData('.currentEditedPath',nodePath);
-        this.mveNode.gnrwdg.setValue(nodePath+'?#node');
+        this.mveNode.gnrwdg.setSource(nodePath+'?#node');
     }
 });
 

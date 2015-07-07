@@ -1849,6 +1849,7 @@ class GnrFormBuilder(object):
         self.col = -1
         self.rowdatapath = rowdatapath
         self.head_rows = head_rows or 0
+        self.field_list = []
         
     def br(self):
         #self.row=self.row+1
@@ -1868,6 +1869,8 @@ class GnrFormBuilder(object):
         
     def place(self, **fieldpars):
         """TODO"""
+        if 'value' in fieldpars and fieldpars['value'].startswith('^.'):
+            self.field_list.append(fieldpars['value'][2:])
         return self.setField(fieldpars)
         
     def setField(self, field, row=None, col=None):
