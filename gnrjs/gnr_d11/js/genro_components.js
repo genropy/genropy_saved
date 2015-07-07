@@ -806,7 +806,7 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
             var bagNodeEditorId = treeId + '_editbagbox';
             var origin = storepath.startsWith('*S')?'*S':null
             tree_kwargs.selfsubscribe_onSelected = function(kw){                
-                genro.publish(bagNodeEditorId+'_currentPath',kw.item.getFullpath(null,origin!='*S'?genro._data:null)+'?#node')
+                genro.publish(bagNodeEditorId+'_currentPath',kw.item.getFullpath(null,origin!='*S'?genro._data:null))
             }
             var bc = pane._('BorderContainer',{'side':'center'});
             var bottom = bc._('ContentPane', {'region':'bottom',height:'30%',
@@ -998,8 +998,8 @@ dojo.declare("gnr.widgets.PaletteBagNodeEditor", gnr.widgets.gnrwdg, {
         var bc = pane._('BorderContainer', {_class:'bagNodeEditor'});
         var bottom = bc._('ContentPane', {'region':'bottom',color:'#666',font_style:'italic'});
         bottom._('span', {'innerHTML':'Path : '});
-        bottom._('span', {'innerHTML':nodePath.split('?')[0]});
-        bc._('ContentPane',{region:'center',margin:'2px'})._('MultiValueEditor',{value:nodePath,origin:kw.origin})
+        bottom._('span', {'innerHTML':nodePath});
+        bc._('ContentPane',{region:'center',margin:'2px'})._('MultiValueEditor',{value:nodePath+'?#node',origin:kw.origin})
         return pane;
     }
 });
@@ -1007,7 +1007,6 @@ dojo.declare("gnr.widgets.PaletteBagNodeEditor", gnr.widgets.gnrwdg, {
 
 
 dojo.declare("gnr.widgets.BagNodeEditor", gnr.widgets.gnrwdg, {
-
     createContent:function(sourceNode, kw) {
         var gnrwdg = sourceNode.gnrwdg;
         var nodeId = objectPop(kw, 'nodeId');
@@ -1031,8 +1030,8 @@ dojo.declare("gnr.widgets.BagNodeEditor", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_setCurrentPath:function(nodePath) {
-        this.sourceNode.setRelativeData('.currentEditedPath',nodePath.split('?')[0]);
-        this.mveNode.gnrwdg.setValue(nodePath);
+        this.sourceNode.setRelativeData('.currentEditedPath',nodePath);
+        this.mveNode.gnrwdg.setValue(nodePath+'?#node');
     }
 });
 

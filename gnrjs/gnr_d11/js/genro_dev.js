@@ -52,8 +52,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         dojo.connect(pane,'onclick',function(e){
             if(e.altKey && e.shiftKey){
                 var sourceNode = genro.src.enclosingSourceNode(e.target);
-                var nodePath = sourceNode.getFullpath()+'?#node'
-                genro.dev.openBagNodeEditorPalette(nodePath,{name:'_devSrcInspector_',title:'Sourcenode Inspector',origin:'*S'});
+                genro.dev.openBagNodeEditorPalette(sourceNode.getFullpath(),{name:'_devSrcInspector_',title:'Sourcenode Inspector',origin:'*S'});
                 console.log('------current edit node:-------');
                 genro.publish('srcInspector_editnode',sourceNode);
                 console.log(sourceNode);
