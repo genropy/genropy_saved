@@ -100,17 +100,13 @@ class GnrCustomWebPage(object):
 
     def test_3_multiValueEditor(self,pane):
         box = pane.div(padding='10px',border='1px solid black')
-        dati = Bag()
-        dati.setItem('r_1',Bag(dict(attribute_key='name_long',attribute_value='Artisti')))
-        dati.setItem('r_2',Bag(dict(attribute_key='multidb',attribute_value=True)))
-        dati.setItem('r_2.attribute_value?wdg_dtype','B')
+        dati = Bag(dict(name_long='Artisti',multidb=True))
         pane.data('.dati',dati)
         box.div('^.dati_formattati')
         box.dataController("""
-            var dati_formattati = dati.asHtmlTable({cells:'attribute_key,attribute_value',headers:false});
+            var dati_formattati = dati.getFormattedValue();
             SET .dati_formattati = dati_formattati;
-            """,
-                    dati='^.dati')
+            """,dati='^.dati',_onStart=True)
 
 
         pane.multiValueEditor(value='^.dati')

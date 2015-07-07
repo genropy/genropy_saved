@@ -52,7 +52,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
         dojo.connect(pane,'onclick',function(e){
             if(e.altKey && e.shiftKey){
                 var sourceNode = genro.src.enclosingSourceNode(e.target);
-                genro.dev.openSrcInspector(sourceNode);
+                var nodePath = sourceNode.getFullpath()+'?#node'
+                genro.dev.openBagNodeEditorPalette(nodePath,{name:'_devSrcInspector_',title:'Sourcenode Inspector',origin:'*S'});
                 console.log('------current edit node:-------');
                 genro.publish('srcInspector_editnode',sourceNode);
                 console.log(sourceNode);
@@ -63,11 +64,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
         });
   
     },
-    openSrcInspector:function(inspectedNode){
-        this.openBagNodeEditorPalette(inspectedNode,{name:'_devSrcInspector_',title:'Sourcenode Inspector'});
-    },
 
-    openBagNodeEditorPalette:function(bagNode,kw){
+
+    openBagNodeEditorPalette:function(nodePath,kw){
         var root = genro.src.newRoot();
         var name = kw.name || '_currentBagNodeEditor_'
         genro.src.getNode()._('div', name);
@@ -76,7 +75,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         node.freeze();
         node._('PaletteBagNodeEditor','currentEditor',{'paletteCode':name,'dockTo':false,
                                         title:kw.title || 'BagNode editor',
-                                        'inspectedNode':bagNode});
+                                        'nodePath':nodePath,origin:kw.origin});
         node.unfreeze();
         
     },

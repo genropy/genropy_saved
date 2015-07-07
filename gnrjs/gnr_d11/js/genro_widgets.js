@@ -7115,7 +7115,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             var editmodifiers = savedAttrs.editable==true?'Shift':savedAttrs.editable;
             dojo.connect(widget,'onClick',function(item,treeNode){
                 if(treeNode.__eventmodifier==editmodifiers){
-                    genro.dev.openBagNodeEditorPalette(item,{name:nodeId || 'inspector_'+sourceNode.getPathId()});
+                    genro.dev.openBagNodeEditorPalette(item.getFullpath(),{name:nodeId || 'inspector_'+sourceNode.getPathId(),origin:storepath.startsWith('*S')?'*S':null});
                 }
             });
         }
