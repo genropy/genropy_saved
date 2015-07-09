@@ -160,7 +160,7 @@ class DynamicFormBagManager(BaseComponent):
                 ghost='!!Field code')
         fb.textbox(value='^.description',validate_notnull=True,validate_notnull_error='!!Required',width='100%',colspan=2,
                     ghost='!!Field description',lbl='!!Description')
-        fb.filteringSelect(value='^.data_type',values='!!T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image,GR:Graph',width='8em',lbl='!!Type')
+        fb.filteringSelect(value='^.data_type',values='T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image,GR:Graph',width='8em',lbl='!!Type')
         fb.dataController("dynamicFormHandler.onDataTypeChange(this,data_type,_reason,this.form.isNewRecord());",data_type="^.data_type")
 
         fb.checkbox(value='^.calculated',lbl='',label='!!Calculated')
