@@ -860,17 +860,24 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
         var gnrwdg = sourceNode.gnrwdg;
         gnrwdg.editNodeValue = objectPop(kw,'editNodeValue');
-        gnrwdg.origin = kw.origin;
-        gnrwdg.exclude = (objectPop(kw,'exclude') || '').split(',')
-        console.log('bbbb',gnrwdg.exclude)
-        sourceNode.attr.value = kw.value;
-        var grid = sourceNode._('quickGrid',{value:'^#WORKSPACE.value',height:kw.height || '500px',width:kw.width,_workspace:true,border:'1px solid silver',
-                                            _class:'multiValueEditor noheader',
-                                                selfsubscribe_addrow:function(kw){
+        gnrwdg.origin = objectPop(kw,'origin');
+        sourceNode.attr.exclude = objectPop(kw,'exclude');
+        sourceNode.attr.value = objectPop(kw,'value');
+        grid_kwargs = objectExtract(kw,'grid_*')
+        gnrwdg.exclude = sourceNode.currentFromDatasource(sourceNode.attr.exclude);
+
+        var container = sourceNode._('BorderContainer',objectUpdate({
+            selfsubscribe_setSource:function(source){
+                gnrwdg.setSource(source);
+            }
+        },kw));
+        var grid = container._('ContentPane',{region:'center'})._('quickGrid',objectUpdate({value:'^#WORKSPACE.value',_workspace:true,border:'1px solid silver',
+                                            _class:'multiValueEditor noheader',storeInForm:true,
+                                                selfsubscribe_addrow:function(addkw){
                                                     var addedNode = this.widget.addRows();
-                                                    addedNode._value.getNode('attribute_value').attr.wdg_dtype = kw.dtype || 'T';
+                                                    addedNode._value.getNode('attribute_value').attr.wdg_dtype = addkw.dtype || 'T';
                                                 }
-                                            });
+                                            },grid_kwargs));
         grid._('column',{name:'Key',field:'attribute_key',edit:true,width:'15em',cellStyles:'background:#BBB;color:#333;border-bottom:1px solid white;font-weight:bold;'})
         grid._('column',{name:'Value',field:'attribute_value',edit:true,width:'100%',cellStyles:'border-bottom:1px solid lightgray;'})
         var t = grid._('tools',{tools:'delrow,addrow',
@@ -879,14 +886,19 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
                                              }},
             }})
         gnrwdg.gridNode = grid.getParentNode();
-        if(kw.value){
-            gnrwdg.setSource(kw.value);
+        if(sourceNode.attr.value){
+            gnrwdg.setSource(sourceNode.attr.value);
         }
         var dc = gnrwdg.gridNode._('dataController',{script:'this._onGridChangedData(data,_triggerpars)',data:'^#WORKSPACE.value'})
         dc.getParentNode()._onGridChangedData = function(data,_triggerpars){
             gnrwdg.tempBagTrigger(data,_triggerpars)
         }
         return grid
+    },
+
+    gnrwdg_setExclude:function(value){
+        this.exclude = value;
+        this.setTempStore();
     },
 
     gnrwdg_setValue:function(value,kw,reason){
@@ -919,8 +931,7 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_setTempStore:function(){
-        var exclude = this.exclude;
-        console.log('exclude',exclude)
+        var exclude = (this.exclude || '').split(',');
         var addRow = function(where,key,value){
             if(exclude.indexOf(key)>=0){
                 return;
@@ -989,8 +1000,8 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
                 
             }
         }else if(evt=='del'){
+            k = trigger_kwargs.node._value.getItem('attribute_key');
             if(source instanceof gnr.GnrBagNode){
-                k = trigger_kwargs.node._value.getItem('attribute_key');
                 source.setAttribute(k,null);
             }else{
                 if(source instanceof gnr.GnrBag){
@@ -1024,8 +1035,12 @@ dojo.declare("gnr.widgets.BagNodeEditor", gnr.widgets.gnrwdg, {
         var nodeId = objectPop(kw, 'nodeId');
         var readOnly = objectPop(kw, 'readOnly', false);
         var showBreadcrumb = objectPop(kw, 'showBreadcrumb', true);
-        sourceNode.attr.nodeId = nodeId
-        var bc = sourceNode._('BorderContainer', {detachable:true,_class:'bagNodeEditor'});
+        console.log('nodeId',nodeId)
+        var bc = sourceNode._('BorderContainer', {detachable:true,_class:'bagNodeEditor',nodeId:nodeId,
+                                                    selfsubscribe_currentPath:function(nodePath){
+                                                        gnrwdg.setCurrentPath(nodePath);
+                                                    }
+                                                    });
         if (showBreadcrumb) {
             var bottom = bc._('ContentPane', {'region':'bottom',color:'#666',font_style:'italic'});
             bottom._('span', {'innerHTML':'Path : '});
@@ -1035,9 +1050,6 @@ dojo.declare("gnr.widgets.BagNodeEditor", gnr.widgets.gnrwdg, {
 
         var mve = box._('MultiValueEditor','mve',{origin:kw.origin,editNodeValue:true})
         gnrwdg.mveNode = mve.getParentNode();
-        sourceNode.subscribe('currentPath',function(nodePath){
-            gnrwdg.setCurrentPath(nodePath);
-        })
         return box;
     },
 

@@ -788,7 +788,7 @@ dojo.declare("gnr.GridEditor", null, {
         if(this.editorPars){
             if (sourceNode.form && sourceNode.attr.parentForm!==false){
                 sourceNode.form.registerGridEditor(sourceNode.attr.nodeId,this);
-                this.storeInForm = sourceNode.absDatapath(sourceNode.attr.storepath).indexOf(sourceNode.form.sourceNode.absDatapath(sourceNode.form.formDatapath))==0
+                this.storeInForm = sourceNode.attr.storeInForm || sourceNode.absDatapath(sourceNode.attr.storepath).indexOf(sourceNode.form.sourceNode.absDatapath(sourceNode.form.formDatapath))==0
             }
             sourceNode.subscribe('onNewDatastore',function(){
                 that.resetEditor();

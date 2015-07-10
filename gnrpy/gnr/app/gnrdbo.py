@@ -208,8 +208,9 @@ class GnrDboPackage(object):
 class TableBase(object):
     """TODO"""
     @extract_kwargs(counter=True)
-    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, user_ins=False, user_upd=False, draftField=False, invalidFields=None,invalidRelations=None,md5=False,
-                  counter=False,hierarchical=False,useProtectionTag=None,
+    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, user_ins=False, user_upd=False, 
+                  draftField=False, invalidFields=None,invalidRelations=None,md5=False,
+                  counter=None,hierarchical=None,useProtectionTag=None,
                   group='zzz', group_name='!!System',
                   multidb=None,
                   df=None,counter_kwargs=None):
