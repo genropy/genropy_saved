@@ -1429,7 +1429,7 @@ dojo.declare("gnr.GridEditor", null, {
         attr._inGridEditor = true;
         var wdgtag = fldDict.tag;
 
-        if (!wdgtag || attr.autoWdg ||  cellDataNode.attr.wdg_dtype) {
+        if (!wdgtag && (attr.autoWdg ||  cellDataNode.attr.wdg_dtype)) {
             var dt = cellDataNode.attr.wdg_dtype || convertToText(cellDataNode.getValue())[0];
             wdgtag = {'L':'NumberTextBox','I':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'}[dt] || 'Textbox';
             attr.tag = wdgtag;

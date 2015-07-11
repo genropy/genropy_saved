@@ -16,7 +16,7 @@ from gnr.app.gnrdeploy import PathResolver
 import os
 
 class ExtDbExplorer(BaseComponent):
-    py_requires='table_module_editor:TableModuleWriter'
+    py_requires='package_editor/model_editor:TableModuleWriter'
 
     @struct_method
     def extDbConnectionDialog(self,pane,title='Ext DB Connection',datapath='exdb',

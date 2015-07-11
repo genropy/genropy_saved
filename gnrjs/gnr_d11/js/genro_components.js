@@ -871,18 +871,23 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
                 gnrwdg.setSource(source);
             }
         },kw));
+        gnrwdg.containerNode = container.getParentNode();
         var grid = container._('ContentPane',{region:'center'})._('quickGrid',objectUpdate({value:'^#WORKSPACE.value',_workspace:true,border:'1px solid silver',
                                             _class:'multiValueEditor noheader',storeInForm:true,
                                                 selfsubscribe_addrow:function(addkw){
-                                                    var addedNode = this.widget.addRows();
-                                                    addedNode._value.getNode('attribute_value').attr.wdg_dtype = addkw.dtype || 'T';
+                                                    var grid = this.widget;
+                                                    setTimeout(function(){
+                                                        gnrwdg.addEditorRow(grid,addkw);
+                                                    },500)
+                                                    //
                                                 }
                                             },grid_kwargs));
-        grid._('column',{name:'Key',field:'attribute_key',edit:true,width:'15em',cellStyles:'background:#BBB;color:#333;border-bottom:1px solid white;font-weight:bold;'})
+        grid._('column',{name:'Key',field:'attribute_key',width:'15em',cellStyles:'background:#BBB;color:#333;border-bottom:1px solid white;font-weight:bold;'})
         grid._('column',{name:'Value',field:'attribute_value',edit:true,width:'100%',cellStyles:'border-bottom:1px solid lightgray;'})
         var t = grid._('tools',{tools:'delrow,addrow',
-            custom_tools:{addrow:{content_class:'iconbox add_row',ask:{title:'New Line',askOn:'Shift',
-                                                 fields:[{name:'dtype',lbl:'Datatype',values:'T:Text,B:Boolean,L:Integer,N:Decimal,D:Date,H:Time',wdg:'filteringSelect'}]
+            custom_tools:{addrow:{content_class:'iconbox add_row',ask:{title:'New Line',
+                                                 fields:[{name:'key',lbl:'Key',validate_notnull:true},
+                                                        {name:'dtype',lbl:'Datatype',values:'T:Text,B:Boolean,L:Integer,N:Decimal,D:Date,H:Time',wdg:'filteringSelect',default_value:'T'}]
                                              }},
             }})
         gnrwdg.gridNode = grid.getParentNode();
@@ -894,6 +899,21 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
             gnrwdg.tempBagTrigger(data,_triggerpars)
         }
         return grid
+    },
+
+    gnrwdg_addEditorRow:function(grid,kw){
+        var key = kw.key;
+        var dtype = kw.dtype;
+        if(!key){
+            genro.dlg.floatingMessage(this.containerNode,{messageType:'error',message:'Missing key'})
+            return;
+        }
+        if(this.exclude && this.exclude.split(',').indexOf(key)>=0){
+            genro.dlg.floatingMessage(this.containerNode,{messageType:'error',message:'You cannot add this key'})
+            return;
+        }
+        var addedNode = grid.addRows([{'attribute_key':kw.key}]);
+        addedNode._value.getNode('attribute_value').attr.wdg_dtype = kw.dtype || 'T';
     },
 
     gnrwdg_setExclude:function(value){
@@ -1035,7 +1055,6 @@ dojo.declare("gnr.widgets.BagNodeEditor", gnr.widgets.gnrwdg, {
         var nodeId = objectPop(kw, 'nodeId');
         var readOnly = objectPop(kw, 'readOnly', false);
         var showBreadcrumb = objectPop(kw, 'showBreadcrumb', true);
-        console.log('nodeId',nodeId)
         var bc = sourceNode._('BorderContainer', {detachable:true,_class:'bagNodeEditor',nodeId:nodeId,
                                                     selfsubscribe_currentPath:function(nodePath){
                                                         gnrwdg.setCurrentPath(nodePath);

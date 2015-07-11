@@ -5644,11 +5644,19 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         
         this.sourceNode.publish('onDeletedRows');
     },
-    mixin_addRows:function(counter,evt,duplicate){
+
+    mixin_addRows:function(counterOrSource,evt,duplicate){
         var addrow_kwargs = this.sourceNode.evaluateOnNode(objectExtract(this.sourceNode.attr,'addrow_*',true));
-        var counter = counter || 1;
-        var firstRow;
         var source = [];
+        counterOrSource = counterOrSource || 1;
+        if(!(counterOrSource instanceof Array)){
+            for(var i=0; i<counterOrSource; i++){
+                source.push(null);
+            }
+        }else{
+            source = counterOrSource;
+        }
+        var firstRow;
         var that = this;
         if(duplicate){
             var sel = this.selection.getSelected();
@@ -5657,19 +5665,13 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             sel.forEach(function(n){
                 row = that.rowByIndex(n);
                 objectPop(row,identifier);
-                source.push(row);
+                that.addBagRow('#id', null, that.newBagRow(row),evt)
             });
         }
-        for(var i=0;i<counter;i++){
-            if(duplicate){
-                source.forEach(function(dflt){
-                    that.addBagRow('#id', null, that.newBagRow(dflt),evt);
-                })
-            }else{
-                firstRow = firstRow || this.addBagRow('#id', addrow_kwargs.position || '*', this.newBagRow(),evt);
-            }
-            
-        }
+        var that = this;
+        source.forEach(function(dflt){
+            firstRow = firstRow || that.addBagRow('#id', addrow_kwargs.position || '*', that.newBagRow(dflt),evt);
+        });
         this.sourceNode.publish('onAddedRows');
         if(!duplicate){
             this.editBagRow(this.storebag().index(firstRow.label));

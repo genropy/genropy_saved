@@ -16,9 +16,11 @@ class GnrCustomWebPage(object):
     py_requires="""public:Public,
                    gnrcomponents/framegrid:FrameGrid,
                    gnrcomponents/formhandler:FormHandler,
-                   extdb_explorer:ExtDbExplorer,
-                   table_module_editor:TableModuleEditor"""
+                   package_editor/extdb_explorer:ExtDbExplorer,
+                   package_editor/model_editor:TableModuleEditor"""
     pageOptions={'openMenu':False,'enableZoom':False}
+    js_requires ='package_editor/package_editor'
+    css_requires ='package_editor/package_editor'
 
                 
     def windowTitle(self):
