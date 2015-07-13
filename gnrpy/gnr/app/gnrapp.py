@@ -1321,7 +1321,9 @@ class GnrApp(object):
         if not legacy_name:
             legacy_name = '%s.%s' %(tbl.split('.')[0],tbl.replace('.','_'))
         print 'legacy_name',legacy_name
-        f = sourcedb.table(legacy_name).query(columns=columns,addPkeyColumn=False).fetch()
+        q = sourcedb.table(legacy_name).query(columns=columns,addPkeyColumn=False)
+        print 
+        f = q.fetch()
         sourcedb.closeConnection()
         rows = []
         adaptLegacyRow =  getattr(destbl,'adaptLegacyRow',None)
