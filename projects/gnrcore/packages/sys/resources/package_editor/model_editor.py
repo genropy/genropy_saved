@@ -157,8 +157,8 @@ class Table(object):
 
 class TableModuleEditor(BaseComponent):
     py_requires='package_editor/model_editor:TableModuleWriter'
-    def handleSysFields(self,red):
-        sysFieldBaronNode = red.find('name','sysFields')
+    def handleSysFields(self,red=None):
+        sysFieldBaronNode = red.find('name','sysFields') if red else None
         result = Bag(SYSFIELDS_DEFAULT.items())
         if not sysFieldBaronNode:
             result['_enabled'] = False
@@ -298,7 +298,7 @@ class TableModuleEditor(BaseComponent):
         self.tablesForm(form)
 
     def tablesForm(self,form):
-        saverpc = form.store.handler('save',rpcmethod=self.saveTableModule,fullRecord=True)
+        saverpc = form.store.handler('save',rpcmethod=self.saveTableModule,fullRecord=True,package='=.record?package',project='=.record?project')
         saverpc.addCallback("genro.publish('tableModuleWritten')")
         form.store.handler('load',rpcmethod=self.loadTableModule,
                             default_project='=#FORM/parent/#FORM.record.project_name',
@@ -379,7 +379,7 @@ class TableModuleEditor(BaseComponent):
 
 
     @public_method
-    def saveTableModule(self,data=None,**kwargs):
+    def saveTableModule(self,data=None,package=None,project=None,**kwargs):
         recordNode = data.getNode('record')
         record = recordNode.value
         recInfo = recordNode.attr
@@ -387,8 +387,6 @@ class TableModuleEditor(BaseComponent):
         resultAttr = dict()
         if recInfo['_newrecord']:
             table = record['name']
-            package = recInfo['package']
-            project = recInfo['project']
         else:
             project,package,old_table = recInfo['_pkey'].split('.')
             table = record['name']
@@ -407,6 +405,7 @@ class TableModuleEditor(BaseComponent):
     def loadTableModule(self,pkey=None,default_project=None,default_package=None,**kwargs):
         if pkey=='*newrecord*':
             record = Bag()
+            record['_sysFields'] = self.handleSysFields()
             resultAttr = dict(_pkey=pkey,_newrecord=True,project=default_project,package=default_package)
             return record,resultAttr
         project,package,table = pkey.split('.')
