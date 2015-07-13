@@ -1256,7 +1256,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
 
     htmlCellContent:function(item,cell){
         var rowData = item.attr;
-        var content = cell.contentCb? funcApply(cell.contentCb,null,item):rowData[cell['field']];
+        var content = cell.contentCb? funcApply(cell.contentCb,{field:cell['field']},item):rowData[cell['field']];
         content = content || cell.emptyValue;
         var format = cell['format'];
         var dtype = cell['dtype'] || 'T';
