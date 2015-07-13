@@ -243,9 +243,9 @@ class GnrCustomWebPage(object):
         debugger_input=lastline.div(position='absolute',top='0px',left='20px',right='5px').input(value='^.command',width='100%',border='0px')
         center.dataController("""SET .output=output? output+_lf+line:line;""",line='^.output_line',output='=.output')
         center.dataController("""SET .output_line=command; 
-                                 if (command.startsWith('/')){
+                                 if (command[0]=='/'){
                                     command=command.slice(1)
-                                 }else if(!command.startsWith('!')){
+                                 }else if(command[0]!='!'){
                                      command='!'+command;
                                  }
                                  gnride.sendCommand(command);

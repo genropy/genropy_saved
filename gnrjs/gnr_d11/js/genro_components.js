@@ -1240,8 +1240,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
             cell = sn.evaluateOnNode(n.attr);
             if(!cell.hidden){
                 var size=cell.size
-                //if ((size+'').endsWith('%')){
-                if (/\%$/.test(size+'')){
+                if ( stringEndsWith((size+''),'%') ){
                     size=Math.round(maxwidth*parseInt(size)/100)
                 }
                 l.unshift('<div class="treeHeaderCell '+(cell.headerClass || '')+'" style="right:'+currx+'px;width:'+size+'px;">'+(cell.name || cell.field) +'</div>');
@@ -1286,9 +1285,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
             cell = sn.evaluateOnNode(n.attr);
             if(!cell.hidden){
                 var size=cell.size
-                //if ((size+'').endsWith('%')){
-                if (/\%$/.test(size+'')){
-
+                if ( stringEndsWith((size+''),'%') ){
                     size=Math.round(maxwidth*parseInt(size)/100)
                 }
                 var objStyle=objectUpdate(objectFromStyle(cell._style),
