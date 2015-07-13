@@ -1273,6 +1273,53 @@ class GnrApp(object):
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
         pass
 
+    def getLegacyDb(self,name=None):
+        externaldb = getattr(self,'legacy_db_%s' %name,None)
+        if not externaldb:
+            config = self.config
+            connection_params = config.getAttr('legacy_db.%s' %name)
+            externaldb = GnrSqlDb(implementation=connection_params['implementation'],
+                                dbname=connection_params['dbname'] or name,
+                                host=connection_params['host'],user=connection_params['user'],
+                                password = connection_params['password'])
+            externaldb.importModelFromDb()
+            externaldb.model.build()
+            setattr(self,'legacy_db_%s' %name,externaldb)
+        return externaldb
+
+    def importFromLegacyDb(self,packages=None,legacy_db=None):
+        if not packages:
+            packages = self.packages.keys()
+        for package in packages:
+            for table in self.db.tablesMasterIndex()[package].keys():
+                self.importTableFromLegacyDb('%s.%s' %(package,table),legacy_db=legacy_db)
+        self.db.closeConnection()
+
+    def importTableFromLegacyDb(self,tbl,legacy_db=None):
+        destbl = self.db.table(tbl)
+        legacy_db = legacy_db or destbl.attributes.get('legacy_db')
+        legacy_name =  destbl.attributes.get('legacy_name') or tbl
+        if not legacy_db:
+            return
+        sourcedb = self.getLegacyDb(legacy_db)# should be cached
+        columns = []
+        for k,c in destbl.columns.items():
+            legacy_name = c.attributes.get('legacy_name')
+            if legacy_name:
+                columns.append(" $%s AS %s " %(legacy_name,k))
+        columns = ', '.join(columns)
+        f = sourcedb.table(legacy_name).query(columns=columns,addPkeyColumn=False).fetch()
+        sourcedb.closeConnection()
+        rows = []
+        adaptLegacyRow =  getattr(destbl,'adaptLegacyRow',None)
+        for r in f:
+            r = dict(r)
+            if adaptLegacyRow:
+                adaptLegacyRow(r)
+            rows.append(r)
+        destbl.multiInsert(rows)
+        self.db.commit()
+
     def getAuxInstance(self, name=None,check=False):
         """TODO
         
