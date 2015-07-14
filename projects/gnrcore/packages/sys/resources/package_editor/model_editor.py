@@ -22,15 +22,19 @@ SYSFIELDS_DEFAULT = OrderedDict([('id',True), ('ins',True), ('upd',True),
 
 
 class TableModuleWriter(BaseComponent):
-    def bagToArglist(self,arguments):
+    def bagToArgString(self,arguments,prefix=','):
         if not arguments:
             return ''
         atlst = []
         for k,v in arguments.items():
+            if v in ('',None):
+                continue
             if isinstance(v,basestring):
                 v = ("'%s'" if not "'" in v else '"%s"') %v
+            elif isinstance(v, Bag):
+                v = "dict(%s)" %self.bagToArgString(v,prefix='')
             atlst.append("%s=%s" %(k,v))
-        return ',%s' %','.join(atlst)
+        return '%s%s' %(prefix,','.join(atlst))
 
     def get_redbaron(self,filepath):
         if os.path.exists(filepath):
@@ -56,9 +60,9 @@ class Table(object):
         table_data['caption_field'] = table_data['caption_field'] or table_data['pkey']
         sysFields = table_data.pop('_sysFields')
         columns = table_data.pop('_columns')
-        config_db_node.replace("""def config_db(self,pkg):\n         tbl =  pkg.table('%s'%s)""" %(table,self.bagToArglist(table_data)))
+        config_db_node.replace("""def config_db(self,pkg):\n         tbl =  pkg.table('%s'%s)""" %(table,self.bagToArgString(table_data)))
         if sysFields and sysFields.pop('_enabled'):
-            config_db_node.append('self.sysFields(tbl%s)' %self.bagToArglist(self._sysFieldsArguments(sysFields)))
+            config_db_node.append('self.sysFields(tbl%s)' %self.bagToArgString(self._sysFieldsArguments(sysFields)))
         for col in columns.values():
             relation = col.pop('_relation')
             s = self._columnPythonCode(col,relation)
@@ -103,17 +107,9 @@ class Table(object):
         if name_short:
             attributes.setItem('name_short', name_short,localized=True)
         attributes.update(col)
-        atlst = []
-        for k,v,localized in attributes.digest('#k,#v,#a.localized'):
-            if v in (None,''):
-                continue
-            if isinstance(v,basestring):
-                v = ("'%s'" if not "'" in v else '"%s"') %v
-            atlst.append("%s=%s" %(k,v))
         relationCode = ''
         if relation and relation['relation']:
             relationCode = '.%s' %self._relationPythonCode(relation)
-
         coltype = 'column'
         if attributes['sql_formula'] or attributes['select'] or attributes['exists']:
             coltype = 'formulaColumn'
@@ -121,9 +117,7 @@ class Table(object):
             coltype = 'aliasColumn'
         elif attributes['pymethod']:
             coltype = 'pyColumn'
-
-        return "tbl.%s('%s', %s)%s" % (coltype,name, ', '.join(atlst),relationCode)
-        
+        return "tbl.%s('%s'%s)%s" % (coltype,name, self.bagToArgString(attributes),relationCode)
 
     def _relationPythonCode(self,relation):
         relpath = relation.pop('relation')

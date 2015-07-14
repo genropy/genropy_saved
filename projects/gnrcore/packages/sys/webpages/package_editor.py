@@ -22,9 +22,6 @@ class GnrCustomWebPage(object):
     js_requires ='package_editor/package_editor'
     css_requires ='package_editor/package_editor'
 
-    def isDeveloper(self):
-        return True
-                
     def windowTitle(self):
         return '!!Package editor'
 
@@ -55,7 +52,6 @@ class GnrCustomWebPage(object):
     def makeNewProject(self,project_name=None,project_folder_code=None,language=None,base_instance_name=None,included_packages=None):
         path_resolver = PathResolver()
         base_path = path_resolver.project_repository_name_to_path(project_folder_code)
-
         project_maker = ProjectMaker(project_name, base_path=base_path)
         project_maker.do()
         packages = included_packages.split(',') if included_packages else []
@@ -90,23 +86,9 @@ class GnrCustomWebPage(object):
                 b.toXml(configpath,typevalue=False,pretty=True)
         return package_name
 
-    @public_method
-    def applyPackageChanges(self,project=None,instance=None,package=None,tables=None,connection_params=None,**kwargs):
-        path_resolver = PathResolver()
-        project_path = path_resolver.project_name_to_path(project)
-        if tables and not tables.isEmpty():
-            for table_data in tables.values():
-                filepath = os.path.join(project_path,'packages',package,'model','%s.py' %table_data['name'])
-                self.makeOneTable(filepath,table_data)
-        if instance:
-            self.extdb_importFromExtDb(connection_params=connection_params,instance=instance,package=package)
-        else:
-            app = self.getFakeApplication(project,package)
-        ThPackageResourceMaker(app,package=package,menu=True).makeResources()
-        return 'ok'
 
     def packageForm(self,form):
-        bar = form.top.slotToolbar('2,fbinfo,10,extdbcon,10,*')
+        bar = form.top.slotToolbar('2,fbinfo,10,extdbcon,*,instanceActions,10')
         fb = bar.fbinfo.formbuilder(cols=5,border_spacing='3px',datapath='.record')
         fb.textbox(value='^.project_name',validate_onAccept='SET .package_name=null;',validate_onReject='SET .package_name = null;',
                     validate_notnull=True,
@@ -126,8 +108,6 @@ class GnrCustomWebPage(object):
                         ]),included_packages='gnrcore:sys,gnrcore:adm',language='EN',project_name='=.project_name')
         fb.filteringSelect(value='^.package_name',lbl='Package',validate_notnull=True,
                     values='^.packages',width='7em')
-
-        
         fb.button('New Package',action="""
             genro.publish('makeNewPackage',{package_name:package_name,project_name:project_name,
                                             is_main_package:is_main_package,name_long:name_long});
@@ -141,6 +121,8 @@ class GnrCustomWebPage(object):
         fb.dataRpc('dummy',self.makeNewPackage,subscribe_makeNewPackage=True,
                     _onResult="""PUT .project_name=null; PUT .package_name=null; 
                                 SET .project_name=kwargs.project_name;""")
+
+
         bar.extdbcon.slotButton('External Db',
                         action="""
                         genro.publish('openDbConnectionDialog',{project:project,package:package,instance:instance})
@@ -148,10 +130,38 @@ class GnrCustomWebPage(object):
                         instance='^.record.instance_name',
                         tables='=.record.tables',
                         hidden='==!package || !project || !instance')
+        m = bar.instanceActions.dropDownButton('!!Tools',
+                                                hidden='^.record.instance_name?=!#v').menu(_class='smallMenu',action='FIRE .instanceAction = $1.code;')
+        m.menuLine('DB Setup',code='dbsetup')
+        m.menuLine('Make Resources',code='make_resources',disabled='^.record.package_name?!=#v')
+        m.menuLine('Import Legacy',code='import_legacy')
+        bar.dataRpc('dummy',self.applyOnInstance,instance='=.record.instance_name',package='=.record.package_name',_if='instance',
+                        _lockScreen=True,action='^.instanceAction')
         bc =form.center.borderContainer()
         self.tablesModulesEditor(bc.contentPane(region='top',height='200px',splitter=True),storepath='#FORM.record.tables',
                                 project='=.record.project_name',package='^.record.package_name')
         self.modelSource(bc.contentPane(region='center',border_top='1px solid silver',overflow='hidden'))
+
+    @public_method
+    def dbSetupOnInstance(self,instance=None):
+        app = GnrApp(instance)
+        destdb = app.db
+        if destdb.model.check():
+            destdb.model.applyModelChanges()
+
+    @public_method
+    def applyOnInstance(self,instance=None,action=None,package=None):
+        app = GnrApp(instance)
+        if action in ('dbsetup','import_legacy'):
+            destdb = app.db
+            if destdb.model.check():
+                destdb.model.applyModelChanges()
+            if action =='import_legacy':
+                app.importFromLegacyDb()
+        elif action=='make_resources':
+            ThPackageResourceMaker(app,package=package,menu=True).makeResources()
+
+
 
     def modelSource(self,pane):
         pane.codeEditor(value='^#FORM.currenModelModule')
@@ -165,7 +175,6 @@ class GnrCustomWebPage(object):
         r.cell('name_plural',width='20em',name='Name plural')
         r.cell('caption_field',width='20em',name='Caption field')
         r.cell('status',width='20em',name='Import status')
-
 
     def getFakeApplication(self,project,package):
         custom_config = Bag()

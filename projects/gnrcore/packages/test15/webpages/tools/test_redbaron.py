@@ -19,10 +19,11 @@ class GnrCustomWebPage(object):
         fb.dataRpc('.result',self.redBaronIndex,httpMethod='WSK',module='^.module')
         fb.div('^.result')
 
-    @public_method
+
+    @public_method()
     def redBaronIndex(self,module=None):
-        print 'module',module
-        status = getattr(self,'_mystatus',None) or []
-        status.append(module)
+        with self.lock:
+            status = getattr(self,'_mystatus',None) or []
+            status.append(module)
         self._mystatus = status
         return '<br/>'.join(status)

@@ -1972,7 +1972,6 @@ dojo.declare("gnr.widgets.Menuline", gnr.widgets.baseDojo, {
         }
     },
 
-
     mixin_setChecked: function(val, kw) {
         if (val) {
             dojo.addClass(this.iconNode, 'tick_icon10');

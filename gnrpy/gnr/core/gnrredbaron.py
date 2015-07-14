@@ -30,26 +30,34 @@ from gnr.core.gnrbag import Bag
 
 class GnrRedBaron(object):
     """docstring for GnrRedBaron"""
+    child_types = {'class':True}
+
     def __init__(self, module=None):
         self.module = module
         if not RedBaron:
             raise Exception('Missing redbaron')
         with open(module,'r') as f:
             self.redbaron = RedBaron(f.read())
-    def toTree(self):
+
+    def toTreeBag(self,node=None):
+        node = node or self.redbaron
+        result = Bag()
+        for n in node:
+            if n.type in self.child_types:
+                result.setItem(n.name,self.toTreeBag(),caption=n.name,_type=n.type,source=n.dumps())
+
+
+
+
+
+    def moduleToTree(self,module):
         pass
 
+    def getModuleElement(self,module,element=None):
+        pass
 
-
-
-def moduleToTree(self,module):
-    pass
-
-def getModuleElement(self,module,element=None):
-    pass
-
-def saveModuleElement(self,module,element=None):
-    pass
+    def saveModuleElement(self,module,element=None):
+        pass
 
 
 if __name__ == '__main__':

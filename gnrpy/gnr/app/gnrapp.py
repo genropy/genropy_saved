@@ -1279,7 +1279,7 @@ class GnrApp(object):
             config = self.config
             connection_params = config.getAttr('legacy_db.%s' %name)
             externaldb = GnrSqlDb(implementation=connection_params.get('implementation'),
-                                dbname=connection_params.get('dbname') or name,
+                                dbname=connection_params.get('dbname') or connection_params.get('filename') or name,
                                 host=connection_params.get('host'),user=connection_params.get('user'),
                                 password = connection_params.get('password'))
             externaldb.importModelFromDb()
@@ -1332,7 +1332,7 @@ class GnrApp(object):
             if adaptLegacyRow:
                 adaptLegacyRow(r)
             rows.append(r)
-        destbl.multiInsert(rows)
+        destbl.insertMany(rows)
         self.db.commit()
         print 'imported',tbl
 
