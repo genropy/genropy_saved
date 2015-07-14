@@ -12,6 +12,7 @@ from time import time
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrredbaron import GnrRedBaron
 
 class GnrWebDeveloper(GnrBaseProxy):
     def init(self, **kwargs):
@@ -146,6 +147,24 @@ class GnrWebDeveloper(GnrBaseProxy):
     logfile = property(_get_logfile)
 
 
+    @public_method
+    def loadModuleTree(self,module=None):
+        return GnrRedBaron(module)
+
+    @public_method
+    def loadModuleSource(self,module=None):
+        if os.path.exists(module):
+            with open(module,'r') as f:
+                return f.read()
+
+   # @public_method
+   # def loadModuleElement(self,module=None,element=None):
+   #     return GnrRedBaron(module,element=element)
+#
+   # @public_method
+   # def saveModuleElement(self,module=None,element=None):
+   #     return GnrRedBaron(module,element=element)
+#
 class GnrSqlDebugger(object):
     def __init__(self,parent):
         self.parent = parent

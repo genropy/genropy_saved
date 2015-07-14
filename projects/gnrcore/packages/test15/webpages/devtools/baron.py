@@ -31,3 +31,44 @@ class GnrCustomWebPage(object):
         result.fromJson(red.fst())
         return result
             
+
+
+    def baronToBag(self,fred,formatting=False):
+        if isinstance(fred,dict):
+            fred = dict(fred)
+            value = fred.pop('value',None)
+            t = fred.pop('type')
+            if not formatting:
+                fred = dict([(k,v) for k,v in fred.items() if not k.endswith('_formatting')])
+            value = getattr(self,'baronToBag_%s' %t,self.baronToBag_default)(value,fred)
+            return (t,value,fred)
+        elif isinstance(fred,list):
+            result = Bag()
+            for f in fred:
+                label,value,attrs = self.baronToBag(f,formatting=formatting)
+                if isinstance(value,tuple):
+                    l,v,a = value
+                    value = Bag()   
+                    value.setItem(l,v,**a)                 
+                result.addItem(label,value,**attrs)
+            return result
+        else:
+            return fred
+
+    def baronToBag_default(self,value,attributes):
+        return self.baronToBag(value)
+
+    def baronToBag_call(self,value,attributes):
+        args = []
+        kwargs = dict()
+        for v in value:
+            if v['type'] =='call_argument':
+                target,value = v['target'].get('value'),v['value']['value']
+                if not target:
+                    args.append(value)
+                else:
+                    kwargs[target] = value
+        attributes['args'] = args
+        attributes['kwargs'] = kwargs
+
+

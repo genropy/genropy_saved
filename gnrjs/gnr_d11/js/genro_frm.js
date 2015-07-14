@@ -104,7 +104,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var pref = tblname?tblname+' record':'Record'
         this.msg_saved = pref +' saved ';
         this.msg_deleted = pref +' deleted';
-        this.table_name = tblname;
+        this.table_name = tblname || formId;
 
         this.msg_unsaved_changes ="Current record has been modified.";
         this.msg_confirm_delete ="You are going to delete the current record.";
@@ -1195,8 +1195,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     hasChanges: function() {
         return this.getControllerData('changed'); 
     },
-    getFormChanges: function() {
-        var data = this._getRecordCluster(this.getFormData(), true);
+    getFormChanges: function(fullRecord) {
+        var data = this._getRecordCluster(this.getFormData(), !fullRecord);
         for(var k in this.gridEditors){
             var ge = this.gridEditors[k];
             if(!ge.storeInForm){
@@ -2283,6 +2283,7 @@ dojo.declare("gnr.formstores.Base", null, {
         var destPkey = objectPop(saveKw,'destPkey');
         var kw = form.sourceNode.evaluateOnNode(this.handlers.save.kw);
         objectUpdate(kw,saveKw);
+        var fullRecord = objectPop(kw,'fullRecord');
         var onSaving = objectPop(kw,'onSaving');
         kw['_sourceNode'] = form.sourceNode;
         kw['_autoreload'] = kw['_autoreload'] || false;
@@ -2296,8 +2297,7 @@ dojo.declare("gnr.formstores.Base", null, {
 
         //kw._autoreload = null;
         var autoreload =kw._autoreload;
-        var data = form.getFormChanges();
-
+        var data = form.getFormChanges(fullRecord);
         var cb = function(result){
             var resultDict={};
             if (result){

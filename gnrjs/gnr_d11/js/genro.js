@@ -1264,6 +1264,17 @@ dojo.declare('gnr.GenroClient', null, {
         }
 
     },
+
+    getItem:function(path){
+        if(path.startsWith('*S')){
+            return genro.src._main.getItem(path.slice(3));
+        }else if(path.startsWith('*D')){
+            path = path.slice(3);
+        }
+        return genro._data.getItem(path);
+    },
+
+    
     getDataNode: function(path, autocreate, dflt) {
         /*
          This method returns the databag node at passed path.
@@ -1277,7 +1288,7 @@ dojo.declare('gnr.GenroClient', null, {
                     return genro.src.getNode(path.slice(3));
                 }
                 if (stringStartsWith(path, '*D')) {
-                    path = path.slice(2);
+                    path = path.slice(3);
                 }
                 if (path) {
                     return this._data.getNode(path, false, autocreate, dflt);
@@ -1288,6 +1299,7 @@ dojo.declare('gnr.GenroClient', null, {
             }
         }
     },
+
     getDataAttr:function(path, attr, dflt) {
         /*
          This method returns an attribute at given path from the databag

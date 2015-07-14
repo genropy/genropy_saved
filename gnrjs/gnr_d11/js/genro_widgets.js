@@ -1812,6 +1812,9 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         dojo.connect(widget,'maximize',function(){
             this.resize({'t':'0','l':'0'});
         });
+        dojo.connect(sourceNode,'_onDeleting',function(){
+            widget.destroyRecursive();
+        });
     },
     patch_close:function(cb){
         this.saveRect();
@@ -1968,7 +1971,6 @@ dojo.declare("gnr.widgets.Menuline", gnr.widgets.baseDojo, {
             widget.focusNode.setAttribute('draggable',true);
         }
     },
-
 
     mixin_setChecked: function(val, kw) {
         if (val) {
@@ -3086,7 +3088,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         if (!sourceNode.dropTarget && objectNotEmpty(sourceNode.dropModes)) {
             sourceNode.dropTarget = true;
         }
-        var attributesToKeep = 'autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure,'; //continue
+        var attributesToKeep = '_class,autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure,'; //continue
         var styleDict=genro.dom.getStyleDict(attributes);
         if (styleDict.width=='auto'){
             delete styleDict.width;
@@ -5641,11 +5643,19 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         
         this.sourceNode.publish('onDeletedRows');
     },
-    mixin_addRows:function(counter,evt,duplicate){
+
+    mixin_addRows:function(counterOrSource,evt,duplicate){
         var addrow_kwargs = this.sourceNode.evaluateOnNode(objectExtract(this.sourceNode.attr,'addrow_*',true));
-        var counter = counter || 1;
-        var firstRow;
         var source = [];
+        counterOrSource = counterOrSource || 1;
+        if(!(counterOrSource instanceof Array)){
+            for(var i=0; i<counterOrSource; i++){
+                source.push(null);
+            }
+        }else{
+            source = counterOrSource;
+        }
+        var firstRow;
         var that = this;
         if(duplicate){
             var sel = this.selection.getSelected();
@@ -5654,24 +5664,18 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             sel.forEach(function(n){
                 row = that.rowByIndex(n);
                 objectPop(row,identifier);
-                source.push(row);
+                that.addBagRow('#id', null, that.newBagRow(row),evt)
             });
         }
-        for(var i=0;i<counter;i++){
-            if(duplicate){
-                source.forEach(function(dflt){
-                    that.addBagRow('#id', null, that.newBagRow(dflt),evt);
-                })
-            }else{
-                firstRow = firstRow || this.addBagRow('#id', addrow_kwargs.position || '*', this.newBagRow(),evt);
-            }
-            
-        }
+        var that = this;
+        source.forEach(function(dflt){
+            firstRow = firstRow || that.addBagRow('#id', addrow_kwargs.position || '*', that.newBagRow(dflt),evt);
+        });
         this.sourceNode.publish('onAddedRows');
         if(!duplicate){
             this.editBagRow(this.storebag().index(firstRow.label));
         }
-
+        return firstRow;
     },
 
     mixin_batchUpdating: function(state) {
@@ -7021,9 +7025,17 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                     return;
                 }
                 if (node.attr) {
+                    var checked = 'checked' in node.attr? node.attr.checked : node.getInheritedAttributes()['checked'];
+                    if(checked=='disabled:on'){
+                        return 'checkboxOn dimmed';
+                    }else if(checked=='disabled:off'){
+                        return 'checkboxOff dimmed';
+                    }
+
                     if (!('checked' in node.attr)) {
                         node.attr.checked = this.tree.checkBoxCalcStatus(node);
-                    }
+                    } 
+                    
                     return (node.attr.checked == -1) ? "checkboxOnOff" : node.attr.checked ? "checkboxOn" : "checkboxOff";
                 }
             };
@@ -7036,7 +7048,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             sourceNode.registerDynAttr('selectedPath');
         }
         var tooltipAttrs = objectExtract(attributes, 'tooltip_*');
-        var savedAttrs = objectExtract(attributes, 'inspect,autoCollapse,onChecked');
+        var savedAttrs = objectExtract(attributes, 'inspect,autoCollapse,onChecked,editable');
         if (objectNotEmpty(tooltipAttrs)) {
             savedAttrs['tooltipAttrs'] = tooltipAttrs;
         }
@@ -7100,6 +7112,16 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             });
         }
         var nodeId = sourceNode.attr.nodeId;
+        if(savedAttrs.editable){
+            var editmodifiers = savedAttrs.editable==true?'Shift':savedAttrs.editable;
+            dojo.connect(widget,'onClick',function(item,treeNode){
+                if(treeNode.__eventmodifier==editmodifiers){
+                    var origin=storepath.startsWith('*S')?'*S':null;
+                    genro.dev.openBagNodeEditorPalette(item.getFullpath(null,origin!='*S'?genro._data:null),{name:nodeId || 'inspector_'+sourceNode.getPathId(),origin:origin});
+                }
+            });
+        }
+        
         if(nodeId){
             var searchBoxCode = (sourceNode.attr.frameCode || nodeId)+'_searchbox';
             var searchBoxNode = genro.nodeById(searchBoxCode);
@@ -7108,18 +7130,18 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                     this.applyFilter(v);
                 });
             }
-            var editBagBoxNode = genro.nodeById(nodeId+'_editbagbox_grid');
-            if (editBagBoxNode){
-                dojo.connect(widget,'_updateSelect',function(item,node){
-                    if(!(item instanceof gnr.GnrBagNode)){
-                        if(item===null){
-                            return;
-                        }
-                        item = node.getParent().item;
-                    }
-                    genro.publish(nodeId+'_editbagbox_editnode',item);
-                });
-            }
+           //var editBagBoxNode = genro.nodeById(nodeId+'_editbagbox');
+           //if (editBagBoxNode){
+           //    dojo.connect(widget,'_updateSelect',function(item,node){
+           //        if(!(item instanceof gnr.GnrBagNode)){
+           //            if(item===null){
+           //                return;
+           //            }
+           //            item = node.getParent().item;
+           //        }
+           //        editBagBoxNode.gnrwdg.setCurrentNode(item);
+           //    });
+           //}
         }
     },
 
@@ -7247,10 +7269,16 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
     },
 
     mixin_clickOnCheckbox:function(bagnode, e) {
+        if(bagnode.attr.checked=='disabled:on' || bagnode.attr.checked=='disabled:off'){
+            return;
+        }
         var checked = bagnode.attr.checked ? false : true;
         var walkmode = this.sourceNode.attr.eagerCheck ? null : 'static';
         var updBranchCheckedStatus = function(bag) {
             bag.forEach(function(n) {
+                if(n.attr.checked == 'disabled:on' || n.attr.checked=='disabled:off'){
+                    return
+                }
                 var v = n.getValue(walkmode);
                 if ((v instanceof gnr.GnrBag) && v.len()) {
                     updBranchCheckedStatus(v);

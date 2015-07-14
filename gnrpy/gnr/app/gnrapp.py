@@ -1273,6 +1273,69 @@ class GnrApp(object):
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
         pass
 
+    def getLegacyDb(self,name=None):
+        externaldb = getattr(self,'legacy_db_%s' %name,None)
+        if not externaldb:
+            config = self.config
+            connection_params = config.getAttr('legacy_db.%s' %name)
+            externaldb = GnrSqlDb(implementation=connection_params.get('implementation'),
+                                dbname=connection_params.get('dbname') or connection_params.get('filename') or name,
+                                host=connection_params.get('host'),user=connection_params.get('user'),
+                                password = connection_params.get('password'))
+            externaldb.importModelFromDb()
+            externaldb.model.build()
+            setattr(self,'legacy_db_%s' %name,externaldb)
+            print 'got externaldb',name
+        return externaldb
+
+    def importFromLegacyDb(self,packages=None,legacy_db=None):
+        if not packages:
+            packages = self.packages.keys()
+        else:
+            packages = packages.split(',')
+        for package in packages:
+            print 'PACKAGE',package
+            for table in self.db.tablesMasterIndex()[package].keys():
+                print 'table',table
+                print 'package',package
+                self.importTableFromLegacyDb('%s.%s' %(package,table),legacy_db=legacy_db)
+        self.db.closeConnection()
+
+    def importTableFromLegacyDb(self,tbl,legacy_db=None):
+        destbl = self.db.table(tbl)
+        if destbl.query().count():
+            print 'do not import again',tbl
+            return
+        legacy_db = legacy_db or destbl.attributes.get('legacy_db')
+        if not legacy_db:
+            return
+
+        sourcedb = self.getLegacyDb(legacy_db)# should be cached
+        columns = []
+        for k,c in destbl.columns.items():
+            legacy_name = c.attributes.get('legacy_name')
+            if legacy_name:
+                columns.append(" $%s AS %s " %(legacy_name,k))
+        columns = ', '.join(columns)
+        legacy_name =  destbl.attributes.get('legacy_name')
+        if not legacy_name:
+            legacy_name = '%s.%s' %(tbl.split('.')[0],tbl.replace('.','_'))
+        print 'legacy_name',legacy_name
+        q = sourcedb.table(legacy_name).query(columns=columns,addPkeyColumn=False)
+        print 
+        f = q.fetch()
+        sourcedb.closeConnection()
+        rows = []
+        adaptLegacyRow =  getattr(destbl,'adaptLegacyRow',None)
+        for r in f:
+            r = dict(r)
+            if adaptLegacyRow:
+                adaptLegacyRow(r)
+            rows.append(r)
+        destbl.insertMany(rows)
+        self.db.commit()
+        print 'imported',tbl
+
     def getAuxInstance(self, name=None,check=False):
         """TODO
         
