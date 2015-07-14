@@ -284,6 +284,7 @@ class TableModuleEditor(BaseComponent):
                                                 struct=self.tables_struct,
                                                 grid_multiSelect=False,
                                                 pbl_classes=True,margin='2px',
+                                                grid_selected__modulepath='#FORM.currenModelModule',
                                                 addrow=True,delrow=True)
         pane.dataRpc(storepath,self.table_editor_loadPackageTables,package=package,project=project,
                 _if='project&&package',_else='return new gnr.GnrBag();',
@@ -445,12 +446,14 @@ class TableModuleEditor(BaseComponent):
             tablename,ext = os.path.splitext(m)
             if ext!='.py':
                 continue
-            red = self.get_redbaron(os.path.join(models_path,m))
+            modulepath = os.path.join(models_path,m)
+            red = self.get_redbaron(modulepath)
             config_db = red.find('def','config_db')
             targs,tkwargs = self.parsBaronNodeCall(config_db.find('name','table').parent[2])
             tablevalue = Bag(tkwargs)
             tablevalue['name'] = tablename
             tablevalue['_pkey'] = '%s.%s.%s' %(project,package,tablename)
+            tablevalue['_modulepath'] = modulepath
             result[tablename] = tablevalue
         return result
 

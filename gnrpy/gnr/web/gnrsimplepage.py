@@ -26,6 +26,7 @@ from time import time
 from gnr.core.gnrstring import boolean
 from gnr.web.gnrwebpage import GnrWebPage
 from gnr.web.gnrwebpage_proxy.connection import GnrWebConnection
+from threading import RLock,thread
 
 class GnrSimplePage(GnrWebPage):
     
@@ -71,8 +72,24 @@ class GnrSimplePage(GnrWebPage):
         self._workdate = self.page_item['data']['rootenv.workdate'] #or datetime.date.today()
         self._language = self.page_item['data']['rootenv.language']
         self._inited = True
+        self._sharedObjects = dict()
+        self._sharedLock = dict()
+        self._privateObjects = dict()
 
+    def sharedObject(self,name):
+        pass
 
+    def privateObject(self,name):
+        pass
+
+    @property
+    def tempDict(self):
+        """property currentPage it returns the page currently used in this thread"""
+        return self._currentPages.get(thread.get_ident())
+        
+    def _set_tempDict(self, page):
+        """set currentPage for this thread"""
+        self._currentPages[thread.get_ident()] = page
     
     def _check_page_id(self, page_id=None, kwargs=None):
         page_item = self.site.register.page(page_id,include_data='lazy')

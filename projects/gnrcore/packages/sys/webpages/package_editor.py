@@ -22,6 +22,8 @@ class GnrCustomWebPage(object):
     js_requires ='package_editor/package_editor'
     css_requires ='package_editor/package_editor'
 
+    def isDeveloper(self):
+        return True
                 
     def windowTitle(self):
         return '!!Package editor'
@@ -149,8 +151,10 @@ class GnrCustomWebPage(object):
         bc =form.center.borderContainer()
         self.tablesModulesEditor(bc.contentPane(region='top',height='200px',splitter=True),storepath='#FORM.record.tables',
                                 project='=.record.project_name',package='^.record.package_name')
-        bc.contentPane(region='center',overflow='hidden')
+        self.modelSource(bc.contentPane(region='center',border_top='1px solid silver',overflow='hidden'))
 
+    def modelSource(self,pane):
+        pane.codeEditor(value='^#FORM.currenModelModule')
 
     def tables_struct(self,struct):
         r = struct.view().rows()
