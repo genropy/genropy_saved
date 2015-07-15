@@ -158,7 +158,8 @@ class ExtDbExplorer(BaseComponent):
                 table_data['name'] = tablename
                 table_data['legacy_name'] = firstColAttr.get('table_fullname')
                 table_data['legacy_db'] = legacydb
-                table_data['pkey'] = firstColAttr.get('table_pkey').lower()
+                pkey = firstColAttr.get('table_pkey')
+                table_data['pkey'] = firstColAttr.get('table_pkey').lower() if pkey else None
                 columns_bag = Bag()
                 table_data['_columns'] = columns_bag
                 for colattr in columns.digest('#a'):
