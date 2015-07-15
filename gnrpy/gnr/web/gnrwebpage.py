@@ -2193,16 +2193,19 @@ class GnrWebPage(GnrBaseWebPage):
         bag.pickle('%s.pik' % freeze_path)
         return LazyBagResolver(resolverName=name, location=location, _page=self, sourceBag=bag)
         
+
+    def log(self, msg, mode=None):
+        mode = mode or 'log'
+        if self.site.websockets:
+            self.site.wsk.publishToClient(self.page_id,'gnrServerLog',{'msg':msg,'mode':mode})
+        else:
+            print '%s:%s - %s:%s' %(self.pagename,self.page_id,mode,msg)
+
     ##### BEGIN: DEPRECATED METHODS ###
     @deprecated
     @property
     def config(self):
         return self.site.config
-        
-    @deprecated
-    def log(self, msg):
-        """.. warning:: deprecated since version 0.7"""
-        self.dev.log(msg)
         
     ##### END: DEPRECATED METHODS #####
 

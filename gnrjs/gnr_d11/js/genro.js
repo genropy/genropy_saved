@@ -56,6 +56,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.startArgs = kwargs.startArgs || {};
         this.debuglevel = kwargs.startArgs.debug || null;
         this.debug_sql = kwargs.startArgs.debug_sql;
+        dojo.subscribe('gnrServerLog', this, 'serverLog');
         //this.debug_py = kwargs.startArgs.debug_py;
         this.websockets_url=kwargs.startArgs.websockets_url;
         this.pageMode = kwargs.pageMode;
@@ -310,6 +311,13 @@ dojo.declare('gnr.GenroClient', null, {
             }
             genro.currProfilers = {nc:0,st:0,sqlt:0,sqlc:0};
         },15000);
+    },
+
+    serverLog:function(data){
+        var mode = data.getItem('mode') || 'log';
+        if(mode=='log' || mode=='error' || mode=='warn'){
+            console[mode]('*SERVER* >>'+data.getItem('msg'));
+        }
     },
     
     execUserInfoCb:function(){

@@ -130,23 +130,6 @@ class GnrWebDeveloper(GnrBaseProxy):
                 indexbag.setItem('records.%s.%s' %(movercode,n.label),None,pkey=n.attr['pkey'],caption=n.attr.get('caption')) 
         indexbag.toXml(indexpath,autocreate=True)
         
-    def log(self, msg):
-        if self.debug:
-            f = file(self.logfile, 'a')
-            f.write('%s -- %s\n' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), msg))
-            f.close()
-
-    def _get_logfile(self):
-        if not hasattr(self, '_logfile'):
-            logdir = os.path.normpath(os.path.join(self.page.site.site_path, 'data', 'logs'))
-            if not os.path.isdir(logdir):
-                os.makedirs(logdir)
-            self._logfile = os.path.join(logdir, 'error_%s.log' % datetime.date.today().strftime('%Y%m%d'))
-        return self._logfile
-
-    logfile = property(_get_logfile)
-
-
     @public_method
     def loadModuleTree(self,module=None):
         return GnrRedBaron(module)
