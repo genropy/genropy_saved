@@ -74,10 +74,13 @@ class GnrSimplePage(GnrWebPage):
         self._language = self.page_item['data']['rootenv.language']
         self._inited = True
         self._shareds = dict()
+        self._shareds_locks = dict()
         self._privates = defaultdict(dict)
 
     def sharedObject(self,name):
-        pass
+        if not name in self._shareds_locks:
+            self._shareds_locks[name] = RLock()
+            
 
     @property
     def privateData(self):
