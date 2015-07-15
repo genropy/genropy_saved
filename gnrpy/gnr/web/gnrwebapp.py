@@ -191,8 +191,6 @@ class GnrWsgiWebApp(GnrApp):
                     else:
                         attributes['file'] = self.site.home_uri + filepath.lstrip('/')
             result.setItem(node.label, value, attributes)
-        if len(result) == 1:
-            result = result['#0']
         return result
 
 
