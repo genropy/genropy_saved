@@ -22,12 +22,30 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+import thread
+
 from time import time
 from gnr.core.gnrstring import boolean
 from gnr.web.gnrwebpage import GnrWebPage
 from gnr.web.gnrwebpage_proxy.connection import GnrWebConnection
-from threading import RLock,thread
+from threading import RLock
+
 from collections import defaultdict
+
+class SharedLockedObject(object):
+    """docstring for SharedLockedObject"""
+    
+    def __init__(self, factory=None):
+        self.lock = RLock()
+        self.data = factory()
+
+    def __enter__(self):
+        self.lock.acquire()
+        return self.data
+        
+    def __exit__(self, exception_type, value, traceback):
+        self.lock.release()
+
 
 class GnrSimplePage(GnrWebPage):
     
@@ -74,17 +92,15 @@ class GnrSimplePage(GnrWebPage):
         self._language = self.page_item['data']['rootenv.language']
         self._inited = True
         self._shareds = dict()
-        self._shareds_locks = dict()
         self._privates = defaultdict(dict)
 
-    def sharedObject(self,name):
-        if not name in self._shareds_locks:
-            self._shareds_locks[name] = RLock()
-            
+    def sharedData(self,name,factory=dict):
+        if not name in self._shareds:
+            self._shareds[name] = SharedLockedObject(factory)
+        return self._shareds[name]
 
     @property
     def privateData(self):
-        """property currentPage it returns the page currently used in this thread"""
         return self._privates[thread.get_ident()]
         
     def _check_page_id(self, page_id=None, kwargs=None):

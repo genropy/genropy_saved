@@ -7,6 +7,8 @@
 """RedBaron"""
 
 from gnr.core.gnrdecorator import public_method
+from time import sleep
+from random import randint
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerBase"
     
@@ -15,15 +17,24 @@ class GnrCustomWebPage(object):
         
     def test_1_redbaron(self,pane):
         fb = pane.formbuilder(cols=1,border_spacing='3px')
-        fb.textbox(value='^.module',lbl='Module')
-        fb.dataRpc('.result',self.redBaronIndex,httpMethod='WSK',module='^.module')
+        fb.numberTextBox(value='^.module',lbl='Module')
+        fb.button('ADD',action="""var current = (current || 0)+1;
+                                SET .module = current;
+                                SET .current = current""",current='=.current')
+        fb.dataRpc('.result',self.redBaronIndex,httpMethod='WSK',module='^.module',
+                    _onCalling='SET .module=null',_if='module')
         fb.div('^.result')
 
 
-    @public_method()
+    @public_method
     def redBaronIndex(self,module=None):
-        with self.lock:
-            status = getattr(self,'_mystatus',None) or []
-            status.append(module)
-        self._mystatus = status
-        return '<br/>'.join(status)
+        with self.sharedData('status',list) as shared:
+            s = randint(0,5)
+            if module=='*':
+                shared[:] = []
+            else:
+                txt = 'SET %s . Waited %s' %(module,s)
+                print 'txt',txt,'module',module,'s',s
+                shared.append(txt) 
+            sleep(s)
+            return '<br/>'.join(shared)
