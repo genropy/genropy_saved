@@ -1293,12 +1293,12 @@ class GnrApp(object):
             packages = self.packages.keys()
         else:
             packages = packages.split(',')
-        for package in packages:
-            print 'PACKAGE',package
-            for table in self.db.tablesMasterIndex()[package].keys():
-                print 'table',table
-                print 'package',package
-                self.importTableFromLegacyDb('%s.%s' %(package,table),legacy_db=legacy_db)
+        for table in self.db.tablesMasterIndex()['_index_'].digest('#a.tbl'):
+            pkg,tablename = table.split('.')
+            if pkg in packages:
+                print 'sto per importare',table
+                self.importTableFromLegacyDb(table,legacy_db=legacy_db)
+        self.db.commit()
         self.db.closeConnection()
 
     def importTableFromLegacyDb(self,tbl,legacy_db=None):
@@ -1310,19 +1310,28 @@ class GnrApp(object):
         if not legacy_db:
             return
 
-        sourcedb = self.getLegacyDb(legacy_db)# should be cached
-        columns = []
-        for k,c in destbl.columns.items():
-            legacy_name = c.attributes.get('legacy_name')
-            if legacy_name:
-                columns.append(" $%s AS %s " %(legacy_name,k))
-        columns = ', '.join(columns)
-        legacy_name =  destbl.attributes.get('legacy_name')
-        if not legacy_name:
-            legacy_name = '%s.%s' %(tbl.split('.')[0],tbl.replace('.','_'))
-        print 'legacy_name',legacy_name
-        q = sourcedb.table(legacy_name).query(columns=columns,addPkeyColumn=False)
-        print 
+        sourcedb = self.getLegacyDb(legacy_db)
+        table_legacy_name =  destbl.attributes.get('legacy_name')
+        columns = None
+        if not table_legacy_name:
+            table_legacy_name = '%s.%s' %(tbl.split('.')[0],tbl.replace('.','_'))
+        else:
+            columns = []
+            for k,c in destbl.columns.items():
+                colummn_legacy_name = c.attributes.get('legacy_name')
+                if colummn_legacy_name:
+                    columns.append(" $%s AS %s " %(colummn_legacy_name,k))
+            columns = ', '.join(columns)
+        columns = columns or '*'
+        print 'table legacy_name',table_legacy_name
+        oldtbl = None
+        try:
+            oldtbl = sourcedb.table(table_legacy_name)
+        except Exception:
+            print 'missing table in legacy',table_legacy_name
+        if not oldtbl:
+            return
+        q = oldtbl.query(columns=columns,addPkeyColumn=False,bagFields=True)
         f = q.fetch()
         sourcedb.closeConnection()
         rows = []
@@ -1332,8 +1341,8 @@ class GnrApp(object):
             if adaptLegacyRow:
                 adaptLegacyRow(r)
             rows.append(r)
-        destbl.insertMany(rows)
-        self.db.commit()
+        if rows:
+            destbl.insertMany(rows)
         print 'imported',tbl
 
     def getAuxInstance(self, name=None,check=False):
