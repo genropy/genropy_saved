@@ -158,6 +158,7 @@ class GnrWsgiWebApp(GnrApp):
 
     def compileSiteMenu(self, menubag, basepath=None,level=None):
         basepath = basepath or []
+        level = level or 0
         result = Bag()
         level = level or 0
         for node in menubag.nodes:
