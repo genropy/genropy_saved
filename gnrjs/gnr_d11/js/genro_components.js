@@ -947,7 +947,12 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
         if(this.source_item){
             return this.source_item;
         }
-        return isNullOrBlank(this.valuepath)?this.source_root:this.source_root.getItem(this.valuepath);
+        var result = isNullOrBlank(this.valuepath)?this.source_root:this.source_root.getItem(this.valuepath);
+        if(!result && this.valuepath){
+            result = new gnr.GnrBag();
+            this.source_root.setItem(this.valuepath,result,null,{doTrigger:false});
+        }
+        return result;
     },
 
     gnrwdg_setTempStore:function(){

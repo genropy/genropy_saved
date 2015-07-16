@@ -316,7 +316,7 @@ dojo.declare('gnr.GenroClient', null, {
     serverLog:function(data){
         var mode = data.getItem('mode') || 'log';
         if(mode=='log' || mode=='error' || mode=='warn'){
-            console[mode]('*SERVER* >>'+data.getItem('msg'));
+            console[mode]('*SERVER* >>'+data.getItem('msg'),data.getItem('args'),data.getItem('kwargs'));
         }
     },
     

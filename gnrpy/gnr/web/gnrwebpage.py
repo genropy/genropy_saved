@@ -299,6 +299,8 @@ class GnrWebPage(GnrBaseWebPage):
             
     @property 
     def wsk(self):
+        if hasattr(self,'asyncServer'):
+            return self.asyncServer.wsk
         return self.site.wsk
         
     @property 
@@ -942,7 +944,7 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['pageMode'] = 'wsgi_10'
         arg_dict['baseUrl'] = self.site.home_uri
         kwargs['servertime'] = datetime.datetime.now()
-        kwargs['websockets_url'] = '/websocket' if self.site.websockets else None
+        kwargs['websockets_url'] = '/websocket' if self.wsk else None
         favicon = self.site.config['favicon?name']
         google_fonts = getattr(self,'google_fonts',None)
         if google_fonts:
@@ -1536,23 +1538,27 @@ class GnrWebPage(GnrBaseWebPage):
         
 
     def clientPublish(self,topic,nodeId=None,iframe=None,parent=None,page_id=None,**kwargs):
-        value = dict(topic=topic,kw=kwargs)
-        if nodeId:
-            value['nodeId'] = nodeId
-        if iframe:
-            value['iframe'] = iframe
-        if parent:
-            value['parent'] = parent
-        self.setInClientData('gnr.publisher',value=value,page_id=page_id or self.page_id,fired=True)
+        if self.wsk:
+            self.wsk.publishToClient(page_id or self.page_id,topic=topic,data=kwargs,nodeId=nodeId,iframe=iframe)
+        else:
+            value = dict(topic=topic,kw=kwargs)
+            if nodeId:
+                value['nodeId'] = nodeId
+            if iframe:
+                value['iframe'] = iframe
+            if parent:
+                value['parent'] = parent
+            self.setInClientData('gnr.publisher',value=value,page_id=page_id,fired=True)
         
     def setInClientData(self, path, value=None, attributes=None, page_id=None, filters=None,
-                        fired=False, reason=None, replace=False,public=None):
-        handler = self.setInClientData_websocket if self.site.websockets else self.setInClientData_legacy
-        handler(path, value=value, attributes=attributes, page_id=page_id, filters=filters,
-                        fired=fired, reason=reason, replace=replace,public=public)
-                        
+                        fired=False, reason=None, replace=False,public=None,**kwargs):
+        handler = self.setInClientData_websocket if self.wsk or hasattr(self,'asyncServer') else self.setInClientData_legacy
+        handler(path, value=value, attributes=attributes, page_id=page_id or self.page_id, filters=filters,
+                        fired=fired, reason=reason, replace=replace,public=public,**kwargs)
+
+
     def setInClientData_legacy(self, path, value=None, attributes=None, page_id=None, filters=None,
-                        fired=False, reason=None, replace=False,public=None):
+                        fired=False, reason=None, replace=False,public=None,**kwargs):
         if public or filters or page_id:
             self.site.register.setInClientData(path=path, value=value, attributes=attributes, page_id=page_id or self.page_id, filters=filters,
                         fired=fired, reason=reason, replace=replace,register_name='page')
@@ -1568,22 +1574,23 @@ class GnrWebPage(GnrBaseWebPage):
             self.local_datachanges.append(datachange)
             
     def setInClientData_websocket(self, path, value=None, attributes=None, page_id=None, filters=None,
-                        fired=False, reason=None, replace=False,public=None):
-        if public or filters or page_id:
-            self.site.register.setInClientData(path=path, value=value, attributes=attributes, page_id=page_id or self.page_id, filters=filters,
-                        fired=fired, reason=reason, replace=replace,register_name='page')
-        elif isinstance(path, Bag):
+                        fired=False, reason=None, replace=False,public=None,nodeId=None,noTrigger=None,**kwargs):
+        page_id = page_id or self.page_id
+        if filters:
+            page_id = self.site.register.pages(filters=filters,id_only=True)
+        if isinstance(path, Bag):
             changeBag = path
             for changeNode in changeBag:
                 attr = changeNode.attr
-                datachange = ClientDataChange(attr.pop('_client_path'), changeNode.value,
-                    attributes=attr, fired=attr.pop('fired', None))
-                self.local_datachanges.append(datachange)
+                self.wsk.setInClientData(page_id=page_id,path=attr.pop('_client_path'),value=changeNode.value,
+                    attributes=attr,fired=attr.pop('fired', None),reason=reason,noTrigger=noTrigger,nodeId=nodeId)
         else:
-            datachange = ClientDataChange(path, value, reason=reason, attributes=attributes, fired=fired)
-            self.local_datachanges.append(datachange)
-            
-            
+            self.wsk.setInClientData(page_id=page_id,path=path,value=value,attributes=attributes,
+                                        fired=fired,reason=reason,nodeId=nodeId,noTrigger=noTrigger)
+
+ 
+     
+
     @public_method          
     def sendMessageToClient(self, message, pageId=None, filters=None, msg_path=None):
         self.setInClientData(msg_path or 'gnr.servermsg', message,
@@ -2194,12 +2201,11 @@ class GnrWebPage(GnrBaseWebPage):
         return LazyBagResolver(resolverName=name, location=location, _page=self, sourceBag=bag)
         
 
-    def log(self, msg, mode=None):
+    def log(self, msg,*args, **kwargs):
+        mode = kwargs.pop('mode',None)
         mode = mode or 'log'
-        if self.site.websockets:
-            self.site.wsk.publishToClient(self.page_id,'gnrServerLog',{'msg':msg,'mode':mode})
-        else:
-            print '%s:%s - %s:%s' %(self.pagename,self.page_id,mode,msg)
+        self.clientPublish('gnrServerLog',msg=msg,args=args,kwargs=kwargs)
+        print 'pagename:%s-:page_id:%s >>\n' %(self.pagename,self.page_id),args,kwargs
 
     ##### BEGIN: DEPRECATED METHODS ###
     @deprecated

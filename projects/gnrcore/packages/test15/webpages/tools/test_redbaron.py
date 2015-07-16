@@ -36,7 +36,7 @@ class GnrCustomWebPage(object):
 
     @public_method
     def testLog(self,number=None):
-        self.log('Il mio numero %s' %number)
+        self.log('Il mio numero',number,prova=33,test={'aaa':99})
 
 
 

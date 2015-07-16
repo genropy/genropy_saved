@@ -29,6 +29,7 @@ from gnr.core.gnrstring import boolean
 from gnr.web.gnrwebpage import GnrWebPage
 from gnr.web.gnrwebpage_proxy.connection import GnrWebConnection
 from threading import RLock
+from gnr.core.gnrbag import Bag
 
 from collections import defaultdict
 
@@ -120,5 +121,4 @@ class GnrSimplePage(GnrWebPage):
             for (path,kwargs_list) in mixin_set:
                 kwargs = dict(kwargs_list)
                 self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
-
 

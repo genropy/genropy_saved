@@ -38,7 +38,7 @@ from gnr.web.services.gnrmail import WebMailHandler
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import SiteRegisterClient
-from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import WebSocketHandler
+from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import WsgiWebSocketHandler
 import pdb
 
 import warnings
@@ -270,8 +270,10 @@ class GnrWsgiSite(object):
 
     @property
     def wsk(self):
+        if not self.websockets:
+            return
         if not hasattr(self,'_wsk'):
-            self._wsk = WebSocketHandler(self)
+            self._wsk = WsgiWebSocketHandler(self)
         return self._wsk
 
     @property
