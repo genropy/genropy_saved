@@ -639,6 +639,7 @@ class FramedIndexLogin(BaseComponent):
                 dlg.show();
                 genro.publish('failed_login_msg',{'message':result?result.error:error_msg});
             }else{
+                genro.setData('gnr.avatar',new gnr.GnrBag(result))
                 rootpage = rootpage || result['rootpage'];
                 if(rootpage){
                     genro.gotoURL(rootpage);

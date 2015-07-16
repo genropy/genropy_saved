@@ -665,7 +665,6 @@ class GnrWebPage(GnrBaseWebPage):
                 return (login, loginPars)
             self.site.onAuthenticated(avatar)
             self.connection.change_user(avatar)
-            self.setInClientData('gnr.avatar', Bag(avatar.as_dict()))
             login['message'] = ''
             loginPars = avatar.loginPars
             loginPars.update(avatar.extra_kwargs)
@@ -1577,7 +1576,7 @@ class GnrWebPage(GnrBaseWebPage):
                         fired=False, reason=None, replace=False,public=None,nodeId=None,noTrigger=None,**kwargs):
         page_id = page_id or self.page_id
         if filters:
-            page_id = self.site.register.pages(filters=filters,id_only=True)
+            page_id = self.site.register.pages(filters=filters).keys()
         if isinstance(path, Bag):
             changeBag = path
             for changeNode in changeBag:
@@ -1588,8 +1587,6 @@ class GnrWebPage(GnrBaseWebPage):
             self.wsk.setInClientData(page_id=page_id,path=path,value=value,attributes=attributes,
                                         fired=fired,reason=reason,nodeId=nodeId,noTrigger=noTrigger)
 
- 
-     
 
     @public_method          
     def sendMessageToClient(self, message, pageId=None, filters=None, msg_path=None):

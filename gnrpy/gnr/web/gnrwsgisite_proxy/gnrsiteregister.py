@@ -440,14 +440,14 @@ class PageRegister(BaseRegister):
     def connection_page_items(self,connection_id):
         return [(k,v) for k,v in self.items() if v['connection_id'] == connection_id]
 
-    def pages(self,connection_id=None,user=None,include_data=None,filters=None,id_only=False):
+    def pages(self,connection_id=None,user=None,include_data=None,filters=None):
         pages = self.values(include_data=include_data)
         if connection_id:
             pages = [v for v in pages if v['connection_id'] == connection_id]
         if user:
             pages = [v for v in pages if v['user'] == user]
         if not filters or filters == '*':
-            return pages if not id_only else [p['page_id'] for p in pages]
+            return pages
         fltdict = dict()
         for flt in filters.split(' AND '):
             fltname, fltvalue = flt.split(':', 1)
@@ -468,7 +468,7 @@ class PageRegister(BaseRegister):
             for fltname, fltval in fltdict.items():
                 if checkpage(page, fltname, fltval):
                     filtered.append(page)
-        return filtered if not id_only else [p['page_id'] for p in filtered]
+        return filtered
 
 
 
