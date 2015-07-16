@@ -9,6 +9,9 @@
 from gnr.core.gnrdecorator import public_method
 from time import sleep
 from random import randint
+
+from gnr.core.gnrredbaron import GnrRedBaron
+
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerBase"
     
@@ -17,38 +20,15 @@ class GnrCustomWebPage(object):
         
     def test_1_redbaron(self,pane):
         fb = pane.formbuilder(cols=1,border_spacing='3px')
-        fb.numberTextBox(value='^.module',lbl='Module')
-        fb.button('ADD',action="""var current = (current || 0)+1;
-                                SET .module = current;
-                                SET .current = current""",current='=.current')
-        fb.dataRpc('.result',self.redBaronIndex,httpMethod='WSK',module='^.module',
+        fb.textbox(value='^.module',lbl='Module')
+        fb.dataRpc('.result',self.redBaronIndex,httpMethod='WSK',
+                    module='^.module',
                     _onCalling='SET .module=null',_if='module')
         fb.div('^.result')
 
-    def test_2_testLog(self,pane):
-        fb = pane.formbuilder(cols=1,border_spacing='3px')
-        fb.button('Log',action="""var current = (current || 0)+1;
-                                SET .number = current;
-                                SET .current = current""",current='=.current')
-        fb.dataRpc('.result',self.testLog,number='^.number',
-                    _onCalling='SET .number=null',_if='number')
-        fb.div('^.result')
-
-    @public_method
-    def testLog(self,number=None):
-        self.log('Il mio numero',number,prova=33,test={'aaa':99})
-
-
-
     @public_method
     def redBaronIndex(self,module=None):
-        self.log('Prova %s' %module)
-        with self.sharedData('status',list) as shared:
-            s = randint(0,5)
-            if module=='*':
-                shared[:] = []
-            else:
-                txt = 'SET %s . Waited %s' %(module,s)
-                shared.append(txt) 
-            sleep(s)
-            return '<br/>'.join(shared)
+        with self.sharedData('openmodules',dict) as openmodules:
+            if not module in openmodules:
+                openmodules[module] = GnrRedBaron(module)
+            return openmodules[module].toTreeBag()

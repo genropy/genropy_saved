@@ -44,9 +44,7 @@ class GnrRedBaron(object):
         result = Bag()
         for n in node:
             if n.type in self.child_types:
-                result.setItem(n.name,self.toTreeBag(),caption=n.name,_type=n.type,source=n.dumps())
-
-
+                result.setItem(n.name,None,caption=n.name,_type=n.type)
 
 
 
