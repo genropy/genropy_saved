@@ -156,8 +156,9 @@ class GnrWsgiWebApp(GnrApp):
     siteMenu = property(_get_siteMenu)
 
 
-    def compileSiteMenu(self, menubag, basepath=None):
+    def compileSiteMenu(self, menubag, basepath=None,level=None):
         basepath = basepath or []
+        level = level or 0
         result = Bag()
         for node in menubag.nodes:
             attributes = {}
@@ -181,7 +182,7 @@ class GnrWsgiWebApp(GnrApp):
                 else:
                     currbasepath = basepath + [newbasepath]
             if isinstance(value, Bag):
-                value = self.compileSiteMenu(value, currbasepath)
+                value = self.compileSiteMenu(value, currbasepath,level=level+1)
             elif not isinstance(value, DirectoryResolver):
                 value = None
                 filepath = attributes.get('file')
@@ -191,6 +192,8 @@ class GnrWsgiWebApp(GnrApp):
                     else:
                         attributes['file'] = self.site.home_uri + filepath.lstrip('/')
             result.setItem(node.label, value, attributes)
+        if len(result) == 1 and not level:
+            result = result['#0']
         return result
 
 
