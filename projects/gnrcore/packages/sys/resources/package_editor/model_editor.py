@@ -280,6 +280,7 @@ class TableModuleEditor(BaseComponent):
                                                 pbl_classes=True,margin='2px',
                                                 grid_selected__modulepath='#FORM.currenModelModule',
                                                 addrow=True,delrow=True)
+        tablesframe.top.bar.replaceSlots('delrow','export,5,searchOn,delrow')
         pane.dataRpc(storepath,self.table_editor_loadPackageTables,package=package,project=project,
                 _if='project&&package',_else='return new gnr.GnrBag();',
                 subscribe_tableModuleWritten=True)
@@ -327,7 +328,10 @@ class TableModuleEditor(BaseComponent):
                                                     pbl_classes=True,margin='2px',
                                                     grid_selfDragRows=True,
                                                     grid_selfsubscribe_onSelectedRow="""
-                                                                genro.publish('mve_moreattr_setSource','#FORM.record._columns.'+$1.selectedId)""",
+                                                                if($1.selectedId){
+                                                                    genro.publish('mve_moreattr_setSource','#FORM.record._columns.'+$1.selectedId);
+                                                                }
+                                                                """,
                                                     addrow=True,delrow=True)
         bottom.dataFormula('#FORM.columnsExcludedMoreAttr',"struct.getItem('#0.#0').digest('#a.field').join(',')",
                                 struct='^#FORM.moduleColumnsStruct')
@@ -429,7 +433,6 @@ class TableModuleEditor(BaseComponent):
             cbag['tag'] = 'pyColumn'
             columnsvalue.setItem(cbag['name'],cbag,_customClasses='pyColumnRow')
         record.setItem('_columns',columnsvalue,_sendback=True)
-
         return record,resultAttr
 
     @public_method
@@ -443,6 +446,8 @@ class TableModuleEditor(BaseComponent):
             modulepath = os.path.join(models_path,m)
             red = self.get_redbaron(modulepath)
             config_db = red.find('def','config_db')
+            if not config_db:
+                continue
             targs,tkwargs = self.parsBaronNodeCall(config_db.find('name','table').parent[2])
             tablevalue = Bag(tkwargs)
             tablevalue['name'] = tablename
