@@ -810,7 +810,7 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
             }
             var bc = pane._('BorderContainer',{'side':'center'});
             var bottom = bc._('ContentPane', {'region':'bottom',height:'30%',
-                splitter:true});
+                splitter:true,overflow:'hidden'});
             bottom._('BagNodeEditor', {nodeId:bagNodeEditorId,datapath:'.bagNodeEditor',origin:origin});
             pane = bc._('ContentPane',{'region':'center'});
         }
@@ -872,7 +872,7 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
             }
         },kw));
         gnrwdg.containerNode = container.getParentNode();
-        var grid = container._('ContentPane',{region:'center'})._('quickGrid',objectUpdate({value:'^#WORKSPACE.value',_workspace:true,border:'1px solid silver',
+        var grid = container._('ContentPane',{region:'center',overflow:'hidden'})._('quickGrid',objectUpdate({value:'^#WORKSPACE.value',_workspace:true,border:'1px solid silver',
                                             _class:'multiValueEditor noheader',storeInForm:true,
                                                 selfsubscribe_addrow:function(addkw){
                                                     var grid = this.widget;
@@ -1047,7 +1047,7 @@ dojo.declare("gnr.widgets.PaletteBagNodeEditor", gnr.widgets.gnrwdg, {
         var bottom = bc._('ContentPane', {'region':'bottom',color:'#666',font_style:'italic'});
         bottom._('span', {'innerHTML':'Path : '});
         bottom._('span', {'innerHTML':nodePath});
-        bc._('ContentPane',{region:'center',margin:'2px'})._('MultiValueEditor',{value:nodePath+'?#node',origin:kw.origin})
+        bc._('ContentPane',{region:'center',margin:'2px',overflow:'hidden'})._('MultiValueEditor',{value:nodePath+'?#node',origin:kw.origin})
         return pane;
     }
 });
@@ -1070,7 +1070,7 @@ dojo.declare("gnr.widgets.BagNodeEditor", gnr.widgets.gnrwdg, {
             bottom._('span', {'innerHTML':'Path : '});
             bottom._('span', {'innerHTML':'^.currentEditedPath'});
         }
-        var box = bc._('ContentPane', {'region':'center',_class:'formgrid'});
+        var box = bc._('ContentPane', {'region':'center',_class:'formgrid',overflow:'hidden'});
 
         var mve = box._('MultiValueEditor','mve',{origin:kw.origin,editNodeValue:true})
         gnrwdg.mveNode = mve.getParentNode();
