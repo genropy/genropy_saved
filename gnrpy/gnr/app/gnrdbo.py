@@ -239,13 +239,14 @@ class TableBase(object):
                 tbl.attributes['group_%s' % group] = group_name
             else:
                 group = '_'
+        tsType = 'DHZ' if self.db.application.config['db?use_timezone'] else 'DH'
         if ins:
-            tbl.column('__ins_ts', dtype='DH', name_long='!!Insert date', onInserting='setTSNow', group=group,_sysfield=True,indexed=True)
+            tbl.column('__ins_ts', dtype=tsType, name_long='!!Insert date', onInserting='setTSNow', group=group,_sysfield=True,indexed=True)
         if ldel:
-            tbl.column('__del_ts', dtype='DH', name_long='!!Logical delete date', group=group,_sysfield=True,indexed=True)
+            tbl.column('__del_ts', dtype=tsType, name_long='!!Logical delete date', group=group,_sysfield=True,indexed=True)
             tbl.attributes['logicalDeletionField'] = '__del_ts'
         if upd:
-            tbl.column('__mod_ts', dtype='DH', name_long='!!Update date', onUpdating='setTSNow', onInserting='setTSNow',
+            tbl.column('__mod_ts', dtype=tsType, name_long='!!Update date', onUpdating='setTSNow', onInserting='setTSNow',
                        group=group,_sysfield=True,indexed=True)
             lastTS = tbl.attributes.get('lastTS')
             if not lastTS:
