@@ -648,8 +648,13 @@ dojo.declare("gnr.RowEditor", null, {
         var default_kwargs = objectUpdate({},this.gridEditor.editorPars.default_kwargs);
         for(var k in cellmap){
             objectPop(default_kwargs,k);
+            var kw = {dtype:cellmap[k].dtype};
             var wdg_dtype = data.getAttr(k,'wdg_dtype') ;
-            data.setItem(k,this.original_values[k],{dtype:cellmap[k].dtype || wdg_dtype,wdg_dtype:wdg_dtype});
+            if(!kw.dtype && wdg_dtype){
+                kw.dtype = wdg_dtype;
+                kw.wdg_dtype = wdg_dtype;
+            }
+            data.setItem(k,this.original_values[k],kw);
         }
         if(this.newrecord){
             for (var k in default_kwargs){
