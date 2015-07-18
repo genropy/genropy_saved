@@ -1069,7 +1069,7 @@ dojo.declare("gnr.GridEditor", null, {
             var rcol,hcols;
             for(var k in cellmap){
                 var cmap = cellmap[k];
-                if(cmap.related_table){
+                if(cmap.related_table){ //if should be on rcol instead of cmap.related_table #fporcari
                     rcol = cmap.relating_column;
                     if(result[rcol]){
                         hcols = [];
@@ -1080,6 +1080,10 @@ dojo.declare("gnr.GridEditor", null, {
                         }
                         if(hcols.length>0){
                             queries.setItem(rcol,null,{table:cmap.related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'});
+                            //  it should be the related_table of relating_column instead of cmap related table which is the last related table in relation path
+                            // @product_id.@product_type_id.description ---> relating_column:product_id, related_table:product_type -- related_table of relating column: foo.product
+                            //  queries.setItem(rcol,null,{table:cellmap[rcol].related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'});
+
                         }
                     }
                 }
