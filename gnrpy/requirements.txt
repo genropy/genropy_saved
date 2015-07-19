@@ -13,4 +13,5 @@ argparse
 xlrd
 xlwt
 docutils
+redbaron
 
