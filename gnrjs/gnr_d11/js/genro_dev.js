@@ -51,13 +51,11 @@ dojo.declare("gnr.GnrDevHandler", null, {
         
         dojo.connect(pane,'onclick',function(e){
             if(e.altKey && e.shiftKey){
-                if(!dijit.byId("gnr_srcInspector")){
-                    genro.dev.openSrcInspector();
-                }
                 var sourceNode = genro.src.enclosingSourceNode(e.target);
+                genro.dev.openBagNodeEditorPalette(sourceNode.getFullpath(),{name:'_devSrcInspector_',title:'Sourcenode Inspector',origin:'*S'});
                 console.log('------current edit node:-------');
-                console.log(sourceNode);
                 genro.publish('srcInspector_editnode',sourceNode);
+                console.log(sourceNode);
                 window._sourceNode_ = sourceNode;
             }
             
@@ -65,18 +63,20 @@ dojo.declare("gnr.GnrDevHandler", null, {
         });
   
     },
-    openSrcInspector:function(){
+
+
+    openBagNodeEditorPalette:function(nodePath,kw){
         var root = genro.src.newRoot();
-        genro.src.getNode()._('div', '_devSrcInspector_');
-        var node = genro.src.getNode('_devSrcInspector_').clearValue();
+        var name = kw.name || '_currentBagNodeEditor_'
+        genro.src.getNode()._('div', name);
+
+        var node = genro.src.getNode(name).clearValue();
         node.freeze();
-        node._('PaletteBagNodeEditor',{'paletteCode':'srcInspector',nodeId:'srcInspector',id:'gnr_srcInspector','dockTo':false,
-                                        title:'Source Node Inspector',
-                                        'bagpath':'*S'});
-        
+        node._('PaletteBagNodeEditor','currentEditor',{'paletteCode':name,'dockTo':false,
+                                        title:kw.title || 'BagNode editor',
+                                        'nodePath':nodePath,origin:kw.origin});
         node.unfreeze();
         
-
     },
 
 
@@ -390,11 +390,11 @@ dojo.declare("gnr.GnrDevHandler", null, {
                                         title:'Developer tools ['+genro._('gnr.pagename')+']',
                                         width:'500px',maxable:true});
         pg._('paletteTree',{'paletteCode':'cliDatastore',title:'Data',
-                           storepath:'*D',searchOn:true,tree_inspect:'shift',
+                           storepath:'*D',searchOn:true,tree_inspect:'shift',tree_searchMode:'static',
                            'tree_connect_onclick':cbLog,
                            editable:true,tree_labelAttribute:null,tree_hideValues:false});
         var sourcePane = pg._('paletteTree',{'paletteCode':'cliSourceStore',title:'Source',
-                           storepath:'*S',searchOn:true,tree_inspect:'shift',
+                           storepath:'*S',searchOn:true,tree_inspect:'shift',tree_searchMode:'static',
                            editable:true,
                            'tree_connect_onclick':cbLog,
                            tree_getLabel:function(n){
@@ -403,7 +403,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
                            tree_selectedPath:'.tree.selectedPath'});
         sourcePane._('dataController',{'script':'genro.src.highlightNode(fpath)', 
                                        'fpath':'^gnr.palettes.cliSourceStore.tree.selectedPath'});
-        pg._('paletteTree',{'paletteCode':'dbmodel',title:'Model',
+        pg._('paletteTree',{'paletteCode':'dbmodel',title:'Model',tree_searchMode:'static',
                             searchOn:true,tree_inspect:'shift',tree_labelAttribute:null,editable:true});
         genro.setDataFromRemote('gnr.palettes.dbmodel.store', "app.dbStructure");
         this.sqlDebugPalette(pg);

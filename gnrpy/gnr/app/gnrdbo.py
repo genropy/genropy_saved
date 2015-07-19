@@ -208,8 +208,9 @@ class GnrDboPackage(object):
 class TableBase(object):
     """TODO"""
     @extract_kwargs(counter=True)
-    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, user_ins=False, user_upd=False, draftField=False, invalidFields=None,invalidRelations=None,md5=False,
-                  counter=False,hierarchical=False,useProtectionTag=None,
+    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, user_ins=False, user_upd=False, 
+                  draftField=False, invalidFields=None,invalidRelations=None,md5=False,
+                  counter=None,hierarchical=None,useProtectionTag=None,
                   group='zzz', group_name='!!System',
                   multidb=None,
                   df=None,counter_kwargs=None):
@@ -238,13 +239,14 @@ class TableBase(object):
                 tbl.attributes['group_%s' % group] = group_name
             else:
                 group = '_'
+        tsType = 'DHZ' if self.db.application.config['db?use_timezone'] else 'DH'
         if ins:
-            tbl.column('__ins_ts', dtype='DH', name_long='!!Insert date', onInserting='setTSNow', group=group,_sysfield=True,indexed=True)
+            tbl.column('__ins_ts', dtype=tsType, name_long='!!Insert date', onInserting='setTSNow', group=group,_sysfield=True,indexed=True)
         if ldel:
-            tbl.column('__del_ts', dtype='DH', name_long='!!Logical delete date', group=group,_sysfield=True,indexed=True)
+            tbl.column('__del_ts', dtype=tsType, name_long='!!Logical delete date', group=group,_sysfield=True,indexed=True)
             tbl.attributes['logicalDeletionField'] = '__del_ts'
         if upd:
-            tbl.column('__mod_ts', dtype='DH', name_long='!!Update date', onUpdating='setTSNow', onInserting='setTSNow',
+            tbl.column('__mod_ts', dtype=tsType, name_long='!!Update date', onUpdating='setTSNow', onInserting='setTSNow',
                        group=group,_sysfield=True,indexed=True)
             lastTS = tbl.attributes.get('lastTS')
             if not lastTS:
@@ -345,8 +347,11 @@ class TableBase(object):
                         onInserted='syncRecordInserted',_sysfield=True)
         if df:
             self.sysFields_df(tbl)
-        tbl.formulaColumn('__is_protected_row',sql_formula=True,group=group,name_long='!!Row Protected')
-        
+        tbl.formulaColumn('__is_protected_row',sql_formula=True,group=group,name_long='!!Row Protected',_sysfield=True)
+
+        if filter(lambda r: r!='_release_' and r.startswith('_release_'), dir(self)):
+            tbl.column('__release', dtype='L', name_long='Sys Version', group=group,_sysfield=True)
+            
         if filter(lambda r: r!='sysRecord_' and r.startswith('sysRecord_'), dir(self)):
             tbl.column('__syscode',size=':16',unique=True,indexed=True,
                 _sysfield=True,group=group,name_long='!!Internal code')
@@ -354,20 +359,20 @@ class TableBase(object):
                                 """ ( CASE WHEN $__syscode IS NULL THEN NULL 
                                    ELSE NOT (',' || :env_userTags || ',' LIKE '%%,'|| :systag || ',%%')
                                    END ) """,
-                                dtype='B',var_systag=tbl.attributes.get('syscodeTag') or 'superadmin')
+                                dtype='B',var_systag=tbl.attributes.get('syscodeTag') or 'superadmin',_sysfield=True)
 
     def sysFields_protectionTag(self,tbl,protectionTag=None,group=None):
         tbl.column('__protection_tag', name_long='!!Protection tag', group=group,_sysfield=True,_sendback=True,onInserting='setProtectionTag')
         tbl.formulaColumn('__protected_by_tag',""" ( CASE WHEN $__protection_tag IS NULL THEN NULL 
                                                     ELSE NOT (',' || :env_userTags || ',' LIKE '%%,'|| $__protection_tag || ',%%')
-                                                    END ) """,dtype='B')
+                                                    END ) """,dtype='B',_sysfield=True)
         #doctor,staff,superadmin               ,doctor,staff,superadmin, LIKE %%,admin,%%
 
     def sysFields_df(self,tbl):
-        tbl.column('df_fields',dtype='X',group='_',_sendback=True)
-        tbl.column('df_fbcolumns','L',group='_')
-        tbl.column('df_custom_templates','X',group='_')
-        tbl.column('df_colswith',group='_')
+        tbl.column('df_fields',dtype='X',group='_',_sendback=True,_sysfield=True)
+        tbl.column('df_fbcolumns','L',group='_',_sysfield=True)
+        tbl.column('df_custom_templates','X',group='_',_sysfield=True)
+        tbl.column('df_colswith',group='_',_sysfield=True)
 
     def sysFields_counter(self,tbl,fldname,counter=None,group=None,name_long='!!Counter'):
         tbl.column(fldname, dtype='L', name_long=name_long, onInserting='setRowCounter',counter=True,
@@ -400,8 +405,8 @@ class TableBase(object):
         mode = mode or 'dmetaphone'
         group = group or 'zzz'
         phonetic_column = '__phonetic_%s' %column
-        tbl.column(column).attributes.update(phonetic=phonetic_column,_sendback=True,query_dtype='PHONETIC')
-        tbl.column(phonetic_column,size=size,sql_value='%s(:%s)' %(mode,column),phonetic_mode=mode,group=group,_sendback=True)
+        tbl.column(column).attributes.update(phonetic=phonetic_column,_sendback=True,query_dtype='PHONETIC',_sysfield=True)
+        tbl.column(phonetic_column,size=size,sql_value='%s(:%s)' %(mode,column),phonetic_mode=mode,group=group,_sendback=True,_sysfield=True)
 
 
     def invalidFieldsBag(self,record):

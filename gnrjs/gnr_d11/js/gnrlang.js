@@ -449,7 +449,7 @@ function isNullOrBlank(elem){
 }
 
 function localType(dtype){
-    return {'R':{places:2},'L':{places:0},'I':{places:0},'D':{date:'short'},'H':{time:'short'},'DH':{datetime:'short'}}[dtype];
+    return {'R':{places:2},'L':{places:0},'I':{places:0},'D':{date:'short'},'H':{time:'short'},'HZ':{time:'short'},'DH':{datetime:'short'},'DHZ':{datetime:'short'}}[dtype];
 };
     
 
@@ -1519,6 +1519,10 @@ function serialize(_obj) {
             break;
     }
 }
+function stringHash(str){
+    return str.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+};
+
 function parseURL(url) {
     var a =  document.createElement('a');
     a.href = url;

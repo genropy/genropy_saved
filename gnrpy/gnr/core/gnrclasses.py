@@ -213,7 +213,7 @@ class GnrClassCatalog(object):
     def isTypedText(self,txt,**kwargs):
         if not '::' in txt:
             return False
-        return txt.split('::')[-1].upper() in ['HTML','JS','RPC','JSON','NN','BAG','A','T','L','N','I','B','D','H','DH','P','X']
+        return txt.split('::')[-1].upper() in ['HTML','JS','RPC','JSON','NN','BAG','A','T','L','N','I','B','D','H','HZ','DH','DHZ','P','X']
 
             
     def fromTypedText(self, txt, **kwargs):
@@ -287,10 +287,11 @@ class GnrClassCatalog(object):
         self.addClass(cls=datetime.date, key='D', aliases=['DATE'], empty=None)
         self.addParser(datetime.date, self.parse_date)
         
-        self.addClass(cls=datetime.datetime, key='DH', aliases=['DATETIME', 'DT'], empty=None)
+        self.addClass(cls=datetime.datetime, key='DH', aliases=['DATETIME', 'DT','DHZ'], empty=None)
         self.addParser(datetime.datetime, self.parse_datetime)
         
-        self.addClass(cls=datetime.time, key='H', aliases=['TIME'], empty=None)
+  
+        self.addClass(cls=datetime.time, key='H', aliases=['TIME','HZ'], empty=None)
         self.addParser(datetime.time, self.parse_time)
         
         self.addClass(cls=Bag, key='BAG', aliases=['BAG', 'GNRBAG', 'bag', 'gnrbag'], empty=Bag)

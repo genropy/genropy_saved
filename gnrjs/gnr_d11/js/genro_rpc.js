@@ -394,8 +394,18 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             'sync': sync,
             'preventCache': preventCache
         };
-        var deferred = this._serverCall(callKwargs, xhrKwargs, httpMethod);        
-        return sync? deferred.ioArgs.syncresult:deferred;
+        if(httpMethod=='WSK'){
+            var result = genro.wsk.call(callKwargs);
+            result.addErrback(function(error){console.error(error)})
+            if(async_cb){
+                result.addCallback(async_cb);
+            }
+            return result
+        }else{
+            var deferred = this._serverCall(callKwargs, xhrKwargs, httpMethod);        
+            return sync? deferred.ioArgs.syncresult:deferred;
+        }
+        
     },
     errorHandler: function(response, ioArgs) {
         genro.dev.handleRpcHttpError(response, ioArgs);

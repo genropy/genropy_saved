@@ -267,11 +267,6 @@ dojo.declare("gnr.GnrStoreBag", null, {
                     // }
                 }
                 var s = requestObject.store;
-                if(s.null_allowed){
-                    var emptyItem = {};
-                    emptyItem[s.searchAttr] = '';
-                    subset.push(emptyItem);
-                }
                 requestObject.onComplete.call(scope, subset, requestObject);
             }
         };

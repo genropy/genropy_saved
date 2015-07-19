@@ -1273,6 +1273,78 @@ class GnrApp(object):
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
         pass
 
+    def getLegacyDb(self,name=None):
+        externaldb = getattr(self,'legacy_db_%s' %name,None)
+        if not externaldb:
+            config = self.config
+            connection_params = config.getAttr('legacy_db.%s' %name)
+            externaldb = GnrSqlDb(implementation=connection_params.get('implementation'),
+                                dbname=connection_params.get('dbname') or connection_params.get('filename') or name,
+                                host=connection_params.get('host'),user=connection_params.get('user'),
+                                password = connection_params.get('password'))
+            externaldb.importModelFromDb()
+            externaldb.model.build()
+            setattr(self,'legacy_db_%s' %name,externaldb)
+            print 'got externaldb',name
+        return externaldb
+
+    def importFromLegacyDb(self,packages=None,legacy_db=None):
+        if not packages:
+            packages = self.packages.keys()
+        else:
+            packages = packages.split(',')
+        for table in self.db.tablesMasterIndex()['_index_'].digest('#a.tbl'):
+            pkg,tablename = table.split('.')
+            if pkg in packages:
+                print 'sto per importare',table
+                self.importTableFromLegacyDb(table,legacy_db=legacy_db)
+        self.db.commit()
+        self.db.closeConnection()
+
+    def importTableFromLegacyDb(self,tbl,legacy_db=None):
+        destbl = self.db.table(tbl)
+        if destbl.query().count():
+            print 'do not import again',tbl
+            return
+        legacy_db = legacy_db or destbl.attributes.get('legacy_db')
+        if not legacy_db:
+            return
+
+        sourcedb = self.getLegacyDb(legacy_db)
+        table_legacy_name =  destbl.attributes.get('legacy_name')
+        columns = None
+        if not table_legacy_name:
+            table_legacy_name = '%s.%s' %(tbl.split('.')[0],tbl.replace('.','_'))
+        else:
+            columns = []
+            for k,c in destbl.columns.items():
+                colummn_legacy_name = c.attributes.get('legacy_name')
+                if colummn_legacy_name:
+                    columns.append(" $%s AS %s " %(colummn_legacy_name,k))
+            columns = ', '.join(columns)
+        columns = columns or '*'
+        print 'table legacy_name',table_legacy_name
+        oldtbl = None
+        try:
+            oldtbl = sourcedb.table(table_legacy_name)
+        except Exception:
+            print 'missing table in legacy',table_legacy_name
+        if not oldtbl:
+            return
+        q = oldtbl.query(columns=columns,addPkeyColumn=False,bagFields=True)
+        f = q.fetch()
+        sourcedb.closeConnection()
+        rows = []
+        adaptLegacyRow =  getattr(destbl,'adaptLegacyRow',None)
+        for r in f:
+            r = dict(r)
+            if adaptLegacyRow:
+                adaptLegacyRow(r)
+            rows.append(r)
+        if rows:
+            destbl.insertMany(rows)
+        print 'imported',tbl
+
     def getAuxInstance(self, name=None,check=False):
         """TODO
         

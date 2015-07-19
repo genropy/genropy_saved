@@ -68,12 +68,9 @@ dojo.declare("gnr.FramedIndexManager", null, {
             this.iframesbag = new gnr.GnrBag();
             genro._data.setItem('iframes',this.iframesbag);
         }
-        var sc = stackSourceNode.getValue();
-        if(!kw.subtab){
-            var sc = this.makeMultiPageStack(sc,kw);
-        }
+        var multipageStack = this.makeMultiPageStack(stackSourceNode.getValue(),kw);
         var node = this.createIframePage(kw);
-        sc.setItem(node.label,node);
+        multipageStack.setItem(node.label,node);
         this.iframesbag.setItem(rootPageName,null,{'fullname':kw.label,pageName:rootPageName,fullpath:kw.fullpath,url:url,subtab:kw.subtab,selectedPage:node.attr.pageName});
         return rootPageName;
     },
@@ -406,9 +403,19 @@ dojo.declare("gnr.FramedIndexManager", null, {
     reloadSelectedIframe:function(rootPageName,modifiers){
         var iframe = this.getCurrentIframe(rootPageName);
         if(iframe){
-            var dodebug = modifiers=='ShiftAlt'; 
-            //{debug_sql:dodebug,pageReloading:true,dojo_source:true}
-            iframe.sourceNode.reloadIframe();
+            var dodebug = modifiers=='ShiftAlt';
+            var finalizeCb = function(){
+                iframe.sourceNode.reloadIframe();
+            }
+            if(iframe.sourceNode._genro && iframe.sourceNode._genro.checkBeforeUnload()){
+                genro.dlg.ask(_T('Reloading current frame'),_T("There is a pending operation in this tab"),{confirm:_T('Close anyway'),cancel:_T('Cancel')},
+                            {confirm:function(){ 
+                                iframe.sourceNode._genro._checkedUnload = true;
+                                finalizeCb();
+                            }})
+            }else{
+                finalizeCb()
+            }
         }
     },
 

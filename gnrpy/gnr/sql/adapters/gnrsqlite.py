@@ -34,15 +34,17 @@ except:
 from gnr.sql.adapters._gnrbaseadapter import GnrDictRow, GnrWhereTranslator
 from gnr.sql.adapters._gnrbaseadapter import SqlDbAdapter as SqlDbBaseAdapter
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrstring import boolean
 
 import logging
 
 logger = logging.getLogger(__name__)
 
 class SqlDbAdapter(SqlDbBaseAdapter):
-    typesDict = {'charactervarying': 'A','nvarchar':'A', 'character varying': 'A', 'character': 'C', 'text': 'T', 'blob': 'X',
-                 'boolean': 'B', 'date': 'D', 'time': 'H', 'datetime':'DH','timestamp': 'DH', 'numeric': 'N',
-                 'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'double precision': 'R', 'real': 'R', 'serial8': 'L'}
+    typesDict = {'charactervarying': 'A','nvarchar':'A', 'character varying': 'A', 'character': 'C', 'text': 'T','varchar':'A', 'blob': 'X',
+                 'boolean': 'B','bool':'B', 'date': 'D', 'time': 'H', 'datetime':'DH','timestamp': 'DH', 'numeric': 'N',
+                 'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'double precision': 'R', 'real': 'R', 'smallint unsigned':'I',
+                 'decimal':'N','serial8': 'L'}
 
     revTypesDict = {'A': 'character varying', 'T': 'text', 'C': 'character',
                     'X': 'blob', 'P': 'text', 'Z': 'text',
@@ -361,3 +363,10 @@ def convert_date(val):
     return datetime.date(*map(int, val.split("-")))
 
 pysqlite.register_converter("date", convert_date)
+
+
+def convert_boolean(val):
+    return boolean(val)
+
+pysqlite.register_converter("bool", convert_boolean)
+

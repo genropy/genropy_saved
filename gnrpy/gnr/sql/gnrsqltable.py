@@ -1118,7 +1118,10 @@ class SqlTable(GnrObject):
         :param record: TODO
         :param old_record: TODO
         :param pkey: the record :ref:`primary key <pkey>`"""
-        pkey = old_record[self.pkey] if old_record and old_record.get(self.pkey) != record.get(self.pkey) else None
+        if old_record and not pkey:
+            pkey = old_record.get(self.pkey)
+        if record.get(self.pkey) == pkey:
+            pkey = None
         self.db.update(self, record, old_record=old_record, pkey=pkey,**kwargs)
         
     def writeRecordCluster(self, recordCluster, recordClusterAttr, debugPath=None):
@@ -1667,6 +1670,55 @@ class SqlTable(GnrObject):
                       raw_insert=raw_insert,
                       source_tbl_name=source_tbl_name,_converters=converters,**querykwargs)
                       
+    def getReleases(self):
+        prefix = '_release_'
+        parslist = []
+        extra_columns_list = []
+        for fname in sorted(dir(self)):
+             if fname.startswith(prefix):
+                handler = getattr(self,fname)
+                assert (int(fname[9:]) == len(parslist)+1) , 'Missing release'
+                pars  = handler()
+                updater = pars.pop('updater')
+                extra_columns = pars.pop('extra_columns',None)
+                if extra_columns:
+                    extra_columns_list.extend(extra_columns.split(','))
+                parslist.append((updater,pars))
+
+        return parslist, ','.join(set(extra_columns_list))
+
+    def updateRecordsToLastRelease_raw(self, commit=None, _wrapper=None, _wrapperKwargs=None):
+        releases, extra_columns = self.getReleases()
+        if not releases:
+            return
+        release = len(releases)
+        toupdate = self.query(columns='*,%s' % extra_columns,
+                             where='$__release IS NULL OR $__release < :release',
+                            release=release , for_update=True,excludeLogicalDeleted=False,
+                            excludeDraft=False).fetch()
+        if _wrapper:
+            _wrapperKwargs = _wrapperKwargs or dict()
+            toupdate = _wrapper(toupdate, **(_wrapperKwargs or dict()))
+
+        commit_frequency = commit if commit and isinstance(commit,int) else None
+        n=0
+        for record in toupdate:
+            record = dict(record)
+            oldrecord=dict(record)
+            record_release = record['__release'] or 0
+            for updater, kwargs in releases[record_release:]:
+                updater(record, **kwargs)
+            record['__release'] = release
+            self.raw_update(record,oldrecord)
+            if commit_frequency and n%commit_frequency==0:
+                self.db.commit()
+            n+=1
+        if commit:
+            self.db.commit()
+                
+
+
+
     def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, relationStack='',**kwargs):
         """TODO
         

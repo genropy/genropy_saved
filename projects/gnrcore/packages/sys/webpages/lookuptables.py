@@ -44,7 +44,7 @@ class GnrCustomWebPage(object):
             fixed_table = True
         root.dataController("""
                 SET main.current_table=table;""",table='^main.table',status='=main.mainth.view.grid.status')
-        frame.center.contentPane().remote(self.remoteTh,table='^main.current_table',fixed_table=fixed_table,_onRemote='FIRE main.load_data;')
+        frame.center.contentPane(overflow='hidden').remote(self.remoteTh,table='^main.current_table',fixed_table=fixed_table,_onRemote='FIRE main.load_data;')
 
     def lookupTablesDefaultStruct(self,struct):
         r = struct.view().rows()

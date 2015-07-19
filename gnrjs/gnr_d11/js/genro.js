@@ -56,6 +56,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.startArgs = kwargs.startArgs || {};
         this.debuglevel = kwargs.startArgs.debug || null;
         this.debug_sql = kwargs.startArgs.debug_sql;
+        dojo.subscribe('gnrServerLog', this, 'serverLog');
         //this.debug_py = kwargs.startArgs.debug_py;
         this.websockets_url=kwargs.startArgs.websockets_url;
         this.pageMode = kwargs.pageMode;
@@ -124,7 +125,7 @@ dojo.declare('gnr.GenroClient', null, {
         window.onbeforeunload = function(e) {
             genro._windowClosing = true;
             var exit;
-            if (genro.checkBeforeUnload) {
+            if (genro.checkBeforeUnload && !genro._checkedUnload) {
                 exit = genro.checkBeforeUnload();
             }
             if (exit) {
@@ -310,6 +311,13 @@ dojo.declare('gnr.GenroClient', null, {
             }
             genro.currProfilers = {nc:0,st:0,sqlt:0,sqlc:0};
         },15000);
+    },
+
+    serverLog:function(data){
+        var mode = data.getItem('mode') || 'log';
+        if(mode=='log' || mode=='error' || mode=='warn'){
+            console[mode]('*SERVER* >>'+data.getItem('msg'),data.getItem('args'),data.getItem('kwargs'));
+        }
     },
     
     execUserInfoCb:function(){
@@ -1264,6 +1272,17 @@ dojo.declare('gnr.GenroClient', null, {
         }
 
     },
+
+    getItem:function(path){
+        if(path.startsWith('*S')){
+            return genro.src._main.getItem(path.slice(3));
+        }else if(path.startsWith('*D')){
+            path = path.slice(3);
+        }
+        return genro._data.getItem(path);
+    },
+
+    
     getDataNode: function(path, autocreate, dflt) {
         /*
          This method returns the databag node at passed path.
@@ -1277,7 +1296,7 @@ dojo.declare('gnr.GenroClient', null, {
                     return genro.src.getNode(path.slice(3));
                 }
                 if (stringStartsWith(path, '*D')) {
-                    path = path.slice(2);
+                    path = path.slice(3);
                 }
                 if (path) {
                     return this._data.getNode(path, false, autocreate, dflt);
@@ -1288,6 +1307,7 @@ dojo.declare('gnr.GenroClient', null, {
             }
         }
     },
+
     getDataAttr:function(path, attr, dflt) {
         /*
          This method returns an attribute at given path from the databag

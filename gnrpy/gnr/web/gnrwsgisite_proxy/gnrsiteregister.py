@@ -470,6 +470,8 @@ class PageRegister(BaseRegister):
                     filtered.append(page)
         return filtered
 
+
+
     def updatePageProfilers(self,page_id,pageProfilers):
         self.pageProfilers[page_id] = pageProfilers 
 

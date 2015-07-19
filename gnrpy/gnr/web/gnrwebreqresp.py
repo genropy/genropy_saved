@@ -122,3 +122,12 @@ class GnrWebResponse(object):
         
     def write(self, *args, **kwargs):
         return self._response.write(*args, **kwargs)
+
+    def close(self):
+        #response doesn't need to be closed.
+        pass
+
+    def getvalue(self):
+        #response value is already sent to the client
+        return None
+

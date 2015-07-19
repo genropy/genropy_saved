@@ -648,7 +648,13 @@ dojo.declare("gnr.RowEditor", null, {
         var default_kwargs = objectUpdate({},this.gridEditor.editorPars.default_kwargs);
         for(var k in cellmap){
             objectPop(default_kwargs,k);
-            data.setItem(k,this.original_values[k],{dtype:cellmap[k].dtype});
+            var kw = {dtype:cellmap[k].dtype};
+            var wdg_dtype = data.getAttr(k,'wdg_dtype') ;
+            if(!kw.dtype && wdg_dtype){
+                kw.dtype = wdg_dtype;
+                kw.wdg_dtype = wdg_dtype;
+            }
+            data.setItem(k,this.original_values[k],kw);
         }
         if(this.newrecord){
             for (var k in default_kwargs){
@@ -787,7 +793,7 @@ dojo.declare("gnr.GridEditor", null, {
         if(this.editorPars){
             if (sourceNode.form && sourceNode.attr.parentForm!==false){
                 sourceNode.form.registerGridEditor(sourceNode.attr.nodeId,this);
-                this.storeInForm = sourceNode.absDatapath(sourceNode.attr.storepath).indexOf(sourceNode.form.sourceNode.absDatapath(sourceNode.form.formDatapath))==0
+                this.storeInForm = sourceNode.attr.storeInForm || sourceNode.absDatapath(sourceNode.attr.storepath).indexOf(sourceNode.form.sourceNode.absDatapath(sourceNode.form.formDatapath))==0
             }
             sourceNode.subscribe('onNewDatastore',function(){
                 that.resetEditor();
@@ -1063,7 +1069,7 @@ dojo.declare("gnr.GridEditor", null, {
             var rcol,hcols;
             for(var k in cellmap){
                 var cmap = cellmap[k];
-                if(cmap.related_table){
+                if(cmap.related_table){ //if should be on rcol instead of cmap.related_table #fporcari
                     rcol = cmap.relating_column;
                     if(result[rcol]){
                         hcols = [];
@@ -1074,6 +1080,10 @@ dojo.declare("gnr.GridEditor", null, {
                         }
                         if(hcols.length>0){
                             queries.setItem(rcol,null,{table:cmap.related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'});
+                            //  it should be the related_table of relating_column instead of cmap related table which is the last related table in relation path
+                            // @product_id.@product_type_id.description ---> relating_column:product_id, related_table:product_type -- related_table of relating column: foo.product
+                            //  queries.setItem(rcol,null,{table:cellmap[rcol].related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'});
+
                         }
                     }
                 }
@@ -1427,9 +1437,11 @@ dojo.declare("gnr.GridEditor", null, {
         attr._autoselect = true;
         attr._inGridEditor = true;
         var wdgtag = fldDict.tag;
-        if (!wdgtag || attr.autoWdg) {
-            var dt = convertToText(cellDataNode.getValue())[0];
-            wdgtag = {'L':'NumberTextBox','I':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'}[dt] || 'Textbox';
+
+        if (!wdgtag && (attr.autoWdg ||  cellDataNode.attr.wdg_dtype)) {
+            var dt = cellDataNode.attr.wdg_dtype || convertToText(cellDataNode.getValue())[0];
+            wdgtag = {'L':'NumberTextBox','I':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'}[dt] || 'Textbox';
+            attr.tag = wdgtag;
         }
         this.onEditCell(true,row);
         var editWidgetNode = this.widgetRootNode._(wdgtag,'cellWidget', attr).getParentNode();
@@ -1751,7 +1763,11 @@ dojo.declare("gnr.GridChangeManager", null, {
             if(kw.value!=kw.oldvalue && gridEditor && ((kw.node.label in gridEditor.columns) || (cell && cell.counter))){
                 var attr = kw.node.attr;
                 if(!('_loadedValue' in attr)){
-                    attr['_loadedValue'] = kw.oldvalue;
+                    if(kw.oldvalue instanceof gnr.GnrBag){
+                        attr['_loadedValue'] = kw.oldvalue.deepCopy()
+                    }else{
+                        attr['_loadedValue'] = kw.oldvalue;
+                    }
                 }else if (attr._loadedValue == kw.value || ( isNullOrBlank(kw.value) && isNullOrBlank(attr._loadedValue) )) {//value = _loadedValue
                     delete attr._loadedValue;
                 }

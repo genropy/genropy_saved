@@ -35,6 +35,7 @@ from tornado.httpserver import HTTPServer
 
 from gnr.app.gnrconfig import gnrConfigPath
 from gnr.core.gnrbag import Bag,TraceBackResolver
+from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import AsyncWebSocketHandler
 from gnr.web.gnrwsgisite import GnrWsgiSite
 from gnr.core.gnrstring import fromJson
 
@@ -274,8 +275,9 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
             pass
              #print 'already in channels',self.page_id
         if not page_id in self.pages:
-           # print 'creating page',self.page_id
+            #print 'creating page',self.page_id
             page = self.gnrsite.resource_loader.get_page_by_id(page_id)
+            page.asyncServer = self.server
             #print 'setting in pages',self.page_id
             self.pages[page_id] = page
         else:
@@ -304,8 +306,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
                 if isinstance(result,tuple):
                     result,resultAttrs=result
             except Exception, e:
-                tb=TraceBackResolver()()
-                print tb
+                result = TraceBackResolver()()
                 error=str(e)
         envelope=Bag()
         
@@ -350,6 +351,7 @@ class GnrBaseAsyncServer(object):
         self.gnrsite=GnrWsgiSite(instance)
         self.gnrsite.ws_site = self
         self.gnrapp = self.gnrsite.gnrapp
+        self.wsk = AsyncWebSocketHandler(self)
 
     def addHandler(self,path,factory):
         self.handlers.append((path,factory))

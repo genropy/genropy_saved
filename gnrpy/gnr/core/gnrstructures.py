@@ -146,7 +146,7 @@ class GnrStructData(Bag):
 
 
     def child(self, tag, childname=None, childcontent=None, content=None,_parentTag=None, _attributes=None,
-              _returnStruct=True, _position=None, **kwargs):
+              _returnStruct=True, _position=None,_childcounter=False, **kwargs):
         """Set a new item of the ``tag`` type into the current structure. Return the new structure
         if content is ``None``, else the parent
         
@@ -185,7 +185,8 @@ class GnrStructData(Bag):
             result = childcontent
         else:
             result = None
-            
+        if _childcounter:
+            kwargs['_childcounter'] = len(where)
         if _parentTag:
             if isinstance(_parentTag, basestring):
                 _parentTag = gnrstring.splitAndStrip(_parentTag, ',')

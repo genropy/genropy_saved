@@ -439,8 +439,8 @@ class ThPackageResourceMaker(object):
         self.write()
         self.write("def th_query(self):", indent=1)
         searchcol = tblobj.attributes.get('caption_field') 
-
-        if not searchcol or tblobj.column(searchcol).attributes['dtype'] not in ('A','T','C'):
+        
+        if not searchcol:
             l = filter(lambda c: c.attributes.get('dtype') in ('A','T','C') and not c.attributes.get('_sysfield'),tblobj.columns.values())
             if l:
                 searchcol = l[0].name

@@ -150,7 +150,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         headers.forEach(function(h){
             if(typeof(h)=='string'){
-                h = {url:h,htype:h.endsWith('.js')?'script':'link'};
+                h = {url:h,htype:stringEndsWith(h,'.js')?'script':'link'};
             }
             var htype = objectPop(h,'htype');
             var e = document.createElement(htype);
