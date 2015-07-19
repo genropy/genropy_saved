@@ -7393,7 +7393,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
         nodeWidget.__eventmodifier = eventToString(e);
         this._onClick_replaced(e);
-        if (genro.wdg.filterEvent(e, '*', 'dijitTreeLabel,dijitTreeContent')) {
+        if (genro.wdg.filterEvent(e, '*', 'dijitTreeLabel,dijitTreeContent,treeCellContent')) {
             this.setSelected(nodeWidget);
         }
     },

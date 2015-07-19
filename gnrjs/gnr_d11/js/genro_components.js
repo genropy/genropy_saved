@@ -864,6 +864,10 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
         sourceNode.attr.exclude = objectPop(kw,'exclude');
         sourceNode.attr.value = objectPop(kw,'value');
         grid_kwargs = objectExtract(kw,'grid_*')
+        var tools = objectPop(kw,'tools');
+        if(tools==undefined){
+            tools = 'delrow,addrow';
+        }
         gnrwdg.exclude = sourceNode.currentFromDatasource(sourceNode.attr.exclude);
 
         var container = sourceNode._('BorderContainer',objectUpdate({
@@ -872,7 +876,7 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
             }
         },kw));
         gnrwdg.containerNode = container.getParentNode();
-        var grid = container._('ContentPane',{region:'center',overflow:'hidden'})._('quickGrid',objectUpdate({value:'^#WORKSPACE.value',_workspace:true,border:'1px solid silver',
+        var grid = container._('ContentPane',{region:'center',overflow:'hidden'})._('quickGrid',objectUpdate({value:'^#WORKSPACE.value',_workspace:true,
                                             _class:'multiValueEditor noheader',storeInForm:true,
                                                 selfsubscribe_addrow:function(addkw){
                                                     var grid = this.widget;
@@ -884,12 +888,15 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
                                             },grid_kwargs));
         grid._('column',{name:'Key',field:'attribute_key',width:'15em',cellStyles:'background:#BBB;color:#333;border-bottom:1px solid white;font-weight:bold;'})
         grid._('column',{name:'Value',field:'attribute_value',edit:true,width:'100%',cellStyles:'border-bottom:1px solid lightgray;'})
-        var t = grid._('tools',{tools:'delrow,addrow',
+        if(tools){
+            var t = grid._('tools',{tools:tools,
             custom_tools:{addrow:{content_class:'iconbox add_row',ask:{title:'New Line',
                                                  fields:[{name:'key',lbl:'Key',validate_notnull:true},
                                                         {name:'dtype',lbl:'Datatype',values:'T:Text,B:Boolean,L:Integer,N:Decimal,D:Date,H:Time',wdg:'filteringSelect',default_value:'T'}]
                                              }},
             }})
+
+        }
         gnrwdg.gridNode = grid.getParentNode();
         if(sourceNode.attr.value){
             gnrwdg.setSource(sourceNode.attr.value);
@@ -957,7 +964,7 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
 
     gnrwdg_setTempStore:function(){
         var exclude = (this.exclude || '').split(',');
-        var addRow = function(where,key,value){
+        var addRow = function(where,key,value,dtype){
             if(exclude.indexOf(key)>=0){
                 return;
             }
@@ -971,7 +978,7 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
                 rowattr = {_protect_delete:true};
             }
             r.setItem('attribute_key',key,keyattr);
-            var value_attr = {wdg_dtype:guessDtype(value) || 'T'};
+            var value_attr = {wdg_dtype:dtype || guessDtype(value) || 'T'};
             if(value_attr.wdg_dtype=='X'){
                 value_attr['editDisabled'] = true;
             }
@@ -988,7 +995,7 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
         }
         if(source instanceof gnr.GnrBag){
             source.forEach(function(n){
-                addRow(result,n.label,n.getValue());
+                addRow(result,n.label,n.getValue(),n.attr.dtype);
             });
         }else{
             for(var k in source){
