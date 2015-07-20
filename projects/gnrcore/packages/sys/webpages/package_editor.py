@@ -152,14 +152,15 @@ class GnrCustomWebPage(object):
     @public_method
     def applyOnInstance(self,instance=None,action=None,package=None):
         app = GnrApp(instance)
+        if action=='make_resources':
+            print 'making resources'
+            ThPackageResourceMaker(app,package=package,menu=True).makeResources()
         if action in ('dbsetup','import_legacy'):
             destdb = app.db
             if destdb.model.check():
                 destdb.model.applyModelChanges()
             if action =='import_legacy':
                 app.importFromLegacyDb()
-        elif action=='make_resources':
-            ThPackageResourceMaker(app,package=package,menu=True).makeResources()
 
 
 
