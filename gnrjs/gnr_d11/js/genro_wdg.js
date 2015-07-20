@@ -1351,7 +1351,7 @@ dojo.declare("gnr.GridEditor", null, {
             return;
         }
         grid.currRenderedRowIndex = lastRenderedRowIndex;
-        attr.datapath = '.' + rowLabel;
+        attr.datapath = this.widgetRootNode.absDatapath('.' + rowLabel);
         attr.width = attr.width || (cellNode.clientWidth-10)+'px';
         if(attr.tag.toLowerCase()=='checkbox'){
             attr.margin_left = ( (cellNode.clientWidth-10-16)/2)+'px';
