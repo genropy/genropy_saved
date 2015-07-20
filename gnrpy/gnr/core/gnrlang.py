@@ -820,8 +820,6 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
             new.__mixin_path = __mixin_path
         if getattr(new,'mixin_as',None):
             mixin_as = new.mixin_as.replace('#',str(id(source_class)))
-            if 'erpy_coge_cliente' in mixin_as:
-                print 'mixinining as',mixin_as,source_class
             setattr(target_class, mixin_as, new)
         else:
             setattr(target_class, name, new)
