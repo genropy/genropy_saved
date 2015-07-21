@@ -435,6 +435,13 @@ class TableBase(object):
                                                 condition_kwargs=condition_kwargs,caption=caption,dbstore=dbstore,columns=columns,
                                                 related_kwargs=related_kwargs,resolved=resolved,**kwargs)
 
+    def createSysRecords(self):
+        for m in dir(self):
+            if m.startswith('sysRecord_') and m!='sysRecord_':
+                if not self.checkDuplicate(__syscode=m[10:]):
+                    self.sysRecord(m[10:])
+                    return True
+
     def sysRecord(self,syscode):
         def createCb(key):
             record = getattr(self,'sysRecord_%s' %syscode)()
