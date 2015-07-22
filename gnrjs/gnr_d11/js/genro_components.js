@@ -804,7 +804,7 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
         }
         if (editable) {
             var bagNodeEditorId = treeId + '_editbagbox';
-            var origin = storepath.startsWith('*S')?'*S':null
+            var origin = stringStartsWith(storepath,'*S')?'*S':null
             tree_kwargs.selfsubscribe_onSelected = function(kw){                
                 genro.publish(bagNodeEditorId+'_currentPath',kw.item.getFullpath(null,origin!='*S'?genro._data:null))
             }

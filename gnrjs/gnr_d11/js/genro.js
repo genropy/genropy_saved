@@ -1274,9 +1274,9 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     getItem:function(path){
-        if(path.startsWith('*S')){
+        if(stringStartsWith(path,'*S')){
             return genro.src._main.getItem(path.slice(3));
-        }else if(path.startsWith('*D')){
+        }else if(stringStartsWith(path, '*D')){
             path = path.slice(3);
         }
         return genro._data.getItem(path);
