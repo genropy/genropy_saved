@@ -4280,6 +4280,7 @@ div[disabled='true'], div[disabled='disabled']{
     right:0;
     left:0;
     color:#444;
+    overflow: hidden;
 }
 .treeGridHeader{
     height:20px;
@@ -4291,31 +4292,45 @@ div[disabled='true'], div[disabled='disabled']{
 .treeGridCenter{
     position:absolute;
     top:21px;
-    bottom:0;
+    bottom:16px;
     left:0;
     right:0;
     overflow:auto;
 }
-
-.treeHeaderCell{
+.treeGridScroller{
     position: absolute;
-    text-align: center;
-    line-height: 20px;
-    border-left: 1px solid #efefef;
-    border-bottom: 1px solid #efefef;
+    height:16px;
+    bottom:0;
+    left:0;
+    right:0;
+    overflow: hidden;
 }
-.treeHeaderCell:last-child{
+
+.treeGridLayout .treecell{
+    display: inline-block;
+    border-bottom: 1px solid #efefef;
+    border-left: 1px solid #efefef;
+}
+
+
+
+.treeGridLayout .treecell:last-child{
     border-right:1px solid #efefef;
 }
-.treegrid .treecell{
-    position: absolute;
-    border-bottom: 1px solid #efefef;
-    border-left: 1px solid #efefef;
-    top: 0;
-    bottom:1;
+.treeGridLayout .treegrid .maincell.treecell{
+    background: #efefef;
 }
 
-.treegrid .treecell:last-child{
+.treeGridLayout .treeGridHeader .treecell{
+    display: inline-block;
+    border-bottom: 0px solid black;
+    border-left: 1px solid #efefef;
+    background: silver;
+    color:#efefef;
+    line-height: 18px;
+}
+
+.treeGridLayout .treeGridHeader .treecell:last-child{
     border-right:1px solid #efefef;
 }
 
@@ -4352,6 +4367,14 @@ div[disabled='true'], div[disabled='disabled']{
     left:1px;
     bottom: -1px;
 }
+.treegrid .treerow_columns{
+    display: inline-block;
+
+}
+.treeerow_viewport{
+    display: inline-block;
+}
+
 /*treegrid*/
 
 .branchtree_selected{
