@@ -39,7 +39,7 @@ class GnrCustomWebPage(object):
             var truevalue =  "<div style='background:green;height:15px;'>&nbsp;</div>";
             var falsevalue =  "<div style='background:red;height:15px;'>&nbsp;</div>";
             var format = truevalue+',&nbsp;'    
-            treeGrid._('column',{field:'descrizione',name:'descrizione',size:400,
+            treeGrid._('column',{field:'descrizione',name:'descrizione',size:200,
                 contentCb:"return this.attr.description || (this.attr.codice_comune +'-'+ this.attr.denominazione)"
                 })
             for (var i=0; i<30; i++){

@@ -314,9 +314,12 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     serverLog:function(data){
-        var mode = data.getItem('mode') || 'log';
+        var mode = data.mode|| 'log';
         if(mode=='log' || mode=='error' || mode=='warn'){
-            console[mode]('*SERVER* >>'+data.getItem('msg'),data.getItem('args'),data.getItem('kwargs'));
+            if(data.kwargs && data.kwargs instanceof gnr.GnrBag){
+                data.kwargs = data.kwargs.asDict();
+            }
+            console[mode]('*SERVER* >>'+data.msg,data.args,data.kwargs);
         }
     },
     

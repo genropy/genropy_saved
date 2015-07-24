@@ -152,7 +152,10 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         if (!topic){
             topic='websocketMessage';
         }else{
-            var data = data.getItem('data')
+            var data = data.getItem('data');
+            if(data instanceof gnr.GnrBag){
+                data = data.asDict();
+            }
         }
         if(nodeId || iframe || parent){
             topic = {topic:topic,nodeId:nodeId,iframe:iframe,parent:parent};
