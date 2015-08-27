@@ -163,6 +163,7 @@ class Server(object):
         vassal_path = os.path.join(vassals_dir,'%s.ini'%self.site_name)
         vassal_params = None
         if os.path.exists(vassal_path):
+            
             with open(vassal_path) as vassal_file:
                 config_parser = ConfigParser()
                 config_parser.readfp(vassal_file)
@@ -182,7 +183,8 @@ class Server(object):
                     env_value = boolean(env_value)
                 self.options.__dict__[key] = env_value
         if vassal_params:
-            self.options.__dict__.update(vassal_params)   
+            for key,value in vassal_params.items():
+                self.options[key]=value   
 
 
     def get_config(self):
