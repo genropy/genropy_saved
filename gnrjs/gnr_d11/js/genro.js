@@ -406,7 +406,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.dlg.createStandardMsg(document.body);
         this.contextIndex = {};
         this.isMac = dojo.isMac != undefined ? dojo.isMac : navigator.appVersion.indexOf('Macintosh') >= 0;
-        this.isTouchDevice = ( (navigator.appVersion.indexOf('iPad') >= 0 ) || (navigator.appVersion.indexOf('iPhone') >= 0));
+        this.isMobile = ( (navigator.appVersion.indexOf('iPad') >= 0 ) || (navigator.appVersion.indexOf('iPhone') >= 0));
         this.isChrome = ( (navigator.appVersion.indexOf('Chrome') >= 0 ));
         //genro.timeIt('** getting main **');
         this.wsk.create();
@@ -561,7 +561,7 @@ dojo.declare('gnr.GenroClient', null, {
 
 
         //genro.dom.preventGestureBackForward();
-        if (this.isTouchDevice) {
+        if (this.isMobile) {
             genro.dom.startTouchDevice();
         }
         genro.callAfter(function() {

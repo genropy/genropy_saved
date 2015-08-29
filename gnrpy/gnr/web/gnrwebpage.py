@@ -121,7 +121,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.user_agent = request.user_agent or []
         self.user_ip = request.remote_addr
         self._environ = environ
-        self.isTouchDevice = ('iPad' in self.user_agent or 'iPhone' in self.user_agent)
+        self.isMobile = ('iPad' in self.user_agent or 'iPhone' in self.user_agent)
         self._event_subscribers = {}
         self.forked = False # maybe redefine as _forked
         self.filepath = filepath
@@ -1694,7 +1694,7 @@ class GnrWebPage(GnrBaseWebPage):
             root.div(id='srcHighlighter')
             pageOptions = self.pageOptions or dict()
             if self.root_page_id and self.root_page_id==self.parent_page_id:
-                root.dataController("""var openMenu = genro.isTouchDevice?false:openMenu;
+                root.dataController("""var openMenu = genro.isMobile?false:openMenu;
                                    if(openMenu===false){
                                         genro.publish({parent:true,topic:'setIndexLeftStatus'},openMenu);
                                    }

@@ -33,7 +33,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this[k] = formAttr[k];
         }
         if(!('autoFocus' in this)){
-            this.autoFocus = !genro.isTouchDevice;
+            this.autoFocus = !genro.isMobile;
         }
         if(this.isRootForm){
             genro._rootForm = this;

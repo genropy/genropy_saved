@@ -1137,7 +1137,11 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
    },
     
     versionpatch_11__position: function() {
-        var centerOn = this.sourceNode.attr.centerOn;
+        var centerOn = this.sourceNode.attr.centerOn; 
+        if(genro.isMobile){
+            genro.dom.centerOn(this.domNode, centerOn,null,-.9);
+            return;
+        }
         centerOn = centerOn?genro.dom.getDomNode(centerOn):null
         if (!centerOn) {
             this._position_replaced();
@@ -2749,6 +2753,11 @@ dojo.declare("gnr.widgets._BaseTextBox", gnr.widgets.baseDojo, {
         dijit.selectInputText(this.focusNode);
     },
     created: function(widget, savedAttrs, sourceNode) {
+        if(genro.isMobile){
+            widget.focusNode.setAttribute('autocapitalize','none');
+            widget.focusNode.setAttribute('autocomplete','off');
+            widget.focusNode.setAttribute('autocorrect','off');
+        }
         this.connectFocus(widget, savedAttrs, sourceNode);
     }
     
@@ -3174,13 +3183,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         if (sourceNode.attr.openFormEvent) {
             dojo.connect(widget, sourceNode.attr.openFormEvent, widget, 'openLinkedForm');
-            if (genro.isTouchDevice) {
+            if (genro.isMobile) {
                 dojo.connect(widget, 'longTouch', widget, 'openLinkedForm');
             }
         }
         if (sourceNode.attr.loadFormEvent) {
             dojo.connect(widget, sourceNode.attr.loadFormEvent, widget, 'linkedFormLoad');
-            if (genro.isTouchDevice) {
+            if (genro.isMobile) {
                 dojo.connect(widget, 'longTouch', widget, 'linkedFormLoad');
             }
         }
@@ -3774,7 +3783,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 for (k = 0; k < rowsnodes.length; k++) {
 
                     rowBag = rowsnodes[k].getValue();
-                    if (genro.isTouchDevice) {
+                    if (genro.isMobile) {
                         var cellattr = {'format_isbutton':true,'format_buttonclass':'zoomIcon buttonIcon',
                             'format_onclick':'this.widget.openLinkedForm(kw);',
                             'width':'20px','calculated':true,
