@@ -58,12 +58,12 @@ class TableHandlerView(BaseComponent):
         top_kwargs=top_kwargs or dict()
         if extendedQuery:
             virtualStore = True
-            if 'adm' in self.db.packages:
+            if 'adm' in self.db.packages and not self.isMobile:
                 templateManager = 'templateManager'
             else:
                 templateManager = False
             if extendedQuery == '*':
-                base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
+                base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets' if not self.isMobile else 'menuUserSets','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
             elif extendedQuery is True:
                 base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','*','count','5']
             else:
@@ -86,6 +86,7 @@ class TableHandlerView(BaseComponent):
         else:
             top_kwargs['slots']= base_slots
         #top_kwargs['height'] = top_kwargs.get('height','20px')
+        top_kwargs['_class'] = 'th_view_toolbar'
         grid_kwargs['configurable'] = configurable
         grid_kwargs['item_name_singular'] = self.db.table(table).name_long
         grid_kwargs['item_name_plural'] = self.db.table(table).name_plural or grid_kwargs['item_name']
@@ -673,6 +674,45 @@ class TableHandlerView(BaseComponent):
         pane.div(_class='iconbox heart',tip='!!User sets').menu(storepath='.usersets.menu',
                                                                 _class='smallmenu',modifiers='*')
 
+    def th_newFastQuery(self,pane,table,th_root):
+
+        pane.dataController("""
+                   var qm = TH(th_root).querymanager;
+                   qm.createMenues();
+                   dijit.byId(qm.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryColumn')));
+                   dijit.byId(qm.relativeId('qb_queryModes_menu')).bindDomNode(genro.domById(qm.relativeId('searchMenu_a')));
+                   qm.setFavoriteQuery();
+        """,_onBuilt=1,th_root=th_root)
+
+        box = pane.div(datapath='.query.where')
+        box.data('.#parent.queryMode','S',caption='!!Search')
+        box.div('^.#parent.queryMode?caption',_class='gnrfieldlabel th_searchlabel',
+                nodeId='%s_searchMenu_a' %th_root)
+        querybox_stack = box.div(style='display:inline-block')
+        querybox = box.div(_class='th_querybox',hidden='^.#parent.queryAttributes.extended')
+        querybox.div('^.c_0?column_caption', _class='th_querybox_item',
+                 nodeId='%s_fastQueryColumn' %th_root,
+                  dropTarget=True,
+                 **{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"TH('%s').querymanager.onChangedQueryColumn(this,data);" %th_root})
+
+       #box.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
+       #        display='inline-block', width='1.5em', _class='floatingPopup', nodeId='%s_fastQueryNot' %th_root,
+       #        border_right='1px solid silver')
+        querybox.div('^.c_0?op_caption', nodeId='%s_fastQueryOp' %th_root, 
+                selected_fullpath='.c_0?op', selected_caption='.c_0?op_caption',
+                connectedMenu='==TH("%s").querymanager.getOpMenuId(_dtype);' %th_root,
+                _dtype='^.c_0?column_dtype',
+                _class='th_querybox_item')
+        querybox.div(_class='th_querybox_item th_queryboxfield').textbox(value='^.c_0?value_caption',width='7em',_class='th_queryboxfield')
+
+
+        querybox_stack.div("==_internalQueryCaption || _caption",_caption='^.#parent.queryAttributes.caption',
+                        _internalQueryCaption='^.#parent.#parent.internalQuery.caption', 
+                        _class='th_querybox_extended',
+                        tooltip='==_internalQueryTooltip || _internalQueryCaption || _caption',
+                                    _internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip',
+                                    hidden='^.#parent.queryAttributes.extended?=!#v')
+        
 
     @struct_method
     def th_slotbar_queryfb(self, pane,**kwargs):
@@ -699,6 +739,12 @@ class TableHandlerView(BaseComponent):
                                genro.dlg.alert(alertmsg,dlgtitle);
                                  """, _fired="^.showQueryCountDlg", waitmsg='!!Working.....',
                               dlgtitle='!!Current query record count',alertmsg='^.currentQueryCountAsString')
+    
+
+        if self.getUserPreference('tablehandler.xxx',pkg='sys') or self.isMobile:
+            self.th_newFastQuery(pane,table,th_root)
+            return
+
         pane.dataController("""
                    var qm = TH(th_root).querymanager;
                    qm.createMenues();
@@ -709,7 +755,8 @@ class TableHandlerView(BaseComponent):
                    dijit.byId(qm.relativeId('qb_queryModes_menu')).bindDomNode(genro.domById(qm.relativeId('searchMenu_b')));
 
                    qm.setFavoriteQuery();
-        """,_onStart=True,th_root=th_root)        
+        """,_onStart=True,th_root=th_root)
+
         fb = pane.formbuilder(cols=3, datapath='.query.where', _class='query_form',width='700px',overflow='hidden',
                                   border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
 

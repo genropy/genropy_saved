@@ -45,6 +45,79 @@
     display: inline-block;
 }
 
+.slotbar_toolbar .th_querybox{
+    padding-top:2px;
+    padding-bottom:1px;
+    line-height:3ex;
+    font-size: .9em;
+    height: 19px;
+    display: inline-block;
+}
+.slotbar_toolbar .th_querybox_extended{
+    position:relative;
+    display:inline-block;
+    padding-left:12px;
+    padding-right:12px;
+    border: 1px solid silver;
+    border-radius: 8px;
+    font-size: .9em;
+    line-height: 19px;
+}
+
+.slotbar_toolbar .th_querybox_item{
+    position:relative;
+    display:inline-block;
+    padding-left:12px;
+    padding-right:12px;
+    cursor:pointer;
+    background-color:#777;
+    color: whitesmoke;
+    border-right: 1px solid #efefef;
+}
+.th_querybox_item.run{
+    background-color:transparent;
+}
+
+.slotbar_toolbar .th_querybox_item.th_queryboxfield{
+    background: white;
+    color:#444;
+    cursor: text;
+    padding-left: 0;
+    padding-right: 4px;
+}
+.th_queryboxfield .dijitInputField, .th_queryboxfield .dijitTextBox{
+    border: 0px;
+    padding-top: 0 !important;
+    vertical-align: middle;
+    border: 0px !important;
+    border-left: 0px !important;
+    border-top: 0px !important;
+    border-bottom: 0px !important;
+    top:-1px;
+}
+
+.slotbar_toolbar .th_querybox_item:last-child{
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+.slotbar_toolbar .th_querybox_item:first-child{
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.th_view_toolbar{
+}
+
+.th_view_toolbar.pbl_roundedGroupLabel{
+}
+
+.th_form_toolbar{
+}
+
+
+.th_searchlabel{
+    font-size: .9em;
+}
 .th_searchlabel:hover{
     background-color: #feffb4;
 }
