@@ -607,7 +607,9 @@ class TableHandlerView(BaseComponent):
             """,pkeys='=.query.pkeys',
                 selectedOnlyCaption='!!Selected only',linkedSelectionCaption='!!Depending from ',
                 syncSelectionCaption='!!In sync with ',
-                linkedSelectionPars='=.linkedSelectionPars',_fired='^.queryEnd',_delay=1)       
+                linkedSelectionPars='=.linkedSelectionPars',_fired='^.queryEnd',_delay=1,
+                currentReason='=.internalQuery.reason') 
+        frame.data('.internalQuery.reason',None)      
         frame.dataController("""
             genro.dom.setClass(fn,'filteredGrid',internalQueryReason);
             SET .query.queryAttributes.extended = internalQueryReason!=null;
