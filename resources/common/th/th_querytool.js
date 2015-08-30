@@ -143,12 +143,17 @@ dojo.declare("gnr.QueryManager", null, {
                                iconClass:'iconbox run'});
 
 
-        var editorRoot = frame._('div',{datapath:'.where',margin:'2px'});
+        var editorRoot = frame._('div',{datapath:'.where',margin:'2px',nodeId:this.th_root+'_queryEditorRoot'});
         node.unfreeze();
-        this._editorRoot = editorRoot;
         this.buildQueryPane();
         this.checkFavorite();
     },
+
+    _editorRoot:function(){
+        var n = genro.nodeById(this.th_root+'_queryEditorRoot');
+        return n? n.getValue():null;
+    },
+
     saveQuery:function(){
         var datapath =  this.sourceNode.absDatapath('.query.queryAttributes');
         var code = this.sourceNode.getRelativeData('.query.queryAttributes.code');
@@ -170,11 +175,12 @@ dojo.declare("gnr.QueryManager", null, {
         var sourceNode = this.sourceNode;
         var that = this;
         var finalize = function(where,run){
-            if(that._editorRoot){
-                that._editorRoot.popNode('root');
+            var editorRoot = that._editorRoot();
+            if(editorRoot){
+                editorRoot.popNode('root');
             }
             sourceNode.setRelativeData('.query.where',where);
-            if(that._editorRoot){
+            if(editorRoot){
                 that.buildQueryPane();
             }
             that.checkFavorite();
@@ -207,8 +213,9 @@ dojo.declare("gnr.QueryManager", null, {
     },
     
     buildQueryPane: function() {
-        this._editorRoot.popNode('root');
-        this._buildQueryGroup(this._editorRoot._('div','root'), this.sourceNode.getRelativeData('.query.where'), 0);
+        var editorRoot = this._editorRoot();
+        editorRoot.popNode('root');
+        this._buildQueryGroup(editorRoot._('div','root'), this.sourceNode.getRelativeData('.query.where'), 0);
     },
     
     addDelFunc : function(mode, pos, e) {
@@ -492,8 +499,8 @@ dojo.declare("gnr.QueryManager", null, {
         var currfavorite = genro.getFromStorage("local", this.storeKey());
         this.sourceNode.setRelativeData('.query.favoriteQueryPath',currfavorite);
         this.refreshQueryMenues();
-        if(this._editorRoot){
-            genro.dom.setClass(this._editorRoot.getParentNode().attributeOwnerNode('frameCode'),
+        if(this._editorRoot()){
+            genro.dom.setClass(this._editorRoot().getParentNode().attributeOwnerNode('frameCode'),
                             'th_isFavoriteQuery',currfavorite==currPath);
         }
     },
