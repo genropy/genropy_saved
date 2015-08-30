@@ -713,7 +713,7 @@ class TableHandlerView(BaseComponent):
                         _class='th_querybox_extended',
                         tooltip='==_internalQueryTooltip || _internalQueryCaption || _caption',
                                     _internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip',
-                                    hidden='^.#parent.queryAttributes.extended?=!#v')
+                                    hidden='^.#parent.queryAttributes.extended?=!#v',min_width='20em')
         
 
     @struct_method
@@ -743,7 +743,7 @@ class TableHandlerView(BaseComponent):
                               dlgtitle='!!Current query record count',alertmsg='^.currentQueryCountAsString')
     
 
-        if self.getUserPreference('tablehandler.xxx',pkg='sys') or self.isMobile:
+        if self.getUserPreference('tablehandler.new_query',pkg='sys') or self.isMobile:
             self.th_newFastQuery(pane,table,th_root)
             return
 
