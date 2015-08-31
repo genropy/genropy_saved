@@ -680,11 +680,13 @@ class TableHandlerView(BaseComponent):
 
         pane.dataController("""
                    var qm = TH(th_root).querymanager;
-                   qm.createMenues();
-                   dijit.byId(qm.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryColumn')));
+                   qm.createMenuesQueryEditor();
+                   qm.createMenuesFastQuery(this.absDatapath('.query.where.c_0'));
+
+                   dijit.byId(qm.relativeId('qb_fields_menu_fast')).bindDomNode(genro.domById(qm.relativeId('fastQueryColumn')));
                    dijit.byId(qm.relativeId('qb_queryModes_menu')).bindDomNode(genro.domById(qm.relativeId('searchMenu_a')));
                    qm.setFavoriteQuery();
-        """,_onBuilt=1,th_root=th_root)
+        """,_onStart=True,th_root=th_root)
 
         box = pane.div(datapath='.query.where')
         box.data('.#parent.queryMode','S',caption='!!Search')
