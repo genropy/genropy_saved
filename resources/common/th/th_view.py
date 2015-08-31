@@ -681,14 +681,14 @@ class TableHandlerView(BaseComponent):
         pane.dataController("""
                    var qm = TH(th_root).querymanager;
                    qm.createMenuesQueryEditor();
-                   qm.createMenuesFastQuery(this.absDatapath('.query.where.c_0'));
-
+                   qm.createFastQueryFieldsTree(this.absDatapath('.query.where.c_0'));
+                   dijit.byId(qm.relativeId('qb_not_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryNot')));
                    dijit.byId(qm.relativeId('qb_fields_menu_fast')).bindDomNode(genro.domById(qm.relativeId('fastQueryColumn')));
                    dijit.byId(qm.relativeId('qb_queryModes_menu')).bindDomNode(genro.domById(qm.relativeId('searchMenu_a')));
                    qm.setFavoriteQuery();
         """,_onStart=True,th_root=th_root)
 
-        box = pane.div(datapath='.query.where')
+        box = pane.div(datapath='.query.where',onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
         box.data('.#parent.queryMode','S',caption='!!Search')
         box.div('^.#parent.queryMode?caption',_class='gnrfieldlabel th_searchlabel',
                 nodeId='%s_searchMenu_a' %th_root)
@@ -699,9 +699,8 @@ class TableHandlerView(BaseComponent):
                   dropTarget=True,
                  **{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"TH('%s').querymanager.onChangedQueryColumn(this,data);" %th_root})
 
-       #box.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
-       #        display='inline-block', width='1.5em', _class='floatingPopup', nodeId='%s_fastQueryNot' %th_root,
-       #        border_right='1px solid silver')
+        querybox.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
+                width='1.5em', _class='th_querybox_item', nodeId='%s_fastQueryNot' %th_root)
         querybox.div('^.c_0?op_caption', nodeId='%s_fastQueryOp' %th_root, 
                 selected_fullpath='.c_0?op', selected_caption='.c_0?op_caption',
                 connectedMenu='==TH("%s").querymanager.getOpMenuId(_dtype);' %th_root,
