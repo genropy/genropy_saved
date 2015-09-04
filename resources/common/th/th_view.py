@@ -63,9 +63,9 @@ class TableHandlerView(BaseComponent):
             else:
                 templateManager = False
             if extendedQuery == '*':
-                base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets' if not self.isMobile else 'menuUserSets','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
+                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets' if not self.isMobile else 'menuUserSets','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
             elif extendedQuery is True:
-                base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','*','count','5']
+                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','*','count','5']
             else:
                 base_slots = extendedQuery.split(',')
         elif not virtualStore:
@@ -675,9 +675,31 @@ class TableHandlerView(BaseComponent):
 
         pane.div(_class='iconbox heart',tip='!!User sets').menu(storepath='.usersets.menu',
                                                                 _class='smallmenu',modifiers='*')
-
-    def th_newFastQuery(self,pane,table,th_root):
-
+       
+    @struct_method
+    def th_slotbar_fastQueryBox(self, pane,**kwargs):
+        inattr = pane.getInheritedAttributes()
+        table = inattr['table'] 
+        th_root = inattr['th_root']
+        pane.dataController(
+               """var th = TH(th_root);
+                  
+                  th.querymanager = th.querymanager || new gnr.QueryManager(th,this,table);
+               """ 
+               , _init=True, _onBuilt=True, table=table,th_root = th_root)
+               
+        pane.dataController("""var th=TH(th_root).querymanager.onQueryCalling(querybag,selectmethod);
+                              """,th_root=th_root,_fired="^.runQuery",
+                           querybag='=.query.where',
+                           selectmethod='=.query.queryAttributes.selectmethod')
+        pane.dataFormula('.currentQueryCountAsString', 'msg.replace("_rec_",cnt)',
+                           cnt='^.currentQueryCount', _if='cnt', _else='',
+                           msg='!!Current query will return _rec_ items')
+        pane.dataController("""SET .currentQueryCountAsString = waitmsg;
+                              FIRE .updateCurrentQueryCount;
+                               genro.dlg.alert(alertmsg,dlgtitle);
+                                 """, _fired="^.showQueryCountDlg", waitmsg='!!Working.....',
+                              dlgtitle='!!Current query record count',alertmsg='^.currentQueryCountAsString')
         pane.dataController("""
                    var qm = TH(th_root).querymanager;
                    qm.createMenuesQueryEditor();
@@ -717,88 +739,6 @@ class TableHandlerView(BaseComponent):
                                     hidden='^.#parent.queryAttributes.extended?=!#v',min_width='20em')
         
 
-    @struct_method
-    def th_slotbar_queryfb(self, pane,**kwargs):
-        inattr = pane.getInheritedAttributes()
-        table = inattr['table'] 
-        th_root = inattr['th_root']
-        pane.dataController(
-               """var th = TH(th_root);
-                  
-                  th.querymanager = th.querymanager || new gnr.QueryManager(th,this,table);
-               """ 
-               , _init=True, _onBuilt=True, table=table,th_root = th_root)
-               
-        pane.dataController("""var th=TH(th_root).querymanager.onQueryCalling(querybag,selectmethod);
-                              """,th_root=th_root,_fired="^.runQuery",
-                           querybag='=.query.where',
-                           selectmethod='=.query.queryAttributes.selectmethod')
-                           
-        pane.dataFormula('.currentQueryCountAsString', 'msg.replace("_rec_",cnt)',
-                           cnt='^.currentQueryCount', _if='cnt', _else='',
-                           msg='!!Current query will return _rec_ items')
-        pane.dataController("""SET .currentQueryCountAsString = waitmsg;
-                              FIRE .updateCurrentQueryCount;
-                               genro.dlg.alert(alertmsg,dlgtitle);
-                                 """, _fired="^.showQueryCountDlg", waitmsg='!!Working.....',
-                              dlgtitle='!!Current query record count',alertmsg='^.currentQueryCountAsString')
-    
-
-        if self.getUserPreference('tablehandler.new_query',pkg='sys') or self.isMobile:
-            self.th_newFastQuery(pane,table,th_root)
-            return
-
-        pane.dataController("""
-                   var qm = TH(th_root).querymanager;
-                   qm.createMenues();
-                   dijit.byId(qm.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryColumn')));
-                   dijit.byId(qm.relativeId('qb_not_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryNot')));
-                   
-                   dijit.byId(qm.relativeId('qb_queryModes_menu')).bindDomNode(genro.domById(qm.relativeId('searchMenu_a')));
-                   dijit.byId(qm.relativeId('qb_queryModes_menu')).bindDomNode(genro.domById(qm.relativeId('searchMenu_b')));
-
-                   qm.setFavoriteQuery();
-        """,_onStart=True,th_root=th_root)
-
-        fb = pane.formbuilder(cols=3, datapath='.query.where', _class='query_form',width='700px',overflow='hidden',
-                                  border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
-
-        box = fb.div(row_hidden='^.#parent.queryAttributes.extended')
-        box.data('.#parent.queryMode','S',caption='!!Search')
-        box.div('^.#parent.queryMode?caption',width='5em',_class='gnrfieldlabel th_searchlabel',
-                nodeId='%s_searchMenu_a' %th_root)
-        box.div('^.c_0?column_caption', min_width='12em', _class='fakeTextBox floatingPopup',
-                 nodeId='%s_fastQueryColumn' %th_root,
-                  dropTarget=True,
-                 **{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"TH('%s').querymanager.onChangedQueryColumn(this,data);" %th_root})
-        optd = fb.div(_class='fakeTextBox', lbl='!!Op.', lbl_width='4em',margin_top='1px')
-        optd.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
-                display='inline-block', width='1.5em', _class='floatingPopup', nodeId='%s_fastQueryNot' %th_root,
-                border_right='1px solid silver')
-        optd.div('^.c_0?op_caption', min_width='7em', nodeId='%s_fastQueryOp' %th_root, 
-                selected_fullpath='.c_0?op', selected_caption='.c_0?op_caption',
-                connectedMenu='==TH("%s").querymanager.getOpMenuId(_dtype);' %th_root,
-                _dtype='^.c_0?column_dtype',
-                _class='floatingPopup', display='inline-block', padding_left='2px')
-        value_textbox = fb.textbox(lbl='!!Value', value='^.c_0?value_caption', width='12em', lbl_width='5em',margin_top='1px',
-                                       _autoselect=True,relpath='.c_0',
-                                       row_class='^.c_0?css_class', position='relative',
-                                       validate_onAccept='TH("%s").querymanager.checkQueryLineValue(this,value)' %th_root,
-                                       disabled='==(_op in TH("%s").querymanager.helper_op_dict)'  %th_root, _op='^.c_0?op',
-                                       connect_onclick="TH('%s').querymanager.getHelper(this);" %th_root,display='block',
-                                       _class='st_conditionValue',
-                                       onSpeechEnd="""var searchtext=this.widget.focusNode.value;
-                                                      this.setAttributeInDatasource('value',searchtext,true);
-                                                    genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});""",
-                                       speech=True)
-        value_textbox.div('^.c_0?value_caption', hidden='==!(_op in  TH("%s").querymanager.helper_op_dict)' %th_root,
-                         _op='^.c_0?op', _class='helperField')
-        box = fb.div(row_hidden='^.#parent.queryAttributes.extended?=!#v',colspan=3,width='100%',position='relative')
-        box.div('^.#parent.queryMode?caption',width='5em',_class='gnrfieldlabel th_searchlabel',
-                nodeId='%s_searchMenu_b' %th_root)
-        box.div("==_internalQueryCaption || _caption",_caption='^.#parent.queryAttributes.caption',_internalQueryCaption='^.#parent.#parent.internalQuery.caption', _class='fakeTextBox buttonIcon',
-                    position='absolute',right='15px',left='65px',tooltip='==_internalQueryTooltip || _internalQueryCaption || _caption',
-                                    _internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip')
         
     def _th_viewController(self,pane,table=None,th_root=None,default_totalRowCount=None):
         table = table or self.maintable
