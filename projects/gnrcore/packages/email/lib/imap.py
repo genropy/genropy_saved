@@ -158,6 +158,7 @@ class ImapReceiver(object):
     def getAttachmentPath(self,date=None,filename=None, message_id = None, relative=None):
         year = str(date.year)
         month = '%02i' %date.month
+        filename = filename or 'attachment_%s' %self.atc_counter
         if not relative:
             filepath = self.db.application.site.getStaticPath('site:mail', self.account_id, year,month,message_id, filename,
                                                        autocreate=-1)
