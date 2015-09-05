@@ -36,6 +36,12 @@
     background-color:lightyellow;
 }
 
+.selectedFieldTreeNode{
+    background: #60a1ea;
+    color:white;
+    display: inline-block;
+    width: 100%;
+}
 .slotbar_toolbar .gnrfieldlabel.th_searchlabel{
     cursor: pointer;
     border-top-left-radius: 8px;

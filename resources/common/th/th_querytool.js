@@ -103,7 +103,7 @@ dojo.declare("gnr.QueryManager", null, {
         return box._('tree','treemenu',objectUpdate({
             openOnClick:true,
             hideValues:true,autoCollapse:true, //excludeRoot:true,
-            labelAttribute:'caption',selectedLabelClass:'selectedTreeNode',
+            labelAttribute:'caption',selectedLabelClass:'selectedFieldTreeNode',
                          parentMenu:menu,_class:"branchtree noIcon"},kw));
 
     },
