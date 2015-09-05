@@ -2154,7 +2154,9 @@ div.dojoxDock {
 .tundra .dijitDialog .dijitDialogPaneContent {
     font-size: 12px;
     padding: 0px;
+    overflow: hidden;
 }
+
 
 ._common_d11 .lightboxDialog.dijitDialog {
     border-radius: 8px;
@@ -2185,6 +2187,10 @@ div.dojoxDock {
     border: 0px;
     /*background-image: -moz-linear-gradient(-90deg, rgba(170, 190, 201, 0.2), #FFFFFF);
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, rgba(170, 190, 201, 0.2), to(#FFFFFF));*/
+}
+
+.tundra .dijitDialogPaneContent{
+    overflow: hidden;
 }
 
 ._common_d11 .lightboxDialog .dijitDialogTitleBar{ 

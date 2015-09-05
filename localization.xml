@@ -577,7 +577,7 @@
 <en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
 <en_choose_the_action_to_execute_ fr="Choisissez l'action à exécuter:" de="Wählen Sie die Aktion ausführen:" en="Choose the action to execute:" it="Scegliere l'azione da eseguire:" base="Choose the action to execute: "></en_choose_the_action_to_execute_>
 <en_confirm fr="Confirmer" de="Bestätigen" en="Confirm" it="Ok" base="Confirm"></en_confirm>
-<en_search fr="Recherche" de="Suche" en="Search" it="Ricerca" base="Search"></en_search>
+<en_search fr="Recherche" en="Search" de="Suche" it="Cerca" base="Search"></en_search>
 <en_op_ base="Op." en="Op." it="Op."></en_op_>
 <en_value fr="Valeur" de="Wert" en="Value" it="Valore" base="Value"></en_value>
 <en_run_query fr="Requête exécutée" de="Abfrage ausführen" en="Run query" it="Interrogazione Run" base="Run query"></en_run_query>
@@ -663,7 +663,7 @@
 <en_current_query_will_return_rec_items _tag="en_current_query_will_return__rec__items" fr="Requête en cours sera de retour _rec_ articles" en="Current query will return _rec_ items" de="Aktuelle Abfrage _rec_ Einzelteile zurück" it="Query corrente tornerà _rec_ articoli" base="Current query will return _rec_ items"></en_current_query_will_return_rec_items>
 <en_working_ fr="Travailler ....." de="Arbeiten ....." en="Working....." it="Sto elaborando" base="Working....."></en_working_>
 <en_current_query_record_count fr="Requête actuelle nombre d'enregistrements" de="Aktuelle Abfrage Datenanzahl" en="Current query record count" it="Query corrente conteggio dei record" base="Current query record count"></en_current_query_record_count>
-<en_search fr="Recherche" de="Suche" en="Search" it="Ricerca" base="Search"></en_search>
+<en_search fr="Recherche" en="Search" de="Suche" it="Cerca" base="Search"></en_search>
 <en_op_ base="Op." en="Op." it="Op."></en_op_>
 <en_value fr="Valeur" de="Wert" en="Value" it="Valore" base="Value"></en_value>
 <en_not fr="pas" de="nicht" en="not" it="non" base="not"></en_not>
@@ -671,9 +671,9 @@
 <en_plain_query fr="Plaine de requêtes" de="Plain-Abfrage" en="Plain Query" it="Plain Query" base="Plain Query"></en_plain_query>
 <en_query_editor fr="Editeur de requêtes" de="Abfrage-Editor" en="Query editor" it="Editor Query" base="Query editor"></en_query_editor>
 <en_new_query fr="Nouvelle recherche" de="Neue Abfrage" en="New query" it="Nuova ricerca" base="New query"></en_new_query>
-<en_union fr="Union" de="Union" en="Union" it="Unione" base="Union"></en_union>
-<en_intersect fr="Couper" de="Schneiden" en="Intersect" it="Intersecare" base="Intersect"></en_intersect>
-<en_difference fr="Différence" de="Unterschied" en="Difference" it="Differenza" base="Difference"></en_difference>
+<en_union fr="Union" en="Union" de="Union" it="Unisci" base="Union"></en_union>
+<en_intersect fr="Couper" en="Intersect" de="Schneiden" it="Interseca" base="Intersect"></en_intersect>
+<en_difference fr="Différence" en="Difference" de="Unterschied" it="Togli" base="Difference"></en_difference>
 <en_please_select_the_column fr="S'il vous plaît sélectionnez la colonne" de="Bitte wählen Sie die Spalte" en="Please select the column" it="Si prega di selezionare la colonna" base="Please select the column"></en_please_select_the_column>
 <en_and fr="ET" de="UND" en="AND" it="E" base="AND"></en_and>
 <en_or fr="OU" de="ODER" en="OR" it="OR" base="OR"></en_or></th_view></th>

@@ -49,6 +49,7 @@ from gnr.core.gnrbag import Bag, BagResolver
 from gnr.core.gnrdecorator import public_method,deprecated
 from gnr.web.gnrbaseclasses import BaseComponent # DO NOT REMOVE, old code relies on BaseComponent being defined in this file
 from gnr.app.gnrlocalization import GnrLocString
+from base64 import b64decode
 
 import datetime
 
@@ -82,6 +83,7 @@ class GnrMaintenanceException(GnrException):
     pass
 
 
+
 class GnrMissingResourceException(GnrException):
     pass
 
@@ -90,10 +92,14 @@ class GnrUserNotAllowed(GnrException):
     description = '!!Genro Not Allowed Public call'
     caption = "!!User %(user)s is not allowed to call method %(method)s"    
 
+class GnrBasicAuthenticationError(GnrException):
+    code = 'AUTH-901'
+
 EXCEPTIONS = {'user_not_allowed': GnrUserNotAllowed,
               'missing_resource': GnrMissingResourceException,
               'unsupported_browsr': GnrUnsupportedBrowserException,
               'generic': GnrWebPageException,
+              'basic_authentication':GnrBasicAuthenticationError,
               'maintenance': GnrMaintenanceException}
 
 class GnrWebPage(GnrBaseWebPage):
@@ -888,9 +894,24 @@ class GnrWebPage(GnrBaseWebPage):
             handler = getattr(proxy_object, '%s_%s' % (prefix, submethod),None)
         
         if handler and getattr(handler, 'tags',None):
-            if not self.application.checkResourcePermission(handler.tags, self.userTags):
+            userTags = self.userTags or self.basicAuthenticationTags
+            if not self.application.checkResourcePermission(handler.tags, userTags):
                 raise self.exception(GnrUserNotAllowed,method=method)
         return handler
+
+    @property
+    def basicAuthenticationTags(self):
+        authorization = self.request.headers.get('Authorization')
+        if not authorization:
+            raise GnrBasicAuthenticationError('Missing Basic Authorization')
+        authmode,login = authorization.split(' ')
+        if authmode!='Basic':
+            raise GnrBasicAuthenticationError('Wrong Authorization Mode')
+        user,pwd = b64decode(login).split(':')
+        avatar = self.application.getAvatar(user,pwd)
+        if not avatar:
+            raise GnrBasicAuthenticationError('Wrong Authorization Login')
+        return avatar.user_tags
         
     def getWsMethod(self, method):
         """TODO
