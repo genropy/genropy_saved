@@ -894,12 +894,11 @@ class GnrWebPage(GnrBaseWebPage):
             handler = getattr(proxy_object, '%s_%s' % (prefix, submethod),None)
         
         if handler and getattr(handler, 'tags',None):
-            userTags = self.userTags or self.basicAuthenticationTags
+            userTags = self.userTags or self.basicAuthenticationTags()
             if not self.application.checkResourcePermission(handler.tags, userTags):
                 raise self.exception(GnrUserNotAllowed,method=method)
         return handler
 
-    @property
     def basicAuthenticationTags(self):
         authorization = self.request.headers.get('Authorization')
         if not authorization:
