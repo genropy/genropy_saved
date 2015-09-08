@@ -728,9 +728,12 @@ class TableHandlerView(BaseComponent):
                 connectedMenu='==TH("%s").querymanager.getOpMenuId(_dtype);' %th_root,
                 _dtype='^.c_0?column_dtype',
                 _class='th_querybox_item')
-        querybox.div(_class='th_querybox_item th_queryboxfield').textbox(value='^.c_0?value_caption',width='8em',_class='th_queryboxfield')
-
-
+        querybox.div(_class='th_querybox_item th_queryboxfield').textbox(value='^.c_0?value_caption',width='8em',
+            _autoselect=True,relpath='.c_0',
+            validate_onAccept='TH("%s").querymanager.checkQueryLineValue(this,value)' %th_root,
+            disabled='==(_op in TH("%s").querymanager.helper_op_dict)'  %th_root, _op='^.c_0?op',
+            connect_onclick="TH('%s').querymanager.getHelper(this);" %th_root,
+            _class='th_queryboxfield')
         querybox_stack.div("==_internalQueryCaption || _caption",_caption='^.#parent.queryAttributes.caption',
                         _internalQueryCaption='^.#parent.#parent.internalQuery.caption', 
                         _class='th_querybox_extended',
