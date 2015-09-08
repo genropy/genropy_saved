@@ -4,6 +4,7 @@
 import datetime
 import warnings as warnings_module
 import os
+import pytz
 from gnr.core.gnrlang import boolean
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip,templateReplace,fromJson,slugify
@@ -498,7 +499,10 @@ class TableBase(object):
         :param record: the record
         :param fldname: the field name"""
         if not getattr(record, '_notUserChange', None):
-            record[fldname] = datetime.datetime.today()
+            if self.column(fldname).dtype == 'DHZ':
+                record[fldname] = datetime.datetime.now(pytz.utc)
+            else:
+                record[fldname] = datetime.datetime.now() 
 
 
     def trigger_setProtectionTag(self,record,fldname,**kwargs):
