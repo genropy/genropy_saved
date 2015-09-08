@@ -175,7 +175,7 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
     },
 
     mixin_gnr_value:function(value,kw, trigger_reason){        
-        this.setValue(value)
+        this.setValue(value || '');
         var that = this;
         var sourceNode = this.sourceNode;
         sourceNode.watch('isVisible',function(){

@@ -1074,7 +1074,7 @@ dojo.declare("gnr.GridEditor", null, {
                     if(result[rcol]){
                         hcols = [];
                         for(var j in cellmap){
-                            if(cellmap[j].relating_column==rcol && !(cellmap[j].field_getter in result)){
+                            if(cellmap[j].relating_column==rcol && result[cellmap[j].field_getter]==undefined){
                                 hcols.push(cellmap[j].related_column);
                             }
                         }
