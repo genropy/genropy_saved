@@ -184,12 +184,13 @@ class _SaxImporter(sax.handler.ContentHandler):
         self.valueList = []
 
     def characters(self, s):
-        if s == '\n': self.valueList.append(s)
-        #s=s.strip()
-        if not self.valueList or self.valueList[-1] == '\n':
-            s = s.lstrip()
-        s = s.rstrip('\n')
-        if s != '': self.valueList.append(s)
+        self.valueList.append(s)
+       #if s == '\n': self.valueList.append(s)
+       ##s=s.strip()
+       #if not self.valueList or self.valueList[-1] == '\n':
+       #    s = s.lstrip()
+       #s = s.rstrip('\n')
+       #if s != '': self.valueList.append(s)
 
     def endElement(self, tagLabel):
         value = self.getValue(dtype = self.currType)
@@ -217,10 +218,11 @@ class _SaxImporter(sax.handler.ContentHandler):
                 self.setIntoParentBag(tagLabel, curr, attributes)
         else:
             curr, attributes = self.bags.pop()
-         
             if value or isValidValue(value):
                 if curr:
-                    curr.nodes.append(BagNode(curr, '_', value))
+                    value = value.strip()
+                    if value:
+                        curr.nodes.append(BagNode(curr, '_', value))
                 else:
                     curr = value
             if not curr and not isValidValue(curr):
