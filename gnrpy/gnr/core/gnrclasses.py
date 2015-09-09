@@ -289,11 +289,13 @@ class GnrClassCatalog(object):
         
         self.addClass(cls=datetime.datetime, key='DH', aliases=['DATETIME', 'DT','DHZ'], empty=None)
         self.addParser(datetime.datetime, self.parse_datetime)
-        
+        self.addSerializer("asText", datetime.datetime, lambda dh: dh.isoformat())
+
   
         self.addClass(cls=datetime.time, key='H', aliases=['TIME','HZ'], empty=None)
         self.addParser(datetime.time, self.parse_time)
-        
+
+
         self.addClass(cls=Bag, key='BAG', aliases=['BAG', 'GNRBAG', 'bag', 'gnrbag'], empty=Bag)
         self.addParser(Bag, lambda txt: Bag(txt))
         self.addSerializer("asText", Bag, lambda b: b.toXml(catalog=self))

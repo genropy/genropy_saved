@@ -64,6 +64,11 @@ class TableHandlerCommon(BaseComponent):
             return '%s%s' %(defaultModule,name)
         return name
         
+
+    def mixinExternalTHResource(self,table=None,resourceName=None,defaultClass=None,rootCode=None):
+        rootCode = rootCode or table.replace('.','_')
+        self._th_mixinResource(rootCode=rootCode,table=table,resourceName=resourceName)
+
     def _th_mixinResource(self,rootCode=None,table=None,resourceName=None,defaultClass=None):
         pkg,tablename = table.split('.')
         defaultModule = 'th_%s' %tablename
