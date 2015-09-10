@@ -25,8 +25,8 @@ class Form(BaseComponent):
 
     def th_form(self, form):
         bc = form.center.borderContainer()
-        fb = bc.contentPane(region='top',datapath='.record').div(margin_right='10px').formbuilder(cols=3, border_spacing='4px',fld_width='100%',width='100%',colswidth='auto')
-        fb.field('name',colspan=2)
+        fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=2)
+        fb.field('name',width='20em')
         fb.field('server',html_label=True)
 
         tc = bc.tabContainer(region='center',margin='2px')
