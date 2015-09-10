@@ -367,6 +367,7 @@ class BagNode(object):
         
         :param validator: the type of validation to set into the list of the node
         :param parameterString: the parameter for a single validation type"""
+        print x
         if self._validators is None:
             self._validators = BagValidationList(self)
         self._validators.add(validator, parameterString)
@@ -1511,11 +1512,12 @@ class Bag(GnrObject):
         if kwargs:
             _attributes = dict(_attributes or {})
             _validators = dict(_validators or {})
-            for k, v in kwargs.items():
-                if k.startswith('validate_'):
-                    _validators[k[9:]] = v
-                else:
-                    _attributes[k] = v
+            _attributes.update(kwargs)
+           # for k, v in kwargs.items():
+           #     if k.startswith('validate_'):
+           #         _validators[k[9:]] = v
+           #     else:
+           #         _attributes[k] = v
         if item_path == '' or item_path is True:
             if isinstance(item_value, BagResolver):
                 item_value = item_value()
