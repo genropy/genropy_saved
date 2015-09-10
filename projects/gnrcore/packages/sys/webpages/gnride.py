@@ -6,6 +6,7 @@
 
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag,DirectoryResolver
+from gnr.app.gnrconfig import getGenroRoot
 import os
 import sys
 
@@ -57,7 +58,7 @@ class GnrCustomWebPage(object):
 
     def dbstructPane(self,frame):
         frame.data('main.dbstructure',self.app.dbStructure())
-        frame.top.slotToolbar('*,searchOn,2',height='20px')
+        frame.top.slotToolbar('*,searchOn,2',height='20px',searchOn_nodeId='dbstructure_tree_searchbox')
         pane = frame.center.contentPane(overflow='auto')
         pane.div(padding='10px').tree(nodeId='dbstructure_tree',storepath='main.dbstructure',_class='branchtree noIcon',
             hideValues=True,openOnClick=True)
@@ -65,11 +66,12 @@ class GnrCustomWebPage(object):
 
     def drawerPane(self,frame):
         b = Bag()
-        frame.top.slotToolbar('*,searchOn,2',height='20px')
+        frame.top.slotToolbar('*,searchOn,2',height='20px',searchOn_nodeId='drawer_tree_searchbox')
         for k,pkgobj in self.application.packages.items():
             b.setItem(k,DirectoryResolver(pkgobj.packageFolder,cacheTime=10,
                             include='*.py', exclude='_*,.*',dropext=True,readOnly=False)(),caption= pkgobj.attributes.get('name_long',k))
-
+        b.setItem('genropy',DirectoryResolver(getGenroRoot(),cacheTime=10,
+                            include='*.py', exclude='_*,.*',dropext=True,readOnly=False)(),caption='Genropy')
         
         frame.data('.directories.root',b,nodecaption='Project')
         pane = frame.center.contentPane(overflow='auto')

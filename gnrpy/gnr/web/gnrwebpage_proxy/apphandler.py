@@ -1111,6 +1111,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             return
         inserted = changeset.pop('inserted')
         updated =  changeset.pop('updated')
+        if updated:
+            updated =  dict(updated.digest('#a._pkey,#v'))
         deletedNode = changeset.popNode('deleted')
         tblobj = self.db.table(table)
         pkeyfield = tblobj.pkey
@@ -1119,9 +1121,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         insertedRecords = Bag()
         def cb(row):
             key = row[pkeyfield]
-            c = updated.getNode(key)
+            c = updated.get(key)
             if c:
-                for n in c.value:
+                for n in c:
                     if n.label in row:
                         if '_loadedValue' in n.attr and row[n.label] != n.attr['_loadedValue']:
                             wrongUpdates[key] = row
@@ -1131,7 +1133,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                         if '_loadedValue' in n.attr:
                             row[n.label] = n.value
         if updated:
-            pkeys = [pkey for pkey in updated.digest('#a._pkey') if pkey]
+            pkeys = [pkey for pkey in updated.keys() if pkey]
             tblobj.batchUpdate(cb,where='$%s IN :pkeys' %pkeyfield,pkeys=pkeys,bagFields=True)
         if inserted:
             for k,r in inserted.items():

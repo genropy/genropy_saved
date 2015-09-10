@@ -940,15 +940,17 @@ dojo.declare("gnr.GridEditor", null, {
         var inserted = changeset.getItem('inserted');
         if(updated){
             updated.forEach(function(n){
-                if(that.rowEditors && that.rowEditors[n.label]){
-                    that.rowEditors[n.label].deleteRowEditor();
+                var rowId = n.attr.rowId;
+                if(that.rowEditors && that.rowEditors[rowId]){
+                    that.rowEditors[rowId].deleteRowEditor();
                 }
             });
         }
         if(inserted){
             inserted.forEach(function(n){
-                if(that.rowEditors && that.rowEditors[n.label]){
-                    that.rowEditors[n.label].deleteRowEditor();
+                var rowId = n.attr.rowId;
+                if(that.rowEditors && that.rowEditors[rowId]){
+                    that.rowEditors[rowId].deleteRowEditor();
                 }
             });
         }
@@ -956,7 +958,7 @@ dojo.declare("gnr.GridEditor", null, {
         var insertedRows = result.getItem('insertedRecords');
         if(insertedRows){
             insertedRows.forEach(function(n){
-                var r = that.grid.storebag().getNode(n.label);
+                var r = that.grid.storebag().getNode(n.attr.rowId);
                 r.attr._pkey = n.getValue();
                 r._value = null;
                 r.label = n.label;
@@ -970,6 +972,7 @@ dojo.declare("gnr.GridEditor", null, {
     saveChangedRows:function(){
         var that = this;
         var changeset = this.getChangeset(true);
+        console.log('changeset',changeset)
         var sourceNode = this.grid.sourceNode;
         if(changeset.len()>0){
             that.grid.updateRowCount();
@@ -988,14 +991,14 @@ dojo.declare("gnr.GridEditor", null, {
                 var cannotSave = this.autoSave && (rowEditor.getErrors() || rowEditor.currentCol);
                 if (!cannotSave){
                         var prefix = rowEditor.newrecord?'inserted.':'updated.';
-                        changeset.setItem(prefix+rowEditor.rowId,rowEditor.getChangeset(),{_pkey:rowEditor.newrecord?null:rowEditor._pkey});
+                        changeset.setItem(prefix+'#id',rowEditor.getChangeset(),{_pkey:rowEditor.newrecord?null:rowEditor._pkey,rowId:rowEditor.rowId});
                         rowEditor.sendingStatus = sendingStatus;
                 }
             }
         }
         var deletedRows = new gnr.GnrBag();
         this.deletedRows.forEach(function(n){
-            deletedRows.setItem(n.attr._pkey,null,{_pkey:n.attr._pkey});
+            deletedRows.setItem('#id',null,{_pkey:n.attr._pkey});
         });
         if(deletedRows.len()>0){
             var unlinkfield = collectionStore.unlinkdict?collectionStore.unlinkdict.field:null;
