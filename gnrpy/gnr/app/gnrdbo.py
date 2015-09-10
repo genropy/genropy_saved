@@ -370,10 +370,11 @@ class TableBase(object):
         #doctor,staff,superadmin               ,doctor,staff,superadmin, LIKE %%,admin,%%
 
     def sysFields_df(self,tbl):
-        tbl.column('df_fields',dtype='X',group='_',_sendback=True,_sysfield=True)
-        tbl.column('df_fbcolumns','L',group='_',_sysfield=True)
-        tbl.column('df_custom_templates','X',group='_',_sysfield=True)
-        tbl.column('df_colswith',group='_',_sysfield=True)
+        tbl.column('df_fields',dtype='X',group='_',_sendback=True)
+        tbl.column('df_fbcolumns','L',group='_')
+        tbl.column('df_custom_templates','X',group='_')
+        tbl.column('df_colswith',group='_')
+
 
     def sysFields_counter(self,tbl,fldname,counter=None,group=None,name_long='!!Counter'):
         tbl.column(fldname, dtype='L', name_long=name_long, onInserting='setRowCounter',counter=True,
