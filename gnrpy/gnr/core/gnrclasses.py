@@ -26,6 +26,7 @@ import re
 from gnr.core import gnrstring
 from gnr.core.gnrdate import decodeOneDate, decodeDatePeriod
 from decimal import Decimal
+from dateutil.parser import parse as dateutil_parse
 
 ISO_MATCH = re.compile(r'\d{4}\W\d{1,2}\W\d{1,2}')
 
@@ -350,9 +351,7 @@ class GnrClassCatalog(object):
             
         :param txt: TODO
         :param workdate: the :ref:`workdate`"""
-        splitted = gnrstring.wordSplit(txt)
-        result = datetime.datetime(*[int(el) for el in splitted])
-        return result
+        return dateutil_parse(txt)
         
     def parse_date(self, txt, workdate=None):
         """Add???
