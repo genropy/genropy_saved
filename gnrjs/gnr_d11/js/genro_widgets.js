@@ -7192,10 +7192,9 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         //dojo.connect(widget,'onClick',widget,'_updateSelect');
         var storepath = widget.model.store.datapath;
         if ((storepath == '*D') || (storepath == '*S'))
-            widget._datasubscriber = dojo.subscribe('_trigger_data',
-                    widget, function(kw) {
+            widget.sourceNode.registerSubscription('_trigger_data',widget,function(kw){
                 this.setStorepath('', kw);
-            });
+            })
         else {
             sourceNode.registerDynAttr('storepath');
         }
