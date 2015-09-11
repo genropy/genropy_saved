@@ -98,7 +98,9 @@ dojo.declare("gnr.QueryManager", null, {
     },
 
     _floatingTreeMenu:function(node,name,kw){
-        var menu = node._('menu', {modifiers:'*',_class:'menupane',id:this.relativeId(name)});
+        var menu = node._('menu', {modifiers:'*',_class:'menupane',id:this.relativeId(name), connect_ondblclick:function(bagNode,treeNode){
+                                    this.widget.onCancel();
+                                }});
         var box = menu._('menuItem',{})._('div',{max_height:'300px',min_width: '220px',overflow:'auto',
                                                 connect_onclick:function(e){e.stopPropagation();e.preventDefault();}})._('div',{padding_top:'4px', padding_bottom:'4px'});
         return box._('tree','treemenu',objectUpdate({
