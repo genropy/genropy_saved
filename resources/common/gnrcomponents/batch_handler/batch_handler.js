@@ -157,7 +157,10 @@ batch_monitor.btc_result = function(node, sourceNode) {
                     genro.serverCall("btc.remove_batch",{"batch_id":batch_id,"all_batches":kw.shiftKey});
     }});
     if (error) {
-        resultNode._('div', {innerHTML:error});
+        var errorbox = resultNode._('div', {padding:'2px'});
+        errorbox._('div',{innerHTML:_T('!!The batch ended up with an error:'),text_align:'center',font_weight:'bold',color:'red'})
+        errorbox._('div', {innerHTML:error,padding:'3px'});
+        resultNode.unfreeze();
         return;
     }
 
@@ -226,12 +229,14 @@ batch_monitor.on_tl_del = function(node, sourceNode) {
 batch_monitor.on_tl_upd = function(node, sourceNode) {
     var last_change = node.attr._change_ts;
     var age = last_change ? (new Date() - last_change) / 1000 : 1000;
-    if (false && (age > 300)) {
+    if (age > 300) {
         var bag_error = new gnr.GnrBag();
-        bag_error.setItem('error', 'Timeout');
+        bag_error.setItem('error', _T('!!Timeout'));
         bag_error.setItem('time_delta', age);
         node.setValue(bag_error);
-        batch_monitor.on_btc_error_doc(node, sourceNode);
+        setTimeout(function(){
+            batch_monitor.on_btc_error_doc(node, sourceNode);
+        },1)
     }
 };
 

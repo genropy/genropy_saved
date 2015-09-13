@@ -778,6 +778,12 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
         return
     if source_class is None:
         return
+    source_class_id = id(source_class)
+    if not hasattr(target_class,'_mixined_classes'):
+        target_class._mixined_classes = set()
+    elif source_class_id in target_class._mixined_classes:
+        return
+    target_class._mixined_classes.add(source_class_id)
     if hasattr(source_class, '__py_requires__'):
         py_requires_iterator = source_class.__py_requires__(target_class, **kwargs)
         for cls_address in py_requires_iterator:
@@ -881,6 +887,13 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
         return _mixined
     if source is None:
         return
+    source_id = id(source)
+    if not hasattr(obj,'_mixined_instances'):
+        obj._mixined_instances = set()
+
+    if not source_id in obj._mixined_instances:
+        obj._mixined_instances.add(source_id)
+
     source_dir = dir(source)
     mlist = [k for k in source_dir if
              callable(getattr(source, k)) and not k in dir(type) + ['__weakref__', '__onmixin__','mixin']]
@@ -909,8 +922,11 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
         if suffix:
             name_as = '%s_%s' % (name_as, suffix)
         if hasattr(obj, name_as):
-            original = getattr(obj, name_as)
-            setattr(obj, name_as + '_', original)
+            if not source_id in obj._mixined_instances:
+                original = getattr(obj, name_as)
+                setattr(obj, name_as + '_', original)
+            else:
+                continue
         setattr(obj, name_as, k)
         _mixined.append(name_as)
     if not only_callables:

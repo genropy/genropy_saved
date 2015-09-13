@@ -29,7 +29,7 @@ from decimal import Decimal
 from dateutil.parser import parse as dateutil_parse
 
 ISO_MATCH = re.compile(r'\d{4}\W\d{1,2}\W\d{1,2}')
-
+UTC_OFFSET = datetime.datetime.utcnow() - datetime.datetime.now()
 
 class GnrMixinError(Exception):
     pass
@@ -290,7 +290,7 @@ class GnrClassCatalog(object):
         
         self.addClass(cls=datetime.datetime, key='DH', aliases=['DATETIME', 'DT','DHZ'], empty=None)
         self.addParser(datetime.datetime, self.parse_datetime)
-        self.addSerializer("asText", datetime.datetime, lambda dh: dh.isoformat())
+        self.addSerializer("asText", datetime.datetime, self.serialize_datetime)
 
   
         self.addClass(cls=datetime.time, key='H', aliases=['TIME','HZ'], empty=None)
@@ -352,6 +352,11 @@ class GnrClassCatalog(object):
         :param txt: TODO
         :param workdate: the :ref:`workdate`"""
         return dateutil_parse(txt)
+
+    def serialize_datetime(self,ts):
+        if not ts.tzinfo:
+            ts += UTC_OFFSET
+        return ts.isoformat()
         
     def parse_date(self, txt, workdate=None):
         """Add???
