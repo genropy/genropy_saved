@@ -183,7 +183,7 @@ def customizable(func):
                      foo_oncalled_xyz"""
     def customize(page,name,*args,**kwargs):
         for k in dir(page):
-            if k.startswith(name):
+            if k.startswith(name) and not k.endswith('_'):
                 getattr(page,k)(*args,**kwargs)
 
     def newFunc(page,*args,**kwargs):
