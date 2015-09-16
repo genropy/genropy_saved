@@ -2831,6 +2831,7 @@ dojo.declare("gnr.widgets._BaseTextBox", gnr.widgets.baseDojo, {
            dojo.addClass(widget.focusNode.parentNode,'formattedTextBox');
        }
     },
+
     patch_displayMessage:function(message){
         if(!isNullOrBlank(this.value)){
             this.displayMessage_replaced(message);
@@ -2854,8 +2855,11 @@ dojo.declare("gnr.widgets._BaseTextBox", gnr.widgets.baseDojo, {
             widget.focusNode.setAttribute('autocorrect','off');
         }
         this.connectFocus(widget, savedAttrs, sourceNode);
-    }
+    },
     
+    cell_onDestroying:function(sourceNode,gridEditor,editingInfo){
+        dijit.hideTooltip(sourceNode.widget.domNode);
+    }
 
 });
 

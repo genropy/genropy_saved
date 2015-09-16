@@ -1442,7 +1442,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         this.scrollerNode._value.popNode('viewport');
         var layoutDomNode = this.layoutNode.domNode;
         var gnrwdg = this;
-        var viewport = this.scrollerNode._('div','viewport',{position:'absolute',right:0,bottom:0,top:0,width:this.viewPortWidth+'px',overflow:'auto',nodeId:'zzz',
+        var viewport = this.scrollerNode._('div','viewport',{position:'absolute',right:0,bottom:0,top:0,width:this.viewPortWidth+'px',overflow:'auto',
                         connect_onscroll:function(evt){
                             gnrwdg.currentScroll = evt.target.scrollLeft;
                             gnrwdg.updateScroll();

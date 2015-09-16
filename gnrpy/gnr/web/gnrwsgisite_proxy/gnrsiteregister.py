@@ -275,6 +275,8 @@ class BaseRegister(BaseRemoteObject):
 
     def set_datachange(self,register_item_id, path, value=None, attributes=None, fired=False, reason=None, replace=False, delete=False):
         register_item = self.get_item(register_item_id)
+        if not register_item:
+            return
         datachanges = register_item['datachanges']
         register_item['datachanges_idx'] = register_item.get('datachanges_idx', 0)
         register_item['datachanges_idx'] += 1

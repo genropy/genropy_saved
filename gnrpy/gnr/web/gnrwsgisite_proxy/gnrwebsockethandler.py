@@ -55,6 +55,7 @@ class WebSocketHandler(object):
     #                       change_ts=change.change_ts, change_delete=change.delete)
     #    self.sendCommandToPage(page_id,'datachanges',data)
 
+
 class AsyncWebSocketHandler(WebSocketHandler):
     def __init__(self,server):
         self.server = server

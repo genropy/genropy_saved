@@ -64,7 +64,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         that=this
         this.send('connected',{'page_id':genro.page_id})
         this._interval=setInterval(function(){
-                                     that.ping()
+                                     genro.wsk.ping()
                                    },this.options.ping_time)
     },
     onclose:function(){

@@ -19,7 +19,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 """
-Component for thermo:
+Component for dynamicform:
 """
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag
@@ -149,9 +149,9 @@ class DynamicFormBagManager(BaseComponent):
         form.dataController('SET #FORM.ftitle = desc || newfield;',desc='=#FORM.record.description',newfield='!!New Field',_fired='^#FORM.controller.loaded')
         bc = form.center.borderContainer(datapath='.record')
         pane = bc.contentPane(region='center')
-        self.df_customTabs(bc.tabContainer(region='bottom',height='160px',margin='2px'))
+        self.df_customTabs(bc.tabContainer(region='bottom',height='230px',margin='2px'))
         box = pane.div(_class='^#FORM.boxClass',margin='5px',margin_top='10px',margin_right='15px')
-        fb = box.formbuilder(cols=3, border_spacing='4px',tdl_width='5em',width='100%')
+        fb = box.formbuilder(cols=3, border_spacing='4px',width='100%',colswidth='auto')
         #tbl = pane.getInheritedAttributes()['table']
         fb.textbox(value='^.code',validate_notnull=True,validate_notnull_error='!!Required',width='8em', 
                 validate_regex='![^A-Za-z0-9_]', 
@@ -173,10 +173,11 @@ class DynamicFormBagManager(BaseComponent):
         fb.br()
         fb.dataController("dynamicFormHandler.onSetWdgTag(this,wdg_tag);",wdg_tag="^.wdg_tag")
         
-        fb.numberTextBox(value='^.wdg_kwargs.colspan',lbl='!!Colspan', row_class='df_row field_enterable field_calculated',width='100%')
-        fb.textbox(value='^.wdg_kwargs.width',lbl='!!Width', row_class='df_row field_enterable field_calculated',width='100%')
-        fb.textbox(value='^.wdg_kwargs.height',lbl='!!Height', row_class='df_row field_enterable field_calculated',width='100%')
+        fb.numberTextBox(value='^.wdg_kwargs.colspan',lbl='!!Colspan', row_class='df_row field_enterable field_calculated',width='5em')
+        fb.textbox(value='^.wdg_kwargs.width',lbl='!!Width', row_class='df_row field_enterable field_calculated',width='5em')
+        fb.textbox(value='^.wdg_kwargs.height',lbl='!!Height', row_class='df_row field_enterable field_calculated',width='5em')
         fb.checkbox(value='^.wdg_kwargs.keepable',label='!!Keepable value', row_class='df_row field_enterable')
+        fb.br()
         fb.checkbox(value='^.wdg_kwargs.speech',label='!!Vocal input', row_class='df_row field_enterable')
         fb.br()
         fb.checkbox(value='^.wdg_kwargs.editor',label='!!Full text editor', row_class='df_row field_simpletextarea')
@@ -190,10 +191,10 @@ class DynamicFormBagManager(BaseComponent):
         fb.simpleTextArea(value='^.source_checkboxtext',lbl='!!Source',colspan=3,row_class='df_row field_checkboxtext field_checkboxtext_nopopup',
                 width='100%',lbl_vertical_align='top',height='60px',
                 ghost='!!description1\n description2')
+
         fb.textbox(value='^.source_dbselect',lbl='!!Source',colspan=3,row_class='df_row field_dbselect',width='100%',ghost='!!pkg.table')  
         fb.textbox(value='^.source_dbcombobox',lbl='!!Source',colspan=3,row_class='df_row field_dbcombobox',width='100%',ghost='!!pkg.table')  
-        
-        
+
         fb.filteringSelect(value='^.validate_case',lbl='!!Case',row_class='df_row field_textbox',width='100%',values='u:Uppercase,l:Lowercase,c:Capitalize,t:Title')
         fb.br()
         
@@ -205,6 +206,8 @@ class DynamicFormBagManager(BaseComponent):
         fb.br()
         fb.simpleTextArea(value='^.source_graph',lbl='!!Graph',colspan=3,row_class='df_row field_graph',
                 width='100%',lbl_vertical_align='top',height='60px')
+        fb.simpleTextArea(value='^.documentation',lbl='!!Doc',colspan=3,row_class='df_row field_enterable field_calculated',width='100%',lbl_vertical_align='top',height='30px')
+
         return fb
 
     @customizable
@@ -219,8 +222,8 @@ class DynamicFormBagManager(BaseComponent):
         accesspane = accesspane.div(margin='5px',margin_right='15px').formbuilder(cols=2, border_spacing='4px',width='100%',fld_width='18em')
         accesspane.checkbox(value='^.mandatory',lbl='',label='!!Mandatory',row_hidden='^.calculated')
         accesspane.textbox(value='^.default_value',lbl='Dflt.Value')
-        accesspane.simpleTextArea(value='^.field_visible',lbl='!!Visible if',lbl_vertical_align='top',height='60px')
-        accesspane.simpleTextArea(value='^.field_tip',lbl='!!Tip',lbl_vertical_align='top',height='60px')
+        accesspane.simpleTextArea(value='^.field_visible',lbl='!!Visible if',lbl_vertical_align='top',width='100%',height='60px',colspan=2)
+        accesspane.simpleTextArea(value='^.field_tip',lbl='!!Tip',lbl_vertical_align='top',height='60px',width='100%',colspan=2)
         accesspane.textbox(value='^.field_placeholder',lbl='!!Placeholder',lbl_width='6em')
         accesspane.checkbox(value='^.querable',lbl='',label='!!Querable')
 
@@ -243,8 +246,6 @@ class DynamicFormBagManager(BaseComponent):
         datagetter.simpletextarea(value='^.where',lbl='Where',lbl_vertical_align='top',height='60px',rowspan=3,width='100%')
         datagetter.textbox(value='^.column',lbl='Column')
         datagetter.textbox(value='^.innerpath',lbl='Column')
-
-
 
 class DynamicForm(BaseComponent):
     css_requires='gnrcomponents/dynamicform/dynamicform'
@@ -338,7 +339,7 @@ class DynamicForm(BaseComponent):
         view.grid.dataController("this.form.save();",_fired='^.changedBagFields',_delay=1500)
         form = view.grid.linkedForm(frameCode='F_%s' %rootcode,
                                  datapath='.form',loadEvent='onRowDblClick',
-                                 dialog_height='450px',dialog_width='620px',
+                                 dialog_height='530px',dialog_width='680px',
                                  dialog_title='^.form.ftitle',handlerType='dialog',
                                  childname='form',attachTo=bh,store='memory',default_data_type='T',
                                  store_pkeyField='code')

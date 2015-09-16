@@ -4334,6 +4334,7 @@ div[disabled='true'], div[disabled='disabled']{
     background: silver;
     color:#efefef;
     line-height: 18px;
+    white-space: nowrap;
 }
 
 .treeGridLayout .treeGridHeader .treecell:last-child{
