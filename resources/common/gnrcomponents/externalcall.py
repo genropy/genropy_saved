@@ -102,6 +102,7 @@ class XmlRpc(BaseComponent):
                     kwargs = args.pop()
             result = handler(*args, **kwargs)
             encodedResult = self.encodeValue(result)
+            print 'uuu',encodedResult
             methodResponse['methodResponse.params.param.value']=encodedResult
             return methodResponse.toXml(omitRoot=True)
         except Exception,e:
@@ -175,7 +176,7 @@ class XmlRpc(BaseComponent):
             data=Bag()
             for item in value:
                 data.addItem('value',self.encodeValue(item))
-            result['data']= data
+            result['data.array']= data
             
         elif isinstance(value,dict):
             struct=Bag()
