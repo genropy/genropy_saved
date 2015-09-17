@@ -27,6 +27,8 @@ import os
 import sys
 import shutil
 import urllib
+import thread
+
 from time import time
 from datetime import timedelta
 from gnr.web._gnrbasewebpage import GnrBaseWebPage
@@ -118,6 +120,7 @@ class GnrWebPage(GnrBaseWebPage):
                  filepath=None, packageId=None, pluginId=None, basename=None, environ=None, class_info=None):
         self._inited = False
         self._start_time = time()
+        self._thread = thread.get_ident()
         self.workspace = dict()
         self.sql_count = 0
         self.sql_time = 0
