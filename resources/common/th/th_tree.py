@@ -313,7 +313,6 @@ class TableHandlerHierarchicalView(BaseComponent):
         if not relation_table:
             tblalias = maintableobj.pkg.tables['%s_alias' %maintable.split('.')[1]]
             relation_table = tblalias.fullname if tblalias else ''
-                    
         dragTable = th.attributes['table']
         fkey_name = vstoreattr.get('_fkey_name')
         assert fkey_name or relation_table, 'If there is no relation: relation_table is mandatory'
