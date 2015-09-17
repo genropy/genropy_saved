@@ -401,8 +401,8 @@ class GnrSqlDb(GnrObject):
             except Exception, e:
                 #print sql
                 gnrlogger.warning('error executing:%s - with kwargs:%s \n\n', sql, unicode(sqlargs))
-                if self.debugger:
-                    self.debugger(sql=sql, sqlargs=sqlargs, dbtable=dbtable, error=str(e))
+                #if self.debugger:
+                #    self.debugger(sql=sql, sqlargs=sqlargs, dbtable=dbtable, error=str(e))
                 print str('error %s executing:%s - with kwargs:%s \n\n' % (
                 str(e), sql, unicode(sqlargs).encode('ascii', 'ignore')))
                 self.rollback()
