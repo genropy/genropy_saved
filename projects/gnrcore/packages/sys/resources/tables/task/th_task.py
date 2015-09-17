@@ -33,7 +33,7 @@ class Form(BaseComponent):
     def th_form(self, form):
         bc = form.center.borderContainer(datapath='.record')
         top = bc.contentPane(region='top')
-        fb = top.div(margin_right='10px').formbuilder(cols=2,border_spacing='4px',margin_top='3px',fld_width='100%',width='100%',lbl_width='5em',fld_html_label=True)
+        fb = top.div(margin_right='10px').formbuilder(cols=2,border_spacing='4px',margin_top='3px',fld_width='100%',width='100%',colswidth='auto',fld_html_label=True)
         fb.field('task_name')
         fb.field('table_name')
         fb.field('command',colspan='2')
