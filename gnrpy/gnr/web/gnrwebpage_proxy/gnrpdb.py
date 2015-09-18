@@ -39,7 +39,7 @@ class GnrPdbClient(GnrBaseProxy):
     def onPageStart(self):
         with self.page.connectionStore() as store:
             debugger_page_id = store.getItem('_dev.gnride_page_id')
-            if not debugger_page_id:
+            if not debugger_page_id or self.page.page_id==debugger_page_id:
                 return
             breakpoints = store.getItem('_pdb.breakpoints')
         bp = 0
