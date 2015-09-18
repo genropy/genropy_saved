@@ -4792,7 +4792,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         this.storeNode.setRelativeData(this.storepath,data,resultattr);
         return result;
     },
-    onExternalChangeResult:function(changelist,result){
+    onExternalChangeResult:function(changelist){
         if(changelist.length>0){
             var that = this;
             this.externalChangedKeys = this.externalChangedKeys || {};
@@ -4809,7 +4809,6 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
                 grid._saved_selections = grid.selectionKeeper('save');
             });
             this.storeNode.setRelativeData('.query.prevSelectedDict',prevSelected);
-
             var that = this;
             var cb = function(result){
                 dojo.forEach(that.linkedGrids(),function(grid){
@@ -4843,8 +4842,10 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         genro.rpc.remoteCall('app.checkFreezedSelection', 
                                             rpc_attr,null,null,null,
                                          function(result){
-                                             that.onExternalChangeResult(changelist,result);
-                                             return result;
+                                            if(result){
+                                                that.onExternalChangeResult(changelist);
+                                            }
+                                            return result;
                                           });
     },
 

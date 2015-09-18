@@ -87,7 +87,6 @@ class XmlRpc(BaseComponent):
             print 'nn sono ammesso'
             return self.returnFault(-2,'User not allowed for method %s' %method)
         except Exception,e:
-            print 'xio'
             return self.returnFault(-2,str(e))
         if not handler:
             return self.returnFault(-2,'Not existing method:%s' % method)
@@ -102,7 +101,6 @@ class XmlRpc(BaseComponent):
                     kwargs = args.pop()
             result = handler(*args, **kwargs)
             encodedResult = self.encodeValue(result)
-            print 'uuu',encodedResult
             methodResponse['methodResponse.params.param.value']=encodedResult
             return methodResponse.toXml(omitRoot=True)
         except Exception,e:

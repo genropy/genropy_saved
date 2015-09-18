@@ -596,33 +596,45 @@ class GnrWebAppHandler(GnrBaseProxy):
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)"""
         selection = self.page.unfreezeSelection(dbtable=table, name=selectionName)
-        needUpdate = False
-        if selection is not None:
-            kwargs.pop('where_attr',None)
-            tblobj = self.db.table(table)
-            wherelist = ['( $%s IN :_pkeys )' %tblobj.pkey]
-            if isinstance(where,Bag):
-                where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
-            if where:
-                wherelist.append(' ( %s ) ' %where)
-            where = ' AND '.join(wherelist)
-            eventdict = {}
-            for change in changelist:
-                eventdict.setdefault(change['dbevent'],[]).append(change['pkey'])
-            for dbevent,pkeys in eventdict.items():
-                wasInSelection = bool(filter(lambda r: r['pkey'] in pkeys,selection.data))
-                if dbevent=='D' and not wasInSelection:
-                    continue
-                kwargs.pop('columns',None)
-                willBeInSelection = bool(tblobj.query(where=where,_pkeys=pkeys,limit=1,**kwargs).fetch())
-                if dbevent=='I' and not willBeInSelection:
-                    continue
-                if dbevent=='U' and not wasInSelection and not willBeInSelection:
-                    continue
-                needUpdate = True
-                break
-        return needUpdate
-    
+        if selection is None:
+            print '#no update required'
+            return False #no update required
+
+        eventdict = {}
+        for change in changelist:
+            eventdict.setdefault(change['dbevent'],[]).append(change['pkey'])
+        deleted = eventdict.get('D',[])
+        if deleted:
+            if bool(filter(lambda r: r['pkey'] in deleted,selection.data)):
+                print '#update required delete in selection'
+                return True #update required delete in selection
+
+        updated = eventdict.get('U',[])
+        if updated:
+            if bool(filter(lambda r: r['pkey'] in updated,selection.data)):
+                print '#update required update in selection'
+                return True #update required update in selection
+
+        inserted = eventdict.get('I',[])
+        kwargs.pop('where_attr',None)
+        tblobj = self.db.table(table)
+        wherelist = ['( $%s IN :_pkeys )' %tblobj.pkey]
+        if isinstance(where,Bag):
+            where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
+        if where:
+            wherelist.append(' ( %s ) ' %where)
+        condition = kwargs.pop('condition',None)
+        if condition:
+            wherelist.append(condition)
+        where = ' AND '.join(wherelist)
+        kwargs.pop('columns',None)
+        if bool(tblobj.query(where=where,_pkeys=inserted+updated,limit=1,**kwargs).fetch()):
+            print '#update required: insert or update not in selection but satisfying query'
+            return True #update required: insert or update not in selection but satisfying query
+
+        return False
+
+
     @public_method
     def counterFieldChanges(self,table=None,counterField=None,changes=None):
         updaterDict = dict([(d['_pkey'],d['new']) for d in changes] )
