@@ -2527,7 +2527,7 @@ class BagResolver(object):
         """
         pass
 
-    def resolverSerialize(self):
+    def resolverSerialize(self,args=None,kwargs=None):
         """TODO"""
         attr = {}
         attr['resolverclass'] = self.__class__.__name__
