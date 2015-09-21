@@ -25,6 +25,9 @@ from gnr.core.gnrbag import Bag
 from dateutil import parser as dtparser
 import datetime
 from decimal import Decimal
+from gnr.core.gnrbag import NetBag
+
+from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrdecorator import public_method
 
 class BaseRpc(BaseComponent):
@@ -68,7 +71,51 @@ class BaseRpc(BaseComponent):
 
     def rpc_error(self, method, *args, **kwargs):
         return 'Not existing method %s' % method
-        
+
+class NetBagRpc(BaseComponent):
+
+    skip_connection = True
+
+    def rootPage(self, *args, **kwargs):
+        self.response.content_type = 'application/xml'
+        if 'pagetemplate' in kwargs:
+            kwargs.pop('pagetemplate')
+        if args:
+            method = self.getPublicMethod('rpc','netbag_%s' %args[0])
+            if not method:
+                return self.rpc_error(*args, **kwargs)
+            args = list(args)
+            args.pop(0)
+        else:
+            method = self.rpc_index
+        result = method(*args, **kwargs)
+        if not isinstance(result,Bag):
+            result = Bag(dict(result=result))
+        return result.toXml(unresolved=True)
+
+    def validIpList(self):
+        return None
+
+    def rpc_index(self, *args, **kwargs):
+        return 'Dummy rpc'
+
+    def rpc_error(self, method, *args, **kwargs):
+        return 'Not existing method %s' % method
+
+    def selectionToNetBag(self,selection=None,mode='a',):
+        result = Bag()
+        for i,r in enumerate(selection.data):
+            label = 'r_%s' %i
+            r = dict(r)
+            if mode=='v':
+                result.setItem(label,Bag(r))
+            elif mode=='a':
+                result.setItem(label,None,_attributes=r)
+            elif mode=='r':
+                pass
+        return result
+
+
 class XmlRpc(BaseComponent):
     skip_connection = True
     def rootPage(self, *args, **kwargs):

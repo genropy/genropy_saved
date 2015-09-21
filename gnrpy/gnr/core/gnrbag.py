@@ -2694,6 +2694,23 @@ class UrlResolver(BagResolver):
         result['data'] = x.read()
         result['info'] = x.info()
         return result
+
+class NetBag(BagResolver):
+    classKwargs = {'cacheTime': 300, 'readOnly': True}
+    classArgs = ['url','method'] 
+
+    def init(self):
+        import requests
+        self.requests = requests
+
+    def load(self):
+        try:
+            params = dict(self.kwargs)
+            response = self.requests.get('%s/%s' %(self.url,self.method),params=params)
+            return Bag(response.text)
+        except Exception, e:
+            return Bag(dict(error=str(e)))
+        
         
 class DirectoryResolver(BagResolver):
     """TODO"""
