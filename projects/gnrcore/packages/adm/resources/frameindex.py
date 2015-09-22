@@ -608,7 +608,7 @@ class FramedIndexLogin(BaseComponent):
 
 
         fb.div(width='100%',position='relative',row_hidden=False).button('!!Enter',action='FIRE do_login',position='absolute',right='-5px',top='8px')
-        dlg.dataController("genro.dlg.floatingMessage(sn,{message:message,messageType:'error',yRatio:.95})",subscribe_failed_login_msg=True,sn=dlg)
+        dlg.dataController("genro.dlg.floatingMessage(sn,{message:message,messageType:'error',yRatio:1.65})",subscribe_failed_login_msg=True,sn=dlg)
 
         footer = box.div().slotBar('12,lost_password,*,new_user,12',height='18px',width='100%',tdl_width='6em')
         lostpass = footer.lost_password.div()
@@ -627,8 +627,9 @@ class FramedIndexLogin(BaseComponent):
 
 
         footer.dataController("""
-        if(!avatar.getItem('user') || avatar.getItem('error')){
-            genro.publish('failed_login_msg',{'message':avatar.getItem('error') || error_msg});
+        if(!avatar || !avatar.getItem('user') || avatar.getItem('error')){
+            var error = avatar? (avatar.getItem('error') || error_msg):error_msg
+            genro.publish('failed_login_msg',{'message':error});
             return;
         }
         dlg.hide();
