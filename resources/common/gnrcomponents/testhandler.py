@@ -7,7 +7,7 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 
 class TestHandler(BaseComponent):
-    py_requires='gnrcomponents/source_viewer/source_viewer:SourceViewer'
+    #py_requires='gnrcomponents/source_viewer/source_viewer:SourceViewer'
     testOnly=False
     dojo_source=True
 

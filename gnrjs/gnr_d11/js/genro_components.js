@@ -863,7 +863,7 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
         gnrwdg.origin = objectPop(kw,'origin');
         sourceNode.attr.exclude = objectPop(kw,'exclude');
         sourceNode.attr.value = objectPop(kw,'value');
-        grid_kwargs = objectExtract(kw,'grid_*')
+        var grid_kwargs = objectExtract(kw,'grid_*')
         var tools = objectPop(kw,'tools');
         if(tools==undefined){
             tools = 'delrow,addrow';
@@ -878,6 +878,7 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
         gnrwdg.containerNode = container.getParentNode();
         var grid = container._('ContentPane',{region:'center',overflow:'hidden'})._('quickGrid',objectUpdate({value:'^#WORKSPACE.value',_workspace:true,
                                             _class:'multiValueEditor noheader',storeInForm:true,
+                                            border:'1px solid #efefef',
                                                 selfsubscribe_addrow:function(addkw){
                                                     var grid = this.widget;
                                                     setTimeout(function(){
@@ -1667,6 +1668,8 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
 
     toolsGridRoot:function(sourceNode,kw,tools_kw){
         var tools = objectPop(tools_kw,'tools');
+        tools_kw = tools_kw || {};
+        objectUpdate(tools_kw,objectExtract(kw,'tools_*'));
         var custom_tools = objectPop(tools_kw,'custom_tools');
         var default_tools={ 'addrow': {content_class:'iconbox add_row',_delay:500},
                             'delrow':{content_class:'iconbox delete_row'}, 
