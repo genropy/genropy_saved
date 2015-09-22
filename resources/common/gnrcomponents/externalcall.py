@@ -102,9 +102,10 @@ class NetBagRpc(BaseComponent):
     def rpc_error(self, method, *args, **kwargs):
         return 'Not existing method %s' % method
 
-    def selectionToNetBag(self,selection=None,mode='a',):
+    def selectionToNetBag(self,selection=None,mode=None):
+        mode = mode or 'a'
         result = Bag()
-        for i,r in enumerate(selection.data):
+        for i,r in enumerate(selection.output('dictlist')):
             label = 'r_%s' %i
             r = dict(r)
             if mode=='v':
