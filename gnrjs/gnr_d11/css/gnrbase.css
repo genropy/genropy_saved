@@ -4236,9 +4236,9 @@ div[disabled='true'], div[disabled='disabled']{
 .fm_box{
     font-size: 1.5em;
     color:white;
-    padding: 5px;
-    padding-right: 30px;
-    padding-left: 25px;
+    padding: 12px;
+    padding-right: 45px;
+    padding-left: 35px;
     position:absolute;
     border-radius: 4px;
     box-shadow: 3px 3px 4px #888;
@@ -4246,15 +4246,15 @@ div[disabled='true'], div[disabled='disabled']{
 }
 
 .fm_message{
-    background:rgba(23, 163, 28, 0.60);
+    background:rgba(23, 163, 28, 1);
 }
 
 .fm_error{
-    background:rgba(201, 17, 17, 0.60);
+    background:rgba(201, 17, 17, 1);
 }
 
 .fm_warning{
-    background:rgba(250, 120, 0, 0.60)
+    background:rgba(250, 120, 0, 1)
 }
 .dlg_closebtn{
     height: 18px;

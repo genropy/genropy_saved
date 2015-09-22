@@ -606,13 +606,11 @@ class GnrWebAppHandler(GnrBaseProxy):
         deleted = eventdict.get('D',[])
         if deleted:
             if bool(filter(lambda r: r['pkey'] in deleted,selection.data)):
-                print '#update required delete in selection'
                 return True #update required delete in selection
 
         updated = eventdict.get('U',[])
         if updated:
             if bool(filter(lambda r: r['pkey'] in updated,selection.data)):
-                print '#update required update in selection'
                 return True #update required update in selection
 
         inserted = eventdict.get('I',[])
@@ -629,7 +627,6 @@ class GnrWebAppHandler(GnrBaseProxy):
         where = ' AND '.join(wherelist)
         kwargs.pop('columns',None)
         if bool(tblobj.query(where=where,_pkeys=inserted+updated,limit=1,**kwargs).fetch()):
-            print '#update required: insert or update not in selection but satisfying query'
             return True #update required: insert or update not in selection but satisfying query
 
         return False
