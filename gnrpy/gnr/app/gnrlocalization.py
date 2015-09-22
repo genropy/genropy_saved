@@ -108,7 +108,6 @@ class AppLocalizer(object):
                 lockey = m.get('key') or m.get('key_emb')
                 loctext = m.get('value') or m.get('value_emb')
                 loclang = m.get('lang') or m.get('lang_emb') or 'en'
-
                 if not lockey:
                     lockey = flatten(loctext)
                 lockey = '%s_%s' %(loclang,lockey)
@@ -122,7 +121,7 @@ class AppLocalizer(object):
                 else:
                     result['status'] = 'NOKEY'
                     return loctext
-            result['translation'] = TRANSLATION.sub(translatecb,txt)
+            result['translation'] = TRANSLATION.sub(translatecb,txt) if txt else ''
             return result
 
     

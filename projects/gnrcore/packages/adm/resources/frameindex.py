@@ -403,7 +403,7 @@ class FramedIndexLogin(BaseComponent):
                             msg='!!Check your email for instruction',_fired='^recover_password_ok',sn=dlg)
         footer = box.div().slotBar('12,loginbtn,*',height='18px',width='100%',tdl_width='6em')
         footer.loginbtn.div('!!Login',cursor='pointer',connect_onclick='FIRE back_login;',
-                            color='silver',font_size='12px',height='15px')
+                            color='gray',font_size='12px',height='15px')
         footer.dataController("dlg_lp.hide();dlg_login.show();",_fired='^back_login',
                         dlg_login=dlg_login.js_widget,dlg_lp=dlg.js_widget)
             
@@ -486,7 +486,7 @@ class FramedIndexLogin(BaseComponent):
                     """,_lockScreen=True)
         footer = form.bottom.slotBar('12,loginbtn,*',height='18px',width='100%',tdl_width='6em')
         footer.loginbtn.div('!!Login',cursor='pointer',connect_onclick="genro.publish('closeNewUser');genro.publish('openLogin');",
-                            color='silver',font_size='12px',height='15px')
+                            color='gray',font_size='12px',height='15px')
         return dlg
 
     @public_method
@@ -552,7 +552,7 @@ class FramedIndexLogin(BaseComponent):
                                      var error_message = result.getItem('login_error_msg');
                                     if(error_message){
                                         genro.publish('failed_login_msg',{'message':error_message});
-                                        SET gnr.avatar = error_message;
+                                        SET gnr.avatar.error = error_message;
                                         return;
                                     }
                                     if (!avatar){
@@ -615,20 +615,20 @@ class FramedIndexLogin(BaseComponent):
         new_user = footer.new_user.div()
         if self.loginPreference['forgot_password']:
             lostpass.div('!!Lost password',cursor='pointer',connect_onclick='FIRE lost_password_dlg;',
-                            color='silver',font_size='12px',height='15px')
+                            color='gray',font_size='12px',height='15px')
             lostpass.dataController("dlg_login.hide();dlg_lp.show();",_fired='^lost_password_dlg',dlg_login=dlg.js_widget,dlg_lp=self.login_lostPassword(pane,dlg).js_widget)
         if self.loginPreference['new_user']:
             self.login_newUser(pane)
             new_user.div('!!New User',cursor='pointer',connect_onclick='genro.publish("closeLogin");genro.publish("openNewUser");',
-                            color='silver',font_size='12px',height='15px')
+                            color='gray',font_size='12px',height='15px')
 
         pane.dataController("dlg_login.hide();dlg_cu.show();",dlg_login=dlg.js_widget,
                     dlg_cu=self.login_confirmUserDialog(pane,dlg).js_widget,subscribe_confirmUserDialog=True)
 
 
         footer.dataController("""
-        if(!avatar || typeof(avatar)=='string'){
-            genro.publish('failed_login_msg',{'message':avatar || error_msg});
+        if(!avatar.getItem('user') || avatar.getItem('error')){
+            genro.publish('failed_login_msg',{'message':avatar.getItem('error') || error_msg});
             return;
         }
         dlg.hide();
