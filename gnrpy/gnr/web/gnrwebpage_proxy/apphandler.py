@@ -597,9 +597,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                       :ref:`package <packages>` to which the table belongs to)"""
         selection = self.page.unfreezeSelection(dbtable=table, name=selectionName)
         if selection is None:
-            print '#no update required'
             return False #no update required
-
         eventdict = {}
         for change in changelist:
             eventdict.setdefault(change['dbevent'],[]).append(change['pkey'])
