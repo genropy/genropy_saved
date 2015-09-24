@@ -1253,11 +1253,14 @@ class GnrWebAppHandler(GnrBaseProxy):
         if lock:
             kwargs['for_update'] = True
         captioncolumns = tblobj.rowcaptionDecode()[0]
-        if captioncolumns:
-            captioncolumns = [caption.replace('$','') for caption in captioncolumns]
+        protectionColumn = tblobj.getProtectionColumn()
+
+        if captioncolumns or protectionColumn:
+            columns_to_add = (captioncolumns or [])+([protectionColumn] if protectionColumn else [])
+            columns_to_add = [c.replace('$','') for c in columns_to_add]
             virtual_columns = virtual_columns.split(',') if virtual_columns else []
             vlist = tblobj.model.virtual_columns.items()
-            virtual_columns.extend([k for k,v in vlist if v.attributes.get('always') or k in captioncolumns])
+            virtual_columns.extend([k for k,v in vlist if v.attributes.get('always') or k in columns_to_add])
             virtual_columns = ','.join(uniquify(virtual_columns or []))
         rec = tblobj.record(eager=eager or self.page.eagers.get(dbtable),
                             ignoreMissing=ignoreMissing, ignoreDuplicate=ignoreDuplicate,
