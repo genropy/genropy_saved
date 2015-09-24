@@ -1157,6 +1157,10 @@ dojo.declare("gnr.GridEditor", null, {
         if(this.grid.datamode=='bag'){
             rowEditor.replaceData(value,'remoteController');
         }else{
+            var row_attributes = value.pop('_row_attributes');
+            if(row_attributes){
+                rowEditor.data.getParentNode().updAttributes(row_attributes,false);
+            }
             rowEditor.data.update(value,null,'remoteController');
         }
         rowEditor.checkNotNull();

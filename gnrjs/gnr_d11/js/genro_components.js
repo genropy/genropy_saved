@@ -3860,7 +3860,7 @@ dojo.declare("gnr.stores._Collection",null,{
     },
 
     clear:function(){
-        this.storeNode.setRelativeData(this.storepath,new gnr.GnrBag());
+        this.storeNode.setRelativeData(this.storepath,new gnr.GnrBag(),null,null,'loadData');
     },
 
     gridBroadcast:function(cb){
@@ -4742,7 +4742,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
 
     onLoaded:function(result){
         this.externalChangedKeys = null;
-        this.storeNode.setRelativeData(this.storepath,result);
+        this.storeNode.setRelativeData(this.storepath,result,null,null,'loadData');
         return result;
     }
 });
