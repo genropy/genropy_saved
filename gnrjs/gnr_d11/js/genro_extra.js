@@ -67,6 +67,15 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
     constructor: function(application) {
         this._domtag = 'div';
     },
+    getAddOnDict:function(key){
+        return {
+            search:{
+                command:'find',
+                js:['addon/search/search.js','addon/search/goto-line.js','addon/search/searchcursor.js','addon/dialog/dialog.js'],
+                css:['addon/dialog/dialog.css']
+            }
+        }[key];
+    },
     creating: function(attributes, sourceNode) {
         //if (sourceNode.attr.storepath) {
         //    sourceNode.registerDynAttr('storepath');
@@ -85,6 +94,11 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
         var cmAttrs = objectPop(savedAttrs,'cmAttrs');
         var mode = cmAttrs.mode;
         var theme = cmAttrs.theme;
+        var addon = cmAttrs.addon;
+        if(addon){
+            addon = addon.split(',');
+        }
+
         var cb = function(){
             that.load_mode(mode,function(){
                 if(theme){
@@ -94,6 +108,11 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
                     that.initialize(widget,cmAttrs,sourceNode);
                 }
              });
+            if(addon){
+                addon.forEach(function(addon){
+                    that.load_addon(addon)
+                })
+            }
         }
         if(!window.CodeMirror){
             this.loadCodeMirror(cb);
@@ -147,6 +166,19 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
         genro.dom.loadCss('/_rsrc/js_libs/codemirror/theme/cm-s-'+theme+'.css','codemirror_'+theme,cb);
     },
 
+    load_addon:function(addon,cb){
+        var that = this;
+        var addondict = this.getAddOnDict(addon);
+        if (!CodeMirror.commands[addondict.command]){
+            addondict.js.forEach(function(path){
+                 genro.dom.loadJs('/_rsrc/js_libs/codemirror/'+path);
+            })
+            addondict.css.forEach(function(path){
+                 genro.dom.loadCss('/_rsrc/js_libs/codemirror/'+path);
+            })
+        }
+    },
+
     load_mode:function(mode,cb){
         var that = this;
         if (!(mode in CodeMirror.modes)){
@@ -175,7 +207,7 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
     },
 
     mixin_gnr_value:function(value,kw, trigger_reason){        
-        this.setValue(value)
+        this.setValue(value || '');
         var that = this;
         var sourceNode = this.sourceNode;
         sourceNode.watch('isVisible',function(){

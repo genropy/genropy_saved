@@ -67,9 +67,16 @@ class AppPref(object):
 class UserPref(object):
     def prefpane_sys(self, tc, **kwargs):
         tc = tc.tabContainer(**kwargs)
+        self.pref_tablehandler(tc.contentPane(title='Tablehandler', datapath='.tablehandler'))
+
         self.pref_cache(tc.contentPane(title='Caching', datapath='.cache'))
         self.pref_sound(tc.contentPane(title='Sounds', datapath='.sounds'))
         self.pref_theme(tc.contentPane(title='Theme', datapath='.theme'))
+
+    def pref_tablehandler(self,pane):
+        fb = pane.formbuilder(cols=1, border_spacing='4px')
+        fb.checkbox(value='^.new_query',label='New fast query')
+
 
     def pref_theme(self, pane):
         fb = pane.formbuilder(cols=1, border_spacing='4px')

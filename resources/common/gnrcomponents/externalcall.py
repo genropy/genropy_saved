@@ -19,9 +19,15 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.web.gnrwebpage import GnrUserNotAllowed,GnrBasicAuthenticationError
+
 from gnr.core.gnrbag import Bag
 from dateutil import parser as dtparser
 import datetime
+from decimal import Decimal
+from gnr.core.gnrbag import NetBag
+
+from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrdecorator import public_method
 
 class BaseRpc(BaseComponent):
@@ -65,30 +71,86 @@ class BaseRpc(BaseComponent):
 
     def rpc_error(self, method, *args, **kwargs):
         return 'Not existing method %s' % method
-        
+
+class NetBagRpc(BaseComponent):
+
+    skip_connection = True
+
+    def rootPage(self, *args, **kwargs):
+        self.response.content_type = 'application/xml'
+        if 'pagetemplate' in kwargs:
+            kwargs.pop('pagetemplate')
+        if args:
+            method = self.getPublicMethod('rpc','netbag_%s' %args[0])
+            if not method:
+                return self.rpc_error(*args, **kwargs)
+            args = list(args)
+            args.pop(0)
+        else:
+            method = self.rpc_index
+        result = method(*args, **kwargs)
+        if not isinstance(result,Bag):
+            result = Bag(dict(result=result))
+        return result.toXml(unresolved=True)
+
+    def validIpList(self):
+        return None
+
+    def rpc_index(self, *args, **kwargs):
+        return 'Dummy rpc'
+
+    def rpc_error(self, method, *args, **kwargs):
+        return 'Not existing method %s' % method
+
+    def selectionToNetBag(self,selection=None,mode=None):
+        mode = mode or 'a'
+        result = Bag()
+        for i,r in enumerate(selection.output('dictlist')):
+            label = 'r_%s' %i
+            r = dict(r)
+            if mode=='v':
+                result.setItem(label,Bag(r))
+            elif mode=='a':
+                result.setItem(label,None,_attributes=r)
+            elif mode=='r':
+                pass
+        return result
+
+
 class XmlRpc(BaseComponent):
     skip_connection = True
-    
     def rootPage(self, *args, **kwargs):
         methodCall=Bag(self.request.body)['methodCall']
+
         method=methodCall['methodName']
         if not method:
             return self.returnFault(-1,'Missing methodName')
             
         method=method.replace('.','_')
-        handler = self.getPublicMethod('rpc',method)
+        try:
+            handler = self.getPublicMethod('rpc',method)
+        except GnrBasicAuthenticationError, e:
+            return self.returnFault(-2,str(e))
+        except GnrUserNotAllowed,e:
+            print 'nn sono ammesso'
+            return self.returnFault(-2,'User not allowed for method %s' %method)
+        except Exception,e:
+            return self.returnFault(-2,str(e))
         if not handler:
             return self.returnFault(-2,'Not existing method:%s' % method)
-
         try:
+            kwargs = dict()
             methodResponse=Bag()
             args=[]
             params=methodCall['params']
             if params:
                 args=self.decodeItems(params.digest('value'))
+                if args and isinstance(args[-1],dict):
+                    kwargs = args.pop()
             result = handler(*args, **kwargs)
-            methodResponse['methodResponse.params.param.value']=self.encodeValue(result)
-            return methodResponse.toXml(omitRoot=True,pretty=True)
+            encodedResult = self.encodeValue(result)
+            methodResponse['methodResponse.params.param.value']=encodedResult
+            return methodResponse.toXml(omitRoot=True)
         except Exception,e:
             import sys,os
             tb = sys.exc_info()[2]
@@ -144,29 +206,29 @@ class XmlRpc(BaseComponent):
 
     def encodeValue(self,value):
         result=Bag()
+        if value is None:
+            result['nil'] = ''
         if isinstance(value,basestring):
             result['string']= value
-        elif isinstance(value,int):
-            result['int']= str(value)
-        elif isinstance(value,float):
-            result['double']= str(value)
         elif isinstance(value,bool):
             result['boolean']= '1' if value else '0'
-        elif isinstance(value,datetime.datetime):
+        elif isinstance(value,int):
+            result['int']= str(value)
+        elif isinstance(value,float) or isinstance(value,Decimal):
+            result['double']= str(value)
+        elif isinstance(value,datetime.datetime) or isinstance(value,datetime.date):
             result[['dateTime.iso8601']]= value.isoformat()
         elif isinstance(value,list) or isinstance(value,tuple):
             data=Bag()
             for item in value:
                 data.addItem('value',self.encodeValue(item))
-            result['data']= data
+            result['data.array']= data
             
         elif isinstance(value,dict):
             struct=Bag()
             for k,v in value.items():
-                print k,v
                 struct.addItem('member',Bag(dict(name=k,value=self.encodeValue(v))))
             result['struct']= struct
-            print struct
         return result
 
     def returnFault(self,faultCode=0,faultString=''):

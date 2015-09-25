@@ -197,6 +197,7 @@ class TableHandlerForm(BaseComponent):
             slots = options.pop('slots',default_slots)
             if table == self.maintable:
                 slots = 'logicalDeleter,%s' %slots 
+            options.setdefault('_class','th_form_toolbar')
             form.top.slotToolbar(slots,form_add_defaults=form_add if form_add and form_add is not True else None,**options)
         if hierarchical:
             form.left.attributes.update(splitter=True)

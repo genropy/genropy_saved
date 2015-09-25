@@ -168,10 +168,19 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     def dropDb(self, name):
         conn = self._managerConnection()
         curs = conn.cursor()
-        curs.execute("DROP DATABASE %s;" % name)
+        curs.execute("DROP DATABASE IF EXISTS %s;" % name)
         curs.close()
         conn.close()
         
+
+    def dropTable(self, dbtable,cascade=False):
+        """Drop table"""
+        command = 'DROP TABLE IF EXISTS %s;'
+        if cascade:
+            command = 'DROP TABLE %s CASCADE;'
+        tablename = dbtable if isinstance(dbtable,basestring) else dbtable.model.sqlfullname
+        self.dbroot.execute(command % tablename)
+
     def dump(self, filename,dbname=None,extras=None,**kwargs):
         """Dump an existing database
         

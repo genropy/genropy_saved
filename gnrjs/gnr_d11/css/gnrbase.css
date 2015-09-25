@@ -2154,12 +2154,14 @@ div.dojoxDock {
 .tundra .dijitDialog .dijitDialogPaneContent {
     font-size: 12px;
     padding: 0px;
+    overflow: hidden;
 }
+
 
 ._common_d11 .lightboxDialog.dijitDialog {
     border-radius: 8px;
     padding:0;
-    background:transparent;
+    background:white;
     border:0;
 }
 
@@ -2185,6 +2187,10 @@ div.dojoxDock {
     border: 0px;
     /*background-image: -moz-linear-gradient(-90deg, rgba(170, 190, 201, 0.2), #FFFFFF);
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, rgba(170, 190, 201, 0.2), to(#FFFFFF));*/
+}
+
+.tundra .dijitDialogPaneContent{
+    overflow: hidden;
 }
 
 ._common_d11 .lightboxDialog .dijitDialogTitleBar{ 
@@ -4230,9 +4236,9 @@ div[disabled='true'], div[disabled='disabled']{
 .fm_box{
     font-size: 1.5em;
     color:white;
-    padding: 3px;
-    padding-right: 25px;
-    padding-left: 10px;
+    padding: 12px;
+    padding-right: 45px;
+    padding-left: 35px;
     position:absolute;
     border-radius: 4px;
     box-shadow: 3px 3px 4px #888;
@@ -4240,15 +4246,15 @@ div[disabled='true'], div[disabled='disabled']{
 }
 
 .fm_message{
-    background:rgba(23, 163, 28, 0.60);
+    background:rgba(23, 163, 28, 1);
 }
 
 .fm_error{
-    background:rgba(201, 17, 17, 0.60);
+    background:rgba(201, 17, 17, 1);
 }
 
 .fm_warning{
-    background:rgba(250, 120, 0, 0.60)
+    background:rgba(250, 120, 0, 1)
 }
 .dlg_closebtn{
     height: 18px;
@@ -4280,6 +4286,7 @@ div[disabled='true'], div[disabled='disabled']{
     right:0;
     left:0;
     color:#444;
+    overflow: hidden;
 }
 .treeGridHeader{
     height:20px;
@@ -4291,31 +4298,46 @@ div[disabled='true'], div[disabled='disabled']{
 .treeGridCenter{
     position:absolute;
     top:21px;
-    bottom:0;
+    bottom:16px;
     left:0;
     right:0;
     overflow:auto;
 }
-
-.treeHeaderCell{
+.treeGridScroller{
     position: absolute;
-    text-align: center;
-    line-height: 20px;
-    border-left: 1px solid #efefef;
-    border-bottom: 1px solid #efefef;
+    height:16px;
+    bottom:0;
+    left:0;
+    right:0;
+    overflow: hidden;
 }
-.treeHeaderCell:last-child{
+
+.treeGridLayout .treecell{
+    display: inline-block;
+    border-bottom: 1px solid #efefef;
+    border-left: 1px solid #efefef;
+}
+
+
+
+.treeGridLayout .treecell:last-child{
     border-right:1px solid #efefef;
 }
-.treegrid .treecell{
-    position: absolute;
-    border-bottom: 1px solid #efefef;
-    border-left: 1px solid #efefef;
-    top: 0;
-    bottom:1;
+.treeGridLayout .treegrid .maincell.treecell{
+    background: #efefef;
 }
 
-.treegrid .treecell:last-child{
+.treeGridLayout .treeGridHeader .treecell{
+    display: inline-block;
+    border-bottom: 0px solid black;
+    border-left: 1px solid #efefef;
+    background: silver;
+    color:#efefef;
+    line-height: 18px;
+    white-space: nowrap;
+}
+
+.treeGridLayout .treeGridHeader .treecell:last-child{
     border-right:1px solid #efefef;
 }
 
@@ -4352,6 +4374,14 @@ div[disabled='true'], div[disabled='disabled']{
     left:1px;
     bottom: -1px;
 }
+.treegrid .treerow_columns{
+    display: inline-block;
+
+}
+.treeerow_viewport{
+    display: inline-block;
+}
+
 /*treegrid*/
 
 .branchtree_selected{
@@ -4750,6 +4780,5 @@ div[disabled='true'], div[disabled='disabled']{
     padding-left: 5px;
 }
 .multiValueEditor{
-    border:1px solid #efefef;
 }
 

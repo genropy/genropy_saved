@@ -1042,10 +1042,16 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
     patch_show:function(cb){
         this.onShowing();
         this.show_replaced(cb);
-        if(this.sourceNode.attr.autoSize){
-            genro.callAfter(this.autoSize,1,this,'autoSize');
-        }
+        genro.callAfter(this.afterShow,1,this,'afterShow');
     },
+
+    mixin_afterShow:function(){
+        if(this.sourceNode.attr.autoSize){
+            this.autoSize();
+        }
+        this.adjustDialogSize();
+    },
+
     mixin_autoSize:function(){
         if(this.containerNode.firstChild.scrollWidth>this.containerNode.firstChild.clientWidth){
             this.containerNode.firstChild.style.width = this.containerNode.firstChild.scrollWidth+'px';
@@ -1053,7 +1059,90 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
     },
 
     mixin_onShowing:function(){},
-    
+
+    mixin_onWindowResize:function(e){
+        this.dialogResize();
+    },
+
+    mixin_dialogResize:function(parentDialog){
+        this.adjustDialogSize(parentDialog);
+        var ds = genro.dialogStack;
+        if(ds.length>1){
+            var idx = ds.indexOf(this);
+            var childDialog = ds[idx+1];
+            if (childDialog){
+                var that = this;
+                this.sourceNode.delayedCall(function(){
+                    childDialog.dialogResize(that);
+                },10);
+            }
+        }
+    },
+
+
+    mixin_containerNodeResize:function(){
+        var fc = this.containerNode.firstChild;
+        var c = dojo.coords(this.domNode);
+        var t = dojo.coords(this.titleBar);
+        var innercoords = {h:c.h-t.h-2,
+                            w:this.containerNode.clientWidth
+                        };
+        if(fc.attributes.widgetid){
+            var innerLayout = dijit.getEnclosingWidget(fc);
+            innerLayout.resize(innercoords);
+            if(innerLayout.layout){
+                innerLayout.layout();
+            }
+        }else{
+            fc.style.width = innercoords.w+'px';
+            fc.style.height = innercoords.h+'px';
+
+        }  
+    },
+
+    mixin_adjustDialogSize:function(parentDialog){
+        var w = {h:Math.floor(window.innerHeight*.98),w:Math.floor(window.innerWidth*.98)};
+        var windowRatio = this.sourceNode.attr.windowRatio;
+        var parentRatio = this.sourceNode.attr.parentRatio;
+        var c = dojo.coords(this.domNode);
+        var doResize = false;
+        var starting;
+        if(parentRatio){
+            w = parentDialog? dojo.coords(parentDialog.domNode):w;
+            c['w'] = Math.floor(w.w*parentRatio);
+            c['h'] = Math.floor(w.h*parentRatio);
+            doResize = true;
+        }
+        else if(windowRatio){
+            c['w'] = Math.floor(w.w*windowRatio);
+            c['h'] = Math.floor(w.h*windowRatio);
+            doResize = true;
+        }else{
+            for(var k in w){
+                starting = '_starting_'+k;
+                if(c[k]>w[k]){
+                    if(!this[starting]){
+                        this[starting] = c[k];
+                    }
+                    c[k] = w[k];
+                    doResize = true;
+                }else if(this[starting]){
+                    if(this[starting]<=w[k]){
+                        c[k] = this[starting];
+                        delete this[starting];
+                    }else{
+                        c[k] = w[k];
+                    }
+                    doResize = true;
+                }
+            }
+        }
+        if(doResize){
+            this.resize(c);
+        }
+        this.layout(); 
+    },
+
     creating:function(attributes, sourceNode) {
         objectPop(attributes, 'parentDialog');
         objectPop(attributes, 'centerOn');
@@ -1096,8 +1185,8 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
             
             dojo.connect(widget, "show", widget,
                         function() {
+                            var parentDialog = ds.length>0?ds[ds.length-1]:null;
                             if (this != ds.slice(-1)[0]) {
-                                var parentDialog = ds.length>0?ds[ds.length-1]:null;
                                 ds.push(this);
                                 var zIndex = widget.sourceNode.attr.z_index || (zindex + ds.length*2);
                                 dojo.style(this._underlay.domNode, 'zIndex', zIndex);
@@ -1112,7 +1201,9 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                                     }
                                 }
                             }
-
+                            if(!parentDialog && !this._windowConnectionResize){
+                                this._windowConnectionResize = dojo.connect(window,'onresize',widget,'onWindowResize');
+                            }
                         });
             dojo.connect(widget, "hide", widget,
                         function() {
@@ -1124,20 +1215,28 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                                      parentDialog._modalconnects.push(dojo.connect(dojo.doc.documentElement, "onkeypress", parentDialog, "_onKey"));
                                 }                   
                             }
+                            if(this._windowConnectionResize){
+                                dojo.disconnect(this._windowConnectionResize);
+                                delete this._windowConnectionResize;
+                            }
                         });
         }
         genro.dragDropConnect(widget.domNode);
         if (genro.isDeveloper){
             genro.dev.inspectConnect(widget.domNode);
         }
-
+        dojo.connect(widget,'resize',widget,'containerNodeResize');
     },
    versionpatch_11__onKey:function(){
        //onkey block inactive (ckeditor)
    },
     
     versionpatch_11__position: function() {
-        var centerOn = this.sourceNode.attr.centerOn;
+        var centerOn = this.sourceNode.attr.centerOn; 
+        if(genro.isMobile){
+            genro.dom.centerOn(this.domNode, centerOn,null,-.9);
+            return;
+        }
         centerOn = centerOn?genro.dom.getDomNode(centerOn):null
         if (!centerOn) {
             this._position_replaced();
@@ -2732,6 +2831,7 @@ dojo.declare("gnr.widgets._BaseTextBox", gnr.widgets.baseDojo, {
            dojo.addClass(widget.focusNode.parentNode,'formattedTextBox');
        }
     },
+
     patch_displayMessage:function(message){
         if(!isNullOrBlank(this.value)){
             this.displayMessage_replaced(message);
@@ -2749,9 +2849,17 @@ dojo.declare("gnr.widgets._BaseTextBox", gnr.widgets.baseDojo, {
         dijit.selectInputText(this.focusNode);
     },
     created: function(widget, savedAttrs, sourceNode) {
+        if(genro.isMobile){
+            widget.focusNode.setAttribute('autocapitalize','none');
+            widget.focusNode.setAttribute('autocomplete','off');
+            widget.focusNode.setAttribute('autocorrect','off');
+        }
         this.connectFocus(widget, savedAttrs, sourceNode);
-    }
+    },
     
+    cell_onDestroying:function(sourceNode,gridEditor,editingInfo){
+        dijit.hideTooltip(sourceNode.widget.domNode);
+    }
 
 });
 
@@ -3174,13 +3282,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         if (sourceNode.attr.openFormEvent) {
             dojo.connect(widget, sourceNode.attr.openFormEvent, widget, 'openLinkedForm');
-            if (genro.isTouchDevice) {
+            if (genro.isMobile) {
                 dojo.connect(widget, 'longTouch', widget, 'openLinkedForm');
             }
         }
         if (sourceNode.attr.loadFormEvent) {
             dojo.connect(widget, sourceNode.attr.loadFormEvent, widget, 'linkedFormLoad');
-            if (genro.isTouchDevice) {
+            if (genro.isMobile) {
                 dojo.connect(widget, 'longTouch', widget, 'linkedFormLoad');
             }
         }
@@ -3774,7 +3882,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 for (k = 0; k < rowsnodes.length; k++) {
 
                     rowBag = rowsnodes[k].getValue();
-                    if (genro.isTouchDevice) {
+                    if (genro.isMobile) {
                         var cellattr = {'format_isbutton':true,'format_buttonclass':'zoomIcon buttonIcon',
                             'format_onclick':'this.widget.openLinkedForm(kw);',
                             'width':'20px','calculated':true,
@@ -7088,10 +7196,9 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         //dojo.connect(widget,'onClick',widget,'_updateSelect');
         var storepath = widget.model.store.datapath;
         if ((storepath == '*D') || (storepath == '*S'))
-            widget._datasubscriber = dojo.subscribe('_trigger_data',
-                    widget, function(kw) {
+            widget.sourceNode.registerSubscription('_trigger_data',widget,function(kw){
                 this.setStorepath('', kw);
-            });
+            })
         else {
             sourceNode.registerDynAttr('storepath');
         }

@@ -64,7 +64,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         that=this
         this.send('connected',{'page_id':genro.page_id})
         this._interval=setInterval(function(){
-                                     that.ping()
+                                     genro.wsk.ping()
                                    },this.options.ping_time)
     },
     onclose:function(){
@@ -152,7 +152,10 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         if (!topic){
             topic='websocketMessage';
         }else{
-            var data = data.getItem('data')
+            var data = data.getItem('data');
+            if(data instanceof gnr.GnrBag){
+                data = data.asDict();
+            }
         }
         if(nodeId || iframe || parent){
             topic = {topic:topic,nodeId:nodeId,iframe:iframe,parent:parent};

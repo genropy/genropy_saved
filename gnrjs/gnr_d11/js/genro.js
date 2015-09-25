@@ -314,9 +314,12 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     serverLog:function(data){
-        var mode = data.getItem('mode') || 'log';
+        var mode = data.mode|| 'log';
         if(mode=='log' || mode=='error' || mode=='warn'){
-            console[mode]('*SERVER* >>'+data.getItem('msg'),data.getItem('args'),data.getItem('kwargs'));
+            if(data.kwargs && data.kwargs instanceof gnr.GnrBag){
+                data.kwargs = data.kwargs.asDict();
+            }
+            console[mode]('*SERVER* >>'+data.msg,data.args,data.kwargs);
         }
     },
     
@@ -403,7 +406,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.dlg.createStandardMsg(document.body);
         this.contextIndex = {};
         this.isMac = dojo.isMac != undefined ? dojo.isMac : navigator.appVersion.indexOf('Macintosh') >= 0;
-        this.isTouchDevice = ( (navigator.appVersion.indexOf('iPad') >= 0 ) || (navigator.appVersion.indexOf('iPhone') >= 0));
+        this.isMobile = ( (navigator.appVersion.indexOf('iPad') >= 0 ) || (navigator.appVersion.indexOf('iPhone') >= 0));
         this.isChrome = ( (navigator.appVersion.indexOf('Chrome') >= 0 ));
         //genro.timeIt('** getting main **');
         this.wsk.create();
@@ -558,7 +561,7 @@ dojo.declare('gnr.GenroClient', null, {
 
 
         //genro.dom.preventGestureBackForward();
-        if (this.isTouchDevice) {
+        if (this.isMobile) {
             genro.dom.startTouchDevice();
         }
         genro.callAfter(function() {
@@ -1274,9 +1277,9 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     getItem:function(path){
-        if(path.startsWith('*S')){
+        if(stringStartsWith(path,'*S')){
             return genro.src._main.getItem(path.slice(3));
-        }else if(path.startsWith('*D')){
+        }else if(stringStartsWith(path, '*D')){
             path = path.slice(3);
         }
         return genro._data.getItem(path);

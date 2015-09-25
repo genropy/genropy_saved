@@ -308,7 +308,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
     },
     onDebugstep:function(data){
-        var callcounter = data.getItem('callcounter');
+        var callcounter = data.callcounter;
         if (!('r_'+callcounter in genro.debugged_rpc)){
             this.addToDebugged(callcounter,data)
             this.updateDebuggerStepBox(callcounter,data);
@@ -362,7 +362,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
 
     addToDebugged:function(callcounter,data){
-        var dbgpars = {debugger_page_id:data.getItem('debugger_page_id'),pdb_id:data.getItem('pdb_id')};
+        var dbgpars = {debugger_page_id:data.debugger_page_id,pdb_id:data.pdb_id};
         genro.debugged_rpc['r_'+callcounter] = dbgpars;
         genro.rpc.suspend_call(callcounter)
     },

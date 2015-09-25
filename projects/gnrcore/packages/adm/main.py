@@ -16,31 +16,38 @@ class Package(GnrDboPackage):
         pass
 
     def authenticate(self, username, **kwargs):
-        result = self.application.db.query('adm.user', columns='*',
-                                           where='$username = :user',
-                                           user=username, limit=1).fetch()
-        if result:
-            user_record = dict(result[0])
-            kwargs['tags'] = user_record.pop('auth_tags')
-            kwargs['pwd'] = user_record.pop('md5pwd')
-            kwargs['status'] = user_record['status']
-            kwargs['email'] = user_record['email']
-            kwargs['firstname'] = user_record['firstname']
-            kwargs['lastname'] = user_record['lastname']
-            kwargs['user_id'] = user_record['id']
-            kwargs['locale'] = user_record['locale'] or self.application.config('default?client_locale')
-            kwargs['user_name'] = '%s %s' % (user_record['firstname'], user_record['lastname'])
+        tblobj = self.db.table('adm.user')
+        def cb(cache=None,identifier=None,**kwargs):
+            if identifier in cache:
+                return cache[identifier],True
+            result = tblobj.query(columns='*',where='$username = :user',user=username, limit=1).fetch()
+            kwargs = dict()
+            if result:
+                user_record = dict(result[0])
+                kwargs['tags'] = user_record.pop('auth_tags')
+                kwargs['pwd'] = user_record.pop('md5pwd')
+                kwargs['status'] = user_record['status']
+                kwargs['email'] = user_record['email']
+                kwargs['firstname'] = user_record['firstname']
+                kwargs['lastname'] = user_record['lastname']
+                kwargs['user_id'] = user_record['id']
+                kwargs['locale'] = user_record['locale'] or self.application.config('default?client_locale')
+                kwargs['user_name'] = '%s %s' % (user_record['firstname'], user_record['lastname'])
+                kwargs.update(dictExtract(user_record, 'avatar_'))
+                access_groups = self.db.table('adm.user_access_group').query(where='$user_id=:uid',uid=user_record['id'],
+                                                            columns='@access_group_code.allowed_ip AS allowed_ip').fetch()
+                allowed_ip = set([])
+                for ag in access_groups:
+                    allowed_ip = allowed_ip.union(set(ag['allowed_ip'].split(',') if ag['allowed_ip'] else []))
+                if allowed_ip:
+                    kwargs['allowed_ip'] = ','.join(allowed_ip)
+                cache[identifier] = kwargs
+            return kwargs,False
+        authkwargs = tblobj.tableCachedData('user_authenticate',cb,identifier=username)
+        return authkwargs
 
-            kwargs.update(dictExtract(user_record, 'avatar_'))
-            access_groups = self.db.table('adm.user_access_group').query(where='$user_id=:uid',uid=user_record['id'],
-                                                        columns='@access_group_code.allowed_ip AS allowed_ip').fetch()
-            allowed_ip = set([])
-            for ag in access_groups:
-                allowed_ip = allowed_ip.union(set(ag['allowed_ip'].split(',') if ag['allowed_ip'] else []))
-            if allowed_ip:
-                kwargs['allowed_ip'] = ','.join(allowed_ip)
-            return kwargs
 
+        
     def onAuthentication(self, avatar):
         pass
         #update_md5 = self.attributes.get('update_md5',False) not in ('N','n','F','f','False','false','FALSE','No','NO','no',False)

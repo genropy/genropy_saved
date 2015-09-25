@@ -67,11 +67,14 @@ class GnrModuleFinder(object):
     """TODO"""
     
     path_list=[]
-
+    app_list=[]
+    instance_lib = None
     def __init__(self, path_entry, app):
         self.path_entry = path_entry
         self.app = app
-        self.instance_lib = os.path.join(app.instanceFolder, 'lib')
+        self.app_list.append(app)
+        if self.instance_lib is None:
+            self.instance_lib = os.path.join(app.instanceFolder, 'lib')
         if not path_entry==self.instance_lib and not path_entry in self.path_list:
             raise ImportError
         return
@@ -106,14 +109,19 @@ class GnrModuleFinder(object):
         elif splitted[0] == 'gnrpkg' and len(splitted)>2:
             pkg = splitted[1]
             mod_fullname='.'.join(splitted[2:])
-            if pkg in self.app.packages:
+            if self.pkg_in_app_list(pkg):
                 pkg_module = self._get_gnrpkg_module(pkg)
                 mod_file,mod_pathname,mod_description=imp.find_module(mod_fullname, pkg_module.__path__)
                 return GnrModuleLoader(mod_file,mod_pathname,mod_description)
         return None
-        
+    
+    def pkg_in_app_list(self, pkg):
+        for a in self.app_list:
+            if pkg in a.packages:
+                return a.packages[pkg]
+
     def _get_gnrpkg_module(self, pkg):
-        gnrpkg = self.app.packages[pkg]
+        gnrpkg = self.pkg_in_app_list(pkg)
         gnrpkg_module_name= 'gnrpkg.%s'%pkg 
         if gnrpkg_module_name in sys.modules:
             pkg_module=sys.modules[gnrpkg_module_name]

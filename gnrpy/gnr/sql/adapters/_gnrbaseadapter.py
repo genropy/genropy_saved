@@ -544,12 +544,20 @@ class SqlDbAdapter(object):
         else:
             return self.revTypesDict[dtype]
 
+    def dropEmptyTables(self,schema=None):
+        tables = self.listElements('tables',schema=schema)
+        for tbl in tables:
+            tblfullname = '%s.%s' %(schema,tbl)
+            if not self.dbroot.execute("""SELECT COUNT(*) FROM %s""" %tblfullname).fetchone()[0]:
+                self.dropTable(tblfullname,cascade=True)
+
     def dropTable(self, dbtable,cascade=False):
         """Drop table"""
         command = 'DROP TABLE %s;'
         if cascade:
             command = 'DROP TABLE %s CASCADE;'
-        self.dbroot.execute(command % dbtable.model.sqlfullname)
+        tablename = dbtable if isinstance(dbtable,basestring) else dbtable.model.sqlfullname
+        self.dbroot.execute(command % tablename)
 
     def dropIndex(self, index_name, sqlschema=None):
         """Drop an index

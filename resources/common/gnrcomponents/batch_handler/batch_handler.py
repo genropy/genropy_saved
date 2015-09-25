@@ -108,7 +108,7 @@ class TableScriptHandler(BaseComponent):
         if hasParameters:
             parsbox = dlgpars.div(datapath='#table_script_runner.data',
                             min_width='300px',childname='contentNode',position='relative',top='0',
-                            bottom='25px')
+                            bottom='25px',padding='10px')
             if batch_dict.get('title'):
                 dlgpars.dataFormula('.title','dlgtitle',dlgtitle="!!%s (%i)" %(batch_dict['title'],batch_dict.get('record_count')),_onBuilt=True)
             self.table_script_parameters_pane(parsbox,extra_parameters=extra_parameters,**batch_dict)

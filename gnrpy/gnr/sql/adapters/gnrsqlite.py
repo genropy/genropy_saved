@@ -336,6 +336,18 @@ class GnrSqliteCursor(pysqlite.Cursor):
         self._index = None
         try:
             return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+        except pysqlite.OperationalError,e:
+            if str(e)=='disk I/O error':
+                count = 0
+                while count<5:
+                    print 'retry sql read',count
+                    time.sleep(1)
+                    try:
+                        c = pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+                        return c
+                    except pysqlite.OperationalError,e:
+                        count += 1
+            raise e
         except Exception, e:
             logger.exception(e)
             raise

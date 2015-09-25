@@ -60,7 +60,7 @@ class Table(object):
         table_data['caption_field'] = table_data['caption_field'] or table_data['pkey']
         sysFields = table_data.pop('_sysFields')
         columns = table_data.pop('_columns')
-        config_db_node.replace("""def config_db(self,pkg):\n         tbl =  pkg.table('%s'%s)""" %(table,self.bagToArgString(table_data)))
+        config_db_node.replace("""def config_db(self,pkg):\n        tbl =  pkg.table('%s'%s)""" %(table,self.bagToArgString(table_data)))
         if sysFields and sysFields.pop('_enabled'):
             config_db_node.append('self.sysFields(tbl%s)' %self.bagToArgString(self._sysFieldsArguments(sysFields)))
         for col in columns.values():

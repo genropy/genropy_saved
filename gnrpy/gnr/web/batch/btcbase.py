@@ -86,8 +86,10 @@ class BaseResourceBatch(object):
         self._post_process()
     
     def call_steps(self,offset=1):
-        for step in self.btc.thermo_wrapper(self.batch_steps, 'btc_steps', message=self.get_step_caption,
-                                                keep=True):
+        steps = self.batch_steps.split(',')
+        if len(steps)>1:
+            steps = self.btc.thermo_wrapper(steps, 'btc_steps', message=self.get_step_caption,keep=True)
+        for step in steps:
             step_handler = getattr(self, 'step_%s' % step)
             step_handler()
             for line_code in self.btc.line_codes[offset:]:

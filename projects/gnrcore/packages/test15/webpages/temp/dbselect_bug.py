@@ -5,6 +5,10 @@
 # Copyright (c) 2012 Softwell. All rights reserved.
 
 "Test page description"
+from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrbag import Bag
+from time import sleep
+
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     dojo_source = True
@@ -43,3 +47,27 @@ class GnrCustomWebPage(object):
     def rpc_testhotutto(self,record,**kwargs):
         print record['@localita']
         
+
+
+    def test_4_dbselectrpc(self,pane):
+        """getuser custom rpc"""
+        fb = pane.formbuilder(cols=1, border_spacing='4px')
+        fb.dbSelect(value='^.user',width='25em',lbl='User',auxColumns='status,auth_tags',
+                        method=self.getUserCustomRpc)
+
+    @public_method
+    def getUserCustomRpc(self,_querystring=None,_id=None,**kwargs):
+        result = Bag()
+        if _id:
+            f = self.db.table('adm.user').query(where='$id = :u',u=_id).fetch()
+        else:
+            sleep(2)
+            f = self.db.table('adm.user').query(where='$username ILIKE :u',u='%s%%' %_querystring.replace('*','')).fetch()
+        for i,r in enumerate(f):
+            result.setItem('%s_%s' %(r['id'],i),None,caption='%s - %s' %(r['username'], r['auth_tags']),
+                status=r['status'],auth_tags=r['auth_tags'],_pkey=r['id'],username=r['username'])
+        return result,dict(columns='username,status,auth_tags',headers='Name,Status,Tags')
+
+
+
+

@@ -33,7 +33,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this[k] = formAttr[k];
         }
         if(!('autoFocus' in this)){
-            this.autoFocus = !genro.isTouchDevice;
+            this.autoFocus = !genro.isMobile;
         }
         if(this.isRootForm){
             genro._rootForm = this;
@@ -635,6 +635,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }else{
             this.formErrors.setItem(errorcode,message)
         }
+        this.updateStatus();
     },
 
     getFormErrors:function(){
@@ -1381,10 +1382,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     changed = false;
                     //console.log('dataChangeLogger UNCHANGED: ' + path);
                 }
-                if (changed) {
+                if (changed!==false) {
                     changes.setItem(changekey, null,{_valuelabel:kw.reason.getElementLabel?kw.reason.getElementLabel():kw.node.label,
-                                                    from:kw.oldvalue,to:kw.value});
-                } else if (changed === false) {
+                                                    from:kw.node.attr._loadedValue,to:kw.value});
+                } else {
                     changes.pop(changekey);
                 }
                 // if changed == null is a modification of a yet modified value, do nothing

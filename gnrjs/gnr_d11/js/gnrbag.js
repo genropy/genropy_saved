@@ -545,6 +545,10 @@ dojo.declare("gnr.GnrBag", null, {
             source.forEach(function(node) {
                 dest.setItem(node.label, node.getValue(), objectUpdate({}, node.getAttr()));
             });
+        }else if(typeof(source)=='string'){
+            //always xml string
+            var parser=new window.DOMParser();
+            this.fromXmlDoc(parser.parseFromString(source,'text/xml'),genro.clsdict);
         }
         else if (source instanceof Object) {
             for (var k in source) {

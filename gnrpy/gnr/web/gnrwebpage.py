@@ -27,6 +27,8 @@ import os
 import sys
 import shutil
 import urllib
+import thread
+
 from time import time
 from datetime import timedelta
 from gnr.web._gnrbasewebpage import GnrBaseWebPage
@@ -49,6 +51,7 @@ from gnr.core.gnrbag import Bag, BagResolver
 from gnr.core.gnrdecorator import public_method,deprecated
 from gnr.web.gnrbaseclasses import BaseComponent # DO NOT REMOVE, old code relies on BaseComponent being defined in this file
 from gnr.app.gnrlocalization import GnrLocString
+from base64 import b64decode
 
 import datetime
 
@@ -82,6 +85,7 @@ class GnrMaintenanceException(GnrException):
     pass
 
 
+
 class GnrMissingResourceException(GnrException):
     pass
 
@@ -90,10 +94,14 @@ class GnrUserNotAllowed(GnrException):
     description = '!!Genro Not Allowed Public call'
     caption = "!!User %(user)s is not allowed to call method %(method)s"    
 
+class GnrBasicAuthenticationError(GnrException):
+    code = 'AUTH-901'
+
 EXCEPTIONS = {'user_not_allowed': GnrUserNotAllowed,
               'missing_resource': GnrMissingResourceException,
               'unsupported_browsr': GnrUnsupportedBrowserException,
               'generic': GnrWebPageException,
+              'basic_authentication':GnrBasicAuthenticationError,
               'maintenance': GnrMaintenanceException}
 
 class GnrWebPage(GnrBaseWebPage):
@@ -112,6 +120,7 @@ class GnrWebPage(GnrBaseWebPage):
                  filepath=None, packageId=None, pluginId=None, basename=None, environ=None, class_info=None):
         self._inited = False
         self._start_time = time()
+        self._thread = thread.get_ident()
         self.workspace = dict()
         self.sql_count = 0
         self.sql_time = 0
@@ -121,7 +130,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.user_agent = request.user_agent or []
         self.user_ip = request.remote_addr
         self._environ = environ
-        self.isTouchDevice = ('iPad' in self.user_agent or 'iPhone' in self.user_agent)
+        self.isMobile = ('iPad' in self.user_agent or 'iPhone' in self.user_agent)
         self._event_subscribers = {}
         self.forked = False # maybe redefine as _forked
         self.filepath = filepath
@@ -888,9 +897,23 @@ class GnrWebPage(GnrBaseWebPage):
             handler = getattr(proxy_object, '%s_%s' % (prefix, submethod),None)
         
         if handler and getattr(handler, 'tags',None):
-            if not self.application.checkResourcePermission(handler.tags, self.userTags):
+            userTags = self.userTags or self.basicAuthenticationTags()
+            if not self.application.checkResourcePermission(handler.tags, userTags):
                 raise self.exception(GnrUserNotAllowed,method=method)
         return handler
+
+    def basicAuthenticationTags(self):
+        authorization = self.request.headers.get('Authorization')
+        if not authorization:
+            raise GnrBasicAuthenticationError('Missing Basic Authorization')
+        authmode,login = authorization.split(' ')
+        if authmode!='Basic':
+            raise GnrBasicAuthenticationError('Wrong Authorization Mode')
+        user,pwd = b64decode(login).split(':')
+        avatar = self.application.getAvatar(user,pwd)
+        if not avatar:
+            raise GnrBasicAuthenticationError('Wrong Authorization Login')
+        return avatar.user_tags
         
     def getWsMethod(self, method):
         """TODO
@@ -1187,9 +1210,9 @@ class GnrWebPage(GnrBaseWebPage):
         self._avatar = avatar
         
     def _get_avatar(self):
-        if self.isGuest or getattr(self, 'skip_connection', False):
-            return
         if not hasattr(self, '_avatar'):
+            if self.isGuest or getattr(self, 'skip_connection', False):
+                return
             connection = self.connection
             avatar_extra = connection.avatar_extra or dict()
             self._avatar = self.application.getAvatar(self.user, tags=connection.user_tags, page=self,
@@ -1694,7 +1717,7 @@ class GnrWebPage(GnrBaseWebPage):
             root.div(id='srcHighlighter')
             pageOptions = self.pageOptions or dict()
             if self.root_page_id and self.root_page_id==self.parent_page_id:
-                root.dataController("""var openMenu = genro.isTouchDevice?false:openMenu;
+                root.dataController("""var openMenu = genro.isMobile?false:openMenu;
                                    if(openMenu===false){
                                         genro.publish({parent:true,topic:'setIndexLeftStatus'},openMenu);
                                    }

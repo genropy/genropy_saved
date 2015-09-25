@@ -59,6 +59,59 @@ dojo.declare("gnr.QueryManager", null, {
         }
         node.unfreeze();
     },
+
+    createMenuesQueryEditor: function() {
+        genro.src.getNode()._('div', this.relativeId('_qbmenues'));
+        var node = genro.src.getNode(this.relativeId('_qbmenues'));
+        node.clearValue();
+        node.freeze();
+        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.queryModes',
+                                        id:this.relativeId('qb_queryModes_menu'),
+                                       action:'$2.setRelativeData(".#parent.queryMode",$1.fullpath,{caption:$1.caption})'});
+        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.jc',id:this.relativeId('qb_jc_menu')});
+        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.not',id:this.relativeId('qb_not_menu')});
+        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.'+this.tablecode+'.fieldsmenu',id:this.relativeId('qb_fields_menu'),
+            action:"TH('"+this.th_root+"').querymanager.onChangedQueryColumn($2,$1,$2.attr.relpath);"});
+        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.op',id:this.relativeId('qb_op_menu')});
+        var opmenu_types = ['alpha','alpha_phonetic','date','number','other','boolean','unselected_column'];
+        for (var i = 0; i < opmenu_types.length; i++) {
+            node._('menu', {modifiers:'*',_class:'smallmenu',
+                storepath:'gnr.qb.sqlop.op_spec.' + opmenu_types[i],id:this.relativeId('qb_op_menu_') + opmenu_types[i]});
+        }
+        node.unfreeze();
+    },
+
+
+    createFastQueryFieldsTree:function(datapath){
+        genro.src.getNode()._('div', this.relativeId('_qbmenues_fast'));
+        var node = genro.src.getNode(this.relativeId('_qbmenues_fast'));
+        node.clearValue();
+        node.freeze();
+        //"genro.bp(true);TH('"+this.th_root+"').querymanager.onChangedQueryColumn($2,$1,$2.attr.relpath);"
+        var that = this;
+        this._floatingTreeMenu(node,'qb_fields_menu_fast',{storepath:'gnr.qb.'+this.tablecode+'.fieldsmenu',
+                                connect_onClick:function(bagNode,treeNode){
+                                    that.onChangedQueryColumnDo(this,datapath,bagNode.attr)
+                                }})
+        var opmenu_types = ['alpha','alpha_phonetic','date','number','other','boolean','unselected_column'];
+        node.unfreeze();
+    },
+
+    _floatingTreeMenu:function(node,name,kw){
+        var menu = node._('menu', {modifiers:'*',_class:'menupane',id:this.relativeId(name), connect_ondblclick:function(bagNode,treeNode){
+                                    this.widget.onCancel();
+                                }});
+        var box = menu._('menuItem',{})._('div',{max_height:'300px',min_width: '220px',overflow:'auto',
+                                                connect_onclick:function(e){e.stopPropagation();e.preventDefault();}})._('div',{padding_top:'4px', padding_bottom:'4px'});
+        return box._('tree','treemenu',objectUpdate({
+            openOnClick:true,
+            hideValues:true,autoCollapse:true, //excludeRoot:true,
+            labelAttribute:'caption',selectedLabelClass:'selectedFieldTreeNode',
+                         parentMenu:menu,_class:"branchtree noIcon"},kw));
+
+    },
+
+
     getOpMenuId: function(dtype) {
         var id = dtype ? "qb_op_menu_" + this.getDtypeGroup(dtype) : 'qb_op_menu_unselected_column';
         return this.relativeId(id);
@@ -85,22 +138,26 @@ dojo.declare("gnr.QueryManager", null, {
     onChangedQueryColumn: function(contextNode, column_attr, label) {
         var label = label || 'c_0';
         var relpath = '.' + label;
-        contextNode.setRelativeData(relpath + '?column_caption', column_attr.fullcaption);
-        contextNode.setRelativeData(relpath + '?column', column_attr.fieldpath);
-        var currentDtype = contextNode.getRelativeData(relpath + '?column_dtype');
+        this.onChangedQueryColumnDo(contextNode,relpath,column_attr);
+        
+    },
+
+    onChangedQueryColumnDo:function(sourceNode,path,column_attr){
+        sourceNode.setRelativeData(path + '?column_caption', column_attr.fullcaption);
+        sourceNode.setRelativeData(path + '?column', column_attr.fieldpath);
+        var currentDtype = sourceNode.getRelativeData(path + '?column_dtype');
         if (currentDtype != column_attr.dtype) {
-            contextNode.setRelativeData(relpath + '?column_dtype', column_attr.query_dtype || column_attr.dtype);
+            sourceNode.setRelativeData(path + '?column_dtype', column_attr.query_dtype || column_attr.dtype);
             var default_op = genro._('gnr.qb.sqlop.op_spec.' + this.getDtypeGroup(column_attr.dtype) + '.#0');
             if (default_op) {
-                contextNode.setRelativeData(relpath + '?op', default_op);
-                contextNode.setRelativeData(relpath + '?op_caption',
+                sourceNode.setRelativeData(path + '?op', default_op);
+                sourceNode.setRelativeData(path + '?op_caption',
                         genro.getDataNode('gnr.qb.sqlop.op.' + default_op).attr.caption);
             }
         }
-        contextNode.setRelativeData(relpath, '');
-        contextNode.setRelativeData(relpath+'?value_caption', '');
+        sourceNode.setRelativeData(path, '');
+        sourceNode.setRelativeData(path+'?value_caption', '');
     },
-
 
     queryEditor:function(open){
         var that = this;
@@ -143,12 +200,17 @@ dojo.declare("gnr.QueryManager", null, {
                                iconClass:'iconbox run'});
 
 
-        var editorRoot = frame._('div',{datapath:'.where',margin:'2px'});
+        var editorRoot = frame._('div',{datapath:'.where',margin:'2px',nodeId:this.th_root+'_queryEditorRoot'});
         node.unfreeze();
-        this._editorRoot = editorRoot;
         this.buildQueryPane();
         this.checkFavorite();
     },
+
+    _editorRoot:function(){
+        var n = genro.nodeById(this.th_root+'_queryEditorRoot');
+        return n? n.getValue():null;
+    },
+
     saveQuery:function(){
         var datapath =  this.sourceNode.absDatapath('.query.queryAttributes');
         var code = this.sourceNode.getRelativeData('.query.queryAttributes.code');
@@ -170,11 +232,12 @@ dojo.declare("gnr.QueryManager", null, {
         var sourceNode = this.sourceNode;
         var that = this;
         var finalize = function(where,run){
-            if(that._editorRoot){
-                that._editorRoot.popNode('root');
+            var editorRoot = that._editorRoot();
+            if(editorRoot){
+                editorRoot.popNode('root');
             }
             sourceNode.setRelativeData('.query.where',where);
-            if(that._editorRoot){
+            if(editorRoot){
                 that.buildQueryPane();
             }
             that.checkFavorite();
@@ -207,8 +270,9 @@ dojo.declare("gnr.QueryManager", null, {
     },
     
     buildQueryPane: function() {
-        this._editorRoot.popNode('root');
-        this._buildQueryGroup(this._editorRoot._('div','root'), this.sourceNode.getRelativeData('.query.where'), 0);
+        var editorRoot = this._editorRoot();
+        editorRoot.popNode('root');
+        this._buildQueryGroup(editorRoot._('div','root'), this.sourceNode.getRelativeData('.query.where'), 0);
     },
     
     addDelFunc : function(mode, pos, e) {
@@ -492,8 +556,8 @@ dojo.declare("gnr.QueryManager", null, {
         var currfavorite = genro.getFromStorage("local", this.storeKey());
         this.sourceNode.setRelativeData('.query.favoriteQueryPath',currfavorite);
         this.refreshQueryMenues();
-        if(this._editorRoot){
-            genro.dom.setClass(this._editorRoot.getParentNode().attributeOwnerNode('frameCode'),
+        if(this._editorRoot()){
+            genro.dom.setClass(this._editorRoot().getParentNode().attributeOwnerNode('frameCode'),
                             'th_isFavoriteQuery',currfavorite==currPath);
         }
     },

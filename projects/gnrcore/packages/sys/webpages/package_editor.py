@@ -135,7 +135,7 @@ class GnrCustomWebPage(object):
         m.menuLine('DB Setup',code='dbsetup')
         m.menuLine('Make Resources',code='make_resources',disabled='^.record.package_name?!=#v')
         m.menuLine('Import Legacy',code='import_legacy')
-        bar.dataRpc('dummy',self.applyOnInstance,instance='=.record.instance_name',package='=.record.package_name',_if='instance',
+        bar.dataRpc('dummy',self.actionOnInstance,instance='=.record.instance_name',package='=.record.package_name',_if='instance',
                         _lockScreen=True,action='^.instanceAction')
         bc =form.center.borderContainer()
         self.tablesModulesEditor(bc.contentPane(region='top',height='200px',splitter=True),storepath='#FORM.record.tables',
@@ -150,16 +150,18 @@ class GnrCustomWebPage(object):
             destdb.model.applyModelChanges()
 
     @public_method
-    def applyOnInstance(self,instance=None,action=None,package=None):
-        app = GnrApp(instance)
+    def actionOnInstance(self,instance=None,action=None,package=None,**kwargs):
+        app = GnrApp(instance) #it does not work in uwsgi fix it
+        if action=='make_resources':
+            print 'making resources'
+            ThPackageResourceMaker(app,package=package,menu=True).makeResources()
         if action in ('dbsetup','import_legacy'):
             destdb = app.db
             if destdb.model.check():
+                self.log('applyModelChanges')
                 destdb.model.applyModelChanges()
             if action =='import_legacy':
                 app.importFromLegacyDb()
-        elif action=='make_resources':
-            ThPackageResourceMaker(app,package=package,menu=True).makeResources()
 
 
 

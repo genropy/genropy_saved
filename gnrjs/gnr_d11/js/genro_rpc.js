@@ -772,7 +772,12 @@ dojo.declare("gnr.GnrRpcHandler", null, {
                 }
                 this.getParentNode().getValue('reload',optkw);
             };
-            valNode._onChangedValue = dojo.hitch(resolver, reloader);
+            if(valNode){
+                valNode._onChangedValue = dojo.hitch(resolver, reloader);
+            }else{
+                console.log('missing valNode')
+            }
+            
 
         } else {
             kwargs[_related_field] = params._relation_value;

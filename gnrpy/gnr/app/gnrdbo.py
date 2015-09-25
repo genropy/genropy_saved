@@ -4,6 +4,7 @@
 import datetime
 import warnings as warnings_module
 import os
+import pytz
 from gnr.core.gnrlang import boolean
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip,templateReplace,fromJson,slugify
@@ -369,10 +370,11 @@ class TableBase(object):
         #doctor,staff,superadmin               ,doctor,staff,superadmin, LIKE %%,admin,%%
 
     def sysFields_df(self,tbl):
-        tbl.column('df_fields',dtype='X',group='_',_sendback=True,_sysfield=True)
-        tbl.column('df_fbcolumns','L',group='_',_sysfield=True)
-        tbl.column('df_custom_templates','X',group='_',_sysfield=True)
-        tbl.column('df_colswith',group='_',_sysfield=True)
+        tbl.column('df_fields',dtype='X',group='_',_sendback=True)
+        tbl.column('df_fbcolumns','L',group='_')
+        tbl.column('df_custom_templates','X',group='_')
+        tbl.column('df_colswith',group='_')
+
 
     def sysFields_counter(self,tbl,fldname,counter=None,group=None,name_long='!!Counter'):
         tbl.column(fldname, dtype='L', name_long=name_long, onInserting='setRowCounter',counter=True,
@@ -435,6 +437,13 @@ class TableBase(object):
                                                 condition_kwargs=condition_kwargs,caption=caption,dbstore=dbstore,columns=columns,
                                                 related_kwargs=related_kwargs,resolved=resolved,**kwargs)
 
+    def createSysRecords(self):
+        for m in dir(self):
+            if m.startswith('sysRecord_') and m!='sysRecord_':
+                if not self.checkDuplicate(__syscode=m[10:]):
+                    self.sysRecord(m[10:])
+                    return True
+
     def sysRecord(self,syscode):
         def createCb(key):
             record = getattr(self,'sysRecord_%s' %syscode)()
@@ -491,7 +500,10 @@ class TableBase(object):
         :param record: the record
         :param fldname: the field name"""
         if not getattr(record, '_notUserChange', None):
-            record[fldname] = datetime.datetime.today()
+            if self.column(fldname).dtype == 'DHZ':
+                record[fldname] = datetime.datetime.now(pytz.utc)
+            else:
+                record[fldname] = datetime.datetime.now() 
 
 
     def trigger_setProtectionTag(self,record,fldname,**kwargs):

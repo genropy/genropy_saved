@@ -940,15 +940,17 @@ dojo.declare("gnr.GridEditor", null, {
         var inserted = changeset.getItem('inserted');
         if(updated){
             updated.forEach(function(n){
-                if(that.rowEditors && that.rowEditors[n.label]){
-                    that.rowEditors[n.label].deleteRowEditor();
+                var rowId = n.attr.rowId;
+                if(that.rowEditors && that.rowEditors[rowId]){
+                    that.rowEditors[rowId].deleteRowEditor();
                 }
             });
         }
         if(inserted){
             inserted.forEach(function(n){
-                if(that.rowEditors && that.rowEditors[n.label]){
-                    that.rowEditors[n.label].deleteRowEditor();
+                var rowId = n.attr.rowId;
+                if(that.rowEditors && that.rowEditors[rowId]){
+                    that.rowEditors[rowId].deleteRowEditor();
                 }
             });
         }
@@ -956,7 +958,7 @@ dojo.declare("gnr.GridEditor", null, {
         var insertedRows = result.getItem('insertedRecords');
         if(insertedRows){
             insertedRows.forEach(function(n){
-                var r = that.grid.storebag().getNode(n.label);
+                var r = that.grid.storebag().getNode(n.attr.rowId);
                 r.attr._pkey = n.getValue();
                 r._value = null;
                 r.label = n.label;
@@ -970,6 +972,7 @@ dojo.declare("gnr.GridEditor", null, {
     saveChangedRows:function(){
         var that = this;
         var changeset = this.getChangeset(true);
+        console.log('changeset',changeset)
         var sourceNode = this.grid.sourceNode;
         if(changeset.len()>0){
             that.grid.updateRowCount();
@@ -988,14 +991,14 @@ dojo.declare("gnr.GridEditor", null, {
                 var cannotSave = this.autoSave && (rowEditor.getErrors() || rowEditor.currentCol);
                 if (!cannotSave){
                         var prefix = rowEditor.newrecord?'inserted.':'updated.';
-                        changeset.setItem(prefix+rowEditor.rowId,rowEditor.getChangeset(),{_pkey:rowEditor.newrecord?null:rowEditor._pkey});
+                        changeset.setItem(prefix+'#id',rowEditor.getChangeset(),{_pkey:rowEditor.newrecord?null:rowEditor._pkey,rowId:rowEditor.rowId});
                         rowEditor.sendingStatus = sendingStatus;
                 }
             }
         }
         var deletedRows = new gnr.GnrBag();
         this.deletedRows.forEach(function(n){
-            deletedRows.setItem(n.attr._pkey,null,{_pkey:n.attr._pkey});
+            deletedRows.setItem('#id',null,{_pkey:n.attr._pkey});
         });
         if(deletedRows.len()>0){
             var unlinkfield = collectionStore.unlinkdict?collectionStore.unlinkdict.field:null;
@@ -1074,15 +1077,16 @@ dojo.declare("gnr.GridEditor", null, {
                     if(result[rcol]){
                         hcols = [];
                         for(var j in cellmap){
-                            if(cellmap[j].relating_column==rcol && !(cellmap[j].field_getter in result)){
+                            if(cellmap[j].relating_column==rcol && result[cellmap[j].field_getter]==undefined){
                                 hcols.push(cellmap[j].related_column);
                             }
                         }
                         if(hcols.length>0){
-                            queries.setItem(rcol,null,{table:cmap.related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'});
-                            //  it should be the related_table of relating_column instead of cmap related table which is the last related table in relation path
+                            //queries.setItem(rcol,null,{table:cmap.related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'}); OLDVERSION
+                            
+                            //FIX: it should be the related_table of relating_column instead of cmap related table which is the last related table in relation path
                             // @product_id.@product_type_id.description ---> relating_column:product_id, related_table:product_type -- related_table of relating column: foo.product
-                            //  queries.setItem(rcol,null,{table:cellmap[rcol].related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'});
+                            queries.setItem(rcol,null,{table:cellmap[rcol].related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'});
 
                         }
                     }
@@ -1153,6 +1157,10 @@ dojo.declare("gnr.GridEditor", null, {
         if(this.grid.datamode=='bag'){
             rowEditor.replaceData(value,'remoteController');
         }else{
+            var row_attributes = value.pop('_row_attributes');
+            if(row_attributes){
+                rowEditor.data.getParentNode().updAttributes(row_attributes,false);
+            }
             rowEditor.data.update(value,null,'remoteController');
         }
         rowEditor.checkNotNull();
@@ -1351,7 +1359,7 @@ dojo.declare("gnr.GridEditor", null, {
             return;
         }
         grid.currRenderedRowIndex = lastRenderedRowIndex;
-        attr.datapath = '.' + rowLabel;
+        attr.datapath = this.widgetRootNode.absDatapath('.' + rowLabel);
         attr.width = attr.width || (cellNode.clientWidth-10)+'px';
         if(attr.tag.toLowerCase()=='checkbox'){
             attr.margin_left = ( (cellNode.clientWidth-10-16)/2)+'px';
