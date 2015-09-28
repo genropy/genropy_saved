@@ -38,6 +38,7 @@ class TableHandlerTreeResolver(BagResolver):
                    'columns':None,
                    'related_kwargs':None,
                    '_isleaf':None,
+                   'readOnly':False,
                    '_page':None}
     classArgs = ['table','parent_id']
 

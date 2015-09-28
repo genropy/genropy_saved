@@ -9,7 +9,7 @@
 <en_menu_manager fr="Gestionnaire de Menu" de="Menu Manager" en="Menu Manager" it="Gestione Menu" base="Menu Manager"></en_menu_manager>
 <en_menu_pages fr="Pages de Menu" de="Menu Seiten" en="Menu Pages" it="Pagine del menu" base="Menu Pages"></en_menu_pages>
 <en_datacatalog fr="Datacatalog" de="Datacatalog" en="Datacatalog" it="Datacatalog" base="Datacatalog"></en_datacatalog>
-<en_utility_tables fr="tables utilitaires" de="Utility-Tabellen" en="Utility tables" it="Tavoli Utility" base="Utility tables"></en_utility_tables>
+<en_utility_tables fr="tables utilitaires" en="Utility tables" de="Utility-Tabellen" it="Tabelle utilità" base="Utility tables"></en_utility_tables>
 <en_counter fr="Compteur" de="Zähler" en="Counter" it="Contatore" base="Counter"></en_counter></menu>
 <model><access_group path="model/access_group.py" ext="py"><en_access_group fr="groupe Accès" de="Zugriffsgruppe" en="Access group" it="Gruppo Accesso" base="Access group"></en_access_group>
 <en_code fr="Code" de="Code" en="Code" it="Codice" base="Code"></en_code>
@@ -58,7 +58,7 @@
 <en_codekey fr="Codekey" de="Codeschlüssel" en="Codekey" it="Codekey" base="Codekey"></en_codekey>
 <en_code fr="Code" de="Code" en="Code" it="Codice" base="Code"></en_code>
 <en_package fr="Paquet" de="Paket" en="Package" it="Pacchetto" base="Package"></en_package>
-<en_table fr="Table" de="Tabelle" en="Table" it="Tavolo" base="Table"></en_table>
+<en_table fr="Table" en="Table" de="Tabelle" it="Tabella" base="Table"></en_table>
 <en_counter_field fr="Contre Champ" de="Zählerfeld" en="Counter Field" it="Contro Campo" base="Counter Field"></en_counter_field>
 <en_period fr="Période" de="Zeit" en="Period" it="Periodo" base="Period"></en_period>
 <en_last_used fr="Dernière occasion" de="Zuletzt verwendeten" en="Last used" it="Ultimo uso" base="Last used"></en_last_used>
@@ -87,7 +87,7 @@
 <en_package fr="Paquet" de="Paket" en="Package" it="Pacchetto" base="Package"></en_package>
 <en_pkey_field fr="Champ Pkey" de="Pkey Feld" en="Pkey field" it="Campo PKEY" base="Pkey field"></en_pkey_field>
 <en_size fr="Taille" de="Größe" en="Size" it="Taglia" base="Size"></en_size>
-<en_table fr="Table" de="Tabelle" en="Table" it="Tavolo" base="Table"></en_table>
+<en_table fr="Table" en="Table" de="Tabelle" it="Tabella" base="Table"></en_table>
 <en_field fr="Terrain" de="Bereich" en="Field" it="Campo" base="Field"></en_field>
 <en_comment fr="Commentaire" de="Kommentar" en="Comment" it="Commento" base="Comment"></en_comment>
 <en_name_full fr="Nom et prénom" de="Nennen Voll" en="Name full" it="Nome completo" base="Name full"></en_name_full>
@@ -126,7 +126,7 @@
 <en_menu_pages fr="Pages de Menu" de="Menu Seiten" en="Menu Pages" it="Pagine del menu" base="Menu Pages"></en_menu_pages>
 <en_label fr="Étiquette" de="Etikett" en="Label" it="Etichetta" base="Label"></en_label>
 <en_filepath fr="Chemin Du Fichier" de="Dateipfad" en="Filepath" it="Filepath" base="Filepath"></en_filepath>
-<en_table fr="Table" de="Tabelle" en="Table" it="Tavolo" base="Table"></en_table>
+<en_table fr="Table" en="Table" de="Tabelle" it="Tabella" base="Table"></en_table>
 <en_package fr="Paquet" de="Paket" en="Package" it="Pacchetto" base="Package"></en_package>
 <en_metadata fr="Métadonnées" de="Metadata" en="Metadata" it="Metadata" base="Metadata"></en_metadata></menu_page>
 <notification path="model/notification.py" ext="py"><en_notification fr="Notification" de="Benachrichtigung" en="Notification" it="Notifica" base="Notification"></en_notification>
@@ -159,7 +159,7 @@
 <en_description fr="Description" de="Beschreibung" en="Description" it="Descrizione" base="Description"></en_description></record_tag>
 <sent_email path="model/sent_email.py" ext="py"><en_sent_email fr="Email envoyé" de="E-Mail versenden" en="Sent email" it="E-mail inviata" base="Sent email"></en_sent_email>
 <en_code fr="Code" de="Code" en="Code" it="Codice" base="Code"></en_code>
-<en_table fr="Table" de="Tabelle" en="Table" it="Tavolo" base="Table"></en_table>
+<en_table fr="Table" en="Table" de="Tabelle" it="Tabella" base="Table"></en_table>
 <en_email_address fr="Adresse e-mail" de="E-Mail-Adresse" en="Email address" it="Indirizzo e-mail" base="Email address"></en_email_address>
 <en_sent_ts fr="Ts envoyés" de="Gesendete ts" en="Sent ts" it="Ts Sent" base="Sent ts"></en_sent_ts></sent_email>
 <served_page path="model/served_page.py" ext="py"><en_served_page fr="Page servie" de="Serviert Seite" en="Served page" it="Pagina Servito" base="Served page"></en_served_page>
@@ -202,7 +202,7 @@
 <en_code fr="Code" de="Code" en="Code" it="Codice" base="Code"></en_code>
 <en_object_type fr="Type d'objet" de="Objekttyp" en="Object Type" it="Tipo di oggetto" base="Object Type"></en_object_type>
 <en_package fr="Paquet" de="Paket" en="Package" it="Pacchetto" base="Package"></en_package>
-<en_table fr="Table" de="Tabelle" en="Table" it="Tavolo" base="Table"></en_table>
+<en_table fr="Table" en="Table" de="Tabelle" it="Tabella" base="Table"></en_table>
 <en_user_id fr="ID de l'utilisateur" de="Benutzer-ID" en="User ID" it="ID utente" base="User ID"></en_user_id>
 <en_description fr="Description" de="Beschreibung" en="Description" it="Descrizione" base="Description"></en_description>
 <en_notes fr="Remarques" de="Aufzeichnungen" en="Notes" it="Note" base="Notes"></en_notes>

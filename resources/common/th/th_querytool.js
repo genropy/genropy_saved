@@ -15,6 +15,7 @@ dojo.declare("gnr.QueryManager", null, {
         
         
         genro.setDataFromRemote('gnr.qb.'+this.tablecode+'.fieldsmenu', "relationExplorer", {table:maintable, omit:'_*'});
+        genro.setDataFromRemote('gnr.qb.'+this.tablecode+'.fieldsmenu_tree', "relationExplorer", {table:maintable, omit:'_*'});
         genro.setDataFromRemote('gnr.qb.sqlop', "getSqlOperators");
     },
 
@@ -89,7 +90,7 @@ dojo.declare("gnr.QueryManager", null, {
         node.freeze();
         //"genro.bp(true);TH('"+this.th_root+"').querymanager.onChangedQueryColumn($2,$1,$2.attr.relpath);"
         var that = this;
-        this._floatingTreeMenu(node,'qb_fields_menu_fast',{storepath:'gnr.qb.'+this.tablecode+'.fieldsmenu',
+        this._floatingTreeMenu(node,'qb_fields_menu_fast',{storepath:'gnr.qb.'+this.tablecode+'.fieldsmenu_tree',
                                 connect_onClick:function(bagNode,treeNode){
                                     that.onChangedQueryColumnDo(this,datapath,bagNode.attr)
                                 }})

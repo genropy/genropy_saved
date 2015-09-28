@@ -33,7 +33,7 @@
 <en_content fr="Content" de="Inhalt" en="Content" it="Contenuto" base="Content"></en_content>
 <en_additional_info fr="Information additionnelle" de="Zusatzinfo" en="Additional info" it="Informazioni addizionali" base="Additional info"></en_additional_info>
 <en_sync_event fr="Événement Sync" de="Sync Event" en="Sync event" it="Sync evento" base="Sync event"></en_sync_event>
-<en_table fr="Table" de="Tabelle" en="Table" it="Tavolo" base="Table"></en_table>
+<en_table fr="Table" en="Table" de="Tabelle" it="Tabella" base="Table"></en_table>
 <en_event fr="Événement" de="Ereignis" en="Event" it="Evento" base="Event"></en_event>
 <en_pkey fr="Pkey" de="Pkey" en="Pkey" it="PKEY" base="Pkey"></en_pkey>
 <en_data fr="Données" de="Daten" en="Data" it="Data" base="Data"></en_data>
@@ -240,7 +240,7 @@
 <en_s_i_ _tag="en__s_i_" base="%s (%i)" en="%s (%i)" it="%s (%i)"></en_s_i_></batch_handler></batch_handler>
 <bottomplugins path="resources/common/gnrcomponents/bottomplugins.py" ext="py"><en_documentation fr="Documentation" de="Dokumentation" en="Documentation" it="Documentazione" base="Documentation"></en_documentation>
 <en_tickets fr="Billets" de="Tickets" en="Tickets" it="Biglietti" base="Tickets"></en_tickets></bottomplugins>
-<chat_component><chat_component path="resources/common/gnrcomponents/chat_component/chat_component.py" ext="py"><en_chat fr="Bavarder" de="Unterhaltung" en="Chat" it="Chiacchierare" base="Chat"></en_chat>
+<chat_component><chat_component path="resources/common/gnrcomponents/chat_component/chat_component.py" ext="py"><en_chat fr="Bavarder" en="Chat" de="Unterhaltung" it="Chat" base="Chat"></en_chat>
 <en_connected_users fr="Utilisateurs connectés" de="Verbundenen Benutzer" en="Connected users" it="Utenti connessi" base="Connected users"></en_connected_users>
 <en_chat_plug_in fr="Chat plug-in" de="Chat-Plug-in" en="Chat plug-in" it="Chat plug-in" base="Chat plug-in"></en_chat_plug_in>
 <en_start_chat fr="Démarrer un chat" de="Chat starten" en="Start chat" it="Comincia chat" base="Start chat"></en_start_chat>
@@ -250,7 +250,7 @@
 <en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
 <en_type fr="Type" de="Art" en="Type" it="Tipo" base="Type"></en_type>
-<en_table fr="Table" de="Tabelle" en="Table" it="Tavolo" base="Table"></en_table>
+<en_table fr="Table" en="Table" de="Tabelle" it="Tabella" base="Table"></en_table>
 <en_n fr="N" de="N" en="N" it="N" base="N"></en_n>
 <en_db fr="Db" de="Db" en="Db" it="Db" base="Db"></en_db>
 <en_mover fr="Déménageur" de="Antragsteller" en="Mover" it="Motore" base="Mover"></en_mover>

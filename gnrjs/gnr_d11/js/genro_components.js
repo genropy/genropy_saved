@@ -1624,6 +1624,16 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
                 return sourceNode.evaluateOnNode(default_kwargs);
             }};
         }
+        var selected_kwargs = objectExtract(kw,'selected_*',true,true);
+        if(kw.selectedId){
+            kw.selectedId = sourceNode.absDatapath(kw.selectedId);
+        }
+        for(var k in selected_kwargs){
+            selected_kwargs[k] = sourceNode.absDatapath(selected_kwargs[k])
+        }
+        objectUpdate(kw,selected_kwargs);
+
+
         var valuepath = sourceNode.absDatapath(value);
         kw.nodeId = kw.nodeId || '_qg_'+genro.getCounter();
         kw.store = kw.nodeId;
