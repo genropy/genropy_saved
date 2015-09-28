@@ -2702,10 +2702,12 @@ class NetBag(BagResolver):
     def init(self):
         import requests
         self.requests = requests
+        self.converter = GnrClassCatalog()
 
     def load(self):
+
         try:
-            params = dict(self.kwargs)
+            params = {k:self.converter.asTypedText(v) for k,v in self.kwargs.items()}
             response = self.requests.get('%s/%s' %(self.url,self.method),params=params)
             return Bag(response.text)
         except Exception, e:
