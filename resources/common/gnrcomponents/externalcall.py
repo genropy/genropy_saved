@@ -25,9 +25,6 @@ from gnr.core.gnrbag import Bag
 from dateutil import parser as dtparser
 import datetime
 from decimal import Decimal
-from gnr.core.gnrbag import NetBag
-
-from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrdecorator import public_method
 
 class BaseRpc(BaseComponent):
@@ -88,7 +85,10 @@ class NetBagRpc(BaseComponent):
             args.pop(0)
         else:
             method = self.rpc_index
-        result = method(*args, **kwargs)
+        try:
+            result = method(*args, **kwargs)
+        except Exception,e:
+            result = Bag(dict(error=str(e)))
         if not isinstance(result,Bag):
             result = Bag(dict(result=result))
         return result.toXml(unresolved=True)
