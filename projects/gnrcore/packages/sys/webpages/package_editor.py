@@ -138,6 +138,8 @@ class GnrCustomWebPage(object):
         bar.dataRpc('dummy',self.actionOnInstance,instance='=.record.instance_name',package='=.record.package_name',_if='instance',
                         _lockScreen=True,action='^.instanceAction')
         bc =form.center.borderContainer()
+        form.dataController('bc.setHiderLayer(!package_name,{message:message})',
+                            message='!!Please select or create a project<br/>and select or create a package',bc=bc,package_name='^.record.package_name')
         self.tablesModulesEditor(bc.contentPane(region='top',height='200px',splitter=True),storepath='#FORM.record.tables',
                                 project='=.record.project_name',package='^.record.package_name')
         self.modelSource(bc.contentPane(region='center',border_top='1px solid silver',overflow='hidden'))
