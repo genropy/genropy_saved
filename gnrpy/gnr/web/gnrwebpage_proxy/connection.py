@@ -11,6 +11,7 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
 from datetime import datetime
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
+import time
 
 CONNECTION_TIMEOUT = 3600
 CONNECTION_REFRESH = 20
@@ -94,10 +95,13 @@ class GnrWebConnection(GnrBaseProxy):
         return self.page.get_cookie(self.cookie_name, 'marshal', secret=self.secret)
 
     def write_cookie(self):
+        expires = time.time() + CONNECTION_TIMEOUT*24
         self.cookie = self.page.newMarshalCookie(self.cookie_name, {'user': self.user,
                                                                     'connection_id': self.connection_id,
                                                                     'data': self.cookie_data,
-                                                                    'locale': None}, secret=self.secret)
+                                                                    'locale': None}, 
+                                                                    secret=self.secret)
+        self.cookie.expires = expires
         self.cookie.path = self.page.site.default_uri
         self.page.add_cookie(self.cookie)
 
