@@ -5,7 +5,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrdecorator import public_method,extract_kwargs
+from gnr.core.gnrdecorator import public_method,extract_kwargs,metadata
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrbag import Bag
 
@@ -312,6 +312,18 @@ class TableHandlerView(BaseComponent):
                                 SET .query.menu.__queryeditor__?disabled=$1.selectmethod!=null;
                             """)
 
+    @public_method
+    @metadata (prefix='query',code='default_duplicate_finder',description='!!Find all duplicates')
+    def th_default_find_duplicates(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
+        pkeys = tblobj.findDuplicates()
+        query = tblobj.query(where='$%s IN :pkd' %tblobj.pkey,pkd=pkeys,**kwargs)
+        return query.selection(sortedBy=sortedBy, _aggregateRows=True) 
+    @public_method
+    @metadata (prefix='query',code='default_duplicate_finder_to_del',description='!!Find duplicates to delete')
+    def th_default_find_duplicates_to_del(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
+        pkeys = tblobj.findDuplicates(allrecords=False)
+        query = tblobj.query(where='$%s IN :pkd' %tblobj.pkey,pkd=pkeys,**kwargs)
+        return query.selection(sortedBy=sortedBy, _aggregateRows=True) 
 
     def _th_menu_sources(self,pane):
         inattr = pane.getInheritedAttributes()
@@ -327,6 +339,9 @@ class TableHandlerView(BaseComponent):
             """,tbl=table,_fired='^.handle_custom_column',pkg=table.split('.')[0],title='!!Custom columns')
         q = Bag()
         pyqueries = self._th_hook('query',mangler=th_root,asDict=True)
+        if self.db.table(table).column('_duplicate_finder') is not None and self.application.checkResourcePermission('_DEV_,superadmin', self.userTags):
+            pyqueries['default_duplicate_finder'] = self.th_default_find_duplicates
+            pyqueries['default_duplicate_finder_to_del'] = self.th_default_find_duplicates_to_del
         for k,v in pyqueries.items():
             pars = dictExtract(dict(v.__dict__),'query_')
             code = pars.get('code')
