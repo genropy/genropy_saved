@@ -1049,6 +1049,13 @@ class SqlTable(GnrObject):
         :param record: a dictionary representing the record that must be inserted"""
         self.db.raw_insert(self, record, **kwargs)
             
+        
+    def raw_delete(self, record, **kwargs):
+        """Delete a single record without triggers
+        
+        :param record: a dictionary representing the record that must be inserted"""
+        self.db.raw_delete(self, record, **kwargs)
+
     def insertMany(self, records, **kwargs):
         self.db.insertMany(self, records, **kwargs)
 
