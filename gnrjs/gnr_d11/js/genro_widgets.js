@@ -2241,7 +2241,7 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
         this.destroy_replaced.call(this);
     },
     
-versionpatch_11__contextMouse: function (e) {
+    versionpatch_11__contextMouse: function (e) {
         this.originalContextTarget = e.target;
         if(genro.dom.isDisabled(this.originalContextTarget,true)){
             return;
@@ -2838,7 +2838,7 @@ dojo.declare("gnr.widgets._BaseTextBox", gnr.widgets.baseDojo, {
         }
     },
     connectFocus: function(widget, savedAttrs, sourceNode) {
-        if (sourceNode.attr._autoselect) {
+        if (sourceNode.attr._autoselect && !genro.isMobile) {
             dojo.connect(widget, 'onFocus', widget, function(e) {
                 setTimeout(dojo.hitch(this, 'selectAllInputText'), 1);
             });
@@ -6288,11 +6288,14 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
 
     connectFocus: function(widget, savedAttrs, sourceNode) {
         var timeoutId = null;
-
-        dojo.connect(widget, 'onFocus', widget, function(e) {
+        if(!genro.isMobile){
+                dojo.connect(widget, 'onFocus', widget, function(e) {
             // select all text in the current field -- (TODO: reason for the delay)
-            timeoutId = setTimeout(dojo.hitch(this, 'selectAllInputText'), 300);
-        });
+                timeoutId = setTimeout(dojo.hitch(this, 'selectAllInputText'), 300);
+            });
+
+        }
+
         dojo.connect(widget, 'onBlur', widget, function(e) {
             clearTimeout(timeoutId); // prevent selecting all text (and thus messing with focus) if we're moving to another field before the timeout fires
             this.validate(e);
@@ -7814,7 +7817,7 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
                  };
                  var cbOnDropData = function(dropInfo,data){
                     if (uploadAttr.maxsize && data.size>uploadAttr.maxsize){
-                        size_kb = uploadAttr.maxsize/1000
+                        var size_kb = uploadAttr.maxsize/1000
                         genro.dlg.alert("Image exeeds size limit ("+size_kb+"KB)",'Error');
                         return false;
                     }
