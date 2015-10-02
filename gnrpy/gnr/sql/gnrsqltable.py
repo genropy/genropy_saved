@@ -395,7 +395,7 @@ class SqlTable(GnrObject):
                 colattr = self.column(k).attributes
                 dtype = self.column(k).dtype
                 v = record[k]
-                if (v is None) or (v == null):
+                if (v is None) or (v == null) or v=='':
                     record[k] = None
                 elif dtype == 'B' and not isinstance(v, basestring):
                     record[k] = bool(v)

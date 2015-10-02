@@ -819,6 +819,151 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw) {
+        var frameCode = kw.frameCode = kw.paletteCode;
+        var table = objectPop(kw, 'table');
+        var gnrwdg = sourceNode.gnrwdg;
+        gnrwdg.table = table;
+        gnrwdg.match_values = objectPop(kw,'match_values');
+        var uploadPath = objectPop(kw,'uploadPath');
+        var filename = objectPop(kw,'filename');
+        var maxsize = objectPop(kw,'maxsize');
+        gnrwdg.filename = filename || 'latest';
+        gnrwdg.uploadPath = uploadPath || 'conn:'+frameCode;
+        kw.height = kw.height || '400px';
+        kw.width = kw.width || '600px';
+        var palette = sourceNode._('PalettePane',kw);
+        var bc = palette._('BorderContainer')
+        var left = bc._('BorderContainer',{region:'left',drawer:'close',width:'300px'});
+        gnrwdg.matchGrid(left)
+        var frame = bc._('FramePane',{frameCode:frameCode,region:'center'});
+        var bar = frame._('SlotBar',{'side':'top',slots:'2,prevtitle,*,limit,2',searchOn:true,toolbar:true});
+        bar._('div','prevtitle',{innerHTML:"==_current_title || 'Import xls or cvs'",_current_title:'^.current_title',color:'#666'});
+        var limitbox = bar._('div','limit')
+        limitbox._('div',{'innerHTML':'Limit',display:'inline-block',position:'relative',top:'-2px',_class:'gnrfieldlabel'})
+        limitbox._('numberTextBox',{'value':'^.limit',width:'4em',default_value:20})
+        var dropAreaKw = {};
+        dropAreaKw.dropTarget=true;
+        dropAreaKw.dropTypes='Files';
+        dropAreaKw.nodeId = frameCode+'_uploader';
+        gnrwdg.uploaderId = dropAreaKw.nodeId;
+        var cbOnDropData = function(dropInfo,data){
+            var uploaderNode = genro.nodeById(gnrwdg.uploaderId);
+            uploaderNode.setRelativeData('.current_title',data.name);
+            if (maxsize && data.size>maxsize){
+                var size_kb = maxsize/1000
+                genro.dlg.alert("File exeeds size limit ("+size_kb+"KB)",'Error');
+                return false;
+            }
+            if(sourceNode.form && sourceNode.form.isDisabled()){
+                genro.dlg.alert("The form is locked",'Warning');
+                return false;
+            }
+            bc.getParentNode().widget.setRegionVisible('left',true);
+            genro.rpc.uploadMultipart_oneFile(data,{onUploadedMethod:'utils.tableImporterCheck',limit:'=.limit',table:table},{uploadPath:gnrwdg.uploadPath,
+                          filename:gnrwdg.filename,
+                          uploaderId:gnrwdg.uploaderId,
+                          onResult:function(result){
+                                if(result.currentTarget.responseText){
+                                    gnrwdg.onImportCheck(new gnr.GnrBag(result.currentTarget.responseText));
+                                }                            
+                           }});
+        }
+        dropAreaKw.onDrop = function(dropInfo,files){
+            cbOnDropData(dropInfo,files[0]);
+        };
+        bar = frame._('slotBar',{side:'bottom','slots':'2,msgslot,2',background:'#efefef',msgslot_width:'100%'})
+        bar._('div','msgslot',objectUpdate({innerHTML:_T('!!Drop import file here'),font_size:'1.4em',color:'#666',padding:'10px',margin:'3px',
+                                    border:'2px dotted silver',rounded:6,background:'white'},dropAreaKw))    
+        var qg = frame._('ContentPane',{'side':'center',overflow:'hidden'})._('quickGrid', {value:'^.importing_data'});
+        gnrwdg.gridNode = qg.getParentNode();
+        return bc;
+    },
+
+    gnrwdg_matchGrid:function(bc){
+        var gnrwdg = this;
+        var frame = bc._('FramePane',{frameCode:this.uploaderId+'_matchframe',
+                                        region:'center',_class:'pbl_roundedGroup',margin:'2px'})
+        bar = frame._('slotBar',{slots:'2,matchtitle,*',side:'top',_class:'pbl_roundedGroupLabel'});
+        bar._('div','matchtitle',{innerHTML:'Match columns'});
+        bar = frame._('slotBar',{slots:'2,fbbottom,*,doimport,10',side:'bottom',_class:'slotbar_dialog_footer'});
+
+        var fb = genro.dev.formbuilder(bar._('div','fbbottom'),1,{border_spacing:'1px'});
+        fb.addField('filteringSelect',{value:'^.import_method',width:'10em',
+                                        lbl_text_align:'right',
+                                        lbl_class:'gnrfieldlabel',
+                                        lbl:_T('Import method'),
+                                        values:'^.methodlist',
+                                        lbl_hidden:'^.methodlist?=!#v',
+                                        hidden:'^.methodlist?=!#v',
+                                        parentForm:false});
+
+        bar._('button','doimport',{label:'Import',action:function(){gnrwdg.importDo(this);}});
+
+        var grid = frame._('ContentPane',{'side':'center',overflow:'hidden'})._('quickGrid',{value:'^.match',_class:'noheader noselect'});
+        grid.getParentNode().importer_gnrwdg = this;
+        var onclick = "this.getParentNode().importer_gnrwdg.onCheckedMatch(this,kw);"
+        var editdestpars = true;
+        if(this.match_values){
+            editdestpars = {tag:'filteringSelect',values:this.match_values};
+        }
+        grid._('column',{name:'Source',field:'source_field',width:'15em',
+                cellStyles:'background:#666;color:whitesmoke;text-align:right; border-left:0px;border-bottom:1px solid whitesmoke;'})
+        grid._('column',{name:'Destination',field:'dest_field',cellStyles:'border-bottom:1px solid lightgray;background:white;',edit:editdestpars,width:'100%'})
+        grid._('column',{name:'do_import',field:'do_import',width:'2em',dtype:'B',
+                        format_onclick:onclick,cellStyles:'border-bottom:1px solid lightgray;background:white;'})
+    },
+
+    gnrwdg_onImportCheck:function(data){
+        var columns = data.getItem('columns');
+        var match_data = data.getItem('match_data');
+        this.gridNode.gnrwdg.setColumns(columns);
+        this.gridNode.gnrwdg.guessColumns = false;
+        var uploaderNode = genro.nodeById(this.uploaderId);
+        uploaderNode.setRelativeData('.methodlist',data.getItem('methodlist'));
+        uploaderNode.setRelativeData('.importing_data',data.getItem('rows'));
+        uploaderNode.setRelativeData('.file_columns',columns);
+        uploaderNode.setRelativeData('.match',match_data);
+        uploaderNode.setRelativeData('.imported_file_path',data.getItem('imported_file_path'));
+    },
+
+    gnrwdg_onCheckedMatch:function(matchGrid,kw){
+        var p = '#'+kw.rowIndex+'.do_import'; 
+        var s = matchGrid.widget.collectionStore().getData();
+        s.setItem(p,!s.getItem(p));
+        var previewStructCells = this.gridNode.getRelativeData('#WORKSPACE.struct.#0.#0')
+        var importfields = s.values().forEach(function(v){
+            var nprev = previewStructCells.getNode(v.getItem('source_field'));
+            if(v.getItem('do_import')){
+                delete nprev.attr.hidden;
+            }else{
+                nprev.attr.hidden = true;
+            }
+        });
+        this.gridNode.setRelativeData('#WORKSPACE.struct?_updated',genro.getCounter());
+    },
+    gnrwdg_importDo:function(buttonNode){
+        var match_index;
+        var match = buttonNode.getRelativeData('.match');
+        if (match && match.len()){
+            match_index = {};
+            match.values().forEach(function(v){
+                if(v.getItem('do_import') && v.getItem('dest_field')){
+                    match_index[v.getItem('source_field')] = v.getItem('dest_field');
+                }
+            })
+        }
+        genro.serverCall('utils.tableImporterRun',{table:this.table,file_path:'=.imported_file_path',
+                                                    match_index:match_index,
+                                                    import_method:'=.import_method',
+                                                    _sourceNode:buttonNode},function(result){
+                                                        alert(result);
+                                                    });
+    }
+});
+
+
 
 dojo.declare("gnr.widgets.VideoPickerPalette", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {

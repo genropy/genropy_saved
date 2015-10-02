@@ -99,7 +99,7 @@ class BaseResourceExport(BaseResourceBatch):
                 self.columns = selection.columns
                 self.columns = [c for c in self.columns if not c in ('pkey', 'rowidx')]
                 self.coltypes = dict([(k, v['dataType']) for k, v in selection.colAttrs.items()])
-                self.headers = selection.colHeaders
+                self.headers = self.columns
             else:
                 self.prepareFromStruct(struct)
         writerPars = dict(columns=self.columns, coltypes=self.coltypes, headers=self.headers,

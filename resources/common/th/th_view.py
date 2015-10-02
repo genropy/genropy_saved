@@ -63,7 +63,7 @@ class TableHandlerView(BaseComponent):
             else:
                 templateManager = False
             if extendedQuery == '*':
-                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets' if not self.isMobile else 'menuUserSets','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
+                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets' if not self.isMobile else 'menuUserSets','15','export','importer','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
             elif extendedQuery is True:
                 base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','*','count','5']
             else:
@@ -172,6 +172,16 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
         pane.div('^.title',style='line-height:20px;color:#666;')
+
+
+    @struct_method
+    def th_slotbar_importer(self,pane,**kwargs):
+        inattr = pane.getInheritedAttributes()
+        table = inattr['table']
+        pane.PaletteImporter(table=table,paletteCode='%(th_root)s_importer' %inattr,
+                            match_values=','.join(self.db.table(table).model.columns.keys()),
+                            dockButton_iconClass='iconbox inbox',title='!!Importer')
+
 
     @struct_method
     def th_slotbar_sum(self,pane,label=None,format=None,width=None,**kwargs):
