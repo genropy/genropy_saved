@@ -79,7 +79,7 @@ class MenuIframes(BaseComponent):
                                                             formResource:null,viewResource:null,fullpath:$1.fullpath,
                                                             modifiers:$1.modifiers},node.attr);
 
-                        if (selectingPageKw.externalWindow==true || selectingPageKw.modifiers == 'Shift'){
+                        if (selectingPageKw.externalWindow==true || selectingPageKw.modifiers == 'Shift' || genro.isMobile){
                             genro.publish("newBrowserWindowPage",selectingPageKw);
                         }else{
                             if(labelClass.indexOf('menu_existing_page')<0){
