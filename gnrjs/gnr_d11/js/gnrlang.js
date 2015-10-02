@@ -991,6 +991,9 @@ var gnrformatter = {
         if(format=='mailto'){
             return makeLink('mailto:'+value,value);
         }
+        if(format=='phone'){
+            return makeLink('tel:'+value,value);
+        }
         if(format=='skype'){
             return makeLink('skype:'+value,value);
         }
