@@ -889,15 +889,17 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         bar._('div','matchtitle',{innerHTML:'Match columns'});
         bar = frame._('slotBar',{slots:'2,fbbottom,*,doimport,10',side:'bottom',_class:'slotbar_dialog_footer'});
 
-        var fb = genro.dev.formbuilder(bar._('div','fbbottom'),1,{border_spacing:'1px'});
-        fb.addField('filteringSelect',{value:'^.import_method',width:'10em',
+        var fb = genro.dev.formbuilder(bar._('div','fbbottom'),2,{border_spacing:'1px'});
+        fb.addField('filteringSelect',{value:'^.import_method',width:'7em',
                                         lbl_text_align:'right',
                                         lbl_class:'gnrfieldlabel',
-                                        lbl:_T('Import method'),
+                                        lbl:_T('Method'),
                                         values:'^.methodlist',
                                         lbl_hidden:'^.methodlist?=!#v',
                                         hidden:'^.methodlist?=!#v',
                                         parentForm:false});
+        fb.addField('checkbox',{value:'^.no_trigger',default_value:true,
+                                label:_T('No trigger'),parentForm:false});
 
         bar._('button','doimport',{label:'Import',action:function(){gnrwdg.importDo(this);}});
 
@@ -957,6 +959,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         genro.serverCall('utils.tableImporterRun',{table:this.table,file_path:'=.imported_file_path',
                                                     match_index:match_index,
                                                     import_method:'=.import_method',
+                                                    no_trigger:'=.no_trigger',
                                                     _sourceNode:buttonNode},function(result){
                                                         alert(result);
                                                     });

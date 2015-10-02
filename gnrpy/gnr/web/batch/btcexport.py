@@ -53,12 +53,14 @@ class BaseResourceExport(BaseResourceBatch):
         self.headers = []
         self.coltypes = {}
         self.data = None
+        self.raw = True
 
     def gridcall(self, data=None, struct=None, export_mode=None, datamode=None,selectedRowidx=None,filename=None):
         self.batch_parameters = dict(export_mode=export_mode, filename=filename)
         self.prepareFromStruct(struct)
         self.data = self.rowFromValue(data) if datamode == 'bag' else self.rowFromAttr(data)
         self._pre_process()
+        self.raw = False
         self.do()
         return self.fileurl
 
@@ -103,7 +105,7 @@ class BaseResourceExport(BaseResourceBatch):
             else:
                 self.prepareFromStruct(struct)
         writerPars = dict(columns=self.columns, coltypes=self.coltypes, headers=self.headers,
-                          filepath=self.filepath, locale=self.locale)
+                          filepath=self.filepath, locale=None if self.raw else self.locale)
         if self.export_mode == 'xls':
             self.writer = XlsWriter(**writerPars)
         elif self.export_mode == 'csv':

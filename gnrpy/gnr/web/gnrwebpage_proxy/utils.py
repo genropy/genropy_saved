@@ -212,7 +212,7 @@ class GnrWebUtils(GnrBaseProxy):
 
 
     @public_method
-    def tableImporterRun(self,table=None,file_path=None,match_index=None,import_method=None,**kwargs):
+    def tableImporterRun(self,table=None,file_path=None,match_index=None,import_method=None,no_trigger=None,**kwargs):
         tblobj = self.page.db.table(table)
         docommit = False
         reader = self.getReader(file_path)
@@ -220,10 +220,17 @@ class GnrWebUtils(GnrBaseProxy):
             handler = getattr(tblobj,'importer_%s' %import_method)
             handler(reader)
         elif match_index:
+            l = []
             for row in reader():
                 r = {v:row[k] for k,v in match_index.items() if v is not ''}
                 tblobj.recordCoerceTypes(r)
-                tblobj.insert(r)
+                if not no_trigger:
+                    tblobj.insert(r)
+                    docommit = True
+                else:
+                    l.append(r)
+            if l:
+                tblobj.insertMany(l)
                 docommit = True
             if docommit:
                 self.page.db.commit()
