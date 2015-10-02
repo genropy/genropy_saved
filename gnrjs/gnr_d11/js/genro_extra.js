@@ -71,8 +71,13 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
         return {
             search:{
                 command:'find',
-                js:['addon/search/search.js','addon/search/goto-line.js','addon/search/searchcursor.js','addon/dialog/dialog.js'],
-                css:['addon/dialog/dialog.css']
+                js:['addon/search/search.js','addon/search/searchcursor.js','addon/dialog/dialog.js'],
+                css:['addon/dialog/dialog.css'],
+                command:'lint',
+            },lint:{
+                command:'lint',
+                js:['//ajax.aspnetcdn.com/ajax/jshint/r07/jshint.js','addon/lint/lint.js','addon/lint/javascript-lint.js'],
+                css:['addon/lint/lint.css'],
             }
         }[key];
     },
@@ -171,7 +176,12 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
         var addondict = this.getAddOnDict(addon);
         if (!CodeMirror.commands[addondict.command]){
             addondict.js.forEach(function(path){
-                 genro.dom.loadJs('/_rsrc/js_libs/codemirror/'+path);
+                if(path[0]=='/'){
+                    genro.dom.loadJs(path);
+                }else{
+                    genro.dom.loadJs('/_rsrc/js_libs/codemirror/'+path);
+                }
+                 
             })
             addondict.css.forEach(function(path){
                  genro.dom.loadCss('/_rsrc/js_libs/codemirror/'+path);
@@ -210,6 +220,7 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
         this.setValue(value || '');
         var that = this;
         var sourceNode = this.sourceNode;
+
         sourceNode.watch('isVisible',function(){
             return genro.dom.isVisible(sourceNode);
         },function(){
