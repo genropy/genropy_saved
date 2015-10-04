@@ -15,15 +15,15 @@ class Form(BaseComponent):
         fb.field('codice_istat',width='7em')
         fb.field('regione')
         
-    def th_dialog(self):
-        return dict(height='180px',width='250px')
+    def th_options(self):
+        return dict(dialog_height='180px',dialog_width='400px')
 
 class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('nome', width='20em')
         r.fieldcell('sigla',width='3em')
-        r.fieldcell('codice_istat',width='7em',sortable=False)
+        r.fieldcell('codice_istat',width='7em')
         r.fieldcell('regione',width='100%')
 
     def th_order(self):

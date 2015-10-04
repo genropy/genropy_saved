@@ -222,6 +222,7 @@ class ExtDbExplorer(BaseComponent):
             tables = src['packages'][pkg]['tables']
             if not tables:
                 continue
+            tables.sort('#k')
             for table,tblattr,tblval in tables.digest('#k,#a,#v'):
                 tblattr = dict(tblattr)
                 tblattr['checked'] = 'disabled:on' if table.lower() in existing_tables else False

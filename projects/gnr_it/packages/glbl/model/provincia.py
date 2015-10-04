@@ -13,7 +13,7 @@ class Table(object):
         tbl.column('nome', size=':128', name_long='!![it]Nome', indexed=True,validate_notnull=True)
         tbl.column('nome_locale', size=':128'   , name_long='!![it]Nome Locale', indexed=True)
         tbl.column('codice', name_long='!![it]codice', dtype='I')
-        tbl.column('codice_istat', size='3', name_long='!![it]Codice Istat',cell_edit=True)
+        tbl.column('codice_istat', size='3', name_long='!![it]Codice Istat')
         tbl.column('ordine', 'L', name_long='!![it]Ordine Gnr')
         tbl.column('ordine_tot', size='6', name_long='!![it]Ordine tot Gnr')
         tbl.column('cap_valido', size='2', name_long='!![it]CAP Valido')

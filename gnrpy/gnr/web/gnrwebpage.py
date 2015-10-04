@@ -881,6 +881,8 @@ class GnrWebPage(GnrBaseWebPage):
                        * 'rpc': this prefix is used for the :ref:`datarpc`\s
                        
         :param method: TODO"""
+        if callable(method):
+            return method
         handler = None
         if ';' in method:
             mixin_info, method = method.split(';')
