@@ -176,6 +176,9 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_slotbar_importer(self,pane,**kwargs):
+        if not self.application.checkResourcePermission('_DEV_,superadmin', self.userTags):
+            pane.div()
+            return
         inattr = pane.getInheritedAttributes()
         table = inattr['table']
         pane.PaletteImporter(table=table,paletteCode='%(th_root)s_importer' %inattr,
