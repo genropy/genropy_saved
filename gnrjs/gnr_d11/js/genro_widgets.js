@@ -2472,6 +2472,8 @@ dojo.declare("gnr.widgets.Tooltip", gnr.widgets.baseDojo, {
 });
 dojo.declare("gnr.widgets._ButtonLogic",null, {
     clickHandler:function(sourceNode,e) {
+        e.stopPropagation();
+        e.preventDefault();
         if(sourceNode.disabled){
             return;
         }
@@ -2568,7 +2570,7 @@ dojo.declare("gnr.widgets.LightButton", [gnr.widgets.baseHtml,gnr.widgets._Butto
     created: function(widget, savedAttrs, sourceNode) {
         var that = this;
         dojo.connect(widget, 'onclick', function(e){
-            that.clickHandler(sourceNode,e)
+            that.clickHandler(sourceNode,e);
         });
         objectExtract(sourceNode._dynattr, 'fire_*');
         objectExtract(sourceNode._dynattr, 'fire,publish');
