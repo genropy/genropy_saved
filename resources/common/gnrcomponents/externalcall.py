@@ -81,7 +81,7 @@ class NetBagRpc(BaseComponent):
             try:
                 method = self.getPublicMethod('rpc','netbag_%s' %args[0])
             except (GnrUserNotAllowed, GnrBasicAuthenticationError) as err:
-                return Bag(dict(result=str(err))).toXml()
+                return Bag(dict(error=str(err))).toXml()
             if not method:
                 return self.rpc_error(*args, **kwargs)
             args = list(args)

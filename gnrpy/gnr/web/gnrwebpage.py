@@ -912,7 +912,7 @@ class GnrWebPage(GnrBaseWebPage):
         if authmode!='Basic':
             raise GnrBasicAuthenticationError('Wrong Authorization Mode')
         user,pwd = b64decode(login).split(':')
-        avatar = self.application.getAvatar(user,pwd)
+        avatar = self.application.getAvatar(user,pwd,authenticate=True)
         if not avatar:
             raise GnrBasicAuthenticationError('Wrong Authorization Login')
         return avatar.user_tags
