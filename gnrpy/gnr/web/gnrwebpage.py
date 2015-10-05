@@ -1005,6 +1005,8 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['css_genro'] = self.get_css_genro()
         arg_dict['js_requires'] = [x for x in [self.getResourceUri(r, 'js', add_mtime=True) for r in self.js_requires]
                                    if x]
+        if self.isMobile or True:
+            arg_dict['js_requires'].append(self.site.getStaticUrl('rsrc:js_libs','hammer.js'))
         css_path, css_media_path = self.get_css_path()
         arg_dict['css_requires'] = css_path
         arg_dict['css_media_requires'] = css_media_path

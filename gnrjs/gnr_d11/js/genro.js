@@ -151,7 +151,7 @@ dojo.declare('gnr.GenroClient', null, {
 
         this.dom = new gnr.GnrDomHandler(this);
         this.vld = new gnr.GnrValidator(this);
-        this.wsk = new gnr.GnrWebSocketHandler(this,this.websockets_url,{debug:false});        
+        this.wsk = new gnr.GnrWebSocketHandler(this,this.websockets_url,{debug:false});      
        //var onerrorcb = function(errorMsg,url,linenumber){
        //    genro.onError(errorMsg,url,linenumber);
        //};
@@ -411,6 +411,9 @@ dojo.declare('gnr.GenroClient', null, {
         //genro.timeIt('** getting main **');
         this.wsk.create();
         this.root_page_id = null;
+        if (this.isMobile || true) {
+            this.mobile = new gnr.GnrMobileHandler(this);  
+        }
         dojo.subscribe('debugstep',
                        function(data){genro.dev.onDebugstep(data)}
                      )
@@ -561,9 +564,7 @@ dojo.declare('gnr.GenroClient', null, {
 
 
         //genro.dom.preventGestureBackForward();
-        if (this.isMobile) {
-            genro.dom.startTouchDevice();
-        }
+ 
         genro.callAfter(function() {
             if(genro.root_page_id){
                 genro._connectToParentIframe(window.frameElement);
