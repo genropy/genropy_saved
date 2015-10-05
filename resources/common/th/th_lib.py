@@ -29,31 +29,37 @@ class TableHandlerCommon(BaseComponent):
         maintable=original_kwargs.get('maintable') or inheritedAttributes.get('table') or self.maintable
         if default_kwargs is None:
             default_kwargs = dict()
-        #relation_attr = self.db.table(maintable).model.getRelation(relation)
         tblrel = self.db.table(maintable)
-        condition_kwargs['fkey'] = '=#FORM.pkey'
+        relation_attr = tblrel.model.relations.getAttr(relation, 'joiner')
+        relationKey = relation_attr['one_relation'].split('.')[2]
         condition_kwargs['_loader'] = '^#FORM.controller.loaded'
         condition_kwargs['_if'] = 'fkey && fkey!="*newrecord*" && fkey!="*norecord*"'
-        relcondition,table = self._th_relationExpand_one(tblrel,relation,condition=condition,original_kwargs=original_kwargs,condition_kwargs=condition_kwargs,default_kwargs=default_kwargs)
+        relcondition,table,fkeyfield = self._th_relationExpand_one(tblrel,relation_attr,condition=condition,original_kwargs=original_kwargs,condition_kwargs=condition_kwargs,default_kwargs=default_kwargs)
+        _foreignKeyFormPath = original_kwargs.get('_foreignKeyFormPath','=#FORM/parent/#FORM')
+        if tblrel.pkey!=relationKey:
+            #relation is not on primary key
+            default_kwargs[fkeyfield] = '%s.record.%s' %(_foreignKeyFormPath, relationKey)
+            condition_kwargs['fkey'] = '=#FORM.record.%s' %relationKey
+        else:
+            default_kwargs[fkeyfield] = '%s.pkey' %_foreignKeyFormPath
+            condition_kwargs['fkey'] = '=#FORM.pkey'
+        if (relation_attr.get('onDelete')=='setnull') or (relation_attr.get('onDelete_sql')=='setnull'):
+                original_kwargs['store_unlinkdict'] = dict(one_name = relation_attr.get('one_rel_name',tblrel.name_plural),field=relation_attr['many_relation'].split('.')[-1])
         for suffix,altrelation in relation_kwargs.items():
-            altcond,table = self._th_relationExpand_one(tblrel,altrelation,condition=condition,condition_kwargs=condition_kwargs,suffix=suffix)
+            alt_relation_attr = tblrel.model.relations.getAttr(altrelation, 'joiner')
+            altcond,table,altfkey = self._th_relationExpand_one(tblrel,alt_relation_attr,condition=condition,condition_kwargs=condition_kwargs,suffix=suffix)
             relcondition = '%s OR %s' %(relcondition,altcond)
         condition = relcondition if not condition else '(%s) AND (%s)' %(relcondition,condition)  
         return table,condition 
 
-    def _th_relationExpand_one(self,tblrel,relation,suffix=None,condition=None,original_kwargs=None,condition_kwargs=None,default_kwargs=None):
-        relation_attr = tblrel.model.relations.getAttr(relation, 'joiner')
+    def _th_relationExpand_one(self,tblrel,relation_attr,suffix=None,condition=None,original_kwargs=None,condition_kwargs=None,default_kwargs=None):
         many = relation_attr['many_relation'].split('.')
         fkey = many.pop()
         table = str('.'.join(many))
         fkey = str(fkey)
         condition_kwargs['_fkey_name_%s' %suffix if suffix else '_fkey_name'] = fkey
-        relcondition = '$%s=:fkey' %fkey       
-        if not suffix:
-            if (relation_attr.get('onDelete')=='setnull') or (relation_attr.get('onDelete_sql')=='setnull'):
-                original_kwargs['store_unlinkdict'] = dict(one_name = relation_attr.get('one_rel_name',tblrel.name_plural),field=relation_attr['many_relation'].split('.')[-1])
-            default_kwargs[fkey] = original_kwargs.get('foreignKeyGetter','=#FORM/parent/#FORM.pkey')
-        return relcondition,table
+        relcondition = '$%s=:fkey' %fkey                   
+        return relcondition,table,fkey
         
     def _th_getResourceName(self,name=None,defaultModule=None,defaultClass=None):
         if not name:

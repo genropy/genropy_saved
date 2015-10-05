@@ -67,6 +67,9 @@ def cellFromField(field,tableobj):
             relatedTable = fldobj.relatedColumn().table
             kwargs['related_table'] = relatedTable.fullname
             kwargs['related_table_lookup'] = relatedTable.attributes.get('lookup')
+            onerelfld = columnjoiner['one_relation'].split('.')[2]
+            if(onerelfld != relatedTable.pkey):
+                kwargs['alternatePkey'] = onerelfld
             if len(relfldlst) == 1:
                 caption_field = kwargs.pop('caption_field',None) or relatedTable.attributes.get('caption_field')
                 if caption_field and not kwargs.get('hidden'):
