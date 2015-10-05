@@ -169,9 +169,9 @@ class TableHandlerForm(BaseComponent):
         elif showtoolbar:
             default_slots = '*,semaphore,5' if readOnly else '*,form_delete,form_add,form_revert,form_save,semaphore,locker'
             if form_add is False:
-                default_slots.replace('form_add','')
+                default_slots = default_slots.replace('form_add','')
             if form_delete is False:
-                default_slots.replace('form_delete','')
+                default_slots = default_slots.replace('form_delete','')
             if options.pop('duplicate',False):
                 default_slots= default_slots.replace('form_add','form_add,form_duplicate')
             if hierarchical:
