@@ -12,6 +12,5 @@ class GnrCustomWebPage(object):
     user_polling = 3
 
     def test_0_tree(self, pane):
-        pane.dataRecord('record','studio.pt_uscita',default_tipo_id='1-KC7vGDM_u55MEOpv47Dg',pkey='*newrecord*',_onStart=True,ignoreMissing=True)
-        pane.dataRemote('.store',self.relationExplorer,table='studio.pt_uscita',currRecordPath='record')
+        pane.dataRemote('.store',self.relationExplorer,table='glbl.provincia',currRecordPath='record')
         pane.tree('.store',hideValues=True)

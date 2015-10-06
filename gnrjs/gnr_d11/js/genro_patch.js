@@ -1154,7 +1154,18 @@ genropatches.tree = function() {
         if(node.item && node.item._resolver && node.item._resolver.expired()){
             node.state = 'UNCHECKED';
         }
-        return this._expandNode_replaced(node)
+        if(node.__eventmodifier=='Shift' && node.isExpandable){
+            var was_expanded = node.isExpanded;
+            this._expandNode_replaced(node);
+            if(!was_expanded){
+                this.expandAll(node);
+            }else{
+                this.collapseAll(node)
+            }
+        }else{
+            return this._expandNode_replaced(node);
+        }
+        
     }
     dijit._TreeNode.prototype.setLabelNode = function(label) {
         this.labelNode.innerHTML = "";
