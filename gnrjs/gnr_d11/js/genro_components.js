@@ -1534,7 +1534,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         var boxpars = objectExtract(kw,'box_*');
         gnrwdg.width = 0;
         gnrwdg.labelAttribute = objectPop(kw,'labelAttribute');
-        gnrwdg.noHeaders=objectPop(kw,'noHeaders')
+        gnrwdg.noHeaders=objectPop(kw,'noHeaders');
         if(!columns){ 
             columns = '^#WORKSPACE.columns';
             sourceNode.registerDynAttr('columns');
@@ -1566,6 +1566,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
             gnrwdg.headerNode = box._('div',{_class:'treeGridHeader'}).getParentNode();
         }
         var center = box._('div',{_class:'treeGridCenter'});
+        gnrwdg.footerNode = box._('div',{_class:'treeGridFooter'}).getParentNode();
         gnrwdg.scrollerNode = box._('div',{_class:'treeGridScroller'}).getParentNode();
         gnrwdg.centerNode = center.getParentNode();
         var tree = center._('tree',objectUpdate(defaultKw,kw));
@@ -1580,11 +1581,14 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         this.setHeader();
         this.currentScroll = 0;
         this.setScroller();
+        this.setFooter();
         var that = this;
         //this.currentScroll=100;
         setTimeout(function(){
             that.updateScroll();
         },1);
+        
+
     },
 
     gnrwdg_setScroller:function(){
@@ -1671,6 +1675,65 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         
         //return "innerHTML:<div class='treerow treerow_level_"+level+"' style='width:"+rowwidth+"px;'>"+l.join('')+"</div>";
     },
+
+    gnrwdg_setFooter:function(item){
+        if(!this.width){
+            return;
+        }
+        var columns_bag = this.columns_bag;
+        var nodeFooter = columns_bag.getNodeByAttr('footer_content');
+        if(!nodeFooter){
+            return;
+        }
+        var mainCell = columns_bag.getAttr('#0');
+        var maxwidth = this.width;
+        mainCell.size = parseInt(mainCell.size  || 150);
+        
+        var currx = 0;
+        var cell;
+        var l = [];
+        var htmlCellContent = this.gnr.htmlCellContent;
+        var n;
+        var sn = this.sourceNode;
+        var colkeys = this.columns_bag.keys().slice(1);
+        var tplpars = {};
+        var mainCellSize = mainCell.size+21;//tree margin
+        var colswidth = maxwidth-mainCell.size-35;//border
+        colkeys.forEach(function(key){
+            n = columns_bag.getNode(key);
+            cell = sn.evaluateOnNode(n.attr);
+            if(!cell.hidden){
+                var size=parseInt(cell.size);
+                if ( stringEndsWith((size+''),'%') ){
+                    size=Math.round(maxwidth*parseInt(size)/100)
+                }
+                var objStyle=objectUpdate(objectFromStyle(cell._style),
+                                         sn.evaluateOnNode(genro.dom.getStyleDict(objectUpdate({},cell), [ 'width'])))
+                objStyle['width']=size+'px'
+                var cellstyle=objectAsStyle(objStyle)
+                var content = cell.footer_content;
+                l.push('<div class="treecell '+(cell.cellClass || '')+(content?'cellfooter ':'')+' " style="'+cellstyle+'"><div class="treeCellContent">'+(content || "&nbsp;")+'</div></div>');
+                currx += size+1 || 0;
+            }
+        })
+        var storeNode = genro.getDataNode(this.absStorepath);
+        rowwidth = maxwidth;
+        var objStyle=objectUpdate(objectFromStyle(mainCell._style),
+        sn.evaluateOnNode(genro.dom.getStyleDict(objectUpdate({},mainCell), [ 'width'])))
+        objStyle['width']=mainCellSize+'px';
+        objStyle['overflow'] = 'hidden';
+        var cellstyle=objectAsStyle(objStyle)
+        this.cellsWidth = currx;
+        this.viewPortWidth = colswidth;
+        tplpars['maincell'] = '<div class="treecell maincell'+(mainCell.cellClass || '')+' " style="'+cellstyle+'"><div class="treeCellContent">'+(mainCell.footer_content || '&nbsp;')+'</div></div>';
+        tplpars['columns'] = '<div class="treeerow_viewport" style="width:'+colswidth+'px;"><div class="treerow_columns" style="width:'+(currx+1)+'px;">'+l.join('')+'</div></div>'
+        this.footerNode.domNode.innerHTML = dataTemplate('<div class="treerow treerow_footer" style="width:'+rowwidth+'px;">$maincell $columns</div>',tplpars);
+        
+        //return "innerHTML:<div class='treerow treerow_level_"+level+"' style='width:"+rowwidth+"px;'>"+l.join('')+"</div>";
+    },
+
+
+
     gnrwdg_labelCb:function(item){
         if(!this.width){
             return;

@@ -65,7 +65,7 @@ class BaseRpc(BaseComponent):
             kwargs.pop('pagetemplate')
         if args:
             try:
-                method = self.getPublicMethod('rpc','netbag_%s' %args[0])
+                method = self.getPublicMethod('rpc',args[0])
             except (GnrUserNotAllowed, GnrBasicAuthenticationError) as err:
                 return Bag(dict(error=str(err))).toXml()
             if not method:

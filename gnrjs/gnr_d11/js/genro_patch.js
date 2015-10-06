@@ -1150,11 +1150,34 @@ genropatches.borderContainer = function() {
 genropatches.tree = function() {
     dojo.require('dijit.Tree');
     dijit.Tree.prototype._expandNode_replaced=dijit.Tree.prototype._expandNode;
+    dijit.Tree.prototype._collapseNode_replaced=dijit.Tree.prototype._collapseNode;
     dijit.Tree.prototype._expandNode = function(node) {
         if(node.item && node.item._resolver && node.item._resolver.expired()){
             node.state = 'UNCHECKED';
         }
-        return this._expandNode_replaced(node)
+        if(node.__eventmodifier=='Shift' && node.isExpandable){
+            var was_expanded = node.isExpanded;
+            this._expandNode_replaced(node);
+            if(!was_expanded){
+                this.expandAll(node);
+            }
+        }else{
+            return this._expandNode_replaced(node);
+        }
+    }
+    dijit.Tree.prototype._collapseNode = function(node) {
+        if(node.item && node.item._resolver && node.item._resolver.expired()){
+            node.state = 'UNCHECKED';
+        }
+        if(node.__eventmodifier=='Shift' && node.isExpandable){
+            var was_expanded = node.isExpanded;
+            this._collapseNode_replaced(node);
+            if(was_expanded){
+                this.collapseAll(node);
+            }
+        }else{
+            return this._collapseNode_replaced(node);
+        }
     }
     dijit._TreeNode.prototype.setLabelNode = function(label) {
         this.labelNode.innerHTML = "";

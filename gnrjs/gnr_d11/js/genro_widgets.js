@@ -7477,6 +7477,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
     },
 
+
     versionpatch_11__onClick:function(e) {
         var nodeWidget = dijit.getEnclosingWidget(e.target);
         if (dojo.hasClass(e.target, 'dijitTreeIcon') && this.tree.checkBoxTree) {
@@ -7550,6 +7551,25 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                 }
             });
         }
+    },
+    mixin_expandAll:function(rootNode){
+        var that = this;
+        var nodes = dojo.query('.dijitTreeExpando.dijitTreeExpandoClosed',rootNode.domNode);
+        nodes.forEach(function(n){
+                var n = that.model.store.getIdentity(dijit.getEnclosingWidget(n).item);
+                var tn = that._itemNodeMap[n];
+                that._expandNode(tn);
+        });
+    },
+
+    mixin_collapseAll:function(rootNode){
+        var that = this;
+        var nodes = dojo.query('.dijitTreeExpando.dijitTreeExpandoOpened',rootNode.domNode);
+        nodes.forEach(function(n){
+                var n = that.model.store.getIdentity(dijit.getEnclosingWidget(n).item);
+                var tn = that._itemNodeMap[n];
+                that._collapseNode(tn);
+        });
     },
 
     attributes_mixin__saveState: function() {
