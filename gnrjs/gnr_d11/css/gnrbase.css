@@ -4317,6 +4317,13 @@ div[disabled='true'], div[disabled='disabled']{
     left:0;
     right:0;
 }
+.treeGridFooter{
+    height:20px;
+    position:absolute;
+    bottom:0;
+    left:0;
+    right:0;
+}
 .treeGridCenter{
     position:absolute;
     top:21px;
@@ -4346,15 +4353,24 @@ div[disabled='true'], div[disabled='disabled']{
     border-right:1px solid #efefef;
 }
 .treeGridLayout .treegrid .maincell.treecell{
-    background: #efefef;
 }
 
 .treeGridLayout .treeGridHeader .treecell{
     display: inline-block;
     border-bottom: 0px solid black;
     border-left: 1px solid #efefef;
-    background: silver;
+    background: #204174;
     color:#efefef;
+    line-height: 18px;
+    white-space: nowrap;
+    text-align: center;
+}
+.treeGridLayout .treeGridFooter .treecell{
+    display: inline-block;
+    border-bottom: 0px solid black;
+    border-left: 1px solid #efefef;
+    background: #F8CF00;
+    color:#204174;
     line-height: 18px;
     white-space: nowrap;
 }
