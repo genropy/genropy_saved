@@ -843,8 +843,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         return domnode?domnode.sourceNode:null;
     },
-
-    getDragDropInfo:function(event) {
+    getEventInfo:function(event){
         var domnode = event.target;
         while (!domnode.getAttribute) {
             domnode = domnode.parentNode;
@@ -879,6 +878,18 @@ dojo.declare("gnr.GnrDomHandler", null, {
             }
         }
         info.event = event;
+        if(info.handler.customEventInfo){
+            info.handler.customEventInfo(info);
+        }
+        return info;
+    },
+
+    getDragDropInfo:function(event) {
+        var info = this.getEventInfo(event);
+        if(!info){
+            return;
+        }
+        var domnode = info.domnode;
         if (event.type == 'dragstart') {
             info.dragmode = domnode.getAttribute('dragmode');
             info.handler.fillDragInfo(info);
@@ -1227,63 +1238,6 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         return m.join();
     },
-    startTouchDevice:function() {
-        dojo.addClass(document.body,'touchDevice')
-        document.body.ontouchmove = function(e) {
-            //e.preventDefault();
-        };
-        document.body.onorientationchange = function(e) {
-            genro.setData('touch.orientation', window.orientation);
-        };
-        dojo.connect(document.body, 'gestureend', function(e) {
-            genro.dom.logTouchEvent('gesture', e);
-        });
-
-        //dojo.connect(document.body, 'touchstart',genro.dom,'touchEvent_start');
-        //dojo.connect(document.body, 'touchend',genro.dom,'touchEvent_end');
-        //dojo.connect(document.body, 'touchmove',genro.dom,'touchEvent_move');
-        //dojo.connect(document.body, 'touchcancel',genro.dom,'touchEvent_cancel');
-
-
-    },
-    logTouchEvent:function(path, e) {
-
-        var b = '';
-        for (var k in e) {
-            b = b + k + ':' + e[k] + '<br/>';
-        }
-        genro.setData('touch.event.' + path, b);
-    },
-
-    connectTouchEvents:function(domNode,touchEvents){
-        dojo.connect(domNode,'touchstart',this.touchEvent_start);
-        dojo.connect(domNode,'touchend',this.touchEvent_start);
-
-    },
-
-    touchEvent_start:function(e){
-        console.log('touchEvent_start',e,e.target.id)
-
-    },
-
-    touchEvent_end:function(e){
-        console.log('touchEvent_end',e,e.target.id)
-
-    },
-
-    touchEvent_move:function(e){
-        console.log('touchEvent_move',e,e.target.id)
-
-
-    },
-
-
-    touchEvent_cancel:function(e){
-        console.log('touchEvent_cancel',e,e.target.id)
-
- 
-    },
-
 
     scrollableTable:function(domnode, gridbag, kw) {
         var max_height = kw.max_height || '180px';

@@ -3284,15 +3284,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         if (sourceNode.attr.openFormEvent) {
             dojo.connect(widget, sourceNode.attr.openFormEvent, widget, 'openLinkedForm');
-            if (genro.isMobile) {
-                dojo.connect(widget, 'longTouch', widget, 'openLinkedForm');
-            }
         }
         if (sourceNode.attr.loadFormEvent) {
             dojo.connect(widget, sourceNode.attr.loadFormEvent, widget, 'linkedFormLoad');
-            if (genro.isMobile) {
-                dojo.connect(widget, 'longTouch', widget, 'linkedFormLoad');
-            }
         }
         objectFuncReplace(widget.selection, 'clickSelectEvent', function(e) {
             if(sourceNode.attr.selectGroupColumns && ( e.shiftKey && (e.ctrlKey || e.metaKey) ) ){
@@ -3884,13 +3878,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 for (k = 0; k < rowsnodes.length; k++) {
 
                     rowBag = rowsnodes[k].getValue();
-                    if (genro.isMobile) {
-                        var cellattr = {'format_isbutton':true,'format_buttonclass':'zoomIcon buttonIcon',
-                            'format_onclick':'this.widget.openLinkedForm(kw);',
-                            'width':'20px','calculated':true,
-                            'field':'_edit_record','name':' '};
-                        rowBag.setItem('cell_editor', null, cellattr, {doTrigger:false,_position:0});
-                    }
+                    //if (genro.isMobile) {
+                    //    var cellattr = {'format_isbutton':true,'format_buttonclass':'zoomIcon buttonIcon',
+                    //        'format_onclick':'this.widget.openLinkedForm(kw);',
+                    //        'width':'20px','calculated':true,
+                    //        'field':'_edit_record','name':' '};
+                    //    rowBag.setItem('cell_editor', null, cellattr, {doTrigger:false,_position:0});
+                    //}
 
                     if (!(rowBag instanceof gnr.GnrBag)) {
                         rowBag = new gnr.GnrBag();
@@ -4180,17 +4174,23 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         dropInfo.sourceNode = widget.sourceNode;
 
     },
-    fillDragInfo:function(dragInfo) {
-        var event = dragInfo.event;
-        var widget = dragInfo.widget;
+    customEventInfo:function(info){
+        var event = info.event;
+        var widget = info.widget;
         if (widget.grid) {
             widget.content.decorateEvent(event);
             widget = widget.grid;
         } else {
             widget.views.views[0].header.decorateEvent(event);
         }
-        dragInfo.column = event.cellIndex;
-        dragInfo.row = event.rowIndex;
+        info.column = event.cellIndex;
+        info.row = event.rowIndex;
+        info.widget = widget;
+        info.sourceNode = widget.sourceNode;
+    },
+
+    fillDragInfo:function(dragInfo) {
+        var widget = dragInfo.widget;
         if ((event.cellIndex >= 0) && (event.rowIndex == -1)) {
             dragInfo.dragmode = 'column';
             dragInfo.outline = widget.columnNodelist(event.cellIndex, true);
@@ -4203,8 +4203,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             dragInfo.outline = event.cellNode;
             dragInfo.colStruct = widget.cellmap[event.cell.field];
         }
-        dragInfo.widget = widget;
-        dragInfo.sourceNode = widget.sourceNode;
     },
     setTrashPosition: function(dragInfo) {
         var cellNode = dragInfo.event.cellNode;

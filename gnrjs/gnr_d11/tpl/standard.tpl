@@ -7,11 +7,10 @@
 
 		<!-- Prevent iPad/iPhone resize and enable full screen mode (if you bookmark the app on the home screen) -->
 		<meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0" />
+        <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
         <meta name="apple-mobile-web-app-status-bar-style" content="black">
         <link rel="apple-touch-icon" href="_rsrc/mobile/ios/images/app_icon.png">
         <link rel="apple-touch-startup-image" href="_rsrc/mobile/ios/images/startup_image.jpg">
-
         <%include file="gnr_header.tpl" />
         <style type="text/css" title="localcss">
             html, body, #mainWindow{width: 100%;height: 100%; overflow-x:hidden;}
