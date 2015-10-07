@@ -4174,17 +4174,23 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         dropInfo.sourceNode = widget.sourceNode;
 
     },
-    fillDragInfo:function(dragInfo) {
-        var event = dragInfo.event;
-        var widget = dragInfo.widget;
+    customEventInfo:function(info){
+        var event = info.event;
+        var widget = info.widget;
         if (widget.grid) {
             widget.content.decorateEvent(event);
             widget = widget.grid;
         } else {
             widget.views.views[0].header.decorateEvent(event);
         }
-        dragInfo.column = event.cellIndex;
-        dragInfo.row = event.rowIndex;
+        info.column = event.cellIndex;
+        info.row = event.rowIndex;
+        info.widget = widget;
+        info.sourceNode = widget.sourceNode;
+    },
+
+    fillDragInfo:function(dragInfo) {
+        var widget = dragInfo.widget;
         if ((event.cellIndex >= 0) && (event.rowIndex == -1)) {
             dragInfo.dragmode = 'column';
             dragInfo.outline = widget.columnNodelist(event.cellIndex, true);
@@ -4197,8 +4203,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             dragInfo.outline = event.cellNode;
             dragInfo.colStruct = widget.cellmap[event.cell.field];
         }
-        dragInfo.widget = widget;
-        dragInfo.sourceNode = widget.sourceNode;
     },
     setTrashPosition: function(dragInfo) {
         var cellNode = dragInfo.event.cellNode;

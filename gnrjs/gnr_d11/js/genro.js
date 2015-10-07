@@ -411,7 +411,7 @@ dojo.declare('gnr.GenroClient', null, {
         //genro.timeIt('** getting main **');
         this.wsk.create();
         this.root_page_id = null;
-        if (this.isMobile || true) {
+        if (this.isMobile) {
             this.mobile = new gnr.GnrMobileHandler(this);  
         }
         dojo.subscribe('debugstep',

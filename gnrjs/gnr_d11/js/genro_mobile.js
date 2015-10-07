@@ -35,6 +35,7 @@ dojo.declare("gnr.GnrMobileHandler", null, {
        //document.body.ontouchmove = function(e) {
        //    //e.preventDefault();
        //};
+        this.startHammer(document.body);
         document.body.onorientationchange = function(e) {
             genro.setData('touch.orientation', window.orientation);
         };
@@ -53,16 +54,16 @@ dojo.declare("gnr.GnrMobileHandler", null, {
        //     genro.publish('hammer_input',{'evt':ev,'type':'pan'})
        // });
         this.hammertime.on('tap', function(ev) {
-            genro.publish('hammer_input',{'evt':ev,'type':'tap'})
+            genro.mobile.handleMobileEvent(ev);
         });
         this.hammertime.on('doubletap', function(ev) {
-            genro.publish('hammer_input',{'evt':ev,'type':'doubletap'})
+            genro.mobile.handleMobileEvent(ev);
         });
         this.hammertime.on('press', function(ev) {
-            genro.publish('hammer_input',{'evt':ev,'type':'press'})
+            genro.mobile.handleMobileEvent(ev);
         });
         this.hammertime.on('swipe', function(ev) {
-            genro.publish('hammer_input',{'evt':ev,'type':'swipe'})
+            genro.mobile.handleMobileEvent(ev);
         });
         //this.hammertime.on('rotate', function(ev) {
         //    genro.publish('hammer_input',{'evt':ev,'type':'rotate'})
@@ -72,6 +73,18 @@ dojo.declare("gnr.GnrMobileHandler", null, {
        //this.hammertime.on("hammer.input", function(ev) {
        //    genro.publish('hammer_input',{'evt':ev});
        //});
+    },
+
+    handleMobileEvent:function(ev){
+        var info = genro.dom.getEventInfo(ev);
+
+        if(!info || !info.sourceNode){
+            return;
+        }
+        //console.log('eventinfo',info.event.type,info)
+
+        info.sourceNode.publish(info.event.type,info);
+        genro.publish('mobile_'+info.event.type,info);
     },
     
     touchEventString:function(e){

@@ -843,8 +843,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         return domnode?domnode.sourceNode:null;
     },
-
-    getDragDropInfo:function(event) {
+    getEventInfo:function(event){
         var domnode = event.target;
         while (!domnode.getAttribute) {
             domnode = domnode.parentNode;
@@ -879,6 +878,18 @@ dojo.declare("gnr.GnrDomHandler", null, {
             }
         }
         info.event = event;
+        if(info.handler.customEventInfo){
+            info.handler.customEventInfo(info);
+        }
+        return info;
+    },
+
+    getDragDropInfo:function(event) {
+        var info = this.getEventInfo(event);
+        if(!info){
+            return;
+        }
+        var domnode = info.domnode;
         if (event.type == 'dragstart') {
             info.dragmode = domnode.getAttribute('dragmode');
             info.handler.fillDragInfo(info);
