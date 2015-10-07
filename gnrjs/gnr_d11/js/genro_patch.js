@@ -279,6 +279,8 @@ genropatches.comboBox = function() {
         },
 
         onmouseup:function(/*Event*/ evt) {
+            evt.preventDefault();
+            dojo.stopEvent(evt);
             if (evt.target === this.domNode) {
                 return;
             } else {
