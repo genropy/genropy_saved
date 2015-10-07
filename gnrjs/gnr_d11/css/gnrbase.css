@@ -895,6 +895,37 @@ label{
 }
 /* @group loading classes */
 
+/*topLabelTable css for toplabel forbuilders*/
+
+.topLabelTable {
+    border-spacing: 0px;
+    border-collapse: collapse;
+    border-width:0px;
+    width:100%;
+}
+
+.topLabelTable td{
+    border-right:1px solid silver;
+    padding-top:2px;
+    padding-bottom:2px;
+    min-width:5em;
+    text-align:right;
+    padding-right:2px;
+    font-size: 13px;
+}
+
+.topLabelTable td:last-child{
+    border-right:0px;
+}
+
+.topLabelTable td.gnrfieldlabel{
+    border-bottom:1px solid silver;
+    font-size:.9em;
+    font-weight:bold;
+    text-align:center;
+}
+/*topLabelTable css for toplabel forbuilders*/
+
 .loadingForm .gnrfield input {
     opacity: .3;
 }
@@ -4311,14 +4342,12 @@ div[disabled='true'], div[disabled='disabled']{
     overflow: hidden;
 }
 .treeGridHeader{
-    height:20px;
     position:absolute;
     top:0;
     left:0;
     right:0;
 }
 .treeGridFooter{
-    height:20px;
     position:absolute;
     bottom:0;
     left:0;
@@ -4326,8 +4355,6 @@ div[disabled='true'], div[disabled='disabled']{
 }
 .treeGridCenter{
     position:absolute;
-    top:21px;
-    bottom:16px;
     left:0;
     right:0;
     overflow:auto;
