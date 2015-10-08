@@ -1773,23 +1773,54 @@ class GnrWebPage(GnrBaseWebPage):
                 self.site.register.setPendingContext(self.page_id,self._pendingContext,register_name='page')                        
             if self.user:
                 self.site.pageLog('open')
-
-        if hasattr(self,'deferredMainPageAuthTags'):
-            _auth = AUTH_OK if self.deferredMainPageAuthTags(page) else AUTH_FORBIDDEN
+            if hasattr(self,'deferredMainPageAuthTags'):
+                _auth = AUTH_OK if self.deferredMainPageAuthTags(page) else AUTH_FORBIDDEN
         if _auth == AUTH_NOT_LOGGED:
-            loginUrl = self.application.loginUrl()
-            if not loginUrl.startswith('/'):
-                loginUrl = self.site.home_uri + loginUrl
-            page = None
-            if loginUrl:
-                pageattr['redirect'] = loginUrl
-            else:
-                pageattr['redirect'] = self.site.home_uri
+            page.clear()
+            self.loginPage(page, **kwargs)
+           #loginUrl = self.application.loginUrl()
+           #if not loginUrl.startswith('/'):
+           #    loginUrl = self.site.home_uri + loginUrl
+           #page = None
+           #if loginUrl:
+           #    pageattr['redirect'] = loginUrl
+           #else:
+           #    pageattr['redirect'] = self.site.home_uri
         elif _auth == AUTH_FORBIDDEN:
             page.clear()
             self.forbiddenPage(page, **kwargs)
         return (page, pageattr)
    
+    def loginPage(self, root, **kwargs):
+        """TODO
+        
+        :param root: the root of the page. For more information, check the
+                     :ref:`webpages_main` section"""
+        dlg = root.dialog(toggle="fade", toggleDuration=250, onCreated='widget.show();')
+        #f = dlg.form()
+        #f.div(content='Forbidden Page', text_align="center", font_size='24pt')
+        tbl = dlg.contentPane(_class='dojoDialogInner').table()
+        row = tbl.tr()
+        row.td(content='Sorry. You are not allowed to use this page.', align="center", font_size='16pt',
+               color='#c90031')
+        cell = tbl.tr().td()
+        cell.div(float='right', padding='2px').button('Back', action='genro.pageBack()')
+
+    def forbiddenPage(self, root, **kwargs):
+        """TODO
+        
+        :param root: the root of the page. For more information, check the
+                     :ref:`webpages_main` section"""
+        dlg = root.dialog(toggle="fade", toggleDuration=250, onCreated='widget.show();')
+        #f = dlg.form()
+        #f.div(content='Forbidden Page', text_align="center", font_size='24pt')
+        tbl = dlg.contentPane(_class='dojoDialogInner').table()
+        row = tbl.tr()
+        row.td(content='Sorry. You are not allowed to use this page.', align="center", font_size='16pt',
+               color='#c90031')
+        cell = tbl.tr().td()
+        cell.div(float='right', padding='2px').button('Back', action='genro.pageBack()')
+
 
     def getStartRootenv(self):
         #cookie = self.get_cookie('%s_dying_%s_%s' %(self.siteName,self.packageId,self.pagename), 'simple')
