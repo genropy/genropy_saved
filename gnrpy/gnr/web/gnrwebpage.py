@@ -130,7 +130,6 @@ class GnrWebPage(GnrBaseWebPage):
         self.user_agent = request.user_agent or []
         self.user_ip = request.remote_addr
         self._environ = environ
-        self.isMobile = ('iPad' in self.user_agent or 'iPhone' in self.user_agent)
         self._event_subscribers = {}
         self.forked = False # maybe redefine as _forked
         self.filepath = filepath
@@ -212,6 +211,7 @@ class GnrWebPage(GnrBaseWebPage):
                 self.page_item['data']['init_info'] = dict(request_kwargs=request_kwargs, request_args=request_args,
                           filepath=filepath, packageId=packageId, pluginId=pluginId,  basename=basename)
                 self.page_item['data']['page_info'] = dict([(k,getattr(self,k)) for k in ATTRIBUTES_SIMPLEWEBPAGE])
+        self.isMobile = (self.connection.user_device == 'mobile') or self.page_item['data']['pageArgs'].get('is_mobile')
         self._inited = True
 
     def _T(self,value,lockey=None):
@@ -985,7 +985,8 @@ class GnrWebPage(GnrBaseWebPage):
 
         if self.isDeveloper():
             kwargs['isDeveloper'] = True
-
+        if self.isMobile:
+            kwargs['isMobile'] = True
         arg_dict['startArgs'] = toJson(dict([(k,self.catalog.asTypedText(v)) for k,v in kwargs.items()]))
         arg_dict['page_id'] = self.page_id or getUuid()
         arg_dict['bodyclasses'] = self.get_bodyclasses()

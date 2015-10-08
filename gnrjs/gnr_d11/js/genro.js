@@ -71,6 +71,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.auto_polling = -1;
         this.user_polling = -1;
         this.isDeveloper = objectPop(this.startArgs,'isDeveloper');
+        this.isMobile = objectPop(this.startArgs,'isMobile');
         this.theme = {};
         this.dojo = dojo;
         this.debugged_rpc = {};
@@ -406,7 +407,6 @@ dojo.declare('gnr.GenroClient', null, {
         this.dlg.createStandardMsg(document.body);
         this.contextIndex = {};
         this.isMac = dojo.isMac != undefined ? dojo.isMac : navigator.appVersion.indexOf('Macintosh') >= 0;
-        this.isMobile = ( (navigator.appVersion.indexOf('iPad') >= 0 ) || (navigator.appVersion.indexOf('iPhone') >= 0));
         this.isChrome = ( (navigator.appVersion.indexOf('Chrome') >= 0 ));
         //genro.timeIt('** getting main **');
         this.wsk.create();
