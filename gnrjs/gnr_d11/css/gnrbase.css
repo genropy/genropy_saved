@@ -1031,7 +1031,6 @@ table.formbuilder {
 
 .multiColumnSelect table {
     border-collapse: collapse;
-    font-size: 10px;
     background-color: #f3f3f3; /*width: 100%;*/
 }
 
@@ -1051,6 +1050,7 @@ table.formbuilder {
     white-space: nowrap;
     border-bottom: 0px;
     line-height: 14px;
+    font-size: .9em;
 
 }
 .multiColumnSelect th:last-child {
@@ -1062,19 +1062,32 @@ table.formbuilder {
     line-height: 14px;
 }
 
-.multiColumnSelect td {
+.tundra.touchDevice .multiColumnSelect tr{
+    line-height: 1.8em;
+}
+
+.tundra.touchDevice .multiColumnSelect td {
     padding: 2px;
     border: 1px solid #c8c8c8;
     white-space: nowrap;
     cursor: pointer;
+    font-size: 1em;
 }
 .multiColumnSelect td:last-child {
     border-right: 0px;
 }
 
+.tundra.touchDevice .multiColumnSelect tr:active{
+    background-color: #60a1ea;
+    background: #60a1ea;
+    color:#fff;
+}
+
 
 .multiColumnSelectHover td {
-    background-color: #fdff89;
+    background-color: #60a1ea;
+    background: #60a1ea;
+    color:#fff;
 }
 
 .relaxedCondition tr {
@@ -3630,6 +3643,21 @@ table.draggedItem {
     font-family: '-apple-system','HelveticaNeue','Arial';
     color: #333;
 }
+
+.tundra.touchDevice .dijitMenuItem {
+    border-bottom: 1px solid #EAEAEA;
+    font-size: 1em;
+    line-height: 1.8em;
+    margin: 0;
+    font-family: '-apple-system','HelveticaNeue','Arial';
+    color: #333;
+}
+.tundra.touchDevice .dijitMenuItem:active {
+    background-color: #60a1ea;
+    background: #60a1ea;
+    color:#fff;
+}
+
 
 /* @end */
 

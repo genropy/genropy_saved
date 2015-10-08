@@ -28,6 +28,11 @@
 dojo.declare("gnr.GnrMobileHandler", null, {
     constructor: function(application) {
         this.application = application;
+        for(var k in this){
+            if(stringStartsWith(k,'patch_')){
+                this[k]();
+            }
+        }
         this.initialize();
     },
     initialize:function() {
@@ -37,6 +42,7 @@ dojo.declare("gnr.GnrMobileHandler", null, {
             genro.setData('touch.orientation', window.orientation);
         };
     },
+
     startHammer:function(domNode){
         this.hammertime = new Hammer(domNode);
        // this.hammertime.on('pan', function(ev) {
