@@ -1063,7 +1063,7 @@ table.formbuilder {
 }
 
 .tundra.touchDevice .multiColumnSelect tr{
-    line-height: 1.8em;
+    line-height: 1.5em;
 }
 
 .tundra.touchDevice .multiColumnSelect td {
@@ -3647,7 +3647,7 @@ table.draggedItem {
 .tundra.touchDevice .dijitMenuItem {
     border-bottom: 1px solid #EAEAEA;
     font-size: 1em;
-    line-height: 1.8em;
+    line-height: 1.5em;
     margin: 0;
     font-family: '-apple-system','HelveticaNeue','Arial';
     color: #333;
