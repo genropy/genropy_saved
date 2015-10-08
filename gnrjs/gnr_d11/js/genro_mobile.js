@@ -31,22 +31,11 @@ dojo.declare("gnr.GnrMobileHandler", null, {
         this.initialize();
     },
     initialize:function() {
-        dojo.addClass(document.body,'touchDevice')
-       //document.body.ontouchmove = function(e) {
-       //    //e.preventDefault();
-       //};
+        dojo.addClass(document.body,'touchDevice');
         this.startHammer(document.body);
         document.body.onorientationchange = function(e) {
             genro.setData('touch.orientation', window.orientation);
         };
-       //dojo.connect(document.body, 'gestureend', function(e) {
-       //    genro.dom.logTouchEvent('gesture', e);
-       //});
-
-        //dojo.connect(document.body, 'touchstart',genro.dom,'touchEvent_start');
-        //dojo.connect(document.body, 'touchend',genro.dom,'touchEvent_end');
-        //dojo.connect(document.body, 'touchmove',genro.dom,'touchEvent_move');
-        //dojo.connect(document.body, 'touchcancel',genro.dom,'touchEvent_cancel');
     },
     startHammer:function(domNode){
         this.hammertime = new Hammer(domNode);
@@ -93,34 +82,5 @@ dojo.declare("gnr.GnrMobileHandler", null, {
             b = b + k + ':' + e[k] + '<br/>';
         }
         return b;
-    },
-
-   //connectTouchEvents:function(domNode,touchEvents){
-   //    dojo.connect(domNode,'touchstart',this.touchEvent_start);
-   //    dojo.connect(domNode,'touchend',this.touchEvent_start);
-
-   //},
-
-   //touchEvent_start:function(e){
-   //    console.log('touchEvent_start',e,e.target.id)
-
-   //},
-
-   //touchEvent_end:function(e){
-   //    console.log('touchEvent_end',e,e.target.id)
-
-   //},
-
-   //touchEvent_move:function(e){
-   //    console.log('touchEvent_move',e,e.target.id)
-
-
-   //},
-
-
-   //touchEvent_cancel:function(e){
-   //    console.log('touchEvent_cancel',e,e.target.id)
-
- 
-   //},
+    }
 });
