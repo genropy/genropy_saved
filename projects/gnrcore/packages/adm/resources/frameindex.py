@@ -29,14 +29,8 @@ class FrameIndex(BaseComponent):
     hideLeftPlugins = False
     auth_preference = 'admin'
     auth_workdate = 'admin'
-    auth_page='user'
-    
-    def mainLeftContent(self,*args,**kwargs):
-        pass 
-
-    @property
-    def defaultAuthTags(self):
-        return ''
+    auth_page = 'user'
+    auth_main = 'user'
     
     def main(self,root,new_window=None,gnrtoken=None,custom_index=None,**kwargs):
         if gnrtoken and not self.db.table('sys.external_token').check_token(gnrtoken):
@@ -53,12 +47,20 @@ class FrameIndex(BaseComponent):
             else:
                 self.index_dashboard(root)
         else:         
-            sc = root.stackContainer(selectedPage='^indexStack',
-                subscribe_openApplicationPage="this.widget.switchPage('dashboard')",
-                subscribe_openFrontPage="this.widget.switchPage('frontpage')")
-            sc.loginPage(new_window=new_window,gnrtoken=gnrtoken)
-            sc.contentPane(pageName='dashboard',overflow='hidden').remote(self.remoteFrameRoot,custom_index='=gnr.rootenv.custom_index',**kwargs)
-            root.screenLockDialog()
+            custom_index = self.rootenv['custom_index']
+            pageAuth = self.application.checkResourcePermission(self.pageAuthTags(method='page'),self.userTags) 
+            if pageAuth:
+                if self.avatar and self.avatar.user != self.avatar.user_id:
+                    usernotification_tbl = self.db.table('adm.user_notification')
+                    usernotification_tbl.updateGenericNotification(self.avatar.user_id,user_tags=self.avatar.user_tags)
+                    notification_id = usernotification_tbl.nextUserNotification(user_id=self.avatar.user_id) if self.avatar.user_id else None
+                    self.pageSource().dataController('loginManager.notificationManager(notification_id);',notification_id=notification_id or False,_onStart=1,_if='notification_id')
+                if custom_index and custom_index!='*':
+                    getattr(self,'index_%s' %custom_index)(root,**kwargs)
+                else:
+                    root.frameIndexRoot(**kwargs)
+            else:
+                root.div('Not allowed')
 
     def _getStartPage(self,new_window):
         startPage = 'dashboard'        
@@ -80,23 +82,6 @@ class FrameIndex(BaseComponent):
                     startPage = 'frontpage'
                     break               
         return startPage
-        
-    @public_method  
-    def remoteFrameRoot(self,pane,custom_index=None,**kwargs):
-        pageAuth = self.application.checkResourcePermission(self.pageAuthTags(method='page'),self.avatar.user_tags) 
-        if pageAuth:
-            pane.dataController("FIRE gnr.onStart;",_onBuilt=True,_delay=1)
-            if self.avatar.user != self.avatar.user_id:
-                usernotification_tbl = self.db.table('adm.user_notification')
-                usernotification_tbl.updateGenericNotification(self.avatar.user_id,user_tags=self.avatar.user_tags)
-                notification_id = usernotification_tbl.nextUserNotification(user_id=self.avatar.user_id) if self.avatar.user_id else None
-                self.pageSource().dataController('loginManager.notificationManager(notification_id);',notification_id=notification_id or False,_onStart=1,_if='notification_id')
-            if custom_index and custom_index!='*':
-                getattr(self,'index_%s' %custom_index)(pane,**kwargs)
-            else:
-                pane.frameIndexRoot(**kwargs)
-        else:
-            pane.div('Not allowed')
     
     @struct_method
     def frm_frameIndexRoot(self,pane,onCreatingTablist=None,**kwargs):
