@@ -515,8 +515,8 @@ class GnrWebPage(GnrBaseWebPage):
         return AUTH_OK
         
     def pageAuthTags(self,method=None,**kwargs):
-        return getattr(self,'auth_%s' %method,self.defaultAuthTags)
-
+        return getattr(self,'auth_%s' %method,self.defaultAuthTags if method=='main' else None)
+        
     @property
     def defaultAuthTags(self):
         return self.package.attributes.get('auth_default','')
@@ -1779,7 +1779,7 @@ class GnrWebPage(GnrBaseWebPage):
 
         if _auth == AUTH_NOT_LOGGED:
             root.clear()
-            self.mixinComponent('login:LoginComponent',safeMode=True)
+            self.mixinComponent('login:LoginComponent',safeMode=True,only_callables=False)
             self.loginDialog(root, **kwargs)
         elif _auth == AUTH_FORBIDDEN:
             root.clear()

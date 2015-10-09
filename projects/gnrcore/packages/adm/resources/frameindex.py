@@ -6,14 +6,12 @@
 # Frameindex component
 
 from gnr.web.gnrwebpage import BaseComponent
-from gnr.core.gnrdecorator import public_method
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrbag import Bag
 
-#foundation/menu:MenuIframes,
 class FrameIndex(BaseComponent):
     py_requires="""frameplugin_menu/frameplugin_menu:MenuIframes,
-                   login:LoginComponent,gnrcomponents/batch_handler/batch_handler:TableScriptRunner,
+                   login:LoginComponent,
+                   gnrcomponents/batch_handler/batch_handler:TableScriptRunner,
                    gnrcomponents/batch_handler/batch_handler:BatchMonitor,
                    gnrcomponents/chat_component/chat_component,
                    gnrcomponents/datamover:MoverPlugin,
@@ -28,7 +26,6 @@ class FrameIndex(BaseComponent):
     indexTab = False
     hideLeftPlugins = False
     auth_preference = 'admin'
-    auth_workdate = 'admin'
     auth_page = 'user'
     auth_main = 'user'
     
@@ -62,27 +59,6 @@ class FrameIndex(BaseComponent):
             else:
                 root.div('Not allowed')
 
-    def _getStartPage(self,new_window):
-        startPage = 'dashboard'        
-        if not self.avatar and self.auth_page:
-            newrootenv = Bag()
-            autologin = self.automaticLogin(newrootenv)
-            if autologin:
-                authenticate = autologin.pop('_authenticate',True)
-                self.doLogin(autologin,authenticate=authenticate)
-                canBeChanged = self.application.checkResourcePermission(self.pageAuthTags(method='workdate'),self.avatar.user_tags)
-                newrootenv.setItem('workdate',self.workdate, hidden= not canBeChanged,editable=True)
-                self.pageStore().setItem('rootenv',newrootenv)
-                self.connectionStore().setItem('defaultRootenv',Bag(newrootenv))
-            else:
-                return 'frontpage'
-        elif new_window:
-            for n in self.rootenv:
-                if n.attr.get('editable') and not n.attr.get('hidden'):
-                    startPage = 'frontpage'
-                    break               
-        return startPage
-    
     @struct_method
     def frm_frameIndexRoot(self,pane,onCreatingTablist=None,**kwargs):
         pane.dataController("""var d = data.deepCopy();
@@ -288,10 +264,6 @@ class FrameIndex(BaseComponent):
         pane.attributes.update(dict(splitter=True,width='210px',datapath='left',
                                     margin_right='-4px',overflow='hidden',hidden=self.hideLeftPlugins,border_right='1px solid #ddd'))
         bc = pane.borderContainer()
-        
-        #self.rootSummaryBox(bc.contentPane(region='bottom',_class='login_summarybox'))
-        
-        
         sc = bc.stackContainer(selectedPage='^.selected',nodeId='gnr_main_left_center',
                                 subscribe_open_plugin="""SET .selected=$1;
                                                          genro.getFrameNode('standard_index').publish('showLeft');""",
