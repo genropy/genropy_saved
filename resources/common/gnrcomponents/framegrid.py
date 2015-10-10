@@ -150,7 +150,7 @@ class FrameGrid(BaseComponent):
             else:
                 bar = frame.top.slotToolbar(slots)
             if title:
-                bar.vtitle.div(title)
+                bar.vtitle.div(title,_class='frameGridTitle')
             if semaphore:
                 bar.replaceSlots('#','#,gridsemaphore')
         store = frame.grid.bagStore(storepath=storepath,parentForm=parentForm,**store_kwargs)

@@ -1458,7 +1458,7 @@ dojo.declare("gnr.widgets.CodeEditor", gnr.widgets.gnrwdg, {
         gnrwdg.rpcSourceCodeSaver = objectPop(kw,'rpcSourceCodeSaver') || 'dev.saveModuleElement';
 
         sourceNode.attr._workspace = true;
-        kw.frameCode = kw.frameCode ||  'CodeEditor'
+        kw.frameCode = kw.frameCode ||  'CodeEditor_'+genro.getCounter();
         var frame = sourceNode._('FramePane','rootNode',kw);
         var bc = frame._('BorderContainer',{side:'center'});
         var pref = kw.frameCode?kw.frameCode+'_' : '';
@@ -1490,6 +1490,8 @@ dojo.declare("gnr.widgets.CodeEditor", gnr.widgets.gnrwdg, {
         var module = this.sourceNode.getAttributeFromDatasource('value');
         var sourceNode = this.sourceNode;
         if(!module){
+            sourceNode.setRelativeData('#WORKSPACE.currentSourceElement_loadedValue','');
+            sourceNode.setRelativeData('#WORKSPACE.currentSourceElement','');
             return
         }
         genro.serverCall('dev.loadModuleSource',{module:module},function(result){

@@ -180,7 +180,7 @@ dojo.declare("gnr.GnrStoreBag", null, {
     },
 
     isDictItem:function(/* anything */ something){
-        return (typeof(something)=='object') && !(something instanceof Date)
+        return (typeof(something)=='object') && !(something instanceof Date) && !(something instanceof Array)
     },
 
     isItemLoaded: function(/* anything */ something) {

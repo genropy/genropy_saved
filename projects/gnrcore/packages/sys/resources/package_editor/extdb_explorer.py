@@ -54,7 +54,7 @@ class ExtDbExplorer(BaseComponent):
                     kwargs['data'] = columns
                     """,
                     _onResult="""
-                    genro.publish('tableModuleWritten');
+                    genro.publish('reloadTableModules');
                     genro.publish('closeDbConnectionDialog');""")
         bar = frame.bottom.slotBar('*,cancel,confirm,5',margin_bottom='2px',_class='slotbar_dialog_footer')
         bar.cancel.slotButton("Cancel",action="genro.publish('closeDbConnectionDialog');",dlg=dialog.js_widget)
