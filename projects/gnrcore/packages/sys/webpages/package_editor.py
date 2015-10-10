@@ -21,6 +21,7 @@ class GnrCustomWebPage(object):
     pageOptions={'openMenu':False,'enableZoom':False}
     js_requires ='package_editor/package_editor'
     css_requires ='package_editor/package_editor'
+    auth_main = 'admin'
 
     def windowTitle(self):
         return '!!Package editor'
