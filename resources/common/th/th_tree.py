@@ -44,6 +44,7 @@ class HTableTree(BaseComponent):
         pane.dataRemote(storepath,self.db.table(table).getHierarchicalData,
                         condition=condition,
                         condition_kwargs=condition_kwargs,
+                        table=table,
                         cacheTime=cacheTime or -1,caption_field=caption_field,dbstore=dbstore)
         menu = pane.menu(modifiers=modifiers,_class='menupane',connectToParent=False,id=menuId,connect_onOpeningPopup="""
                 var dbselect =  dijit.getEnclosingWidget(this.widget.originalContextTarget);
