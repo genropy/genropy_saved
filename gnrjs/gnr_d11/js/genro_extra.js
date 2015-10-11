@@ -161,7 +161,7 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
             sourceNode.delayedCall(function(){
                 var v = sourceNode.externalWidget.getValue();
                 sourceNode.setRelativeData(sourceNode.attr.value,v,null,null,sourceNode);
-            },500,'updatingContent')
+            },sourceNode.attr._delay || 500,'updatingContent')
         })
 
     },

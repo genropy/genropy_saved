@@ -17,20 +17,34 @@ class Main(GnrBaseService):
     def __init__(self, parent=None,theme=None,stylesheet=None,**kwargs):
         self.parent = parent
         self.docutils_kwargs = kwargs
-        self.stylesheet = stylesheet or self.stylesheetFromTheme(theme or 'standard')
+        self.theme = theme
+        self.stylesheet = stylesheet
+        self.content_class = 'rst-content'
 
-    def stylesheetFromTheme(self,theme):
-        return 'common/services/rst2html/themes/%s.css' %theme
+    def styleSheetFromTheme(self,theme):
+        if not theme.endswith('.css'):
+            theme = '%s.css' %theme
+        return self.parent.dummyPage.getResourcePath('services/rst2html/themes/%s' %theme)
+
 
     def __call__(self,source_rst=None,theme=None,stylesheet=None,**kwargs):
         docutils_kwargs = dict(self.docutils_kwargs)
         docutils_kwargs.update(kwargs)
-        stylesheet = stylesheet or self.stylesheetFromTheme(theme) if theme else self.stylesheet
-        stylesheet = self.parent.getStaticPath('rsrc:%s' %stylesheet)
+        #stylesheet = stylesheet or self.stylesheetFromTheme(theme) if theme else self.stylesheet
+        if not stylesheet:
+            if theme:
+                stylesheet = self.styleSheetFromTheme(theme)
+            elif self.stylesheet:
+                stylesheet = self.stylesheet
+            else:
+                stylesheet = self.styleSheetFromTheme(self.theme or 'readthedocs')
+
         settings_overrides = {'stylesheet_path':stylesheet}
         settings_overrides.update(docutils_kwargs)
         try :
-            return renderRst(source_rst, writer_name='html',
+            result = renderRst(source_rst, writer_name='html',
                               settings_overrides=settings_overrides)
+            result = result.replace('class="document"','class="rst-content"')
+            return result
         except Exception,e:
             return str(e)
