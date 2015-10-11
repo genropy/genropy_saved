@@ -10,6 +10,7 @@ from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrstring import boolean
 from gnr.core.gnrbag import Bag
 from collections import OrderedDict
+from datetime import datetime
 import os
 
 SYSFIELDS_DEFAULT = OrderedDict([('id',True), ('ins',True), ('upd',True), 
@@ -270,14 +271,18 @@ class TableModuleEditor(BaseComponent):
         r = struct.view().rows()
         r.cell('name',width='10em',name='Name',edit=True)
 
+    def tables_viewer_struct(self,struct):
+        r = struct.view().rows()
+        r.cell('name',width='15em',name='Name')
+        r.cell('model_change_ts',dtype='DH',width='10em',name='Mod. Update')
+        r.cell('resource_change_ts',dtype='DH',width='10em',name='Res. Update')
+
     def tablesModulesEditor(self,pane,storepath=None,datapath='.tablesFrame',project=None,package=None):
-        def struct(struct):
-            r = struct.view().rows()
-            r.cell('name',width='100%',name='Name')
+        
         tablesframe = pane.bagGrid(frameCode='tablesModulesEditor',title='Tables',
                                                 storepath=storepath,
                                                 datapath=datapath,
-                                                struct=struct,
+                                                struct=self.tables_viewer_struct,
                                                 pbl_classes=True,
                                                 #grid_multiSelect=False,
                                                 margin='2px',
@@ -308,7 +313,8 @@ class TableModuleEditor(BaseComponent):
                                         selectedId='^.selectedId',grid=tablesframe.grid.js_widget)
         tablesframe.top.bar.replaceSlots('delrow','export,5,searchOn,delrow')
         bar = tablesframe.bottom.slotToolbar('*,makerRes,5,importLegacy,*')
-        bar.makerRes.slotButton('Make Resources',action='FIRE #FORM.instanceAction= event.shiftKey? "make_resources_force":"make_resources"')
+        bar.makerRes.slotButton('Make Resources',
+                            action='FIRE #FORM.instanceAction= event.shiftKey? "make_resources_force":"make_resources"')
         bar.importLegacy.slotButton('Import Legacy',fire_import_legacy='#FORM.instanceAction')
 
         pane.dataRpc('#FORM._loadedPackageTables',self.table_editor_loadPackageTables,
@@ -493,11 +499,17 @@ class TableModuleEditor(BaseComponent):
             if ext!='.py':
                 continue
             modulepath = os.path.join(models_path,m)
+            resourcepath = os.path.join(th_resource_basepath,tablename,'th_%s.py' %tablename)
+            
             tablevalue = Bag()
             tablevalue['name'] = tablename
             tablevalue['_pkey'] = tablename
             tablevalue['_modulepath'] = modulepath
-            tablevalue['_thresourcepath'] = os.path.join(th_resource_basepath,tablename,'th_%s.py' %tablename)
+            tablevalue['_thresourcepath'] = resourcepath
+            tablevalue['model_change_ts'] =  datetime.fromtimestamp(os.path.getmtime(modulepath))
+            if os.path.exists(resourcepath):
+                tablevalue['resource_change_ts'] =  datetime.fromtimestamp(os.path.getmtime(resourcepath))
+
             result[tablename] = tablevalue
         return result
 

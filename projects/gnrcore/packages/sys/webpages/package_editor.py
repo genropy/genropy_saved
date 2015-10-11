@@ -136,6 +136,8 @@ class GnrCustomWebPage(object):
                             instance='=.record.instance_name',
                             package='=.record.package_name',_if='instance',
                             selectedTables='=#FORM.selectedTables',
+                            _ask="""You are going to overwrite current resources. Do you want to proceed anyway?""",
+                            _ask_if='action=="make_resources_force"',
                         _lockScreen=True,action='^#FORM.instanceAction',
                         _onResult="""
                         var currenModelModule = GET #FORM.currenModelModule;
@@ -149,7 +151,7 @@ class GnrCustomWebPage(object):
         form.dataController('bc.setHiderLayer(!package_name,{message:message})',
                             message='!!Please select or create a project<br/>and select or create a package',
                             bc=bc,package_name='^.record.package_name')
-        self.tablesModulesEditor(bc.contentPane(region='left',width='280px',splitter=True),storepath='#FORM.record.tables',
+        self.tablesModulesEditor(bc.contentPane(region='left',width='380px',splitter=True),storepath='#FORM.record.tables',
                                 project='=.record.project_name',package='^.record.package_name')
         self.sourceViewer(bc.tabContainer(region='center',margin='2px'))
 
