@@ -145,7 +145,7 @@ def getSiteHandler(site_name, gnr_config=None):
 
 def getGnrConfig(config_path=None):
     config_path = config_path or gnrConfigPath()
-    if not config_path:
+    if not config_path or not os.path.isdir(config_path):
         raise Exception('Missing genro configuration')
     return Bag(config_path)
 

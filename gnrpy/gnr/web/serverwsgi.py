@@ -3,11 +3,11 @@ from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwsgisite import GnrWsgiSite
 from paste import httpserver
 try:
-  from waitress.server import create_server
-  HAS_WAITRESS = True
+    from waitress.server import create_server
+    HAS_WAITRESS = True
 except ImportError:
-  from paste import httpserver
-  HAS_WAITRESS = False
+    from paste import httpserver
+    HAS_WAITRESS = False
 import sys
 import os
 import re
@@ -28,6 +28,8 @@ import atexit
 import logging
 from gnr.core.gnrsys import expandpath, listdirs
 from gnr.core.gnrlog import enable_colored_logging
+from gnr.app.gnrconfig import getGnrConfig, gnrConfigPath
+
 fnull = open(os.devnull, 'w')
 MAXFD = 1024
 import re
@@ -376,8 +378,13 @@ class Server(object):
         #self.remotesshdb = None
         (self.options, self.args) = self.parser.parse_args()
         enable_colored_logging(level=self.LOGGING_LEVELS[self.options.log_level])
-        self.load_gnr_config()
-        self.set_environment()
+        if hasattr(self.options, 'config_path') and self.options.config_path:
+            self.config_path = self.options.config_path
+        else:
+            self.config_path = gnrConfigPath()
+        self.gnr_config = getGnrConfig(config_path = self.config_path)
+        self.set_environment(self.gnr_config)
+        
         self.site_name = self.options.site_name or (self.args and self.args[0]) or os.getenv('GNR_CURRENT_SITE')
         self.remote_db = ''
         if self.site_name:
@@ -416,22 +423,10 @@ class Server(object):
         raise ServerException(
                 'Error: no site named %s found' % site_name)
 
-    def load_gnr_config(self):
-        if hasattr(self.options, 'config_path') and self.options.config_path:
-            config_path = self.options.config_path
-        else:
-            if sys.platform == 'win32':
-                config_path = '~\gnr'
-            else:
-                config_path = '~/.gnr'
-        config_path = self.config_path = expandpath(config_path)
-        if os.path.isdir(config_path):
-            self.gnr_config = Bag(config_path)
-        else:
-            self.gnr_config = Bag()
 
-    def set_environment(self):
-        for var, value in self.gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):
+
+    def set_environment(self, gnr_config=None):
+        for var, value in gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):
             var = var.upper()
             if not os.getenv(var):
                 os.environ[str(var)] = str(value)

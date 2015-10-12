@@ -5,6 +5,7 @@ from gnr.core.gnrsys import expandpath
 from gnr.core.gnrlang import uniquify
 from collections import defaultdict
 from gnr.app.gnrconfig import MenuStruct
+from gnr.app.gnrconfig import getGnrConfig
 
 class PathResolver(object):
     """TODO"""
@@ -16,20 +17,9 @@ class PathResolver(object):
             project='projects')
             
     def __init__(self, gnr_config=None):
-        self.gnr_config = gnr_config or self.load_gnr_config()
+        self.gnr_config = gnr_config or self.getGnrConfig()
+        self.set_environment(self.gnr_config)
         
-    def load_gnr_config(self):
-        """Load the gnr configuration. Return a Bag with the gnr configuration path"""
-        home_config_path = expandpath('~/.gnr')
-        global_config_path = expandpath(os.path.join('/etc/gnr'))
-        if os.path.isdir(home_config_path):
-            config = Bag(home_config_path)
-        elif os.path.isdir(global_config_path):
-            config = Bag(global_config_path)
-        else:
-            config = Bag()
-        self.set_environment(config)
-        return config
         
     def set_environment(self, config):
         """TODO
