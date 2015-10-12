@@ -109,8 +109,8 @@ class Server(object):
     
     def __init__(self, site_name=None):
         self.options = attrDict()
-        self.gnr_config = getGnrConfig()
-        self.config_path = gnrConfigPath(set_environment=True)
+        self.gnr_config = getGnrConfig(set_environment=True)
+        self.config_path = gnrConfigPath()
         self.site_name = site_name
         if self.site_name:
             if not self.gnr_config:
