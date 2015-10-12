@@ -5,7 +5,7 @@ from gnr.core.gnrsys import expandpath
 from gnr.core.gnrlang import uniquify
 from collections import defaultdict
 from gnr.app.gnrconfig import MenuStruct
-from gnr.app.gnrconfig import getGnrConfig
+from gnr.app.gnrconfig import getGnrConfig, setEnvironment
 
 class PathResolver(object):
     """TODO"""
@@ -18,17 +18,9 @@ class PathResolver(object):
             
     def __init__(self, gnr_config=None):
         self.gnr_config = gnr_config or self.getGnrConfig()
-        self.set_environment(self.gnr_config)
+        setEnvironment(self.gnr_config)
         
         
-    def set_environment(self, config):
-        """TODO
-        
-        :param config: a Bag with the gnr configuration path"""
-        for var, value in config['gnr.environment_xml'].digest('environment:#k,#a.value'):
-            var = var.upper()
-            if not os.getenv(var):
-                os.environ[var] = str(value)
                 
     def js_path(self, lib_type='gnr', version='11'):
         """TODO Return the configuration static js path, with *lib_type* and *version* specified
