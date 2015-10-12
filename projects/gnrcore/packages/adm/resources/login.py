@@ -139,15 +139,12 @@ class LoginComponent(BaseComponent):
                 if(rootpage){
                     genro.gotoURL(rootpage);
                 }
-                if(!closable){
-                    genro.pageReload();
-                }
-                genro.publish('logged');
+                genro.pageReload();
             }
         },null,'POST');
         """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',
             avatar='=gnr.avatar',
-            rootpage='=gnr.rootenv.rootpage',closable=self.closable_login,
+            rootpage='=gnr.rootenv.rootpage',
             error_msg='!!Invalid login',dlg=dlg.js_widget,_delay=1)  
         return dlg
 
