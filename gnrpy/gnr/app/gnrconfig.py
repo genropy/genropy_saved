@@ -160,15 +160,17 @@ def getGnrConfig(config_path=None, set_environment=False):
         setEnvironment(gnr_config)
     return gnr_config
 
-def gnrConfigPath():
+def gnrConfigPath(force_return=False):
     if os.environ.has_key('VIRTUAL_ENV'):
         config_path = expandpath(os.path.join(os.environ['VIRTUAL_ENV'],'etc','gnr'))
-    elif sys.platform == 'win32':
+        if force_return or os.path.isdir(config_path):
+            return config_path
+    if sys.platform == 'win32':
         config_path = '~\gnr'
     else:
         config_path = '~/.gnr'
     config_path  = expandpath(config_path)
-    if os.path.isdir(config_path):
+    if force_return or os.path.isdir(config_path):
         return config_path
     config_path = expandpath('/etc/gnr')
     if os.path.isdir(config_path):

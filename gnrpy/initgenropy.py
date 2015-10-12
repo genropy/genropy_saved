@@ -67,7 +67,7 @@ def check_file(xml_path=None):
 def initgenropy(gnrpy_path=None):
     if not gnrpy_path or not os.path.basename(gnrpy_path)=='gnrpy':
         raise GnrConfigException("You are not running this script inside a valid gnrpy folder")
-    config_path  = getConfigPath()
+    config_path  = getConfigPath(force_return=True)
     instanceconfig_path = os.path.join(config_path,'instanceconfig')
     siteconfig_path = os.path.join(config_path,'siteconfig')
     for folder_path in (config_path, instanceconfig_path, siteconfig_path):
