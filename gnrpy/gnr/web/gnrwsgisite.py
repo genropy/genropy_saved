@@ -204,8 +204,7 @@ class GnrWsgiSite(object):
         if _gnrconfig:
             self.gnr_config = _gnrconfig
         else:
-            self.gnr_config = getGnrConfig()
-            self.set_environment()
+            self.gnr_config = getGnrConfig(set_environment=True)
             
         self.config = self.load_site_config()
         self.cache_max_age = int(self.config['wsgi?cache_max_age'] or 5356800)
@@ -442,14 +441,6 @@ class GnrWsgiSite(object):
             elif lib.startswith('gnr_'):
                 self.gnr_path[lib[4:]] = path
                 
-    def set_environment(self):
-        """TODO"""
-        for var, value in self.gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):
-            var = var.upper()
-            if not os.getenv(var):
-                os.environ[var] = str(value)
-                
-        
     def load_site_config(self):
         """TODO"""
         site_config_path = os.path.join(self.site_path, 'siteconfig.xml')
