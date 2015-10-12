@@ -857,8 +857,8 @@ dojo.declare("gnr.GnrDomHandler", null, {
             info.nodeId = domnode.sourceNode.attr.nodeId;
         }
         else {
-            widget = dijit.getEnclosingWidget(domnode);
-            baseSourceNode = this.getBaseSourceNode(domnode);
+            var widget = dijit.getEnclosingWidget(domnode);
+            var baseSourceNode = this.getBaseSourceNode(domnode);
             var rootwidget = widget? (widget.sourceNode ? widget : widget.grid || widget.tree) : null;
             if(!rootwidget && !baseSourceNode){
                 return;

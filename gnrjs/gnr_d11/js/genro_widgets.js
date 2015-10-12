@@ -4148,12 +4148,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             return false;
         }
         var widget = dropInfo.widget;
-        if (widget.grid) {
-            widget.content.decorateEvent(event);
-            widget = widget.grid;
-        } else {
-            widget.views.views[0].header.decorateEvent(event);
-        }
         if (dropmode == 'grid') {
             dropInfo.outline = widget.domNode;
         }

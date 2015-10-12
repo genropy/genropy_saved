@@ -4286,7 +4286,7 @@ dojo.declare("gnr.stores._Collection",null,{
     },
     
     compileFilter:function(value,filterColumn,colType){
-        if(value==null){
+        if(isNullOrBlank(value)){
             return null;
         }
         var cb;
