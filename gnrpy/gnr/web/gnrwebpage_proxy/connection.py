@@ -21,12 +21,14 @@ USER_AGENT_SNIFF = (('Chrome', 'Chrome'),
                     ('Firefox', 'Firefox'),
                     ('Opera', 'Opera'),
                     ('MSIE', 'InternetExplorer'))
+DEVICE_AGENT_SNIFF = (('iPad','mobile'),('iPhone','mobile'),('Android','mobile'),('WindowsPhone','mobile'))
 
 class GnrWebConnection(GnrBaseProxy):
     def init(self, connection_id=None, user=None, **kwargs):
         page = self.page
         self.user_agent = page.user_agent
         self.browser_name = self.sniffUserAgent()
+        self.user_device = self.sniffUserDevice()
         self.ip = self.page.user_ip or '0.0.0.0'
         self.connection_name = '%s_%s' % (self.ip.replace('.', '_'), self.browser_name)
         self.secret = page.site.config['secret'] or self.page.siteName
@@ -127,6 +129,13 @@ class GnrWebConnection(GnrBaseProxy):
             if k in  user_agent:
                 return v
         return 'unknown browser'
+
+    def sniffUserDevice(self):
+        user_agent = self.user_agent
+        for k, v in DEVICE_AGENT_SNIFF:
+            if k in  user_agent:
+                return v
+        return 'pc'
 
     def _get_locale(self):
         if self.cookie:

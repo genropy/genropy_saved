@@ -45,7 +45,7 @@ from gnr.core.gnrstring import makeSet, toText, splitAndStrip, like, boolean
 from gnr.core.gnrsys import expandpath
 from gnr.sql.gnrsql import GnrSqlDb
 from gnr.app.gnrlocalization import AppLocalizer
-
+from gnr.app.gnrconfig import getGnrConfig
 log = logging.getLogger(__name__)
 
 class GnrRestrictedAccessException(GnrException):
@@ -578,9 +578,8 @@ class GnrApp(object):
     def __init__(self, instanceFolder=None, custom_config=None, forTesting=False, 
                 debug=False, restorepath=None,**kwargs):
         self.aux_instances = {}
-        self.gnr_config = self.load_gnr_config()
+        self.gnr_config = getGnrConfig(set_environment=True)
         self.debug=debug
-        self.set_environment()
         self.remote_db = None
         if instanceFolder:
             if ':' in instanceFolder:
@@ -629,37 +628,6 @@ class GnrApp(object):
     def get_modulefinder(self, path_entry):
         """TODO"""
         return GnrModuleFinder(path_entry,self)
-        
-    def set_environment(self):
-        """TODO"""
-        environment_xml = self.gnr_config['gnr.environment_xml']
-        if environment_xml:
-            for var, value in environment_xml.digest('environment:#k,#a.value'):
-                var = var.upper()
-                if not os.getenv(var):
-                    os.environ[var] = str(value)
-                    
-    def load_gnr_config(self):
-        """TODO"""
-        if os.environ.has_key('VIRTUAL_ENV'):
-            config_path = expandpath(os.path.join(os.environ['VIRTUAL_ENV'],'etc','gnr'))
-            if os.path.isdir(config_path):
-                return Bag(config_path)
-            else:
-                log.warn('Missing genro configuration in %s', config_path)
-                return Bag()
-        if sys.platform == 'win32':
-            config_path = '~\gnr'
-        else:
-            config_path = '~/.gnr'
-        config_path = expandpath(config_path)
-        if os.path.isdir(config_path):
-            return Bag(config_path)
-        config_path = expandpath('/etc/gnr')
-        if os.path.isdir(config_path):
-            return Bag(config_path)
-        log.warn('Missing genro configuration')
-        return Bag()
         
     def load_instance_menu(self):
         """TODO"""

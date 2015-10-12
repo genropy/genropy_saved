@@ -1621,7 +1621,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
             objectKeys(node_identifiers).forEach(function(idx){
                 sourceNode = genro.src.nodeBySourceNodeId(node_identifiers[idx]);
-                result = genro.vld.validate(sourceNode, sourceNode);
+                result = genro.vld.validate(sourceNode, sourceNode.getAttributeFromDatasource('value'));
                 if (result['modified']) {
                     sourceNode.widget.setValue(result['value']);
                 }
@@ -1636,6 +1636,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         })
         this.updateStatus();
     },
+
 
     dojoValidation:function(wdg,isValid){
         var sn = wdg.sourceNode;

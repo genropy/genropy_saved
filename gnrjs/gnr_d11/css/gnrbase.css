@@ -895,6 +895,37 @@ label{
 }
 /* @group loading classes */
 
+/*topLabelTable css for toplabel forbuilders*/
+
+.topLabelTable {
+    border-spacing: 0px;
+    border-collapse: collapse;
+    border-width:0px;
+    width:100%;
+}
+
+.topLabelTable td{
+    border-right:1px solid silver;
+    padding-top:2px;
+    padding-bottom:2px;
+    min-width:5em;
+    text-align:right;
+    padding-right:2px;
+    font-size: 13px;
+}
+
+.topLabelTable td:last-child{
+    border-right:0px;
+}
+
+.topLabelTable td.gnrfieldlabel{
+    border-bottom:1px solid silver;
+    font-size:.9em;
+    font-weight:bold;
+    text-align:center;
+}
+/*topLabelTable css for toplabel forbuilders*/
+
 .loadingForm .gnrfield input {
     opacity: .3;
 }
@@ -1000,7 +1031,6 @@ table.formbuilder {
 
 .multiColumnSelect table {
     border-collapse: collapse;
-    font-size: 10px;
     background-color: #f3f3f3; /*width: 100%;*/
 }
 
@@ -1020,6 +1050,7 @@ table.formbuilder {
     white-space: nowrap;
     border-bottom: 0px;
     line-height: 14px;
+    font-size: .9em;
 
 }
 .multiColumnSelect th:last-child {
@@ -1031,19 +1062,32 @@ table.formbuilder {
     line-height: 14px;
 }
 
-.multiColumnSelect td {
+.tundra.touchDevice .multiColumnSelect tr{
+    line-height: 1.5em;
+}
+
+.tundra.touchDevice .multiColumnSelect td {
     padding: 2px;
     border: 1px solid #c8c8c8;
     white-space: nowrap;
     cursor: pointer;
+    font-size: 1em;
 }
 .multiColumnSelect td:last-child {
     border-right: 0px;
 }
 
+.tundra.touchDevice .multiColumnSelect tr:active{
+    background-color: #60a1ea;
+    background: #60a1ea;
+    color:#fff;
+}
+
 
 .multiColumnSelectHover td {
-    background-color: #fdff89;
+    background-color: #60a1ea;
+    background: #60a1ea;
+    color:#fff;
 }
 
 .relaxedCondition tr {
@@ -3600,6 +3644,21 @@ table.draggedItem {
     color: #333;
 }
 
+.tundra.touchDevice .dijitMenuItem {
+    border-bottom: 1px solid #EAEAEA;
+    font-size: 1em;
+    line-height: 1.5em;
+    margin: 0;
+    font-family: '-apple-system','HelveticaNeue','Arial';
+    color: #333;
+}
+.tundra.touchDevice .dijitMenuItem:active {
+    background-color: #60a1ea;
+    background: #60a1ea;
+    color:#fff;
+}
+
+
 /* @end */
 
 /* @group beautiful buttons */
@@ -4311,16 +4370,19 @@ div[disabled='true'], div[disabled='disabled']{
     overflow: hidden;
 }
 .treeGridHeader{
-    height:20px;
     position:absolute;
     top:0;
     left:0;
     right:0;
 }
+.treeGridFooter{
+    position:absolute;
+    bottom:0;
+    left:0;
+    right:0;
+}
 .treeGridCenter{
     position:absolute;
-    top:21px;
-    bottom:16px;
     left:0;
     right:0;
     overflow:auto;
@@ -4346,15 +4408,24 @@ div[disabled='true'], div[disabled='disabled']{
     border-right:1px solid #efefef;
 }
 .treeGridLayout .treegrid .maincell.treecell{
-    background: #efefef;
 }
 
 .treeGridLayout .treeGridHeader .treecell{
     display: inline-block;
     border-bottom: 0px solid black;
     border-left: 1px solid #efefef;
-    background: silver;
+    background: #204174;
     color:#efefef;
+    line-height: 18px;
+    white-space: nowrap;
+    text-align: center;
+}
+.treeGridLayout .treeGridFooter .treecell{
+    display: inline-block;
+    border-bottom: 0px solid black;
+    border-left: 1px solid #efefef;
+    background: #F8CF00;
+    color:#204174;
     line-height: 18px;
     white-space: nowrap;
 }
@@ -4815,4 +4886,11 @@ div[disabled='true'], div[disabled='disabled']{
     height:0px;
     background:none;
     vertical-align:top;
+}
+
+
+.slotbar_toolbar .frameGridTitle{
+    color:#666;
+    font-weight: bold;
+    font-size: .9em;
 }

@@ -10,6 +10,7 @@ from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrstring import boolean
 from gnr.core.gnrbag import Bag
 from collections import OrderedDict
+from datetime import datetime
 import os
 
 SYSFIELDS_DEFAULT = OrderedDict([('id',True), ('ins',True), ('upd',True), 
@@ -59,7 +60,7 @@ class Table(object):
         table_data['name_plural'] = table_data['name_plural'] or table
         table_data['caption_field'] = table_data['caption_field'] or table_data['pkey']
         sysFields = table_data.pop('_sysFields')
-        columns = table_data.pop('_columns')
+        columns = table_data.pop('_columns') or Bag()
         config_db_node.replace("""def config_db(self,pkg):\n        tbl =  pkg.table('%s'%s)""" %(table,self.bagToArgString(table_data)))
         if sysFields and sysFields.pop('_enabled'):
             config_db_node.append('self.sysFields(tbl%s)' %self.bagToArgString(self._sysFieldsArguments(sysFields)))
@@ -269,22 +270,60 @@ class TableModuleEditor(BaseComponent):
     def columns_struct(self,struct):
         r = struct.view().rows()
         r.cell('name',width='10em',name='Name',edit=True)
-        
+
+    def tables_viewer_struct(self,struct):
+        r = struct.view().rows()
+        r.cell('name',width='15em',name='Name')
+        r.cell('model_change_ts',dtype='DH',width='10em',name='Mod. Update')
+        r.cell('resource_change_ts',dtype='DH',width='10em',name='Res. Update')
 
     def tablesModulesEditor(self,pane,storepath=None,datapath='.tablesFrame',project=None,package=None):
+        
         tablesframe = pane.bagGrid(frameCode='tablesModulesEditor',title='Tables',
                                                 storepath=storepath,
                                                 datapath=datapath,
-                                                struct=self.tables_struct,
-                                                grid_multiSelect=False,
-                                                pbl_classes=True,margin='2px',
-                                                grid_selected__modulepath='#FORM.currenModelModule',
-                                                addrow=True,delrow=True)
-        tablesframe.top.bar.replaceSlots('delrow','export,5,searchOn,delrow')
-        pane.dataRpc(storepath,self.table_editor_loadPackageTables,package=package,project=project,
-                _if='project&&package',_else='return new gnr.GnrBag();',
-                subscribe_tableModuleWritten=True)
+                                                struct=self.tables_viewer_struct,
+                                                pbl_classes=True,
+                                                #grid_multiSelect=False,
+                                                margin='2px',
 
+                                                addrow=True,delrow=True,
+                                                store_deleteRows="""
+                                                PUBLISH deleteSelectedPackageTables ={tables:pkeys}
+                                                """,
+                                                store_data='^#FORM._loadedPackageTables',
+                                                store_selfUpdate=True)
+        pane.dataRpc('dummy',self.table_editor_deletePackageTables,_if='tables',
+                    package=package.replace('^','='),project=project.replace('^','='),
+                    subscribe_deleteSelectedPackageTables=True,
+                    _onResult="PUBLISH reloadTableModules;")
+
+        tablesframe.grid.dataController("""var selectedIndex = grid.getSelectedRowidx();
+                                            var selectedPkeys = grid.getSelectedPkeys();
+                                            SET #FORM.selectedTables = selectedPkeys;
+                                            if(selectedIndex.length>1){
+                                                SET #FORM.currenModelModule = null;
+                                                SET #FORM.currenResourceModule = null;
+                                            }else{
+                                                var selectedRow = grid.rowByIndex(selectedIndex[0]);
+                                                SET #FORM.currenModelModule = selectedRow['_modulepath'];
+                                                SET #FORM.currenResourceModule = selectedRow['_thresourcepath'];
+                                            }
+                                            """,
+                                        selectedId='^.selectedId',grid=tablesframe.grid.js_widget)
+        tablesframe.top.bar.replaceSlots('delrow','export,5,searchOn,delrow')
+        bar = tablesframe.bottom.slotToolbar('*,makerRes,5,importLegacy,*')
+        bar.makerRes.slotButton('Make Resources',
+                            action='FIRE #FORM.instanceAction= event.shiftKey? "make_resources_force":"make_resources"')
+        bar.importLegacy.slotButton('Import Legacy',fire_import_legacy='#FORM.instanceAction')
+
+        pane.dataRpc('#FORM._loadedPackageTables',self.table_editor_loadPackageTables,
+                package=package,project=project,_if='project&&package',_else='return new gnr.GnrBag();',
+                subscribe_reloadTableModules=True,
+                _onCalling="""
+                SET #FORM.currenModelModule = null;
+                SET #FORM.currenResourceModule = null; 
+                """)
         form = tablesframe.grid.linkedForm(frameCode='tableModule',
                                  datapath='.tableForm',loadEvent='onRowDblClick',
                                  dialog_height='550px',dialog_width='1100px',
@@ -294,12 +333,13 @@ class TableModuleEditor(BaseComponent):
         self.tablesForm(form)
 
     def tablesForm(self,form):
-        saverpc = form.store.handler('save',rpcmethod=self.saveTableModule,fullRecord=True,package='=.record?package',project='=.record?project')
-        saverpc.addCallback("genro.publish('tableModuleWritten')")
+        saverpc = form.store.handler('save',rpcmethod=self.saveTableModule,
+                            fullRecord=True,package='=.record?package',project='=.record?project')
+        saverpc.addCallback("genro.publish('reloadTableModules')")
         form.store.handler('load',rpcmethod=self.loadTableModule,
-                            default_project='=#FORM/parent/#FORM.record.project_name',
-                            default_package='=#FORM/parent/#FORM.record.package_name')
-        form.top.slotToolbar('2,navigation,*,form_delete,form_add,form_revert,form_save,semaphore,2')
+                            project='=#FORM/parent/#FORM.record.project_name',
+                            package='=#FORM/parent/#FORM.record.package_name')
+        form.top.slotToolbar('2,navigation,*,form_add,form_revert,form_save,semaphore,2')
         form.dataController("this.form.setLocked(true)",_onStart=True)
         form.dataController("genro.dlg.alert('Wrong info','Table has wrong data');",save_failed='^#FORM.controller.save_failed')
         bc = form.center.borderContainer()
@@ -333,7 +373,7 @@ class TableModuleEditor(BaseComponent):
                                                                 }
                                                                 """,
                                                     addrow=True,delrow=True)
-        bottom.dataFormula('#FORM.columnsExcludedMoreAttr',"struct.getItem('#0.#0').digest('#a.field').join(',')",
+        bottom.dataFormula('#FORM.columnsExcludedMoreAttr',"struct.getItem('#0.#0').digest('#a.field').join(',')+',_newrecord'",
                                 struct='^#FORM.moduleColumnsStruct')
         bottom.multiValueEditor(exclude='^#FORM.columnsExcludedMoreAttr',nodeId='mve_moreattr')
         columnsframe.top.bar.replaceSlots('delrow','searchOn,2,delrow')
@@ -387,72 +427,89 @@ class TableModuleEditor(BaseComponent):
         if recInfo['_newrecord']:
             table = record['name']
         else:
-            project,package,old_table = recInfo['_pkey'].split('.')
+            old_table = recInfo['_pkey']
             table = record['name']
             if table!=old_table:
                 oldpath = os.path.join(os.path.join(self.getPackagePath(project,package),'model','%s.py' %old_table))
         filepath = os.path.join(os.path.join(self.getPackagePath(project,package),'model','%s.py' %table))    
-        newPkey = '%s.%s.%s' %(project,package,table)
         self.makeOneTable(filepath=filepath,table_data=record)
         if oldpath and os.path.exists(oldpath):
             os.remove(oldpath)
-        return (newPkey, resultAttr)
-
-        
+        return (table, resultAttr)
 
     @public_method
-    def loadTableModule(self,pkey=None,default_project=None,default_package=None,**kwargs):
+    def loadTableModule(self,pkey=None,project=None,package=None,**kwargs):
         if pkey=='*newrecord*':
             record = Bag()
             record['_sysFields'] = self.handleSysFields()
-            resultAttr = dict(_pkey=pkey,_newrecord=True,project=default_project,package=default_package)
+            resultAttr = dict(_pkey=pkey,_newrecord=True,project=project,package=package)
             return record,resultAttr
-        project,package,table = pkey.split('.')
+        table = pkey
         red = self.get_redbaron(os.path.join(os.path.join(self.getPackagePath(project,package),'model','%s.py' %table)))
-        config_db = red.find('def','config_db')
-        targs,tkwargs = self.parsBaronNodeCall(config_db.find('name','table').parent[2])
         resultAttr = dict(_pkey=pkey,_newrecord=False,project=project,package=package)
-        record = Bag(tkwargs)
+        record = Bag()
         record['name'] = table
         record['_sysFields'] = self.handleSysFields(red)
-        columnsvalue = Bag()
-        for colNode in red.find_all('name','column'):
-            cbag = self._loadColumnBag(colNode)
-            cbag['tag'] = 'column'
-            columnsvalue[cbag['name']] = cbag
-        for colNode in red.find_all('name','aliasColumn'):
-            cbag = self._getColBag(colNode,'relation_path')
-            cbag['tag'] = 'aliasColumn'
-            columnsvalue.setItem(cbag['name'],cbag,_customClasses='aliasColumnRow')
-        for colNode in red.find_all('name','formulaColumn'):
-            cbag = self._getColBag(colNode,'sql_formula')
-            cbag['tag'] = 'formulaColumn'
-            columnsvalue.setItem(cbag['name'],cbag,_customClasses='formulaColumnRow')
-        for colNode in red.find_all('name','pyColumn'):
-            cbag = self._getColBag(colNode,'py_method')
-            cbag['tag'] = 'pyColumn'
-            columnsvalue.setItem(cbag['name'],cbag,_customClasses='pyColumnRow')
-        record.setItem('_columns',columnsvalue,_sendback=True)
+        config_db = red.find('def','config_db')
+        if config_db:
+            targs,tkwargs = self.parsBaronNodeCall(config_db.find('name','table').parent[2])
+            record.update(tkwargs)
+            columnsvalue = Bag()
+            for colNode in red.find_all('name','column'):
+                cbag = self._loadColumnBag(colNode)
+                cbag['tag'] = 'column'
+                columnsvalue[cbag['name']] = cbag
+            for colNode in red.find_all('name','aliasColumn'):
+                cbag = self._getColBag(colNode,'relation_path')
+                cbag['tag'] = 'aliasColumn'
+                columnsvalue.setItem(cbag['name'],cbag,_customClasses='aliasColumnRow')
+            for colNode in red.find_all('name','formulaColumn'):
+                cbag = self._getColBag(colNode,'sql_formula')
+                cbag['tag'] = 'formulaColumn'
+                columnsvalue.setItem(cbag['name'],cbag,_customClasses='formulaColumnRow')
+            for colNode in red.find_all('name','pyColumn'):
+                cbag = self._getColBag(colNode,'py_method')
+                cbag['tag'] = 'pyColumn'
+                columnsvalue.setItem(cbag['name'],cbag,_customClasses='pyColumnRow')
+            record.setItem('_columns',columnsvalue,_sendback=True)
         return record,resultAttr
+
+
+    @public_method
+    def table_editor_deletePackageTables(self,tables=None,package=None,project=None):
+        packagepath = self.getPackagePath(project,package)
+        th_resource_basepath = os.path.join(packagepath,'resources','tables')
+        models_path = os.path.join(packagepath,'model')
+        for tablename in tables:
+            modulepath = os.path.join(models_path,'%s.py' %tablename)
+            if os.path.exists(modulepath):
+                os.remove(modulepath)
+            thresourcepath = os.path.join(th_resource_basepath,tablename,'th_%s.py' %tablename)
+            if os.path.exists(thresourcepath):
+                os.remove(thresourcepath)
 
     @public_method
     def table_editor_loadPackageTables(self,package=None,project=None):
         result = Bag()
-        models_path = os.path.join(self.getPackagePath(project,package),'model')
+        packagepath = self.getPackagePath(project,package)
+        th_resource_basepath = os.path.join(packagepath,'resources','tables')
+        models_path = os.path.join(packagepath,'model')
         for m in os.listdir(models_path):
             tablename,ext = os.path.splitext(m)
             if ext!='.py':
                 continue
             modulepath = os.path.join(models_path,m)
-            red = self.get_redbaron(modulepath)
-            config_db = red.find('def','config_db')
-            if not config_db:
-                continue
-            targs,tkwargs = self.parsBaronNodeCall(config_db.find('name','table').parent[2])
-            tablevalue = Bag(tkwargs)
+            resourcepath = os.path.join(th_resource_basepath,tablename,'th_%s.py' %tablename)
+            
+            tablevalue = Bag()
             tablevalue['name'] = tablename
-            tablevalue['_pkey'] = '%s.%s.%s' %(project,package,tablename)
+            tablevalue['_pkey'] = tablename
             tablevalue['_modulepath'] = modulepath
+            tablevalue['_thresourcepath'] = resourcepath
+            tablevalue['model_change_ts'] =  datetime.fromtimestamp(os.path.getmtime(modulepath))
+            if os.path.exists(resourcepath):
+                tablevalue['resource_change_ts'] =  datetime.fromtimestamp(os.path.getmtime(resourcepath))
+
             result[tablename] = tablevalue
         return result
 

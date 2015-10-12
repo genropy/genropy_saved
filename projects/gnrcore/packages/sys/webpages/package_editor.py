@@ -21,6 +21,7 @@ class GnrCustomWebPage(object):
     pageOptions={'openMenu':False,'enableZoom':False}
     js_requires ='package_editor/package_editor'
     css_requires ='package_editor/package_editor'
+    auth_main = 'admin'
 
     def windowTitle(self):
         return '!!Package editor'
@@ -88,7 +89,7 @@ class GnrCustomWebPage(object):
 
 
     def packageForm(self,form):
-        bar = form.top.slotToolbar('2,fbinfo,10,extdbcon,*,instanceActions,10')
+        bar = form.top.slotToolbar('2,fbinfo,10,extdbcon,*,dbsetup,10')
         fb = bar.fbinfo.formbuilder(cols=5,border_spacing='3px',datapath='.record')
         fb.textbox(value='^.project_name',validate_onAccept='SET .package_name=null;',validate_onReject='SET .package_name = null;',
                     validate_notnull=True,
@@ -130,20 +131,29 @@ class GnrCustomWebPage(object):
                         instance='^.record.instance_name',
                         tables='=.record.tables',
                         hidden='==!package || !project || !instance')
-        m = bar.instanceActions.dropDownButton('!!Tools',
-                                                hidden='^.record.instance_name?=!#v').menu(_class='smallMenu',action='FIRE .instanceAction = $1.code;')
-        m.menuLine('DB Setup',code='dbsetup')
-        m.menuLine('Make Resources',code='make_resources',disabled='^.record.package_name?!=#v')
-        m.menuLine('Import Legacy',code='import_legacy')
-        bar.dataRpc('dummy',self.actionOnInstance,instance='=.record.instance_name',package='=.record.package_name',_if='instance',
-                        _lockScreen=True,action='^.instanceAction')
+        bar.dbsetup.slotButton('DbSetup',fire_dbsetup='#FORM.instanceAction',disabled='^.record.instance_name?=!#v')
+        bar.dataRpc('dummy',self.actionOnInstance,
+                            instance='=.record.instance_name',
+                            package='=.record.package_name',_if='instance',
+                            selectedTables='=#FORM.selectedTables',
+                            _ask="""You are going to overwrite current resources. Do you want to proceed anyway?""",
+                            _ask_if='action=="make_resources_force"',
+                        _lockScreen=True,action='^#FORM.instanceAction',
+                        _onResult="""
+                        var currenModelModule = GET #FORM.currenModelModule;
+                        var currenResourceModule = GET #FORM.currenResourceModule;
+                        PUT #FORM.currenModelModule = null;
+                        PUT #FORM.currenResourceModule = null;
+                        SET #FORM.currenModelModule = currenModelModule;
+                        SET #FORM.currenResourceModule = currenResourceModule;
+                        """)
         bc =form.center.borderContainer()
         form.dataController('bc.setHiderLayer(!package_name,{message:message})',
                             message='!!Please select or create a project<br/>and select or create a package',
                             bc=bc,package_name='^.record.package_name')
-        self.tablesModulesEditor(bc.contentPane(region='top',height='200px',splitter=True),storepath='#FORM.record.tables',
+        self.tablesModulesEditor(bc.contentPane(region='left',width='380px',splitter=True),storepath='#FORM.record.tables',
                                 project='=.record.project_name',package='^.record.package_name')
-        self.modelSource(bc.contentPane(region='center',border_top='1px solid silver',overflow='hidden'))
+        self.sourceViewer(bc.tabContainer(region='center',margin='2px'))
 
     @public_method
     def dbSetupOnInstance(self,instance=None):
@@ -153,11 +163,11 @@ class GnrCustomWebPage(object):
             destdb.model.applyModelChanges()
 
     @public_method
-    def actionOnInstance(self,instance=None,action=None,package=None,**kwargs):
+    def actionOnInstance(self,instance=None,action=None,package=None,selectedTables=None,**kwargs):
         app = GnrApp(instance) #it does not work in uwsgi fix it
-        if action=='make_resources':
-            print 'making resources'
-            ThPackageResourceMaker(app,package=package,menu=True).makeResources()
+        if action.startswith('make_resources'):
+            ThPackageResourceMaker(app,package=package,menu=True,tables=selectedTables,
+                                    force=action=='make_resources_force').makeResources()
         if action in ('dbsetup','import_legacy'):
             destdb = app.db
             if destdb.model.check():
@@ -168,18 +178,10 @@ class GnrCustomWebPage(object):
 
 
 
-    def modelSource(self,pane):
-        pane.codeEditor(value='^#FORM.currenModelModule')
-
-    def tables_struct(self,struct):
-        r = struct.view().rows()
-        #r.cell('legacy_name',width='10em',name='Legacy Name',hidden='^#FORM.recort.tables?h=!#v')
-        r.cell('name',width='10em',name='Name')
-        r.cell('pkey',width='10em',name='Pkey')
-        r.cell('name_long',width='20em',name='Name long')
-        r.cell('name_plural',width='20em',name='Name plural')
-        r.cell('caption_field',width='20em',name='Caption field')
-        r.cell('status',width='20em',name='Import status')
+    def sourceViewer(self,tc):
+        tc.contentPane(title='Model',overflow='hidden').codeEditor(value='^#FORM.currenModelModule')
+        resourcePane = tc.contentPane(title='TH Resource',overflow='hidden')
+        resourcePane.codeEditor(value='^#FORM.currenResourceModule')
 
     def getFakeApplication(self,project,package):
         custom_config = Bag()

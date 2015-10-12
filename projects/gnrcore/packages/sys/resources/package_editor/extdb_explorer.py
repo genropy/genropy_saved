@@ -54,7 +54,7 @@ class ExtDbExplorer(BaseComponent):
                     kwargs['data'] = columns
                     """,
                     _onResult="""
-                    genro.publish('tableModuleWritten');
+                    genro.publish('reloadTableModules');
                     genro.publish('closeDbConnectionDialog');""")
         bar = frame.bottom.slotBar('*,cancel,confirm,5',margin_bottom='2px',_class='slotbar_dialog_footer')
         bar.cancel.slotButton("Cancel",action="genro.publish('closeDbConnectionDialog');",dlg=dialog.js_widget)
@@ -222,6 +222,7 @@ class ExtDbExplorer(BaseComponent):
             tables = src['packages'][pkg]['tables']
             if not tables:
                 continue
+            tables.sort('#k')
             for table,tblattr,tblval in tables.digest('#k,#a,#v'):
                 tblattr = dict(tblattr)
                 tblattr['checked'] = 'disabled:on' if table.lower() in existing_tables else False

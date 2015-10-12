@@ -71,6 +71,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.auto_polling = -1;
         this.user_polling = -1;
         this.isDeveloper = objectPop(this.startArgs,'isDeveloper');
+        this.isMobile = objectPop(this.startArgs,'isMobile');
         this.theme = {};
         this.dojo = dojo;
         this.debugged_rpc = {};
@@ -151,7 +152,7 @@ dojo.declare('gnr.GenroClient', null, {
 
         this.dom = new gnr.GnrDomHandler(this);
         this.vld = new gnr.GnrValidator(this);
-        this.wsk = new gnr.GnrWebSocketHandler(this,this.websockets_url,{debug:false});        
+        this.wsk = new gnr.GnrWebSocketHandler(this,this.websockets_url,{debug:false});      
        //var onerrorcb = function(errorMsg,url,linenumber){
        //    genro.onError(errorMsg,url,linenumber);
        //};
@@ -406,11 +407,13 @@ dojo.declare('gnr.GenroClient', null, {
         this.dlg.createStandardMsg(document.body);
         this.contextIndex = {};
         this.isMac = dojo.isMac != undefined ? dojo.isMac : navigator.appVersion.indexOf('Macintosh') >= 0;
-        this.isMobile = ( (navigator.appVersion.indexOf('iPad') >= 0 ) || (navigator.appVersion.indexOf('iPhone') >= 0));
         this.isChrome = ( (navigator.appVersion.indexOf('Chrome') >= 0 ));
         //genro.timeIt('** getting main **');
         this.wsk.create();
         this.root_page_id = null;
+        if (this.isMobile) {
+            this.mobile = new gnr.GnrMobileHandler(this);  
+        }
         dojo.subscribe('debugstep',
                        function(data){genro.dev.onDebugstep(data)}
                      )
@@ -561,9 +564,7 @@ dojo.declare('gnr.GenroClient', null, {
 
 
         //genro.dom.preventGestureBackForward();
-        if (this.isMobile) {
-            genro.dom.startTouchDevice();
-        }
+ 
         genro.callAfter(function() {
             if(genro.root_page_id){
                 genro._connectToParentIframe(window.frameElement);

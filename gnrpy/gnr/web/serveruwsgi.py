@@ -109,9 +109,8 @@ class Server(object):
     
     def __init__(self, site_name=None):
         self.options = attrDict()
-        self.gnr_config = getGnrConfig()
+        self.gnr_config = getGnrConfig(set_environment=True)
         self.config_path = gnrConfigPath()
-        self.set_environment()
         self.site_name = site_name
         if self.site_name:
             if not self.gnr_config:
@@ -150,11 +149,6 @@ class Server(object):
                 self._code_monitor.add_reloader_callback(self.gnr_site.on_reloader_restart)
         return self._code_monitor
 
-    def set_environment(self):
-        for var, value in self.gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):
-            var = var.upper()
-            if not os.getenv(var):
-                os.environ[str(var)] = str(value)
 
     def init_options(self):
         self.siteconfig = self.get_config()

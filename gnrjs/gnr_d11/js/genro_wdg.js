@@ -820,19 +820,28 @@ dojo.declare("gnr.GridEditor", null, {
             }
         }
         this.widgetRootNode.attr.datapath = sourceNode.absDatapath(sourceNode.attr.storepath);
-        var editOn = this.widgetRootNode.attr.editOn || 'onCellDblClick';
-        editOn = stringSplit(editOn, ',', 2);
-        var modifier = editOn[1];
         var _this = this;
-        dojo.connect(grid, editOn[0], function(e) {
-            if (genro.wdg.filterEvent(e, modifier)) {
+        if(genro.isMobile){
+            sourceNode.subscribe('doubletap',function(info){
+                var e = info.event;
                 if (_this.enabled() && _this.editableCell(e.cellIndex,e.rowIndex,true) && !grid.gnrediting) {
                     _this.startEdit(e.rowIndex, e.cellIndex,e.dispatch);
-
                 }
-            }
-        });
+            })
+        }else{
+            var editOn = this.widgetRootNode.attr.editOn || 'onCellDblClick';
+            editOn = stringSplit(editOn, ',', 2);
+            var modifier = editOn[1];
+            dojo.connect(grid, editOn[0], function(e) {
+                if (genro.wdg.filterEvent(e, modifier)) {
+                    if (_this.enabled() && _this.editableCell(e.cellIndex,e.rowIndex,true) && !grid.gnrediting) {
+                        _this.startEdit(e.rowIndex, e.cellIndex,e.dispatch);
+                    }
+                }
+            });
+        }
     },
+    
     onFormatCell:function(cell, inRowIndex,renderedRow){
         if (this.invalidCell(cell, inRowIndex)) {
             cell.customClasses.push('invalidCell');

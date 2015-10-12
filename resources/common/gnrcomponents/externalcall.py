@@ -26,6 +26,20 @@ from dateutil import parser as dtparser
 import datetime
 from decimal import Decimal
 from gnr.core.gnrdecorator import public_method
+from xmlrpclib import dumps as xmlrpcdumps,loads as xmlrpcloads, Marshaller
+
+def dump_decimal(self,value, write):
+    write("<value><double>")
+    write(str(value))
+    write("</double></value>\n")
+
+def dump_date(self,value, write):
+    write("<value><dateTime.iso8601>")
+    write(value.isoformat())
+    write("</dateTime.iso8601></value>\n")
+
+Marshaller.dispatch[Decimal] = dump_decimal
+Marshaller.dispatch[datetime.date] = dump_date
 
 class BaseRpc(BaseComponent):
 
@@ -50,7 +64,10 @@ class BaseRpc(BaseComponent):
         if 'pagetemplate' in kwargs:
             kwargs.pop('pagetemplate')
         if args:
-            method = self.getPublicMethod('rpc',args[0])
+            try:
+                method = self.getPublicMethod('rpc',args[0])
+            except (GnrUserNotAllowed, GnrBasicAuthenticationError) as err:
+                return Bag(dict(error=str(err))).toXml()
             if not method:
                 return self.rpc_error(*args, **kwargs)
             args = list(args)
@@ -78,7 +95,10 @@ class NetBagRpc(BaseComponent):
         if 'pagetemplate' in kwargs:
             kwargs.pop('pagetemplate')
         if args:
-            method = self.getPublicMethod('rpc','netbag_%s' %args[0])
+            try:
+                method = self.getPublicMethod('rpc','netbag_%s' %args[0])
+            except (GnrUserNotAllowed, GnrBasicAuthenticationError) as err:
+                return Bag(dict(error=str(err))).toXml()
             if not method:
                 return self.rpc_error(*args, **kwargs)
             args = list(args)
@@ -120,19 +140,15 @@ class NetBagRpc(BaseComponent):
 class XmlRpc(BaseComponent):
     skip_connection = True
     def rootPage(self, *args, **kwargs):
-        methodCall=Bag(self.request.body)['methodCall']
-
-        method=methodCall['methodName']
+        args,method = xmlrpcloads(self.request.body,use_datetime=True)
         if not method:
             return self.returnFault(-1,'Missing methodName')
-            
         method=method.replace('.','_')
         try:
             handler = self.getPublicMethod('rpc',method)
         except GnrBasicAuthenticationError, e:
             return self.returnFault(-2,str(e))
         except GnrUserNotAllowed,e:
-            print 'nn sono ammesso'
             return self.returnFault(-2,'User not allowed for method %s' %method)
         except Exception,e:
             return self.returnFault(-2,str(e))
@@ -140,17 +156,12 @@ class XmlRpc(BaseComponent):
             return self.returnFault(-2,'Not existing method:%s' % method)
         try:
             kwargs = dict()
-            methodResponse=Bag()
-            args=[]
-            params=methodCall['params']
-            if params:
-                args=self.decodeItems(params.digest('value'))
-                if args and isinstance(args[-1],dict):
-                    kwargs = args.pop()
+            args = list(args)
+            if args and isinstance(args[-1],dict):
+                kwargs = args.pop()
             result = handler(*args, **kwargs)
-            encodedResult = self.encodeValue(result)
-            methodResponse['methodResponse.params.param.value']=encodedResult
-            return methodResponse.toXml(omitRoot=True)
+            xmlRpcResult = xmlrpcdumps((result,),encoding='UTF-8',methodresponse=True,allow_none=True)
+            return xmlRpcResult
         except Exception,e:
             import sys,os
             tb = sys.exc_info()[2]
@@ -164,72 +175,6 @@ class XmlRpc(BaseComponent):
             funcname = co.co_name
             faultString="""Error in module '%s' calling method '%s' at line %i : %s""" %(module,funcname,lineno,str(e))
             return self.returnFault(1,faultString)
-        
-    def decodeItems(self,items):
-        result=[]
-        for item in items:
-            result.append(self.decodeValue(item))
-        return result
-        
-    def decodeValue(self,value):
-        t,v = value.items()[0]
-        converter=getattr(self,'decode_%s'%t.replace('.','_'), None)
-        if converter:
-            v= converter(v)
-        else:
-            print 'missing converter:' ,t,v
-        return v
-        
-    def decode_string(self,v):
-        return v
-     
-    def decode_int(self,v):
-        return int(v)
-        
-    def decode_boolean(self,v):
-        return bool(int(v))
-        
-    def decode_double(self,v):
-        return float(v)
-        
-    def decode_dateTime_iso8601(self,v):
-        return dtparser.parse(v)
-        
-    def decode_array(self,v):
-        return self.decodeItems(v['data'].values())
-   
-    def decode_struct(self,struct):
-        result=dict()
-        for v in struct.values():
-            result[v['name']]=self.decodeValue(v['value'])
-        return result
-
-    def encodeValue(self,value):
-        result=Bag()
-        if value is None:
-            result['nil'] = ''
-        if isinstance(value,basestring):
-            result['string']= value
-        elif isinstance(value,bool):
-            result['boolean']= '1' if value else '0'
-        elif isinstance(value,int):
-            result['int']= str(value)
-        elif isinstance(value,float) or isinstance(value,Decimal):
-            result['double']= str(value)
-        elif isinstance(value,datetime.datetime) or isinstance(value,datetime.date):
-            result[['dateTime.iso8601']]= value.isoformat()
-        elif isinstance(value,list) or isinstance(value,tuple):
-            data=Bag()
-            for item in value:
-                data.addItem('value',self.encodeValue(item))
-            result['data.array']= data
-            
-        elif isinstance(value,dict):
-            struct=Bag()
-            for k,v in value.items():
-                struct.addItem('member',Bag(dict(name=k,value=self.encodeValue(v))))
-            result['struct']= struct
-        return result
 
     def returnFault(self,faultCode=0,faultString=''):
         methodResponse=Bag()

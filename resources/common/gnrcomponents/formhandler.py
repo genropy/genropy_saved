@@ -103,7 +103,23 @@ class FormHandler(BaseComponent):
         gridattr = grid.attributes
         gridattr['_linkedFormId']=formId
         gridsubscribers = dict()
-        gridattr['connect_%s' %loadEvent] = """
+
+        
+        if self.isMobile:
+            gridattr['selfsubscribe_doubletap'] = """
+                            var rowIndex= $1.event.rowIndex;
+                            genro.callAfter(function(){
+                                var selectedRows = this.widget.getSelectedRowidx() || [];
+                                if(rowIndex>-1){
+                                    this.publish('editrow',{pkey:this.widget.rowIdByIndex(rowIndex)});
+                                }else{
+                                    this.publish('editrow',{pkey:'*norecord*'});
+                                }
+                            },100,this,'editselectedrow');
+
+            """
+        else:
+            gridattr['connect_%s' %loadEvent] = """
                                             var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
                                             genro.callAfter(function(){
                                                 var selectedRows = this.widget.getSelectedRowidx() || [];
@@ -114,6 +130,7 @@ class FormHandler(BaseComponent):
                                                 }
                                             },100,this,'editselectedrow');
                                             """
+
         gridattr['selfsubscribe_addrow'] = """ var newrecord_kw = {pkey:"*newrecord*"};
                                                 if($1 && $1.opt){
                                                     objectUpdate(newrecord_kw,objectPop($1,'opt'));

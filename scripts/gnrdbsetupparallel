@@ -9,6 +9,7 @@ from gnr.core.gnrsys import expandpath
 import sys
 import logging
 from gnr.core.gnrlog import enable_colored_logging
+from gnr.app.gnrconfig import getGnrConfig
 
 enable_colored_logging()
 
@@ -99,25 +100,8 @@ def instance_name_to_path(gnr_config, instance_name):
                 'Error: no instance named %s found' % instance_name)
 
 
-def load_gnr_config():
-    if hasattr(options, 'config_path') and options.config_path:
-        config_path = options.config_path
-    else:
-        if sys.platform == 'win32':
-            config_path = '~\gnr'
-        else:
-            config_path = '~/.gnr'
-    config_path = expandpath(config_path)
-    if os.path.isdir(config_path):
-        return Bag(config_path)
-    else:
-        return Bag()
 
-def set_environment(gnr_config):
-    for var, value in gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):
-        var = var.upper()
-        if not os.getenv(var):
-            os.environ[var] = str(value)
+
 
 def get_app_path_and_store():
     storename = None
@@ -128,20 +112,21 @@ def get_app_path_and_store():
             return instance_path
         else:
             raise Exception("No valid instance provided")
-    gnr_config = load_gnr_config()
-    set_environment(gnr_config)
+    if hasattr(options, 'config_path') and options.config_path:
+        config_path = options.config_path
+    else:
+        config_path = None
+    gnr_config = getGnrConfig(config_path=config_path, set_environment=True)
     instance_name = options.instance or args[0]
     if instance_name:
         if '.' in instance_name:
             instance_name, storename = instance_name.split('.')
-        gnr_config = load_gnr_config()
         instance_path = instance_name_to_path(gnr_config, instance_name)
         if os.path.isdir(instance_path):
             return instance_path, storename
         else:
             raise Exception("No valid instance provided")
     if options.site:
-        gnr_config = load_gnr_config()
         site_path = site_name_to_path(gnr_config, options.site)
         if not site_path:
             site_path = os.path.join(gnr_config['gnr.environment_xml.sites?path'] or '', options.site)

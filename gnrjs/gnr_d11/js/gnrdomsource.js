@@ -115,6 +115,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
 
     getTriggerReason:function(pathToCheck,kw){
+        if(kw.reason == 'autocreate'){
+            return;
+        }
         if(!pathToCheck){
             return;
         }
@@ -154,7 +157,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 }
             }
             else {
-                if (kw.reason != this) {
+                if (kw.reason != this ) {
                     this.updateAttrBuiltObj(prop, kw, trigger_reason);
                 }
             }
