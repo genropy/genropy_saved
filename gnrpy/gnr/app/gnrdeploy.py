@@ -17,7 +17,7 @@ class PathResolver(object):
             project='projects')
             
     def __init__(self, gnr_config=None):
-        self.gnr_config = gnr_config or self.getGnrConfig()
+        self.gnr_config = gnr_config or getGnrConfig()
         setEnvironment(self.gnr_config)
         
         
