@@ -382,8 +382,7 @@ class Server(object):
             self.config_path = self.options.config_path
         else:
             self.config_path = gnrConfigPath()
-        self.gnr_config = getGnrConfig(config_path = self.config_path)
-        self.set_environment(self.gnr_config)
+        self.gnr_config = getGnrConfig(config_path=self.config_path, set_environment=True)
         
         self.site_name = self.options.site_name or (self.args and self.args[0]) or os.getenv('GNR_CURRENT_SITE')
         self.remote_db = ''
@@ -423,13 +422,6 @@ class Server(object):
         raise ServerException(
                 'Error: no site named %s found' % site_name)
 
-
-
-    def set_environment(self, gnr_config=None):
-        for var, value in gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):
-            var = var.upper()
-            if not os.getenv(var):
-                os.environ[str(var)] = str(value)
 
     def init_options(self):
         self.siteconfig = self.get_config()

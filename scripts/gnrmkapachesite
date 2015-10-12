@@ -35,21 +35,12 @@ def site_name_to_path(site_name, gnr_config=None):
     print 'Error: no site named %s found'
 
 
-
-
-def set_environment(gnr_config):
-    for var, value in gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):
-        var = var.upper()
-        if not os.getenv(var):
-            os.environ[str(var)] = str(value)
-
 def build_apache_site(site_name, apache_path='/etc/apache2/sites-available/', 
                     process_name=None, user=None, filename=None,
                       group=None, tmp_path='/tmp', threads=4,
                       admin_mail=None, port=80, domain=None,
                       processes=8, maximum_requests=700, base_url='/', apache24=False):
-    gnr_config = getGnrConfig()
-    set_environment(gnr_config)
+    gnr_config = getGnrConfig(set_environment=True)
     site_path = site_name_to_path(site_name, gnr_config=gnr_config)
     if os.path.exists(os.path.join(site_path,'root.wsgi')):
         script_name = 'root.wsgi'

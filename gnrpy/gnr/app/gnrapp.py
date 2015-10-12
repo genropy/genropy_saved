@@ -578,9 +578,8 @@ class GnrApp(object):
     def __init__(self, instanceFolder=None, custom_config=None, forTesting=False, 
                 debug=False, restorepath=None,**kwargs):
         self.aux_instances = {}
-        self.gnr_config = getGnrConfig()
+        self.gnr_config = getGnrConfig(set_environment=True)
         self.debug=debug
-        self.set_environment()
         self.remote_db = None
         if instanceFolder:
             if ':' in instanceFolder:
@@ -629,16 +628,6 @@ class GnrApp(object):
     def get_modulefinder(self, path_entry):
         """TODO"""
         return GnrModuleFinder(path_entry,self)
-        
-    def set_environment(self):
-        """TODO"""
-        environment_xml = self.gnr_config['gnr.environment_xml']
-        if environment_xml:
-            for var, value in environment_xml.digest('environment:#k,#a.value'):
-                var = var.upper()
-                if not os.getenv(var):
-                    os.environ[var] = str(value)
-                    
         
     def load_instance_menu(self):
         """TODO"""

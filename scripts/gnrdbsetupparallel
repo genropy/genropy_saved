@@ -101,11 +101,7 @@ def instance_name_to_path(gnr_config, instance_name):
 
 
 
-def set_environment(gnr_config):
-    for var, value in gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):
-        var = var.upper()
-        if not os.getenv(var):
-            os.environ[var] = str(value)
+
 
 def get_app_path_and_store():
     storename = None
@@ -120,8 +116,7 @@ def get_app_path_and_store():
         config_path = options.config_path
     else:
         config_path = None
-    gnr_config = getGnrConfig(config_path = config_path)
-    set_environment(gnr_config)
+    gnr_config = getGnrConfig(config_path=config_path, set_environment=True)
     instance_name = options.instance or args[0]
     if instance_name:
         if '.' in instance_name:
