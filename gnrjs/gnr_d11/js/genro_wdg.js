@@ -1062,6 +1062,7 @@ dojo.declare("gnr.GridEditor", null, {
         this.grid.updateCounterColumn();
         this.updateStatus();
     },
+
     getNewRowDefaults:function(externalDefaults){
         if(!this.editorPars){
             return externalDefaults;
@@ -1086,7 +1087,7 @@ dojo.declare("gnr.GridEditor", null, {
                     if(result[rcol]){
                         hcols = [];
                         for(var j in cellmap){
-                            if(cellmap[j].relating_column==rcol && result[cellmap[j].field_getter]==undefined){
+                            if(cellmap[j].relating_column==rcol && result[cellmap[j].field_getter]===undefined){
                                 hcols.push(cellmap[j].related_column);
                             }
                         }
@@ -1104,10 +1105,15 @@ dojo.declare("gnr.GridEditor", null, {
             if(queries.len()>0){
                 var sourceNode = this.grid.sourceNode;
                 var remoteDefaults = genro.serverCall('app.getMultiFetch',{'queries':queries,_sourceNode:sourceNode},null,null,'POST');
+                var node,keyAttr;
                 for(var k in cellmap){
                     rcol = cellmap[k].relating_column;
                     if (rcol){
-                        result[cellmap[k].field_getter] = remoteDefaults.getItem(rcol+'.#0?'+cellmap[k].related_column.replace(/\W/g, '_'));
+                        node = remoteDefaults.getNode(rcol+'.#0');
+                        keyAttr = cellmap[k].related_column.replace(/\W/g, '_');
+                        if(node && keyAttr in node.attr){
+                            result[cellmap[k].field_getter] = node.attr[keyAttr];
+                        }
                     }
                 }
             }
@@ -1115,6 +1121,7 @@ dojo.declare("gnr.GridEditor", null, {
             return result;
         }
     },
+
     startEditRemote:function(n,colname,rowIndex){
         var rowData = n.getValue();
         var rowId = this.grid.rowIdByIndex(rowIndex);
