@@ -834,7 +834,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         kw.height = kw.height || '400px';
         kw.width = kw.width || '600px';
         var palette = sourceNode._('PalettePane',kw);
-        var bc = palette._('BorderContainer')
+        var bc = palette._('BorderContainer',{_lazyBuild:true})
         var left = bc._('BorderContainer',{region:'left',drawer:'close',width:'300px'});
         gnrwdg.matchGrid(left)
         var frame = bc._('FramePane',{frameCode:frameCode,region:'center'});
