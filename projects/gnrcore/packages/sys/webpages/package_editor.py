@@ -136,16 +136,9 @@ class GnrCustomWebPage(object):
                             instance='=.record.instance_name',
                             package='=.record.package_name',_if='instance',
                             selectedTables='=#FORM.selectedTables',
-                            _ask="""You are going to overwrite current resources. Do you want to proceed anyway?""",
-                            _ask_if='action=="make_resources_force"',
                         _lockScreen=True,action='^#FORM.instanceAction',
                         _onResult="""
-                        var currenModelModule = GET #FORM.currenModelModule;
-                        var currenResourceModule = GET #FORM.currenResourceModule;
-                        PUT #FORM.currenModelModule = null;
-                        PUT #FORM.currenResourceModule = null;
-                        SET #FORM.currenModelModule = currenModelModule;
-                        SET #FORM.currenResourceModule = currenResourceModule;
+                        PUBLISH reloadTableModules;
                         """)
         bc =form.center.borderContainer()
         form.dataController('bc.setHiderLayer(!package_name,{message:message})',
@@ -166,7 +159,7 @@ class GnrCustomWebPage(object):
     def actionOnInstance(self,instance=None,action=None,package=None,selectedTables=None,**kwargs):
         app = GnrApp(instance) #it does not work in uwsgi fix it
         if action.startswith('make_resources'):
-            ThPackageResourceMaker(app,package=package,menu=True,tables=selectedTables,
+            ThPackageResourceMaker(app,package=package,menu=not selectedTables,tables=selectedTables,
                                     force=action=='make_resources_force').makeResources()
         if action in ('dbsetup','import_legacy'):
             destdb = app.db
