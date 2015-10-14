@@ -27,9 +27,11 @@ from gnr.core import gnrstring
 from gnr.core.gnrdate import decodeOneDate, decodeDatePeriod
 from decimal import Decimal
 from dateutil.parser import parse as dateutil_parse
+import pytz.reference
+local_tnz = pytz.reference.LocalTimezone()
+UTC_OFFSET = -local_tnz.utcoffset(datetime.datetime.now())
 
 ISO_MATCH = re.compile(r'\d{4}\W\d{1,2}\W\d{1,2}')
-UTC_OFFSET = datetime.datetime.utcnow() - datetime.datetime.now()
 
 class GnrMixinError(Exception):
     pass
