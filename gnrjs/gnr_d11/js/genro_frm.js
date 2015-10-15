@@ -773,7 +773,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         controllerData.setItem('is_newrecord',this.newRecord,null,{lazySet:true});
         controllerData.setItem('loading',false,null,{lazySet:true});
         var loadedPkey = (this.getCurrentPkey() || '*norecord*');
-        setTimeout(function(){controllerData.fireItem('loaded',loadedPkey);},1);
+        setTimeout(function(){
+            controllerData.fireItem('loaded',loadedPkey);
+            that._reloadingAfterSave = false;
+        },1);
         this.updateStatus();
         this.setOpStatus();
         this.currentFocused = null;
@@ -1019,6 +1022,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                         that.store.duplicateRecord(resultDict.savedPkey, kw.howmany);
                     }else{
                         that.setCurrentPkey(destPkey);
+                        that._reloadingAfterSave = true;
                         if(that.store){
                             that.doload_store({'destPkey':destPkey,'onReload':onReload});
                         }else{
