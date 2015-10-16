@@ -159,7 +159,7 @@ class GnrCustomWebPage(object):
     def actionOnInstance(self,instance=None,action=None,package=None,selectedTables=None,**kwargs):
         app = GnrApp(instance) #it does not work in uwsgi fix it
         if action.startswith('make_resources'):
-            ThPackageResourceMaker(app,package=package,menu=not selectedTables,tables=selectedTables,
+            ThPackageResourceMaker(app,package=package,menu=True,tables=selectedTables,
                                     force=action=='make_resources_force').makeResources()
         if action in ('dbsetup','import_legacy'):
             destdb = app.db

@@ -1492,7 +1492,7 @@ class RelationTreeResolver(BagResolver):
         for label, relpars, relcol in manyrels:
             sch, tbl, col = relpars['many_relation'].split('.')
             schtbl = '%s_%s' % (sch, tbl)
-            if (len(cols) == 1 and cols[0].endswith('_id')):
+            if (len(cols) == 1 and cols[0].name.endswith('_id')):
                 relmode = '*M'
             else:
                 relmode = '*m'
