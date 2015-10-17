@@ -169,7 +169,8 @@ class ExtDbExplorer(BaseComponent):
                     colname = colattr['name'].lower()
                     b = Bag(dict(name=colname,legacy_name=legacy_name,
                                                         name_long=None,dtype=colattr.get('dtype'),
-                                                        size=colattr.get('size'),indexed=colattr.get('indexed'),
+                                                        size=str(colattr.get('size')) if colattr.get('size') else None,
+                                                        indexed=colattr.get('indexed'),
                                                         unique=colattr.get('unique')))
                     columns_bag.setItem(colname,b)
                     if colattr.get('relate_to'):
