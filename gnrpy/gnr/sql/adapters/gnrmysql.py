@@ -81,8 +81,8 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         #kwargs['connection_factory'] = GnrDictConnection # build a DictConnection: provides cursors accessible by col number or col name
         return MySQLdb.connect(**kwargs)
 
-    def adaptSqlName(self,name):
-        return '`%s`' %name 
+    #def adaptSqlName(self,name):
+    #    return '`%s`' %name 
 
     def prepareSqlText(self, sql, kwargs):
         """Change the format of named arguments in the query from ':argname' to '%(argname)s'.
