@@ -31,6 +31,7 @@ import thread
 
 from time import time
 from datetime import timedelta
+from dateutil.tz import tzlocal
 from gnr.web._gnrbasewebpage import GnrBaseWebPage
 from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip,boolean,asDict
 from mako.lookup import TemplateLookup
@@ -969,7 +970,7 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['filename'] = self.pagename
         arg_dict['pageMode'] = 'wsgi_10'
         arg_dict['baseUrl'] = self.site.home_uri
-        kwargs['servertime'] = datetime.datetime.now()
+        kwargs['servertime'] = datetime.datetime.now(tzlocal())
         kwargs['websockets_url'] = '/websocket' if self.wsk else None
         favicon = self.site.config['favicon?name']
         google_fonts = getattr(self,'google_fonts',None)
