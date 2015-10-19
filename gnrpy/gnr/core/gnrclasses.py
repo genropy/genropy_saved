@@ -27,10 +27,7 @@ from gnr.core import gnrstring
 from gnr.core.gnrdate import decodeOneDate, decodeDatePeriod
 from decimal import Decimal
 from dateutil.parser import parse as dateutil_parse
-import pytz.reference
-local_tnz = pytz.reference.LocalTimezone()
-UTC_OFFSET = -local_tnz.utcoffset(datetime.datetime.now())
-
+from dateutil.tz import tzlocal
 ISO_MATCH = re.compile(r'\d{4}\W\d{1,2}\W\d{1,2}')
 
 class GnrMixinError(Exception):
@@ -359,7 +356,7 @@ class GnrClassCatalog(object):
 
     def serialize_datetime(self,ts):
         if not ts.tzinfo:
-            ts += UTC_OFFSET
+            ts = ts.replace(tzinfo=tzlocal())
         return ts.isoformat()
         
     def parse_date(self, txt, workdate=None):
