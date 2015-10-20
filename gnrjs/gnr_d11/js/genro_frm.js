@@ -1021,8 +1021,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     }else if(destPkey=='*duplicate*'){
                         that.store.duplicateRecord(resultDict.savedPkey, kw.howmany);
                     }else{
+                        that._reloadingAfterSave = (that.getCurrentPkey()==destPkey);
                         that.setCurrentPkey(destPkey);
-                        that._reloadingAfterSave = true;
                         if(that.store){
                             that.doload_store({'destPkey':destPkey,'onReload':onReload});
                         }else{

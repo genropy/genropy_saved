@@ -981,7 +981,6 @@ dojo.declare("gnr.GridEditor", null, {
     saveChangedRows:function(){
         var that = this;
         var changeset = this.getChangeset(true);
-        console.log('changeset',changeset)
         var sourceNode = this.grid.sourceNode;
         if(changeset.len()>0){
             that.grid.updateRowCount();
