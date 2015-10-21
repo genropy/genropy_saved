@@ -1625,7 +1625,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
 
     gnrwdg_updateScroll:function(){
         var that = this;
-        dojo.query('.treeerow_viewport',this.layoutDomNode).forEach(function(n){
+        dojo.query('.treeerow_viewport',this.layoutNode.domNode).forEach(function(n){
                             n.style.overflow = 'scroll'
                             n.scrollLeft = that.currentScroll;
                             n.style.overflow = 'hidden'
