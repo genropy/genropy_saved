@@ -1027,67 +1027,41 @@ table.formbuilder {
 
 /* @end */
 
+
 /* @group MultiColumnSelect */
 
 .multiColumnSelect table {
     border-collapse: collapse;
+    font-size: 10px;
     background-color: #f3f3f3; /*width: 100%;*/
 }
 
 .multiColumnSelect {
     background-color: #f3f3f3;
-	overflow:hidden;
+    overflow:hidden;
 }
 
 .multiColumnSelect th {
     padding: 2px;
-    padding-left: 3px;
-    border: 1px solid #c8c8c8;
-    border-top: 0px;
+    border: 0px solid #c8c8c8;
     background-color: #204174; /*font-weight: bold;*/
     text-align: center;
     color: white;
     white-space: nowrap;
-    border-bottom: 0px;
-    line-height: 14px;
-    font-size: .9em;
-
-}
-.multiColumnSelect th:last-child {
-    border-right: 0px;
 }
 
 .multiColumnSelect tr {
     padding: 2px; /*border: 1px solid #c8c8c8;*/
-    line-height: 14px;
 }
 
-.tundra.touchDevice .multiColumnSelect tr{
-    line-height: 1.5em;
-}
-
-.tundra.touchDevice .multiColumnSelect td {
+.multiColumnSelect td {
     padding: 2px;
     border: 1px solid #c8c8c8;
     white-space: nowrap;
-    cursor: pointer;
-    font-size: 1em;
 }
-.multiColumnSelect td:last-child {
-    border-right: 0px;
-}
-
-.tundra.touchDevice .multiColumnSelect tr:active{
-    background-color: #60a1ea;
-    background: #60a1ea;
-    color:#fff;
-}
-
 
 .multiColumnSelectHover td {
-    background-color: #60a1ea;
-    background: #60a1ea;
-    color:#fff;
+    background-color: #fdff89;
 }
 
 .relaxedCondition tr {
@@ -1103,7 +1077,31 @@ table.formbuilder {
 .multiColumnSelect tr.linked_row{
     font-weight: bold;
 }
+.tundra.touchDevice .multiColumnSelect tr{
+    line-height: 1.6em;
+}
+.tundra.touchDevice .multiColumnSelect td {
+    padding: 2px;
+    border: 1px solid #c8c8c8;
+    white-space: nowrap;
+    cursor: pointer;
+    font-size: 1em;
+}
+.tundra.touchDevice .multiColumnSelect tr:active{
+    background-color: #60a1ea;
+    background: #60a1ea;
+    color:#fff;
+}
+
+
+.multiColumnSelectHover td {
+    background-color: #60a1ea;
+    background: #60a1ea;
+    color:#fff;
+}
+
 /* @end */
+
 
 /* @group BagAttributesTable */
 
