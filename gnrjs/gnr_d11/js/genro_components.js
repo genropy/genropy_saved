@@ -1602,7 +1602,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         this.treeNode.widget.updateLabels();
         this.footersHeadersHandler('header');
         this.footersHeadersHandler('footer');
-        this.centerNode.domNode.style.top = this.headerNode.domNode.clientHeight+'px';
+        this.centerNode.domNode.style.top = this.headerNode? this.headerNode.domNode.clientHeight+'px':'0px';
         this.centerNode.domNode.style.bottom = this.footerNode?this.footerNode.domNode.clientHeight+1+'px':'0px';
         this.currentScroll = 0;
         this.setScroller();
