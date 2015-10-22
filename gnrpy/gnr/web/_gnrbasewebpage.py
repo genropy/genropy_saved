@@ -120,7 +120,7 @@ class GnrBaseWebPage(GnrObject):
     canonical_filename = property(_get_canonical_filename)
     
     @public_method
-    def decodeDatePeriod(self, datestr, workdate=None, locale=None):
+    def decodeDatePeriod(self, datestr, workdate=None, locale=None,min_date=None,max_date=None):
         """TODO
         
         :param datestr: a date string. For the string format, please check the :meth:`decodeDatePeriod()
@@ -132,7 +132,7 @@ class GnrBaseWebPage(GnrObject):
         period = datestr
         valid = False
         try:
-            returnDate = gnrdate.decodeDatePeriod(datestr, workdate=workdate, locale=locale, returnDate=True)
+            returnDate = gnrdate.decodeDatePeriod(datestr, workdate=workdate, locale=locale, returnDate=True,min_date=min_date,max_date=max_date)
             valid = True
         except:
             returnDate = (None, None)

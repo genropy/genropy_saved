@@ -108,7 +108,7 @@ class PeriodCombo(BaseComponent):
         return dates
 
     def periodCombo(self, fb, period_store=None, value=None, lbl='!!Period', 
-                        dflt='',width=None,**kwargs):
+                        dflt='',width=None,values=None,min_date=None,max_date=None,**kwargs):
         value = value or '^.period_input'
         period_store = period_store or '.period'
         fb.dataRpc('dummy', self.decodeDatePeriod, datestr=value,
@@ -130,15 +130,15 @@ class PeriodCombo(BaseComponent):
                     _onCalling="""if(_triggerpars.kw&&_triggerpars.kw.reason=="puttingdefault"){
                                         return false;
                                   };
-                                  if(!datestr && _defaultPeriod){
+                                  if(!_node && !datestr && _defaultPeriod){
                                       kwargs['datestr'] = _defaultPeriod;
                                       this._defaultset = true;
                                   }
                                   kwargs["datestr"]= kwargs["datestr"] || "";
-                                  """)
+                                  """,min_date=min_date,max_date=max_date)
         
-        fb.combobox(lbl=lbl,value=value, width=width, tip='^%s.period_string' % period_store,
-                    values=self._pc_datesHints(), margin_right='5px', padding_top='1px', **kwargs)
+        return fb.combobox(lbl=lbl,value=value, width=width, tip='^%s.period_string' % period_store,
+                    values=values or self._pc_datesHints(), margin_right='5px', padding_top='1px', **kwargs)
 
 class SelectionBrowser(BaseComponent):
     def selectionBrowser(self, pane, rowcount, indexPath=None):

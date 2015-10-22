@@ -31,6 +31,7 @@ from gnr.core import gnrlocale
 from gnr.core.gnrlocale import DEFAULT_LOCALE
 from gnr.core.gnrstring import splitAndStrip, anyWordIn, wordSplit, toText
 from dateutil import rrule
+from babel import dates
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +54,24 @@ def yearDecode(datestr):
             else:
                 year = 1900 + year
     return year
+
+def monthsFromDateRange(date_start=None,date_end=None,locale=None):
+    curr_date = datetime.date(date_start.year,date_start.month,1)
+    result = []
+    if locale and '-' in locale:
+        locale = locale.split('-')[0]
+    months = dates.get_month_names(width='wide', locale=locale)
+    while curr_date<=date_end:
+        m = curr_date.month
+        y = curr_date.year
+        result.append('%s %s' %(months[m].capitalize(),y))
+        m += 1
+        if m>12:
+            y += 1
+            m = 1
+        curr_date = datetime.date(y,m,1)
+    return result
+
 
 def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None, locale=None, isEndPeriod=False):
     """Parse a string representing a date or a period. Return ``datetime.date``
@@ -220,7 +239,7 @@ def periodCaption(dateFrom=None, dateTo=None, locale=None):
     else:
         return localNoPeriod
         
-def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtype='D'):
+def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtype='D',min_date=None,max_date=None):
     """Parse a string representing a date or a period and returns a string of one or two dates in iso format separated by ``;``.
     See doc of :meth:`decodeOneDate()` for details on possible formats of a single date
     
@@ -322,6 +341,11 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
                 if dateStart.month > month:      # if endmonth is lower than start month
                     year = year + 1              # end is in next year
         dateEnd = monthEnd(year, month)
+    if min_date and (dateStart is None or dateStart<min_date):
+        dateStart = min_date
+    if max_date and (dateEnd is None or dateEnd>max_date):
+        dateEnd = max_date
+
     if dtype == 'DH':
         dateStart = datetime.datetime(dateStart.year, dateStart.month, dateStart.day)
         dateEnd = datetime.datetime(dateEnd.year, dateEnd.month, dateEnd.day)
