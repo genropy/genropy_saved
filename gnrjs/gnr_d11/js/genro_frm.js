@@ -757,7 +757,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         this.publish('onLoaded',{pkey:this.getCurrentPkey(),data:data});
         this.setHider(false);
-        this.resetChanges(); // reset changes after loading to subscribe the triggers to the current new data bag
+        this.reset(); // reset changes after loading to subscribe the triggers to the current new data bag
         this.protect_write = this.isProtectWrite();
         genro.dom.setClass(this.sourceNode,'form_logical_deleted',this.isLogicalDeleted());
         genro.dom.setClass(this.sourceNode,'form_protect_write',this.protect_write);
