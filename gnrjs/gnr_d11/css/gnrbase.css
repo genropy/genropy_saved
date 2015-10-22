@@ -4819,15 +4819,18 @@ div[disabled='true'], div[disabled='disabled']{
 }
 
 .pdb_debugger_step{
-    height: 100px;
+    height: 85px;
     width: 250px;
     padding: 10px;
-    background-color: rgb(255, 209, 0);
+    padding-top: 5px;
+    background-color: #9B1E00;
     border-radius: 10px;
     position: relative;
     box-shadow: 3px 3px 4px #888;
     margin: 3px;
+    color:yellow;
     display: inline-block;
+    font-family: Courier;
 }
 
 .pdb_debugger_step.pdb_running{
@@ -4841,21 +4844,30 @@ div[disabled='true'], div[disabled='disabled']{
     right:0;
     height: 20px;
     padding-right: 10px;
+    border-top: 1px solid yellow;
+}
+
+.pdb_label{
+    text-align: right;
+    color:white;
 }
 .pdb_footer_button {
     display: block;
     position: absolute;
-    text-decoration: underline;
     font-weight: bold;
-    bottom: 2px;
-    color: #444;
+    bottom: 3px;
     cursor: pointer;
+    color:yellow;
+    font-family: Courier;
+}
+.pdb_footer_button:hover{
+    text-decoration: underline;
 }
 .pdb_footer_button_left{
-    left: 5px;
+    left: 10px;
 }
 .pdb_footer_button_right{
-    right: 5px;
+    right: 10px;
 }
 
 .pdb_tree .dijitTreeLabel:hover{
