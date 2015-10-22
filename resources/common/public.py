@@ -75,6 +75,8 @@ class PublicBase(BaseComponent):
     def public_frameTopBar(self,pane,slots=None,title=None,**kwargs):
         pane.attributes.update(dict(_class='pbl_root_top'))
         baseslots = '15,captionslot,*,dock,avatar,countErrors'
+        #if self.isMobile:
+        #    baseslots = '15,captionslot,10,testmobile,*,dock,avatar,countErrors'
         kwargs['margin_top'] ='2px'
         slots = slots or self.public_frameTopBarSlots(baseslots)
         if 'captionslot' in slots:
@@ -232,6 +234,10 @@ class PublicSlots(BaseComponent):
         pane.div('^gnr.publicTitle', _class='selectable pbl_title_caption',
                     draggable=True,onDrag='dragValues["webpage"] = genro.page_id;',
                     childname='captionbox',**kwargs)
+
+    @struct_method
+    def public_publicRoot_testmobile(self,pane,**kwargs):  
+        pane.slotButton('Test',action='')
              
 #######################OLD SLOTS#######################
        

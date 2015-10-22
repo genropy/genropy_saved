@@ -19,9 +19,16 @@ class GnrCustomWebPage(object):
     def test_0_firsttest(self,pane):
         """dbselect with auxcol"""
         fb = pane.formbuilder(cols=1, border_spacing='4px')
-        fb.dbSelect(dbtable='adm.user',value='^.user_id',lbl='Sigla',selected_username='.username',auxColumns='username',width='25em')
+        fb.dbSelect(dbtable='adm.user',value='^.user_id',lbl='User',
+
+                    selected_username='.username',width='25em',
+                    hasDownArrow=True)
+        fb.dbSelect(dbtable='adm.user',value='^.user_id_2',lbl='User',
+                    auxColumns='$username',width='25em',
+                    hasDownArrow=True)
         #fb.data('.username','...')
         #fb.div('^.user_id',lbl='User')
+        #fb.dataController("genro.bp(true);",user_id='^.user_id')
         fb.div('^.username',lbl='Username')
         
     def test_1_firsttest(self,pane):

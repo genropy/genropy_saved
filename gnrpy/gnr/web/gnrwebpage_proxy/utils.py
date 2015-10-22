@@ -12,9 +12,13 @@ import urllib
 import StringIO
 import datetime
 import zipfile
+from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag, DirectoryResolver
+from gnr.core.gnrlist import XlsReader,CsvReader
 
 class GnrWebUtils(GnrBaseProxy):
+
+
     def init(self, **kwargs):
         self.directory = self.page.site.site_path
         self.filename = self.page.filename
@@ -170,8 +174,77 @@ class GnrWebUtils(GnrBaseProxy):
             #    result.append('-webkit-box-shadow:%spx %spx %spx %s;'%(x,y,blur,color))
             #    # -moz-linear-gradient( [<point> || <angle>,]? <stop>, <stop> [, <stop>]* )
             # -moz-radial-gradient( [<position> || <angle>,]? [<shape> || <size>,]? <stop>, <stop>[, <stop>]* )
-            # 
+            #
             # -moz-linear-gradient (%(begin)s, %(from)s, %(to)s);
             # -webkit-gradient (%(mode)s, %(begin)s, %(end)s, from(%(from)s), to(%(to)s));
-            # 
+            #
         return '%s\n%s' % ('\n'.join(result), style)
+
+
+    @public_method
+    def tableImporterCheck(self,table=None,file_path=None,limit=None,**kwargs):
+        result = Bag()
+        tblobj = self.page.db.table(table)
+        table_col_list = tblobj.model.columns.keys()
+        result['imported_file_path'] = file_path
+        reader = self.getReader(file_path)
+        columns = Bag()
+        rows = Bag()
+        match_data = Bag()
+        result['columns'] = columns
+        result['rows'] = rows
+        result['match_data'] = match_data
+        result['methodlist'] = ','.join([k[9:] for k in dir(tblobj) if k.startswith('importer_')])
+        for k,i in reader.index.items():
+            columns.setItem(k,None,name=reader.headers[i],field=k,width='10em',_position=i)
+            if k in table_col_list:
+                dest_field = k 
+                do_import = True
+            else:
+                dest_field = None
+                do_import = False
+            match_data.setItem(k,Bag(dict(do_import=do_import,source_field=k,dest_field=dest_field)),_position=i)
+        for i,r in enumerate(reader()):
+            if limit and i>=limit:
+                break
+            rows.setItem('r_%i' %i,Bag(dict(r)))
+        return result.toXml()
+
+
+    @public_method
+    def tableImporterRun(self,table=None,file_path=None,match_index=None,import_method=None,no_trigger=None,**kwargs):
+        tblobj = self.page.db.table(table)
+        docommit = False
+        reader = self.getReader(file_path)
+        if import_method:
+            handler = getattr(tblobj,'importer_%s' %import_method)
+            handler(reader)
+        elif match_index:
+            l = []
+            for row in reader():
+                r = {v:row[k] for k,v in match_index.items() if v is not ''}
+                tblobj.recordCoerceTypes(r)
+                if not no_trigger:
+                    tblobj.insert(r)
+                    docommit = True
+                else:
+                    l.append(r)
+            if l:
+                tblobj.insertMany(l)
+                docommit = True
+            if docommit:
+                self.page.db.commit()
+            return 'OK'
+
+    def getReader(self,file_path):
+        filename,ext = os.path.splitext(file_path)
+        if ext=='.xls':
+            reader = XlsReader(file_path)
+        else:
+            reader = CsvReader(file_path)
+        reader.index = {self._importer_keycb(k):v for k,v in reader.index.items()}
+        return reader
+
+
+    def _importer_keycb(self,k):
+        return (k.strip() or '_').strip('.').lower().replace(' ','_').replace('.','_')

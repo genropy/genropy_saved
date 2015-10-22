@@ -870,13 +870,10 @@ function convertFromText(value, t, fromLocale) {
             var selector = (t == 'DH') ? 'datetime' : 'date';
             return dojo.date.locale.parse(value, {selector:selector});
         } else {
-            var date_array = value.split('.')[0].split(/\W/);
-            var c = [0,-1,0,0,0,0];
-            for (var i=0;i<date_array.length;i++){
-                c[i]+=parseInt(date_array[i],10);
-            };
-            return new Date(value);
-            //return new Date(value.split('.')[0].replace(/\-/g, '/'));
+            if(t=='D'){
+                value = value.split('.')[0].replace(/\-/g, '/');
+            }
+            return new Date(value); 
         }
     }
     else if (t == 'H') {
@@ -990,6 +987,9 @@ var gnrformatter = {
         }
         if(format=='mailto'){
             return makeLink('mailto:'+value,value);
+        }
+        if(format=='phone'){
+            return makeLink('tel:'+value,value);
         }
         if(format=='skype'){
             return makeLink('skype:'+value,value);

@@ -820,19 +820,28 @@ dojo.declare("gnr.GridEditor", null, {
             }
         }
         this.widgetRootNode.attr.datapath = sourceNode.absDatapath(sourceNode.attr.storepath);
-        var editOn = this.widgetRootNode.attr.editOn || 'onCellDblClick';
-        editOn = stringSplit(editOn, ',', 2);
-        var modifier = editOn[1];
         var _this = this;
-        dojo.connect(grid, editOn[0], function(e) {
-            if (genro.wdg.filterEvent(e, modifier)) {
+        if(genro.isMobile){
+            sourceNode.subscribe('doubletap',function(info){
+                var e = info.event;
                 if (_this.enabled() && _this.editableCell(e.cellIndex,e.rowIndex,true) && !grid.gnrediting) {
                     _this.startEdit(e.rowIndex, e.cellIndex,e.dispatch);
-
                 }
-            }
-        });
+            })
+        }else{
+            var editOn = this.widgetRootNode.attr.editOn || 'onCellDblClick';
+            editOn = stringSplit(editOn, ',', 2);
+            var modifier = editOn[1];
+            dojo.connect(grid, editOn[0], function(e) {
+                if (genro.wdg.filterEvent(e, modifier)) {
+                    if (_this.enabled() && _this.editableCell(e.cellIndex,e.rowIndex,true) && !grid.gnrediting) {
+                        _this.startEdit(e.rowIndex, e.cellIndex,e.dispatch);
+                    }
+                }
+            });
+        }
     },
+    
     onFormatCell:function(cell, inRowIndex,renderedRow){
         if (this.invalidCell(cell, inRowIndex)) {
             cell.customClasses.push('invalidCell');
@@ -972,7 +981,6 @@ dojo.declare("gnr.GridEditor", null, {
     saveChangedRows:function(){
         var that = this;
         var changeset = this.getChangeset(true);
-        console.log('changeset',changeset)
         var sourceNode = this.grid.sourceNode;
         if(changeset.len()>0){
             that.grid.updateRowCount();
@@ -1053,6 +1061,7 @@ dojo.declare("gnr.GridEditor", null, {
         this.grid.updateCounterColumn();
         this.updateStatus();
     },
+
     getNewRowDefaults:function(externalDefaults){
         if(!this.editorPars){
             return externalDefaults;
@@ -1077,7 +1086,7 @@ dojo.declare("gnr.GridEditor", null, {
                     if(result[rcol]){
                         hcols = [];
                         for(var j in cellmap){
-                            if(cellmap[j].relating_column==rcol && result[cellmap[j].field_getter]==undefined){
+                            if(cellmap[j].relating_column==rcol && result[cellmap[j].field_getter]===undefined){
                                 hcols.push(cellmap[j].related_column);
                             }
                         }
@@ -1095,10 +1104,15 @@ dojo.declare("gnr.GridEditor", null, {
             if(queries.len()>0){
                 var sourceNode = this.grid.sourceNode;
                 var remoteDefaults = genro.serverCall('app.getMultiFetch',{'queries':queries,_sourceNode:sourceNode},null,null,'POST');
+                var node,keyAttr;
                 for(var k in cellmap){
                     rcol = cellmap[k].relating_column;
                     if (rcol){
-                        result[cellmap[k].field_getter] = remoteDefaults.getItem(rcol+'.#0?'+cellmap[k].related_column.replace(/\W/g, '_'));
+                        node = remoteDefaults.getNode(rcol+'.#0');
+                        keyAttr = cellmap[k].related_column.replace(/\W/g, '_');
+                        if(node && keyAttr in node.attr){
+                            result[cellmap[k].field_getter] = node.attr[keyAttr];
+                        }
                     }
                 }
             }
@@ -1106,6 +1120,7 @@ dojo.declare("gnr.GridEditor", null, {
             return result;
         }
     },
+
     startEditRemote:function(n,colname,rowIndex){
         var rowData = n.getValue();
         var rowId = this.grid.rowIdByIndex(rowIndex);

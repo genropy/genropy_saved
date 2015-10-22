@@ -5,6 +5,7 @@ from gnr.core.gnrsys import expandpath
 from gnr.core.gnrlang import uniquify
 from collections import defaultdict
 from gnr.app.gnrconfig import MenuStruct
+from gnr.app.gnrconfig import getGnrConfig, setEnvironment
 
 class PathResolver(object):
     """TODO"""
@@ -16,29 +17,10 @@ class PathResolver(object):
             project='projects')
             
     def __init__(self, gnr_config=None):
-        self.gnr_config = gnr_config or self.load_gnr_config()
+        self.gnr_config = gnr_config or getGnrConfig()
+        setEnvironment(self.gnr_config)
         
-    def load_gnr_config(self):
-        """Load the gnr configuration. Return a Bag with the gnr configuration path"""
-        home_config_path = expandpath('~/.gnr')
-        global_config_path = expandpath(os.path.join('/etc/gnr'))
-        if os.path.isdir(home_config_path):
-            config = Bag(home_config_path)
-        elif os.path.isdir(global_config_path):
-            config = Bag(global_config_path)
-        else:
-            config = Bag()
-        self.set_environment(config)
-        return config
         
-    def set_environment(self, config):
-        """TODO
-        
-        :param config: a Bag with the gnr configuration path"""
-        for var, value in config['gnr.environment_xml'].digest('environment:#k,#a.value'):
-            var = var.upper()
-            if not os.getenv(var):
-                os.environ[var] = str(value)
                 
     def js_path(self, lib_type='gnr', version='11'):
         """TODO Return the configuration static js path, with *lib_type* and *version* specified
@@ -403,11 +385,16 @@ class ThPackageResourceMaker(object):
                 self.write('def config(root,application=None):')
                 pkgobj =  self.app.db.package(self.package)
                 self.write("%s = root.branch('%s')"%(self.package,(pkgobj.name_long or self.package.capitalize())),indent=1) 
-
+                hasLookups = False
                 for t in self.tables:
                     tblobj = self.app.db.table('%s.%s' %(self.package,t))
-                    self.write("%s.thpage('%s',table='%s')" %(self.package,(tblobj.name_plural or tblobj.name_long or table.capitalize()),
+                    if tblobj.attributes.get('lookup'):
+                        hasLookups = True
+                    else:
+                        self.write("%s.thpage('%s',table='%s')" %(self.package,(tblobj.name_plural or tblobj.name_long or table.capitalize()),
                                 tblobj.fullname),indent=1)
+                if hasLookups:
+                    self.write("%s.lookups('Lookup tables',lookup_manager='%s')" %(self.package,self.package),indent=1)
 
     def write(self,line=None, indent=0):
         line = line or ''

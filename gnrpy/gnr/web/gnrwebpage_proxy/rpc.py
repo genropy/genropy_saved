@@ -21,6 +21,7 @@ import re
 
 AUTH_FORBIDDEN = -1
 AUTH_EXPIRED = 2
+AUTH_NOT_LOGGED = 1
 
 class GnrWebRpc(GnrBaseProxy):
     def __call__(self, method=None, _auth=AUTH_FORBIDDEN, **kwargs):

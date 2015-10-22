@@ -143,21 +143,34 @@ def getSiteHandler(site_name, gnr_config=None):
                             site_template=site_template,
                             site_script = site_script)
 
-def getGnrConfig(config_path=None):
-    config_path = config_path or gnrConfigPath()
-    if not config_path:
-        raise Exception('Missing genro configuration')
-    return Bag(config_path)
+def setEnvironment(gnr_config):
+    environment_xml = gnr_config['gnr.environment_xml']
+    if environment_xml:
+        for var, value in environment_xml.digest('environment:#k,#a.value'):
+            var = var.upper()
+            if not os.getenv(var):
+                os.environ[str(var)] = str(value)
 
-def gnrConfigPath():
+def getGnrConfig(config_path=None, set_environment=False):
+    config_path = config_path or gnrConfigPath()
+    if not config_path or not os.path.isdir(config_path):
+        raise Exception('Missing genro configuration')
+    gnr_config = Bag(config_path)
+    if set_environment:
+        setEnvironment(gnr_config)
+    return gnr_config
+
+def gnrConfigPath(force_return=False):
     if os.environ.has_key('VIRTUAL_ENV'):
         config_path = expandpath(os.path.join(os.environ['VIRTUAL_ENV'],'etc','gnr'))
-    elif sys.platform == 'win32':
+        if force_return or os.path.isdir(config_path):
+            return config_path
+    if sys.platform == 'win32':
         config_path = '~\gnr'
     else:
         config_path = '~/.gnr'
     config_path  = expandpath(config_path)
-    if os.path.isdir(config_path):
+    if force_return or os.path.isdir(config_path):
         return config_path
     config_path = expandpath('/etc/gnr')
     if os.path.isdir(config_path):

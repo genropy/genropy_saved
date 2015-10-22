@@ -24,6 +24,7 @@
 """
 Some useful operations on lists.
 """
+from gnr.core.gnrlang import GnrException
 
 class FakeList(list):
     pass
@@ -257,8 +258,11 @@ class XlsReader(object):
         self.sheet = self.book.sheet_by_index(0)
         headers = [self.sheet.cell_value(0, c) for c in range(self.sheet.ncols)]
         self.headers = [h for h in headers if h]
-        
-        self.index = dict([(k, i) for i, k in enumerate(headers)])
+        self.index = dict()
+        for i,k in enumerate(headers):
+            if k in self.index:
+                raise GnrException('Duplicated columns in source xls')
+            self.index[k] = i
         self.ncols = len(headers)
         self.nrows = self.sheet.nrows - 1
         
@@ -266,6 +270,31 @@ class XlsReader(object):
         for r in range(1, self.sheet.nrows):
             row = [self.sheet.cell_value(r, c) for c in range(self.ncols)]
             yield GnrNamedList(self.index, row)
+            
+
+class CsvReader(object):
+    """Read an csv file"""
+    def __init__(self, docname):
+        import os.path
+        self.docname = docname
+        self.dirname = os.path.dirname(docname)
+        self.basename, self.ext = os.path.splitext(os.path.basename(docname))
+        self.ext = self.ext.replace('.', '')
+        with open(docname,'r') as f:
+            txt = f.read()
+        txt = txt.replace('\r\n', '\n')
+        txt = txt.replace('\r', '\n')
+        lines = txt.split('\n')
+        u = [line.split('\t') for line in lines]
+        self.headers = u[0]
+        self.rows = u[1:]
+        self.index = dict([(k, i) for i, k in enumerate(self.headers)])
+        self.ncols = len(self.headers)
+        self.nrows = len(self.rows)
+
+    def __call__(self):
+        for r in range(self.nrows):
+            yield GnrNamedList(self.index, self.rows[r])
             
 class GnrNamedList(list):
     """Row object. Allow access to data by column name. Allow also to add columns and alter data."""

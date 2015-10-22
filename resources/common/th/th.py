@@ -340,7 +340,7 @@ class TableHandler(BaseComponent):
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,readOnly=readOnly,hider=hider,handlerType='inline',
                                         default_kwargs=default_kwargs,configurable=configurable,
-                                        foreignKeyGetter='=#FORM.pkey',**kwargs)
+                                        _foreignKeyFormPath='=#FORM',**kwargs)
         remoteRowController = self._th_hook('remoteRowController',dflt=None,mangler=wdg.view) or None
         options = self._th_hook('options',mangler=wdg.view)() or dict()
         wdg.view.store.attributes.update(recordResolver=False)

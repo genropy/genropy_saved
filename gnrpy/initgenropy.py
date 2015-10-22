@@ -1,22 +1,13 @@
 import os
 import sys
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrsys import expandpath
 import random
 import string
-
+from gnr.app.gnrconfig import gnrConfigPath
 class GnrConfigException(Exception):
     pass
 
-def get_config_path():
-    if os.environ.has_key('VIRTUAL_ENV'):
-        config_path = expandpath(os.path.join(os.environ['VIRTUAL_ENV'],'etc','gnr'))
-    elif sys.platform == 'win32':
-        config_path = '~\gnr'
-    else:
-        config_path = '~/.gnr'
-    config_path  = expandpath(config_path)
-    return config_path
+
 
 def get_random_password(size = 12):
     return ''.join( random.Random().sample(string.letters+string.digits, size)).lower()
@@ -76,7 +67,7 @@ def check_file(xml_path=None):
 def initgenropy(gnrpy_path=None):
     if not gnrpy_path or not os.path.basename(gnrpy_path)=='gnrpy':
         raise GnrConfigException("You are not running this script inside a valid gnrpy folder")
-    config_path  = get_config_path()
+    config_path  = gnrConfigPath(force_return=True)
     instanceconfig_path = os.path.join(config_path,'instanceconfig')
     siteconfig_path = os.path.join(config_path,'siteconfig')
     for folder_path in (config_path, instanceconfig_path, siteconfig_path):

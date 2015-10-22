@@ -773,7 +773,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         controllerData.setItem('is_newrecord',this.newRecord,null,{lazySet:true});
         controllerData.setItem('loading',false,null,{lazySet:true});
         var loadedPkey = (this.getCurrentPkey() || '*norecord*');
-        setTimeout(function(){controllerData.fireItem('loaded',loadedPkey);},1);
+        setTimeout(function(){
+            controllerData.fireItem('loaded',loadedPkey);
+            that._reloadingAfterSave = false;
+        },1);
         this.updateStatus();
         this.setOpStatus();
         this.currentFocused = null;
@@ -1018,6 +1021,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     }else if(destPkey=='*duplicate*'){
                         that.store.duplicateRecord(resultDict.savedPkey, kw.howmany);
                     }else{
+                        that._reloadingAfterSave = (that.getCurrentPkey()==destPkey);
                         that.setCurrentPkey(destPkey);
                         if(that.store){
                             that.doload_store({'destPkey':destPkey,'onReload':onReload});
@@ -1621,7 +1625,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
             objectKeys(node_identifiers).forEach(function(idx){
                 sourceNode = genro.src.nodeBySourceNodeId(node_identifiers[idx]);
-                result = genro.vld.validate(sourceNode, sourceNode);
+                result = genro.vld.validate(sourceNode, sourceNode.getAttributeFromDatasource('value'));
                 if (result['modified']) {
                     sourceNode.widget.setValue(result['value']);
                 }
@@ -1636,6 +1640,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         })
         this.updateStatus();
     },
+
 
     dojoValidation:function(wdg,isValid){
         var sn = wdg.sourceNode;

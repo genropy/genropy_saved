@@ -30,7 +30,8 @@ class View(BaseComponent):
 
     def th_query(self):
         return dict(column='nome',op='contains', val='')
-
+    def th_options(self):
+        return dict(dialog_height='180px',dialog_width='400px')
 class ViewEditable(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()

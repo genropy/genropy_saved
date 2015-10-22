@@ -54,7 +54,7 @@ class ExtDbExplorer(BaseComponent):
                     kwargs['data'] = columns
                     """,
                     _onResult="""
-                    genro.publish('tableModuleWritten');
+                    genro.publish('reloadTableModules');
                     genro.publish('closeDbConnectionDialog');""")
         bar = frame.bottom.slotBar('*,cancel,confirm,5',margin_bottom='2px',_class='slotbar_dialog_footer')
         bar.cancel.slotButton("Cancel",action="genro.publish('closeDbConnectionDialog');",dlg=dialog.js_widget)
@@ -169,7 +169,8 @@ class ExtDbExplorer(BaseComponent):
                     colname = colattr['name'].lower()
                     b = Bag(dict(name=colname,legacy_name=legacy_name,
                                                         name_long=None,dtype=colattr.get('dtype'),
-                                                        size=colattr.get('size'),indexed=colattr.get('indexed'),
+                                                        size=str(colattr.get('size')) if colattr.get('size') else None,
+                                                        indexed=colattr.get('indexed'),
                                                         unique=colattr.get('unique')))
                     columns_bag.setItem(colname,b)
                     if colattr.get('relate_to'):
@@ -222,6 +223,7 @@ class ExtDbExplorer(BaseComponent):
             tables = src['packages'][pkg]['tables']
             if not tables:
                 continue
+            tables.sort('#k')
             for table,tblattr,tblval in tables.digest('#k,#a,#v'):
                 tblattr = dict(tblattr)
                 tblattr['checked'] = 'disabled:on' if table.lower() in existing_tables else False

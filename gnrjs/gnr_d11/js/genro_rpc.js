@@ -143,7 +143,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
     },
     suspend_call:function(rpc_counter){
         var c = this.rpc_register['r_'+rpc_counter];
-        if(c._deferred_){
+        if(c && c._deferred_){
             c._deferred_.ioArgs.args.timeout = 3600*1000;
         }
     },
