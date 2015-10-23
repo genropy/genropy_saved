@@ -4475,8 +4475,8 @@ div[disabled='true'], div[disabled='disabled']{
 
 /*treegrid*/
 
-.branchtree_selected{
-    background-color: #739CDC;
+.branchtree .branchtree_selected.dijitTreeLabel{
+    background-color: #3A4D65;
     color: white;
     padding-right: 15px;
     border-radius: 0px 10px 10px 0px;
@@ -4507,6 +4507,12 @@ div[disabled='true'], div[disabled='disabled']{
     white-space: nowrap;
 }
 
+.branchtree.treeLongLabels .dijitTreeLabel {
+    padding-left: 2px;
+
+    white-space: normal;
+}
+
 .branchtree .dijitTreeContent {
     min-height: 0;
     padding-bottom: 2px;
@@ -4517,10 +4523,7 @@ div[disabled='true'], div[disabled='disabled']{
     background: none;
     margin-left: 10px;
 }
-.branchtree .dijitTreeLabel{
-    padding-left: 2px;
-    white-space: nowrap;
-}
+
 .branchtree .dijitTreeIsRoot{
     margin-left: 0px;
 }
@@ -4903,4 +4906,18 @@ div[disabled='true'], div[disabled='disabled']{
     color:#666;
     font-weight: bold;
     font-size: .9em;
+}
+
+/*scroll fix for mobile*/
+.scroll-wrapper{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+}
+.touchDevice .scroll-wrapper{
+    overflow:scroll !important; 
+    -webkit-overflow-scrolling:touch !important;    
 }

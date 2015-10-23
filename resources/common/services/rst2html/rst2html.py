@@ -38,13 +38,12 @@ class Main(GnrBaseService):
                 stylesheet = self.stylesheet
             else:
                 stylesheet = self.styleSheetFromTheme(self.theme or 'readthedocs')
-
         settings_overrides = {'stylesheet_path':stylesheet}
         settings_overrides.update(docutils_kwargs)
         try :
             result = renderRst(source_rst, writer_name='html',
                               settings_overrides=settings_overrides)
-            result = result.replace('class="document"','class="rst-content"')
+            #result = result.replace('class="document"','class="rst-content"')
             return result
         except Exception,e:
             return str(e)

@@ -599,7 +599,7 @@ class GnrDomSrc(GnrStructData):
         :param content: the <script> content"""
         return self.child('script', childcontent=content, **kwargs)
         
-    def remote(self, method, lazy=True, cachedRemote=None,**kwargs):
+    def remote(self, method=None, lazy=True, cachedRemote=None,**kwargs):
         """TODO
         
         :param method: TODO
