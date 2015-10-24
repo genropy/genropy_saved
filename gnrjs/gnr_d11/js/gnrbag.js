@@ -1599,12 +1599,16 @@ dojo.declare("gnr.GnrBag", null, {
     /**
      * todo
      */
-    asDict: function() {
+    asDict: function(recursive) {
         var result = {};
-        var node;
+        var node,value;
         for (var i = 0; i < this._nodes.length; i++) {
             node = this._nodes[i];
-            result[node.label] = node.getValue();
+            value = node.getValue();
+            if(recursive && (value instanceof gnr.GnrBag)){
+                value = value.asDict(recursive);
+            }
+            result[node.label] = value;
         }
         ;
         return result;

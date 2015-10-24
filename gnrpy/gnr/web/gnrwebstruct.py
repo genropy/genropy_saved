@@ -864,7 +864,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'dataFormula', 'dataScript', 'dataRpc','dataWs', 'dataController', 'dataRemote',
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
-             'tinyMCE', 'protovis','codemirror','MultiButton','PaletteGroup','DocumentFrame','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','PaletteImporter','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
+             'tinyMCE', 'protovis','codemirror','dygraph','MultiButton','PaletteGroup','DocumentFrame','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','PaletteImporter','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','GeoSearch','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
              'FramePane', 'FrameForm','QuickEditor','CodeEditor','TreeGrid','QuickGrid','MultiValueEditor','QuickTree','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])

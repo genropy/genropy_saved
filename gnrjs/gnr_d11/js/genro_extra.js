@@ -232,6 +232,63 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
     }
 });
 
+dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
+    constructor: function(application) {
+        this._domtag = 'div';
+    },
+
+    creating: function(attributes, sourceNode) {
+        var savedAttrs = objectExtract(attributes,'data,options');
+        return savedAttrs;
+    },
+
+    created:function(domNode, savedAttrs, sourceNode){
+        var data = savedAttrs.data;
+        var options = savedAttrs.options;
+        if(options instanceof gnr.GnrBag){
+            var optionsBag = options.deepCopy();
+            var labelsBag = optionsBag.pop('labels');
+            var options = optionsBag.asDict(true);
+            options.labels = ['x'].concat(labelsBag.values());
+            sourceNode.labelKeys = ['c_0'].concat(labelsBag.keys());
+            if(data instanceof gnr.GnrBag){
+                data = this.getDataFromBag(sourceNode,data);
+            }
+        }
+        var cb = function(){
+            console.log('data',data,'options',options)
+            sourceNode.externalWidget = new Dygraph(domNode,data,options);
+        }
+        if(!window.Dygraph){
+            genro.dom.loadJs('/_rsrc/js_libs/dygraph-combined.js',cb);
+        }else{
+            cb();
+        }
+    },
+
+    getDataFromBag:function(sourceNode,data){
+        var result = [];
+        var labelKeys = sourceNode.labelKeys;
+        data.forEach(function(n){
+            var row = [];
+            var attr = n.attr;
+            labelKeys.forEach(function(l){
+                row.push(attr[l]);
+            });
+            result.push(row);
+        });
+        return result;
+    },
+
+    mixin_gnr_setData:function(){},
+
+    mixin_gnr_setOptions:function(options,kw, trigger_reason){        
+        this.updateOptions(options);
+    }
+
+
+});
+
 dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
     constructor: function(application) {
         this._domtag = 'div';

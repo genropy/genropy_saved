@@ -199,6 +199,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'GoogleChart':'',
             'GoogleVisualization':'',
             'CkEditor':'',
+            'dygraph':'',
             'protovis':'',
             'codemirror':'',
             'LightButton':''
