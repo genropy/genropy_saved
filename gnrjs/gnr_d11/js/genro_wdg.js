@@ -1030,7 +1030,7 @@ dojo.declare("gnr.GridEditor", null, {
                 var rowLabel = that.rowEditors[n].rowLabel;
                 that.rowEditors[n].deleteRowEditor();
                 storebag.popNode(rowLabel);
-            }else{
+            }else if(!isNullOrBlank(n)){
                 existingPkeys.push(n);
             }
         });

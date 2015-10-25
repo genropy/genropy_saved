@@ -238,7 +238,7 @@ dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
     },
 
     creating: function(attributes, sourceNode) {
-        var savedAttrs = objectExtract(attributes,'data,options');
+        var savedAttrs = objectExtract(attributes,'data,options,columns');
         return savedAttrs;
     },
 
@@ -246,18 +246,23 @@ dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
         var data = savedAttrs.data;
         var options = savedAttrs.options;
         if(options instanceof gnr.GnrBag){
-            var optionsBag = options.deepCopy();
-            var labelsBag = optionsBag.pop('labels');
-            var options = optionsBag.asDict(true);
-            options.labels = ['x'].concat(labelsBag.values());
-            sourceNode.labelKeys = ['c_0'].concat(labelsBag.keys());
-            if(data instanceof gnr.GnrBag){
-                data = this.getDataFromBag(sourceNode,data);
-            }
+            options =  options.asDict(true);
         }
+        if(data instanceof gnr.GnrBag){
+            sourceNode.labelKeys = savedAttrs.columns.split(',');
+            data = this.getDataFromBag(sourceNode,data);
+        }
+        var that = this;
         var cb = function(){
-            console.log('data',data,'options',options)
-            sourceNode.externalWidget = new Dygraph(domNode,data,options);
+            var dygraph = new Dygraph(domNode,data,options);
+            sourceNode.externalWidget = dygraph;
+            dygraph.sourceNode = sourceNode;
+            dygraph.gnr = that;
+            for (var prop in that) {
+                if (prop.indexOf('mixin_') == 0) {
+                    dygraph[prop.replace('mixin_', '')] = that[prop];
+                }
+            }
         }
         if(!window.Dygraph){
             genro.dom.loadJs('/_rsrc/js_libs/dygraph-combined.js',cb);
@@ -269,20 +274,39 @@ dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
     getDataFromBag:function(sourceNode,data){
         var result = [];
         var labelKeys = sourceNode.labelKeys;
+        var datagetter = function(n,l){
+            return n.attr[l];
+        };
+        if(data.getItem('#0')){
+            datagetter = function(n,l){
+                return n._value.getItem(l);
+            };
+        }
         data.forEach(function(n){
             var row = [];
-            var attr = n.attr;
             labelKeys.forEach(function(l){
-                row.push(attr[l]);
+                row.push(datagetter(n,l));
             });
             result.push(row);
         });
         return result;
     },
 
-    mixin_gnr_setData:function(){},
+    mixin_gnr_data:function(value,kw, trigger_reason){  
+        var data = this.sourceNode.getAttributeFromDatasource('data');      
+        if(data instanceof gnr.GnrBag){
+            data = this.gnr.getDataFromBag(this.sourceNode,data);
+        }
+        this.updateOptions({ 'file': data });
+    },
 
-    mixin_gnr_setOptions:function(options,kw, trigger_reason){        
+    mixin_gnr_options:function(options,kw, trigger_reason){   
+        if(!options){
+            return
+        } 
+        if(options instanceof gnr.GnrBag){
+            options = options.asDict(true);
+        }    
         this.updateOptions(options);
     }
 

@@ -1160,12 +1160,16 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
             return;
         }
         var evt = trigger_kwargs.evt;
-        var k,v;
+        var k,v,vn;
         var source = this.getSource();
         if(evt=='upd'){
             var r = trigger_kwargs.node.getParentBag()
             k = r.getItem('attribute_key');
-            v = r.getItem('attribute_value');
+            vn = r.getNode('attribute_value');
+            v = vn.getValue();
+            if(vn.attr.dtype=='AR'){
+                v = v.split(',');
+            }
             if(source instanceof gnr.GnrBagNode){
                 if(k=='*value'){
                     source.setValue(v,true);

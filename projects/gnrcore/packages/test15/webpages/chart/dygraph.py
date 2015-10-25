@@ -12,11 +12,11 @@ from random import randint
 from gnr.core.gnrdecorator import public_method
 from datetime import datetime
 from dateutil import rrule
+from collections import OrderedDict
 
 
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
-    js_requires='dygraph-combined'
     
     def test_1_simple(self, pane):
         pane.dygraph(data=[
@@ -42,33 +42,50 @@ class GnrCustomWebPage(object):
 
     def test_2_bagData(self, pane):
         pane.data('.data',self.getTestData(n=10,series=[(1,100),(1,100)]))
-        pane.data('.options.labels.c_1','Foo')
-        pane.data('.options.labels.c_2','Bar')
+        pane.data('.options.labels',['x','Foo','Bar'])
         bc = pane.borderContainer(height='600px',width='800px',_anchor=True)
         bc.contentPane(region='left',width='300px').frameGrid(storepath='#ANCHOR.data',
                                                             struct=self.datastruct,
                                                             datapath='.prevgrid')
         bc.contentPane(region='center').dygraph(data='^.data',options='^.options',
+                    columns='c_0,c_1,c_2',
                     height='300px',width='450px',border='1px solid silver')
 
 
     def test_3_bagData(self, pane):
         pane.data('.data',self.getTestData(dtstart=datetime.now(),interval=15,count=50,
                                             series=[(1,100),(1,100)]))
-        pane.data('.options.labels.c_1','Foo')
-        pane.data('.options.labels.c_2','Bar')
+        pane.data('.options.labels',['x','Foo','Bar'])
         pane.data('.options.hideOverlayOnMouseOut',False)
         bc = pane.borderContainer(height='600px',width='800px',_anchor=True)
         bc.contentPane(region='left',width='300px',splitter=True).frameGrid(storepath='#ANCHOR.data',
                                                             struct=self.datastruct_dt,
                                                             datapath='.prevgrid')
         bc.contentPane(region='center').dygraph(data='^.data',options='^.options',
+                    columns='c_0,c_1,c_2',
                      height='300px',width='450px')
 
 
 
+    def test_4_bagDataValue(self, pane):
+        pane.data('.data',self.getTestData(n=10,series=[(1,100),(1,100)],datamode='value'))
+        pane.data('.options.labels',['x','Foo','Bar'])
+        bc = pane.borderContainer(height='600px',width='800px',_anchor=True)
+        tc = bc.tabContainer(region='left',width='300px')
+        grid = tc.contentPane(title='Data').quickGrid(value='^.data')
+        grid.tools('delrow,addrow')
+        grid.column('c_0',edit=True,name='N',dtype='L')
+        grid.column('c_1',edit=True,name='Foo',dtype='L')
+        grid.column('c_2',edit=True,name='Bar',dtype='L')
+        bc.contentPane(region='center').dygraph(data='^.data',options='^.options',
+                    columns='c_0,c_1,c_2',
+                    height='300px',width='450px',border='1px solid silver')
+        #grid = tc.contentPane(title='Labels').multiValueEditor(value='^.options.labels')
+        tc.contentPane(title='Options').multiValueEditor(value='^.options',nodeId='optionseditor')
+
+
     @public_method
-    def getTestData(self,n=None,count=None,interval=None,dtstart=None,series=None):
+    def getTestData(self,n=None,count=None,interval=None,dtstart=None,series=None,datamode=None):
         result = Bag()
         if n:
             g = xrange(1,n)
@@ -76,9 +93,12 @@ class GnrCustomWebPage(object):
             g = rrule.rrule(rrule.MINUTELY,count=count,interval=interval,dtstart=dtstart)
         j = 0
         for i in g:
-            attr = dict(c_0=i)
+            attr = OrderedDict(c_0=i)
             for k,s in enumerate(series):
                 attr['c_%s' %(k+1)] = randint(*s)
-            result.setItem('r_%s' %j,None,attr)
+            if datamode=='value':
+                result.setItem('r_%s' %j,Bag(attr))
+            else:
+                result.setItem('r_%s' %j,None,attr)
             j+=1
         return result
