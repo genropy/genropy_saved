@@ -561,6 +561,13 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             pageKw['subtab'] = true;
             genro.mainGenroWindow.genro.publish('selectIframePage',pageKw);
         }
+        else if(mode=='window' && genro.root_page_id){
+            var pageKw = {};
+            zoomAttr['main_call'] = 'main_form';
+            pageKw['file'] = this._prepareThIframeUrl(zoomAttr);
+            pageKw['label'] = zoomAttr.title;
+            genro.mainGenroWindow.genro.publish('newBrowserWindowPage',pageKw);
+        }
     },
     
     iframePalette:function(kw){
@@ -617,6 +624,12 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             pageKw['label'] = zoomAttr.title;
             pageKw['subtab'] = true;
             genro.mainGenroWindow.genro.publish('selectIframePage',pageKw);
+        }
+        else if(mode=='window' && genro.root_page_id){
+            var pageKw = {};
+            pageKw['file'] = this._prepareThIframeUrl(zoomAttr);
+            pageKw['label'] = zoomAttr.title;
+            genro.mainGenroWindow.genro.publish('newBrowserWindowPage',pageKw);
         }
     },
 

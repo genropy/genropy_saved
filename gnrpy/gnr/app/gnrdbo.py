@@ -9,6 +9,7 @@ from gnr.core.gnrlang import boolean
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip,templateReplace,fromJson,slugify
 from gnr.core.gnrdecorator import public_method,extract_kwargs
+from gnr.core.gnrdict import dictExtract
 
 class GnrDboPackage(object):
     """Base class for packages"""
@@ -433,9 +434,67 @@ class TableBase(object):
                             resolved=False,**kwargs):
         condition_kwargs = condition_kwargs or dict()
         related_kwargs = related_kwargs or dict()
-        return self.hierarchicalHandler.getHierarchicalData(caption_field=caption_field,condition=condition,
+        if hasattr(self,'hierarchicalHandler'):
+            return self.hierarchicalHandler.getHierarchicalData(caption_field=caption_field,condition=condition,
                                                 condition_kwargs=condition_kwargs,caption=caption,dbstore=dbstore,columns=columns,
                                                 related_kwargs=related_kwargs,resolved=resolved,**kwargs)
+        if related_kwargs['table']:
+            return self.getHierarchicalDataBag(caption_field=caption_field,condition=condition,
+                                                condition_kwargs=condition_kwargs,caption=caption,dbstore=dbstore,columns=columns,
+                                                related_kwargs=related_kwargs,resolved=resolved,**kwargs)
+
+
+    @extract_kwargs(condition=True,related=True)
+    def getHierarchicalDataBag(self,caption_field=None,condition=None,
+                            condition_kwargs=None,caption=None,
+                            dbstore=None,columns=None,related_kwargs=None,
+                            resolved=False,**kwargs):
+        b = Bag()
+        caption = caption or self.name_plural
+        condition_kwargs = condition_kwargs or dict()
+        condition_kwargs.update(dictExtract(kwargs,'condition_'))
+        caption_field = caption_field or self.attributes.get('caption_field') or self.pkey
+        f = self.query(where=condition,columns='*,$%s' %caption_field,**condition_kwargs).fetch()
+        related_tblobj = self.db.table(related_kwargs['table'])
+        related_caption_field = related_kwargs.get('caption_field') or related_tblobj.attributes.get('caption_field')
+        for r in f:
+            pkey = r['pkey']
+            value = Bag()
+            relchidren = self._hdata_getRelatedChildren(fkey=pkey,related_tblobj=related_tblobj,
+                                                              related_caption_field=related_caption_field,
+                                                              related_kwargs = related_kwargs)
+            for related_row in relchidren:
+                related_row = dict(related_row)
+                relpkey = related_row.pop('pkey',None)
+                value.setItem(relpkey, None,
+                                child_count=0,
+                                caption=related_row[related_caption_field],
+                                pkey=relpkey, treeIdentifier='%s_%s'%(pkey, relpkey),
+                                node_class='tree_related',**related_row)    
+            b.setItem(pkey.replace('.','_'),value,
+                        pkey=pkey or '_all_',
+                        caption=r[caption_field],child_count=len(value),
+                        treeIdentifier = pkey,
+                        parent_id=None,
+                        hierarchical_pkey=pkey,
+                       _record=dict(r))
+        result = Bag()
+        result.setItem('root',b,caption=caption,child_count=1,pkey='',treeIdentifier='_root_')
+        return result
+
+    def _hdata_getRelatedChildren(self,fkey=None,related_tblobj=None,related_caption_field=None,related_kwargs=None):
+        related_kwargs = dict(related_kwargs)
+        columns = related_kwargs.get('columns') or '*,$%s' %related_caption_field
+        relation_path = related_kwargs['path']
+        condition = related_kwargs.get('condition')
+        condition_kwargs = dictExtract(related_kwargs,'condition_')
+        wherelist = [' ($%s=:fkey) ' % relation_path]
+        if condition:
+            wherelist.append(condition)
+        result = related_tblobj.query(where=' AND '.join(wherelist),columns=columns,
+                                        fkey=fkey,**condition_kwargs).fetch()
+        return result
+
 
     def createSysRecords(self):
         for m in dir(self):
@@ -468,9 +527,16 @@ class TableBase(object):
 
     @public_method
     def getHierarchicalPathsFromPkeys(self,pkeys=None,related_kwargs=None,parent_id=None,dbstore=None,**kwargs):
-        return self.hierarchicalHandler.getHierarchicalPathsFromPkeys(pkeys=pkeys,
+        if hasattr(self,'hierarchicalHandler'):
+            return self.hierarchicalHandler.getHierarchicalPathsFromPkeys(pkeys=pkeys,
                                                                related_kwargs=related_kwargs,parent_id=parent_id,
                                                               dbstore=dbstore)
+        if related_kwargs['table']:
+            related_tblobj = self.db.table(related_kwargs['table'])
+            p = related_kwargs['path']
+            f = related_tblobj.query(where='$%s IN :pkeys' %related_tblobj.pkey, 
+                                pkeys=pkeys.split(','),columns='$%s' %p).fetch()
+            return ','.join(['%s.%s' %(r[p].replace('.','_'),r['pkey']) for r in f])
 
     def trigger_setRowCounter(self,record,fldname,**kwargs):
         """field trigger used for manage rowCounter field"""

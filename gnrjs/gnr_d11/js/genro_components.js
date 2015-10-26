@@ -3247,17 +3247,14 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             if(this.omitRoot){
                 values = values.getItem('root');
             }
-            var cb;
             this.sourceNode.setRelativeData(this.treestorepath,values);
             if(!this.treeNode){
                 this.createTreeCheckbox();
             }
             var currval = this.sourceNode.getRelativeData(this.sourceNode.attr.value);
-            if(currval){
-                cb = function(){
-                    gnrwdg.setHierarchicalCheckedPaths(currval);
-                };
-            }
+            var cb = function(){
+                gnrwdg.setHierarchicalCheckedPaths(currval);
+            };
         }
         else{
             if(values instanceof gnr.GnrBag){
