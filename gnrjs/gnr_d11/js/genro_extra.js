@@ -301,9 +301,7 @@ dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
     },
 
     mixin_gnr_options:function(options,kw, trigger_reason){   
-        if(!options){
-            return
-        } 
+        var options = this.sourceNode.getAttributeFromDatasource('options');      
         if(options instanceof gnr.GnrBag){
             options = options.asDict(true);
         }    

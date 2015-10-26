@@ -847,7 +847,7 @@ dojo.declare("gnr.GridEditor", null, {
         if (this.invalidCell(cell, inRowIndex)) {
             cell.customClasses.push('invalidCell');
         }
-        if(renderedRow._newrecord){
+        if(this.grid.sourceNode.form && renderedRow._newrecord){
             cell.customClasses.push('newRowCell');
         }
     },
@@ -1462,7 +1462,7 @@ dojo.declare("gnr.GridEditor", null, {
         attr._inGridEditor = true;
         var wdgtag = fldDict.tag;
 
-        if (!wdgtag && (attr.autoWdg ||  cellDataNode.attr.wdg_dtype)) {
+        if (cellDataNode.attr.wdg_dtype || !wdgtag && attr.autoWdg) {
             var dt = cellDataNode.attr.wdg_dtype || convertToText(cellDataNode.getValue())[0];
             wdgtag = {'L':'NumberTextBox','I':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'}[dt] || 'Textbox';
             attr.tag = wdgtag;

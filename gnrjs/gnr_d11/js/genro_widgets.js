@@ -5748,7 +5748,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         this.sourceNode.publish('onDeletedRows');
     },
 
-    mixin_addRows:function(counterOrSource,evt,duplicate){
+    mixin_addRows:function(counterOrSource,evt,duplicate,onEditNode){
         var addrow_kwargs = this.sourceNode.evaluateOnNode(objectExtract(this.sourceNode.attr,'addrow_*',true));
         var source = [];
         counterOrSource = counterOrSource || 1;
@@ -5777,6 +5777,9 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         });
         this.sourceNode.publish('onAddedRows');
         if(!duplicate){
+            if(onEditNode){
+                onEditNode(firstRow);
+            }
             this.editBagRow(this.storebag().index(firstRow.label));
         }
         return firstRow;

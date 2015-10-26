@@ -1068,8 +1068,10 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
             genro.dlg.floatingMessage(this.containerNode,{messageType:'error',message:'You cannot add this key'})
             return;
         }
-        var addedNode = grid.addRows([{'attribute_key':kw.key}]);
-        addedNode._value.getNode('attribute_value').attr.wdg_dtype = kw.dtype || 'T';
+        grid.addRows([{'attribute_key':kw.key}],null,null,function(firstRow){
+            firstRow._value.getNode('attribute_value').attr.wdg_dtype = kw.dtype || 'T';
+        });
+        
     },
 
     gnrwdg_setExclude:function(value){
