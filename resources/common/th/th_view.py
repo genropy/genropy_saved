@@ -759,19 +759,24 @@ class TableHandlerView(BaseComponent):
                 connectedMenu='==TH("%s").querymanager.getOpMenuId(_dtype);' %th_root,
                 _dtype='^.c_0?column_dtype',
                 _class='th_querybox_item')
-        querybox.div(_class='th_querybox_item th_queryboxfield').textbox(value='^.c_0?value_caption',width='8em',
+        value_textbox = querybox.div(_class='th_querybox_item th_queryboxfield').textbox(value='^.c_0?value_caption',width='8em',
             _autoselect=True,relpath='.c_0',
             validate_onAccept='TH("%s").querymanager.checkQueryLineValue(this,value)' %th_root,
             disabled='==(_op in TH("%s").querymanager.helper_op_dict)'  %th_root, _op='^.c_0?op',
             connect_onclick="TH('%s').querymanager.getHelper(this);" %th_root,
             _class='th_queryboxfield')
+
+        value_textbox.div('^.c_0?value_caption', hidden='==!(_op in  TH("%s").querymanager.helper_op_dict)' %th_root,
+                         _op='^.c_0?op', _class='helperField')
+
+
         querybox_stack.div("==_internalQueryCaption || _caption",_caption='^.#parent.queryAttributes.caption',
                         _internalQueryCaption='^.#parent.#parent.internalQuery.caption', 
                         _class='th_querybox_extended',
                         tooltip='==_internalQueryTooltip || _internalQueryCaption || _caption',
                                     _internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip',
                                     hidden='^.#parent.queryAttributes.extended?=!#v',min_width='20em')
-        
+
 
         
     def _th_viewController(self,pane,table=None,th_root=None,default_totalRowCount=None):
