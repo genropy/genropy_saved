@@ -420,7 +420,8 @@ genropatches.comboBox = function() {
                 pw.handleKey(evt);
             }
             var evt_keycode = evt.keyCode;
-            if(evt_keycode==dk.UP_ARROW && evt.keyChar=='&'){
+            console.log('evt_keycode',evt_keycode, 'evt.keyChar',evt.keyChar)
+            if((evt_keycode==dk.UP_ARROW && evt.keyChar=='&') || (evt_keycode==dk.DOWN_ARROW && evt.keyChar=='(')){
                 evt_keycode = 0; //L.A. fix for evt.keyChar=='&'
             }
             switch(evt_keycode){
