@@ -4187,6 +4187,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
     fillDragInfo:function(dragInfo) {
         var widget = dragInfo.widget;
+        var event = dragInfo.event;
         if ((event.cellIndex >= 0) && (event.rowIndex == -1)) {
             dragInfo.dragmode = 'column';
             dragInfo.outline = widget.columnNodelist(event.cellIndex, true);
