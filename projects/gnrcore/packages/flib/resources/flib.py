@@ -22,7 +22,7 @@ class FlibBase(BaseComponent):
             storePars = {}
             storePars['where'] = '@categories.category_id IN :checked_categories'
             storePars['order_by'] = '$__ins_ts'
-            storePars['limit'] = 100
+            storePars['limit'] = 1000
             storePars['checked_categories'] = '^.checked_categories'
             th.view.dataFormula('.checked_categories','checked_categories?checked_categories.split(","):[]',
                                 checked_categories=checked_categories)
