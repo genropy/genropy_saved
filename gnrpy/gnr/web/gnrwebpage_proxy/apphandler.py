@@ -1055,7 +1055,11 @@ class GnrWebAppHandler(GnrBaseProxy):
                 kw.update(_target_fld='%s.%s' % (selection.dbtable.fullname, selection.dbtable.pkey),
                            _relation_value=pkey, 
                            _resolver_name='relOneResolver')
-            result.setItem(row_key, None, **kw)
+            value = None 
+            attributes = kw.get('_attributes')
+            if attributes and '__value__' in attributes:
+                value = attributes.pop('__value__')
+            result.setItem(row_key, value, **kw)
         return result
     
     @public_method

@@ -23,7 +23,13 @@ class GnrCustomWebPage(object):
 
                     selected_username='.username',width='25em',
                     hasDownArrow=True)
-        fb.dbSelect(dbtable='adm.user',value='^.user_id_2',lbl='User',
+
+        fb.dbCombobox(dbtable='adm.user',value='^.username',lbl='Combo',
+
+                    selected_username='.username',width='25em',
+                    hasDownArrow=True)
+
+        fb.dbSelect(dbtable='adm.user',value='^.user_id_2',lbl='zzz',
                     auxColumns='$username',width='25em',
                     hasDownArrow=True)
         #fb.data('.username','...')

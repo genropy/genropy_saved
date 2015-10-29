@@ -185,6 +185,8 @@ class TableHandlerForm(BaseComponent):
             if options.pop('printMenu',False):
                 #default_slots = default_slots.replace('form_delete','form_print,100,form_delete')
                 extra_slots.append('form_print')
+            if options.pop('audit',False):
+                extra_slots.append('form_audit')
             if options.pop('copypaste',False):
                 extra_slots.append('form_copypaste')
             if options.pop('linker',False):
@@ -221,6 +223,24 @@ class TableHandlerForm(BaseComponent):
                                  onSavedHandler=self._th_hook('onSaved',mangler=mangler))
             
     
+    @struct_method          
+    def th_slotbar_form_audit(self,pane,**kwargs):
+        inattr = pane.getInheritedAttributes()
+        th_root = inattr['th_root']
+        pane.paletteGrid(paletteCode='%s_recordHistory' %th_root,
+                        title='!!Record History',
+                        dockButton=True,
+                        width='400px',
+                        height='500px',
+                        dockButton_iconClass='iconbox book',
+                        viewResource='ViewRecordHistory',table='adm.audit',
+                        condition='$tablename=:tname AND $record_pkey=:pk',
+                        condition_tname='=#FORM.controller.table',
+                        condition_pk='^#FORM.pkey',
+                        view_store_onBuilt=True,
+                        formResource='FormRecordHistory',
+                        thwidget='border')
+
     @struct_method          
     def th_slotbar_form_copypaste(self,pane,**kwargs):
         pane.dataController("""var form = this.form;

@@ -12,12 +12,11 @@ class Table(object):
         tbl.column('version','L',name_long='!!Version')
         tbl.column('data','X',name_long='!!Data')
         tbl.column('transaction_id',name_long='!!Transaction id')
-    
+
     def getXmlRecord(self,record=None):
         if not isinstance(record,Bag):
             record = Bag(record)
         return record.toXml()
-    
 
     def audit(self,tblobj,event,audit_mode=None,record=None,old_record=None,username=None,page=None):
         if event=='I' and audit_mode=='lazy':

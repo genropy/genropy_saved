@@ -15,11 +15,11 @@ class GnrCustomWebPage(object):
         language = self.locale.split('-')[0]
         doctable = self.db.table('.'.join(args[0:2]))
         urlist = args[2:]
-        pkey,rst = doctable.readColumns(columns='$%s,$content_rst_%s' %(doctable.pkey,language),
+        columns = '$id,$content_rst_it,$content_rst_en' if language == 'it' else '$id,$content_rst_en,$content_rst_it'
+        pkey,rst,alt_rst = doctable.readColumns(columns=columns,
                                                     where='$hierarchical_name=:hname',
                                                     hname='/'.join(urlist))
-        if not rst:
-            rst = 'To do...'
+        rst = rst or alt_rst or 'To do...'
         if hasattr(doctable,'dfAsTable'):
             rsttable = doctable.dfAsTable(pkey)
             if rsttable:

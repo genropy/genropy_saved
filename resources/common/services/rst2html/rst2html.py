@@ -40,7 +40,10 @@ class Main(GnrBaseService):
                 stylesheet = self.styleSheetFromTheme(self.theme or 'readthedocs')
         settings_overrides = {'stylesheet_path':stylesheet}
         settings_overrides.update(docutils_kwargs)
+        if not source_rst:
+            return
         try :
+            source_rst = source_rst.replace('[tr-off]','').replace('[tr-on]','')
             result = renderRst(source_rst, writer_name='html',
                               settings_overrides=settings_overrides)
             #result = result.replace('class="document"','class="rst-content"')

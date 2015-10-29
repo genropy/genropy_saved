@@ -916,11 +916,16 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         controller.setItem('clipboard',clipboard);
     },
 
-    pasteClipboard:function(path){
-        var controllerdata = this.getControllerData();
-        var clipboard = controllerdata.getItem('clipboard')
-        var copy = clipboard.getNode(path);
-        var copybag = copy.getValue().deepCopy();
+    pasteClipboard:function(pathOrCopyBag){
+        var copybag;
+        if(!pathOrCopyBag instanceof gnr.GnrBag){
+            var controllerdata = this.getControllerData();
+            var clipboard = controllerdata.getItem('clipboard')
+            var copy = clipboard.getNode(path);
+            copybag = copy.getValue().deepCopy();
+        }else{
+            copybag = pathOrCopyBag;
+        }
         var currdata = this.getFormData();
         copybag.forEach(function(n){
             var value = n._value;
@@ -2616,7 +2621,7 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
         var formData = form.getFormData();
         var currPkey = form.getCurrentPkey();
         var pkeyField = this.pkeyField;
-        var newPkey = formData.getItem(pkeyField);
+        var newPkey = pkeyField?formData.getItem(pkeyField):null;
         var data;
         var newrecord = currPkey=='*newrecord*';
         if(newrecord){
