@@ -2708,7 +2708,7 @@ class NetBag(BagResolver):
 
         try:
             params = {k:self.converter.asTypedText(v) for k,v in self.kwargs.items()}
-            response = self.requests.get('%s/%s' %(self.url,self.method),params=params)
+            response = self.requests.post('%s/%s' %(self.url,self.method),data=params)
             return Bag(response.text)
         except Exception, e:
             return Bag(dict(error=str(e)))
