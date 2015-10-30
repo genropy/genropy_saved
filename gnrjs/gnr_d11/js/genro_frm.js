@@ -1270,19 +1270,28 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     this._getRecordCluster(value, changesOnly, data, false, currpath);
                 }
                 else if (value instanceof gnr.GnrBag) {
-                    sendBag = (sendback == true) || isNewRecord || value.getNodeByAttr('_loadedValue')!=null;
-                    if(!sendBag && objectNotEmpty(this.gridEditors)){
+                    var isRealChange = false;
+                    var gridEditorChanged = false;
+                    if(objectNotEmpty(this.gridEditors)){
                         for(var k in this.gridEditors){
                             var ge = this.gridEditors[k];
                             if(node._id==ge.grid.storebag().getParentNode()._id){
-                                sendBag = (ge.status=='changed');
+                                if(ge.status=='changed'){
+                                    isRealChange = true;
+                                    gridEditorChanged = true;
+                                };
                                 break;
                             }
                         }
                     }
-                    if (sendBag) {
+
+                    //sendBag = sendBag || (sendback == true) || isNewRecord || value.getNodeByAttr('_loadedValue')!=null;
+                    var hasLoadedValue = value.getNodeByAttr('_loadedValue')!=null;
+                    if (gridEditorChanged || (sendback == true) || isNewRecord || hasLoadedValue) {
                         value = value.deepCopy();
-                        value.walk(function(n){
+                        if(hasLoadedValue){
+                            isRealChange = true;
+                            value.walk(function(n){
                             if('_loadedValue' in n.attr){
                                 var nvalue = n._value;
                                 if(nvalue instanceof gnr.GnrBag){
@@ -1291,10 +1300,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                                 var loadedValue = objectPop(n.attr,'_loadedValue');
                                 n.attr.__old = asTypedTxt(loadedValue, n.attr.dtype);
                             }
-                        },'static');
+                            },'static');
+                        }
+                        
                         if(value.len()>0 || !isNewRecord){
                             data.setItem(node.label, value, objectUpdate({'_gnrbag':true}, node.attr));
-                            data.__isRealChange = true;
+                            data.__isRealChange = data.__isRealChange || isRealChange;
                         }
                     }
                 }
