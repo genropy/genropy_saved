@@ -133,13 +133,16 @@ class HTableTree(BaseComponent):
                                        var into_parent_id = dropInfo.treeItem.attr.parent_id;
                                         var pkey = data.pkey;
                                         var parent_id = data.parent_id;
-                                genro.bp(true)
-                                console.log('dropInfo.modifiers',dropInfo.modifiers,'parent_id',parent_id)
+                                        var modifiers = dropInfo.modifiers;
+                                if(!modifiers && genro.dom._lastDragInfo && genro.dom._lastDragInfo.modifiers){
+                                    modifiers = genro.dom._lastDragInfo.modifiers;
+                                    //fix firefox debian
+                                }
                                genro.serverCall("ht_moveHierarchical",{table:'%s',pkey:pkey,
                                                                         into_pkey:into_pkey,
                                                                         parent_id:parent_id,
                                                                         into_parent_id:into_parent_id,
-                                                                        modifiers:dropInfo.modifiers},
+                                                                        modifiers:modifiers},
                                                 function(result){
                                                 });""" %table
             treeattr['dropTargetCb']="""return this.form? this.form.locked?false:THTree.dropTargetCb(this,dropInfo):THTree.dropTargetCb(this,dropInfo);"""  
