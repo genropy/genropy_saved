@@ -706,7 +706,7 @@ class SqlTable(GnrObject):
         it with defaults"""
         return dict([(x.name, x.attributes['sample'])for x in self.columns.values() if 'sample' in x.attributes])
 
-    def query(self, columns='*', where=None, order_by=None,
+    def query(self, columns=None, where=None, order_by=None,
               distinct=None, limit=None, offset=None,
               group_by=None, having=None, for_update=False,
               relationDict=None, sqlparams=None, excludeLogicalDeleted=True,
