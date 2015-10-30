@@ -49,6 +49,8 @@ offload-threads = %(offload_threads)i
 wsgi-env-behaviour = holy
 pidfile = %(pidfile_path)s
 logto = %(logto)s
+gid = %(gid)i
+uid = %(uid)i
 %(websockets)s
 [genropy]
 %(gnr_vassal_options)s
@@ -118,6 +120,8 @@ logto = %(logto)s
         pars['offload_threads'] = int(opt.offload_threads or pars['processes'])
         pars['pidfile_path'] = self.pidfile_path
         pars['logto'] = self.error_path
+        pars['gid'] = os.getgid()
+        pars['uid'] = os.getuid()
         if boolean(opt.websockets):
             pars['websockets'] = """http-websockets = true
 route = ^/websocket httpdumb:%s
