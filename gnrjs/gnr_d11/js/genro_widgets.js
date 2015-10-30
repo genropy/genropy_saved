@@ -7566,16 +7566,6 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         });
     },
 
-    mixin_collapseAll:function(rootNode){
-        var that = this;
-        var nodes = dojo.query('.dijitTreeExpando.dijitTreeExpandoOpened',rootNode.domNode);
-        nodes.forEach(function(n){
-                var n = that.model.store.getIdentity(dijit.getEnclosingWidget(n).item);
-                var tn = that._itemNodeMap[n];
-                that._collapseNode(tn);
-        });
-    },
-
     attributes_mixin__saveState: function() {
         return;
         //summary: create and save a cookie with the currently expanded nodes identifiers
