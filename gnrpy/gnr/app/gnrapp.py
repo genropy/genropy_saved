@@ -676,7 +676,8 @@ class GnrApp(object):
             if self.remote_db:
                 dbattrs.update(self.config.getAttr('remote_db.%s' %self.remote_db))
             if dbattrs and dbattrs.get('implementation') == 'sqlite':
-                dbattrs['dbname'] = self.realPath(dbattrs.pop('filename'))
+                dbname = dbattrs.pop('filename',None) or dbattrs['dbname']
+                dbattrs['dbname'] = self.realPath(dbname)
         else:
             # Setup for testing with a temporary sqlite database
             tempdir = tempfile.mkdtemp()
