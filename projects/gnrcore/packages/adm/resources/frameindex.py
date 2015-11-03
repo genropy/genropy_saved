@@ -55,12 +55,12 @@ class FrameIndex(BaseComponent):
                 if custom_index and custom_index!='*':
                     getattr(self,'index_%s' %custom_index)(root,**kwargs)
                 else:
-                    root.frameIndexRoot(**kwargs)
+                    root.frameIndexRoot(new_window=new_window,**kwargs)
             else:
                 root.div('Not allowed')
 
     @struct_method
-    def frm_frameIndexRoot(self,pane,onCreatingTablist=None,**kwargs):
+    def frm_frameIndexRoot(self,pane,new_window=None,onCreatingTablist=None,**kwargs):
         pane.dataController("""var d = data.deepCopy();
                             if(deltaDays(new Date(),d.getItem('workdate'))==0){
                                 d.setItem('workdate','');
@@ -69,7 +69,7 @@ class FrameIndex(BaseComponent):
                             
                             SET gnr.windowTitle = str;
                             """,
-                            data='=gnr.rootenv',
+                            data='^gnr.rootenv',
                             tpl=self.windowTitleTemplate(),
                             _onStart=True)
         frame = pane.framePane('standard_index',_class='hideSplitter frameindexroot',
@@ -93,6 +93,8 @@ class FrameIndex(BaseComponent):
         self.prepareTop(frame.top,onCreatingTablist=onCreatingTablist)
         self.prepareBottom(frame.bottom)
         self.prepareCenter(frame.center)
+        if new_window:
+            self.loginDialog(pane)
         return frame
         
     def prepareTop(self,pane,onCreatingTablist=None):
