@@ -4921,3 +4921,25 @@ div[disabled='true'], div[disabled='disabled']{
     overflow:scroll !important; 
     -webkit-overflow-scrolling:touch !important;    
 }
+
+
+.detached_placeholder{
+    position: relative;
+}
+
+.detached_placeholder_content{
+    position: absolute;
+    top:10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    border: 10px solid rgba(99, 136, 195, 0.1);
+    border-radius: 10px;
+}
+.detached_placeholder_title{
+    font-size: 30px;
+    color:rgba(99, 136, 195, 0.25);
+    text-align: center;
+    margin-top: 20px;
+}
+

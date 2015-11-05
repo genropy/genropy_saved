@@ -243,18 +243,32 @@ dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
     },
 
     created:function(domNode, savedAttrs, sourceNode){
+        var dygraph_root = document.createElement('div');
+        domNode.appendChild(dygraph_root);
         var data = savedAttrs.data;
         var options = savedAttrs.options;
         if(options instanceof gnr.GnrBag){
             options =  options.asDict(true);
+        }
+        if(sourceNode.attr.title){
+            options.title = options.title || sourceNode.attr.title; 
+        }
+        if(sourceNode.attr.detachable){
+            options.title = options.title || 'Untiled Graph';
         }
         if(data instanceof gnr.GnrBag){
             sourceNode.labelKeys = savedAttrs.columns.split(',');
             data = this.getDataFromBag(sourceNode,data);
         }
         var that = this;
+
         var cb = function(){
-            var dygraph = new Dygraph(domNode,data,options);
+            sourceNode._current_height = domNode.clientHeight;
+            sourceNode._current_width = domNode.clientWidth;
+
+            options.height = sourceNode._current_height;
+            options.width = sourceNode._current_width;
+            var dygraph = new Dygraph(dygraph_root,data,options);
             sourceNode.externalWidget = dygraph;
             dygraph.sourceNode = sourceNode;
             dygraph.gnr = that;
@@ -263,11 +277,18 @@ dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
                     dygraph[prop.replace('mixin_', '')] = that[prop];
                 }
             }
+            sourceNode._checker = setInterval(function(){
+                if((domNode.clientHeight != sourceNode._current_height) || (domNode.clientWidth != sourceNode._current_width)){
+                    sourceNode._current_height = domNode.clientHeight;
+                    sourceNode._current_width = domNode.clientWidth;
+                    dygraph.resize(sourceNode._current_width,sourceNode._current_height);
+                }
+            },50);
         }
         if(!window.Dygraph){
             genro.dom.loadJs('/_rsrc/js_libs/dygraph-combined.js',cb);
         }else{
-            cb();
+            setTimeout(cb,1);
         }
     },
 

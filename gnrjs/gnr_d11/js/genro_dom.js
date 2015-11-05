@@ -987,18 +987,29 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var floatingWidget = floating.getParentNode().widget;
         var containerNode = floatingWidget.containerNode;
         containerNode.removeChild(containerNode.firstChild);
-        floating._('div', {height:coords.h + 'px',width:coords.w + 'px',_class:'detached_placeholder',id:detached_id,persist:false});
+        var placeholderSource = floating._('div', {height:coords.h + 'px',width:coords.w + 'px',_class:'detached_placeholder',
+                    id:detached_id,persist:false});
         var placeholder = floatingWidget.containerNode.firstElementChild;
+        var placeholder_content = placeholderSource._('div',{_class:'detached_placeholder_content'})
+        if(title){
+            placeholder_content._('div',{_class:'detached_placeholder_title',innerHTML:title})
+        }
+
         var currentParent = domnode.parentNode;
         var extra_height = dojo.coords(floatingWidget.domNode).h;
         currentParent.replaceChild(placeholder, domnode);
+        floatingWidget.containerNode.style.position = 'relative';
         floatingWidget.containerNode.appendChild(domnode);
         sourceNode.attr.isDetached = true;
         dojo.connect(floatingWidget, 'hide', function() {
-            var widget = dijit.getEnclosingWidget(placeholder);
-            widget.setContent(domnode);
+            var parentDomNode = placeholder.parentNode;
+            var widget = dijit.getEnclosingWidget(parentDomNode);
+            if(widget.domNode === parentDomNode){
+                widget.setContent(domnode);
+            }else{
+                parentDomNode.replaceChild(domnode,placeholder);
+            }
             sourceNode.attr.isDetached = false;
-            //currentParent.replaceChild(domnode,placeholder);
             setTimeout(function(){
                 floatingWidget.close();
             },1000);
