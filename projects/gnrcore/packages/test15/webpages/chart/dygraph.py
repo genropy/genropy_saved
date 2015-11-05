@@ -77,9 +77,11 @@ class GnrCustomWebPage(object):
         grid.column('c_0',edit=True,name='N',dtype='L')
         grid.column('c_1',edit=True,name='Foo',dtype='L')
         grid.column('c_2',edit=True,name='Bar',dtype='L')
-        bc.contentPane(region='center').dygraph(data='^.data',options='^.options',
+        bc.contentPane(region='center',overflow='hidden').dygraph(data='^.data',options='^.options',
                     columns='c_0,c_1,c_2',
-                    height='300px',width='450px',border='1px solid silver')
+                    height='300px',width='450px',
+                    border='1px solid silver',
+                    detachable=True)
         #grid = tc.contentPane(title='Labels').multiValueEditor(value='^.options.labels')
         tc.contentPane(title='Options').multiValueEditor(value='^.options',nodeId='optionseditor')
 

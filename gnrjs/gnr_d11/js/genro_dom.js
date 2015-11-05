@@ -982,27 +982,31 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var floating = genro.dlg.floating({'nodeId':'floating_' + sourceNode._id,
             'title':title ,'top':dropInfo.event.pageY + 'px',
             'left':dropInfo.event.pageX + 'px',resizable:true,
-            dockable:true,closable:false,dockTo:detached_id});
-
-        floating._('div', {height:coords.h + 'px',width:coords.w + 'px',_class:'detatched_placeher',id:detached_id,persist:false});
-        floating = floating.getParentNode().widget;
-        var placeholder = floating.containerNode.firstElementChild;
+            dockable:true,closable:false,dockTo:'dummyDock',
+            autoSize:false});
+        var floatingWidget = floating.getParentNode().widget;
+        var containerNode = floatingWidget.containerNode;
+        containerNode.removeChild(containerNode.firstChild);
+        floating._('div', {height:coords.h + 'px',width:coords.w + 'px',_class:'detached_placeholder',id:detached_id,persist:false});
+        var placeholder = floatingWidget.containerNode.firstElementChild;
         var currentParent = domnode.parentNode;
-        var extra_height = dojo.coords(floating.domNode).h;
+        var extra_height = dojo.coords(floatingWidget.domNode).h;
         currentParent.replaceChild(placeholder, domnode);
-        floating.containerNode.appendChild(domnode);
+        floatingWidget.containerNode.appendChild(domnode);
         sourceNode.attr.isDetached = true;
-        dojo.connect(floating, 'hide', function() {
+        dojo.connect(floatingWidget, 'hide', function() {
             var widget = dijit.getEnclosingWidget(placeholder);
             widget.setContent(domnode);
             sourceNode.attr.isDetached = false;
             //currentParent.replaceChild(domnode,placeholder);
-            floating.close();
+            setTimeout(function(){
+                floatingWidget.close();
+            },1000);
         });
-        floating.show();
-        floating.bringToTop();
+        floatingWidget.show();
+        floatingWidget.bringToTop();
         coords.h = coords.h + extra_height;
-        floating.resize(coords);
+        floatingWidget.resize(coords);
     },
     onDrop:function(event) {
         genro.dom.outlineShape(null);

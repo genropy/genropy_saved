@@ -2465,7 +2465,6 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
     },
     load_memory:function(loadkw){
         //ITEM
-        console.log('load_memory item')
         var default_kw = loadkw.default_kw;
         var destPkey = loadkw.destPkey;
         var form=this.form;
@@ -2477,13 +2476,13 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
         kw = form.sourceNode.evaluateOnNode(kw);
         var envelope = new gnr.GnrBag();
         var recordLoaded = new gnr.GnrBag();
-        if(destPkey=='*newrecord*' && default_kw){
+        var sourceBag = form.sourceNode.getRelativeData(this.locationpath);
+        if((destPkey=='*newrecord*' || sourceBag==null) && default_kw){
             for(var k in default_kw){
                 recordLoaded.setItem(k,default_kw[k])
             }
         }
-        else if(this.locationpath){
-            var sourceBag = form.sourceNode.getRelativeData(this.locationpath);
+        else if(sourceBag && this.locationpath){
             var kw = objectExtract(sourceBag.getParentNode().attr,'lastTS,caption,_protect_delete,_protect_write,_pkey',true);
             var d = sourceBag.deepCopy();
             d.walk(function(n){n.attr = {}})
@@ -2503,23 +2502,38 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
         var saveKw = objectUpdate({},kw);
         var form = this.form;
         var sourceBag = form.sourceNode.getRelativeData(this.locationpath);
+        if(!sourceBag){
+            sourceBag = new gnr.GnrBag();
+            form.sourceNode.setRelativeData(this.locationpath,sourceBag);
+        }
         var formData = form.getFormData();
         formData.walk(function(n){
-            v = n.getValue();
+            var v = n.getValue();
+            var kw = {dtype:n.attr.dtype};
+            if('_displayedValue' in n.attr){
+                kw._displayedValue = n.attr._displayedValue;
+            }
+            if('_formattedValue' in n.attr){
+                kw._formattedValue = n.attr._formattedValue;
+            }
+            if('_valuelabel' in n.attr){
+                kw._valuelabel = n.attr._valuelabel;
+            }
             if(v instanceof gnr.GnrBag){
                 return;
             }
             if('_loadedValue' in n.attr){
                 path = n.getFullpath('static',formData);
-                sourceBag.setItem(path,n.getValue(),{dtype:n.attr.dtype});
+                sourceBag.setItem(path,v,kw);
             }
         });
         var result = {};//{savedPkey:loadedRecordNode.label,loadedRecordNode:loadedRecordNode};
         this.saved(result);
-        this.load(kw);
+        this.form.reset();
+        this.form.load(kw);
     },
     getDefaultDestPkey:function(){
-        return '*norecord*';
+        return '*loaditem*';
     }
 });
 
