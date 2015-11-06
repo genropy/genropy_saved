@@ -646,7 +646,7 @@ dojo.declare("gnr.GnrBag", null, {
                     else{
                         
                         dtype = cell_kw.dtype || vnode.attr.dtype || guessDtype(v);
-                        format = cell_kw.format;
+                        format = typeof(cell_kw)=='string'?cell_kw:cell_kw.format;
                         if(format){
                             v = _F(v,format,dtype);
                         }else{
