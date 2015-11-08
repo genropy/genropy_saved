@@ -485,7 +485,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         if(inset){
             result+= ' inset';
         }
-        var key = dojo.isSafari? 'box-shadow':'box-shadow';
+        var key ='box-shadow';
         styledict[key] = result;
     },
     css3style_gradient:function(value,valuedict,styledict, noConvertStyle){
