@@ -693,7 +693,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     },
     setSrc_do:function(domnode, v, kw) {
         var sourceNode = domnode.sourceNode;
-        var attributes = sourceNode.attr;
+        var attributes = objectUpdate({},sourceNode.attr);
         var main_call = objectPop(attributes,'main');
         var main_kwargs = objectExtract(attributes,'main_*') || {};
         var src_kwargs = objectExtract(attributes,'src_*') || {};

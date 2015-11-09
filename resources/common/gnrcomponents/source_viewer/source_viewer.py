@@ -20,20 +20,23 @@ class SourceViewer(BaseComponent):
     js_requires = 'source_viewer'
     source_viewer_rebuild = True
 
-    def onMain_sourceView(self):
-        page = self.pageSource()
-        _gnrRoot = self.pageSource('_gnrRoot')
+    def source_viewer_root(self,root):
         drawer_cb = getattr(self,'source_viewer_open',None)
         drawer = drawer_cb() if drawer_cb else 'close'
         if drawer is False:
             return
-        sourceViewer = _gnrRoot.value.contentPane(region='right',drawer=drawer,
+        return root.value.contentPane(region='right',drawer=drawer,
                         drawer_background='red',drawer_top='21px',drawer_label='<div class="source_viewer_drawerlabel">Code</div>',
                        drawer_width='43px',drawer_left='-40px',drawer_height='21px',
                        drawer_border='0px',
                        width='550px',overflow='hidden',
                        splitter=True,border_left='1px solid #efefef',
                        background='white')
+
+    def onMain_sourceView(self):
+        page = self.pageSource()
+        _gnrRoot = self.pageSource('_gnrRoot')
+        sourceViewer = getattr(self,'source_viewer_customroot',self.source_viewer_root)(_gnrRoot)
         frame = sourceViewer.framePane('sourceViewerFrame',_class='source_viewer',margin='2px',datapath='gnr.source_viewer',)
         bar = frame.top.slotToolbar('2,sb,*,readOnlyEditor,dataInspector,2',height='20px')
         sb = bar.sb.stackButtons(stackNodeId='source_viewer_stack')

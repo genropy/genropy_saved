@@ -96,11 +96,11 @@ class HTableTree(BaseComponent):
         tblobj = self.db.table(table)
         if not modifiers:
             into_pkey = into_pkey or None
-            tblobj.batchUpdate(dict(parent_id=into_pkey),where='$id=:pkey',pkey=pkey)
+            tblobj.batchUpdate(dict(parent_id=into_pkey),where='$id=:pkey',pkey=pkey,bagFields=True)
             self.db.commit()
         elif (modifiers == 'Shift' or modifiers == 'Shift,Meta') and (into_parent_id==parent_id) and tblobj.column('_row_count') is not None:
             where='$parent_id=:p_id' if parent_id else '$parent_id IS NULL'
-            f = tblobj.query(where=where,p_id=parent_id,for_update=True,order_by='$_row_count',addPkeyColumn=False).fetch()
+            f = tblobj.query(where=where,p_id=parent_id,for_update=True,order_by='$_row_count',bagFields=True,addPkeyColumn=False).fetch()
             b = Bag([(r['id'],dict(r)) for r in f])
             pref = '>' if modifiers == 'Shift' else '<'
             b.setItem(pkey,b.pop(pkey),_position='%s%s' %(pref,into_pkey))
