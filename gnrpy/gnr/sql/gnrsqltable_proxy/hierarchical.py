@@ -217,7 +217,8 @@ class HierarchicalHandler(object):
             order_by = '$_row_count'
             changed_counter = (record['_row_count'] != old_record['_row_count']) or (record['_parent_h_count'] != old_record['_parent_h_count'])
         if changed_hfields or changed_counter:
-            fetch = tblobj.query(where='$parent_id=:curr_id',addPkeyColumn=False, for_update=True,curr_id=record[tblobj.pkey],order_by=order_by).fetch()
+            fetch = tblobj.query(where='$parent_id=:curr_id',addPkeyColumn=False, for_update=True,curr_id=record[tblobj.pkey],order_by=order_by,
+                                    bagFields=True).fetch()
             for k,row in enumerate(fetch):
                 new_row = dict(row)
                 for fld in changed_hfields:
