@@ -229,6 +229,13 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
     },
     mixin_gnr_readOnly:function(value,kw,trigger_reason){
         this.options.readOnly = value?'nocursor':false;
+    },
+
+    mixin_gnr_quoteSelection:function(startchunk,endchunk){
+        endchunk = endchunk || startchunk;
+        var oldtxt = this.doc.getSelection();
+        var newtxt = startchunk+oldtxt+endchunk;
+        this.doc.replaceSelection(newtxt);
     }
 });
 
