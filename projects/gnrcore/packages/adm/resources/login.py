@@ -82,7 +82,7 @@ class LoginComponent(BaseComponent):
                 fbnode.attr['hidden'] = '==!_avatar || _hide '
                 fbnode.attr['_avatar'] = '^gnr.avatar.user'
                 fbnode.attr['_hide'] = '%s?hidden' %fbnode.value['#1.#0?value']
-        if not self.closable_login:
+        if gnrtoken or not self.closable_login:
             pane.dataController("""
                             var href = window.location.href;
                             if(window.location.search){
@@ -228,8 +228,8 @@ class LoginComponent(BaseComponent):
                                 datapath='new_password',width='100%',
                                 fld_width='100%',row_height='3ex')
         fb.data('.gnrtoken',gnrtoken)
-        fb.textbox(value='^.password',lbl='!!New Password',type='password')
-        fb.textbox(value='^.password_confirm',lbl='!!Confirm New Password',type='password',
+        fb.textbox(value='^.password',lbl='!!New password',type='password')
+        fb.textbox(value='^.password_confirm',lbl='!!Confirm password',type='password',
                     validate_call='return value==GET .password;',validate_call_message='!!Passwords must be equal')
         fb.div(width='100%',position='relative',row_hidden=False).button('!!Send',action='FIRE set_new_password',position='absolute',right='-5px',top='8px')
         fb.dataRpc('dummy',self.login_changePassword,_fired='^set_new_password',
