@@ -47,7 +47,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
 
     },
     getMainSource:function(cb){
-        return genro.rpc.remoteCall('main',objectUpdate({timeout:6000},genro.startArgs), 'bag',null,null,cb);
+        return genro.rpc.remoteCall('main',objectUpdate({timeout:20000},genro.startArgs), 'bag',null,null,cb);
     },
 
 
