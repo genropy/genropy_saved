@@ -1186,15 +1186,16 @@ class GnrWebPage(GnrBaseWebPage):
         self._avatar = avatar
         
     def _get_avatar(self):
-        if self.isGuest or getattr(self, 'skip_connection', False):
-            return
         if not hasattr(self, '_avatar'):
+            if self.isGuest or getattr(self, 'skip_connection', False):
+                return
             connection = self.connection
             avatar_extra = connection.avatar_extra or dict()
             self._avatar = self.application.getAvatar(self.user, tags=connection.user_tags, page=self,
                                                       **avatar_extra)
         return self._avatar
-        
+
+
     avatar = property(_get_avatar, _set_avatar)
 
     def _get_siteName(self):
