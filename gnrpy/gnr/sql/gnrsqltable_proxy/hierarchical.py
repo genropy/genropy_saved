@@ -140,11 +140,18 @@ class TableHandlerTreeResolver(BagResolver):
                                             _condition_id=self._condition_id,columns=self.columns,_isleaf=True)
                     child_count = len(related_children)
             result.setItem(pkey,value,
-                            caption=caption,
-                            child_count=child_count,pkey=pkey or '_all_',
-                            parent_id=self.parent_id,
-                            hierarchical_pkey=record['hierarchical_pkey'],
-                            treeIdentifier=pkey,_record=record)
+                            **self.applyOnTreeNodeAttr(caption=caption,
+                                    child_count=child_count,pkey=pkey or '_all_',
+                                    parent_id=self.parent_id,
+                                    hierarchical_pkey=record['hierarchical_pkey'],
+                                    treeIdentifier=pkey,_record=record))
+        return result
+
+    def applyOnTreeNodeAttr(self,**kwargs):
+        result = dict(kwargs)
+        tblobj = self.db.table(self.table)
+        if hasattr(tblobj,'applyOnTreeNodeAttr'):
+            result.update(tblobj.applyOnTreeNodeAttr(**kwargs) or dict())
         return result
 
     def resolverSerialize(self):
