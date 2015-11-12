@@ -9,29 +9,23 @@ import textwrap
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('documentation', pkey='id', name_long='!!Documentation', 
-                        name_plural='!!Documentation',caption_field='title')
+                        name_plural='!!Documentation',caption_field='name')
         self.sysFields(tbl,hierarchical='name',df=True,
                         counter=True,user_ins=True,user_upd=True)
         tbl.column('name',name_long='!!Name')
         tbl.column('topics',name_long='!!Topics')
-        tbl.column('title_en',name_long='!!Title(en)')
-        tbl.column('title_it',name_long='!!Title(it)')
-        tbl.column('content_rst_en',name_long='!!Content rst(en)')
-        tbl.column('content_rst_it',name_long='!!Content rst(it)')
         tbl.column('publish_date',dtype='D',name_long='!!Publish date')
-        tbl.column('sourcebag',dtype='X',name_long='Tutorial data',_sendback=True)
+        tbl.column('sourcebag',dtype='X',name_long='Python Source',_sendback=True)
         tbl.column('docbag',dtype='X',name_long='Rst data',_sendback=True)
-
         tbl.column('old_html')
-        tbl.formulaColumn('example_url',"'/gnet/tutorial/'||$hierarchical_name")
+        tbl.formulaColumn('example_url',"'/webpages/docu_examples/'||$hierarchical_name")
 
     def trigger_onUpdating(self,record,old_record):
         record['sourcebag'] = record['sourcebag'] or None
         if record['sourcebag']:
             record['sourcebag'] = Bag(record['sourcebag'])
             for v in record['sourcebag'].values():
-                v['url'] = '/gnet/tutorial/%s/%s.py' %(record['hierarchical_name'],v['version'])
-
+                v['url'] = '/webpages/docu_examples/%s/%s.py' %(record['hierarchical_name'],v['version'])
 
     def trigger_onUpdated(self,record,old_record):
         if record['hierarchical_name'] != old_record['hierarchical_name']:
@@ -43,7 +37,7 @@ class Table(object):
                             where='$docbag ILIKE :old_link_query OR $content_rst_en ILIKE :old_link_query',
                             old_link_query='%%%s%%',_raw_update=True)
 
-        basepath = self.db.application.site.getStaticPath('pkg:gnet','webpages','tutorial')
+        basepath = self.db.application.site.getStaticPath('site:webpages','docu_examples')
         old_tutorial_record_path = os.path.join(basepath,old_record['hierarchical_name'])
         tutorial_record_path = os.path.join(basepath,record['hierarchical_name'])
         if old_tutorial_record_path != tutorial_record_path:
@@ -67,6 +61,8 @@ class Table(object):
 
     def dfAsRstTable(self,pkey):
         rows = self.df_getFieldsRows(pkey=pkey)
+        if not rows:
+            return
         fdict = dict()
         for r in rows:
             page = r.pop('page',None) or 'Main'

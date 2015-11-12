@@ -88,7 +88,7 @@ class UrlInfo(object):
         self.relpath = None
         self.plugin = None
         path_list = list(url_list)
-        if path_list[0]=='pages':
+        if path_list[0]=='webpages':
             self.pkg = self.site.mainpackage
             self.basepath =  self.site.site_static_dir
         else:
@@ -235,7 +235,7 @@ class GnrWsgiSite(object):
         self.statics = StaticHandlerManager(self)
         self.statics.addAllStatics()
         self.compressedJsPath = None
-        self.pages_dir = os.path.join(self.site_path, 'pages')
+        self.pages_dir = os.path.join(self.site_path, 'webpages')
         self.site_static_dir = self.config['resources?site'] or '.'
         if self.site_static_dir and not os.path.isabs(self.site_static_dir):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path, self.site_static_dir))

@@ -14,11 +14,10 @@ from gnr.core.gnrbag import Bag
 class RstDocumentationHandler(BaseComponent):
     py_requires='gnrcomponents/attachmanager/attachmanager:AttachManager'
     @struct_method
-    def rst_customizeTreeOnDrag(self,tree,table=None):
-        table = table or tree.getInheritedAttributes()['table']
+    def rst_customizeTreeOnDrag(self,tree):
         tree.attributes.update(onDrag_linkPrepare="""
             var hname = treeItem.attr._record['hierarchical_name'];
-            var url = '/docu/rst/'+hname;
+            var url = '/docu/index/rst/'+hname;
             var txt = dragValues['text/plain'];
             dragValues['text/plain'] = '`'+txt+' <'+url+'>`_'
             """ )
@@ -204,23 +203,22 @@ class RstDocumentationHandler(BaseComponent):
                         language=to_language)
 
 
-class ArticleViewer(BaseComponent):
+class DocumentationViewer(BaseComponent):
     py_requires = 'th/th:TableHandler,rst_documentation_handler:RstDocumentationHandler'
     @public_method
-    def articleViewer(self,pane,table=None,localIframe=None,**kwargs):
+    def documentationViewer(self,pane,table=None,localIframe=None,**kwargs):
         datapath = 'docviewer_%s' %table.replace('.','_')
         pane.attributes.update(overflow='hidden')
         bc = pane.borderContainer(datapath=datapath,_anchor=True,**kwargs)
-        self.av_content(bc.framePane(region='center'),table=table,localIframe=localIframe)
-        self.av_left_toc(bc.contentPane(region='left',width='200px',splitter=True,
-                            border_right='1px solid #020F20',drawer=True),table=table)
+        self.dc_content(bc.framePane(region='center'))
+        self.dc_left_toc(bc.contentPane(region='left',width='200px',splitter=True,
+                            border_right='1px solid #020F20',drawer=True))
 
-
-
-    def av_content(self,frame,table,localIframe=None):
+    def dc_content(self,frame):
+        table = 'docu.documentation'
         frame.dataController("""var lang = language?language.toLowerCase():'en';
                             SET .doccaption = lang=='it'? hierarchical_title_it:hierarchical_title_en;
-                            SET .docurl = '/docu/rst/'+hierarchical_name;
+                            SET .docurl = '/docu/index/rst/'+hierarchical_name;
                             """ , 
                             hierarchical_name='^.hierarchical_name',
                             hierarchical_title_it='^.hierarchical_title.it',
@@ -257,48 +255,47 @@ class ArticleViewer(BaseComponent):
                                 return;
                             }
                             SET .loadedUrl = this.domNode.contentWindow.location.pathname;""")
-        if localIframe:
-            pane = bc.contentPane(region='bottom',height='50%',splitter=True,
-                                  overflow='hidden',
-                                  border_top='1px solid #3A4D65')
-            bc.dataController("bc.setRegionVisible('bottom',localIframeUrl!=null)",
-                bc=bc.js_widget,localIframeUrl='^.localIframeUrl',_onBuilt=True)
-            pane.dataRecord('.record',table,pkey='^.pkey')
-            pane.dataFormula('.localIframeUrl','sourcebag.len()==1?sourcebag.getItem("_base_.url"):null',
-                        sourcebag='^.record.sourcebag')
-            pane.dataController("""
-                            var l = url.split(':');
-                            var urlToSet;
-                            if(l[0]=='version'){
-                                var versionRow = data.getItem(l[1]);
-                                if(versionRow){
-                                    urlToSet = versionRow.getItem('url');
-                                }else{
-                                    urlToSet = null;
-                                }
-
+        pane = bc.contentPane(region='bottom',height='50%',splitter=True,
+                              overflow='hidden',
+                              border_top='1px solid #3A4D65')
+        bc.dataController("bc.setRegionVisible('bottom',localIframeUrl!=null)",
+            bc=bc.js_widget,localIframeUrl='^.localIframeUrl',_onBuilt=True)
+        pane.dataRecord('.record',table,pkey='^.pkey')
+        pane.dataFormula('.localIframeUrl','sourcebag.len()==1?sourcebag.getItem("_base_.url"):null',
+                    sourcebag='^.record.sourcebag')
+        pane.dataController("""
+                        var l = url.split(':');
+                        var urlToSet;
+                        if(l[0]=='version'){
+                            var versionRow = data.getItem(l[1]);
+                            if(versionRow){
+                                urlToSet = versionRow.getItem('url');
                             }else{
-                                urlToSet = l[1];
+                                urlToSet = null;
                             }
-                            SET .localIframeUrl = urlToSet;
-                            """,
-                            subscribe_setInLocalIframe=True,
-                            data='=.record.sourcebag')
 
-            pane.iframe(src='^.localIframeUrl',src__source_viewer=True,height='100%',width='100%',border=0)
+                        }else{
+                            urlToSet = l[1];
+                        }
+                        SET .localIframeUrl = urlToSet;
+                        """,
+                        subscribe_setInLocalIframe=True,
+                        data='=.record.sourcebag')
+        pane.iframe(src='^.localIframeUrl',src__source_viewer=True,height='100%',width='100%',border=0)
 
     @public_method
-    def av_path_hierarchical_name(self,table=None,hierarchical_name=None,**kwargs):
+    def dc_path_hierarchical_name(self,hierarchical_name=None,**kwargs):
         if hierarchical_name:
             hierarchical_name = hierarchical_name.strip('/')
         else:
             return
-        hierarchical_pkey =  self.db.table(table).readColumns(columns='$hierarchical_pkey',where='$hierarchical_name=:hname',
+        hierarchical_pkey =  self.db.table('docu.documentation').readColumns(columns='$hierarchical_pkey',where='$hierarchical_name=:hname',
                     hname=hierarchical_name)
         path = hierarchical_pkey.replace('/','.') if hierarchical_pkey else 'root'
         return path 
 
-    def av_left_toc(self, pane,table=None):
+    def dc_left_toc(self, pane):
+        table = 'docu.documentation'
         treebox = pane.div(margin_top='10px',margin_left='2px')
         tree = treebox.hTableTree(storepath='.toc', hideValues=True, 
                 inspect='shift',table=table,
@@ -337,21 +334,20 @@ class ArticleViewer(BaseComponent):
                       }""",
                       font_size='12px',color='#666',line_height='15px',
                 moveTreeNode=False,margin_left='5px')
-        tree.customizeTreeOnDrag(table)
+        tree.customizeTreeOnDrag()
         first_selected = self.db.table(table).query(limit=1).fetch()
         treebox.dataController("""var startpath = first_selected.replace(/\//g,'.');
                                 tree.widget.setSelectedPath(null,{value:startpath});""",first_selected=first_selected[0]['hierarchical_pkey'],tree=tree,_onBuilt=1)
         treebox.dataController("""
                 PUT .docurl = loadedUrl;
-                var loaded_hierarchical_name = loadedUrl.replace('/docu/rst/','');
-                var path = genro.serverCall(rpcmethod,{table:table,hierarchical_name:loaded_hierarchical_name});
+                var loaded_hierarchical_name = loadedUrl.replace('/docu/index/rst/','');
+                var path = genro.serverCall(rpcmethod,{hierarchical_name:loaded_hierarchical_name});
                 tree.widget.setSelectedPath(null,{value:path});
             """,
             loadedUrl='^.loadedUrl',
             docurl='=.docurl',
             _if='loadedUrl!=docurl',
-            table=table,
-            rpcmethod=self.av_path_hierarchical_name,
+            rpcmethod=self.dc_path_hierarchical_name,
             tree=tree)
         treebox.dataController("tree.widget.updateLabels()",_fired='^gnr.language',_delay=1,tree=tree)
         treebox.dataController("""
