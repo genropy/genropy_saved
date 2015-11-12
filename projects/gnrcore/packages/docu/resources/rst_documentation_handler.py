@@ -129,7 +129,7 @@ class RstDocumentationHandler(BaseComponent):
         bc = parent.borderContainer(datapath='#FORM.record.docbag.%s' %lang,**kwargs)
         top = bc.contentPane(region='top')
         fb = top.formbuilder(cols=1,border_spacing='3px')
-        fb.textbox('^.title',width='30em')
+        fb.textbox('^.title',width='30em',lbl='!!Title')
         bc.editorFrame(region='center',lang=lang)
 
     @struct_method
@@ -211,7 +211,7 @@ class DocumentationViewer(BaseComponent):
         pane.attributes.update(overflow='hidden')
         bc = pane.borderContainer(datapath=datapath,_anchor=True,**kwargs)
         self.dc_content(bc.framePane(region='center'))
-        self.dc_left_toc(bc.contentPane(region='left',width='200px',splitter=True,
+        self.dc_left_toc(bc.contentPane(region='left',width='250px',splitter=True,
                             border_right='1px solid #020F20',drawer=True))
 
     def dc_content(self,frame):
@@ -326,7 +326,7 @@ class DocumentationViewer(BaseComponent):
                   }
                 """,
                 selectedLabelClass='branchtree_selected',
-                getLabelClass="return node.attr.child_count>0?'docfolder':'';",
+                getLabelClass="return (!node.attr.parent_id)?'docfolder rootfolder' : node.attr.child_count>0?'docfolder':'';",
                 _class="branchtree articleTree treeLongLabels noIcon",
                       getLabel="""function(node){
                           var l = genro.getData('gnr.language') || genro.locale().split('-')[1];

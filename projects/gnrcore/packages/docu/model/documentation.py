@@ -17,6 +17,7 @@ class Table(object):
         tbl.column('publish_date',dtype='D',name_long='!!Publish date')
         tbl.column('sourcebag',dtype='X',name_long='Python Source',_sendback=True)
         tbl.column('docbag',dtype='X',name_long='Rst data',_sendback=True)
+        tbl.column('doctype',name_long='!!Doc. type')
         tbl.column('old_html')
         tbl.formulaColumn('example_url',"'/webpages/docu_examples/'||$hierarchical_name")
 

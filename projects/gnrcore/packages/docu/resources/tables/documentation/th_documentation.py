@@ -20,7 +20,8 @@ class View(BaseComponent):
 
 
 class Form(BaseComponent):
-    py_requires='rst_documentation_handler:RstDocumentationHandler'
+    py_requires='rst_documentation_handler:RstDocumentationHandler,gnrcomponents/dynamicform/dynamicform:DynamicForm'
+
     def th_form(self, form):
         bc = form.center.borderContainer(datapath='.record')
         bc.rstHelpDrawer()
@@ -33,17 +34,19 @@ class Form(BaseComponent):
                             tree=form.htree)
 
         self.tutorial_head(bc.contentPane(region='top'))
-        tc = bc.tabContainer(region='center',margin='2px',selectedPage='^gnr.language')
-        tc.dataRpc('dummy',self.getTranslation,subscribe_doTranslation=True,
-                    _onResult="""if(result){
-                        this.setRelativeData('.content_rst_'+result.language,result.docbody);
-                        this.setRelativeData('.title_'+result.language,result.doctitle);
-                    }""")
-        bc.translationController()
-        tc.fullEditorPane(title='!!Italiano',lang='it',pageName='IT')
-        tc.fullEditorPane(title='!!English',lang='en',pageName='EN')
-        self.sourceEditor(bc.framePane(region='bottom',height='50%',splitter=True,drawer='open',
+        frame = bc.framePane(region='center')
+        frame.top.slotToolbar('*,stackButtons,*')
+        sc = frame.center.stackContainer(region='center',margin='2px')
+        docpage = sc.borderContainer(title='!!Documentation')
+        rsttc = docpage.tabContainer(margin='2px',region='center')
+        rsttc.fullEditorPane(title='!!English)',lang='en')
+        rsttc.fullEditorPane(title='!!Italian',lang='it')
+        if self.isDeveloper():
+            self.sourceEditor(docpage.framePane(region='bottom',height='50%',splitter=True,drawer='close',
                             datapath='#FORM.versionsFrame'))
+
+        sc.contentPane(title='!!Parameters',datapath='#FORM').fieldsGrid() #ok
+
 
 
     def browserSource(self,struct):
@@ -131,11 +134,11 @@ class Form(BaseComponent):
                     width='100%',border=0)
 
     def tutorial_head(self,pane):
-        fb = pane.formbuilder(cols=5, border_spacing='4px')
+        fb = pane.formbuilder(cols=3, border_spacing='4px')
         fb.field('name',width='12em')
         fb.field('topics',width='12em',tag='checkBoxText',table='gnet.article_topic',popup=True)
         fb.field('publish_date',width='7em')
-        
+        fb.field('doctype',disabled='^.doctype')
         fb.button('Graceful reload',action='FIRE #FORM.gracefulReload;')
         fb.dataRpc('dummy',self.gracefulReload,_fired='^#FORM.gracefulReload')
         fb.div('Old html',hidden='^.old_html?=!#v').tooltipPane().div(height='150px',width='200px',overflow='auto',_class='selectable').div('^.old_html')
@@ -154,6 +157,12 @@ class Form(BaseComponent):
                                     $hierarchical_pkey,
                                     $docbag""")
 
+    @public_method
+    def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
+        if newrecord:        
+            parentrecord = record['@parent_id'] 
+            if parentrecord:
+                record['doctype'] = parentrecord['doctype']
 
 class FormPalette(Form):
     def th_form(self, form):
