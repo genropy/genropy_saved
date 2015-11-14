@@ -37,13 +37,14 @@ class SourceViewer(BaseComponent):
         page = self.pageSource()
         _gnrRoot = self.pageSource('_gnrRoot')
         sourceViewer = getattr(self,'source_viewer_customroot',self.source_viewer_root)(_gnrRoot)
-        frame = sourceViewer.framePane('sourceViewerFrame',_class='source_viewer',margin='2px',datapath='gnr.source_viewer',)
+        frame = sourceViewer.framePane('sourceViewerFrame',_class='source_viewer',datapath='gnr.source_viewer')
         bar = frame.top.slotToolbar('2,sb,*,readOnlyEditor,dataInspector,2',height='20px')
         
         if getattr(self,'source_viewer_addButton',True):
             sb = bar.sb.stackButtons(stackNodeId='source_viewer_stack')
             self.source_viewer_addFileMenu(sb.div('<div class="multibutton_caption">+</div>',_class='multibutton'))
         else:
+            bar.attributes.update(toolbar=False,background='#efefef')
             bar.sb.div()
         if self.source_viewer_edit_allowed():
             bar.readOnlyEditor.div(_class='source_viewer_readonly').checkbox(value='^.readOnly',

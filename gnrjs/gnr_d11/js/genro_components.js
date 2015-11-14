@@ -1939,7 +1939,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
                         sizes[field]=0
                     }
                     v=c.getValue()
-                    if(v){
+                    if(!isNullOrBlank(v)){
                         dtype=types[field]
                         if (!dtype) {
                             dtype=guessDtype(v)

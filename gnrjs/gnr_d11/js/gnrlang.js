@@ -1189,7 +1189,7 @@ var gnrformatter = {
 }
 
 function guessDtype(value){
-    if(value==null || value==undefined){
+    if(value===null || value===undefined){
         return 'NN';
     }
     var t = typeof(value);
