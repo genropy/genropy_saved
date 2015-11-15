@@ -562,7 +562,13 @@ CodeMirror.defineMode('rst-base', function (config) {
     },
 
     token: function (stream, state) {
-      return state.tok(stream, state);
+        var r;
+        try{
+            r = state.tok(stream, state);
+        }catch(e){
+            console.log('exception in rst',stream)
+        }
+      return r;
     }
   };
 }, 'python', 'stex');

@@ -116,7 +116,8 @@ class RstDocumentationHandler(BaseComponent):
 
     @struct_method
     def rst_translationController(self,pane):
-        pane.dataRpc('dummy',self.getTranslation,subscribe_doTranslation=True,
+        pane.dataRpc('dummy',self.rst_getTranslation,subscribe_doTranslation=True,
+                    base_language='=#FORM.record.base_language',
                     _onResult="""if(result){
                         this.setRelativeData('#FORM.record.docbag.'+result.language+'.rst',result.docbody);
                         this.setRelativeData('#FORM.record.docbag.'+result.language+'.title',result.doctitle);
@@ -135,20 +136,25 @@ class RstDocumentationHandler(BaseComponent):
     @struct_method
     def rst_editorFrame(self,pane,lang=None,**kwargs):
         frame = pane.framePane('content_%s' %lang,**kwargs)
-        bar = frame.top.slotToolbar('5,rstdocbuttons,30,quoteNoTr,*,autotranslate,5')
+        bar = frame.top.slotToolbar('5,rstdocbuttons,30,quoteMenu,*,autotranslate,5')
         bar.rstdocbuttons.multiButton(value='^#FORM.docbuttons_%s' %lang,values='rstonly:RST Only,mixed: Mixed view,preview:Preview')
-        from_language = 'it' if lang=='en' else 'en'
-        bar.autotranslate.slotButton('Translate from %s' %from_language.upper(),
-            action='PUBLISH doTranslation = {from_language:from_language,docbody:docbody,doctitle:doctitle};', 
-            docbody='=#FORM.record.docbag.%s.rst' %from_language,
-            doctitle='=#FORM.record.docbag.%s.title' %from_language,
-            from_language=from_language,hidden='^.rst')
+        bar.autotranslate.slotButton('=="Translate from "+(_base_language || "it");',_base_language='=#FORM.record.base_language',
+            action="""_base_language = _base_language || 'it';
+                        var docbody = this.getRelativeData('#FORM.record.docbag.'+_base_language+'.rst');
+                        var doctitle = this.getRelativeData('#FORM.record.docbag.'+_base_language+'.title');
+                        PUBLISH doTranslation = {to_language:to_language,docbody:docbody,doctitle:doctitle};""", to_language=lang,
+            hidden='^.rst')
         center = frame.center.borderContainer()
         cm = center.contentPane(region='center',overflow='hidden').codemirror(value='^.rst',
                                 config_lineNumbers=True,height='100%',
                                 config_mode='rst',config_keyMap='softTab',
                                 config_addon='search')
-        bar.quoteNoTr.slotButton('No Tr Block',action='cm.externalWidget.gnr_quoteSelection("[tr-off]","[tr-on]");',cm=cm)
+        menu = bar.quoteMenu.dropDownButton('!!Quote').menu()
+        menu.menuLine('[tr-off]text[tr-on]',action='this.getAttributeFromDatasource("cm").externalWidget.gnr_quoteSelection("[tr-off]","[tr-on]");',cm=cm)
+        menu.menuLine('``text``',action='this.getAttributeFromDatasource("cm").externalWidget.gnr_quoteSelection("``","``");',cm=cm)
+        menu.menuLine('*text*',action='this.getAttributeFromDatasource("cm").externalWidget.gnr_quoteSelection("*","*");',cm=cm)
+        menu.menuLine('**text**',action='this.getAttributeFromDatasource("cm").externalWidget.gnr_quoteSelection("**","**");',cm=cm)
+
         right = center.contentPane(region='right',overflow='hidden',splitter=True,border_left='1px solid silver',background='white')
         pane.dataController("""var width = 0;
                             status = status || 'rstonly';
@@ -193,20 +199,22 @@ class RstDocumentationHandler(BaseComponent):
         return ''
 
     @public_method
-    def getTranslation(self,docbody=None,doctitle=None,from_language=None,**kwargs):
+    def rst_getTranslation(self,docbody=None,doctitle=None,to_language=None,base_language=None,**kwargs):
         if docbody or doctitle:
-            to_language ='it' if from_language=='en' else 'en'
             tr = self.getService('translation')
+            base_language = base_language or 'it'
             docbody = docbody or doctitle
-            return dict(docbody=tr.translate(docbody,to_language=to_language,from_language=from_language) if docbody else None,
-                        doctitle=tr.translate(doctitle,to_language=to_language,from_language=from_language) if doctitle else None,
+            return dict(docbody=tr.translate(docbody,to_language=to_language,from_language=base_language) if docbody else None,
+                        doctitle=tr.translate(doctitle,to_language=to_language,from_language=base_language) if doctitle else None,
                         language=to_language)
 
 
 class DocumentationViewer(BaseComponent):
     py_requires = 'th/th:TableHandler,rst_documentation_handler:RstDocumentationHandler'
+    css_requires = 'docu'
     @public_method
-    def documentationViewer(self,pane,table=None,localIframe=None,**kwargs):
+    def documentationViewer(self,pane,**kwargs):
+        table = 'docu.documentation'
         datapath = 'docviewer_%s' %table.replace('.','_')
         pane.attributes.update(overflow='hidden')
         bc = pane.borderContainer(datapath=datapath,_anchor=True,**kwargs)
@@ -228,12 +236,9 @@ class DocumentationViewer(BaseComponent):
         bar = frame.top.slotBar('doccaption,*,editrst,backbutton,5',height='18px',
                                 border_bottom='1px solid #3A4D65')
         bar.backbutton.lightButton('!!Back',connect_onclick='SET .docurl = lastdoc',
-                        cursor='pointer',background='#3A4D65',
-                    color='white',rounded_left=6,padding_right='10px',padding_left='10px',
-                    lastdoc='=.lastdoc')
+                        _class='rst_back',lastdoc='=.lastdoc')
         bar.doccaption.span('^.doccaption',hidden='^.doccaption?=!#v',
-                    background='#3A4D65',
-                    color='white',rounded_right=6,padding_right='20px',padding_left='10px')
+                    _class='rst_breadcrumb')
         bar.editrst.div().lightButton(_class='iconbox edit',_tags='_DEV_,author',
                                     action='FIRE .edit_current_record;')
         bc = frame.center.borderContainer()
@@ -255,11 +260,11 @@ class DocumentationViewer(BaseComponent):
                                 return;
                             }
                             SET .loadedUrl = this.domNode.contentWindow.location.pathname;""")
-        pane = bc.contentPane(region='bottom',height='50%',splitter=True,
-                              overflow='hidden',
-                              border_top='1px solid #3A4D65')
-        bc.dataController("bc.setRegionVisible('bottom',localIframeUrl!=null)",
-            bc=bc.js_widget,localIframeUrl='^.localIframeUrl',_onBuilt=True)
+        pane = bc.contentPane(region='right',width='50%',splitter=True,
+                                  overflow='hidden',
+                                  border_left='1px solid #3A4D65')
+        bc.dataController("bc.setRegionVisible('right',localIframeUrl!=null)",
+                bc=bc.js_widget,localIframeUrl='^.localIframeUrl',_onBuilt=True)
         pane.dataRecord('.record',table,pkey='^.pkey')
         pane.dataFormula('.localIframeUrl','sourcebag.len()==1?sourcebag.getItem("_base_.url"):null',
                     sourcebag='^.record.sourcebag')
@@ -299,13 +304,15 @@ class DocumentationViewer(BaseComponent):
         treebox = pane.div(margin_top='10px',margin_left='2px')
         tree = treebox.hTableTree(storepath='.toc', hideValues=True, 
                 inspect='shift',table=table,
+                condition='$is_published',
+                store__onBuilt=True,
                 openOnClick='*',
                 isTree=False,excludeRoot=True, 
                 draggable=self.application.checkResourcePermission('_DEV_,author', self.userTags),
                 selected_pkey='.pkey',
                 columns="""$id,$name,$hierarchical_name,
                             $hierarchical_pkey,
-                            $docbag""",
+                            $docbag,$hlevel""",
                 selfsubscribe_onSelected="""
                   var n = $1.item;
                   var rec = $1.item.attr._record;
@@ -326,8 +333,8 @@ class DocumentationViewer(BaseComponent):
                   }
                 """,
                 selectedLabelClass='branchtree_selected',
-                getLabelClass="return (!node.attr.parent_id)?'docfolder rootfolder' : node.attr.child_count>0?'docfolder':'';",
-                _class="branchtree articleTree treeLongLabels noIcon",
+                getLabelClass="return (node.attr.child_count>0?'docfolder':'')+' doclevel_'+node.attr._record.hlevel;",
+                _class="branchtree docuTree treeLongLabels noIcon",
                       getLabel="""function(node){
                           var l = genro.getData('gnr.language') || genro.locale().split('-')[1];
                           return node.attr['title_'+l.toLowerCase()] || node.attr.caption;

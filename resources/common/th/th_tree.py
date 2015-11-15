@@ -112,10 +112,10 @@ class HTableTree(BaseComponent):
                     tblobj.update(r,old_rec)
             self.db.commit()
 
-    @extract_kwargs(condition=dict(slice_prefix=False),related=True)
+    @extract_kwargs(condition=dict(slice_prefix=False),related=True,store=True)
     @struct_method
     def ht_hTableTree(self,pane,storepath='.store',table=None,root_id=None,draggable=True,columns=None,
-                        caption_field=None,condition=None,caption=None,dbstore=None,condition_kwargs=None,related_kwargs=None,root_id_delay=None,
+                        caption_field=None,condition=None,caption=None,dbstore=None,condition_kwargs=None,store_kwargs=True,related_kwargs=None,root_id_delay=None,
                         moveTreeNode=True,excludeRoot=None,resolved=False,**kwargs):
         
         treeattr = dict(storepath=storepath,hideValues=True,draggable=draggable,identifier='treeIdentifier',
@@ -126,7 +126,8 @@ class HTableTree(BaseComponent):
             if excludeRoot==root_id:
                 treeattr['storepath'] = '%s.%s' %(treeattr['storepath'],root_id)
         tree = pane.tree(**treeattr)
-        tree.htableViewStore(storepath=storepath,table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,related_kwargs=related_kwargs,dbstore=dbstore,resolved=resolved,**condition_kwargs)
+        store_kwargs.update(condition_kwargs)
+        tree.htableViewStore(storepath=storepath,table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,related_kwargs=related_kwargs,dbstore=dbstore,resolved=resolved,**store_kwargs)
         if moveTreeNode:
             treeattr = tree.attributes
             treeattr['onDrop_nodeattr']="""var into_pkey = dropInfo.treeItem.attr.pkey;

@@ -18,8 +18,17 @@ class Table(object):
         tbl.column('sourcebag',dtype='X',name_long='Python Source',_sendback=True)
         tbl.column('docbag',dtype='X',name_long='Rst data',_sendback=True)
         tbl.column('doctype',name_long='!!Doc. type')
+        tbl.column('base_language',size='2',name_long='Base language').relation('docu.language.code',mode='foreignkey')
         tbl.column('old_html')
         tbl.formulaColumn('example_url',"'/webpages/docu_examples/'||$hierarchical_name")
+
+        tbl.formulaColumn('is_published',"""
+            CASE WHEN $publish_date IS NOT NULL THEN EXISTS(#has_published_children)
+            ELSE $publish_date<=:env_workdate END
+            """,select_has_published_children=dict(table='docu.documentation',
+                                                    where="""$hierarchical_pkey ILIKE #THIS.hierarchical_pkey||'%%'
+                                                            AND ($publish_date IS NOT NULL AND $publish_date<=:env_workdate)"""),
+                    dtype='B')
 
     def trigger_onUpdating(self,record,old_record):
         record['sourcebag'] = record['sourcebag'] or None
@@ -33,10 +42,10 @@ class Table(object):
             old_link = '</sys/docserver/rst/%s/%s>' %(self.fullname.replace('.','/'),old_record['hierarchical_name'])
             new_link = '</sys/docserver/rst/%s/%s>' %(self.fullname.replace('.','/'),record['hierarchical_name'])
             def cb(row):
-                row['docbag'].replace.replace(old_link,new_link)
+                row['docbag'] = row['docbag'].replace(old_link,new_link)
             self.batchUpdate(cb,
-                            where='$docbag ILIKE :old_link_query OR $content_rst_en ILIKE :old_link_query',
-                            old_link_query='%%%s%%',_raw_update=True)
+                            where='$docbag ILIKE :old_link_query OR $docbag ILIKE :old_link_query',
+                            old_link_query='%%%s%%',_raw_update=True,bagFields=True)
 
         basepath = self.db.application.site.getStaticPath('site:webpages','docu_examples')
         old_tutorial_record_path = os.path.join(basepath,old_record['hierarchical_name'])

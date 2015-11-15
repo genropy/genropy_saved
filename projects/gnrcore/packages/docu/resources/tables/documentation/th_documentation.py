@@ -21,10 +21,11 @@ class View(BaseComponent):
 
 class Form(BaseComponent):
     py_requires='rst_documentation_handler:RstDocumentationHandler,gnrcomponents/dynamicform/dynamicform:DynamicForm'
-
+    css_requires = 'docu'
     def th_form(self, form):
         bc = form.center.borderContainer(datapath='.record')
         bc.rstHelpDrawer()
+        bc.translationController()
         form.htree.customizeTreeOnDrag()
         form.htree.attributes.update(getLabel="""function(node){
                             var l = genro.getData('gnr.language') || genro.locale().split('-')[1];
@@ -38,9 +39,9 @@ class Form(BaseComponent):
         frame.top.slotToolbar('*,stackButtons,*')
         sc = frame.center.stackContainer(region='center',margin='2px')
         docpage = sc.borderContainer(title='!!Documentation')
-        rsttc = docpage.tabContainer(margin='2px',region='center')
-        rsttc.fullEditorPane(title='!!English)',lang='en')
-        rsttc.fullEditorPane(title='!!Italian',lang='it')
+        rsttc = docpage.tabContainer(margin='2px',region='center',selectedPage='^gnr.language')
+        for lang in self.db.table('docu.language').query().fetch():
+            rsttc.fullEditorPane(title=lang['name'],lang=lang['code'],pageName=lang['code'])
         if self.isDeveloper():
             self.sourceEditor(docpage.framePane(region='bottom',height='50%',splitter=True,drawer='close',
                             datapath='#FORM.versionsFrame'))
@@ -134,10 +135,11 @@ class Form(BaseComponent):
                     width='100%',border=0)
 
     def tutorial_head(self,pane):
-        fb = pane.formbuilder(cols=3, border_spacing='4px')
+        fb = pane.formbuilder(cols=4, border_spacing='4px')
         fb.field('name',width='12em')
         fb.field('topics',width='12em',tag='checkBoxText',table='gnet.article_topic',popup=True)
         fb.field('publish_date',width='7em')
+        fb.field('base_language',width='7em')
         fb.field('doctype',disabled='^.doctype')
         fb.button('Graceful reload',action='FIRE #FORM.gracefulReload;')
         fb.dataRpc('dummy',self.gracefulReload,_fired='^#FORM.gracefulReload')
@@ -152,8 +154,10 @@ class Form(BaseComponent):
             f.write(t)
 
     def th_options(self):
-        return dict(dialog_parentRatio=.9,hierarchical=True,
-                    tree_columns="""$id,$name,$hierarchical_name,
+        return dict(dialog_parentRatio=.9,hierarchical=True,tree_excludeRoot=True,
+                    tree__class='branchtree noIcon',
+                    tree_getLabelClass="return (node.attr.child_count>0?'docfolder':'')+' doclevel_'+node.attr._record.hlevel;",
+                    tree_columns="""$id,$name,$hierarchical_name,$hlevel,
                                     $hierarchical_pkey,
                                     $docbag""")
 
@@ -169,11 +173,6 @@ class FormPalette(Form):
         bc = form.center.borderContainer(datapath='.record')
         self.tutorial_head(bc.contentPane(region='top'))
         tc = bc.tabContainer(region='center',margin='2px',selectedPage='^gnr.language')
-        tc.dataRpc('dummy',self.getTranslation,subscribe_doTranslation=True,
-                    _onResult="""if(result){
-                        this.setRelativeData('.content_rst_'+result.language,result.docbody);
-                        this.setRelativeData('.title_'+result.language,result.doctitle);
-                    }""")
         bc.translationController()
         tc.fullEditorPane(title='!!Italiano',lang='it',pageName='IT')
         tc.fullEditorPane(title='!!English',lang='en',pageName='EN')
