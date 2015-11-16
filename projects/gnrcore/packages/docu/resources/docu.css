@@ -30,7 +30,7 @@
 }
 
 body.bodySize_phone .docuTree.branchtree{
-    zoom:.9;
+    font-size: 80%;
 }
 
 .rst_breadcrumb{
