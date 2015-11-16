@@ -354,7 +354,7 @@ class GnrWsgiSite(object):
         :param static_name: TODO
         :param static_path: TODO
         :param args: TODO"""
-        args = tuple(static_path.split('/')) + args
+        args = tuple(static_path.split(os.path.sep)) + args
         if static_name == 'user':
             args = (self.currentPage.user,) + args #comma does matter
         elif static_name == 'conn':
