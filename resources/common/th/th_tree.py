@@ -147,8 +147,12 @@ class HTableTree(BaseComponent):
                                                 function(result){
                                                 });""" %table
             treeattr['dropTargetCb']="""return this.form? this.form.locked?false:THTree.dropTargetCb(this,dropInfo):THTree.dropTargetCb(this,dropInfo);"""  
-        tree.onDbChanges(action="""THTree.refreshTree(dbChanges,store,treeNode);""",
-                        table=table,store='=%s' %treeattr['storepath'],treeNode=tree) 
+        tree.onDbChanges(action="""
+            if(excludeRoot===true){
+                excludeRoot = '_forest_';
+            }
+            THTree.refreshTree(dbChanges,store,treeNode,excludeRoot);""",
+                        table=table,store='=%s' %treeattr['storepath'],treeNode=tree,excludeRoot=excludeRoot) 
         tree.dataController("""storebag.getNode("root").getValue('reload');""",
                             storebag='=%s' %treeattr['storepath'],
                             treeNode=tree,subscribe_public_changed_partition=True)
@@ -171,7 +175,7 @@ class TableHandlerHierarchicalView(BaseComponent):
     py_requires='th/th_picker:THPicker,th/th_tree:HTableTree'
 
     @struct_method
-    def ht_treeViewer(self,pane,caption_field=None,_class=None,**kwargs):
+    def ht_treeViewer(self,pane,caption_field=None,_class=None,excludeRoot=None,**kwargs):
         pane.attributes['height'] = '100%'
         pane.attributes['overflow'] = 'hidden'
         box = pane.div(position='relative',datapath='.#parent.hview',text_align='left',height='100%',childname='treebox')        
@@ -179,7 +183,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         form = formNode.value
         form.store.handler('load',default_parent_id='=#FORM/parent/#FORM.record.parent_id')
         table = formNode.attr['table']
-        hviewTree = box.hviewTree(table=table,caption_field=caption_field,_class=_class or 'noIcon',**kwargs)
+        hviewTree = box.hviewTree(table=table,caption_field=caption_field,_class=_class or 'noIcon',excludeRoot=excludeRoot,**kwargs)
         form.htree = hviewTree
         hviewTree.dataController("this.form.load({destPkey:selected_pkey});",selected_pkey="^.tree.pkey")
         hviewTree.dataController("""
@@ -193,9 +197,15 @@ class TableHandlerHierarchicalView(BaseComponent):
                 return;
             }
             PUT .tree.pkey = pkey;
-            var selectedPath = currHierarchicalPkey?'root.'+currHierarchicalPkey.replace(/\//g,'.'):'root';
+            var selectedPath = currHierarchicalPkey? currHierarchicalPkey.replace(/\//g,'.'):null;
+            if(!excludeRoot){
+                selectedPath = selectedPath?'root.'+selectedPath:'root';
+            }
             tree.widget.setSelectedPath(null,{value:selectedPath});                        
-        """,formsubscribe_onLoaded=True,tree=hviewTree,table=table,currSelectedPkey='=.tree.pkey',currHierarchicalPkey='=#FORM.record.hierarchical_pkey')        
+        """,formsubscribe_onLoaded=True,tree=hviewTree,table=table,
+            currSelectedPkey='=.tree.pkey',
+            currHierarchicalPkey='=#FORM.record.hierarchical_pkey',
+            excludeRoot=excludeRoot)        
         form.dataController("""var currpkey = this.form.getCurrentPkey();
                             if(currpkey!='*newrecord*'){
                                 treeWdg.setSelected(treeWdg._itemNodeMap[currpkey]);
