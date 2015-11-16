@@ -52,6 +52,10 @@ div,span{
 body.tundra{
     font:13px '-apple-system','HelveticaNeue','Arial';
 }
+body.touchDevice{
+    -webkit-text-size-adjust:none;
+}
+
 body.workInProgress{
     border-left:2px solid red;
 }
