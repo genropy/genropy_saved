@@ -105,19 +105,25 @@ class Form(BaseComponent):
 
 
         bar.addrow_dlg.slotButton('!!Add custom template',iconClass='iconbox add_row',
-                                    version='untitled',
+                                    version='==(!_currVersions || _currVersions.len()===0)?"_base_":"untitled"',
+                                    _currVersions='=#FORM.record.sourcebag',
                                     ask=dict(title='New version',
                                     fields=[dict(name='version',lbl='Version',validate_case='l')]),
                                     action='FIRE #FORM.versionsFrame.newVersion=version;')
         bar.delgridrow.slotButton('!!Delete selected template',iconClass='iconbox delete_row',
                                     action="""grid.publish("delrow");grid.widget.updateRowCount();""",grid=fg.grid)
         fg.dataController("""var currData = this.getRelativeData(editorDatapath);
-                             currVersions.setItem(version,new gnr.GnrBag({source:currData.getItem('source'),version:version}));
+                              var source = currData.getItem('source');
+                              if(!source){
+                                 source = defaultsource;
+                              }
+                             currVersions.setItem(version,new gnr.GnrBag({source:source,version:version}));
                              setTimeout(function(){
                                 grid.selection.select(grid.rowCount-1);
+                                grid.sourceNode.setRelativeData('.selectedLabel',version);
                              },1)
                                 """,
-
+                                defaultsource= self.getDefaultSource(),
                          version="^#FORM.versionsFrame.newVersion",
                           currVersions='=#FORM.record.sourcebag',
                           editorDatapath='=#FORM.versionsFrame._editorDatapath',
@@ -133,6 +139,7 @@ class Form(BaseComponent):
     def sourcePreviewIframe(self,pane):
         pane.iframe(src='^#FORM.versionsFrame.selectedUrl',height='100%',
                     width='100%',border=0)
+        pane.dataController("PUT #FORM.versionsFrame.selectedUrl = null;",_fired='^#FORM.controller.saving')
 
     def tutorial_head(self,pane):
         fb = pane.formbuilder(cols=4, border_spacing='4px')
@@ -160,7 +167,13 @@ class Form(BaseComponent):
                     tree_columns="""$id,$name,$hierarchical_name,$hlevel,
                                     $hierarchical_pkey,
                                     $docbag""")
-
+    def getDefaultSource(self):
+        return """# -*- coding: UTF-8 -*-
+            
+class GnrCustomWebPage(object):
+    def main(self,root,**kwargs):
+        pass
+    """
     @public_method
     def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
         if newrecord:        

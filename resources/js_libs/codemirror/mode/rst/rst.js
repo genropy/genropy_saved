@@ -89,8 +89,7 @@ CodeMirror.defineMode('rst-base', function (config) {
   };
 
   function assert(expression, message) {
-    if (!expression) throw new AssertException(message);
-    return expression;
+     return expression;
   }
 
   ///////////////////////////////////////////////////////////////////////////

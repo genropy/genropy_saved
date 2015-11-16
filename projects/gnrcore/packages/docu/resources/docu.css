@@ -2,9 +2,9 @@
     background: #3A4D65;
     color: white;
     display: inline-block;
-    text-align: center;
     border-radius: 6px;
-    width:90%;
+    width:80%;
+    padding-left: 10px !important;
     padding-top: 2px;
     padding-bottom: 1px;
 }
@@ -27,6 +27,10 @@
     color: #3A4D65;
     padding-right: 25px;
     border-radius: 0px 10px 10px 0px;
+}
+
+body.bodySize_phone .docuTree.branchtree{
+    zoom:.9;
 }
 
 .rst_breadcrumb{

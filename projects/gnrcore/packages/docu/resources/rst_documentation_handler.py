@@ -173,6 +173,7 @@ class RstDocumentationHandler(BaseComponent):
     @struct_method
     def rst_renderedIframe(self,pane,value=None,**kwargs):
         iframe = pane.div(_class='scroll-wrapper').htmliframe(**kwargs)
+        js_script_url = self.site.getStaticUrl('rsrc:common','localiframe.js')
         pane.dataRpc('dummy',self.getPreviewRst2html,
                     rstdoc=value,
                     _delay=500,
@@ -181,15 +182,18 @@ class RstDocumentationHandler(BaseComponent):
                     _onResult="""
                         var cw = kwargs._iframe.contentWindow;
                         var cw_body = cw.document.body;
+
+                        var s = cw.document.createElement("script");
+                        s.type = "text/javascript";
+                        s.src = '%s';
+                        cw.document.getElementsByTagName("head")[0].appendChild(s);
                         if(genro.isMobile){
                             cw_body.classList.add('touchDevice');
                         }
+                        cw_body.classList.add('bodySize_'+genro.deviceScreenSize);
+
                         cw_body.innerHTML = result;
-                        var s = cw.document.createElement("script");
-                        s.type = "text/javascript";
-                        s.innerHTML = "var localIframe = function(url){window.parent.postMessage({topic:'setInLocalIframe',url:url},'*');}";
-                        cw.document.getElementsByTagName("head")[0].appendChild(s);
-                    """,
+                    """ %js_script_url,
                     _iframe=iframe.js_domNode)
 
     @public_method
@@ -219,7 +223,7 @@ class DocumentationViewer(BaseComponent):
         pane.attributes.update(overflow='hidden')
         bc = pane.borderContainer(datapath=datapath,_anchor=True,**kwargs)
         self.dc_content(bc.framePane(region='center'))
-        self.dc_left_toc(bc.contentPane(region='left',width='250px',splitter=True,
+        self.dc_left_toc(bc.contentPane(region='left',width='180px' if self.deviceScreenSize == 'phone' else '250px',splitter=True,
                             border_right='1px solid #020F20',drawer=True))
 
     def dc_content(self,frame):
@@ -233,10 +237,8 @@ class DocumentationViewer(BaseComponent):
                             hierarchical_title_en='^.hierarchical_title.en',
                             language='^gnr.language',
                             _delay=1)
-        bar = frame.top.slotBar('doccaption,*,editrst,backbutton,5',height='18px',
+        bar = frame.top.slotBar('doccaption,*,editrst,5',height='18px',
                                 border_bottom='1px solid #3A4D65')
-        bar.backbutton.lightButton('!!Back',connect_onclick='SET .docurl = lastdoc',
-                        _class='rst_back',lastdoc='=.lastdoc')
         bar.doccaption.span('^.doccaption',hidden='^.doccaption?=!#v',
                     _class='rst_breadcrumb')
         bar.editrst.div().lightButton(_class='iconbox edit',_tags='_DEV_,author',
@@ -250,11 +252,7 @@ class DocumentationViewer(BaseComponent):
                             if(genro.isMobile){
                                 cw.document.body.classList.add('touchDevice');
                             }
-
-                            var s = cw.document.createElement("script");
-                            s.type = "text/javascript";
-                            s.innerHTML = "var localIframe = function(url){window.parent.postMessage({topic:'setInLocalIframe',url:url},'*');}";
-                            cw.document.getElementsByTagName("head")[0].appendChild(s);
+                            cw.document.body.classList.add('bodySize_'+genro.deviceScreenSize);
                             if(this.domNode.getAttribute('src')=='null'){
                                 //emptylink
                                 return;

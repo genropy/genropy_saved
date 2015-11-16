@@ -6,7 +6,6 @@ Copyright (c) 2008 Softwell. All rights reserved.
 """
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
-LAGUAGES = ('it','en')
 
 class GnrCustomWebPage(object):
     py_requires='gnrcomponents/externalcall:BaseRpc'
@@ -24,4 +23,6 @@ class GnrCustomWebPage(object):
         rsttable = doctable.dfAsRstTable(pkey)
         if rsttable:
             rst = '%s\n\n%s' %(rst,rsttable) 
-        return self.site.getService('rst2html')(rst)
+        js_script_url= self.site.getStaticUrl('rsrc:common','localiframe.js')
+
+        return self.site.getService('rst2html')(rst,scripts=[js_script_url])

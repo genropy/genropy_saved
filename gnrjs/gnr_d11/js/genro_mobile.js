@@ -37,6 +37,7 @@ dojo.declare("gnr.GnrMobileHandler", null, {
     },
     initialize:function() {
         dojo.addClass(document.body,'touchDevice');
+        dojo.addClass(document.body,'bodySize_'+genro.deviceScreenSize);
         this.startHammer(document.body);
         document.body.onorientationchange = function(e) {
             genro.setData('touch.orientation', window.orientation);

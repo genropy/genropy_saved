@@ -235,7 +235,7 @@ class SourceViewer(BaseComponent):
                                                     }
                                                 })
 
-                                        },100);
+                                        },500);
                                     
                                 """,
                                 dockButton=True,editable=True)
