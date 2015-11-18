@@ -161,7 +161,7 @@ class Form(BaseComponent):
             f.write(t)
 
     def th_options(self):
-        return dict(dialog_parentRatio=.9,hierarchical='open',tree_excludeRoot=True,
+        return dict(dialog_parentRatio=.9,hierarchical='open',audit=True,tree_excludeRoot=True,
                     tree__class='branchtree noIcon',
                     tree_getLabelClass="return (node.attr.child_count>0?'docfolder':'')+' doclevel_'+node.attr._record.hlevel;",
                     tree_columns="""$id,$name,$hierarchical_name,$hlevel,
