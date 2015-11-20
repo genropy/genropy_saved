@@ -6146,11 +6146,8 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         if(this.collectionStore().allowLogicalDelete){
             protectPkeys = this.getSelectedProtectedPkeys();
         }
-        if(this.gridEditor){
-            console.error('Archive not available for editable grid')
-        }else{
-            this.collectionStore().archiveAsk(pkeys,protectPkeys);
-        }
+        this.collectionStore().archiveAsk(pkeys,protectPkeys);
+            
     },
     
     mixin_filterToRebuild: function(value) {
