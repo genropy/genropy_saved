@@ -109,11 +109,11 @@ class TableHandlerView(BaseComponent):
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title,liveUpdate=liveUpdate,store_kwargs=store_kwargs)
         contextMenu = frame.grid.menu(_class='smallmenu')
-        contextMenu.menuline('!!Reload',action="$2.publish('runbtn',$3);")
+        contextMenu.menuline('!!Reload',action="$2.widget.reload();")
         contextMenu.menuline('-')
         contextMenu.menuline('!!Show Archived Records',checked='^.#parent.showLogicalDeleted',
                                 action="""SET .#parent.showLogicalDeleted= !GET .#parent.showLogicalDeleted;
-                                           $2.publish('runbtn',$3);""")
+                                           $2.widget.reload();""")
         contextMenu.menuline('!!Totals count',action='SET .#parent.tableRecordCount= !GET .#parent.tableRecordCount;',
                             checked='^.#parent.tableRecordCount')
         contextMenu.menuline('-')
