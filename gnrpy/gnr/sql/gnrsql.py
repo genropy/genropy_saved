@@ -477,6 +477,11 @@ class GnrSqlDb(GnrObject):
         
         :param tblobj: the table object
         :param record: an object implementing dict interface as colname, colvalue"""
+        deletable = tblobj.attributes.get('deletable',True)
+        if isinstance(deletable,basestring):
+            deletable = self.application.checkResourcePermission(deletable, self.currentEnv['userTags'])
+        if not deletable:
+            raise GnrSqlException('The records of table %s cannot be deleted' %tblobj.name_long)
         tblobj.protect_delete(record)
         tblobj._doFieldTriggers('onDeleting', record)
         tblobj.trigger_onDeleting(record)

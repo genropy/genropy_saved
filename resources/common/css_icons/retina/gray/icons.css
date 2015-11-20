@@ -35,6 +35,14 @@
 	background: url(16/add_row.png) no-repeat center center;
 }
 
+.box{
+    background: url(16/box.png) no-repeat center center;
+}
+.box_full{
+    background: url(16/box_full.png) no-repeat center center;
+}
+
+
 .alarm{
 	background: url(16/alarm.png) no-repeat center center;
 }

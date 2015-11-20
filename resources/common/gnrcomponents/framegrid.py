@@ -71,6 +71,12 @@ class FrameGridSlots(BaseComponent):
         return pane.slotButton(label='!!Delete',publish='delrow',iconClass='^.deleteButtonClass',disabled='^.deleteDisabled',**kwargs)
     
     @struct_method
+    def fgr_slotbar_archive(self,pane,_class='box iconbox',enable=None,disabled='^.disabledButton',parentForm=True,**kwargs):
+        button = pane.slotButton(label='!!Archive at date',publish='archive',iconClass=_class,
+                        disabled=disabled,parentForm=parentForm,**kwargs)
+        return button
+        
+    @struct_method
     def fgr_slotbar_viewlocker(self, pane,frameCode=None,**kwargs):
        # kw['subscribe_%s_onLockChange' %storeId] = "this.widget.setIconClass($1.locked?'icnBaseLocked':'icnBaseUnlocked');"
         pane.slotButton('!!Locker',publish='viewlocker',iconClass='==_locked?"iconbox lock":"iconbox unlock";',_locked='^.locked',**kwargs)
@@ -107,6 +113,8 @@ class FrameGrid(BaseComponent):
         grid_kwargs.setdefault('sortedBy','^.sorted')
         grid_kwargs['selfsubscribe_addrow'] = grid_kwargs.get('selfsubscribe_addrow','this.widget.addRows($1._counter,$1.evt);')
         grid_kwargs['selfsubscribe_delrow'] = grid_kwargs.get('selfsubscribe_delrow','this.widget.deleteSelectedRows();')
+        grid_kwargs['selfsubscribe_archive'] = grid_kwargs.get('selfsubscribe_archive','this.widget.archiveSelectedRows();')
+
         #grid_kwargs['selfsubscribe_setSortedBy'] = """this.setRelativeData(this.attr.sortedBy,$1);"""
         grid_kwargs.setdefault('selectedId','.selectedId')
         frame.includedView(autoWidth=False,

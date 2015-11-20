@@ -108,6 +108,18 @@ class TableHandlerView(BaseComponent):
         store_kwargs['parentForm'] = parentForm
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title,liveUpdate=liveUpdate,store_kwargs=store_kwargs)
+        contextMenu = frame.grid.menu(_class='smallmenu')
+        contextMenu.menuline('!!Reload',action="$2.publish('runbtn',$3);")
+        contextMenu.menuline('-')
+        contextMenu.menuline('!!Show Archived Records',checked='^.#parent.showLogicalDeleted',
+                                action="""SET .#parent.showLogicalDeleted= !GET .#parent.showLogicalDeleted;
+                                           $2.publish('runbtn',$3);""")
+        contextMenu.menuline('!!Totals count',action='SET .#parent.tableRecordCount= !GET .#parent.tableRecordCount;',
+                            checked='^.#parent.tableRecordCount')
+        contextMenu.menuline('-')
+        contextMenu.menuline('!!Configure Table',action='genro.dev.fieldsTreeConfigurator($2.attr.table)')
+        contextMenu.menuline('!!Configure View',action='genro.grid_configurator.configureStructure($2.widget)')
+
         if virtualStore:    
             self._extTableRecords(frame)
 
@@ -167,10 +179,7 @@ class TableHandlerView(BaseComponent):
             bar.replaceSlots('#','#,footerBar')
             footer = bar.footerBar.formbuilder(cols=1,border_spacing='3px 5px',font_size='.8em',fld_color='#555',fld_font_weight='bold')
             footer.numberSpinner(value='^.hardQueryLimit',lbl='!!Limit',width='6em',smallDelta=1000)
-            footer.checkbox(value='^.tableRecordCount',label='!!Totals count')
-            footer.checkbox(value='^.showLogicalDeleted',label='!!Show logical deleted',validate_onAccept='if(userChange){FIRE .runQueryDo;}')
-            footer.button('!!Configure Table',action='genro.dev.fieldsTreeConfigurator(table)',table=table)
-            footer.button('!!Configure View',action='genro.grid_configurator.configureStructure(gridId)',gridId=gridId)
+            
 
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):

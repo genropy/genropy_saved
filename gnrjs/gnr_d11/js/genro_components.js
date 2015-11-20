@@ -4017,7 +4017,9 @@ dojo.declare("gnr.stores._Collection",null,{
         delete_many : "!!You are about to delete $count records.<br/>You can't undo this",
         delete_logical_many : "!!You are about to delete $count records <br/> Some of them cannot be deleted but will be hidden instead.",
         unlink_one:"!!You are about to remove the selected record from current $master",
-        unlink_many:"!!You are about to discard the selected $count records from current $master"
+        unlink_many:"!!You are about to discard the selected $count records from current $master",
+        archive_one:"!!You are about to set archiviation date in the selected record",
+        archive_many:"!!You are about to set archiviation date in the selected $count records"
     },
     
     constructor:function(node,kw){
@@ -4133,6 +4135,46 @@ dojo.declare("gnr.stores._Collection",null,{
     
     deleteRows:function(pkeys,protectPkeys){
         return;
+    },
+    archiveRows:function(){
+        console.error('archiveRows not implemented')
+    },
+
+    archiveAsk:function(pkeys,protectPkeys,cb){
+        var count = pkeys.length;
+        var cb = cb || this.archiveRows; 
+        if(count==0){
+            return;
+        }
+        var dlg = genro.dlg.quickDialog('Alert',{_showParent:true,width:'280px'});
+        var msg = count==1?'one':'many';
+        var master;
+        dlg.center._('div',{innerHTML:_T(this.messages['archive_'+msg]).replace('$count',count), 
+                            text_align:'center',_class:'alertBodyMessage'});
+        var that = this;
+        var slotbar = dlg.bottom._('slotBar',{slots:'*,cancel,archive',
+                                                action:function(){
+                                                    dlg.close_action();
+                                                    if(this.attr.command=='archiveRows'){
+                                                        cb.call(that,pkeys,protectPkeys,genro.getData('gnr._dev.archiveAsk.date'));
+                                                    }
+                                                }});
+        slotbar._('button','cancel',{label:_T('Cancel'),command:'cancel'});
+        var btnattr = {label:_T('Confirm'),command:'archiveRows'};
+        var fb = genro.dev.formbuilder(dlg.center,1,{border_spacing:'1px',width:'100%',margin_bottom:'12px'});
+        genro.setData('gnr._dev.archiveAsk.date',genro.getData('gnr.workdate'));
+        fb.addField('dateTextBox',{value:'^gnr._dev.archiveAsk.date',width:'8em',lbl_text_align:'right',
+                                        lbl:_T('Date'),lbl_color:'#444',parentForm:false});
+        if(count>1){
+            fb.addField('numberTextBox',{value:'^gnr._dev.archiveAsk.count',width:'5em',lbl_text_align:'right',
+                                        lbl:_T('N.Records'),lbl_color:'#444',parentForm:false});
+            btnattr['disabled']='==_count!=_tot;';
+            btnattr['_tot'] = count;
+            fb._('data',{path:'gnr._dev.archiveAsk.count',content:null});
+            btnattr['_count'] = '^gnr._dev.archiveAsk.count';
+        }
+        slotbar._('button','archive',btnattr);
+        dlg.show_action();   
     },
 
     deleteAsk:function(pkeys,protectPkeys,deleteCb){        
@@ -4941,6 +4983,17 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             that.onDeletedRows(result);
         },null,'POST');
     },
+
+    archiveRows:function(pkeys,protectPkeys,date){
+        var that = this;
+        var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
+        genro.serverCall('app.archiveDbRows',{pkeys:pkeys,table:this.storeNode.attr.table,archiveDate:date,
+                                             unlinkfield:unlinkfield,protectPkeys:protectPkeys,
+                                            _sourceNode:this.storeNode},function(result){
+            that.onDeletedRows(result); //same action than delete
+        },null,'POST');
+    },
+
     onDeletedRows:function(result){
         //if(result && result.error){
         //    genro.dlg.alert(result.error,'Alert');

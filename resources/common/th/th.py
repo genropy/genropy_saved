@@ -41,7 +41,10 @@ class TableHandler(BaseComponent):
                             lockable=False,pbl_classes=False,configurable=True,hider=True,searchOn=True,count=None,
                             parentFormSave=None,
                             rowStatusColumn=None,
-                            picker=None,addrow=True,addrowmenu=None,delrow=True,export=False,title=None,
+                            picker=None,addrow=True,addrowmenu=None,
+                            delrow=True,
+                            archive=False,
+                            export=False,title=None,
                             addrowmenu_kwargs=None,
                             export_kwargs=None,
                             liveUpdate=None,
@@ -53,9 +56,12 @@ class TableHandler(BaseComponent):
                                                     condition_kwargs=condition_kwargs,
                                                     relation_kwargs=relation_kwargs,
                                                     default_kwargs=default_kwargs,original_kwargs=kwargs)
-        readOnly = readOnly or self.db.table(table).attributes.get('readOnly')
-        if form_kwargs:
-            form_kwargs['readOnly'] = readOnly
+        tblattr = self.db.table(table).attributes
+        readOnly = readOnly or tblattr.get('readOnly')
+        deletable = tblattr.get('deletable',True)
+        if isinstance(deletable,basestring):
+            deletable = self.application.checkResourcePermission(deletable, self.userTags)
+        delrow = deletable
         tableCode = table.replace('.','_')
         th_root = self._th_mangler(pane,table,nodeId=nodeId)
         viewCode='V_%s' %th_root
@@ -86,6 +92,9 @@ class TableHandler(BaseComponent):
             picker = False
         if export:
             top_slots.append('export')
+        if archive:
+            top_slots.append('archive')
+            
         if delrow:
             top_slots.append('delrow')
         if addrow:
@@ -104,6 +113,13 @@ class TableHandler(BaseComponent):
             top_slots.append('viewlocker')
 
         top_slots = ','.join(top_slots)
+
+        if form_kwargs:
+            form_kwargs['readOnly'] = readOnly
+            form_kwargs.setdefault('form_add',addrow) 
+            form_kwargs.setdefault('form_delete',delrow) 
+            form_kwargs.setdefault('form_archive',archive) 
+
         if parentFormSave:
             grid_kwargs['_saveNewRecordOnAdd'] = True
             if isinstance(parentFormSave,basestring):

@@ -127,6 +127,7 @@ class TableHandlerForm(BaseComponent):
         allowSaveInvalid= options.pop('allowSaveInvalid',draftIfInvalid)
         form_add = options.pop('form_add',True)
         form_delete = options.pop('form_delete',True)
+        form_archive = options.pop('form_archive',False)
         selector = options.pop('selector',False)
         form.attributes.update(form_draftIfInvalid=draftIfInvalid,form_allowSaveInvalid=allowSaveInvalid)
         if autoSave:
@@ -167,11 +168,13 @@ class TableHandlerForm(BaseComponent):
             bar.cancel.button('!!Cancel',action='this.form.abort();')
             bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})',hidden=readOnly)
         elif showtoolbar:
-            default_slots = '*,semaphore,5' if readOnly else '*,form_delete,form_add,form_revert,form_save,semaphore,locker'
+            default_slots = '*,semaphore,5' if readOnly else '*,form_archive,form_delete,form_add,form_revert,form_save,semaphore,locker'
             if form_add is False:
                 default_slots = default_slots.replace('form_add','')
             if form_delete is False:
                 default_slots = default_slots.replace('form_delete','')
+            if form_archive is False:
+                default_slots = default_slots.replace('form_archive','')
             if options.pop('duplicate',False):
                 default_slots= default_slots.replace('form_add','form_add,form_duplicate')
             if hierarchical:
@@ -197,8 +200,6 @@ class TableHandlerForm(BaseComponent):
             if extra_slots:
                 default_slots = default_slots.replace('form_delete','%s,10,form_delete' %(','.join(extra_slots)))
             slots = options.pop('slots',default_slots)
-            if table == self.maintable:
-                slots = 'logicalDeleter,%s' %slots 
             options.setdefault('_class','th_form_toolbar')
             form.top.slotToolbar(slots,form_add_defaults=form_add if form_add and form_add is not True else None,**options)
         if hierarchical:

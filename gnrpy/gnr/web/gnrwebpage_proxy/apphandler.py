@@ -1194,6 +1194,36 @@ class GnrWebAppHandler(GnrBaseProxy):
         except GnrSqlDeleteException, e:
             return ('delete_error', {'msg': e.message})
 
+
+    @public_method    
+    def archiveDbRows(self, table, pkeys=None, unlinkfield=None,commit=True,protectPkeys=None,archiveDate=None,**kwargs):
+        """Method for deleting many records from a given table.
+        
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
+        :param pkeys: TODO
+        :returns: if it works, returns the primary key and the deleted attribute.
+                  Else, return an exception"""
+        try:
+            tblobj = self.db.table(table)
+            rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,
+                                excludeLogicalDeleted=False,
+                                for_update=True,addPkeyColumn=False,excludeDraft=False).fetch()
+            ts = datetime(archiveDate.year,archiveDate.month,archiveDate.day) if archiveDate else None
+            updated = False
+            protectPkeys = protectPkeys or []
+            for r in rows:
+                if not (r[tblobj.pkey] in protectPkeys):
+                    oldr = dict(r)
+                    r[tblobj.logicalDeletionField] = ts 
+                    tblobj.update(r,oldr)
+                    updated = True
+            if commit and updated:
+                self.db.commit()
+        except GnrSqlDeleteException, e:
+            return ('archive_error', {'msg': e.message})
+
     @public_method
     def duplicateRecord(self,pkey=None,table=None,**kwargs):
         tblobj = self.db.table(table)

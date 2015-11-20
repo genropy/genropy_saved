@@ -324,8 +324,9 @@ class TableHandlerMain(BaseComponent):
     def pbl_rootTableHandler(self,root,th_kwargs=None,current_kwargs=None,**kwargs):
         thRootWidget = 'stack'
         kwargs['th_pkey'] = th_kwargs.pop('pkey',None)
+        archive = True if self.tblobj.logicalDeletionField else None
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget=thRootWidget,
-                        readOnly=False,virtualStore=True,public=True,partitioned=False)
+                        readOnly=False,virtualStore=True,public=True,archive=archive,partitioned=False)
         viewResource = th_kwargs.get('viewResource',None) or self.th_options().get('viewResource',None)
         resource = self._th_getResClass(table=self.maintable,resourceName=viewResource,defaultClass='View')()
         resource.db = self.db

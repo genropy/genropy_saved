@@ -2093,6 +2093,7 @@ dojo.declare("gnr.widgets.Menuline", gnr.widgets.baseDojo, {
         var originalTarget = this.getParent().originalContextTarget;
         var ctxSourceNode;
         var sourceNode = this.sourceNode;
+        var menuAttr = sourceNode.getAttr();
         if (!originalTarget) {
             ctxSourceNode = sourceNode;
         } else {
@@ -2100,12 +2101,16 @@ dojo.declare("gnr.widgets.Menuline", gnr.widgets.baseDojo, {
                 ctxSourceNode = originalTarget.sourceNode;
             }
             else {
-                ctxSourceNode = dijit.getEnclosingWidget(originalTarget).sourceNode;
+                var w = genro.dom.getBaseWidget(originalTarget);
+                if(w){
+                    ctxSourceNode = w.sourceNode;
+                }
+                //ctxSourceNode = dijit.getEnclosingWidget(originalTarget).sourceNode;
             }
         }
         // var ctxSourceNode = originalTarget ? originalTarget.sourceNode || dijit.byId(originalTarget.attributes.id.value).sourceNode :sourceNode
         var inAttr = sourceNode.getInheritedAttributes();
-        var actionScope = sourceNode;
+        var actionScope = sourceNode.attributeOwnerNode('action');
         var action = inAttr.action;
         if (ctxSourceNode && ctxSourceNode.attr.action) {
             action = ctxSourceNode.attr.action;
@@ -2113,7 +2118,7 @@ dojo.declare("gnr.widgets.Menuline", gnr.widgets.baseDojo, {
         }
         f = funcCreate(action);
         if (f) {
-            f.call(actionScope, sourceNode.getAttr(), ctxSourceNode, evt);
+            f.call(actionScope, menuAttr, ctxSourceNode, evt);
         }
         var selattr = objectExtract(inAttr, 'selected_*', true);
         if (ctxSourceNode) {
@@ -2356,15 +2361,18 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
         this.focusedChild.popup.originalContextTarget = this.originalContextTarget;
         this._openPopup_replaced.call(this, e);
     },
+
     mixin_onOpeningPopup:function(popupKwargs){
         var kw = this.sourceNode.currentAttributes();
         var aroundWidget = kw.attachTo? kw.attachTo.widget:null;
 
         if(!aroundWidget && this.originalContextTarget){
             var enclosingWidget = dijit.getEnclosingWidget(this.originalContextTarget);
-            var cmenu = enclosingWidget.sourceNode.attr.connectedMenu;
-            if(cmenu && cmenu == this.sourceNode.attr.id){
-                aroundWidget = enclosingWidget;
+            if(enclosingWidget.sourceNode){
+                var cmenu = enclosingWidget.sourceNode.attr.connectedMenu;
+                if(cmenu && cmenu == this.sourceNode.attr.id){
+                    aroundWidget = enclosingWidget;
+                }
             }
         }
         if(aroundWidget){
@@ -3276,6 +3284,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if (gridEditorNode) {
                 widget.gridEditor = new gnr.GridEditor(widget);
             };
+            var menuNode = gridContent.getNodeByAttr('tag', 'menu',true);
+            if(menuNode){
+                widget.onCellContextMenu = function(e){
+                    menuNode.rowIndex = e.rowIndex
+                    menuNode.cellIndex = e.cellIndex;
+                };
+            }
         }
         if ('draggable_row' in sourceNode.attr) {
             dojo.connect(widget.views, 'addView', dojo.hitch(widget, 'onAddedView'));
@@ -6122,6 +6137,19 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             this.sourceNode.publish('onDeletedRows');
         }else{
             this.collectionStore().deleteAsk(pkeys,protectPkeys);
+        }
+    },
+
+    mixin_archiveSelectedRows:function(kw){
+        var pkeys = this.getSelectedPkeys();
+        var protectPkeys;
+        if(this.collectionStore().allowLogicalDelete){
+            protectPkeys = this.getSelectedProtectedPkeys();
+        }
+        if(this.gridEditor){
+            console.error('Archive not available for editable grid')
+        }else{
+            this.collectionStore().archiveAsk(pkeys,protectPkeys);
         }
     },
     

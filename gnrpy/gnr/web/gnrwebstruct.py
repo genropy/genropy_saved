@@ -1298,8 +1298,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if struct or columns or not structpath:
             paletteGrid.gridStruct(struct=struct,columns=columns)
         return paletteGrid
-
-
         
     def includedview_draganddrop(self,dropCodes=None,**kwargs):
         ivattr = self.attributes

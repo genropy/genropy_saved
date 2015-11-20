@@ -837,6 +837,13 @@ dojo.declare("gnr.GnrDomHandler", null, {
         event.dataTransfer.dropEffect = "move";
 
     },
+    getBaseWidget:function(domnode){
+        var widget = dijit.getEnclosingWidget(domnode);
+        if(widget){
+            return widget.sourceNode ? widget : (widget.grid || widget.tree);
+        }
+    },
+
     getBaseSourceNode:function(domnode){
         while(domnode && !domnode.sourceNode){
             domnode = domnode.parentNode;
@@ -857,9 +864,9 @@ dojo.declare("gnr.GnrDomHandler", null, {
             info.nodeId = domnode.sourceNode.attr.nodeId;
         }
         else {
-            var widget = dijit.getEnclosingWidget(domnode);
             var baseSourceNode = this.getBaseSourceNode(domnode);
-            var rootwidget = widget? (widget.sourceNode ? widget : widget.grid || widget.tree) : null;
+            var widget = dijit.getEnclosingWidget(domnode);
+            var rootwidget = this.getBaseWidget(domnode);
             if(!rootwidget && !baseSourceNode){
                 return;
             }

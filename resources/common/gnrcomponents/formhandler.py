@@ -263,6 +263,25 @@ class FormHandler(BaseComponent):
                         _protected='^.controller.protect_delete',tip='==_protected?_msg_protect_delete:_msg_delete',
                         _msg_protect_delete='!!This record cannot be deleted',_msg_delete='!!Delete current record',
                         **kwargs)
+
+    @struct_method          
+    def fh_slotbar_form_archive(self,pane,parentForm=True,**kwargs):
+        table = pane.getInheritedAttributes()['table']
+        logicalDeletionField = self.db.table(table).logicalDeletionField
+        pane.slotButton('!!Set Archiviation date',
+                        ask= dict(title='Set Archiviation date',skipOn='Shift',
+                                fields=[dict(name='archiviation_date',wdg='dateTextBox',lbl='Date')]),
+                        archiviation_date='=gnr.workdate',
+                        action="""this.setRelativeData('#FORM.record.%s',archiviation_date);  
+                                    this.form.save();""" %logicalDeletionField,
+                        iconClass="iconbox box",parentForm=parentForm,
+                        disabled='==_newrecord||_protected',
+                        _newrecord='^.controller.is_newrecord',
+                        _protected='^.controller.protect_delete',
+                        tip='==_protected?_msg_protect_delete:_msg_delete',
+                        _msg_protect_delete='!!This record cannot be archived',_msg_delete='!!Set archiviation date',
+                        **kwargs)
+
     @struct_method          
     def fh_slotbar_form_selectrecord(self,pane,table=None,pars=None,**kwargs):
         table = table or pane.getInheritedAttributes()['table']
