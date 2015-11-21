@@ -23,6 +23,6 @@ class GnrCustomWebPage(object):
         rsttable = doctable.dfAsRstTable(pkey)
         if rsttable:
             rst = '%s\n\n%s' %(rst,rsttable) 
-        js_script_url= self.site.getStaticUrl('rsrc:common','localiframe.js')
+        js_script_url= self.site.getStaticUrl('rsrc:common','localiframe.js',nocache=True)
 
         return self.site.getService('rst2html')(rst,scripts=[js_script_url])

@@ -21,12 +21,15 @@ var iframeHandler = {
             result = l[1];
         }
         return result;
+    },
+    setClientWidth:function(kw){
+        document.body.style.width = kw.width +'px';
     }
 }
 var localIframe = iframeHandler.setInLocalIframe;
 
 window.addEventListener("message", function(e){
     if(e.data){
-        iframeHandler[data.topic](data);
+        iframeHandler[e.data.topic](e.data);
     }
 }, false);

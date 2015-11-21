@@ -581,6 +581,17 @@ dojo.declare("gnr.widgets.htmliframe", gnr.widgets.baseHtml, {
             shield_kw.opacity = .2;
             sourceNode.getParentNode().setHiderLayer(true,shield_kw)
         }
+        if(genro.isMobile){
+            genro.dom.setAutoSizer(sourceNode,newobj.parentNode,function(w,h){
+                newobj.style.width = w+'px';
+                newobj.contentWindow.postMessage({topic:'setClientWidth',width:w},'*');
+            });
+            dojo.connect(newobj, 'onload', function(){
+                setTimeout(function(){
+                    genro.dom.resetAutoSizer(sourceNode);
+                },50);
+            });
+        }
     }
 });
 

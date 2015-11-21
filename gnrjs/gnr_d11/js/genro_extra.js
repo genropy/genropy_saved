@@ -87,8 +87,13 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
         //}
         var cmAttrs = objectExtract(attributes,'config_*');
         var readOnly = objectPop(attributes,'readOnly');
+        var lineWrapping = objectPop(attributes,'lineWrapping');
+
         if(readOnly){
             cmAttrs.readOnly = readOnly;
+        }
+        if(lineWrapping){
+            cmAttrs.lineWrapping = lineWrapping;
         }
         cmAttrs.value = objectPop(attributes,'value') || '';
         return {cmAttrs:cmAttrs}
@@ -163,7 +168,6 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
                 sourceNode.setRelativeData(sourceNode.attr.value,v,null,null,sourceNode);
             },sourceNode.attr._delay || 500,'updatingContent')
         })
-
     },
 
 
@@ -227,9 +231,15 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
             that.refresh()
         })
     },
+
     mixin_gnr_readOnly:function(value,kw,trigger_reason){
-        this.options.readOnly = value?'nocursor':false;
+        this.setOption('readOnly',value?'nocursor':false);
     },
+
+    mixin_gnr_lineWrapping:function(value,kw,trigger_reason){
+        this.setOption('lineWrapping',value);
+    },
+
 
     mixin_gnr_quoteSelection:function(startchunk,endchunk){
         endchunk = endchunk || startchunk;
@@ -272,7 +282,6 @@ dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
         var cb = function(){
             sourceNode._current_height = domNode.clientHeight;
             sourceNode._current_width = domNode.clientWidth;
-
             options.height = sourceNode._current_height;
             options.width = sourceNode._current_width;
             var dygraph = new Dygraph(dygraph_root,data,options);
@@ -284,13 +293,9 @@ dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
                     dygraph[prop.replace('mixin_', '')] = that[prop];
                 }
             }
-            sourceNode._checker = setInterval(function(){
-                if((domNode.clientHeight != sourceNode._current_height) || (domNode.clientWidth != sourceNode._current_width)){
-                    sourceNode._current_height = domNode.clientHeight;
-                    sourceNode._current_width = domNode.clientWidth;
-                    dygraph.resize(sourceNode._current_width,sourceNode._current_height);
-                }
-            },50);
+            genro.dom.setAutoSizer(sourceNode,domNode,function(w,h){
+                 dygraph.resize(w,h);
+            });
         }
         if(!window.Dygraph){
             genro.dom.loadJs('/_rsrc/js_libs/dygraph-combined.js',cb);

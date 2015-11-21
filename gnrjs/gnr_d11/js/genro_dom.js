@@ -1444,6 +1444,19 @@ dojo.declare("gnr.GnrDomHandler", null, {
         return false;
     },
 
+    setAutoSizer:function(sourceNode,domNode,cb,timing){
+        sourceNode._autoSizer = setInterval(function(){
+            if((domNode.clientHeight != sourceNode._current_height) || (domNode.clientWidth != sourceNode._current_width)){
+                sourceNode._current_height = domNode.clientHeight;
+                sourceNode._current_width = domNode.clientWidth;
+                cb(sourceNode._current_width,sourceNode._current_height);
+            }
+        },timing || 50);
+    },
+    resetAutoSizer:function(sourceNode){
+        sourceNode._current_width = null;
+    },
+
     autoSize:function(widget){
         var box;
         var maxHeight=0;
@@ -1455,6 +1468,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         });
         widget.resize({h:maxHeight+27,w:maxWidth+3});
     },
+
     preventGestureBackForward:function(pane){
         var pane = pane || window;
         var filterEvent=function(e,delta_x){

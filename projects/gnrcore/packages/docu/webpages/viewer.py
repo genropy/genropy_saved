@@ -45,7 +45,7 @@ class GnrCustomWebPage(object):
 
     def rstText(self,pane,contentHtml=None):
         iframe = pane.div(_class='scroll-wrapper').htmliframe(height='100%',width='100%',border=0)
-        js_script_url = self.site.getStaticUrl('rsrc:common','localiframe.js')
+        js_script_url = self.site.getStaticUrl('rsrc:common','localiframe.js',nocache=True)
         pane.dataController("""
             var cw = iframe.contentWindow;
             var s = cw.document.createElement("script");
