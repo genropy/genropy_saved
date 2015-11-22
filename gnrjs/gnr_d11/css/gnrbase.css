@@ -4922,7 +4922,7 @@ div[disabled='true'], div[disabled='disabled']{
     overflow: hidden;
 }
 .touchDevice .scroll-wrapper{
-    overflow:scroll !important; 
+    overflow-y:scroll !important; 
     -webkit-overflow-scrolling:touch !important;    
 }
 

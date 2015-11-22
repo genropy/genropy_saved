@@ -142,7 +142,8 @@ class RstDocumentationHandler(BaseComponent):
             action="""_base_language = _base_language || 'it';
                         var docbody = this.getRelativeData('#FORM.record.docbag.'+_base_language+'.rst');
                         var doctitle = this.getRelativeData('#FORM.record.docbag.'+_base_language+'.title');
-                        PUBLISH doTranslation = {to_language:to_language,docbody:docbody,doctitle:doctitle};""", to_language=lang,
+                        PUBLISH doTranslation = {to_language:to_language,docbody:docbody,doctitle:doctitle};""", 
+                        to_language=lang,
             hidden='^.rst')
         bar.lineWrapping.checkbox(value='^#FORM.lineWrapping',label='!!Line wrapping')
         center = frame.center.borderContainer()

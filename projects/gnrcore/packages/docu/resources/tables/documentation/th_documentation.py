@@ -56,8 +56,25 @@ class Form(BaseComponent):
         r.cell('url',hidden=True)
         
     def sourceEditor(self,frame):
-        bar = frame.top.slotToolbar('5,mbuttons,*,delgridrow,addrow_dlg')
+        bar = frame.top.slotToolbar('5,mbuttons,2,titleAsk,*,delgridrow,addrow_dlg')
         bar.mbuttons.multiButton(value='^#FORM.sourceViewMode',values='rstonly:Source Only,mixed: Mixed view,preview:Preview')
+        bar.titleAsk.slotButton('!!Change version name',iconClass='iconbox tag',
+                                action="""
+                                if(!newname){
+                                    return;
+                                }
+                                n = data.getNode(selectedLabel);
+                                if(!n){
+                                    return;
+                                }
+                                n.label = newname;
+                                n.getValue().setItem('version',newname);
+                                """,
+                                data = '=#FORM.record.sourcebag',
+                                selectedLabel='=.grid.selectedLabel',
+                                ask=dict(title='Change name',fields=[dict(name='newname',lbl='New version name',validate_case='l')]))
+
+
         bc = frame.center.borderContainer(design='sidebar')
         fg = bc.frameGrid(region='left',width='120px',splitter=True,margin='5px',
                             storepath='#FORM.record.sourcebag',datamode='bag',
@@ -104,7 +121,7 @@ class Form(BaseComponent):
 
 
 
-        bar.addrow_dlg.slotButton('!!Add custom template',iconClass='iconbox add_row',
+        bar.addrow_dlg.slotButton('!!Add version',iconClass='iconbox add_row',
                                     version='==(!_currVersions || _currVersions.len()===0)?"_base_":"untitled"',
                                     _currVersions='=#FORM.record.sourcebag',
                                     ask=dict(title='New version',
