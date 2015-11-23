@@ -2751,6 +2751,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             items_bag = gnrwdg.itemsFromValues(values);
         }
         items = items || '^#WORKSPACE.items';
+        sourceNode.registerDynAttr('items');
         if(deleteAction){
             gnrwdg.deleteAction = funcCreate(deleteAction,'value,caption',gnrwdg.sourceNode);
             gnrwdg.deleteSelectedOnly = objectPop(kw,'deleteSelectedOnly');
@@ -2809,6 +2810,9 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var result = new gnr.GnrBag();
         if(!values){
             return result;
+        }
+        if(this.sourceNode.isPointerPath(values[0])){
+            values = this.sourceNode.getAttributeFromDatasource('values')
         }
         var l;
         var attr;
