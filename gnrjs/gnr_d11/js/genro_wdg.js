@@ -213,6 +213,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             this.widgets[wdg.toLowerCase()] = wdg;
         }
     },
+
     makeDomNode:function(tag, destination, ind) {
         var ind = ind==null? -1:ind;
         var domnode = document.createElement(tag);
@@ -233,6 +234,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         }
         return domnode;
     },
+
     getHandler:function(tag) {
         var lowertag = tag.toLowerCase();
         var handler = this.widgets[lowertag];
@@ -248,34 +250,6 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             handler = this.widgets[lowertag];
         }
         return handler;
-    },
-
-    _prepareZoomEnvelope:function(newobj,zoomToFit){
-        var zoomEnvelope = document.createElement('div');
-        zoomEnvelope.style.display = 'inline-block';
-        newobj.appendChild(zoomEnvelope);
-        setInterval(function(){
-            zoomEnvelope.style.zoom = 1;
-            var originalDomnode = zoomEnvelope.parentNode;
-            var zoom_x = 1;
-            var zoom_y = 1;
-            var delta_x = 0;
-            var delta_y = 0;
-            if(zoomToFit===true || zoomToFit=='x'){
-                delta_x = zoomEnvelope.clientWidth - originalDomnode.clientWidth;
-            }
-            if(zoomToFit===true || zoomToFit=='y'){
-                delta_y = zoomEnvelope.clientHeight - originalDomnode.clientHeight;
-            }
-            if(delta_x>0){
-                zoom_x = originalDomnode.clientWidth/ zoomEnvelope.clientWidth;
-            }
-            if(delta_y>0){
-                zoom_x = originalDomnode.clientHeight/ zoomEnvelope.clientHeight;
-            }
-            zoomEnvelope.style.zoom =  Math.min(zoom_x,zoom_y);
-        },50);
-        return zoomEnvelope;
     },
 
     create:function(tag, destination, attributes, ind, sourceNode) {
@@ -332,7 +306,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             var extracted = objectExtract(attributes, '_*', {'_type':null}); // strip all attributes used only for triggering rebuild or as input for ==function
             newobj = this.createHtmlElement(domnode, attributes, kw, sourceNode);
             if(zoomToFit){
-                newobj = this._prepareZoomEnvelope(newobj,zoomToFit);
+                newobj = genro.dom.autoScaleWrapper(newobj,zoomToFit);
             }
             this.linkSourceNode(newobj, sourceNode, kw);
             newobj.gnr = handler;

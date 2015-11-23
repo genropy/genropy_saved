@@ -1602,5 +1602,45 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 onrendered(canvas);
             }
         });
+    },
+    autoScaleWrapper:function(newobj,zoomToFit){
+        var zoomEnvelope = document.createElement('div');
+        zoomEnvelope.style.display = 'inline-block';
+        newobj.appendChild(zoomEnvelope);
+        this.setAutoScale(zoomEnvelope,zoomToFit);
+        return zoomEnvelope;
+    },
+
+    setAutoScale:function(domNode,zoomToFit,originalDomnode){
+        domNode._autoScale = setInterval(function(){
+           // domNode.style.zoom = 1;
+            var originalDomnode = originalDomnode || domNode.parentNode;
+            //console.log('originalDomnode',originalDomnode)
+            var zoom_x = 1;
+            var zoom_y = 1;
+            var delta_x = 0;
+            var delta_y = 0;
+            if(zoomToFit===true || zoomToFit=='x'){
+                delta_x = domNode.clientWidth - originalDomnode.clientWidth;
+            }
+            if(zoomToFit===true || zoomToFit=='y'){
+                delta_y = domNode.clientHeight - originalDomnode.clientHeight;
+            }
+            if(delta_x>0){
+                zoom_x = originalDomnode.clientWidth/ domNode.clientWidth;
+            }
+            if(delta_y>0){
+                zoom_y = originalDomnode.clientHeight/ domNode.clientHeight;
+            }
+            if(zoomToFit===true){
+                zoom_x = Math.min(zoom_x,zoom_y);
+                zoom_y = zoom_x;
+            }
+            //domNode.style.zoom = Math.min(zoom_x,zoom_y);
+            domNode.style.transform = "scale("+zoom_x+","+zoom_y+")";   //Math.min(zoom_x,zoom_y);
+            domNode.style.transformOrigin = '0';
+        },50);
     }
+
+
 });
