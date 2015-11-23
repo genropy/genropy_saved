@@ -371,7 +371,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
 
     deleteFramePage:function(pageName){
         var sc = this.stackSourceNode.widget;
-        var selected = sc.getSelectedIndex();
+        var selected = sc.getSelectedIndex()-1;
         var iframesbag= genro.getData('iframes');
         var node = iframesbag.popNode(pageName);
         genro.publish({topic:'onDeletingIframePage',iframe:'iframe_'+pageName},pageName);
@@ -390,11 +390,12 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var tablist = genro.nodeById('frameindex_tab_button_root');
         var curlen = tablist.getValue().len()-1;
         curlen = this.externalWindowsBag().len()>0?curlen-1:curlen;
-        selected = selected>=curlen? curlen-1:selected;
+        selected = selected>curlen? curlen-1:selected;
         var nextPageName = 'indexpage';
         if(selected>=0){
             nextPageName = tablist.getValue().getNode('#'+selected)? tablist.getValue().getNode('#'+selected).attr.pageName:'indexpage';
         }
+        console.log('nextPageName',nextPageName)
         this.stackSourceNode.setRelativeData('selectedFrame',nextPageName); //PUT
         this.stackSourceNode.fireEvent('refreshTablist',true);
 

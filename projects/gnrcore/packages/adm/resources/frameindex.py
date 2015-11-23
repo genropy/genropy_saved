@@ -200,7 +200,7 @@ class FrameIndex(BaseComponent):
         sb.logout.div(connect_onclick="genro.logout()",_class='iconbox icnBaseUserLogout',tip='!!Logout')
         sb.screenlock.div(connect_onclick="genro.publish('screenlock')",_class='iconbox icnBaseUserPause',tip='!!Lock screen')
 
-        formula = '==(_iframes && _iframes.len()>0)?_iframes.getNode(_selectedFrame).attr.url:"";'
+        formula = '==(_iframes && _iframes.len()>0)?_iframes.getAttr(_selectedFrame,"url"):"";'
         
         sb.count_errors.div('^gnr.errors?counter',hidden='==!_error_count',_error_count='^gnr.errors?counter',
                             _msg='!!Errors:',_class='countBoxErrors',connect_onclick='genro.dev.errorPalette();')
