@@ -587,11 +587,20 @@ dojo.declare("gnr.widgets.htmliframe", gnr.widgets.baseHtml, {
                 newobj.contentWindow.postMessage({topic:'setClientWidth',width:w},'*');
             });
             dojo.connect(newobj, 'onload', function(){
+                newobj.contentWindow.document.body.classList.add('touchDevice');
                 setTimeout(function(){
                     genro.dom.resetAutoSizer(sourceNode);
                 },50);
             });
+        }if(sourceNode.attr.autoScale){
+            dojo.connect(newobj, 'onload', function(){
+                var scalables = newobj.contentWindow.document.getElementsByClassName('gnrAutoScale');
+                for (var i = scalables.length - 1; i >= 0; i--) {
+                    genro.dom.setAutoScale(scalables[i],sourceNode.attr.autoScale);
+                };
+            });
         }
+
     }
 });
 
