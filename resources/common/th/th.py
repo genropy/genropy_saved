@@ -114,7 +114,7 @@ class TableHandler(BaseComponent):
 
         top_slots = ','.join(top_slots)
 
-        if form_kwargs:
+        if form_kwargs is not None:
             form_kwargs['readOnly'] = readOnly
             form_kwargs.setdefault('form_add',addrow) 
             form_kwargs.setdefault('form_delete',delrow) 
