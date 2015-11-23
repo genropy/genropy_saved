@@ -127,6 +127,7 @@ class RstDocumentationHandler(BaseComponent):
 
     @struct_method
     def rst_fullEditorPane(self,parent,lang=None,datapath=None,**kwargs):
+        lang = lang.lower()
         bc = parent.borderContainer(datapath='#FORM.record.docbag.%s' %lang,**kwargs)
         top = bc.contentPane(region='top')
         fb = top.formbuilder(cols=1,border_spacing='3px')
@@ -135,6 +136,7 @@ class RstDocumentationHandler(BaseComponent):
 
     @struct_method
     def rst_editorFrame(self,pane,lang=None,**kwargs):
+        lang = lang.lower()
         frame = pane.framePane('content_%s' %lang,**kwargs)
         bar = frame.top.slotToolbar('5,rstdocbuttons,30,quoteMenu,3,lineWrapping,*,autotranslate,5')
         bar.rstdocbuttons.multiButton(value='^#FORM.docbuttons_%s' %lang,values='rstonly:RST Only,mixed: Mixed view,preview:Preview')

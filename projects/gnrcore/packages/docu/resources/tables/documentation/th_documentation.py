@@ -161,7 +161,7 @@ class Form(BaseComponent):
     def tutorial_head(self,pane):
         fb = pane.formbuilder(cols=4, border_spacing='4px')
         fb.field('name',width='12em')
-        fb.field('topics',width='12em',tag='checkBoxText',table='gnet.article_topic',popup=True)
+        fb.field('topics',width='12em',tag='checkBoxText',table='docu.topic',popup=True)
         fb.field('publish_date',width='7em')
         fb.field('base_language',width='7em')
         fb.field('doctype',disabled='^.doctype')
