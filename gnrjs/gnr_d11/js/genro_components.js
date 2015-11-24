@@ -2677,7 +2677,7 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.DocItem", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var _class = objectPop(kw,'_class');
-        kw._class = _class? 'doc_item selectable' +_class : 'doc_item selectable';
+        kw._class = _class? 'doc_item selectable ' +_class : 'doc_item selectable';
         var docpars = objectExtract(kw,'store,key,contentpath');
         kw._docKey = docpars.key;
         kw._docStore = docpars.store;

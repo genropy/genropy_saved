@@ -37,7 +37,7 @@ class SourceViewer(BaseComponent):
         page = self.pageSource()
         _gnrRoot = self.pageSource('_gnrRoot')
         sourceViewer = getattr(self,'source_viewer_customroot',self.source_viewer_root)(_gnrRoot)
-        if not sourceViewer:
+        if sourceViewer is None:
             return
         frame = sourceViewer.framePane('sourceViewerFrame',_class='source_viewer',datapath='gnr.source_viewer')
         bar = frame.top.slotToolbar('2,sb,*,readOnlyEditor,dataInspector,2',height='20px')

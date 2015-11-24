@@ -1891,10 +1891,13 @@ class GnrWebPage(GnrBaseWebPage):
         return result
     
     @public_method                                 
-    def remoteBuilder(self, handler=None, **kwargs):
+    def remoteBuilder(self, handler=None, py_requires=None,**kwargs):
         """TODO
         
         :param handler: TODO"""
+        if py_requires:
+            for p in py_requires.split(','):
+                self.mixinComponent(p)
         handler = self.getPublicMethod('remote', handler)
         if handler:
             pane = self.newSourceRoot()

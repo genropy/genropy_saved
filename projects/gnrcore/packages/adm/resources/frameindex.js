@@ -390,7 +390,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var tablist = genro.nodeById('frameindex_tab_button_root');
         var curlen = tablist.getValue().len()-1;
         curlen = this.externalWindowsBag().len()>0?curlen-1:curlen;
-        selected = selected>curlen? curlen-1:selected;
+        selected = selected>=curlen? curlen-1:selected;
         var nextPageName = 'indexpage';
         if(selected>=0){
             nextPageName = tablist.getValue().getNode('#'+selected)? tablist.getValue().getNode('#'+selected).attr.pageName:'indexpage';
