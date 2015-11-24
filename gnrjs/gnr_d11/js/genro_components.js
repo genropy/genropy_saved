@@ -2814,6 +2814,9 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         if(this.sourceNode.isPointerPath(values[0])){
             values = this.sourceNode.getAttributeFromDatasource('values')
         }
+        if(!values){
+            return result;
+        }
         var l;
         var attr;
         var that = this;
