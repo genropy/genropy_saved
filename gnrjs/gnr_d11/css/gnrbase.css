@@ -331,6 +331,16 @@ cursorZoom_plus{
 }
 
 
+.tundra .dijitReadOnly.dijitTextBox,
+.tundra .dijitReadOnly.dijitTextArea,
+.tundra .dijitReadOnly.dijitComboBox{
+    /* disabled state - inner */
+    background-color: #F8F8F8;
+    /*background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EEEEEE), to(#EDEDEE));
+    background-image: -moz-linear-gradient(-90deg, #EEEEEE, #EDEDEE);*/
+}
+
+
 .tundra .dijitButtonHover .dijitButtonNode,
 .tundra .dijitButtonNodeHover,
 .tundra .dijitToggleButtonHover .dijitButtonNode,
@@ -846,7 +856,7 @@ label.ghostlabel span {
 
 /* @group Standard form */
 
-.numberTextBox input {
+.numberTextBox input, .dijitDisabled.numberTextBox input:focus, .dijitReadOnly.numberTextBox input:focus {
     text-align: right;
     /*padding-right: 2px;*/
 }
@@ -855,6 +865,7 @@ label.ghostlabel span {
     text-align: left;
     /*padding-left: 2px;*/
 }
+
 
 .gnrfieldlabel {
     /*vertical-align: middle;*/

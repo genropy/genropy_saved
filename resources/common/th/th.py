@@ -58,10 +58,13 @@ class TableHandler(BaseComponent):
                                                     default_kwargs=default_kwargs,original_kwargs=kwargs)
         tblattr = self.db.table(table).attributes
         readOnly = readOnly or tblattr.get('readOnly')
-        deletable = tblattr.get('deletable',True)
-        if isinstance(deletable,basestring):
-            deletable = self.application.checkResourcePermission(deletable, self.userTags)
-        delrow = deletable
+        delrow = tblattr.get('deletable',delrow)
+        if isinstance(delrow,basestring):
+            delrow = self.application.checkResourcePermission(delrow, self.userTags)
+        if isinstance(addrow,basestring):
+            addrow = self.application.checkResourcePermission(addrow, self.userTags)
+        if isinstance(archive,basestring):
+            archive = self.application.checkResourcePermission(archive, self.userTags)
         tableCode = table.replace('.','_')
         th_root = self._th_mangler(pane,table,nodeId=nodeId)
         viewCode='V_%s' %th_root
