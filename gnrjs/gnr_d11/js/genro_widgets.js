@@ -3303,13 +3303,14 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var gridEditorNode = gridContent.getNodeByAttr('tag', 'grideditor',true);
             if (gridEditorNode) {
                 widget.gridEditor = new gnr.GridEditor(widget);
-            };
-            var menuNode = gridContent.getNodeByAttr('tag', 'menu',true);
-            if(menuNode){
-                widget.onCellContextMenu = function(e){
-                    menuNode.rowIndex = e.rowIndex
-                    menuNode.cellIndex = e.cellIndex;
-                };
+            }else{
+                var menuNode = gridContent.getNodeByAttr('tag', 'menu',true);
+                if(menuNode){
+                    widget.onCellContextMenu = function(e){
+                        menuNode.rowIndex = e.rowIndex
+                        menuNode.cellIndex = e.cellIndex;
+                    };
+                }
             }
         }
         if ('draggable_row' in sourceNode.attr) {
