@@ -235,7 +235,7 @@ class DocumentationViewer(BaseComponent):
         table = 'docu.documentation'
         frame.dataController("""var lang = language?language.toLowerCase():'en';
                             SET .doccaption = lang=='it'? hierarchical_title_it:hierarchical_title_en;
-                            SET .docurl = '/docu/index/rst/'+hierarchical_name;
+                            SET .docurl = '/docu/index/rst/'+hierarchical_name+'?selected_language='+language;
                             """ , 
                             hierarchical_name='^.hierarchical_name',
                             hierarchical_title_it='^.hierarchical_title.it',

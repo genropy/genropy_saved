@@ -12,7 +12,8 @@ class GnrCustomWebPage(object):
 
     @public_method
     def rst(self,*args,**kwargs):
-        language = self.locale.split('-')[0]
+        language = kwargs['selected_language'] if 'selected_language' in kwargs else self.locale.split('-')[0]
+        language = language.lower()
         doctable = self.db.table('docu.documentation')
         pkey,docbag = doctable.readColumns(columns='$id,$docbag',
                                                     where='$hierarchical_name=:hname',
