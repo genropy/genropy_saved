@@ -2674,6 +2674,7 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
     }
 
 });
+
 dojo.declare("gnr.widgets.DocItem", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var _class = objectPop(kw,'_class');
