@@ -325,6 +325,10 @@ class TableHandlerMain(BaseComponent):
         thRootWidget = 'stack'
         kwargs['th_pkey'] = th_kwargs.pop('pkey',None)
         archive = False
+        #GET SYSRECORD
+        for m in dir(self.tblobj):
+            if m.startswith('sysRecord_') and m!='sysRecord_':
+                self.tblobj.sysRecord(m[10:])
         if self.tblobj.logicalDeletionField:
             default_archivable = self.getPreference('tblconf.archivable_tag',pkg='sys')
             archive = self.tblobj.attributes.get('archivable',default_archivable)
