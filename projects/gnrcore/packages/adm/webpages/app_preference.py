@@ -8,11 +8,18 @@
 #
 
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import GnrMixinError
+from gnr.web.gnrwebstruct import struct_method
+from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrbag import Bag
+import os
+import gzip
+from StringIO import StringIO
+import pickle
+
 
 class GnrCustomWebPage(object):
     maintable = 'adm.preference'
-    py_requires = """public:Public,preference:AppPref,foundation/includedview,foundation/dialogs,
-                   foundation/tools,foundation/macrowidgets:RichTextEditor"""
+    py_requires = """public:Public,preference:AppPref,foundation/tools"""
 
     def windowTitle(self):
         return '!!Preference panel'
@@ -60,6 +67,49 @@ class GnrCustomWebPage(object):
                      _onResult='genro.formById("preference").saved();window.parent.genro.wdgById("mainpreference").close();')
         pane.dataRpc('preference', 'loadPreference', nodeId='preference_loader',
                      _onResult='genro.formById("preference").loaded();')
+
+    @struct_method
+    def preferences_startupDataPane(self,pane,pkg=None,**kwargs):
+        bc = pane.borderContainer(_lazyBuild=True,**kwargs)
+        top = bc.contentPane(region='top')
+        fb = top.formbuilder(cols=5,border_spacing='3px')
+        fb.button('!!Build Startup Data',action="""genro.mainGenroWindow.genro.publish('open_batch');
+                                                    genro.serverCall('_package.%s.createStartupData',null,function(){});
+                                                    """ %pkg)
+        fb.button('!!Load Startup Data',action="""genro.mainGenroWindow.genro.publish('open_batch');
+                                                    genro.serverCall('_package.%s.loadStartupData',null,function(){});
+                                                    """ %pkg)
+        fb.button('!!Refresh preview',action='PUBLISH %s_startupPreview_reload' %pkg)
+        center = bc.borderContainer(region='center',_class='pbl_roundedGroup',margin='2px')
+        center.dataRpc('startup_tables.%s' %pkg,self.getStartupTables,pkg=pkg,
+                    _onBuilt=True,**{'subscribe_%s_startupPreview_reload' %pkg:True})
+        center.contentPane(region='top',_class='pbl_roundedGroupLabel').div('Startup tables')
+        center.contentPane(region='center',overflow='hidden').quickGrid('^startup_tables.%s' %pkg)
+        return fb
+
+    @public_method
+    def getStartupTables(self,pkg=None):
+        bagpath = os.path.join(self.db.application.packages[pkg].packageFolder,'startup_data')
+        data = None
+        if not os.path.isfile('%s.pik' %bagpath):
+            if not os.path.exists('%s.gz' %bagpath):
+
+                return
+            with gzip.open('%s.gz' %bagpath,'rb') as gzfile:
+                pk = StringIO(gzfile.read())
+                data = pickle.load(pk)
+        else:
+            data = Bag('%s.pik' %bagpath)
+        result = Bag()
+        for i,t in enumerate(data['tables']):
+            row = Bag()
+            row['table'] = t
+            row['count'] = len(data[t])
+            result['r_%s' %i] = row
+            
+
+        return result
+
 
     def rpc_loadPreference(self, **kwargs):
         record = self.tblobj.loadPreference()
