@@ -414,6 +414,8 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
         var right = objectPop(attributes, 'right');
         var top = objectPop(attributes, 'top');
         var bottom = objectPop(attributes, 'bottom');
+        var persist = objectPop(attributes, 'persist');
+
         var lazyContent = objectPop(attributes,'lazyContent');
         var paletteCode = objectPop(attributes,'paletteCode');
         if(paletteCode){
@@ -469,6 +471,7 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
         }
         return objectUpdate({height:'350px',width:'300px',
             top:top,right:right,left:left,bottom:bottom,
+            persist:persist,
             resizable:true}, floating_kwargs);
     },
     createContent:function(sourceNode, kw) {
