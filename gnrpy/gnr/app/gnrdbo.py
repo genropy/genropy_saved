@@ -158,6 +158,7 @@ class GnrDboPackage(object):
         all_pref[self.name] = s['preferences']
         self.db.table('adm.preference').savePreference(all_pref)
         db.commit()
+        db.setConstraintsDeferred()
         tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
         for tablename in tables:
             tblobj = db.table('%s.%s' %(self.name,tablename))
