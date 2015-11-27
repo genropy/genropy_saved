@@ -1171,6 +1171,10 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
             var r = trigger_kwargs.node.getParentBag()
             k = r.getItem('attribute_key');
             vn = r.getNode('attribute_value');
+            if(!vn){
+                //parentTrigger is loading the whole store
+                return;
+            }
             v = vn.getValue();
             if(vn.attr.dtype=='AR'){
                 v = v.split(',');
