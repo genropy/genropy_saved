@@ -163,10 +163,21 @@ class GnrDboPackage(object):
             tblobj = db.table('%s.%s' %(self.name,tablename))
             currentRecords = tblobj.query().fetchAsDict('pkey')
             records = s[tablename]
-            records = records or []
-            records = [r for r in records if not r[tblobj.pkey] in currentRecords]
-            if records:
-                tblobj.insertMany(records)
+            if not records:
+                continue
+            recordsToInsert = []
+            pkeyField = tblobj.pkey
+            hasSysCode = tblobj.column('__syscode') is not None
+            if hasSysCode:
+                currentSysCodes = [r['__syscode'] for r in currentRecords.values() if r['__syscode']]
+            for r in records:
+                if r[pkeyField] in currentRecords:
+                    continue
+                if hasSysCode and r['__syscode'] in currentSysCodes:
+                    continue
+                recordsToInsert.append(r)
+            if recordsToInsert:
+                tblobj.insertMany(recordsToInsert)
                 db.commit()
         os.remove('%s.pik' %bagpath)
 
