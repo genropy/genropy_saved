@@ -158,7 +158,6 @@ class GnrDboPackage(object):
         all_pref[self.name] = s['preferences']
         self.db.table('adm.preference').savePreference(all_pref)
         db.commit()
-        db.setConstraintsDeferred()
         tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
         for tablename in tables:
             tblobj = db.table('%s.%s' %(self.name,tablename))
@@ -171,6 +170,9 @@ class GnrDboPackage(object):
             hasSysCode = tblobj.column('__syscode') is not None
             if hasSysCode:
                 currentSysCodes = [r['__syscode'] for r in currentRecords.values() if r['__syscode']]
+                if len(currentSysCodes) == len(currentRecords):
+                    tblobj.empty()
+                currentSysCodes = []
             for r in records:
                 if r[pkeyField] in currentRecords:
                     continue
