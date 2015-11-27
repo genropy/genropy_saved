@@ -130,16 +130,16 @@ class GnrDboPackage(object):
 
          
     @public_method
-    def loadStartupData(self,basepath=None):
+    def loadStartupData(self,basepath=None,empty_before=None):
         btc = self.db.currentPage.btc if self.db.currentPage else None
         if btc:
             btc.batch_create(title='%s Importer' %self.name,cancellable=True,delay=.5)
-        self._loadStartupData_do(basepath=basepath,btc=btc)
+        self._loadStartupData_do(basepath=basepath,btc=btc,empty_before=empty_before)
         if btc:
             btc.batch_complete(result='ok', result_attr=dict())
 
 
-    def _loadStartupData_do(self,basepath=None,btc=None):
+    def _loadStartupData_do(self,basepath=None,btc=None,empty_before=True):
         bagpath = basepath or os.path.join(self.db.application.packages[self.name].packageFolder,'startup_data')
         if not os.path.isfile('%s.pik' %bagpath):
             import gzip
@@ -151,8 +151,9 @@ class GnrDboPackage(object):
         tables = s['tables']
         rev_tables =  list(tables)
         rev_tables.reverse()
-        for t in rev_tables:
-            db.table('%s.%s' %(self.name,t)).empty()
+        if empty_before:
+            for t in rev_tables:
+                db.table('%s.%s' %(self.name,t)).empty()
         all_pref = self.db.table('adm.preference').loadPreference()
         all_pref[self.name] = s['preferences']
         self.db.table('adm.preference').savePreference(all_pref)
@@ -160,8 +161,10 @@ class GnrDboPackage(object):
         tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
         for tablename in tables:
             tblobj = db.table('%s.%s' %(self.name,tablename))
+            currentRecords = tblobj.query().fetchAsDict('pkey')
             records = s[tablename]
             records = records or []
+            records = [r for r in records if not r[tblobj.pkey] in currentRecords]
             if records:
                 tblobj.insertMany(records)
                 db.commit()

@@ -77,8 +77,11 @@ class GnrCustomWebPage(object):
                                                     genro.serverCall('_package.%s.createStartupData',null,function(){});
                                                     """ %pkg)
         fb.button('!!Load Startup Data',action="""genro.mainGenroWindow.genro.publish('open_batch');
-                                                    genro.serverCall('_package.%s.loadStartupData',null,function(){});
-                                                    """ %pkg)
+                                                    genro.serverCall('_package.%s.loadStartupData',{empty_before:empty_before},function(){});
+                                                    """ %pkg,empty_before=True,
+                                                    ask=dict(title='Delete table contents',fields=[dict(name='empty_before',
+                                                                                                            label='Delete tables before import',
+                                                                                                            wdg='checkbox')]))
         fb.button('!!Refresh preview',action='PUBLISH %s_startupPreview_reload' %pkg)
         center = bc.borderContainer(region='center',_class='pbl_roundedGroup',margin='2px')
         center.dataRpc('startup_tables.%s' %pkg,self.getStartupTables,pkg=pkg,
