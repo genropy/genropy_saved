@@ -331,7 +331,7 @@
 <en_size fr="Taille" de="Größe" en="Size" it="Taglia" base="Size"></en_size></filepicker>
 <formhandler path="resources/common/gnrcomponents/formhandler.py" ext="py"><en_navigation fr="Navigation" de="Navigation" en="Navigation" it="Navigazione" base="Navigation"></en_navigation>
 <en_form_commands fr="Commandes Formulaire" de="Form-Befehle" en="Form Commands" it="Modulo Comandi" base="Form Commands"></en_form_commands>
-<en_dismiss fr="Rejeter" de="Entlassen" en="Dismiss" it="Respingere" base="Dismiss"></en_dismiss>
+<en_dismiss fr="Rejeter" en="Dismiss" de="Entlassen" it="Chiudi" base="Dismiss"></en_dismiss>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
 <en_revert fr="Revenir" de="Zurückkehren" en="Revert" it="Ritornare" base="Revert"></en_revert>
 <en_this_record_cannot_be_deleted fr="Cet enregistrement ne peut pas être supprimé" de="Dieser Datensatz kann nicht gelöscht werden" en="This record cannot be deleted" it="Questo record non può essere eliminato" base="This record cannot be deleted"></en_this_record_cannot_be_deleted>
