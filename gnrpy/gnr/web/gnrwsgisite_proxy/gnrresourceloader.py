@@ -108,7 +108,7 @@ class ResourceLoader(object):
         :param pkg: the :ref:`package <packages>` object"""
 
         module_path = os.path.join(basepath,relpath)
-        _avoid_module_cache_ = request_kwargs.pop('_avoid_module_cache_', None)
+        _avoid_module_cache_ = request_kwargs.get('_avoid_module_cache_', None)
         page_module = gnrImport(module_path, avoidDup=True,silent=False,avoid_module_cache=_avoid_module_cache_)
         page_factory = page_factory or getattr(page_module, 'page_factory', GnrWebPage)
         custom_class = getattr(page_module, 'GnrCustomWebPage')
