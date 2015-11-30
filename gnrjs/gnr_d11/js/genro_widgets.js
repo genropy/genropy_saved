@@ -1852,7 +1852,10 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
             dojo.connect(bc,'startup',function(){bc.showHideRegion(side,false);});
         }
         dojo.connect(drawerDom,'onclick',function(e){
-            bc.showHideRegion(side,'toggle');
+            var show = bc.showHideRegion(side,'toggle');
+            if(drawer_kw.onclick){
+                funcApply(drawer_kw.onclick,{evt:e,show:show},pane);
+            }
         })
     }
 });

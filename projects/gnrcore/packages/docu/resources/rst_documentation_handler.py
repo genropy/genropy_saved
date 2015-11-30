@@ -276,7 +276,14 @@ class DocumentationViewer(BaseComponent):
                             SET .loadedUrl = this.domNode.contentWindow.location.pathname;""")
         pane = bc.contentPane(region='right',width='50%',splitter=True,
                                   overflow='hidden',
-                                  border_left='1px solid #3A4D65')
+                                  border_left='1px solid #3A4D65',
+                                  drawer=True,
+                                    drawer_top='20px',
+                                    drawer_background='transparent',
+                                    drawer_onclick='SET .localIframeUrl = null',
+                                  drawer_label='<div class="delete iconbox">&nbsp</div>',
+                       drawer_width='20px',drawer_left='8px',drawer_height='21px',
+                       drawer_border='0px',)
         bc.dataController("bc.setRegionVisible('right',localIframeUrl!=null)",
                 bc=bc.js_widget,localIframeUrl='^.localIframeUrl',_onBuilt=True)
         pane.dataRecord('.record',table,pkey='^.pkey',applymethod=self.db.table('docu.documentation').checkSourceBagModules)
