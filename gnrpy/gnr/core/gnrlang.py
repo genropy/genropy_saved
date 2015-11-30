@@ -266,7 +266,9 @@ def gnrImport(source, importAs=None, avoidDup=False, silent=True,avoid_module_ca
         if avoidDup and not importAs:
             importAs = os.path.splitext(source)[0].replace(path_sep, '_').replace('.', '_')
         modkey = importAs or os.path.splitext(os.path.basename(source))[0]
-    if not avoid_module_cache:
+    if avoid_module_cache:
+        sys.modules.pop(modkey,None)
+    else:
         try:
             m = sys.modules[modkey]
             return m
