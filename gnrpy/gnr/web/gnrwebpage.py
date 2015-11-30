@@ -1227,7 +1227,8 @@ class GnrWebPage(GnrBaseWebPage):
             self._avatar = self.application.getAvatar(self.user, tags=connection.user_tags, page=self,
                                                       **avatar_extra)
         return self._avatar
-        
+
+
     avatar = property(_get_avatar, _set_avatar)
 
     def _get_siteName(self):
