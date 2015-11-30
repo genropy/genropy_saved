@@ -154,7 +154,7 @@ class Form(BaseComponent):
                           height='100%')
         
     def sourcePreviewIframe(self,pane):
-        pane.iframe(src='^#FORM.versionsFrame.selectedUrl',height='100%',
+        pane.iframe(src='^#FORM.versionsFrame.selectedUrl',src__avoid_module_cache_=True,height='100%',
                     width='100%',border=0)
         pane.dataController("PUT #FORM.versionsFrame.selectedUrl = null;",_fired='^#FORM.controller.saving')
 
@@ -197,6 +197,8 @@ class GnrCustomWebPage(object):
             parentrecord = record['@parent_id'] 
             if parentrecord:
                 record['doctype'] = parentrecord['doctype']
+        else:
+            self.db.table('docu.documentation').checkSourceBagModules(record)
 
 class FormPalette(Form):
     def th_form(self, form):

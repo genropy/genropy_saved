@@ -279,7 +279,7 @@ class DocumentationViewer(BaseComponent):
                                   border_left='1px solid #3A4D65')
         bc.dataController("bc.setRegionVisible('right',localIframeUrl!=null)",
                 bc=bc.js_widget,localIframeUrl='^.localIframeUrl',_onBuilt=True)
-        pane.dataRecord('.record',table,pkey='^.pkey')
+        pane.dataRecord('.record',table,pkey='^.pkey',applymethod=self.db.table('docu.documentation').checkSourceBagModules)
         pane.dataFormula('.localIframeUrl','sourcebag.len()==1?sourcebag.getItem("_base_.url"):null',
                     sourcebag='^.record.sourcebag')
         pane.dataController("""

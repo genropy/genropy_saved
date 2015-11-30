@@ -254,7 +254,7 @@ def moduleDict(module, proplist):
         result.update(dict([(getattr(x, prop).lower(), x) for x in modulelist]))
     return result
     
-def gnrImport(source, importAs=None, avoidDup=False, silent=True):
+def gnrImport(source, importAs=None, avoidDup=False, silent=True,avoid_module_cache=None):
     """TODO
     
     :param source: TODO
@@ -266,11 +266,12 @@ def gnrImport(source, importAs=None, avoidDup=False, silent=True):
         if avoidDup and not importAs:
             importAs = os.path.splitext(source)[0].replace(path_sep, '_').replace('.', '_')
         modkey = importAs or os.path.splitext(os.path.basename(source))[0]
-    try:
-        m = sys.modules[modkey]
-        return m
-    except KeyError:
-        pass
+    if not avoid_module_cache:
+        try:
+            m = sys.modules[modkey]
+            return m
+        except KeyError:
+            pass
     path = None
     if path_sep in source:
         path = [os.path.dirname(source)]
@@ -748,7 +749,7 @@ def moduleClasses(m):
     return [x for x in dir(m) if (not x.startswith('__')) and  getattr(getattr(m, x), '__module__', None) == modulename]
         
 def classMixin(target_class, source_class, methods=None, only_callables=True,
-               exclude='js_requires,css_requires,py_requires', **kwargs):
+               exclude='js_requires,css_requires,py_requires',**kwargs):
     """Add to the class methods from 'source'.
     
     :param target_class: TODO

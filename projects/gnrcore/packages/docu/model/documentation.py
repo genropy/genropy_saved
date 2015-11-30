@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrdecorator import metadata
+from gnr.core.gnrdecorator import public_method
 import os
 import shutil
 import textwrap
@@ -47,18 +47,38 @@ class Table(object):
                             where='$docbag ILIKE :old_link_query OR $docbag ILIKE :old_link_query',
                             old_link_query='%%%s%%',_raw_update=True,bagFields=True)
 
-        basepath = self.db.application.site.getStaticPath('site:webpages','docu_examples')
-        old_tutorial_record_path = os.path.join(basepath,old_record['hierarchical_name'])
-        tutorial_record_path = os.path.join(basepath,record['hierarchical_name'])
+        old_tutorial_record_path = self.tutorialRecordPath(old_record) 
+        tutorial_record_path = self.tutorialRecordPath(record) 
         if old_tutorial_record_path != tutorial_record_path:
             if os.path.exists(old_tutorial_record_path):
                 shutil.rmtree(old_tutorial_record_path)
         if record['sourcebag'] != old_record['sourcebag']:
-            if os.path.exists(tutorial_record_path):
-                shutil.rmtree(tutorial_record_path)
+            self.writeModulesFromSourceBag(record)
+
+    def tutorialRecordPath(self,record):
+        basepath = self.db.application.site.getStaticPath('site:webpages','docu_examples')
+        return os.path.join(basepath,record['hierarchical_name'])
+
+    def writeModulesFromSourceBag(self,record):
+        tutorial_record_path = self.tutorialRecordPath(record)
+        if os.path.exists(tutorial_record_path):
+            shutil.rmtree(tutorial_record_path)
             os.makedirs(tutorial_record_path)
         if record['sourcebag']:
             for source_version in record['sourcebag'].values():
+                p = os.path.join(tutorial_record_path,source_version['version'])
+                #sys.modules.pop(p.replace('/','_'),None)
+                with open('%s.py' %p,'w') as f:
+                    f.write(source_version['source'])
+
+    @public_method
+    def checkSourceBagModules(self,record=None,**kwargs):
+        if not record['sourcebag']:
+            return
+        tutorial_record_path = self.tutorialRecordPath(record)
+        for source_version in record['sourcebag'].values():
+            p = os.path.join(tutorial_record_path,'%s.py' %source_version['version'])
+            if not os.path.exists(p):
                 with open(os.path.join(tutorial_record_path,'%s.py' %source_version['version']),'w') as f:
                     f.write(source_version['source'])
 

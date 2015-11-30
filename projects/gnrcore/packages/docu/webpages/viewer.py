@@ -7,6 +7,7 @@ class GnrCustomWebPage(object):
         language = self.locale.split('-')[0]
         doctable = self.db.table('docu.documentation')
         record = doctable.record(hierarchical_name='/'.join(self._call_args)).output('record')
+        self.db.table('docu.documentation').checkSourceBagModules(record)
         docbag = Bag(record['docbag'])
         rst = docbag['%s.rst' %language] or docbag['en.rst'] or docbag['it.rst'] or 'To do...'
         rsttable = doctable.dfAsRstTable(record['id'])
