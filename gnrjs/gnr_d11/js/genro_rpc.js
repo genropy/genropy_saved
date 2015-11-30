@@ -250,8 +250,8 @@ dojo.declare("gnr.GnrRpcHandler", null, {
                 kw.url = '/'+req_dbstore+kw.url;
             }
         }
-        if (genro.startArgs._avoid_module_cache_){
-            content._avoid_module_cache_ = true;
+        if (genro.startArgs._avoid_module_cache){
+            content._avoid_module_cache = true;
         }
         if (genro.debug_sql || genro.debug_py) {
             if(genro.debug_py){

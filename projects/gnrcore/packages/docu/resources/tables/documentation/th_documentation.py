@@ -154,7 +154,7 @@ class Form(BaseComponent):
                           height='100%')
         
     def sourcePreviewIframe(self,pane):
-        pane.iframe(src='^#FORM.versionsFrame.selectedUrl',src__avoid_module_cache_=True,height='100%',
+        pane.iframe(src='^#FORM.versionsFrame.selectedUrl',src__avoid_module_cache=True,height='100%',
                     width='100%',border=0)
         pane.dataController("PUT #FORM.versionsFrame.selectedUrl = null;",_fired='^#FORM.controller.saving')
 

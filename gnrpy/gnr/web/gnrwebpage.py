@@ -1015,6 +1015,8 @@ class GnrWebPage(GnrBaseWebPage):
         css_path, css_media_path = self.get_css_path()
         arg_dict['css_requires'] = css_path
         arg_dict['css_media_requires'] = css_media_path
+        if getattr(self,'_avoid_module_cache',None):
+            arg_dict['_avoid_module_cache'] = True
         return arg_dict
         
     def mtimeurl(self, *args):

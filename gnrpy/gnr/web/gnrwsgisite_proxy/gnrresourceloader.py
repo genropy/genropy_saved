@@ -76,7 +76,10 @@ class ResourceLoader(object):
         info = self.site.getUrlInfo(path_list,request_kwargs,default_path=self.default_path)
         if not info.relpath:
             return None
+        _avoid_module_cache = request_kwargs.pop('_avoid_module_cache', None)
+
         page_class = self.get_page_class(basepath=info.basepath,relpath=info.relpath, pkg=info.pkg,
+                                        avoid_module_cache=_avoid_module_cache,
                                         request_args=info.request_args,request_kwargs=request_kwargs)
         class_info = dict(basepath=info.basepath,relpath=info.relpath, pkg=info.pkg,
                             request_args=info.request_args,request_kwargs=request_kwargs)
@@ -84,6 +87,7 @@ class ResourceLoader(object):
                           request_kwargs=request_kwargs, request_args=info.request_args,
                           filepath=info.relpath, packageId=page_class._packageId, 
                           pluginId=info.plugin,  basename=info.relpath, environ=environ, class_info=class_info)
+        page._avoid_module_cache = _avoid_module_cache
         return page
 
     def get_page_by_id(self, page_id):
@@ -101,15 +105,14 @@ class ResourceLoader(object):
         return page
 
 
-    def get_page_class(self, basepath=None,relpath=None, pkg=None, plugin=None,request_args=None,request_kwargs=None, page_factory=None):
+    def get_page_class(self, basepath=None,relpath=None, pkg=None, plugin=None,avoid_module_cache=None,request_args=None,request_kwargs=None, page_factory=None):
         """TODO
         
         :param path: TODO
         :param pkg: the :ref:`package <packages>` object"""
 
         module_path = os.path.join(basepath,relpath)
-        _avoid_module_cache_ = request_kwargs.get('_avoid_module_cache_', None)
-        page_module = gnrImport(module_path, avoidDup=True,silent=False,avoid_module_cache=_avoid_module_cache_)
+        page_module = gnrImport(module_path, avoidDup=True,silent=False,avoid_module_cache=avoid_module_cache)
         page_factory = page_factory or getattr(page_module, 'page_factory', GnrWebPage)
         custom_class = getattr(page_module, 'GnrCustomWebPage')
         mainPkg = pkg
