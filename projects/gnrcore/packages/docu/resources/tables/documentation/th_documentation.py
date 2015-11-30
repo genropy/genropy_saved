@@ -165,17 +165,7 @@ class Form(BaseComponent):
         fb.field('publish_date',width='7em')
         fb.field('base_language',width='7em')
         fb.field('doctype',disabled='^.doctype')
-        fb.button('Graceful reload',action='FIRE #FORM.gracefulReload;')
-        fb.dataRpc('dummy',self.gracefulReload,_fired='^#FORM.gracefulReload')
         fb.div('Old html',hidden='^.old_html?=!#v').tooltipPane().div(height='150px',width='200px',overflow='auto',_class='selectable').div('^.old_html')
-
-    @public_method
-    def gracefulReload(self):
-        path = os.path.join(self.site.site_path,'root.py')
-        with open(path,'r') as f:
-            t = f.read()
-        with open(path,'w') as f:
-            f.write(t)
 
     def th_options(self):
         return dict(dialog_parentRatio=.9,hierarchical='open',audit=True,tree_excludeRoot=True,
