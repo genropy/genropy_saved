@@ -63,7 +63,7 @@ class Table(object):
         tutorial_record_path = self.tutorialRecordPath(record)
         if os.path.exists(tutorial_record_path):
             shutil.rmtree(tutorial_record_path)
-            os.makedirs(tutorial_record_path)
+        os.makedirs(tutorial_record_path)
         if record['sourcebag']:
             for source_version in record['sourcebag'].values():
                 p = os.path.join(tutorial_record_path,source_version['version'])
