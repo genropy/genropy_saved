@@ -117,7 +117,7 @@ class GnrWebPage(GnrBaseWebPage):
     :param basename: TODO
     :param environ: TODO"""
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
-                 filepath=None, packageId=None, pluginId=None, basename=None, environ=None, class_info=None):
+                 filepath=None, packageId=None, pluginId=None, basename=None, environ=None, class_info=None,_avoid_module_cache=None):
         self._inited = False
         self._start_time = time()
         self._thread = thread.get_ident()
@@ -166,6 +166,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.dojo_version = request_kwargs.pop('dojo_version', None) or getattr(self, 'dojo_version', None)
         self.dynamic_js_requires= {}
         self.dynamic_css_requires= {}
+        self._avoid_module_cache = _avoid_module_cache
         self.debug_sql = boolean(request_kwargs.pop('debug_sql', None))
         debug_py = request_kwargs.pop('debug_py', None)
         self.debug_py = False if boolean(debug_py) is not True else debug_py
@@ -991,6 +992,8 @@ class GnrWebPage(GnrBaseWebPage):
         if self.isMobile:
             kwargs['isMobile'] = True
         kwargs['deviceScreenSize'] = self.deviceScreenSize
+        if getattr(self,'_avoid_module_cache',None):
+            kwargs['_avoid_module_cache'] = True
         arg_dict['startArgs'] = toJson(dict([(k,self.catalog.asTypedText(v)) for k,v in kwargs.items()]))
         arg_dict['page_id'] = self.page_id or getUuid()
         arg_dict['bodyclasses'] = self.get_bodyclasses()
@@ -1015,8 +1018,7 @@ class GnrWebPage(GnrBaseWebPage):
         css_path, css_media_path = self.get_css_path()
         arg_dict['css_requires'] = css_path
         arg_dict['css_media_requires'] = css_media_path
-        if getattr(self,'_avoid_module_cache',None):
-            arg_dict['_avoid_module_cache'] = True
+        
         return arg_dict
         
     def mtimeurl(self, *args):

@@ -86,8 +86,8 @@ class ResourceLoader(object):
         page = page_class(site=self.site, request=request, response=response,
                           request_kwargs=request_kwargs, request_args=info.request_args,
                           filepath=info.relpath, packageId=page_class._packageId, 
-                          pluginId=info.plugin,  basename=info.relpath, environ=environ, class_info=class_info)
-        page._avoid_module_cache = _avoid_module_cache
+                          pluginId=info.plugin,  basename=info.relpath, environ=environ, class_info=class_info,
+                          _avoid_module_cache=_avoid_module_cache)
         return page
 
     def get_page_by_id(self, page_id):
