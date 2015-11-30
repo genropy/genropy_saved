@@ -76,10 +76,12 @@ class Table(object):
         if not record['sourcebag']:
             return
         tutorial_record_path = self.tutorialRecordPath(record)
+        if not os.path.exists(tutorial_record_path):
+            os.makedirs(tutorial_record_path)
         for source_version in record['sourcebag'].values():
             p = os.path.join(tutorial_record_path,'%s.py' %source_version['version'])
             if not os.path.exists(p):
-                with open(os.path.join(tutorial_record_path,'%s.py' %source_version['version']),'w') as f:
+                with open(p,'w') as f:
                     f.write(source_version['source'])
 
     def applyOnTreeNodeAttr(self,_record=None,**kwargs):
