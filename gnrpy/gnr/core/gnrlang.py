@@ -267,9 +267,12 @@ def gnrImport(source, importAs=None, avoidDup=False, silent=True,avoid_module_ca
             importAs = os.path.splitext(source)[0].replace(path_sep, '_').replace('.', '_')
         modkey = importAs or os.path.splitext(os.path.basename(source))[0]
     if avoid_module_cache:
+        print 'avoid_module_cache',modkey
         sys.modules.pop(modkey,None)
     else:
         try:
+            if 'hello' in modkey:
+                print 'search cached'
             m = sys.modules[modkey]
             return m
         except KeyError:
