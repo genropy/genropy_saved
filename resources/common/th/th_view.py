@@ -188,7 +188,7 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_slotbar_importer(self,pane,**kwargs):
-        options = self._th_hook('options',mangler=pane)()
+        options = self._th_hook('options',mangler=pane)() or dict()
         tags = options.get('uploadTags') or '_DEV_,superadmin'
         if not self.application.checkResourcePermission(tags, self.userTags):
             pane.div()
