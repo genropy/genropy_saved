@@ -3927,23 +3927,27 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
 });
 
 dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
-     contentKwargs: function(sourceNode, attributes) {
-         if ('name' in attributes){
-             attributes['_name'] = objectPop(attributes,'name');
-         }
-         if ('content' in attributes){
-             attributes['_content'] = objectPop(attributes,'content');
-         }
-         //attributes['path'] = attributes['storepath'];
-         attributes.columns = attributes.columns || '==gnr.getGridColumns(this);';
-         attributes.method = attributes.method || 'app.getSelection';
-         if('chunkSize' in attributes && !('selectionName' in attributes)){
-             attributes['selectionName'] = '*';
-         }
-         return attributes;
-     },
+    contentKwargs: function(sourceNode, attributes) {
+        if ('name' in attributes){
+            attributes['_name'] = objectPop(attributes,'name');
+        }
+        if ('content' in attributes){
+            attributes['_content'] = objectPop(attributes,'content');
+        }
+        //attributes['path'] = attributes['storepath'];
+        attributes.columns = attributes.columns || '==gnr.getGridColumns(this);';
+        attributes.method = attributes.method || 'app.getSelection';
+        if('chunkSize' in attributes && !('selectionName' in attributes)){
+            attributes['selectionName'] = '*';
+        }
+        return attributes;
+    },
 
-     createContent:function(sourceNode, kw,children) {
+
+
+
+
+    createContent:function(sourceNode, kw,children) {
         var chunkSize = objectPop(kw,'chunkSize',0);
         var storeType = objectPop(kw,'storeType') || (chunkSize? 'VirtualSelection':'Selection');
         kw.row_count = chunkSize;
@@ -3954,7 +3958,7 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
         var linkedWidgetNode = objectPop(kw,'linkedWidgetNode');
         var skw = objectUpdate({_cleared:false},kw);
          //skw['_delay'] = kw['_delay'] || 'auto';
-        skw.script="if(_cleared){this.store.clear();}else{if(this.form && this.form._reloadingAfterSave && !this.store.hasChanges()){return;}this.store.clear();this.store.loadData();}";
+        skw.script="if(_cleared){this.store.clear();}else{if(this.form && this.form._reloadingAfterSave && !this.store.hasChanges()){return;}this.store.loadData();}";
         objectPop(skw,'nodeId')
         objectPop(skw,'_onCalling');
         objectPop(skw,'_onResult');
@@ -4037,7 +4041,6 @@ dojo.declare("gnr.stores._Collection",null,{
         archive_one:"!!You are about to set archiviation date in the selected record",
         archive_many:"!!You are about to set archiviation date in the selected $count records"
     },
-
     
     constructor:function(node,kw){
         this.storeNode = node;
