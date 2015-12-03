@@ -65,8 +65,8 @@ class FrameGridSlots(BaseComponent):
                             SET .deleteDisabled = false;
                             SET .deleteButtonClass = deleteButtonClass +' _logical_delete';
                           """,
-                            disabled=disabled,deleteButtonClass=_class,frameCode=frameCode
-                            ,**{str('subscribe_%s_grid_onSelectedRow' %frameCode):True})
+                            disabled=disabled,deleteButtonClass=_class,frameCode=frameCode,_onBuilt=True,
+                            **{str('subscribe_%s_grid_onSelectedRow' %frameCode):True})
         pane.data('.deleteButtonClass',_class)
         return pane.slotButton(label='!!Delete',publish='delrow',iconClass='^.deleteButtonClass',disabled='^.deleteDisabled',**kwargs)
     
@@ -135,6 +135,7 @@ class FrameGrid(BaseComponent):
                     pbl_classes=None,gridEditor=True,
                     addrow=True,delrow=True,slots=None,
                     autoToolbar=True,semaphore=None,
+                    datamode=None,
                     store_kwargs=True,parentForm=None,**kwargs):
         if pbl_classes:
             kwargs['_class'] = 'pbl_roundedGroup'
@@ -147,7 +148,8 @@ class FrameGrid(BaseComponent):
         if storepath.startswith('==') or storepath.startswith('^'):
             dynamicStorepath = storepath
             storepath = '.dummystore'
-        frame = pane.frameGrid(_newGrid=True,datamode='bag',
+        datamode= datamode or 'bag'
+        frame = pane.frameGrid(_newGrid=True,datamode= datamode,
                                 dynamicStorepath=dynamicStorepath,
                                 **kwargs)
         if autoToolbar:
@@ -168,6 +170,8 @@ class FrameGrid(BaseComponent):
                 bar.vtitle.div(title,_class='frameGridTitle')
             if semaphore:
                 bar.replaceSlots('#','#,gridsemaphore')
+        if datamode == 'attr':
+            store_kwargs.setdefault('storeType','AttributesBagRows')
         store = frame.grid.bagStore(storepath=storepath,parentForm=parentForm,**store_kwargs)
         frame.store = store
         return frame

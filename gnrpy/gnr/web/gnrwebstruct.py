@@ -1059,7 +1059,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             storepath = storepath or attr.get('storepath') or '.store'
         nodeId = '%s_store' %storeCode
         #self.data(storepath,Bag())
-        return parent.child('BagStore',storepath=storepath, nodeId=nodeId,**kwargs)
+        return parent.child('BagStore',storepath=storepath, nodeId=nodeId,_identifier=_identifier,**kwargs)
 
     def fsStore(self,folders=None,storepath=None,storeCode=None,include='*.xml',columns=None,**kwargs):
         """FileSystem Store

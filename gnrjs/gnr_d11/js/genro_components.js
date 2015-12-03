@@ -4486,8 +4486,13 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
 
     deleteRows:function(pkeys,protectPkeys){
         var data = this.getData()
+        this.gridBroadcast(function(grid){
+            grid.selection.unselectAll()
+        });
+        var that = this;
         pkeys.forEach(function(n){
-            data.popNode(n);
+            var node = that.rowBagNodeByIdentifier(n);
+            data.popNode(node.label);
         });
         this.linkedGrids().forEach(function(grid){
             grid.sourceNode.publish('onDeletedRows',{pkeys:pkeys,protectPkeys:protectPkeys})
