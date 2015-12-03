@@ -103,7 +103,7 @@ class FrameGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGridSlots'
     @extract_kwargs(top=True,grid=True)
     @struct_method
-    def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,structpath=None,
+    def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,dynamicStorepath=None,structpath=None,
                     datamode=None,table=None,grid_kwargs=True,top_kwargs=None,iconSize=16,
                     _newGrid=None,**kwargs):
         pane.attributes.update(overflow='hidden')
@@ -119,6 +119,7 @@ class FrameGrid(BaseComponent):
         grid_kwargs.setdefault('selectedId','.selectedId')
         frame.includedView(autoWidth=False,
                           storepath=storepath,datamode=datamode,
+                          dynamicStorepath=dynamicStorepath,
                           datapath='.grid',
                           struct=struct,table=table,
                           **grid_kwargs)
@@ -129,7 +130,8 @@ class FrameGrid(BaseComponent):
 
     @extract_kwargs(default=True,store=True)
     @struct_method
-    def fgr_bagGrid(self,pane,storepath=None,title=None,default_kwargs=None,
+    def fgr_bagGrid(self,pane,storepath=None,dynamicStorepath=None,
+                    title=None,default_kwargs=None,
                     pbl_classes=None,gridEditor=True,
                     addrow=True,delrow=True,slots=None,
                     autoToolbar=True,semaphore=None,
@@ -142,7 +144,12 @@ class FrameGrid(BaseComponent):
         if gridEditor:
             kwargs['grid_gridEditor'] = dict(default_kwargs=default_kwargs)
         kwargs.setdefault('grid_parentForm',parentForm)
-        frame = pane.frameGrid(_newGrid=True,datamode='bag',**kwargs)
+        if storepath.startswith('==') or storepath.startswith('^'):
+            dynamicStorepath = storepath
+            storepath = '.dummystore'
+        frame = pane.frameGrid(_newGrid=True,datamode='bag',
+                                dynamicStorepath=dynamicStorepath,
+                                **kwargs)
         if autoToolbar:
             default_slots = []
             title = title or ''

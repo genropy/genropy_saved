@@ -768,7 +768,6 @@ dojo.declare("gnr.GridEditor", null, {
         if(this.editorPars){
             if (sourceNode.form && sourceNode.attr.parentForm!==false){
                 sourceNode.form.registerGridEditor(sourceNode.attr.nodeId,this);
-                this.storeInForm = sourceNode.attr.storeInForm || sourceNode.absDatapath(sourceNode.attr.storepath).indexOf(sourceNode.form.sourceNode.absDatapath(sourceNode.form.formDatapath))==0
             }
             sourceNode.subscribe('onNewDatastore',function(){
                 that.resetEditor();
@@ -794,7 +793,8 @@ dojo.declare("gnr.GridEditor", null, {
                 },500);
             }
         }
-        this.widgetRootNode.attr.datapath = sourceNode.absDatapath(sourceNode.attr.storepath);
+        this.applyStorepath();
+        //this.widgetRootNode.attr.datapath = sourceNode.absDatapath(sourceNode.attr.storepath);
         var _this = this;
         if(genro.isMobile){
             sourceNode.subscribe('doubletap',function(info){
@@ -815,6 +815,17 @@ dojo.declare("gnr.GridEditor", null, {
                 }
             });
         }
+    },
+
+    applyStorepath:function(){
+        var sourceNode = this.grid.sourceNode;
+        var absStorepath = sourceNode.absDatapath(sourceNode.attr.storepath)
+        if(this.editorPars){
+            if (sourceNode.form && sourceNode.attr.parentForm!==false){
+                this.storeInForm = sourceNode.attr.storeInForm || absStorepath.indexOf(sourceNode.form.sourceNode.absDatapath(sourceNode.form.formDatapath))==0
+            }
+        }
+        this.widgetRootNode.attr.datapath = absStorepath;
     },
     
     onFormatCell:function(cell, inRowIndex,renderedRow){

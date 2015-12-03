@@ -4627,7 +4627,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         else if ((!this._updatingIncludedView) && (! this._batchUpdating)) {
             if (kw.evt == 'fired') {
-                var storepath = this.sourceNode.absDatapath(this.sourceNode.attr.storepath);
+                var storepath = this.absStorepath();
                 var storenode = genro._data.getNode(storepath);
                 if (storenode instanceof dojo.Deferred) {
                     console.log('Deferred!!');
@@ -4730,6 +4730,19 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             var path = this.sourceNode.attrDatapath('sortedBy');
             genro._data.setItem(path, sortedBy);
         }
+    },
+
+    mixin_absStorepath:function(){
+        var storepath = this.sourceNode.attr.storepath;
+        /*if(storepath.indexOf('(')>=0){
+            var storepath_kw = objectExtract(this.sourceNode.attr,'storepath_*',true);
+            if(objectNotEmpty(storepath_kw)){
+                storepath_kw = this.sourceNode.evaluateOnNode(storepath_kw);
+                storepath = storepath.replace(/\((\w*)\)/gim, function(n,m){return storepath_kw[m];})
+            }
+
+        }*/        
+        return this.sourceNode.absDatapath(storepath);
     },
 
     mixin_setRefreshOn:function() {
@@ -4879,7 +4892,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
     },
     mixin_storebag:function() {
-        var storepath = this.sourceNode.absDatapath(this.sourceNode.attr.storepath);
+        //var storepath = this.sourceNode.absDatapath(this.sourceNode.attr.storepath);
+        var storepath = this.absStorepath();
+
         //var storebag=genro.getData(storepath);
         var storebag = genro._data.getItem(storepath);
         if (storebag instanceof gnr.GnrBag) {
@@ -5154,6 +5169,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
 
         }
     },
+
     mixin_newBagRow: function(defaultArgs) {
         var defaultArgs = (this.gridEditor?this.gridEditor.getNewRowDefaults(defaultArgs) : defaultArgs) || {};
         var newRowDefaults = this.sourceNode.attr.newRowDefaults;
@@ -5408,9 +5424,6 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         if (attributes.excludeListCb) {
             attributes.excludeListCb = funcCreate(attributes.excludeListCb);
         }
-    },
-    mixin_absStorepath:function(){
-        return this.sourceNode.absDatapath(this.sourceNode.attr.storepath);
     },
     
     mixin_setEditableColumns:function(){
@@ -5855,6 +5868,18 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     mixin_rowBagNodeByIdentifier:function(identifier){
         return this.collectionStore().rowBagNodeByIdentifier(identifier);
     },
+
+    mixin_setDynamicStorepath:function(newstorepath){
+        newstorepath = newstorepath || '.store';
+        var store = this.collectionStore();
+        store.setNewStorepath(newstorepath);
+        this.updateRowCount();
+    },
+
+    mixin_absStorepath:function(){
+        return this.collectionStore().absStorepath();
+    },
+
     mixin_getSelectedRowidx: function() {
         var sel = this.selection.getSelected();
         if(!this._virtual){
@@ -5904,9 +5929,11 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     mixin_storeRowCount: function(all) {
         return this.collectionStore().len(!all);
     },
-   // mixin_storebag:function(){
-   //     return this.collectionStore().getData();
-   // },
+    
+    mixin_storebag:function(){
+        return this.collectionStore().getData();
+    },
+
     mixin_addNewSetColumn:function(kw) {
         this.gnr.addNewSetColumn(this.sourceNode,kw);;
     },
@@ -7424,7 +7451,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
     },
 
     mixin_storebag:function(){
-        return this.sourceNode.getRelativeData(this.sourceNode.attr.storepath);
+        return this.sourceNode.getRelativeData(this.absStorepath());
     },
 
     mixin_clickOnCheckbox:function(bagnode, e) {
