@@ -1102,7 +1102,6 @@ dojo.declare("gnr.GridEditor", null, {
                     }
                 }
             }
-            result['_newrecord'] = true;
             return result;
         }
     },

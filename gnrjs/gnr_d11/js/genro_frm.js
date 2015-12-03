@@ -1294,9 +1294,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                             value.walk(function(n){
                             if('_loadedValue' in n.attr){
                                 var nvalue = n._value;
-                                if(nvalue instanceof gnr.GnrBag){
-                                    nvalue.popNode('_newrecord');
-                                }
+                                objectPop(n.attr,'_newrecord');
                                 var loadedValue = objectPop(n.attr,'_loadedValue');
                                 n.attr.__old = asTypedTxt(loadedValue, n.attr.dtype);
                             }

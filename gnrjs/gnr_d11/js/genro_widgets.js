@@ -5173,6 +5173,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     mixin_newBagRow: function(defaultArgs) {
         var defaultArgs = (this.gridEditor?this.gridEditor.getNewRowDefaults(defaultArgs) : defaultArgs) || {};
         var newRowDefaults = this.sourceNode.attr.newRowDefaults;
+        var newrow;
         if (newRowDefaults) {
             if (typeof(newRowDefaults) == 'string') {
                 newRowDefaults = funcCreate(newRowDefaults)();
@@ -5203,11 +5204,13 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                 return result;
             }
             if (this.datamode == 'bag') {
+
                 newrow = new gnr.GnrBagNode(null, 'label', new gnr.GnrBag(defaultArgs));
             } else {
                 newrow = new gnr.GnrBagNode(null, 'label', null, defaultArgs);
             }
         }
+        newrow.attr._newrecord=true;
         return newrow;
     },
 
