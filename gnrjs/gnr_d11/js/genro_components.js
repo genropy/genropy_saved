@@ -1706,7 +1706,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
                 currx += size+1 || 0;
             }
         })
-        var storeNode = genro.getDataNode(this.absStorepath());
+        var storeNode = genro.getDataNode(this.absStorepath);
         var rowwidth = maxwidth;
         objectExtract(mainCell,'dtype,format,style,cellClass');
         objectUpdate(mainCell,pars);
@@ -1768,7 +1768,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
                 currx += size+1 || 0;
             }
         })
-        var storeNode = genro.getDataNode(this.absStorepath());
+        var storeNode = genro.getDataNode(this.absStorepath);
         var level = (item.parentshipLevel(storeNode)-1);
         var rowwidth = maxwidth-level*k;
         var objStyle=objectUpdate(objectFromStyle(mainCell._style),
@@ -4044,9 +4044,10 @@ dojo.declare("gnr.stores._Collection",null,{
     
     constructor:function(node,kw){
         this.storeNode = node;
-        var startData = this.storeNode.getRelativeData(this.absStorepath());
+        this.storepath = this.storeNode.absDatapath(this.storeNode.attr.storepath);
+        var startData = this.storeNode.getRelativeData(this.storepath);
         if(!startData){
-            this.storeNode.setRelativeData(this.absStorepath(),null,null,null,'initStore');
+            this.storeNode.setRelativeData(this.storepath,null,null,null,'initStore');
         }
         this.locked = null;
         var deleteRows = objectPop(kw,'deleteRows');
@@ -4087,14 +4088,10 @@ dojo.declare("gnr.stores._Collection",null,{
 
     },
 
-    absStorepath:function(){
-        var storepath = this.storeNode.attr.storepath;
-        return this.storeNode.absDatapath(storepath);
-    },
-
     setNewStorepath:function(newstorepath){
         this.storeNode.attr.storepath = newstorepath;
-        var storepath = this.absStorepath();
+        this.storepath = this.absDatapath(this.storeNode.attr.storepath);
+        var storepath = this.storepath;
         var that = this;
         this.gridBroadcast(function(grid){
             grid.sourceNode.attr.storepath = storepath;
@@ -4106,7 +4103,7 @@ dojo.declare("gnr.stores._Collection",null,{
     },
 
     clear:function(){
-        this.storeNode.setRelativeData(this.absStorepath(),new gnr.GnrBag(),null,null,'loadData');
+        this.storeNode.setRelativeData(this.storepath,new gnr.GnrBag(),null,null,'loadData');
     },
 
     gridBroadcast:function(cb){
@@ -4133,7 +4130,7 @@ dojo.declare("gnr.stores._Collection",null,{
     },
     
     onLoaded:function(result){
-        this.storeNode.setRelativeData(this.absStorepath(),result);
+        this.storeNode.setRelativeData(this.storepath,result);
         return result;
     },
 
@@ -4263,10 +4260,10 @@ dojo.declare("gnr.stores._Collection",null,{
     onCounterChanges:function(counterField,changes){},
     
     getData:function(){
-        var result = this.storeNode.getRelativeData(this.absStorepath());
+        var result = this.storeNode.getRelativeData(this.storepath);
         if(!result){
             result = new gnr.GnrBag();
-            this.storeNode.setRelativeData(this.absStorepath(),result);
+            this.storeNode.setRelativeData(this.storepath,result);
         }
         return result;
     },
@@ -4466,7 +4463,7 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
             });
         }
         data = data?data.deepCopy(): new gnr.GnrBag();
-        this.storeNode.setRelativeData(this.absStorepath(),data,null,null,'loadData');
+        this.storeNode.setRelativeData(this.storepath,data,null,null,'loadData');
         if(this.sortedBy){
             this.sort();
         }
@@ -5043,7 +5040,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
 
     onLoaded:function(result){
         this.externalChangedKeys = null;
-        this.storeNode.setRelativeData(this.absStorepath(),result,null,null,'loadData');
+        this.storeNode.setRelativeData(this.storepath,result,null,null,'loadData');
         return result;
     }
 });
@@ -5093,7 +5090,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
                 this.loadBagPageFromServer(page,true,data);
             }
         }
-        this.storeNode.setRelativeData(this.absStorepath(),data,resultattr);
+        this.storeNode.setRelativeData(this.storepath,data,resultattr);
         return result;
     },
     onExternalChangeResult:function(changelist){
