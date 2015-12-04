@@ -4600,6 +4600,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         this.updateRowCount('*');
         this.restoreSelectedRows();
     },
+
     mixin_restoreSelectedRows:function(){
         this.selection.unselectAll();
         this.selectionKeeper('load');
@@ -5908,6 +5909,22 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             return this.rowIdentity(this.rowByIndex(inRowIndex));
         }
     },
+
+    mixin_getRowEditor:function(kw){
+        var rowId = kw.rowId;
+        if(!rowId){
+            if(kw.rowIndex){
+                rowId = this.rowIdByIndex(kw.rowIndex);
+            }else{
+                rowId = this.rowIdentity(row);
+            }
+        }
+        var rowNode = this.rowBagNodeByIdentifier(rowId);
+        if(rowNode){
+            return rowNode._rowEditor;
+        }
+    },
+
 
     mixin_filteredRowsIndex:function(filteringObject){
         return this.collectionStore().filteredRowsIndex(filteringObject);
