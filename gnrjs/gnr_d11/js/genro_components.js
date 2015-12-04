@@ -4090,7 +4090,7 @@ dojo.declare("gnr.stores._Collection",null,{
 
     setNewStorepath:function(newstorepath){
         this.storeNode.attr.storepath = newstorepath;
-        this.storepath = this.absDatapath(this.storeNode.attr.storepath);
+        this.storepath = this.storeNode.absDatapath(this.storeNode.attr.storepath);
         var storepath = this.storepath;
         var that = this;
         this.gridBroadcast(function(grid){
