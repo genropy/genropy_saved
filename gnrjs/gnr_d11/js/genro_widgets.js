@@ -3201,7 +3201,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 if(!storeNode){
                     console.log('missing storepath');
                 }else{
-                    sourceNode.attr.storepath = storeNode.attr.storepath;//storeNode.absDatapath(storeNode.attr.path);
+                    sourceNode.attr.storepath = storeNode.absDatapath(storeNode.attr.storepath);
                     sourceNode._useStore=true;
                 }
             }
