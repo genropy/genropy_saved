@@ -51,7 +51,7 @@ gnr.getGridColumns = function(storeNode) {
     genro.src._main.walk(function(n){
         if(n.widget && n.widget.selectionKeeper){
             storeCode = n.attr.store || n.attr.nodeId;
-            if((storeCode+'_store'==storeNodeId)||(destFullpath == n.attr.storepath){
+            if((storeCode+'_store'==storeNodeId)||(destFullpath == n.widget.absStorepath())){
                 //n.widget.selectionKeeper('save');
                 var cols = n.widget.query_columns.split(',');
                 dojo.forEach(cols,function(c){
@@ -3201,7 +3201,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 if(!storeNode){
                     console.log('missing storepath');
                 }else{
-                    sourceNode.attr.storepath = storeNode.absDatapath(storeNode.attr.storepath);
+                    sourceNode.attr.storepath = storeNode.absDatapath(storeNode.attr.storepath);//storeNode.absDatapath(storeNode.attr.path);
                     sourceNode._useStore=true;
                 }
             }
@@ -4628,7 +4628,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         else if ((!this._updatingIncludedView) && (! this._batchUpdating)) {
             if (kw.evt == 'fired') {
-                var storepath = this.sourceNode.attr.storepath;
+                var storepath = this.absStorepath();
                 var storenode = genro._data.getNode(storepath);
                 if (storenode instanceof dojo.Deferred) {
                     console.log('Deferred!!');
@@ -4731,6 +4731,10 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             var path = this.sourceNode.attrDatapath('sortedBy');
             genro._data.setItem(path, sortedBy);
         }
+    },
+
+    mixin_absStorepath:function(){
+        return this.sourceNode.absDatapath(this.sourceNode.attr.storepath);
     },
 
     mixin_setRefreshOn:function() {
@@ -4881,7 +4885,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     },
     mixin_storebag:function() {
         //var storepath = this.sourceNode.absDatapath(this.sourceNode.attr.storepath);
-        var storepath = this.sourceNode.attr.storepath;
+        var storepath = this.absStorepath();
 
         //var storebag=genro.getData(storepath);
         var storebag = genro._data.getItem(storepath);
@@ -5864,6 +5868,10 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         newstorepath = newstorepath || '.store';
         var store = this.collectionStore();
         store.setNewStorepath(newstorepath);
+    },
+
+    mixin_absStorepath:function(){
+        return this.collectionStore().storepath;
     },
 
     mixin_getSelectedRowidx: function() {
