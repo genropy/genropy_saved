@@ -706,8 +706,8 @@ dojo.declare("gnr.RowEditor", null, {
         var rowNode = this.data.getParentNode();
         if(rowNode){
             rowNode.clearValue(); //deleting data because dbevents remove changes
+            delete rowNode._rowEditor;
         }
-        delete rowNode._rowEditor;
     },
 
     checkRowEditor:function(){
@@ -733,6 +733,7 @@ dojo.declare("gnr.GridEditor", null, {
         this.autoSave = this.editorPars? this.editorPars.autoSave:false;
         this.remoteRowController = sourceNode.attr.remoteRowController;
         this.remoteRowController_default = sourceNode.attr.remoteRowController_default;
+        this.status = {};
 
         if(this.autoSave===true){
             this.autoSave = 3000;
@@ -852,7 +853,7 @@ dojo.declare("gnr.GridEditor", null, {
                 status = 'changed';
             }
         }
-        this.status = status;
+        this.status[this.grid.sourceNode.attr.storepath] = status;
         var viewNode = genro.getFrameNode(this.grid.sourceNode.attr.frameCode);
         dojo.forEach(this._status_list,function(st){
             genro.dom.setClass(viewNode,'editGrid_'+st,st==status);

@@ -4578,7 +4578,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         this._filterToRebuild=false;
         
     },
-    mixin_newDataStore:function(val, kw) {
+    mixin_newDataStore:function() {
         this.updateRowCount(0);
         this.resetFilter();
         if(this.excludeCol){
@@ -5877,7 +5877,6 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         newstorepath = newstorepath || '.store';
         var store = this.collectionStore();
         store.setNewStorepath(newstorepath);
-        this.updateRowCount();
     },
 
     mixin_absStorepath:function(){

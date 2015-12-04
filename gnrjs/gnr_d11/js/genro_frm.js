@@ -1568,11 +1568,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     registeredGridsStatus:function(){
         var status = null;
         for(var k in this.gridEditors){
-            var gridstatus=this.gridEditors[k].status;
-            if(gridstatus=='error'){
+            var gridstatus=objectValues(this.gridEditors[k].status);
+            if(gridstatus.indexOf('error')>=0){
                 return 'error';
-            }else if(gridstatus=='changed'){
-                status = gridstatus;
+            }else if(gridstatus.indexOf('changed')>=0){
+                status = 'changed';
             }
         }
         return status;

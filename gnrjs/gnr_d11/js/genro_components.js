@@ -4101,6 +4101,7 @@ dojo.declare("gnr.stores._Collection",null,{
             if(grid.gridEditor){
                 grid.gridEditor.applyStorepath();
             }
+            grid.newDataStore();
         });
     },
 
