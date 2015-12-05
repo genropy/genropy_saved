@@ -263,7 +263,7 @@ class GnrDomSrc(GnrStructData):
             subtag = ('%s_%s' %(parentTag,fname)).lower()
             if hasattr(self,subtag):
                 return getattr(self,subtag)
-        raise AttributeError("Object has no attribute '%s': provide another nodeId" % fname)
+        raise AttributeError("%s has no attribute '%s' " % (parentTag or repr(self), fname))
     
     @deprecated
     def getAttach(self, childname):
