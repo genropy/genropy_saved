@@ -8,6 +8,14 @@ var genro_plugin_grid_configurator = {
             that.refreshMenu(gridId);
         });
     },
+    configureCellStructure:function(gridId,cellIndex){
+        var gridSourceNode = genro.nodeById(gridId);
+        var grid = gridSourceNode.widget;
+        var cellNode = grid.structBag.getNodeByAttr('field',grid.getCell(cellIndex).field);
+        var path = gridSourceNode.absDatapath('.struct.#0.#0.'+cellNode.label);
+        genro.dev.openBagNodeEditorPalette(path,{title:'Edit '+cellNode.attr.field,
+                                                exclude:'dtype,field,tag,related_table,related_table_lookup,related_column,relating_column,rowcaption,caption_field'});
+    },
     configureStructure:function(gridId){
         var gridSourceNode = genro.nodeById(gridId);
         var structpath = gridSourceNode.absDatapath(gridSourceNode.attr.structpath);
@@ -65,6 +73,9 @@ var genro_plugin_grid_configurator = {
     
 
     addGridConfigurator:function(sourceNode){
+        dojo.connect(sourceNode.widget,'setCellWidth',function(inIndex, inUnitWidth){
+            this.structBag.getNodeByAttr('field',this.getCell(inIndex).field).updAttributes({width:inUnitWidth});
+        });
         sourceNode.attr.selfDragColumns = 'trashable';
         var table = sourceNode.attr.table;
         if(!table && sourceNode.attr.storepath){

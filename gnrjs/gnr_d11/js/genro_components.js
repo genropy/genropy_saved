@@ -1215,11 +1215,14 @@ dojo.declare("gnr.widgets.PaletteBagNodeEditor", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
         var pane = sourceNode._('PalettePane', kw);
         var nodePath = objectPop(kw,'nodePath');
+        var multiValuePars = objectExtract(kw,'origin,exclude')
         var bc = pane._('BorderContainer', {_class:'bagNodeEditor'});
-        var bottom = bc._('ContentPane', {'region':'bottom',color:'#666',font_style:'italic'});
-        bottom._('span', {'innerHTML':'Path : '});
-        bottom._('span', {'innerHTML':nodePath});
-        bc._('ContentPane',{region:'center',margin:'2px',overflow:'hidden'})._('MultiValueEditor',{value:nodePath+'?#node',origin:kw.origin})
+        if(genro.isDeveloper){
+            var bottom = bc._('ContentPane', {'region':'bottom',color:'#666',font_style:'italic'});
+            bottom._('span', {'innerHTML':'Path : '});
+            bottom._('span', {'innerHTML':nodePath});
+        }
+        bc._('ContentPane',{region:'center',margin:'2px',overflow:'hidden'})._('MultiValueEditor',objectUpdate({value:nodePath+'?#node'},multiValuePars))
         return pane;
     }
 });

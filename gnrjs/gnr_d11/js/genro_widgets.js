@@ -2312,19 +2312,21 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
             }
         }
         wdg = sourceNode.widget;
-        if (wdg.menuItemCb){
-            dojo.forEach(wdg.getChildren(),wdg.menuItemCb);
-        }
-        if (wdg.disabledItemCb){
-            dojo.forEach(wdg.getChildren(),function(item){
-                item.setDisabled(wdg.disabledItemCb(item));
-            });
-        }
-        if (wdg.hiddenItemCb){
-            dojo.forEach(wdg.getChildren(),function(item){
-                item.setHidden(wdg.hiddenItemCb(item));
-            });
-        }
+        var widgetChildren = wdg.getChildren();
+        widgetChildren.forEach(function(item){
+            if(item.onOpen){
+                funcApply(item.onOpen,null,sourceNode,['item','evt'],[item,e]);
+            }
+            if(wdg.menuItemCb){
+                wdg.menuItemCb(item,e)
+            }
+            if(wdg.disabledItemCb){
+                item.setDisabled(wdg.disabledItemCb(item,e));
+            }
+            if(wdg.hiddenItemCb){
+                item.setHidden(wdg.hiddenItemCb(item,e));
+            }
+        });
 
         if(wdg.modifiers){
             wdg._contextMouse_replaced.call(wdg, e);
