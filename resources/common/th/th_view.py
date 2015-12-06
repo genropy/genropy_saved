@@ -118,7 +118,12 @@ class TableHandlerView(BaseComponent):
                             checked='^.#parent.tableRecordCount')
         contextMenu.menuline('-')
         contextMenu.menuline('!!Configure Table',action='genro.dev.fieldsTreeConfigurator($2.attr.table)')
-        contextMenu.menuline('!!Configure View',action='genro.grid_configurator.configureStructure($2.widget)')
+        #contextMenu.menuline('!!Configure View',action='genro.grid_configurator.configureStructure($2.attr.nodeId)')
+        contextMenu.menuline('!!Configure Column',action="""
+            genro.grid_configurator.configureCellStructure($2.attr.nodeId,this.widget.cellIndex);
+            """,
+                            onOpen="""item.setLabel(_T("Configure column:")+" "+evt.grid.getCell(evt.cellIndex).original_name);
+                                      item.cellIndex = evt.cellIndex;""")
 
         if virtualStore:    
             self._extTableRecords(frame)
