@@ -1895,9 +1895,11 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
                             'export': {content_class:'iconbox export',
                                                  export_mode:'xls',
                                                  downloadAs:'',
+                                                 localized_data:true,
                                                  ask:{title:'Export selection',skipOn:'Shift',
                                                  fields:[{name:'downloadAs',lbl:'Download as'},
-                                                         {name:'export_mode',wdg:'filteringSelect',values:'xls:Excel,csv:CSV',lbl:'Mode'}]
+                                                         {name:'export_mode',wdg:'filteringSelect',values:'xls:Excel,csv:CSV',lbl:'Mode'},
+                                                         {name:'localized_data',wdg:'checkbox',label:'Localized data'}]
                                              }}
                            }
         if(custom_tools){
