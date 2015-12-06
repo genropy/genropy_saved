@@ -1836,7 +1836,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         return self.page.rmlTemplate(path=template, record=record)
 
     def rpc_includedViewAction(self, action=None, export_mode=None, respath=None, table=None, data=None,
-                               selectionName=None, struct=None,datamode=None, downloadAs=None,
+                               selectionName=None, struct=None,datamode=None,localized_data=None, downloadAs=None,
                                selectedRowidx=None, **kwargs):
         """TODO
         
@@ -1863,7 +1863,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         res_obj = self.page.site.loadTableScript(page=self.page, table=table,respath=respath, class_name='Main')
         if selectionName:
             data = self.page.getUserSelection(selectionName=selectionName,selectedRowidx=selectedRowidx).output('grid')
-        return res_obj.gridcall(data=data, struct=struct, export_mode=export_mode, datamode=datamode,selectedRowidx=selectedRowidx,filename=downloadAs)
+        return res_obj.gridcall(data=data, struct=struct, export_mode=export_mode,
+                                    localized_data=localized_data, datamode=datamode,
+                                    selectedRowidx=selectedRowidx,filename=downloadAs)
 
 
 class BatchExecutor(object):

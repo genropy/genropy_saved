@@ -46,6 +46,7 @@ class BaseResourceExport(BaseResourceBatch):
     batch_immediate = True
     export_zip = False
     export_mode = 'xls'
+    localized_data = False
     def __init__(self, *args, **kwargs):
         super(BaseResourceExport, self).__init__(*args, **kwargs)
         self.locale = self.page.locale
@@ -53,14 +54,13 @@ class BaseResourceExport(BaseResourceBatch):
         self.headers = []
         self.coltypes = {}
         self.data = None
-        self.raw = True
 
-    def gridcall(self, data=None, struct=None, export_mode=None, datamode=None,selectedRowidx=None,filename=None):
-        self.batch_parameters = dict(export_mode=export_mode, filename=filename)
+    def gridcall(self, data=None, struct=None, export_mode=None, datamode=None,selectedRowidx=None,filename=None,
+                    localized_data=None):
+        self.batch_parameters = dict(export_mode=export_mode, filename=filename,localized_data=localized_data)
         self.prepareFromStruct(struct)
         self.data = self.rowFromValue(data) if datamode == 'bag' else self.rowFromAttr(data)
         self._pre_process()
-        self.raw = False
         self.do()
         return self.fileurl
 
@@ -91,6 +91,7 @@ class BaseResourceExport(BaseResourceBatch):
     def _pre_process(self):
         self.pre_process()
         self.fileurl = None
+        self.localized_data = self.batch_parameters.get('localized_data',self.localized_data)
         self.export_mode = self.batch_parameters.get('export_mode',self.export_mode)
         self.prepareFilePath(self.batch_parameters.get('filename',self.getFileName()))
         if not self.data:
@@ -105,7 +106,7 @@ class BaseResourceExport(BaseResourceBatch):
             else:
                 self.prepareFromStruct(struct)
         writerPars = dict(columns=self.columns, coltypes=self.coltypes, headers=self.headers,
-                          filepath=self.filepath, locale=None if self.raw else self.locale)
+                          filepath=self.filepath, locale= self.locale if self.localized_data else None)
         if self.export_mode == 'xls':
             self.writer = XlsWriter(**writerPars)
         elif self.export_mode == 'csv':

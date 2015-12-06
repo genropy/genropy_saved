@@ -770,12 +770,15 @@ class TableHandlerView(BaseComponent):
                 connectedMenu='==TH("%s").querymanager.getOpMenuId(_dtype);' %th_root,
                 _dtype='^.c_0?column_dtype',
                 _class='th_querybox_item')
-        value_textbox = querybox.div(_class='th_querybox_item th_queryboxfield').textbox(value='^.c_0?value_caption',width='8em',
-            _autoselect=True,relpath='.c_0',
+        value_textbox = querybox.div(_class='th_querybox_item th_queryboxfield',
+                                    connect_onclick="""if($1.target===this.domNode){
+                                        this.getChild('searchboxTextbox').widget.focus();
+                                    }
+                                    """).textbox(value='^.c_0?value_caption',
+            _autoselect=True,relpath='.c_0',childname='searchboxTextbox',
             validate_onAccept='TH("%s").querymanager.checkQueryLineValue(this,value)' %th_root,
             disabled='==(_op in TH("%s").querymanager.helper_op_dict)'  %th_root, _op='^.c_0?op',
-            connect_onclick="TH('%s').querymanager.getHelper(this);" %th_root,
-            _class='th_queryboxfield')
+            connect_onclick="TH('%s').querymanager.getHelper(this);" %th_root,width='8em' if self.isMobile else '12em')
 
         value_textbox.div('^.c_0?value_caption', hidden='==!(_op in  TH("%s").querymanager.helper_op_dict)' %th_root,
                          _op='^.c_0?op', _class='helperField')
