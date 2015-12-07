@@ -122,8 +122,13 @@ class TableHandlerView(BaseComponent):
         contextMenu.menuline('!!Configure Column',action="""
             genro.grid_configurator.configureCellStructure($2.attr.nodeId,this.widget.cellIndex);
             """,
-                            onOpen="""item.setLabel(_T("Configure column:")+" "+evt.grid.getCell(evt.cellIndex).original_name);
-                                      item.cellIndex = evt.cellIndex;""")
+            onOpen="""if(evt.grid && evt.cellIndex){
+                        item.setLabel(_T("Configure column:")+" "+evt.grid.getCell(evt.cellIndex).original_name);
+                        item.cellIndex = evt.cellIndex;
+                    }else{
+                        item.setLabel('Configure view')
+                        item.setDisabled(true);
+                    }""")
 
         if virtualStore:    
             self._extTableRecords(frame)
