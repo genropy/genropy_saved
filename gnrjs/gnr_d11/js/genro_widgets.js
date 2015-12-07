@@ -2284,10 +2284,16 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
         }
         var sourceNode = this.sourceNode;
         var wdg = sourceNode.widget;
+
         if( (wdg.modifiers || wdg.validclass ) && !(genro.wdg.filterEvent(e, wdg.modifiers, wdg.validclass)) ){
             return;
         }
-
+        if(!wdg.modifiers){
+            if(e.button!=2){
+                //not modifiers nor contextclick
+                return;
+            }
+        }
         if (sourceNode) {
             var resolver = sourceNode.getResolver();
             if (resolver && resolver.expired()) {
