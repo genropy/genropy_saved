@@ -126,6 +126,7 @@ class TableHandlerView(BaseComponent):
                             if(evt.grid && evt.cellIndex){
                                 item.setLabel(_T("Configure column:")+" "+evt.grid.getCell(evt.cellIndex).original_name);
                                 item.cellIndex = evt.cellIndex;
+                                item.setDisabled(false);
                             }else{
                                 item.setLabel('Configure view')
                                 item.setDisabled(true);
