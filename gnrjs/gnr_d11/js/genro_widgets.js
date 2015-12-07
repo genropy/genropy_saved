@@ -609,7 +609,8 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
 
     creating:function(attributes, sourceNode) {
         sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted,documentClasses');
-        objectUpdate(sourceNode.savedAttrs,objectExtract(attributes,'rpc_*',false,true))
+        objectExtract(attributes,'rpc_*')
+        objectUpdate(sourceNode.savedAttrs,objectExtract(sourceNode.attr,'rpc_*',false,true))
 
         var condFunc = objectPop(attributes, 'condition_function');
         var condValue = objectPop(attributes, 'condition_value');
@@ -686,7 +687,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         if (attributes['src']) {
             return sourceNode.getAttributeFromDatasource('src');
         } else if (attributes['rpcCall']) {
-            params = objectExtract(sourceNode.savedAttrs, 'rpc_*', true);
+            params = sourceNode.evaluateOnNode(objectExtract(sourceNode.savedAttrs, 'rpc_*', true));
             params.mode = params.mode ? params.mode : 'text';
             return genro.remoteUrl(attributes['rpcCall'], params, sourceNode, false);
         }
