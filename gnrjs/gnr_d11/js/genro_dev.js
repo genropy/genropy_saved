@@ -80,6 +80,20 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
 
 
+    openBagEditorPalette:function(path,kw){
+        var root = genro.src.newRoot();
+        var name = kw.name || '_currentPaletteBagEditor_'
+        genro.src.getNode()._('div', name);
+
+        var node = genro.src.getNode(name).clearValue();
+        node.freeze();
+        node._('PaletteBagEditor','currentEditor',objectUpdate({'paletteCode':name,'dockTo':false,
+                                        title:kw.title || 'Bag editor',
+                                        'path':path},kw));
+        node.unfreeze();
+        
+    },
+
     siteLockedStatus:function(set){
         var maingenro = genro.mainGenroWindow.genro;
         var sn = maingenro.nodeById('_gnrRoot');

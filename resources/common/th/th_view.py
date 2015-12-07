@@ -119,24 +119,11 @@ class TableHandlerView(BaseComponent):
         contextMenu.menuline('-')
         contextMenu.menuline('!!Configure Table',action='genro.dev.fieldsTreeConfigurator($2.attr.table)')
         #contextMenu.menuline('!!Configure View',action='genro.grid_configurator.configureStructure($2.attr.nodeId)')
-        contextMenu.menuline('!!Configure Column',action="""
-            genro.grid_configurator.configureCellStructure($2.attr.nodeId,this.widget.cellIndex);
-            """,
-                            onOpen="""
-                            if(evt.grid && evt.cellIndex){
-                                item.setLabel(_T("Configure column:")+" "+evt.grid.getCell(evt.cellIndex).original_name);
-                                item.cellIndex = evt.cellIndex;
-                                item.setDisabled(false);
-                            }else{
-                                item.setLabel('Configure view')
-                                item.setDisabled(true);
-                            }
-                                      """)
-
+        contextMenu.menuline('!!Configure View',action="""
+            genro.grid_configurator.configureStructure($2.attr.nodeId);
+            """)
         if virtualStore:    
             self._extTableRecords(frame)
-
-
         frame.dataController("""if(!firedkw.res_type){return;}
                             var kw = {selectionName:batch_selectionName,gridId:batch_gridId,table:batch_table};
                             objectUpdate(kw,firedkw);

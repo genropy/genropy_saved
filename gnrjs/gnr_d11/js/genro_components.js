@@ -1015,8 +1015,9 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
         gnrwdg.origin = objectPop(kw,'origin');
         sourceNode.attr.exclude = objectPop(kw,'exclude');
         sourceNode.attr.value = objectPop(kw,'value');
-        var grid_kwargs = objectExtract(kw,'grid_*')
+        var grid_kwargs = objectExtract(kw,'grid_*');
         var tools = objectPop(kw,'tools');
+        var tools_kw = objectExtract(kw,'tools_*');
         var readOnly = objectPop(kw,'readOnly');
 
         if(tools==undefined && !readOnly){
@@ -1044,12 +1045,15 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
         grid._('column',{name:'Key',field:'attribute_key',width:'15em',cellStyles:'background:#BBB;color:#333;border-bottom:1px solid white;font-weight:bold;'})
         grid._('column',{name:'Value',field:'attribute_value',edit:!readOnly,width:'100%',cellStyles:'border-bottom:1px solid lightgray;'})
         if(tools){
-            var t = grid._('tools',{tools:tools,
-            custom_tools:{addrow:{content_class:'iconbox add_row',ask:{title:'New Line',
-                                                 fields:[{name:'key',lbl:'Key',validate_notnull:true},
-                                                        {name:'dtype',lbl:'Datatype',values:'T:Text,B:Boolean,L:Integer,N:Decimal,D:Date,H:Time',wdg:'filteringSelect',default_value:'T'}]
-                                             }},
-            }})
+            var t = grid._('tools',objectUpdate({tools:tools,
+                                          custom_tools:{addrow:{content_class:'iconbox add_row',ask:{title:'New Line',
+                                                fields:[{name:'key',lbl:'Key',validate_notnull:true},
+                                                        {name:'dtype',lbl:'Datatype',
+                                                        values:'T:Text,B:Boolean,L:Integer,N:Decimal,D:Date,H:Time',
+                                                        wdg:'filteringSelect',default_value:'T'}]
+                                                }
+                                    }
+            }},tools_kw))
 
         }
         gnrwdg.gridNode = grid.getParentNode();
@@ -1227,6 +1231,39 @@ dojo.declare("gnr.widgets.PaletteBagNodeEditor", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.PaletteBagEditor", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw) {
+        kw.palette_width = kw.palette_width || '500px';
+        var gnrwdg = sourceNode.gnrwdg;
+
+        var pane = sourceNode._('PalettePane', kw);
+        var path = objectPop(kw,'path');
+        var multiValuePars = objectExtract(kw,'origin,exclude')
+        var bc = pane._('BorderContainer',{background:'#EEF2F4'});
+        var left = bc._('ContentPane',{region:'left',width:'200px',_class:'noheader buttons_grid no_over',
+                        splitter:true});
+        var g = left._('quickGrid',{value:'^'+path,datamode:'attr',
+                          selfDragRows:true,
+                          selfsubscribe_onSelectedRow:function(kw){
+                                if(kw.idx>=0){
+                                    var n = this.widget.collectionStore().itemByIdx(kw.idx);
+                                    //gnrwdg.mveNode.gnrwdg.setSource(nodePath+'?#node');
+                                    gnrwdg.mveNode.gnrwdg.setSource(path+'.'+n.label+'?#node');
+                                }
+                          },
+                           onCreated:function(){
+                                var w = this.widget;
+                                setTimeout(function(){
+                                    w.updateRowCount();
+                                },1);
+                           }}) //
+        g._('column',{field:'field',name:'Cells',width:'100%'});
+        multiValuePars.tools_position = 'BL';
+        var mve = bc._('ContentPane',{region:'center',margin:'2px',overflow:'hidden'})._('MultiValueEditor','mve',multiValuePars);
+        gnrwdg.mveNode = mve.getParentNode();
+        return pane;
+    }
+});
 
 
 dojo.declare("gnr.widgets.BagNodeEditor", gnr.widgets.gnrwdg, {
@@ -1841,9 +1878,10 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
 
 
         var valuepath = sourceNode.absDatapath(value);
+        var store_kwargs = objectExtract(kw,'store_*');
         kw.nodeId = kw.nodeId || '_qg_'+genro.getCounter();
         kw.store = kw.nodeId;
-        kw.datamode='bag';
+        kw.datamode= kw.datamode || 'bag';
         kw.structpath = kw.structpath || '#WORKSPACE.struct';
         kw.controllerPath = '#WORKSPACE.controllers';
         kw.frameTarget = kw.frameTarget===false?false:true;
@@ -1861,8 +1899,9 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var currentColumns = sourceNode.getAttributeFromDatasource('columns');
         var struct = new gnr.GnrBag();
         sourceNode.setRelativeData(kw.structpath,struct)
-        sourceNode._('BagStore',{storepath:valuepath,
-                        nodeId:kw.nodeId+'_store',datapath:kw.controllerPath});
+        sourceNode._('BagStore',objectUpdate({storepath:valuepath,
+                        nodeId:kw.nodeId+'_store',datapath:kw.controllerPath,
+                        storeType:kw.datamode=='bag'?'ValuesBagRows':'AttributesBagRows'},store_kwargs));
         var tools = subTagItems.tools;
         var gridRoot= tools.len()? this.toolsGridRoot(sourceNode,kw,tools.getAttr('#0')) : sourceNode;
         kw.datapath = kw.controllerPath;
@@ -1924,48 +1963,46 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
                                  value:'^.command',target:kw.nodeId})
         return bc._('contentPane',centerkw)
     },
-    guessDtypeAndWidth:function(rows,fields){
+    gnrwdg_guessDtypeAndWidth:function(rows,fields){
         var types={}
         var sizes={}
         var w,dtype,v
         if(!rows || rows.len()==0){
             return {types:null,sizes:null};
         }
+        var store = this.gridNode.widget.collectionStore();
         if(!fields || fields=='*'){
-            fields = rows.getItem('#0').keys()
+            fields = objectKeys(store.rowByIndex(0));
         }else{
             fields = fields.split(',');
         }
         rows.forEach(function(n){
-            var r = n.getValue();
+            var r = store.rowFromItem(n);
             fields.forEach(function(field){
-                var c = r.getNode(field);
-                if (c){
-                    if (!(field in types)){
-                        types[field]=null
-                        sizes[field]=0
+                var v = r[field];
+                if (!(field in types)){
+                    types[field]=null
+                    sizes[field]=0
+                }
+                if(!isNullOrBlank(v)){
+                    dtype=types[field]
+                    if (!dtype) {
+                        dtype=guessDtype(v)
+                        types[field]=dtype
+                    }   
+                    w = 8 
+                    if (dtype=='D'){w = 8}
+                    else if (dtype=='H'){w = 6}
+                    else if (dtype=='DH'){w = 12}
+                    if ((dtype=='T') || (dtype=='N')|| (dtype=='L')){
+                        sizes[field]=Math.max(sizes[field]||field.length,v.toString().length)
                     }
-                    v=c.getValue()
-                    if(!isNullOrBlank(v)){
-                        dtype=types[field]
-                        if (!dtype) {
-                            dtype=guessDtype(v)
-                            types[field]=dtype
-                        }   
-                        w = 8 
+                    else if (sizes[field]==0){
+                        w=8;
                         if (dtype=='D'){w = 8}
                         else if (dtype=='H'){w = 6}
                         else if (dtype=='DH'){w = 12}
-                        if ((dtype=='T') || (dtype=='N')|| (dtype=='L')){
-                            sizes[field]=Math.max(sizes[field]||field.length,v.toString().length)
-                        }
-                        else if (sizes[field]==0){
-                            w=8;
-                            if (dtype=='D'){w = 8}
-                            else if (dtype=='H'){w = 6}
-                            else if (dtype=='DH'){w = 12}
-                            sizes[field]=Math.max(field.length,w)
-                        }
+                        sizes[field]=Math.max(field.length,w)
                     }
                 }
             })
@@ -1984,7 +2021,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var columns = new gnr.GnrBag();
         var columns_extra = this.columns_extra || {};
         var fields= this.sourceNode.getAttributeFromDatasource('fields')
-        var guess = this.gnr.guessDtypeAndWidth(value, fields);
+        var guess = this.guessDtypeAndWidth(value, fields);
         var kw;
         for (var label in guess.types){
             kw = {'field':label,'dtype':guess.types[label],
