@@ -83,7 +83,7 @@ gnr.columnsFromStruct = function(struct, columns) {
                 arrayPushNoDup(columns,(n[0]=='$' || n[0]=='@')?n:'$'+n);
             });
         }
-        if (node.attr['calculated'] || (fld && fld.indexOf(':')>=0)) {
+        if (node.attr.rowTemplate || node.attr.calculated || (fld && fld.indexOf(':')>=0)) {
             continue;
         }
         if (fld) {
@@ -3727,8 +3727,25 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         return function(v, inRowIndex) {
             var renderedRow = this.grid.currRenderedRow;
-            this.customStyles.push(objectAsStyle(objectUpdate(objectFromStyle(this.cellStyles),
-                                                     sourceNode.evaluateOnNode(genro.dom.getStyleDict(objectUpdate({},this), [ 'width'])))));
+            var baseStyleDict = objectUpdate(objectFromStyle(this.cellStyles),
+                                                     sourceNode.evaluateOnNode(genro.dom.getStyleDict(objectUpdate({},this), [ 'width'])))
+            var ranges = objectExtract(cell,'range_*',true);
+            
+            if(objectNotEmpty(ranges)){
+                var rangepars = objectUpdate({},renderedRow);
+                rangepars.value = v;
+                for(var rng in ranges){
+                    if(stringEndsWith(rng,'_condition') || rng.indexOf('_')<=0){
+                        var condition = funcApply('return '+ranges[rng],rangepars,sourceNode);
+                        if(condition){
+                            var prefix = rng.replace('_condition','');
+                            var styleKw = objectExtract(ranges,prefix+'_*',true);
+                            objectUpdate(baseStyleDict,sourceNode.evaluateOnNode(genro.dom.getStyleDict(styleKw, [ 'width'])))
+                        }
+                    }
+                }
+            }
+            this.customStyles.push(objectAsStyle(baseStyleDict));
             if (cellClassFunc) {
                 var cellClassFuncResult = cellClassFunc(this, v, inRowIndex,renderedRow[cell.field]);
                 if(cellClassFuncResult){
@@ -3864,8 +3881,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             cell.cellStyles = objectAsStyle(objectUpdate(objectFromStyle(cell.cellStyles),
                                             genro.dom.getStyleDict(cell, [ 'width'])));
             var formats = objectExtract(cell, 'format_*');
-            var format = objectExtract(cell, 'format');
-
+            var format = objectPop(cell, 'format');
             var template = objectPop(cell, 'template');
             var js = objectPop(cell, 'js');
             if (template) {
@@ -3910,6 +3926,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 formats['falseclass'] = 'greenLight';
                 formats['trueclass'] = 'redLight';
             }
+            cell._formats = formats;
             cell.formatter = this.structFromBag_cellFormatter(sourceNode,cell,formats, cellClassCB);
             delete cell.tag;
             objectUpdate(cell,rowBasedAttr);
@@ -3933,13 +3950,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 for (k = 0; k < rowsnodes.length; k++) {
 
                     rowBag = rowsnodes[k].getValue();
-                    //if (genro.isMobile) {
-                    //    var cellattr = {'format_isbutton':true,'format_buttonclass':'zoomIcon buttonIcon',
-                    //        'format_onclick':'this.widget.openLinkedForm(kw);',
-                    //        'width':'20px','calculated':true,
-                    //        'field':'_edit_record','name':' '};
-                    //    rowBag.setItem('cell_editor', null, cellattr, {doTrigger:false,_position:0});
-                    //}
 
                     if (!(rowBag instanceof gnr.GnrBag)) {
                         rowBag = new gnr.GnrBag();
@@ -4475,6 +4485,14 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                 console.error(e)
                 return 'err';
             }
+        }else if(this.rowTemplate){
+            var formats = {};
+            var c;
+            for(var k in this.grid.cellmap){
+                c = this.grid.cellmap[k];
+                formats[c.field] = c._formats;
+            }
+            return dataTemplate(this.rowTemplate,rowdata,null,null,{formats:formats});
         }else{
             return rowdata[this.field_getter]
         }
