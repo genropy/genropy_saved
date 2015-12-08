@@ -810,6 +810,8 @@ dojo.declare("gnr.GridEditor", null, {
             dojo.connect(grid, editOn[0], function(e) {
                 if (genro.wdg.filterEvent(e, modifier)) {
                     if (_this.enabled() && _this.editableCell(e.cellIndex,e.rowIndex,true) && !grid.gnrediting) {
+                        e.stopPropagation();
+                        e.preventDefault();
                         _this.startEdit(e.rowIndex, e.cellIndex,e.dispatch);
                     }
                 }

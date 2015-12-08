@@ -120,6 +120,12 @@ class FormHandler(BaseComponent):
             """
         else:
             gridattr['connect_%s' %loadEvent] = """
+                                            if($1.cellIndex>=0){
+                                                var cell = this.widget.getCell(arguments[0].cellIndex);
+                                                if(cell.edit){
+                                                    return;
+                                                }
+                                            }
                                             var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
                                             genro.callAfter(function(){
                                                 var selectedRows = this.widget.getSelectedRowidx() || [];
