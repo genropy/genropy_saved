@@ -118,7 +118,6 @@ class TableHandlerView(BaseComponent):
                             checked='^.#parent.tableRecordCount')
         contextMenu.menuline('-')
         contextMenu.menuline('!!Configure Table',action='genro.dev.fieldsTreeConfigurator($2.attr.table)')
-        #contextMenu.menuline('!!Configure View',action='genro.grid_configurator.configureStructure($2.attr.nodeId)')
         contextMenu.menuline('!!Configure View',action="""
             genro.grid_configurator.configureStructure($2.attr.nodeId);
             """)
