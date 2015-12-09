@@ -533,7 +533,7 @@ class SqlQueryCompiler(object):
         partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
         if not ignorePartition and partition_kwargs:
             wherelist = [where] if where else []
-            wherelist.append('( $__partition_allowed IS TRUE ) ')
+            wherelist.append('( $__match_partition IS TRUE ) ')
             where = ' AND '.join(wherelist)
         columns = self.updateFieldDict(columns)
         where = self.updateFieldDict(where or '')
