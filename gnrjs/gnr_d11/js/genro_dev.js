@@ -51,13 +51,11 @@ dojo.declare("gnr.GnrDevHandler", null, {
         
         dojo.connect(pane,'onclick',function(e){
             if(e.altKey && e.shiftKey){
-                if(!dijit.byId("gnr_srcInspector")){
-                    genro.dev.openSrcInspector();
-                }
                 var sourceNode = genro.src.enclosingSourceNode(e.target);
+                genro.dev.openBagNodeEditorPalette(sourceNode.getFullpath(),{name:'_devSrcInspector_',title:'Sourcenode Inspector',origin:'*S'});
                 console.log('------current edit node:-------');
-                console.log(sourceNode);
                 genro.publish('srcInspector_editnode',sourceNode);
+                console.log(sourceNode);
                 window._sourceNode_ = sourceNode;
             }
             
@@ -65,18 +63,20 @@ dojo.declare("gnr.GnrDevHandler", null, {
         });
   
     },
-    openSrcInspector:function(){
+
+
+    openBagNodeEditorPalette:function(nodePath,kw){
         var root = genro.src.newRoot();
-        genro.src.getNode()._('div', '_devSrcInspector_');
-        var node = genro.src.getNode('_devSrcInspector_').clearValue();
+        var name = kw.name || '_currentBagNodeEditor_'
+        genro.src.getNode()._('div', name);
+
+        var node = genro.src.getNode(name).clearValue();
         node.freeze();
-        node._('PaletteBagNodeEditor',{'paletteCode':'srcInspector',nodeId:'srcInspector',id:'gnr_srcInspector','dockTo':false,
-                                        title:'Source Node Inspector',
-                                        'bagpath':'*S'});
-        
+        node._('PaletteBagNodeEditor','currentEditor',objectUpdate({'paletteCode':name,'dockTo':false,
+                                        title:kw.title || 'BagNode editor',
+                                        'nodePath':nodePath},kw));
         node.unfreeze();
         
-
     },
 
 
@@ -308,7 +308,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
     },
     onDebugstep:function(data){
-        var callcounter = data.getItem('callcounter');
+        var callcounter = data.callcounter;
         if (!('r_'+callcounter in genro.debugged_rpc)){
             this.addToDebugged(callcounter,data)
             this.updateDebuggerStepBox(callcounter,data);
@@ -335,7 +335,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         container.appendChild(message)
         container.appendChild(footer)
         debuggerStepBox.appendChild(container)
-        message.innerHTML = dataTemplate('Rpc:$methodname<br/>Module: $filename<br/>Function: $functionName<br/>Line: $lineno</div>',data);
+        message.innerHTML = dataTemplate('<table><tbody><tr><td class="pdb_label">Rpc:</td><td>$methodname</td></tr><tr><td class="pdb_label">Module:</td><td>$filename</td><tr><td class="pdb_label">Function:</td><td>$functionName</td></tr><td class="pdb_label">Line:</td><td>$lineno</td></tr></tbody></table>',data);
         var link = document.createElement('div');
         link.setAttribute('class','pdb_footer_button pdb_footer_button_right')
         link.innerHTML = 'Debug'
@@ -344,12 +344,15 @@ dojo.declare("gnr.GnrDevHandler", null, {
         link = document.createElement('div');
         link.setAttribute('class','pdb_footer_button pdb_footer_button_left')
         link.innerHTML = 'Continue'
-        link.setAttribute('onclick',dataTemplate("dojo.addClass(dojo.byId('_debugger_step_"+callcounter+"'),'pdb_running'); genro.dev.continueDebugInIde('$pdb_id','$debugger_page_id');",data))
+        link.setAttribute('onclick',dataTemplate("dojo.addClass(dojo.byId('_debugger_step_"+callcounter+"'),'pdb_running'); genro.dev.continueDebugInIde('$pdb_id','$debugger_page_id',"+callcounter+");",data))
         footer.appendChild(link)
     },
 
-    continueDebugInIde:function(pdb_id,debugger_page_id){
+    continueDebugInIde:function(pdb_id,debugger_page_id,callcounter){
         genro.wsk.publishToClient(debugger_page_id,"debugCommand",{cmd:'c',pdb_id:pdb_id});
+        setTimeout(function(){
+            genro.dev.removeFromDebugged(callcounter);
+        },1000)
     },
 
     openDebugInIde:function(pdb_id,debugger_page_id){
@@ -362,7 +365,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
 
     addToDebugged:function(callcounter,data){
-        var dbgpars = {debugger_page_id:data.getItem('debugger_page_id'),pdb_id:data.getItem('pdb_id')};
+        var dbgpars = {debugger_page_id:data.debugger_page_id,pdb_id:data.pdb_id};
         genro.debugged_rpc['r_'+callcounter] = dbgpars;
         genro.rpc.suspend_call(callcounter)
     },

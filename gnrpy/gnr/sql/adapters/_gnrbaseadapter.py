@@ -36,13 +36,21 @@ class SqlDbAdapter(object):
     All the methods of this class can be overwritten for specific db adapters,
     but only a few must be implemented in a specific adapter."""
     typesDict = {'character varying': 'A', 'character': 'A', 'text': 'T',
-                 'boolean': 'B', 'date': 'D', 'time without time zone': 'H', 'timestamp without time zone': 'DH',
-                 'timestamp with time zone': 'DH', 'numeric': 'N', 'money': 'M',
+                 'boolean': 'B', 'date': 'D', 
+                 'time without time zone': 'H', 
+                 'time with time zone': 'HZ',
+                 'timestamp without time zone': 'DH',
+                 'timestamp with time zone': 'DHZ',
+                 'numeric': 'N', 'money': 'M',
                  'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'double precision': 'R', 'real': 'R', 'bytea': 'O'}
 
     revTypesDict = {'A': 'character varying', 'C': 'character', 'T': 'text',
                     'X': 'text', 'P': 'text', 'Z': 'text', 'N': 'numeric', 'M': 'money',
-                    'B': 'boolean', 'D': 'date', 'H': 'time without time zone', 'DH': 'timestamp without time zone',
+                    'B': 'boolean', 'D': 'date', 
+                    'H': 'time without time zone',
+                    'HZ': 'time without time zone',
+                    'DH': 'timestamp without time zone',
+                    'DHZ': 'timestamp with time zone',
                     'I': 'integer', 'L': 'bigint', 'R': 'real',
                     'serial': 'serial8', 'O': 'bytea'}
 
@@ -536,12 +544,20 @@ class SqlDbAdapter(object):
         else:
             return self.revTypesDict[dtype]
 
+    def dropEmptyTables(self,schema=None):
+        tables = self.listElements('tables',schema=schema)
+        for tbl in tables:
+            tblfullname = '%s.%s' %(schema,tbl)
+            if not self.dbroot.execute("""SELECT COUNT(*) FROM %s""" %tblfullname).fetchone()[0]:
+                self.dropTable(tblfullname,cascade=True)
+
     def dropTable(self, dbtable,cascade=False):
         """Drop table"""
         command = 'DROP TABLE %s;'
         if cascade:
             command = 'DROP TABLE %s CASCADE;'
-        self.dbroot.execute(command % dbtable.model.sqlfullname)
+        tablename = dbtable if isinstance(dbtable,basestring) else dbtable.model.sqlfullname
+        self.dbroot.execute(command % tablename)
 
     def dropIndex(self, index_name, sqlschema=None):
         """Drop an index

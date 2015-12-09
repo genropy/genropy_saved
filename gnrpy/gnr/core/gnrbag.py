@@ -367,6 +367,7 @@ class BagNode(object):
         
         :param validator: the type of validation to set into the list of the node
         :param parameterString: the parameter for a single validation type"""
+        print x
         if self._validators is None:
             self._validators = BagValidationList(self)
         self._validators.add(validator, parameterString)
@@ -1511,11 +1512,12 @@ class Bag(GnrObject):
         if kwargs:
             _attributes = dict(_attributes or {})
             _validators = dict(_validators or {})
-            for k, v in kwargs.items():
-                if k.startswith('validate_'):
-                    _validators[k[9:]] = v
-                else:
-                    _attributes[k] = v
+            _attributes.update(kwargs)
+           # for k, v in kwargs.items():
+           #     if k.startswith('validate_'):
+           #         _validators[k[9:]] = v
+           #     else:
+           #         _attributes[k] = v
         if item_path == '' or item_path is True:
             if isinstance(item_value, BagResolver):
                 item_value = item_value()
@@ -2525,7 +2527,7 @@ class BagResolver(object):
         """
         pass
 
-    def resolverSerialize(self):
+    def resolverSerialize(self,args=None,kwargs=None):
         """TODO"""
         attr = {}
         attr['resolverclass'] = self.__class__.__name__
@@ -2692,6 +2694,25 @@ class UrlResolver(BagResolver):
         result['data'] = x.read()
         result['info'] = x.info()
         return result
+
+class NetBag(BagResolver):
+    classKwargs = {'cacheTime': 300, 'readOnly': True}
+    classArgs = ['url','method'] 
+
+    def init(self):
+        import requests
+        self.requests = requests
+        self.converter = GnrClassCatalog()
+
+    def load(self):
+
+        try:
+            params = {k:self.converter.asTypedText(v) for k,v in self.kwargs.items()}
+            response = self.requests.post('%s/%s' %(self.url,self.method),data=params)
+            return Bag(response.text)
+        except Exception, e:
+            return Bag(dict(error=str(e)))
+        
         
 class DirectoryResolver(BagResolver):
     """TODO"""

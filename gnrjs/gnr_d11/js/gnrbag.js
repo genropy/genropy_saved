@@ -420,7 +420,7 @@ dojo.declare("gnr.GnrBagNode", null, {
     setAttribute:function(label, value, doTrigger) {
         var updDict = {};
         updDict[label] = value;
-        this.setAttr(updDict, doTrigger, true,label);
+        this.setAttr(updDict, doTrigger, '*',label);
     },
 
     updAttributes:function(attrDict, doTrigger) {
@@ -545,6 +545,10 @@ dojo.declare("gnr.GnrBag", null, {
             source.forEach(function(node) {
                 dest.setItem(node.label, node.getValue(), objectUpdate({}, node.getAttr()));
             });
+        }else if(typeof(source)=='string'){
+            //always xml string
+            var parser=new window.DOMParser();
+            this.fromXmlDoc(parser.parseFromString(source,'text/xml'),genro.clsdict);
         }
         else if (source instanceof Object) {
             for (var k in source) {
@@ -642,7 +646,7 @@ dojo.declare("gnr.GnrBag", null, {
                     else{
                         
                         dtype = cell_kw.dtype || vnode.attr.dtype || guessDtype(v);
-                        format = cell_kw.format;
+                        format = typeof(cell_kw)=='string'?cell_kw:cell_kw.format;
                         if(format){
                             v = _F(v,format,dtype);
                         }else{
@@ -1595,12 +1599,16 @@ dojo.declare("gnr.GnrBag", null, {
     /**
      * todo
      */
-    asDict: function() {
+    asDict: function(recursive) {
         var result = {};
-        var node;
+        var node,value;
         for (var i = 0; i < this._nodes.length; i++) {
             node = this._nodes[i];
-            result[node.label] = node.getValue();
+            value = node.getValue();
+            if(recursive && (value instanceof gnr.GnrBag)){
+                value = value.asDict(recursive);
+            }
+            result[node.label] = value;
         }
         ;
         return result;

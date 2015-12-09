@@ -373,10 +373,12 @@ class ResourceLoader(object):
         :param resourceDirs: TODO
         :param \*path: TODO"""
         path = os.path.join(*path)
+        drive, path = os.path.splitdrive(path)
         if ':' in path:
             modName, clsName = path.split(':')
         else:
             modName, clsName = path, '*'
+        modName = '%s%s'%(drive, modName)
         modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
         if modPathList:
             modPathList.reverse()
@@ -393,10 +395,12 @@ class ResourceLoader(object):
         resourceDirs = target_class.resourceDirs
         py_requires = [x for x in splitAndStrip(getattr(source_class, 'py_requires', ''), ',') if x] or []
         for path in py_requires:
+            drive, path = os.path.splitdrive(path)
             if ':' in path:
                 modName, clsName = path.split(':')
             else:
                 modName, clsName = path, '*'
+            modName = '%s%s'%(drive, modName)
             modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
             if modPathList:
                 modPathList.reverse()

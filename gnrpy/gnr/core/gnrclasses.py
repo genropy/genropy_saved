@@ -26,9 +26,9 @@ import re
 from gnr.core import gnrstring
 from gnr.core.gnrdate import decodeOneDate, decodeDatePeriod
 from decimal import Decimal
-
+from dateutil.parser import parse as dateutil_parse
+from dateutil.tz import tzlocal
 ISO_MATCH = re.compile(r'\d{4}\W\d{1,2}\W\d{1,2}')
-
 
 class GnrMixinError(Exception):
     pass
@@ -213,7 +213,7 @@ class GnrClassCatalog(object):
     def isTypedText(self,txt,**kwargs):
         if not '::' in txt:
             return False
-        return txt.split('::')[-1].upper() in ['HTML','JS','RPC','JSON','NN','BAG','A','T','L','N','I','B','D','H','DH','P','X']
+        return txt.split('::')[-1].upper() in ['HTML','JS','RPC','JSON','NN','BAG','A','T','L','N','I','B','D','H','HZ','DH','DHZ','P','X']
 
             
     def fromTypedText(self, txt, **kwargs):
@@ -287,12 +287,15 @@ class GnrClassCatalog(object):
         self.addClass(cls=datetime.date, key='D', aliases=['DATE'], empty=None)
         self.addParser(datetime.date, self.parse_date)
         
-        self.addClass(cls=datetime.datetime, key='DH', aliases=['DATETIME', 'DT'], empty=None)
+        self.addClass(cls=datetime.datetime, key='DH', aliases=['DATETIME', 'DT','DHZ'], empty=None)
         self.addParser(datetime.datetime, self.parse_datetime)
-        
-        self.addClass(cls=datetime.time, key='H', aliases=['TIME'], empty=None)
+        self.addSerializer("asText", datetime.datetime, self.serialize_datetime)
+
+  
+        self.addClass(cls=datetime.time, key='H', aliases=['TIME','HZ'], empty=None)
         self.addParser(datetime.time, self.parse_time)
-        
+
+
         self.addClass(cls=Bag, key='BAG', aliases=['BAG', 'GNRBAG', 'bag', 'gnrbag'], empty=Bag)
         self.addParser(Bag, lambda txt: Bag(txt))
         self.addSerializer("asText", Bag, lambda b: b.toXml(catalog=self))
@@ -327,7 +330,9 @@ class GnrClassCatalog(object):
         __mixin_pkg = getattr(func, '__mixin_pkg', None)
         __mixin_path = getattr(func, '__mixin_path', None)
         is_websocket = getattr(func, 'is_websocket',None)
-        if __mixin_pkg and __mixin_path:
+        if __mixin_path:
+            if not __mixin_pkg:
+                __mixin_pkg='*'
             funcName = '%s|%s;%s'%(__mixin_pkg, __mixin_path, funcName)
         if is_websocket:
             funcName =funcName
@@ -347,9 +352,12 @@ class GnrClassCatalog(object):
             
         :param txt: TODO
         :param workdate: the :ref:`workdate`"""
-        splitted = gnrstring.wordSplit(txt)
-        result = datetime.datetime(*[int(el) for el in splitted])
-        return result
+        return dateutil_parse(txt)
+
+    def serialize_datetime(self,ts):
+        if not ts.tzinfo:
+            ts = ts.replace(tzinfo=tzlocal())
+        return ts.isoformat()
         
     def parse_date(self, txt, workdate=None):
         """Add???

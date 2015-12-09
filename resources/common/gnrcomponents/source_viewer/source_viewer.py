@@ -20,24 +20,34 @@ class SourceViewer(BaseComponent):
     js_requires = 'source_viewer'
     source_viewer_rebuild = True
 
-    def onMain_sourceView(self):
-        page = self.pageSource()
-        _gnrRoot = self.pageSource('_gnrRoot')
+    def source_viewer_root(self,root):
         drawer_cb = getattr(self,'source_viewer_open',None)
         drawer = drawer_cb() if drawer_cb else 'close'
         if drawer is False:
             return
-        sourceViewer = _gnrRoot.value.contentPane(region='right',drawer=drawer,
+        return root.value.contentPane(region='right',drawer=drawer,
                         drawer_background='red',drawer_top='21px',drawer_label='<div class="source_viewer_drawerlabel">Code</div>',
                        drawer_width='43px',drawer_left='-40px',drawer_height='21px',
                        drawer_border='0px',
                        width='550px',overflow='hidden',
                        splitter=True,border_left='1px solid #efefef',
                        background='white')
-        frame = sourceViewer.framePane('sourceViewerFrame',_class='source_viewer',margin='2px',datapath='gnr.source_viewer',)
+
+    def onMain_sourceView(self):
+        page = self.pageSource()
+        _gnrRoot = self.pageSource('_gnrRoot')
+        sourceViewer = getattr(self,'source_viewer_customroot',self.source_viewer_root)(_gnrRoot)
+        if sourceViewer is None:
+            return
+        frame = sourceViewer.framePane('sourceViewerFrame',_class='source_viewer',datapath='gnr.source_viewer')
         bar = frame.top.slotToolbar('2,sb,*,readOnlyEditor,dataInspector,2',height='20px')
-        sb = bar.sb.stackButtons(stackNodeId='source_viewer_stack')
-        self.source_viewer_addFileMenu(sb.div('<div class="multibutton_caption">+</div>',_class='multibutton'))
+        
+        if getattr(self,'source_viewer_addButton',True):
+            sb = bar.sb.stackButtons(stackNodeId='source_viewer_stack')
+            self.source_viewer_addFileMenu(sb.div('<div class="multibutton_caption">+</div>',_class='multibutton'))
+        else:
+            bar.attributes.update(toolbar=False,background='#efefef')
+            bar.sb.div()
         if self.source_viewer_edit_allowed():
             bar.readOnlyEditor.div(_class='source_viewer_readonly').checkbox(value='^.readOnly',
                                     label='ReadOnly',default_value=True,
@@ -149,30 +159,32 @@ class SourceViewer(BaseComponent):
 
 
     def source_viewer_editor(self,frame,source=None):
-        bar = frame.bottom.slotBar('5,fpath,*',height='18px',background='#efefef')
-        bar.fpath.div('^.docname',font_size='9px')
-        commandbar = frame.top.slotBar(',*,savebtn,revertbtn,5',childname='commandbar',toolbar=True,background='#efefef')
-        commandbar.savebtn.slotButton('Save',iconClass='iconbox save',
+        if self.source_viewer_edit_allowed():
+            bar = frame.bottom.slotBar('5,fpath,*',height='18px',background='#efefef')
+            bar.fpath.div('^.docname',font_size='9px')
+            commandbar = frame.top.slotBar(',*,savebtn,revertbtn,5',childname='commandbar',toolbar=True,background='#efefef')
+            commandbar.savebtn.slotButton('Save',iconClass='iconbox save',
                                 _class='source_viewer_button',
                                 action='PUBLISH sourceCodeUpdate={save_as:filename || false}',
                                 filename='',
                                 ask=dict(title='Save as',askOn='Shift',
                                         fields=[dict(name='filename',lbl='Name',validate_case='l')]))
-
-        commandbar.revertbtn.slotButton('Revert',iconClass='iconbox revert',_class='source_viewer_button',
+            commandbar.revertbtn.slotButton('Revert',iconClass='iconbox revert',_class='source_viewer_button',
                                 action='SET .source = _oldval',
                                 _oldval='=.source_oldvalue')
-        frame.data('.source',source)
-        frame.data('.source_oldvalue',source)
-        frame.dataController("""SET .changed_editor = currval!=oldval;
+            
+            frame.dataController("""SET .changed_editor = currval!=oldval;
                                 genro.dom.setClass(bar,"changed_editor",currval!=oldval);""",
                             currval='^.source',
                             oldval='^.source_oldvalue',bar=commandbar)
+        frame.data('.source',source)
+        frame.data('.source_oldvalue',source)
         cm = frame.center.contentPane(overflow='hidden').codemirror(value='^.source',
                                 config_mode='python',config_lineNumbers=True,
                                 config_indentUnit=4,config_keyMap='softTab',
                                 height='100%',
                                 readOnly=not self.source_viewer_edit_allowed() or '^gnr.source_viewer.readOnly')
+        
         frame.dataController("""
             var cm = cmNode.externalWidget;
             var lineno = error.lineno-1;
@@ -225,7 +237,7 @@ class SourceViewer(BaseComponent):
                                                     }
                                                 })
 
-                                        },100);
+                                        },500);
                                     
                                 """,
                                 dockButton=True,editable=True)

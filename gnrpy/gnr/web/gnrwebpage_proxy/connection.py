@@ -11,6 +11,7 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
 from datetime import datetime
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
+import time
 
 CONNECTION_TIMEOUT = 3600
 CONNECTION_REFRESH = 20
@@ -20,12 +21,14 @@ USER_AGENT_SNIFF = (('Chrome', 'Chrome'),
                     ('Firefox', 'Firefox'),
                     ('Opera', 'Opera'),
                     ('MSIE', 'InternetExplorer'))
+DEVICE_AGENT_SNIFF = (('iPad','mobile:tablet'),('iPhone','mobile:phone'),('Android','mobile:phone'),('WindowsPhone','mobile:phone'))
 
 class GnrWebConnection(GnrBaseProxy):
     def init(self, connection_id=None, user=None, **kwargs):
         page = self.page
         self.user_agent = page.user_agent
         self.browser_name = self.sniffUserAgent()
+        self.user_device = self.sniffUserDevice()
         self.ip = self.page.user_ip or '0.0.0.0'
         self.connection_name = '%s_%s' % (self.ip.replace('.', '_'), self.browser_name)
         self.secret = page.site.config['secret'] or self.page.siteName
@@ -94,10 +97,13 @@ class GnrWebConnection(GnrBaseProxy):
         return self.page.get_cookie(self.cookie_name, 'marshal', secret=self.secret)
 
     def write_cookie(self):
+        expires = time.time() + CONNECTION_TIMEOUT*24
         self.cookie = self.page.newMarshalCookie(self.cookie_name, {'user': self.user,
                                                                     'connection_id': self.connection_id,
                                                                     'data': self.cookie_data,
-                                                                    'locale': None}, secret=self.secret)
+                                                                    'locale': None}, 
+                                                                    secret=self.secret)
+        self.cookie.expires = expires
         self.cookie.path = self.page.site.default_uri
         self.page.add_cookie(self.cookie)
 
@@ -123,6 +129,13 @@ class GnrWebConnection(GnrBaseProxy):
             if k in  user_agent:
                 return v
         return 'unknown browser'
+
+    def sniffUserDevice(self):
+        user_agent = self.user_agent
+        for k, v in DEVICE_AGENT_SNIFF:
+            if k in  user_agent:
+                return v
+        return 'pc:desktop'
 
     def _get_locale(self):
         if self.cookie:

@@ -279,6 +279,8 @@ genropatches.comboBox = function() {
         },
 
         onmouseup:function(/*Event*/ evt) {
+            evt.preventDefault();
+            dojo.stopEvent(evt);
             if (evt.target === this.domNode) {
                 return;
             } else {
@@ -418,7 +420,7 @@ genropatches.comboBox = function() {
                 pw.handleKey(evt);
             }
             var evt_keycode = evt.keyCode;
-            if(evt_keycode==dk.UP_ARROW && evt.keyChar=='&'){
+            if((evt_keycode==dk.UP_ARROW && evt.keyChar=='&') || (evt_keycode==dk.DOWN_ARROW && evt.keyChar=='(')){
                 evt_keycode = 0; //L.A. fix for evt.keyChar=='&'
             }
             switch(evt_keycode){
@@ -543,6 +545,7 @@ genropatches.comboBox = function() {
                 setTimeout(dojo.hitch(this, "_startSearchFromInput"),1);
             }
         }
+        dijit.form.ComboBox.prototype._onKeyPress = dijit.form.ComboBoxMixin.prototype._onKeyPress;
 };
 genropatches.borderContainer = function() {
     dojo.require("dijit.layout.BorderContainer");
@@ -1150,11 +1153,34 @@ genropatches.borderContainer = function() {
 genropatches.tree = function() {
     dojo.require('dijit.Tree');
     dijit.Tree.prototype._expandNode_replaced=dijit.Tree.prototype._expandNode;
+    dijit.Tree.prototype._collapseNode_replaced=dijit.Tree.prototype._collapseNode;
     dijit.Tree.prototype._expandNode = function(node) {
         if(node.item && node.item._resolver && node.item._resolver.expired()){
             node.state = 'UNCHECKED';
         }
-        return this._expandNode_replaced(node)
+        if(node.__eventmodifier=='Shift' && node.isExpandable){
+            var was_expanded = node.isExpanded;
+            this._expandNode_replaced(node);
+            if(!was_expanded){
+                this.expandAll(node);
+            }
+        }else{
+            return this._expandNode_replaced(node);
+        }
+    }
+    dijit.Tree.prototype._collapseNode = function(node) {
+        if(node.item && node.item._resolver && node.item._resolver.expired()){
+            node.state = 'UNCHECKED';
+        }
+        if(node.__eventmodifier=='Shift' && node.isExpandable){
+            var was_expanded = node.isExpanded;
+            this._collapseNode_replaced(node);
+            if(was_expanded){
+                this.collapseAll(node);
+            }
+        }else{
+            return this._collapseNode_replaced(node);
+        }
     }
     dijit._TreeNode.prototype.setLabelNode = function(label) {
         this.labelNode.innerHTML = "";

@@ -160,6 +160,7 @@ class GnrWsgiWebApp(GnrApp):
         basepath = basepath or []
         level = level or 0
         result = Bag()
+        level = level or 0
         for node in menubag.nodes:
             attributes = {}
             attributes.update(node.getAttr())

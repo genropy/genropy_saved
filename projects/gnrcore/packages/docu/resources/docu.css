@@ -1,0 +1,50 @@
+.doclevel_1, .docuTree .doclevel_1{
+    background: #3A4D65;
+    color: white;
+    display: inline-block;
+    border-radius: 6px;
+    width:80%;
+    padding-left: 10px !important;
+    padding-top: 2px;
+    padding-bottom: 1px;
+}
+
+.docuTree{
+    color:#020F20;
+}
+
+
+.docuTree.branchtree .doclevel_1.branchtree_selected.dijitTreeLabel{
+    color: #F9D100;
+    padding-right: 0;
+    border-radius: 6px;
+    background-color: #3A4D65;
+
+}
+
+.docuTree.branchtree .branchtree_selected.dijitTreeLabel{
+    background-color: #F9D100;
+    color: #3A4D65;
+    padding-right: 25px;
+    border-radius: 0px 10px 10px 0px;
+}
+
+body.bodySize_phone .docuTree.branchtree{
+    font-size: 80%;
+}
+
+.rst_breadcrumb{
+    background-color: #F9D100;
+    color: #3A4D65;
+    padding-right: 15px;
+    padding-left: 5px;
+    border-radius: 0px 10px 10px 0px;
+}
+
+.rst_back{
+    background-color: #F9D100;
+    color: #3A4D65;
+    padding-left: 15px;
+    padding-right: 15px;
+    border-radius: 10px;
+}

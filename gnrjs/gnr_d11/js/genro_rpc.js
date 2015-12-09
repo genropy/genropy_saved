@@ -143,7 +143,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
     },
     suspend_call:function(rpc_counter){
         var c = this.rpc_register['r_'+rpc_counter];
-        if(c._deferred_){
+        if(c && c._deferred_){
             c._deferred_.ioArgs.args.timeout = 3600*1000;
         }
     },
@@ -394,8 +394,18 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             'sync': sync,
             'preventCache': preventCache
         };
-        var deferred = this._serverCall(callKwargs, xhrKwargs, httpMethod);        
-        return sync? deferred.ioArgs.syncresult:deferred;
+        if(httpMethod=='WSK'){
+            var result = genro.wsk.call(callKwargs);
+            result.addErrback(function(error){console.error(error)})
+            if(async_cb){
+                result.addCallback(async_cb);
+            }
+            return result
+        }else{
+            var deferred = this._serverCall(callKwargs, xhrKwargs, httpMethod);        
+            return sync? deferred.ioArgs.syncresult:deferred;
+        }
+        
     },
     errorHandler: function(response, ioArgs) {
         genro.dev.handleRpcHttpError(response, ioArgs);
@@ -762,7 +772,12 @@ dojo.declare("gnr.GnrRpcHandler", null, {
                 }
                 this.getParentNode().getValue('reload',optkw);
             };
-            valNode._onChangedValue = dojo.hitch(resolver, reloader);
+            if(valNode){
+                valNode._onChangedValue = dojo.hitch(resolver, reloader);
+            }else{
+                console.log('missing valNode')
+            }
+            
 
         } else {
             kwargs[_related_field] = params._relation_value;

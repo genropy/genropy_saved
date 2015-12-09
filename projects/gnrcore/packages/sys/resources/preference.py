@@ -52,6 +52,10 @@ class AppPref(object):
 
         self.site_config_override(tc.contentPane(title='!!Site config',datapath='.site_config'))
 
+        pane = tc.contentPane(title='Tables Configuration')
+        fb = pane.formbuilder(cols=1,border_spacing='3px',datapath='.tblconf')
+        fb.textbox(value='^.archivable_tag',lbl='Archivable tag')
+
     def site_config_override(self,pane):
         fb = pane.formbuilder(cols=1,border_spacing='3px')
         fb.numberTextBox(value='^.cleanup?interval',lbl='Cleanup interval',placeholder=self.site.config['cleanup?interval'])
@@ -67,9 +71,16 @@ class AppPref(object):
 class UserPref(object):
     def prefpane_sys(self, tc, **kwargs):
         tc = tc.tabContainer(**kwargs)
+        self.pref_tablehandler(tc.contentPane(title='Tablehandler', datapath='.tablehandler'))
+
         self.pref_cache(tc.contentPane(title='Caching', datapath='.cache'))
         self.pref_sound(tc.contentPane(title='Sounds', datapath='.sounds'))
         self.pref_theme(tc.contentPane(title='Theme', datapath='.theme'))
+
+    def pref_tablehandler(self,pane):
+        fb = pane.formbuilder(cols=1, border_spacing='4px')
+        fb.checkbox(value='^.new_query',label='New fast query')
+
 
     def pref_theme(self, pane):
         fb = pane.formbuilder(cols=1, border_spacing='4px')

@@ -5,6 +5,10 @@
 # Copyright (c) 2012 Softwell. All rights reserved.
 
 "Test page description"
+from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrbag import Bag
+from time import sleep
+
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     dojo_source = True
@@ -12,12 +16,34 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return ''
          
+
+    def test_5_combobug(self,pane):
+        fb = pane.formbuilder(cols=1, border_spacing='4px')
+        fb.dbCombobox(dbtable='adm.user',value='^.user',lbl='dbCombo',
+                    width='25em',hasDownArrow=True)
+        fb.combobox(value='^.combobox',values='Pippo,Pluto,Paperino',lbl='Combo')
+
+        fb.filteringSelect(value='^.filtering',values='pippo:Pippo,pluto:Pluto,paperino:Paperino',lbl='Filtering')
+
+
     def test_0_firsttest(self,pane):
         """dbselect with auxcol"""
         fb = pane.formbuilder(cols=1, border_spacing='4px')
-        fb.dbSelect(dbtable='adm.user',value='^.user_id',lbl='Sigla',selected_username='.username',auxColumns='username',width='25em')
+        fb.dbSelect(dbtable='adm.user',value='^.user_id',lbl='User',
+
+                    selected_username='.username',width='25em',
+                    hasDownArrow=True)
+
+        fb.dbCombobox(dbtable='adm.user',value='^.username',lbl='Combo',
+                    selected_username='.username',width='25em',
+                    hasDownArrow=True)
+
+        fb.dbSelect(dbtable='adm.user',value='^.user_id_2',lbl='zzz',
+                    auxColumns='$username',width='25em',
+                    hasDownArrow=True)
         #fb.data('.username','...')
         #fb.div('^.user_id',lbl='User')
+        #fb.dataController("genro.bp(true);",user_id='^.user_id')
         fb.div('^.username',lbl='Username')
         
     def test_1_firsttest(self,pane):
@@ -43,3 +69,27 @@ class GnrCustomWebPage(object):
     def rpc_testhotutto(self,record,**kwargs):
         print record['@localita']
         
+
+
+    def test_4_dbselectrpc(self,pane):
+        """getuser custom rpc"""
+        fb = pane.formbuilder(cols=1, border_spacing='4px')
+        fb.dbSelect(value='^.user',width='25em',lbl='User',auxColumns='status,auth_tags',
+                        method=self.getUserCustomRpc)
+
+    @public_method
+    def getUserCustomRpc(self,_querystring=None,_id=None,**kwargs):
+        result = Bag()
+        if _id:
+            f = self.db.table('adm.user').query(where='$id = :u',u=_id).fetch()
+        else:
+            sleep(2)
+            f = self.db.table('adm.user').query(where='$username ILIKE :u',u='%s%%' %_querystring.replace('*','')).fetch()
+        for i,r in enumerate(f):
+            result.setItem('%s_%s' %(r['id'],i),None,caption='%s - %s' %(r['username'], r['auth_tags']),
+                status=r['status'],auth_tags=r['auth_tags'],_pkey=r['id'],username=r['username'])
+        return result,dict(columns='username,status,auth_tags',headers='Name,Status,Tags')
+
+
+
+

@@ -22,7 +22,7 @@
 
 #import weakref
 import logging
-
+from datetime import datetime,timedelta
 from gnr.core.gnrstring import boolean
 from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrbag import Bag, BagResolver
@@ -36,6 +36,7 @@ from gnr.sql.gnrsql_exceptions import GnrSqlMissingField, GnrSqlMissingTable,\
 import threading
 
 logger = logging.getLogger(__name__)
+VIRTUAL_COLUMNS_CACHETIME = timedelta(0,300)
 
 class NotExistingTableError(Exception):
     pass
@@ -844,6 +845,9 @@ class DbTableObj(DbModelObj):
     @property  
     def virtual_columns(self):
         """Returns a DbColAliasListObj"""
+        if hasattr(self,'_virtual_columns'):
+            if datetime.now()-self._last_virtual_columns_ts<VIRTUAL_COLUMNS_CACHETIME:
+                return self._virtual_columns 
         virtual_columns = self['virtual_columns']
         local_virtual_columns = self.db.localVirtualColumns(self.fullname) #to remove use dynamic_virtual_columns
         if local_virtual_columns:
@@ -854,6 +858,8 @@ class DbTableObj(DbModelObj):
         for node in self.dynamic_columns:
             obj = DbVirtualColumnObj(structnode=node,parent=virtual_columns)
             virtual_columns.children[obj.name.lower()] = obj
+        self._virtual_columns = virtual_columns
+        self._last_virtual_columns_ts = datetime.now()
         return virtual_columns
 
     @property
@@ -1486,7 +1492,7 @@ class RelationTreeResolver(BagResolver):
         for label, relpars, relcol in manyrels:
             sch, tbl, col = relpars['many_relation'].split('.')
             schtbl = '%s_%s' % (sch, tbl)
-            if (len(cols) == 1 and cols[0].endswith('_id')):
+            if (len(cols) == 1 and cols[0].name.endswith('_id')):
                 relmode = '*M'
             else:
                 relmode = '*m'

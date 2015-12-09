@@ -85,11 +85,10 @@ class metaCookie(type):
                 t = value
                 value = time.strftime("%a, %d-%b-%Y %H:%M:%S GMT",
                                       time.gmtime(t))
-                                      
             self._expires = "%s" % value
             
         def get_expires(self):
-            return self._expires
+            return getattr(self,'_expires',None)
             
         clsdict["expires"] = property(fget=get_expires, fset=set_expires)
             

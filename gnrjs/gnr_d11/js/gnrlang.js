@@ -449,7 +449,7 @@ function isNullOrBlank(elem){
 }
 
 function localType(dtype){
-    return {'R':{places:2},'L':{places:0},'I':{places:0},'D':{date:'short'},'H':{time:'short'},'DH':{datetime:'short'}}[dtype];
+    return {'R':{places:2},'L':{places:0},'I':{places:0},'D':{date:'short'},'H':{time:'short'},'HZ':{time:'short'},'DH':{datetime:'short'},'DHZ':{datetime:'short'}}[dtype];
 };
     
 
@@ -870,13 +870,10 @@ function convertFromText(value, t, fromLocale) {
             var selector = (t == 'DH') ? 'datetime' : 'date';
             return dojo.date.locale.parse(value, {selector:selector});
         } else {
-            var date_array = value.split('.')[0].split(/\W/);
-            var c = [0,-1,0,0,0,0];
-            for (var i=0;i<date_array.length;i++){
-                c[i]+=parseInt(date_array[i],10);
-            };
-            return new Date(c[0],c[1],c[2],c[3],c[4],c[5]);
-            //return new Date(value.split('.')[0].replace(/\-/g, '/'));
+            if(t=='D'){
+                value = value.split('.')[0].replace(/\-/g, '/');
+            }
+            return new Date(value); 
         }
     }
     else if (t == 'H') {
@@ -990,6 +987,9 @@ var gnrformatter = {
         }
         if(format=='mailto'){
             return makeLink('mailto:'+value,value);
+        }
+        if(format=='phone'){
+            return makeLink('tel:'+value,value);
         }
         if(format=='skype'){
             return makeLink('skype:'+value,value);
@@ -1189,7 +1189,7 @@ var gnrformatter = {
 }
 
 function guessDtype(value){
-    if(value==null || value==undefined){
+    if(value===null || value===undefined){
         return 'NN';
     }
     var t = typeof(value);
@@ -1519,6 +1519,10 @@ function serialize(_obj) {
             break;
     }
 }
+function stringHash(str){
+    return str.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+};
+
 function parseURL(url) {
     var a =  document.createElement('a');
     a.href = url;

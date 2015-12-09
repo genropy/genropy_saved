@@ -7,6 +7,7 @@
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import boolean
+from gnr.core.gnrdict import dictExtract
 
 class GnrCustomWebPage(object):
     py_requires='public:Public,th/th:TableHandler'
@@ -44,7 +45,7 @@ class GnrCustomWebPage(object):
             fixed_table = True
         root.dataController("""
                 SET main.current_table=table;""",table='^main.table',status='=main.mainth.view.grid.status')
-        frame.center.contentPane().remote(self.remoteTh,table='^main.current_table',fixed_table=fixed_table,_onRemote='FIRE main.load_data;')
+        frame.center.contentPane(overflow='hidden').remote(self.remoteTh,table='^main.current_table',fixed_table=fixed_table,_onRemote='FIRE main.load_data;')
 
     def lookupTablesDefaultStruct(self,struct):
         r = struct.view().rows()
@@ -53,6 +54,13 @@ class GnrCustomWebPage(object):
             if attr.get('counter'):
                 r.fieldcell(k,hidden=True,counter=True)
             elif not (attr.get('_sysfield') or attr.get('dtype') == 'X'):
+                condition = attr.get('condition')
+                condition_kwargs = dict()
+                if condition:
+                    condition_kwargs = dictExtract(attr,'condition_',slice_prefix=False)
+                    cell_edit = attr.setdefault('cell_edit',dict())
+                    cell_edit['condition'] = condition
+                    cell_edit['condition_kwargs'] = condition_kwargs
                 r.fieldcell(k,edit=attr['cell_edit'] if 'cell_edit' in attr else True)
 
     @public_method
@@ -64,7 +72,8 @@ class GnrCustomWebPage(object):
             saveButton = not fixed_table
             semaphore = not fixed_table
             tblobj= self.db.table(table)
-            th = pane.inlineTableHandler(table=table,viewResource='LookupView',datapath='.mainth',autoSave=False,saveButton=saveButton,semaphore=semaphore,
+            th = pane.inlineTableHandler(table=table,viewResource='LookupView',
+                                    datapath='.mainth',autoSave=False,saveButton=saveButton,semaphore=semaphore,
                                     nodeId='mainth',configurable='*',
                                     view_structCb=self.lookupTablesDefaultStruct,condition_loaddata='^main.load_data',
                                     grid_selfDragRows=tblobj.attributes.get('counter'))

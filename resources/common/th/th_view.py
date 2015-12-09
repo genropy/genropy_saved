@@ -5,7 +5,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrdecorator import public_method,extract_kwargs
+from gnr.core.gnrdecorator import public_method,extract_kwargs,metadata
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrbag import Bag
 
@@ -58,14 +58,17 @@ class TableHandlerView(BaseComponent):
         top_kwargs=top_kwargs or dict()
         if extendedQuery:
             virtualStore = True
-            if 'adm' in self.db.packages:
+            if 'adm' in self.db.packages and not self.isMobile:
                 templateManager = 'templateManager'
             else:
                 templateManager = False
             if extendedQuery == '*':
-                base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
+                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','importer','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
+                if self.isMobile:
+                    base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','menuUserSets','*']
+
             elif extendedQuery is True:
-                base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','*','count','5']
+                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','*','count','5']
             else:
                 base_slots = extendedQuery.split(',')
         elif not virtualStore:
@@ -86,6 +89,7 @@ class TableHandlerView(BaseComponent):
         else:
             top_kwargs['slots']= base_slots
         #top_kwargs['height'] = top_kwargs.get('height','20px')
+        top_kwargs['_class'] = 'th_view_toolbar'
         grid_kwargs['configurable'] = configurable
         grid_kwargs['item_name_singular'] = self.db.table(table).name_long
         grid_kwargs['item_name_plural'] = self.db.table(table).name_plural or grid_kwargs['item_name']
@@ -104,6 +108,29 @@ class TableHandlerView(BaseComponent):
         store_kwargs['parentForm'] = parentForm
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title,liveUpdate=liveUpdate,store_kwargs=store_kwargs)
+        contextMenu = frame.grid.menu(_class='smallmenu')
+        contextMenu.menuline('!!Reload',action="$2.widget.reload();")
+        contextMenu.menuline('-')
+        contextMenu.menuline('!!Show Archived Records',checked='^.#parent.showLogicalDeleted',
+                                action="""SET .#parent.showLogicalDeleted= !GET .#parent.showLogicalDeleted;
+                                           $2.widget.reload();""")
+        contextMenu.menuline('!!Totals count',action='SET .#parent.tableRecordCount= !GET .#parent.tableRecordCount;',
+                            checked='^.#parent.tableRecordCount')
+        contextMenu.menuline('-')
+        contextMenu.menuline('!!Configure Table',action='genro.dev.fieldsTreeConfigurator($2.attr.table)')
+        #contextMenu.menuline('!!Configure View',action='genro.grid_configurator.configureStructure($2.attr.nodeId)')
+        contextMenu.menuline('!!Configure Column',action="""
+            genro.grid_configurator.configureCellStructure($2.attr.nodeId,this.widget.cellIndex);
+            """,
+            onOpen="""if(evt.grid && evt.cellIndex){
+                        item.setLabel(_T("Configure column:")+" "+evt.grid.getCell(evt.cellIndex).original_name);
+                        item.cellIndex = evt.cellIndex;
+                        item.setDisabled(false);
+                    }else{
+                        item.setLabel('Configure view')
+                        item.setDisabled(true);
+                    }""")
+
         if virtualStore:    
             self._extTableRecords(frame)
 
@@ -163,14 +190,24 @@ class TableHandlerView(BaseComponent):
             bar.replaceSlots('#','#,footerBar')
             footer = bar.footerBar.formbuilder(cols=1,border_spacing='3px 5px',font_size='.8em',fld_color='#555',fld_font_weight='bold')
             footer.numberSpinner(value='^.hardQueryLimit',lbl='!!Limit',width='6em',smallDelta=1000)
-            footer.checkbox(value='^.tableRecordCount',label='!!Totals count')
-            footer.checkbox(value='^.showLogicalDeleted',label='!!Show logical deleted',validate_onAccept='if(userChange){FIRE .runQueryDo;}')
-            footer.button('!!Configure Table',action='genro.dev.fieldsTreeConfigurator(table)',table=table)
-            footer.button('!!Configure View',action='genro.grid_configurator.configureStructure(gridId)',gridId=gridId)
+            
 
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
         pane.div('^.title',style='line-height:20px;color:#666;')
+
+
+    @struct_method
+    def th_slotbar_importer(self,pane,**kwargs):
+        if not self.application.checkResourcePermission('_DEV_,superadmin', self.userTags):
+            pane.div()
+            return
+        inattr = pane.getInheritedAttributes()
+        table = inattr['table']
+        pane.PaletteImporter(table=table,paletteCode='%(th_root)s_importer' %inattr,
+                            match_values=','.join(self.db.table(table).model.columns.keys()),
+                            dockButton_iconClass='iconbox inbox',title='!!Importer')
+
 
     @struct_method
     def th_slotbar_sum(self,pane,label=None,format=None,width=None,**kwargs):
@@ -311,6 +348,18 @@ class TableHandlerView(BaseComponent):
                                 SET .query.menu.__queryeditor__?disabled=$1.selectmethod!=null;
                             """)
 
+    @public_method
+    @metadata (prefix='query',code='default_duplicate_finder',description='!!Find all duplicates')
+    def th_default_find_duplicates(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
+        pkeys = tblobj.findDuplicates()
+        query = tblobj.query(where='$%s IN :pkd' %tblobj.pkey,pkd=pkeys,**kwargs)
+        return query.selection(sortedBy=sortedBy, _aggregateRows=True) 
+    @public_method
+    @metadata (prefix='query',code='default_duplicate_finder_to_del',description='!!Find duplicates to delete')
+    def th_default_find_duplicates_to_del(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
+        pkeys = tblobj.findDuplicates(allrecords=False)
+        query = tblobj.query(where='$%s IN :pkd' %tblobj.pkey,pkd=pkeys,**kwargs)
+        return query.selection(sortedBy=sortedBy, _aggregateRows=True) 
 
     def _th_menu_sources(self,pane):
         inattr = pane.getInheritedAttributes()
@@ -326,6 +375,9 @@ class TableHandlerView(BaseComponent):
             """,tbl=table,_fired='^.handle_custom_column',pkg=table.split('.')[0],title='!!Custom columns')
         q = Bag()
         pyqueries = self._th_hook('query',mangler=th_root,asDict=True)
+        if self.db.table(table).column('_duplicate_finder') is not None and self.application.checkResourcePermission('_DEV_,superadmin', self.userTags):
+            pyqueries['default_duplicate_finder'] = self.th_default_find_duplicates
+            pyqueries['default_duplicate_finder_to_del'] = self.th_default_find_duplicates_to_del
         for k,v in pyqueries.items():
             pars = dictExtract(dict(v.__dict__),'query_')
             code = pars.get('code')
@@ -607,7 +659,9 @@ class TableHandlerView(BaseComponent):
             """,pkeys='=.query.pkeys',
                 selectedOnlyCaption='!!Selected only',linkedSelectionCaption='!!Depending from ',
                 syncSelectionCaption='!!In sync with ',
-                linkedSelectionPars='=.linkedSelectionPars',_fired='^.queryEnd',_delay=1)       
+                linkedSelectionPars='=.linkedSelectionPars',_fired='^.queryEnd',_delay=1,
+                currentReason='=.internalQuery.reason') 
+        frame.data('.internalQuery.reason',None)      
         frame.dataController("""
             genro.dom.setClass(fn,'filteredGrid',internalQueryReason);
             SET .query.queryAttributes.extended = internalQueryReason!=null;
@@ -672,10 +726,9 @@ class TableHandlerView(BaseComponent):
 
         pane.div(_class='iconbox heart',tip='!!User sets').menu(storepath='.usersets.menu',
                                                                 _class='smallmenu',modifiers='*')
-
-
+       
     @struct_method
-    def th_slotbar_queryfb(self, pane,**kwargs):
+    def th_slotbar_fastQueryBox(self, pane,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = inattr['table'] 
         th_root = inattr['th_root']
@@ -690,7 +743,6 @@ class TableHandlerView(BaseComponent):
                               """,th_root=th_root,_fired="^.runQuery",
                            querybag='=.query.where',
                            selectmethod='=.query.queryAttributes.selectmethod')
-                           
         pane.dataFormula('.currentQueryCountAsString', 'msg.replace("_rec_",cnt)',
                            cnt='^.currentQueryCount', _if='cnt', _else='',
                            msg='!!Current query will return _rec_ items')
@@ -701,54 +753,54 @@ class TableHandlerView(BaseComponent):
                               dlgtitle='!!Current query record count',alertmsg='^.currentQueryCountAsString')
         pane.dataController("""
                    var qm = TH(th_root).querymanager;
-                   qm.createMenues();
-                   dijit.byId(qm.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryColumn')));
+                   qm.createMenuesQueryEditor();
+                   qm.createFastQueryFieldsTree(this.absDatapath('.query.where.c_0'));
                    dijit.byId(qm.relativeId('qb_not_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryNot')));
-                   
+                   dijit.byId(qm.relativeId('qb_fields_menu_fast')).bindDomNode(genro.domById(qm.relativeId('fastQueryColumn')));
                    dijit.byId(qm.relativeId('qb_queryModes_menu')).bindDomNode(genro.domById(qm.relativeId('searchMenu_a')));
-                   dijit.byId(qm.relativeId('qb_queryModes_menu')).bindDomNode(genro.domById(qm.relativeId('searchMenu_b')));
-
                    qm.setFavoriteQuery();
-        """,_onStart=True,th_root=th_root)        
-        fb = pane.formbuilder(cols=3, datapath='.query.where', _class='query_form',width='700px',overflow='hidden',
-                                  border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
+        """,_onStart=True,th_root=th_root)
 
-        box = fb.div(row_hidden='^.#parent.queryAttributes.extended')
+        box = pane.div(datapath='.query.where',onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
         box.data('.#parent.queryMode','S',caption='!!Search')
-        box.div('^.#parent.queryMode?caption',width='5em',_class='gnrfieldlabel th_searchlabel',
+        box.div('^.#parent.queryMode?caption',_class='gnrfieldlabel th_searchlabel',
                 nodeId='%s_searchMenu_a' %th_root)
-        box.div('^.c_0?column_caption', min_width='12em', _class='fakeTextBox floatingPopup',
+        querybox_stack = box.div(style='display:inline-block')
+        querybox = box.div(_class='th_querybox',hidden='^.#parent.queryAttributes.extended')
+        querybox.div('^.c_0?column_caption', _class='th_querybox_item',
                  nodeId='%s_fastQueryColumn' %th_root,
                   dropTarget=True,
                  **{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"TH('%s').querymanager.onChangedQueryColumn(this,data);" %th_root})
-        optd = fb.div(_class='fakeTextBox', lbl='!!Op.', lbl_width='4em',margin_top='1px')
-        optd.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
-                display='inline-block', width='1.5em', _class='floatingPopup', nodeId='%s_fastQueryNot' %th_root,
-                border_right='1px solid silver')
-        optd.div('^.c_0?op_caption', min_width='7em', nodeId='%s_fastQueryOp' %th_root, 
+
+        querybox.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
+                width='1.5em', _class='th_querybox_item', nodeId='%s_fastQueryNot' %th_root)
+        querybox.div('^.c_0?op_caption', nodeId='%s_fastQueryOp' %th_root, 
                 selected_fullpath='.c_0?op', selected_caption='.c_0?op_caption',
                 connectedMenu='==TH("%s").querymanager.getOpMenuId(_dtype);' %th_root,
                 _dtype='^.c_0?column_dtype',
-                _class='floatingPopup', display='inline-block', padding_left='2px')
-        value_textbox = fb.textbox(lbl='!!Value', value='^.c_0?value_caption', width='12em', lbl_width='5em',margin_top='1px',
-                                       _autoselect=True,relpath='.c_0',
-                                       row_class='^.c_0?css_class', position='relative',
-                                       validate_onAccept='TH("%s").querymanager.checkQueryLineValue(this,value)' %th_root,
-                                       disabled='==(_op in TH("%s").querymanager.helper_op_dict)'  %th_root, _op='^.c_0?op',
-                                       connect_onclick="TH('%s').querymanager.getHelper(this);" %th_root,display='block',
-                                       _class='st_conditionValue',
-                                       onSpeechEnd="""var searchtext=this.widget.focusNode.value;
-                                                      this.setAttributeInDatasource('value',searchtext,true);
-                                                    genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});""",
-                                       speech=True)
+                _class='th_querybox_item')
+        value_textbox = querybox.div(_class='th_querybox_item th_queryboxfield',
+                                    connect_onclick="""if($1.target===this.domNode){
+                                        this.getChild('searchboxTextbox').widget.focus();
+                                    }
+                                    """).textbox(value='^.c_0?value_caption',
+            _autoselect=True,relpath='.c_0',childname='searchboxTextbox',
+            validate_onAccept='TH("%s").querymanager.checkQueryLineValue(this,value)' %th_root,
+            disabled='==(_op in TH("%s").querymanager.helper_op_dict)'  %th_root, _op='^.c_0?op',
+            connect_onclick="TH('%s').querymanager.getHelper(this);" %th_root,width='8em' if self.isMobile else '12em')
+
         value_textbox.div('^.c_0?value_caption', hidden='==!(_op in  TH("%s").querymanager.helper_op_dict)' %th_root,
                          _op='^.c_0?op', _class='helperField')
-        box = fb.div(row_hidden='^.#parent.queryAttributes.extended?=!#v',colspan=3,width='100%',position='relative')
-        box.div('^.#parent.queryMode?caption',width='5em',_class='gnrfieldlabel th_searchlabel',
-                nodeId='%s_searchMenu_b' %th_root)
-        box.div("==_internalQueryCaption || _caption",_caption='^.#parent.queryAttributes.caption',_internalQueryCaption='^.#parent.#parent.internalQuery.caption', _class='fakeTextBox buttonIcon',
-                    position='absolute',right='15px',left='65px',tooltip='==_internalQueryTooltip || _internalQueryCaption || _caption',
-                                    _internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip')
+
+
+        querybox_stack.div("==_internalQueryCaption || _caption",_caption='^.#parent.queryAttributes.caption',
+                        _internalQueryCaption='^.#parent.#parent.internalQuery.caption', 
+                        _class='th_querybox_extended',
+                        tooltip='==_internalQueryTooltip || _internalQueryCaption || _caption',
+                                    _internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip',
+                                    hidden='^.#parent.queryAttributes.extended?=!#v',min_width='20em')
+
+
         
     def _th_viewController(self,pane,table=None,th_root=None,default_totalRowCount=None):
         table = table or self.maintable

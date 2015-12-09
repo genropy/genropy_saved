@@ -56,6 +56,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.startArgs = kwargs.startArgs || {};
         this.debuglevel = kwargs.startArgs.debug || null;
         this.debug_sql = kwargs.startArgs.debug_sql;
+        dojo.subscribe('gnrServerLog', this, 'serverLog');
         //this.debug_py = kwargs.startArgs.debug_py;
         this.websockets_url=kwargs.startArgs.websockets_url;
         this.pageMode = kwargs.pageMode;
@@ -70,6 +71,8 @@ dojo.declare('gnr.GenroClient', null, {
         this.auto_polling = -1;
         this.user_polling = -1;
         this.isDeveloper = objectPop(this.startArgs,'isDeveloper');
+        this.isMobile = objectPop(this.startArgs,'isMobile');
+        this.deviceScreenSize = objectPop(this.startArgs,'deviceScreenSize');
         this.theme = {};
         this.dojo = dojo;
         this.debugged_rpc = {};
@@ -150,7 +153,7 @@ dojo.declare('gnr.GenroClient', null, {
 
         this.dom = new gnr.GnrDomHandler(this);
         this.vld = new gnr.GnrValidator(this);
-        this.wsk = new gnr.GnrWebSocketHandler(this,this.websockets_url,{debug:false});        
+        this.wsk = new gnr.GnrWebSocketHandler(this,this.websockets_url,{debug:false});      
        //var onerrorcb = function(errorMsg,url,linenumber){
        //    genro.onError(errorMsg,url,linenumber);
        //};
@@ -311,6 +314,16 @@ dojo.declare('gnr.GenroClient', null, {
             genro.currProfilers = {nc:0,st:0,sqlt:0,sqlc:0};
         },15000);
     },
+
+    serverLog:function(data){
+        var mode = data.mode|| 'log';
+        if(mode=='log' || mode=='error' || mode=='warn'){
+            if(data.kwargs && data.kwargs instanceof gnr.GnrBag){
+                data.kwargs = data.kwargs.asDict();
+            }
+            console[mode]('*SERVER* >>'+data.msg,data.args,data.kwargs);
+        }
+    },
     
     execUserInfoCb:function(){
         if(genro.userInfoCb.length>0){
@@ -395,11 +408,13 @@ dojo.declare('gnr.GenroClient', null, {
         this.dlg.createStandardMsg(document.body);
         this.contextIndex = {};
         this.isMac = dojo.isMac != undefined ? dojo.isMac : navigator.appVersion.indexOf('Macintosh') >= 0;
-        this.isTouchDevice = ( (navigator.appVersion.indexOf('iPad') >= 0 ) || (navigator.appVersion.indexOf('iPhone') >= 0));
         this.isChrome = ( (navigator.appVersion.indexOf('Chrome') >= 0 ));
         //genro.timeIt('** getting main **');
         this.wsk.create();
         this.root_page_id = null;
+        if (this.isMobile) {
+            this.mobile = new gnr.GnrMobileHandler(this);  
+        }
         dojo.subscribe('debugstep',
                        function(data){genro.dev.onDebugstep(data)}
                      )
@@ -550,9 +565,7 @@ dojo.declare('gnr.GenroClient', null, {
 
 
         //genro.dom.preventGestureBackForward();
-        if (this.isTouchDevice) {
-            genro.dom.startTouchDevice();
-        }
+ 
         genro.callAfter(function() {
             if(genro.root_page_id){
                 genro._connectToParentIframe(window.frameElement);
@@ -1264,6 +1277,17 @@ dojo.declare('gnr.GenroClient', null, {
         }
 
     },
+
+    getItem:function(path){
+        if(stringStartsWith(path,'*S')){
+            return genro.src._main.getItem(path.slice(3));
+        }else if(stringStartsWith(path, '*D')){
+            path = path.slice(3);
+        }
+        return genro._data.getItem(path);
+    },
+
+    
     getDataNode: function(path, autocreate, dflt) {
         /*
          This method returns the databag node at passed path.
@@ -1277,7 +1301,7 @@ dojo.declare('gnr.GenroClient', null, {
                     return genro.src.getNode(path.slice(3));
                 }
                 if (stringStartsWith(path, '*D')) {
-                    path = path.slice(2);
+                    path = path.slice(3);
                 }
                 if (path) {
                     return this._data.getNode(path, false, autocreate, dflt);
@@ -1288,6 +1312,7 @@ dojo.declare('gnr.GenroClient', null, {
             }
         }
     },
+
     getDataAttr:function(path, attr, dflt) {
         /*
          This method returns an attribute at given path from the databag

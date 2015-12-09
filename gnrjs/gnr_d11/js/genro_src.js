@@ -47,7 +47,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
 
     },
     getMainSource:function(cb){
-        return genro.rpc.remoteCall('main',objectUpdate({timeout:6000},genro.startArgs), 'bag',null,null,cb);
+        return genro.rpc.remoteCall('main',objectUpdate({timeout:20000},genro.startArgs), 'bag',null,null,cb);
     },
 
 
@@ -85,7 +85,10 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         }
     },
     onBuiltCall:function(cb,delay){
-        this.afterBuildCalls.push(delay? function(){setTimeout(cb,1);}:cb);
+        if(delay){
+            delay = typeof(delay) == 'number'?delay:1;
+        }
+        this.afterBuildCalls.push(delay? function(){setTimeout(cb,delay);}:cb);
     },
     
     nodeTrigger:function(kw) {

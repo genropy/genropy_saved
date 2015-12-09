@@ -49,6 +49,13 @@ div,span{
 }
 *:focus { outline:none; }
 
+body.tundra{
+    font:13px '-apple-system','HelveticaNeue','Arial';
+}
+body.touchDevice{
+    -webkit-text-size-adjust:none;
+}
+
 body.workInProgress{
     border-left:2px solid red;
 }
@@ -76,7 +83,7 @@ cursorZoom_plus{
 }
 
 .iskeepable{
-    
+
 }
 .keeper_on .iskeepable{
     font-weight: bold;
@@ -86,9 +93,9 @@ cursorZoom_plus{
     display: inline-block;
 }
 
-.tundra .gnrinlinewidget_container .dijitTextBox, 
-.tundra .gnrinlinewidget_container .dijitComboBox, 
-.tundra .gnrinlinewidget_container .dijitSpinner, 
+.tundra .gnrinlinewidget_container .dijitTextBox,
+.tundra .gnrinlinewidget_container .dijitComboBox,
+.tundra .gnrinlinewidget_container .dijitSpinner,
 .tundra .gnrinlinewidget_container .dijitInlineEditor input,
 .tundra .gnrinlinewidget_container .dijitTextArea{
     border: 0;
@@ -173,7 +180,7 @@ cursorZoom_plus{
 	left: 0;
 	right: 0;
 	color: #555;
-	
+
 	font-family: helvetica;
 	overflow: auto;
 	font-size: 9px;
@@ -281,7 +288,7 @@ cursorZoom_plus{
 	border: 1px solid silver;
 	border-bottom: 1px solid silver;
     padding: 0px 2px;
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(239, 239, 239, 0.9)), to(rgba(182, 182, 182, 0.75)));    
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(239, 239, 239, 0.9)), to(rgba(182, 182, 182, 0.75)));
     background-image: -moz-linear-gradient(-90deg, rgba(239, 239, 239, 0.9), rgba(182, 182, 182, 0.75));
     border-radius: 4px;
     cursor: pointer;
@@ -320,6 +327,16 @@ cursorZoom_plus{
 	/* disabled state - inner */
     border-color: #dedede;
 	/*background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EEEEEE), to(#EDEDEE));
+    background-image: -moz-linear-gradient(-90deg, #EEEEEE, #EDEDEE);*/
+}
+
+
+.tundra .dijitReadOnly.dijitTextBox,
+.tundra .dijitReadOnly.dijitTextArea,
+.tundra .dijitReadOnly.dijitComboBox{
+    /* disabled state - inner */
+    background-color: #F8F8F8;
+    /*background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EEEEEE), to(#EDEDEE));
     background-image: -moz-linear-gradient(-90deg, #EEEEEE, #EDEDEE);*/
 }
 
@@ -641,7 +658,7 @@ label.ghostlabel span {
 /* @group palette */
 
 .basePalette{
-	font-size: 11px;
+	/*font-size: 11px;*/
 }
 
 /* @end */
@@ -839,7 +856,7 @@ label.ghostlabel span {
 
 /* @group Standard form */
 
-.numberTextBox input {
+.numberTextBox input, .dijitDisabled.numberTextBox input:focus, .dijitReadOnly.numberTextBox input:focus {
     text-align: right;
     /*padding-right: 2px;*/
 }
@@ -848,6 +865,7 @@ label.ghostlabel span {
     text-align: left;
     /*padding-left: 2px;*/
 }
+
 
 .gnrfieldlabel {
     /*vertical-align: middle;*/
@@ -891,6 +909,37 @@ label{
     background: transparent url(icons/base14/linkto.gif) no-repeat center center;
 }
 /* @group loading classes */
+
+/*topLabelTable css for toplabel forbuilders*/
+
+.topLabelTable {
+    border-spacing: 0px;
+    border-collapse: collapse;
+    border-width:0px;
+    width:100%;
+}
+
+.topLabelTable td{
+    border-right:1px solid silver;
+    padding-top:2px;
+    padding-bottom:2px;
+    min-width:5em;
+    text-align:right;
+    padding-right:2px;
+    font-size: 13px;
+}
+
+.topLabelTable td:last-child{
+    border-right:0px;
+}
+
+.topLabelTable td.gnrfieldlabel{
+    border-bottom:1px solid silver;
+    font-size:.9em;
+    font-weight:bold;
+    text-align:center;
+}
+/*topLabelTable css for toplabel forbuilders*/
 
 .loadingForm .gnrfield input {
     opacity: .3;
@@ -993,6 +1042,7 @@ table.formbuilder {
 
 /* @end */
 
+
 /* @group MultiColumnSelect */
 
 .multiColumnSelect table {
@@ -1003,13 +1053,13 @@ table.formbuilder {
 
 .multiColumnSelect {
     background-color: #f3f3f3;
-	overflow:hidden;
+    overflow:hidden;
 }
 
 .multiColumnSelect th {
     padding: 2px;
-    border: 1px solid #c8c8c8;
-    background-color: #6b6b6b; /*font-weight: bold;*/
+    border: 0px solid #c8c8c8;
+    background-color: #204174; /*font-weight: bold;*/
     text-align: center;
     color: white;
     white-space: nowrap;
@@ -1042,7 +1092,31 @@ table.formbuilder {
 .multiColumnSelect tr.linked_row{
     font-weight: bold;
 }
+.tundra.touchDevice .multiColumnSelect tr{
+    line-height: 1.6em;
+}
+.tundra.touchDevice .multiColumnSelect td {
+    padding: 2px;
+    border: 1px solid #c8c8c8;
+    white-space: nowrap;
+    cursor: pointer;
+    font-size: 1em;
+}
+.tundra.touchDevice .multiColumnSelect tr:active{
+    background-color: #60a1ea;
+    background: #60a1ea;
+    color:#fff;
+}
+
+
+.multiColumnSelectHover td {
+    background-color: #60a1ea;
+    background: #60a1ea;
+    color:#fff;
+}
+
 /* @end */
+
 
 /* @group BagAttributesTable */
 
@@ -1490,7 +1564,7 @@ table.formbuilder {
 }
 
 .smallmenu .dijitMenuItem {
-    font-size: .85em !important;
+    font-size: .9em;
 }
 .menupane .dijitMenuItemIcon{
     display: none;
@@ -1503,12 +1577,14 @@ table.formbuilder {
 
 .tundra .menupane .dijitMenuItem td{
     padding: 0;
+    color:#333;
 }
 
 .tundra .smallmenu .dijitMenuItem td {
     padding-top: 0px !important;
     padding-bottom: 0px !important;
     padding-right: .40em;
+    color:#333;
 }
 div.dojoxDock {
 	background: none;
@@ -1588,7 +1664,7 @@ div.dojoxDock {
     -webkit-box-shadow: 2px 2px 4px #403b3b;
 }
 .floatingTooltipPane{
-    
+
 }
 .floatingTooltipPane:hover{
     background-color: #feffb4;
@@ -2154,12 +2230,14 @@ div.dojoxDock {
 .tundra .dijitDialog .dijitDialogPaneContent {
     font-size: 12px;
     padding: 0px;
+    overflow: hidden;
 }
+
 
 ._common_d11 .lightboxDialog.dijitDialog {
     border-radius: 8px;
     padding:0;
-    background:transparent;
+    background:white;
     border:0;
 }
 
@@ -2187,7 +2265,11 @@ div.dojoxDock {
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, rgba(170, 190, 201, 0.2), to(#FFFFFF));*/
 }
 
-._common_d11 .lightboxDialog .dijitDialogTitleBar{ 
+.tundra .dijitDialogPaneContent{
+    overflow: hidden;
+}
+
+._common_d11 .lightboxDialog .dijitDialogTitleBar{
     display:none;
 }
 
@@ -2365,7 +2447,7 @@ textarea:disabled {
 }
 .unfilteredCount .countBoxPartial {
     display: none;
-    
+
 }
 .countBoxTotal {
     border: 1px solid #AEB6BD;
@@ -2468,7 +2550,7 @@ textarea:disabled {
 .tundra .dijitToolbar .dijitButtonHover,
 .tundra .dijitToolbar .dijitToggleButtonHover,
 .tundra .dijitToolbar .dijitDropDownButtonHover {
-    
+
     /*
     border: 1px solid #316ac5;
     background-color:#abc1e5;
@@ -2483,19 +2565,19 @@ textarea:disabled {
 
 
 
-.tundra .dijitToolbar label {   
+.tundra .dijitToolbar label {
     padding: 3px 3px 0 6px;
 }
 .dj_ie .tundra .dijitToolbar .dijitComboButton .dijitButtonContentsFocused,
 .dj_ie .tundra .dijitToolbar .dijitComboButton .dijitDownArrowButtonFocused,
 .dj_ff2 .tundra.dijitToolbar .dijitComboButton .dijitButtonContentsFocused,
 .dj_ff2 .tundra .dijitToolbar .dijitComboButton .dijitDownArrowButtonFocused {
-    border: 1px black dotted !important;    
+    border: 1px black dotted !important;
 }
 .dj_ie6 .tundra .dijitToolbar .dijitButton,
 .dj_ie6 .tundra .dijitToolbar .dijitToggleButton,
 .dj_ie6 .tundra .dijitToolbar .dijitDropDownButton {
-    
+
     margin: 2px;
     padding: 0px 2px;
     border: 0px;
@@ -2845,7 +2927,7 @@ body *{
 .tundra .dojoxDockNode {
 	border: 1px solid #adadad;
 	border-radius: 2px;
-	cursor:pointer; 
+	cursor:pointer;
 	list-style: none;
 	padding: 2px;
 	margin: 0px;
@@ -3023,7 +3105,7 @@ body *{
 
 .slotbar_vertical.slotbar_toolbar{
     padding-top: 0px;
-    padding-bottom: 0px;  
+    padding-bottom: 0px;
     padding-left: 1px;
     padding-right: 1px;
 }
@@ -3031,7 +3113,7 @@ body *{
 /*.slotbar_toolbar .dijitButtonNode {
 	background: none;
 	margin: 0px !important;
-	padding: 0px !important;	
+	padding: 0px !important;
 	border: none;
 	font-size: 12px;
 }*/
@@ -3041,7 +3123,7 @@ body *{
 .slotbar_toolbar .dijitDropDownButton {
 	background: none;
 	margin: 1px;
-	padding: 0px;	
+	padding: 0px;
 	border: 1px solid transparent;
 }
 .slotbar_toolbar .dijitButtonChecked,
@@ -3064,17 +3146,17 @@ body *{
 .slotbar_toolbar .dijitButtonHover,
 .slotbar_toolbar .dijitToggleButtonHover,
 .slotbar_toolbar .dijitDropDownButtonHover {
-	
+
 	border: 1px solid #316ac5;
 	background-color:#abc1e5;
 }*/
-/*.slotbar_toolbar label {	
+/*.slotbar_toolbar label {
 	padding: 3px 3px 0 6px;
 }*/
 
 
 .slotbar_vertical.slotbar_toolbar{
-	
+
 }
 
 .slotbar_horizontal.slotbar_toolbar {
@@ -3266,12 +3348,12 @@ body *{
     width:16px;
     cursor:pointer;
 }
-    
+
 .form_protect_delete{
-    
+
 }
 .form_new_record{
-    
+
 }
 .form_errorslogger{
     text-align: center;
@@ -3295,12 +3377,12 @@ body *{
     font-size: 1.2em;
     font-weight: bold;
     color:green;
-    font-variant: small-caps;   
+    font-variant: small-caps;
 }
 
 
 .form_contentlogger{
-    margin-top:6px; 
+    margin-top:6px;
 }
 .form_contentlogger .formattedBagTable tr td {
     color: #666;
@@ -3507,7 +3589,7 @@ table.draggedItem {
     color:green;
 }
 .mover_db .dojoxGrid-cell{
-    
+
 }
 .mover_xml .dojoxGrid-cell{
     color:gray;
@@ -3563,14 +3645,32 @@ table.draggedItem {
 
 /* @end */
 
+
+
 /* @group dbselect */
 .tundra .dijitMenuItem {
-    border-bottom: 1px solid #F0F0F7;
-    font: menu;
-    font-size: 0.8em;
-    line-height: 0.9em;
+    border-bottom: 1px solid #EAEAEA;
+    font-size: 0.9em;
+    line-height: 1.3em;
     margin: 0;
+    font-family: '-apple-system','HelveticaNeue','Arial';
+    color: #333;
 }
+
+.tundra.touchDevice .dijitMenuItem {
+    border-bottom: 1px solid #EAEAEA;
+    font-size: 1em;
+    line-height: 1.5em;
+    margin: 0;
+    font-family: '-apple-system','HelveticaNeue','Arial';
+    color: #333;
+}
+.tundra.touchDevice .dijitMenuItem:active {
+    background-color: #60a1ea;
+    background: #60a1ea;
+    color:#fff;
+}
+
 
 /* @end */
 
@@ -4046,7 +4146,7 @@ p {
     cursor: pointer;
     height: 15px;
     width: 12px;
-    opacity: .8;  
+    opacity: .8;
     background: url(icons/base12/smallpopup_empty.png) no-repeat center center;
 }
 .dijitDisabled .mv_iconbox{
@@ -4084,7 +4184,7 @@ div[disabled='true'], div[disabled='disabled']{
 
 .dojoxGrid-cell .formattedBagTable{
     width: 100%;
-} 
+}
 .formattedBagTable th{
     font-size: .9em;
     border:1px dotted silver;
@@ -4092,7 +4192,7 @@ div[disabled='true'], div[disabled='disabled']{
     text-align: center;
     padding-left:2px;
     padding-right:2px;
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(239, 239, 239, 0.9)), to(rgba(182, 182, 182, 0.75)));    
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(239, 239, 239, 0.9)), to(rgba(182, 182, 182, 0.75)));
     background-image: -moz-linear-gradient(-90deg, rgba(239, 239, 239, 0.9), rgba(182, 182, 182, 0.75));
 }
 .debug_params{
@@ -4144,10 +4244,10 @@ div[disabled='true'], div[disabled='disabled']{
 }
 
 .sqlnot{
-	
+
 }
 .sqljc{
-	
+
 }
 .slqnested{
 	margin-left: 25px;
@@ -4230,9 +4330,9 @@ div[disabled='true'], div[disabled='disabled']{
 .fm_box{
     font-size: 1.5em;
     color:white;
-    padding: 3px;
-    padding-right: 25px;
-    padding-left: 10px;
+    padding: 12px;
+    padding-right: 45px;
+    padding-left: 35px;
     position:absolute;
     border-radius: 4px;
     box-shadow: 3px 3px 4px #888;
@@ -4240,15 +4340,15 @@ div[disabled='true'], div[disabled='disabled']{
 }
 
 .fm_message{
-    background:rgba(23, 163, 28, 0.60);
+    background:rgba(23, 163, 28, 1);
 }
 
 .fm_error{
-    background:rgba(201, 17, 17, 0.60);
+    background:rgba(201, 17, 17, 1);
 }
 
 .fm_warning{
-    background:rgba(250, 120, 0, 0.60)
+    background:rgba(250, 120, 0, 1)
 }
 .dlg_closebtn{
     height: 18px;
@@ -4280,42 +4380,70 @@ div[disabled='true'], div[disabled='disabled']{
     right:0;
     left:0;
     color:#444;
+    overflow: hidden;
 }
 .treeGridHeader{
-    height:20px;
     position:absolute;
     top:0;
     left:0;
     right:0;
 }
+.treeGridFooter{
+    position:absolute;
+    bottom:0;
+    left:0;
+    right:0;
+}
 .treeGridCenter{
     position:absolute;
-    top:21px;
-    bottom:0;
     left:0;
     right:0;
     overflow:auto;
 }
-
-.treeHeaderCell{
+.treeGridScroller{
     position: absolute;
-    text-align: center;
-    line-height: 20px;
-    border-left: 1px solid #efefef;
-    border-bottom: 1px solid #efefef;
+    height:16px;
+    bottom:0;
+    left:0;
+    right:0;
+    overflow: hidden;
 }
-.treeHeaderCell:last-child{
+
+.treeGridLayout .treecell{
+    display: inline-block;
+    border-bottom: 1px solid #efefef;
+    border-left: 1px solid #efefef;
+}
+
+
+
+.treeGridLayout .treecell:last-child{
     border-right:1px solid #efefef;
 }
-.treegrid .treecell{
-    position: absolute;
-    border-bottom: 1px solid #efefef;
-    border-left: 1px solid #efefef;
-    top: 0;
-    bottom:1;
+.treeGridLayout .treegrid .maincell.treecell{
 }
 
-.treegrid .treecell:last-child{
+.treeGridLayout .treeGridHeader .treecell{
+    display: inline-block;
+    border-bottom: 0px solid black;
+    border-left: 1px solid #efefef;
+    background: #204174;
+    color:#efefef;
+    line-height: 18px;
+    white-space: nowrap;
+    text-align: center;
+}
+.treeGridLayout .treeGridFooter .treecell{
+    display: inline-block;
+    border-bottom: 0px solid black;
+    border-left: 1px solid #efefef;
+    background: #F8CF00;
+    color:#204174;
+    line-height: 18px;
+    white-space: nowrap;
+}
+
+.treeGridLayout .treeGridHeader .treecell:last-child{
     border-right:1px solid #efefef;
 }
 
@@ -4352,10 +4480,18 @@ div[disabled='true'], div[disabled='disabled']{
     left:1px;
     bottom: -1px;
 }
+.treegrid .treerow_columns{
+    display: inline-block;
+
+}
+.treeerow_viewport{
+    display: inline-block;
+}
+
 /*treegrid*/
 
-.branchtree_selected{
-    background-color: #739CDC;
+.branchtree .branchtree_selected.dijitTreeLabel{
+    background-color: #3A4D65;
     color: white;
     padding-right: 15px;
     border-radius: 0px 10px 10px 0px;
@@ -4386,6 +4522,12 @@ div[disabled='true'], div[disabled='disabled']{
     white-space: nowrap;
 }
 
+.branchtree.treeLongLabels .dijitTreeLabel {
+    padding-left: 2px;
+
+    white-space: normal;
+}
+
 .branchtree .dijitTreeContent {
     min-height: 0;
     padding-bottom: 2px;
@@ -4396,10 +4538,7 @@ div[disabled='true'], div[disabled='disabled']{
     background: none;
     margin-left: 10px;
 }
-.branchtree .dijitTreeLabel{
-    padding-left: 2px;
-    white-space: nowrap;
-}
+
 .branchtree .dijitTreeIsRoot{
     margin-left: 0px;
 }
@@ -4416,7 +4555,7 @@ div[disabled='true'], div[disabled='disabled']{
 .tree_captionvalue_value{
     width:250px;
     display: inline-block;
-    
+
 }
 
 ._logical_delete.delete_row{
@@ -4698,15 +4837,18 @@ div[disabled='true'], div[disabled='disabled']{
 }
 
 .pdb_debugger_step{
-    height: 100px;
+    height: 85px;
     width: 250px;
     padding: 10px;
-    background-color: rgb(255, 209, 0);
+    padding-top: 5px;
+    background-color: #9B1E00;
     border-radius: 10px;
     position: relative;
     box-shadow: 3px 3px 4px #888;
     margin: 3px;
+    color:yellow;
     display: inline-block;
+    font-family: Courier;
 }
 
 .pdb_debugger_step.pdb_running{
@@ -4720,21 +4862,30 @@ div[disabled='true'], div[disabled='disabled']{
     right:0;
     height: 20px;
     padding-right: 10px;
+    border-top: 1px solid yellow;
+}
+
+.pdb_label{
+    text-align: right;
+    color:white;
 }
 .pdb_footer_button {
     display: block;
     position: absolute;
-    text-decoration: underline;
     font-weight: bold;
-    bottom: 2px;
-    color: #444;
+    bottom: 3px;
     cursor: pointer;
+    color:yellow;
+    font-family: Courier;
+}
+.pdb_footer_button:hover{
+    text-decoration: underline;
 }
 .pdb_footer_button_left{
-    left: 5px;
+    left: 10px;
 }
 .pdb_footer_button_right{
-    right: 5px;
+    right: 10px;
 }
 
 .pdb_tree .dijitTreeLabel:hover{
@@ -4746,5 +4897,64 @@ div[disabled='true'], div[disabled='disabled']{
 }
 
 /* @end */
+.multiValueEditor .cellContent{
+    padding-left: 5px;
+}
+.multiValueEditor{
+}
 
+._common_d11.tundra .multiValueEditor .dojoxGrid-row .dojoxGrid-cell,
+._common_d11.tundra .multiValueEditor .dojoxGrid-row-odd .dojoxGrid-cell,
+._common_d11.tundra .multiValueEditor .dojoxGrid-row.dojoxGrid-row-selected .dojoxGrid-cell{
+    border-left: 0px;
+    border-top: 0;
+    border-right: 0px;
+    border-bottom: 1px solid white;
+    /*height: 21px;*/
+    height:0px;
+    background:none;
+    vertical-align:top;
+}
+
+
+.slotbar_toolbar .frameGridTitle{
+    color:#666;
+    font-weight: bold;
+    font-size: .9em;
+}
+
+/*scroll fix for mobile*/
+.scroll-wrapper{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+}
+.touchDevice .scroll-wrapper{
+    overflow-y:scroll !important; 
+    -webkit-overflow-scrolling:touch !important;    
+}
+
+
+.detached_placeholder{
+    position: relative;
+}
+
+.detached_placeholder_content{
+    position: absolute;
+    top:10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    border: 10px solid rgba(99, 136, 195, 0.1);
+    border-radius: 10px;
+}
+.detached_placeholder_title{
+    font-size: 30px;
+    color:rgba(99, 136, 195, 0.25);
+    text-align: center;
+    margin-top: 20px;
+}
 

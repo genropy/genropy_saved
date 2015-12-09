@@ -89,8 +89,7 @@ CodeMirror.defineMode('rst-base', function (config) {
   };
 
   function assert(expression, message) {
-    if (!expression) throw new AssertException(message);
-    return expression;
+     return expression;
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -562,7 +561,13 @@ CodeMirror.defineMode('rst-base', function (config) {
     },
 
     token: function (stream, state) {
-      return state.tok(stream, state);
+        var r;
+        try{
+            r = state.tok(stream, state);
+        }catch(e){
+            console.log('exception in rst',stream)
+        }
+      return r;
     }
   };
 }, 'python', 'stex');

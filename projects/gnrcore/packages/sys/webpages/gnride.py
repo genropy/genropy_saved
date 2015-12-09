@@ -6,6 +6,7 @@
 
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag,DirectoryResolver
+from gnr.app.gnrconfig import getGenroRoot
 import os
 import sys
 
@@ -16,7 +17,7 @@ class GnrCustomWebPage(object):
         with self.connectionStore() as store:
             gnride_page_id = store.getItem('_dev.gnride_page_id')
             if gnride_page_id:
-                self.wsk.publishToClient(gnride_page_id,topic='closePage')
+                self.clientPublish(page_id=gnride_page_id,topic='closePage')
                 store.setItem('_dev.gnride_page_id',self.page_id)
             else:
                 store.setItem('_dev.gnride_page_id',self.page_id)
@@ -57,7 +58,7 @@ class GnrCustomWebPage(object):
 
     def dbstructPane(self,frame):
         frame.data('main.dbstructure',self.app.dbStructure())
-        frame.top.slotToolbar('*,searchOn,2',height='20px')
+        frame.top.slotToolbar('*,searchOn,2',height='20px',searchOn_nodeId='dbstructure_tree_searchbox')
         pane = frame.center.contentPane(overflow='auto')
         pane.div(padding='10px').tree(nodeId='dbstructure_tree',storepath='main.dbstructure',_class='branchtree noIcon',
             hideValues=True,openOnClick=True)
@@ -65,13 +66,14 @@ class GnrCustomWebPage(object):
 
     def drawerPane(self,frame):
         b = Bag()
-        frame.top.slotToolbar('*,searchOn,2',height='20px')
+        frame.top.slotToolbar('*,searchOn,2',height='20px',searchOn_nodeId='drawer_tree_searchbox')
         for k,pkgobj in self.application.packages.items():
-            b.setItem(k,DirectoryResolver(pkgobj.packageFolder,cacheTime=10,
+            b.setItem('projects.%s' %k,DirectoryResolver(pkgobj.packageFolder,cacheTime=10,
                             include='*.py', exclude='_*,.*',dropext=True,readOnly=False)(),caption= pkgobj.attributes.get('name_long',k))
-
+        b.setItem('genropy',DirectoryResolver(getGenroRoot(),cacheTime=10,
+                            include='*.py', exclude='_*,.*',dropext=True,readOnly=False)(),caption='Genropy')
         
-        frame.data('.directories.root',b,nodecaption='Project')
+        frame.data('.directories.root',b,nodecaption='!!Folders')
         pane = frame.center.contentPane(overflow='auto')
         pane.div(padding='10px').tree(nodeId='drawer_tree',storepath='.directories',persist=True,
                         connect_ondblclick="""var ew = dijit.getEnclosingWidget($1.target);
@@ -142,6 +144,7 @@ class GnrCustomWebPage(object):
                                 nodeId='%s_cm' %frameCode,
                                 config_mode='python',config_lineNumbers=True,
                                 config_indentUnit=4,config_keyMap='softTab',
+                                config_addon='search',
                                 height='100%',
                                 config_gutters=["CodeMirror-linenumbers", "pdb_breakpoints"],
                                 onCreated="gnride.onCreatedEditor(this);",
@@ -224,14 +227,12 @@ class GnrCustomWebPage(object):
         
     def debuggerRight(self,bc):
         bc=bc.borderContainer(width='250px',splitter=True,region='right',margin='2px',border='1px solid #efefef',margin_left=0,rounded=4)
-        bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Current')
-        paneTree=bc.contentPane(region='center',padding='2px')   
-        tree = paneTree.treeGrid(storepath='.result',noHeaders=True)
-        tree.column('__label__',contentCb="""return this.attr.caption || this.label""",
-                      background='#888',color='white')
-                                                          
-        tree.column('__value__',size='85%',contentCb="""var v=this.getValue();
-                                                          return (v instanceof gnr.GnrBag)?'':_F(v)""")
+        paneTree=bc.contentPane(region='center')   
+        tree = paneTree.treeGrid(storepath='.result',headers=True)
+        tree.column('__label__',contentCb="""return this.attr.caption || this.label""",header='Variable')
+        tree.column('__value__',size=300,contentCb="""var v=this.getValue();
+                                                          return (v instanceof gnr.GnrBag)?'':_F(v)""",
+                                                          header='Value')
 
     def debuggerCenter(self,bc):
         bc=bc.borderContainer(region='center',border='1px solid #efefef',margin='2px',margin_right=0,margin_left=0,rounded=4)
@@ -243,9 +244,9 @@ class GnrCustomWebPage(object):
         debugger_input=lastline.div(position='absolute',top='0px',left='20px',right='5px').input(value='^.command',width='100%',border='0px')
         center.dataController("""SET .output=output? output+_lf+line:line;""",line='^.output_line',output='=.output')
         center.dataController("""SET .output_line=command; 
-                                 if (command.startsWith('/')){
+                                 if (command[0]=='/'){
                                     command=command.slice(1)
-                                 }else if(!command.startsWith('!')){
+                                 }else if(command[0]!='!'){
                                      command='!'+command;
                                  }
                                  gnride.sendCommand(command);

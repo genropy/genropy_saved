@@ -64,7 +64,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         that=this
         this.send('connected',{'page_id':genro.page_id})
         this._interval=setInterval(function(){
-                                     that.ping()
+                                     genro.wsk.ping()
                                    },this.options.ping_time)
     },
     onclose:function(){
@@ -104,6 +104,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         var dataNode=envelope.getNode('data')
         var error=envelope.getItem('error')
         if (error){
+            console.log('serverError',error,dataNode._value)
             deferred.errback(error)
         }
         else{
@@ -124,15 +125,40 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         }
         
     },
+
+    do_setInClientData:function(data){
+        var value = data.getItem('value');
+        var attributes = data.getItem('attributes');
+        if(attributes){
+            attributes = attributes.asDict();
+        }
+        var path = data.getItem('path');
+        var reason = data.getItem('reason');
+        var fired = data.getItem('fired');
+        var nodeId = data.getItem('nodeId');
+        var noTrigger = data.getItem('noTrigger');
+        var root = nodeId? genro.nodeById(nodeId):genro.src.getNode();
+        root.setRelativeData(path,value,attributes,fired,reason,null,noTrigger?{doTrigger:false}:null)
+    },
+
     do_datachanges:function(datachanges){
         genro.rpc.setDatachangesInData(datachanges)
     },
     do_publish:function(data){
         var topic=data.getItem('topic')
+        var nodeId = data.pop('nodeId');
+        var iframe = data.pop('iframe');
+        var parent = data.pop('parent');
         if (!topic){
             topic='websocketMessage';
         }else{
-            var data = data.getItem('data')
+            var data = data.getItem('data');
+            if(data instanceof gnr.GnrBag){
+                data = data.asDict();
+            }
+        }
+        if(nodeId || iframe || parent){
+            topic = {topic:topic,nodeId:nodeId,iframe:iframe,parent:parent};
         }
         genro.publish(topic,data)
     },

@@ -27,6 +27,47 @@ import urllib
 from gnr.app.gnrconfig import gnrConfigPath
 from gnr.core.gnrbag import Bag
 class WebSocketHandler(object):
+
+    def sendCommandToPage(self,page_id,command,data):
+        headers = {'Content-type': 'application/x-www-form-urlencoded'}
+        envelope=Bag(dict(command=command,data=data))
+        body=urllib.urlencode(dict(page_id=page_id,envelope=envelope.toXml(unresolved=True)))
+        self.socketConnection.request('POST',self.proxyurl,headers=headers, body=body)
+        
+    def setInClientData(self,page_id,path=None,value=None,nodeId=None,
+                    attributes=None,fired=None,reason=None,noTrigger=None):
+        if not isinstance(page_id,list):
+            page_id = [page_id]
+        for p in page_id:
+            self.sendCommandToPage(p,'setInClientData',Bag(dict(value=value,path=path,attributes=attributes,reason=reason,nodeId=nodeId,noTrigger=noTrigger)))
+        
+    def fireInClientData(self,page_id,path=None,data=None):
+        self.sendCommandToPage(page_id,'set',Bag(data=data,path=path,fired=True))
+        
+    def publishToClient(self,page_id,topic=None,data=None,nodeId=None,iframe=None,parent=None):
+        self.sendCommandToPage(page_id,'publish',Bag(data=data, topic=topic, nodeId=nodeId, iframe=iframe, parent=parent))
+
+    #def sendDatachanges(self,datachanges):
+    #    data=Bag()
+    #    for j, change in enumerate(datachanges):
+    #        data.setItem('sc_%i' % j, change.value, change_path=change.path, change_reason=change.reason,
+    #                       change_fired=change.fired, change_attr=change.attributes,
+    #                       change_ts=change.change_ts, change_delete=change.delete)
+    #    self.sendCommandToPage(page_id,'datachanges',data)
+
+
+class AsyncWebSocketHandler(WebSocketHandler):
+    def __init__(self,server):
+        self.server = server
+
+    def sendCommandToPage(self,page_id,command,data):
+        print 'AsyncWebSocketHandler prova a spedire'
+        envelope = Bag(dict(command=command,data=data))
+        self.server.channels.get(page_id).write_message(envelope.toXml(unresolved=True))
+        print 'AsyncWebSocketHandler ha spedito'
+
+
+class WsgiWebSocketHandler(WebSocketHandler):
     def __init__(self,site):
         self.site = site
         self.socket_path= os.path.join(gnrConfigPath(), 'sockets', '%s.tornado'% site.site_name)
@@ -44,27 +85,12 @@ class WebSocketHandler(object):
         body=urllib.urlencode(dict(page_id=page_id,envelope=envelope.toXml(unresolved=True)))
         self.socketConnection.request('POST',self.proxyurl,headers=headers, body=body)
         
-    def setInClientData(self,page_id,path=None,data=None):
-        self.sendCommandToPage(page_id,'set',Bag(data=data,path=path))
-        
-    def fireInClientData(self,page_id,path=None,data=None):
-        self.sendCommandToPage(page_id,'set',Bag(data=data,path=path,fired=True))
-        
-    def publishToClient(self,page_id,topic=None,data=None):
-        self.sendCommandToPage(page_id,'publish',Bag(data=data,topic=topic))
-
-    #def sendDatachanges(self,datachanges):
-    #    data=Bag()
-    #    for j, change in enumerate(datachanges):
-    #        data.setItem('sc_%i' % j, change.value, change_path=change.path, change_reason=change.reason,
-    #                       change_fired=change.fired, change_attr=change.attributes,
-    #                       change_ts=change.change_ts, change_delete=change.delete)
-    #    self.sendCommandToPage(page_id,'datachanges',data)
 
 def has_timeout(timeout): # python 2.6
     if hasattr(socket, '_GLOBAL_DEFAULT_TIMEOUT'):
         return (timeout is not None and timeout is not socket._GLOBAL_DEFAULT_TIMEOUT)
     return (timeout is not None)
+
 
     
 class HTTPSocketConnection(httplib.HTTPConnection):

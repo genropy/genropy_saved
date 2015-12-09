@@ -114,7 +114,7 @@ class TemplateEditorBase(BaseComponent):
             
         
     @public_method
-    def te_compileTemplate(self,table=None,datacontent=None,varsbag=None,parametersbag=None,record_id=None,templates=None,template_id=None):
+    def te_compileTemplate(self,table=None,datacontent=None,varsbag=None,parametersbag=None,record_id=None,templates=None,template_id=None,**kwargs):
         result = Bag()
         formats = dict()
         editcols = dict()
@@ -222,8 +222,8 @@ class TemplateEditor(TemplateEditorBase):
 
 
     def _te_info_top(self,pane):
-        fb = pane.div(margin='5px').formbuilder(cols=7, border_spacing='4px',fld_width='100%',width='100%',
-                                                tdl_width='5em',datapath='.data.metadata')
+        fb = pane.div(margin_right='15px').formbuilder(cols=7, border_spacing='4px',fld_width='100%',width='100%',
+                                               datapath='.data.metadata',coswidth='auto')
         fb.textbox(value='^.author',lbl='!!Author',tdf_width='12em')
         fb.numberTextBox(value='^.version',lbl='!!Version',width='4em')
         fb.dateTextBox(value='^.date',lbl='!!Date',width='6em')
@@ -297,7 +297,7 @@ class TemplateEditor(TemplateEditorBase):
         tc.dataController("""var result = new gnr.GnrBag();
                             var varfolder= new gnr.GnrBag();
                             var parsfolder = new gnr.GnrBag();
-                            var attrs,varname;
+                            var varname,v,parscode;
                             varsbag.forEach(function(n){
                                 n.delAttr('_newrecord');
                                 n._value.popNode('_newrecord');
@@ -309,8 +309,9 @@ class TemplateEditor(TemplateEditorBase):
                                 parameters.forEach(function(n){
                                     n.delAttr('_newrecord');
                                     n._value.popNode('_newrecord');
-                                    attrs = n.attr;
-                                    parsfolder.setItem(n.label,null,{caption:attrs.description || attrs.code,code:attrs.code})
+                                    v = n.getValue();
+                                    parscode = v.getItem('code');
+                                    parsfolder.setItem(n.label,null,{caption:v.getItem('description') || parscode,code:parscode})
                                 },'static');
                                 result.setItem('pars',parsfolder,{caption:parscaption})
                             }

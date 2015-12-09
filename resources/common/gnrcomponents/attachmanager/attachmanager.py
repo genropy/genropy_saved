@@ -101,10 +101,12 @@ class AttachManager(BaseComponent):
     js_requires='gnrcomponents/attachmanager/attachmanager'
 
     @struct_method
-    def at_attachmentGrid(self,pane,title=None,searchOn=False,pbl_classes=True,datapath='.attachments',screenshot=False,**kwargs):
-        bc = pane.borderContainer()
-
-        th = bc.contentPane(region='left',width='400px',splitter=True).inlineTableHandler(relation='@atc_attachments',
+    def at_attachmentGrid(self,pane,title=None,searchOn=False,pbl_classes=True,datapath='.attachments',
+                            screenshot=False,viewResource=None,design=None,**kwargs):
+        bc = pane.borderContainer(design)
+        design = design or 'sidebar'
+        d = dict(sidebar=dict(region='left',width='400px'),headline=dict(region='top',height='300px'))
+        th = bc.contentPane(splitter=True,**d[design]).inlineTableHandler(relation='@atc_attachments',
                                         viewResource='gnrcomponents/attachmanager/attachmanager:AttachManagerView',
                                         hider=True,autoSave=True,statusColumn=True,
                                         addrow=False,pbl_classes=pbl_classes,
@@ -118,7 +120,7 @@ class AttachManager(BaseComponent):
             th.view.top.bar.replaceSlots('delrow','delrow,screenshot,5')
             
 
-        readerpane = bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid silver')
+        readerpane = bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid silver',overflow='hidden')
         readerpane.dataController('SET .reader_url=fileurl',fileurl='^.view.grid.selectedId?fileurl')
         readerpane.iframe(src='^.reader_url',height='100%',width='100%',border=0,documentClasses=True)
         return th
@@ -161,7 +163,8 @@ class AttachManager(BaseComponent):
         readerpane.iframe(src='^.reader_url',height='100%',width='100%',border=0,documentClasses=True)
         readerpane.dataController('SET .reader_url=fileurl',fileurl='^.view.grid.selectedId?fileurl')
         bar = frame.top.slotToolbar('5,vtitle,*,delrowbtn',vtitle=title or '!!Attachments')
-        bar.delrowbtn.slotButton('!!Delete attachment',iconClass='iconbox delete_row',action='gr.publish("delrow")',gr=th.view.grid)
+        bar.delrowbtn.slotButton('!!Delete attachment',iconClass='iconbox delete_row',
+                        action='gr.publish("delrow")',gr=th.view.grid)
         return frame
 
     @struct_method

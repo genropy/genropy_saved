@@ -67,6 +67,9 @@ def cellFromField(field,tableobj):
             relatedTable = fldobj.relatedColumn().table
             kwargs['related_table'] = relatedTable.fullname
             kwargs['related_table_lookup'] = relatedTable.attributes.get('lookup')
+            onerelfld = columnjoiner['one_relation'].split('.')[2]
+            if(onerelfld != relatedTable.pkey):
+                kwargs['alternatePkey'] = onerelfld
             if len(relfldlst) == 1:
                 caption_field = kwargs.pop('caption_field',None) or relatedTable.attributes.get('caption_field')
                 if caption_field and not kwargs.get('hidden'):
@@ -596,7 +599,7 @@ class GnrDomSrc(GnrStructData):
         :param content: the <script> content"""
         return self.child('script', childcontent=content, **kwargs)
         
-    def remote(self, method, lazy=True, cachedRemote=None,**kwargs):
+    def remote(self, method=None, lazy=True, cachedRemote=None,**kwargs):
         """TODO
         
         :param method: TODO
@@ -861,9 +864,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'dataFormula', 'dataScript', 'dataRpc','dataWs', 'dataController', 'dataRemote',
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
-             'tinyMCE', 'protovis','codemirror','MultiButton','PaletteGroup','DocumentFrame','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
+             'tinyMCE', 'protovis','codemirror','dygraph','MultiButton','PaletteGroup','DocumentFrame','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','PaletteImporter','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','GeoSearch','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
-             'FramePane', 'FrameForm','QuickEditor','TreeGrid','QuickGrid','QuickTree','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
+             'FramePane', 'FrameForm','QuickEditor','CodeEditor','TreeGrid','QuickGrid','MultiValueEditor','QuickTree','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -1295,8 +1298,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if struct or columns or not structpath:
             paletteGrid.gridStruct(struct=struct,columns=columns)
         return paletteGrid
-
-
         
     def includedview_draganddrop(self,dropCodes=None,**kwargs):
         ivattr = self.attributes
@@ -1849,6 +1850,7 @@ class GnrFormBuilder(object):
         self.col = -1
         self.rowdatapath = rowdatapath
         self.head_rows = head_rows or 0
+        self.field_list = []
         
     def br(self):
         #self.row=self.row+1
@@ -1868,6 +1870,8 @@ class GnrFormBuilder(object):
         
     def place(self, **fieldpars):
         """TODO"""
+        if 'value' in fieldpars and fieldpars['value'].startswith('^.'):
+            self.field_list.append(fieldpars['value'][2:])
         return self.setField(fieldpars)
         
     def setField(self, field, row=None, col=None):

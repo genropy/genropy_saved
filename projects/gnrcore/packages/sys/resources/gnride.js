@@ -152,14 +152,13 @@ var gnride = {
 
         cm.on("gutterClick", function(cm, n,gutter,evt) {
             var info = cm.lineInfo(n);
-            var evt = info.gutterMarkers?'del':'ins';
+            var evt_type = info.gutterMarkers?'del':'ins';
             var code_line = n+1;
             var modifier = genro.dom.getEventModifiers(evt)
             var module = sourceNode.attr.modulePath;
-
             var cb = function(condition){
-                cm.setGutterMarker(n, "pdb_breakpoints", evt=='del' ? null : cm.gnrMakeMarker(condition));
-                gnride.setBreakpoint({line:code_line,module:module,condition:condition,evt:evt});
+                cm.setGutterMarker(n, "pdb_breakpoints", evt_type=='del' ? null : cm.gnrMakeMarker(condition));
+                gnride.setBreakpoint({line:code_line,module:module,condition:condition,evt:evt_type});
             };
             if(modifier=='Shift'){
                 genro.dlg.prompt(_T("Breakpoint condition"),{lbl:_T('Condition'),action:cb})

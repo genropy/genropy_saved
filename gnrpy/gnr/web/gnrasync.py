@@ -30,11 +30,16 @@ import tornado.websocket as websocket
 import tornado.ioloop
 from tornado.netutil import bind_unix_socket
 from tornado.tcpserver import TCPServer
-import toro
+from tornado import version_info
+if version_info[0]>=4 and version_info[1]>=2:
+    from tornado import queues
+else:
+    import toro as queues
 from tornado.httpserver import HTTPServer
 
 from gnr.app.gnrconfig import gnrConfigPath
 from gnr.core.gnrbag import Bag,TraceBackResolver
+from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import AsyncWebSocketHandler
 from gnr.web.gnrwsgisite import GnrWsgiSite
 from gnr.core.gnrstring import fromJson
 
@@ -111,9 +116,9 @@ class DebugSession(GnrBaseHandler):
         self.pdb_id = None
         self.page_id = None
         self.stream.set_close_callback(self.on_disconnect)
-        self.socket_input_queue = toro.Queue(maxsize=40)
-        self.socket_output_queue = toro.Queue(maxsize=40)
-        self.websocket_output_queue = toro.Queue(maxsize=40)
+        self.socket_input_queue = queues.Queue(maxsize=40)
+        self.socket_output_queue = queues.Queue(maxsize=40)
+        self.websocket_output_queue = queues.Queue(maxsize=40)
         self.consume_socket_input_queue()
 
     def link_debugger(self, debugkey):
@@ -121,7 +126,7 @@ class DebugSession(GnrBaseHandler):
         self.page_id = page_id
         self.pdb_id = pdb_id
         if not debugkey in self.debug_queues:
-            self.debug_queues[debugkey] = toro.Queue(maxsize=40)
+            self.debug_queues[debugkey] = queues.Queue(maxsize=40)
         self.websocket_input_queue = self.debug_queues[debugkey]
         self.consume_websocket_output_queue()
         self.consume_websocket_input_queue()
@@ -274,8 +279,9 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
             pass
              #print 'already in channels',self.page_id
         if not page_id in self.pages:
-           # print 'creating page',self.page_id
+            #print 'creating page',self.page_id
             page = self.gnrsite.resource_loader.get_page_by_id(page_id)
+            page.asyncServer = self.server
             #print 'setting in pages',self.page_id
             self.pages[page_id] = page
         else:
@@ -287,7 +293,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
         print 'CMD',cmd
         debugkey = '%s,%s' %(self.page_id,pdb_id)
         if not debugkey in self.debug_queues:
-            self.debug_queues[debugkey] = toro.Queue(maxsize=40)
+            self.debug_queues[debugkey] = queues.Queue(maxsize=40)
         data_queue = self.debug_queues[debugkey]
         data_queue.put(cmd)
         
@@ -304,8 +310,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
                 if isinstance(result,tuple):
                     result,resultAttrs=result
             except Exception, e:
-                tb=TraceBackResolver()()
-                print tb
+                result = TraceBackResolver()()
                 error=str(e)
         envelope=Bag()
         
@@ -350,6 +355,7 @@ class GnrBaseAsyncServer(object):
         self.gnrsite=GnrWsgiSite(instance)
         self.gnrsite.ws_site = self
         self.gnrapp = self.gnrsite.gnrapp
+        self.wsk = AsyncWebSocketHandler(self)
 
     def addHandler(self,path,factory):
         self.handlers.append((path,factory))

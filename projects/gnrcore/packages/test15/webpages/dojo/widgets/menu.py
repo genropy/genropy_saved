@@ -33,7 +33,7 @@ class GnrCustomWebPage(object):
     def test_2_base(self, pane):
         """Basic 2"""
         menudiv = pane.div('-MENU-',height='20px',width='50px',background='teal')
-        menu = menudiv.menu(action='alert($1.foo)',modifiers='*')
+        menu = menudiv.menu(action='alert($1.foo)')
         menu.menuline('abc',foo=35)
         menu.menuline('xyz',foo=60,disabled=True)
         menu.menuline('alpha',action='alert("I\'m different")',checked=True)
@@ -42,6 +42,13 @@ class GnrCustomWebPage(object):
         submenu.menuline('cat',bar=35)
         submenu.menuline('dog',bar=60)
         
+
+    def test_20_base(self, pane):
+        """Basic 2"""
+        bc = pane.borderContainer(height='400px')
+        th = bc.contentPane(region='center').plainTableHandler(table='glbl.provincia',view_store_onStart=True)
+ 
+
     def test_3_bag(self, pane):
         """From Bag"""
         menudiv = pane.div(height='50px',width='50px',background='lime')

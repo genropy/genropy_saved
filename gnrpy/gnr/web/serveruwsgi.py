@@ -9,6 +9,7 @@ from uwsgidecorators import timer
 from gnr.core.gnrsys import expandpath, listdirs
 from gnr.app.gnrconfig import gnrConfigPath, getSiteHandler, getGnrConfig
 from gnr.core.gnrstring import boolean
+from ConfigParser import ConfigParser, NoSectionError
 fnull = open(os.devnull, 'w')
 MAXFD = 1024
 
@@ -108,9 +109,8 @@ class Server(object):
     
     def __init__(self, site_name=None):
         self.options = attrDict()
-        self.gnr_config = getGnrConfig()
+        self.gnr_config = getGnrConfig(set_environment=True)
         self.config_path = gnrConfigPath()
-        self.set_environment()
         self.site_name = site_name
         if self.site_name:
             if not self.gnr_config:
@@ -149,15 +149,22 @@ class Server(object):
                 self._code_monitor.add_reloader_callback(self.gnr_site.on_reloader_restart)
         return self._code_monitor
 
-    def set_environment(self):
-        for var, value in self.gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):
-            var = var.upper()
-            if not os.getenv(var):
-                os.environ[str(var)] = str(value)
 
     def init_options(self):
         self.siteconfig = self.get_config()
         options = self.options.__dict__
+        vassals_dir = self.gnr_config['gnr.environment_xml.vassals?path'] or os.path.join(gnrConfigPath(),'uwsgi','vassals')
+        vassal_path = os.path.join(vassals_dir,'%s.ini'%self.site_name)
+        vassal_params = None
+        if os.path.exists(vassal_path):
+            
+            with open(vassal_path) as vassal_file:
+                config_parser = ConfigParser()
+                config_parser.readfp(vassal_file)
+            try:
+                vassal_params = dict(config_parser.items('genropy'))
+            except NoSectionError:
+                pass
         for option in wsgi_options.keys():
             if options.get(option, None) is None: # not specified on the command-line
                 site_option = self.siteconfig['wsgi?%s' % option]
@@ -169,7 +176,9 @@ class Server(object):
                 if dtype=='B':
                     env_value = boolean(env_value)
                 self.options.__dict__[key] = env_value
-                
+        if vassal_params:
+            for key,value in vassal_params.items():
+                self.options[key]=value   
 
 
     def get_config(self):

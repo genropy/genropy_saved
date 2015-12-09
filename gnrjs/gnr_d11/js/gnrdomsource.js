@@ -115,6 +115,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
 
     getTriggerReason:function(pathToCheck,kw){
+        if(kw.reason == 'autocreate'){
+            return;
+        }
         if(!pathToCheck){
             return;
         }
@@ -154,7 +157,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 }
             }
             else {
-                if (kw.reason != this) {
+                if (kw.reason != this ) {
                     this.updateAttrBuiltObj(prop, kw, trigger_reason);
                 }
             }
@@ -558,18 +561,22 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         return genro.domById(nodeId,this); 
     },
     
+    getPathId:function(){
+        return stringHash(this.getFullpath());
+    },
+    
     symbolicDatapath:function(path) {
         var attachpath;
         var pathlist = path.split('.');
         var nodeId = pathlist[0].slice(1);
         var relpath = pathlist.slice(1).join('.');
         if(nodeId=='ROW'){
-            return this.widget.cellCurrentDatapath(path)
+            return this.widget?this.widget.cellCurrentDatapath(path):null;
         }
         if(nodeId=='WORKSPACE'){
             node=this.attributeOwnerNode('_workspace');
             genro.assert(node,'with WORKSPACE path you need an ancestor node with attribute _workspace');
-            return 'gnr.workspace.'+(node.attr.nodeId || (node.attr.tag+'_'+node.getStringId()))+'.'+relpath;
+            return 'gnr.workspace.'+(node.attr.nodeId || (node.attr.tag+'_'+node.getPathId()))+'.'+relpath;
         }
         if(nodeId=='DATA'){
             return relpath;
@@ -1692,6 +1699,7 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
     _ : function(tag, name/*optional*/, attributes/*Object*/, extrakw) {
         var tag_UpperLower = null;
         var content;
+        extrakw = extrakw || {};
         tag = tag.toLowerCase();
         if (tag) {
             var tagHandler = genro.wdg.getHandler(tag);
@@ -1703,7 +1711,7 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
                 }
             }
             if (name instanceof Object) {
-                var extrakw = attributes || {};
+                extrakw = attributes || {};
                 var attributes = name || {};
                 var name = '';
                 if('childname' in attributes){
@@ -1737,6 +1745,11 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
             var handler=genro.wdg.getHandler(tag);
             if(handler && handler.onStructChild){
                 handler.onStructChild(attributes,this);
+            }
+            var nIndex = this.index(name);
+            if(nIndex>=0){
+                this.popNode(name);
+                extrakw._position = nIndex;
             }
             this.setItem(name, content, attributes, extrakw);
             return content;

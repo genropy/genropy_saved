@@ -23,9 +23,11 @@ class FrameGridSlots(BaseComponent):
                                 
                                 opt_downloadAs=parameters.get('downloadAs'),
                                 opt_rawData=rawData, iconClass=_class,
+                                opt_localized_data=True,
                                 ask=dict(title='Export selection',skipOn='Shift',
                                         fields=[dict(name='opt_downloadAs',lbl='Download as',placeholder=placeholder),
-                                                dict(name='opt_export_mode',wdg='filteringSelect',values='xls:Excel,csv:CSV',lbl='Mode')]),
+                                                dict(name='opt_export_mode',wdg='filteringSelect',values='xls:Excel,csv:CSV',lbl='Mode'),
+                                                dict(name='opt_localized_data',wdg='checkbox',label='Localized data')]),
 
                                 **kwargs) 
        
@@ -71,6 +73,12 @@ class FrameGridSlots(BaseComponent):
         return pane.slotButton(label='!!Delete',publish='delrow',iconClass='^.deleteButtonClass',disabled='^.deleteDisabled',**kwargs)
     
     @struct_method
+    def fgr_slotbar_archive(self,pane,_class='box iconbox',enable=None,disabled='^.disabledButton',parentForm=True,**kwargs):
+        button = pane.slotButton(label='!!Archive at date',publish='archive',iconClass=_class,
+                        disabled=disabled,parentForm=parentForm,**kwargs)
+        return button
+        
+    @struct_method
     def fgr_slotbar_viewlocker(self, pane,frameCode=None,**kwargs):
        # kw['subscribe_%s_onLockChange' %storeId] = "this.widget.setIconClass($1.locked?'icnBaseLocked':'icnBaseUnlocked');"
         pane.slotButton('!!Locker',publish='viewlocker',iconClass='==_locked?"iconbox lock":"iconbox unlock";',_locked='^.locked',**kwargs)
@@ -107,6 +115,8 @@ class FrameGrid(BaseComponent):
         grid_kwargs.setdefault('sortedBy','^.sorted')
         grid_kwargs['selfsubscribe_addrow'] = grid_kwargs.get('selfsubscribe_addrow','this.widget.addRows($1._counter,$1.evt);')
         grid_kwargs['selfsubscribe_delrow'] = grid_kwargs.get('selfsubscribe_delrow','this.widget.deleteSelectedRows();')
+        grid_kwargs['selfsubscribe_archive'] = grid_kwargs.get('selfsubscribe_archive','this.widget.archiveSelectedRows();')
+
         #grid_kwargs['selfsubscribe_setSortedBy'] = """this.setRelativeData(this.attr.sortedBy,$1);"""
         grid_kwargs.setdefault('selectedId','.selectedId')
         frame.includedView(autoWidth=False,
@@ -150,10 +160,10 @@ class FrameGrid(BaseComponent):
             else:
                 bar = frame.top.slotToolbar(slots)
             if title:
-                bar.vtitle.div(title)
+                bar.vtitle.div(title,_class='frameGridTitle')
             if semaphore:
                 bar.replaceSlots('#','#,gridsemaphore')
-        store = frame.grid.bagStore(storepath=storepath,parentForm=parentForm)
+        store = frame.grid.bagStore(storepath=storepath,parentForm=parentForm,**store_kwargs)
         frame.store = store
         return frame
 

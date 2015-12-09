@@ -596,33 +596,40 @@ class GnrWebAppHandler(GnrBaseProxy):
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)"""
         selection = self.page.unfreezeSelection(dbtable=table, name=selectionName)
-        needUpdate = False
-        if selection is not None:
-            kwargs.pop('where_attr',None)
-            tblobj = self.db.table(table)
-            wherelist = ['( $%s IN :_pkeys )' %tblobj.pkey]
-            if isinstance(where,Bag):
-                where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
-            if where:
-                wherelist.append(' ( %s ) ' %where)
-            where = ' AND '.join(wherelist)
-            eventdict = {}
-            for change in changelist:
-                eventdict.setdefault(change['dbevent'],[]).append(change['pkey'])
-            for dbevent,pkeys in eventdict.items():
-                wasInSelection = bool(filter(lambda r: r['pkey'] in pkeys,selection.data))
-                if dbevent=='D' and not wasInSelection:
-                    continue
-                kwargs.pop('columns',None)
-                willBeInSelection = bool(tblobj.query(where=where,_pkeys=pkeys,limit=1,**kwargs).fetch())
-                if dbevent=='I' and not willBeInSelection:
-                    continue
-                if dbevent=='U' and not wasInSelection and not willBeInSelection:
-                    continue
-                needUpdate = True
-                break
-        return needUpdate
-    
+        if selection is None:
+            return False #no update required
+        eventdict = {}
+        for change in changelist:
+            eventdict.setdefault(change['dbevent'],[]).append(change['pkey'])
+        deleted = eventdict.get('D',[])
+        if deleted:
+            if bool(filter(lambda r: r['pkey'] in deleted,selection.data)):
+                return True #update required delete in selection
+
+        updated = eventdict.get('U',[])
+        if updated:
+            if bool(filter(lambda r: r['pkey'] in updated,selection.data)):
+                return True #update required update in selection
+
+        inserted = eventdict.get('I',[])
+        kwargs.pop('where_attr',None)
+        tblobj = self.db.table(table)
+        wherelist = ['( $%s IN :_pkeys )' %tblobj.pkey]
+        if isinstance(where,Bag):
+            where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
+        if where:
+            wherelist.append(' ( %s ) ' %where)
+        condition = kwargs.pop('condition',None)
+        if condition:
+            wherelist.append(condition)
+        where = ' AND '.join(wherelist)
+        kwargs.pop('columns',None)
+        if bool(tblobj.query(where=where,_pkeys=inserted+updated,limit=1,**kwargs).fetch()):
+            return True #update required: insert or update not in selection but satisfying query
+
+        return False
+
+
     @public_method
     def counterFieldChanges(self,table=None,counterField=None,changes=None):
         updaterDict = dict([(d['_pkey'],d['new']) for d in changes] )
@@ -1048,7 +1055,11 @@ class GnrWebAppHandler(GnrBaseProxy):
                 kw.update(_target_fld='%s.%s' % (selection.dbtable.fullname, selection.dbtable.pkey),
                            _relation_value=pkey, 
                            _resolver_name='relOneResolver')
-            result.setItem(row_key, None, **kw)
+            value = None 
+            attributes = kw.get('_attributes')
+            if attributes and '__value__' in attributes:
+                value = attributes.pop('__value__')
+            result.setItem(row_key, value, **kw)
         return result
     
     @public_method
@@ -1111,6 +1122,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             return
         inserted = changeset.pop('inserted')
         updated =  changeset.pop('updated')
+        if updated:
+            updated =  dict(updated.digest('#a._pkey,#v'))
         deletedNode = changeset.popNode('deleted')
         tblobj = self.db.table(table)
         pkeyfield = tblobj.pkey
@@ -1119,9 +1132,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         insertedRecords = Bag()
         def cb(row):
             key = row[pkeyfield]
-            c = updated.getNode(key)
+            c = updated.get(key)
             if c:
-                for n in c.value:
+                for n in c:
                     if n.label in row:
                         if '_loadedValue' in n.attr and row[n.label] != n.attr['_loadedValue']:
                             wrongUpdates[key] = row
@@ -1131,7 +1144,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                         if '_loadedValue' in n.attr:
                             row[n.label] = n.value
         if updated:
-            pkeys = [pkey for pkey in updated.digest('#a._pkey') if pkey]
+            pkeys = [pkey for pkey in updated.keys() if pkey]
             tblobj.batchUpdate(cb,where='$%s IN :pkeys' %pkeyfield,pkeys=pkeys,bagFields=True)
         if inserted:
             for k,r in inserted.items():
@@ -1180,6 +1193,36 @@ class GnrWebAppHandler(GnrBaseProxy):
             
         except GnrSqlDeleteException, e:
             return ('delete_error', {'msg': e.message})
+
+
+    @public_method    
+    def archiveDbRows(self, table, pkeys=None, unlinkfield=None,commit=True,protectPkeys=None,archiveDate=None,**kwargs):
+        """Method for deleting many records from a given table.
+        
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
+        :param pkeys: TODO
+        :returns: if it works, returns the primary key and the deleted attribute.
+                  Else, return an exception"""
+        try:
+            tblobj = self.db.table(table)
+            rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,
+                                excludeLogicalDeleted=False,
+                                for_update=True,addPkeyColumn=False,excludeDraft=False).fetch()
+            ts = datetime(archiveDate.year,archiveDate.month,archiveDate.day) if archiveDate else None
+            updated = False
+            protectPkeys = protectPkeys or []
+            for r in rows:
+                if not (r[tblobj.pkey] in protectPkeys):
+                    oldr = dict(r)
+                    r[tblobj.logicalDeletionField] = ts 
+                    tblobj.update(r,oldr)
+                    updated = True
+            if commit and updated:
+                self.db.commit()
+        except GnrSqlDeleteException, e:
+            return ('archive_error', {'msg': e.message})
 
     @public_method
     def duplicateRecord(self,pkey=None,table=None,**kwargs):
@@ -1244,11 +1287,14 @@ class GnrWebAppHandler(GnrBaseProxy):
         if lock:
             kwargs['for_update'] = True
         captioncolumns = tblobj.rowcaptionDecode()[0]
-        if captioncolumns:
-            captioncolumns = [caption.replace('$','') for caption in captioncolumns]
+        protectionColumn = tblobj.getProtectionColumn()
+
+        if captioncolumns or protectionColumn:
+            columns_to_add = (captioncolumns or [])+([protectionColumn] if protectionColumn else [])
+            columns_to_add = [c.replace('$','') for c in columns_to_add]
             virtual_columns = virtual_columns.split(',') if virtual_columns else []
             vlist = tblobj.model.virtual_columns.items()
-            virtual_columns.extend([k for k,v in vlist if v.attributes.get('always') or k in captioncolumns])
+            virtual_columns.extend([k for k,v in vlist if v.attributes.get('always') or k in columns_to_add])
             virtual_columns = ','.join(uniquify(virtual_columns or []))
         rec = tblobj.record(eager=eager or self.page.eagers.get(dbtable),
                             ignoreMissing=ignoreMissing, ignoreDuplicate=ignoreDuplicate,
@@ -1790,7 +1836,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         return self.page.rmlTemplate(path=template, record=record)
 
     def rpc_includedViewAction(self, action=None, export_mode=None, respath=None, table=None, data=None,
-                               selectionName=None, struct=None,datamode=None, downloadAs=None,
+                               selectionName=None, struct=None,datamode=None,localized_data=None, downloadAs=None,
                                selectedRowidx=None, **kwargs):
         """TODO
         
@@ -1817,7 +1863,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         res_obj = self.page.site.loadTableScript(page=self.page, table=table,respath=respath, class_name='Main')
         if selectionName:
             data = self.page.getUserSelection(selectionName=selectionName,selectedRowidx=selectedRowidx).output('grid')
-        return res_obj.gridcall(data=data, struct=struct, export_mode=export_mode, datamode=datamode,selectedRowidx=selectedRowidx,filename=downloadAs)
+        return res_obj.gridcall(data=data, struct=struct, export_mode=export_mode,
+                                    localized_data=localized_data, datamode=datamode,
+                                    selectedRowidx=selectedRowidx,filename=downloadAs)
 
 
 class BatchExecutor(object):

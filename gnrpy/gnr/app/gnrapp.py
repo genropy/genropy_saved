@@ -45,7 +45,7 @@ from gnr.core.gnrstring import makeSet, toText, splitAndStrip, like, boolean
 from gnr.core.gnrsys import expandpath
 from gnr.sql.gnrsql import GnrSqlDb
 from gnr.app.gnrlocalization import AppLocalizer
-
+from gnr.app.gnrconfig import getGnrConfig
 log = logging.getLogger(__name__)
 
 class GnrRestrictedAccessException(GnrException):
@@ -67,11 +67,14 @@ class GnrModuleFinder(object):
     """TODO"""
     
     path_list=[]
-
+    app_list=[]
+    instance_lib = None
     def __init__(self, path_entry, app):
         self.path_entry = path_entry
         self.app = app
-        self.instance_lib = os.path.join(app.instanceFolder, 'lib')
+        self.app_list.append(app)
+        if self.instance_lib is None:
+            self.instance_lib = os.path.join(app.instanceFolder, 'lib')
         if not path_entry==self.instance_lib and not path_entry in self.path_list:
             raise ImportError
         return
@@ -106,14 +109,19 @@ class GnrModuleFinder(object):
         elif splitted[0] == 'gnrpkg' and len(splitted)>2:
             pkg = splitted[1]
             mod_fullname='.'.join(splitted[2:])
-            if pkg in self.app.packages:
+            if self.pkg_in_app_list(pkg):
                 pkg_module = self._get_gnrpkg_module(pkg)
                 mod_file,mod_pathname,mod_description=imp.find_module(mod_fullname, pkg_module.__path__)
                 return GnrModuleLoader(mod_file,mod_pathname,mod_description)
         return None
-        
+    
+    def pkg_in_app_list(self, pkg):
+        for a in self.app_list:
+            if pkg in a.packages:
+                return a.packages[pkg]
+
     def _get_gnrpkg_module(self, pkg):
-        gnrpkg = self.app.packages[pkg]
+        gnrpkg = self.pkg_in_app_list(pkg)
         gnrpkg_module_name= 'gnrpkg.%s'%pkg 
         if gnrpkg_module_name in sys.modules:
             pkg_module=sys.modules[gnrpkg_module_name]
@@ -570,9 +578,8 @@ class GnrApp(object):
     def __init__(self, instanceFolder=None, custom_config=None, forTesting=False, 
                 debug=False, restorepath=None,**kwargs):
         self.aux_instances = {}
-        self.gnr_config = self.load_gnr_config()
+        self.gnr_config = getGnrConfig(set_environment=True)
         self.debug=debug
-        self.set_environment()
         self.remote_db = None
         if instanceFolder:
             if '@' in instanceFolder:
@@ -622,37 +629,6 @@ class GnrApp(object):
         """TODO"""
         return GnrModuleFinder(path_entry,self)
         
-    def set_environment(self):
-        """TODO"""
-        environment_xml = self.gnr_config['gnr.environment_xml']
-        if environment_xml:
-            for var, value in environment_xml.digest('environment:#k,#a.value'):
-                var = var.upper()
-                if not os.getenv(var):
-                    os.environ[var] = str(value)
-                    
-    def load_gnr_config(self):
-        """TODO"""
-        if os.environ.has_key('VIRTUAL_ENV'):
-            config_path = expandpath(os.path.join(os.environ['VIRTUAL_ENV'],'etc','gnr'))
-            if os.path.isdir(config_path):
-                return Bag(config_path)
-            else:
-                log.warn('Missing genro configuration in %s', config_path)
-                return Bag()
-        if sys.platform == 'win32':
-            config_path = '~\gnr'
-        else:
-            config_path = '~/.gnr'
-        config_path = expandpath(config_path)
-        if os.path.isdir(config_path):
-            return Bag(config_path)
-        config_path = expandpath('/etc/gnr')
-        if os.path.isdir(config_path):
-            return Bag(config_path)
-        log.warn('Missing genro configuration')
-        return Bag()
-        
     def load_instance_menu(self):
         """TODO"""
         return MenuStruct(os.path.join(self.instanceFolder, 'menu'),application=self,autoconvert=True)
@@ -700,7 +676,8 @@ class GnrApp(object):
             if self.remote_db:
                 dbattrs.update(self.config.getAttr('remote_db.%s' %self.remote_db))
             if dbattrs and dbattrs.get('implementation') == 'sqlite':
-                dbattrs['dbname'] = self.realPath(dbattrs.pop('filename'))
+                dbname = dbattrs.pop('filename',None) or dbattrs['dbname']
+                dbattrs['dbname'] = self.realPath(dbname)
         else:
             # Setup for testing with a temporary sqlite database
             tempdir = tempfile.mkdtemp()
@@ -1272,6 +1249,78 @@ class GnrApp(object):
 
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
         pass
+
+    def getLegacyDb(self,name=None):
+        externaldb = getattr(self,'legacy_db_%s' %name,None)
+        if not externaldb:
+            config = self.config
+            connection_params = config.getAttr('legacy_db.%s' %name)
+            externaldb = GnrSqlDb(implementation=connection_params.get('implementation'),
+                                dbname=connection_params.get('dbname') or connection_params.get('filename') or name,
+                                host=connection_params.get('host'),user=connection_params.get('user'),
+                                password = connection_params.get('password'))
+            externaldb.importModelFromDb()
+            externaldb.model.build()
+            setattr(self,'legacy_db_%s' %name,externaldb)
+            print 'got externaldb',name
+        return externaldb
+
+    def importFromLegacyDb(self,packages=None,legacy_db=None):
+        if not packages:
+            packages = self.packages.keys()
+        else:
+            packages = packages.split(',')
+        for table in self.db.tablesMasterIndex()['_index_'].digest('#a.tbl'):
+            pkg,tablename = table.split('.')
+            if pkg in packages:
+                print 'sto per importare',table
+                self.importTableFromLegacyDb(table,legacy_db=legacy_db)
+        self.db.commit()
+        self.db.closeConnection()
+
+    def importTableFromLegacyDb(self,tbl,legacy_db=None):
+        destbl = self.db.table(tbl)
+        if destbl.query().count():
+            print 'do not import again',tbl
+            return
+        legacy_db = legacy_db or destbl.attributes.get('legacy_db')
+        if not legacy_db:
+            return
+
+        sourcedb = self.getLegacyDb(legacy_db)
+        table_legacy_name =  destbl.attributes.get('legacy_name')
+        columns = None
+        if not table_legacy_name:
+            table_legacy_name = '%s.%s' %(tbl.split('.')[0],tbl.replace('.','_'))
+        else:
+            columns = []
+            for k,c in destbl.columns.items():
+                colummn_legacy_name = c.attributes.get('legacy_name')
+                if colummn_legacy_name:
+                    columns.append(" $%s AS %s " %(colummn_legacy_name,k))
+            columns = ', '.join(columns)
+        columns = columns or '*'
+        print 'table legacy_name',table_legacy_name
+        oldtbl = None
+        try:
+            oldtbl = sourcedb.table(table_legacy_name)
+        except Exception:
+            print 'missing table in legacy',table_legacy_name
+        if not oldtbl:
+            return
+        q = oldtbl.query(columns=columns,addPkeyColumn=False,bagFields=True)
+        f = q.fetch()
+        sourcedb.closeConnection()
+        rows = []
+        adaptLegacyRow =  getattr(destbl,'adaptLegacyRow',None)
+        for r in f:
+            r = dict(r)
+            if adaptLegacyRow:
+                adaptLegacyRow(r)
+            rows.append(r)
+        if rows:
+            destbl.insertMany(rows)
+        print 'imported',tbl
 
     def getAuxInstance(self, name=None,check=False):
         """TODO

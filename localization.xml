@@ -33,7 +33,7 @@
 <en_content fr="Content" de="Inhalt" en="Content" it="Contenuto" base="Content"></en_content>
 <en_additional_info fr="Information additionnelle" de="Zusatzinfo" en="Additional info" it="Informazioni addizionali" base="Additional info"></en_additional_info>
 <en_sync_event fr="Événement Sync" de="Sync Event" en="Sync event" it="Sync evento" base="Sync event"></en_sync_event>
-<en_table fr="Table" de="Tabelle" en="Table" it="Tavolo" base="Table"></en_table>
+<en_table fr="Table" en="Table" de="Tabelle" it="Tabella" base="Table"></en_table>
 <en_event fr="Événement" de="Ereignis" en="Event" it="Evento" base="Event"></en_event>
 <en_pkey fr="Pkey" de="Pkey" en="Pkey" it="PKEY" base="Pkey"></en_pkey>
 <en_data fr="Données" de="Daten" en="Data" it="Data" base="Data"></en_data>
@@ -240,7 +240,7 @@
 <en_s_i_ _tag="en__s_i_" base="%s (%i)" en="%s (%i)" it="%s (%i)"></en_s_i_></batch_handler></batch_handler>
 <bottomplugins path="resources/common/gnrcomponents/bottomplugins.py" ext="py"><en_documentation fr="Documentation" de="Dokumentation" en="Documentation" it="Documentazione" base="Documentation"></en_documentation>
 <en_tickets fr="Billets" de="Tickets" en="Tickets" it="Biglietti" base="Tickets"></en_tickets></bottomplugins>
-<chat_component><chat_component path="resources/common/gnrcomponents/chat_component/chat_component.py" ext="py"><en_chat fr="Bavarder" de="Unterhaltung" en="Chat" it="Chiacchierare" base="Chat"></en_chat>
+<chat_component><chat_component path="resources/common/gnrcomponents/chat_component/chat_component.py" ext="py"><en_chat fr="Bavarder" en="Chat" de="Unterhaltung" it="Chat" base="Chat"></en_chat>
 <en_connected_users fr="Utilisateurs connectés" de="Verbundenen Benutzer" en="Connected users" it="Utenti connessi" base="Connected users"></en_connected_users>
 <en_chat_plug_in fr="Chat plug-in" de="Chat-Plug-in" en="Chat plug-in" it="Chat plug-in" base="Chat plug-in"></en_chat_plug_in>
 <en_start_chat fr="Démarrer un chat" de="Chat starten" en="Start chat" it="Comincia chat" base="Start chat"></en_start_chat>
@@ -250,7 +250,7 @@
 <en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
 <en_type fr="Type" de="Art" en="Type" it="Tipo" base="Type"></en_type>
-<en_table fr="Table" de="Tabelle" en="Table" it="Tavolo" base="Table"></en_table>
+<en_table fr="Table" en="Table" de="Tabelle" it="Tabella" base="Table"></en_table>
 <en_n fr="N" de="N" en="N" it="N" base="N"></en_n>
 <en_db fr="Db" de="Db" en="Db" it="Db" base="Db"></en_db>
 <en_mover fr="Déménageur" de="Antragsteller" en="Mover" it="Motore" base="Mover"></en_mover>
@@ -331,7 +331,7 @@
 <en_size fr="Taille" de="Größe" en="Size" it="Taglia" base="Size"></en_size></filepicker>
 <formhandler path="resources/common/gnrcomponents/formhandler.py" ext="py"><en_navigation fr="Navigation" de="Navigation" en="Navigation" it="Navigazione" base="Navigation"></en_navigation>
 <en_form_commands fr="Commandes Formulaire" de="Form-Befehle" en="Form Commands" it="Modulo Comandi" base="Form Commands"></en_form_commands>
-<en_dismiss fr="Rejeter" de="Entlassen" en="Dismiss" it="Respingere" base="Dismiss"></en_dismiss>
+<en_dismiss fr="Rejeter" en="Dismiss" de="Entlassen" it="Chiudi" base="Dismiss"></en_dismiss>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
 <en_revert fr="Revenir" de="Zurückkehren" en="Revert" it="Ritornare" base="Revert"></en_revert>
 <en_this_record_cannot_be_deleted fr="Cet enregistrement ne peut pas être supprimé" de="Dieser Datensatz kann nicht gelöscht werden" en="This record cannot be deleted" it="Questo record non può essere eliminato" base="This record cannot be deleted"></en_this_record_cannot_be_deleted>
@@ -577,7 +577,7 @@
 <en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
 <en_choose_the_action_to_execute_ fr="Choisissez l'action à exécuter:" de="Wählen Sie die Aktion ausführen:" en="Choose the action to execute:" it="Scegliere l'azione da eseguire:" base="Choose the action to execute: "></en_choose_the_action_to_execute_>
 <en_confirm fr="Confirmer" de="Bestätigen" en="Confirm" it="Ok" base="Confirm"></en_confirm>
-<en_search fr="Recherche" de="Suche" en="Search" it="Ricerca" base="Search"></en_search>
+<en_search fr="Recherche" en="Search" de="Suche" it="Cerca" base="Search"></en_search>
 <en_op_ base="Op." en="Op." it="Op."></en_op_>
 <en_value fr="Valeur" de="Wert" en="Value" it="Valore" base="Value"></en_value>
 <en_run_query fr="Requête exécutée" de="Abfrage ausführen" en="Run query" it="Interrogazione Run" base="Run query"></en_run_query>
@@ -663,7 +663,7 @@
 <en_current_query_will_return_rec_items _tag="en_current_query_will_return__rec__items" fr="Requête en cours sera de retour _rec_ articles" en="Current query will return _rec_ items" de="Aktuelle Abfrage _rec_ Einzelteile zurück" it="Query corrente tornerà _rec_ articoli" base="Current query will return _rec_ items"></en_current_query_will_return_rec_items>
 <en_working_ fr="Travailler ....." de="Arbeiten ....." en="Working....." it="Sto elaborando" base="Working....."></en_working_>
 <en_current_query_record_count fr="Requête actuelle nombre d'enregistrements" de="Aktuelle Abfrage Datenanzahl" en="Current query record count" it="Query corrente conteggio dei record" base="Current query record count"></en_current_query_record_count>
-<en_search fr="Recherche" de="Suche" en="Search" it="Ricerca" base="Search"></en_search>
+<en_search fr="Recherche" en="Search" de="Suche" it="Cerca" base="Search"></en_search>
 <en_op_ base="Op." en="Op." it="Op."></en_op_>
 <en_value fr="Valeur" de="Wert" en="Value" it="Valore" base="Value"></en_value>
 <en_not fr="pas" de="nicht" en="not" it="non" base="not"></en_not>
@@ -671,9 +671,9 @@
 <en_plain_query fr="Plaine de requêtes" de="Plain-Abfrage" en="Plain Query" it="Plain Query" base="Plain Query"></en_plain_query>
 <en_query_editor fr="Editeur de requêtes" de="Abfrage-Editor" en="Query editor" it="Editor Query" base="Query editor"></en_query_editor>
 <en_new_query fr="Nouvelle recherche" de="Neue Abfrage" en="New query" it="Nuova ricerca" base="New query"></en_new_query>
-<en_union fr="Union" de="Union" en="Union" it="Unione" base="Union"></en_union>
-<en_intersect fr="Couper" de="Schneiden" en="Intersect" it="Intersecare" base="Intersect"></en_intersect>
-<en_difference fr="Différence" de="Unterschied" en="Difference" it="Differenza" base="Difference"></en_difference>
+<en_union fr="Union" en="Union" de="Union" it="Unisci" base="Union"></en_union>
+<en_intersect fr="Couper" en="Intersect" de="Schneiden" it="Interseca" base="Intersect"></en_intersect>
+<en_difference fr="Différence" en="Difference" de="Unterschied" it="Togli" base="Difference"></en_difference>
 <en_please_select_the_column fr="S'il vous plaît sélectionnez la colonne" de="Bitte wählen Sie die Spalte" en="Please select the column" it="Si prega di selezionare la colonna" base="Please select the column"></en_please_select_the_column>
 <en_and fr="ET" de="UND" en="AND" it="E" base="AND"></en_and>
 <en_or fr="OU" de="ODER" en="OR" it="OR" base="OR"></en_or></th_view></th>

@@ -38,7 +38,7 @@ from gnr.web.services.gnrmail import WebMailHandler
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import SiteRegisterClient
-from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import WebSocketHandler
+from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import WsgiWebSocketHandler
 import pdb
 
 import warnings
@@ -88,7 +88,7 @@ class UrlInfo(object):
         self.relpath = None
         self.plugin = None
         path_list = list(url_list)
-        if path_list[0]=='pages':
+        if path_list[0]=='webpages':
             self.pkg = self.site.mainpackage
             self.basepath =  self.site.site_static_dir
         else:
@@ -105,7 +105,7 @@ class UrlInfo(object):
                 self.basepath =  os.path.join(pkg_obj.packageFolder,'webpages')
             self.pkg = pkg_obj.id
         if self.request_kwargs.pop('_mobile',False):
-            mobilepath = os.path.join(self.basepath,'mobile')
+            mobilepath = os.path.join(self.basepath,'webpages_mobile')
             if os.path.exists(mobilepath):
                 self.basepath = mobilepath
         currpath = []
@@ -204,12 +204,16 @@ class GnrWsgiSite(object):
         if _gnrconfig:
             self.gnr_config = _gnrconfig
         else:
-            self.gnr_config = getGnrConfig()
-            self.set_environment()
+            self.gnr_config = getGnrConfig(set_environment=True)
             
         self.config = self.load_site_config()
         self.cache_max_age = int(self.config['wsgi?cache_max_age'] or 5356800)
         self.default_uri = self.config['wsgi?home_uri'] or '/'
+        if boolean(self.config['wsgi?static_import_psycopg']):
+            try:
+                import psycopg2
+            except Exception:
+                pass
         if self.default_uri[-1] != '/':
             self.default_uri += '/'
         self.mainpackage = self.config['wsgi?mainpackage']
@@ -231,7 +235,7 @@ class GnrWsgiSite(object):
         self.statics = StaticHandlerManager(self)
         self.statics.addAllStatics()
         self.compressedJsPath = None
-        self.pages_dir = os.path.join(self.site_path, 'pages')
+        self.pages_dir = os.path.join(self.site_path, 'webpages')
         self.site_static_dir = self.config['resources?site'] or '.'
         if self.site_static_dir and not os.path.isabs(self.site_static_dir):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path, self.site_static_dir))
@@ -264,14 +268,12 @@ class GnrWsgiSite(object):
         self.page_max_age = int(cleanup.get('page_max_age') or 120)
         self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
 
-    def startDebug(self):
-        import rpdb
-        rpdb.set_trace()
-
     @property
     def wsk(self):
+        if not self.websockets:
+            return
         if not hasattr(self,'_wsk'):
-            self._wsk = WebSocketHandler(self)
+            self._wsk = WsgiWebSocketHandler(self)
         return self._wsk
 
     @property
@@ -352,7 +354,7 @@ class GnrWsgiSite(object):
         :param static_name: TODO
         :param static_path: TODO
         :param args: TODO"""
-        args = tuple(static_path.split('/')) + args
+        args = tuple(static_path.split(os.path.sep)) + args
         if static_name == 'user':
             args = (self.currentPage.user,) + args #comma does matter
         elif static_name == 'conn':
@@ -439,14 +441,6 @@ class GnrWsgiSite(object):
             elif lib.startswith('gnr_'):
                 self.gnr_path[lib[4:]] = path
                 
-    def set_environment(self):
-        """TODO"""
-        for var, value in self.gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):
-            var = var.upper()
-            if not os.getenv(var):
-                os.environ[var] = str(value)
-                
-        
     def load_site_config(self):
         """TODO"""
         site_config_path = os.path.join(self.site_path, 'siteconfig.xml')

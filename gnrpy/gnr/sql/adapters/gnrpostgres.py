@@ -56,13 +56,21 @@ import thread
 
 class SqlDbAdapter(SqlDbBaseAdapter):
     typesDict = {'character varying': 'A', 'character': 'C', 'text': 'T',
-                 'boolean': 'B', 'date': 'D', 'time without time zone': 'H', 'timestamp without time zone': 'DH',
-                 'timestamp with time zone': 'DH', 'numeric': 'N', 'money': 'M',
+                 'boolean': 'B', 'date': 'D', 
+                 'time without time zone': 'H',
+                 'time with time zone': 'HZ',
+                 'timestamp without time zone': 'DH',
+                 'timestamp with time zone': 'DHZ',
+                  'numeric': 'N', 'money': 'M',
                  'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'double precision': 'R', 'real': 'R', 'bytea': 'O'}
 
     revTypesDict = {'A': 'character varying', 'T': 'text', 'C': 'character',
                     'X': 'text', 'P': 'text', 'Z': 'text', 'N': 'numeric', 'M': 'money',
-                    'B': 'boolean', 'D': 'date', 'H': 'time without time zone', 'DH': 'timestamp without time zone',
+                    'B': 'boolean', 'D': 'date', 
+                    'H': 'time without time zone',
+                    'HZ': 'time with time zone', 
+                    'DH': 'timestamp without time zone',
+                    'DHZ': 'timestamp with time zone',
                     'I': 'integer', 'L': 'bigint', 'R': 'real',
                     'serial': 'serial8', 'O': 'bytea'}
 
@@ -160,10 +168,19 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     def dropDb(self, name):
         conn = self._managerConnection()
         curs = conn.cursor()
-        curs.execute("DROP DATABASE %s;" % name)
+        curs.execute("DROP DATABASE IF EXISTS %s;" % name)
         curs.close()
         conn.close()
         
+
+    def dropTable(self, dbtable,cascade=False):
+        """Drop table"""
+        command = 'DROP TABLE IF EXISTS %s;'
+        if cascade:
+            command = 'DROP TABLE %s CASCADE;'
+        tablename = dbtable if isinstance(dbtable,basestring) else dbtable.model.sqlfullname
+        self.dbroot.execute(command % tablename)
+
     def dump(self, filename,dbname=None,extras=None,**kwargs):
         """Dump an existing database
         

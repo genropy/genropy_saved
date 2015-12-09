@@ -168,29 +168,31 @@ class GnrSqlDb(GnrObject):
     def localizer(self):
         return self.application.localizer if self.application else DbLocalizer
         
-    def autoRestore(self,path):
+    def autoRestore(self,path,sqltextCb=None,onRestored=None):
         assert os.path.exists(path),'Restore archive %s does not exist' %path
         extractpath = path.replace('.zip','')
+        destroyFolder = False
         if not os.path.isdir(path):
             from zipfile import ZipFile
             myzip =  ZipFile(path, 'r')
             myzip.extractall(extractpath)
+            destroyFolder = True
         mainstorefile = os.path.join(extractpath,'mainstore')
 
         for s in self.stores_handler.dbstores.keys():
             self.stores_handler.drop_store(s)
         self.dropDb(self.dbname)
         self.createDb(self.dbname)
-        self.restore(mainstorefile)
+        self.restore(mainstorefile,sqltextCb=sqltextCb,onRestored=onRestored)
         auxstoresfiles = [f for f in os.listdir(extractpath) if not f.startswith('.') and f!='mainstore']
         for f in auxstoresfiles:
             dbname= '%s_%s' %(self.dbname,f)
             self.createDb(dbname)
-            self.restore(os.path.join(extractpath,f),dbname=dbname)
+            self.restore(os.path.join(extractpath,f),dbname=dbname,sqltextCb=sqltextCb,onRestored=onRestored)
             self.stores_handler.add_dbstore_config(f,dbname=dbname,save=False)
         self.stores_handler.save_config()
-        shutil.rmtree(extractpath)
-        #self.commit()
+        if destroyFolder:
+            shutil.rmtree(extractpath)
 
 
     def packageSrc(self, name):
@@ -344,13 +346,13 @@ class GnrSqlDb(GnrObject):
     connection = property(_get_connection)
             
     def get_connection_params(self, storename=None):
-        if storename and storename != self.rootstore:
+        if storename and storename != self.rootstore and storename in self.dbstores:
             storeattr = self.dbstores[storename]
             return dict(host=storeattr.get('host'),database=storeattr.get('database'),
                         user=storeattr.get('user'),password=storeattr.get('password'),
                         port=storeattr.get('port'))
         else:
-            return dict(host=self.host, database=self.dbname, user=self.user, password=self.password, port=self.port)
+            return dict(host=self.host, database=self.dbname if not storename or storename=='_main_db' else storename, user=self.user, password=self.password, port=self.port)
     
     def execute(self, sql, sqlargs=None, cursor=None, cursorname=None, autocommit=False, dbtable=None,storename=None):
         """Execute the sql statement using given kwargs. Return the sql cursor
@@ -399,8 +401,8 @@ class GnrSqlDb(GnrObject):
             except Exception, e:
                 #print sql
                 gnrlogger.warning('error executing:%s - with kwargs:%s \n\n', sql, unicode(sqlargs))
-                if self.debugger:
-                    self.debugger(sql=sql, sqlargs=sqlargs, dbtable=dbtable, error=str(e))
+                #if self.debugger:
+                #    self.debugger(sql=sql, sqlargs=sqlargs, dbtable=dbtable, error=str(e))
                 print str('error %s executing:%s - with kwargs:%s \n\n' % (
                 str(e), sql, unicode(sqlargs).encode('ascii', 'ignore')))
                 self.rollback()
@@ -475,6 +477,11 @@ class GnrSqlDb(GnrObject):
         
         :param tblobj: the table object
         :param record: an object implementing dict interface as colname, colvalue"""
+        deletable = tblobj.attributes.get('deletable',True)
+        if isinstance(deletable,basestring):
+            deletable = self.application.checkResourcePermission(deletable, self.currentEnv['userTags'])
+        if not deletable:
+            raise GnrSqlException('The records of table %s cannot be deleted' %tblobj.name_long)
         tblobj.protect_delete(record)
         tblobj._doFieldTriggers('onDeleting', record)
         tblobj.trigger_onDeleting(record)
@@ -588,6 +595,12 @@ class GnrSqlDb(GnrObject):
         self._tablesMasterIndex_step(toImport=toImport,imported=imported,dependencies=dependencies,result=result,deferred=deferred,blocking=blocking)
         if len(deferred)==0:
             return result
+        print 'deferred',deferred.keys()
+        for k,v in deferred.items():
+            print '\n table ',k
+            print '\t\t bloccata da',v
+
+
         raise GnrSqlException(message='Blocked dependencies')
 
 
@@ -772,16 +785,19 @@ class GnrSqlDb(GnrObject):
         extras = extras or []
         self.adapter.dump(filename,dbname=dbname,extras=extras)
         
-    def restore(self, filename,dbname=None):
+    def restore(self, filename,dbname=None,sqltextCb=None,onRestored=None):
         """Restore db to a given path
         
         :param name: the path on which the database will be restored"""
+        if sqltextCb:
+            filename = sqltextCb(filename)
         #self.dropDb(self.dbname)
         #self.createDb(self.dbname)
         self.adapter.restore(filename,dbname=dbname)
+        if onRestored:
+            onRestored(self,dbname=dbname)
 
 
-        
     def createSchema(self, name):
         """Create a database schema
         
