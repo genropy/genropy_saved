@@ -220,7 +220,8 @@ class _SaxImporter(sax.handler.ContentHandler):
             curr, attributes = self.bags.pop()
             if value or isValidValue(value):
                 if curr:
-                    value = value.strip()
+                    if isinstance(value, basestring):
+                        value = value.strip()
                     if value:
                         curr.nodes.append(BagNode(curr, '_', value))
                 else:
