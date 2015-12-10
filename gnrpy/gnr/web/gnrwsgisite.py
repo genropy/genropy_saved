@@ -113,7 +113,7 @@ class UrlInfo(object):
         path_list_copy = list(path_list)
         while path_list_copy:
             currpath.append(path_list_copy.pop(0))
-            searchpath = os.path.join(self.basepath,*currpath)
+            searchpath = os.path.splitext(os.path.join(self.basepath,*currpath))[0]
             cached_path = pathfile_cache.get(searchpath)
             if cached_path is None:
                 cached_path = '%s.py' %searchpath
@@ -702,6 +702,7 @@ class GnrWsgiSite(object):
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='RESOURCE')
             try:
                 page = self.resource_loader(path_list, request, response, environ=environ,request_kwargs=request_kwargs)
+                page.download_name = download_name
             except WSGIHTTPException, exc:
                 return exc(environ, start_response)
             except Exception, exc:
@@ -716,8 +717,8 @@ class GnrWsgiSite(object):
                 result = page()
                 if isinstance(result, file):
                     return self.statics.fileserve(result, environ, start_response,nocache=True)
-                if download_name:
-                    download_name = unicode(download_name)
+                if page.download_name:
+                    download_name = unicode(page.download_name)
                     content_type = mimetypes.guess_type(download_name)[0]
                     if content_type:
                         page.response.content_type = content_type

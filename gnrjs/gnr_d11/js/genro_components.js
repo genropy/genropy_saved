@@ -1392,6 +1392,16 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.DownloadButton", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode,kw){
+        kw.innerHTML = objectPop(kw,'label');
+        kw._rpcpars = objectUpdate({},objectExtract(kw,'rpc_*'));
+        kw.action = "var pars = this.evaluateOnNode(_rpcpars); var method = objectPop(pars,'method'); genro.rpcDownload(method,pars)";
+        return sourceNode._('lightbutton',kw);
+    }
+
+});
+
 dojo.declare("gnr.widgets.DocumentFrame", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw){
         var framekw = objectExtract(kw,'frame_*');

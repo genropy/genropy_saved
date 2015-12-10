@@ -1880,17 +1880,11 @@ class GnrWebPage(GnrBaseWebPage):
         :param class_name: TODO
         :param downloadAs: TODO"""
         if downloadAs:
-            import mimetypes
-            
-            self.response.content_type = mimetypes.guess_type(downloadAs)[0]
-            self.response.add_header("Content-Disposition", str("attachment; filename=%s" % downloadAs))
+            self.download_name = downloadAs
         result = self.site.callTableScript(page=self, table=table, respath=respath, class_name=class_name,
                                          downloadAs=downloadAs, **kwargs)
         if not result:
             return None
-            #missing_path = kwargs.pop('missingResultPage','html_pages/missing_result.html')
-            #path = self.getResourcePath(missing_path)
-            #return file(path,'r')
         if os.path.exists(result):
             return file(result,'r')
         return result
