@@ -227,14 +227,12 @@ class GnrCustomWebPage(object):
         
     def debuggerRight(self,bc):
         bc=bc.borderContainer(width='250px',splitter=True,region='right',margin='2px',border='1px solid #efefef',margin_left=0,rounded=4)
-        bc.contentPane(region='top',background='#666',color='white',font_size='.8em',text_align='center',padding='2px').div('Current')
-        paneTree=bc.contentPane(region='center',padding='2px')   
-        tree = paneTree.treeGrid(storepath='.result',noHeaders=True)
-        tree.column('__label__',contentCb="""return this.attr.caption || this.label""",
-                      background='#888',color='white')
-                                                          
-        tree.column('__value__',size='85%',contentCb="""var v=this.getValue();
-                                                          return (v instanceof gnr.GnrBag)?'':_F(v)""")
+        paneTree=bc.contentPane(region='center')   
+        tree = paneTree.treeGrid(storepath='.result',headers=True)
+        tree.column('__label__',contentCb="""return this.attr.caption || this.label""",header='Variable')
+        tree.column('__value__',size=300,contentCb="""var v=this.getValue();
+                                                          return (v instanceof gnr.GnrBag)?'':_F(v)""",
+                                                          header='Value')
 
     def debuggerCenter(self,bc):
         bc=bc.borderContainer(region='center',border='1px solid #efefef',margin='2px',margin_right=0,margin_left=0,rounded=4)

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<GenRoBag>
-	<struttura label=u"!!Struttura" file="manage/struttura"/>
-	<homepage label=u"!!Homepage" file="manage/home_page"/>
-	<index_article label=u"!!Articles Table" table="website.index_article"/>
-</GenRoBag>

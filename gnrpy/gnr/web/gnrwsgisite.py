@@ -88,7 +88,7 @@ class UrlInfo(object):
         self.relpath = None
         self.plugin = None
         path_list = list(url_list)
-        if path_list[0]=='pages':
+        if path_list[0]=='webpages':
             self.pkg = self.site.mainpackage
             self.basepath =  self.site.site_static_dir
         else:
@@ -113,7 +113,7 @@ class UrlInfo(object):
         path_list_copy = list(path_list)
         while path_list_copy:
             currpath.append(path_list_copy.pop(0))
-            searchpath = os.path.join(self.basepath,*currpath)
+            searchpath = os.path.splitext(os.path.join(self.basepath,*currpath))[0]
             cached_path = pathfile_cache.get(searchpath)
             if cached_path is None:
                 cached_path = '%s.py' %searchpath
@@ -235,7 +235,7 @@ class GnrWsgiSite(object):
         self.statics = StaticHandlerManager(self)
         self.statics.addAllStatics()
         self.compressedJsPath = None
-        self.pages_dir = os.path.join(self.site_path, 'pages')
+        self.pages_dir = os.path.join(self.site_path, 'webpages')
         self.site_static_dir = self.config['resources?site'] or '.'
         if self.site_static_dir and not os.path.isabs(self.site_static_dir):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path, self.site_static_dir))
@@ -354,7 +354,7 @@ class GnrWsgiSite(object):
         :param static_name: TODO
         :param static_path: TODO
         :param args: TODO"""
-        args = tuple(static_path.split('/')) + args
+        args = tuple(static_path.split(os.path.sep)) + args
         if static_name == 'user':
             args = (self.currentPage.user,) + args #comma does matter
         elif static_name == 'conn':
@@ -702,6 +702,7 @@ class GnrWsgiSite(object):
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='RESOURCE')
             try:
                 page = self.resource_loader(path_list, request, response, environ=environ,request_kwargs=request_kwargs)
+                page.download_name = download_name
             except WSGIHTTPException, exc:
                 return exc(environ, start_response)
             except Exception, exc:
@@ -716,8 +717,8 @@ class GnrWsgiSite(object):
                 result = page()
                 if isinstance(result, file):
                     return self.statics.fileserve(result, environ, start_response,nocache=True)
-                if download_name:
-                    download_name = unicode(download_name)
+                if page.download_name:
+                    download_name = unicode(page.download_name)
                     content_type = mimetypes.guess_type(download_name)[0]
                     if content_type:
                         page.response.content_type = content_type

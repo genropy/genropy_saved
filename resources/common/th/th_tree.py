@@ -96,11 +96,11 @@ class HTableTree(BaseComponent):
         tblobj = self.db.table(table)
         if not modifiers:
             into_pkey = into_pkey or None
-            tblobj.batchUpdate(dict(parent_id=into_pkey),where='$id=:pkey',pkey=pkey)
+            tblobj.batchUpdate(dict(parent_id=into_pkey),where='$id=:pkey',pkey=pkey,bagFields=True)
             self.db.commit()
         elif (modifiers == 'Shift' or modifiers == 'Shift,Meta') and (into_parent_id==parent_id) and tblobj.column('_row_count') is not None:
             where='$parent_id=:p_id' if parent_id else '$parent_id IS NULL'
-            f = tblobj.query(where=where,p_id=parent_id,for_update=True,order_by='$_row_count',addPkeyColumn=False).fetch()
+            f = tblobj.query(where=where,p_id=parent_id,for_update=True,order_by='$_row_count',bagFields=True,addPkeyColumn=False).fetch()
             b = Bag([(r['id'],dict(r)) for r in f])
             pref = '>' if modifiers == 'Shift' else '<'
             b.setItem(pkey,b.pop(pkey),_position='%s%s' %(pref,into_pkey))
@@ -112,10 +112,10 @@ class HTableTree(BaseComponent):
                     tblobj.update(r,old_rec)
             self.db.commit()
 
-    @extract_kwargs(condition=dict(slice_prefix=False),related=True)
+    @extract_kwargs(condition=dict(slice_prefix=False),related=True,store=True)
     @struct_method
     def ht_hTableTree(self,pane,storepath='.store',table=None,root_id=None,draggable=True,columns=None,
-                        caption_field=None,condition=None,caption=None,dbstore=None,condition_kwargs=None,related_kwargs=None,root_id_delay=None,
+                        caption_field=None,condition=None,caption=None,dbstore=None,condition_kwargs=None,store_kwargs=True,related_kwargs=None,root_id_delay=None,
                         moveTreeNode=True,excludeRoot=None,resolved=False,**kwargs):
         
         treeattr = dict(storepath=storepath,hideValues=True,draggable=draggable,identifier='treeIdentifier',
@@ -126,23 +126,33 @@ class HTableTree(BaseComponent):
             if excludeRoot==root_id:
                 treeattr['storepath'] = '%s.%s' %(treeattr['storepath'],root_id)
         tree = pane.tree(**treeattr)
-        tree.htableViewStore(storepath=storepath,table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,related_kwargs=related_kwargs,dbstore=dbstore,resolved=resolved,**condition_kwargs)
+        store_kwargs.update(condition_kwargs)
+        tree.htableViewStore(storepath=storepath,table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,related_kwargs=related_kwargs,dbstore=dbstore,resolved=resolved,**store_kwargs)
         if moveTreeNode:
             treeattr = tree.attributes
             treeattr['onDrop_nodeattr']="""var into_pkey = dropInfo.treeItem.attr.pkey;
                                        var into_parent_id = dropInfo.treeItem.attr.parent_id;
                                         var pkey = data.pkey;
                                         var parent_id = data.parent_id;
+                                        var modifiers = dropInfo.modifiers;
+                                if(!modifiers && genro.dom._lastDragInfo && genro.dom._lastDragInfo.modifiers){
+                                    modifiers = genro.dom._lastDragInfo.modifiers;
+                                    //fix firefox debian
+                                }
                                genro.serverCall("ht_moveHierarchical",{table:'%s',pkey:pkey,
                                                                         into_pkey:into_pkey,
                                                                         parent_id:parent_id,
                                                                         into_parent_id:into_parent_id,
-                                                                        modifiers:genro.dom.getEventModifiers(dropInfo.event)},
+                                                                        modifiers:modifiers},
                                                 function(result){
                                                 });""" %table
             treeattr['dropTargetCb']="""return this.form? this.form.locked?false:THTree.dropTargetCb(this,dropInfo):THTree.dropTargetCb(this,dropInfo);"""  
-        tree.onDbChanges(action="""THTree.refreshTree(dbChanges,store,treeNode);""",
-                        table=table,store='=%s' %treeattr['storepath'],treeNode=tree) 
+        tree.onDbChanges(action="""
+            if(excludeRoot===true){
+                excludeRoot = '_forest_';
+            }
+            THTree.refreshTree(dbChanges,store,treeNode,excludeRoot);""",
+                        table=table,store='=%s' %treeattr['storepath'],treeNode=tree,excludeRoot=excludeRoot) 
         tree.dataController("""storebag.getNode("root").getValue('reload');""",
                             storebag='=%s' %treeattr['storepath'],
                             treeNode=tree,subscribe_public_changed_partition=True)
@@ -165,7 +175,7 @@ class TableHandlerHierarchicalView(BaseComponent):
     py_requires='th/th_picker:THPicker,th/th_tree:HTableTree'
 
     @struct_method
-    def ht_treeViewer(self,pane,caption_field=None,_class=None,**kwargs):
+    def ht_treeViewer(self,pane,caption_field=None,_class=None,excludeRoot=None,**kwargs):
         pane.attributes['height'] = '100%'
         pane.attributes['overflow'] = 'hidden'
         box = pane.div(position='relative',datapath='.#parent.hview',text_align='left',height='100%',childname='treebox')        
@@ -173,7 +183,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         form = formNode.value
         form.store.handler('load',default_parent_id='=#FORM/parent/#FORM.record.parent_id')
         table = formNode.attr['table']
-        hviewTree = box.hviewTree(table=table,caption_field=caption_field,_class=_class or 'noIcon',**kwargs)
+        hviewTree = box.hviewTree(table=table,caption_field=caption_field,_class=_class or 'noIcon',excludeRoot=excludeRoot,**kwargs)
         form.htree = hviewTree
         hviewTree.dataController("this.form.load({destPkey:selected_pkey});",selected_pkey="^.tree.pkey")
         hviewTree.dataController("""
@@ -187,9 +197,15 @@ class TableHandlerHierarchicalView(BaseComponent):
                 return;
             }
             PUT .tree.pkey = pkey;
-            var selectedPath = currHierarchicalPkey?'root.'+currHierarchicalPkey.replace(/\//g,'.'):'root';
+            var selectedPath = currHierarchicalPkey? currHierarchicalPkey.replace(/\//g,'.'):null;
+            if(!excludeRoot){
+                selectedPath = selectedPath?'root.'+selectedPath:'root';
+            }
             tree.widget.setSelectedPath(null,{value:selectedPath});                        
-        """,formsubscribe_onLoaded=True,tree=hviewTree,table=table,currSelectedPkey='=.tree.pkey',currHierarchicalPkey='=#FORM.record.hierarchical_pkey')        
+        """,formsubscribe_onLoaded=True,tree=hviewTree,table=table,
+            currSelectedPkey='=.tree.pkey',
+            currHierarchicalPkey='=#FORM.record.hierarchical_pkey',
+            excludeRoot=excludeRoot)        
         form.dataController("""var currpkey = this.form.getCurrentPkey();
                             if(currpkey!='*newrecord*'){
                                 treeWdg.setSelected(treeWdg._itemNodeMap[currpkey]);

@@ -646,7 +646,7 @@ dojo.declare("gnr.GnrBag", null, {
                     else{
                         
                         dtype = cell_kw.dtype || vnode.attr.dtype || guessDtype(v);
-                        format = cell_kw.format;
+                        format = typeof(cell_kw)=='string'?cell_kw:cell_kw.format;
                         if(format){
                             v = _F(v,format,dtype);
                         }else{
@@ -1599,12 +1599,16 @@ dojo.declare("gnr.GnrBag", null, {
     /**
      * todo
      */
-    asDict: function() {
+    asDict: function(recursive) {
         var result = {};
-        var node;
+        var node,value;
         for (var i = 0; i < this._nodes.length; i++) {
             node = this._nodes[i];
-            result[node.label] = node.getValue();
+            value = node.getValue();
+            if(recursive && (value instanceof gnr.GnrBag)){
+                value = value.asDict(recursive);
+            }
+            result[node.label] = value;
         }
         ;
         return result;

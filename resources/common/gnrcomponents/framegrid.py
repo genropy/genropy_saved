@@ -23,9 +23,11 @@ class FrameGridSlots(BaseComponent):
                                 
                                 opt_downloadAs=parameters.get('downloadAs'),
                                 opt_rawData=rawData, iconClass=_class,
+                                opt_localized_data=True,
                                 ask=dict(title='Export selection',skipOn='Shift',
                                         fields=[dict(name='opt_downloadAs',lbl='Download as',placeholder=placeholder),
-                                                dict(name='opt_export_mode',wdg='filteringSelect',values='xls:Excel,csv:CSV',lbl='Mode')]),
+                                                dict(name='opt_export_mode',wdg='filteringSelect',values='xls:Excel,csv:CSV',lbl='Mode'),
+                                                dict(name='opt_localized_data',wdg='checkbox',label='Localized data')]),
 
                                 **kwargs) 
        
@@ -65,11 +67,17 @@ class FrameGridSlots(BaseComponent):
                             SET .deleteDisabled = false;
                             SET .deleteButtonClass = deleteButtonClass +' _logical_delete';
                           """,
-                            disabled=disabled,deleteButtonClass=_class,frameCode=frameCode
-                            ,**{str('subscribe_%s_grid_onSelectedRow' %frameCode):True})
+                            disabled=disabled,deleteButtonClass=_class,frameCode=frameCode,_onBuilt=True,
+                            **{str('subscribe_%s_grid_onSelectedRow' %frameCode):True})
         pane.data('.deleteButtonClass',_class)
         return pane.slotButton(label='!!Delete',publish='delrow',iconClass='^.deleteButtonClass',disabled='^.deleteDisabled',**kwargs)
     
+    @struct_method
+    def fgr_slotbar_archive(self,pane,_class='box iconbox',enable=None,disabled='^.disabledButton',parentForm=True,**kwargs):
+        button = pane.slotButton(label='!!Archive at date',publish='archive',iconClass=_class,
+                        disabled=disabled,parentForm=parentForm,**kwargs)
+        return button
+        
     @struct_method
     def fgr_slotbar_viewlocker(self, pane,frameCode=None,**kwargs):
        # kw['subscribe_%s_onLockChange' %storeId] = "this.widget.setIconClass($1.locked?'icnBaseLocked':'icnBaseUnlocked');"
@@ -97,7 +105,7 @@ class FrameGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGridSlots'
     @extract_kwargs(top=True,grid=True)
     @struct_method
-    def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,structpath=None,
+    def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,dynamicStorepath=None,structpath=None,
                     datamode=None,table=None,grid_kwargs=True,top_kwargs=None,iconSize=16,
                     _newGrid=None,**kwargs):
         pane.attributes.update(overflow='hidden')
@@ -107,10 +115,13 @@ class FrameGrid(BaseComponent):
         grid_kwargs.setdefault('sortedBy','^.sorted')
         grid_kwargs['selfsubscribe_addrow'] = grid_kwargs.get('selfsubscribe_addrow','this.widget.addRows($1._counter,$1.evt);')
         grid_kwargs['selfsubscribe_delrow'] = grid_kwargs.get('selfsubscribe_delrow','this.widget.deleteSelectedRows();')
+        grid_kwargs['selfsubscribe_archive'] = grid_kwargs.get('selfsubscribe_archive','this.widget.archiveSelectedRows();')
+
         #grid_kwargs['selfsubscribe_setSortedBy'] = """this.setRelativeData(this.attr.sortedBy,$1);"""
         grid_kwargs.setdefault('selectedId','.selectedId')
         frame.includedView(autoWidth=False,
                           storepath=storepath,datamode=datamode,
+                          dynamicStorepath=dynamicStorepath,
                           datapath='.grid',
                           struct=struct,table=table,
                           **grid_kwargs)
@@ -121,10 +132,12 @@ class FrameGrid(BaseComponent):
 
     @extract_kwargs(default=True,store=True)
     @struct_method
-    def fgr_bagGrid(self,pane,storepath=None,title=None,default_kwargs=None,
+    def fgr_bagGrid(self,pane,storepath=None,dynamicStorepath=None,
+                    title=None,default_kwargs=None,
                     pbl_classes=None,gridEditor=True,
                     addrow=True,delrow=True,slots=None,
                     autoToolbar=True,semaphore=None,
+                    datamode=None,
                     store_kwargs=True,parentForm=None,**kwargs):
         if pbl_classes:
             kwargs['_class'] = 'pbl_roundedGroup'
@@ -134,7 +147,13 @@ class FrameGrid(BaseComponent):
         if gridEditor:
             kwargs['grid_gridEditor'] = dict(default_kwargs=default_kwargs)
         kwargs.setdefault('grid_parentForm',parentForm)
-        frame = pane.frameGrid(_newGrid=True,datamode='bag',**kwargs)
+        if storepath.startswith('==') or storepath.startswith('^'):
+            dynamicStorepath = storepath
+            storepath = '.dummystore'
+        datamode= datamode or 'bag'
+        frame = pane.frameGrid(_newGrid=True,datamode= datamode,
+                                dynamicStorepath=dynamicStorepath,
+                                **kwargs)
         if autoToolbar:
             default_slots = []
             title = title or ''
@@ -153,6 +172,8 @@ class FrameGrid(BaseComponent):
                 bar.vtitle.div(title,_class='frameGridTitle')
             if semaphore:
                 bar.replaceSlots('#','#,gridsemaphore')
+        if datamode == 'attr':
+            store_kwargs.setdefault('storeType','AttributesBagRows')
         store = frame.grid.bagStore(storepath=storepath,parentForm=parentForm,**store_kwargs)
         frame.store = store
         return frame

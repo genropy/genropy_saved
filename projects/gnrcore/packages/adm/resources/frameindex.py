@@ -55,12 +55,12 @@ class FrameIndex(BaseComponent):
                 if custom_index and custom_index!='*':
                     getattr(self,'index_%s' %custom_index)(root,**kwargs)
                 else:
-                    root.frameIndexRoot(**kwargs)
+                    root.frameIndexRoot(new_window=new_window,**kwargs)
             else:
                 root.div('Not allowed')
 
     @struct_method
-    def frm_frameIndexRoot(self,pane,onCreatingTablist=None,**kwargs):
+    def frm_frameIndexRoot(self,pane,new_window=None,onCreatingTablist=None,**kwargs):
         pane.dataController("""var d = data.deepCopy();
                             if(deltaDays(new Date(),d.getItem('workdate'))==0){
                                 d.setItem('workdate','');
@@ -69,7 +69,7 @@ class FrameIndex(BaseComponent):
                             
                             SET gnr.windowTitle = str;
                             """,
-                            data='=gnr.rootenv',
+                            data='^gnr.rootenv',
                             tpl=self.windowTitleTemplate(),
                             _onStart=True)
         frame = pane.framePane('standard_index',_class='hideSplitter frameindexroot',
@@ -93,6 +93,8 @@ class FrameIndex(BaseComponent):
         self.prepareTop(frame.top,onCreatingTablist=onCreatingTablist)
         self.prepareBottom(frame.bottom)
         self.prepareCenter(frame.center)
+        if new_window:
+            self.loginDialog(pane)
         return frame
         
     def prepareTop(self,pane,onCreatingTablist=None):
@@ -198,7 +200,7 @@ class FrameIndex(BaseComponent):
         sb.logout.div(connect_onclick="genro.logout()",_class='iconbox icnBaseUserLogout',tip='!!Logout')
         sb.screenlock.div(connect_onclick="genro.publish('screenlock')",_class='iconbox icnBaseUserPause',tip='!!Lock screen')
 
-        formula = '==(_iframes && _iframes.len()>0)?_iframes.getNode(_selectedFrame).attr.url:"";'
+        formula = '==(_iframes && _iframes.len()>0)?_iframes.getAttr(_selectedFrame,"url"):"";'
         
         sb.count_errors.div('^gnr.errors?counter',hidden='==!_error_count',_error_count='^gnr.errors?counter',
                             _msg='!!Errors:',_class='countBoxErrors',connect_onclick='genro.dev.errorPalette();')
@@ -255,7 +257,7 @@ class FrameIndex(BaseComponent):
         else:
             indexpane = sc.contentPane(pageName='indexpage',title='Index',overflow='hidden')
             if self.index_url:
-                indexpane.htmliframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px',shield=True)         
+                indexpane.htmliframe(height='100%', width='100%', src=self.getResourceUri(self.index_url,add_mtime=self.isDeveloper()), border='0px',shield=True)         
         page.dataController("""genro.publish('selectIframePage',_menutree__selected[0]);""",
                                subscribe__menutree__selected=True)
         page.dataController("""genro.framedIndexManager.newBrowserWindowPage(newBrowserWindowPage[0]);""",

@@ -22,4 +22,4 @@ class Main(BaseResourceExport):
         fb.data('.export_mode', 'xls')
         fb.filteringSelect(value='^.export_mode', values='xls:Excel,csv:Csv,html:Html', lbl='!!Mode')
         fb.textbox(value='^.filename', lbl='!!Save as')
-        
+        fb.checkbox(value='^.localized_data',label='!!Localized data')

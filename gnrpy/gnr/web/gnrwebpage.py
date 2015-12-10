@@ -117,7 +117,7 @@ class GnrWebPage(GnrBaseWebPage):
     :param basename: TODO
     :param environ: TODO"""
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
-                 filepath=None, packageId=None, pluginId=None, basename=None, environ=None, class_info=None):
+                 filepath=None, packageId=None, pluginId=None, basename=None, environ=None, class_info=None,_avoid_module_cache=None):
         self._inited = False
         self._start_time = time()
         self._thread = thread.get_ident()
@@ -166,6 +166,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.dojo_version = request_kwargs.pop('dojo_version', None) or getattr(self, 'dojo_version', None)
         self.dynamic_js_requires= {}
         self.dynamic_css_requires= {}
+        self._avoid_module_cache = _avoid_module_cache
         self.debug_sql = boolean(request_kwargs.pop('debug_sql', None))
         debug_py = request_kwargs.pop('debug_py', None)
         self.debug_py = False if boolean(debug_py) is not True else debug_py
@@ -211,7 +212,8 @@ class GnrWebPage(GnrBaseWebPage):
                 self.page_item['data']['init_info'] = dict(request_kwargs=request_kwargs, request_args=request_args,
                           filepath=filepath, packageId=packageId, pluginId=pluginId,  basename=basename)
                 self.page_item['data']['page_info'] = dict([(k,getattr(self,k)) for k in ATTRIBUTES_SIMPLEWEBPAGE])
-        self.isMobile = (self.connection.user_device == 'mobile') or self.page_item['data']['pageArgs'].get('is_mobile')
+        self.isMobile = (self.connection.user_device.startswith('mobile')) or self.page_item['data']['pageArgs'].get('is_mobile')
+        self.deviceScreenSize = self.connection.user_device.split(':')[1]
         self._inited = True
 
     def _T(self,value,lockey=None):
@@ -989,6 +991,9 @@ class GnrWebPage(GnrBaseWebPage):
             kwargs['isDeveloper'] = True
         if self.isMobile:
             kwargs['isMobile'] = True
+        kwargs['deviceScreenSize'] = self.deviceScreenSize
+        if getattr(self,'_avoid_module_cache',None):
+            kwargs['_avoid_module_cache'] = True
         arg_dict['startArgs'] = toJson(dict([(k,self.catalog.asTypedText(v)) for k,v in kwargs.items()]))
         arg_dict['page_id'] = self.page_id or getUuid()
         arg_dict['bodyclasses'] = self.get_bodyclasses()
@@ -1013,6 +1018,7 @@ class GnrWebPage(GnrBaseWebPage):
         css_path, css_media_path = self.get_css_path()
         arg_dict['css_requires'] = css_path
         arg_dict['css_media_requires'] = css_media_path
+        
         return arg_dict
         
     def mtimeurl(self, *args):
@@ -1225,7 +1231,8 @@ class GnrWebPage(GnrBaseWebPage):
             self._avatar = self.application.getAvatar(self.user, tags=connection.user_tags, page=self,
                                                       **avatar_extra)
         return self._avatar
-        
+
+
     avatar = property(_get_avatar, _set_avatar)
 
     def _get_siteName(self):
@@ -1873,26 +1880,23 @@ class GnrWebPage(GnrBaseWebPage):
         :param class_name: TODO
         :param downloadAs: TODO"""
         if downloadAs:
-            import mimetypes
-            
-            self.response.content_type = mimetypes.guess_type(downloadAs)[0]
-            self.response.add_header("Content-Disposition", str("attachment; filename=%s" % downloadAs))
+            self.download_name = downloadAs
         result = self.site.callTableScript(page=self, table=table, respath=respath, class_name=class_name,
                                          downloadAs=downloadAs, **kwargs)
         if not result:
             return None
-            #missing_path = kwargs.pop('missingResultPage','html_pages/missing_result.html')
-            #path = self.getResourcePath(missing_path)
-            #return file(path,'r')
         if os.path.exists(result):
             return file(result,'r')
         return result
     
     @public_method                                 
-    def remoteBuilder(self, handler=None, **kwargs):
+    def remoteBuilder(self, handler=None, py_requires=None,**kwargs):
         """TODO
         
         :param handler: TODO"""
+        if py_requires:
+            for p in py_requires.split(','):
+                self.mixinComponent(p)
         handler = self.getPublicMethod('remote', handler)
         if handler:
             pane = self.newSourceRoot()

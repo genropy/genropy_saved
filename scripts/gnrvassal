@@ -35,12 +35,14 @@ class UwsgiConfigurator(object):
     default_processes = 1
     default_threads = 8
     vassal_template = """[uwsgi]
-http = :%(port)i
-;wsgi-file = %(wsgi_file)s
+plugins = python
+%(port_or_domain)s
+gid = %(gid)i
+uid = %(uid)i
 processes = %(processes)i
 threads = %(threads)i
 enable-threads = true
-stats = 127.0.0.1:%(stats_port)i
+;stats = 127.0.0.1:%(stats_port)i
 worker-reload-mercy = 1
 disable-logging = true
 module = gnr.web.serveruwsgi
@@ -109,7 +111,10 @@ logto = %(logto)s
         pars = dict()
         #sc = self.site_config
         opt = self.options
-        pars['port'] = int(opt.port or self.default_port)
+        if hasattr(opt,'domain'):
+            pars['port_or_domain'] = 'domain = %s'%opt.domain
+        else:
+            pars['port_or_domain'] = 'http = %i'%int(opt.port or self.default_port)
         pars['wsgi_file'] = self.site_script
         pars['site_name'] = self.site_name
         pars['processes'] = int(opt.processes or self.default_processes)
@@ -118,6 +123,8 @@ logto = %(logto)s
         pars['offload_threads'] = int(opt.offload_threads or pars['processes'])
         pars['pidfile_path'] = self.pidfile_path
         pars['logto'] = self.error_path
+        pars['gid'] = os.getgid()
+        pars['uid'] = os.getuid()
         if boolean(opt.websockets):
             pars['websockets'] = """http-websockets = true
 route = ^/websocket httpdumb:%s
@@ -133,14 +140,6 @@ attach-daemon = gnrasync %s""" % (self.websocket_socket_path, self.site_name)
         with open(self.vassal_ini_path,'w') as ini_file:
             ini_file.write(ini_content)
 
-    def print_pars(self):
-        out ="""UWSGI vassal configured on port %(port)i
-
-Processes:\t\t%(processes)i
-Thread:\t\t\t%(threads)i
-Stats on:\t\thttp://127.0.0.1:%(stats_port)i
-Connect on:\t\thttp://127.0.0.1:%(port)i"""%self.pars
-        print out
 
 
     def stop_vassal(self):
@@ -165,7 +164,9 @@ if __name__ == '__main__':
                       dest='debug',
                       action='store_true',
                       help="Use weberror debugger")
-
+    parser.add_option('-d','--domain',
+                      dest='domain',
+                      help="Create vassal for domain specified (port is ignored)")
     parser.add_option('--nodebug',
                       dest='debug',
                       action='store_false',

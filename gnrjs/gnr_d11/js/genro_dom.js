@@ -485,7 +485,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         if(inset){
             result+= ' inset';
         }
-        var key = dojo.isSafari? '-webkit-box-shadow':'-moz-box-shadow';
+        var key ='box-shadow';
         styledict[key] = result;
     },
     css3style_gradient:function(value,valuedict,styledict, noConvertStyle){
@@ -837,6 +837,13 @@ dojo.declare("gnr.GnrDomHandler", null, {
         event.dataTransfer.dropEffect = "move";
 
     },
+    getBaseWidget:function(domnode){
+        var widget = dijit.getEnclosingWidget(domnode);
+        if(widget){
+            return widget.sourceNode ? widget : (widget.grid || widget.tree);
+        }
+    },
+
     getBaseSourceNode:function(domnode){
         while(domnode && !domnode.sourceNode){
             domnode = domnode.parentNode;
@@ -857,9 +864,9 @@ dojo.declare("gnr.GnrDomHandler", null, {
             info.nodeId = domnode.sourceNode.attr.nodeId;
         }
         else {
-            var widget = dijit.getEnclosingWidget(domnode);
             var baseSourceNode = this.getBaseSourceNode(domnode);
-            var rootwidget = widget? (widget.sourceNode ? widget : widget.grid || widget.tree) : null;
+            var widget = dijit.getEnclosingWidget(domnode);
+            var rootwidget = this.getBaseWidget(domnode);
             if(!rootwidget && !baseSourceNode){
                 return;
             }
@@ -982,27 +989,42 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var floating = genro.dlg.floating({'nodeId':'floating_' + sourceNode._id,
             'title':title ,'top':dropInfo.event.pageY + 'px',
             'left':dropInfo.event.pageX + 'px',resizable:true,
-            dockable:true,closable:false,dockTo:detached_id});
+            dockable:true,closable:false,dockTo:'dummyDock',
+            autoSize:false});
+        var floatingWidget = floating.getParentNode().widget;
+        var containerNode = floatingWidget.containerNode;
+        containerNode.removeChild(containerNode.firstChild);
+        var placeholderSource = floating._('div', {height:coords.h + 'px',width:coords.w + 'px',_class:'detached_placeholder',
+                    id:detached_id,persist:false});
+        var placeholder = floatingWidget.containerNode.firstElementChild;
+        var placeholder_content = placeholderSource._('div',{_class:'detached_placeholder_content'})
+        if(title){
+            placeholder_content._('div',{_class:'detached_placeholder_title',innerHTML:title})
+        }
 
-        floating._('div', {height:coords.h + 'px',width:coords.w + 'px',_class:'detatched_placeher',id:detached_id,persist:false});
-        floating = floating.getParentNode().widget;
-        var placeholder = floating.containerNode.firstElementChild;
         var currentParent = domnode.parentNode;
-        var extra_height = dojo.coords(floating.domNode).h;
+        var extra_height = dojo.coords(floatingWidget.domNode).h;
         currentParent.replaceChild(placeholder, domnode);
-        floating.containerNode.appendChild(domnode);
+        floatingWidget.containerNode.style.position = 'relative';
+        floatingWidget.containerNode.appendChild(domnode);
         sourceNode.attr.isDetached = true;
-        dojo.connect(floating, 'hide', function() {
-            var widget = dijit.getEnclosingWidget(placeholder);
-            widget.setContent(domnode);
+        dojo.connect(floatingWidget, 'hide', function() {
+            var parentDomNode = placeholder.parentNode;
+            var widget = dijit.getEnclosingWidget(parentDomNode);
+            if(widget.domNode === parentDomNode){
+                widget.setContent(domnode);
+            }else{
+                parentDomNode.replaceChild(domnode,placeholder);
+            }
             sourceNode.attr.isDetached = false;
-            //currentParent.replaceChild(domnode,placeholder);
-            floating.close();
+            setTimeout(function(){
+                floatingWidget.close();
+            },1000);
         });
-        floating.show();
-        floating.bringToTop();
+        floatingWidget.show();
+        floatingWidget.bringToTop();
         coords.h = coords.h + extra_height;
-        floating.resize(coords);
+        floatingWidget.resize(coords);
     },
     onDrop:function(event) {
         genro.dom.outlineShape(null);
@@ -1422,6 +1444,19 @@ dojo.declare("gnr.GnrDomHandler", null, {
         return false;
     },
 
+    setAutoSizer:function(sourceNode,domNode,cb,timing){
+        sourceNode._autoSizer = setInterval(function(){
+            if((domNode.clientHeight != sourceNode._current_height) || (domNode.clientWidth != sourceNode._current_width)){
+                sourceNode._current_height = domNode.clientHeight;
+                sourceNode._current_width = domNode.clientWidth;
+                cb(sourceNode._current_width,sourceNode._current_height);
+            }
+        },timing || 50);
+    },
+    resetAutoSizer:function(sourceNode){
+        sourceNode._current_width = null;
+    },
+
     autoSize:function(widget){
         var box;
         var maxHeight=0;
@@ -1433,6 +1468,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         });
         widget.resize({h:maxHeight+27,w:maxWidth+3});
     },
+
     preventGestureBackForward:function(pane){
         var pane = pane || window;
         var filterEvent=function(e,delta_x){
@@ -1566,5 +1602,45 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 onrendered(canvas);
             }
         });
+    },
+    autoScaleWrapper:function(newobj,zoomToFit){
+        var zoomEnvelope = document.createElement('div');
+        zoomEnvelope.style.display = 'inline-block';
+        newobj.appendChild(zoomEnvelope);
+        this.setAutoScale(zoomEnvelope,zoomToFit);
+        return zoomEnvelope;
+    },
+
+    setAutoScale:function(domNode,zoomToFit,originalDomnode){
+        domNode._autoScale = setInterval(function(){
+           // domNode.style.zoom = 1;
+            var originalDomnode = originalDomnode || domNode.parentNode;
+            //console.log('originalDomnode',originalDomnode)
+            var zoom_x = 1;
+            var zoom_y = 1;
+            var delta_x = 0;
+            var delta_y = 0;
+            if(zoomToFit===true || zoomToFit=='x'){
+                delta_x = domNode.clientWidth - originalDomnode.clientWidth;
+            }
+            if(zoomToFit===true || zoomToFit=='y'){
+                delta_y = domNode.clientHeight - originalDomnode.clientHeight;
+            }
+            if(delta_x>0){
+                zoom_x = originalDomnode.clientWidth/ domNode.clientWidth;
+            }
+            if(delta_y>0){
+                zoom_y = originalDomnode.clientHeight/ domNode.clientHeight;
+            }
+            if(zoomToFit===true){
+                zoom_x = Math.min(zoom_x,zoom_y);
+                zoom_y = zoom_x;
+            }
+            //domNode.style.zoom = Math.min(zoom_x,zoom_y);
+            domNode.style.transform = "scale("+zoom_x+","+zoom_y+")";   //Math.min(zoom_x,zoom_y);
+            domNode.style.transformOrigin = '0';
+        },50);
     }
+
+
 });

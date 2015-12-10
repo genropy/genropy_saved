@@ -1055,7 +1055,11 @@ class GnrWebAppHandler(GnrBaseProxy):
                 kw.update(_target_fld='%s.%s' % (selection.dbtable.fullname, selection.dbtable.pkey),
                            _relation_value=pkey, 
                            _resolver_name='relOneResolver')
-            result.setItem(row_key, None, **kw)
+            value = None 
+            attributes = kw.get('_attributes')
+            if attributes and '__value__' in attributes:
+                value = attributes.pop('__value__')
+            result.setItem(row_key, value, **kw)
         return result
     
     @public_method
@@ -1189,6 +1193,36 @@ class GnrWebAppHandler(GnrBaseProxy):
             
         except GnrSqlDeleteException, e:
             return ('delete_error', {'msg': e.message})
+
+
+    @public_method    
+    def archiveDbRows(self, table, pkeys=None, unlinkfield=None,commit=True,protectPkeys=None,archiveDate=None,**kwargs):
+        """Method for deleting many records from a given table.
+        
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
+        :param pkeys: TODO
+        :returns: if it works, returns the primary key and the deleted attribute.
+                  Else, return an exception"""
+        try:
+            tblobj = self.db.table(table)
+            rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,
+                                excludeLogicalDeleted=False,
+                                for_update=True,addPkeyColumn=False,excludeDraft=False).fetch()
+            ts = datetime(archiveDate.year,archiveDate.month,archiveDate.day) if archiveDate else None
+            updated = False
+            protectPkeys = protectPkeys or []
+            for r in rows:
+                if not (r[tblobj.pkey] in protectPkeys):
+                    oldr = dict(r)
+                    r[tblobj.logicalDeletionField] = ts 
+                    tblobj.update(r,oldr)
+                    updated = True
+            if commit and updated:
+                self.db.commit()
+        except GnrSqlDeleteException, e:
+            return ('archive_error', {'msg': e.message})
 
     @public_method
     def duplicateRecord(self,pkey=None,table=None,**kwargs):
@@ -1802,7 +1836,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         return self.page.rmlTemplate(path=template, record=record)
 
     def rpc_includedViewAction(self, action=None, export_mode=None, respath=None, table=None, data=None,
-                               selectionName=None, struct=None,datamode=None, downloadAs=None,
+                               selectionName=None, struct=None,datamode=None,localized_data=None, downloadAs=None,
                                selectedRowidx=None, **kwargs):
         """TODO
         
@@ -1829,7 +1863,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         res_obj = self.page.site.loadTableScript(page=self.page, table=table,respath=respath, class_name='Main')
         if selectionName:
             data = self.page.getUserSelection(selectionName=selectionName,selectedRowidx=selectedRowidx).output('grid')
-        return res_obj.gridcall(data=data, struct=struct, export_mode=export_mode, datamode=datamode,selectedRowidx=selectedRowidx,filename=downloadAs)
+        return res_obj.gridcall(data=data, struct=struct, export_mode=export_mode,
+                                    localized_data=localized_data, datamode=datamode,
+                                    selectedRowidx=selectedRowidx,filename=downloadAs)
 
 
 class BatchExecutor(object):

@@ -14,10 +14,10 @@ class THPicker(BaseComponent):
     @struct_method
     def pk_palettePicker(self,pane,grid=None,table=None,relation_field=None,paletteCode=None,
                          viewResource=None,searchOn=True,multiSelect=True,
-                         title=None,autoInsert=None,dockButton=True,picker_kwargs=None,
+                         title=None,autoInsert=None,dockButton=None,picker_kwargs=None,
                          height=None,width=None,**kwargs):
         
-        
+        dockButton = dockButton or dict(parentForm=True,iconClass='iconbox app')
         picker_kwargs = picker_kwargs or dict()
         one = picker_kwargs.get('one',False)
         picker_kwargs.setdefault('uniqueRow',True)
@@ -87,6 +87,7 @@ class THPicker(BaseComponent):
             condition_kwargs.setdefault('_onStart',True)
             palette = pane.paletteGrid(**paletteGridKwargs).selectionStore(table=table,sortedBy=sortedBy or 'pkey',condition=condition,**condition_kwargs)
         if grid:
+            grid.attributes.update(dropTargetCb_picker='return this.form?!this.form.isDisabled():true')
             grid.dragAndDrop(paletteCode)
             if autoInsert:
                 method = getattr(tblobj,'insertPicker',self._th_insertPicker)

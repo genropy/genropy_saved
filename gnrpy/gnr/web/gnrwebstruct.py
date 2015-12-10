@@ -263,7 +263,7 @@ class GnrDomSrc(GnrStructData):
             subtag = ('%s_%s' %(parentTag,fname)).lower()
             if hasattr(self,subtag):
                 return getattr(self,subtag)
-        raise AttributeError("Object has no attribute '%s': provide another nodeId" % fname)
+        raise AttributeError("%s has no attribute '%s' " % (parentTag or repr(self), fname))
     
     @deprecated
     def getAttach(self, childname):
@@ -599,7 +599,7 @@ class GnrDomSrc(GnrStructData):
         :param content: the <script> content"""
         return self.child('script', childcontent=content, **kwargs)
         
-    def remote(self, method, lazy=True, cachedRemote=None,**kwargs):
+    def remote(self, method=None, lazy=True, cachedRemote=None,**kwargs):
         """TODO
         
         :param method: TODO
@@ -864,7 +864,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'dataFormula', 'dataScript', 'dataRpc','dataWs', 'dataController', 'dataRemote',
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
-             'tinyMCE', 'protovis','codemirror','MultiButton','PaletteGroup','DocumentFrame','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','PaletteImporter','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
+             'tinyMCE', 'protovis','codemirror','dygraph','MultiButton','PaletteGroup','DocumentFrame','DownloadButton','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','PaletteImporter','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','GeoSearch','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
              'FramePane', 'FrameForm','QuickEditor','CodeEditor','TreeGrid','QuickGrid','MultiValueEditor','QuickTree','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
@@ -1059,7 +1059,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             storepath = storepath or attr.get('storepath') or '.store'
         nodeId = '%s_store' %storeCode
         #self.data(storepath,Bag())
-        return parent.child('BagStore',storepath=storepath, nodeId=nodeId,**kwargs)
+        return parent.child('BagStore',storepath=storepath, nodeId=nodeId,_identifier=_identifier,**kwargs)
 
     def fsStore(self,folders=None,storepath=None,storeCode=None,include='*.xml',columns=None,**kwargs):
         """FileSystem Store
@@ -1298,8 +1298,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if struct or columns or not structpath:
             paletteGrid.gridStruct(struct=struct,columns=columns)
         return paletteGrid
-
-
         
     def includedview_draganddrop(self,dropCodes=None,**kwargs):
         ivattr = self.attributes

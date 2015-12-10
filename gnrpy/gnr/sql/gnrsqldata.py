@@ -530,21 +530,16 @@ class SqlQueryCompiler(object):
             for condition in env_conditions.values():
                 wherelist.append('( %s )' %condition)
             where = ' AND '.join(wherelist)
-
         partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
-
         if not ignorePartition and partition_kwargs:
             wherelist = [where] if where else []
-            for k,v in partition_kwargs.items():
-                if currentEnv.get('current_%s' %v):
-                    wherelist.append('( $%s=:env_current_%s )' % (k,v))
+            wherelist.append('( $__match_partition IS TRUE ) ')
             where = ' AND '.join(wherelist)
         columns = self.updateFieldDict(columns)
         where = self.updateFieldDict(where or '')
         order_by = self.updateFieldDict(order_by or '')
         group_by = self.updateFieldDict(group_by or '')
         having = self.updateFieldDict(having or '')
-        
         col_list = uniquify([col for col in gnrstring.split(columns, ',') if col])
         new_col_list = []
         for col in col_list:
@@ -910,6 +905,7 @@ class SqlQuery(object):
                  **kwargs):
         self.dbtable = dbtable
         self.sqlparams = sqlparams or {}
+        columns = columns or '*'
         self.querypars = dict(columns=columns, where=where, order_by=order_by,
                               distinct=distinct, group_by=group_by,
                               limit=limit, offset=offset,for_update=for_update,

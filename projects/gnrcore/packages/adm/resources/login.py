@@ -21,15 +21,15 @@ class LoginComponent(BaseComponent):
     index_url = 'html_pages/splashscreen.html'
     closable_login = False
 
-    def loginDialog(self,pane,new_window=None,gnrtoken=None,**kwargs):
-        if not self.closable_login and self.index_url:
+    def loginDialog(self,pane,gnrtoken=None,**kwargs):
+        doLogin = self.avatar is None and self.auth_page
+        if doLogin and not self.closable_login and self.index_url:
             pane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')   
         dlg = pane.dialog(_class='lightboxDialog',subscribe_openLogin="this.widget.show()",subscribe_closeLogin="this.widget.hide()")
        
         box = dlg.div(**self.loginboxPars())
         if self.closable_login:
             dlg.div(_class='dlg_closebtn',connect_onclick='PUBLISH closeLogin;')
-        doLogin = self.avatar is None and self.auth_page
         topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
         wtitle = (self.loginPreference('login_title') or self.login_title) if doLogin else (self.loginPreference('new_window_title') or '!!New Window') 
         topbar.wtitle.div(wtitle)  
@@ -82,7 +82,7 @@ class LoginComponent(BaseComponent):
                 fbnode.attr['hidden'] = '==!_avatar || _hide '
                 fbnode.attr['_avatar'] = '^gnr.avatar.user'
                 fbnode.attr['_hide'] = '%s?hidden' %fbnode.value['#1.#0?value']
-        if not self.closable_login:
+        if gnrtoken or not self.closable_login:
             pane.dataController("""
                             var href = window.location.href;
                             if(window.location.search){
@@ -139,13 +139,18 @@ class LoginComponent(BaseComponent):
                 if(rootpage){
                     genro.gotoURL(rootpage);
                 }
-                genro.pageReload();
+                if(doLogin){
+                    genro.pageReload();
+                }
+                
             }
         },null,'POST');
         """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',
             avatar='=gnr.avatar',
             rootpage='=gnr.rootenv.rootpage',
-            error_msg='!!Invalid login',dlg=dlg.js_widget,_delay=1)  
+            error_msg='!!Invalid login',dlg=dlg.js_widget,
+            doLogin=doLogin,
+            _delay=1)  
         return dlg
 
     @public_method
@@ -223,8 +228,8 @@ class LoginComponent(BaseComponent):
                                 datapath='new_password',width='100%',
                                 fld_width='100%',row_height='3ex')
         fb.data('.gnrtoken',gnrtoken)
-        fb.textbox(value='^.password',lbl='!!New Password',type='password')
-        fb.textbox(value='^.password_confirm',lbl='!!Confirm New Password',type='password',
+        fb.textbox(value='^.password',lbl='!!New password',type='password')
+        fb.textbox(value='^.password_confirm',lbl='!!Confirm password',type='password',
                     validate_call='return value==GET .password;',validate_call_message='!!Passwords must be equal')
         fb.div(width='100%',position='relative',row_hidden=False).button('!!Send',action='FIRE set_new_password',position='absolute',right='-5px',top='8px')
         fb.dataRpc('dummy',self.login_changePassword,_fired='^set_new_password',

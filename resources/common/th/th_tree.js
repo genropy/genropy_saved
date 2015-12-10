@@ -21,7 +21,11 @@ var THTree = {
         });
         var refreshed = {};
         for (var k in refreshDict){
-            n = store.getNodeByAttr('treeIdentifier',k);
+            if (k=='_forest_'){
+                n = store.getParentNode();
+            }else{
+                n = store.getNodeByAttr('treeIdentifier',k);
+            }
             if(n && !(n.attr.treeIdentifier in refreshed)){
                 if(n.getResolver()){
                     n.refresh(true)
@@ -41,7 +45,16 @@ var THTree = {
         treeNode.widget.restoreExpanded();
         if(selectedIdentifier && dbevent!='I'){
             var treeWdg = treeNode.widget;
-            treeWdg.setSelectedPath(null,{value:this.fullPathByIdentifier(treeWdg,selectedIdentifier)});    
+            var fullpath = this.fullPathByIdentifier(treeWdg,selectedIdentifier);
+            if(fullpath=='root' && rootIdentifier=='_forest_'){
+                var firstNode = store.getNode('#0');
+                if(firstNode){
+                    fullpath = firstNode.attr.pkey;
+                }else{
+                    fullpath = null;
+                }
+            }
+            treeWdg.setSelectedPath(null,{value:fullpath});    
         }
     },
 

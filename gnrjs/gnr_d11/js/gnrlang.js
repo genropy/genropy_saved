@@ -57,6 +57,10 @@ function _T(str){
 function _F(val,format,dtype){
     return gnrformatter.asText(val,{format:format,dtype:dtype});
 };
+function _IN(val,str){
+    var l = str.split(',');
+    return l.indexOf(val)>=0;
+};
 function isBag(value){
     return value &&(value.htraverse!=null);
 };
@@ -210,8 +214,10 @@ function stringCapitalize(str) {
     });
 };
 
-function dataTemplate(str, data, path, showAlways) {
-    var defaults = {};
+
+function dataTemplate(str, data, path, showAlways,kw) {
+    var kw = kw || {};
+    var defaults = kw.defaults || {};
     if (!str) {
         return '';
     }
@@ -225,12 +231,12 @@ function dataTemplate(str, data, path, showAlways) {
         showAlways = showAlways || templateHandler.showAlways;
         
     }
-    var templates;
-    var masks={};
-    var df_templates={};
-    var formats = {};
-    var dtypes = {};
-    var editcols = {};
+    var templates = kw.templates;
+    var masks=kw.masks || {};
+    var df_templates= kw.df_templates || {};
+    var formats = kw.formats || {};
+    var dtypes = kw.dtypes || {};
+    var editcols = kw.editcols || {};
 
     if(str instanceof gnr.GnrBag){
          templates=str;
@@ -357,18 +363,17 @@ function dataTemplate(str, data, path, showAlways) {
                             });
     } else {
         data = data || {};
+        var p;
         result = str.replace(regexpr,
                           function(path) {
                               has_field=true;
-                               var value = data[path.slice(1)];                               
+                              p = path.slice(1);
+                              var value = data[p];
                               if (value != null) {
-                                  is_empty = false;
-                                  if (value instanceof Date) {
-                                      value = dojo.date.locale.format(value, {selector:'date', format:'short'});
-                                  }
-                                  return value;
-                              } else {
-                                  return '';
+                                    is_empty = false;
+                                    return gnrformatter.asText(value,formats[p]);
+                              }else{
+                                    return '';
                               }
                           });
     }
@@ -870,13 +875,10 @@ function convertFromText(value, t, fromLocale) {
             var selector = (t == 'DH') ? 'datetime' : 'date';
             return dojo.date.locale.parse(value, {selector:selector});
         } else {
-            var date_array = value.split('.')[0].split(/\W/);
-            var c = [0,-1,0,0,0,0];
-            for (var i=0;i<date_array.length;i++){
-                c[i]+=parseInt(date_array[i],10);
-            };
-            return new Date(value);
-            //return new Date(value.split('.')[0].replace(/\-/g, '/'));
+            if(t=='D'){
+                value = value.split('.')[0].replace(/\-/g, '/');
+            }
+            return new Date(value); 
         }
     }
     else if (t == 'H') {
@@ -907,17 +909,17 @@ function convertFromText(value, t, fromLocale) {
 
 var gnrformatter = {
     asText :function (value,valueAttr){
-        var valueAttr = valueAttr || {};
+        var formatKw =  objectUpdate({},valueAttr);
         var formattedValue;
         if(value==null || value==undefined){
             return '';
         }
-        var dtype = valueAttr.dtype || guessDtype(value);
-        var format = valueAttr.format;
+        var dtype = objectPop(formatKw,'dtype') || guessDtype(value);
+        var format = objectPop(formatKw,'format');
         if(format && dtype=='L' && format.indexOf('.')>=0){
             dtype='N';
         }
-        var formatKw = objectExtract(valueAttr,'format_*',true);
+        objectUpdate(formatKw,objectExtract(formatKw,'format_*'));
         var handler = this['format_'+dtype];
         var mask = valueAttr.mask;
         if(handler){
@@ -1192,7 +1194,7 @@ var gnrformatter = {
 }
 
 function guessDtype(value){
-    if(value==null || value==undefined){
+    if(value===null || value===undefined){
         return 'NN';
     }
     var t = typeof(value);

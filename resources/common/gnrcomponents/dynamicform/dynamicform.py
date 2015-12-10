@@ -30,117 +30,17 @@ from gnr.web.gnrwebstruct import struct_method
 
 AUTOWDG = {'T':'TextBox','L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'};
 
-
-class Form(BaseComponent):
-    css_requires='gnrcomponents/dynamicform/dynamicform'
-    js_requires='gnrcomponents/dynamicform/dynamicform'
-
-    def th_form(self,form):
-        bc = form.center.borderContainer(datapath='.record')
-        bottom = bc.contentPane(region='bottom',border_top='1px solid silver')
-        pane = bc.contentPane(region='center')
-        box = pane.div(_class='^#FORM.boxClass',margin='5px',margin_top='10px',margin_right='15px')
-        fb = box.formbuilder(cols=3, border_spacing='4px',tdl_width='5em',width='100%')
-        #tbl = pane.getInheritedAttributes()['table']
-        fb.field('code',validate_notnull=True,validate_notnull_error='!!Required',width='8em', 
-               #validate_regex='![^A-Za-z0-9_]', 
-               #validate_regex_error='!!Invalid code: "." char is not allowed',#validate_case='l',
-                validate_nodup=True,validate_nodup_error='!!Already existing code',
-                validate_nodup_condition='$maintable_id=:fkey',validate_nodup_fkey='=#FORM.record.maintable_id',
-                #validate_case='l',
-                ghost='!!Field code')
-        fb.field('description',validate_notnull=True,validate_notnull_error='!!Required',width='100%',colspan=2,
-                    ghost='!!Field description')
-
-        fb.field('data_type',values='T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image',width='8em',tag='FilteringSelect')
-        fb.dataController("dynamicFormHandler.onDataTypeChange(this,data_type,_reason,this.form.isNewRecord());",data_type="^.data_type")
-
-        fb.field('calculated',lbl='',label='!!Calculated')
-        fb.dataController("dynamicFormHandler.onSetCalculated(this,calculated);",calculated="^.calculated")
-
-        fb.br()
-        
-        fb.field('formula',colspan=3,width='100%',row_class='df_row field_calculated',lbl_vertical_align='top',height='60px',tag='simpleTextArea')
-        
-        fb.field('wdg_tag',values='^#FORM.allowedWidget',tag='filteringSelect',
-                    row_class='df_row field_enterable',colspan=2)
-        fb.br()
-        fb.dataController("dynamicFormHandler.onSetWdgTag(this,wdg_tag);",wdg_tag="^.wdg_tag")
-        
-        fb.numberTextBox(value='^.wdg_kwargs.colspan',lbl='!!Colspan', row_class='df_row field_enterable field_calculated',width='100%')
-        fb.textbox(value='^.wdg_kwargs.width',lbl='!!Width', row_class='df_row field_enterable field_calculated',width='100%')
-        fb.textbox(value='^.wdg_kwargs.height',lbl='!!Height', row_class='df_row field_enterable field_calculated',width='100%')
-        fb.checkbox(value='^.wdg_kwargs.keepable',label='!!Keepable value', row_class='df_row field_enterable')
-        fb.checkbox(value='^.wdg_kwargs.speech',label='!!Vocal input', row_class='df_row field_enterable')
-        fb.br()
-        fb.checkbox(value='^.wdg_kwargs.editor',label='!!Full text editor', row_class='df_row field_simpletextarea')
-        fb.br()
-
-        
-        fb.field('source_filteringselect',colspan=3,row_class='df_row field_filteringselect',
-                tag='simpleTextArea',width='100%',lbl_vertical_align='top',height='60px',
-                ghost='!!c1:description1\n c2:description2')
-        fb.field('source_combobox',colspan=3,row_class='df_row field_combobox',
-                tag='simpleTextArea',width='100%',lbl_vertical_align='top',height='60px',
-                 ghost='!!description1\n description2')
-        fb.field('source_checkboxtext',colspan=3,row_class='df_row field_checkboxtext field_checkboxtext_nopopup',
-                tag='simpleTextArea',width='100%',lbl_vertical_align='top',height='60px',
-                ghost='!!description1\n description2')
-        fb.field('source_dbselect',colspan=3,row_class='df_row field_dbselect',width='100%',ghost='!!pkg.table')  
-        fb.field('source_dbcombobox',colspan=3,row_class='df_row field_dbcombobox',width='100%',ghost='!!pkg.table')  
-        
-        
-        fb.field('validate_case',row_class='df_row field_textbox',width='100%')
-        fb.br()
-        
-        fb.field('validate_range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox field_horizontalslider',ghost='min:max')
-        fb.field('standard_range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox field_horizontalslider',ghost='min:max')
-        fb.br()
-        fb.numbertextBox(value='^.wdg_kwargs.crop_height',width='100%',row_class='df_row field_img',lbl='!!Crop H')
-        fb.numbertextBox(value='^.wdg_kwargs.crop_width',width='100%',row_class='df_row field_img',lbl='!!Crop W')
-        fb.br()
-        
-        footer = bottom.div(margin='5px',margin_right='15px').formbuilder(cols=2, border_spacing='4px',width='100%',fld_width='18em')
-        footer.field('mandatory',lbl='',label='!!Mandatory',row_hidden='^.calculated')
-        footer.field('default_value',lbl='Dflt.Value')
-        footer.field('field_format',values='^#FORM.allowedFormat',tag='Combobox',lbl_width='4em')
-        footer.field('field_placeholder',lbl_width='6em')
-        footer.field('field_visible',lbl_vertical_align='top',height='60px',tag='simpleTextArea')
-        footer.field('field_style',lbl_vertical_align='top',height='60px',tag='simpleTextArea')
-        footer.field('field_tip',lbl_vertical_align='top',height='60px',tag='simpleTextArea')
-        footer.field('field_mask',lbl_vertical_align='top',height='60px',tag='simpleTextArea')
-    
-
-    def th_options(self):
-        return dict(dialog_height='450px',dialog_width='600px')
-
-
-
-class View(BaseComponent):
-    def th_struct(self,struct):
-        r = struct.view().rows()
-        r.fieldcell('_row_count',counter=True,hidden=True)
-        r.fieldcell('code', name='!!Code', width='5em',draggable=True)
-        r.fieldcell('description', name='!!Description', width='15em')
-        r.fieldcell('data_type', name='!!Type', width='10em')
-        r.fieldcell('wdg_tag',name='!!Widget',width='10em')
-        r.fieldcell('mandatory', name='!!Mandatory',width='7em')
-    
-    def th_order(self):
-        return '_row_count'
-
 class DynamicFormBagManager(BaseComponent):
 
     def df_fieldsBagStruct(self,struct):
         r = struct.view().rows()
         r.cell('code', name='!!Code', width='5em')
-        r.cell('description', name='!!Description', width='15em')
-        r.cell('data_type', name='!!Type', width='10em')
-        r.cell('wdg_tag',name='!!Widget',width='10em')
+        r.cell('description', name='!!Description', width='15em',edit=True)
+        r.cell('documentation', name='!!Documentation', width='20em',edit=dict(tag='simpleTextArea'))
+        r.cell('data_type', name='!!Type', width='7em')
+        r.cell('wdg_tag',name='!!Widget',width='7em')
         r.cell('page',name='!!Page',width='10em')
-        r.cell('querable',name='!!Querable',width='7em',
-                    dtype='B')
-
+        r.cell('querable',name='!!Querable',width='7em',dtype='B')
         r.cell('mandatory', name='!!Mandatory',width='7em',dtype='B')
 
     @customizable

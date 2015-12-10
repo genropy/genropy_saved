@@ -72,13 +72,27 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
         var node = genro.src.getNode(name).clearValue();
         node.freeze();
-        node._('PaletteBagNodeEditor','currentEditor',{'paletteCode':name,'dockTo':false,
+        node._('PaletteBagNodeEditor','currentEditor',objectUpdate({'paletteCode':name,'dockTo':false,
                                         title:kw.title || 'BagNode editor',
-                                        'nodePath':nodePath,origin:kw.origin});
+                                        'nodePath':nodePath},kw));
         node.unfreeze();
         
     },
 
+
+    openBagEditorPalette:function(path,kw){
+        var root = genro.src.newRoot();
+        var name = kw.name || '_currentPaletteBagEditor_'
+        genro.src.getNode()._('div', name);
+
+        var node = genro.src.getNode(name).clearValue();
+        node.freeze();
+        node._('PaletteBagEditor','currentEditor',objectUpdate({'paletteCode':name,'dockTo':false,
+                                        title:kw.title || 'Bag editor',
+                                        'path':path},kw));
+        node.unfreeze();
+        
+    },
 
     siteLockedStatus:function(set){
         var maingenro = genro.mainGenroWindow.genro;
@@ -335,7 +349,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         container.appendChild(message)
         container.appendChild(footer)
         debuggerStepBox.appendChild(container)
-        message.innerHTML = dataTemplate('Rpc:$methodname<br/>Module: $filename<br/>Function: $functionName<br/>Line: $lineno</div>',data);
+        message.innerHTML = dataTemplate('<table><tbody><tr><td class="pdb_label">Rpc:</td><td>$methodname</td></tr><tr><td class="pdb_label">Module:</td><td>$filename</td><tr><td class="pdb_label">Function:</td><td>$functionName</td></tr><td class="pdb_label">Line:</td><td>$lineno</td></tr></tbody></table>',data);
         var link = document.createElement('div');
         link.setAttribute('class','pdb_footer_button pdb_footer_button_right')
         link.innerHTML = 'Debug'
@@ -344,12 +358,15 @@ dojo.declare("gnr.GnrDevHandler", null, {
         link = document.createElement('div');
         link.setAttribute('class','pdb_footer_button pdb_footer_button_left')
         link.innerHTML = 'Continue'
-        link.setAttribute('onclick',dataTemplate("dojo.addClass(dojo.byId('_debugger_step_"+callcounter+"'),'pdb_running'); genro.dev.continueDebugInIde('$pdb_id','$debugger_page_id');",data))
+        link.setAttribute('onclick',dataTemplate("dojo.addClass(dojo.byId('_debugger_step_"+callcounter+"'),'pdb_running'); genro.dev.continueDebugInIde('$pdb_id','$debugger_page_id',"+callcounter+");",data))
         footer.appendChild(link)
     },
 
-    continueDebugInIde:function(pdb_id,debugger_page_id){
+    continueDebugInIde:function(pdb_id,debugger_page_id,callcounter){
         genro.wsk.publishToClient(debugger_page_id,"debugCommand",{cmd:'c',pdb_id:pdb_id});
+        setTimeout(function(){
+            genro.dev.removeFromDebugged(callcounter);
+        },1000)
     },
 
     openDebugInIde:function(pdb_id,debugger_page_id){

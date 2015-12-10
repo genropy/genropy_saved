@@ -159,21 +159,29 @@ class ExtDbExplorer(BaseComponent):
                 table_data['legacy_name'] = firstColAttr.get('table_fullname')
                 table_data['legacy_db'] = legacydb
                 pkey = firstColAttr.get('table_pkey')
-                table_data['pkey'] = firstColAttr.get('table_pkey').lower() if pkey else None
+                if pkey:
+                    pkey = pkey.lower()
+                table_data['pkey'] = pkey or None
                 columns_bag = Bag()
                 table_data['_columns'] = columns_bag
+                caption_field = None
                 for colattr in columns.digest('#a'):
                     legacy_name = colattr['name']
                     if legacy_name=='_multikey':
                         legacy_name = None
                     colname = colattr['name'].lower()
+                    dtype=colattr.get('dtype')
+                    if not caption_field and dtype in ('A','T','C') and colname!=pkey:
+                        caption_field = colname
                     b = Bag(dict(name=colname,legacy_name=legacy_name,
-                                                        name_long=None,dtype=colattr.get('dtype'),
-                                                        size=colattr.get('size'),indexed=colattr.get('indexed'),
+                                                        name_long=None,dtype=dtype,
+                                                        size=str(colattr.get('size')) if colattr.get('size') else None,
+                                                        indexed=colattr.get('indexed'),
                                                         unique=colattr.get('unique')))
                     columns_bag.setItem(colname,b)
                     if colattr.get('relate_to'):
                         b.setItem('_relation',Bag(dict(relation=colattr['relate_to'].lower(),onDelete='raise')))
+                table_data['caption_field'] = caption_field
                 self.makeOneTable(os.path.join(modelpath,'%s.py' %tablename),table_data=table_data)
 
 

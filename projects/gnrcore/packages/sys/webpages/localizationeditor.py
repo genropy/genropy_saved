@@ -108,7 +108,7 @@ class GnrCustomWebPage(object):
                     localizer_item.update(changesdict[n.label])
         for destFolder in updatablebags:
             locbagpath = os.path.join(destFolder,'localization.xml')
-            locbag = Bag(locbagpath)
+            locbag = Bag(locbagpath) if os.path.exists(locbagpath) else Bag()
             changedNodes=[]
             locbag.walk(cb,changedNodes=changedNodes,localizationDict=localizer.localizationDict)
             if changedNodes:

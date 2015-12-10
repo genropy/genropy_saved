@@ -76,14 +76,18 @@ class ResourceLoader(object):
         info = self.site.getUrlInfo(path_list,request_kwargs,default_path=self.default_path)
         if not info.relpath:
             return None
+        _avoid_module_cache = request_kwargs.pop('_avoid_module_cache', None)
+
         page_class = self.get_page_class(basepath=info.basepath,relpath=info.relpath, pkg=info.pkg,
+                                        avoid_module_cache=_avoid_module_cache,
                                         request_args=info.request_args,request_kwargs=request_kwargs)
         class_info = dict(basepath=info.basepath,relpath=info.relpath, pkg=info.pkg,
                             request_args=info.request_args,request_kwargs=request_kwargs)
         page = page_class(site=self.site, request=request, response=response,
                           request_kwargs=request_kwargs, request_args=info.request_args,
                           filepath=info.relpath, packageId=page_class._packageId, 
-                          pluginId=info.plugin,  basename=info.relpath, environ=environ, class_info=class_info)
+                          pluginId=info.plugin,  basename=info.relpath, environ=environ, class_info=class_info,
+                          _avoid_module_cache=_avoid_module_cache)
         return page
 
     def get_page_by_id(self, page_id):
@@ -101,14 +105,14 @@ class ResourceLoader(object):
         return page
 
 
-    def get_page_class(self, basepath=None,relpath=None, pkg=None, plugin=None,request_args=None,request_kwargs=None, page_factory=None):
+    def get_page_class(self, basepath=None,relpath=None, pkg=None, plugin=None,avoid_module_cache=None,request_args=None,request_kwargs=None, page_factory=None):
         """TODO
         
         :param path: TODO
         :param pkg: the :ref:`package <packages>` object"""
 
         module_path = os.path.join(basepath,relpath)
-        page_module = gnrImport(module_path, avoidDup=True,silent=False)
+        page_module = gnrImport(module_path, avoidDup=True,silent=False,avoid_module_cache=avoid_module_cache)
         page_factory = page_factory or getattr(page_module, 'page_factory', GnrWebPage)
         custom_class = getattr(page_module, 'GnrCustomWebPage')
         mainPkg = pkg
@@ -373,10 +377,12 @@ class ResourceLoader(object):
         :param resourceDirs: TODO
         :param \*path: TODO"""
         path = os.path.join(*path)
+        drive, path = os.path.splitdrive(path)
         if ':' in path:
             modName, clsName = path.split(':')
         else:
             modName, clsName = path, '*'
+        modName = '%s%s'%(drive, modName)
         modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
         if modPathList:
             modPathList.reverse()
@@ -393,10 +399,12 @@ class ResourceLoader(object):
         resourceDirs = target_class.resourceDirs
         py_requires = [x for x in splitAndStrip(getattr(source_class, 'py_requires', ''), ',') if x] or []
         for path in py_requires:
+            drive, path = os.path.splitdrive(path)
             if ':' in path:
                 modName, clsName = path.split(':')
             else:
                 modName, clsName = path, '*'
+            modName = '%s%s'%(drive, modName)
             modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
             if modPathList:
                 modPathList.reverse()

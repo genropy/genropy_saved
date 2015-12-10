@@ -420,7 +420,7 @@ genropatches.comboBox = function() {
                 pw.handleKey(evt);
             }
             var evt_keycode = evt.keyCode;
-            if(evt_keycode==dk.UP_ARROW && evt.keyChar=='&'){
+            if((evt_keycode==dk.UP_ARROW && evt.keyChar=='&') || (evt_keycode==dk.DOWN_ARROW && evt.keyChar=='(')){
                 evt_keycode = 0; //L.A. fix for evt.keyChar=='&'
             }
             switch(evt_keycode){
@@ -545,6 +545,7 @@ genropatches.comboBox = function() {
                 setTimeout(dojo.hitch(this, "_startSearchFromInput"),1);
             }
         }
+        dijit.form.ComboBox.prototype._onKeyPress = dijit.form.ComboBoxMixin.prototype._onKeyPress;
 };
 genropatches.borderContainer = function() {
     dojo.require("dijit.layout.BorderContainer");

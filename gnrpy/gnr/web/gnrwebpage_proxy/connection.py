@@ -21,7 +21,7 @@ USER_AGENT_SNIFF = (('Chrome', 'Chrome'),
                     ('Firefox', 'Firefox'),
                     ('Opera', 'Opera'),
                     ('MSIE', 'InternetExplorer'))
-DEVICE_AGENT_SNIFF = (('iPad','mobile'),('iPhone','mobile'),('Android','mobile'),('WindowsPhone','mobile'))
+DEVICE_AGENT_SNIFF = (('iPad','mobile:tablet'),('iPhone','mobile:phone'),('Android','mobile:phone'),('WindowsPhone','mobile:phone'))
 
 class GnrWebConnection(GnrBaseProxy):
     def init(self, connection_id=None, user=None, **kwargs):
@@ -135,7 +135,7 @@ class GnrWebConnection(GnrBaseProxy):
         for k, v in DEVICE_AGENT_SNIFF:
             if k in  user_agent:
                 return v
-        return 'pc'
+        return 'pc:desktop'
 
     def _get_locale(self):
         if self.cookie:

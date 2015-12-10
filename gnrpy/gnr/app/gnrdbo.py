@@ -9,6 +9,7 @@ from gnr.core.gnrlang import boolean
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip,templateReplace,fromJson,slugify
 from gnr.core.gnrdecorator import public_method,extract_kwargs
+from gnr.core.gnrdict import dictExtract
 
 class GnrDboPackage(object):
     """Base class for packages"""
@@ -129,16 +130,16 @@ class GnrDboPackage(object):
 
          
     @public_method
-    def loadStartupData(self,basepath=None):
+    def loadStartupData(self,basepath=None,empty_before=None):
         btc = self.db.currentPage.btc if self.db.currentPage else None
         if btc:
             btc.batch_create(title='%s Importer' %self.name,cancellable=True,delay=.5)
-        self._loadStartupData_do(basepath=basepath,btc=btc)
+        self._loadStartupData_do(basepath=basepath,btc=btc,empty_before=empty_before)
         if btc:
             btc.batch_complete(result='ok', result_attr=dict())
 
 
-    def _loadStartupData_do(self,basepath=None,btc=None):
+    def _loadStartupData_do(self,basepath=None,btc=None,empty_before=True):
         bagpath = basepath or os.path.join(self.db.application.packages[self.name].packageFolder,'startup_data')
         if not os.path.isfile('%s.pik' %bagpath):
             import gzip
@@ -150,8 +151,9 @@ class GnrDboPackage(object):
         tables = s['tables']
         rev_tables =  list(tables)
         rev_tables.reverse()
-        for t in rev_tables:
-            db.table('%s.%s' %(self.name,t)).empty()
+        if empty_before:
+            for t in rev_tables:
+                db.table('%s.%s' %(self.name,t)).empty()
         all_pref = self.db.table('adm.preference').loadPreference()
         all_pref[self.name] = s['preferences']
         self.db.table('adm.preference').savePreference(all_pref)
@@ -159,10 +161,26 @@ class GnrDboPackage(object):
         tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
         for tablename in tables:
             tblobj = db.table('%s.%s' %(self.name,tablename))
+            currentRecords = tblobj.query().fetchAsDict('pkey')
             records = s[tablename]
-            records = records or []
-            if records:
-                tblobj.insertMany(records)
+            if not records:
+                continue
+            recordsToInsert = []
+            pkeyField = tblobj.pkey
+            hasSysCode = tblobj.column('__syscode') is not None
+            if hasSysCode:
+                currentSysCodes = [r['__syscode'] for r in currentRecords.values() if r['__syscode']]
+                if len(currentSysCodes) == len(currentRecords):
+                    tblobj.empty()
+                currentSysCodes = []
+            for r in records:
+                if r[pkeyField] in currentRecords:
+                    continue
+                if hasSysCode and r['__syscode'] in currentSysCodes:
+                    continue
+                recordsToInsert.append(r)
+            if recordsToInsert:
+                tblobj.insertMany(recordsToInsert)
                 db.commit()
         os.remove('%s.pik' %bagpath)
 
@@ -361,6 +379,12 @@ class TableBase(object):
                                    ELSE NOT (',' || :env_userTags || ',' LIKE '%%,'|| :systag || ',%%')
                                    END ) """,
                                 dtype='B',var_systag=tbl.attributes.get('syscodeTag') or 'superadmin',_sysfield=True)
+        partitionParameters = dictExtract(tbl.attributes,'partition_')
+        if partitionParameters:
+            partition_field = partitionParameters.keys()[0]
+            partition_kw = dict(field=partition_field,path=partitionParameters[partition_field])
+            tbl.formulaColumn('__match_partition',""" CASE WHEN :env_current_%(path)s IS NULL THEN ( $%(field)s IN :env_allowed_%(path)s ) ELSE $%(field)s =:env_current_%(path)s END""" %partition_kw,
+                                dtype='B',group=group,_sysfield=True)
 
     def sysFields_protectionTag(self,tbl,protectionTag=None,group=None):
         tbl.column('__protection_tag', name_long='!!Protection tag', group=group,_sysfield=True,_sendback=True,onInserting='setProtectionTag')
@@ -433,9 +457,67 @@ class TableBase(object):
                             resolved=False,**kwargs):
         condition_kwargs = condition_kwargs or dict()
         related_kwargs = related_kwargs or dict()
-        return self.hierarchicalHandler.getHierarchicalData(caption_field=caption_field,condition=condition,
+        if hasattr(self,'hierarchicalHandler'):
+            return self.hierarchicalHandler.getHierarchicalData(caption_field=caption_field,condition=condition,
                                                 condition_kwargs=condition_kwargs,caption=caption,dbstore=dbstore,columns=columns,
                                                 related_kwargs=related_kwargs,resolved=resolved,**kwargs)
+        if related_kwargs['table']:
+            return self.getHierarchicalDataBag(caption_field=caption_field,condition=condition,
+                                                condition_kwargs=condition_kwargs,caption=caption,dbstore=dbstore,columns=columns,
+                                                related_kwargs=related_kwargs,resolved=resolved,**kwargs)
+
+
+    @extract_kwargs(condition=True,related=True)
+    def getHierarchicalDataBag(self,caption_field=None,condition=None,
+                            condition_kwargs=None,caption=None,
+                            dbstore=None,columns=None,related_kwargs=None,
+                            resolved=False,**kwargs):
+        b = Bag()
+        caption = caption or self.name_plural
+        condition_kwargs = condition_kwargs or dict()
+        condition_kwargs.update(dictExtract(kwargs,'condition_'))
+        caption_field = caption_field or self.attributes.get('caption_field') or self.pkey
+        f = self.query(where=condition,columns='*,$%s' %caption_field,**condition_kwargs).fetch()
+        related_tblobj = self.db.table(related_kwargs['table'])
+        related_caption_field = related_kwargs.get('caption_field') or related_tblobj.attributes.get('caption_field')
+        for r in f:
+            pkey = r['pkey']
+            value = Bag()
+            relchidren = self._hdata_getRelatedChildren(fkey=pkey,related_tblobj=related_tblobj,
+                                                              related_caption_field=related_caption_field,
+                                                              related_kwargs = related_kwargs)
+            for related_row in relchidren:
+                related_row = dict(related_row)
+                relpkey = related_row.pop('pkey',None)
+                value.setItem(relpkey, None,
+                                child_count=0,
+                                caption=related_row[related_caption_field],
+                                pkey=relpkey, treeIdentifier='%s_%s'%(pkey, relpkey),
+                                node_class='tree_related',**related_row)    
+            b.setItem(pkey.replace('.','_'),value,
+                        pkey=pkey or '_all_',
+                        caption=r[caption_field],child_count=len(value),
+                        treeIdentifier = pkey,
+                        parent_id=None,
+                        hierarchical_pkey=pkey,
+                       _record=dict(r))
+        result = Bag()
+        result.setItem('root',b,caption=caption,child_count=1,pkey='',treeIdentifier='_root_')
+        return result
+
+    def _hdata_getRelatedChildren(self,fkey=None,related_tblobj=None,related_caption_field=None,related_kwargs=None):
+        related_kwargs = dict(related_kwargs)
+        columns = related_kwargs.get('columns') or '*,$%s' %related_caption_field
+        relation_path = related_kwargs['path']
+        condition = related_kwargs.get('condition')
+        condition_kwargs = dictExtract(related_kwargs,'condition_')
+        wherelist = [' ($%s=:fkey) ' % relation_path]
+        if condition:
+            wherelist.append(condition)
+        result = related_tblobj.query(where=' AND '.join(wherelist),columns=columns,
+                                        fkey=fkey,**condition_kwargs).fetch()
+        return result
+
 
     def createSysRecords(self):
         for m in dir(self):
@@ -468,9 +550,16 @@ class TableBase(object):
 
     @public_method
     def getHierarchicalPathsFromPkeys(self,pkeys=None,related_kwargs=None,parent_id=None,dbstore=None,**kwargs):
-        return self.hierarchicalHandler.getHierarchicalPathsFromPkeys(pkeys=pkeys,
+        if hasattr(self,'hierarchicalHandler'):
+            return self.hierarchicalHandler.getHierarchicalPathsFromPkeys(pkeys=pkeys,
                                                                related_kwargs=related_kwargs,parent_id=parent_id,
                                                               dbstore=dbstore)
+        if related_kwargs['table']:
+            related_tblobj = self.db.table(related_kwargs['table'])
+            p = related_kwargs['path']
+            f = related_tblobj.query(where='$%s IN :pkeys' %related_tblobj.pkey, 
+                                pkeys=pkeys.split(','),columns='$%s' %p).fetch()
+            return ','.join(['%s.%s' %(r[p].replace('.','_'),r['pkey']) for r in f])
 
     def trigger_setRowCounter(self,record,fldname,**kwargs):
         """field trigger used for manage rowCounter field"""

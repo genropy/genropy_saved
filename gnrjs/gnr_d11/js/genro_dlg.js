@@ -434,6 +434,11 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             kwbox['remote'] = remote;
             objectUpdate(kwbox,objectExtract(kw,'remote_*',false,true));
             kwbox['remote_valuepath'] = '.promptvalue';
+            kwbox['remote_onResult'] = function(){
+                setTimeout(function(){
+                    dlg.getParentNode().widget.adjustDialogSize()
+                },1);
+            };
             dlg.center._('div',kwbox);
         }else if(typeof(wdg)=='function'){
             kwbox['datapath'] = '.promptvalue'
@@ -561,6 +566,13 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             pageKw['subtab'] = true;
             genro.mainGenroWindow.genro.publish('selectIframePage',pageKw);
         }
+        else if(mode=='window' && genro.root_page_id){
+            var pageKw = {};
+            zoomAttr['main_call'] = 'main_form';
+            pageKw['file'] = this._prepareThIframeUrl(zoomAttr);
+            pageKw['label'] = zoomAttr.title;
+            genro.mainGenroWindow.genro.publish('newBrowserWindowPage',pageKw);
+        }
     },
     
     iframePalette:function(kw){
@@ -617,6 +629,12 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             pageKw['label'] = zoomAttr.title;
             pageKw['subtab'] = true;
             genro.mainGenroWindow.genro.publish('selectIframePage',pageKw);
+        }
+        else if(mode=='window' && genro.root_page_id){
+            var pageKw = {};
+            pageKw['file'] = this._prepareThIframeUrl(zoomAttr);
+            pageKw['label'] = zoomAttr.title;
+            genro.mainGenroWindow.genro.publish('newBrowserWindowPage',pageKw);
         }
     },
 
@@ -697,18 +715,18 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                                                           fixedPosition:true
                                                          // palette_transition:'all .7s'
                                                           };
-            var paletteKwargs = objectExtract(kw,'palette_*');
+            var paletteKwargs = objectExtract(kw,'palette_*',false,true);
             objectUpdate(paletteAttr,paletteKwargs);
             var palette = node._('palettePane',paletteCode,paletteAttr);
             var onSavedCb = objectPop(kw,'onSavedCb');
             var iframeNode = palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0,onStarted:function(){
-                var palette_height = '300px';
-                var palette_width =  '500px';
+                var palette_height = paletteAttr.palette_height || '300px';
+                var palette_width =  paletteAttr.palette_width || '500px';
                 var paletteNode = palette.getParentNode();
                 var wdg = paletteNode.getWidget();
                 if(this._genro._rootForm){
-                    palette_height = this._genro.getData('gnr.rootform.size.height') || palette_height;
-                    palette_width = this._genro.getData('gnr.rootform.size.width') || palette_width;
+                    palette_height = paletteAttr.palette_height || this._genro.getData('gnr.rootform.size.height') || palette_height;
+                    palette_width = paletteAttr.palette_width || this._genro.getData('gnr.rootform.size.width') || palette_width;
                     if(kw.main_call=='main_form'){
                         this._genro._rootForm.subscribe('onDismissed',function(){if(!dockTo){wdg.close();}else{wdg.hide();}})
                     }
