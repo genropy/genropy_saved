@@ -2002,10 +2002,11 @@ dojo.declare("gnr.GnrValidator", null, {
         if (value) {
             var r = new RegExp("^" + dojox.regexp.emailAddress() + "$", "i");
             if (!r.test(value)) {
-                return false;
+                return {'iswarning':'checkit','errorcode':'Check email format'};
             }
         }
     },
+
     validate_gridnodup: function(param, value, sourceNode) {
         var col = ((typeof(param) == 'string') && param) ? param : sourceNode.attr.field;
         if (value && sourceNode.grid) {
