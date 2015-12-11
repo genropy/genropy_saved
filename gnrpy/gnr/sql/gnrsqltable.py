@@ -884,9 +884,11 @@ class SqlTable(GnrObject):
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section"""
         where = where or '$%s=:pkey' % self.pkey
         kwargs.pop('limit', None)
+        kwargs.setdefault('ignoreTableOrderBy',True)
         fetch = self.query(columns=columns, limit=1, where=where,
                            pkey=pkey, addPkeyColumn=False,excludeDraft=False,
-                           ignorePartition=True,excludeLogicalDeleted=False, **kwargs).fetch()
+                           ignorePartition=True,excludeLogicalDeleted=False, 
+                           **kwargs).fetch()
         if not fetch:
             row = [None for x in columns.split(',')]
         else:
