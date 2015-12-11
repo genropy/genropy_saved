@@ -3055,11 +3055,13 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
     },
     creating: function(attributes, sourceNode) {
         attributes._class = attributes._class ? attributes._class + ' numberTextBox' : 'numberTextBox';
+        var format = objectPop(attributes,'format');
         attributes.constraints = objectExtract(attributes, 'min,max,places,pattern,round,currency,fractional,symbol,strict,locale');
+        attributes.constraints.pattern = attributes.constraints.pattern || format;
+        //attributes.editOptions = objectUpdate({})
         if ('ftype' in attributes) {
             attributes.constraints['type'] = objectPop(attributes['ftype']);
         }
-        ;
     },
     onSettingValueInData: function(sourceNode, value,valueAttr) {
         if (value === "") {
@@ -3073,7 +3075,11 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
         }else{
             return this.format_replaced(v,c);
         }
-    }
+    },
+    patch_getValue: function(){
+        return this.parse(this.getDisplayedValue(), {});
+    },
+
 });
 dojo.declare("gnr.widgets.CurrencyTextBox", gnr.widgets.NumberTextBox, {
     constructor: function(application) {

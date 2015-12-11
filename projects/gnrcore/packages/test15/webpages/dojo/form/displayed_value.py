@@ -28,7 +28,7 @@ class GnrCustomWebPage(object):
 
     def test_7_numberTextBox_pattern(self, pane):
         fb=pane.formbuilder(cols=1)
-        fb.numberTextBox(value='^.number_1',pattern='##0.00000',lbl='Constrains pattern')
+        fb.numberTextBox(value='^.number_1',format='#,###.00',lbl='Constrains pattern',strict=False)
         fb.numberTextBox(value='^.number_2',places=2,lbl='Constrains places')
         fb.numberTextBox(value='^.number_3',format_pattern='##0.00000',lbl='Format pattern')
         fb.CurrencyTextBox(value='^.money',lbl='Currency')
