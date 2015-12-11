@@ -715,14 +715,15 @@ class GnrWsgiSite(object):
             self.onServingPage(page)
             try:
                 result = page()
-                if isinstance(result, file):
-                    return self.statics.fileserve(result, environ, start_response,nocache=True)
+               
                 if page.download_name:
                     download_name = unicode(page.download_name)
                     content_type = mimetypes.guess_type(download_name)[0]
                     if content_type:
                         page.response.content_type = content_type
                     page.response.add_header("Content-Disposition", str("attachment; filename=%s" %download_name))
+                if isinstance(result, file):
+                    return self.statics.fileserve(result, environ, start_response,nocache=True,download_name=page.download_name)
             except GnrUnsupportedBrowserException:
                 return self.serve_htmlPage('html_pages/unsupported.html', environ, start_response)
             except GnrMaintenanceException:
