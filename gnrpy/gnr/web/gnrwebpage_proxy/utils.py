@@ -218,7 +218,7 @@ class GnrWebUtils(GnrBaseProxy):
         reader = self.getReader(file_path)
         if import_method:
             handler = getattr(tblobj,'importer_%s' %import_method)
-            handler(reader)
+            return handler(reader)
         elif match_index:
             l = []
             for row in reader():
