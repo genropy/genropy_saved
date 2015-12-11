@@ -1709,7 +1709,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         result = {'lbl': lbl,'field_name_long':fieldobj.name_long, 'dbfield': fieldobj.fullname}
         dtype = result['dtype'] = fieldobj.dtype
         fldattr =  dict(fieldobj.attributes or dict())
-
+        result['format'] = fldattr.pop('format',None)
         if dtype in ('A', 'C'):
             size = fldattr.get('size', '20')
             if ':' in size:
