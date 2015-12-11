@@ -314,7 +314,7 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
         var mainNode = multivalues.getNodeByValue('mv_main',true);
         var m = value.match(/(^\s*\d+[\d\s\.\-\/]+)(\s+)?([A-Za-z]+)?(\s+)?([\w\s]+)?/);
         if (!m){
-             var m = value.match(/(\s*[A-Za-z\d\_\-\.]+@(?:[A-Za-z\d\_\-]+\.)+[A-Za-z]{2,4})(\s+)?([A-Za-z]+)?(\s+)?([\w\s]+)?/);
+             var m = value.match(/(\s*[A-Za-z\d\_\-\.]+@(?:[A-Za-z\d\_\-]+\.)+[A-Za-z]{2,})(\s+)?([A-Za-z]+)?(\s+)?([\w\s]+)?/);
         }
         var label,notes,r;
         if(m){
