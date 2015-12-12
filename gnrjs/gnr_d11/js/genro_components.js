@@ -836,13 +836,15 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         gnrwdg.filename = filename || 'latest';
         gnrwdg.uploadPath = uploadPath || 'conn:'+frameCode;
         kw.height = kw.height || '400px';
-        kw.width = kw.width || '600px';
+        kw.width = kw.width || '650px';
+        gnrwdg.importButtonKw = objectExtract(kw,'importButton_*');
+        gnrwdg.importMethod = objectPop(kw,'rpcmethod');
         var palette = sourceNode._('PalettePane',kw);
         var bc = palette._('BorderContainer',{_lazyBuild:true})
-        var left = bc._('BorderContainer',{region:'left',drawer:'close',width:'300px'});
-        gnrwdg.matchGrid(left)
-        var frame = bc._('FramePane',{frameCode:frameCode,region:'center'});
-        var bar = frame._('SlotBar',{'side':'top',slots:'2,prevtitle,*,limit,2',searchOn:true,toolbar:true});
+        gnrwdg.matchGrid(bc)
+        var frame = bc._('FramePane',{frameCode:frameCode,region:'center',
+                                     _class:'pbl_roundedGroup',margin:'2px'});
+        var bar = frame._('SlotBar',{'side':'top',slots:'2,prevtitle,*,limit,5',searchOn:true,_class:'pbl_roundedGroupLabel'});
         bar._('div','prevtitle',{innerHTML:"==_current_title || 'Import xls or cvs'",_current_title:'^.current_title',color:'#666'});
         var limitbox = bar._('div','limit')
         limitbox._('div',{'innerHTML':'Limit',display:'inline-block',position:'relative',top:'-2px',_class:'gnrfieldlabel'})
@@ -888,10 +890,11 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
     gnrwdg_matchGrid:function(bc){
         var gnrwdg = this;
         var frame = bc._('FramePane',{frameCode:this.uploaderId+'_matchframe',
-                                        region:'center',_class:'pbl_roundedGroup',margin:'2px'})
+                                        region:'left',_class:'pbl_roundedGroup',margin:'2px',
+                                        drawer:'close',width:'320px',splitter:true})
         bar = frame._('slotBar',{slots:'2,matchtitle,*',side:'top',_class:'pbl_roundedGroupLabel'});
         bar._('div','matchtitle',{innerHTML:'Match columns'});
-        bar = frame._('slotBar',{slots:'2,fbbottom,*,doimport,10',side:'bottom',_class:'slotbar_dialog_footer'});
+        bar = frame._('slotBar',{slots:'2,fbbottom,*,applybutton,10',side:'bottom',_class:'slotbar_dialog_footer'});
 
         var fb = genro.dev.formbuilder(bar._('div','fbbottom'),2,{border_spacing:'1px'});
         fb.addField('filteringSelect',{value:'^.import_method',width:'7em',
@@ -902,23 +905,33 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
                                         lbl_hidden:'^.methodlist?=!#v',
                                         hidden:'^.methodlist?=!#v',
                                         parentForm:false});
-        fb.addField('checkbox',{value:'^.no_trigger',default_value:true,
-                                label:_T('No trigger'),parentForm:false});
+        if (this.table){
+            fb.addField('checkbox',{value:'^.no_trigger',default_value:true,
+                                label:_T('No trigger'),parentForm:false});   
+        }
+        var importButtonKw = objectUpdate({label:'Import',action:function(){
+                                        gnrwdg.importDo(this);
+                                    }},this.importButtonKw)
+        bar._('button','applybutton',importButtonKw);
+        
 
-        bar._('button','doimport',{label:'Import',action:function(){gnrwdg.importDo(this);}});
-
-        var grid = frame._('ContentPane',{'side':'center',overflow:'hidden'})._('quickGrid',{value:'^.match',_class:'noheader noselect'});
+        var grid = frame._('ContentPane',{'side':'center',overflow:'hidden'})._('quickGrid',{value:'^.match',_class:'noselect'});
         grid.getParentNode().importer_gnrwdg = this;
         var onclick = "this.getParentNode().importer_gnrwdg.onCheckedMatch(this,kw);"
         var editdestpars = true;
         if(this.match_values){
             editdestpars = {tag:'filteringSelect',values:this.match_values};
         }
-        grid._('column',{name:'Source',field:'source_field',width:'15em',
+        grid._('column',{name:'Source Column',field:'source_field',width:'10em',
                 cellStyles:'background:#666;color:whitesmoke;text-align:right; border-left:0px;border-bottom:1px solid whitesmoke;'})
-        grid._('column',{name:'Destination',field:'dest_field',cellStyles:'border-bottom:1px solid lightgray;background:white;',edit:editdestpars,width:'100%'})
-        grid._('column',{name:'do_import',field:'do_import',width:'2em',dtype:'B',
+        grid._('column',{name:'Dest.Column',field:'dest_field',cellStyles:'border-bottom:1px solid lightgray;background:white;',edit:editdestpars,width:'10em'})
+        if(!this.table){
+            grid._('column',{name:'Type',field:'dtype',cellStyles:'border-bottom:1px solid lightgray;background:white;',
+                        edit:{values:'T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image',tag:'filteringSelect'},width:'7em'})
+        }
+        grid._('column',{name:' ',field:'do_import',width:'2em',dtype:'B',
                         format_onclick:onclick,cellStyles:'border-bottom:1px solid lightgray;background:white;'})
+    
     },
 
     gnrwdg_onImportCheck:function(data){
@@ -960,7 +973,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
                 }
             })
         }
-        genro.serverCall('utils.tableImporterRun',{table:this.table,file_path:'=.imported_file_path',
+        genro.serverCall(this.importMethod || 'utils.tableImporterRun',{table:this.table,file_path:'=.imported_file_path',
                                                     match_index:match_index,
                                                     import_method:'=.import_method',
                                                     no_trigger:'=.no_trigger',

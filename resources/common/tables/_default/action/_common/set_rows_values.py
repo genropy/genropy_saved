@@ -1,0 +1,37 @@
+# -*- coding: UTF-8 -*-
+
+# test_special_action.py
+# Created by Francesco Porcari on 2010-07-02.
+# Copyright (c) 2011 Softwell. All rights reserved.
+
+from gnr.web.batch.btcaction import BaseResourceAction
+
+caption = '!!Set rows values'
+tags = '_DEV_'
+description = '!!Set rows values'
+
+class Main(BaseResourceAction):
+    batch_prefix = 'srv'
+    batch_title = 'Set rows value'
+    batch_cancellable = False
+    batch_delay = 0.5
+    batch_immediate = True
+    
+    def do(self):
+        values = self.batch_parameters.get('values')
+        updater = dict()
+        for k,v in values.items():
+            if v is not None:
+                updater[k] = v
+        self.batchUpdate(updater)
+        self.db.commit()
+
+    def table_script_parameters_pane(self, pane, table=None,**kwargs):
+        tblobj = self.db.table(table)
+        fb = pane.div(padding='10px').formbuilder(cols=1,border_spacing='3px',dbtable=table,datapath='.values')
+        for k,v in tblobj.columns.items():
+            attr = v.attributes
+            if not (attr.get('_sysfield') or attr.get('dtype') == 'X'):
+                fb.field(k,validate_notnull=False)
+
+

@@ -359,8 +359,6 @@ class ResourceMaker(object):
             if not os.path.isdir(path):
                 os.mkdir(path)
         
-
-
 class ThPackageResourceMaker(object):
     def __init__(self,application,package=None,tables=None,force=False,menu=False,columns=2,guess_size=False,indent=4):
         self.option_force = force
@@ -379,22 +377,26 @@ class ThPackageResourceMaker(object):
         for table in self.tables:
             self.createResourceFile(table)
         if self.option_menu:
-            with open(os.path.join(self.packageFolder,'menu.py'),'w') as out_file:
-                self.out_file = out_file
-                self.writeHeaders()
-                self.write('def config(root,application=None):')
-                pkgobj =  self.app.db.package(self.package)
-                self.write("%s = root.branch('%s')"%(self.package,(pkgobj.name_long or self.package.capitalize())),indent=1) 
-                hasLookups = False
-                for t in self.tables:
-                    tblobj = self.app.db.table('%s.%s' %(self.package,t))
-                    if tblobj.attributes.get('lookup'):
-                        hasLookups = True
-                    else:
-                        self.write("%s.thpage('%s',table='%s')" %(self.package,(tblobj.name_plural or tblobj.name_long or table.capitalize()),
-                                tblobj.fullname),indent=1)
-                if hasLookups:
-                    self.write("%s.lookups('Lookup tables',lookup_manager='%s')" %(self.package,self.package),indent=1)
+            self.makeMenu()
+
+    def makeMenu(self):
+        with open(os.path.join(self.packageFolder,'menu.py'),'w') as out_file:
+            self.out_file = out_file
+            self.writeHeaders()
+            self.write('def config(root,application=None):')
+            pkgobj =  self.app.db.package(self.package)
+            self.write("%s = root.branch('%s')"%(self.package,(pkgobj.name_long or self.package.capitalize())),indent=1) 
+            hasLookups = False
+            for t in self.tables:
+                tblobj = self.app.db.table('%s.%s' %(self.package,t))
+                if tblobj.attributes.get('lookup'):
+                    hasLookups = True
+                else:
+                    self.write("%s.thpage('%s',table='%s')" %(self.package,(tblobj.name_plural or tblobj.name_long or tblobj.name.capitalize()),
+                            tblobj.fullname),indent=1)
+            if hasLookups:
+                self.write("%s.lookups('Lookup tables',lookup_manager='%s')" %(self.package,self.package),indent=1)
+
 
     def write(self,line=None, indent=0):
         line = line or ''

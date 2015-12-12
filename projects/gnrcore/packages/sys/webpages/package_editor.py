@@ -132,6 +132,7 @@ class GnrCustomWebPage(object):
                         tables='=.record.tables',
                         hidden='==!package || !project || !instance')
         bar.dbsetup.slotButton('DbSetup',fire_dbsetup='#FORM.instanceAction',disabled='^.record.instance_name?=!#v')
+        
         bar.dataRpc('dummy',self.actionOnInstance,
                             instance='=.record.instance_name',
                             package='=.record.package_name',_if='instance',
@@ -158,8 +159,10 @@ class GnrCustomWebPage(object):
     @public_method
     def actionOnInstance(self,instance=None,action=None,package=None,selectedTables=None,**kwargs):
         app = GnrApp(instance) #it does not work in uwsgi fix it
+        if action=='make_menu':
+            ThPackageResourceMaker(app,package=package,tables=selectedTables).makeMenu()
         if action.startswith('make_resources'):
-            ThPackageResourceMaker(app,package=package,menu=True,tables=selectedTables,
+            ThPackageResourceMaker(app,package=package,tables=selectedTables,
                                     force=action=='make_resources_force').makeResources()
         if action in ('dbsetup','import_legacy'):
             destdb = app.db

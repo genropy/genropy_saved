@@ -26,9 +26,7 @@ class Main(BaseResourceAction):
             wrapper = self.btc.thermo_wrapper
             wrapper_kw = dict(line_code='touch',message = 'Record',tblobj=tblobj)
 
-        tblobj.touchRecords(_pkeys=pkeys,_wrapper=wrapper,_wrapperKwargs=wrapper_kw,
-                            method=self.batch_parameters.get('touchmethod'),
-                            bagFields=self.batch_parameters.get('bagFields'))
+        tblobj.batchUpdate(_pkeys=pkeys,_wrapper=wrapper,_wrapperKwargs=wrapper_kw)
         self.db.commit()
 
     def table_script_parameters_pane(self, pane, table=None,**kwargs):
@@ -40,3 +38,5 @@ class Main(BaseResourceAction):
         handlers = ['%s:%s' %(k, getattr(tblobj,k).__doc__ or k[6:]) for k in dir(tblobj) if k.startswith('touch_')]
         if handlers:
             fb.filteringSelect(value='^.touchmethod',values=','.join(handlers),lbl='Method')
+
+
