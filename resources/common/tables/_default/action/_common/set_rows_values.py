@@ -23,7 +23,7 @@ class Main(BaseResourceAction):
         for k,v in values.items():
             if v is not None:
                 updater[k] = v
-        self.batchUpdate(updater)
+        self.batchUpdate(updater,_raw_update=True,message='setting_values')
         self.db.commit()
 
     def table_script_parameters_pane(self, pane, table=None,**kwargs):

@@ -522,19 +522,14 @@ class SqlQueryCompiler(object):
         # translate @relname.fldname in $_relname_fldname and add them to the relationDict
         if where:
             where = PERIODFINDER.sub(self.expandPeriod, where)
-            
         currentEnv = self.db.currentEnv
         env_conditions = dictExtract(currentEnv,'env_%s_condition_' %self.tblobj.fullname.replace('.','_'))
+        wherelist = [where]
         if env_conditions:
-            wherelist = [where] if where else []
             for condition in env_conditions.values():
                 wherelist.append('( %s )' %condition)
-            where = ' AND '.join(wherelist)
-        partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
-        if not ignorePartition and partition_kwargs:
-            wherelist = [where] if where else []
-            wherelist.append('( $__match_partition IS TRUE ) ')
-            where = ' AND '.join(wherelist)
+        wherelist.append(self.tblobj.dbtable.getPartitionCondition(ignorePartition=ignorePartition))
+        where = ' AND '.join([w for w in wherelist if w])
         columns = self.updateFieldDict(columns)
         where = self.updateFieldDict(where or '')
         order_by = self.updateFieldDict(order_by or '')

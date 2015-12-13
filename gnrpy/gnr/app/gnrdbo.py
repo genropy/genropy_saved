@@ -379,12 +379,8 @@ class TableBase(object):
                                    ELSE NOT (',' || :env_userTags || ',' LIKE '%%,'|| :systag || ',%%')
                                    END ) """,
                                 dtype='B',var_systag=tbl.attributes.get('syscodeTag') or 'superadmin',_sysfield=True)
-        partitionParameters = dictExtract(tbl.attributes,'partition_')
-        if partitionParameters:
-            partition_field = partitionParameters.keys()[0]
-            partition_kw = dict(field=partition_field,path=partitionParameters[partition_field])
-            tbl.formulaColumn('__match_partition',""" CASE WHEN :env_current_%(path)s IS NULL THEN ( $%(field)s IN :env_allowed_%(path)s ) ELSE $%(field)s =:env_current_%(path)s END""" %partition_kw,
-                                dtype='B',group=group,_sysfield=True)
+ 
+            
 
     def sysFields_protectionTag(self,tbl,protectionTag=None,group=None):
         tbl.column('__protection_tag', name_long='!!Protection tag', group=group,_sysfield=True,_sendback=True,onInserting='setProtectionTag')

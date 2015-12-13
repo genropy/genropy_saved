@@ -263,6 +263,16 @@ class SqlTable(GnrObject):
         :param name: TODO"""
         return self.model.fullRelationPath(name)
 
+    def getPartitionCondition(self,ignorePartition=None):
+        if ignorePartition:
+            return
+        partitionParameters = self.partitionParameters
+        if partitionParameters:
+            return """ ( CASE WHEN :env_current_%(path)s IS NULL 
+                              THEN ( $%(field)s IN :env_allowed_%(path)s ) 
+                         ELSE $%(field)s =:env_current_%(path)s 
+                         END )""" %partitionParameters
+
     @property
     def partitionParameters(self):
         kw = dictExtract(self.attributes,'partition_')
@@ -271,7 +281,11 @@ class SqlTable(GnrObject):
         result = dict()
         result['field'] = kw.keys()[0]
         result['path'] = kw[result['field']]
-        result['table'] = self.column(result['field']).relatedColumn().table.fullname
+        col = self.column(result['field'])
+        if col.relatedColumn() is None:
+            result['table'] = self.fullname
+        else:
+            result['table'] = col.relatedColumn().table.fullname
         return result
 
     def getColumnPrintWidth(self, column):
