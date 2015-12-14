@@ -1316,7 +1316,7 @@ class SqlTable(GnrObject):
             lastid = self.query(columns='max($%s)' % pkey, group_by='*').fetch()[0]
             return (lastid[0] or 0) + 1
         elif self.attributes.get('pkey_columns'):
-            return '_'.join([record.get(col) for col in self.attributes.get('pkey_columns').split(',') if record.get(col) is not None])
+            return '_'.join([str(record.get(col)) for col in self.attributes.get('pkey_columns').split(',') if record.get(col) is not None])
         else:
             return getUuid()
             
