@@ -66,7 +66,6 @@ class FrameIndex(BaseComponent):
                                 d.setItem('workdate','');
                             }
                             var str = dataTemplate(tpl,d);
-                            
                             SET gnr.windowTitle = str;
                             """,
                             data='^gnr.rootenv',
@@ -193,8 +192,8 @@ class FrameIndex(BaseComponent):
             msg="!!Connected to:",dbremote=(self.site.remote_db or False),_if='dbremote',
                         tpl="<div class='remote_db_msg'>$msg $dbremote</div>",_onStart=True)
         box = sb.preferences.div(_class='iframeroot_pref')
-        appPref = box.div(innerHTML='==_owner_name || "Preferences";',_owner_name='^gnr.app_preference.adm.instance_data.owner_name',_class='iframeroot_appname',
-                                connect_onclick='PUBLISH app_preference')
+        appPref = box.div(innerHTML='==_owner_name?dataTemplate(_owner_name,envbag):"Preferences";',_owner_name='^gnr.app_preference.adm.instance_data.owner_name',_class='iframeroot_appname',
+                                connect_onclick='PUBLISH app_preference',envbag='=gnr.rootenv')
         userPref = box.div(self.user if not self.isGuest else 'guest', _class='iframeroot_username',tip='!!%s preference' % (self.user if not self.isGuest else 'guest'),
                                connect_onclick='PUBLISH user_preference')
         sb.logout.div(connect_onclick="genro.logout()",_class='iconbox icnBaseUserLogout',tip='!!Logout')

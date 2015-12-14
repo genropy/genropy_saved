@@ -669,7 +669,6 @@ class GnrWebPage(GnrBaseWebPage):
             self.avatar = avatar
             #self.connection.change_user(user=avatar.user,user_id=avatar.user_id,user_name=avatar.user_name,
             #                            user_tags=avatar.user_tags)
-          
             err = self.onAuthenticating(avatar,rootenv=rootenv)
             if err:
                 login['error'] = err

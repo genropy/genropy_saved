@@ -156,6 +156,8 @@ class LoginComponent(BaseComponent):
     @public_method
     def login_doLogin(self, rootenv=None,login=None,guestName=None, **kwargs):
         self.doLogin(login=login,guestName=guestName,rootenv=rootenv,**kwargs)
+        if login['error']:
+            return dict(error=login['error'])
         rootenv['user'] = self.avatar.user
         rootenv['user_id'] = self.avatar.user_id
         rootenv['workdate'] = rootenv['workdate'] or self.workdate

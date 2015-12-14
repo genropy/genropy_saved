@@ -72,10 +72,10 @@ class Form(BaseComponent):
                     _lockScreen=True,_onResult='this.form.reload();')
 
 
-    @public_method
-    def th_onLoading(self,record, newrecord, loadingParameters, recInfo):
-        record['errors.duplicates'] = self.db.table('adm.counter').getDuplicates(table='%(pkg)s.%(tbl)s' %record,
-            field=record['fld'],code=record['code'])
+   # @public_method
+   # def th_onLoading(self,record, newrecord, loadingParameters, recInfo):
+   #     record['errors.duplicates'] = self.db.table('adm.counter').getDuplicates(table='%(pkg)s.%(tbl)s' %record,
+   #         field=record['fld'],code=record['code'])
 
 
     def holesStruct(self,struct):
