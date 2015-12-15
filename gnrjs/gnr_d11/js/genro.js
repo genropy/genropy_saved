@@ -940,7 +940,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     format: function (v, f, m) {
         if( f.dtype=='P'){
-            return genro.formatter.asText(v,{dtype:'P',format:f.format.format,mask:f.mask});
+            return genro.formatter.asText(v,f);
         }
         if (v instanceof Date) {
             var opt = objectUpdate({}, f);

@@ -116,6 +116,8 @@ class TableHandlerForm(BaseComponent):
             form.data('gnr.rootform.size',Bag(height=options.pop('dialog_height','500px'),width=options.pop('dialog_width','600px')))
         if 'lazyBuild' in options:
             form.attributes['_lazyBuild'] = options.pop('lazyBuild')
+        if 'excludeCols' in options:
+            form.attributes['excludeCols'] = options.pop('excludeCols')
         showtoolbar = boolean(options.pop('showtoolbar',True))
         navigation = options.pop('navigation',None)
         hierarchical = options.pop('hierarchical',None)   

@@ -742,14 +742,21 @@ class GnrDomSrc(GnrStructData):
         tbl = self.child('table', _class='%s %s' % (tblclass, _class), **kwargs).child('tbody')
         dbtable = table or kwargs.get('dbtable') or self.getInheritedAttributes().get('table') or self.page.maintable
         formNode = self.parentNode.attributeOwnerNode('formId') if self.parentNode else None
+        excludeCols = kwargs.pop('excludeCols',None)
         if formNode:
             if not hasattr(formNode,'_mainformbuilder'):
                 formNode._mainformbuilder = tbl
+            if formNode.attr.get('excludeCols'):
+                excludeCols = formNode.attr.pop('excludeCols')
         tbl.fbuilder = GnrFormBuilder(tbl, cols=int(cols), dbtable=dbtable,
                                       lblclass=lblclass, lblpos=lblpos, lblalign=lblalign, fldalign=fldalign,
                                       fieldclass=fieldclass,
-                                      lblvalign=lblvalign, fldvalign=fldvalign, rowdatapath=rowdatapath,
-                                      head_rows=head_rows, commonKwargs=commonKwargs)
+                                      lblvalign=lblvalign, fldvalign=fldvalign,
+                                      rowdatapath=rowdatapath,
+                                      head_rows=head_rows, 
+                                      excludeCols=excludeCols,
+                                      commonKwargs=commonKwargs)
+        
         inattr = self.getInheritedAttributes()
         if hasattr(self.page,'_legacy'):
             tbl.childrenDisabled = disabled
@@ -1828,7 +1835,8 @@ class GnrFormBuilder(object):
     """The class that handles the creation of the :ref:`formbuilder` widget"""
     def __init__(self, tbl, cols=None, dbtable=None, fieldclass=None,
                  lblclass='gnrfieldlabel', lblpos='L', lblalign=None, fldalign=None,
-                 lblvalign='top', fldvalign='top', rowdatapath=None, head_rows=None, commonKwargs=None):
+                 lblvalign='top', fldvalign='top', rowdatapath=None, head_rows=None,
+                 excludeCols=None, commonKwargs=None):
         self.commonKwargs = commonKwargs or {}
         self.lblalign = lblalign or {'L': 'right', 'T': 'left'}[lblpos] # jbe?  why is this right and not left?
         self.fldalign = fldalign or {'L': 'left', 'T': 'center'}[lblpos]
@@ -1851,6 +1859,7 @@ class GnrFormBuilder(object):
         self.rowdatapath = rowdatapath
         self.head_rows = head_rows or 0
         self.field_list = []
+        self.excludeCols = excludeCols.split(',') if excludeCols else []
         
     def br(self):
         #self.row=self.row+1
@@ -2022,6 +2031,7 @@ class GnrFormBuilder(object):
         lbl = ''
         lblvalue = None
         tag = None
+        excludeCols = self.excludeCols
         rowspan, colspan = 1, 1
         lblalign, fldalign = self.lblalign, self.fldalign
         lblvalign, fldvalign = self.lblvalign, self.fldvalign
@@ -2032,6 +2042,9 @@ class GnrFormBuilder(object):
             f.update(field)
             field = f
             lbl = field.pop('lbl', '')
+            dbfield = field.get('dbfield')
+            if dbfield and excludeCols and dbfield.split('.')[-1] in excludeCols:
+                field.setdefault('hidden',True)
             if 'hidden' in field and not 'lbl_hidden' in field:
                 field['lbl_hidden'] = field['hidden']
             if not '_valuelabel' in field and not lbl.startswith('=='):  #BECAUSE IT CANNOT CALCULATE ON THE FIELD SOURCENODE SCOPE
