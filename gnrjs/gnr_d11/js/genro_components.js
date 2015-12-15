@@ -1412,7 +1412,7 @@ dojo.declare("gnr.widgets.DownloadButton", gnr.widgets.gnrwdg, {
         kw._rpcpars = objectUpdate({},objectExtract(kw,'rpc_*'));
         kw.action = "var pars = this.evaluateOnNode(_rpcpars); var method = objectPop(pars,'method'); genro.rpcDownload(method,pars)";
         var wdg = objectPop(kw,'wdg') || 'Button';
-        return sourceNode._(tag,kw);
+        return sourceNode._(wdg,kw);
     }
 
 });
