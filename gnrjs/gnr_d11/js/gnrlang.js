@@ -921,7 +921,7 @@ var gnrformatter = {
         }
         objectUpdate(formatKw,objectExtract(formatKw,'format_*'));
         var handler = this['format_'+dtype];
-        var mask = valueAttr.mask;
+        var mask = formatKw.mask;
         if(handler){
             formattedValue = handler.call(this,value,format,formatKw);
         }else{
