@@ -36,6 +36,7 @@ class TableHandlerCommon(BaseComponent):
         condition_kwargs['_if'] = 'fkey && fkey!="*newrecord*" && fkey!="*norecord*"'
         relcondition,table,fkeyfield = self._th_relationExpand_one(tblrel,relation_attr,condition=condition,original_kwargs=original_kwargs,condition_kwargs=condition_kwargs,default_kwargs=default_kwargs)
         _foreignKeyFormPath = original_kwargs.get('_foreignKeyFormPath','=#FORM/parent/#FORM')
+        
         if tblrel.pkey!=relationKey:
             #relation is not on primary key
             default_kwargs[fkeyfield] = '%s.record.%s' %(_foreignKeyFormPath, relationKey)
@@ -50,7 +51,7 @@ class TableHandlerCommon(BaseComponent):
             altcond,table,altfkey = self._th_relationExpand_one(tblrel,alt_relation_attr,condition=condition,condition_kwargs=condition_kwargs,suffix=suffix)
             relcondition = '%s OR %s' %(relcondition,altcond)
         condition = relcondition if not condition else '(%s) AND (%s)' %(relcondition,condition)  
-        return table,condition 
+        return table,condition,fkeyfield
 
     def _th_relationExpand_one(self,tblrel,relation_attr,suffix=None,condition=None,original_kwargs=None,condition_kwargs=None,default_kwargs=None):
         many = relation_attr['many_relation'].split('.')

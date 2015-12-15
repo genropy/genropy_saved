@@ -51,8 +51,9 @@ class TableHandler(BaseComponent):
                             picker_kwargs=True,
                             dbstore=None,hider_kwargs=None,view_kwargs=None,preview_kwargs=None,parentForm=None,
                             form_kwargs=None,relation_kwargs=None,**kwargs):
+        fkeyfield=None
         if relation:
-            table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
+            table,condition,fkeyfield = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
                                                     relation_kwargs=relation_kwargs,
                                                     default_kwargs=default_kwargs,original_kwargs=kwargs)
@@ -121,7 +122,9 @@ class TableHandler(BaseComponent):
             form_kwargs['readOnly'] = readOnly
             form_kwargs.setdefault('form_add',addrow) 
             form_kwargs.setdefault('form_delete',delrow) 
-            form_kwargs.setdefault('form_archive',archive) 
+            form_kwargs.setdefault('form_archive',archive)
+            if fkeyfield:
+                form_kwargs.setdefault('excludeCols',fkeyfield)
 
         if parentFormSave:
             grid_kwargs['_saveNewRecordOnAdd'] = True
@@ -130,6 +133,9 @@ class TableHandler(BaseComponent):
         preview_kwargs.setdefault('tpl',True)
         rowStatusColumn = self.db.table(table).getProtectionColumn() is not None if rowStatusColumn is None else rowStatusColumn
         grid_kwargs.setdefault('rowStatusColumn',rowStatusColumn)
+        if fkeyfield:
+            grid_kwargs.setdefault('excludeCols',fkeyfield)
+            
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
                                 virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,
                                 top_thpicker_picker_kwargs=picker_kwargs,top_export_parameters=export_kwargs,
@@ -474,7 +480,7 @@ class MultiButtonForm(BaseComponent):
                             emptyPageMessage=None,darkToolbar=False,pendingChangesMessage=None,pendingChangesTitle=None,
                             **kwargs):
         if relation:
-            table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
+            table,condition,fkeyfield = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
                                                     default_kwargs=default_kwargs,original_kwargs=kwargs)
         pane.attributes.update(overflow='hidden')

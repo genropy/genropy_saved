@@ -2203,7 +2203,7 @@ class GnrWebPage(GnrBaseWebPage):
             source(struct)
             if hasattr(struct,'_missing_table'):
                 struct = None
-            return struct
+            return self._hideExcludedCols(struct,gridId)
         if table:
             tblobj = self.db.table(table)
             if source:
@@ -2214,6 +2214,16 @@ class GnrWebPage(GnrBaseWebPage):
             struct = self.newGridStruct(maintable=table)
             rows = struct.view().rows()
             rows.fields(columns)
+        return self._hideExcludedCols(struct, gridId)
+
+    def _hideExcludedCols(self, struct, gridId):
+        gridNode=self.pageSource(gridId)
+        excludeCols= gridNode.getAttr('excludeCols')
+        if struct and excludeCols:
+            excludeCols = excludeCols.split(',')
+            for n in struct['#0.#0']:
+                if n.getAttr('field') in excludeCols:
+                    n.attr['hidden']=True
         return struct
         
     def rpc_getGridStruct(self,struct,table):
