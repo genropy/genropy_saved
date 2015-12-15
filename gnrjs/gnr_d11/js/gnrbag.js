@@ -599,7 +599,7 @@ dojo.declare("gnr.GnrBag", null, {
     /**
      * @id getItem
      */
-    asHtmlTable:function(kw){
+    asHtmlTable:function(kw,mode){
         var kw = kw || {};
         var headers = kw.headers;
         var h ='';
