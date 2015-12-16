@@ -1169,8 +1169,11 @@ class SqlTable(GnrObject):
         :param recordClusterAttr: TODO
         :param debugPath: TODO"""
         def onBagColumns(attributes=None,**kwargs):
-            if attributes and '__old' in attributes:
-                attributes.pop('__old')
+            if attributes:
+                if '__old' in attributes:
+                    attributes.pop('__old')
+                if '_newrecord' in attributes:
+                    attributes.pop('_newrecord')                
         main_changeSet, relatedOne, relatedMany = self._splitRecordCluster(recordCluster, debugPath=debugPath)
         isNew = recordClusterAttr.get('_newrecord')
         toDelete = recordClusterAttr.get('_deleterecord')

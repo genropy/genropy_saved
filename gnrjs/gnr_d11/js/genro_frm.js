@@ -1292,15 +1292,16 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                         if(hasLoadedValue){
                             isRealChange = true;
                             value.walk(function(n){
-                            if('_loadedValue' in n.attr){
-                                var nvalue = n._value;
-                                objectPop(n.attr,'_newrecord');
-                                var loadedValue = objectPop(n.attr,'_loadedValue');
-                                n.attr.__old = asTypedTxt(loadedValue, n.attr.dtype);
-                            }
+                                if('_loadedValue' in n.attr){
+                                    var nvalue = n._value;
+                                    //var _newrecord = objectPop(n.attr,'_newrecord'); it will be removed in the writeRecordCluster
+                                    var loadedValue = objectPop(n.attr,'_loadedValue');
+                                    if(!n.attr._newrecord){
+                                        n.attr.__old = asTypedTxt(loadedValue, n.attr.dtype);
+                                    }
+                                }
                             },'static');
                         }
-                        
                         if(value.len()>0 || !isNewRecord){
                             data.setItem(node.label, value, objectUpdate({'_gnrbag':true}, node.attr));
                             data.__isRealChange = data.__isRealChange || isRealChange;
