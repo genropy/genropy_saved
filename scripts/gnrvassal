@@ -60,7 +60,7 @@ logto = %(logto)s
         self.site_name = site_name
         self.site_handler = getSiteHandler(site_name)
         self.site_path = self.site_handler['site_path']
-        self.error_path = os.path.join(self.site_path,'error.log')
+        self.error_path = os.path.join(self.site_path, 'error.log')
         self.site_template = self.site_handler['site_template']
         self.site_script = self.site_handler['site_script']
         self.gnr_config = getGnrConfig()
@@ -68,7 +68,12 @@ logto = %(logto)s
         self.gnr_path = gnrConfigPath()
         self.gnr_vassal_options = dict()
         self.socket_path = os.path.join(self.gnr_path, 'sockets')
-        self.vassals_path = self.gnr_config['gnr.environment_xml.vassals?path'] or os.path.join(self.gnr_path,'uwsgi','vassals')
+        home_path = os.environ.get('HOME', '')
+        if home_path.startswith('/containers'):
+            default_vassals_path = os.path.join(home_path, 'vassals')
+        else:
+            default_vassals_path = os.path.join(self.gnr_path, 'uwsgi', 'vassals')
+        self.vassals_path = self.gnr_config['gnr.environment_xml.vassals?path'] or default_vassals_path
         #self.vassals_path = os.path.join(self.gnr_path, 'uwsgi', 'vassals')
         self.pidfile_path = os.path.join(self.vassals_path, '%s.pid' % site_name)
         self.vassal_ini_path = os.path.join(self.vassals_path, '%s.ini' % site_name)
