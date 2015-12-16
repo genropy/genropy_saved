@@ -116,15 +116,16 @@ logto = %(logto)s
         pars = dict()
         #sc = self.site_config
         opt = self.options
+        port = int(opt.port or self.default_port)
         if hasattr(opt,'domain'):
             pars['port_or_domain'] = 'domain = %s'%opt.domain
         else:
-            pars['port_or_domain'] = 'http = %i'%int(opt.port or self.default_port)
+            pars['port_or_domain'] = 'http = %i'%port
         pars['wsgi_file'] = self.site_script
         pars['site_name'] = self.site_name
         pars['processes'] = int(opt.processes or self.default_processes)
         pars['threads'] = int(opt.threads or self.default_threads)
-        pars['stats_port'] = int(opt.stats_port or pars['port']+1000)
+        pars['stats_port'] = int(opt.stats_port or port+1000)
         pars['offload_threads'] = int(opt.offload_threads or pars['processes'])
         pars['pidfile_path'] = self.pidfile_path
         pars['logto'] = self.error_path
