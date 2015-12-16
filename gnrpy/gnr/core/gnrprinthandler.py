@@ -206,8 +206,8 @@ class PrintHandler(object):
             destPath = os.path.join(destPath, '%s.pdf' % baseName)
         args.append(srcPath)
         args.append(destPath)
-        import shutil
-        shutil.copy(srcPath, '/Users/ale/last.html')
+        #import shutil
+        #shutil.copy(srcPath, '/Users/ale/last.html')
         result = call(args)
 
        #if sys.platform.startswith('linux'):
