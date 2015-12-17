@@ -78,7 +78,11 @@ class GnrCustomWebPage(object):
                             table='glbl.localita',storepath='.gridstore',
                             grid_remoteRowController=self.test_remoteRowController,
                             default_descrizione='riga acquisto',
-                            grid_remoteRowController_defaults=dict(provincia='MI',qty=8))
+                            grid_remoteRowController_defaults=dict(provincia='MI',qty=8),
+                            grid_menuPath='aaa')
+        b = Bag()
+        b.setItem('m_1',None,caption='poppo',action='ciao')
+        pane.data('aaa',b)
         bar = frame.bottom.slotBar('loadbtn,testbtn')
         bar.loadbtn.button('Load',fire='.loadBag')
         bar.testbtn.button('Test',action="""
@@ -109,3 +113,21 @@ class GnrCustomWebPage(object):
 
 
 
+
+    def test_5_menuPath(self,pane):
+        """First test description"""
+        pane.data('.dati',self.getDati())
+        pane.dataController('SET .gridstore = dati.deepCopy();',dati='=.dati',_fired='^loadBag')
+        pane.bagGrid(frameCode='mpath',title='Menupath test',struct=self.gridstruct_2,height='300px',
+                            table='glbl.localita',storepath='.gridstore')
+
+    def test_6_menuAppend(self,pane):
+        """First test description"""
+        pane.data('.dati',self.getDati())
+        pane.dataController('SET .gridstore = dati.deepCopy();',dati='=.dati',_fired='^loadBag')
+        frame = pane.bagGrid(frameCode='mappend',title='Menu append test',struct=self.gridstruct_2,height='300px',
+                            table='glbl.localita',storepath='.gridstore')
+        frame.grid.menu(storepath='bbb')
+        b = Bag()
+        b.setItem('m_1',None,caption='mario')
+        pane.data('bbb',b)

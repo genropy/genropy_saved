@@ -107,20 +107,9 @@ class TableHandlerView(BaseComponent):
         store_kwargs = store_kwargs or dict()
         store_kwargs['parentForm'] = parentForm
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
-                        condition=condition_kwargs,unlinkdict=unlinkdict,title=title,liveUpdate=liveUpdate,store_kwargs=store_kwargs)
-        contextMenu = frame.grid.menu(_class='smallmenu')
-        contextMenu.menuline('!!Reload',action="$2.widget.reload();")
-        contextMenu.menuline('-')
-        contextMenu.menuline('!!Show Archived Records',checked='^.#parent.showLogicalDeleted',
-                                action="""SET .#parent.showLogicalDeleted= !GET .#parent.showLogicalDeleted;
-                                           $2.widget.reload();""")
-        contextMenu.menuline('!!Totals count',action='SET .#parent.tableRecordCount= !GET .#parent.tableRecordCount;',
-                            checked='^.#parent.tableRecordCount')
-        contextMenu.menuline('-')
-        contextMenu.menuline('!!Configure Table',action='genro.dev.fieldsTreeConfigurator($2.attr.table)')
-        contextMenu.menuline('!!Configure View',action="""
-            genro.grid_configurator.configureStructure($2.attr.nodeId);
-            """)
+                        condition=condition_kwargs,unlinkdict=unlinkdict,title=title,
+                        liveUpdate=liveUpdate,store_kwargs=store_kwargs)
+        self._th_view_contextMenu(frame.grid)
         if virtualStore:    
             self._extTableRecords(frame)
         frame.dataController("""if(!firedkw.res_type){return;}
@@ -150,6 +139,19 @@ class TableHandlerView(BaseComponent):
                 """,modifiers='Ctrl',validclass='dojoxGrid-cell,cellContent')
         return frame
 
+    def _th_view_contextMenu(self,grid):
+        b = Bag()
+        b.rowchild(label='!!Reload',action="$2.widget.reload();")
+        b.rowchild(label='-')
+        b.rowchild(label='!!Show Archived Records',checked='^.#parent.showLogicalDeleted',
+                                action="""SET .#parent.showLogicalDeleted= !GET .#parent.showLogicalDeleted;
+                                           $2.widget.reload();""")
+        b.rowchild(label='!!Totals count',action='SET .#parent.tableRecordCount= !GET .#parent.tableRecordCount;',
+                            checked='^.#parent.tableRecordCount')
+        b.rowchild(label='-')
+        b.rowchild(label='!!Configure Table',action='genro.dev.fieldsTreeConfigurator($2.attr.table)')
+        b.rowchild(childname='configure',label='!!Configure View',action="""$2.widget.configureStructure();""")
+        grid.data('.contextMenu',b)
 
     @struct_method
     def th_viewLeftDrawer(self,pane,table,th_root):

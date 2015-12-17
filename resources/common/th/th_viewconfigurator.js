@@ -9,14 +9,6 @@ var genro_plugin_grid_configurator = {
         });
     },
 
-    configureStructure:function(gridId){
-        var gridSourceNode = genro.nodeById(gridId);
-        var grid = gridSourceNode.widget;
-        var path = gridSourceNode.absDatapath('.struct.#0.#0');
-        genro.dev.openBagEditorPalette(path,{title:'Edit view',
-                                           exclude:'dtype,field,tag,related_table,related_table_lookup,related_column,relating_column,rowcaption,caption_field'});
-    },
-
     setCurrentAsDefault:function(gridId){
         var gridSourceNode = genro.nodeById(gridId);
         genro.setInStorage("local", this.storeKey(gridId), gridSourceNode.getRelativeData('.currViewPath'));

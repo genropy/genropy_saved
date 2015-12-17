@@ -87,7 +87,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
         var node = genro.src.getNode(name).clearValue();
         node.freeze();
-        node._('PaletteBagEditor','currentEditor',objectUpdate({'paletteCode':name,'dockTo':false,
+        node._('PaletteBagEditor','currentBagEditor',objectUpdate({'paletteCode':name,'dockTo':false,
                                         title:kw.title || 'Bag editor',
                                         'path':path},kw));
         node.unfreeze();

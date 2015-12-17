@@ -2378,6 +2378,7 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
             this._openMyself_replaced.call(this, e);
         }
     },
+
     patch__openPopup: function (e) {
         var sourceNode = this.focusedChild.popup.sourceNode;
         if (sourceNode) {
@@ -3241,7 +3242,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         if (sourceNode.attr.selfDragColumns || sourceNode.attr.configurable) {
             this.selfDragColumnsPrepare(sourceNode);
         }
-        var savedAttrs = objectExtract(attributes, 'selected*');        
+        objectExtract(attributes, 'selected*');
+        var savedAttrs = {};        
         var identifier = attributes.identifier || '_pkey';
         attributes.datamode = attributes.datamode || 'attr';
         attributes.rowsPerPage = attributes.rowsPerPage || 10;
@@ -3309,7 +3311,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
     created_common:function(widget, savedAttrs, sourceNode) {
         var nodeId = sourceNode.attr.nodeId;
-        var gridContent = sourceNode.getValue();
+        var gridContent = sourceNode.getValue() || new gnr.GnrDomSource();
         if (genro.grid_configurator) {
             if(sourceNode.attr.configurable){
                 genro.src.onBuiltCall(function(){
@@ -3322,19 +3324,28 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             widget.setEditableColumns();
             widget.setChangeManager();
         }
-        if (gridContent instanceof gnr.GnrBag) {
-            var gridEditorNode = gridContent.getNodeByAttr('tag', 'grideditor',true);
-            if (gridEditorNode) {
-                widget.gridEditor = new gnr.GridEditor(widget);
-            }else{
-                var menuNode = gridContent.getNodeByAttr('tag', 'menu',true);
-                if(menuNode){
-                    widget.onCellContextMenu = function(e){
-                        menuNode.rowIndex = e.rowIndex
-                        menuNode.cellIndex = e.cellIndex;
-                    };
-                }
+        var gridEditorNode = gridContent.getNodeByAttr('tag', 'grideditor',true);
+        if (gridEditorNode) {
+            widget.gridEditor = new gnr.GridEditor(widget);
+        }
+        var menuNode = gridContent.getNodeByAttr('tag', 'menu',true);
+        if(!menuNode){
+            var contextMenuBag = sourceNode.getRelativeData('.contextMenu');
+            if(!contextMenuBag && genro.isDeveloper){
+                contextMenuBag = new gnr.GnrBag();
+                contextMenuBag.setItem('#id',null,{caption:_T('Configure view'),action:"$2.widget.configureStructure();"})
+                sourceNode.setRelativeData('.contextMenu',contextMenuBag);
             }
+            sourceNode._('menu','contextMenu',{storepath:'.contextMenu',_class:'smallmenu'},{doTrigger:false});
+            gridContent = sourceNode.getValue();
+            menuNode = gridContent.getNode('contextMenu');
+        }
+       
+        if(menuNode){
+            widget.onCellContextMenu = function(e){
+                menuNode.rowIndex = e.rowIndex
+                menuNode.cellIndex = e.cellIndex;
+            };
         }
         if ('draggable_row' in sourceNode.attr) {
             dojo.connect(widget.views, 'addView', dojo.hitch(widget, 'onAddedView'));
@@ -4309,6 +4320,7 @@ dojo.declare("gnr.widgets.VirtualGrid", gnr.widgets.DojoGrid, {
             console.log(info);
             return true;
         };
+        return savedAttrs
     },
 
     created: function(widget, savedAttrs, sourceNode) {
@@ -4468,6 +4480,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         var savedAttrs = this.creating_common(attributes, sourceNode);
         this.creating_structure(attributes, sourceNode);
         sourceNode.registerDynAttr('storepath');
+        return savedAttrs;
 
     },
 
@@ -5457,6 +5470,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         if (attributes.excludeListCb) {
             attributes.excludeListCb = funcCreate(attributes.excludeListCb);
         }
+        return savedAttrs;
     },
     
     mixin_setEditableColumns:function(){
@@ -5902,6 +5916,12 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         return this.collectionStore().rowBagNodeByIdentifier(identifier);
     },
 
+    mixin_configureStructure:function(title){
+        var path = this.sourceNode.absDatapath(this.sourceNode.attr.structpath+'.#0.#0');
+        genro.dev.openBagEditorPalette(path,{title:title || 'Edit view '+this.sourceNode.attr.nodeId,
+                                           exclude:'dtype,field,tag,related_table,related_table_lookup,related_column,relating_column,rowcaption,caption_field'});
+    },
+
     mixin_setDynamicStorepath:function(newstorepath){
         newstorepath = newstorepath || '.store';
         var store = this.collectionStore();
@@ -5944,7 +5964,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             if(kw.rowIndex){
                 rowId = this.rowIdByIndex(kw.rowIndex);
             }else{
-                rowId = this.rowIdentity(row);
+                rowId = this.rowIdentity(kw.row);
             }
         }
         var rowNode = this.rowBagNodeByIdentifier(rowId);
