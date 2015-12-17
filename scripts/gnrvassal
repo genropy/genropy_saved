@@ -35,7 +35,7 @@ class UwsgiConfigurator(object):
     default_processes = 1
     default_threads = 8
     vassal_template = """[uwsgi]
-plugins = python
+plugins = python,router_http
 %(port_or_domain)s
 gid = %(gid)i
 uid = %(uid)i
@@ -60,7 +60,7 @@ logto = %(logto)s
         self.site_name = site_name
         self.site_handler = getSiteHandler(site_name)
         self.site_path = self.site_handler['site_path']
-        self.error_path = os.path.join(self.site_path,'error.log')
+        self.error_path = os.path.join(self.site_path, 'error.log')
         self.site_template = self.site_handler['site_template']
         self.site_script = self.site_handler['site_script']
         self.gnr_config = getGnrConfig()
@@ -68,7 +68,12 @@ logto = %(logto)s
         self.gnr_path = gnrConfigPath()
         self.gnr_vassal_options = dict()
         self.socket_path = os.path.join(self.gnr_path, 'sockets')
-        self.vassals_path = self.gnr_config['gnr.environment_xml.vassals?path'] or os.path.join(self.gnr_path,'uwsgi','vassals')
+        home_path = os.environ.get('HOME', '')
+        if home_path.startswith('/containers'):
+            default_vassals_path = os.path.join(home_path, 'vassals')
+        else:
+            default_vassals_path = os.path.join(self.gnr_path, 'uwsgi', 'vassals')
+        self.vassals_path = self.gnr_config['gnr.environment_xml.vassals?path'] or default_vassals_path
         #self.vassals_path = os.path.join(self.gnr_path, 'uwsgi', 'vassals')
         self.pidfile_path = os.path.join(self.vassals_path, '%s.pid' % site_name)
         self.vassal_ini_path = os.path.join(self.vassals_path, '%s.ini' % site_name)
@@ -111,15 +116,16 @@ logto = %(logto)s
         pars = dict()
         #sc = self.site_config
         opt = self.options
+        port = int(opt.port or self.default_port)
         if hasattr(opt,'domain'):
             pars['port_or_domain'] = 'domain = %s'%opt.domain
         else:
-            pars['port_or_domain'] = 'http = %i'%int(opt.port or self.default_port)
+            pars['port_or_domain'] = 'http = %i'%port
         pars['wsgi_file'] = self.site_script
         pars['site_name'] = self.site_name
         pars['processes'] = int(opt.processes or self.default_processes)
         pars['threads'] = int(opt.threads or self.default_threads)
-        pars['stats_port'] = int(opt.stats_port or pars['port']+1000)
+        pars['stats_port'] = int(opt.stats_port or port+1000)
         pars['offload_threads'] = int(opt.offload_threads or pars['processes'])
         pars['pidfile_path'] = self.pidfile_path
         pars['logto'] = self.error_path
