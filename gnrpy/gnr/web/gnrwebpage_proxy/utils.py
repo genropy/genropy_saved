@@ -202,8 +202,8 @@ class GnrWebUtils(GnrBaseProxy):
                 if colobj.attributes.get('legacy_name'):
                     legacy_match[colobj.attributes['legacy_name']] = colname
             result['methodlist'] = ','.join([k[9:] for k in dir(tblobj) if k.startswith('importer_')])
-        for k,i in reader.index.items():
-            columns.setItem(k,None,name=reader.headers[i],field=k,width='10em',_position=i)
+        for k,i in sorted(reader.index.items(),key=lambda tup:tup[1]):
+            columns.setItem(k,None,name=reader.headers[i],field=k,width='10em')
             if k in table_col_list:
                 dest_field = k 
                 do_import = True
@@ -213,7 +213,7 @@ class GnrWebUtils(GnrBaseProxy):
             else:
                 dest_field = None
                 do_import = not table
-            match_data.setItem(k,Bag(dict(do_import=do_import,source_field=k,dest_field=dest_field)),_position=i)
+            match_data.setItem(k,Bag(dict(do_import=do_import,source_field=k,dest_field=dest_field)))
         for i,r in enumerate(reader()):
             if limit and i>=limit:
                 break

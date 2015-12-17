@@ -839,23 +839,29 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         gnrwdg.uploadPath = uploadPath || 'conn:'+frameCode;
         kw.height = kw.height || '400px';
         kw.width = kw.width || '650px';
+        gnrwdg.matchColumns = objectPop(kw,'matchColumns');
         gnrwdg.importButtonKw = objectExtract(kw,'importButton_*');
         gnrwdg.importMethod = objectPop(kw,'rpcmethod');
         var palette = sourceNode._('PalettePane',kw);
-        var bc = palette._('BorderContainer',{_lazyBuild:true})
-        gnrwdg.matchGrid(bc)
+        var bc = palette._('BorderContainer',{_lazyBuild:true});
+        var slots = '2,prevtitle,*,limit,5';
+        var limit = objectPop(kw,'previewLimit') || 20;
+        if(!gnrwdg.matchColumns){
+            gnrwdg.matchGrid(bc);
+        }
         var frame = bc._('FramePane',{frameCode:frameCode,region:'center',
                                      _class:'pbl_roundedGroup',margin:'2px'});
-        var bar = frame._('SlotBar',{'side':'top',slots:'2,prevtitle,*,limit,5',searchOn:true,_class:'pbl_roundedGroupLabel'});
+        var bar = frame._('SlotBar',{'side':'top',slots:slots,searchOn:true,_class:'pbl_roundedGroupLabel'});
         bar._('div','prevtitle',{innerHTML:"==_current_title || 'Import xls or cvs'",_current_title:'^.current_title',color:'#666'});
-        var limitbox = bar._('div','limit')
-        limitbox._('div',{'innerHTML':'Limit',display:'inline-block',position:'relative',top:'-2px',_class:'gnrfieldlabel'})
-        limitbox._('numberTextBox',{'value':'^.limit',width:'4em',default_value:20})
+        
+        bar._('div','limit',{innerHTML:_T('The lines in preview are limited to')+' '+limit,font_style:'italic',font_size:'.8em'});
+
         var dropAreaKw = {};
         dropAreaKw.dropTarget=true;
         dropAreaKw.dropTypes='Files';
         dropAreaKw.nodeId = frameCode+'_uploader';
         gnrwdg.uploaderId = dropAreaKw.nodeId;
+        
         var cbOnDropData = function(dropInfo,data){
             var uploaderNode = genro.nodeById(gnrwdg.uploaderId);
             uploaderNode.setRelativeData('.current_title',data.name);
@@ -868,8 +874,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
                 genro.dlg.alert("The form is locked",'Warning');
                 return false;
             }
-            bc.getParentNode().widget.setRegionVisible('left',true);
-            genro.rpc.uploadMultipart_oneFile(data,{onUploadedMethod:'utils.tableImporterCheck',limit:'=.limit',table:table},{uploadPath:gnrwdg.uploadPath,
+            genro.rpc.uploadMultipart_oneFile(data,{onUploadedMethod:'utils.tableImporterCheck',limit:limit,table:table},{uploadPath:gnrwdg.uploadPath,
                           filename:gnrwdg.filename,
                           uploaderId:gnrwdg.uploaderId,
                           onResult:function(result){
@@ -881,9 +886,24 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         dropAreaKw.onDrop = function(dropInfo,files){
             cbOnDropData(dropInfo,files[0]);
         };
-        bar = frame._('slotBar',{side:'bottom','slots':'2,msgslot,2',background:'#efefef',msgslot_width:'100%'})
-        bar._('div','msgslot',objectUpdate({innerHTML:_T('!!Drop import file here'),font_size:'1.4em',color:'#666',padding:'10px',margin:'3px',
-                                    border:'2px dotted silver',rounded:6,background:'white'},dropAreaKw))    
+        var sc = frame._('StackContainer',{side:'bottom',height:'30px',selected:'^.import_page_status',
+                                            border_top:'1px solid silver',background:'white'});
+        sc._('ContentPane',{})._('div','msgslot',
+                                    objectUpdate({innerHTML:_T('!!Drop import file here'),
+                                                  font_size:'1.2em',position:'absolute',top:0,left:0,right:0,bottom:0,
+                                                  padding:'7px',
+                                                  color:'#666',text_align:'center'},dropAreaKw))
+        var confirmPane = sc._('ContentPane',{});
+        var footerbar = confirmPane._('slotBar',{slots:'5,resetButton,*,importButton,5',margin_top:'5px'});
+        footerbar._('slotButton','resetButton',{label:'Clear',width:'8em',font_size:'1em',padding:'2px',
+                                            action:function(){gnrwdg.resetImporter();}});
+        var importButtonKw = objectUpdate({label:'Import',width:'8em',font_size:'1em',padding:'2px',
+                                        imported_file_path:'=.imported_file_path',
+                                        match:'=.match',
+                                        action:function(){
+                                            gnrwdg.importDo(this);
+                                    },disabled:'^.imported_file_path?=!#v'},gnrwdg.importButtonKw)
+        footerbar._('slotButton','importButton',importButtonKw);
         var qg = frame._('ContentPane',{'side':'center',overflow:'hidden'})._('quickGrid', {value:'^.importing_data'});
         gnrwdg.gridNode = qg.getParentNode();
         return bc;
@@ -896,7 +916,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
                                         drawer:'close',width:'320px',splitter:true})
         bar = frame._('slotBar',{slots:'2,matchtitle,*',side:'top',_class:'pbl_roundedGroupLabel'});
         bar._('div','matchtitle',{innerHTML:'Match columns'});
-        bar = frame._('slotBar',{slots:'2,fbbottom,*,applybutton,10',side:'bottom',_class:'slotbar_dialog_footer'});
+        bar = frame._('slotBar',{slots:'2,fbbottom,*',side:'bottom',_class:'slotbar_dialog_footer'});
 
         var fb = genro.dev.formbuilder(bar._('div','fbbottom'),2,{border_spacing:'1px'});
         fb.addField('filteringSelect',{value:'^.import_method',width:'7em',
@@ -911,12 +931,6 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
             fb.addField('checkbox',{value:'^.no_trigger',default_value:true,
                                 label:_T('No trigger'),parentForm:false});   
         }
-        var importButtonKw = objectUpdate({label:'Import',action:function(){
-                                        gnrwdg.importDo(this);
-                                    }},this.importButtonKw)
-        bar._('button','applybutton',importButtonKw);
-        
-
         var grid = frame._('ContentPane',{'side':'center',overflow:'hidden'})._('quickGrid',{value:'^.match',_class:'noselect'});
         grid.getParentNode().importer_gnrwdg = this;
         var onclick = "this.getParentNode().importer_gnrwdg.onCheckedMatch(this,kw);"
@@ -936,9 +950,30 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
     
     },
 
+    gnrwdg_resetImporter:function(){
+        var uploaderNode = genro.nodeById(this.uploaderId);
+        uploaderNode.setRelativeData('.current_title',null);
+        uploaderNode.setRelativeData('.methodlist','');
+        uploaderNode.setRelativeData('.importing_data',null);
+        uploaderNode.setRelativeData('.file_columns',null);
+        uploaderNode.setRelativeData('.match',null);
+        uploaderNode.setRelativeData('.imported_file_path',null);
+        uploaderNode.setRelativeData('.import_page_status',0);
+        this.gridNode.gnrwdg.setColumns(new gnr.GnrBag());
+    },
+
     gnrwdg_onImportCheck:function(data){
         var columns = data.getItem('columns');
         var match_data = data.getItem('match_data');
+        var warning = false;
+        if(this.matchColumns && this.matchColumns!='*'){
+            var colkeys = columns.keys();
+            var matchColumns = this.matchColumns.split(',');
+            if(matchColumns.length!=colkeys.length || matchColumns.some(function(n,idx){return n!=colkeys[idx]})){
+                genro.publish('floating_message',{message:_T('Columns mismatch'),messageType:'error'});
+                return;
+            }
+        }
         this.gridNode.gnrwdg.setColumns(columns);
         this.gridNode.gnrwdg.guessColumns = false;
         var uploaderNode = genro.nodeById(this.uploaderId);
@@ -947,6 +982,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         uploaderNode.setRelativeData('.file_columns',columns);
         uploaderNode.setRelativeData('.match',match_data);
         uploaderNode.setRelativeData('.imported_file_path',data.getItem('imported_file_path'));
+        uploaderNode.setRelativeData('.import_page_status',1);
     },
 
     gnrwdg_onCheckedMatch:function(matchGrid,kw){
@@ -975,12 +1011,14 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
                 }
             })
         }
+        var that = this;
         genro.serverCall(this.importMethod || 'utils.tableImporterRun',{table:this.table,file_path:'=.imported_file_path',
                                                     match_index:match_index,
                                                     import_method:'=.import_method',
                                                     no_trigger:'=.no_trigger',
                                                     _sourceNode:buttonNode},function(result){
-                                                        alert(result);
+                                                        genro.publish('floating_message',{message:_T('Import finished')});
+                                                        that.resetImporter();
                                                     });
     }
 });
