@@ -406,7 +406,9 @@ genropatches.comboBox = function() {
             }
         }
     });
-    dijit.form.ComboBoxMixin.prototype._onKeyPress = function(/*Event*/ evt){
+   
+
+    var dijit_form_ComboBoxMixin_onKeyPress = function(/*Event*/ evt){
             // summary: handles keyboard events
 
             //except for pasting case - ctrl + v(118)
@@ -545,7 +547,9 @@ genropatches.comboBox = function() {
                 setTimeout(dojo.hitch(this, "_startSearchFromInput"),1);
             }
         }
-        dijit.form.ComboBox.prototype._onKeyPress = dijit.form.ComboBoxMixin.prototype._onKeyPress;
+        dijit_form_ComboBoxMixin_onKeyPress.nom='_onKeyPress';
+        dijit.form.ComboBoxMixin.prototype._onKeyPress = dijit_form_ComboBoxMixin_onKeyPress;
+        dijit.form.ComboBox.prototype._onKeyPress = dijit_form_ComboBoxMixin_onKeyPress;
 };
 genropatches.borderContainer = function() {
     dojo.require("dijit.layout.BorderContainer");
