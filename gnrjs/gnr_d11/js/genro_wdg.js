@@ -729,7 +729,7 @@ dojo.declare("gnr.GridEditor", null, {
         var sourceNode = grid.sourceNode;
         this.viewId = sourceNode.attr.nodeId;
         this.table= sourceNode.attr.table;
-        this.editorPars = sourceNode.attr.gridEditor;
+        this.editorPars = sourceNode.attr.gridEditorPars;
         this.autoSave = this.editorPars? this.editorPars.autoSave:false;
         this.remoteRowController = sourceNode.attr.remoteRowController;
         this.remoteRowController_default = sourceNode.attr.remoteRowController_default;

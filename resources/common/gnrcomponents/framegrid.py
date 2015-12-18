@@ -145,7 +145,7 @@ class FrameGrid(BaseComponent):
                 kwargs['_class'] = 'pbl_roundedGroup noheader'
 
         if gridEditor:
-            kwargs['grid_gridEditor'] = dict(default_kwargs=default_kwargs)
+            kwargs['grid_gridEditorPars'] = dict(default_kwargs=default_kwargs)
         kwargs.setdefault('grid_parentForm',parentForm)
         if storepath.startswith('==') or storepath.startswith('^'):
             dynamicStorepath = storepath

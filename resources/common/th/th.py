@@ -370,7 +370,7 @@ class TableHandler(BaseComponent):
         options = self._th_hook('options',mangler=wdg.view)() or dict()
         wdg.view.store.attributes.update(recordResolver=False)
         wdg.view.grid.attributes.update(remoteRowController=remoteRowController,
-                                        gridEditor=dict(saveMethod=saveMethod,
+                                        gridEditorPars=dict(saveMethod=saveMethod,
                                                         default_kwargs=default_kwargs,
                                                         autoSave=autoSave or options.get('autoSave'),
                                                         statusColumn=statusColumn or options.get('statusColumn')))

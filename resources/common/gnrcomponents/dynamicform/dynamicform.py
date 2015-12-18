@@ -233,7 +233,7 @@ class DynamicForm(BaseComponent):
         view = bh.bagGrid(frameCode='V_%s' %rootcode,storepath='#FORM.record.df_fields',
                     childname='view',struct=self.df_fieldsBagStruct,
                                 grid_selfDragRows=True,
-                               datapath='.view',_class='frameGrid',gridEditor=False,
+                               datapath='.view',_class='frameGrid',
                                 grid_connect_moveRow='FIRE .changedBagFields;',                               
                                **kwargs)
         view.grid.dataController("this.form.save();",_fired='^.changedBagFields',_delay=1500)
