@@ -258,4 +258,4 @@ class GnrWebUtils(GnrBaseProxy):
 
 
     def _importer_keycb(self,k):
-        return slugify(str(k))
+        return slugify(str(k),sep='_')
