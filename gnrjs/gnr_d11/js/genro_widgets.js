@@ -1909,7 +1909,10 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
     },
     creating:function(attributes,sourceNode){
         objectPop(attributes,'persist')
+        attributes.width = '2px';
+        attributes.height = '2px';
     },
+
     created: function(widget, savedAttrs, sourceNode) {
         widget._startZ = 700;
         var nodeId = sourceNode.attr.nodeId;
@@ -1970,22 +1973,35 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         }     
     },
     mixin_restoreRect:function(){
-        if(this.sourceNode.attr.nodeId && (this.sourceNode.attr.persist!==false)){
+        var rect;
+        if (this.sourceNode.attr.nodeId){
             var storeKey = 'palette_rect_' + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
-            if(this.sourceNode.attr.fixedPosition){
-                return;
-            }
-            var rect = genro.getFromStorage("local", storeKey, dojo.coords(this.domNode));
-            if(rect && rect.w && rect.h){
-                var oh = this.domNode.parentElement.offsetHeight;
-                var ow = this.domNode.parentElement.offsetWidth;
-                if(rect.l+rect.w>ow || rect.t+rect.h>oh){
-                    return;
+            rect = genro.getFromStorage("local", storeKey, dojo.coords(this.domNode));
+        }
+        var oh = this.domNode.parentElement.offsetHeight;
+        var ow = this.domNode.parentElement.offsetWidth;
+        if(!rect || this.sourceNode.attr.persist===false || this.sourceNode.attr.fixedPosition){
+            var currAttr = this.sourceNode.currentAttributes();
+            rect = {};
+            var p = {'left':'l','top':'t','width':'w','height':'h'};
+            for(var k in p){
+                if(currAttr[k]){
+                    rect[p[k]] = parseInt(currAttr[k]);
                 }
-                this.resize(rect);
             }
-        }     
+            if(!rect.l && currAttr.right){
+                rect.l = ow - rect.w - parseInt(currAttr.right);
+            }
+        }
+        if(rect.w+20>ow){rect.w = ow-20;}
+        rect.l = Math.max(rect.l,10);
+        if(rect.l+rect.w>ow-10){rect.l = ow-rect.w-10;}
+        if(rect.h+20>oh){rect.h = oh-20;}
+        rect.t = Math.max(rect.t,10);
+        if(rect.t+rect.h>oh-10){rect.t = oh-rect.h-10;}
+        this.resize(rect);
     },
+
     mixin_saveRect:function(){
         if(this.sourceNode.attr.nodeId && genro.dom.isVisible(this.domNode) && !this._maximized && (this.sourceNode.attr.persist!==false)){
             var storeKey = 'palette_rect_' + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
