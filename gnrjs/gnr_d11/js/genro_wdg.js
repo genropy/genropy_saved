@@ -1366,6 +1366,7 @@ dojo.declare("gnr.GridEditor", null, {
             return;
         }
         grid.currRenderedRowIndex = lastRenderedRowIndex;
+        grid.selection.select(grid.currRenderedRowIndex);
         attr.datapath = this.widgetRootNode.absDatapath('.' + rowLabel);
         attr.width = attr.width || (cellNode.clientWidth-10)+'px';
         if(attr.tag.toLowerCase()=='checkbox'){

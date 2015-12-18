@@ -15,6 +15,7 @@ import zipfile
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag, DirectoryResolver
 from gnr.core.gnrlist import XlsReader,CsvReader
+from gnr.core.gnrstring import slugify
 
 class GnrWebUtils(GnrBaseProxy):
 
@@ -257,4 +258,4 @@ class GnrWebUtils(GnrBaseProxy):
 
 
     def _importer_keycb(self,k):
-        return (k.strip() or '_').strip('.').lower().replace(' ','_').replace('.','_')
+        return slugify(str(k))
