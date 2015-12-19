@@ -9,7 +9,7 @@ import textwrap
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('documentation', pkey='id', name_long='!!Documentation', 
-                        name_plural='!!Documentation',caption_field='name')
+                        name_plural='!!Documentation',caption_field='name',audit='lazy')
         self.sysFields(tbl,hierarchical='name',df=True,
                         counter=True,user_ins=True,user_upd=True)
         tbl.column('name',name_long='!!Name')

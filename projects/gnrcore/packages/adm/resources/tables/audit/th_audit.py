@@ -59,6 +59,9 @@ class ViewRecordHistory(BaseComponent):
     def th_query(self):
         return dict(column='tablename', op='contains', val='')
 
+    def th_options(self):
+        return dict(readOnly=True)
+
 
 
 class Form(BaseComponent):
