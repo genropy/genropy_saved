@@ -665,7 +665,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         dlg.show_action();
      },
      
-    setOpStatus:function(opStatus){
+    setOpStatus:function(opStatus,onSaved){
+        this.willBeReloaded = ( ( (opStatus=='saving') && (onSaved == 'lazyReload') ) || opStatus=='loading' ) ? false:true;
         this.opStatus=opStatus;
         this.publish('onSetOpStatus',this.opStatus);
     },
@@ -994,7 +995,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     do_save:function(kw){
         var destPkey = kw.destPkey;
-        this.setOpStatus('saving');
+        this.setOpStatus('saving',kw.onSaved);
         this.fireControllerData('saving');
         var saverNode = genro.nodeById(this.formId + '_saver');
         if(saverNode){
