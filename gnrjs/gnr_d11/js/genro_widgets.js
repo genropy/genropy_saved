@@ -2448,6 +2448,7 @@ dojo.declare("gnr.widgets.Tooltip", gnr.widgets.baseDojo, {
     },
     creating:function(attributes, sourceNode) {
         var callback = objectPop(attributes, 'callback');
+        attributes.showDelay = attributes.showDelay || attributes.tooltip_type == 'help'? 2000:null;
         if (callback) {
             attributes['label'] = funcCreate(callback, 'n', sourceNode);
         }else if(attributes.recordTemplate){
@@ -2482,11 +2483,16 @@ dojo.declare("gnr.widgets.Tooltip", gnr.widgets.baseDojo, {
         if(this.tooltip_type=='help'){
             defaultMod = genro.tooltipHelpModifier();
         }
-        if (genro.wdg.filterEvent(e, (this.modifiers || defaultMod), this.validclass)) {
-            this._onHover_replaced.call(this, e);
+        var modifiers = (this.modifiers || defaultMod);
+        
+        if (genro.wdg.filterEvent(e, modifiers, this.validclass)) {
+            var showDelay = modifiers?50:this.showDelay;
+            if(!this._showTimer){
+                var target = e.target;
+                this._showTimer = setTimeout(dojo.hitch(this, function(){this.open(target)}), showDelay);
+            }
         }
-    }
-    ,
+    },
    //patch_close:function(){
    //    return 'for debugging tooltip'
    //},
@@ -6768,7 +6774,8 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
             attributes.hasDownArrow = false;
             attributes['tabindex'] = -1;
         }
-        var resolverAttrs = objectExtract(attributes, 'method,dbtable,columns,limit,alternatePkey,auxColumns,hiddenColumns,rowcaption,order_by,selectmethod,weakCondition,excludeDraft,ignorePartition,preferred,distinct,httpMethod');
+        var resolverAttrs = objectExtract(attributes, 'method,dbtable,table,columns,limit,alternatePkey,auxColumns,hiddenColumns,rowcaption,order_by,selectmethod,weakCondition,excludeDraft,ignorePartition,preferred,distinct,httpMethod');
+        resolverAttrs.dbtable = resolverAttrs.dbtable || objectPop(resolverAttrs,'table');
         if('_storename' in sourceNode.attr){
             resolverAttrs._storename = sourceNode.attr._storename;
         }

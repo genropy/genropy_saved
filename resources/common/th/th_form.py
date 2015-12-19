@@ -235,6 +235,7 @@ class TableHandlerForm(BaseComponent):
                         dockButton=True,
                         width='400px',
                         height='500px',
+                        readOnly=True,
                         dockButton_iconClass='iconbox book',
                         viewResource='ViewRecordHistory',table='adm.audit',
                         condition='$tablename=:tname AND $record_pkey=:pk',

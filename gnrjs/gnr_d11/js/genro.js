@@ -655,7 +655,11 @@ dojo.declare('gnr.GenroClient', null, {
         if(value){
             this.setInStorage('local','tooltipHelpModifier',value);
         }else{
-            return this.getFromStorage('local','tooltipHelpModifier');
+            var modifier = this.getFromStorage('local','tooltipHelpModifier') || 'Shift';
+            if(modifier=='*'){
+                modifier = null;
+            }
+            return modifier;
         }
     },
     
