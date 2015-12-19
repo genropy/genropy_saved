@@ -4786,7 +4786,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     },
 
     freezedStore:function(){
-        if(this.storeNode.form && this.storeNode.form.opStatus){
+        if(this.storeNode.form && this.storeNode.form.willBeReloaded){
             return true;
         }
         if(this.freezed){
