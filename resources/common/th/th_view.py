@@ -8,6 +8,7 @@ from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method,extract_kwargs,metadata
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrstring import slugify
 
 
 class TableHandlerView(BaseComponent):
@@ -214,7 +215,7 @@ class TableHandlerView(BaseComponent):
         box.div('==_sumvalue|| 0;',_sumvalue='^.store?sum_%s' %sum_column,format=format,width=width or '5em',_class='fakeTextBox',
                  font_size='.9em',text_align='right',padding_right='2px',display='inline-block')
 
-    def _th_section_from_type(self,tblobj,sections,condition=None,condition_kwargs=None,all_begin=None,all_end=None):
+    def _th_section_from_type(self,tblobj,sections,condition=None,condition_kwargs=None,all_begin=None,all_end=None,codePkey=False):
         rt = tblobj.column(sections).relatedTable() 
         if rt:
             section_table = tblobj.column(sections).relatedTable().dbtable
@@ -235,7 +236,7 @@ class TableHandlerView(BaseComponent):
         if all_begin:
             s.append(dict(code='c_all_begin',caption='!!All' if all_begin is True else all_begin))
         for i,r in enumerate(f):
-            s.append(dict(code='c_%i' %i,caption=r[caption_field],condition='$%s=:s_id' %sections,condition_s_id=r[pkeyfield]))
+            s.append(dict(code=slugify(r[pkeyfield],'_'),caption=r[caption_field],condition='$%s=:s_id' %sections,condition_s_id=r[pkeyfield]))
         if all_end:
             s.append(dict(code='c_all_end',caption='!!All' if all_end is True else all_end))
         return s
