@@ -6,12 +6,13 @@ from gnr.core.gnrbag import Bag
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('screencast', pkey='id', name_long='!!Screencast', name_plural='!!Screencasts',caption_field='title')
+        tbl = pkg.table('video', pkey='id', name_long='!!Video', 
+                        name_plural='!!Video',caption_field='title')
         self.sysFields(tbl)
         tbl.column('url',name_long='!!Url')
         tbl.column('player_url',name_long='!!Player Url')
-
-        tbl.column('vimeo_id' ,size=':20',name_long='!!Vimeo ID')#inside sourcebag is id
+        tbl.column('hosted_by' ,size=':100',name_long='!!Hosted by')
+        tbl.column('external_id' ,size=':20',name_long='!!External ID')#inside sourcebag is id
         tbl.column('title',name_long='!!Title')
         tbl.column('description' ,name_long='!!Description')
         tbl.column('thumbnail_small','P',name_long='!!thumbnail_small')
