@@ -889,10 +889,28 @@ dojo.declare("gnr.widgets.canvas", gnr.widgets.baseHtml, {
 
 dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
     creating:function(attributes, sourceNode) {
-
+        objectExtract(attributes,'currentTime');
     },
 
     created:function(newobj, savedAttrs, sourceNode) {
+        if(sourceNode.attr.currentTime){
+            dojo.connect(newobj,'play',function(evt){
+                var d = evt.target;
+                if(d.sourceNode._currentTimeSetter){
+                    return;
+                }
+                d.sourceNode._currentTimeSetter = setInterval(function(){
+                    d.sourceNode.setAttributeInDatasource('currentTime',Math.round(d.currentTime*10)/10);
+                },100);
+            });
+            dojo.connect(newobj,'pause',function(evt){
+                var sn = evt.target.sourceNode;
+                if(sn._currentTimeSetter){
+                    clearInterval(sn._currentTimeSetter);
+                    delete sn._currentTimeSetter;
+                }
+            });
+        }
         sourceNode.startCapture = function(kw){
             if(objectNotEmpty(kw)){
                 this.domNode.gnr.startCapture(sourceNode,kw);
@@ -924,6 +942,13 @@ dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
             navigator.webkitGetUserMedia(capture_kw,onOk,onErr);
         }else{
             navigator.getUserMedia(capture_kw,onOk,onErr);
+        }
+    },
+    setCurrentTime:function(domNode,currentTime,kw){
+        var roundedCT = Math.round(domNode.currentTime*10)/10;
+        var givenCT = Math.round(currentTime*10)/10;
+        if(roundedCT!=givenCT){
+            domNode.currentTime = givenCT;
         }
     }
 });
