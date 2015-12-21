@@ -56,7 +56,8 @@ class THPicker(BaseComponent):
                             tree_dragTags=paletteCode,searchOn=searchOn,width=width,height=height).htableStore(table=table)
         elif treepicker:
             palette = pane.paletteTree(paletteCode=paletteCode,dockButton=dockButton,title=title,
-                            tree_dragTags=paletteCode,searchOn=searchOn,width=width,height=height).htableViewStore(table=table)
+                            tree_dragTags=paletteCode,searchOn=searchOn,width=width,height=height,
+                            draggableFolders=picker_kwargs.pop('draggableFolders',None)).htableViewStore(table=table)
         elif viewResource:
             palette = pane.palettePane(paletteCode=paletteCode,dockButton=dockButton,
                                         title=title,width=width,height=height)
