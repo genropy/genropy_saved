@@ -894,11 +894,11 @@ function convertFromText(value, t, fromLocale) {
     }
     else if (t == 'JS') {
         var result = genro.evaluate(value);
-        if(result){
-            for (var k in result){
-                result[k] = convertFromText(result[k]);
-            }
-        }
+       //if(result){
+       //    for (var k in result){
+       //        result[k] = convertFromText(result[k]);
+       //    }
+       //}
         return result;
     }
     else if (t == 'BAG' && !value) {
@@ -1166,9 +1166,9 @@ var gnrformatter = {
         //    });
         //}
     },
-    format_AR:function(value,format,formatKw){
+    format_AR:function(value,joiner,formatKw){
         value = dojo.map(value,function(n){return _F(n)});
-        return value.join(format || ',');
+        return value.join(joiner || ',');
     },
     format_NN:function(value,format,formatKw){
         return '';

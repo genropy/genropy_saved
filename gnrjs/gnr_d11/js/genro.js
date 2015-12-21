@@ -981,9 +981,10 @@ dojo.declare('gnr.GenroClient', null, {
                 v = stringStrip(dojo.currency.format(v, f));
             }
         }else if(v instanceof Array){
-            if(f['joiner']){
-                v = v.join(f['joiner']);
-            }
+            v = genro.formatter.asText(v,f.joiner);
+   
+        }else if(v instanceof gnr.GnrBag){
+            v = genro.formatter.asText(v,objectUpdate({format:objectExtract(f,'bag_*',true)}) );
         }else if (v && f.dtype=='X'){
             var b = new gnr.GnrBag();
             try{
