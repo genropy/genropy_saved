@@ -94,15 +94,16 @@ class Form(BaseComponent):
             kw.widget = wdg;
             kw.action = function(value){
                 genro.serverCall(rpcmethod,{start_time:start_time,end_time:end_time,name:value.getItem('name'),
-                                              kind:(kind || value.getItem('kind'))});
+                                              kind:(kind || value.getItem('kind')),video_id:video_id});
             }
             genro.dlg.prompt('Add cue',kw)
-            """,subscribe_add_cue=True,rpcmethod=self.addVideoCue,kind='=.sectiond.kind.current',
-            kinds='metadata,chapters,captions,descriptions,subtitles')
+            """,subscribe_add_cue=True,rpcmethod=self.addVideoCue,kind='=.sections.kind.current',
+            kinds='metadata,chapters,captions,descriptions,subtitles',video_id='=#FORM.record.id')
 
     @public_method
-    def addVideoCue(self,name=None,start_time=None,end_time=None,kind=None,**kwargs):
-        print x
+    def addVideoCue(self,name=None,video_id=None,start_time=None,end_time=None,kind=None,**kwargs):
+        self.db.table('docu.video_track_cue').insert(dict(video_id=video_id,name=name,kind=kind,start_time=start_time,end_time=end_time))
+        self.db.commit()
 
     def th_options(self):
         return dict(dialog_height='400px', dialog_width='600px')
