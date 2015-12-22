@@ -246,6 +246,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         wherelist.append("$%s LIKE :type_caption || :suffix" %caption_field)
         where = ' AND '.join(wherelist)
         for type_id in types:
+            type_record = typetable.cachedRecord(pkey=type_id,virtual_columns=type_caption_field)
             type_caption = typetable.readColumns(columns=type_caption_field,pkey=type_id)
             last_child = tblobj.query(where=where ,p_id=parent_id,
                                  order_by='$%s desc' %caption_field,
@@ -256,7 +257,11 @@ class TableHandlerHierarchicalView(BaseComponent):
                 offset = int(last_child[caption_field].replace(type_caption,'').replace(' ','') or '0')
             for i in range(how_many):
                 record = tblobj.defaultValues()
-                record.update({type_field:type_id,'parent_id':parent_id or None,caption_field:'%s %i' %(type_caption,offset+1+i)})
+                kk = offset+1+i
+                record.update({type_field:type_id,'parent_id':parent_id or None,caption_field:'%s %i' %(type_caption,kk)})
+                for fld in tblobj.attributes.get('hierarchical').split(','):
+                    if fld!=caption_field and type_record.get(fld) is not None: #exists a field with the same name in type table
+                        record[fld] = '%s_%s' %(type_record[fld],kk) 
                 tblobj.insert(record)
         self.db.commit()
     
