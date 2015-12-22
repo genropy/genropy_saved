@@ -228,7 +228,7 @@ class TableHandlerHierarchicalView(BaseComponent):
             picker_table = self.db.table(table).column(picker).relatedTable().dbtable.fullname
             paletteCode = 'picker_%s' %picker_table.replace('.','_')
             picker_kwargs['paletteCode'] = paletteCode
-            bar.treePicker.palettePicker(table=picker_table,autoInsert=False,multiSelect=False,**picker_kwargs)
+            bar.treePicker.palettePicker(table=picker_table,autoInsert=False,multiSelect=False,picker_kwargs=picker_kwargs)
             tree.attributes['onDrop_%s' %paletteCode] = "THTree.onPickerDrop(this,data,dropInfo,{type_field:'%s',maintable:'%s',typetable:'%s'});" %(picker,table,picker_table)
 
         return tree
