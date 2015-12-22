@@ -3428,22 +3428,26 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         this.setValues(this.getRemoteValuesFromQuery());
     },
 
+    gnrwdg_cbgroupReason:function(){
+        return 'cbgroup_'+this.sourceNode._id;
+    },
+
     gnrwdg_setHierarchicalCheckedPaths:function(value){
         this._notrigger = true;
-        this.sourceNode.setRelativeData(this.checkedpath,null,null,null,'cbgroup');
+        this.sourceNode.setRelativeData(this.checkedpath,null,null,null,this.cbgroupReason());
         if(value){
             var pathsFromPkeys = genro.serverCall('_table.'+this.query_kw.table+'.getHierarchicalPathsFromPkeys',{pkeys:value,related_kwargs:this.query_kw.related_kwargs,
                                                                                                                       dbstore:this.query_kw.dbstore,parent_id:this.query_kw.parent_id,
                                                                                                                       _sourceNode:this.sourceNode});
                 
             
-            this.sourceNode.setRelativeData(this.checkedpath,pathsFromPkeys,null,null,'cbgroup');
+            this.sourceNode.setRelativeData(this.checkedpath,pathsFromPkeys,null,null,this.cbgroupReason());
         }
         this._notrigger = false;
     },
 
     gnrwdg_setValue:function(value,kw,trigger_reason){
-        if(kw.reason=='cbgroup' || this._notrigger){
+        if(kw.reason==this.cbgroupReason() || this._notrigger){
             return;
         }
         if(this.hierarchical){
@@ -3517,7 +3521,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             }
         });
         if(this.has_code){
-            this.sourceNode.setRelativeData(this.sourceNode.attr.value+'?_displayedValue',this.getLabelsFromValue(textvalue),null,null,'cbgroup')
+            this.sourceNode.setRelativeData(this.sourceNode.attr.value+'?_displayedValue',this.getLabelsFromValue(textvalue),null,null,this.cbgroupReason())
         }
     },
 
@@ -3610,9 +3614,9 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         }
         if(has_code){
             fkw._displayedValue = labels.length?labels.join(separator):null;
-            sourceNode.setRelativeData(sourceNode.attr.value,codes.length>0?codes.join(','):null,fkw,null,'cbgroup',null,{_updattr:true});
+            sourceNode.setRelativeData(sourceNode.attr.value,codes.length>0?codes.join(','):null,fkw,null,this.cbgroupReason(),null,{_updattr:true});
         }else{
-            sourceNode.setRelativeData(sourceNode.attr.value,labels.length>0?labels.join(separator):null,fkw,null,'cbgroup',null,{_updattr:true});
+            sourceNode.setRelativeData(sourceNode.attr.value,labels.length>0?labels.join(separator):null,fkw,null,this.cbgroupReason(),null,{_updattr:true});
         }
     },
 
