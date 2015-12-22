@@ -31,10 +31,11 @@ class Table(object):
         if not videos:
             return
         for v in videos.values():
-            with self.recordToUpdate(vimeo_id=v['id'],insertMissing=True) as r:
-                r.update(dict(vimeo_id=v['id'],title=v['title'],description=v['description'],
+            with self.recordToUpdate(external_id=v['id'],insertMissing=True) as r:
+                r.update(dict(external_id=v['id'],title=v['title'],description=v['description'],
                                         url=v['url'],
-                                        player_url='//player.vimeo.com/video/%s' %v['id'],
+                                        hosted_by='vimeo',
+                                        player_url='http://player.vimeo.com/video/%s' %v['id'],
                                         thumbnail_small=v['thumbnail_small'],
                                         thumbnail_medium=v['thumbnail_medium'],
                                         thumbnail_large=v['thumbnail_large'],

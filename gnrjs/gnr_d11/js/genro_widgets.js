@@ -567,6 +567,7 @@ dojo.declare("gnr.widgets.htmliframe", gnr.widgets.baseHtml, {
         this._domtag ='iframe';
     },
     creating:function(attributes, sourceNode) {
+        objectPop(attributes,'src')
         var savedAttrs = {};
         savedAttrs['shield'] = objectPop(attributes,'shield');
         savedAttrs['shield_kw'] = objectExtract(attributes,'shield_*') || {};
@@ -600,8 +601,8 @@ dojo.declare("gnr.widgets.htmliframe", gnr.widgets.baseHtml, {
                 };
             });
         }
+    },
 
-    }
 });
 
 dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
@@ -889,7 +890,7 @@ dojo.declare("gnr.widgets.canvas", gnr.widgets.baseHtml, {
 
 dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
     creating:function(attributes, sourceNode) {
-        objectExtract(attributes,'currentTime');
+        objectExtract(attributes,'currentTime,tracks');
     },
 
     created:function(newobj, savedAttrs, sourceNode) {
@@ -921,6 +922,10 @@ dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
                 this.domNode.gnr.takePhoto(sourceNode,canvas);
             }
         };
+        var that = this;
+        newobj.addEventListener("loadedmetadata", function() { 
+            that.onLoadedMetadata(newobj);
+        });
     },
     startCapture:function(sourceNode,capture_kw){
         var onErrorGetUserMedia = objectPop(capture_kw,'onReject');
@@ -949,6 +954,40 @@ dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
         var givenCT = Math.round(currentTime*10)/10;
         if(roundedCT!=givenCT){
             domNode.currentTime = givenCT;
+        }
+    },
+    addTrack:function(domNode,kw){
+        var track = document.createElement('track');
+        kw.label = kw.label || kw.kind+'_'+kw.srclang;
+        if(!stringEndsWith(kw['src'],'.vtt')){
+            kw['src']+='.vtt';
+        }
+        for (var k in kw){
+            console.log('setting',k)
+            track[k] = kw[k];
+        }
+        track.addEventListener("load", function() { 
+            this.mode = "showing"; 
+            domNode.textTracks[0].mode = "showing"; // thanks Firefox 
+        }); 
+        domNode.appendChild(track);
+    },
+    setSrc:function(domNode,src){
+        dojo.forEach(domNode.children,function(c){domNode.removeChild(c)});
+        domNode.setAttribute('src',src);
+    },
+
+    onLoadedMetadata:function(domNode){
+        var sn = domNode.sourceNode;
+        var tracks = sn.attr.tracks;
+        if(tracks){
+            var that = this;
+            tracks.forEach(function(kw){
+                kw = sn.evaluateOnNode(kw);
+                kw['src'] = dataTemplate(kw['src'],kw);
+                objectExtract(kw,'_*');
+                that.addTrack(domNode,kw);
+            });
         }
     }
 });

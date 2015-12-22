@@ -6,6 +6,7 @@ Copyright (c) 2008 Softwell. All rights reserved.
 """
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
+from datetime import timedelta
 
 class GnrCustomWebPage(object):
     py_requires='gnrcomponents/externalcall:BaseRpc'
@@ -27,3 +28,28 @@ class GnrCustomWebPage(object):
         js_script_url= self.site.getStaticUrl('rsrc:common','localiframe.js',nocache=True)
 
         return self.site.getService('rst2html')(rst,scripts=[js_script_url])
+
+    @public_method
+    def vtt(self,*args,**kwargs):
+        callArgs = self.getCallArgs('handler','video_id','kind','language')
+        language,ext = callArgs['language'].split('.')
+        kind = callArgs['kind']
+        tblobj = self.db.table('docu.video_track_cue')
+        f = tblobj.query(where='$video_id=:vid AND $kind=:ki',
+                            vid=callArgs['video_id'],ki=kind,order_by='start_time asc',
+                            bagFields=True).fetch()
+        result = ['WEBVTT FILE']
+        for r in f:
+            t0 = str(timedelta(seconds=r['start_time']))
+            if '.' in t0:
+                t0 = t0[0:-3]
+            t1 = str(timedelta(seconds=r['end_time']))
+            if '.' in t1:
+                t1 = t1[0:-3]
+            subtitle = Bag(r['subtitles'])[language]
+            result.append('\n%s\n%s --> %s\n%s' %(r['name'],t0,t1,subtitle))
+        self.forced_mimetype = "text/vtt"
+        return '\n'.join(result)
+
+
+

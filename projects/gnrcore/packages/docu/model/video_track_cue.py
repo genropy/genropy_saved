@@ -10,8 +10,8 @@ class Table(object):
         tbl.column('video_id',size='22' ,group='_',
                     name_long='!!Video').relation('video.id',
                                                 relation_name='cues',mode='foreignkey',onDelete='cascade')
-        tbl.column('kind' ,size=':20',name_long='!!Kind',values='metadata,chapters,captions,descriptions,subtitles')
-        tbl.column('start_time',dtype='L',name_long='!!Start')
-        tbl.column('end_time',dtype='L',name_long='!!End')
+        tbl.column('kind' ,size=':20',name_long='!!Kind',values='subtitles,chapters,captions,metadata,descriptions')
+        tbl.column('start_time',dtype='R',name_long='!!Start')
+        tbl.column('end_time',dtype='R',name_long='!!End')
         tbl.column('subtitles',dtype='X',name_long='!!Subtitles')
         tbl.column('options',dtype='X',name_long='!!Options')

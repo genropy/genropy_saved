@@ -733,7 +733,8 @@ class GnrWsgiSite(object):
                 self.cleanup()
             response = self.setResultInResponse(result, response, info_GnrTime=time() - t,info_GnrSqlTime=page.sql_time,info_GnrSqlCount=page.sql_count,
                                                                 info_GnrXMLTime=getattr(page,'xml_deltatime',None),info_GnrXMLSize=getattr(page,'xml_size',None),
-                                                                info_GnrSiteMaintenance=self.currentMaintenance)
+                                                                info_GnrSiteMaintenance=self.currentMaintenance,
+                                                                mimetype=getattr(page,'forced_mimetype',None))
             
             return response(environ, start_response)
             
@@ -784,7 +785,7 @@ class GnrWsgiSite(object):
             if v is not None:
                 response.headers['X-%s' %k] = str(v)
         if isinstance(result, unicode):
-            response.content_type = 'text/plain'
+            response.content_type = kwargs.get('mimetype') or 'text/plain'
             response.unicode_body = result # PendingDeprecationWarning: .unicode_body is deprecated in favour of Response.text
         elif isinstance(result, basestring):
             response.body = result
