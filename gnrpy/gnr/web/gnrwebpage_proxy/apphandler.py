@@ -1057,6 +1057,10 @@ class GnrWebAppHandler(GnrBaseProxy):
                            _resolver_name='relOneResolver')
             value = None 
             attributes = kw.get('_attributes')
+            colAttrs = selection.colAttrs
+            for k,v in attributes.items():
+                if colAttrs.get(k,{}).get('dataType') == 'X':
+                    attributes[k] = "%s::X" %v
             if attributes and '__value__' in attributes:
                 value = attributes.pop('__value__')
             result.setItem(row_key, value, **kw)

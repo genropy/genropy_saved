@@ -986,6 +986,7 @@ dojo.declare('gnr.GenroClient', null, {
         }else if(v instanceof gnr.GnrBag){
             v = genro.formatter.asText(v,objectUpdate({format:objectExtract(f,'bag_*',true)}) );
         }else if (v && f.dtype=='X'){
+            console.warn('DEPRECATED')
             var b = new gnr.GnrBag();
             try{
                 var parser = new DOMParser();

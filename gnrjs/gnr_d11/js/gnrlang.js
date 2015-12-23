@@ -363,14 +363,19 @@ function dataTemplate(str, data, path, showAlways,kw) {
                             });
     } else {
         data = data || {};
-        var p;
+        var p,plist,sub;
         result = str.replace(regexpr,
                           function(path) {
                               has_field=true;
-                              p = path.slice(1);
+                              plist = path.slice(1).split('.');
+                              p = plist[0];
                               var value = data[p];
                               if (value != null) {
                                     is_empty = false;
+                                    sub = plist.slice(1);
+                                    if(sub.length && value instanceof gnr.GnrBag){
+                                        return gnrformatter.asText(value.getItem(sub));
+                                    }
                                     return gnrformatter.asText(value,formats[p]);
                               }else{
                                     return '';
@@ -901,8 +906,14 @@ function convertFromText(value, t, fromLocale) {
        //}
         return result;
     }
-    else if (t == 'BAG' && !value) {
-        return new gnr.GnrBag();
+    else if (t == 'BAG' || t=='X') {
+        try{
+            return new gnr.GnrBag(value);
+        }catch(e){
+            console.error('Parsing error',e.toString());
+            return new gnr.GnrBag({error:e.toString()});
+        }
+        
     }
     return value;
 }
