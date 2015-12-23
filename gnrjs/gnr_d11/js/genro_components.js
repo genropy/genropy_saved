@@ -1384,11 +1384,11 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         sourceNode.setRelativeData(null, databag);
         var searchbox = sourceNode._('table', {nodeId:nodeId})._('tbody')._('tr');
         sourceNode._('dataController', {'script':'genro.publish(searchBoxId+"_changedValue",currentValue,field)',
-            'searchBoxId':nodeId,currentValue:'^.currentValue',field:'^.field',_userChanges:true});
+            'searchBoxId':nodeId,currentValue:'^.currentValue',field:'=.field',_userChanges:true});
         var searchlbl = searchbox._('td');
         searchlbl._('div', {'innerHTML':'^.caption',_class:'buttonIcon'});
         searchlbl._('menu', {'modifiers':'*',_class:'smallmenu',storepath:'.menubag',
-            selected_col:'.field',selected_caption:'.caption'});
+            selected_col:'.field',selected_caption:'.caption',action:'SET .value = null;SET .currentValue = null;'});
         
         searchbox._('td')._('div',{_class:'searchInputBox'})._('input', {'value':'^.value',connect_onkeyup:kw.onKeyUp,parentForm:false,width:objectPop(kw,'width') || '6em'});
         sourceNode.registerSubscription(nodeId + '_updmenu', this, function(searchOn) {
@@ -4470,7 +4470,7 @@ dojo.declare("gnr.stores._Collection",null,{
         return this._filtered = null;
     },
     
-    compileFilter:function(value,filterColumn,colType){
+    compileFilter:function(grid,value,filterColumn,colType){
         if(isNullOrBlank(value)){
             return null;
         }
@@ -4478,12 +4478,7 @@ dojo.declare("gnr.stores._Collection",null,{
         if (colType in {'A':null,'T':null}) {
             var regexp = new RegExp(value, 'i');
             cb = function(rowdata, index, array) {
-                var columns = filterColumn.split('+');
-                var txt = '';
-                for (var i = 0; i < columns.length; i++) {
-                    txt = txt + ' ' + rowdata[columns[i]];
-                }
-                return regexp.test(txt);
+                return regexp.test(grid.getRowText(index,' ',filterColumn.split('+'),true));
             };
         } else {
             var toSearch = /^(\s*)([\<\>\=\!\#]+)(\s*)(.+)$/.exec(value);
@@ -4508,7 +4503,7 @@ dojo.declare("gnr.stores._Collection",null,{
     },
 
     createFiltered:function(grid,currentFilterValue,filterColumn,colType){
-        var cb = this.compileFilter(currentFilterValue,filterColumn,colType);
+        var cb = this.compileFilter(grid,currentFilterValue,filterColumn,colType);
         if (!cb && !grid.excludeListCb){
             this._filtered = null;
             return null;
@@ -4550,6 +4545,8 @@ dojo.declare("gnr.stores._Collection",null,{
         this._linkedGrids = result;
         return result;
     },
+
+
     hasErrors:function(){
         //to implement
     },
