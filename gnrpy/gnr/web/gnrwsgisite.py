@@ -718,7 +718,7 @@ class GnrWsgiSite(object):
                
                 if page.download_name:
                     download_name = unicode(page.download_name)
-                    content_type = mimetypes.guess_type(download_name)[0]
+                    content_type = getattr(page,'forced_mimetype',None) or mimetypes.guess_type(download_name)[0]
                     if content_type:
                         page.response.content_type = content_type
                     page.response.add_header("Content-Disposition", str("attachment; filename=%s" %download_name))

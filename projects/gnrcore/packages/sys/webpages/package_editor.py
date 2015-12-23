@@ -39,7 +39,10 @@ class GnrCustomWebPage(object):
             path = p.project_name_to_path(value)
             instances_path = os.path.join(path,'instances')
             packages_path = os.path.join(path,'packages')
-            instances = [l for l in os.listdir(instances_path) if os.path.isfile(os.path.join(instances_path,l,'instanceconfig.xml'))]
+            if os.path.exists(instances_path):
+                instances = [l for l in os.listdir(instances_path) if os.path.isfile(os.path.join(instances_path,l,'instanceconfig.xml'))]
+            else:
+                instances = []
             packages = [l for l in os.listdir(packages_path) if os.path.isdir(os.path.join(packages_path,l))]
             data['instances'] = ','.join(instances) if instances else None
             data['packages'] =','.join(packages) if packages else None
@@ -72,19 +75,21 @@ class GnrCustomWebPage(object):
         sites = os.path.join(project_path,'sites')
         package_maker = PackageMaker(package_name,base_path=packagespath,helloworld=True,name_long=name_long)
         package_maker.do()
-        for d in os.listdir(instances):
-            configpath = os.path.join(instances,d,'instanceconfig.xml')
-            if os.path.isfile(configpath):
-                b = Bag(configpath)
-                b.setItem('packages.%s' %package_name,'')
-                b.toXml(configpath,typevalue=False,pretty=True)
-        for d in os.listdir(sites):
-            configpath = os.path.join(sites,d,'siteconfig.xml')
-            if os.path.isfile(configpath):
-                b = Bag(configpath)
-                n = b.getNode('wsgi')
-                n.attr['mainpackage'] = package_name
-                b.toXml(configpath,typevalue=False,pretty=True)
+        if os.path.exists(instances):
+            for d in os.listdir(instances):
+                configpath = os.path.join(instances,d,'instanceconfig.xml')
+                if os.path.isfile(configpath):
+                    b = Bag(configpath)
+                    b.setItem('packages.%s' %package_name,'')
+                    b.toXml(configpath,typevalue=False,pretty=True)
+        if os.path.exists(sites):
+            for d in os.listdir(sites):
+                configpath = os.path.join(sites,d,'siteconfig.xml')
+                if os.path.isfile(configpath):
+                    b = Bag(configpath)
+                    n = b.getNode('wsgi')
+                    n.attr['mainpackage'] = package_name
+                    b.toXml(configpath,typevalue=False,pretty=True)
         return package_name
 
 

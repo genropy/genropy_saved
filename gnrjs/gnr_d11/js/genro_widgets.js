@@ -959,11 +959,12 @@ dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
     addTrack:function(domNode,kw){
         var track = document.createElement('track');
         kw.label = kw.label || kw.kind+'_'+kw.srclang;
+        kw['src'] = dataTemplate(kw['src'],kw);
         if(!stringEndsWith(kw['src'],'.vtt')){
             kw['src']+='.vtt';
         }
+        objectExtract(kw,'_*');
         for (var k in kw){
-            console.log('setting',k)
             track[k] = kw[k];
         }
         track.addEventListener("load", function() { 
@@ -984,8 +985,7 @@ dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
             var that = this;
             tracks.forEach(function(kw){
                 kw = sn.evaluateOnNode(kw);
-                kw['src'] = dataTemplate(kw['src'],kw);
-                objectExtract(kw,'_*');
+                
                 that.addTrack(domNode,kw);
             });
         }

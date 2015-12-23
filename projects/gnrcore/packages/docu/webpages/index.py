@@ -40,12 +40,8 @@ class GnrCustomWebPage(object):
                             bagFields=True).fetch()
         result = ['WEBVTT FILE']
         for r in f:
-            t0 = str(timedelta(seconds=r['start_time']))
-            if '.' in t0:
-                t0 = t0[0:-3]
-            t1 = str(timedelta(seconds=r['end_time']))
-            if '.' in t1:
-                t1 = t1[0:-3]
+            t0 = self.catalog.asText(timedelta(seconds=r['start_time']),)
+            t1 = self.catalog.asText(timedelta(seconds=r['end_time']))
             subtitle = Bag(r['subtitles'])[language]
             result.append('\n%s\n%s --> %s\n%s' %(r['name'],t0,t1,subtitle))
         self.forced_mimetype = "text/vtt"

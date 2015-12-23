@@ -291,6 +291,13 @@ class GnrClassCatalog(object):
         self.addParser(datetime.datetime, self.parse_datetime)
         self.addSerializer("asText", datetime.datetime, self.serialize_datetime)
 
+       
+        self.addClass(cls=datetime.timedelta, key='TD', aliases=['TIMEDELTA', 'TD'], empty=None)
+        self.addParser(datetime.timedelta, self.parse_timedelta)
+        self.addSerializer("asText", datetime.timedelta, self.serialize_timedelta)
+
+
+
   
         self.addClass(cls=datetime.time, key='H', aliases=['TIME','HZ'], empty=None)
         self.addParser(datetime.time, self.parse_time)
@@ -359,6 +366,30 @@ class GnrClassCatalog(object):
             ts = ts.replace(tzinfo=tzlocal())
         return ts.isoformat()
         
+    def parse_timedelta(self, txt, workdate=None):
+        """Add???
+            
+        :param txt: TODO
+        :param workdate: the :ref:`workdate`"""
+        raise
+
+        
+    def serialize_timedelta(self,td):
+        microseconds = td.total_seconds() - td.seconds
+
+        t = td.seconds
+        seconds = t%60
+        seconds += microseconds
+        t = t/60
+        minutes = t%60
+        t = t/60
+        hours = t%24
+        days = t/24
+        result = "%02i:%02i:%02s" %(hours,minutes,('%.3f' %seconds).zfill(6)) 
+        if days:
+            "%s days %s" %(days,result)
+        return result
+
     def parse_date(self, txt, workdate=None):
         """Add???
             
