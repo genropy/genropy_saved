@@ -666,7 +666,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
      },
      
     setOpStatus:function(opStatus,onSaved){
-        this.willBeReloaded = ( ( (opStatus=='saving') && (onSaved == 'lazyReload') ) || opStatus=='loading' ) ? false:true;
+        this.willBeReloaded = false;
+        if(opStatus && ( (opStatus == 'loading') || (opStatus=='saving' && onSaved!='lazyReload') ) ){
+            this.willBeReloaded =true;
+        }
         this.opStatus=opStatus;
         this.publish('onSetOpStatus',this.opStatus);
     },
