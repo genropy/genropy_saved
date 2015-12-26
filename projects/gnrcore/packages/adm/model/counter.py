@@ -142,6 +142,7 @@ class Table(object):
             if prevcnt and prevcnt==cnt:
                 err = dict(cnt=cnt)
                 errors.setItem('duplicates.%i' %i,None,**err)
+                i-=1
             elif cnt>i:
                 h = dict(record_id=r['pkey'],date_from=None,date_to=None)
                 h['cnt_from'] = i
