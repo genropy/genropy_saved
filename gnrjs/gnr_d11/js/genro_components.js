@@ -1894,6 +1894,82 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
     }
 
 });
+
+dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        var frameKw = objectExtract(kw,'height,width,region,title,border,splitter,_class,style,frameCode,datapath,rounded');
+        frameKw.frameCode = frameKw.frameCode || 'videoplayer_'+genro.getCounter();
+        var frame = sourceNode._('FramePane',frameKw);
+        var slots = objectPop(kw,'slots');
+        var manageCue = objectPop(kw,'manageCue');
+        var playerSide = objectPop(kw,'playerSide');
+        var centerPane = frame._('ContentPane','videopane',{side:'center',overflow:'hidden'});
+        kw.currentTime = '^.currentTime';
+        kw.playing = '.playing';
+        kw.connect_loadedmetadata = 'SET .duration = Math.round(this.domNode.duration*10)/10;';
+        kw.width = kw.video_width || '100%';
+        kw.border = kw.video_border || 0;
+        if(frameKw.frameCode && !kw.nodeId){
+            kw.nodeId = frameKw.frameCode +'_video';
+        }
+        var video = centerPane._('video','video',kw);
+        var gnrwdg = sourceNode.gnrwdg;
+        this.preparePlayerBar(frame,slots,manageCue,playerSide,kw.nodeId);
+        return video;
+    },
+
+    preparePlayerBar:function(frame,slots,manageCue,playerSide,videoNodeId){
+        slots = slots || (manageCue? '10,playbutton,playerslider,timerbox,*,cuebutton,10':'10,playbutton,playerslider,timerbox,*');
+        playerSide = playerSide || 'top';
+        var bar = frame._('SlotBar','bar',{slots:slots,side:playerSide,height:'21px',toolbar:true,playerslider_width:'100%'});
+        var slotsKw = {};
+        slotsKw.playbutton = {tag:'slotButton',
+            label:'==_playing?"Pause":"Play"',
+             action:'var _video = genro.domById(_videoNodeId); if(_playing){_video.pause()}else{_video.play()};',
+            _playing:'^.playing',
+            iconClass:'==_playing?"player_pause":"player_play"',
+            _videoNodeId:videoNodeId
+        };
+        slotsKw.playerslider = {tag:'horizontalSlider',
+            value:'^.currentTime',
+            minimum:0, 
+            maximum:'^.duration', 
+            intermediateChanges:false,
+            width:'100%',parentForm:false
+        };
+        slotsKw.timerbox = {tag:'numberTextBox',
+            value:'^.currentTime',format:'###.00',width:'5em',rounded:6,
+            parentForm:false,margin_top:'1px'
+        };
+        slotsKw.cuebutton = {
+            tag:'slotButton',
+            label:"==_start_time?'Make cue':'Start cue';",
+            _start_time:'^.start_time',
+            iconClass:'==_start_time? "iconbox comment_check":"iconbox comment_plus"',
+            action:function(){
+                var start_time = this.getRelativeData('.start_time');
+                var currentTime = this.getRelativeData('.currentTime');
+                var video = genro.domById(videoNodeId);
+                if(start_time){
+                    video.pause();
+                    this.setRelativeData('.start_time',null);
+                    video.sourceNode.publish('addCue',{start_time:start_time,end_time:currentTime});
+                }else{
+                    this.setRelativeData('.start_time',currentTime);
+                }
+            }
+        };
+        slots.split(',').forEach(function(s){
+            if(s in slotsKw){
+                var skw = objectUpdate({},slotsKw[s]);
+                var tag = objectPop(skw,'tag');
+                bar._(tag,s,skw);
+            }
+        });
+    }
+
+});
+
 dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     subtags : {column:true,
                selectionstore:true,
@@ -3230,6 +3306,7 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         }
     }
 });
+
 
 dojo.declare("gnr.widgets.ComboArrow", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw,childSourceNode){

@@ -890,22 +890,27 @@ dojo.declare("gnr.widgets.canvas", gnr.widgets.baseHtml, {
 
 dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
     creating:function(attributes, sourceNode) {
-        objectExtract(attributes,'currentTime,tracks');
+        objectExtract(attributes,'currentTime,playing,tracks');
     },
 
     created:function(newobj, savedAttrs, sourceNode) {
-        if(sourceNode.attr.currentTime){
+        if(sourceNode.attr.currentTime || sourceNode.attr.playing){
             dojo.connect(newobj,'play',function(evt){
                 var d = evt.target;
                 if(d.sourceNode._currentTimeSetter){
                     return;
                 }
                 d.sourceNode._currentTimeSetter = setInterval(function(){
-                    d.sourceNode.setAttributeInDatasource('currentTime',Math.round(d.currentTime*10)/10);
+                    d.gnr.setPlaying(d);
+                    if(d.sourceNode.attr.currentTime){
+                        d.sourceNode.setAttributeInDatasource('currentTime',Math.round(d.currentTime*10)/10);
+                    }
                 },100);
             });
             dojo.connect(newobj,'pause',function(evt){
-                var sn = evt.target.sourceNode;
+                var d = evt.target;
+                var sn = d.sourceNode;
+                d.gnr.setPlaying(d);
                 if(sn._currentTimeSetter){
                     clearInterval(sn._currentTimeSetter);
                     delete sn._currentTimeSetter;
@@ -956,6 +961,14 @@ dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
             domNode.currentTime = givenCT;
         }
     },
+
+    setPlaying:function(domNode){
+        var sourceNode = domNode.sourceNode;
+        if(sourceNode.attr.playing){
+            sourceNode.setAttributeInDatasource('playing',!(domNode.paused || domNode.ended));
+        }
+    },
+
     addTrack:function(domNode,kw){
         var track = document.createElement('track');
         kw.label = kw.label || kw.kind+'_'+kw.srclang;
@@ -989,7 +1002,8 @@ dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
                 that.addTrack(domNode,kw);
             });
         }
-    }
+    },
+
 });
 
 dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
