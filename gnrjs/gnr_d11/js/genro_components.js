@@ -4140,15 +4140,11 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
         var skw = objectUpdate({_cleared:false},kw);
          //skw['_delay'] = kw['_delay'] || 'auto';
         skw.script="if(_cleared){this.store.clear();}else{if(this.form && this.form._reloadingAfterSave && !this.store.hasChanges()){return;}this.store.loadData();}";
-        objectPop(skw,'nodeId')
-        objectPop(skw,'_onCalling');
-        objectPop(skw,'_onResult');
-        objectPop(skw,'columns');
+
+        objectExtract(skw,'nodeId,_onCalling,_onResult,columns')
         var selectionStarter = sourceNode._('dataController',skw).getParentNode();
-        objectPop(kw,'_onStart');
-        objectPop(kw,'_cleared');
-        objectPop(kw,'_fired');
-        objectPop(kw,'_delay');
+
+        objectExtract(kw,'_onStart,_cleared,_fired,_delay')
         var v;
         for (var k in kw){
            v = kw[k];
