@@ -779,7 +779,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var loadedPkey = (this.getCurrentPkey() || '*norecord*');
         setTimeout(function(){
             controllerData.fireItem('loaded',loadedPkey);
-            that._reloadingAfterSave = false;
+            delete that._reloadingAfterSave;
         },1);
         this.updateStatus();
         this.setOpStatus();
@@ -920,28 +920,32 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         controller.setItem('clipboard',clipboard);
     },
 
-    pasteClipboard:function(pathOrCopyBag){
+    pasteClipboard:function(path){
         var copybag;
-        if(!pathOrCopyBag instanceof gnr.GnrBag){
-            var controllerdata = this.getControllerData();
-            var clipboard = controllerdata.getItem('clipboard')
-            var copy = clipboard.getNode(path);
-            copybag = copy.getValue().deepCopy();
-        }else{
-            copybag = pathOrCopyBag;
-        }
-        var currdata = this.getFormData();
-        copybag.forEach(function(n){
+        var controllerdata = this.getControllerData();
+        var clipboard = controllerdata.getItem('clipboard')
+        var copy = clipboard.getNode(path);
+        copybag = copy.getValue().deepCopy();
+        this.updateFormData(copybag);
+    },
+
+    updateFormData:function(sourceBag){
+        var destdata = this.getFormData();
+        sourceBag.forEach(function(n){
             var value = n._value;
-            var currnode = currdata.getNode(n.label);
-            var currvalue = currnode._value;
-            if(currvalue && currvalue instanceof gnr.GnrBag){
-                currvalue.update(value.deepCopy());
+            if(value instanceof gnr.GnrBag){
+                value = value.deepCopy();
+            }
+            var destnode = destdata.getNode(n.label);
+            var destvalue = destnode._value;
+            if(destvalue && destvalue instanceof gnr.GnrBag && value instanceof gnr.GnrBag){
+                destvalue.update(value);                
             }else{
-                currnode.setValue(value);
+                destnode.setValue(value);
             }
         });
     },
+
     clearClipboard:function(){
         this.getControllerData().setItem('clipboard',new gnr.GnrBag());
     },
