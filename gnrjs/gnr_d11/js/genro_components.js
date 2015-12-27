@@ -4902,6 +4902,9 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
                     if(that._editingForm || that.loadInvisible){
                         return genro.dom.isWindowVisible();
                     }
+                    if(that.storeNode.form && that.storeNode.form.opStatus){
+                        return false;
+                    }
                     var liveUpdateDelay = that.liveUpdateDelay;
                     var doUpdate = liveUpdateDelay?(new Date()-that.lastLiveUpdate)/1000>liveUpdateDelay:true;
                     if(doUpdate && !that.liveUpdateUnattended){
@@ -4975,9 +4978,6 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     },
 
     freezedStore:function(){
-        if(this.storeNode.form && this.storeNode.form.willBeReloaded){
-            return true;
-        }
         if(this.freezed){
             return true;
         }
@@ -5216,6 +5216,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     },
 
     onLoaded:function(result){
+        this.pendingChanges = [];
         this.externalChangedKeys = null;
         this.storeNode.setRelativeData(this.storepath,result,null,null,'loadData');
         return result;
