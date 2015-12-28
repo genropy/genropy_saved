@@ -4,7 +4,7 @@ var AttachManager = {
         uploadKw = sourceNode.evaluateOnNode(uploadKw);
         var params = {attachment_table:sourceNode.getInheritedAttributes()['table'],maintable_id:uploadKw.fkey,
                       onUploadingMethod:uploadKw['onUploadingMethod']};
-        var kw = {uploaderId:'attachmentManager',
+        var kw = {uploaderId:sourceNode.attr.nodeId || 'attachmentManager',
                   onProgress:function(e){console.log('onProgress',e)},
                   onResult:function(e){console.log('onResult',e)}
                 }
