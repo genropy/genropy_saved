@@ -2847,7 +2847,7 @@ dojo.declare("gnr.widgets.DropUploader", gnr.widgets.gnrwdg, {
             if(doUpload===false){
                 return false;
             }
-            return genro.rpc.uploadMultipart_oneFile(data,objectUpdate({},uploaderPars),objectUpdate({},uploaderKw));
+            return genro.rpc.uploadMultipart_oneFile(data,objectUpdate({},uploaderPars),objectUpdate({filename:data.name},uploaderKw));
         }
         var onFiles  = function(dropInfo,files){
             gnrwdg.pendingHandlers = [];
