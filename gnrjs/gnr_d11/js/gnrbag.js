@@ -1480,7 +1480,7 @@ dojo.declare("gnr.GnrBag", null, {
         var value = caseInsensitive?value.toLowerCase():value;
         var f = function(n) {
             if(attr in n.attr){
-                if(existAttr || (caseInsensitive?(n.attr[attr].toLowerCase()==value):(n.attr[attr]==value))){
+                if(existAttr || (caseInsensitive?((n.attr[attr] || '').toLowerCase()==value):(n.attr[attr]==value))){
                     return n;
                 }
             }
