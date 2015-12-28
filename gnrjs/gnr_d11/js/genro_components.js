@@ -835,17 +835,21 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         var uploadPath = objectPop(kw,'uploadPath');
         var filename = objectPop(kw,'filename');
         var maxsize = objectPop(kw,'maxsize');
-        gnrwdg.filename = filename || 'latest';
-        gnrwdg.uploadPath = uploadPath || 'conn:'+frameCode;
+        gnrwdg.filename = filename || frameCode+'latest';
+        gnrwdg.uploadPath = uploadPath;
         kw.height = kw.height || '400px';
         kw.width = kw.width || '650px';
+        sourceNode.attr.nodeId = frameCode;
+        sourceNode._registerNodeId();
         gnrwdg.matchColumns = objectPop(kw,'matchColumns');
         gnrwdg.importButtonKw = objectExtract(kw,'importButton_*');
         gnrwdg.importMethod = objectPop(kw,'rpcmethod');
+        gnrwdg.uploaderId = sourceNode.attr.nodeId +'_uploader';
         var palette = sourceNode._('PalettePane',kw);
         var bc = palette._('BorderContainer',{_lazyBuild:true});
         var slots = '2,prevtitle,*,limit,5';
         var limit = objectPop(kw,'previewLimit') || 20;
+        var dropMessage = objectPop(kw,'dropMessage') || '!!Drop import file here';
         if(!gnrwdg.matchColumns){
             gnrwdg.matchGrid(bc);
         }
@@ -857,42 +861,32 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         bar._('div','limit',{innerHTML:_T('The lines in preview are limited to')+' '+limit,font_style:'italic',font_size:'.8em'});
 
         var dropAreaKw = {};
-        dropAreaKw.dropTarget=true;
-        dropAreaKw.dropTypes='Files';
         dropAreaKw.nodeId = frameCode+'_uploader';
-        gnrwdg.uploaderId = dropAreaKw.nodeId;
-        
-        var cbOnDropData = function(dropInfo,data){
+        dropAreaKw.onUploadingCb = function(dropInfo,data){
             var uploaderNode = genro.nodeById(gnrwdg.uploaderId);
             uploaderNode.setRelativeData('.current_title',data.name);
-            if (maxsize && data.size>maxsize){
-                var size_kb = maxsize/1000
-                genro.dlg.alert("File exeeds size limit ("+size_kb+"KB)",'Error');
-                return false;
-            }
-            if(sourceNode.form && sourceNode.form.isDisabled()){
-                genro.dlg.alert("The form is locked",'Warning');
-                return false;
-            }
-            genro.rpc.uploadMultipart_oneFile(data,{onUploadedMethod:'utils.tableImporterCheck',limit:limit,table:table},{uploadPath:gnrwdg.uploadPath,
-                          filename:gnrwdg.filename,
-                          uploaderId:gnrwdg.uploaderId,
-                          onResult:function(result){
+        };
+        dropAreaKw.rpc_limit = limit;
+        dropAreaKw.rpc_table = table;
+        objectUpdate(dropAreaKw,objectExtract(kw,'drop_*',false,true));
+        dropAreaKw.onResult = function(result){
                                 if(result.currentTarget.responseText){
                                     gnrwdg.onImportCheck(new gnr.GnrBag(result.currentTarget.responseText));
                                 }                            
-                           }});
-        }
-        dropAreaKw.onDrop = function(dropInfo,files){
-            cbOnDropData(dropInfo,files[0]);
-        };
+                           }
+        dropAreaKw.filename = gnrwdg.filename;
+        dropAreaKw.uploadPath = gnrwdg.uploadPath;
         var sc = frame._('StackContainer',{side:'bottom',height:'30px',selected:'^.import_page_status',
                                             border_top:'1px solid silver',background:'white'});
-        sc._('ContentPane',{})._('div','msgslot',
-                                    objectUpdate({innerHTML:_T('!!Drop import file here'),
-                                                  font_size:'1.2em',position:'absolute',top:0,left:0,right:0,bottom:0,
-                                                  padding:'7px',
-                                                  color:'#666',text_align:'center'},dropAreaKw))
+        sc._('ContentPane',{})._('DropUploader','msgslot',
+                                    objectUpdate({label:_T(dropMessage),
+                                                  font_size:'1.2em',position:'absolute',top:0,left:'3px',right:'3px',bottom:0,
+                                                  color:'#666',text_align:'center',
+                                                  onUploadedMethod:'utils.tableImporterCheck',
+                                                  _class:'importerPaletteDropUploaderBox',
+                                                  cursor:'pointer',
+                                                  nodeId:gnrwdg.uploaderId
+                                                 },dropAreaKw))
         var confirmPane = sc._('ContentPane',{});
         var footerbar = confirmPane._('slotBar',{slots:'5,resetButton,*,importButton,5',margin_top:'5px'});
         footerbar._('slotButton','resetButton',{label:'Clear',width:'8em',font_size:'1em',padding:'2px',
@@ -906,8 +900,27 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         footerbar._('slotButton','importButton',importButtonKw);
         var qg = frame._('ContentPane',{'side':'center',overflow:'hidden'})._('quickGrid', {value:'^.importing_data'});
         gnrwdg.gridNode = qg.getParentNode();
+        var bcnode = bc.getParentNode();
+        gnrwdg.rootNode = bcnode;
+        sourceNode.subscribe('onResult',function(kw){
+            if(kw.error){
+                genro.dlg.floatingMessage(bcnode,{message:kw.error,messageType:'error'})
+            }
+            else{
+                this.gnrwdg.resetImporter();
+                var closeCb = function(){
+                    genro.wdgById(frameCode+'_floating').hide()
+                }
+                if(kw.message){
+                    genro.dlg.floatingMessage(bcnode,{message:kw.message,onClosedCb:kw.closeImporter?closeCb:null})
+                }else if(kw.closeImporter){
+                    closeCb();
+                }
+            }
+        });
         return bc;
     },
+
 
     gnrwdg_matchGrid:function(bc){
         var gnrwdg = this;
@@ -970,7 +983,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
             var colkeys = columns.keys();
             var matchColumns = this.matchColumns.split(',');
             if(matchColumns.length!=colkeys.length || matchColumns.some(function(n,idx){return n!=colkeys[idx]})){
-                genro.publish('floating_message',{message:_T('Columns mismatch'),messageType:'error'});
+                genro.dlg.floatingMessage(this.rootNode,{message:_T('Columns mismatch'),messageType:'error'})
                 return;
             }
         }
@@ -1017,7 +1030,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
                                                     import_method:'=.import_method',
                                                     no_trigger:'=.no_trigger',
                                                     _sourceNode:buttonNode},function(result){
-                                                        genro.publish('floating_message',{message:_T('Import finished')});
+                                                        genro.dlg.floatingMessage(that.rootNode,{message:_T('Import finished')});
                                                         that.resetImporter();
                                                     });
     }
@@ -2766,47 +2779,127 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
     }
 });
 
-dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
+dojo.declare("gnr.widgets.DropUploader", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
-        console.warn("gnr.widgets.ImgUploader is obsolete use img tag")
-        var value = objectPop(kw,'value'); //^miorul
-        var placeholder = objectPop(kw,'placeholder');
-        var folder = objectPop(kw,'folder');
-        var filename = objectPop(kw,'filename');
-        var zoomImage = objectPop(kw,'zoomImage');
-        var width = objectPop(kw,'crop_width');
-        var height = objectPop(kw,'crop_height');
-        if(zoomImage){
-            kw.connect_ondblclick="genro.openWindow(this.currentFromDatasource(this.attr.src),"+zoomImage+")";
-            kw.cursor = 'pointer';
+        var gnrwdg = sourceNode.gnrwdg;
+        var uploaderPars = objectExtract(kw,'onUploadedMethod,onUploadingMethod');
+        var uploaderKw = objectExtract(kw,'uploadPath,filename,onResult,onError,onProgress,onAbort');
+        objectUpdate(uploaderPars,objectExtract(kw,'rpc_*'));
+        var nodeId = objectPop(kw,'nodeId') || 'uploader_'+genro.getCounter()
+        uploaderKw.uploadPath = uploaderKw.uploadPath || 'page:'+nodeId;
+        var label = objectPop(kw,'label');
+        var dropAreaKw = {nodeId:nodeId,dropTarget:objectPop(kw,'dropTarget',true),
+                          dropTypes:objectPop(kw,'dropTypes','Files'),
+                         _class:'dropUploaderBoxInner'};
+        var containerKw = objectExtract(kw,'position,top,left,right,bottom,height,width,border,rounded,_class')
+
+        gnrwdg.pendingHandlers = [];
+        dropAreaKw.connect_ondblclick = function(){
+            if(gnrwdg.pendingHandlers.length){
+                genro.dlg.ask(_T("Abort upload"),
+                 _T("Are you sure?"),null,{
+                     confirm:function(){
+                        gnrwdg.pendingHandlers.forEach(function(h){
+                            if(h._progressDiv){
+                                gnrwdg.rootNode.domNode.removeChild(h._progressDiv);
+                            }
+                            h.abort()
+                        });
+                        gnrwdg.pendingHandlers = [];
+                    }
+                 });
+            }else{
+                gnrwdg.fakeinputNode.domNode.click();
+            }
+            
         }
-        var cb = function(result){
-            sourceNode.setRelativeData(value,this.responseText,{_formattedValue:genro.formatter.asText(this.responseText,{format:'img'})});
-        };
-        var uploaderAttr = {'src':'==_src?_src:placeholder;',
-                           'placeholder':placeholder,'_src':value,
-                            'dropTarget':true,dropTypes:'Files', 
-                            'drop_ext':kw.drop_ext || 'png,jpg,jpeg,gif',
-                            'crop_width':width,
-                            'crop_height':height
-                            };
-                            
-
-
-        uploaderAttr.onDrop = function(data,files){
-                 var f = files[0];
-                 var currfilename = sourceNode.currentFromDatasource(filename);
-                 if(!currfilename){
-                     //genro.alert('Warning',"You complete your data before upload");
-                     return false;
-                 }
-                 genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:sourceNode.currentFromDatasource(folder),filename:currfilename,
-                                                      onResult:cb});
+        dropAreaKw.innerHTML = dropAreaKw.innerHTML || label || '&nbsp;';
+        var maxsize = objectPop(kw,'maxsize');
+        uploaderKw.uploaderId = dropAreaKw.nodeId;  
+        var onUploadingCb = objectPop(kw,'onUploadingCb') || function(){};
+        onUploadingCb = funcCreate(onUploadingCb,'dropInfo,data',sourceNode);
+        var progressBar = objectPop(kw,'progressBar',true);
+        if(uploaderKw.onResult){
+            uploaderKw.onResult = funcCreate(uploaderKw.onResult,'evt',sourceNode);
+        }
+        if(uploaderKw.onError){
+            uploaderKw.onError = funcCreate(uploaderKw.onError,'evt',sourceNode);
+        }
+        if(uploaderKw.onAbort){
+            uploaderKw.onAbort = funcCreate(uploaderKw.onAbort,'evt',sourceNode);
+        }
+        if(uploaderKw.onProgress){
+            uploaderKw.onProgress = funcCreate(uploaderKw.onProgress,'evt',sourceNode);
+        }else if(progressBar){
+            uploaderKw.onProgress = function(evt){
+                var d = evt._sender._progressDiv;
+                if(d){
+                    d.style.width = (evt.loaded *100) /evt.total +'%';
+                    if(evt.loaded == evt.total){
+                        gnrwdg.rootNode.domNode.removeChild(d);
+                        gnrwdg.pendingHandlers.splice(evt._sender._counter,1);
+                    }
+                }
             };
-
-        return sourceNode._('img',objectUpdate(uploaderAttr,kw));
+        }
+        var cbOnDropData = function(dropInfo,data){
+            var doUpload = onUploadingCb(dropInfo,data);
+            if(doUpload===false){
+                return false;
+            }
+            return genro.rpc.uploadMultipart_oneFile(data,objectUpdate({},uploaderPars),objectUpdate({},uploaderKw));
+        }
+        var onFiles  = function(dropInfo,files){
+            gnrwdg.pendingHandlers = [];
+            if(sourceNode.form && sourceNode.form.isDisabled()){
+                genro.dlg.alert("The form is locked",'Warning');
+                return false;
+            }
+            var totSize = 0;
+            if(maxsize){
+                dojo.forEach(function(f){
+                    totSize += f.size;
+                });
+                if (totSize>maxsize){
+                    var size_kb = maxsize/1000
+                    genro.dlg.alert("File exeeds size limit ("+size_kb+"KB)",'Error');
+                    return false;
+                }
+            }
+            var c = 0;
+            var height = Math.round(100/files.length)
+            dojo.forEach(files,function(f){
+                var h = cbOnDropData(dropInfo,f);
+                if(h){
+                    gnrwdg.pendingHandlers.push(h);
+                    if(progressBar){
+                        var pb = document.createElement('div');
+                        pb.style.position = 'absolute';
+                        pb.style.top = c*height+'%';
+                        pb.style.left = 0;
+                        pb.style.height = height+'%';
+                        pb.style.background = 'rgba(11,121,171,0.30)';
+                        gnrwdg.rootNode.domNode.appendChild(pb);
+                        h._counter = c;
+                        h._progressDiv = pb;
+                    }
+                    c+=1;
+                }
+            });
+        };
+        dropAreaKw.onDrop = onFiles;
+        containerKw._class =containerKw._class ||  'dropUploaderBox' ;
+        var container = sourceNode._('div',containerKw);
+        var fakeinput = container._('input',{hidden:true,type:'file',
+                connect_onchange:function(evt){
+                    onFiles({evt:evt},evt.target.files);
+                }
+        });
+        gnrwdg.fakeinputNode = fakeinput.getParentNode();
+        container._('div',objectUpdate(dropAreaKw,kw))
+        gnrwdg.rootNode = container.getParentNode();
+        return container;
     }
-    
 });
 
 

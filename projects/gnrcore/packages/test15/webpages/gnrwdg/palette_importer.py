@@ -26,19 +26,25 @@ class GnrCustomWebPage(object):
                                 """,
                             importButton_ask=dict(title='Parametrone',fields=[dict(name='name',lbl='Name')]),
                             matchColumns='*')
+
         fb.dataRpc('dummy',self.importFileTest,subscribe_importa_file=True,
             _onResult="""
                 genro.publish('testimporter_onResult',result);
             """,_onError="""
                 genro.publish('testimporter_onResult',{error:error});
             """)
+        
+    def test_2_dropUploader(self,pane):
+        fb = pane.formbuilder()
 
-        fb.input(value='^.zzz',lbl='Import file',type='file',connect_change="genro.bp(true)")
+        fb.dropUploader(label='Drop the file to import here',width='300px',onUploadedMethod=self.testUpl,
+                        onResult="console.log('finito',evt)",progressBar=True)
+
         #fb.fileInputBlind(value='^.fileInputBlind',lbl='Import file')
 
     @public_method
-    def testUpl(fileHandle=None,**kwargs):
-        print x
+    def testUpl(*args,**kwargs):
+        print 'pippo'
 
     @public_method
     def importFileTest(self,filepath=None,name=None):

@@ -896,7 +896,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             }
         }
     },
-    
+
     uploadMultipart_oneFile:function(file, params, kw) {
         params = params || {};
         var content = new FormData();
@@ -915,9 +915,21 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             console.log(arguments);
         };
         //if (kw.onResult) sender.upload.addEventListener("load", kw.onResult, false);
-        if (kw.onProgress) sender.upload.addEventListener("progress", kw.onProgress, false);
-        if (kw.onError) sender.upload.addEventListener("error", kw.onError || errorCb, false);
-        if (kw.onAbort) sender.upload.addEventListener("abort", kw.onAbort, false);
+        if (kw.onProgress){
+            sender.upload.addEventListener("progress", function(evt){evt._sender = sender; kw.onProgress(evt)}, false)
+        };
+        if (kw.onError){
+            sender.upload.addEventListener("error", function(evt){
+                evt._sender = sender;
+                (kw.onError || errorCb)(evt)
+            }, false)
+        };
+        if (kw.onAbort){
+            sender.upload.addEventListener("abort",function(evt){
+                evt._sender = sender;
+                kw.onAbort(evt);
+            }, false)
+        };
         //var filereader = new FileReader();
         var onResult = objectPop(kw,'onResult');
         if(typeof(file) == 'string'){
@@ -930,5 +942,6 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             dojo.connect(sender,'onload',onResult);
         }
         sender.send(content);
+        return sender;
     }
 });

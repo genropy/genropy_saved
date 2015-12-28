@@ -4976,4 +4976,23 @@ div[disabled='true'], div[disabled='disabled']{
     margin-top: 20px;
 }
 
+.dropUploaderBox{
+    width:150px;
+    border: 1px solid silver;
+    border-radius: 4px;
+    font-size: 20px;
+    color: #666;
+    text-align: center;
+    height: 30px;
+    cursor: pointer;
+    position: relative;
+}
 
+.dropUploaderBoxInner{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    line-height: 30px;
+}
