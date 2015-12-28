@@ -1118,38 +1118,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }        
     },
 
-    makeFloatingMessage:function(kw){
-        kw = objectUpdate({},kw)
-        var yRatio = objectPop(kw,'yRatio')
-        var xRatio = objectPop(kw,'xRatio')
-        var duration = objectPop(kw,'duration') || 2;
-        var duration_in = objectPop(kw,'duration_in') || duration;
-        var duration_out = objectPop(kw,'duration_out') || duration;
-
-        var sound = objectPop(kw,'sound');
-        var message = objectPop(kw,'message');
-
-        var msgType = objectPop(kw,'messageType') || 'message';
-        var transition = 'opacity '+duration_in+'s';
-        var messageBox = this._('div','_floatingmess',{_class:'invisible fm_box fm_'+msgType,transition:transition}).getParentNode()
-        kw.innerHTML = message;
-        messageBox._('div',kw);
-        var deleteCb = function(){that._value.popNode('_floatingmess')};
-        messageBox._('div',{_class:'fm_closebtn',connect_onclick:deleteCb});
-        genro.dom.centerOn(messageBox,this,xRatio,yRatio);
-        var that = this;
-        if(sound){
-            genro.playSound(sound);
-        }
-        var t1 = setTimeout(function(){
-                              genro.dom.removeClass(messageBox,'invisible');
-                              setTimeout(function(){genro.dom.addClass(messageBox,'invisible')
-                                    setTimeout(deleteCb,(duration_out*1000)+1)
-                              },(duration_in*1000)+1);
-                            },1)
-
-    },
-    
     updateAttrBuiltObj:function(attr, kw, trigger_reason) {
         var re= new RegExp('\\b'+attr+'\\b');
         var isInFormula = false;
