@@ -318,7 +318,7 @@ class SqlDbAdapter(object):
             if not (k.startswith('@') or k=='pkey' or  k in tbl_virtual_columns):
                 v = record_data[k]
                 if isinstance(v, Bag):
-                    v = v.toXml(onBuildTag=onBagColumns)
+                    v = v.toXml(onBuildTag=onBagColumns) if v else None
                     #data_out[str(k.lower())] = v
                 data_out[str(k)] = v
         sql_value_cols = [k for k,v in tblobj.columns.items() if 'sql_value' in v.attributes and not k in data_out]
