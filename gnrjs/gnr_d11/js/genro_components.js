@@ -876,9 +876,9 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
                            }
         dropAreaKw.filename = gnrwdg.filename;
         dropAreaKw.uploadPath = gnrwdg.uploadPath;
-        var sc = frame._('StackContainer',{side:'bottom',height:'30px',selected:'^.import_page_status',
+        var sc = bc._('StackContainer',{region:'bottom',height:'30px',selected:'^.import_page_status',
                                             border_top:'1px solid silver',background:'white'});
-        sc._('ContentPane',{})._('DropUploader','msgslot',
+        sc._('ContentPane',{overflow:'hidden'})._('DropUploader','msgslot',
                                     objectUpdate({label:_T(dropMessage),
                                                   font_size:'1.2em',position:'absolute',top:0,left:'3px',right:'3px',bottom:0,
                                                   color:'#666',text_align:'center',
