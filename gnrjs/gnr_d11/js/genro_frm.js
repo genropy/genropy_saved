@@ -933,12 +933,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 value = value.deepCopy();
             }
             var destnode = destdata.getNode(n.label);
-            var destvalue = destnode._value;
-            if(destvalue && destvalue instanceof gnr.GnrBag && value instanceof gnr.GnrBag){
-                destvalue.update(value);                
-            }else{
-                destnode.setValue(value);
-            }
+            destnode.setValue(value);
         });
     },
 
