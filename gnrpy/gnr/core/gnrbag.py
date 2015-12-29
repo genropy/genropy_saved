@@ -130,6 +130,10 @@ class BagNode(object):
                 return False
         except:
             return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
             
     def setValidators(self, validators):
         """TODO"""
@@ -1067,6 +1071,10 @@ class Bag(GnrObject):
                 return False
         except:
             return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
     def diff(self,other):
         if self == other:
