@@ -474,7 +474,7 @@ dojo.declare("gnr.GnrBagNode", null, {
         if (isBag(nodeValue)) {
             result = xml_buildTag(this.label,
                     nodeValue.toXmlBlock(kwargs),
-                    this.getAttr(),
+                    objectUpdate({_T:'bag'},this.getAttr()),
                     true);
         } else {
             result = xml_buildTag(this.label,
