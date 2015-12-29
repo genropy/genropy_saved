@@ -59,31 +59,37 @@ class AttachManagerView(AttachManagerViewBase):
 
 
 class Form(BaseComponent):
+
     def th_form(self, form):
         sc = form.center.stackContainer(datapath='.record')
-        sc.contentPane(overflow='hidden').iframe(src='^.fileurl',_virtual_column='fileurl',height='100%',
-                                                width='100%',border='0px',documentClasses=True)
+        iframe = sc.contentPane(overflow='hidden').iframe(src='^.fileurl',_virtual_column='fileurl',height='100%',
+                                                width='100%',border='0px',documentClasses=True,
+                        connect_onload="""
+                            var cw = this.domNode.contentWindow;
+                            cw.document.body.style.zoom = GET #FORM.currentPreviewZoom;""")
         da = sc.contentPane().div(position='absolute',top='10px',left='10px',right='10px',bottom='10px',
             text_align='center',border='3px dotted #999',rounded=8)
 
         da.table(height='100%',width='100%').tr().td().div('!!Drop Area',width='100%',
                                                             font_size='30px',color='#999')
-        da.div(position='absolute',top=0,bottom=0,left=0,right=0,z_index=10,
-            dropTarget=True,dropTypes='Files',
-                onDrop="""
-                            var form = this.form;
-                            form.waitingStatus(true)
-                            AttachManager.onDropFiles(this,files,function(){
-                                    form.waitingStatus(false);
-                                });""",
-                _uploader_fkey='=#FORM.record.maintable_id',
-                _uploader_onUploadingMethod=self.onUploadingAttachment
-            )
-
+        fattr = form.attributes
+        da.dropUploader(position='absolute',top=0,bottom=0,left=0,right=0,z_index=10,
+                        _class='attachmentDropUploader',
+                        onUploadingMethod=self.onUploadingAttachment,
+                        rpc_maintable_id='=#FORM.record.maintable_id',
+                        rpc_attachment_table=fattr.get('table'),
+                        nodeId='%(frameCode)s_uploader' %fattr)
         form.dataController("sc.switchPage(newrecord?1:0)",newrecord='^#FORM.controller.is_newrecord',sc=sc.js_widget)
+        form.dataController("iframe.contentWindow.document.body.style.zoom = currentPreviewZoom;",iframe=iframe.js_domNode,currentPreviewZoom='^#FORM.currentPreviewZoom')
 
     def th_options(self):
         return dict(showtoolbar=False,showfooter=False)
+
+    @public_method
+    def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
+        if newrecord:
+            record['id'] = self.db.table(record.tablename).newPkeyValue()
+
 
 class ViewPalette(BaseComponent):
     def th_struct(self,struct):
@@ -184,7 +190,9 @@ class AttachManager(BaseComponent):
                 parentForm=True,deleteAction=False,disabled='==!_store || _store.len()==0 || _flock',
                 _store='^.store',_flock='^#FORM.controller.locked')
         table = frame.multiButtonView.itemsStore.attributes['table']
-        bar = frame.top.bar.replaceSlots('mbslot','mbslot,15,changeName')
+        bar = frame.top.bar.replaceSlots('mbslot','mbslot,15,changeName,5,previewZoom')
+        bar.previewZoom.horizontalSlider(value='^.form.currentPreviewZoom', minimum=0, maximum=1,
+                                 intermediateChanges=True, width='15em',default_value=1)
         fb = bar.changeName.div(_class='iconbox tag',hidden='^.form.controller.is_newrecord',tip='!!Change description').tooltipPane(
                 connect_onClose='FIRE .saveDescription;',
             ).div(padding='10px').formbuilder(cols=1,border_spacing='3px')
@@ -211,7 +219,7 @@ class AttachManager(BaseComponent):
                     console.log('deleted',c.pkey);
                 }
             })
-            """,table=table,frm=frame.form.js_form,_delay=1,store='=.store')
+            """,table=table,frm=frame.form.js_form,_delay=100,store='=.store')
 
     @public_method
     def onUploadingAttachment(self,kwargs):
@@ -222,7 +230,11 @@ class AttachManager(BaseComponent):
         filename = kwargs.get('filename')
         description,ext = os.path.splitext(filename)
         description = slugify(description)
-        filename = '%s%s' %(description,ext)
+        last = self.db.table(attachment_table).query(where='$maintable_id=:mid',mid=maintable_id,order_by='_row_count desc',limit=1).fetch()
+        counter = 0
+        if last:
+            counter = last[0]['_row_count']
+        filename = '%002i_%s%s' %(counter,description,ext)
         kwargs['filename'] = filename
         path = os.path.join(maintable.replace('.','_'),maintable_id)
         if hasattr(maintableobj,'atc_getAttachmentPath'):
