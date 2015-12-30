@@ -2382,8 +2382,9 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
         if( (wdg.modifiers || wdg.validclass ) && !(genro.wdg.filterEvent(e, wdg.modifiers, wdg.validclass)) ){
             return;
         }
+        var contextclick = (e.button==2 || genro.dom.getEventModifiers(e)=='Ctrl');
         if(!wdg.modifiers){
-            if(e.button!=2){
+            if(!contextclick){
                 //not modifiers nor contextclick
                 return;
             }
@@ -2438,7 +2439,7 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
             wdg._contextMouse_replaced.call(wdg, e);
             wdg._openMyself_replaced.call(wdg, e);
         }
-        else if (e.button == 2) {
+        else if (contextclick) {
             wdg._contextMouse_replaced.call(wdg, e);
         }
 
@@ -2468,7 +2469,8 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
         }
     },
     versionpatch_11__openMyself: function (e) {
-        if ((e.button == 2) && (!this.modifiers)) {
+        var contextclick = (e.button==2 ||  genro.dom.getEventModifiers(e)=='Ctrl');
+        if (contextclick && (!this.modifiers)) {
             this._openMyself_replaced.call(this, e);
         }
     },
