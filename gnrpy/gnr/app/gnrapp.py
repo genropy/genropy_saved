@@ -1336,7 +1336,7 @@ class GnrApp(object):
             if not instance_name:
                 return
             if remote_db:
-                instance_name = '%s:%s' %(instance_name,remote_db)
+                instance_name = '%s@%s' %(instance_name,remote_db)
             self.aux_instances[name] = GnrApp(instance_name)
         return self.aux_instances[name]
 
