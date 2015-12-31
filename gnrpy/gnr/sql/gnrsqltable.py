@@ -955,14 +955,16 @@ class SqlTable(GnrObject):
         """TODO"""
         self.db.adapter.emptyTable(self)
         
-    def sql_deleteSelection(self, where, **kwargs):
+    def sql_deleteSelection(self, where=None,_pkeys=None, **kwargs):
         """Delete a selection from the table. It works only in SQL so no python trigger is executed
         
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
         :param \*\*kwargs: optional arguments for the "where" attribute"""
-        todelete = self.query('$%s' % self.pkey, where=where, addPkeyColumn=False, for_update=True,excludeDraft=False ,**kwargs).fetch()
-        if todelete:
-            self.db.adapter.sql_deleteSelection(self, pkeyList=[x[0] for x in todelete])
+        if where:
+            todelete = self.query('$%s' % self.pkey, where=where, addPkeyColumn=False, for_update=True,excludeDraft=False ,_pkeys=_pkeys,**kwargs).fetch()
+            _pkeys = [x[0] for x in todelete] if todelete else None
+        if _pkeys:
+            self.db.adapter.sql_deleteSelection(self, pkeyList=_pkeys)
             
     #Jeff added the support to deleteSelection for passing no condition so that all records would be deleted
     def deleteSelection(self, condition_field=None, condition_value=None, excludeLogicalDeleted=False, excludeDraft=False,condition_op='=',
@@ -1614,6 +1616,43 @@ class SqlTable(GnrObject):
             for record in data['records'].values():
                 record.pop('_isdeleted')
                 self.insert(record)
+
+    def dependenciesTree(self,records=None,history=None,ascmode=False):
+        print 'dependencies from',self.fullname
+        history = history or dict()
+        for rel in self.relations_one:
+            mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')
+            opkg, otbl, ofld = rel.attr['one_relation'].split('.')
+            relatedTable = self.db.table(otbl, pkg=opkg)
+            tablename = relatedTable.fullname
+            if not tablename in history:
+                history[tablename] = dict(one=set(),many=set())
+            one_history_set = history[tablename]['one']
+            sel = relatedTable.query(columns='*', where='$%s in :pkeys' %ofld,
+                                         pkeys=list(set([r[mfld] for r in records])-one_history_set),
+                                         excludeDraft=False,excludeLogicalDeleted=False).fetch()
+            if sel:
+                one_history_set.update([r[relatedTable.pkey] for r in sel])
+                relatedTable.dependenciesTree(sel,history=history,ascmode=True)
+        if ascmode:
+            return history
+ 
+        for rel in self.relations_many:
+            mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')
+            opkg, otbl, ofld = rel.attr['one_relation'].split('.')
+            relatedTable = self.db.table(mtbl, pkg=mpkg)
+            tablename=relatedTable.fullname
+            if not tablename in history:
+                history[tablename] = dict(one=set(),many=set())
+            many_history_set = history[tablename]['many']
+            sel = relatedTable.query(columns='*', where='%s in :rkeys AND $%s NOT IN :pklist' % (mfld,relatedTable.pkey),
+                                        pklist = list(many_history_set),
+                                         rkeys=[r[ofld] for r in records],excludeDraft=False,excludeLogicalDeleted=False).fetch()
+            if sel:
+                many_history_set.update([r[relatedTable.pkey] for r in sel])
+                relatedTable.dependenciesTree(sel,history=history,ascmode=False)
+
+        return history                    
              
     def copyToDb(self, dbsource, dbdest, empty_before=False, excludeLogicalDeleted=False, excludeDraft=False,
                  source_records=None, bagFields=True,source_tbl_name=None, raw_insert=None,_converters=None, **querykwargs):
