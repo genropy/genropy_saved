@@ -1628,7 +1628,7 @@ class SqlTable(GnrObject):
             if not tablename in history:
                 history[tablename] = dict(one=set(),many=set())
             one_history_set = history[tablename]['one']
-            sel = relatedTable.query(columns='*', where='$%s in :pkeys' %ofld,
+            sel = relatedTable.query(columns='*', where='$%s IN :pkeys' %ofld,
                                          pkeys=list(set([r[mfld] for r in records])-one_history_set),
                                          excludeDraft=False,excludeLogicalDeleted=False).fetch()
             if sel:
