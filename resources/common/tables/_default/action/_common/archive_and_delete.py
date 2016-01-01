@@ -63,9 +63,10 @@ class Main(BaseResourceAction):
             return
         for t in reversed(self.index_tables):
             t = t.replace('/','.')
-            s = self.tableDependencies.get(t)['many']
-            if s:
-                self.db.table(t).sql_deleteSelection(_pkeys=list(s))
+            if t in self.tableDependencies:
+                s = self.tableDependencies.get(t)['many']
+                if s:
+                    self.db.table(t).sql_deleteSelection(_pkeys=list(s))
         self.tblobj.sql_deleteSelection(_pkeys=[r[self.tblobj.pkey] for r in self.curr_records])
         self.db.commit()
 
