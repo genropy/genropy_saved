@@ -890,7 +890,10 @@ dojo.declare("gnr.widgets.canvas", gnr.widgets.baseHtml, {
 
 dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
     creating:function(attributes, sourceNode) {
-        objectExtract(attributes,'currentTime,playing,tracks');
+        objectExtract(attributes,'currentTime,playing,tracks,range_start,range_end');
+        if(!attributes.src){
+            objectPop(attributes,'src')
+        }
     },
 
     created:function(newobj, savedAttrs, sourceNode) {

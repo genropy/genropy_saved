@@ -12,7 +12,7 @@ class GnrCustomWebPage(object):
         """First test description"""
         bc = pane.borderContainer(height='500px')
         pane = bc.contentPane(overflow='hidden',region='center')
-        pane.video(src='/_site/screencasts/screencast_package_editor.mp4',height='100%',width='100%',
+        pane.video(src='/_site/screencasts/screencast_package_editor.mp4?#t=30,40',height='100%',width='100%',
                     border=0,controls=True,nodeId='preview_video',
                     tracks=[dict(src='/_site/screencasts/pippo.vtt?zzz',
                                 kind='subtitles',srclang='it')])
@@ -27,15 +27,25 @@ class GnrCustomWebPage(object):
                                 kind='subtitles',srclang='it')])
 
     def test_2_videotrack_semistatic(self,pane):
-       """First test description"""
-       bc = pane.borderContainer(height='500px')
-       t = bc.contentPane(region='top')
-       fb = t.formbuilder(cols=1,border_spacing='3px')
-       pane = bc.VideoPlayer(src='/_site/screencasts/screencast_package_editor.mp4',datapath='.myvideo',
+        """First test description"""
+        bc = pane.borderContainer(height='500px')
+        top = bc.contentPane(region='top',height='50px',background='red',splitter=True)
+        fb = top.formbuilder(cols=1,border_spacing='3px')
+        fb.data('.myvideo.range','12,30')
+        fb.textbox('^.myvideo.range',lbl='Range')
+
+       #bc.contentPane(region='left',width='50px',splitter=True,background='lime')
+       #bc.contentPane(region='right',width='50px',splitter=True,background='navy')
+       #bc.contentPane(region='bottom',height='50px',splitter=True,background='silver')
+
+        pane = bc.VideoPlayer(url='https://player.vimeo.com/external/131523423.hd.mp4?s=0793387c74bb8a52ac266b4b67fe7dc623f1b447&profile_id=113&',
+                    datapath='.myvideo',
                     region='center',
-                    range_start='12',
-                    range_end='30',
+                    manageCue=True,
+                    range='^.range',
+                    selfsubscribe_addCue='console.log("fffff",$1);',
                    border=0,nodeId='preview_videoplayer',
-                   tracks=[dict(src='/_site/screencasts/sub_it.vtt',
-                               kind='subtitles',srclang='it')])
+                   #subtitlePane=True,
+                   tracks=[dict(src='/video/index/vtt/KMq3Rzs6MMW3so_vWdYFXg/subtitles/it.vtt',
+                               kind='subtitles',srclang='it',label='Subtitle',default=True)])
         

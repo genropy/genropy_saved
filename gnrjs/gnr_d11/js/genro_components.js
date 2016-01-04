@@ -1911,30 +1911,65 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var frameKw = objectExtract(kw,'height,width,region,title,border,splitter,_class,style,frameCode,datapath,rounded');
+        var subtitlePane = objectPop(kw,'subtitlePane');
         frameKw.frameCode = frameKw.frameCode || 'videoplayer_'+genro.getCounter();
         var frame = sourceNode._('FramePane',frameKw);
         var slots = objectPop(kw,'slots');
         var manageCue = objectPop(kw,'manageCue');
-        var playerSide = objectPop(kw,'playerSide');
-        var centerPane = frame._('ContentPane','videopane',{side:'center',overflow:'hidden'});
+        var controllerSide = objectPop(kw,'controllerSide') || 'top';
+        var center = frame._('BorderContainer',{side:'center'});
+        var gnrwdg = sourceNode.gnrwdg;
+        kw.src = '^.videoSrc';
         kw.currentTime = '^.currentTime';
         kw.playing = '.playing';
-        kw.connect_loadedmetadata = 'SET .duration = Math.round(this.domNode.duration*10)/10;';
         kw.width = kw.video_width || '100%';
+        kw.height = kw.video_height || '100%';
         kw.border = kw.video_border || 0;
+        var urlPars = objectExtract(kw,'url,range');
+        gnrwdg.urlPars = urlPars;
+        kw.connect_loadedmetadata = function(){
+            gnrwdg.onLoadedVideo(this);
+        }
+        sourceNode.attr.videoCurrentTime = kw.currentTime
         if(frameKw.frameCode && !kw.nodeId){
             kw.nodeId = frameKw.frameCode +'_video';
         }
-        var video = centerPane._('video','video',kw);
-        var gnrwdg = sourceNode.gnrwdg;
-        this.preparePlayerBar(frame,slots,manageCue,playerSide,kw.nodeId);
+        var url = objectPop(kw,'url');
+        center._('dataFormula',{path:'.videoSrc',formula:"genro.addParamsToUrl(url,{'#t':range});",
+                                url:urlPars.url,range:urlPars.range,_onBuilt:true,_delay:1});
+        center._('dataFormula',{path:'.playerTime',formula:"currentTime-(range_start||0)",currentTime:'^.currentTime',
+                                range_start:'=.range_start'})
+        gnrwdg.videoNodeId =kw.nodeId;
+        var video = center._('ContentPane',{region:'center',overflow:'hidden'})._('video','video',kw);
+        if(subtitlePane){
+            var subpane = center._('ContentPane',{region:'bottom',background:'orange',min_height:'100px'})._('div',{innerHTML:'Subtitles'});
+            gnrwdg.subtitleNode = subpane.getParentNode();
+        }
+        this.preparePlayerBar(frame,slots,manageCue,controllerSide,kw.nodeId);
         return video;
     },
 
-    preparePlayerBar:function(frame,slots,manageCue,playerSide,videoNodeId){
+    gnrwdg_onLoadedVideo:function(videoSourceNode){
+        var videoDomNode = videoSourceNode.domNode;
+        var videoDuration = Math.round(videoDomNode.duration*10)/10;
+        var playerDuration = videoDuration;
+        var sn = this.sourceNode;
+        sn.setRelativeData('.duration', videoDuration);
+        sn.setRelativeData('.playerTime',null);
+        var urlPars = sn.evaluateOnNode(this.urlPars);
+        var range = urlPars.range;
+        if(range){
+            var r = range.split(',');
+            sn.setRelativeData('.range_start',r[0]);
+            sn.setRelativeData('.range_end',r[1]);
+            playerDuration = Math.round((r[1]-r[0])*10)/10;
+        }
+        sn.setRelativeData('.playerDuration',playerDuration);
+    },
+
+    preparePlayerBar:function(frame,slots,manageCue,controllerSide,videoNodeId){
         slots = slots || (manageCue? '10,playbutton,playerslider,timerbox,*,cuebutton,10':'10,playbutton,playerslider,timerbox,*');
-        playerSide = playerSide || 'top';
-        var bar = frame._('SlotBar','bar',{slots:slots,side:playerSide,height:'21px',toolbar:true,playerslider_width:'100%'});
+        var bar = frame._('SlotBar','bar',{slots:slots,side:controllerSide,height:'21px',toolbar:true,playerslider_width:'100%'});
         var slotsKw = {};
         slotsKw.playbutton = {tag:'slotButton',
             label:'==_playing?"Pause":"Play"',
@@ -1944,14 +1979,14 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
             _videoNodeId:videoNodeId
         };
         slotsKw.playerslider = {tag:'horizontalSlider',
-            value:'^.currentTime',
+            value:'^.playerTime',
             minimum:0, 
-            maximum:'^.duration', 
+            maximum:'^.playerDuration', 
             intermediateChanges:false,
             width:'100%',parentForm:false
         };
         slotsKw.timerbox = {tag:'numberTextBox',
-            value:'^.currentTime',format:'###.00',width:'5em',rounded:6,
+            value:'^.playerTime',format:'###.00',width:'5em',rounded:6,
             parentForm:false,margin_top:'1px'
         };
         slotsKw.cuebutton = {
