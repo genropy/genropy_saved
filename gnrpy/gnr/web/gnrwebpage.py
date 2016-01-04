@@ -1534,7 +1534,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param pkg: the :ref:`package <packages>` object"""
         self.site.setPreference(path, data, pkg=pkg)
         
-    def getPreference(self, path, pkg='', dflt=''):
+    def getPreference(self, path, pkg=None, dflt=None):
         """TODO
         
         :param path: TODO
@@ -1543,7 +1543,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self.site.getPreference(path, pkg=pkg, dflt=dflt)
        
     @public_method 
-    def getUserPreference(self, path='*', pkg='', dflt='', username=''):
+    def getUserPreference(self, path='*', pkg=None, dflt=None, username=None):
         """TODO
         
         :param path: TODO

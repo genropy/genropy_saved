@@ -1025,7 +1025,7 @@ class GnrWsgiSite(object):
             pkg = pkg or self.currentPage.packageId
             self.db.table('adm.preference').setPreference(path, data, pkg=pkg)
             
-    def getPreference(self, path, pkg='', dflt=''):
+    def getPreference(self, path, pkg=None, dflt=None):
         """TODO
         
         :param path: TODO
@@ -1035,7 +1035,7 @@ class GnrWsgiSite(object):
             pkg = pkg or self.currentPage.packageId
             return self.db.table('adm.preference').getPreference(path, pkg=pkg, dflt=dflt)
             
-    def getUserPreference(self, path, pkg='', dflt='', username=''):
+    def getUserPreference(self, path, pkg=None, dflt=None, username=None):
         """TODO
         
         :param path: TODO
@@ -1047,7 +1047,7 @@ class GnrWsgiSite(object):
             pkg = pkg or self.currentPage.packageId
             return self.db.table('adm.user').getPreference(path=path, pkg=pkg, dflt=dflt, username=username)
             
-    def setUserPreference(self, path, data, pkg='', username=''):
+    def setUserPreference(self, path, data, pkg=None, username=None):
         """TODO
         
         :param path: TODO

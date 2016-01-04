@@ -17,7 +17,7 @@ class Table(object):
 
         # and <your_package>.setPreference() to get and set preferences.
 
-    def getPreference(self, path, pkg='', dflt=None):
+    def getPreference(self, path, pkg=None, dflt=None):
         result = self.loadPreference()
         # NOTE: due to the way bags work,
         #       'data.%(path)s' will be used if pkg is ''

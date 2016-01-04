@@ -894,7 +894,7 @@ class GnrApp(object):
         if self.db.package('adm'):
             self.db.table('adm.preference').setPreference(path, data, pkg=pkg)
 
-    def getPreference(self, path, pkg, dflt=''):
+    def getPreference(self, path, pkg, dflt=None):
         if self.db.package('adm'):
             return self.db.table('adm.preference').getPreference(path, pkg=pkg, dflt=dflt)
     
