@@ -262,8 +262,9 @@ class BagToXml(object):
 
         nodeValue = node.getValue()
         if isinstance(nodeValue, Bag) and nodeValue: #<---Add the second condition in order to type the empty bag.
+            cls = '' if nodeValue.__class__ == Bag else nodeValue.__class__.__name__
             result = self.buildTag(node.label,
-                                   self.bagToXmlBlock(nodeValue), nodeattr, '', xmlMode=True,localize=False)
+                                   self.bagToXmlBlock(nodeValue), nodeattr, cls, xmlMode=True,localize=False)
 
         elif isinstance(nodeValue, BagAsXml):
             result = self.buildTag(node.label, nodeValue, nodeattr, '', xmlMode=True)
@@ -361,7 +362,8 @@ class BagToXml(object):
         if omitRoot:
             result = result + self.bagToXmlBlock(bag)
         else:
-            result = result + self.buildTag('GenRoBag', self.bagToXmlBlock(bag), xmlMode=True, localize=False)
+            cls = '' if bag.__class__ == Bag else bag.__class__.__name__
+            result = result + self.buildTag('GenRoBag', self.bagToXmlBlock(bag), xmlMode=True, localize=False,cls=cls)
         result = unicode(result).encode(encoding, 'replace')
         if pretty:
             from xml.dom.minidom import parseString

@@ -69,9 +69,11 @@ import sys
 import re
 
 gnrlogger = logging.getLogger(__name__)
-
-
     
+def bagFromXml(self,source,fromFile=None, catalog=None, bagcls=None, empty=None):
+    from gnr.core.gnrbagxml import BagFromXml
+    return BagFromXml().build(source, fromFile, catalog=catalog, bagcls=bagcls, empty=empty)
+
 class BagNodeException(GnrException):
     pass
     
@@ -205,7 +207,7 @@ class BagNode(object):
         """
         if self.locked:
             raise BagNodeException("Locked node %s" % self.label)
-        if isinstance(value, BagNode):
+        if isinstance(value, self.__class__):
             _attributes = _attributes or {}
             _attributes.update(value.attr)
             value = value._value
@@ -396,13 +398,14 @@ class BagNode(object):
     def unsubscribe(self, subscriberId):
         """TODO"""
         self._node_subscribers.pop(subscriberId)
-        
+
 #-------------------- Class Bag --------------------------------
 class Bag(GnrObject):
     """A container object like a dictionary, but ordered.
     
     Nested elements can be accessed with a path of keys joined with dots"""
     #-------------------- __init__ --------------------------------
+    _nodeFactory = BagNode
     def __init__(self, source=None,**kwargs):
         """ A new bag can be created in various ways:
         
@@ -515,7 +518,7 @@ class Bag(GnrObject):
         :param what: the key path to test"""
         if isinstance(what, basestring):
             return bool(self.getNode(what))
-        elif isinstance(what, BagNode):
+        elif isinstance(what, self._nodeFactory):
             return (what in self._nodes)
         else:
             return False
@@ -723,7 +726,7 @@ class Bag(GnrObject):
                 if label.startswith('#'):
                     raise BagException('Not existing index in #n syntax')
                 i = len(curr._nodes)
-                newnode = BagNode(curr, label=label, value=curr.__class__())
+                newnode = self._nodeFactory(curr, label=label, value=curr.__class__())
                 curr._nodes.append(newnode)
                 if self.backref:
                     self._onNodeInserted(newnode, i)
@@ -1022,6 +1025,14 @@ class Bag(GnrObject):
             return node
 
         #-------------------- clear --------------------------------
+    
+    def difference(self,otherbag):
+        result = BagDiff()
+        result.makeDiff(self,otherbag)
+        return result
+
+    def applyDifference(self,difference):
+        return difference.applyOn(self)
 
     def clear(self):
         """Clear the Bag"""
@@ -1255,7 +1266,7 @@ class Bag(GnrObject):
         if p >= 0:
             node = self._nodes[p]
         elif autocreate:
-            node = BagNode(self, label=label, value=default)
+            node = self._nodeFactory(self, label=label, value=default)
             i = len(self._nodes)
             self._nodes.append(node)
             node.parentbag = self
@@ -1558,7 +1569,7 @@ class Bag(GnrObject):
             if label.startswith('#'):
                 raise BagException('Not existing index in #n syntax')
             else:
-                bagnode = BagNode(self, label=label, value=value, attr=_attributes,
+                bagnode = self._nodeFactory(self, label=label, value=value, attr=_attributes,
                                   resolver=resolver, validators=_validators,
                                   _removeNullAttributes=_removeNullAttributes)
                 self._insertNode(bagnode, _position)
@@ -1841,7 +1852,7 @@ class Bag(GnrObject):
             self._nodes[:] = b._nodes[:]
 
         elif isinstance(source, Bag):
-            self._nodes = [BagNode(self, *x.asTuple()) for x in source]
+            self._nodes = [self._nodeFactory(self, *x.asTuple()) for x in source]
             
         elif callable(getattr(source, 'items',None)):
             for key, value in source.items():
@@ -2867,7 +2878,53 @@ class BagFormula(BagResolver):
         """TODO"""
         curr = self.parentNode.parentbag
         return eval(self.expression)
-        
+
+
+class BagDiffNode(BagNode):
+    def __init__(self, *args,**kwargs):
+        super(BagDiffNode, self).__init__(*args,**kwargs)
+
+class BagDiff(Bag):
+    _nodeFactory = BagDiffNode
+    
+    def makeDiff(self,oldbag,newbag):
+        for n in newbag:
+            self.setItem(n.label,None,_attributes=dict(__original_attr__=True))
+            c = self.getNode(n.label)
+            oldn = oldbag.getNode(n.label)
+            if oldn:
+                if oldn.attr != n.attr:
+                    c.attr = dict(n.attr)
+                if oldn._value != n._value:
+                    c.diff_value = True 
+                    if isinstance(oldn._value,Bag) and isinstance(n._value,Bag):
+                        c.value = oldn._value.difference(n._value)
+                    else:
+                        c.value = n._value
+                else:
+                    c.attr['__original_value__'] = True
+            else:
+                c.value = n.value if not isinstance(n.value, Bag) else n.value.deepCopy()
+                c.attr = dict(n.attr)
+
+    def applyOn(self,bag):
+        result = Bag()
+        for c in self:
+            label,value,attr = c.label,c.value,dict(c.attr)
+            __original_value__ = attr.pop('__original_value__',False)
+            __original_attr__ = attr.pop('__original_attr__',False)
+            oldn = bag.getNode(label)
+            if oldn:
+                attr = oldn.attr if __original_attr__ else attr
+                if isinstance(value,BagDiff):
+                    value = oldn._value.applyDifference(value)
+                else:
+                    value = oldn._value if __original_value__ else value
+            result.setItem(label,value,_attributes=attr)
+        return result
+
+
+
 ########################### start experimental features#######################
 class BagResolverNew(object):
     def __init__(self, cacheTime=0, readOnly=True,
