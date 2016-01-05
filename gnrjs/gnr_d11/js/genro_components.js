@@ -1934,11 +1934,15 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
         if(frameKw.frameCode && !kw.nodeId){
             kw.nodeId = frameKw.frameCode +'_video';
         }
-        var url = objectPop(kw,'url');
-        center._('dataFormula',{path:'.videoSrc',formula:"genro.addParamsToUrl(url,{'#t':range});",
+        center._('dataFormula',{path:'.videoSrc',formula:"url?genro.addParamsToUrl(url,{'#t':range}):null;",
                                 url:urlPars.url,range:urlPars.range,_onBuilt:true,_delay:1});
-        center._('dataFormula',{path:'.playerTime',formula:"currentTime-(range_start||0)",currentTime:'^.currentTime',
-                                range_start:'=.range_start'})
+        center._('dataFormula',{path:'.playerTime',
+                                formula:"currentTime-(range_start||0)",
+                                currentTime:'^.currentTime',
+                                range_start:'=.range_start'});
+
+        center._('dataFormula',{path:'.currentTime',formula:"playerTime+(range_start||0)",playerTime:'^.playerTime',
+                                range_start:'=.range_start'});
         gnrwdg.videoNodeId =kw.nodeId;
         var video = center._('ContentPane',{region:'center',overflow:'hidden'})._('video','video',kw);
         if(subtitlePane){

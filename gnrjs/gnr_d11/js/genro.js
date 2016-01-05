@@ -1577,12 +1577,15 @@ dojo.declare('gnr.GenroClient', null, {
 
 
     addParamsToUrl: function(url, params) {
+        if(!url){
+            return
+        }
         if(!objectNotEmpty(params)){
             return url;
         }
         var parameters = [];
         for (var key in params) {
-            if(params[key]!==null){
+            if(!isNullOrBlank(params[key])){
                 parameters.push(key + '=' + encodeURIComponent(params[key]));
             }
         }

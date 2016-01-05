@@ -36,7 +36,8 @@ function _px(v){
     return v;
 };
 function _T(str){
-    var language = genro.locale().split('-')[0];
+    var locale = genro.locale() || 'en-EN';
+    var language = locale.split('-')[0];
     var localekey = 'localsdict_'+language;
     var localsdict = genro.getFromStorage('local',localekey) || {};
     if(!(str in localsdict)){

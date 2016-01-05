@@ -906,7 +906,7 @@ dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
                 d.sourceNode._currentTimeSetter = setInterval(function(){
                     d.gnr.setPlaying(d);
                     if(d.sourceNode.attr.currentTime){
-                        d.sourceNode.setAttributeInDatasource('currentTime',Math.round(d.currentTime*10)/10);
+                        d.sourceNode.setAttributeInDatasource('currentTime',Math.round(d.currentTime*10)/10,'player');
                     }
                 },100);
             });
@@ -2978,6 +2978,7 @@ dojo.declare("gnr.widgets.TextArea_", gnr.widgets.baseDojo, {
     }
 });
 
+
 dojo.declare("gnr.widgets._BaseTextBox", gnr.widgets.baseDojo, {
     formattedValueHandler:function(widget, savedAttrs, sourceNode){
         if((sourceNode.attr.format || sourceNode.attr.mask) && sourceNode.attr.displayFormattedValue){
@@ -3156,6 +3157,7 @@ dojo.declare("gnr.widgets.TimeTextBox", gnr.widgets._BaseTextBox, {
     }
 });
 
+
 dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
     constructor: function(application) {
         this._domtag = 'input';
@@ -3202,6 +3204,35 @@ dojo.declare("gnr.widgets.NumberSpinner", gnr.widgets.NumberTextBox, {
     }
     
     
+});
+
+dojo.declare("gnr.widgets.Slider", gnr.widgets.baseDojo, {
+    constructor: function(application) {
+        this._domtag = 'div';
+        this._dojotag = 'CurrencyTextBox';
+    },
+    created: function(widget, savedAttrs, sourceNode) {
+        dojo.connect(widget.sliderHandle,'onmousedown',function(){
+            widget._ignoreDataChanges = true;
+        })
+        dojo.connect(widget.sliderHandle,'onmouseup',function(){
+            widget._ignoreDataChanges = false;
+        })
+    }
+});
+
+dojo.declare("gnr.widgets.HorizontalSlider", gnr.widgets.Slider, {
+    constructor: function(application) {
+        this._domtag = 'div';
+        this._dojotag = 'HorizontalSlider';
+    }
+});
+
+dojo.declare("gnr.widgets.VerticalSlider", gnr.widgets.Slider, {
+    constructor: function(application) {
+        this._domtag = 'div';
+        this._dojotag = 'VerticalSlider';
+    }
 });
 
 // ********* Grid ************

@@ -1284,7 +1284,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                             }
                         }
                     }
-                    this.widget.setValue(value,kw);
+                    if(!this.widget._ignoreDataChanges){
+                        this.widget.setValue(value,kw);
+                    }
                     if (trgevt != 'del') {
                         if(this.hasValidations()){
                             var formHandler = this.getFormHandler();

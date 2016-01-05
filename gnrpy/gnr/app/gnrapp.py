@@ -1081,7 +1081,6 @@ class GnrApp(object):
         :param login_pwd: the password inserted from user for authentication
         :param pwd: the password
         :param user: the username"""
-        print 'validatePassword'
         if not pwd:
             if not user:
                 return False
