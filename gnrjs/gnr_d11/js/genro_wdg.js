@@ -617,7 +617,8 @@ dojo.declare("gnr.RowEditor", null, {
         var data = data || new gnr.GnrBag();
         this.data = data;
         var cellmap = this.grid.cellmap;
-        var default_kwargs = objectUpdate({},this.gridEditor.editorPars.default_kwargs);
+        var default_kwargs = this.gridEditor.editorPars? this.gridEditor.editorPars.default_kwargs:{};
+        default_kwargs = objectUpdate({},default_kwargs);
         for(var k in cellmap){
             objectPop(default_kwargs,k);
             var kw = {dtype:cellmap[k].dtype};
