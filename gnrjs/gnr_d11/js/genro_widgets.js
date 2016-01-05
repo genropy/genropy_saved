@@ -567,7 +567,9 @@ dojo.declare("gnr.widgets.htmliframe", gnr.widgets.baseHtml, {
         this._domtag ='iframe';
     },
     creating:function(attributes, sourceNode) {
-        objectPop(attributes,'src')
+        if(!attributes.src){
+            objectPop(attributes,'src');
+        }
         var savedAttrs = {};
         savedAttrs['shield'] = objectPop(attributes,'shield');
         savedAttrs['shield_kw'] = objectExtract(attributes,'shield_*') || {};
@@ -932,7 +934,7 @@ dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
         };
         var that = this;
         newobj.addEventListener("loadedmetadata", function() { 
-            that.onLoadedMetadata(newobj);
+            that.setTracks(newobj);
         });
     },
     startCapture:function(sourceNode,capture_kw){
@@ -994,14 +996,16 @@ dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
         domNode.setAttribute('src',src);
     },
 
-    onLoadedMetadata:function(domNode){
+    setTracks:function(domNode){
         var sn = domNode.sourceNode;
         var tracks = sn.attr.tracks;
+        dojo.query('track',domNode).forEach(function(dn){
+            domNode.removeChild(dn);
+        })
         if(tracks){
             var that = this;
             tracks.forEach(function(kw){
                 kw = sn.evaluateOnNode(kw);
-                
                 that.addTrack(domNode,kw);
             });
         }
@@ -1346,20 +1350,13 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
             genro.dom.centerOn(this.domNode, centerOn,null,-.9);
             return;
         }
-        centerOn = centerOn?genro.dom.getDomNode(centerOn):null
-        if (!centerOn) {
-            this._position_replaced();
-        }
-        else {
+        var xRatio = this.sourceNode.attr.xRatio;
+        var yRatio = this.sourceNode.attr.yRatio;
+        if(centerOn || xRatio || yRatio){
             centerOn = this.sourceNode.currentFromDatasource(centerOn);
-            genro.dom.centerOn(this.domNode, centerOn);
-            //var viewport=dojo.coords(genro.domById(centerOn));
-            //viewport.l=viewport.x;
-            //viewport.t=viewport.y;
-            //var mb = dojo.marginBox(this.domNode);
-            //var style = this.domNode.style;
-            //style.left = Math.floor((viewport.l + (viewport.w - mb.w)/2)) + "px";
-            //style.top = Math.floor((viewport.t + (viewport.h - mb.h)/2)) + "px";
+            genro.dom.centerOn(this.domNode, centerOn,xRatio,yRatio);
+        }else {
+            this._position_replaced();
         }
     },
 

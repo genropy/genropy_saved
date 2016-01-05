@@ -1917,18 +1917,49 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
         var slots = objectPop(kw,'slots');
         var manageCue = objectPop(kw,'manageCue');
         var controllerSide = objectPop(kw,'controllerSide') || 'top';
-        var center = frame._('BorderContainer',{side:'center'});
+        var center = frame._('BorderContainer',{side:'center',
+                            connect_resize:function(){
+                                var minH = 30;
+                                var maxH = 100;
+                                var bcdn = this.widget.domNode;
+                                var top = this.widget._top;
+                                var centerDN = this.widget._center;
+                                var video = top.children[0];
+                                var subH = bcdn.clientHeight - top.clientHeight;
+                                if(subH<(minH-3)){
+                                    console.log('devo risizare top')
+                                    var topH = (bcdn.clientHeight-minH);
+                                    video.style.height = topH+'px';
+                                    video.style.width = null;
+                                }else if(top.clientWidth<video.clientWidth){
+                                    video.style.height = null;
+                                    video.style.width = '100%';
+                                }else if(subH>maxH){
+                                    video.style.height = null;
+                                    video.style.width = '100%';
+                                }
+                                /*else{
+                                    video.style.height = null;
+                                    video.style.width = '100%';
+                                }*/
+
+                                //console.log('resizing top  ',top.clientHeight,top.clientWidth,
+                                //            '\nresizing video',video.clientHeight,video.clientWidth,
+                                //            '\nresizing bc   ',bcdn.clientHeight,bcdn.clientWidth);
+                            }
+                            });
         var gnrwdg = sourceNode.gnrwdg;
         kw.src = '^.videoSrc';
         kw.currentTime = '^.currentTime';
         kw.playing = '.playing';
         kw.width = kw.video_width || '100%';
-        kw.height = kw.video_height || '100%';
+        //kw.height = kw.video_height || '100%';
         kw.border = kw.video_border || 0;
         var urlPars = objectExtract(kw,'url,range');
         gnrwdg.urlPars = urlPars;
         kw.connect_loadedmetadata = function(){
             gnrwdg.onLoadedVideo(this);
+            this.getParentNode().getParentNode().widget.layout()
         }
         sourceNode.attr.videoCurrentTime = kw.currentTime
         if(frameKw.frameCode && !kw.nodeId){
@@ -1939,14 +1970,14 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
         center._('dataFormula',{path:'.playerTime',
                                 formula:"currentTime-(range_start||0)",
                                 currentTime:'^.currentTime',
-                                range_start:'=.range_start'});
+                                range_start:'=.range_start',_if:'_triggerpars.kw.reason=="player"'});
 
         center._('dataFormula',{path:'.currentTime',formula:"playerTime+(range_start||0)",playerTime:'^.playerTime',
                                 range_start:'=.range_start'});
         gnrwdg.videoNodeId =kw.nodeId;
-        var video = center._('ContentPane',{region:'center',overflow:'hidden'})._('video','video',kw);
+        var video = center._('ContentPane',{region:'top',overflow:'hidden'})._('video','video',kw);
         if(subtitlePane){
-            var subpane = center._('ContentPane',{region:'bottom',background:'orange',min_height:'100px'})._('div',{innerHTML:'Subtitles'});
+            var subpane = center._('ContentPane',{region:'center',background:'orange',min_height:'100px'})._('div',{innerHTML:'Subtitles'});
             gnrwdg.subtitleNode = subpane.getParentNode();
         }
         this.preparePlayerBar(frame,slots,manageCue,controllerSide,kw.nodeId);
@@ -2001,12 +2032,16 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
             action:function(){
                 var start_time = this.getRelativeData('.start_time');
                 var currentTime = this.getRelativeData('.currentTime');
+
                 var video = genro.domById(videoNodeId);
                 if(start_time){
                     video.pause();
                     this.setRelativeData('.start_time',null);
                     video.sourceNode.publish('addCue',{start_time:start_time,end_time:currentTime});
                 }else{
+                    if(!this.getRelativeData('.playing')){
+                        video.play();
+                    }
                     this.setRelativeData('.start_time',currentTime);
                 }
             }

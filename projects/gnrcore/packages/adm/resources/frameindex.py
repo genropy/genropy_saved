@@ -186,7 +186,7 @@ class FrameIndex(BaseComponent):
         sb.appInfo.div('^gnr.appInfo')
         applogo = sb.applogo.div()
         if hasattr(self,'application_logo'):
-            applogo.img(src=self.application_logo,height='20px')
+            applogo.div(_class='application_logo_container').img(src=self.application_logo,height='100%')
         sb.genrologo.img(src='/_rsrc/common/images/made_with_genropy_small.png',height='20px')
         sb.dataController("""SET gnr.appInfo = dataTemplate(tpl,{msg:msg,dbremote:dbremote}); """,
             msg="!!Connected to:",dbremote=(self.site.remote_db or False),_if='dbremote',
@@ -256,7 +256,8 @@ class FrameIndex(BaseComponent):
         else:
             indexpane = sc.contentPane(pageName='indexpage',title='Index',overflow='hidden')
             if self.index_url:
-                indexpane.htmliframe(height='100%', width='100%', src=self.getResourceUri(self.index_url,add_mtime=self.isDeveloper()), border='0px',shield=True)         
+                src = self.getResourceUri(self.index_url,add_mtime=self.isDeveloper())
+                indexpane.htmliframe(height='100%', width='100%', src=src, border='0px',shield=True)         
         page.dataController("""genro.publish('selectIframePage',_menutree__selected[0]);""",
                                subscribe__menutree__selected=True)
         page.dataController("""genro.framedIndexManager.newBrowserWindowPage(newBrowserWindowPage[0]);""",

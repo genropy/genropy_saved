@@ -20,12 +20,17 @@ class LoginComponent(BaseComponent):
     auth_page = 'user'
     index_url = 'html_pages/splashscreen.html'
     closable_login = False
+    loginBox_kwargs = dict()
 
     def loginDialog(self,pane,gnrtoken=None,**kwargs):
+        pane.css('.dijitDialogUnderlay.lightboxDialog_underlay',"opacity:0;")
         doLogin = self.avatar is None and self.auth_page
         if doLogin and not self.closable_login and self.index_url:
-            pane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')   
-        dlg = pane.dialog(_class='lightboxDialog',subscribe_openLogin="this.widget.show()",subscribe_closeLogin="this.widget.hide()")
+            pane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')  
+        loginKwargs = dict(_class='lightboxDialog') 
+        loginKwargs.update(self.loginBox_kwargs)
+        dlg = pane.dialog(subscribe_openLogin="this.widget.show()",
+                          subscribe_closeLogin="this.widget.hide()",**loginKwargs)
        
         box = dlg.div(**self.loginboxPars())
         if self.closable_login:
