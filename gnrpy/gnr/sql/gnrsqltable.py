@@ -1169,19 +1169,14 @@ class SqlTable(GnrObject):
         
         :param recordCluster: TODO
         :param recordClusterAttr: TODO
-        :param debugPath: TODO"""
-        def onBagColumns(attributes=None,**kwargs):
-            if attributes:
-                if '__old' in attributes:
-                    attributes.pop('__old')
-                if '_newrecord' in attributes:
-                    attributes.pop('_newrecord')                
+        :param debugPath: TODO"""                
         main_changeSet, relatedOne, relatedMany = self._splitRecordCluster(recordCluster, debugPath=debugPath)
         isNew = recordClusterAttr.get('_newrecord')
         toDelete = recordClusterAttr.get('_deleterecord')
         pkey = recordClusterAttr.get('_pkey')
         invalidFields = recordClusterAttr.get('_invalidFields')
         noTestForMerge = self.attributes.get('noTestForMerge') or self.pkg.attributes.get('noTestForMerge')
+        blackListAttributes = ('__old','_newrecord')
         if isNew and toDelete:
             return # the record doesn't exists in DB, there's no need to delete it
         if isNew:
@@ -1234,9 +1229,9 @@ class SqlTable(GnrObject):
             main_record[invalidFields_fld] = gnrstring.toJsonJS(invalidFields) if invalidFields else None
             
         if isNew:
-            self.insert(main_record,onBagColumns=onBagColumns)
+            self.insert(main_record,blackListAttributes=blackListAttributes)
         elif main_changeSet:
-            self.update(main_record, old_record=old_record, pkey=pkey,onBagColumns=onBagColumns)
+            self.update(main_record, old_record=old_record, pkey=pkey,blackListAttributes=blackListAttributes)
         for rel_name, rel_recordClusterNode in relatedMany.items():
             rel_recordCluster = rel_recordClusterNode.value
             rel_recordClusterAttr = rel_recordClusterNode.getAttr()

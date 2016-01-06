@@ -1787,7 +1787,7 @@ class Bag(GnrObject):
         
     #-------------------- toXml --------------------------------
     def toXml(self, filename=None, encoding='UTF-8', typeattrs=True, typevalue=True, unresolved=False,
-              addBagTypeAttr=True,onBuildTag=None,
+              addBagTypeAttr=True,
               autocreate=False, translate_cb=None, self_closed_tags=None,
               omitUnknownTypes=False, catalog=None, omitRoot=False, forcedTagAttr=None, docHeader=None,
               mode4d=False,pretty=False):
@@ -1825,7 +1825,7 @@ class Bag(GnrObject):
         from gnr.core.gnrbagxml import BagToXml
         
         return BagToXml().build(self, filename=filename, encoding=encoding, typeattrs=typeattrs, typevalue=typevalue,
-                                addBagTypeAttr=addBagTypeAttr,onBuildTag=onBuildTag,
+                                addBagTypeAttr=addBagTypeAttr,
                                 unresolved=unresolved, autocreate=autocreate, forcedTagAttr=forcedTagAttr,
                                 translate_cb=translate_cb, self_closed_tags=self_closed_tags,
                                 omitUnknownTypes=omitUnknownTypes, catalog=catalog, omitRoot=omitRoot,
