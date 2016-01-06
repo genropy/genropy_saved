@@ -612,13 +612,11 @@ dojo.declare("gnr.RowEditor", null, {
         this.data = newdata;
     },
 
-
     inititializeData:function(data){
         var data = data || new gnr.GnrBag();
         this.data = data;
         var cellmap = this.grid.cellmap;
-        var default_kwargs = this.gridEditor.editorPars? this.gridEditor.editorPars.default_kwargs:{};
-        default_kwargs = objectUpdate({},default_kwargs);
+        default_kwargs = objectUpdate({},this.gridEditor.editorPars.default_kwargs);
         for(var k in cellmap){
             objectPop(default_kwargs,k);
             var kw = {dtype:cellmap[k].dtype};
@@ -730,15 +728,12 @@ dojo.declare("gnr.GridEditor", null, {
         var sourceNode = grid.sourceNode;
         this.viewId = sourceNode.attr.nodeId;
         this.table= sourceNode.attr.table;
-        this.editorPars = sourceNode.attr.gridEditorPars;
-        this.autoSave = this.editorPars? this.editorPars.autoSave:false;
+        this.editorPars = objectUpdate({},sourceNode.attr.gridEditorPars);
+        this.autoSave =this.editorPars.autoSave===true?3000:this.autoSave || false;
         this.remoteRowController = sourceNode.attr.remoteRowController;
         this.remoteRowController_default = sourceNode.attr.remoteRowController_default;
         this.status = {};
-
-        if(this.autoSave===true){
-            this.autoSave = 3000;
-        }
+        this.columns = {};
         this.formId = sourceNode.getInheritedAttributes()['formId'];
         this.deletedRows = new gnr.GnrBag()
         this._status_list = ['error','changed'];
@@ -748,13 +743,12 @@ dojo.declare("gnr.GridEditor", null, {
         this.grid.selection.isSelected = function(inRowIndex) {
             return this.selected[inRowIndex] && !grid.gnrediting;
         };
-        
-        this.columns = {};
         var sourceNodeContent = sourceNode.getValue();
         var gridEditorNode = sourceNodeContent.getNodeByAttr('tag', 'grideditor',true);
         var that = this;
-
+        this.widgetRootNode = sourceNodeContent.getNode('_grideditor_',null,true);
         if(gridEditorNode){
+            console.warn('legacy mode: use new grid and edit attribute in cell instead of this way')
             var gridEditorColumns = gridEditorNode.getValue();
             var attr;
             gridEditorColumns.forEach(function(node) {
@@ -764,9 +758,7 @@ dojo.declare("gnr.GridEditor", null, {
             });
             gridEditorNode.setValue(null,false);
             gridEditorNode.attr.tag=null;
-        }
-        this.widgetRootNode = sourceNodeContent.getNode('_grideditor_',null,true);
-        if(this.editorPars){
+        }else{
             if (sourceNode.form && sourceNode.attr.parentForm!==false){
                 sourceNode.form.registerGridEditor(sourceNode.attr.nodeId,this);
             }
@@ -789,9 +781,7 @@ dojo.declare("gnr.GridEditor", null, {
                         }
                     }
                     return false;
-                },function(){
-                   
-                },500);
+                },function(){},500);
             }
         }
         this.applyStorepath();
@@ -823,10 +813,8 @@ dojo.declare("gnr.GridEditor", null, {
     applyStorepath:function(){
         var sourceNode = this.grid.sourceNode;
         var absStorepath = sourceNode.absDatapath(sourceNode.attr.storepath)
-        if(this.editorPars){
-            if (sourceNode.form && sourceNode.attr.parentForm!==false){
-                this.storeInForm = sourceNode.attr.storeInForm || absStorepath.indexOf(sourceNode.form.sourceNode.absDatapath(sourceNode.form.formDatapath))==0
-            }
+        if (sourceNode.form && sourceNode.attr.parentForm!==false){
+            this.storeInForm = sourceNode.attr.storeInForm || absStorepath.indexOf(sourceNode.form.sourceNode.absDatapath(sourceNode.form.formDatapath))==0
         }
         this.widgetRootNode.attr.datapath = absStorepath;
     },
@@ -1057,61 +1045,56 @@ dojo.declare("gnr.GridEditor", null, {
     },
 
     getNewRowDefaults:function(externalDefaults){
-        if(!this.editorPars){
-            return externalDefaults;
+        var editorDefaults = this.editorPars.default_kwargs;
+        if(typeof(editorDefaults)=='function'){
+            editorDefaults = editorDefaults.call();
         }
-        else{
-            var editorDefaults = this.editorPars.default_kwargs;
-            if(typeof(editorDefaults)=='function'){
-                editorDefaults = editorDefaults.call();
-            }
-            var default_kwargs = objectUpdate({},(editorDefaults || {}));
-            if(externalDefaults){
-                default_kwargs = objectUpdate(default_kwargs,externalDefaults);
-            }
-            var result =  this.widgetRootNode.evaluateOnNode(default_kwargs);
-            var cellmap = this.grid.cellmap;
-            var queries = new gnr.GnrBag();
-            var rcol,hcols;
-            for(var k in cellmap){
-                var cmap = cellmap[k];
-                if(cmap.related_table){ //if should be on rcol instead of cmap.related_table #fporcari
-                    rcol = cmap.relating_column;
-                    if(result[rcol]){
-                        hcols = [];
-                        for(var j in cellmap){
-                            if(cellmap[j].relating_column==rcol && result[cellmap[j].field_getter]===undefined){
-                                hcols.push(cellmap[j].related_column);
-                            }
+        var default_kwargs = objectUpdate({},(editorDefaults || {}));
+        if(externalDefaults){
+            default_kwargs = objectUpdate(default_kwargs,externalDefaults);
+        }
+        var result =  this.widgetRootNode.evaluateOnNode(default_kwargs);
+        var cellmap = this.grid.cellmap;
+        var queries = new gnr.GnrBag();
+        var rcol,hcols;
+        for(var k in cellmap){
+            var cmap = cellmap[k];
+            if(cmap.related_table){ //if should be on rcol instead of cmap.related_table #fporcari
+                rcol = cmap.relating_column;
+                if(result[rcol]){
+                    hcols = [];
+                    for(var j in cellmap){
+                        if(cellmap[j].relating_column==rcol && result[cellmap[j].field_getter]===undefined){
+                            hcols.push(cellmap[j].related_column);
                         }
-                        if(hcols.length>0){
-                            //queries.setItem(rcol,null,{table:cmap.related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'}); OLDVERSION
-                            
-                            //FIX: it should be the related_table of relating_column instead of cmap related table which is the last related table in relation path
-                            // @product_id.@product_type_id.description ---> relating_column:product_id, related_table:product_type -- related_table of relating column: foo.product
-                            queries.setItem(rcol,null,{table:cellmap[rcol].related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'});
+                    }
+                    if(hcols.length>0){
+                        //queries.setItem(rcol,null,{table:cmap.related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'}); OLDVERSION
+                        
+                        //FIX: it should be the related_table of relating_column instead of cmap related table which is the last related table in relation path
+                        // @product_id.@product_type_id.description ---> relating_column:product_id, related_table:product_type -- related_table of relating column: foo.product
+                        queries.setItem(rcol,null,{table:cellmap[rcol].related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'});
 
-                        }
                     }
                 }
             }
-            if(queries.len()>0){
-                var sourceNode = this.grid.sourceNode;
-                var remoteDefaults = genro.serverCall('app.getMultiFetch',{'queries':queries,_sourceNode:sourceNode},null,null,'POST');
-                var node,keyAttr;
-                for(var k in cellmap){
-                    rcol = cellmap[k].relating_column;
-                    if (rcol){
-                        node = remoteDefaults.getNode(rcol+'.#0');
-                        keyAttr = cellmap[k].related_column.replace(/\W/g, '_');
-                        if(node && keyAttr in node.attr){
-                            result[cellmap[k].field_getter] = node.attr[keyAttr];
-                        }
-                    }
-                }
-            }
-            return result;
         }
+        if(queries.len()>0){
+            var sourceNode = this.grid.sourceNode;
+            var remoteDefaults = genro.serverCall('app.getMultiFetch',{'queries':queries,_sourceNode:sourceNode},null,null,'POST');
+            var node,keyAttr;
+            for(var k in cellmap){
+                rcol = cellmap[k].relating_column;
+                if (rcol){
+                    node = remoteDefaults.getNode(rcol+'.#0');
+                    keyAttr = cellmap[k].related_column.replace(/\W/g, '_');
+                    if(node && keyAttr in node.attr){
+                        result[cellmap[k].field_getter] = node.attr[keyAttr];
+                    }
+                }
+            }
+        }
+        return result;
     },
 
     startEditRemote:function(n,colname,rowIndex){
@@ -1328,13 +1311,11 @@ dojo.declare("gnr.GridEditor", null, {
         if (rowDataNode && rowDataNode._resolver && rowDataNode._resolver.expired()) {
             datachanged = true;
         }
-        if(this.editorPars){
-          editedRowId= this.startEditRemote(rowDataNode,colname,row);
-          if(!editedRowId){
+        editedRowId= this.startEditRemote(rowDataNode,colname,row);
+        if(!editedRowId){
             return;
-          }
-          this.widgetRootNode.form = null;
         }
+        this.widgetRootNode.form = null;
         var rowData = rowDataNode.getValue();
         var cellDataNode = rowData.getNode(gridcell);
         if (!cellDataNode) {
