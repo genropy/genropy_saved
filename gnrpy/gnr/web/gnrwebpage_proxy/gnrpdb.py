@@ -77,18 +77,11 @@ class GnrPdb(pdb.Pdb):
     def makeEnvelope(self,data):
         envelope=Bag(dict(command='pdb_out_bag',data=data))
         return 'B64:%s'%base64.b64encode(envelope.toXml(unresolved=True))
-        #onBuildTag=self.onBuildTag))
 
     def onClosePage(self):
         for bpinstance in self.mybp:
             bpinstance.deleteMe()
         self.page.wsk.sendCommandToPage(self.debugger_page_id,'close_debugger',self.pdb_id)
-
-    
-    def onBuildTag(self,label=None,value=None,attributes=None):
-        if not isinstance(value,Bag):
-            attributes['__value__']=repr.repr(value)
-        
             
     def getStackBag(self,frame):
         result = Bag()
