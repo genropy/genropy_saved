@@ -180,14 +180,14 @@ class FrameIndex(BaseComponent):
         """,subscribe_iframe_stack_selected=True,tabroot=tabroot,_if='page')
 
     def prepareBottom(self,pane):
-        pane.attributes.update(dict(overflow='hidden',background='silver'))
-        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,manageDocumentation,5,openGnrIDE,count_errors,5,appInfo,*,debugping,5,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='20px',
-                        gradient_from='gray',gradient_to='silver',gradient_deg=90)
+        pane.attributes.update(dict(overflow='hidden'))
+        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,manageDocumentation,5,openGnrIDE,count_errors,5,appInfo,*,debugping,5,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='22px',
+                        background='#EEEEEE',border_top='1px solid silver')
         sb.appInfo.div('^gnr.appInfo')
         applogo = sb.applogo.div()
         if hasattr(self,'application_logo'):
             applogo.div(_class='application_logo_container').img(src=self.application_logo,height='100%')
-        sb.genrologo.img(src='/_rsrc/common/images/made_with_genropy_small.png',height='20px')
+        sb.genrologo.div(_class='application_logo_container').img(src='/_rsrc/common/images/made_with_genropy_small.png',height='100%')
         sb.dataController("""SET gnr.appInfo = dataTemplate(tpl,{msg:msg,dbremote:dbremote}); """,
             msg="!!Connected to:",dbremote=(self.site.remote_db or False),_if='dbremote',
                         tpl="<div class='remote_db_msg'>$msg $dbremote</div>",_onStart=True)

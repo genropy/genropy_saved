@@ -114,8 +114,7 @@
     font-variant:small-caps;
 }
 .frameindexroot{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#d0d0d0), to(#ffffff));
-    background-image: -moz-linear-gradient(-90deg, #d0d0d0, #ffffff);
+    background:#eeeeee;
 }
 .framefooter{    
 }
@@ -209,12 +208,8 @@
 }
 
 .application_logo_container{
-    background: white;
-    border-radius: 4px;
-    display: inline-block;
-    box-shadow: 1px 1px 2px #444 inset;
     height: 18px;
     padding-left: 6px;
     padding-right: 6px;
-    padding-top: 2px;
+    padding-top: 1px;
 }
