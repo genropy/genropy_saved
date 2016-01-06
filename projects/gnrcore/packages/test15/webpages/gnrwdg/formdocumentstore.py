@@ -52,7 +52,6 @@ class GnrCustomWebPage(object):
 
     def test_2_document_view(self,pane):
         frame = pane.borderContainer(height='400px').frameGrid(frameCode='test2',struct=self.struct_doc,
-                                    gridEditor=False,
                                     autoToolbar=False,
                                     region='center',
                                     datapath='.view')
@@ -60,7 +59,6 @@ class GnrCustomWebPage(object):
 
     def test_3_document_collection_form(self,pane):
         view = pane.borderContainer(height='400px').frameGrid(frameCode='test3',struct=self.struct_doc,
-                                    gridEditor=False,
                                     autoToolbar=False,
                                     region='center',
                                     datapath='.view')

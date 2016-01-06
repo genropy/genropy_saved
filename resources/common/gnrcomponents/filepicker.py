@@ -21,7 +21,7 @@ class FilePicker(BaseComponent):
 
         bc = pane.borderContainer()
         view = bc.contentPane(region='center').frameGrid(frameCode='mgGrid_%s' %code,struct=self._fp_img_grid_struct,
-                                    gridEditor=False,
+                                    gridEditorPars=False,
                                     autoToolbar=False,
                                     grid_selected_fileurl='.selected_url',
                                     datapath='.view')

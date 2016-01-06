@@ -2089,7 +2089,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         sourceNode.setAttributeInDatasource('columns',columns_bag);
         var default_kwargs = objectExtract(kw,'default_*');
         if(default_kwargs){
-            kw.gridEditor = {default_kwargs:function(){
+            kw.gridEditorPars = {default_kwargs:function(){
                 return sourceNode.evaluateOnNode(default_kwargs);
             }};
         }
