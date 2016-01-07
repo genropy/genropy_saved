@@ -1130,7 +1130,7 @@ class SqlTable(GnrObject):
         
         :param record: a dictionary, bag or pkey (string)"""
         for rel in self.relations_many:
-            onDelete = rel.getAttr('onDelete', '').lower()
+            onDelete = rel.getAttr('onDelete', 'raise').lower()
             if onDelete and not (onDelete in ('i', 'ignore')):
                 mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')
                 opkg, otbl, ofld = rel.attr['one_relation'].split('.')
