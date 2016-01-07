@@ -147,7 +147,7 @@ class FrameGrid(BaseComponent):
         if gridEditor:
             kwargs['grid_gridEditorPars'] = dict(default_kwargs=default_kwargs)
         kwargs.setdefault('grid_parentForm',parentForm)
-        if storepath.startswith('==') or storepath.startswith('^'):
+        if storepath and ( storepath.startswith('==') or storepath.startswith('^') ):
             dynamicStorepath = storepath
             storepath = '.dummystore'
         datamode= datamode or 'bag'
