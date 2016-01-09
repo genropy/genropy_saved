@@ -153,6 +153,7 @@ class FrameGrid(BaseComponent):
         datamode= datamode or 'bag'
         frame = pane.frameGrid(_newGrid=True,datamode= datamode,
                                 dynamicStorepath=dynamicStorepath,
+                                title=title,
                                 **kwargs)
         if autoToolbar:
             default_slots = []
