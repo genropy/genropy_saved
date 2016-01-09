@@ -964,8 +964,8 @@ dojo.declare('gnr.GenroClient', null, {
         }
         else if (typeof(v) == 'number') {
             f.locale = f.locale || dojo.locale;
-            if(f.format && f.format.format!=null){
-                return genro.formatter.asText(v,{format:f.format.format,format_max:f.max,format_min:f.min,format_high:f.high,format_low:f.low,format_optimal:f.optimal});
+            if(f.format){
+                return genro.formatter.asText(v,{format:f.format.format || f.format,format_max:f.max,format_min:f.min,format_high:f.high,format_low:f.low,format_optimal:f.optimal});
             }
             if (!f.places && f.dtype == 'L') {
                 f.places = 0;
