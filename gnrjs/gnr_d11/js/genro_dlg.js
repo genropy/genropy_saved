@@ -434,7 +434,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             kwbox['remote'] = remote;
             objectUpdate(kwbox,objectExtract(kw,'remote_*',false,true));
             kwbox['remote_valuepath'] = '.promptvalue';
-            kwbox['remote__onResult'] = function(){
+            kwbox['remote__onRemote'] = function(){
                 setTimeout(function(){
                     dlg.getParentNode().widget.adjustDialogSize()
                 },1);
