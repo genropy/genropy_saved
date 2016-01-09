@@ -1160,7 +1160,10 @@ dojo.declare("gnr.GridEditor", null, {
 
     callRemoteControllerBatch:function(rows,kw){
         var that = this;
-        kw = kw || {};
+        kw = kw || objectUpdate({},this.remoteRowController_default);
+        if(rows=='*'){
+            rows = this.grid.storebag().deepCopy();
+        }
         var result = genro.serverCall('remoteRowControllerBatch',
                                     objectUpdate(kw,{handlerName:this.remoteRowController,
                                     rows:rows,_sourceNode:this.grid.sourceNode})
