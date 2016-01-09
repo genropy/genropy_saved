@@ -237,7 +237,7 @@ class FormHandler(BaseComponent):
                 }
             }
             """)
-        s.tooltip(callback="return this.form.getSemaphoreStatus()")
+        s.tooltip(callback="return this.form.getSemaphoreStatus()",modifiers='Shift')
 
     
     @struct_method          
