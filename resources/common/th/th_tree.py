@@ -256,7 +256,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                 last_child = last_child[0]
                 offset = int(last_child[caption_field].replace(type_caption,'').replace(' ','') or '0')
             for i in range(how_many):
-                record = tblobj.defaultValues()
+                record = tblobj.newrecord()
                 kk = offset+1+i
                 record.update({type_field:type_id,'parent_id':parent_id or None,caption_field:'%s %i' %(type_caption,kk)})
                 for fld in tblobj.attributes.get('hierarchical').split(','):

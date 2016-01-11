@@ -163,7 +163,9 @@ class THPicker(BaseComponent):
         commit = False
         for fkey in dragPkeys:
             commit = True
-            r = {one:dropPkey,many:fkey}
+            d = {one:dropPkey,many:fkey}
+            r = tblobj.newrecord()
+            r.update(d)
             if dragDefaults:
                 r.update(dragDefaults[fkey])
             tblobj.insert(r)
