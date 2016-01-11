@@ -496,6 +496,9 @@ class SqlTable(GnrObject):
         :param resolver_one: TODO
         :param resolver_many: TODO"""
         newrecord = self.buildrecord(kwargs, resolver_one=resolver_one, resolver_many=resolver_many)
+        defaultValues = self.defaultValues()
+        if defaultValues:
+            newrecord.update(defaultValues)
         if assignId:
             newrecord[self.pkey] = self.newPkeyValue(record=newrecord)
         return newrecord
