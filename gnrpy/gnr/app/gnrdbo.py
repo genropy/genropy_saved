@@ -1082,6 +1082,10 @@ class AttachmentTable(GnrDboTable):
                     mode='foreignkey', onDelete_sql='cascade', relation_name='atc_attachments',
                     one_group='_',many_group='_',deferred=True)
         tbl.formulaColumn('fileurl',"'/_vol/' || $filepath",name_long='Fileurl')
+        self.onTableConfig(tbl)
+
+    def onTableConfig(self,tbl):
+        pass
 
     @public_method
     def atc_importAttachment(self,pkey=None):
