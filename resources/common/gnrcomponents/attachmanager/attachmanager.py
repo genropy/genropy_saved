@@ -60,9 +60,15 @@ class AttachManagerView(AttachManagerViewBase):
 
 class Form(BaseComponent):
 
+    def atc_metadata(self,bc):
+        #override this
+        pass
+
     def th_form(self, form):
         sc = form.center.stackContainer(datapath='.record')
-        iframe = sc.contentPane(overflow='hidden').iframe(src='^.fileurl',_virtual_column='fileurl',height='100%',
+        bc = sc.borderContainer()
+        self.atc_metadata(bc)
+        iframe = bc.contentPane(region='center').iframe(src='^.fileurl',_virtual_column='fileurl',height='100%',
                                                 width='100%',border='0px',documentClasses=True,
                         connect_onload="""
                             var cw = this.domNode.contentWindow;
@@ -174,11 +180,11 @@ class AttachManager(BaseComponent):
         return frame
 
     @struct_method
-    def at_attachmentMultiButtonFrame(self,pane,datapath='.attachments',**kwargs):
+    def at_attachmentMultiButtonFrame(self,pane,datapath='.attachments',formResource=None,**kwargs):
         frame = pane.multiButtonForm(frameCode='attachmentPane_#',datapath=datapath,
                             relation='@atc_attachments',
                             caption='description',
-                            formResource='gnrcomponents/attachmanager/attachmanager:Form',
+                            formResource= formResource or 'gnrcomponents/attachmanager/attachmanager:Form',
                             multibutton_deleteAction="""
                                 var s = this._value.getNode('store').gnrwdg.store;
                                 s.deleteAsk([value]);
