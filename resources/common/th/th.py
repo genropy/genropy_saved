@@ -641,7 +641,7 @@ class MultiButtonForm(BaseComponent):
                                     store = new gnr.GnrBag();
                                     mainstack.setRelativeData('.store',store);
                                 }
-                                kw = {};
+                                kw = {newrecord:true};
                                 kw[caption_field] = data.attr.caption;
                                 fkey = fkey || '_newrecord_';
                                 kw['_pkey'] = fkey;
