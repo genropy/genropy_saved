@@ -649,11 +649,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         return result;
     },
     
-    openPendingChangesDlg:function(kw){
+    openPendingChangesDlg:function(kw,saveSlot){
+        saveSlot = saveSlot==undefined? true:saveSlot;
         var dlg = genro.dlg.quickDialog('Pending changes in '+this.table_name.toLowerCase(),{_showParent:true,width:'280px'});
         dlg.center._('div',{innerHTML:this.msg_unsaved_changes, text_align:'center',_class:'alertBodyMessage'});
         var form = this;
-        var slotbar = dlg.bottom._('slotBar',{slots:'discard,*,cancel,save',
+        var slotbar = dlg.bottom._('slotBar',{slots:saveSlot?'discard,*,cancel,save':'discard,*,cancel',
                                                action:function(){
                                                    dlg.close_action();
                                                    kw.command = this.attr.command;
@@ -661,7 +662,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                                                }});
         slotbar._('button','discard',{label:'Discard changes',command:'discard'});
         slotbar._('button','cancel',{label:'Cancel',command:'cancel'});
-        slotbar._('button','save',{label:'Save',command:'save'});
+        if(saveSlot){
+            slotbar._('button','save',{label:'Save',command:'save'});
+        }
         dlg.show_action();
      },
      
