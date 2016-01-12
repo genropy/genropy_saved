@@ -329,7 +329,8 @@ class TableBase(object):
         audit = tbl.attributes.get('audit')
         if audit:
             tbl.column('__version','L',name_long='Audit version',
-                        onUpdating='setAuditVersionUpd', onInserting='setAuditVersionIns',_sysfield=True)
+                        onUpdating='setAuditVersionUpd', onInserting='setAuditVersionIns',_sysfield=True,
+                        group=group)
         diagnostic = tbl.attributes.get('diagnostic')
         unifyRecordsTag = tbl.attributes.get('unifyRecordsTag')
         if unifyRecordsTag:
@@ -378,7 +379,8 @@ class TableBase(object):
                                 """ ( CASE WHEN $__syscode IS NULL THEN NULL 
                                    ELSE NOT (',' || :env_userTags || ',' LIKE '%%,'|| :systag || ',%%')
                                    END ) """,
-                                dtype='B',var_systag=tbl.attributes.get('syscodeTag') or 'superadmin',_sysfield=True)
+                                dtype='B',var_systag=tbl.attributes.get('syscodeTag') or 'superadmin',_sysfield=True,
+                                group=group)
  
             
 
