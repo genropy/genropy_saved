@@ -2270,13 +2270,11 @@ class GnrGridStruct(GnrStructData):
         self.cell(field, name=name, format_trueclass=trueclass, format_falseclass=falseclass,format_nullclass=nullclass,
                   classes=classes, calculated=calculated, format_onclick="""
                                                                     var threestate ='%(threestate)s';
-
                                                                     var rowpath = '#'+this.widget.absIndex(kw.rowIndex);
                                                                     var sep = this.widget.datamode=='bag'? '.':'?';
                                                                     var valuepath=rowpath+sep+'%(field)s';
                                                                     var storebag = this.widget.storebag();                                                                    
-                                                                    var blocked = this.form? this.form.isDisabled() : !this.widget.editorEnabled;
-                                                                
+                                                                    var blocked = this.form? this.form.isDisabled() : false;
                                                                     var checked = storebag.getItem(valuepath);
                                                                     if (blocked || ((checked===null) && (threestate=='disabled'))){
                                                                         return;
