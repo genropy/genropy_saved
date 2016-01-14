@@ -2263,7 +2263,17 @@ dojo.declare("gnr.widgets.ContentPane", gnr.widgets.baseDojo, {
     creating:function(attributes, sourceNode) {
         attributes.isLoaded = true;
         this.setControllerTitle(attributes, sourceNode);
+    },
+    created: function(widget, savedAttrs, sourceNode) {
+        dojo.connect(widget, 'startup', dojo.hitch(this, 'afterStartup', widget));
+    },
+
+    afterStartup:function(widget) {
+        if(widget._singleChild){
+            widget.domNode.style.overflow = 'hidden';
+        }
     }
+
 });
 
 dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
