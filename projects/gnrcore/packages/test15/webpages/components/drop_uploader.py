@@ -8,6 +8,7 @@
 
 from gnr.core.gnrlist import XlsReader
 from gnr.core.gnrbag import Bag, DirectoryResolver
+from gnr.core.gnrdecorator import public_method
 
 class GnrCustomWebPage(object):
     py_requires = """gnrcomponents/testhandler:TestHandlerFull,
@@ -53,9 +54,12 @@ class GnrCustomWebPage(object):
     def test_1_uploader(self, pane):
         """File Uploader"""
         pane.data('.pippo','42')
-        pane.dropUploader(uploaderId="test_uploader", external_pippo='^.pippo')
+        pane.dropUploader(nodeId="test_uploader", external_pippo='^.pippo', 
+          height = '100px', width='400px',
+          label= 'Trascinare qui il file o fare doppio click per selezionarlo dal disco')
 
-    def onUploading_test_uploader(self, file_url=None, file_path=None, file_ext=None, pippo=None,
+    @public_method
+    def onUploaded_test_uploader(self, file_url=None, file_path=None, file_ext=None, pippo=None,
                                   action_results=None, **kwargs):
         print pippo
         print file_path
