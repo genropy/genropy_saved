@@ -2865,7 +2865,7 @@ dojo.declare("gnr.widgets.DropUploader", gnr.widgets.gnrwdg, {
         var dropAreaKw = {nodeId:nodeId,dropTarget:objectPop(kw,'dropTarget',true),
                           dropTypes:objectPop(kw,'dropTypes','Files'),
                          _class:'dropUploaderBoxInner'};
-        var containerKw = objectExtract(kw,'position,top,left,right,bottom,height,width,border,rounded,_class')
+        var containerKw = objectExtract(kw,'position,top,left,right,bottom,height,width,border,rounded,_class,style')
 
         gnrwdg.pendingHandlers = [];
         dropAreaKw.connect_ondblclick = function(){
