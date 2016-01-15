@@ -3196,6 +3196,10 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
     patch_getValue: function(){
         return this.parse(this.getDisplayedValue(), {});
     },
+    patch_isValid: function(/*Boolean*/ isFocused){
+        return this.validator(this.textbox.value, {});
+    },
+
 
 });
 dojo.declare("gnr.widgets.CurrencyTextBox", gnr.widgets.NumberTextBox, {

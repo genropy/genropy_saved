@@ -26,12 +26,18 @@ class GnrCustomWebPage(object):
         fb.div('^.number_1',format='##0.00000',mask='Masked value:%s')
 
 
+
     def test_7_numberTextBox_pattern(self, pane):
         fb=pane.formbuilder(cols=1)
-        fb.numberTextBox(value='^.number_1',format='#,###.00',lbl='Constrains pattern',strict=False)
-        fb.numberTextBox(value='^.number_2',places=2,lbl='Constrains places')
-        fb.numberTextBox(value='^.number_3',format_pattern='##0.00000',lbl='Format pattern')
-        fb.CurrencyTextBox(value='^.money',lbl='Currency')
+        #fb.numberTextBox(value='^.number_1',format='#,###.00',lbl='Constrains pattern',strict=False)
+        #fb.numberTextBox(value='^.number_2',places=2,lbl='Constrains places')
+        #fb.data('.number_3',3)
+        fb.numberTextBox(value='^pippo',format='#,###.000',
+            lbl='Format pattern')
+        fb.dataController("console.log('changed',value); genro.bp(true);",value='^pippo')
+        fb.div('^pippo?_displayedValue',lbl='ccc')
+
+        #fb.CurrencyTextBox(value='^.money',lbl='Currency')
 
     def test_5_textbox_regex(self,pane):
         fb=pane.formbuilder(cols=2)
