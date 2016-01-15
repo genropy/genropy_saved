@@ -34,7 +34,7 @@ class GnrCustomWebPage(object):
         #fb.data('.number_3',3)
         fb.numberTextBox(value='^pippo',format='#,###.000',
             lbl='Format pattern')
-        fb.dataController("console.log('changed',value); genro.bp(true);",value='^pippo')
+        fb.dataController("console.log('changed',value);",value='^pippo')
         fb.div('^pippo?_displayedValue',lbl='ccc')
 
         #fb.CurrencyTextBox(value='^.money',lbl='Currency')
