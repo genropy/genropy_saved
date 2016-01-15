@@ -50,7 +50,7 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder(cols=1,border_spacing='3px')
         fb.checkBoxText(values='^.values',value='^.pluto')
         fb.textbox(value='^.pluto',lbl='code')
-        fb.textbox(value='^.pluto?value_caption',lbl='Caption')
+        fb.textbox(value='^.pluto?_displayedValue',lbl='Caption')
 
         fb.textbox(value='^.values',lbl='Values')
 
@@ -60,7 +60,7 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder(cols=1,border_spacing='3px')
         fb.radioButtonText(values='^.values',value='^.pluto')
         fb.textbox(value='^.pluto',lbl='code')
-        fb.textbox(value='^.pluto?value_caption',lbl='Caption')
+        fb.textbox(value='^.pluto?_displayedValue',lbl='Caption')
 
         fb.textbox(value='^.values',lbl='Values')   
 

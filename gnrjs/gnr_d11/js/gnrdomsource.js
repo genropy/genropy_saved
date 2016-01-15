@@ -122,15 +122,19 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             return;
         }
         var eventpath = kw.pathlist.slice(1).join('.');
+        var isValuePath = (pathToCheck.indexOf('?') < 0);
         if (pathToCheck.indexOf('#parent') > 0) {
             pathToCheck = gnr.bagRealPath(pathToCheck);
         }
-        if (pathToCheck.indexOf('?') >= 0) {
+        if (!isValuePath) {
             if ((kw.updattr) || (kw.evt=='fired') ||(pathToCheck.indexOf('?=') >= 0)) {
                 pathToCheck = pathToCheck.split('?')[0];
             }
         }
         if (pathToCheck == eventpath) {
+            if(isValuePath && kw.updattr && !kw.updvalue){
+                return;
+            }
             return 'node';
         }else if (pathToCheck.indexOf(eventpath + '.') == 0) { 
             return 'container';

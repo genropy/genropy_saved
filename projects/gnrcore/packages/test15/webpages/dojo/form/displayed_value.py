@@ -26,6 +26,8 @@ class GnrCustomWebPage(object):
         fb.div('^.number_1',format='##0.00000',mask='Masked value:%s')
 
 
+    def test_36_pippo(self, pane):
+        pane.div(value='^alfa.beta?bubba')
 
     def test_7_numberTextBox_pattern(self, pane):
         fb=pane.formbuilder(cols=1)
