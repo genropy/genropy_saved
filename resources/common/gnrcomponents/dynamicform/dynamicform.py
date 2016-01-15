@@ -35,8 +35,8 @@ class DynamicFormBagManager(BaseComponent):
     def df_fieldsBagStruct(self,struct):
         r = struct.view().rows()
         r.cell('code', name='!!Code', width='5em')
-        r.cell('description', name='!!Description', width='15em',edit=True)
-        r.cell('documentation', name='!!Documentation', width='20em',edit=dict(tag='simpleTextArea'))
+        r.cell('description', name='!!Description', width='15em')
+        r.cell('documentation', name='!!Documentation', width='20em')
         r.cell('data_type', name='!!Type', width='7em')
         r.cell('wdg_tag',name='!!Widget',width='7em')
         r.cell('page',name='!!Page',width='10em')
