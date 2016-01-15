@@ -46,6 +46,8 @@ class GnrCustomWebPage(object):
         top = bc.contentPane(region='top',height='50px',background='red',splitter=True)
         fb = top.formbuilder(cols=1,border_spacing='3px')
         fb.data('.myvideo.range','12,30')
+        fb.data('.myvideo.playerTime',0)
+
         fb.textbox('^.myvideo.range',lbl='Range')
 
         bc.contentPane(region='left',width='50px',splitter=True,background='lime')

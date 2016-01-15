@@ -1970,9 +1970,9 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
         center._('dataFormula',{path:'.playerTime',
                                 formula:"currentTime-(range_start||0)",
                                 currentTime:'^.currentTime',
-                                range_start:'=.range_start',_if:'_triggerpars.kw.reason=="player"'});
-
-        center._('dataFormula',{path:'.currentTime',formula:"playerTime+(range_start||0)",playerTime:'^.playerTime',
+                                range_start:'=.range_start',
+                                _if:'_triggerpars.kw.reason=="player"'});
+        center._('dataController',{script:"SET .currentTime = playerTime+range_start;",playerTime:'^.playerTime',
                                 range_start:'=.range_start'});
         gnrwdg.videoNodeId =kw.nodeId;
         var video = center._('ContentPane',{region:'top',overflow:'hidden'})._('video','video',kw);
@@ -1990,15 +1990,15 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
         var playerDuration = videoDuration;
         var sn = this.sourceNode;
         sn.setRelativeData('.duration', videoDuration);
-        sn.setRelativeData('.playerTime',null);
         var urlPars = sn.evaluateOnNode(this.urlPars);
         var range = urlPars.range;
         if(range){
-            var r = range.split(',');
+            var r = range.split(',').map(function(n){return parseInt(n)});
             sn.setRelativeData('.range_start',r[0]);
             sn.setRelativeData('.range_end',r[1]);
             playerDuration = Math.round((r[1]-r[0])*10)/10;
         }
+        sn.setRelativeData('.playerTime',0);
         sn.setRelativeData('.playerDuration',playerDuration);
     },
 
