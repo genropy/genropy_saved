@@ -43,6 +43,8 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         this.building = false;
         this.datatags = {'data':null,'dataformula':null,'datascript':null,
             'datarpc':null,'dataremote':null,'datacontroller':null, 'dataws':null};
+        this.layouttags = {'contentpane':null,'bordercontainer':null,'stackcontainer':null,
+            'tabcontainer':null,'accordioncontainer':null,'newincludedview':null,'framepane':null};
         this.highlightedNode = null;
 
     },
