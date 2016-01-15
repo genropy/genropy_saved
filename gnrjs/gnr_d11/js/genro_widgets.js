@@ -3226,7 +3226,7 @@ dojo.declare("gnr.widgets.Slider", gnr.widgets.baseDojo, {
         dojo.connect(widget.sliderHandle,'onmousedown',function(){
             widget._ignoreDataChanges = true;
         })
-        dojo.connect(widget.sliderHandle,'onmouseup',function(){
+        dojo.connect(window,'onmouseup',function(){
             widget._ignoreDataChanges = false;
         })
     }
