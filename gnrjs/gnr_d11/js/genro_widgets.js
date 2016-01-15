@@ -2264,15 +2264,15 @@ dojo.declare("gnr.widgets.ContentPane", gnr.widgets.baseDojo, {
         attributes.isLoaded = true;
         this.setControllerTitle(attributes, sourceNode);
     },
-    created: function(widget, savedAttrs, sourceNode) {
-        dojo.connect(widget, 'startup', dojo.hitch(this, 'afterStartup', widget));
-    },
-
-    afterStartup:function(widget) {
-        if(widget._singleChild){
-            widget.domNode.style.overflow = 'hidden';
-        }
-    }
+    //created: function(widget, savedAttrs, sourceNode) {
+    //    dojo.connect(widget, 'startup', dojo.hitch(this, 'afterStartup', widget));
+    //},
+//
+    //afterStartup:function(widget) {
+    //    if(widget._singleChild){
+    //        widget.domNode.style.overflow = 'hidden';
+    //    }
+    //}
 
 });
 
