@@ -438,10 +438,16 @@ dojo.declare("gnr.GnrBagNode", null, {
             this.attr = attr;
         }
         if (doTrigger) {
+            var changedAttributes = {};
+            for(var k in this.attr){
+                if(!(k in oldattr) || oldattr[k]!==this.attr[k]){
+                    changedAttributes[k] = true;
+                }
+            }
             if (this._parentbag && this._parentbag._backref) {
                 this._parentbag.onNodeTrigger({'evt':'upd','node':this, 'pathlist':[this.label],
                     'oldattr':oldattr,'updattr':true, reason:doTrigger,
-                    'changedAttr':changedAttr});
+                    'changedAttr':changedAttr,'changedAttributes':changedAttributes});
             }
         }
     },
