@@ -976,8 +976,17 @@ dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
 
     addTrack:function(domNode,kw){
         var track = document.createElement('track');
+        var cue_path = objectPop(kw,'cue_path');
         kw.label = kw.label || kw.kind+'_'+kw.srclang;
         kw['src'] = dataTemplate(kw['src'],kw);
+        kw['idx'] = domNode.textTracks.length;
+        var hidden = objectPop(kw,'hidden');
+        var mode = hidden?'hidden':'showing';
+        if(kw.default===false){
+            objectPop(kw,'default');
+        }else{
+            kw.default=true;
+        }
         if(!stringEndsWith(kw['src'],'.vtt')){
             kw['src']+='.vtt';
         }
@@ -986,8 +995,14 @@ dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
             track[k] = kw[k];
         }
         track.addEventListener("load", function() { 
-            this.mode = "showing"; 
-            domNode.textTracks[0].mode = "showing"; // thanks Firefox 
+            this.mode = mode;
+            domNode.textTracks[this.idx].mode = mode; // thanks Firefox 
+            domNode.textTracks[this.idx].oncuechange = function(){
+                var cue = this.activeCues[0]; 
+                if(cue_path && cue){
+                    domNode.sourceNode.setRelativeData(cue_path,new gnr.GnrBag({'id':cue.id,text:cue.text,startTime:cue.startTime,endTime:cue.endTime}));
+                }
+            }
         }); 
         domNode.appendChild(track);
     },
@@ -6937,7 +6952,7 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
 
 });
 
-dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
+dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
     creating: function(attributes, sourceNode) {
         var savedAttrs = {};
         var hasDownArrow;
@@ -6950,11 +6965,9 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
             attributes.hasDownArrow = false;
             attributes['tabindex'] = -1;
         }
-        var resolverAttrs = objectExtract(attributes, 'method,dbtable,table,columns,limit,alternatePkey,auxColumns,hiddenColumns,rowcaption,order_by,selectmethod,weakCondition,excludeDraft,ignorePartition,preferred,distinct,httpMethod');
-        resolverAttrs.dbtable = resolverAttrs.dbtable || objectPop(resolverAttrs,'table');
-        if('_storename' in sourceNode.attr){
-            resolverAttrs._storename = sourceNode.attr._storename;
-        }
+        var resolverAttrs = objectExtract(attributes, 'method,columns,limit,auxColumns,hiddenColumns,alternatePkey,rowcaption,order_by,preferred');
+        resolverAttrs['notnull'] = attributes['validate_notnull'];
+        savedAttrs['auxColumns'] = resolverAttrs['auxColumns'];
         var selectedColumns = objectExtract(attributes, 'selected_*');
         var selectedCb = objectPop(attributes,'selectedCb');
         if(selectedCb){
@@ -6978,11 +6991,6 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
             }
             resolverAttrs['hiddenColumns'] = hiddenColumns.join(',');
         }
-        resolverAttrs['method'] = resolverAttrs['method'] || 'app.dbSelect';
-        resolverAttrs['notnull'] = attributes['validate_notnull'];
-        savedAttrs['dbtable'] = resolverAttrs['dbtable'];
-        savedAttrs['auxColumns'] = resolverAttrs['auxColumns'];
-        var storeAttrs = objectExtract(attributes, 'store_*');
         objectExtract(attributes, 'condition_*');
         resolverAttrs['condition'] = sourceNode.attr.condition;
         objectUpdate(resolverAttrs, objectExtract(sourceNode.attr, 'condition_*', true));
@@ -6990,25 +6998,16 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         resolverAttrs._id = '';
         resolverAttrs._querystring = '';
 
+        var storeAttrs = objectExtract(attributes, 'store_*');
         var store;
         savedAttrs['record'] = objectPop(storeAttrs, 'record');
         attributes.searchAttr = storeAttrs['caption'] || 'caption';
         store = new gnr.GnrStoreQuery({'searchAttr':attributes.searchAttr,_parentSourceNode:sourceNode});
-
         store._identifier = resolverAttrs['alternatePkey'] || storeAttrs['id'] || '_pkey';
-
-        sourceNode.registerSubscription('changeInTable',sourceNode,function(kw){
-            if(this.attr.dbtable==kw.table){
-                this.widget.clearCache(kw.pkey);
-            }
-        });
-        //store._parentSourceNode = sourceNode;
         resolverAttrs._sourceNode = sourceNode;
-        //resolverAttrs.sync = true
-        var resolver = new gnr.GnrRemoteResolver(resolverAttrs, true, 0);
 
+        var resolver = this.resolver(sourceNode,attributes,resolverAttrs,savedAttrs);
         resolver.sourceNode = sourceNode;
-
         store.rootDataNode().setResolver(resolver);
         attributes.searchDelay = attributes.searchDelay || 300;
         attributes.autoComplete = attributes.autoComplete || false;
@@ -7020,7 +7019,7 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
 
         return savedAttrs;
     },
-    
+
     versionpatch_11__onArrowMouseDown:function(e){
         if(this._downArrowMenu){
             dojo.stopEvent(e);
@@ -7028,9 +7027,7 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
             this._onArrowMouseDown_replaced(e);
         }
     },
-    mixin_setDbtable:function(value) {
-        this.store.rootDataNode()._resolver.kwargs.dbtable = value;
-    },
+
     mixin_clearCache:function(pkey){
         this.store.clearCache(pkey);
     },
@@ -7108,7 +7105,80 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
     }
 });
 
+dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.DynamicBaseCombo, {
+    resolver:function(sourceNode,attributes,resolverAttrs,savedAttrs){
+        objectUpdate(resolverAttrs,objectExtract(attributes,'dbtable,table,selectmethod,weakCondition,excludeDraft,ignorePartition,distinct,httpMethod'));
+        resolverAttrs.dbtable = resolverAttrs.dbtable || objectPop(resolverAttrs,'table');
+        if('_storename' in sourceNode.attr){
+            resolverAttrs._storename = sourceNode.attr._storename;
+        }
+        resolverAttrs['method'] = resolverAttrs['method'] || 'app.dbSelect';
+        savedAttrs['dbtable'] = resolverAttrs['dbtable'];
+        sourceNode.registerSubscription('changeInTable',sourceNode,function(kw){
+            if(this.attr.dbtable==kw.table){
+                this.widget.clearCache(kw.pkey);
+            }
+        });
+        return new gnr.GnrRemoteResolver(resolverAttrs, true, 0);
+    },
+    mixin_setDbtable:function(value) {
+        this.store.rootDataNode()._resolver.kwargs.dbtable = value;
+    }
+
+});
+
+
+dojo.declare("gnr.widgets.LocalBaseCombo", gnr.widgets.DynamicBaseCombo, {
+    resolver:function(sourceNode,attributes,resolverAttrs){
+        objectUpdate(resolverAttrs,objectExtract(attributes,'kw_*'));
+        var callback = objectPop(attributes,'callback');
+        if(callback){
+            var callback = funcCreate(callback,'kw');
+            resolverAttrs.method = function(kw){
+                var envelope = new gnr.GnrBag();
+                var result = new gnr.GnrBag();
+                var resultObj = callback.call(this,kw);
+                var headers = resultObj.headers;
+                var rows = resultObj.data || [];
+                var i = 0;
+                rows.forEach(function(r){
+                    result.setItem('r_'+i,null,r);
+                    i++;
+                })
+                var resultAttr = {};
+                if(headers){
+                    var columnslist = [];
+                    var headerslist = [];
+                    headers.split(',').forEach(function(c){
+                        c = c.split(':');
+                        columnslist.push(c[0]);
+                        headerslist.push(c[1]);
+                    })
+                    resultAttr.columns = columnslist.join(',');
+                    resultAttr.headers = headerslist.join(',');
+                }
+                envelope.setItem('result',result,resultAttr);
+                return envelope.popNode('result');
+            };
+        }else{
+            resolverAttrs.method = funcCreate(resolverAttrs.method,'kw');
+        }
+        return new gnr.GnrBagCbResolver({method:objectPop(resolverAttrs,'method'),parameters:resolverAttrs},true);
+    }
+});
+
+
+dojo.declare("gnr.widgets.RemoteBaseCombo", gnr.widgets.DynamicBaseCombo, {
+    resolver:function(sourceNode,attributes,resolverAttrs){
+        objectUpdate(resolverAttrs,objectExtract(attributes,'kw_*'));
+        return new gnr.GnrRemoteResolver(resolverAttrs, true, 0);
+    }
+});
+
+
 dojo.declare("gnr.widgets.FilteringSelect", gnr.widgets.BaseCombo, {
+    _validatingWidget:true,
+
     constructor: function(application) {
         this._domtag = 'div';
         this._dojotag = 'FilteringSelect';
@@ -7171,20 +7241,23 @@ dojo.declare("gnr.widgets.ComboBox", gnr.widgets.BaseCombo, {
     }
 });
 
-dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
+dojo.declare("gnr.widgets.BaseSelect", null, {
+    _validatingWidget:true,
+
     constructor: function(application) {
         this._domtag = 'div';
         this._dojotag = 'FilteringSelect';
     },
     connectForUpdate: function(widget, sourceNode) {
         dojo.connect(widget, '_setValueFromItem', widget, 'onSetValueFromItem');
-        if (!("validate_dbselect" in sourceNode.attr)) {
-            sourceNode.attr.validate_dbselect = true;
+        if (!("validate_select" in sourceNode.attr)) {
+            sourceNode.attr.validate_select = true;
         }
-        if (!("validate_dbselect_error" in sourceNode.attr)) {
-            sourceNode.attr.validate_dbselect_error = 'Not existing value';
+        if (!("validate_select_error" in sourceNode.attr)) {
+            sourceNode.attr.validate_select_error = 'Not existing value';
         }
     },
+
     versionpatch_11__setBlurValue : function(){
             // if the user clicks away from the textbox OR tabs away, set the
             // value to the textbox value
@@ -7259,6 +7332,13 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
         }
     }
 });
+
+dojo.declare("gnr.widgets.dbSelect", [gnr.widgets.dbBaseCombo,gnr.widgets.BaseSelect], {});
+
+dojo.declare("gnr.widgets.CallBackSelect", [gnr.widgets.LocalBaseCombo,gnr.widgets.BaseSelect], {});
+
+dojo.declare("gnr.widgets.RemoteSelect", [gnr.widgets.RemoteBaseCombo,gnr.widgets.BaseSelect], {});
+
 
 dojo.declare("gnr.widgets.dbComboBox", gnr.widgets.dbBaseCombo, {
     constructor: function(application) {

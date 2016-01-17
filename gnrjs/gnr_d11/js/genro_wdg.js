@@ -452,7 +452,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
                 field.blur();
             });
         }
-        if (objectNotEmpty(validations) || this.wdgIsSelect(sourceNode)) {
+        if (objectNotEmpty(validations) || handler._validatingWidget) {
             sourceNode.setValidations();
             this.setIsValidMethod(newobj);
             dojo.connect(newobj, 'onFocus', function(e) {
@@ -473,11 +473,11 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         this.doMixin(newobj, handler, tag, sourceNode);
         return newobj;
     },
-    wdgIsSelect: function(sourceNode) {
-        if (sourceNode) { // tooltip and others are widgets w/o sourcenode
-            return (sourceNode.attr.tag.toLowerCase() in {'dbselect':null,'filteringselect':null});
-        }
-    },
+   //wdgIsSelect: function(sourceNode) {
+   //    if (sourceNode) { // tooltip and others are widgets w/o sourcenode
+   //        return (sourceNode.attr.tag.toLowerCase() in {'dbselect':null,'filteringselect':null});
+   //    }
+   //},
     setIsValidMethod:function(obj) {
         if (obj.isValid) {
             obj.isValid = function(isFocused) {
@@ -487,7 +487,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
                 } else {
                     if (this.sourceNode.editing) { //loosing focus after editing
                         this.sourceNode.editing = false;
-                        if (genro.wdg.wdgIsSelect(this.sourceNode)) {
+                        if (this.gnr._validatingWidget) {
                             // FilteringSelect has no duoble isValid on exit, so return hasValidationError
                         } else {
                             return true; //go on to onChange to get new validations

@@ -1742,7 +1742,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 });
 
 dojo.declare("gnr.GnrValidator", null, {
-    validationTags: ['dbselect','notnull','empty','case','len','min','max','email','regex','call','gridnodup','nodup','exist','remote'],
+    validationTags: ['select','notnull','empty','case','len','min','max','email','regex','call','gridnodup','nodup','exist','remote'],
     getCurrentValidations: function(sourceNode) {
         return sourceNode.evaluateOnNode(objectExtract(sourceNode.attr, 'validate_*', true));
     },
@@ -1872,7 +1872,7 @@ dojo.declare("gnr.GnrValidator", null, {
             return {'errorcode':'notnull', 'required':true};
         }
     },
-    validate_dbselect: function(param, value, sourceNode, parameters) {
+    validate_select: function(param, value, sourceNode, parameters) {
         if (dojo.isIE > 0) {
             return;
         }

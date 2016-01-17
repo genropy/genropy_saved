@@ -2437,13 +2437,16 @@ dojo.declare("gnr.GnrBagGetter", gnr.GnrBagResolver, {
 //*******************BagCbResolver****************************
 
 dojo.declare("gnr.GnrBagCbResolver", gnr.GnrBagResolver, {
-    constructor: function(kwargs) {
+    constructor: function(kwargs,isGetter) {
         this.method = kwargs.method;
         this.parameters = kwargs.parameters;
+        this.isGetter = isGetter;
     },
 
-    load: function() {
-        return this.method.call(this, this.parameters);
+    load: function(kwargs) {
+        var kw = objectUpdate({},this.parameters)
+        objectUpdate(kw,kwargs)
+        return this.method.call(this,kw);
     }
 });
 
