@@ -1955,7 +1955,7 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
         kw.width = kw.video_width || '100%';
         //kw.height = kw.video_height || '100%';
         kw.border = kw.video_border || 0;
-        var urlPars = objectExtract(kw,'url,range');
+        var urlPars = objectExtract(kw,'url,timerange');
         gnrwdg.urlPars = urlPars;
         kw.connect_loadedmetadata = function(){
             gnrwdg.onLoadedVideo(this);
@@ -1965,8 +1965,8 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
         if(frameKw.frameCode && !kw.nodeId){
             kw.nodeId = frameKw.frameCode +'_video';
         }
-        center._('dataFormula',{path:'.videoSrc',formula:"url?genro.addParamsToUrl(url,{'#t':range}):null;",
-                                url:urlPars.url,range:urlPars.range,_onBuilt:true,_delay:1});
+        center._('dataFormula',{path:'.videoSrc',formula:"url?genro.addParamsToUrl(url,{'#t':timerange}):null;",
+                                url:urlPars.url,timerange:urlPars.timerange,_onBuilt:true,_delay:1});
         center._('dataFormula',{path:'.playerTime',
                                 formula:"currentTime-(range_start||0)",
                                 currentTime:'^.currentTime',
@@ -1977,10 +1977,10 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
         gnrwdg.videoNodeId =kw.nodeId;
         var video = center._('ContentPane',{region:'top',overflow:'hidden'})._('video','video',kw);
         if(subtitlePane){
-            var subpane = center._('ContentPane',{region:'center',background:'orange',min_height:'100px'})._('div',{innerHTML:'Subtitles'});
+            var subpane = center._('ContentPane',{region:'center',min_height:'100px'})._('div',{innerHTML:'^.mainsub.text'});
             gnrwdg.subtitleNode = subpane.getParentNode();
         }
-        this.preparePlayerBar(frame,slots,manageCue,controllerSide,kw.nodeId);
+        gnrwdg.preparePlayerBar(frame,slots,manageCue,controllerSide);
         return video;
     },
 
@@ -1991,9 +1991,9 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
         var sn = this.sourceNode;
         sn.setRelativeData('.duration', videoDuration);
         var urlPars = sn.evaluateOnNode(this.urlPars);
-        var range = urlPars.range;
-        if(range){
-            var r = range.split(',').map(function(n){return parseInt(n)});
+        var timerange = urlPars.timerange;
+        if(timerange){
+            var r = timerange.split(',').map(function(n){return parseInt(n)});
             sn.setRelativeData('.range_start',r[0]);
             sn.setRelativeData('.range_end',r[1]);
             playerDuration = Math.round((r[1]-r[0])*10)/10;
@@ -2002,8 +2002,11 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
         sn.setRelativeData('.playerDuration',playerDuration);
     },
 
-    preparePlayerBar:function(frame,slots,manageCue,controllerSide,videoNodeId){
-        slots = slots || (manageCue? '10,playbutton,playerslider,timerbox,*,cuebutton,10':'10,playbutton,playerslider,timerbox,*');
+    gnrwdg_preparePlayerBar:function(frame,slots,manageCue,controllerSide){
+        slots = slots || '10,playbutton,playerslider,timerbox,searchBox,*'
+        if(manageCue){
+            slots = slots+',cuebutton,10';
+        }        
         var bar = frame._('SlotBar','bar',{slots:slots,side:controllerSide,height:'21px',toolbar:true,playerslider_width:'100%'});
         var slotsKw = {};
         slotsKw.playbutton = {tag:'slotButton',
@@ -2011,7 +2014,7 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
              action:'var _video = genro.domById(_videoNodeId); if(_playing){_video.pause()}else{_video.play()};',
             _playing:'^.playing',
             iconClass:'==_playing?"player_pause":"player_play"',
-            _videoNodeId:videoNodeId
+            _videoNodeId:this.videoNodeId
         };
         slotsKw.playerslider = {tag:'horizontalSlider',
             value:'^.playerTime',
@@ -2024,6 +2027,7 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
             value:'^.playerTime',format:'###.00',width:'5em',rounded:6,
             parentForm:false,margin_top:'1px'
         };
+        slotsKw.searchBox = 'videoSearchBox';
         slotsKw.cuebutton = {
             tag:'slotButton',
             label:"==_start_time?'Make cue':'Start cue';",
@@ -2046,13 +2050,23 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
                 }
             }
         };
+        var that = this;
         slots.split(',').forEach(function(s){
             if(s in slotsKw){
-                var skw = objectUpdate({},slotsKw[s]);
-                var tag = objectPop(skw,'tag');
-                bar._(tag,s,skw);
+                var handler = slotsKw[s];
+                if(typeof(handler)=='string'){
+                    that[handler](bar,s);
+                }else{
+                    var skw = objectUpdate({},handler);
+                    var tag = objectPop(skw,'tag');
+                    bar._(tag,s,skw);
+                }
             }
         });
+    },
+    gnrwdg_videoSearchBox:function(bar,slotName){
+        var sb = bar._('SearchBox',slotName,{searchOn:'All:all,Subtitles:subtitles,Chapters:chapters,Captions:captions'})
+        
     }
 
 });

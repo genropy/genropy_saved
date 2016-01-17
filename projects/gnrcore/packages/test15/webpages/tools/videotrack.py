@@ -58,10 +58,12 @@ class GnrCustomWebPage(object):
                     datapath='.myvideo',
                     region='center',
                     manageCue=True,
-                    range='^.range',
+                    timerange='^.range',
                     selfsubscribe_addCue='console.log("fffff",$1);',
                    border=0,nodeId='preview_videoplayer',
                    subtitlePane=True,
                    tracks=[dict(src='/video/index/vtt/KMq3Rzs6MMW3so_vWdYFXg/subtitles/it.vtt',
-                               kind='subtitles',srclang='it',label='Subtitle',default=True)])
+                               kind='subtitles',srclang='it',label='Subtitle',
+                               cue_path='.mainsub',hidden=True)
+                   ])
         
