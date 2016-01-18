@@ -25,9 +25,11 @@ class Main(BaseResourceAction):
         if self.batch_parameters.get('use_thermo'):
             wrapper = self.btc.thermo_wrapper
             wrapper_kw = dict(line_code='touch',message = 'Record',tblobj=tblobj)
-
-        tblobj.batchUpdate(_pkeys=pkeys,_wrapper=wrapper,_wrapperKwargs=wrapper_kw)
+        tblobj.touchRecords(_pkeys=pkeys,_wrapper=wrapper,_wrapperKwargs=wrapper_kw,
+                            method=self.batch_parameters.get('touchmethod'),
+                            bagFields=self.batch_parameters.get('bagFields'))
         self.db.commit()
+
 
     def table_script_parameters_pane(self, pane, table=None,**kwargs):
         fb = pane.div(padding='10px').formbuilder(cols=1,border_spacing='3px')

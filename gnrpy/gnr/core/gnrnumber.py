@@ -24,6 +24,8 @@
 from decimal import Decimal,ROUND_HALF_UP
 
 def decimalRound(value,places=2,rounding=None):
+    if not isinstance(value,Decimal):
+        value = floatToDecimal(value)
     return value.quantize(Decimal(str(10**-places)),rounding=rounding or ROUND_HALF_UP)
     
 def floatToDecimal(f,places=None,rounding=None):
