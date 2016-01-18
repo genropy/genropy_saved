@@ -12,6 +12,11 @@ if [ ! -d /etc/uwsgi/tmp_ssl]; then
 	chmod 700 /etc/uwsgi/tmp_ssl
 fi
 
+if [ ! -d /etc/uwsgi/ssl]; then
+	echo "****** /etc/uwsgi/ssl does not exist, will be created"
+	mkdir -p /etc/uwsgi/ssl
+fi
+
 if [ ! -d /var/log/uwsgi]; then
 	echo "****** /var/log/uwsgi does not exist, will be created"
 	mkdir /var/log/uwsgi
