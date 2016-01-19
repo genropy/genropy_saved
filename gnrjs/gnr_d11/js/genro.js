@@ -72,6 +72,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.user_polling = -1;
         this.isDeveloper = objectPop(this.startArgs,'isDeveloper');
         this.isMobile = objectPop(this.startArgs,'isMobile');
+        this.deviceScreenSize = objectPop(this.startArgs,'deviceScreenSize');
         this.theme = {};
         this.dojo = dojo;
         this.debugged_rpc = {};
@@ -654,7 +655,11 @@ dojo.declare('gnr.GenroClient', null, {
         if(value){
             this.setInStorage('local','tooltipHelpModifier',value);
         }else{
-            return this.getFromStorage('local','tooltipHelpModifier');
+            var modifier = this.getFromStorage('local','tooltipHelpModifier') || 'Shift';
+            if(modifier=='*'){
+                modifier = null;
+            }
+            return modifier;
         }
     },
     
@@ -939,7 +944,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     format: function (v, f, m) {
         if( f.dtype=='P'){
-            return genro.formatter.asText(v,{dtype:'P',format:f.format.format,mask:f.mask});
+            return genro.formatter.asText(v,f);
         }
         if (v instanceof Date) {
             var opt = objectUpdate({}, f);
@@ -959,8 +964,8 @@ dojo.declare('gnr.GenroClient', null, {
         }
         else if (typeof(v) == 'number') {
             f.locale = f.locale || dojo.locale;
-            if(f.format && f.format.format!=null){
-                return genro.formatter.asText(v,{format:f.format.format,format_max:f.max,format_min:f.min,format_high:f.high,format_low:f.low,format_optimal:f.optimal});
+            if(f.format){
+                return genro.formatter.asText(v,{format:f.format.format || f.format,format_max:f.max,format_min:f.min,format_high:f.high,format_low:f.low,format_optimal:f.optimal});
             }
             if (!f.places && f.dtype == 'L') {
                 f.places = 0;
@@ -976,10 +981,12 @@ dojo.declare('gnr.GenroClient', null, {
                 v = stringStrip(dojo.currency.format(v, f));
             }
         }else if(v instanceof Array){
-            if(f['joiner']){
-                v = v.join(f['joiner']);
-            }
+            v = genro.formatter.asText(v,f.joiner);
+   
+        }else if(v instanceof gnr.GnrBag){
+            v = genro.formatter.asText(v,objectUpdate({format:objectExtract(f,'bag_*',true)}) );
         }else if (v && f.dtype=='X'){
+            console.warn('DEPRECATED')
             var b = new gnr.GnrBag();
             try{
                 var parser = new DOMParser();
@@ -1570,12 +1577,15 @@ dojo.declare('gnr.GenroClient', null, {
 
 
     addParamsToUrl: function(url, params) {
+        if(!url){
+            return
+        }
         if(!objectNotEmpty(params)){
             return url;
         }
         var parameters = [];
         for (var key in params) {
-            if(params[key]!==null){
+            if(!isNullOrBlank(params[key])){
                 parameters.push(key + '=' + encodeURIComponent(params[key]));
             }
         }

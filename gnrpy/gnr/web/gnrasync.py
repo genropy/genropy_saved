@@ -30,7 +30,11 @@ import tornado.websocket as websocket
 import tornado.ioloop
 from tornado.netutil import bind_unix_socket
 from tornado.tcpserver import TCPServer
-import toro
+from tornado import version_info
+if version_info[0]>=4 and version_info[1]>=2:
+    from tornado import queues
+else:
+    import toro as queues
 from tornado.httpserver import HTTPServer
 
 from gnr.app.gnrconfig import gnrConfigPath
@@ -112,9 +116,9 @@ class DebugSession(GnrBaseHandler):
         self.pdb_id = None
         self.page_id = None
         self.stream.set_close_callback(self.on_disconnect)
-        self.socket_input_queue = toro.Queue(maxsize=40)
-        self.socket_output_queue = toro.Queue(maxsize=40)
-        self.websocket_output_queue = toro.Queue(maxsize=40)
+        self.socket_input_queue = queues.Queue(maxsize=40)
+        self.socket_output_queue = queues.Queue(maxsize=40)
+        self.websocket_output_queue = queues.Queue(maxsize=40)
         self.consume_socket_input_queue()
 
     def link_debugger(self, debugkey):
@@ -122,7 +126,7 @@ class DebugSession(GnrBaseHandler):
         self.page_id = page_id
         self.pdb_id = pdb_id
         if not debugkey in self.debug_queues:
-            self.debug_queues[debugkey] = toro.Queue(maxsize=40)
+            self.debug_queues[debugkey] = queues.Queue(maxsize=40)
         self.websocket_input_queue = self.debug_queues[debugkey]
         self.consume_websocket_output_queue()
         self.consume_websocket_input_queue()
@@ -289,7 +293,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
         print 'CMD',cmd
         debugkey = '%s,%s' %(self.page_id,pdb_id)
         if not debugkey in self.debug_queues:
-            self.debug_queues[debugkey] = toro.Queue(maxsize=40)
+            self.debug_queues[debugkey] = queues.Queue(maxsize=40)
         data_queue = self.debug_queues[debugkey]
         data_queue.put(cmd)
         

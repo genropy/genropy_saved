@@ -263,6 +263,17 @@ class SqlTable(GnrObject):
         :param name: TODO"""
         return self.model.fullRelationPath(name)
 
+    def getPartitionCondition(self,ignorePartition=None):
+        if ignorePartition:
+            return
+        partitionParameters = self.partitionParameters
+        if partitionParameters:
+            env = self.db.currentEnv
+            if env.get('current_%(path)s' %partitionParameters):
+                return "$%(field)s =:env_current_%(path)s" %partitionParameters
+            elif env.get('allowed_%(path)s' %partitionParameters):
+                return "( $%(field)s IN :env_allowed_%(path)s )" %partitionParameters
+
     @property
     def partitionParameters(self):
         kw = dictExtract(self.attributes,'partition_')
@@ -271,7 +282,11 @@ class SqlTable(GnrObject):
         result = dict()
         result['field'] = kw.keys()[0]
         result['path'] = kw[result['field']]
-        result['table'] = self.column(result['field']).relatedColumn().table.fullname
+        col = self.column(result['field'])
+        if col.relatedColumn() is None:
+            result['table'] = self.fullname
+        else:
+            result['table'] = col.relatedColumn().table.fullname
         return result
 
     def getColumnPrintWidth(self, column):
@@ -481,6 +496,9 @@ class SqlTable(GnrObject):
         :param resolver_one: TODO
         :param resolver_many: TODO"""
         newrecord = self.buildrecord(kwargs, resolver_one=resolver_one, resolver_many=resolver_many)
+        defaultValues = self.defaultValues()
+        if defaultValues:
+            newrecord.update(defaultValues)
         if assignId:
             newrecord[self.pkey] = self.newPkeyValue(record=newrecord)
         return newrecord
@@ -523,9 +541,11 @@ class SqlTable(GnrObject):
         cacheKey = '%s_%s' %(topic,self.fullname)
         if currentPage:
             with currentPage.pageStore() as store:
-                localcache = store.getItem(cacheKey) or dict()
+                if store:
+                    localcache = store.getItem(cacheKey)
+                localcache = localcache or dict()
                 data,in_cache = cb(cache=localcache,**kwargs)
-                if not in_cache:
+                if store and not in_cache:
                     store.setItem(cacheKey,localcache)
         else:
             localcache = self.db.currentEnv.setdefault(cacheKey,dict())
@@ -706,7 +726,7 @@ class SqlTable(GnrObject):
         it with defaults"""
         return dict([(x.name, x.attributes['sample'])for x in self.columns.values() if 'sample' in x.attributes])
 
-    def query(self, columns='*', where=None, order_by=None,
+    def query(self, columns=None, where=None, order_by=None,
               distinct=None, limit=None, offset=None,
               group_by=None, having=None, for_update=False,
               relationDict=None, sqlparams=None, excludeLogicalDeleted=True,
@@ -882,9 +902,11 @@ class SqlTable(GnrObject):
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section"""
         where = where or '$%s=:pkey' % self.pkey
         kwargs.pop('limit', None)
+        kwargs.setdefault('ignoreTableOrderBy',True)
         fetch = self.query(columns=columns, limit=1, where=where,
                            pkey=pkey, addPkeyColumn=False,excludeDraft=False,
-                           ignorePartition=True,excludeLogicalDeleted=False, **kwargs).fetch()
+                           ignorePartition=True,excludeLogicalDeleted=False, 
+                           **kwargs).fetch()
         if not fetch:
             row = [None for x in columns.split(',')]
         else:
@@ -936,14 +958,16 @@ class SqlTable(GnrObject):
         """TODO"""
         self.db.adapter.emptyTable(self)
         
-    def sql_deleteSelection(self, where, **kwargs):
+    def sql_deleteSelection(self, where=None,_pkeys=None, **kwargs):
         """Delete a selection from the table. It works only in SQL so no python trigger is executed
         
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
         :param \*\*kwargs: optional arguments for the "where" attribute"""
-        todelete = self.query('$%s' % self.pkey, where=where, addPkeyColumn=False, for_update=True,excludeDraft=False ,**kwargs).fetch()
-        if todelete:
-            self.db.adapter.sql_deleteSelection(self, pkeyList=[x[0] for x in todelete])
+        if where:
+            todelete = self.query('$%s' % self.pkey, where=where, addPkeyColumn=False, for_update=True,excludeDraft=False ,_pkeys=_pkeys,**kwargs).fetch()
+            _pkeys = [x[0] for x in todelete] if todelete else None
+        if _pkeys:
+            self.db.adapter.sql_deleteSelection(self, pkeyList=_pkeys)
             
     #Jeff added the support to deleteSelection for passing no condition so that all records would be deleted
     def deleteSelection(self, condition_field=None, condition_value=None, excludeLogicalDeleted=False, excludeDraft=False,condition_op='=',
@@ -1109,7 +1133,7 @@ class SqlTable(GnrObject):
         
         :param record: a dictionary, bag or pkey (string)"""
         for rel in self.relations_many:
-            onDelete = rel.getAttr('onDelete', '').lower()
+            onDelete = rel.getAttr('onDelete', 'raise').lower()
             if onDelete and not (onDelete in ('i', 'ignore')):
                 mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')
                 opkg, otbl, ofld = rel.attr['one_relation'].split('.')
@@ -1148,16 +1172,14 @@ class SqlTable(GnrObject):
         
         :param recordCluster: TODO
         :param recordClusterAttr: TODO
-        :param debugPath: TODO"""
-        def onBagColumns(attributes=None,**kwargs):
-            if attributes and '__old' in attributes:
-                attributes.pop('__old')
+        :param debugPath: TODO"""                
         main_changeSet, relatedOne, relatedMany = self._splitRecordCluster(recordCluster, debugPath=debugPath)
         isNew = recordClusterAttr.get('_newrecord')
         toDelete = recordClusterAttr.get('_deleterecord')
         pkey = recordClusterAttr.get('_pkey')
         invalidFields = recordClusterAttr.get('_invalidFields')
         noTestForMerge = self.attributes.get('noTestForMerge') or self.pkg.attributes.get('noTestForMerge')
+        blackListAttributes = ('__old','_newrecord')
         if isNew and toDelete:
             return # the record doesn't exists in DB, there's no need to delete it
         if isNew:
@@ -1210,9 +1232,9 @@ class SqlTable(GnrObject):
             main_record[invalidFields_fld] = gnrstring.toJsonJS(invalidFields) if invalidFields else None
             
         if isNew:
-            self.insert(main_record,onBagColumns=onBagColumns)
+            self.insert(main_record,blackListAttributes=blackListAttributes)
         elif main_changeSet:
-            self.update(main_record, old_record=old_record, pkey=pkey,onBagColumns=onBagColumns)
+            self.update(main_record, old_record=old_record, pkey=pkey,blackListAttributes=blackListAttributes)
         for rel_name, rel_recordClusterNode in relatedMany.items():
             rel_recordCluster = rel_recordClusterNode.value
             rel_recordClusterAttr = rel_recordClusterNode.getAttr()
@@ -1298,7 +1320,7 @@ class SqlTable(GnrObject):
             lastid = self.query(columns='max($%s)' % pkey, group_by='*').fetch()[0]
             return (lastid[0] or 0) + 1
         elif self.attributes.get('pkey_columns'):
-            return '_'.join([record.get(col) for col in self.attributes.get('pkey_columns').split(',') if record.get(col) is not None])
+            return '_'.join([str(record.get(col)) for col in self.attributes.get('pkey_columns').split(',') if record.get(col) is not None])
         else:
             return getUuid()
             
@@ -1592,6 +1614,43 @@ class SqlTable(GnrObject):
             for record in data['records'].values():
                 record.pop('_isdeleted')
                 self.insert(record)
+
+    def dependenciesTree(self,records=None,history=None,ascmode=False):
+        print 'dependencies from',self.fullname
+        history = history or dict()
+        for rel in self.relations_one:
+            mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')
+            opkg, otbl, ofld = rel.attr['one_relation'].split('.')
+            relatedTable = self.db.table(otbl, pkg=opkg)
+            tablename = relatedTable.fullname
+            if not tablename in history:
+                history[tablename] = dict(one=set(),many=set())
+            one_history_set = history[tablename]['one']
+            sel = relatedTable.query(columns='*', where='$%s IN :pkeys' %ofld,
+                                         pkeys=list(set([r[mfld] for r in records])-one_history_set),
+                                         excludeDraft=False,excludeLogicalDeleted=False).fetch()
+            if sel:
+                one_history_set.update([r[relatedTable.pkey] for r in sel])
+                relatedTable.dependenciesTree(sel,history=history,ascmode=True)
+        if ascmode:
+            return history
+ 
+        for rel in self.relations_many:
+            mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')
+            opkg, otbl, ofld = rel.attr['one_relation'].split('.')
+            relatedTable = self.db.table(mtbl, pkg=mpkg)
+            tablename=relatedTable.fullname
+            if not tablename in history:
+                history[tablename] = dict(one=set(),many=set())
+            many_history_set = history[tablename]['many']
+            sel = relatedTable.query(columns='*', where='%s in :rkeys AND $%s NOT IN :pklist' % (mfld,relatedTable.pkey),
+                                        pklist = list(many_history_set),
+                                         rkeys=[r[ofld] for r in records],excludeDraft=False,excludeLogicalDeleted=False).fetch()
+            if sel:
+                many_history_set.update([r[relatedTable.pkey] for r in sel])
+                relatedTable.dependenciesTree(sel,history=history,ascmode=False)
+
+        return history                    
              
     def copyToDb(self, dbsource, dbdest, empty_before=False, excludeLogicalDeleted=False, excludeDraft=False,
                  source_records=None, bagFields=True,source_tbl_name=None, raw_insert=None,_converters=None, **querykwargs):

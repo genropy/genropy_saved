@@ -915,7 +915,7 @@ def toSecureJsonJS(obj, key=None):
     else:
         return result
         
-def slugify(value):
+def slugify(value,sep='-'):
     """TODO
         
     :param value: TODO"""
@@ -923,7 +923,7 @@ def slugify(value):
     value = unicode(value)
     value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
     value = unicode(re.sub('[^\w\s-]', '', value).strip().lower())
-    return re.sub('[-\s]+', '-', value)
+    return re.sub('[-\s]+', sep, value)
     
 def fromJson(obj):
     """TODO

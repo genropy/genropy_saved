@@ -8,6 +8,7 @@ from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method,extract_kwargs,metadata
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrstring import slugify
 
 
 class TableHandlerView(BaseComponent):
@@ -107,11 +108,11 @@ class TableHandlerView(BaseComponent):
         store_kwargs = store_kwargs or dict()
         store_kwargs['parentForm'] = parentForm
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
-                        condition=condition_kwargs,unlinkdict=unlinkdict,title=title,liveUpdate=liveUpdate,store_kwargs=store_kwargs)
+                        condition=condition_kwargs,unlinkdict=unlinkdict,title=title,
+                        liveUpdate=liveUpdate,store_kwargs=store_kwargs)
+        self._th_view_contextMenu(frame.grid)
         if virtualStore:    
             self._extTableRecords(frame)
-
-
         frame.dataController("""if(!firedkw.res_type){return;}
                             var kw = {selectionName:batch_selectionName,gridId:batch_gridId,table:batch_table};
                             objectUpdate(kw,firedkw);
@@ -139,6 +140,19 @@ class TableHandlerView(BaseComponent):
                 """,modifiers='Ctrl',validclass='dojoxGrid-cell,cellContent')
         return frame
 
+    def _th_view_contextMenu(self,grid):
+        b = Bag()
+        b.rowchild(label='!!Reload',action="$2.widget.reload();")
+        b.rowchild(label='-')
+        b.rowchild(label='!!Show Archived Records',checked='^.#parent.showLogicalDeleted',
+                                action="""SET .#parent.showLogicalDeleted= !GET .#parent.showLogicalDeleted;
+                                           $2.widget.reload();""")
+        b.rowchild(label='!!Totals count',action='SET .#parent.tableRecordCount= !GET .#parent.tableRecordCount;',
+                            checked='^.#parent.tableRecordCount')
+        b.rowchild(label='-')
+        b.rowchild(label='!!Configure Table',action='genro.dev.fieldsTreeConfigurator($2.attr.table)')
+        b.rowchild(childname='configure',label='!!Configure View',action="""$2.widget.configureStructure();""")
+        grid.data('.contextMenu',b)
 
     @struct_method
     def th_viewLeftDrawer(self,pane,table,th_root):
@@ -167,10 +181,7 @@ class TableHandlerView(BaseComponent):
             bar.replaceSlots('#','#,footerBar')
             footer = bar.footerBar.formbuilder(cols=1,border_spacing='3px 5px',font_size='.8em',fld_color='#555',fld_font_weight='bold')
             footer.numberSpinner(value='^.hardQueryLimit',lbl='!!Limit',width='6em',smallDelta=1000)
-            footer.checkbox(value='^.tableRecordCount',label='!!Totals count')
-            footer.checkbox(value='^.showLogicalDeleted',label='!!Show logical deleted',validate_onAccept='if(userChange){FIRE .runQueryDo;}')
-            footer.button('!!Configure Table',action='genro.dev.fieldsTreeConfigurator(table)',table=table)
-            footer.button('!!Configure View',action='genro.grid_configurator.configureStructure(gridId)',gridId=gridId)
+            
 
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
@@ -179,7 +190,9 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_slotbar_importer(self,pane,**kwargs):
-        if not self.application.checkResourcePermission('_DEV_,superadmin', self.userTags):
+        options = self._th_hook('options',mangler=pane)() or dict()
+        tags = options.get('uploadTags') or '_DEV_,superadmin'
+        if not self.application.checkResourcePermission(tags, self.userTags):
             pane.div()
             return
         inattr = pane.getInheritedAttributes()
@@ -202,7 +215,7 @@ class TableHandlerView(BaseComponent):
         box.div('==_sumvalue|| 0;',_sumvalue='^.store?sum_%s' %sum_column,format=format,width=width or '5em',_class='fakeTextBox',
                  font_size='.9em',text_align='right',padding_right='2px',display='inline-block')
 
-    def _th_section_from_type(self,tblobj,sections,condition=None,condition_kwargs=None,all_begin=None,all_end=None):
+    def _th_section_from_type(self,tblobj,sections,condition=None,condition_kwargs=None,all_begin=None,all_end=None,codePkey=False):
         rt = tblobj.column(sections).relatedTable() 
         if rt:
             section_table = tblobj.column(sections).relatedTable().dbtable
@@ -223,7 +236,7 @@ class TableHandlerView(BaseComponent):
         if all_begin:
             s.append(dict(code='c_all_begin',caption='!!All' if all_begin is True else all_begin))
         for i,r in enumerate(f):
-            s.append(dict(code='c_%i' %i,caption=r[caption_field],condition='$%s=:s_id' %sections,condition_s_id=r[pkeyfield]))
+            s.append(dict(code=slugify(r[pkeyfield],'_'),caption=r[caption_field],condition='$%s=:s_id' %sections,condition_s_id=r[pkeyfield]))
         if all_end:
             s.append(dict(code='c_all_end',caption='!!All' if all_end is True else all_end))
         return s
@@ -759,19 +772,27 @@ class TableHandlerView(BaseComponent):
                 connectedMenu='==TH("%s").querymanager.getOpMenuId(_dtype);' %th_root,
                 _dtype='^.c_0?column_dtype',
                 _class='th_querybox_item')
-        querybox.div(_class='th_querybox_item th_queryboxfield').textbox(value='^.c_0?value_caption',width='8em',
-            _autoselect=True,relpath='.c_0',
+        value_textbox = querybox.div(_class='th_querybox_item th_queryboxfield',
+                                    connect_onclick="""if($1.target===this.domNode){
+                                        this.getChild('searchboxTextbox').widget.focus();
+                                    }
+                                    """).textbox(value='^.c_0?value_caption',
+            _autoselect=True,relpath='.c_0',childname='searchboxTextbox',
             validate_onAccept='TH("%s").querymanager.checkQueryLineValue(this,value)' %th_root,
             disabled='==(_op in TH("%s").querymanager.helper_op_dict)'  %th_root, _op='^.c_0?op',
-            connect_onclick="TH('%s').querymanager.getHelper(this);" %th_root,
-            _class='th_queryboxfield')
+            connect_onclick="TH('%s').querymanager.getHelper(this);" %th_root,width='8em' if self.isMobile else '12em')
+
+        value_textbox.div('^.c_0?value_caption', hidden='==!(_op in  TH("%s").querymanager.helper_op_dict)' %th_root,
+                         _op='^.c_0?op', _class='helperField')
+
+
         querybox_stack.div("==_internalQueryCaption || _caption",_caption='^.#parent.queryAttributes.caption',
                         _internalQueryCaption='^.#parent.#parent.internalQuery.caption', 
                         _class='th_querybox_extended',
                         tooltip='==_internalQueryTooltip || _internalQueryCaption || _caption',
                                     _internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip',
                                     hidden='^.#parent.queryAttributes.extended?=!#v',min_width='20em')
-        
+
 
         
     def _th_viewController(self,pane,table=None,th_root=None,default_totalRowCount=None):

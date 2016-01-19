@@ -160,7 +160,7 @@ class PrintHandler(object):
         return url
 
     @extract_kwargs(pdf=True)
-    def htmlToPdf(self, srcPath, destPath, orientation=None,pdf_kwargs=None,htmlTemplate=None,bodyStyle=None): #srcPathList per ridurre i processi?
+    def htmlToPdf(self, srcPath, destPath, orientation=None, page_height=None, page_width=None, pdf_kwargs=None,htmlTemplate=None,bodyStyle=None): #srcPathList per ridurre i processi?
             
         """TODO
         
@@ -180,9 +180,22 @@ class PrintHandler(object):
             pdf_pref.update(pdf_kwargs)
             pdf_kwargs = pdf_pref
         pdf_kwargs['orientation'] = orientation or 'Portrait'
+        
+        if page_height:
+            if pdf_kwargs['orientation'] == 'Portrait':
+                pdf_kwargs['page_height'] = page_height
+            else:
+                pdf_kwargs['page_width'] = page_height
+        if page_width:
+            if pdf_kwargs['orientation'] == 'Portrait':
+                pdf_kwargs['page_width'] = page_width
+            else:
+                pdf_kwargs['page_height'] = page_width
         if not 'quiet' in pdf_kwargs:
             pdf_kwargs['quiet'] = True
         args = ['wkhtmltopdf']
+        pdf_kwargs.pop('page_height', None)
+        pdf_kwargs.pop('page_width', None)
         for k,v in pdf_kwargs.items():
             if v is not False and v is not None and v!='':
                 args.append('--%s' %k.replace('_','-'))
@@ -193,6 +206,8 @@ class PrintHandler(object):
             destPath = os.path.join(destPath, '%s.pdf' % baseName)
         args.append(srcPath)
         args.append(destPath)
+        #import shutil
+        #shutil.copy(srcPath, '/Users/ale/last.html')
         result = call(args)
 
        #if sys.platform.startswith('linux'):

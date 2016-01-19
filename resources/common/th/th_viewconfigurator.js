@@ -8,14 +8,6 @@ var genro_plugin_grid_configurator = {
             that.refreshMenu(gridId);
         });
     },
-    configureStructure:function(gridId){
-        var gridSourceNode = genro.nodeById(gridId);
-        var structpath = gridSourceNode.absDatapath(gridSourceNode.attr.structpath);
-        var palette = genro.dlg.quickPalette(gridId+'_viewconf',{height:'500',width:'600px',title:'View Configurator'},
-                                            function(pane){
-                                                pane._('bagEditor',{storepath:structpath,labelAttribute:'name',addrow:true,delrow:false,addcol:true});
-                                            });
-    },
 
     setCurrentAsDefault:function(gridId){
         var gridSourceNode = genro.nodeById(gridId);
@@ -65,6 +57,9 @@ var genro_plugin_grid_configurator = {
     
 
     addGridConfigurator:function(sourceNode){
+        dojo.connect(sourceNode.widget,'setCellWidth',function(inIndex, inUnitWidth){
+            this.structBag.getNodeByAttr('field',this.getCell(inIndex).field).updAttributes({width:inUnitWidth});
+        });
         sourceNode.attr.selfDragColumns = 'trashable';
         var table = sourceNode.attr.table;
         if(!table && sourceNode.attr.storepath){

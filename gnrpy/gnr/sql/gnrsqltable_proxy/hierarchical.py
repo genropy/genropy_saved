@@ -140,11 +140,18 @@ class TableHandlerTreeResolver(BagResolver):
                                             _condition_id=self._condition_id,columns=self.columns,_isleaf=True)
                     child_count = len(related_children)
             result.setItem(pkey,value,
-                            caption=caption,
-                            child_count=child_count,pkey=pkey or '_all_',
-                            parent_id=self.parent_id,
-                            hierarchical_pkey=record['hierarchical_pkey'],
-                            treeIdentifier=pkey,_record=record)
+                            **self.applyOnTreeNodeAttr(caption=caption,
+                                    child_count=child_count,pkey=pkey or '_all_',
+                                    parent_id=self.parent_id,
+                                    hierarchical_pkey=record['hierarchical_pkey'],
+                                    treeIdentifier=pkey,_record=record))
+        return result
+
+    def applyOnTreeNodeAttr(self,**kwargs):
+        result = dict(kwargs)
+        tblobj = self.db.table(self.table)
+        if hasattr(tblobj,'applyOnTreeNodeAttr'):
+            result.update(tblobj.applyOnTreeNodeAttr(**kwargs) or dict())
         return result
 
     def resolverSerialize(self):
@@ -217,7 +224,8 @@ class HierarchicalHandler(object):
             order_by = '$_row_count'
             changed_counter = (record['_row_count'] != old_record['_row_count']) or (record['_parent_h_count'] != old_record['_parent_h_count'])
         if changed_hfields or changed_counter:
-            fetch = tblobj.query(where='$parent_id=:curr_id',addPkeyColumn=False, for_update=True,curr_id=record[tblobj.pkey],order_by=order_by).fetch()
+            fetch = tblobj.query(where='$parent_id=:curr_id',addPkeyColumn=False, for_update=True,curr_id=record[tblobj.pkey],order_by=order_by,
+                                    bagFields=True).fetch()
             for k,row in enumerate(fetch):
                 new_row = dict(row)
                 for fld in changed_hfields:
@@ -240,7 +248,7 @@ class HierarchicalHandler(object):
         condition_kwargs.update(dictExtract(kwargs,'condition_'))
         v = TableHandlerTreeResolver(_page=self,table=self.tblobj.fullname,caption_field=caption_field,condition=condition,dbstore=dbstore,columns=columns,related_kwargs=related_kwargs,
                                                 condition_kwargs=condition_kwargs,root_id=root_id,parent_id=parent_id)
-        b.setItem('root',v,caption=caption,child_count=1,pkey='',treeIdentifier='_root_')
+        b.setItem('root',v,caption=caption,child_count=1,pkey='',treeIdentifier='_root_',table=self.tblobj.fullname)
         if resolved:
             def cb(self,*args,**kwargs):
                 pass

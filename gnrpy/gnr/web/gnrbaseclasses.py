@@ -224,7 +224,7 @@ class TableScriptToHtml(BagToHtml):
     @extract_kwargs(pdf=True)
     def writePdf(self,filepath=None, pdfpath=None,docname=None,pdf_kwargs=None,**kwargs):
         self.pdfpath = pdfpath or self.getPdfPath('%s.pdf' % docname, autocreate=-1)
-        self.print_handler.htmlToPdf(filepath or self.filepath, self.pdfpath, orientation=self.orientation(),pdf_kwargs=pdf_kwargs)
+        self.print_handler.htmlToPdf(filepath or self.filepath, self.pdfpath, orientation=self.orientation(), page_height=self.page_height, page_width=self.page_width,pdf_kwargs=pdf_kwargs)
 
     def get_css_requires(self):
         """TODO"""

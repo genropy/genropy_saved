@@ -55,21 +55,20 @@ class FrameIndex(BaseComponent):
                 if custom_index and custom_index!='*':
                     getattr(self,'index_%s' %custom_index)(root,**kwargs)
                 else:
-                    root.frameIndexRoot(**kwargs)
+                    root.frameIndexRoot(new_window=new_window,**kwargs)
             else:
                 root.div('Not allowed')
 
     @struct_method
-    def frm_frameIndexRoot(self,pane,onCreatingTablist=None,**kwargs):
+    def frm_frameIndexRoot(self,pane,new_window=None,onCreatingTablist=None,**kwargs):
         pane.dataController("""var d = data.deepCopy();
                             if(deltaDays(new Date(),d.getItem('workdate'))==0){
                                 d.setItem('workdate','');
                             }
                             var str = dataTemplate(tpl,d);
-                            
                             SET gnr.windowTitle = str;
                             """,
-                            data='=gnr.rootenv',
+                            data='^gnr.rootenv',
                             tpl=self.windowTitleTemplate(),
                             _onStart=True)
         frame = pane.framePane('standard_index',_class='hideSplitter frameindexroot',
@@ -93,6 +92,8 @@ class FrameIndex(BaseComponent):
         self.prepareTop(frame.top,onCreatingTablist=onCreatingTablist)
         self.prepareBottom(frame.bottom)
         self.prepareCenter(frame.center)
+        if new_window:
+            self.loginDialog(pane)
         return frame
         
     def prepareTop(self,pane,onCreatingTablist=None):
@@ -179,26 +180,26 @@ class FrameIndex(BaseComponent):
         """,subscribe_iframe_stack_selected=True,tabroot=tabroot,_if='page')
 
     def prepareBottom(self,pane):
-        pane.attributes.update(dict(overflow='hidden',background='silver'))
-        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,manageDocumentation,5,openGnrIDE,count_errors,5,appInfo,*,debugping,5,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='20px',
-                        gradient_from='gray',gradient_to='silver',gradient_deg=90)
+        pane.attributes.update(dict(overflow='hidden'))
+        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,manageDocumentation,5,openGnrIDE,count_errors,5,appInfo,*,debugping,5,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='22px',
+                        background='#EEEEEE',border_top='1px solid silver')
         sb.appInfo.div('^gnr.appInfo')
         applogo = sb.applogo.div()
         if hasattr(self,'application_logo'):
-            applogo.img(src=self.application_logo,height='20px')
-        sb.genrologo.img(src='/_rsrc/common/images/made_with_genropy_small.png',height='20px')
+            applogo.div(_class='application_logo_container').img(src=self.application_logo,height='100%')
+        sb.genrologo.div(_class='application_logo_container').img(src='/_rsrc/common/images/made_with_genropy_small.png',height='100%')
         sb.dataController("""SET gnr.appInfo = dataTemplate(tpl,{msg:msg,dbremote:dbremote}); """,
             msg="!!Connected to:",dbremote=(self.site.remote_db or False),_if='dbremote',
                         tpl="<div class='remote_db_msg'>$msg $dbremote</div>",_onStart=True)
         box = sb.preferences.div(_class='iframeroot_pref')
-        appPref = box.div(innerHTML='==_owner_name || "Preferences";',_owner_name='^gnr.app_preference.adm.instance_data.owner_name',_class='iframeroot_appname',
-                                connect_onclick='PUBLISH app_preference')
+        appPref = box.div(innerHTML='==_owner_name?dataTemplate(_owner_name,envbag):"Preferences";',_owner_name='^gnr.app_preference.adm.instance_data.owner_name',_class='iframeroot_appname',
+                                connect_onclick='PUBLISH app_preference',envbag='=gnr.rootenv')
         userPref = box.div(self.user if not self.isGuest else 'guest', _class='iframeroot_username',tip='!!%s preference' % (self.user if not self.isGuest else 'guest'),
                                connect_onclick='PUBLISH user_preference')
         sb.logout.div(connect_onclick="genro.logout()",_class='iconbox icnBaseUserLogout',tip='!!Logout')
         sb.screenlock.div(connect_onclick="genro.publish('screenlock')",_class='iconbox icnBaseUserPause',tip='!!Lock screen')
 
-        formula = '==(_iframes && _iframes.len()>0)?_iframes.getNode(_selectedFrame).attr.url:"";'
+        formula = '==(_iframes && _iframes.len()>0)?_iframes.getAttr(_selectedFrame,"url"):"";'
         
         sb.count_errors.div('^gnr.errors?counter',hidden='==!_error_count',_error_count='^gnr.errors?counter',
                             _msg='!!Errors:',_class='countBoxErrors',connect_onclick='genro.dev.errorPalette();')
@@ -255,7 +256,8 @@ class FrameIndex(BaseComponent):
         else:
             indexpane = sc.contentPane(pageName='indexpage',title='Index',overflow='hidden')
             if self.index_url:
-                indexpane.htmliframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px',shield=True)         
+                src = self.getResourceUri(self.index_url,add_mtime=self.isDeveloper())
+                indexpane.htmliframe(height='100%', width='100%', src=src, border='0px',shield=True)         
         page.dataController("""genro.publish('selectIframePage',_menutree__selected[0]);""",
                                subscribe__menutree__selected=True)
         page.dataController("""genro.framedIndexManager.newBrowserWindowPage(newBrowserWindowPage[0]);""",

@@ -72,13 +72,27 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
         var node = genro.src.getNode(name).clearValue();
         node.freeze();
-        node._('PaletteBagNodeEditor','currentEditor',{'paletteCode':name,'dockTo':false,
+        node._('PaletteBagNodeEditor','currentEditor',objectUpdate({'paletteCode':name,'dockTo':false,
                                         title:kw.title || 'BagNode editor',
-                                        'nodePath':nodePath,origin:kw.origin});
+                                        'nodePath':nodePath},kw));
         node.unfreeze();
         
     },
 
+
+    openBagEditorPalette:function(path,kw){
+        var root = genro.src.newRoot();
+        var name = kw.name || '_currentPaletteBagEditor_'
+        genro.src.getNode()._('div', name);
+
+        var node = genro.src.getNode(name).clearValue();
+        node.freeze();
+        node._('PaletteBagEditor','currentBagEditor',objectUpdate({'paletteCode':name,'dockTo':false,
+                                        title:kw.title || 'Bag editor',
+                                        'path':path},kw));
+        node.unfreeze();
+        
+    },
 
     siteLockedStatus:function(set){
         var maingenro = genro.mainGenroWindow.genro;

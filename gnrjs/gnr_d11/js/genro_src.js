@@ -43,11 +43,13 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         this.building = false;
         this.datatags = {'data':null,'dataformula':null,'datascript':null,
             'datarpc':null,'dataremote':null,'datacontroller':null, 'dataws':null};
+        this.layouttags = {'contentpane':null,'bordercontainer':null,'stackcontainer':null,
+            'tabcontainer':null,'accordioncontainer':null,'newincludedview':null,'framepane':null};
         this.highlightedNode = null;
 
     },
     getMainSource:function(cb){
-        return genro.rpc.remoteCall('main',objectUpdate({timeout:6000},genro.startArgs), 'bag',null,null,cb);
+        return genro.rpc.remoteCall('main',objectUpdate({timeout:20000},genro.startArgs), 'bag',null,null,cb);
     },
 
 
@@ -85,7 +87,10 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         }
     },
     onBuiltCall:function(cb,delay){
-        this.afterBuildCalls.push(delay? function(){setTimeout(cb,1);}:cb);
+        if(delay){
+            delay = typeof(delay) == 'number'?delay:1;
+        }
+        this.afterBuildCalls.push(delay? function(){setTimeout(cb,delay);}:cb);
     },
     
     nodeTrigger:function(kw) {

@@ -116,6 +116,8 @@ class TableHandlerForm(BaseComponent):
             form.data('gnr.rootform.size',Bag(height=options.pop('dialog_height','500px'),width=options.pop('dialog_width','600px')))
         if 'lazyBuild' in options:
             form.attributes['_lazyBuild'] = options.pop('lazyBuild')
+        if 'excludeCols' in options:
+            form.attributes['excludeCols'] = options.pop('excludeCols')
         showtoolbar = boolean(options.pop('showtoolbar',True))
         navigation = options.pop('navigation',None)
         hierarchical = options.pop('hierarchical',None)   
@@ -127,6 +129,7 @@ class TableHandlerForm(BaseComponent):
         allowSaveInvalid= options.pop('allowSaveInvalid',draftIfInvalid)
         form_add = options.pop('form_add',True)
         form_delete = options.pop('form_delete',True)
+        form_archive = options.pop('form_archive',False)
         selector = options.pop('selector',False)
         form.attributes.update(form_draftIfInvalid=draftIfInvalid,form_allowSaveInvalid=allowSaveInvalid)
         if autoSave:
@@ -167,11 +170,13 @@ class TableHandlerForm(BaseComponent):
             bar.cancel.button('!!Cancel',action='this.form.abort();')
             bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})',hidden=readOnly)
         elif showtoolbar:
-            default_slots = '*,semaphore,5' if readOnly else '*,form_delete,form_add,form_revert,form_save,semaphore,locker'
+            default_slots = '*,semaphore,5' if readOnly else '*,form_archive,form_delete,form_add,form_revert,form_save,semaphore,locker'
             if form_add is False:
                 default_slots = default_slots.replace('form_add','')
             if form_delete is False:
                 default_slots = default_slots.replace('form_delete','')
+            if form_archive is False:
+                default_slots = default_slots.replace('form_archive','')
             if options.pop('duplicate',False):
                 default_slots= default_slots.replace('form_add','form_add,form_duplicate')
             if hierarchical:
@@ -185,6 +190,8 @@ class TableHandlerForm(BaseComponent):
             if options.pop('printMenu',False):
                 #default_slots = default_slots.replace('form_delete','form_print,100,form_delete')
                 extra_slots.append('form_print')
+            if options.pop('audit',False):
+                extra_slots.append('form_audit')
             if options.pop('copypaste',False):
                 extra_slots.append('form_copypaste')
             if options.pop('linker',False):
@@ -195,8 +202,6 @@ class TableHandlerForm(BaseComponent):
             if extra_slots:
                 default_slots = default_slots.replace('form_delete','%s,10,form_delete' %(','.join(extra_slots)))
             slots = options.pop('slots',default_slots)
-            if table == self.maintable:
-                slots = 'logicalDeleter,%s' %slots 
             options.setdefault('_class','th_form_toolbar')
             form.top.slotToolbar(slots,form_add_defaults=form_add if form_add and form_add is not True else None,**options)
         if hierarchical:
@@ -221,6 +226,25 @@ class TableHandlerForm(BaseComponent):
                                  onSavedHandler=self._th_hook('onSaved',mangler=mangler))
             
     
+    @struct_method          
+    def th_slotbar_form_audit(self,pane,**kwargs):
+        inattr = pane.getInheritedAttributes()
+        th_root = inattr['th_root']
+        pane.paletteGrid(paletteCode='%s_recordHistory' %th_root,
+                        title='!!Record History',
+                        dockButton=True,
+                        width='400px',
+                        height='500px',
+                        readOnly=True,
+                        dockButton_iconClass='iconbox book',
+                        viewResource='ViewRecordHistory',table='adm.audit',
+                        condition='$tablename=:tname AND $record_pkey=:pk',
+                        condition_tname='=#FORM.controller.table',
+                        condition_pk='^#FORM.pkey',
+                        view_store_onBuilt=True,
+                        formResource='FormRecordHistory',
+                        thwidget='border')
+
     @struct_method          
     def th_slotbar_form_copypaste(self,pane,**kwargs):
         pane.dataController("""var form = this.form;

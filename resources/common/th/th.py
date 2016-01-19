@@ -41,21 +41,31 @@ class TableHandler(BaseComponent):
                             lockable=False,pbl_classes=False,configurable=True,hider=True,searchOn=True,count=None,
                             parentFormSave=None,
                             rowStatusColumn=None,
-                            picker=None,addrow=True,addrowmenu=None,delrow=True,export=False,title=None,
+                            picker=None,addrow=True,addrowmenu=None,
+                            delrow=True,
+                            archive=False,
+                            export=False,title=None,
                             addrowmenu_kwargs=None,
                             export_kwargs=None,
                             liveUpdate=None,
                             picker_kwargs=True,
                             dbstore=None,hider_kwargs=None,view_kwargs=None,preview_kwargs=None,parentForm=None,
                             form_kwargs=None,relation_kwargs=None,**kwargs):
+        fkeyfield=None
         if relation:
-            table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
+            table,condition,fkeyfield = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
                                                     relation_kwargs=relation_kwargs,
                                                     default_kwargs=default_kwargs,original_kwargs=kwargs)
-        readOnly = readOnly or self.db.table(table).attributes.get('readOnly')
-        if form_kwargs:
-            form_kwargs['readOnly'] = readOnly
+        tblattr = self.db.table(table).attributes
+        readOnly = readOnly or tblattr.get('readOnly')
+        delrow = tblattr.get('deletable',delrow)
+        if isinstance(delrow,basestring):
+            delrow = self.application.checkResourcePermission(delrow, self.userTags)
+        if isinstance(addrow,basestring):
+            addrow = self.application.checkResourcePermission(addrow, self.userTags)
+        if isinstance(archive,basestring):
+            archive = self.application.checkResourcePermission(archive, self.userTags)
         tableCode = table.replace('.','_')
         th_root = self._th_mangler(pane,table,nodeId=nodeId)
         viewCode='V_%s' %th_root
@@ -86,6 +96,9 @@ class TableHandler(BaseComponent):
             picker = False
         if export:
             top_slots.append('export')
+        if archive:
+            top_slots.append('archive')
+            
         if delrow:
             top_slots.append('delrow')
         if addrow:
@@ -104,6 +117,15 @@ class TableHandler(BaseComponent):
             top_slots.append('viewlocker')
 
         top_slots = ','.join(top_slots)
+
+        if form_kwargs is not None:
+            form_kwargs['readOnly'] = readOnly
+            form_kwargs.setdefault('form_add',addrow) 
+            form_kwargs.setdefault('form_delete',delrow) 
+            form_kwargs.setdefault('form_archive',archive)
+            if fkeyfield:
+                form_kwargs.setdefault('excludeCols',fkeyfield)
+
         if parentFormSave:
             grid_kwargs['_saveNewRecordOnAdd'] = True
             if isinstance(parentFormSave,basestring):
@@ -111,6 +133,9 @@ class TableHandler(BaseComponent):
         preview_kwargs.setdefault('tpl',True)
         rowStatusColumn = self.db.table(table).getProtectionColumn() is not None if rowStatusColumn is None else rowStatusColumn
         grid_kwargs.setdefault('rowStatusColumn',rowStatusColumn)
+        if fkeyfield:
+            grid_kwargs.setdefault('excludeCols',fkeyfield)
+            
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
                                 virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,
                                 top_thpicker_picker_kwargs=picker_kwargs,top_export_parameters=export_kwargs,
@@ -345,7 +370,7 @@ class TableHandler(BaseComponent):
         options = self._th_hook('options',mangler=wdg.view)() or dict()
         wdg.view.store.attributes.update(recordResolver=False)
         wdg.view.grid.attributes.update(remoteRowController=remoteRowController,
-                                        gridEditor=dict(saveMethod=saveMethod,
+                                        gridEditorPars=dict(saveMethod=saveMethod,
                                                         default_kwargs=default_kwargs,
                                                         autoSave=autoSave or options.get('autoSave'),
                                                         statusColumn=statusColumn or options.get('statusColumn')))
@@ -455,7 +480,7 @@ class MultiButtonForm(BaseComponent):
                             emptyPageMessage=None,darkToolbar=False,pendingChangesMessage=None,pendingChangesTitle=None,
                             **kwargs):
         if relation:
-            table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
+            table,condition,fkeyfield = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
                                                     default_kwargs=default_kwargs,original_kwargs=kwargs)
         pane.attributes.update(overflow='hidden')
@@ -616,7 +641,7 @@ class MultiButtonForm(BaseComponent):
                                     store = new gnr.GnrBag();
                                     mainstack.setRelativeData('.store',store);
                                 }
-                                kw = {};
+                                kw = {newrecord:true};
                                 kw[caption_field] = data.attr.caption;
                                 fkey = fkey || '_newrecord_';
                                 kw['_pkey'] = fkey;

@@ -60,7 +60,7 @@ class Table(object):
             dump_folder = os.path.join(self.db.application.instanceFolder, 'dumps')
             self.importFromXmlDump(dump_folder)
 
-    def getPreference(self, path='', pkg='', dflt='', username=''):
+    def getPreference(self, path=None, pkg=None, dflt=None, username=None):
         result = self.loadRecord(username)['preferences']
         if result and path != '*':
             result = result['%s.%s' % (pkg, path)]

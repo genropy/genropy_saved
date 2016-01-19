@@ -1,7 +1,6 @@
 /*vico*/
 .frameindexroot{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#f6f6f6) , to(#e7e7e7));
-    background-image: -moz-linear-gradient(-90deg, #f6f6f6, #e7e7e7);
+    background:#eeeeee;
 }
 .frameindexcenter{
     background:#f6f6f6;
@@ -857,7 +856,7 @@
 .buttons_grid .cellContent{
     border-radius:4px;
     margin-top:0;
-    margin-right:-5px;
+    margin-right:0;
     text-align:center;
     padding-top:2px;
     padding-bottom:1px;

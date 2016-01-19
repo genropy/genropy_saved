@@ -16,6 +16,16 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return ''
          
+
+    def test_5_combobug(self,pane):
+        fb = pane.formbuilder(cols=1, border_spacing='4px')
+        fb.dbCombobox(dbtable='adm.user',value='^.user',lbl='dbCombo',
+                    width='25em',hasDownArrow=True)
+        fb.combobox(value='^.combobox',values='Pippo,Pluto,Paperino',lbl='Combo')
+
+        fb.filteringSelect(value='^.filtering',values='pippo:Pippo,pluto:Pluto,paperino:Paperino',lbl='Filtering')
+
+
     def test_0_firsttest(self,pane):
         """dbselect with auxcol"""
         fb = pane.formbuilder(cols=1, border_spacing='4px')
@@ -23,7 +33,12 @@ class GnrCustomWebPage(object):
 
                     selected_username='.username',width='25em',
                     hasDownArrow=True)
-        fb.dbSelect(dbtable='adm.user',value='^.user_id_2',lbl='User',
+
+        fb.dbCombobox(dbtable='adm.user',value='^.username',lbl='Combo',
+                    selected_username='.username',width='25em',
+                    hasDownArrow=True)
+
+        fb.dbSelect(dbtable='adm.user',value='^.user_id_2',lbl='zzz',
                     auxColumns='$username',width='25em',
                     hasDownArrow=True)
         #fb.data('.username','...')
@@ -55,11 +70,34 @@ class GnrCustomWebPage(object):
         print record['@localita']
         
 
+    def test_6_clientmethod(self,pane):
+        fb = pane.formbuilder(cols=1, border_spacing='4px')
+        fb.callbackSelect(value='^.test',callback="""function(kw){
+                console.log('pars',kw,this)
+                var _id = kw._id;
+                var _querystring = kw._querystring;
+                var data = [{name:'Mario Rossi',addr:'Via del Pero',state:'Milano',_pkey:'mrossi',caption:'Mario Rossi (mrossi)'},
+                              {name:'Luigi Bianchi',addr:'Via del Mare',state:'Roma',_pkey:'lbianchi',caption:'Luigi Bianchi (lbianchi)'},
+                              {name:'Carlo Manzoni',addr:'Via Bisceglie',state:'Firenze',_pkey:'cmanzoni',caption:'Carlo Manzoni (cmanz)'},
+                              {name:'Marco Vanbasten',addr:'Via orelli',state:'Como',_pkey:'mvan',caption:'Marco Vanbasten(mvan)'},
+                              {name:'',caption:'',_pkey:null}
+                              ]
+                var cbfilter = function(n){return true};
+                if(_querystring){
+                    _querystring = _querystring.slice(0,-1).toLowerCase();
+                    cbfilter = function(n){return n.name.toLowerCase().indexOf(_querystring)>=0;};
+                }else if(_id){
+                    cbfilter = function(n){return n._pkey==_id;}
+                }
+                data = data.filter(cbfilter);
+                return {headers:'name:Customer,addr:Address,state:State',data:data}
+            }""",auxColumns='addr,state',lbl='Callback select',hasDownArrow=True,nodeId='cbsel')
+
 
     def test_4_dbselectrpc(self,pane):
         """getuser custom rpc"""
         fb = pane.formbuilder(cols=1, border_spacing='4px')
-        fb.dbSelect(value='^.user',width='25em',lbl='User',auxColumns='status,auth_tags',
+        fb.remoteSelect(value='^.user',width='25em',lbl='User',auxColumns='status,auth_tags',
                         method=self.getUserCustomRpc)
 
     @public_method

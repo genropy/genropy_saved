@@ -220,7 +220,8 @@ class _SaxImporter(sax.handler.ContentHandler):
             curr, attributes = self.bags.pop()
             if value or isValidValue(value):
                 if curr:
-                    value = value.strip()
+                    if isinstance(value, basestring):
+                        value = value.strip()
                     if value:
                         curr.nodes.append(BagNode(curr, '_', value))
                 else:
@@ -308,7 +309,7 @@ class BagToXml(object):
         
     #-------------------- toXml --------------------------------
     def build(self, bag, filename=None, encoding='UTF-8', catalog=None, typeattrs=True, typevalue=True,
-              addBagTypeAttr=True,onBuildTag=None,
+              addBagTypeAttr=True,
               unresolved=False, autocreate=False, docHeader=None, self_closed_tags=None,
               translate_cb=None, omitUnknownTypes=False, omitRoot=False, forcedTagAttr=None,mode4d=False,pretty=None):
         """Return a complete standard XML version of the Bag, including the encoding tag 
@@ -324,7 +325,6 @@ class BagToXml(object):
         :param typeattrs: TODO
         :param typevalue: TODO
         :param addBagTypeAttr: TODO
-        :param onBuildTag: TODO
         :param unresolved: TODO
         :param autocreate: TODO
         :param docHeader: TODO
@@ -351,7 +351,6 @@ class BagToXml(object):
         self.self_closed_tags = self_closed_tags or []
         self.forcedTagAttr = forcedTagAttr
         self.addBagTypeAttr = addBagTypeAttr
-        self.onBuildTag = onBuildTag
         self.mode4d = mode4d
         if not typeattrs:
             self.catalog.addSerializer("asText", bool, lambda b: 'y' * int(b))
@@ -387,8 +386,6 @@ class BagToXml(object):
         :param xmlMode: TODO"""
         #if value == None:
         #    value = ''
-        if self.onBuildTag and not xmlMode:
-            self.onBuildTag(label=tagName,value=value,attributes=attributes)
         t = cls
         if not t:
             if value != '':

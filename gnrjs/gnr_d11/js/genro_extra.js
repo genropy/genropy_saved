@@ -87,8 +87,13 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
         //}
         var cmAttrs = objectExtract(attributes,'config_*');
         var readOnly = objectPop(attributes,'readOnly');
+        var lineWrapping = objectPop(attributes,'lineWrapping');
+
         if(readOnly){
             cmAttrs.readOnly = readOnly;
+        }
+        if(lineWrapping){
+            cmAttrs.lineWrapping = lineWrapping;
         }
         cmAttrs.value = objectPop(attributes,'value') || '';
         return {cmAttrs:cmAttrs}
@@ -163,7 +168,6 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
                 sourceNode.setRelativeData(sourceNode.attr.value,v,null,null,sourceNode);
             },sourceNode.attr._delay || 500,'updatingContent')
         })
-
     },
 
 
@@ -227,9 +231,117 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
             that.refresh()
         })
     },
+
     mixin_gnr_readOnly:function(value,kw,trigger_reason){
-        this.options.readOnly = value?'nocursor':false;
+        this.setOption('readOnly',value?'nocursor':false);
+    },
+
+    mixin_gnr_lineWrapping:function(value,kw,trigger_reason){
+        this.setOption('lineWrapping',value);
+    },
+
+
+    mixin_gnr_quoteSelection:function(startchunk,endchunk){
+        endchunk = endchunk || startchunk;
+        var oldtxt = this.doc.getSelection();
+        var newtxt = startchunk+oldtxt+endchunk;
+        this.doc.replaceSelection(newtxt);
     }
+});
+
+dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
+    constructor: function(application) {
+        this._domtag = 'div';
+    },
+
+    creating: function(attributes, sourceNode) {
+        var savedAttrs = objectExtract(attributes,'data,options,columns');
+        return savedAttrs;
+    },
+
+    created:function(domNode, savedAttrs, sourceNode){
+        var dygraph_root = document.createElement('div');
+        domNode.appendChild(dygraph_root);
+        var data = savedAttrs.data;
+        var options = savedAttrs.options;
+        if(options instanceof gnr.GnrBag){
+            options =  options.asDict(true);
+        }
+        if(sourceNode.attr.title){
+            options.title = options.title || sourceNode.attr.title; 
+        }
+        if(sourceNode.attr.detachable){
+            options.title = options.title || 'Untiled Graph';
+        }
+        if(data instanceof gnr.GnrBag){
+            sourceNode.labelKeys = savedAttrs.columns.split(',');
+            data = this.getDataFromBag(sourceNode,data);
+        }
+        var that = this;
+
+        var cb = function(){
+            sourceNode._current_height = domNode.clientHeight;
+            sourceNode._current_width = domNode.clientWidth;
+            options.height = sourceNode._current_height;
+            options.width = sourceNode._current_width;
+            var dygraph = new Dygraph(dygraph_root,data,options);
+            sourceNode.externalWidget = dygraph;
+            dygraph.sourceNode = sourceNode;
+            dygraph.gnr = that;
+            for (var prop in that) {
+                if (prop.indexOf('mixin_') == 0) {
+                    dygraph[prop.replace('mixin_', '')] = that[prop];
+                }
+            }
+            genro.dom.setAutoSizer(sourceNode,domNode,function(w,h){
+                 dygraph.resize(w,h);
+            });
+        }
+        if(!window.Dygraph){
+            genro.dom.loadJs('/_rsrc/js_libs/dygraph-combined.js',cb);
+        }else{
+            setTimeout(cb,1);
+        }
+    },
+
+    getDataFromBag:function(sourceNode,data){
+        var result = [];
+        var labelKeys = sourceNode.labelKeys;
+        var datagetter = function(n,l){
+            return n.attr[l];
+        };
+        if(data.getItem('#0')){
+            datagetter = function(n,l){
+                return n._value.getItem(l);
+            };
+        }
+        data.forEach(function(n){
+            var row = [];
+            labelKeys.forEach(function(l){
+                row.push(datagetter(n,l));
+            });
+            result.push(row);
+        });
+        return result;
+    },
+
+    mixin_gnr_data:function(value,kw, trigger_reason){  
+        var data = this.sourceNode.getAttributeFromDatasource('data');      
+        if(data instanceof gnr.GnrBag){
+            data = this.gnr.getDataFromBag(this.sourceNode,data);
+        }
+        this.updateOptions({ 'file': data });
+    },
+
+    mixin_gnr_options:function(options,kw, trigger_reason){   
+        var options = this.sourceNode.getAttributeFromDatasource('options');      
+        if(options instanceof gnr.GnrBag){
+            options = options.asDict(true);
+        }    
+        this.updateOptions(options);
+    }
+
+
 });
 
 dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {

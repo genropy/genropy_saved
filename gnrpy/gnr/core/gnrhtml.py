@@ -445,9 +445,14 @@ class GnrHtmlBuilder(object):
         from subprocess import call
         if self.page_height<self.page_width:
             self.orientation='Landscape'
+            page_height = self.page_width
+            page_width = self.page_height
         else:
             self.orientation='Portrait'
-        res = call(['wkhtmltopdf', '-q', '-O', self.orientation, '%s.%s'%(filename, 'html'), filename])
+            page_height = self.page_height
+            page_width = self.page_width
+
+        res = call(['wkhtmltopdf', '-q', '-O', self.orientation, '--page-height',page_height,'--page-width',page_width, '%s.%s'%(filename, 'html'), filename])
             
     def calculate_style(self, attr, um, **kwargs):
         """TODO

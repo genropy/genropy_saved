@@ -438,10 +438,16 @@ dojo.declare("gnr.GnrBagNode", null, {
             this.attr = attr;
         }
         if (doTrigger) {
+            var changedAttributes = {};
+            for(var k in this.attr){
+                if(!(k in oldattr) || oldattr[k]!==this.attr[k]){
+                    changedAttributes[k] = true;
+                }
+            }
             if (this._parentbag && this._parentbag._backref) {
                 this._parentbag.onNodeTrigger({'evt':'upd','node':this, 'pathlist':[this.label],
                     'oldattr':oldattr,'updattr':true, reason:doTrigger,
-                    'changedAttr':changedAttr});
+                    'changedAttr':changedAttr,'changedAttributes':changedAttributes});
             }
         }
     },
@@ -474,7 +480,7 @@ dojo.declare("gnr.GnrBagNode", null, {
         if (isBag(nodeValue)) {
             result = xml_buildTag(this.label,
                     nodeValue.toXmlBlock(kwargs),
-                    this.getAttr(),
+                    objectUpdate({_T:'bag'},this.getAttr()),
                     true);
         } else {
             result = xml_buildTag(this.label,
@@ -599,7 +605,7 @@ dojo.declare("gnr.GnrBag", null, {
     /**
      * @id getItem
      */
-    asHtmlTable:function(kw){
+    asHtmlTable:function(kw,mode){
         var kw = kw || {};
         var headers = kw.headers;
         var h ='';
@@ -646,7 +652,7 @@ dojo.declare("gnr.GnrBag", null, {
                     else{
                         
                         dtype = cell_kw.dtype || vnode.attr.dtype || guessDtype(v);
-                        format = cell_kw.format;
+                        format = typeof(cell_kw)=='string'?cell_kw:cell_kw.format;
                         if(format){
                             v = _F(v,format,dtype);
                         }else{
@@ -1480,7 +1486,7 @@ dojo.declare("gnr.GnrBag", null, {
         var value = caseInsensitive?value.toLowerCase():value;
         var f = function(n) {
             if(attr in n.attr){
-                if(existAttr || (caseInsensitive?(n.attr[attr].toLowerCase()==value):(n.attr[attr]==value))){
+                if(existAttr || (caseInsensitive?((n.attr[attr] || '').toLowerCase()==value):(n.attr[attr]==value))){
                     return n;
                 }
             }
@@ -1599,12 +1605,16 @@ dojo.declare("gnr.GnrBag", null, {
     /**
      * todo
      */
-    asDict: function() {
+    asDict: function(recursive) {
         var result = {};
-        var node;
+        var node,value;
         for (var i = 0; i < this._nodes.length; i++) {
             node = this._nodes[i];
-            result[node.label] = node.getValue();
+            value = node.getValue();
+            if(recursive && (value instanceof gnr.GnrBag)){
+                value = value.asDict(recursive);
+            }
+            result[node.label] = value;
         }
         ;
         return result;
@@ -2427,13 +2437,16 @@ dojo.declare("gnr.GnrBagGetter", gnr.GnrBagResolver, {
 //*******************BagCbResolver****************************
 
 dojo.declare("gnr.GnrBagCbResolver", gnr.GnrBagResolver, {
-    constructor: function(kwargs) {
+    constructor: function(kwargs,isGetter) {
         this.method = kwargs.method;
         this.parameters = kwargs.parameters;
+        this.isGetter = isGetter;
     },
 
-    load: function() {
-        return this.method.call(this, this.parameters);
+    load: function(kwargs) {
+        var kw = objectUpdate({},this.parameters)
+        objectUpdate(kw,kwargs)
+        return this.method.call(this,kw);
     }
 });
 

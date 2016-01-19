@@ -130,6 +130,10 @@ class BagNode(object):
                 return False
         except:
             return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
             
     def setValidators(self, validators):
         """TODO"""
@@ -1068,6 +1072,10 @@ class Bag(GnrObject):
         except:
             return False
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+
     def diff(self,other):
         if self == other:
             return None
@@ -1779,7 +1787,7 @@ class Bag(GnrObject):
         
     #-------------------- toXml --------------------------------
     def toXml(self, filename=None, encoding='UTF-8', typeattrs=True, typevalue=True, unresolved=False,
-              addBagTypeAttr=True,onBuildTag=None,
+              addBagTypeAttr=True,
               autocreate=False, translate_cb=None, self_closed_tags=None,
               omitUnknownTypes=False, catalog=None, omitRoot=False, forcedTagAttr=None, docHeader=None,
               mode4d=False,pretty=False):
@@ -1817,7 +1825,7 @@ class Bag(GnrObject):
         from gnr.core.gnrbagxml import BagToXml
         
         return BagToXml().build(self, filename=filename, encoding=encoding, typeattrs=typeattrs, typevalue=typevalue,
-                                addBagTypeAttr=addBagTypeAttr,onBuildTag=onBuildTag,
+                                addBagTypeAttr=addBagTypeAttr,
                                 unresolved=unresolved, autocreate=autocreate, forcedTagAttr=forcedTagAttr,
                                 translate_cb=translate_cb, self_closed_tags=self_closed_tags,
                                 omitUnknownTypes=omitUnknownTypes, catalog=catalog, omitRoot=omitRoot,
@@ -2708,7 +2716,7 @@ class NetBag(BagResolver):
 
         try:
             params = {k:self.converter.asTypedText(v) for k,v in self.kwargs.items()}
-            response = self.requests.get('%s/%s' %(self.url,self.method),params=params)
+            response = self.requests.post('%s/%s' %(self.url,self.method),data=params)
             return Bag(response.text)
         except Exception, e:
             return Bag(dict(error=str(e)))

@@ -24,7 +24,7 @@ AUTH_EXPIRED = 2
 AUTH_NOT_LOGGED = 1
 
 class GnrWebRpc(GnrBaseProxy):
-    def __call__(self, method=None, _auth=AUTH_FORBIDDEN, **kwargs):
+    def __call__(self, method=None, _auth=AUTH_FORBIDDEN,**kwargs):
         page = self.page
         if _auth == AUTH_FORBIDDEN and method != 'main':
             result = None
@@ -188,9 +188,12 @@ class GnrWebRpc(GnrBaseProxy):
         elif uploaderId:
             handler = getattr(self.page, 'onUploading_%s' % uploaderId,None)
             if handler:
+                print 'deprecated use onUploaded_%s as name' %uploaderId
+            else:
+                handler = getattr(self.page, 'onUploaded_%s' % uploaderId,None)
+            if handler:
                 return handler(file_url=file_url, file_path=file_path, file_ext=file_ext, action_results=action_results,
                                **kwargs)
-
         return file_url
         
 

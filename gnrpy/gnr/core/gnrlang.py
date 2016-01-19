@@ -254,7 +254,7 @@ def moduleDict(module, proplist):
         result.update(dict([(getattr(x, prop).lower(), x) for x in modulelist]))
     return result
     
-def gnrImport(source, importAs=None, avoidDup=False, silent=True):
+def gnrImport(source, importAs=None, avoidDup=False, silent=True,avoid_module_cache=None):
     """TODO
     
     :param source: TODO
@@ -266,11 +266,12 @@ def gnrImport(source, importAs=None, avoidDup=False, silent=True):
         if avoidDup and not importAs:
             importAs = os.path.splitext(source)[0].replace(path_sep, '_').replace('.', '_')
         modkey = importAs or os.path.splitext(os.path.basename(source))[0]
-    try:
-        m = sys.modules[modkey]
-        return m
-    except KeyError:
-        pass
+    if not avoid_module_cache:
+        try:
+            m = sys.modules[modkey]
+            return m
+        except KeyError:
+            pass
     path = None
     if path_sep in source:
         path = [os.path.dirname(source)]
@@ -361,7 +362,9 @@ class GnrObject(object):
         
         :param cls: the python class to mixin"""
         if isinstance(cls, basestring):
+            drive, cls = os.path.splitdrive(cls)
             modulename, cls = cls.split(':')
+            modulename = '%s%s'%(drive, modulename)
             m = gnrImport(modulename)
             if m != None:
                 cls = getattr(m, cls)
@@ -746,7 +749,7 @@ def moduleClasses(m):
     return [x for x in dir(m) if (not x.startswith('__')) and  getattr(getattr(m, x), '__module__', None) == modulename]
         
 def classMixin(target_class, source_class, methods=None, only_callables=True,
-               exclude='js_requires,css_requires,py_requires', **kwargs):
+               exclude='js_requires,css_requires,py_requires',**kwargs):
     """Add to the class methods from 'source'.
     
     :param target_class: TODO
@@ -759,10 +762,12 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
     if isinstance(exclude, basestring):
         exclude = exclude.split(',')
     if isinstance(source_class, basestring):
+        drive, source_class = os.path.splitdrive(source_class)
         if ':' in source_class:
             modulename, clsname = source_class.split(':')
         else:
             modulename, clsname = source_class, '*'
+        modulename = '%s%s'%(drive, source_class)
         m = gnrImport(modulename, avoidDup=True)
         if m is None:
             raise GnrException('cannot import module: %s' % modulename)
@@ -862,10 +867,12 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
         exclude = exclude.split(',')
     exclude = exclude or ''
     if isinstance(source, basestring):
+        drive, source = os.path.splitdrive(source)
         if ':' in source:
             modulename, clsname = source.split(':')
         else:
             modulename, clsname = source, '*'
+        modulename = '%s%s'%(drive, modulename)
         m = gnrImport(modulename, avoidDup=True)
         if m is None:
             raise GnrException('cannot import module: %s' % modulename)
@@ -971,7 +978,9 @@ def instanceOf(obj, *args, **kwargs):
     
     :param obj: TODO"""
     if isinstance(obj, basestring):
+        drive, obj = os.path.splitdrive(obj)
         modulename, clsname = obj.split(':')
+        modulename = '%s%s'%(drive,modulename)
         m = gnrImport(modulename)
         return getattr(m, clsname)(*args, **kwargs)
     elif isinstance(obj, type): # is a class, not an instance

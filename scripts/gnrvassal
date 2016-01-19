@@ -35,12 +35,14 @@ class UwsgiConfigurator(object):
     default_processes = 1
     default_threads = 8
     vassal_template = """[uwsgi]
-http = :%(port)i
-;wsgi-file = %(wsgi_file)s
+plugins = python,router_http
+%(port_or_domain)s
+gid = %(gid)i
+uid = %(uid)i
 processes = %(processes)i
 threads = %(threads)i
 enable-threads = true
-stats = 127.0.0.1:%(stats_port)i
+;stats = 127.0.0.1:%(stats_port)i
 worker-reload-mercy = 1
 disable-logging = true
 module = gnr.web.serveruwsgi
@@ -58,7 +60,7 @@ logto = %(logto)s
         self.site_name = site_name
         self.site_handler = getSiteHandler(site_name)
         self.site_path = self.site_handler['site_path']
-        self.error_path = os.path.join(self.site_path,'error.log')
+        self.error_path = os.path.join(self.site_path, 'error.log')
         self.site_template = self.site_handler['site_template']
         self.site_script = self.site_handler['site_script']
         self.gnr_config = getGnrConfig()
@@ -66,7 +68,12 @@ logto = %(logto)s
         self.gnr_path = gnrConfigPath()
         self.gnr_vassal_options = dict()
         self.socket_path = os.path.join(self.gnr_path, 'sockets')
-        self.vassals_path = self.gnr_config['gnr.environment_xml.vassals?path'] or os.path.join(self.gnr_path,'uwsgi','vassals')
+        home_path = os.environ.get('HOME', '')
+        if home_path.startswith('/containers'):
+            default_vassals_path = os.path.join(home_path, 'vassals')
+        else:
+            default_vassals_path = os.path.join(self.gnr_path, 'uwsgi', 'vassals')
+        self.vassals_path = self.gnr_config['gnr.environment_xml.vassals?path'] or default_vassals_path
         #self.vassals_path = os.path.join(self.gnr_path, 'uwsgi', 'vassals')
         self.pidfile_path = os.path.join(self.vassals_path, '%s.pid' % site_name)
         self.vassal_ini_path = os.path.join(self.vassals_path, '%s.ini' % site_name)
@@ -109,15 +116,21 @@ logto = %(logto)s
         pars = dict()
         #sc = self.site_config
         opt = self.options
-        pars['port'] = int(opt.port or self.default_port)
+        port = int(opt.port or self.default_port)
+        if hasattr(opt,'domain'):
+            pars['port_or_domain'] = 'domain = %s'%opt.domain
+        else:
+            pars['port_or_domain'] = 'http = %i'%port
         pars['wsgi_file'] = self.site_script
         pars['site_name'] = self.site_name
         pars['processes'] = int(opt.processes or self.default_processes)
         pars['threads'] = int(opt.threads or self.default_threads)
-        pars['stats_port'] = int(opt.stats_port or pars['port']+1000)
+        pars['stats_port'] = int(opt.stats_port or port+1000)
         pars['offload_threads'] = int(opt.offload_threads or pars['processes'])
         pars['pidfile_path'] = self.pidfile_path
         pars['logto'] = self.error_path
+        pars['gid'] = os.getgid()
+        pars['uid'] = os.getuid()
         if boolean(opt.websockets):
             pars['websockets'] = """http-websockets = true
 route = ^/websocket httpdumb:%s
@@ -133,14 +146,6 @@ attach-daemon = gnrasync %s""" % (self.websocket_socket_path, self.site_name)
         with open(self.vassal_ini_path,'w') as ini_file:
             ini_file.write(ini_content)
 
-    def print_pars(self):
-        out ="""UWSGI vassal configured on port %(port)i
-
-Processes:\t\t%(processes)i
-Thread:\t\t\t%(threads)i
-Stats on:\t\thttp://127.0.0.1:%(stats_port)i
-Connect on:\t\thttp://127.0.0.1:%(port)i"""%self.pars
-        print out
 
 
     def stop_vassal(self):
@@ -165,7 +170,9 @@ if __name__ == '__main__':
                       dest='debug',
                       action='store_true',
                       help="Use weberror debugger")
-
+    parser.add_option('-d','--domain',
+                      dest='domain',
+                      help="Create vassal for domain specified (port is ignored)")
     parser.add_option('--nodebug',
                       dest='debug',
                       action='store_false',

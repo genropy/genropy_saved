@@ -48,7 +48,7 @@ class BaseResourceBatch(object):
         except self.btc.exception_stopped:
             self.btc.batch_aborted()
         except Exception, e:
-            if self.page.site.debug:
+            if self.page.isDeveloper():
                 raise
             else:
                 try:

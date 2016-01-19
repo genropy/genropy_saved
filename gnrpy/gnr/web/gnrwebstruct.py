@@ -263,7 +263,7 @@ class GnrDomSrc(GnrStructData):
             subtag = ('%s_%s' %(parentTag,fname)).lower()
             if hasattr(self,subtag):
                 return getattr(self,subtag)
-        raise AttributeError("Object has no attribute '%s': provide another nodeId" % fname)
+        raise AttributeError("%s has no attribute '%s' " % (parentTag or repr(self), fname))
     
     @deprecated
     def getAttach(self, childname):
@@ -599,7 +599,7 @@ class GnrDomSrc(GnrStructData):
         :param content: the <script> content"""
         return self.child('script', childcontent=content, **kwargs)
         
-    def remote(self, method, lazy=True, cachedRemote=None,**kwargs):
+    def remote(self, method=None, lazy=True, cachedRemote=None,**kwargs):
         """TODO
         
         :param method: TODO
@@ -742,14 +742,21 @@ class GnrDomSrc(GnrStructData):
         tbl = self.child('table', _class='%s %s' % (tblclass, _class), **kwargs).child('tbody')
         dbtable = table or kwargs.get('dbtable') or self.getInheritedAttributes().get('table') or self.page.maintable
         formNode = self.parentNode.attributeOwnerNode('formId') if self.parentNode else None
+        excludeCols = kwargs.pop('excludeCols',None)
         if formNode:
             if not hasattr(formNode,'_mainformbuilder'):
                 formNode._mainformbuilder = tbl
+            if formNode.attr.get('excludeCols'):
+                excludeCols = formNode.attr.pop('excludeCols')
         tbl.fbuilder = GnrFormBuilder(tbl, cols=int(cols), dbtable=dbtable,
                                       lblclass=lblclass, lblpos=lblpos, lblalign=lblalign, fldalign=fldalign,
                                       fieldclass=fieldclass,
-                                      lblvalign=lblvalign, fldvalign=fldvalign, rowdatapath=rowdatapath,
-                                      head_rows=head_rows, commonKwargs=commonKwargs)
+                                      lblvalign=lblvalign, fldvalign=fldvalign,
+                                      rowdatapath=rowdatapath,
+                                      head_rows=head_rows, 
+                                      excludeCols=excludeCols,
+                                      commonKwargs=commonKwargs)
+        
         inattr = self.getInheritedAttributes()
         if hasattr(self.page,'_legacy'):
             tbl.childrenDisabled = disabled
@@ -860,13 +867,13 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                
     #gnrNS=['menu','menuBar','menuItem','Tree','Select','DbSelect','Combobox','Data',
     #'Css','Script','Func','BagFilteringTable','DbTableFilter','TreeCheck']
-    gnrNS = ['DbSelect', 'DbComboBox', 'DbView', 'DbForm', 'DbQuery', 'DbField',
+    gnrNS = ['DbSelect','CallBackSelect','RemoteSelect', 'DbComboBox', 'DbView', 'DbForm', 'DbQuery', 'DbField',
              'dataFormula', 'dataScript', 'dataRpc','dataWs', 'dataController', 'dataRemote',
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
-             'tinyMCE', 'protovis','codemirror','MultiButton','PaletteGroup','DocumentFrame','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','PaletteImporter','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
+             'tinyMCE', 'protovis','codemirror','dygraph','MultiButton','PaletteGroup','DocumentFrame','DownloadButton','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','PaletteImporter','DropUploader','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','GeoSearch','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
-             'FramePane', 'FrameForm','QuickEditor','CodeEditor','TreeGrid','QuickGrid','MultiValueEditor','QuickTree','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
+             'FramePane', 'FrameForm','QuickEditor','CodeEditor','TreeGrid','QuickGrid',"VideoPlayer",'MultiValueEditor','QuickTree','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -1059,7 +1066,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             storepath = storepath or attr.get('storepath') or '.store'
         nodeId = '%s_store' %storeCode
         #self.data(storepath,Bag())
-        return parent.child('BagStore',storepath=storepath, nodeId=nodeId,**kwargs)
+        return parent.child('BagStore',storepath=storepath, nodeId=nodeId,_identifier=_identifier,**kwargs)
 
     def fsStore(self,folders=None,storepath=None,storeCode=None,include='*.xml',columns=None,**kwargs):
         """FileSystem Store
@@ -1298,8 +1305,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if struct or columns or not structpath:
             paletteGrid.gridStruct(struct=struct,columns=columns)
         return paletteGrid
-
-
         
     def includedview_draganddrop(self,dropCodes=None,**kwargs):
         ivattr = self.attributes
@@ -1711,7 +1716,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         result = {'lbl': lbl,'field_name_long':fieldobj.name_long, 'dbfield': fieldobj.fullname}
         dtype = result['dtype'] = fieldobj.dtype
         fldattr =  dict(fieldobj.attributes or dict())
-
+        result['format'] = fldattr.pop('format',None)
         if dtype in ('A', 'C'):
             size = fldattr.get('size', '20')
             if ':' in size:
@@ -1830,7 +1835,8 @@ class GnrFormBuilder(object):
     """The class that handles the creation of the :ref:`formbuilder` widget"""
     def __init__(self, tbl, cols=None, dbtable=None, fieldclass=None,
                  lblclass='gnrfieldlabel', lblpos='L', lblalign=None, fldalign=None,
-                 lblvalign='top', fldvalign='top', rowdatapath=None, head_rows=None, commonKwargs=None):
+                 lblvalign='top', fldvalign='top', rowdatapath=None, head_rows=None,
+                 excludeCols=None, commonKwargs=None):
         self.commonKwargs = commonKwargs or {}
         self.lblalign = lblalign or {'L': 'right', 'T': 'left'}[lblpos] # jbe?  why is this right and not left?
         self.fldalign = fldalign or {'L': 'left', 'T': 'center'}[lblpos]
@@ -1853,6 +1859,7 @@ class GnrFormBuilder(object):
         self.rowdatapath = rowdatapath
         self.head_rows = head_rows or 0
         self.field_list = []
+        self.excludeCols = excludeCols.split(',') if excludeCols else []
         
     def br(self):
         #self.row=self.row+1
@@ -2024,6 +2031,7 @@ class GnrFormBuilder(object):
         lbl = ''
         lblvalue = None
         tag = None
+        excludeCols = self.excludeCols
         rowspan, colspan = 1, 1
         lblalign, fldalign = self.lblalign, self.fldalign
         lblvalign, fldvalign = self.lblvalign, self.fldvalign
@@ -2034,6 +2042,9 @@ class GnrFormBuilder(object):
             f.update(field)
             field = f
             lbl = field.pop('lbl', '')
+            dbfield = field.get('dbfield')
+            if dbfield and excludeCols and dbfield.split('.')[-1] in excludeCols:
+                field.setdefault('hidden',True)
             if 'hidden' in field and not 'lbl_hidden' in field:
                 field['lbl_hidden'] = field['hidden']
             if not '_valuelabel' in field and not lbl.startswith('=='):  #BECAUSE IT CANNOT CALCULATE ON THE FIELD SOURCENODE SCOPE
@@ -2259,13 +2270,11 @@ class GnrGridStruct(GnrStructData):
         self.cell(field, name=name, format_trueclass=trueclass, format_falseclass=falseclass,format_nullclass=nullclass,
                   classes=classes, calculated=calculated, format_onclick="""
                                                                     var threestate ='%(threestate)s';
-
                                                                     var rowpath = '#'+this.widget.absIndex(kw.rowIndex);
                                                                     var sep = this.widget.datamode=='bag'? '.':'?';
                                                                     var valuepath=rowpath+sep+'%(field)s';
                                                                     var storebag = this.widget.storebag();                                                                    
-                                                                    var blocked = this.form? this.form.isDisabled() : !this.widget.editorEnabled;
-                                                                
+                                                                    var blocked = this.form? this.form.isDisabled() : false;
                                                                     var checked = storebag.getItem(valuepath);
                                                                     if (blocked || ((checked===null) && (threestate=='disabled'))){
                                                                         return;

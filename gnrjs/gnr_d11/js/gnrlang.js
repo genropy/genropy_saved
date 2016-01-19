@@ -36,12 +36,13 @@ function _px(v){
     return v;
 };
 function _T(str){
-    var language = genro.locale().split('-')[0];
+    var locale = genro.locale() || 'en-EN';
+    var language = locale.split('-')[0];
     var localekey = 'localsdict_'+language;
     var localsdict = genro.getFromStorage('local',localekey) || {};
     if(!(str in localsdict)){
         var toTranslate = (str.search(/^!!|\[!!/)<0)?'!!'+str:str;
-        var result = genro.serverCall('getRemoteTranslation',{txt:toTranslate,language:language});
+        var result = genro.serverCall('getRemoteTranslation',{txt:toTranslate,language:language}) || {};
         var localizedString = result['translation'];
         if(result.status=='OK'){
             localsdict[str] = localizedString;
@@ -56,6 +57,10 @@ function _T(str){
 
 function _F(val,format,dtype){
     return gnrformatter.asText(val,{format:format,dtype:dtype});
+};
+function _IN(val,str){
+    var l = str.split(',');
+    return l.indexOf(val)>=0;
 };
 function isBag(value){
     return value &&(value.htraverse!=null);
@@ -210,8 +215,10 @@ function stringCapitalize(str) {
     });
 };
 
-function dataTemplate(str, data, path, showAlways) {
-    var defaults = {};
+
+function dataTemplate(str, data, path, showAlways,kw) {
+    var kw = kw || {};
+    var defaults = kw.defaults || {};
     if (!str) {
         return '';
     }
@@ -225,12 +232,12 @@ function dataTemplate(str, data, path, showAlways) {
         showAlways = showAlways || templateHandler.showAlways;
         
     }
-    var templates;
-    var masks={};
-    var df_templates={};
-    var formats = {};
-    var dtypes = {};
-    var editcols = {};
+    var templates = kw.templates;
+    var masks=kw.masks || {};
+    var df_templates= kw.df_templates || {};
+    var formats = kw.formats || {};
+    var dtypes = kw.dtypes || {};
+    var editcols = kw.editcols || {};
 
     if(str instanceof gnr.GnrBag){
          templates=str;
@@ -244,7 +251,7 @@ function dataTemplate(str, data, path, showAlways) {
 
     }
     if(str.indexOf('${')>=0){
-        str = str.replace(/\${(([^}]|\n)*)}/,function(s0,content){
+        str = str.replace(/\${(([^}]|\n)*)}/g,function(s0,content){
             if(!content){
                 return '';
             }
@@ -357,18 +364,22 @@ function dataTemplate(str, data, path, showAlways) {
                             });
     } else {
         data = data || {};
+        var p,plist,sub;
         result = str.replace(regexpr,
                           function(path) {
                               has_field=true;
-                               var value = data[path.slice(1)];                               
+                              plist = path.slice(1).split('.');
+                              p = plist[0];
+                              var value = data[p];
                               if (value != null) {
-                                  is_empty = false;
-                                  if (value instanceof Date) {
-                                      value = dojo.date.locale.format(value, {selector:'date', format:'short'});
-                                  }
-                                  return value;
-                              } else {
-                                  return '';
+                                    is_empty = false;
+                                    sub = plist.slice(1);
+                                    if(sub.length && value instanceof gnr.GnrBag){
+                                        return gnrformatter.asText(value.getItem(sub));
+                                    }
+                                    return gnrformatter.asText(value,formats[p]);
+                              }else{
+                                    return '';
                               }
                           });
     }
@@ -889,34 +900,40 @@ function convertFromText(value, t, fromLocale) {
     }
     else if (t == 'JS') {
         var result = genro.evaluate(value);
-        if(result){
-            for (var k in result){
-                result[k] = convertFromText(result[k]);
-            }
-        }
+       //if(result){
+       //    for (var k in result){
+       //        result[k] = convertFromText(result[k]);
+       //    }
+       //}
         return result;
     }
-    else if (t == 'BAG' && !value) {
-        return new gnr.GnrBag();
+    else if (t == 'BAG' || t=='X') {
+        try{
+            return new gnr.GnrBag(value);
+        }catch(e){
+            console.error('Parsing error',e.toString());
+            return new gnr.GnrBag({error:e.toString()});
+        }
+        
     }
     return value;
 }
 
 var gnrformatter = {
     asText :function (value,valueAttr){
-        var valueAttr = valueAttr || {};
+        var formatKw =  objectUpdate({},valueAttr);
         var formattedValue;
         if(value==null || value==undefined){
             return '';
         }
-        var dtype = valueAttr.dtype || guessDtype(value);
-        var format = valueAttr.format;
+        var dtype = objectPop(formatKw,'dtype') || guessDtype(value);
+        var format = objectPop(formatKw,'format');
         if(format && dtype=='L' && format.indexOf('.')>=0){
             dtype='N';
         }
-        var formatKw = objectExtract(valueAttr,'format_*',true);
+        objectUpdate(formatKw,objectExtract(formatKw,'format_*'));
         var handler = this['format_'+dtype];
-        var mask = valueAttr.mask;
+        var mask = formatKw.mask;
         if(handler){
             formattedValue = handler.call(this,value,format,formatKw);
         }else{
@@ -1161,9 +1178,9 @@ var gnrformatter = {
         //    });
         //}
     },
-    format_AR:function(value,format,formatKw){
+    format_AR:function(value,joiner,formatKw){
         value = dojo.map(value,function(n){return _F(n)});
-        return value.join(format || ',');
+        return value.join(joiner || ',');
     },
     format_NN:function(value,format,formatKw){
         return '';
@@ -1189,7 +1206,7 @@ var gnrformatter = {
 }
 
 function guessDtype(value){
-    if(value==null || value==undefined){
+    if(value===null || value===undefined){
         return 'NN';
     }
     var t = typeof(value);

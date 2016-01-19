@@ -52,6 +52,10 @@ class AppPref(object):
 
         self.site_config_override(tc.contentPane(title='!!Site config',datapath='.site_config'))
 
+        pane = tc.contentPane(title='Tables Configuration')
+        fb = pane.formbuilder(cols=1,border_spacing='3px',datapath='.tblconf')
+        fb.textbox(value='^.archivable_tag',lbl='Archivable tag')
+
     def site_config_override(self,pane):
         fb = pane.formbuilder(cols=1,border_spacing='3px')
         fb.numberTextBox(value='^.cleanup?interval',lbl='Cleanup interval',placeholder=self.site.config['cleanup?interval'])

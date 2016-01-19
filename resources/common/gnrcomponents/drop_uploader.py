@@ -18,7 +18,7 @@ class DropUploaderBase(BaseComponent):
     
     @extract_kwargs(uploader=None,external=None)
     @struct_method
-    def du_dropUploader(self, pane,uploaderId=None, ext='', uploader_kwargs=None, external_kwargs=None, **kwargs):
+    def du_dropUploaderLegacy(self, pane,uploaderId=None, ext='', uploader_kwargs=None, external_kwargs=None, **kwargs):
         uploaderId = uploaderId or 'stdupload'
         uploadPath = uploader_kwargs.pop('path', 'site:uploaded_files')
         pane.div(dropTypes='Files', drop_ext=ext, dropTarget=True, nodeId=uploaderId,

@@ -26,6 +26,15 @@ class GnrCustomWebPage(object):
         box.div(margin_left='15px',display='inline-block').radioButton('Paperino',value='^.paperino',group='aaa')
         box.div(margin_left='15px',display='inline-block').radioButton('Pluto',value='^.pluto',group='aaa')
 
+    def test_2_toxml(self,pane):
+        pane.button('Run',fire='.run')
+        pane.dataController("""
+            var b = new gnr.GnrBag();
+            var c = new gnr.GnrBag({nome:'Mario',paperino:3,test_emptybag:b});
+            genro.bp(true)
+            c.toXml();
+        """,_fired='^.run')
+
     @public_method
     def bugkwargs(self,data=None):
     	print x

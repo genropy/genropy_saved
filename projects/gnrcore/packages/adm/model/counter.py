@@ -49,7 +49,7 @@ class Table(object):
             sequences = self.getFieldSequences(tblobj,field=field)
             self.alignSequences(tblobj,field=field,to_align=sequences,thermo_wrapper=thermo_wrapper)
 
-    def alignSequences(self,tblobj,field=None,to_align=None,thermo_wrapper=None):
+    def alignSequences(self,tblobj,field=None,to_align=None,fix_duplicate=None,thermo_wrapper=None):
         if isinstance(to_align,basestring):
             to_align = to_align.split(',')
         pars = getattr(tblobj,'counter_%s' %field)()
@@ -57,7 +57,7 @@ class Table(object):
         if boundaries['N'][0] is not None:
             to_align = thermo_wrapper(to_align,line_code='sequences',message='Sequence') if thermo_wrapper else to_align
             for sq in to_align:
-                self._alignOneSequence(tblobj,sq=sq,field=field,boundaries=boundaries,**pars)
+                self._alignOneSequence(tblobj,sq=sq,field=field,boundaries=boundaries,fix_duplicate=fix_duplicate,**pars)
 #
     @public_method
     def alignCounter(self,pkey=None):
@@ -91,7 +91,7 @@ class Table(object):
         self._alignOneSequence(tblobj,field=field,sq=''.join(sq),boundaries=boundaries,**counter_pars)
         self.db.commit()
 
-    def _alignOneSequence(self,tblobj,field=None,sq=None,boundaries=None,date_field=None,format=None,code=None,**kwargs):
+    def _alignOneSequence(self,tblobj,field=None,sq=None,boundaries=None,date_field=None,format=None,code=None,fix_duplicate=None,**kwargs):
         #sq example  XY/2010-****  $K/$YYYY-$NNNN
         period = {}
         for k in 'YMD':
@@ -103,7 +103,7 @@ class Table(object):
         N_start,N_end = boundaries['N']
         placeholder = '*'* (N_end-N_start)
         delta = len(placeholder)
-        columns='substr($%s ,%i, %i) AS cnt' %(field,N_start+1,delta)
+        columns='$%s,substr($%s ,%i, %i) AS cnt' %(field,field,N_start+1,delta)
         if date_field:
             columns='%s,$%s' %(columns,date_field)
         dccol = "substr($%(fld)s, 1,%(nstart)i) || '%(placeholder)s' || substr($%(fld)s,%(lst)i)" %dict(fld=field,nstart=N_start,placeholder=placeholder,lst=N_start+delta+1)
@@ -140,8 +140,15 @@ class Table(object):
                     errors.setItem('wrongOrder.%i' %i,None, **err)
                 prev_date = rdate
             if prevcnt and prevcnt==cnt:
-                err = dict(cnt=cnt)
-                errors.setItem('duplicates.%i' %i,None,**err)
+                if r[field].endswith('_'):
+                    pass
+                elif fix_duplicate:
+                    with tblobj.recordToUpdate(pkey=r['pkey']) as record_to_fix:
+                        record_to_fix[field] = '%s_' %r[field]
+                else:
+                    err = dict(cnt=cnt)
+                    errors.setItem('duplicates.%i' %i,None,**err)
+                i-=1
             elif cnt>i:
                 h = dict(record_id=r['pkey'],date_from=None,date_to=None)
                 h['cnt_from'] = i
@@ -158,8 +165,8 @@ class Table(object):
                         period=period,code=code or pars_code,counter=cnt,
                         last_used=prev_date,holes=holes,errors=errors)
         codekey = self.newPkeyValue(record)
-        with self.recordToUpdate(codekey=codekey,insertMissing=True) as r:
-            r.update(record)
+        with self.recordToUpdate(codekey=codekey,insertMissing=True) as counter_record:
+            counter_record.update(record)
 
     def _getBoundaries(self,format=None,code=None,**kwargs):
         format = format.replace('$K','$%s' %('K'*len(code)))

@@ -477,6 +477,11 @@ class GnrSqlDb(GnrObject):
         
         :param tblobj: the table object
         :param record: an object implementing dict interface as colname, colvalue"""
+        deletable = tblobj.attributes.get('deletable',True)
+        if isinstance(deletable,basestring):
+            deletable = self.application.checkResourcePermission(deletable, self.currentEnv['userTags'])
+        if not deletable:
+            raise GnrSqlException('The records of table %s cannot be deleted' %tblobj.name_long)
         tblobj.protect_delete(record)
         tblobj._doFieldTriggers('onDeleting', record)
         tblobj.trigger_onDeleting(record)
@@ -569,7 +574,7 @@ class GnrSqlDb(GnrObject):
             
     packages = property(_get_packages)
 
-    def tablesMasterIndex(self):
+    def tablesMasterIndex(self,hard=False):
         packages = self.packages.keys()
         toImport = []
         dependencies = dict()
@@ -580,7 +585,7 @@ class GnrSqlDb(GnrObject):
             for tbl in tables:
                 dset = set()
                 for d,isdeferred in tbl.dependencies:
-                    if not isdeferred and packages.index(d.split('.')[0])<=k:
+                    if not isdeferred and (packages.index(d.split('.')[0])<=k or hard):
                         dset.add(d)
                 dependencies[tbl.fullname] = dset
         imported = set()

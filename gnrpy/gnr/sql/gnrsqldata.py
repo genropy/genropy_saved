@@ -522,29 +522,19 @@ class SqlQueryCompiler(object):
         # translate @relname.fldname in $_relname_fldname and add them to the relationDict
         if where:
             where = PERIODFINDER.sub(self.expandPeriod, where)
-            
         currentEnv = self.db.currentEnv
         env_conditions = dictExtract(currentEnv,'env_%s_condition_' %self.tblobj.fullname.replace('.','_'))
+        wherelist = [where]
         if env_conditions:
-            wherelist = [where] if where else []
             for condition in env_conditions.values():
                 wherelist.append('( %s )' %condition)
-            where = ' AND '.join(wherelist)
-
-        partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
-
-        if not ignorePartition and partition_kwargs:
-            wherelist = [where] if where else []
-            for k,v in partition_kwargs.items():
-                if currentEnv.get('current_%s' %v):
-                    wherelist.append('( $%s=:env_current_%s )' % (k,v))
-            where = ' AND '.join(wherelist)
+        wherelist.append(self.tblobj.dbtable.getPartitionCondition(ignorePartition=ignorePartition))
+        where = ' AND '.join([w for w in wherelist if w])
         columns = self.updateFieldDict(columns)
         where = self.updateFieldDict(where or '')
         order_by = self.updateFieldDict(order_by or '')
         group_by = self.updateFieldDict(group_by or '')
         having = self.updateFieldDict(having or '')
-        
         col_list = uniquify([col for col in gnrstring.split(columns, ',') if col])
         new_col_list = []
         for col in col_list:
@@ -910,6 +900,7 @@ class SqlQuery(object):
                  **kwargs):
         self.dbtable = dbtable
         self.sqlparams = sqlparams or {}
+        columns = columns or '*'
         self.querypars = dict(columns=columns, where=where, order_by=order_by,
                               distinct=distinct, group_by=group_by,
                               limit=limit, offset=offset,for_update=for_update,

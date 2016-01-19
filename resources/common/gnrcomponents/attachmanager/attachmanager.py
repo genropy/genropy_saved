@@ -59,31 +59,43 @@ class AttachManagerView(AttachManagerViewBase):
 
 
 class Form(BaseComponent):
+
+    def atc_metadata(self,bc):
+        #override this
+        pass
+
     def th_form(self, form):
         sc = form.center.stackContainer(datapath='.record')
-        sc.contentPane(overflow='hidden').iframe(src='^.fileurl',_virtual_column='fileurl',height='100%',
-                                                width='100%',border='0px',documentClasses=True)
+        bc = sc.borderContainer()
+        self.atc_metadata(bc)
+        iframe = bc.contentPane(region='center').iframe(src='^.fileurl',_virtual_column='fileurl',height='100%',
+                                                width='100%',border='0px',documentClasses=True,
+                        connect_onload="""
+                            var cw = this.domNode.contentWindow;
+                            cw.document.body.style.zoom = GET #FORM.currentPreviewZoom;""")
         da = sc.contentPane().div(position='absolute',top='10px',left='10px',right='10px',bottom='10px',
             text_align='center',border='3px dotted #999',rounded=8)
 
         da.table(height='100%',width='100%').tr().td().div('!!Drop Area',width='100%',
                                                             font_size='30px',color='#999')
-        da.div(position='absolute',top=0,bottom=0,left=0,right=0,z_index=10,
-            dropTarget=True,dropTypes='Files',
-                onDrop="""
-                            var form = this.form;
-                            form.waitingStatus(true)
-                            AttachManager.onDropFiles(this,files,function(){
-                                    form.waitingStatus(false);
-                                });""",
-                _uploader_fkey='=#FORM.record.maintable_id',
-                _uploader_onUploadingMethod=self.onUploadingAttachment
-            )
-
+        fattr = form.attributes
+        da.dropUploader(position='absolute',top=0,bottom=0,left=0,right=0,z_index=10,
+                        _class='attachmentDropUploader',
+                        onUploadingMethod=self.onUploadingAttachment,
+                        rpc_maintable_id='=#FORM.record.maintable_id',
+                        rpc_attachment_table=fattr.get('table'),
+                        nodeId='%(frameCode)s_uploader' %fattr)
         form.dataController("sc.switchPage(newrecord?1:0)",newrecord='^#FORM.controller.is_newrecord',sc=sc.js_widget)
+        form.dataController("iframe.contentWindow.document.body.style.zoom = currentPreviewZoom;",iframe=iframe.js_domNode,currentPreviewZoom='^#FORM.currentPreviewZoom')
 
     def th_options(self):
         return dict(showtoolbar=False,showfooter=False)
+
+    @public_method
+    def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
+        if newrecord:
+            record['id'] = self.db.table(record.tablename).newPkeyValue()
+
 
 class ViewPalette(BaseComponent):
     def th_struct(self,struct):
@@ -101,10 +113,12 @@ class AttachManager(BaseComponent):
     js_requires='gnrcomponents/attachmanager/attachmanager'
 
     @struct_method
-    def at_attachmentGrid(self,pane,title=None,searchOn=False,pbl_classes=True,datapath='.attachments',screenshot=False,**kwargs):
-        bc = pane.borderContainer()
-
-        th = bc.contentPane(region='left',width='400px',splitter=True).inlineTableHandler(relation='@atc_attachments',
+    def at_attachmentGrid(self,pane,title=None,searchOn=False,pbl_classes=True,datapath='.attachments',
+                            screenshot=False,viewResource=None,design=None,**kwargs):
+        bc = pane.borderContainer(design)
+        design = design or 'sidebar'
+        d = dict(sidebar=dict(region='left',width='400px'),headline=dict(region='top',height='300px'))
+        th = bc.contentPane(splitter=True,**d[design]).inlineTableHandler(relation='@atc_attachments',
                                         viewResource='gnrcomponents/attachmanager/attachmanager:AttachManagerView',
                                         hider=True,autoSave=True,statusColumn=True,
                                         addrow=False,pbl_classes=pbl_classes,
@@ -118,7 +132,7 @@ class AttachManager(BaseComponent):
             th.view.top.bar.replaceSlots('delrow','delrow,screenshot,5')
             
 
-        readerpane = bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid silver')
+        readerpane = bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid silver',overflow='hidden')
         readerpane.dataController('SET .reader_url=fileurl',fileurl='^.view.grid.selectedId?fileurl')
         readerpane.iframe(src='^.reader_url',height='100%',width='100%',border=0,documentClasses=True)
         return th
@@ -161,15 +175,16 @@ class AttachManager(BaseComponent):
         readerpane.iframe(src='^.reader_url',height='100%',width='100%',border=0,documentClasses=True)
         readerpane.dataController('SET .reader_url=fileurl',fileurl='^.view.grid.selectedId?fileurl')
         bar = frame.top.slotToolbar('5,vtitle,*,delrowbtn',vtitle=title or '!!Attachments')
-        bar.delrowbtn.slotButton('!!Delete attachment',iconClass='iconbox delete_row',action='gr.publish("delrow")',gr=th.view.grid)
+        bar.delrowbtn.slotButton('!!Delete attachment',iconClass='iconbox delete_row',
+                        action='gr.publish("delrow")',gr=th.view.grid)
         return frame
 
     @struct_method
-    def at_attachmentMultiButtonFrame(self,pane,datapath='.attachments',**kwargs):
+    def at_attachmentMultiButtonFrame(self,pane,datapath='.attachments',formResource=None,**kwargs):
         frame = pane.multiButtonForm(frameCode='attachmentPane_#',datapath=datapath,
                             relation='@atc_attachments',
                             caption='description',
-                            formResource='gnrcomponents/attachmanager/attachmanager:Form',
+                            formResource= formResource or 'gnrcomponents/attachmanager/attachmanager:Form',
                             multibutton_deleteAction="""
                                 var s = this._value.getNode('store').gnrwdg.store;
                                 s.deleteAsk([value]);
@@ -181,7 +196,9 @@ class AttachManager(BaseComponent):
                 parentForm=True,deleteAction=False,disabled='==!_store || _store.len()==0 || _flock',
                 _store='^.store',_flock='^#FORM.controller.locked')
         table = frame.multiButtonView.itemsStore.attributes['table']
-        bar = frame.top.bar.replaceSlots('mbslot','mbslot,15,changeName')
+        bar = frame.top.bar.replaceSlots('mbslot','mbslot,15,changeName,5,previewZoom')
+        bar.previewZoom.horizontalSlider(value='^.form.currentPreviewZoom', minimum=0, maximum=1,
+                                 intermediateChanges=True, width='15em',default_value=1)
         fb = bar.changeName.div(_class='iconbox tag',hidden='^.form.controller.is_newrecord',tip='!!Change description').tooltipPane(
                 connect_onClose='FIRE .saveDescription;',
             ).div(padding='10px').formbuilder(cols=1,border_spacing='3px')
@@ -208,7 +225,7 @@ class AttachManager(BaseComponent):
                     console.log('deleted',c.pkey);
                 }
             })
-            """,table=table,frm=frame.form.js_form,_delay=1,store='=.store')
+            """,table=table,frm=frame.form.js_form,_delay=100,store='=.store')
 
     @public_method
     def onUploadingAttachment(self,kwargs):
@@ -219,7 +236,11 @@ class AttachManager(BaseComponent):
         filename = kwargs.get('filename')
         description,ext = os.path.splitext(filename)
         description = slugify(description)
-        filename = '%s%s' %(description,ext)
+        last = self.db.table(attachment_table).query(where='$maintable_id=:mid',mid=maintable_id,order_by='_row_count desc',limit=1).fetch()
+        counter = 0
+        if last:
+            counter = last[0]['_row_count']
+        filename = '%002i_%s%s' %(counter,description,ext)
         kwargs['filename'] = filename
         path = os.path.join(maintable.replace('.','_'),maintable_id)
         if hasattr(maintableobj,'atc_getAttachmentPath'):

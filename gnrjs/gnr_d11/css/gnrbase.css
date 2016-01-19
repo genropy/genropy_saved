@@ -52,6 +52,10 @@ div,span{
 body.tundra{
     font:13px '-apple-system','HelveticaNeue','Arial';
 }
+body.touchDevice{
+    -webkit-text-size-adjust:none;
+}
+
 body.workInProgress{
     border-left:2px solid red;
 }
@@ -63,6 +67,19 @@ cursorZoom_plus{
 }
 .hiddenSplitter.dijitSplitter{
 	display: none;
+}
+
+.player_pause {
+    background: url(icons/player/player_pause.png) center center no-repeat;
+    height: 18px;
+    width: 20px;
+    cursor: pointer;
+}
+.player_play {
+    background: url(icons/player/player_play.png) center center no-repeat;
+    height: 18px;
+    width: 20px;
+    cursor: pointer;
 }
 
 .detatched_placeholder {
@@ -323,6 +340,16 @@ cursorZoom_plus{
 	/* disabled state - inner */
     border-color: #dedede;
 	/*background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EEEEEE), to(#EDEDEE));
+    background-image: -moz-linear-gradient(-90deg, #EEEEEE, #EDEDEE);*/
+}
+
+
+.tundra .dijitReadOnly.dijitTextBox,
+.tundra .dijitReadOnly.dijitTextArea,
+.tundra .dijitReadOnly.dijitComboBox{
+    /* disabled state - inner */
+    background-color: #F8F8F8;
+    /*background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EEEEEE), to(#EDEDEE));
     background-image: -moz-linear-gradient(-90deg, #EEEEEE, #EDEDEE);*/
 }
 
@@ -842,7 +869,7 @@ label.ghostlabel span {
 
 /* @group Standard form */
 
-.numberTextBox input {
+.numberTextBox input, .dijitDisabled.numberTextBox input:focus, .dijitReadOnly.numberTextBox input:focus {
     text-align: right;
     /*padding-right: 2px;*/
 }
@@ -851,6 +878,7 @@ label.ghostlabel span {
     text-align: left;
     /*padding-left: 2px;*/
 }
+
 
 .gnrfieldlabel {
     /*vertical-align: middle;*/
@@ -1042,12 +1070,17 @@ table.formbuilder {
 }
 
 .multiColumnSelect th {
-    padding: 2px;
-    border: 0px solid #c8c8c8;
-    background-color: #204174; /*font-weight: bold;*/
+    padding-top: 2px;
+    padding-bottom: 3px;
+    border-bottom: 0px solid #c8c8c8;
+    background-color: #ddd; /*font-weight: bold;*/
     text-align: center;
-    color: white;
+    color: #333;
     white-space: nowrap;
+    border-right: 1px solid white;
+}
+.multiColumnSelect th:last-child{
+    border-right: 0px solid white;
 }
 
 .multiColumnSelect tr {
@@ -1058,6 +1091,7 @@ table.formbuilder {
     padding: 2px;
     border: 1px solid #c8c8c8;
     white-space: nowrap;
+    color:#444;
 }
 
 .multiColumnSelectHover td {
@@ -1644,9 +1678,13 @@ div.dojoxDock {
     width: 16px;
 }
 
-.dijitMenu {
+._common_d11.tundra .dijitMenu {
+    border-width: 0;
     -moz-box-shadow: 2px 2px 4px #403b3b;
     -webkit-box-shadow: 2px 2px 4px #403b3b;
+}
+._common_d11.tundra .dijitPopup{
+    border:1px solid #ccc;
 }
 .floatingTooltipPane{
 
@@ -4335,6 +4373,11 @@ div[disabled='true'], div[disabled='disabled']{
 .fm_warning{
     background:rgba(250, 120, 0, 1)
 }
+
+.fm_close{
+    background: url(icons/fm_close.gif) no-repeat center center;
+}
+
 .dlg_closebtn{
     height: 18px;
     width: 18px;
@@ -4475,8 +4518,8 @@ div[disabled='true'], div[disabled='disabled']{
 
 /*treegrid*/
 
-.branchtree_selected{
-    background-color: #739CDC;
+.branchtree .branchtree_selected.dijitTreeLabel{
+    background-color: #3A4D65;
     color: white;
     padding-right: 15px;
     border-radius: 0px 10px 10px 0px;
@@ -4507,6 +4550,12 @@ div[disabled='true'], div[disabled='disabled']{
     white-space: nowrap;
 }
 
+.branchtree.treeLongLabels .dijitTreeLabel {
+    padding-left: 2px;
+
+    white-space: normal;
+}
+
 .branchtree .dijitTreeContent {
     min-height: 0;
     padding-bottom: 2px;
@@ -4517,10 +4566,7 @@ div[disabled='true'], div[disabled='disabled']{
     background: none;
     margin-left: 10px;
 }
-.branchtree .dijitTreeLabel{
-    padding-left: 2px;
-    white-space: nowrap;
-}
+
 .branchtree .dijitTreeIsRoot{
     margin-left: 0px;
 }
@@ -4903,4 +4949,60 @@ div[disabled='true'], div[disabled='disabled']{
     color:#666;
     font-weight: bold;
     font-size: .9em;
+}
+
+/*scroll fix for mobile*/
+.scroll-wrapper{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+}
+.touchDevice .scroll-wrapper{
+    overflow-y:scroll !important; 
+    -webkit-overflow-scrolling:touch !important;    
+}
+
+
+.detached_placeholder{
+    position: relative;
+}
+
+.detached_placeholder_content{
+    position: absolute;
+    top:10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    border: 10px solid rgba(99, 136, 195, 0.1);
+    border-radius: 10px;
+}
+.detached_placeholder_title{
+    font-size: 30px;
+    color:rgba(99, 136, 195, 0.25);
+    text-align: center;
+    margin-top: 20px;
+}
+
+.dropUploaderBox{
+    width:150px;
+    border: 1px solid silver;
+    border-radius: 4px;
+    font-size: 20px;
+    color: #666;
+    text-align: center;
+    height: 30px;
+    cursor: pointer;
+    position: relative;
+}
+
+.dropUploaderBoxInner{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    line-height: 30px;
 }
