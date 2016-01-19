@@ -1965,16 +1965,19 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
         if(frameKw.frameCode && !kw.nodeId){
             kw.nodeId = frameKw.frameCode +'_video';
         }
+        gnrwdg.videoNodeId =kw.nodeId;
         center._('dataFormula',{path:'.videoSrc',formula:"url?genro.addParamsToUrl(url,{'#t':timerange}):null;",
                                 url:urlPars.url,timerange:urlPars.timerange,_onBuilt:true,_delay:1});
         center._('dataFormula',{path:'.playerTime',
                                 formula:"currentTime-(range_start||0)",
                                 currentTime:'^.currentTime',
                                 range_start:'=.range_start',
-                                _if:'_triggerpars.kw.reason=="player"'});
-        center._('dataController',{script:"SET .currentTime = playerTime+range_start;",playerTime:'^.playerTime',
-                                range_start:'=.range_start'});
-        gnrwdg.videoNodeId =kw.nodeId;
+                                _if:'_triggerpars.kw.reason=="player" && !editingPlayerSearch',
+                                editingPlayerSearch:'=.editingPlayerSearch'});
+        center._('dataController',{script:"var currentTime = playerTime+range_start; if(currentTime>=range_end){ FIRE .resetPlayer;}else{ SET .currentTime=currentTime;}",playerTime:'^.playerTime',
+                                range_start:'=.range_start',range_end:'=.range_end'});
+        center._('dataController',{script:'genro.domById(videoNodeId).pause(); SET .playerTime = 0;',_fired:'^.resetPlayer',videoNodeId:gnrwdg.videoNodeId})
+        
         var video = center._('ContentPane',{region:'top',overflow:'hidden'})._('video','video',kw);
         if(subtitlePane){
             var subpane = center._('ContentPane',{region:'center',min_height:'100px'})._('div',{innerHTML:'^.mainsub.text'});
@@ -1997,13 +2000,16 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
             sn.setRelativeData('.range_start',r[0]);
             sn.setRelativeData('.range_end',r[1]);
             playerDuration = Math.round((r[1]-r[0])*10)/10;
+        }else{
+            sn.setRelativeData('.range_start',0);
+            sn.setRelativeData('.range_end',playerDuration);
         }
         sn.setRelativeData('.playerTime',0);
         sn.setRelativeData('.playerDuration',playerDuration);
     },
 
     gnrwdg_preparePlayerBar:function(frame,slots,manageCue,controllerSide){
-        slots = slots || '10,playbutton,playerslider,timerbox,searchBox,*'
+        slots = slots || '10,playbutton,playerslider,searchBox,*'
         if(manageCue){
             slots = slots+',cuebutton,10';
         }        
@@ -2022,10 +2028,6 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
             maximum:'^.playerDuration', 
             intermediateChanges:false,
             width:'100%',parentForm:false
-        };
-        slotsKw.timerbox = {tag:'numberTextBox',
-            value:'^.playerTime',format:'###.00',width:'5em',rounded:6,
-            parentForm:false,margin_top:'1px'
         };
         slotsKw.searchBox = 'videoSearchBox';
         slotsKw.cuebutton = {
@@ -2065,8 +2067,66 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
         });
     },
     gnrwdg_videoSearchBox:function(bar,slotName){
-        var sb = bar._('SearchBox',slotName,{searchOn:'All:all,Subtitles:subtitles,Chapters:chapters,Captions:captions'})
-        
+        var sb = bar._('div',slotName)
+        var fb = genro.dev.formbuilder(sb,1,{border_spacing:'1px',font_size:'.9em'});
+        var videoNodeId = this.videoNodeId;
+        var that = this;
+
+        fb.addField('callbackSelect',{value:'^.playerTime',width:'6em',
+                                      lbl_text_align:'right',
+                                      lbl:_T('Search'),
+                                      lbl_color:'#444',
+                                      rounded:6,
+                                      parentForm:false,
+                                      validate_onAccept:function(){
+                                        this.widget.focusNode.blur();
+                                      },
+                                      auxColumns:'start,end',
+                                      _class:'numberTextBox',
+                                      connect_onFocus:function(){
+                                           this.setRelativeData('.editingPlayerSearch',true);
+                                      },
+                                      connect__onBlur:function(){
+                                           this.setRelativeData('.editingPlayerSearch',false);
+                                      },
+
+                                      callback:function(kw){
+                                            var _id = kw._id;
+                                            var _querystring = kw._querystring;
+                                            var videoDomNode = genro.domById(videoNodeId);
+                                            var sn = videoDomNode.sourceNode;
+                                            var currentTextTrack = sn.getAttributeFromDatasource('searchTrack') || 0;
+                                            var cues = videoDomNode.textTracks[currentTextTrack].cues;
+                                            var range_start = sn.getRelativeData('.range_start');
+                                            var range_end = sn.getRelativeData('.range_end');
+                                            var data = [];
+                                            if(_querystring){
+                                                _querystring = _querystring.slice(0,-1).toLowerCase();
+                                                if(parseFloat(_querystring)>=0){
+                                                    _id = parseFloat(_querystring);
+                                                    _querystring = null;
+                                                }
+                                            }
+                                            if(_querystring){
+                                                dojo.forEach(cues,function(c){
+                                                    if(c.startTime<range_start || c.startTime>range_end){
+                                                        return;
+                                                    }
+                                                    var start_offset = r[0] || 0;
+                                                    var startTime = c.startTime -start_offset;
+                                                    var endTime = c.endTime - start_offset;
+                                                    if(c.text.indexOf(_querystring)>=0){
+                                                        data.push({txt:c.text,_pkey:startTime,start:startTime,end:endTime,
+                                                                  caption:_F(startTime,'###.00')})
+                                                    }
+                                                })
+                                            }else if(_id){
+                                                data = [{_pkey:_id,caption:_F(_id,'###.00'),start:_id,endTime:_id,txt:_F(_id,'###.00')}];
+                                            }
+                                            return {data:data,headers:'txt:Text,start:Start,end:End'}
+                                      }
+                                    });
+
     }
 
 });
