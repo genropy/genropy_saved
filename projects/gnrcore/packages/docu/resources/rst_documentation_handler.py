@@ -184,21 +184,21 @@ class RstDocumentationHandler(BaseComponent):
                     _delay=500,
                     _if='rstdoc',
                     _else=""" _iframe.contentWindow.document.body.innerHTML ="<div class='document'>To do...</div>" """,
-                    #_onResult="""
-                    #    var cw = kwargs._iframe.contentWindow;
-                    #    var cw_body = cw.document.body;
-#
-                    #    var s = cw.document.createElement("script");
-                    #    s.type = "text/javascript";
-                    #    s.src = '%s';
-                    #    cw.document.getElementsByTagName("head")[0].appendChild(s);
-                    #    if(genro.isMobile){
-                    #        cw_body.classList.add('touchDevice');
-                    #    }
-                    #    cw_body.classList.add('bodySize_'+genro.deviceScreenSize);
-#
-                    #    cw_body.innerHTML = result;
-                    #""" %js_script_url,
+                    _onResult="""
+                        var cw = kwargs._iframe.contentWindow;
+                        var cw_body = cw.document.body;
+
+                        var s = cw.document.createElement("script");
+                        s.type = "text/javascript";
+                        s.src = '%s';
+                        cw.document.getElementsByTagName("head")[0].appendChild(s);
+                        if(genro.isMobile){
+                            cw_body.classList.add('touchDevice');
+                        }
+                        cw_body.classList.add('bodySize_'+genro.deviceScreenSize);
+
+                        cw_body.innerHTML = result;
+                    """ %js_script_url,
                     _iframe=iframe.js_domNode)
 
     @public_method
