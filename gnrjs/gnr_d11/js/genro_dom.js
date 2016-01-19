@@ -1270,7 +1270,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         for (var k = 0; k < columns.length; k++) {
             thead = thead + "<th>" + headers[k] + "</th>";
         }
-        thead = thead + "<th style='width:11px; background-color:transparent;'>&nbsp</th></thead>";
+        thead = thead + "<th style='width:13px;'>&nbsp</th></thead>";
         var nodes = gridbag.getNodes();
         var item,r, value,v,_customClasses;
         var tbl = ["<tbody>"];

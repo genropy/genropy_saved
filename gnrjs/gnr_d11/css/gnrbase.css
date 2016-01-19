@@ -1070,12 +1070,17 @@ table.formbuilder {
 }
 
 .multiColumnSelect th {
-    padding: 2px;
-    border: 0px solid #c8c8c8;
-    background-color: #204174; /*font-weight: bold;*/
+    padding-top: 2px;
+    padding-bottom: 3px;
+    border-bottom: 0px solid #c8c8c8;
+    background-color: #ddd; /*font-weight: bold;*/
     text-align: center;
-    color: white;
+    color: #333;
     white-space: nowrap;
+    border-right: 1px solid white;
+}
+.multiColumnSelect th:last-child{
+    border-right: 0px solid white;
 }
 
 .multiColumnSelect tr {
@@ -1086,6 +1091,7 @@ table.formbuilder {
     padding: 2px;
     border: 1px solid #c8c8c8;
     white-space: nowrap;
+    color:#444;
 }
 
 .multiColumnSelectHover td {
@@ -1672,9 +1678,13 @@ div.dojoxDock {
     width: 16px;
 }
 
-.dijitMenu {
+._common_d11.tundra .dijitMenu {
+    border-width: 0;
     -moz-box-shadow: 2px 2px 4px #403b3b;
     -webkit-box-shadow: 2px 2px 4px #403b3b;
+}
+._common_d11.tundra .dijitPopup{
+    border:1px solid #ccc;
 }
 .floatingTooltipPane{
 

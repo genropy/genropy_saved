@@ -7102,7 +7102,10 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
             
         }
         //dojo.connect(widget, '_doSelect', widget,'_onDoSelect');                 
-    }
+    },
+    //patch__onBlur:function(){
+    //    return;
+    //}
 });
 
 dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.DynamicBaseCombo, {
