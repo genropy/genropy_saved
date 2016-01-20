@@ -74,15 +74,25 @@ class TableHandlerTreeResolver(BagResolver):
         result = []
         if parent_id:
             related_kwargs = dict(self.related_kwargs)
+            includeAlias = related_kwargs.pop('includeAlias', None)
             caption_field = self.relatedCaptionField
             columns = self.related_kwargs.get('columns') or '*,$%s' %caption_field
             relation_path = self.related_kwargs['path']
             condition = self.related_kwargs.get('condition')
             condition_kwargs = dictExtract(related_kwargs,'condition_')
-            wherelist = [' (%s=:pkey) ' % relation_path]
+            where = ' (%s=:pkey) ' % relation_path
+            if includeAlias:
+                tblobj = self.db.table(self.table)
+                aliasTableName = '%s_alias' %tblobj.fullname
+                aliasJoiner = related_tblobj.model.getJoiner(aliasTableName)
+                aliasRelationName = aliasJoiner['relation_name']
+                mainJoiner = tblobj.model.getJoiner(aliasTableName)
+                aliasFkey = mainJoiner.get('many_relation','').split('.')[-1]
+                where = "(%s) OR @%s.%s=:pkey"%(where, aliasRelationName, aliasFkey)
+            
             if condition:
-                wherelist.append(condition)
-            result = related_tblobj.query(where=' AND '.join(wherelist),columns=columns, _storename=self.dbstore,
+                where = '(%s) AND %s'%(where,condition)
+            result = related_tblobj.query(where=where,columns=columns, _storename=self.dbstore,
                                             pkey=parent_id,**condition_kwargs).fetch()
         return result
 

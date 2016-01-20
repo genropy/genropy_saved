@@ -443,9 +443,15 @@ class TableHandlerHierarchicalView(BaseComponent):
                                                 """  
 
         treeattr['onDrop_%s' %dragCode] = """  var relationValue = dropInfo.treeItem.attr.pkey || null;
+                                                var relationRecord = dropInfo.treeItem.attr._record || null;
+                                                var modifiers = dropInfo.modifiers;
+                                                var alias_on_field = this.getRelativeData('#FORM.controller.table?alias_on_field');
+                                                var asAlias = (relationRecord && alias_on_field)?relationRecord[alias_on_field]:modifiers=="Shift"
+                                                genro.bp(true);
                                                 if(%s){
                                                     genro.serverCall('ht_updateRelatedRows',{table:'%s',fkey_name:'%s',pkeys:data.pkeys,
                                                                                         relationValue:relationValue,modifiers:dropInfo.modifiers,
+                                                                                        asAlias:asAlias,
                                                                                         relation_table:'%s',maintable:'%s',alt_relations:data.alt_relations},null,null,'POST');
                                                 }else{
                                                     return false;
@@ -455,7 +461,8 @@ class TableHandlerHierarchicalView(BaseComponent):
         
     @public_method
     def ht_updateRelatedRows(self,table=None,maintable=None,fkey_name=None, pkeys=None,
-                             relationValue=None,modifiers=None,relation_table=None,alt_relations=None):
+                             relationValue=None, modifiers=None, asAlias = None,
+                             relation_table=None,alt_relations=None):
         tblobj = self.db.table(table)
         alt_relations_modifiers_dict = dict([(v['modifiers'],v['fkey_name']) for k,v in alt_relations.items()])
         reltblobj = None
@@ -473,7 +480,7 @@ class TableHandlerHierarchicalView(BaseComponent):
             alt_fkey_name = alt_relations_modifiers_dict[modifiers]
             tblobj.batchUpdate({alt_fkey_name:relationValue},_pkeys=pkeys)
 
-        elif modifiers == 'Shift' or not fkey_name:
+        elif (asAlias or not fkey_name):
             if reltblobj:
                 currRelatedRecords = reltblobj.query(where='$%s=:v AND $%s IS NOT NULL' %(rel_fkey_name,rkey_name),v=relationValue).fetchAsDict(rkey_name)
                 for pkey in pkeys:
