@@ -274,7 +274,7 @@ dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
             options.title = options.title || 'Untiled Graph';
         }
         if(data instanceof gnr.GnrBag){
-            sourceNode.labelKeys = savedAttrs.columns.split(',');
+            sourceNode.labelKeys = sourceNode.labelKeys || savedAttrs.columns.split(','); //during rebuilding
             data = this.getDataFromBag(sourceNode,data);
         }
         var that = this;
@@ -325,6 +325,11 @@ dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
         return result;
     },
 
+    mixin_gnr_columns:function(value,kw, trigger_reason){  
+        this.sourceNode.labelKeys = value.split(',');
+        this.sourceNode.rebuild();
+    },
+    
     mixin_gnr_data:function(value,kw, trigger_reason){  
         var data = this.sourceNode.getAttributeFromDatasource('data');      
         if(data instanceof gnr.GnrBag){
