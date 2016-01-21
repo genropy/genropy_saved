@@ -1613,6 +1613,11 @@ dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
         var handler = (p==parseInt(p))?'setSelected':'setSelectedPage';
         this[handler](p);
     },
+
+    mixin_setHiddenChild:function(){
+
+    },
+
     patch_selectChild:function(page){
         var sourceNode = this.sourceNode;
         if(sourceNode.attr.nodeId){
@@ -1702,6 +1707,9 @@ dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
                 return widget;
             };
         }
+        child.setHidden = function(value){
+            widget.setHiddenChild(this,value);
+        };
         gnr.setOrConnectCb(child, 'onShow', dojo.hitch(this, 'onShowHideChild', widget, child, true));
         gnr.setOrConnectCb(child, 'onHide', dojo.hitch(this, 'onShowHideChild', widget, child, false));
         var pageName = child.sourceNode.attr.pageName;
@@ -1742,6 +1750,11 @@ dojo.declare("gnr.widgets.TabContainer", gnr.widgets.StackContainer, {
         // dojo.connect(widget,'addChild',dojo.hitch(this,'onAddChild',widget));
     },
     ___onAddChild:function(widget, child) {
+    },
+
+
+    mixin_setHiddenChild:function(child,value){
+        genro.dom.toggleVisible(child.controlButton.domNode,!value)
     },
 
     versionpatch_11_layout: function() {

@@ -41,6 +41,15 @@ class GnrCustomWebPage(object):
                                         }
                                         """,tc=tc,tab2=tab2)
 
+    def test_5_tab_hidden(self, pane):
+        bc = pane.borderContainer(height='400px')
+        top = bc.contentPane(region='top')
+        tc = bc.tabContainer(region='center',nodeId='mytc')
+        tc.contentPane(title='tab1',hidden='^.hidden_tab1').div('Hello tab 1')
+        tc.contentPane(title='tab2',hidden='^.hidden_tab2').div('Hello tab 2')
+        top.checkbox(value='^.hidden_tab1',label='Hidden tab 1')
+        top.checkbox(value='^.hidden_tab2',label='Hidden tab 2')
+
     def test_2_tabcontainer(self, pane):
         """tab number"""
         bc = pane.borderContainer(height='200px')
