@@ -650,8 +650,13 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         var mainGenro =genro.mainGenroWindow.genro;
         dojo.connect(newobj, 'onload', function(){
             var cw = this.contentWindow;
-            if(!cw.location.host){
-                return;
+            try{
+                if(!cw.location.host){
+                    return;
+                }
+            }catch(e){
+                console.warn('not loaded frame')
+                return
             }
             genro.dom.removeClass(this,'waiting');
             if(this.sourceNode.attr.documentClasses){
