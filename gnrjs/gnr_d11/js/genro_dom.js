@@ -294,6 +294,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
     disable:function(where) {
         this.addClass(where, 'disabled');
     },
+
     enable:function(where) {
         this.removeClass(where, 'disabled');
     },
@@ -380,11 +381,15 @@ dojo.declare("gnr.GnrDomHandler", null, {
         return wdg;
     },
 
-    enableDisableNodes:function(where) {
-        if (typeof (where) == 'string') {
-            var where = genro.domById(where);
+    setDomNodeDisabled:function(domNode,disabled) {
+        domNode.disabled = disabled;
+        if(disabled){
+            domNode.setAttribute('disabled',disabled);
+        }else{
+            domNode.removeAttribute('disabled');
         }
     },
+    
     resizeContainer:function(wdgt) {
         if (wdgt.parent && wdgt.parent.isContainer) {
             this.resizeContainer(wdgt.parent);

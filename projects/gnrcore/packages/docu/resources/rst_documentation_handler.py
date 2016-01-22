@@ -147,12 +147,13 @@ class RstDocumentationHandler(BaseComponent):
                         PUBLISH doTranslation = {to_language:to_language,docbody:docbody,doctitle:doctitle};""", 
                         to_language=lang,
             hidden='^.rst')
-        bar.lineWrapping.checkbox(value='^#FORM.lineWrapping',label='!!Line wrapping')
+        bar.lineWrapping.checkbox(value='^#FORM.lineWrapping',label='!!Line wrapping',parentForm=False)
         center = frame.center.borderContainer()
         cm = center.contentPane(region='center',overflow='hidden').codemirror(value='^.rst',
                                 config_lineNumbers=True,height='100%',
                                 config_mode='rst',config_keyMap='softTab',
                                 lineWrapping='^#FORM.lineWrapping',
+                                parentForm=True,
                                 config_addon='search')
         menu = bar.quoteMenu.dropDownButton('!!Quote').menu()
         menu.menuLine('[tr-off]text[tr-on]',action='this.getAttributeFromDatasource("cm").externalWidget.gnr_quoteSelection("[tr-off]","[tr-on]");',cm=cm)
