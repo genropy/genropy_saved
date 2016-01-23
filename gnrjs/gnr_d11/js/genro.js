@@ -112,6 +112,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.sounds = {};
         this._serverstore_paths = {};
         this._serverstore_changes = null;
+        this._sharedObjects_paths = {};
         this.pendingCallAfter = {};
         var plugins = objectExtract(window, 'genro_plugin_*');
         objectUpdate(genro, plugins);

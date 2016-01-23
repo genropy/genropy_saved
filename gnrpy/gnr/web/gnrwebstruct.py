@@ -585,12 +585,15 @@ class GnrDomSrc(GnrStructData):
         if isinstance(value, Bag):
             className = 'bag'
         serverpath = kwargs.pop('serverpath',None) or kwargs.pop('_serverpath',None)
-       #dbenv = kwargs.get('dbenv')
-       #if dbenv and not serverpath:
-       #    serverpath = 'dbenv.%s' %path.split('.')[-1]
+
         if serverpath:
             self.page.addToContext(serverpath=serverpath,value=value,attr=kwargs)
             kwargs['serverpath'] = serverpath
+        #shared_id = kwargs.pop('shared_id',None)
+        #if shared_id:
+        #    shared_expire = kwargs.pop('shared_expire',0)
+        #    self.page.asyncServer.subscribeToSharedObject(shared_id=shared_id,page=page,expire=shared_expire)
+#
         return self.child('data', __cls=className,childcontent=value,_returnStruct=False, path=path, **kwargs)
         
     def script(self, content='', **kwargs):
@@ -868,7 +871,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     #gnrNS=['menu','menuBar','menuItem','Tree','Select','DbSelect','Combobox','Data',
     #'Css','Script','Func','BagFilteringTable','DbTableFilter','TreeCheck']
     gnrNS = ['DbSelect','CallBackSelect','RemoteSelect', 'DbComboBox', 'DbView', 'DbForm', 'DbQuery', 'DbField',
-             'dataFormula', 'dataScript', 'dataRpc','dataWs', 'dataController', 'dataRemote',
+             'dataFormula', 'dataScript', 'dataRpc', 'dataController', 'dataRemote',
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
              'tinyMCE', 'protovis','codemirror','dygraph','MultiButton','PaletteGroup','DocumentFrame','DownloadButton','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','PaletteImporter','DropUploader','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
@@ -921,20 +924,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """
         return self.child('dataRpc', path=path, method=method, **kwargs)
         
-    def dataWs(self, path, method, **kwargs):
-        """Create a :ref:`dataws` and returns it. dataWs allows the client to make a call
-        to the server to perform an action and returns it.
-        
-        :param path: MANDATORY - it contains the folder path of the result of the ``dataWs`` action;
-                     you have to write it even if you don't return any value in the ``dataWs``
-                     (in this situation it will become a "mandatory but dummy" parameter)
-        :param method: the name of your ``dataWs`` method
-        :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
-                           check the :ref:`rpc_attributes` section
-        """
-        return self.child('dataWs', path=path, method=method, **kwargs)
-        
-
     def selectionstore_addcallback(self, *args, **kwargs):
         """TODO"""
         self.datarpc_addcallback(*args,**kwargs)

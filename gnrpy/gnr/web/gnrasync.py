@@ -20,6 +20,7 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 import time
+import datetime
 import os
 import base64
 from concurrent.futures import ThreadPoolExecutor,Future, Executor
@@ -83,6 +84,10 @@ class GnrBaseHandler(object):
     @property
     def pages(self):
         return self.application.server.pages
+
+    @property
+    def sharedObjects(self):
+        return self.application.server.sharedObjects
 
     @property
     def page(self):
@@ -257,7 +262,11 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
     def on_close(self):
         #print "WebSocket on_close",self.page_id
         self.channels.pop(self.page_id,None)
-        self.pages.pop(self.page_id,None)
+        page = self.pages.pop(self.page_id,None)
+        if page.sharedObjects:
+            for k in page.sharedObjects:
+                self.server.unsubscribeSharedObject(shared_id=k,page_id=self.page_id)
+
         
     def check_origin(self, origin):
         return True
@@ -282,11 +291,15 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
             #print 'creating page',self.page_id
             page = self.gnrsite.resource_loader.get_page_by_id(page_id)
             page.asyncServer = self.server
+            page.sharedObjects = set()
             #print 'setting in pages',self.page_id
             self.pages[page_id] = page
         else:
             pass
             #print 'already in pages',self.page_id
+
+    def do_subscribe_sharedobject(self,shared_id=None,expire=None,**kwargs):
+        self.server.subscribeToSharedObject(shared_id=shared_id,page_id=self._page_id,expire=expire)
 
     def do_pdb_command(self, cmd=None, pdb_id=None,**kwargs):
         #self.debugger.put_data(data)
@@ -343,6 +356,22 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
         return command,result
        
 
+class AsyncSharedObject(object):
+    def __init__(self,expire=None):
+        self.data = Bag()
+        self.subscribed_pages = dict()
+        self.expire = expire or 0
+
+    def subscribe(self,page_id=None):
+        if page_id not in self.subscribed_pages:
+            self.subscribed_pages[page_id] = True
+
+    def unsubscribe(self,page_id=None):
+        self.subscribed_pages.pop(page_id,None)
+
+
+
+
 class GnrBaseAsyncServer(object):
     def __init__(self,port=None,instance=None):
         self.port=port
@@ -350,12 +379,15 @@ class GnrBaseAsyncServer(object):
         self.executors=dict()
         self.channels=dict()
         self.pages=dict()
+        self.sharedObjects = dict()
+        self.unusedSharedObjects = dict()
         self.debug_queues=dict()
         self.instance_name = instance
         self.gnrsite=GnrWsgiSite(instance)
         self.gnrsite.ws_site = self
         self.gnrapp = self.gnrsite.gnrapp
         self.wsk = AsyncWebSocketHandler(self)
+
 
     def addHandler(self,path,factory):
         self.handlers.append((path,factory))
@@ -382,6 +414,28 @@ class GnrBaseAsyncServer(object):
         debug_server.application = self.tornadoApp
         io_loop.start()
        
+    def subscribeToSharedObject(self,shared_id=None,page_id=None,expire=None):
+        if not shared_id in self.sharedObjects:
+            self.sharedObjects[shared_id] = AsyncSharedObject(expire=expire)
+        self.unusedSharedObjects.pop(shared_id,None)
+        self.sharedObjects[shared_id].subscribe(page_id)
+        self.pages[page_id].sharedObjects.add(shared_id)
+
+    def unsubscribeSharedObject(self,shared_id=None,page_id=None):
+        sharedObject = self.sharedObjects.get(shared_id)
+        if not sharedObject:
+            return
+        sharedObject.unsubscribe(page_id)
+        if not sharedObject.subscribed_pages:
+            if sharedObject.expire==0:
+                sharedObject = self.sharedObjects.pop(shared_id)
+            else:
+                expire = sharedObject.expire
+                if expire<0:
+                    expire = 365*24*60*60
+                self.unusedSharedObjects[shared_id] = datetime.timedelta(seconds=expire)+datetime.datetime.now()
+
+
 
 class GnrAsyncServer(GnrBaseAsyncServer):
     def __init__(self,*args, **kwargs):

@@ -42,7 +42,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         this.afterBuildCalls = [];
         this.building = false;
         this.datatags = {'data':null,'dataformula':null,'datascript':null,
-            'datarpc':null,'dataremote':null,'datacontroller':null, 'dataws':null};
+            'datarpc':null,'dataremote':null,'datacontroller':null};
         this.layouttags = {'contentpane':null,'bordercontainer':null,'stackcontainer':null,
             'tabcontainer':null,'accordioncontainer':null,'newincludedview':null,'framepane':null};
         this.highlightedNode = null;
@@ -500,6 +500,12 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             var serverpath = objectPop(attributes, 'serverpath');
             if (serverpath) {
                 genro._serverstore_paths[node.absDatapath(path)] = serverpath;
+            }
+            var shared_kw = objectExtract(attributes,'shared_*');
+            if(shared_kw.id){
+                console.log('shared_kw.id',shared_kw.id,genro.wsk)
+                genro._sharedObjects_paths[node.absDatapath(path)] = shared_kw.id;
+                genro.wsk.send('subscribe_sharedobject',{shared_id:shared_kw.id,expire:shared_kw.expiry});
             }
             if(!genro.getDataNode(path)||(value!==null)){
                 genro.setData(path, value, attributes);
