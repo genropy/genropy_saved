@@ -8,7 +8,12 @@ class GnrCustomWebPage(object):
 
     def main(self,root,**kwargs):
         bc = root.borderContainer(datapath='main')
-        bc.data('.shared',None,shared_id='pippo',shared_expire=-1)
-        bc.contentPane(region='top',height='100px',background='red')
+        bc.data('.shared',None,shared_id='collaborative_test',shared_expire=-1)
+        top = bc.contentPane(region='top')
+        fb = top.div(padding='10px').formbuilder(cols=2,border_spacing='3px',datapath='.shared.info')
+        fb.textbox(value='^.alfa',lbl='Alfa')
+        fb.textbox(value='^.beta',lbl='Beta')
+        fb.textbox(value='^.gamma',lbl='Gamma')
+        fb.textbox(value='^.delta',lbl='Delta')
         bc.contentPane(region='center')
 

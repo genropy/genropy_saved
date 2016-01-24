@@ -294,7 +294,10 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     _registerUserEvents:function(){
-        var cb = function(){
+        var cb = function(evt){
+           // if(genro.wsk){
+           //     genro.wsk.notifyEvent(evt);
+           // }
             genro._lastUserEventTs = new Date();
             genro._lastGlobalUserEventTs = new Date();
             if(genro.root_page_id){

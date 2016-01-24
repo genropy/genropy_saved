@@ -77,6 +77,11 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     ping:function(){
         this.socket.send('PING')
     },
+    notifyEvent:function(evt){
+        var kw = {type:evt.type,x:evt.x,y:evt.y,modifiers:genro.dom.getEventModifiers(evt),
+                    keyCode:evt.keyCode,keyChar:evt.keyChar,keyIdenifier:evt.keyIdenifier};
+        this.socket.send('user_event',kw);
+    },
     onmessage:function(e){
         var data=e.data;
         if (data=='PONG'){

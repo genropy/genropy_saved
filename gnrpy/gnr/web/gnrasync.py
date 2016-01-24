@@ -262,10 +262,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
     def on_close(self):
         #print "WebSocket on_close",self.page_id
         self.channels.pop(self.page_id,None)
-        page = self.pages.pop(self.page_id,None)
-        if page.sharedObjects:
-            for k in page.sharedObjects:
-                self.server.unsubscribeSharedObject(shared_id=k,page_id=self.page_id)
+        self.unregisterPage(page_id=self.page_id)
 
         
     def check_origin(self, origin):
@@ -273,6 +270,9 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
 
     def do_echo(self,data=None,**kwargs):
         return data
+
+    def do_user_event(self,**kwargs):
+        pass
         
     def do_route(self,target_page_id=None,envelope=None,**kwargs):
         websocket=self.channels.get(target_page_id)
@@ -289,11 +289,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
              #print 'already in channels',self.page_id
         if not page_id in self.pages:
             #print 'creating page',self.page_id
-            page = self.gnrsite.resource_loader.get_page_by_id(page_id)
-            page.asyncServer = self.server
-            page.sharedObjects = set()
-            #print 'setting in pages',self.page_id
-            self.pages[page_id] = page
+            self.registerPage(page_id)
         else:
             pass
             #print 'already in pages',self.page_id
@@ -332,7 +328,40 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
             envelope.setItem('error',error)          
         result=Bag(dict(token=result_token,envelope=envelope))
         return result.toXml(unresolved=True)
+
+    def registerPage(self,page_id):
+        page = self.gnrsite.resource_loader.get_page_by_id(page_id)
+        page.asyncServer = self.server
+        page.sharedObjects = set()
+        #print 'setting in pages',self.page_id
+        self.server.pages[page_id] = page
+        page_item = page.page_item
+        if not page.user in self.server.users:
+            self.server.users[page.user] = dict(start_ts=page_item['start_ts'],connections=dict())
+        userdict = self.server.users[page.user]
+        connection_id = page.connection_id
+        if not connection_id in userdict['connections']:
+            userdict['connections'][connection_id] = dict(start_ts=page_item['start_ts'],
+                                                              user_ip=page_item['user_ip'],
+                                                              user_agent=page_item['user_agent'],
+                                                              pages=dict())
+        userdict['connections'][connection_id]['pages'][page_id] = page
         
+    def unregisterPage(self,page_id):
+        page = self.server.pages.pop(self.page_id,None)
+        if page.sharedObjects:
+            for k in page.sharedObjects:
+                self.server.unsubscribeSharedObject(shared_id=k,page_id=self.page_id)
+        userdict = self.server.users[page.user]
+        connection_id = page.connection_id
+        userconnections = userdict['connections']
+        connection_pages = userconnections[connection_id]['pages']
+        connection_pages.pop(page_id)
+        if not connection_pages:
+            userconnections.pop(connection_id)
+            if not userconnections:
+                self.server.users.pop(page.user)
+
     def wrongCommand(self,command=None,**kwargs):
         return 'WRONG COMMAND: %s' % command
         
@@ -377,8 +406,9 @@ class GnrBaseAsyncServer(object):
         self.port=port
         self.handlers=[]
         self.executors=dict()
-        self.channels=dict()
-        self.pages=dict()
+        self.channels = dict()
+        self.pages = dict()
+        self.users = dict()
         self.sharedObjects = dict()
         self.unusedSharedObjects = dict()
         self.debug_queues=dict()
