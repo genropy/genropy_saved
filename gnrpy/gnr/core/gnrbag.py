@@ -732,7 +732,7 @@ class Bag(GnrObject):
                 newnode = BagNode(curr, label=label, value=curr.__class__())
                 curr._nodes.append(newnode)
                 if self.backref:
-                    self._onNodeInserted(newnode, i,_reason='autocreate')
+                    self._onNodeInserted(newnode, i,reason='autocreate')
             elif returnLastMatch:
                 return self.parentNode, '.'.join([label] + pathlist)
             else:
