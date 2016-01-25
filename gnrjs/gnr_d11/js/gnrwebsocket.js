@@ -33,6 +33,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         this.options=objectUpdate({ debug: false, reconnectInterval: 4000, ping_time:3000 },
                                   options)
         this.waitingCalls={}
+        this.pendingCommands=[]
         
     },
     create:function(){
@@ -63,6 +64,10 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         console.log('connetting websocket')
         that=this
         this.send('connected',{'page_id':genro.page_id})
+        while(this.pendingCalls.length>0){
+            var pc=this.pendingCalls.pop()
+            this.send(pc)
+        }
         this._interval=setInterval(function(){
                                      genro.wsk.ping()
                                    },this.options.ping_time)
@@ -558,6 +563,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
                 return ws.send(data);
             } else {
                 console.log ('Error sending :',data);
+                this.pendingCalls.push(data)
                 throw 'INVALID_STATE_ERR : Pausing to reconnect websocket'
             }
         };
