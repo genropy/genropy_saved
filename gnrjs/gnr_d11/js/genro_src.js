@@ -503,7 +503,11 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             }
             var shared_kw = objectExtract(attributes,'shared_*');
             if(shared_kw.id){
-                genro.wsk.registerSharedObject(node.absDatapath(path),shared_kw);
+                node.watch(function(){
+                    return genro.wsk.socket;
+                },function(){
+                    genro.wsk.registerSharedObject(node.absDatapath(path),shared_kw)
+                });
             }
             if(!genro.getDataNode(path)||(value!==null)){
                 genro.setData(path, value, attributes);
