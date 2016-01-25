@@ -72,16 +72,7 @@ class GnrCustomWebPage(object):
         return b
 
     def getSharedObjects(self):
-        sharedObjects= self.asyncServer.sharedObjects
-        pages = self.asyncServer.pages
-        b=Bag()
-        for shared_id,so in sharedObjects.items():
-            subscribers = []
-            for page_id in so.subscribed_pages.keys():
-                subscribers.append('%s[%s]' %(pages[page_id].user,page_id))
-            b.setItem(shared_id,None,subscribed_pages='<br/>'.join(subscribers))
-        return b
-
+        return self.asyncServer.som.getUserBag()
 
     def getUsers(self):
         result = Bag()

@@ -503,9 +503,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             }
             var shared_kw = objectExtract(attributes,'shared_*');
             if(shared_kw.id){
-                console.log('shared_kw.id',shared_kw.id,genro.wsk)
-                genro._sharedObjects_paths[node.absDatapath(path)] = shared_kw.id;
-                genro.wsk.send('subscribe_sharedobject',{shared_id:shared_kw.id,expire:shared_kw.expiry});
+                genro.wsk.registerSharedObject(node.absDatapath(path),shared_kw);
             }
             if(!genro.getDataNode(path)||(value!==null)){
                 genro.setData(path, value, attributes);

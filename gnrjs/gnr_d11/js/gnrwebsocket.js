@@ -149,6 +149,36 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     do_datachanges:function(datachanges){
         genro.rpc.setDatachangesInData(datachanges)
     },
+
+    do_sharedObjectChange:function(data){
+        var shared_id = data.getItem('shared_id');
+        var path = data.getItem('path');
+        var value = data.getItem('value');
+        var attr = data.getItem('attr');
+        var evt = data.getItem('evt');
+        var from_page_id = data.getItem('from_page_id');
+        var so = genro._sharedObjects[shared_id];
+        if(!so){
+            return;
+        }
+        so.path.forEach(function(sopath){
+            var fullpath = path? sopath+ '.' +path:sopath;
+            if(evt=='del'){
+                genro._data.popNode(fullpath,'serverChange')
+            }else{
+                genro._data.setItem(fullpath, value, attr, objectUpdate({'doTrigger':'serverChange',lazySet:true}));
+            }
+        })
+        if(evt=='init'){
+            so.ready = true;
+            so.path.forEach(function(sopath){
+                var fullpath = path? sopath+ '.' +path:sopath;
+                genro._sharedObjects_paths[fullpath] = shared_id;
+            });
+            genro.publish('shared_'+shared_id,{ready:true});
+        }
+    },
+
     do_publish:function(data){
         var topic=data.getItem('topic')
         var nodeId = data.pop('nodeId');
@@ -208,6 +238,17 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     },
     publishToClient:function(page_id,topic,data){
         this.sendCommandToPage(page_id,'publish',new gnr.GnrBag({'data':data,'topic':topic}))
+    },
+
+    registerSharedObject:function(abspath,kw){
+        var shared_id = kw.id;
+        if(!(shared_id in genro._sharedObjects)){
+            genro._sharedObjects[shared_id] = {shared_id:shared_id,path:[abspath],ready:false};
+            genro.wsk.send('som_command',{cmd:'subscribe',shared_id:shared_id,expire:kw.expire});
+        }else{
+            genro._sharedObjects[shared_id].path.push(abspath);
+        }
+        //genro._sharedObjects_paths[abspath] = shared_id;
     }
 
 });

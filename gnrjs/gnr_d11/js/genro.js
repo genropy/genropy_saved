@@ -113,6 +113,7 @@ dojo.declare('gnr.GenroClient', null, {
         this._serverstore_paths = {};
         this._serverstore_changes = null;
         this._sharedObjects_paths = {};
+        this._sharedObjects = {};
         this.pendingCallAfter = {};
         var plugins = objectExtract(window, 'genro_plugin_*');
         objectUpdate(genro, plugins);
@@ -1242,8 +1243,9 @@ dojo.declare('gnr.GenroClient', null, {
     },
     
     dataTrigger:function(kw) {
+        var dpath = kw.pathlist.slice(1).join('.');
+
         if (kw.evt == 'upd' && kw.reason != 'serverChange') {
-            var dpath = kw.pathlist.slice(1).join('.');
             for (var registered_path in genro._serverstore_paths){
                 if(dpath.indexOf(registered_path)==0){
                     var inner=dpath.slice(registered_path.length);
@@ -1252,6 +1254,21 @@ dojo.declare('gnr.GenroClient', null, {
                         genro._serverstore_changes[genro._serverstore_paths[registered_path]+inner] = asTypedTxt(kw.value);
                         break;
                     }
+                }
+            }
+        }
+
+        //new
+        if (kw.reason != 'serverChange') {
+            for (var shared_path in genro._sharedObjects_paths){
+                var shared_id = genro._sharedObjects_paths[shared_path];
+                if(dpath.indexOf(shared_path)==0){
+                    var inner=dpath.slice(shared_path.length+1);
+                    var commandict = {cmd:'datachange',shared_id:shared_id,path:inner,
+                                      value:kw.node._value,attr:kw.node.attr,evt:kw.evt}
+                    console.log('send sharedobject',commandict)
+                    genro.wsk.send('som_command',commandict);
+                    break;
                 }
             }
         }
