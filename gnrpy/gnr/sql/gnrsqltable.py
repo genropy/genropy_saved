@@ -1138,7 +1138,7 @@ class SqlTable(GnrObject):
                 mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')
                 opkg, otbl, ofld = rel.attr['one_relation'].split('.')
                 relatedTable = self.db.table(mtbl, pkg=mpkg)
-                sel = relatedTable.query(columns='*', where='%s = :pid' % mfld,
+                sel = relatedTable.query(columns='*', where='$%s = :pid' % mfld,
                                          pid=record[ofld], for_update=True,excludeDraft=False).fetch()
                 if sel:
                     if onDelete in ('r', 'raise'):
