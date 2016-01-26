@@ -3209,7 +3209,7 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
         var places = objectPop(attributes,'places');
         attributes.constraints = objectExtract(attributes, 'min,max,pattern,round,currency,fractional,symbol,strict,locale');
         attributes.constraints.pattern = attributes.constraints.pattern || format;
-        if(attributes.constraints.pattern && attributes.constraints.pattern.indexOf('.')){
+        if(!places && attributes.constraints.pattern && attributes.constraints.pattern.indexOf('.')){
             places = '0,'+attributes.constraints.pattern.split('.')[1].length;
         }
         sourceNode._parseDict = places?{places:places}:{};
@@ -4959,8 +4959,21 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                     }
                 } else if (kw.evt == 'del') {
                     if (parent_lv == 1) {
+                        var currSelectedIdx = this.selection.selectedIndex;
+                        this.selection.unselectAll()
+                        var lastSelectable = this.storebag().len()-1;
+                        if(currSelectedIdx>lastSelectable){
+                            currSelectedIdx = lastSelectable;
+                        }
                         this.filterToRebuild(true);
                         this.updateRowCount();
+                        var that = this;
+                        if(lastSelectable>=0){
+                            setTimeout(function(){
+                                that.setSelectedIndex(lastSelectable);
+                            },1);
+                        }
+                        
                         //this.setSelectedIndex(kw.ind); contrario al meccanismo dei dbevent
                     } else {
                         //if (parent_lv<1){

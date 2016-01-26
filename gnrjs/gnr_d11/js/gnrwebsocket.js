@@ -156,6 +156,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         var value = data.getItem('value');
         var attr = data.getItem('attr');
         var evt = data.getItem('evt');
+
         var from_page_id = data.getItem('from_page_id');
         var so = genro._sharedObjects[shared_id];
         if(!so){
@@ -170,12 +171,14 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
             }
         })
         if(evt=='init'){
+            var privilege = data.getItem('privilege');
             so.ready = true;
+            so.privilege = privilege;
             so.path.forEach(function(sopath){
                 var fullpath = path? sopath+ '.' +path:sopath;
                 genro._sharedObjects_paths[fullpath] = shared_id;
             });
-            genro.publish('shared_'+shared_id,{ready:true});
+            genro.publish('shared_'+shared_id,{ready:true,privilege:privilege});
         }
     },
 

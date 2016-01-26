@@ -1263,11 +1263,17 @@ dojo.declare('gnr.GenroClient', null, {
             for (var shared_path in genro._sharedObjects_paths){
                 var shared_id = genro._sharedObjects_paths[shared_path];
                 if(dpath.indexOf(shared_path)==0){
-                    var inner=dpath.slice(shared_path.length+1);
-                    var commandict = {cmd:'datachange',shared_id:shared_id,path:inner,
+                    var so = genro._sharedObjects[shared_id];
+                    if(so.privilege!='readwrite'){
+                        console.error('you are not allowed to write the shared data:',shared_id,'privilege:',so.privilege)
+                    }else{
+                        var inner=dpath.slice(shared_path.length+1);
+                        var commandict = {cmd:'datachange',shared_id:shared_id,path:inner,
                                       value:kw.node._value,attr:kw.node.attr,evt:kw.evt}
-                    console.log('send sharedobject',commandict)
-                    genro.wsk.send('som_command',commandict);
+                        console.log('send sharedobject',commandict)
+                        genro.wsk.send('som_command',commandict);
+                    }
+                    
                     break;
                 }
             }
