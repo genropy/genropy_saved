@@ -21,7 +21,7 @@ class GnrCustomWebPage(object):
         bc.dataController("""SET .currentPages = selectedUser&&selectedConnection?'main.data.users.'+selectedUser+'.connections.'+selectedConnection+'.pages':'emptyPages';
         """,selectedUser='=.selectedUser',selectedConnection='^.selectedConnection')
 
-        center.bagGrid(title='Users',region='left',width='30%',pbl_classes=True,addrow=False,delrow=False,
+        center.bagGrid(title='Users',region='left',width='20%',pbl_classes=True,addrow=False,delrow=False,
                             datapath='.usersgrid',
                             storepath='main.data.users',
                             grid_selectedLabel='main.selectedUser',
@@ -35,7 +35,7 @@ class GnrCustomWebPage(object):
                                         grid_selectedLabel='main.selectedConnection',
                                         struct=self.connectionStruct,margin='2px')
 
-        center.bagGrid(title='Pages',region='right',width='20%',pbl_classes=True,addrow=False,delrow=False,
+        center.bagGrid(title='Pages',region='right',width='50%',pbl_classes=True,addrow=False,delrow=False,
                                 datapath='.pagessgrid',
                                 storepath='^main.currentPages',
                                 struct=self.pagesStruct,margin='2px')
@@ -54,6 +54,13 @@ class GnrCustomWebPage(object):
     def pagesStruct(self,struct):
         r = struct.view().rows()
         r.cell('pagename',width='15em',name='Page')
+        r.cell('evt_type',width='5em',name='Evt type')
+        r.cell('evt_x',width='5em',name='Evt x')
+        r.cell('evt_y',width='5em',name='Evt y')
+        r.cell('evt_modifiers',width='8em',name='Evt Mod.')
+        r.cell('evt_keyCode',width='8em',name='Evt keyCode.')
+        r.cell('evt_keyIdentifier',width='8em',name='Evt keyId.')
+        r.cell('evt_keyChar',width='8em',name='Evt keyChar')
 
 
    #@websocket_method

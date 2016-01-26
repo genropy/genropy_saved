@@ -296,9 +296,10 @@ dojo.declare('gnr.GenroClient', null, {
 
     _registerUserEvents:function(){
         var cb = function(evt){
-           // if(genro.wsk){
-           //     genro.wsk.notifyEvent(evt);
-           // }
+            if(genro.sendAllEvents && genro.wsk){
+                genro.wsk.send('user_event',{'type':evt.type,'modifiers':genro.dom.getEventModifiers(evt),'x':evt.x,'y':evt.y,
+                                            'keyCode':evt.keyCode,'keyChar':evt.keyChar,'keyIdentifier':evt.keyIdentifier});
+            }
             genro._lastUserEventTs = new Date();
             genro._lastGlobalUserEventTs = new Date();
             if(genro.root_page_id){

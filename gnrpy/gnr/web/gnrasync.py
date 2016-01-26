@@ -267,8 +267,11 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
     def do_echo(self,data=None,**kwargs):
         return data
 
-    def do_user_event(self,**kwargs):
-        pass
+    def do_user_event(self,_time_start=None,**kwargs):
+        page = self.server.pages[self._page_id]
+        pagedata = self.server.globalStatusData('users')[page.user]['connections'][page.connection_id]['pages'][self._page_id]
+        for k,v in kwargs.items():
+            pagedata['evt_%s' %k] = v
         
     def do_route(self,target_page_id=None,envelope=None,**kwargs):
         websocket=self.channels.get(target_page_id)
