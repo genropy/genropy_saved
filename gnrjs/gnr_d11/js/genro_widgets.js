@@ -3206,8 +3206,14 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
     creating: function(attributes, sourceNode) {
         attributes._class = attributes._class ? attributes._class + ' numberTextBox' : 'numberTextBox';
         var format = objectPop(attributes,'format');
-        attributes.constraints = objectExtract(attributes, 'min,max,places,pattern,round,currency,fractional,symbol,strict,locale');
+        var places = objectPop(attributes,'places');
+        attributes.constraints = objectExtract(attributes, 'min,max,pattern,round,currency,fractional,symbol,strict,locale');
         attributes.constraints.pattern = attributes.constraints.pattern || format;
+        if(attributes.constraints.pattern && attributes.constraints.pattern.indexOf('.')){
+            places = '0,'+attributes.constraints.pattern.split('.')[1].length;
+        }
+        sourceNode._parseDict = places?{places:places}:{};
+        console.log('sourceNode._parseDict',sourceNode._parseDict)
         //attributes.editOptions = objectUpdate({})
         if ('ftype' in attributes) {
             attributes.constraints['type'] = objectPop(attributes['ftype']);
@@ -3227,10 +3233,13 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
         }
     },
     patch_getValue: function(){
-        return this.parse(this.getDisplayedValue(), {});
+        return this.parse(this.getDisplayedValue(), this.sourceNode._parseDict);
     },
     patch_isValid: function(/*Boolean*/ isFocused){
-        return this.validator(this.textbox.value, {});
+        if(isFocused){
+            return true;
+        }
+        return this.validator(this.textbox.value, this.sourceNode._parseDict);
     },
 
 
