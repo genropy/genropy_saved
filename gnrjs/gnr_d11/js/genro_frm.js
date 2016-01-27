@@ -2658,7 +2658,7 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
                 }else{
                     newPkey = 'r_'+genro.getCounter();
                 }
-                data.setItem(pkeyField,newPkey);
+                data.setItem(pkeyField || '_pkey',newPkey);
             }
             sourceBag.setItem(newPkey,data);
         }else{
