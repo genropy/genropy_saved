@@ -412,7 +412,6 @@ class AsyncSharedObject(object):
         self.subscribed_pages.pop(page_id,None)
 
     def datachange(self,page_id=None,path=None,value=None,attr=None,evt=None,**kwargs):
-        print 'datachange',page_id,path,value
         path = 'root' if not path else 'root.%s' %path
         if evt=='del':
             self._data.popNode(path,_reason=page_id)

@@ -2680,7 +2680,7 @@ dojo.declare("gnr.widgets._ButtonLogic",null, {
                 if(sourceNode.disabled=='*pendingclick*'){
                     sourceNode.setDisabled(false);
                 }
-            },500);
+            },200);
             return this._clickHandlerDo(sourceNode,e,inattr);
         }
         if(sourceNode._pendingClick){
