@@ -2646,7 +2646,7 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
         var sourceBag = form.sourceNode.getRelativeData(this.locationpath);
         var formData = form.getFormData();
         var currPkey = form.getCurrentPkey();
-        var pkeyField = this.pkeyField;
+        var pkeyField = this.pkeyField || '_pkey';
         var newPkey = pkeyField?formData.getItem(pkeyField):null;
         var data;
         var newrecord = currPkey=='*newrecord*';
@@ -2658,7 +2658,7 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
                 }else{
                     newPkey = 'r_'+(sourceBag?sourceBag.len():0);
                 }
-                data.setItem(pkeyField || '_pkey',newPkey);
+                data.setItem(pkeyField,newPkey);
             }
             sourceBag.setItem(newPkey,data);
         }else{
