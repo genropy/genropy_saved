@@ -91,17 +91,21 @@ class ResourceLoader(object):
         return page
 
     def get_page_by_id(self, page_id):
-        from gnr.web.gnrsimplepage import GnrSimplePage
         page_item = self.site.register.page(page_id,include_data='lazy')
         if not page_item:
             return
         class_info = page_item['data']['class_info']
         init_info = page_item['data']['init_info']
         page_info = page_item['data']['page_info']
+        return self.instantiate_page(page_id=page_id,class_info=class_info, init_info=init_info, page_info=page_info)
+
+    def instantiate_page(self, page_id=None,class_info=None, init_info=None, page_info=None, mixin_set=None):
+        from gnr.web.gnrsimplepage import GnrSimplePage
+        
         class_info['page_factory'] = GnrSimplePage
         page_class = self.get_page_class(**class_info)
         page = page_class(site=self.site, page_id=page_id,page_info=page_info, **init_info)
-        page.replayComponentMixins()
+        page.replayComponentMixins(mixin_set=mixin_set)
         return page
 
 

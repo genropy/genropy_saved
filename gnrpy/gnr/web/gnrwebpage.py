@@ -204,14 +204,12 @@ class GnrWebPage(GnrBaseWebPage):
         elif self._call_handler_type in ('pageCall', 'externalCall'):
             raise self.site.client_exception('The request must reference a page_id', self._environ)
         else:
-            self.page_item = self._register_new_page(kwargs=request_kwargs)
-            self._workdate = self.page_item['data']['rootenv.workdate'] #or datetime.date.today()
-            self._language = self.page_item['data']['rootenv.language']
-            if class_info:
-                self.page_item['data']['class_info'] = class_info
-                self.page_item['data']['init_info'] = dict(request_kwargs=request_kwargs, request_args=request_args,
+            init_info = dict(request_kwargs=request_kwargs, request_args=request_args,
                           filepath=filepath, packageId=packageId, pluginId=pluginId,  basename=basename)
-                self.page_item['data']['page_info'] = dict([(k,getattr(self,k)) for k in ATTRIBUTES_SIMPLEWEBPAGE])
+            self.page_item = self._register_new_page(kwargs=request_kwargs,class_info=class_info,init_info=init_info)
+
+
+
         self.isMobile = (self.connection.user_device.startswith('mobile')) or self.page_item['data']['pageArgs'].get('is_mobile')
         self.deviceScreenSize = self.connection.user_device.split(':')[1]
         self._inited = True
@@ -267,13 +265,20 @@ class GnrWebPage(GnrBaseWebPage):
         self.parent_page_id = page_item['data'].getItem('parent_page_id')
         return page_item            
 
-    def _register_new_page(self,page_id=None,kwargs=None):
+    def _register_new_page(self,page_id=None,kwargs=None,class_info=None,init_info=None,page_info=None):
         if not self.connection.connection_id:
             self.connection.create()
         self.page_id = page_id or getUuid()
         data = Bag()   
         data['pageArgs'] = kwargs
-        return self.site.register.new_page(self.page_id, self, data=data)
+        page_item = self.site.register.new_page(self.page_id, self, data=data)
+        self._workdate = page_item['data']['rootenv.workdate'] #or datetime.date.today()
+        self._language = page_item['data']['rootenv.language']
+        if self.wsk:
+            page_info = dict([(k,getattr(self,k)) for k in ATTRIBUTES_SIMPLEWEBPAGE])
+            registerNewPageData = Bag(dict(page_id=self.page_id,page_info=page_info,class_info=class_info,init_info=init_info,mixin_set=[]))
+            self.wsk.sendCommandToPage('','registerNewPage',registerNewPageData)
+        return page_item
 
     def get_call_handler(self, request_args, request_kwargs):
         """TODO
@@ -451,8 +456,9 @@ class GnrWebPage(GnrBaseWebPage):
         args = self._call_args
         kwargs = self._call_kwargs
         result = self._call_handler(*args, **kwargs) 
-        with self.pageStore() as store:
-            if hasattr(self,'mixin_set'):
+        
+        if hasattr(self,'mixin_set'):
+            with self.pageStore() as store:
                 store_mixin_set = store.get('mixin_set') or set()
                 store.setItem('mixin_set', store_mixin_set.union(self.mixin_set))
         self._onEnd()
@@ -1790,6 +1796,14 @@ class GnrWebPage(GnrBaseWebPage):
         elif _auth == AUTH_FORBIDDEN:
             root.clear()
             self.forbiddenPage(root, **kwargs)
+        #if self.wsk:
+        #    page_item_data = self.page_item['data']
+        #    page_info = page_item_data['page_info']
+        #    class_info = page_item_data['class_info']
+        #    init_info = page_item_data['init_info']
+        #    mixin_set = getattr(self,'mixin_set',[])
+        #    registerNewPageData = Bag(dict(page_id=self.page_id,page_info=page_info,class_info=class_info,init_info=init_info,mixin_set=mixin_set))
+        #    self.wsk.sendCommandToPage('','registerNewPage',registerNewPageData)
         return (page, pageattr)
    
     def loginDialog(self, root, **kwargs):

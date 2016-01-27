@@ -11,9 +11,9 @@ class GnrCustomWebPage(object):
         bc = root.borderContainer(datapath='maipane')
         top = bc.contentPane(region='top', height='200px')
         fb = top.formBuilder(cols=2)
-        fb.dbSelect(value='^.prov_rpc',dbtable='glbl.provincia',lbl='Provincia RPC')
-        fb.dbSelect(value='^.prov_wsk',
-                    dbtable='glbl.provincia',lbl='Provincia WSK',
+        fb.dbSelect(value='^.user_rpc',dbtable='adm.user',lbl='User RPC')
+        fb.dbSelect(value='^.user_wsk',
+                    dbtable='adm.user',lbl='User WSK',
                     httpMethod='WSK'
                    )
         #### WEBSOCKET

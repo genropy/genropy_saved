@@ -61,10 +61,8 @@ class AsyncWebSocketHandler(WebSocketHandler):
         self.server = server
 
     def sendCommandToPage(self,page_id,command,data):
-        print 'AsyncWebSocketHandler prova a spedire'
         envelope = Bag(dict(command=command,data=data))
         self.server.channels.get(page_id).write_message(envelope.toXml(unresolved=True))
-        print 'AsyncWebSocketHandler ha spedito'
 
 
 class WsgiWebSocketHandler(WebSocketHandler):
@@ -83,8 +81,9 @@ class WsgiWebSocketHandler(WebSocketHandler):
         headers = {'Content-type': 'application/x-www-form-urlencoded'}
         envelope=Bag(dict(command=command,data=data))
         body=urllib.urlencode(dict(page_id=page_id,envelope=envelope.toXml(unresolved=True)))
+        print 'sendCommandToPage',page_id,command
         self.socketConnection.request('POST',self.proxyurl,headers=headers, body=body)
-        
+
 
 def has_timeout(timeout): # python 2.6
     if hasattr(socket, '_GLOBAL_DEFAULT_TIMEOUT'):

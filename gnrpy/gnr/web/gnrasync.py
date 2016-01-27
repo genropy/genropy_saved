@@ -201,6 +201,13 @@ class GnrWsProxyHandler(tornado.web.RequestHandler,GnrBaseHandler):
     def post(self, *args, **kwargs):
         page_id = self.get_argument('page_id')
         envelope = self.get_argument('envelope')
+        if not page_id:
+            envelope = Bag(envelope)
+            command = envelope['command']
+            data = envelope['data']
+            print 'received commandToPage',command
+            self.server.externalCommand(command, data)
+            return
         if page_id == '*':
             page_ids = self.channels.keys()
         else:
@@ -279,6 +286,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
             websocket.write_message(envelope)
 
     def do_connected(self,page_id=None,**kwargs):
+        print 'do_connected',page_id
         self._page_id=page_id
         if not page_id in self.channels:
             #print 'setting in channels',self.page_id
@@ -287,8 +295,8 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
             pass
              #print 'already in channels',self.page_id
         if not page_id in self.pages:
-            #print 'creating page',self.page_id
-            self.registerPage(page_id)
+            print 'do_connected: missing page',page_id
+            #self.registerPage(page_id)
         else:
             pass
             #print 'already in pages',self.page_id
@@ -513,10 +521,47 @@ class GnrBaseAsyncServer(object):
         self.wsk = AsyncWebSocketHandler(self)
         self.som = SharedObjectsManager(self)
 
+    def externalCommand(self, command, data):
+        print 'receive externalCommand',command
+        handler = getattr(self, 'do_%s'%command)
+        handler(**data.asDict(ascii=True))
+
+
+    def do_registerNewPage(self, page_id=None, page_info=None, class_info=None, init_info=None, mixin_set=None):
+        print 'do_registerNewPage',page_id
+        page = self.gnrsite.resource_loader.instantiate_page(page_id=page_id,class_info=class_info, init_info=init_info, page_info=page_info)
+        page.asyncServer = self
+        page.sharedObjects = set()
+        #print 'setting in pages',self.page_id
+        self.pages[page_id] = page
+        self.registerGlobalStatus(page)
+
+    def registerGlobalStatus(self,page):
+        page_item = page.page_item
+        gs_users = self.globalStatusData('users')
+        page_id = page.page_id
+        if not page.user in gs_users:
+            gs_users[page.user] = Bag(dict(start_ts=page_item['start_ts'],user=page.user,connections=Bag()))
+        userbag = gs_users[page.user]
+        connection_id = page.connection_id
+        if not connection_id in userbag['connections']:
+            userbag['connections'][connection_id] = Bag(dict(start_ts=page_item['start_ts'],
+                                                        user_ip=page_item['user_ip'],
+                                                        user_agent=page_item['user_agent'],
+                                                        connection_id=connection_id,
+                                                        pages=Bag()))
+        userbag['connections'][connection_id]['pages'][page_id] = Bag(dict(pagename=page_item['pagename'],
+                                                                            relative_url=page_item['relative_url'],
+                                                                            start_ts=page_item['start_ts'],
+                                                                            page_id=page_id))
+
+
+
+
     @property
     def globalStatus(self):
         return self.som.getSharedObject('__global_status__',expire=-1,startData=dict(users=Bag()),
-                                                            read_tags='__DEV__,superadmin',
+                                                            read_tags='_DEV_,superadmin',
                                                             write_tags='__SYSTEM__')
 
     def globalStatusData(self,path=None):

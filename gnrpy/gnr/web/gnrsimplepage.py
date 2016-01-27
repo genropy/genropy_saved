@@ -52,6 +52,7 @@ class GnrSimplePage(GnrWebPage):
     
     def __init__(self, site=None, page_id=None, request_kwargs=None, request_args=None,
                  filepath=None, packageId=None, pluginId=None, basename=None,page_info=None):
+        print 'creating staticpage',basename
         self._inited = False
         self._start_time = time()
         self.workspace = dict()
@@ -94,6 +95,7 @@ class GnrSimplePage(GnrWebPage):
         self._inited = True
         self._shareds = dict()
         self._privates = defaultdict(dict)
+        print 'created staticpage',basename
 
     def sharedData(self,name,factory=dict):
         if not name in self._shareds:
@@ -115,10 +117,12 @@ class GnrSimplePage(GnrWebPage):
         return page_item   
 
 
-    def replayComponentMixins(self):
-        with self.pageStore() as store:
-            mixin_set = store.get('mixin_set') or []
-            for (path,kwargs_list) in mixin_set:
-                kwargs = dict(kwargs_list)
-                self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
+    def replayComponentMixins(self, mixin_set=None):
+        if mixin_set is None:
+            mixin_set = self.pageStore().get('mixin_set')
+        if not mixin_set:
+            return
+        for (path,kwargs_list) in mixin_set:
+            kwargs = dict(kwargs_list)
+            self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
 
