@@ -227,10 +227,11 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         if(lbl){
             var inherited_attr = sourceNode.getInheritedAttributes();
             var lbl_attr = objectExtract(inherited_attr,'lbl_*');
+            var wrp_attr = objectExtract(inherited_attr,'wrp_*')
             var attr = objectUpdate({},sourceNode.attr)
             var tag = objectPop(attr,'tag');
             var side = lbl_attr['side'] || 'top';
-            sourceNode.attr = {tag:'div',_class:'innerLblWrapper innerLbl_'+side};
+            sourceNode.attr = objectUpdate({tag:'div',_class:'innerLblWrapper innerLbl_'+side+ ' innerLblWrapper_widget_'+tag.toLowerCase()},wrp_attr);
             sourceNode._('div',objectUpdate({innerHTML:lbl,_class:'innerLbl'},lbl_attr),{'doTrigger':false});
             sourceNode._(tag,attr,{'doTrigger':false})
         }else{

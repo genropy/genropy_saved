@@ -5036,6 +5036,8 @@ div[disabled='true'], div[disabled='disabled']{
 .innerLblWrapper{
     display: inline-block;
 }
+.innerLblWrapper.innerLblWrapper_widget_simpletextarea{
+}
 
 
 .tundra .innerLbl_top.innerLblWrapper .dijitTextBox, 
