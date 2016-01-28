@@ -5005,3 +5005,59 @@ div[disabled='true'], div[disabled='disabled']{
     bottom: 0;
     line-height: 30px;
 }
+
+
+.innerLbl{
+    background: #B3B3B3;
+    color: white;
+    text-align: left;
+    margin-left: 1px;
+    margin-right: 1px;;
+    font-size: 0.9em;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    border:1px solid #B3B3B3;
+}
+
+.innerLbl_top .innerLbl{
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom:0;
+}
+
+.innerLbl_bottom .innerLbl{
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-top:0;
+}
+
+.innerLblWrapper{
+    display: inline-block;
+}
+
+
+.tundra .innerLbl_top.innerLblWrapper .dijitTextBox, 
+.tundra .innerLbl_top.innerLblWrapper .dijitComboBox, 
+.tundra .innerLbl_top.innerLblWrapper .dijitSpinner, 
+.tundra .innerLbl_top.innerLblWrapper .dijitInlineEditor input,
+.tundra .innerLbl_top.innerLblWrapper .dijitTextArea{
+    /*box-shadow: 0 2px 2px #DDDDDD inset;*/
+    border-top-left-radius:0;
+    border-top-right-radius:0;
+    border-top:0;
+}
+
+
+.tundra .innerLbl_bottom.innerLblWrapper .dijitTextBox, 
+.tundra .innerLbl_bottom.innerLblWrapper .dijitComboBox, 
+.tundra .innerLbl_bottom.innerLblWrapper .dijitSpinner, 
+.tundra .innerLbl_bottom.innerLblWrapper .dijitInlineEditor input,
+.tundra .innerLbl_bottom.innerLblWrapper .dijitTextArea{
+    /*box-shadow: 0 2px 2px #DDDDDD inset;*/
+    border-bottom-left-radius:0;
+    border-bottom-right-radius:0;
+    border-bottom:0;
+}
+

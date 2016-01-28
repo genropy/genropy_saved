@@ -218,6 +218,26 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         });
     },
 
+    onBuilding:function(sourceNode){
+        //OVERRIDE
+    },
+
+    _onBuilding:function(sourceNode){
+        var lbl = objectPop(sourceNode.attr,'lbl');
+        if(lbl){
+            var inherited_attr = sourceNode.getInheritedAttributes();
+            var lbl_attr = objectExtract(inherited_attr,'lbl_*');
+            var attr = objectUpdate({},sourceNode.attr)
+            var tag = objectPop(attr,'tag');
+            var side = lbl_attr['side'] || 'top';
+            sourceNode.attr = {tag:'div',_class:'innerLblWrapper innerLbl_'+side};
+            sourceNode._('div',objectUpdate({innerHTML:lbl,_class:'innerLbl'},lbl_attr),{'doTrigger':false});
+            sourceNode._(tag,attr,{'doTrigger':false})
+        }else{
+            this.onBuilding(sourceNode);
+        }
+    },
+
     _creating:function(attributes, sourceNode) {
         /*receives some attributes, calls creating, updates savedAttrs and returns them*/
         var extension = objectPop(attributes, 'extension');

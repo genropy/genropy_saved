@@ -782,8 +782,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             return;
         }
         var handler=genro.wdg.getHandler(this.attr.tag);
-        if(handler && handler.onBuilding){
-           handler.onBuilding(this);
+        if(handler && handler._onBuilding){
+            handler._onBuilding(this);
         }
         if(this.attr.parentForm===false){
             this.form = null;
