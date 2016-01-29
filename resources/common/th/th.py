@@ -730,7 +730,9 @@ class ThLinker(BaseComponent):
             linker.attributes.update(visible='^#FORM.record?_newrecord')
         linker.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',
                     connect_onBlur='this.getParentNode().publish("disable");',
-                    _class='th_linkerField',background='white',auxColumns=auxColumns,hiddenColumns=hiddenColumns,**kwargs)
+                    _class='th_linkerField',background='white',auxColumns=auxColumns,hiddenColumns=hiddenColumns,
+                    lbl=False,
+                    **kwargs)
         return linker
         
     @extract_kwargs(template=True)

@@ -1733,30 +1733,31 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             else:
                 size = 5
             defaultZoom = self.page.pageOptions.get('enableZoom', True)
-            result['lbl'] = lbl or fieldobj.table.dbtable.relationName('@%s' % fieldobj.name)
-            if kwargs.get('zoom', defaultZoom):
-                if hasattr(self.page,'_legacy'):
-                    if hasattr(lnktblobj.dbtable, 'zoomUrl'):
-                        zoomPage = lnktblobj.dbtable.zoomUrl()
+            if lbl is not False:
+                result['lbl'] = lbl or fieldobj.table.dbtable.relationName('@%s' % fieldobj.name)
+                if kwargs.get('zoom', defaultZoom):
+                    if hasattr(self.page,'_legacy'):
+                        if hasattr(lnktblobj.dbtable, 'zoomUrl'):
+                            zoomPage = lnktblobj.dbtable.zoomUrl()
+                        else:
+                            zoomPage = lnktblobj.fullname.replace('.', '/')
+                        result['lbl_href'] = "=='/%s?pkey='+pkey" % zoomPage
+                        result['lbl_pkey'] = '^.%s' %fld
                     else:
-                        zoomPage = lnktblobj.fullname.replace('.', '/')
-                    result['lbl_href'] = "=='/%s?pkey='+pkey" % zoomPage
-                    result['lbl_pkey'] = '^.%s' %fld
-                else:
-                    if hasattr(lnktblobj.dbtable, 'zoomUrl'):
-                        pass
-                    else:
-                        zoomKw = dictExtract(kwargs,'zoom_')
-                        forcedTitle = zoomKw.pop('title', None)
-                        zoomKw.setdefault('formOnly',False)
-                        result['lbl__zoomKw'] = zoomKw #,slice_prefix=False)
-                        result['lbl__zoomKw_table'] = lnktblobj.fullname
-                        result['lbl__zoomKw_lookup'] = isLookup
-                        result['lbl__zoomKw_title'] = forcedTitle or lnktblobj.name_plural or lnktblobj.name_long
-                        result['lbl__zoomKw_pkey'] = '=.%s' %fld
-                        result['lbl_connect_onclick'] = "genro.dlg.zoomPaletteFromSourceNode(this,$1);"  
-                result['lbl'] = '<span class="gnrzoomicon">&nbsp;&nbsp;&nbsp;&nbsp;</span><span>%s</span>' %self.page._(result['lbl'])
-                result['lbl_class'] = 'gnrzoomlabel'
+                        if hasattr(lnktblobj.dbtable, 'zoomUrl'):
+                            pass
+                        else:
+                            zoomKw = dictExtract(kwargs,'zoom_')
+                            forcedTitle = zoomKw.pop('title', None)
+                            zoomKw.setdefault('formOnly',False)
+                            result['lbl__zoomKw'] = zoomKw #,slice_prefix=False)
+                            result['lbl__zoomKw_table'] = lnktblobj.fullname
+                            result['lbl__zoomKw_lookup'] = isLookup
+                            result['lbl__zoomKw_title'] = forcedTitle or lnktblobj.name_plural or lnktblobj.name_long
+                            result['lbl__zoomKw_pkey'] = '=.%s' %fld
+                            result['lbl_connect_onclick'] = "genro.dlg.zoomPaletteFromSourceNode(this,$1);"  
+                    result['lbl'] = '<span class="gnrzoomicon">&nbsp;&nbsp;&nbsp;&nbsp;</span><span>%s</span>' %self.page._(result['lbl'])
+                    result['lbl_class'] = 'gnrzoomlabel'
             result['tag'] = 'DbSelect'
             result['dbtable'] = lnktblobj.fullname
             if '_storename' in joiner:
