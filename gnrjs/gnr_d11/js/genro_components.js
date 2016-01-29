@@ -800,7 +800,8 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
         var tree_kwargs = {_class:'fieldsTree', hideValues:true,
                             margin:'6px',nodeId:treeId,draggable:true,
                             'frameCode':frameCode,onDrag:default_onDrag,
-                            storepath:storepath,labelAttribute:'caption'};
+                            storepath:storepath,labelAttribute:'caption',
+                        };
         objectUpdate(tree_kwargs, objectExtract(kw, 'tree_*'));
         var searchOn = objectPop(kw, 'searchOn');
         kw['contentWidget'] = 'FramePane';
@@ -1290,7 +1291,7 @@ dojo.declare("gnr.widgets.PaletteBagNodeEditor", gnr.widgets.gnrwdg, {
         if(genro.isDeveloper){
             var bottom = bc._('ContentPane', {'region':'bottom',color:'#666',font_style:'italic'});
             bottom._('span', {'innerHTML':'Path : '});
-            bottom._('span', {'innerHTML':nodePath});
+            bottom._('span', {'innerHTML':nodePath,_class:'selectable'});
         }
         bc._('ContentPane',{region:'center',margin:'2px',overflow:'hidden'})._('MultiValueEditor',objectUpdate({value:nodePath+'?#node'},multiValuePars))
         return pane;
@@ -1346,7 +1347,7 @@ dojo.declare("gnr.widgets.BagNodeEditor", gnr.widgets.gnrwdg, {
         if (showBreadcrumb) {
             var bottom = bc._('ContentPane', {'region':'bottom',color:'#666',font_style:'italic'});
             bottom._('span', {'innerHTML':'Path : '});
-            bottom._('span', {'innerHTML':'^.currentEditedPath'});
+            bottom._('span', {'innerHTML':'^.currentEditedPath',_class:'selectable'});
         }
         var box = bc._('ContentPane', {'region':'center',_class:'formgrid',overflow:'hidden'});
 

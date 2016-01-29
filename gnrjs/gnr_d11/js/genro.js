@@ -84,6 +84,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.rpcHeaderInfo = {};
         this.profile_count = 4;
         this.lastPing = start_ts;
+        this._debugPaths = {};
         this._lastUserEventTs = start_ts;
         this._lastChildUserEventTs = start_ts;
         this._lastGlobalUserEventTs = start_ts;
@@ -93,6 +94,14 @@ dojo.declare('gnr.GenroClient', null, {
         };
         
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
+    },
+
+    setDebugPath:function(path,kw){
+        if(!kw.mode){
+            objectPop(this._debugPaths,path);
+        }else{
+            this._debugPaths[path] = kw;
+        }
     },
 
     patchConsole:function(){
@@ -1245,7 +1254,16 @@ dojo.declare('gnr.GenroClient', null, {
     
     dataTrigger:function(kw) {
         var dpath = kw.pathlist.slice(1).join('.');
-
+        if(dpath in genro._debugPaths){
+            var dkw = genro._debugPaths[dpath];
+            if(!dkw.condition || funcApply('return '+dkw.condition,{kw:kw})){
+                if(dkw.mode=='D'){
+                    debugger;
+                }else{
+                    console.log('** dataTrigger debug **','evt',kw.evt,'reason',kw.reason,'updattr',kw.updvalue,kw);
+                }
+            }
+        }
         if (kw.evt == 'upd' && kw.reason != 'serverChange') {
             for (var registered_path in genro._serverstore_paths){
                 if(dpath.indexOf(registered_path)==0){

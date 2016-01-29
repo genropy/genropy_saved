@@ -392,6 +392,22 @@ dojo.declare("gnr.GnrDevHandler", null, {
         }
     },
 
+    handleDebugPath:function(dataNode){
+        if(dataNode.getFullpath){
+            var path = dataNode.getFullpath(null,true);
+            var existing = genro._debugPaths[path];
+            genro.dlg.prompt('Set breakpoint',{
+                    widget:[{lbl:'Mode',tag:'filteringSelect',values:'D:Debugger,C:Console',value:'^.mode'},
+                            {lbl:'Condition',value:'^.condition',width:'20em',margin_right:'5px'}],
+                    action:function(result){
+                        genro.setDebugPath(path,result.asDict());
+                    },
+                    dflt:existing?new gnr.GnrBag(existing):null
+                });
+        }
+        
+        console.log('dataNode',dataNode);
+    },
     openInspector:function(){
         var root = genro.src.newRoot();
         genro.src.getNode()._('div', '_devInspector_');
@@ -409,11 +425,18 @@ dojo.declare("gnr.GnrDevHandler", null, {
         pg._('paletteTree',{'paletteCode':'cliDatastore',title:'Data',
                            storepath:'*D',searchOn:true,tree_inspect:'shift',tree_searchMode:'static',
                            'tree_connect_onclick':cbLog,
+                           'tree_selectedLabelClass':'selectedTreeNode',
+                           tree_connect_ondblclick:function(e){
+                                var wdg = dijit.getEnclosingWidget(e.target);
+                                var item = wdg.item;
+                                genro.dev.handleDebugPath(item);
+                           },
                            editable:true,tree_labelAttribute:null,tree_hideValues:false});
         var sourcePane = pg._('paletteTree',{'paletteCode':'cliSourceStore',title:'Source',
                            storepath:'*S',searchOn:true,tree_inspect:'shift',tree_searchMode:'static',
                            editable:true,
                            'tree_connect_onclick':cbLog,
+
                            tree_getLabel:function(n){
                                return n.attr.tag+':'+(n.attr.nodeId || n._id);
                            },

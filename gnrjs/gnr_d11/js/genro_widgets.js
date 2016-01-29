@@ -3234,7 +3234,6 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
             places = '0,'+attributes.constraints.pattern.split('.')[1].length;
         }
         sourceNode._parseDict = places?{places:places}:{};
-        console.log('sourceNode._parseDict',sourceNode._parseDict)
         //attributes.editOptions = objectUpdate({})
         if ('ftype' in attributes) {
             attributes.constraints['type'] = objectPop(attributes['ftype']);
