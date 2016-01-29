@@ -17,6 +17,11 @@ if [ ! -d /etc/uwsgi/ssl ]; then
 	mkdir -p /etc/uwsgi/ssl
 fi
 
+if [ ! -d /etc/uwsgi/services ]; then
+	echo "****** /etc/uwsgi/services does not exist, will be created"
+	mkdir -p /etc/uwsgi/services
+fi
+
 if [ ! -d /var/log/uwsgi ]; then
 	echo "****** /var/log/uwsgi does not exist, will be created"
 	mkdir /var/log/uwsgi
