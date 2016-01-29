@@ -5006,7 +5006,13 @@ div[disabled='true'], div[disabled='disabled']{
     line-height: 30px;
 }
 
+.slotbar_cell .innerLbl{
+    display: none;
+}
 
+.showInnerLabel .slotbar_cell .innerLbl{
+    display: block;
+}
 .innerLbl{
     background: #B3B3B3;
     color: white;
