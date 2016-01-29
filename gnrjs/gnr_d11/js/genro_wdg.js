@@ -640,14 +640,18 @@ dojo.declare("gnr.RowEditor", null, {
         var data = this.data;
         var n,err,v;
         for(var k in cellmap){
-            if(cellmap[k].edit && cellmap[k].edit.validate_notnull){
-                err = cellmap[k].edit.validate_notnull_error || 'not null';
-                n = data.getNode(k);
-                v = n.getValue();
-                if(isNullOrBlank(v)){
-                    n.attr._validationError = err;
-                }else if(n.attr._validationError==err){
-                    delete n.attr._validationError;
+            var editpars = cellmap[k].edit;
+            if(editpars && editpars!==true){
+                editpars = this.grid.sourceNode.evaluateOnNode(editpars);
+                if(editpars.validate_notnull){
+                    err = editpars.validate_notnull_error || 'not null';
+                    n = data.getNode(k);
+                    v = n.getValue();
+                    if(isNullOrBlank(v)){
+                        n.attr._validationError = err;
+                    }else if(n.attr._validationError==err){
+                        delete n.attr._validationError;
+                    }
                 }
             }
         }
