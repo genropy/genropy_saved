@@ -235,7 +235,9 @@ class GnrWsProxyHandler(tornado.web.RequestHandler,GnrBaseHandler):
 class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
     
     def getExecutor(self,method):
-        return self.server.executors.get(getattr(method,'_executor','dummy'))
+        executor = getattr(method,'_executor',None)
+        if executor:
+            return self.server.executors.get(executor)
 
     def getHandler(self,command):
         return getattr(self,'do_%s' % command,self.wrongCommand)  
@@ -253,14 +255,19 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
     def on_message(self, message):
         if message=='PING':
             self.write_message('PONG')
-            return
-        command,kwargs=self.parseMessage(message)
-        handler=self.getHandler(command)
-        if handler:
-            executor=self.getExecutor(handler)
-            result=yield executor.submit(handler,_time_start=time.time(),**kwargs)
-            if result is not None:
-                self.write_message(result)
+        else:
+            command,result_token,kwargs=self.parseMessage(message)
+            handler=self.getHandler(command)
+            if handler:
+                executor=self.getExecutor(handler)
+                if executor:
+                    result = yield executor.submit(handler,_time_start=time.time(),**kwargs)
+                else:
+                    result = handler(_time_start=time.time(),**kwargs)
+                if result is not None:
+                    if result_token:
+                        result = Bag(dict(token=result_token,envelope=result)).toXml(unresolved=True)
+                    self.write_message(result)
                 
     def on_close(self):
         #print "WebSocket on_close",self.page_id
@@ -314,7 +321,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
         data_queue.put(cmd)
         
     @threadpool
-    def do_call(self,method=None, result_token=None, _time_start=None,**kwargs):
+    def do_call(self,method=None,_time_start=None,**kwargs):
         error = None
         result = None
         resultAttrs=None
@@ -332,9 +339,10 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
         
         envelope.setItem('data',result,_attributes=resultAttrs, _server_time=time.time()-_time_start)
         if error:
-            envelope.setItem('error',error)          
-        result=Bag(dict(token=result_token,envelope=envelope))
-        return result.toXml(unresolved=True)
+            envelope.setItem('error',error)  
+        return envelope        
+        #result=Bag(dict(token=result_token,envelope=envelope))
+        #return result.toXml(unresolved=True)
 
     def registerPage(self,page_id):
         page = self.gnrsite.resource_loader.get_page_by_id(page_id)
@@ -396,8 +404,9 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
                     raise
             else:
                 result[k] = v
-        command=result.pop('command')
-        return command,result
+        command = result.pop('command')
+        result_token = result.pop('result_token',None)
+        return command,result_token,result
        
 
 class AsyncSharedObject(object):
@@ -444,12 +453,15 @@ class AsyncSharedObject(object):
                 channels.get(p).write_message(envelope)
 
 
+
 class SharedObjectsManager(object):
     """docstring for SharedObjectsManager"""
     def __init__(self, server):
         self.server = server
         self.sharedObjects = dict()
         self.unusedSharedObjects = dict()
+        self.change_queue = queues.Queue(maxsize=100)
+
 
     def __call__(self,cmd,**kwargs):
         handler = getattr(self,'do_%s' %cmd,None)
@@ -481,7 +493,7 @@ class SharedObjectsManager(object):
             page.sharedObjects.add(shared_id)
             self.sharedObjects[shared_id].subscribe(page_id)
         data =  Bag(dict(value=sharedData,shared_id=shared_id,evt='init',privilege=privilege))
-        envelope = Bag(dict(command='sharedObjectChange',data=data)).toXml()
+        envelope = Bag(dict(command='sharedObjectChange',data=data))
         return envelope
 
     def do_unsubscribe(self,shared_id=None,page_id=None,**kwargs):
@@ -500,10 +512,29 @@ class SharedObjectsManager(object):
 
     def do_datachange(self,shared_id=None,**kwargs):
         self.sharedObjects[shared_id].datachange(**kwargs)
+#
+    #def do_datachange(self,shared_id=None,**kwargs):
+    #    so = self.sharedObjects[shared_id]
+    #    if not so.busy:
+    #        so.datachange(**kwargs)
+    #    else:
+    #        self.change_queue.put((shared_id,kwargs))
 
     def unsubscribePage(self,page):
         for k in page.sharedObjects:
             self.do_unsubscribe(shared_id=k,page_id=page.page_id)
+#
+   # @gen.coroutine
+   # def consume_change_queue(self):
+   #     while True:
+   #         change =
+   #         so = self.sharedObjects[shared_id]
+#
+   #         self.sharedObjects[shared_id].datachange(**kwargs)
+   #         if not self.busy:
+#
+   #             change = yield self.change_queue.get()
+   #         yield self.handle_socket_message(message)
 
 
 class GnrBaseAsyncServer(object):
@@ -520,6 +551,12 @@ class GnrBaseAsyncServer(object):
         self.gnrapp = self.gnrsite.gnrapp
         self.wsk = AsyncWebSocketHandler(self)
         self.som = SharedObjectsManager(self)
+        self.interval = 1000
+        #sched = tornado.ioloop.PeriodicCallback(self.scheduler,self.interval)
+        #sched.start()
+
+    def scheduler(self,*args,**kwargs):
+        print 'scheduler',args,kwargs
 
     def externalCommand(self, command, data):
         print 'receive externalCommand',command

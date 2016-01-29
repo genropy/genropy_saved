@@ -166,16 +166,6 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
                 genro._data.setItem(fullpath, value, attr, objectUpdate({'doTrigger':'serverChange',lazySet:true}));
             }
         })
-        if(evt=='init'){
-            var privilege = data.getItem('privilege');
-            so.ready = true;
-            so.privilege = privilege;
-            so.path.forEach(function(sopath){
-                var fullpath = path? sopath+ '.' +path:sopath;
-                genro._sharedObjects_paths[fullpath] = shared_id;
-            });
-            genro.publish('shared_'+shared_id,{ready:true,privilege:privilege});
-        }
     },
 
     do_publish:function(data){
@@ -201,11 +191,11 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         var kw=kw || {};
         var token='wstk_'+genro.getCounter('wstk')
         kw['result_token']=token
-        kw['command']='call'
+        kw['command']= kw['command'] || 'call'
         if (!omitSerialize){
             kw=genro.rpc.serializeParameters(genro.src.dynamicParameters(kw));
         }
-        this.waitingCalls[token]=deferred
+        this.waitingCalls[token] = deferred
         //console.log('sending',kw)
         this.socket.send(dojo.toJson(kw))
         return deferred
@@ -214,7 +204,9 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         var kw=kw || {};
         kw['command']=command
         kw=genro.rpc.serializeParameters(genro.src.dynamicParameters(kw));
-        this.socket.send(dojo.toJson(kw))
+        var msg = dojo.toJson(kw);
+        console.log('readyState',this.socket.readyState);
+        this.socket.send(msg);
     },
     
     parseResponse:function(response){
@@ -239,16 +231,42 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         this.sendCommandToPage(page_id,'publish',new gnr.GnrBag({'data':data,'topic':topic}))
     },
 
-    registerSharedObject:function(abspath,kw){
-        var shared_id = kw.id;
+    registerSharedObject:function(abspath,shared_id,kw){
         if(!(shared_id in genro._sharedObjects)){
             genro._sharedObjects[shared_id] = {shared_id:shared_id,path:[abspath],ready:false};
-            genro.wsk.send('som_command',{cmd:'subscribe',shared_id:shared_id,expire:kw.expire});
+            var deferred = genro.wsk.call({command:'som_command',cmd:'subscribe',shared_id:shared_id,expire:kw.expire});
+            deferred.addCallback(function(resultNode){
+                var data = resultNode.getValue();
+                genro.wsk.do_sharedObjectChange(data);
+                var privilege = data.getItem('privilege');
+                var so = genro._sharedObjects[shared_id];
+                var innerPath = data.getItem('path');
+                so.ready = true;
+                so.privilege = privilege;
+                so.path.forEach(function(sopath){
+                    var fullpath = innerPath? sopath+ '.' +innerPath:sopath;
+                    genro._sharedObjects_paths[fullpath] = shared_id;
+                });
+                genro.publish('shared_'+shared_id,{ready:true,privilege:privilege});
+            });
+        }else{
+            genro._sharedObjects[shared_id].path.push(abspath);
+        }
+        //genro._sharedObjects_paths[abspath] = shared_id;
+    },
+    
+    unregisterSharedObject:function(abspath,shared_id,kw){
+        if(shared_id in genro._sharedObjects){
+            genro.wsk.send('som_command',{cmd:'unsubscribe',shared_id:shared_id});
+            var so = objectPop(genro._sharedObjects,shared_id);
+            genro._sharedObjects[shared_id] = {shared_id:shared_id,path:[abspath],ready:false};
+            
         }else{
             genro._sharedObjects[shared_id].path.push(abspath);
         }
         //genro._sharedObjects_paths[abspath] = shared_id;
     }
+
 
 });
 
