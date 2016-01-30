@@ -264,9 +264,9 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
                     result = yield executor.submit(handler,_time_start=time.time(),**kwargs)
                 else:
                     result = handler(_time_start=time.time(),**kwargs)
+                if result_token:
+                    result = Bag(dict(token=result_token,envelope=result)).toXml(unresolved=True)
                 if result is not None:
-                    if result_token:
-                        result = Bag(dict(token=result_token,envelope=result)).toXml(unresolved=True)
                     self.write_message(result)
                 
     def on_close(self):
