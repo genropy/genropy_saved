@@ -1884,7 +1884,8 @@ dojo.declare('gnr.GenroClient', null, {
                 window.location.search = '';
             }
         } else {
-            window.location.reload();
+            window.location.assign(window.location.href);
+            //window.location.reload();
         }
     },
 
