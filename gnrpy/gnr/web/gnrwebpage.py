@@ -265,20 +265,24 @@ class GnrWebPage(GnrBaseWebPage):
         self.parent_page_id = page_item['data'].getItem('parent_page_id')
         return page_item            
 
-    def _register_new_page(self,page_id=None,kwargs=None,class_info=None,init_info=None,page_info=None):
+    def _register_new_page(self,page_id=None,kwargs=None,class_info=None,init_info=None):
         if not self.connection.connection_id:
             self.connection.create()
         self.page_id = page_id or getUuid()
+        page_info = dict([(k,getattr(self,k,None)) for k in ATTRIBUTES_SIMPLEWEBPAGE])
         data = Bag()   
         data['pageArgs'] = kwargs
+        data['class_info'] = class_info
+        data['init_info'] = init_info
+        data['page_info'] = page_info
         page_item = self.site.register.new_page(self.page_id, self, data=data)
-        self._workdate = page_item['data']['rootenv.workdate'] #or datetime.date.today()
-        self._language = page_item['data']['rootenv.language']
-        if self.wsk:
-            page_info = dict([(k,getattr(self,k)) for k in ATTRIBUTES_SIMPLEWEBPAGE])
-            registerNewPageData = Bag(dict(page_id=self.page_id,page_info=page_info,class_info=class_info,init_info=init_info,mixin_set=[]))
-            self.wsk.sendCommandToPage('','registerNewPage',registerNewPageData)
+        if self.wsk and not getattr(self,'system_page',False):
+            self.registerToAsyncServer(page_id=self.page_id,page_info=page_info,
+                class_info=class_info,init_info=init_info,mixin_set=[])
         return page_item
+
+    def registerToAsyncServer(self,**kwargs):
+        self.wsk.sendCommandToPage('','registerNewPage',Bag(kwargs))
 
     def get_call_handler(self, request_args, request_kwargs):
         """TODO
@@ -398,7 +402,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self._db    
         
     def _get_workdate(self):
-        if not self._workdate:
+        if not getattr(self,'_workdate',None):
             self._workdate = self.pageStore().getItem('rootenv.workdate') or datetime.date.today()
         return self._workdate
 
@@ -409,7 +413,7 @@ class GnrWebPage(GnrBaseWebPage):
     workdate = property(_get_workdate, _set_workdate)
 
     def _get_language(self):
-        if not self._language:
+        if not getattr(self,'_language'):
             self._language = self.pageStore().getItem('rootenv.language') or self.locale.split('-')[0].upper()
         return self._language
 
