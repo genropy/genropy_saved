@@ -214,20 +214,6 @@ class GnrWsProxyHandler(tornado.web.RequestHandler,GnrBaseHandler):
             page_ids = page_id.split(',')
         for dest_page_id in page_ids:
             self.channels.get(dest_page_id).write_message(envelope)
-            
-    def post_x(self, *args, **kwargs):
-        page_id = self.get_argument('page_id')
-        client_path = self.get_argument('client_path')
-        value = self.get_argument('value')
-        data = Bag(path=client_path, data=value)
-        message=Bag(data=data,command='set')
-        message_xml = message.toXml()
-        if page_id == '*':
-            page_ids = self.channels.keys()
-        else:
-            page_ids = page_id.split(',')
-        for dest_page_id in page_ids:
-            self.channels.get(dest_page_id).write_message(message_xml)
 
     def get(self, *args, **kwargs):
         pass
@@ -283,7 +269,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
 
     def do_user_event(self,_time_start=None,**kwargs):
         page = self.server.pages[self._page_id]
-        pagedata = self.server.globalStatusData('users')[page.user]['connections'][page.connection_id]['pages'][self._page_id]
+        pagedata = self.server.sharedStatus.users[page.user]['connections'][page.connection_id]['pages'][self._page_id]
         for k,v in kwargs.items():
             pagedata['evt_%s' %k] = v
         
@@ -303,7 +289,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
              #print 'already in channels',self.page_id
         if not page_id in self.pages:
             print 'do_connected: missing page',page_id
-            #self.registerPage(page_id)
+            self.server.registerPage(page_id=page_id)
         else:
             pass
             #print 'already in pages',self.page_id
@@ -344,46 +330,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
         #result=Bag(dict(token=result_token,envelope=envelope))
         #return result.toXml(unresolved=True)
 
-    def registerPage(self,page_id):
-        page = self.gnrsite.resource_loader.get_page_by_id(page_id)
-        page.asyncServer = self.server
-        page.sharedObjects = set()
-        #print 'setting in pages',self.page_id
-        self.server.pages[page_id] = page
-        page_item = page.page_item
-        gs_users = self.server.globalStatusData('users')
-        if not page.user in gs_users:
-            gs_users[page.user] = Bag(dict(start_ts=page_item['start_ts'],user=page.user,connections=Bag()))
-        userbag = gs_users[page.user]
-        connection_id = page.connection_id
-        if not connection_id in userbag['connections']:
-            userbag['connections'][connection_id] = Bag(dict(start_ts=page_item['start_ts'],
-                                                        user_ip=page_item['user_ip'],
-                                                        user_agent=page_item['user_agent'],
-                                                        connection_id=connection_id,
-                                                        pages=Bag()))
-        userbag['connections'][connection_id]['pages'][page_id] = Bag(dict(pagename=page_item['pagename'],
-                                                                            relative_url=page_item['relative_url'],
-                                                                            start_ts=page_item['start_ts'],
-                                                                            page_id=page_id))
-
         
-    def unregisterPage(self,page_id):
-        page = self.server.pages.pop(self.page_id,None)
-        if not page:
-            return
-        if page.sharedObjects:
-            self.server.som.unsubscribePage(page)
-        gs_users = self.server.globalStatusData('users')
-        userbag = gs_users[page.user]
-        connection_id = page.connection_id
-        userconnections = userbag['connections']
-        connection_pages = userconnections[connection_id]['pages']
-        connection_pages.popNode(page_id)
-        if not connection_pages:
-            userconnections.popNode(connection_id)
-            if not userconnections:
-                gs_users.popNode(page.user)
 
     def wrongCommand(self,command=None,**kwargs):
         return 'WRONG COMMAND: %s' % command
@@ -409,9 +356,10 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
         return command,result_token,result
        
 
-class AsyncSharedObject(object):
-    def __init__(self,manager,shared_id,expire=None,startData=None,read_tags=None,write_tags=None):
+class SharedObject(object):
+    def __init__(self,manager,shared_id,expire=None,startData=None,read_tags=None,write_tags=None,**kwargs):
         self.manager = manager
+        self.server = manager.server
         self.shared_id = shared_id
         self._data = Bag(dict(root=Bag(startData)))
         self.data = self._data['root']
@@ -420,13 +368,44 @@ class AsyncSharedObject(object):
         self.data.subscribe('datachanges', any=self._on_data_trigger)
         self.subscribed_pages = dict()
         self.expire = expire or 0
+        self.onInit(*kwargs)
+    
+    def onInit(self,**kwargs):
+        print 'onInit',self.shared_id
+        
+    def onSubscribePage(self,page):
+        print 'onSubscribePage',self.shared_id,page.page_if
+        
+    def onUnsubscribePage(self,page):
+        print 'onUnsubscribePage',self.shared_id,page.page_if
+    
+        
+    def onDestroy(self,page):
+        print 'onDestroy',self.shared_id
 
-    def subscribe(self,page_id=None):
-        if page_id not in self.subscribed_pages:
-            self.subscribed_pages[page_id] = True
+    def subscribe(self,page_id=None,**kwargs):
+        privilege= self.checkPermission(page_id)
+        if privilege:
+            page.sharedObjects.add(self.shared_id)
+            self.subscribed_pages[page_id] = kwargs or True
+            self.onSubscribePage(page)
+            result=dict(privilege=privilege,data=self.data)
+        return result
 
     def unsubscribe(self,page_id=None):
-        self.subscribed_pages.pop(page_id,None)
+        page=self.subscribed_pages.pop(page_id,None)
+        self.onUnsubscribePage(page)
+        if not self.subscribed_pages:
+            self.manager.noSubscribers(self)
+            
+    def checkPermission(self,page_id=None):
+        page = self.server.pages[page_id]
+        privilege = 'readwrite' 
+        if self.read_tags and not self.server.gnrapp.checkResourcePermission(self.read_tags,page.userTags):
+            privilege = None
+        elif self.write_tags and not self.server.gnrapp.checkResourcePermission(self.write_tags,page.userTags):
+            privilege = 'readonly'
+        return privilege
 
     def datachange(self,page_id=None,path=None,value=None,attr=None,evt=None,**kwargs):
         path = 'root' if not path else 'root.%s' %path
@@ -439,7 +418,7 @@ class AsyncSharedObject(object):
         if reason=='autocreate':
             return
         #page = self.manager.server.pages[reason]
-        #page.log('AsyncSharedObject trigger',value=node.value,nodeattr=node.attr,label=node.label,pathlist=pathlist)
+        #page.log('SharedObject trigger',value=node.value,nodeattr=node.attr,label=node.label,pathlist=pathlist)
         plist = pathlist
         if evt=='ins' or evt=='del':
             plist = plist+[node.label]
@@ -447,20 +426,88 @@ class AsyncSharedObject(object):
         data = Bag(dict(value=node.value,attr=node.attr,path=path,shared_id=self.shared_id,evt=evt))
         envelope = Bag(dict(command='sharedObjectChange',data=data)).toXml()
         from_page_id = reason
-        channels = self.manager.server.channels
+        channels = self.server.channels
         for p in self.subscribed_pages.keys():
             if p != from_page_id:
                 channels.get(p).write_message(envelope)
 
-
-
+class SharedLogger(SharedObject):
+    
+    def onInit(self,**kwargs):
+        print 'onInit',self.shared_id
+        
+    def onSubscribePage(self,page):
+        print 'onSubscribePage',self.shared_id,page.page_if
+        
+    def onUnsubscribePage(self,page):
+        print 'onUnsubscribePage',self.shared_id,page.page_if
+    
+    def onDestroy(self,page):
+        print 'onDestroy',self.shared_id
+    
+   
+class SharedStatus(SharedObject):
+    def onInit(self,**kwargs):
+        print 'onInit',self.shared_id
+        self.data['users']=Bag()
+    
+    def users(self):
+        return self.data['users']
+        
+    def onSubscribePage(self,page):
+        print 'onSubscribePage',self.shared_id,page.page_if
+        
+    def onUnsubscribePage(self,page):
+        print 'onUnsubscribePage',self.shared_id,page.page_if
+     
+    def onDestroy(self,page):
+        print 'onDestroy',self.shared_id
+        
+    def registerPage(self,page):
+        page_item = page.page_item
+        users = self.users
+        page_id = page.page_id
+        if not page.user in users:
+            users[page.user] = Bag(dict(start_ts=page_item['start_ts'],user=page.user,connections=Bag()))
+        userbag = users[page.user]
+        connection_id = page.connection_id
+        if not connection_id in userbag['connections']:
+            userbag['connections'][connection_id] = Bag(dict(start_ts=page_item['start_ts'],
+                                                        user_ip=page_item['user_ip'],
+                                                        user_agent=page_item['user_agent'],
+                                                        connection_id=connection_id,
+                                                        pages=Bag()))
+        userbag['connections'][connection_id]['pages'][page_id] = Bag(dict(pagename=page_item['pagename'],
+                                                                            relative_url=page_item['relative_url'],
+                                                                            start_ts=page_item['start_ts'],
+                                                                            page_id=page_id))
+    def unregisterPage(self,page_id):
+        page = self.server.pages.pop(self.page_id,None)
+        if not page:
+            return
+        if page.sharedObjects:
+            self.server.som.unsubscribePage(page)
+        users = self.users
+        userbag = users[page.user]
+        connection_id = page.connection_id
+        userconnections = userbag['connections']
+        connection_pages = userconnections[connection_id]['pages']
+        connection_pages.popNode(page_id)
+        if not connection_pages:
+            userconnections.popNode(connection_id)
+            if not userconnections:
+                users.popNode(page.user)
+    
+    
 class SharedObjectsManager(object):
     """docstring for SharedObjectsManager"""
-    def __init__(self, server):
+    def __init__(self, server,cg_interval=5):
         self.server = server
         self.sharedObjects = dict()
-        self.unusedSharedObjects = dict()
+        self.noSubscribersObjects = dict()
         self.change_queue = queues.Queue(maxsize=100)
+        self.cg_interval=cg_interval
+        self.gc=self.garbageCollector()
 
 
     def __call__(self,cmd,**kwargs):
@@ -468,9 +515,9 @@ class SharedObjectsManager(object):
         if handler:
             return handler(**kwargs)
 
-    def getSharedObject(self,shared_id,expire=None,startData=None,read_tags=None,write_tags=None):
+    def getSharedObject(self,shared_id,expire=None,startData=None,read_tags=None,write_tags=None, factory=SharedObject):
         if not shared_id in self.sharedObjects:
-            self.sharedObjects[shared_id] = AsyncSharedObject(self,shared_id=shared_id,expire=expire,startData=startData,
+            self.sharedObjects[shared_id] = factory(self,shared_id=shared_id,expire=expire,startData=startData,
                                                                 read_tags=read_tags,write_tags=write_tags)
         return self.sharedObjects[shared_id]
 
@@ -478,41 +525,37 @@ class SharedObjectsManager(object):
     def do_subscribe(self,shared_id=None,page_id=None,expire=None,**kwargs):
         sharedObject = self.sharedObjects.get(shared_id)
         if not sharedObject:
-            sharedObject = AsyncSharedObject(self,shared_id=shared_id,expire=expire,**kwargs)
+            sharedObject = SharedObject(self,shared_id=shared_id,expire=expire,**kwargs)
             self.sharedObjects[shared_id] = sharedObject
-        page = self.server.pages[page_id]
-        privilege = 'readwrite' 
-        sharedData = sharedObject.data
-        if sharedObject.read_tags and not self.server.gnrapp.checkResourcePermission(sharedObject.read_tags,page.userTags):
-            privilege = 'forbidden'
-            sharedData = Bag()
+        subscription = sharedObject.subscribe(page_id)
+        if subscription:
+            self.noSubscribersObjects.pop(shared_id,None)
         else:
-            if sharedObject.write_tags and not self.server.gnrapp.checkResourcePermission(sharedObject.write_tags,page.userTags):
-                privilege = 'readonly'
-            self.unusedSharedObjects.pop(shared_id,None)
-            page.sharedObjects.add(shared_id)
-            self.sharedObjects[shared_id].subscribe(page_id)
-        data =  Bag(dict(value=sharedData,shared_id=shared_id,evt='init',privilege=privilege))
+            subscription=dict(privilege='forbidden',data=Bag())
+        data =  Bag(dict(value=subscription['data'],shared_id=shared_id,evt='init',privilege=subscription['privilege']))
         envelope = Bag(dict(command='sharedObjectChange',data=data))
         return envelope
 
-    def do_unsubscribe(self,shared_id=None,page_id=None,**kwargs):
-        sharedObject = self.sharedObjects.get(shared_id)
-        if not sharedObject:
-            return
-        sharedObject.unsubscribe(page_id)
-        if not sharedObject.subscribed_pages:
-            if sharedObject.expire==0:
-                sharedObject = self.sharedObjects.pop(shared_id)
-            else:
-                expire = sharedObject.expire
-                if expire<0:
-                    expire = 365*24*60*60
-                self.unusedSharedObjects[shared_id] = datetime.timedelta(seconds=expire)+datetime.datetime.now()
+    def noSubscribers(self,sharedObject):
+        expire = sharedObject.expire
+        if expire<0:
+            expire = 365*24*60*60
+        self.noSubscribersObjects[shared_id.sharedId] = datetime.timedelta(seconds=expire)+datetime.datetime.now()
 
     def do_datachange(self,shared_id=None,**kwargs):
         self.sharedObjects[shared_id].datachange(**kwargs)
-#
+    
+    @gen.coroutine
+    def garbageCollector(self):
+        while True:
+            yield gen.sleep(self.cg_interval)
+            print 'running gc',
+            t=datetime.datetime.now()
+            expired=[k for k,v in self.noSubscribersObjects.items() if v>t]
+            for shared_id in expired:
+                so=self.sharedObjects.pop(shared_id,None)
+                so.onDestroy()
+
     #def do_datachange(self,shared_id=None,**kwargs):
     #    so = self.sharedObjects[shared_id]
     #    if not so.busy:
@@ -520,9 +563,7 @@ class SharedObjectsManager(object):
     #    else:
     #        self.change_queue.put((shared_id,kwargs))
 
-    def unsubscribePage(self,page):
-        for k in page.sharedObjects:
-            self.do_unsubscribe(shared_id=k,page_id=page.page_id)
+
 #
    # @gen.coroutine
    # def consume_change_queue(self):
@@ -567,43 +608,38 @@ class GnrBaseAsyncServer(object):
     def do_registerNewPage(self, page_id=None, page_info=None, class_info=None, init_info=None, mixin_set=None):
         print 'do_registerNewPage',page_id
         page = self.gnrsite.resource_loader.instantiate_page(page_id=page_id,class_info=class_info, init_info=init_info, page_info=page_info)
+        self.registerPage(page)
+   
+    def registerPage(self,page=None,page_id=None):
+        if not page:
+            print 'reloading page',page_id
+            page = self.gnrsite.resource_loader.get_page_by_id(page_id)
         page.asyncServer = self
         page.sharedObjects = set()
-        #print 'setting in pages',self.page_id
         self.pages[page_id] = page
-        self.registerGlobalStatus(page)
+        self.sharedStatus.registerPage(page)
 
-    def registerGlobalStatus(self,page):
-        page_item = page.page_item
-        gs_users = self.globalStatusData('users')
-        page_id = page.page_id
-        if not page.user in gs_users:
-            gs_users[page.user] = Bag(dict(start_ts=page_item['start_ts'],user=page.user,connections=Bag()))
-        userbag = gs_users[page.user]
-        connection_id = page.connection_id
-        if not connection_id in userbag['connections']:
-            userbag['connections'][connection_id] = Bag(dict(start_ts=page_item['start_ts'],
-                                                        user_ip=page_item['user_ip'],
-                                                        user_agent=page_item['user_agent'],
-                                                        connection_id=connection_id,
-                                                        pages=Bag()))
-        userbag['connections'][connection_id]['pages'][page_id] = Bag(dict(pagename=page_item['pagename'],
-                                                                            relative_url=page_item['relative_url'],
-                                                                            start_ts=page_item['start_ts'],
-                                                                            page_id=page_id))
+    def unregisterPage(self,page_id):
+        page = self.server.pages.pop(self.page_id,None)
+        if not page:
+            return
+        if page.sharedObjects:
+            for so in page.sharedObjects.values():
+                sharedObject.unsubscribe(page_id)
+        self.sharedStatus.unregisterPage()
 
-
+    @property
+    def sharedStatus(self):
+        return self.som.getSharedObject('__global_status__',expire=-1,
+                                                            read_tags='_DEV_,superadmin',
+                                                            write_tags='__SYSTEM__',factory=SharedStatus)
 
 
     @property
-    def globalStatus(self):
-        return self.som.getSharedObject('__global_status__',expire=-1,startData=dict(users=Bag()),
+    def errorStatus(self):
+        return self.som.getSharedObject('__error_status__',expire=-1,startData=dict(users=Bag()),
                                                             read_tags='_DEV_,superadmin',
-                                                            write_tags='__SYSTEM__')
-
-    def globalStatusData(self,path=None):
-        return self.globalStatus.data[path] if path else self.globalStatus.data
-
+                                                            write_tags='__SYSTEM__',factory=SharedLogger)
     def addHandler(self,path,factory):
         self.handlers.append((path,factory))
         
