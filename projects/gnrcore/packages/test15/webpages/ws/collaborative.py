@@ -16,9 +16,13 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^.beta',lbl='Beta')
         fb.textbox(value='^.gamma',lbl='Gamma')
         fb.textbox(value='^.delta',lbl='Delta')
+
         fb.button('Subscribe',action="""
-            genro.wsk.registerSharedObject('main.shared','collaborative_test',{expire=20})
-            """)
+            genro.wsk.registerSharedObject('main.shared','collaborative_test',{expire=20})""")
+
+        fb.button('Unregister',action="""
+            genro.wsk.unregisterSharedObject('collaborative_test');
+        """)
 #
         #bc.contentPane(region='center')
 

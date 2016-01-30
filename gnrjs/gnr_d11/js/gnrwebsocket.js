@@ -101,9 +101,10 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         handler.apply(this,[data])
     },
     receivedToken:function(token,envelope){
-        var deferred=objectPop(this.waitingCalls,token)
-        var dataNode=envelope.getNode('data')
-        var error=envelope.getItem('error')
+        var deferred=objectPop(this.waitingCalls,token);
+        envelope = envelope || new gnr.GnrBag();
+        var dataNode = envelope.getNode('data');
+        var error = envelope.getItem('error');
         if (error){
             console.log('serverError',error,dataNode._value)
             deferred.errback(error)
@@ -152,20 +153,18 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         var value = data.getItem('value');
         var attr = data.getItem('attr');
         var evt = data.getItem('evt');
-
         var from_page_id = data.getItem('from_page_id');
         var so = genro._sharedObjects[shared_id];
         if(!so){
             return;
         }
-        so.path.forEach(function(sopath){
-            var fullpath = path? sopath+ '.' +path:sopath;
-            if(evt=='del'){
-                genro._data.popNode(fullpath,'serverChange')
-            }else{
-                genro._data.setItem(fullpath, value, attr, objectUpdate({'doTrigger':'serverChange',lazySet:true}));
-            }
-        })
+        var sopath = so.path;
+        var fullpath = path? sopath+ '.' +path: sopath;
+        if(evt=='del'){
+            genro._data.popNode(fullpath,'serverChange')
+        }else{
+            genro._data.setItem(fullpath, value, attr, objectUpdate({'doTrigger':'serverChange',lazySet:true}));
+        }
     },
 
     do_publish:function(data){
@@ -186,9 +185,11 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         }
         genro.publish(topic,data)
     },
-    call:function(kw,omitSerialize){
+    call:function(kw,omitSerialize,cb){
     	var deferred = new dojo.Deferred();
-        var kw=kw || {};
+        var kw= objectUpdate({},kw);
+        var _onResult = objectPop(kw,'_onResult');
+        var _onError = objectPop(kw,'_onError');
         var token='wstk_'+genro.getCounter('wstk')
         kw['result_token']=token
         kw['command']= kw['command'] || 'call'
@@ -198,6 +199,9 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         this.waitingCalls[token] = deferred
         //console.log('sending',kw)
         this.socket.send(dojo.toJson(kw))
+        if(_onResult){
+            deferred.addCallback(_onResult);
+        }
         return deferred
     },
     send:function(command,kw){
@@ -231,11 +235,11 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         this.sendCommandToPage(page_id,'publish',new gnr.GnrBag({'data':data,'topic':topic}))
     },
 
-    registerSharedObject:function(abspath,shared_id,kw){
+    registerSharedObject:function(path,shared_id,kw){
+        kw = kw || {};
         if(!(shared_id in genro._sharedObjects)){
-            genro._sharedObjects[shared_id] = {shared_id:shared_id,path:[abspath],ready:false};
-            var deferred = genro.wsk.call({command:'som_command',cmd:'subscribe',shared_id:shared_id,expire:kw.expire});
-            deferred.addCallback(function(resultNode){
+            genro._sharedObjects[shared_id] = {shared_id:shared_id,path:path,ready:false};
+            var onResult = function(resultNode){
                 var data = resultNode.getValue();
                 genro.wsk.do_sharedObjectChange(data);
                 var privilege = data.getItem('privilege');
@@ -243,30 +247,27 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
                 var innerPath = data.getItem('path');
                 so.ready = true;
                 so.privilege = privilege;
-                so.path.forEach(function(sopath){
-                    var fullpath = innerPath? sopath+ '.' +innerPath:sopath;
-                    genro._sharedObjects_paths[fullpath] = shared_id;
-                });
+                genro._sharedObjects_paths[path] = shared_id; //in this way trigger are activated
                 genro.publish('shared_'+shared_id,{ready:true,privilege:privilege});
-            });
+            }
+            genro.wsk.call({command:'som_command',cmd:'subscribe',
+                            shared_id:shared_id,expire:kw.expire,
+                            _onResult:onResult});
         }else{
-            genro._sharedObjects[shared_id].path.push(abspath);
+            console.warn('shared_id',shared_id,'is already subscribed')
         }
-        //genro._sharedObjects_paths[abspath] = shared_id;
     },
     
-    unregisterSharedObject:function(abspath,shared_id,kw){
+    unregisterSharedObject:function(shared_id){
         if(shared_id in genro._sharedObjects){
-            genro.wsk.send('som_command',{cmd:'unsubscribe',shared_id:shared_id});
-            var so = objectPop(genro._sharedObjects,shared_id);
-            genro._sharedObjects[shared_id] = {shared_id:shared_id,path:[abspath],ready:false};
-            
-        }else{
-            genro._sharedObjects[shared_id].path.push(abspath);
+            genro.wsk.call({command:'som_command',cmd:'unsubscribe',shared_id:shared_id,
+                            _onResult:function(){
+                                var so = objectPop(genro._sharedObjects,shared_id);
+                                objectPop(genro._sharedObjects_paths,so.path);
+                            }
+            });
         }
-        //genro._sharedObjects_paths[abspath] = shared_id;
     }
-
 
 });
 
