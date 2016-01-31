@@ -364,7 +364,6 @@ class SharedObject(object):
         self.server = manager.server
         self.shared_id = shared_id
         self._data = Bag(dict(root=Bag(startData)))
-        self.data = self._data['root']
         self.read_tags = read_tags
         self.write_tags = write_tags
         self._data.subscribe('datachanges', any=self._on_data_trigger)
@@ -379,13 +378,15 @@ class SharedObject(object):
     def savepath(self):
         return self.server.gnrsite.getStaticPath(self.default_savedir,'%s.xml' %self.shared_id)
 
+    @property
+    def data(self):
+        return self._data['root']
+
     def save(self):
-        print 'aaa',self.data
         self.data.toXml(self.savepath,unresolved=True,autocreate=True)
 
     def load(self):
         data =  Bag(self.savepath)
-        print 'loading data',data
         self._data['root'] = data
 
     def onInit(self,**kwargs):
@@ -527,6 +528,7 @@ class SharedObjectsManager(object):
 
     def getSharedObject(self,shared_id,expire=None,startData=None,read_tags=None,write_tags=None, factory=SharedObject):
         if not shared_id in self.sharedObjects:
+            print 'missing',shared_id
             self.sharedObjects[shared_id] = factory(self,shared_id=shared_id,expire=expire,startData=startData,
                                                                 read_tags=read_tags,write_tags=write_tags)
         return self.sharedObjects[shared_id]
