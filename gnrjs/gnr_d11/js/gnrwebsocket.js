@@ -267,7 +267,23 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
                             }
             });
         }
-    }
+    },
+
+    saveSharedObject:function(shared_id){
+        genro.wsk.call({command:'som_command',cmd:'saveSharedObject',shared_id:shared_id,
+                            _onResult:function(){
+                                console.log('saved saveSharedObject',shared_id);
+                            }
+        });
+    },
+
+    loadSharedObject:function(shared_id){
+        genro.wsk.call({command:'som_command',cmd:'loadSharedObject',shared_id:shared_id,
+                            _onResult:function(){
+                                console.log('loaded loadSharedObject',shared_id);
+                            }
+        });
+    },
 
 });
 

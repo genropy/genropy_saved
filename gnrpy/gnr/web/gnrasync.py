@@ -357,7 +357,9 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
        
 
 class SharedObject(object):
-    def __init__(self,manager,shared_id,expire=None,startData=None,read_tags=None,write_tags=None,**kwargs):
+    default_savedir = 'site:async/sharedobjects'
+    def __init__(self,manager,shared_id,expire=None,startData=None,read_tags=None,write_tags=None,
+                    filepath=None,**kwargs):
         self.manager = manager
         self.server = manager.server
         self.shared_id = shared_id
@@ -365,15 +367,27 @@ class SharedObject(object):
         self.data = self._data['root']
         self.read_tags = read_tags
         self.write_tags = write_tags
-        self.data.subscribe('datachanges', any=self._on_data_trigger)
+        self._data.subscribe('datachanges', any=self._on_data_trigger)
         self.subscribed_pages = dict()
-        self.expire =expire or 0
+        self.expire = expire or 0
         if self.expire<0:
             self.expire = 365*24*60*60
         self.timeout=None
         self.onInit(*kwargs)
-        
-    
+
+    @property
+    def savepath(self):
+        return self.server.gnrsite.getStaticPath(self.default_savedir,'%s.xml' %self.shared_id)
+
+    def save(self):
+        print 'aaa',self.data
+        self.data.toXml(self.savepath,unresolved=True,autocreate=True)
+
+    def load(self):
+        data =  Bag(self.savepath)
+        print 'loading data',data
+        self._data['root'] = data
+
     def onInit(self,**kwargs):
         print 'onInit',self.shared_id
         
@@ -383,7 +397,6 @@ class SharedObject(object):
     def onUnsubscribePage(self,page):
         print 'onUnsubscribePage',self.shared_id,page.page_id
     
-        
     def onDestroy(self):
         print 'onDestroy',self.shared_id
 
@@ -423,7 +436,7 @@ class SharedObject(object):
             return
         #page = self.manager.server.pages[reason]
         #page.log('SharedObject trigger',value=node.value,nodeattr=node.attr,label=node.label,pathlist=pathlist)
-        plist = pathlist
+        plist = pathlist[1:]
         if evt=='ins' or evt=='del':
             plist = plist+[node.label]
         path = '.'.join(plist)
@@ -532,7 +545,6 @@ class SharedObjectsManager(object):
         if not subscription:
             subscription=dict(privilege='forbidden',data=Bag())
         elif sharedObject.timeout:
-            print 'cancelling timeout'
             sharedObject.timeout.cancel()
             sharedObject.timeout=None
         data =  Bag(dict(value=subscription['data'],shared_id=shared_id,evt='init',privilege=subscription['privilege']))
@@ -542,8 +554,13 @@ class SharedObjectsManager(object):
 
     def do_datachange(self,shared_id=None,**kwargs):
         self.sharedObjects[shared_id].datachange(**kwargs)
-    
 
+
+    def do_saveSharedObject(self,shared_id=None,**kwargs):
+        self.sharedObjects[shared_id].save()
+
+    def do_loadSharedObject(self,shared_id=None,**kwargs):
+        self.getSharedObject(shared_id).load()
                     
 
     #def do_datachange(self,shared_id=None,**kwargs):
@@ -668,7 +685,10 @@ class GnrBaseAsyncServer(object):
         debug_server.add_socket(debug_socket)
         debug_server.application = self.tornadoApp
         self.io_loop.start()
-       
+
+    def stop(self,*args,**kwargs):
+        pass
+
     def logToPage(self,page_id,**kwargs):
         self.pages[page_id].log(**kwargs)
 
