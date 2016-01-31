@@ -452,7 +452,6 @@ class SharedLogger(SharedObject):
    
 class SharedStatus(SharedObject):
     def onInit(self,**kwargs):
-        print 'onInit',self.shared_id
         self.data['users']=Bag()
 
     @property
@@ -486,6 +485,7 @@ class SharedStatus(SharedObject):
                                                                             relative_url=page_item['relative_url'],
                                                                             start_ts=page_item['start_ts'],
                                                                             page_id=page_id))
+
     def unregisterPage(self,page):
         users = self.users
         userbag = users[page.user]
@@ -524,18 +524,17 @@ class SharedObjectsManager(object):
             print 'removeSharedObject',so.shared_id
 
     def do_subscribe(self,shared_id=None,page_id=None,expire=None,**kwargs):
-        print 'do_subscribe ',shared_id
         sharedObject = self.sharedObjects.get(shared_id)
         if not sharedObject:
             sharedObject = SharedObject(self,shared_id=shared_id,expire=expire,**kwargs)
             self.sharedObjects[shared_id] = sharedObject
         subscription = sharedObject.subscribe(page_id)
-        if subscription and sharedObject.timeout:
+        if not subscription:
+            subscription=dict(privilege='forbidden',data=Bag())
+        elif sharedObject.timeout:
             print 'cancelling timeout'
             sharedObject.timeout.cancel()
             sharedObject.timeout=None
-        else:
-            subscription=dict(privilege='forbidden',data=Bag())
         data =  Bag(dict(value=subscription['data'],shared_id=shared_id,evt='init',privilege=subscription['privilege']))
         envelope = Bag(dict(command='sharedObjectChange',data=data))
         return envelope
