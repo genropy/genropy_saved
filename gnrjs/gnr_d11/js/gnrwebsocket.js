@@ -250,9 +250,8 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
                 genro._sharedObjects_paths[path] = shared_id; //in this way trigger are activated
                 genro.publish('shared_'+shared_id,{ready:true,privilege:privilege});
             }
-            genro.wsk.call({command:'som_command',cmd:'subscribe',
-                            shared_id:shared_id,expire:kw.expire,
-                            _onResult:onResult});
+            genro.wsk.call(objectUpdate({command:'som_command',cmd:'subscribe',
+                            shared_id:shared_id, _onResult:onResult},kw));
         }else{
             console.warn('shared_id',shared_id,'is already subscribed')
         }

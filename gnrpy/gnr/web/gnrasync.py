@@ -29,6 +29,7 @@ import tornado.web
 from tornado import gen
 import tornado.websocket as websocket
 import tornado.ioloop
+import signal
 from tornado.netutil import bind_unix_socket
 from tornado.tcpserver import TCPServer
 from tornado import version_info
@@ -359,7 +360,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
 class SharedObject(object):
     default_savedir = 'site:async/sharedobjects'
     def __init__(self,manager,shared_id,expire=None,startData=None,read_tags=None,write_tags=None,
-                    filepath=None,**kwargs):
+                    filepath=None, saveIterval=None, saveOnClose=None, autoLoad=None,**kwargs):
         self.manager = manager
         self.server = manager.server
         self.shared_id = shared_id
@@ -372,6 +373,9 @@ class SharedObject(object):
         if self.expire<0:
             self.expire = 365*24*60*60
         self.timeout=None
+        self.saveOnClose=saveOnClose
+        self.saveIterval=saveIterval
+        self.autoLoad=autoLoad
         self.onInit(*kwargs)
 
     @property
@@ -390,7 +394,8 @@ class SharedObject(object):
         self._data['root'] = data
 
     def onInit(self,**kwargs):
-        print 'onInit',self.shared_id
+        if self.autoLoad:
+            self.load()
         
     def onSubscribePage(self,page):
         print 'onSubscribePage',self.shared_id,page.page_id
@@ -400,7 +405,12 @@ class SharedObject(object):
     
     def onDestroy(self):
         print 'onDestroy',self.shared_id
-
+        
+    def onShutdown(self):
+        print '**********************onShutdown',self.shared_id
+        if self.saveOnClose:
+            self.save()
+            
     def subscribe(self,page_id=None,**kwargs):
         page = self.server.pages[page_id]
         privilege= self.checkPermission(page)
@@ -526,11 +536,11 @@ class SharedObjectsManager(object):
         if handler:
             return handler(**kwargs)
 
-    def getSharedObject(self,shared_id,expire=None,startData=None,read_tags=None,write_tags=None, factory=SharedObject):
+    def getSharedObject(self,shared_id,expire=None,startData=None,read_tags=None,write_tags=None, factory=SharedObject,**kwargs):
         if not shared_id in self.sharedObjects:
             print 'missing',shared_id
             self.sharedObjects[shared_id] = factory(self,shared_id=shared_id,expire=expire,startData=startData,
-                                                                read_tags=read_tags,write_tags=write_tags)
+                                                                read_tags=read_tags,write_tags=write_tags,**kwargs)
         return self.sharedObjects[shared_id]
         
     def removeSharedObject(self,so):
@@ -538,10 +548,11 @@ class SharedObjectsManager(object):
             self.sharedObjects.pop(so.shared_id,None)
             print 'removeSharedObject',so.shared_id
 
-    def do_subscribe(self,shared_id=None,page_id=None,expire=None,**kwargs):
+    def do_subscribe(self,shared_id=None,page_id=None,**kwargs):
+        print 'do_subscribe',shared_id, kwargs
         sharedObject = self.sharedObjects.get(shared_id)
         if not sharedObject:
-            sharedObject = SharedObject(self,shared_id=shared_id,expire=expire,**kwargs)
+            sharedObject = SharedObject(self,shared_id=shared_id,**kwargs)
             self.sharedObjects[shared_id] = sharedObject
         subscription = sharedObject.subscribe(page_id)
         if not subscription:
@@ -564,6 +575,9 @@ class SharedObjectsManager(object):
     def do_loadSharedObject(self,shared_id=None,**kwargs):
         self.getSharedObject(shared_id).load()
                     
+    def onShutdown(self):
+        for so in self.sharedObjects.values():
+            so.onShutdown()
 
     #def do_datachange(self,shared_id=None,**kwargs):
     #    so = self.sharedObjects[shared_id]
@@ -635,8 +649,9 @@ class GnrBaseAsyncServer(object):
    
     def registerPage(self,page=None,page_id=None):
         if not page:
-            print 'reloading page',page_id
             page = self.gnrsite.resource_loader.get_page_by_id(page_id)
+            if not page:
+                return
         page.asyncServer = self
         page.sharedObjects = set()
         self.pages[page.page_id] = page
@@ -686,10 +701,15 @@ class GnrBaseAsyncServer(object):
         #debug_server.listen(8888)
         debug_server.add_socket(debug_socket)
         debug_server.application = self.tornadoApp
+        signal.signal(signal.SIGTERM, self.onSignal)
+        signal.signal(signal.SIGINT, self.onSignal)
         self.io_loop.start()
 
-    def stop(self,*args,**kwargs):
-        pass
+    def onSignal(self,sig, frame):
+        self.io_loop.add_callback(self.onShutdown)
+        
+    def onShutdown(self):
+        self.som.onShutdown()
 
     def logToPage(self,page_id,**kwargs):
         self.pages[page_id].log(**kwargs)

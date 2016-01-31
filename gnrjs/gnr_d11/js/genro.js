@@ -196,17 +196,20 @@ dojo.declare('gnr.GenroClient', null, {
             'limit':'50'};
         var mainWindow = dojo.byId('mainWindow');
         dojo.locale = dojo.i18n.normalizeLocale(dojo.locale);
-        if (mainWindow && mainWindow.clientHeight===0){
-            genro._startDelayer = setInterval(function(){
-                if(dojo.byId('mainWindow').clientHeight>0){
-                    clearInterval(genro._startDelayer);
-                    genro.start();
-                }
-            },200);
-        }else{
-            dojo.addOnLoad(genro, 'start');
-        }
-
+      // if (mainWindow && mainWindow.clientHeight===0){
+      //     console.log('***********AaAAAAAA')
+      //     genro._startDelayer = setInterval(function(){
+      //         if(dojo.byId('mainWindow').clientHeight>0){
+      //             clearInterval(genro._startDelayer);
+      //             genro.start();
+      //         }
+      //     },200);
+      // }else{
+      //     console.log('***********BBBBB')
+      //     
+      // }
+      //
+       dojo.addOnLoad(genro, 'start');
     },
 
     compare: function(op, a, b) {
