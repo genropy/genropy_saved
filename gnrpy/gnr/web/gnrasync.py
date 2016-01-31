@@ -367,8 +367,12 @@ class SharedObject(object):
         self.write_tags = write_tags
         self.data.subscribe('datachanges', any=self._on_data_trigger)
         self.subscribed_pages = dict()
-        self.expire = expire or 0
+        self.expire =expire or 0
+        if self.expire<0:
+            self.expire = 365*24*60*60
+        self.timeout=None
         self.onInit(*kwargs)
+        
     
     def onInit(self,**kwargs):
         print 'onInit',self.shared_id
@@ -380,7 +384,7 @@ class SharedObject(object):
         print 'onUnsubscribePage',self.shared_id,page.page_id
     
         
-    def onDestroy(self,page):
+    def onDestroy(self):
         print 'onDestroy',self.shared_id
 
     def subscribe(self,page_id=None,**kwargs):
@@ -397,7 +401,7 @@ class SharedObject(object):
         self.subscribed_pages.pop(page.page_id,None)
         self.onUnsubscribePage(page)
         if not self.subscribed_pages:
-            self.manager.noSubscribers(self)
+            self.timeout=self.server.delayedCall(self.expire,self.manager.removeSharedObject,self)
             
     def checkPermission(self,page):
         privilege = 'readwrite' 
@@ -442,7 +446,7 @@ class SharedLogger(SharedObject):
     def onUnsubscribePage(self,page):
         print 'onUnsubscribePage',self.shared_id,page.page_id
     
-    def onDestroy(self,page):
+    def onDestroy(self):
         print 'onDestroy',self.shared_id
     
    
@@ -461,7 +465,7 @@ class SharedStatus(SharedObject):
     def onUnsubscribePage(self,page):
         print 'onUnsubscribePage',self.shared_id,page.page_id
      
-    def onDestroy(self,page):
+    def onDestroy(self):
         print 'onDestroy',self.shared_id
         
     def registerPage(self,page):
@@ -500,10 +504,7 @@ class SharedObjectsManager(object):
     def __init__(self, server,gc_interval=5):
         self.server = server
         self.sharedObjects = dict()
-        self.noSubscribersObjects = dict()
         self.change_queue = queues.Queue(maxsize=100)
-        self.gc_interval=gc_interval
-        self.gc = self.garbageCollector()
 
 
     def __call__(self,cmd,**kwargs):
@@ -516,43 +517,35 @@ class SharedObjectsManager(object):
             self.sharedObjects[shared_id] = factory(self,shared_id=shared_id,expire=expire,startData=startData,
                                                                 read_tags=read_tags,write_tags=write_tags)
         return self.sharedObjects[shared_id]
-
+        
+    def removeSharedObject(self,so):
+        if so.onDestroy() != False:
+            self.sharedObjects.pop(so.shared_id,None)
+            print 'removeSharedObject',so.shared_id
 
     def do_subscribe(self,shared_id=None,page_id=None,expire=None,**kwargs):
+        print 'do_subscribe ',shared_id
         sharedObject = self.sharedObjects.get(shared_id)
         if not sharedObject:
             sharedObject = SharedObject(self,shared_id=shared_id,expire=expire,**kwargs)
             self.sharedObjects[shared_id] = sharedObject
         subscription = sharedObject.subscribe(page_id)
-        if subscription:
-            self.noSubscribersObjects.pop(shared_id,None)
+        if subscription and sharedObject.timeout:
+            print 'cancelling timeout'
+            sharedObject.timeout.cancel()
+            sharedObject.timeout=None
         else:
             subscription=dict(privilege='forbidden',data=Bag())
         data =  Bag(dict(value=subscription['data'],shared_id=shared_id,evt='init',privilege=subscription['privilege']))
         envelope = Bag(dict(command='sharedObjectChange',data=data))
         return envelope
 
-    def noSubscribers(self,sharedObject):
-        expire = sharedObject.expire
-        if expire<0:
-            expire = 365*24*60*60
-        self.noSubscribersObjects[sharedObject.shared_id] = datetime.timedelta(seconds=expire)+datetime.datetime.now()
 
     def do_datachange(self,shared_id=None,**kwargs):
         self.sharedObjects[shared_id].datachange(**kwargs)
     
-    @gen.coroutine
-    def garbageCollector(self):
-        while True:
-            yield gen.sleep(self.gc_interval)
-            print 'running gc',
-            t=datetime.datetime.now()
-            expired=[k for k,v in self.noSubscribersObjects.items() if v>t]
-            for shared_id in expired:
-                print 'destroing shared_id',shared_id
-                so=self.sharedObjects.pop(shared_id,None)
-                so.onDestroy()
-            print 'gc done'
+
+                    
 
     #def do_datachange(self,shared_id=None,**kwargs):
     #    so = self.sharedObjects[shared_id]
@@ -575,7 +568,17 @@ class SharedObjectsManager(object):
    #             change = yield self.change_queue.get()
    #         yield self.handle_socket_message(message)
 
-
+class DelayedCall(object):
+    
+    def __init__(self,server,delay,cb,*args,**kwargs):
+        self.server=server
+        self.timeout=self.server.io_loop.call_later(delay, cb, *args, **kwargs)
+        
+    def cancel(self):
+        self.server.io_loop.remove_timeout(self.timeout)
+        
+        
+        
 class GnrBaseAsyncServer(object):
     def __init__(self,port=None,instance=None):
         self.port=port
@@ -591,9 +594,13 @@ class GnrBaseAsyncServer(object):
         self.wsk = AsyncWebSocketHandler(self)
         self.som = SharedObjectsManager(self)
         self.interval = 1000
+        self.io_loop =tornado.ioloop.IOLoop.instance()
         #sched = tornado.ioloop.PeriodicCallback(self.scheduler,self.interval)
         #sched.start()
 
+    def delayedCall(self,delay,cb,*args,**kwargs):
+        return DelayedCall(self,delay,cb,*args,**kwargs)
+        
     def scheduler(self,*args,**kwargs):
         print 'scheduler',args,kwargs
 
@@ -657,12 +664,11 @@ class GnrBaseAsyncServer(object):
             server.add_socket(main_socket)
         debug_socket_path = os.path.join(gnrConfigPath(), 'sockets', '%s_debug.tornado'%self.instance_name)
         debug_socket = bind_unix_socket(debug_socket_path)
-        io_loop =tornado.ioloop.IOLoop.instance()
-        debug_server = GnrDebugServer(io_loop)
+        debug_server = GnrDebugServer(self.io_loop)
         #debug_server.listen(8888)
         debug_server.add_socket(debug_socket)
         debug_server.application = self.tornadoApp
-        io_loop.start()
+        self.io_loop.start()
        
     def logToPage(self,page_id,**kwargs):
         self.pages[page_id].log(**kwargs)
