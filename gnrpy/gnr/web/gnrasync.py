@@ -206,7 +206,6 @@ class GnrWsProxyHandler(tornado.web.RequestHandler,GnrBaseHandler):
             envelope = Bag(envelope)
             command = envelope['command']
             data = envelope['data']
-            print 'received commandToPage',command
             self.server.externalCommand(command, data)
             return
         if page_id == '*':
@@ -226,9 +225,19 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
         if executor:
             return self.server.executors.get(executor)
 
-    def getHandler(self,command):
-        return getattr(self,'do_%s' % command,self.wrongCommand)  
-        
+    def getHandler(self,command,kwargs):
+        if not '.' in command:
+            return getattr(self,'do_%s' % command,self.wrongCommand) 
+            
+        kwargs['page_id']=self.page_id
+        proxy=self.server        
+        while '.' in command:
+            proxyname,command=command.split('.',1)
+            proxy=getattr(proxy,proxyname,None)
+        if proxy is None:
+            return self.wrongCommand
+        return getattr(proxy,'do_%s' % command,self.wrongCommand) 
+
     def open(self):
         #print "WebSocket open - page_id:",self.page_id
         pass
@@ -244,7 +253,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
             self.write_message('PONG')
         else:
             command,result_token,kwargs=self.parseMessage(message)
-            handler=self.getHandler(command)
+            handler=self.getHandler(command,kwargs)
             if handler:
                 executor=self.getExecutor(handler)
                 if executor:
@@ -280,7 +289,6 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
             websocket.write_message(envelope)
 
     def do_connected(self,page_id=None,**kwargs):
-        print 'do_connected',page_id
         self._page_id=page_id
         if not page_id in self.channels:
             #print 'setting in channels',self.page_id
@@ -295,9 +303,9 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
             pass
             #print 'already in pages',self.page_id
 
-    def do_som_command(self,cmd=None,_time_start=None,**kwargs):
-        return self.server.som(cmd,page_id=self._page_id,**kwargs)
-
+  #  def do_som_command(self,cmd=None,_time_start=None,**kwargs):
+  #      return self.server.som(cmd,page_id=self._page_id,**kwargs)
+  #
     def do_pdb_command(self, cmd=None, pdb_id=None,**kwargs):
         #self.debugger.put_data(data)
         print 'CMD',cmd
@@ -376,7 +384,7 @@ class SharedObject(object):
         self.saveOnClose=saveOnClose
         self.saveIterval=saveIterval
         self.autoLoad=autoLoad
-        self.onInit(*kwargs)
+        self.onInit(**kwargs)
 
     @property
     def savepath(self):
@@ -407,7 +415,6 @@ class SharedObject(object):
         print 'onDestroy',self.shared_id
         
     def onShutdown(self):
-        print '**********************onShutdown',self.shared_id
         if self.saveOnClose:
             self.save()
             
@@ -538,7 +545,6 @@ class SharedObjectsManager(object):
 
     def getSharedObject(self,shared_id,expire=None,startData=None,read_tags=None,write_tags=None, factory=SharedObject,**kwargs):
         if not shared_id in self.sharedObjects:
-            print 'missing',shared_id
             self.sharedObjects[shared_id] = factory(self,shared_id=shared_id,expire=expire,startData=startData,
                                                                 read_tags=read_tags,write_tags=write_tags,**kwargs)
         return self.sharedObjects[shared_id]
@@ -549,7 +555,6 @@ class SharedObjectsManager(object):
             print 'removeSharedObject',so.shared_id
 
     def do_subscribe(self,shared_id=None,page_id=None,**kwargs):
-        print 'do_subscribe',shared_id, kwargs
         sharedObject = self.sharedObjects.get(shared_id)
         if not sharedObject:
             sharedObject = SharedObject(self,shared_id=shared_id,**kwargs)
@@ -643,7 +648,6 @@ class GnrBaseAsyncServer(object):
 
 
     def do_registerNewPage(self, page_id=None, page_info=None, class_info=None, init_info=None, mixin_set=None):
-        print 'do_registerNewPage',page_id
         page = self.gnrsite.resource_loader.instantiate_page(page_id=page_id,class_info=class_info, init_info=init_info, page_info=page_info)
         self.registerPage(page)
    

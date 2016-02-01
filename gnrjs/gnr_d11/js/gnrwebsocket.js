@@ -249,8 +249,30 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
                 so.privilege = privilege;
                 genro._sharedObjects_paths[path] = shared_id; //in this way trigger are activated
                 genro.publish('shared_'+shared_id,{ready:true,privilege:privilege});
+                var sharedValuePath=function(domnode,path){
+                    var sourceNode=genro.dom.getSourceNode(domnode)
+                    if (sourceNode && sourceNode.attr.value){
+                        var valuePath=sourceNode.absDatapath(sourceNode.attr.value)
+                        if (valuePath.indexOf(path)==0){
+                            return valuePath
+                        }
+                    }
+                      
+                }
+                window.addEventListener("focus", function(e){
+                    var focusedPath=sharedValuePath(e.target,path)
+                    if (focusedPath){
+                        console.log('focusedPath',focusedPath)
+                    }
+                 },true)
+                 window.addEventListener("blur", function(e){
+                     var blurredPath=sharedValuePath(e.target,path)
+                     if (blurredPath){
+                         console.log('blurredPath',blurredPath)
+                     }
+                  },true)
             }
-            genro.wsk.call(objectUpdate({command:'som_command',cmd:'subscribe',
+            genro.wsk.call(objectUpdate({command:'som.subscribe',
                             shared_id:shared_id, _onResult:onResult},kw));
         }else{
             console.warn('shared_id',shared_id,'is already subscribed')
@@ -259,7 +281,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     
     unregisterSharedObject:function(shared_id){
         if(shared_id in genro._sharedObjects){
-            genro.wsk.call({command:'som_command',cmd:'unsubscribe',shared_id:shared_id,
+            genro.wsk.call({command:'som.unsubscribe',shared_id:shared_id,
                             _onResult:function(){
                                 var so = objectPop(genro._sharedObjects,shared_id);
                                 objectPop(genro._sharedObjects_paths,so.path);
@@ -269,7 +291,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     },
 
     saveSharedObject:function(shared_id){
-        genro.wsk.call({command:'som_command',cmd:'saveSharedObject',shared_id:shared_id,
+        genro.wsk.call({command:'som.saveSharedObject',shared_id:shared_id,
                             _onResult:function(){
                                 console.log('saved saveSharedObject',shared_id);
                             }
@@ -277,7 +299,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     },
 
     loadSharedObject:function(shared_id){
-        genro.wsk.call({command:'som_command',cmd:'loadSharedObject',shared_id:shared_id,
+        genro.wsk.call({command:'som.loadSharedObject',shared_id:shared_id,
                             _onResult:function(){
                                 console.log('loaded loadSharedObject',shared_id);
                             }

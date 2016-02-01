@@ -848,6 +848,17 @@ dojo.declare("gnr.GnrDomHandler", null, {
             return widget.sourceNode ? widget : (widget.grid || widget.tree);
         }
     },
+    getSourceNode:function(domnode){
+        var sourceNode=domnode.sourceNode 
+        if (!sourceNode ){
+            var wdg=genro.dom.getBaseWidget(domnode)
+            if (wdg){
+                sourceNode=wdg.sourceNode 
+            }
+        } 
+        return sourceNode
+    }
+    ,
 
     getBaseSourceNode:function(domnode){
         while(domnode && !domnode.sourceNode){
