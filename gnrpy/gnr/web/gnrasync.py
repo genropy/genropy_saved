@@ -368,7 +368,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
 class SharedObject(object):
     default_savedir = 'site:async/sharedobjects'
     def __init__(self,manager,shared_id,expire=None,startData=None,read_tags=None,write_tags=None,
-                    filepath=None, saveIterval=None, saveOnClose=None, autoLoad=None,**kwargs):
+                    filepath=None, saveIterval=None, autoSave=None, autoLoad=None,**kwargs):
         self.manager = manager
         self.server = manager.server
         self.shared_id = shared_id
@@ -381,7 +381,7 @@ class SharedObject(object):
         if self.expire<0:
             self.expire = 365*24*60*60
         self.timeout=None
-        self.saveOnClose=saveOnClose
+        self.autoSave=autoSave
         self.saveIterval=saveIterval
         self.autoLoad=autoLoad
         self.onInit(**kwargs)
@@ -416,7 +416,7 @@ class SharedObject(object):
         print 'onDestroy',self.shared_id
         
     def onShutdown(self):
-        if self.saveOnClose:
+        if self.autoSave:
             self.save()
             
     def subscribe(self,page_id=None,**kwargs):

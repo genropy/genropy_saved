@@ -9,7 +9,7 @@ class GnrCustomWebPage(object):
     def main(self,root,room=None,**kwargs):
         bc = root.borderContainer(datapath='main')
         room = room or 'collaborative_test'
-        bc.data('.shared',None,shared_id=room,shared_expire=10,shared_saveOnClose=True,shared_autoLoad=True)
+        bc.data('.shared',None,shared_id=room,shared_expire=10,shared_autoSave=True,shared_autoLoad=True)
         #bc.sharedData('.shared',shared_id='collaborative_test',shared_expire=10000)
         top = bc.contentPane(region='top')
         fb = top.div(padding='10px').formbuilder(cols=2,border_spacing='3px',datapath='.shared.info')
