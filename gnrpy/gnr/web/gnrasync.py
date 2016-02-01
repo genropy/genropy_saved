@@ -398,8 +398,9 @@ class SharedObject(object):
         self.data.toXml(self.savepath,unresolved=True,autocreate=True)
 
     def load(self):
-        data =  Bag(self.savepath)
-        self._data['root'] = data
+        if os.path.exists(self.savepath):
+            data =  Bag(self.savepath)
+            self._data['root'] = data
 
     def onInit(self,**kwargs):
         if self.autoLoad:
