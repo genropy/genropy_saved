@@ -395,11 +395,13 @@ class SharedObject(object):
         return self._data['root']
 
     def save(self):
+        print '***** SAVING *******', self.shared_id
         self.data.toXml(self.savepath,unresolved=True,autocreate=True)
 
     def load(self):
         if os.path.exists(self.savepath):
             data =  Bag(self.savepath)
+            print '***** LOADING *******',self.shared_id
             self._data['root'] = data
 
     def onInit(self,**kwargs):
@@ -413,6 +415,8 @@ class SharedObject(object):
         print 'onUnsubscribePage',self.shared_id,page.page_id
     
     def onDestroy(self):
+        if self.autoSave:
+            self.save()
         print 'onDestroy',self.shared_id
         
     def onShutdown(self):
