@@ -97,7 +97,18 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         }
     },
     receivedCommand:function(command,data){
-        var handler = command? this['do_'+command] || this.do_publish:this.do_publish
+        var handler;
+        if (command){
+            if (command.indexOf('.')>0){
+                comlst=command.split('.')
+                handler=genro[comlst[0]]['do_'+comlst.splice(1).join('.')]
+            }
+            else{
+                handler=this['do_'+command] || this.do_publish
+            }
+        }else{
+            handler=this.do_publish
+        }
         handler.apply(this,[data])
     },
     receivedToken:function(token,envelope){
@@ -233,79 +244,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     },
     publishToClient:function(page_id,topic,data){
         this.sendCommandToPage(page_id,'publish',new gnr.GnrBag({'data':data,'topic':topic}))
-    },
-
-    registerSharedObject:function(path,shared_id,kw){
-        kw = kw || {};
-        if(!(shared_id in genro._sharedObjects)){
-            genro._sharedObjects[shared_id] = {shared_id:shared_id,path:path,ready:false};
-            var onResult = function(resultNode){
-                var data = resultNode.getValue();
-                genro.wsk.do_sharedObjectChange(data);
-                var privilege = data.getItem('privilege');
-                var so = genro._sharedObjects[shared_id];
-                var innerPath = data.getItem('path');
-                so.ready = true;
-                so.privilege = privilege;
-                genro._sharedObjects_paths[path] = shared_id; //in this way trigger are activated
-                genro.publish('shared_'+shared_id,{ready:true,privilege:privilege});
-                var sharedValuePath=function(domnode,path){
-                    var sourceNode=genro.dom.getSourceNode(domnode)
-                    if (sourceNode && sourceNode.attr.value){
-                        var valuePath=sourceNode.absDatapath(sourceNode.attr.value)
-                        if (valuePath.indexOf(path)==0){
-                            return valuePath
-                        }
-                    }
-                      
-                }
-                window.addEventListener("focus", function(e){
-                    var focusedPath=sharedValuePath(e.target,path)
-                    if (focusedPath){
-                        console.log('focusedPath',focusedPath)
-                    }
-                 },true)
-                 window.addEventListener("blur", function(e){
-                     var blurredPath=sharedValuePath(e.target,path)
-                     if (blurredPath){
-                         console.log('blurredPath',blurredPath)
-                     }
-                  },true)
-            }
-            genro.wsk.call(objectUpdate({command:'som.subscribe',
-                            shared_id:shared_id, _onResult:onResult},kw));
-        }else{
-            console.warn('shared_id',shared_id,'is already subscribed')
-        }
-    },
-    
-    unregisterSharedObject:function(shared_id){
-        if(shared_id in genro._sharedObjects){
-            genro.wsk.call({command:'som.unsubscribe',shared_id:shared_id,
-                            _onResult:function(){
-                                var so = objectPop(genro._sharedObjects,shared_id);
-                                objectPop(genro._sharedObjects_paths,so.path);
-                            }
-            });
-        }
-    },
-
-    saveSharedObject:function(shared_id){
-        genro.wsk.call({command:'som.saveSharedObject',shared_id:shared_id,
-                            _onResult:function(){
-                                console.log('saved saveSharedObject',shared_id);
-                            }
-        });
-    },
-
-    loadSharedObject:function(shared_id){
-        genro.wsk.call({command:'som.loadSharedObject',shared_id:shared_id,
-                            _onResult:function(){
-                                console.log('loaded loadSharedObject',shared_id);
-                            }
-        });
-    },
-
+    }
 });
 
 // MIT License:

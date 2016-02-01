@@ -460,7 +460,7 @@ class SharedObject(object):
             plist = plist+[node.label]
         path = '.'.join(plist)
         data = Bag(dict(value=node.value,attr=node.attr,path=path,shared_id=self.shared_id,evt=evt))
-        envelope = Bag(dict(command='sharedObjectChange',data=data)).toXml()
+        envelope = Bag(dict(command='som.sharedObjectChange',data=data)).toXml()
         from_page_id = reason
         channels = self.server.channels
         for p in self.subscribed_pages.keys():
@@ -567,7 +567,7 @@ class SharedObjectsManager(object):
             sharedObject.timeout.cancel()
             sharedObject.timeout=None
         data =  Bag(dict(value=subscription['data'],shared_id=shared_id,evt='init',privilege=subscription['privilege']))
-        envelope = Bag(dict(command='sharedObjectChange',data=data))
+        envelope = Bag(dict(command='som.sharedObjectChange',data=data))
         return envelope
 
 

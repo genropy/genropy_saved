@@ -22,10 +22,10 @@ class GnrCustomWebPage(object):
         fb.button('Load',action='genro.wsk.loadSharedObject(room);',room=room)
 
         #fb.button('Subscribe',action="""
-        #    genro.wsk.registerSharedObject('main.shared','collaborative_test',{expire:20})""")
+        #    genro.som.registerSharedObject('main.shared','collaborative_test',{expire:20})""")
 #
         fb.button('Unregister',action="""
-            genro.wsk.unregisterSharedObject(room);
+            genro.som.unregisterSharedObject(room);
         """,room=room)
 #
         #bc.contentPane(region='center')
