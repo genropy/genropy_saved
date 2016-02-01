@@ -505,7 +505,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             if(shared_id){
                 var shared_kw=objectExtract(attributes,'shared_*')
                 setTimeout(function(){
-                    genro.wsk.registerSharedObject(node.absDatapath(path),shared_id,shared_kw);
+                    genro.som.registerSharedObject(node.absDatapath(path),shared_id,shared_kw);
                     
                 },1)
             }
