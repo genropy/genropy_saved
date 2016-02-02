@@ -6311,9 +6311,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         if(celldata['userSets_caption']){
             celldata['checkedCaption'] = sourceNode.attr.userSets+'_caption.'+fieldname;
         }
-
-        var checkedField = '_pkey';
-        celldata['checkedField'] = checkedField;
+        celldata['checkedField'] = celldata.checkedField || '_pkey';
         celldata['userSets'] = true;    
         celldata['format_onclick'] = "this.widget.onChangeSetCol(kw.rowIndex,'"+fieldname+"',e)";
         celldata['_customGetter'] = function(rowdata,rowIdx){
