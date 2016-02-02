@@ -230,10 +230,15 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             var wrp_attr = objectExtract(inherited_attr,'wrp_*')
             var attr = objectUpdate({},sourceNode.attr)
             var tag = objectPop(attr,'tag');
+            var children = sourceNode.getValue();
+            sourceNode._value = null;
             var side = lbl_attr['side'] || 'top';
             sourceNode.attr = objectUpdate({tag:'div',_class:'innerLblWrapper innerLbl_'+side+ ' innerLblWrapper_widget_'+tag.toLowerCase()},wrp_attr);
             sourceNode._('div',objectUpdate({innerHTML:lbl,_class:'innerLbl'},lbl_attr),{'doTrigger':false});
-            sourceNode._(tag,attr,{'doTrigger':false})
+            var c = sourceNode._(tag,attr,{'doTrigger':false});
+            if(children && children.len()){
+                c.concat(children);
+            }
         }else{
             this.onBuilding(sourceNode);
         }

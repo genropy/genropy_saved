@@ -9,6 +9,7 @@ class GnrCustomWebPage(object):
         """generic lbl"""
         pane.attributes.update(lbl_side='top')
         pane.textbox(value='^.nome',lbl='Chi sei')
+
         pane.br()
         pane.br()
 
@@ -19,3 +20,6 @@ class GnrCustomWebPage(object):
     def test_2_slotBar(self, pane):
         f = pane.frameForm(height='200px',width='400px')
         f.slotToolbar()
+
+    def test_3_cbtext(self,pane):
+        pane.checkboxtext(value='^.nome',lbl='Chi sei',values='mario,luigi,antonio',popup=True)
