@@ -4179,7 +4179,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var bagnodes = struct.getNodes();
             var formats, dtype, editor;
             var view, viewnode, rows, rowsnodes, i, k, j, cellsnodes, row, cell, rowattrs, rowBag;
-            var editorPars = sourceNode.attr.gridEditor;
+            var editorPars = sourceNode.attr.gridEditorPars;
             for (var i = 0; i < bagnodes.length; i++) {
                 viewnode = bagnodes[i];
                 view = objectUpdate({}, viewnode.attr);
