@@ -226,7 +226,11 @@ genropatches.menu = function(){
 		};
 		this.onOpeningPopup(popupKw);
 		dijit.popup.open(popupKw);
-		this.focus();
+        var that = this;
+        setTimeout(function(){
+            that.focus();
+        },1)
+		
 
 		this._onBlur = function(){
 			this.inherited('_onBlur', arguments);
