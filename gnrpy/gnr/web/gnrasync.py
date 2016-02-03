@@ -378,12 +378,14 @@ class SharedObject(object):
         self._data.subscribe('datachanges', any=self._on_data_trigger)
         self.subscribed_pages = dict()
         self.expire = expire or 0
+        self.focusedPaths = {}
         if self.expire<0:
             self.expire = 365*24*60*60
         self.timeout=None
         self.autoSave=autoSave
         self.saveIterval=saveIterval
         self.autoLoad=autoLoad
+        self.changes=False
         self.onInit(**kwargs)
 
     @property
@@ -395,14 +397,17 @@ class SharedObject(object):
         return self._data['root']
 
     def save(self):
-        print '***** SAVING *******', self.shared_id
-        self.data.toXml(self.savepath,unresolved=True,autocreate=True)
+        if self.changes:
+            print '***** SAVING *******', self.shared_id
+            self.data.toXml(self.savepath,unresolved=True,autocreate=True)
+        self.changes=False
 
     def load(self):
         if os.path.exists(self.savepath):
             data =  Bag(self.savepath)
             print '***** LOADING *******',self.shared_id
             self._data['root'] = data
+        self.changes=False
 
     def onInit(self,**kwargs):
         if self.autoLoad:
@@ -455,6 +460,7 @@ class SharedObject(object):
             self._data.setItem(path,value,_attributes=attr,_reason=page_id)
 
     def _on_data_trigger(self, node=None, ind=None, evt=None, pathlist=None,reason=None, **kwargs):
+        self.changes=True
         if reason=='autocreate':
             return
         #page = self.manager.server.pages[reason]
@@ -464,12 +470,28 @@ class SharedObject(object):
             plist = plist+[node.label]
         path = '.'.join(plist)
         data = Bag(dict(value=node.value,attr=node.attr,path=path,shared_id=self.shared_id,evt=evt))
-        envelope = Bag(dict(command='som.sharedObjectChange',data=data)).toXml()
         from_page_id = reason
+        self.broadcast(command='som.sharedObjectChange',data=data,from_page_id=from_page_id)
+
+                
+    def onPathFocus(self, page_id=None,curr_path=None,focused=None):
+        print 'onPathFocus',curr_path,focused
+        if focused:
+            self.focusedPaths[curr_path]=page_id
+        else:
+            self.focusedPaths.pop(curr_path,None)
+        self.broadcast(command='som.onPathLock',from_page_id=page_id,data=Bag(dict(locked=focused,lock_path=curr_path)))
+
+    
+    def broadcast(self,command=None, data=None, from_page_id=None):
+        envelope = Bag(dict(command=command,data=data)).toXml()
         channels = self.server.channels
         for p in self.subscribed_pages.keys():
             if p != from_page_id:
                 channels.get(p).write_message(envelope)
+        
+ 
+        
 
 class SharedLogger(SharedObject):
     
@@ -542,12 +564,6 @@ class SharedObjectsManager(object):
         self.sharedObjects = dict()
         self.change_queue = queues.Queue(maxsize=100)
 
-
-    def __call__(self,cmd,**kwargs):
-        handler = getattr(self,'do_%s' %cmd,None)
-        if handler:
-            return handler(**kwargs)
-
     def getSharedObject(self,shared_id,expire=None,startData=None,read_tags=None,write_tags=None, factory=SharedObject,**kwargs):
         if not shared_id in self.sharedObjects:
             self.sharedObjects[shared_id] = factory(self,shared_id=shared_id,expire=expire,startData=startData,
@@ -588,14 +604,11 @@ class SharedObjectsManager(object):
     def onShutdown(self):
         for so in self.sharedObjects.values():
             so.onShutdown()
+            
 
-    #def do_datachange(self,shared_id=None,**kwargs):
-    #    so = self.sharedObjects[shared_id]
-    #    if not so.busy:
-    #        so.datachange(**kwargs)
-    #    else:
-    #        self.change_queue.put((shared_id,kwargs))
-
+        
+    def do_onPathFocus(self,shared_id=None,page_id=None,curr_path=None,focused=None,**kwargs):
+        self.sharedObjects[shared_id].onPathFocus(page_id=page_id,curr_path=curr_path,focused=focused)
 
 #
    # @gen.coroutine

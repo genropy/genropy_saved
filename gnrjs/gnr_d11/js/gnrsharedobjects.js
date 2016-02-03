@@ -28,6 +28,7 @@
 dojo.declare("gnr.GnrSharedObjectHandler", null, {
     constructor: function(application ) {
         this.application = application;
+        this.lockedPaths={}
     },
    
     do_sharedObjectChange:function(data){
@@ -53,6 +54,7 @@ dojo.declare("gnr.GnrSharedObjectHandler", null, {
 
     registerSharedObject:function(path,shared_id,kw){
         kw = kw || {};
+        var that =this
         if(!(shared_id in genro._sharedObjects)){
             genro._sharedObjects[shared_id] = {shared_id:shared_id,path:path,ready:false};
             var onResult = function(resultNode){
@@ -76,15 +78,15 @@ dojo.declare("gnr.GnrSharedObjectHandler", null, {
                       
                 }
                 window.addEventListener("focus", function(e){
-                    var focusedPath=sharedValuePath(e.target,path)
-                    if (focusedPath){
-                        console.log('focusedPath',focusedPath)
+                    var curr_path=sharedValuePath(e.target,path)
+                    if (curr_path){
+                            genro.wsk.send('som.onPathFocus',{shared_id:shared_id,curr_path:curr_path,focused:true});                        
                     }
                  },true)
                  window.addEventListener("blur", function(e){
-                     var blurredPath=sharedValuePath(e.target,path)
-                     if (blurredPath){
-                         console.log('blurredPath',blurredPath)
+                     var curr_path=sharedValuePath(e.target,path)
+                     if (curr_path){
+                         genro.wsk.send('som.onPathFocus',{shared_id:shared_id,curr_path:curr_path,focused:false});
                      }
                   },true)
             }
@@ -121,5 +123,26 @@ dojo.declare("gnr.GnrSharedObjectHandler", null, {
                             }
         });
     },
+    do_onPathLock:function(data){
+        var lock_path = data.getItem('lock_path');
+        var locked = data.getItem('locked');
+        var user = data.getItem('user');
+        if (locked){
+            genro.som.lockedPaths[lock_path]=user
+        }else{
+            delete(genro.som.lockedPaths[lock_path])
+        }
+        var lockedNode=genro.src.getSource().walk(function(n){
+            if (n instanceof gnr.GnrDomSourceNode){
+                var p=n.absDatapath(n.attr.value);
+                if (p==lock_path){
+                    return n
+                }
+            }
+        },'static')
+        if (lockedNode){
+            lockedNode.setDisabled(locked)
+        }
+    }
 
 });

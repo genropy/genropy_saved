@@ -8,6 +8,7 @@ class GnrCustomWebPage(object):
 
     def main(self,root,room=None,**kwargs):
         bc = root.borderContainer(datapath='main')
+        
         room = room or 'collaborative_test'
         bc.data('.shared',None,shared_id=room,shared_expire=10,shared_autoSave=True,shared_autoLoad=True)
         #bc.sharedData('.shared',shared_id='collaborative_test',shared_expire=10000)
