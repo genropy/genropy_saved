@@ -1581,6 +1581,13 @@ class GnrWebPage(GnrBaseWebPage):
         :param username: TODO"""
         self.site.setUserPreference(path, data, pkg=pkg, username=username)
         
+    @public_method
+    def getShortcuts(self,**kwargs):
+        shortcuts = self.db.table('adm.shortcut').query().fetch()
+        result = Bag()
+        for i,r in enumerate(shortcuts):
+            result.setItem('r_%i' %i,None,phrase=r['phrase'],groupcode=r['groupcode'],keycode=r['keycode'])
+        return result
 
     def clientPublish(self,topic,nodeId=None,iframe=None,parent=None,page_id=None,**kwargs):
         if self.wsk:
@@ -1660,7 +1667,8 @@ class GnrWebPage(GnrBaseWebPage):
         rootenv = self.getStartRootenv()
         self._workdate = None #reset workdate
         prefenv = Bag()
-        if self.application.db.package('adm'):
+        has_adm = self.application.db.package('adm')
+        if has_adm:
             prefenv = self.application.db.table('adm.preference').envPreferences(username=self.user)
         data = Bag(dict(root_page_id=self.root_page_id,parent_page_id=self.parent_page_id,rootenv=rootenv,prefenv=prefenv))
         self.pageStore().update(data)
@@ -1698,8 +1706,11 @@ class GnrWebPage(GnrBaseWebPage):
         page.data('gnr.remote_db',self.site.remote_db)
         if self.dbstore:
             page.data('gnr.dbstore',self.dbstore)
-        page.dataRemote('gnr.user_preference', self.getUserPreference,username='^gnr.avatar.user')
-        page.dataRemote('gnr.app_preference', self.getAppPreference)
+        if has_adm:
+            page.dataRemote('gnr.user_preference', self.getUserPreference,username='^gnr.avatar.user')
+            page.dataRemote('gnr.app_preference', self.getAppPreference)
+            page.dataRemote('gnr.shortcuts.store', self.getShortcuts)
+
         page.dataController('genro.dlg.serverMessage("gnr.servermsg");', _fired='^gnr.servermsg')
         page.dataController("genro.dom.setClass(dojo.body(),'bordered_icons',bordered);",
                     bordered="^gnr.user_preference.sys.theme.bordered_icons",_onStart=True)

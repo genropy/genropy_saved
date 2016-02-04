@@ -71,7 +71,7 @@ var genro_plugin_grid_configurator = {
             var fieldcellattr;
             sourceNode.attr['onDrop_gnrdbfld_' + tablecode] = function(dropInfo, data) {
                 var grid = this.widget;
-                if(!dropInfo.event.shiftKey){
+                if(dropInfo.event.shiftKey){
                     fieldcellattr = genro.serverCall('app.getFieldcellPars',{field:data.fieldpath,table:data.maintable});
                     if(fieldcellattr){
                         fieldcellattr = fieldcellattr.asDict();

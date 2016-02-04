@@ -1092,10 +1092,10 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         objectExtract(valueAttr,'_displayedValue,_formattedValue')
         var validateresult;
         valueAttr = objectUpdate(objectUpdate({}, datanode.attr), valueAttr);
-        if(typeof(value)=='string' && sourceNode.suggestionDict){
+        if(typeof(value)=='string' && sourceNode._shortcutsDict){
             value = value.replace(/\b(\w)+\b/gim, function(m){
                 if(m){
-                    return sourceNode.suggestionDict[m] || m;
+                    return sourceNode._shortcutsDict[m] || m;
                 }
                 return m;
                 
@@ -1190,19 +1190,41 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         dojo.style(this.domNode, 'visibility', (visible ? 'visible' : 'hidden'));
     },
 
-    mixin_setSuggestions:function(suggestions){
-        this.sourceNode._value.popNode('suggestionMenu');
-        if(suggestions instanceof gnr.GnrBag){
-            var suggestionDict = {};
-            var s = [];
-            suggestions.digest('#v.shortcut,#v.phrase').forEach(function(l){
-                suggestionDict[l[0]] = l[1];
-                s.push(l[1])
-            })
-            this.sourceNode.suggestionDict = suggestionDict;
-            suggestions = s.join('\n');
+    mixin_setShortcuts:function(shortcuts){
+        this.sourceNode._value.popNode('shortcutsMenu');
+        var shortcutsDict = {};
+        var shortcutKeys = [];
+        if(shortcuts===true){
+            shortcuts = genro.getData('gnr.shortcuts.store');
         }
-        this.sourceNode._('menu','suggestionMenu',{'_class':'smallmenu',action:"genro.dom.setTextInSelection($2,($1.fullpath.indexOf('caption_')==0?$1.label:$1.fullpath));",values:suggestions});
+        if(shortcuts instanceof gnr.GnrBag){
+            shortcuts.forEach(function(n){
+                shortcutsDict[n.attr.keycode] = n.attr.phrase;
+                shortcutKeys.push(n.attr.keycode)
+            });
+
+        }else{ //shortcuts is string
+            var hasKeyCode = shortcuts.indexOf(':')>=0;
+            if(!hasKeyCode){
+                //only suggestion menu
+                this.sourceNode._('menu','shortcutsMenu',{'_class':'smallmenu',
+                                                            action:"genro.dom.setTextInSelection($2,($1.fullpath.indexOf('caption_')==0?$1.label:$1.fullpath));",
+                                                            values:shortcuts});
+                return;
+            }
+            shortcutKeys = shortcuts.split(',').map(function(n){return n.split(':')[0]});
+            shortcutsDict = objectFromString(shortcuts);
+        }
+        var values = new gnr.GnrBag()
+        var i = 0;
+        var tpl = '<div style="position:relative; padding-right:60px;">$phrase <div style="position:absolute;right:0;top:0;font-weight:bold;">$keycode</div></div>';
+        shortcutKeys.forEach(function(keycode){
+            values.setItem('r_'+i,null,{caption:dataTemplate(tpl,{keycode:keycode,phrase:shortcutsDict[keycode]}),phrase:shortcutsDict[keycode],keycode:keycode});
+            i++;
+        });
+        this.sourceNode._('menu','shortcutsMenu',{'_class':'smallmenu',
+                                action:"genro.dom.setTextInSelection($2,$1.phrase);",values:values});
+        this.sourceNode._shortcutsDict= shortcutsDict;
     },
 
     mixin_setHidden: function(hidden) {
@@ -1577,7 +1599,7 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
     },
 
     creating:function(attributes, sourceNode) {
-        var savedAttrs = objectExtract(attributes, 'value,suggestions');
+        var savedAttrs = objectExtract(attributes, 'value,shortcuts');
         return savedAttrs;
     },
 
@@ -1586,9 +1608,9 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
         if (savedAttrs.value) {
             newobj.setValue(savedAttrs.value);
         }
-       if(savedAttrs.suggestions){
+       if(savedAttrs.shortcuts){
             setTimeout(function(){
-                newobj.setSuggestions(savedAttrs.suggestions)
+                newobj.setShortcuts(savedAttrs.shortcuts)
             },1)
         }
         dojo.connect(newobj.domNode, 'onchange', dojo.hitch(this, function() {
@@ -2386,7 +2408,12 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
     },
     created: function(widget, savedAttrs, sourceNode) {
         if(savedAttrs.values){
-            var contentBag = new gnr.GnrBag(objectFromString(savedAttrs.values,null,'kv'));
+            var contentBag;
+            if(typeof(savedAttrs.values)=='string'){
+                contentBag = new gnr.GnrBag(objectFromString(savedAttrs.values,null,'kv'));
+            }else{
+                contentBag = savedAttrs.values;
+            }
             var menubag = new gnr.GnrDomSource();
             gnr.menuFromBag(contentBag, menubag, sourceNode.attr._class);
             sourceNode.setValue(menubag, false);
@@ -3100,7 +3127,7 @@ dojo.declare("gnr.widgets._BaseTextBox", gnr.widgets.baseDojo, {
     },
 
     creating:function(attributes, sourceNode) {
-        var savedAttrs = objectExtract(attributes, 'suggestions');
+        var savedAttrs = objectExtract(attributes, 'shortcuts');
         return savedAttrs;
     },
 
@@ -3111,9 +3138,9 @@ dojo.declare("gnr.widgets._BaseTextBox", gnr.widgets.baseDojo, {
             widget.focusNode.setAttribute('autocorrect','off');
         }
         this.connectFocus(widget, savedAttrs, sourceNode);
-        if(savedAttrs.suggestions){
+        if(savedAttrs.shortcuts){
             setTimeout(function(){
-                widget.setSuggestions(savedAttrs.suggestions)
+                widget.setShortcuts(savedAttrs.shortcuts)
             },1)
         }
     },
@@ -3139,7 +3166,7 @@ dojo.declare("gnr.widgets.TextBox", gnr.widgets._BaseTextBox, {
 
         attributes.trim = (attributes.trim == false) ? false : true;
 
-        var savedAttrs = objectExtract(attributes, 'suggestions');
+        var savedAttrs = objectExtract(attributes, 'shortcuts');
         return savedAttrs;
     },
     onBuilding:function(sourceNode){
