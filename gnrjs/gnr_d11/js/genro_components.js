@@ -4766,8 +4766,18 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
 
 
     onChangedView:function(){
-        if(this.len(true)>0){
-            var dataColumns = this.rowByIndex(0);
+        var data = this.getData();
+        var n = this.len(true)-1;
+        if(n>=0){
+            var k = 0;
+            var dataColumns = {};
+            do{
+                dataColumns = this.rowByIndex(k);
+                k++;
+            }while(k<=n && ('_newrecord' in dataColumns))
+            if('_newrecord' in dataColumns){
+                return;
+            }
             gnr.getGridColumns(this.storeNode);
             var newColumns = this.storeNode._currentColumns? this.storeNode._currentColumns.split(','):[];
             if(newColumns.some(function(n){return !(n.replace('$','').replace(/\./g, '_').replace(/@/g, '_') in dataColumns)})){
