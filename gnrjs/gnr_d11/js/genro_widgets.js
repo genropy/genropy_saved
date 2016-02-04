@@ -1192,10 +1192,14 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
 
     mixin_setShortcuts:function(shortcuts){
         this.sourceNode._value.popNode('shortcutsMenu');
+        delete this.sourceNode._shortcutsDict;
         var shortcutsDict = {};
         var shortcutKeys = [];
         if(shortcuts===true){
             shortcuts = genro.getData('gnr.shortcuts.store');
+            if(!shortcuts || shortcuts.len()==0){
+                return;
+            }
         }
         if(shortcuts instanceof gnr.GnrBag){
             shortcuts.forEach(function(n){
@@ -1222,9 +1226,12 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
             values.setItem('r_'+i,null,{caption:dataTemplate(tpl,{keycode:keycode,phrase:shortcutsDict[keycode]}),phrase:shortcutsDict[keycode],keycode:keycode});
             i++;
         });
-        this.sourceNode._('menu','shortcutsMenu',{'_class':'smallmenu',
+        if(values.len()){
+            this.sourceNode._('menu','shortcutsMenu',{'_class':'smallmenu',
                                 action:"genro.dom.setTextInSelection($2,$1.phrase);",values:values});
-        this.sourceNode._shortcutsDict= shortcutsDict;
+            this.sourceNode._shortcutsDict= shortcutsDict;
+        }
+        
     },
 
     mixin_setHidden: function(hidden) {
