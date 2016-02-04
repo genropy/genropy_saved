@@ -19,7 +19,7 @@ import pickle
 
 class GnrCustomWebPage(object):
     maintable = 'adm.preference'
-    py_requires = """public:Public,preference:AppPref,foundation/tools,preference_shortcut_handler:ShortcutGrid"""
+    py_requires = """public:Public,preference:AppPref,foundation/tools"""
 
     def windowTitle(self):
         return '!!Preference panel'
