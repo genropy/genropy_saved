@@ -226,6 +226,7 @@ class AttachManager(BaseComponent):
                 }
             })
             """,table=table,frm=frame.form.js_form,_delay=100,store='=.store')
+        return frame
 
     @public_method
     def onUploadingAttachment(self,kwargs):
