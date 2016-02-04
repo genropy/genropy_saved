@@ -636,7 +636,7 @@ class GnrWhereTranslator(object):
                 if not op or not column:
                     continue
                 if decodeDate:
-                    if tblobj.column(attr.get('column')).dtype in('D', 'DH'):
+                    if tblobj.column(attr.get('column')).dtype in('D', 'DH','DHZ'):
                         value, op = self.decodeDates(value, op, 'D')
                         op = self.opCaption(op, localize=True)
                 op = op.lower()
