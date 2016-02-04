@@ -665,7 +665,7 @@ class GnrWhereTranslator(object):
                 if not op or not column:
                     continue
                 if decodeDate:
-                    if tblobj.column(attr.get('column')).dtype in('D', 'DH'):
+                    if tblobj.column(attr.get('column')).dtype in('D', 'DH','DHZ'):
                         value, op = self.decodeDates(value, op, 'D')
                         op = self.opCaption(op, localize=True)
                 op = op.lower()
@@ -721,7 +721,7 @@ class GnrWhereTranslator(object):
     def prepareCondition(self, column, op, value, dtype, sqlArgs,tblobj=None):
         if not column[0] in '@$':
             column = '$%s' % column
-        if dtype in('D', 'DH'):
+        if dtype in('D', 'DH','DHZ'):
             value, op = self.decodeDates(value, op, 'D')
             if dtype=='DH':
                 column = 'CAST (%s AS date)' % column
