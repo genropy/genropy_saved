@@ -784,6 +784,9 @@ dojo.declare("gnr.GridEditor", null, {
                     if(that.lastEditTs){
                         if((new Date()-that.lastEditTs)>autoSave){
                             that.lastEditTs = null;
+                            if(that.grid.sourceNode.form && that.grid.sourceNode.form.opStatus){
+                                return;
+                            }
                             that.saveChangedRows();
                         }
                     }
