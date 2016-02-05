@@ -18,15 +18,15 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-"""
-Component for thermo:
-"""
+
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrstring import slugify
 import os
 
+
+IMAGES_EXT = ('.png','.jpg','.jpeg','.gif')
 
 class AttachManagerViewBase(BaseComponent):
 
@@ -56,7 +56,26 @@ class AttachManagerView(AttachManagerViewBase):
                 """,width='22px')
 
 
+class AttachGalleryView(AttachManagerViewBase):
+    def th_hiddencolumns(self):
+        return '$fileurl,$description'
 
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('_row_count',counter=True,hidden=True)
+        r.cell('gallerycell',width='100%',calculated=True)
+
+    @public_method
+    def th_applymethod(self,selection):
+        def apply_gallerycell(row):
+            url = row['fileurl']
+            if not url:
+                return dict(gallerycell="<div class='gallerybox_caption'>%s</div>" %row['description'])
+            n,ext = os.path.splitext(url)
+            if ext not in IMAGES_EXT:
+                url = '/_gnr/11/css/icons/base256/empty_iframe.png'
+            return dict(gallerycell='<div class="gallerybox"" ><div class="gallerybox_caption" >%s</div><img style="height:90px;max-width:100%%;" border=0 draggable="false" src="%s" /></div>' % (row['description'],url))
+        selection.apply(apply_gallerycell)
 
 class Form(BaseComponent):
 
@@ -111,6 +130,7 @@ class FormPalette(Form):
 
 class AttachManager(BaseComponent):
     js_requires='gnrcomponents/attachmanager/attachmanager'
+    css_requires = 'gnrcomponents/attachmanager/attachmanager'
 
     @struct_method
     def at_attachmentGrid(self,pane,title=None,searchOn=False,pbl_classes=True,datapath='.attachments',
@@ -178,6 +198,78 @@ class AttachManager(BaseComponent):
         bar.delrowbtn.slotButton('!!Delete attachment',iconClass='iconbox delete_row',
                         action='gr.publish("delrow")',gr=th.view.grid)
         return frame
+
+
+
+
+    @struct_method
+    def at_attachmentGallery(self,pane,title=None,searchOn=False,
+                        datapath='.attachments',mode=None,viewResource=None,
+                        table=None,maintable_id=None,
+                        parentStack=None,**kwargs):
+        #it will replace at_attachmentPane and at_attachmentGrid
+
+        frame = pane.framePane(frameCode='attachmentPane_#',title=title,datapath=datapath,**kwargs)
+        bc = frame.center.borderContainer()
+        mode = mode or 'sidebar'
+        d = dict(sidebar=dict(region='left',width='180px'),headline=dict(region='top',height='300px'))
+        thkwargs = dict()
+        if not table:
+            thkwargs['relation'] = '@atc_attachments'
+        else:
+            thkwargs['table'] = table
+            thkwargs['condition'] = "$maintable_id=:maintable_id"
+            thkwargs['condition_maintable_id'] = maintable_id
+        th = bc.contentPane(splitter=True,childname='atcgrid',border_right='1px solid silver',drawer=True,**d[mode]).plainTableHandler(
+                                        viewResource= viewResource or 'gnrcomponents/attachmanager/attachmanager:AttachGalleryView',
+                                        hider=True,addrow=False,delrow=False,_class='noheader atc_gallerygrid',
+                                        datapath='.th',
+                                        configurable=False,
+                                        autoSelect=True,semaphore=False,
+                                        view_grid_connect_onRowDblClick="""
+                                                                        var row = this.widget.rowByIndex($1.rowIndex);
+                                                                        FIRE .changeDescription = {pkey:row._pkey,description:row.description}
+                                                                        """,
+                                        searchOn=False,
+                                        **thkwargs)
+        th.view.top.bar.replaceSlots('#','2,searchOn,*',toolbar=False,background='#DBDBDB',border_bottom='1px solid silver')
+        readerpane = bc.contentPane(region='center',childname='atcviewer',overflow='hidden')
+        iframe = readerpane.iframe(src='^.reader_url',height='100%',width='100%',border=0,documentClasses=True,
+                        connect_onload="""
+                            var cw = this.domNode.contentWindow;
+                            cw.document.body.style.zoom = GET .currentPreviewZoom;""")
+        readerpane.dataController('SET .reader_url=fileurl',fileurl='^.th.view.grid.selectedId?fileurl')
+        bar = frame.top.slotToolbar('2,vtitle,*,previewZoom,delrowbtn',vtitle=title or '!!Attachments')
+        bar.previewZoom.horizontalSlider(value='^.currentPreviewZoom', minimum=0, maximum=1,
+                                 intermediateChanges=False, width='15em',default_value=.5)
+        bar.delrowbtn.slotButton('!!Delete attachment',iconClass='iconbox delete_row',
+                        action='gr.publish("delrow")',gr=th.view.grid)
+        th.view.bottom.dropUploader(
+                            label='<div class="atc_galleryDropArea"><div>Drop document here</div><div>or double click</div></div>',
+                                                  height='40px',
+                                                  onUploadingMethod=self.onUploadingAttachment,
+                                                  rpc_maintable_id= maintable_id.replace('^','=') if maintable_id else '=#FORM.pkey' ,
+                                                  rpc_attachment_table= th.view.grid.attributes['table'],
+                                                  _class='importerPaletteDropUploaderBox',
+                                                  cursor='pointer',nodeId='%(nodeId)s_uploader' %th.attributes)
+        th.view.grid.dataController("""
+            genro.dlg.prompt(dlgtitle,{lbl:_T('Description'),dflt:pars.description,action:function(result){
+                    genro.serverCall(rpcmethod,{pkey:pars.pkey,description:result,table:table},function(){},null,'POST');
+                }})
+            """,pars='^.changeDescription',dlgtitle='!!Change description',
+            table=th.view.grid.attributes['table'],rpcmethod=self.atc_updateDescription)
+        readerpane.dataController("iframe.contentWindow.document.body.style.zoom = currentPreviewZoom;",iframe=iframe.js_domNode,
+                        currentPreviewZoom='^.currentPreviewZoom')
+
+        return frame
+
+    @public_method
+    def atc_updateDescription(self,pkey=None,description=None,table=None,**kwargs):
+        with self.db.table(table).recordToUpdate(pkey) as record:
+            record['description'] = description
+        self.db.commit()
+                                                 
+
 
     @struct_method
     def at_attachmentMultiButtonFrame(self,pane,datapath='.attachments',formResource=None,**kwargs):
