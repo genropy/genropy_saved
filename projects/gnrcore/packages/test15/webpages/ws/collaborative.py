@@ -14,17 +14,51 @@ class GnrCustomWebPage(object):
         bc = frame.center.borderContainer()
         self.fieldsPane(bc.contentPane(datapath='.shared.info',region='left',border_right='1px solid silver',splitter=True))
         #self.drawingPane(bc.contentPane(region='center'))
+        bc.dataController(datapath='.shared.elements',nodeId='elements')
         center = bc.contentPane(region='center',connect_ondblclick="""
+
             if($1.shiftKey){
-                genro.publish("drawElement",{x:$1.x,y:$1.y});
+                var that = this;
+                var dflt = new gnr.GnrBag({tag:'div',name:'box_'+genro.getCounter(),
+                                           border:'1px solid silver',
+                                           position:'absolute',
+                                           height:'100px',
+                                           width:'100px',
+                                           background:'red',
+                                           moveable:true,
+                                           start_x:$1.x,start_y:$1.y});
+                genro.dlg.prompt('Create',{widget:'multiValueEditor',
+                                            dflt:dflt,
+                                            action:function(result){
+                                                 that.setRelativeData('.shared.command',result.deepCopy());    
+                                            }
+                                });
             }
         
         """)
-        bc.dataController("""var kw = objectUpdate({},_subscription_kwargs);
-            genro.dlg.prompt("Element Parameters")
-            """,
-                            pane=center,
-                            subscribe_drawElement=True)
+        bc.dataController("""
+            var kw = pars.asDict();
+            var start_x = objectPop(kw,'start_x');
+            var start_y = objectPop(kw,'start_y');
+
+
+            var tag = objectPop(kw,'tag') || 'div';
+            var name = objectPop(kw,'name') || 'box_'+genro.getCounter();
+            if(kw.moveable){
+                kw.position = 'absolute';
+                kw.top = '^#elements.'+name+'.top';
+                kw.left = '^#elements.'+name+'.left';
+                genro.setData(kw.top ,start_y+'px');
+                genro.setData(kw.left ,start_x+'px');
+            }else{
+                if(kw.position=='absolute' || kw.position=='relative'){
+                    kw.top  = start_y+'px';
+                    kw.left  = start_x+'px'
+                }
+            }
+            pane._(tag,name,kw);
+            """,pane=center,pars='^.shared.command',_if='pars'
+        )
         
     def mainToolbar(self,pane,room=None,datapath=None):
         bar=pane.slotToolbar(slots='rooms,20,savebtn,*',datapath=datapath)

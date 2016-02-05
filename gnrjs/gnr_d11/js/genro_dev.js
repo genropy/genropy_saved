@@ -81,6 +81,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
 
     openBagEditorPalette:function(path,kw){
+        kw = kw || {};
         var root = genro.src.newRoot();
         var name = kw.name || '_currentPaletteBagEditor_'
         genro.src.getNode()._('div', name);

@@ -405,19 +405,23 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var wdg = kw['widget'] || 'textbox';
         var remote = kw['remote'];
         var dflt = kw['dflt'];
-        genro.setData('gnr.promptDlg.promptvalue',dflt || null);
-        dlg_kw = objectUpdate({_showParent:true,width:'280px',datapath:'gnr.promptDlg',background:'white',autoSize:true},dlg_kw);
+        genro.dlg.prompt_counter = genro.dlg.prompt_counter || 0;
+        genro.dlg.prompt_counter++;
+        var prompt_datapath = 'gnr.promptDlg.prompt_'+genro.dlg.prompt_counter
+        var promptvalue_path = prompt_datapath+'.promptvalue';
+        genro.setData(promptvalue_path,dflt || null);
+        dlg_kw = objectUpdate({_showParent:true,width:'280px',datapath:prompt_datapath,background:'white',autoSize:true},dlg_kw);
         var dlg = genro.dlg.quickDialog(title,dlg_kw);
         var mandatory = objectPop(kw,'mandatory');
         var bar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',action:function(){
                                                     dlg.close_action();
                                                     if(this.attr.command=='confirm'){
-                                                        var v = genro.getData('gnr.promptDlg.promptvalue');
+                                                        var v = genro.getData(promptvalue_path);
                                                         if(mandatory && isNullOrBlank(v)){
                                                             return;
                                                         }
-                                                        funcApply(confirmCb,{value:genro.getData('gnr.promptDlg.promptvalue')},(sourceNode||this));
-                                                        genro.setData('gnr.promptDlg.promptvalue',null);
+                                                        funcApply(confirmCb,{value:genro.getData(promptvalue_path)},(sourceNode||this));
+                                                        genro.setData(promptvalue_path,null);
                                                     }else if(this.attr.command == 'cancel' && cancelCb){
                                                         funcApply(cancelCb,{},(sourceNode||this));
                                                     }
@@ -443,6 +447,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         }else if(typeof(wdg)=='function'){
             kwbox['datapath'] = '.promptvalue'
             wdg.call(sourceNode,dlg.center._('div',kwbox)); // nn ho un sourcenode
+        }else if(wdg=='multiValueEditor'){
+            dlg.center._('multiValueEditor',objectUpdate({value:'^.promptvalue',height:'250px',width:'300px'},objectExtract(kw,'wdg_*')));
         }
         else{
             kwbox.padding = '10px';
@@ -508,8 +514,9 @@ dojo.declare("gnr.GnrDlgHandler", null, {
 
     quickDialog: function(title,kw) {
         var kw = objectUpdate({},kw);
-        genro.src.getNode()._('div', '_dlg_quick');
-        var node = genro.src.getNode('_dlg_quick').clearValue();
+        var quickRoot = '_dlg_quick_'+genro.getCounter();
+        genro.src.getNode()._('div',quickRoot);
+        var node = genro.src.getNode(quickRoot).clearValue();
         node.freeze();
         var kwdimension = objectExtract(kw,'height,width,background,padding');
         if(kw.closable){
