@@ -9,28 +9,29 @@ class GnrCustomWebPage(object):
         return True
 
     def main(self,root,room=None,**kwargs):
-        bc = root.borderContainer(datapath='main')
-        self.mainToolbar(bc.contentPane(datapath='.roomselector',region='top'),room=room)
-        self.fieldsPane(bc.contentPane(datapath='.shared.info',region='left',width='30%',splitter=True))
+        frame = root.framePane(datapath='main')
+        self.mainToolbar(frame.top,room=room,datapath='.roomselector')
+        bc = frame.center.borderContainer()
+        self.fieldsPane(bc.contentPane(datapath='.shared.info',region='left',border_right='1px solid silver',splitter=True))
         #self.drawingPane(bc.contentPane(region='center'))
-        center = bc.contentPane(region='center',connect_ondbclick="""
+        center = bc.contentPane(region='center',connect_ondblclick="""
             if($1.shiftKey){
-                console.log('aaa',$1)
+                genro.publish("drawElement",{x:$1.x,y:$1.y});
             }
         
         """)
-        bc.dataController("""objectUpdate({},_subscription_kwargs);""",
+        bc.dataController("""var kw = objectUpdate({},_subscription_kwargs);
+            genro.dlg.prompt("Element Parameters")
+            """,
                             pane=center,
                             subscribe_drawElement=True)
         
-    def mainToolbar(self,pane,room=None):
+    def mainToolbar(self,pane,room=None,datapath=None):
         bar=pane.slotToolbar(slots='rooms,20,savebtn,*',datapath=datapath)
         bar.dataController('SET .room=room',_onStart=True,room=room or 'collaborative_test')
         bar.savebtn.slotButton('Save',action='genro.wsk.saveSharedObject(room);',room='=.room')
-        fb=bar.rooms.formbuilder(cols=3)
+        fb=bar.rooms.formbuilder(cols=3,border_spacing='0')
         fb.textbox(value='^.room',lbl='Room')
-        
-        bar.make.slotButton("Make")
         bar.dataController("""if (old_room){genro.som.unregisterSharedObject(old_room);};
                                genro.som.registerSharedObject('main.shared',room,{expire:20,autoSave:true,autoLoad:true});
                               SET .old_room=room;
