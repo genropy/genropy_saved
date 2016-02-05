@@ -413,11 +413,11 @@ class SharedObject(object):
         if self.autoLoad:
             self.load()
         
-    def onSubscribePage(self,page):
-        print 'onSubscribePage',self.shared_id,page.page_id
+    def onSubscribePage(self,page_id):
+        print 'onSubscribePage',self.shared_id,page_id
         
-    def onUnsubscribePage(self,page):
-        print 'onUnsubscribePage',self.shared_id,page.page_id
+    def onUnsubscribePage(self,page_id):
+        print 'onUnsubscribePage',self.shared_id,page_id
     
     def onDestroy(self):
         if self.autoSave:
@@ -438,9 +438,9 @@ class SharedObject(object):
             result=dict(privilege=privilege,data=self.data)
         return result
 
-    def unsubscribe(self,page=None):
-        self.subscribed_pages.pop(page.page_id,None)
-        self.onUnsubscribePage(page)
+    def unsubscribe(self,page_id=None):
+        self.subscribed_pages.pop(page_id,None)
+        self.onUnsubscribePage(page_id)
         if not self.subscribed_pages:
             self.timeout=self.server.delayedCall(self.expire,self.manager.removeSharedObject,self)
             
@@ -498,11 +498,11 @@ class SharedLogger(SharedObject):
     def onInit(self,**kwargs):
         print 'onInit',self.shared_id
         
-    def onSubscribePage(self,page):
-        print 'onSubscribePage',self.shared_id,page.page_id
+    def onSubscribePage(self,page_id):
+        print 'onSubscribePage',self.shared_id,page_id
         
-    def onUnsubscribePage(self,page):
-        print 'onUnsubscribePage',self.shared_id,page.page_id
+    def onUnsubscribePage(self,page_id):
+        print 'onUnsubscribePage',self.shared_id,page_id
     
     def onDestroy(self):
         print 'onDestroy',self.shared_id
@@ -516,11 +516,11 @@ class SharedStatus(SharedObject):
     def users(self):
         return self.data['users']
         
-    def onSubscribePage(self,page):
-        print 'onSubscribePage',self.shared_id,page.page_id
+    def onSubscribePage(self,page_id):
+        print 'onSubscribePage',self.shared_id,page_id
         
-    def onUnsubscribePage(self,page):
-        print 'onUnsubscribePage',self.shared_id,page.page_id
+    def onUnsubscribePage(self,page_id):
+        print 'onUnsubscribePage',self.shared_id,page_id
      
     def onDestroy(self):
         print 'onDestroy',self.shared_id
@@ -574,7 +574,13 @@ class SharedObjectsManager(object):
         if so.onDestroy() != False:
             self.sharedObjects.pop(so.shared_id,None)
             print 'removeSharedObject',so.shared_id
-
+            
+    def do_unsubscribe(self,shared_id=None,page_id=None,**kwargs):
+        sharedObject = self.sharedObjects.get(shared_id)
+        if sharedObject:
+            self.sharedObjects[shared_id].unsubscribe(page_id=page_id)
+            
+         
     def do_subscribe(self,shared_id=None,page_id=None,**kwargs):
         sharedObject = self.sharedObjects.get(shared_id)
         if not sharedObject:
@@ -680,14 +686,12 @@ class GnrBaseAsyncServer(object):
         self.sharedStatus.registerPage(page)
 
     def unregisterPage(self,page_id):
-        page = self.pages.pop(page_id,None)
-        if not page:
-            print 'WARNING: unregisterPage unexisting page'
-            return
+        page=self.pages[page_id]
         if page.sharedObjects:
             for shared_id in page.sharedObjects:
-                self.som.sharedObjects[shared_id].unsubscribe(page)
+                self.som.sharedObjects[shared_id].unsubscribe(page_id)
         self.sharedStatus.unregisterPage(page)
+        page = self.pages.pop(page_id,None)
 
     @property
     def sharedStatus(self):

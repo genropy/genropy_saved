@@ -258,6 +258,12 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                 savedAttrs['speech'] = true;
             }
         }
+        if (attributes.moveable){
+            savedAttrs['moveable'] = objectPop(attributes,'moveable');
+            savedAttrs['moveable_kw'] = objectExtract(attributes,'moveable_*');
+        }
+
+         
         savedAttrs['touchEvents'] = objectPop(attributes,'touchEvents');
 
         objectExtract(attributes, 'onDrop,onDrag,dragTag,dropTag,dragTypes,dropTypes');
@@ -361,11 +367,22 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                 }
             }
         }
-
         var domNode = newobj.domNode || newobj;
-       //if('touchEvents' in savedAttrs){
-       //    genro.dom.connectTouchEvents(domNode,savedAttrs['touchEvents']);
-       //}
+        if('moveable' in savedAttrs){
+            moveable_kw=savedAttrs['moveable_kw']
+            var sides=['top','left']
+            sourceNode.mover = new dojo.dnd.Moveable(domNode);
+			dojo.connect(sourceNode.mover , "onMoved", function(mover,topLeft){
+            var handle=mover.host.handle
+            sides.forEach(function(l){
+                    if (sourceNode.attr[l] && sourceNode.attr[l].indexOf('^') == 0){
+                        sourceNode.setAttributeInDatasource(l,handle.style[l])
+                    } 
+                })
+	    		//console.debug("on Moved", mover,topLeft,handle.sorceNode,handle.style.left,handle.style.top);
+			});
+        }
+      
         if (savedAttrs.connectedMenu) {
             var menu = savedAttrs.connectedMenu;
             if (typeof(menu) == 'string') {
@@ -8398,7 +8415,7 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
     
     creating: function(attributes, sourceNode) {
         var edit=objectPop(attributes,'edit');
-        savedAttrs={'edit':edit, zoomWindow:objectPop(attributes,'zoomWindow')};   
+        var savedAttrs={'edit':edit, zoomWindow:objectPop(attributes,'zoomWindow')};   
         objectUpdate(attributes,this.decodeUrl(sourceNode,objectPop(attributes, 'src')));
         if ((!attributes.src) && ('placeholder' in sourceNode.attr )){
             attributes.src=sourceNode.getAttributeFromDatasource('placeholder');
@@ -8661,7 +8678,7 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
         this.markers_types = {};
     },
     creating: function(attributes, sourceNode) {
-        savedAttrs = objectExtract(attributes, 'map_*');
+        var savedAttrs = objectExtract(attributes, 'map_*');
         return savedAttrs;
     },
     created: function(widget, savedAttrs, sourceNode) {
@@ -8869,7 +8886,7 @@ dojo.declare("gnr.widgets.fileUploader", gnr.widgets.baseDojo, {
         var uploadPars = objectUpdate({}, sourceNode.attr);
         uploadPars.mode = 'html';
         objectExtract(uploadPars, 'tag,method,blurDelay,duration,uploadMessage,cancelText,label,name,id,onComplete');
-        savedAttrs = objectExtract(attributes, 'method');
+        var savedAttrs = objectExtract(attributes, 'method');
         dojo.require("dojox.widget.FileInputAuto");
         var onComplete = objectPop(attributes, 'onComplete');
         savedAttrs.uploadPars = uploadPars;

@@ -31,6 +31,7 @@ dojo.require("dojox.validate.web");
 dojo.require("dojo.number");
 dojo.require("dojo.cookie");
 dojo.require("dojo.fx");
+dojo.require("dojo.dnd.move")
 dijit.showTooltip = function(/*String*/ innerHTML, /*DomNode*/ aroundNode) {
     // summary:
     //  Display tooltip w/specified contents to right specified node
