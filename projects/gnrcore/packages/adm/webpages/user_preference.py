@@ -11,7 +11,7 @@ from gnr.core.gnrdecorator import public_method
 class GnrCustomWebPage(object):
     """USER PREFERENCE BUILDER"""
     maintable = 'adm.preference'
-    py_requires = """public:Public,preference:UserPref,preference_shortcut_handler:ShortcutGrid"""
+    py_requires = """public:Public,preference:UserPref"""
 
     def windowTitle(self):
         return '!!Preference panel'

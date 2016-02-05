@@ -1,0 +1,41 @@
+
+
+.atc_gallerygrid 
+
+
+.atc_gallerygrid .cellContent{
+    border:1px solid silver;
+    margin: 2px;
+    border-radius: 3px;
+}
+
+.gallerybox{
+    height: 110px;
+    text-align: center;
+
+}
+
+.gallerybox_caption{
+    height: 16px;
+    overflow: hidden;
+    text-align: center;
+    font-size: .9em;
+    padding-left: 3px;
+    background:#BF1129;
+    color: white;
+}
+.gallerybox_img{
+    margin: 2px;
+}
+
+
+.atc_galleryDropArea{
+    margin: 3px;
+    padding: 2px;
+    line-height: 12px;
+    text-align: center;
+    border:2px dotted #efefef;
+    color:#666;
+    font-size: .9em;
+}
+

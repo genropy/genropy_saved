@@ -1067,6 +1067,7 @@ table.formbuilder {
 .multiColumnSelect {
     background-color: #f3f3f3;
     overflow:hidden;
+    color:#444;
 }
 
 .multiColumnSelect th {
@@ -1090,7 +1091,6 @@ table.formbuilder {
     padding: 2px;
     border: 1px solid #c8c8c8;
     white-space: nowrap;
-    color:#444;
 }
 
 .multiColumnSelectHover td {
