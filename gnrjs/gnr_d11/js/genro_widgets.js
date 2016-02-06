@@ -376,18 +376,20 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         }
         var domNode = newobj.domNode || newobj;
         if('moveable' in savedAttrs){
-            moveable_kw=savedAttrs['moveable_kw']
-            var sides=['top','left']
-            sourceNode.mover = new dojo.dnd.Moveable(domNode,moveable_kw);
-			dojo.connect(sourceNode.mover , "onMoved", function(mover,topLeft){
-            var handle=mover.host.handle
-            sides.forEach(function(l){
-                    if (sourceNode.attr[l] && sourceNode.attr[l].indexOf('^') == 0){
-                        sourceNode.setAttributeInDatasource(l,handle.style[l])
-                    } 
-                })
-	    		//console.debug("on Moved", mover,topLeft,handle.sorceNode,handle.style.left,handle.style.top);
-			});
+            var moveable_kw = savedAttrs['moveable_kw']
+            genro.src.onBuiltCall(function(){
+                var sides=['top','left']
+                sourceNode.mover = new dojo.dnd.Moveable(domNode,moveable_kw);
+                dojo.connect(sourceNode.mover , "onMoved", function(mover,topLeft){
+                var handle=mover.host.handle
+                sides.forEach(function(l){
+                        if (sourceNode.attr[l] && sourceNode.attr[l].indexOf('^') == 0){
+                            sourceNode.setAttributeInDatasource(l,handle.style[l])
+                        } 
+                    })
+                    //console.debug("on Moved", mover,topLeft,handle.sorceNode,handle.style.left,handle.style.top);
+                });
+            });
         }
       
         if (savedAttrs.connectedMenu) {
