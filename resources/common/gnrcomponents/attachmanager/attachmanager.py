@@ -205,7 +205,7 @@ class AttachManager(BaseComponent):
     @struct_method
     def at_attachmentGallery(self,pane,title=None,searchOn=False,
                         datapath='.attachments',mode=None,viewResource=None,
-                        table=None,maintable_id=None,
+                        table=None,maintable_id=None,nodeId=None,
                         parentStack=None,**kwargs):
         #it will replace at_attachmentPane and at_attachmentGrid
 
@@ -223,6 +223,7 @@ class AttachManager(BaseComponent):
         th = bc.contentPane(splitter=True,childname='atcgrid',border_right='1px solid silver',drawer=True,**d[mode]).plainTableHandler(
                                         viewResource= viewResource or 'gnrcomponents/attachmanager/attachmanager:AttachGalleryView',
                                         hider=True,addrow=False,delrow=False,_class='noheader atc_gallerygrid',
+                                        nodeId=nodeId or 'thattachments_#',
                                         datapath='.th',
                                         configurable=False,
                                         autoSelect=True,semaphore=False,
