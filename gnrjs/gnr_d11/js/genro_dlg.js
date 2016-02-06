@@ -29,6 +29,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
 
     constructor: function(application) {
         this.application = application;
+        this._quickDialogDestroyTimeout = 500;
     },
     recordChange: function(record_path, selected_pkey) {
         var pkey_now = genro.getDataNode(record_path).attr.pkey;
@@ -427,10 +428,9 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                                                     }
                                                     genro.dlg.prompt_counter--;
                                                     if(!genro.dlg.prompt_counter){
-                                                        console.log('cancello tutto')
                                                         setTimeout(function(){
                                                             genro._data.popNode('gnr.promptDlg');
-                                                        },50);
+                                                        },genro.dlg._quickDialogDestroyTimeout+1);
                                                     }
                                                 }});
         bar._('button','cancel',{'label':'Cancel',command:'cancel'});
@@ -531,7 +531,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                 var that = this;
                 setTimeout(function(){
                     that._destroy();
-                },500);
+                },genro.dlg._quickDialogDestroyTimeout);
             }
         }
         var dlg = node._('dialog', objectUpdate({title:title},kw));
@@ -549,7 +549,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                 if(ndlg){
                     ndlg.getParentNode()._value.popNode(ndlg.label);
                 }
-            },500);
+            },genro.dlg._quickDialogDestroyTimeout);
             
         };
         dlg.show_action = function() {
