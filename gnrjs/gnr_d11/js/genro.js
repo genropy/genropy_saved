@@ -31,7 +31,6 @@ dojo.require("dojox.validate.web");
 dojo.require("dojo.number");
 dojo.require("dojo.cookie");
 dojo.require("dojo.fx");
-dojo.require("dojo.dnd.move")
 dijit.showTooltip = function(/*String*/ innerHTML, /*DomNode*/ aroundNode) {
     // summary:
     //  Display tooltip w/specified contents to right specified node
@@ -179,6 +178,7 @@ dojo.declare('gnr.GenroClient', null, {
                 dojo.keys.DOWN_ARROW = 40;
                 dojo.keys.UP_ARROW = 38;
             }
+            genropatches.dnd();
             genropatches.getDocumentWindow();
             genropatches.forEachError();
             genropatches.borderContainer();
@@ -1294,8 +1294,7 @@ dojo.declare('gnr.GenroClient', null, {
                         var inner=dpath.slice(shared_path.length+1);
                         var commandict = {shared_id:shared_id,path:inner,
                                       value:kw.node._value,attr:kw.node.attr,evt:kw.evt}
-                        console.log('send sharedobject',commandict)
-                        genro.wsk.send('som.datachange',commandict);
+                                      genro.wsk.send('som.datachange',commandict);
                     }
                     
                     break;

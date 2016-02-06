@@ -230,6 +230,13 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             var wrp_attr = objectExtract(inherited_attr,'wrp_*')
             var attr = objectUpdate({},sourceNode.attr)
             var tag = objectPop(attr,'tag');
+            var moveable = objectPop(attr,'moveable');
+            if (moveable){
+                wrp_attr.moveable=moveable
+                objectUpdate(wrp_attr, objectExtract(attr,'top,left,position'));
+                lbl_attr.id='handle_'+sourceNode.getStringId()
+                wrp_attr.moveable_handle=lbl_attr.id
+            }
             var children = sourceNode.getValue();
             sourceNode._value = null;
             var side = lbl_attr['side'] || 'top';
@@ -371,7 +378,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         if('moveable' in savedAttrs){
             moveable_kw=savedAttrs['moveable_kw']
             var sides=['top','left']
-            sourceNode.mover = new dojo.dnd.Moveable(domNode);
+            sourceNode.mover = new dojo.dnd.Moveable(domNode,moveable_kw);
 			dojo.connect(sourceNode.mover , "onMoved", function(mover,topLeft){
             var handle=mover.host.handle
             sides.forEach(function(l){

@@ -220,7 +220,6 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         kw['command']=command
         kw=genro.rpc.serializeParameters(genro.src.dynamicParameters(kw));
         var msg = dojo.toJson(kw);
-        console.log('readyState',this.socket.readyState);
         this.socket.send(msg);
     },
     
@@ -394,6 +393,8 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
 
         /** The URL as resolved by the constructor. This is always an absolute URL. Read only. */
         this.url = url;
+        //this.pendingMessagesToSend=[]
+        
 
         /** The number of attempted reconnects since starting, or the last successful connection. Read only. */
         this.reconnectAttempts = 0;
@@ -489,6 +490,10 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
                 e.isReconnect = reconnectAttempt;
                 reconnectAttempt = false;
                 eventTarget.dispatchEvent(e);
+               //while (this.pendingMessagesToSend.length>0){
+               //    console.log('send pending')
+               //    ws.send(this.pendingMessagesToSend.pop())
+               //}
             };
 
             ws.onclose = function(event) {
@@ -551,6 +556,8 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
                 }
                 return ws.send(data);
             } else {
+                console.log('socket not ready',this.socket.readyState)
+               // this.pendingMessagesToSend.push(data)
                 console.log ('Error sending :',data);
                 throw 'INVALID_STATE_ERR : Pausing to reconnect websocket'
             }

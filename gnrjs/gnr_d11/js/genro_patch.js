@@ -180,6 +180,18 @@ genropatches.dojoToJson = function() {
         return "{" + output.join("," + sep) + newLine + _indentStr + "}"; // String
     }
 };
+genropatches.dnd=function(){
+    dojo.require("dojo.dnd.Moveable")
+    var mvbl=dojo.dnd.Moveable
+    mvbl.prototype.onMouseDown_replaced=mvbl.prototype.onMouseDown
+    mvbl.prototype.onMouseDown= function(e){
+        var contextclick = (e.button==2 ||  genro.dom.getEventModifiers(e)=='Ctrl');
+        if (!contextclick){
+            this.onMouseDown_replaced(e)
+        }
+    }
+    
+};
 genropatches.menu = function(){
     dojo.require('dijit.Menu');
     dijit.Menu.prototype._openMyself = function(/*Event*/ e){
