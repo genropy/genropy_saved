@@ -425,6 +425,13 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                                                     }else if(this.attr.command == 'cancel' && cancelCb){
                                                         funcApply(cancelCb,{},(sourceNode||this));
                                                     }
+                                                    genro.dlg.prompt_counter--;
+                                                    if(!genro.dlg.prompt_counter){
+                                                        console.log('cancello tutto')
+                                                        setTimeout(function(){
+                                                            genro._data.popNode('gnr.promptDlg');
+                                                        },50);
+                                                    }
                                                 }});
         bar._('button','cancel',{'label':'Cancel',command:'cancel'});
         var confirmbtnKW = {'label':'Confirm',command:'confirm'};
@@ -448,7 +455,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             kwbox['datapath'] = '.promptvalue'
             wdg.call(sourceNode,dlg.center._('div',kwbox)); // nn ho un sourcenode
         }else if(wdg=='multiValueEditor'){
-            dlg.center._('multiValueEditor',objectUpdate({value:'^.promptvalue',height:'250px',width:'300px'},objectExtract(kw,'wdg_*')));
+            dlg.center._('multiValueEditor',objectUpdate({value:'^.promptvalue',height:'250px',width:'350px'},objectExtract(kw,'wdg_*')));
         }
         else{
             kwbox.padding = '10px';

@@ -1114,10 +1114,11 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
         if(tools){
             var t = grid._('tools',objectUpdate({tools:tools,
                                           custom_tools:{addrow:{content_class:'iconbox add_row',ask:{title:'New Line',
-                                                fields:[{name:'key',lbl:'Key',validate_notnull:true},
+                                                fields:[{name:'attribute_key',lbl:'Key',validate_notnull:true},
                                                         {name:'dtype',lbl:'Datatype',
                                                         values:'T:Text,B:Boolean,L:Integer,N:Decimal,D:Date,H:Time',
-                                                        wdg:'filteringSelect',default_value:'T'}]
+                                                        wdg:'filteringSelect',default_value:'T'},
+                                                        {name:'attribute_value',lbl:'Value'}]
                                                 }
                                     }
             }},tools_kw))
@@ -1135,7 +1136,9 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_addEditorRow:function(grid,kw){
-        var key = kw.key;
+        var key = kw.attribute_key;
+        var value = kw.attribute_value;
+
         var dtype = kw.dtype;
         if(!key){
             genro.dlg.floatingMessage(this.containerNode,{messageType:'error',message:'Missing key'})
@@ -1145,8 +1148,13 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
             genro.dlg.floatingMessage(this.containerNode,{messageType:'error',message:'You cannot add this key'})
             return;
         }
-        grid.addRows([{'attribute_key':kw.key}],null,null,function(firstRow){
-            firstRow._value.getNode('attribute_value').attr.wdg_dtype = kw.dtype || 'T';
+        grid.addRows([{'attribute_key':key}],null,null,function(firstRow){
+            var valueNode = firstRow._value.getNode('attribute_value');
+            valueNode.attr.wdg_dtype = dtype || 'T';
+            if(!isNullOrBlank(value)){
+                valueNode.setValue(value); //it must not be evauluated
+                return false;
+            }
         });
         
     },

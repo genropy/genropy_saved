@@ -6254,10 +6254,13 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         });
         this.sourceNode.publish('onAddedRows');
         if(!duplicate){
+            var doEdit = true;
             if(onEditNode){
-                onEditNode(firstRow);
+                doEdit=onEditNode(firstRow);
             }
-            this.editBagRow(this.storebag().index(firstRow.label));
+            if(doEdit!==false){
+                this.editBagRow(this.storebag().index(firstRow.label));
+            }
         }
         return firstRow;
     },

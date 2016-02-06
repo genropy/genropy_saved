@@ -283,8 +283,13 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         if('visible' in attributes && !objectPop(attributes, 'visible')){
             attributes.visibility = 'hidden';
         }
-        if('hidden' in attributes && objectPop(attributes, 'hidden')){
-            attributes.display = 'none';
+        var currentHidden;
+        if('hidden' in attributes){
+            currentHidden = objectPop(attributes, 'hidden');
+            if(currentHidden){
+                attributes.display = 'none';
+            }
+            
         }
         //var disabled=objectPop(attributes, 'disabled') ? true:false;
         //attributes.disabled=disabled;
@@ -314,9 +319,18 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         }
         else {//This is dojo widget
             newobj = this.createDojoWidget(tag, domnode, attributes, kw, sourceNode);
-            //if(disabled){
-            //    newobj.setAttribute('disabled', true);
-            //}
+            /*
+            GENERIC SETTER MANAGER IT COULD BE A NEW WAY TO HANDLE SETTING OF DYNAMIC ATTRIBUTES
+            if(sourceNode){
+                for (var kattr in sourceNode.attr){
+                    var vattr = sourceNode.attr[kattr];
+                    var setterName = 'set'+stringCapitalize(kattr);
+                    if(kattr!='value' && typeof(vattr)=='string' && sourceNode.isPointerPath(vattr) && newobj[setterName]){
+                        console.log('setter for kattr',kattr,sourceNode.attr.tag)
+                    }
+                }
+            }
+            */
             if (tip) {
                 newobj.domNode.setAttribute('title', tip);
             }
@@ -332,6 +346,11 @@ dojo.declare("gnr.GnrWdgHandler", null, {
                 else {
                     destination.addChild(newobj, ind);
                 }
+            }
+            if(newobj.setHidden && currentHidden){
+                genro.src.onBuiltCall(function(){
+                    newobj.setHidden(currentHidden);
+                })
             }
         }
         handler._created(newobj, kw.postCreation, sourceNode, ind);
