@@ -32,7 +32,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         this.styleAttrNames = ['height', 'width','top','left', 'right', 'bottom',
             'visibility','opacity', 'overflow', 'float', 'clear', 'display',
             'z_index', 'border','position','padding','margin','cursor',
-            'color','white_space','vertical_align','background'].concat(this.css3AttrNames);
+            'color','white_space','vertical_align','background','font','text'].concat(this.css3AttrNames);
         
     },
     isStyleAttr:function(name) {
