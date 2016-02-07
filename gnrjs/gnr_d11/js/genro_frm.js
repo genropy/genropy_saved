@@ -1122,6 +1122,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this.fireControllerData('openFormIdx',idx);
         }
     },
+
+    externalChange:function(field,value){
+        this.sourceNode.setRelativeData(this.formDatapath+'.'+field,value,{_loadedValue:value});
+    },
+
     getFormData: function() {
         return this.sourceNode.getRelativeData(this.formDatapath, true, new gnr.GnrBag());
     },
@@ -1351,7 +1356,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 }
             }
         }
-        if (kw.reason == 'resolver' || kw.node.getFullpath().indexOf('$') > 0) {
+        if (kw.reason == 'resolver' || kw.node.getFullpath().indexOf('$') > 0 || kw.node.attr.virtual_column) {
             var invalidFields = this.getInvalidFields();
             var invalidDojo = this.getInvalidDojo()
             var ck = this.getChangeKey(kw.node)

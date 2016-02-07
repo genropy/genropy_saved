@@ -259,6 +259,11 @@ class AttachManager(BaseComponent):
                 }})
             """,pars='^.changeDescription',dlgtitle='!!Change description',
             table=th.view.grid.attributes['table'],rpcmethod=self.atc_updateDescription)
+
+        th.view.dataController("genro.publish('changed_attachments_number',{table:table.slice(0,-4),pkey:maintable_id,count:(totalrows || 0)});",
+                                totalrows='^.store?totalrows',
+                                table=th.view.grid.attributes['table'],
+                                maintable_id=maintable_id.replace('^','=') if maintable_id else '=#FORM.pkey')
         readerpane.dataController("iframe.contentWindow.document.body.style.zoom = currentPreviewZoom;",iframe=iframe.js_domNode,
                         currentPreviewZoom='^.currentPreviewZoom')
 
