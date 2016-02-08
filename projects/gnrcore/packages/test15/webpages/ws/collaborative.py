@@ -43,22 +43,25 @@ class GnrCustomWebPage(object):
 
     def drawingPane(self,bc):
         bc.dataController(datapath='.shared.drawing.elements',nodeId='elements')
-        center = bc.contentPane(region='center',connect_ondblclick="""
+        center = bc.contentPane(region='center',
+                               #datapath='.shared.drawing.data',
+                               connect_ondblclick="""
 
             if($1.shiftKey){
                 var that = this;
                 var dflt = new gnr.GnrBag({tag:'div',name:'box_'+genro.getCounter(),
-                                           border:'1px solid silver',
-                                           position:'absolute',
+                                           value:'',
                                            height:'100px',
                                            width:'100px',
                                            background:'red',
+                                           border:'1px solid silver',
                                            moveable:true,
+                                           position:'absolute',
                                            start_x:$1.offsetX,start_y:$1.offsetY});
                 genro.dlg.prompt('Create',{widget:'multiValueEditor',
                                             dflt:dflt,
                                             action:function(result){
-                                                var path='.shared.drawing.elements.'+result.getItem('name')
+                                                var path='#elements.'+result.getItem('name')
                                                  that.setRelativeData(path,result.deepCopy());    
                                             }
                                 });
@@ -69,9 +72,7 @@ class GnrCustomWebPage(object):
             var createNode=function(pane,pars){
                 var kw = pars.asDict();
                 var start_x = objectPop(kw,'start_x');
-                var start_y = objectPop(kw,'start_y');
-               
-               
+                var start_y = objectPop(kw,'start_y');               
                 var tag = objectPop(kw,'tag') || 'div';
                 var name = objectPop(kw,'name') || 'box_'+genro.getCounter();
                 if(kw.moveable){
@@ -105,9 +106,6 @@ class GnrCustomWebPage(object):
             }else{
             genro.bp(true)
             }
-
-
-            """,pane=center,elements='^.shared.drawing.elements',_if='elements'
+            """,pane=center,elements='^#elements',_if='elements'
         )
         
-
