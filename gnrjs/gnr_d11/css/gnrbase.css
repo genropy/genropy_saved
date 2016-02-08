@@ -1336,6 +1336,13 @@ table.formbuilder {
     width: 14px;
     height: 14px;
 }
+
+.blueLed {
+    background: url(icons/base16/blueled.png) no-repeat center center;
+    width: 14px;
+    height: 14px;
+}
+
 .waiting16{
     background: url(icons/wait16trans.gif) no-repeat center center;
     width: 16px;
