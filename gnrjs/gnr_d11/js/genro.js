@@ -1084,7 +1084,7 @@ dojo.declare('gnr.GenroClient', null, {
             v = highlightLinks(v);
         }
         if(f.format){
-            v = genro.formatter.asText(v,{format:f.format.format,mask:f.mask});
+            v = genro.formatter.asText(v,{format:f.format.format || f.format ,mask:f.mask});
         }
         return v;
     },
