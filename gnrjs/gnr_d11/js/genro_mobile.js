@@ -150,5 +150,78 @@ dojo.declare("gnr.GnrMobileHandler", null, {
             ]);
             dojo.stopEvent(e);
         };
+    },
+    patch_moveable:function(){
+        dojo.require("dojo.dnd.Moveable")
+        var pr=dojo.dnd.Moveable.prototype
+        pr._constructor = function(node, params){
+        		// summary: an object, which makes a node moveable
+        		// node: Node: a node (or node's id) to be moved
+        		// params: Object: an optional object with additional parameters;
+        		//	following parameters are recognized:
+        		//		handle: Node: a node (or node's id), which is used as a mouse handle
+        		//			if omitted, the node itself is used as a handle
+        		//		delay: Number: delay move by this number of pixels
+        		//		skip: Boolean: skip move of form elements
+        		//		mover: Object: a constructor of custom Mover
+        		this.node = dojo.byId(node);
+        		if(!params){ params = {}; }
+        		this.handle = params.handle ? dojo.byId(params.handle) : null;
+        		if(!this.handle){ this.handle = this.node; }
+        		this.delay = params.delay > 0 ? params.delay : 0;
+        		this.skip  = params.skip;
+        		this.mover = params.mover ? params.mover : dojo.dnd.Mover;
+        		this.events = [
+        			dojo.connect(this.handle, "ontouchstart", this, "onMouseDown"),
+        			// cancel text selection and text dragging
+        			dojo.connect(this.handle, "ondragstart",   this, "onSelectStart"),
+        			dojo.connect(this.handle, "onselectstart", this, "onSelectStart")
+        		];
+        };
+        pr.onMouseDown= function(e){
+        	// summary: event processor for onmousedown, creates a Mover for the node
+        	// e: Event: mouse event
+        	if(this.skip && dojo.dnd.isFormElement(e)){ return; }
+        	if(this.delay){
+        		this.events.push(dojo.connect(this.handle, "ontouchmove", this, "onMouseMove"));
+        		this.events.push(dojo.connect(this.handle, "ontouchend", this, "onMouseUp"));
+        		this._lastX = e.pageX;
+        		this._lastY = e.pageY;
+        	}else{
+        		new this.mover(this.node, e, this);
+        	}
+        	dojo.stopEvent(e);
+        };
+        dojo.require("dojo.dnd.Mover");
+        var pr=dojo.dnd.Mover.prototype
+    	pr._constructor= function(node, e, host){
+    		// summary: an object, which makes a node follow the mouse, 
+    		//	used as a default mover, and as a base class for custom movers
+    		// node: Node: a node (or node's id) to be moved
+    		// e: Event: a mouse event, which started the move;
+    		//	only pageX and pageY properties are used
+    		// host: Object?: object which implements the functionality of the move,
+    		//	 and defines proper events (onMoveStart and onMoveStop)
+    		this.node = dojo.byId(node);
+    		this.marginBox = {l: e.pageX, t: e.pageY};
+    		this.mouseButton = e.button;
+    		var h = this.host = host, d = node.ownerDocument, 
+    			firstEvent = dojo.connect(d, "ontouchmove", this, "onFirstMove");
+    		this.events = [
+    			dojo.connect(d, "ontouchmove", this, "onMouseMove"),
+    			dojo.connect(d, "ontouchend",   this, "onMouseUp"),
+    			// cancel text selection and text dragging
+    			dojo.connect(d, "ondragstart",   dojo, "stopEvent"),
+    			dojo.connect(d, "onselectstart", dojo, "stopEvent"),
+    			firstEvent
+    		];
+    		// notify that the move has started
+    		if(h && h.onMoveStart){
+    			h.onMoveStart(this);
+    		}
+    	}
+        
+        
     }
+    
 });
