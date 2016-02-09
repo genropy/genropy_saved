@@ -22,6 +22,7 @@ class Table(object):
         tbl.column('old_html')
         tbl.formulaColumn('example_url',"'/webpages/docu_examples/'||$hierarchical_name")
 
+
         tbl.formulaColumn('is_published',"""
             CASE WHEN $publish_date IS NOT NULL THEN EXISTS(#has_published_children)
             ELSE $publish_date<=:env_workdate END
@@ -29,6 +30,18 @@ class Table(object):
                                                     where="""$hierarchical_pkey ILIKE #THIS.hierarchical_pkey||'%%'
                                                             AND ($publish_date IS NOT NULL AND $publish_date<=:env_workdate)"""),
                     dtype='B')
+
+
+    def formulaColumn_doc_sources(self):
+        result = []
+        for lang in self.db.table('docu.language').query().fetch():
+            l = lang['code']
+            sql_formula = self.model.bagItemFormula('$docbag','%s.rst' %l)
+            result.append(dict(name='rst_%s' %l,sql_formula=sql_formula, name_long='!!Rst %s' %l))
+            sql_formula = self.model.bagItemFormula('$docbag','%s.title' %l)
+            result.append(dict(name='title_%s' %l,sql_formula=sql_formula, name_long='!!Title %s' %l))
+        return result
+
 
     def trigger_onUpdating(self,record,old_record):
         record['sourcebag'] = record['sourcebag'] or None

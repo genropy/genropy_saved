@@ -223,14 +223,14 @@ class DocumentationViewer(BaseComponent):
     py_requires = 'th/th:TableHandler,rst_documentation_handler:RstDocumentationHandler'
     css_requires = 'docu'
     @public_method
-    def documentationViewer(self,pane,**kwargs):
+    def documentationViewer(self,pane,startpath=None,**kwargs):
         table = 'docu.documentation'
         datapath = 'docviewer_%s' %table.replace('.','_')
         pane.attributes.update(overflow='hidden')
         bc = pane.borderContainer(datapath=datapath,_anchor=True,**kwargs)
         self.dc_content(bc.framePane(region='center'))
         self.dc_left_toc(bc.contentPane(region='left',width='180px' if self.deviceScreenSize == 'phone' else '250px',splitter=True,
-                            border_right='1px solid #020F20',drawer=True))
+                            border_right='1px solid #020F20',drawer='close' if startpath else True),startpath=startpath)
 
     def dc_content(self,frame):
         table = 'docu.documentation'
@@ -243,23 +243,38 @@ class DocumentationViewer(BaseComponent):
                             hierarchical_title_en='^.hierarchical_title.en',
                             language='^gnr.language',
                             _delay=1)
-        bar = frame.top.slotBar('doccaption,*,editrst,5',height='18px',
-                                border_bottom='1px solid #3A4D65')
+        bar = frame.top.slotBar('doccaption,*,editrst,searchSelect,5',height='24px',
+                                border_bottom='1px solid #3A4D65',background='#DBDBDB')
+        bar.searchSelect.textbox(value='^.searchKey',
+                                    rounded=8,width='12em',placeholder='!!Search',padding='2px',padding_left='4px',
+                                    onEnter=True,
+                                    validate_onAccept="""if(!value){
+                                        return;
+                                    }
+                                    var url = '/docu/index/search';
+                                    var selected_language = GET gnr.language;
+                                    SET .docurl = genro.addParamsToUrl(url,{text:value,selected_language:selected_language})
+                                    SET .searchKey = null;""")
         bar.doccaption.lightButton('^.doccaption',hidden='^.doccaption?=!#v',
                     _class='rst_breadcrumb',
                     action="""var url;
-                    if(_sourcebag && _sourcebag.len()){
-                        url = '/docu/viewer/'
+                    if(event.shiftKey){
+                        url = genro.addParamsToUrl('/docu/viewer/',{startpath:_hierarchical_name});
                     }else{
-                        url = '/docu/index/rst/';
+                        if(_sourcebag && _sourcebag.len()){
+                            url = '/docu/viewer/'
+                        }else{
+                            url = '/docu/index/rst/';
+                        }
+                        url+=_hierarchical_name;
                     }
-                    url+=_hierarchical_name;
-                    genro.openWindow(url);""",
+                    genro.openBrowserTab(url);
+                    """,
                     _sourcebag='=.record.sourcebag',
                     _hierarchical_name='=.record.hierarchical_name',
-                    cursor='pointer')
+                    cursor='pointer',margin_top='2px')
         bar.editrst.div().lightButton(_class='iconbox edit',_tags='_DEV_,author',
-                                    action='FIRE .edit_current_record;')
+                                    action='FIRE .edit_current_record;',margin='2px')
         bc = frame.center.borderContainer()
         wrapper = bc.contentPane(overflow='hidden',region='center').div(_class='scroll-wrapper')
         wrapper.data('.docurl','')
@@ -287,7 +302,8 @@ class DocumentationViewer(BaseComponent):
                        drawer_border='0px',)
         bc.dataController("bc.setRegionVisible('right',localIframeUrl!=null)",
                 bc=bc.js_widget,localIframeUrl='^.localIframeUrl',_onBuilt=True)
-        pane.dataRecord('.record',table,pkey='^.pkey',applymethod=self.db.table('docu.documentation').checkSourceBagModules)
+        pane.dataRecord('.record',table,pkey='^.pkey',
+                        applymethod=self.db.table('docu.documentation').checkSourceBagModules)
         pane.dataFormula('.localIframeUrl','sourcebag.len()==1?sourcebag.getItem("_base_.url"):null',
                     sourcebag='^.record.sourcebag')
         pane.dataController("""
@@ -321,7 +337,7 @@ class DocumentationViewer(BaseComponent):
         path = hierarchical_pkey.replace('/','.') if hierarchical_pkey else 'root'
         return path 
 
-    def dc_left_toc(self, pane):
+    def dc_left_toc(self, pane,startpath=None):
         table = 'docu.documentation'
         treebox = pane.div(margin_top='10px',margin_left='2px')
         tree = treebox.hTableTree(storepath='.toc', hideValues=True, 
@@ -364,9 +380,8 @@ class DocumentationViewer(BaseComponent):
                       font_size='12px',color='#666',line_height='15px',
                 moveTreeNode=False,margin_left='5px')
         tree.customizeTreeOnDrag()
-        first_selected = self.db.table(table).query(limit=1).fetch()
-        treebox.dataController("""var startpath = first_selected.replace(/\//g,'.');
-                                tree.widget.setSelectedPath(null,{value:startpath});""",first_selected=first_selected[0]['hierarchical_pkey'],tree=tree,_onBuilt=1)
+        if startpath:
+            treebox.dataController("SET .hierarchical_name=startpath;",_onStart=True,startpath=startpath)
         treebox.dataController("""
                 PUT .docurl = loadedUrl;
                 var loaded_hierarchical_name = loadedUrl.replace('/docu/index/rst/','');
