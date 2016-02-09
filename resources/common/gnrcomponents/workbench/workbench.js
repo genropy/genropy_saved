@@ -1,25 +1,27 @@
 var WorkbenchManager = {
     
-    addElement:function(sourceNode,evt){
-        if(evt.shiftKey){
-
-            var dflt = new gnr.GnrBag({tag:'div',name:'box_'+genro.getCounter(),
-                                       value:'',
+    addElement:function(sourceNode,evt,dflt){
+        dflt = dflt || {};
+        var kw = {tag:'div',name:'box_'+genro.getCounter(),
                                        height:'100px',
                                        width:'100px',
                                        background:'red',
                                        border:'1px solid silver',
                                        moveable:true,
                                        position:'absolute',
-                                       start_x:evt.offsetX,start_y:evt.offsetY});
-            genro.dlg.prompt('Create',{widget:'multiValueEditor',
-                                        dflt:dflt,
-                                        action:function(result){
-                                            var path='#elements.'+result.getItem('name')
-                                             sourceNode.setRelativeData(path,result.deepCopy());    
-                                        }
-                            });
+                                       start_x:evt.x,start_y:evt.y}
+        if(dflt.value){
+            dflt.value = '^.'+kw.name;
         }
+        var b = new gnr.GnrBag(objectUpdate(kw,dflt));
+        genro.dlg.prompt('Create',{widget:'multiValueEditor',
+                                    dflt:b,
+                                    action:function(result){
+                                        var path='#elements.'+result.getItem('name')
+                                         sourceNode.setRelativeData(path,result.deepCopy());    
+                                    }
+                        });
+        
     },
     createNode:function(pane, pars){
         var kw = pars.asDict();
@@ -58,7 +60,6 @@ var WorkbenchManager = {
         }else if (tkw.evt=='del'){
             pane.popNode(node.label)
         }else{
-        genro.bp(true)
         }
     }
 

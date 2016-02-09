@@ -28,7 +28,14 @@ class WorkbenchManager(BaseComponent):
     css_requires = 'gnrcomponents/workbench/workbench'
 
     @struct_method
-    def wb_workbenchPane(self,pane,code):
-        pane.attributes.update(connect_ondblclick="WorkbenchManager.addElement(this,$1)",nodeId=code)
-        pane.dataController("WorkbenchManager.onChanges(this,pane,elements,_triggerpars.kw,_reason)",
-                             pane=pane,elements='^#%s'%code,_if='elements')
+    def wb_workbenchPane(self,parent,code,**kwargs):
+
+        workbench = parent.contentPane(nodeId=code,**kwargs)
+        m = workbench.menu(_class='smallMenu',action='WorkbenchManager.addElement(this,$3,$1.dflt)')
+        m.menuline('Add Squarebox',dflt=dict(tag='div',rounded=6,background='red',height='100px',width='100px',moveable=True))
+        m.menuline('Add Textarea',dflt=dict(tag='SimpleTextArea',lbl='Textarea',height='100px',width='180px',moveable=True,value='^.$name'))
+        m.menuline('Add Textbox',dflt=dict(tag='textbox',lbl='Textbox',width='12em',moveable=True,value='^.$name'))
+
+
+        workbench.dataController("WorkbenchManager.onChanges(this,pane,elements,_triggerpars.kw,_reason)",
+                             pane=workbench,elements='^#%s'%code,_if='elements')

@@ -15,8 +15,7 @@ class GnrCustomWebPage(object):
         self.mainToolbar(frame.top,room=room,datapath='.roomselector')
         bc = frame.center.borderContainer()
         self.fieldsPane(bc.contentPane(datapath='.shared.info',region='left',border_right='1px solid silver',splitter=True))
-        center=bc.contentPane(region='center',datapath='.shared.drawing.elements')
-        wb=center.workbenchPane(code='elements')
+        bc.workbenchPane('elements',region='center',datapath='.shared.drawing.elements')
         
     def mainToolbar(self,pane,room=None,datapath=None):
         bar=pane.slotToolbar(slots='rooms,20,savebtn,*',datapath=datapath)
@@ -35,7 +34,7 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^.beta',lbl='Beta')
         fb.textbox(value='^.gamma',lbl='Gamma')
         fb.textbox(value='^.delta',lbl='Delta')
-        fb.dataController("""console.log('_triggerpars',_triggerpars)
+        fb.dataController("""
             var result=[alfa,beta,gamma,delta].join('<br/>');
             SET .result=result;
         """,alfa='^.alfa',
