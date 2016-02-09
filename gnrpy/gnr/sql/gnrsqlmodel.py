@@ -38,6 +38,14 @@ import threading
 logger = logging.getLogger(__name__)
 VIRTUAL_COLUMNS_CACHETIME = timedelta(0,300)
 
+def bagItemFormula(bagcolumn=None,itempath=None,dtype=None):
+    itempath = itempath.replace('.','/')
+    sql_formula = """ (xpath('/GenRoBag/%s/text()', CAST(%s as XML) ) )[1] """ %(itempath,bagcolumn)
+    dtype = dtype or 'T'
+    typeconverter = {'T':'text','A':'text','C':'text','P':'text', 'N': 'numeric','B': 'boolean',
+                 'D': 'date', 'H': 'time without time zone','L': 'bigint', 'R': 'real'}
+    return """CAST ( ( %s ) AS %s) """ %(sql_formula,typeconverter[dtype])
+
 class NotExistingTableError(Exception):
     pass
     
@@ -438,6 +446,18 @@ class DbModelSrc(GnrStructData):
         :returns: an aliasColumn
         """
         return self.virtual_column(name, relation_path=relation_path, **kwargs)
+
+    def bagItemColumn(self, name, bagcolumn=None,itempath=None,dtype=None, **kwargs):
+        """Insert an aliasColumn into a :ref:`table`, that is a column with a relation path.
+        The bagItemColumn is a child of the table created with the :meth:`table()` method
+        :param name: the column name
+        :param bagcolumn: the bag column's related path.
+        :param itempath: path inside the bag
+        :returns: an aliasColumn
+        """
+        return self.virtual_column(name, sql_formula=bagItemFormula(bagcolumn=bagcolumn,itempath=itempath,dtype=dtype), 
+                                dtype=dtype, **kwargs)
+
         
     def formulaColumn(self, name, sql_formula=None,select=None, exists=None,dtype='A', **kwargs):
         """Insert a formulaColumn into a table, that is TODO. The aliasColumn is a child of the table
@@ -1068,6 +1088,9 @@ class DbTableObj(DbModelObj):
         mpkg, mtbl, mfld = joiner['many_relation'].split('.')
         opkg, otbl, ofld = joiner['one_relation'].split('.')
         return dict(mode=joiner['mode'], mpkg=mpkg, mtbl=mtbl, mfld=mfld, opkg=opkg, otbl=otbl, ofld=ofld)
+
+    def bagItemFormula(self,bagcolumn=None,itempath=None,dtype=None):
+        return bagItemFormula(bagcolumn=bagcolumn,itempath=itempath,dtype=dtype)
     
     def getJoiner(self,related_table):
         reltableobj = self.db.table(related_table)
