@@ -243,8 +243,51 @@ class DocumentationViewer(BaseComponent):
                             hierarchical_title_en='^.hierarchical_title.en',
                             language='^gnr.language',
                             _delay=1)
-        bar = frame.top.slotBar('doccaption,*,editrst,searchSelect,5',height='24px',
-                                border_bottom='1px solid #3A4D65',background='#DBDBDB')
+        bar = frame.top.slotBar('doccaption,*,editrst,nav_up,nav_down,3,nav_left,nav_right,10,searchSelect,5',height='24px',
+                                border_bottom='1px solid #3A4D65',toolbar=True,background='#DBDBDB')
+
+        bar.dataController("""
+            var n = tocroot.getNode(hierarchical_pkey.replace(/\//g, '.'));   
+            var next_sibling_hname,prev_sibling_hname,parent_hname,first_child_hname;
+            var parentNode = n.getParentNode();
+            if(parentNode){
+                var parentrec = parentNode.attr._record || {};
+                var parentBag = parentNode.getValue('static');
+                next_sibling_hname = (parentBag.getItem('#'+(parentBag.index(n.label)+1)+'?_record') || {}).hierarchical_name;
+                prev_sibling_hname = (parentBag.getItem('#'+(parentBag.index(n.label)-1)+'?_record') || {}).hierarchical_name;
+                parent_hname = parentrec.hierarchical_name;
+            }
+            if(n.attr.child_count>0){
+                first_child_hname = (n.getValue().getItem('#0?_record') || {}).hierarchical_name;
+            }
+            SET .next_sibling_hname = next_sibling_hname;
+            SET .prev_sibling_hname = prev_sibling_hname;
+            SET .parent_hname = parent_hname;
+            SET .first_child_hname = first_child_hname;
+
+            """,hierarchical_pkey='^.record.hierarchical_pkey',tocroot='=.toc.root')
+
+        bar.nav_up.slotButton('!!Parent',iconClass='iconbox arrow_up',
+                            disabled='==!parent_hname',
+                            action="SET .hierarchical_name=parent_hname;",
+                            parent_hname='^.parent_hname')
+        bar.nav_down.slotButton('!!First child',iconClass='iconbox arrow_down',
+                                disabled='==!first_child_hname',
+                                action='SET .hierarchical_name=first_child_hname',
+                                first_child_hname='^.first_child_hname')
+
+        bar.nav_left.slotButton('!!Prev',iconClass='iconbox arrow_left',
+                                action='SET .hierarchical_name= prev_hhname || parent_hname',
+                                parent_hname='^.parent_hname',
+                                prev_hhname='^.prev_sibling_hname',
+                                disabled='==!(prev_hhname || parent_hname)'
+                                )
+        bar.nav_right.slotButton('!!Next',iconClass='iconbox arrow_right',
+                                action='SET .hierarchical_name = next_hhname || first_child_hname',
+                                first_child_hname='^.first_child_hname',
+                                next_hhname='^.next_sibling_hname',
+                                disabled='==!(next_hhname || first_child_hname)')
+
         bar.searchSelect.textbox(value='^.searchKey',
                                     rounded=8,width='12em',placeholder='!!Search',padding='2px',padding_left='4px',
                                     onEnter=True,
