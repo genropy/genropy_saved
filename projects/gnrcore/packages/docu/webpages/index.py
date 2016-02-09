@@ -36,7 +36,7 @@ class GnrCustomWebPage(object):
         doctable = self.db.table('docu.documentation')
         f = doctable.query(where="$is_published IS TRUE AND ( $title_%s ILIKE :val OR $rst_%s ILIKE :val ) AND $title_%s IS NOT NULL" %(language,language,language),val='%%%s%%' %text,
                         columns='$hierarchical_name,$rst_%s AS rst,$title_%s AS title' %(language,language)).fetch()
-        tpl = '`%(title)s (%(hierarchical_name)s) <%(url)s>`_' #'`%(title)s (%(hierarchical_name)s) <%(url)s>`_ \n\n \t%(shortchunk)s'
+        tpl = '`%(title)s (%(hierarchical_name)s) <%(url)s>`_'
         result = []
         for r in f:
             result.append(tpl %dict(title=r['title'],hierarchical_name=r['hierarchical_name'],url='/docu/index/rst/%s' %r['hierarchical_name']))
