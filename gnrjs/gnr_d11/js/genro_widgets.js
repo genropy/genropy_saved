@@ -6424,7 +6424,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         celldata['checkedField'] = checkedField;
         celldata['userSets'] = true;    
         celldata['format_onclick'] = "this.widget.onChangeSetCol(kw.rowIndex,'"+fieldname+"',e)";
-        celldata['_customGetter'] = function(rowdata,rowIdx){
+        celldata['_customGetter'] = celldata['_customGetter'] || function(rowdata,rowIdx){
             return sourceNode._usersetgetter(this.field,rowdata,rowIdx)
         };
         return celldata;
