@@ -6393,8 +6393,9 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     addNewSetColumn:function(sourceNode,kw) {
         var position = objectPop(kw,'position') || 0;
         var celldata = this.getNewSetKw(sourceNode,kw);
-        var structbag = sourceNode.getRelativeData(sourceNode.attr.structpath);
+        
         genro.callAfter(function(){
+            var structbag = sourceNode.getRelativeData(sourceNode.attr.structpath);
             structbag.setItem('view_0.rows_0.cell_'+celldata.field, null, celldata, {_position:position});
         },1);
     },

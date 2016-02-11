@@ -9,6 +9,7 @@ from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrdict import dictExtract
+
 class THPicker(BaseComponent):
     js_requires='th/th_picker'
 
@@ -16,18 +17,19 @@ class THPicker(BaseComponent):
     def pk_palettePicker(self,pane,grid=None,table=None,relation_field=None,paletteCode=None,
                          viewResource=None,searchOn=True,multiSelect=True,
                          title=None,autoInsert=None,dockButton=None,picker_kwargs=None,
-                         height=None,width=None,**kwargs):
+                         height=None,width=None,checkbox=False,**kwargs):
         
         dockButton = dockButton or dict(parentForm=True,iconClass='iconbox app')
         picker_kwargs = picker_kwargs or dict()
+        checkbox = checkbox or picker_kwargs.get('checkbox',False)
         one = picker_kwargs.get('one',False)
         picker_kwargs.setdefault('uniqueRow',True)
         condition=picker_kwargs.pop('condition',None)
         condition_kwargs = dictExtract(picker_kwargs,'condition_',pop=True,slice_prefix=True)
         many = relation_field or picker_kwargs.get('relation_field',None)
         table = table or picker_kwargs.get('table',None)
-        height = height or picker_kwargs.get('height')
-        width = width or picker_kwargs.get('width')
+        height = height or picker_kwargs.get('height','600px')
+        width = width or picker_kwargs.get('width','400px')
         if autoInsert is None:
             autoInsert = picker_kwargs.get('autoInsert',True)
         title = title or picker_kwargs.get('title')
@@ -52,14 +54,16 @@ class THPicker(BaseComponent):
             palette = pane.paletteTree(paletteCode=paletteCode,dockButton=dockButton,title=title,
                             tree_dragTags=paletteCode,searchOn=searchOn,width=width,height=height,
                             draggableFolders=picker_kwargs.pop('draggableFolders',None)).htableViewStore(table=table,
-                            condition=condition,**condition_kwargs)
+                            condition=condition,checkbox=checkbox,**condition_kwargs)
         else:
-            palette = pane.paletteGridPicker(grid=grid,table=table,relation_field=relation_field,
+            palette = pane.paletteGridPicker(grid=grid,table=table,relation_field=many,
                                             paletteCode=paletteCode,viewResource=viewResource,
                                             searchOn=searchOn,multiSelect=multiSelect,title=title,
                                             dockButton=dockButton,height=height,
                                             width=width,condition=condition,condition_kwargs=condition_kwargs,
-                                            picker_kwargs=picker_kwargs)
+                                            checkbox=checkbox,structure_field = picker_kwargs.get('structure_field'),
+                                            uniqueRow=picker_kwargs.get('uniqueRow',True),
+                                            top_height=picker_kwargs.get('top_height'))
 
         if grid:
             grid.attributes.update(dropTargetCb_picker='return this.form?!this.form.isDisabled():true')
@@ -82,22 +86,14 @@ class THPicker(BaseComponent):
     @struct_method
     def pk_paletteGridPicker(self,pane,grid=None,table=None,relation_field=None,paletteCode=None,
                          viewResource=None,searchOn=True,multiSelect=True,
-                         title=None,dockButton=True,picker_kwargs=None,
-                         height=None,width=None,condition=None,condition_kwargs=None,**kwargs):
-        
-        structure_field = picker_kwargs.get('structure_field')
-        picker_kwargs = picker_kwargs or dict()
-        picker_kwargs.setdefault('uniqueRow',True)
-        many = relation_field or picker_kwargs.get('relation_field',None)
-        table = table or picker_kwargs.get('table',None)
-        height = height or picker_kwargs.get('height','600px')
-        width = width or picker_kwargs.get('width','400px')
-        title = title or picker_kwargs.get('title')
-        viewResource = viewResource or picker_kwargs.get('viewResource')
+                         title=None,dockButton=True,
+                         height=None,width=None,condition=None,condition_kwargs=None,
+                         structure_field=None,uniqueRow=True,top_height=None,
+                         checkbox=None,
+                        **kwargs):
+        many = relation_field 
         if viewResource is True:
             viewResource = 'ViewPicker'
-        searchOn = searchOn or picker_kwargs.get('searchOn')
-        paletteCode = paletteCode or picker_kwargs.get('paletteCode')
         maintable = None
         if grid:
             maintable = grid.getInheritedAttributes()['table']
@@ -127,7 +123,7 @@ class THPicker(BaseComponent):
                                               childname='picker_tablehandler',nodeId='%s_th' %paletteCode)
         if structure_field:
             structure_tblobj = tblobj.column(structure_field).relatedTable().dbtable
-            top = bc.contentPane(region='top',height=picker_kwargs.get('top_height','50%'),splitter=True,datapath='.structuretree')
+            top = bc.contentPane(region='top',height=top_height or '50%',splitter=True,datapath='.structuretree')
             top.tree(storepath='.store',_class='fieldsTree', hideValues=True,
                             draggable=False,
                             selectedLabelClass='selectedTreeNode',
@@ -144,12 +140,31 @@ class THPicker(BaseComponent):
                                                     """ %(structure_field,'%%',structure_field),
                                   hierarchical_pkey='^#ANCHOR.structuretree.tree.hierarchical_pkey',
                                   selected_pkey='^#ANCHOR.structuretree.tree.pkey',_delay=500)
-
+        if checkbox or self.isMobile:
+            paletteth.view.dataController("grid.addNewSetColumn({field:'pickerset'});",
+                                            grid=paletteth.view.grid.js_widget,_onStart=True)
+            bar = paletteth.view.bottom.slotBar('*,moveButton,2',margin_bottom='2px',_class='slotbar_dialog_footer')
+            bar.moveButton.slotButton('!!Pick checked',
+                                        action="""
+                                            if(!pickerset){
+                                                return;
+                                            }
+                                            var rows = [];
+                                            pickerset.split(',').forEach(function(pkey){
+                                                rows.push(sourcegrid.rowBagNodeByIdentifier(pkey).attr);
+                                            });
+                                            if(destgrid){
+                                                destgrid.fireEvent('.dropped_'+paletteCode,rows);
+                                            } 
+                                            PUT .grid.sets.pickerset = null;
+                                        """,sourcegrid=paletteth.view.grid.js_widget,
+                                        pickerset='=.grid.sets.pickerset',
+                                        destgrid=grid,paletteCode=paletteCode)
         if condition:
             paletteth.view.store.attributes.update(where=condition,**condition_kwargs)
         if not condition_kwargs:
             paletteth.view.store.attributes.update(_onStart=True)
-        if grid and picker_kwargs.get('uniqueRow'):
+        if grid and uniqueRow:
             paletteth.view.grid.attributes.update(filteringGrid=grid.js_sourceNode(),filteringColumn='_pkey:%s' %many)
         return palette
 

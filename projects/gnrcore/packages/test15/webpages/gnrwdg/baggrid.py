@@ -10,7 +10,7 @@ from gnr.core.gnrdecorator import public_method
 class GnrCustomWebPage(object):
     dojo_source = True
     css_requires='public'
-    py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/framegrid:FrameGrid"
+    py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/framegrid:FrameGrid,th/th:TableHandler"
     
     def test_0_firsttest(self,pane):
         """First test description"""
@@ -112,8 +112,6 @@ class GnrCustomWebPage(object):
             print row
 
 
-
-
     def test_5_menuPath(self,pane):
         """First test description"""
         pane.data('.dati',self.getDati())
@@ -131,3 +129,14 @@ class GnrCustomWebPage(object):
         b = Bag()
         b.setItem('m_1',None,caption='mario')
         pane.data('bbb',b)
+
+
+    def test_7_picker(self,pane):
+        pane.data('.mygrid.dati',self.getDati())
+        frame = pane.bagGrid(frameCode='mpath',datapath='.mygrid',struct=self.gridstruct_2,height='300px',
+                            table='glbl.localita',storepath='.dati')
+        bar = frame.top.bar.replaceSlots('addrow','testpicker')
+        bar.testpicker.palettePicker(grid=frame.grid,autoInsert='genro.bp(true);',
+                                    table='glbl.provincia',paletteCode='mypicker',
+                                    viewResource='View',
+                                    checkbox=True)
