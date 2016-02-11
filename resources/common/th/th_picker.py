@@ -31,8 +31,10 @@ class THPicker(BaseComponent):
         if autoInsert is None:
             autoInsert = picker_kwargs.get('autoInsert',True)
         title = title or picker_kwargs.get('title')
+        viewResource = viewResource or picker_kwargs.get('viewResource')
+        if viewResource is True:
+            viewResource = ':ViewPicker'
         searchOn = searchOn or picker_kwargs.get('searchOn')
-        paletteCode = paletteCode or picker_kwargs.get('paletteCode') or '%s_%s_picker' %(table.replace('_','.'),relation_field)
         maintable = None
         if grid:
             maintable = grid.getInheritedAttributes()['table']
@@ -43,10 +45,9 @@ class THPicker(BaseComponent):
                 tblobj = self.db.table(table) 
         elif table:
             tblobj = self.db.table(table)
-        paletteCode = paletteCode or '%s_picker' %table.replace('.','_')
+        paletteCode = paletteCode or picker_kwargs.get('paletteCode') or '%s_picker' %table.replace('.','_')
         title = title or tblobj.name_long
         treepicker = tblobj.attributes.get('hierarchical') and not viewResource
-
         if treepicker:
             palette = pane.paletteTree(paletteCode=paletteCode,dockButton=dockButton,title=title,
                             tree_dragTags=paletteCode,searchOn=searchOn,width=width,height=height,
