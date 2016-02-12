@@ -191,6 +191,7 @@ dojo.declare('gnr.GenroClient', null, {
             genropatches.dojoToJson();
             genropatches.sendAsBinary();
         }
+        genropatches.decimalRound();
         this.clsdict = {domsource:gnr.GnrDomSource, bag:gnr.GnrBag};
         this.eventPath = '_sys.events';
         this.prefs = {'recordpath':'tables.$dbtable.record',
