@@ -92,7 +92,9 @@ var th_sections_manager = {
                 dojo.addClass(viewDomNode,'sections_' + sections_name+'_' + curr);
             });
         });
-        viewNode.setRelativeData('.grid.currViewPath',structToSet);
+        if(structToSet){
+            viewNode.setRelativeData('.grid.currViewPath',structToSet);
+        }
     },
 
     onCalling:function(sections,kwargs){

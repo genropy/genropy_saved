@@ -141,8 +141,9 @@ class THPicker(BaseComponent):
                                   hierarchical_pkey='^#ANCHOR.structuretree.tree.hierarchical_pkey',
                                   selected_pkey='^#ANCHOR.structuretree.tree.pkey',_delay=500)
         if checkbox or self.isMobile:
-            paletteth.view.dataController("grid.addNewSetColumn({field:'pickerset'});",
-                                            grid=paletteth.view.grid.js_widget,_onStart=True)
+            paletteth.view.grid.attributes.update(onCreating="""function(attributes,handler){
+                    handler.addNewSetColumn(this,{field:'pickerset'});
+                }""")
             bar = paletteth.view.bottom.slotBar('*,moveButton,2',margin_bottom='2px',_class='slotbar_dialog_footer')
             bar.moveButton.slotButton('!!Pick checked',
                                         action="""

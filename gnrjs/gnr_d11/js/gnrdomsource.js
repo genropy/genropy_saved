@@ -854,7 +854,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     
     _doBuildNode: function(tag, attributes, destination, ind) {
-        var bld_attrs = objectExtract(attributes, 'onCreating,onCreated,gnrId,tooltip,nodeId');
+        var bld_attrs = objectExtract(attributes, 'onCreated,gnrId,tooltip,nodeId');
         var connections = objectExtract(attributes, 'connect_*');
         if (objectPop(attributes, 'autofocus')) {
             attributes.subscribe_onPageStart = "this.widget.focus()";
@@ -865,9 +865,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         
         var attrname;
         var ind = ind || 0;
-        if (bld_attrs.onCreating) {
-            funcCreate(bld_attrs.onCreating).call(this, attributes);
-        }
         var newobj = genro.wdg.create(tag, destination, attributes, ind, this);
         for (var selfsubscribe in selfsubscription){
             this.subscribe(selfsubscribe,selfsubscription[selfsubscribe]);

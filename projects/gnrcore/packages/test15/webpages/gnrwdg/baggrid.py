@@ -137,6 +137,6 @@ class GnrCustomWebPage(object):
                             table='glbl.localita',storepath='.dati')
         bar = frame.top.bar.replaceSlots('addrow','testpicker')
         bar.testpicker.palettePicker(grid=frame.grid,autoInsert='genro.bp(true);',
-                                    table='glbl.provincia',paletteCode='mypicker',
+                                    table='glbl.provincia',#paletteCode='mypicker',
                                     viewResource='View',
                                     checkbox=True)

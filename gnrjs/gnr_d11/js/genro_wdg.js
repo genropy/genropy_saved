@@ -256,6 +256,11 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         var attributes = attributes || {};
         var newobj, domnode,domtag;
         var handler = this.getHandler(tag);
+        var onCreating = objectPop(attributes,'onCreating');
+        if (onCreating) {
+            funcCreate(onCreating).call(sourceNode, attributes,handler);
+        }
+
         var zoomToFit = objectPop(attributes,'zoomToFit')
 
         genro.assert(handler,'missing handler for tag:'+tag);
