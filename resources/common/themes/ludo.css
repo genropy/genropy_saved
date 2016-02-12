@@ -56,9 +56,10 @@
     border-top-right-radius: 3px;
     padding-top: 2px;
     padding-bottom: 3px;
-    font-size: .9em;
     border:0;
 }
+
+
 
 /* @end */
 
@@ -871,7 +872,7 @@
 	-moz-box-shadow: inset 1px 1px 2px #222;
     -webkit-box-shadow:inset 1px 1px 2px #222;
 }
-
+/*
 
 .tundra .dijitSplitter.dijitSplitterV{
     width:4px;
@@ -898,7 +899,7 @@
     background:silver;
     opacity:.5;
 }
-
+*/
 
 
 

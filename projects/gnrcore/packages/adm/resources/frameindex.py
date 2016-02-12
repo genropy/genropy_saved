@@ -71,7 +71,7 @@ class FrameIndex(BaseComponent):
                             data='^gnr.rootenv',
                             tpl=self.windowTitleTemplate(),
                             _onStart=True)
-        frame = pane.framePane('standard_index',_class='hideSplitter frameindexroot',
+        frame = pane.framePane('standard_index',_class='frameindexroot',
                                 #border='1px solid gray',#rounded_top=8,
                                 margin='0px',overflow='hidden',
                                 persist=True,

@@ -751,7 +751,9 @@ label.ghostlabel span {
 }
 
 
-
+._common_d11.tundra .dijitSplitter:active{
+    background: #777;
+}
 
 .tundra .drawerFixed.dijitSplitter.dijitSplitterV{
     width: 0;
@@ -764,7 +766,7 @@ label.ghostlabel span {
 .tundra .drawerFixed.dijitSplitter.dijitSplitterH{
     height: 0;
 }
-.tundra .drawerFixed.dijitSplitter.dijitSplitter):hover{
+.tundra .drawerFixed.dijitSplitter.dijitSplitter:hover{
     height: 0;
     background: transparent;
 }
@@ -1677,11 +1679,29 @@ div.dojoxDock {
 }
 
 ._common_d11.tundra .dojoxFloatingMinimizeIcon {
-    background: transparent url(icons/base16/floatingclose.png) no-repeat scroll center center;
+    background: transparent url(icons/base16/close.png) no-repeat scroll center center;
     float: right;
     height: 16px;
     overflow: hidden;
     width: 16px;
+}
+
+._common_d11.tundra .dojoxFloatingCloseIcon{
+    background: transparent url(icons/base16/close.png) no-repeat scroll center center;
+}
+
+
+._common_d11.tundra .dijitDialogCloseIcon{
+    background: transparent url(icons/base16/close.png) no-repeat scroll center center;
+}
+
+.tundra._common_d11 .dijitDialogTitle{
+    font-weight: normal;
+}
+
+._common_d11.tundra .dojoxFloatingMaximizeIcon{
+    background: transparent url(icons/base16/expand.png) no-repeat scroll center center;
+    margin-right: 6px;
 }
 
 ._common_d11.tundra .dijitMenu {
