@@ -1875,7 +1875,7 @@ class Bag(GnrObject):
         :returns: a Bag from _unpickle() method or from _fromXml() method"""
         if not source:
             return
-            
+        
         if mode == 'xml':
             return self._fromXml(source, fromFile)
         elif mode == 'pickle':
