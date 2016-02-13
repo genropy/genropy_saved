@@ -1686,8 +1686,11 @@ div.dojoxDock {
     width: 16px;
 }
 
+
 ._common_d11.tundra .dojoxFloatingCloseIcon{
     background: transparent url(icons/base16/close.svg) no-repeat scroll center center;
+    height: 16px;
+    width: 16px;
 }
 
 

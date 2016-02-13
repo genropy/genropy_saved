@@ -121,11 +121,9 @@ class BaseResourceBatch(object):
         :param message: TODO"""
         table = table or self.maintable
         tblobj = self.db.table(table) 
-
         if not where:
             where = '$%s IN:pkeys' % tblobj.pkey
             kwargs['pkeys'] = self.get_selection_pkeys()
-
         tblobj.batchUpdate(updater=updater, where=where,
                            _wrapper=self.btc.thermo_wrapper,
                            _wrapperKwargs=dict(line_code='date',
