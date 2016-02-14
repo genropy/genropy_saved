@@ -249,22 +249,19 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
         
     @gen.coroutine 
     def on_message(self, message):
-        if message=='PING':
-            self.write_message('PONG')
-        else:
-            command,result_token,kwargs=self.parseMessage(message)
-            handler=self.getHandler(command,kwargs)
-            if handler:
-                executor=self.getExecutor(handler)
-                if executor:
-                    result = yield executor.submit(handler,_time_start=time.time(),**kwargs)
-                else:
-                    result = handler(_time_start=time.time(),**kwargs)
-                if result_token:
-                    result = Bag(dict(token=result_token,envelope=result)).toXml(unresolved=True)
-                if result is not None:
-                    self.write_message(result)
-                
+        command,result_token,kwargs=self.parseMessage(message)
+        handler=self.getHandler(command,kwargs)
+        if handler:
+            executor=self.getExecutor(handler)
+            if executor:
+                result = yield executor.submit(handler,_time_start=time.time(),**kwargs)
+            else:
+                result = handler(_time_start=time.time(),**kwargs)
+            if result_token:
+                result = Bag(dict(token=result_token,envelope=result)).toXml(unresolved=True)
+            if result is not None:
+                self.write_message(result)
+           
     def on_close(self):
         print "WebSocket on_close",self.page_id
         self.channels.pop(self.page_id,None)
@@ -273,15 +270,18 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
         
     def check_origin(self, origin):
         return True
-
+    
     def do_echo(self,data=None,**kwargs):
         return data
+         
+    def do_ping(self,lastEventAge=None,**kwargs):
+        self.server.sharedStatus.onPing(self._page_id,lastEventAge)
+        self.write_message('pong')
+        
+    def do_user_event(self,event=None,**kwargs):
+        self.server.sharedStatus.onUserEvent(self._page_id,event)
+        
 
-    def do_user_event(self,_time_start=None,**kwargs):
-        page = self.server.pages[self._page_id]
-        pagedata = self.server.sharedStatus.users[page.user]['connections'][page.connection_id]['pages'][self._page_id]
-        for k,v in kwargs.items():
-            pagedata['evt_%s' %k] = v
         
     def do_route(self,target_page_id=None,envelope=None,**kwargs):
         websocket=self.channels.get(target_page_id)
@@ -555,7 +555,21 @@ class SharedStatus(SharedObject):
             userconnections.popNode(connection_id)
             if not userconnections:
                 users.popNode(page.user)
-    
+                
+    def onPing(self,page_id,lastEventAge):
+        page = self.server.pages[page_id]
+        data=self.users[page.user]
+        data['lastEventAge']=lastEventAge
+        data = data['connections'][page.connection_id]
+        data['lastEventAge']=lastEventAge
+        data=data['pages'][page_id]
+        data['lastEventAge']=lastEventAge
+        
+    def onUserEvent(self, page_id, event):
+        page = self.server.pages[page_id]
+        pagedata = self.server.sharedStatus.users[page.user]['connections'][page.connection_id]['pages'][page_id]
+        for k,v in event.items():
+            pagedata['evt_%s' %k] = v
     
 class SharedObjectsManager(object):
     """docstring for SharedObjectsManager"""

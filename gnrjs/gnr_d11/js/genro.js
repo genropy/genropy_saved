@@ -85,6 +85,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.profile_count = 4;
         this.lastPing = start_ts;
         this._debugPaths = {};
+        this.sendAllEvents=true;
         this._lastUserEventTs = start_ts;
         this._lastChildUserEventTs = start_ts;
         this._lastGlobalUserEventTs = start_ts;
@@ -311,10 +312,13 @@ dojo.declare('gnr.GenroClient', null, {
 
     _registerUserEvents:function(){
         var cb = function(evt){
-            if(genro.sendAllEvents && genro.wsk){
-                genro.wsk.send('user_event',{'type':evt.type,'modifiers':genro.dom.getEventModifiers(evt),'x':evt.x,'y':evt.y,
-                                            'keyCode':evt.keyCode,'keyChar':evt.keyChar,'keyIdentifier':evt.keyIdentifier});
+            if (genro.wsk && genro.sendAllEvents){
+                    genro.wsk.send('user_event',{event:{'type':evt.type,'modifiers':genro.dom.getEventModifiers(evt),'x':evt.x,'y':evt.y,
+                                                'keyCode':evt.keyCode,'keyChar':evt.keyChar,'timeStamp':evt.timeStamp,
+                                                'targetId':evt.target?evt.target.id:''}});
             }
+            
+
             genro._lastUserEventTs = new Date();
             genro._lastGlobalUserEventTs = new Date();
             if(genro.root_page_id){
@@ -324,9 +328,13 @@ dojo.declare('gnr.GenroClient', null, {
             }
             genro.execUserInfoCb();
         };
+        
         dojo.connect(window, 'onclick', cb);
         dojo.connect(window, 'onmousemove', cb);
+        dojo.connect(window, 'onkeydown', cb);
         dojo.connect(window, 'onkeypress', cb);
+        dojo.connect(window, 'ondblclick', cb);
+       // dojo.connect(window, 'oninput', cb);
         setInterval(function(){
             genro.timeProfilers.push(genro.currProfilers);
             if(genro.timeProfilers.length>genro.profile_count){

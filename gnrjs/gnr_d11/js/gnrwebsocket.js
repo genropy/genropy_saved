@@ -30,7 +30,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         this.application = application;
         this.wsroot=wsroot;
         this.url='ws://'+window.location.host+wsroot
-        this.options=objectUpdate({ debug: false, reconnectInterval: 4000, ping_time:3000 },
+        this.options=objectUpdate({ debug: false, reconnectInterval: 4000, ping_time:1000 },
                                   options)
         this.waitingCalls={}
         
@@ -75,12 +75,12 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         console.error('WebSocket Error ' + error);
     },
     ping:function(){
-        this.socket.send('PING')
+        this.send('ping',{lastEventAge:(new Date()-genro._lastUserEventTs)})
     },
 
     onmessage:function(e){
         var data=e.data;
-        if (data=='PONG'){
+        if (data=='pong'){
             return
         }
         

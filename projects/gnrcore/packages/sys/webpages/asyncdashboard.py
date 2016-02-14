@@ -6,14 +6,16 @@ class GnrCustomWebPage(object):
 
     def main(self,root,**kwargs):
         bc = root.borderContainer(datapath='main')
-        top = bc.borderContainer(height='50%',region='top')
-        top.contentPane(region='top').button('Run',fire='run')
+        top = bc.borderContainer(height='200px',region='top')
         #top.roundedGroupFrame(title='Pages',region='left',width='50%').quickgrid(value='^.data.pages',fields='user,connection_id,page_id')
         #top.roundedGroupFrame(title='Shared Objects',region='center').quickgrid(value='^.data.sharedObjects',fields='subscribed_pages')
+        tc = bc.tabContainer(region='center')
+        self.globalStatusPane(tc.borderContainer(title='Global Status'))
+        self.sharedObjectsPane(tc.contentPane(title='SharedObjects'))
         
-        center = bc.borderContainer(region='center')
-        center.data('.data',None,shared_id='__global_status__')
-        center.tree(storepath='.data')
+    def globalStatusPane(self,bc):        
+        bc.data('.data',None,shared_id='__global_status__')
+        bc.tree(storepath='.data')
         bc.dataController("""SET .selectedConnection = null;
                              SET .currentConnections= selectedUser?'main.data.users.'+selectedUser+'.connections':'emptyConnections';
         """,selectedUser='^.selectedUser')
@@ -21,21 +23,23 @@ class GnrCustomWebPage(object):
         bc.dataController("""SET .currentPages = selectedUser&&selectedConnection?'main.data.users.'+selectedUser+'.connections.'+selectedConnection+'.pages':'emptyPages';
         """,selectedUser='=.selectedUser',selectedConnection='^.selectedConnection')
 
-        center.bagGrid(title='Users',region='left',width='20%',pbl_classes=True,addrow=False,delrow=False,
+        bc.bagGrid(title='Users',region='left',width='300px', splitter=True, pbl_classes=True,addrow=False,delrow=False,
                             datapath='.usersgrid',
                             storepath='main.data.users',
                             grid_selectedLabel='main.selectedUser',
                             grid_autoSelect=True,
                             struct=self.usersStruct,margin='2px')
+        right=bc.borderContainer(region='center')
 
-        center.bagGrid(title='Connections',region='center',pbl_classes=True,addrow=False,delrow=False,
+        right.bagGrid(title='Connections',region='top',splitter=True, pbl_classes=True,addrow=False,delrow=False,
+                                        height='180px',
                                         storepath='^main.currentConnections',
                                         datapath='.connectionsgrid',
                                         grid_autoSelect=True,
                                         grid_selectedLabel='main.selectedConnection',
                                         struct=self.connectionStruct,margin='2px')
 
-        center.bagGrid(title='Pages',region='right',width='50%',pbl_classes=True,addrow=False,delrow=False,
+        right.bagGrid(title='Pages',region='center',pbl_classes=True,addrow=False,delrow=False,
                                 datapath='.pagessgrid',
                                 storepath='^main.currentPages',
                                 struct=self.pagesStruct,margin='2px')
@@ -44,25 +48,34 @@ class GnrCustomWebPage(object):
         r = struct.view().rows()
         r.cell('user',width='10em',name='User')
         r.cell('start_ts',width='10em',name='Start',dtype='DH')
+        r.cell('lastEventAge',width='6em',name='lastEvtAge',dtype='N')
 
     def connectionStruct(self,struct):
         r = struct.view().rows()
-        r.cell('connection_id',width='15em',name='Connection')
+        r.cell('connection_id',width='10em',name='Connection')
         r.cell('start_ts',width='10em',name='Start',dtype='DH')
-        r.cell('user_ip',width='15em',name='IP')
+        r.cell('lastEventAge',width='6em',name='lastEvtAge',dtype='N')
+        r.cell('user_ip',width='7em',name='IP')
+        r.cell('user_agent',width='100%',name='User Agent')
+
 
     def pagesStruct(self,struct):
         r = struct.view().rows()
-        r.cell('pagename',width='15em',name='Page')
-        r.cell('evt_type',width='5em',name='Evt type')
-        r.cell('evt_x',width='5em',name='Evt x')
-        r.cell('evt_y',width='5em',name='Evt y')
-        r.cell('evt_modifiers',width='8em',name='Evt Mod.')
-        r.cell('evt_keyCode',width='8em',name='Evt keyCode.')
-        r.cell('evt_keyIdentifier',width='8em',name='Evt keyId.')
-        r.cell('evt_keyChar',width='8em',name='Evt keyChar')
+        r.cell('pagename',width='10em',name='Page')
+        r.cell('start_ts',width='10em',name='Start',dtype='DH')
+        r.cell('lastEventAge',width='6em',name='lastEvtAge',dtype='N')
+        r.cell('evt_type',width='7em',name='Evt.Type')
+        r.cell('evt_timeStamp',width='10em',name='Timestamp')
+        r.cell('evt_targetId',width='20em',name='Target ID')
+        r.cell('evt_x',width='5em',name='x')
+        r.cell('evt_y',width='5em',name='y')
+        r.cell('evt_modifiers',width='8em',name='Modifiers')
+        r.cell('evt_keyCode',width='6em',name='keyCode')
+        r.cell('evt_keyChar',width='6em',name='keyChar')
 
-
+    def sharedObjectsPane(self,pane):
+        pane.div('sharedObjectsPane')
+        
    #@websocket_method
    #def getInfo(self,**kwargs):
    #    users = self.getUsers()
