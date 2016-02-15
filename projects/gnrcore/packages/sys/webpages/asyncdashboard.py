@@ -64,6 +64,7 @@ class GnrCustomWebPage(object):
         r.cell('pagename',width='10em',name='Page')
         r.cell('start_ts',width='10em',name='Start',dtype='DH')
         r.cell('lastEventAge',width='6em',name='lastEvtAge',dtype='N')
+        r.cell('typing',width='6em',name='Typing',dtype='B')
         r.cell('evt_type',width='7em',name='Evt.Type')
         r.cell('evt_timeStamp',width='10em',name='Timestamp')
         r.cell('evt_targetId',width='20em',name='Target ID')

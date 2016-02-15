@@ -557,7 +557,7 @@ class SharedStatus(SharedObject):
                 users.popNode(page.user)
                 
     def onPing(self,page_id,lastEventAge):
-        page = self.server.pages[page_id]
+        page = self.server.pages.get(page_id)
         data=self.users[page.user]
         data['lastEventAge']=lastEventAge
         data = data['connections'][page.connection_id]
@@ -568,9 +568,15 @@ class SharedStatus(SharedObject):
     def onUserEvent(self, page_id, event):
         page = self.server.pages[page_id]
         pagedata = self.server.sharedStatus.users[page.user]['connections'][page.connection_id]['pages'][page_id]
+        old_targetId=pagedata['evt_targetId']
         for k,v in event.items():
             pagedata['evt_%s' %k] = v
-    
+        if old_targetId==event['targetId']:
+            if event['type']=='keypress':
+                pagedata['typing']=True
+        else:
+            pagedata['typing']=False
+            
 class SharedObjectsManager(object):
     """docstring for SharedObjectsManager"""
     def __init__(self, server,gc_interval=5):
@@ -700,7 +706,9 @@ class GnrBaseAsyncServer(object):
         self.sharedStatus.registerPage(page)
 
     def unregisterPage(self,page_id):
-        page=self.pages[page_id]
+        page=self.pages.get(page_id)
+        if not page:
+            return
         if page.sharedObjects:
             for shared_id in page.sharedObjects:
                 self.som.sharedObjects[shared_id].unsubscribe(page_id)
