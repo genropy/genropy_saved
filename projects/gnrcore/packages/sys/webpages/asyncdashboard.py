@@ -10,11 +10,12 @@ class GnrCustomWebPage(object):
         #top.roundedGroupFrame(title='Pages',region='left',width='50%').quickgrid(value='^.data.pages',fields='user,connection_id,page_id')
         #top.roundedGroupFrame(title='Shared Objects',region='center').quickgrid(value='^.data.sharedObjects',fields='subscribed_pages')
         tc = bc.tabContainer(region='center')
+        bc.data('main.data',None,shared_id='__global_status__')
         self.globalStatusPane(tc.borderContainer(title='Global Status'))
         self.sharedObjectsPane(tc.contentPane(title='SharedObjects'))
         
     def globalStatusPane(self,bc):        
-        bc.data('.data',None,shared_id='__global_status__')
+        
         bc.tree(storepath='.data')
         bc.dataController("""SET .selectedConnection = null;
                              SET .currentConnections= selectedUser?'main.data.users.'+selectedUser+'.connections':'emptyConnections';
@@ -75,7 +76,24 @@ class GnrCustomWebPage(object):
         r.cell('evt_keyChar',width='6em',name='keyChar')
 
     def sharedObjectsPane(self,pane):
-        pane.div('sharedObjectsPane')
+        pane.bagGrid(title='Shared Objects', pbl_classes=True,addrow=False,delrow=False,
+                                        storepath='main.data.sharedObjects',
+                                        datapath='.sharedobjects_grid',
+                                        grid_autoSelect=True,
+                                        struct=self.sharedObjectStruct,margin='2px')
+
+    def sharedObjectStruct(self,struct):
+        r = struct.view().rows()
+        r.cell('shared_id',width='10em',name='Shared Id')
+        r.cell('expire',width='10em',name='Expire')
+        r.cell('read_tags',width='10em',name='Read Tags')
+        r.cell('write_tags',width='10em',name='Write Tags')
+        r.cell('saveIterval',width='10em',name='Save Iterval')
+        r.cell('autoSave',width='10em',name='Auto Save',dtype='B')
+        r.cell('autoLoad',width='10em',name='Auto Load',dtype='B')
+        r.cell('filepath',width='10em',name='Filepath')
+        r.cell('subscriptions',width='100%',name='Subscriptions',dtype='X',format_bag_cells='page_id,user',format_bag_headers='Page Id,User')
+        
         
    #@websocket_method
    #def getInfo(self,**kwargs):
