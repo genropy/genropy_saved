@@ -25,7 +25,7 @@ import os
 import base64
 from concurrent.futures import ThreadPoolExecutor,Future, Executor
 import tornado.web
-from tornado import gen, locks
+from tornado import gen
 import tornado.websocket as websocket
 import tornado.ioloop
 import signal
@@ -350,7 +350,6 @@ class SharedObject(object):
         self.manager = manager
         self.server = manager.server
         self.shared_id = shared_id
-        self.lock=locks.Lock()
         self._data = Bag(dict(root=Bag(startData)))
         self.read_tags = read_tags
         self.write_tags = write_tags
