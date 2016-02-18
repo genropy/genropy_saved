@@ -311,7 +311,7 @@ class TemplateEditor(TemplateEditorBase):
                             varsbag.forEach(function(n){
                                 n.delAttr('_newrecord');
                                 n._value.popNode('_newrecord');
-                                varname = n._value.getItem('varname');
+                                varname = n._value.getItem('varname') || n._value.getItem('fieldname');
                                 varfolder.setItem(n.label,null,{caption:n._value.getItem('fieldname'),code:varname});
                             },'static');
                             result.setItem('variables',varfolder,{caption:varcaption})
