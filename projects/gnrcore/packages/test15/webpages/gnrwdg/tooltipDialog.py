@@ -7,7 +7,7 @@
 "tooltipDialog"
 
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerFull"
+    py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/framegrid:FrameGrid"
     dojo_source=True
     
     def windowTitle(self):
@@ -55,3 +55,57 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^campo1',lbl='Campo1')
         fb.textbox(value='^campo2',lbl='Campo2')
         fb.button(attrs['device'])
+
+
+    def test_3_forcedOpen(self,pane):
+        fb = pane.formbuilder(cols=2,border_spacing='3px')
+        fb.div('ciao',lbl='Test')
+        fb.div('Bao',lbl='Test 2',connect_onclick="""genro.publish('pippo_open',{evt:$1,domNode:$1.target,pippo:4});""")
+        fb.div('Tao',lbl='Test 3')
+        self.pageSource().tooltipPane(openerId='pippo',evt='noevt',
+                             onOpening="""console.log("test",kwargs);""").div('Test',padding='20px')
+
+    def test_4_grid(self,pane):
+        def struct(struct):
+            r = struct.view().rows()
+            r.cell('tpl',rowTemplate="$nome - $cognome <br/> $indirizzo",width='100%',
+                    edit=dict(editOnOpening="""var gn = this.grid.sourceNode;
+                                                var rowpath = gn.absDatapath(gn.attr.storepath+'.'+gn.widget.dataNodeByIndex(rowIndex).label);
+                                                genro.publish('testform_open',{evt:null,domNode:cellNode,
+                                                                                rowpath:rowpath});
+                                                return false
+                                                ;"""))
+        pane.data('currentRow','dummy')
+        pane.bagGrid(storepath='.data',struct=struct,height='500px',pbl_classes='*',title='Pippo')
+
+
+        fb = self.pageSource().tooltipPane(openerId='testform',evt='noevt',
+                             onOpening="""SET currentRow=kwargs.rowpath;"""
+                             ).formbuilder(cols=1,border_spacing='3px',datapath='^currentRow')
+        fb.textbox(value='^.nome',lbl='Nome')
+        fb.textbox(value='^.cognome',lbl='Cognome')
+        fb.simpleTextArea(value='^.indirizzo',lbl='Indirizzo')
+
+    def test_5_dynamic(self,pane):
+        fb = pane.formbuilder(cols=2,border_spacing='3px')
+        fb.button('Bomb',lbl='Test',action="""genro.dlg.quickTooltipPane({domNode:this.widget.domNode,fields:fields,datapath:'pippo'})""",
+                fields=[dict(lbl='Ciao',wdg='numberTextBox',value='^.ciao'),dict(lbl='Bao',wdg='dateTextBox',value='^.bao')])
+
+    def test_6_griddynamic(self,pane):
+        def struct(struct):
+            r = struct.view().rows()
+            r.cell('tpl',rowTemplate="$nome - $cognome <br/> $indirizzo",width='100%',
+                    edit=dict(fields=[dict(value='^.nome',lbl='Nome'),
+                                dict(value='^.cognome',lbl='Cognome'),
+                                dict(value='^.indirizzo',lbl='Indirizzo',
+                                     wdg='simpleTextArea')],mode='dialog'),name='Dati')
+        pane.data('currentRow','dummy')
+        pane.bagGrid(storepath='.data',struct=struct,height='500px',pbl_classes='*',title='Pippo')
+
+    def test_7_griddynamic_cb(self,pane):
+        def struct(struct):
+            r = struct.view().rows()
+            r.cell('tpl',rowTemplate="$nome - $cognome <br/> $indirizzo",width='100%',
+                    edit=dict(fields='genro.bp(true)'))
+        pane.data('currentRow','dummy')
+        pane.bagGrid(storepath='.data',struct=struct,height='500px',pbl_classes='*',title='Pippo')
