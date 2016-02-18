@@ -1684,6 +1684,7 @@ div.dojoxDock {
     height: 16px;
     overflow: hidden;
     width: 16px;
+    margin-right: 4px;
 }
 
 
