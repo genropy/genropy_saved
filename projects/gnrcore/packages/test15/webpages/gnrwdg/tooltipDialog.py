@@ -96,9 +96,10 @@ class GnrCustomWebPage(object):
             r = struct.view().rows()
             r.cell('tpl',rowTemplate="$nome - $cognome <br/> $indirizzo",width='100%',
                     edit=dict(fields=[dict(value='^.nome',lbl='Nome'),
-                                dict(value='^.cognome',lbl='Cognome'),
-                                dict(value='^.indirizzo',lbl='Indirizzo',
-                                     wdg='simpleTextArea')],mode='dialog'),name='Dati')
+                                      dict(value='^.cognome',lbl='Cognome'),
+                                      dict(value='^.indirizzo',lbl='Indirizzo',wdg='simpleTextArea')],
+                                      mode='dialog'),
+                    name='Dati')
         pane.data('currentRow','dummy')
         pane.bagGrid(storepath='.data',struct=struct,height='500px',pbl_classes='*',title='Pippo')
 
