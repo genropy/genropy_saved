@@ -470,6 +470,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             }else{
                 var fb = genro.dev.formbuilder(box,1,{border_spacing:'4px',width:'100%',fld_width:'100%',datapath:'.promptvalue'});
                 wdg.forEach(function(n){
+                    n = objectUpdate({},n);
                     var w = objectPop(n,'wdg','textbox');
                     fb.addField(w,objectUpdate({lbl_color:'#666',lbl_text_align:'right'},n));
                 })
@@ -517,6 +518,43 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         genro.src.getNode()._('div', '_gnr_float_' + float_id);
         var node = genro.src.getNode('_gnr_float_' + float_id).clearValue();
         return node._('floatingPane', kw);
+    },
+
+    quickTooltipPane: function(kw) {
+        var kw = objectUpdate({},kw);
+        kw.evt = kw.evt || false;
+        var nodeId = kw.nodeId  || 'td_'+'tempTooltip';
+        var quickRoot = '_dlgTooltip_quick_'+ nodeId;
+        genro.src.getNode()._('div',quickRoot);
+        var node = genro.src.getNode(quickRoot).clearValue();
+        var domNode = objectPop(kw,'domNode');
+        node.freeze();
+        if(domNode){
+            var openerId = kw.openerId || nodeId+'_opener';
+            kw.openerId = openerId;
+            kw.onCreated = function(){
+                setTimeout(function(){
+                    genro.publish(openerId+'_open',{domNode:domNode});
+                },1)
+                
+            }
+        }
+        var fields = objectPop(kw,'fields');
+        var cols = objectPop(kw,'cols',1);
+
+        var tp = node._('tooltipPane',kw)._('div',{_class:'quickTooltipContainer'});
+        if(fields){
+            if(fields instanceof Array){
+                var fb = genro.dev.formbuilder(tp,cols,{border_spacing:'4px',width:'100%',fld_width:'100%'});
+                fields.forEach(function(n){
+                    var n = objectUpdate({},n);
+                    var w = objectPop(n,'wdg','textbox');
+                    fb.addField(w,objectUpdate({lbl_color:'#666',lbl_text_align:'right'},n));
+                })
+            }
+        }
+        node.unfreeze();
+        return tp;
     },
 
     quickDialog: function(title,kw) {
