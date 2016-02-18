@@ -103,7 +103,7 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
         var onOpening = objectPop(kw,'onOpening');
         var modal = objectPop(kw,'modal');
         if (onOpening){
-            onOpening = funcCreate(onOpening,'e,sourceNode,dialogNode',sourceNode);
+            onOpening = funcCreate(onOpening,'e,sourceNode,dialogNode,kwargs',sourceNode);
         }
         var evt = objectPop(kw,'evt') || 'onclick';
         var parentDomNode;
@@ -115,8 +115,13 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
             parentDomNode = sn.getDomNode();
         }
         var ddkw = {hidden:true,nodeId:ddbId,modifiers:modifiers,evt:evt,modal:modal,
-                                selfsubscribe_open:"this.widget.dropDown._lastEvent=$1.evt;this.widget._openDropDown($1.domNode);",
-                                selfsubscribe_close:"this.widget._closeDropDown();"}
+                                selfsubscribe_open:function(kw){
+                                    if(!onOpening || onOpening(kw.evt,kw.domNode.sourceNode,this._value.getNode('ttd'),kw)!==false){
+                                        this.widget.dropDown._lastEvent=kw.evt;
+                                        this.widget._openDropDown(kw.domNode);
+                                    }
+                                },
+                                selfsubscribe_close:function(){this.widget._closeDropDown();}}
         if(placingId){
             ddkw.onOpeningPopup = function(openKw,evtDomNode){
                                     var placingDomNode = genro.domById(placingId);
@@ -145,12 +150,10 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
             kw.z_index = 1001;
         }   
         kw.doLayout = true;
-        var tdialog =  ddb._('TooltipDialog',kw);
+        var tdialog =  ddb._('TooltipDialog','ttd',kw);
         dojo.connect(parentDomNode,evt,function(e){
             if(genro.wdg.filterEvent(e,modifiers)){
-                if(!onOpening || onOpening(e,e.target.sourceNode,tdialog.getParentNode())!==false){
-                    genro.publish(ddbId+'_open',{'evt':e,'domNode':e.target});
-                }
+                genro.publish(ddbId+'_open',{'evt':e,'domNode':e.target});
             } 
         });
         return tdialog;
@@ -2281,7 +2284,9 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         }
         var store = this.gridNode.widget.collectionStore();
         if(!fields || fields=='*'){
-            fields = objectKeys(store.rowByIndex(0));
+            var firstNode = store.getData().getNode('#0');
+            var nodeValue = firstNode.getValue();
+            fields = nodeValue? nodeValue.keys():objectKeys(firstNode.attr);
         }else{
             fields = fields.split(',');
         }
