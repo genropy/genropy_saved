@@ -582,25 +582,19 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         }
         if (target) {
             var modif = (modifiers || "").replace('*', '') || '';
-            if (modif) {
-                if (e.shiftKey) {
-                    modif = modif.replace('shift', '');
+            var moddict = {'shiftKey':'shift','ctrlKey':'ctrl','altKey':'alt','metaKey':'meta'};
+            for(var c in moddict){
+                if(e[c]){
+                    if(modif.indexOf(moddict[c])<0){
+                        return false;
+                    }
+                    modif = modif.replace(moddict[c], '');
                 }
-                if (e.ctrlKey) {
-                    modif = modif.replace('ctrl', '');
-                }
-                if (e.altKey) {
-                    modif = modif.replace('alt', '');
-                }
-                if (e.metaKey) {
-                    modif = modif.replace('meta', '');
-                }
-                modif = modif.replace(/,/g, '').replace(/ /g, '');
             }
+            modif = modif.replace(/,/g, '').replace(/ /g, '');
             if (modif == '') {
                 result = true;
             }
-            ;
         }
         return result;
     }
