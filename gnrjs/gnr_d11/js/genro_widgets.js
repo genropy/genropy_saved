@@ -4203,6 +4203,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                     };
                 }
             }
+            if(cell.rowTemplate){
+                cell.rowTemplate = sourceNode.currentFromDatasource(cell.rowTemplate);
+            }
             cell.field = cell.field.replace(/\W/g, '_');
             cell.field_getter = cell.caption_field? cell.caption_field.replace(/\W/g, '_'):cell.field ;
             if(cell.caption_field || cell.values){
