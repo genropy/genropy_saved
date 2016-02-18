@@ -2690,13 +2690,13 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             var remote_datasourcepath =  sourceNode.absDatapath(sourceNode.attr.datasource);
             var showLetterhead = typeof(showLetterhead)=='string'?(sourceNode.getRelativeData(showLetterhead) || true):showLetterhead;
             var kw = {'paletteCode':paletteCode,'dockTo':'dommyDock:open',
-                    title:'Template Edit '+table.split('.')[1],width:'750px',
+                    title:'Template Edit '+table?table.split('.')[1]:'',width:'750px',
                     maxable:true,
                     height:'500px',
                     remote:'te_chunkEditorPane',
                     remote_table:table,
                     remote_paletteId:paletteId,
-                    remote_resource_mode:(templateHandler.dataInfo.respath!=null),
+                    remote_resource_mode:!table || (templateHandler.dataInfo.respath!=null),
                     remote_datasourcepath:remote_datasourcepath,
                     remote_showLetterhead:showLetterhead,
                     remote_editorConstrain: editorConstrain
@@ -2731,7 +2731,6 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             var paletteNode = palette.getParentNode();  
             sourceNode._connectedPalette = paletteNode; 
         }
-
     },
     
 
@@ -2765,7 +2764,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             var data = kw.template;
             return {data:data,dataInfo:{},template:data.getItem('compiled')};
         }
-        var template_address = kw.table+':'+kw.template;
+        var template_address =( kw.table || '')+':'+kw.template;
         var result = genro.serverCall("loadTemplate",{template_address:template_address,asSource:kw.asSource});
         if(result.attr.html){
             var content = result.getValue().getItem('content');
@@ -2779,7 +2778,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
     },
     
     saveTemplate:function(sourceNode,data,kw,custom){
-        var template_address = kw.table+':'+kw.template;
+        var template_address = (kw.table || '')+':'+kw.template;
         var templateHandler = sourceNode._templateHandler;
         if(custom){
             template_address = template_address+',custom'
@@ -2794,6 +2793,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             console.warn('templateChunk warning: use "template" param instead of "resource" param');
         }
         var tplpars = objectExtract(kw,'table,template,editable');
+        tplpars.table = tplpars.table || '';
         var editorConstrain = objectExtract(kw,'constrain_*',null,true);
         var showLetterhead = objectPop(kw, 'showLetterhead');
         if(typeof(showLetterhead)=='string'){
@@ -2826,6 +2826,9 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         
         var handler = this;
         if(tplpars.editable){
+            kw.selfsubscribe_openTemplatePalette = function(){
+                handler.openTemplatePalette(this,editorConstrain,showLetterhead);
+            }
             kw.connect_ondblclick = function(evt){
                 if(tplpars.editable==true || evt.shiftKey){
                     handler.openTemplatePalette(this,editorConstrain,showLetterhead);
@@ -2842,6 +2845,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             else{
                 handler.createClientChunk(this,dataProvider,tplpars);
             }
+            this.updateTemplate();
         }
         var chunk = sourceNode._('div','templateChunk',kw)
         sourceNode.gnrwdg.chunkNode = chunk.getParentNode();

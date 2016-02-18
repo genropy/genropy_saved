@@ -191,7 +191,26 @@ class FrameGrid(BaseComponent):
 
 
 
-class BagGrid(BaseComponent):
-    pass
+
+class TemplateGrid(BaseComponent):
+    py_requires='gnrcomponents/framegrid:FrameGrid,gnrcomponents/tpleditor:ChunkEditor'
+    @struct_method
+    def fgr_templateGrid(self,pane,pbl_classes='*',fields=None,template=None,template_resource=None,**kwargs):
+        def struct(struct):
+            r = struct.view().rows()
+            r.cell('tpl',rowTemplate=template or '=.current_template',width='100%',
+                    edit=dict(fields=fields) if fields else None)
+        frame = pane.bagGrid(pbl_classes=pbl_classes,struct=struct,**kwargs)
+
+        if template_resource:
+            frame.grid.data('.current_template',self.loadTemplate(template_resource))
+            if self.isDeveloper():
+                frame.grid.attributes['connect_onCellDblClick'] = "if($1.shiftKey){this.publish('editRowTemplate')}"
+                #frame.grid.dataFormula('.fakeTplData',"new gnr.GnrBag();",_onBuilt=1)
+                frame.grid.templateChunk(template=template_resource,
+                            datasource='^.fakeTplData',
+                            editable=True,hidden=True,
+                            **{'subscribe_%s_editRowTemplate' %frame.grid.attributes['nodeId']:"this.publish('openTemplatePalette');"})
+        return frame
 
         

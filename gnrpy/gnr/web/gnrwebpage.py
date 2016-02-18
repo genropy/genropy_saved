@@ -574,7 +574,10 @@ class GnrWebPage(GnrBaseWebPage):
         :param tplname: the template name
         :param ext: TODO
         :param asSource: boolean. TODO"""
-        result,path = self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext=['xml','html'])
+        if table:
+            result,path = self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext=['xml','html'])
+        else:
+            result,path = self._getResourceContent(resource=tplname,pkg=self.package.name,ext=['xml','html'])
         if not path:
             return '',{'respath':''}
         r_path,r_ext = os.path.splitext(path)
@@ -596,14 +599,21 @@ class GnrWebPage(GnrBaseWebPage):
     def loadTemplate(self,template_address,asSource=False,missingMessage=None,**kwargs):
         #se template_address non ha : ---> risorsa
         #template_address = 'field:pkey'
-        segments,pkey = template_address.split(':')
-        dataInfo = dict()
-        segments = segments.split('.')
+        
         missingMessage = missingMessage or '<div class="chunkeditor_emptytemplate">Missing Template</div>'
-        if len(segments)==2:
-            table = '.'.join(segments)
+        dataInfo = dict()
+        if ':' in template_address:
+            segments,pkey = template_address.split(':')
+            if segments:
+                segments = segments.split('.')
+        else:
+            segments = None
+            pkey = template_address
+        
+        if not segments or len(segments)==2:
+            table = '.'.join(segments) if segments else None
             data = None
-            if self.db.package('adm'):
+            if self.db.package('adm') and table:
                 data,metadata = self.db.table('adm.userobject').loadUserObject(objtype='template',code=pkey,tbl=table)
                 if data and metadata['private'] and metadata['userid'] != self.user:
                     data = None
@@ -631,16 +641,28 @@ class GnrWebPage(GnrBaseWebPage):
         #pkg.table.field:pkey
         #pkg.table:resource_module
         #pkg.table:resource_module,custom
-        segments,pkey = template_address.split(':')
-        segments = segments.split('.')
-        if len(segments)==2:
+        if ':' in template_address:
+            segments,pkey = template_address.split(':')
+            if segments:
+                segments = segments.split('.')
+        else:
+            segments = None
+            pkey = template_address
+
+
+        if not segments or len(segments)==2:
             custom = False
-            resource_table = '.'.join(segments)
             resource_name = pkey
+            if segments:
+                resource_table = '.'.join(segments)
+                filepath='tpl/%s.xml' %resource_name
+            else:
+                resource_table = None
+                filepath = '%s.xml' %resource_name
             if ',' in resource_name:
                 resource_name = resource_name.split(',')[0]
                 custom = True
-            respath = self._tableResourcePath(resource_table,filepath='tpl/%s.xml' %resource_name,custom=custom)
+            respath = self._packageResourcePath(table=resource_table,filepath=filepath,custom=custom)
             data.toXml(respath,autocreate=True)
             return respath
         else:
@@ -1386,15 +1408,19 @@ class GnrWebPage(GnrBaseWebPage):
             url = '%s?mtime=%0.0f' % (url, mtime)
         return url
     
-    def _tableResourcePath(self,table,filepath,custom=False):
+    def _packageResourcePath(self,table=None,filepath=None,custom=False):
         page_pkg = self.package.name 
-        table_pkg,tblname = table.split('.')
-        respath = 'tables/%s/%s' %(tblname,filepath)
+        table_pkg = None
+        if table:
+            table_pkg,tblname = table.split('.')
+            respath = 'tables/%s/%s' %(tblname,filepath)
+        else:
+            respath = filepath
 
         if custom:
             return os.path.join(self.site.site_path, '_custom', page_pkg, '_resources',respath)
         packageFolder = self.site.gnrapp.packages[self.package.name].packageFolder
-        if page_pkg != table_pkg:
+        if table_pkg and page_pkg != table_pkg:
             respath = 'tables/_packages/%s/%s/%s' %(table_pkg,tblname,filepath)        
         return os.path.join(packageFolder,'resources',respath)
             
