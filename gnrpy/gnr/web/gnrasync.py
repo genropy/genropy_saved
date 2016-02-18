@@ -24,7 +24,6 @@ import datetime
 import os
 import base64
 from concurrent.futures import ThreadPoolExecutor,Future, Executor
-from threading import Lock
 import tornado.web
 from tornado import gen
 import tornado.websocket as websocket
@@ -50,29 +49,7 @@ def threadpool(func):
     func._executor='threadpool'
     return func
     
-class DummyExecutor(Executor):
-    def __init__(self):
-        self._shutdown = False
-        self._shutdownLock = Lock()
-    def submit(self, fn, *args, **kwargs):
-        with self._shutdownLock:
-            if self._shutdown:
-                raise RuntimeError('cannot schedule new futures after shutdown')
 
-            f = Future()
-            try:
-                result = fn(*args, **kwargs)
-            except BaseException as e:
-                f.set_exception(e)
-            else:
-                f.set_result(result)
-
-            return f
-
-    def shutdown(self, wait=True):
-        with self._shutdownLock:
-            self._shutdown = True
-            
 class GnrBaseHandler(object):
     @property
     def server(self):
@@ -369,6 +346,7 @@ class SharedObject(object):
     default_savedir = 'site:async/sharedobjects'
     def __init__(self,manager,shared_id,expire=None,startData=None,read_tags=None,write_tags=None,
                     filepath=None, saveIterval=None, autoSave=None, autoLoad=None,**kwargs):
+                
         self.manager = manager
         self.server = manager.server
         self.shared_id = shared_id
@@ -432,14 +410,22 @@ class SharedObject(object):
         page = self.server.pages[page_id]
         privilege= self.checkPermission(page)
         if privilege:
+            
             page.sharedObjects.add(self.shared_id)
-            self.subscribed_pages[page_id] = kwargs or True
+            subkwargs=dict(kwargs)
+            subkwargs['page_id']=page_id
+            subkwargs['user']=page.user
+            self.subscribed_pages[page_id] = subkwargs
+            print 'subscribing ',self.shared_id,page_id,subkwargs
+            self.server.sharedStatus.sharedObjects[self.shared_id]['subscriptions'][page_id]=Bag(subkwargs)
             self.onSubscribePage(page)
             result=dict(privilege=privilege,data=self.data)
         return result
 
     def unsubscribe(self,page_id=None):
         self.subscribed_pages.pop(page_id,None)
+        self.server.sharedStatus.sharedObjects[self.shared_id]['subscriptions'].pop(page_id,None)
+        print 'unsubscribing ',self.shared_id,page_id
         self.onUnsubscribePage(page_id)
         if not self.subscribed_pages:
             self.timeout=self.server.delayedCall(self.expire,self.manager.removeSharedObject,self)
@@ -463,8 +449,6 @@ class SharedObject(object):
         self.changes=True
         if reason=='autocreate':
             return
-        #page = self.manager.server.pages[reason]
-        #page.log('SharedObject trigger',value=node.value,nodeattr=node.attr,label=node.label,pathlist=pathlist)
         plist = pathlist[1:]
         if evt=='ins' or evt=='del':
             plist = plist+[node.label]
@@ -475,7 +459,6 @@ class SharedObject(object):
 
                 
     def onPathFocus(self, page_id=None,curr_path=None,focused=None):
-        print 'onPathFocus',curr_path,focused
         if focused:
             self.focusedPaths[curr_path]=page_id
         else:
@@ -511,20 +494,15 @@ class SharedLogger(SharedObject):
 class SharedStatus(SharedObject):
     def onInit(self,**kwargs):
         self.data['users']=Bag()
+        self.data['sharedObjects']=Bag()
 
     @property
     def users(self):
         return self.data['users']
-        
-    def onSubscribePage(self,page_id):
-        print 'onSubscribePage',self.shared_id,page_id
-        
-    def onUnsubscribePage(self,page_id):
-        print 'onUnsubscribePage',self.shared_id,page_id
-     
-    def onDestroy(self):
-        print 'onDestroy',self.shared_id
-        
+    @property
+    def sharedObjects(self):
+        return self.data['sharedObjects']
+
     def registerPage(self,page):
         page_item = page.page_item
         users = self.users
@@ -558,6 +536,8 @@ class SharedStatus(SharedObject):
                 
     def onPing(self,page_id,lastEventAge):
         page = self.server.pages.get(page_id)
+        if not page:
+            return
         data=self.users[page.user]
         data['lastEventAge']=lastEventAge
         data = data['connections'][page.connection_id]
@@ -567,6 +547,8 @@ class SharedStatus(SharedObject):
         
     def onUserEvent(self, page_id, event):
         page = self.server.pages[page_id]
+        if not page:
+            return
         pagedata = self.server.sharedStatus.users[page.user]['connections'][page.connection_id]['pages'][page_id]
         old_targetId=pagedata['evt_targetId']
         for k,v in event.items():
@@ -583,16 +565,23 @@ class SharedObjectsManager(object):
         self.server = server
         self.sharedObjects = dict()
         self.change_queue = queues.Queue(maxsize=100)
+        
 
+        
     def getSharedObject(self,shared_id,expire=None,startData=None,read_tags=None,write_tags=None, factory=SharedObject,**kwargs):
         if not shared_id in self.sharedObjects:
+            print 'addSharedObject',shared_id
             self.sharedObjects[shared_id] = factory(self,shared_id=shared_id,expire=expire,startData=startData,
                                                                 read_tags=read_tags,write_tags=write_tags,**kwargs)
+            sharingkw=dict(kwargs)
+            sharingkw.update(dict(shared_id=shared_id,expire=expire,read_tags=read_tags,write_tags=write_tags,subscriptions=Bag()))
+            self.server.sharedStatus.sharedObjects[shared_id]=Bag(sharingkw)
         return self.sharedObjects[shared_id]
         
     def removeSharedObject(self,so):
         if so.onDestroy() != False:
             self.sharedObjects.pop(so.shared_id,None)
+            self.server.sharedStatus.sharedObjects.pop(so.shared_id)
             print 'removeSharedObject',so.shared_id
             
     def do_unsubscribe(self,shared_id=None,page_id=None,**kwargs):
@@ -602,16 +591,14 @@ class SharedObjectsManager(object):
             
          
     def do_subscribe(self,shared_id=None,page_id=None,**kwargs):
-        sharedObject = self.sharedObjects.get(shared_id)
-        if not sharedObject:
-            sharedObject = SharedObject(self,shared_id=shared_id,**kwargs)
-            self.sharedObjects[shared_id] = sharedObject
+        sharedObject=self.getSharedObject(shared_id,**kwargs)
         subscription = sharedObject.subscribe(page_id)
         if not subscription:
             subscription=dict(privilege='forbidden',data=Bag())
         elif sharedObject.timeout:
             sharedObject.timeout.cancel()
             sharedObject.timeout=None
+            
         data =  Bag(dict(value=subscription['data'],shared_id=shared_id,evt='init',privilege=subscription['privilege']))
         envelope = Bag(dict(command='som.sharedObjectChange',data=data))
         return envelope
@@ -766,7 +753,6 @@ class GnrAsyncServer(GnrBaseAsyncServer):
     def __init__(self,*args, **kwargs):
         super(GnrAsyncServer, self).__init__(*args, **kwargs)
         self.addExecutor('threadpool',ThreadPoolExecutor(max_workers=20))
-        self.addExecutor('dummy',DummyExecutor())
         self.addHandler(r"/websocket", GnrWebSocketHandler)
         self.addHandler(r"/wsproxy", GnrWsProxyHandler)
     
