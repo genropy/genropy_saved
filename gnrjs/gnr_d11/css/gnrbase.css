@@ -2818,6 +2818,9 @@ body *{
     right:2px;
     bottom:20px;
 }
+.quickTooltipContainer{
+    padding: 10px;
+}
 .quickEditorWrapper{
     position: relative;
 }
