@@ -6258,7 +6258,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             if(onEditNode){
                 doEdit=onEditNode(firstRow);
             }
-            if(doEdit!==false){
+            if(this.gridEditor && doEdit!==false){
                 this.editBagRow(this.storebag().index(firstRow.label));
             }
         }
