@@ -1393,7 +1393,9 @@ dojo.declare("gnr.GridEditor", null, {
                                                                    }})
             }else{
                 var rowpah = this.widgetRootNode.absDatapath('.' + rowLabel);
-                genro.dlg.quickTooltipPane({datapath:rowpah,fields:attr.fields,domNode:cellNode},attr.contentCb);
+                genro.dlg.quickTooltipPane({datapath:rowpah,fields:attr.fields,domNode:cellNode},
+                                            funcCreate(attr.contentCb,'kw',grid.sourceNode),
+                                            {rowDataNode:rowDataNode,grid:grid});
             }
             return
         }

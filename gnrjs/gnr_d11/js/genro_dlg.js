@@ -520,7 +520,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         return node._('floatingPane', kw);
     },
 
-    quickTooltipPane: function(kw) {
+    quickTooltipPane: function(kw,contentCb,contentCbKw) {
         var kw = objectUpdate({},kw);
         kw.evt = kw.evt || false;
         var nodeId = kw.nodeId  || 'td_'+'tempTooltip';
@@ -552,6 +552,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                     fb.addField(w,objectUpdate({lbl_color:'#666',lbl_text_align:'right'},n));
                 })
             }
+        }else if(contentCb){
+            contentCb(tp,contentCbKw)
         }
         node.unfreeze();
         return tp;

@@ -195,11 +195,11 @@ class FrameGrid(BaseComponent):
 class TemplateGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGrid,gnrcomponents/tpleditor:ChunkEditor'
     @struct_method
-    def fgr_templateGrid(self,pane,pbl_classes='*',fields=None,template=None,template_resource=None,**kwargs):
+    def fgr_templateGrid(self,pane,pbl_classes='*',fields=None,contentCb=None,template=None,template_resource=None,**kwargs):
         def struct(struct):
             r = struct.view().rows()
             r.cell('tpl',rowTemplate=template or '=.current_template',width='100%',
-                    edit=dict(fields=fields) if fields else None)
+                    edit=dict(fields=fields,contentCb=contentCb) if fields or contentCb else None)
         frame = pane.bagGrid(pbl_classes=pbl_classes,struct=struct,**kwargs)
 
         if template_resource:
