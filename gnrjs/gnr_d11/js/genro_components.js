@@ -2150,7 +2150,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
 
     createContent:function(sourceNode, kw,children,subTagItems) {
         objectPop(kw,'_workspace')
-        sourceNode.attr._workspace = true;
+        sourceNode.attr._workspace = kw.nodeId || true;
         var gnrwdg = sourceNode.gnrwdg;
         var value = objectPop(kw,'value');
         var columns = objectPop(kw,'columns');

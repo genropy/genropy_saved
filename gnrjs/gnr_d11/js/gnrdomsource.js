@@ -580,7 +580,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if(nodeId=='WORKSPACE'){
             node=this.attributeOwnerNode('_workspace');
             genro.assert(node,'with WORKSPACE path you need an ancestor node with attribute _workspace');
-            return 'gnr.workspace.'+(node.attr.nodeId || (node.attr.tag+'_'+node.getPathId()))+'.'+relpath;
+            var wsname = node.attr._workspace===true?(node.attr.nodeId || (node.attr.tag+'_'+node.getPathId())):node.attr._workspace;
+            return 'gnr.workspace.'+wsname+'.'+relpath;
         }
         if(nodeId=='DATA'){
             return relpath;
