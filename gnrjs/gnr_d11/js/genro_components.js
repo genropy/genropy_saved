@@ -2845,7 +2845,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             else{
                 handler.createClientChunk(this,dataProvider,tplpars);
             }
-            this.updateTemplate();
+            //this.updateTemplate(); to check
         }
         var chunk = sourceNode._('div','templateChunk',kw)
         sourceNode.gnrwdg.chunkNode = chunk.getParentNode();
