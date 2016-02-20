@@ -52,7 +52,6 @@ class GnrSimplePage(GnrWebPage):
     
     def __init__(self, site=None, page_id=None, request_kwargs=None, request_args=None,
                  filepath=None, packageId=None, pluginId=None, basename=None,page_info=None):
-        print 'creating staticpage',basename
         self._inited = False
         self._start_time = time()
         self.workspace = dict()
@@ -95,7 +94,6 @@ class GnrSimplePage(GnrWebPage):
         self._inited = True
         self._shareds = dict()
         self._privates = defaultdict(dict)
-        print 'created staticpage',basename
 
     def sharedData(self,name,factory=dict):
         if not name in self._shareds:

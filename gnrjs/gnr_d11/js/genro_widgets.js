@@ -5083,6 +5083,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                         //    this.setSelectedIndex(kw.ind);
                         //}
                     } else {
+                        console.log('parent_lv_ins',parent_lv, val, kw)
                         //if ((storebag == kw.where) && (parent_lv<1)){
                         //}
                     }
@@ -5105,6 +5106,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                         
                         //this.setSelectedIndex(kw.ind); contrario al meccanismo dei dbevent
                     } else {
+                        console.log('parent_lv_del',parent_lv,val, kw)
                         //if (parent_lv<1){
                         //}
                     }
