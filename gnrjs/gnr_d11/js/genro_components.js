@@ -5498,7 +5498,11 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         this.pendingPages = {};
         this.lastIdx =0;
     },
-    
+    sort:function(){
+        //override the standard sort because it has been sorted on the server
+        //and does not work with paged store
+        return;
+    },
     len:function(filtered){
         var data = this.getData();
         if(!data){
