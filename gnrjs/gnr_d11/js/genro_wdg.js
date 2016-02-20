@@ -582,25 +582,19 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         }
         if (target) {
             var modif = (modifiers || "").replace('*', '') || '';
-            if (modif) {
-                if (e.shiftKey) {
-                    modif = modif.replace('shift', '');
+            var moddict = {'shiftKey':'shift','ctrlKey':'ctrl','altKey':'alt','metaKey':'meta'};
+            for(var c in moddict){
+                if(e[c]){
+                    if(modif.indexOf(moddict[c])<0){
+                        return false;
+                    }
+                    modif = modif.replace(moddict[c], '');
                 }
-                if (e.ctrlKey) {
-                    modif = modif.replace('ctrl', '');
-                }
-                if (e.altKey) {
-                    modif = modif.replace('alt', '');
-                }
-                if (e.metaKey) {
-                    modif = modif.replace('meta', '');
-                }
-                modif = modif.replace(/,/g, '').replace(/ /g, '');
             }
+            modif = modif.replace(/,/g, '').replace(/ /g, '');
             if (modif == '') {
                 result = true;
             }
-            ;
         }
         return result;
     }
@@ -1381,7 +1375,31 @@ dojo.declare("gnr.GridEditor", null, {
         var lastRenderedRowIndex = grid.currRenderedRowIndex;
         grid.currRenderedRowIndex = row;
         attr = grid.sourceNode.evaluateOnNode(attr,function(path){return path.indexOf('#ROW')>=0});
-        if(attr.editOnOpening && funcApply(attr.editOnOpening,{rowIndex:row,field:attr.field,rowData:rowData},this)===false){
+        if('fields' in attr || 'contentCb' in attr){
+            var fields = attr.fields;
+            if(typeof(fields)=='string'){
+                fields = funcApply(fields,{rowDataNode:rowDataNode,grid:grid},this);
+            }
+            if(attr.mode=='dialog'){
+                var that = this;
+                genro.dlg.prompt(attr.original_name || attr.field,{widget:attr.contentCb || attr.fields,
+                                                                   mandatory:attr.validate_notnull,
+                                                                   action:function(result){
+                                                                        if(attr.rowTemplate){
+                                                                            rowData.update(result);
+                                                                        }else{
+                                                                            that.setCellValue(row,attr.field,result);
+                                                                        }
+                                                                   }})
+            }else{
+                var rowpah = this.widgetRootNode.absDatapath('.' + rowLabel);
+                genro.dlg.quickTooltipPane({datapath:rowpah,fields:attr.fields,domNode:cellNode},
+                                            funcCreate(attr.contentCb,'pane,kw',grid.sourceNode),
+                                            {rowDataNode:rowDataNode,grid:grid});
+            }
+            return
+        }
+        if(attr.editOnOpening && funcApply(attr.editOnOpening,{rowIndex:row,field:attr.field,rowData:rowData,cellNode:cellNode},this)===false){
             return;
         }
         grid.currRenderedRowIndex = lastRenderedRowIndex;

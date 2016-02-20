@@ -125,8 +125,10 @@ class TemplateEditorBase(BaseComponent):
         virtual_columns = []
         varsdict = dict()
         if varsbag:
-            tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.required_columns,#v.format,#v.mask,#v.editable,#v.df_template,#v.dtype')
-            for varname,fldpath,virtualcol,required_columns,format,mask,editable,df_template,dtype in tplvars:
+            tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.required_columns,#v.format,#v.mask,#v.editable,#v.df_template,#v.dtype,#v.fieldname')
+            for varname,fldpath,virtualcol,required_columns,format,mask,editable,df_template,dtype,fieldname in tplvars:
+                varname = varname or fieldname
+                fldpath = fldpath or varname
                 fk=''
                 if format:
                     fk=varname
@@ -144,7 +146,8 @@ class TemplateEditorBase(BaseComponent):
                     dtypes[varname] = dtype
                 if fk:
                     fk='^%s'%fk
-                varsdict[varname] = '$%s%s' %(fldpath,fk)
+                if fk and table:
+                    varsdict[varname] = '$%s%s' %(fldpath,fk)
                 columns.append(fldpath)
                 if virtualcol:
                     virtual_columns.append(fldpath)
@@ -215,6 +218,9 @@ class TemplateEditor(TemplateEditorBase):
         r = struct.view().rows()
         r.cell('fieldname', name='Field', width='20em',edit=True)
         r.cell('varname', name='As', width='15em',edit=True)
+        r.cell('dtype', name='Dtype', width='5em',
+            edit=dict(values='T:Text,N:Decimal,L:Integer,D:Date,H:Time,B:Boolean,X:Bag'),
+            hidden='^.table')
         r.cell('format', name='Format', width='10em',edit=True)
         r.cell('mask', name='Mask', width='20em',edit=True)
         if self.isDeveloper():
@@ -250,34 +256,38 @@ class TemplateEditor(TemplateEditorBase):
                                 storepath='#ANCHOR.data.varsbag',
                                 struct=self._te_varsgrid_struct,
                                 parentForm=False,
-                                addrow=False,
+                                addrow= not table,
                                 splitter=True,**kwargs)
-        frame.left.slotBar('5,fieldsTree,*',
+        
+        if table:
+
+            frame.left.slotBar('5,fieldsTree,*',
                             fieldsTree_table=table,
                             fieldsTree_dragCode='fieldvars',
                             border_right='1px solid silver',
                             closable=True,width='150px',fieldsTree_height='100%',splitter=True,**fieldsTree_kwargs)
-        grid = frame.grid
-        grid.dragAndDrop(dropCodes='fieldvars')
-        grid.dataController("""var caption = data.fullcaption;
-                                var varname = caption.replace(/\W/g,'_').toLowerCase();
-                                var df_template =null;
+            grid = frame.grid
+            grid.data('.table',table)
+            grid.dragAndDrop(dropCodes='fieldvars')
+            grid.dataController("""var caption = data.fullcaption;
+                                    var varname = caption.replace(/\W/g,'_').toLowerCase();
+                                    var df_template =null;
 
-                                var fieldpath = data.fieldpath;
-                                var dtype = data.dtype;
-                                if(fieldpath.indexOf(':')>=0){
-                                    fieldpath = fieldpath.split(':');
-                                    df_template = fieldpath[1];
-                                    fieldpath = fieldpath[0];
-                                }
-                                grid.gridEditor.addNewRows([{'fieldpath':fieldpath,
-                                                                            dtype:dtype,
-                                                                            fieldname:caption,
-                                                                            varname:varname,
-                                                                            virtual_column:data.virtual_column,
-                                                                            required_columns:data.required_columns,
-                                                                            df_template:df_template}]);""",
-                             data="^.dropped_fieldvars",grid=grid.js_widget)    
+                                    var fieldpath = data.fieldpath;
+                                    var dtype = data.dtype;
+                                    if(fieldpath.indexOf(':')>=0){
+                                        fieldpath = fieldpath.split(':');
+                                        df_template = fieldpath[1];
+                                        fieldpath = fieldpath[0];
+                                    }
+                                    grid.gridEditor.addNewRows([{'fieldpath':fieldpath,
+                                                                                dtype:dtype,
+                                                                                fieldname:caption,
+                                                                                varname:varname,
+                                                                                virtual_column:data.virtual_column,
+                                                                                required_columns:data.required_columns,
+                                                                                df_template:df_template}]);""",
+                                 data="^.dropped_fieldvars",grid=grid.js_widget)    
     
     def _te_info_parameters(self,bc,**kwargs):
         bc.bagGrid(datapath='.parametersgrid',title='!!Parameters',
@@ -301,7 +311,7 @@ class TemplateEditor(TemplateEditorBase):
                             varsbag.forEach(function(n){
                                 n.delAttr('_newrecord');
                                 n._value.popNode('_newrecord');
-                                varname = n._value.getItem('varname');
+                                varname = n._value.getItem('varname') || n._value.getItem('fieldname');
                                 varfolder.setItem(n.label,null,{caption:n._value.getItem('fieldname'),code:varname});
                             },'static');
                             result.setItem('variables',varfolder,{caption:varcaption})
@@ -357,7 +367,7 @@ class TemplateEditor(TemplateEditorBase):
                 letterhead_center_height='^.preview.letterhead_record.center_height',
                 letterhead_center_width='^.preview.letterhead_record.center_width',
                 _init=True)
-        bc.contentPane(region='center',overflow='hidden').ckEditor(value='^.data.content',constrain_height='^.editor.height',
+        bc.contentPane(region='center',overflow='hidden',margin_left='5px').ckEditor(value='^.data.content',constrain_height='^.editor.height',
                                                  constrain_width='^.editor.width',**editorConstrain)
                             
     def _te_framePreview(self,frame,table=None):
@@ -511,19 +521,22 @@ class ChunkEditor(PaletteTemplateEditor):
         sc = self._te_mainstack(pane,table=table)
         self._te_frameChunkInfo(sc.framePane(title='!!Metadata',pageName='info',childname='info'),table=table,datasourcepath=datasourcepath)
         bar = sc.info.top.bar
-        bar.replaceSlots('#','#,customres,menutemplates,savetpl,5')
-        bar.menutemplates.div(_class='iconbox folder',tip='!!Copy From').menu(modifiers='*',storepath='.menu',
-                action="""var that = this;
-                          genro.serverCall('_table.adm.userobject.loadUserObject',{table:'%s',pkey:$1.pkey},function(result){
-                                that.setRelativeData('.data',result._value.deepCopy());
-                         },null,'POST');
-        """ %table,_class='smallmenu')
-        bar.dataRemote('.menu',self.te_menuTemplates,table=table,cacheTime=5)
+        if table:
+            bar.replaceSlots('#','#,customres,menutemplates,savetpl,5')
+            bar.menutemplates.div(_class='iconbox folder',tip='!!Copy From').menu(modifiers='*',storepath='.menu',
+                    action="""var that = this;
+                              genro.serverCall('_table.adm.userobject.loadUserObject',{table:'%s',pkey:$1.pkey},function(result){
+                                    that.setRelativeData('.data',result._value.deepCopy());
+                             },null,'POST');
+            """ %table,_class='smallmenu')
+            bar.dataRemote('.menu',self.te_menuTemplates,table=table,cacheTime=5)
 
-        if resource_mode:
-            bar.customres.checkbox(value='^.data.metadata.custom',label='!!Custom')
+            if resource_mode:
+                bar.customres.checkbox(value='^.data.metadata.custom',label='!!Custom')
+            else:
+                bar.customres.div()
         else:
-            bar.customres.div()
+            bar.replaceSlots('#','#,savetpl,5')
         self._te_saveButton(bar.savetpl,table,paletteId)
         frameEdit = sc.framePane(title='!!Edit',pageName='edit',childname='edit')
         self._te_frameEdit(frameEdit,editorConstrain=editorConstrain)
@@ -539,11 +552,13 @@ class ChunkEditor(PaletteTemplateEditor):
         bar = frameEdit.top.bar
         bar.replaceSlots('#','#,savetpl,5')
         self._te_saveButton(bar.savetpl,table,paletteId)
-        framePreview = sc.framePane(title='!!Preview',pageName='preview',childname='preview')
-        self._te_framePreviewChunk(framePreview,table=table,datasourcepath=datasourcepath)
-        bar = framePreview.top.bar
-        bar.replaceSlots('#','#,savetpl,5')
-        self._te_saveButton(bar.savetpl,table,paletteId)
+        
+        if table:
+            framePreview = sc.framePane(title='!!Preview',pageName='preview',childname='preview')
+            self._te_framePreviewChunk(framePreview,table=table,datasourcepath=datasourcepath)
+            bar = framePreview.top.bar
+            bar.replaceSlots('#','#,savetpl,5')
+            self._te_saveButton(bar.savetpl,table,paletteId)
         
     def _te_frameChunkInfo(self,frame,table=None,datasourcepath=None):
         frame.top.slotToolbar('5,parentStackButtons,*',parentStackButtons_font_size='8pt')

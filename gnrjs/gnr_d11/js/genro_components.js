@@ -103,7 +103,7 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
         var onOpening = objectPop(kw,'onOpening');
         var modal = objectPop(kw,'modal');
         if (onOpening){
-            onOpening = funcCreate(onOpening,'e,sourceNode,dialogNode',sourceNode);
+            onOpening = funcCreate(onOpening,'e,sourceNode,dialogNode,kwargs',sourceNode);
         }
         var evt = objectPop(kw,'evt') || 'onclick';
         var parentDomNode;
@@ -115,8 +115,13 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
             parentDomNode = sn.getDomNode();
         }
         var ddkw = {hidden:true,nodeId:ddbId,modifiers:modifiers,evt:evt,modal:modal,
-                                selfsubscribe_open:"this.widget.dropDown._lastEvent=$1.evt;this.widget._openDropDown($1.domNode);",
-                                selfsubscribe_close:"this.widget._closeDropDown();"}
+                                selfsubscribe_open:function(kw){
+                                    if(!onOpening || onOpening(kw.evt,kw.domNode.sourceNode,this._value.getNode('ttd'),kw)!==false){
+                                        this.widget.dropDown._lastEvent=kw.evt;
+                                        this.widget._openDropDown(kw.domNode);
+                                    }
+                                },
+                                selfsubscribe_close:function(){this.widget._closeDropDown();}}
         if(placingId){
             ddkw.onOpeningPopup = function(openKw,evtDomNode){
                                     var placingDomNode = genro.domById(placingId);
@@ -145,12 +150,10 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
             kw.z_index = 1001;
         }   
         kw.doLayout = true;
-        var tdialog =  ddb._('TooltipDialog',kw);
+        var tdialog =  ddb._('TooltipDialog','ttd',kw);
         dojo.connect(parentDomNode,evt,function(e){
             if(genro.wdg.filterEvent(e,modifiers)){
-                if(!onOpening || onOpening(e,e.target.sourceNode,tdialog.getParentNode())!==false){
-                    genro.publish(ddbId+'_open',{'evt':e,'domNode':e.target});
-                }
+                genro.publish(ddbId+'_open',{'evt':e,'domNode':e.target});
             } 
         });
         return tdialog;
@@ -2281,7 +2284,9 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         }
         var store = this.gridNode.widget.collectionStore();
         if(!fields || fields=='*'){
-            fields = objectKeys(store.rowByIndex(0));
+            var firstNode = store.getData().getNode('#0');
+            var nodeValue = firstNode.getValue();
+            fields = nodeValue? nodeValue.keys():objectKeys(firstNode.attr);
         }else{
             fields = fields.split(',');
         }
@@ -2685,13 +2690,13 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             var remote_datasourcepath =  sourceNode.absDatapath(sourceNode.attr.datasource);
             var showLetterhead = typeof(showLetterhead)=='string'?(sourceNode.getRelativeData(showLetterhead) || true):showLetterhead;
             var kw = {'paletteCode':paletteCode,'dockTo':'dommyDock:open',
-                    title:'Template Edit '+table.split('.')[1],width:'750px',
+                    title:'Template Edit '+table?table.split('.')[1]:'',width:'750px',
                     maxable:true,
                     height:'500px',
                     remote:'te_chunkEditorPane',
                     remote_table:table,
                     remote_paletteId:paletteId,
-                    remote_resource_mode:(templateHandler.dataInfo.respath!=null),
+                    remote_resource_mode:!table || (templateHandler.dataInfo.respath!=null),
                     remote_datasourcepath:remote_datasourcepath,
                     remote_showLetterhead:showLetterhead,
                     remote_editorConstrain: editorConstrain
@@ -2726,7 +2731,6 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             var paletteNode = palette.getParentNode();  
             sourceNode._connectedPalette = paletteNode; 
         }
-
     },
     
 
@@ -2760,7 +2764,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             var data = kw.template;
             return {data:data,dataInfo:{},template:data.getItem('compiled')};
         }
-        var template_address = kw.table+':'+kw.template;
+        var template_address =( kw.table || '')+':'+kw.template;
         var result = genro.serverCall("loadTemplate",{template_address:template_address,asSource:kw.asSource});
         if(result.attr.html){
             var content = result.getValue().getItem('content');
@@ -2774,7 +2778,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
     },
     
     saveTemplate:function(sourceNode,data,kw,custom){
-        var template_address = kw.table+':'+kw.template;
+        var template_address = (kw.table || '')+':'+kw.template;
         var templateHandler = sourceNode._templateHandler;
         if(custom){
             template_address = template_address+',custom'
@@ -2789,6 +2793,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             console.warn('templateChunk warning: use "template" param instead of "resource" param');
         }
         var tplpars = objectExtract(kw,'table,template,editable');
+        tplpars.table = tplpars.table || '';
         var editorConstrain = objectExtract(kw,'constrain_*',null,true);
         var showLetterhead = objectPop(kw, 'showLetterhead');
         if(typeof(showLetterhead)=='string'){
@@ -2821,6 +2826,9 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         
         var handler = this;
         if(tplpars.editable){
+            kw.selfsubscribe_openTemplatePalette = function(){
+                handler.openTemplatePalette(this,editorConstrain,showLetterhead);
+            }
             kw.connect_ondblclick = function(evt){
                 if(tplpars.editable==true || evt.shiftKey){
                     handler.openTemplatePalette(this,editorConstrain,showLetterhead);
@@ -2837,6 +2845,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             else{
                 handler.createClientChunk(this,dataProvider,tplpars);
             }
+            this.updateTemplate();
         }
         var chunk = sourceNode._('div','templateChunk',kw)
         sourceNode.gnrwdg.chunkNode = chunk.getParentNode();

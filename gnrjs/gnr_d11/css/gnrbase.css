@@ -1684,6 +1684,7 @@ div.dojoxDock {
     height: 16px;
     overflow: hidden;
     width: 16px;
+    margin-right: 4px;
 }
 
 
@@ -2817,6 +2818,9 @@ body *{
     left:2px;
     right:2px;
     bottom:20px;
+}
+.quickTooltipContainer{
+    padding: 10px;
 }
 .quickEditorWrapper{
     position: relative;
