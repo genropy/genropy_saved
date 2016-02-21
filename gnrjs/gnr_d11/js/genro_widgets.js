@@ -4997,24 +4997,30 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         return result;
     },
 
+    mixin_sortStore:function(){
+        console.warn('OLD GRID FIX ME')
+        //FOR LEGACY GRID IT SHOULD NOT BE CALLED
+        //WE ASSUME THAT START SORT FOR A NEW DATASTORE IS RIGHT
+        if (this.sortedBy) { 
+            var storebag = this.storebag();
+            var sortedBy = this.sortedBy;
+            if(this.datamode!='bag'){
+                sortedBy = sortedBy.split(',');
+                var l = [];
+                dojo.forEach(sortedBy,function(n){l.push('#a.'+n);});
+                sortedBy = l.join(',');
+            }
+            storebag.sort(sortedBy);
+        }
+    },
+
     mixin_newDataStore:function() {
         this.updateRowCount(0);
         this.resetFilter();
         if(this.excludeCol){
             this.filterToRebuild(true);
         }
-        // WE ASSUME THAT START SORT FOR A NEW DATASTORE IS RIGHT
-        //if (this.sortedBy) { 
-        //    var storebag = this.storebag();
-        //    var sortedBy = this.sortedBy;
-        //    if(this.datamode!='bag'){
-        //        sortedBy = sortedBy.split(',');
-        //        var l = [];
-        //        dojo.forEach(sortedBy,function(n){l.push('#a.'+n);});
-        //        sortedBy = l.join(',');
-        //    }
-        //    storebag.sort(sortedBy);
-        //}
+        this.sortStore();
         this.sourceNode.publish('onNewDatastore');
         this.updateRowCount('*');
         this.restoreSelectedRows();
@@ -6554,9 +6560,15 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     },
 
     mixin_sortStore:function(sortedBy) {
-        console.log('sortedBy',sortedBy)
-        this.sortedBy = sortedBy;
         var store = this.collectionStore();
+        if(!sortedBy){
+            if(store.storeNode && store.storeNode.getAttributeFromDatasource('sortedBy')==this.sortedBy){
+                //store is already sorted by the server
+                return;
+            }
+            sortedBy = this.sortedBy;
+        }
+        this.sortedBy = sortedBy;
         store.sortedBy = sortedBy;
         if (this._virtual){
             var rowcount = this.rowCount;

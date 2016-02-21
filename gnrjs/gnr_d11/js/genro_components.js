@@ -2150,7 +2150,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
 
     createContent:function(sourceNode, kw,children,subTagItems) {
         objectPop(kw,'_workspace')
-        sourceNode.attr._workspace = true;
+        sourceNode.attr._workspace = kw.nodeId || true;
         var gnrwdg = sourceNode.gnrwdg;
         var value = objectPop(kw,'value');
         var columns = objectPop(kw,'columns');
@@ -2845,7 +2845,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             else{
                 handler.createClientChunk(this,dataProvider,tplpars);
             }
-            this.updateTemplate();
+            //this.updateTemplate(); to check
         }
         var chunk = sourceNode._('div','templateChunk',kw)
         sourceNode.gnrwdg.chunkNode = chunk.getParentNode();
@@ -5498,7 +5498,11 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         this.pendingPages = {};
         this.lastIdx =0;
     },
-    
+    sort:function(){
+        //override the standard sort because it has been sorted on the server
+        //and does not work with paged store
+        return;
+    },
     len:function(filtered){
         var data = this.getData();
         if(!data){
