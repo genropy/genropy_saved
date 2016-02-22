@@ -549,7 +549,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                 fields.forEach(function(n){
                     var n = objectUpdate({},n);
                     var w = objectPop(n,'wdg','textbox');
-                    fb.addField(w,objectUpdate({lbl_color:'#666',lbl_text_align:'right'},n));
+                    fb.addField(w,objectUpdate({},n));
                 })
             }
         }else if(contentCb){
