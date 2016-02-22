@@ -199,7 +199,8 @@ class TemplateGrid(BaseComponent):
         def struct(struct):
             r = struct.view().rows()
             r.cell('tpl',rowTemplate=template or '=.current_template',width='100%',
-                    edit=dict(fields=fields,contentCb=contentCb) if fields or contentCb else None)
+                    edit=dict(fields=fields,contentCb=contentCb) if fields or contentCb else None,
+                    calculated=True)
         frame = pane.bagGrid(pbl_classes=pbl_classes,struct=struct,**kwargs)
 
         if template_resource:

@@ -17,7 +17,7 @@ class THPicker(BaseComponent):
     def pk_palettePicker(self,pane,grid=None,table=None,relation_field=None,paletteCode=None,
                          viewResource=None,searchOn=True,multiSelect=True,
                          title=None,autoInsert=None,dockButton=None,picker_kwargs=None,
-                         height=None,width=None,checkbox=False,**kwargs):
+                         height=None,width=None,checkbox=False,defaults=None,**kwargs):
         
         dockButton = dockButton or dict(parentForm=True,iconClass='iconbox app')
         picker_kwargs = picker_kwargs or dict()
@@ -30,6 +30,7 @@ class THPicker(BaseComponent):
         table = table or picker_kwargs.get('table',None)
         height = height or picker_kwargs.get('height','600px')
         width = width or picker_kwargs.get('width','400px')
+        defaults = defaults or picker_kwargs.get('defaults',False)
         if autoInsert is None:
             autoInsert = picker_kwargs.get('autoInsert',True)
         title = title or picker_kwargs.get('title')
@@ -79,7 +80,7 @@ class THPicker(BaseComponent):
                 controller = "THPicker.onDropElement(this,data,mainpkey,rpcmethod,treepicker,tbl,one,many,grid,defaults)" if autoInsert is True else autoInsert
                 grid.dataController(controller,data='^.dropped_%s' %paletteCode,mainpkey='=#FORM.pkey' if formNode else None,
                         rpcmethod=method,treepicker=treepicker,tbl=maintable,
-                        one=one,many=many,grid=grid.js_widget,defaults=picker_kwargs.get('defaults',False))  
+                        one=one,many=many,grid=grid.js_widget,defaults=defaults)  
         return palette
 
 

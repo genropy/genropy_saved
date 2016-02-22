@@ -136,7 +136,7 @@ class GnrCustomWebPage(object):
         frame = pane.bagGrid(frameCode='mpath',datapath='.mygrid',struct=self.gridstruct_2,height='300px',
                             table='glbl.localita',storepath='.dati')
         bar = frame.top.bar.replaceSlots('addrow','testpicker')
-        bar.testpicker.palettePicker(grid=frame.grid,autoInsert='genro.bp(true);',
+        bar.testpicker.palettePicker(grid=frame.grid,
                                     table='glbl.provincia',#paletteCode='mypicker',
                                     viewResource='View',
-                                    checkbox=True)
+                                    checkbox=True,defaults='sigla,nome')

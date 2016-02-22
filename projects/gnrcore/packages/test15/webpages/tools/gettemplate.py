@@ -94,10 +94,16 @@ class GnrCustomWebPage(object):
                             height='100px')
 
     def test_11_griddynamic(self,pane):
-        pane.templateGrid(storepath='.data',
+        frame = pane.templateGrid(storepath='.data',
             fields=[dict(value='^.sigla',lbl='Sigla'),dict(value='^.nome',lbl='Nome')],
             template_resource='tplnotable',
             height='500px',pbl_classes='*',title='Pippo')
+        bar = frame.top.bar.replaceSlots('addrow','addrow,testpicker')
+        bar.testpicker.palettePicker(grid=frame.grid,
+                                    table='glbl.provincia',#paletteCode='mypicker',
+                                    viewResource='View',
+                                    checkbox=True,defaults='sigla,nome',
+                                    relation_field='sigla')
 
 
                     
