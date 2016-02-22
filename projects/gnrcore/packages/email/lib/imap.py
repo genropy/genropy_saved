@@ -81,9 +81,9 @@ class ImapReceiver(object):
                 try:
                     new_mail['send_date'] = datetime.datetime(datetuple[0],datetuple[1],datetuple[2],datetuple[3],datetuple[4])
                 except Exception:
-                    new_mail['send_date'] = datetime.today()
+                    new_mail['send_date'] = datetime.datetime.today()
             else:
-                new_mail['send_date'] = datetime.today()
+                new_mail['send_date'] = datetime.datetime.today()
          
     
     def parseBody(self, part, new_mail, part_content_type=None):
