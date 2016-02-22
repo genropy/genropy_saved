@@ -556,7 +556,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
                 }
                 return ws.send(data);
             } else {
-                console.log('socket not ready',this.socket.readyState)
+                console.log('socket not ready')
                // this.pendingMessagesToSend.push(data)
                 console.log ('Error sending :',data);
                 throw 'INVALID_STATE_ERR : Pausing to reconnect websocket'
