@@ -4564,7 +4564,9 @@ dojo.declare("gnr.stores._Collection",null,{
         }
         return result;
     },
-    
+    onLoading:function(){
+
+    },
     onLoaded:function(result){
         this.storeNode.setRelativeData(this.storepath,result);
         return result;
@@ -5089,6 +5091,7 @@ dojo.declare("gnr.stores.RpcBase",gnr.stores.AttributesBagRows,{
                 grid.sourceNode.publish('loadingData',{loading:false});
             });
         };
+        this.onLoading();
         return this.runQuery(cb);
     },
 
@@ -5156,7 +5159,6 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
                     c._isExternal = isExternal;
                     that.pendingChanges.push(c);
                 });
-
                 that.storeNode.watch('externalChangesDisabled',function(){
                     if(that._editingForm || that.loadInvisible){
                         return genro.dom.isWindowVisible();
@@ -5209,6 +5211,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
                 grid.sourceNode.publish('loadingData',{loading:false});
             });
         };
+        this.onLoading();
         return this.runQuery(cb);
     },
 
@@ -5484,9 +5487,14 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         //}
     },
 
-    onLoaded:function(result){
-        this.pendingChanges = [];
+    onLoading:function(){
+        this.pendingChanges = []; 
         this.externalChangedKeys = null;
+    },
+
+    onLoaded:function(result){
+        //this.pendingChanges = []; //moved to onLoading
+        //this.externalChangedKeys = null;
         this.storeNode.setRelativeData(this.storepath,result,null,null,'loadData');
         return result;
     }
