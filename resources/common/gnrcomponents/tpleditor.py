@@ -146,9 +146,9 @@ class TemplateEditorBase(BaseComponent):
                     dtypes[varname] = dtype
                 if fk:
                     fk='^%s'%fk
-                if fk and table:
+                if table:
                     varsdict[varname] = '$%s%s' %(fldpath,fk)
-                columns.append(fldpath)
+                columns.append(varsdict.get(varname) or fldpath)
                 if virtualcol:
                     virtual_columns.append(fldpath)
                 if required_columns:
