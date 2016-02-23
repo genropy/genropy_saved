@@ -34,7 +34,7 @@ class GnrCustomWebPage(object):
         #fb.numberTextBox(value='^.number_1',format='#,###.00',lbl='Constrains pattern',strict=False)
         #fb.numberTextBox(value='^.number_2',places=2,lbl='Constrains places')
         #fb.data('.number_3',3)
-        fb.numberTextBox(value='^pippo',format='#,###.000000',lbl='Format pattern')
+        fb.numberTextBox(value='^pippo',format='$ #,###.000',lbl='Format pattern')
         fb.dataController("console.log('changed',value);",value='^pippo')
         fb.div('^pippo?_formattedValue',lbl='ccc')
 

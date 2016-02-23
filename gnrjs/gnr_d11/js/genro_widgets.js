@@ -3356,13 +3356,20 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
         }
     },
     patch_getValue: function(){
-        return this.parse(this.getDisplayedValue(), this.sourceNode._parseDict);
+        var displayedValue = this.getDisplayedValue();
+        var result = this.parse(displayedValue, this.constraints); //this.sourceNode._parseDict
+        if(isNaN(result)){
+            result = this.parse(displayedValue,  this.sourceNode._parseDict)
+        }
+        //console.log('displayedValue',displayedValue,'result',result);
+        return result;
     },
     patch_isValid: function(/*Boolean*/ isFocused){
         if(isFocused){
             return true;
         }
-        return this.validator(this.textbox.value, this.sourceNode._parseDict);
+        //console.log('aaa',this.textbox.value,'bbb',this.sourceNode._parseDict,'ccc',this)
+        return this.validator(this.textbox.value, this.sourceNode._parseDict) || this.validator(this.textbox.value, this.constraints);
     },
 
 
