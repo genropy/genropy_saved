@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><varsbag><n_784 _pkey="n_784"><fieldname dtype="::NN" _loadedValue="::NN">sigla</fieldname>
+<varname _T="NN" dtype="::NN"></varname>
+<dtype _T="NN" dtype="::NN"></dtype>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_784>
+<n_796 _pkey="n_796"><fieldname dtype="::NN" _loadedValue="::NN">nome</fieldname>
+<varname _T="NN" dtype="::NN"></varname>
+<dtype _T="NN" dtype="::NN"></dtype>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_796></varsbag>
+<metadata><email><subject _T="NN"></subject>
+<to_address _T="NN"></to_address>
+<from_address _T="NN"></from_address>
+<cc_address _T="NN"></cc_address>
+<bcc_address _T="NN"></bcc_address>
+<attachments _T="NN"></attachments></email></metadata>
+<content>&lt;div&gt;
+	$sigla&amp;nbsp;$nome&lt;/div&gt;
+</content>
+<compiled><main virtual_columns="" locale="it-IT" masks="{}::JS" dtypes="{}::JS" maintable="" columns="sigla,nome" formats="{}::JS" editcols="{}::JS" df_templates="{}::JS">&lt;html&gt;&lt;body&gt;&lt;div&gt;
+	$sigla&amp;#160;$nome&lt;/div&gt;
+&lt;/body&gt;&lt;/html&gt;</main></compiled></GenRoBag>
