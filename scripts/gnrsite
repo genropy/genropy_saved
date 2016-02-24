@@ -1,21 +1,14 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-"""
-create a new genroproject
-usage: gnrmkproject projectname
 
-"""
 
 from gnr.core.gnrbag import Bag
 from optparse import OptionParser
 from gnr.app.gnrconfig import gnrConfigPath, getSiteHandler, getGnrConfig
-import subprocess
-import atexit
-import signal
 import os
 from gnr.core.gnrstring import boolean
-import time
+import subprocess
 
 wsgi_options = dict(
         port=8080,
@@ -38,18 +31,20 @@ wsgi_options = dict(
 
 
 
-class UwsgiRunner(object):
+class UwsgiConfigurator(object):
     default_port = 8080
     default_processes = 1
     default_threads = 8
     vassal_template = """[uwsgi]
-http = :%(port)i
-;wsgi-file = %(wsgi_file)s
+plugins = python,router_http
+%(port_or_domain)s
+gid = %(gid)i
+uid = %(uid)i
 processes = %(processes)i
 threads = %(threads)i
 no-orphans = true
 enable-threads = true
-stats = 127.0.0.1:%(stats_port)i
+;stats = 127.0.0.1:%(stats_port)i
 worker-reload-mercy = 1
 disable-logging = true
 module = gnr.web.serveruwsgi
@@ -60,27 +55,44 @@ socket-timeout = 2400
 so-send-timeout = 2400
 http-timeout = 2400
 pidfile = %(pidfile_path)s
+logto = %(logto)s
 %(websockets)s
+[genropy]
+%(gnr_vassal_options)s
 """
 
-    def __init__(self, site_name, options=None, verbose=None):
-        self.site_name = site_name
-        self.site_handler = getSiteHandler(site_name)
-        self.site_path = self.site_handler['site_path']
-        self.site_template = self.site_handler['site_template']
-        self.site_script = self.site_handler['site_script']
+    def __init__(self, site_name=None, options=None, verbose=None):
         self.gnr_config = getGnrConfig()
-        self.site_config = self.get_config()
+        if site_name:
+            self.site_name = site_name
+            self.site_handler = getSiteHandler(site_name)
+            self.site_path = self.site_handler['site_path']
+            self.error_path = os.path.join(self.site_path, 'error.log')
+            self.site_template = self.site_handler['site_template']
+            self.site_script = self.site_handler['site_script']
+
+            self.site_config = self.get_config()
+        
+        
         self.gnr_path = gnrConfigPath()
+        self.gnr_vassal_options = dict()
         self.socket_path = os.path.join(self.gnr_path, 'sockets')
-        self.vassals_path = os.path.join(self.gnr_path, 'uwsgi', 'vassals')
+        home_path = os.environ.get('HOME', '')
+        if home_path.startswith('/containers'):
+            default_vassals_path = os.path.join(home_path, 'vassals')
+        else:
+            default_vassals_path = os.path.join(self.gnr_path, 'uwsgi', 'vassals')
+        self.vassals_path = self.gnr_config['gnr.environment_xml.vassals?path'] or default_vassals_path
+        #self.vassals_path = os.path.join(self.gnr_path, 'uwsgi', 'vassals')
         self.pidfile_path = os.path.join(self.vassals_path, '%s.pid' % site_name)
         self.vassal_ini_path = os.path.join(self.vassals_path, '%s.ini' % site_name)
         self.websocket_socket_path = os.path.join(self.socket_path, '%s.tornado' % site_name)
         self.create_dirs()
+
         self.verbose = verbose
         self.options = options
-        self.init_options()
+        if site_name:
+            self.init_options()
 
     def init_options(self):
         options = self.options.__dict__
@@ -89,11 +101,9 @@ pidfile = %(pidfile_path)s
                 site_option = self.site_config['wsgi?%s' % option]
                 value = site_option or wsgi_options.get(option)
                 self.options.__dict__[option] = value
-            
-            else:  
-                env_key = 'GNR_%s_%s'%(self.site_name.upper(), option.upper())
+            else:
                 if value is not None:
-                    os.environ[env_key] = str(value)
+                    self.gnr_vassal_options[option] = value
 
     def create_dirs(self):
         for dir_path in (self.socket_path, self.vassals_path):
@@ -111,67 +121,63 @@ pidfile = %(pidfile_path)s
         return site_config
 
     def write_ini(self):
+        if os.path.exists(self.vassal_ini_path):
+            print "site %s is already enabled, stop it using gnrvassal %s --stop"%(self.site_name, self.site_name)
         pars = dict()
         #sc = self.site_config
         opt = self.options
-        pars['port'] = int(opt.port or self.default_port)
+        port = int(opt.port or self.default_port)
+        if hasattr(opt,'domain') and opt.domain:
+            pars['port_or_domain'] = 'domain = %s'%opt.domain
+        else:
+            pars['port_or_domain'] = 'http = :%i'%port
         pars['wsgi_file'] = self.site_script
         pars['site_name'] = self.site_name
         pars['processes'] = int(opt.processes or self.default_processes)
         pars['threads'] = int(opt.threads or self.default_threads)
-        pars['stats_port'] = int(opt.stats_port or pars['port']+1000)
+        pars['stats_port'] = int(opt.stats_port or port+1000)
         pars['offload_threads'] = int(opt.offload_threads or pars['processes'])
         pars['pidfile_path'] = self.pidfile_path
+        pars['logto'] = self.error_path
+        pars['gid'] = os.getgid()
+        pars['uid'] = os.getuid()
         if boolean(opt.websockets):
             pars['websockets'] = """http-websockets = true
 route = ^/websocket httpdumb:%s
 attach-daemon = gnrasync %s""" % (self.websocket_socket_path, self.site_name)
         else:
             pars['websockets'] = ''
+        if self.gnr_vassal_options:
+            pars['gnr_vassal_options'] = '\n'.join(['%s=%s'%(k,v) for k,v in self.gnr_vassal_options.items()])
+        else:
+            pars['gnr_vassal_options'] = ''
         ini_content = self.vassal_template%pars
         self.pars = pars
         with open(self.vassal_ini_path,'w') as ini_file:
             ini_file.write(ini_content)
 
-    def print_pars(self):
-        out ="""Starting UWSGI server on port %(port)i
 
-Processes:\t\t%(processes)i
-Thread:\t\t\t%(threads)i
-Stats on:\t\thttp://127.0.0.1:%(stats_port)i
-Connect on:\t\thttp://127.0.0.1:%(port)i"""%self.pars
-        print out
-
-    def run(self):
-        uwsgi_args = ['uwsgi', self.vassal_ini_path]
-        self.stop_from_pidfile()
-        if not self.verbose:
-            with open(os.devnull, 'w') as fp:
-                self.uwsgi_master = subprocess.Popen(uwsgi_args,stderr=fp)
-        else:
-            self.uwsgi_master = subprocess.Popen(uwsgi_args)
-        atexit.register(self.stop)
-        self.print_pars()
+    def start_server(self):
+        uwsgi_args = ['uwsgi', '--master', '--emperor',self.vassals_path]
+        self.uwsgi_master = subprocess.Popen(uwsgi_args)
         self.uwsgi_master.wait()
 
-    def stop_from_pidfile(self):
-        if os.path.exists(self.pidfile_path):
-            with open(os.devnull, 'w') as fp:
-                uwsgi_stopper = subprocess.Popen(['uwsgi','--stop',self.pidfile_path],stderr=fp)
-                uwsgi_stopper.wait()
-                os.remove(self.pidfile_path)
-                time.sleep(1)
+    def stop_vassal(self):
+        if os.path.exists(self.vassal_ini_path):
+            vassal_off_path = os.path.join(self.vassals_path, '%s.off' % self.site_name)
+            os.rename(self.vassal_ini_path, vassal_off_path)
 
-    def stop(self):
-        self.uwsgi_master.terminate()
-        os.remove(self.pidfile_path)
-        #self.uwsgi_master.send_signal(signal.SIGINT)
 
+    def restart_vassal(self):
+        if os.path.exists(self.vassal_ini_path):
+            with open(self.vassal_ini_path, 'a'):
+                os.utime(self.vassal_ini_path)
+            
 
 
 if __name__ == '__main__':
     usage = """
-    gnruwsgi <site_name> will run a genro site named <site_name> using uwsgi.
+    gnrsite <site_name> will create a uwsgi vassal for the genro site named <site_name>.
     """
     parser = OptionParser(usage)
     parser.add_option('-v', '--verbose',
@@ -183,7 +189,9 @@ if __name__ == '__main__':
                       dest='debug',
                       action='store_true',
                       help="Use weberror debugger")
-
+    parser.add_option('-d','--domain',
+                      dest='domain',
+                      help="Create vassal for domain specified (port is ignored)")
     parser.add_option('--nodebug',
                       dest='debug',
                       action='store_false',
@@ -213,16 +221,27 @@ if __name__ == '__main__':
                       help="Enable remote edit")
     parser.add_option('--stop', dest='stop',
                         action='store_true',
-                        help="Stop (orphan?) instance")
+                        help="Stop instance")
+
+    parser.add_option('--restart', dest='restart',
+                        action='store_true',
+                        help="Restart instance")
+
+    parser.add_option('--server', dest='server',
+                        action='store_true',
+                        help="Starts the global server (uwsgi emperor)")
 
     (options, args) = parser.parse_args()
 
-    if len(args) < 1:
-        parser.print_help()
+    site_name = args[0] if args else None
+    uwsgi_configurator = UwsgiConfigurator(site_name=site_name, options=options, verbose=getattr(options,'verbose', True))
+    if options.stop:
+        uwsgi_configurator.stop_vassal()
+    elif options.restart:
+        uwsgi_configurator.restart_vassal()
+    elif options.server:
+        uwsgi_configurator.start_server()
+    elif len(args)>=1:
+        uwsgi_configurator.write_ini()
     else:
-        uwsgi_runner = UwsgiRunner(args[0], options=options, verbose=getattr(options,'verbose', True))
-        if options.stop:
-            uwsgi_runner.stop_from_pidfile()
-        else:
-            uwsgi_runner.write_ini()
-            uwsgi_runner.run()
+        parser.print_help()
