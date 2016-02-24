@@ -4976,12 +4976,13 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
     },
 
+
     mixin_getRowText:function(rowIdx,joiner,fields,ignoreFilter){
         var result = [];
         var cb;
         if(fields){
             cb = function(c){
-                if (fields.indexOf(c.field)>=0){
+                if (fields.indexOf(c.field_getter || c.field)>=0){
                     result.push(c.get(rowIdx,ignoreFilter));
                 }
             }
@@ -4995,6 +4996,8 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         this.layout.cells.forEach(cb);
         return result.join(joiner || '');
     },
+
+
 
     mixin_getRowTextObj:function(rowIdx,ignoreFilter){
         var result = {};
