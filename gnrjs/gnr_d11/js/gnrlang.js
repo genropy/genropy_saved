@@ -1611,12 +1611,25 @@ function makeLink(href, title,dl,target) {
 }
 
 function highlightLinks(text) {
+    var safedict = {};
+    var k = 0;
+    var safekey;
+    text = text.replace(/(?:<a)(.*?)(?:a>)/gim, function(reallink){
+        safekey = 'RLINK_'+k;
+        safedict[safekey] = reallink;
+        k++;
+        return safekey;
+    });
+
     text = text.replace(/(?:\b|\+)(?:mailto:)?([\w\.+#-]+)@([\w\.-]+\.\w{2,4})\b/g, function(address) {
         return makeLink('mailto:' + address, address);
     });
     text = text.replace(/((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)/g, function(link) {
         return makeLink(link, link,false,'_blank');
     });
+    for(var k in safedict){
+        text = text.replace(k,safedict[k]);
+    }
     return text;
 
 }
