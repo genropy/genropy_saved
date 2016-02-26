@@ -21,7 +21,7 @@ class GnrCustomWebPage(object):
         pane.textbox(value='^.pippo')
         pane.numbertextbox(value='^.pluto')
 
-        pane = tc.contentPane(title='Alfio',closable=True,pageName='alfio').div('ciao')
+        pane = tc.contentPane(title='Alfio',closable=True,pageName='alfio',nodeId='alfio').div('ciao')
         tc.contentPane(title='Bieto',closable=True,pageName='bieto')
         #
 

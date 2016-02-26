@@ -1307,7 +1307,8 @@ class GnrWsgiSite(object):
         :param path: TODO"""
         params = urllib.urlencode(kwargs)
         #path = os.path.join(self.homeUrl(), path)
-        if path == '': path = self.home_uri
+        if path == '': 
+            path = self.home_uri
         cr = self.currentRequest
         path = cr.relative_url(path)
         if serveAsLocalhost:

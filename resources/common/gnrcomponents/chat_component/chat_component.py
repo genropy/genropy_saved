@@ -38,7 +38,6 @@ class ChatComponent(BaseComponent):
 
         pane.dataController(""" var roomId = pars.getItem('roomId');
                                 var priority = pars.getItem('priority');
-                                console.log(roomId,priority);
                                 if (priority=='H'){
                                     PUBLISH open_plugin = "chat_plugin";
                                     SET gnr.chat.selected_room = roomId;
@@ -63,7 +62,6 @@ class ChatComponent(BaseComponent):
         frame.center.tabContainer(nodeId='ct_chat_rooms', margin='5px', _class='chat_rooms_tab',
                         selectedPage='^.selected_room')
         bar.dataController("""
-
                              var roombag = rooms.getItem(sel_room);
                              roombag.setItem('unread',null);
                              FIRE gnr.chat.calc_unread;

@@ -247,12 +247,12 @@ class AttachManager(BaseComponent):
                         action='gr.publish("delrow")',gr=th.view.grid)
         th.view.bottom.dropUploader(
                             label='<div class="atc_galleryDropArea"><div>Drop document here</div><div>or double click</div></div>',
-                                                  height='40px',
-                                                  onUploadingMethod=self.onUploadingAttachment,
-                                                  rpc_maintable_id= maintable_id.replace('^','=') if maintable_id else '=#FORM.pkey' ,
-                                                  rpc_attachment_table= th.view.grid.attributes['table'],
-                                                  _class='importerPaletteDropUploaderBox',
-                                                  cursor='pointer',nodeId='%(nodeId)s_uploader' %th.attributes)
+                            height='40px',
+                            onUploadingMethod=self.onUploadingAttachment,
+                            rpc_maintable_id= maintable_id.replace('^','=') if maintable_id else '=#FORM.pkey' ,
+                            rpc_attachment_table= th.view.grid.attributes['table'],
+                            _class='importerPaletteDropUploaderBox',
+                            cursor='pointer',nodeId='%(nodeId)s_uploader' %th.attributes)
         th.view.grid.dataController("""
             genro.dlg.prompt(dlgtitle,{lbl:_T('Description'),dflt:pars.description,action:function(result){
                     genro.serverCall(rpcmethod,{pkey:pars.pkey,description:result,table:table},function(){},null,'POST');
