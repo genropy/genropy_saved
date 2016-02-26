@@ -1065,6 +1065,9 @@ var gnrformatter = {
     },
     
     format_DH:function(value,format,formatKw){
+        if (typeof(value)=="number"){
+            value=new Date(value)
+        }
         var opt = {selector:'datetime'};
         var standard_format = 'long,short,medium,full';
         if(format){
