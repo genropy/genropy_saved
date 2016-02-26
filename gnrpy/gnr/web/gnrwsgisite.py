@@ -1301,7 +1301,7 @@ class GnrWsgiSite(object):
         zip_archive.close()
         zipresult.close()
 
-    def externalUrl(self, path,serveAsLocalhost=None, **kwargs):
+    def externalUrl(self, path,serveAsLocalhost=None, _link=False,**kwargs):
         """TODO
         
         :param path: TODO"""
@@ -1315,6 +1315,9 @@ class GnrWsgiSite(object):
             path = path.replace(cr.host.replace(':%s'%cr.host_port,''),'localhost')
         if params:
             path = '%s?%s' % (path, params)
+
+        if _link:
+            return '<a href="%s" target="_blank">%s</a>' %(path,_link if _link is not True else '')
         return path
 
 
