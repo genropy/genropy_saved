@@ -1691,7 +1691,7 @@ class GnrWebPage(GnrBaseWebPage):
             if from_user!='SYSTEM':
                 users.setItem(from_user,None,user_name=from_user,user=from_user)
             users.setItem(user,None,user_name=user,user=user)
-        ts = self.toText(datetime.now(), format='HH:mm:ss')
+        ts = self.toText(datetime.datetime.now(), format='HH:mm:ss')
         with self.userStore(user) as store:
             if disconnect and (user == from_user):
                 store.drop_datachanges(path)
