@@ -44,6 +44,7 @@ from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import AsyncWebSocketHandler
 from gnr.web.gnrwsgisite import GnrWsgiSite
 from gnr.core.gnrstring import fromJson
 
+MAX_WAIT_SECONDS_BEFORE_SHUTDOWN = 3
     
 def threadpool(func):
     func._executor='threadpool'
@@ -742,9 +743,19 @@ class GnrBaseAsyncServer(object):
 
     def onSignal(self,sig, frame):
         self.io_loop.add_callback(self.onShutdown)
+
         
     def onShutdown(self):
         self.som.onShutdown()
+        deadline = time.time() + MAX_WAIT_SECONDS_BEFORE_SHUTDOWN
+        io_loop = self.io_loop
+        def stop_loop():
+            now = time.time()
+            if now < deadline and (io_loop._callbacks or io_loop._timeouts):
+                io_loop.add_timeout(now + 1, stop_loop)
+            else:
+                io_loop.stop()
+        stop_loop()
 
     def logToPage(self,page_id,**kwargs):
         self.pages[page_id].log(**kwargs)
