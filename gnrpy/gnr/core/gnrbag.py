@@ -59,7 +59,8 @@ to interact with BagNode instances inside a Bag.
 import copy
 import cPickle as pickle
 from datetime import datetime, timedelta
-import urllib, urlparse
+import urllib
+import urlparse
 from gnr.core import gnrstring
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrlang import setCallable, GnrObject, GnrException
@@ -2776,15 +2777,21 @@ class DirectoryResolver(BagResolver):
                     handler = processors.get(ext.lower(), self.processor_default)
                 try:
                     stat = os.stat(fullpath)
-                    mtime = stat.st_mtime
+                    mtime = datetime.fromtimestamp(stat.st_mtime)
+                    atime = datetime.fromtimestamp(stat.st_atime)
+                    ctime = datetime.fromtimestamp(stat.st_ctime)
+                    size = stat.st_size
                 except OSError:
-                    mtime = ''
+                    mtime = None   
+                    ctime = None  
+                    atime = None                   
+                    size = None
                 caption = fname.replace('_',' ').strip()
                 m=re.match(r'(\d+) (.*)',caption)
                 caption = '!!%s %s' % (str(int(m.group(1))),m.group(2).capitalize()) if m else caption.capitalize()
                 nodeattr = dict(file_name=fname, file_ext=ext, rel_path=relpath,
-                               abs_path=fullpath, mtime=mtime, nodecaption=nodecaption,
-                               caption=caption)
+                               abs_path=fullpath, mtime=mtime, atime=atime, ctime=ctime, nodecaption=nodecaption,
+                               caption=caption,size=size)
                 if self.callback:
                     self.callback(nodeattr=nodeattr)
                 result.setItem(label, handler(fullpath),**nodeattr)
