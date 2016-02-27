@@ -192,6 +192,15 @@ genropatches.dnd=function(){
     }
     
 };
+
+genropatches.tabContainer = function(){
+    dojo.require("dijit.layout.StackContainer");
+    dijit.layout.StackController.prototype.onCloseButtonClick = function(page){
+        var container = dijit.byId(this.containerId);
+        container.deletePage(page);
+    };
+    
+};
 genropatches.menu = function(){
     dojo.require('dijit.Menu');
     dijit.Menu.prototype._openMyself = function(/*Event*/ e){

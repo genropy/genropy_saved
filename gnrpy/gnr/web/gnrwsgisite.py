@@ -1301,19 +1301,23 @@ class GnrWsgiSite(object):
         zip_archive.close()
         zipresult.close()
 
-    def externalUrl(self, path,serveAsLocalhost=None, **kwargs):
+    def externalUrl(self, path,serveAsLocalhost=None, _link=False,**kwargs):
         """TODO
         
         :param path: TODO"""
         params = urllib.urlencode(kwargs)
         #path = os.path.join(self.homeUrl(), path)
-        if path == '': path = self.home_uri
+        if path == '': 
+            path = self.home_uri
         cr = self.currentRequest
         path = cr.relative_url(path)
         if serveAsLocalhost:
             path = path.replace(cr.host.replace(':%s'%cr.host_port,''),'localhost')
         if params:
             path = '%s?%s' % (path, params)
+
+        if _link:
+            return '<a href="%s" target="_blank">%s</a>' %(path,_link if _link is not True else '')
         return path
 
 

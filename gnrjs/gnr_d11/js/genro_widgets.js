@@ -1829,6 +1829,11 @@ dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
             widget.gnrPageDict[pageName] = child;
         }
     },
+    mixin_deletePage:function(page){
+        var pageNode = page.sourceNode;
+        pageNode.getParentBag().popNode(pageNode.label);
+    },
+
     mixin_onDestroyingChild:function(child){
         this.removeChild(child);
     },
