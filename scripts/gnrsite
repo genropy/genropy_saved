@@ -166,14 +166,15 @@ attach-daemon = gnrasync %s""" % (self.websocket_socket_path, self.site_name)
         if os.path.exists(self.vassal_ini_path):
             vassal_off_path = os.path.join(self.vassals_path, '%s.off' % self.site_name)
             os.rename(self.vassal_ini_path, vassal_off_path)
-
+            print "Site %s stopped" % self.site_name
 
     def restart_vassal(self):
         if os.path.exists(self.vassal_ini_path):
             with open(self.vassal_ini_path, 'a'):
                 os.utime(self.vassal_ini_path,None)
-            
+            print "Site %s restarted" % self.site_name
 
+        
 
 if __name__ == '__main__':
     usage = """
