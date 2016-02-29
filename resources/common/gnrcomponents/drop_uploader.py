@@ -12,6 +12,8 @@ from gnr.web.gnrwebstruct import struct_method
 import os
 
 class DropUploaderBase(BaseComponent):
+    py_requires='gnrcomponents/framegrid:FrameGrid'
+
     @struct_method
     def du_slotbar_doupload(self,pane,**kwargs):
         return pane.slotButton(label='!!Upload',publish='doupload',iconClass='iconbox inbox')
@@ -56,54 +58,36 @@ class DropUploaderBase(BaseComponent):
                         external_kwargs=None,**kwargs):
         uploaderId = uploaderId or 'stdupload'
         datapath=datapath or 'gnr.%s' %uploaderId
-        frame = pane.framePane(frameCode=uploaderId,datapath=datapath,**kwargs)
-        self.__uploader_grid(frame,uploaderId=uploaderId,preview=preview,uploader_kwargs=uploader_kwargs,
+        #frame = pane.framePane(frameCode=uploaderId,datapath=datapath,**kwargs)
+        return self.__uploader_grid(pane,uploaderId=uploaderId,datapath=datapath,preview=preview,uploader_kwargs=uploader_kwargs,
                             metacol_kwargs=metacol_kwargs,process_kwargs=process_kwargs,
-                            external_kwargs=external_kwargs,label=label)
-        return frame
+                            external_kwargs=external_kwargs,label=label,**kwargs)
         
-    def __uploader_grid(self,frame,uploaderId=None,preview=None,label=None,
+    def __uploader_grid(self,pane,uploaderId=None,datapath=None,preview=None,label=None,
                         uploader_kwargs=None,metacol_kwargs=None,process_kwargs=None,
-                        external_kwargs=None):
+                        external_kwargs=None,**kwargs):
         uploadPath = uploader_kwargs.pop('path', 'site:uploaded_files')
         external_kwargs.update(process_kwargs)
-        bar = frame.top.slotToolbar(slots='3,framelabel,*,delrow,doupload,3',delrow_disabled=False)
-        bar.framelabel.div(label or '!!Uploader')
         def _struct(struct):
             r = struct.view().rows()
             r.cell('_name', name='!!File name', width='10em')
             r.cell('_size', name='!!Size', width='5em')
             r.cell('_type', name='!!Type', width='5em')
             for k, v in metacol_kwargs.items():
-                r.cell(k, **v)
+                r.cell(k,edit=True, **v)
             r.cell('_status', name='Status', width='6em')
-
+        frame = pane.bagGrid(frameCode=uploaderId,datapath=datapath,storepath='.uploading_data',struct=_struct,
+                            **kwargs)
+        bar = frame.top.bar.replaceSlots('#','3,framelabel,*,delrow,doupload,3',delrow_disabled=False)
+        bar.framelabel.div(label or '!!Uploader')
         if preview:
             footer = frame.bottom.slotBar('preview',closable='close',closable_tip='!!Preview',splitter=True)
             footer.preview.contentPane(height='200px',width='100%',_lazyBuild=True).previewPane(uploaderId=uploaderId)
-
-        grid = frame.includedview(storepath='.uploading_data',struct=_struct,datamode='bag',datapath='.uploader',
-                                 onDrop="FIRE .prepare_files=files;FIRE .on_drop = 1000;",
+        grid = frame.grid
+        grid.attributes.update(onDrop="FIRE .prepare_files=files;FIRE .on_drop = 1000;",
                                  selfsubscribe_delrow="this.widget.delBagRow('*', true);",
                                  selfsubscribe_doupload='FIRE .doupload;',selectedLabel='.selectedLabel',
                                  dropTarget_grid='Files',dropTarget=True,dropTypes='Files')
-        gridEditor = grid.gridEditor()
-        for k, v in metacol_kwargs.items():
-            _tag = 'textbox'
-            dtype = v.get('dtype')
-            widget = v.get('widget')
-            if widget:
-                _tag = widget
-            elif dtype:
-                if(dtype == 'I' or dtype == 'R' or dtype == 'N'):
-                    _tag = 'numberTextBox'
-                elif(dtype == 'D'):
-                    _tag = 'dateTextBox'
-                elif(dtype == 'B'):
-                    _tag = 'checkbox'
-            gridEditor.child(_tag, gridcell=k)
-        grid.dataController("""grid.editBagRow(null,fired);""", fired='^.on_drop',
-                          grid=grid.js_widget)
         grid.dataController("""
                 dojo.forEach(files,
                             function(f){

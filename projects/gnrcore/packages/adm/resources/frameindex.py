@@ -306,7 +306,7 @@ class FrameIndex(BaseComponent):
         pane.div(_class='windowaddIcon iconbox',tip='!!New Window',connect_onclick='genro.openBrowserTab(genro.addParamsToUrl(window.location.href,{new_window:true}));')
 
     def windowTitle(self):
-        return self.getPreference('instance_data.owner_name',pkg='adm') or self.package.attributes.get('name_long')
+        return self.getPreference('instance_data.owner_name',pkg='adm') or self.site.site_name
         
     def windowTitleTemplate(self):
         return "%s $workdate" %self.windowTitle()
