@@ -4499,7 +4499,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             for (var i = 0; i < widget.rowCount; i++) {
                 var row = widget.rowByIndex(i, true);
                 var v = row ? row[field] : '';
-                columndata.push(v);
+                if(!isBag(v)){
+                    columndata.push(v);
+                }
                 textcol = textcol + convertToText(v)[1] + '\n';
             }
             ;

@@ -5032,8 +5032,16 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
 
 
 dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
-    rowFromItem:function(item){
-        return objectUpdate({},item.attr);
+    rowFromItem:function(item,bagFields){
+        var result = objectUpdate({},item.attr);
+        if(!bagFields){
+            for(var k in result){
+                if(isBag(result[k])){
+                    objectPop(result,k);
+                }
+            }
+        }
+        return result;
     },
     updateRowNode:function(rowNode,updDict){
         var idx = this.getData().index(rowNode.label);

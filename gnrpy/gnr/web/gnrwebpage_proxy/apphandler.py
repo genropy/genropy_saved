@@ -1019,6 +1019,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             if isinstance(node.value, Bag):
                 self._columnsFromStruct(node.value, columns)
         return ','.join(columns)
+        
 
     def gridSelectionData(self, selection, outsource, recordResolver, numberedRows, logicalDeletionField,
                           _addClassesDict=None):

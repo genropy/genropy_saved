@@ -502,6 +502,9 @@ class TableHandlerMain(BaseComponent):
             }
             """%selfDragRowsOpt
             gridattr['onSelfDropRows'] = """function(rows,dropInfo){
+                if(!dropInfo.row){
+                    return;
+                }
                 var kw = {sourcePkey:this.widget.rowIdByIndex(rows[0]),destPkey:this.widget.rowIdByIndex(dropInfo.row)};
                 kw['table'] = this.attr.table;
                 th_unifyrecord(kw);
