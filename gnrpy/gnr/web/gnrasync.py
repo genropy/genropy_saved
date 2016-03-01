@@ -20,11 +20,10 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 import time
-import datetime
 import os
 import base64
 from functools import wraps
-from concurrent.futures import ThreadPoolExecutor,Future, Executor
+from concurrent.futures import ThreadPoolExecutor,Future
 import tornado.web
 from tornado import gen,locks
 import tornado.websocket as websocket
@@ -32,11 +31,6 @@ import tornado.ioloop
 import signal
 from tornado.netutil import bind_unix_socket
 from tornado.tcpserver import TCPServer
-from tornado import version_info
-if version_info[0]>=4 and version_info[1]>=2:
-    from tornado import queues
-else:
-    import toro as queues
 from tornado.httpserver import HTTPServer
 
 from gnr.app.gnrconfig import gnrConfigPath
@@ -44,6 +38,11 @@ from gnr.core.gnrbag import Bag,TraceBackResolver
 from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import AsyncWebSocketHandler
 from gnr.web.gnrwsgisite import GnrWsgiSite
 from gnr.core.gnrstring import fromJson
+from tornado import version_info
+if version_info[0]>=4 and version_info[1]>=2:
+    from tornado import queues
+else:
+    import toro as queues
 
 MAX_WAIT_SECONDS_BEFORE_SHUTDOWN = 3
     
@@ -56,7 +55,21 @@ def lockedCoroutine(f):
     @gen.coroutine
     def wrapper(self, *args, **kwargs):
         with (yield self.lock.acquire()):
-             f(self,*args, **kwargs)
+            result = f(self,*args, **kwargs)
+            if isinstance(result,Future):
+                yield result
+    return wrapper
+
+def lockedThreadpool(f):
+    @wraps(f)
+    @gen.coroutine
+    def wrapper(self, *args, **kwargs):
+        print '---enter lockedThreadpool'
+        with (yield self.lock.acquire()):
+            print '---executing lockedThreadpool'
+            yield self.server.executors['threadpool'].submit(f,self,*args,**kwargs)
+            print '---executed lockedThreadpool'
+
     return wrapper
     
 class GnrBaseHandler(object):
@@ -243,6 +256,8 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
                 result = yield executor.submit(handler,_time_start=time.time(),**kwargs)
             else:
                 result = handler(_time_start=time.time(),**kwargs)
+                if isinstance(result,Future):
+                    result = yield result
             if result_token:
                 result = Bag(dict(token=result_token,envelope=result)).toXml(unresolved=True)
             if result is not None:
@@ -258,7 +273,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
     
     def do_echo(self,data=None,**kwargs):
         return data
-         
+    
     def do_ping(self,lastEventAge=None,**kwargs):
         self.server.sharedStatus.onPing(self._page_id,lastEventAge)
         self.write_message('pong')
@@ -381,12 +396,16 @@ class SharedObject(object):
     def data(self):
         return self._data['root']
 
+    @lockedThreadpool
     def save(self):
-        if self.changes:
+        if self.changes or True:
             print '***** SAVING *******', self.shared_id
             self.data.toXml(self.savepath,unresolved=True,autocreate=True)
+            time.sleep(5)
+            print '***** SAVED *******', self.shared_id
         self.changes=False
 
+   # @lockedThreadpool
     def load(self):
         if os.path.exists(self.savepath):
             data =  Bag(self.savepath)
@@ -509,8 +528,7 @@ class SharedStatus(SharedObject):
     @property
     def sharedObjects(self):
         return self.data['sharedObjects']
-        
-    @lockedCoroutine
+
     def registerPage(self,page):
         page_item = page.page_item
         users = self.users
@@ -529,7 +547,7 @@ class SharedStatus(SharedObject):
                                                                             relative_url=page_item['relative_url'],
                                                                             start_ts=page_item['start_ts'],
                                                                             page_id=page_id))
-    @lockedCoroutine
+
     def unregisterPage(self,page):
         users = self.users
         userbag = users[page.user]
@@ -542,8 +560,7 @@ class SharedStatus(SharedObject):
             if not userconnections:
                 users.popNode(page.user)
 
-    
-    @lockedCoroutine    
+
     def onPing(self,page_id,lastEventAge):
         page = self.server.pages.get(page_id)
         if page:
@@ -554,7 +571,6 @@ class SharedStatus(SharedObject):
             data=data['pages'][page_id]
             data['lastEventAge']=lastEventAge
             
-    @lockedCoroutine  
     def onUserEvent(self, page_id, event):
         page = self.server.pages.get(page_id)
         if page:
@@ -567,20 +583,18 @@ class SharedStatus(SharedObject):
                     pagedata['typing']=True
             else:
                 pagedata['typing']=False
-    
-    @lockedCoroutine  
+ 
     def registerSharedObject(self, shared_id,sharingkw):
         self.sharedObjects[shared_id]=Bag(sharingkw)
         
-    @lockedCoroutine  
+
     def unregisterSharedObject(self, shared_id):
         self.sharedObjects.pop(shared_id)
     
-    @lockedCoroutine  
+
     def sharedObjectSubscriptionAddPage(self, shared_id,page_id, subkwargs): 
         self.sharedObjects[shared_id]['subscriptions'][page_id]=Bag(subkwargs)
-        
-    @lockedCoroutine  
+    
     def sharedObjectSubscriptionRemovePage(self, shared_id,page_id): 
         self.sharedObjects[shared_id]['subscriptions'].pop(page_id,None)
     
