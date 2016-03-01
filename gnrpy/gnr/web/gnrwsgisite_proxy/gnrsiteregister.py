@@ -497,14 +497,16 @@ class PageRegister(BaseRegister):
             if table in subscribed_tables:
                 subscribed_tables.remove(table)
 
-    def notifyDbEvents(self,dbeventsDict=None,origin_page_id=None):
+    def notifyDbEvents(self,dbeventsDict=None,origin_page_id=None,dbevent_reason=None):
         for table,dbevents in dbeventsDict.items():
-            if not dbevents: continue
+            if not dbevents: 
+                continue
             table_code = table.replace('.', '_')
             subscribers = self.subscribed_table_pages(table)
-            if not subscribers: continue
+            if not subscribers: 
+                continue
             for page in subscribers:
-                self.set_datachange(page['register_item_id'],'gnr.dbchanges.%s' %table_code, dbevents,attributes=dict(from_page_id=origin_page_id))
+                self.set_datachange(page['register_item_id'],'gnr.dbchanges.%s' %table_code, dbevents,attributes=dict(from_page_id=origin_page_id,dbevent_reason=dbevent_reason))
 
     def setPendingContext(self,page_id,pendingContext):
         data = self.get_item_data(page_id)
