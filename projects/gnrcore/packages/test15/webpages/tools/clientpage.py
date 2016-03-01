@@ -4,7 +4,7 @@
 
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull,storetester:StoreTester"
-    dojo_theme = 'claro'
+    
     
     def test_1_clientpage_page_setter(self, pane):
         """Set in external store"""

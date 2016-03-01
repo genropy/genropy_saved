@@ -4,7 +4,7 @@
 
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerBase"
-    dojo_theme = 'claro'
+    
 
     def test_1_shared_data_set_get(self, pane):
         """1-Shared Data SET and GET"""
