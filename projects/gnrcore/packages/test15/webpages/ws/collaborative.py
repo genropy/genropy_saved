@@ -20,7 +20,7 @@ class GnrCustomWebPage(object):
     def mainToolbar(self,pane,room=None,datapath=None):
         bar=pane.slotToolbar(slots='rooms,20,savebtn,*',datapath=datapath)
         bar.dataController('SET .room=room',_onStart=True,room=room or 'collaborative_test')
-        bar.savebtn.slotButton('Save',action='genro.wsk.saveSharedObject(room);',room='=.room')
+        bar.savebtn.slotButton('Save',action='genro.som.saveSharedObject(room);',room='=.room')
         fb=bar.rooms.formbuilder(cols=3,border_spacing='0')
         fb.textbox(value='^.room',lbl='Room')
         bar.dataController("""if (old_room){genro.som.unregisterSharedObject(old_room);};
