@@ -67,6 +67,7 @@ class GnrWsgiWebApp(GnrApp):
     def onDbCommitted(self):
         super(GnrWsgiWebApp, self).onDbCommitted()
         dbeventsDict= self.db.currentEnv.pop('dbevents',None)
+        dbevent_reason = self.db.currentEnv.pop('dbevent_reason',None)
         if dbeventsDict:
             page = self.site.currentPage
             tables = [k for k,v in dbeventsDict.items() if v]
@@ -76,7 +77,14 @@ class GnrWsgiWebApp(GnrApp):
                     dbeventsDict.pop(table)         
                 for table,dbevents in dbeventsDict.items():
                     dbeventsDict[table] = self._compress_dbevents(dbevents)
-                self.site.register.notifyDbEvents(dbeventsDict,register_name='page',origin_page_id=page.page_id if page else None)
+                page_id = None
+                pagename = None
+                if page:
+                    page_id = page.page_id
+                    pagename = page.pagename
+                self.site.register.notifyDbEvents(dbeventsDict,register_name='page',
+                                                 origin_page_id=page_id,
+                                                 dbevent_reason=dbevent_reason or pagename)
             self.db.updateEnv(env_transaction_id= None,dbevents=None)
 
     def _compress_dbevents(self,dbevents):

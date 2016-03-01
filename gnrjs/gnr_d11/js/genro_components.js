@@ -5134,6 +5134,8 @@ dojo.declare("gnr.stores.FileSystem",gnr.stores.RpcBase,{
 dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     constructor:function(){
         var liveUpdate = this.storeNode.attr.liveUpdate || 'LOCAL';
+        var liveUpdateExcludeReason = this.storeNode.getAttributeFromDatasource('liveUpdateExcludeReason');
+
         if(liveUpdate=='NO'){
             return;
         }
@@ -5142,13 +5144,16 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         this.lastLiveUpdate = new Date()
         this._editingForm = false;
         this.loadInvisible = this.storeNode.getAttributeFromDatasource('loadInvisible');
-
         this.liveUpdateDelay = this.storeNode.getAttributeFromDatasource('liveUpdateDelay');
         this.liveUpdateUnattended = this.storeNode.getAttributeFromDatasource('liveUpdateUnattended');
         var cb = function(){
             that.storeNode.registerSubscription('dbevent_'+that.storeNode.attr.table.replace('.','_'),that,
             function(kw){
                 var from_page_id = kw.changeattr.from_page_id;
+                var dbevent_reason = kw.changeattr.dbevent_reason;
+                if(liveUpdateExcludeReason && liveUpdateExcludeReason==dbevent_reason){
+                    return;
+                }
                 if(liveUpdate=='PAGE'){
                     if(genro.page_id!=from_page_id){
                         return;
