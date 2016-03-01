@@ -16,7 +16,7 @@ var th_unifyrecord = function(kw){
         var message = messagebag.getItem('tabledata').getFormattedValue();
         message = '<div style="margin:auto;">' +message+'</div>';
         genro.dlg.ask(title,message,null,{confirm:function(){
-            genro.serverCall('app.unifyRecords',kw,function(result){console.log('ok')});}
+            genro.serverCall('app.unifyRecords',kw,function(result){console.log('ok');});}
         });
     });
 };
@@ -291,7 +291,7 @@ dojo.declare("gnr.LinkerManager", null, {
     },
     
     onIframeStarted:function(iframe,pkey,default_kw){
-        var default_kw = default_kw || {};
+        default_kw = default_kw || {};
         this.linkerform = iframe._genro.formById(this.fakeFormId);
         this.linkerform.load({destPkey:pkey,default_kw:default_kw});
         var that = this;
@@ -446,7 +446,7 @@ dojo.declare("gnr.IframeFormManager", null, {
         this.iframeForm.publishToParent = true;
         this.iframeForm.store.handlers.load.defaultCb = function(){
             return that.sourceNode.evaluateOnNode(that.default_kwargs);
-        }
+        };
         this.iframeForm.load(kw);
         var g = genro;
         this.iframeForm.subscribe('onSaved',function(){
