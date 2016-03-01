@@ -715,13 +715,13 @@ class SqlTable(GnrObject):
         return record
             
 
-    def defaultValues (self):
+    def defaultValues(self):
         """Override this method to assign defaults to new record. Return a dictionary - fill
         it with defaults"""
         return dict([(x.name, x.attributes['default'])for x in self.columns.values() if 'default' in x.attributes])
         
 
-    def sampleValues (self):
+    def sampleValues(self):
         """Override this method to assign defaults to new record. Return a dictionary - fill
         it with defaults"""
         return dict([(x.name, x.attributes['sample'])for x in self.columns.values() if 'sample' in x.attributes])
