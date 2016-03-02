@@ -64,11 +64,8 @@ def lockedThreadpool(f):
     @wraps(f)
     @gen.coroutine
     def wrapper(self, *args, **kwargs):
-        print '---enter lockedThreadpool'
         with (yield self.lock.acquire()):
-            print '---executing lockedThreadpool'
             yield self.server.executors['threadpool'].submit(f,self,*args,**kwargs)
-            print '---executed lockedThreadpool'
 
     return wrapper
     
@@ -295,7 +292,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
             pass
              #print 'already in channels',self.page_id
         if not page_id in self.pages:
-            print 'do_connected: missing page',page_id
+            print 'do_connected: missing page %s trying to register it again' % page_id
             self.server.registerPage(page_id=page_id)
         else:
             pass
@@ -398,10 +395,9 @@ class SharedObject(object):
 
     @lockedThreadpool
     def save(self):
-        if self.changes or True:
+        if self.changes :
             print '***** SAVING *******', self.shared_id
             self.data.toXml(self.savepath,unresolved=True,autocreate=True)
-            time.sleep(5)
             print '***** SAVED *******', self.shared_id
         self.changes=False
 
@@ -564,12 +560,13 @@ class SharedStatus(SharedObject):
     def onPing(self,page_id,lastEventAge):
         page = self.server.pages.get(page_id)
         if page:
-            data=self.users[page.user]
-            data['lastEventAge']=lastEventAge
-            data = data['connections'][page.connection_id]
-            data['lastEventAge']=lastEventAge
-            data=data['pages'][page_id]
-            data['lastEventAge']=lastEventAge
+            userdata=self.users[page.user]
+            conndata=userdata['connections'][page.connection_id]
+            pagedata=conndata['pages'][page_id]
+            pagedata['lastEventAge']=lastEventAge
+            conndata['lastEventAge']=min(conndata['pages'].digest('#v.lastEventAge'))
+            userdata['lastEventAge']=min(userdata['connections'].digest('#v.lastEventAge'))
+  
             
     def onUserEvent(self, page_id, event):
         page = self.server.pages.get(page_id)
@@ -720,9 +717,13 @@ class GnrBaseAsyncServer(object):
    
     def registerPage(self,page=None,page_id=None):
         if not page:
+            print 'Trying to retrieve page %s in gnrdaemon register'
             page = self.gnrsite.resource_loader.get_page_by_id(page_id)
             if not page:
+                print '     page %s not existing in gnrdaemon register'
                 return
+            else:
+                print '     page %s restored succesfully from gnrdaemon register'
         page.asyncServer = self
         page.sharedObjects = set()
         self.pages[page.page_id] = page

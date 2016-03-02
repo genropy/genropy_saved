@@ -371,24 +371,21 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                             newobj.sourceNode.onNodeCall(newobj.onSpeechEnd);
                         }
                     }
-                }
+                };
             }
         }
         var domNode = newobj.domNode || newobj;
         if('moveable' in savedAttrs){
-            var moveable_kw = savedAttrs['moveable_kw']
+            var moveable_kw = savedAttrs.moveable_kw;
             genro.src.onBuiltCall(function(){
-                var sides=['top','left']
                 sourceNode.mover = new dojo.dnd.Moveable(domNode,moveable_kw);
+                var coords=dojo.coords(domNode);
+                genro.publish('moveable_created',{'sourceNode':sourceNode,'top':coords.t+'px','left':coords.l+'px'});
                 dojo.connect(sourceNode.mover , "onMoved", function(mover,topLeft){
-                var handle=mover.host.handle
-                sides.forEach(function(l){
-                        if (sourceNode.attr[l] && sourceNode.attr[l].indexOf('^') == 0){
-                            sourceNode.setAttributeInDatasource(l,handle.style[l])
-                        } 
-                    })
-                    //console.debug("on Moved", mover,topLeft,handle.sorceNode,handle.style.left,handle.style.top);
-                });
+                genro.publish('moveable_moved',{'sourceNode':sourceNode,
+                              top:mover.node.style.top,left:mover.node.style.left
+                          });            
+                    });
             });
         }
       

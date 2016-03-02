@@ -9,7 +9,7 @@ var WorkbenchManager = {
                                        border:'1px solid silver',
                                        moveable:true,
                                        position:'absolute',
-                                       start_x:evt.x,start_y:evt.y}
+                                       left:evt.x,top:evt.y}
         if(dflt.value){
             dflt.value = '^.'+kw.name;
         }
@@ -25,16 +25,18 @@ var WorkbenchManager = {
     },
     createNode:function(pane, pars){
         var kw = pars.asDict();
-        var start_x = objectPop(kw,'start_x');
-        var start_y = objectPop(kw,'start_y');               
+        var left = parseInt(kw.left);
+        var top = parseInt(kw.top);   
+        var height = parseInt(kw.height);
+        var width = parseInt(kw.width);                
         var tag = objectPop(kw,'tag') || 'div';
         var name = objectPop(kw,'name') || 'box_'+genro.getCounter();
         if(kw.moveable){
             kw.position = 'absolute';
             kw.top = '^#elements.'+name+'.top';
             kw.left = '^#elements.'+name+'.left';
-            genro.setData(kw.top ,start_y+'px');
-            genro.setData(kw.left ,start_x+'px');
+            genro.setData(kw.top ,top+'px');
+            genro.setData(kw.left ,left+'px');
         }else{
             if(kw.position=='absolute' || kw.position=='relative'){
                 kw.top  = start_y+'px';
