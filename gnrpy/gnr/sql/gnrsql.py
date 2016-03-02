@@ -869,7 +869,7 @@ class TempEnv(object):
         if self.db.adapter.support_multiple_connections:
             currentEnv = self.db.currentEnv
             for k,v in self.addedKeys:
-                if currentEnv[k]==v:
+                if currentEnv.get(k)==v:
                     currentEnv.pop(k,None)
             currentEnv.update(self.savedValues)
             
