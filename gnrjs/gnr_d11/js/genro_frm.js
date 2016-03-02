@@ -2483,7 +2483,8 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
         var envelope = new gnr.GnrBag();
         var recordLoaded = new gnr.GnrBag();
         var sourceBag = form.sourceNode.getRelativeData(this.locationpath);
-        if((destPkey=='*newrecord*' || sourceBag==null) && default_kw){
+        kw._newrecord = (destPkey=='*newrecord*' || sourceBag==null || sourceBag.len()===0) ;
+        if(kw._newrecord && default_kw){
             for(var k in default_kw){
                 recordLoaded.setItem(k,default_kw[k])
             }
@@ -2496,6 +2497,7 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
                     recordLoaded.setItem(n.label,n.getValue());
                 });
         }
+
         envelope.setItem('record',recordLoaded,kw);
         var result = envelope.getNode('record');    
         this.loaded('',result);
@@ -2528,7 +2530,7 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
             if(v instanceof gnr.GnrBag){
                 return;
             }
-            if('_loadedValue' in n.attr){
+            if(form.isNewRecord() || ('_loadedValue' in n.attr)){
                 path = n.getFullpath('static',formData);
                 sourceBag.setItem(path,v,kw);
             }
