@@ -337,12 +337,10 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                 attributes['title'] = '<div class="' + iconClass + '"/>';
             }
         }
-        ;
-        if (attributes['title']) {
+        if (attributes.title) {
             var tip = objectPop(attributes, 'tip') || title || '';
-            attributes['title'] = '<span title="' + tip + '">' + attributes['title'] + '</span>';
+            attributes.title = '<span title="' + tip + '">' + attributes.title + '</span>';
         }
-        ;
     },
     setDraggable:function(domNode, value) {
         domNode.setAttribute('draggable', value);
@@ -377,15 +375,28 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         var domNode = newobj.domNode || newobj;
         if('moveable' in savedAttrs){
             var moveable_kw = savedAttrs.moveable_kw;
+            //var inhattr = sourceNode.getInheritedAttributes();
+            var constrain = objectPop(moveable_kw,'constrain');
             genro.src.onBuiltCall(function(){
-                sourceNode.mover = new dojo.dnd.Moveable(domNode,moveable_kw);
+                var publishOn;
+                if(constrain===false){
+                    sourceNode.mover = new dojo.dnd.Moveable(domNode,moveable_kw);
+                    publishOn = genro;
+                }else{
+                    dojo.require('dojo.dnd.move');
+                    moveable_kw.within = true;
+                    sourceNode.mover = new dojo.dnd.move.parentConstrainedMoveable(domNode,moveable_kw);
+                    publishOn = sourceNode.getParentNode();
+                }
                 var coords=dojo.coords(domNode);
-                genro.publish('moveable_created',{'sourceNode':sourceNode,'top':coords.t+'px','left':coords.l+'px'});
+                publishOn.publish('moveable_created',{'sourceNode':sourceNode,'top':coords.t+'px','left':coords.l+'px'});
                 dojo.connect(sourceNode.mover , "onMoved", function(mover,topLeft){
-                genro.publish('moveable_moved',{'sourceNode':sourceNode,
+                    console.log('aaaa');
+                    console.log(mover,topLeft);
+                    publishOn.publish('moveable_moved',{'sourceNode':sourceNode,
                               top:mover.node.style.top,left:mover.node.style.left
-                          });            
-                    });
+                    });            
+                });
             });
         }
       

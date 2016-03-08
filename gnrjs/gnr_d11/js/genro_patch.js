@@ -181,13 +181,13 @@ genropatches.dojoToJson = function() {
     }
 };
 genropatches.dnd=function(){
-    dojo.require("dojo.dnd.Moveable")
-    var mvbl=dojo.dnd.Moveable
-    mvbl.prototype.onMouseDown_replaced=mvbl.prototype.onMouseDown
+    dojo.require("dojo.dnd.Moveable");
+    var mvbl = dojo.dnd.Moveable;
+    mvbl.prototype.onMouseDown_replaced=mvbl.prototype.onMouseDown;
     mvbl.prototype.onMouseDown= function(e){
         var contextclick = (e.button==2 ||  genro.dom.getEventModifiers(e)=='Ctrl');
         if (!contextclick){
-            this.onMouseDown_replaced(e)
+            this.onMouseDown_replaced(e);
         }
     }
     
