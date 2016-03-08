@@ -1364,7 +1364,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 }
             }
             else if (genro.dom.isStyleAttr(attr)) {
-                domnode.setAttribute('style',objectAsStyle(genro.dom.getStyleDict(this.currentAttributes())));
+                genro.dom.style(domnode,genro.dom.getStyleDict(this.currentAttributes()));
+                //domnode.setAttribute('style',objectAsStyle(genro.dom.getStyleDict(this.currentAttributes())));
             }
             else if (attr in domnode){
                 domnode[attr] = value;

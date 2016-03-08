@@ -207,7 +207,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 dojo.style(domnode, genro.dom.dojoStyleAttrName(attr), value);
             } else {
                 var kw = {};
-                for (k in attr) {
+                for (var k in attr) {
                     kw[genro.dom.dojoStyleAttrName(k)] = attr[k];
                 }
                 dojo.style(domnode, kw);
