@@ -7130,7 +7130,11 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
                  }
                  
                  details['street_address'] = details['route_long']+', '+(details['street_number']||'??');
-                 details['street_address_eng'] = (details['street_number']||'??')+' '+details['route_long'];
+                 var street_number = details['street_number']||'??'; //subpremise
+                 if(details['subpremise']){
+                    street_number = details['subpremise']+'/'+street_number;
+                 }
+                 details['street_address_eng'] = street_number+' '+details['route_long'];
                  var position=results[i].geometry.location;
                  details['position']=position.lat()+','+position.lng();
              this.store.mainbag.setItem('root.r_' + i, null, details);
