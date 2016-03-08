@@ -87,7 +87,7 @@ class Form(BaseComponent):
         sc = form.center.stackContainer(datapath='.record')
         bc = sc.borderContainer()
         self.atc_metadata(bc)
-        iframe = bc.contentPane(region='center').iframe(src='^.fileurl',_virtual_column='fileurl',height='100%',
+        iframe = bc.contentPane(region='center',overflow='hidden').iframe(src='^.fileurl',_virtual_column='fileurl',height='100%',
                                                 width='100%',border='0px',documentClasses=True,
                         connect_onload="""
                             var cw = this.domNode.contentWindow;
