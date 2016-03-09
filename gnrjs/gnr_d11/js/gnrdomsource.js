@@ -333,6 +333,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     _onError = funcCreate(_onError, 'error,kwargs', this);
                 }
                 var cb = function(result, error) {
+                    error = error || result.error;
                     if (_lockScreen) {
                         genro.lockScreen(false, domsource_id);
                     }

@@ -117,7 +117,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         var dataNode = envelope.getNode('data');
         var error = envelope.getItem('error');
         if (error){
-            deferred.callback(null,{'error':error,'dataNode':dataNode});
+            deferred.callback({'error':error,'dataNode':dataNode});
         }
         else{
             deferred.callback(dataNode);
@@ -206,13 +206,13 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         if (!omitSerialize){
             kw=genro.rpc.serializeParameters(genro.src.dynamicParameters(kw));
         }
-        this.waitingCalls[token] = deferred
+        this.waitingCalls[token] = deferred;
         //console.log('sending',kw)
-        this.socket.send(dojo.toJson(kw))
+        this.socket.send(dojo.toJson(kw));
         if(_onResult){
             deferred.addCallback(_onResult);
         }
-        return deferred
+        return deferred;
     },
     send:function(command,kw){
         var kw=kw || {};
@@ -242,6 +242,9 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     },
     publishToClient:function(page_id,topic,data){
         this.sendCommandToPage(page_id,'publish',new gnr.GnrBag({'data':data,'topic':topic}))
+    },
+    errorHandler:function(error){
+        console.log('wsk errorHandler',error)
     }
 });
 

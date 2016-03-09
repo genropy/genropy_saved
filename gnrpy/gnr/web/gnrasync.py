@@ -317,6 +317,8 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
         resultAttrs=None
         handler = self.page.getWsMethod(method)
 
+        self.page._db = None
+        handler = self.page.getWsMethod(method)
         if handler:
             try:
                 result = handler(**kwargs)

@@ -384,6 +384,7 @@ class GnrWebPage(GnrBaseWebPage):
     def db(self):
         if not getattr(self, '_db',None):
             self._db = self.application.db
+            self._db.clearCurrentEnv()
             self._db.updateEnv(storename=self.dbstore, workdate=self.workdate, locale=self.locale,
                                user=self.user, userTags=self.userTags, pagename=self.pagename,
                                mainpackage=self.mainpackage)
