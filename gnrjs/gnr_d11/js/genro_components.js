@@ -2783,7 +2783,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         if(custom){
             template_address = template_address+',custom'
         }
-        return genro.serverCall("saveTemplate",{template_address:template_address,data:data},null,null,'chunk');
+        return genro.serverCall("saveTemplate",{template_address:template_address,data:data},null,null,'POST');
     },
     
     

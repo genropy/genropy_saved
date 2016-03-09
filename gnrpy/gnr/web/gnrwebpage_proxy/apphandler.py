@@ -754,7 +754,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             if selection is not None:
                 if sortedBy and  ','.join(selection.sortedBy or []) != sortedBy:
                     selection.sort(sortedBy)
-                    selection.freezeUpdate()
+                    #selection.freezeUpdate()
                 debug = 'fromPickle'
                 newSelection = False
         if newSelection:
