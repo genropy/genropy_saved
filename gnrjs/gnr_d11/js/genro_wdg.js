@@ -594,6 +594,7 @@ dojo.declare("gnr.RowEditor", null, {
         this.original_values = objectUpdate({},row);
         this.newrecord = rowNode.attr._newrecord;
         this.rowLabel = rowNode.label;
+        this.grid.currRenderedRowIndex = this.grid.storebag().index(this.rowLabel);
         this.gridEditor.rowEditors[this.rowId] = this;
         var data = rowNode.getValue();
         if(data){
