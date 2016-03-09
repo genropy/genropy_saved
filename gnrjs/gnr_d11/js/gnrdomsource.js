@@ -358,6 +358,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                             _onResult(result, origKwargs, oldValue);
                         }
                     }
+                    return result
                 };
                 if(_execClass){
                     genro.dom.addClass(dojo.body(),_execClass);

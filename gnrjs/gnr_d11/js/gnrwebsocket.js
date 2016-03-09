@@ -117,14 +117,13 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         var dataNode = envelope.getNode('data');
         var error = envelope.getItem('error');
         if (error){
-            console.log('serverError',error,dataNode._value)
-            deferred.errback(error)
+            deferred.callback(null,{'error':error,'dataNode':dataNode});
         }
         else{
-            deferred.callback(dataNode)
+            deferred.callback(dataNode);
         }
-    },
     
+   },
     do_alert:function(data){
         alert(data)
     },

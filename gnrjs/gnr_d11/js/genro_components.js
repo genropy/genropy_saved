@@ -4558,7 +4558,9 @@ dojo.declare("gnr.stores._Collection",null,{
     runQuery:function(cb,runKwargs){
         var result =  this.storeNode.fireNode(runKwargs);
         if(result instanceof dojo.Deferred){
-            result.addCallback(function(r){cb(r)});
+            result.addCallback(function(r){
+                cb(r)
+            });
         }else{
             result = cb(result);
         }
@@ -5541,6 +5543,10 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
     },
     
     onLoaded:function(result){
+        if (result==null){
+            console.warn('missing result')
+            return
+        }
         if(result.error){
             return;
         }
