@@ -2783,7 +2783,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         if(custom){
             template_address = template_address+',custom'
         }
-        return genro.serverCall("saveTemplate",{template_address:template_address,data:data},null,null,'POST');
+        return genro.serverCall("saveTemplate",{template_address:template_address,data:data},null,null,'chunk');
     },
     
     
@@ -5721,7 +5721,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
                 return pageData;    
             }
             if(this.isScrolling){
-                return;
+                //return;
             }
             if(this.pendingTimeout){
                 if (this.pendingTimeout.idx==pageIdx){
@@ -5732,11 +5732,12 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
                 }
             }
             var that = this;
-            this.pendingTimeout={'idx':pageIdx,
-                                'handler':setTimeout(function(){
-                                that.loadBagPageFromServer(pageIdx);
-                                },10)
-            };
+            that.loadBagPageFromServer(pageIdx);
+            //this.pendingTimeout={'idx':pageIdx,
+            //                    'handler':setTimeout(function(){
+            //                    that.loadBagPageFromServer(pageIdx);
+            //                    },1)
+            //};
             return;
         }
     },
@@ -5760,6 +5761,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         var that = this;
         var row_start = pageIdx * this.chunkSize;
         var kw = this.getData().getParentNode().attr;
+        console.log('loadBagPageFromServer',pageIdx)
         var result = genro.rpc.remoteCall(kw.method, {'selectionName':kw.selectionName,
             'row_start':row_start,
             'row_count':this.chunkSize,
@@ -5767,7 +5769,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             'table':kw.table,
             'recordResolver':false},
             null,
-            null,
+            'WSK',
             null,
             sync?null:function(result){return that.onChunkLoaded(result,pageIdx);});
         if(sync){

@@ -606,6 +606,7 @@ class TableHandlerView(BaseComponent):
                                _onStart=_onStart,
                                _th_root =th_root,
                                _POST =True,
+                               httpMethod='WSK',
                                _onCalling="""
                                %s
                                if(_sections){
