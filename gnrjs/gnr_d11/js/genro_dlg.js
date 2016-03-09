@@ -55,7 +55,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         dlg._('layoutcontainer', {height:'100%'});
         dlg._('contentpane', {'_class':'dojoDialogInner',layoutAling:'client'})._('span', {content:msg});
         var bottom = dlg._('contentpane', {layoutAling:'bottom'})._('div', {'align':'right'});
-        var buttons = buttons || [
+        buttons = buttons || [
             {'caption':'OK', result:'OK'},
             {'caption':'cancel', result:'cancel'}
         ];

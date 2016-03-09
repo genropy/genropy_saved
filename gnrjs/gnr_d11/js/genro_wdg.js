@@ -613,6 +613,7 @@ dojo.declare("gnr.RowEditor", null, {
         this.newrecord = rowNode.attr._newrecord;
         this.rowLabel = rowNode.label;
         rowNode._rowEditor = this;
+        this.grid.currRenderedRowIndex = this.grid.storebag().index(this.rowLabel);
         var data = rowNode.getValue();
         if(data){
             data.clearBackRef();
@@ -674,6 +675,7 @@ dojo.declare("gnr.RowEditor", null, {
             }
         }
     },
+
 
     hasChanges:function(){
         var changed = false;
