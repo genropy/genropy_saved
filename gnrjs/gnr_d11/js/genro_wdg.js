@@ -675,6 +675,7 @@ dojo.declare("gnr.RowEditor", null, {
         }
     },
 
+
     hasChanges:function(){
         var changed = false;
         if(this.newrecord){
