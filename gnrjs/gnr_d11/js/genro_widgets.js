@@ -4085,7 +4085,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         return function(v, inRowIndex) {
             var renderedRow = this.grid.currRenderedRow;
             if(!objectNotEmpty(renderedRow)){
-                return;
+                return '<div class="cellContent">' + '&nbsp;' + '</div>';;
             }
             var baseStyleDict = objectUpdate(objectFromStyle(this.cellStyles),
                                                      sourceNode.evaluateOnNode(genro.dom.getStyleDict(objectUpdate({},this), [ 'width'])))
