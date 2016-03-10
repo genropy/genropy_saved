@@ -6638,7 +6638,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
                         if(lastRow!=that.scroller.lastVisibleRow){
                             storeNode.publish('updateRows');
                         }
-                    },500);
+                    },50);
             }, true);
             }
             
