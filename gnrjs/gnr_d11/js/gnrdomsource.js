@@ -316,8 +316,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 var doCall = true;
                 var domsource_id = this.getStringId();
                 var method = expr;
-                var httpMethod = objectPop(kwargs, 'httpMethod') 
-                var httpMethod = httpMethod || (objectPop(kwargs, '_POST') === false? 'GET' : 'POST');
+                var httpMethod = objectPop(kwargs, 'httpMethod');
+                httpMethod = httpMethod || (objectPop(kwargs, '_POST') === false? 'GET' : 'POST');
 
                 var _onResult = objectPop(kwargs, '_onResult');
                 var _onError = objectPop(kwargs, '_onError');
@@ -333,7 +333,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     _onError = funcCreate(_onError, 'error,kwargs', this);
                 }
                 var cb = function(result, error) {
-                    error = error || result.error;
+                    error = error || result?result.error:null;
                     if (_lockScreen) {
                         genro.lockScreen(false, domsource_id);
                     }
