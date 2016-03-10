@@ -73,6 +73,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.isDeveloper = objectPop(this.startArgs,'isDeveloper');
         this.isMobile = objectPop(this.startArgs,'isMobile');
         this.deviceScreenSize = objectPop(this.startArgs,'deviceScreenSize');
+        this.extraFeatures = objectPop(this.startArgs,'extraFeatures');
         this.theme = {};
         this.dojo = dojo;
         this.debugged_rpc = {};

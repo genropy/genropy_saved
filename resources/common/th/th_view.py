@@ -46,7 +46,7 @@ class TableHandlerView(BaseComponent):
             viewhook(view)
         return view
     
-    @extract_kwargs (top=True,preview=True)
+    @extract_kwargs(top=True,preview=True)
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
@@ -606,6 +606,7 @@ class TableHandlerView(BaseComponent):
                                _onStart=_onStart,
                                _th_root =th_root,
                                _POST =True,
+                               httpMethod='WSK' if self.extraFeatures['wsk_grid'] else None,
                                _onCalling="""
                                %s
                                if(_sections){

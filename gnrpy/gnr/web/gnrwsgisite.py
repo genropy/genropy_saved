@@ -17,6 +17,7 @@ import httplib2
 import locale
 
 from time import time
+from collections import defaultdict
 from gnr.core.gnrlang import deprecated,GnrException,tracebackBag
 from gnr.core.gnrdecorator import public_method
 from gnr.app.gnrconfig import getGnrConfig
@@ -207,6 +208,7 @@ class GnrWsgiSite(object):
             self.gnr_config = getGnrConfig(set_environment=True)
             
         self.config = self.load_site_config()
+        self._initExtraFeatures()
         self.cache_max_age = int(self.config['wsgi?cache_max_age'] or 5356800)
         self.default_uri = self.config['wsgi?home_uri'] or '/'
         if boolean(self.config['wsgi?static_import_psycopg']):
@@ -289,6 +291,17 @@ class GnrWsgiSite(object):
     @property
     def remote_edit(self):
         return self._remote_edit
+
+    def _initExtraFeatures(self):
+        self.extraFeatures = defaultdict(lambda:None)
+        extra = self.config['extra']
+        if extra:
+            for n in extra:
+                attr = dict(n.attr)
+                if boolean(attr.pop('enabled',False)):
+                    self.extraFeatures[n.label] = True
+                    for k,v in attr.items():
+                        self.extraFeatures['%s_%s' %(n.label,k)] = v
 
     def addService(self, service_handler, service_name=None, **kwargs):
         """TODO

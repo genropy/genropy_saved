@@ -5720,7 +5720,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             if (pageData){
                 return pageData;    
             }
-            if(this.isScrolling){
+            if(this.isScrolling && this.storeNode.attr.httpMethod!='WSK'){
                 return;
             }
             if(this.pendingTimeout){
@@ -5767,7 +5767,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             'table':kw.table,
             'recordResolver':false},
             null,
-            null,
+            this.storeNode.attr.httpMethod,
             null,
             sync?null:function(result){return that.onChunkLoaded(result,pageIdx);});
         if(sync){

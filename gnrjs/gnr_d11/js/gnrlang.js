@@ -522,10 +522,10 @@ function objectAny(obj,cb) {
 
 function mapConvertFromText(value){
     if (value instanceof Array){
-        return value.map(mapConvertFromText)
+        return value.map(mapConvertFromText);
     }
     if (typeof(value)=='string'){
-        return convertFromText(value)
+        return convertFromText(value);
     }
     if(typeof(value)=='object' && !(value instanceof Date)){
         var result = {};
@@ -899,13 +899,11 @@ function convertFromText(value, t, fromLocale) {
         }
     }
     else if (t == 'JS') {
-        var result = genro.evaluate(value);
-       //if(result){
-       //    for (var k in result){
-       //        result[k] = convertFromText(result[k]);
-       //    }
-       //}
-        return result;
+        if(window.genro){
+            return genro.evaluate(value);
+        }else{
+            return dojo.fromJson(value);
+        }
     }
     else if (t == 'BAG' || t=='X') {
         try{

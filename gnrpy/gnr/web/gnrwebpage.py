@@ -28,6 +28,7 @@ import sys
 import shutil
 import urllib
 import thread
+import copy
 
 from time import time
 from datetime import timedelta
@@ -125,6 +126,8 @@ class GnrWebPage(GnrBaseWebPage):
         self.sql_count = 0
         self.sql_time = 0
         self.site = site
+        self.extraFeatures = copy.deepcopy(self.site.extraFeatures)
+        self.extraFeatures.update(dictExtract(request_kwargs,'extra_',pop=True))
         dbstore = request_kwargs.pop('temp_dbstore',None) or None
         self.dbstore = dbstore if dbstore != self.application.db.rootstore else None
         self.user_agent = request.user_agent or []
@@ -1029,6 +1032,7 @@ class GnrWebPage(GnrBaseWebPage):
         if self.isMobile:
             kwargs['isMobile'] = True
         kwargs['deviceScreenSize'] = self.deviceScreenSize
+        kwargs['extraFeatures'] = dict(self.extraFeatures)
         if getattr(self,'_avoid_module_cache',None):
             kwargs['_avoid_module_cache'] = True
         arg_dict['startArgs'] = toJson(dict([(k,self.catalog.asTypedText(v)) for k,v in kwargs.items()]))
