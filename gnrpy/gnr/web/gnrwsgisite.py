@@ -208,7 +208,6 @@ class GnrWsgiSite(object):
             self.gnr_config = getGnrConfig(set_environment=True)
             
         self.config = self.load_site_config()
-        self._initExtraFeatures()
         self.cache_max_age = int(self.config['wsgi?cache_max_age'] or 5356800)
         self.default_uri = self.config['wsgi?home_uri'] or '/'
         if boolean(self.config['wsgi?static_import_psycopg']):
@@ -227,6 +226,7 @@ class GnrWsgiSite(object):
         self.homepage = self.config['wsgi?homepage'] or self.default_uri + 'index'
         self.indexpage = self.config['wsgi?homepage'] or '/index'
         self._guest_counter = 0
+        self._initExtraFeatures()
         if not self.homepage.startswith('/'):
             self.homepage = '%s%s' % (self.default_uri, self.homepage)
         self.secret = self.config['wsgi?secret'] or 'supersecret'
