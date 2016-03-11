@@ -29,10 +29,10 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     constructor: function(application, wsroot, options) {
         this.application = application;
         this.wsroot=wsroot;
-        this.url='ws://'+window.location.host+wsroot
+        this.url='ws://'+window.location.host+wsroot;
         this.options=objectUpdate({ debug: false, reconnectInterval: 4000, ping_time:1000 },
-                                  options)
-        this.waitingCalls={}
+                                  options);
+        this.waitingCalls={};
         
     },
     create:function(){
@@ -40,17 +40,17 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
             this.socket=new ReconnectingWebSocket(this.url, null,this.options);
             var that=this;
             this.socket.onopen=function(){
-                that.onopen()
-            }
+                that.onopen();
+            };
             this.socket.onclose=function(){
-                that.onclose()
-            }
+                that.onclose();
+            };
             this.socket.onmessage=function(e){
-                that.onmessage(e)
-            }
+                that.onmessage(e);
+            };
             this.socket.onerror=function(error){
-                that.onerror(error)
-            }
+                that.onerror(error);
+            };
         }
         
     },
@@ -60,28 +60,27 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     },
 
     onopen:function(){
-        console.log('connetting websocket')
-        that=this
-        this.send('connected',{'page_id':genro.page_id})
+        that=this;
+        this.send('connected',{'page_id':genro.page_id});
         this._interval=setInterval(function(){
-                                     genro.wsk.ping()
-                                   },this.options.ping_time)
+                                     genro.wsk.ping();
+                                   },this.options.ping_time);
     },
     onclose:function(){
-        clearInterval(this._interval)
-        console.log('disconnected websocket')
+        clearInterval(this._interval);
+        console.log('disconnected websocket');
     },
     onerror:function(error){
         console.error('WebSocket Error ' + error);
     },
     ping:function(){
-        this.send('ping',{lastEventAge:(new Date()-genro._lastUserEventTs)})
+        this.send('ping',{lastEventAge:(new Date()-genro._lastUserEventTs)});
     },
 
     onmessage:function(e){
         var data=e.data;
         if (data=='pong'){
-            return
+            return;
         }
         
         if (data.indexOf('<?xml')==0){

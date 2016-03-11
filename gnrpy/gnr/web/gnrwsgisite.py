@@ -297,6 +297,9 @@ class GnrWsgiSite(object):
         extra = self.config['extra']
         if extra:
             for n in extra:
+                if n.label.startswith('wsk_') and not self.websockets:
+                    #exclude wsk options if websockets are not activated
+                    continue
                 attr = dict(n.attr)
                 if boolean(attr.pop('enabled',False)):
                     self.extraFeatures[n.label] = True

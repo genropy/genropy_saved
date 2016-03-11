@@ -93,7 +93,7 @@ dojo.declare('gnr.GenroClient', null, {
         this._lastRpc = start_ts;
         for (var i = 0; i < this.profile_count; i++) {
             this.timeProfilers.push({nc:0,st:0,sqlt:0,sqlc:0});  
-        };
+        }
         
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
     },
