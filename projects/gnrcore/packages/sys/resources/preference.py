@@ -33,6 +33,7 @@ class AppPref(object):
         tc = tc.tabContainer(**kwargs)
         stylepane = tc.contentPane(title='Styling')
         fb = stylepane.formbuilder(cols=1, border_spacing='4px',datapath='.theme')
+        fb.filteringSelect(value='^.theme_variant',values='red,green,yellow,orange',lbl='Theme variant')
         fb.filteringSelect(value='^.default_fontsize',values='!!12px:Small,13px:Medium,14px:Large,15px:Extra Large',lbl='Font size')
         fb.comboBox(value='^.rootstyle.font_family',values=FONTFAMILIES,lbl='Font family',width='20em')        
         

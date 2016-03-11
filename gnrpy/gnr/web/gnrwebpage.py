@@ -1110,8 +1110,11 @@ class GnrWebPage(GnrBaseWebPage):
         
     def get_bodyclasses(self):   #  is still necessary _common_d11?
         """TODO"""
-        return '%s _common_d11 pkg_%s page_%s %s' % (
-        self.frontend.theme or '', self.packageId, self.pagename, getattr(self, 'bodyclasses', ''))
+        theme_variant = self.getPreference('theme.theme_variant',pkg='sys') or ''
+        if theme_variant:
+            theme_variant = 'theme_variant_%s' %theme_variant
+        return '%s %s _common_d11 pkg_%s page_%s %s' % (
+        self.frontend.theme or '',theme_variant, self.packageId, self.pagename, getattr(self, 'bodyclasses', ''))
         
     def get_css_genro(self):
         """TODO"""
