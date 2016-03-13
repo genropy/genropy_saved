@@ -32,16 +32,7 @@ class View(BaseComponent):
         bar.actiontitle.div('!!Actions',_class='frameGridTitle')
 
 class Form(BaseComponent):
-    py_requires='gnrcomponents/dynamicform/dynamicform:DynamicForm'
-
     def th_form(self, form):
-        bc = form.center.borderContainer(datapath='.record')
-        fb = bc.contentPane(region='top').formbuilder(cols=2, border_spacing='4px')
-        fb.field('action_type_id',tag='hdbselect',colspan=2)
-        fb.field('priority')
-        fb.field('days_before')
-        fb.field('assigned_to',colspan=2)
-        bc.contentPane(region='center').dynamicFieldsPane('action_fields',margin='2px')
+        form.record
 
-    def th_options(self):
-        return dict(dialog_height='300px', dialog_width='550px')
+
