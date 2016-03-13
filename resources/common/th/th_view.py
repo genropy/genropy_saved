@@ -185,7 +185,7 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
-        pane.div('^.title',style='line-height:20px;' ,_class='frameGridTitle')
+        pane.div('^.title' ,_class='frameGridTitle')
 
 
     @struct_method

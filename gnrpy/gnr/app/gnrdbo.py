@@ -518,11 +518,21 @@ class TableBase(object):
 
 
     def createSysRecords(self):
+        syscodes = []
         for m in dir(self):
             if m.startswith('sysRecord_') and m!='sysRecord_':
-                if not self.checkDuplicate(__syscode=m[10:]):
-                    self.sysRecord(m[10:])
-                    return True
+                method = getattr(self,m)
+                if getattr(method,'mandatory',False):
+                    syscodes.append(m[10:])
+        commit = False
+        if syscodes:
+            f = self.query(where='$__syscode IN :codes',codes=syscodes).fetchAsDict('__syscode')
+            for syscode in syscodes:
+                if not syscode in f:
+                    self.sysRecord(syscode)
+                    commit = True
+        if commit:
+            self.db.commit()
 
     def sysRecord(self,syscode):
         def createCb(key):

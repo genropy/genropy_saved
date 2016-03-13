@@ -726,6 +726,9 @@ class SqlTable(GnrObject):
         it with defaults"""
         return dict([(x.name, x.attributes['sample'])for x in self.columns.values() if 'sample' in x.attributes])
 
+    def createSysRecords(self):
+        pass
+
     def query(self, columns=None, where=None, order_by=None,
               distinct=None, limit=None, offset=None,
               group_by=None, having=None, for_update=False,
@@ -934,7 +937,9 @@ class SqlTable(GnrObject):
         self.model.virtual_columns
         result = self.db.whereTranslator(self, wherebag, sqlArgs, **kwargs)
         return result, sqlArgs
-        
+    
+
+
     def frozenSelection(self, fpath):
         """Get a pickled selection and return it
         
