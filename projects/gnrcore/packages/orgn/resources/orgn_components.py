@@ -19,7 +19,7 @@ class FormActionComponent(BaseComponent):
         action_type_kwargs = dict()
         if action_types:
             action_type_condition_list = []
-            tbl_action_type = self.db.table('todo.action_type')
+            tbl_action_type = self.db.table('orgn.action_type')
             for t in action_types:
                 action_type_condition_list.append(" ( $hierarchical_pkey LIKE :type_%s)" %t)
                 action_type_kwargs['condition_type_%s' %t] = '%s%%'  %tbl_action_type.sysRecord(t)['id']
@@ -51,14 +51,14 @@ class FormActionComponent(BaseComponent):
         return dict(dialog_height='300px', dialog_width='550px')
 
 
-class todoActionsTableHandler(BaseComponent):
+class orgnActionsTableHandler(BaseComponent):
     py_requires='th/th:TableHandler'
     @extract_kwargs(user=True)
     @struct_method
-    def td_todoActionsTableHandler(self,pane,action_types=None,user_kwargs=None,**kwargs):
+    def td_orgnActionsTableHandler(self,pane,action_types=None,user_kwargs=None,**kwargs):
         pid = id(pane)
-        pane.dialogTableHandler(relation='@todoactions',nodeId='todoactions_%s' %pid,datapath='#FORM.todoactions_%s' %pid,
-                                            formResource='todo_components:FormActionComponent',
+        pane.dialogTableHandler(relation='@orgn_actions',nodeId='orgn_actions_%s' %pid,datapath='#FORM.orgn_actions_%s' %pid,
+                                            formResource='orgn_components:FormActionComponent',
                                             form_action_types=action_types,
                                             form_user_kwargs=user_kwargs,
                                             **kwargs)

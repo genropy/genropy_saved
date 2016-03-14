@@ -22,13 +22,13 @@ class View(BaseComponent):
 
 
 
-    def th_sections_todo(self):
-        return [dict(code='todo',caption='!!Todo',condition='$done_ts IS NULL'),
+    def th_sections_orgn(self):
+        return [dict(code='orgn',caption='!!To do',condition='$done_ts IS NULL'),
                 dict(code='done',caption='!!Done',condition='$done_ts IS NOT NULL')]
 
 
     def th_top_custom(self,top):
-        bar = top.bar.replaceSlots('#','5,actiontitle,5,sections@todo,10,sections@priority,*,delrow,addrow,5')
+        bar = top.bar.replaceSlots('#','5,actiontitle,5,sections@orgn,10,sections@priority,*,delrow,addrow,5')
         bar.actiontitle.div('!!Actions',_class='frameGridTitle')
 
 class ViewPlugin(View):
