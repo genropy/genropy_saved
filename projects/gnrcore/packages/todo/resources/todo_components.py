@@ -35,8 +35,9 @@ class FormActionComponent(BaseComponent):
                                                 SET .assigned_tag=null;
                                         }""",hasDownArrow=True,**user_kwargs)
         #condition='==allowed_users?allowed_users:"TRUE"',condition_allowed_users='=#FORM.condition_allowed_users'
-        fb.field('assigned_tag',tag='hdbselect',dbtable='adm.htag',alternatePkey='code',
-            validate_notnull='^.assigned_user_id?=!#v',#disabled='^.assigned_user_id',
+        fb.field('assigned_tag',condition='$child_count = 0 AND $isreserved IS NOT TRUE',
+                dbtable='adm.htag',alternatePkey='code',
+            validate_notnull='^.assigned_user_id?=!#v',
             validate_onAccept="""if(userChange){
                                     SET .assigned_user_id=null;
                                 }""")

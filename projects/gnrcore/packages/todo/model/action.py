@@ -17,4 +17,11 @@ class Table(object):
         tbl.aliasColumn('typename',relation_path='@action_type_id.name')
 
         tbl.formulaColumn('assigned_to',"""COALESCE($assigned_username,$assigned_tag,'unassigned')""")
+        tbl.formulaColumn('connected_fkey',"NULL")
+        tbl.formulaColumn('connected_description',"'override me'")
 
+        tbl.formulaColumn('assigned_to_me',
+                                """ ( CASE WHEN $assigned_user_id IS NOT NULL THEN  $assigned_user_id=:env_user_id
+                                   ELSE  (',' || :env_userTags || ',' LIKE '%%,'|| COALESCE($assigned_tag,'') || ',%%')
+                                   END ) """,
+                                dtype='B',group='_')

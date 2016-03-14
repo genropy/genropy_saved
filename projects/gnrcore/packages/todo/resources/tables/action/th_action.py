@@ -31,6 +31,20 @@ class View(BaseComponent):
         bar = top.bar.replaceSlots('#','5,actiontitle,5,sections@todo,10,sections@priority,*,delrow,addrow,5')
         bar.actiontitle.div('!!Actions',_class='frameGridTitle')
 
+class ViewPlugin(View):
+    def th_hiddencolumns(self):
+        return '$connected_fkey'
+
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('typename')
+        r.fieldcell('priority')
+        r.fieldcell('connected_description',name='Connected to')
+
+    def th_top_custom(self,top):
+        top.bar.replaceSlots('#','*,sections@priority,*')
+
+
 class Form(BaseComponent):
     def th_form(self, form):
         form.record
