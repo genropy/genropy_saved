@@ -51,11 +51,11 @@ class FormActionComponent(BaseComponent):
         return dict(dialog_height='300px', dialog_width='550px')
 
 
-class orgnActionsTableHandler(BaseComponent):
+class actionsTableHandler(BaseComponent):
     py_requires='th/th:TableHandler'
     @extract_kwargs(user=True)
     @struct_method
-    def td_orgnActionsTableHandler(self,pane,action_types=None,user_kwargs=None,**kwargs):
+    def td_actionsTableHandler(self,pane,action_types=None,user_kwargs=None,**kwargs):
         pid = id(pane)
         pane.dialogTableHandler(relation='@orgn_actions',nodeId='orgn_actions_%s' %pid,datapath='#FORM.orgn_actions_%s' %pid,
                                             formResource='orgn_components:FormActionComponent',

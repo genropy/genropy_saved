@@ -44,6 +44,8 @@ class ViewPlugin(View):
     def th_top_custom(self,top):
         top.bar.replaceSlots('#','*,sections@priority,*')
 
+    def th_options(self):
+        return dict(liveUpdate=True)
 
 class Form(BaseComponent):
     def th_form(self, form):

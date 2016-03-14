@@ -25,3 +25,18 @@ class Table(object):
                                    ELSE  (',' || :env_userTags || ',' LIKE '%%,'|| COALESCE($assigned_tag,'') || ',%%')
                                    END ) """,
                                 dtype='B',group='_')
+
+    def formulaColumn_pluggedFields(self):
+        desc_fields = []
+        fkeys = []
+        for colname,colobj in self.columns.items():
+            related_table = colobj.relatedTable()
+            if related_table and related_table.column('orgn_description') is not None:
+                fkeys.append('$%s' %colname)
+                desc_fields.append('@%s.orgn_description' %colname)
+
+        description_formula = "COALESCE(%s)" %','.join(desc_fields) if desc_fields else "'NOT PLUGGED'"
+        fkeys_formula = "COALESCE(%s)" %','.join(fkeys) if fkeys else "'NOT PLUGGED'"
+
+        return [dict(name='connected_fkey',sql_formula=fkeys_formula),
+                dict(name='connected_description',sql_formula=description_formula)]

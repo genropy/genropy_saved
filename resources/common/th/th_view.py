@@ -342,13 +342,13 @@ class TableHandlerView(BaseComponent):
                             """)
 
     @public_method
-    @metadata (prefix='query',code='default_duplicate_finder',description='!!Find all duplicates')
+    @metadata(prefix='query',code='default_duplicate_finder',description='!!Find all duplicates')
     def th_default_find_duplicates(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
         pkeys = tblobj.findDuplicates()
         query = tblobj.query(where='$%s IN :pkd' %tblobj.pkey,pkd=pkeys,**kwargs)
         return query.selection(sortedBy=sortedBy, _aggregateRows=True) 
     @public_method
-    @metadata (prefix='query',code='default_duplicate_finder_to_del',description='!!Find duplicates to delete')
+    @metadata(prefix='query',code='default_duplicate_finder_to_del',description='!!Find duplicates to delete')
     def th_default_find_duplicates_to_del(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
         pkeys = tblobj.findDuplicates(allrecords=False)
         query = tblobj.query(where='$%s IN :pkd' %tblobj.pkey,pkd=pkeys,**kwargs)
