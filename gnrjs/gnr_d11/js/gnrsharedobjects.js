@@ -68,11 +68,11 @@ dojo.declare("gnr.GnrSharedObjectHandler", null, {
                 genro._sharedObjects_paths[path] = shared_id; //in this way trigger are activated
                 genro.publish('shared_'+shared_id,{ready:true,privilege:privilege});
                 var sharedValuePath=function(domnode,path){
-                    var sourceNode=genro.dom.getSourceNode(domnode)
+                    var sourceNode=genro.dom.getSourceNode(domnode);
                     if (sourceNode && sourceNode.attr.value){
                         var valuePath=sourceNode.absDatapath(sourceNode.attr.value)
-                        if (valuePath.indexOf(path)==0){
-                            return valuePath
+                        if (valuePath.indexOf(path)===0){
+                            return valuePath;
                         }
                     }
                       

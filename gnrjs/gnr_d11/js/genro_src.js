@@ -503,11 +503,10 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             }
             var shared_id = objectPop(attributes,'shared_id');
             if(shared_id){
-                var shared_kw=objectExtract(attributes,'shared_*')
+                var shared_kw=objectExtract(attributes,'shared_*');
                 setTimeout(function(){
                     genro.som.registerSharedObject(node.absDatapath(path),shared_id,shared_kw);
-                    
-                },1)
+                },1);
             }
             if(!genro.getDataNode(path)||(value!==null)){
                 genro.setData(path, value, attributes);
