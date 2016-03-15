@@ -38,7 +38,7 @@ class FormActionComponent(BaseComponent):
                                                 SET .assigned_tag=null;
                                     }""",hasDownArrow=True,**user_kwargs)
         #condition='==allowed_users?allowed_users:"TRUE"',condition_allowed_users='=#FORM.condition_allowed_users'
-        fb.field('assigned_tag',condition='$child_count = 0 AND $isreserved IS NOT TRUE',
+        fb.field('assigned_tag',condition='$child_count = 0 AND $isreserved IS NOT TRUE',tag='dbselect',
                 dbtable='adm.htag',alternatePkey='code',validate_notnull='^.assigned_user_id?=!#v',
                 validate_onAccept="""if(userChange){
                                     SET .assigned_user_id=null;
