@@ -24,8 +24,9 @@ class Form(BaseComponent):
     def th_form(self, form):
         bc = form.center.borderContainer()
         top = bc.contentPane(region='top',datapath='.record')
-        fb = top.formbuilder(cols=3, border_spacing='4px')
+        fb = top.formbuilder(cols=4, border_spacing='4px')
         fb.field('name')
+        fb.field('code')
         fb.field('default_priority')
         fb.field('default_days_before')
         bc.contentPane(region='center').fieldsGrid(title='Fields',pbl_classes=True,margin='2px')

@@ -26,25 +26,28 @@ class FormActionComponent(BaseComponent):
                 action_type_condition = '%s AND ( %s )' %(action_type_condition,' OR '.join(action_type_condition_list))
 
         bc = form.center.borderContainer(datapath='.record')
-        fb = bc.contentPane(region='top').div(margin_right='20px',margin='10px').formbuilder(cols=2, border_spacing='4px',colswidth='auto',width='100%')
+        fb = bc.contentPane(region='top').div(margin_right='20px',margin='10px').formbuilder(cols=2, border_spacing='4px',
+                                                                                            fld_width='100%',
+                                                                                            colswidth='auto',width='100%')
         fb.field('action_type_id',condition=action_type_condition,
                     selected_default_priority='.priority',hasDownArrow=True,
-                    selected_default_days_before='.days_before',colspan=2,**action_type_kwargs)
+                    colspan=2,
+                    selected_default_days_before='.days_before',**action_type_kwargs)
         fb.field('assigned_user_id',validate_notnull='^.assigned_tag?=!#v',#disabled='^.assigned_tag',
-                        validate_onAccept="""if(userChange){
+                                    validate_onAccept="""if(userChange){
                                                 SET .assigned_tag=null;
-                                        }""",hasDownArrow=True,**user_kwargs)
+                                    }""",hasDownArrow=True,**user_kwargs)
         #condition='==allowed_users?allowed_users:"TRUE"',condition_allowed_users='=#FORM.condition_allowed_users'
         fb.field('assigned_tag',condition='$child_count = 0 AND $isreserved IS NOT TRUE',
-                dbtable='adm.htag',alternatePkey='code',
-            validate_notnull='^.assigned_user_id?=!#v',
-            validate_onAccept="""if(userChange){
+                dbtable='adm.htag',alternatePkey='code',validate_notnull='^.assigned_user_id?=!#v',
+                validate_onAccept="""if(userChange){
                                     SET .assigned_user_id=null;
-                                }""")
-
+                                }""",hasDownArrow=True)
         fb.field('priority')
         fb.field('days_before')
-        fb.field('description',tag='simpleTextArea',colspan=2,width='450px')
+        fb.field('date_due')
+        fb.field('time_due')
+        fb.field('description',tag='simpleTextArea',colspan=2,width='420px')
         bc.contentPane(region='center').dynamicFieldsPane('action_fields',margin='2px')
 
     def th_options(self):
@@ -55,12 +58,13 @@ class actionsTableHandler(BaseComponent):
     py_requires='th/th:TableHandler'
     @extract_kwargs(user=True)
     @struct_method
-    def td_actionsTableHandler(self,pane,action_types=None,user_kwargs=None,**kwargs):
+    def td_actionsTableHandler(self,pane,action_types=None,user_kwargs=None,configurable=False,**kwargs):
         pid = id(pane)
-        pane.dialogTableHandler(relation='@orgn_actions',nodeId='orgn_actions_%s' %pid,datapath='#FORM.orgn_actions_%s' %pid,
-                                            formResource='orgn_components:FormActionComponent',
-                                            form_action_types=action_types,
-                                            form_user_kwargs=user_kwargs,
-                                            **kwargs)
+        pane.dialogTableHandler(relation='@orgn_actions',nodeId='orgn_actions_%s' %pid,
+                                datapath='#FORM.orgn_actions_%s' %pid,
+                                formResource='orgn_components:FormActionComponent',
+                                form_action_types=action_types,
+                                form_user_kwargs=user_kwargs,configurable=configurable,
+                                **kwargs)
 
 

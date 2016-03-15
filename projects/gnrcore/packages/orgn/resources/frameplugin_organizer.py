@@ -11,4 +11,4 @@ class PluginOrganizer(BaseComponent):
         """!!Organizer"""
         pane = pane.contentPane(detachable=True,overflow='hidden')
         pane.plainTableHandler(table='orgn.action',condition='$assigned_to_me IS TRUE AND $done_ts IS NULL',viewResource='ViewPlugin',
-                                view_store_onStart=True)
+                                view_store_onStart=True,configurable=False)
