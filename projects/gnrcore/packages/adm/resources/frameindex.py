@@ -14,12 +14,12 @@ class FrameIndex(BaseComponent):
                    gnrcomponents/batch_handler/batch_handler:TableScriptRunner,
                    gnrcomponents/batch_handler/batch_handler:BatchMonitor,
                    gnrcomponents/chat_component/chat_component,
-                   gnrcomponents/datamover:MoverPlugin,
                    gnrcomponents/maintenance:MaintenancePlugin
                    """
+    #gnrcomponents/datamover:MoverPlugin, removed
     js_requires='frameindex'
     css_requires='frameindex,public'
-    plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin,datamover,maintenance'
+    
     custom_plugin_list = None
     index_page = False
     index_url = 'html_pages/splashscreen.html'
@@ -28,6 +28,19 @@ class FrameIndex(BaseComponent):
     auth_preference = 'admin'
     auth_page = 'user'
     auth_main = 'user'
+
+    @property
+    def plugin_list(self):
+        frameplugins = ['iframemenu_plugin','batch_monitor','chat_plugin']
+        for pkgId,pkgobj in self.packages.items():
+            if hasattr(pkgobj,'sidebarPlugins'):
+                package_plugins,requires = pkgobj.sidebarPlugins()
+                frameplugins.extend(package_plugins.split(','))
+                if requires:
+                    for p in requires.split(','):
+                        self.mixinComponent(p)
+        frameplugins.append('maintenance')
+        return ','.join(frameplugins)
     
     def main(self,root,new_window=None,gnrtoken=None,custom_index=None,**kwargs):
         if gnrtoken and not self.db.table('sys.external_token').check_token(gnrtoken):

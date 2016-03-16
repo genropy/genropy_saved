@@ -10,5 +10,8 @@ class Package(GnrDboPackage):
     def config_db(self, pkg):
         pass
         
+    def sidebarPlugins(self):
+        return 'organizer','frameplugin_organizer'
+
 class Table(GnrDboTable):
     pass

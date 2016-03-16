@@ -12,7 +12,7 @@ class View(BaseComponent):
         r.fieldcell('assigned_to')
         r.fieldcell('priority')
         r.fieldcell('days_before')
-        #r.fieldcell('done_ts')
+        #r.fieldcell('log_id')
 
     def th_order(self):
         return 'typename'
@@ -23,8 +23,8 @@ class View(BaseComponent):
 
 
     def th_sections_orgn(self):
-        return [dict(code='orgn',caption='!!To do',condition='$done_ts IS NULL'),
-                dict(code='done',caption='!!Done',condition='$done_ts IS NOT NULL')]
+        return [dict(code='orgn',caption='!!To do',condition='$log_id IS NULL'),
+                dict(code='done',caption='!!Done',condition='$log_id IS NOT NULL')]
 
 
     def th_top_custom(self,top):
