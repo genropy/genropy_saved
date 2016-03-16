@@ -37,9 +37,10 @@ class MenuIframes(BaseComponent):
         self.menu_iframemenuPane(pane.div(position='absolute', top='2px', left='0', right='2px', bottom='2px', overflow='auto'))
 
     def btn_iframemenu_plugin(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='iframemenu_plugin_icon',tip='!!Menu',
-                 connect_onclick="""PUBLISH open_plugin = "iframemenu_plugin";""",
-                 nodeId='plugin_block_iframemenu_plugin')
+        pane.pluginButton('iframemenu_plugin',caption='!!Menu',
+                            iconClass='iframemenu_plugin_icon',defaultWidth='210px')
+
+
                  
     def menu_iframemenuPane(self, pane, **kwargs):
         b = Bag()

@@ -87,7 +87,12 @@ class FrameIndex(BaseComponent):
                                                                 setTimeout(function(){
                                                                         wdg.setRegionVisible("left",set);
                                                                 },delay);""",
-                                selfsubscribe_showLeft="""this.getWidget().setRegionVisible("left",true);""")
+                                selfsubscribe_showLeft="""this.getWidget().setRegionVisible("left",true);""",
+                                regions='^frameindex.regions')
+        pane.dataController("""
+                genro.setInStorage('local','frameindex_left_'+pluginSelected+'_width',currentWidth);
+                """,currentWidth='^frameindex.regions.left',
+                    pluginSelected='=left.selected')
         self.prepareLeft(frame.left)
         self.prepareTop(frame.top,onCreatingTablist=onCreatingTablist)
         self.prepareBottom(frame.bottom)
@@ -304,6 +309,20 @@ class FrameIndex(BaseComponent):
     @struct_method
     def fi_slotbar_newWindow(self,pane,**kwargs):
         pane.div(_class='windowaddIcon iconbox',tip='!!New Window',connect_onclick='genro.openBrowserTab(genro.addParamsToUrl(window.location.href,{new_window:true}));')
+
+    @struct_method
+    def fi_pluginButton(self,pane,name,caption=None,iconClass=None,defaultWidth=None,**kwargs):
+        pane.div(_class='button_block iframetab').lightButton(_class=iconClass,tip=caption,
+                 action="""SET left.selected = plugin_name;
+                           var width = genro.getFromStorage('local','frameindex_left_'+plugin_name+'_width') || defaultWidth;
+                           if(width){
+                                SET frameindex.regions.left = width;
+                           }
+                           genro.getFrameNode('standard_index').publish('showLeft');
+                          """,
+                 plugin_name=name,defaultWidth=defaultWidth,
+                 nodeId='plugin_block_%s' %name)
+
 
     def windowTitle(self):
         return self.getPreference('instance_data.owner_name',pkg='adm') or self.site.site_name
