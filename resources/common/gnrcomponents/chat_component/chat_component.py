@@ -23,11 +23,8 @@ class ChatComponent(BaseComponent):
         self.ct_chat_form(frame)
 
     def btn_chat_plugin(self,pane,**kwargs):
-        """CALLED BY FRAMEDINDEX"""
-        pane.div(_class='button_block iframetab').div(_class='chat_plugin_icon',tip='!!Chat plug-in',
-                    connect_onclick="""PUBLISH open_plugin = "chat_plugin";""",
-                    nodeId='plugin_block_chat_plugin')
-    
+        pane.pluginButton('chat_plugin',caption='!!Chat plug-in',
+                            iconClass='chat_plugin_icon')
 
     def ct_controller_main(self, pane):
         pane.dataRpc('dummy', 'setStoreSubscription', subscribe_chat_plugin_on=True,
@@ -39,7 +36,7 @@ class ChatComponent(BaseComponent):
         pane.dataController(""" var roomId = pars.getItem('roomId');
                                 var priority = pars.getItem('priority');
                                 if (priority=='H'){
-                                    PUBLISH open_plugin = "chat_plugin";
+                                    PUBLISH open_plugin = {plugin:"chat_plugin"};
                                     SET gnr.chat.selected_room = roomId;
                                 }
                                 genro.playSound('NewMessage'); 

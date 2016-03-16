@@ -273,7 +273,12 @@ class FrameIndex(BaseComponent):
                                     margin_right='-4px',overflow='hidden',hidden=self.hideLeftPlugins,border_right='1px solid #ddd'))
         bc = pane.borderContainer()
         sc = bc.stackContainer(selectedPage='^.selected',nodeId='gnr_main_left_center',
-                                subscribe_open_plugin="""SET .selected=$1;
+                                subscribe_open_plugin="""var plugin_name = $1.plugin;
+                                                         SET left.selected = plugin_name;
+                                                         var width = $1.forcedWidth || genro.getFromStorage('local','frameindex_left_'+plugin_name+'_width') || $1.defaultWidth;
+                                                         if(width){
+                                                              SET frameindex.regions.left = width;
+                                                         }
                                                          genro.getFrameNode('standard_index').publish('showLeft');""",
                                 overflow='hidden',region='center')
         sc.dataController("""if(!page){return;}
@@ -313,14 +318,8 @@ class FrameIndex(BaseComponent):
     @struct_method
     def fi_pluginButton(self,pane,name,caption=None,iconClass=None,defaultWidth=None,**kwargs):
         pane.div(_class='button_block iframetab').lightButton(_class=iconClass,tip=caption,
-                 action="""SET left.selected = plugin_name;
-                           var width = genro.getFromStorage('local','frameindex_left_'+plugin_name+'_width') || defaultWidth;
-                           if(width){
-                                SET frameindex.regions.left = width;
-                           }
-                           genro.getFrameNode('standard_index').publish('showLeft');
-                          """,
-                 plugin_name=name,defaultWidth=defaultWidth,
+                 action="""genro.publish('open_plugin',{plugin:plugin_name,defaultWidth:defaultWidth});""",
+                 plugin_name=name,defaultWidth=defaultWidth or '210px',
                  nodeId='plugin_block_%s' %name)
 
 
