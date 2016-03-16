@@ -2,20 +2,28 @@
 
 class Table(object):
     def config_db(self,pkg):
-        tbl =  pkg.table('action',pkey='id',name_long='Action',name_plural='Action',caption_field='action_caption')
+        tbl =  pkg.table('annotation',pkey='id',name_long='Annotation',
+                            name_plural='Annotations',caption_field='annotation_caption')
         self.sysFields(tbl)
-        tbl.column('action_type_id',size='22',name_long='!!Action type',group='_').relation('action_type.id',mode='foreignkey', onDelete='raise')
+        tbl.column('rec_type',size='2',values='AN:[!!Annotation],AC:[!!Action]')
+        #belong to annotation
+        tbl.column('author_user_id',size='22',group='_',name_long='User').relation('adm.user.id',relation_name='annotations',onDelete='raise')
+
         tbl.column('description',name_long='!!Description')
-        tbl.column('action_fields',dtype='X',name_long='!!Fields',subfields='action_type_id')
-        tbl.column('assigned_user_id',size='22',group='_',name_long='User').relation('adm.user.id',
-                                relation_name='orgn_actions',onDelete='raise')
+        tbl.column('annotation_type_id',size='22',name_long='!!Annotation type',group='_').relation('annotation_type.id',mode='foreignkey', onDelete='raise')
+        tbl.column('annotation_fields',dtype='X',name_long='!!Annotation Fields',subfields='annotation_type_id')
+        
+        #belong to actions
+        tbl.column('parent_annotation_id',size='22' ,group='_',name_long='!!Parent annotation').relation('annotation.id',relation_name='orgn_related_actions',mode='foreignkey',onDelete='raise')
+        tbl.column('action_type_id',size='22',name_long='!!Action type',group='_').relation('action_type.id',mode='foreignkey', onDelete='raise')
+        tbl.column('action_fields',dtype='X',name_long='!!Action Fields',subfields='action_type_id')
+        tbl.column('assigned_user_id',size='22',group='_',name_long='User').relation('adm.user.id',relation_name='orgn_actions',onDelete='raise')
         tbl.column('assigned_tag',size=':50',name_long='Auth Tag')
         tbl.column('priority',size=':2',name_long='!!Priority',values='NW:Now,UR:Urgent,HG:High,LW:Low')
         tbl.column('days_before',dtype='I',name_long='!!Days before',name_short='D.Before')
         tbl.column('date_due',dtype='D',name_long='!!Date due',indexed=True)
         tbl.column('time_due',dtype='H',name_long='!!Time due',indexed=True)
-        #tbl.column('done_ts',dtype='DH',name_long='!!Done ts',indexed=True)
-        tbl.column('log_id',size='22' ,group='_',name_long='!!Log').relation('log.id',one_one='*',mode='foreignkey',onDelete='raise')
+        tbl.column('done_ts',dtype='DH',name_long='!!Done ts',indexed=True)
         tbl.aliasColumn('assigned_username','@assigned_user_id.username')
         tbl.aliasColumn('typename',relation_path='@action_type_id.name')
         tbl.formulaColumn('action_caption',"$typename || '-' || $assigned_to")
@@ -27,6 +35,9 @@ class Table(object):
                                    ELSE  (',' || :env_userTags || ',' LIKE '%%,'|| COALESCE($assigned_tag,'') || ',%%')
                                    END ) """,
                                 dtype='B',group='_')
+
+    def defaultValues(self):
+        return dict(author_user_id=self.db.currentEnv.get('user_id'))
 
     def formulaColumn_pluggedFields(self):
         desc_fields = []
@@ -42,3 +53,11 @@ class Table(object):
 
         return [dict(name='connected_fkey',sql_formula=fkeys_formula),
                 dict(name='connected_description',sql_formula=description_formula)]
+
+    def getRestrictions(self):
+        result = []
+        for colname,colobj in self.columns.items():
+            if colobj.attributes.get('restrictions'):
+                result.extend(colobj.attributes['restrictions'].split(','))
+        return ','.join(result)
+

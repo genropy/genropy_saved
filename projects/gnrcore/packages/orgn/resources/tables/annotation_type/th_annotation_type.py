@@ -8,13 +8,15 @@ class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('hierarchical_name')
+        r.fieldcell('name')
+        r.fieldcell('code')
+        r.fieldcell('restrictions')
 
     def th_order(self):
-        return 'hierarchical_name'
+        return 'name'
 
     def th_query(self):
-        return dict(column='hierarchical_name', op='contains', val='')
+        return dict(column='name', op='contains', val='')
 
 
 
@@ -27,8 +29,11 @@ class Form(BaseComponent):
         fb = top.formbuilder(cols=4, border_spacing='4px')
         fb.field('name')
         fb.field('code')
+        restrictions = self.db.table('orgn.annotation').getRestrictions()
+        if restrictions:
+            fb.field('restrictions',tag='checkBoxText',values=restrictions,popup=True,cols=1)
         bc.contentPane(region='center').fieldsGrid(title='Fields',pbl_classes=True,margin='2px')
 
 
     def th_options(self):
-        return dict(dialog_height='400px', dialog_width='600px',hierarchical=True)
+        return dict(dialog_height='400px', dialog_width='600px')
