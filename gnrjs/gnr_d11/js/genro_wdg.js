@@ -1001,6 +1001,9 @@ dojo.declare("gnr.GridEditor", null, {
     getChangeset:function(sendingStatus){
         var changeset = new gnr.GnrBag();
         var collectionStore = this.grid.collectionStore();
+        if(collectionStore.pendingLoading){
+            return changeset;
+        }
         collectionStore.getData().forEach(function(n){
             var rowEditor = n._rowEditor;
             if(rowEditor && rowEditor.hasChanges()){

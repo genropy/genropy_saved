@@ -5201,6 +5201,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
 
     loadData:function(){
         var that = this;
+        this.pendingLoading = true;
         if(!(this.hasVisibleClients() || this.loadInvisible)){
             this.storeNode.watch('hasVisibleClients',function(){
                 return that.hasVisibleClients();
@@ -5510,6 +5511,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     onLoaded:function(result){
         //this.pendingChanges = []; //moved to onLoading
         //this.externalChangedKeys = null;
+        delete this.pendingLoading;
         this.storeNode.setRelativeData(this.storepath,result,null,null,'loadData');
         return result;
     }
