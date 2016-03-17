@@ -3564,12 +3564,12 @@ table.draggedItem {
     text-align: right;
 }
 
-._common_d11 td.invalidCell.dojoxGrid-cell{
+._common_d11.tundra td.invalidCell.dojoxGrid-cell{
     background-image:url(icons/invalid_small.png);
     background-repeat:no-repeat;
     background-position:0px 0px;
 }
-.newRowCell.dojoxGrid-cell{
+._common_d11.tundra .newRowCell.dojoxGrid-cell{
     font-style:italic;
 }
 
