@@ -6,7 +6,7 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrdecorator import extract_kwargs
+from gnr.core.gnrdecorator import extract_kwargs,public_method
 
 class FormMixedComponent(BaseComponent):
     py_requires='gnrcomponents/dynamicform/dynamicform:DynamicForm'
@@ -18,9 +18,15 @@ class FormMixedComponent(BaseComponent):
         self.orgn_actionForm(sc.borderContainer(pageName='AC'),type_restriction=type_restriction,user_kwargs=user_kwargs)
 
     def orgn_annotationForm(self,bc,type_restriction=None,user_kwargs=None):
+        annotation_type_condition=None
+        annotation_type_kwargs = dict()
+        action_type_condition = None
+        action_type_kwargs = dict()
         if type_restriction:
             annotation_type_condition = "(CASE WHEN $restrictions IS NOT NULL THEN :restriction = ANY(string_to_array($restrictions,',')) ELSE TRUE END)"
             annotation_type_kwargs = dict(condition_restriction=type_restriction)
+            action_type_condition = "(CASE WHEN $restrictions IS NOT NULL THEN :restriction = ANY(string_to_array($restrictions,',')) ELSE TRUE END)"
+            action_type_kwargs = dict(condition_restriction=type_restriction)
         topbc = bc.borderContainer(region='top',datapath='.record',height='50%')
         fb = topbc.contentPane(region='top').div(margin_right='20px',margin='10px').formbuilder(cols=1, border_spacing='4px',
                                                                                             fld_width='100%',
@@ -29,12 +35,41 @@ class FormMixedComponent(BaseComponent):
                     hasDownArrow=True,width='15em',**annotation_type_kwargs)
         fb.field('description',tag='simpleTextArea')
         topbc.contentPane(region='center').dynamicFieldsPane('annotation_fields',margin='2px')
-
-        bc.contentPane(region='center').dialogTableHandler(relation='@orgn_related_actions',
-                        formResource='orgn_components:FormActionComponent',
+    
+        def following_actions_struct(struct):
+            r = struct.view().rows()
+            r.fieldcell('action_type_id',edit=dict(condition=action_type_condition,
+                    selected_default_priority='.priority',hasDownArrow=True,
+                    selected_default_days_before='.days_before',**action_type_kwargs))
+            r.fieldcell('assigned_tag',edit=dict(condition='$child_count = 0 AND $isreserved IS NOT TRUE',tag='dbselect',
+                dbtable='adm.htag',alternatePkey='code',validate_notnull=True,#'=#ROW.assigned_user_id?=!#v',
+                hasDownArrow=True),editDisabled='=#ROW.assigned_user_id')
+           #r.fieldcell('assigned_user_id',
+           #             edit=dict(validate_notnull='=#ROW.assigned_tag?=!#v',hasDownArrow=True,**user_kwargs),
+           #             editDisabled='=#ROW.assigned_tag')
+            r.fieldcell('priority',edit=True)
+            r.fieldcell('days_before',edit=True)
+        th = bc.contentPane(region='center').inlineTableHandler(relation='@orgn_related_actions',
                         viewResource='orgn_components:ViewActionComponent',
+                        view_structCb=following_actions_struct,
                         nodeId='orgn_action_#',
                         form_user_kwargs=user_kwargs,form_type_restriction=type_restriction)
+        rpc = bc.dataRpc('dummy',self.orgn_getDefaultActionsRows,annotation_type_id='^#FORM.record.annotation_type_id',
+                        _if='annotation_type_id&&_is_newrecord',_is_newrecord='=#FORM.controller.is_newrecord')
+        rpc.addCallback("""if(result){
+                                grid.gridEditor.addNewRows(result)
+                            }""",grid = th.view.grid.js_widget)
+
+    @public_method
+    def orgn_getDefaultActionsRows(self,annotation_type_id=None,**kwargs):
+        action_types = self.db.table('orgn.action_type').query(where='@annotation_default_actions.annotation_type_id=:annotation_type_id',
+                                                               annotation_type_id=annotation_type_id).fetch()
+        result = []
+        for i,ac in enumerate(action_types):
+            result.append(dict(action_type_id=ac['id'],assigned_tag=ac['default_tag'],days_before=ac['default_days_before'],
+                    priority=ac['default_priority']))
+        return result
+            
 
     def orgn_actionForm(self,bc,type_restriction=None,user_kwargs=None):
         action_type_condition = None
@@ -49,16 +84,23 @@ class FormMixedComponent(BaseComponent):
                     selected_default_priority='.priority',hasDownArrow=True,
                     colspan=2,
                     selected_default_days_before='.days_before',**action_type_kwargs)
-        fb.field('assigned_user_id',validate_notnull='^.assigned_tag?=!#v',#disabled='^.assigned_tag',
+        fb.field('assigned_user_id',#disabled='^.assigned_tag',
                                     validate_onAccept="""if(userChange){
                                                 SET .assigned_tag=null;
                                     }""",hasDownArrow=True,**user_kwargs)
         #condition='==allowed_users?allowed_users:"TRUE"',condition_allowed_users='=#FORM.condition_allowed_users'
         fb.field('assigned_tag',condition='$child_count = 0 AND $isreserved IS NOT TRUE',tag='dbselect',
-                dbtable='adm.htag',alternatePkey='code',validate_notnull='^.assigned_user_id?=!#v',
+                dbtable='adm.htag',alternatePkey='code',
                 validate_onAccept="""if(userChange){
                                     SET .assigned_user_id=null;
                                 }""",hasDownArrow=True)
+        fb.dataController("""
+            var invalid= rec_type=='AC' && !(assigned_user_id || assigned_tag);
+            this.form.setFormError('action_assignment_error',invalid? 'Action must be assigned':false);
+            """,assigned_user_id='^.assigned_user_id',
+                assigned_tag='^.assigned_tag',
+                rec_type='^.rec_type',
+                _delay=1)
         fb.field('priority')
         fb.field('days_before')
         fb.field('date_due')
@@ -68,6 +110,14 @@ class FormMixedComponent(BaseComponent):
 
     def th_options(self):
         return dict(dialog_height='300px', dialog_width='550px',modal=True)
+
+class ViewActionComponent(BaseComponent):
+
+    def th_order(self):
+        return 'annotation_caption'
+
+    def th_query(self):
+        return dict(column='annotation_caption', op='contains', val='')
 
 
 class FormActionComponent(FormMixedComponent):
@@ -81,39 +131,17 @@ class ViewMixedComponent(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('typename')
-        r.fieldcell('assigned_to')
-        r.fieldcell('priority')
-        r.fieldcell('days_before')
+        r.fieldcell('annotation_caption')
+        r.fieldcell('description',width='20em')
+        r.fieldcell('priority',width='10em')
+        r.fieldcell('days_before',width='5em',name='D.B.')
         #r.fieldcell('log_id')
 
     def th_order(self):
-        return 'typename'
+        return 'annotation_caption'
 
     def th_query(self):
-        return dict(column='typename', op='contains', val='')
-
-    def th_sections_orgn(self):
-        return [dict(code='all',caption='!!All'),
-                dict(code='orgn',caption='!!To do',condition='$done_ts IS NULL'),
-                dict(code='done',caption='!!Done',condition='$done_ts IS NOT NULL')]
-
-
-class ViewActionComponent(BaseComponent):
-
-    def th_struct(self,struct):
-        r = struct.view().rows()
-        r.fieldcell('typename')
-        r.fieldcell('assigned_to')
-        r.fieldcell('priority')
-        r.fieldcell('days_before')
-        #r.fieldcell('log_id')
-
-    def th_order(self):
-        return 'typename'
-
-    def th_query(self):
-        return dict(column='typename', op='contains', val='')
+        return dict(column='annotation_caption', op='contains', val='')
 
     def th_sections_orgn(self):
         return [dict(code='all',caption='!!All'),
