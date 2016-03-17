@@ -42,7 +42,7 @@ class FormMixedComponent(BaseComponent):
         if type_restriction:
             action_type_condition = "(CASE WHEN $restrictions IS NOT NULL THEN :restriction = ANY(string_to_array($restrictions,',')) ELSE TRUE END)"
             action_type_kwargs = dict(condition_restriction=type_restriction)
-        fb = bc.contentPane(region='top').div(margin_right='20px',margin='10px').formbuilder(cols=2, border_spacing='4px',
+        fb = bc.contentPane(region='top',datapath='.record').div(margin_right='20px',margin='10px').formbuilder(cols=2, border_spacing='4px',
                                                                                             fld_width='100%',
                                                                                             colswidth='auto',width='100%')
         fb.field('action_type_id',condition=action_type_condition,

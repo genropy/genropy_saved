@@ -492,7 +492,7 @@ class TableHandlerMain(BaseComponent):
             }
             """%selfDragRowsOpt
             gridattr['onSelfDropRows'] = """function(rows,dropInfo){
-                if(!dropInfo.row){
+                if(dropInfo.row===null || dropInfo.row<0){
                     return;
                 }
                 var kw = {sourcePkey:this.widget.rowIdByIndex(rows[0]),destPkey:this.widget.rowIdByIndex(dropInfo.row)};
