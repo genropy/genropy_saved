@@ -1040,6 +1040,11 @@ dojo.declare("gnr.GridEditor", null, {
             this.lastEditTs = new Date();
         }
         this.grid.updateCounterColumn();
+        if(this.storeInForm){
+            var n = storebag.getParentNode().attributeOwnerNode('dtype','X');
+            if(n){n.attr._sendback = true;}
+            
+        }
         this.updateStatus();
     },
 
