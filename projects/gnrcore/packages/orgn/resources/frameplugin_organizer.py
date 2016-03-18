@@ -8,5 +8,5 @@ class PluginOrganizer(BaseComponent):
     def mainLeft_organizer(self, pane):
         """!!Organizer"""
         pane = pane.contentPane(detachable=True,overflow='hidden')
-        pane.plainTableHandler(table='orgn.annotation',condition='$assigned_to_me IS TRUE AND $done_ts IS NULL',viewResource='ViewPlugin',
+        pane.plainTableHandler(table='orgn.annotation',condition='$plugin_assigment IS TRUE AND $done_ts IS NULL',viewResource='ViewPlugin',
                                 view_store_onStart=True,configurable=False)
