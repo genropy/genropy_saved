@@ -13,7 +13,7 @@
 		&lt;/tr&gt;
 		&lt;tr&gt;
 			&lt;td colspan="3"&gt;
-				&lt;strong&gt;$linked_entity:&lt;/strong&gt;&lt;a href="#" onclick="genro.dlg.zoomPalette({table:'$linked_table',formResource:'FormFromOrgn_$linked_entity',pkey:'$linked_fkey',evt:event,main_call:'main_form',palette_dockTo:false})"&gt;$connected_description&lt;/a&gt;&lt;/td&gt;
+				&lt;strong&gt;$linked_entity:&lt;/strong&gt;&lt;a href="#" onclick="genro.dlg.zoomPalette({table:'$linked_table',formResource:'FormFromOrgnAction_$linked_entity',pkey:'$linked_fkey',evt:event,main_call:'main_form',palette_dockTo:false})"&gt;$connected_description&lt;/a&gt;&lt;/td&gt;
 		&lt;/tr&gt;
 		&lt;tr&gt;
 			&lt;td&gt;
