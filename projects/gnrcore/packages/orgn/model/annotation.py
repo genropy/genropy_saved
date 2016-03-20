@@ -1,4 +1,5 @@
 # encoding: utf-8
+import datetime
 
 class Table(object):
     def config_db(self,pkg):
@@ -47,7 +48,48 @@ class Table(object):
         tbl.formulaColumn("assigned_by_tag","""(',' || :env_userTags || ',' LIKE '%%,'|| COALESCE($assigned_tag,'') || ',%%')""",
                         dtype='B')
 
+        tbl.pyColumn('countdown',name_long='!!Countdown',required_columns='$date_due,$time_due')
+
         tbl.pyColumn('template_cell',dtype='A',group='_',py_method='templateColumn', template_name='action_tpl',template_localized=True)
+
+
+    def pyColumn_countdown(self,record=None,field=None):
+        date_due = record.get('date_due')
+        if not date_due:
+            return
+        if record['time_due']:
+            due_ts = datetime.datetime.combine(date_due,record['time_due'])
+        else:
+            due_ts = datetime.datetime(date_due.year,date_due.month,date_due.day)
+
+        td = due_ts-datetime.datetime.now()
+        tdh = int(td.total_seconds()/3600)
+        result = None
+        if tdh<0:
+            tdh = -tdh
+            if tdh >48:
+                result = self.expired_tpl_short() %dict(days=int(tdh/24))
+            else:
+                result = self.expired_tpl_long() %dict(days=int(tdh/24),hours=tdh%24)
+        else:
+            if tdh >48:
+                result = self.due_tpl_short() %dict(days=int(tdh/24))
+            else:
+                result = self.due_tpl_long() %dict(days=int(tdh/24),hours=tdh%24)
+        return result
+
+    def expired_tpl_short(self):
+        return '<div class="orgn_action_expired">Overdue %(days)s days</div>'
+
+    def expired_tpl_long(self):
+        return '<div class="orgn_action_over_expired">Overdue %(days)s days and %(hours)s hours</div>'
+
+
+    def due_tpl_short(self):
+        return '<div class="orgn_action">Due in %(days)s days</div>'
+
+    def due_tpl_long(self):
+        return '<div class="orgn_near_action">Due in %(days)s days and %(hours)s hours</div>'
 
     def trigger_onInserting(self,record_data=None):
         record_data['author_user_id'] = self.db.currentEnv.get('user_id')
