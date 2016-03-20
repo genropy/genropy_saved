@@ -3,10 +3,14 @@ from gnr.web.gnrbaseclasses import BaseComponent
 class PluginOrganizer(BaseComponent):
     py_requires='th/th:TableHandler'
     def btn_organizer(self,pane,**kwargs):
-        pane.pluginButton('organizer',caption='!!Organizer',iconClass='alarm_check',defaultWidth='500px')
+        pane.pluginButton('organizer',caption='!!Organizer',iconClass='alarm_check',defaultWidth='400px')
 
     def mainLeft_organizer(self, pane):
         """!!Organizer"""
-        pane = pane.contentPane(detachable=True,overflow='hidden')
-        pane.plainTableHandler(table='orgn.annotation',condition='$plugin_assigment IS TRUE AND $done_ts IS NULL',viewResource='ViewPlugin',
-                                view_store_onStart=True,configurable=False)
+        bc = pane.borderContainer(detachable=True)
+        top = bc.contentPane(region='top',height='100px',background='#666')
+        bottom = bc.contentPane(region='bottom',height='100px',background='#666')
+        center = bc.contentPane(region='center')
+        center.plainTableHandler(table='orgn.annotation',
+                                condition='$plugin_assigment IS TRUE AND $done_ts IS NULL',viewResource='ViewPlugin',
+                                view_store_onStart=True,configurable=True)

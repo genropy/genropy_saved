@@ -24,13 +24,13 @@ class View(BaseComponent):
         return dict(column='description', op='contains', val='')
 
     def th_top_custom(self,top):
-        restrictions = self.db.table('orgn.annotation').getRestrictions()
+        restrictions = self.db.table('orgn.annotation').getLinkedEntities()
         if restrictions:
             top.bar.replaceSlots('searchOn','searchOn,sections@typerestrictions')
 
     @metadata(multiButton=True)
     def th_sections_typerestrictions(self):
-        restrictions = self.db.table('orgn.annotation').getRestrictions()
+        restrictions = self.db.table('orgn.annotation').getLinkedEntities()
         condition = """(CASE WHEN $restrictions IS NULL THEN TRUE
                              ELSE string_to_array(:restriction,',') && string_to_array($restrictions,',') 
                         END)"""
@@ -57,7 +57,7 @@ class Form(BaseComponent):
         fb = topleft.formbuilder(cols=2, border_spacing='4px')
         fb.field('code',width='5em')
         fb.field('description',width='20em')
-        restrictions = self.db.table('orgn.annotation').getRestrictions()
+        restrictions = self.db.table('orgn.annotation').getLinkedEntities()
         if restrictions:
             fb.field('restrictions',tag='checkBoxText',values=restrictions,popup=True,cols=1,colspan=2,width='100%')
         fb.div(height='17px',width='4em',lbl='Background',
@@ -73,7 +73,7 @@ class Form(BaseComponent):
         pane.plainTableHandler(relation='@default_actions',viewResource='ViewFromAnnotationType',
                                 picker='action_type_id',
                                 picker_condition="""(CASE WHEN $restrictions IS NOT NULL AND :restriction IS NOT NULL 
-                                                          THEN string_to_array(:restriction,',') && string_to_array($restrictions,',') 
+                                                          THEN  string_to_array($restrictions,',') @> string_to_array(:restriction,',')
                                                     ELSE TRUE END)""",
                                 picker_condition_restriction='^#FORM.record.restrictions',
                                 delrow=True,margin='2px',pbl_classes=True,configurable=False)

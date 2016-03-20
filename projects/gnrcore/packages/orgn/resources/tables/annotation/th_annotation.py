@@ -24,7 +24,7 @@ class ViewAction(BaseComponent):
         r = struct.view().rows()
         r.fieldcell('annotation_caption')
         r.fieldcell('assigned_to')
-        r.fieldcell('priority')
+        r.fieldcell('priority',width='6em')
         r.fieldcell('days_before')
         #r.fieldcell('log_id')
 
@@ -40,15 +40,20 @@ class ViewPlugin(View):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('annotation_caption')
-        r.fieldcell('priority')
-        r.fieldcell('connected_description',name='Connected to')
+        r.fieldcell('template_cell',width='100%', name='-')
+        #r.fieldcell('__ins_ts',name='Ins')
+        #r.fieldcell('annotation_caption')
+        #r.fieldcell('priority')
+        #r.fieldcell('connected_description',name='Connected to')
 
     def th_top_custom(self,top):
         top.bar.replaceSlots('#','*,sections@priority,*')
 
     def th_options(self):
         return dict(liveUpdate=True)
+        
+    def th_order(self):
+        return '$__ins_ts'
 
 class Form(BaseComponent):
     def th_form(self, form):

@@ -27,13 +27,13 @@ class View(BaseComponent):
 
 
     def th_top_custom(self,top):
-        restrictions = self.db.table('orgn.annotation').getRestrictions()
+        restrictions = self.db.table('orgn.annotation').getLinkedEntities()
         if restrictions:
             top.bar.replaceSlots('searchOn','searchOn,sections@typerestrictions')
 
     @metadata(multiButton=True)
     def th_sections_typerestrictions(self):
-        restrictions = self.db.table('orgn.annotation').getRestrictions()
+        restrictions = self.db.table('orgn.annotation').getLinkedEntities()
         condition = """(CASE WHEN $restrictions IS NULL THEN TRUE
                              ELSE string_to_array(:restriction,',') && string_to_array($restrictions,',') 
                         END)"""
@@ -63,7 +63,7 @@ class Form(BaseComponent):
         fb.field('default_tag',condition='$child_count = 0 AND $isreserved IS NOT TRUE',
                 tag='dbselect',
                 dbtable='adm.htag',alternatePkey='code',hasDownArrow=True)
-        restrictions = self.db.table('orgn.annotation').getRestrictions()
+        restrictions = self.db.table('orgn.annotation').getLinkedEntities()
         if restrictions:
             fb.field('restrictions',tag='checkBoxText',values=restrictions,popup=True,cols=1,colspan=3,width='100%')
         fb.field('extended_description',tag='simpleTextArea',lbl='!!Extended description',colspan=3,width='100%')

@@ -6,30 +6,30 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrdecorator import extract_kwargs,public_method
+from gnr.core.gnrdecorator import extract_kwargs,public_method,metadata
 
 class FormMixedComponent(BaseComponent):
     py_requires='gnrcomponents/dynamicform/dynamicform:DynamicForm'
     def th_form(self, form):
-        type_restriction = form._current_options['type_restriction']
+        linked_entity = form._current_options['linked_entity']
         user_kwargs = form._current_options['user_kwargs'] or dict()
         default_kwargs = form.store.handler('load').attributes.get('default_kwargs')
 
         sc = form.center.stackContainer(selectedPage='^.record.rec_type')
-        self.orgn_annotationForm(sc.borderContainer(pageName='AN'),type_restriction=type_restriction,user_kwargs=user_kwargs,
+        self.orgn_annotationForm(sc.borderContainer(pageName='AN'),linked_entity=linked_entity,user_kwargs=user_kwargs,
                                 sub_action_default_kwargs=default_kwargs)
-        self.orgn_actionForm(sc.borderContainer(pageName='AC'),type_restriction=type_restriction,user_kwargs=user_kwargs)
+        self.orgn_actionForm(sc.borderContainer(pageName='AC'),linked_entity=linked_entity,user_kwargs=user_kwargs)
 
-    def orgn_annotationForm(self,bc,type_restriction=None,user_kwargs=None,sub_action_default_kwargs=None):
+    def orgn_annotationForm(self,bc,linked_entity=None,user_kwargs=None,sub_action_default_kwargs=None):
         annotation_type_condition=None
         annotation_type_kwargs = dict()
         action_type_condition = None
         action_type_kwargs = dict()
-        if type_restriction:
+        if linked_entity:
             annotation_type_condition = "(CASE WHEN $restrictions IS NOT NULL THEN :restriction = ANY(string_to_array($restrictions,',')) ELSE TRUE END)"
-            annotation_type_kwargs = dict(condition_restriction=type_restriction)
+            annotation_type_kwargs = dict(condition_restriction=linked_entity)
             action_type_condition = "(CASE WHEN $restrictions IS NOT NULL THEN :restriction = ANY(string_to_array($restrictions,',')) ELSE TRUE END)"
-            action_type_kwargs = dict(condition_restriction=type_restriction)
+            action_type_kwargs = dict(condition_restriction=linked_entity)
         topbc = bc.borderContainer(region='top',datapath='.record',height='50%')
         fb = topbc.contentPane(region='top').div(margin_right='20px',margin='10px').formbuilder(cols=1, border_spacing='4px',
                                                                                             fld_width='100%',
@@ -50,11 +50,11 @@ class FormMixedComponent(BaseComponent):
             r.fieldcell('assigned_user_id',
                          edit=dict(hasDownArrow=True,**user_kwargs),
                          editDisabled='=#ROW.assigned_tag')
-            r.fieldcell('priority',edit=True,width='8em')
+            r.fieldcell('priority',edit=True,width='6em')
             r.fieldcell('days_before',edit=True,width='7em')
-        th = bc.contentPane(region='center').inlineTableHandler(relation='@orgn_related_actions',
+        th = bc.contentPane(region='center').inlineTableHandler(title='!!Actions',relation='@orgn_related_actions',
                         viewResource='orgn_components:ViewActionComponent',
-                        view_structCb=following_actions_struct,
+                        view_structCb=following_actions_struct,searchOn=False,
                         nodeId='orgn_action_#',
                         form_user_kwargs=user_kwargs,default_rec_type='AC',
                         **dict([('default_%s' %k,v) for k,v in sub_action_default_kwargs.items()]))
@@ -75,12 +75,12 @@ class FormMixedComponent(BaseComponent):
         return result
             
 
-    def orgn_actionForm(self,bc,type_restriction=None,user_kwargs=None):
+    def orgn_actionForm(self,bc,linked_entity=None,user_kwargs=None):
         action_type_condition = None
         action_type_kwargs = dict()
-        if type_restriction:
+        if linked_entity:
             action_type_condition = "(CASE WHEN $restrictions IS NOT NULL THEN :restriction = ANY(string_to_array($restrictions,',')) ELSE TRUE END)"
-            action_type_kwargs = dict(condition_restriction=type_restriction)
+            action_type_kwargs = dict(condition_restriction=linked_entity)
         fb = bc.contentPane(region='top',datapath='.record').div(margin_right='20px',margin='10px').formbuilder(cols=2, border_spacing='4px',
                                                                                             fld_width='100%',
                                                                                             colswidth='auto',width='100%')
@@ -122,21 +122,23 @@ class ViewActionComponent(BaseComponent):
 class FormActionComponent(FormMixedComponent):
     py_requires='gnrcomponents/dynamicform/dynamicform:DynamicForm'
     def th_form(self, form):
-        type_restriction = form._current_options['type_restriction']
+        linked_entity = form._current_options['linked_entity']
         user_kwargs = form._current_options['user_kwargs'] or dict()
-        self.orgn_actionForm(form.center.borderContainer(),type_restriction=type_restriction,user_kwargs=user_kwargs)
+        self.orgn_actionForm(form.center.borderContainer(),linked_entity=linked_entity,user_kwargs=user_kwargs)
 
 class ViewMixedComponent(BaseComponent):
     def th_hiddencolumns(self):
-        return '$__ins_ts,$rec_type'
+        return '$__ins_ts,$rec_type,$annotation_background,$annotation_color'
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('__ins_ts',name='TS')
-        r.fieldcell('annotation_caption',width='20em')
+        r.fieldcell('__ins_ts',name='TS',width='10em')
+        r.cell('annotation_template',name='!!About',width='15em',
+                rowTemplate="""<div style='background:$annotation_background;color:$annotation_color;border:1px solid $color;text-align:center;border-radius:10px;'>$annotation_caption</div>""")
+        r.fieldcell('annotation_caption',hidden=True)
         r.fieldcell('description',width='20em')
-        r.fieldcell('priority',width='10em')
-        r.fieldcell('days_before',width='5em',name='D.B.')
+        r.fieldcell('priority',width='6em')
+        r.fieldcell('days_before',width='5em',name='D.Before')
         #r.fieldcell('log_id')
 
     def th_order(self):
@@ -145,7 +147,11 @@ class ViewMixedComponent(BaseComponent):
     def th_query(self):
         return dict(column='annotation_caption', op='contains', val='')
 
-    def th_sections_orgn(self):
+    def th_bottom_custom(self,bottom):
+        bottom.slotToolbar('2,sections@rec_type,*,sections@isdone,2')
+
+    @metadata(_if='rt=="ac"',_if_rt='^.rec_type.current')
+    def th_sections_isdone(self):
         return [dict(code='all',caption='!!All'),
                 dict(code='orgn',caption='!!To do',condition='$done_ts IS NULL'),
                 dict(code='done',caption='!!Done',condition='$done_ts IS NOT NULL')]
@@ -157,19 +163,65 @@ class ViewMixedComponent(BaseComponent):
             return dict(_customClasses=' '.join(_customClasses))
         selection.apply(cb)
 
-class annotationTableHandler(BaseComponent):
+class OrganizerComponent(BaseComponent):
     py_requires='th/th:TableHandler'
+    css_requires='orgn_components'
+
     @extract_kwargs(user=True)
     @struct_method
-    def td_annotationTableHandler(self,pane,type_restriction=None,user_kwargs=None,configurable=False,**kwargs):
+    def td_annotationTableHandler(self,pane,linked_entity=None,user_kwargs=None,configurable=False,nodeId=None,**kwargs):
         pid = id(pane)
-        pane.dialogTableHandler(relation='@annotations',nodeId='orgn_annotation_%s' %pid,
+        if not linked_entity:
+            parentTable = pane.getInheritedAttributes()['table']
+            tblobj = self.db.table(parentTable)
+            linked_entity = self.db.table('orgn.annotation').linkedEntityName(tblobj)
+        return pane.dialogTableHandler(relation='@annotations',nodeId=nodeId or 'orgn_annotation_%s' %pid,
                                 datapath='#FORM.orgn_annotations_%s' %pid,
                                 viewResource='orgn_components:ViewMixedComponent',
                                 formResource='orgn_components:FormMixedComponent',
-                                form_type_restriction=type_restriction,
+                                form_type_restriction=linked_entity,
                                 form_user_kwargs=user_kwargs,configurable=configurable,
+                                default_linked_entity=linked_entity,
+                                form_linked_entity=linked_entity,
                                 addrow=[('Annotation',dict(rec_type='AN')),('Action',dict(rec_type='AC'))],
                                 **kwargs)
 
+    @struct_method
+    def td_annotationTool(self,pane,linked_entity=None,**kwargs):
+        pid = id(pane)
+        paletteCode='annotation_%s' %pid
+        parentTable = pane.getInheritedAttributes()['table']
+        tblobj = self.db.table(parentTable)
+        joiner = tblobj.relations.getNode('@annotations').attr['joiner']
+        pkg,tbl,fkey = joiner['many_relation'].split('.')
+        if not linked_entity:
+            linked_entity = self.db.table('orgn.annotation').linkedEntityName(tblobj)
+        palette = pane.palettePane(paletteCode=paletteCode,title='!!Record annotations',
+                                    dockTo='dummyDock',width='730px',height='500px')
+
+        kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
+        iframe = palette.iframe(main=self.orgn_remoteAnnotationTool,
+                            main_linked_entity=linked_entity,
+                            main_table=parentTable,
+                            main_pkey='=#FORM.pkey',**kwargs)
+        pane.dataController("""
+            iframe.domNode.gnr.postMessage(iframe,{topic:'changedMainRecord',pkey:pkey});
+            """,iframe=iframe,pkey='^#FORM.controller.loaded')
+  
+        pane.slotButton('!!See annotations',action="""genro.nodeById("%s_floating").widget.show();""" %paletteCode,
+                        hidden='^#FORM.pkey?=#v=="*newrecord*"',iconClass='iconbox comment')
+
+    @public_method
+    def orgn_remoteAnnotationTool(self,root,table=None,pkey=None,linked_entity=None,**kwargs):
+        rootattr = dict()
+        rootattr['datapath'] = 'main'
+        rootattr['_fakeform'] = True
+        rootattr['table'] = table
+        bc = root.borderContainer(**rootattr)
+        bc.dataController("SET .pkey=pkey; FIRE .controller.loaded = pkey;",subscribe_changedMainRecord=True)
+        if pkey:
+            bc.dataController('SET .pkey = pkey; FIRE .controller.loaded=pkey;',pkey=pkey,_onStart=True)
+            bc.dataRecord('.record',table,pkey='^#FORM.pkey',_if='pkey')
+        th = bc.annotationTableHandler(nodeId='annotationTH',linked_entity=linked_entity,region='center',lockable=True,**kwargs)
+        bc.dataController("form.newrecord(default_kw)",form=th.form.js_form,subscribe_newAnnotation=True)
 

@@ -1,0 +1,23 @@
+._common_d11 .orgn_AN .dojoxGrid-cell,._common_d11 .orgn_AN.dojoxGrid-cell{
+    background: rgba(223, 255, 147, 0.2) !important;
+}
+
+._common_d11 .orgn_AC .dojoxGrid-cell, ._common_d11 .orgn_AC.dojoxGrid-cell{
+    background: rgba(255, 165, 146, 0.3) !important;
+}
+
+.priority_cell{
+    width:5px;
+}
+.priority_H{
+    background: #C22531;
+}
+
+
+.priority_M{
+    background: #FFFF68;
+}
+
+.priority_L{
+    background: #58D489;
+}

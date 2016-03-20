@@ -8,7 +8,7 @@ class Table(object):
         tbl.column('description',name_long='!!Description')
         tbl.column('extended_description',name_long='!!Extended description')
         tbl.column('restrictions',name_long='!!Restrictions')
-        tbl.column('default_priority',size=':2',name_long='!!Priority',values='NW:Now,UR:Urgent,HG:High,LW:Low')
+        tbl.column('default_priority',size='1',name_long='!!Priority',values='L:[!!Low],M:[!!Medium],H:[!!High]')
         tbl.column('default_days_before',dtype='I',name_long='!!Days before')
         tbl.column('default_tag',name_long='!!Default tag')
 
