@@ -3969,6 +3969,9 @@ p {
     opacity:.6;
 }
 
+.iconbox.iconbox_short{
+    height: 12px;
+}
 .quickgrid_container .iconbox:hover {
     opacity:1;
 }
