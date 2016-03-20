@@ -22,8 +22,7 @@
 		&lt;tr&gt;
 			&lt;td colspan="2"&gt;
 				&lt;span style="font-style: normal;"&gt;&lt;cite&gt;Assigned by $user_username on&amp;nbsp;&lt;/cite&gt;$insert_date&lt;/span&gt;&lt;/td&gt;
-			&lt;td style="text-align: right;"&gt;
-				pippo $countdown&lt;/td&gt;
+			&lt;td style="text-align: right;"&gt;$countdown&lt;/td&gt;
 		&lt;/tr&gt;
 	&lt;/tbody&gt;
 &lt;/table&gt;</content>
@@ -197,8 +196,7 @@
 		&lt;tr&gt;
 			&lt;td colspan="2"&gt;
 				&lt;span style="font-style: normal;"&gt;&lt;cite&gt;Assigned by $@author_user_id.username on&amp;#160;&lt;/cite&gt;$__ins_ts&lt;/span&gt;&lt;/td&gt;
-			&lt;td style="text-align: right;"&gt;
-				pippo $countdown&lt;/td&gt;
+			&lt;td style="text-align: right;"&gt;$countdown&lt;/td&gt;
 		&lt;/tr&gt;
 	&lt;/tbody&gt;
 &lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</main></compiled></GenRoBag>
