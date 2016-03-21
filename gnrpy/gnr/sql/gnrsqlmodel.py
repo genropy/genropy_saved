@@ -32,7 +32,6 @@ from gnr.sql.gnrsqlutils import SqlModelChecker, ModelExtractor
 from gnr.sql.gnrsqltable import SqlTable
 from gnr.sql.gnrsql_exceptions import GnrSqlMissingField, GnrSqlMissingTable,\
     GnrSqlMissingColumn, GnrSqlRelationError
-
 import threading
 
 logger = logging.getLogger(__name__)
@@ -630,7 +629,7 @@ class DbModelObj(GnrStructObj):
         return self.attributes.get('name_full', self.name_long)
         
     name_full = property(_get_name_full, _set_name_full)
-        
+
     def getTag(self):
         """TODO"""
         return self.sqlclass or self._sqlclass
@@ -893,6 +892,7 @@ class DbTableObj(DbModelObj):
                 r = [r]
             for c in r:
                 kw = dict(c)
+                kw['virtual_column'] = True
                 result.setItem(kw.pop('name'),None,**kw)
         return result
 

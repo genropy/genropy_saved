@@ -192,20 +192,20 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
     iframeDialog:function(iframeId,kw){
         var dialogId = iframeId+'_dlg';
-        var dlgNode = genro.nodeById(dialogId)
+        var dlgNode = genro.nodeById(dialogId);
         if(!dlgNode){
             var root = genro.src.getNode()._('div', '_dlg_iframe');
             var dlg = root._('dialog',{title:kw.title,closable:kw.closable,nodeId:dialogId});
             var iframekw = {src:kw.src,border:0,height:'100%',width:'100%',nodeId:iframeId};
-            iframekw['selfsubscribe_close'] = "this.dialog.hide();"
+            iframekw.selfsubscribe_close = "this.dialog.hide();";
             objectUpdate(iframekw,objectExtract(kw,'selfsubscribe_*',true,true));
             var iframe = dlg._('div',{height:kw.height,width:kw.width,overflow:'hidden'})._('iframe','iframe',iframekw);
-            var dlgNode = dlg.getParentNode()
+            dlgNode = dlg.getParentNode();
             dlgNode._iframeNode = iframe.getParentNode();
             dlgNode._iframeNode.dialog = dlgNode.widget;
             //create dlg and iframe
         }
-        dlgNode.widget.show()
+        dlgNode.widget.show();
         if(kw.openKw){
             dlgNode._iframeNode.domNode.gnr.postMessage(dlgNode._iframeNode,kw.openKw);
         }
@@ -214,7 +214,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     lightboxDialog:function(kwOrCb,onClosedCb){        
         genro.src.getNode()._('div', '_dlg_lightbox');
         var node = genro.src.getNode('_dlg_lightbox').clearValue().freeze();
-        var onClosedCb = onClosedCb?funcCreate(onClosedCb):null;
+        onClosedCb = onClosedCb?funcCreate(onClosedCb):null;
         var dlg = node._('dialog',{_class:'lightboxDialog',nodeId:'_dlg_lightbox',connect_hide:function(){
             if(onClosedCb){
                 onClosedCb.call(this);
@@ -653,8 +653,9 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         paletteAttr.palette_selfsubscribe_resize = "$1.top='100px';this.widget.setBoxAttributes($1);";
         objectUpdate(paletteAttr,kw);
         var palette = node._('palettePane',paletteCode,paletteAttr);
-        palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0}); 
-        node.unfreeze(); 
+        palette._('iframe','iframeNode',{'src':zoomUrl,height:'100%',width:'100%',border:0}); 
+        node.unfreeze();
+        return palette; 
     },
 
     zoomFromCell:function(evt){

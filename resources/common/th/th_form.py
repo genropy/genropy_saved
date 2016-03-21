@@ -130,6 +130,8 @@ class TableHandlerForm(BaseComponent):
         form_delete = options.pop('form_delete',True)
         form_archive = options.pop('form_archive',False)
         selector = options.pop('selector',False)
+        annotations = options.pop('annotations',False)
+
         form.attributes.update(form_draftIfInvalid=draftIfInvalid,form_allowSaveInvalid=allowSaveInvalid)
         if autoSave:
             form.store.attributes.update(autoSave=autoSave)
@@ -170,6 +172,8 @@ class TableHandlerForm(BaseComponent):
             bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})',hidden=readOnly)
         elif showtoolbar:
             default_slots = '*,semaphore,5' if readOnly else '*,form_archive,form_delete,form_add,form_revert,form_save,semaphore,locker'
+            if annotations and not readOnly:
+                default_slots = default_slots.replace('form_archive','annotationTool,10,form_archive')
             if form_add is False:
                 default_slots = default_slots.replace('form_add','')
             if form_delete is False:
@@ -225,8 +229,12 @@ class TableHandlerForm(BaseComponent):
                                  onSavedHandler=self._th_hook('onSaved',mangler=mangler))
         form._current_options = options
 
-            
-    
+
+    @struct_method
+    def td_slotbar_annotationTool(self,pane,frameCode=None,annotationTool=None,**kwargs):
+        self.mixinComponent('orgn_components:OrganizerComponent')
+        pane.annotationTool(**kwargs)
+
     @struct_method          
     def th_slotbar_form_audit(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()

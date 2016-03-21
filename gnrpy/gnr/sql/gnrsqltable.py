@@ -24,6 +24,7 @@ __version__ = '1.0b'
 
 #import weakref
 import os
+import re
 
 from gnr.core import gnrstring
 from gnr.core.gnrlang import GnrObject,getUuid,uniquify
@@ -38,6 +39,7 @@ from datetime import datetime
 import logging
 
 gnrlogger = logging.getLogger(__name__)
+
 
 
 class RecordUpdater(object):
@@ -395,6 +397,9 @@ class SqlTable(GnrObject):
     def relations_many(self):
         """Return a bag of relations that point to the current table"""
         return self.model.relations_many
+
+    def removeLocalizationFromText(self,text):
+        return re.sub("(?:!!)(?:\\[\\w*\\])?(.*)", "\\1", text)
         
     def counterColumns(self):
         return

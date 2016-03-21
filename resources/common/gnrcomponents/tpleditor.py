@@ -148,7 +148,8 @@ class TemplateEditorBase(BaseComponent):
                     fk='^%s'%fk
                 if table:
                     varsdict[varname] = '$%s%s' %(fldpath,fk)
-                columns.append(varsdict.get(varname) or fldpath)
+
+                columns.append((varsdict.get(varname) or fldpath).replace('$@','@'))
                 if virtualcol:
                     virtual_columns.append(fldpath)
                 if required_columns:
@@ -472,7 +473,7 @@ class PaletteTemplateEditor(TemplateEditor):
             var template_address;
             genro.dlg.prompt('Save as resource',{lbl:'Tplname',action:function(result){
                     template_address =  table+':'+result;
-                    genro.serverCall("saveTemplate",{template_address:template_address,data:data},null,null,'POST');
+                    genro.serverCall("te_saveTemplateAsResource",{table:table,template_address:template_address,data:data},null,null,'POST');
                 }})
         """,_fired='^.savetemplateAsResource',data='=.data',table=maintable)
 
@@ -502,6 +503,14 @@ class PaletteTemplateEditor(TemplateEditor):
             result.setItem(n.label,None,tplmode='userobject',**n.attr)
         result.setItem('__newtpl__',None,caption='!!New Template')
         return result
+
+    @public_method
+    def te_saveTemplateAsResource(self,table=None,template_address=None,data=None):
+        if data['metadata.email']:
+            data['metadata.email_compiled'] = self.te_compileBagForm(table=table,sourcebag=data['metadata.email'],
+                                                                    varsbag=data['varsbag'],parametersbag=data['parameters'])
+        data['compiled'] = self.te_compileTemplate(table=table,datacontent=data['content'],varsbag=data['varsbag'],parametersbag=data['parameters'])['compiled']
+        self.saveTemplate(template_address=template_address,data=data)
 
     @public_method
     def te_saveTemplate(self,pkey=None,data=None,tplmode=None,table=None,metadata=None,**kwargs):
