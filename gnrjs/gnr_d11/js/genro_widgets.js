@@ -389,11 +389,9 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                     publishOn = sourceNode.getParentNode();
                 }
                 var coords=dojo.coords(domNode);
-                publishOn.publish('moveable_created',{'sourceNode':sourceNode,'top':coords.t+'px','left':coords.l+'px'});
-                dojo.connect(sourceNode.mover , "onMoved", function(mover,topLeft){
-                    console.log('aaaa');
-                    console.log(mover,topLeft);
-                    publishOn.publish('moveable_moved',{'sourceNode':sourceNode,
+                publishOn.publish('onMoveable',{'action':'created','sourceNode':sourceNode,'top':coords.t+'px','left':coords.l+'px'});
+                dojo.connect(sourceNode.mover , "onMove", function(mover,topLeft){
+                    publishOn.publish('onMoveable',{'action':'moved','sourceNode':sourceNode,
                               top:mover.node.style.top,left:mover.node.style.left
                     });            
                 });

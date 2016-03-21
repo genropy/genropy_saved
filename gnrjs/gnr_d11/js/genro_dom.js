@@ -29,7 +29,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
     constructor: function(application) {
         this.application = application;
         this.css3AttrNames = ['rounded','gradient','shadow','transform','transition','zoom'];
-        this.styleAttrNames = ['height', 'width','top','left', 'right', 'bottom',
+        this.styleAttrNames = ['height', 'width','top','left', 'right', 'bottom', 'resize',
             'visibility','opacity', 'overflow', 'float', 'clear', 'display',
             'z_index', 'border','position','padding','margin','cursor',
             'color','white_space','vertical_align','background','font','text'].concat(this.css3AttrNames);
