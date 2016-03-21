@@ -12,6 +12,7 @@ class View(BaseComponent):
         r.fieldcell('description',width='20em')
         r.fieldcell('extended_description',width='20em')
         r.fieldcell('restrictions',width='20em')
+        r.fieldcell('deadline_days',width='5em')
         r.fieldcell('color',name='Color',width='7em',
                     _customGetter="""function(row){
                         return dataTemplate("<div style='background:$background_color;color:$color;border:1px solid $color;text-align:center;border-radius:10px;'>Sample</div>",row)
@@ -58,8 +59,8 @@ class Form(BaseComponent):
         fb = topbc.roundedGroup(title='!!Action type info',region='center').formbuilder(cols=3, border_spacing='4px')
         fb.field('code',width='5em')
         fb.field('description',width='20em',colspan=2)
+        fb.field('deadline_days',width='6em')
         fb.field('default_priority',width='10em')
-        fb.field('default_days_before',width='5em')
         fb.field('default_tag',condition='$child_count = 0 AND $isreserved IS NOT TRUE',
                 tag='dbselect',
                 dbtable='adm.htag',alternatePkey='code',hasDownArrow=True)

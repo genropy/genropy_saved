@@ -25,7 +25,7 @@ class ViewAction(BaseComponent):
         r.fieldcell('annotation_caption')
         r.fieldcell('assigned_to')
         r.fieldcell('priority',width='6em')
-        r.fieldcell('days_before')
+        r.fieldcell('notice_days')
         #r.fieldcell('log_id')
 
     def th_order(self):
@@ -69,7 +69,7 @@ class ActionPluginForm(BaseComponent):
         #fb.field('action_type_id',condition=action_type_condition,
         #            selected_default_priority='.priority',hasDownArrow=True,
         #            colspan=2,
-        #            selected_default_days_before='.days_before',
+        #            selected_default_notice_days='.notice_days',
         #            validate_notnull='^.rec_type?=#v=="AC"',**action_type_kwargs)
         #fb.field('assigned_user_id',#disabled='^.assigned_tag',
         #                            validate_onAccept="""if(userChange){
@@ -85,7 +85,7 @@ class ActionPluginForm(BaseComponent):
         fb.field('time_due')
         fb.field('description',tag='simpleTextArea',colspan=2,width='100%')
         fb.field('priority')
-        fb.field('days_before')
+        fb.field('notice_days')
         bc.contentPane(region='center').dynamicFieldsPane('action_fields',margin='2px')
 
     def th_options(self):

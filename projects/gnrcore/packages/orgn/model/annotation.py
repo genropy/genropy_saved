@@ -22,7 +22,7 @@ class Table(object):
         tbl.column('assigned_user_id',size='22',group='*',name_long='!!User').relation('adm.user.id',relation_name='orgn_actions',onDelete='raise')
         tbl.column('assigned_tag',size=':50',name_long='!!User Tag')
         tbl.column('priority',size='1',name_long='!!Priority',values='L:[!!Low],M:[!!Medium],H:[!!High]')
-        tbl.column('days_before',dtype='I',name_long='!!Days before',name_short='D.Before')
+        tbl.column('notice_days',dtype='I',name_long='!!Notice days',name_short='N.Days')
         tbl.column('date_due',dtype='D',name_long='!!Date due',indexed=True)
         tbl.column('time_due',dtype='H',name_long='!!Time due',indexed=True)
         tbl.column('done_ts',dtype='DH',name_long='!!Done ts',indexed=True)
@@ -48,13 +48,19 @@ class Table(object):
         tbl.formulaColumn("assigned_by_tag","""(',' || :env_userTags || ',' LIKE '%%,'|| COALESCE($assigned_tag,'') || ',%%')""",
                         dtype='B')
 
-        tbl.pyColumn('countdown',name_long='!!Countdown',required_columns='$date_due,$time_due')
+
+        tbl.formulaColumn("calculated_date_due","""COALESCE ($date_due,$pivot_date_due)""",dtype='D',name_long='!!Calc.Date due')
+
+        tbl.formulaColumn("pivot_date_due","""(CASE WHEN @action_type_id.deadline_days IS NOT NULL AND $pivot_date IS NOT NULL
+                                                        THEN $pivot_date-@action_type_id.deadline_days
+                                                    ELSE NULL END)""",dtype='D',name_long='!!Pivot date due')
+        tbl.pyColumn('countdown',name_long='!!Countdown',required_columns='$calculated_date_due,$time_due')
 
         tbl.pyColumn('template_cell',dtype='A',group='_',py_method='templateColumn', template_name='action_tpl',template_localized=True)
 
 
     def pyColumn_countdown(self,record=None,field=None):
-        date_due = record.get('date_due')
+        date_due = record.get('calculated_date_due')
         if not date_due:
             return
         if record['time_due']:
@@ -103,17 +109,25 @@ class Table(object):
 
     def formulaColumn_pluggedFields(self):
         desc_fields = []
+        pivot_dates = []
         assigments_restrictions = ["$_assignment_base"]
         for colname,colobj in self.columns.items():
             if colname.startswith('_assignment'):
                 assigments_restrictions.append(colname)
             elif colname.startswith('le_'):
                 related_table = colobj.relatedTable()
-                if related_table and related_table.column('orgn_description') is not None:
-                    desc_fields.append('@%s.orgn_description' %colname)
-        description_formula = "COALESCE(%s)" %','.join(desc_fields) if desc_fields else "'NOT PLUGGED'"
+                if related_table:
+                    if related_table.column('orgn_description') is not None:
+                        desc_fields.append('@%s.orgn_description' %colname)
+                    elif related_table.attributes.get('caption_field'):
+                        desc_fields.append('@%s.%s' %(colname,related_table.attributes['caption_field']))
+                    if related_table.column('orgn_pivot_date') is not None:
+                        pivot_dates.append('@%s.orgn_pivot_date' %colname)
+        description_formula = "COALESCE(%s,'Missing caption')" %','.join(desc_fields) if desc_fields else "'NOT PLUGGED'"
+        pivot_date_formula =  "COALESCE(%s)" %','.join(pivot_dates) if pivot_dates else "NULL"
         assigment_formula = ' AND '.join(assigments_restrictions)
         return [dict(name='connected_description',sql_formula=description_formula),
+                dict(name='pivot_date',sql_formula=pivot_date_formula,name_long='!!Pivot date',dtype='D'),
                 dict(name='plugin_assigment',sql_formula='(%s)' %assigment_formula,dtype='B',name_long='Assigned to me')]
 
     def getLinkedEntities(self):

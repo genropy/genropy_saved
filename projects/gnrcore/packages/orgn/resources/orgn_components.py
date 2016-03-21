@@ -7,6 +7,7 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs,public_method,metadata
+from datetime import datetime,timedelta
 
 class FormMixedComponent(BaseComponent):
     py_requires='gnrcomponents/dynamicform/dynamicform:DynamicForm'
@@ -41,9 +42,9 @@ class FormMixedComponent(BaseComponent):
     
         def following_actions_struct(struct):
             r = struct.view().rows()
+            r.cell('_date_due_from_pivot',calculated=True,hidden=True)
             r.fieldcell('action_type_id',edit=dict(condition=action_type_condition,
-                    selected_default_priority='.priority',hasDownArrow=True,
-                    selected_default_days_before='.days_before',**action_type_kwargs))
+                    selected_default_priority='.priority',hasDownArrow=True,**action_type_kwargs))
             r.fieldcell('assigned_tag',edit=dict(condition='$child_count = 0 AND $isreserved IS NOT TRUE',tag='dbselect',
                 dbtable='adm.htag',alternatePkey='code',
                 hasDownArrow=True),editDisabled='=#ROW.assigned_user_id',width='7em')
@@ -51,7 +52,11 @@ class FormMixedComponent(BaseComponent):
                          edit=dict(hasDownArrow=True,**user_kwargs),
                          editDisabled='=#ROW.assigned_tag')
             r.fieldcell('priority',edit=True,width='6em')
-            r.fieldcell('days_before',edit=True,width='7em')
+            r.fieldcell('date_due',edit=True,width='7em',
+                        _customGetter="""function(row){
+                                            return row['date_due'] || '<div class="dimmed">'+_F(row['_date_due_from_pivot'])+'</div>'
+                                         }""")
+            r.fieldcell('notice_days',edit=True,width='4em')
         th = bc.contentPane(region='center').inlineTableHandler(title='!!Actions',relation='@orgn_related_actions',
                         viewResource='orgn_components:ViewActionComponent',
                         view_structCb=following_actions_struct,searchOn=False,
@@ -59,19 +64,33 @@ class FormMixedComponent(BaseComponent):
                         form_user_kwargs=user_kwargs,default_rec_type='AC',
                         **dict([('default_%s' %k,v) for k,v in sub_action_default_kwargs.items()]))
         rpc = bc.dataRpc('dummy',self.orgn_getDefaultActionsRows,annotation_type_id='^#FORM.record.annotation_type_id',
-                        _if='annotation_type_id&&_is_newrecord',_is_newrecord='=#FORM.controller.is_newrecord')
+                        _if='annotation_type_id&&_is_newrecord',_is_newrecord='=#FORM.controller.is_newrecord',**sub_action_default_kwargs)
         rpc.addCallback("""if(result){
                                 grid.gridEditor.addNewRows(result)
                             }""",grid = th.view.grid.js_widget)
 
     @public_method
-    def orgn_getDefaultActionsRows(self,annotation_type_id=None,**kwargs):
+    def orgn_getDefaultActionsRows(self,annotation_type_id=None,**action_defaults):
+        #
+        annotation_tbl = self.db.table('orgn.annotation')
+        fkey_field = [k for k in action_defaults if k.startswith('le_')]
+        pivot_date = None
+        if fkey_field:
+            fkey_field = fkey_field[0] if fkey_field else None
+            related_table = annotation_tbl.column(fkey_field).relatedTable()
+            if related_table.column('orgn_pivot_date') is not None:
+                pivot_date = related_table.dbtable.readColumns(pkey=action_defaults[fkey_field],columns='$orgn_pivot_date')
+
         action_types = self.db.table('orgn.action_type').query(where='@annotation_default_actions.annotation_type_id=:annotation_type_id',
                                                                annotation_type_id=annotation_type_id).fetch()
         result = []
         for i,ac in enumerate(action_types):
-            result.append(dict(action_type_id=ac['id'],assigned_tag=ac['default_tag'],days_before=ac['default_days_before'],
-                    priority=ac['default_priority']))
+            _date_due_from_pivot = None
+            if ac['deadline_days'] and pivot_date:
+                _date_due_from_pivot = datetime(pivot_date.year,pivot_date.month,pivot_date.day)
+                _date_due_from_pivot = (_date_due_from_pivot+timedelta(days=-ac['deadline_days'])).date()
+            result.append(dict(action_type_id=ac['id'],assigned_tag=ac['default_tag'],priority=ac['default_priority'],
+                                _date_due_from_pivot=_date_due_from_pivot))
         return result
             
 
@@ -87,7 +106,6 @@ class FormMixedComponent(BaseComponent):
         fb.field('action_type_id',condition=action_type_condition,
                     selected_default_priority='.priority',hasDownArrow=True,
                     colspan=2,
-                    selected_default_days_before='.days_before',
                     validate_notnull='^.rec_type?=#v=="AC"',**action_type_kwargs)
         fb.field('assigned_user_id',#disabled='^.assigned_tag',
                                     validate_onAccept="""if(userChange){
@@ -100,7 +118,7 @@ class FormMixedComponent(BaseComponent):
                                     SET .assigned_user_id=null;
                                 }""",hasDownArrow=True)
         fb.field('priority')
-        fb.field('days_before')
+        fb.field('notice_days')
         fb.field('date_due')
         fb.field('time_due')
         fb.field('description',tag='simpleTextArea',colspan=2,width='420px')
@@ -138,7 +156,7 @@ class ViewMixedComponent(BaseComponent):
         r.fieldcell('annotation_caption',hidden=True)
         r.fieldcell('description',width='20em')
         r.fieldcell('priority',width='6em')
-        r.fieldcell('days_before',width='5em',name='D.Before')
+        r.fieldcell('notice_days',width='5em',name='D.Before')
         #r.fieldcell('log_id')
 
     def th_order(self):

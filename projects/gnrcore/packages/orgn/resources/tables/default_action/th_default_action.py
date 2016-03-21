@@ -11,7 +11,6 @@ class ViewFromAnnotationType(BaseComponent):
         r.fieldcell('action_type_id',width='100%')
         r.fieldcell('@action_type_id.default_tag',width='10em')
         r.fieldcell('@action_type_id.default_priority',width='10em')
-        r.fieldcell('@action_type_id.default_days_before',width='5em',name='D.Before')
         r.fieldcell('@action_type_id.color',name='Color',width='7em',
                     _customGetter="""function(row){
                         return dataTemplate("<div style='background:$_action_type_id_background_color;color:$_action_type_id_color;border:1px solid $color;text-align:center;border-radius:10px;'>Sample</div>",row)
