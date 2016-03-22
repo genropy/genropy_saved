@@ -662,13 +662,17 @@ dojo.declare("gnr.RowEditor", null, {
             var editpars = cellmap[k].edit;
             if(editpars && editpars!==true){
                 editpars = this.grid.sourceNode.evaluateOnNode(editpars);
-                if(editpars.validate_notnull){
-                    err = editpars.validate_notnull_error || 'not null';
+                if('validate_notnull' in editpars){
                     n = data.getNode(k);
-                    v = n.getValue();
-                    if(isNullOrBlank(v)){
-                        n.attr._validationError = err;
-                    }else if(n.attr._validationError==err){
+                    if(editpars.validate_notnull){
+                        err = editpars.validate_notnull_error || 'not null';
+                        v = n.getValue();
+                        if(isNullOrBlank(v)){
+                            n.attr._validationError = err;
+                        }else if(n.attr._validationError==err){
+                            delete n.attr._validationError;
+                        }
+                    }else{
                         delete n.attr._validationError;
                     }
                 }
@@ -707,6 +711,8 @@ dojo.declare("gnr.RowEditor", null, {
         return null;
     },
     endEditCell:function(editingInfo){
+        this.grid.currRenderedRowIndex = this.grid.storebag().index(this.rowLabel);
+        this.checkNotNull();
         this.gridEditor.updateStatus();
         this.gridEditor.lastEditTs = new Date();
         this.currentCol = null;

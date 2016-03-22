@@ -19,7 +19,8 @@ class FormMixedComponent(BaseComponent):
         sc = form.center.stackContainer(selectedPage='^.record.rec_type')
         self.orgn_annotationForm(sc.borderContainer(pageName='AN'),linked_entity=linked_entity,user_kwargs=user_kwargs,
                                 sub_action_default_kwargs=default_kwargs)
-        self.orgn_actionForm(sc.borderContainer(pageName='AC'),linked_entity=linked_entity,user_kwargs=user_kwargs)
+        self.orgn_actionForm(sc.borderContainer(pageName='AC'),linked_entity=linked_entity,user_kwargs=user_kwargs,
+                                                                default_kwargs=default_kwargs)
 
     def orgn_annotationForm(self,bc,linked_entity=None,user_kwargs=None,sub_action_default_kwargs=None):
         annotation_type_condition=None
@@ -46,11 +47,15 @@ class FormMixedComponent(BaseComponent):
             r.fieldcell('action_type_id',edit=dict(condition=action_type_condition,
                     selected_default_priority='.priority',hasDownArrow=True,**action_type_kwargs))
             r.fieldcell('assigned_tag',edit=dict(condition='$child_count = 0 AND $isreserved IS NOT TRUE',tag='dbselect',
-                dbtable='adm.htag',alternatePkey='code',
-                hasDownArrow=True),editDisabled='=#ROW.assigned_user_id',width='7em')
+                dbtable='adm.htag',alternatePkey='code',validate_notnull='=#ROW.assigned_user_id?=!#v',
+                validate_onAccept="""if(value){this.setCellValue("assigned_user_id",null)}""",
+                hasDownArrow=True),editLazy='=#ROW.assigned_user_id',width='7em')
             r.fieldcell('assigned_user_id',
-                         edit=dict(hasDownArrow=True,**user_kwargs),
-                         editDisabled='=#ROW.assigned_tag')
+                         edit=dict(hasDownArrow=True,
+                                  validate_notnull='=#ROW.assigned_tag?=!#v',
+                                  validate_onAccept="""if(value){this.setCellValue("assigned_tag",null)}""",
+                                  **user_kwargs),
+                         editLazy='=#ROW.assigned_tag',width='9em')
             r.fieldcell('priority',edit=True,width='6em')
             r.fieldcell('date_due',edit=True,width='7em',
                         _customGetter="""function(row){
@@ -67,34 +72,9 @@ class FormMixedComponent(BaseComponent):
                         _if='annotation_type_id&&_is_newrecord',_is_newrecord='=#FORM.controller.is_newrecord',**sub_action_default_kwargs)
         rpc.addCallback("""if(result){
                                 grid.gridEditor.addNewRows(result)
-                            }""",grid = th.view.grid.js_widget)
+                            }""",grid = th.view.grid.js_widget)          
 
-    @public_method
-    def orgn_getDefaultActionsRows(self,annotation_type_id=None,**action_defaults):
-        #
-        annotation_tbl = self.db.table('orgn.annotation')
-        fkey_field = [k for k in action_defaults if k.startswith('le_')]
-        pivot_date = None
-        if fkey_field:
-            fkey_field = fkey_field[0] if fkey_field else None
-            related_table = annotation_tbl.column(fkey_field).relatedTable()
-            if related_table.column('orgn_pivot_date') is not None:
-                pivot_date = related_table.dbtable.readColumns(pkey=action_defaults[fkey_field],columns='$orgn_pivot_date')
-
-        action_types = self.db.table('orgn.action_type').query(where='@annotation_default_actions.annotation_type_id=:annotation_type_id',
-                                                               annotation_type_id=annotation_type_id).fetch()
-        result = []
-        for i,ac in enumerate(action_types):
-            _date_due_from_pivot = None
-            if ac['deadline_days'] and pivot_date:
-                _date_due_from_pivot = datetime(pivot_date.year,pivot_date.month,pivot_date.day)
-                _date_due_from_pivot = (_date_due_from_pivot+timedelta(days=-ac['deadline_days'])).date()
-            result.append(dict(action_type_id=ac['id'],assigned_tag=ac['default_tag'],priority=ac['default_priority'],
-                                _date_due_from_pivot=_date_due_from_pivot))
-        return result
-            
-
-    def orgn_actionForm(self,bc,linked_entity=None,user_kwargs=None):
+    def orgn_actionForm(self,bc,linked_entity=None,user_kwargs=None,default_kwargs=None):
         action_type_condition = None
         action_type_kwargs = dict()
         if linked_entity:
@@ -104,28 +84,73 @@ class FormMixedComponent(BaseComponent):
                                                                                             fld_width='100%',
                                                                                             colswidth='auto',width='100%')
         fb.field('action_type_id',condition=action_type_condition,
-                    selected_default_priority='.priority',hasDownArrow=True,
+                    selected_default_priority='.priority',
+                    hasDownArrow=True,
                     colspan=2,
                     validate_notnull='^.rec_type?=#v=="AC"',**action_type_kwargs)
         fb.field('assigned_user_id',#disabled='^.assigned_tag',
-                                    validate_onAccept="""if(userChange){
+                    validate_notnull='^.$assiged_user_id_mandatory',
+                    validate_onAccept="""if(userChange){
                                                 SET .assigned_tag=null;
                                     }""",hasDownArrow=True,**user_kwargs)
+
         #condition='==allowed_users?allowed_users:"TRUE"',condition_allowed_users='=#FORM.condition_allowed_users'
         fb.field('assigned_tag',condition='$child_count = 0 AND $isreserved IS NOT TRUE',tag='dbselect',
+                validate_notnull='^.$assigned_tag_mandatory',
                 dbtable='adm.htag',alternatePkey='code',
                 validate_onAccept="""if(userChange){
                                     SET .assigned_user_id=null;
                                 }""",hasDownArrow=True)
+        fb.dataController("""if(rec_type=='AN'){
+                SET .$assiged_user_id_mandatory = false;
+                SET .$assigned_tag_mandatory = false;
+            }else{
+                SET .$assiged_user_id_mandatory = !assigned_tag;
+                SET .$assigned_tag_mandatory = !assigned_user_id;
+            }""",rec_type='^.rec_type',_delay=1,
+                        assigned_tag='^.assigned_tag',
+                        assigned_user_id='^.assigned_user_id')
         fb.field('priority')
         fb.field('notice_days')
-        fb.field('date_due')
+        fb.dataRpc('dummy',self.getDueDateFromDeadline,
+                    deadline_days='^.@action_type_id.deadline_days',
+                    date_due='=.date_due',_if='deadline_days && !date_due',
+                    _onResult="""
+                    if(result){
+                        SET .$date_due_ghost = _F(result);
+                    }else{
+                        SET .$date_due_ghost = '';
+                    }""",
+                    **default_kwargs)
+        fb.field('date_due',placeholder='^.$date_due_ghost')
         fb.field('time_due')
-        fb.field('description',tag='simpleTextArea',colspan=2,width='420px')
+        fb.field('action_description',tag='simpleTextArea',colspan=2,width='420px',lbl='!!Description')
         bc.contentPane(region='center').dynamicFieldsPane('action_fields',margin='2px')
 
     def th_options(self):
         return dict(dialog_height='300px', dialog_width='550px',modal=True)
+
+    @public_method
+    def orgn_getDefaultActionsRows(self,annotation_type_id=None,**action_defaults):
+        pivot_date = self.db.table('orgn.annotation').getPivotDateFromDefaults(action_defaults)
+        action_types = self.db.table('orgn.action_type').query(where='@annotation_default_actions.annotation_type_id=:annotation_type_id',
+                                                               annotation_type_id=annotation_type_id).fetch()
+        result = []
+        for i,ac in enumerate(action_types):
+            _date_due_from_pivot = None
+            if ac['deadline_days'] and pivot_date:
+                _date_due_from_pivot = datetime(pivot_date.year,pivot_date.month,pivot_date.day)
+                _date_due_from_pivot = (_date_due_from_pivot+timedelta(days=ac['deadline_days'])).date()
+            result.append(dict(action_type_id=ac['id'],assigned_tag=ac['default_tag'],priority=ac['default_priority'],
+                                _date_due_from_pivot=_date_due_from_pivot))
+        return result
+
+    @public_method
+    def getDueDateFromDeadline(self,deadline_days=None,**action_defaults):
+        pivot_date = self.db.table('orgn.annotation').getPivotDateFromDefaults(action_defaults)
+        if pivot_date:
+            _date_due_from_pivot = datetime(pivot_date.year,pivot_date.month,pivot_date.day)
+            return (_date_due_from_pivot+timedelta(days=deadline_days)).date()
 
 class ViewActionComponent(BaseComponent):
     def th_hiddencolumns(self):
@@ -137,16 +162,9 @@ class ViewActionComponent(BaseComponent):
         return dict(column='annotation_caption', op='contains', val='')
 
 
-class FormActionComponent(FormMixedComponent):
-    py_requires='gnrcomponents/dynamicform/dynamicform:DynamicForm'
-    def th_form(self, form):
-        linked_entity = form._current_options['linked_entity']
-        user_kwargs = form._current_options['user_kwargs'] or dict()
-        self.orgn_actionForm(form.center.borderContainer(),linked_entity=linked_entity,user_kwargs=user_kwargs)
-
 class ViewMixedComponent(BaseComponent):
     def th_hiddencolumns(self):
-        return '$__ins_ts,$rec_type,$annotation_background,$annotation_color'
+        return '$__ins_ts,$rec_type,$annotation_background,$annotation_color,$description,$action_description,$rec_type,$done_ts,$action_type_description'
 
     def th_struct(self,struct):
         r = struct.view().rows()
@@ -154,7 +172,7 @@ class ViewMixedComponent(BaseComponent):
         r.cell('annotation_template',name='!!About',width='15em',
                 rowTemplate="""<div style='background:$annotation_background;color:$annotation_color;border:1px solid $color;text-align:center;border-radius:10px;'>$annotation_caption</div>""")
         r.fieldcell('annotation_caption',hidden=True)
-        r.fieldcell('description',width='20em')
+        r.fieldcell('calc_description',width='20em',name='Description')
         r.fieldcell('priority',width='6em')
         r.fieldcell('notice_days',width='5em',name='D.Before')
         #r.fieldcell('log_id')
@@ -201,6 +219,7 @@ class OrganizerComponent(BaseComponent):
                                 form_user_kwargs=user_kwargs,configurable=configurable,
                                 default_linked_entity=linked_entity,
                                 form_linked_entity=linked_entity,
+                                liveUpdate=True,
                                 addrow=[('Annotation',dict(rec_type='AN')),('Action',dict(rec_type='AC'))],
                                 **kwargs)
 

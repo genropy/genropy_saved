@@ -551,8 +551,11 @@ class GnrWebPage(GnrBaseWebPage):
             self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
 
 
-    def paletteZoomLink(self,table=None,pkey=None,formResource=None,caption=None):
-        jsmethod = "genro.dlg.zoomPalette({table:'%s',formResource:'%s',pkey:'%s',evt:event,main_call:'main_form',palette_dockTo:false})" %(table,formResource,pkey)
+    def zoomLink(self,table=None,pkey=None,formResource=None,caption=None,zoomMode=None,zoomUrl=None,title=None):
+        zoomMode = zoomMode or 'palette'
+        zoomUrl = zoomUrl or ''
+        title = title or ''
+        jsmethod = "genro.dlg.makeZoomElement({table:'%s',formResource:'%s',pkey:'%s',evt:event,main_call:'main_form',palette_dockTo:false,mode:'%s',zoomUrl:'%s',title:'%s'})" %(table,formResource,pkey,zoomMode,zoomUrl,title)
         return '<a href="#" onclick="%s" class="tablePaletteZoomLink" >%s</a>' %(jsmethod,caption)
     
     

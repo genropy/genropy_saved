@@ -92,3 +92,10 @@
     color:darkblue;
     font-weight: bold;
 }
+
+.orgn_form_tpl .orgn_action_template{
+    border:1px solid silver;
+    border-radius: 6px;
+    padding-right: 10px;
+    background: white;
+}

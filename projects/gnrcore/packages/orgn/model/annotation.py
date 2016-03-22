@@ -1,5 +1,6 @@
 # encoding: utf-8
 import datetime
+from gnr.core.gnrdict import dictExtract
 
 class Table(object):
     def config_db(self,pkg):
@@ -16,6 +17,7 @@ class Table(object):
         tbl.column('annotation_fields',dtype='X',name_long='!!Annotation Fields',subfields='annotation_type_id')
         
         #belong to actions
+        tbl.column('action_description',name_long='!!Action Description')
         tbl.column('parent_annotation_id',size='22' ,group='_',name_long='!!Parent annotation').relation('annotation.id',relation_name='orgn_related_actions',mode='foreignkey',onDelete='cascade')
         tbl.column('action_type_id',size='22',name_long='!!Action type',group='_').relation('action_type.id',mode='foreignkey', onDelete='raise')
         tbl.column('action_fields',dtype='X',name_long='!!Action Fields',subfields='action_type_id')
@@ -29,8 +31,10 @@ class Table(object):
         tbl.column('linked_table',name_long='!!Linked table')
         tbl.column('linked_entity',name_long='!!Linked entity')
         tbl.column('linked_fkey',name_long='!!Linked fkey')
+        tbl.column('delay_history',dtype='X',group='*',name_long='!!Delay history',_sendback=True)
 
         tbl.aliasColumn('assigned_username','@assigned_user_id.username',name_long='!!Assigned username')
+        tbl.aliasColumn('action_type_description','@action_type_id.description',group='*')
         tbl.formulaColumn('annotation_caption',"""CASE WHEN rec_type='AC' 
                                                  THEN @action_type_id.description || '-' || $assigned_to
                                                  ELSE @annotation_type_id.description END
@@ -52,12 +56,29 @@ class Table(object):
         tbl.formulaColumn("calculated_date_due","""COALESCE ($date_due,$pivot_date_due)""",dtype='D',name_long='!!Calc.Date due')
 
         tbl.formulaColumn("pivot_date_due","""(CASE WHEN @action_type_id.deadline_days IS NOT NULL AND $pivot_date IS NOT NULL
-                                                        THEN $pivot_date-@action_type_id.deadline_days
+                                                        THEN $pivot_date+@action_type_id.deadline_days
                                                     ELSE NULL END)""",dtype='D',name_long='!!Pivot date due')
-        tbl.pyColumn('countdown',name_long='!!Countdown',required_columns='$calculated_date_due,$time_due')
+
+        tbl.pyColumn('calc_description',name_long='!!Calc description',required_columns='calculated_date_due,time_due,$action_type_description')
+
+        tbl.pyColumn('countdown',name_long='!!Countdown',required_columns='$calculated_date_due,$time_due,$rec_type,$done_ts')
+        tbl.pyColumn('zoomlink',name_long='!!Zoomlink',required_columns='$connected_description,$linked_table,$linked_fkey,$linked_entity')
 
         tbl.pyColumn('template_cell',dtype='A',group='_',py_method='templateColumn', template_name='action_tpl',template_localized=True)
 
+
+    def pyColumn_calc_description(self,record=None,field=None):
+        if record['rec_type'] == 'AN':
+            if not record['done_ts']:
+                return record['description']
+            else:
+                c0 = self.db.currentPage.getRemoteTranslation('!!Previous Action')['translation']
+                c1 = self.db.currentPage.getRemoteTranslation('!!Outcome')['translation']
+                action_description = record['action_description'] or record['action_type_description']
+                description = record['description']
+                return "<b>%s:</b><i>%s</i><br/><b>%s:</b>%s" %(c0,action_description,c1,description)
+        else:
+            return record['action_description']
 
     def pyColumn_countdown(self,record=None,field=None):
         date_due = record.get('calculated_date_due')
@@ -84,6 +105,26 @@ class Table(object):
                 result = self.due_tpl_long() %dict(days=int(tdh/24),hours=tdh%24)
         return result
 
+    def pyColumn_zoomlink(self,record=None,field=None):
+        for colname,colobj in self.columns.items():
+            if colname.startswith('le_') and colobj.relatedTable().fullname == record['linked_table']:
+                attr = colobj.attributes
+                entity = record['linked_entity'] 
+                zoomPars = dictExtract(attr,'linked_%s_' %entity)
+                zoomMode = zoomPars.get('zoomMode')
+                title = None
+                if zoomMode == 'page':
+                    title = '%s - %s' %(self.db.currentPage.getRemoteTranslation(self.db.table(record['linked_table']).name_long)['translation'],
+                                        record['connected_description'])
+                result = self.db.currentPage.zoomLink(table=record['linked_table'],pkey=record['linked_fkey'],
+                                                    formResource=zoomPars.get('formResource','Form'),
+                                                    caption=record['connected_description'],
+                                                    zoomMode=zoomMode,
+                                                    zoomUrl=zoomPars.get('zoomUrl'),
+                                                    title=title)
+                return result
+
+
     def expired_tpl_short(self):
         return '<div class="orgn_action_expired">Overdue %(days)s days</div>'
 
@@ -106,6 +147,23 @@ class Table(object):
                 record_data['linked_table'] = related_table.fullname
                 record_data['linked_fkey'] = fkey
                 record_data['linked_entity'] = record_data['linked_entity'] or self.linkedEntityName(related_table)
+
+    def trigger_onUpdating(self,record_data,old_record=None):
+        if old_record['rec_type'] == 'AC' and record_data['rec_type'] == 'AN':
+            #closing action
+            record_data['done_ts'] = record_data['__mod_ts']
+            rescheduled_type_id = self.db.table('orgn.annotation_type').sysRecord('ACT_RESCHEDULED')['id']
+            if record_data['annotation_type_id'] == rescheduled_type_id:
+                rescheduling = record_data.pop('rescheduling',None)
+                if rescheduling:
+                    rescheduled_action = self.record(pkey=record_data['id']).output('dict')
+                    rescheduled_action.pop('id')
+                    rescheduled_action['date_due'] = rescheduling['date_due'] or rescheduled_action['date_due']
+                    rescheduled_action['time_due'] = rescheduling['time_due'] or rescheduled_action['time_due']
+                    rescheduled_action['assigned_tag'] = rescheduling['assigned_tag'] or rescheduled_action['assigned_tag']
+                    rescheduled_action['assigned_user_id'] = rescheduling['assigned_user_id'] or rescheduled_action['assigned_user_id']
+                    self.insert(rescheduled_action)
+
 
     def formulaColumn_pluggedFields(self):
         desc_fields = []
@@ -146,4 +204,15 @@ class Table(object):
             return restrictions[0]
         else:
             return tblobj.name
+
+
+    def getPivotDateFromDefaults(self,action_defaults):
+        fkey_field = [k for k in action_defaults if k.startswith('le_')]
+        if fkey_field:
+            fkey_field = fkey_field[0] if fkey_field else None
+            related_table = self.column(fkey_field).relatedTable()
+            if related_table.column('orgn_pivot_date') is not None:
+                return related_table.dbtable.readColumns(pkey=action_defaults[fkey_field],columns='$orgn_pivot_date')
+
+
 
