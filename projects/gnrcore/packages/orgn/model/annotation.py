@@ -36,7 +36,7 @@ class Table(object):
         tbl.aliasColumn('assigned_username','@assigned_user_id.username',name_long='!!Assigned username')
         tbl.formulaColumn('annotation_caption',"""CASE WHEN rec_type='AC' 
                                                  THEN @action_type_id.description || '-' || $assigned_to
-                                                 ELSE @annotation_type_id.description || '-' || COALESCE($description,'') END
+                                                 ELSE @annotation_type_id.description END
                                                     """,name_long='!!Annotation')
         tbl.formulaColumn('annotation_background',"COALESCE(@action_type_id.background_color,@annotation_type_id.background_color)",name_long='!!Background',group='*')
         tbl.formulaColumn('annotation_color',"COALESCE(@action_type_id.color,@annotation_type_id.color)",name_long='!!Foreground',group='*')
