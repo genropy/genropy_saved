@@ -365,8 +365,8 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
 class SharedObject(object):
     default_savedir = 'site:async/sharedobjects'
     def __init__(self,manager,shared_id,expire=None,startData=None,read_tags=None,write_tags=None,
-                    filepath=None, saveIterval=None, autoSave=None, autoLoad=None,**kwargs):
-                
+                    filepath=None, dbSaveKw=None, saveInterval=None, autoSave=None, autoLoad=None,**kwargs):
+
         self.manager = manager
         self.lock=locks.Lock()
         self.server = manager.server
@@ -382,10 +382,13 @@ class SharedObject(object):
             self.expire = 365*24*60*60
         self.timeout=None
         self.autoSave=autoSave
-        self.saveIterval=saveIterval
+        self.saveInterval=saveInterval
         self.autoLoad=autoLoad
         self.changes=False
+        self.dbSaveKw=dbSaveKw
+
         self.onInit(**kwargs)
+
 
     @property
     def savepath(self):
@@ -398,17 +401,30 @@ class SharedObject(object):
     @lockedThreadpool
     def save(self):
         if self.changes :
-            print '***** SAVING *******', self.shared_id
-            self.data.toXml(self.savepath,unresolved=True,autocreate=True)
+            if self.dbSaveKw:
+                print '***** SAVING ON DB *******', self.shared_id
+                kw = dict(self.dbSaveKw)
+                self.server.db.table(kw.pop('table')).saveObject(self.shared_id, self.data, **kw)
+                self.server.db.commit()
+            else:
+                print '***** SAVING ON FILE *******', self.shared_id
+                self.data.toXml(self.savepath,unresolved=True,autocreate=True)
             print '***** SAVED *******', self.shared_id
         self.changes=False
 
-   # @lockedThreadpool
+    @lockedThreadpool
     def load(self):
-        if os.path.exists(self.savepath):
+        print 'CALLED LOAD', self.dbSaveKw, self.shared_id
+        if self.dbSaveKw:
+            print 'LOAD FROM DB'
+            data = self.server.db.table(self.dbSaveKw['table']).loadObject(self.shared_id)
+        elif os.path.exists(self.savepath):
+            print 'LOAD FROM FILE'
             data =  Bag(self.savepath)
-            print '***** LOADING *******',self.shared_id
-            self._data['root'] = data
+        else:
+            print 'LOAD EMPTY'
+            data = Bag()
+        self._data['root'] = data
         self.changes=False
 
     def onInit(self,**kwargs):
@@ -424,9 +440,10 @@ class SharedObject(object):
         #print 'onUnsubscribePage',self.shared_id,page_id
     
     def onDestroy(self):
+        print 'onDestroy',self.shared_id
         if self.autoSave:
             self.save()
-       # print 'onDestroy',self.shared_id
+        
         
     def onShutdown(self):
         if self.autoSave:
@@ -694,6 +711,7 @@ class GnrBaseAsyncServer(object):
         self.gnrsite=GnrWsgiSite(instance)
         self.gnrsite.ws_site = self
         self.gnrapp = self.gnrsite.gnrapp
+        self.db = self.gnrapp.db
         self.wsk = AsyncWebSocketHandler(self)
         self.som = SharedObjectsManager(self)
         self.interval = 1000
