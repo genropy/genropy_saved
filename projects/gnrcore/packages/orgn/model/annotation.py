@@ -34,6 +34,7 @@ class Table(object):
         tbl.column('delay_history',dtype='X',group='*',name_long='!!Delay history',_sendback=True)
 
         tbl.aliasColumn('assigned_username','@assigned_user_id.username',name_long='!!Assigned username')
+        tbl.aliasColumn('action_type_description','@action_type_id.description',group='*')
         tbl.formulaColumn('annotation_caption',"""CASE WHEN rec_type='AC' 
                                                  THEN @action_type_id.description || '-' || $assigned_to
                                                  ELSE @annotation_type_id.description END
@@ -51,18 +52,33 @@ class Table(object):
         tbl.formulaColumn("assigned_by_tag","""(',' || :env_userTags || ',' LIKE '%%,'|| COALESCE($assigned_tag,'') || ',%%')""",
                         dtype='B')
 
-        tbl.formulaColumn('calc_description',"""(CASE WHEN $rec_type='AC' THEN $action_description ELSE $description END)""",name_long='!!Calc description')
 
         tbl.formulaColumn("calculated_date_due","""COALESCE ($date_due,$pivot_date_due)""",dtype='D',name_long='!!Calc.Date due')
 
         tbl.formulaColumn("pivot_date_due","""(CASE WHEN @action_type_id.deadline_days IS NOT NULL AND $pivot_date IS NOT NULL
                                                         THEN $pivot_date+@action_type_id.deadline_days
                                                     ELSE NULL END)""",dtype='D',name_long='!!Pivot date due')
-        tbl.pyColumn('countdown',name_long='!!Countdown',required_columns='$calculated_date_due,$time_due')
+
+        tbl.pyColumn('calc_description',name_long='!!Calc description',required_columns='calculated_date_due,time_due,$action_type_description')
+
+        tbl.pyColumn('countdown',name_long='!!Countdown',required_columns='$calculated_date_due,$time_due,$rec_type,$done_ts')
         tbl.pyColumn('zoomlink',name_long='!!Zoomlink',required_columns='$connected_description,$linked_table,$linked_fkey,$linked_entity')
 
         tbl.pyColumn('template_cell',dtype='A',group='_',py_method='templateColumn', template_name='action_tpl',template_localized=True)
 
+
+    def calc_description(self,record=None,field=None):
+        if record['rec_type'] == 'AN':
+            if not record['done_ts']:
+                return record['description']
+            else:
+                c0 = self.db.currentPage.getRemoteTranslation('!!Previous Action')['translation']
+                c1 = self.db.currentPage.getRemoteTranslation('!!Follow up')['translation']
+                action_description = record['action_description'] or record['action_type_description']
+                description = record['description']
+                return "<div>%s:</div><div>%s</div><div>%s</div><div>%s</div>" %(c0,action_description,c1,description)
+        else:
+            return record['action_description']
 
     def pyColumn_countdown(self,record=None,field=None):
         date_due = record.get('calculated_date_due')
