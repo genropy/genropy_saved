@@ -51,6 +51,7 @@ class Table(object):
         tbl.formulaColumn("assigned_by_tag","""(',' || :env_userTags || ',' LIKE '%%,'|| COALESCE($assigned_tag,'') || ',%%')""",
                         dtype='B')
 
+        tbl.formulaColumn('calc_description',"""(CASE WHEN $rec_type='AC' THEN $action_description ELSE $description END)""",name_long='!!Calc description')
 
         tbl.formulaColumn("calculated_date_due","""COALESCE ($date_due,$pivot_date_due)""",dtype='D',name_long='!!Calc.Date due')
 

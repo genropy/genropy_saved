@@ -47,11 +47,15 @@ class FormMixedComponent(BaseComponent):
             r.fieldcell('action_type_id',edit=dict(condition=action_type_condition,
                     selected_default_priority='.priority',hasDownArrow=True,**action_type_kwargs))
             r.fieldcell('assigned_tag',edit=dict(condition='$child_count = 0 AND $isreserved IS NOT TRUE',tag='dbselect',
-                dbtable='adm.htag',alternatePkey='code',
-                hasDownArrow=True),editDisabled='=#ROW.assigned_user_id',width='7em')
+                dbtable='adm.htag',alternatePkey='code',validate_notnull='=#ROW.assigned_user_id?=!#v',
+                validate_onAccept="""if(value){this.setCellValue("assigned_user_id",null)}""",
+                hasDownArrow=True),editLazy='=#ROW.assigned_user_id',width='7em')
             r.fieldcell('assigned_user_id',
-                         edit=dict(hasDownArrow=True,**user_kwargs),
-                         editDisabled='=#ROW.assigned_tag')
+                         edit=dict(hasDownArrow=True,
+                                  validate_notnull='=#ROW.assigned_tag?=!#v',
+                                  validate_onAccept="""if(value){this.setCellValue("assigned_tag",null)}""",
+                                  **user_kwargs),
+                         editLazy='=#ROW.assigned_tag',width='9em')
             r.fieldcell('priority',edit=True,width='6em')
             r.fieldcell('date_due',edit=True,width='7em',
                         _customGetter="""function(row){
@@ -157,7 +161,7 @@ class ViewMixedComponent(BaseComponent):
         r.cell('annotation_template',name='!!About',width='15em',
                 rowTemplate="""<div style='background:$annotation_background;color:$annotation_color;border:1px solid $color;text-align:center;border-radius:10px;'>$annotation_caption</div>""")
         r.fieldcell('annotation_caption',hidden=True)
-        r.fieldcell('description',width='20em')
+        r.fieldcell('calc_description',width='20em')
         r.fieldcell('priority',width='6em')
         r.fieldcell('notice_days',width='5em',name='D.Before')
         #r.fieldcell('log_id')
