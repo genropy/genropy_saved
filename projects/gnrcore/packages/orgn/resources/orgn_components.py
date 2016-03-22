@@ -89,16 +89,27 @@ class FormMixedComponent(BaseComponent):
                     colspan=2,
                     validate_notnull='^.rec_type?=#v=="AC"',**action_type_kwargs)
         fb.field('assigned_user_id',#disabled='^.assigned_tag',
-                                    validate_onAccept="""if(userChange){
+                    validate_notnull='^.$assiged_user_id_mandatory',
+                    validate_onAccept="""if(userChange){
                                                 SET .assigned_tag=null;
                                     }""",hasDownArrow=True,**user_kwargs)
 
         #condition='==allowed_users?allowed_users:"TRUE"',condition_allowed_users='=#FORM.condition_allowed_users'
         fb.field('assigned_tag',condition='$child_count = 0 AND $isreserved IS NOT TRUE',tag='dbselect',
+                validate_notnull='^.$assigned_tag_mandatory',
                 dbtable='adm.htag',alternatePkey='code',
                 validate_onAccept="""if(userChange){
                                     SET .assigned_user_id=null;
                                 }""",hasDownArrow=True)
+        fb.dataController("""if(rec_type=='AN'){
+                SET .$assiged_user_id_mandatory = false;
+                SET .$assigned_tag_mandatory = false;
+            }else{
+                SET .$assiged_user_id_mandatory = !assigned_tag;
+                SET .$assigned_tag_mandatory = !assigned_user_id;
+            }""",rec_type='^.rec_type',_delay=1,
+                        assigned_tag='^.assigned_tag',
+                        assigned_user_id='^.assigned_user_id')
         fb.field('priority')
         fb.field('notice_days')
         fb.dataRpc('dummy',self.getDueDateFromDeadline,
