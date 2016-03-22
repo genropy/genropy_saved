@@ -67,16 +67,16 @@ class Table(object):
         tbl.pyColumn('template_cell',dtype='A',group='_',py_method='templateColumn', template_name='action_tpl',template_localized=True)
 
 
-    def calc_description(self,record=None,field=None):
+    def pyColumn_calc_description(self,record=None,field=None):
         if record['rec_type'] == 'AN':
             if not record['done_ts']:
                 return record['description']
             else:
                 c0 = self.db.currentPage.getRemoteTranslation('!!Previous Action')['translation']
-                c1 = self.db.currentPage.getRemoteTranslation('!!Follow up')['translation']
+                c1 = self.db.currentPage.getRemoteTranslation('!!Outcome')['translation']
                 action_description = record['action_description'] or record['action_type_description']
                 description = record['description']
-                return "<div>%s:</div><div>%s</div><div>%s</div><div>%s</div>" %(c0,action_description,c1,description)
+                return "<b>%s:</b><i>%s</i><br/><b>%s:</b>%s" %(c0,action_description,c1,description)
         else:
             return record['action_description']
 

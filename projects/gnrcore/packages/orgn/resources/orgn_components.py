@@ -164,7 +164,7 @@ class ViewActionComponent(BaseComponent):
 
 class ViewMixedComponent(BaseComponent):
     def th_hiddencolumns(self):
-        return '$__ins_ts,$rec_type,$annotation_background,$annotation_color,$description,$action_description'
+        return '$__ins_ts,$rec_type,$annotation_background,$annotation_color,$description,$action_description,$rec_type,$done_ts,$action_type_description'
 
     def th_struct(self,struct):
         r = struct.view().rows()
@@ -172,7 +172,7 @@ class ViewMixedComponent(BaseComponent):
         r.cell('annotation_template',name='!!About',width='15em',
                 rowTemplate="""<div style='background:$annotation_background;color:$annotation_color;border:1px solid $color;text-align:center;border-radius:10px;'>$annotation_caption</div>""")
         r.fieldcell('annotation_caption',hidden=True)
-        r.cell('calc_description',width='20em',name='Description')
+        r.fieldcell('calc_description',width='20em',name='Description')
         r.fieldcell('priority',width='6em')
         r.fieldcell('notice_days',width='5em',name='D.Before')
         #r.fieldcell('log_id')
