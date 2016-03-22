@@ -892,6 +892,7 @@ class DbTableObj(DbModelObj):
                 r = [r]
             for c in r:
                 kw = dict(c)
+                kw['tag'] = 'virtual_column'
                 kw['virtual_column'] = True
                 result.setItem(kw.pop('name'),None,**kw)
         return result

@@ -608,23 +608,26 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var attr = sourceNode.currentAttributes();
         objectUpdate(zoomAttr,objectExtract(attr,'_zoomKw_*'));
         zoomAttr.evt = evt;
-        var mode = objectPop(zoomAttr,'mode') || 'palette';
+        this.makeZoomElement(zoomAttr);
+    },
 
+    makeZoomElement:function(kw) {
+        var mode = objectPop(kw,'mode') || 'palette';
         if(mode=='palette'){
-            this.zoomPalette(zoomAttr);
-        }else if(mode=='page' && genro.root_page_id){
+            this.zoomPalette(kw);
+        }else if(mode=='page' && genro.mainGenroWindow){
             var pageKw = {};
-            zoomAttr['main_call'] = 'main_form';
-            pageKw['file'] = this._prepareThIframeUrl(zoomAttr);
-            pageKw['label'] = zoomAttr.title;
+            kw['main_call'] = 'main_form';
+            pageKw['file'] = this._prepareThIframeUrl(kw);
+            pageKw['label'] = kw.title;
             pageKw['subtab'] = true;
             genro.mainGenroWindow.genro.publish('selectIframePage',pageKw);
         }
         else if(mode=='window' && genro.root_page_id){
             var pageKw = {};
-            zoomAttr['main_call'] = 'main_form';
-            pageKw['file'] = this._prepareThIframeUrl(zoomAttr);
-            pageKw['label'] = zoomAttr.title;
+            kw['main_call'] = 'main_form';
+            pageKw['file'] = this._prepareThIframeUrl(kw);
+            pageKw['label'] = kw.title;
             genro.mainGenroWindow.genro.publish('newBrowserWindowPage',pageKw);
         }
     },

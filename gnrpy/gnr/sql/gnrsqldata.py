@@ -201,9 +201,9 @@ class SqlQueryCompiler(object):
                 raise GnrSqlMissingField('Missing field %s in table %s.%s (requested field %s)' % (
                 fld, curr.pkg_name, curr.tbl_name, '.'.join(newpath)))
             elif fldalias.relation_path: #resolve 
-            #pathlist.append(fldalias.relation_path)
-            #newfieldpath = '.'.join(pathlist)        # replace the field alias with the column relation_path
-            # then call getFieldAlias again with the real path
+                #pathlist.append(fldalias.relation_path)
+                #newfieldpath = '.'.join(pathlist)        # replace the field alias with the column relation_path
+                # then call getFieldAlias again with the real path
                 return self.getFieldAlias(fldalias.relation_path, curr=curr,
                                           basealias=alias)  # call getFieldAlias recursively
             elif fldalias.sql_formula or fldalias.select or fldalias.exists:
@@ -1000,7 +1000,11 @@ class SqlQuery(object):
     def handlePyColumns(self,data):
         if not self.compiled.pyColumns:
             return
-        for field,handler in self.compiled.pyColumns:
+        pcdict = dict(self.compiled.pyColumns)
+        for field in  self.dbtable.model.virtual_columns.keys():
+            if not field in pcdict:
+                continue
+            handler = pcdict[field]
             if handler:
                 for d in data:
                     #d[field] = handler(d,field=field)
