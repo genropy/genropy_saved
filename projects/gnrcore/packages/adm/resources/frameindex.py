@@ -11,6 +11,7 @@ from gnr.web.gnrwebstruct import struct_method
 class FrameIndex(BaseComponent):
     py_requires="""frameplugin_menu/frameplugin_menu:MenuIframes,
                    login:LoginComponent,
+                   th/th:TableHandler,
                    gnrcomponents/batch_handler/batch_handler:TableScriptRunner,
                    gnrcomponents/batch_handler/batch_handler:BatchMonitor,
                    gnrcomponents/chat_component/chat_component,

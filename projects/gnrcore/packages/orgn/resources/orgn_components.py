@@ -168,13 +168,21 @@ class ViewMixedComponent(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('__ins_ts',name='TS',width='10em')
-        r.cell('annotation_template',name='!!About',width='15em',
+        r.fieldcell('__ins_ts',name='TS',width='12em')
+        r.cell('annotation_template',name='!!About',width='18em',
                 rowTemplate="""<div style='background:$annotation_background;color:$annotation_color;border:1px solid $color;text-align:center;border-radius:10px;'>$annotation_caption</div>""")
         r.fieldcell('annotation_caption',hidden=True)
         r.fieldcell('calc_description',width='20em',name='Description')
         r.fieldcell('priority',width='6em')
-        r.fieldcell('notice_days',width='5em',name='D.Before')
+        r.cell('action_do',name=" ",calculated=True,width='3em',
+                    cellClasses='cellbutton',
+                    format_buttonclass='icnBaseLens auction',
+                    format_isbutton=True,format_onclick="""var row = this.widget.rowByIndex($1.rowIndex);
+                                                           this.publish('do_action',{pkey:row['_pkey']});""",
+                    cellClassCB="""var row = cell.grid.rowByIndex(inRowIndex);
+                                    if(row.rec_type=='AN'){
+                                        return 'hidden';
+                                    }""")       
         #r.fieldcell('log_id')
 
     def th_order(self):
@@ -184,13 +192,7 @@ class ViewMixedComponent(BaseComponent):
         return dict(column='annotation_caption', op='contains', val='')
 
     def th_bottom_custom(self,bottom):
-        bottom.slotToolbar('2,sections@rec_type,*,sections@isdone,2')
-
-    @metadata(_if='rt=="ac"',_if_rt='^.rec_type.current')
-    def th_sections_isdone(self):
-        return [dict(code='all',caption='!!All'),
-                dict(code='orgn',caption='!!To do',condition='$done_ts IS NULL'),
-                dict(code='done',caption='!!Done',condition='$done_ts IS NOT NULL')]
+        bottom.slotToolbar('2,sections@rec_type,*,2')
 
     @public_method
     def th_applymethod(self,selection):
@@ -211,7 +213,9 @@ class OrganizerComponent(BaseComponent):
             parentTable = pane.getInheritedAttributes()['table']
             tblobj = self.db.table(parentTable)
             linked_entity = self.db.table('orgn.annotation').linkedEntityName(tblobj)
-        return pane.dialogTableHandler(relation='@annotations',nodeId=nodeId or 'orgn_annotation_%s' %pid,
+        formOutcomeId = 'outcomeAction_%s' %pid
+        self.actionOutcomeDialog(pane,formId=formOutcomeId)
+        th = pane.dialogTableHandler(relation='@annotations',nodeId=nodeId or 'orgn_annotation_%s' %pid,
                                 datapath='#FORM.orgn_annotations_%s' %pid,
                                 viewResource='orgn_components:ViewMixedComponent',
                                 formResource='orgn_components:FormMixedComponent',
@@ -220,8 +224,15 @@ class OrganizerComponent(BaseComponent):
                                 default_linked_entity=linked_entity,
                                 form_linked_entity=linked_entity,
                                 liveUpdate=True,
+                                view_grid_selfsubscribe_do_action="genro.formById('%s').goToRecord($1.pkey);" %formOutcomeId,
                                 addrow=[('Annotation',dict(rec_type='AN')),('Action',dict(rec_type='AC'))],
                                 **kwargs)
+        return th
+
+    def actionOutcomeDialog(self,pane,formId=None):
+        pane.thFormHandler(table='orgn.annotation',formResource='ActionOutcomeForm',
+                        dialog_height='300px',dialog_width='600px',
+                        formId=formId,datapath='#FORM.actionOutcome')
 
     @struct_method
     def td_annotationTool(self,pane,linked_entity=None,**kwargs):

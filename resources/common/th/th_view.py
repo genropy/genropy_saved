@@ -262,7 +262,7 @@ class TableHandlerView(BaseComponent):
             lbl_kwargs = lbl_kwargs or dictExtract(dict(m.__dict__),'lbl_',slice_prefix=False)
             depending_condition = getattr(m,'_if',False)
             depending_condition_kwargs = dictExtract(dict(m.__dict__),'_if_')
-        elif sections in  tblobj.model.columns and (tblobj.column(sections).relatedTable() is not None or \
+        elif sections in  tblobj.model.columns and (tblobj.column(sections).relatedTable() is not None or 
                                                 tblobj.column(sections).attributes.get('values')):
             sectionslist = self._th_section_from_type(tblobj,sections,condition=condition,condition_kwargs=condition_kwargs,all_begin=all_begin,all_end=all_end)
             dflt = None

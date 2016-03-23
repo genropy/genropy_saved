@@ -61,7 +61,7 @@ class Form(BaseComponent):
     def th_form(self, form):
         form.record
 
-class ActionPluginForm(BaseComponent):
+class ActionOutcomeForm(BaseComponent):
     py_requires='gnrcomponents/dynamicform/dynamicform:DynamicForm'
 
     def th_form(self, form):
