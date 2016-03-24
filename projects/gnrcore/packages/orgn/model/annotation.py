@@ -196,6 +196,8 @@ class Table(object):
                 if next_action:
                     followed_action = self.record(pkey=record_data['id']).output('dict')
                     next_action['rec_type'] = 'AC'
+                    next_action['priority'] = next_action['priority'] or 'L'
+
                     next_action.update(dictExtract(followed_action,'le_',slice_prefix=False))
                     next_action.update(dictExtract(followed_action,'linked_',slice_prefix=False))
                     next_action['parent_annotation_id'] = record_data['id']
