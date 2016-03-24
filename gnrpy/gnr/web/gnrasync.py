@@ -387,7 +387,6 @@ class SharedObject(object):
         self.autoLoad=autoLoad
         self.changes=False
         self.dbSaveKw=dbSaveKw
-        print 'INIT SHARED', shared_id, dbSaveKw
         self.onInit(**kwargs)
 
 
@@ -412,7 +411,6 @@ class SharedObject(object):
     def save(self):
         if self.changes :
             if self.dbSaveKw:
-                print '***** SAVING ON DB *******', self.shared_id
                 kw = dict(self.dbSaveKw)
                 tblobj = self.server.db.table(kw.pop('table'))
                 handler = getattr(tblobj, 'saveSharedObject', None)
@@ -422,16 +420,12 @@ class SharedObject(object):
                     self.sql_save(tblobj)
                 self.server.db.commit()
             else:
-                print '***** SAVING ON FILE *******', self.shared_id
                 self.data.toXml(self.savepath,unresolved=True,autocreate=True)
-            print '***** SAVED *******', self.shared_id
         self.changes=False
 
     @lockedThreadpool
     def load(self):
-        print 'CALLED LOAD', self.dbSaveKw, self.shared_id
         if self.dbSaveKw:
-            print 'LOAD FROM DB'
             tblobj = self.server.db.table(self.dbSaveKw['table'])
             handler = getattr(tblobj, 'loadSharedObject', None)
             if handler:
@@ -439,10 +433,8 @@ class SharedObject(object):
             else:
                 data = self.sql_load(tblobj)
         elif os.path.exists(self.savepath):
-            print 'LOAD FROM FILE'
             data =  Bag(self.savepath)
         else:
-            print 'LOAD EMPTY'
             data = Bag()
         self._data['root'] = data
         self.changes=False
@@ -451,7 +443,7 @@ class SharedObject(object):
         backup = self.dbSaveKw.get('backup')
         data_column = self.sql_data_column
         with tblobj.recordToUpdate(self.shared_id) as record:
-            onSavingHandler=getattr(tblobj, 'shared_onSaving')
+            onSavingHandler=getattr(tblobj, 'shared_onSaving',None)
             if onSavingHandler:
                 onSavingHandler(record, self.data)
 
@@ -469,7 +461,7 @@ class SharedObject(object):
 
     def sql_load(self, tblobj, version=None):
         record = tblobj.record(self.shared_id).output('bag')
-        onLoadingHandler=getattr(tblobj, 'shared_onLoading')
+        onLoadingHandler=getattr(tblobj, 'shared_onLoading',None)
         if onLoadingHandler:
             onLoadingHandler(record)
 

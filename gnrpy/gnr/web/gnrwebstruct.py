@@ -1404,7 +1404,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         page = self.page
         struct = page._prepareGridStruct(source=source,table=table,gridId=gridId)
         if struct:
-            self.data(structpath, struct)
+            self.data(structpath, struct,childname='struct')
             return struct
         elif (source and not table) or not storepath:
             def getStruct(source=None,gridattr=None,gridId=None):
