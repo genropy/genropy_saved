@@ -22,6 +22,7 @@
 import time
 import os
 import base64
+from datetime import datetime
 from functools import wraps
 from concurrent.futures import ThreadPoolExecutor,Future
 import tornado.web
@@ -386,7 +387,7 @@ class SharedObject(object):
         self.autoLoad=autoLoad
         self.changes=False
         self.dbSaveKw=dbSaveKw
-
+        print 'INIT SHARED', shared_id, dbSaveKw
         self.onInit(**kwargs)
 
 
@@ -398,13 +399,27 @@ class SharedObject(object):
     def data(self):
         return self._data['root']
 
+    @property
+    def sql_data_column(self):
+        return self.dbSaveKw.get('data_column') or 'shared_data'
+
+    @property
+    def sql_backup_column(self):
+        return self.dbSaveKw.get('backup_column') or 'shared_backup'
+
+
     @lockedThreadpool
     def save(self):
         if self.changes :
             if self.dbSaveKw:
                 print '***** SAVING ON DB *******', self.shared_id
                 kw = dict(self.dbSaveKw)
-                self.server.db.table(kw.pop('table')).saveObject(self.shared_id, self.data, **kw)
+                tblobj = self.server.db.table(kw.pop('table'))
+                handler = getattr(tblobj, 'saveSharedObject', None)
+                if handler:
+                    handler(self.shared_id, self.data, **kw)
+                else:
+                    self.sql_save(tblobj)
                 self.server.db.commit()
             else:
                 print '***** SAVING ON FILE *******', self.shared_id
@@ -417,7 +432,12 @@ class SharedObject(object):
         print 'CALLED LOAD', self.dbSaveKw, self.shared_id
         if self.dbSaveKw:
             print 'LOAD FROM DB'
-            data = self.server.db.table(self.dbSaveKw['table']).loadObject(self.shared_id)
+            tblobj = self.server.db.table(self.dbSaveKw['table'])
+            handler = getattr(tblobj, 'loadSharedObject', None)
+            if handler:
+                data = handler(self.shared_id)
+            else:
+                data = self.sql_load(tblobj)
         elif os.path.exists(self.savepath):
             print 'LOAD FROM FILE'
             data =  Bag(self.savepath)
@@ -426,6 +446,39 @@ class SharedObject(object):
             data = Bag()
         self._data['root'] = data
         self.changes=False
+
+    def sql_save(self, tblobj):
+        backup = self.dbSaveKw.get('backup')
+        data_column = self.sql_data_column
+        with tblobj.recordToUpdate(self.shared_id) as record:
+            onSavingHandler=getattr(tblobj, 'shared_onSaving')
+            if onSavingHandler:
+                onSavingHandler(record, self.data)
+
+            if backup:
+                backup_column = self.sql_backup_column
+                if not record[backup_column]:
+                    record[backup_column] =  Bag()
+                    n = 0
+                else:
+                    n = int(record[backup_column].keys()[-1].split('_')[1])+1
+                record[backup_column].setItem('v_%s' % n, record[data_column], ts=datetime.now())
+                if len (record[backup_column]) > backup:
+                    record[backup_column].popNode('#0')
+            record[data_column] = self.data
+
+    def sql_load(self, tblobj, version=None):
+        record = tblobj.record(self.shared_id).output('bag')
+        onLoadingHandler=getattr(tblobj, 'shared_onLoading')
+        if onLoadingHandler:
+            onLoadingHandler(record)
+
+        if not version:
+            return record[self.sql_data_column]
+        else:
+            return record[self.sql_backup_column].getItem('v_%i'% version)
+
+
 
     def onInit(self,**kwargs):
         if self.autoLoad:
@@ -514,7 +567,10 @@ class SharedObject(object):
             if p != from_page_id:
                 channels.get(p).write_message(envelope)
         
- 
+
+class SqlSharedObject(SharedObject):
+
+    pass
         
 
 class SharedLogger(SharedObject):
