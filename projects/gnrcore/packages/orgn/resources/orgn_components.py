@@ -160,7 +160,7 @@ class ViewActionComponent(BaseComponent):
 
 class ViewMixedComponent(BaseComponent):
     def th_hiddencolumns(self):
-        return """$annotation_ts,$priority,$rec_type,$annotation_background,
+        return """$annotation_ts,$sort_ts,$priority,$rec_type,$annotation_background,
                   $annotation_color,$description,$action_description,
                   $done_ts,$action_type_description,$following_actions"""
 
@@ -170,7 +170,7 @@ class ViewMixedComponent(BaseComponent):
             name='P.',rowTemplate="""
             <div class="priority_annotation_cell priority_$priority">&nbsp;</div>
             """)
-        r.fieldcell('annotation_ts',name='!!Datetime',width='6em')
+        r.fieldcell('sort_ts',name='!!Datetime',width='6em')
         r.fieldcell('author_user_id',name='!!Autor',width='9em')
         r.cell('annotation_template',name='!!Type',width='9em',
                 rowTemplate="""<div style='background:$annotation_background;color:$annotation_color;border:1px solid $color;text-align:center;border-radius:10px;'>$annotation_caption</div>""")
@@ -189,7 +189,7 @@ class ViewMixedComponent(BaseComponent):
         #r.fieldcell('log_id')
 
     def th_order(self):
-        return 'annotation_ts'
+        return 'sort_ts'
 
     def th_query(self):
         return dict(column='annotation_caption', op='contains', val='')
@@ -210,7 +210,7 @@ class OrganizerComponent(BaseComponent):
 
     @extract_kwargs(user=True)
     @struct_method
-    def td_annotationTableHandler(self,pane,linked_entity=None,user_kwargs=None,configurable=False,nodeId=None,**kwargs):
+    def td_annotationTableHandler(self,pane,linked_entity=None,user_kwargs=None,configurable=True,nodeId=None,**kwargs):
         pid = id(pane)
         if not linked_entity:
             parentTable = pane.getInheritedAttributes()['table']
@@ -235,7 +235,7 @@ class OrganizerComponent(BaseComponent):
 
     def actionOutcomeDialog(self,pane,formId=None):
         pane.thFormHandler(table='orgn.annotation',formResource='ActionOutcomeForm',
-                        dialog_height='300px',dialog_width='600px',
+                        dialog_height='350px',dialog_width='600px',
                         formId=formId,datapath='#FORM.actionOutcome')
 
     @struct_method

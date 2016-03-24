@@ -7,7 +7,7 @@ class Table(object):
     def config_db(self,pkg):
         tbl =  pkg.table('annotation',pkey='id',name_long='Annotation',
                             name_plural='Annotations',caption_field='annotation_caption',
-                            order_by='$annotation_ts')
+                            order_by='$sort_ts')
         self.sysFields(tbl,user_upd=True)
         tbl.column('rec_type',size='2',values='AN:[!!Annotation],AC:[!!Action]')
         #belong to annotation
@@ -58,6 +58,13 @@ class Table(object):
         tbl.formulaColumn("assigned_by_tag","""(',' || :env_userTags || ',' LIKE '%%,'|| COALESCE($assigned_tag,'') || ',%%')""",
                         dtype='B')
 
+        tbl.formulaColumn('sort_ts',"""(CASE WHEN $rec_type='AN' THEN $annotation_ts
+                                               ELSE $calculated_due_ts END)""",dtype='DH',group='*')
+
+        tbl.formulaColumn("calculated_due_ts","""(CASE WHEN $time_due IS NOT NULL THEN $calculated_date_due+$time_due
+                                                       WHEN $calculated_date_due IS NOT NULL THEN CAST($calculated_date_due AS TIMESTAMP)
+                                                       ELSE $annotation_ts END)""",
+                        dtype='DH',name_long='!!Calc.Due ts')
 
         tbl.formulaColumn("calculated_date_due","""COALESCE ($date_due,$pivot_date_due)""",dtype='D',name_long='!!Calc.Date due')
 
@@ -197,7 +204,6 @@ class Table(object):
                     followed_action = self.record(pkey=record_data['id']).output('dict')
                     next_action['rec_type'] = 'AC'
                     next_action['priority'] = next_action['priority'] or 'L'
-
                     next_action.update(dictExtract(followed_action,'le_',slice_prefix=False))
                     next_action.update(dictExtract(followed_action,'linked_',slice_prefix=False))
                     next_action['parent_annotation_id'] = record_data['id']

@@ -78,15 +78,24 @@ class ActionOutcomeForm(BaseComponent):
         self.orgnActionCancelled(sc.contentPane(title='!!Cancel',pageName='action_cancelled'))
         self.orgnActionDelay(sc.contentPane(title='!!Delay',pageName='action_delay'))
         self.orgnActionRescheduled(sc.contentPane(title='!!Reschedule',pageName='action_rescheduled'))
-        bc.dataController("""
-            if(exit_status=='action_rescheduled' || exit_status=='action_confirmed' && outcome_id){
-                SET .$assiged_user_id_mandatory = !assigned_tag;
-                SET .$assigned_tag_mandatory = !assigned_user_id;
-            }""",rec_type='^.rec_type',_delay=1,
-                        assigned_tag='^.assigned_tag',
-                        assigned_user_id='^.assigned_user_id',
-                        exit_status='^#FORM.record.exit_status',
-                        outcome_id='^#FORM.record.$outcome_id')
+        #bc.dataController("""
+        #    if(exit_status=='action_rescheduled'){
+        #        SET #FORM.record.$assigned_user_id_mandatory = !new_action_assigned_tag;
+        #        SET #FORM.record.$assigned_tag_mandatory = !new_action_assigned_user_id;
+        #    }
+        #    else if(exit_status=='action_confirmed' && outcome_id){
+        #        SET #FORM.record.$assigned_user_id_mandatory = !reschedulig_assigned_tag;
+        #        SET #FORM.record.$assigned_tag_mandatory = !reschedulig_assigned_user_id;
+        #    }else{
+        #        SET #FORM.record.$assigned_user_id_mandatory = false;
+        #        SET #FORM.record.$assigned_tag_mandatory = false;
+        #    }""",_delay=100,
+        #                new_action_assigned_tag='^#FORM.record.next_action.assigned_tag',
+        #                new_action_assigned_user_id='^#FORM.record.next_action.assigned_user_id',
+        #                reschedulig_assigned_tag='^#FORM.record.rescheduling.assigned_tag',
+        #                reschedulig_assigned_user_id='^#FORM.record.rescheduling.assigned_user_id',
+        #                exit_status='^#FORM.record.exit_status',
+        #                outcome_id='^#FORM.record.outcome_id')
 
     def orgnActionConfirmed(self,pane):
         fb = pane.div(margin='10px').formbuilder(cols=2,border_spacing='3px',width='100%',colswidth='auto',datapath='.record',fld_width='100%')
@@ -112,15 +121,15 @@ class ActionOutcomeForm(BaseComponent):
         fb.dateTextBox(value='^.next_action.date_due',lbl='!!Outcome date due',hidden='^.outcome_id?=!#v',width='7em') 
         fb.timeTextBox(value='^.next_action.time_due',lbl='!!Time due',hidden='^.outcome_id?=!#v',width='7em') 
         fb.filteringSelect(value='^.next_action.priority',hidden='^.outcome_id?=!#v',
-                                lbl='!!Priority',values='L:[!!Low],M:[!!Medium],H:[!!High]')
+                                lbl='!!Priority',values='L:[!!Low],M:[!!Medium],H:[!!High]',width='8em')
         fb.dbSelect(value='^.next_action.assigned_tag',lbl='!!Assigned tag',
                 condition='$child_count = 0 AND $isreserved IS NOT TRUE',
-                validate_notnull='^.$assigned_tag_mandatory',
+                validate_notnull='^#FORM.record.$assigned_tag_mandatory',
                 dbtable='adm.htag',alternatePkey='code',validate_onAccept="""if(userChange && value){
                         SET .next_action.assigned_user_id=null;}""",
                         hidden='^.outcome_id?=!#v',colspan=2)
         fb.dbSelect(value='^.next_action.assigned_user_id',lbl='!!Assigned to',
-                    validate_notnull='^.$assiged_user_id_mandatory',
+                    validate_notnull='^#FORM.record.$assigned_user_id_mandatory',
                     dbtable='adm.user',hidden='^.outcome_id?=!#v') #setting condition
         pane.button('!!Confirm Action',action='this.form.publish("save",{destPkey:"*dismiss*"})',position='absolute',bottom='5px',right='5px')
 
@@ -144,7 +153,7 @@ class ActionOutcomeForm(BaseComponent):
                       width='7em')
         fb.timeTextBox(value='^.rescheduling.time_due',lbl='!!Time due',width='6em')
         fb.dbSelect(value='^.rescheduling.assigned_user_id',lbl='!!Rescheduling user',
-                    validate_notnull='^.$assiged_user_id_mandatory',validate_onAccept="""if(userChange && value){
+                    validate_notnull='^.$assigned_user_id_mandatory',validate_onAccept="""if(userChange && value){
                         SET .rescheduling.assigned_tag=null;}""",
                     dbtable='adm.user',width='7em') #setting condition
         fb.dbSelect(value='^.rescheduling.assigned_tag',lbl='!!Rescheduling Tag',
@@ -155,7 +164,7 @@ class ActionOutcomeForm(BaseComponent):
         pane.button('!!Reschedule Action',action='this.form.publish("save",{destPkey:"*dismiss*"})',position='absolute',bottom='5px',right='5px')
 
     def th_options(self):
-        return dict(dialog_height='300px',dialog_width='600px',
+        return dict(dialog_height='350px',dialog_width='600px',
                     titleTemplate='!!Action $@action_type_id.description',
                     showtoolbar=False)
 
