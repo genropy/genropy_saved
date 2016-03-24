@@ -1,6 +1,7 @@
 # encoding: utf-8
 import datetime
 from gnr.core.gnrdict import dictExtract
+from gnr.core.gnrdecorator import public_method
 
 class Table(object):
     def config_db(self,pkg):
@@ -21,7 +22,9 @@ class Table(object):
         tbl.column('parent_annotation_id',size='22' ,group='_',name_long='!!Parent annotation').relation('annotation.id',relation_name='orgn_related_actions',mode='foreignkey',onDelete='cascade')
         tbl.column('action_type_id',size='22',name_long='!!Action type',group='_').relation('action_type.id',mode='foreignkey', onDelete='raise')
         tbl.column('action_fields',dtype='X',name_long='!!Action Fields',subfields='action_type_id')
-        tbl.column('assigned_user_id',size='22',group='*',name_long='!!User').relation('adm.user.id',relation_name='orgn_actions',onDelete='raise')
+        tbl.column('assigned_user_id',size='22',group='*',name_long='!!Assigned to').relation('adm.user.id',relation_name='orgn_actions',onDelete='raise')
+        tbl.column('done_user_id',size='22',group='*',name_long='!!Done by').relation('adm.user.id',relation_name='orgn_actions_done',onDelete='raise')
+
         tbl.column('assigned_tag',size=':50',name_long='!!User Tag')
         tbl.column('priority',size='1',name_long='!!Priority',values='L:[!!Low],M:[!!Medium],H:[!!High]')
         tbl.column('notice_days',dtype='I',name_long='!!Notice days',name_short='N.Days')
@@ -151,7 +154,9 @@ class Table(object):
     def trigger_onUpdating(self,record_data,old_record=None):
         if old_record['rec_type'] == 'AC' and record_data['rec_type'] == 'AN':
             #closing action
+            record_data['done_user_id'] = self.db.currentEnv.get('user_id')
             record_data['done_ts'] = record_data['__mod_ts']
+            confirmed_type_id = self.db.table('orgn.annotation_type').sysRecord('ACT_CONFIRMED')['id']
             rescheduled_type_id = self.db.table('orgn.annotation_type').sysRecord('ACT_RESCHEDULED')['id']
             if record_data['annotation_type_id'] == rescheduled_type_id:
                 rescheduling = record_data.pop('rescheduling',None)
@@ -163,6 +168,18 @@ class Table(object):
                     rescheduled_action['assigned_tag'] = rescheduling['assigned_tag'] or rescheduled_action['assigned_tag']
                     rescheduled_action['assigned_user_id'] = rescheduling['assigned_user_id'] or rescheduled_action['assigned_user_id']
                     self.insert(rescheduled_action)
+            elif record_data['annotation_type_id'] == confirmed_type_id and record_data.pop('outcome_id',None):
+                next_action_pars = record_data.pop('next_action',None)
+                if next_action_pars:
+                    next_action = self.record(pkey=record_data['id']).output('dict')
+                    next_action.pop('id')
+                    next_action['date_due'] = next_action_pars['date_due']
+                    next_action['time_due'] = next_action_pars['time_due']
+                    next_action['assigned_tag'] = next_action_pars['assigned_tag']
+                    next_action['assigned_user_id'] = next_action_pars['assigned_user_id']
+                    next_action['parent_annotation_id'] = record_data['id']
+                    self.insert(next_action)
+                #if outcome_id:
 
 
     def formulaColumn_pluggedFields(self):
@@ -214,5 +231,13 @@ class Table(object):
             if related_table.column('orgn_pivot_date') is not None:
                 return related_table.dbtable.readColumns(pkey=action_defaults[fkey_field],columns='$orgn_pivot_date')
 
+
+
+    @public_method
+    def getDueDateFromDeadline(self,deadline_days=None,pivot_date=None,**action_defaults):
+        pivot_date = pivot_date or self.getPivotDateFromDefaults(action_defaults)
+        if pivot_date:
+            _date_due_from_pivot = datetime.datetime(pivot_date.year,pivot_date.month,pivot_date.day)
+            return (_date_due_from_pivot+datetime.timedelta(days=deadline_days)).date()
 
 

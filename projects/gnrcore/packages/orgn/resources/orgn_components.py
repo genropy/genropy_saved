@@ -28,7 +28,7 @@ class FormMixedComponent(BaseComponent):
         action_type_condition = None
         action_type_kwargs = dict()
         if linked_entity:
-            annotation_type_condition = "(CASE WHEN $restrictions IS NOT NULL THEN :restriction = ANY(string_to_array($restrictions,',')) ELSE TRUE END)"
+            annotation_type_condition = "$reserved IS NOT TRUE AND (CASE WHEN $restrictions IS NOT NULL THEN :restriction = ANY(string_to_array($restrictions,',')) ELSE TRUE END)"
             annotation_type_kwargs = dict(condition_restriction=linked_entity)
             action_type_condition = "(CASE WHEN $restrictions IS NOT NULL THEN :restriction = ANY(string_to_array($restrictions,',')) ELSE TRUE END)"
             action_type_kwargs = dict(condition_restriction=linked_entity)
@@ -90,7 +90,7 @@ class FormMixedComponent(BaseComponent):
                     validate_notnull='^.rec_type?=#v=="AC"',**action_type_kwargs)
         fb.field('assigned_user_id',#disabled='^.assigned_tag',
                     validate_notnull='^.$assiged_user_id_mandatory',
-                    validate_onAccept="""if(userChange){
+                    validate_onAccept="""if(userChange && value){
                                                 SET .assigned_tag=null;
                                     }""",hasDownArrow=True,**user_kwargs)
 
@@ -98,7 +98,7 @@ class FormMixedComponent(BaseComponent):
         fb.field('assigned_tag',condition='$child_count = 0 AND $isreserved IS NOT TRUE',tag='dbselect',
                 validate_notnull='^.$assigned_tag_mandatory',
                 dbtable='adm.htag',alternatePkey='code',
-                validate_onAccept="""if(userChange){
+                validate_onAccept="""if(userChange && value){
                                     SET .assigned_user_id=null;
                                 }""",hasDownArrow=True)
         fb.dataController("""if(rec_type=='AN'){
@@ -112,7 +112,7 @@ class FormMixedComponent(BaseComponent):
                         assigned_user_id='^.assigned_user_id')
         fb.field('priority')
         fb.field('notice_days')
-        fb.dataRpc('dummy',self.getDueDateFromDeadline,
+        fb.dataRpc('dummy',self.db.table('orgn.annotation').getDueDateFromDeadline,
                     deadline_days='^.@action_type_id.deadline_days',
                     date_due='=.date_due',_if='deadline_days && !date_due',
                     _onResult="""
@@ -144,13 +144,6 @@ class FormMixedComponent(BaseComponent):
             result.append(dict(action_type_id=ac['id'],assigned_tag=ac['default_tag'],priority=ac['default_priority'],
                                 _date_due_from_pivot=_date_due_from_pivot))
         return result
-
-    @public_method
-    def getDueDateFromDeadline(self,deadline_days=None,**action_defaults):
-        pivot_date = self.db.table('orgn.annotation').getPivotDateFromDefaults(action_defaults)
-        if pivot_date:
-            _date_due_from_pivot = datetime(pivot_date.year,pivot_date.month,pivot_date.day)
-            return (_date_due_from_pivot+timedelta(days=deadline_days)).date()
 
 class ViewActionComponent(BaseComponent):
     def th_hiddencolumns(self):

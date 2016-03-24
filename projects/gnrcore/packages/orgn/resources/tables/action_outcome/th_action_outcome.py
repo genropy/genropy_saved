@@ -23,6 +23,7 @@ class ViewFromActionType(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('_row_count',hidden=True,counter=True)
+        r.fieldcell('description',edit=dict(validate_notnull=True),width='20em')
         r.fieldcell('outcome_action_type_id')
         r.fieldcell('deadline_days',edit=True)
         r.fieldcell('default_tag',edit=dict(condition='$child_count = 0 AND $isreserved IS NOT TRUE',

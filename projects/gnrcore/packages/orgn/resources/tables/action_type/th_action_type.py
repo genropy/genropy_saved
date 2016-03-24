@@ -56,10 +56,10 @@ class Form(BaseComponent):
         bc = form.center.borderContainer()
         topbc = bc.borderContainer(region='top',datapath='.record',height='200px')
 
-        topleft = topbc.roundedGroup(title='!!Action type info',region='left',width='600px')
+        topleft = topbc.roundedGroup(title='!!Action type info',region='left',width='700px')
         fb = topleft.div(margin_right='15px').formbuilder(cols=3, border_spacing='4px',width='100%',colswidth='auto',fld_width='100%')
         fb.field('code',width='5em')
-        fb.field('description')
+        fb.field('description',colspan=2)
         fb.field('deadline_days',width='6em')
         fb.field('default_priority',width='10em')
         fb.field('default_tag',condition='$child_count = 0 AND $isreserved IS NOT TRUE',
@@ -76,19 +76,17 @@ class Form(BaseComponent):
                border='1px solid gray',
                cursor='pointer',background='^.color').menu(modifiers='*',_class='colorPaletteMenu').menuItem().colorPalette(value='^.color')
 
-        topright = topbc.roundedGroupFrame(title='!!Text template',region='right',width='300px'
+        topright = topbc.roundedGroupFrame(title='!!Text template',region='center'
                             ).center.contentPane(overflow='hidden')
-        topbc.contentPane(region='center',datapath='#FORM').plainTableHandler(relation='@outcomes',
+        topright.simpleTextArea(value='^.text_template',position='absolute',top=0,left=0,right=0,bottom=0,border=0)
+        tc = bc.tabContainer(region='center',margin='2px')
+        tc.contentPane(title='!!Outcomes',datapath='#FORM').inlineTableHandler(relation='@outcomes',addrow=False,
                                                                            picker='outcome_action_type_id',
                                                                            picker_condition="""(CASE WHEN $restrictions IS NOT NULL AND :restriction IS NOT NULL 
                                                                                     THEN  string_to_array($restrictions,',') @> string_to_array(:restriction,',')
                                                                                 ELSE TRUE END)""",
                                 picker_condition_restriction='^#FORM.record.restrictions',
-                                                                           searchOn=False,
-                                                                           configurable=False,
-                                                                           viewResource='ViewFromActionType')
-        topright.simpleTextArea(value='^.text_template',position='absolute',top=0,left=0,right=0,bottom=0,border=0)
-        tc = bc.tabContainer(region='center',margin='2px')
+                                pbl_classes=True,searchOn=False,configurable=False,viewResource='ViewFromActionType')
         tc.contentPane(title='!!Action fields').fieldsGrid(title='!!Fields',pbl_classes=True,margin='2px')
         self.fullTemplate(tc.contentPane(title='!!Full template'))
 

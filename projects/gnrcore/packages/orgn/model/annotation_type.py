@@ -10,15 +10,17 @@ class Table(object):
         tbl.column('restrictions',name_long='!!Restrictions')
         tbl.column('background_color',name_long='!!Background')
         tbl.column('color',name_long='!!Text color')
+        tbl.column('reserved',dtype='B',name_long='!!Reserved')
 
     def sysRecord_ACT_CONFIRMED(self):
-        return self.newrecord(code='ACT_CONFIRMED',description='Action Confirmed')
+        return self.newrecord(code='ACT_CONFIRMED',description='Action Confirmed',reserved=True)
 
     def sysRecord_ACT_CANCELLED(self):
-        return self.newrecord(code='ACT_CANCELLED',description='Action Cancelled')
+        return self.newrecord(code='ACT_CANCELLED',description='Action Cancelled',reserved=True)
 
     def sysRecord_ACT_RESCHEDULED(self):
-        return self.newrecord(code='ACT_RESCHEDULED',description='Action Rescheduled')
+        return self.newrecord(code='ACT_RESCHEDULED',description='Action Rescheduled',reserved=True)
+
 
 
 
