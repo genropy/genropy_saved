@@ -3616,6 +3616,9 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         var tb;
         var gnrwdg = sourceNode.gnrwdg;
         var has_code;
+        sourceNode.attr.disabled=originalKwargs.disabled;
+        sourceNode.attr.readOnly = originalKwargs.readOnly
+
         gnrwdg.identifier = objectPop(kw,'identifier')
         gnrwdg.labelAttribute = objectPop(kw,'labelAttribute')
         gnrwdg._valuelabel = kw._valuelabel;
@@ -3668,6 +3671,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             var textBoxId = 'placingTextbox_'+genro.getCounter();
             var tbkw = {'value':has_code?value+'?_displayedValue':value,position:'relative',readOnly:true,nodeId:textBoxId};
             tb = sourceNode._('textbox',objectUpdate(tbkw,kw));
+            gnrwdg.textboxNode = tb.getParentNode(); 
             rootNode = tb._('comboArrow')._('tooltipPane',{placingId:textBoxId})._('div',{padding:'5px',overflow:'auto',max_height:'300px',min_width:'200px'});
         }else{
             table_kw['tooltip']=objectPop(kw,'tooltip');
@@ -3694,9 +3698,27 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             };
         }
         gnrwdg.setValues(values);
+        if(kw.disabled){
+            gnrwdg.setDisabled(kw.disabled);
+        }
+        if(kw.readOnly){
+            gnrwdg.setReadOnly(kw.readOnly);
+        }
         return popup?tb:tbl;
     },
 
+    gnrwdg_setDisabled:function(disabled,kw){
+        if(this.textboxNode){
+            genro.dom.setClass(this.textboxNode,'dijitDisabled',disabled);
+        }
+    },
+
+    gnrwdg_setReadOnly:function(readOnly,kw){
+        if(this.textboxNode){
+            genro.dom.setClass(this.textboxNode,'dijitDisabled',readOnly);
+        }
+    },
+    
     gnrwdg_setValues:function(values,kw){
         if(this.values==values){
             return;
