@@ -28,7 +28,7 @@ class FormMixedComponent(BaseComponent):
         action_type_condition = None
         action_type_kwargs = dict()
         if linked_entity:
-            annotation_type_condition = "$reserved IS NOT TRUE AND (CASE WHEN $restrictions IS NOT NULL THEN :restriction = ANY(string_to_array($restrictions,',')) ELSE TRUE END)"
+            annotation_type_condition = "(CASE WHEN $restrictions IS NOT NULL THEN :restriction = ANY(string_to_array($restrictions,',')) ELSE TRUE END)"
             annotation_type_kwargs = dict(condition_restriction=linked_entity)
             action_type_condition = "(CASE WHEN $restrictions IS NOT NULL THEN :restriction = ANY(string_to_array($restrictions,',')) ELSE TRUE END)"
             action_type_kwargs = dict(condition_restriction=linked_entity)
