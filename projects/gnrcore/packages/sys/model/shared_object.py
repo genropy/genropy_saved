@@ -12,7 +12,7 @@ class Table(object):
         tbl.column('description', size=':50', name_long='Code', indexed=True)
         tbl.column('linked_table', name_long='!!Table')
 
-    def saveObject(self, shared_id, shared_data, backup=None, linked_table=None, description=None):
+    def saveSharedObject(self, shared_id, shared_data, backup=None, linked_table=None, description=None):
         with self.recordToUpdate(shared_id, insertMissing=True) as record:
             if not record['id']:
                 record['linked_table']=linked_table
@@ -29,7 +29,7 @@ class Table(object):
             record['data'] = shared_data
             print 'UPDATED DATA WITH', shared_data
 
-    def loadObject(self, shared_id, version=None):
+    def loadSharedObject(self, shared_id, version=None):
         record = self.record(shared_id).output('bag')
         if not version:
             return record['data']
