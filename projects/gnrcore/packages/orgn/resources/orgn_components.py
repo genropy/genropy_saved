@@ -33,14 +33,16 @@ class FormMixedComponent(BaseComponent):
             action_type_condition = "(CASE WHEN $restrictions IS NOT NULL THEN :restriction = ANY(string_to_array($restrictions,',')) ELSE TRUE END)"
             action_type_kwargs = dict(condition_restriction=linked_entity)
         topbc = bc.borderContainer(region='top',datapath='.record',height='50%')
-        fb = topbc.contentPane(region='top').div(margin_right='20px',margin='10px').formbuilder(cols=1, border_spacing='4px',
+        fb = topbc.contentPane(region='top').div(margin_right='20px',margin='10px').formbuilder(cols=2, border_spacing='4px',
                                                                                             fld_width='100%',
                                                                                             colswidth='auto',width='100%')
         fb.field('annotation_type_id',condition=annotation_type_condition,
-                    hasDownArrow=True,width='15em',validate_notnull='^.rec_type?=#v=="AN"',**annotation_type_kwargs)
-        fb.field('description',tag='simpleTextArea')
+                    hasDownArrow=True,width='15em',validate_notnull='^.rec_type?=#v=="AN"',
+                    colspan=2,**annotation_type_kwargs)
+        fb.field('description',tag='simpleTextArea',colspan=2)
+        fb.field('annotation_date',width='7em')
+        fb.field('annotation_time',width='7em')
         topbc.contentPane(region='center').dynamicFieldsPane('annotation_fields',margin='2px')
-    
         def following_actions_struct(struct):
             r = struct.view().rows()
             r.cell('_date_due_from_pivot',calculated=True,hidden=True)
@@ -56,17 +58,18 @@ class FormMixedComponent(BaseComponent):
                                   validate_onAccept="""if(value){this.setCellValue("assigned_tag",null)}""",
                                   **user_kwargs),
                          editLazy='=#ROW.assigned_tag',width='9em')
-            r.fieldcell('priority',edit=True,width='6em')
-            r.fieldcell('date_due',edit=True,width='7em',
+            r.fieldcell('priority',edit=dict(validate_notnull=True),width='6em')
+            r.fieldcell('date_due',edit=dict(validate_notnull='=#ROW._date_due_from_pivot?=!#v'),width='7em',
                         _customGetter="""function(row){
-                                            return row['date_due'] || '<div class="dimmed">'+_F(row['_date_due_from_pivot'])+'</div>'
+                                            return row['date_due'] || '<div class="dimmed">'+row['_date_due_from_pivot']+'</div>'
                                          }""")
+            r.fieldcell('time_due',edit=True,width='7em')
             r.fieldcell('notice_days',edit=True,width='4em')
         th = bc.contentPane(region='center').inlineTableHandler(title='!!Actions',relation='@orgn_related_actions',
                         viewResource='orgn_components:ViewActionComponent',
                         view_structCb=following_actions_struct,searchOn=False,
                         nodeId='orgn_action_#',
-                        form_user_kwargs=user_kwargs,default_rec_type='AC',
+                        form_user_kwargs=user_kwargs,default_rec_type='AC',default_priority='L',
                         **dict([('default_%s' %k,v) for k,v in sub_action_default_kwargs.items()]))
         rpc = bc.dataRpc('dummy',self.orgn_getDefaultActionsRows,annotation_type_id='^#FORM.record.annotation_type_id',
                         _if='annotation_type_id&&_is_newrecord',_is_newrecord='=#FORM.controller.is_newrecord',**sub_action_default_kwargs)
@@ -141,15 +144,15 @@ class FormMixedComponent(BaseComponent):
             if ac['deadline_days'] and pivot_date:
                 _date_due_from_pivot = datetime(pivot_date.year,pivot_date.month,pivot_date.day)
                 _date_due_from_pivot = (_date_due_from_pivot+timedelta(days=ac['deadline_days'])).date()
-            result.append(dict(action_type_id=ac['id'],assigned_tag=ac['default_tag'],priority=ac['default_priority'],
-                                _date_due_from_pivot=_date_due_from_pivot))
+            result.append(dict(action_type_id=ac['id'],assigned_tag=ac['default_tag'],priority=ac['default_priority'] or 'L',
+                                _date_due_from_pivot=self.toText(_date_due_from_pivot)))
         return result
 
 class ViewActionComponent(BaseComponent):
     def th_hiddencolumns(self):
-        return '$__ins_ts'
+        return '$annotation_ts'
     def th_order(self):
-        return '__ins_ts'
+        return 'annotation_ts'
 
     def th_query(self):
         return dict(column='annotation_caption', op='contains', val='')
@@ -157,16 +160,23 @@ class ViewActionComponent(BaseComponent):
 
 class ViewMixedComponent(BaseComponent):
     def th_hiddencolumns(self):
-        return '$__ins_ts,$rec_type,$annotation_background,$annotation_color,$description,$action_description,$rec_type,$done_ts,$action_type_description'
+        return """$annotation_ts,$priority,$rec_type,$annotation_background,
+                  $annotation_color,$description,$action_description,
+                  $done_ts,$action_type_description,$following_actions"""
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('__ins_ts',name='TS',width='12em')
-        r.cell('annotation_template',name='!!About',width='18em',
+        r.cell('priority',width='2em',
+            name='P.',rowTemplate="""
+            <div class="priority_annotation_cell priority_$priority">&nbsp;</div>
+            """)
+        r.fieldcell('annotation_ts',name='!!Datetime',width='6em')
+        r.fieldcell('author_user_id',name='!!Autor',width='9em')
+        r.cell('annotation_template',name='!!Type',width='9em',
                 rowTemplate="""<div style='background:$annotation_background;color:$annotation_color;border:1px solid $color;text-align:center;border-radius:10px;'>$annotation_caption</div>""")
         r.fieldcell('annotation_caption',hidden=True)
-        r.fieldcell('calc_description',width='20em',name='Description')
-        r.fieldcell('priority',width='6em')
+        r.fieldcell('calc_description',width='25em',name='Description')
+        r.fieldcell('date_due',width='7em',name='!!Date due')
         r.cell('action_do',name=" ",calculated=True,width='3em',
                     cellClasses='cellbutton',
                     format_buttonclass='icnBaseLens auction',
@@ -179,7 +189,7 @@ class ViewMixedComponent(BaseComponent):
         #r.fieldcell('log_id')
 
     def th_order(self):
-        return '__ins_ts'
+        return 'annotation_ts'
 
     def th_query(self):
         return dict(column='annotation_caption', op='contains', val='')
@@ -217,6 +227,7 @@ class OrganizerComponent(BaseComponent):
                                 default_linked_entity=linked_entity,
                                 form_linked_entity=linked_entity,
                                 liveUpdate=True,
+                                view_grid_canSort=False,
                                 view_grid_selfsubscribe_do_action="genro.formById('%s').goToRecord($1.pkey);" %formOutcomeId,
                                 addrow=[('Annotation',dict(rec_type='AN')),('Action',dict(rec_type='AC'))],
                                 **kwargs)

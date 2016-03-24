@@ -1,15 +1,17 @@
-._common_d11 .orgn_AN .dojoxGrid-cell,._common_d11 .orgn_AN.dojoxGrid-cell{
-    background: rgba(223, 255, 147, 0.2) !important;
-}
-
-._common_d11 .orgn_AC .dojoxGrid-cell, ._common_d11 .orgn_AC.dojoxGrid-cell{
-    background: rgba(255, 165, 146, 0.3) !important;
-}
-
-
 .priority_cell_spacer{
     width: 5px;
 }
+.priority_annotation_cell{
+    display: none;
+}
+.orgn_AC .priority_annotation_cell{
+    width:8px;
+    height: 8px;
+    border-radius: 10px;
+    margin: 5px;
+    display: block;
+}
+
 .priority_cell{
     width:7px;
     border-top-left-radius: 6px;
@@ -19,9 +21,8 @@
     background: #C22531;
 }
 
-
 .priority_M{
-    background: #FFFF68;
+    background: #4FBDF2;
 }
 
 .priority_L{
@@ -57,10 +58,10 @@
     padding-bottom: 1px;
     padding-right: 10px;
     color:#333;
-    background-color:RGBA(255, 255, 104, 0.45); 
+    background-color:RGBA(255, 255, 104, 0.1); 
     cursor:pointer;
     margin:3px;
-    /*box-shadow: 1px 1px 1px #B2B2B2;*/
+    box-shadow: 1px 1px 2px #B2B2B2;
 }
 
 

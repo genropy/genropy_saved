@@ -1,13 +1,13 @@
 # encoding: utf-8
 import datetime
 from gnr.core.gnrdict import dictExtract
-from gnr.core.gnrdecorator import public_method
-
+from gnr.core.gnrdecorator import public_method,metadata
+import pytz
 class Table(object):
     def config_db(self,pkg):
         tbl =  pkg.table('annotation',pkey='id',name_long='Annotation',
                             name_plural='Annotations',caption_field='annotation_caption',
-                            order_by='$__ins_ts')
+                            order_by='$annotation_ts')
         self.sysFields(tbl,user_upd=True)
         tbl.column('rec_type',size='2',values='AN:[!!Annotation],AC:[!!Action]')
         #belong to annotation
@@ -16,7 +16,10 @@ class Table(object):
         tbl.column('description',name_long='!!Description')
         tbl.column('annotation_type_id',size='22',name_long='!!Annotation type',group='_').relation('annotation_type.id',mode='foreignkey', onDelete='raise')
         tbl.column('annotation_fields',dtype='X',name_long='!!Annotation Fields',subfields='annotation_type_id')
-        
+        tbl.column('annotation_date',dtype='D',name_long='!!Date',indexed=True)
+        tbl.column('annotation_time',dtype='H',name_long='!!Time',indexed=True)
+        tbl.column('annotation_ts',dtype='DHZ',name_long='!!Annotation ts',indexed=True)
+
         #belong to actions
         tbl.column('action_description',name_long='!!Action Description')
         tbl.column('parent_annotation_id',size='22' ,group='_',name_long='!!Parent annotation').relation('annotation.id',relation_name='orgn_related_actions',mode='foreignkey',onDelete='cascade')
@@ -30,7 +33,7 @@ class Table(object):
         tbl.column('notice_days',dtype='I',name_long='!!Notice days',name_short='N.Days')
         tbl.column('date_due',dtype='D',name_long='!!Date due',indexed=True)
         tbl.column('time_due',dtype='H',name_long='!!Time due',indexed=True)
-        tbl.column('done_ts',dtype='DH',name_long='!!Done ts',indexed=True)
+        tbl.column('done_ts',dtype='DHZ',name_long='!!Done ts',indexed=True)
         tbl.column('linked_table',name_long='!!Linked table')
         tbl.column('linked_entity',name_long='!!Linked entity')
         tbl.column('linked_fkey',name_long='!!Linked fkey')
@@ -62,7 +65,10 @@ class Table(object):
                                                         THEN $pivot_date+@action_type_id.deadline_days
                                                     ELSE NULL END)""",dtype='D',name_long='!!Pivot date due')
 
-        tbl.pyColumn('calc_description',name_long='!!Calc description',required_columns='calculated_date_due,time_due,$action_type_description')
+        tbl.formulaColumn('following_actions',"array_to_string(ARRAY(#factions),',')",select_factions=dict(table='orgn.annotation',columns="$action_type_description || '-' || COALESCE($action_description,'missing description')",
+                                                                where='$parent_annotation_id=#THIS.id'),name_long='!!Following actions')
+
+        tbl.pyColumn('calc_description',name_long='!!Calc description',required_columns='calculated_date_due,time_due,$action_type_description,$following_actions')
 
         tbl.pyColumn('countdown',name_long='!!Countdown',required_columns='$calculated_date_due,$time_due,$rec_type,$done_ts')
         tbl.pyColumn('zoomlink',name_long='!!Zoomlink',required_columns='$connected_description,$linked_table,$linked_fkey,$linked_entity')
@@ -78,8 +84,9 @@ class Table(object):
                 c0 = self.db.currentPage.getRemoteTranslation('!!Previous Action')['translation']
                 c1 = self.db.currentPage.getRemoteTranslation('!!Outcome')['translation']
                 action_description = record['action_description'] or record['action_type_description']
-                description = record['description']
-                return "<b>%s:</b><i>%s</i><br/><b>%s:</b>%s" %(c0,action_description,c1,description)
+                description = '%s %s' %(record['description'] or '', record['following_actions'] or '')
+                result = "<b>%s:</b><i>%s</i><br/><b>%s:</b>%s" %(c0,action_description,c1,description)
+                return result
         else:
             return record['action_description']
 
@@ -141,7 +148,20 @@ class Table(object):
     def due_tpl_long(self):
         return '<div class="orgn_near_action">Due in %(days)s days and %(hours)s hours</div>'
 
+    def setAnnotationTs(self,record_data):
+        annotation_date = record_data['annotation_date']
+        annotation_time = record_data['annotation_time']
+        record_data['annotation_ts'] = None #fix for avoid comparing of bag
+        record_data['annotation_ts'] = datetime.datetime(annotation_date.year, annotation_date.month, 
+                                                        annotation_date.day, annotation_time.hour, 
+                                                        annotation_time.minute, annotation_time.second,
+                                                        annotation_time.microsecond, tzinfo=pytz.utc)
+
     def trigger_onInserting(self,record_data=None):
+        now = datetime.datetime.now(pytz.utc)
+        record_data['annotation_date'] = record_data.get('annotation_date') or now.date()
+        record_data['annotation_time'] = record_data.get('annotation_time') or now.time()
+        self.setAnnotationTs(record_data)
         record_data['author_user_id'] = self.db.currentEnv.get('user_id')
         for colname,colobj in self.columns.items():
             related_table = colobj.relatedTable()
@@ -155,32 +175,34 @@ class Table(object):
         if old_record['rec_type'] == 'AC' and record_data['rec_type'] == 'AN':
             #closing action
             record_data['done_user_id'] = self.db.currentEnv.get('user_id')
-            record_data['done_ts'] = record_data['__mod_ts']
+            record_data['done_ts'] = datetime.datetime.now(pytz.utc)
+            record_data['annotation_date'] = record_data['done_ts'].date()
+            record_data['annotation_time'] = record_data['done_ts'].time()
             confirmed_type_id = self.db.table('orgn.annotation_type').sysRecord('ACT_CONFIRMED')['id']
             rescheduled_type_id = self.db.table('orgn.annotation_type').sysRecord('ACT_RESCHEDULED')['id']
             if record_data['annotation_type_id'] == rescheduled_type_id:
                 rescheduling = record_data.pop('rescheduling',None)
                 if rescheduling:
                     rescheduled_action = self.record(pkey=record_data['id']).output('dict')
-                    rescheduled_action.pop('id')
-                    rescheduled_action['date_due'] = rescheduling['date_due'] or rescheduled_action['date_due']
-                    rescheduled_action['time_due'] = rescheduling['time_due'] or rescheduled_action['time_due']
-                    rescheduled_action['assigned_tag'] = rescheduling['assigned_tag'] or rescheduled_action['assigned_tag']
-                    rescheduled_action['assigned_user_id'] = rescheduling['assigned_user_id'] or rescheduled_action['assigned_user_id']
-                    self.insert(rescheduled_action)
+                    rescheduling.update(dictExtract(rescheduled_action,'le_',slice_prefix=False))
+                    rescheduling.update(dictExtract(rescheduled_action,'linked_',slice_prefix=False))
+                    rescheduling['date_due'] = rescheduling['date_due'] or rescheduled_action['date_due']
+                    rescheduling['time_due'] = rescheduling['time_due'] or rescheduled_action['time_due']
+                    rescheduling['assigned_tag'] = rescheduling['assigned_tag'] or rescheduled_action['assigned_tag']
+                    rescheduling['assigned_user_id'] = rescheduling['assigned_user_id'] or rescheduled_action['assigned_user_id']
+                    self.insert(rescheduling)
             elif record_data['annotation_type_id'] == confirmed_type_id and record_data.pop('outcome_id',None):
-                next_action_pars = record_data.pop('next_action',None)
-                if next_action_pars:
-                    next_action = self.record(pkey=record_data['id']).output('dict')
-                    next_action.pop('id')
-                    next_action['date_due'] = next_action_pars['date_due']
-                    next_action['time_due'] = next_action_pars['time_due']
-                    next_action['assigned_tag'] = next_action_pars['assigned_tag']
-                    next_action['assigned_user_id'] = next_action_pars['assigned_user_id']
+                next_action = record_data.pop('next_action',None)
+                if next_action:
+                    followed_action = self.record(pkey=record_data['id']).output('dict')
+                    next_action['rec_type'] = 'AC'
+                    next_action.update(dictExtract(followed_action,'le_',slice_prefix=False))
+                    next_action.update(dictExtract(followed_action,'linked_',slice_prefix=False))
                     next_action['parent_annotation_id'] = record_data['id']
                     self.insert(next_action)
                 #if outcome_id:
-
+        if self.fieldsChanged('annotation_date,annotation_time',record_data,old_record):
+            self.setAnnotationTs(record_data)
 
     def formulaColumn_pluggedFields(self):
         desc_fields = []
@@ -240,4 +262,10 @@ class Table(object):
             _date_due_from_pivot = datetime.datetime(pivot_date.year,pivot_date.month,pivot_date.day)
             return (_date_due_from_pivot+datetime.timedelta(days=deadline_days)).date()
 
+
+    @metadata(doUpdate=True)
+    def touch_fix_annotation_ts(self,record,old_record=None,**kwargs):
+        ins_ts = record['__ins_ts']
+        record['annotation_date'] = record.get('annotation_date') or ins_ts.date()
+        record['annotation_time'] = record.get('annotation_time') or ins_ts.time()
 
