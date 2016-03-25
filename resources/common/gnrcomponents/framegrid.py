@@ -198,7 +198,7 @@ class TemplateGrid(BaseComponent):
     def fgr_templateGrid(self,pane,pbl_classes='*',fields=None,contentCb=None,template=None, readOnly=False, template_resource=None, **kwargs):
         def struct(struct):
             r = struct.view().rows()
-            r.cell('tpl',rowTemplate=template or '=.current_template',width='100%',
+            r.cell('tpl',rowTemplate=template or '=.current_template',width='100%',cellClasses='tplcell',
                     edit=dict(fields=fields,contentCb=contentCb) if not readOnly and (fields or contentCb) else None,
                     calculated=True)
         kwargs.setdefault('addrow', not readOnly)
