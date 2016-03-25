@@ -16,5 +16,6 @@ class PluginOrganizer(BaseComponent):
                                 liveUpdate=True,
                                 dialog_noModal=False,
                                 condition='$plugin_assigment IS TRUE AND $done_ts IS NULL',viewResource='ViewPlugin',
-                                view_store_onStart=True,configurable=False,_class='noheader orgn_action_grid')
+                                view_store_onStart=True,
+                                configurable=False,_class='noheader orgn_action_grid')
 #

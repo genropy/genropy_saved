@@ -14,8 +14,8 @@ class GnrCustomWebPage(object):
         frame = root.framePane(datapath='main')
         self.mainToolbar(frame.top,room=room,datapath='.roomselector')
         bc = frame.center.borderContainer()
-        self.fieldsPane(bc.borderContainer(datapath='.shared.info',region='left',border_right='1px solid silver',splitter=True))
-        bc.workbenchPane('elements',region='center',datapath='.shared.drawing.elements')
+        self.fieldsPane(bc.borderContainer(datapath='.shared.info',region='left',border_right='1px solid silver',splitter=True,width='300px'))
+        #bc.workbenchPane('elements',region='center',datapath='.shared.drawing.elements')
         
     def mainToolbar(self,pane,room=None,datapath=None):
         bar=pane.slotToolbar(slots='rooms,20,savebtn,*',datapath=datapath)
@@ -23,10 +23,11 @@ class GnrCustomWebPage(object):
         bar.savebtn.slotButton('Save',action='genro.som.saveSharedObject(room);',room='=.room')
         fb=bar.rooms.formbuilder(cols=3,border_spacing='0')
         fb.textbox(value='^.room',lbl='Room')
-        bar.dataController("""if (old_room){genro.som.unregisterSharedObject(old_room);};
-                               genro.som.registerSharedObject('main.shared',room,{expire:20,autoSave:true,autoLoad:true});
-                              SET .old_room=room;
-                             """,room='^.room',old_room='=.old_room',_if='room')
+        bar.sharedObject('main.shared',shared_id='^.room',autoLoad=True,autoSave=True,expire=20)
+        #bar.dataController("""if (old_room){genro.som.unregisterSharedObject(old_room);};
+        #                       genro.som.registerSharedObject('main.shared',room,{expire:20,autoSave:true,autoLoad:true});
+        #                      SET .old_room=room;
+        #                     """,room='^.room',old_room='=.old_room',_if='room')
                          
     def fieldsPane(self,bc):
         pane=bc.contentPane(region='top')

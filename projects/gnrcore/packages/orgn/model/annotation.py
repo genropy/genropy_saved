@@ -63,7 +63,7 @@ class Table(object):
                         dtype='B')
 
         tbl.formulaColumn('sort_ts',"""(CASE WHEN $rec_type='AN' THEN $annotation_ts
-                                               ELSE $calculated_due_ts END)""",dtype='DH',group='*')
+                                             ELSE $calculated_due_ts END)""",dtype='DH',group='*')
 
         tbl.formulaColumn("calculated_due_ts","""(CASE WHEN $time_due IS NOT NULL THEN $calculated_date_due+$time_due
                                                        WHEN $calculated_date_due IS NOT NULL THEN CAST($calculated_date_due AS TIMESTAMP)
@@ -78,13 +78,18 @@ class Table(object):
 
         tbl.formulaColumn('following_actions',"array_to_string(ARRAY(#factions),',')",select_factions=dict(table='orgn.annotation',columns="$action_type_description || '-' || COALESCE($action_description,'missing description')",
                                                                 where='$parent_annotation_id=#THIS.id'),name_long='!!Following actions')
-
+        
+        tbl.formulaColumn('__protected_by_author',"""
+            CASE WHEN :env_orgn_author_only IS NOT TRUE THEN string_to_array(:env_userTags,',') @> string_to_array(COALESCE(:env_orgn_superuser_tag,''),',')
+            ELSE TRUE END
+            """)
         tbl.pyColumn('calc_description',name_long='!!Calc description',required_columns='calculated_date_due,time_due,$action_type_description,$following_actions')
 
         tbl.pyColumn('countdown',name_long='!!Countdown',required_columns='$calculated_date_due,$time_due,$rec_type,$done_ts')
         tbl.pyColumn('zoomlink',name_long='!!Zoomlink',required_columns='$connected_description,$linked_table,$linked_fkey,$linked_entity')
 
         tbl.pyColumn('template_cell',dtype='A',group='_',py_method='templateColumn', template_name='action_tpl',template_localized=True)
+
 
 
     def pyColumn_calc_description(self,record=None,field=None):
@@ -159,6 +164,31 @@ class Table(object):
     def due_tpl_long(self):
         return '<div class="orgn_near_action">Due in %(days)s days and %(hours)s hours</div>'
 
+    def formulaColumn_pluggedFields(self):
+        desc_fields = []
+        pivot_dates = []
+        assigments_restrictions = ["$_assignment_base"]
+        for colname,colobj in self.columns.items():
+            if colname.startswith('_assignment'):
+                assigments_restrictions.append(colname)
+            elif colname.startswith('le_'):
+                related_table = colobj.relatedTable()
+                if related_table:
+                    assigments_restrictions.append(' ( CASE WHEN $%s IS NOT NULL THEN @%s.__allowed_for_partition ELSE TRUE END ) ' %(colname,colname))
+                    if related_table.column('orgn_description') is not None:
+                        desc_fields.append('@%s.orgn_description' %colname)
+                    elif related_table.attributes.get('caption_field'):
+                        desc_fields.append('@%s.%s' %(colname,related_table.attributes['caption_field']))
+                    if related_table.column('orgn_pivot_date') is not None:
+                        pivot_dates.append('@%s.orgn_pivot_date' %colname)
+        description_formula = "COALESCE(%s,'Missing caption')" %','.join(desc_fields) if desc_fields else "'NOT PLUGGED'"
+        pivot_date_formula =  "COALESCE(%s)" %','.join(pivot_dates) if pivot_dates else "NULL"
+        assigment_formula = ' AND '.join(assigments_restrictions)
+        return [dict(name='connected_description',sql_formula=description_formula),
+                dict(name='pivot_date',sql_formula=pivot_date_formula,name_long='!!Pivot date',dtype='D'),
+                dict(name='plugin_assigment',sql_formula='(%s)' %assigment_formula,dtype='B',name_long='Assigned to me')]
+
+
     def setAnnotationTs(self,record_data):
         annotation_date = record_data['annotation_date']
         annotation_time = record_data['annotation_time']
@@ -215,32 +245,6 @@ class Table(object):
                 #if outcome_id:
         if self.fieldsChanged('annotation_date,annotation_time',record_data,old_record):
             self.setAnnotationTs(record_data)
-
-
-
-    def formulaColumn_pluggedFields(self):
-        desc_fields = []
-        pivot_dates = []
-        assigments_restrictions = ["$_assignment_base"]
-        for colname,colobj in self.columns.items():
-            if colname.startswith('_assignment'):
-                assigments_restrictions.append(colname)
-            elif colname.startswith('le_'):
-                related_table = colobj.relatedTable()
-                if related_table:
-                    assigments_restrictions.append(' ( CASE WHEN $%s IS NOT NULL THEN @%s.__allowed_for_partition ELSE TRUE END ) ' %(colname,colname))
-                    if related_table.column('orgn_description') is not None:
-                        desc_fields.append('@%s.orgn_description' %colname)
-                    elif related_table.attributes.get('caption_field'):
-                        desc_fields.append('@%s.%s' %(colname,related_table.attributes['caption_field']))
-                    if related_table.column('orgn_pivot_date') is not None:
-                        pivot_dates.append('@%s.orgn_pivot_date' %colname)
-        description_formula = "COALESCE(%s,'Missing caption')" %','.join(desc_fields) if desc_fields else "'NOT PLUGGED'"
-        pivot_date_formula =  "COALESCE(%s)" %','.join(pivot_dates) if pivot_dates else "NULL"
-        assigment_formula = ' AND '.join(assigments_restrictions)
-        return [dict(name='connected_description',sql_formula=description_formula),
-                dict(name='pivot_date',sql_formula=pivot_date_formula,name_long='!!Pivot date',dtype='D'),
-                dict(name='plugin_assigment',sql_formula='(%s)' %assigment_formula,dtype='B',name_long='Assigned to me')]
 
     def getLinkedEntities(self):
         result = []

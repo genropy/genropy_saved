@@ -31,10 +31,10 @@ class GnrCustomWebPage(object):
 
     def test_3_multicbpopup(self,pane):
         pane.checkbox(value='^.disabled',label='disabled')
-        pane.checkbox(value='^.readonly',label='readonly')
+        #pane.checkbox(value='^.readonly',label='readonly')
 
         pane.checkBoxText(values="""0:Lunedì\\2,1:Mar,2:Mer,3:Gio,4:Ven,5:Sab,6:Dom""",
-        value='^.pluto',cols=3,popup=True,disabled='^.disabled',readOnly='^.readonly')
+        value='^.pluto',cols=3,popup=True,disabled='^.disabled',readOnly=True)
                             
     def test_4_mode_numbcode(self,pane):
         """First test description"""
