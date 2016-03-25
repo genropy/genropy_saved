@@ -1586,7 +1586,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
         }else if(this.externalWidget){
             this.externalWidget.gnr_setDisabled(value);
-        }else if(this.gnrwdg){
+        }else if(this.gnrwdg && this.gnrwdg.setDisabled){
             this.gnrwdg.setDisabled(value);
         }
         else if(this.domNode){
