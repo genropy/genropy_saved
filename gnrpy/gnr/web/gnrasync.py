@@ -705,8 +705,8 @@ class SharedObjectsManager(object):
 
 
     def do_datachange(self,shared_id=None,**kwargs):
-        self.sharedObjects[shared_id].datachange(**kwargs)
-
+        if shared_id in self.sharedObjects:
+            self.sharedObjects[shared_id].datachange(**kwargs)
 
     def do_saveSharedObject(self,shared_id=None,**kwargs):
         self.sharedObjects[shared_id].save()

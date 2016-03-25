@@ -4863,7 +4863,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                 c = this.grid.cellmap[k];
                 formats[c.field] = c._formats;
             }
-            return dataTemplate(this.rowTemplate,rowdata,null,null,{formats:formats});
+            return dataTemplate(this.rowTemplate,new gnr.GnrBag(rowdata),null,null,{formats:formats});
         }else{
             return rowdata[this.field_getter]
         }
@@ -8461,6 +8461,9 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
                  attr.dropTypes='Files,text/plain';
                  attr.drop_ext=uploadAttr.ext || this._default_ext;
                  var src=sourceNode.attr.src;
+                 /*attr.onDrop_text_html = function(dropInfo,data){
+                    console.log('texthtml',dropInfo,data)
+                 }*/
                  attr.onDrop_text_plain = function(dropInfo,data){
                      if(sourceNode.form && sourceNode.form.isDisabled()){
                         genro.dlg.alert("The form is locked",'Warning');
