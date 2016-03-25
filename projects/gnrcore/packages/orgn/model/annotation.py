@@ -51,9 +51,13 @@ class Table(object):
         tbl.formulaColumn('assigned_to',"""COALESCE($assigned_username,$assigned_tag,'unassigned')""",name_long='Assigment')
         tbl.formulaColumn('connected_description',"'override me'")
         tbl.formulaColumn('_assignment_base',
-                                """($rec_type ='AC' AND ( CASE WHEN $assigned_user_id IS NOT NULL THEN  $assigned_user_id=:env_user_id
-                                    WHEN $assigned_tag IS NOT NULL THEN $assigned_by_tag IS TRUE
-                                   ELSE TRUE END))""",
+                                """($rec_type ='AC' AND 
+                                ( CASE WHEN $assigned_user_id IS NOT NULL THEN  $assigned_user_id=:env_user_id
+                                                               WHEN $assigned_tag IS NOT NULL THEN $assigned_by_tag IS TRUE
+                                  ELSE TRUE END)) AND 
+                                (CASE WHEN $notice_days IS NOT NULL 
+                                     THEN (CASE WHEN $calculated_date_due IS NOT NULL THEN ($calculated_date_due + $notice_days) <= :env_workdate ELSE TRUE END)  
+                                 ELSE TRUE END)""",
                                 dtype='B',group='_')
         tbl.formulaColumn("assigned_by_tag","""(',' || :env_userTags || ',' LIKE '%%,'|| COALESCE($assigned_tag,'') || ',%%')""",
                         dtype='B')
@@ -212,6 +216,8 @@ class Table(object):
         if self.fieldsChanged('annotation_date,annotation_time',record_data,old_record):
             self.setAnnotationTs(record_data)
 
+
+
     def formulaColumn_pluggedFields(self):
         desc_fields = []
         pivot_dates = []
@@ -222,6 +228,7 @@ class Table(object):
             elif colname.startswith('le_'):
                 related_table = colobj.relatedTable()
                 if related_table:
+                    assigments_restrictions.append(' ( CASE WHEN $%s IS NOT NULL THEN @%s.__allowed_for_partition ELSE TRUE END ) ' %(colname,colname))
                     if related_table.column('orgn_description') is not None:
                         desc_fields.append('@%s.orgn_description' %colname)
                     elif related_table.attributes.get('caption_field'):
