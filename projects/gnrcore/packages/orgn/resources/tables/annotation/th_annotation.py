@@ -57,15 +57,16 @@ class ViewPlugin(View):
     def th_order(self):
         return '$annotation_ts'
 
-class Form(BaseComponent):
-    def th_form(self, form):
-        form.record
 
 class ActionOutcomeForm(BaseComponent):
     py_requires='gnrcomponents/dynamicform/dynamicform:DynamicForm'
 
     def th_form(self, form):
+        form.attributes.update(form_avoidPendingChangesDialog=True)
         bc = form.center.borderContainer()
+        self.action_outcome_form(bc)
+
+    def action_outcome_form(self,bc):
         bc.contentPane(region='top').templateChunk(template='action_tpl',
                                                     record_id='^#FORM.record.id',table='orgn.annotation',_class='orgn_form_tpl',
                                                     margin='10px',height='80px')
@@ -78,24 +79,6 @@ class ActionOutcomeForm(BaseComponent):
         self.orgnActionCancelled(sc.contentPane(title='!!Cancel',pageName='action_cancelled'))
         self.orgnActionDelay(sc.contentPane(title='!!Delay',pageName='action_delay'))
         self.orgnActionRescheduled(sc.contentPane(title='!!Reschedule',pageName='action_rescheduled'))
-        #bc.dataController("""
-        #    if(exit_status=='action_rescheduled'){
-        #        SET #FORM.record.$assigned_user_id_mandatory = !new_action_assigned_tag;
-        #        SET #FORM.record.$assigned_tag_mandatory = !new_action_assigned_user_id;
-        #    }
-        #    else if(exit_status=='action_confirmed' && outcome_id){
-        #        SET #FORM.record.$assigned_user_id_mandatory = !reschedulig_assigned_tag;
-        #        SET #FORM.record.$assigned_tag_mandatory = !reschedulig_assigned_user_id;
-        #    }else{
-        #        SET #FORM.record.$assigned_user_id_mandatory = false;
-        #        SET #FORM.record.$assigned_tag_mandatory = false;
-        #    }""",_delay=100,
-        #                new_action_assigned_tag='^#FORM.record.next_action.assigned_tag',
-        #                new_action_assigned_user_id='^#FORM.record.next_action.assigned_user_id',
-        #                reschedulig_assigned_tag='^#FORM.record.rescheduling.assigned_tag',
-        #                reschedulig_assigned_user_id='^#FORM.record.rescheduling.assigned_user_id',
-        #                exit_status='^#FORM.record.exit_status',
-        #                outcome_id='^#FORM.record.outcome_id')
 
     def orgnActionConfirmed(self,pane):
         fb = pane.div(margin='10px').formbuilder(cols=2,border_spacing='3px',width='100%',colswidth='auto',datapath='.record',fld_width='100%')
@@ -124,12 +107,13 @@ class ActionOutcomeForm(BaseComponent):
                                 lbl='!!Priority',values='L:[!!Low],M:[!!Medium],H:[!!High]',width='8em')
         fb.dbSelect(value='^.next_action.assigned_tag',lbl='!!Assigned tag',
                 condition='$child_count = 0 AND $isreserved IS NOT TRUE',
-                validate_notnull='^#FORM.record.$assigned_tag_mandatory',
-                dbtable='adm.htag',alternatePkey='code',validate_onAccept="""if(userChange && value){
-                        SET .next_action.assigned_user_id=null;}""",
-                        hidden='^.outcome_id?=!#v',colspan=2)
+                validate_notnull='^.outcome_id',
+                dbtable='adm.htag',alternatePkey='code',hidden='^.outcome_id?=!#v',
+                colspan=2)
         fb.dbSelect(value='^.next_action.assigned_user_id',lbl='!!Assigned to',
-                    validate_notnull='^#FORM.record.$assigned_user_id_mandatory',
+                    condition="$id IN :allowed_user_pkeys AND @tags.@tag_id.code=:atag",
+                    condition_atag='=.next_action.assigned_tag',
+                    condition_allowed_user_pkeys='=#FORM.record.$allowed_user_pkeys',
                     dbtable='adm.user',hidden='^.outcome_id?=!#v') #setting condition
         pane.button('!!Confirm Action',action='this.form.publish("save",{destPkey:"*dismiss*"})',position='absolute',bottom='5px',right='5px')
 
@@ -152,15 +136,17 @@ class ActionOutcomeForm(BaseComponent):
                       validate_notnull='^.exit_status?=#v=="action_rescheduled"',
                       width='7em')
         fb.timeTextBox(value='^.rescheduling.time_due',lbl='!!Time due',width='6em')
-        fb.dbSelect(value='^.rescheduling.assigned_user_id',lbl='!!Rescheduling user',
-                    validate_notnull='^.$assigned_user_id_mandatory',validate_onAccept="""if(userChange && value){
-                        SET .rescheduling.assigned_tag=null;}""",
-                    dbtable='adm.user',width='7em') #setting condition
+        
         fb.dbSelect(value='^.rescheduling.assigned_tag',lbl='!!Rescheduling Tag',
                 condition='$child_count = 0 AND $isreserved IS NOT TRUE',
-                validate_notnull='^.$assigned_tag_mandatory',
-                dbtable='adm.htag',alternatePkey='code',validate_onAccept="""if(userChange && value){
-                        SET .rescheduling.assigned_user_id=null;}""",width='7em')
+                validate_notnull='^.exit_status?=#v=="action_rescheduled"',
+                dbtable='adm.htag',alternatePkey='code',width='7em')
+
+        fb.dbSelect(value='^.rescheduling.assigned_user_id',lbl='!!Rescheduling user',
+                    condition="$id IN :allowed_user_pkeys AND @tags.@tag_id.code=:atag",
+                    condition_atag='=.rescheduling.assigned_tag',
+                    condition_allowed_user_pkeys='=#FORM.record.$allowed_user_pkeys',
+                    dbtable='adm.user',width='7em') #setting condition
         pane.button('!!Reschedule Action',action='this.form.publish("save",{destPkey:"*dismiss*"})',position='absolute',bottom='5px',right='5px')
 
     def th_options(self):
@@ -197,6 +183,11 @@ class ActionOutcomeForm(BaseComponent):
 
     @public_method
     def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
+        record['$allowed_user_pkeys'] = self.db.table('orgn.annotation').getAllowedActionUsers(record)
         record.setItem('.exit_status','more_info',_sendback=True)
+
+
+class Form(ActionOutcomeForm):
+    pass
 
 

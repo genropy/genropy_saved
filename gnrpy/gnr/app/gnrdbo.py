@@ -434,6 +434,19 @@ class TableBase(object):
         return [dict(name='__allowed_for_partition',sql_formula=sql_formula or 'FALSE',
                     dtype='B',name_long='!!Allowed for partition')]
 
+    def getPartitionAllowedUsers(self,recordOrPkey):
+        partitionParameters = self.partitionParameters
+        usertbl = self.db.table('adm.user')
+        if not partitionParameters:
+            f = usertbl.query().fetch()
+            return [r['id'] for r in f]
+        else:
+            record = self.recordAs(recordOrPkey)
+            record_partition_fkey = record[self.partitionParameters['field']]
+            f = usertbl.query(columns='$id,$allowed_%(field)s' %partitionParameters).fetch()
+            allowedfield = 'allowed_%(field)s' %partitionParameters
+            return [r['id'] for r in f if record_partition_fkey in r.get(allowedfield,'').split(',')]        
+
     def addPhonetic(self,tbl,column,mode=None,size=':5',group=None):
         mode = mode or 'dmetaphone'
         group = group or 'zzz'

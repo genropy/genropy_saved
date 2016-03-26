@@ -82,7 +82,7 @@ class Table(object):
         tbl.formulaColumn('__protected_by_author',"""
             CASE WHEN :env_orgn_author_only IS NOT TRUE THEN string_to_array(:env_userTags,',') @> string_to_array(COALESCE(:env_orgn_superuser_tag,''),',')
             ELSE TRUE END
-            """)
+            """,dtype='B')
         tbl.pyColumn('calc_description',name_long='!!Calc description',required_columns='calculated_date_due,time_due,$action_type_description,$following_actions')
 
         tbl.pyColumn('countdown',name_long='!!Countdown',required_columns='$calculated_date_due,$time_due,$rec_type,$done_ts')
@@ -198,19 +198,22 @@ class Table(object):
                                                         annotation_time.minute, annotation_time.second,
                                                         annotation_time.microsecond, tzinfo=pytz.utc)
 
+
+    def relatedEntityInfo(self,record):
+        for colname,colobj in self.columns.items():
+            related_table = colobj.relatedTable()
+            if colname.startswith('le_') and record[colname]:
+                return related_table.fullname,record['linked_entity'] or self.linkedEntityName(related_table),record[colname]
+
+
     def trigger_onInserting(self,record_data=None):
         now = datetime.datetime.now(pytz.utc)
         record_data['annotation_date'] = record_data.get('annotation_date') or now.date()
         record_data['annotation_time'] = record_data.get('annotation_time') or now.time()
         self.setAnnotationTs(record_data)
         record_data['author_user_id'] = self.db.currentEnv.get('user_id')
-        for colname,colobj in self.columns.items():
-            related_table = colobj.relatedTable()
-            if colname.startswith('le_') and record_data[colname]:
-                fkey = record_data[colname]
-                record_data['linked_table'] = related_table.fullname
-                record_data['linked_fkey'] = fkey
-                record_data['linked_entity'] = record_data['linked_entity'] or self.linkedEntityName(related_table)
+        record_data['linked_table'],record_data['linked_entity'],record_data['linked_fkey'] = self.relatedEntityInfo(record_data)
+
 
     def trigger_onUpdating(self,record_data,old_record=None):
         if old_record['rec_type'] == 'AC' and record_data['rec_type'] == 'AN':
@@ -280,6 +283,11 @@ class Table(object):
         if pivot_date:
             _date_due_from_pivot = datetime.datetime(pivot_date.year,pivot_date.month,pivot_date.day)
             return (_date_due_from_pivot+datetime.timedelta(days=deadline_days)).date()
+
+
+    def getAllowedActionUsers(self,record):
+        table,entity,fkey = self.relatedEntityInfo(record)
+        return self.db.table(table).getPartitionAllowedUsers(fkey)
 
 
     @metadata(doUpdate=True)

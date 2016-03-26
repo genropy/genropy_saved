@@ -64,7 +64,8 @@ class Form(BaseComponent):
         fb.field('default_priority',width='10em')
         fb.field('default_tag',condition='$child_count = 0 AND $isreserved IS NOT TRUE',
                 tag='dbselect',
-                dbtable='adm.htag',alternatePkey='code',hasDownArrow=True)
+                dbtable='adm.htag',alternatePkey='code',hasDownArrow=True,
+                validate_notnull=True)
         restrictions = self.db.table('orgn.annotation').getLinkedEntities()
         if restrictions:
             fb.field('restrictions',tag='checkBoxText',values=restrictions,popup=True,cols=1,colspan=3,width='100%')
