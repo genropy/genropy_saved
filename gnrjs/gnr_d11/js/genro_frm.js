@@ -449,15 +449,16 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(this.opStatus=='loading'){
             return;
         }
+        var that = this;
         if(objectNotEmpty(this.childForms)){
-            var that = this;
+            var onAnswer = function(command){if(command=='cancel'){return;}
+                                                that.load(kw);
+            };
             for(var k in this.childForms){
                 var childForm = this.childForms[k];
                 if(childForm.changed){
                     childForm.openPendingChangesDlg({destPkey:'*dismiss*',
-                                                    onAnswer:function(command){
-                                                        if(command=='cancel'){return;}
-                                                        that.load(kw);}
+                                                    onAnswer:onAnswer
                                                     });
                     return;
                 }
@@ -465,14 +466,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         if(this.store && this.changed && this.saveOnChange && this.isValid()){
             var deferred = this.store.save();
-            var that = this;
             deferred.addCallback(function(){
                 that.reset();
                 //that.do_load(kw);
-            })
+            });
             return;
         }
-        var kw = kw || {};
+        kw = kw || {};
         if (this.store){
 
             if(!kw.destPkey && this.store instanceof gnr.formstores.SubForm){
@@ -630,10 +630,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     setFormError:function(errorcode,message){
-        if(message==false){
+        if(message===false){
             this.formErrors.popNode(errorcode);
         }else{
-            this.formErrors.setItem(errorcode,message)
+            this.formErrors.setItem(errorcode,message);
         }
         this.updateStatus();
     },
@@ -645,12 +645,17 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             if(typeof(v)=='string'){
                 result.push(v);
             }
-        })
+        });
         return result;
     },
     
     openPendingChangesDlg:function(kw,saveSlot){
-        saveSlot = saveSlot==undefined? true:saveSlot;
+        if(this.avoidPendingChangesDialog){
+            kw.command='discard';
+            this.publish('pendingChangesAnswer',kw);
+            return;
+        }
+        saveSlot = saveSlot===undefined? true:saveSlot;
         var dlg = genro.dlg.quickDialog('Pending changes in '+this.table_name.toLowerCase(),{_showParent:true,width:'280px'});
         dlg.center._('div',{innerHTML:this.msg_unsaved_changes, text_align:'center',_class:'alertBodyMessage'});
         var form = this;
@@ -673,7 +678,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.publish('onSetOpStatus',this.opStatus);
     },
     doload_loader:function(kw){
-        var kw = kw || {};
+        kw = kw || {};
         var sync = kw.sync;
         this.setControllerData('loading',true);
         this.setOpStatus('loading');
