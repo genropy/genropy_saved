@@ -91,8 +91,7 @@ class ActionOutcomeForm(BaseComponent):
                     selected_description='.next_action.action_description',
                     selected_default_tag='.next_action.assigned_tag',
                     selected_outcome_action_type_id='.next_action.action_type_id',
-                    lbl='!!Outcome action')
-        fb.br()
+                    lbl='!!Outcome action',colspan=2)
         fb.dataRpc('dummy',self.db.table('orgn.annotation').getDueDateFromDeadline,
                     deadline_days='^.$outcome_deadline_days',
                     pivot_date='==new Date()',
@@ -104,6 +103,7 @@ class ActionOutcomeForm(BaseComponent):
         fb.dateTextBox(value='^.next_action.date_due',lbl='!!Outcome date due',hidden='^.outcome_id?=!#v',width='7em') 
         fb.timeTextBox(value='^.next_action.time_due',lbl='!!Time due',hidden='^.outcome_id?=!#v',width='7em') 
         fb.filteringSelect(value='^.next_action.priority',hidden='^.outcome_id?=!#v',
+                                validate_notnull='^.outcome_id',
                                 lbl='!!Priority',values='L:[!!Low],M:[!!Medium],H:[!!High]',width='8em')
         fb.dbSelect(value='^.next_action.assigned_tag',lbl='!!Assigned tag',
                 condition='$child_count = 0 AND $isreserved IS NOT TRUE',

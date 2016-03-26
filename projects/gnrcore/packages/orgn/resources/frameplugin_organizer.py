@@ -15,6 +15,7 @@ class PluginOrganizer(BaseComponent):
         center.dialogTableHandler(table='orgn.annotation',formResource='ActionOutcomeForm',
                                 liveUpdate=True,
                                 dialog_noModal=False,
+                                rowStatusColumn=False,
                                 condition='$plugin_assigment IS TRUE AND $done_ts IS NULL',viewResource='ViewPlugin',
                                 view_store_onStart=True,
                                 configurable=False,_class='noheader orgn_action_grid')
