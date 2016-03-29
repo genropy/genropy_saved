@@ -23,4 +23,8 @@ class Table(object):
 
 
 
+    def systemAnnotations(self):
+        return ['ACT_CONFIRMED','ACT_CANCELLED','ACT_RESCHEDULED']
+
+
 
