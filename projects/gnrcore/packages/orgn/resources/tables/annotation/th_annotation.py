@@ -59,11 +59,12 @@ class ViewMixedComponent(View):
             """)
         r.fieldcell('sort_ts',name='!!Datetime',width='6em')
         r.fieldcell('author_user_id',name='!!Autor',width='9em')
+        r.fieldcell('__mod_ts',name='!!Last upd.',width='6em')
+        r.fieldcell('__mod_user',name='!!Upd.User',width='9em')
         r.cell('annotation_template',name='!!Type',width='9em',
                 rowTemplate="""<div style='background:$annotation_background;color:$annotation_color;border:1px solid $color;text-align:center;border-radius:10px;'>$annotation_caption</div>""")
         r.fieldcell('annotation_caption',hidden=True)
         r.fieldcell('calc_description',width='25em',name='Description')
-        r.fieldcell('date_due',width='7em',name='!!Date due')
         r.cell('action_do',name=" ",calculated=True,width='3em',
                     cellClasses='cellbutton',
                     format_buttonclass='icnBaseLens auction',
@@ -74,6 +75,10 @@ class ViewMixedComponent(View):
                                         return 'hidden';
                                     }""")       
         #r.fieldcell('log_id')
+
+    def th_bottom_custom(self,bottom):
+        bottom.slotToolbar('2,sections@rec_type,*')
+
 
 class ViewAction(BaseComponent):
 

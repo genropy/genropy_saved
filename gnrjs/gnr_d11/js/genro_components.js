@@ -168,15 +168,15 @@ dojo.declare("gnr.widgets.MenuDiv", gnr.widgets.gnrwdg, {
         var disabled = objectPop(kw,'disabled');
         var parentForm = objectPop(kw,'parentForm');
         var tip = objectPop(kw,'tip');
-        var iconClass = iconClass? 'iconbox ' +iconClass :null;
-        var box_kw = objectUpdate({_class:'menuButtonDiv buttonDiv',disabled:disabled,tip:tip},buttonkw)
+        iconClass = iconClass? 'iconbox ' +iconClass :null;
+        var box_kw = objectUpdate({_class:'menuButtonDiv buttonDiv',disabled:disabled,tip:tip},buttonkw);
         if(parentForm){
             box_kw.parentForm = parentForm;
         }
         var box = sourceNode._('div',box_kw);
-        if(label && false){
+        if(label && !iconClass){
             //not well implemented
-            box._('div',{innerHTML:label,display:'inline-block',_class:'buttonDivLabel'})
+            box._('div',objectUpdate({innerHTML:label,display:'inline-block'},objectExtract(kw,'label_*')));
         }
         if(iconClass){
             box._('div',{_class:iconClass});
