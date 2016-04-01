@@ -1307,7 +1307,8 @@ dojo.declare('gnr.GenroClient', null, {
                     }else{
                         var inner=dpath.slice(shared_path.length+1);
                         var commandict = {shared_id:shared_id,path:inner,
-                                      value:kw.node._value,attr:kw.node.attr,evt:kw.evt}
+                                      value:kw.node._value,attr:kw.node.attr,evt:kw.evt,
+                                      'fired':kw.fired}
                                       genro.wsk.send('som.datachange',commandict);
                     }
                     

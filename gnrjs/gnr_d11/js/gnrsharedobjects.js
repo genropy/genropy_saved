@@ -36,7 +36,12 @@ dojo.declare("gnr.GnrSharedObjectHandler", null, {
         var path = data.getItem('path');
         var value = data.getItem('value');
         var attr = data.getItem('attr');
+        if(attr && attr instanceof gnr.GnrBag){
+            attr = attr.asDict();
+        }
         var evt = data.getItem('evt');
+        var fired = data.getItem('fired');
+
         var from_page_id = data.getItem('from_page_id');
         var so = genro._sharedObjects[shared_id];
         if(!so){
@@ -45,9 +50,14 @@ dojo.declare("gnr.GnrSharedObjectHandler", null, {
         var sopath = so.path;
         var fullpath = path? sopath+ '.' +path: sopath;
         if(evt=='del'){
-            genro._data.popNode(fullpath,'serverChange')
+            genro._data.popNode(fullpath,'serverChange');
         }else{
-            genro._data.setItem(fullpath, value, attr, objectUpdate({'doTrigger':'serverChange',lazySet:true}));
+            if(fired){
+                genro._data.fireItem(fullpath,value,attr,'serverChange');
+            }else{
+                genro._data.setItem(fullpath, value, attr, objectUpdate({'doTrigger':'serverChange',lazySet:true}));
+            }
+            
         }
     },
 

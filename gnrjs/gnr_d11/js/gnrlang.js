@@ -694,7 +694,7 @@ function objectAsXmlAttributes_old(obj, sep) {
     return result.join(sep);
 }
 function objectAsXmlAttributes(obj, sep) {
-    var sep = sep || ' ';
+    sep = sep || ' ';
     var val;
     var result = [];
     for (var prop in obj) {

@@ -524,12 +524,16 @@ class SharedObject(object):
         return privilege
     
     @lockedCoroutine
-    def datachange(self,page_id=None,path=None,value=None,attr=None,evt=None,**kwargs):
-        path = 'root' if not path else 'root.%s' %path
-        if evt=='del':
-            self._data.popNode(path,_reason=page_id)
+    def datachange(self,page_id=None,path=None,value=None,attr=None,evt=None,fired=None,**kwargs):
+        if fired:
+            data = Bag(dict(value=value,attr=attr,path=path,shared_id=self.shared_id,evt=evt,fired=fired))
+            self.broadcast(command='som.sharedObjectChange',data=data,from_page_id=page_id)
         else:
-            self._data.setItem(path,value,_attributes=attr,_reason=page_id)
+            path = 'root' if not path else 'root.%s' %path
+            if evt=='del':
+                self._data.popNode(path,_reason=page_id)
+            else:
+                self._data.setItem(path,value,_attributes=attr,_reason=page_id)
 
     def _on_data_trigger(self, node=None, ind=None, evt=None, pathlist=None,reason=None, **kwargs):
         self.changes=True
@@ -552,7 +556,7 @@ class SharedObject(object):
         self.broadcast(command='som.onPathLock',from_page_id=page_id,data=Bag(dict(locked=focused,lock_path=curr_path)))
 
     
-    def broadcast(self,command=None, data=None, from_page_id=None):
+    def broadcast(self,command=None, data=None, from_page_id=None,):
         envelope = Bag(dict(command=command,data=data)).toXml()
         channels = self.server.channels
         for p in self.subscribed_pages.keys():
