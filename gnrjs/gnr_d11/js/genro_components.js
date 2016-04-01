@@ -3570,6 +3570,27 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
 });
 
 
+dojo.declare("gnr.widgets.SharedObject", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode,kw){
+        sourceNode.gnrwdg.sharedKw = objectUpdate({},kw);
+        kw.script = "this.getParentNode().gnrwdg.handleSubscriptions(_triggerpars.kw.oldvalue);";
+        var dc = sourceNode._('dataController',kw);
+        sourceNode.gnrwdg.handleSubscriptions();
+        return dc;
+    },
+    gnrwdg_handleSubscriptions:function(old_shared_id){
+        var sharedKw = this.sourceNode.evaluateOnNode(this.sharedKw);
+        var shared_id=objectPop(sharedKw,'shared_id');
+        var path = objectPop(sharedKw,'shared_path');
+        if(old_shared_id){
+            genro.som.unregisterSharedObject(old_shared_id);
+        }
+        if(shared_id && path){
+            genro.som.registerSharedObject(path,shared_id,sharedKw);
+        }
+    }
+});
+
 dojo.declare("gnr.widgets.ComboArrow", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw,childSourceNode){
         var focusNode;
