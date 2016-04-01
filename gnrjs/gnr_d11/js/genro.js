@@ -448,9 +448,9 @@ dojo.declare('gnr.GenroClient', null, {
         }
         dojo.subscribe('debugstep',
                        function(data){genro.dev.onDebugstep(data)}
-                     )
+                     );
         dojo.subscribe('closePage',function(){
-            genro.closePage()
+            genro.closePage();
         });
 
         if(this.startArgs['_parent_page_id']){

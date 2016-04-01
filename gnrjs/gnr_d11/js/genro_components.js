@@ -2027,6 +2027,7 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
         }        
         var bar = frame._('SlotBar','bar',{slots:slots,side:controllerSide,height:'21px',toolbar:true,playerslider_width:'100%'});
         var slotsKw = {};
+        var videoNodeId = this.videoNodeId;
         slotsKw.playbutton = {tag:'slotButton',
             label:'==_playing?"Pause":"Play"',
              action:'var _video = genro.domById(_videoNodeId); if(_playing){_video.pause()}else{_video.play()};',
