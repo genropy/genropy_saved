@@ -109,13 +109,25 @@ class ViewPlugin(View):
         #r.fieldcell('connected_description',name='Connected to')
 
     def th_top_custom(self,top):
-        top.bar.replaceSlots('#','2,sections@priority,*,searchOn,2')
+        top.bar.replaceSlots('#','2,sections@action_type_id,*,searchOn,2',
+                                sections_action_type_id_multiButton=False,
+                                sections_action_type_id_multiValue=False,
+                                sections_action_type_id_lbl='!!Actions')
+        
+        top.slotToolbar('*,sections@priority,*',
+                        childname='lower',
+                        _position='>bar',
+                        gradient_from='#999',gradient_to='#666')
 
     def th_options(self):
         return dict(liveUpdate=True)
         
     def th_order(self):
         return '$annotation_ts'
+
+
+    def th_bottom_custom(self,bottom):
+        bottom.slotToolbar('2,sections@entities,*,2')
 
 
 class ActionOutcomeForm(BaseComponent):

@@ -1,13 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <GenRoBag><content>&lt;div class="orgn_action_template"&gt;
-	&lt;table cellpadding="1" cellspacing="1" style="border-collapse:collapse;"&gt;
+	&lt;table cellpadding="1" cellspacing="1" style="border-collapse:collapse;width:100%"&gt;
 		&lt;tbody&gt;
 			&lt;tr&gt;
 				&lt;td class="priority_$priority priority_cell" rowspan="4"&gt;
 					&amp;nbsp;&lt;/td&gt;
 				&lt;td class="priority_cell_spacer" rowspan="4"&gt;
 					&amp;nbsp;&lt;/td&gt;
-				&lt;td colspan="2" rowspan="1"&gt;$action_type_description&lt;/td&gt;
+				&lt;td colspan="2" rowspan="1" style="${background:$action_bg;}${color:$action_color;} border-radius:4px; padding:1px;padding-left:3px;padding-right:3px"&gt;
+					$action_type_description&lt;/td&gt;
 				&lt;td colspan="2" rowspan="1" style="text-align: right;"&gt;
 					$calc_date_due${:$time_due}&lt;/td&gt;
 			&lt;/tr&gt;
@@ -21,7 +22,7 @@
 			&lt;/tr&gt;
 			&lt;tr&gt;
 				&lt;td colspan="2"&gt;
-					&lt;span style="font-style: normal;"&gt;&lt;cite&gt;Assigned by $user_username on&lt;/cite&gt;$insert_date&lt;/span&gt;&lt;/td&gt;
+					&lt;span style="font-size:11px; font-style:italic"&gt;Assigned by $user_username on $insert_date&lt;/span&gt;&lt;/td&gt;
 				&lt;td style="text-align: right;"&gt;
 					$countdown&lt;/td&gt;
 			&lt;/tr&gt;
@@ -184,17 +185,38 @@
 <df_template _T="NN"></df_template>
 <format _T="NN" dtype="::NN"></format>
 <mask _T="NN" dtype="::NN"></mask>
-<editable _T="NN" dtype="::NN"></editable></n_2374></varsbag>
+<editable _T="NN" dtype="::NN"></editable></n_2374>
+<n_2788 _pkey="n_2788"><fieldpath>action_type_background</fieldpath>
+<dtype dtype="::NN">T</dtype>
+<fieldname dtype="::NN">Action BG</fieldname>
+<varname dtype="::NN">action_bg</varname>
+<virtual_column _T="B">True</virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_2788>
+<n_2775 _pkey="n_2775"><fieldpath>action_type_color</fieldpath>
+<dtype dtype="::NN">T</dtype>
+<fieldname dtype="::NN">Action Color</fieldname>
+<varname dtype="::NN">action_color</varname>
+<virtual_column _T="B">True</virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_2775></varsbag>
 <parameters _T="BAG"></parameters>
-<compiled><main virtual_columns="connected_description,countdown,$date_due,$time_due,calculated_date_due,zoomlink,$connected_description,$linked_table,$linked_fkey,$linked_entity" locale="en-AU" masks="{}::JS" dtypes='{"countdown": "T", "action_description": "T", "rec_type": "A", "insert_date": "DH", "action_type_description": "T", "time_due": "H", "linked_fkey": "T", "priority": "A", "user_username": "A", "connected_description": "T", "linked_table": "T", "calc_date_due": "D", "zoomlink": "T", "linked_entity": "T"}::JS' maintable="orgn.annotation" df_templates="{}::JS" formats="{}::JS" editcols="{}::JS" columns="$connected_description,$time_due,$priority,@action_type_id.description,$__ins_ts,@author_user_id.username,$rec_type,$linked_table,$linked_entity,$linked_fkey,$countdown,$calculated_date_due,$zoomlink,$action_description">&lt;html&gt;&lt;body&gt;&lt;div class="orgn_action_template"&gt;
-	&lt;table cellpadding="1" cellspacing="1" style="border-collapse:collapse;"&gt;
+<compiled><main virtual_columns="connected_description,countdown,$date_due,$time_due,calculated_date_due,zoomlink,$connected_description,$linked_table,$linked_fkey,$linked_entity,action_type_background,action_type_color" locale="en-AU" masks="{}::JS" dtypes='{"countdown": "T", "action_description": "T", "rec_type": "A", "insert_date": "DH", "action_color": "T", "action_type_description": "T", "time_due": "H", "action_bg": "T", "linked_fkey": "T", "priority": "A", "user_username": "A", "connected_description": "T", "linked_table": "T", "calc_date_due": "D", "zoomlink": "T", "linked_entity": "T"}::JS' maintable="orgn.annotation" df_templates="{}::JS" formats="{}::JS" editcols="{}::JS" columns="$connected_description,$time_due,$priority,@action_type_id.description,$__ins_ts,@author_user_id.username,$rec_type,$linked_table,$linked_entity,$linked_fkey,$countdown,$calculated_date_due,$zoomlink,$action_description,$action_type_background,$action_type_color">&lt;html&gt;&lt;body&gt;&lt;div class="orgn_action_template"&gt;
+	&lt;table cellpadding="1" cellspacing="1" style="border-collapse:collapse;width:100%"&gt;
 		&lt;tbody&gt;
 			&lt;tr&gt;
 				&lt;td class="priority_$priority priority_cell" rowspan="4"&gt;
 					&amp;#160;&lt;/td&gt;
 				&lt;td class="priority_cell_spacer" rowspan="4"&gt;
 					&amp;#160;&lt;/td&gt;
-				&lt;td colspan="2" rowspan="1"&gt;$@action_type_id.description&lt;/td&gt;
+				&lt;td colspan="2" rowspan="1" style="${background:$action_type_background;}${color:$action_type_color;} border-radius:4px; padding:1px;padding-left:3px;padding-right:3px"&gt;
+					$@action_type_id.description&lt;/td&gt;
 				&lt;td colspan="2" rowspan="1" style="text-align: right;"&gt;
 					$calculated_date_due${:$time_due}&lt;/td&gt;
 			&lt;/tr&gt;
@@ -208,7 +230,7 @@
 			&lt;/tr&gt;
 			&lt;tr&gt;
 				&lt;td colspan="2"&gt;
-					&lt;span style="font-style: normal;"&gt;&lt;cite&gt;Assigned by $@author_user_id.username on&lt;/cite&gt;$__ins_ts&lt;/span&gt;&lt;/td&gt;
+					&lt;span style="font-size:11px; font-style:italic"&gt;Assigned by $@author_user_id.username on $__ins_ts&lt;/span&gt;&lt;/td&gt;
 				&lt;td style="text-align: right;"&gt;
 					$countdown&lt;/td&gt;
 			&lt;/tr&gt;

@@ -41,6 +41,9 @@ class Table(object):
 
         tbl.aliasColumn('assigned_username','@assigned_user_id.username',name_long='!!Assigned username')
         tbl.aliasColumn('action_type_description','@action_type_id.description',group='*')
+        tbl.aliasColumn('action_type_color','@action_type_id.color',group='*',name_long='Action Color')
+        tbl.aliasColumn('action_type_background','@action_type_id.background_color',group='*',name_long='Action BG')
+
         tbl.formulaColumn('annotation_caption',"""CASE WHEN rec_type='AC' 
                                                  THEN @action_type_id.description || '-' || $assigned_to
                                                  ELSE @annotation_type_id.description END
