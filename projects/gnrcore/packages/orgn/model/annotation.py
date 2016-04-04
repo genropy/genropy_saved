@@ -55,7 +55,7 @@ class Table(object):
         tbl.formulaColumn('connected_description',"'override me'")
         tbl.formulaColumn('_assignment_base',
                                 """($rec_type ='AC' AND 
-                                ( CASE WHEN $assigned_user_id IS NOT NULL THEN  $assigned_user_id=:env_user_id
+                                ( CASE WHEN ($assigned_user_id IS NOT NULL AND @action_type_id.show_to_all_tag IS NOT TRUE) THEN  $assigned_user_id=:env_user_id
                                                                WHEN $assigned_tag IS NOT NULL THEN $assigned_by_tag IS TRUE
                                   ELSE TRUE END)) AND 
                                 (CASE WHEN $notice_days IS NOT NULL 
