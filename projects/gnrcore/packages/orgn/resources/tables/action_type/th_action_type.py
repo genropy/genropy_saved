@@ -66,9 +66,11 @@ class Form(BaseComponent):
                 tag='dbselect',
                 dbtable='adm.htag',alternatePkey='code',hasDownArrow=True,
                 validate_notnull=True)
+
         restrictions = self.db.table('orgn.annotation').getLinkedEntities()
         if restrictions:
-            fb.field('restrictions',tag='checkBoxText',values=restrictions,popup=True,cols=1,colspan=3,width='100%')
+            fb.field('restrictions',tag='checkBoxText',values=restrictions,popup=True,cols=1,colspan=2,width='100%')
+        fb.field('show_to_all_tag',html_label=True)
         fb.field('extended_description',tag='simpleTextArea',lbl='!!Extended description',colspan=3,width='100%')
         fb.div(height='17px',width='4em',lbl='Background',
                border='1px solid gray',

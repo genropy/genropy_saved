@@ -12,11 +12,14 @@ class PluginOrganizer(BaseComponent):
       # top = bc.contentPane(region='top',height='100px',background='#666')
       # bottom = bc.contentPane(region='bottom',height='100px',background='#666')
         center = bc.contentPane(region='center')
-        center.dialogTableHandler(table='orgn.annotation',formResource='ActionOutcomeForm',
-                                liveUpdate=True,
-                                dialog_noModal=False,
-                                rowStatusColumn=False,
-                                condition='$plugin_assigment IS TRUE AND $done_ts IS NULL',viewResource='ViewPlugin',
-                                view_store_onStart=True,
-                                configurable=False,_class='noheader orgn_action_grid')
+        center.dialogTableHandler(table='orgn.annotation',
+                                  formResource='ActionOutcomeForm',
+                                  viewResource='ViewPlugin',
+                                  liveUpdate=True,
+                                  dialog_noModal=False,
+                                  rowStatusColumn=False,
+                                  condition='$plugin_assigment IS TRUE AND $done_ts IS NULL',
+                                  view_store_onStart=True,
+                                  configurable=False,
+                                  _class='noheader orgn_action_grid')
 #
