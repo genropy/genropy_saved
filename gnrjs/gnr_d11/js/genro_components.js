@@ -3731,13 +3731,13 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
 
     gnrwdg_setDisabled:function(disabled,kw){
         if(this.textboxNode){
-            genro.dom.setClass(this.textboxNode,'dijitDisabled',disabled);
+            this.textboxNode.setDisabled(disabled);
         }
     },
 
     gnrwdg_setReadOnly:function(readOnly,kw){
         if(this.textboxNode){
-            genro.dom.setClass(this.textboxNode,'dijitDisabled',readOnly);
+            this.textboxNode.setDisabled(readOnly);
         }
     },
     

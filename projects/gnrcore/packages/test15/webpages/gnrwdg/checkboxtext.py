@@ -70,7 +70,10 @@ class GnrCustomWebPage(object):
 
     def test_10_mode_table(self,pane):
         """First test description"""
-        pane.checkBoxText(value='^.pluto',table='adm.user',popup=True)
+        pane.checkBoxText(value='^.pluto',table='adm.user',popup=True,disabled=True)
+        pane.checkbox(value='^.disabled',label='disabled')
+        pane.checkBoxText(value='^.paperino',table='adm.user',popup=True,disabled='^.disabled')
+
         pane.textbox(value='^.pluto')
    
     def test_11_mode_table(self,pane):
