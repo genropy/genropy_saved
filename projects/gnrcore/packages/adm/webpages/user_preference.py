@@ -31,7 +31,9 @@ class GnrCustomWebPage(object):
         for pkg in self.db.packages.values():
             panecb = getattr(self, 'prefpane_%s' % pkg.name, None)
             if panecb:
-                panecb(tc, title=pkg.name_full, datapath='.%s' % pkg.name, nodeId=pkg.name)
+                panecb(tc, title=pkg.name_full, datapath='.%s' % pkg.name, nodeId=pkg.name,
+                        pkgId=pkg.name,
+                        _anchor=True)
 
     def bottom(self, bottom):
         bottom.button('!!Save', baseClass='bottom_btn', float='right', margin='1px',

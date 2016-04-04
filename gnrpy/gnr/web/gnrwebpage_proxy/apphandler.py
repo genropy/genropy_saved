@@ -754,7 +754,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             if selection is not None:
                 if sortedBy and  ','.join(selection.sortedBy or []) != sortedBy:
                     selection.sort(sortedBy)
-                    selection.freezeUpdate()
+                    self.page.freezeSelectionUpdate(selection)
                 debug = 'fromPickle'
                 newSelection = False
         if newSelection:
@@ -1019,6 +1019,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             if isinstance(node.value, Bag):
                 self._columnsFromStruct(node.value, columns)
         return ','.join(columns)
+        
 
     def gridSelectionData(self, selection, outsource, recordResolver, numberedRows, logicalDeletionField,
                           _addClassesDict=None):
@@ -1057,6 +1058,10 @@ class GnrWebAppHandler(GnrBaseProxy):
                            _resolver_name='relOneResolver')
             value = None 
             attributes = kw.get('_attributes')
+            colAttrs = selection.colAttrs
+            for k,v in attributes.items():
+                if v and colAttrs.get(k,{}).get('dataType') == 'X':
+                    attributes[k] = "%s::X" %v
             if attributes and '__value__' in attributes:
                 value = attributes.pop('__value__')
             result.setItem(row_key, value, **kw)

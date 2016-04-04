@@ -1,0 +1,240 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><content>&lt;div class="orgn_action_template"&gt;
+	&lt;table cellpadding="1" cellspacing="1" style="border-collapse:collapse;width:100%"&gt;
+		&lt;tbody&gt;
+			&lt;tr&gt;
+				&lt;td class="priority_$priority priority_cell" rowspan="4"&gt;
+					&amp;nbsp;&lt;/td&gt;
+				&lt;td class="priority_cell_spacer" rowspan="4"&gt;
+					&amp;nbsp;&lt;/td&gt;
+				&lt;td colspan="2" rowspan="1" style="${background:$action_bg;}${color:$action_color;} border-radius:4px; padding:1px;padding-left:3px;padding-right:3px"&gt;
+					$action_type_description&lt;/td&gt;
+				&lt;td colspan="2" rowspan="1" style="text-align: right;"&gt;
+					$calc_date_due${:$time_due}&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+				&lt;td colspan="3"&gt;
+					&lt;em&gt;&lt;span style="font-size:10px;"&gt;$action_description&lt;/span&gt;&lt;/em&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+				&lt;td colspan="3"&gt;
+					&lt;span class="linked_entity_caption"&gt;$linked_entity:&lt;/span&gt; &lt;span&gt; $zoomlink &lt;/span&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+				&lt;td colspan="2"&gt;
+					&lt;span style="font-size:11px; font-style:italic"&gt;Assigned by $user_username on $insert_date&lt;/span&gt;&lt;/td&gt;
+				&lt;td style="text-align: right;"&gt;
+					$countdown&lt;/td&gt;
+			&lt;/tr&gt;
+		&lt;/tbody&gt;
+	&lt;/table&gt;
+&lt;/div&gt;
+</content>
+<metadata><author>ghigo</author>
+<version _T="NN"></version>
+<date _T="NN"></date>
+<is_print _T="NN"></is_print>
+<is_mail _T="NN"></is_mail>
+<is_row _T="NN"></is_row>
+<row_height _T="NN"></row_height>
+<default_letterhead _T="NN"></default_letterhead>
+<summary _T="NN"></summary>
+<email><subject _T="NN"></subject>
+<to_address _T="NN"></to_address>
+<from_address _T="NN"></from_address>
+<cc_address _T="NN"></cc_address>
+<bcc_address _T="NN"></bcc_address>
+<attachments _T="NN"></attachments></email>
+<email_compiled _T="BAG"></email_compiled></metadata>
+<varsbag><n_1933 _pkey="n_1933"><fieldpath>connected_description</fieldpath>
+<dtype dtype="::NN">T</dtype>
+<fieldname dtype="::NN">connected_description</fieldname>
+<varname dtype="::NN">connected_description</varname>
+<virtual_column _T="B">True</virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_1933>
+<n_1958 _pkey="n_1958"><fieldpath>time_due</fieldpath>
+<dtype dtype="::NN">H</dtype>
+<fieldname dtype="::NN">Time due</fieldname>
+<varname dtype="::NN">time_due</varname>
+<virtual_column _T="NN"></virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_1958>
+<n_1972 _pkey="n_1972"><fieldpath>priority</fieldpath>
+<dtype dtype="::NN">A</dtype>
+<fieldname dtype="::NN">Priority</fieldname>
+<varname dtype="::NN">priority</varname>
+<virtual_column _T="NN"></virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_1972>
+<n_2006 _pkey="n_2006"><fieldpath>@action_type_id.description</fieldpath>
+<dtype dtype="::NN">T</dtype>
+<fieldname dtype="::NN">Action type/Description</fieldname>
+<varname dtype="::NN">action_type_description</varname>
+<virtual_column _T="NN"></virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_2006>
+<n_2036 _pkey="n_2036"><fieldpath>__ins_ts</fieldpath>
+<dtype dtype="::NN">DH</dtype>
+<fieldname dtype="::NN">Insert date</fieldname>
+<varname dtype="::NN">insert_date</varname>
+<virtual_column _T="NN"></virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_2036>
+<n_2236 _pkey="n_2236"><fieldpath>@author_user_id.username</fieldpath>
+<dtype dtype="::NN">A</dtype>
+<fieldname dtype="::NN">User/Username</fieldname>
+<varname dtype="::NN">user_username</varname>
+<virtual_column _T="NN"></virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_2236>
+<n_2125 _pkey="n_2125"><fieldpath>rec_type</fieldpath>
+<dtype dtype="::NN">A</dtype>
+<fieldname dtype="::NN">rec_type</fieldname>
+<varname dtype="::NN">rec_type</varname>
+<virtual_column _T="NN"></virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_2125>
+<n_2138 _pkey="n_2138"><fieldpath>linked_table</fieldpath>
+<dtype dtype="::NN">T</dtype>
+<fieldname dtype="::NN">Linked table</fieldname>
+<varname dtype="::NN">linked_table</varname>
+<virtual_column _T="NN"></virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_2138>
+<n_2151 _pkey="n_2151"><fieldpath>linked_entity</fieldpath>
+<dtype dtype="::NN">T</dtype>
+<fieldname dtype="::NN">Linked entity</fieldname>
+<varname dtype="::NN">linked_entity</varname>
+<virtual_column _T="NN"></virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_2151>
+<n_2163 _pkey="n_2163"><fieldpath>linked_fkey</fieldpath>
+<dtype dtype="::NN">T</dtype>
+<fieldname dtype="::NN">Linked fkey</fieldname>
+<varname dtype="::NN">linked_fkey</varname>
+<virtual_column _T="NN"></virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_2163>
+<n_2325 _pkey="n_2325"><fieldpath>countdown</fieldpath>
+<dtype dtype="::NN">T</dtype>
+<fieldname dtype="::NN">Countdown</fieldname>
+<varname dtype="::NN">countdown</varname>
+<virtual_column _T="B">True</virtual_column>
+<required_columns>$date_due,$time_due</required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_2325>
+<n_2746 _pkey="n_2746"><fieldpath>calculated_date_due</fieldpath>
+<dtype dtype="::NN">D</dtype>
+<fieldname dtype="::NN">Calc.Date due</fieldname>
+<varname dtype="::NN">calc_date_due</varname>
+<virtual_column _T="B">True</virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_2746>
+<n_2251 _pkey="n_2251"><fieldpath>zoomlink</fieldpath>
+<dtype dtype="::NN">T</dtype>
+<fieldname dtype="::NN">Zoomlink</fieldname>
+<varname dtype="::NN">zoomlink</varname>
+<virtual_column _T="B">True</virtual_column>
+<required_columns>$connected_description,$linked_table,$linked_fkey,$linked_entity</required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_2251>
+<n_2374 _pkey="n_2374"><fieldpath>action_description</fieldpath>
+<dtype dtype="::NN">T</dtype>
+<fieldname dtype="::NN">Action Description</fieldname>
+<varname dtype="::NN">action_description</varname>
+<virtual_column _T="NN"></virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_2374>
+<n_2788 _pkey="n_2788"><fieldpath>action_type_background</fieldpath>
+<dtype dtype="::NN">T</dtype>
+<fieldname dtype="::NN">Action BG</fieldname>
+<varname dtype="::NN">action_bg</varname>
+<virtual_column _T="B">True</virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_2788>
+<n_2775 _pkey="n_2775"><fieldpath>action_type_color</fieldpath>
+<dtype dtype="::NN">T</dtype>
+<fieldname dtype="::NN">Action Color</fieldname>
+<varname dtype="::NN">action_color</varname>
+<virtual_column _T="B">True</virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></n_2775></varsbag>
+<parameters _T="BAG"></parameters>
+<compiled><main virtual_columns="connected_description,countdown,$date_due,$time_due,calculated_date_due,zoomlink,$connected_description,$linked_table,$linked_fkey,$linked_entity,action_type_background,action_type_color" locale="en-AU" masks="{}::JS" dtypes='{"countdown": "T", "action_description": "T", "rec_type": "A", "insert_date": "DH", "action_color": "T", "action_type_description": "T", "time_due": "H", "action_bg": "T", "linked_fkey": "T", "priority": "A", "user_username": "A", "connected_description": "T", "linked_table": "T", "calc_date_due": "D", "zoomlink": "T", "linked_entity": "T"}::JS' maintable="orgn.annotation" df_templates="{}::JS" formats="{}::JS" editcols="{}::JS" columns="$connected_description,$time_due,$priority,@action_type_id.description,$__ins_ts,@author_user_id.username,$rec_type,$linked_table,$linked_entity,$linked_fkey,$countdown,$calculated_date_due,$zoomlink,$action_description,$action_type_background,$action_type_color">&lt;html&gt;&lt;body&gt;&lt;div class="orgn_action_template"&gt;
+	&lt;table cellpadding="1" cellspacing="1" style="border-collapse:collapse;width:100%"&gt;
+		&lt;tbody&gt;
+			&lt;tr&gt;
+				&lt;td class="priority_$priority priority_cell" rowspan="4"&gt;
+					&amp;#160;&lt;/td&gt;
+				&lt;td class="priority_cell_spacer" rowspan="4"&gt;
+					&amp;#160;&lt;/td&gt;
+				&lt;td colspan="2" rowspan="1" style="${background:$action_type_background;}${color:$action_type_color;} border-radius:4px; padding:1px;padding-left:3px;padding-right:3px"&gt;
+					$@action_type_id.description&lt;/td&gt;
+				&lt;td colspan="2" rowspan="1" style="text-align: right;"&gt;
+					$calculated_date_due${:$time_due}&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+				&lt;td colspan="3"&gt;
+					&lt;em&gt;&lt;span style="font-size:10px;"&gt;$action_description&lt;/span&gt;&lt;/em&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+				&lt;td colspan="3"&gt;
+					&lt;span class="linked_entity_caption"&gt;$linked_entity:&lt;/span&gt; &lt;span&gt; $zoomlink &lt;/span&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+				&lt;td colspan="2"&gt;
+					&lt;span style="font-size:11px; font-style:italic"&gt;Assigned by $@author_user_id.username on $__ins_ts&lt;/span&gt;&lt;/td&gt;
+				&lt;td style="text-align: right;"&gt;
+					$countdown&lt;/td&gt;
+			&lt;/tr&gt;
+		&lt;/tbody&gt;
+	&lt;/table&gt;
+&lt;/div&gt;
+&lt;/body&gt;&lt;/html&gt;</main></compiled></GenRoBag>

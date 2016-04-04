@@ -574,7 +574,7 @@ class GnrSqlDb(GnrObject):
             
     packages = property(_get_packages)
 
-    def tablesMasterIndex(self):
+    def tablesMasterIndex(self,hard=False):
         packages = self.packages.keys()
         toImport = []
         dependencies = dict()
@@ -585,7 +585,7 @@ class GnrSqlDb(GnrObject):
             for tbl in tables:
                 dset = set()
                 for d,isdeferred in tbl.dependencies:
-                    if not isdeferred and packages.index(d.split('.')[0])<=k:
+                    if not isdeferred and (packages.index(d.split('.')[0])<=k or hard):
                         dset.add(d)
                 dependencies[tbl.fullname] = dset
         imported = set()

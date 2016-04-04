@@ -103,7 +103,7 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
         var onOpening = objectPop(kw,'onOpening');
         var modal = objectPop(kw,'modal');
         if (onOpening){
-            onOpening = funcCreate(onOpening,'e,sourceNode,dialogNode',sourceNode);
+            onOpening = funcCreate(onOpening,'e,sourceNode,dialogNode,kwargs',sourceNode);
         }
         var evt = objectPop(kw,'evt') || 'onclick';
         var parentDomNode;
@@ -115,8 +115,13 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
             parentDomNode = sn.getDomNode();
         }
         var ddkw = {hidden:true,nodeId:ddbId,modifiers:modifiers,evt:evt,modal:modal,
-                                selfsubscribe_open:"this.widget.dropDown._lastEvent=$1.evt;this.widget._openDropDown($1.domNode);",
-                                selfsubscribe_close:"this.widget._closeDropDown();"}
+                                selfsubscribe_open:function(kw){
+                                    if(!onOpening || onOpening(kw.evt,kw.domNode.sourceNode,this._value.getNode('ttd'),kw)!==false){
+                                        this.widget.dropDown._lastEvent=kw.evt;
+                                        this.widget._openDropDown(kw.domNode);
+                                    }
+                                },
+                                selfsubscribe_close:function(){this.widget._closeDropDown();}}
         if(placingId){
             ddkw.onOpeningPopup = function(openKw,evtDomNode){
                                     var placingDomNode = genro.domById(placingId);
@@ -145,12 +150,10 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
             kw.z_index = 1001;
         }   
         kw.doLayout = true;
-        var tdialog =  ddb._('TooltipDialog',kw);
+        var tdialog =  ddb._('TooltipDialog','ttd',kw);
         dojo.connect(parentDomNode,evt,function(e){
             if(genro.wdg.filterEvent(e,modifiers)){
-                if(!onOpening || onOpening(e,e.target.sourceNode,tdialog.getParentNode())!==false){
-                    genro.publish(ddbId+'_open',{'evt':e,'domNode':e.target});
-                }
+                genro.publish(ddbId+'_open',{'evt':e,'domNode':e.target});
             } 
         });
         return tdialog;
@@ -165,15 +168,15 @@ dojo.declare("gnr.widgets.MenuDiv", gnr.widgets.gnrwdg, {
         var disabled = objectPop(kw,'disabled');
         var parentForm = objectPop(kw,'parentForm');
         var tip = objectPop(kw,'tip');
-        var iconClass = iconClass? 'iconbox ' +iconClass :null;
-        var box_kw = objectUpdate({_class:'menuButtonDiv buttonDiv',disabled:disabled,tip:tip},buttonkw)
+        iconClass = iconClass? 'iconbox ' +iconClass :null;
+        var box_kw = objectUpdate({_class:'menuButtonDiv buttonDiv',disabled:disabled,tip:tip},buttonkw);
         if(parentForm){
             box_kw.parentForm = parentForm;
         }
         var box = sourceNode._('div',box_kw);
-        if(label && false){
+        if(label && !iconClass){
             //not well implemented
-            box._('div',{innerHTML:label,display:'inline-block',_class:'buttonDivLabel'})
+            box._('div',objectUpdate({innerHTML:label,display:'inline-block'},objectExtract(kw,'label_*')));
         }
         if(iconClass){
             box._('div',{_class:iconClass});
@@ -800,7 +803,8 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
         var tree_kwargs = {_class:'fieldsTree', hideValues:true,
                             margin:'6px',nodeId:treeId,draggable:true,
                             'frameCode':frameCode,onDrag:default_onDrag,
-                            storepath:storepath,labelAttribute:'caption'};
+                            storepath:storepath,labelAttribute:'caption',
+                        };
         objectUpdate(tree_kwargs, objectExtract(kw, 'tree_*'));
         var searchOn = objectPop(kw, 'searchOn');
         kw['contentWidget'] = 'FramePane';
@@ -835,65 +839,101 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         var uploadPath = objectPop(kw,'uploadPath');
         var filename = objectPop(kw,'filename');
         var maxsize = objectPop(kw,'maxsize');
-        gnrwdg.filename = filename || 'latest';
-        gnrwdg.uploadPath = uploadPath || 'conn:'+frameCode;
+        gnrwdg.filename = filename || frameCode+'latest';
+        gnrwdg.uploadPath = uploadPath;
         kw.height = kw.height || '400px';
-        kw.width = kw.width || '600px';
+        kw.width = kw.width || '650px';
+        sourceNode.attr.nodeId = frameCode;
+        sourceNode._registerNodeId();
+        gnrwdg.matchColumns = objectPop(kw,'matchColumns');
+        gnrwdg.importButtonKw = objectExtract(kw,'importButton_*');
+        gnrwdg.importMethod = objectPop(kw,'rpcmethod');
+        gnrwdg.uploaderId = sourceNode.attr.nodeId +'_uploader';
         var palette = sourceNode._('PalettePane',kw);
-        var bc = palette._('BorderContainer',{_lazyBuild:true})
-        var left = bc._('BorderContainer',{region:'left',drawer:'close',width:'300px'});
-        gnrwdg.matchGrid(left)
-        var frame = bc._('FramePane',{frameCode:frameCode,region:'center'});
-        var bar = frame._('SlotBar',{'side':'top',slots:'2,prevtitle,*,limit,2',searchOn:true,toolbar:true});
+        var bc = palette._('BorderContainer',{_lazyBuild:true});
+        var slots = '2,prevtitle,*,limit,5';
+        var limit = objectPop(kw,'previewLimit') || 20;
+        var dropMessage = objectPop(kw,'dropMessage') || '!!Drop import file here';
+        if(!gnrwdg.matchColumns){
+            gnrwdg.matchGrid(bc);
+        }
+        var frame = bc._('FramePane',{frameCode:frameCode,region:'center',
+                                     _class:'pbl_roundedGroup',margin:'2px'});
+        var bar = frame._('SlotBar',{'side':'top',slots:slots,searchOn:true,_class:'pbl_roundedGroupLabel'});
         bar._('div','prevtitle',{innerHTML:"==_current_title || 'Import xls or cvs'",_current_title:'^.current_title',color:'#666'});
-        var limitbox = bar._('div','limit')
-        limitbox._('div',{'innerHTML':'Limit',display:'inline-block',position:'relative',top:'-2px',_class:'gnrfieldlabel'})
-        limitbox._('numberTextBox',{'value':'^.limit',width:'4em',default_value:20})
+        
+        bar._('div','limit',{innerHTML:_T('The lines in preview are limited to')+' '+limit,font_style:'italic',font_size:'.8em'});
+
         var dropAreaKw = {};
-        dropAreaKw.dropTarget=true;
-        dropAreaKw.dropTypes='Files';
         dropAreaKw.nodeId = frameCode+'_uploader';
-        gnrwdg.uploaderId = dropAreaKw.nodeId;
-        var cbOnDropData = function(dropInfo,data){
+        dropAreaKw.onUploadingCb = function(dropInfo,data){
             var uploaderNode = genro.nodeById(gnrwdg.uploaderId);
             uploaderNode.setRelativeData('.current_title',data.name);
-            if (maxsize && data.size>maxsize){
-                var size_kb = maxsize/1000
-                genro.dlg.alert("File exeeds size limit ("+size_kb+"KB)",'Error');
-                return false;
-            }
-            if(sourceNode.form && sourceNode.form.isDisabled()){
-                genro.dlg.alert("The form is locked",'Warning');
-                return false;
-            }
-            bc.getParentNode().widget.setRegionVisible('left',true);
-            genro.rpc.uploadMultipart_oneFile(data,{onUploadedMethod:'utils.tableImporterCheck',limit:'=.limit',table:table},{uploadPath:gnrwdg.uploadPath,
-                          filename:gnrwdg.filename,
-                          uploaderId:gnrwdg.uploaderId,
-                          onResult:function(result){
+        };
+        dropAreaKw.rpc_limit = limit;
+        dropAreaKw.rpc_table = table;
+        objectUpdate(dropAreaKw,objectExtract(kw,'drop_*',false,true));
+        dropAreaKw.onResult = function(result){
                                 if(result.currentTarget.responseText){
                                     gnrwdg.onImportCheck(new gnr.GnrBag(result.currentTarget.responseText));
                                 }                            
-                           }});
-        }
-        dropAreaKw.onDrop = function(dropInfo,files){
-            cbOnDropData(dropInfo,files[0]);
-        };
-        bar = frame._('slotBar',{side:'bottom','slots':'2,msgslot,2',background:'#efefef',msgslot_width:'100%'})
-        bar._('div','msgslot',objectUpdate({innerHTML:_T('!!Drop import file here'),font_size:'1.4em',color:'#666',padding:'10px',margin:'3px',
-                                    border:'2px dotted silver',rounded:6,background:'white'},dropAreaKw))    
+                           }
+        dropAreaKw.filename = gnrwdg.filename;
+        dropAreaKw.uploadPath = gnrwdg.uploadPath;
+        var sc = bc._('StackContainer',{region:'bottom',height:'30px',selected:'^.import_page_status',
+                                            border_top:'1px solid silver',background:'white'});
+        sc._('ContentPane',{overflow:'hidden'})._('DropUploader','msgslot',
+                                    objectUpdate({label:_T(dropMessage),
+                                                  font_size:'1.2em',position:'absolute',top:0,left:'3px',right:'3px',bottom:0,
+                                                  color:'#666',text_align:'center',
+                                                  onUploadedMethod:'utils.tableImporterCheck',
+                                                  _class:'importerPaletteDropUploaderBox',
+                                                  cursor:'pointer',
+                                                  nodeId:gnrwdg.uploaderId
+                                                 },dropAreaKw))
+        var confirmPane = sc._('ContentPane',{});
+        var footerbar = confirmPane._('slotBar',{slots:'5,resetButton,*,importButton,5',margin_top:'5px'});
+        footerbar._('slotButton','resetButton',{label:'Clear',width:'8em',font_size:'1em',padding:'2px',
+                                            action:function(){gnrwdg.resetImporter();}});
+        var importButtonKw = objectUpdate({label:'Import',width:'8em',font_size:'1em',padding:'2px',
+                                        imported_file_path:'=.imported_file_path',
+                                        match:'=.match',
+                                        action:function(){
+                                            gnrwdg.importDo(this);
+                                    },disabled:'^.imported_file_path?=!#v'},gnrwdg.importButtonKw)
+        footerbar._('slotButton','importButton',importButtonKw);
         var qg = frame._('ContentPane',{'side':'center',overflow:'hidden'})._('quickGrid', {value:'^.importing_data'});
         gnrwdg.gridNode = qg.getParentNode();
+        var bcnode = bc.getParentNode();
+        gnrwdg.rootNode = bcnode;
+        sourceNode.subscribe('onResult',function(kw){
+            if(kw.error){
+                genro.dlg.floatingMessage(bcnode,{message:kw.error,messageType:'error'})
+            }
+            else{
+                this.gnrwdg.resetImporter();
+                var closeCb = function(){
+                    genro.wdgById(frameCode+'_floating').hide()
+                }
+                if(kw.message){
+                    genro.dlg.floatingMessage(bcnode,{message:kw.message,onClosedCb:kw.closeImporter?closeCb:null})
+                }else if(kw.closeImporter){
+                    closeCb();
+                }
+            }
+        });
         return bc;
     },
+
 
     gnrwdg_matchGrid:function(bc){
         var gnrwdg = this;
         var frame = bc._('FramePane',{frameCode:this.uploaderId+'_matchframe',
-                                        region:'center',_class:'pbl_roundedGroup',margin:'2px'})
+                                        region:'left',_class:'pbl_roundedGroup',margin:'2px',
+                                        drawer:'close',width:'320px',splitter:true})
         bar = frame._('slotBar',{slots:'2,matchtitle,*',side:'top',_class:'pbl_roundedGroupLabel'});
         bar._('div','matchtitle',{innerHTML:'Match columns'});
-        bar = frame._('slotBar',{slots:'2,fbbottom,*,doimport,10',side:'bottom',_class:'slotbar_dialog_footer'});
+        bar = frame._('slotBar',{slots:'2,fbbottom,*',side:'bottom',_class:'slotbar_dialog_footer'});
 
         var fb = genro.dev.formbuilder(bar._('div','fbbottom'),2,{border_spacing:'1px'});
         fb.addField('filteringSelect',{value:'^.import_method',width:'7em',
@@ -904,28 +944,53 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
                                         lbl_hidden:'^.methodlist?=!#v',
                                         hidden:'^.methodlist?=!#v',
                                         parentForm:false});
-        fb.addField('checkbox',{value:'^.no_trigger',default_value:true,
-                                label:_T('No trigger'),parentForm:false});
-
-        bar._('button','doimport',{label:'Import',action:function(){gnrwdg.importDo(this);}});
-
-        var grid = frame._('ContentPane',{'side':'center',overflow:'hidden'})._('quickGrid',{value:'^.match',_class:'noheader noselect'});
+        if (this.table){
+            fb.addField('checkbox',{value:'^.no_trigger',default_value:true,
+                                label:_T('No trigger'),parentForm:false});   
+        }
+        var grid = frame._('ContentPane',{'side':'center',overflow:'hidden'})._('quickGrid',{value:'^.match',_class:'noselect'});
         grid.getParentNode().importer_gnrwdg = this;
         var onclick = "this.getParentNode().importer_gnrwdg.onCheckedMatch(this,kw);"
         var editdestpars = true;
         if(this.match_values){
             editdestpars = {tag:'filteringSelect',values:this.match_values};
         }
-        grid._('column',{name:'Source',field:'source_field',width:'15em',
+        grid._('column',{name:'Source Column',field:'source_field',width:'10em',
                 cellStyles:'background:#666;color:whitesmoke;text-align:right; border-left:0px;border-bottom:1px solid whitesmoke;'})
-        grid._('column',{name:'Destination',field:'dest_field',cellStyles:'border-bottom:1px solid lightgray;background:white;',edit:editdestpars,width:'100%'})
-        grid._('column',{name:'do_import',field:'do_import',width:'2em',dtype:'B',
+        grid._('column',{name:'Dest.Column',field:'dest_field',cellStyles:'border-bottom:1px solid lightgray;background:white;',edit:editdestpars,width:'10em'})
+        if(!this.table){
+            grid._('column',{name:'Type',field:'dtype',cellStyles:'border-bottom:1px solid lightgray;background:white;',
+                        edit:{values:'T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image',tag:'filteringSelect'},width:'7em'})
+        }
+        grid._('column',{name:' ',field:'do_import',width:'2em',dtype:'B',
                         format_onclick:onclick,cellStyles:'border-bottom:1px solid lightgray;background:white;'})
+    
+    },
+
+    gnrwdg_resetImporter:function(){
+        var uploaderNode = genro.nodeById(this.uploaderId);
+        uploaderNode.setRelativeData('.current_title',null);
+        uploaderNode.setRelativeData('.methodlist','');
+        uploaderNode.setRelativeData('.importing_data',null);
+        uploaderNode.setRelativeData('.file_columns',null);
+        uploaderNode.setRelativeData('.match',null);
+        uploaderNode.setRelativeData('.imported_file_path',null);
+        uploaderNode.setRelativeData('.import_page_status',0);
+        this.gridNode.gnrwdg.setColumns(new gnr.GnrBag());
     },
 
     gnrwdg_onImportCheck:function(data){
         var columns = data.getItem('columns');
         var match_data = data.getItem('match_data');
+        var warning = false;
+        if(this.matchColumns && this.matchColumns!='*'){
+            var colkeys = columns.keys();
+            var matchColumns = this.matchColumns.split(',');
+            if(matchColumns.length!=colkeys.length || matchColumns.some(function(n,idx){return n!=colkeys[idx]})){
+                genro.dlg.floatingMessage(this.rootNode,{message:_T('Columns mismatch'),messageType:'error'})
+                return;
+            }
+        }
         this.gridNode.gnrwdg.setColumns(columns);
         this.gridNode.gnrwdg.guessColumns = false;
         var uploaderNode = genro.nodeById(this.uploaderId);
@@ -934,6 +999,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         uploaderNode.setRelativeData('.file_columns',columns);
         uploaderNode.setRelativeData('.match',match_data);
         uploaderNode.setRelativeData('.imported_file_path',data.getItem('imported_file_path'));
+        uploaderNode.setRelativeData('.import_page_status',1);
     },
 
     gnrwdg_onCheckedMatch:function(matchGrid,kw){
@@ -962,12 +1028,14 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
                 }
             })
         }
-        genro.serverCall('utils.tableImporterRun',{table:this.table,file_path:'=.imported_file_path',
+        var that = this;
+        genro.serverCall(this.importMethod || 'utils.tableImporterRun',{table:this.table,file_path:'=.imported_file_path',
                                                     match_index:match_index,
                                                     import_method:'=.import_method',
                                                     no_trigger:'=.no_trigger',
                                                     _sourceNode:buttonNode},function(result){
-                                                        alert(result);
+                                                        genro.dlg.floatingMessage(that.rootNode,{message:_T('Import finished')});
+                                                        that.resetImporter();
                                                     });
     }
 });
@@ -1017,8 +1085,9 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
         gnrwdg.origin = objectPop(kw,'origin');
         sourceNode.attr.exclude = objectPop(kw,'exclude');
         sourceNode.attr.value = objectPop(kw,'value');
-        var grid_kwargs = objectExtract(kw,'grid_*')
+        var grid_kwargs = objectExtract(kw,'grid_*');
         var tools = objectPop(kw,'tools');
+        var tools_kw = objectExtract(kw,'tools_*');
         var readOnly = objectPop(kw,'readOnly');
 
         if(tools==undefined && !readOnly){
@@ -1046,12 +1115,16 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
         grid._('column',{name:'Key',field:'attribute_key',width:'15em',cellStyles:'background:#BBB;color:#333;border-bottom:1px solid white;font-weight:bold;'})
         grid._('column',{name:'Value',field:'attribute_value',edit:!readOnly,width:'100%',cellStyles:'border-bottom:1px solid lightgray;'})
         if(tools){
-            var t = grid._('tools',{tools:tools,
-            custom_tools:{addrow:{content_class:'iconbox add_row',ask:{title:'New Line',
-                                                 fields:[{name:'key',lbl:'Key',validate_notnull:true},
-                                                        {name:'dtype',lbl:'Datatype',values:'T:Text,B:Boolean,L:Integer,N:Decimal,D:Date,H:Time',wdg:'filteringSelect',default_value:'T'}]
-                                             }},
-            }})
+            var t = grid._('tools',objectUpdate({tools:tools,
+                                          custom_tools:{addrow:{content_class:'iconbox add_row',ask:{title:'New Line',
+                                                fields:[{name:'attribute_key',lbl:'Key',validate_notnull:true},
+                                                        {name:'dtype',lbl:'Datatype',
+                                                        values:'T:Text,B:Boolean,L:Integer,N:Decimal,D:Date,H:Time',
+                                                        wdg:'filteringSelect',default_value:'T'},
+                                                        {name:'attribute_value',lbl:'Value'}]
+                                                }
+                                    }
+            }},tools_kw))
 
         }
         gnrwdg.gridNode = grid.getParentNode();
@@ -1066,7 +1139,9 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_addEditorRow:function(grid,kw){
-        var key = kw.key;
+        var key = kw.attribute_key;
+        var value = kw.attribute_value;
+
         var dtype = kw.dtype;
         if(!key){
             genro.dlg.floatingMessage(this.containerNode,{messageType:'error',message:'Missing key'})
@@ -1076,8 +1151,13 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
             genro.dlg.floatingMessage(this.containerNode,{messageType:'error',message:'You cannot add this key'})
             return;
         }
-        grid.addRows([{'attribute_key':kw.key}],null,null,function(firstRow){
-            firstRow._value.getNode('attribute_value').attr.wdg_dtype = kw.dtype || 'T';
+        grid.addRows([{'attribute_key':key}],null,null,function(firstRow){
+            var valueNode = firstRow._value.getNode('attribute_value');
+            valueNode.attr.wdg_dtype = dtype || 'T';
+            if(!isNullOrBlank(value)){
+                valueNode.setValue(value); //it must not be evauluated
+                return false;
+            }
         });
         
     },
@@ -1222,13 +1302,46 @@ dojo.declare("gnr.widgets.PaletteBagNodeEditor", gnr.widgets.gnrwdg, {
         if(genro.isDeveloper){
             var bottom = bc._('ContentPane', {'region':'bottom',color:'#666',font_style:'italic'});
             bottom._('span', {'innerHTML':'Path : '});
-            bottom._('span', {'innerHTML':nodePath});
+            bottom._('span', {'innerHTML':nodePath,_class:'selectable'});
         }
         bc._('ContentPane',{region:'center',margin:'2px',overflow:'hidden'})._('MultiValueEditor',objectUpdate({value:nodePath+'?#node'},multiValuePars))
         return pane;
     }
 });
 
+dojo.declare("gnr.widgets.PaletteBagEditor", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw) {
+        kw.palette_width = kw.palette_width || '500px';
+        var gnrwdg = sourceNode.gnrwdg;
+
+        var pane = sourceNode._('PalettePane', kw);
+        var path = objectPop(kw,'path');
+        var multiValuePars = objectExtract(kw,'origin,exclude')
+        var bc = pane._('BorderContainer',{background:'#EEF2F4'});
+        var left = bc._('ContentPane',{region:'left',width:'200px',_class:'noheader buttons_grid no_over',
+                        splitter:true});
+        var g = left._('quickGrid',{value:'^'+path,datamode:'attr',
+                          selfDragRows:true,
+                          selfsubscribe_onSelectedRow:function(kw){
+                                if(kw.idx>=0){
+                                    var n = this.widget.collectionStore().itemByIdx(kw.idx);
+                                    //gnrwdg.mveNode.gnrwdg.setSource(nodePath+'?#node');
+                                    gnrwdg.mveNode.gnrwdg.setSource(path+'.'+n.label+'?#node');
+                                }
+                          },
+                           onCreated:function(){
+                                var w = this.widget;
+                                setTimeout(function(){
+                                    w.updateRowCount();
+                                },1);
+                           }}) //
+        g._('column',{field:'field',name:'Cells',width:'100%'});
+        multiValuePars.tools_position = 'BL';
+        var mve = bc._('ContentPane',{region:'center',margin:'2px',overflow:'hidden'})._('MultiValueEditor','mve',multiValuePars);
+        gnrwdg.mveNode = mve.getParentNode();
+        return pane;
+    }
+});
 
 
 dojo.declare("gnr.widgets.BagNodeEditor", gnr.widgets.gnrwdg, {
@@ -1245,7 +1358,7 @@ dojo.declare("gnr.widgets.BagNodeEditor", gnr.widgets.gnrwdg, {
         if (showBreadcrumb) {
             var bottom = bc._('ContentPane', {'region':'bottom',color:'#666',font_style:'italic'});
             bottom._('span', {'innerHTML':'Path : '});
-            bottom._('span', {'innerHTML':'^.currentEditedPath'});
+            bottom._('span', {'innerHTML':'^.currentEditedPath',_class:'selectable'});
         }
         var box = bc._('ContentPane', {'region':'center',_class:'formgrid',overflow:'hidden'});
 
@@ -1296,11 +1409,11 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         sourceNode.setRelativeData(null, databag);
         var searchbox = sourceNode._('table', {nodeId:nodeId})._('tbody')._('tr');
         sourceNode._('dataController', {'script':'genro.publish(searchBoxId+"_changedValue",currentValue,field)',
-            'searchBoxId':nodeId,currentValue:'^.currentValue',field:'^.field',_userChanges:true});
+            'searchBoxId':nodeId,currentValue:'^.currentValue',field:'=.field',_userChanges:true});
         var searchlbl = searchbox._('td');
         searchlbl._('div', {'innerHTML':'^.caption',_class:'buttonIcon'});
         searchlbl._('menu', {'modifiers':'*',_class:'smallmenu',storepath:'.menubag',
-            selected_col:'.field',selected_caption:'.caption'});
+            selected_col:'.field',selected_caption:'.caption',action:'SET .value = null;SET .currentValue = null;'});
         
         searchbox._('td')._('div',{_class:'searchInputBox'})._('input', {'value':'^.value',connect_onkeyup:kw.onKeyUp,parentForm:false,width:objectPop(kw,'width') || '6em'});
         sourceNode.registerSubscription(nodeId + '_updmenu', this, function(searchOn) {
@@ -1357,6 +1470,16 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.DownloadButton", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode,kw){
+        kw._rpcpars = objectUpdate({},objectExtract(kw,'rpc_*'));
+        kw.action = "var pars = this.evaluateOnNode(_rpcpars); var method = objectPop(pars,'method'); genro.rpcDownload(method,pars)";
+        var wdg = objectPop(kw,'wdg') || 'Button';
+        return sourceNode._(wdg,kw);
+    }
+
+});
+
 dojo.declare("gnr.widgets.DocumentFrame", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw){
         var framekw = objectExtract(kw,'frame_*');
@@ -1394,11 +1517,6 @@ dojo.declare("gnr.widgets.DocumentFrame", gnr.widgets.gnrwdg, {
         iframekw['rpcCall'] = rpcCall;
         iframekw['_delay'] = _delay;
         iframekw['documentClasses'] = true;
-        iframekw['onLoad'] = function(){
-            if(!this.contentWindow.document.body.innerHTML){
-                genro.dlg.floatingMessage(this.sourceNode.getParentNode(),{message:emptyMessage,messageType:'warning'});
-            }
-        }
         objectUpdate(iframekw,objectExtract(kw,'iframe_*'));
         var iframe = frame._('ContentPane','center',{overflow:'hidden'})._('iframe',iframekw);
         var scriptkw = objectUpdate({'script':"SET #WORKSPACE.enabled = true; FIRE #WORKSPACE.reload_iframe;",'_delay':100,_if:_if,_else:'SET #WORKSPACE.enabled = false;'},kw);
@@ -1801,6 +1919,231 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
     }
 
 });
+
+dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        var frameKw = objectExtract(kw,'height,width,region,title,border,splitter,_class,style,frameCode,datapath,rounded');
+        var subtitlePane = objectPop(kw,'subtitlePane');
+        frameKw.frameCode = frameKw.frameCode || 'videoplayer_'+genro.getCounter();
+        var frame = sourceNode._('FramePane',frameKw);
+        var slots = objectPop(kw,'slots');
+        var manageCue = objectPop(kw,'manageCue');
+        var controllerSide = objectPop(kw,'controllerSide') || 'top';
+        var center = frame._('BorderContainer',{side:'center',
+                            connect_resize:function(){
+                                var minH = 30;
+                                var maxH = 100;
+                                var bcdn = this.widget.domNode;
+                                var top = this.widget._top;
+                                var centerDN = this.widget._center;
+                                var video = top.children[0];
+                                var subH = bcdn.clientHeight - top.clientHeight;
+                                if(subH<(minH-3)){
+                                    console.log('devo risizare top')
+                                    var topH = (bcdn.clientHeight-minH);
+                                    video.style.height = topH+'px';
+                                    video.style.width = null;
+                                }else if(top.clientWidth<video.clientWidth){
+                                    video.style.height = null;
+                                    video.style.width = '100%';
+                                }else if(subH>maxH){
+                                    video.style.height = null;
+                                    video.style.width = '100%';
+                                }
+                                /*else{
+                                    video.style.height = null;
+                                    video.style.width = '100%';
+                                }*/
+
+                                //console.log('resizing top  ',top.clientHeight,top.clientWidth,
+                                //            '\nresizing video',video.clientHeight,video.clientWidth,
+                                //            '\nresizing bc   ',bcdn.clientHeight,bcdn.clientWidth);
+                            }
+                            });
+        var gnrwdg = sourceNode.gnrwdg;
+        kw.src = '^.videoSrc';
+        kw.currentTime = '^.currentTime';
+        kw.playing = '.playing';
+        kw.width = kw.video_width || '100%';
+        //kw.height = kw.video_height || '100%';
+        kw.border = kw.video_border || 0;
+        var urlPars = objectExtract(kw,'url,timerange');
+        gnrwdg.urlPars = urlPars;
+        kw.connect_loadedmetadata = function(){
+            gnrwdg.onLoadedVideo(this);
+            this.getParentNode().getParentNode().widget.layout()
+        }
+        sourceNode.attr.videoCurrentTime = kw.currentTime
+        if(frameKw.frameCode && !kw.nodeId){
+            kw.nodeId = frameKw.frameCode +'_video';
+        }
+        gnrwdg.videoNodeId =kw.nodeId;
+        center._('dataFormula',{path:'.videoSrc',formula:"url?genro.addParamsToUrl(url,{'#t':timerange}):null;",
+                                url:urlPars.url,timerange:urlPars.timerange,_onBuilt:true,_delay:1});
+        center._('dataFormula',{path:'.playerTime',
+                                formula:"currentTime-(range_start||0)",
+                                currentTime:'^.currentTime',
+                                range_start:'=.range_start',
+                                _if:'_triggerpars.kw.reason=="player" && !editingPlayerSearch',
+                                editingPlayerSearch:'=.editingPlayerSearch'});
+        center._('dataController',{script:"var currentTime = playerTime+range_start; if(currentTime>=range_end){ FIRE .resetPlayer;}else{ SET .currentTime=currentTime;}",playerTime:'^.playerTime',
+                                range_start:'=.range_start',range_end:'=.range_end'});
+        center._('dataController',{script:'genro.domById(videoNodeId).pause(); SET .playerTime = 0;',_fired:'^.resetPlayer',videoNodeId:gnrwdg.videoNodeId})
+        
+        var video = center._('ContentPane',{region:'top',overflow:'hidden'})._('video','video',kw);
+        if(subtitlePane){
+            var subpane = center._('ContentPane',{region:'center',min_height:'100px'})._('div',{innerHTML:'^.mainsub.text'});
+            gnrwdg.subtitleNode = subpane.getParentNode();
+        }
+        gnrwdg.preparePlayerBar(frame,slots,manageCue,controllerSide);
+        return video;
+    },
+
+    gnrwdg_onLoadedVideo:function(videoSourceNode){
+        var videoDomNode = videoSourceNode.domNode;
+        var videoDuration = Math.round(videoDomNode.duration*10)/10;
+        var playerDuration = videoDuration;
+        var sn = this.sourceNode;
+        sn.setRelativeData('.duration', videoDuration);
+        var urlPars = sn.evaluateOnNode(this.urlPars);
+        var timerange = urlPars.timerange;
+        if(timerange){
+            var r = timerange.split(',').map(function(n){return parseInt(n)});
+            sn.setRelativeData('.range_start',r[0]);
+            sn.setRelativeData('.range_end',r[1]);
+            playerDuration = Math.round((r[1]-r[0])*10)/10;
+        }else{
+            sn.setRelativeData('.range_start',0);
+            sn.setRelativeData('.range_end',playerDuration);
+        }
+        sn.setRelativeData('.playerTime',0);
+        sn.setRelativeData('.playerDuration',playerDuration);
+    },
+
+    gnrwdg_preparePlayerBar:function(frame,slots,manageCue,controllerSide){
+        slots = slots || '10,playbutton,playerslider,searchBox,*'
+        if(manageCue){
+            slots = slots+',cuebutton,10';
+        }        
+        var bar = frame._('SlotBar','bar',{slots:slots,side:controllerSide,height:'21px',toolbar:true,playerslider_width:'100%'});
+        var slotsKw = {};
+        var videoNodeId = this.videoNodeId;
+        slotsKw.playbutton = {tag:'slotButton',
+            label:'==_playing?"Pause":"Play"',
+             action:'var _video = genro.domById(_videoNodeId); if(_playing){_video.pause()}else{_video.play()};',
+            _playing:'^.playing',
+            iconClass:'==_playing?"player_pause":"player_play"',
+            _videoNodeId:this.videoNodeId
+        };
+        slotsKw.playerslider = {tag:'horizontalSlider',
+            value:'^.playerTime',
+            minimum:0, 
+            maximum:'^.playerDuration', 
+            intermediateChanges:false,
+            width:'100%',parentForm:false
+        };
+        slotsKw.searchBox = 'videoSearchBox';
+        slotsKw.cuebutton = {
+            tag:'slotButton',
+            label:"==_start_time?'Make cue':'Start cue';",
+            _start_time:'^.start_time',
+            iconClass:'==_start_time? "iconbox comment_check":"iconbox comment_plus"',
+            action:function(){
+                var start_time = this.getRelativeData('.start_time');
+                var currentTime = this.getRelativeData('.currentTime');
+
+                var video = genro.domById(videoNodeId);
+                if(start_time){
+                    video.pause();
+                    this.setRelativeData('.start_time',null);
+                    video.sourceNode.publish('addCue',{start_time:start_time,end_time:currentTime});
+                }else{
+                    if(!this.getRelativeData('.playing')){
+                        video.play();
+                    }
+                    this.setRelativeData('.start_time',currentTime);
+                }
+            }
+        };
+        var that = this;
+        slots.split(',').forEach(function(s){
+            if(s in slotsKw){
+                var handler = slotsKw[s];
+                if(typeof(handler)=='string'){
+                    that[handler](bar,s);
+                }else{
+                    var skw = objectUpdate({},handler);
+                    var tag = objectPop(skw,'tag');
+                    bar._(tag,s,skw);
+                }
+            }
+        });
+    },
+    gnrwdg_videoSearchBox:function(bar,slotName){
+        var sb = bar._('div',slotName)
+        var fb = genro.dev.formbuilder(sb,1,{border_spacing:'1px',font_size:'.9em'});
+        var videoNodeId = this.videoNodeId;
+        var that = this;
+
+        fb.addField('callbackSelect',{value:'^.playerTime',width:'6em',
+                                      lbl_text_align:'right',
+                                      lbl:_T('Search'),
+                                      lbl_color:'#444',
+                                      rounded:6,
+                                      parentForm:false,
+                                      validate_onAccept:function(){
+                                        this.widget.focusNode.blur();
+                                      },
+                                      auxColumns:'start,end',
+                                      _class:'numberTextBox',
+                                      connect_onFocus:function(){
+                                           this.setRelativeData('.editingPlayerSearch',true);
+                                      },
+                                      connect__onBlur:function(){
+                                           this.setRelativeData('.editingPlayerSearch',false);
+                                      },
+
+                                      callback:function(kw){
+                                            var _id = kw._id;
+                                            var _querystring = kw._querystring;
+                                            var videoDomNode = genro.domById(videoNodeId);
+                                            var sn = videoDomNode.sourceNode;
+                                            var currentTextTrack = sn.getAttributeFromDatasource('searchTrack') || 0;
+                                            var cues = videoDomNode.textTracks[currentTextTrack].cues;
+                                            var range_start = sn.getRelativeData('.range_start');
+                                            var range_end = sn.getRelativeData('.range_end');
+                                            var data = [];
+                                            if(_querystring){
+                                                _querystring = _querystring.slice(0,-1).toLowerCase();
+                                                if(parseFloat(_querystring)>=0){
+                                                    _id = parseFloat(_querystring);
+                                                    _querystring = null;
+                                                }
+                                            }
+                                            if(_querystring){
+                                                dojo.forEach(cues,function(c){
+                                                    if(c.startTime<range_start || c.startTime>range_end){
+                                                        return;
+                                                    }
+                                                    var start_offset = r[0] || 0;
+                                                    var startTime = c.startTime -start_offset;
+                                                    var endTime = c.endTime - start_offset;
+                                                    if(c.text.indexOf(_querystring)>=0){
+                                                        data.push({txt:c.text,_pkey:startTime,start:startTime,end:endTime,
+                                                                  caption:_F(startTime,'###.00')})
+                                                    }
+                                                })
+                                            }else if(_id){
+                                                data = [{_pkey:_id,caption:_F(_id,'###.00'),start:_id,endTime:_id,txt:_F(_id,'###.00')}];
+                                            }
+                                            return {data:data,headers:'txt:Text,start:Start,end:End'}
+                                      }
+                                    });
+
+    }
+
+});
+
 dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     subtags : {column:true,
                selectionstore:true,
@@ -1808,7 +2151,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
 
     createContent:function(sourceNode, kw,children,subTagItems) {
         objectPop(kw,'_workspace')
-        sourceNode.attr._workspace = true;
+        sourceNode.attr._workspace = kw.nodeId || true;
         var gnrwdg = sourceNode.gnrwdg;
         var value = objectPop(kw,'value');
         var columns = objectPop(kw,'columns');
@@ -1833,7 +2176,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         sourceNode.setAttributeInDatasource('columns',columns_bag);
         var default_kwargs = objectExtract(kw,'default_*');
         if(default_kwargs){
-            kw.gridEditor = {default_kwargs:function(){
+            kw.gridEditorPars = {default_kwargs:function(){
                 return sourceNode.evaluateOnNode(default_kwargs);
             }};
         }
@@ -1848,9 +2191,10 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
 
 
         var valuepath = sourceNode.absDatapath(value);
+        var store_kwargs = objectExtract(kw,'store_*');
         kw.nodeId = kw.nodeId || '_qg_'+genro.getCounter();
         kw.store = kw.nodeId;
-        kw.datamode='bag';
+        kw.datamode= kw.datamode || 'bag';
         kw.structpath = kw.structpath || '#WORKSPACE.struct';
         kw.controllerPath = '#WORKSPACE.controllers';
         kw.frameTarget = kw.frameTarget===false?false:true;
@@ -1868,8 +2212,9 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var currentColumns = sourceNode.getAttributeFromDatasource('columns');
         var struct = new gnr.GnrBag();
         sourceNode.setRelativeData(kw.structpath,struct)
-        sourceNode._('BagStore',{storepath:valuepath,
-                        nodeId:kw.nodeId+'_store',datapath:kw.controllerPath});
+        sourceNode._('BagStore',objectUpdate({storepath:valuepath,
+                        nodeId:kw.nodeId+'_store',datapath:kw.controllerPath,
+                        storeType:kw.datamode=='bag'?'ValuesBagRows':'AttributesBagRows'},store_kwargs));
         var tools = subTagItems.tools;
         var gridRoot= tools.len()? this.toolsGridRoot(sourceNode,kw,tools.getAttr('#0')) : sourceNode;
         kw.datapath = kw.controllerPath;
@@ -1931,48 +2276,48 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
                                  value:'^.command',target:kw.nodeId})
         return bc._('contentPane',centerkw)
     },
-    guessDtypeAndWidth:function(rows,fields){
+    gnrwdg_guessDtypeAndWidth:function(rows,fields){
         var types={}
         var sizes={}
         var w,dtype,v
         if(!rows || rows.len()==0){
             return {types:null,sizes:null};
         }
+        var store = this.gridNode.widget.collectionStore();
         if(!fields || fields=='*'){
-            fields = rows.getItem('#0').keys()
+            var firstNode = store.getData().getNode('#0');
+            var nodeValue = firstNode.getValue();
+            fields = nodeValue? nodeValue.keys():objectKeys(firstNode.attr);
         }else{
             fields = fields.split(',');
         }
         rows.forEach(function(n){
-            var r = n.getValue();
+            var r = store.rowFromItem(n);
             fields.forEach(function(field){
-                var c = r.getNode(field);
-                if (c){
-                    if (!(field in types)){
-                        types[field]=null
-                        sizes[field]=0
+                var v = r[field];
+                if (!(field in types)){
+                    types[field]=null
+                    sizes[field]=0
+                }
+                if(!isNullOrBlank(v)){
+                    dtype=types[field]
+                    if (!dtype) {
+                        dtype=guessDtype(v)
+                        types[field]=dtype
+                    }   
+                    w = 8 
+                    if (dtype=='D'){w = 8}
+                    else if (dtype=='H'){w = 6}
+                    else if (dtype=='DH'){w = 12}
+                    if ((dtype=='T') || (dtype=='N')|| (dtype=='L')){
+                        sizes[field]=Math.max(sizes[field]||field.length,v.toString().length)
                     }
-                    v=c.getValue()
-                    if(!isNullOrBlank(v)){
-                        dtype=types[field]
-                        if (!dtype) {
-                            dtype=guessDtype(v)
-                            types[field]=dtype
-                        }   
-                        w = 8 
+                    else if (sizes[field]==0){
+                        w=8;
                         if (dtype=='D'){w = 8}
                         else if (dtype=='H'){w = 6}
                         else if (dtype=='DH'){w = 12}
-                        if ((dtype=='T') || (dtype=='N')|| (dtype=='L')){
-                            sizes[field]=Math.max(sizes[field]||field.length,v.toString().length)
-                        }
-                        else if (sizes[field]==0){
-                            w=8;
-                            if (dtype=='D'){w = 8}
-                            else if (dtype=='H'){w = 6}
-                            else if (dtype=='DH'){w = 12}
-                            sizes[field]=Math.max(field.length,w)
-                        }
+                        sizes[field]=Math.max(field.length,w)
                     }
                 }
             })
@@ -1991,7 +2336,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var columns = new gnr.GnrBag();
         var columns_extra = this.columns_extra || {};
         var fields= this.sourceNode.getAttributeFromDatasource('fields')
-        var guess = this.gnr.guessDtypeAndWidth(value, fields);
+        var guess = this.guessDtypeAndWidth(value, fields);
         var kw;
         for (var label in guess.types){
             kw = {'field':label,'dtype':guess.types[label],
@@ -2346,13 +2691,13 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             var remote_datasourcepath =  sourceNode.absDatapath(sourceNode.attr.datasource);
             var showLetterhead = typeof(showLetterhead)=='string'?(sourceNode.getRelativeData(showLetterhead) || true):showLetterhead;
             var kw = {'paletteCode':paletteCode,'dockTo':'dommyDock:open',
-                    title:'Template Edit '+table.split('.')[1],width:'750px',
+                    title:'Template Edit '+table?table.split('.')[1]:'',width:'750px',
                     maxable:true,
                     height:'500px',
                     remote:'te_chunkEditorPane',
                     remote_table:table,
                     remote_paletteId:paletteId,
-                    remote_resource_mode:(templateHandler.dataInfo.respath!=null),
+                    remote_resource_mode:!table || (templateHandler.dataInfo.respath!=null),
                     remote_datasourcepath:remote_datasourcepath,
                     remote_showLetterhead:showLetterhead,
                     remote_editorConstrain: editorConstrain
@@ -2387,7 +2732,6 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             var paletteNode = palette.getParentNode();  
             sourceNode._connectedPalette = paletteNode; 
         }
-
     },
     
 
@@ -2421,7 +2765,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             var data = kw.template;
             return {data:data,dataInfo:{},template:data.getItem('compiled')};
         }
-        var template_address = kw.table+':'+kw.template;
+        var template_address =( kw.table || '')+':'+kw.template;
         var result = genro.serverCall("loadTemplate",{template_address:template_address,asSource:kw.asSource});
         if(result.attr.html){
             var content = result.getValue().getItem('content');
@@ -2435,7 +2779,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
     },
     
     saveTemplate:function(sourceNode,data,kw,custom){
-        var template_address = kw.table+':'+kw.template;
+        var template_address = (kw.table || '')+':'+kw.template;
         var templateHandler = sourceNode._templateHandler;
         if(custom){
             template_address = template_address+',custom'
@@ -2450,6 +2794,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             console.warn('templateChunk warning: use "template" param instead of "resource" param');
         }
         var tplpars = objectExtract(kw,'table,template,editable');
+        tplpars.table = tplpars.table || '';
         var editorConstrain = objectExtract(kw,'constrain_*',null,true);
         var showLetterhead = objectPop(kw, 'showLetterhead');
         if(typeof(showLetterhead)=='string'){
@@ -2482,6 +2827,9 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         
         var handler = this;
         if(tplpars.editable){
+            kw.selfsubscribe_openTemplatePalette = function(){
+                handler.openTemplatePalette(this,editorConstrain,showLetterhead);
+            }
             kw.connect_ondblclick = function(evt){
                 if(tplpars.editable==true || evt.shiftKey){
                     handler.openTemplatePalette(this,editorConstrain,showLetterhead);
@@ -2498,6 +2846,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             else{
                 handler.createClientChunk(this,dataProvider,tplpars);
             }
+            //this.updateTemplate(); to check
         }
         var chunk = sourceNode._('div','templateChunk',kw)
         sourceNode.gnrwdg.chunkNode = chunk.getParentNode();
@@ -2597,47 +2946,127 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
     }
 });
 
-dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
+dojo.declare("gnr.widgets.DropUploader", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
-        console.warn("gnr.widgets.ImgUploader is obsolete use img tag")
-        var value = objectPop(kw,'value'); //^miorul
-        var placeholder = objectPop(kw,'placeholder');
-        var folder = objectPop(kw,'folder');
-        var filename = objectPop(kw,'filename');
-        var zoomImage = objectPop(kw,'zoomImage');
-        var width = objectPop(kw,'crop_width');
-        var height = objectPop(kw,'crop_height');
-        if(zoomImage){
-            kw.connect_ondblclick="genro.openWindow(this.currentFromDatasource(this.attr.src),"+zoomImage+")";
-            kw.cursor = 'pointer';
+        var gnrwdg = sourceNode.gnrwdg;
+        var uploaderPars = objectExtract(kw,'onUploadedMethod,onUploadingMethod');
+        var uploaderKw = objectExtract(kw,'uploadPath,filename,onResult,onError,onProgress,onAbort');
+        objectUpdate(uploaderPars,objectExtract(kw,'rpc_*'));
+        var nodeId = objectPop(kw,'nodeId') || 'uploader_'+genro.getCounter()
+        uploaderKw.uploadPath = uploaderKw.uploadPath || 'page:'+nodeId;
+        var label = objectPop(kw,'label');
+        var dropAreaKw = {nodeId:nodeId,dropTarget:objectPop(kw,'dropTarget',true),
+                          dropTypes:objectPop(kw,'dropTypes','Files'),
+                         _class:'dropUploaderBoxInner'};
+        var containerKw = objectExtract(kw,'position,top,left,right,bottom,height,width,border,rounded,_class,style')
+
+        gnrwdg.pendingHandlers = [];
+        dropAreaKw.connect_ondblclick = function(){
+            if(gnrwdg.pendingHandlers.length){
+                genro.dlg.ask(_T("Abort upload"),
+                 _T("Are you sure?"),null,{
+                     confirm:function(){
+                        gnrwdg.pendingHandlers.forEach(function(h){
+                            if(h._progressDiv){
+                                gnrwdg.rootNode.domNode.removeChild(h._progressDiv);
+                            }
+                            h.abort()
+                        });
+                        gnrwdg.pendingHandlers = [];
+                    }
+                 });
+            }else{
+                gnrwdg.fakeinputNode.domNode.click();
+            }
+            
         }
-        var cb = function(result){
-            sourceNode.setRelativeData(value,this.responseText,{_formattedValue:genro.formatter.asText(this.responseText,{format:'img'})});
-        };
-        var uploaderAttr = {'src':'==_src?_src:placeholder;',
-                           'placeholder':placeholder,'_src':value,
-                            'dropTarget':true,dropTypes:'Files', 
-                            'drop_ext':kw.drop_ext || 'png,jpg,jpeg,gif',
-                            'crop_width':width,
-                            'crop_height':height
-                            };
-                            
-
-
-        uploaderAttr.onDrop = function(data,files){
-                 var f = files[0];
-                 var currfilename = sourceNode.currentFromDatasource(filename);
-                 if(!currfilename){
-                     //genro.alert('Warning',"You complete your data before upload");
-                     return false;
-                 }
-                 genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:sourceNode.currentFromDatasource(folder),filename:currfilename,
-                                                      onResult:cb});
+        dropAreaKw.innerHTML = dropAreaKw.innerHTML || label || '&nbsp;';
+        var maxsize = objectPop(kw,'maxsize');
+        uploaderKw.uploaderId = dropAreaKw.nodeId;  
+        var onUploadingCb = objectPop(kw,'onUploadingCb') || function(){};
+        onUploadingCb = funcCreate(onUploadingCb,'dropInfo,data',sourceNode);
+        var progressBar = objectPop(kw,'progressBar',true);
+        if(uploaderKw.onResult){
+            uploaderKw.onResult = funcCreate(uploaderKw.onResult,'evt',sourceNode);
+        }
+        if(uploaderKw.onError){
+            uploaderKw.onError = funcCreate(uploaderKw.onError,'evt',sourceNode);
+        }
+        if(uploaderKw.onAbort){
+            uploaderKw.onAbort = funcCreate(uploaderKw.onAbort,'evt',sourceNode);
+        }
+        if(uploaderKw.onProgress){
+            uploaderKw.onProgress = funcCreate(uploaderKw.onProgress,'evt',sourceNode);
+        }else if(progressBar){
+            uploaderKw.onProgress = function(evt){
+                var d = evt._sender._progressDiv;
+                if(d){
+                    d.style.width = (evt.loaded *100) /evt.total +'%';
+                    if(evt.loaded == evt.total){
+                        gnrwdg.rootNode.domNode.removeChild(d);
+                        gnrwdg.pendingHandlers.splice(evt._sender._counter,1);
+                    }
+                }
             };
-
-        return sourceNode._('img',objectUpdate(uploaderAttr,kw));
+        }
+        var cbOnDropData = function(dropInfo,data){
+            var doUpload = onUploadingCb(dropInfo,data);
+            if(doUpload===false){
+                return false;
+            }
+            return genro.rpc.uploadMultipart_oneFile(data,objectUpdate({},uploaderPars),objectUpdate({filename:data.name},uploaderKw));
+        }
+        var onFiles  = function(dropInfo,files){
+            gnrwdg.pendingHandlers = [];
+            if(sourceNode.form && sourceNode.form.isDisabled()){
+                genro.dlg.alert("The form is locked",'Warning');
+                return false;
+            }
+            var totSize = 0;
+            if(maxsize){
+                dojo.forEach(function(f){
+                    totSize += f.size;
+                });
+                if (totSize>maxsize){
+                    var size_kb = maxsize/1000
+                    genro.dlg.alert("File exeeds size limit ("+size_kb+"KB)",'Error');
+                    return false;
+                }
+            }
+            var c = 0;
+            var height = Math.round(100/files.length)
+            dojo.forEach(files,function(f){
+                var h = cbOnDropData(dropInfo,f);
+                if(h){
+                    gnrwdg.pendingHandlers.push(h);
+                    if(progressBar){
+                        var pb = document.createElement('div');
+                        pb.style.position = 'absolute';
+                        pb.style.top = c*height+'%';
+                        pb.style.left = 0;
+                        pb.style.height = height+'%';
+                        pb.style.background = 'rgba(11,121,171,0.30)';
+                        gnrwdg.rootNode.domNode.appendChild(pb);
+                        h._counter = c;
+                        h._progressDiv = pb;
+                    }
+                    c+=1;
+                }
+            });
+        };
+        dropAreaKw.onDrop = onFiles;
+        containerKw._class =containerKw._class ||  'dropUploaderBox' ;
+        var container = sourceNode._('div',containerKw);
+        var fakeinput = container._('input',{hidden:true,type:'file',
+                connect_onchange:function(evt){
+                    onFiles({evt:evt},evt.target.files);
+                }
+        });
+        gnrwdg.fakeinputNode = fakeinput.getParentNode();
+        container._('div',objectUpdate(dropAreaKw,kw))
+        gnrwdg.rootNode = container.getParentNode();
+        return container;
     }
-    
 });
 
 
@@ -2901,9 +3330,11 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var sourceNode = this.sourceNode;
         var mb = this.multibuttonSource;
         var child_count = items.len();
-        if(child_count==1 && !this.showAlways){
+        if(!this.showAlways){
             var mbnode = mb.getParentNode();
-            mbnode.attr._class = mbnode.attr._class + ' hidden';
+            if(mbnode.domNode){
+                genro.dom.setClass(mbnode.domNode,'hidden',child_count==1)
+            }
         }
         var deleteAction = this.deleteAction;
         var customDelete;
@@ -3138,6 +3569,28 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
     }
 });
 
+
+dojo.declare("gnr.widgets.SharedObject", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode,kw){
+        sourceNode.gnrwdg.sharedKw = objectUpdate({},kw);
+        kw.script = "this.getParentNode().gnrwdg.handleSubscriptions(_triggerpars.kw.oldvalue);";
+        var dc = sourceNode._('dataController',kw);
+        sourceNode.gnrwdg.handleSubscriptions();
+        return dc;
+    },
+    gnrwdg_handleSubscriptions:function(old_shared_id){
+        var sharedKw = this.sourceNode.evaluateOnNode(this.sharedKw);
+        var shared_id=objectPop(sharedKw,'shared_id');
+        var path = objectPop(sharedKw,'shared_path');
+        if(old_shared_id){
+            genro.som.unregisterSharedObject(old_shared_id);
+        }
+        if(shared_id && path){
+            genro.som.registerSharedObject(path,shared_id,sharedKw);
+        }
+    }
+});
+
 dojo.declare("gnr.widgets.ComboArrow", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw,childSourceNode){
         var focusNode;
@@ -3185,6 +3638,9 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         var tb;
         var gnrwdg = sourceNode.gnrwdg;
         var has_code;
+        sourceNode.attr.disabled=originalKwargs.disabled;
+        sourceNode.attr.readOnly = originalKwargs.readOnly
+
         gnrwdg.identifier = objectPop(kw,'identifier')
         gnrwdg.labelAttribute = objectPop(kw,'labelAttribute')
         gnrwdg._valuelabel = kw._valuelabel;
@@ -3237,6 +3693,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             var textBoxId = 'placingTextbox_'+genro.getCounter();
             var tbkw = {'value':has_code?value+'?_displayedValue':value,position:'relative',readOnly:true,nodeId:textBoxId};
             tb = sourceNode._('textbox',objectUpdate(tbkw,kw));
+            gnrwdg.textboxNode = tb.getParentNode(); 
             rootNode = tb._('comboArrow')._('tooltipPane',{placingId:textBoxId})._('div',{padding:'5px',overflow:'auto',max_height:'300px',min_width:'200px'});
         }else{
             table_kw['tooltip']=objectPop(kw,'tooltip');
@@ -3263,9 +3720,27 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             };
         }
         gnrwdg.setValues(values);
+        if(kw.disabled){
+            gnrwdg.setDisabled(kw.disabled);
+        }
+        if(kw.readOnly){
+            gnrwdg.setReadOnly(kw.readOnly);
+        }
         return popup?tb:tbl;
     },
 
+    gnrwdg_setDisabled:function(disabled,kw){
+        if(this.textboxNode){
+            genro.dom.setClass(this.textboxNode,'dijitDisabled',disabled);
+        }
+    },
+
+    gnrwdg_setReadOnly:function(readOnly,kw){
+        if(this.textboxNode){
+            genro.dom.setClass(this.textboxNode,'dijitDisabled',readOnly);
+        }
+    },
+    
     gnrwdg_setValues:function(values,kw){
         if(this.values==values){
             return;
@@ -3335,22 +3810,26 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         this.setValues(this.getRemoteValuesFromQuery());
     },
 
+    gnrwdg_cbgroupReason:function(){
+        return 'cbgroup_'+this.sourceNode._id;
+    },
+
     gnrwdg_setHierarchicalCheckedPaths:function(value){
         this._notrigger = true;
-        this.sourceNode.setRelativeData(this.checkedpath,null,null,null,'cbgroup');
+        this.sourceNode.setRelativeData(this.checkedpath,null,null,null,this.cbgroupReason());
         if(value){
             var pathsFromPkeys = genro.serverCall('_table.'+this.query_kw.table+'.getHierarchicalPathsFromPkeys',{pkeys:value,related_kwargs:this.query_kw.related_kwargs,
                                                                                                                       dbstore:this.query_kw.dbstore,parent_id:this.query_kw.parent_id,
                                                                                                                       _sourceNode:this.sourceNode});
                 
             
-            this.sourceNode.setRelativeData(this.checkedpath,pathsFromPkeys,null,null,'cbgroup');
+            this.sourceNode.setRelativeData(this.checkedpath,pathsFromPkeys,null,null,this.cbgroupReason());
         }
         this._notrigger = false;
     },
 
     gnrwdg_setValue:function(value,kw,trigger_reason){
-        if(kw.reason=='cbgroup' || this._notrigger){
+        if(kw.reason==this.cbgroupReason() || this._notrigger){
             return;
         }
         if(this.hierarchical){
@@ -3424,7 +3903,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             }
         });
         if(this.has_code){
-            this.sourceNode.setRelativeData(this.sourceNode.attr.value+'?_displayedValue',this.getLabelsFromValue(textvalue),null,null,'cbgroup')
+            this.sourceNode.setRelativeData(this.sourceNode.attr.value+'?_displayedValue',this.getLabelsFromValue(textvalue),null,null,this.cbgroupReason())
         }
     },
 
@@ -3517,9 +3996,9 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         }
         if(has_code){
             fkw._displayedValue = labels.length?labels.join(separator):null;
-            sourceNode.setRelativeData(sourceNode.attr.value,codes.length>0?codes.join(','):null,fkw,null,'cbgroup',null,{_updattr:true});
+            sourceNode.setRelativeData(sourceNode.attr.value,codes.length>0?codes.join(','):null,fkw,null,this.cbgroupReason(),null,{_updattr:true});
         }else{
-            sourceNode.setRelativeData(sourceNode.attr.value,labels.length>0?labels.join(separator):null,fkw,null,'cbgroup',null,{_updattr:true});
+            sourceNode.setRelativeData(sourceNode.attr.value,labels.length>0?labels.join(separator):null,fkw,null,this.cbgroupReason(),null,{_updattr:true});
         }
     },
 
@@ -3934,23 +4413,27 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
 });
 
 dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
-     contentKwargs: function(sourceNode, attributes) {
-         if ('name' in attributes){
-             attributes['_name'] = objectPop(attributes,'name');
-         }
-         if ('content' in attributes){
-             attributes['_content'] = objectPop(attributes,'content');
-         }
-         //attributes['path'] = attributes['storepath'];
-         attributes.columns = attributes.columns || '==gnr.getGridColumns(this);';
-         attributes.method = attributes.method || 'app.getSelection';
-         if('chunkSize' in attributes && !('selectionName' in attributes)){
-             attributes['selectionName'] = '*';
-         }
-         return attributes;
-     },
+    contentKwargs: function(sourceNode, attributes) {
+        if ('name' in attributes){
+            attributes['_name'] = objectPop(attributes,'name');
+        }
+        if ('content' in attributes){
+            attributes['_content'] = objectPop(attributes,'content');
+        }
+        //attributes['path'] = attributes['storepath'];
+        attributes.columns = attributes.columns || '==gnr.getGridColumns(this);';
+        attributes.method = attributes.method || 'app.getSelection';
+        if('chunkSize' in attributes && !('selectionName' in attributes)){
+            attributes['selectionName'] = '*';
+        }
+        return attributes;
+    },
 
-     createContent:function(sourceNode, kw,children) {
+
+
+
+
+    createContent:function(sourceNode, kw,children) {
         var chunkSize = objectPop(kw,'chunkSize',0);
         var storeType = objectPop(kw,'storeType') || (chunkSize? 'VirtualSelection':'Selection');
         kw.row_count = chunkSize;
@@ -3962,15 +4445,11 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
         var skw = objectUpdate({_cleared:false},kw);
          //skw['_delay'] = kw['_delay'] || 'auto';
         skw.script="if(_cleared){this.store.clear();}else{if(this.form && this.form._reloadingAfterSave && !this.store.hasChanges()){return;}this.store.loadData();}";
-        objectPop(skw,'nodeId')
-        objectPop(skw,'_onCalling');
-        objectPop(skw,'_onResult');
-        objectPop(skw,'columns');
+
+        objectExtract(skw,'nodeId,_onCalling,_onResult,columns')
         var selectionStarter = sourceNode._('dataController',skw).getParentNode();
-        objectPop(kw,'_onStart');
-        objectPop(kw,'_cleared');
-        objectPop(kw,'_fired');
-        objectPop(kw,'_delay');
+
+        objectExtract(kw,'_onStart,_cleared,_fired,_delay')
         var v;
         for (var k in kw){
            v = kw[k];
@@ -4047,7 +4526,7 @@ dojo.declare("gnr.stores._Collection",null,{
     
     constructor:function(node,kw){
         this.storeNode = node;
-        this.storepath = this.storeNode.attr.storepath;
+        this.storepath = this.storeNode.absDatapath(this.storeNode.attr.storepath);
         var startData = this.storeNode.getRelativeData(this.storepath);
         if(!startData){
             this.storeNode.setRelativeData(this.storepath,null,null,null,'initStore');
@@ -4091,6 +4570,20 @@ dojo.declare("gnr.stores._Collection",null,{
 
     },
 
+    setNewStorepath:function(newstorepath){
+        this.storeNode.attr.storepath = newstorepath;
+        this.storepath = this.storeNode.absDatapath(this.storeNode.attr.storepath);
+        var storepath = this.storepath;
+        var that = this;
+        this.gridBroadcast(function(grid){
+            grid.sourceNode.attr.storepath = storepath;
+            if(grid.gridEditor){
+                grid.gridEditor.applyStorepath();
+            }
+            grid.newDataStore();
+        });
+    },
+
     clear:function(){
         this.storeNode.setRelativeData(this.storepath,new gnr.GnrBag(),null,null,'loadData');
     },
@@ -4111,13 +4604,17 @@ dojo.declare("gnr.stores._Collection",null,{
     runQuery:function(cb,runKwargs){
         var result =  this.storeNode.fireNode(runKwargs);
         if(result instanceof dojo.Deferred){
-            result.addCallback(function(r){cb(r)});
+            result.addCallback(function(r){
+                cb(r)
+            });
         }else{
             result = cb(result);
         }
         return result;
     },
-    
+    onLoading:function(){
+
+    },
     onLoaded:function(result){
         this.storeNode.setRelativeData(this.storepath,result);
         return result;
@@ -4355,7 +4852,7 @@ dojo.declare("gnr.stores._Collection",null,{
         return this._filtered = null;
     },
     
-    compileFilter:function(value,filterColumn,colType){
+    compileFilter:function(grid,value,filterColumn,colType){
         if(isNullOrBlank(value)){
             return null;
         }
@@ -4363,12 +4860,7 @@ dojo.declare("gnr.stores._Collection",null,{
         if (colType in {'A':null,'T':null}) {
             var regexp = new RegExp(value, 'i');
             cb = function(rowdata, index, array) {
-                var columns = filterColumn.split('+');
-                var txt = '';
-                for (var i = 0; i < columns.length; i++) {
-                    txt = txt + ' ' + rowdata[columns[i]];
-                }
-                return regexp.test(txt);
+                return regexp.test(grid.getRowText(index,' ',filterColumn.split('+'),true));
             };
         } else {
             var toSearch = /^(\s*)([\<\>\=\!\#]+)(\s*)(.+)$/.exec(value);
@@ -4393,7 +4885,7 @@ dojo.declare("gnr.stores._Collection",null,{
     },
 
     createFiltered:function(grid,currentFilterValue,filterColumn,colType){
-        var cb = this.compileFilter(currentFilterValue,filterColumn,colType);
+        var cb = this.compileFilter(grid,currentFilterValue,filterColumn,colType);
         if (!cb && !grid.excludeListCb){
             this._filtered = null;
             return null;
@@ -4435,6 +4927,8 @@ dojo.declare("gnr.stores._Collection",null,{
         this._linkedGrids = result;
         return result;
     },
+
+
     hasErrors:function(){
         //to implement
     },
@@ -4476,6 +4970,10 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
 
     deleteRows:function(pkeys,protectPkeys){
         var data = this.getData()
+        this.gridBroadcast(function(grid){
+            grid.selection.unselectAll()
+        });
+        var that = this;
         pkeys.forEach(function(n){
             data.popNode(n);
         });
@@ -4582,8 +5080,16 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
 
 
 dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
-    rowFromItem:function(item){
-        return objectUpdate({},item.attr);
+    rowFromItem:function(item,bagFields){
+        var result = objectUpdate({},item.attr);
+        if(!bagFields){
+            for(var k in result){
+                if(isBag(result[k])){
+                    objectPop(result,k);
+                }
+            }
+        }
+        return result;
     },
     updateRowNode:function(rowNode,updDict){
         var idx = this.getData().index(rowNode.label);
@@ -4641,6 +5147,7 @@ dojo.declare("gnr.stores.RpcBase",gnr.stores.AttributesBagRows,{
                 grid.sourceNode.publish('loadingData',{loading:false});
             });
         };
+        this.onLoading();
         return this.runQuery(cb);
     },
 
@@ -4713,7 +5220,6 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
                     c._isExternal = isExternal;
                     that.pendingChanges.push(c);
                 });
-
                 that.storeNode.watch('externalChangesDisabled',function(){
                     if(that._editingForm || that.loadInvisible){
                         return genro.dom.isWindowVisible();
@@ -4741,6 +5247,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
 
     loadData:function(){
         var that = this;
+        this.pendingLoading = true;
         if(!(this.hasVisibleClients() || this.loadInvisible)){
             this.storeNode.watch('hasVisibleClients',function(){
                 return that.hasVisibleClients();
@@ -4766,6 +5273,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
                 grid.sourceNode.publish('loadingData',{loading:false});
             });
         };
+        this.onLoading();
         return this.runQuery(cb);
     },
 
@@ -5041,9 +5549,15 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         //}
     },
 
-    onLoaded:function(result){
-        this.pendingChanges = [];
+    onLoading:function(){
+        this.pendingChanges = []; 
         this.externalChangedKeys = null;
+    },
+
+    onLoaded:function(result){
+        //this.pendingChanges = []; //moved to onLoading
+        //this.externalChangedKeys = null;
+        delete this.pendingLoading;
         this.storeNode.setRelativeData(this.storepath,result,null,null,'loadData');
         return result;
     }
@@ -5055,7 +5569,11 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         this.pendingPages = {};
         this.lastIdx =0;
     },
-    
+    sort:function(){
+        //override the standard sort because it has been sorted on the server
+        //and does not work with paged store
+        return;
+    },
     len:function(filtered){
         var data = this.getData();
         if(!data){
@@ -5073,6 +5591,10 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
     },
     
     onLoaded:function(result){
+        if (result==null){
+            console.warn('missing result')
+            return
+        }
         if(result.error){
             return;
         }
@@ -5246,7 +5768,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             if (pageData){
                 return pageData;    
             }
-            if(this.isScrolling){
+            if(this.isScrolling && this.storeNode.attr.httpMethod!='WSK'){
                 return;
             }
             if(this.pendingTimeout){
@@ -5293,7 +5815,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             'table':kw.table,
             'recordResolver':false},
             null,
-            null,
+            this.storeNode.attr.httpMethod,
             null,
             sync?null:function(result){return that.onChunkLoaded(result,pageIdx);});
         if(sync){

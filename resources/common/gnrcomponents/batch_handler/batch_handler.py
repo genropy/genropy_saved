@@ -18,11 +18,9 @@ class BatchMonitor(BaseComponent):
         self.bm_monitor_pane(pane)
 
     def btn_batch_monitor(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='batch_monitor_icon',tip='!!Batch monitor',
-                 connect_onclick="""genro.publish('open_batch');""",
-                 nodeId='plugin_block_batch_monitor')
-        pane.dataController("SET left.selected='batch_monitor';genro.getFrameNode('standard_index').publish('showLeft')",subscribe_open_batch=True)
-
+        pane.pluginButton('batch_monitor',caption='!!Batch monitor',
+                            iconClass='batch_monitor_icon')
+        pane.dataController("""genro.publish('open_plugin',{plugin:'batch_monitor'});""",subscribe_open_batch=True) #legacy?
 
     def bm_monitor_pane(self, pane):
         pane.dataController("batch_monitor.on_datachange(_triggerpars.kw);", _fired="^gnr.batch")

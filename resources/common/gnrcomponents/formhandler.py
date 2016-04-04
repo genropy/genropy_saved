@@ -28,11 +28,15 @@ from gnr.core.gnrbag import Bag
 class FormHandler(BaseComponent):
     css_requires='public'
 
-    @extract_kwargs(palette=True,dialog=True,default=True,tree=True)
+    @extract_kwargs(palette=True,dialog=True,default=True,tree=True,link=True)
     @struct_method
-    def formhandler_linkedForm(self,pane,frameCode=None,loadEvent=None,formRoot=None,store=True,table=None,
+    def formhandler_linkedForm(self,pane,frameCode=None,formRoot=None,store=True,table=None,
                         formId=None,dialog_kwargs=None,palette_kwargs=None,attachTo=None,
-                        iframe=False,default_kwargs=None,tree_kwargs=None,**kwargs):
+                        iframe=False,default_kwargs=None,tree_kwargs=None,
+                        loadEvent=None,link_kwargs=None,**kwargs):
+        if loadEvent:
+            link_kwargs['event'] = loadEvent
+        link_kwargs.setdefault('add',True)
         formId = formId or '%s_form' %frameCode
         attachTo = attachTo or pane.parent
         table = table or pane.attributes.get('table')
@@ -40,7 +44,7 @@ class FormHandler(BaseComponent):
                                     palette_kwargs=palette_kwargs,attachTo=attachTo,form_kwargs=kwargs)
         parentTag = pane.attributes['tag'].lower()
         if parentTag=='includedview' or parentTag=='newincludedview':
-            self.__linkToParentGrid(pane,formId=formId,iframe=iframe,loadEvent=loadEvent)
+            self.__linkToParentGrid(pane,formId=formId,iframe=iframe,link_kwargs=link_kwargs)
             kwargs['store_storeType'] = 'Collection'
             kwargs['store_parentStore'] = pane.attributes['store']
         if iframe:
@@ -99,14 +103,13 @@ class FormHandler(BaseComponent):
             formRoot = attachTo.palette(**palette_kwargs)
         return formRoot
 
-    def __linkToParentGrid(self,grid,formId=None,iframe=None,loadEvent=None):
+    def __linkToParentGrid(self,grid,formId=None,iframe=None,link_kwargs=None):
         gridattr = grid.attributes
         gridattr['_linkedFormId']=formId
         gridsubscribers = dict()
-
-        
-        if self.isMobile:
-            gridattr['selfsubscribe_doubletap'] = """
+        if link_kwargs.get('event'):
+            if self.isMobile:
+                gridattr['selfsubscribe_doubletap'] = """
                             var rowIndex= $1.event.rowIndex;
                             genro.callAfter(function(){
                                 var selectedRows = this.widget.getSelectedRowidx() || [];
@@ -118,8 +121,14 @@ class FormHandler(BaseComponent):
                             },100,this,'editselectedrow');
 
             """
-        else:
-            gridattr['connect_%s' %loadEvent] = """
+            else:
+                gridattr['connect_%(event)s' %link_kwargs] = """
+                                            if($1.cellIndex>=0){
+                                                var cell = this.widget.getCell(arguments[0].cellIndex);
+                                                if(cell.edit){
+                                                    return;
+                                                }
+                                            }
                                             var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
                                             genro.callAfter(function(){
                                                 var selectedRows = this.widget.getSelectedRowidx() || [];
@@ -130,8 +139,8 @@ class FormHandler(BaseComponent):
                                                 }
                                             },100,this,'editselectedrow');
                                             """
-
-        gridattr['selfsubscribe_addrow'] = """ var newrecord_kw = {pkey:"*newrecord*"};
+        if link_kwargs.get('add'):
+            gridattr['selfsubscribe_addrow'] = """ var newrecord_kw = {pkey:"*newrecord*"};
                                                 if($1 && $1.opt){
                                                     objectUpdate(newrecord_kw,objectPop($1,'opt'));
                                                     objectUpdate(newrecord_kw,$1);
@@ -228,7 +237,7 @@ class FormHandler(BaseComponent):
                 }
             }
             """)
-        s.tooltip(callback="return this.form.getSemaphoreStatus()")
+        s.tooltip(callback="return this.form.getSemaphoreStatus()",modifiers='Shift')
 
     
     @struct_method          

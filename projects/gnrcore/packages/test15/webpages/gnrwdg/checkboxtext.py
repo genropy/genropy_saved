@@ -30,8 +30,11 @@ class GnrCustomWebPage(object):
         pane.textbox(value='^.pluto?value_caption')
 
     def test_3_multicbpopup(self,pane):
+        pane.checkbox(value='^.disabled',label='disabled')
+        #pane.checkbox(value='^.readonly',label='readonly')
+
         pane.checkBoxText(values="""0:Lunedì\\2,1:Mar,2:Mer,3:Gio,4:Ven,5:Sab,6:Dom""",
-        value='^.pluto',cols=3,popup=True)
+        value='^.pluto',cols=3,popup=True,disabled='^.disabled',readOnly=True)
                             
     def test_4_mode_numbcode(self,pane):
         """First test description"""
@@ -50,7 +53,7 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder(cols=1,border_spacing='3px')
         fb.checkBoxText(values='^.values',value='^.pluto')
         fb.textbox(value='^.pluto',lbl='code')
-        fb.textbox(value='^.pluto?value_caption',lbl='Caption')
+        fb.textbox(value='^.pluto?_displayedValue',lbl='Caption')
 
         fb.textbox(value='^.values',lbl='Values')
 
@@ -60,7 +63,7 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder(cols=1,border_spacing='3px')
         fb.radioButtonText(values='^.values',value='^.pluto')
         fb.textbox(value='^.pluto',lbl='code')
-        fb.textbox(value='^.pluto?value_caption',lbl='Caption')
+        fb.textbox(value='^.pluto?_displayedValue',lbl='Caption')
 
         fb.textbox(value='^.values',lbl='Values')   
 

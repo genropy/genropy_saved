@@ -18,7 +18,7 @@ class DropUploaderBase(BaseComponent):
     
     @extract_kwargs(uploader=None,external=None)
     @struct_method
-    def du_dropUploader(self, pane,uploaderId=None, ext='', uploader_kwargs=None, external_kwargs=None, **kwargs):
+    def du_dropUploaderLegacy(self, pane,uploaderId=None, ext='', uploader_kwargs=None, external_kwargs=None, **kwargs):
         uploaderId = uploaderId or 'stdupload'
         uploadPath = uploader_kwargs.pop('path', 'site:uploaded_files')
         pane.div(dropTypes='Files', drop_ext=ext, dropTarget=True, nodeId=uploaderId,
@@ -56,55 +56,59 @@ class DropUploaderBase(BaseComponent):
                         external_kwargs=None,**kwargs):
         uploaderId = uploaderId or 'stdupload'
         datapath=datapath or 'gnr.%s' %uploaderId
-        frame = pane.framePane(frameCode=uploaderId,datapath=datapath,**kwargs)
-        self.__uploader_grid(frame,uploaderId=uploaderId,preview=preview,uploader_kwargs=uploader_kwargs,
-                            metacol_kwargs=metacol_kwargs,process_kwargs=process_kwargs,
-                            external_kwargs=external_kwargs,label=label)
-        return frame
-        
-    def __uploader_grid(self,frame,uploaderId=None,preview=None,label=None,
-                        uploader_kwargs=None,metacol_kwargs=None,process_kwargs=None,
-                        external_kwargs=None):
+        #frame = pane.framePane(frameCode=uploaderId,datapath=datapath,**kwargs)
+
+
         uploadPath = uploader_kwargs.pop('path', 'site:uploaded_files')
         external_kwargs.update(process_kwargs)
-        bar = frame.top.slotToolbar(slots='3,framelabel,*,delrow,doupload,3',delrow_disabled=False)
-        bar.framelabel.div(label or '!!Uploader')
+
         def _struct(struct):
             r = struct.view().rows()
-            r.cell('_name', name='!!File name', width='10em')
+            r.cell('_name', name='!!File name', width='10em',edit=True)
             r.cell('_size', name='!!Size', width='5em')
             r.cell('_type', name='!!Type', width='5em')
             for k, v in metacol_kwargs.items():
-                r.cell(k, **v)
+                r.cell(k,edit=True, **v)
             r.cell('_status', name='Status', width='6em')
+
+        frame = pane.bagGrid(frameCode=uploaderId,storepath='main.uploader.grid.uploading_data',struct=_struct,datamode='bag',datapath='.uploader',
+                                 grid_onDrop="FIRE .prepare_files=files;FIRE .on_drop = 1000;",
+                                 grid_selfsubscribe_delrow="this.widget.delBagRow('*', true);",
+                                 grid_selfsubscribe_doupload='FIRE .doupload;',
+                                 grid_selectedLabel='.selectedLabel',
+                                 grid_dropTarget_grid='Files',
+                                 grid_dropTarget=True,grid_dropTypes='Files')
+        grid = frame.grid
+        bar = frame.top.bar.replaceSlots('#','3,framelabel,*,delrow,doupload,3',delrow_disabled=False)
+        bar.framelabel.div(label or '!!Uploader')
 
         if preview:
             footer = frame.bottom.slotBar('preview',closable='close',closable_tip='!!Preview',splitter=True)
             footer.preview.contentPane(height='200px',width='100%',_lazyBuild=True).previewPane(uploaderId=uploaderId)
 
-        grid = frame.includedview(storepath='.uploading_data',struct=_struct,datamode='bag',datapath='.uploader',
-                                 onDrop="FIRE .prepare_files=files;FIRE .on_drop = 1000;",
-                                 selfsubscribe_delrow="this.widget.delBagRow('*', true);",
-                                 selfsubscribe_doupload='FIRE .doupload;',selectedLabel='.selectedLabel',
-                                 dropTarget_grid='Files',dropTarget=True,dropTypes='Files')
-        gridEditor = grid.gridEditor()
-        for k, v in metacol_kwargs.items():
-            _tag = 'textbox'
-            dtype = v.get('dtype')
-            widget = v.get('widget')
-            if widget:
-                _tag = widget
-            elif dtype:
-                if(dtype == 'I' or dtype == 'R' or dtype == 'N'):
-                    _tag = 'numberTextBox'
-                elif(dtype == 'D'):
-                    _tag = 'dateTextBox'
-                elif(dtype == 'B'):
-                    _tag = 'checkbox'
-            gridEditor.child(_tag, gridcell=k)
+       #gridEditor = grid.gridEditor()
+       #for k, v in metacol_kwargs.items():
+       #    _tag = 'textbox'
+       #    dtype = v.get('dtype')
+       #    widget = v.get('widget')
+       #    if widget:
+       #        _tag = widget
+       #    elif dtype:
+       #        if(dtype == 'I' or dtype == 'R' or dtype == 'N'):
+       #            _tag = 'numberTextBox'
+       #        elif(dtype == 'D'):
+       #            _tag = 'dateTextBox'
+       #        elif(dtype == 'B'):
+       #            _tag = 'checkbox'
+       #    gridEditor.child(_tag, gridcell=k)
         grid.dataController("""grid.editBagRow(null,fired);""", fired='^.on_drop',
                           grid=grid.js_widget)
         grid.dataController("""
+                if(!filebag){
+                   filebag = new gnr.GnrBag();
+                   SET .uploading_data = filebag;
+                }
+                external_params = this.evaluateOnNode(external_params);
                 dojo.forEach(files,
                             function(f){
                                 var row = objectUpdate({_name:f.name,_size:f.size,_type:f.type,_file:f,_uploaderId:uploaderId},external_params);
@@ -366,4 +370,3 @@ class DropUploader(DropUploaderBase):
                              ,
                              struct=savedFilesGrid['struct'],
                              autoWidth=True, selectionPars=dict(**savedFilesGrid))
-    

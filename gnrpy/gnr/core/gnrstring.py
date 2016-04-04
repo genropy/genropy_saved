@@ -74,9 +74,7 @@ try:
                 k = k.split('^')
                 as_name = k[1]
                 k = k[0]
-            value = self.data[k]
-            if not value:
-                value = self.data[as_name]
+            value = self.data[k if k in self.data else as_name]
             format = None
             mask = None
             formattedValue = None
@@ -915,7 +913,7 @@ def toSecureJsonJS(obj, key=None):
     else:
         return result
         
-def slugify(value):
+def slugify(value,sep='-'):
     """TODO
         
     :param value: TODO"""
@@ -923,7 +921,7 @@ def slugify(value):
     value = unicode(value)
     value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
     value = unicode(re.sub('[^\w\s-]', '', value).strip().lower())
-    return re.sub('[-\s]+', '-', value)
+    return re.sub('[-\s]+', sep, value)
     
 def fromJson(obj):
     """TODO

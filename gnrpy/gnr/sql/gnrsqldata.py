@@ -201,9 +201,9 @@ class SqlQueryCompiler(object):
                 raise GnrSqlMissingField('Missing field %s in table %s.%s (requested field %s)' % (
                 fld, curr.pkg_name, curr.tbl_name, '.'.join(newpath)))
             elif fldalias.relation_path: #resolve 
-            #pathlist.append(fldalias.relation_path)
-            #newfieldpath = '.'.join(pathlist)        # replace the field alias with the column relation_path
-            # then call getFieldAlias again with the real path
+                #pathlist.append(fldalias.relation_path)
+                #newfieldpath = '.'.join(pathlist)        # replace the field alias with the column relation_path
+                # then call getFieldAlias again with the real path
                 return self.getFieldAlias(fldalias.relation_path, curr=curr,
                                           basealias=alias)  # call getFieldAlias recursively
             elif fldalias.sql_formula or fldalias.select or fldalias.exists:
@@ -522,29 +522,19 @@ class SqlQueryCompiler(object):
         # translate @relname.fldname in $_relname_fldname and add them to the relationDict
         if where:
             where = PERIODFINDER.sub(self.expandPeriod, where)
-            
         currentEnv = self.db.currentEnv
         env_conditions = dictExtract(currentEnv,'env_%s_condition_' %self.tblobj.fullname.replace('.','_'))
+        wherelist = [where]
         if env_conditions:
-            wherelist = [where] if where else []
             for condition in env_conditions.values():
                 wherelist.append('( %s )' %condition)
-            where = ' AND '.join(wherelist)
-
-        partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
-
-        if not ignorePartition and partition_kwargs:
-            wherelist = [where] if where else []
-            for k,v in partition_kwargs.items():
-                if currentEnv.get('current_%s' %v):
-                    wherelist.append('( $%s=:env_current_%s )' % (k,v))
-            where = ' AND '.join(wherelist)
+        wherelist.append(self.tblobj.dbtable.getPartitionCondition(ignorePartition=ignorePartition))
+        where = ' AND '.join([w for w in wherelist if w])
         columns = self.updateFieldDict(columns)
         where = self.updateFieldDict(where or '')
         order_by = self.updateFieldDict(order_by or '')
         group_by = self.updateFieldDict(group_by or '')
         having = self.updateFieldDict(having or '')
-        
         col_list = uniquify([col for col in gnrstring.split(columns, ',') if col])
         new_col_list = []
         for col in col_list:
@@ -1010,7 +1000,11 @@ class SqlQuery(object):
     def handlePyColumns(self,data):
         if not self.compiled.pyColumns:
             return
-        for field,handler in self.compiled.pyColumns:
+        pcdict = dict(self.compiled.pyColumns)
+        for field in  self.dbtable.model.virtual_columns.keys():
+            if not field in pcdict:
+                continue
+            handler = pcdict[field]
             if handler:
                 for d in data:
                     #d[field] = handler(d,field=field)

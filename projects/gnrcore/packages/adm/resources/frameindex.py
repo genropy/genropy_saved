@@ -11,15 +11,16 @@ from gnr.web.gnrwebstruct import struct_method
 class FrameIndex(BaseComponent):
     py_requires="""frameplugin_menu/frameplugin_menu:MenuIframes,
                    login:LoginComponent,
+                   th/th:TableHandler,
                    gnrcomponents/batch_handler/batch_handler:TableScriptRunner,
                    gnrcomponents/batch_handler/batch_handler:BatchMonitor,
                    gnrcomponents/chat_component/chat_component,
-                   gnrcomponents/datamover:MoverPlugin,
                    gnrcomponents/maintenance:MaintenancePlugin
                    """
+    #gnrcomponents/datamover:MoverPlugin, removed
     js_requires='frameindex'
     css_requires='frameindex,public'
-    plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin,datamover,maintenance'
+    
     custom_plugin_list = None
     index_page = False
     index_url = 'html_pages/splashscreen.html'
@@ -28,6 +29,19 @@ class FrameIndex(BaseComponent):
     auth_preference = 'admin'
     auth_page = 'user'
     auth_main = 'user'
+
+    @property
+    def plugin_list(self):
+        frameplugins = ['iframemenu_plugin','batch_monitor','chat_plugin']
+        for pkgId,pkgobj in self.packages.items():
+            if hasattr(pkgobj,'sidebarPlugins'):
+                package_plugins,requires = pkgobj.sidebarPlugins()
+                frameplugins.extend(package_plugins.split(','))
+                if requires:
+                    for p in requires.split(','):
+                        self.mixinComponent(p)
+        frameplugins.append('maintenance')
+        return ','.join(frameplugins)
     
     def main(self,root,new_window=None,gnrtoken=None,custom_index=None,**kwargs):
         if gnrtoken and not self.db.table('sys.external_token').check_token(gnrtoken):
@@ -66,13 +80,12 @@ class FrameIndex(BaseComponent):
                                 d.setItem('workdate','');
                             }
                             var str = dataTemplate(tpl,d);
-                            
                             SET gnr.windowTitle = str;
                             """,
                             data='^gnr.rootenv',
                             tpl=self.windowTitleTemplate(),
                             _onStart=True)
-        frame = pane.framePane('standard_index',_class='hideSplitter frameindexroot',
+        frame = pane.framePane('standard_index',_class='frameindexroot',
                                 #border='1px solid gray',#rounded_top=8,
                                 margin='0px',overflow='hidden',
                                 persist=True,
@@ -88,7 +101,12 @@ class FrameIndex(BaseComponent):
                                                                 setTimeout(function(){
                                                                         wdg.setRegionVisible("left",set);
                                                                 },delay);""",
-                                selfsubscribe_showLeft="""this.getWidget().setRegionVisible("left",true);""")
+                                selfsubscribe_showLeft="""this.getWidget().setRegionVisible("left",true);""",
+                                regions='^frameindex.regions')
+        pane.dataController("""
+                genro.setInStorage('local','frameindex_left_'+pluginSelected+'_width',currentWidth);
+                """,currentWidth='^frameindex.regions.left',
+                    pluginSelected='=left.selected')
         self.prepareLeft(frame.left)
         self.prepareTop(frame.top,onCreatingTablist=onCreatingTablist)
         self.prepareBottom(frame.bottom)
@@ -181,20 +199,20 @@ class FrameIndex(BaseComponent):
         """,subscribe_iframe_stack_selected=True,tabroot=tabroot,_if='page')
 
     def prepareBottom(self,pane):
-        pane.attributes.update(dict(overflow='hidden',background='silver'))
-        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,manageDocumentation,5,openGnrIDE,count_errors,5,appInfo,*,debugping,5,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='20px',
-                        gradient_from='gray',gradient_to='silver',gradient_deg=90)
+        pane.attributes.update(dict(overflow='hidden'))
+        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,manageDocumentation,5,openGnrIDE,count_errors,5,appInfo,*,debugping,5,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='22px',
+                        background='#EEEEEE',border_top='1px solid silver')
         sb.appInfo.div('^gnr.appInfo')
         applogo = sb.applogo.div()
         if hasattr(self,'application_logo'):
-            applogo.img(src=self.application_logo,height='20px')
-        sb.genrologo.img(src='/_rsrc/common/images/made_with_genropy_small.png',height='20px')
+            applogo.div(_class='application_logo_container').img(src=self.application_logo,height='100%')
+        sb.genrologo.div(_class='application_logo_container').img(src='/_rsrc/common/images/made_with_genropy_small.png',height='100%')
         sb.dataController("""SET gnr.appInfo = dataTemplate(tpl,{msg:msg,dbremote:dbremote}); """,
             msg="!!Connected to:",dbremote=(self.site.remote_db or False),_if='dbremote',
                         tpl="<div class='remote_db_msg'>$msg $dbremote</div>",_onStart=True)
         box = sb.preferences.div(_class='iframeroot_pref')
-        appPref = box.div(innerHTML='==_owner_name || "Preferences";',_owner_name='^gnr.app_preference.adm.instance_data.owner_name',_class='iframeroot_appname',
-                                connect_onclick='PUBLISH app_preference')
+        appPref = box.div(innerHTML='==_owner_name?dataTemplate(_owner_name,envbag):"Preferences";',_owner_name='^gnr.app_preference.adm.instance_data.owner_name',_class='iframeroot_appname',
+                                connect_onclick='PUBLISH app_preference',envbag='=gnr.rootenv')
         userPref = box.div(self.user if not self.isGuest else 'guest', _class='iframeroot_username',tip='!!%s preference' % (self.user if not self.isGuest else 'guest'),
                                connect_onclick='PUBLISH user_preference')
         sb.logout.div(connect_onclick="genro.logout()",_class='iconbox icnBaseUserLogout',tip='!!Logout')
@@ -257,7 +275,8 @@ class FrameIndex(BaseComponent):
         else:
             indexpane = sc.contentPane(pageName='indexpage',title='Index',overflow='hidden')
             if self.index_url:
-                indexpane.htmliframe(height='100%', width='100%', src=self.getResourceUri(self.index_url,add_mtime=self.isDeveloper()), border='0px',shield=True)         
+                src = self.getResourceUri(self.index_url,add_mtime=self.isDeveloper())
+                indexpane.htmliframe(height='100%', width='100%', src=src, border='0px',shield=True)         
         page.dataController("""genro.publish('selectIframePage',_menutree__selected[0]);""",
                                subscribe__menutree__selected=True)
         page.dataController("""genro.framedIndexManager.newBrowserWindowPage(newBrowserWindowPage[0]);""",
@@ -268,7 +287,12 @@ class FrameIndex(BaseComponent):
                                     margin_right='-4px',overflow='hidden',hidden=self.hideLeftPlugins,border_right='1px solid #ddd'))
         bc = pane.borderContainer()
         sc = bc.stackContainer(selectedPage='^.selected',nodeId='gnr_main_left_center',
-                                subscribe_open_plugin="""SET .selected=$1;
+                                subscribe_open_plugin="""var plugin_name = $1.plugin;
+                                                         SET left.selected = plugin_name;
+                                                         var width = $1.forcedWidth || genro.getFromStorage('local','frameindex_left_'+plugin_name+'_width') || $1.defaultWidth;
+                                                         if(width){
+                                                              SET frameindex.regions.left = width;
+                                                         }
                                                          genro.getFrameNode('standard_index').publish('showLeft');""",
                                 overflow='hidden',region='center')
         sc.dataController("""if(!page){return;}
@@ -305,8 +329,16 @@ class FrameIndex(BaseComponent):
     def fi_slotbar_newWindow(self,pane,**kwargs):
         pane.div(_class='windowaddIcon iconbox',tip='!!New Window',connect_onclick='genro.openBrowserTab(genro.addParamsToUrl(window.location.href,{new_window:true}));')
 
+    @struct_method
+    def fi_pluginButton(self,pane,name,caption=None,iconClass=None,defaultWidth=None,**kwargs):
+        pane.div(_class='button_block iframetab').lightButton(_class=iconClass,tip=caption,
+                 action="""genro.publish('open_plugin',{plugin:plugin_name,defaultWidth:defaultWidth});""",
+                 plugin_name=name,defaultWidth=defaultWidth or '210px',
+                 nodeId='plugin_block_%s' %name)
+
+
     def windowTitle(self):
-        return self.getPreference('instance_data.owner_name',pkg='adm') or self.package.attributes.get('name_long')
+        return self.getPreference('instance_data.owner_name',pkg='adm') or self.site.site_name
         
     def windowTitleTemplate(self):
         return "%s $workdate" %self.windowTitle()

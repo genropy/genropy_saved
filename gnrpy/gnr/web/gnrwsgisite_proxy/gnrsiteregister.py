@@ -391,7 +391,7 @@ class PageRegister(BaseRegister):
         super(PageRegister, self).__init__(*args,**kwargs)
         self.pageProfilers = dict()
 
-    def create(self, page_id,pagename=None,connection_id=None,subscribed_tables=None,user=None,user_ip=None,user_agent=None ,data=None):
+    def create(self, page_id,pagename=None,connection_id=None,subscribed_tables=None,user=None,user_ip=None,user_agent=None ,relative_url=None,data=None):
         register_item_id = page_id
         start_ts = datetime.now()
         if subscribed_tables:
@@ -405,6 +405,7 @@ class PageRegister(BaseRegister):
                 user=user,
                 user_ip=user_ip,
                 user_agent=user_agent,
+                relative_url=relative_url,
                 datachanges=list(),
                 subscribed_paths=set(),
                 register_name='page')
@@ -607,9 +608,10 @@ class SiteRegister(BaseRemoteObject):
         return self.page_register.connection_pages(connection_id=connection_id)
 
 
-    def new_page(self,page_id,pagename=None,connection_id=None,subscribed_tables=None,user=None,user_ip=None,user_agent=None ,data=None):
+    def new_page(self,page_id,pagename=None,connection_id=None,subscribed_tables=None,user=None,user_ip=None,user_agent=None ,
+                relative_url=None,data=None):
         page_item = self.page_register.create(page_id, pagename = pagename,connection_id=connection_id,user=user,
-                                            user_ip=user_ip,user_agent=user_agent, data=data)
+                                            user_ip=user_ip,user_agent=user_agent,relative_url=relative_url, data=data)
         return page_item
 
 
@@ -933,7 +935,9 @@ class SiteRegisterClient(object):
 
     def new_page(self, page_id, page, data=None):
         register_item = self.siteregister.new_page( page_id, pagename = page.pagename,connection_id=page.connection_id,user=page.user,
-                                            user_ip=page.user_ip,user_agent=page.user_agent, data=data)
+                                            user_ip=page.user_ip,user_agent=page.user_agent, 
+                                            relative_url=page.request.path_info,
+                                            data=data)
         self.add_data_to_register_item(register_item)
         return register_item
 

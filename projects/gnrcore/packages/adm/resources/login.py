@@ -20,12 +20,17 @@ class LoginComponent(BaseComponent):
     auth_page = 'user'
     index_url = 'html_pages/splashscreen.html'
     closable_login = False
+    loginBox_kwargs = dict()
 
     def loginDialog(self,pane,gnrtoken=None,**kwargs):
         doLogin = self.avatar is None and self.auth_page
         if doLogin and not self.closable_login and self.index_url:
-            pane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')   
-        dlg = pane.dialog(_class='lightboxDialog',subscribe_openLogin="this.widget.show()",subscribe_closeLogin="this.widget.hide()")
+            pane.css('.dijitDialogUnderlay.lightboxDialog_underlay',"opacity:0;")
+            pane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')  
+        loginKwargs = dict(_class='lightboxDialog') 
+        loginKwargs.update(self.loginBox_kwargs)
+        dlg = pane.dialog(subscribe_openLogin="this.widget.show()",
+                          subscribe_closeLogin="this.widget.hide()",**loginKwargs)
        
         box = dlg.div(**self.loginboxPars())
         if self.closable_login:
@@ -140,14 +145,15 @@ class LoginComponent(BaseComponent):
                     genro.gotoURL(rootpage);
                 }
                 if(doLogin){
-                    genro.pageReload();
+                    if(!closable_login){
+                        genro.pageReload();
+                    }
                 }
-                
             }
         },null,'POST');
         """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',
             avatar='=gnr.avatar',
-            rootpage='=gnr.rootenv.rootpage',
+            rootpage='=gnr.rootenv.rootpage',closable_login=self.closable_login,
             error_msg='!!Invalid login',dlg=dlg.js_widget,
             doLogin=doLogin,
             _delay=1)  
@@ -156,6 +162,8 @@ class LoginComponent(BaseComponent):
     @public_method
     def login_doLogin(self, rootenv=None,login=None,guestName=None, **kwargs):
         self.doLogin(login=login,guestName=guestName,rootenv=rootenv,**kwargs)
+        if login['error']:
+            return dict(error=login['error'])
         rootenv['user'] = self.avatar.user
         rootenv['user_id'] = self.avatar.user_id
         rootenv['workdate'] = rootenv['workdate'] or self.workdate

@@ -311,12 +311,26 @@ class TableModuleEditor(BaseComponent):
                                             }
                                             """,
                                         selectedId='^.selectedId',grid=tablesframe.grid.js_widget)
-        tablesframe.top.bar.replaceSlots('delrow','export,5,searchOn,delrow')
-        bar = tablesframe.bottom.slotToolbar('*,makerRes,5,importLegacy,*')
+        topbar = tablesframe.top.bar.replaceSlots('delrow','export,5,fileimporter,5,searchOn,delrow')
+        bar = tablesframe.bottom.slotToolbar('*,makerRes,5,makerMenu,5,importLegacy,*')
         bar.makerRes.slotButton('Make Resources',
                             action='FIRE #FORM.instanceAction= event.shiftKey? "make_resources_force":"make_resources"')
+        bar.makerMenu.slotButton('Make Menu',
+                            action='FIRE #FORM.instanceAction= "make_menu"')
         bar.importLegacy.slotButton('Import Legacy',fire_import_legacy='#FORM.instanceAction')
+        topbar.fileimporter.PaletteImporter(paletteCode='filexlscsv_importer' ,
+                            dockButton_iconClass='iconbox inbox',title='!!Table from csv/xls',
+                            importButton_label='Create model',
+                            importButton_action="""genro.publish('model_from_importfile',{
+                                    colsbag:this.getRelativeData('.match'),
+                                    filepath:this.getRelativeData('.imported_file_path'),
+                                    tblname:tblname
+                                });""",
+                            importButton_ask=dict(title='Table name',fields=[dict(name='tblname',lbl='Name')]))
 
+        pane.dataRpc('dummy',self.moduleFromImportfile,subscribe_model_from_importfile=True,
+                    package=package.replace('^','='),project=project.replace('^','='),
+                    _onResult='PUBLISH reloadTableModules;')
         pane.dataRpc('#FORM._loadedPackageTables',self.table_editor_loadPackageTables,
                 package=package,project=project,_if='project&&package',_else='return new gnr.GnrBag();',
                 subscribe_reloadTableModules=True,
@@ -415,6 +429,21 @@ class TableModuleEditor(BaseComponent):
                         }
                     }
                     """,pkey='^#FORM.record.pkey',_enabled='^._enabled',id='^.id',_delay=100)
+
+    @public_method
+    def moduleFromImportfile(self,colsbag=None,filepath=None,tblname=None,project=None,package=None,**kwargs):
+        filepath = os.path.join(os.path.join(self.getPackagePath(project,package),'model','%s.py' %tblname))
+        table_data = Bag()
+        table_data['name'] = tblname
+        columns_bag = Bag()
+        table_data['_columns'] = columns_bag
+        for c in colsbag.values():
+            legacy_name = c['source_field']
+            colname = c['dest_field'] or legacy_name
+            b = Bag(dict(name=colname,legacy_name=legacy_name,
+                        name_long=None,dtype=c['dtype']))
+            columns_bag.setItem(colname,b)
+        self.makeOneTable(filepath,table_data=table_data)
 
 
     @public_method

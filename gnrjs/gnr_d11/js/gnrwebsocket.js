@@ -29,10 +29,10 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     constructor: function(application, wsroot, options) {
         this.application = application;
         this.wsroot=wsroot;
-        this.url='ws://'+window.location.host+wsroot
-        this.options=objectUpdate({ debug: false, reconnectInterval: 4000, ping_time:3000 },
-                                  options)
-        this.waitingCalls={}
+        this.url='ws://'+window.location.host+wsroot;
+        this.options=objectUpdate({ debug: false, reconnectInterval: 4000, ping_time:1000 },
+                                  options);
+        this.waitingCalls={};
         
     },
     create:function(){
@@ -40,17 +40,17 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
             this.socket=new ReconnectingWebSocket(this.url, null,this.options);
             var that=this;
             this.socket.onopen=function(){
-                that.onopen()
-            }
+                that.onopen();
+            };
             this.socket.onclose=function(){
-                that.onclose()
-            }
+                that.onclose();
+            };
             this.socket.onmessage=function(e){
-                that.onmessage(e)
-            }
+                that.onmessage(e);
+            };
             this.socket.onerror=function(error){
-                that.onerror(error)
-            }
+                that.onerror(error);
+            };
         }
         
     },
@@ -60,27 +60,27 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     },
 
     onopen:function(){
-        console.log('connetting websocket')
-        that=this
-        this.send('connected',{'page_id':genro.page_id})
+        that=this;
+        this.send('connected',{'page_id':genro.page_id});
         this._interval=setInterval(function(){
-                                     genro.wsk.ping()
-                                   },this.options.ping_time)
+                                     genro.wsk.ping();
+                                   },this.options.ping_time);
     },
     onclose:function(){
-        clearInterval(this._interval)
-        console.log('disconnected websocket')
+        clearInterval(this._interval);
+        console.log('disconnected websocket');
     },
     onerror:function(error){
         console.error('WebSocket Error ' + error);
     },
     ping:function(){
-        this.socket.send('PING')
+        this.send('ping',{lastEventAge:(new Date()-genro._lastUserEventTs)});
     },
+
     onmessage:function(e){
         var data=e.data;
-        if (data=='PONG'){
-            return
+        if (data=='pong'){
+            return;
         }
         
         if (data.indexOf('<?xml')==0){
@@ -96,22 +96,33 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         }
     },
     receivedCommand:function(command,data){
-        var handler = command? this['do_'+command] || this.do_publish:this.do_publish
+        var handler;
+        if (command){
+            if (command.indexOf('.')>0){
+                comlst=command.split('.')
+                handler=genro[comlst[0]]['do_'+comlst.splice(1).join('.')]
+            }
+            else{
+                handler=this['do_'+command] || this.do_publish
+            }
+        }else{
+            handler=this.do_publish
+        }
         handler.apply(this,[data])
     },
     receivedToken:function(token,envelope){
-        var deferred=objectPop(this.waitingCalls,token)
-        var dataNode=envelope.getNode('data')
-        var error=envelope.getItem('error')
+        var deferred=objectPop(this.waitingCalls,token);
+        envelope = envelope || new gnr.GnrBag();
+        var dataNode = envelope.getNode('data');
+        var error = envelope.getItem('error');
         if (error){
-            console.log('serverError',error,dataNode._value)
-            deferred.errback(error)
+            deferred.callback({'error':error,'dataNode':dataNode});
         }
         else{
-            deferred.callback(dataNode)
+            deferred.callback(dataNode);
         }
-    },
     
+   },
     do_alert:function(data){
         alert(data)
     },
@@ -144,6 +155,27 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     do_datachanges:function(datachanges){
         genro.rpc.setDatachangesInData(datachanges)
     },
+
+    do_sharedObjectChange:function(data){
+        var shared_id = data.getItem('shared_id');
+        var path = data.getItem('path');
+        var value = data.getItem('value');
+        var attr = data.getItem('attr');
+        var evt = data.getItem('evt');
+        var from_page_id = data.getItem('from_page_id');
+        var so = genro._sharedObjects[shared_id];
+        if(!so){
+            return;
+        }
+        var sopath = so.path;
+        var fullpath = path? sopath+ '.' +path: sopath;
+        if(evt=='del'){
+            genro._data.popNode(fullpath,'serverChange')
+        }else{
+            genro._data.setItem(fullpath, value, attr, objectUpdate({'doTrigger':'serverChange',lazySet:true}));
+        }
+    },
+
     do_publish:function(data){
         var topic=data.getItem('topic')
         var nodeId = data.pop('nodeId');
@@ -162,25 +194,31 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         }
         genro.publish(topic,data)
     },
-    call:function(kw,omitSerialize){
+    call:function(kw,omitSerialize,cb){
     	var deferred = new dojo.Deferred();
-        var kw=kw || {};
+        var kw= objectUpdate({},kw);
+        var _onResult = objectPop(kw,'_onResult');
+        var _onError = objectPop(kw,'_onError');
         var token='wstk_'+genro.getCounter('wstk')
         kw['result_token']=token
-        kw['command']='call'
+        kw['command']= kw['command'] || 'call'
         if (!omitSerialize){
             kw=genro.rpc.serializeParameters(genro.src.dynamicParameters(kw));
         }
-        this.waitingCalls[token]=deferred
+        this.waitingCalls[token] = deferred;
         //console.log('sending',kw)
-        this.socket.send(dojo.toJson(kw))
-        return deferred
+        this.socket.send(dojo.toJson(kw));
+        if(_onResult){
+            deferred.addCallback(_onResult);
+        }
+        return deferred;
     },
     send:function(command,kw){
         var kw=kw || {};
         kw['command']=command
         kw=genro.rpc.serializeParameters(genro.src.dynamicParameters(kw));
-        this.socket.send(dojo.toJson(kw))
+        var msg = dojo.toJson(kw);
+        this.socket.send(msg);
     },
     
     parseResponse:function(response){
@@ -203,8 +241,10 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     },
     publishToClient:function(page_id,topic,data){
         this.sendCommandToPage(page_id,'publish',new gnr.GnrBag({'data':data,'topic':topic}))
+    },
+    errorHandler:function(error){
+        console.log('wsk errorHandler',error)
     }
-
 });
 
 // MIT License:
@@ -354,6 +394,8 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
 
         /** The URL as resolved by the constructor. This is always an absolute URL. Read only. */
         this.url = url;
+        this.pendingMessagesToSend=[]
+        
 
         /** The number of attempted reconnects since starting, or the last successful connection. Read only. */
         this.reconnectAttempts = 0;
@@ -449,6 +491,10 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
                 e.isReconnect = reconnectAttempt;
                 reconnectAttempt = false;
                 eventTarget.dispatchEvent(e);
+                while (self.pendingMessagesToSend.length>0){
+                    console.log('send pending')
+                    self.send(self.pendingMessagesToSend.shift())
+                }
             };
 
             ws.onclose = function(event) {
@@ -511,8 +557,10 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
                 }
                 return ws.send(data);
             } else {
-                console.log ('Error sending :',data);
-                throw 'INVALID_STATE_ERR : Pausing to reconnect websocket'
+                console.log('socket not ready - adding to queue')
+                this.pendingMessagesToSend.push(data)
+                //console.log ('Error sending :',data);
+                //throw 'INVALID_STATE_ERR : Pausing to reconnect websocket'
             }
         };
 

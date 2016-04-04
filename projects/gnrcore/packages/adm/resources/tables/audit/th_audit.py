@@ -83,7 +83,7 @@ class FormRecordHistory(BaseComponent):
     def th_top_custom(self,top):
         bar = top.bar.replaceSlots('#','10,applyOnRecord,*')
         bar.applyOnRecord.slotButton('Apply',
-                                    action="this.form.getParentForm().pasteClipboard(recordAtVersion);",
+                                    action="this.form.getParentForm().updateFormData(recordAtVersion);",
                                     recordAtVersion='=#FORM.recordAtVersion')
 
 

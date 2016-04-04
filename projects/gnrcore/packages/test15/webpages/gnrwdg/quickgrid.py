@@ -42,13 +42,13 @@ class GnrCustomWebPage(object):
 
     def test_2_syntax(self,pane):
         """basic"""
-        bc = pane.borderContainer(height='200px')
+        bc = pane.borderContainer(height='500px')
         fb = bc.contentPane(region='top').formbuilder(cols=2,border_spacing='3px')
         fb.dbselect(value='^.provincia',dbtable='glbl.provincia',lbl='provincia')
         fb.textBox('^.fields',lbl='Fields')
         fb.dataRpc('.data',self.bagComuni,provincia='^.provincia',_if='provincia',_else='null')
 
-        grid = pane.quickGrid(value='^.data',height='300px',fields='^.fields')
+        grid = bc.contentPane(region='center').quickGrid(value='^.data',height='300px',fields='^.fields')
         grid.column('denominazione',color='red',width='40em',name='Den',edit=True)
         grid.tools('export',position='TR')
        #grid.column('denominazione')
@@ -64,8 +64,27 @@ class GnrCustomWebPage(object):
             result[r['id']] = Bag(r)
         return result
 
-    
-    
+
+    def test_3_syntax(self,pane):
+        """basic"""
+        bc = pane.borderContainer(height='500px')
+        fb = bc.contentPane(region='top').formbuilder(cols=2,border_spacing='3px')
+        fb.dbselect(value='^.provincia',dbtable='glbl.provincia',lbl='provincia')
+        fb.textBox('^.fields',lbl='Fields')
+        fb.dataRpc('.data',self.bagComuniAttr,provincia='^.provincia',_if='provincia',_else='null')
+
+        grid = bc.contentPane(region='center').quickGrid(value='^.data',height='300px',fields='^.fields',
+                                                        datamode='attr')
+        grid.column('denominazione',color='red',width='40em',name='Den',edit=True)
+        grid.tools('export',position='TR')
+       #grid.column('denominazione')
+       #grid.column('sigla')
+
+    @public_method
+    def bagComuniAttr(self,provincia=None):
+        return self.db.table('glbl.comune').query(where='$sigla_provincia=:pr',pr=provincia).selection().output('selection')
+ 
+
         # columns = None => autocalcola
         # columns = 'pippo,pluto' ==> autocalcola solo pippo e pluto
         # column_pippo = dict(), column_pluto = dict()

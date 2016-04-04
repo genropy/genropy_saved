@@ -122,15 +122,19 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             return;
         }
         var eventpath = kw.pathlist.slice(1).join('.');
+        var isValuePath = (pathToCheck.indexOf('?') < 0);
         if (pathToCheck.indexOf('#parent') > 0) {
             pathToCheck = gnr.bagRealPath(pathToCheck);
         }
-        if (pathToCheck.indexOf('?') >= 0) {
+        if (!isValuePath) {
             if ((kw.updattr) || (kw.evt=='fired') ||(pathToCheck.indexOf('?=') >= 0)) {
                 pathToCheck = pathToCheck.split('?')[0];
             }
         }
         if (pathToCheck == eventpath) {
+            if(isValuePath && kw.updattr && !kw.updvalue){
+                return;
+            }
             return 'node';
         }else if (pathToCheck.indexOf(eventpath + '.') == 0) { 
             return 'container';
@@ -300,7 +304,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 console.log("_if=" + if_result);
             }
         }
-        if (tag == 'dataformula' || tag == 'datascript' || tag == 'datacontroller' || tag == 'datarpc' || tag == 'dataws') {
+        if (tag == 'dataformula' || tag == 'datascript' || tag == 'datacontroller' || tag == 'datarpc') {
             var val;
             if (! if_result) {
                 if (!_else) {
@@ -312,8 +316,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 var doCall = true;
                 var domsource_id = this.getStringId();
                 var method = expr;
-                var httpMethod = objectPop(kwargs, 'httpMethod') 
-                var httpMethod = httpMethod || (objectPop(kwargs, '_POST') === false? 'GET' : 'POST');
+                var httpMethod = objectPop(kwargs, 'httpMethod');
+                httpMethod = httpMethod || (objectPop(kwargs, '_POST') === false? 'GET' : 'POST');
 
                 var _onResult = objectPop(kwargs, '_onResult');
                 var _onError = objectPop(kwargs, '_onError');
@@ -329,6 +333,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     _onError = funcCreate(_onError, 'error,kwargs', this);
                 }
                 var cb = function(result, error) {
+                    error = error || result?result.error:null;
                     if (_lockScreen) {
                         genro.lockScreen(false, domsource_id);
                     }
@@ -354,6 +359,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                             _onResult(result, origKwargs, oldValue);
                         }
                     }
+                    return result
                 };
                 if(_execClass){
                     genro.dom.addClass(dojo.body(),_execClass);
@@ -576,7 +582,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if(nodeId=='WORKSPACE'){
             node=this.attributeOwnerNode('_workspace');
             genro.assert(node,'with WORKSPACE path you need an ancestor node with attribute _workspace');
-            return 'gnr.workspace.'+(node.attr.nodeId || (node.attr.tag+'_'+node.getPathId()))+'.'+relpath;
+            var wsname = node.attr._workspace===true?(node.attr.nodeId || (node.attr.tag+'_'+node.getPathId())):node.attr._workspace;
+            return 'gnr.workspace.'+wsname+'.'+relpath;
         }
         if(nodeId=='DATA'){
             return relpath;
@@ -682,9 +689,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         this._callbacks = this.getValue();
         this._value = null;
     },
-    _bld_dataws: function() {
-        console.log('Istanziando ws con: ',this)
-    },
+
     _bld_script: function() {
         if (this.attr.src) {
             genro.dom.loadJs(this.attr.src);
@@ -780,8 +785,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             return;
         }
         var handler=genro.wdg.getHandler(this.attr.tag);
-        if(handler && handler.onBuilding){
-           handler.onBuilding(this);
+        if(handler && handler._onBuilding){
+            handler._onBuilding(this);
         }
         if(this.attr.parentForm===false){
             this.form = null;
@@ -852,7 +857,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     
     _doBuildNode: function(tag, attributes, destination, ind) {
-        var bld_attrs = objectExtract(attributes, 'onCreating,onCreated,gnrId,tooltip,nodeId');
+        var bld_attrs = objectExtract(attributes, 'onCreated,gnrId,tooltip,nodeId');
         var connections = objectExtract(attributes, 'connect_*');
         if (objectPop(attributes, 'autofocus')) {
             attributes.subscribe_onPageStart = "this.widget.focus()";
@@ -863,9 +868,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         
         var attrname;
         var ind = ind || 0;
-        if (bld_attrs.onCreating) {
-            funcCreate(bld_attrs.onCreating).call(this, attributes);
-        }
         var newobj = genro.wdg.create(tag, destination, attributes, ind, this);
         for (var selfsubscribe in selfsubscription){
             this.subscribe(selfsubscribe,selfsubscription[selfsubscribe]);
@@ -1118,38 +1120,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }        
     },
 
-    makeFloatingMessage:function(kw){
-        kw = objectUpdate({},kw)
-        var yRatio = objectPop(kw,'yRatio')
-        var xRatio = objectPop(kw,'xRatio')
-        var duration = objectPop(kw,'duration') || 2;
-        var duration_in = objectPop(kw,'duration_in') || duration;
-        var duration_out = objectPop(kw,'duration_out') || duration;
-
-        var sound = objectPop(kw,'sound');
-        var message = objectPop(kw,'message');
-
-        var msgType = objectPop(kw,'messageType') || 'message';
-        var transition = 'opacity '+duration_in+'s';
-        var messageBox = this._('div','_floatingmess',{_class:'invisible fm_box fm_'+msgType,transition:transition}).getParentNode()
-        kw.innerHTML = message;
-        messageBox._('div',kw);
-        var deleteCb = function(){that._value.popNode('_floatingmess')};
-        messageBox._('div',{_class:'fm_closebtn',connect_onclick:deleteCb});
-        genro.dom.centerOn(messageBox,this,xRatio,yRatio);
-        var that = this;
-        if(sound){
-            genro.playSound(sound);
-        }
-        var t1 = setTimeout(function(){
-                              genro.dom.removeClass(messageBox,'invisible');
-                              setTimeout(function(){genro.dom.addClass(messageBox,'invisible')
-                                    setTimeout(deleteCb,(duration_out*1000)+1)
-                              },(duration_in*1000)+1);
-                            },1)
-
-    },
-    
     updateAttrBuiltObj:function(attr, kw, trigger_reason) {
         var re= new RegExp('\\b'+attr+'\\b');
         var isInFormula = false;
@@ -1316,7 +1286,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                             }
                         }
                     }
-                    this.widget.setValue(value,kw);
+                    if(!this.widget._ignoreDataChanges){
+                        this.widget.setValue(value,kw);
+                    }
                     if (trgevt != 'del') {
                         if(this.hasValidations()){
                             var formHandler = this.getFormHandler();
@@ -1394,7 +1366,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 }
             }
             else if (genro.dom.isStyleAttr(attr)) {
-                domnode.setAttribute('style',objectAsStyle(genro.dom.getStyleDict(this.currentAttributes())));
+                genro.dom.style(domnode,genro.dom.getStyleDict(this.currentAttributes()));
+                //domnode.setAttribute('style',objectAsStyle(genro.dom.getStyleDict(this.currentAttributes())));
             }
             else if (attr in domnode){
                 domnode[attr] = value;
@@ -1613,15 +1586,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
         }else if(this.externalWidget){
             this.externalWidget.gnr_setDisabled(value);
+        }else if(this.gnrwdg && this.gnrwdg.setDisabled){
+            this.gnrwdg.setDisabled(value);
         }
         else if(this.domNode){
-            this.domNode.disabled = value;
-            if(value){
-                this.domNode.setAttribute('disabled',value);
-            }else{
-                this.domNode.removeAttribute('disabled');
-            }
-            
+            genro.dom.setDomNodeDisabled(this.domNode,value);
         }
     },
 

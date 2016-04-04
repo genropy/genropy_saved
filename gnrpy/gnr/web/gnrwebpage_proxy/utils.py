@@ -15,6 +15,7 @@ import zipfile
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag, DirectoryResolver
 from gnr.core.gnrlist import XlsReader,CsvReader
+from gnr.core.gnrstring import slugify
 
 class GnrWebUtils(GnrBaseProxy):
 
@@ -184,8 +185,7 @@ class GnrWebUtils(GnrBaseProxy):
     @public_method
     def tableImporterCheck(self,table=None,file_path=None,limit=None,**kwargs):
         result = Bag()
-        tblobj = self.page.db.table(table)
-        table_col_list = tblobj.model.columns.keys()
+
         result['imported_file_path'] = file_path
         reader = self.getReader(file_path)
         columns = Bag()
@@ -194,16 +194,27 @@ class GnrWebUtils(GnrBaseProxy):
         result['columns'] = columns
         result['rows'] = rows
         result['match_data'] = match_data
-        result['methodlist'] = ','.join([k[9:] for k in dir(tblobj) if k.startswith('importer_')])
-        for k,i in reader.index.items():
-            columns.setItem(k,None,name=reader.headers[i],field=k,width='10em',_position=i)
+        table_col_list = []
+        legacy_match = dict()
+        if table:
+            tblobj = self.page.db.table(table)
+            for colname,colobj in tblobj.model.columns.items():
+                table_col_list.append(colname)
+                if colobj.attributes.get('legacy_name'):
+                    legacy_match[colobj.attributes['legacy_name']] = colname
+            result['methodlist'] = ','.join([k[9:] for k in dir(tblobj) if k.startswith('importer_')])
+        for k,i in sorted(reader.index.items(),key=lambda tup:tup[1]):
+            columns.setItem(k,None,name=reader.headers[i],field=k,width='10em')
             if k in table_col_list:
                 dest_field = k 
                 do_import = True
+            elif k in legacy_match:
+                dest_field = legacy_match[k]
+                do_import = True
             else:
                 dest_field = None
-                do_import = False
-            match_data.setItem(k,Bag(dict(do_import=do_import,source_field=k,dest_field=dest_field)),_position=i)
+                do_import = not table
+            match_data.setItem(k,Bag(dict(do_import=do_import,source_field=k,dest_field=dest_field)))
         for i,r in enumerate(reader()):
             if limit and i>=limit:
                 break
@@ -218,7 +229,7 @@ class GnrWebUtils(GnrBaseProxy):
         reader = self.getReader(file_path)
         if import_method:
             handler = getattr(tblobj,'importer_%s' %import_method)
-            handler(reader)
+            return handler(reader)
         elif match_index:
             l = []
             for row in reader():
@@ -247,4 +258,4 @@ class GnrWebUtils(GnrBaseProxy):
 
 
     def _importer_keycb(self,k):
-        return (k.strip() or '_').strip('.').lower().replace(' ','_').replace('.','_')
+        return slugify(str(k),sep='_')

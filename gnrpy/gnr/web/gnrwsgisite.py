@@ -17,6 +17,7 @@ import httplib2
 import locale
 
 from time import time
+from collections import defaultdict
 from gnr.core.gnrlang import deprecated,GnrException,tracebackBag
 from gnr.core.gnrdecorator import public_method
 from gnr.app.gnrconfig import getGnrConfig
@@ -113,7 +114,7 @@ class UrlInfo(object):
         path_list_copy = list(path_list)
         while path_list_copy:
             currpath.append(path_list_copy.pop(0))
-            searchpath = os.path.join(self.basepath,*currpath)
+            searchpath = os.path.splitext(os.path.join(self.basepath,*currpath))[0]
             cached_path = pathfile_cache.get(searchpath)
             if cached_path is None:
                 cached_path = '%s.py' %searchpath
@@ -225,6 +226,7 @@ class GnrWsgiSite(object):
         self.homepage = self.config['wsgi?homepage'] or self.default_uri + 'index'
         self.indexpage = self.config['wsgi?homepage'] or '/index'
         self._guest_counter = 0
+        self._initExtraFeatures()
         if not self.homepage.startswith('/'):
             self.homepage = '%s%s' % (self.default_uri, self.homepage)
         self.secret = self.config['wsgi?secret'] or 'supersecret'
@@ -289,6 +291,20 @@ class GnrWsgiSite(object):
     @property
     def remote_edit(self):
         return self._remote_edit
+
+    def _initExtraFeatures(self):
+        self.extraFeatures = defaultdict(lambda:None)
+        extra = self.config['extra']
+        if extra:
+            for n in extra:
+                if n.label.startswith('wsk_') and not self.websockets:
+                    #exclude wsk options if websockets are not activated
+                    continue
+                attr = dict(n.attr)
+                if boolean(attr.pop('enabled',False)):
+                    self.extraFeatures[n.label] = True
+                    for k,v in attr.items():
+                        self.extraFeatures['%s_%s' %(n.label,k)] = v
 
     def addService(self, service_handler, service_name=None, **kwargs):
         """TODO
@@ -702,6 +718,7 @@ class GnrWsgiSite(object):
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='RESOURCE')
             try:
                 page = self.resource_loader(path_list, request, response, environ=environ,request_kwargs=request_kwargs)
+                page.download_name = download_name
             except WSGIHTTPException, exc:
                 return exc(environ, start_response)
             except Exception, exc:
@@ -714,14 +731,15 @@ class GnrWsgiSite(object):
             self.onServingPage(page)
             try:
                 result = page()
-                if isinstance(result, file):
-                    return self.statics.fileserve(result, environ, start_response,nocache=True)
-                if download_name:
-                    download_name = unicode(download_name)
-                    content_type = mimetypes.guess_type(download_name)[0]
+               
+                if page.download_name:
+                    download_name = unicode(page.download_name)
+                    content_type = getattr(page,'forced_mimetype',None) or mimetypes.guess_type(download_name)[0]
                     if content_type:
                         page.response.content_type = content_type
                     page.response.add_header("Content-Disposition", str("attachment; filename=%s" %download_name))
+                if isinstance(result, file):
+                    return self.statics.fileserve(result, environ, start_response,nocache=True,download_name=page.download_name)
             except GnrUnsupportedBrowserException:
                 return self.serve_htmlPage('html_pages/unsupported.html', environ, start_response)
             except GnrMaintenanceException:
@@ -731,7 +749,8 @@ class GnrWsgiSite(object):
                 self.cleanup()
             response = self.setResultInResponse(result, response, info_GnrTime=time() - t,info_GnrSqlTime=page.sql_time,info_GnrSqlCount=page.sql_count,
                                                                 info_GnrXMLTime=getattr(page,'xml_deltatime',None),info_GnrXMLSize=getattr(page,'xml_size',None),
-                                                                info_GnrSiteMaintenance=self.currentMaintenance)
+                                                                info_GnrSiteMaintenance=self.currentMaintenance,
+                                                                mimetype=getattr(page,'forced_mimetype',None))
             
             return response(environ, start_response)
             
@@ -782,7 +801,7 @@ class GnrWsgiSite(object):
             if v is not None:
                 response.headers['X-%s' %k] = str(v)
         if isinstance(result, unicode):
-            response.content_type = 'text/plain'
+            response.content_type = kwargs.get('mimetype') or 'text/plain'
             response.unicode_body = result # PendingDeprecationWarning: .unicode_body is deprecated in favour of Response.text
         elif isinstance(result, basestring):
             response.body = result
@@ -1022,7 +1041,7 @@ class GnrWsgiSite(object):
             pkg = pkg or self.currentPage.packageId
             self.db.table('adm.preference').setPreference(path, data, pkg=pkg)
             
-    def getPreference(self, path, pkg='', dflt=''):
+    def getPreference(self, path, pkg=None, dflt=None):
         """TODO
         
         :param path: TODO
@@ -1032,7 +1051,7 @@ class GnrWsgiSite(object):
             pkg = pkg or self.currentPage.packageId
             return self.db.table('adm.preference').getPreference(path, pkg=pkg, dflt=dflt)
             
-    def getUserPreference(self, path, pkg='', dflt='', username=''):
+    def getUserPreference(self, path, pkg=None, dflt=None, username=None):
         """TODO
         
         :param path: TODO
@@ -1044,7 +1063,7 @@ class GnrWsgiSite(object):
             pkg = pkg or self.currentPage.packageId
             return self.db.table('adm.user').getPreference(path=path, pkg=pkg, dflt=dflt, username=username)
             
-    def setUserPreference(self, path, data, pkg='', username=''):
+    def setUserPreference(self, path, data, pkg=None, username=None):
         """TODO
         
         :param path: TODO
@@ -1298,19 +1317,23 @@ class GnrWsgiSite(object):
         zip_archive.close()
         zipresult.close()
 
-    def externalUrl(self, path,serveAsLocalhost=None, **kwargs):
+    def externalUrl(self, path,serveAsLocalhost=None, _link=False,**kwargs):
         """TODO
         
         :param path: TODO"""
         params = urllib.urlencode(kwargs)
         #path = os.path.join(self.homeUrl(), path)
-        if path == '': path = self.home_uri
+        if path == '': 
+            path = self.home_uri
         cr = self.currentRequest
         path = cr.relative_url(path)
         if serveAsLocalhost:
             path = path.replace(cr.host.replace(':%s'%cr.host_port,''),'localhost')
         if params:
             path = '%s?%s' % (path, params)
+
+        if _link:
+            return '<a href="%s" target="_blank">%s</a>' %(path,_link if _link is not True else '')
         return path
 
 

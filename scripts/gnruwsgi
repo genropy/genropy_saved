@@ -30,7 +30,7 @@ wsgi_options = dict(
         remotesshdb=None,
         gzip=None,
         processes=1,
-        threads=1,
+        threads=8,
         offload_threads=None,
         stats_port=None,
         websockets=False
@@ -47,6 +47,7 @@ http = :%(port)i
 ;wsgi-file = %(wsgi_file)s
 processes = %(processes)i
 threads = %(threads)i
+no-orphans = true
 enable-threads = true
 stats = 127.0.0.1:%(stats_port)i
 worker-reload-mercy = 1
@@ -55,6 +56,9 @@ module = gnr.web.serveruwsgi
 pyargv = %(site_name)s
 offload-threads = %(offload_threads)i
 wsgi-env-behaviour = holy
+socket-timeout = 2400
+so-send-timeout = 2400
+http-timeout = 2400
 pidfile = %(pidfile_path)s
 %(websockets)s
 """

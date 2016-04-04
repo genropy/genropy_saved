@@ -2,11 +2,26 @@
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
-    def main(self,root,**kwargs):
+    def main(self,root,startpath=False,**kwargs):
         root.attributes.update(overflow='hidden')
+        hierarchical_name = '/'.join(self._call_args)
+        if hierarchical_name:
+            self.baseViewer(root,hierarchical_name)
+        else:
+            self.mixinComponent('rst_documentation_handler:DocumentationViewer')
+            self.documentationViewer(root,startpath=startpath)
+            if startpath:
+                root.dataController("""var href = window.location.href;
+                                   href = href.replace(window.location.search,'');
+                                   window.history.replaceState({},document.title,href);
+                    """,_onStart=True)
+            
+
+    def baseViewer(self,root,hierarchical_name):
         language = self.locale.split('-')[0]
         doctable = self.db.table('docu.documentation')
-        record = doctable.record(hierarchical_name='/'.join(self._call_args)).output('record')
+        record = doctable.record(hierarchical_name=hierarchical_name).output('record')
+        self.db.table('docu.documentation').checkSourceBagModules(record)
         docbag = Bag(record['docbag'])
         rst = docbag['%s.rst' %language] or docbag['en.rst'] or docbag['it.rst'] or 'To do...'
         rsttable = doctable.dfAsRstTable(record['id'])

@@ -96,17 +96,17 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var iframeattr = {'height':'100%','width':'100%','border':0,src:url};
         if(kw.subtab){
             iframePageName = rootPageName;
-            pane_kw = {_lazyBuild:true,overflow:'hidden',title:kw.title,pageName:rootPageName}
-            objectUpdate(iframeattr,{'id':'iframe_'+rootPageName,frameName:rootPageName})
+            pane_kw = {_lazyBuild:true,overflow:'hidden',title:kw.title,pageName:rootPageName};
+            objectUpdate(iframeattr,{'id':'iframe_'+rootPageName,frameName:rootPageName});
         }else{
-            var iframePageName = 'm_'+genro.getCounter();
+            iframePageName = 'm_'+genro.getCounter();
             var multipageIframePagePath = 'iframes.'+rootPageName+'.'+iframePageName;
             pane_kw = {_lazyBuild:true,overflow:'hidden',title:'^'+multipageIframePagePath+'.title',
                       pageName:iframePageName,closable:true,
-                      stackbutton_tooltip:'^'+multipageIframePagePath+'.title?titleFullDesc'}
+                      stackbutton_tooltip:'^'+multipageIframePagePath+'.title?titleFullDesc'};
             genro.setData(multipageIframePagePath+'.title',label+'...');
             objectUpdate(iframeattr,{'id':'iframe_'+rootPageName+'_'+iframePageName,treeMenuPath:kw.fullpath,
-                            frameName:rootPageName+'_'+iframePageName,multipage_childpath:multipageIframePagePath})
+                            frameName:rootPageName+'_'+iframePageName,multipage_childpath:multipageIframePagePath});
         }
         pane_kw.onClosingCb = function(evt){
             if(evt.shiftKey){
@@ -117,14 +117,13 @@ dojo.declare("gnr.FramedIndexManager", null, {
         };
 
         var center = root._('ContentPane',iframePageName,pane_kw);
-        var that = this;
         var onStartCallbacks = objectPop(kw,'onStartCallbacks');
         if(onStartCallbacks){
-            iframeattr['onStarted'] = function(){
+            iframeattr.onStarted = function(){
                 for (var i=0; i < onStartCallbacks.length; i++) {
                     onStartCallbacks[i].call(this,this._genro);
-                };
-            }
+                }
+            };
         }
         var iframe = center._('div','iframecontainer',{'height':'100%','width':'100%',overflow:'hidden'})._('iframe','iframenode',iframeattr);
         return root.popNode('#0');
@@ -458,6 +457,9 @@ dojo.declare("gnr.FramedIndexManager", null, {
 
     getCurrentIframe:function(rootPageName){
         var iframesbag= genro.getData('iframes');
+        if(!iframesbag){
+            return;
+        }
         var iframePageId = iframesbag.getItem(rootPageName+'?selectedPage');
         var iframeId = iframePageId;
         if(rootPageName!=iframePageId){

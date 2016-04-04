@@ -51,8 +51,9 @@ class TableHandler(BaseComponent):
                             picker_kwargs=True,
                             dbstore=None,hider_kwargs=None,view_kwargs=None,preview_kwargs=None,parentForm=None,
                             form_kwargs=None,relation_kwargs=None,**kwargs):
+        fkeyfield=None
         if relation:
-            table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
+            table,condition,fkeyfield = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
                                                     relation_kwargs=relation_kwargs,
                                                     default_kwargs=default_kwargs,original_kwargs=kwargs)
@@ -121,7 +122,9 @@ class TableHandler(BaseComponent):
             form_kwargs['readOnly'] = readOnly
             form_kwargs.setdefault('form_add',addrow) 
             form_kwargs.setdefault('form_delete',delrow) 
-            form_kwargs.setdefault('form_archive',archive) 
+            form_kwargs.setdefault('form_archive',archive)
+            if fkeyfield:
+                form_kwargs.setdefault('excludeCols',fkeyfield)
 
         if parentFormSave:
             grid_kwargs['_saveNewRecordOnAdd'] = True
@@ -130,6 +133,9 @@ class TableHandler(BaseComponent):
         preview_kwargs.setdefault('tpl',True)
         rowStatusColumn = self.db.table(table).getProtectionColumn() is not None if rowStatusColumn is None else rowStatusColumn
         grid_kwargs.setdefault('rowStatusColumn',rowStatusColumn)
+        if fkeyfield:
+            grid_kwargs.setdefault('excludeCols',fkeyfield)
+            
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
                                 virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,
                                 top_thpicker_picker_kwargs=picker_kwargs,top_export_parameters=export_kwargs,
@@ -364,7 +370,7 @@ class TableHandler(BaseComponent):
         options = self._th_hook('options',mangler=wdg.view)() or dict()
         wdg.view.store.attributes.update(recordResolver=False)
         wdg.view.grid.attributes.update(remoteRowController=remoteRowController,
-                                        gridEditor=dict(saveMethod=saveMethod,
+                                        gridEditorPars=dict(saveMethod=saveMethod,
                                                         default_kwargs=default_kwargs,
                                                         autoSave=autoSave or options.get('autoSave'),
                                                         statusColumn=statusColumn or options.get('statusColumn')))
@@ -420,7 +426,7 @@ class TableHandler(BaseComponent):
         rootattr['overflow'] = 'hidden'
         rootattr['_fakeform'] = True
         rootattr['table'] = table
-        rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey; FIRE .controller.loaded;'
+        rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey; FIRE .controller.loaded = $1.pkey;'
         if pkey:
             root.dataController('SET .pkey = pkey; FIRE .controller.loaded=pkey;',pkey=pkey,_onStart=True)
             root.dataRecord('.record',table,pkey='^#FORM.pkey',_if='pkey')
@@ -474,7 +480,7 @@ class MultiButtonForm(BaseComponent):
                             emptyPageMessage=None,darkToolbar=False,pendingChangesMessage=None,pendingChangesTitle=None,
                             **kwargs):
         if relation:
-            table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
+            table,condition,fkeyfield = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
                                                     default_kwargs=default_kwargs,original_kwargs=kwargs)
         pane.attributes.update(overflow='hidden')
@@ -635,7 +641,7 @@ class MultiButtonForm(BaseComponent):
                                     store = new gnr.GnrBag();
                                     mainstack.setRelativeData('.store',store);
                                 }
-                                kw = {};
+                                kw = {newrecord:true};
                                 kw[caption_field] = data.attr.caption;
                                 fkey = fkey || '_newrecord_';
                                 kw['_pkey'] = fkey;
@@ -724,7 +730,9 @@ class ThLinker(BaseComponent):
             linker.attributes.update(visible='^#FORM.record?_newrecord')
         linker.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',
                     connect_onBlur='this.getParentNode().publish("disable");',
-                    _class='th_linkerField',background='white',auxColumns=auxColumns,hiddenColumns=hiddenColumns,**kwargs)
+                    _class='th_linkerField',background='white',auxColumns=auxColumns,hiddenColumns=hiddenColumns,
+                    lbl=False,
+                    **kwargs)
         return linker
         
     @extract_kwargs(template=True)

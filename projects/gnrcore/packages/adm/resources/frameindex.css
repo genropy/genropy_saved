@@ -114,8 +114,7 @@
     font-variant:small-caps;
 }
 .frameindexroot{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#d0d0d0), to(#ffffff));
-    background-image: -moz-linear-gradient(-90deg, #d0d0d0, #ffffff);
+    background:#eeeeee;
 }
 .framefooter{    
 }
@@ -206,4 +205,11 @@
 .iframeroot_pref{
     border:1px solid #444;
     border-radius: 4px;
+}
+
+.application_logo_container{
+    height: 18px;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 1px;
 }

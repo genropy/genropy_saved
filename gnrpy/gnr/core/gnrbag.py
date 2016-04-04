@@ -59,7 +59,8 @@ to interact with BagNode instances inside a Bag.
 import copy
 import cPickle as pickle
 from datetime import datetime, timedelta
-import urllib, urlparse
+import urllib
+import urlparse
 from gnr.core import gnrstring
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrlang import setCallable, GnrObject, GnrException
@@ -130,6 +131,10 @@ class BagNode(object):
                 return False
         except:
             return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
             
     def setValidators(self, validators):
         """TODO"""
@@ -193,7 +198,7 @@ class BagNode(object):
             return '%s: %s' %((self.attr.get('_valuelabel') or self.attr.get('name_long') or self.label.capitalize()),v)
         return ''
 
-    def setValue(self, value, trigger=True, _attributes=None, _updattr=None, _removeNullAttributes=True):
+    def setValue(self, value, trigger=True, _attributes=None, _updattr=None, _removeNullAttributes=True,_reason=None):
         """Set the node's value, unless the node is locked. This method is called by the property .value
         
         :param value: the value to set the new bag inherits the trigger of the parentBag and calls it sending an update event
@@ -215,7 +220,13 @@ class BagNode(object):
             self._value = self._validators(value, oldvalue)
         else:
             self._value = value
-        trigger = trigger and (oldvalue != self._value) # we have to check also attributes change
+        changed = oldvalue != self._value
+        if not changed and _attributes:
+            for attr_k,attr_v in _attributes.items():
+                if self.attr.get(attr_k) != attr_v:
+                    changed = True
+                    break
+        trigger = trigger and  changed
         evt = 'upd_value'
         if _attributes != None:
             evt = 'upd_value_attr'
@@ -229,7 +240,7 @@ class BagNode(object):
                 value.setBackRef(node=self, parent=self.parentbag)
             if trigger:
                 self.parentbag._onNodeChanged(self, [self.label],
-                                              oldvalue=oldvalue, evt=evt)
+                                              oldvalue=oldvalue, evt=evt,reason=_reason)
 
     value = property(getValue, setValue)
 
@@ -340,7 +351,7 @@ class BagNode(object):
                 for subscriber in self._node_subscribers.values():
                     subscriber(node=self, info=upd_attrs, evt='upd_attrs')
             if self.parentbag != None and self.parentbag.backref:
-                self.parentbag._onNodeChanged(self, [self.label], evt='upd_attrs')
+                self.parentbag._onNodeChanged(self, [self.label], evt='upd_attrs',reason=trigger)
 
     def delAttr(self, *attrToDelete):
         """Receive one or more attributes' labels and remove them from the node's attributes"""
@@ -722,7 +733,7 @@ class Bag(GnrObject):
                 newnode = BagNode(curr, label=label, value=curr.__class__())
                 curr._nodes.append(newnode)
                 if self.backref:
-                    self._onNodeInserted(newnode, i)
+                    self._onNodeInserted(newnode, i,reason='autocreate')
             elif returnLastMatch:
                 return self.parentNode, '.'.join([label] + pathlist)
             else:
@@ -969,18 +980,18 @@ class Bag(GnrObject):
 
     nodes = property(getNodes)
 
-    def popNode(self, path):
+    def popNode(self, path,_reason=None):
         """This method is analog to dictionary's pop() method. It pops the given node from
         a Bag at the relative path and returns it
         
         :param path: path of the given node"""
         obj, label = self._htraverse(path)
         if obj:
-            n = obj._pop(label)
+            n = obj._pop(label,_reason=_reason)
             if n:
                 return n
 
-    def pop(self, path, dflt=None):
+    def pop(self, path, dflt=None,_reason=None):
         """This method is analog to dictionary's pop() method. It pops the given item from
         a Bag at the relative path and returns it
         
@@ -999,7 +1010,7 @@ class Bag(GnrObject):
         result = dflt
         obj, label = self._htraverse(path)
         if obj:
-            n = obj._pop(label)
+            n = obj._pop(label,_reason=_reason)
             if n:
                 result = n.value
         return result
@@ -1008,13 +1019,13 @@ class Bag(GnrObject):
     delItem = pop
     __delitem__ = pop
         
-    def _pop(self, label):
+    def _pop(self, label,_reason=None):
         """bag.pop(key)"""
         p = self._index(label)
         if p >= 0:
             node = self._nodes.pop(p)
             if self.backref:
-                self._onNodeDeleted(node, p)
+                self._onNodeDeleted(node, p, reason=_reason)
             return node
 
         #-------------------- clear --------------------------------
@@ -1067,6 +1078,10 @@ class Bag(GnrObject):
                 return False
         except:
             return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
     def diff(self,other):
         if self == other:
@@ -1432,7 +1447,7 @@ class Bag(GnrObject):
 
     #-------------------- setItem --------------------------------
     def setItem(self, item_path, item_value, _attributes=None, _position=None, _duplicate=False,
-                _updattr=False, _validators=None, _removeNullAttributes=True, **kwargs):
+                _updattr=False, _validators=None, _removeNullAttributes=True,_reason=None, **kwargs):
         """Set an item (values and eventually attributes) to your Bag using a path in the form
         ``label1.label2...labelN``. If path already exists, it overwrites the value at the given path.
         Return the Bag.
@@ -1533,12 +1548,12 @@ class Bag(GnrObject):
             obj, label = self._htraverse(item_path, autocreate=True)
             obj._set(label, item_value, _attributes=_attributes, _position=_position,
                      _duplicate=_duplicate, _updattr=_updattr,
-                     _validators=_validators, _removeNullAttributes=_removeNullAttributes)
+                     _validators=_validators, _removeNullAttributes=_removeNullAttributes,_reason=_reason)
 
     __setitem__ = setItem
 
     def _set(self, label, value, _attributes=None, _position=None,
-             _duplicate=False, _updattr=False, _validators=None, _removeNullAttributes=True):
+             _duplicate=False, _updattr=False, _validators=None, _removeNullAttributes=True,_reason=None):
         resolver = None
         if isinstance(value, BagResolver):
             resolver = value
@@ -1553,7 +1568,7 @@ class Bag(GnrObject):
                 bagnode = BagNode(self, label=label, value=value, attr=_attributes,
                                   resolver=resolver, validators=_validators,
                                   _removeNullAttributes=_removeNullAttributes)
-                self._insertNode(bagnode, _position)
+                self._insertNode(bagnode, _position,_reason=_reason)
 
         else:
             node = self._nodes[i]
@@ -1562,7 +1577,7 @@ class Bag(GnrObject):
             if _validators:
                 node.setValidators(_validators)
             node.setValue(value, _attributes=_attributes, _updattr=_updattr,
-                          _removeNullAttributes=_removeNullAttributes)
+                          _removeNullAttributes=_removeNullAttributes,_reason=_reason)
 
     def defineSymbol(self, **kwargs):
         """Define a variable and link it to a BagFormula Resolver at the specified path.
@@ -1676,7 +1691,7 @@ class Bag(GnrObject):
 
     backref = property(_get_backref)
 
-    def _insertNode(self, node, position):
+    def _insertNode(self, node, position,_reason=None):
         if isinstance(position,int):
             n = position
         elif not (position) or position == '>':
@@ -1701,7 +1716,7 @@ class Bag(GnrObject):
         self._nodes.insert(n, node)
         node.parentbag = self
         if self.backref:
-            self._onNodeInserted(node, n)
+            self._onNodeInserted(node, n,reason=_reason)
         return n
 
     #-------------------- index --------------------------------
@@ -1779,7 +1794,7 @@ class Bag(GnrObject):
         
     #-------------------- toXml --------------------------------
     def toXml(self, filename=None, encoding='UTF-8', typeattrs=True, typevalue=True, unresolved=False,
-              addBagTypeAttr=True,onBuildTag=None,
+              addBagTypeAttr=True,
               autocreate=False, translate_cb=None, self_closed_tags=None,
               omitUnknownTypes=False, catalog=None, omitRoot=False, forcedTagAttr=None, docHeader=None,
               mode4d=False,pretty=False):
@@ -1817,7 +1832,7 @@ class Bag(GnrObject):
         from gnr.core.gnrbagxml import BagToXml
         
         return BagToXml().build(self, filename=filename, encoding=encoding, typeattrs=typeattrs, typevalue=typevalue,
-                                addBagTypeAttr=addBagTypeAttr,onBuildTag=onBuildTag,
+                                addBagTypeAttr=addBagTypeAttr,
                                 unresolved=unresolved, autocreate=autocreate, forcedTagAttr=forcedTagAttr,
                                 translate_cb=translate_cb, self_closed_tags=self_closed_tags,
                                 omitUnknownTypes=omitUnknownTypes, catalog=catalog, omitRoot=omitRoot,
@@ -1861,7 +1876,7 @@ class Bag(GnrObject):
         :returns: a Bag from _unpickle() method or from _fromXml() method"""
         if not source:
             return
-            
+        
         if mode == 'xml':
             return self._fromXml(source, fromFile)
         elif mode == 'pickle':
@@ -2015,7 +2030,7 @@ class Bag(GnrObject):
         :param validator: validation's type"""
         self.getNode(path).removeValidator(validator)
 
-    def _onNodeChanged(self, node, pathlist, evt, oldvalue=None):
+    def _onNodeChanged(self, node, pathlist, evt, oldvalue=None,reason=None):
         """Set a function at changing events. It is called from the trigger system.
         
         :param node: the node that has benn changed
@@ -2024,11 +2039,11 @@ class Bag(GnrObject):
         :param evt: it is the event type, that is insert, delete, upd_value or upd_attrs
         :param oldvalue: it is the previous node's value"""
         for s in self._upd_subscribers.values():
-            s(node=node, pathlist=pathlist, oldvalue=oldvalue, evt=evt)
+            s(node=node, pathlist=pathlist, oldvalue=oldvalue, evt=evt,reason=reason)
         if self.parent:
-            self.parent._onNodeChanged(node, [self.parentNode.label] + pathlist, evt, oldvalue)
+            self.parent._onNodeChanged(node, [self.parentNode.label] + pathlist, evt, oldvalue,reason=reason)
 
-    def _onNodeInserted(self, node, ind, pathlist=None):
+    def _onNodeInserted(self, node, ind, pathlist=None,reason=None):
         """Set a function at inserting events. It is called from the trigger system
         
         :param node: The node inserted
@@ -2042,11 +2057,11 @@ class Bag(GnrObject):
         if pathlist == None:
             pathlist = []
         for s in self._ins_subscribers.values():
-            s(node=node, pathlist=pathlist, ind=ind, evt='ins')
+            s(node=node, pathlist=pathlist, ind=ind, evt='ins',reason=reason)
         if self.parent:
-            self.parent._onNodeInserted(node, ind, [self.parentNode.label] + pathlist)
+            self.parent._onNodeInserted(node, ind, [self.parentNode.label] + pathlist,reason=reason)
 
-    def _onNodeDeleted(self, node, ind, pathlist=None):
+    def _onNodeDeleted(self, node, ind, pathlist=None,reason=None):
         """This method is called from the trigger system and set a function at deleting events
         
         :param node: The node inserted
@@ -2054,11 +2069,11 @@ class Bag(GnrObject):
         :param pathlist: it includes the Bag subscribed's path linked to the node
                          where the event was catched"""
         for s in self._del_subscribers.values():
-            s(node=node, pathlist=pathlist, ind=ind, evt='del')
+            s(node=node, pathlist=pathlist, ind=ind, evt='del',reason=reason)
         if self.parent:
             if pathlist == None:
                 pathlist = []
-            self.parent._onNodeDeleted(node, ind, [self.parentNode.label] + pathlist)
+            self.parent._onNodeDeleted(node, ind, [self.parentNode.label] + pathlist,reason=reason)
             
     def _subscribe(self, subscriberId, subscribersdict, callback):
         if not callback is None:
@@ -2762,15 +2777,21 @@ class DirectoryResolver(BagResolver):
                     handler = processors.get(ext.lower(), self.processor_default)
                 try:
                     stat = os.stat(fullpath)
-                    mtime = stat.st_mtime
+                    mtime = datetime.fromtimestamp(stat.st_mtime)
+                    atime = datetime.fromtimestamp(stat.st_atime)
+                    ctime = datetime.fromtimestamp(stat.st_ctime)
+                    size = stat.st_size
                 except OSError:
-                    mtime = ''
+                    mtime = None   
+                    ctime = None  
+                    atime = None                   
+                    size = None
                 caption = fname.replace('_',' ').strip()
                 m=re.match(r'(\d+) (.*)',caption)
                 caption = '!!%s %s' % (str(int(m.group(1))),m.group(2).capitalize()) if m else caption.capitalize()
                 nodeattr = dict(file_name=fname, file_ext=ext, rel_path=relpath,
-                               abs_path=fullpath, mtime=mtime, nodecaption=nodecaption,
-                               caption=caption)
+                               abs_path=fullpath, mtime=mtime, atime=atime, ctime=ctime, nodecaption=nodecaption,
+                               caption=caption,size=size)
                 if self.callback:
                     self.callback(nodeattr=nodeattr)
                 result.setItem(label, handler(fullpath),**nodeattr)

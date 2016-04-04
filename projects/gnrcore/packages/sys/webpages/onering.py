@@ -62,7 +62,9 @@ class GnrCustomWebPage(object):
                                 sortedBy='=.grid.sorted',
                                 data='^current_site.data.loaded_users',selfUpdate=True)
         userframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='User',_class='pbl_roundedGroupLabel')
-        userframe.grid.dataController("""var filteredConnection = allconnections.deepCopy()
+        userframe.grid.dataController("""
+            allconnections = allconnections || new gnr.GnrBag()
+            var filteredConnection = allconnections.deepCopy()
             var cnodes = filteredConnection.getNodes();
             var n;
             for(var i =0; i<cnodes.length; i++){
@@ -86,6 +88,7 @@ class GnrCustomWebPage(object):
         connectionframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='Connections',_class='pbl_roundedGroupLabel')
 
         connectionframe.grid.dataController("""
+            allpages = allpages || new gnr.GnrBag();
             var filteredPages = allpages.deepCopy()
             var cnodes = filteredPages.getNodes();
             var n;

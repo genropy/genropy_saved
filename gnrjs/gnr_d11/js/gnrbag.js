@@ -233,7 +233,7 @@ dojo.declare("gnr.GnrBagNode", null, {
     /**
      * @id setValue
      */
-    setValue: function(value, doTrigger, _attributes, _updattr) {
+    setValue: function(value, doTrigger, _attributes, _updattr,_fired) {
         if (value instanceof gnr.GnrBagResolver) {
             this.setResolver(value);
             value = null;
@@ -248,11 +248,11 @@ dojo.declare("gnr.GnrBagNode", null, {
             objectUpdate(attr, value.attr);
             objectUpdate(attr, _attributes || {});
             var resolver = value.getResolver();
-            var value = value._value;
+            value = value._value;
             if (resolver) {
                 this.setResolver(resolver);
             }
-            var _attributes = attr;
+            _attributes = attr;
         }
         if (doTrigger == null) {
             doTrigger = true;
@@ -288,7 +288,8 @@ dojo.declare("gnr.GnrBagNode", null, {
             if (doTrigger) {
                 this._parentbag.onNodeTrigger({'evt':'upd','node':this, 'pathlist':[this.label],
                     'oldvalue':oldvalue,'value':value,'oldattr':oldattr,
-                    'updvalue':true,'updattr':updated_attr,'reason':doTrigger});
+                    'updvalue':true,'updattr':updated_attr,'reason':doTrigger,
+                    'fired':_fired});
             }
         }
     },
@@ -438,10 +439,16 @@ dojo.declare("gnr.GnrBagNode", null, {
             this.attr = attr;
         }
         if (doTrigger) {
+            var changedAttributes = {};
+            for(var k in this.attr){
+                if(!(k in oldattr) || oldattr[k]!==this.attr[k]){
+                    changedAttributes[k] = true;
+                }
+            }
             if (this._parentbag && this._parentbag._backref) {
                 this._parentbag.onNodeTrigger({'evt':'upd','node':this, 'pathlist':[this.label],
                     'oldattr':oldattr,'updattr':true, reason:doTrigger,
-                    'changedAttr':changedAttr});
+                    'changedAttr':changedAttr,'changedAttributes':changedAttributes});
             }
         }
     },
@@ -474,7 +481,7 @@ dojo.declare("gnr.GnrBagNode", null, {
         if (isBag(nodeValue)) {
             result = xml_buildTag(this.label,
                     nodeValue.toXmlBlock(kwargs),
-                    this.getAttr(),
+                    objectUpdate({_T:'bag'},this.getAttr()),
                     true);
         } else {
             result = xml_buildTag(this.label,
@@ -599,7 +606,7 @@ dojo.declare("gnr.GnrBag", null, {
     /**
      * @id getItem
      */
-    asHtmlTable:function(kw){
+    asHtmlTable:function(kw,mode){
         var kw = kw || {};
         var headers = kw.headers;
         var h ='';
@@ -1631,7 +1638,7 @@ dojo.declare("gnr.GnrBag", null, {
      */
     fireItem:function(path,value,attributes,reason){
         value = value==null?true:value;
-        this.setItem(path, value, attributes, {'doTrigger':reason == null ? true : reason});
+        this.setItem(path, value, attributes, {'doTrigger':reason == null ? true : reason,fired:true});
         this.setItem(path, null, attributes, {'doTrigger':false});
     },
     setItem: function(path, value, _attributes, kwargs) {
@@ -1736,7 +1743,7 @@ dojo.declare("gnr.GnrBag", null, {
                     return node;
                 }
             }
-            node.setValue(value, _doTrigger, _attributes, _updattr);
+            node.setValue(value, _doTrigger, _attributes, _updattr,kwargs.fired);
             return node;
         }
     },
@@ -2431,13 +2438,16 @@ dojo.declare("gnr.GnrBagGetter", gnr.GnrBagResolver, {
 //*******************BagCbResolver****************************
 
 dojo.declare("gnr.GnrBagCbResolver", gnr.GnrBagResolver, {
-    constructor: function(kwargs) {
+    constructor: function(kwargs,isGetter) {
         this.method = kwargs.method;
         this.parameters = kwargs.parameters;
+        this.isGetter = isGetter;
     },
 
-    load: function() {
-        return this.method.call(this, this.parameters);
+    load: function(kwargs) {
+        var kw = objectUpdate({},this.parameters)
+        objectUpdate(kw,kwargs)
+        return this.method.call(this,kw);
     }
 });
 

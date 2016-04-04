@@ -302,7 +302,7 @@ class SqlDbAdapter(object):
     def _selectForUpdate(self,maintable_as=None):
         return 'FOR UPDATE OF %s' %maintable_as
 
-    def prepareRecordData(self, record_data, tblobj=None, onBagColumns=None, **kwargs):
+    def prepareRecordData(self, record_data, tblobj=None,blackListAttributes=None, **kwargs):
         """Normalize a *record_data* object before actually execute an sql write command.
         Delete items which name starts with '@': eager loaded relations don't have to be
         written as fields. Convert Bag values to xml, to be stored in text or blob fields.
@@ -310,7 +310,6 @@ class SqlDbAdapter(object):
         
         :param record_data: a dict compatible object
         :param tblobj: the :ref:`database table <table>` object
-        :param onBagColumns: TODO
         """
         data_out = {}
         tbl_virtual_columns = tblobj.virtual_columns
@@ -318,7 +317,11 @@ class SqlDbAdapter(object):
             if not (k.startswith('@') or k=='pkey' or  k in tbl_virtual_columns):
                 v = record_data[k]
                 if isinstance(v, Bag):
-                    v = v.toXml(onBuildTag=onBagColumns)
+                    if blackListAttributes:
+                        for innernode in v.traverse():
+                            for blackattr in blackListAttributes:
+                                innernode.attr.pop(blackattr,None)
+                    v = v.toXml() if v else None
                     #data_out[str(k.lower())] = v
                 data_out[str(k)] = v
         sql_value_cols = [k for k,v in tblobj.columns.items() if 'sql_value' in v.attributes and not k in data_out]
@@ -633,7 +636,7 @@ class GnrWhereTranslator(object):
                 if not op or not column:
                     continue
                 if decodeDate:
-                    if tblobj.column(attr.get('column')).dtype in('D', 'DH'):
+                    if tblobj.column(attr.get('column')).dtype in('D', 'DH','DHZ'):
                         value, op = self.decodeDates(value, op, 'D')
                         op = self.opCaption(op, localize=True)
                 op = op.lower()
@@ -662,7 +665,7 @@ class GnrWhereTranslator(object):
                 if not op or not column:
                     continue
                 if decodeDate:
-                    if tblobj.column(attr.get('column')).dtype in('D', 'DH'):
+                    if tblobj.column(attr.get('column')).dtype in('D', 'DH','DHZ'):
                         value, op = self.decodeDates(value, op, 'D')
                         op = self.opCaption(op, localize=True)
                 op = op.lower()
@@ -718,7 +721,7 @@ class GnrWhereTranslator(object):
     def prepareCondition(self, column, op, value, dtype, sqlArgs,tblobj=None):
         if not column[0] in '@$':
             column = '$%s' % column
-        if dtype in('D', 'DH'):
+        if dtype in('D', 'DH','DHZ'):
             value, op = self.decodeDates(value, op, 'D')
             if dtype=='DH':
                 column = 'CAST (%s AS date)' % column

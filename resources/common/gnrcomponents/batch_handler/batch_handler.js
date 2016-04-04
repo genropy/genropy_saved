@@ -1,3 +1,4 @@
+
 var batch_monitor = {};
 
 batch_monitor.owner_page_batch = function(batch_id) {
@@ -26,7 +27,7 @@ batch_monitor.on_datachange = function(kw) {
              }
         }
         if (this.owner_page_batch(batch_id)) {
-                var sourceNode = this.get_batch_sourceNode(batch_id, true);
+                sourceNode = this.get_batch_sourceNode(batch_id, true);
                 if (sourceNode) {
                     this[callname].call(this, node, sourceNode);
                 }

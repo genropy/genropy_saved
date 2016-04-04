@@ -85,9 +85,9 @@ class Table(object):
                 else:
                     sq[Y_start:Y_end] = period_year
             if period_month:
-                sq[boundaries['M']] = list(period_month)
+                sq[boundaries['M'][0]:boundaries['M'][1]] = list(period_month)
             if period_day:
-                sq[boundaries['D']] = list(period_day)
+                sq[boundaries['D'][0]:boundaries['D'][1]] = list(period_day)
         self._alignOneSequence(tblobj,field=field,sq=''.join(sq),boundaries=boundaries,**counter_pars)
         self.db.commit()
 
@@ -302,7 +302,9 @@ class Table(object):
             sequence = record[field]
             record[field] = None
             releasing_counter = int(sequence[N_start:N_end])
-            if releasing_counter==counter_record['counter']:
+            if releasing_counter>counter_record['counter']:
+                raise self.exception('business_logic','Wrong counter releasing')
+            elif releasing_counter==counter_record['counter']:
                 counter_record['counter'] -= 1
                 previous = self.formatSequence(tblobj=tblobj,field=field,record=record,counter=counter_record['counter'])
                 counter_record['last_used'] = tblobj.readColumns(limit=1,where='$%s = :c' %field,c=previous,columns='$%s' %date_field)

@@ -329,7 +329,8 @@ class TableBase(object):
         audit = tbl.attributes.get('audit')
         if audit:
             tbl.column('__version','L',name_long='Audit version',
-                        onUpdating='setAuditVersionUpd', onInserting='setAuditVersionIns',_sysfield=True)
+                        onUpdating='setAuditVersionUpd', onInserting='setAuditVersionIns',_sysfield=True,
+                        group=group)
         diagnostic = tbl.attributes.get('diagnostic')
         unifyRecordsTag = tbl.attributes.get('unifyRecordsTag')
         if unifyRecordsTag:
@@ -378,7 +379,10 @@ class TableBase(object):
                                 """ ( CASE WHEN $__syscode IS NULL THEN NULL 
                                    ELSE NOT (',' || :env_userTags || ',' LIKE '%%,'|| :systag || ',%%')
                                    END ) """,
-                                dtype='B',var_systag=tbl.attributes.get('syscodeTag') or 'superadmin',_sysfield=True)
+                                dtype='B',var_systag=tbl.attributes.get('syscodeTag') or 'superadmin',_sysfield=True,
+                                group=group)
+ 
+            
 
     def sysFields_protectionTag(self,tbl,protectionTag=None,group=None):
         tbl.column('__protection_tag', name_long='!!Protection tag', group=group,_sysfield=True,_sendback=True,onInserting='setProtectionTag')
@@ -420,6 +424,28 @@ class TableBase(object):
                       ELSE NULL END )""" %(arr,arr)
         else:
             return " NULL "
+
+    def formulaColumn_allowedForPartition(self):
+
+        partitionParameters = self.partitionParameters
+        sql_formula = None
+        if partitionParameters:
+            sql_formula = "( $%(field)s IN :env_allowed_%(path)s )" %partitionParameters
+        return [dict(name='__allowed_for_partition',sql_formula=sql_formula or 'FALSE',
+                    dtype='B',name_long='!!Allowed for partition')]
+
+    def getPartitionAllowedUsers(self,recordOrPkey):
+        partitionParameters = self.partitionParameters
+        usertbl = self.db.table('adm.user')
+        if not partitionParameters:
+            f = usertbl.query().fetch()
+            return [r['id'] for r in f]
+        else:
+            record = self.recordAs(recordOrPkey)
+            record_partition_fkey = record[self.partitionParameters['field']]
+            f = usertbl.query(columns='$id,$allowed_%(field)s' %partitionParameters).fetch()
+            allowedfield = 'allowed_%(field)s' %partitionParameters
+            return [r['id'] for r in f if record_partition_fkey in r.get(allowedfield,'').split(',')]        
 
     def addPhonetic(self,tbl,column,mode=None,size=':5',group=None):
         mode = mode or 'dmetaphone'
@@ -514,11 +540,21 @@ class TableBase(object):
 
 
     def createSysRecords(self):
+        syscodes = []
         for m in dir(self):
             if m.startswith('sysRecord_') and m!='sysRecord_':
-                if not self.checkDuplicate(__syscode=m[10:]):
-                    self.sysRecord(m[10:])
-                    return True
+                method = getattr(self,m)
+                if getattr(method,'mandatory',False):
+                    syscodes.append(m[10:])
+        commit = False
+        if syscodes:
+            f = self.query(where='$__syscode IN :codes',codes=syscodes).fetchAsDict('__syscode')
+            for syscode in syscodes:
+                if not syscode in f:
+                    self.sysRecord(syscode)
+                    commit = True
+        if commit:
+            self.db.commit()
 
     def sysRecord(self,syscode):
         def createCb(key):
@@ -884,11 +920,14 @@ class TableBase(object):
         source_tbl = source_db.table(self.fullname)
         dest_tbl = dest_db.table(self.fullname)
         pkey = self.pkey
-        source_rows = source_tbl.query(addPkeyColumn=False,**kwargs).fetch()
+        source_rows = source_tbl.query(addPkeyColumn=False,excludeLogicalDeleted=False,
+              excludeDraft=False,**kwargs).fetch()
         if onSelectedSourceRows:
             onSelectedSourceRows(source_instance=source_instance,dest_instance=dest_instance,source_rows=source_rows)
-        all_dest = dest_tbl.query(addPkeyColumn=False,for_update=True,**kwargs).fetchAsDict(pkey)
-        existing_dest = dest_tbl.query(addPkeyColumn=False,for_update=True,where='$%s IN :pk' %pkey,pk=[r[pkey] for r in source_rows]).fetchAsDict(pkey)
+        all_dest = dest_tbl.query(addPkeyColumn=False,for_update=True,excludeLogicalDeleted=False,
+              excludeDraft=False,**kwargs).fetchAsDict(pkey)
+        existing_dest = dest_tbl.query(addPkeyColumn=False,for_update=True,excludeLogicalDeleted=False,
+              excludeDraft=False,where='$%s IN :pk' %pkey,pk=[r[pkey] for r in source_rows]).fetchAsDict(pkey)
         all_dest.update(existing_dest)
         if source_rows:
             fieldsToCheck = ','.join([c for c in source_rows[0].keys() if c not in ('__ins_ts','__mod_ts')])
@@ -909,7 +948,8 @@ class TableBase(object):
         return source_rows
 
     def hosting_removeUnused(self,dest_db,missing=None):
-        dest_db.table(self.fullname).deleteSelection(where='$%s IN :missing' %self.pkey,missing=missing)
+        dest_db.table(self.fullname).deleteSelection(where='$%s IN :missing' %self.pkey,missing=missing,
+            excludeLogicalDeleted=False,excludeDraft=False)
 
 
     def getCustomFieldsMenu(self):
@@ -1073,9 +1113,13 @@ class AttachmentTable(GnrDboTable):
         tbl.column('text_content',name_long='!!Content')
         tbl.column('info' ,'X',name_long='!!Additional info')
         tbl.column('maintable_id',size='22',group='_',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
-                    mode='foreignkey', onDelete_sql='cascade', relation_name='atc_attachments',
+                    mode='foreignkey', onDelete_sql='cascade',onDelete='cascade', relation_name='atc_attachments',
                     one_group='_',many_group='_',deferred=True)
         tbl.formulaColumn('fileurl',"'/_vol/' || $filepath",name_long='Fileurl')
+        self.onTableConfig(tbl)
+
+    def onTableConfig(self,tbl):
+        pass
 
     @public_method
     def atc_importAttachment(self,pkey=None):

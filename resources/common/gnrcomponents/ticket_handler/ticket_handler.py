@@ -88,7 +88,6 @@ class TicketHandlerFile(BaseComponent):
     @struct_method
     def tk_ticketFrame(self,pane,code=None,folders=None,**kwargs):
         view = pane.frameGrid(frameCode='V_ticketframe_%s' %code,struct=self.tk_struct_ticket,
-                                    gridEditor=False,
                                     autoToolbar=False,
                                     datapath='.view',grid_rowStatusColumn=True,**kwargs)
         view.top.slotToolbar('*,delrow,addrow,viewlocker,5')

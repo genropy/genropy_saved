@@ -5,7 +5,7 @@
 
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerBase"
-    dojo_theme = 'claro'
+    
     
     def test_1_parentContentPane(self, pane):
         "genro.dom.centerOn('test1')"

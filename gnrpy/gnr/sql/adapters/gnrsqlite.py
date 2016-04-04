@@ -41,9 +41,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 class SqlDbAdapter(SqlDbBaseAdapter):
-    typesDict = {'charactervarying': 'A','nvarchar':'A', 'character varying': 'A', 'character': 'C', 'text': 'T','varchar':'A', 'blob': 'X',
+    typesDict = {'charactervarying': 'A','nvarchar':'A', 'character varying': 'A', 'character': 'C','char': 'C', 'text': 'T','varchar':'A', 'blob': 'X',
                  'boolean': 'B','bool':'B', 'date': 'D', 'time': 'H', 'datetime':'DH','timestamp': 'DH', 'numeric': 'N',
                  'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'double precision': 'R', 'real': 'R', 'smallint unsigned':'I',
+                 'integer unsigned':'L',
                  'decimal':'N','serial8': 'L'}
 
     revTypesDict = {'A': 'character varying', 'T': 'text', 'C': 'character',
@@ -110,6 +111,9 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         op = '!=' if m.group(1) else '='
         val = '1' if m.group(2).lower() == 'true' else '0'
         return ' %s%s ' %(op,val)
+
+    def adaptSqlName(self,name):
+        return '"%s"' %name
 
     def _selectForUpdate(self,maintable_as=None):
         return ''

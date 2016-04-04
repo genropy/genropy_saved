@@ -8,6 +8,7 @@ from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method,extract_kwargs,metadata
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrstring import slugify
 
 
 class TableHandlerView(BaseComponent):
@@ -45,7 +46,7 @@ class TableHandlerView(BaseComponent):
             viewhook(view)
         return view
     
-    @extract_kwargs (top=True,preview=True)
+    @extract_kwargs(top=True,preview=True)
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
@@ -107,34 +108,11 @@ class TableHandlerView(BaseComponent):
         store_kwargs = store_kwargs or dict()
         store_kwargs['parentForm'] = parentForm
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
-                        condition=condition_kwargs,unlinkdict=unlinkdict,title=title,liveUpdate=liveUpdate,store_kwargs=store_kwargs)
-        contextMenu = frame.grid.menu(_class='smallmenu')
-        contextMenu.menuline('!!Reload',action="$2.widget.reload();")
-        contextMenu.menuline('-')
-        contextMenu.menuline('!!Show Archived Records',checked='^.#parent.showLogicalDeleted',
-                                action="""SET .#parent.showLogicalDeleted= !GET .#parent.showLogicalDeleted;
-                                           $2.widget.reload();""")
-        contextMenu.menuline('!!Totals count',action='SET .#parent.tableRecordCount= !GET .#parent.tableRecordCount;',
-                            checked='^.#parent.tableRecordCount')
-        contextMenu.menuline('-')
-        contextMenu.menuline('!!Configure Table',action='genro.dev.fieldsTreeConfigurator($2.attr.table)')
-        #contextMenu.menuline('!!Configure View',action='genro.grid_configurator.configureStructure($2.attr.nodeId)')
-        contextMenu.menuline('!!Configure Column',action="""
-            genro.grid_configurator.configureCellStructure($2.attr.nodeId,this.widget.cellIndex);
-            """,
-            onOpen="""if(evt.grid && evt.cellIndex){
-                        item.setLabel(_T("Configure column:")+" "+evt.grid.getCell(evt.cellIndex).original_name);
-                        item.cellIndex = evt.cellIndex;
-                        item.setDisabled(false);
-                    }else{
-                        item.setLabel('Configure view')
-                        item.setDisabled(true);
-                    }""")
-
+                        condition=condition_kwargs,unlinkdict=unlinkdict,title=title,
+                        liveUpdate=liveUpdate,store_kwargs=store_kwargs)
+        self._th_view_contextMenu(frame.grid)
         if virtualStore:    
             self._extTableRecords(frame)
-
-
         frame.dataController("""if(!firedkw.res_type){return;}
                             var kw = {selectionName:batch_selectionName,gridId:batch_gridId,table:batch_table};
                             objectUpdate(kw,firedkw);
@@ -162,6 +140,19 @@ class TableHandlerView(BaseComponent):
                 """,modifiers='Ctrl',validclass='dojoxGrid-cell,cellContent')
         return frame
 
+    def _th_view_contextMenu(self,grid):
+        b = Bag()
+        b.rowchild(label='!!Reload',action="$2.widget.reload();")
+        b.rowchild(label='-')
+        b.rowchild(label='!!Show Archived Records',checked='^.#parent.showLogicalDeleted',
+                                action="""SET .#parent.showLogicalDeleted= !GET .#parent.showLogicalDeleted;
+                                           $2.widget.reload();""")
+        b.rowchild(label='!!Totals count',action='SET .#parent.tableRecordCount= !GET .#parent.tableRecordCount;',
+                            checked='^.#parent.tableRecordCount')
+        b.rowchild(label='-')
+        b.rowchild(label='!!Configure Table',action='genro.dev.fieldsTreeConfigurator($2.attr.table)')
+        b.rowchild(childname='configure',label='!!Configure View',action="""$2.widget.configureStructure();""")
+        grid.data('.contextMenu',b)
 
     @struct_method
     def th_viewLeftDrawer(self,pane,table,th_root):
@@ -194,12 +185,14 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
-        pane.div('^.title',style='line-height:20px;color:#666;')
+        pane.div('^.title' ,_class='frameGridTitle')
 
 
     @struct_method
     def th_slotbar_importer(self,pane,**kwargs):
-        if not self.application.checkResourcePermission('_DEV_,superadmin', self.userTags):
+        options = self._th_hook('options',mangler=pane)() or dict()
+        tags = options.get('uploadTags') or '_DEV_,superadmin'
+        if not self.application.checkResourcePermission(tags, self.userTags):
             pane.div()
             return
         inattr = pane.getInheritedAttributes()
@@ -222,7 +215,7 @@ class TableHandlerView(BaseComponent):
         box.div('==_sumvalue|| 0;',_sumvalue='^.store?sum_%s' %sum_column,format=format,width=width or '5em',_class='fakeTextBox',
                  font_size='.9em',text_align='right',padding_right='2px',display='inline-block')
 
-    def _th_section_from_type(self,tblobj,sections,condition=None,condition_kwargs=None,all_begin=None,all_end=None):
+    def _th_section_from_type(self,tblobj,sections,condition=None,condition_kwargs=None,all_begin=None,all_end=None,codePkey=False):
         rt = tblobj.column(sections).relatedTable() 
         if rt:
             section_table = tblobj.column(sections).relatedTable().dbtable
@@ -243,7 +236,7 @@ class TableHandlerView(BaseComponent):
         if all_begin:
             s.append(dict(code='c_all_begin',caption='!!All' if all_begin is True else all_begin))
         for i,r in enumerate(f):
-            s.append(dict(code='c_%i' %i,caption=r[caption_field],condition='$%s=:s_id' %sections,condition_s_id=r[pkeyfield]))
+            s.append(dict(code=slugify(r[pkeyfield],'_'),caption=r[caption_field],condition='$%s=:s_id' %sections,condition_s_id=r[pkeyfield]))
         if all_end:
             s.append(dict(code='c_all_end',caption='!!All' if all_end is True else all_end))
         return s
@@ -269,7 +262,7 @@ class TableHandlerView(BaseComponent):
             lbl_kwargs = lbl_kwargs or dictExtract(dict(m.__dict__),'lbl_',slice_prefix=False)
             depending_condition = getattr(m,'_if',False)
             depending_condition_kwargs = dictExtract(dict(m.__dict__),'_if_')
-        elif sections in  tblobj.model.columns and (tblobj.column(sections).relatedTable() is not None or \
+        elif sections in  tblobj.model.columns and (tblobj.column(sections).relatedTable() is not None or 
                                                 tblobj.column(sections).attributes.get('values')):
             sectionslist = self._th_section_from_type(tblobj,sections,condition=condition,condition_kwargs=condition_kwargs,all_begin=all_begin,all_end=all_end)
             dflt = None
@@ -349,13 +342,13 @@ class TableHandlerView(BaseComponent):
                             """)
 
     @public_method
-    @metadata (prefix='query',code='default_duplicate_finder',description='!!Find all duplicates')
+    @metadata(prefix='query',code='default_duplicate_finder',description='!!Find all duplicates')
     def th_default_find_duplicates(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
         pkeys = tblobj.findDuplicates()
         query = tblobj.query(where='$%s IN :pkd' %tblobj.pkey,pkd=pkeys,**kwargs)
         return query.selection(sortedBy=sortedBy, _aggregateRows=True) 
     @public_method
-    @metadata (prefix='query',code='default_duplicate_finder_to_del',description='!!Find duplicates to delete')
+    @metadata(prefix='query',code='default_duplicate_finder_to_del',description='!!Find duplicates to delete')
     def th_default_find_duplicates_to_del(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
         pkeys = tblobj.findDuplicates(allrecords=False)
         query = tblobj.query(where='$%s IN :pkd' %tblobj.pkey,pkd=pkeys,**kwargs)
@@ -613,6 +606,7 @@ class TableHandlerView(BaseComponent):
                                _onStart=_onStart,
                                _th_root =th_root,
                                _POST =True,
+                               httpMethod='WSK' if self.extraFeatures['wsk_grid'] else None,
                                _onCalling="""
                                %s
                                if(_sections){

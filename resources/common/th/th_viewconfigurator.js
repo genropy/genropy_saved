@@ -8,22 +8,6 @@ var genro_plugin_grid_configurator = {
             that.refreshMenu(gridId);
         });
     },
-    configureCellStructure:function(gridId,cellIndex){
-        var gridSourceNode = genro.nodeById(gridId);
-        var grid = gridSourceNode.widget;
-        var cellNode = grid.structBag.getNodeByAttr('field',grid.getCell(cellIndex).field);
-        var path = gridSourceNode.absDatapath('.struct.#0.#0.'+cellNode.label);
-        genro.dev.openBagNodeEditorPalette(path,{title:'Edit '+cellNode.attr.field,
-                                                exclude:'dtype,field,tag,related_table,related_table_lookup,related_column,relating_column,rowcaption,caption_field'});
-    },
-    configureStructure:function(gridId){
-        var gridSourceNode = genro.nodeById(gridId);
-        var structpath = gridSourceNode.absDatapath(gridSourceNode.attr.structpath);
-        var palette = genro.dlg.quickPalette(gridId+'_viewconf',{height:'500',width:'600px',title:'View Configurator'},
-                                            function(pane){
-                                                pane._('bagEditor',{storepath:structpath,labelAttribute:'name',addrow:true,delrow:false,addcol:true});
-                                            });
-    },
 
     setCurrentAsDefault:function(gridId){
         var gridSourceNode = genro.nodeById(gridId);

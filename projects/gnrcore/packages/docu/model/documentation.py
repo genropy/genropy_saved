@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrdecorator import metadata
+from gnr.core.gnrdecorator import public_method
 import os
 import shutil
 import textwrap
@@ -9,7 +9,7 @@ import textwrap
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('documentation', pkey='id', name_long='!!Documentation', 
-                        name_plural='!!Documentation',caption_field='name')
+                        name_plural='!!Documentation',caption_field='name',audit='lazy')
         self.sysFields(tbl,hierarchical='name',df=True,
                         counter=True,user_ins=True,user_upd=True)
         tbl.column('name',name_long='!!Name')
@@ -22,6 +22,7 @@ class Table(object):
         tbl.column('old_html')
         tbl.formulaColumn('example_url',"'/webpages/docu_examples/'||$hierarchical_name")
 
+
         tbl.formulaColumn('is_published',"""
             CASE WHEN $publish_date IS NOT NULL THEN EXISTS(#has_published_children)
             ELSE $publish_date<=:env_workdate END
@@ -29,6 +30,18 @@ class Table(object):
                                                     where="""$hierarchical_pkey ILIKE #THIS.hierarchical_pkey||'%%'
                                                             AND ($publish_date IS NOT NULL AND $publish_date<=:env_workdate)"""),
                     dtype='B')
+
+
+    def formulaColumn_doc_sources(self):
+        result = []
+        for lang in self.db.table('docu.language').query().fetch():
+            l = lang['code']
+            sql_formula = self.model.bagItemFormula('$docbag','%s.rst' %l)
+            result.append(dict(name='rst_%s' %l,sql_formula=sql_formula, name_long='!!Rst %s' %l))
+            sql_formula = self.model.bagItemFormula('$docbag','%s.title' %l)
+            result.append(dict(name='title_%s' %l,sql_formula=sql_formula, name_long='!!Title %s' %l))
+        return result
+
 
     def trigger_onUpdating(self,record,old_record):
         record['sourcebag'] = record['sourcebag'] or None
@@ -47,19 +60,41 @@ class Table(object):
                             where='$docbag ILIKE :old_link_query OR $docbag ILIKE :old_link_query',
                             old_link_query='%%%s%%',_raw_update=True,bagFields=True)
 
-        basepath = self.db.application.site.getStaticPath('site:webpages','docu_examples')
-        old_tutorial_record_path = os.path.join(basepath,old_record['hierarchical_name'])
-        tutorial_record_path = os.path.join(basepath,record['hierarchical_name'])
+        old_tutorial_record_path = self.tutorialRecordPath(old_record) 
+        tutorial_record_path = self.tutorialRecordPath(record) 
         if old_tutorial_record_path != tutorial_record_path:
             if os.path.exists(old_tutorial_record_path):
                 shutil.rmtree(old_tutorial_record_path)
         if record['sourcebag'] != old_record['sourcebag']:
-            if os.path.exists(tutorial_record_path):
-                shutil.rmtree(tutorial_record_path)
-            os.makedirs(tutorial_record_path)
+            self.writeModulesFromSourceBag(record)
+
+    def tutorialRecordPath(self,record):
+        basepath = self.db.application.site.getStaticPath('site:webpages','docu_examples')
+        return os.path.join(basepath,record['hierarchical_name'])
+
+    def writeModulesFromSourceBag(self,record):
+        tutorial_record_path = self.tutorialRecordPath(record)
+        if os.path.exists(tutorial_record_path):
+            shutil.rmtree(tutorial_record_path)
+        os.makedirs(tutorial_record_path)
         if record['sourcebag']:
             for source_version in record['sourcebag'].values():
-                with open(os.path.join(tutorial_record_path,'%s.py' %source_version['version']),'w') as f:
+                p = os.path.join(tutorial_record_path,source_version['version'])
+                #sys.modules.pop(p.replace('/','_'),None)
+                with open('%s.py' %p,'w') as f:
+                    f.write(source_version['source'])
+
+    @public_method
+    def checkSourceBagModules(self,record=None,**kwargs):
+        if not record['sourcebag']:
+            return
+        tutorial_record_path = self.tutorialRecordPath(record)
+        if not os.path.exists(tutorial_record_path):
+            os.makedirs(tutorial_record_path)
+        for source_version in record['sourcebag'].values():
+            p = os.path.join(tutorial_record_path,'%s.py' %source_version['version'])
+            if not os.path.exists(p):
+                with open(p,'w') as f:
                     f.write(source_version['source'])
 
     def applyOnTreeNodeAttr(self,_record=None,**kwargs):

@@ -26,8 +26,12 @@ import socket
 import urllib
 from gnr.app.gnrconfig import gnrConfigPath
 from gnr.core.gnrbag import Bag
-class WebSocketHandler(object):
+from time import sleep
+CONNECTION_REFUSED = 61
+MAX_CONNECTION_ATTEMPT = 20 
+CONNECTION_ATTEMPT_DELAY = 1
 
+class WebSocketHandler(object):
     def sendCommandToPage(self,page_id,command,data):
         headers = {'Content-type': 'application/x-www-form-urlencoded'}
         envelope=Bag(dict(command=command,data=data))
@@ -61,10 +65,8 @@ class AsyncWebSocketHandler(WebSocketHandler):
         self.server = server
 
     def sendCommandToPage(self,page_id,command,data):
-        print 'AsyncWebSocketHandler prova a spedire'
         envelope = Bag(dict(command=command,data=data))
         self.server.channels.get(page_id).write_message(envelope.toXml(unresolved=True))
-        print 'AsyncWebSocketHandler ha spedito'
 
 
 class WsgiWebSocketHandler(WebSocketHandler):
@@ -75,16 +77,36 @@ class WsgiWebSocketHandler(WebSocketHandler):
     
     @property
     def socketConnection(self):
-        http_conn = HTTPSocketConnection(self.socket_path)
+        http_conn = HTTPSocketConnection(self.socket_path,timeout=1000)
         http_conn.connect()
         return http_conn
         
     def sendCommandToPage(self,page_id,command,data):
         headers = {'Content-type': 'application/x-www-form-urlencoded'}
         envelope=Bag(dict(command=command,data=data))
-        body=urllib.urlencode(dict(page_id=page_id,envelope=envelope.toXml(unresolved=True)))
-        self.socketConnection.request('POST',self.proxyurl,headers=headers, body=body)
-        
+
+        body = urllib.urlencode(dict(page_id=page_id,envelope=envelope.toXml(unresolved=True)))
+        #self.socketConnection.request('POST',self.proxyurl,headers=headers, body=body)
+
+        n = MAX_CONNECTION_ATTEMPT
+        error = CONNECTION_REFUSED
+        while n>0 and error==CONNECTION_REFUSED:
+            try:
+                self.socketConnection.request('POST',self.proxyurl,headers=headers, body=body)
+                error = False
+                if n!=MAX_CONNECTION_ATTEMPT:
+                    print 'SUCCEED'
+            except socket.error, e:
+                error = e.errno
+                if error == CONNECTION_REFUSED:
+                    n -= 1
+                    print 'attempting',n
+                    sleep(CONNECTION_ATTEMPT_DELAY)
+                else:
+                    raise
+
+
+
 
 def has_timeout(timeout): # python 2.6
     if hasattr(socket, '_GLOBAL_DEFAULT_TIMEOUT'):
@@ -118,3 +140,4 @@ class HTTPSocketConnection(httplib.HTTPConnection):
             self.sock = None
         if not self.sock:
             raise socket.error, msg
+

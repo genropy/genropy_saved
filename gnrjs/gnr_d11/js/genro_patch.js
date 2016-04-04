@@ -180,6 +180,27 @@ genropatches.dojoToJson = function() {
         return "{" + output.join("," + sep) + newLine + _indentStr + "}"; // String
     }
 };
+genropatches.dnd=function(){
+    dojo.require("dojo.dnd.Moveable");
+    var mvbl = dojo.dnd.Moveable;
+    mvbl.prototype.onMouseDown_replaced=mvbl.prototype.onMouseDown;
+    mvbl.prototype.onMouseDown= function(e){
+        var contextclick = (e.button==2 ||  genro.dom.getEventModifiers(e)=='Ctrl');
+        if (!contextclick){
+            this.onMouseDown_replaced(e);
+        }
+    }
+    
+};
+
+genropatches.tabContainer = function(){
+    dojo.require("dijit.layout.StackContainer");
+    dijit.layout.StackController.prototype.onCloseButtonClick = function(page){
+        var container = dijit.byId(this.containerId);
+        container.deletePage(page);
+    };
+    
+};
 genropatches.menu = function(){
     dojo.require('dijit.Menu');
     dijit.Menu.prototype._openMyself = function(/*Event*/ e){
@@ -226,7 +247,11 @@ genropatches.menu = function(){
 		};
 		this.onOpeningPopup(popupKw);
 		dijit.popup.open(popupKw);
-		this.focus();
+        var that = this;
+        setTimeout(function(){
+            that.focus();
+        },1)
+		
 
 		this._onBlur = function(){
 			this.inherited('_onBlur', arguments);
@@ -406,7 +431,9 @@ genropatches.comboBox = function() {
             }
         }
     });
-    dijit.form.ComboBoxMixin.prototype._onKeyPress = function(/*Event*/ evt){
+   
+
+    var dijit_form_ComboBoxMixin_onKeyPress = function(/*Event*/ evt){
             // summary: handles keyboard events
 
             //except for pasting case - ctrl + v(118)
@@ -545,7 +572,9 @@ genropatches.comboBox = function() {
                 setTimeout(dojo.hitch(this, "_startSearchFromInput"),1);
             }
         }
-        dijit.form.ComboBox.prototype._onKeyPress = dijit.form.ComboBoxMixin.prototype._onKeyPress;
+        dijit_form_ComboBoxMixin_onKeyPress.nom='_onKeyPress';
+        dijit.form.ComboBoxMixin.prototype._onKeyPress = dijit_form_ComboBoxMixin_onKeyPress;
+        dijit.form.ComboBox.prototype._onKeyPress = dijit_form_ComboBoxMixin_onKeyPress;
 };
 genropatches.borderContainer = function() {
     dojo.require("dijit.layout.BorderContainer");
@@ -1266,4 +1295,52 @@ genropatches.parseNumbers = function() {
         // integer RE
         return signRE + numberRE; // String
     };
+};
+
+genropatches.decimalRound = function() {
+  /**
+   * Decimal adjustment of a number.
+   *
+   * @param {String}  type  The type of adjustment.
+   * @param {Number}  value The number.
+   * @param {Integer} exp   The exponent (the 10 logarithm of the adjustment base).
+   * @returns {Number} The adjusted value.
+   */
+  function decimalAdjust(type, value, exp) {
+    // If the exp is undefined or zero...
+    if (typeof exp === 'undefined' || +exp === 0) {
+      return Math[type](value);
+    }
+    value = +value;
+    exp = +exp;
+    // If the value is not a number or the exp is not an integer...
+    if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
+      return NaN;
+    }
+    // Shift
+    value = value.toString().split('e');
+    value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
+    // Shift back
+    value = value.toString().split('e');
+    return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+  }
+
+  // Decimal round
+  if (!Math.round10) {
+    Math.round10 = function(value, exp) {
+      return decimalAdjust('round', value, exp);
+    };
+  }
+  // Decimal floor
+  if (!Math.floor10) {
+    Math.floor10 = function(value, exp) {
+      return decimalAdjust('floor', value, exp);
+    };
+  }
+  // Decimal ceil
+  if (!Math.ceil10) {
+    Math.ceil10 = function(value, exp) {
+      return decimalAdjust('ceil', value, exp);
+    };
+  }
 };

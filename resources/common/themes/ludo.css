@@ -1,7 +1,6 @@
 /*vico*/
 .frameindexroot{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#f6f6f6) , to(#e7e7e7));
-    background-image: -moz-linear-gradient(-90deg, #f6f6f6, #e7e7e7);
+    background:#eeeeee;
 }
 .frameindexcenter{
     background:#f6f6f6;
@@ -57,9 +56,30 @@
     border-top-right-radius: 3px;
     padding-top: 2px;
     padding-bottom: 3px;
-    font-size: .9em;
     border:0;
 }
+
+._common_d11.tundra.theme_variant_green .dojoxFloatingPaneTitle{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#54AC45), to(#306227));
+    background-image: -moz-linear-gradient(-90deg, #54AC45, #306227);
+}
+
+._common_d11.tundra.theme_variant_red .dojoxFloatingPaneTitle{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#AF0D1E), to(#660712));
+    background-image: -moz-linear-gradient(-90deg, #AF0D1E, #660712);
+}
+
+._common_d11.tundra.theme_variant_orange .dojoxFloatingPaneTitle{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#D25D09), to(#863B06));
+    background-image: -moz-linear-gradient(-90deg, #D25D09, #863B06);
+}
+
+._common_d11.tundra.theme_variant_yellow .dojoxFloatingPaneTitle{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#BBA713), to(#86770E));
+    background-image: -moz-linear-gradient(-90deg, #BBA713, #86770E);
+}
+
+
 
 /* @end */
 
@@ -95,6 +115,29 @@
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#5B6F8D), to(#224272));
     background-image: -moz-linear-gradient(-90deg, #5B6F8D, #224272);
 }
+
+
+
+.theme_variant_green .pbl_root_top{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#54AC45), to(#306227));
+    background-image: -moz-linear-gradient(-90deg, #54AC45, #306227);
+}
+
+.theme_variant_red .pbl_root_top{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#AF0D1E), to(#660712));
+    background-image: -moz-linear-gradient(-90deg, #AF0D1E, #660712);
+}
+
+.theme_variant_orange .pbl_root_top{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#D25D09), to(#863B06));
+    background-image: -moz-linear-gradient(-90deg, #D25D09, #863B06);
+}
+
+.theme_variant_yellow .pbl_root_top{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#BBA713), to(#86770E));
+    background-image: -moz-linear-gradient(-90deg, #BBA713, #86770E);
+}
+
 
 /*background-color: #59514f;
     color: #ece3da;*/
@@ -337,6 +380,26 @@
     font-weight:normal;
     border-bottom:1px solid #ccc;
     font-size: .9em;
+}
+
+.tundra._common_d11.theme_variant_green .dijitDialogTitleBar{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#54AC45), to(#306227));
+    background-image: -moz-linear-gradient(-90deg, #54AC45, #306227);
+}
+
+.tundra._common_d11.theme_variant_red .dijitDialogTitleBar{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#AF0D1E), to(#660712));
+    background-image: -moz-linear-gradient(-90deg, #AF0D1E, #660712);
+}
+
+.tundra._common_d11.theme_variant_orange .dijitDialogTitleBar{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#D25D09), to(#863B06));
+    background-image: -moz-linear-gradient(-90deg, #D25D09, #863B06);
+}
+
+.tundra._common_d11.theme_variant_yellow .dijitDialogTitleBar{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#BBA713), to(#86770E));
+    background-image: -moz-linear-gradient(-90deg, #BBA713, #86770E);
 }
 
 /*._common_d11 .dijitDialogCloseIcon {
@@ -872,7 +935,7 @@
 	-moz-box-shadow: inset 1px 1px 2px #222;
     -webkit-box-shadow:inset 1px 1px 2px #222;
 }
-
+/*
 
 .tundra .dijitSplitter.dijitSplitterV{
     width:4px;
@@ -899,7 +962,7 @@
     background:silver;
     opacity:.5;
 }
-
+*/
 
 
 

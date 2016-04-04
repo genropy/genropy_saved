@@ -87,7 +87,7 @@ class StaticHandler(object):
             result = m(pkey)
             return result is not False
 
-    def serve(self, f, environ, start_response, download=False, **kwargs):
+    def serve(self, f, environ, start_response, download=False, download_name=None, **kwargs):
         if isinstance(f,list):
             fullpath = self.path(*f[1:])
         elif isinstance(f,file):
@@ -120,8 +120,9 @@ class StaticHandler(object):
                 start_response('304 Not Modified', headers)
                 return [''] # empty body
         file_args = dict()
-        if download:
-            file_args['content_disposition'] = "attachment; filename=%s" % os.path.basename(fullpath)
+        if download or download_name:
+            download_name = download_name or os.path.basename(fullpath)
+            file_args['content_disposition'] = "attachment; filename=%s" % download_name
         file_responder = fileapp.FileApp(fullpath, **file_args)
         if self.site.cache_max_age:
             file_responder.cache_control(max_age=self.site.cache_max_age)

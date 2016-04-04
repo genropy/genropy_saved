@@ -894,7 +894,7 @@ class GnrApp(object):
         if self.db.package('adm'):
             self.db.table('adm.preference').setPreference(path, data, pkg=pkg)
 
-    def getPreference(self, path, pkg, dflt=''):
+    def getPreference(self, path, pkg, dflt=None):
         if self.db.package('adm'):
             return self.db.table('adm.preference').getPreference(path, pkg=pkg, dflt=dflt)
     
@@ -927,6 +927,9 @@ class GnrApp(object):
             authmethods = self.config['authentication']
             if authmethods:
                 for node in self.config['authentication'].nodes:
+                    if authenticate and node.attr.get('service'):
+                        if self.site.getService(node.attr['service'])(user=user,password=password):
+                            authenticate = False #it has been authenticated by the service
                     authmode = node.label.replace('_auth', '')
                     avatar = getattr(self, 'auth_%s' % authmode)(node, user, password=password,
                                                                  authenticate=authenticate,
@@ -995,7 +998,7 @@ class GnrApp(object):
         else:
             handler = getattr(self, attrs['method'])
         if handler:
-            result = handler(user, **kwargs)
+            result = handler(user,service=attrs.get('service'), **kwargs)
         if result:
             user_name = result.pop('user_name', user)
             user_id = result.pop('user_id', user)
@@ -1336,7 +1339,7 @@ class GnrApp(object):
             if not instance_name:
                 return
             if remote_db:
-                instance_name = '%s:%s' %(instance_name,remote_db)
+                instance_name = '%s@%s' %(instance_name,remote_db)
             self.aux_instances[name] = GnrApp(instance_name)
         return self.aux_instances[name]
 

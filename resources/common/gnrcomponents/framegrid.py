@@ -4,7 +4,7 @@
 # Created by Francesco Porcari on 2011-04-16.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrbag import Bag
@@ -67,8 +67,8 @@ class FrameGridSlots(BaseComponent):
                             SET .deleteDisabled = false;
                             SET .deleteButtonClass = deleteButtonClass +' _logical_delete';
                           """,
-                            disabled=disabled,deleteButtonClass=_class,frameCode=frameCode
-                            ,**{str('subscribe_%s_grid_onSelectedRow' %frameCode):True})
+                            disabled=disabled,deleteButtonClass=_class,frameCode=frameCode,_onBuilt=True,
+                            **{str('subscribe_%s_grid_onSelectedRow' %frameCode):True})
         pane.data('.deleteButtonClass',_class)
         return pane.slotButton(label='!!Delete',publish='delrow',iconClass='^.deleteButtonClass',disabled='^.deleteDisabled',**kwargs)
     
@@ -105,7 +105,7 @@ class FrameGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGridSlots'
     @extract_kwargs(top=True,grid=True)
     @struct_method
-    def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,structpath=None,
+    def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,dynamicStorepath=None,structpath=None,
                     datamode=None,table=None,grid_kwargs=True,top_kwargs=None,iconSize=16,
                     _newGrid=None,**kwargs):
         pane.attributes.update(overflow='hidden')
@@ -121,6 +121,7 @@ class FrameGrid(BaseComponent):
         grid_kwargs.setdefault('selectedId','.selectedId')
         frame.includedView(autoWidth=False,
                           storepath=storepath,datamode=datamode,
+                          dynamicStorepath=dynamicStorepath,
                           datapath='.grid',
                           struct=struct,table=table,
                           **grid_kwargs)
@@ -131,20 +132,29 @@ class FrameGrid(BaseComponent):
 
     @extract_kwargs(default=True,store=True)
     @struct_method
-    def fgr_bagGrid(self,pane,storepath=None,title=None,default_kwargs=None,
+    def fgr_bagGrid(self,pane,storepath=None,dynamicStorepath=None,
+                    title=None,default_kwargs=None,
                     pbl_classes=None,gridEditor=True,
                     addrow=True,delrow=True,slots=None,
                     autoToolbar=True,semaphore=None,
+                    datamode=None,
                     store_kwargs=True,parentForm=None,**kwargs):
         if pbl_classes:
-            kwargs['_class'] = 'pbl_roundedGroup'
+            _custclass = kwargs.get('_class','')
+            kwargs['_class'] = 'pbl_roundedGroup %s' %_custclass
             if pbl_classes=='*':
-                kwargs['_class'] = 'pbl_roundedGroup noheader'
-
+                kwargs['_class'] = 'pbl_roundedGroup noheader %s' %_custclass
         if gridEditor:
-            kwargs['grid_gridEditor'] = dict(default_kwargs=default_kwargs)
+            kwargs['grid_gridEditorPars'] = dict(default_kwargs=default_kwargs)
         kwargs.setdefault('grid_parentForm',parentForm)
-        frame = pane.frameGrid(_newGrid=True,datamode='bag',**kwargs)
+        if storepath and ( storepath.startswith('==') or storepath.startswith('^') ):
+            dynamicStorepath = storepath
+            storepath = '.dummystore'
+        datamode= datamode or 'bag'
+        frame = pane.frameGrid(_newGrid=True,datamode= datamode,
+                                dynamicStorepath=dynamicStorepath,
+                                title=title,
+                                **kwargs)
         if autoToolbar:
             default_slots = []
             title = title or ''
@@ -163,6 +173,8 @@ class FrameGrid(BaseComponent):
                 bar.vtitle.div(title,_class='frameGridTitle')
             if semaphore:
                 bar.replaceSlots('#','#,gridsemaphore')
+        if datamode == 'attr':
+            store_kwargs.setdefault('storeType','AttributesBagRows')
         store = frame.grid.bagStore(storepath=storepath,parentForm=parentForm,**store_kwargs)
         frame.store = store
         return frame
@@ -179,7 +191,29 @@ class FrameGrid(BaseComponent):
 
 
 
-class BagGrid(BaseComponent):
-    pass
+
+class TemplateGrid(BaseComponent):
+    py_requires='gnrcomponents/framegrid:FrameGrid,gnrcomponents/tpleditor:ChunkEditor'
+    @struct_method
+    def fgr_templateGrid(self,pane,pbl_classes='*',fields=None,contentCb=None,template=None, readOnly=False, template_resource=None, **kwargs):
+        def struct(struct):
+            r = struct.view().rows()
+            r.cell('tpl',rowTemplate=template or '=.current_template',width='100%',cellClasses='tplcell',
+                    edit=dict(fields=fields,contentCb=contentCb) if not readOnly and (fields or contentCb) else None,
+                    calculated=True)
+        kwargs.setdefault('addrow', not readOnly)
+        kwargs.setdefault('delrow', not readOnly)
+        frame = pane.bagGrid(pbl_classes=pbl_classes,struct=struct,**kwargs)
+
+        if template_resource:
+            frame.grid.data('.current_template',self.loadTemplate(template_resource))
+            if self.isDeveloper():
+                frame.grid.attributes['connect_onCellDblClick'] = "if($1.shiftKey){this.publish('editRowTemplate')}"
+                #frame.grid.dataFormula('.fakeTplData',"new gnr.GnrBag();",_onBuilt=1)
+                frame.grid.templateChunk(template=template_resource,
+                            datasource='^.fakeTplData',
+                            editable=True,hidden=True,
+                            **{'subscribe_%s_editRowTemplate' %frame.grid.attributes['nodeId']:"this.publish('openTemplatePalette');"})
+        return frame
 
         

@@ -228,7 +228,7 @@ class TableHandlerHierarchicalView(BaseComponent):
             picker_table = self.db.table(table).column(picker).relatedTable().dbtable.fullname
             paletteCode = 'picker_%s' %picker_table.replace('.','_')
             picker_kwargs['paletteCode'] = paletteCode
-            bar.treePicker.palettePicker(table=picker_table,autoInsert=False,multiSelect=False,**picker_kwargs)
+            bar.treePicker.palettePicker(table=picker_table,autoInsert=False,multiSelect=False,picker_kwargs=picker_kwargs)
             tree.attributes['onDrop_%s' %paletteCode] = "THTree.onPickerDrop(this,data,dropInfo,{type_field:'%s',maintable:'%s',typetable:'%s'});" %(picker,table,picker_table)
 
         return tree
@@ -246,6 +246,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         wherelist.append("$%s LIKE :type_caption || :suffix" %caption_field)
         where = ' AND '.join(wherelist)
         for type_id in types:
+            type_record = typetable.cachedRecord(pkey=type_id,virtual_columns=type_caption_field)
             type_caption = typetable.readColumns(columns=type_caption_field,pkey=type_id)
             last_child = tblobj.query(where=where ,p_id=parent_id,
                                  order_by='$%s desc' %caption_field,
@@ -255,7 +256,12 @@ class TableHandlerHierarchicalView(BaseComponent):
                 last_child = last_child[0]
                 offset = int(last_child[caption_field].replace(type_caption,'').replace(' ','') or '0')
             for i in range(how_many):
-                record = {type_field:type_id,'parent_id':parent_id or None,caption_field:'%s %i' %(type_caption,offset+1+i)}
+                record = tblobj.newrecord()
+                kk = offset+1+i
+                record.update({type_field:type_id,'parent_id':parent_id or None,caption_field:'%s %i' %(type_caption,kk)})
+                for fld in tblobj.attributes.get('hierarchical').split(','):
+                    if fld!=caption_field and type_record.get(fld) is not None: #exists a field with the same name in type table
+                        record[fld] = '%s_%s' %(type_record[fld],kk) 
                 tblobj.insert(record)
         self.db.commit()
     
@@ -437,9 +443,15 @@ class TableHandlerHierarchicalView(BaseComponent):
                                                 """  
 
         treeattr['onDrop_%s' %dragCode] = """  var relationValue = dropInfo.treeItem.attr.pkey || null;
+                                                var relationRecord = dropInfo.treeItem.attr._record || null;
+                                                var modifiers = dropInfo.modifiers;
+                                                var alias_on_field = this.getRelativeData('#FORM.controller.table?alias_on_field');
+                                                var asAlias = (relationRecord && alias_on_field)?relationRecord[alias_on_field]:modifiers=="Shift"
+                                                genro.bp(true);
                                                 if(%s){
                                                     genro.serverCall('ht_updateRelatedRows',{table:'%s',fkey_name:'%s',pkeys:data.pkeys,
                                                                                         relationValue:relationValue,modifiers:dropInfo.modifiers,
+                                                                                        asAlias:asAlias,
                                                                                         relation_table:'%s',maintable:'%s',alt_relations:data.alt_relations},null,null,'POST');
                                                 }else{
                                                     return false;
@@ -449,7 +461,8 @@ class TableHandlerHierarchicalView(BaseComponent):
         
     @public_method
     def ht_updateRelatedRows(self,table=None,maintable=None,fkey_name=None, pkeys=None,
-                             relationValue=None,modifiers=None,relation_table=None,alt_relations=None):
+                             relationValue=None, modifiers=None, asAlias = None,
+                             relation_table=None,alt_relations=None):
         tblobj = self.db.table(table)
         alt_relations_modifiers_dict = dict([(v['modifiers'],v['fkey_name']) for k,v in alt_relations.items()])
         reltblobj = None
@@ -467,7 +480,7 @@ class TableHandlerHierarchicalView(BaseComponent):
             alt_fkey_name = alt_relations_modifiers_dict[modifiers]
             tblobj.batchUpdate({alt_fkey_name:relationValue},_pkeys=pkeys)
 
-        elif modifiers == 'Shift' or not fkey_name:
+        elif (asAlias or not fkey_name):
             if reltblobj:
                 currRelatedRecords = reltblobj.query(where='$%s=:v AND $%s IS NOT NULL' %(rel_fkey_name,rkey_name),v=relationValue).fetchAsDict(rkey_name)
                 for pkey in pkeys:

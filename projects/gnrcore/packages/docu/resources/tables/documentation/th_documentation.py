@@ -148,13 +148,13 @@ class Form(BaseComponent):
         fg.grid.dataFormula("#FORM.versionsFrame._editorDatapath", "'#FORM.record.sourcebag.'+selectedLabel;",
         selectedLabel="^.selectedLabel",_if='selectedLabel',_else='"#FORM.versionsFrame.dummypath"')
         center_center = center.contentPane(region='center',datapath='^#FORM.versionsFrame._editorDatapath',margin_left='6px',margin='3px')
-        center_center.codemirror(value='^.source',
+        center_center.codemirror(value='^.source',parentForm=True,
                           config_mode='python',config_lineNumbers=True,
                           config_indentUnit=4,config_keyMap='softTab',
                           height='100%')
         
     def sourcePreviewIframe(self,pane):
-        pane.iframe(src='^#FORM.versionsFrame.selectedUrl',height='100%',
+        pane.iframe(src='^#FORM.versionsFrame.selectedUrl',src__avoid_module_cache=True,height='100%',
                     width='100%',border=0)
         pane.dataController("PUT #FORM.versionsFrame.selectedUrl = null;",_fired='^#FORM.controller.saving')
 
@@ -165,17 +165,7 @@ class Form(BaseComponent):
         fb.field('publish_date',width='7em')
         fb.field('base_language',width='7em')
         fb.field('doctype',disabled='^.doctype')
-        fb.button('Graceful reload',action='FIRE #FORM.gracefulReload;')
-        fb.dataRpc('dummy',self.gracefulReload,_fired='^#FORM.gracefulReload')
         fb.div('Old html',hidden='^.old_html?=!#v').tooltipPane().div(height='150px',width='200px',overflow='auto',_class='selectable').div('^.old_html')
-
-    @public_method
-    def gracefulReload(self):
-        path = os.path.join(self.site.site_path,'root.py')
-        with open(path,'r') as f:
-            t = f.read()
-        with open(path,'w') as f:
-            f.write(t)
 
     def th_options(self):
         return dict(dialog_parentRatio=.9,hierarchical='open',audit=True,tree_excludeRoot=True,
@@ -197,6 +187,8 @@ class GnrCustomWebPage(object):
             parentrecord = record['@parent_id'] 
             if parentrecord:
                 record['doctype'] = parentrecord['doctype']
+        else:
+            self.db.table('docu.documentation').checkSourceBagModules(record)
 
 class FormPalette(Form):
     def th_form(self, form):

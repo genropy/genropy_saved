@@ -208,19 +208,33 @@ class PublicSlots(BaseComponent):
         related_tblobj = self.db.table(table)
         default_partition_value = self.rootenv[partition_path]
         fb = box.formbuilder(cols=1,border_spacing='0')
-        partitionioning_pkeys = related_tblobj.partitionioning_pkeys() if hasattr(related_tblobj,'partitionioning_pkeys') else None
-        if not partitionioning_pkeys and default_partition_value:
-            partitionioning_pkeys = [default_partition_value]
-        partition_condition = '$%s IN :pk' %related_tblobj.pkey if  partitionioning_pkeys else None
-        readOnly = partitionioning_pkeys and len(partitionioning_pkeys) == 1
-        fb.dbSelect(value='^current.current_partition_value',
-                            condition=partition_condition,condition_pk=partitionioning_pkeys,
+        if hasattr(related_tblobj,'partitionioning_pkeys'):
+            print 'deprecated way for partition: set allowed_%s during login onUserSelected instead of use partitionioning_pkeys' %partition_field
+            allowedPartitionPkeys =  related_tblobj.partitionioning_pkeys()
+            self.pageStore().setItem('rootenv.allowed_%s' %partition_field, allowedPartitionPkeys or [],dbenv=True)
+            if not allowedPartitionPkeys and default_partition_value:
+                allowedPartitionPkeys = [default_partition_value]
+        else:
+            allowedPartitionPkeys = self.rootenv['allowed_%s' %partition_field]
+        readOnly = False
+        if len(allowedPartitionPkeys) == 1:
+            readOnly = True 
+            default_partition_value = allowedPartitionPkeys[0]
+        if allowedPartitionPkeys:
+            fb.dbSelect(value='^current.current_partition_value',
+                            condition='$%s IN :env_allowed_%s' %(related_tblobj.pkey,partition_path),
+                            ignorePartition=True,
                             readOnly=readOnly,disabled='^gnr.partition_selector.disabled',
                             dbtable=related_tblobj.fullname,lbl=related_tblobj.name_long,
                             hasDownArrow=True,font_size='.8em',lbl_color='white',
                             color='#666',lbl_font_size='.8em',nodeId='pbl_partition_selector')
-        fb.dataController('SET current.%s=v || null' %partition_field,v='^current.current_partition_value')
-        pane.dataController("""genro.publish({topic:"public_changed_partition",iframe:"*"},{partition_value:v});""",v='^current.%s' %partition_field)
+        else:
+            fb.div('!!Partition not allowed',color='orange',font_size='.8em',font_weight='bold') 
+        fb.dataController("""SET current.%s = currentValue || null;
+                             """ %partition_field,
+            currentValue='^current.current_partition_value',_onStart=True)
+        pane.dataController("""genro.publish({topic:"public_changed_partition",iframe:"*"},{partition_value:v});""",
+                                v='^current.%s' %partition_field)
         pane.data('current.current_partition_value',default_partition_value)
         pane.data('current.%s' %partition_field,default_partition_value,
                     serverpath='rootenv.current_%s' %partition_path,dbenv=True)
@@ -325,8 +339,7 @@ class TableHandlerMain(BaseComponent):
         thRootWidget = 'stack'
         kwargs['th_pkey'] = th_kwargs.pop('pkey',None)
         archive = False
-        if self.tblobj.attributes.get('checkSysRecord'):
-            self._checkSysRecord()
+        self.tblobj.createSysRecords()
         if self.tblobj.logicalDeletionField:
             default_archivable = self.getPreference('tblconf.archivable_tag',pkg='sys')
             archive = self.tblobj.attributes.get('archivable',default_archivable)
@@ -342,15 +355,6 @@ class TableHandlerMain(BaseComponent):
         if current_kwargs:
             root.data('current',Bag(current_kwargs))
         return self._th_main(root,th_options=th_options,**kwargs)
-
-    def _checkSysRecord(self):
-        commit = False
-        for m in dir(self.tblobj):
-            if m.startswith('sysRecord_') and m!='sysRecord_':
-                self.tblobj.sysRecord(m[10:])
-                commit = True
-        if commit:
-            self.db.commit()
         
     def _th_main(self,root,th_options=None,**kwargs): 
         self._th_setDocumentation(key='thmain',table=self.maintable,doc=True)
@@ -488,6 +492,9 @@ class TableHandlerMain(BaseComponent):
             }
             """%selfDragRowsOpt
             gridattr['onSelfDropRows'] = """function(rows,dropInfo){
+                if(dropInfo.row===null || dropInfo.row<0){
+                    return;
+                }
                 var kw = {sourcePkey:this.widget.rowIdByIndex(rows[0]),destPkey:this.widget.rowIdByIndex(dropInfo.row)};
                 kw['table'] = this.attr.table;
                 th_unifyrecord(kw);

@@ -42,7 +42,9 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         this.afterBuildCalls = [];
         this.building = false;
         this.datatags = {'data':null,'dataformula':null,'datascript':null,
-            'datarpc':null,'dataremote':null,'datacontroller':null, 'dataws':null};
+            'datarpc':null,'dataremote':null,'datacontroller':null};
+        this.layouttags = {'contentpane':null,'bordercontainer':null,'stackcontainer':null,
+            'tabcontainer':null,'accordioncontainer':null,'newincludedview':null,'framepane':null};
         this.highlightedNode = null;
 
     },
@@ -498,6 +500,13 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             var serverpath = objectPop(attributes, 'serverpath');
             if (serverpath) {
                 genro._serverstore_paths[node.absDatapath(path)] = serverpath;
+            }
+            var shared_id = objectPop(attributes,'shared_id');
+            if(shared_id){
+                var shared_kw=objectExtract(attributes,'shared_*');
+                setTimeout(function(){
+                    genro.som.registerSharedObject(node.absDatapath(path),shared_id,shared_kw);
+                },1);
             }
             if(!genro.getDataNode(path)||(value!==null)){
                 genro.setData(path, value, attributes);

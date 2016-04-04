@@ -29,6 +29,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
 
     constructor: function(application) {
         this.application = application;
+        this._quickDialogDestroyTimeout = 500;
     },
     recordChange: function(record_path, selected_pkey) {
         var pkey_now = genro.getDataNode(record_path).attr.pkey;
@@ -54,7 +55,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         dlg._('layoutcontainer', {height:'100%'});
         dlg._('contentpane', {'_class':'dojoDialogInner',layoutAling:'client'})._('span', {content:msg});
         var bottom = dlg._('contentpane', {layoutAling:'bottom'})._('div', {'align':'right'});
-        var buttons = buttons || [
+        buttons = buttons || [
             {'caption':'OK', result:'OK'},
             {'caption':'cancel', result:'cancel'}
         ];
@@ -191,20 +192,20 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
     iframeDialog:function(iframeId,kw){
         var dialogId = iframeId+'_dlg';
-        var dlgNode = genro.nodeById(dialogId)
+        var dlgNode = genro.nodeById(dialogId);
         if(!dlgNode){
             var root = genro.src.getNode()._('div', '_dlg_iframe');
             var dlg = root._('dialog',{title:kw.title,closable:kw.closable,nodeId:dialogId});
             var iframekw = {src:kw.src,border:0,height:'100%',width:'100%',nodeId:iframeId};
-            iframekw['selfsubscribe_close'] = "this.dialog.hide();"
+            iframekw.selfsubscribe_close = "this.dialog.hide();";
             objectUpdate(iframekw,objectExtract(kw,'selfsubscribe_*',true,true));
             var iframe = dlg._('div',{height:kw.height,width:kw.width,overflow:'hidden'})._('iframe','iframe',iframekw);
-            var dlgNode = dlg.getParentNode()
+            dlgNode = dlg.getParentNode();
             dlgNode._iframeNode = iframe.getParentNode();
             dlgNode._iframeNode.dialog = dlgNode.widget;
             //create dlg and iframe
         }
-        dlgNode.widget.show()
+        dlgNode.widget.show();
         if(kw.openKw){
             dlgNode._iframeNode.domNode.gnr.postMessage(dlgNode._iframeNode,kw.openKw);
         }
@@ -213,7 +214,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     lightboxDialog:function(kwOrCb,onClosedCb){        
         genro.src.getNode()._('div', '_dlg_lightbox');
         var node = genro.src.getNode('_dlg_lightbox').clearValue().freeze();
-        var onClosedCb = onClosedCb?funcCreate(onClosedCb):null;
+        onClosedCb = onClosedCb?funcCreate(onClosedCb):null;
         var dlg = node._('dialog',{_class:'lightboxDialog',nodeId:'_dlg_lightbox',connect_hide:function(){
             if(onClosedCb){
                 onClosedCb.call(this);
@@ -405,21 +406,31 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var wdg = kw['widget'] || 'textbox';
         var remote = kw['remote'];
         var dflt = kw['dflt'];
-        genro.setData('gnr.promptDlg.promptvalue',dflt || null);
-        dlg_kw = objectUpdate({_showParent:true,width:'280px',datapath:'gnr.promptDlg',background:'white',autoSize:true},dlg_kw);
+        genro.dlg.prompt_counter = genro.dlg.prompt_counter || 0;
+        genro.dlg.prompt_counter++;
+        var prompt_datapath = 'gnr.promptDlg.prompt_'+genro.dlg.prompt_counter
+        var promptvalue_path = prompt_datapath+'.promptvalue';
+        genro.setData(promptvalue_path,dflt || null);
+        dlg_kw = objectUpdate({_showParent:true,width:'280px',datapath:prompt_datapath,background:'white',autoSize:true},dlg_kw);
         var dlg = genro.dlg.quickDialog(title,dlg_kw);
         var mandatory = objectPop(kw,'mandatory');
         var bar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',action:function(){
                                                     dlg.close_action();
                                                     if(this.attr.command=='confirm'){
-                                                        var v = genro.getData('gnr.promptDlg.promptvalue');
+                                                        var v = genro.getData(promptvalue_path);
                                                         if(mandatory && isNullOrBlank(v)){
                                                             return;
                                                         }
-                                                        funcApply(confirmCb,{value:genro.getData('gnr.promptDlg.promptvalue')},(sourceNode||this));
-                                                        genro.setData('gnr.promptDlg.promptvalue',null);
+                                                        funcApply(confirmCb,{value:genro.getData(promptvalue_path)},(sourceNode||this));
+                                                        genro.setData(promptvalue_path,null);
                                                     }else if(this.attr.command == 'cancel' && cancelCb){
                                                         funcApply(cancelCb,{},(sourceNode||this));
+                                                    }
+                                                    genro.dlg.prompt_counter--;
+                                                    if(!genro.dlg.prompt_counter){
+                                                        setTimeout(function(){
+                                                            genro._data.popNode('gnr.promptDlg');
+                                                        },genro.dlg._quickDialogDestroyTimeout+1);
                                                     }
                                                 }});
         bar._('button','cancel',{'label':'Cancel',command:'cancel'});
@@ -434,7 +445,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             kwbox['remote'] = remote;
             objectUpdate(kwbox,objectExtract(kw,'remote_*',false,true));
             kwbox['remote_valuepath'] = '.promptvalue';
-            kwbox['remote_onResult'] = function(){
+            kwbox['remote__onRemote'] = function(){
                 setTimeout(function(){
                     dlg.getParentNode().widget.adjustDialogSize()
                 },1);
@@ -443,6 +454,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         }else if(typeof(wdg)=='function'){
             kwbox['datapath'] = '.promptvalue'
             wdg.call(sourceNode,dlg.center._('div',kwbox)); // nn ho un sourcenode
+        }else if(wdg=='multiValueEditor'){
+            dlg.center._('multiValueEditor',objectUpdate({value:'^.promptvalue',height:'250px',width:'350px'},objectExtract(kw,'wdg_*')));
         }
         else{
             kwbox.padding = '10px';
@@ -457,6 +470,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             }else{
                 var fb = genro.dev.formbuilder(box,1,{border_spacing:'4px',width:'100%',fld_width:'100%',datapath:'.promptvalue'});
                 wdg.forEach(function(n){
+                    n = objectUpdate({},n);
                     var w = objectPop(n,'wdg','textbox');
                     fb.addField(w,objectUpdate({lbl_color:'#666',lbl_text_align:'right'},n));
                 })
@@ -506,10 +520,50 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         return node._('floatingPane', kw);
     },
 
+    quickTooltipPane: function(kw,contentCb,contentCbKw) {
+        var kw = objectUpdate({},kw);
+        kw.evt = kw.evt || false;
+        var nodeId = kw.nodeId  || 'td_'+'tempTooltip';
+        var quickRoot = '_dlgTooltip_quick_'+ nodeId;
+        genro.src.getNode()._('div',quickRoot);
+        var node = genro.src.getNode(quickRoot).clearValue();
+        var domNode = objectPop(kw,'domNode');
+        node.freeze();
+        if(domNode){
+            var openerId = kw.openerId || nodeId+'_opener';
+            kw.openerId = openerId;
+            kw.onCreated = function(){
+                setTimeout(function(){
+                    genro.publish(openerId+'_open',{domNode:domNode});
+                },1)
+                
+            }
+        }
+        var fields = objectPop(kw,'fields');
+        var cols = objectPop(kw,'cols',1);
+
+        var tp = node._('tooltipPane',kw)._('div',{_class:'quickTooltipContainer'});
+        if(fields){
+            if(fields instanceof Array){
+                var fb = genro.dev.formbuilder(tp,cols,{border_spacing:'4px',width:'100%',fld_width:'100%'});
+                fields.forEach(function(n){
+                    var n = objectUpdate({},n);
+                    var w = objectPop(n,'wdg','textbox');
+                    fb.addField(w,objectUpdate({},n));
+                })
+            }
+        }else if(contentCb){
+            contentCb(tp,contentCbKw)
+        }
+        node.unfreeze();
+        return tp;
+    },
+
     quickDialog: function(title,kw) {
         var kw = objectUpdate({},kw);
-        genro.src.getNode()._('div', '_dlg_quick');
-        var node = genro.src.getNode('_dlg_quick').clearValue();
+        var quickRoot = '_dlg_quick_'+genro.getCounter();
+        genro.src.getNode()._('div',quickRoot);
+        var node = genro.src.getNode(quickRoot).clearValue();
         node.freeze();
         var kwdimension = objectExtract(kw,'height,width,background,padding');
         if(kw.closable){
@@ -517,7 +571,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                 var that = this;
                 setTimeout(function(){
                     that._destroy();
-                },500);
+                },genro.dlg._quickDialogDestroyTimeout);
             }
         }
         var dlg = node._('dialog', objectUpdate({title:title},kw));
@@ -535,7 +589,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                 if(ndlg){
                     ndlg.getParentNode()._value.popNode(ndlg.label);
                 }
-            },500);
+            },genro.dlg._quickDialogDestroyTimeout);
             
         };
         dlg.show_action = function() {
@@ -554,23 +608,26 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var attr = sourceNode.currentAttributes();
         objectUpdate(zoomAttr,objectExtract(attr,'_zoomKw_*'));
         zoomAttr.evt = evt;
-        var mode = objectPop(zoomAttr,'mode') || 'palette';
+        this.makeZoomElement(zoomAttr);
+    },
 
+    makeZoomElement:function(kw) {
+        var mode = objectPop(kw,'mode') || 'palette';
         if(mode=='palette'){
-            this.zoomPalette(zoomAttr);
-        }else if(mode=='page' && genro.root_page_id){
+            this.zoomPalette(kw);
+        }else if(mode=='page' && genro.mainGenroWindow){
             var pageKw = {};
-            zoomAttr['main_call'] = 'main_form';
-            pageKw['file'] = this._prepareThIframeUrl(zoomAttr);
-            pageKw['label'] = zoomAttr.title;
+            kw['main_call'] = 'main_form';
+            pageKw['file'] = this._prepareThIframeUrl(kw);
+            pageKw['label'] = kw.title;
             pageKw['subtab'] = true;
             genro.mainGenroWindow.genro.publish('selectIframePage',pageKw);
         }
         else if(mode=='window' && genro.root_page_id){
             var pageKw = {};
-            zoomAttr['main_call'] = 'main_form';
-            pageKw['file'] = this._prepareThIframeUrl(zoomAttr);
-            pageKw['label'] = zoomAttr.title;
+            kw['main_call'] = 'main_form';
+            pageKw['file'] = this._prepareThIframeUrl(kw);
+            pageKw['label'] = kw.title;
             genro.mainGenroWindow.genro.publish('newBrowserWindowPage',pageKw);
         }
     },
@@ -599,8 +656,9 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         paletteAttr.palette_selfsubscribe_resize = "$1.top='100px';this.widget.setBoxAttributes($1);";
         objectUpdate(paletteAttr,kw);
         var palette = node._('palettePane',paletteCode,paletteAttr);
-        palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0}); 
-        node.unfreeze(); 
+        palette._('iframe','iframeNode',{'src':zoomUrl,height:'100%',width:'100%',border:0}); 
+        node.unfreeze();
+        return palette; 
     },
 
     zoomFromCell:function(evt){

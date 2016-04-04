@@ -69,6 +69,19 @@ cursorZoom_plus{
 	display: none;
 }
 
+.player_pause {
+    background: url(icons/player/player_pause.png) center center no-repeat;
+    height: 18px;
+    width: 20px;
+    cursor: pointer;
+}
+.player_play {
+    background: url(icons/player/player_play.png) center center no-repeat;
+    height: 18px;
+    width: 20px;
+    cursor: pointer;
+}
+
 .detatched_placeholder {
     background: gray url(icons/base128/no_entry.png) center center no-repeat;
     height: 100%;
@@ -738,7 +751,9 @@ label.ghostlabel span {
 }
 
 
-
+._common_d11.tundra .dijitSplitter:active{
+    background: #777;
+}
 
 .tundra .drawerFixed.dijitSplitter.dijitSplitterV{
     width: 0;
@@ -751,7 +766,7 @@ label.ghostlabel span {
 .tundra .drawerFixed.dijitSplitter.dijitSplitterH{
     height: 0;
 }
-.tundra .drawerFixed.dijitSplitter.dijitSplitter):hover{
+.tundra .drawerFixed.dijitSplitter.dijitSplitter:hover{
     height: 0;
     background: transparent;
 }
@@ -1054,15 +1069,20 @@ table.formbuilder {
 .multiColumnSelect {
     background-color: #f3f3f3;
     overflow:hidden;
+    color:#444;
 }
 
 .multiColumnSelect th {
     padding: 2px;
-    border: 0px solid #c8c8c8;
-    background-color: #204174; /*font-weight: bold;*/
+    border-bottom: 0px solid #c8c8c8;
+    background-color: #ddd; /*font-weight: bold;*/
     text-align: center;
-    color: white;
+    color: #333;
     white-space: nowrap;
+    border-right: 1px solid white;
+}
+.multiColumnSelect th:last-child{
+    border-right: 0px solid white;
 }
 
 .multiColumnSelect tr {
@@ -1318,6 +1338,13 @@ table.formbuilder {
     width: 14px;
     height: 14px;
 }
+
+.blueLed {
+    background: url(icons/base16/blueled.png) no-repeat center center;
+    width: 14px;
+    height: 14px;
+}
+
 .waiting16{
     background: url(icons/wait16trans.gif) no-repeat center center;
     width: 16px;
@@ -1652,16 +1679,44 @@ div.dojoxDock {
 }
 
 ._common_d11.tundra .dojoxFloatingMinimizeIcon {
-    background: transparent url(icons/base16/floatingclose.png) no-repeat scroll center center;
+    background: transparent url(icons/base16/close.svg) no-repeat scroll center center;
     float: right;
     height: 16px;
     overflow: hidden;
     width: 16px;
+    margin-right: 4px;
 }
 
-.dijitMenu {
+
+._common_d11.tundra .dojoxFloatingCloseIcon{
+    background: transparent url(icons/base16/close.svg) no-repeat scroll center center;
+    height: 16px;
+    width: 16px;
+}
+
+
+._common_d11.tundra .dijitDialogCloseIcon{
+    background: transparent url(icons/base16/close.svg) no-repeat scroll center center;
+    height: 16px;
+    width: 16px;
+}
+
+.tundra._common_d11 .dijitDialogTitle{
+    font-weight: normal;
+}
+
+._common_d11.tundra .dojoxFloatingMaximizeIcon{
+    background: transparent url(icons/base16/expand.png) no-repeat scroll center center;
+    margin-right: 6px;
+}
+
+._common_d11.tundra .dijitMenu {
+    border-width: 0;
     -moz-box-shadow: 2px 2px 4px #403b3b;
     -webkit-box-shadow: 2px 2px 4px #403b3b;
+}
+._common_d11.tundra .dijitPopup{
+    border:1px solid #ccc;
 }
 .floatingTooltipPane{
 
@@ -2764,6 +2819,9 @@ body *{
     right:2px;
     bottom:20px;
 }
+.quickTooltipContainer{
+    padding: 10px;
+}
 .quickEditorWrapper{
     position: relative;
 }
@@ -3564,12 +3622,12 @@ table.draggedItem {
     text-align: right;
 }
 
-._common_d11.tundra td.invalidCell.dojoxGrid-cell{
+._common_d11.tundra .dojoxGrid-row td.invalidCell.dojoxGrid-cell{
     background-image:url(icons/invalid_small.png);
     background-repeat:no-repeat;
     background-position:0px 0px;
 }
-._common_d11.tundra .newRowCell.dojoxGrid-cell{
+._common_d11.tundra .dojoxGrid-row .newRowCell.dojoxGrid-cell{
     font-style:italic;
 }
 
@@ -3911,6 +3969,9 @@ p {
     opacity:.6;
 }
 
+.iconbox.iconbox_short{
+    height: 12px;
+}
 .quickgrid_container .iconbox:hover {
     opacity:1;
 }
@@ -4350,6 +4411,11 @@ div[disabled='true'], div[disabled='disabled']{
 .fm_warning{
     background:rgba(250, 120, 0, 1)
 }
+
+.fm_close{
+    background: url(icons/fm_close.gif) no-repeat center center;
+}
+
 .dlg_closebtn{
     height: 18px;
     width: 18px;
@@ -4921,7 +4987,17 @@ div[disabled='true'], div[disabled='disabled']{
     color:#666;
     font-weight: bold;
     font-size: .9em;
+    line-height:20px;
 }
+
+._common_d11 .pbl_roundedGroupLabel.slotbar_toolbar .frameGridTitle{
+    color:inherit;
+    font-weight: normal;
+    font-size: inherit;
+    line-height:20px;
+}
+
+
 
 /*scroll fix for mobile*/
 .scroll-wrapper{
@@ -4956,5 +5032,89 @@ div[disabled='true'], div[disabled='disabled']{
     color:rgba(99, 136, 195, 0.25);
     text-align: center;
     margin-top: 20px;
+}
+
+.dropUploaderBox{
+    width:150px;
+    border: 1px solid silver;
+    border-radius: 4px;
+    font-size: 20px;
+    color: #666;
+    text-align: center;
+    height: 30px;
+    cursor: pointer;
+    position: relative;
+}
+
+.dropUploaderBoxInner{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    line-height: 30px;
+}
+
+.slotbar_cell .innerLbl{
+    display: none;
+}
+
+.showInnerLabel .slotbar_cell .innerLbl{
+    display: block;
+}
+.innerLbl{
+    background: #B3B3B3;
+    color: white;
+    text-align: left;
+    margin-left: 1px;
+    margin-right: 1px;;
+    font-size: 0.9em;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    border:1px solid #B3B3B3;
+}
+
+.innerLbl_top .innerLbl{
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom:0;
+}
+
+.innerLbl_bottom .innerLbl{
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-top:0;
+}
+
+.innerLblWrapper{
+    display: inline-block;
+}
+.innerLblWrapper.innerLblWrapper_widget_simpletextarea{
+}
+
+
+.tundra .innerLbl_top.innerLblWrapper .dijitTextBox, 
+.tundra .innerLbl_top.innerLblWrapper .dijitComboBox, 
+.tundra .innerLbl_top.innerLblWrapper .dijitSpinner, 
+.tundra .innerLbl_top.innerLblWrapper .dijitInlineEditor input,
+.tundra .innerLbl_top.innerLblWrapper .dijitTextArea{
+    /*box-shadow: 0 2px 2px #DDDDDD inset;*/
+    border-top-left-radius:0;
+    border-top-right-radius:0;
+    border-top:0;
+}
+
+
+.tundra .innerLbl_bottom.innerLblWrapper .dijitTextBox, 
+.tundra .innerLbl_bottom.innerLblWrapper .dijitComboBox, 
+.tundra .innerLbl_bottom.innerLblWrapper .dijitSpinner, 
+.tundra .innerLbl_bottom.innerLblWrapper .dijitInlineEditor input,
+.tundra .innerLbl_bottom.innerLblWrapper .dijitTextArea{
+    /*box-shadow: 0 2px 2px #DDDDDD inset;*/
+    border-bottom-left-radius:0;
+    border-bottom-right-radius:0;
+    border-bottom:0;
 }
 
