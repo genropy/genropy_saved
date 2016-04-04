@@ -109,7 +109,7 @@ class ViewPlugin(View):
         #r.fieldcell('connected_description',name='Connected to')
 
     def th_top_custom(self,top):
-        top.bar.replaceSlots('#','2,sections@action_type_id,*,searchOn,2',
+        top.bar.replaceSlots('#','2,sections@action_type_id,5,searchOn,*,count,2',
                                 sections_action_type_id_multiButton=False,
                                 sections_action_type_id_multiValue=False,
                                 sections_action_type_id_lbl='!!Actions')
