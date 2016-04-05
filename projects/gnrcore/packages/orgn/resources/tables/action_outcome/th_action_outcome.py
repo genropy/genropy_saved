@@ -26,8 +26,10 @@ class ViewFromActionType(BaseComponent):
         r.fieldcell('description',edit=dict(validate_notnull=True),width='20em')
         r.fieldcell('outcome_action_type_id')
         r.fieldcell('deadline_days',edit=True)
+        r.fieldcell('default_priority',edit=True,width='12em')
         r.fieldcell('default_tag',edit=dict(condition='$child_count = 0 AND $isreserved IS NOT TRUE',
-                                            tag='dbselect',dbtable='adm.htag',alternatePkey='code',hasDownArrow=True))
+                                            tag='dbselect',dbtable='adm.htag',alternatePkey='code',hasDownArrow=True),
+                    width='15em')
 
     def th_order(self):
         return 'action_type_id'

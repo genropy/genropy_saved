@@ -47,6 +47,19 @@ class View(BaseComponent):
     def th_options(self):
         return dict(virtualStore=False)
 
+class ViewPicker(BaseComponent):
+    def th_hiddencolumns(self):
+        return '$default_priority,$default_tag,$deadline_days'
+
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('code',width='5em')
+        r.fieldcell('description',width='20em')
+        r.fieldcell('color',name='Color',width='7em',
+                    _customGetter="""function(row){
+                        return dataTemplate("<div style='background:$background_color;color:$color;border:1px solid $color;text-align:center;border-radius:10px;'>Sample</div>",row)
+                    }""")
+        r.fieldcell('background_color',hidden=True)
 
 
 class Form(BaseComponent):
@@ -83,7 +96,9 @@ class Form(BaseComponent):
                             ).center.contentPane(overflow='hidden')
         topright.simpleTextArea(value='^.text_template',position='absolute',top=0,left=0,right=0,bottom=0,border=0)
         tc = bc.tabContainer(region='center',margin='2px')
-        tc.contentPane(title='!!Outcomes',datapath='#FORM').inlineTableHandler(relation='@outcomes',addrow=False,
+        tc.contentPane(title='!!Outcomes',datapath='#FORM').inlineTableHandler(relation='@outcomes',addrow=False,margin='2px',
+                                                                            picker_viewResource='ViewPicker',
+                                                                            picker_defaults='default_priority,default_tag,deadline_days',
                                                                            picker='outcome_action_type_id',
                                                                            picker_condition="""(CASE WHEN $restrictions IS NOT NULL AND :restriction IS NOT NULL 
                                                                                     THEN  string_to_array($restrictions,',') @> string_to_array(:restriction,',')
