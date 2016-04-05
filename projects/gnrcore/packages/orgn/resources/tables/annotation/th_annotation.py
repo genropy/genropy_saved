@@ -161,7 +161,7 @@ class ActionOutcomeForm(BaseComponent):
                     selected_deadline_days='.$outcome_deadline_days',
                     selected_description='.next_action.action_description',
                     selected_default_tag='.next_action.assigned_tag',
-                    selected_default_priority='.next_action.default_priority',
+                    selected_default_priority='.next_action.priority',
                     selected_outcome_action_type_id='.next_action.action_type_id',
                     lbl='!!Outcome action',colspan=2)
         fb.dataRpc('dummy',self.db.table('orgn.annotation').getDueDateFromDeadline,
