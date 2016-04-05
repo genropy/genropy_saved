@@ -11,5 +11,5 @@ class Table(object):
         tbl.column('outcome_action_type_id',size='22' ,group='_',name_long='!!Outcome').relation('action_type.id',relation_name='action_outcome',mode='foreignkey',onDelete='raise')
         tbl.column('deadline_days',dtype='I',name_long='!!Deadline days',name_short='!!D.Days')
         tbl.column('default_tag',name_long='!!Default tag')
-
+        tbl.column('default_priority',size='1',name_long='!!Priority',values='L:[!!Low],M:[!!Medium],H:[!!High]')
         tbl.formulaColumn('outcome_caption',"@outcome_action_type_id.description || '-' || $description")

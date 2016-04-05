@@ -95,8 +95,14 @@
 }
 
 .orgn_form_tpl .orgn_action_template{
-    border:1px solid silver;
-    border-radius: 6px;
+    border:0px solid silver;
+    border-radius: 0;
     padding-right: 10px;
-    background: white;
+    background: transparent;
+}
+
+.orgn_form_tpl .priority_cell{
+    width:7px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
 }

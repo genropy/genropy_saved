@@ -139,9 +139,8 @@ class ActionOutcomeForm(BaseComponent):
         self.action_outcome_form(bc)
 
     def action_outcome_form(self,bc):
-        bc.contentPane(region='top').templateChunk(template='action_tpl',
-                                                    record_id='^#FORM.record.id',table='orgn.annotation',_class='orgn_form_tpl',
-                                                    margin='10px',height='80px')
+        bc.contentPane(region='top',height='95px').templateChunk(template='action_tpl',
+                                                    record_id='^#FORM.record.id',table='orgn.annotation',_class='orgn_form_tpl')
 
         centerframe = bc.framePane(region='center')
         centerframe.top.slotToolbar('*,stackButtons,*')
@@ -162,6 +161,7 @@ class ActionOutcomeForm(BaseComponent):
                     selected_deadline_days='.$outcome_deadline_days',
                     selected_description='.next_action.action_description',
                     selected_default_tag='.next_action.assigned_tag',
+                    selected_default_priority='.next_action.default_priority',
                     selected_outcome_action_type_id='.next_action.action_type_id',
                     lbl='!!Outcome action',colspan=2)
         fb.dataRpc('dummy',self.db.table('orgn.annotation').getDueDateFromDeadline,
@@ -181,12 +181,12 @@ class ActionOutcomeForm(BaseComponent):
                 condition='$child_count = 0 AND $isreserved IS NOT TRUE',
                 validate_notnull='^.outcome_id',
                 dbtable='adm.htag',alternatePkey='code',hidden='^.outcome_id?=!#v',
-                colspan=2)
+                colspan=2,hasDownArrow=True)
         fb.dbSelect(value='^.next_action.assigned_user_id',lbl='!!Assigned to',
                     condition="$id IN :allowed_user_pkeys AND @tags.@tag_id.code=:atag",
                     condition_atag='=.next_action.assigned_tag',
                     condition_allowed_user_pkeys='=#FORM.record.$allowed_user_pkeys',
-                    dbtable='adm.user',hidden='^.outcome_id?=!#v') #setting condition
+                    dbtable='adm.user',hidden='^.outcome_id?=!#v',hasDownArrow=True) #setting condition
         pane.button('!!Confirm Action',action='this.form.publish("save",{destPkey:"*dismiss*"})',position='absolute',bottom='5px',right='5px')
 
     def orgnActionCancelled(self,pane):
