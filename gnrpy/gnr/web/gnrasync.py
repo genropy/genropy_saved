@@ -23,6 +23,7 @@ import time
 import os
 import base64
 from datetime import datetime
+from copy import deepcopy
 from functools import wraps
 from concurrent.futures import ThreadPoolExecutor,Future
 import tornado.web
@@ -40,6 +41,7 @@ from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import AsyncWebSocketHandler
 from gnr.web.gnrwsgisite import GnrWsgiSite
 from gnr.core.gnrstring import fromJson
 from tornado import version_info
+
 if version_info[0]>=4 and version_info[1]>=2:
     from tornado import queues
 else:
@@ -443,9 +445,12 @@ class SharedObject(object):
         backup = self.dbSaveKw.get('backup')
         data_column = self.sql_data_column
         with tblobj.recordToUpdate(self.shared_id) as record:
+            if not self.data:
+                print 'NO DATA IN SAVING', self.shared_id
+            record[data_column] = deepcopy(self.data)
             onSavingHandler=getattr(tblobj, 'shared_onSaving',None)
             if onSavingHandler:
-                onSavingHandler(record, self.data)
+                onSavingHandler(record)
 
             if backup:
                 backup_column = self.sql_backup_column
@@ -457,7 +462,7 @@ class SharedObject(object):
                 record[backup_column].setItem('v_%s' % n, record[data_column], ts=datetime.now())
                 if len (record[backup_column]) > backup:
                     record[backup_column].popNode('#0')
-            record[data_column] = self.data
+            
 
     def sql_load(self, tblobj, version=None):
         record = tblobj.record(self.shared_id).output('bag')
