@@ -7,12 +7,12 @@ var THPicker = {
             var sfield = l[0];
             var dfield = l.length==1?l[0]:l[1];
             destrow[dfield] = sourcerow[sfield];
-        }
+        };
         if(treepicker){
             kw.dragPkeys = [data['pkey']];
             if(defaults){
                 var drow = {};
-                kw.dragDefaults = {}
+                kw.dragDefaults = {};
                 defaults.split(',').forEach(function(d){cbdef(drow,data['_record'],d);});
                 kw.dragDefaults[data['pkey']] = drow;
             }
