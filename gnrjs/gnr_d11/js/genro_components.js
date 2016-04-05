@@ -5544,9 +5544,12 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     },
 
     onDeletedRows:function(result){
-        //if(result && result.error){
-        //    genro.dlg.alert(result.error,'Alert');
-        //}
+        var that = this;
+        this.gridBroadcast(function(grid){
+            genro.callAfter(function(){
+                grid.updateCounterColumn();
+            },300,grid,that.storeNode.attr.nodeId);
+        });
     },
 
     onLoading:function(){
