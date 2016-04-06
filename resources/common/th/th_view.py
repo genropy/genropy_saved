@@ -222,7 +222,8 @@ class TableHandlerView(BaseComponent):
             pkeyfield = section_table.pkey
             caption_field = section_table.attributes.get('caption_field')
             condition_kwargs = condition_kwargs or dict()
-            f = section_table.query(columns='*,$%s' %caption_field,where=condition,**condition_kwargs).fetch()
+            default_order_by = section_table.attributes.get('order_by','$%s' %caption_field)
+            f = section_table.query(columns='*,$%s' %caption_field,where=condition,order_by=default_order_by,**condition_kwargs).fetch()
         else:
             caption_field = 'description'
             pkeyfield = 'code'
