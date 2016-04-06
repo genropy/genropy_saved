@@ -3,7 +3,7 @@
 class Table(object):
     def config_db(self,pkg):
         tbl =  pkg.table('action_type',pkey='id',name_long='!!Action type',name_plural='!!Action types',caption_field='description')
-        self.sysFields(tbl,df=True,counter=True)
+        self.sysFields(tbl,df=True)
         tbl.column('code',size=':10',name_long='Code')
         tbl.column('description',name_long='!!Description')
         tbl.column('extended_description',name_long='!!Extended description')

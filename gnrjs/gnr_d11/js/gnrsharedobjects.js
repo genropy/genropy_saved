@@ -64,9 +64,12 @@ dojo.declare("gnr.GnrSharedObjectHandler", null, {
 
     registerSharedObject:function(path,shared_id,kw){
         kw = kw || {};
+        var on_unregistered = objectPop(kw,'on_unregistered');
+        var on_registered = objectPop(kw,'on_registered');
+
         var that =this
         if(!(shared_id in genro._sharedObjects)){
-            genro._sharedObjects[shared_id] = {shared_id:shared_id,path:path,ready:false};
+            genro._sharedObjects[shared_id] = {shared_id:shared_id,path:path,ready:false, on_unregistered:on_unregistered};
             var onResult = function(resultNode){
                 var data = resultNode.getValue();
                 genro.som.do_sharedObjectChange(data);
@@ -99,6 +102,9 @@ dojo.declare("gnr.GnrSharedObjectHandler", null, {
                          genro.wsk.send('som.onPathFocus',{shared_id:shared_id,curr_path:curr_path,focused:false});
                      }
                   },true)
+                if (on_registered){
+                    on_registered(shared_id);
+                }
             }
             genro.wsk.call(objectUpdate({command:'som.subscribe',
                             shared_id:shared_id, _onResult:onResult},kw));
@@ -113,6 +119,9 @@ dojo.declare("gnr.GnrSharedObjectHandler", null, {
                             _onResult:function(){
                                 var so = objectPop(genro._sharedObjects,shared_id);
                                 objectPop(genro._sharedObjects_paths,so.path);
+                                if(so.on_unregistered){
+                                    so.on_unregistered(shared_id)
+                                }
                             }
             });
         }
