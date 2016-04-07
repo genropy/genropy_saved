@@ -7,5 +7,6 @@ class Table(object):
                         name_plural='!!Widgets',caption_field='name',audit='lazy')
         self.sysFields(tbl,hierarchical='name',df=True)
         tbl.column('name',name_long='!!Name')
+        tbl.column('summary',name_long='!!Summary')
         tbl.column('server',dtype='B',name_long='!!Server')
 

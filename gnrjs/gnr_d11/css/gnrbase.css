@@ -5118,3 +5118,50 @@ div[disabled='true'], div[disabled='disabled']{
     border-bottom:0;
 }
 
+
+
+.grid_gallery_grid .dojoxGrid-scrollbox{
+    margin-left: 5px;
+    border-bottom: 
+}
+.grid_gallery_grid{
+    border-right: 1px solid silver;
+}
+.grid_gallery_grid .dojoxGrid-cell {
+    border-left: 0px !important;
+    border-top: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    background: transparent !important;
+}
+
+.tundra._common_d11 .grid_gallery_grid .dojoxGrid-row-selected{
+    background: transparent !important;
+    background-image:none !important;
+}
+.tundra._common_d11 .grid_gallery_grid .dojoxGrid-row{
+    background-image:none !important;
+    background: transparent !important;
+}
+.tundra._common_d11 .grid_gallery_grid .dojoxGrid-cell{
+    padding-top:0px !important;
+}
+.tundra._common_d11 .grid_gallery_grid .dojoxGrid-content>div {
+    border-bottom: 0;
+}
+.tundra .grid_gallery_grid .cellContent{
+    margin-top:0;
+    margin-right:0px;
+    text-align:right;
+    font-size: 8pt;
+    color:#333;
+    border: 0px ;
+    cursor:pointer;
+    margin-top:2px;
+    opacity: .6;    
+}
+
+.grid_gallery_grid .dojoxGrid-row-selected .cellContent{
+    opacity: 1;
+}
+

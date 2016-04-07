@@ -2143,6 +2143,57 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
     }
 
 });
+dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw) {
+        var grid_pars = objectExtract(kw,'items,columns');
+        objectUpdate(grid_pars,objectExtract(kw,'grid_*'));
+        var viewer_pars = objectExtract(kw,'viewer_*');
+        var items = objectPop(grid_pars,'items');
+        var itemspath = sourceNode.absDatapath(items);
+        if(sourceNode.isPointerPath(items)){
+            grid_pars.dynamicStorepath = itemspath;
+        }else{
+            grid_pars.value = itemspath;
+        }
+        grid_pars.autoSelect = true;
+        kw._workspace = true;
+        var bc = sourceNode._('BorderContainer',kw);
+        var dpath = bc.getParentNode().absDatapath('#WORKSPACE.curr_datapath')
+        sourceNode.setRelativeData(dpath,bc.getParentNode().absDatapath('#WORKSPACE')+'.emptypath');
+        grid_pars.connect_onSelected = function(rowIndex){
+            if(rowIndex>=0){
+                this.setRelativeData(dpath,
+                                this.widget.collectionStore().itemByIdx(rowIndex).getFullpath().slice(5));
+            }
+        }
+        
+        var gp = bc._('ContentPane','gridpane',objectUpdate({region:'left',width:'130px',_class:'grid_gallery_grid noheader'},objectExtract(grid_pars,'width,_class')))
+        var g = gp._('quickGrid','grid',objectUpdate(grid_pars));
+        if(genro.isDeveloper){
+            g._('tools',{tools:'addrow,delrow',position:'BR'});
+            g._('column',{field:'label',name:'Label',width:'100%',edit:true});
+        }else{
+            g._('column',{field:'label',name:'Label',width:'100%'});
+        }
+        var content_kw = {innerHTML:'^.content',_class:'doc_item selectable'};
+        if(genro.isDeveloper){
+            content_kw.connect_ondblclick = function(){
+                    var that = this;
+                    genro.dlg.prompt(_T('Edit'),{
+                        widget:function(pane){
+                            return pane._('BorderContainer',{width:'800px',height:'330px'})._('ContentPane',{region:'center',overflow:'hidden'})._('ckeditor',{value:'^.content'});
+                        },action:function(value){
+                            that.setRelativeData('.content',value.getItem('content'));
+                        },
+                        dflt:this.getRelativeData().deepCopy()
+                    })
+            }
+        }
+
+        bc._('ContentPane',objectUpdate({region:'center',_class:'grid_gallery_box',datapath:'^'+dpath},viewer_pars))._('div',content_kw);
+        return bc;
+    }
+});
 
 dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     subtags : {column:true,
@@ -2154,6 +2205,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         sourceNode.attr._workspace = kw.nodeId || true;
         var gnrwdg = sourceNode.gnrwdg;
         var value = objectPop(kw,'value');
+        var dynamicStorepath = objectPop(kw,'dynamicStorepath');
         var columns = objectPop(kw,'columns');
         sourceNode.attr.fields = objectPop(kw,'fields');
         gnrwdg.guessColumns = sourceNode.attr.fields;
@@ -2190,7 +2242,8 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         objectUpdate(kw,selected_kwargs);
 
 
-        var valuepath = sourceNode.absDatapath(value);
+        var valuepath = value?sourceNode.absDatapath(value):null;
+        dynamicStorepath = dynamicStorepath?'^'+sourceNode.absDatapath(dynamicStorepath):null;
         var store_kwargs = objectExtract(kw,'store_*');
         kw.nodeId = kw.nodeId || '_qg_'+genro.getCounter();
         kw.store = kw.nodeId;
@@ -2212,6 +2265,10 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var currentColumns = sourceNode.getAttributeFromDatasource('columns');
         var struct = new gnr.GnrBag();
         sourceNode.setRelativeData(kw.structpath,struct)
+        if(dynamicStorepath){
+            kw.dynamicStorepath = dynamicStorepath;
+            valuepath = '.dummystore';
+        }
         sourceNode._('BagStore',objectUpdate({storepath:valuepath,
                         nodeId:kw.nodeId+'_store',datapath:kw.controllerPath,
                         storeType:kw.datamode=='bag'?'ValuesBagRows':'AttributesBagRows'},store_kwargs));
