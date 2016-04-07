@@ -432,7 +432,7 @@ class TableBase(object):
         if partitionParameters:
             sql_formula = "( $%(field)s IN :env_allowed_%(path)s )" %partitionParameters
         return [dict(name='__allowed_for_partition',sql_formula=sql_formula or 'FALSE',
-                    dtype='B',name_long='!!Allowed for partition')]
+                    dtype='B',name_long='!!Allowed for partition',group='_')]
 
     def getPartitionAllowedUsers(self,recordOrPkey):
         partitionParameters = self.partitionParameters
