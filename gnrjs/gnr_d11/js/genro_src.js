@@ -388,7 +388,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
           //         });
           //     }
         }
-        return 'finito'
+        return;
     },
     refreshSourceIndexAndSubscribers:function() {
         if(this._deletingNodeContent>0){
