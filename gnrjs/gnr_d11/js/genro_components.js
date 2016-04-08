@@ -2167,7 +2167,7 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
             }
         }
         
-        var gp = bc._('ContentPane','gridpane',objectUpdate({region:'left',width:'130px',_class:'grid_gallery_grid noheader'},objectExtract(grid_pars,'width,_class')))
+        var gp = bc._('ContentPane','gridpane',objectUpdate({region:'left',_class:'grid_gallery_grid noheader'},objectExtract(grid_pars,'width,_class')))
         var g = gp._('quickGrid','grid',objectUpdate(grid_pars));
         if(genro.isDeveloper){
             g._('tools',{tools:'addrow,delrow',position:'BR'});

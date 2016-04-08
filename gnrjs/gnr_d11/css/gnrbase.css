@@ -5122,10 +5122,11 @@ div[disabled='true'], div[disabled='disabled']{
 
 .grid_gallery_grid .dojoxGrid-scrollbox{
     margin-left: 5px;
-    border-bottom: 
+    border-bottom: 0;
 }
 .grid_gallery_grid{
     border-right: 1px solid silver;
+    width: 130px;
 }
 .grid_gallery_grid .dojoxGrid-cell {
     border-left: 0px !important;
