@@ -285,7 +285,7 @@ class Form(BaseComponent):
                                                                                             colswidth='auto',width='100%')
         fb.field('annotation_type_id',condition=annotation_type_condition,
                     hasDownArrow=True,width='15em',validate_notnull='^.rec_type?=#v=="AN"',
-                    colspan=2,protected=True,**annotation_type_kwargs)
+                    colspan=2,**annotation_type_kwargs)
 
         fb.field('description',tag='simpleTextArea',colspan=2)
         fb.field('annotation_date',width='7em')
