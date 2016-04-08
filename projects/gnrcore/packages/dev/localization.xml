@@ -1,6 +1,18 @@
 <?xml version="1.0" ?>
 <GenRoBag>
 	<model>
+		<pysource ext="py" path="model/pysource.py">
+			<en_py_source base="Py source"/>
+				<en_name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
+				<en_block_type base="Block type"/>
+		</pysource>
+		<pysource_line ext="py" path="model/pysource_line.py">
+			<en_source_line base="Source line"/>
+				<en_pysource base="Pysource"/>
+				<en_line base="Line"/>
+				<en_source base="Source" de="Quelle" en="Source" fr="Source" it="Fonte"/>
+				<en_comment base="Comment" de="Kommentar" en="Comment" fr="Commentaire" it="Commento"/>
+		</pysource_line>
 		<widget ext="py" path="model/widget.py">
 			<en_widget base="Widget" de="Widget" en="Widget" fr="Widget" it="Widget"/>
 				<en_widgets base="Widgets" de="Widgets" en="Widgets" fr="Widgets" it="Widgets"/>
