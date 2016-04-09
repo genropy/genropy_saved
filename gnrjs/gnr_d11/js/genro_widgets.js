@@ -1098,6 +1098,9 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         this._dojowidget = true;
     },
     createDojoWidget:function(factory,attributes,domnode,sourceNode){
+        if('tabindex' in attributes){
+            attributes['tabIndex'] = objectPop(attributes,'tabindex');
+        }
         if (this.customizedTemplate){
             attributes['templateString'] = this.customizedTemplate(sourceNode,factory.prototype.templateString);
         }
