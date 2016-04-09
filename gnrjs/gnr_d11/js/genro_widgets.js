@@ -6585,11 +6585,12 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     mixin_sortStore:function(sortedBy) {
         var store = this.collectionStore();
         if(!sortedBy){
-            if(store.storeNode && store.storeNode.getAttributeFromDatasource('sortedBy')==this.sortedBy){
+            var storeSortedBy = store.storeNode.getAttributeFromDatasource('sortedBy');
+            if(store.storeNode && storeSortedBy==this.sortedBy){
                 //store is already sorted by the server
                 return;
             }
-            sortedBy = this.sortedBy;
+            sortedBy = this.sortedBy || storeSortedBy;
         }
         this.sortedBy = sortedBy;
         store.sortedBy = sortedBy;

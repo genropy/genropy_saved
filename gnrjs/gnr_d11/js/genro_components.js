@@ -2165,6 +2165,7 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
             grid_pars.value = itemspath;
         }
         grid_pars.autoSelect = true;
+        grid_pars['store_sortedBy'] = '_row_count';
         kw._workspace = true;
         var bc = sourceNode._('BorderContainer',kw);
         var dpath = bc.getParentNode().absDatapath('#WORKSPACE.curr_datapath')
@@ -2180,8 +2181,10 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         var g = gp._('quickGrid','grid',objectUpdate(grid_pars));
         if(genro.isDeveloper){
             g._('tools',{tools:'addrow,delrow',position:'BR'});
+            g._('column',{field:'_row_count',counter:true,hidden:true});
             g._('column',{field:'label',name:'Label',width:'100%',edit:true});
         }else{
+            g._('column',{field:'_row_count',counter:true,hidden:true})
             g._('column',{field:'label',name:'Label',width:'100%'});
         }
         var content_kw = {innerHTML:'^.content',_class:'doc_item selectable'};
