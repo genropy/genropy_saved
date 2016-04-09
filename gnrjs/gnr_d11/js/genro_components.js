@@ -2157,6 +2157,7 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
             }
         }
         var viewer_pars = objectExtract(kw,'viewer_*');
+
         var items = objectPop(grid_pars,'items');
         var itemspath = sourceNode.absDatapath(items);
         if(sourceNode.isPointerPath(items)){
@@ -2188,7 +2189,9 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
             g._('column',{field:'_row_count',counter:true,hidden:true})
             g._('column',{field:'label',name:'Label',width:'100%'});
         }
-        var content_kw = {innerHTML:'^.content',_class:'doc_item selectable'};
+        var content_kw = objectExtract(kw,'content_*');
+        content_kw.innerHTML = '^.content';
+        content_kw._class:'doc_item selectable';
         if(genro.isDeveloper){
             content_kw.connect_ondblclick = function(){
                     var that = this;
