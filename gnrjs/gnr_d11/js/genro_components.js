@@ -2191,7 +2191,7 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         }
         var content_kw = objectExtract(kw,'content_*');
         content_kw.innerHTML = '^.content';
-        content_kw._class:'doc_item selectable';
+        content_kw._class = 'doc_item selectable';
         if(genro.isDeveloper){
             content_kw.connect_ondblclick = function(){
                     var that = this;
