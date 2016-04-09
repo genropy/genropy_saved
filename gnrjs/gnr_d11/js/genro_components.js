@@ -2146,7 +2146,16 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
         var grid_pars = objectExtract(kw,'items,columns');
+        grid_pars.selfDragRows = genro.isDeveloper;
         objectUpdate(grid_pars,objectExtract(kw,'grid_*'));
+        var onContentSaved = objectPop(kw,'onSaved');
+        if(onContentSaved){
+            onContentSaved = funcCreate(onContentSaved);
+        }else{
+            onContentSaved = function(){
+                sourceNode.publish('onContentSaved');
+            }
+        }
         var viewer_pars = objectExtract(kw,'viewer_*');
         var items = objectPop(grid_pars,'items');
         var itemspath = sourceNode.absDatapath(items);
@@ -2184,6 +2193,7 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
                             return pane._('BorderContainer',{width:'800px',height:'330px'})._('ContentPane',{region:'center',overflow:'hidden'})._('ckeditor',{value:'^.content'});
                         },action:function(value){
                             that.setRelativeData('.content',value.getItem('content'));
+
                         },
                         dflt:this.getRelativeData().deepCopy()
                     })
