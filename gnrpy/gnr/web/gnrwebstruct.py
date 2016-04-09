@@ -2143,7 +2143,7 @@ class GnrFormBuilder(object):
                         
         if tag:
             field['placeholder'] = field.get('placeholder',field.pop('ghost', None))
-            if self.byColumn:
+            if self.byColumn and not 'tabindex' in field:
                 field['tabindex'] = (c+1)*100+r+1
             obj = td.child(tag, **field)
             return obj
