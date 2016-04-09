@@ -2164,6 +2164,7 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         }else{
             grid_pars.value = itemspath;
         }
+        
         grid_pars.autoSelect = true;
         grid_pars['store_sortedBy'] = '_row_count';
         kw._workspace = true;
@@ -2196,7 +2197,7 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
                             return pane._('BorderContainer',{width:'800px',height:'330px'})._('ContentPane',{region:'center',overflow:'hidden'})._('ckeditor',{value:'^.content'});
                         },action:function(value){
                             that.setRelativeData('.content',value.getItem('content'));
-
+                            onContentSaved();
                         },
                         dflt:this.getRelativeData().deepCopy()
                     })
