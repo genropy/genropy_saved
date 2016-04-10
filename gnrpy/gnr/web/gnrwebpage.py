@@ -28,6 +28,7 @@ import sys
 import shutil
 import urllib
 import thread
+import copy
 
 from time import time
 from datetime import timedelta
@@ -125,6 +126,8 @@ class GnrWebPage(GnrBaseWebPage):
         self.sql_count = 0
         self.sql_time = 0
         self.site = site
+        self.extraFeatures = copy.deepcopy(self.site.extraFeatures)
+        self.extraFeatures.update(dictExtract(request_kwargs,'_extrafeature_',pop=True))
         dbstore = request_kwargs.pop('temp_dbstore',None) or None
         self.dbstore = dbstore if dbstore != self.application.db.rootstore else None
         self.user_agent = request.user_agent or []
@@ -204,14 +207,12 @@ class GnrWebPage(GnrBaseWebPage):
         elif self._call_handler_type in ('pageCall', 'externalCall'):
             raise self.site.client_exception('The request must reference a page_id', self._environ)
         else:
-            self.page_item = self._register_new_page(kwargs=request_kwargs)
-            self._workdate = self.page_item['data']['rootenv.workdate'] #or datetime.date.today()
-            self._language = self.page_item['data']['rootenv.language']
-            if class_info:
-                self.page_item['data']['class_info'] = class_info
-                self.page_item['data']['init_info'] = dict(request_kwargs=request_kwargs, request_args=request_args,
+            init_info = dict(request_kwargs=request_kwargs, request_args=request_args,
                           filepath=filepath, packageId=packageId, pluginId=pluginId,  basename=basename)
-                self.page_item['data']['page_info'] = dict([(k,getattr(self,k)) for k in ATTRIBUTES_SIMPLEWEBPAGE])
+            self.page_item = self._register_new_page(kwargs=request_kwargs,class_info=class_info,init_info=init_info)
+
+
+
         self.isMobile = (self.connection.user_device.startswith('mobile')) or self.page_item['data']['pageArgs'].get('is_mobile')
         self.deviceScreenSize = self.connection.user_device.split(':')[1]
         self._inited = True
@@ -267,13 +268,24 @@ class GnrWebPage(GnrBaseWebPage):
         self.parent_page_id = page_item['data'].getItem('parent_page_id')
         return page_item            
 
-    def _register_new_page(self,page_id=None,kwargs=None):
+    def _register_new_page(self,page_id=None,kwargs=None,class_info=None,init_info=None):
         if not self.connection.connection_id:
             self.connection.create()
         self.page_id = page_id or getUuid()
+        page_info = dict([(k,getattr(self,k,None)) for k in ATTRIBUTES_SIMPLEWEBPAGE])
         data = Bag()   
         data['pageArgs'] = kwargs
-        return self.site.register.new_page(self.page_id, self, data=data)
+        data['class_info'] = class_info
+        data['init_info'] = init_info
+        data['page_info'] = page_info
+        page_item = self.site.register.new_page(self.page_id, self, data=data)
+        if self.wsk and not getattr(self,'system_page',False):
+            self.registerToAsyncServer(page_id=self.page_id,page_info=page_info,
+                class_info=class_info,init_info=init_info,mixin_set=[])
+        return page_item
+
+    def registerToAsyncServer(self,**kwargs):
+        self.wsk.sendCommandToPage('','registerNewPage',Bag(kwargs))
 
     def get_call_handler(self, request_args, request_kwargs):
         """TODO
@@ -375,6 +387,7 @@ class GnrWebPage(GnrBaseWebPage):
     def db(self):
         if not getattr(self, '_db',None):
             self._db = self.application.db
+            self._db.clearCurrentEnv()
             self._db.updateEnv(storename=self.dbstore, workdate=self.workdate, locale=self.locale,
                                user=self.user, userTags=self.userTags, pagename=self.pagename,
                                mainpackage=self.mainpackage)
@@ -393,7 +406,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self._db    
         
     def _get_workdate(self):
-        if not self._workdate:
+        if not getattr(self,'_workdate',None):
             self._workdate = self.pageStore().getItem('rootenv.workdate') or datetime.date.today()
         return self._workdate
 
@@ -404,7 +417,7 @@ class GnrWebPage(GnrBaseWebPage):
     workdate = property(_get_workdate, _set_workdate)
 
     def _get_language(self):
-        if not self._language:
+        if not getattr(self,'_language'):
             self._language = self.pageStore().getItem('rootenv.language') or self.locale.split('-')[0].upper()
         return self._language
 
@@ -451,8 +464,9 @@ class GnrWebPage(GnrBaseWebPage):
         args = self._call_args
         kwargs = self._call_kwargs
         result = self._call_handler(*args, **kwargs) 
-        with self.pageStore() as store:
-            if hasattr(self,'mixin_set'):
+        
+        if hasattr(self,'mixin_set'):
+            with self.pageStore() as store:
                 store_mixin_set = store.get('mixin_set') or set()
                 store.setItem('mixin_set', store_mixin_set.union(self.mixin_set))
         self._onEnd()
@@ -535,6 +549,14 @@ class GnrWebPage(GnrBaseWebPage):
                 pass
         else:
             self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
+
+
+    def zoomLink(self,table=None,pkey=None,formResource=None,caption=None,zoomMode=None,zoomUrl=None,title=None):
+        zoomMode = zoomMode or 'palette'
+        zoomUrl = zoomUrl or ''
+        title = title or ''
+        jsmethod = "genro.dlg.makeZoomElement({table:'%s',formResource:'%s',pkey:'%s',evt:event,main_call:'main_form',palette_dockTo:false,mode:'%s',zoomUrl:'%s',title:'%s'})" %(table,formResource,pkey,zoomMode,zoomUrl,title)
+        return '<a href="#" onclick="%s" class="tablePaletteZoomLink" >%s</a>' %(jsmethod,caption)
     
     
     @public_method
@@ -564,7 +586,10 @@ class GnrWebPage(GnrBaseWebPage):
         :param tplname: the template name
         :param ext: TODO
         :param asSource: boolean. TODO"""
-        result,path = self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext=['xml','html'])
+        if table:
+            result,path = self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext=['xml','html'])
+        else:
+            result,path = self._getResourceContent(resource=tplname,pkg=self.package.name,ext=['xml','html'])
         if not path:
             return '',{'respath':''}
         r_path,r_ext = os.path.splitext(path)
@@ -586,14 +611,21 @@ class GnrWebPage(GnrBaseWebPage):
     def loadTemplate(self,template_address,asSource=False,missingMessage=None,**kwargs):
         #se template_address non ha : ---> risorsa
         #template_address = 'field:pkey'
-        segments,pkey = template_address.split(':')
-        dataInfo = dict()
-        segments = segments.split('.')
+        
         missingMessage = missingMessage or '<div class="chunkeditor_emptytemplate">Missing Template</div>'
-        if len(segments)==2:
-            table = '.'.join(segments)
+        dataInfo = dict()
+        if ':' in template_address:
+            segments,pkey = template_address.split(':')
+            if segments:
+                segments = segments.split('.')
+        else:
+            segments = None
+            pkey = template_address
+        
+        if not segments or len(segments)==2:
+            table = '.'.join(segments) if segments else None
             data = None
-            if self.db.package('adm'):
+            if self.db.package('adm') and table:
                 data,metadata = self.db.table('adm.userobject').loadUserObject(objtype='template',code=pkey,tbl=table)
                 if data and metadata['private'] and metadata['userid'] != self.user:
                     data = None
@@ -621,16 +653,28 @@ class GnrWebPage(GnrBaseWebPage):
         #pkg.table.field:pkey
         #pkg.table:resource_module
         #pkg.table:resource_module,custom
-        segments,pkey = template_address.split(':')
-        segments = segments.split('.')
-        if len(segments)==2:
+        if ':' in template_address:
+            segments,pkey = template_address.split(':')
+            if segments:
+                segments = segments.split('.')
+        else:
+            segments = None
+            pkey = template_address
+
+
+        if not segments or len(segments)==2:
             custom = False
-            resource_table = '.'.join(segments)
             resource_name = pkey
+            if segments:
+                resource_table = '.'.join(segments)
+                filepath='tpl/%s.xml' %resource_name
+            else:
+                resource_table = None
+                filepath = '%s.xml' %resource_name
             if ',' in resource_name:
                 resource_name = resource_name.split(',')[0]
                 custom = True
-            respath = self._tableResourcePath(resource_table,filepath='tpl/%s.xml' %resource_name,custom=custom)
+            respath = self._packageResourcePath(table=resource_table,filepath=filepath,custom=custom)
             data.toXml(respath,autocreate=True)
             return respath
         else:
@@ -991,6 +1035,7 @@ class GnrWebPage(GnrBaseWebPage):
         if self.isMobile:
             kwargs['isMobile'] = True
         kwargs['deviceScreenSize'] = self.deviceScreenSize
+        kwargs['extraFeatures'] = dict(self.extraFeatures)
         if getattr(self,'_avoid_module_cache',None):
             kwargs['_avoid_module_cache'] = True
         arg_dict['startArgs'] = toJson(dict([(k,self.catalog.asTypedText(v)) for k,v in kwargs.items()]))
@@ -1068,8 +1113,11 @@ class GnrWebPage(GnrBaseWebPage):
         
     def get_bodyclasses(self):   #  is still necessary _common_d11?
         """TODO"""
-        return '%s _common_d11 pkg_%s page_%s %s' % (
-        self.frontend.theme or '', self.packageId, self.pagename, getattr(self, 'bodyclasses', ''))
+        theme_variant = self.getPreference('theme.theme_variant',pkg='sys') or ''
+        if theme_variant:
+            theme_variant = 'theme_variant_%s' %theme_variant
+        return '%s %s _common_d11 pkg_%s page_%s %s' % (
+        self.frontend.theme or '',theme_variant, self.packageId, self.pagename, getattr(self, 'bodyclasses', ''))
         
     def get_css_genro(self):
         """TODO"""
@@ -1376,15 +1424,19 @@ class GnrWebPage(GnrBaseWebPage):
             url = '%s?mtime=%0.0f' % (url, mtime)
         return url
     
-    def _tableResourcePath(self,table,filepath,custom=False):
+    def _packageResourcePath(self,table=None,filepath=None,custom=False):
         page_pkg = self.package.name 
-        table_pkg,tblname = table.split('.')
-        respath = 'tables/%s/%s' %(tblname,filepath)
+        table_pkg = None
+        if table:
+            table_pkg,tblname = table.split('.')
+            respath = 'tables/%s/%s' %(tblname,filepath)
+        else:
+            respath = filepath
 
         if custom:
             return os.path.join(self.site.site_path, '_custom', page_pkg, '_resources',respath)
         packageFolder = self.site.gnrapp.packages[self.package.name].packageFolder
-        if page_pkg != table_pkg:
+        if table_pkg and page_pkg != table_pkg:
             respath = 'tables/_packages/%s/%s/%s' %(table_pkg,tblname,filepath)        
         return os.path.join(packageFolder,'resources',respath)
             
@@ -1571,6 +1623,13 @@ class GnrWebPage(GnrBaseWebPage):
         :param username: TODO"""
         self.site.setUserPreference(path, data, pkg=pkg, username=username)
         
+    @public_method
+    def getShortcuts(self,**kwargs):
+        shortcuts = self.db.table('adm.shortcut').query().fetch()
+        result = Bag()
+        for i,r in enumerate(shortcuts):
+            result.setItem('r_%i' %i,None,phrase=r['phrase'],groupcode=r['groupcode'],keycode=r['keycode'])
+        return result
 
     def clientPublish(self,topic,nodeId=None,iframe=None,parent=None,page_id=None,**kwargs):
         if self.wsk:
@@ -1631,6 +1690,36 @@ class GnrWebPage(GnrBaseWebPage):
                                          attributes=dict(from_user=self.user, from_page=self.page_id))
 
         
+
+
+    @public_method
+    def chatMessageToUser(self,msg=None,user=None,from_user=None,roomId=None,priority=None,disconnect=None,users=None,sysmessage=False):
+        if sysmessage:
+            from_user = 'SYSTEM'
+            roomId = 'cr_system_message'
+        else:
+            from_user = from_user or  self.user
+            roomId = roomId or 'cr_%s' %self.getUuid()
+        path = 'gnr.chat.msg.%s' % roomId
+        priority = priority or 'H'
+        if not users:
+            users = Bag()
+            if from_user!='SYSTEM':
+                users.setItem(from_user,None,user_name=from_user,user=from_user)
+            users.setItem(user,None,user_name=user,user=user)
+        ts = self.toText(datetime.datetime.now(), format='HH:mm:ss')
+        with self.userStore(user) as store:
+            if disconnect and (user == from_user):
+                store.drop_datachanges(path)
+            else:
+                in_out = 'in' if user != from_user else 'out'
+                value = Bag(dict(msg=msg, roomId=roomId, users=users, roomtitle='System messages',from_user=from_user,
+                                 in_out=in_out, ts=ts, disconnect=disconnect))
+                store.set_datachange(path, value, fired=True, reason='chat_out')
+        self.setInClientData(path='gnr.chat.room_alert', value=Bag(dict(roomId=roomId, users=users, priority=priority,roomtitle='System piero')),
+                                     filters='user:%s' % user, fired=True, reason='chat_open',
+                                     public=True, replace=True)#
+
     def _get_package_folder(self):
         if not hasattr(self, '_package_folder'):
             self._package_folder = self.site.getPackageFolder(self.packageId)
@@ -1650,7 +1739,8 @@ class GnrWebPage(GnrBaseWebPage):
         rootenv = self.getStartRootenv()
         self._workdate = None #reset workdate
         prefenv = Bag()
-        if self.application.db.package('adm'):
+        has_adm = self.application.db.package('adm')
+        if has_adm:
             prefenv = self.application.db.table('adm.preference').envPreferences(username=self.user)
         data = Bag(dict(root_page_id=self.root_page_id,parent_page_id=self.parent_page_id,rootenv=rootenv,prefenv=prefenv))
         self.pageStore().update(data)
@@ -1661,6 +1751,8 @@ class GnrWebPage(GnrBaseWebPage):
         page.data('gnr.windowTitle', self.windowTitle())
         page.dataController("PUBLISH setWindowTitle=windowTitle;",windowTitle="^gnr.windowTitle",_onStart=True)
         page.dataRemote('server.pageStore',self.getPageStoreData,cacheTime=1)
+        page.dataRemote('server.userStore',self.getUserStoreData,cacheTime=1)
+
         page.dataRemote('server.dbEnv',self.dbCurrentEnv,cacheTime=1)
         page.dataController(""" var changelist = copyArray(_node._value);
                                 dojo.forEach(changelist,function(c){
@@ -1688,8 +1780,11 @@ class GnrWebPage(GnrBaseWebPage):
         page.data('gnr.remote_db',self.site.remote_db)
         if self.dbstore:
             page.data('gnr.dbstore',self.dbstore)
-        page.dataRemote('gnr.user_preference', self.getUserPreference,username='^gnr.avatar.user')
-        page.dataRemote('gnr.app_preference', self.getAppPreference)
+        if has_adm:
+            page.dataRemote('gnr.user_preference', self.getUserPreference,username='^gnr.avatar.user')
+            page.dataRemote('gnr.app_preference', self.getAppPreference)
+            page.dataRemote('gnr.shortcuts.store', self.getShortcuts)
+
         page.dataController('genro.dlg.serverMessage("gnr.servermsg");', _fired='^gnr.servermsg')
         page.dataController("genro.dom.setClass(dojo.body(),'bordered_icons',bordered);",
                     bordered="^gnr.user_preference.sys.theme.bordered_icons",_onStart=True)
@@ -1790,6 +1885,14 @@ class GnrWebPage(GnrBaseWebPage):
         elif _auth == AUTH_FORBIDDEN:
             root.clear()
             self.forbiddenPage(root, **kwargs)
+        #if self.wsk:
+        #    page_item_data = self.page_item['data']
+        #    page_info = page_item_data['page_info']
+        #    class_info = page_item_data['class_info']
+        #    init_info = page_item_data['init_info']
+        #    mixin_set = getattr(self,'mixin_set',[])
+        #    registerNewPageData = Bag(dict(page_id=self.page_id,page_info=page_info,class_info=class_info,init_info=init_info,mixin_set=mixin_set))
+        #    self.wsk.sendCommandToPage('','registerNewPage',registerNewPageData)
         return (page, pageattr)
    
     def loginDialog(self, root, **kwargs):
@@ -1845,6 +1948,11 @@ class GnrWebPage(GnrBaseWebPage):
     def getPageStoreData(self):
         """TODO"""
         return self.pageStore().getItem('')
+
+    @public_method    
+    def getUserStoreData(self):
+        """TODO"""
+        return self.userStore().getItem('')
 
                                             
     def onMainCalls(self):

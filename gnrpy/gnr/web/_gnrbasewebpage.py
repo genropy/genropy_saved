@@ -205,6 +205,9 @@ class GnrBaseWebPage(GnrObject):
         path = self.pageLocalDocument(name)
         selection.freeze(path, autocreate=True)
         return path
+
+    def freezeSelectionUpdate(self,selection):
+        selection.freezeUpdate()
         
     def unfreezeSelection(self, dbtable=None, name=None, page_id=None):
         """TODO

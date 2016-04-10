@@ -1,31 +1,27 @@
 # -*- coding: UTF-8 -*-
-from gnr.core.gnrdecorator import websocket_method, public_method
+from gnr.core.gnrdecorator import websocket_method
 from gnr.core.gnrbag import Bag
-#import rpdb
-class GnrCustomWebPage(object):
 
+class GnrCustomWebPage(object):
     def main(self,root,**kwargs):
-        bc = root.borderContainer(height='100%')
-        top = bc.contentPane(region='top', height='150px', datapath='ws_top')
-        
-        top.dataWs('.pages', self.getPages, _fired='^.getPages',rpdb_breakpoint='21')
+        bc = root.borderContainer(datapath='main')
+        top = bc.contentPane(region='top', height='50px')
         fb = top.formBuilder(cols=4)
         fb.button(label='getPages',fire='.getPages')
-        fb.quickgrid(value='^.pages',height='300px',width='400px')
+        top.dataRpc('.pages', self.getPages, _fired='^.getPages',httpMethod='WSK',_timing=.5)
+
+        bc.contentPane(region='center').quickgrid(value='^.pages')
+
         
         
         
     @websocket_method
     def getPages(self,**kwargs):
-        print 'aaaa'
-        #rpdb.set_trace()
-        pages= self.ws_site.pages
+        pages= self.asyncServer.pages
         b=Bag()
         for k,page in pages.items():
-            b[k]=Bag(dict(pageid=k))
+            kw = dict([(key,getattr(page,key,None)) for key in ('page_id','connection_id','user')])
+            print k,kw
+            b[k] = Bag(kw)
         return b
 
-
-    @public_method
-    def test_rpc(self):
-        return 'test ok'

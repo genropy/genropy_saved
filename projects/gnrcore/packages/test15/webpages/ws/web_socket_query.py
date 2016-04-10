@@ -2,8 +2,6 @@
 
 
 class GnrCustomWebPage(object):
-    #js_requires='gnrwebsocket,socketio'
-    js_requires='gnrwebsocket'
     def main(self,root,**kwargs):
         root.script("""genro.ws=gnrwebsocket;
                        genro.ws.create('ws://'+window.location.host+'/websocket')""")

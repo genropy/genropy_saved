@@ -24,6 +24,7 @@ __version__ = '1.0b'
 
 #import weakref
 import os
+import re
 
 from gnr.core import gnrstring
 from gnr.core.gnrlang import GnrObject,getUuid,uniquify
@@ -38,6 +39,7 @@ from datetime import datetime
 import logging
 
 gnrlogger = logging.getLogger(__name__)
+
 
 
 class RecordUpdater(object):
@@ -395,6 +397,9 @@ class SqlTable(GnrObject):
     def relations_many(self):
         """Return a bag of relations that point to the current table"""
         return self.model.relations_many
+
+    def removeLocalizationFromText(self,text):
+        return re.sub("(?:!!)(?:\\[\\w*\\])?(.*)", "\\1", text)
         
     def counterColumns(self):
         return
@@ -715,16 +720,19 @@ class SqlTable(GnrObject):
         return record
             
 
-    def defaultValues (self):
+    def defaultValues(self):
         """Override this method to assign defaults to new record. Return a dictionary - fill
         it with defaults"""
         return dict([(x.name, x.attributes['default'])for x in self.columns.values() if 'default' in x.attributes])
         
 
-    def sampleValues (self):
+    def sampleValues(self):
         """Override this method to assign defaults to new record. Return a dictionary - fill
         it with defaults"""
         return dict([(x.name, x.attributes['sample'])for x in self.columns.values() if 'sample' in x.attributes])
+
+    def createSysRecords(self):
+        pass
 
     def query(self, columns=None, where=None, order_by=None,
               distinct=None, limit=None, offset=None,
@@ -934,7 +942,9 @@ class SqlTable(GnrObject):
         self.model.virtual_columns
         result = self.db.whereTranslator(self, wherebag, sqlArgs, **kwargs)
         return result, sqlArgs
-        
+    
+
+
     def frozenSelection(self, fpath):
         """Get a pickled selection and return it
         
@@ -1138,7 +1148,7 @@ class SqlTable(GnrObject):
                 mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')
                 opkg, otbl, ofld = rel.attr['one_relation'].split('.')
                 relatedTable = self.db.table(mtbl, pkg=mpkg)
-                sel = relatedTable.query(columns='*', where='%s = :pid' % mfld,
+                sel = relatedTable.query(columns='*', where='$%s = :pid' % mfld,
                                          pid=record[ofld], for_update=True,excludeDraft=False).fetch()
                 if sel:
                     if onDelete in ('r', 'raise'):

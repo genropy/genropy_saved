@@ -8,7 +8,6 @@
 
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
-    #dojo_theme = 'claro'
     
     def windowTitle(self):
         return 'Dialogs'

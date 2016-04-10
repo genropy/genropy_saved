@@ -30,8 +30,11 @@ class GnrCustomWebPage(object):
         pane.textbox(value='^.pluto?value_caption')
 
     def test_3_multicbpopup(self,pane):
+        pane.checkbox(value='^.disabled',label='disabled')
+        #pane.checkbox(value='^.readonly',label='readonly')
+
         pane.checkBoxText(values="""0:Lunedì\\2,1:Mar,2:Mer,3:Gio,4:Ven,5:Sab,6:Dom""",
-        value='^.pluto',cols=3,popup=True)
+        value='^.pluto',cols=3,popup=True,disabled='^.disabled',readOnly=True)
                             
     def test_4_mode_numbcode(self,pane):
         """First test description"""
@@ -67,7 +70,10 @@ class GnrCustomWebPage(object):
 
     def test_10_mode_table(self,pane):
         """First test description"""
-        pane.checkBoxText(value='^.pluto',table='adm.user',popup=True)
+        pane.checkBoxText(value='^.pluto',table='adm.user',popup=True,disabled=True)
+        pane.checkbox(value='^.disabled',label='disabled')
+        pane.checkBoxText(value='^.paperino',table='adm.user',popup=True,disabled='^.disabled')
+
         pane.textbox(value='^.pluto')
    
     def test_11_mode_table(self,pane):

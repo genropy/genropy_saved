@@ -74,9 +74,7 @@ try:
                 k = k.split('^')
                 as_name = k[1]
                 k = k[0]
-            value = self.data[k]
-            if not value:
-                value = self.data[as_name]
+            value = self.data[k if k in self.data else as_name]
             format = None
             mask = None
             formattedValue = None

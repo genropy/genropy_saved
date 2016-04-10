@@ -425,6 +425,28 @@ class TableBase(object):
         else:
             return " NULL "
 
+    def formulaColumn_allowedForPartition(self):
+
+        partitionParameters = self.partitionParameters
+        sql_formula = None
+        if partitionParameters:
+            sql_formula = "( $%(field)s IN :env_allowed_%(path)s )" %partitionParameters
+        return [dict(name='__allowed_for_partition',sql_formula=sql_formula or 'FALSE',
+                    dtype='B',name_long='!!Allowed for partition',group='_')]
+
+    def getPartitionAllowedUsers(self,recordOrPkey):
+        partitionParameters = self.partitionParameters
+        usertbl = self.db.table('adm.user')
+        if not partitionParameters:
+            f = usertbl.query().fetch()
+            return [r['id'] for r in f]
+        else:
+            record = self.recordAs(recordOrPkey)
+            record_partition_fkey = record[self.partitionParameters['field']]
+            f = usertbl.query(columns='$id,$allowed_%(field)s' %partitionParameters).fetch()
+            allowedfield = 'allowed_%(field)s' %partitionParameters
+            return [r['id'] for r in f if record_partition_fkey in r.get(allowedfield,'').split(',')]        
+
     def addPhonetic(self,tbl,column,mode=None,size=':5',group=None):
         mode = mode or 'dmetaphone'
         group = group or 'zzz'
@@ -518,11 +540,21 @@ class TableBase(object):
 
 
     def createSysRecords(self):
+        syscodes = []
         for m in dir(self):
             if m.startswith('sysRecord_') and m!='sysRecord_':
-                if not self.checkDuplicate(__syscode=m[10:]):
-                    self.sysRecord(m[10:])
-                    return True
+                method = getattr(self,m)
+                if getattr(method,'mandatory',False):
+                    syscodes.append(m[10:])
+        commit = False
+        if syscodes:
+            f = self.query(where='$__syscode IN :codes',codes=syscodes).fetchAsDict('__syscode')
+            for syscode in syscodes:
+                if not syscode in f:
+                    self.sysRecord(syscode)
+                    commit = True
+        if commit:
+            self.db.commit()
 
     def sysRecord(self,syscode):
         def createCb(key):
@@ -1081,7 +1113,7 @@ class AttachmentTable(GnrDboTable):
         tbl.column('text_content',name_long='!!Content')
         tbl.column('info' ,'X',name_long='!!Additional info')
         tbl.column('maintable_id',size='22',group='_',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
-                    mode='foreignkey', onDelete_sql='cascade', relation_name='atc_attachments',
+                    mode='foreignkey', onDelete_sql='cascade',onDelete='cascade', relation_name='atc_attachments',
                     one_group='_',many_group='_',deferred=True)
         tbl.formulaColumn('fileurl',"'/_vol/' || $filepath",name_long='Fileurl')
         self.onTableConfig(tbl)

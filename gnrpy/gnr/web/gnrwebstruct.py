@@ -585,12 +585,15 @@ class GnrDomSrc(GnrStructData):
         if isinstance(value, Bag):
             className = 'bag'
         serverpath = kwargs.pop('serverpath',None) or kwargs.pop('_serverpath',None)
-       #dbenv = kwargs.get('dbenv')
-       #if dbenv and not serverpath:
-       #    serverpath = 'dbenv.%s' %path.split('.')[-1]
+
         if serverpath:
             self.page.addToContext(serverpath=serverpath,value=value,attr=kwargs)
             kwargs['serverpath'] = serverpath
+        #shared_id = kwargs.pop('shared_id',None)
+        #if shared_id:
+        #    shared_expire = kwargs.pop('shared_expire',0)
+        #    self.page.asyncServer.subscribeToSharedObject(shared_id=shared_id,page=page,expire=shared_expire)
+#
         return self.child('data', __cls=className,childcontent=value,_returnStruct=False, path=path, **kwargs)
         
     def script(self, content='', **kwargs):
@@ -708,7 +711,8 @@ class GnrDomSrc(GnrStructData):
         return getattr(self.parentNode,'_mainformbuilder',None)
         
     def formbuilder(self, cols=1, table=None, tblclass='formbuilder',
-                    lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
+                    lblclass='gnrfieldlabel', lblpos='L',byColumn=None,
+                    _class='', fieldclass='gnrfield',
                     colswidth=None,
                     lblalign=None, lblvalign='top',
                     fldalign=None, fldvalign='top', disabled=False,
@@ -755,6 +759,7 @@ class GnrDomSrc(GnrStructData):
                                       rowdatapath=rowdatapath,
                                       head_rows=head_rows, 
                                       excludeCols=excludeCols,
+                                      byColumn=byColumn,
                                       commonKwargs=commonKwargs)
         
         inattr = self.getInheritedAttributes()
@@ -868,12 +873,12 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     #gnrNS=['menu','menuBar','menuItem','Tree','Select','DbSelect','Combobox','Data',
     #'Css','Script','Func','BagFilteringTable','DbTableFilter','TreeCheck']
     gnrNS = ['DbSelect','CallBackSelect','RemoteSelect', 'DbComboBox', 'DbView', 'DbForm', 'DbQuery', 'DbField',
-             'dataFormula', 'dataScript', 'dataRpc','dataWs', 'dataController', 'dataRemote',
+             'dataFormula', 'dataScript', 'dataRpc', 'dataController', 'dataRemote',
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
              'tinyMCE', 'protovis','codemirror','dygraph','MultiButton','PaletteGroup','DocumentFrame','DownloadButton','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','PaletteImporter','DropUploader','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','GeoSearch','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
-             'FramePane', 'FrameForm','QuickEditor','CodeEditor','TreeGrid','QuickGrid',"VideoPlayer",'MultiValueEditor','QuickTree','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
+             'FramePane', 'FrameForm','QuickEditor','CodeEditor','TreeGrid','QuickGrid',"GridGallery","VideoPlayer",'MultiValueEditor','QuickTree','SharedObject','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -921,20 +926,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """
         return self.child('dataRpc', path=path, method=method, **kwargs)
         
-    def dataWs(self, path, method, **kwargs):
-        """Create a :ref:`dataws` and returns it. dataWs allows the client to make a call
-        to the server to perform an action and returns it.
-        
-        :param path: MANDATORY - it contains the folder path of the result of the ``dataWs`` action;
-                     you have to write it even if you don't return any value in the ``dataWs``
-                     (in this situation it will become a "mandatory but dummy" parameter)
-        :param method: the name of your ``dataWs`` method
-        :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
-                           check the :ref:`rpc_attributes` section
-        """
-        return self.child('dataWs', path=path, method=method, **kwargs)
-        
-
     def selectionstore_addcallback(self, *args, **kwargs):
         """TODO"""
         self.datarpc_addcallback(*args,**kwargs)
@@ -1113,6 +1104,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         nodeId = '%s_store' %storeCode
         return parent.child('SelectionStore',storepath=storepath,storeType='RpcBase',
                             nodeId=nodeId,method=rpcmethod,**kwargs)
+
+    def sharedObject(self,shared_path,shared_id=None,autoSave=None,autoLoad=None,**kwargs):
+        return self.child(tag='SharedObject',shared_path=shared_path,shared_id=shared_id,autoSave=autoSave,autoLoad=autoLoad,**kwargs)
 
     def onDbChanges(self, action=None, table=None, **kwargs):
         """TODO
@@ -1415,7 +1409,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         page = self.page
         struct = page._prepareGridStruct(source=source,table=table,gridId=gridId)
         if struct:
-            self.data(structpath, struct)
+            self.data(structpath, struct,childname='struct')
             return struct
         elif (source and not table) or not storepath:
             def getStruct(source=None,gridattr=None,gridId=None):
@@ -1744,30 +1738,31 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             else:
                 size = 5
             defaultZoom = self.page.pageOptions.get('enableZoom', True)
-            result['lbl'] = lbl or fieldobj.table.dbtable.relationName('@%s' % fieldobj.name)
-            if kwargs.get('zoom', defaultZoom):
-                if hasattr(self.page,'_legacy'):
-                    if hasattr(lnktblobj.dbtable, 'zoomUrl'):
-                        zoomPage = lnktblobj.dbtable.zoomUrl()
+            if lbl is not False:
+                result['lbl'] = lbl or fieldobj.table.dbtable.relationName('@%s' % fieldobj.name)
+                if kwargs.get('zoom', defaultZoom):
+                    if hasattr(self.page,'_legacy'):
+                        if hasattr(lnktblobj.dbtable, 'zoomUrl'):
+                            zoomPage = lnktblobj.dbtable.zoomUrl()
+                        else:
+                            zoomPage = lnktblobj.fullname.replace('.', '/')
+                        result['lbl_href'] = "=='/%s?pkey='+pkey" % zoomPage
+                        result['lbl_pkey'] = '^.%s' %fld
                     else:
-                        zoomPage = lnktblobj.fullname.replace('.', '/')
-                    result['lbl_href'] = "=='/%s?pkey='+pkey" % zoomPage
-                    result['lbl_pkey'] = '^.%s' %fld
-                else:
-                    if hasattr(lnktblobj.dbtable, 'zoomUrl'):
-                        pass
-                    else:
-                        zoomKw = dictExtract(kwargs,'zoom_')
-                        forcedTitle = zoomKw.pop('title', None)
-                        zoomKw.setdefault('formOnly',False)
-                        result['lbl__zoomKw'] = zoomKw #,slice_prefix=False)
-                        result['lbl__zoomKw_table'] = lnktblobj.fullname
-                        result['lbl__zoomKw_lookup'] = isLookup
-                        result['lbl__zoomKw_title'] = forcedTitle or lnktblobj.name_plural or lnktblobj.name_long
-                        result['lbl__zoomKw_pkey'] = '=.%s' %fld
-                        result['lbl_connect_onclick'] = "genro.dlg.zoomPaletteFromSourceNode(this,$1);"  
-                result['lbl'] = '<span class="gnrzoomicon">&nbsp;&nbsp;&nbsp;&nbsp;</span><span>%s</span>' %self.page._(result['lbl'])
-                result['lbl_class'] = 'gnrzoomlabel'
+                        if hasattr(lnktblobj.dbtable, 'zoomUrl'):
+                            pass
+                        else:
+                            zoomKw = dictExtract(kwargs,'zoom_')
+                            forcedTitle = zoomKw.pop('title', None)
+                            zoomKw.setdefault('formOnly',False)
+                            result['lbl__zoomKw'] = zoomKw #,slice_prefix=False)
+                            result['lbl__zoomKw_table'] = lnktblobj.fullname
+                            result['lbl__zoomKw_lookup'] = isLookup
+                            result['lbl__zoomKw_title'] = forcedTitle or lnktblobj.name_plural or lnktblobj.name_long
+                            result['lbl__zoomKw_pkey'] = '=.%s' %fld
+                            result['lbl_connect_onclick'] = "genro.dlg.zoomPaletteFromSourceNode(this,$1);"  
+                    result['lbl'] = '<span class="gnrzoomicon">&nbsp;&nbsp;&nbsp;&nbsp;</span><span>%s</span>' %self.page._(result['lbl'])
+                    result['lbl_class'] = 'gnrzoomlabel'
             result['tag'] = 'DbSelect'
             result['dbtable'] = lnktblobj.fullname
             if '_storename' in joiner:
@@ -1834,7 +1829,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
 class GnrFormBuilder(object):
     """The class that handles the creation of the :ref:`formbuilder` widget"""
     def __init__(self, tbl, cols=None, dbtable=None, fieldclass=None,
-                 lblclass='gnrfieldlabel', lblpos='L', lblalign=None, fldalign=None,
+                 lblclass='gnrfieldlabel', lblpos='L',byColumn=None, lblalign=None, fldalign=None,
                  lblvalign='top', fldvalign='top', rowdatapath=None, head_rows=None,
                  excludeCols=None, commonKwargs=None):
         self.commonKwargs = commonKwargs or {}
@@ -1847,6 +1842,7 @@ class GnrFormBuilder(object):
         self.colmax = cols
         self.lblpos = lblpos
         self.rowlast = -1
+        self.byColumn = byColumn
         #self._tbl=weakref.ref(tbl)
         self._tbl = tbl
         self.maintable = dbtable
@@ -2147,6 +2143,8 @@ class GnrFormBuilder(object):
                         
         if tag:
             field['placeholder'] = field.get('placeholder',field.pop('ghost', None))
+            if self.byColumn and not 'tabindex' in field:
+                field['tabindex'] = (c+1)*100+r+1
             obj = td.child(tag, **field)
             return obj
                 

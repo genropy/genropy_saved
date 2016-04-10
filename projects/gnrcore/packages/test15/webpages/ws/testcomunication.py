@@ -8,7 +8,7 @@ class GnrCustomWebPage(object):
         bc = root.borderContainer(height='100%')
         top = bc.contentPane(region='top', height='150px', datapath='ws_top')
         
-        top.dataWs('.pages', self.getPages, _fired='^.getPages')
+        top.dataRpc('.pages', self.getPages, _fired='^.getPages',httpMethod='WSK')
         fb = top.formBuilder(cols=4)
         fb.button(label='getPages',fire='.getPages')
         fb.quickgrid(value='^.pages',height='300px',width='400px')

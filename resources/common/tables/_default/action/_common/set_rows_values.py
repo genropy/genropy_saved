@@ -28,10 +28,11 @@ class Main(BaseResourceAction):
 
     def table_script_parameters_pane(self, pane, table=None,**kwargs):
         tblobj = self.db.table(table)
-        fb = pane.div(padding='10px').formbuilder(cols=1,border_spacing='3px',dbtable=table,datapath='.values')
+        cols = int(len(tblobj.columns)/30)+1
+        fb = pane.div(max_height='600px',overflow='auto').formbuilder(margin='5px',cols=cols,border_spacing='3px',dbtable=table,datapath='.values')
         for k,v in tblobj.columns.items():
             attr = v.attributes
             if not (attr.get('_sysfield') or attr.get('dtype') == 'X'):
-                fb.field(k,validate_notnull=False)
+                fb.field(k,validate_notnull=False,html_label=True)
 
 

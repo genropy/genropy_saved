@@ -751,7 +751,9 @@ label.ghostlabel span {
 }
 
 
-
+._common_d11.tundra .dijitSplitter:active{
+    background: #777;
+}
 
 .tundra .drawerFixed.dijitSplitter.dijitSplitterV{
     width: 0;
@@ -764,7 +766,7 @@ label.ghostlabel span {
 .tundra .drawerFixed.dijitSplitter.dijitSplitterH{
     height: 0;
 }
-.tundra .drawerFixed.dijitSplitter.dijitSplitter):hover{
+.tundra .drawerFixed.dijitSplitter.dijitSplitter:hover{
     height: 0;
     background: transparent;
 }
@@ -1067,6 +1069,7 @@ table.formbuilder {
 .multiColumnSelect {
     background-color: #f3f3f3;
     overflow:hidden;
+    color:#444;
 }
 
 .multiColumnSelect th {
@@ -1090,7 +1093,6 @@ table.formbuilder {
     padding: 2px;
     border: 1px solid #c8c8c8;
     white-space: nowrap;
-    color:#444;
 }
 
 .multiColumnSelectHover td {
@@ -1336,6 +1338,13 @@ table.formbuilder {
     width: 14px;
     height: 14px;
 }
+
+.blueLed {
+    background: url(icons/base16/blueled.png) no-repeat center center;
+    width: 14px;
+    height: 14px;
+}
+
 .waiting16{
     background: url(icons/wait16trans.gif) no-repeat center center;
     width: 16px;
@@ -1670,11 +1679,35 @@ div.dojoxDock {
 }
 
 ._common_d11.tundra .dojoxFloatingMinimizeIcon {
-    background: transparent url(icons/base16/floatingclose.png) no-repeat scroll center center;
+    background: transparent url(icons/base16/close.svg) no-repeat scroll center center;
     float: right;
     height: 16px;
     overflow: hidden;
     width: 16px;
+    margin-right: 4px;
+}
+
+
+._common_d11.tundra .dojoxFloatingCloseIcon{
+    background: transparent url(icons/base16/close.svg) no-repeat scroll center center;
+    height: 16px;
+    width: 16px;
+}
+
+
+._common_d11.tundra .dijitDialogCloseIcon{
+    background: transparent url(icons/base16/close.svg) no-repeat scroll center center;
+    height: 16px;
+    width: 16px;
+}
+
+.tundra._common_d11 .dijitDialogTitle{
+    font-weight: normal;
+}
+
+._common_d11.tundra .dojoxFloatingMaximizeIcon{
+    background: transparent url(icons/base16/expand.png) no-repeat scroll center center;
+    margin-right: 6px;
 }
 
 ._common_d11.tundra .dijitMenu {
@@ -2786,6 +2819,9 @@ body *{
     right:2px;
     bottom:20px;
 }
+.quickTooltipContainer{
+    padding: 10px;
+}
 .quickEditorWrapper{
     position: relative;
 }
@@ -3586,12 +3622,12 @@ table.draggedItem {
     text-align: right;
 }
 
-._common_d11 td.invalidCell.dojoxGrid-cell{
+._common_d11.tundra .dojoxGrid-row td.invalidCell.dojoxGrid-cell{
     background-image:url(icons/invalid_small.png);
     background-repeat:no-repeat;
     background-position:0px 0px;
 }
-.newRowCell.dojoxGrid-cell{
+._common_d11.tundra .dojoxGrid-row .newRowCell.dojoxGrid-cell{
     font-style:italic;
 }
 
@@ -3933,6 +3969,9 @@ p {
     opacity:.6;
 }
 
+.iconbox.iconbox_short{
+    height: 12px;
+}
 .quickgrid_container .iconbox:hover {
     opacity:1;
 }
@@ -4948,7 +4987,17 @@ div[disabled='true'], div[disabled='disabled']{
     color:#666;
     font-weight: bold;
     font-size: .9em;
+    line-height:20px;
 }
+
+._common_d11 .pbl_roundedGroupLabel.slotbar_toolbar .frameGridTitle{
+    color:inherit;
+    font-weight: normal;
+    font-size: inherit;
+    line-height:20px;
+}
+
+
 
 /*scroll fix for mobile*/
 .scroll-wrapper{
@@ -5005,3 +5054,115 @@ div[disabled='true'], div[disabled='disabled']{
     bottom: 0;
     line-height: 30px;
 }
+
+.slotbar_cell .innerLbl{
+    display: none;
+}
+
+.showInnerLabel .slotbar_cell .innerLbl{
+    display: block;
+}
+.innerLbl{
+    background: #B3B3B3;
+    color: white;
+    text-align: left;
+    margin-left: 1px;
+    margin-right: 1px;;
+    font-size: 0.9em;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    border:1px solid #B3B3B3;
+}
+
+.innerLbl_top .innerLbl{
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom:0;
+}
+
+.innerLbl_bottom .innerLbl{
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-top:0;
+}
+
+.innerLblWrapper{
+    display: inline-block;
+}
+.innerLblWrapper.innerLblWrapper_widget_simpletextarea{
+}
+
+
+.tundra .innerLbl_top.innerLblWrapper .dijitTextBox, 
+.tundra .innerLbl_top.innerLblWrapper .dijitComboBox, 
+.tundra .innerLbl_top.innerLblWrapper .dijitSpinner, 
+.tundra .innerLbl_top.innerLblWrapper .dijitInlineEditor input,
+.tundra .innerLbl_top.innerLblWrapper .dijitTextArea{
+    /*box-shadow: 0 2px 2px #DDDDDD inset;*/
+    border-top-left-radius:0;
+    border-top-right-radius:0;
+    border-top:0;
+}
+
+
+.tundra .innerLbl_bottom.innerLblWrapper .dijitTextBox, 
+.tundra .innerLbl_bottom.innerLblWrapper .dijitComboBox, 
+.tundra .innerLbl_bottom.innerLblWrapper .dijitSpinner, 
+.tundra .innerLbl_bottom.innerLblWrapper .dijitInlineEditor input,
+.tundra .innerLbl_bottom.innerLblWrapper .dijitTextArea{
+    /*box-shadow: 0 2px 2px #DDDDDD inset;*/
+    border-bottom-left-radius:0;
+    border-bottom-right-radius:0;
+    border-bottom:0;
+}
+
+
+
+.grid_gallery_grid .dojoxGrid-scrollbox{
+    margin-left: 5px;
+    border-bottom: 0;
+}
+.grid_gallery_grid{
+    border-right: 1px solid silver;
+    width: 130px;
+}
+.grid_gallery_grid .dojoxGrid-cell {
+    border-left: 0px !important;
+    border-top: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    background: transparent !important;
+}
+
+.tundra._common_d11 .grid_gallery_grid .dojoxGrid-row-selected{
+    background: transparent !important;
+    background-image:none !important;
+}
+.tundra._common_d11 .grid_gallery_grid .dojoxGrid-row{
+    background-image:none !important;
+    background: transparent !important;
+}
+.tundra._common_d11 .grid_gallery_grid .dojoxGrid-cell{
+    padding-top:0px !important;
+}
+.tundra._common_d11 .grid_gallery_grid .dojoxGrid-content>div {
+    border-bottom: 0;
+}
+.tundra .grid_gallery_grid .cellContent{
+    margin-top:0;
+    margin-right:0px;
+    text-align:right;
+    font-size: 8pt;
+    color:#333;
+    border: 0px ;
+    cursor:pointer;
+    margin-top:2px;
+    opacity: .6;    
+}
+
+.grid_gallery_grid .dojoxGrid-row-selected .cellContent{
+    opacity: 1;
+}
+

@@ -51,6 +51,7 @@ class GnrCustomWebPage(object):
             panecb = getattr(self, 'prefpane_%s' % pkg.name, None)
             if panecb and auth:
                 panecb(tc, title=pkg.name_full, datapath='.%s' % pkg.name, nodeId=pkg.name,
+                        pkgId=pkg.name,_anchor=True,
                        sqlContextRoot='preference.%s' % pkg.name)
 
     def bottom(self, bottom):

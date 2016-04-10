@@ -34,10 +34,11 @@ class GnrCustomWebPage(object):
         #fb.numberTextBox(value='^.number_1',format='#,###.00',lbl='Constrains pattern',strict=False)
         #fb.numberTextBox(value='^.number_2',places=2,lbl='Constrains places')
         #fb.data('.number_3',3)
-        fb.numberTextBox(value='^pippo',format='#,###.000',
-            lbl='Format pattern')
+        fb.data('.pippo',33)
+        fb.numberTextBox(value='^.pippo',format='$ #,###.000',lbl='Format pattern')
         fb.dataController("console.log('changed',value);",value='^pippo')
-        fb.div('^pippo?_displayedValue',lbl='ccc')
+        fb.div('^.pippo?_formattedValue',lbl='ccc')
+        fb.div('^.pippo',lbl='ddd')
 
         #fb.CurrencyTextBox(value='^.money',lbl='Currency')
 

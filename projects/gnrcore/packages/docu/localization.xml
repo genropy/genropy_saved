@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<GenRoBag>
+	<menu ext="py" path="menu.py">
+		<en_documentation base="Documentation" de="Dokumentation" en="Documentation" fr="Documentation" it="Documentazione"/>
+		<en_docu_tables base="Docu tables"/>
+	</menu>
+
+	<model>
+		<documentation ext="py" path="model/documentation.py">
+			<en_documentation base="Documentation" de="Dokumentation" en="Documentation" fr="Documentation" it="Documentazione"/>
+				<en_name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
+				<en_topics base="Topics"/>
+				<en_publish_date base="Publish date"/>
+				<en_doc_type base="Doc. type"/>
+				<en_rst_s base="Rst %s"/>
+				<en_title_s base="Title %s"/>
+		</documentation>
+	</model>
+
+	<resources>
+		<rst_documentation_handler ext="py" path="resources/rst_documentation_handler.py">
+			<en_revert base="Revert" de="Zurückkehren" en="Revert" fr="Revenir" it="Ritornare"/>
+				<en_cancel base="Cancel" de="Stornieren" en="Cancel" fr="Annuler" it="Annulla"/>
+				<en_save base="Save" de="Speichern" en="Save" fr="Sauvegarder" it="Salva"/>
+				<en_title base="Title" de="Titel" en="Title" fr="Titre" it="Titolo"/>
+				<en_line_wrapping base="Line wrapping"/>
+				<en_quote base="Quote"/>
+				<en_parent base="Parent" de="Elternteil" en="Parent" fr="Mère" it="Genitore"/>
+				<en_first_child base="First child"/>
+				<en_prev base="Prev" de="Zurück" en="Prev" fr="Précédent" it="Prev"/>
+				<en_next base="Next" de="Nächste" en="Next" fr="Prochaine" it="Il Prossimo"/>
+				<en_search base="Search" de="Suche" en="Search" fr="Recherche" it="Cerca"/>
+		</rst_documentation_handler>
+		<tables>
+			<documentation>
+				<th_documentation ext="py" path="resources/tables/documentation/th_documentation.py">
+					<en_documentation base="Documentation" de="Dokumentation" en="Documentation" fr="Documentation" it="Documentazione"/>
+								<en_parameters base="Parameters" de="Parameter" en="Parameters" fr="Paramètres" it="Parametri"/>
+								<en_change_version_name base="Change version name"/>
+								<en_add_version base="Add version"/>
+								<en_delete_selected_template base="Delete selected template" de="Löschen ausgewählte Vorlage" en="Delete selected template" fr="Supprimer le modèle sélectionné" it="Cancella modello selezionato"/>
+								<en_italiano base="Italiano"/>
+								<en_english base="English" de="Englisch" en="English" fr="Anglais" it="Inglese"/>
+				</th_documentation>
+			</documentation>
+		</tables>
+	</resources>
+</GenRoBag>

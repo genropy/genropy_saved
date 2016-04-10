@@ -426,7 +426,7 @@ class TableHandler(BaseComponent):
         rootattr['overflow'] = 'hidden'
         rootattr['_fakeform'] = True
         rootattr['table'] = table
-        rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey; FIRE .controller.loaded;'
+        rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey; FIRE .controller.loaded = $1.pkey;'
         if pkey:
             root.dataController('SET .pkey = pkey; FIRE .controller.loaded=pkey;',pkey=pkey,_onStart=True)
             root.dataRecord('.record',table,pkey='^#FORM.pkey',_if='pkey')
@@ -730,7 +730,9 @@ class ThLinker(BaseComponent):
             linker.attributes.update(visible='^#FORM.record?_newrecord')
         linker.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',
                     connect_onBlur='this.getParentNode().publish("disable");',
-                    _class='th_linkerField',background='white',auxColumns=auxColumns,hiddenColumns=hiddenColumns,**kwargs)
+                    _class='th_linkerField',background='white',auxColumns=auxColumns,hiddenColumns=hiddenColumns,
+                    lbl=False,
+                    **kwargs)
         return linker
         
     @extract_kwargs(template=True)

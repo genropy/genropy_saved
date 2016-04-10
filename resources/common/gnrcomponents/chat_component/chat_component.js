@@ -12,18 +12,22 @@ ct_chat_utils.addReplacer = function(pattern,cb){
 };
 
 ct_chat_utils.fill_title = function(roombag) {
+    var roomtitle = roombag.getItem('roomtitle');
+    if(roomtitle){
+        roombag.setItem('title', roomtitle);
+        return;
+    }
     var user = roombag.getItem('user');
     var user_name = roombag.getItem('user_name');
     var users = roombag.getItem('users');
     var unread = roombag.getItem('unread');
-    var title;
     if (users.len() == 1) {
         title = 'empty';
     } else {
         var user_name_list = users.digest('#a.user_name').sort();
-        var title = dojo.filter(user_name_list,
+        title = dojo.filter(user_name_list,
                                function(element) {
-                                   return element != user_name
+                                   return element != user_name;
                                }).join(',');
         if (unread) {
             title = title + '(' + unread + ')';
@@ -38,33 +42,37 @@ ct_chat_utils.key_from_users = function(users){
     if(idx>=0){
         user_list.splice(idx,1);
     }
-    var user_list = [user].concat(user_list);
+    user_list = [user].concat(user_list);
     return user_list.join('*');
 };
 
-ct_chat_utils.open_chat = function(roomId, users) {
+ct_chat_utils.open_chat = function(roomId, users,roomtitle) {
     var user = genro._('gnr.avatar.user');
     var user_name = genro._('gnr.avatar.user_name') || user;
     var roomsNode = genro.nodeById('ct_chat_rooms');
     var user_name_list = users.digest('#a.user_name').sort();
     users.setItem(user, null, {user_name:user_name,user:user});
     var roompath = 'gnr.chat.rooms.' + roomId;
-    var roombag = new gnr.GnrBag({'users':users,user_name:user_name,user:user});
+    var roombag = new gnr.GnrBag({'users':users,user_name:user_name,user:user,roomtitle:roomtitle});
     ct_chat_utils.fill_title(roombag);
     var user_room_key = ct_chat_utils.key_from_users(users);
     genro.setData(roompath, roombag,{'user_room_key':user_room_key});
-    var pane = roomsNode._('ContentPane', {title:'^.title',closable:true,datapath:roompath,pageName:roomId,_class:'ct_chatpane',rounded:4,
+    var pane = roomsNode._('ContentPane',roomId, {title:'^.title',closable:true,nodeId:roomId + '_room',datapath:roompath,pageName:roomId,_class:'ct_chatpane',rounded:4,
         onClose:function() {
             genro.publish("ct_send_message", {"roomId":this.sourceNode.attr.pageName,msg:null,disconnect:true});
-            var rooms = ct_chat_utils.get_rooms()
+            var rooms = ct_chat_utils.get_rooms();
             rooms.popNode(this.sourceNode.attr.pageName);
+            var selected_room = roomsNode.getRelativeData('.selected_room');
+            if(selected_room==this.sourceNode.attr.pageName){
+                roomsNode.setRelativeData('.selected_room',null);
+            }
             return true;
         }});
-    var newroom = pane._('BorderContainer', {nodeId:roomId + '_room',detachable:true,height:'100%',rounded:4});
+    var newroom = pane._('BorderContainer', {detachable:true,height:'100%',rounded:4});
     var sourceNode = newroom.getParentNode();
-    var label = newroom._('ContentPane', {region:'top',_class:'ct_chatlabel'})
+    var label = newroom._('ContentPane', {region:'top',_class:'ct_chatlabel'});
 
-    var bottom = newroom._('ContentPane', {region:'bottom',_class:'ct_chatbottom'});
+    var bottom = newroom._('ContentPane', {region:'bottom',_class:'ct_chatbottom',hidden:'^.users?=#v.len()<2'});
     roomsNode.widget.resize();
     roomsNode.setRelativeData('.selected_room', roomId);
     var bottombox = bottom._('div', {margin:'3px',margin_right:'8px',roomId:roomId,
@@ -91,12 +99,12 @@ ct_chat_utils.read_msg = function(msgbag) {
     var roombag,roomNode;
     roomPage = genro.nodeById(roomId + '_room');
     if (!roomPage) {
-        ct_chat_utils.open_chat(roomId, users);
+        ct_chat_utils.open_chat(roomId, users,msgbag.getItem('roomtitle'));
         roomPage = genro.nodeById(roomId + '_room');
     }
     roomNode = genro.getDataNode('gnr.chat.rooms.' + roomId);
     if(!roomNode){
-        console.log('missing roomNode')
+        console.log('missing roomNode');
         return;
     }
     roombag = roomNode.getValue();
@@ -106,7 +114,7 @@ ct_chat_utils.read_msg = function(msgbag) {
         roombag.setItem('unread', null);
     }
     genro.fireEvent('gnr.chat.calc_unread');
-    var users = roombag.getItem('users')
+    users = roombag.getItem('users');
     if (disconnect) {
         users.popNode(from_user);
     }
@@ -144,7 +152,7 @@ ct_chat_utils.select_room = function(roomOrUsers){
     }else{
         var users = this.prepare_usersbag(roomOrUsers);
         var user_room_key = this.key_from_users(users);
-        var rooms = genro.getData('gnr.chat.rooms')
+        var rooms = genro.getData('gnr.chat.rooms');
         if(!rooms){
             rooms = new gnr.GnrBag();
             genro.setData('gnr.chat.rooms',rooms);
@@ -152,7 +160,7 @@ ct_chat_utils.select_room = function(roomOrUsers){
         var n = rooms.getNodeByAttr('user_room_key',user_room_key);
         if (!n){
             roomId= 'cr_'+new Date().getTime();
-            this.open_chat(roomId,users)
+            this.open_chat(roomId,users);
         }else{
             roomId = n.label;
         }

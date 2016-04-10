@@ -8,7 +8,7 @@
 
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerBase"
-    #dojo_theme = 'claro'
+    
     
     def windowTitle(self):
         return 'Remote'

@@ -46,7 +46,7 @@ class TableHandlerView(BaseComponent):
             viewhook(view)
         return view
     
-    @extract_kwargs (top=True,preview=True)
+    @extract_kwargs(top=True,preview=True)
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
@@ -185,7 +185,7 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
-        pane.div('^.title',style='line-height:20px;color:#666;')
+        pane.div('^.title' ,_class='frameGridTitle')
 
 
     @struct_method
@@ -222,7 +222,8 @@ class TableHandlerView(BaseComponent):
             pkeyfield = section_table.pkey
             caption_field = section_table.attributes.get('caption_field')
             condition_kwargs = condition_kwargs or dict()
-            f = section_table.query(columns='*,$%s' %caption_field,where=condition,**condition_kwargs).fetch()
+            default_order_by = section_table.attributes.get('order_by','$%s' %caption_field)
+            f = section_table.query(columns='*,$%s' %caption_field,where=condition,order_by=default_order_by,**condition_kwargs).fetch()
         else:
             caption_field = 'description'
             pkeyfield = 'code'
@@ -262,7 +263,7 @@ class TableHandlerView(BaseComponent):
             lbl_kwargs = lbl_kwargs or dictExtract(dict(m.__dict__),'lbl_',slice_prefix=False)
             depending_condition = getattr(m,'_if',False)
             depending_condition_kwargs = dictExtract(dict(m.__dict__),'_if_')
-        elif sections in  tblobj.model.columns and (tblobj.column(sections).relatedTable() is not None or \
+        elif sections in  tblobj.model.columns and (tblobj.column(sections).relatedTable() is not None or 
                                                 tblobj.column(sections).attributes.get('values')):
             sectionslist = self._th_section_from_type(tblobj,sections,condition=condition,condition_kwargs=condition_kwargs,all_begin=all_begin,all_end=all_end)
             dflt = None
@@ -342,13 +343,13 @@ class TableHandlerView(BaseComponent):
                             """)
 
     @public_method
-    @metadata (prefix='query',code='default_duplicate_finder',description='!!Find all duplicates')
+    @metadata(prefix='query',code='default_duplicate_finder',description='!!Find all duplicates')
     def th_default_find_duplicates(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
         pkeys = tblobj.findDuplicates()
         query = tblobj.query(where='$%s IN :pkd' %tblobj.pkey,pkd=pkeys,**kwargs)
         return query.selection(sortedBy=sortedBy, _aggregateRows=True) 
     @public_method
-    @metadata (prefix='query',code='default_duplicate_finder_to_del',description='!!Find duplicates to delete')
+    @metadata(prefix='query',code='default_duplicate_finder_to_del',description='!!Find duplicates to delete')
     def th_default_find_duplicates_to_del(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
         pkeys = tblobj.findDuplicates(allrecords=False)
         query = tblobj.query(where='$%s IN :pkd' %tblobj.pkey,pkd=pkeys,**kwargs)
@@ -606,6 +607,7 @@ class TableHandlerView(BaseComponent):
                                _onStart=_onStart,
                                _th_root =th_root,
                                _POST =True,
+                               httpMethod='WSK' if self.extraFeatures['wsk_grid'] else None,
                                _onCalling="""
                                %s
                                if(_sections){

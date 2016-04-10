@@ -17,6 +17,7 @@ import httplib2
 import locale
 
 from time import time
+from collections import defaultdict
 from gnr.core.gnrlang import deprecated,GnrException,tracebackBag
 from gnr.core.gnrdecorator import public_method
 from gnr.app.gnrconfig import getGnrConfig
@@ -225,6 +226,7 @@ class GnrWsgiSite(object):
         self.homepage = self.config['wsgi?homepage'] or self.default_uri + 'index'
         self.indexpage = self.config['wsgi?homepage'] or '/index'
         self._guest_counter = 0
+        self._initExtraFeatures()
         if not self.homepage.startswith('/'):
             self.homepage = '%s%s' % (self.default_uri, self.homepage)
         self.secret = self.config['wsgi?secret'] or 'supersecret'
@@ -289,6 +291,20 @@ class GnrWsgiSite(object):
     @property
     def remote_edit(self):
         return self._remote_edit
+
+    def _initExtraFeatures(self):
+        self.extraFeatures = defaultdict(lambda:None)
+        extra = self.config['extra']
+        if extra:
+            for n in extra:
+                if n.label.startswith('wsk_') and not self.websockets:
+                    #exclude wsk options if websockets are not activated
+                    continue
+                attr = dict(n.attr)
+                if boolean(attr.pop('enabled',False)):
+                    self.extraFeatures[n.label] = True
+                    for k,v in attr.items():
+                        self.extraFeatures['%s_%s' %(n.label,k)] = v
 
     def addService(self, service_handler, service_name=None, **kwargs):
         """TODO
@@ -1301,19 +1317,23 @@ class GnrWsgiSite(object):
         zip_archive.close()
         zipresult.close()
 
-    def externalUrl(self, path,serveAsLocalhost=None, **kwargs):
+    def externalUrl(self, path,serveAsLocalhost=None, _link=False,**kwargs):
         """TODO
         
         :param path: TODO"""
         params = urllib.urlencode(kwargs)
         #path = os.path.join(self.homeUrl(), path)
-        if path == '': path = self.home_uri
+        if path == '': 
+            path = self.home_uri
         cr = self.currentRequest
         path = cr.relative_url(path)
         if serveAsLocalhost:
             path = path.replace(cr.host.replace(':%s'%cr.host_port,''),'localhost')
         if params:
             path = '%s?%s' % (path, params)
+
+        if _link:
+            return '<a href="%s" target="_blank">%s</a>' %(path,_link if _link is not True else '')
         return path
 
 

@@ -218,6 +218,39 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         });
     },
 
+    onBuilding:function(sourceNode){
+        //OVERRIDE
+    },
+
+    _onBuilding:function(sourceNode){
+        var lbl = objectPop(sourceNode.attr,'lbl');
+        if(lbl){
+            var inherited_attr = sourceNode.getInheritedAttributes();
+            var lbl_attr = objectExtract(inherited_attr,'lbl_*');
+            var wrp_attr = objectExtract(inherited_attr,'wrp_*')
+            var attr = objectUpdate({},sourceNode.attr)
+            var tag = objectPop(attr,'tag');
+            var moveable = objectPop(attr,'moveable');
+            if (moveable){
+                wrp_attr.moveable=moveable
+                objectUpdate(wrp_attr, objectExtract(attr,'top,left,position'));
+                lbl_attr.id='handle_'+sourceNode.getStringId()
+                wrp_attr.moveable_handle=lbl_attr.id
+            }
+            var children = sourceNode.getValue();
+            sourceNode._value = null;
+            var side = lbl_attr['side'] || 'top';
+            sourceNode.attr = objectUpdate({tag:'div',_class:'innerLblWrapper innerLbl_'+side+ ' innerLblWrapper_widget_'+tag.toLowerCase()},wrp_attr);
+            sourceNode._('div',objectUpdate({innerHTML:lbl,_class:'innerLbl'},lbl_attr),{'doTrigger':false});
+            var c = sourceNode._(tag,attr,{'doTrigger':false});
+            if(children && children.len()){
+                c.concat(children);
+            }
+        }else{
+            this.onBuilding(sourceNode);
+        }
+    },
+
     _creating:function(attributes, sourceNode) {
         /*receives some attributes, calls creating, updates savedAttrs and returns them*/
         var extension = objectPop(attributes, 'extension');
@@ -232,6 +265,12 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                 savedAttrs['speech'] = true;
             }
         }
+        if (attributes.moveable){
+            savedAttrs['moveable'] = objectPop(attributes,'moveable');
+            savedAttrs['moveable_kw'] = objectExtract(attributes,'moveable_*');
+        }
+
+         
         savedAttrs['touchEvents'] = objectPop(attributes,'touchEvents');
 
         objectExtract(attributes, 'onDrop,onDrag,dragTag,dropTag,dragTypes,dropTypes');
@@ -298,12 +337,10 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                 attributes['title'] = '<div class="' + iconClass + '"/>';
             }
         }
-        ;
-        if (attributes['title']) {
+        if (attributes.title) {
             var tip = objectPop(attributes, 'tip') || title || '';
-            attributes['title'] = '<span title="' + tip + '">' + attributes['title'] + '</span>';
+            attributes.title = '<span title="' + tip + '">' + attributes.title + '</span>';
         }
-        ;
     },
     setDraggable:function(domNode, value) {
         domNode.setAttribute('draggable', value);
@@ -332,14 +369,35 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                             newobj.sourceNode.onNodeCall(newobj.onSpeechEnd);
                         }
                     }
-                }
+                };
             }
         }
-
         var domNode = newobj.domNode || newobj;
-       //if('touchEvents' in savedAttrs){
-       //    genro.dom.connectTouchEvents(domNode,savedAttrs['touchEvents']);
-       //}
+        if('moveable' in savedAttrs){
+            var moveable_kw = savedAttrs.moveable_kw;
+            //var inhattr = sourceNode.getInheritedAttributes();
+            var constrain = objectPop(moveable_kw,'constrain');
+            genro.src.onBuiltCall(function(){
+                var publishOn;
+                if(constrain===false){
+                    sourceNode.mover = new dojo.dnd.Moveable(domNode,moveable_kw);
+                    publishOn = genro;
+                }else{
+                    dojo.require('dojo.dnd.move');
+                    moveable_kw.within = true;
+                    sourceNode.mover = new dojo.dnd.move.parentConstrainedMoveable(domNode,moveable_kw);
+                    publishOn = sourceNode.getParentNode();
+                }
+                var coords=dojo.coords(domNode);
+                publishOn.publish('onMoveable',{'action':'created','sourceNode':sourceNode,'top':coords.t+'px','left':coords.l+'px'});
+                dojo.connect(sourceNode.mover , "onMove", function(mover,topLeft){
+                    publishOn.publish('onMoveable',{'action':'moved','sourceNode':sourceNode,
+                              top:mover.node.style.top,left:mover.node.style.left
+                    });            
+                });
+            });
+        }
+      
         if (savedAttrs.connectedMenu) {
             var menu = savedAttrs.connectedMenu;
             if (typeof(menu) == 'string') {
@@ -650,8 +708,13 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         var mainGenro =genro.mainGenroWindow.genro;
         dojo.connect(newobj, 'onload', function(){
             var cw = this.contentWindow;
-            if(!cw.location.host){
-                return;
+            try{
+                if(!cw.location.host){
+                    return;
+                }
+            }catch(e){
+                console.warn('not loaded frame')
+                return
             }
             genro.dom.removeClass(this,'waiting');
             if(this.sourceNode.attr.documentClasses){
@@ -1035,6 +1098,9 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         this._dojowidget = true;
     },
     createDojoWidget:function(factory,attributes,domnode,sourceNode){
+        if('tabindex' in attributes){
+            attributes['tabIndex'] = objectPop(attributes,'tabindex');
+        }
         if (this.customizedTemplate){
             attributes['templateString'] = this.customizedTemplate(sourceNode,factory.prototype.templateString);
         }
@@ -1061,6 +1127,18 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         objectExtract(valueAttr,'_displayedValue,_formattedValue')
         var validateresult;
         valueAttr = objectUpdate(objectUpdate({}, datanode.attr), valueAttr);
+        if(typeof(value)=='string' && sourceNode._shortcutsDict){
+            value = value.replace(/\b(\w)+\b/gim, function(m){
+                if(m){
+                    return sourceNode._shortcutsDict[m] || m;
+                }
+                return m;
+                
+            });
+            if(sourceNode.widget){
+                sourceNode.widget.setValue(value)
+            }
+        }
         if (sourceNode.hasValidations()) {
             validateresult = sourceNode.validationsOnChange(sourceNode, value);
             value = validateresult['value'];
@@ -1084,6 +1162,7 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
             }
 
         }
+
         
         this.doChangeInData(sourceNode,value,valueAttr);
         this.setValueInData(sourceNode,value,valueAttr);
@@ -1144,6 +1223,50 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
     },
     mixin_setVisible: function(visible) {
         dojo.style(this.domNode, 'visibility', (visible ? 'visible' : 'hidden'));
+    },
+
+    mixin_setShortcuts:function(shortcuts){
+        this.sourceNode._value.popNode('shortcutsMenu');
+        delete this.sourceNode._shortcutsDict;
+        var shortcutsDict = {};
+        var shortcutKeys = [];
+        if(shortcuts===true){
+            shortcuts = genro.getData('gnr.shortcuts.store');
+            if(!shortcuts || shortcuts.len()==0){
+                return;
+            }
+        }
+        if(shortcuts instanceof gnr.GnrBag){
+            shortcuts.forEach(function(n){
+                shortcutsDict[n.attr.keycode] = n.attr.phrase;
+                shortcutKeys.push(n.attr.keycode)
+            });
+
+        }else{ //shortcuts is string
+            var hasKeyCode = shortcuts.indexOf(':')>=0;
+            if(!hasKeyCode){
+                //only suggestion menu
+                this.sourceNode._('menu','shortcutsMenu',{'_class':'smallmenu',
+                                                            action:"genro.dom.setTextInSelection($2,($1.fullpath.indexOf('caption_')==0?$1.label:$1.fullpath));",
+                                                            values:shortcuts});
+                return;
+            }
+            shortcutKeys = shortcuts.split(',').map(function(n){return n.split(':')[0]});
+            shortcutsDict = objectFromString(shortcuts);
+        }
+        var values = new gnr.GnrBag()
+        var i = 0;
+        var tpl = '<div style="position:relative; padding-right:60px;">$phrase <div style="position:absolute;right:0;top:0;font-weight:bold;">$keycode</div></div>';
+        shortcutKeys.forEach(function(keycode){
+            values.setItem('r_'+i,null,{caption:dataTemplate(tpl,{keycode:keycode,phrase:shortcutsDict[keycode]}),phrase:shortcutsDict[keycode],keycode:keycode});
+            i++;
+        });
+        if(values.len()){
+            this.sourceNode._('menu','shortcutsMenu',{'_class':'smallmenu',
+                                action:"genro.dom.setTextInSelection($2,$1.phrase);",values:values});
+            this.sourceNode._shortcutsDict= shortcutsDict;
+        }
+        
     },
 
     mixin_setHidden: function(hidden) {
@@ -1518,17 +1641,19 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
     },
 
     creating:function(attributes, sourceNode) {
-        var savedAttrs = objectExtract(attributes, 'value,suggestions');
+        var savedAttrs = objectExtract(attributes, 'value,shortcuts');
         return savedAttrs;
     },
+
 
     created:function(newobj, savedAttrs, sourceNode) {
         if (savedAttrs.value) {
             newobj.setValue(savedAttrs.value);
         }
-       if(savedAttrs.suggestions){
-           sourceNode._('menu','suggestionMenu',{'_class':'smallmenu',
-                                                action:"genro.dom.setTextInSelection($2,($1.fullpath.indexOf('caption_')==0?$1.label:$1.fullpath));",values:savedAttrs.suggestions});
+       if(savedAttrs.shortcuts){
+            setTimeout(function(){
+                newobj.setShortcuts(savedAttrs.shortcuts)
+            },1)
         }
         dojo.connect(newobj.domNode, 'onchange', dojo.hitch(this, function() {
             this.onChanged(newobj);
@@ -1545,11 +1670,6 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
         colattr['height'] = colattr['height'] || '100px';
     },
 
-
-    mixin_setSuggestions:function(suggestions){
-        this.sourceNode._value.popNode('suggestionMenu');
-        this.sourceNode._('menu','suggestionMenu',{'_class':'smallmenu',action:"genro.dom.setTextInSelection($2,($1.fullpath.indexOf('caption_')==0?$1.label:$1.fullpath));",values:suggestions});
-    },
     onChanged:function(widget) {
         var value = widget.getValue();
         this._doChangeInData(widget.domNode, widget.sourceNode, value);
@@ -1613,6 +1733,11 @@ dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
         var handler = (p==parseInt(p))?'setSelected':'setSelectedPage';
         this[handler](p);
     },
+
+    mixin_setHiddenChild:function(){
+
+    },
+
     patch_selectChild:function(page){
         var sourceNode = this.sourceNode;
         if(sourceNode.attr.nodeId){
@@ -1702,6 +1827,9 @@ dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
                 return widget;
             };
         }
+        child.setHidden = function(value){
+            widget.setHiddenChild(this,value);
+        };
         gnr.setOrConnectCb(child, 'onShow', dojo.hitch(this, 'onShowHideChild', widget, child, true));
         gnr.setOrConnectCb(child, 'onHide', dojo.hitch(this, 'onShowHideChild', widget, child, false));
         var pageName = child.sourceNode.attr.pageName;
@@ -1710,6 +1838,11 @@ dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
             widget.gnrPageDict[pageName] = child;
         }
     },
+    mixin_deletePage:function(page){
+        var pageNode = page.sourceNode;
+        pageNode.getParentBag().popNode(pageNode.label);
+    },
+
     mixin_onDestroyingChild:function(child){
         this.removeChild(child);
     },
@@ -1742,6 +1875,11 @@ dojo.declare("gnr.widgets.TabContainer", gnr.widgets.StackContainer, {
         // dojo.connect(widget,'addChild',dojo.hitch(this,'onAddChild',widget));
     },
     ___onAddChild:function(widget, child) {
+    },
+
+
+    mixin_setHiddenChild:function(child,value){
+        genro.dom.toggleVisible(child.controlButton.domNode,!value)
     },
 
     versionpatch_11_layout: function() {
@@ -2317,7 +2455,12 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
     },
     created: function(widget, savedAttrs, sourceNode) {
         if(savedAttrs.values){
-            var contentBag = new gnr.GnrBag(objectFromString(savedAttrs.values,',','kv'));
+            var contentBag;
+            if(typeof(savedAttrs.values)=='string'){
+                contentBag = new gnr.GnrBag(objectFromString(savedAttrs.values,null,'kv'));
+            }else{
+                contentBag = savedAttrs.values;
+            }
             var menubag = new gnr.GnrDomSource();
             gnr.menuFromBag(contentBag, menubag, sourceNode.attr._class);
             sourceNode.setValue(menubag, false);
@@ -2497,6 +2640,7 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
         var contextclick = (e.button==2 ||  genro.dom.getEventModifiers(e)=='Ctrl');
         if (contextclick && (!this.modifiers)) {
             this._openMyself_replaced.call(this, e);
+
         }
     },
 
@@ -2662,7 +2806,7 @@ dojo.declare("gnr.widgets._ButtonLogic",null, {
                 if(sourceNode.disabled=='*pendingclick*'){
                     sourceNode.setDisabled(false);
                 }
-            },500);
+            },200);
             return this._clickHandlerDo(sourceNode,e,inattr);
         }
         if(sourceNode._pendingClick){
@@ -3028,6 +3172,12 @@ dojo.declare("gnr.widgets._BaseTextBox", gnr.widgets.baseDojo, {
     mixin_selectAllInputText: function() {
         dijit.selectInputText(this.focusNode);
     },
+
+    creating:function(attributes, sourceNode) {
+        var savedAttrs = objectExtract(attributes, 'shortcuts');
+        return savedAttrs;
+    },
+
     created: function(widget, savedAttrs, sourceNode) {
         if(genro.isMobile){
             widget.focusNode.setAttribute('autocapitalize','none');
@@ -3035,12 +3185,16 @@ dojo.declare("gnr.widgets._BaseTextBox", gnr.widgets.baseDojo, {
             widget.focusNode.setAttribute('autocorrect','off');
         }
         this.connectFocus(widget, savedAttrs, sourceNode);
+        if(savedAttrs.shortcuts){
+            setTimeout(function(){
+                widget.setShortcuts(savedAttrs.shortcuts)
+            },1)
+        }
     },
     
     cell_onDestroying:function(sourceNode,gridEditor,editingInfo){
         dijit.hideTooltip(sourceNode.widget.domNode);
     }
-
 });
 
 dojo.declare("gnr.widgets.TextBox", gnr.widgets._BaseTextBox, {
@@ -3058,7 +3212,9 @@ dojo.declare("gnr.widgets.TextBox", gnr.widgets._BaseTextBox, {
         objectPop(attributes,'multivalueCb');
 
         attributes.trim = (attributes.trim == false) ? false : true;
-        return {};
+
+        var savedAttrs = objectExtract(attributes, 'shortcuts');
+        return savedAttrs;
     },
     onBuilding:function(sourceNode){
         var attr = sourceNode.attr;
@@ -3188,8 +3344,13 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
     creating: function(attributes, sourceNode) {
         attributes._class = attributes._class ? attributes._class + ' numberTextBox' : 'numberTextBox';
         var format = objectPop(attributes,'format');
-        attributes.constraints = objectExtract(attributes, 'min,max,places,pattern,round,currency,fractional,symbol,strict,locale');
+        var places = objectPop(attributes,'places');
+        attributes.constraints = objectExtract(attributes, 'min,max,pattern,round,currency,fractional,symbol,strict,locale');
         attributes.constraints.pattern = attributes.constraints.pattern || format;
+        if(!places && attributes.constraints.pattern && attributes.constraints.pattern.indexOf('.')){
+            places = '0,'+attributes.constraints.pattern.split('.')[1].length;
+        }
+        sourceNode._parseDict = places?{places:places}:{};
         //attributes.editOptions = objectUpdate({})
         if ('ftype' in attributes) {
             attributes.constraints['type'] = objectPop(attributes['ftype']);
@@ -3209,10 +3370,20 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
         }
     },
     patch_getValue: function(){
-        return this.parse(this.getDisplayedValue(), {});
+        var displayedValue = this.getDisplayedValue();
+        var result = this.parse(displayedValue, this.constraints); //this.sourceNode._parseDict
+        if(isNaN(result)){
+            result = this.parse(displayedValue,  this.sourceNode._parseDict)
+        }
+        //console.log('displayedValue',displayedValue,'result',result);
+        return result;
     },
     patch_isValid: function(/*Boolean*/ isFocused){
-        return this.validator(this.textbox.value, {});
+        if(isFocused){
+            return true;
+        }
+        //console.log('aaa',this.textbox.value,'bbb',this.sourceNode._parseDict,'ccc',this)
+        return this.validator(this.textbox.value, this.sourceNode._parseDict) || this.validator(this.textbox.value, this.constraints);
     },
 
 
@@ -3914,6 +4085,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         return function(v, inRowIndex) {
             var renderedRow = this.grid.currRenderedRow;
+            if(!objectNotEmpty(renderedRow)){
+                return '<div class="cellContent">' + '&nbsp;' + '</div>';;
+            }
             var baseStyleDict = objectUpdate(objectFromStyle(this.cellStyles),
                                                      sourceNode.evaluateOnNode(genro.dom.getStyleDict(objectUpdate({},this), [ 'width'])))
             var ranges = objectExtract(cell,'range_*',true);
@@ -4050,6 +4224,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                     };
                 }
             }
+            if(cell.rowTemplate){
+                cell.rowTemplate = sourceNode.currentFromDatasource(cell.rowTemplate);
+            }
             cell.field = cell.field.replace(/\W/g, '_');
             cell.field_getter = cell.caption_field? cell.caption_field.replace(/\W/g, '_'):cell.field ;
             if(cell.caption_field || cell.values){
@@ -4127,7 +4304,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var bagnodes = struct.getNodes();
             var formats, dtype, editor;
             var view, viewnode, rows, rowsnodes, i, k, j, cellsnodes, row, cell, rowattrs, rowBag;
-            var editorPars = sourceNode.attr.gridEditor;
+            var editorPars = sourceNode.attr.gridEditorPars;
             for (var i = 0; i < bagnodes.length; i++) {
                 viewnode = bagnodes[i];
                 view = objectUpdate({}, viewnode.attr);
@@ -4331,7 +4508,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             for (var i = 0; i < widget.rowCount; i++) {
                 var row = widget.rowByIndex(i, true);
                 var v = row ? row[field] : '';
-                columndata.push(v);
+                if(!isBag(v)){
+                    columndata.push(v);
+                }
                 textcol = textcol + convertToText(v)[1] + '\n';
             }
             ;
@@ -4687,7 +4866,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                 c = this.grid.cellmap[k];
                 formats[c.field] = c._formats;
             }
-            return dataTemplate(this.rowTemplate,rowdata,null,null,{formats:formats});
+            return dataTemplate(this.rowTemplate,new gnr.GnrBag(rowdata),null,null,{formats:formats});
         }else{
             return rowdata[this.field_getter]
         }
@@ -4813,12 +4992,13 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
     },
 
+
     mixin_getRowText:function(rowIdx,joiner,fields,ignoreFilter){
         var result = [];
         var cb;
         if(fields){
             cb = function(c){
-                if (fields.indexOf(c.field)>=0){
+                if (fields.indexOf(c.field_getter || c.field)>=0){
                     result.push(c.get(rowIdx,ignoreFilter));
                 }
             }
@@ -4833,6 +5013,8 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         return result.join(joiner || '');
     },
 
+
+
     mixin_getRowTextObj:function(rowIdx,ignoreFilter){
         var result = {};
         this.layout.cells.forEach(function(c){
@@ -4841,24 +5023,30 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         return result;
     },
 
+    mixin_sortStore:function(){
+        console.warn('OLD GRID FIX ME')
+        //FOR LEGACY GRID IT SHOULD NOT BE CALLED
+        //WE ASSUME THAT START SORT FOR A NEW DATASTORE IS RIGHT
+        if (this.sortedBy) { 
+            var storebag = this.storebag();
+            var sortedBy = this.sortedBy;
+            if(this.datamode!='bag'){
+                sortedBy = sortedBy.split(',');
+                var l = [];
+                dojo.forEach(sortedBy,function(n){l.push('#a.'+n);});
+                sortedBy = l.join(',');
+            }
+            storebag.sort(sortedBy);
+        }
+    },
+
     mixin_newDataStore:function() {
         this.updateRowCount(0);
         this.resetFilter();
         if(this.excludeCol){
             this.filterToRebuild(true);
         }
-        // WE ASSUME THAT START SORT FOR A NEW DATASTORE IS RIGHT
-        //if (this.sortedBy) { 
-        //    var storebag = this.storebag();
-        //    var sortedBy = this.sortedBy;
-        //    if(this.datamode!='bag'){
-        //        sortedBy = sortedBy.split(',');
-        //        var l = [];
-        //        dojo.forEach(sortedBy,function(n){l.push('#a.'+n);});
-        //        sortedBy = l.join(',');
-        //    }
-        //    storebag.sort(sortedBy);
-        //}
+        this.sortStore();
         this.sourceNode.publish('onNewDatastore');
         this.updateRowCount('*');
         this.restoreSelectedRows();
@@ -4927,15 +5115,30 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                         //    this.setSelectedIndex(kw.ind);
                         //}
                     } else {
+                        console.log('parent_lv_ins',parent_lv, val, kw)
                         //if ((storebag == kw.where) && (parent_lv<1)){
                         //}
                     }
                 } else if (kw.evt == 'del') {
                     if (parent_lv == 1) {
+                        var currSelectedIdx = this.selection.selectedIndex;
+                        this.selection.unselectAll()
+                        var lastSelectable = this.storebag().len()-1;
+                        if(currSelectedIdx>lastSelectable){
+                            currSelectedIdx = lastSelectable;
+                        }
                         this.filterToRebuild(true);
                         this.updateRowCount();
+                        var that = this;
+                        if(lastSelectable>=0){
+                            setTimeout(function(){
+                                that.setSelectedIndex(lastSelectable);
+                            },1);
+                        }
+                        
                         //this.setSelectedIndex(kw.ind); contrario al meccanismo dei dbevent
                     } else {
+                        console.log('parent_lv_del',parent_lv,val, kw)
                         //if (parent_lv<1){
                         //}
                     }
@@ -6088,10 +6291,13 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         });
         this.sourceNode.publish('onAddedRows');
         if(!duplicate){
+            var doEdit = true;
             if(onEditNode){
-                onEditNode(firstRow);
+                doEdit=onEditNode(firstRow);
             }
-            this.editBagRow(this.storebag().index(firstRow.label));
+            if(this.gridEditor && doEdit!==false){
+                this.editBagRow(this.storebag().index(firstRow.label));
+            }
         }
         return firstRow;
     },
@@ -6224,8 +6430,9 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     addNewSetColumn:function(sourceNode,kw) {
         var position = objectPop(kw,'position') || 0;
         var celldata = this.getNewSetKw(sourceNode,kw);
-        var structbag = sourceNode.getRelativeData(sourceNode.attr.structpath);
+        
         genro.callAfter(function(){
+            var structbag = sourceNode.getRelativeData(sourceNode.attr.structpath);
             structbag.setItem('view_0.rows_0.cell_'+celldata.field, null, celldata, {_position:position});
         },1);
     },
@@ -6251,12 +6458,11 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         if(celldata['userSets_caption']){
             celldata['checkedCaption'] = sourceNode.attr.userSets+'_caption.'+fieldname;
         }
-
         var checkedField = '_pkey';
         celldata['checkedField'] = checkedField;
         celldata['userSets'] = true;    
         celldata['format_onclick'] = "this.widget.onChangeSetCol(kw.rowIndex,'"+fieldname+"',e)";
-        celldata['_customGetter'] = function(rowdata,rowIdx){
+        celldata['_customGetter'] = celldata['_customGetter'] || function(rowdata,rowIdx){
             return sourceNode._usersetgetter(this.field,rowdata,rowIdx)
         };
         return celldata;
@@ -6380,9 +6586,16 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     },
 
     mixin_sortStore:function(sortedBy) {
-        console.log('sortedBy',sortedBy)
-        this.sortedBy = sortedBy;
         var store = this.collectionStore();
+        if(!sortedBy){
+            var storeSortedBy = store.storeNode.getAttributeFromDatasource('sortedBy');
+            if(store.storeNode && storeSortedBy==this.sortedBy){
+                //store is already sorted by the server
+                return;
+            }
+            sortedBy = this.sortedBy || storeSortedBy;
+        }
+        this.sortedBy = sortedBy;
         store.sortedBy = sortedBy;
         if (this._virtual){
             var rowcount = this.rowCount;
@@ -6427,7 +6640,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
                         if(lastRow!=that.scroller.lastVisibleRow){
                             storeNode.publish('updateRows');
                         }
-                    },500);
+                    },50);
             }, true);
             }
             
@@ -6930,7 +7143,11 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
                  }
                  
                  details['street_address'] = details['route_long']+', '+(details['street_number']||'??');
-                 details['street_address_eng'] = (details['street_number']||'??')+' '+details['route_long'];
+                 var street_number = details['street_number']||'??'; //subpremise
+                 if(details['subpremise']){
+                    street_number = details['subpremise']+'/'+street_number;
+                 }
+                 details['street_address_eng'] = street_number+' '+details['route_long'];
                  var position=results[i].geometry.location;
                  details['position']=position.lat()+','+position.lng();
              this.store.mainbag.setItem('root.r_' + i, null, details);
@@ -6955,6 +7172,7 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
 dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
     creating: function(attributes, sourceNode) {
         var savedAttrs = {};
+        attributes.httpMethod = attributes.httpMethod || genro.extraFeatures.wsk_dbselect?'WSK':null;
         var hasDownArrow;
         if (attributes.hasDownArrow) {
             attributes.limit = attributes.limit || 0;
@@ -7558,6 +7776,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                 }
             };
         }
+        attributes.onChecked=attributes.onChecked || ('checkedPaths' in attributes) || ('checked' in attributes) || objectNotEmpty(objectExtract(sourceNode.attr,'checked_*',true))
         if (attributes.onChecked) {
             attributes.getIconClass = function(node, opened) {
                 if (!(node instanceof gnr.GnrBagNode)) {
@@ -7854,6 +8073,10 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         if (this.sourceNode.attr.nodeId) {
             genro.publish(this.sourceNode.attr.nodeId + '_checked', bagnode);
         }
+         this.updateCheckedAttr()
+    },
+
+    mixin_updateCheckedAttr:function(){
         var checked_attr = objectExtract(this.sourceNode.attr,'checked_*',true)
       	var checked_attr_joiners = {};
       	var p;
@@ -7866,49 +8089,47 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
       		}
       	}
         var checkedPaths = this.sourceNode.attr.checkedPaths;
-        if(objectNotEmpty(checked_attr) || checkedPaths){
-            this.updateCheckedAttr(checked_attr,checkedPaths,checked_attr_joiners)
-        }
-    },
-    
-    mixin_updateCheckedAttr:function(checked_attr,checkedPaths,checked_attr_joiners){
-        var propagate = this.sourceNode.attr.checkChildren!==false;
-        var walkmode = this.sourceNode.attr.eagerCheck ? null : 'static';
-        var store = this.sourceNode.getRelativeData(this.sourceNode.attr.storepath);
-        var result = {};
-        var cp = [];
-        var p;
-        for(var k in checked_attr){
-            result[k] = [];
-        }
+        var checkedPaths_joiner = this.sourceNode.attr.checkedPaths_joiner;
+         if(objectNotEmpty(checked_attr) || checkedPaths){
+             var propagate = this.sourceNode.attr.checkChildren!==false;
+             var walkmode = this.sourceNode.attr.eagerCheck ? null : 'static';
+             var store = this.sourceNode.getRelativeData(this.sourceNode.attr.storepath);
+             var result = {};
+             var cp = [];
+             var p;
+             for(var k in checked_attr){
+                 result[k] = [];
+             }
 
-        store.walk(function(n){
-            var v = n.getValue(walkmode);
-            if(propagate && (v instanceof gnr.GnrBag )&& (v.len()>0)){
-                return;
-            }else if(n.attr.checked===true){
-                for(var k in checked_attr){
-                    var av = n.attr[k];
-                    if(result[k].indexOf(av)<0){
-                        result[k].push(av)
-                    }
-                    if(checkedPaths){
-                        p = n.getFullpath('static',store);
-                        if(cp.indexOf(p)<0){
-                            cp.push(p);
-                        }
-                    }
-                }
-            }
-        },walkmode);
-        for(var k in checked_attr){
-            this.sourceNode.setRelativeData(checked_attr[k],result[k].join(checked_attr_joiners[k] || ','))
-        }
-        if(checkedPaths){
-            this.sourceNode.setRelativeData(checkedPaths,cp.join(','),null,null,this);
-        }
-    },
+             store.walk(function(n){
+                 var v = n.getValue(walkmode);
+                 if(propagate && (v instanceof gnr.GnrBag )&& (v.len()>0)){
+                     return;
+                 }else if(n.attr.checked===true){
+                     for(var k in checked_attr){
+                         var av = n.attr[k];
+                         if(result[k].indexOf(av)<0){
+                             result[k].push(av)
+                         }
+                         if(checkedPaths){
+                             p = n.getFullpath('static',store);
+                             if(cp.indexOf(p)<0){
+                                 cp.push(p);
+                             }
+                         }
+                     }
+                 }
+             },walkmode);
+             for(var k in checked_attr){
+                 this.sourceNode.setRelativeData(checked_attr[k],result[k].join(checked_attr_joiners[k] || ','))
+             }
+             if(checkedPaths){
+                 this.sourceNode.setRelativeData(checkedPaths,cp.join(checkedPaths_joiner || ','),null,null,this);
+             }
+             
+         }
 
+    },
 
     versionpatch_11__onClick:function(e) {
         var nodeWidget = dijit.getEnclosingWidget(e.target);
@@ -8071,9 +8292,10 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         },'static')
         var paths = this.sourceNode.getRelativeData(this.sourceNode.attr.checkedPaths);
         if(!paths){
+            this.updateCheckedAttr()
             return;
         }
-        paths = paths.split(',');
+        paths = paths.split(this.sourceNode.attr.checkedPaths_joiner || ',');
         var that = this;
         var treeNode;
         paths.forEach(function(path){
@@ -8243,6 +8465,9 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
                  attr.dropTypes='Files,text/plain';
                  attr.drop_ext=uploadAttr.ext || this._default_ext;
                  var src=sourceNode.attr.src;
+                 attr.onDrop_text_html = function(dropInfo,data){
+                    console.log('texthtml',dropInfo,data)
+                 }
                  attr.onDrop_text_plain = function(dropInfo,data){
                      if(sourceNode.form && sourceNode.form.isDisabled()){
                         genro.dlg.alert("The form is locked",'Warning');
@@ -8296,7 +8521,7 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
     
     creating: function(attributes, sourceNode) {
         var edit=objectPop(attributes,'edit');
-        savedAttrs={'edit':edit, zoomWindow:objectPop(attributes,'zoomWindow')};   
+        var savedAttrs={'edit':edit, zoomWindow:objectPop(attributes,'zoomWindow')};   
         objectUpdate(attributes,this.decodeUrl(sourceNode,objectPop(attributes, 'src')));
         if ((!attributes.src) && ('placeholder' in sourceNode.attr )){
             attributes.src=sourceNode.getAttributeFromDatasource('placeholder');
@@ -8559,7 +8784,7 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
         this.markers_types = {};
     },
     creating: function(attributes, sourceNode) {
-        savedAttrs = objectExtract(attributes, 'map_*');
+        var savedAttrs = objectExtract(attributes, 'map_*');
         return savedAttrs;
     },
     created: function(widget, savedAttrs, sourceNode) {
@@ -8767,7 +8992,7 @@ dojo.declare("gnr.widgets.fileUploader", gnr.widgets.baseDojo, {
         var uploadPars = objectUpdate({}, sourceNode.attr);
         uploadPars.mode = 'html';
         objectExtract(uploadPars, 'tag,method,blurDelay,duration,uploadMessage,cancelText,label,name,id,onComplete');
-        savedAttrs = objectExtract(attributes, 'method');
+        var savedAttrs = objectExtract(attributes, 'method');
         dojo.require("dojox.widget.FileInputAuto");
         var onComplete = objectPop(attributes, 'onComplete');
         savedAttrs.uploadPars = uploadPars;

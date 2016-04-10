@@ -25,3 +25,21 @@ class GnrCustomWebPage(object):
         fb.combobox(value='^.ttt',lbl='ttt',width='10em',storepath='.xxx',selected_test='.zzz')
         fb.div('^.zzz')
         
+    def test_2_tabindex(self, pane):
+        fb = pane.formbuilder(cols=2)
+        fb.textbox(value='^.val_1',lbl='Val 1',tabindex=1)
+        fb.textbox(value='^.val_3',lbl='Val 3',tabindex=3)
+        fb.textbox(value='^.val_2',lbl='Val 2',tabindex=2)
+        fb.textbox(value='^.val_4',lbl='Val 4',tabindex=4)
+
+
+    def test_3_tabindex(self, pane):
+        fb = pane.formbuilder(cols=4,byColumn=True)
+        fb.textbox(value='^.val_1',lbl='Val 1')
+        fb.textbox(value='^.val_3',lbl='Val 3')
+        fb.textbox(value='^.val_2',lbl='Val 2')
+        fb.textbox(value='^.val_4',lbl='Val 4')
+        fb.textbox(value='^.val_5',lbl='Val 5')
+        fb.textbox(value='^.val_7',lbl='Val 7')
+        fb.textbox(value='^.val_6',lbl='Val 6')
+        fb.textbox(value='^.val_8',lbl='Val 8')

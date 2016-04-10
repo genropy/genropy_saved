@@ -172,7 +172,7 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
 
 
     load_theme:function(theme,cb){
-        genro.dom.loadCss('/_rsrc/js_libs/codemirror/theme/cm-s-'+theme+'.css','codemirror_'+theme,cb);
+        genro.dom.loadCss('/_rsrc/js_libs/codemirror/theme/'+theme+'.css','codemirror_'+theme,cb);
     },
 
     load_addon:function(addon,cb){
@@ -232,7 +232,13 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
         })
     },
 
+
+    mixin_gnr_setDisabled:function(disabled){
+        this.gnr_readOnly(disabled);
+    },
+
     mixin_gnr_readOnly:function(value,kw,trigger_reason){
+        genro.dom.setDomNodeDisabled(this.sourceNode.domNode,value);
         this.setOption('readOnly',value?'nocursor':false);
     },
 
@@ -274,7 +280,7 @@ dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
             options.title = options.title || 'Untiled Graph';
         }
         if(data instanceof gnr.GnrBag){
-            sourceNode.labelKeys = savedAttrs.columns.split(',');
+            sourceNode.labelKeys = sourceNode.labelKeys || savedAttrs.columns.split(','); //during rebuilding
             data = this.getDataFromBag(sourceNode,data);
         }
         var that = this;
@@ -325,6 +331,11 @@ dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
         return result;
     },
 
+    mixin_gnr_columns:function(value,kw, trigger_reason){  
+        this.sourceNode.labelKeys = value.split(',');
+        this.sourceNode.rebuild();
+    },
+    
     mixin_gnr_data:function(value,kw, trigger_reason){  
         var data = this.sourceNode.getAttributeFromDatasource('data');      
         if(data instanceof gnr.GnrBag){

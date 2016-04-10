@@ -29,10 +29,10 @@ dojo.declare("gnr.GnrDomHandler", null, {
     constructor: function(application) {
         this.application = application;
         this.css3AttrNames = ['rounded','gradient','shadow','transform','transition','zoom'];
-        this.styleAttrNames = ['height', 'width','top','left', 'right', 'bottom',
+        this.styleAttrNames = ['height', 'width','top','left', 'right', 'bottom', 'resize',
             'visibility','opacity', 'overflow', 'float', 'clear', 'display',
             'z_index', 'border','position','padding','margin','cursor',
-            'color','white_space','vertical_align','background'].concat(this.css3AttrNames);
+            'color','white_space','vertical_align','background','font','text'].concat(this.css3AttrNames);
         
     },
     isStyleAttr:function(name) {
@@ -207,7 +207,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 dojo.style(domnode, genro.dom.dojoStyleAttrName(attr), value);
             } else {
                 var kw = {};
-                for (k in attr) {
+                for (var k in attr) {
                     kw[genro.dom.dojoStyleAttrName(k)] = attr[k];
                 }
                 dojo.style(domnode, kw);
@@ -294,6 +294,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
     disable:function(where) {
         this.addClass(where, 'disabled');
     },
+
     enable:function(where) {
         this.removeClass(where, 'disabled');
     },
@@ -380,11 +381,15 @@ dojo.declare("gnr.GnrDomHandler", null, {
         return wdg;
     },
 
-    enableDisableNodes:function(where) {
-        if (typeof (where) == 'string') {
-            var where = genro.domById(where);
+    setDomNodeDisabled:function(domNode,disabled) {
+        domNode.disabled = disabled;
+        if(disabled){
+            domNode.setAttribute('disabled',disabled);
+        }else{
+            domNode.removeAttribute('disabled');
         }
     },
+    
     resizeContainer:function(wdgt) {
         if (wdgt.parent && wdgt.parent.isContainer) {
             this.resizeContainer(wdgt.parent);
@@ -843,6 +848,17 @@ dojo.declare("gnr.GnrDomHandler", null, {
             return widget.sourceNode ? widget : (widget.grid || widget.tree);
         }
     },
+    getSourceNode:function(domnode){
+        var sourceNode=domnode.sourceNode 
+        if (!sourceNode ){
+            var wdg=genro.dom.getBaseWidget(domnode)
+            if (wdg){
+                sourceNode=wdg.sourceNode 
+            }
+        } 
+        return sourceNode
+    }
+    ,
 
     getBaseSourceNode:function(domnode){
         while(domnode && !domnode.sourceNode){

@@ -110,13 +110,12 @@ class GnrWebBatch(GnrBaseProxy):
         self.cancellable = True
         self.userBatch = userBatch
         self.delay = delay
-
         with self.page.userStore() as store:
             store.drop_datachanges(self.batch_path)
             newbatch = Bag(dict(title=title, start_ts=self.start_ts, lines=thermo_lines, note=note,
                                 owner_page_id=self.page.page_id,
-                                thermo=Bag(dict([(k, None) for k in self.line_codes], cancellable=cancellable,
-                                userBatch=userBatch))))
+                                thermo=Bag(dict([(k, None) for k in self.line_codes])),
+                                cancellable=cancellable,userBatch=userBatch))
             store.set_datachange(self.batch_path, newbatch, reason='btc_create')
         return batch_id
 

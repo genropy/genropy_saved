@@ -397,8 +397,8 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             'preventCache': preventCache
         };
         if(httpMethod=='WSK'){
-            var result = genro.wsk.call(callKwargs);
-            result.addErrback(function(error){console.error(error)})
+            result = genro.wsk.call(callKwargs);
+            result.addErrback(dojo.hitch(genro.wsk, 'errorHandler'));
             if(async_cb){
                 result.addCallback(async_cb);
             }

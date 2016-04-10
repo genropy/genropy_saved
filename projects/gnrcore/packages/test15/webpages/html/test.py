@@ -4,7 +4,7 @@
 
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerBase"
-    dojo_theme = 'claro'
+    
     
     def test_1_basic(self, pane):
         """Basic test for a div with no attributes"""

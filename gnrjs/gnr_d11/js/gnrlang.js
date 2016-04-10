@@ -522,10 +522,10 @@ function objectAny(obj,cb) {
 
 function mapConvertFromText(value){
     if (value instanceof Array){
-        return value.map(mapConvertFromText)
+        return value.map(mapConvertFromText);
     }
     if (typeof(value)=='string'){
-        return convertFromText(value)
+        return convertFromText(value);
     }
     if(typeof(value)=='object' && !(value instanceof Date)){
         var result = {};
@@ -694,7 +694,7 @@ function objectAsXmlAttributes_old(obj, sep) {
     return result.join(sep);
 }
 function objectAsXmlAttributes(obj, sep) {
-    var sep = sep || ' ';
+    sep = sep || ' ';
     var val;
     var result = [];
     for (var prop in obj) {
@@ -899,13 +899,11 @@ function convertFromText(value, t, fromLocale) {
         }
     }
     else if (t == 'JS') {
-        var result = genro.evaluate(value);
-       //if(result){
-       //    for (var k in result){
-       //        result[k] = convertFromText(result[k]);
-       //    }
-       //}
-        return result;
+        if(window.genro){
+            return genro.evaluate(value);
+        }else{
+            return dojo.fromJson(value);
+        }
     }
     else if (t == 'BAG' || t=='X') {
         try{
@@ -926,8 +924,16 @@ var gnrformatter = {
         if(value==null || value==undefined){
             return '';
         }
-        var dtype = objectPop(formatKw,'dtype') || guessDtype(value);
         var format = objectPop(formatKw,'format');
+        if(typeof(format)!='string'){
+            //fix to change
+            var formatdict = format;
+            format = objectPop(format,'format');
+            objectUpdate(formatKw,formatdict);
+        }
+        var dtype = objectPop(formatKw,'dtype') || guessDtype(value);
+        
+  
         if(format && dtype=='L' && format.indexOf('.')>=0){
             dtype='N';
         }
@@ -1065,6 +1071,9 @@ var gnrformatter = {
     },
     
     format_DH:function(value,format,formatKw){
+        if (typeof(value)=="number"){
+            value=new Date(value)
+        }
         var opt = {selector:'datetime'};
         var standard_format = 'long,short,medium,full';
         if(format){
@@ -1608,12 +1617,25 @@ function makeLink(href, title,dl,target) {
 }
 
 function highlightLinks(text) {
+    var safedict = {};
+    var k = 0;
+    var safekey;
+    text = text.replace(/(?:<a)(.*?)(?:a>)/gim, function(reallink){
+        safekey = 'RLINK_'+k;
+        safedict[safekey] = reallink;
+        k++;
+        return safekey;
+    });
+
     text = text.replace(/(?:\b|\+)(?:mailto:)?([\w\.+#-]+)@([\w\.-]+\.\w{2,4})\b/g, function(address) {
         return makeLink('mailto:' + address, address);
     });
     text = text.replace(/((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)/g, function(link) {
         return makeLink(link, link,false,'_blank');
     });
+    for(var k in safedict){
+        text = text.replace(k,safedict[k]);
+    }
     return text;
 
 }

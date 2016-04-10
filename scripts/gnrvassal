@@ -117,10 +117,10 @@ logto = %(logto)s
         #sc = self.site_config
         opt = self.options
         port = int(opt.port or self.default_port)
-        if hasattr(opt,'domain'):
+        if hasattr(opt,'domain') and opt.domain:
             pars['port_or_domain'] = 'domain = %s'%opt.domain
         else:
-            pars['port_or_domain'] = 'http = %i'%port
+            pars['port_or_domain'] = 'http = :%i'%port
         pars['wsgi_file'] = self.site_script
         pars['site_name'] = self.site_name
         pars['processes'] = int(opt.processes or self.default_processes)

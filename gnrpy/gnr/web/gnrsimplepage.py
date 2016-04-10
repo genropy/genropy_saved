@@ -30,6 +30,8 @@ from gnr.web.gnrwebpage import GnrWebPage
 from gnr.web.gnrwebpage_proxy.connection import GnrWebConnection
 from threading import RLock
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrdict import dictExtract
+
 
 from collections import defaultdict
 
@@ -94,6 +96,9 @@ class GnrSimplePage(GnrWebPage):
         self._inited = True
         self._shareds = dict()
         self._privates = defaultdict(dict)
+        self.freezedSelections = dict()
+        self.dynamic_js_requires= {}
+        self.dynamic_css_requires= {}
 
     def sharedData(self,name,factory=dict):
         if not name in self._shareds:
@@ -112,13 +117,28 @@ class GnrSimplePage(GnrWebPage):
         self.page_id = page_id
         self.root_page_id = page_item['data'].getItem('root_page_id')
         self.parent_page_id = page_item['data'].getItem('parent_page_id')
-        return page_item   
+        return page_item       
+
+    def replayComponentMixins(self, mixin_set=None):
+        if mixin_set is None:
+            mixin_set = self.pageStore().get('mixin_set')
+        if not mixin_set:
+            return
+        for (path,kwargs_list) in mixin_set:
+            kwargs = dict(kwargs_list)
+            self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
 
 
-    def replayComponentMixins(self):
-        with self.pageStore() as store:
-            mixin_set = store.get('mixin_set') or []
-            for (path,kwargs_list) in mixin_set:
-                kwargs = dict(kwargs_list)
-                self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
+    #overriden methods
+    def unfreezeSelection(self, dbtable=None, name=None, page_id=None):
+        print 'FAKE UNFREEZING'
+        return self.freezedSelections.get(name)
+
+    def freezeSelection(self,selection,selectionName):
+        print 'FAKE FREEZING'
+        self.freezedSelections[selectionName] = selection
+
+    def freezeSelectionUpdate(self,selection):
+        print 'FAKE FREEZING UPDATE'
+
 

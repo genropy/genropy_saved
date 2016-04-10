@@ -183,7 +183,7 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
         elif anyWordIn(quarters.keys(), datestr): # quarter
             qt, year = splitAndStrip(datestr, sep=' ', n=1, fixed=2)
             year = yearDecode(year)
-            qt = quarters[datestr]
+            qt = quarters[qt]
             dateStart = (year, qt * 3 - 2)
             if isEndPeriod:
                 dateEnd = (year, qt * 3)
@@ -284,7 +284,7 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
     if ';' in datestr:
         # two dates or keywords separated by ";":   today;today+5
         dateStart, dateEnd = datestr.split(';')
-    elif [k for k in localNoPeriod if k in datestr]:
+    elif [k for k in localNoPeriod if k == datestr]:
         dateStart = dateEnd = ''
     elif [k for k in localTo if datestr.startswith('%s ' % k)]:
         # only end date: to december
