@@ -172,7 +172,7 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
 
 
     load_theme:function(theme,cb){
-        genro.dom.loadCss('/_rsrc/js_libs/codemirror/theme/cm-s-'+theme+'.css','codemirror_'+theme,cb);
+        genro.dom.loadCss('/_rsrc/js_libs/codemirror/theme/'+theme+'.css','codemirror_'+theme,cb);
     },
 
     load_addon:function(addon,cb){

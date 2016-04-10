@@ -2176,6 +2176,9 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
             if(rowIndex>=0){
                 this.setRelativeData(dpath,
                                 this.widget.collectionStore().itemByIdx(rowIndex).getFullpath().slice(5));
+                setTimeout(function(){
+                    sourceNode.gnrwdg.viewerBC.widget.resize();
+                },1)
             }
         }
         
@@ -2197,17 +2200,30 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
                     var that = this;
                     genro.dlg.prompt(_T('Edit'),{
                         widget:function(pane){
-                            return pane._('BorderContainer',{width:'800px',height:'330px'})._('ContentPane',{region:'center',overflow:'hidden'})._('ckeditor',{value:'^.content'});
+                            var bc = pane._('BorderContainer',{width:'800px',height:'330px'});
+                            var fb = genro.dev.formbuilder(bc._('ContentPane',{'region':'top'}),2,{border_spacing:'1px',width:'100%',margin_bottom:'12px'});
+                            fb.addField('textbox',{value:'^.iframe_src',width:'25em',lbl_text_align:'right',
+                                        lbl:_T('Example src'),lbl_color:'#444',parentForm:false});
+                            fb.addField('numberTextBox',{value:'^.content_max_height',width:'6em',lbl_text_align:'right',
+                                        lbl:_T('Text max height'),lbl_color:'#444',parentForm:false});
+                            bc._('ContentPane',{region:'center',overflow:'hidden'})._('ckeditor',{value:'^.content'});
                         },action:function(value){
+                            that.setRelativeData('.content_max_height',value.getItem('content_max_height'));
                             that.setRelativeData('.content',value.getItem('content'));
+                            that.setRelativeData('.iframe_src',value.getItem('iframe_src'));
                             onContentSaved();
                         },
                         dflt:this.getRelativeData().deepCopy()
-                    })
+                    });
             }
         }
 
-        bc._('ContentPane',objectUpdate({region:'center',_class:'grid_gallery_box',datapath:'^'+dpath},viewer_pars))._('div',content_kw);
+        var viewer = bc._('BorderContainer',objectUpdate({region:'center',_class:'grid_gallery_box',datapath:'^'+dpath},viewer_pars))
+        sourceNode.gnrwdg.viewerBC = viewer.getParentNode();
+        content_kw.max_height = '^.content_max_height';
+        content_kw.overflow = 'auto';
+        viewer._('ContentPane',{region:'top'})._('div',content_kw);
+        viewer._('ContentPane',{region:'center',overflow:'hidden'})._('iframe',{src:'^.iframe_src',height:'100%',width:'100%',border:0,hidden:'^.iframe_src?=!#v',border_top:'1px solid silver'});
         return bc;
     }
 });
