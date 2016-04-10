@@ -351,7 +351,7 @@ dojo.declare('gnr.GenroClient', null, {
         if(genro.userInfoCb.length>0){
             var userInfoCb = genro.userInfoCb;
             genro.userInfoCb = [];
-            dojo.forEach(userInfoCb,function(cb){cb()});
+            dojo.forEach(userInfoCb,function(cb){cb();});
         }
     },
     getScreenLockTimeout:function(){

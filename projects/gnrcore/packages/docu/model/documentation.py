@@ -136,6 +136,8 @@ class Table(object):
                 for h,docline in enumerate(doclist):
                     if h == 0:
                         pname = r['code']
+                        if pname.endswith('_'):
+                            pname = '%s\_' %pname[0:-1]
                         dtype = r['data_type']
                     else:
                         pname = ''
