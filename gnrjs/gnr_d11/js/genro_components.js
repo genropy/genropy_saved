@@ -2194,7 +2194,7 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         sourceNode.setRelativeData(dpath,emptypath);
         var gnrwdg = sourceNode.gnrwdg;
         grid_pars.connect_onSelected = function(rowIndex){
-            if(rowIndex>=0){
+            if(rowIndex>=0 && this.widget.storebag().len()>0){
                 this.setRelativeData(dpath,
                     this.widget.collectionStore().itemByIdx(rowIndex).getFullpath().slice(5));
                 setTimeout(function(){
