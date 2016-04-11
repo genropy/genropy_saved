@@ -5131,6 +5131,7 @@ div[disabled='true'], div[disabled='disabled']{
     border-bottom: 0;
 }
 .grid_gallery_grid{
+    width: 130px;
     border-right: 1px solid silver;
 }
 .grid_gallery_grid .dojoxGrid-cell {
