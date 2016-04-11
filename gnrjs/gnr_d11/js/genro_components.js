@@ -2257,7 +2257,7 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         }
         var viewer = bc._('BorderContainer',objectUpdate({region:'center',_class:'grid_gallery_box',datapath:'^'+dpath},viewer_pars))
         sourceNode.gnrwdg.viewerBC = viewer.getParentNode();
-        content_kw.max_height = '^.content_max_height';
+        //content_kw.max_height = '^.content_max_height';
         content_kw.overflow = 'auto';
         viewer._('ContentPane',{region:'top'})._('div',content_kw);
         centerframe = viewer._('ContentPane',{region:'center',overflow:'hidden'});
