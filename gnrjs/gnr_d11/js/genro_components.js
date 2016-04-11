@@ -2149,6 +2149,12 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         grid_pars.selfDragRows = genro.isDeveloper;
         objectUpdate(grid_pars,objectExtract(kw,'grid_*'));
         var onContentSaved = objectPop(kw,'onSaved');
+        var items = objectPop(grid_pars,'items');
+        var docpars = objectExtract(kw,'di_*');
+        var navigation = objectPop(kw,'navigation');
+        if(!items && objectNotEmpty(docpars)){
+            items = '^gnr.language?=#v?"_doc.content.'+docpars.store+'.'+docpars.key+'.'+docpars.contentpath+'."+#v:"emptypath"';
+        }
         if(onContentSaved){
             onContentSaved = funcCreate(onContentSaved);
         }else{
@@ -2157,9 +2163,21 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
             }
         }
         var viewer_pars = objectExtract(kw,'viewer_*');
-
-        var items = objectPop(grid_pars,'items');
         var itemspath = sourceNode.absDatapath(items);
+        var grid_region = grid_pars.region || 'left';
+        kw.selfsubscribe_toggle_grid = function(){
+            this.widget.setRegionVisible(grid_region,'toggle');
+        }
+        kw.selfsubscribe_next = function(){
+            this.setRelativeData('#WORKSPACE.selectedIndex',this.getRelativeData('#WORKSPACE.selectedIndex')+1);
+        }
+        kw.selfsubscribe_prev = function(){
+            this.setRelativeData('#WORKSPACE.selectedIndex',this.getRelativeData('#WORKSPACE.selectedIndex')-1);
+        }
+       //var showcase = objectPop(kw,'showcase');
+       //if(showcase){
+       //    bc._('ContentPane',{'region':'bottom'})._('slotBar',{slots:''})
+       //}
         if(sourceNode.isPointerPath(items)){
             grid_pars.dynamicStorepath = itemspath;
         }else{
@@ -2170,22 +2188,41 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         grid_pars['store_sortedBy'] = '_row_count';
         kw._workspace = true;
         var bc = sourceNode._('BorderContainer',kw);
-        var dpath = bc.getParentNode().absDatapath('#WORKSPACE.curr_datapath')
-        sourceNode.setRelativeData(dpath,bc.getParentNode().absDatapath('#WORKSPACE')+'.emptypath');
+        var rootnode = bc.getParentNode();
+        var dpath = rootnode.absDatapath('#WORKSPACE.curr_datapath');
+        var emptypath =  rootnode.absDatapath('#WORKSPACE.emptypath');
+        sourceNode.setRelativeData(dpath,emptypath);
+        var gnrwdg = sourceNode.gnrwdg;
         grid_pars.connect_onSelected = function(rowIndex){
             if(rowIndex>=0){
                 this.setRelativeData(dpath,
-                                this.widget.collectionStore().itemByIdx(rowIndex).getFullpath().slice(5));
+                    this.widget.collectionStore().itemByIdx(rowIndex).getFullpath().slice(5));
                 setTimeout(function(){
-                    sourceNode.gnrwdg.viewerBC.widget.resize();
+                    gnrwdg.viewerBC.widget.resize();
                 },1)
             }
         }
-        
-        var gp = bc._('ContentPane','gridpane',objectUpdate({region:'left',_class:'grid_gallery_grid noheader'},objectExtract(grid_pars,'width,_class')))
-        var g = gp._('quickGrid','grid',objectUpdate(grid_pars));
+        grid_pars.selectedIndex = '^'+rootnode.absDatapath('#WORKSPACE.selectedIndex');
+        grid_pars.selfsubscribe_addrow = function(addkw){
+                                                var grid = this.widget;
+                                                setTimeout(function(){
+                                                    gnrwdg.addNewPage(grid,addkw);
+                                                },500);
+        }
+        var gridpane_kw = objectExtract(grid_pars,'width,_class,drawer,hidden');
+        objectUpdate(gridpane_kw,objectExtract(grid_pars,'drawer_*'));
+        var gp = bc._('ContentPane','gridpane',objectUpdate({region:'left',_class:'grid_gallery_grid noheader',width:'130px'},gridpane_kw))
+        var g = gp._('quickGrid','grid',grid_pars);
         if(genro.isDeveloper){
-            g._('tools',{tools:'addrow,delrow',position:'BR'});
+            //g._('tools',{tools:'addrow,delrow',position:'BR'});
+            g._('tools',{tools:'delrow,addrow',
+                    custom_tools:{addrow:{content_class:'iconbox add_row',ask:{title:_T('New Page'),
+                            fields:[{name:'label',lbl:'Label',validate_notnull:true},
+                                    {name:'iframe_src',lbl:'Src'}]}
+                                    }},position:'BR'});
+
+
+
             g._('column',{field:'_row_count',counter:true,hidden:true});
             g._('column',{field:'label',name:'Label',width:'100%',edit:true});
         }else{
@@ -2195,10 +2232,11 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         var content_kw = objectExtract(kw,'content_*');
         content_kw.innerHTML = '^.content';
         content_kw._class = 'doc_item selectable';
+        content_kw.min_height = '30px';
         if(genro.isDeveloper){
             content_kw.connect_ondblclick = function(){
                     var that = this;
-                    genro.dlg.prompt(_T('Edit'),{
+                    genro.dlg.prompt(_T('Edit'),{dlg_noModal:true,
                         widget:function(pane){
                             var bc = pane._('BorderContainer',{width:'800px',height:'330px'});
                             var fb = genro.dev.formbuilder(bc._('ContentPane',{'region':'top'}),2,{border_spacing:'1px',width:'100%',margin_bottom:'12px'});
@@ -2217,14 +2255,39 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
                     });
             }
         }
-
         var viewer = bc._('BorderContainer',objectUpdate({region:'center',_class:'grid_gallery_box',datapath:'^'+dpath},viewer_pars))
         sourceNode.gnrwdg.viewerBC = viewer.getParentNode();
         content_kw.max_height = '^.content_max_height';
         content_kw.overflow = 'auto';
         viewer._('ContentPane',{region:'top'})._('div',content_kw);
-        viewer._('ContentPane',{region:'center',overflow:'hidden'})._('iframe',{src:'^.iframe_src',height:'100%',width:'100%',border:0,hidden:'^.iframe_src?=!#v',border_top:'1px solid silver'});
+        centerframe = viewer._('ContentPane',{region:'center',overflow:'hidden'});
+        var iframecontainer = centerframe._('div',{_class:'gallery_iframe_container',hidden:'^.iframe_src?=!#v'});
+        var iframe = iframecontainer._('iframe',{src:'^.iframe_src',height:'100%',width:'100%',border:0});
+        gnrwdg.iframecontainerNode = iframecontainer.getParentNode();
+        gnrwdg.iframeNode = iframe.getParentNode();
+        iframecontainer._('div',{position:'absolute',_class:'iconbox resize',position:'absolute',top:'2px',right:'2px',z_index:2,
+                       connect_onclick:function(){
+                            var s = gnrwdg.viewerBC.widget.setRegionVisible('top','toggle');
+                            genro.dom.setClass(gnrwdg.iframecontainerNode,'expanded_gallery_iframe',!s);
+                            if(s===false){
+                                gnrwdg.iframeNode.domNode.contentWindow.document.body.style.zoom = 1.5;
+                            }else{
+                                gnrwdg.iframeNode.domNode.contentWindow.document.body.style.zoom = null;
+                            }
+                       },
+                        hidden:'^.iframe_src?=!#v'})
         return bc;
+    },
+
+    gnrwdg_addNewPage:function(grid,kw){
+        var label = kw.label;
+        var iframe_src = kw.iframe_src;
+        var dtype = kw.dtype;
+        if(!label){
+            genro.dlg.floatingMessage(this.containerNode,{messageType:'error',message:'Missing Label'})
+            return;
+        }
+        grid.addRows([{'label':label,iframe_src:iframe_src}]);
     }
 });
 

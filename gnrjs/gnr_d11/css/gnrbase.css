@@ -773,6 +773,7 @@ label.ghostlabel span {
 
 .drawerSplitter.dijitSplitter{
     overflow: visible;
+    background: transparent;
 }
 
 .drawerSplitter.dijitSplitter.dijitSplitterV  .drawerHandle{
@@ -781,7 +782,12 @@ label.ghostlabel span {
     height: 40px;
     width:8px;
 }
-
+.tundra .dijitSplitter.drawerHandle {
+    z-index: 2;
+}
+.tundra .dijitSplitter.drawerSplitter .dijitSplitterThumb{
+    background: transparent;
+}
 .drawerSplitter.dijitSplitter.dijitSplitterH  .drawerHandle{
     left:50%;
     margin-left:-20px;
@@ -5126,7 +5132,6 @@ div[disabled='true'], div[disabled='disabled']{
 }
 .grid_gallery_grid{
     border-right: 1px solid silver;
-    width: 130px;
 }
 .grid_gallery_grid .dojoxGrid-cell {
     border-left: 0px !important;
@@ -5166,3 +5171,18 @@ div[disabled='true'], div[disabled='disabled']{
     opacity: 1;
 }
 
+
+.gallery_iframe_container{
+    position: absolute;
+    top:0;
+    left: 0;
+    right:0;
+    bottom: 0;
+    border-top:1px solid silver;
+    background: white;
+}
+
+.expanded_gallery_iframe.gallery_iframe_container{
+    position: fixed;
+    z-index: 998;
+}
