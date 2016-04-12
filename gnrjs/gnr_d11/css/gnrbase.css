@@ -5188,11 +5188,11 @@ div[disabled='true'], div[disabled='disabled']{
     z-index: 998;
 }
 
-.showcase_button{
+.slotbar_cell .showcase_button{
     cursor: pointer;
     height: 30px;
     width: 30px;
-    padding: 2px;
+    margin: 5px;
     background-size: contain;
 }
 .showcase_bar{
