@@ -2189,21 +2189,24 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         grid_pars['store_sortedBy'] = '_row_count';
         kw._workspace = true;
         kw.design = kw.design || 'sidebar';
+        if(showcase){
+            kw._class = (kw._class || '')+' showcase_' +(showcase==true?'light':showcase);
+        }
         var bc = sourceNode._('BorderContainer',kw);
         var rootnode = bc.getParentNode();
         rootnode._('dataFormula',{path:'#WORKSPACE.total_pages',
                     formula:'typeof(v)=="string"?(this.getRelativeData(v)?this.getRelativeData(v).len():0):(v?v.len():0)',v:'^'+itemspath});
         if(showcase){
-            bar = bc._('ContentPane',{region:'bottom',_class:'showcase_bar'})._('slotBar',{slots:'5,toggle,*,prev,20,next,20,slide_cnt,5',side:'bottom'});
-            bar._('lightbutton','toggle',{innerHTML:_T('!!Toggle'),action:function(){
+            bar = bc._('ContentPane',{region:'bottom',_class:'showcase_bar'})._('slotBar',{slots:'5,toggle,15,prev,5,next,*,slide_cnt,2',side:'bottom'});
+            bar._('lightbutton','toggle',{tip:_T('!!Toggle'),action:function(){
                 rootnode.publish('toggle_grid');
-            },_class:'showcase_button'});
-            bar._('lightbutton','prev',{innerHTML:_T('!!Prev'),action:function(){
+            },_class:'showcase_button showcase_toggle'});
+            bar._('lightbutton','prev',{tip:_T('!!Prev'),action:function(){
                 rootnode.publish('prev');
-            },_class:'showcase_button'});
-            bar._('lightbutton','next',{innerHTML:_T('!!Next'),action:function(){
+            },_class:'showcase_button showcase_prev'});
+            bar._('lightbutton','next',{tip:_T('!!Next'),action:function(){
                 rootnode.publish('next');
-            },_class:'showcase_button'});
+            },_class:'showcase_button showcase_next'});
             bar._('div','slide_cnt',{template:"$_curr/$_tot ($_minutes)",_curr:"^#WORKSPACE.selectedIndex?=#v+1",
                                         _tot:'^#WORKSPACE.total_pages',_minutes:'^#WORKSPACE.minutes?=#v?#v:"..."',width:'6em',
                                         _class:'showcase_counter'});

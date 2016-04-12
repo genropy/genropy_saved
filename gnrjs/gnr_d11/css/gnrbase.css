@@ -5190,10 +5190,55 @@ div[disabled='true'], div[disabled='disabled']{
 
 .showcase_button{
     cursor: pointer;
+    height: 24px;
+    width: 24px;
+    background-size: contain;
 }
 .showcase_bar{
-    min-height: 24px;
+    min-height: 26px;
+    font-size: 1.5em;
 }
+.showcase_dark .showcase_bar{
+    color:white;
+}
+
 .grid_gallery_grid_showcase{
     width: 180px;
 }
+
+.showcase_light .showcase_prev{
+    background: url(icons/svg/left_arrow.svg) center center no-repeat;
+    background-size: contain;
+}
+
+.showcase_dark .showcase_prev{
+    background: url(icons/svg/left_arrow_white.svg) center center no-repeat;
+    background-size: contain;
+}
+
+.showcase_light .showcase_next{
+    background: url(icons/svg/right_arrow.svg) center center no-repeat;
+    background-size: contain;
+
+}
+
+.showcase_dark .showcase_next{
+    background: url(icons/svg/right_arrow_white.svg) center center no-repeat;
+    background-size: contain;
+
+}
+
+
+.showcase_light .showcase_toggle{
+    background: url(icons/svg/menu.svg) center center no-repeat;
+    background-size: contain;
+
+}
+
+.showcase_dark .showcase_toggle{
+    background: url(icons/svg/menu_white.svg) center center no-repeat;
+    background-size: contain;
+}
+
+
+
