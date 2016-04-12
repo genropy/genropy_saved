@@ -5190,8 +5190,9 @@ div[disabled='true'], div[disabled='disabled']{
 
 .showcase_button{
     cursor: pointer;
-    height: 24px;
-    width: 24px;
+    height: 30px;
+    width: 30px;
+    padding: 2px;
     background-size: contain;
 }
 .showcase_bar{
