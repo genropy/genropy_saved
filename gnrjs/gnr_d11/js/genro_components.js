@@ -2190,7 +2190,8 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         kw._workspace = true;
         var bc = sourceNode._('BorderContainer',kw);
         var rootnode = bc.getParentNode();
-        rootnode._('dataFormula',{path:'#WORKSPACE.total_pages',formula:'typeof(v)=="string"?this.getRelativeData(v).len():v.len()',v:'^'+itemspath});
+        rootnode._('dataFormula',{path:'#WORKSPACE.total_pages',
+                    formula:'typeof(v)=="string"?(this.getRelativeData(v)?this.getRelativeData(v).len():0):(v?v.len():0)',v:'^'+itemspath});
         if(showcase){
             bar = bc._('ContentPane',{region:'bottom'})._('slotBar',{slots:'5,toggle,*,prev,20,next,20,slide_cnt,5',side:'bottom'});
             bar._('SlotButton','toggle',{label:'Toggle',action:function(){
