@@ -72,11 +72,10 @@ class THPicker(BaseComponent):
             if autoInsert:
                 method = getattr(tblobj,'insertPicker',self._th_insertPicker)
                 formNode = pane.parentNode.attributeOwnerNode('formId')
-                if not one and formNode:
+                if not one and formNode and grid.attributes.get('table'):
                     formtblobj = self.db.table(formNode.attr.get('table'))
                     oneJoiner = formtblobj.model.getJoiner(maintable)
-                    one = oneJoiner.get('many_relation').split('.')[-1] 
-
+                    one = oneJoiner.get('many_relation').split('.')[-1]
                 controller = "THPicker.onDropElement(this,data,mainpkey,rpcmethod,treepicker,tbl,one,many,grid,defaults)" if autoInsert is True else autoInsert
                 grid.dataController(controller,data='^.dropped_%s' %paletteCode,mainpkey='=#FORM.pkey' if formNode else None,
                         rpcmethod=method,treepicker=treepicker,tbl=maintable,
