@@ -2188,19 +2188,20 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         grid_pars.autoSelect = true;
         grid_pars['store_sortedBy'] = '_row_count';
         kw._workspace = true;
+        kw.design = kw.design || 'sidebar';
         var bc = sourceNode._('BorderContainer',kw);
         var rootnode = bc.getParentNode();
         rootnode._('dataFormula',{path:'#WORKSPACE.total_pages',
                     formula:'typeof(v)=="string"?(this.getRelativeData(v)?this.getRelativeData(v).len():0):(v?v.len():0)',v:'^'+itemspath});
         if(showcase){
             bar = bc._('ContentPane',{region:'bottom',_class:'showcase_bar'})._('slotBar',{slots:'5,toggle,*,prev,20,next,20,slide_cnt,5',side:'bottom'});
-            bar._('lightbutton','toggle',{label:'Toggle',action:function(){
+            bar._('lightbutton','toggle',{innerHTML:_T('!!Toggle'),action:function(){
                 rootnode.publish('toggle_grid');
             },_class:'showcase_button'});
-            bar._('lightbutton','prev',{label:'Prev',action:function(){
+            bar._('lightbutton','prev',{innerHTML:_T('!!Prev'),action:function(){
                 rootnode.publish('prev');
             },_class:'showcase_button'});
-            bar._('lightbutton','next',{label:'Next',action:function(){
+            bar._('lightbutton','next',{innerHTML:_T('!!Next'),action:function(){
                 rootnode.publish('next');
             },_class:'showcase_button'});
             bar._('div','slide_cnt',{template:"$_curr/$_tot ($_minutes)",_curr:"^#WORKSPACE.selectedIndex?=#v+1",
@@ -2230,7 +2231,7 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
                                                 },500);
         }
         var gridpane_kw = objectExtract(grid_pars,'width,_class,drawer,hidden');
-        grid_pars._class = showcase?'grid_gallery_showcase': 'grid_gallery_grid noheader';
+        gridpane_kw._class = showcase?'grid_gallery_grid_showcase': 'grid_gallery_grid noheader';
         objectUpdate(gridpane_kw,objectExtract(grid_pars,'drawer_*'));
         var gp = bc._('ContentPane','gridpane',objectUpdate({region:'left'},gridpane_kw))
         var g = gp._('quickGrid','grid',grid_pars);
@@ -2241,10 +2242,10 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
                             fields:[{name:'label',lbl:'Label',validate_notnull:true},
                                     {name:'iframe_src',lbl:'Src'}]}
                                     }},position:'BR'});
-            g._('column',{field:'_row_count',counter:true,hidden:true});
+            g._('column',{field:'_row_count',counter:true,hidden:!showcase,name:'N.',width:'3em'});
             g._('column',{field:'label',name:'Label',width:'100%',edit:true});
             if(showcase){
-                g._('column',{field:'minutes',name:'Min',width:'4em',dtype:'L'});
+                g._('column',{field:'minutes',name:'Min',width:'4em',dtype:'L',edit:true});
             }
         }else{
             g._('column',{field:'_row_count',counter:true,hidden:true})

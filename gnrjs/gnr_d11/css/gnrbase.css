@@ -5191,3 +5191,9 @@ div[disabled='true'], div[disabled='disabled']{
 .showcase_button{
     cursor: pointer;
 }
+.showcase_bar{
+    min-height: 24px;
+}
+.grid_gallery_grid_showcase{
+    width: 180px;
+}
