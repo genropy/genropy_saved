@@ -2299,13 +2299,18 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         var iframe = iframecontainer._('iframe',{src:'^.iframe_src',height:'100%',width:'100%',border:0});
         gnrwdg.iframecontainerNode = iframecontainer.getParentNode();
         gnrwdg.iframeNode = iframe.getParentNode();
+        gnrwdg.centerframeNode = centerframe.getParentNode();
         iframecontainer._('div',{position:'absolute',_class:'iconbox resize',position:'absolute',top:'2px',right:'2px',z_index:2,
                        connect_onclick:function(){
                             var s = gnrwdg.viewerBC.widget.setRegionVisible('top','toggle');
+                            var dn = gnrwdg.iframecontainerNode.domNode;
+
                             genro.dom.setClass(gnrwdg.iframecontainerNode,'expanded_gallery_iframe',!s);
                             if(s===false){
+                                dojo.body().appendChild(dn);
                                 gnrwdg.iframeNode.domNode.contentWindow.document.body.style.zoom = 1.5;
                             }else{
+                                gnrwdg.centerframeNode.widget.domNode.appendChild(dn);
                                 gnrwdg.iframeNode.domNode.contentWindow.document.body.style.zoom = null;
                             }
                        },
