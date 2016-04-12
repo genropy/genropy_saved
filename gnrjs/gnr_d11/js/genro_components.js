@@ -2193,18 +2193,19 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         rootnode._('dataFormula',{path:'#WORKSPACE.total_pages',
                     formula:'typeof(v)=="string"?(this.getRelativeData(v)?this.getRelativeData(v).len():0):(v?v.len():0)',v:'^'+itemspath});
         if(showcase){
-            bar = bc._('ContentPane',{region:'bottom'})._('slotBar',{slots:'5,toggle,*,prev,20,next,20,slide_cnt,5',side:'bottom'});
-            bar._('SlotButton','toggle',{label:'Toggle',action:function(){
+            bar = bc._('ContentPane',{region:'bottom',_class:'showcase_bar'})._('slotBar',{slots:'5,toggle,*,prev,20,next,20,slide_cnt,5',side:'bottom'});
+            bar._('lightbutton','toggle',{label:'Toggle',action:function(){
                 rootnode.publish('toggle_grid');
-            }});
-            bar._('SlotButton','prev',{label:'Prev',action:function(){
+            },_class:'showcase_button'});
+            bar._('lightbutton','prev',{label:'Prev',action:function(){
                 rootnode.publish('prev');
-            }});
-            bar._('SlotButton','next',{label:'Next',action:function(){
+            },_class:'showcase_button'});
+            bar._('lightbutton','next',{label:'Next',action:function(){
                 rootnode.publish('next');
-            }});
+            },_class:'showcase_button'});
             bar._('div','slide_cnt',{template:"$_curr/$_tot ($_minutes)",_curr:"^#WORKSPACE.selectedIndex?=#v+1",
-                                        _tot:'^#WORKSPACE.total_pages',_minutes:'^#WORKSPACE.minutes?=#v?#v:"..."',width:'6em'});
+                                        _tot:'^#WORKSPACE.total_pages',_minutes:'^#WORKSPACE.minutes?=#v?#v:"..."',width:'6em',
+                                        _class:'showcase_counter'});
             grid_pars.hidden = true;
         }
         var dpath = rootnode.absDatapath('#WORKSPACE.curr_datapath');
@@ -2229,8 +2230,9 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
                                                 },500);
         }
         var gridpane_kw = objectExtract(grid_pars,'width,_class,drawer,hidden');
+        grid_pars._class = showcase?'grid_gallery_showcase': 'grid_gallery_grid noheader';
         objectUpdate(gridpane_kw,objectExtract(grid_pars,'drawer_*'));
-        var gp = bc._('ContentPane','gridpane',objectUpdate({region:'left',_class:'grid_gallery_grid noheader'},gridpane_kw))
+        var gp = bc._('ContentPane','gridpane',objectUpdate({region:'left'},gridpane_kw))
         var g = gp._('quickGrid','grid',grid_pars);
         if(genro.isDeveloper){
             //g._('tools',{tools:'addrow,delrow',position:'BR'});
@@ -2241,6 +2243,9 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
                                     }},position:'BR'});
             g._('column',{field:'_row_count',counter:true,hidden:true});
             g._('column',{field:'label',name:'Label',width:'100%',edit:true});
+            if(showcase){
+                g._('column',{field:'minutes',name:'Min',width:'4em',dtype:'L'});
+            }
         }else{
             g._('column',{field:'_row_count',counter:true,hidden:true})
             g._('column',{field:'label',name:'Label',width:'100%'});

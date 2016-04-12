@@ -5187,3 +5187,7 @@ div[disabled='true'], div[disabled='disabled']{
     position: fixed;
     z-index: 998;
 }
+
+.showcase_button{
+    cursor: pointer;
+}
