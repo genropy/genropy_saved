@@ -2264,19 +2264,25 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
                             var tc = pane._('tabContainer',{height:'600px',width:'1000px',margin:'2px'});
                             tc._('ContentPane',{title:'Content',overflow:'hidden'})._('ckeditor',{value:'^.content'});
                             var pane = tc._('ContentPane',{title:'Metadata',overflow:'hidden'})
-                            var fb = genro.dev.formbuilder(pane._('div',{margin:'10px'}),2,{border_spacing:'1px',width:'100%',margin_bottom:'12px'});
+                            var fb = genro.dev.formbuilder(pane._('div',{margin:'10px'}),3,{border_spacing:'1px',width:'100%',margin_bottom:'12px'});
                             fb.addField('textbox',{value:'^.iframe_src',width:'25em',lbl_text_align:'right',
-                                        lbl:_T('Example src'),lbl_color:'#444',parentForm:false});
+                                        lbl:_T('Example src'),lbl_color:'#444',parentForm:false,colspan:3});
+                            fb.addField('numberTextBox',{value:'^.scale_min',width:'6em',lbl_text_align:'right',
+                                        lbl:_T('Scale min'),lbl_color:'#444',parentForm:false});
+                            fb.addField('numberTextBox',{value:'^.scale_max',width:'6em',lbl_text_align:'right',
+                                        lbl:_T('Scale max'),lbl_color:'#444',parentForm:false});
                             fb.addField('numberTextBox',{value:'^.minutes',width:'6em',lbl_text_align:'right',
                                         lbl:_T('Minutes'),lbl_color:'#444',parentForm:false});
                             fb.addField('SimpleTextArea',{value:'^.comment',width:'40em',height:'450px',lbl_text_align:'right',
-                                        lbl:_T('Comment'),lbl_color:'#444',parentForm:false,lbl_vertical_align:'top'});
+                                        lbl:_T('Comment'),lbl_color:'#444',parentForm:false,lbl_vertical_align:'top',colspan:3});
                             tc._('ContentPane',{title:'HTML Source',overflow:'hidden'})._('codemirror',{value:'^.content',config_mode:'htmlmixed',height:'100%',config_lineNumbers:true});
                             tc._('ContentPane',{title:'Content Styles',overflow:'hidden'})._('codemirror',{value:'^.content_styles',config_mode:'css',config_lineNumbers:true,height:'100%'});
                         },action:function(value){
                             that.setRelativeData('.content',value.getItem('content'));
                             that.setRelativeData('.comment',value.getItem('comment'));
                             that.setRelativeData('.minutes',value.getItem('minutes'));
+                            that.setRelativeData('.scale_min',value.getItem('scale_min'));
+                            that.setRelativeData('.scale_max',value.getItem('scale_max'));
                             that.setRelativeData('.content_styles',value.getItem('content_styles'));
                             that.setRelativeData('.iframe_src',value.getItem('iframe_src'));
                             onContentSaved();
@@ -2296,7 +2302,12 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         }
         centerframe = viewer._('ContentPane',{region:'center',overflow:'hidden'});
         var iframecontainer = centerframe._('div',{_class:'gallery_iframe_container',hidden:'^.iframe_src?=!#v'});
-        var iframe = iframecontainer._('iframe',{src:'^.iframe_src',height:'100%',width:'100%',border:0});
+        var iframe = iframecontainer._('iframe',{src:'^.iframe_src',height:'100%',width:'100%',border:0,
+                                                onLoad:function(){
+                                                    var smax = gnrwdg.viewerBC.getRelativeData('.scale_max');
+                                                    var smin = gnrwdg.viewerBC.getRelativeData('.scale_min');
+                                                    this.contentDocument.body.style.zoom = this.parentNode.sourceNode._zoomed? (smax || null):(smin || null);
+                                                }});
         gnrwdg.iframecontainerNode = iframecontainer.getParentNode();
         gnrwdg.iframeNode = iframe.getParentNode();
         gnrwdg.centerframeNode = centerframe.getParentNode();
@@ -2304,14 +2315,13 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
                        connect_onclick:function(){
                             var s = gnrwdg.viewerBC.widget.setRegionVisible('top','toggle');
                             var dn = gnrwdg.iframecontainerNode.domNode;
-
                             genro.dom.setClass(gnrwdg.iframecontainerNode,'expanded_gallery_iframe',!s);
                             if(s===false){
+                                gnrwdg.iframecontainerNode._zoomed = true;
                                 dojo.body().appendChild(dn);
-                                gnrwdg.iframeNode.domNode.contentWindow.document.body.style.zoom = 1.5;
                             }else{
+                                gnrwdg.iframecontainerNode._zoomed = false;
                                 gnrwdg.centerframeNode.widget.domNode.appendChild(dn);
-                                gnrwdg.iframeNode.domNode.contentWindow.document.body.style.zoom = null;
                             }
                        },
                         hidden:'^.iframe_src?=!#v'})
