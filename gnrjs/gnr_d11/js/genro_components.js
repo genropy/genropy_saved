@@ -2169,15 +2169,16 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
             this.widget.setRegionVisible(grid_region,'toggle');
         }
         kw.selfsubscribe_next = function(){
-            this.setRelativeData('#WORKSPACE.selectedIndex',this.getRelativeData('#WORKSPACE.selectedIndex')+1);
+            var next_idx = this.getRelativeData('#WORKSPACE.selectedIndex')+1;
+            var tot = this.getRelativeData('#WORKSPACE.total_pages')-1;
+            next_idx = (next_idx>=tot)?tot:next_idx;
+            this.setRelativeData('#WORKSPACE.selectedIndex',next_idx);
         }
         kw.selfsubscribe_prev = function(){
-            this.setRelativeData('#WORKSPACE.selectedIndex',this.getRelativeData('#WORKSPACE.selectedIndex')-1);
+            var prev_idx = this.getRelativeData('#WORKSPACE.selectedIndex')-1;
+            this.setRelativeData('#WORKSPACE.selectedIndex',prev_idx>=0?prev_idx:0);
         }
-       //var showcase = objectPop(kw,'showcase');
-       //if(showcase){
-       //    bc._('ContentPane',{'region':'bottom'})._('slotBar',{slots:''})
-       //}
+        var showcase = objectPop(kw,'showcase');
         if(sourceNode.isPointerPath(items)){
             grid_pars.dynamicStorepath = itemspath;
         }else{
@@ -2189,6 +2190,22 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         kw._workspace = true;
         var bc = sourceNode._('BorderContainer',kw);
         var rootnode = bc.getParentNode();
+        rootnode._('dataFormula',{path:'#WORKSPACE.total_pages',formula:'typeof(v)=="string"?this.getRelativeData(v).len():v.len()',v:'^'+itemspath});
+        if(showcase){
+            bar = bc._('ContentPane',{region:'bottom'})._('slotBar',{slots:'5,toggle,*,prev,20,next,20,slide_cnt,5',side:'bottom'});
+            bar._('SlotButton','toggle',{label:'Toggle',action:function(){
+                rootnode.publish('toggle_grid');
+            }});
+            bar._('SlotButton','prev',{label:'Prev',action:function(){
+                rootnode.publish('prev');
+            }});
+            bar._('SlotButton','next',{label:'Next',action:function(){
+                rootnode.publish('next');
+            }});
+            bar._('div','slide_cnt',{template:"$_curr/$_tot ($_minutes)",_curr:"^#WORKSPACE.selectedIndex?=#v+1",
+                                        _tot:'^#WORKSPACE.total_pages',_minutes:'^#WORKSPACE.minutes?=#v?#v:"..."',width:'6em'});
+            grid_pars.hidden = true;
+        }
         var dpath = rootnode.absDatapath('#WORKSPACE.curr_datapath');
         var emptypath =  rootnode.absDatapath('#WORKSPACE.emptypath');
         sourceNode.setRelativeData(dpath,emptypath);
@@ -2202,6 +2219,7 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
                 },1)
             }
         }
+        grid_pars.selected_minutes = rootnode.absDatapath('#WORKSPACE.minutes');
         grid_pars.selectedIndex = '^'+rootnode.absDatapath('#WORKSPACE.selectedIndex');
         grid_pars.selfsubscribe_addrow = function(addkw){
                                                 var grid = this.widget;
@@ -2220,9 +2238,6 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
                             fields:[{name:'label',lbl:'Label',validate_notnull:true},
                                     {name:'iframe_src',lbl:'Src'}]}
                                     }},position:'BR'});
-
-
-
             g._('column',{field:'_row_count',counter:true,hidden:true});
             g._('column',{field:'label',name:'Label',width:'100%',edit:true});
         }else{
@@ -2233,21 +2248,29 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         content_kw.innerHTML = '^.content';
         content_kw._class = 'doc_item selectable';
         content_kw.min_height = '30px';
+        content_kw.stlyes = '^.';
         if(genro.isDeveloper){
             content_kw.connect_ondblclick = function(){
                     var that = this;
                     genro.dlg.prompt(_T('Edit'),{dlg_noModal:true,
                         widget:function(pane){
-                            var bc = pane._('BorderContainer',{width:'800px',height:'330px'});
-                            var fb = genro.dev.formbuilder(bc._('ContentPane',{'region':'top'}),2,{border_spacing:'1px',width:'100%',margin_bottom:'12px'});
+                            var tc = pane._('tabContainer',{height:'600px',width:'1000px',margin:'2px'});
+                            tc._('ContentPane',{title:'Content',overflow:'hidden'})._('ckeditor',{value:'^.content'});
+                            var pane = tc._('ContentPane',{title:'Metadata',overflow:'hidden'})
+                            var fb = genro.dev.formbuilder(pane._('div',{margin:'10px'}),2,{border_spacing:'1px',width:'100%',margin_bottom:'12px'});
                             fb.addField('textbox',{value:'^.iframe_src',width:'25em',lbl_text_align:'right',
                                         lbl:_T('Example src'),lbl_color:'#444',parentForm:false});
-                            fb.addField('numberTextBox',{value:'^.content_max_height',width:'6em',lbl_text_align:'right',
-                                        lbl:_T('Text max height'),lbl_color:'#444',parentForm:false});
-                            bc._('ContentPane',{region:'center',overflow:'hidden'})._('ckeditor',{value:'^.content'});
+                            fb.addField('numberTextBox',{value:'^.minutes',width:'6em',lbl_text_align:'right',
+                                        lbl:_T('Minutes'),lbl_color:'#444',parentForm:false});
+                            fb.addField('SimpleTextArea',{value:'^.comment',width:'40em',height:'450px',lbl_text_align:'right',
+                                        lbl:_T('Comment'),lbl_color:'#444',parentForm:false,lbl_vertical_align:'top'});
+                            tc._('ContentPane',{title:'HTML Source',overflow:'hidden'})._('codemirror',{value:'^.content',config_mode:'htmlmixed',height:'100%',config_lineNumbers:true});
+                            tc._('ContentPane',{title:'Content Styles',overflow:'hidden'})._('codemirror',{value:'^.content_styles',config_mode:'css',config_lineNumbers:true,height:'100%'});
                         },action:function(value){
-                            that.setRelativeData('.content_max_height',value.getItem('content_max_height'));
                             that.setRelativeData('.content',value.getItem('content'));
+                            that.setRelativeData('.comment',value.getItem('comment'));
+                            that.setRelativeData('.minutes',value.getItem('minutes'));
+                            that.setRelativeData('.content_styles',value.getItem('content_styles'));
                             that.setRelativeData('.iframe_src',value.getItem('iframe_src'));
                             onContentSaved();
                         },
@@ -2257,9 +2280,13 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         }
         var viewer = bc._('BorderContainer',objectUpdate({region:'center',_class:'grid_gallery_box',datapath:'^'+dpath},viewer_pars))
         sourceNode.gnrwdg.viewerBC = viewer.getParentNode();
-        //content_kw.max_height = '^.content_max_height';
         content_kw.overflow = 'auto';
-        viewer._('ContentPane',{region:'top'})._('div',content_kw);
+        content_kw.style = '^.content_styles';
+        var vtop = viewer._('ContentPane',{region:'top'})
+        vtop._('div',content_kw);
+        if(showcase){
+            vtop._('div',{position:'absolute',top:'5px',right:'5px',_class:'iconbox comment',hidden:'^.comment?=!#v'})._('tooltipPane')._('div',{innerHTML:'^.comment',min_height:'150px',width:'200px'});
+        }
         centerframe = viewer._('ContentPane',{region:'center',overflow:'hidden'});
         var iframecontainer = centerframe._('div',{_class:'gallery_iframe_container',hidden:'^.iframe_src?=!#v'});
         var iframe = iframecontainer._('iframe',{src:'^.iframe_src',height:'100%',width:'100%',border:0});
