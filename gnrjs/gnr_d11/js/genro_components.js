@@ -2252,7 +2252,7 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         }
         var content_kw = objectExtract(kw,'content_*');
         content_kw.innerHTML = '^.content';
-        content_kw._class = 'doc_item selectable';
+        content_kw._class = 'doc_item selectable '+ (content_kw._class || '');
         content_kw.min_height = '30px';
         content_kw.stlyes = '^.';
         if(genro.isDeveloper){
