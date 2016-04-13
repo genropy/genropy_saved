@@ -2152,6 +2152,8 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         var items = objectPop(grid_pars,'items');
         var docpars = objectExtract(kw,'di_*');
         var navigation = objectPop(kw,'navigation');
+        var sharedObjectId = objectPop(kw,'sharedObjectId');
+        
         if(!items && objectNotEmpty(docpars)){
             items = '^gnr.language?=#v?"_doc.content.'+docpars.store+'.'+docpars.key+'.'+docpars.contentpath+'."+#v:"emptypath"';
         }
@@ -2165,6 +2167,8 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         var viewer_pars = objectExtract(kw,'viewer_*');
         var itemspath = sourceNode.absDatapath(items);
         var grid_region = grid_pars.region || 'left';
+        var gnrwdg = sourceNode.gnrwdg;
+
         kw.selfsubscribe_toggle_grid = function(){
             this.widget.setRegionVisible(grid_region,'toggle');
         }
@@ -2177,6 +2181,18 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         kw.selfsubscribe_prev = function(){
             var prev_idx = this.getRelativeData('#WORKSPACE.selectedIndex')-1;
             this.setRelativeData('#WORKSPACE.selectedIndex',prev_idx>=0?prev_idx:0);
+        }
+        kw.selfsubscribe_zoom = function(){
+            var s = gnrwdg.viewerBC.widget.setRegionVisible('top','toggle');
+            var dn = gnrwdg.iframecontainerNode.domNode;
+            genro.dom.setClass(gnrwdg.iframecontainerNode,'expanded_gallery_iframe',!s);
+            if(s===false){
+                gnrwdg.iframecontainerNode._zoomed = true;
+                dojo.body().appendChild(dn);
+            }else{
+                gnrwdg.iframecontainerNode._zoomed = false;
+                gnrwdg.centerframeNode.widget.domNode.appendChild(dn);
+            }
         }
         var showcase = objectPop(kw,'showcase');
         if(sourceNode.isPointerPath(items)){
@@ -2196,6 +2212,20 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         var rootnode = bc.getParentNode();
         rootnode._('dataFormula',{path:'#WORKSPACE.total_pages',
                     formula:'typeof(v)=="string"?(this.getRelativeData(v)?this.getRelativeData(v).len():0):(v?v.len():0)',v:'^'+itemspath});
+        if(showcase && sharedObjectId && genro.wsk.wsroot){
+            sourceNode._('SharedObject',{shared_id:sharedObjectId,shared_path:'showcase_remote',expire:60});
+            rootnode._('dataFormula',{path:'showcase_remote',
+                                        script:"new gnr.GnrBag({slide_index:slide_index,minutes:minutes,comment:comment,total_pages:total_pages,zoomEnabled:zoomEnabled,current_time:current_time});",
+                                        slide_index:'^#WORKSPACE.selectedIndex',
+                                        minutes:'=#WORKSPACE.minutes',
+                                        comment:'=#WORKSPACE.comment',
+                                        total_pages:'=#WORKSPACE.total_pages',
+                                        zoomEnabled:'=#WORKSPACE.iframe_src?=#v?true:false',
+                                        current_time:'=showcase_remote.current_time',
+                                        _delay:1});
+            rootnode._('dataController',{script:"this.getParentNode().publish(command);",command:'^showcase_remote.command',_userChanges:true});
+        }
+
         if(showcase){
             bar = bc._('ContentPane',{region:'bottom',_class:'showcase_bar'})._('slotBar',{slots:'5,toggle,15,prev,5,next,*,slide_cnt,2',side:'bottom'});
             bar._('lightbutton','toggle',{tip:_T('!!Toggle'),action:function(){
@@ -2215,7 +2245,7 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         var dpath = rootnode.absDatapath('#WORKSPACE.curr_datapath');
         var emptypath =  rootnode.absDatapath('#WORKSPACE.emptypath');
         sourceNode.setRelativeData(dpath,emptypath);
-        var gnrwdg = sourceNode.gnrwdg;
+        
         grid_pars.connect_onSelected = function(rowIndex){
             if(rowIndex>=0 && this.widget.storebag().len()>0){
                 this.setRelativeData(dpath,
@@ -2226,6 +2256,9 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
             }
         }
         grid_pars.selected_minutes = rootnode.absDatapath('#WORKSPACE.minutes');
+        grid_pars.selected_comment = rootnode.absDatapath('#WORKSPACE.comment');
+        grid_pars.selected_iframe_src = rootnode.absDatapath('#WORKSPACE.iframe_src');
+
         grid_pars.selectedIndex = '^'+rootnode.absDatapath('#WORKSPACE.selectedIndex');
         grid_pars.selfsubscribe_addrow = function(addkw){
                                                 var grid = this.widget;
@@ -2300,9 +2333,9 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         content_kw.style = '^.content_styles';
         var vtop = viewer._('ContentPane',{region:'top'})
         vtop._('div',content_kw);
-        if(showcase){
-            vtop._('div',{position:'absolute',top:'5px',right:'5px',_class:'iconbox comment',hidden:'^.comment?=!#v'})._('tooltipPane')._('div',{innerHTML:'^.comment',min_height:'150px',width:'200px'});
-        }
+       //if(showcase){
+       //    vtop._('div',{position:'absolute',top:'5px',right:'5px',_class:'iconbox comment',hidden:'^.comment?=!#v'})._('tooltipPane')._('div',{innerHTML:'^.comment',min_height:'150px',width:'200px'});
+       //}
         centerframe = viewer._('ContentPane',{region:'center',overflow:'hidden'});
         var iframecontainer = centerframe._('div',{_class:'gallery_iframe_container',hidden:'^.iframe_src?=!#v'});
         var iframe = iframecontainer._('iframe',{src:'^.iframe_src',height:'100%',width:'100%',border:0,
@@ -2314,18 +2347,10 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         gnrwdg.iframecontainerNode = iframecontainer.getParentNode();
         gnrwdg.iframeNode = iframe.getParentNode();
         gnrwdg.centerframeNode = centerframe.getParentNode();
+        
         iframecontainer._('div',{position:'absolute',_class:'iconbox resize',position:'absolute',top:'2px',right:'2px',z_index:2,
                        connect_onclick:function(){
-                            var s = gnrwdg.viewerBC.widget.setRegionVisible('top','toggle');
-                            var dn = gnrwdg.iframecontainerNode.domNode;
-                            genro.dom.setClass(gnrwdg.iframecontainerNode,'expanded_gallery_iframe',!s);
-                            if(s===false){
-                                gnrwdg.iframecontainerNode._zoomed = true;
-                                dojo.body().appendChild(dn);
-                            }else{
-                                gnrwdg.iframecontainerNode._zoomed = false;
-                                gnrwdg.centerframeNode.widget.domNode.appendChild(dn);
-                            }
+                            rootnode.publish('zoom');
                        },
                         hidden:'^.iframe_src?=!#v'})
         return bc;

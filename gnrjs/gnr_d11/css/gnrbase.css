@@ -5241,5 +5241,17 @@ div[disabled='true'], div[disabled='disabled']{
     background-size: contain;
 }
 
+.showcase_light .showcase_zoom{
+    background: url(icons/svg/zoom.svg) center center no-repeat;
+    background-size: contain;
+
+}
+
+.showcase_dark .showcase_zoom{
+    background: url(icons/svg/zoom_white.svg) center center no-repeat;
+    background-size: contain;
+}
+
+
 
 
