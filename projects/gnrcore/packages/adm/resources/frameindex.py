@@ -52,7 +52,7 @@ class FrameIndex(BaseComponent):
                     genro.pageReload()}})""",msg='!!Invalid Access',_onStart=True)
             return 
         root.attributes['overflow'] = 'hidden'
-        if self.root_page_id:
+        if self.root_page_id and (custom_index or hasattr(self,'index_dashboard')):
             if custom_index:
                 getattr(self,'index_%s' %custom_index)(root)
             else:

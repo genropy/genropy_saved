@@ -2215,13 +2215,14 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         if(showcase && sharedObjectId && genro.wsk.wsroot){
             sourceNode._('SharedObject',{shared_id:sharedObjectId,shared_path:'showcase_remote',expire:60});
             rootnode._('dataFormula',{path:'showcase_remote',
-                                        script:"new gnr.GnrBag({slide_index:slide_index,minutes:minutes,comment:comment,total_pages:total_pages,zoomEnabled:zoomEnabled,current_time:current_time});",
+                                        script:"new gnr.GnrBag({slide_index:slide_index,minutes:minutes,comment:comment,total_pages:total_pages,zoomEnabled:zoomEnabled,current_time:current_time,started:started});",
                                         slide_index:'^#WORKSPACE.selectedIndex',
                                         minutes:'=#WORKSPACE.minutes',
                                         comment:'=#WORKSPACE.comment',
                                         total_pages:'=#WORKSPACE.total_pages',
                                         zoomEnabled:'=#WORKSPACE.iframe_src?=#v?true:false',
                                         current_time:'=showcase_remote.current_time',
+                                        started:'=showcase_remote.started',
                                         _delay:1});
             rootnode._('dataController',{script:"this.getParentNode().publish(command);",command:'^showcase_remote.command',_userChanges:true});
         }
