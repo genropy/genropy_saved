@@ -182,7 +182,7 @@ class SourceViewer(BaseComponent):
         cm = frame.center.contentPane(overflow='hidden').codemirror(value='^.source',
                                 config_mode='python',config_lineNumbers=True,
                                 config_indentUnit=4,config_keyMap='softTab',
-                                config_theme=self._call_kwargs.get('_source_viewer_theme','twilight'),
+                                #config_theme=self._call_kwargs.get('_source_viewer_theme','twilight'),
                                 height='100%',
                                 readOnly=not self.source_viewer_edit_allowed() or '^gnr.source_viewer.readOnly')
         
