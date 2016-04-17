@@ -178,7 +178,7 @@ class TableHandlerHierarchicalView(BaseComponent):
     def ht_treeViewer(self,pane,caption_field=None,_class=None,excludeRoot=None,**kwargs):
         pane.attributes['height'] = '100%'
         pane.attributes['overflow'] = 'hidden'
-        box = pane.div(position='relative',datapath='.#parent.hview',text_align='left',height='100%',childname='treebox')        
+        box = pane.div(datapath='.#parent.hview',text_align='left',height='100%',childname='treebox')        
         formNode = pane.parentNode.attributeOwnerNode('formId')
         form = formNode.value
         form.store.handler('load',default_parent_id='=#FORM/parent/#FORM.record.parent_id')
@@ -216,7 +216,7 @@ class TableHandlerHierarchicalView(BaseComponent):
     def ht_hviewTree(self,box,table=None,picker=None,_class=None,**kwargs):  
         if picker: 
             bar = box.slotToolbar('*,treePicker,2',height='20px')
-        pane = box.div(position='relative',height='100%').div(position='absolute',top='2px',left='2px',right='2px',bottom='2px',overflow='auto')
+        pane = box.div(height='100%').div(position='absolute',top='2px',left='2px',right='2px',bottom='2px',overflow='auto')
         tree = pane.hTableTree(table=table,childname='htree',
                           onDrag="""var sn = dragInfo.sourceNode;
                                       if(sn.form.isNewRecord() || sn.form.locked ){return false;}""", 
