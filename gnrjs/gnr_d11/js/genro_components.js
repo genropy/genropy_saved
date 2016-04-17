@@ -4296,7 +4296,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
             }
             
             row = table._('tr',buildKw.row)
-            cell = row._('td',objectUpdate({_slotname:slot},buildKw.cell));
+            cell = row._('td',objectUpdate({_slotname:slot,position:'relative'},buildKw.cell));
             /*if(lblPos=='R'){
                 cellKwLbl['width'] = cellKwLbl['width'] || '1px';
                 labelCell = r._('td',cellKwLbl)
@@ -4369,7 +4369,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         var treeKw = objectExtract(slotKw,'tree_*') || {};
         treeKw.dragCode = dragCode;
         slotKw.text_align = 'left';
-        slotKw.position = 'relative';
+        //slotKw.position = 'relative';
         var currRecordPath = objectPop(slotKw,'currRecordPath');
         var explorerPath = objectPop(slotKw,'explorerPath');
 
