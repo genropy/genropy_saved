@@ -1734,8 +1734,7 @@ dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
         this[handler](p);
     },
 
-    mixin_setHiddenChild:function(){
-
+    mixin_setHiddenChild:function(child,value){
     },
 
     patch_selectChild:function(page){

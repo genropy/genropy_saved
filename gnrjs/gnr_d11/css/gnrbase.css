@@ -4018,6 +4018,9 @@ p {
     font-variant:small-caps;
     height: 19px;
 }
+.multibutton_container .hidden.multibutton{
+    display: none;
+}
 
 .multibutton:last-child{
     border-top-right-radius: 6px;

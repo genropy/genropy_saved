@@ -3673,6 +3673,9 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
                 dojo.connect(widget.gnr,'onShowHideChild',that,'onShowHideChild');
                 dojo.connect(widget.gnr,'onAddChild',that,'onAddChild');
                 dojo.connect(widget.gnr,'onRemoveChild',that,'onRemoveChild');
+                dojo.connect(widget,'setHiddenChild',function(child,value){
+                    that.setHiddenChild(this,child,value);
+                });
             },1)
         })
         return tabButtonsNode;
@@ -3708,6 +3711,20 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             });
         },1)
     },
+    setHiddenChild:function(widget,child,value){
+        console.log('setting hidden',widget,child,value);
+        var sn = widget.sourceNode;
+        var controllerNodes = sn._stackButtonsNodes;
+        
+        if((!controllerNodes) || sn._isBuilding){
+            return;
+        }
+        var paneId = child.sourceNode.getStringId();
+        dojo.forEach(controllerNodes,function(c){
+            genro.dom.setClass(c._value.getNode(paneId),'hidden',value)
+        })
+    },
+
     onShowHideChild:function(widget, child, st){
         if(!child){
             return;
