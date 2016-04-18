@@ -35,7 +35,10 @@ class FrameIndex(BaseComponent):
         frameplugins = ['iframemenu_plugin','batch_monitor','chat_plugin']
         for pkgId,pkgobj in self.packages.items():
             if hasattr(pkgobj,'sidebarPlugins'):
-                package_plugins,requires = pkgobj.sidebarPlugins()
+                plugins = pkgobj.sidebarPlugins()
+                if not plugins:
+                    continue
+                package_plugins,requires = plugins
                 frameplugins.extend(package_plugins.split(','))
                 if requires:
                     for p in requires.split(','):

@@ -232,8 +232,9 @@ class TableHandlerForm(BaseComponent):
 
     @struct_method
     def td_slotbar_annotationTool(self,pane,frameCode=None,annotationTool=None,**kwargs):
-        self.mixinComponent('orgn_components:OrganizerComponent')
-        pane.annotationTool(**kwargs)
+        if self.getPreference('organizer_enabled',pkg='orgn'):
+            self.mixinComponent('orgn_components:OrganizerComponent')
+            pane.annotationTool(**kwargs)
 
     @struct_method          
     def th_slotbar_form_audit(self,pane,**kwargs):
