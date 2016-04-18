@@ -3712,7 +3712,6 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         },1)
     },
     setHiddenChild:function(widget,child,value){
-        console.log('setting hidden',widget,child,value);
         var sn = widget.sourceNode;
         var controllerNodes = sn._stackButtonsNodes;
         
