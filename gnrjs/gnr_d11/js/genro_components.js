@@ -324,8 +324,8 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
         var label,notes,r;
         if(m){
             value = m[1];
-            var label = m[3];
-            var notes = m[5];
+            label = m[3];
+            notes = m[5];
             if(label){
                 var k = labels.toLowerCase().split(',').indexOf(label.toLowerCase());
                 if(k>=0){
@@ -353,7 +353,7 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
         this.cleanMultivalueData(multivalues);
         setTimeout(function(){
             textboxNode.setRelativeData(textboxNode.attr.value,value);
-        },1)
+        },1);
 
     },
     cleanMultivalueData:function(data){
@@ -3885,9 +3885,6 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         var tb;
         var gnrwdg = sourceNode.gnrwdg;
         var has_code;
-        sourceNode.attr.disabled=originalKwargs.disabled;
-        sourceNode.attr.readOnly = originalKwargs.readOnly
-
         gnrwdg.identifier = objectPop(kw,'identifier')
         gnrwdg.labelAttribute = objectPop(kw,'labelAttribute')
         gnrwdg._valuelabel = kw._valuelabel;
@@ -3939,7 +3936,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         if(popup){
             var textBoxId = 'placingTextbox_'+genro.getCounter();
             var tbkw = {'value':has_code?value+'?_displayedValue':value,position:'relative',readOnly:true,nodeId:textBoxId};
-            tb = sourceNode._('textbox',objectUpdate(tbkw,kw));
+            tb = sourceNode._('textbox',objectUpdate(tbkw,originalKwargs));
             gnrwdg.textboxNode = tb.getParentNode(); 
             rootNode = tb._('comboArrow')._('tooltipPane',{placingId:textBoxId})._('div',{padding:'5px',overflow:'auto',max_height:'300px',min_width:'200px'});
         }else{
@@ -3967,25 +3964,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             };
         }
         gnrwdg.setValues(values);
-        if(kw.disabled){
-            gnrwdg.setDisabled(kw.disabled);
-        }
-        if(kw.readOnly){
-            gnrwdg.setReadOnly(kw.readOnly);
-        }
         return popup?tb:tbl;
-    },
-
-    gnrwdg_setDisabled:function(disabled,kw){
-        if(this.textboxNode){
-            this.textboxNode.setDisabled(disabled);
-        }
-    },
-
-    gnrwdg_setReadOnly:function(readOnly,kw){
-        if(this.textboxNode){
-            this.textboxNode.setDisabled(readOnly);
-        }
     },
     
     gnrwdg_setValues:function(values,kw){
