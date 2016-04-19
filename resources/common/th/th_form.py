@@ -235,6 +235,8 @@ class TableHandlerForm(BaseComponent):
         if self.getPreference('organizer_enabled',pkg='orgn'):
             self.mixinComponent('orgn_components:OrganizerComponent')
             pane.annotationTool(**kwargs)
+        else:
+            pane.div()
 
     @struct_method          
     def th_slotbar_form_audit(self,pane,**kwargs):
