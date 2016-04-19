@@ -10,7 +10,7 @@ import os
 from gnr.core.gnrbag import DirectoryResolver
 
 class PlainIndex(BaseComponent):
-    def main(self,root):
+    def main(self,root,**kwargs):
         currdir = os.path.dirname(self.filepath)
         folder = DirectoryResolver(currdir,cacheTime=10,
                             include='*.py', 

@@ -1997,14 +1997,18 @@ class GnrWebPage(GnrBaseWebPage):
         return result
     
     @public_method                                 
-    def remoteBuilder(self, handler=None, py_requires=None,**kwargs):
+    def remoteBuilder(self, handler=None,tag=None, py_requires=None,**kwargs):
         """TODO
         
         :param handler: TODO"""
         if py_requires:
             for p in py_requires.split(','):
                 self.mixinComponent(p)
-        handler = self.getPublicMethod('remote', handler)
+        if tag:
+            def handler(root,**pars):
+                root.child(tag,**pars)
+        else:
+            handler = self.getPublicMethod('remote', handler)
         if handler:
             pane = self.newSourceRoot()
             self._root = pane
@@ -2013,6 +2017,7 @@ class GnrWebPage(GnrBaseWebPage):
                     kwargs[k[0:-5]] = kwargs.pop(k)[1:]
             handler(pane, **kwargs)
             return pane
+        
             
     def rpc_ping(self, **kwargs):
         """TODO"""

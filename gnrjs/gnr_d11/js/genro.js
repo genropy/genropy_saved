@@ -58,7 +58,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.debug_sql = kwargs.startArgs.debug_sql;
         dojo.subscribe('gnrServerLog', this, 'serverLog');
         //this.debug_py = kwargs.startArgs.debug_py;
-        this.websockets_url=kwargs.startArgs.websockets_url;
+        this.websockets_url = objectPop(kwargs.startArgs,'websockets_url');
         this.pageMode = kwargs.pageMode;
         this.pageModule = kwargs.pageModule;
         this.baseUrl = kwargs.baseUrl;
