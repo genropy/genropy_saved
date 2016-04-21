@@ -324,8 +324,8 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
         var label,notes,r;
         if(m){
             value = m[1];
-            var label = m[3];
-            var notes = m[5];
+            label = m[3];
+            notes = m[5];
             if(label){
                 var k = labels.toLowerCase().split(',').indexOf(label.toLowerCase());
                 if(k>=0){
@@ -353,7 +353,7 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
         this.cleanMultivalueData(multivalues);
         setTimeout(function(){
             textboxNode.setRelativeData(textboxNode.attr.value,value);
-        },1)
+        },1);
 
     },
     cleanMultivalueData:function(data){
@@ -2143,6 +2143,231 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
     }
 
 });
+dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw) {
+        var grid_pars = objectExtract(kw,'items,columns');
+        grid_pars.selfDragRows = genro.isDeveloper;
+        objectUpdate(grid_pars,objectExtract(kw,'grid_*'));
+        var onContentSaved = objectPop(kw,'onSaved');
+        var items = objectPop(grid_pars,'items');
+        var docpars = objectExtract(kw,'di_*');
+        var navigation = objectPop(kw,'navigation');
+        var sharedObjectId = objectPop(kw,'sharedObjectId');
+        
+        if(!items && objectNotEmpty(docpars)){
+            items = '^gnr.language?=#v?"_doc.content.'+docpars.store+'.'+docpars.key+'.'+docpars.contentpath+'."+#v:"emptypath"';
+        }
+        if(onContentSaved){
+            onContentSaved = funcCreate(onContentSaved);
+        }else{
+            onContentSaved = function(){
+                sourceNode.publish('onContentSaved');
+            }
+        }
+        var viewer_pars = objectExtract(kw,'viewer_*');
+        var itemspath = sourceNode.absDatapath(items);
+        var grid_region = grid_pars.region || 'left';
+        var gnrwdg = sourceNode.gnrwdg;
+
+        kw.selfsubscribe_toggle_grid = function(){
+            this.widget.setRegionVisible(grid_region,'toggle');
+        }
+        kw.selfsubscribe_next = function(){
+            var next_idx = this.getRelativeData('#WORKSPACE.selectedIndex')+1;
+            var tot = this.getRelativeData('#WORKSPACE.total_pages')-1;
+            next_idx = (next_idx>=tot)?tot:next_idx;
+            this.setRelativeData('#WORKSPACE.selectedIndex',next_idx);
+        }
+        kw.selfsubscribe_prev = function(){
+            var prev_idx = this.getRelativeData('#WORKSPACE.selectedIndex')-1;
+            this.setRelativeData('#WORKSPACE.selectedIndex',prev_idx>=0?prev_idx:0);
+        }
+        kw.selfsubscribe_zoom = function(){
+            var s = gnrwdg.viewerBC.widget.setRegionVisible('top','toggle');
+            var dn = gnrwdg.iframecontainerNode.domNode;
+            genro.dom.setClass(gnrwdg.iframecontainerNode,'expanded_gallery_iframe',!s);
+            if(s===false){
+                gnrwdg.iframecontainerNode._zoomed = true;
+                dojo.body().appendChild(dn);
+            }else{
+                gnrwdg.iframecontainerNode._zoomed = false;
+                gnrwdg.centerframeNode.widget.domNode.appendChild(dn);
+            }
+        }
+        var showcase = objectPop(kw,'showcase');
+        if(sourceNode.isPointerPath(items)){
+            grid_pars.dynamicStorepath = itemspath;
+        }else{
+            grid_pars.value = itemspath;
+        }
+        
+        grid_pars.autoSelect = true;
+        grid_pars['store_sortedBy'] = '_row_count';
+        kw._workspace = true;
+        kw.design = kw.design || 'sidebar';
+        if(showcase){
+            kw._class = (kw._class || '')+' showcase_' +(showcase==true?'light':showcase);
+        }
+        var bc = sourceNode._('BorderContainer',kw);
+        var rootnode = bc.getParentNode();
+        rootnode._('dataFormula',{path:'#WORKSPACE.total_pages',
+                    formula:'typeof(v)=="string"?(this.getRelativeData(v)?this.getRelativeData(v).len():0):(v?v.len():0)',v:'^'+itemspath});
+        if(showcase && sharedObjectId && genro.wsk.wsroot){
+            sourceNode._('SharedObject',{shared_id:sharedObjectId,shared_path:'showcase_remote',expire:60});
+            rootnode._('dataFormula',{path:'showcase_remote',
+                                        script:"new gnr.GnrBag({slide_index:slide_index,minutes:minutes,comment:comment,total_pages:total_pages,zoomEnabled:zoomEnabled,current_time:current_time,started:started});",
+                                        slide_index:'^#WORKSPACE.selectedIndex',
+                                        minutes:'=#WORKSPACE.minutes',
+                                        comment:'=#WORKSPACE.comment',
+                                        total_pages:'=#WORKSPACE.total_pages',
+                                        zoomEnabled:'=#WORKSPACE.iframe_src?=#v?true:false',
+                                        current_time:'=showcase_remote.current_time',
+                                        started:'=showcase_remote.started',
+                                        _delay:1});
+            rootnode._('dataController',{script:"this.getParentNode().publish(command);",command:'^showcase_remote.command',_userChanges:true});
+        }
+
+        if(showcase){
+            bar = bc._('ContentPane',{region:'bottom',_class:'showcase_bar'})._('slotBar',{slots:'5,toggle,15,prev,5,next,*,slide_cnt,2',side:'bottom'});
+            bar._('lightbutton','toggle',{tip:_T('!!Toggle'),action:function(){
+                rootnode.publish('toggle_grid');
+            },_class:'showcase_button showcase_toggle'});
+            bar._('lightbutton','prev',{tip:_T('!!Prev'),action:function(){
+                rootnode.publish('prev');
+            },_class:'showcase_button showcase_prev'});
+            bar._('lightbutton','next',{tip:_T('!!Next'),action:function(){
+                rootnode.publish('next');
+            },_class:'showcase_button showcase_next'});
+            bar._('div','slide_cnt',{template:"$_curr/$_tot ($_minutes)",_curr:"^#WORKSPACE.selectedIndex?=#v+1",
+                                        _tot:'^#WORKSPACE.total_pages',_minutes:'^#WORKSPACE.minutes?=#v?#v:"..."',width:'6em',
+                                        _class:'showcase_counter'});
+            grid_pars.hidden = true;
+        }
+        var dpath = rootnode.absDatapath('#WORKSPACE.curr_datapath');
+        var emptypath =  rootnode.absDatapath('#WORKSPACE.emptypath');
+        sourceNode.setRelativeData(dpath,emptypath);
+        
+        grid_pars.connect_onSelected = function(rowIndex){
+            if(rowIndex>=0 && this.widget.storebag().len()>0){
+                this.setRelativeData(dpath,
+                    this.widget.collectionStore().itemByIdx(rowIndex).getFullpath().slice(5));
+                setTimeout(function(){
+                    gnrwdg.viewerBC.widget.resize();
+                },1)
+            }
+        }
+        grid_pars.selected_minutes = rootnode.absDatapath('#WORKSPACE.minutes');
+        grid_pars.selected_comment = rootnode.absDatapath('#WORKSPACE.comment');
+        grid_pars.selected_iframe_src = rootnode.absDatapath('#WORKSPACE.iframe_src');
+
+        grid_pars.selectedIndex = '^'+rootnode.absDatapath('#WORKSPACE.selectedIndex');
+        grid_pars.selfsubscribe_addrow = function(addkw){
+                                                var grid = this.widget;
+                                                setTimeout(function(){
+                                                    gnrwdg.addNewPage(grid,addkw);
+                                                },500);
+        }
+        var gridpane_kw = objectExtract(grid_pars,'width,_class,drawer,hidden');
+        gridpane_kw._class = showcase?'grid_gallery_grid_showcase': 'grid_gallery_grid noheader';
+        objectUpdate(gridpane_kw,objectExtract(grid_pars,'drawer_*'));
+        var gp = bc._('ContentPane','gridpane',objectUpdate({region:'left'},gridpane_kw))
+        var g = gp._('quickGrid','grid',grid_pars);
+        if(genro.isDeveloper){
+            //g._('tools',{tools:'addrow,delrow',position:'BR'});
+            g._('tools',{tools:'delrow,addrow',
+                    custom_tools:{addrow:{content_class:'iconbox add_row',ask:{title:_T('New Page'),
+                            fields:[{name:'label',lbl:'Label',validate_notnull:true},
+                                    {name:'iframe_src',lbl:'Src'}]}
+                                    }},position:'BR'});
+            g._('column',{field:'_row_count',counter:true,hidden:!showcase,name:'N.',width:'3em'});
+            g._('column',{field:'label',name:'Label',width:'100%',edit:true});
+            if(showcase){
+                g._('column',{field:'minutes',name:'Min',width:'4em',dtype:'L',edit:true});
+            }
+        }else{
+            g._('column',{field:'_row_count',counter:true,hidden:true})
+            g._('column',{field:'label',name:'Label',width:'100%'});
+        }
+        var content_kw = objectExtract(kw,'content_*');
+        content_kw.innerHTML = '^.content';
+        content_kw._class = 'doc_item selectable '+ (content_kw._class || '');
+        content_kw.min_height = '30px';
+        content_kw.stlyes = '^.';
+        if(genro.isDeveloper){
+            content_kw.connect_ondblclick = function(){
+                    var that = this;
+                    genro.dlg.prompt(_T('Edit'),{dlg_noModal:true,
+                        widget:function(pane){
+                            var tc = pane._('tabContainer',{height:'600px',width:'1000px',margin:'2px'});
+                            tc._('ContentPane',{title:'Content',overflow:'hidden'})._('ckeditor',{value:'^.content'});
+                            var pane = tc._('ContentPane',{title:'Metadata',overflow:'hidden'})
+                            var fb = genro.dev.formbuilder(pane._('div',{margin:'10px'}),3,{border_spacing:'1px',width:'100%',margin_bottom:'12px'});
+                            fb.addField('textbox',{value:'^.iframe_src',width:'25em',lbl_text_align:'right',
+                                        lbl:_T('Example src'),lbl_color:'#444',parentForm:false,colspan:3});
+                            fb.addField('numberTextBox',{value:'^.scale_min',width:'6em',lbl_text_align:'right',
+                                        lbl:_T('Scale min'),lbl_color:'#444',parentForm:false});
+                            fb.addField('numberTextBox',{value:'^.scale_max',width:'6em',lbl_text_align:'right',
+                                        lbl:_T('Scale max'),lbl_color:'#444',parentForm:false});
+                            fb.addField('numberTextBox',{value:'^.minutes',width:'6em',lbl_text_align:'right',
+                                        lbl:_T('Minutes'),lbl_color:'#444',parentForm:false});
+                            fb.addField('SimpleTextArea',{value:'^.comment',width:'40em',height:'450px',lbl_text_align:'right',
+                                        lbl:_T('Comment'),lbl_color:'#444',parentForm:false,lbl_vertical_align:'top',colspan:3});
+                            tc._('ContentPane',{title:'HTML Source',overflow:'hidden'})._('codemirror',{value:'^.content',config_mode:'htmlmixed',height:'100%',config_lineNumbers:true});
+                            tc._('ContentPane',{title:'Content Styles',overflow:'hidden'})._('codemirror',{value:'^.content_styles',config_mode:'css',config_lineNumbers:true,height:'100%'});
+                        },action:function(value){
+                            that.setRelativeData('.content',value.getItem('content'));
+                            that.setRelativeData('.comment',value.getItem('comment'));
+                            that.setRelativeData('.minutes',value.getItem('minutes'));
+                            that.setRelativeData('.scale_min',value.getItem('scale_min'));
+                            that.setRelativeData('.scale_max',value.getItem('scale_max'));
+                            that.setRelativeData('.content_styles',value.getItem('content_styles'));
+                            that.setRelativeData('.iframe_src',value.getItem('iframe_src'));
+                            onContentSaved();
+                        },
+                        dflt:this.getRelativeData().deepCopy()
+                    });
+            }
+        }
+        var viewer = bc._('BorderContainer',objectUpdate({region:'center',_class:'grid_gallery_box',datapath:'^'+dpath},viewer_pars))
+        sourceNode.gnrwdg.viewerBC = viewer.getParentNode();
+        content_kw.overflow = 'auto';
+        content_kw.style = '^.content_styles';
+        var vtop = viewer._('ContentPane',{region:'top'})
+        vtop._('div',content_kw);
+       //if(showcase){
+       //    vtop._('div',{position:'absolute',top:'5px',right:'5px',_class:'iconbox comment',hidden:'^.comment?=!#v'})._('tooltipPane')._('div',{innerHTML:'^.comment',min_height:'150px',width:'200px'});
+       //}
+        centerframe = viewer._('ContentPane',{region:'center',overflow:'hidden'});
+        var iframecontainer = centerframe._('div',{_class:'gallery_iframe_container',hidden:'^.iframe_src?=!#v'});
+        var iframe = iframecontainer._('iframe',{src:'^.iframe_src',height:'100%',width:'100%',border:0,
+                                                onLoad:function(){
+                                                    var smax = gnrwdg.viewerBC.getRelativeData('.scale_max');
+                                                    var smin = gnrwdg.viewerBC.getRelativeData('.scale_min');
+                                                    this.contentDocument.body.style.zoom = this.parentNode.sourceNode._zoomed? (smax || null):(smin || null);
+                                                }});
+        gnrwdg.iframecontainerNode = iframecontainer.getParentNode();
+        gnrwdg.iframeNode = iframe.getParentNode();
+        gnrwdg.centerframeNode = centerframe.getParentNode();
+        
+        iframecontainer._('div',{position:'absolute',_class:'iconbox resize',position:'absolute',top:'2px',right:'2px',z_index:2,
+                       connect_onclick:function(){
+                            rootnode.publish('zoom');
+                       },
+                        hidden:'^.iframe_src?=!#v'})
+        return bc;
+    },
+
+    gnrwdg_addNewPage:function(grid,kw){
+        var label = kw.label;
+        var iframe_src = kw.iframe_src;
+        var dtype = kw.dtype;
+        if(!label){
+            genro.dlg.floatingMessage(this.containerNode,{messageType:'error',message:'Missing Label'})
+            return;
+        }
+        grid.addRows([{'label':label,iframe_src:iframe_src}]);
+    }
+});
 
 dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     subtags : {column:true,
@@ -2154,6 +2379,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         sourceNode.attr._workspace = kw.nodeId || true;
         var gnrwdg = sourceNode.gnrwdg;
         var value = objectPop(kw,'value');
+        var dynamicStorepath = objectPop(kw,'dynamicStorepath');
         var columns = objectPop(kw,'columns');
         sourceNode.attr.fields = objectPop(kw,'fields');
         gnrwdg.guessColumns = sourceNode.attr.fields;
@@ -2190,7 +2416,8 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         objectUpdate(kw,selected_kwargs);
 
 
-        var valuepath = sourceNode.absDatapath(value);
+        var valuepath = value?sourceNode.absDatapath(value):null;
+        dynamicStorepath = dynamicStorepath?'^'+sourceNode.absDatapath(dynamicStorepath):null;
         var store_kwargs = objectExtract(kw,'store_*');
         kw.nodeId = kw.nodeId || '_qg_'+genro.getCounter();
         kw.store = kw.nodeId;
@@ -2212,6 +2439,10 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var currentColumns = sourceNode.getAttributeFromDatasource('columns');
         var struct = new gnr.GnrBag();
         sourceNode.setRelativeData(kw.structpath,struct)
+        if(dynamicStorepath){
+            kw.dynamicStorepath = dynamicStorepath;
+            valuepath = '.dummystore';
+        }
         sourceNode._('BagStore',objectUpdate({storepath:valuepath,
                         nodeId:kw.nodeId+'_store',datapath:kw.controllerPath,
                         storeType:kw.datamode=='bag'?'ValuesBagRows':'AttributesBagRows'},store_kwargs));
@@ -3442,6 +3673,9 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
                 dojo.connect(widget.gnr,'onShowHideChild',that,'onShowHideChild');
                 dojo.connect(widget.gnr,'onAddChild',that,'onAddChild');
                 dojo.connect(widget.gnr,'onRemoveChild',that,'onRemoveChild');
+                dojo.connect(widget,'setHiddenChild',function(child,value){
+                    that.setHiddenChild(this,child,value);
+                });
             },1)
         })
         return tabButtonsNode;
@@ -3477,6 +3711,19 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             });
         },1)
     },
+    setHiddenChild:function(widget,child,value){
+        var sn = widget.sourceNode;
+        var controllerNodes = sn._stackButtonsNodes;
+        
+        if((!controllerNodes) || sn._isBuilding){
+            return;
+        }
+        var paneId = child.sourceNode.getStringId();
+        dojo.forEach(controllerNodes,function(c){
+            genro.dom.setClass(c._value.getNode(paneId),'hidden',value)
+        })
+    },
+
     onShowHideChild:function(widget, child, st){
         if(!child){
             return;
@@ -3638,9 +3885,6 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         var tb;
         var gnrwdg = sourceNode.gnrwdg;
         var has_code;
-        sourceNode.attr.disabled=originalKwargs.disabled;
-        sourceNode.attr.readOnly = originalKwargs.readOnly
-
         gnrwdg.identifier = objectPop(kw,'identifier')
         gnrwdg.labelAttribute = objectPop(kw,'labelAttribute')
         gnrwdg._valuelabel = kw._valuelabel;
@@ -3692,7 +3936,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         if(popup){
             var textBoxId = 'placingTextbox_'+genro.getCounter();
             var tbkw = {'value':has_code?value+'?_displayedValue':value,position:'relative',readOnly:true,nodeId:textBoxId};
-            tb = sourceNode._('textbox',objectUpdate(tbkw,kw));
+            tb = sourceNode._('textbox',objectUpdate(tbkw,originalKwargs));
             gnrwdg.textboxNode = tb.getParentNode(); 
             rootNode = tb._('comboArrow')._('tooltipPane',{placingId:textBoxId})._('div',{padding:'5px',overflow:'auto',max_height:'300px',min_width:'200px'});
         }else{
@@ -3720,25 +3964,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             };
         }
         gnrwdg.setValues(values);
-        if(kw.disabled){
-            gnrwdg.setDisabled(kw.disabled);
-        }
-        if(kw.readOnly){
-            gnrwdg.setReadOnly(kw.readOnly);
-        }
         return popup?tb:tbl;
-    },
-
-    gnrwdg_setDisabled:function(disabled,kw){
-        if(this.textboxNode){
-            this.textboxNode.setDisabled(disabled);
-        }
-    },
-
-    gnrwdg_setReadOnly:function(readOnly,kw){
-        if(this.textboxNode){
-            this.textboxNode.setDisabled(readOnly);
-        }
     },
     
     gnrwdg_setValues:function(values,kw){

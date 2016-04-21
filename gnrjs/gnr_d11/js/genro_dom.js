@@ -402,13 +402,13 @@ dojo.declare("gnr.GnrDomHandler", null, {
         if (attributes.gnrIcon) {
             attributes.iconClass = 'gnrIcon gnrIcon' + objectPop(attributes, 'gnrIcon');
         }
-        var noConvertStyle = noConvertStyle || [];
+        noConvertStyle = noConvertStyle || [];
         var styledict = objectFromStyle(objectPop(attributes, 'style'));
         var attrname;
         dojo.forEach(this.css3AttrNames,function(name){
-            var value=objectPop(attributes,name);
             var valuedict=objectExtract(attributes,name+'_*');
-            if(value || objectNotEmpty(valuedict)){
+            if((name in attributes)|| objectNotEmpty(valuedict)){
+                var value=objectPop(attributes,name);
                 genro.dom['css3style_'+name](value,valuedict,styledict,noConvertStyle);
             }
         });
@@ -548,7 +548,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var cb= function(y,x){return 'border-'+y+'-'+x+'-radius';};
         var rounded_corners = this.normalizedRoundedCorners(value,valuedict);
         for(var k in rounded_corners){
-            var v = rounded_corners[k];
+            v = rounded_corners[k];
             k=k.split('_');
             styledict[cb(k[0],k[1])] = v+'px';
         }
@@ -558,9 +558,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
     normalizedRoundedCorners : function(rounded,rounded_dict){
         var result = {};
         var v,m;
-        if(rounded){
-            rounded_dict['all'] = rounded;
-        }
+        rounded_dict['all'] = rounded || 0;
         var converter = [['all','tr','tl','br','bl'],
                          ['top','tr','tl'],
                          ['bottom','br','bl'],

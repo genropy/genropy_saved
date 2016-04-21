@@ -1656,7 +1656,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         pkey = tblobj.pkey
         caption_field = tblobj.attributes.get('caption_field')
         f = tblobj.query(columns='$%s,$%s' %(pkey,caption_field),**kwargs).fetch()
-        return ','.join(['%s:%s' %(r[pkey],r[caption_field]) for r in f])
+        return ','.join(['%s:%s' %(r[pkey],(r[caption_field] or '').replace(',',' ')) for r in f])
 
     @public_method
     def getMultiFetch(self,queries=None):

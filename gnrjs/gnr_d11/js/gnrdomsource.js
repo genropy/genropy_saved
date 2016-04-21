@@ -26,6 +26,13 @@
 
 //######################## class BagNode##########################
 dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
+    constructor:function(){
+        var mobile_kw = objectExtract(this.attr,'mobile_*');
+        if(genro.isMobile && objectNotEmpty(mobile_kw)){
+            objectUpdate(this.attr,mobile_kw);
+        }
+    },
+
     application:function() {
         return this.getParentBag().getRoot().application;
     },

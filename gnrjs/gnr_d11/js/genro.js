@@ -58,7 +58,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.debug_sql = kwargs.startArgs.debug_sql;
         dojo.subscribe('gnrServerLog', this, 'serverLog');
         //this.debug_py = kwargs.startArgs.debug_py;
-        this.websockets_url=kwargs.startArgs.websockets_url;
+        this.websockets_url = objectPop(kwargs.startArgs,'websockets_url');
         this.pageMode = kwargs.pageMode;
         this.pageModule = kwargs.pageModule;
         this.baseUrl = kwargs.baseUrl;
@@ -201,21 +201,12 @@ dojo.declare('gnr.GenroClient', null, {
             'selectionpath':'tables.$dbtable.selection',
             'limit':'50'};
         var mainWindow = dojo.byId('mainWindow');
+        if('_scale' in genro.startArgs){
+            mainWindow.style.zoom = genro.startArgs._scale;
+        }
         dojo.locale = dojo.i18n.normalizeLocale(dojo.locale);
-      // if (mainWindow && mainWindow.clientHeight===0){
-      //     console.log('***********AaAAAAAA')
-      //     genro._startDelayer = setInterval(function(){
-      //         if(dojo.byId('mainWindow').clientHeight>0){
-      //             clearInterval(genro._startDelayer);
-      //             genro.start();
-      //         }
-      //     },200);
-      // }else{
-      //     console.log('***********BBBBB')
-      //     
-      // }
-      //
-       dojo.addOnLoad(genro, 'start');
+
+        dojo.addOnLoad(genro, 'start');
     },
 
     compare: function(op, a, b) {
@@ -360,7 +351,7 @@ dojo.declare('gnr.GenroClient', null, {
         if(genro.userInfoCb.length>0){
             var userInfoCb = genro.userInfoCb;
             genro.userInfoCb = [];
-            dojo.forEach(userInfoCb,function(cb){cb()});
+            dojo.forEach(userInfoCb,function(cb){cb();});
         }
     },
     getScreenLockTimeout:function(){

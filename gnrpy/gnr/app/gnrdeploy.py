@@ -453,7 +453,7 @@ class ThPackageResourceMaker(object):
                 self.write("tc = bc.tabContainer(region='center',margin='2px')", indent=2)
                 for c in children:
                     self.write("tab_%s = tc.contentPane(title='%s')" %(c.replace('@',''),(tblobj.name_plural or tblobj.name_long)), indent=2)
-                    self.write("tab_%s.plainTableHandler(relation='%s')" %(c.replace('@',''),c), indent=2)
+                    self.write("tab_%s.dialogTableHandler(relation='%s')" %(c.replace('@',''),c), indent=2)
             else:
                 self.write("center = bc.contentPane(region='center')", indent=2)
                 self.write("center.plainTableHandler(relation='%s')" %children[0], indent=2)

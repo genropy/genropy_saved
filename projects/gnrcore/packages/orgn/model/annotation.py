@@ -75,7 +75,7 @@ class Table(object):
 
         tbl.formulaColumn("calculated_date_due","""COALESCE ($date_due,$pivot_date_due)""",dtype='D',name_long='!!Calc.Date due')
 
-        tbl.formulaColumn("pivot_date_due","""(CASE WHEN @action_type_id.deadline_days IS NOT NULL AND $pivot_date IS NOT NULL
+        tbl.formulaColumn("pivot_date_due","""(CASE WHEN @action_type_id.deadline_days IS NOT NULL
                                                         THEN $pivot_date+@action_type_id.deadline_days
                                                     ELSE NULL END)""",dtype='D',name_long='!!Pivot date due')
 
@@ -185,7 +185,7 @@ class Table(object):
                     if related_table.column('orgn_pivot_date') is not None:
                         pivot_dates.append('@%s.orgn_pivot_date' %colname)
         description_formula = "COALESCE(%s,'Missing caption')" %','.join(desc_fields) if desc_fields else "'NOT PLUGGED'"
-        pivot_date_formula =  "COALESCE(%s)" %','.join(pivot_dates) if pivot_dates else "NULL"
+        pivot_date_formula =  "COALESCE(%s,CAST($__ins_ts AS date))" %','.join(pivot_dates) if pivot_dates else "CAST($__ins_ts AS date)"
         assigment_formula = ' AND '.join(assigments_restrictions)
         return [dict(name='connected_description',sql_formula=description_formula),
                 dict(name='pivot_date',sql_formula=pivot_date_formula,name_long='!!Pivot date',dtype='D'),

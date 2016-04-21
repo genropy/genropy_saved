@@ -432,7 +432,7 @@ class TableBase(object):
         if partitionParameters:
             sql_formula = "( $%(field)s IN :env_allowed_%(path)s )" %partitionParameters
         return [dict(name='__allowed_for_partition',sql_formula=sql_formula or 'FALSE',
-                    dtype='B',name_long='!!Allowed for partition')]
+                    dtype='B',name_long='!!Allowed for partition',group='_')]
 
     def getPartitionAllowedUsers(self,recordOrPkey):
         partitionParameters = self.partitionParameters
@@ -1112,7 +1112,7 @@ class AttachmentTable(GnrDboTable):
         tbl.column('mimetype' ,name_long='!!Mimetype')
         tbl.column('text_content',name_long='!!Content')
         tbl.column('info' ,'X',name_long='!!Additional info')
-        tbl.column('maintable_id',size='22',group='_',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
+        tbl.column('maintable_id',size='22',group='*',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
                     mode='foreignkey', onDelete_sql='cascade',onDelete='cascade', relation_name='atc_attachments',
                     one_group='_',many_group='_',deferred=True)
         tbl.formulaColumn('fileurl',"'/_vol/' || $filepath",name_long='Fileurl')

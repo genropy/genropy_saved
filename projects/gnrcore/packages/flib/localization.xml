@@ -1,0 +1,86 @@
+<?xml version="1.0" ?>
+<GenRoBag>
+	<menu ext="py" path="menu.py">
+		<en_categories base="Categories"/>
+		<en_item_uploader base="Item uploader"/>
+		<en_items base="Items"/>
+	</menu>
+
+	<model>
+		<category ext="py" path="model/category.py">
+			<en_category base="Category"/>
+				<en_categories base="Categories"/>
+		</category>
+		<item ext="py" path="model/item.py">
+			<en_item base="Item"/>
+				<en_items base="Items"/>
+				<en_title base="Title" de="Titel" en="Title" fr="Titre" it="Titolo"/>
+				<en_description base="Description" en="Description" it="Descrizione"/>
+				<en_url base="Url"/>
+				<en_path base="Path"/>
+				<en_file_type base="File type"/>
+				<en_extension base="Extension"/>
+				<en_metadata base="Metadata" de="Metadata" en="Metadata" fr="Métadonnées" it="Metadata"/>
+				<en_versions base="Versions"/>
+				<en_user_name base="User name"/>
+		</item>
+		<item_category ext="py" path="model/item_category.py">
+			<en_item_category base="Item category"/>
+		</item_category>
+	</model>
+
+	<resources>
+		<flib ext="py" path="resources/flib.py">
+			<en_preview base="Preview" de="Vorschau" en="Preview" fr="Avant-première" it="Anteprima"/>
+				<en_file_picker base="File picker"/>
+				<en_categories base="Categories"/>
+				<en_upload_file base="Upload file"/>
+				<en_upload_files base="Upload files"/>
+				<en_title base="Title" de="Titel" en="Title" fr="Titre" it="Titolo"/>
+				<en_descripton base="Descripton"/>
+		</flib>
+		<item_picker ext="py" path="resources/item_picker.py">
+			<en_file_picker base="File picker"/>
+				<en_categories base="Categories"/>
+				<en_title base="Title" de="Titel" en="Title" fr="Titre" it="Titolo"/>
+				<en_description base="Description" en="Description" it="Descrizione"/>
+				<en_thumb base="Thumb" de="Daumen" en="Thumb" fr="Pouce" it="Pollice"/>
+				<en_items base="Items"/>
+		</item_picker>
+		<preference ext="py" path="resources/preference.py">
+			<en_base_url base="Base url"/>
+		</preference>
+		<tables>
+			<category>
+				<th_category ext="py" path="resources/tables/category/th_category.py">
+					<en_code base="Code" en="Code" it="Codice"/>
+								<en_description base="Description" en="Description" it="Descrizione"/>
+				</th_category>
+			</category>
+				<item>
+				<th_item ext="py" path="resources/tables/item/th_item.py">
+					<en_title base="Title" de="Titel" en="Title" fr="Titre" it="Titolo"/>
+								<en_description base="Description" en="Description" it="Descrizione"/>
+								<en_url base="Url"/>
+								<en_path base="Path"/>
+								<en_file_type base="File type"/>
+								<en_extension base="Extension"/>
+								<en_user base="User" de="Benutzer" en="User" fr="Utilisateur" it="Utente"/>
+								<en_thumb base="Thumb" de="Daumen" en="Thumb" fr="Pouce" it="Pollice"/>
+				</th_item>
+			</item>
+		</tables>
+	</resources>
+
+	<webpages>
+		<categories ext="py" path="webpages/categories.py">
+			<en_categories base="Categories"/>
+		</categories>
+		<items ext="py" path="webpages/items.py">
+			<en_file_items base="File Items"/>
+				<en_inserted_on base="Inserted on"/>
+				<en_title base="Title" de="Titel" en="Title" fr="Titre" it="Titolo"/>
+				<en_description base="Description" en="Description" it="Descrizione"/>
+		</items>
+	</webpages>
+</GenRoBag>

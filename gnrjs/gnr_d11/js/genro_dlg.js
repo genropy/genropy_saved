@@ -394,21 +394,21 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             dlg._('div',kw);
             dlgNode = dlg.getParentNode();
         }
-        dlgNode.widget.show()
+        dlgNode.widget.show();
     },
     
     prompt: function(title, kw,sourceNode) {
-        var kw = kw || {};
+        kw = kw || {};
         var dlg_kw = objectExtract(kw,'dlg_*');
         var msg = kw.msg;
         var confirmCb = kw.action || '';
         var cancelCb = kw.cancelCb;
-        var wdg = kw['widget'] || 'textbox';
-        var remote = kw['remote'];
-        var dflt = kw['dflt'];
+        var wdg = kw.widget || 'textbox';
+        var remote = kw.remote;
+        var dflt = kw.dflt;
         genro.dlg.prompt_counter = genro.dlg.prompt_counter || 0;
         genro.dlg.prompt_counter++;
-        var prompt_datapath = 'gnr.promptDlg.prompt_'+genro.dlg.prompt_counter
+        var prompt_datapath = 'gnr.promptDlg.prompt_'+genro.dlg.prompt_counter;
         var promptvalue_path = prompt_datapath+'.promptvalue';
         genro.setData(promptvalue_path,dflt || null);
         dlg_kw = objectUpdate({_showParent:true,width:'280px',datapath:prompt_datapath,background:'white',autoSize:true},dlg_kw);
@@ -422,7 +422,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                                                             return;
                                                         }
                                                         funcApply(confirmCb,{value:genro.getData(promptvalue_path)},(sourceNode||this));
-                                                        genro.setData(promptvalue_path,null);
+                                                        genro.setData(promptvalue_path,null,null,false);
                                                     }else if(this.attr.command == 'cancel' && cancelCb){
                                                         funcApply(cancelCb,{},(sourceNode||this));
                                                     }
@@ -441,18 +441,18 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         bar._('button','confirm',confirmbtnKW);
         var kwbox = {};
         if(remote){
-            kwbox['padding'] = '10px';
-            kwbox['remote'] = remote;
+            kwbox.padding = '10px';
+            kwbox.remote = remote;
             objectUpdate(kwbox,objectExtract(kw,'remote_*',false,true));
-            kwbox['remote_valuepath'] = '.promptvalue';
-            kwbox['remote__onRemote'] = function(){
+            kwbox.remote_valuepath = '.promptvalue';
+            kwbox.remote__onRemote = function(){
                 setTimeout(function(){
-                    dlg.getParentNode().widget.adjustDialogSize()
+                    dlg.getParentNode().widget.adjustDialogSize();
                 },1);
             };
             dlg.center._('div',kwbox);
         }else if(typeof(wdg)=='function'){
-            kwbox['datapath'] = '.promptvalue'
+            kwbox.datapath = '.promptvalue';
             wdg.call(sourceNode,dlg.center._('div',kwbox)); // nn ho un sourcenode
         }else if(wdg=='multiValueEditor'){
             dlg.center._('multiValueEditor',objectUpdate({value:'^.promptvalue',height:'250px',width:'350px'},objectExtract(kw,'wdg_*')));
@@ -461,26 +461,27 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             kwbox.padding = '10px';
             kwbox.width=dlg_kw.width;
             var box = dlg.center._('div',kwbox);
+            var fb;
             if(msg){
                 box._('div',{innerHTML:msg,color:'#666',margin_bottom:'10px',_class:'selectable'});
             }
             if(typeof(wdg)=='string'){
-                var fb = genro.dev.formbuilder(box,1,{border_spacing:'1px',width:'100%',fld_width:'100%'});
+                fb = genro.dev.formbuilder(box,1,{border_spacing:'1px',width:'100%',fld_width:'100%'});
                 fb.addField(wdg,objectUpdate({value:'^.promptvalue',lbl:kw.lbl,lbl_color:'#666',lbl_text_align:'right'},objectExtract(kw,'wdg_*')));
             }else{
-                var fb = genro.dev.formbuilder(box,1,{border_spacing:'4px',width:'100%',fld_width:'100%',datapath:'.promptvalue'});
+                fb = genro.dev.formbuilder(box,1,{border_spacing:'4px',width:'100%',fld_width:'100%',datapath:'.promptvalue'});
                 wdg.forEach(function(n){
                     n = objectUpdate({},n);
                     var w = objectPop(n,'wdg','textbox');
                     fb.addField(w,objectUpdate({lbl_color:'#666',lbl_text_align:'right'},n));
-                })
+                });
             }
         }
         dlg.show_action();
 
     },
     paletteMap:function(kw) {
-        var kw = kw || {};
+        kw = kw || {};
         kw.paletteCode = kw.paletteCode || 'mapViewer';
         var paletteWdg = genro.wdgById(kw.paletteCode+'_floating');
         if(!paletteWdg){

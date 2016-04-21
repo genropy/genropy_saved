@@ -711,7 +711,8 @@ class GnrDomSrc(GnrStructData):
         return getattr(self.parentNode,'_mainformbuilder',None)
         
     def formbuilder(self, cols=1, table=None, tblclass='formbuilder',
-                    lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
+                    lblclass='gnrfieldlabel', lblpos='L',byColumn=None,
+                    _class='', fieldclass='gnrfield',
                     colswidth=None,
                     lblalign=None, lblvalign='top',
                     fldalign=None, fldvalign='top', disabled=False,
@@ -758,6 +759,7 @@ class GnrDomSrc(GnrStructData):
                                       rowdatapath=rowdatapath,
                                       head_rows=head_rows, 
                                       excludeCols=excludeCols,
+                                      byColumn=byColumn,
                                       commonKwargs=commonKwargs)
         
         inattr = self.getInheritedAttributes()
@@ -876,7 +878,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
              'tinyMCE', 'protovis','codemirror','dygraph','MultiButton','PaletteGroup','DocumentFrame','DownloadButton','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','PaletteImporter','DropUploader','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','GeoSearch','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
-             'FramePane', 'FrameForm','QuickEditor','CodeEditor','TreeGrid','QuickGrid',"VideoPlayer",'MultiValueEditor','QuickTree','SharedObject','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
+             'FramePane', 'FrameForm','QuickEditor','CodeEditor','TreeGrid','QuickGrid',"GridGallery","VideoPlayer",'MultiValueEditor','QuickTree','SharedObject','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -1827,7 +1829,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
 class GnrFormBuilder(object):
     """The class that handles the creation of the :ref:`formbuilder` widget"""
     def __init__(self, tbl, cols=None, dbtable=None, fieldclass=None,
-                 lblclass='gnrfieldlabel', lblpos='L', lblalign=None, fldalign=None,
+                 lblclass='gnrfieldlabel', lblpos='L',byColumn=None, lblalign=None, fldalign=None,
                  lblvalign='top', fldvalign='top', rowdatapath=None, head_rows=None,
                  excludeCols=None, commonKwargs=None):
         self.commonKwargs = commonKwargs or {}
@@ -1840,6 +1842,7 @@ class GnrFormBuilder(object):
         self.colmax = cols
         self.lblpos = lblpos
         self.rowlast = -1
+        self.byColumn = byColumn
         #self._tbl=weakref.ref(tbl)
         self._tbl = tbl
         self.maintable = dbtable
@@ -2140,6 +2143,8 @@ class GnrFormBuilder(object):
                         
         if tag:
             field['placeholder'] = field.get('placeholder',field.pop('ghost', None))
+            if self.byColumn and not 'tabindex' in field:
+                field['tabindex'] = (c+1)*100+r+1
             obj = td.child(tag, **field)
             return obj
                 

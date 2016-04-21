@@ -23,7 +23,8 @@ class GnrCustomWebPage(object):
         rst = docbag['%s.rst' %language] or docbag['en.rst'] or docbag['it.rst'] or 'To do...'
         rsttable = doctable.dfAsRstTable(pkey)
         if rsttable:
-            rst = '%s\n\n%s' %(rst,rsttable) 
+
+            rst = '%s\n\n**Parameters:**\n\n%s' %(rst,rsttable) 
         js_script_url= self.site.getStaticUrl('rsrc:common','localiframe.js',nocache=True)
 
         return self.site.getService('rst2html')(rst,scripts=[js_script_url])
