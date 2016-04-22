@@ -5256,5 +5256,66 @@ div[disabled='true'], div[disabled='disabled']{
 }
 
 
+.gr_table td{
+    height: 14px;
+    padding-top: 2px;
+    color: #555 !important;
+    font-size: .9em;
+}
+.group_scrollbox{
+    overflow: hidden;
+}
 
+.group_top .gr_table td{
+}
+
+.group_footer .gr_table td{
+
+}
+
+.gr_table td div{
+    padding-left: 2px;
+    padding-right: 2px;
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
+.group_top .gr_table td div.groupcontent{
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    background: #114E88;
+    color:white;
+    padding-bottom: 1px;
+    padding-top: 1px;
+}
+
+.gr_table{
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.group_top{
+}
+
+.group_footer{
+    border-top:1px solid silver;
+    background: rgba(255, 227, 60, .5);
+}
+.group_footer td{
+    border-right: 1px solid silver;
+}
+
+.group_top{
+}
+
+.grid_filler{
+    height: 100%;
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin-left: 1px;
+}
+.grid_filler td{
+    border-right:1px solid #dee;
+}
 
