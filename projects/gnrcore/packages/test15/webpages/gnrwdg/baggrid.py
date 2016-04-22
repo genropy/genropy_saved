@@ -63,13 +63,6 @@ class GnrCustomWebPage(object):
         return result
 
 
-
-
-
-
-
-
-
     def test_2_rrc(self,pane):
         """First test description"""
         pane.data('.dati',self.getDati())
@@ -169,17 +162,25 @@ class GnrCustomWebPage(object):
 
 
         bc.dataFormula('.surfaces.store',"new gnr.GnrBag({r1:new gnr.GnrBag({description:'pipp'})})",_onStart=True,_fired='^.clear')
-        frame = bc.contentPane(region='center').bagGrid(frameCode='formule',datapath='.surfaces',struct=struct,height='300px',grid_makeFiller=True)
+        frame = bc.contentPane(region='center').bagGrid(frameCode='formule',datapath='.surfaces',struct=struct,height='300px',grid_fillDown=True)
         grid = frame.grid
-        grid.columnsgroup('number',colspan=3,value='Column to enter',text_align='center')
-        grid.columnsgroup('discount',colspan=2,value='Discounts',text_align='center')
-        grid.columnsgroup('net_price',colspan=3,value='Totals',text_align='center')
-        grid.footer('description',colspan=3,value='Totals',text_align='right')
-        grid.footer('total')
-        grid.footer('discount_val')
-        grid.footer('net_price')
-        grid.footer('vat')
-        grid.footer('gross')
+
+        cs = grid.columnset()
+
+        cs.item('number',colspan=3,value='Column to enter',text_align='center')
+        cs.item('discount',colspan=2,value='Discounts',text_align='center')
+        cs.item('net_price',colspan=3,value='Totals',text_align='center')
+       #
+
+        f = grid.footer()
+
+        f.item('description',colspan=3,value='Totals',text_align='right')
+        f.item('total')
+        f.item('discount_val')
+        f.item('net_price')
+        f = grid.footer()
+        f.item('vat')
+        f.item('gross')
 
 
 

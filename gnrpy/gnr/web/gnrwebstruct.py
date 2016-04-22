@@ -1313,15 +1313,18 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 #ivattr['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" % dropCode
                 
 
-    def newincludedview_columnsgroup(self,field=None,**kwargs):
-        cgroups = self['columnsgroups'] or Bag()
-        self['columnsgroups'] = cgroups
-        cgroups.addItem('element',None,field=field,**kwargs)
+    def newincludedview_columnset(self,**kwargs):
+        return self.child('columnset',**kwargs)
 
-    def newincludedview_footer(self,field=None,**kwargs):
-        footers = self['footers'] or Bag()
-        self['footers'] = footers
-        footers.addItem('element',None,field=field,**kwargs)
+    def columnset_item(self,field=None,**kwargs):
+        return self.child('item',field=field,**kwargs)
+
+    def newincludedview_footer(self,**kwargs):
+        return self.child('footer',**kwargs)
+
+    def footer_item(self,field=None,**kwargs):
+        return self.child('item',field=field,**kwargs)
+
 
     def newincludedview_draganddrop(self,dropCodes=None,**kwargs):
         self.includedview_draganddrop(dropCodes=dropCodes,**kwargs)

@@ -3469,10 +3469,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         this.cellmap = {};
         this.setStructure(this.gnr.structFromBag(this.sourceNode, this.structBag, this.cellmap));
         this.onSetStructpath(this.structBag);
-        if(this.sourceNode._footerNode || this.sourceNode._colGroupNode){
-            this.drawGroupsAndFooters();
+        if(this.sourceNode._footersNode || this.sourceNode._columnsetsNode){
+            this.drawColumnsetsAndFooters();
         }
-        if(this.sourceNode.attr.makeFiller){
+        if(this.sourceNode.attr.fillDown){
             this.drawFiller();
         }
     },
@@ -3489,125 +3489,153 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
     onBuilding:function(sourceNode){
         var content = sourceNode._value;
-        var cgroups = content.popNode('columnsgroups')
-        var footers = content.popNode('footers')
-        if(cgroups || footers){
+        var columnsets = new gnr.GnrBag();
+        var footers = new gnr.GnrBag();
+        var node;
+        content.digest('#k,#a.tag').forEach(function(n){
+            if(n[1]=='columnset'){
+                node = content.popNode(n[0]);
+                columnsets.addItem(node.label,node._value,node.attr);
+            }
+            if(n[1]=='footer'){
+                node = content.popNode(n[0]);
+                footers.addItem(node.label,node._value,node.attr);
+            }
+        });
+        if(footers.len() || columnsets.len()){
             var gridattr = objectUpdate({},sourceNode.attr);
-            var _colGroupNode,_footerNode;
+            var _columnsetsNode,_footersNode;
             sourceNode.attr = {tag:'BorderContainer'};
             sourceNode.label = 'grid_wrapper';
             sourceNode._value = null;
-            if(cgroups){
-                cgroups = cgroups._value;
-                var top = sourceNode._('ContentPane','cgroups',{region:'top',datapath:gridattr.datapath},{'doTrigger':false});
-                _colGroupNode = top.getParentNode();
+            if(columnsets){
+                var top = sourceNode._('ContentPane','columnsets',{region:'top',datapath:gridattr.datapath},{'doTrigger':false});
+                _columnsetsNode = top.getParentNode();
                 top._('div','scrollbox',{_class:'group_top group_scrollbox'},{'doTrigger':false});
             }
             if(footers){
-                footers = footers._value;
                 var bottom = sourceNode._('ContentPane','footers',{region:'bottom',datapath:gridattr.datapath},{'doTrigger':false});
-                _footerNode = bottom.getParentNode();
+                _footersNode = bottom.getParentNode();
                 bottom._('div','scrollbox',{_class:'group_footer group_scrollbox'},{'doTrigger':false});
             }
             var center = sourceNode._('ContentPane','gridpane',{region:'center'},{'doTrigger':false});
             var gridNode = center.setItem('grid',content,gridattr,{'doTrigger':false});
             //(objectPop(gridattr,'tag'),sourceNode.label,gridattr,{'doTrigger':false});
-            gridNode._colGroupNode =_colGroupNode;
-            gridNode._footerNode = _footerNode;
-            gridNode._colgroups = cgroups;
+            gridNode._columnsetsNode =_columnsetsNode;
+            gridNode._footersNode = _footersNode;
+            gridNode._columnsets = columnsets;
             gridNode._footers = footers;
             gridNode._wrapperNode = sourceNode;
             genro.src.onBuiltCall(function(){
-                gridNode.widget.buildGroupsAndFooters(true);
+                gridNode.widget.columnsetsAndFooters(true);
             },2);
         }
     },
 
-    mixin_drawGroupsAndFooters:function(){
+    mixin_drawColumnsetsAndFooters:function(){
         var colInfo = this.getColumnInfo();
         var headerList = dojo.query('th',this.viewsHeaderNode);
         var totalWidth = dojo.query('table',this.viewsHeaderNode)[0].clientWidth;
-        this.sourceNode._grouptable.updAttributes({width:(totalWidth+2)+'px',margin_left:'1px'});
-        this.sourceNode._footertable.updAttributes({width:(totalWidth+2)+'px',margin_left:'1px'});
-
-        var toptr = this.sourceNode._grouptable._value.getItem('#0.#0');
-        var footertr = this.sourceNode._footertable._value.getItem('#0.#0');
-
-        toptr.forEach(function(n){
-            var c1 = headerList[n.attr.idx];
-            var c2 = headerList[n.attr.idx+n.attr.colspan-1];
-            var width = (c2.offsetLeft+c2.offsetWidth-c1.offsetLeft)+'px';
-            n.updAttributes({width:width});
-        });
-        footertr.forEach(function(n){
-            var c1 = headerList[n.attr.idx];
-            var c2 = headerList[n.attr.idx+n.attr.colspan-1];
-            var width = (c2.offsetLeft+c2.offsetWidth-c1.offsetLeft)+'px';
-            n.updAttributes({width:width});
-        });
+        var sb;
+        var cb = function(tableNode){
+            tableNode.updAttributes({width:(totalWidth+2)+'px',margin_left:'1px'});
+            var tr = tableNode.getValue().getItem('#0.#0');
+            tr.forEach(function(n){
+                var c1 = headerList[n.attr.idx];
+                var c2 = headerList[n.attr.idx+n.attr.colspan-1];
+                var width = (c2.offsetLeft+c2.offsetWidth-c1.offsetLeft)+'px';
+                n.updAttributes({width:width});
+            });
+        };
+        if(this.sourceNode._columnsetsNode){
+            sb = this.sourceNode._columnsetsNode.getValue().getItem('scrollbox');
+            sb.forEach(cb);
+        }
+        if(this.sourceNode._footersNode){
+            sb = this.sourceNode._footersNode.getValue().getItem('scrollbox');
+            sb.forEach(cb);
+        }
     },
 
-    mixin__buildGroupsAndFooters_one:function(pane,data,colinfo){
+    mixin__columnsetsAndFooters_one:function(pane,dataNode,colinfo){
+        var data = dataNode.getValue();
+        var headerList = dojo.query('th',this.viewsHeaderNode);
+        var totCols = headerList.length;
+        var rowattr = objectUpdate({},dataNode.attr);
+        objectPop(rowattr,'tag');
         var sourceNode = this.sourceNode;
-        var grouproot = genro.src.newRoot();
-        var tr = grouproot._('table',{_class:'gr_table selectable'})._('tbody',{})._('tr',{});
+        var rootsrc = genro.src.newRoot();
+        var tr = rootsrc._('tr',rowattr);
         var currIdx = 0;
         var sum_columns;
         if(this.collectionStore()){
             sum_columns = this.collectionStore().storeNode.getRelativeData('.sum_columns_source');
         }
         data.forEach(function(n){
-            var groupattr = objectUpdate({},n.attr);
-            var infopars = colinfo.getAttr(groupattr.field);
+            var item = objectUpdate({},n.attr);
+            objectPop(item,'tag');
+            var infopars = colinfo.getAttr(item.field);
             var cell = infopars.cell;
             var idx = cell.index;
-            var value = objectPop(groupattr,'value');
+            var value = objectPop(item,'value');
             if(!value){
                 if(cell.totalize){
                     value = '^'+cell.totalize;
-                    groupattr.text_align = 'right';
+                    item.text_align = 'right';
                 }else if(sum_columns && sum_columns.getItem(cell.field)){
 
                 }else{
                     value = '&nbsp;'
                 }
             }
-            groupattr.innerHTML = value;
+            item.innerHTML = value;
             var colspan;
             if(idx!=currIdx){
                 colspan = idx-currIdx;
-                tr._('td',{colspan:colspan,idx:currIdx})._('div',{innerHTML:'&nbsp;'});
+                tr._('td',{colspan:colspan,idx:currIdx})._('div',{innerHTML:'&nbsp;',width:'100%'});
             }
-            colspan = objectPop(groupattr,'colspan') || 1;
-            groupattr._class = (groupattr._class) || '' +' groupcontent'
-            tr._('td',groupattr.field,{idx:idx,colspan:colspan})._('div',groupattr);
+            colspan = objectPop(item,'colspan') || 1;
+            item._class = (item._class) || '' +' groupcontent';
+            tr._('td',item.field,{idx:idx,colspan:colspan})._('div',item);
             currIdx = idx+colspan;
         });
-        var n = grouproot.popNode('#0');
-        return pane._value.setItem(n.label,n._value,n.attr);
+        if(currIdx<totCols){
+            tr._('td',{colspan:totCols-currIdx,idx:currIdx})._('div',{innerHTML:'&nbsp;',width:'100%'});
+        }
+        var n = rootsrc.popNode('#0');
+        return pane.addItem(n.label,n._value,n.attr);
     },
 
-    mixin_buildGroupsAndFooters:function(connectScroll){
+    mixin_columnsetsAndFooters:function(connectScroll){
         var that = this;
         var colinfo = this.getColumnInfo();
-        if(this.sourceNode._colGroupNode){
-            this.sourceNode._grouptable = this._buildGroupsAndFooters_one(this.sourceNode._colGroupNode._value.getNode('scrollbox'),this.sourceNode._colgroups,colinfo);
+        var scrollbox,tbl,t;
+
+        if(this.sourceNode._columnsetsNode){
+            scrollbox = this.sourceNode._columnsetsNode._value.getNode('scrollbox');
+            tbl = scrollbox._('table','tableNode',{_class:'gr_table selectable'})._('tbody',{});
+            this.sourceNode._columnsets.forEach(function(n){
+                that._columnsetsAndFooters_one(tbl,n,colinfo);
+            });
         }
-        if(this.sourceNode._footerNode){
-            this.sourceNode._footertable = this._buildGroupsAndFooters_one(this.sourceNode._footerNode._value.getNode('scrollbox'),this.sourceNode._footers,colinfo);
+        if(this.sourceNode._footersNode){
+            scrollbox = this.sourceNode._footersNode._value.getNode('scrollbox');
+            tbl = scrollbox._('table','tableNode',{_class:'gr_table selectable'})._('tbody',{});
+            this.sourceNode._footers.forEach(function(n){
+                that._columnsetsAndFooters_one(tbl,n,colinfo);
+            });
         }
         setTimeout(function(){
-            that.drawGroupsAndFooters();
+            that.drawColumnsetsAndFooters();
             that.sourceNode._wrapperNode.widget.resize();
         },1);
-
         this.sourceNode.widget.domNode.addEventListener("scroll",function(e){
             if(e.target===that.views.views[0].scrollboxNode){
-                if(that.sourceNode._colGroupNode){
-                    that.sourceNode._colGroupNode._value.getNode('scrollbox').domNode.scrollLeft = e.target.scrollLeft;
+                if(that.sourceNode._columnsetsNode){
+                    that.sourceNode._columnsetsNode._value.getNode('scrollbox').domNode.scrollLeft = e.target.scrollLeft;
                 }
-                if(that.sourceNode._footerNode){
-                    that.sourceNode._footerNode._value.getNode('scrollbox').domNode.scrollLeft = e.target.scrollLeft;
+                if(that.sourceNode._footersNode){
+                    that.sourceNode._footersNode._value.getNode('scrollbox').domNode.scrollLeft = e.target.scrollLeft;
                 }
             }
         },true);
@@ -3628,7 +3656,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             filler.setAttribute('class','fillernode');
             sb.appendChild(filler);
         }
-        console.log('filler height',delta);
         filler.style.height = delta+'px';
         var totalWidth = dojo.query('table',this.viewsHeaderNode)[0].clientWidth;
         var tdlist = dojo.query('th',this.viewsHeaderNode).map(function(n){
@@ -3953,10 +3980,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         if(sourceNode.attr.rowCustomClassesCb){
             widget.rowCustomClassesCb = funcCreate(sourceNode.attr.rowCustomClassesCb,'row');
         }
-        if(sourceNode.attr.makeFiller){
+        if(sourceNode.attr.fillDown){
             dojo.connect(widget,'updateRowCount',function(){
                 var that = this;
-                that.drawFiller();
+                setTimeout(function(){that.drawFiller();},1);
             });
         }
 

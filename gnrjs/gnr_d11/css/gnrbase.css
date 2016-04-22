@@ -5297,10 +5297,10 @@ div[disabled='true'], div[disabled='disabled']{
 .group_top{
 }
 
-.group_footer{
+.group_footer tr{
     border-top:1px solid silver;
-    background: rgba(255, 227, 60, .5);
 }
+
 .group_footer td{
     border-right: 1px solid silver;
 }
