@@ -439,7 +439,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
                            'tree_connect_onclick':cbLog,
 
                            tree_getLabel:function(n){
-                               return n.attr.tag+':'+(n.attr.nodeId || n._id);
+                               return n.label+'['+n.attr.tag+':'+(n.attr.nodeId || n._id)+']';
                            },
                            tree_selectedPath:'.tree.selectedPath'});
         sourcePane._('dataController',{'script':'genro.src.highlightNode(fpath)', 

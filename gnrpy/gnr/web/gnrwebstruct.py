@@ -1312,6 +1312,20 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 ivattr['onDrop_%s' % dropCode] = 'SET .droppedInfo_%s = dropInfo; FIRE .dropped_%s = data;' % (dropCode,dropCode)
                 #ivattr['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" % dropCode
                 
+
+    def newincludedview_columnset(self,**kwargs):
+        return self.child('columnset',**kwargs)
+
+    def columnset_item(self,field=None,**kwargs):
+        return self.child('item',field=field,**kwargs)
+
+    def newincludedview_footer(self,**kwargs):
+        return self.child('footer',**kwargs)
+
+    def footer_item(self,field=None,**kwargs):
+        return self.child('item',field=field,**kwargs)
+
+
     def newincludedview_draganddrop(self,dropCodes=None,**kwargs):
         self.includedview_draganddrop(dropCodes=dropCodes,**kwargs)
         
