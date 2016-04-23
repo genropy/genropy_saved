@@ -5297,12 +5297,24 @@ div[disabled='true'], div[disabled='disabled']{
 .group_top{
 }
 
-.group_footer tr{
-    border-top:1px solid silver;
+.group_footer tr.columnsets_footers_row{
+    border-bottom:1px solid #dee;
+}
+.group_footer tr.columnsets_footers_row:last-child{
+    border-bottom:0;
 }
 
 .group_footer td{
-    border-right: 1px solid silver;
+    border-right: 1px solid #dee;
+}
+
+.group_footer td div{
+    padding-bottom: 1px;
+}
+.group_footer.group_scrollbox{
+    overflow: auto;
+    border-top:1px solid #dee;
+    background: RGBA(255, 227, 60, .2);
 }
 
 .group_top{

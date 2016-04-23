@@ -3471,6 +3471,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         this.onSetStructpath(this.structBag);
         if(this.sourceNode._footersNode || this.sourceNode._columnsetsNode){
             this.drawColumnsetsAndFooters();
+            this.sourceNode._wrapperNode.widget.resize();
         }
     },
 
@@ -3502,6 +3503,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         if(footers.len() || columnsets.len()){
             var gridattr = objectUpdate({},sourceNode.attr);
             var _columnsetsNode,_footersNode;
+            gridattr.selfDragColumns = false;
             sourceNode.attr = {tag:'BorderContainer'};
             sourceNode.label = 'grid_wrapper';
             sourceNode._value = null;
@@ -3518,7 +3520,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             var center = sourceNode._('ContentPane','gridpane',{region:'center'},{'doTrigger':false});
             var gridNode = center.setItem('grid',content,gridattr,{'doTrigger':false});
-            //(objectPop(gridattr,'tag'),sourceNode.label,gridattr,{'doTrigger':false});
             gridNode._columnsetsNode =_columnsetsNode;
             gridNode._footersNode = _footersNode;
             gridNode._columnsets = columnsets;
@@ -3526,41 +3527,55 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             gridNode._wrapperNode = sourceNode;
             genro.src.onBuiltCall(function(){
                 gridNode.widget.columnsetsAndFooters(true);
-            },2);
+            },1);
         }
     },
 
     mixin_drawColumnsetsAndFooters:function(){
-        var colInfo = this.getColumnInfo();
         var headerList = dojo.query('th',this.viewsHeaderNode);
         var totalWidth = dojo.query('table',this.viewsHeaderNode)[0].clientWidth;
-        var sb;
-        var cb = function(tableNode){
-            tableNode.updAttributes({width:(totalWidth+2)+'px',margin_left:'1px'});
-            var tr = tableNode.getValue().getItem('#0.#0');
+        var cb = function(container){
+            container.updAttributes({margin_left:'1px',width:(totalWidth+2+'px')});
+            var tr = container.getValue().getItem('#0.#0.#0');
+            var idx = 0;
             tr.forEach(function(n){
-                var c1 = headerList[n.attr.idx];
-                var c2 = headerList[n.attr.idx+n.attr.colspan-1];
-                var width = (c2.offsetLeft+c2.offsetWidth-c1.offsetLeft)+'px';
+                var c = headerList[n.attr.idx];
+                var width = c.clientWidth+'px';
                 n.updAttributes({width:width});
+                idx++;
             });
         };
         if(this.sourceNode._columnsetsNode){
-            sb = this.sourceNode._columnsetsNode.getValue().getItem('scrollbox');
-            sb.forEach(cb);
+            cb(this.sourceNode._columnsetsNode.getValue().getNode('scrollbox.itemcontainer'));
         }
         if(this.sourceNode._footersNode){
-            sb = this.sourceNode._footersNode.getValue().getItem('scrollbox');
-            sb.forEach(cb);
+            cb(this.sourceNode._footersNode.getValue().getNode('scrollbox.itemcontainer'));
         }
     },
 
-    mixin__columnsetsAndFooters_one:function(pane,dataNode,colinfo){
-        var data = dataNode.getValue();
+    mixin__columnsetsAndFooters_one:function(parent,source,colinfo){
+        var scrollbox = parent._value.getNode('scrollbox');
+        var tbl = scrollbox._('div','itemcontainer',{_class:'gr_itemcontainer'})._('table','tableNode',{_class:'gr_table selectable'});
+        var tbody = tbl._('tbody',{});
         var headerList = dojo.query('th',this.viewsHeaderNode);
+        var h = tbody._('tr','fakeHeader',{height:'0'});
+        var idx = 0;
+        headerList.forEach(function(th){
+            h._('th',{idx:idx,'border_right':'1px solid silver'});
+            idx++;
+        });
+        var that = this;
+        source.forEach(function(n){
+            that._columnsetsAndFooters_row(tbody,n,colinfo,headerList);
+        });
+    },
+
+    mixin__columnsetsAndFooters_row:function(pane,dataNode,colinfo,headerList){
+        var data = dataNode.getValue();
         var totCols = headerList.length;
         var rowattr = objectUpdate({},dataNode.attr);
         objectPop(rowattr,'tag');
+        rowattr._class = 'columnsets_footers_row';
         var sourceNode = this.sourceNode;
         var rootsrc = genro.src.newRoot();
         var tr = rootsrc._('tr',rowattr);
@@ -3604,44 +3619,42 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         return pane.addItem(n.label,n._value,n.attr);
     },
 
+
     mixin_columnsetsAndFooters:function(connectScroll){
         var that = this;
         var colinfo = this.getColumnInfo();
-        var scrollbox,tbl,t;
-
+        var scrollbox;
         if(this.sourceNode._columnsetsNode){
-            scrollbox = this.sourceNode._columnsetsNode._value.getNode('scrollbox');
-            tbl = scrollbox._('table','tableNode',{_class:'gr_table selectable'})._('tbody',{});
-            this.sourceNode._columnsets.forEach(function(n){
-                that._columnsetsAndFooters_one(tbl,n,colinfo);
-            });
+            this._columnsetsAndFooters_one(this.sourceNode._columnsetsNode,
+                                            this.sourceNode._columnsets,colinfo);
         }
         if(this.sourceNode._footersNode){
-            scrollbox = this.sourceNode._footersNode._value.getNode('scrollbox');
-            tbl = scrollbox._('table','tableNode',{_class:'gr_table selectable'})._('tbody',{});
-            this.sourceNode._footers.forEach(function(n){
-                that._columnsetsAndFooters_one(tbl,n,colinfo);
+            this._columnsetsAndFooters_one(this.sourceNode._footersNode,
+                                            this.sourceNode._footers,colinfo);
+            var scrollbox = that.sourceNode._footersNode._value.getNode('scrollbox');
+            scrollbox.domNode.addEventListener('scroll',function(e){
+                var sn = that.views.views[0].scrollboxNode;
+                sn.scrollLeft = e.target.scrollLeft;
+                if(that.sourceNode._columnsetsNode){
+                    that.sourceNode._columnsetsNode._value.getNode('scrollbox').domNode.scrollLeft = e.target.scrollLeft;
+                }
             });
+        }else{
+            this.sourceNode.widget.domNode.addEventListener("scroll",function(e){
+                if(e.target===that.views.views[0].scrollboxNode){
+                    that.sourceNode._columnsetsNode._value.getNode('scrollbox').domNode.scrollLeft = e.target.scrollLeft;
+                }
+            },true);
         }
+
         setTimeout(function(){
             that.drawColumnsetsAndFooters();
             that.sourceNode._wrapperNode.widget.resize();
         },1);
-        this.sourceNode.widget.domNode.addEventListener("scroll",function(e){
-            if(e.target===that.views.views[0].scrollboxNode){
-                if(that.sourceNode._columnsetsNode){
-                    that.sourceNode._columnsetsNode._value.getNode('scrollbox').domNode.scrollLeft = e.target.scrollLeft;
-                }
-                if(that.sourceNode._footersNode){
-                    that.sourceNode._footersNode._value.getNode('scrollbox').domNode.scrollLeft = e.target.scrollLeft;
-                }
-            }
-        },true);
     },
 
     mixin_drawFiller:function(){
         var sb = this.views.views[0].scrollboxNode;
-        
         if(this.sourceNode._footersNode){
             sb.style.height =sb.clientHeight+18+'px';
         }
@@ -3789,7 +3802,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         if (sourceNode.attr.selfDragRows) {
             this.selfDragRowsPrepare(sourceNode);
         }
-        if (sourceNode.attr.selfDragColumns || sourceNode.attr.configurable) {
+        if (sourceNode.attr.selfDragColumns || (sourceNode.attr.configurable && sourceNode.attr.selfDragColumns!==false)) {
             this.selfDragColumnsPrepare(sourceNode);
         }
         objectExtract(attributes, 'selected*');
@@ -3985,9 +3998,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         if(sourceNode.attr.fillDown){
             dojo.connect(widget,'postrender',function(){
+                this.drawFiller()
+            });
+            dojo.connect(widget,'updateRowCount',function(){
                 var that = this;
-                that.drawFiller()
-                //setTimeout(function(){that.drawFiller();},1);
+                setTimeout(function(){that.drawFiller();},1);
             });
         }
 
