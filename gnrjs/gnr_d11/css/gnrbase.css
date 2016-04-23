@@ -5319,3 +5319,7 @@ div[disabled='true'], div[disabled='disabled']{
     border-right:1px solid #dee;
 }
 
+._common_d11.tundra .gridWithFooter .dojoxGrid-scrollbox{
+    overflow-x:hidden !important;
+}
+

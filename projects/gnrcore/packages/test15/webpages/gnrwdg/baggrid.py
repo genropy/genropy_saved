@@ -138,24 +138,26 @@ class GnrCustomWebPage(object):
     def test_9_bagridformula(self,pane):
         def struct(struct):
             r = struct.view().rows()
-            r.cell('description',name='Description',width='20em',edit=True)
+            r.cell('description',name='Description',width='15em',edit=True)
             r.cell('number',name='Number',width='7em',dtype='L',edit=True)
             r.cell('price',name='Price',width='7em',dtype='N',edit=True)
-            r.cell('total',name='Total',width='8em',dtype='N',formula='number*price',
+            r.cell('total',name='Total',width='7em',dtype='N',formula='number*price',
                     totalize='.sum_total')
-            r.cell('discount',name='Disc.%',width='8em',dtype='N',edit=True)
-            r.cell('discount_val',name='Discount',width='8em',dtype='N',formula='total*discount/100',
+            r.cell('discount',name='Disc.%',width='7em',dtype='N',edit=True)
+            r.cell('discount_val',name='Discount',width='7em',dtype='N',formula='total*discount/100',
                     totalize='.sum_discount')
-            r.cell('net_price',name='F.Price',width='8em',dtype='N',
+            r.cell('net_price',name='F.Price',width='7em',dtype='N',
                         formula='total-discount_val',totalize='.sum_net_price')
-            r.cell('vat',name='Vat',width='8em',dtype='N',
+            r.cell('vat',name='Vat',width='7em',dtype='N',
                     formula='net_price+net_price*vat_p/100',formula_vat_p='^vat_perc',
                     totalize='.sum_vat')
-            r.cell('gross',name='Gross',width='8em',dtype='N',formula='net_price+vat',
+            r.cell('gross',name='Gross',width='7em',dtype='N',formula='net_price+vat',
                     totalize='.sum_gross')
-        bc = pane.borderContainer(height='400px')
+        bc = pane.borderContainer(height='400px',width='800px')
         top = bc.contentPane(region='top',height='40px')
         fb = top.formbuilder(cols=2,border_spacing='3px')
+        bc.contentPane(region='right',splitter=True,width='5px')
+        bc.contentPane(region='bottom',splitter=True,height='50px')
 
         fb.numberTextBox(value='^vat_perc',lbl='Vat perc.',default_value=10)
         fb.button('clear',fire='.clear')

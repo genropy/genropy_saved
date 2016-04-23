@@ -3472,9 +3472,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         if(this.sourceNode._footersNode || this.sourceNode._columnsetsNode){
             this.drawColumnsetsAndFooters();
         }
-        if(this.sourceNode.attr.fillDown){
-            this.drawFiller();
-        }
     },
 
     mixin_getColumnInfo:function(cell){
@@ -3517,6 +3514,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 var bottom = sourceNode._('ContentPane','footers',{region:'bottom',datapath:gridattr.datapath},{'doTrigger':false});
                 _footersNode = bottom.getParentNode();
                 bottom._('div','scrollbox',{_class:'group_footer group_scrollbox'},{'doTrigger':false});
+                sourceNode.attr._class = 'gridWithFooter';
             }
             var center = sourceNode._('ContentPane','gridpane',{region:'center'},{'doTrigger':false});
             var gridNode = center.setItem('grid',content,gridattr,{'doTrigger':false});
@@ -3643,6 +3641,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
     mixin_drawFiller:function(){
         var sb = this.views.views[0].scrollboxNode;
+        
+        if(this.sourceNode._footersNode){
+            sb.style.height =sb.clientHeight+18+'px';
+        }
         var delta = sb.clientHeight - sb.firstElementChild.clientHeight;
         var filler = dojo.query('.fillernode',sb)[0];
         if(delta<=0){
@@ -3656,6 +3658,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             filler.setAttribute('class','fillernode');
             sb.appendChild(filler);
         }
+
         filler.style.height = delta+'px';
         var totalWidth = dojo.query('table',this.viewsHeaderNode)[0].clientWidth;
         var tdlist = dojo.query('th',this.viewsHeaderNode).map(function(n){
@@ -3981,9 +3984,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             widget.rowCustomClassesCb = funcCreate(sourceNode.attr.rowCustomClassesCb,'row');
         }
         if(sourceNode.attr.fillDown){
-            dojo.connect(widget,'updateRowCount',function(){
+            dojo.connect(widget,'postrender',function(){
                 var that = this;
-                setTimeout(function(){that.drawFiller();},1);
+                that.drawFiller()
+                //setTimeout(function(){that.drawFiller();},1);
             });
         }
 
