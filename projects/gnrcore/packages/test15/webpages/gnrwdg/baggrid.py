@@ -164,7 +164,9 @@ class GnrCustomWebPage(object):
 
 
         bc.dataFormula('.surfaces.store',"new gnr.GnrBag({r1:new gnr.GnrBag({description:'pipp'})})",_onStart=True,_fired='^.clear')
-        frame = bc.contentPane(region='center').bagGrid(frameCode='formule',datapath='.surfaces',struct=struct,height='300px',grid_fillDown=True)
+        frame = bc.contentPane(region='center').bagGrid(frameCode='formule',datapath='.surfaces',
+                                                    struct=struct,height='300px',grid_fillDown=True,
+                                                    pbl_classes=True,margin='5px')
         grid = frame.grid
 
         cs = grid.columnset()

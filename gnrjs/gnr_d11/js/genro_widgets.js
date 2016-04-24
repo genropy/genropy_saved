@@ -3510,13 +3510,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if(columnsets){
                 var top = sourceNode._('ContentPane','columnsets',{region:'top',datapath:gridattr.datapath},{'doTrigger':false});
                 _columnsetsNode = top.getParentNode();
-                top._('div','scrollbox',{_class:'group_top group_scrollbox'},{'doTrigger':false});
+                top._('div','scrollbox',{_class:'gr_columnset gr_scrollbox'},{'doTrigger':false});
             }
             if(footers){
                 var bottom = sourceNode._('ContentPane','footers',{region:'bottom',datapath:gridattr.datapath},{'doTrigger':false});
                 _footersNode = bottom.getParentNode();
-                bottom._('div','scrollbox',{_class:'group_footer group_scrollbox'},{'doTrigger':false});
-                sourceNode.attr._class = 'gridWithFooter';
+                bottom._('div','scrollbox',{_class:'gr_footer gr_scrollbox'},{'doTrigger':false});
+                sourceNode.attr._class = 'gr_wrap_footers';
             }
             var center = sourceNode._('ContentPane','gridpane',{region:'center'},{'doTrigger':false});
             var gridNode = center.setItem('grid',content,gridattr,{'doTrigger':false});
@@ -3535,7 +3535,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var headerList = dojo.query('th',this.viewsHeaderNode);
         var totalWidth = dojo.query('table',this.viewsHeaderNode)[0].clientWidth;
         var cb = function(container){
-            container.updAttributes({margin_left:'1px',width:(totalWidth+2+'px')});
+            container.updAttributes({width:(totalWidth+2+'px')});
             var tr = container.getValue().getItem('#0.#0.#0');
             var idx = 0;
             tr.forEach(function(n){
@@ -3561,7 +3561,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var h = tbody._('tr','fakeHeader',{height:'0'});
         var idx = 0;
         headerList.forEach(function(th){
-            h._('th',{idx:idx,'border_right':'1px solid silver'});
+            h._('th',{idx:idx,'border_right':'1px solid transparent'});
             idx++;
         });
         var that = this;

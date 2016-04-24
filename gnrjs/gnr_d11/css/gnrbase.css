@@ -4755,10 +4755,11 @@ div[disabled='true'], div[disabled='disabled']{
 
 ._common_d11 .dojoxGrid {
     background-color: white;
+    margin-left: -1px;
 }
 
 ._common_d11 .dojoxGrid-scrollbox {
-    overflow: auto;
+    overflow: scroll;
     background-color: transparent;
 }
 
@@ -5262,14 +5263,14 @@ div[disabled='true'], div[disabled='disabled']{
     color: #555 !important;
     font-size: .9em;
 }
-.group_scrollbox{
+.gr_scrollbox{
     overflow: hidden;
 }
 
-.group_top .gr_table td{
+.gr_columnset .gr_table td{
 }
 
-.group_footer .gr_table td{
+.gr_footer .gr_table td{
 
 }
 
@@ -5280,7 +5281,7 @@ div[disabled='true'], div[disabled='disabled']{
     margin-right: 1px;
 }
 
-.group_top .gr_table td div.groupcontent{
+.gr_columnset .gr_table td div.groupcontent{
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
     background: #114E88;
@@ -5294,30 +5295,34 @@ div[disabled='true'], div[disabled='disabled']{
     border-spacing: 0;
 }
 
-.group_top{
+.gr_columnset{
 }
 
-.group_footer tr.columnsets_footers_row{
-    border-bottom:1px solid #dee;
+.gr_footer tr.columnsets_footers_row{
+    border-bottom:1px solid #DDDDDD;
 }
-.group_footer tr.columnsets_footers_row:last-child{
+.gr_footer tr.columnsets_footers_row:last-child{
     border-bottom:0;
 }
 
-.group_footer td{
-    border-right: 1px solid #dee;
+.gr_footer td{
+    border-right: 1px solid #DDDDDD;
 }
 
-.group_footer td div{
+.gr_footer td div{
     padding-bottom: 1px;
 }
-.group_footer.group_scrollbox{
+.gr_footer.gr_scrollbox{
     overflow: auto;
-    border-top:1px solid #dee;
+    border-top:1px solid #DDDDDD;
     background: RGBA(255, 227, 60, .2);
 }
 
-.group_top{
+.gr_columnset{
+}
+
+._common_d11.tundra .gr_wrap_footers .dojoxGrid-scrollbox{
+    overflow-x:hidden !important;
 }
 
 .grid_filler{
@@ -5328,10 +5333,5 @@ div[disabled='true'], div[disabled='disabled']{
     margin-left: 1px;
 }
 .grid_filler td{
-    border-right:1px solid #dee;
+    border-right:1px solid #DDDDDD;
 }
-
-._common_d11.tundra .gridWithFooter .dojoxGrid-scrollbox{
-    overflow-x:hidden !important;
-}
-
