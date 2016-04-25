@@ -173,6 +173,7 @@ def check_store(args):
             app.db.model.applyModelChanges()
             print 'CHANGES APPLIED TO DATABASE'
         app.db.model.checker.addExtesions()
+    app.db.closeConnection()
 
 if __name__ == '__main__':
     from multiprocessing import Pool
