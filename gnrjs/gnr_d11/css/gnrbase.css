@@ -5281,13 +5281,14 @@ div[disabled='true'], div[disabled='disabled']{
     margin-right: 1px;
 }
 
-.gr_columnset .gr_table td div.groupcontent{
+.gr_columnset .groupcontent{
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
     background: #114E88;
     color:white;
     padding-bottom: 1px;
     padding-top: 1px;
+    text-align: center;
 }
 
 .gr_table{

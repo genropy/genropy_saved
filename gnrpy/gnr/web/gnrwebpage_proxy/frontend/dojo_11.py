@@ -27,7 +27,7 @@ class GnrWebFrontend(GnrBaseDojoFrontend):
     def gnrjs_frontend(self):
         return ['gnrbag','gnrdomsource','gnrlang', 'gnrstores', 
                 'genro','genro_patch','genro_rpc','genro_wdg', 'genro_src',
-                'genro_widgets','genro_components','genro_frm',
+                'genro_widgets','genro_tree','genro_grid','genro_components','genro_frm',
                 'genro_dev','genro_dlg', 'genro_dom','genro_extra','genro_mobile','gnrwebsocket','gnrsharedobjects']
 
     def css_genro_frontend(self):

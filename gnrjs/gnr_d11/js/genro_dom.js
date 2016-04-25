@@ -1654,6 +1654,15 @@ dojo.declare("gnr.GnrDomHandler", null, {
             domNode.style.transform = "scale("+zoom_x+","+zoom_y+")";   //Math.min(zoom_x,zoom_y);
             domNode.style.transformOrigin = '0';
         },50);
+    },
+    setEventListener:function(domNode,evtname,cb,capture,code){
+        code = code || evtname;
+        var oldlistener = domNode['_listener_'+code];
+        if(oldlistener){
+            domNode.removeEventListener(evtname,oldlistener[0],oldlistener[1]);
+        }
+        domNode['_listener_'+code] = [cb,capture];
+        domNode.addEventListener(evtname,cb,capture);
     }
 
 

@@ -139,53 +139,49 @@ class GnrCustomWebPage(object):
         def struct(struct):
             r = struct.view().rows()
             r.cell('description',name='Description',width='15em',edit=True)
-            r.cell('number',name='Number',width='7em',dtype='L',edit=True)
-            r.cell('price',name='Price',width='7em',dtype='N',edit=True)
+
+            r.cell('number',name='Number',width='7em',dtype='L',edit=True,columnset='ent')
+            r.cell('price',name='Price',width='7em',dtype='N',edit=True,columnset='ent')
             r.cell('total',name='Total',width='7em',dtype='N',formula='number*price',
-                    totalize='.sum_total')
-            r.cell('discount',name='Disc.%',width='7em',dtype='N',edit=True)
+                    totalize='.sum_total',format='###,###,###.00')
+            r.cell('discount',name='Disc.%',width='7em',dtype='N',edit=True,columnset='disc')
             r.cell('discount_val',name='Discount',width='7em',dtype='N',formula='total*discount/100',
-                    totalize='.sum_discount')
+                    totalize='.sum_discount',columnset='disc')
             r.cell('net_price',name='F.Price',width='7em',dtype='N',
-                        formula='total-discount_val',totalize='.sum_net_price')
+                        formula='total-discount_val',totalize='.sum_net_price',columnset='tot')
             r.cell('vat',name='Vat',width='7em',dtype='N',
                     formula='net_price+net_price*vat_p/100',formula_vat_p='^vat_perc',
-                    totalize='.sum_vat')
+                    totalize='.sum_vat',format='###,###,###.00',columnset='tot')
             r.cell('gross',name='Gross',width='7em',dtype='N',formula='net_price+vat',
-                    totalize='.sum_gross')
+                    totalize='.sum_gross',format='###,###,###.00',columnset='tot')
         bc = pane.borderContainer(height='400px',width='800px')
         top = bc.contentPane(region='top',height='40px')
         fb = top.formbuilder(cols=2,border_spacing='3px')
         bc.contentPane(region='right',splitter=True,width='5px')
         bc.contentPane(region='bottom',splitter=True,height='50px')
-
         fb.numberTextBox(value='^vat_perc',lbl='Vat perc.',default_value=10)
         fb.button('clear',fire='.clear')
-
-
         bc.dataFormula('.surfaces.store',"new gnr.GnrBag({r1:new gnr.GnrBag({description:'pipp'})})",_onStart=True,_fired='^.clear')
         frame = bc.contentPane(region='center').bagGrid(frameCode='formule',datapath='.surfaces',
-                                                    struct=struct,height='300px',grid_fillDown=True,
-                                                    pbl_classes=True,margin='5px')
-        grid = frame.grid
+                                                    struct=struct,height='300px',fillDown=True,
+                                                    footer='Totals',
+                                                    pbl_classes=True,margin='5px',
+                                                    columnset_ent='Enterable',
+                                                    columnset_disc='Discount',
+                                                    columnset_tot='Totals',
+                                                    columnset_tot_background='red'
+                                                    )
 
-        cs = grid.columnset()
-
-        cs.item('number',colspan=3,value='Column to enter',text_align='center')
-        cs.item('discount',colspan=2,value='Discounts',text_align='center')
-        cs.item('net_price',colspan=3,value='Totals',text_align='center')
+        #f = frame.grid.footer()
+#
+        #f.item('description',colspan=3,value='Pippo',text_align='right')
+       #f.item('total')
+       #f.item('discount_val')
+       #f.item('net_price')
+       ##f = grid.footer()
        #
-
-        f = grid.footer()
-
-        f.item('description',colspan=3,value='Totals',text_align='right')
-        f.item('total')
-        f.item('discount_val')
-        f.item('net_price')
-        f = grid.footer()
-        f.item('vat')
-        f.item('gross')
-
+       #f.item('gross')
+       #f.item('vat')
 
 
 
