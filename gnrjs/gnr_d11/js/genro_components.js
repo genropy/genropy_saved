@@ -4648,6 +4648,7 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
         }
         //attributes['path'] = attributes['storepath'];
         attributes.columns = attributes.columns || '==gnr.getGridColumns(this);';
+        attributes.sum_columns = attributes.sum_columns || '==this.store.getSumColumns();';
         attributes.method = attributes.method || 'app.getSelection';
         if('chunkSize' in attributes && !('selectionName' in attributes)){
             attributes['selectionName'] = '*';
@@ -4808,6 +4809,10 @@ dojo.declare("gnr.stores._Collection",null,{
             }
             grid.newDataStore();
         });
+    },
+
+    getSumColumns:function(){
+        return ;
     },
 
     clear:function(){
@@ -5471,6 +5476,19 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             genro.src.onBuiltCall(cb);
     },
 
+    getSumColumns:function(){
+        var sum_columns = this.storeNode.getRelativeData('.sum_columns');
+        sum_columns = sum_columns?sum_columns.split(','):[];
+        this.linkedGrids().forEach(function(grid){
+            if(grid.sourceNode._totalizeColumns && !grid.gridEditor){
+                for (var field in grid.sourceNode._totalizeColumns){
+                    arrayPushNoDup(sum_columns,field);
+                }
+            }
+        });
+        return sum_columns.join(',');
+    },
+
     loadData:function(){
         var that = this;
         this.pendingLoading = true;
@@ -5784,8 +5802,6 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     },
 
     onLoaded:function(result){
-        //this.pendingChanges = []; //moved to onLoading
-        //this.externalChangedKeys = null;
         delete this.pendingLoading;
         this.storeNode.setRelativeData(this.storepath,result,null,null,'loadData');
         return result;

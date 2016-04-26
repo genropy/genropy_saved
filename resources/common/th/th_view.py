@@ -604,7 +604,7 @@ class TableHandlerView(BaseComponent):
                                userSets='.sets',_if=_if,_else=_else,
                                _sections='=.sections',
                                hardQueryLimit='=.hardQueryLimit',
-                               sum_columns='=.sum_columns',
+                              # sum_columns='=.sum_columns',
                                _onStart=_onStart,
                                _th_root =th_root,
                                _POST =True,

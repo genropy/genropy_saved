@@ -1263,6 +1263,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 formats['trueclass']= formats['trueclass'] || "checkboxOn";
                 formats['falseclass']= formats['falseclass'] || "checkboxOff";
             }
+            if(cell.totalize){
+                sourceNode._totalizeColumns[cell.field] = cell.totalize;
+            }
             if(cell.semaphore){
                 formats['trueclass'] = 'greenLight';
                 formats['falseclass'] = 'redLight';
@@ -1281,6 +1284,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         cellmap = cellmap || {};
         var result = [];
         if (struct) {
+            sourceNode._totalizeColumns = {};
             var bagnodes = struct.getNodes();
             var formats, dtype, editor;
             var view, viewnode, rows, rowsnodes, i, k, j, cellsnodes, row, cell, rowattrs, rowBag;
@@ -2020,6 +2024,10 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
     },
 
+    mixin_fillServerTotalize(){
+
+    },
+
     mixin_newDataStore:function() {
         this.updateRowCount(0);
         this.resetFilter();
@@ -2030,6 +2038,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         this.sourceNode.publish('onNewDatastore');
         this.updateRowCount('*');
         this.restoreSelectedRows();
+        this.fillServerTotalize();
     },
 
     mixin_restoreSelectedRows:function(){
@@ -2937,7 +2946,10 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
                 this.changeManager.delFormulaColumn(cellmap[k].field);
             }
             if(cell.totalize){
-                getChangeManager().addTotalizer(cellmap[k].field,objectUpdate({},cellmap[k]));
+                var snode = genro.nodeById(this.sourceNode.attr.store+'_store');
+                if(!snode.attr.table){
+                    getChangeManager().addTotalizer(cellmap[k].field,objectUpdate({},cellmap[k]));
+                }
             }else if (this.changeManager){
                 this.changeManager.delTotalizer(cellmap[k].field);
             }
@@ -3404,6 +3416,21 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         selection.endUpdate();
     },
     
+    mixin_fillServerTotalize(){
+        var totalizeColumns = this.sourceNode._totalizeColumns;
+        if(!objectNotEmpty(totalizeColumns)){
+            return;
+        }
+        var data = this.storebag();
+        var result_attr = data.getParentNode().attr;
+        for(var field in totalizeColumns){
+            var sfield = 'sum_'+field;
+            if(sfield in result_attr){
+                this.sourceNode.setRelativeData(totalizeColumns[field],result_attr[sfield]);
+            }
+        }
+    },
+
     mixin_indexByCb:function(cb, backward) {
         return this.collectionStore().indexByCb(cb, backward);
     },
