@@ -1646,12 +1646,12 @@ dojo.declare("gnr.GridChangeManager", null, {
         }
     },
 
-
     resolveTotalizeColumns:function(){
         for(var k in this.totalizeColumns){
             this.updateTotalizer(k);
         }
     },
+    
     updateTotalizer:function(k){
         this.sourceNode.setRelativeData(this.grid.cellmap[k].totalize,this.data.sum(this.grid.datamode=='bag'?k:'#a.'+k));
     },

@@ -162,7 +162,7 @@ class GnrCustomWebPage(object):
         fb.numberTextBox(value='^vat_perc',lbl='Vat perc.',default_value=10)
         fb.button('clear',fire='.clear')
         bc.dataFormula('.surfaces.store',"new gnr.GnrBag({r1:new gnr.GnrBag({description:'pipp'})})",_onStart=True,_fired='^.clear')
-        frame = bc.contentPane(region='center').bagGrid(frameCode='formule',datapath='.surfaces',
+        bc.contentPane(region='center').bagGrid(frameCode='formule',datapath='.surfaces',
                                                     struct=struct,height='300px',fillDown=True,
                                                     footer='Totals',
                                                     pbl_classes=True,margin='5px',

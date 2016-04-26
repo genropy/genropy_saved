@@ -111,10 +111,10 @@ class FrameGrid(BaseComponent):
                     _newGrid=None,**kwargs):
         pane.attributes.update(overflow='hidden')
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
-        grid_kwargs['fillDown'] = fillDown
+        grid_kwargs.setdefault('fillDown', fillDown)
         grid_kwargs.update(footer_kwargs)
         grid_kwargs.update(columnset_kwargs)
-        grid_kwargs['footer'] = footer
+        grid_kwargs.setdefault('footer',footer)
         grid_kwargs['columnset'] = columnset
         grid_kwargs.setdefault('_newGrid',_newGrid)
         grid_kwargs.setdefault('structpath',structpath)

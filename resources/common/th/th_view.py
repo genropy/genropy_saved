@@ -33,6 +33,7 @@ class TableHandlerView(BaseComponent):
         if resourceCondition:
             condition = condition='( %s ) AND ( %s ) ' %(condition,resourceCondition) if condition else resourceCondition
             condition_kwargs.update(dictExtract(resourceConditionPars,'condition_'))      
+
         view = pane.thFrameGrid(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
                                  virtualStore=virtualStore,
                                  condition=condition,condition_kwargs=condition_kwargs,

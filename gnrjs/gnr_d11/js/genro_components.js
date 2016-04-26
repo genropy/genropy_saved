@@ -186,8 +186,8 @@ dojo.declare("gnr.widgets.MenuDiv", gnr.widgets.gnrwdg, {
         kw['modifiers'] = kw['modifiers'] || '*';
         return box._('menu',kw);
     }
+});
 
-})
 dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
     createContent:function(sourceNode, kw, children){
         var that = this;
