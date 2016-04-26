@@ -197,6 +197,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             gridNode._autoFooter = autoFooter;
             gridNode._autoColumnset = autoColumnset;
             gridNode._wrapperNode = sourceNode;
+            
         }
     },
 
@@ -1264,6 +1265,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 formats['falseclass']= formats['falseclass'] || "checkboxOff";
             }
             if(cell.totalize){
+                cell.totalize = cell.totalize===true?'.totalize.'+cell.field:cell.totalize;
                 sourceNode._totalizeColumns[cell.field] = cell.totalize;
             }
             if(cell.semaphore){
