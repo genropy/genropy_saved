@@ -925,7 +925,7 @@ var gnrformatter = {
             return '';
         }
         var format = objectPop(formatKw,'format');
-        if(typeof(format)!='string' && 'format' in format){
+        if(format && typeof(format)!='string' && 'format' in format){
             //fix to change
             var formatdict = format;
             format = objectPop(format,'format');
