@@ -2481,7 +2481,7 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
     },
     load_memory:function(loadkw){
         //ITEM
-        var default_kw = loadkw.default_kw;
+        var default_kw = loadkw.default_kw || {};
         var destPkey = loadkw.destPkey;
         var form=this.form;
         var that = this;
@@ -2494,7 +2494,8 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
         var recordLoaded = new gnr.GnrBag();
         var sourceBag = form.sourceNode.getRelativeData(this.locationpath);
         kw._newrecord = (destPkey=='*newrecord*' || sourceBag==null || sourceBag.len()===0) ;
-        if(kw._newrecord && default_kw){
+        if(kw._newrecord){
+            this._load_prepareDefaults(null,default_kw,kw);
             for(var k in default_kw){
                 recordLoaded.setItem(k,default_kw[k])
             }
