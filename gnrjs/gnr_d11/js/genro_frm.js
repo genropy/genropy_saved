@@ -2496,8 +2496,8 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
         kw._newrecord = (destPkey=='*newrecord*' || sourceBag==null || sourceBag.len()===0) ;
         if(kw._newrecord){
             this._load_prepareDefaults(null,default_kw,kw);
-            for(var k in default_kw){
-                recordLoaded.setItem(k,default_kw[k])
+            for(var k in kw){
+                recordLoaded.setItem(k,objectPop(kw,k));
             }
         }
         else if(sourceBag && this.locationpath){
