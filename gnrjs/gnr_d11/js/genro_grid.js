@@ -322,7 +322,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                     autoRow.setItem(cell.field,null,footer_kw);
                 }
             });
-            this.sourceNode._footers.setItem('footer_auto',autoRow,row_kw);
+            this.sourceNode._footers.setItem('footer_auto',autoRow,row_kw,{_position:0});
         }
         if(autoColumnset){
             autoColumnset = this.sourceNode.evaluateOnNode(autoColumnset);

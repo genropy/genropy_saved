@@ -169,7 +169,7 @@ class GnrCustomWebPage(object):
         fb.numberTextBox(value='^vat_perc',lbl='Vat perc.',default_value=10)
         fb.button('clear',fire='.clear')
         bc.dataFormula('.surfaces.store',"new gnr.GnrBag({r1:new gnr.GnrBag({description:'pipp'})})",_onStart=True,_fired='^.clear')
-        bc.contentPane(region='center').bagGrid(frameCode='formule',datapath='.surfaces',
+        frame = bc.contentPane(region='center').bagGrid(frameCode='formule',datapath='.surfaces',
                                                     struct=struct,height='300px',fillDown=True,
                                                     footer='Totals',
                                                     pbl_classes=True,margin='5px',
@@ -180,11 +180,10 @@ class GnrCustomWebPage(object):
                                                     columnset_tot_background='red'
                                                     )
 
-        #f = frame.grid.footer()
-        #f.item('description',value='Questa fattura ha valore',colspan=3,text_align='center')
-        #f.item('gross',value='ciao')
-        #f = frame.grid.footer()
-        #f.item('description',value='test',colspan=2,text_align='center')
+        f = frame.grid.footer()
+        f.item('description',value='Questa fattura ha valore',colspan=3,text_align='center')
+        f = frame.grid.footer()
+        f.item('description',value='test',colspan=2,text_align='center')
 
        #f.item('total')
        #f.item('discount_val')
@@ -194,47 +193,3 @@ class GnrCustomWebPage(object):
        #f.item('gross')
        #f.item('vat')
 
-
-    def test_99_bagridformula(self,pane):
-        def struct(struct):
-            r = struct.view().rows()
-            r.cell('description',name='Description',width='15em',edit=True)
-
-            r.cell('number',name='Number',width='7em',dtype='L',
-                    edit=True,columnset='ent')
-            r.cell('price',name='Price',width='7em',dtype='N',
-                    edit=True,columnset='ent')
-            r.cell('total',name='Total',width='7em',dtype='N',formula='number*price',
-                    totalize='.sum_total',format='###,###,###.00')
-            r.cell('discount',name='Disc.%',width='7em',dtype='N',edit=True,columnset='disc')
-            r.cell('discount_val',name='Discount',width='7em',dtype='N',formula='total*discount/100',
-                    totalize='.sum_discount',
-                    columnset='disc')
-            r.cell('net_price',name='F.Price',width='7em',dtype='N',
-                        formula='total-discount_val',totalize='.sum_net_price',
-                        columnset='tot')
-            r.cell('vat',name='Vat',width='7em',dtype='N',
-                    formula='net_price+net_price*vat_p/100',formula_vat_p='^vat_perc',
-                    totalize='.sum_vat',format='###,###,###.00',columnset='tot')
-            r.cell('gross',name='Gross',width='7em',dtype='N',formula='net_price+vat',
-                    totalize='.sum_gross',format='###,###,###.00',columnset='tot')
-
-
-        bc = pane.borderContainer(height='400px',width='800px')
-        top = bc.contentPane(region='top',height='40px')
-        fb = top.formbuilder(cols=2,border_spacing='3px')
-        bc.contentPane(region='right',splitter=True,width='5px')
-        bc.contentPane(region='bottom',splitter=True,height='50px')
-        fb.numberTextBox(value='^vat_perc',lbl='Vat perc.',default_value=10)
-        fb.button('clear',fire='.clear')
-        bc.dataFormula('.surfaces.store',"new gnr.GnrBag({r1:new gnr.GnrBag({description:'pipp'})})",_onStart=True,_fired='^.clear')
-        frame = bc.contentPane(region='center').bagGrid(frameCode='formule',datapath='.surfaces',
-                                                    struct=struct,height='300px',fillDown=True,
-                                                    #footer='Totals',
-                                                    pbl_classes=True,margin='5px',
-                                                    #columnset_ent='Enterable',
-                                                    #columnset_disc='Discount',
-                                                    #columnset_tot='Totals',
-                                                    #columnset_ent_background='green',
-                                                    #columnset_tot_background='red'
-                                                    )
