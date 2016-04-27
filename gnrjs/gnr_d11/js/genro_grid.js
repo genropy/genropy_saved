@@ -175,7 +175,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var _columnsetsNode,_footersNode;
             sourceNode.attr = {tag:'BorderContainer'};
             sourceNode.label = 'grid_wrapper';
-            sourceNode._value = null;
+            sourceNode.setValue(new gnr.GnrDomSource(),false);
             if(has_columnset){
                 //gridattr.selfDragColumns = false;
                 var top = sourceNode._('ContentPane','columnsets',{region:'top',datapath:gridattr.datapath},{'doTrigger':false});
@@ -611,7 +611,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
     created_common:function(widget, savedAttrs, sourceNode) {
         var nodeId = sourceNode.attr.nodeId;
-
         var gridContent = sourceNode.getValue() || new gnr.GnrDomSource();
         if (genro.grid_configurator) {
             if(sourceNode.attr.configurable){
@@ -734,8 +733,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         if(sourceNode.attr.fillDown || sourceNode._wrapperNode){
             dojo.connect(widget,'postrender',function(){
+
                 if(!sourceNode._columnsetAndFootersInitialized){
-                    this.updateColumnsetsAndFooters();
+                    genro.callAfter(function(){
+                        this.widget.updateColumnsetsAndFooters();
+                    },1,this.sourceNode,'updateColumnsetsAndFooters');
+                    
                 }
                 if(this.sourceNode.attr.fillDown){
                     this.drawFiller();
