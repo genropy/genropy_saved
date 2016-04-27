@@ -803,14 +803,14 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             //}
             if(this.store.parentStore){
                 this.store.parentStore.onStartEditItem(this);
-            };
+            }
             this.applyDisabledStatus();
             //this.focus()
-            this.handlePendingValidations()
-            var that = this;
+            this.handlePendingValidations();
+            that = this;
             var parentForm = this.getParentForm();
             if(!parentForm || !parentForm.currentFocused){
-                if(this.autoFocus){
+                if(this.autoFocus && this.isNewRecord()){
                     setTimeout(function(){ 
                         that.focus();
                     },1);
