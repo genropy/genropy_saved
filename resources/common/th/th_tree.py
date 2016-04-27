@@ -321,8 +321,9 @@ class TableHandlerHierarchicalView(BaseComponent):
                                add_label='!!Add')
     @extract_kwargs(relation=True)
     @struct_method
-    def ht_relatedTableHandler(self,tree,th,relation_table=None,dropOnRoot=True,
+    def ht_relatedTableHandler(self,tree,th,dropOnRoot=True,
                                 inherited=None,relation_kwargs=None):
+        relation_table = relation_kwargs.pop('table',None)
         vstore = th.view.store
         vstoreattr = vstore.attributes
         grid = th.view.grid
@@ -447,7 +448,6 @@ class TableHandlerHierarchicalView(BaseComponent):
                                                 var modifiers = dropInfo.modifiers;
                                                 var alias_on_field = this.getRelativeData('#FORM.controller.table?alias_on_field');
                                                 var asAlias = (relationRecord && alias_on_field)?relationRecord[alias_on_field]:modifiers=="Shift"
-                                                genro.bp(true);
                                                 if(%s){
                                                     genro.serverCall('ht_updateRelatedRows',{table:'%s',fkey_name:'%s',pkeys:data.pkeys,
                                                                                         relationValue:relationValue,modifiers:dropInfo.modifiers,
