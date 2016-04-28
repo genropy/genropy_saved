@@ -279,7 +279,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             item.innerHTML = value;
             itemlist.push(item);
         });
-        itemlist.sort(function(a,b){return a.idx>b.idx;});
+        itemlist.sort(function(a,b){return a.idx-b.idx;});
         itemlist.forEach(function(item){
             var colspan;
             var idx = objectPop(item,'idx');
