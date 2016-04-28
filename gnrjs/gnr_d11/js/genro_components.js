@@ -3930,7 +3930,10 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         if(popup){
             var textBoxId = 'placingTextbox_'+genro.getCounter();
             var tbkw = {'value':has_code?value+'?_displayedValue':value,position:'relative',readOnly:true,nodeId:textBoxId};
-            tb = sourceNode._('textbox',objectUpdate(tbkw,originalKwargs));
+            objectUpdate(tbkw,objectExtract(originalKwargs,'disabled,readOnly,width,_class,style,hidden,visible'));
+            objectUpdate(tbkw,objectExtract(originalKwargs,'tb_*'));
+            objectUpdate(tbkw,objectExtract(originalKwargs,'validate_*',null,true));
+            tb = sourceNode._('textbox',tbkw);
             gnrwdg.textboxNode = tb.getParentNode(); 
             rootNode = tb._('comboArrow')._('tooltipPane',{placingId:textBoxId})._('div',{padding:'5px',overflow:'auto',max_height:'300px',min_width:'200px'});
         }else{
