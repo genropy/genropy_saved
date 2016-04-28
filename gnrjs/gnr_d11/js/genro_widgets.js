@@ -3263,7 +3263,10 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
         attributes.constraints = objectExtract(attributes, 'min,max,pattern,round,currency,fractional,symbol,strict,locale');
         attributes.constraints.pattern = attributes.constraints.pattern || format;
         if(!places && attributes.constraints.pattern && attributes.constraints.pattern.indexOf('.')){
-            places = '0,'+attributes.constraints.pattern.split('.')[1].length;
+            var s = attributes.constraints.pattern.split('.')[1];
+            if(s){
+                places = '0,'+s.length;
+            }
         }
         sourceNode._parseDict = places?{places:places}:{};
         //attributes.editOptions = objectUpdate({})
