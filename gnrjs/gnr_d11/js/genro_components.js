@@ -3561,12 +3561,6 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var sourceNode = this.sourceNode;
         var mb = this.multibuttonSource;
         var child_count = items.len();
-        if(!this.showAlways){
-            var mbnode = mb.getParentNode();
-            if(mbnode.domNode){
-                genro.dom.setClass(mbnode.domNode,'hidden',child_count==1)
-            }
-        }
         var deleteAction = this.deleteAction;
         var customDelete;
         var gnrwdg = this;
