@@ -19,54 +19,54 @@ class GnrCustomWebPage(object):
         bc = frame.center.borderContainer()
         bar = frame.top.slotBar('2,fbselects,*')
         fb = bar.fbselects.formbuilder(cols=4,border_spacing='2px')
+        fb.filteringSelect(value='^.dbstore',lbl='!!Db Store',values=','.join(sorted(self.db.stores_handler.dbstores.keys())))
         fb.remoteSelect(value='^.sync_table',lbl='!!Table',selected_multidb='.multidb_mode',
                         method=self.getSyncTables,
                         auxColumns='multidb',hasDownArrow=True)
-        fb.filteringSelect(value='^.dbstore',lbl='!!Db Store',values=','.join(sorted(self.db.stores_handler.dbstores.keys())))
         fb.dataRpc('dummy',self.setSyncInfoInStore,insync_table='^.sync_table',insync_store='^.dbstore',
                     _if='insync_table&&insync_store',_onResult="FIRE main.load_th")
+
         left = bc.contentPane(region='left',width='50%',margin='2px')
         center = bc.contentPane(region='center',margin='2px')
-        left.dynamicTableHandler(table='=main.sync_table',
-                                 th_datapath='.rootstore',th_wdg='plain',
+        left.dynamicTableHandler(table='=main.sync_table',datapath='.dbroot',
+                                 th_wdg='plain',
                                  th_view_store_applymethod='checksync_mainstore',
                                 th_viewResource='View', 
                                 th_configurable=True,
                                 th_condition='==multidb_mode=="complete"?"":"@subscriptions.dbstore=:ext_dbstore"',
                                 th_view_store_multidb_mode ='=main.multidb_mode',
-                                th_condition_ext_dbstore='^main.dbstore',
+                                th_condition_ext_dbstore='=main.dbstore',
                                 nodeId='rootStore',_fired='^main.load_th')
 
-        center.dynamicTableHandler(table='=main.sync_table',th_datapath='.insyncTh',th_wdg='plain',
+        center.dynamicTableHandler(table='=main.sync_table',datapath='.dbext',
+                                th_wdg='plain',
                                 th_viewResource='View',
                                  th_view_store_applymethod='checksync_extstore',
                                 th_view_store_currentDbstore='=main.dbstore',
-                                th_view_store_force_reload='^main.syncedstore.force_reload',
                                 th_view_store_forced_dbstore=True,
                                 th_dbstore='=main.dbstore',
                                 nodeId='syncStore',
                                 th_configurable=False,
-                                th_grid_structpath ='main.rootstore.view.grid.struct',
-                                #th_view_grid_sortedBy='^main.rootstore.view.grid.sorted',
-                                #th_view_store_sortedBy='=main.rootstore.view.grid.sorted',
+                                th_grid_structpath ='main.dbroot.th.view.grid.struct',
+                                th_grid_sortedBy='^main.dbroot.th.view.grid.sorted',
+                                th_view_store_sortedBy='=main.dbroot.th.view.grid.sorted',
                                 _fired='^main.load_th')
 
     @public_method
     def checksync_mainstore(self,selection=None,**kwargs):
-        currentSync = self.pageStore().getItem('currentSync')
-        def cb(row):
-            sync_value = currentSync[row['pkey']]
-            if sync_value == 'equal':
-                return
-            return dict(_customClasses='sync_status_%s' %sync_value)
-        selection.apply(cb)
-        selection.sort('pkey')
+        self._checksync(selection)
 
     @public_method
     def checksync_extstore(self,selection=None,**kwargs):
+        self._checksync(selection)
+
+
+    def _checksync(self,selection):
         currentSync = self.pageStore().getItem('currentSync')
         def cb(row):
-            sync_value = currentSync[row['pkey']]
+            sync_value = currentSync.get(row['pkey'])
+            if not sync_value:
+                sync_value = 'missing'
             if sync_value == 'equal':
                 return
             return dict(_customClasses='sync_status_%s' %sync_value)

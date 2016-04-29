@@ -31,7 +31,8 @@ class DynamicTableHandler(BaseComponent):
         rootId = nodeId or 'lookup_root'
         datapath = datapath or 'main'
         pane.contentPane(nodeId=rootId,datapath=datapath,_anchor=True,overflow='hidden',**kwargs).remote(self.dh_remoteTh,table=table,
-                                            _onRemote='FIRE #ANCHOR.load_data;',rootId=rootId,th_kwargs=th_kwargs,_fired=_fired)
+                                            _onRemote='FIRE #ANCHOR.load_data;',
+                                            rootId=rootId,th_kwargs=th_kwargs,_fired=_fired)
 
     def dh_lookupTablesDefaultStruct(self,struct):
         r = struct.view().rows()
@@ -44,7 +45,8 @@ class DynamicTableHandler(BaseComponent):
 
     @public_method
     def dh_remoteTh(self,pane,table=None,fixeed_table=None,rootId=None,th_kwargs=None):
-        pane.data('.mainth',Bag())
+        datapath = th_kwargs.pop('datapath','.th')
+        #pane.data(datapath,Bag())
         if not table:
             pane.div('!!Select a table from the popup menu',margin_left='5em',margin_top='5px', color='#8a898a',text_align='center',font_size='large')
         else:
@@ -56,7 +58,7 @@ class DynamicTableHandler(BaseComponent):
                 view_structCb = None
             tblobj= self.db.table(table)
             getattr(pane,'%sTableHandler' %wdg)(table=table,viewResource=viewResource,
-                    datapath=th_kwargs.pop('datapath','.dynamith'),autoSave=False,
+                    datapath=datapath,autoSave=False,
                     nodeId='%s_mainth' %rootId,
                     configurable=th_kwargs.pop('configurable',None) or False,
                     view_structCb=view_structCb,

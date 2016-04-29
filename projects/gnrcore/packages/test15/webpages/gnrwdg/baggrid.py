@@ -14,10 +14,10 @@ class GnrCustomWebPage(object):
     
     def test_0_firsttest(self,pane):
         """First test description"""
-        pane.data('.dati',self.getDati())
+        pane.data('gridstore',self.getDati())
         pane.dataController('SET .gridstore = dati.deepCopy();',dati='=.dati',_fired='^loadBag')
         frame = pane.bagGrid(frameCode='test',title='Test',struct=self.gridstruct,height='300px',
-                            table='glbl.localita',storepath='.gridstore',
+                            table='glbl.localita',storepath='gridstore',
                             default_provincia='MI',
                             default_qty=4)
         frame.bottom.button('Load',fire='.loadBag')
