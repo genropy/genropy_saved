@@ -597,7 +597,7 @@ class TableHandlerView(BaseComponent):
                                allowLogicalDelete=allowLogicalDelete,
                                excludeLogicalDeleted='=.excludeLogicalDeleted',
                                excludeDraft='=.excludeDraft',
-                               applymethod=self._th_hook('applymethod',dflt=None,mangler=frame),
+                               applymethod=store_kwargs.pop('applymethod',None) or self._th_hook('applymethod',dflt=None,mangler=frame),
                                timeout=180000, selectmethod= selectmethod or '=.query.queryAttributes.selectmethod',
                                currentFilter = '=.query.currentFilter',
                                prevSelectedDict = '=.query.prevSelectedDict',

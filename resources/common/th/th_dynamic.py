@@ -27,11 +27,11 @@ from gnr.core.gnrbag import Bag
 class DynamicTableHandler(BaseComponent):
     @extract_kwargs(th=True)
     @struct_method
-    def th_dynamicTableHandler(self,pane,datapath=None,nodeId=None,table=None,th_kwargs=None,**kwargs):
+    def th_dynamicTableHandler(self,pane,datapath=None,nodeId=None,table=None,th_kwargs=None,_fired=None,**kwargs):
         rootId = nodeId or 'lookup_root'
         datapath = datapath or 'main'
         pane.contentPane(nodeId=rootId,datapath=datapath,_anchor=True,overflow='hidden',**kwargs).remote(self.dh_remoteTh,table=table,
-                                            _onRemote='FIRE #ANCHOR.load_data;',rootId=rootId,th_kwargs=th_kwargs)
+                                            _onRemote='FIRE #ANCHOR.load_data;',rootId=rootId,th_kwargs=th_kwargs,_fired=_fired)
 
     def dh_lookupTablesDefaultStruct(self,struct):
         r = struct.view().rows()
@@ -49,10 +49,18 @@ class DynamicTableHandler(BaseComponent):
             pane.div('!!Select a table from the popup menu',margin_left='5em',margin_top='5px', color='#8a898a',text_align='center',font_size='large')
         else:
             wdg = th_kwargs.get('wdg','inline')
+            viewResource = th_kwargs.pop('viewResource','LookupView')
+            if not (th_kwargs.get('view_grid_structpath') or th_kwargs.get('grid_structpath')):
+                view_structCb = self.dh_lookupTablesDefaultStruct
+            else:
+                view_structCb = None
             tblobj= self.db.table(table)
-            getattr(pane,'%sTableHandler' %wdg)(table=table,viewResource='LookupView',datapath='.dynamith',autoSave=False,
-                                    nodeId='%s_mainth' %rootId,configurable='*',
-                                    view_structCb=self.dh_lookupTablesDefaultStruct,condition_loaddata='^#ANCHOR.load_data',
-                                    grid_selfDragRows=tblobj.attributes.get('counter'),**th_kwargs)
+            getattr(pane,'%sTableHandler' %wdg)(table=table,viewResource=viewResource,
+                    datapath=th_kwargs.pop('datapath','.dynamith'),autoSave=False,
+                    nodeId='%s_mainth' %rootId,
+                    configurable=th_kwargs.pop('configurable',None) or False,
+                    view_structCb=view_structCb,
+                    condition_loaddata='^#ANCHOR.load_data',
+                    grid_selfDragRows=tblobj.attributes.get('counter'),**th_kwargs)
 
 

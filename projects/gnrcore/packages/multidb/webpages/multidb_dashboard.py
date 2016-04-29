@@ -1,0 +1,135 @@
+#!/usr/bin/env pythonw
+# -*- coding: UTF-8 -*-
+#  Created by Francesco Porcari
+#
+# --------------------------- GnrWebPage subclass ---------------------------
+from gnr.core.gnrdecorator import extract_kwargs,public_method
+from gnr.core.gnrbag import Bag
+
+
+class GnrCustomWebPage(object):
+    py_requires = 'public:Public,th/th:TableHandler,th/th_dynamic:DynamicTableHandler'
+    authTags='superadmin'
+    pageOptions={'openMenu':False,'enableZoom':False}
+
+
+    def main(self, root,**kwargs):
+        frame = root.rootContentPane(datapath='main',design='sidebar',title='!!Multidb dasboard')   
+        frame = frame.center.framePane()      
+        bc = frame.center.borderContainer()
+        bar = frame.top.slotBar('2,fbselects,*')
+        fb = bar.fbselects.formbuilder(cols=4,border_spacing='2px')
+        fb.remoteSelect(value='^.sync_table',lbl='!!Table',selected_multidb='.multidb_mode',
+                        method=self.getSyncTables,
+                        auxColumns='multidb',hasDownArrow=True)
+        fb.filteringSelect(value='^.dbstore',lbl='!!Db Store',values=','.join(sorted(self.db.stores_handler.dbstores.keys())))
+        fb.dataRpc('dummy',self.setSyncInfoInStore,insync_table='^.sync_table',insync_store='^.dbstore',
+                    _if='insync_table&&insync_store',_onResult="FIRE main.load_th")
+        left = bc.contentPane(region='left',width='50%',margin='2px')
+        center = bc.contentPane(region='center',margin='2px')
+        left.dynamicTableHandler(table='=main.sync_table',
+                                 th_datapath='.rootstore',th_wdg='plain',
+                                 th_view_store_applymethod='checksync_mainstore',
+                                th_viewResource='View', 
+                                th_configurable=True,
+                                th_condition='==multidb_mode=="complete"?"":"@subscriptions.dbstore=:ext_dbstore"',
+                                th_view_store_multidb_mode ='=main.multidb_mode',
+                                th_condition_ext_dbstore='^main.dbstore',
+                                nodeId='rootStore',_fired='^main.load_th')
+
+        center.dynamicTableHandler(table='=main.sync_table',th_datapath='.insyncTh',th_wdg='plain',
+                                th_viewResource='View',
+                                 th_view_store_applymethod='checksync_extstore',
+                                th_view_store_currentDbstore='=main.dbstore',
+                                th_view_store_force_reload='^main.syncedstore.force_reload',
+                                th_view_store_forced_dbstore=True,
+                                th_dbstore='=main.dbstore',
+                                nodeId='syncStore',
+                                th_configurable=False,
+                                th_grid_structpath ='main.rootstore.view.grid.struct',
+                                #th_view_grid_sortedBy='^main.rootstore.view.grid.sorted',
+                                #th_view_store_sortedBy='=main.rootstore.view.grid.sorted',
+                                _fired='^main.load_th')
+
+    @public_method
+    def checksync_mainstore(self,selection=None,**kwargs):
+        currentSync = self.pageStore().getItem('currentSync')
+        def cb(row):
+            sync_value = currentSync[row['pkey']]
+            if sync_value == 'equal':
+                return
+            return dict(_customClasses='sync_status_%s' %sync_value)
+        selection.apply(cb)
+        selection.sort('pkey')
+
+    @public_method
+    def checksync_extstore(self,selection=None,**kwargs):
+        currentSync = self.pageStore().getItem('currentSync')
+        def cb(row):
+            sync_value = currentSync[row['pkey']]
+            if sync_value == 'equal':
+                return
+            return dict(_customClasses='sync_status_%s' %sync_value)
+        selection.apply(cb)
+        selection.sort('pkey')
+
+    @public_method
+    def getSyncTables(self,_querystring=None,_id=None,**kwargs):
+        result = Bag()
+        if _id:
+            tableobj = self.db.table(_id)
+            tblattr = tableobj.attributes
+            caption = tableobj.fullname
+            result.setItem(_id.replace('.','_'),None,caption=caption,
+                        multidb='complete' if tblattr['multidb']=='*' else 'partial',
+                        tablename=caption,
+                        _pkey=caption)
+            return result,dict(columns='tablename,multidb',headers='Table,Multidb')
+        if _querystring:
+            _querystring = _querystring.replace('*','')
+
+        for pkgobj in self.db.packages.values():
+            for tableobj in pkgobj.tables.values():
+                tblattr = tableobj.attributes
+                caption = tableobj.fullname
+                if tblattr.get('multidb') and _querystring in caption:
+                    result.setItem('%s_%s' %(pkgobj.id,tableobj.name),None,caption=caption,
+                        multidb='complete' if tblattr['multidb']=='*' else 'partial',
+                        tablename=caption,
+                        _pkey=caption)
+        return result,dict(columns='tablename,multidb',headers='Table,Multidb')
+
+    @public_method
+    def setSyncInfoInStore(self,insync_table=None,insync_store=None):
+        tbl = self.db.table(insync_table)
+        pkey = tbl.pkey
+        queryargs = dict(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False)
+        if tbl.attributes.get('hierarchical'):
+            queryargs.setdefault('order_by','$hierarchical_pkey')
+
+        with self.db.tempEnv(storename=insync_store):
+            store_f = tbl.query(**queryargs).fetch()
+
+        where = '@subscriptions.dbstore=:insync_store' if tbl.attributes['multidb']!='*' else None
+        main_f = tbl.query(where=where,insync_store=insync_store, **queryargs).fetchAsDict()
+        result = dict()
+        for r in store_f:
+            r = dict(r)
+            r.pop('__ins_ts',None)
+            r.pop('__mod_ts',None)
+            mr = main_f.pop(r[pkey],None)
+            if mr:
+                mr = dict(mr)
+                mr.pop('__ins_ts',None)
+                mr.pop('__mod_ts',None)
+                if mr==r:
+                    result[r[pkey]] = 'equal'
+                else:
+                    result[r[pkey]] = 'diff'
+            else:
+                result[r[pkey]] = 'onlystore'
+        for k in main_f.keys():
+            result[k] = 'onlymain'
+        with self.pageStore() as store:
+            store.setItem('currentSync',result)
+
