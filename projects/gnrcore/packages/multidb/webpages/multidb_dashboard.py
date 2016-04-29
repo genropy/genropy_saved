@@ -46,10 +46,8 @@ class GnrCustomWebPage(object):
                                 th_view_store_forced_dbstore=True,
                                 th_dbstore='=main.dbstore',
                                 nodeId='syncStore',
-                                th_configurable=False,
-                                th_grid_structpath ='main.dbroot.th.view.grid.struct',
-                                th_grid_sortedBy='^main.dbroot.th.view.grid.sorted',
-                                th_view_store_sortedBy='=main.dbroot.th.view.grid.sorted',
+                                #th_configurable=False,
+                               # th_grid_structpath ='main.dbroot.th.view.grid.struct',
                                 _fired='^main.load_th')
 
     @public_method

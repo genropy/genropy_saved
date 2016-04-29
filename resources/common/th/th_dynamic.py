@@ -46,7 +46,7 @@ class DynamicTableHandler(BaseComponent):
     @public_method
     def dh_remoteTh(self,pane,table=None,fixeed_table=None,rootId=None,th_kwargs=None):
         datapath = th_kwargs.pop('datapath','.th')
-        #pane.data(datapath,Bag())
+        pane.data(datapath,Bag())
         if not table:
             pane.div('!!Select a table from the popup menu',margin_left='5em',margin_top='5px', color='#8a898a',text_align='center',font_size='large')
         else:
