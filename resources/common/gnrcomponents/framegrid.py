@@ -141,7 +141,7 @@ class FrameGrid(BaseComponent):
     def fgr_bagGrid(self,pane,storepath=None,dynamicStorepath=None,
                     title=None,default_kwargs=None,
                     pbl_classes=None,gridEditor=True,
-                    addrow=True,delrow=True,slots=None,
+                    addrow=True,delrow=True,export=None,slots=None,
                     autoToolbar=True,semaphore=None,
                     datamode=None,
                     store_kwargs=True,parentForm=None,**kwargs):
@@ -166,6 +166,8 @@ class FrameGrid(BaseComponent):
             title = title or ''
             default_slots.append('5,vtitle')
             default_slots.append('*')
+            if export:
+                default_slots.append('export')
             if delrow:
                 default_slots.append('delrow')
             if addrow:
