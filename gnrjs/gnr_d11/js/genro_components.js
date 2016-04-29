@@ -4750,10 +4750,10 @@ dojo.declare("gnr.stores._Collection",null,{
     constructor:function(node,kw){
         this.storeNode = node;
         this.storepath = this.storeNode.absDatapath(this.storeNode.attr.storepath);
-        var startData = this.storeNode.getRelativeData(this.storepath);
-        if(!startData){
-            this.storeNode.setRelativeData(this.storepath,null,null,null,'initStore');
-        }
+        var startData = this.storeNode.getRelativeData(this.storepath,true);
+       //if(!startData){
+       //    this.storeNode.setRelativeData(this.storepath,null,null,null,'initStore');
+       //}
         this.locked = null;
         var deleteRows = objectPop(kw,'deleteRows');
         if (deleteRows){
@@ -4781,13 +4781,13 @@ dojo.declare("gnr.stores._Collection",null,{
             dojo.subscribe('onPageStart',function(){
                 startLocked = parentForm?parentForm.isDisabled():startLocked;
                 that.setLocked(startLocked);
-                if(startData){
-                    that.loadData(startData);
-                }
+                //if(startData){
+                //    that.loadData(startData);
+                //}
             });
-            if(startData){
-                that.loadData(startData);
-            }
+           //if(startData){
+           //    that.loadData(startData);
+           //}
         };
         genro.src.onBuiltCall(cb);
 

@@ -763,6 +763,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 }
             }
         });
+        setTimeout(function(){widget.updateRowCount('*');},1);
+        
     },
 
     mixin_rowBagNodeByIdentifier:function(identifier){
@@ -2068,7 +2070,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     },
     
     mixin_setStorepath:function(val, kw) {
-        if(kw.reason=='initStore'){
+        if(kw.reason=='autocreate'){
             return;
         }
         else if ((!this._updatingIncludedView) && (! this._batchUpdating)) {
