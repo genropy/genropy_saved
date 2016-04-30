@@ -1651,10 +1651,11 @@ class GnrWebAppHandler(GnrBaseProxy):
         return result
 
     @public_method
-    def getValuesString(self,table,**kwargs):
+    def getValuesString(self,table,caption_field=None,**kwargs):
         tblobj = self.db.table(table)
         pkey = tblobj.pkey
-        caption_field = tblobj.attributes.get('caption_field')
+       
+        caption_field = caption_field or tblobj.attributes.get('caption_field') or tblobj.pkey
         f = tblobj.query(columns='$%s,$%s' %(pkey,caption_field),**kwargs).fetch()
         return ','.join(['%s:%s' %(r[pkey],(r[caption_field] or '').replace(',',' ')) for r in f])
 
