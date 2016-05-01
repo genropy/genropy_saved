@@ -916,7 +916,6 @@ function convertFromText(value, t, fromLocale) {
     }
     return value;
 }
-
 var gnrformatter = {
     asText :function (value,valueAttr){
         var formatKw =  objectUpdate({},valueAttr);
@@ -1023,7 +1022,7 @@ var gnrformatter = {
         if(format=='playsound'){
             return makeLink('javascript:genro.lockScreen(true,"sound"); genro.playUrl("'+value+'",function(){genro.lockScreen(false,"sound")});','<div class="iconbox sound"></div>')
         }
-        if(format.indexOf('#')>=0){
+        if(typeof(format)=='string' && format.indexOf('#')>=0){
             format = format.split('');
             value = value.split('');
             var result = [];
