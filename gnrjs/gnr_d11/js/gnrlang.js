@@ -1022,7 +1022,7 @@ var gnrformatter = {
         if(format=='playsound'){
             return makeLink('javascript:genro.lockScreen(true,"sound"); genro.playUrl("'+value+'",function(){genro.lockScreen(false,"sound")});','<div class="iconbox sound"></div>')
         }
-        if(typeof(format)=='string' && format.indexOf('#')>=0){
+        if(typeof(format)=='string' && format.indexOf('#')>=0){ //to check
             format = format.split('');
             value = value.split('');
             var result = [];
