@@ -62,7 +62,7 @@ class ViewMixedComponent(View):
         r.fieldcell('__mod_ts',name='!!Last upd.',width='6em')
         r.fieldcell('__mod_user',name='!!Upd.User',width='9em')
         r.cell('annotation_template',name='!!Type',width='9em',
-                rowTemplate="""<div style='background:$annotation_background;color:$annotation_color;border:1px solid $color;text-align:center;border-radius:10px;'>$annotation_caption</div>""")
+                rowTemplate="""<div style='background:$annotation_background;color:$annotation_color;border:1px solid $annotation_color;text-align:center;border-radius:10px;'>$annotation_caption</div>""")
         r.fieldcell('annotation_caption',hidden=True)
         r.fieldcell('calc_description',width='25em',name='Description')
         r.cell('action_do',name=" ",calculated=True,width='3em',
