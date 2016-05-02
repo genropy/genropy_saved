@@ -923,13 +923,16 @@ var gnrformatter = {
         if(value==null || value==undefined){
             return '';
         }
+        var dtype = objectPop(formatKw,'dtype') || guessDtype(value);
+        
         var format = objectPop(formatKw,'format');
+
         if(format && typeof(format)!='string'){
             var formatdict = format;
             format = objectPop(format,'format') || objectPop(format,'pattern');
             objectUpdate(formatKw,formatdict);
         }
-        var dtype = objectPop(formatKw,'dtype') || guessDtype(value);
+        
         if(format && dtype=='L' && format.indexOf('.')>=0){
             dtype='N';
         }

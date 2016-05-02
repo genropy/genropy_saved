@@ -1006,7 +1006,8 @@ dojo.declare('gnr.GenroClient', null, {
             v = genro.formatter.asText(v,f.joiner);
    
         }else if(v instanceof gnr.GnrBag){
-            v = genro.formatter.asText(v,objectUpdate({format:objectExtract(f,'bag_*',true)}) );
+            v = v.getFormattedValue(objectExtract(f,'bag_*',true));
+            //genro.formatter.asText(v,objectUpdate({format:objectExtract(f,'bag_*',true)}) );
         }else if (v && f.dtype=='X'){
             console.warn('DEPRECATED')
             var b = new gnr.GnrBag();
@@ -1015,7 +1016,8 @@ dojo.declare('gnr.GenroClient', null, {
                 var xmlDoc = parser.parseFromString(v,"text/xml");
                 b.fromXmlDoc(xmlDoc,genro.clsdict);
                 if(b.keys().length>0){
-                    v = genro.formatter.asText(b,objectUpdate({format:objectExtract(f,'bag_*',true)}) );
+                    //v = genro.formatter.asText(b,objectUpdate({format:objectExtract(f,'bag_*',true)}) );
+                    v = b.getFormattedValue(objectExtract(f,'bag_*',true));
                 }else{
                     v='';
                 }
