@@ -883,6 +883,10 @@
     /*background-color: white ; */
 }
 
+._common_d11 .buttons_grid  .dojoxGrid-scrollbox{
+    overflow: auto;
+}
+
 .buttons_grid .dojoxGrid-scrollbox{
     margin-left: 5px;
 }

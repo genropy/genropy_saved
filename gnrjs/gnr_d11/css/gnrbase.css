@@ -5175,6 +5175,9 @@ div[disabled='true'], div[disabled='disabled']{
 .grid_gallery_grid .dojoxGrid-row-selected .cellContent{
     opacity: 1;
 }
+._common_d11 .grid_gallery_grid  .dojoxGrid-scrollbox{
+    overflow: auto;
+}
 
 
 .gallery_iframe_container{
