@@ -3578,19 +3578,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             order = 'a';
         }
         var cell = this.layout.cells[sortInfo - 1];
-        var sortedBy;
-        if(this._virtual){
-            sortedBy = cell.field_getter + ':' + order;
-        }else{
-            if (this.datamode == 'bag') {
-                sortedBy = cell.field_getter + ':' + order;
-            } else {
-                sortedBy = '#a.' + cell.field_getter + ':' + order;
-            }
-        }
-        if ((cell.dtype == 'A') || ( cell.dtype == 'T')) {
-            sortedBy = sortedBy + '*';
-        }
+        var sortedBy = cell.field_getter + ':' + order;
         this.sourceNode.publish('setSortedBy',sortedBy);
         if ('sortedBy' in this.sourceNode.attr){
             var sortpath = this.sourceNode.attr['sortedBy'];

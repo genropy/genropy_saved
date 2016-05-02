@@ -28,6 +28,16 @@ class GnrCustomWebPage(object):
 
         left = bc.contentPane(region='left',width='50%',margin='2px')
         center = bc.contentPane(region='center',margin='2px')
+        frame.dataController("""if(_reason=='child' && _node.label!='_protectionStatus'){
+                var mainstruct_copy = mainstruct.deepCopy();
+                mainstruct_copy.popNode('#0.#0._protectionStatus');
+                SET main.dbext.th.view.grid.struct = mainstruct_copy;
+            }""",
+            mainstruct='^main.dbroot.th.view.grid.struct',_delay=1)
+
+        frame.dataController("""SET main.dbext.th.view.grid.sorted = sorted;""",
+            sorted='^main.dbroot.th.view.grid.sorted',_delay=1,_userChanges=True)
+
         left.dynamicTableHandler(table='=main.sync_table',datapath='.dbroot',
                                  th_wdg='plain',
                                  th_view_store_applymethod='checksync_mainstore',
@@ -47,7 +57,6 @@ class GnrCustomWebPage(object):
                                 th_dbstore='=main.dbstore',
                                 nodeId='syncStore',
                                 #th_configurable=False,
-                               # th_grid_structpath ='main.dbroot.th.view.grid.struct',
                                 _fired='^main.load_th')
 
     @public_method
