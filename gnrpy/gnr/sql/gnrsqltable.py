@@ -1167,12 +1167,15 @@ class SqlTable(GnrObject):
         """TODO
         
         :param record: a dictionary, bag or pkey (string)"""
+        usingRootstore = self.db.usingRootstore()
         for rel in self.relations_many:
             onDelete = rel.getAttr('onDelete', 'raise').lower()
             if onDelete and not (onDelete in ('i', 'ignore')):
                 mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')
                 opkg, otbl, ofld = rel.attr['one_relation'].split('.')
                 relatedTable = self.db.table(mtbl, pkg=mpkg)
+                if not usingRootstore and relatedTable.use_dbstores() is False:
+                    continue
                 sel = relatedTable.query(columns='*', where='$%s = :pid' % mfld,
                                          pid=record[ofld], for_update=True,excludeDraft=False).fetch()
                 if sel:

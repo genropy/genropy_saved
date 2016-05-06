@@ -225,7 +225,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
          headers - Object. Additional HTTP headers to send in the request.
 
          */
-        var httpMethod = httpMethod || 'POST';
+        httpMethod = httpMethod || 'POST';
         if (genro._serverstore_changes) {
             callKwargs._serverstore_changes = genro._serverstore_changes;
             genro._serverstore_changes = null;
