@@ -3897,8 +3897,8 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
                 var condition_kw = objectExtract(originalKwargs,'condition_*',null,hierarchical);
                 var condition = objectPop(originalKwargs,'condition');
                 var dbstore = objectPop(originalKwargs,'dbstore');
-                var caption_field = objectPop(originalKwargs,'caption_field');
-                var query_kw = {'caption_field':caption_field}
+                
+                var query_kw = {};
 
                 objectUpdate(query_kw,condition_kw)
                 query_kw.table = table;
@@ -3915,6 +3915,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
                     query_kw.root_id = objectPop(originalKwargs,'root_id');
                     gnrwdg.omitRoot = objectPop(kw,'omitRoot',true);
                 }else{
+                    query_kw.caption_field = objectPop(originalKwargs,'caption_field');
                     query_kw.where = condition;
                     query_kw._storename = dbstore;
                     kw.cols = kw.cols || 1;
