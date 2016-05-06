@@ -14,20 +14,45 @@ class GnrCustomWebPage(object):
 
 
     def main(self, root,**kwargs):
-        frame = root.rootContentPane(datapath='main',design='sidebar',title='!!Multidb dasboard')   
+        frame = root.rootContentPane(datapath='main',design='sidebar',title='!!Multidb dashboard')   
         frame = frame.center.framePane()      
         bc = frame.center.borderContainer()
+        bc.css("._common_d11 .onlymain .dojoxGrid-cell",
+                "background: rgba(223, 255, 147, 0.2) !important;")
+        bc.css("._common_d11 .onlystore .dojoxGrid-cell",
+                "background: rgba(255, 227, 60, 0.3) !important;")
+        bc.css("._common_d11 .missing .dojoxGrid-cell",
+                "background: rgba(74, 242, 161, 0.3) !important;")
+        bc.css("._common_d11 .diff",
+                "color:red !important;")
+        bc.css("._common_d11 .nosub .dojoxGrid-cell",
+                "background: rgba(255, 166, 74, 0.3) !important;")
+        bc.css(".difftable","border-collapse:collapse;")
+        bc.css(".difftable th","background:gray;color:white;border:1px solid silver;padding:5px;")
+        bc.css(".difftable td","border:1px solid silver; padding:5px;")
+
         bar = frame.top.slotBar('2,fbselects,*')
         fb = bar.fbselects.formbuilder(cols=4,border_spacing='2px')
         fb.filteringSelect(value='^.dbstore',lbl='!!Db Store',values=','.join(sorted(self.db.stores_handler.dbstores.keys())))
+        fb.button('!!Sync again',
+                    hidden='^.multidb_mode?=#v!="complete"',
+                    fire='.sync_again')
+        fb.dataRpc('dummy',self.syncAgain,insync_table='=.sync_table',
+                    insync_store='=.dbstore',
+                    _if='insync_table&&insync_store',
+                    _onResult="FIRE .get_sync_info;")
+
+
         fb.remoteSelect(value='^.sync_table',lbl='!!Table',selected_multidb='.multidb_mode',
                         method=self.getSyncTables,
                         auxColumns='multidb',hasDownArrow=True)
-        fb.dataRpc('dummy',self.setSyncInfoInStore,insync_table='^.sync_table',insync_store='^.dbstore',
-                    _if='insync_table&&insync_store',_onResult="FIRE main.load_th")
+        fb.dataRpc('main.subscribed_pkeys',self.setSyncInfoInStore,insync_table='^.sync_table',insync_store='^.dbstore',
+                    _if='insync_table&&insync_store',_fired='^.get_sync_info',
+                    _onResult="FIRE main.load_th")
 
-        left = bc.contentPane(region='left',width='50%',margin='2px')
-        center = bc.contentPane(region='center',margin='2px')
+        left = bc.roundedGroupFrame(title='Main store',region='left',width='50%')
+        center = bc.roundedGroupFrame(title='Current dbstore',region='center',margin='2px')
+        centerbc = center.center.borderContainer()
         frame.dataController("""if(_reason=='child' && _node.label!='_protectionStatus'){
                 var mainstruct_copy = mainstruct.deepCopy();
                 mainstruct_copy.popNode('#0.#0._protectionStatus');
@@ -43,40 +68,55 @@ class GnrCustomWebPage(object):
                                  th_view_store_applymethod='checksync_mainstore',
                                 th_viewResource='View', 
                                 th_configurable=True,
-                                th_condition='==multidb_mode=="complete"?"":"@subscriptions.dbstore=:ext_dbstore"',
+                                th_condition='==multidb_mode=="complete"?null:"$pkey IN :subscribed_pkeys"',
                                 th_view_store_multidb_mode ='=main.multidb_mode',
-                                th_condition_ext_dbstore='=main.dbstore',
+                                th_condition_subscribed_pkeys='=main.subscribed_pkeys',
                                 nodeId='rootStore',_fired='^main.load_th')
 
-        center.dynamicTableHandler(table='=main.sync_table',datapath='.dbext',
+        centerbc.contentPane(region='center').dynamicTableHandler(table='=main.sync_table',datapath='.dbext',
                                 th_wdg='plain',
                                 th_viewResource='View',
                                  th_view_store_applymethod='checksync_extstore',
                                 th_view_store_currentDbstore='=main.dbstore',
                                 th_view_store_forced_dbstore=True,
+                                th_view_grid_selected__differences='main.selectedrow.differences',
+                                th_view_grid_selected__linked_records='main.selectedrow.linked_records',
+                                th_delrow=True,
                                 th_dbstore='=main.dbstore',
                                 nodeId='syncStore',
                                 #th_configurable=False,
                                 _fired='^main.load_th')
+        bottom = centerbc.contentPane(region='bottom',height='200px',drawer='close')
+        bottom.div('^main.selectedrow.differences',margin='5px',
+                    border='2px solid silver',rounded=6,padding='10px')
+        bottom.div('^main.selectedrow.linked_records',margin='5px',
+                    border='2px solid silver',rounded=6,padding='10px')
 
     @public_method
     def checksync_mainstore(self,selection=None,**kwargs):
-        self._checksync(selection)
+        self._checksync(selection,'main')
 
     @public_method
     def checksync_extstore(self,selection=None,**kwargs):
-        self._checksync(selection)
+        self._checksync(selection,'ext')
 
 
-    def _checksync(self,selection):
+    def _checksync(self,selection,storemode):
         currentSync = self.pageStore().getItem('currentSync')
+        dbtable = selection.dbtable
         def cb(row):
             sync_value = currentSync.get(row['pkey'])
             if not sync_value:
                 sync_value = 'missing'
             if sync_value == 'equal':
                 return
-            return dict(_customClasses='sync_status_%s' %sync_value)
+            if storemode=='main':
+                return dict()
+            differences = None
+            if '|' in sync_value:
+                sync_value,differences = sync_value.split('|')
+            return dict(_customClasses=sync_value,_differences=differences,
+                            _linked_records=self.checkRelations(dbtable,row['pkey']))
         selection.apply(cb)
         selection.sort('pkey')
 
@@ -117,26 +157,72 @@ class GnrCustomWebPage(object):
         with self.db.tempEnv(storename=insync_store):
             store_f = tbl.query(**queryargs).fetch()
 
-        where = '@subscriptions.dbstore=:insync_store' if tbl.attributes['multidb']!='*' else None
-        main_f = tbl.query(where=where,insync_store=insync_store, **queryargs).fetchAsDict()
+        where = None
+        syncpkeys = None
+        columns = '*'
+        if tbl.attributes['multidb']!='*':
+            where = '$%s in :syncpkeys' %pkey
+            columns = '*,$__multidb_subscribed'
+            syncpkeys = [r[pkey] for r in store_f]
+        with self.db.tempEnv(target_store=insync_store):
+            main_f = tbl.query(where=where,columns=columns,
+                            syncpkeys=syncpkeys, 
+                            **queryargs).fetchAsDict()
         result = dict()
         for r in store_f:
             r = dict(r)
             r.pop('__ins_ts',None)
             r.pop('__mod_ts',None)
+            r.pop('__version',None)
+            r.pop('__del_ts',None)
+            r.pop('__moved_related',None)
+
             mr = main_f.pop(r[pkey],None)
             if mr:
                 mr = dict(mr)
                 mr.pop('__ins_ts',None)
                 mr.pop('__mod_ts',None)
+                mr.pop('__version',None)
+                mr.pop('__del_ts',None)
+                mr.pop('__moved_related',None)
+                if '__multidb_subscribed' in mr:
+                    __multidb_subscribed = mr.pop('__multidb_subscribed') or mr.get('__multidb_default_subscribed')
+                else:
+                    __multidb_subscribed = '*'
                 if mr==r:
                     result[r[pkey]] = 'equal'
                 else:
-                    result[r[pkey]] = 'diff'
+                    difflist = ["<tr><th>Table</th><th>Main val</th><th>Ext val</th></tr>"]
+                    for k,v in r.items():
+                        if v!=mr[k]:
+                            difflist.append('<tr><td>%s</td><td>%s</td><td>%s</td></tr>' %(k,mr[k],v))
+                    result[r[pkey]] = 'diff|<table class="difftable"><tbody>%s</tbody></table>' %''.join(difflist)
+                if not __multidb_subscribed:
+                    result[r[pkey]] = 'nosub %s' %result[r[pkey]]
             else:
                 result[r[pkey]] = 'onlystore'
         for k in main_f.keys():
             result[k] = 'onlymain'
         with self.pageStore() as store:
             store.setItem('currentSync',result)
+        return syncpkeys
+
+    @public_method
+    def syncAgain(self,insync_table=None,insync_store=None):
+        queryargs = dict(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False)
+        tbl = self.db.table(insync_table)
+        if tbl.attributes.get('hierarchical'):
+            queryargs.setdefault('order_by','$hierarchical_pkey')
+
+        with self.db.tempEnv(storename=insync_store):
+            f = tbl.query(**queryargs).fetch()
+            for r in f:
+                tbl.raw_delete(r)
+            self.db.commit()
+
+    def checkRelations(self,tblobj,pkey):
+        result = tblobj.currentRelations(pkey)
+        if not result:
+            return None
+        return '<br/>'.join(['%s:%s' %(tbl,count) for tbl,count in result.digest('#v.linktbl,#v.count')])
 

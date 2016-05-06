@@ -650,6 +650,31 @@ class SqlTable(GnrObject):
             self.delete(sourcePkey)
             
 
+    def currentRelations(self,recordOrPkey):
+        result = Bag()
+        i = 0
+        if isinstance(recordOrPkey,basestring):
+            record = self.record(pkey=recordOrPkey).output('dict')
+        else:
+            record = recordOrPkey
+        for n in self.model.relations:
+            joiner =  n.attr.get('joiner')
+            if joiner and joiner['mode'] == 'M':
+                rowdata = Bag()
+                fldlist = joiner['many_relation'].split('.')
+                tblname = fldlist[0:2]
+                linktblobj = self.db.table('.'.join(tblname))
+                fkey = fldlist[-1]
+                joinkey = joiner['one_relation'].split('.')[-1]
+                rel_count = linktblobj.query(where='$%s=:spkey' %fkey,spkey=record[joinkey]).count()
+                linktblobj_name = linktblobj.fullname
+                rowdata.setItem('linktbl',linktblobj_name)
+                rowdata.setItem('count',rel_count)
+                if rel_count:
+                    result.setItem('r_%i' %i,rowdata)
+                i+=1
+        return result
+
     def itemsAsText(self,caption_field=None,cols=None,**kwargs):
         caption_field = caption_field or self.attributes['caption_field']
         f = self.query(columns='$%s,$%s' %(self.pkey,caption_field),**kwargs).fetch()
