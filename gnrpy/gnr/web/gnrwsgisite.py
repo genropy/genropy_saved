@@ -718,9 +718,8 @@ class GnrWsgiSite(object):
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='RESOURCE')
             try:
                 page = self.resource_loader(path_list, request, response, environ=environ,request_kwargs=request_kwargs)
-                if not page:
-                    raise GnrException('GnrWebPage at path %s does not exists' %'/'.join(path_list))
-                page.download_name = download_name
+                if page:
+                    page.download_name = download_name
             except WSGIHTTPException, exc:
                 return exc(environ, start_response)
             except Exception, exc:
