@@ -85,7 +85,7 @@ class TableBuilder(object):
             zip.close()
             content = zipresult.getvalue()
             zipresult.close()
-        self.response.add_header("Content-Length", str(len(content)))
+        #self.response.add_header("Content-Length", str(len(content)))
         self.response.write(content)
         
     def requestWrite(self, html):
