@@ -44,16 +44,17 @@ function _T(str){
         var toTranslate = (str.search(/^!!|\[!!/)<0)?'!!'+str:str;
         var result = genro.serverCall('getRemoteTranslation',{txt:toTranslate,language:language}) || {};
         var localizedString = result['translation'];
-        if(result.status=='OK'){
-            localsdict[str] = localizedString;
-            genro.setInStorage('local',localekey,localsdict);
+        if(result.status!='OK'){
+            localsdict[str] ='<span class="unlocalized">'+localizedString+'</span>';
         }
+        localsdict[str] = localizedString;
+        genro.setInStorage('local',localekey,localsdict);
         return localizedString;
     }else{
-        return localsdict[str]
+        return localsdict[str];
     }
     return str;
-};
+}
 
 function _F(val,format,dtype){
     return gnrformatter.asText(val,{format:format,dtype:dtype});

@@ -1781,8 +1781,9 @@ class GnrWebPage(GnrBaseWebPage):
         if self.dbstore:
             page.data('gnr.dbstore',self.dbstore)
         if has_adm:
-            page.dataRemote('gnr.user_preference', self.getUserPreference,username='^gnr.avatar.user')
-            page.dataRemote('gnr.app_preference', self.getAppPreference)
+            page.dataRemote('gnr.user_preference', self.getUserPreference,username='^gnr.avatar.user',
+                            _resolved=True,_resolved_username=self.user)
+            page.dataRemote('gnr.app_preference', self.getAppPreference,_resolved=True)
             page.dataRemote('gnr.shortcuts.store', self.getShortcuts)
 
         page.dataController('genro.dlg.serverMessage("gnr.servermsg");', _fired='^gnr.servermsg')

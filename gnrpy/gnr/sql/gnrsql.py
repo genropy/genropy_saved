@@ -31,6 +31,7 @@ import cPickle
 import os
 import shutil
 from time import time
+from gnr.core.gnrstring import boolean
 from gnr.core.gnrlang import getUuid
 from gnr.core.gnrlang import GnrObject
 from gnr.core.gnrlang import importModule, GnrException
@@ -148,7 +149,7 @@ class GnrSqlDb(GnrObject):
     @property
     def reuse_relation_tree(self):
         if self.application:
-            return self.application.config['db?reuse_relation_tree']
+            return boolean(self.application.config['db?reuse_relation_tree']) is not False
         return
 
     def createModel(self):

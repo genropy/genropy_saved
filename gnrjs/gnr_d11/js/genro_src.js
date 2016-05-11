@@ -486,13 +486,14 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         var attributes = node.registerNodeDynAttr(false);
         var tag = objectPop(attributes, 'tag');
         var path = objectPop(attributes, 'path');
+        var value;
         if (tag == 'data' && attributes.remote) {
             attributes['method'] = objectPop(attributes, 'remote');
             tag = 'dataRemote';
         }
         if (tag == 'data') {
             path = node.absDatapath(path);
-            var value = node.getValue('static');
+            value = node.getValue('static');
             node._value = null;
             if (value instanceof gnr.GnrBag) {
                 value.clearBackRef();
@@ -513,6 +514,12 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             }
         } else if (tag == 'dataRemote') {
             node._dataprovider = tag;
+            if(node.attr._resolved){
+                value = node.getValue('static');
+                path = node.absDatapath(path);
+                node._value = null;
+                node.attr._resolvedValue = value;
+            }
             node.setDataNodeValue();
         } else {         
             var initialize = objectPop(attributes, '_init');

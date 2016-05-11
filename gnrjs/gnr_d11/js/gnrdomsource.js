@@ -425,9 +425,15 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 var isGetter = objectPop(attributes, 'isGetter', false);
                 attributes.sync = ('sync' in attributes) ? attributes.sync : true;
                 attributes['_sourceNode'] = this;
+                var resolvedValue = objectPop(this.attr,'_resolvedValue');
                 var resolver = genro.rpc.remoteResolver(method, attributes, {'cacheTime':cacheTime,
                     'isGetter':isGetter});
                 dataNode.setValue(resolver, true, attributes);
+                if(resolvedValue){
+                    dataNode._status = 'loaded';
+                    dataNode.setValue(resolvedValue,'resolver');
+                    dataNode._resolver.lastUpdate = new Date();
+                }
             }
         }
         
