@@ -673,6 +673,59 @@ class TableBase(object):
     def multidb_readOnly(self):
         return self.db.currentPage.dbstore and 'multidb_allRecords' in self.attributes
 
+    def checkSyncAll(self,dbstores=None):
+        if dbstores is None:
+            dbstores = self.db.dbstores.keys()
+        elif isinstance(dbstores,basestring):
+            dbstores = dbstores.split(',')
+        queryargs = dict(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False)
+        pkeyfield = self.pkey
+        main_f = self.query(**queryargs).fetch()
+        insertManyData = [dict(r) for r in main_f]
+        ts = datetime.datetime.now()
+        for dbstore in dbstores:
+            checkdict = dict([(r[pkeyfield],dict(r)) for r in main_f])
+            with self.db.tempEnv(storename=dbstore):
+                if not insertManyData:
+                    self.empty()
+                    continue
+                store_f = self.query(**queryargs).fetch()
+                if not store_f and insertManyData:
+                    print '\t\t missing, insert all',insertManyData
+                    self.insertMany(insertManyData)
+                    continue
+                diffrec = list()
+                for r in store_f:
+                    r = dict(r)
+                    main_r = checkdict.pop(r[pkeyfield],None)
+                    if not main_r:
+                        print '\t\t wrong line try to delete'
+                        try:
+                            self.raw_delete(r)
+                        except Exception:
+                            print '\t\t\t cannot delete set logical deleted'
+                            if self.logicalDeletionField:
+                                r[self.logicalDeletionField] = ts
+                                self.raw_update(r)
+                        continue
+                    checkdiff = [(k,v,main_r[k]) for k,v in r.items() if k not in ('__ins_ts','__mod_ts','__version','__del_ts','__moved_related') if v!=main_r[k]]
+                    if checkdiff:
+                        diffrec.append((main_r,r))
+                        
+                if diffrec or checkdict:
+                    try:
+                        print '\t\t smarmello'
+                        self.empty()
+                        self.insertMany(insertManyData)
+                    except Exception:
+                        for r,oldr in diffrec:
+                            self.raw_update(r,oldr)
+                        for main_r in checkdict.values():
+                            print '\t\t insert missing'
+                            self.raw_insert(main_r)
+            print '\t',self.fullname,dbstore,'\n'
+            self.db.commit()
+
     def checkDiagnostic(self,record):
         if self.attributes.get('diagnostic'):
             errors = self.diagnostic_errors(record)

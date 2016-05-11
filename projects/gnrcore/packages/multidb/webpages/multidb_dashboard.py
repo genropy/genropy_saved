@@ -9,7 +9,7 @@ from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
     py_requires = 'public:Public,th/th:TableHandler,th/th_dynamic:DynamicTableHandler'
-    authTags='superadmin'
+    auth_main='admin'
     pageOptions={'openMenu':False,'enableZoom':False}
 
 
@@ -34,21 +34,20 @@ class GnrCustomWebPage(object):
         bar = frame.top.slotBar('2,fbselects,*')
         fb = bar.fbselects.formbuilder(cols=4,border_spacing='2px')
         fb.filteringSelect(value='^.dbstore',lbl='!!Db Store',values=','.join(sorted(self.db.stores_handler.dbstores.keys())))
-        fb.button('!!Sync again',
-                    hidden='^.multidb_mode?=#v!="complete"',
-                    fire='.sync_again')
-        fb.dataRpc('dummy',self.syncAgain,insync_table='=.sync_table',
-                    insync_store='=.dbstore',
-                    _if='insync_table&&insync_store',
-                    _onResult="FIRE .get_sync_info;")
-
-
         fb.remoteSelect(value='^.sync_table',lbl='!!Table',selected_multidb='.multidb_mode',
                         method=self.getSyncTables,
                         auxColumns='multidb',hasDownArrow=True)
         fb.dataRpc('main.subscribed_pkeys',self.setSyncInfoInStore,insync_table='^.sync_table',insync_store='^.dbstore',
                     _if='insync_table&&insync_store',_fired='^.get_sync_info',
                     _onResult="FIRE main.load_th")
+        fb.button('!!Total sync',
+                    hidden='^.multidb_mode?=#v!="complete"',
+                    fire='.sync_again')
+        fb.dataRpc('dummy',self.syncAgain,insync_table='=.sync_table',
+                    insync_store='=.dbstore',
+                    _fired='^.sync_again',
+                    _if='insync_table&&insync_store',
+                    _onResult="FIRE .get_sync_info;")
 
         left = bc.roundedGroupFrame(title='Main store',region='left',width='50%')
         center = bc.roundedGroupFrame(title='Current dbstore',region='center',margin='2px')
@@ -209,16 +208,11 @@ class GnrCustomWebPage(object):
 
     @public_method
     def syncAgain(self,insync_table=None,insync_store=None):
-        queryargs = dict(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False)
         tbl = self.db.table(insync_table)
-        if tbl.attributes.get('hierarchical'):
-            queryargs.setdefault('order_by','$hierarchical_pkey')
-
-        with self.db.tempEnv(storename=insync_store):
-            f = tbl.query(**queryargs).fetch()
-            for r in f:
-                tbl.raw_delete(r)
+        with self.db.tempEnv(_multidbSync=True):
+            tbl.copyToDbstore(dbstore=insync_store,empty_before=True)
             self.db.commit()
+
 
     def checkRelations(self,tblobj,pkey):
         result = tblobj.currentRelations(pkey)

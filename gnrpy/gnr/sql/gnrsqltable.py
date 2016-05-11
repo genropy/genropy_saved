@@ -1727,7 +1727,7 @@ class SqlTable(GnrObject):
             else:
                 dest_tbl.insertOrUpdate(record)
     
-    def copyToDbstore(self,pkey=None,dbstore=None,bagFields=True,**kwargs):
+    def copyToDbstore(self,pkey=None,dbstore=None,bagFields=True,empty_before=False,**kwargs):
         """TODO
         
         :param pkey: the record :ref:`primary key <pkey>`
@@ -1738,6 +1738,8 @@ class SqlTable(GnrObject):
             queryargs = dict(where='$pkey=:pkey',pkey=pkey)
         records = self.query(addPkeyColumn=False,bagFields=bagFields,**queryargs).fetch()
         with self.db.tempEnv(storename=dbstore):
+            if empty_before:
+                self.empty()
             for rec in records:
                 self.insertOrUpdate(rec)
             self.db.deferredCommit()
