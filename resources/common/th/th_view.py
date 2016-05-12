@@ -380,15 +380,18 @@ class TableHandlerView(BaseComponent):
             q.setItem(code,None,tip=pars.get('description'),selectmethod=v,**pars)
         pane.data('.query.pyqueries',q)
         pane.dataRemote('.query.menu',self.th_menuQueries,pyqueries='=.query.pyqueries',
-                        favoriteQueryPath='=.query.favoriteQueryPath',
-                        table=table,th_root=th_root,caption='Queries',cacheTime=15)
+                        _resolved_pyqueries=q,
+                       # favoriteQueryPath='=.query.favoriteQueryPath',
+                        table=table,th_root=th_root,caption='Queries',cacheTime=15,
+                        _resolved=True)
         pane.dataController("TH(th_root).querymanager.queryEditor(open);",
                         th_root=th_root,open="^.query.queryEditor")
         if not 'adm' in self.db.packages:
             return
         pane.dataRemote('.query.savedqueries',self.th_menuQueries,
-                        favoriteQueryPath='=.query.favoriteQueryPath',
-                        table=table,th_root=th_root,cacheTime=5,editor=False)
+                        #favoriteQueryPath='=.query.favoriteQueryPath',
+                        table=table,th_root=th_root,cacheTime=5,editor=False,
+                        _resolved=True)
         
         pane.dataRemote('.query.helper.in.savedsets',self.th_menuSets,
                         objtype='list_in',table=table,cacheTime=5)
@@ -729,13 +732,25 @@ class TableHandlerView(BaseComponent):
         inattr = pane.getInheritedAttributes()
         table = inattr['table'] 
         th_root = inattr['th_root']
+        tablecode = table.replace('.','_')
         pane.dataController(
                """var th = TH(th_root);
                   
                   th.querymanager = th.querymanager || new gnr.QueryManager(th,this,table);
                """ 
                , _init=True, _onBuilt=True, table=table,th_root = th_root)
-               
+    
+        pane.dataController("""
+                   var qm = TH(th_root).querymanager;
+                   qm.createMenuesQueryEditor();
+                   dijit.byId(qm.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryColumn')));
+                   dijit.byId(qm.relativeId('qb_not_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryNot')));
+                   dijit.byId(qm.relativeId('qb_queryModes_menu')).bindDomNode(genro.domById(qm.relativeId('searchMenu_a')));
+                   qm.setFavoriteQuery();
+        """,_onStart=True,th_root=th_root)   
+        fmenupath = 'gnr.qb.%s.fieldsmenu' %tablecode
+        pane.dataRemote(fmenupath,self.relationExplorer,table=table,omit='_*')
+        pane.data('gnr.qb.sqlop',self.getSqlOperators())   
         pane.dataController("""var th=TH(th_root).querymanager.onQueryCalling(querybag,selectmethod);
                               """,th_root=th_root,_fired="^.runQuery",
                            querybag='=.query.where',
@@ -748,16 +763,6 @@ class TableHandlerView(BaseComponent):
                                genro.dlg.alert(alertmsg,dlgtitle);
                                  """, _fired="^.showQueryCountDlg", waitmsg='!!Working.....',
                               dlgtitle='!!Current query record count',alertmsg='^.currentQueryCountAsString')
-        pane.dataController("""
-                   var qm = TH(th_root).querymanager;
-                   qm.createMenuesQueryEditor();
-                   qm.createFastQueryFieldsTree(this.absDatapath('.query.where.c_0'));
-                   dijit.byId(qm.relativeId('qb_not_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryNot')));
-                   dijit.byId(qm.relativeId('qb_fields_menu_fast')).bindDomNode(genro.domById(qm.relativeId('fastQueryColumn')));
-                   dijit.byId(qm.relativeId('qb_queryModes_menu')).bindDomNode(genro.domById(qm.relativeId('searchMenu_a')));
-                   qm.setFavoriteQuery();
-        """,_onStart=True,th_root=th_root)
-
         box = pane.div(datapath='.query.where',onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
         box.data('.#parent.queryMode','S',caption='!!Search')
         box.div('^.#parent.queryMode?caption',_class='gnrfieldlabel th_searchlabel',
@@ -767,8 +772,12 @@ class TableHandlerView(BaseComponent):
         querybox.div('^.c_0?column_caption', _class='th_querybox_item',
                  nodeId='%s_fastQueryColumn' %th_root,
                   dropTarget=True,
-                 **{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"TH('%s').querymanager.onChangedQueryColumn(this,data);" %th_root})
-
+                 **{str('onDrop_gnrdbfld_%s' %tablecode):"TH('%s').querymanager.onChangedQueryColumn(this,data);" %th_root})
+       #tbox.tree(storepath=fmenupath,popup=True,
+       #        connect_onClick="""function(bagNode,treeNode){
+       #                            var qm = TH('%s').querymanager;
+       #                            qm.onChangedQueryColumnDo(this,this.absDatapath('.c_0'),bagNode.attr)
+       #                        }""" %th_root)
         querybox.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
                 width='1.5em', _class='th_querybox_item', nodeId='%s_fastQueryNot' %th_root)
         querybox.div('^.c_0?op_caption', nodeId='%s_fastQueryOp' %th_root, 
@@ -881,7 +890,7 @@ class THViewUtils(BaseComponent):
         
     
     @public_method
-    def th_menuQueries(self,table=None,th_root=None,pyqueries=None,editor=True,favoriteQueryPath=None,**kwargs):
+    def th_menuQueries(self,table=None,th_root=None,pyqueries=None,editor=True,**kwargs):
         querymenu = Bag()
         if editor:
             querymenu.setItem('__basequery__',None,caption='!!Plain Query',description='',
@@ -908,7 +917,7 @@ class THViewUtils(BaseComponent):
                                 extended=True)
         if self.application.checkResourcePermission('_DEV_,dbadmin', self.userTags):
             querymenu.setItem('__custom_columns__',None,caption='!!Custom columns',action="""FIRE .handle_custom_column;""")
-        querymenu.walk(self._th_checkFavoriteLine,favPath=favoriteQueryPath)
+        #querymenu.walk(self._th_checkFavoriteLine,favPath=favoriteQueryPath)
         return querymenu
             
     @public_method

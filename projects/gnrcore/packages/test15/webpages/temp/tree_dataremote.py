@@ -9,23 +9,65 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
 
         
-    #def test_0_menu(self,pane):
-    #    pane.dataRemote('.menu',self.relationExplorer,table='glbl.provincia',omit='_*',
-    #                    x_resolved=True)
-    #    pane.div(height='20px',width='20px',background='red',margin='20px').menu(storepath='.menu',modifiers='*')
+    def test_0_tree(self,pane):
+        pane.dataRemote('.menu',self.relationExplorer,table='glbl.provincia',omit='_*',
+                        z_resolved=True)
+        pane.data('.caption','pippo')
+        pane.div('^.caption',min_height='20px',min_width='60px',background='silver'
+                ).tree(storepath='.menu',popup=True,
+                        selected_caption='.caption')
+
+    def test_10_tree(self,pane):
+        pane.dataRemote('.menu',self.relationExplorer,table='glbl.provincia',omit='_*',
+                        _resolved=True)
+        pane.data('.caption','pippo')
+        pane.div(min_height='20px',min_width='60px',background='silver'
+                ).tree(storepath='.menu',popup=True)
 
 
     def test_1_tree(self,pane):
         pane.dataRemote('.tree',self.relationExplorer,table='glbl.provincia',omit='_*',
                         z_resolved=True)
-        t =pane.div(height='20px',width='20px',background='green',margin='20px')
-        t.menu(modifiers='*',onOpen="""
-            console.log(this)
-            var mbox = this.sourceNode.getValue().getItem('m_item.m_box');
-            if(!mbox.getNode('m_tree')){
-                mbox._('tree','m_tree',{storepath:'.tree'});
-            }
-            """).menuItem(childname='m_item').div(max_width='300px',height='200px',
-                                                connect_onclick='console.log(e)',
-                                                overflow='auto',childname='m_box')
-        #m.tree(storepath='.tree')
+    
+        pane.div(height='20px',width='20px',
+                    background='green',margin='20px'
+                    ).tree(storepath='.tree',popup=True)
+
+    def test_2_tree_checkbox(self,pane):
+        pane.dataRemote('.tree',self.relationExplorer,table='glbl.provincia',omit='_*',
+                        z_resolved=True)
+    
+        pane.div(height='20px',width='20px',
+                    background='green',margin='20px'
+                    ).tree(storepath='.tree',popup=True,
+                            checkedPaths='.checked',onChecked=True,_class='pippo')
+
+
+    def test_3_doubletree(self,pane):
+        pane.dataRemote('.tree',self.relationExplorer,table='glbl.provincia',omit='_*',
+                        z_resolved=True)
+    
+        pane.div(height='20px',width='20px',
+                    background='green',margin='20px'
+                    ).tree(storepath='.tree',popup=True)
+
+        pane.div(height='20px',width='20px',
+                    background='red',margin='20px'
+                    ).tree(storepath='.tree',popup=True)
+
+
+    def test_4_tree_and_menu(self,pane):
+        pane.dataRemote('.tree',self.relationExplorer,table='glbl.provincia',omit='_*',
+                        z_resolved=True)
+    
+        pane.div(height='20px',width='20px',
+                    background='green',margin='20px'
+                    ).tree(storepath='.tree',popup=True)
+
+        pane.div(height='20px',width='20px',
+                    background='red',margin='20px'
+                    ).menu(storepath='.tree',modifiers='*')
+
+
+
+

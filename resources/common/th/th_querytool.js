@@ -14,14 +14,14 @@ dojo.declare("gnr.QueryManager", null, {
         this.helper_op_dict = {'in':'in','tagged':'tagged'};
         
         
-        genro.setDataFromRemote('gnr.qb.'+this.tablecode+'.fieldsmenu', "relationExplorer", {table:maintable, omit:'_*'});
-        genro.setDataFromRemote('gnr.qb.'+this.tablecode+'.fieldsmenu_tree', "relationExplorer", {table:maintable, omit:'_*'});
-        genro.setDataFromRemote('gnr.qb.sqlop', "getSqlOperators");
+        //genro.setDataFromRemote('gnr.qb.'+this.tablecode+'.fieldsmenu', "relationExplorer", {table:maintable, omit:'_*'});
+        //genro.setDataFromRemote('gnr.qb.'+this.tablecode+'.fieldsmenu_tree', "relationExplorer", {table:maintable, omit:'_*'});
+        //genro.setDataFromRemote('gnr.qb.sqlop', "getSqlOperators");
     },
 
     getDtypeGroup:function(dtype) {
         var dflt = ('other_' + dtype).toLowerCase();
-        var dflt = 'other';
+        dflt = 'other';
         return this.dtypes_dict[dtype] || dflt;
     },
     
@@ -38,29 +38,6 @@ dojo.declare("gnr.QueryManager", null, {
         return genro.nodeById(this.relativeId(id));
     },
     
-    createMenues: function() {
-        genro.src.getNode()._('div', this.relativeId('_qbmenues'));
-        var node = genro.src.getNode(this.relativeId('_qbmenues'));
-        node.clearValue();
-        node.freeze();
-        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.queryModes',
-                                        id:this.relativeId('qb_queryModes_menu'),
-                                       action:'$2.setRelativeData(".#parent.queryMode",$1.fullpath,{caption:$1.caption})'});
-        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.jc',id:this.relativeId('qb_jc_menu')});
-        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.not',id:this.relativeId('qb_not_menu')});
-        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.'+this.tablecode+'.fieldsmenu',id:this.relativeId('qb_fields_menu'),
-            action:"TH('"+this.th_root+"').querymanager.onChangedQueryColumn($2,$1,$2.attr.relpath);"});
-
-        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.op',id:this.relativeId('qb_op_menu')});
-
-        var opmenu_types = ['alpha','alpha_phonetic','date','number','other','boolean','unselected_column'];
-        for (var i = 0; i < opmenu_types.length; i++) {
-            node._('menu', {modifiers:'*',_class:'smallmenu',
-                storepath:'gnr.qb.sqlop.op_spec.' + opmenu_types[i],id:this.relativeId('qb_op_menu_') + opmenu_types[i]});
-        }
-        node.unfreeze();
-    },
-
     createMenuesQueryEditor: function() {
         genro.src.getNode()._('div', this.relativeId('_qbmenues'));
         var node = genro.src.getNode(this.relativeId('_qbmenues'));
@@ -71,8 +48,11 @@ dojo.declare("gnr.QueryManager", null, {
                                        action:'$2.setRelativeData(".#parent.queryMode",$1.fullpath,{caption:$1.caption})'});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.jc',id:this.relativeId('qb_jc_menu')});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.not',id:this.relativeId('qb_not_menu')});
-        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.'+this.tablecode+'.fieldsmenu',id:this.relativeId('qb_fields_menu'),
-            action:"TH('"+this.th_root+"').querymanager.onChangedQueryColumn($2,$1,$2.attr.relpath);"});
+        var connect_onClick = "TH('"+this.th_root+"').querymanager.onChangedQueryColumn(this.widget.originalContextTarget.sourceNode,$1.attr,this.widget.originalContextTarget.sourceNode.attr.relpath);";
+        node._('tree', {storepath:'gnr.qb.'+this.tablecode+'.fieldsmenu',
+                        popup_id:this.relativeId('qb_fields_menu'),popup:true,
+                        connect_onClick:connect_onClick});
+
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.op',id:this.relativeId('qb_op_menu')});
         var opmenu_types = ['alpha','alpha_phonetic','date','number','other','boolean','unselected_column'];
         for (var i = 0; i < opmenu_types.length; i++) {
@@ -81,37 +61,6 @@ dojo.declare("gnr.QueryManager", null, {
         }
         node.unfreeze();
     },
-
-
-    createFastQueryFieldsTree:function(datapath){
-        genro.src.getNode()._('div', this.relativeId('_qbmenues_fast'));
-        var node = genro.src.getNode(this.relativeId('_qbmenues_fast'));
-        node.clearValue();
-        node.freeze();
-        //"genro.bp(true);TH('"+this.th_root+"').querymanager.onChangedQueryColumn($2,$1,$2.attr.relpath);"
-        var that = this;
-        this._floatingTreeMenu(node,'qb_fields_menu_fast',{storepath:'gnr.qb.'+this.tablecode+'.fieldsmenu_tree',
-                                connect_onClick:function(bagNode,treeNode){
-                                    that.onChangedQueryColumnDo(this,datapath,bagNode.attr)
-                                }})
-        var opmenu_types = ['alpha','alpha_phonetic','date','number','other','boolean','unselected_column'];
-        node.unfreeze();
-    },
-
-    _floatingTreeMenu:function(node,name,kw){
-        var menu = node._('menu', {modifiers:'*',_class:'menupane',id:this.relativeId(name), connect_ondblclick:function(bagNode,treeNode){
-                                    this.widget.onCancel();
-                                }});
-        var box = menu._('menuItem',{})._('div',{max_height:'300px',min_width: '220px',overflow:'auto',
-                                                connect_onclick:function(e){e.stopPropagation();e.preventDefault();}})._('div',{padding_top:'4px', padding_bottom:'4px'});
-        return box._('tree','treemenu',objectUpdate({
-            openOnClick:true,
-            hideValues:true,autoCollapse:true, //excludeRoot:true,
-            labelAttribute:'caption',selectedLabelClass:'selectedFieldTreeNode',
-                         parentMenu:menu,_class:"branchtree noIcon"},kw));
-
-    },
-
 
     getOpMenuId: function(dtype) {
         var id = dtype ? "qb_op_menu_" + this.getDtypeGroup(dtype) : 'qb_op_menu_unselected_column';

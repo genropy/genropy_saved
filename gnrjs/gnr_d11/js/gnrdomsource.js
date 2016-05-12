@@ -98,7 +98,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     
     getParentWidget:function(tagToFind) {
-		var tag=tagToFind?tagToFind.toLowerCase():none;
+        var tag=tagToFind?tagToFind.toLowerCase():none;
         var parentNode = this.getParentNode();
         if (parentNode) {
             return (parentNode.widget && (!tag || ((parentNode.attr.tag ||'' ).toLowerCase()==tag)))?parentNode.widget : parentNode.getParentWidget(tagToFind);
@@ -439,7 +439,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         
     },
     setAttributeInDatasource: function(attrname, value, doTrigger, attributes, forceChanges) {
-        var doTrigger = (doTrigger == null) ? this:doTrigger;
+        doTrigger = (doTrigger == null) ? this:doTrigger;
         var path = this.attrDatapath(attrname);
         var old_value = genro._data.getItem(path);
         //if (forceChanges){

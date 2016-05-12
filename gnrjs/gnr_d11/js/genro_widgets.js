@@ -38,17 +38,16 @@ gnr.setOrConnectCb = function(widget, name, cb) {
 };
 
 gnr.menuFromBag = function (bag, appendTo, menuclass, basepath) {
-    var menuline,attributes;
+    var menuline,attributes,newmenu,valuelabel;
     var bagnodes = bag.getNodes();
     for (var i = 0; i < bagnodes.length; i++) {
         var bagnode = bagnodes[i];
         attributes = objectUpdate({}, bagnode.attr);
-        var valuelabel = null;
+        valuelabel = null;
         if(typeof(bagnode._value)=='string'){
             valuelabel = bagnode._value;
         }
         attributes.label = attributes.caption || attributes.label || valuelabel || bagnode.label;
-
         attributes.fullpath = basepath ? basepath + '.' + bagnode.label : bagnode.label;
         menuline = appendTo._('menuline', attributes);
         if (bagnode.getResolver()) {
@@ -59,7 +58,7 @@ gnr.menuFromBag = function (bag, appendTo, menuclass, basepath) {
         else {
             var menucontent = bagnode.getValue();
             if (menucontent instanceof gnr.GnrBag) {
-                var newmenu = menuline._('menu', {'_class':menuclass});
+                newmenu = menuline._('menu', {'_class':menuclass});
                 gnr.menuFromBag(menucontent, newmenu, menuclass, attributes.fullpath);
             }
         }
@@ -94,7 +93,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
            }
         }
         var path = sourceNode.attrDatapath('value');
-        var valueAttr = valueAttr || {};
+        valueAttr = valueAttr || {};
         value = this.onSettingValueInData(sourceNode,value,valueAttr);
         if (sourceNode.attr.mask || sourceNode.attr.format) {
             var valueToFormat = (typeof(value)=='string' && '_displayedValue' in valueAttr)? valueAttr['_displayedValue'] : value;
@@ -120,7 +119,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
     
     _doChangeInData:function(domnode, sourceNode, value, valueAttr) {
         this.setValueInData(sourceNode,value,valueAttr);
-        this.doChangeInData(sourceNode, value, valueAttr)
+        this.doChangeInData(sourceNode, value, valueAttr);
     },
     doChangeInData:function(sourceNode, value, valueAttr){
 
@@ -1592,19 +1591,19 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
     },
 
     mixin_displayMessage: function(/*String*/ message){
-		// summary:
-		//		User overridable method to display validation errors/hints.
-		//		By default uses a tooltip.
+        // summary:
+        //      User overridable method to display validation errors/hints.
+        //      By default uses a tooltip.
         if(isNullOrBlank(this.value)){
             return;
         }
-		if(this._message == message){ return; }
-		this._message = message;
-		dijit.hideTooltip(this.domNode);
-		if(message){
-			dijit.showTooltip(message, this.domNode, this.tooltipPosition);
-		}
-	}
+        if(this._message == message){ return; }
+        this._message = message;
+        dijit.hideTooltip(this.domNode);
+        if(message){
+            dijit.showTooltip(message, this.domNode, this.tooltipPosition);
+        }
+    }
 });
 
 dojo.declare("gnr.widgets.ProgressBar", gnr.widgets.baseDojo, {

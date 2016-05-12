@@ -1875,13 +1875,11 @@ dojo.declare("gnr.GnrBag", null, {
     },
 
     setBackRef: function(node, parent) {
-        if (this._backref != true) {
-            this._backref = true;
-            this._parent = parent;
-            this._parentnode = node;
-            for (var i = 0; i < this._nodes.length; i++) {
-                this._nodes[i].setParentBag(this);
-            }
+        this._backref = true;
+        this._parent = parent;
+        this._parentnode = node;
+        for (var i = 0; i < this._nodes.length; i++) {
+            this._nodes[i].setParentBag(this);
         }
     },
 

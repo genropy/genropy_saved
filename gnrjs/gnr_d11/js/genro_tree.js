@@ -28,6 +28,40 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         this._domtag = 'div';
         this._dojotag = 'Tree';
     },
+
+    onBuilding:function(sourceNode){
+        var popup = objectPop(sourceNode.attr,'popup');
+        if(!popup){
+            return;
+        }
+        var popup_kw = {tag:'menu',modifiers:'*',_class:'menupane',
+                        connect_ondblclick:function(bagNode,treeNode){
+                            this.widget.onCancel();
+                        }};
+        var treeattr = objectUpdate({},sourceNode.attr);
+        popup_kw.datapath = objectPop(treeattr,'datapath');
+        popup_kw.connect_onOpen = function(evt){
+            var box = this.getValue().getItem('m_item.m_scrollbox.m_spacer');
+            if(!box.getNode('treemenu')){
+                box._('tree','treemenu',
+                        objectUpdate({openOnClick:true,
+                            hideValues:true,autoCollapse:true, //excludeRoot:true,
+                            labelAttribute:'caption',selectedLabelClass:'selectedFieldTreeNode',
+                            parentMenu:this,_class:"branchtree noIcon"},treeattr));
+            }
+            box.getNode('treemenu').widget.originalContextTarget = this.widget.originalContextTarget;
+        };
+        var box_kw = objectExtract(popup_kw,'max_height,min_width');
+        objectUpdate(popup_kw,objectExtract(sourceNode.attr,'popup_*'));
+        sourceNode.attr = popup_kw;
+        box_kw.max_height= box_kw.max_height || '300px';
+        box_kw.min_width= box_kw.min_width || '220px';
+        box_kw.overflow='auto';
+        box_kw.connect_onclick = function(e){e.stopPropagation();e.preventDefault();};
+        sourceNode._('menuItem','m_item',{},{doTrigger:false})._('div','m_scrollbox',box_kw,{doTrigger:false})._('div','m_spacer',{padding_top:'4px', padding_bottom:'4px'},{doTrigger:false});
+    },
+
+
     creating: function(attributes, sourceNode) {
         dojo.require("dijit.Tree");
         // var nodeAttributes = objectExtract(attributes,'node_*');
@@ -52,9 +86,9 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             sourceNode:sourceNode
             });
         var model = new dijit.tree.ForestStoreModel({store: store,childrenAttrs: ["#v"]});
-        attributes['model'] = model;
-        attributes['showRoot'] = false;
-        attributes['persist'] = attributes['persist'] || false;
+        attributes.model = model;
+        attributes.showRoot = false;
+        attributes.persist = attributes.persist || false;
         if (attributes['getLabel']) {
             var labelGetter = funcCreate(attributes['getLabel'], 'node');
             attributes.getLabel = function(node) {
@@ -85,7 +119,6 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                     return labelClass;
                 }
             }
-            ;
         };
         if (attributes['getIconClass']) {
             var iconGetter = funcCreate(attributes['getIconClass'], 'node,opened');
@@ -129,7 +162,6 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         if (objectNotEmpty(tooltipAttrs)) {
             savedAttrs['tooltipAttrs'] = tooltipAttrs;
         }
-        ;
         // attributes.gnrNodeAttributes=nodeAttributes;
         attributes.sourceNode = sourceNode;
         return savedAttrs;
@@ -150,7 +182,6 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                 modifiers:savedAttrs.tooltipAttrs.modifiers
             }).connectOneNode(widget.domNode);
         }
-        ;
         if (savedAttrs.inspect) {
             var modifiers = (savedAttrs.inspect == true) ? '' : savedAttrs.inspect;
             genro.wdg.create('tooltip', null, {label:function(n) {
@@ -160,14 +191,13 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                 modifiers:modifiers
             }).connectOneNode(widget.domNode);
         }
-        ;
 
         //dojo.connect(widget,'onClick',widget,'_updateSelect');
         var storepath = widget.model.store.datapath;
         if ((storepath == '*D') || (storepath == '*S'))
             widget.sourceNode.registerSubscription('_trigger_data',widget,function(kw){
                 this.setStorepath('', kw);
-            })
+            });
         else {
             sourceNode.registerDynAttr('storepath');
         }
@@ -176,7 +206,6 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             if (savedAttrs.onChecked != true) {
                 widget.onChecked = funcCreate(savedAttrs.onChecked, 'node,event');
             }
-            ;
         }
         if (savedAttrs.autoCollapse) {
             dojo.connect(widget, '_expandNode', function(node) {
@@ -252,11 +281,10 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
     },
     
     attributes_mixin_checkBoxCalcStatus:function(bagnode) {
-        var checked;
+        var checked,ck;
         if (bagnode._resolver && bagnode._resolver.expired()) {
             return false;
         } else if (bagnode._value instanceof gnr.GnrBag) {
-            var ck = null;
             bagnode._value.forEach(function(node) {
                 var checked = ('checked' in node.attr) ? (node.attr.checked || false) : -1;
                 ck = (ck == null) ? checked : (ck != checked) ? -1 : ck;
@@ -266,7 +294,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
     },
 
     mixin_collapseAll:function(curr){
-        var curr = curr || this.rootNode;
+        curr = curr || this.rootNode;
         var tree = this;
         dojo.forEach(curr.getChildren(), function(n) {
             if (n.isExpanded) {
@@ -608,10 +636,10 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         var store = this.sourceNode.getRelativeData(this.sourceNode.attr.storepath);
         store.walk(function(n){
             n.setAttr({'checked':false}, true, true);
-        },'static')
+        },'static');
         var paths = this.sourceNode.getRelativeData(this.sourceNode.attr.checkedPaths);
         if(!paths){
-            this.updateCheckedAttr()
+            this.updateCheckedAttr();
             return;
         }
         paths = paths.split(this.sourceNode.attr.checkedPaths_joiner || ',');
@@ -681,7 +709,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             if (i < pathList.length - 1) {
                 if (!treeNode.isExpanded) {
                     this._expandNode(treeNode);
-                };
+                }
             }
         }
      },
@@ -717,15 +745,21 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         var attributes = {};
         var setterNode = this.sourceNode;
         var countainingMenu = this.getContainingtMenu();
+        var path;
         if(countainingMenu){
-            var targetWdg = dijit.getEnclosingWidget(countainingMenu.widget.originalContextTarget);
-            setterNode = targetWdg? targetWdg.sourceNode:setterNode;
+            var targetDomNode = countainingMenu.widget.originalContextTarget;
+            if(targetDomNode.sourceNode){
+                setterNode = targetDomNode.sourceNode;
+            }else{
+                var targetWdg = dijit.getEnclosingWidget(targetDomNode);
+                setterNode = targetWdg? targetWdg.sourceNode:setterNode;
+            }
         }
         if (modifiers) {
             attributes._modifiers = modifiers;
         }
         if (!item) {
-            var item = new gnr.GnrBagNode();
+            item = new gnr.GnrBagNode();
         }
         else if (!item._id) {
             item = node.getParent().item;
@@ -733,25 +767,25 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         var root = this.model.store.rootData();
         var itemFullPath = item.getFullpath(null, root);
         if (this.sourceNode.attr.selectedLabel) {
-            var path = this.sourceNode.attrDatapath('selectedLabel',setterNode);
+            path = this.sourceNode.attrDatapath('selectedLabel',setterNode);
             setterNode.setRelativeData(path, item.label, attributes, null, reason);
         }
         if (this.sourceNode.attr.selectedItem) {
-            var path = this.sourceNode.attrDatapath('selectedItem',setterNode);
+            path = this.sourceNode.attrDatapath('selectedItem',setterNode);
             setterNode.setRelativeData(path, item, attributes, null, reason);
         }
         if (this.sourceNode.attr.selectedPath) {
-            var path = this.sourceNode.attrDatapath('selectedPath', setterNode);
+            path = this.sourceNode.attrDatapath('selectedPath', setterNode);
             setterNode.setRelativeData(path, itemFullPath, objectUpdate(attributes, item.attr), null, reason);
         }
         var selattr = objectExtract(this.sourceNode.attr, 'selected_*', true);
         for (var sel in selattr) {
-            var path = this.sourceNode.attrDatapath('selected_' + sel,setterNode);
+            path = this.sourceNode.attrDatapath('selected_' + sel,setterNode);
             setterNode.setRelativeData(path, item.attr[sel], attributes, null, reason);
         }
         if(this.sourceNode.attr.onSelectedFire){
             setterNode.fireEvent(this.sourceNode.attr.onSelectedFire,true);
         }
-        this.sourceNode.publish('onSelected',{path:itemFullPath,item:item,node:node})
+        this.sourceNode.publish('onSelected',{path:itemFullPath,item:item,node:node});
     }
 });
