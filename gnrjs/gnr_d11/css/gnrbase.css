@@ -5339,3 +5339,9 @@ div[disabled='true'], div[disabled='disabled']{
 .grid_filler td{
     border-right:1px solid #DDDDDD;
 }
+
+
+
+.jslink, jslink:visited{
+    color:#3C1416;
+}
