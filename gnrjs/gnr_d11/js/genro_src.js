@@ -518,7 +518,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                 value = node.getValue('static');
                 path = node.absDatapath(path);
                 node._value = null;
-                node.attr._resolvedValue = value;
+                node._resolvedValue = value;
             }
             node.setDataNodeValue();
         } else {         

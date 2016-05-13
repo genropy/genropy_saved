@@ -420,12 +420,12 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         else {
             if (if_result) {
-                var method = expr;
+                method = expr;
                 var cacheTime = objectPop(attributes, 'cacheTime', -1);
                 var isGetter = objectPop(attributes, 'isGetter', false);
                 attributes.sync = ('sync' in attributes) ? attributes.sync : true;
                 attributes['_sourceNode'] = this;
-                var resolvedValue = objectPop(this.attr,'_resolvedValue');
+                var resolvedValue = this._resolvedValue;
                 var resolver = genro.rpc.remoteResolver(method, attributes, {'cacheTime':cacheTime,
                     'isGetter':isGetter});
                 dataNode.setValue(resolver, true, attributes);
@@ -433,6 +433,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     dataNode._status = 'loaded';
                     dataNode.setValue(resolvedValue,'resolver');
                     dataNode._resolver.lastUpdate = new Date();
+                    delete this._resolvedValue;
                 }
             }
         }
