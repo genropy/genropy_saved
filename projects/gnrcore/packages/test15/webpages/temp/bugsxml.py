@@ -13,11 +13,11 @@ class GnrCustomWebPage(object):
     def test_0_dataxml(self,pane):
         """First test description"""
         pane.dataController("""
-        	var b = new gnr.GnrBag();
-        	var c = new gnr.GnrBag();
-        	c.setItem('zzz','aaa',{_pippo:null,paperino:3,papa:null})
-        	b.setItem('ttt',c,{_pippo:null,paperion:22,papa:null})
-        	genro.serverCall('bugkwargs',{data:b});
+            var b = new gnr.GnrBag();
+            var c = new gnr.GnrBag();
+            c.setItem('zzz','aaa',{_pippo:null,paperino:3,papa:null})
+            b.setItem('ttt',c,{_pippo:null,paperion:22,papa:null})
+            genro.serverCall('bugkwargs',{data:b});
         """,_onStart=False)
 
     def test_1_xxx(self,pane):

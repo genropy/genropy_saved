@@ -113,7 +113,7 @@ function objectAsGrid(obj,labels){
     return result;
 };
 function objectAsHTMLTable(obj,labels){
-    var labels = labels || 'label,value';
+    labels = labels || 'label,value';
     var b = objectAsGrid(obj);
     return b.asHtmlTable({cells:labels});
 };
@@ -644,7 +644,7 @@ function objectIsEqual(obj1, obj2) {
 }
 
 function objectRemoveNulls(obj, blackList) {
-    var blackList = blackList || [null];
+    blackList = blackList || [null];
     var result = {};
     for (var prop in obj) {
         if ((obj[prop] != null) && (obj[prop] != '')) {
@@ -664,7 +664,7 @@ function objectDifference(objOld, objNew) {
         }
     }
     for (var prop in objOld) {
-        if (! prop in objNew) {
+        if (! (prop in objNew)) {
             result[prop] = ['D',objOld[prop]];
         }
     }

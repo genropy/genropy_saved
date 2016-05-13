@@ -95,6 +95,10 @@ genropatches.dojoToJson = function() {
         if(it === undefined){
             return "null";
         }
+        if(it instanceof gnr.GnrBag){
+            console.log('object_to_json',it);
+        }
+        
         var objtype = typeof it;
         if(objtype == "number" || objtype == "boolean"){
             return it + "";

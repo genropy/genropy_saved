@@ -1132,7 +1132,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             var template = opt['template'];
             if (template) {
-                v = template.replace(/#/g, v);
+                if(template.indexOf('$'+cell.field)>=0){
+                    v = dataTemplate(template,renderedRow);
+                }else{
+                    v = template.replace(/#/g, v);
+                }
+                
             }
             if (opt['js']) {
                 v = opt['js'](v, this.grid.storebag().getNodes()[inRowIndex]);

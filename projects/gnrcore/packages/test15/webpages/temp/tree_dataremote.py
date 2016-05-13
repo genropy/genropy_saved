@@ -37,10 +37,10 @@ class GnrCustomWebPage(object):
         pane.dataRemote('.tree',self.relationExplorer,table='glbl.provincia',omit='_*',
                         z_resolved=True)
     
-        pane.div(height='20px',width='20px',
-                    background='green',margin='20px'
+        pane.div('^.checked',height='20px',width='200px',
+                    margin='20px',border='1px solid silver'
                     ).tree(storepath='.tree',popup=True,
-                            checkedPaths='.checked',onChecked=True,_class='pippo')
+                            checked_caption='.checked',onChecked=True,_class='pippo')
 
 
     def test_3_doubletree(self,pane):
