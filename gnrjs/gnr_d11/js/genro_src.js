@@ -514,7 +514,8 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             }
         } else if (tag == 'dataRemote') {
             node._dataprovider = tag;
-            if(node.attr._resolved){
+            var isResolved = objectPop(node.attr,'_resolved');
+            if(isResolved){
                 value = node.getValue('static');
                 path = node.absDatapath(path);
                 node._value = null;
