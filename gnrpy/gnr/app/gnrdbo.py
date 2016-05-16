@@ -887,6 +887,7 @@ class TableBase(object):
                         onUpdated='multidbSyncUpdated',
                         onDeleting='multidbSyncDeleting',
                         onInserted='multidbSyncInserted',
+                        onUpdating='multidbSyncUpdating',
                         group=group,_sysfield=True)
             if allRecords or forcedStore:
                 return 
@@ -910,6 +911,13 @@ class TableBase(object):
         if self.hasMultidbSubscription():
             relations.remove('@subscriptions')
             self.db.table('multidb.subscription').cloneSubscriptions(self.fullname,sourceRecord[self.pkey],destRecord[self.pkey])
+
+
+
+    def trigger_multidbSyncUpdating(self, record,old_record=None,**kwargs):
+        if not self.db.usingRootstore():
+            self.db.table('multidb.subscription').onSlaveUpdating(self,record,old_record=old_record)
+     
 
     def trigger_multidbSyncUpdated(self, record,old_record=None,**kwargs):
         self.db.table('multidb.subscription').onSubscriberTrigger(self,record,old_record=old_record,event='U')
