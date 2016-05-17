@@ -3298,6 +3298,7 @@ dojo.declare("gnr.widgets.DropUploader", gnr.widgets.gnrwdg, {
         var fakeinput = container._('input',{hidden:true,type:'file',
                 connect_onchange:function(evt){
                     onFiles({evt:evt},evt.target.files);
+                    this.domNode.value = null;
                 }
         });
         gnrwdg.fakeinputNode = fakeinput.getParentNode();
