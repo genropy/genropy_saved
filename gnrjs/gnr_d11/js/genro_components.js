@@ -848,7 +848,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         gnrwdg.matchColumns = objectPop(kw,'matchColumns');
         gnrwdg.importButtonKw = objectExtract(kw,'importButton_*');
         gnrwdg.importMethod = objectPop(kw,'rpcmethod');
-        gnrwdg.batchParameters = objectPop(kw,'batch_*');
+        gnrwdg.batchParameters = objectExtract(kw,'batch_*');
         gnrwdg.uploaderId = sourceNode.attr.nodeId +'_uploader';
         var palette = sourceNode._('PalettePane',kw);
         var bc = palette._('BorderContainer',{_lazyBuild:true});
@@ -3298,6 +3298,7 @@ dojo.declare("gnr.widgets.DropUploader", gnr.widgets.gnrwdg, {
         var fakeinput = container._('input',{hidden:true,type:'file',
                 connect_onchange:function(evt){
                     onFiles({evt:evt},evt.target.files);
+                    this.domNode.value = null;
                 }
         });
         gnrwdg.fakeinputNode = fakeinput.getParentNode();
