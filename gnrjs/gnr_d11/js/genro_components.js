@@ -848,6 +848,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         gnrwdg.matchColumns = objectPop(kw,'matchColumns');
         gnrwdg.importButtonKw = objectExtract(kw,'importButton_*');
         gnrwdg.importMethod = objectPop(kw,'rpcmethod');
+        gnrwdg.batchParameters = objectPop(kw,'batch_*');
         gnrwdg.uploaderId = sourceNode.attr.nodeId +'_uploader';
         var palette = sourceNode._('PalettePane',kw);
         var bc = palette._('BorderContainer',{_lazyBuild:true});
@@ -899,7 +900,13 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
                                         imported_file_path:'=.imported_file_path',
                                         match:'=.match',
                                         action:function(){
-                                            gnrwdg.importDo(this);
+                                            if(objectNotEmpty(gnrwdg.batchParameters)){
+                                                genro.publish('table_script_run',this.evaluateOnNode(gnrwdg.batchParameters));
+                                                gnrwdg.resetImporter();
+                                                genro.wdgById(frameCode+'_floating').hide();
+                                            }else{
+                                                gnrwdg.importDo(this);
+                                            }
                                     },disabled:'^.imported_file_path?=!#v'},gnrwdg.importButtonKw)
         footerbar._('slotButton','importButton',importButtonKw);
         var qg = frame._('ContentPane',{'side':'center',overflow:'hidden'})._('quickGrid', {value:'^.importing_data'});
