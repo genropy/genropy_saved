@@ -6,3 +6,4 @@ gnrpy/build/
 _static
 *.pyc
 *.pyo
+gnrpy/.cache

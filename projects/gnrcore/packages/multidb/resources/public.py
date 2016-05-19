@@ -21,8 +21,11 @@ class TableHandlerMain(BaseComponent):
                 self.__formCustomization(th.form)
     
     def __formCustomization(self,form):
-        if self.tblobj.multidb_readOnly():
+        readOnly = self.tblobj.multidb_readOnly()
+        if readOnly is True:
             form.attributes.update(form_readOnly=True)
+        elif readOnly == 'merge':
+            pass
     
     def __viewCustomization(self,view): #poi ci passo il th direttamente
         table = view.getInheritedAttributes()['table']

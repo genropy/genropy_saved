@@ -178,7 +178,6 @@ class BaseSql(object):
         assert result[0]['title'] == "Match point"
 
     def test_join_relationDict(self):
-        tbl = self.db.table('video.dvd')
         #raise str(tbl.fields['@movie_id'].keys())
         result = self.db.query('video.dvd', columns='$title',
                                relationDict={'title': '@movie_id.title'},

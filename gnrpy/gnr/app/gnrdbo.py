@@ -671,6 +671,9 @@ class TableBase(object):
         return 'multidb_allRecords' in self.attributes
 
     def multidb_readOnly(self):
+        attributes = self.attributes
+        if attributes.get('multidb_onLocalWrite') == 'merge':
+            return 'merge'
         return self.db.currentPage.dbstore and 'multidb_allRecords' in self.attributes
 
     def checkSyncAll(self,dbstores=None):

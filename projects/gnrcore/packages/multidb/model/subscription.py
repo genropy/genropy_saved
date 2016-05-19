@@ -1,19 +1,15 @@
 # encoding: utf-8
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
-from gnr.sql.gnrsql import GnrSqlException
 from copy import deepcopy
-
-class GnrMultidbException(GnrSqlException):
-    """Standard Genro SQL Business Logic Exception
-    
-    * **code**: GNRSQL-101
-    """
-    code = 'GNRSQL-101'
-    description = '!!%(description)s'
-    caption = '!!%(msg)s'
+from gnrpkg.multidb.utils import GnrMultidbException
 
 class Table(object):
+
+    def multidbExceptionClass(self):
+        return GnrMultidbException
+
+
     def config_db(self, pkg):
         tbl =  pkg.table('subscription',pkey='id',name_long='!!Subscription',
                       name_plural='!!Subscriptions',broadcast='tablename,dbstore',ignoreUnify=True)
@@ -156,13 +152,14 @@ class Table(object):
     def onSubscriberTrigger(self,tblobj,record,old_record=None,event=None):
         syncAllStores = tblobj.attributes.get('multidb_allRecords') or record.get('__multidb_default_subscribed')
         if self.db.usingRootstore():
-            subscribedStores = self.getSubscribedStores(tblobj=tblobj,record=record,syncAllStores)
+            subscribedStores = self.getSubscribedStores(tblobj=tblobj,record=record,syncAllStores=syncAllStores)
             mergeUpdate = tblobj.attributes.get('multidb_onLocalWrite')=='merge'
+            pkey = record[tblobj.pkey]
             for storename in subscribedStores:
                 self.syncStore(event=event,storename=storename,tblobj=tblobj,pkey=pkey,
                                 master_record=record,master_old_record=old_record,mergeUpdate=mergeUpdate)
         elif not self.db.currentEnv.get('_multidbSync'):
-            self.onSubscriberTrigger_slavestore(tblobj,record,old_record=old_record,event=event,syncAllStores=None)
+            self.onSubscriberTrigger_slavestore(tblobj,record,old_record=old_record,event=event,syncAllStores=syncAllStores)
 
     def getSubscribedStores(self,tblobj,record,syncAllStores=None):
         subscribedStores = []
@@ -201,8 +198,8 @@ class Table(object):
                 raise GnrMultidbException(description='Multidb exception',msg="You cannot update this record in a synced store")
 
     def onSlaveUpdating(self,tblobj,record,old_record=None):
-        if self.db.currentEnv.get('_multidbSync'):
-            pass
+        if self.db.usingRootstore() or self.db.currentEnv.get('_multidbSync'):
+            return
         onLocalWrite = tblobj.attributes.get('multidb_onLocalWrite') or 'raise'
         if onLocalWrite!='merge':
             raise GnrMultidbException(description='Multidb exception',msg="You cannot update this record in a synced store")
