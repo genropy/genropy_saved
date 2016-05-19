@@ -34,6 +34,13 @@ class TableHandlerMain(BaseComponent):
             grid.column('fname',name='Field',width='10em')
             grid.column('mvalue',name='Main value',width='15em')
             grid.column('lvalue',name='local value',width='15em')
+        elif not self.tblobj.attributes['multidb_allRecords']:
+            bar = form.top.bar.replaceSlots(',*,',',*,cb_default_sub,10,')
+            bar.cb_default_sub.checkbox(value='^#FORM.record.__multidb_default_subscribed',
+                                        label='!!Subscribed by default',margin_top='1px',
+                                        label_color='#666',label_font_size='.9em',
+                                        label_font_weight='bold')
+
 
     def __viewCustomization(self,view): #poi ci passo il th direttamente
         table = view.getInheritedAttributes()['table']

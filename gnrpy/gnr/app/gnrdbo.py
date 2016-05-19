@@ -672,9 +672,11 @@ class TableBase(object):
 
     def multidb_readOnly(self):
         attributes = self.attributes
+        if not (self.db.currentPage.dbstore and 'multidb_allRecords' in self.attributes):
+            return False
         if attributes.get('multidb_onLocalWrite') == 'merge':
             return 'merge'
-        return self.db.currentPage.dbstore and 'multidb_allRecords' in self.attributes
+        return True
 
     def checkSyncAll(self,dbstores=None):
         if dbstores is None:
@@ -896,7 +898,7 @@ class TableBase(object):
                 return 
                 
             tbl.column('__multidb_default_subscribed',dtype='B',_pluggedBy='multidb.subscription',
-                    name_long='!!Subscribed by default',plugToForm=True,group=group,_sysfield=True)
+                    name_long='!!Subscribed by default',group=group,_sysfield=True)
             tbl.formulaColumn('__multidb_subscribed',"""EXISTS (SELECT * 
                                                         FROM multidb.multidb_subscription AS sub
                                                         WHERE sub.dbstore = :env_target_store 
