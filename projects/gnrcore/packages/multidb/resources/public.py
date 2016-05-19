@@ -17,16 +17,24 @@ class TableHandlerMain(BaseComponent):
         th = getattr(self,'root_tablehandler',None)
         if th:
             self.__viewCustomization(th.view)
-            #if hasattr(th,'form'):
-            #    self.__formCustomization(th.form)
+            if hasattr(th,'form'):
+                self.__formCustomization(th.form)
     
-   # def __formCustomization(self,form):
-   #     readOnly = self.tblobj.multidb_readOnly()
-   #     if readOnly is True:
-   #         form.attributes.update(form_readOnly=True)
-   #     elif readOnly == 'merge':
-   #         pass
-    
+    def __formCustomization(self,form):
+        readOnly = self.tblobj.multidb_readOnly()
+        if readOnly=='merge':
+            bar = form.top.bar.replaceSlots(',*,',',*,merge_tool,10,')
+            box = bar.merge_tool.div(width='20px')
+            merge_tool = box.div(_class='iconbox warning',hidden='^#FORM.record?_multidb_diff?=!#v')
+            tpane = merge_tool.tooltipPane(onOpening="""
+
+                """)
+            fpane = tpane.roundedGroupFrame(title='Localstore differences',height='200px',width='550px')
+            grid = fpane.quickgrid(value='^#FORM.localstore_changes')
+            grid.column('fname',name='Field',width='10em')
+            grid.column('mvalue',name='Main value',width='15em')
+            grid.column('lvalue',name='local value',width='15em')
+
     def __viewCustomization(self,view): #poi ci passo il th direttamente
         table = view.getInheritedAttributes()['table']
         

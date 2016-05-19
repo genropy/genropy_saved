@@ -210,13 +210,13 @@ class Table(object):
         main_record = tblobj.record(pkey=record[tblobj.pkey],
                                 bagFields=True,excludeLogicalDeleted=False,
                                 _storename=False).output('record')
-        changed = []
+        changelist = []
         for k,v in main_record.items():
             if k not in FIELD_BLACKLIST:
                 if record[k] != v:
-                    changed.append(k)
+                    changelist.append(k)
                     record.setAttr(k,wdg__class='multidb_local_change',multidb_mainvalue=v)
-        return changed
+        return ','.join(changelist)
 
 
 

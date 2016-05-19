@@ -1160,7 +1160,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 n.attr._keep = true;
             }
         }
-        var data = data || new gnr.GnrBag();
+        data = data || new gnr.GnrBag();
         this.sourceNode.setRelativeData(this.formDatapath,data);
     },
     getDataNodeAttributes:function(){

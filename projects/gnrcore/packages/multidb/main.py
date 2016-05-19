@@ -7,9 +7,9 @@ class MultidbTable(object):
     def onLoading_multidb(self,record,newrecord,loadingParameters,recInfo):
         if not self.db.usingRootstore():
             if self.attributes.get('multidb_onLocalWrite') == 'merge':
-                changed = self.db.table('multidb.subscription').decoreMergedRecord(self,record)
-                print 'changed',changed
-                if changed or recInfo.get('ignoreReadOnly'):
+                changelist = self.db.table('multidb.subscription').decoreMergedRecord(self,record)
+                recInfo['_multidb_diff'] = changelist
+                if changelist or recInfo.get('ignoreReadOnly'):
                     return
             recInfo['_protect_write'] = True
             recInfo['_protect_write_message'] = "!!Can be changed only in main store"
