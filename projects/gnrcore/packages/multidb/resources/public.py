@@ -17,15 +17,15 @@ class TableHandlerMain(BaseComponent):
         th = getattr(self,'root_tablehandler',None)
         if th:
             self.__viewCustomization(th.view)
-            if hasattr(th,'form'):
-                self.__formCustomization(th.form)
+            #if hasattr(th,'form'):
+            #    self.__formCustomization(th.form)
     
-    def __formCustomization(self,form):
-        readOnly = self.tblobj.multidb_readOnly()
-        if readOnly is True:
-            form.attributes.update(form_readOnly=True)
-        elif readOnly == 'merge':
-            pass
+   # def __formCustomization(self,form):
+   #     readOnly = self.tblobj.multidb_readOnly()
+   #     if readOnly is True:
+   #         form.attributes.update(form_readOnly=True)
+   #     elif readOnly == 'merge':
+   #         pass
     
     def __viewCustomization(self,view): #poi ci passo il th direttamente
         table = view.getInheritedAttributes()['table']

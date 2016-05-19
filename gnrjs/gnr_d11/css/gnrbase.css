@@ -5340,8 +5340,10 @@ div[disabled='true'], div[disabled='disabled']{
     border-right:1px solid #DDDDDD;
 }
 
-
-
 .jslink, jslink:visited{
     color:#3C1416;
+}
+
+.multidb_local_change{
+    color:blue;
 }

@@ -4,6 +4,8 @@ from gnr.core.gnrdecorator import public_method
 from copy import deepcopy
 from gnrpkg.multidb.utils import GnrMultidbException
 
+FIELD_BLACKLIST = ('__ins_ts','__mod_ts','__version','__del_ts','__moved_related')
+
 class Table(object):
 
     def multidbExceptionClass(self):
@@ -119,7 +121,7 @@ class Table(object):
                     if event=='U':
                         if mergeUpdate:
                             for k,v in data_record.items(): 
-                                if v!=old_record[k] and old_record[k] != master_record[k]:
+                                if (v!=old_record[k]) and (old_record[k] != master_old_record[k]):
                                     data_record.pop(k)
                         tblobj.update(data_record,old_record=old_record)
                     else:
@@ -192,9 +194,7 @@ class Table(object):
                     self.raw_delete(subscription_id) # in order to avoid subscription delete trigger
         else: #update
             onLocalWrite = tblobj.attributes.get('multidb_onLocalWrite') or 'raise'
-            if onLocalWrite=='merge':
-                raise GnrMultidbException(description='Multidb exception',msg="multidb merge to do")
-            else:
+            if onLocalWrite!='merge':
                 raise GnrMultidbException(description='Multidb exception',msg="You cannot update this record in a synced store")
 
     def onSlaveUpdating(self,tblobj,record,old_record=None):
@@ -204,6 +204,19 @@ class Table(object):
         if onLocalWrite!='merge':
             raise GnrMultidbException(description='Multidb exception',msg="You cannot update this record in a synced store")
 
+
+
+    def decoreMergedRecord(self,tblobj,record):
+        main_record = tblobj.record(pkey=record[tblobj.pkey],
+                                bagFields=True,excludeLogicalDeleted=False,
+                                _storename=False).output('record')
+        changed = []
+        for k,v in main_record.items():
+            if k not in FIELD_BLACKLIST:
+                if record[k] != v:
+                    changed.append(k)
+                    record.setAttr(k,wdg__class='multidb_local_change',multidb_mainvalue=v)
+        return changed
 
 
 

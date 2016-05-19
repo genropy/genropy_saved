@@ -20,7 +20,6 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-__version__ = '1.0b'
 
 #import weakref
 import os
@@ -38,6 +37,7 @@ from gnr.sql.gnrsql import GnrSqlException
 from datetime import datetime
 import logging
 
+__version__ = '1.0b'
 gnrlogger = logging.getLogger(__name__)
 
 
@@ -1485,7 +1485,13 @@ class SqlTable(GnrObject):
             return not (record['__protection_tag'] in self.db.currentEnv['userTags'].split(','))
 
     def _islocked_write(self,record):
-        return self._isReadOnly(record) or self.islocked_write(record)
+        result = []
+        if self._isReadOnly(record):
+            result.append('readOnly')
+            result['readOnly'] = True
+        if self.islocked_write(record):
+            result.append('islocked_write')
+        return ','.join(result) if result else False
     
     def islocked_write(self,record):
         #OVERRIDE THIS

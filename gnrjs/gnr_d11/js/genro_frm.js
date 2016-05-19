@@ -338,7 +338,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             return '<div class="form_errorslogger">No record loaded</div>';
         }
         if(this.status=='readOnly'){
-            return '<div class="form_errorslogger">Read Only</div>';
+            var readOnlyMsg = 'Read Only';
+            var protectWriteMessage = this.getDataNodeAttributes()._protect_write_message;
+            return '<div class="form_errorslogger">'+protectWriteMessage || readOnlyMsg+'</div>';
         }
         if(this.status=='ok'){
             return '<div class="form_okmessage">No changes to save</div>';
@@ -1186,7 +1188,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     isProtectWrite:function(){
         var parentForm = this.getParentForm();
-        var protect_write = this.getDataNodeAttributes()._protect_write;
+        var recAttr = this.getDataNodeAttributes();
+        var protect_write = recAttr._protect_write;
         if (parentForm && this.parentLock=='auto'){
             protect_write = protect_write || parentForm.isProtectWrite();
         }

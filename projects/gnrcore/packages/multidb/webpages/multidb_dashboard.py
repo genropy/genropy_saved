@@ -46,8 +46,7 @@ class GnrCustomWebPage(object):
         fb.dataRpc('dummy',self.syncAgain,insync_table='=.sync_table',
                     insync_store='=.dbstore',
                     _fired='^.sync_again',
-                    _if='insync_table&&insync_store',
-                    _onResult="FIRE .get_sync_info;")
+                    _if='insync_table&&insync_store')
 
         left = bc.roundedGroupFrame(title='Main store',region='left',width='50%')
         center = bc.roundedGroupFrame(title='Current dbstore',region='center',margin='2px')
