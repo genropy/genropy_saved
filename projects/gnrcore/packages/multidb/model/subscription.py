@@ -219,4 +219,14 @@ class Table(object):
         return ','.join(changelist)
 
 
+    def getRecordDiff(self,main_record,store_record):
+        result = dict()
+        for k,v in main_record.items():
+            if k not in FIELD_BLACKLIST:
+                if store_record[k] != v:
+                    result[k] = (v,store_record[k])
+        return result
+
+
+
 

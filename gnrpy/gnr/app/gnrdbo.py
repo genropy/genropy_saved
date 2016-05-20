@@ -678,57 +678,103 @@ class TableBase(object):
             return 'merge'
         return True
 
-    def checkSyncAll(self,dbstores=None):
-        if dbstores is None:
-            dbstores = self.db.dbstores.keys()
-        elif isinstance(dbstores,basestring):
-            dbstores = dbstores.split(',')
+    def checkSyncPartial(self,dbstores=None,main_fetch=None,errors=None):
         queryargs = dict(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False)
-        pkeyfield = self.pkey
-        main_f = self.query(**queryargs).fetch()
-        insertManyData = [dict(r) for r in main_f]
-        ts = datetime.datetime.now()
+        checkdict = dict([(r[self.pkey],dict(r)) for r in main_fetch])
+        substable = self.db.table('multidb.subscription')
+        fkeyname = substable.tableFkey(self)
+        subscriptions = substable.query(where='$tablename=:t',t=self.fullname).fetchGrouped('dbstore')
         for dbstore in dbstores:
-            checkdict = dict([(r[pkeyfield],dict(r)) for r in main_f])
+            store_subs = dict([(s[fkeyname],s['id'])for s in subscriptions.pop(dbstore,[])])
+
             with self.db.tempEnv(storename=dbstore):
-                if not insertManyData:
-                    self.empty()
-                    continue
                 store_f = self.query(**queryargs).fetch()
-                if not store_f and insertManyData:
-                    print '\t\t missing, insert all',insertManyData
-                    self.insertMany(insertManyData)
-                    continue
-                diffrec = list()
                 for r in store_f:
-                    r = dict(r)
-                    main_r = checkdict.pop(r[pkeyfield],None)
+                    record_pkey = r[self.pkey]
+                    main_r = checkdict.get(record_pkey)
                     if not main_r:
-                        print '\t\t wrong line try to delete'
-                        try:
-                            self.raw_delete(r)
-                        except Exception:
-                            print '\t\t\t cannot delete set logical deleted'
-                            if self.logicalDeletionField:
-                                r[self.logicalDeletionField] = ts
-                                self.raw_update(r)
+                        errors.setItem('%s.%s.storeonly.%s' %(dbstore,self.fullname,record_pkey),True)
                         continue
-                    checkdiff = [(k,v,main_r[k]) for k,v in r.items() if k not in ('__ins_ts','__mod_ts','__version','__del_ts','__moved_related') if v!=main_r[k]]
-                    if checkdiff:
-                        diffrec.append((main_r,r))
-                        
-                if diffrec or checkdict:
-                    try:
-                        print '\t\t smarmello'
-                        self.empty()
-                        self.insertMany(insertManyData)
-                    except Exception:
-                        for r,oldr in diffrec:
-                            self.raw_update(r,oldr)
-                        for main_r in checkdict.values():
-                            print '\t\t insert missing'
-                            self.raw_insert(main_r)
-            print '\t',self.fullname,dbstore,'\n'
+                    sub_id = store_subs.pop(record_pkey,None)
+                    if main_r.get('__multidb_default_subscribed'):
+                        if sub_id:
+                            substable.raw_delete(dict(id=sub_id))
+                    elif not sub_id:
+                        subrec = {'tablename':self.fullname,
+                                    fkeyname:r[self.pkey],
+                                    'dbstore':dbstore,
+                                    'id':substable.newPkeyValue()}
+                        substable.trigger_setTSNow(subrec,'__ins_ts')
+                        substable.raw_insert(subrec)
+                    diff = substable.getRecordDiff(main_r,r)
+                    to_update = False
+                    localdiff = dict()
+                    for field,values in diff.items():
+                        main_value,store_value = values
+                        if main_value is not None:
+                            print '\t\t setting',field,main_value,'instead of',store_value
+                            r[field] = main_value
+                            to_update = True
+                        elif r[field] is not None:
+                            localdiff[field] = store_value
+                    if localdiff:
+                        errors.setItem('%s.%s.different_storevalue.%s' %(dbstore,self.fullname,record_pkey),True,**localdiff)
+                    if to_update:
+                        self.raw_update(r)
+                self.db.commit()
+            self.db.commit()
+
+
+    def _checkSyncAll_store(self,main_fetch=None,insertManyData=None,
+                            queryargs=None,pkeyfield=None,ts=None,
+                            errors=None,dbstore=None):
+        if not insertManyData:
+            self.empty()
+            return
+        checkdict = dict([(r[pkeyfield],dict(r)) for r in main_fetch])
+        store_f = self.query(**queryargs).fetch()
+        if not store_f and insertManyData:
+            self.insertMany(insertManyData)
+            return
+        diffrec = list()
+        for r in store_f:
+            r = dict(r)
+            record_pkey = r[pkeyfield]
+            main_r = checkdict.pop(record_pkey,None)
+            if not main_r:
+                #try:
+                #    self.raw_delete(r)
+                #except Exception:
+                errors.setItem('%s.%s.wrong_allsync_record.%s' %(dbstore,self.fullname,record_pkey),True)
+                if self.logicalDeletionField:
+                    r[self.logicalDeletionField] = ts
+                    self.raw_update(r)
+                return
+            checkdiff = [(k,v,main_r[k]) for k,v in r.items() if k not in ('__ins_ts','__mod_ts','__version','__del_ts','__moved_related') if v!=main_r[k]]
+            if checkdiff:
+                diffrec.append((main_r,r))
+                
+        if diffrec or checkdict:
+            try:
+                self.empty()
+                self.insertMany(insertManyData)
+            except Exception:
+                for r,oldr in diffrec:
+                    self.raw_update(r,oldr)
+                for main_r in checkdict.values():
+                    self.raw_insert(main_r)
+
+    def checkSyncAll(self,dbstores=None,main_fetch=None,errors=None):
+        pkeyfield = self.pkey
+        insertManyData = [dict(r) for r in main_fetch]
+        ts = datetime.datetime.now()
+        queryargs = dict(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False)
+        for dbstore in dbstores:
+            with self.db.tempEnv(storename=dbstore):
+                self._checkSyncAll_store(main_fetch=main_fetch,insertManyData=insertManyData,
+                                         queryargs=queryargs, pkeyfield=pkeyfield, 
+                                         ts=ts,errors=errors,dbstore=dbstore)
+                self.db.commit()
             self.db.commit()
 
     def checkDiagnostic(self,record):
