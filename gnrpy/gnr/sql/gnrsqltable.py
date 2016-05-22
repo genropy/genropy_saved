@@ -650,7 +650,10 @@ class SqlTable(GnrObject):
             self.delete(sourcePkey)
             
 
-    def currentRelations(self,recordOrPkey):
+    def hasRelations(self,recordOrPkey):
+        return bool(self.currentRelations(recordOrPkey,checkOnly=True))
+
+    def currentRelations(self,recordOrPkey,checkOnly=False):
         result = Bag()
         i = 0
         if isinstance(recordOrPkey,basestring):
@@ -671,6 +674,8 @@ class SqlTable(GnrObject):
                 rowdata.setItem('linktbl',linktblobj_name)
                 rowdata.setItem('count',rel_count)
                 if rel_count:
+                    if checkOnly:
+                        return True
                     result.setItem('r_%i' %i,rowdata)
                 i+=1
         return result

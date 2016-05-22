@@ -3,6 +3,7 @@
 from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage
 from gnr.core.gnrlang import instanceMixin
 from gnr.core.gnrbag import Bag
+import os
 
 class MultidbTable(object):
     def onLoading_multidb(self,record,newrecord,loadingParameters,recInfo):
@@ -76,7 +77,9 @@ class Package(GnrDboPackage):
         print 'syncall start'
         for tbl in syncall:
             print '\t',tbl.fullname
-            main_f = tbl.query(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False).fetch()
+            main_f = tbl.query(addPkeyColumn=False,bagFields=True,
+                                excludeLogicalDeleted=False,ignorePartition=True,
+                                excludeDraft=False).fetch()
             tbl.checkSyncAll(dbstores=dbstores,main_fetch=main_f,errors=errors)
         print 'syncall done'
         print 'partial start'
@@ -85,9 +88,13 @@ class Package(GnrDboPackage):
             main_f = tbl.query(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False).fetch()
             tbl.checkSyncPartial(dbstores=dbstores,main_fetch=main_f,errors=errors)
         print 'partial done'
-        if errors and errorlog_folder:
+        if errorlog_folder:
             for dbstore,v in errors.items():
-                v.toXml('%s/%s.xml' %(errorlog_folder,dbstore),autocreate=True)
+                p = '%s/%s.xml' %(errorlog_folder,dbstore)
+                if v:
+                    v.toXml(p,autocreate=True)
+                else:
+                    os.remove(p)
 
 
 

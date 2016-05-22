@@ -3507,7 +3507,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             l = n.split(':');
             attr = {};
             attr[that.identifier] = l[0];
-            attr[that.caption] = l[1];
+            attr[that.caption] = l[1] || l[0];
             result.setItem(l[0],null,attr);
         });
         return result;

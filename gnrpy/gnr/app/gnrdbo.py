@@ -679,33 +679,44 @@ class TableBase(object):
         return True
 
     def checkSyncPartial(self,dbstores=None,main_fetch=None,errors=None):
-        queryargs = dict(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False)
+        queryargs = dict(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,
+                        ignorePartition=True,excludeDraft=False)
         checkdict = dict([(r[self.pkey],dict(r)) for r in main_fetch])
         substable = self.db.table('multidb.subscription')
         fkeyname = substable.tableFkey(self)
         subscriptions = substable.query(where='$tablename=:t',t=self.fullname).fetchGrouped('dbstore')
         for dbstore in dbstores:
             store_subs = dict([(s[fkeyname],s['id'])for s in subscriptions.pop(dbstore,[])])
-
             with self.db.tempEnv(storename=dbstore):
                 store_f = self.query(**queryargs).fetch()
                 for r in store_f:
                     record_pkey = r[self.pkey]
                     main_r = checkdict.get(record_pkey)
                     if not main_r:
-                        errors.setItem('%s.%s.storeonly.%s' %(dbstore,self.fullname,record_pkey),True)
+                        if not self.hasRelations(r):
+                            self.raw_delete(r)
+                        else:
+                            errors.setItem('%s.%s.storeonly.%s' %(dbstore,self.fullname,record_pkey),True)
                         continue
                     sub_id = store_subs.pop(record_pkey,None)
-                    if main_r.get('__multidb_default_subscribed'):
+                    default_subscribed = main_r.get('__multidb_default_subscribed')
+                    if default_subscribed:
                         if sub_id:
                             substable.raw_delete(dict(id=sub_id))
                     elif not sub_id:
-                        subrec = {'tablename':self.fullname,
+                        if not self.hasRelations(r):
+                            self.raw_delete(r)
+                            continue
+                        else:
+                            subrec = {'tablename':self.fullname,
                                     fkeyname:r[self.pkey],
                                     'dbstore':dbstore,
                                     'id':substable.newPkeyValue()}
-                        substable.trigger_setTSNow(subrec,'__ins_ts')
-                        substable.raw_insert(subrec)
+                            substable.trigger_setTSNow(subrec,'__ins_ts')
+                            substable.raw_insert(subrec)
+                    elif not self.hasRelations(r):
+                        self.raw_delete(r)
+                        substable.raw_delete(dict(id=sub_id))
                     diff = substable.getRecordDiff(main_r,r)
                     to_update = False
                     localdiff = dict()
@@ -742,13 +753,13 @@ class TableBase(object):
             record_pkey = r[pkeyfield]
             main_r = checkdict.pop(record_pkey,None)
             if not main_r:
-                #try:
-                #    self.raw_delete(r)
-                #except Exception:
-                errors.setItem('%s.%s.wrong_allsync_record.%s' %(dbstore,self.fullname,record_pkey),True)
-                if self.logicalDeletionField:
-                    r[self.logicalDeletionField] = ts
-                    self.raw_update(r)
+                if not self.hasRelations(r):
+                    self.raw_delete(r)
+                else:
+                    errors.setItem('%s.%s.wrong_allsync_record.%s' %(dbstore,self.fullname,record_pkey),True)
+                    if self.logicalDeletionField:
+                        r[self.logicalDeletionField] = ts
+                        self.raw_update(r)
                 return
             checkdiff = [(k,v,main_r[k]) for k,v in r.items() if k not in ('__ins_ts','__mod_ts','__version','__del_ts','__moved_related') if v!=main_r[k]]
             if checkdiff:
@@ -768,7 +779,7 @@ class TableBase(object):
         pkeyfield = self.pkey
         insertManyData = [dict(r) for r in main_fetch]
         ts = datetime.datetime.now()
-        queryargs = dict(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False)
+        queryargs = dict(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,ignorePartition=True,excludeDraft=False)
         for dbstore in dbstores:
             with self.db.tempEnv(storename=dbstore):
                 self._checkSyncAll_store(main_fetch=main_fetch,insertManyData=insertManyData,
