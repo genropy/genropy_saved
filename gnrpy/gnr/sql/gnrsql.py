@@ -22,11 +22,8 @@
 
 from __future__ import with_statement
 
-__version__ = '1.0b'
 
 import logging
-
-gnrlogger = logging.getLogger(__name__)
 import cPickle
 import os
 import shutil
@@ -46,6 +43,9 @@ from datetime import datetime
 import re
 import thread
 import locale
+
+__version__ = '1.0b'
+gnrlogger = logging.getLogger(__name__)
 
 def in_triggerstack(func):
     """TODO"""

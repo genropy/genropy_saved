@@ -21,9 +21,27 @@ class TableHandlerMain(BaseComponent):
                 self.__formCustomization(th.form)
     
     def __formCustomization(self,form):
-        if self.tblobj.multidb_readOnly():
-            form.attributes.update(form_readOnly=True)
-    
+        readOnly = self.tblobj.multidb_readOnly()
+        if readOnly=='merge':
+            bar = form.top.bar.replaceSlots(',*,',',*,merge_tool,10,')
+            box = bar.merge_tool.div(width='20px')
+            merge_tool = box.div(_class='iconbox warning',hidden='^#FORM.record?_multidb_diff?=!#v')
+            tpane = merge_tool.tooltipPane(onOpening="""
+
+                """)
+            fpane = tpane.roundedGroupFrame(title='Localstore differences',height='200px',width='550px')
+            grid = fpane.quickgrid(value='^#FORM.localstore_changes')
+            grid.column('fname',name='Field',width='10em')
+            grid.column('mvalue',name='Main value',width='15em')
+            grid.column('lvalue',name='local value',width='15em')
+        elif not self.tblobj.attributes['multidb_allRecords']:
+            bar = form.top.bar.replaceSlots(',*,',',*,cb_default_sub,10,')
+            bar.cb_default_sub.checkbox(value='^#FORM.record.__multidb_default_subscribed',
+                                        label='!!Subscribed by default',margin_top='1px',
+                                        label_color='#666',label_font_size='.9em',
+                                        label_font_weight='bold')
+
+
     def __viewCustomization(self,view): #poi ci passo il th direttamente
         table = view.getInheritedAttributes()['table']
         

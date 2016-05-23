@@ -20,7 +20,6 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-__version__ = '1.0b'
 
 #import weakref
 import os
@@ -38,6 +37,7 @@ from gnr.sql.gnrsql import GnrSqlException
 from datetime import datetime
 import logging
 
+__version__ = '1.0b'
 gnrlogger = logging.getLogger(__name__)
 
 
@@ -650,7 +650,10 @@ class SqlTable(GnrObject):
             self.delete(sourcePkey)
             
 
-    def currentRelations(self,recordOrPkey):
+    def hasRelations(self,recordOrPkey):
+        return bool(self.currentRelations(recordOrPkey,checkOnly=True))
+
+    def currentRelations(self,recordOrPkey,checkOnly=False):
         result = Bag()
         i = 0
         if isinstance(recordOrPkey,basestring):
@@ -671,6 +674,8 @@ class SqlTable(GnrObject):
                 rowdata.setItem('linktbl',linktblobj_name)
                 rowdata.setItem('count',rel_count)
                 if rel_count:
+                    if checkOnly:
+                        return True
                     result.setItem('r_%i' %i,rowdata)
                 i+=1
         return result
@@ -924,6 +929,15 @@ class SqlTable(GnrObject):
             data = (aggregator or ',').join(uniquify([gnrstring.toText(d) for d in data]))
         return data
 
+
+    def setColumns(self, pkey,**kwargs):
+        record = self.record(pkey,for_update=True).output('dict')
+        old_record = dict(record)
+        for k,v in kwargs.items():
+            if record[k]!=v:
+                record[k] = v
+        if record != old_record:
+            self.update(record,old_record)
 
     def readColumns(self, pkey=None, columns=None, where=None, **kwargs):
         """TODO
@@ -1485,7 +1499,13 @@ class SqlTable(GnrObject):
             return not (record['__protection_tag'] in self.db.currentEnv['userTags'].split(','))
 
     def _islocked_write(self,record):
-        return self._isReadOnly(record) or self.islocked_write(record)
+        result = []
+        if self._isReadOnly(record):
+            result.append('readOnly')
+            result['readOnly'] = True
+        if self.islocked_write(record):
+            result.append('islocked_write')
+        return ','.join(result) if result else False
     
     def islocked_write(self,record):
         #OVERRIDE THIS

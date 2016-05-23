@@ -671,59 +671,121 @@ class TableBase(object):
         return 'multidb_allRecords' in self.attributes
 
     def multidb_readOnly(self):
-        return self.db.currentPage.dbstore and 'multidb_allRecords' in self.attributes
+        attributes = self.attributes
+        if not (self.db.currentPage.dbstore and 'multidb_allRecords' in self.attributes):
+            return False
+        if attributes.get('multidb_onLocalWrite') == 'merge':
+            return 'merge'
+        return True
 
-    def checkSyncAll(self,dbstores=None):
-        if dbstores is None:
-            dbstores = self.db.dbstores.keys()
-        elif isinstance(dbstores,basestring):
-            dbstores = dbstores.split(',')
-        queryargs = dict(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False)
-        pkeyfield = self.pkey
-        main_f = self.query(**queryargs).fetch()
-        insertManyData = [dict(r) for r in main_f]
-        ts = datetime.datetime.now()
+    def checkSyncPartial(self,dbstores=None,main_fetch=None,errors=None):
+        queryargs = dict(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,
+                        ignorePartition=True,excludeDraft=False)
+        checkdict = dict([(r[self.pkey],dict(r)) for r in main_fetch])
+        substable = self.db.table('multidb.subscription')
+        fkeyname = substable.tableFkey(self)
+        subscriptions = substable.query(where='$tablename=:t',t=self.fullname).fetchGrouped('dbstore')
         for dbstore in dbstores:
-            checkdict = dict([(r[pkeyfield],dict(r)) for r in main_f])
+            store_subs = dict([(s[fkeyname],s['id'])for s in subscriptions.pop(dbstore,[])])
             with self.db.tempEnv(storename=dbstore):
-                if not insertManyData:
-                    self.empty()
-                    continue
                 store_f = self.query(**queryargs).fetch()
-                if not store_f and insertManyData:
-                    print '\t\t missing, insert all',insertManyData
-                    self.insertMany(insertManyData)
-                    continue
-                diffrec = list()
                 for r in store_f:
-                    r = dict(r)
-                    main_r = checkdict.pop(r[pkeyfield],None)
+                    record_pkey = r[self.pkey]
+                    main_r = checkdict.get(record_pkey)
                     if not main_r:
-                        print '\t\t wrong line try to delete'
-                        try:
+                        if not self.hasRelations(r):
                             self.raw_delete(r)
-                        except Exception:
-                            print '\t\t\t cannot delete set logical deleted'
-                            if self.logicalDeletionField:
-                                r[self.logicalDeletionField] = ts
-                                self.raw_update(r)
+                        else:
+                            errors.setItem('%s.%s.storeonly.%s' %(dbstore,self.fullname,record_pkey),True)
                         continue
-                    checkdiff = [(k,v,main_r[k]) for k,v in r.items() if k not in ('__ins_ts','__mod_ts','__version','__del_ts','__moved_related') if v!=main_r[k]]
-                    if checkdiff:
-                        diffrec.append((main_r,r))
-                        
-                if diffrec or checkdict:
-                    try:
-                        print '\t\t smarmello'
-                        self.empty()
-                        self.insertMany(insertManyData)
-                    except Exception:
-                        for r,oldr in diffrec:
-                            self.raw_update(r,oldr)
-                        for main_r in checkdict.values():
-                            print '\t\t insert missing'
-                            self.raw_insert(main_r)
-            print '\t',self.fullname,dbstore,'\n'
+                    sub_id = store_subs.pop(record_pkey,None)
+                    default_subscribed = main_r.get('__multidb_default_subscribed')
+                    if default_subscribed:
+                        if sub_id:
+                            substable.raw_delete(dict(id=sub_id))
+                    elif not sub_id:
+                        if not self.hasRelations(r):
+                            self.raw_delete(r)
+                            continue
+                        else:
+                            subrec = {'tablename':self.fullname,
+                                    fkeyname:r[self.pkey],
+                                    'dbstore':dbstore,
+                                    'id':substable.newPkeyValue()}
+                            substable.trigger_setTSNow(subrec,'__ins_ts')
+                            substable.raw_insert(subrec)
+                    elif not self.hasRelations(r):
+                        self.raw_delete(r)
+                        substable.raw_delete(dict(id=sub_id))
+                    diff = substable.getRecordDiff(main_r,r)
+                    to_update = False
+                    localdiff = dict()
+                    for field,values in diff.items():
+                        main_value,store_value = values
+                        if main_value is not None:
+                            print '\t\t setting',field,main_value,'instead of',store_value
+                            r[field] = main_value
+                            to_update = True
+                        elif r[field] is not None:
+                            localdiff[field] = store_value
+                    if localdiff:
+                        errors.setItem('%s.%s.different_storevalue.%s' %(dbstore,self.fullname,record_pkey),True,**localdiff)
+                    if to_update:
+                        self.raw_update(r)
+                self.db.commit()
+            self.db.commit()
+
+
+    def _checkSyncAll_store(self,main_fetch=None,insertManyData=None,
+                            queryargs=None,pkeyfield=None,ts=None,
+                            errors=None,dbstore=None):
+        if not insertManyData:
+            self.empty()
+            return
+        checkdict = dict([(r[pkeyfield],dict(r)) for r in main_fetch])
+        store_f = self.query(**queryargs).fetch()
+        if not store_f and insertManyData:
+            self.insertMany(insertManyData)
+            return
+        diffrec = list()
+        for r in store_f:
+            r = dict(r)
+            record_pkey = r[pkeyfield]
+            main_r = checkdict.pop(record_pkey,None)
+            if not main_r:
+                if not self.hasRelations(r):
+                    self.raw_delete(r)
+                else:
+                    errors.setItem('%s.%s.wrong_allsync_record.%s' %(dbstore,self.fullname,record_pkey),True)
+                    if self.logicalDeletionField:
+                        r[self.logicalDeletionField] = ts
+                        self.raw_update(r)
+                return
+            checkdiff = [(k,v,main_r[k]) for k,v in r.items() if k not in ('__ins_ts','__mod_ts','__version','__del_ts','__moved_related') if v!=main_r[k]]
+            if checkdiff:
+                diffrec.append((main_r,r))
+                
+        if diffrec or checkdict:
+            try:
+                self.empty()
+                self.insertMany(insertManyData)
+            except Exception:
+                for r,oldr in diffrec:
+                    self.raw_update(r,oldr)
+                for main_r in checkdict.values():
+                    self.raw_insert(main_r)
+
+    def checkSyncAll(self,dbstores=None,main_fetch=None,errors=None):
+        pkeyfield = self.pkey
+        insertManyData = [dict(r) for r in main_fetch]
+        ts = datetime.datetime.now()
+        queryargs = dict(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,ignorePartition=True,excludeDraft=False)
+        for dbstore in dbstores:
+            with self.db.tempEnv(storename=dbstore):
+                self._checkSyncAll_store(main_fetch=main_fetch,insertManyData=insertManyData,
+                                         queryargs=queryargs, pkeyfield=pkeyfield, 
+                                         ts=ts,errors=errors,dbstore=dbstore)
+                self.db.commit()
             self.db.commit()
 
     def checkDiagnostic(self,record):
@@ -887,12 +949,13 @@ class TableBase(object):
                         onUpdated='multidbSyncUpdated',
                         onDeleting='multidbSyncDeleting',
                         onInserted='multidbSyncInserted',
+                        onUpdating='multidbSyncUpdating',
                         group=group,_sysfield=True)
             if allRecords or forcedStore:
                 return 
                 
             tbl.column('__multidb_default_subscribed',dtype='B',_pluggedBy='multidb.subscription',
-                    name_long='!!Subscribed by default',plugToForm=True,group=group,_sysfield=True)
+                    name_long='!!Subscribed by default',group=group,_sysfield=True)
             tbl.formulaColumn('__multidb_subscribed',"""EXISTS (SELECT * 
                                                         FROM multidb.multidb_subscription AS sub
                                                         WHERE sub.dbstore = :env_target_store 
@@ -910,6 +973,26 @@ class TableBase(object):
         if self.hasMultidbSubscription():
             relations.remove('@subscriptions')
             self.db.table('multidb.subscription').cloneSubscriptions(self.fullname,sourceRecord[self.pkey],destRecord[self.pkey])
+
+
+
+    def trigger_multidbSyncUpdating(self, record,old_record=None,**kwargs):
+        multidb_subscription = self.db.table('multidb.subscription')
+        if self.db.usingRootstore():
+            if old_record['__multidb_default_subscribed'] != record['__multidb_default_subscribed']:
+                if record['__multidb_default_subscribed']:
+                    for f in self.relations_one.keys():
+                        if record.get(f):
+                            relcol = self.column(f)
+                            relatedTable = relcol.relatedTable().dbtable
+                            if relatedTable.attributes.get('multidb_allRecords') or \
+                              (not relcol.relatedColumnJoiner().get('foreignkey')):
+                                continue
+                            relatedTable.setColumns(record[f],__multidb_default_subscribed=True)
+                else:
+                    raise multidb_subscription.multidbExceptionClass()(description='Multidb exception',msg="You cannot unset default subscription")
+        else:
+            multidb_subscription.onSlaveUpdating(self,record,old_record=old_record)
 
     def trigger_multidbSyncUpdated(self, record,old_record=None,**kwargs):
         self.db.table('multidb.subscription').onSubscriberTrigger(self,record,old_record=old_record,event='U')

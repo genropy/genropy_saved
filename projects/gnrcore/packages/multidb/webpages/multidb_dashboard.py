@@ -5,6 +5,7 @@
 # --------------------------- GnrWebPage subclass ---------------------------
 from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrbag import Bag
+import os
 
 
 class GnrCustomWebPage(object):
@@ -17,6 +18,7 @@ class GnrCustomWebPage(object):
         frame = root.rootContentPane(datapath='main',design='sidebar',title='!!Multidb dashboard')   
         frame = frame.center.framePane()      
         bc = frame.center.borderContainer()
+
         bc.css("._common_d11 .onlymain .dojoxGrid-cell",
                 "background: rgba(223, 255, 147, 0.2) !important;")
         bc.css("._common_d11 .onlystore .dojoxGrid-cell",
@@ -46,10 +48,12 @@ class GnrCustomWebPage(object):
         fb.dataRpc('dummy',self.syncAgain,insync_table='=.sync_table',
                     insync_store='=.dbstore',
                     _fired='^.sync_again',
-                    _if='insync_table&&insync_store',
-                    _onResult="FIRE .get_sync_info;")
+                    _if='insync_table&&insync_store')
 
         left = bc.roundedGroupFrame(title='Main store',region='left',width='50%')
+        leftbc = left.center.borderContainer()
+        self.troublesTree(leftbc.framePane(region='bottom',height='200px',drawer='close',
+                                            border_top='1px solid silver',splitter=True))
         center = bc.roundedGroupFrame(title='Current dbstore',region='center',margin='2px')
         centerbc = center.center.borderContainer()
         frame.dataController("""if(_reason=='child' && _node.label!='_protectionStatus'){
@@ -62,7 +66,7 @@ class GnrCustomWebPage(object):
         frame.dataController("""SET main.dbext.th.view.grid.sorted = sorted;""",
             sorted='^main.dbroot.th.view.grid.sorted',_delay=1,_userChanges=True)
 
-        left.dynamicTableHandler(table='=main.sync_table',datapath='.dbroot',
+        leftbc.contentPane(region='center').dynamicTableHandler(table='=main.sync_table',datapath='.dbroot',
                                  th_wdg='plain',
                                  th_view_store_applymethod='checksync_mainstore',
                                 th_viewResource='View', 
@@ -85,11 +89,43 @@ class GnrCustomWebPage(object):
                                 nodeId='syncStore',
                                 #th_configurable=False,
                                 _fired='^main.load_th')
-        bottom = centerbc.contentPane(region='bottom',height='200px',drawer='close')
+        bottom = centerbc.contentPane(region='bottom',height='200px',drawer='close',border_top='1px solid silver')
         bottom.div('^main.selectedrow.differences',margin='5px',
                     border='2px solid silver',rounded=6,padding='10px')
         bottom.div('^main.selectedrow.linked_records',margin='5px',
                     border='2px solid silver',rounded=6,padding='10px')
+
+
+    def troublesTree(self,frame):
+        bar = frame.top.slotToolbar('2,packagesButtons,*,checksync,5',height='22px')
+        bar.checksync.slotButton('Check',action='FIRE .checkDbstore')
+        bar.packagesButtons.multiButton(value='^.selectedPackage',values='^.currpackages')
+        rpc = frame.dataRpc('.multidbLog',self.getMultidbLog,
+                            currentstore='^main.dbstore',
+                            docheck='^.checkDbstore',
+                            _onCalling="""if(docheck){
+                                genro.lockScreen(true,'checkstore');
+                            }""",
+                            _if='currentstore',_else='null')
+        rpc.addCallback("""
+            genro.lockScreen(false,'checkstore')
+            SET .currpackages = result.keys().join(',');
+            return result;
+            """)
+        bar.dataFormula('.packageErrors',"multidbLog.getItem(selectedPackage).deepCopy();",
+                         multidbLog='=.multidbLog',selectedPackage='^.selectedPackage')
+        frame.tree(storepath='.packageErrors')
+
+    @public_method
+    def getMultidbLog(self,currentstore=None,docheck=None):
+        f = self.site.getStaticPath('site:data','multidb_logs')
+        if docheck:
+            self.db.package('multidb').checkFullSyncTables(errorlog_folder=f,
+                                            dbstores=currentstore)
+        p = os.path.join(f,'%s.xml' %currentstore)
+        if os.path.exists(p):
+            return Bag(p)
+        return Bag()
 
     @public_method
     def checksync_mainstore(self,selection=None,**kwargs):
