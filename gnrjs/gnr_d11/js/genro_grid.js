@@ -1144,7 +1144,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             var zoomAttr = objectExtract(opt,'zoom_*',true);
             if (objectNotEmpty(zoomAttr)) {
-                v = "<a draggable='false' onclick='if(event.shiftKey){dojo.stopEvent(event); genro.dlg.zoomFromCell(event);}' class='gnrzoomcell' href='#'>" + v + "</a>";
+                v = "<span draggable='false' onclick='if(event.shiftKey){dojo.stopEvent(event); genro.dlg.zoomFromCell(event);}' class='gnrzoomcell'>" + v + "</span>";
             }
             var draggable = this.draggable ? ' draggable=true ' : '';
             return '<div ' + draggable + 'class="cellContent">' + v + '</div>';
