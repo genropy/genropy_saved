@@ -988,7 +988,7 @@ class TableBase(object):
                             if relatedTable.attributes.get('multidb_allRecords') or \
                               (not relcol.relatedColumnJoiner().get('foreignkey')):
                                 continue
-                            relatedTable.dbtable.setColumns(record[f],__multidb_default_subscribed=True)
+                            relatedTable.setColumns(record[f],__multidb_default_subscribed=True)
                 else:
                     raise multidb_subscription.multidbExceptionClass()(description='Multidb exception',msg="You cannot unset default subscription")
         else:
