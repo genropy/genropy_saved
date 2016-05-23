@@ -930,6 +930,15 @@ class SqlTable(GnrObject):
         return data
 
 
+    def setColumns(self, pkey,**kwargs):
+        record = self.record(pkey,for_update=True).output('dict')
+        old_record = dict(record)
+        for k,v in kwargs.items():
+            if record[k]!=v:
+                record[k] = v
+        if record != old_record:
+            self.update(record,old_record)
+
     def readColumns(self, pkey=None, columns=None, where=None, **kwargs):
         """TODO
         

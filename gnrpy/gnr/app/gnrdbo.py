@@ -977,9 +977,22 @@ class TableBase(object):
 
 
     def trigger_multidbSyncUpdating(self, record,old_record=None,**kwargs):
-        if not self.db.usingRootstore():
-            self.db.table('multidb.subscription').onSlaveUpdating(self,record,old_record=old_record)
-     
+        multidb_subscription = self.db.table('multidb.subscription')
+        if self.db.usingRootstore():
+            if old_record['__multidb_default_subscribed'] != record['__multidb_default_subscribed']:
+                if record['__multidb_default_subscribed']:
+                    for f in self.relations_one.keys():
+                        if record.get(f):
+                            relcol = self.column(f)
+                            relatedTable = relcol.relatedTable().dbtable
+                            if relatedTable.attributes.get('multidb_allRecords') or \
+                              (not relcol.relatedColumnJoiner().get('foreignkey')):
+                                continue
+                            relatedTable.dbtable.setColumns(record[f],__multidb_default_subscribed=True)
+                else:
+                    raise multidb_subscription.multidbExceptionClass()(description='Multidb exception',msg="You cannot unset default subscription")
+        else:
+            multidb_subscription.onSlaveUpdating(self,record,old_record=old_record)
 
     def trigger_multidbSyncUpdated(self, record,old_record=None,**kwargs):
         self.db.table('multidb.subscription').onSubscriberTrigger(self,record,old_record=old_record,event='U')
