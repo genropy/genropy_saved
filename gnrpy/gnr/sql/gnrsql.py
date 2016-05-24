@@ -395,6 +395,8 @@ class GnrSqlDb(GnrObject):
                     for c in cursor:
                         c.execute(sql, sqlargs)
                 else:
+                    #if sql.startswith('INSERT') or sql.startswith('UPDATE') or sql.startswith('DELETE'):
+                    #    print sql.split(' ',1)[0],storename,self.currentEnv.get('connectionName'),'dbtable',dbtable
                     cursor.execute(sql, sqlargs)
                 if self.debugger:
                     self.debugger(sql=sql, sqlargs=sqlargs, dbtable=dbtable,delta_time=time()-t_0)
@@ -444,7 +446,7 @@ class GnrSqlDb(GnrObject):
     def raw_insert(self, tblobj, record, **kwargs):
         self.adapter.insert(tblobj, record,**kwargs)
 
-    def raw_update(self, tblobj, record, **kwargs):
+    def raw_update(self, tblobj, record,old_record=None, **kwargs):
         self.adapter.update(tblobj, record,**kwargs)
 
     def raw_delete(self, tblobj, record, **kwargs):

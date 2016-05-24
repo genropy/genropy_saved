@@ -619,27 +619,40 @@ class SqlTable(GnrObject):
     def _onUnifying(self,destRecord=None,sourceRecord=None,moved_relations=None,relations=None):
         pass
 
-    def unifyRecords(self,sourcePkey=None,destPkey=None):
-        moved_relations = Bag()
-        sourceRecord = self.record(pkey=sourcePkey,for_update=True).output('dict')
-        destRecord = self.record(pkey=destPkey,for_update=True).output('dict')
+    def unifyRelatedRecords(self,sourceRecord=None,destRecord=None,moved_relations=None,relations=None):
         relations = self.model.relations.keys()
-        self._onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations,relations=relations)
-        if hasattr(self,'onUnifying'):
-            self.onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations)
+        old_destRecord = dict(destRecord)
+        upd_destRec = False
         for k in relations:
             n = self.relations.getNode(k)
             joiner =  n.attr.get('joiner')
             if joiner and joiner['mode'] == 'M':
+                if joiner.get('external_relation'):
+                    continue
                 fldlist = joiner['many_relation'].split('.')
                 tblname = '.'.join(fldlist[0:2])
                 tblobj = self.db.table(tblname)
                 fkey = fldlist[-1]
                 joinkey = joiner['one_relation'].split('.')[-1]
                 updater = dict()
+                if not destRecord[joinkey]:
+                    destRecord[joinkey] = sourceRecord[joinkey]
+                    upd_destRec = True
                 updater[fkey] = destRecord[joinkey]
                 updatedpkeys = tblobj.batchUpdate(updater,where='$%s=:spkey' %fkey,spkey=sourceRecord[joinkey],_raw_update=True)
                 moved_relations.setItem('relations.%s' %tblname.replace('.','_'), ','.join(updatedpkeys),tblname=tblname,fkey=fkey)
+        if upd_destRec:
+            self.raw_update(destRecord,old_destRecord)
+        return moved_relations
+
+    def unifyRecords(self,sourcePkey=None,destPkey=None):
+        moved_relations = Bag()
+        sourceRecord = self.record(pkey=sourcePkey,for_update=True).output('dict')
+        destRecord = self.record(pkey=destPkey,for_update=True).output('dict')
+        self._onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations)
+        if hasattr(self,'onUnifying'):
+            self.onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations)
+        moved_relations = self.unifyRelatedRecords(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations)
         if self.model.column('__moved_related') is not None:
             old_record = dict(sourceRecord)
             moved_relations.setItem('destPkey',destPkey)
@@ -1148,7 +1161,7 @@ class SqlTable(GnrObject):
         self.db.insertMany(self, records, **kwargs)
 
     def raw_update(self,record=None,old_record=None,pkey=None,**kwargs):
-        self.db.raw_update(self, record, pkey=pkey,old_record=old_record,**kwargs)
+        self.db.raw_update(self, record,old_record=old_record,pkey=pkey,**kwargs)
 
     def delete(self, record, **kwargs):
         """Delete a single record from this table.

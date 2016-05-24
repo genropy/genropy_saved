@@ -84,10 +84,10 @@ class Table(object):
     def trigger_onDeleted(self,record):        
         self.syncStore(record,'D')
 
-    def cloneSubscriptions(self,table,sourcePkey,destPkey):
-        sourcestores = self.query(where="""$tablename=:t AND $%s =:fkey""" %self.tableFkey(table),t=table,fkey=sourcePkey,columns='$dbstore').fetch()
-        for store in sourcestores:
-            self.addSubscription(table=table,pkey=destPkey,dbstore=store['dbstore'])
+   #def cloneSubscriptions(self,table,sourcePkey,destPkey):
+   #    sourcestores = self.query(where="""$tablename=:t AND $%s =:fkey""" %self.tableFkey(table),t=table,fkey=sourcePkey,columns='$dbstore').fetch()
+   #    for store in sourcestores:
+   #        self.addSubscription(table=table,pkey=destPkey,dbstore=store['dbstore'])
 
     def syncStore(self,subscription_record=None,event=None,storename=None,
                   tblobj=None,pkey=None,master_record=None,master_old_record=None,mergeUpdate=None):
@@ -197,12 +197,34 @@ class Table(object):
             if onLocalWrite!='merge':
                 raise GnrMultidbException(description='Multidb exception',msg="You cannot update this record in a synced store")
 
+
     def onSlaveUpdating(self,tblobj,record,old_record=None):
-        if self.db.usingRootstore() or self.db.currentEnv.get('_multidbSync'):
+        if self.db.usingRootstore():
             return
-        onLocalWrite = tblobj.attributes.get('multidb_onLocalWrite') or 'raise'
-        if onLocalWrite!='merge':
-            raise GnrMultidbException(description='Multidb exception',msg="You cannot update this record in a synced store")
+        if self.db.currentEnv.get('_multidbSync'):
+            if record.get(tblobj.logicalDeletionField)\
+            and not old_record.get(tblobj.logicalDeletionField)\
+            and record.get('__moved_related'):
+                moved_related = Bag(record['__moved_related'])
+                destPkey = moved_related['destPkey']
+                destRecord = tblobj.query(where='$%s=:dp' %tblobj.pkey, 
+                                          dp=destPkey).fetch()
+                with self.db.tempEnv(connectionName='system'):
+                    if destRecord:
+                        destRecord = destRecord[0]
+                    else:
+                        storename = self.db.currentEnv['storename']
+                        with self.db.tempEnv(storename=self.db.rootstore):
+                            self.addSubscription(table=tblobj.fullname,pkey=destPkey,dbstore=storename)
+                        
+                        f = tblobj.query(where='$%s=:dp' %tblobj.pkey, 
+                                              dp=destPkey).fetch()
+                        destRecord = f[0]
+                    tblobj.unifyRelatedRecords(sourceRecord=record,destRecord=destRecord,moved_relations=moved_related)
+        else:
+            onLocalWrite = tblobj.attributes.get('multidb_onLocalWrite') or 'raise'
+            if onLocalWrite!='merge':
+                raise GnrMultidbException(description='Multidb exception',msg="You cannot update this record in a synced store")
 
 
 

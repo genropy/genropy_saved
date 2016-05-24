@@ -6,6 +6,49 @@ from gnr.core.gnrbag import Bag
 import os
 
 class MultidbTable(object):
+
+    def raw_insert(self, record, **kwargs):
+        self.db.raw_insert(self, record,**kwargs)
+        self.trigger_multidbSyncInserted(record)
+
+    def raw_update(self, record, old_record=None,**kwargs):
+        self.trigger_multidbSyncUpdating(record,old_record=old_record)
+        self.db.raw_update(self, record,old_record=old_record,**kwargs)
+        self.trigger_multidbSyncUpdated(record,old_record=old_record)
+
+    def raw_delete(self, record, **kwargs):
+        self.trigger_multidbSyncDeleting(record)
+        self.db.raw_delete(self, record,**kwargs)
+
+    def trigger_multidbSyncUpdating(self, record,old_record=None,**kwargs):
+        multidb_subscription = self.db.table('multidb.subscription')
+        if self.db.usingRootstore():
+            if old_record.get('__multidb_default_subscribed') != record.get('__multidb_default_subscribed'):
+                if record['__multidb_default_subscribed']:
+                    for f in self.relations_one.keys():
+                        if record.get(f):
+                            relcol = self.column(f)
+                            relatedTable = relcol.relatedTable().dbtable
+                            if relatedTable.attributes.get('multidb_allRecords') or \
+                              (not relcol.relatedColumnJoiner().get('foreignkey')):
+                                continue
+                            relatedTable.setColumns(record[f],__multidb_default_subscribed=True)
+                else:
+                    raise multidb_subscription.multidbExceptionClass()(description='Multidb exception',msg="You cannot unset default subscription")
+        else:
+            multidb_subscription.onSlaveUpdating(self,record,old_record=old_record)
+            
+    def trigger_multidbSyncUpdated(self, record,old_record=None,**kwargs):
+        self.db.table('multidb.subscription').onSubscriberTrigger(self,record,old_record=old_record,event='U')
+     
+    def trigger_multidbSyncInserted(self, record,**kwargs):
+        self.db.table('multidb.subscription').onSubscriberTrigger(self,record,event='I')
+    
+    def trigger_multidbSyncDeleting(self, record,**kwargs):        
+        self.db.table('multidb.subscription').onSubscriberTrigger(self,record,event='D')
+     
+                                                             
+
     def onLoading_multidb(self,record,newrecord,loadingParameters,recInfo):
         if not self.db.usingRootstore():
             if self.attributes.get('multidb_onLocalWrite') == 'merge':
@@ -15,10 +58,7 @@ class MultidbTable(object):
                     return
             recInfo['_protect_write'] = True
             recInfo['_protect_write_message'] = "!!Can be changed only in main store"
-       #currentEnv = self.db.currentEnv
-       #if currentEnv.get('storename') and self.use_dbstores():
-       #    pass
-       #print x
+
 
 
 
@@ -41,7 +81,7 @@ class Package(GnrDboPackage):
         for pkg,pkgobj in db.packages.items():
             for tbl,tblobj in pkgobj.tables.items():
                 if hasattr(tblobj.dbtable,'use_dbstores') and tblobj.dbtable.use_dbstores():
-                    instanceMixin(tblobj.dbtable, MultidbTable, methods='onLoading_multidb', suffix='multidb')
+                    instanceMixin(tblobj.dbtable, MultidbTable)
 
 
     def checkFullSyncTables(self,errorlog_folder=None,
