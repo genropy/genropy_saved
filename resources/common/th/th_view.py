@@ -253,6 +253,7 @@ class TableHandlerView(BaseComponent):
         pane = parent.div(datapath='.sections.%s' %sections)
         tblobj = self.db.table(inattr['table'])
         m = self._th_hook('sections_%s' %sections,mangler=th_root,defaultCb=False)
+        sectionslist = None
         if m:
             sectionslist = m()
             dflt = getattr(m,'default',None)
