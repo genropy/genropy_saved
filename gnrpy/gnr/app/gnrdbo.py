@@ -979,7 +979,7 @@ class TableBase(object):
     def trigger_multidbSyncUpdating(self, record,old_record=None,**kwargs):
         multidb_subscription = self.db.table('multidb.subscription')
         if self.db.usingRootstore():
-            if old_record['__multidb_default_subscribed'] != record.get('__multidb_default_subscribed'):
+            if old_record.get('__multidb_default_subscribed') != record.get('__multidb_default_subscribed'):
                 if record['__multidb_default_subscribed']:
                     for f in self.relations_one.keys():
                         if record.get(f):
