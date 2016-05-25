@@ -227,7 +227,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var scrollbox = parent._value.getNode('scrollbox');
         var tbl = scrollbox._('div','itemcontainer',{_class:'gr_itemcontainer'})._('table','tableNode',{_class:'gr_table selectable'});
         var tbody = tbl._('tbody',{});
-        var headerList = dojo.query('th',this.viewsHeaderNode);
+        var headerList = dojo.query('th',this.viewsHeaderNode).filter(function(n){return genro.dom.isVisible(n);});
         var h = tbody._('tr','fakeHeader',{height:'0'});
         var idx = 0;
         headerList.forEach(function(th){
@@ -409,8 +409,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
         filler.style.height = delta+'px';
         var totalWidth = dojo.query('table',this.viewsHeaderNode)[0].clientWidth;
-        var tdlist = dojo.query('th',this.viewsHeaderNode).map(function(n){
-            return '<td style="width:'+n.clientWidth+'px;"></td>';
+        var tdlist = [];
+        dojo.query('th',this.viewsHeaderNode).forEach(function(n){
+            if(!n.clientWidth){
+                return; 
+            }
+            return tdlist.push('<td style="width:'+n.clientWidth+'px;"></td>');
         });
         filler.innerHTML = '<table class="grid_filler" style="width:'+totalWidth+'px;"><tbody><tr>'+tdlist.join('')+'</tr></tbody></table>';
     },
