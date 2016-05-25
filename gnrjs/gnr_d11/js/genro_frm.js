@@ -122,7 +122,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(this.canBeSaved() && !this.isNewRecord()){
              genro.callAfter(function(){
                 that.lazySave();
-             },this.autoSave,this.sourceNode,'autoSaveForm');
+             },this.autoSave,this.sourceNode,'autoSaveForm_'+this.formId);
         }
     },
 

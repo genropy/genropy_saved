@@ -1239,7 +1239,7 @@ dojo.declare("gnr.GridEditor", null, {
                 var result = this.callRemoteControllerBatch(rows,kw);
                 this._pendingRemoteController = null;
                 this.grid.sourceNode.publish('remoteRowControllerDone',{result:result});
-            },1,this,'callRemoteControllerBatch');
+            },1,this,'callRemoteControllerBatch_'+this.grid.sourceNode._id);
             return;
         }
         var that = this;

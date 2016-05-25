@@ -54,7 +54,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
 
 
     updatePageSource:function(nodeId){
-        var nodeId = nodeId || '_pageRoot';
+        nodeId = nodeId || '_pageRoot';
         var tempcontent = this.newRoot();
         tempcontent._('div',{_class:'waiting'});
         var node = genro.nodeById(nodeId);
@@ -63,7 +63,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         genro.callAfter(function(){
             var newcontent = newpage._value.getNodeByAttr('nodeId',nodeId)._value;
             node.setValue(newcontent);
-        },20,this,'reloading');
+        },20,this,'reloadingPageSource');
        
     },
 

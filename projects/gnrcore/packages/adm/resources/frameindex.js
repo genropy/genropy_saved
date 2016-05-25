@@ -172,7 +172,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
             genro.callAfter(function(){
                 n.attr.hasBeenCreated = true;
             },1);
-            genro.callAfter(cb,500,this,'creating')
+            genro.callAfter(cb,500,this,'creatingFramePage_'+n.label);
         }else{
             cb();
         }

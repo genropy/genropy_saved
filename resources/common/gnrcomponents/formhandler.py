@@ -118,7 +118,7 @@ class FormHandler(BaseComponent):
                                 }else{
                                     this.publish('editrow',{pkey:'*norecord*'});
                                 }
-                            },100,this,'editselectedrow');
+                            },100,this,'editselectedrow_'+this._id);
 
             """
             else:
@@ -137,7 +137,7 @@ class FormHandler(BaseComponent):
                                                 }else{
                                                     this.publish('editrow',{pkey:'*norecord*'});
                                                 }
-                                            },100,this,'editselectedrow');
+                                            },100,this,'editselectedrow_'+this._id);
                                             """
         if link_kwargs.get('add'):
             gridattr['selfsubscribe_addrow'] = """ var newrecord_kw = {pkey:"*newrecord*"};

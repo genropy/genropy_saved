@@ -251,7 +251,7 @@ dojo.declare("gnr.LinkerManager", null, {
             if(this.embedded || this.getCurrentPkey()){
                 genro.dom.removeClass(this.sourceNode,"th_enableLinker");
             }
-        },10,this,'closing')
+        },10,this,'closing_linker_'+this.sourceNode._id);
         
     },
     getCurrentPkey:function(){

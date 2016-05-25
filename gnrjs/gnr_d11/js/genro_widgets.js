@@ -656,7 +656,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         sourceNode.reloadIframe = function(delay){
             genro.callAfter(function(){
                 this.domNode.gnr.setSrc(this.domNode)
-            },delay || 200,sourceNode,'reloadingIframe');                                            
+            },delay || 200,sourceNode,'reloadingIframe_'+sourceNode._id);                                            
         };
         this.setSrc(newobj, savedAttrs.src);
         dojo.connect(sourceNode,'_onDeleting',function(){
@@ -1208,7 +1208,7 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
     patch_show:function(cb){
         this.onShowing();
         this.show_replaced(cb);
-        genro.callAfter(this.afterShow,1,this,'afterShow');
+        genro.callAfter(this.afterShow,1,this,'afterShow_'+this.sourceNode._id);
     },
 
     mixin_afterShow:function(){

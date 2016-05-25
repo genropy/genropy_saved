@@ -901,7 +901,7 @@ dojo.declare('gnr.GenroClient', null, {
             if (this.pendingCallAfter[reason]){
                 clearTimeout(this.pendingCallAfter[reason]);
             }
-             this.pendingCallAfter[reason] = setTimeout(dojo.hitch(scope, cb), timeout);
+            this.pendingCallAfter[reason] = setTimeout(dojo.hitch(scope, cb), timeout);
         }
         else{
             setTimeout(dojo.hitch(scope, cb), timeout);
