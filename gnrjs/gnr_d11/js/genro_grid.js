@@ -737,12 +737,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         if(sourceNode.attr.fillDown || sourceNode._wrapperNode){
             dojo.connect(widget,'postrender',function(){
-
                 if(!sourceNode._columnsetAndFootersInitialized){
-                    genro.callAfter(function(){
-                        this.widget.updateColumnsetsAndFooters();
-                    },1,this.sourceNode,'updateColumnsetsAndFooters');
-                    
+                    var widget = this;
+                    sourceNode.delayedCall(function(){
+                        widget.updateColumnsetsAndFooters();
+                    },1,'updateColumnsetsAndFooters');
                 }
                 if(this.sourceNode.attr.fillDown){
                     this.drawFiller();
