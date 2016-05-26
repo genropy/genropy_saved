@@ -184,7 +184,7 @@ class Table(object):
     def onSubscriberTrigger_slavestore(self,tblobj,record,old_record=None,event=None,syncAllStores=None):
         pkey = record[tblobj.pkey]
         if event=='I':
-            raise GnrMultidbException(description='Multidb exception',msg="You cannot insert a record in a synced store")
+            raise GnrMultidbException(description='Multidb exception',msg="You cannot insert a record in a synced store %s" %tblobj.fullname)
         elif event=='D':
             if syncAllStores:
                 raise GnrMultidbException(description='Multidb exception',msg="You cannot delete this record from a synced store")
