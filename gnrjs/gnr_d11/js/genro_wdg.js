@@ -1557,17 +1557,25 @@ dojo.declare("gnr.GridEditor", null, {
         }
 
     },
+    
     editableCell:function(col,row,clicked) {
         var cell = this.grid.getCell(col);
         if (!(cell.field in this.columns)){return false;}
         if ((cell.classes || '').indexOf('hiddenColumn')>=0){return false}
         this.grid.currRenderedRowIndex = row;
-        if(!clicked && this.grid.sourceNode.currentFromDatasource(cell.editLazy)){
+        if(this.grid.sourceNode.currentFromDatasource(cell.editDisabled)){
             return false;
+        }else if(clicked){
+            return true;
+        }else if(this.grid.sourceNode.currentFromDatasource(cell.editLazy)){
+            var editpars = cell.edit==true?{}:this.grid.sourceNode.evaluateOnNode(cell.edit);
+            return (editpars.validate_notnull && this.grid.rowByIndex(row)[cell.field]===null);
+        }else{
+            return true;
         }
-        return !this.grid.sourceNode.currentFromDatasource(cell.editDisabled)
+       
     },
-    
+
     onExternalChange:function(pkey){
         var rowEditor = this.grid.getRowEditor({rowId:pkey});
         if(rowEditor){
