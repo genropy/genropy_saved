@@ -38,7 +38,7 @@ class Table(object):
         if tblobj.attributes.get('hierarchical'):
             queryargs.setdefault('order_by','$hierarchical_pkey')
         records = tblobj.query(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,**queryargs).fetch()
-        with self.db.tempEnv(storename=dbstore):
+        with self.db.tempEnv(storename=dbstore,_multidbSync=True):
             for rec in records:
                 tblobj.insertOrUpdate(Bag(dict(rec)))
             self.db.deferredCommit()  
@@ -184,7 +184,6 @@ class Table(object):
     def onSubscriberTrigger_slavestore(self,tblobj,record,old_record=None,event=None,syncAllStores=None):
         pkey = record[tblobj.pkey]
         if event=='I':
-            print 'record',record,'table',tblobj.fullname
             raise GnrMultidbException(description='Multidb exception',msg="You cannot insert a record in a synced store %s" %tblobj.fullname)
         elif event=='D':
             if syncAllStores:
