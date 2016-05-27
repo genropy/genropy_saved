@@ -577,13 +577,15 @@ class GnrSqlDb(GnrObject):
             
     packages = property(_get_packages)
 
-    def tablesMasterIndex(self,hard=False):
+    def tablesMasterIndex(self,hard=False,filterCb=None):
         packages = self.packages.keys()
         toImport = []
         dependencies = dict()
         for k,pkg in enumerate(packages):
             pkgobj = self.package(pkg)
             tables = pkgobj.tables.values()
+            if filterCb:
+                tables = filter(filterCb,tables)
             toImport.extend(tables)
             for tbl in tables:
                 dset = set()
@@ -600,7 +602,7 @@ class GnrSqlDb(GnrObject):
             return result
         print 'deferred',deferred.keys()
         for k,v in deferred.items():
-            print '\n table ',k
+            print 'table ',k,
             print '\t\t bloccata da',v
 
 

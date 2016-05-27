@@ -202,7 +202,32 @@ class Table(object):
         if self.db.usingRootstore():
             return
         if self.db.currentEnv.get('_multidbSync'):
-            if record.get(tblobj.logicalDeletionField)\
+            self.checkLocalUnify(tblobj,record,old_record=old_record)
+            self.checkForeignKeys(tblobj,record,old_record=old_record)
+        else:
+            onLocalWrite = tblobj.attributes.get('multidb_onLocalWrite') or 'raise'
+            if onLocalWrite!='merge':
+                raise GnrMultidbException(description='Multidb exception',msg="You cannot update this record in a synced store")
+
+    def checkForeignKeys(self,tblobj,record=None,old_record=None):
+        for rel_table,rel_table_pkey,fkey in tblobj.model.oneRelationsList(True):
+            if old_record:
+                checkKey = record.get(fkey)!=old_record.get(fkey) and record.get(fkey)
+            else:
+                checkKey = record.get(fkey)
+            if checkKey:
+                reltable = self.db.table(rel_table)
+                if reltable.attributes.get('multidb_allRecords'):
+                    continue
+                rec = reltable.query(where='$%s=:pk' %rel_table_pkey,pk=checkKey,limit=1).fetch()
+                if rec and rec[0].get('__multidb_default_subscribed'):
+                    continue
+                storename = self.db.currentEnv['storename']
+                with self.db.tempEnv(storename=self.db.rootstore):
+                    reltable.multidbSubscribe(pkey=checkKey,dbstore=storename)
+
+    def checkLocalUnify(self,tblobj,record=None,old_record=None):
+        if record.get(tblobj.logicalDeletionField)\
             and not old_record.get(tblobj.logicalDeletionField)\
             and record.get('__moved_related'):
                 moved_related = Bag(record['__moved_related'])
@@ -221,11 +246,6 @@ class Table(object):
                                               dp=destPkey).fetch()
                         destRecord = f[0]
                     tblobj.unifyRelatedRecords(sourceRecord=record,destRecord=destRecord,moved_relations=moved_related)
-        else:
-            onLocalWrite = tblobj.attributes.get('multidb_onLocalWrite') or 'raise'
-            if onLocalWrite!='merge':
-                raise GnrMultidbException(description='Multidb exception',msg="You cannot update this record in a synced store")
-
 
 
     def decoreMergedRecord(self,tblobj,record):

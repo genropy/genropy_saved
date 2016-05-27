@@ -859,7 +859,7 @@ class DbTableObj(DbModelObj):
 
     @property  
     def dependencies(self):
-        return uniquify([('.'.join(x.split('.')[:-1]),deferred) for x,deferred in self.relations_one.digest('#v,#a.deferred') if not x.startswith(self.fullname)])
+        return uniquify([('.'.join(x.split('.')[:-1]),deferred or onDelete=='setnull') for x,deferred,foreignkey,onDelete in self.relations_one.digest('#v,#a.deferred,#a.foreignkey,#a.onDelete') if foreignkey and not x.startswith(self.fullname)])
       
     @property  
     def virtual_columns(self):

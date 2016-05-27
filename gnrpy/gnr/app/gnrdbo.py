@@ -949,6 +949,7 @@ class TableBase(object):
                         onUpdated='multidbSyncUpdated',
                         onDeleting='multidbSyncDeleting',
                         onInserted='multidbSyncInserted',
+                        onInserting='multidbSyncInserting',
                         onUpdating='multidbSyncUpdating',
                         group=group,_sysfield=True)
             if allRecords or forcedStore:

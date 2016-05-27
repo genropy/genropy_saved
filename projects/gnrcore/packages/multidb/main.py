@@ -36,8 +36,18 @@ class MultidbTable(object):
                 else:
                     raise multidb_subscription.multidbExceptionClass()(description='Multidb exception',msg="You cannot unset default subscription")
         else:
+            slaveEventHook = getattr(self,'onSlaveSyncing',None)
+            if slaveEventHook:
+                slaveEventHook(record,old_record=old_record,event='updating')
             multidb_subscription.onSlaveUpdating(self,record,old_record=old_record)
             
+    def trigger_multidbSyncInserting(self, record,old_record=None,**kwargs):
+        if not self.db.usingRootstore():
+            slaveEventHook = getattr(self,'onSlaveSyncing',None)
+            if slaveEventHook:
+                slaveEventHook(record,event='inserting')
+            self.db.table('multidb.subscription').checkForeignKeys(self,record)
+
     def trigger_multidbSyncUpdated(self, record,old_record=None,**kwargs):
         self.db.table('multidb.subscription').onSubscriberTrigger(self,record,old_record=old_record,event='U')
      
@@ -98,36 +108,26 @@ class Package(GnrDboPackage):
 
     def checkFullSyncTables_do(self,errorlog_folder=None,dbstores=None,packages=None):
         errors = Bag()
-        syncall = []
-        partial = []
-        packages = packages or self.db.packages.keys()
-        for pkg in packages:
-            pkgobj = self.db.packages[pkg]
-            for tableobj in pkgobj.tables.values():
-                tbl = tableobj.dbtable
-                if not tbl.isMultidbTable():
-                    continue
-                if tbl.attributes.get('multidb_forcedStore'):
-                    continue
-                if tbl.attributes.get('multidb_allRecords') is True:
-                    syncall.append(tbl)
-                else:
-                    partial.append(tbl)
-        
-        print 'syncall start'
-        for tbl in syncall:
-            print '\t',tbl.fullname
-            main_f = tbl.query(addPkeyColumn=False,bagFields=True,
+        master_index = self.db.tablesMasterIndex()['_index_'] #lambda tblobj: tblobj.dbtable.isMultidbTable() or tblobj.fullname=='hosting.slot')
+        for tbl in master_index.digest('#a.tbl'):
+            pkg,tblname = tbl.split('.')
+            if packages and not pkg in packages:
+                continue
+            tbl = self.db.table(tbl)
+            if not tbl.isMultidbTable():
+                continue
+            if tbl.attributes.get('multidb_forcedStore'):
+                continue
+            if tbl.attributes.get('multidb_allRecords') is True:
+                print 'syncall',tbl.fullname
+                main_f = tbl.query(addPkeyColumn=False,bagFields=True,
                                 excludeLogicalDeleted=False,ignorePartition=True,
                                 excludeDraft=False).fetch()
-            tbl.checkSyncAll(dbstores=dbstores,main_fetch=main_f,errors=errors)
-        print 'syncall done'
-        print 'partial start'
-        for tbl in partial:
-            print '\t',tbl.fullname
-            main_f = tbl.query(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False).fetch()
-            tbl.checkSyncPartial(dbstores=dbstores,main_fetch=main_f,errors=errors)
-        print 'partial done'
+                tbl.checkSyncAll(dbstores=dbstores,main_fetch=main_f,errors=errors)
+            else:
+                print 'partial',tbl.fullname
+                main_f = tbl.query(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False).fetch()
+                tbl.checkSyncPartial(dbstores=dbstores,main_fetch=main_f,errors=errors)
         if errorlog_folder:
             for dbstore,v in errors.items():
                 p = '%s/%s.xml' %(errorlog_folder,dbstore)
@@ -135,10 +135,6 @@ class Package(GnrDboPackage):
                     v.toXml(p,autocreate=True)
                 else:
                     os.remove(p)
-
-
-
-                    
 
 class Table(GnrDboTable):
     def use_dbstores(self,**kwargs):

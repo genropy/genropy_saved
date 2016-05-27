@@ -13,6 +13,6 @@ class Table(object):
         tbl.column('ordine', size='6', name_long='!![it]Ordine Gnr')
         tbl.column('zona', name_long='!![it]Zona')
         tbl.column('zona_numero', 'I', name_long='!![it]Zona n.')
-        tbl.column('nuts', size=':128', name_long='!![it]NUTS2').relation('glbl.nuts.code',relation_name='regioni',onDelete='raise')
+        tbl.column('nuts', size=':128', name_long='!![it]NUTS2').relation('glbl.nuts.code',relation_name='regioni')
 
 
