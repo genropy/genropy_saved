@@ -98,7 +98,7 @@ class Table(object):
             storename = subscription_record['dbstore']
         if not self.db.dbstores.get(storename):
             return
-        if master_record and False:
+        if master_record:
             data_record = deepcopy(master_record)
         else:
             data_record = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False).fetch()
