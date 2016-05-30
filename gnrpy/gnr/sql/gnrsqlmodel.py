@@ -93,16 +93,18 @@ class DbModel(object):
                     tblmix.db = self.db
                     tblmix._tblname = tblname
                     _doObjMixinConfig(tblmix, pkgsrc)
-                    
+        onBuildingCalls = [] 
         if 'pkg' in self.mixins:
             for pkg, pkgmix in self.mixins['pkg'].items():
                 pkgsrc = self.src['packages.%s' % pkg]
                 pkgmix.db = self.db
                 _doObjMixinConfig(pkgmix, pkgsrc)
-                
+                if hasattr(pkgmix,'onBuildingDbobj'):
+                    onBuildingCalls.append(pkgmix.onBuildingDbobj)
         sqldict = moduleDict('gnr.sql.gnrsqlmodel', 'sqlclass,sqlresolver')
+        for cb in onBuildingCalls:
+            cb()
         self.obj = DbModelObj.makeRoot(self, self.src, sqldict)
-            
         for many_relation_tuple, relation in self._columnsWithRelations.items():
             oneCol = relation.pop('related_column')
             self.addRelation(many_relation_tuple, oneCol, **relation)

@@ -353,6 +353,10 @@ class SqlTable(GnrObject):
         return self.model.logicalDeletionField
 
     @property
+    def multidb(self):
+        return self.attributes.get('multidb',None)
+
+    @property
     def draftField(self):
         """Return the draftField DbColumnObj object"""
         return self.model.draftField

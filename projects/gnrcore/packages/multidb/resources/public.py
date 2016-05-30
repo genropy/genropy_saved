@@ -12,17 +12,27 @@ from gnr.web.gnrbaseclasses import BaseComponent
 
 class TableHandlerMain(BaseComponent):
     def onMain_multidb_addOn(self):
-        if not self.tblobj.isMultidbTable():
+        if not self.tblobj.multidb:
             return
         th = getattr(self,'root_tablehandler',None)
         if th:
             self.__viewCustomization(th.view)
             if hasattr(th,'form'):
                 self.__formCustomization(th.form)
-    
+
     def __formCustomization(self,form):
-        readOnly = self.tblobj.multidb_readOnly()
-        if readOnly=='merge':
+        multidb = self.tblobj.multidb
+        if self.dbstore:
+            if multidb is True:
+                bar = form.top.bar.replaceSlots(',*,',',*,cb_default_sub,10,')
+                bar.cb_default_sub.checkbox(value='^#FORM.record.__multidb_default_subscribed',
+                                        label='!!Subscribed by default',margin_top='1px',
+                                        label_color='#666',label_font_size='.9em',
+                                        label_font_weight='bold') 
+        readOnly = multidb is not True or self.tblobj.attributes.get('multidb_onLocalWrite') != 'merge'
+        if readOnly:
+            form.attributes.update(form_readOnly=True)
+        else:
             bar = form.top.bar.replaceSlots(',*,',',*,merge_tool,10,')
             box = bar.merge_tool.div(width='20px')
             merge_tool = box.div(_class='iconbox warning',hidden='^#FORM.record?_multidb_diff?=!#v')
@@ -34,12 +44,6 @@ class TableHandlerMain(BaseComponent):
             grid.column('fname',name='Field',width='10em')
             grid.column('mvalue',name='Main value',width='15em')
             grid.column('lvalue',name='local value',width='15em')
-        elif not self.tblobj.attributes['multidb_allRecords']:
-            bar = form.top.bar.replaceSlots(',*,',',*,cb_default_sub,10,')
-            bar.cb_default_sub.checkbox(value='^#FORM.record.__multidb_default_subscribed',
-                                        label='!!Subscribed by default',margin_top='1px',
-                                        label_color='#666',label_font_size='.9em',
-                                        label_font_weight='bold')
 
 
     def __viewCustomization(self,view): #poi ci passo il th direttamente

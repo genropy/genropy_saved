@@ -7,10 +7,8 @@ from gnrpkg.multidb.utils import GnrMultidbException
 FIELD_BLACKLIST = ('__ins_ts','__mod_ts','__version','__del_ts','__moved_related')
 
 class Table(object):
-
     def multidbExceptionClass(self):
         return GnrMultidbException
-
 
     def config_db(self, pkg):
         tbl =  pkg.table('subscription',pkey='id',name_long='!!Subscription',
@@ -59,7 +57,15 @@ class Table(object):
             handler(pkey,dbstore)
         if not self.checkDuplicate(**dict(record)):
             self.insert(record)
+            self.syncChildren(table,pkey)
 
+    def syncChildren(self,table,pkey):
+        tblobj = self.db.table(table)
+        many_rels = [manyrel.split('.') for manyrel, onDelete in tblobj.relations_many.digest('#a.many_relation,#a.onDelete') if onDelete=='cascade']
+        for pkg,tbl,fkey in many_rels:
+            childtable = self.db.table('%s.%s' %(pkg,tbl))
+            if childtable.multidb:
+                childtable.touchRecords(where='$%s=:pk' %fkey,pk=pkey)
     
     @public_method
     def delRowsSubscription(self,table,pkeys=None,dbstore=None):
@@ -152,41 +158,51 @@ class Table(object):
         return f[0]['id'] if f else None
         
     def onSubscriberTrigger(self,tblobj,record,old_record=None,event=None):
-        syncAllStores = tblobj.attributes.get('multidb_allRecords') or record.get('__multidb_default_subscribed')
         if self.db.usingRootstore():
-            subscribedStores = self.getSubscribedStores(tblobj=tblobj,record=record,syncAllStores=syncAllStores)
+            subscribedStores = self.getSubscribedStores(tblobj=tblobj,record=record)
             mergeUpdate = tblobj.attributes.get('multidb_onLocalWrite')=='merge'
             pkey = record[tblobj.pkey]
             for storename in subscribedStores:
                 self.syncStore(event=event,storename=storename,tblobj=tblobj,pkey=pkey,
                                 master_record=record,master_old_record=old_record,mergeUpdate=mergeUpdate)
         elif not self.db.currentEnv.get('_multidbSync'):
-            self.onSubscriberTrigger_slavestore(tblobj,record,old_record=old_record,event=event,syncAllStores=syncAllStores)
+            self.onSubscriberTrigger_slavestore(tblobj,record,old_record=old_record,event=event)
 
-    def getSubscribedStores(self,tblobj,record,syncAllStores=None):
-        subscribedStores = []
-        if tblobj.attributes.get('multidb_forcedStore'):
+    def getSubscribedStores(self,tblobj,record):
+        multidb = tblobj.multidb
+        if multidb=='one':
             store = tblobj.multidb_getForcedStore(record)
-            if store:
-                subscribedStores.append(store)
-        elif syncAllStores:
-            subscribedStores = self.db.dbstores.keys()
-        else:
+            return [store] if store else []
+        elif tblobj.multidb == '*' or record.get('__multidb_default_subscribed'):
+            return self.db.dbstores.keys()
+        elif multidb is True:
             tablename = tblobj.fullname
             fkeyname = self.tableFkey(tblobj)
             pkey = record[tblobj.pkey]
             subscribedStores = self.query(where='$tablename=:tablename AND $%s=:pkey' %fkeyname,
                                     columns='$dbstore',addPkeyColumn=False,
                                     tablename=tablename,pkey=pkey,distinct=True).fetch()                
-            subscribedStores = [s['dbstore'] for s in subscribedStores]
-        return subscribedStores
+            return [s['dbstore'] for s in subscribedStores]
+        else:
+            subscribedStores = set(self.db.dbstores.keys())
+            do_sync = False
+            for fkey in multidb.split(','):
+                if record.get(fkey):
+                    do_sync = True
+                relatedTable = tblobj.column(fkey).relatedTable()
+                multidb = relatedTable.multidb
+                if multidb is True and record.get(fkey):
+                    parentRecord = relatedTable.record(pkey=record.get(fkey)).output('dict')
+                    parentSubscribedStores = set(self.getSubscribedStores(relatedTable,parentRecord))
+                    subscribedStores = subscribedStores.intersection(parentSubscribedStores)
+            return list(subscribedStores) if do_sync else []
 
-    def onSubscriberTrigger_slavestore(self,tblobj,record,old_record=None,event=None,syncAllStores=None):
+    def onSubscriberTrigger_slavestore(self,tblobj,record,old_record=None,event=None):
         pkey = record[tblobj.pkey]
         if event=='I':
             raise GnrMultidbException(description='Multidb exception',msg="You cannot insert a record in a synced store %s" %tblobj.fullname)
         elif event=='D':
-            if syncAllStores:
+            if tblobj.multidb == '*' or record.get('__multidb_default_subscribed'):
                 raise GnrMultidbException(description='Multidb exception',msg="You cannot delete this record from a synced store")
             else:
                 subscription_id = self.getSubscriptionId(tblobj=tblobj,dbstore=self.db.currentEnv.get('storename'),pkey=pkey)
@@ -268,7 +284,4 @@ class Table(object):
                 if store_record[k] != v:
                     result[k] = (v,store_record[k])
         return result
-
-
-
 

@@ -231,7 +231,6 @@ class TableBase(object):
                   draftField=False, invalidFields=None,invalidRelations=None,md5=False,
                   counter=None,hierarchical=None,useProtectionTag=None,
                   group='zzz', group_name='!!System',
-                  multidb=None,
                   df=None,counter_kwargs=None):
         """Add some useful columns for tables management (first of all, the ``id`` column)
         
@@ -346,8 +345,6 @@ class TableBase(object):
             draftField = '__is_draft' if draftField is True else draftField
             tbl.attributes['draftField'] = draftField
             tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group,_sysfield=True)
-        if multidb and self.db.model.src['packages.multidb']:
-            self.setMultidbSubscription(tbl,allRecords=(multidb=='*'),forcedStore=(multidb=='**'),group=group)
         if invalidFields or invalidRelations:
             if invalidFields:
                 tbl.attributes['invalidFields'] = '__invalid_fields'
@@ -359,12 +356,6 @@ class TableBase(object):
                 for rel in invalidRelations.split(','):
                     r.append('%s.__is_invalid' %rel)
             tbl.formulaColumn('__is_invalid', ' ( %s ) '  %' OR '.join(r), dtype='B',aggregator='OR')
-        sync = tbl.attributes.get('sync')
-        if sync:
-            tbl.column('__syncaux','B',group=group,
-                        onUpdated='syncRecordUpdated',
-                        onDeleting='syncRecordDeleting',
-                        onInserted='syncRecordInserted',_sysfield=True)
         if df:
             self.sysFields_df(tbl)
         tbl.formulaColumn('__is_protected_row',sql_formula=True,group=group,name_long='!!Row Protected',_sysfield=True)
@@ -666,127 +657,6 @@ class TableBase(object):
     def hasRecordTags(self):
         """TODO"""
         return self.attributes.get('hasRecordTags', False)
-    
-    def isMultidbTable(self):
-        return 'multidb_allRecords' in self.attributes
-
-    def multidb_readOnly(self):
-        attributes = self.attributes
-        if not (self.db.currentPage.dbstore and 'multidb_allRecords' in self.attributes):
-            return False
-        if attributes.get('multidb_onLocalWrite') == 'merge':
-            return 'merge'
-        return True
-
-    def checkSyncPartial(self,dbstores=None,main_fetch=None,errors=None):
-        queryargs = dict(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,
-                        ignorePartition=True,excludeDraft=False)
-        checkdict = dict([(r[self.pkey],dict(r)) for r in main_fetch])
-        substable = self.db.table('multidb.subscription')
-        fkeyname = substable.tableFkey(self)
-        subscriptions = substable.query(where='$tablename=:t',t=self.fullname).fetchGrouped('dbstore')
-        for dbstore in dbstores:
-            store_subs = dict([(s[fkeyname],s['id'])for s in subscriptions.pop(dbstore,[])])
-            with self.db.tempEnv(storename=dbstore):
-                store_f = self.query(**queryargs).fetch()
-                for r in store_f:
-                    record_pkey = r[self.pkey]
-                    main_r = checkdict.get(record_pkey)
-                    if not main_r:
-                        if not self.hasRelations(r):
-                            self.raw_delete(r)
-                        else:
-                            errors.setItem('%s.%s.storeonly.%s' %(dbstore,self.fullname,record_pkey),True)
-                        continue
-                    sub_id = store_subs.pop(record_pkey,None)
-                    default_subscribed = main_r.get('__multidb_default_subscribed')
-                    if default_subscribed:
-                        if sub_id:
-                            substable.raw_delete(dict(id=sub_id))
-                    elif not sub_id:
-                        if not self.hasRelations(r):
-                            self.raw_delete(r)
-                            continue
-                        else:
-                            subrec = {'tablename':self.fullname,
-                                    fkeyname:r[self.pkey],
-                                    'dbstore':dbstore,
-                                    'id':substable.newPkeyValue()}
-                            substable.trigger_setTSNow(subrec,'__ins_ts')
-                            substable.raw_insert(subrec)
-                    elif not self.hasRelations(r):
-                        self.raw_delete(r)
-                        substable.raw_delete(dict(id=sub_id))
-                    diff = substable.getRecordDiff(main_r,r)
-                    to_update = False
-                    localdiff = dict()
-                    for field,values in diff.items():
-                        main_value,store_value = values
-                        if main_value is not None:
-                            print '\t\t setting',field,main_value,'instead of',store_value
-                            r[field] = main_value
-                            to_update = True
-                        elif r[field] is not None:
-                            localdiff[field] = store_value
-                    if localdiff:
-                        errors.setItem('%s.%s.different_storevalue.%s' %(dbstore,self.fullname,record_pkey),True,**localdiff)
-                    if to_update:
-                        self.raw_update(r)
-                self.db.commit()
-            self.db.commit()
-
-
-    def _checkSyncAll_store(self,main_fetch=None,insertManyData=None,
-                            queryargs=None,pkeyfield=None,ts=None,
-                            errors=None,dbstore=None):
-        if not insertManyData:
-            self.empty()
-            return
-        checkdict = dict([(r[pkeyfield],dict(r)) for r in main_fetch])
-        store_f = self.query(**queryargs).fetch()
-        if not store_f and insertManyData:
-            self.insertMany(insertManyData)
-            return
-        diffrec = list()
-        for r in store_f:
-            r = dict(r)
-            record_pkey = r[pkeyfield]
-            main_r = checkdict.pop(record_pkey,None)
-            if not main_r:
-                if not self.hasRelations(r):
-                    self.raw_delete(r)
-                else:
-                    errors.setItem('%s.%s.wrong_allsync_record.%s' %(dbstore,self.fullname,record_pkey),True)
-                    if self.logicalDeletionField:
-                        r[self.logicalDeletionField] = ts
-                        self.raw_update(r)
-                return
-            checkdiff = [(k,v,main_r[k]) for k,v in r.items() if k not in ('__ins_ts','__mod_ts','__version','__del_ts','__moved_related') if v!=main_r[k]]
-            if checkdiff:
-                diffrec.append((main_r,r))
-                
-        if diffrec or checkdict:
-            try:
-                self.empty()
-                self.insertMany(insertManyData)
-            except Exception:
-                for r,oldr in diffrec:
-                    self.raw_update(r,oldr)
-                for main_r in checkdict.values():
-                    self.raw_insert(main_r)
-
-    def checkSyncAll(self,dbstores=None,main_fetch=None,errors=None):
-        pkeyfield = self.pkey
-        insertManyData = [dict(r) for r in main_fetch]
-        ts = datetime.datetime.now()
-        queryargs = dict(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,ignorePartition=True,excludeDraft=False)
-        for dbstore in dbstores:
-            with self.db.tempEnv(storename=dbstore):
-                self._checkSyncAll_store(main_fetch=main_fetch,insertManyData=insertManyData,
-                                         queryargs=queryargs, pkeyfield=pkeyfield, 
-                                         ts=ts,errors=errors,dbstore=dbstore)
-                self.db.commit()
-            self.db.commit()
 
     def checkDiagnostic(self,record):
         if self.attributes.get('diagnostic'):
@@ -923,58 +793,6 @@ class TableBase(object):
                                 fieldpath=fieldpath,fullcaption=fullcaption)
         return result
                      
-    def multidbSubscribe(self,pkey,dbstore=None):
-        self.db.table('multidb.subscription').addSubscription(table=self.fullname,pkey=pkey,dbstore=dbstore)
-           
-    def setMultidbSubscription(self,tbl,allRecords=False,forcedStore=False,group='zzz'):
-        """TODO
-        
-        :param tblname: a string composed by the package name and the database :ref:`table` name
-                        separated by a dot (``.``)"""
-        pkg = tbl.attributes['pkg']
-        tbl.attributes.update(multidb='*' if allRecords else True)
-
-        tblname = tbl.parentNode.label
-        tblfullname = '%s.%s' %(pkg,tblname)
-        model = self.db.model
-        subscriptiontbl =  model.src['packages.multidb.tables.subscription']
-        pkey = tbl.parentNode.getAttr('pkey')
-        pkeycolAttrs = tbl.column(pkey).getAttr()
-        tblname = tbl.parentNode.label
-        rel = '%s.%s.%s' % (pkg,tblname, pkey)
-        fkey = rel.replace('.', '_')
-        if subscriptiontbl:
-            tbl.attributes.update(multidb_allRecords=allRecords,multidb_forcedStore=forcedStore)
-            tbl.column('__multidb_flag',dtype='B',comment='!!Fake field always NULL',
-                        onUpdated='multidbSyncUpdated',
-                        onDeleting='multidbSyncDeleting',
-                        onInserted='multidbSyncInserted',
-                        onInserting='multidbSyncInserting',
-                        onUpdating='multidbSyncUpdating',
-                        group=group,_sysfield=True)
-            if allRecords or forcedStore:
-                return 
-                
-            tbl.column('__multidb_default_subscribed',dtype='B',_pluggedBy='multidb.subscription',
-                    name_long='!!Subscribed by default',group=group,_sysfield=True)
-            tbl.formulaColumn('__multidb_subscribed',"""EXISTS (SELECT * 
-                                                        FROM multidb.multidb_subscription AS sub
-                                                        WHERE sub.dbstore = :env_target_store 
-                                                              AND sub.tablename = '%s'
-                                                        AND sub.%s = #THIS.%s
-                                                        )""" %(tblfullname,fkey,pkey),dtype='B',
-                                                        name_long='!!Subscribed',_sysfield=True,group=group)
-            subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),_sysfield=True,
-                              size=pkeycolAttrs.get('size'), group=group).relation(rel, relation_name='subscriptions',external_relation=True,
-                                                                                 many_group=group, one_group=group)
-    def hasMultidbSubscription(self):
-        return self.attributes.get('multidb')==True and self.db.model.src['packages.multidb']
-
-   #def _onUnifying(self,destRecord=None,sourceRecord=None,moved_relations=None,relations=None):
-   #    if self.hasMultidbSubscription():
-   #        relations.remove('@subscriptions')
-   #        self.db.table('multidb.subscription').cloneSubscriptions(self.fullname,sourceRecord[self.pkey],destRecord[self.pkey])
-  
     def setTagColumn(self, tbl, name_long=None, group=None):
         """TODO
         
@@ -983,15 +801,6 @@ class TableBase(object):
         :param group: a hierarchical path of logical categories and subacategories
                       the columns belongs to. For more information, check the :ref:`group` section"""
         warnings_module.warn(""" setTagColumn has been removed """, DeprecationWarning, 2) 
-
-    def trigger_syncRecordUpdated(self,record,old_record=None,**kwargs):
-        self.pkg.table('sync_event').onTableTrigger(self,record,old_record=old_record,event='U')
-
-    def trigger_syncRecordInserted(self, record,**kwargs):
-        self.pkg.table('sync_event').onTableTrigger(self,record,event='I')
-    
-    def trigger_syncRecordDeleting(self, record,**kwargs):        
-        self.pkg.table('sync_event').onTableTrigger(self,record,event='D')
 
     #FUNCTIONS SQL
     def normalizeText(self,text):
@@ -1204,15 +1013,13 @@ class AttachmentTable(GnrDboTable):
         model = self.db.model
         mastertbl =  model.src['packages.%s.tables.%s' %(pkgname,mastertblname)]
         mastertbl.attributes['atc_attachmenttable'] = '%s.%s' %(pkgname,tblname)
-        mastertbl_name_long = mastertbl.attributes.get('name_long')
-        mastertbl_multidb = mastertbl.attributes.get('multidb')
-        
+        mastertbl_name_long = mastertbl.attributes.get('name_long')        
         tbl.attributes.setdefault('caption_field','description')
         tbl.attributes.setdefault('rowcaption','$description')
         tbl.attributes.setdefault('name_long','%s  Attachment' %mastertbl_name_long)
         tbl.attributes.setdefault('name_plural','%s Attachments' %mastertbl_name_long)
 
-        self.sysFields(tbl,id=True, ins=False, upd=False,counter='maintable_id',multidb=mastertbl_multidb)
+        self.sysFields(tbl,id=True, ins=False, upd=False,counter='maintable_id')
         tbl.column('id',size='22',group='_',name_long='Id')
         tbl.column('filepath' ,name_long='!!Filepath',onDeleted='onDeletedAtc',onInserted='convertDocFile')
         tbl.column('description' ,name_long='!!Description')
