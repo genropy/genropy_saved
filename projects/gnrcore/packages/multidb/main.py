@@ -3,64 +3,257 @@
 from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrlang import instanceMixin
-import datetime
+#from gnrpkg.multidb.multidbtable import MultidbTable
+from gnr.sql.gnrsql import GnrSqlException
 import os
+import datetime
+
+
+class Package(GnrDboPackage):
+    def config_attributes(self):
+        return dict(comment='multidb package',sqlschema='multidb',
+                name_short='Multidb', name_long='Multidb', name_full='Multidb')
+
+    def config_db(self, pkg):
+        pass
+    
+    def copyTableToStore(self):
+        pass
+
+    def onApplicationInited(self):
+        self.mixinMultidbMethods()
+
+    def mixinMultidbMethods(self):
+        db = self.application.db
+        for pkg,pkgobj in db.packages.items():
+            for tbl,tblobj in pkgobj.tables.items():
+                if tblobj.dbtable.multidb:
+                    instanceMixin(tblobj.dbtable, MultidbTable)
+
+
+    def onBuildingDbobj(self):
+        for pkgNode in self.db.model.src['packages']:
+            for tblNode in pkgNode.value['tables']:
+                multidb = tblNode.attr.get('multidb')
+                tbl = tblNode.value
+                if multidb is True:
+                    self.multidb_configure(tbl,multidb)
+                elif multidb is None:
+                    multidb_fkeys = []
+                    for col in tbl['columns']:
+                        relattr = col.value.getAttr('relation')
+                        if relattr and relattr.get('onDelete')=='cascade':
+                            relatedColumn = relattr.get('related_column')
+                            colpath = relatedColumn.split('.')
+                            if len(colpath) == 2:
+                                rel_pkg = pkgNode.label
+                                rel_tblname, rel_colname = colpath
+                            else:
+                                rel_pkg, rel_tblname, rel_colname = colpath
+                            rel_multidb = self.db.model.src.getNode('packages.%s.tables.%s' %(rel_pkg,rel_tblname)).attr.get('multidb')
+                            if rel_multidb:
+                                multidb_fkeys.append(col.label)
+                    if multidb_fkeys:
+                        tblNode.attr.update(multidb='parent',multidb_fkeys=','.join(multidb_fkeys))
+
+    def multidb_configure(self,tbl,multidb):
+        pkg = tbl.attributes['pkg']
+        tblname = tbl.parentNode.label
+        model = self.db.model
+        subscriptiontbl =  model.src['packages.multidb.tables.subscription']
+        pkey = tbl.parentNode.getAttr('pkey')
+        pkeycolAttrs = tbl.column(pkey).getAttr()
+        tblname = tbl.parentNode.label
+        rel = '%s.%s.%s' % (pkg,tblname, pkey)
+        fkey = rel.replace('.', '_')
+        tbl.column('__multidb_default_subscribed',dtype='B',_pluggedBy='multidb.subscription',
+                name_long='!!Subscribed by default',group='zz',_sysfield=True)
+        tbl.formulaColumn('__multidb_subscribed',"""EXISTS (SELECT * 
+                                                    FROM multidb.multidb_subscription AS sub
+                                                    WHERE sub.dbstore = :env_target_store 
+                                                          AND sub.tablename = '%s'
+                                                    AND sub.%s = #THIS.%s
+                                                    )""" %(tblname,fkey,pkey),dtype='B',
+                                                    name_long='!!Subscribed',_sysfield=True,group='zz')
+        subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),_sysfield=True,
+                              size=pkeycolAttrs.get('size'), group='zz').relation(rel, relation_name='subscriptions',external_relation=True,
+                                                                                 many_group='zz', one_group='zz')
+
+    def checkFullSyncTables(self,errorlog_folder=None,
+                            dbstores=None,store_block=5,packages=None):
+        if dbstores is None:
+            dbstores = self.db.dbstores.keys()
+        elif isinstance(dbstores,basestring):
+            dbstores = dbstores.split(',')
+        while dbstores:
+            block = dbstores[0:store_block]
+            dbstores = dbstores[store_block:]
+            self.checkFullSyncTables_do(errorlog_folder=errorlog_folder,dbstores=block,packages=packages)
+            print 'dbstore to do',len(dbstores)
+
+    def checkFullSyncTables_do(self,errorlog_folder=None,dbstores=None,packages=None):
+        errors = Bag()
+        master_index = self.db.tablesMasterIndex()['_index_'] 
+        for tbl in master_index.digest('#a.tbl'):
+            pkg,tblname = tbl.split('.')
+            if packages and not pkg in packages:
+                continue
+            tbl = self.db.table(tbl)
+            multidb = tbl.multidb
+            if not multidb or multidb=='one':
+                continue
+            if multidb=='*':
+                print 'syncall',tbl.fullname
+                main_f = tbl.query(addPkeyColumn=False,bagFields=True,
+                                excludeLogicalDeleted=False,ignorePartition=True,
+                                excludeDraft=False).fetch()
+                tbl.checkSyncAll(dbstores=dbstores,main_fetch=main_f,errors=errors)
+            else:
+                print 'partial',tbl.fullname
+                main_f = tbl.query(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False).fetch()
+                tbl.checkSyncPartial(dbstores=dbstores,main_fetch=main_f,errors=errors)
+        if errorlog_folder:
+            for dbstore,v in errors.items():
+                p = '%s/%s.xml' %(errorlog_folder,dbstore)
+                if v:
+                    v.toXml(p,autocreate=True)
+                else:
+                    os.remove(p)
+
+class Table(GnrDboTable):
+    def use_dbstores(self,**kwargs):
+        return False
+
+class GnrMultidbException(GnrSqlException):
+    """Standard Genro SQL Business Logic Exception
+    
+    * **code**: GNRSQL-101
+    """
+    code = 'GNRSQL-101'
+    description = '!!%(description)s'
+    caption = '!!%(msg)s'
 
 class MultidbTable(object):
+    def multidbExceptionClass(self):
+        return GnrMultidbException
+
     def raw_insert(self, record, **kwargs):
         self.db.raw_insert(self, record,**kwargs)
-        self.trigger_multidbSyncInserted(record)
+        self.trigger_onInserted_multidb(record)
 
     def raw_update(self, record, old_record=None,**kwargs):
-        self.trigger_multidbSyncUpdating(record,old_record=old_record)
+        self.trigger_onUpdating_multidb(record,old_record=old_record)
         self.db.raw_update(self, record,old_record=old_record,**kwargs)
-        self.trigger_multidbSyncUpdated(record,old_record=old_record)
+        self.trigger_onUpdated_multidb(record,old_record=old_record)
 
     def raw_delete(self, record, **kwargs):
-        self.trigger_multidbSyncDeleting(record)
+        self.trigger_onDeleting_multidb(record)
         self.db.raw_delete(self, record,**kwargs)
 
+    def checkForeignKeys(self,record=None,old_record=None):
+        for rel_table,rel_table_pkey,fkey in self.model.oneRelationsList(True):
+            if old_record:
+                checkKey = record.get(fkey)!=old_record.get(fkey) and record.get(fkey)
+            else:
+                checkKey = record.get(fkey)
+            if checkKey:
+                reltable = self.db.table(rel_table)
+                if reltable.attributes.get('multidb_allRecords'):
+                    continue
+                rec = reltable.query(where='$%s=:pk' %rel_table_pkey,pk=checkKey,limit=1).fetch()
+                if rec and rec[0].get('__multidb_default_subscribed'):
+                    continue
+                storename = self.db.currentEnv['storename']
+                with self.db.tempEnv(storename=self.db.rootstore):
+                    reltable.multidbSubscribe(pkey=checkKey,dbstore=storename)
+
+    def checkLocalUnify(self,record=None,old_record=None):
+        if record.get(self.logicalDeletionField)\
+            and not old_record.get(self.logicalDeletionField)\
+            and record.get('__moved_related'):
+                moved_related = Bag(record['__moved_related'])
+                destPkey = moved_related['destPkey']
+                destRecord = self.query(where='$%s=:dp' %self.pkey, 
+                                          dp=destPkey).fetch()
+                with self.db.tempEnv(connectionName='system'):
+                    if destRecord:
+                        destRecord = destRecord[0]
+                    else:
+                        storename = self.db.currentEnv['storename']
+                        with self.db.tempEnv(storename=self.db.rootstore):
+                            self.multidbSubscribe(pkey=destPkey,dbstore=storename)                        
+                        f = self.query(where='$%s=:dp' %self.pkey, 
+                                              dp=destPkey).fetch()
+                        destRecord = f[0]
+                    self.unifyRelatedRecords(sourceRecord=record,destRecord=destRecord,moved_relations=moved_related)
+
+    def trigger_onInserting_multidb(self, record,old_record=None,**kwargs):
+        if self.db.usingRootstore():
+            return
+        if self.multidb !='parent' and not self.db.currentEnv.get('_multidbSync'):
+            raise GnrMultidbException(description='Multidb exception',msg="You cannot insert a record in a synced store %s" %self.fullname)
+        slaveEventHook = getattr(self,'onSlaveSyncing',None)
+        if slaveEventHook:
+            slaveEventHook(record,event='inserting')
+        self.checkForeignKeys(self,record)
+
     def trigger_onUpdating_multidb(self, record,old_record=None,**kwargs):
-        multidb_subscription = self.db.table('multidb.subscription')
         if self.db.usingRootstore():
             if old_record.get('__multidb_default_subscribed') != record.get('__multidb_default_subscribed'):
-                if record['__multidb_default_subscribed']:
-                    for f in self.relations_one.keys():
-                        if record.get(f):
-                            relcol = self.column(f)
-                            relatedTable = relcol.relatedTable().dbtable
-                            if relatedTable.attributes.get('multidb_allRecords') or \
-                              (not relcol.relatedColumnJoiner().get('foreignkey')):
-                                continue
-                            relatedTable.setColumns(record[f],__multidb_default_subscribed=True)
-                    multidb_subscription.syncChildren(self.fullname,record[self.pkey])
-                else:
-                    raise multidb_subscription.multidbExceptionClass()(description='Multidb exception',msg="You cannot unset default subscription")
+                self._onUpdating_master(record,old_record=old_record,**kwargs)
         else:
+            self._onUpdating_slave(record,old_record=old_record)
+            
+    def _onUpdating_master(self, record,old_record=None,**kwargs):
+        if record['__multidb_default_subscribed']:
+            for f in self.relations_one.keys():
+                if record.get(f):
+                    relcol = self.column(f)
+                    relatedTable = relcol.relatedTable().dbtable
+                    if relatedTable.attributes.get('multidb_allRecords') or \
+                      (not relcol.relatedColumnJoiner().get('foreignkey')):
+                        continue
+                    relatedTable.setColumns(record[f],__multidb_default_subscribed=True)
+            self.db.table('multidb.subscription').syncChildren(self.fullname,record[self.pkey])
+        else:
+            raise GnrMultidbException(description='Multidb exception',msg="You cannot unset default subscription")
+
+    def _onUpdating_slave(self, record,old_record=None,**kwargs):
+        if self.db.currentEnv.get('_multidbSync'):
             slaveEventHook = getattr(self,'onSlaveSyncing',None)
             if slaveEventHook:
                 slaveEventHook(record,old_record=old_record,event='updating')
-            multidb_subscription.onSlaveUpdating(self,record,old_record=old_record)
-            
-    def trigger_onInserting_multidb(self, record,old_record=None,**kwargs):
-        if not self.db.usingRootstore():
-            slaveEventHook = getattr(self,'onSlaveSyncing',None)
-            if slaveEventHook:
-                slaveEventHook(record,event='inserting')
-            self.db.table('multidb.subscription').checkForeignKeys(self,record)
+            self.checkLocalUnify(record,old_record=old_record)
+            self.checkForeignKeys(record,old_record=old_record)
+        else:
+            onLocalWrite = self.attributes.get('multidb_onLocalWrite') or 'raise'
+            if onLocalWrite!='merge':
+                raise GnrMultidbException(description='Multidb exception',
+                                            msg="You cannot update this record in a synced store")
+    #def onSlaveSyncing(self,record=None,old_record=None,event=None):
+    #    pass
+
+    def trigger_onDeleting_multidb(self, record,**kwargs):      
+        if self.db.usingRootstore():  
+            self.onSubscriberTrigger(record,event='D')
+        elif not self.db.currentEnv.get('_multidbSync'):
+            pkey = record[self.pkey]
+            if self.multidb == '*' or record.get('__multidb_default_subscribed'):
+                raise GnrMultidbException(description='Multidb exception',msg="You cannot delete this record from a synced store")
+            elif self.multidb is True :
+                tblsub = self.db.table('multidb.subscription')
+                subscription_id = tblsub.getSubscriptionId(tblobj=self,dbstore=self.db.currentEnv.get('storename'),pkey=pkey)
+                if subscription_id:
+                    self.raw_delete(subscription_id) # in order to avoid subscription delete trigger
+
+    def trigger_onInserted_multidb(self, record,**kwargs):
+        if self.db.usingRootstore():  
+            self.onSubscriberTrigger(record,event='I')
 
     def trigger_onUpdated_multidb(self, record,old_record=None,**kwargs):
-        self.db.table('multidb.subscription').onSubscriberTrigger(self,record,old_record=old_record,event='U')
-     
-    def trigger_onInserted_multidb(self, record,**kwargs):
-        self.db.table('multidb.subscription').onSubscriberTrigger(self,record,event='I')
+        if self.db.usingRootstore():  
+            self.onSubscriberTrigger(record,old_record=old_record,event='U')
 
-    def trigger_onDeleting_multidb(self, record,**kwargs):        
-        self.db.table('multidb.subscription').onSubscriberTrigger(self,record,event='D')
-     
-    def multidbSubscribe(self,pkey,dbstore=None):
-        self.db.table('multidb.subscription').addSubscription(table=self.fullname,pkey=pkey,dbstore=dbstore)
-           
     def onLoading_multidb(self,record,newrecord,loadingParameters,recInfo):
         if not self.db.usingRootstore():
             if self.attributes.get('multidb_onLocalWrite') == 'merge':
@@ -180,118 +373,46 @@ class MultidbTable(object):
                 self.db.commit()
             self.db.commit()
 
+    def onSubscriberTrigger(self,record,old_record=None,event=None):
+        subscribedStores = self.getSubscribedStores(record=record)
+        mergeUpdate = self.attributes.get('multidb_onLocalWrite')=='merge'
+        pkey = record[self.pkey]
+        tblsub = self.db.table('multidb.subscription')
+        for storename in subscribedStores:
+            tblsub.syncStore(event=event,storename=storename,tblobj=self,pkey=pkey,
+                            master_record=record,master_old_record=old_record,mergeUpdate=mergeUpdate)
+  
+    def getSubscribedStores(self,record):
+        multidb = self.multidb
+        if multidb=='one':
+            store = self.multidb_getForcedStore(record)
+            return [store] if store else []
+        elif self.multidb == '*' or record.get('__multidb_default_subscribed'):
+            return self.db.dbstores.keys()
+        elif multidb is True:
+            tablename = self.fullname
+            tblsub = self.db.table('multidb.subscription')
+            fkeyname = tblsub.tableFkey(self)
+            pkey = record[self.pkey]
+            subscribedStores = tblsub.query(where='$tablename=:tablename AND $%s=:pkey' %fkeyname,
+                                    columns='$dbstore',addPkeyColumn=False,
+                                    tablename=tablename,pkey=pkey,distinct=True).fetch()                
+            return [s['dbstore'] for s in subscribedStores]
+        else:
+            subscribedStores = set(self.db.dbstores.keys())
+            do_sync = False
+            multidb_fkeys = self.attributes['multidb_fkeys']
+            for fkey in multidb_fkeys.split(','):
+                if record.get(fkey):
+                    do_sync = True
+                relatedTable = self.column(fkey).relatedTable()
+                multidb = relatedTable.multidb
+                if multidb is True and record.get(fkey):
+                    parentRecord = relatedTable.record(pkey=record.get(fkey)).output('dict')
+                    parentSubscribedStores = set(self.getSubscribedStores(relatedTable,parentRecord))
+                    subscribedStores = subscribedStores.intersection(parentSubscribedStores)
+            return list(subscribedStores) if do_sync else []
 
-class Package(GnrDboPackage):
-    def config_attributes(self):
-        return dict(comment='multidb package',sqlschema='multidb',
-                name_short='Multidb', name_long='Multidb', name_full='Multidb')
-
-    def config_db(self, pkg):
-        pass
-    
-    def copyTableToStore(self):
-        pass
-
-    def onApplicationInited(self):
-        self.mixinMultidbMethods()
-
-    def mixinMultidbMethods(self):
-        db = self.application.db
-        for pkg,pkgobj in db.packages.items():
-            for tbl,tblobj in pkgobj.tables.items():
-                if tblobj.dbtable.multidb:
-                    instanceMixin(tblobj.dbtable, MultidbTable)
-
-
-    def onBuildingDbobj(self):
-        for pkgNode in self.db.model.src['packages']:
-            for tblNode in pkgNode.value['tables']:
-                multidb = tblNode.attr.get('multidb')
-                tbl = tblNode.value
-                if multidb is True:
-                    self.multidb_configure(tbl,multidb)
-                elif multidb is None:
-                    multidb_fkeys = []
-                    for col in tbl['columns']:
-                        relattr = col.value.getAttr('relation')
-                        if relattr and relattr.get('onDelete')=='cascade':
-                            relatedColumn = relattr.get('related_column')
-                            colpath = relatedColumn.split('.')
-                            if len(colpath) == 2:
-                                rel_pkg = pkgNode.label
-                                rel_tblname, rel_colname = colpath
-                            else:
-                                rel_pkg, rel_tblname, rel_colname = colpath
-                            rel_multidb = self.db.model.src.getNode('packages.%s.tables.%s' %(rel_pkg,rel_tblname)).attr.get('multidb')
-                            if rel_multidb:
-                                multidb_fkeys.append(col.label)
-                    if multidb_fkeys:
-                        tblNode.attr.update(multidb=','.join(multidb_fkeys))
-
-    def multidb_configure(self,tbl,multidb):
-        pkg = tbl.attributes['pkg']
-        tblname = tbl.parentNode.label
-        model = self.db.model
-        subscriptiontbl =  model.src['packages.multidb.tables.subscription']
-        pkey = tbl.parentNode.getAttr('pkey')
-        pkeycolAttrs = tbl.column(pkey).getAttr()
-        tblname = tbl.parentNode.label
-        rel = '%s.%s.%s' % (pkg,tblname, pkey)
-        fkey = rel.replace('.', '_')
-        tbl.column('__multidb_default_subscribed',dtype='B',_pluggedBy='multidb.subscription',
-                name_long='!!Subscribed by default',group='zz',_sysfield=True)
-        tbl.formulaColumn('__multidb_subscribed',"""EXISTS (SELECT * 
-                                                    FROM multidb.multidb_subscription AS sub
-                                                    WHERE sub.dbstore = :env_target_store 
-                                                          AND sub.tablename = '%s'
-                                                    AND sub.%s = #THIS.%s
-                                                    )""" %(tblname,fkey,pkey),dtype='B',
-                                                    name_long='!!Subscribed',_sysfield=True,group='zz')
-        subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),_sysfield=True,
-                              size=pkeycolAttrs.get('size'), group='zz').relation(rel, relation_name='subscriptions',external_relation=True,
-                                                                                 many_group='zz', one_group='zz')
-
-    def checkFullSyncTables(self,errorlog_folder=None,
-                            dbstores=None,store_block=5,packages=None):
-        if dbstores is None:
-            dbstores = self.db.dbstores.keys()
-        elif isinstance(dbstores,basestring):
-            dbstores = dbstores.split(',')
-        while dbstores:
-            block = dbstores[0:store_block]
-            dbstores = dbstores[store_block:]
-            self.checkFullSyncTables_do(errorlog_folder=errorlog_folder,dbstores=block,packages=packages)
-            print 'dbstore to do',len(dbstores)
-
-    def checkFullSyncTables_do(self,errorlog_folder=None,dbstores=None,packages=None):
-        errors = Bag()
-        master_index = self.db.tablesMasterIndex()['_index_'] 
-        for tbl in master_index.digest('#a.tbl'):
-            pkg,tblname = tbl.split('.')
-            if packages and not pkg in packages:
-                continue
-            tbl = self.db.table(tbl)
-            multidb = tbl.multidb
-            if not multidb or multidb=='one':
-                continue
-            if multidb=='*':
-                print 'syncall',tbl.fullname
-                main_f = tbl.query(addPkeyColumn=False,bagFields=True,
-                                excludeLogicalDeleted=False,ignorePartition=True,
-                                excludeDraft=False).fetch()
-                tbl.checkSyncAll(dbstores=dbstores,main_fetch=main_f,errors=errors)
-            else:
-                print 'partial',tbl.fullname
-                main_f = tbl.query(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False).fetch()
-                tbl.checkSyncPartial(dbstores=dbstores,main_fetch=main_f,errors=errors)
-        if errorlog_folder:
-            for dbstore,v in errors.items():
-                p = '%s/%s.xml' %(errorlog_folder,dbstore)
-                if v:
-                    v.toXml(p,autocreate=True)
-                else:
-                    os.remove(p)
-
-class Table(GnrDboTable):
-    def use_dbstores(self,**kwargs):
-        return False
+    def multidbSubscribe(self,pkey,dbstore=None):
+        self.db.table('multidb.subscription').addSubscription(table=self.fullname,pkey=pkey,dbstore=dbstore)
+           

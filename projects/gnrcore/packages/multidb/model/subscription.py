@@ -2,14 +2,10 @@
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
 from copy import deepcopy
-from gnrpkg.multidb.utils import GnrMultidbException
 
 FIELD_BLACKLIST = ('__ins_ts','__mod_ts','__version','__del_ts','__moved_related')
 
 class Table(object):
-    def multidbExceptionClass(self):
-        return GnrMultidbException
-
     def config_db(self, pkg):
         tbl =  pkg.table('subscription',pkey='id',name_long='!!Subscription',
                       name_plural='!!Subscriptions',broadcast='tablename,dbstore',ignoreUnify=True)
@@ -157,112 +153,6 @@ class Table(object):
                             tablename=tblobj.fullname,pkey=pkey).fetch()
         return f[0]['id'] if f else None
         
-    def onSubscriberTrigger(self,tblobj,record,old_record=None,event=None):
-        if self.db.usingRootstore():
-            subscribedStores = self.getSubscribedStores(tblobj=tblobj,record=record)
-            mergeUpdate = tblobj.attributes.get('multidb_onLocalWrite')=='merge'
-            pkey = record[tblobj.pkey]
-            for storename in subscribedStores:
-                self.syncStore(event=event,storename=storename,tblobj=tblobj,pkey=pkey,
-                                master_record=record,master_old_record=old_record,mergeUpdate=mergeUpdate)
-        elif not self.db.currentEnv.get('_multidbSync'):
-            self.onSubscriberTrigger_slavestore(tblobj,record,old_record=old_record,event=event)
-
-    def getSubscribedStores(self,tblobj,record):
-        multidb = tblobj.multidb
-        if multidb=='one':
-            store = tblobj.multidb_getForcedStore(record)
-            return [store] if store else []
-        elif tblobj.multidb == '*' or record.get('__multidb_default_subscribed'):
-            return self.db.dbstores.keys()
-        elif multidb is True:
-            tablename = tblobj.fullname
-            fkeyname = self.tableFkey(tblobj)
-            pkey = record[tblobj.pkey]
-            subscribedStores = self.query(where='$tablename=:tablename AND $%s=:pkey' %fkeyname,
-                                    columns='$dbstore',addPkeyColumn=False,
-                                    tablename=tablename,pkey=pkey,distinct=True).fetch()                
-            return [s['dbstore'] for s in subscribedStores]
-        else:
-            subscribedStores = set(self.db.dbstores.keys())
-            do_sync = False
-            for fkey in multidb.split(','):
-                if record.get(fkey):
-                    do_sync = True
-                relatedTable = tblobj.column(fkey).relatedTable()
-                multidb = relatedTable.multidb
-                if multidb is True and record.get(fkey):
-                    parentRecord = relatedTable.record(pkey=record.get(fkey)).output('dict')
-                    parentSubscribedStores = set(self.getSubscribedStores(relatedTable,parentRecord))
-                    subscribedStores = subscribedStores.intersection(parentSubscribedStores)
-            return list(subscribedStores) if do_sync else []
-
-    def onSubscriberTrigger_slavestore(self,tblobj,record,old_record=None,event=None):
-        pkey = record[tblobj.pkey]
-        if event=='I':
-            raise GnrMultidbException(description='Multidb exception',msg="You cannot insert a record in a synced store %s" %tblobj.fullname)
-        elif event=='D':
-            if tblobj.multidb == '*' or record.get('__multidb_default_subscribed'):
-                raise GnrMultidbException(description='Multidb exception',msg="You cannot delete this record from a synced store")
-            else:
-                subscription_id = self.getSubscriptionId(tblobj=tblobj,dbstore=self.db.currentEnv.get('storename'),pkey=pkey)
-                if subscription_id:
-                    self.raw_delete(subscription_id) # in order to avoid subscription delete trigger
-        else: #update
-            onLocalWrite = tblobj.attributes.get('multidb_onLocalWrite') or 'raise'
-            if onLocalWrite!='merge':
-                raise GnrMultidbException(description='Multidb exception',msg="You cannot update this record in a synced store")
-
-
-    def onSlaveUpdating(self,tblobj,record,old_record=None):
-        if self.db.usingRootstore():
-            return
-        if self.db.currentEnv.get('_multidbSync'):
-            self.checkLocalUnify(tblobj,record,old_record=old_record)
-            self.checkForeignKeys(tblobj,record,old_record=old_record)
-        else:
-            onLocalWrite = tblobj.attributes.get('multidb_onLocalWrite') or 'raise'
-            if onLocalWrite!='merge':
-                raise GnrMultidbException(description='Multidb exception',msg="You cannot update this record in a synced store")
-
-    def checkForeignKeys(self,tblobj,record=None,old_record=None):
-        for rel_table,rel_table_pkey,fkey in tblobj.model.oneRelationsList(True):
-            if old_record:
-                checkKey = record.get(fkey)!=old_record.get(fkey) and record.get(fkey)
-            else:
-                checkKey = record.get(fkey)
-            if checkKey:
-                reltable = self.db.table(rel_table)
-                if reltable.attributes.get('multidb_allRecords'):
-                    continue
-                rec = reltable.query(where='$%s=:pk' %rel_table_pkey,pk=checkKey,limit=1).fetch()
-                if rec and rec[0].get('__multidb_default_subscribed'):
-                    continue
-                storename = self.db.currentEnv['storename']
-                with self.db.tempEnv(storename=self.db.rootstore):
-                    reltable.multidbSubscribe(pkey=checkKey,dbstore=storename)
-
-    def checkLocalUnify(self,tblobj,record=None,old_record=None):
-        if record.get(tblobj.logicalDeletionField)\
-            and not old_record.get(tblobj.logicalDeletionField)\
-            and record.get('__moved_related'):
-                moved_related = Bag(record['__moved_related'])
-                destPkey = moved_related['destPkey']
-                destRecord = tblobj.query(where='$%s=:dp' %tblobj.pkey, 
-                                          dp=destPkey).fetch()
-                with self.db.tempEnv(connectionName='system'):
-                    if destRecord:
-                        destRecord = destRecord[0]
-                    else:
-                        storename = self.db.currentEnv['storename']
-                        with self.db.tempEnv(storename=self.db.rootstore):
-                            self.addSubscription(table=tblobj.fullname,pkey=destPkey,dbstore=storename)
-                        
-                        f = tblobj.query(where='$%s=:dp' %tblobj.pkey, 
-                                              dp=destPkey).fetch()
-                        destRecord = f[0]
-                    tblobj.unifyRelatedRecords(sourceRecord=record,destRecord=destRecord,moved_relations=moved_related)
-
 
     def decoreMergedRecord(self,tblobj,record):
         main_record = tblobj.record(pkey=record[tblobj.pkey],
