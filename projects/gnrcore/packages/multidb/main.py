@@ -195,7 +195,7 @@ class MultidbTable(object):
         slaveEventHook = getattr(self,'onSlaveSyncing',None)
         if slaveEventHook:
             slaveEventHook(record,event='inserting')
-        self.checkForeignKeys(self,record)
+        self.checkForeignKeys(record)
 
     def trigger_onUpdating_multidb(self, record,old_record=None,**kwargs):
         if self.db.usingRootstore():
@@ -244,7 +244,7 @@ class MultidbTable(object):
                 tblsub = self.db.table('multidb.subscription')
                 subscription_id = tblsub.getSubscriptionId(tblobj=self,dbstore=self.db.currentEnv.get('storename'),pkey=pkey)
                 if subscription_id:
-                    self.raw_delete(subscription_id) # in order to avoid subscription delete trigger
+                    tblsub.raw_delete(dict(id=subscription_id)) # in order to avoid subscription delete trigger
 
     def trigger_onInserted_multidb(self, record,**kwargs):
         if self.db.usingRootstore():  
