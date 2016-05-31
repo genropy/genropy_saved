@@ -208,12 +208,12 @@ class Package(GnrDboPackage):
             for tblNode in pkgNode.value['tables']:
                 multidb = tblNode.attr.get('multidb')
                 tbl = tblNode.value
-                if multidb:
+                if multidb is True:
                     self.multidb_configure(tbl,multidb)
-                elif multidb is not False:
+                elif multidb is None:
+                    multidb_fkeys = []
                     for col in tbl['columns']:
                         relattr = col.value.getAttr('relation')
-                        multidb_fkeys = []
                         if relattr and relattr.get('onDelete')=='cascade':
                             relatedColumn = relattr.get('related_column')
                             colpath = relatedColumn.split('.')
@@ -231,10 +231,6 @@ class Package(GnrDboPackage):
     def multidb_configure(self,tbl,multidb):
         pkg = tbl.attributes['pkg']
         tblname = tbl.parentNode.label
-        tblfullname = '%s.%s' %(pkg,tblname)
-        self.db.tableMixin(tblfullname,MultidbTable)
-        if multidb is not True:
-            return
         model = self.db.model
         subscriptiontbl =  model.src['packages.multidb.tables.subscription']
         pkey = tbl.parentNode.getAttr('pkey')
