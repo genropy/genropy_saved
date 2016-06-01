@@ -54,7 +54,8 @@ class Package(GnrDboPackage):
                             if rel_multidb:
                                 multidb_fkeys.append(col.label)
                     if multidb_fkeys:
-                        tblNode.attr.update(multidb='parent',multidb_fkeys=','.join(multidb_fkeys))
+                        multidb_onLocalWrite=tblNode.attr.get('multidb_onLocalWrite') or 'merge'
+                        tblNode.attr.update(multidb='parent',multidb_onLocalWrite=multidb_onLocalWrite,multidb_fkeys=','.join(multidb_fkeys))
                         tbl.column('__protected_by_mainstore',dtype='B',group='_')
 
 
@@ -233,9 +234,9 @@ class MultidbTable(object):
             self.checkForeignKeys(record,old_record=old_record)
         else:
             onLocalWrite = self.attributes.get('multidb_onLocalWrite') or 'raise'
-            if onLocalWrite!='merge' and self.multidb!='parent':
+            if onLocalWrite!='merge':
                 raise GnrMultidbException(description='Multidb exception',
-                                            msg="You cannot update this record in a synced store")
+                                            msg="You cannot update this record in a synced store %s" %self.fullname)
     #def onSlaveSyncing(self,record=None,old_record=None,event=None):
     #    pass
 
@@ -386,7 +387,7 @@ class MultidbTable(object):
 
     def onSubscriberTrigger(self,record,old_record=None,event=None):
         subscribedStores = self.getSubscribedStores(record=record)
-        mergeUpdate = self.attributes.get('multidb_onLocalWrite')=='merge' or self.multidb=='parent'
+        mergeUpdate = self.attributes.get('multidb_onLocalWrite')=='merge'
         pkey = record[self.pkey]
         tblsub = self.db.table('multidb.subscription')
         for storename in subscribedStores:
