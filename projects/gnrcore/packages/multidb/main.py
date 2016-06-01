@@ -55,6 +55,8 @@ class Package(GnrDboPackage):
                                 multidb_fkeys.append(col.label)
                     if multidb_fkeys:
                         tblNode.attr.update(multidb='parent',multidb_fkeys=','.join(multidb_fkeys))
+                        tbl.column('__protected_by_mainstore',dtype='B',group='_')
+
 
     def multidb_configure(self,tbl,multidb):
         pkg = tbl.attributes['pkg']
@@ -158,7 +160,7 @@ class MultidbTable(object):
                 checkKey = record.get(fkey)
             if checkKey:
                 reltable = self.db.table(rel_table)
-                if reltable.attributes.get('multidb_allRecords'):
+                if reltable.multidb is not True:
                     continue
                 rec = reltable.query(where='$%s=:pk' %rel_table_pkey,pk=checkKey,limit=1).fetch()
                 if rec and rec[0].get('__multidb_default_subscribed'):
@@ -190,12 +192,16 @@ class MultidbTable(object):
     def trigger_onInserting_multidb(self, record,old_record=None,**kwargs):
         if self.db.usingRootstore():
             return
-        if self.multidb !='parent' and not self.db.currentEnv.get('_multidbSync'):
-            raise GnrMultidbException(description='Multidb exception',msg="You cannot insert a record in a synced store %s" %self.fullname)
-        slaveEventHook = getattr(self,'onSlaveSyncing',None)
-        if slaveEventHook:
-            slaveEventHook(record,event='inserting')
-        self.checkForeignKeys(record)
+        if not self.db.currentEnv.get('_multidbSync'):
+            if self.multidb !='parent':
+                raise GnrMultidbException(description='Multidb exception',msg="You cannot insert a record in a synced store %s" %self.fullname)
+        else:
+            if self.multidb=='parent':
+                record['__protected_by_mainstore'] = True
+            slaveEventHook = getattr(self,'onSlaveSyncing',None)
+            if slaveEventHook:
+                slaveEventHook(record,event='inserting')
+            self.checkForeignKeys(record)
 
     def trigger_onUpdating_multidb(self, record,old_record=None,**kwargs):
         if self.db.usingRootstore():
@@ -227,7 +233,7 @@ class MultidbTable(object):
             self.checkForeignKeys(record,old_record=old_record)
         else:
             onLocalWrite = self.attributes.get('multidb_onLocalWrite') or 'raise'
-            if onLocalWrite!='merge':
+            if onLocalWrite!='merge' and self.multidb!='parent':
                 raise GnrMultidbException(description='Multidb exception',
                                             msg="You cannot update this record in a synced store")
     #def onSlaveSyncing(self,record=None,old_record=None,event=None):
@@ -240,6 +246,11 @@ class MultidbTable(object):
             pkey = record[self.pkey]
             if self.multidb == '*' or record.get('__multidb_default_subscribed'):
                 raise GnrMultidbException(description='Multidb exception',msg="You cannot delete this record from a synced store")
+            elif self.multidb == 'parent':
+                __protected_by_mainstore = record['__protected_by_mainstore'] if '__protected_by_mainstore' in record \
+                                          else self.readColumns(pkey=record[self.pkey],columns='__protected_by_mainstore')
+                if __protected_by_mainstore:
+                    raise GnrMultidbException(description='Multidb exception',msg="Protected by mainstore")
             elif self.multidb is True :
                 tblsub = self.db.table('multidb.subscription')
                 subscription_id = tblsub.getSubscriptionId(tblobj=self,dbstore=self.db.currentEnv.get('storename'),pkey=pkey)
@@ -375,7 +386,7 @@ class MultidbTable(object):
 
     def onSubscriberTrigger(self,record,old_record=None,event=None):
         subscribedStores = self.getSubscribedStores(record=record)
-        mergeUpdate = self.attributes.get('multidb_onLocalWrite')=='merge'
+        mergeUpdate = self.attributes.get('multidb_onLocalWrite')=='merge' or self.multidb=='parent'
         pkey = record[self.pkey]
         tblsub = self.db.table('multidb.subscription')
         for storename in subscribedStores:
@@ -405,11 +416,11 @@ class MultidbTable(object):
             for fkey in multidb_fkeys.split(','):
                 if record.get(fkey):
                     do_sync = True
-                relatedTable = self.column(fkey).relatedTable()
+                relatedTable = self.column(fkey).relatedTable().dbtable
                 multidb = relatedTable.multidb
                 if multidb is True and record.get(fkey):
                     parentRecord = relatedTable.record(pkey=record.get(fkey)).output('dict')
-                    parentSubscribedStores = set(self.getSubscribedStores(relatedTable,parentRecord))
+                    parentSubscribedStores = set(relatedTable.getSubscribedStores(parentRecord))
                     subscribedStores = subscribedStores.intersection(parentSubscribedStores)
             return list(subscribedStores) if do_sync else []
 
