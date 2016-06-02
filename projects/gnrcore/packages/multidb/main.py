@@ -8,6 +8,7 @@ from gnr.sql.gnrsql import GnrSqlException
 import os
 import datetime
 
+FIELD_BLACKLIST = ('__ins_ts','__mod_ts','__version','__del_ts','__moved_related')
 
 class Package(GnrDboPackage):
     def config_attributes(self):
@@ -61,7 +62,6 @@ class Package(GnrDboPackage):
 
     def multidb_configure(self,tbl,multidb):
         pkg = tbl.attributes['pkg']
-        tblname = tbl.parentNode.label
         model = self.db.model
         subscriptiontbl =  model.src['packages.multidb.tables.subscription']
         pkey = tbl.parentNode.getAttr('pkey')
@@ -71,13 +71,11 @@ class Package(GnrDboPackage):
         fkey = rel.replace('.', '_')
         tbl.column('__multidb_default_subscribed',dtype='B',_pluggedBy='multidb.subscription',
                 name_long='!!Subscribed by default',group='zz',_sysfield=True)
-        tbl.formulaColumn('__multidb_subscribed',"""EXISTS (SELECT * 
-                                                    FROM multidb.multidb_subscription AS sub
-                                                    WHERE sub.dbstore = :env_target_store 
-                                                          AND sub.tablename = '%s'
-                                                    AND sub.%s = #THIS.%s
-                                                    )""" %(tblname,fkey,pkey),dtype='B',
-                                                    name_long='!!Subscribed',_sysfield=True,group='zz')
+        tbl.formulaColumn('__multidb_subscribed',
+                            exists=dict(table='multidb.subscription',
+                                        where='$tablename=:tname AND $dbstore = :env_target_store AND $%s = #THIS.%s' %(fkey,pkey),
+                                        tname='%s.%s' %(pkg,tblname)),dtype='B',
+                            name_long='!!Subscribed',_sysfield=True,group='zz')
         subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),_sysfield=True,
                               size=pkeycolAttrs.get('size'), group='zz').relation(rel, relation_name='subscriptions',external_relation=True,
                                                                                  many_group='zz', one_group='zz')
@@ -103,18 +101,18 @@ class Package(GnrDboPackage):
                 continue
             tbl = self.db.table(tbl)
             multidb = tbl.multidb
-            if not multidb or multidb=='one':
+            if not multidb or multidb=='one' or multidb=='parent':
                 continue
-            if multidb=='*':
-                print 'syncall',tbl.fullname
-                main_f = tbl.query(addPkeyColumn=False,bagFields=True,
+            main_f = tbl.query(addPkeyColumn=False,bagFields=True,
                                 excludeLogicalDeleted=False,ignorePartition=True,
                                 excludeDraft=False).fetch()
+            if multidb=='*':
+                print 'syncall',tbl.fullname
                 tbl.checkSyncAll(dbstores=dbstores,main_fetch=main_f,errors=errors)
             else:
                 print 'partial',tbl.fullname
-                main_f = tbl.query(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False).fetch()
                 tbl.checkSyncPartial(dbstores=dbstores,main_fetch=main_f,errors=errors)
+
         if errorlog_folder:
             for dbstore,v in errors.items():
                 p = '%s/%s.xml' %(errorlog_folder,dbstore)
@@ -221,7 +219,7 @@ class MultidbTable(object):
                       (not relcol.relatedColumnJoiner().get('foreignkey')):
                         continue
                     relatedTable.setColumns(record[f],__multidb_default_subscribed=True)
-            self.db.table('multidb.subscription').syncChildren(self.fullname,record[self.pkey])
+            self.syncChildren(record[self.pkey])
         else:
             raise GnrMultidbException(description='Multidb exception',msg="You cannot unset default subscription")
 
@@ -269,12 +267,20 @@ class MultidbTable(object):
     def onLoading_multidb(self,record,newrecord,loadingParameters,recInfo):
         if not self.db.usingRootstore():
             if self.attributes.get('multidb_onLocalWrite') == 'merge':
-                changelist = self.db.table('multidb.subscription').decoreMergedRecord(self,record)
+                changelist = self.decoreMergedRecord(self,record)
                 recInfo['_multidb_diff'] = changelist
                 if changelist or recInfo.get('ignoreReadOnly'):
                     return
             recInfo['_protect_write'] = True
             recInfo['_protect_write_message'] = "!!Can be changed only in main store"
+
+
+    def syncChildren(self,pkey):
+        many_rels = [manyrel.split('.') for manyrel, onDelete in self.relations_many.digest('#a.many_relation,#a.onDelete') if onDelete=='cascade']
+        for pkg,tbl,fkey in many_rels:
+            childtable = self.db.table('%s.%s' %(pkg,tbl))
+            if childtable.multidb:
+                childtable.touchRecords(where='$%s=:pk' %fkey,pk=pkey)
 
     def checkSyncPartial(self,dbstores=None,main_fetch=None,errors=None):
         queryargs = dict(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,
@@ -285,7 +291,7 @@ class MultidbTable(object):
         subscriptions = substable.query(where='$tablename=:t',t=self.fullname).fetchGrouped('dbstore')
         for dbstore in dbstores:
             store_subs = dict([(s[fkeyname],s['id'])for s in subscriptions.pop(dbstore,[])])
-            with self.db.tempEnv(storename=dbstore):
+            with self.db.tempEnv(storename=dbstore,_multidbSync=True):
                 store_f = self.query(**queryargs).fetch()
                 for r in store_f:
                     record_pkey = r[self.pkey]
@@ -315,7 +321,7 @@ class MultidbTable(object):
                     elif not self.hasRelations(r):
                         self.raw_delete(r)
                         substable.raw_delete(dict(id=sub_id))
-                    diff = substable.getRecordDiff(main_r,r)
+                    diff = self.getRecordDiff(main_r,r)
                     to_update = False
                     localdiff = dict()
                     for field,values in diff.items():
@@ -330,8 +336,27 @@ class MultidbTable(object):
                         errors.setItem('%s.%s.different_storevalue.%s' %(dbstore,self.fullname,record_pkey),True,**localdiff)
                     if to_update:
                         self.raw_update(r)
+                    self._checkSyncChildren(main_r[self.pkey])
                 self.db.commit()
             self.db.commit()
+
+    def _checkSyncChildren(self,pkey):
+        many_rels = [manyrel.split('.') for manyrel, onDelete in self.relations_many.digest('#a.many_relation,#a.onDelete') if onDelete=='cascade']
+        for pkg,tbl,fkey in many_rels:
+            childtable = self.db.table('%s.%s' %(pkg,tbl))
+            if childtable.multidb:
+                main_children_records = childtable.query(where='$%s=:pk' %fkey,pk=pkey,ddPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,
+                                                    ignorePartition=True,excludeDraft=False,_storename=False).fetch()
+                store_children_records = childtable.query(where='$%s=:pk' %fkey,pk=pkey,ddPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,
+                                                    ignorePartition=True,excludeDraft=False).fetchAsDict(childtable.pkey)
+                for r in main_children_records:
+                    sr = store_children_records.get(r[childtable.pkey])
+                    cr = dict(r)
+                    cr['__protected_by_mainstore'] = True
+                    if not sr:
+                        childtable.raw_insert(cr)
+                    else:
+                        childtable.raw_update(cr,sr)
 
     def _checkSyncAll_store(self,main_fetch=None,insertManyData=None,
                             queryargs=None,pkeyfield=None,ts=None,
@@ -355,8 +380,9 @@ class MultidbTable(object):
                 else:
                     errors.setItem('%s.%s.wrong_allsync_record.%s' %(dbstore,self.fullname,record_pkey),True)
                     if self.logicalDeletionField:
+                        old_r = dict(r)
                         r[self.logicalDeletionField] = ts
-                        self.raw_update(r)
+                        self.raw_update(r,old_r)
                 return
             checkdiff = [(k,v,main_r[k]) for k,v in r.items() if k not in ('__ins_ts','__mod_ts','__version','__del_ts','__moved_related') if v!=main_r[k]]
             if checkdiff:
@@ -378,7 +404,7 @@ class MultidbTable(object):
         ts = datetime.datetime.now()
         queryargs = dict(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,ignorePartition=True,excludeDraft=False)
         for dbstore in dbstores:
-            with self.db.tempEnv(storename=dbstore):
+            with self.db.tempEnv(storename=dbstore,_multidbSync=True):
                 self._checkSyncAll_store(main_fetch=main_fetch,insertManyData=insertManyData,
                                          queryargs=queryargs, pkeyfield=pkeyfield, 
                                          ts=ts,errors=errors,dbstore=dbstore)
@@ -427,4 +453,25 @@ class MultidbTable(object):
 
     def multidbSubscribe(self,pkey,dbstore=None):
         self.db.table('multidb.subscription').addSubscription(table=self.fullname,pkey=pkey,dbstore=dbstore)
-           
+
+
+    def decoreMergedRecord(self,record):
+        main_record = self.record(pkey=record[self.pkey],
+                                bagFields=True,excludeLogicalDeleted=False,
+                                _storename=False).output('record')
+        changelist = []
+        for k,v in main_record.items():
+            if k not in FIELD_BLACKLIST:
+                if record[k] != v:
+                    changelist.append(k)
+                    record.setAttr(k,wdg__class='multidb_local_change',multidb_mainvalue=v)
+        return ','.join(changelist)
+
+
+    def getRecordDiff(self,main_record,store_record):
+        result = dict()
+        for k,v in main_record.items():
+            if k not in FIELD_BLACKLIST:
+                if store_record[k] != v:
+                    result[k] = (v,store_record[k])
+        return result

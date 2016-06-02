@@ -3,7 +3,6 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
 from copy import deepcopy
 
-FIELD_BLACKLIST = ('__ins_ts','__mod_ts','__version','__del_ts','__moved_related')
 
 class Table(object):
     def config_db(self, pkg):
@@ -53,15 +52,7 @@ class Table(object):
             handler(pkey,dbstore)
         if not self.checkDuplicate(**dict(record)):
             self.insert(record)
-            self.syncChildren(table,pkey)
-
-    def syncChildren(self,table,pkey):
-        tblobj = self.db.table(table)
-        many_rels = [manyrel.split('.') for manyrel, onDelete in tblobj.relations_many.digest('#a.many_relation,#a.onDelete') if onDelete=='cascade']
-        for pkg,tbl,fkey in many_rels:
-            childtable = self.db.table('%s.%s' %(pkg,tbl))
-            if childtable.multidb:
-                childtable.touchRecords(where='$%s=:pk' %fkey,pk=pkey)
+            self.db.table(table).syncChildren(pkey)
     
     @public_method
     def delRowsSubscription(self,table,pkeys=None,dbstore=None):
@@ -154,24 +145,4 @@ class Table(object):
         return f[0]['id'] if f else None
         
 
-    def decoreMergedRecord(self,tblobj,record):
-        main_record = tblobj.record(pkey=record[tblobj.pkey],
-                                bagFields=True,excludeLogicalDeleted=False,
-                                _storename=False).output('record')
-        changelist = []
-        for k,v in main_record.items():
-            if k not in FIELD_BLACKLIST:
-                if record[k] != v:
-                    changelist.append(k)
-                    record.setAttr(k,wdg__class='multidb_local_change',multidb_mainvalue=v)
-        return ','.join(changelist)
-
-
-    def getRecordDiff(self,main_record,store_record):
-        result = dict()
-        for k,v in main_record.items():
-            if k not in FIELD_BLACKLIST:
-                if store_record[k] != v:
-                    result[k] = (v,store_record[k])
-        return result
 

@@ -29,3 +29,11 @@ class GnrCustomWebPage(object):
         a.setItem('blu',3,wdg_color='navy')
         a.setItem('inattr',None,val=44,wdg_val_color='red')
         return a
+
+    def test_1_focus(self, pane):
+        fb = pane.formbuilder(cols=2,datapath='.data')
+        fb.textbox('^.txtval',lbl='Txt')
+        fb.textbox('^.txtval_2',lbl='Txt 2')
+        fb.data('.txtval_2','test')
+        fb.data('.number',0)
+        fb.numberTextBox('^.number',lbl='Number',format='#.00') #_autoselect=True

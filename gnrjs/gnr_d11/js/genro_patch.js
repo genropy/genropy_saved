@@ -23,7 +23,7 @@ genropatches.setStateClass=function(){
         if(this.stateNode || this.domNode){
             this._setStateClass_original();
         }
-    }
+    };
 }
 
 genropatches.getDocumentWindow = function(){
