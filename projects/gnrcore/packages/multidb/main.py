@@ -385,6 +385,7 @@ class MultidbTable(object):
     def _checkSyncAll_store(self,main_fetch=None,insertManyData=None,
                             queryargs=None,pkeyfield=None,ts=None,
                             errors=None,dbstore=None):
+
         if not insertManyData:
             self.empty()
             return
@@ -407,7 +408,7 @@ class MultidbTable(object):
                         old_r = dict(r)
                         r[self.logicalDeletionField] = ts
                         self.raw_update(r,old_r)
-                return
+                continue
             checkdiff = [(k,v,main_r[k]) for k,v in r.items() if k not in ('__ins_ts','__mod_ts','__version','__del_ts','__moved_related') if v!=main_r[k]]
             if checkdiff:
                 diffrec.append((main_r,r))
