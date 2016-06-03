@@ -291,10 +291,14 @@ class MultidbTable(object):
 
     def syncChildren(self,pkey):
         with self.db.tempEnv(_parentSyncChildren=True):
-            many_rels = [manyrel.split('.') for manyrel, onDelete in self.relations_many.digest('#a.many_relation,#a.onDelete') if onDelete=='cascade']
-            for pkg,tbl,fkey in many_rels:
+            #many_rels = [manyrel.split('.') for manyrel, onDelete in self.relations_many.digest('#a.many_relation,#a.onDelete') if onDelete=='cascade']
+            for many_rel in self.relations_many.digest('#a.many_relation'):
+                pkg,tbl,fkey = many_rel.split('.')
                 childtable = self.db.table('%s.%s' %(pkg,tbl))
-                if childtable.multidb=='parent':
+                if not childtable.multidb=='parent':
+                    continue
+                multidb_fkeys = childtable.attributes.get('multidb_fkeys').split(',')
+                if fkey in multidb_fkeys:
                     childtable.touchRecords(where='$%s=:pk' %fkey,pk=pkey)
 
     def checkSyncPartial(self,dbstores=None,main_fetch=None,errors=None):
@@ -356,13 +360,16 @@ class MultidbTable(object):
             self.db.commit()
 
     def _checkSyncChildren(self,pkey):
-        many_rels = [manyrel.split('.') for manyrel, onDelete in self.relations_many.digest('#a.many_relation,#a.onDelete') if onDelete=='cascade']
-        for pkg,tbl,fkey in many_rels:
+        for many_rel in self.relations_many.digest('#a.many_relation'):
+            pkg,tbl,fkey = many_rel.split('.')
             childtable = self.db.table('%s.%s' %(pkg,tbl))
-            if childtable.multidb=='parent':
-                main_children_records = childtable.query(where='$%s=:pk' %fkey,pk=pkey,ddPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,
+            if not childtable.multidb=='parent':
+                continue
+            multidb_fkeys = childtable.attributes.get('multidb_fkeys').split(',')
+            if fkey in multidb_fkeys:
+                main_children_records = childtable.query(where='$%s=:pk' %fkey,pk=pkey,addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,
                                                     ignorePartition=True,excludeDraft=False,_storename=False).fetch()
-                store_children_records = childtable.query(where='$%s=:pk' %fkey,pk=pkey,ddPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,
+                store_children_records = childtable.query(where='$%s=:pk' %fkey,pk=pkey,addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,
                                                     ignorePartition=True,excludeDraft=False).fetchAsDict(childtable.pkey)
                 for r in main_children_records:
                     sr = store_children_records.get(r[childtable.pkey])
