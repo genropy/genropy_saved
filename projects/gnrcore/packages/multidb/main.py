@@ -32,6 +32,27 @@ class Package(GnrDboPackage):
                     instanceMixin(tblobj.dbtable, MultidbTable)
 
 
+    def _getParentMultidb(self,pkgId,tblNode):
+        multidb_fkeys = tblNode.attr.get('multidb_fkeys')
+        if multidb_fkeys:
+            return multidb_fkeys
+        else:
+            multidb_fkeys = []
+        for col in tblNode.value['columns']:
+            relattr = col.value.getAttr('relation')
+            if relattr and relattr.get('onDelete')=='cascade':
+                relatedColumn = relattr.get('related_column')
+                colpath = relatedColumn.split('.')
+                if len(colpath) == 2:
+                    rel_pkg = pkgId
+                    rel_tblname, rel_colname = colpath
+                else:
+                    rel_pkg, rel_tblname, rel_colname = colpath
+                rel_multidb = self.db.model.src.getNode('packages.%s.tables.%s' %(rel_pkg,rel_tblname)).attr.get('multidb')
+                if rel_multidb:
+                    multidb_fkeys.append(col.label)
+        return ','.join(multidb_fkeys)
+
     def onBuildingDbobj(self):
         for pkgNode in self.db.model.src['packages']:
             for tblNode in pkgNode.value['tables']:
@@ -40,23 +61,10 @@ class Package(GnrDboPackage):
                 if multidb is True:
                     self.multidb_configure(tbl,multidb)
                 elif multidb is None:
-                    multidb_fkeys = []
-                    for col in tbl['columns']:
-                        relattr = col.value.getAttr('relation')
-                        if relattr and relattr.get('onDelete')=='cascade':
-                            relatedColumn = relattr.get('related_column')
-                            colpath = relatedColumn.split('.')
-                            if len(colpath) == 2:
-                                rel_pkg = pkgNode.label
-                                rel_tblname, rel_colname = colpath
-                            else:
-                                rel_pkg, rel_tblname, rel_colname = colpath
-                            rel_multidb = self.db.model.src.getNode('packages.%s.tables.%s' %(rel_pkg,rel_tblname)).attr.get('multidb')
-                            if rel_multidb:
-                                multidb_fkeys.append(col.label)
+                    multidb_fkeys =  self._getParentMultidb(pkgNode.label,tblNode)
                     if multidb_fkeys:
                         multidb_onLocalWrite=tblNode.attr.get('multidb_onLocalWrite') or 'merge'
-                        tblNode.attr.update(multidb='parent',multidb_onLocalWrite=multidb_onLocalWrite,multidb_fkeys=','.join(multidb_fkeys))
+                        tblNode.attr.update(multidb='parent',multidb_onLocalWrite=multidb_onLocalWrite,multidb_fkeys=multidb_fkeys)
                         tbl.column('__protected_by_mainstore',dtype='B',group='_')
 
 
@@ -139,6 +147,7 @@ class MultidbTable(object):
         return GnrMultidbException
 
     def raw_insert(self, record, **kwargs):
+        self.trigger_onInserting_multidb(record)
         self.db.raw_insert(self, record,**kwargs)
         self.trigger_onInserted_multidb(record)
 
@@ -259,15 +268,20 @@ class MultidbTable(object):
     def trigger_onInserted_multidb(self, record,**kwargs):
         if self.db.usingRootstore():  
             self.onSubscriberTrigger(record,event='I')
+        elif self.multidb=='parent' and self.db.currentEnv.get('_parentSyncChildren'):
+            with self.db.tempEnv(storename=self.db.rootstore):
+                self.syncChildren(record[self.pkey])
 
     def trigger_onUpdated_multidb(self, record,old_record=None,**kwargs):
         if self.db.usingRootstore():  
             self.onSubscriberTrigger(record,old_record=old_record,event='U')
 
     def onLoading_multidb(self,record,newrecord,loadingParameters,recInfo):
+        if loadingParameters.get('_eager_record_stack') or newrecord:
+            return
         if not self.db.usingRootstore():
             if self.attributes.get('multidb_onLocalWrite') == 'merge':
-                changelist = self.decoreMergedRecord(self,record)
+                changelist = self.decoreMergedRecord(record)
                 recInfo['_multidb_diff'] = changelist
                 if changelist or recInfo.get('ignoreReadOnly'):
                     return
@@ -276,11 +290,12 @@ class MultidbTable(object):
 
 
     def syncChildren(self,pkey):
-        many_rels = [manyrel.split('.') for manyrel, onDelete in self.relations_many.digest('#a.many_relation,#a.onDelete') if onDelete=='cascade']
-        for pkg,tbl,fkey in many_rels:
-            childtable = self.db.table('%s.%s' %(pkg,tbl))
-            if childtable.multidb:
-                childtable.touchRecords(where='$%s=:pk' %fkey,pk=pkey)
+        with self.db.tempEnv(_parentSyncChildren=True):
+            many_rels = [manyrel.split('.') for manyrel, onDelete in self.relations_many.digest('#a.many_relation,#a.onDelete') if onDelete=='cascade']
+            for pkg,tbl,fkey in many_rels:
+                childtable = self.db.table('%s.%s' %(pkg,tbl))
+                if childtable.multidb:
+                    childtable.touchRecords(where='$%s=:pk' %fkey,pk=pkey)
 
     def checkSyncPartial(self,dbstores=None,main_fetch=None,errors=None):
         queryargs = dict(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,
@@ -357,6 +372,8 @@ class MultidbTable(object):
                         childtable.raw_insert(cr)
                     else:
                         childtable.raw_update(cr,sr)
+                    childtable._checkSyncChildren(cr['id'])
+
 
     def _checkSyncAll_store(self,main_fetch=None,insertManyData=None,
                             queryargs=None,pkeyfield=None,ts=None,
@@ -387,7 +404,7 @@ class MultidbTable(object):
             checkdiff = [(k,v,main_r[k]) for k,v in r.items() if k not in ('__ins_ts','__mod_ts','__version','__del_ts','__moved_related') if v!=main_r[k]]
             if checkdiff:
                 diffrec.append((main_r,r))
-                
+            self._checkSyncChildren(main_r[pkeyfield])
         if diffrec or checkdict:
             try:
                 self.empty()
@@ -397,6 +414,7 @@ class MultidbTable(object):
                     self.raw_update(r,oldr)
                 for main_r in checkdict.values():
                     self.raw_insert(main_r)
+
 
     def checkSyncAll(self,dbstores=None,main_fetch=None,errors=None):
         pkeyfield = self.pkey
@@ -445,7 +463,7 @@ class MultidbTable(object):
                     do_sync = True
                 relatedTable = self.column(fkey).relatedTable().dbtable
                 multidb = relatedTable.multidb
-                if multidb is True and record.get(fkey):
+                if multidb and record.get(fkey):
                     parentRecord = relatedTable.record(pkey=record.get(fkey)).output('dict')
                     parentSubscribedStores = set(relatedTable.getSubscribedStores(parentRecord))
                     subscribedStores = subscribedStores.intersection(parentSubscribedStores)
@@ -457,7 +475,6 @@ class MultidbTable(object):
 
     def decoreMergedRecord(self,record):
         main_record = self.record(pkey=record[self.pkey],
-                                bagFields=True,excludeLogicalDeleted=False,
                                 _storename=False).output('record')
         changelist = []
         for k,v in main_record.items():
