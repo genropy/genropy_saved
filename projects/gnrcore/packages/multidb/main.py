@@ -359,7 +359,7 @@ class MultidbTable(object):
         many_rels = [manyrel.split('.') for manyrel, onDelete in self.relations_many.digest('#a.many_relation,#a.onDelete') if onDelete=='cascade']
         for pkg,tbl,fkey in many_rels:
             childtable = self.db.table('%s.%s' %(pkg,tbl))
-            if childtable.multidb:
+            if childtable.fullname!=self.fullname and childtable.multidb:
                 main_children_records = childtable.query(where='$%s=:pk' %fkey,pk=pkey,ddPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,
                                                     ignorePartition=True,excludeDraft=False,_storename=False).fetch()
                 store_children_records = childtable.query(where='$%s=:pk' %fkey,pk=pkey,ddPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,
