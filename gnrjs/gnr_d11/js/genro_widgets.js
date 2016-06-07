@@ -555,7 +555,7 @@ dojo.declare("gnr.widgets.htmliframe", gnr.widgets.baseHtml, {
             var shield_kw = savedAttrs['shield_kw'];
             shield_kw.z_index = 10;
             shield_kw.opacity = .2;
-            sourceNode.getParentNode().setHiderLayer(true,shield_kw)
+            sourceNode.getParentNode().setHiderLayer(true,shield_kw);
         }
         if(genro.isMobile){
             genro.dom.setAutoSizer(sourceNode,newobj.parentNode,function(w,h){
