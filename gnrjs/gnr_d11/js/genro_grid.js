@@ -227,11 +227,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var scrollbox = parent._value.getNode('scrollbox');
         var tbl = scrollbox._('div','itemcontainer',{_class:'gr_itemcontainer'})._('table','tableNode',{_class:'gr_table selectable'});
         var tbody = tbl._('tbody',{});
-        var headerList = dojo.query('th',this.viewsHeaderNode).filter(function(n){return genro.dom.isVisible(n);});
+        var headerList = dojo.query('th',this.viewsHeaderNode); //.filter(function(n){return genro.dom.isVisible(n);});
         var h = tbody._('tr','fakeHeader',{height:'0'});
         var idx = 0;
         headerList.forEach(function(th){
-            h._('th',{idx:idx,'border_right':'1px solid transparent'});
+            if(genro.dom.isVisible(th)){
+                h._('th',{idx:idx,'border_right':'1px solid transparent'});
+            }
             idx++;
         });
         var that = this;
@@ -259,12 +261,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var item = objectUpdate({},n.attr);
             objectPop(item,'tag');
             var infopars = colinfo.getAttr(item.field);
-            if(!infopars){
-                return;
-            }
-            item.idx = infopars.cell.index;
+           //if(!infopars){
+           //    return;
+           //}
+            
             var cell = infopars.cell;
             var idx = cell.index;
+            item.idx = idx;
             var value = objectPop(item,'value');
             if(!value){
                 if(cell.totalize){
@@ -289,9 +292,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 autoTitle = null;
             }
             colspan = objectPop(item,'colspan') || 1;
-            item._class = (item._class) || '' +' groupcontent';
-            tr._('td',item.field,{idx:idx,colspan:colspan})._('div',item);
             currIdx = idx+colspan;
+            var infopars = colinfo.getAttr(item.field);
+            if(genro.dom.isVisible(infopars.headerNode)){
+                item._class = (item._class) || '' +' groupcontent';
+                tr._('td',item.field,{idx:idx,colspan:colspan})._('div',item);
+            }
         });
         if(currIdx<totCols){
             tr._('td',{colspan:totCols-currIdx,idx:currIdx})._('div',{innerHTML:'&nbsp;',width:'100%'});
