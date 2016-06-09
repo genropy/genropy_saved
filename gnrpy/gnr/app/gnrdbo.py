@@ -416,6 +416,14 @@ class TableBase(object):
         else:
             return " NULL "
 
+    def _isReadOnly(self,record):
+        if self.attributes.get('readOnly'):
+            return True
+        if record.get('__is_protected_row'):
+            return True
+        if record.get('__protection_tag'):
+            return not (record['__protection_tag'] in self.db.currentEnv['userTags'].split(','))
+
     def formulaColumn_allowedForPartition(self):
 
         partitionParameters = self.partitionParameters

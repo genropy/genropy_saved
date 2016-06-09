@@ -1515,8 +1515,6 @@ class SqlTable(GnrObject):
     def _isReadOnly(self,record):
         if self.attributes.get('readOnly'):
             return True
-        if record.get('__protection_tag'):
-            return not (record['__protection_tag'] in self.db.currentEnv['userTags'].split(','))
 
     def _islocked_write(self,record):
         return self._isReadOnly(record) or self.islocked_write(record)
@@ -1527,7 +1525,7 @@ class SqlTable(GnrObject):
 
 
     def _islocked_delete(self,record):
-        return self._isReadOnly(record) or self.attributes.get('readOnly') or self.islocked_delete(record)
+        return self._isReadOnly(record) or self.islocked_delete(record)
 
     def islocked_delete(self,record):
         #OVERRIDE THIS

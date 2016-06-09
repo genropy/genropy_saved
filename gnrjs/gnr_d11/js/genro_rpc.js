@@ -463,7 +463,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             envelope.fromXmlDoc(response, genro.clsdict);
         }
         catch(e) {
-            console.log('error in fromXmlDoc');
+            console.log('error in fromXmlDoc',e);
             console.log(response);
             return;
         }

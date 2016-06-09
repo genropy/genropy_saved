@@ -772,6 +772,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 }
             }
         });
+        dojo.connect(sourceNode.widget,'setCellWidth',function(inIndex, inUnitWidth){
+            this.structBag.getNodeByAttr('field',this.getCell(inIndex).original_field).updAttributes({width:inUnitWidth});
+        });
         setTimeout(function(){widget.updateRowCount('*');},1);
         
     },
