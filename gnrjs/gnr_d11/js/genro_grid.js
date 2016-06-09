@@ -228,23 +228,24 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var tbl = scrollbox._('div','itemcontainer',{_class:'gr_itemcontainer'})._('table','tableNode',{_class:'gr_table selectable'});
         var tbody = tbl._('tbody',{});
         var headerList = dojo.query('th',this.viewsHeaderNode); //.filter(function(n){return genro.dom.isVisible(n);});
+        var totCols = 0;
         var h = tbody._('tr','fakeHeader',{height:'0'});
         var idx = 0;
         headerList.forEach(function(th){
             if(genro.dom.isVisible(th)){
                 h._('th',{idx:idx,'border_right':'1px solid transparent'});
+                totCols++;
             }
             idx++;
         });
         var that = this;
         source.forEach(function(n){
-            that._columnsetsAndFooters_row(tbody,n,colinfo,headerList,n.label=='footer_auto'?autoTitle:null);
+            that._columnsetsAndFooters_row(tbody,n,colinfo,totCols,n.label=='footer_auto'?autoTitle:null);
         });
     },
 
-    mixin__columnsetsAndFooters_row:function(pane,dataNode,colinfo,headerList,autoTitle){
+    mixin__columnsetsAndFooters_row:function(pane,dataNode,colinfo,totCols,autoTitle){
         var data = dataNode.getValue();
-        var totCols = headerList.length;
         var rowattr = objectUpdate({},dataNode.attr);
         objectPop(rowattr,'tag');
         rowattr._class = 'columnsets_footers_row';
