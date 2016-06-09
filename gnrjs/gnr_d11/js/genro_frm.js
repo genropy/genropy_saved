@@ -1937,11 +1937,11 @@ dojo.declare("gnr.GnrValidator", null, {
     },
     
     validate_min: function(param, value) {
-        return value>=param;
+        return Math.round10(value,-9)>=Math.round10(param,-9);
     },
     
     validate_max: function(param, value) {
-        return value<=param;
+        return Math.round10(value,-9)<=Math.round10(param,-9);
     },
     
     validate_len: function(param, value) {
