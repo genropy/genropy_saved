@@ -1126,10 +1126,11 @@ class SqlTable(GnrObject):
         if (not pkey in (None, '')):
             old_record = self.query(where="$%s=:pk" %self.pkey, pk=pkey,for_update=True).fetch()
             old_record = old_record[0] if old_record else None
-        if old_record:
-            return self.update(record,old_record=old_record)
+            if old_record:
+                return self.update(record,old_record=old_record)
         else:
             return self.insert(record)
+
 
     def countRecords(self):
         return self.query(excludeLogicalDeleted=False,excludeDraft=False).count()

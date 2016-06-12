@@ -212,7 +212,7 @@ class GnrDboPackage(object):
             if handler:
                 f = handler()
             else:
-                f = tblobj.dbtable.query(addPkeyColumn=False,bagFields=True).fetch()
+                f = tblobj.dbtable.query(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False).fetch()
             s[tname] = f
         s['preferences'] = self.db.table('adm.preference').loadPreference()[self.name]
         s.makePicklable()
