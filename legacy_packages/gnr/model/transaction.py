@@ -6,6 +6,7 @@ gnrlogger = logging.getLogger('gnr')
 from gnr.core.gnrlang import errorLog
 from datetime import datetime
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrdecorator import metadata
 
 class Table(object):
     def config_db(self, pkg):
@@ -113,3 +114,6 @@ class Table(object):
         elif action == 'DEL':
             tblobj.delete(data)
 
+    @metadata(doUpdate=True)
+    def touch_reset_execution_start(self,record,old_record=None,**kwargs):
+        record['execution_start'] = None
