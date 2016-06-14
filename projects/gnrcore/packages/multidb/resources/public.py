@@ -22,13 +22,14 @@ class TableHandlerMain(BaseComponent):
 
     def __formCustomization(self,form):
         multidb = self.tblobj.multidb
-        if self.dbstore:
+        if not self.dbstore:
             if multidb is True:
                 bar = form.top.bar.replaceSlots(',*,',',*,cb_default_sub,10,')
                 bar.cb_default_sub.checkbox(value='^#FORM.record.__multidb_default_subscribed',
                                         label='!!Subscribed by default',margin_top='1px',
                                         label_color='#666',label_font_size='.9em',
                                         label_font_weight='bold') 
+            return
         readOnly = multidb is not True or self.tblobj.attributes.get('multidb_onLocalWrite') != 'merge'
         if readOnly:
             form.attributes.update(form_readOnly=True)
