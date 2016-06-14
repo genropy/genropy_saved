@@ -255,6 +255,7 @@ class ActionOutcomeForm(BaseComponent):
 
     @public_method
     def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
+        recInfo.pop('_protect_write',None)
         record['$allowed_user_pkeys'] = self.db.table('orgn.annotation').getAllowedActionUsers(record)
         record.setItem('.exit_status','more_info',_sendback=True)
 
