@@ -1123,13 +1123,13 @@ class SqlTable(GnrObject):
         
         :param record: a dictionary that represent the record that must be updated"""
         pkey = record.get(self.pkey)
-        if (not pkey in (None, '')):
+        old_record = None
+        if not (pkey in (None,'')):
             old_record = self.query(where="$%s=:pk" %self.pkey, pk=pkey,for_update=True).fetch()
-            old_record = old_record[0] if old_record else None
-            if old_record:
-                return self.update(record,old_record=old_record)
-        else:
+        if not old_record:
             return self.insert(record)
+        else:
+            self.update(record,old_record=old_record[0])
 
 
     def countRecords(self):
