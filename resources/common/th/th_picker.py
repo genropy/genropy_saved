@@ -15,7 +15,7 @@ class THPicker(BaseComponent):
 
     @struct_method
     def pk_palettePicker(self,pane,grid=None,table=None,relation_field=None,paletteCode=None,
-                         viewResource=None,searchOn=True,multiSelect=True,
+                         viewResource=None,searchOn=True,multiSelect=True,structure_field=None,
                          title=None,autoInsert=None,dockButton=None,picker_kwargs=None,
                          height=None,width=None,checkbox=False,defaults=None,**kwargs):
         
@@ -62,7 +62,7 @@ class THPicker(BaseComponent):
                                             searchOn=searchOn,multiSelect=multiSelect,title=title,
                                             dockButton=dockButton,height=height,
                                             width=width,condition=condition,condition_kwargs=condition_kwargs,
-                                            checkbox=checkbox,structure_field = picker_kwargs.get('structure_field'),
+                                            checkbox=checkbox,structure_field = structure_field or picker_kwargs.get('structure_field'),
                                             uniqueRow=picker_kwargs.get('uniqueRow',True),
                                             top_height=picker_kwargs.get('top_height'))
 
