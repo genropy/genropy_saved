@@ -218,7 +218,9 @@ class GnrWsgiSite(object):
         if self.default_uri[-1] != '/':
             self.default_uri += '/'
         self.mainpackage = self.config['wsgi?mainpackage']
+
         self.default_page = self.config['wsgi?default_page']
+        self.root_static = self.config['wsgi?root_static']
         self.websockets= boolean(self.config['wsgi?websockets']) and UWSGIMODE
         self.allConnectionsFolder = os.path.join(self.site_path, 'data', '_connections')
         self.allUsersFolder = os.path.join(self.site_path, 'data', '_users')
@@ -704,7 +706,12 @@ class GnrWsgiSite(object):
             finally:
                 self.cleanup()
             return response(environ, start_response)
-            
+
+        #static elements that doesn't have .py extension in self.root_static
+        if  self.root_static and path_list and not path_list[0].startswith('_') and '.' in path_list[-1]:
+            if path_list[-1].split('.')[-1]!='py':
+                path_list = self.root_static.split('/')+path_list
+
         if path_list and path_list[0].startswith('_tools'):
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='TOOLS')
             return self.serve_tool(path_list, environ, start_response, **request_kwargs)
