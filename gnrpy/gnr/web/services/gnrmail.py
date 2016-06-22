@@ -39,7 +39,7 @@ class WebMailHandler(MailHandler):
             return self.parent.db.table('email.account').getSmtpAccountPref(mp['email_account_id'])
         return mp
 
-    def sendUserTemplateMail(self,record_id=None,letterhead_id=None,template_id=None,table=None,template_code=None,attachments=None,**kwargs):
+    def sendUserTemplateMail(self,record_id=None,letterhead_id=None,template_id=None,table=None,template_code=None,attachments=None,to_address=None, **kwargs):
         if template_id:
             tpl,table = self.parent.db.table('adm.userobject').readColumns(pkey=template_id,columns='$data,$tbl',bagFields=True)
         elif template_code and table:
@@ -52,7 +52,7 @@ class WebMailHandler(MailHandler):
         email_compiled = metadata['email_compiled']
         htmlbuilder = TableTemplateToHtml(table=self.parent.db.table(table))
         html_text = htmlbuilder(record=record_id,template=compiled,letterhead_id=letterhead_id or metadata['default_letterhead'])
-        to_address = templateReplace(email_compiled.getItem('to_address',''),htmlbuilder.record)
+        to_address = to_address or templateReplace(email_compiled.getItem('to_address',''),htmlbuilder.record)
         subject = templateReplace(email_compiled.getItem('subject',''),htmlbuilder.record)
         cc_address = templateReplace(email_compiled.getItem('cc_address',''),htmlbuilder.record)
         bcc_address = templateReplace(email_compiled.getItem('bcc_address',''),htmlbuilder.record)
