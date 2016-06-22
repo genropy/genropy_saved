@@ -4326,14 +4326,16 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
             attributes['side'] = side;
             attributes['slotbarCode'] = attributes['slotbarCode'] || attributes['frameCode'] +'_'+ side; 
             if(toolbar){
-                attributes['_class'] += ' slotbar_toolbar';
-                attributes['gradient_from'] = attributes['gradient_from'] || sidePars['gradient_from'] || genro.dom.themeAttribute('toolbar','gradient_from','silver');
-                attributes['gradient_to'] = attributes['gradient_to'] || sidePars['gradient_to'] || genro.dom.themeAttribute('toolbar','gradient_to','whitesmoke');
-                
+                attributes['_class'] += ' slotbar_toolbar slotbar_toolbar_standard slotbar_toolbar_side_'+side;
+                attributes['gradient_from'] = attributes['gradient_from'] || sidePars['gradient_from'];// || genro.dom.themeAttribute('toolbar','gradient_from','silver');
+                attributes['gradient_to'] = attributes['gradient_to'] || sidePars['gradient_to'];// || genro.dom.themeAttribute('toolbar','gradient_to','whitesmoke');
                 var css3Kw = {'left':[0,'right'],'top':[-90,'bottom'],
                             'right':[180,'left'],'bottom':[90,'top']};
-                attributes['border_'+css3Kw[side][1]] = attributes['border_'+css3Kw[side][1]] || '1px solid '+ attributes['gradient_from'];
-                attributes['gradient_deg'] = css3Kw[side][0];
+                
+                if(attributes.gradient_from || attributes.gradient_to){
+                    attributes['border_'+css3Kw[side][1]] = attributes['border_'+css3Kw[side][1]] || '1px solid '+ attributes['gradient_from'] || genro.dom.themeAttribute('toolbar','gradient_from','silver');
+                    attributes['gradient_deg'] = css3Kw[side][0];
+                }
             }
         }
         buildKw.lbl['_class'] = buildKw.lbl['_class'] || 'slotbar_lbl';

@@ -449,6 +449,23 @@ cursorZoom_plus{
 }
 
 /* @end */
+.slotbar_toolbar_standard{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(silver), to(whitesmoke));
+    background-image: -moz-linear-gradient(-90deg, silver, whitesmoke);
+}
+.slotbar_toolbar_side_left{
+    border-right:1px solid silver;
+}
+.slotbar_toolbar_side_right{
+    border-left:1px solid silver;
+}
+.slotbar_toolbar_side_top{
+    border-bottom:1px solid silver;
+}
+.slotbar_toolbar_side_bottom{
+    border-top:1px solid silver;
+}
+
 .slotbar_toolbar .dijitButtonNode{
 
     color:#333;

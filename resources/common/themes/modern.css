@@ -1,6 +1,6 @@
 /*vico*/
 .frameindexroot{
-    background:#ddd;
+    background:#e5e5e5;
 }
 .frameindexcenter{
     background:#f6f6f6;
@@ -47,15 +47,20 @@
 }
 
 ._common_d11.tundra .dojoxFloatingPaneTitle {
-    background-color: #224272;
+    background-color: #711B2A;
     vertical-align: middle;
     text-align: center;
     color: #f6f6f6;
+    background-image:none;
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
     padding-top: 2px;
     padding-bottom: 3px;
     border:0;
+}
+.slotbar_toolbar_standard{
+    background-image: none;
+    background-color:#E4E4E4;
 }
 
 ._common_d11.tundra.theme_variant_green .dojoxFloatingPaneTitle{
@@ -107,7 +112,7 @@
     height: 22px;
     vertical-align: middle;
     color: white;
-    background-color: #224272;
+    background-color: #711B2A;
 }
 
 
@@ -180,7 +185,7 @@
 }
 .pbl_root_bottom {
     vertical-align: middle;
-    background-color: #224272;
+    background-color: #711B2A;
 }
 
 
@@ -250,12 +255,12 @@
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
     font-size: 0.9em;
-    background-color:#C8D1DC;
+    background-color:#D9E9FC;
     color: #555;
 	text-indent: 2px;
 }
 .pbl_roundedGroupVertical {
-    background-color: #C8D1DC;
+    background-color: #D9E9FC;
 }
 
 
@@ -306,7 +311,7 @@
     padding-left: 10px;
     font-size: 0.9em;
     padding-top: 5px;
-    background-color:#C8D1DC;
+    background-color:#D9E9FC;
     color: #feffff;
 }
 
@@ -315,7 +320,7 @@
     padding-left: 10px;
     font-size: 0.9em;
     padding-bottom: 5px;
-    background-color:#C8D1DC;
+    background-color:#D9E9FC;
 }
 
 /* @end */
@@ -350,8 +355,9 @@
 /* @end */
 
 .tundra._common_d11 .dijitDialogTitleBar {
-    background-color:#224272;
+    background-color:#711B2A;
     color: #ffffff;
+    background-image:none;
     vertical-align: middle;
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
@@ -456,7 +462,7 @@
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
 
-    background-color:#C8D1DC;
+    background-color:#D9E9FC;
     background-image: none;
     margin-right: 2px;
     color: #444;
@@ -596,15 +602,15 @@
 }
 
 .menutree .menu_shape {
-    padding-top: 3px;
+    padding-top: 2px;
     line-height: 18px;
     margin-right: 8px;
-    margin-top: 4px;
+    margin-top: 1px;
     color: #444;
 }
 
 .menutree .menu_current_page {
-    color:#ddd;
+    color:#444;
 }
 .menutree .menu_existing_page.menu_shape  {
     font-weight:bold;
@@ -952,4 +958,96 @@
 }
 ._common_d11.tundra .dijitPopup > div, .tundra .dijitPopup > table{
     opacity: 1;
+}
+
+.framedindex_tablist{
+    background-image: none;
+    background-color: #555;
+}
+
+.multibutton:last-child{
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-right: 1px solid;
+}
+.multibutton:first-child{
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+.multibutton_selected.multibutton, .multibutton:active{
+    -moz-box-shadow: none;
+    -webkit-box-shadow:none;
+}
+.multibutton{
+    background-image: none;
+    background-color: #EDEDEE;
+
+    /*line-height:20px;
+    font-size: 9pt;
+    font-variant:small-caps;*/
+}
+
+.iframetab:last-child{
+    -moz-border-radius-topright: 4px;
+    -moz-border-radius-bottomright: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+.iframetab:first-child{
+    -moz-border-radius-topleft: 4px;
+    -moz-border-radius-bottomleft: 4px;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+.iframetab_selected.iframetab{
+    -moz-box-shadow:none;
+    box-shadow:none;
+    
+}
+.iframetab{
+    background-image:none; 
+    background-color: #EDEDEE;
+}
+
+
+.tundra .dijitButtonNode {
+    /* enabled state - inner */
+    background-color: #E4E4E4;
+    background-image: none;
+    border-radius: 2px;
+}
+
+.tundra .dijitButtonHover .dijitButtonNode,
+.tundra .dijitButtonNodeHover,
+.tundra .dijitToggleButtonHover .dijitButtonNode,
+.tundra .dijitDropDownButtonHover .dijitButtonNode,
+.tundra .dijitComboButton .dijitButtonContentsHover,
+.tundra .dijitComboButton .dijitDownArrowButtonHover {
+    /* hover state - inner */
+    /* TODO: change from Hover to Selected so that button is still highlighted while drop down is being used */
+    border-color: silver;
+    background-image: none;
+    background-color:#E4E4E4;
+}
+
+.tundra .dijitButton.dijitButtonActive .dijitButtonNode,
+.tundra .dijitButtonNodeActive,
+.tundra .dijitToggleButtonActive .dijitButtonNode,
+.tundra .dijitDropDownButtonActive .dijitButtonNode,
+.tundra .dijitComboButton .dijitButtonContentsActive,
+.tundra .dijitComboButton .dijitDownArrowButtonActive{
+    /* hover state - inner */
+    /* TODO: change from Hover to Selected so that button is still highlighted while drop down is being used */
+    /*background-image: -webkit-gradient(linear, 0% 0%, 0% 90%,  from(rgba(182, 182, 182, 0.75)),to(rgba(239, 239, 239, 0.9)));
+    background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75),rgba(239, 239, 239, 0.9));*/
+    background:#888;
+    -moz-box-shadow: inset 1px 1px 2px #222;
+    -webkit-box-shadow:inset 1px 1px 2px #222;
+    border-color: gray;
+}
+.fakeButton{
+    background-image: none;
+    background-color: #E4E4E4;
+    cursor:pointer;
 }
