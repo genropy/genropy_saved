@@ -231,7 +231,7 @@ class TableBase(object):
                   draftField=False, invalidFields=None,invalidRelations=None,md5=False,
                   counter=None,hierarchical=None,useProtectionTag=None,
                   group='zzz', group_name='!!System',
-                  df=None,counter_kwargs=None):
+                  df=None,counter_kwargs=None,**kwargs):
         """Add some useful columns for tables management (first of all, the ``id`` column)
         
         :param tbl: the :ref:`table` object

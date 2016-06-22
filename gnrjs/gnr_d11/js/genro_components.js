@@ -1030,7 +1030,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         if (match && match.len()){
             match_index = {};
             match.values().forEach(function(v){
-                if(v.getItem('do_import') && v.getItem('dest_field')){
+                if(v && v.getItem('do_import') && v.getItem('dest_field')){
                     match_index[v.getItem('source_field')] = v.getItem('dest_field');
                 }
             })
