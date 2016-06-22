@@ -1026,7 +1026,7 @@
 .tundra .dijitComboButton .dijitDownArrowButtonHover {
     /* hover state - inner */
     /* TODO: change from Hover to Selected so that button is still highlighted while drop down is being used */
-    border-color: silver;
+    border-color: #666;
     background-image: none;
     background-color:#E4E4E4;
 }
@@ -1044,7 +1044,24 @@
     background:#888;
     -moz-box-shadow: inset 1px 1px 2px #222;
     -webkit-box-shadow:inset 1px 1px 2px #222;
-    border-color: gray;
+    border-color: silver;
+}
+.tundra .dijitDisabled.dijitTextBoxReadOnly,
+.tundra .dijitDisabled.dijitTextBoxReadOnly .dijitButtonNode,
+.tundra .dijitDisabled.dijitButtonDisabled .dijitButtonNode,
+.tundra .dijitDisabled.dijitToggleButtonDisabled .dijitButtonNode,
+.tundra .dijitDisabled.dijitDropDownButtonDisabled .dijitButtonNode,
+.tundra .dijitDisabled.dijitComboButtonDisabled .dijitButtonNode,
+.tundra .dijitDisabled.dijitTextBoxDisabled,
+.tundra .dijitDisabled.dijitComboBoxDisabled,
+.tundra .dijitDisabled.dijitTextBoxDisabled .dijitButtonNode ,
+.dijitTextArea.dijitTextAreaDisabled.dijitDisabled{
+    /* disabled state - inner */
+    border-color: #dedede;
+    background-image: none;
+    opacity: .8;
+    /*background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EEEEEE), to(#EDEDEE));
+    background-image: -moz-linear-gradient(-90deg, #EEEEEE, #EDEDEE);*/
 }
 .fakeButton{
     background-image: none;

@@ -431,9 +431,10 @@ cursorZoom_plus{
 }
 
 
-.no_background .dijitButtonNode {
+.tundra .no_background .dijitButtonNode {
     padding: 0;
     background: none;
+    background-color: transparent;
     border-width: 0 !important;
     border-color: transparent;
 }
