@@ -87,6 +87,8 @@ dojo.declare('gnr.GenroClient', null, {
         this.lastPing = start_ts;
         this._debugPaths = {};
         this.sendAllEvents=true;
+        this._lastMouseEvent = {};
+        this._longClickDuration = 1500;
         this._lastUserEventTs = start_ts;
         this._lastChildUserEventTs = start_ts;
         this._lastGlobalUserEventTs = start_ts;
@@ -335,6 +337,23 @@ dojo.declare('gnr.GenroClient', null, {
             }
             genro.currProfilers = {nc:0,st:0,sqlt:0,sqlc:0};
         },15000);
+        
+        window.addEventListener("mousedown", function(e){
+            genro._lastMouseEvent.mousedown =e;
+         },true);
+        window.addEventListener("mouseup", function(e){
+            genro._lastMouseEvent.mouseup = e;
+            var duration = genro._lastMouseEvent.mouseup.timeStamp - genro._lastMouseEvent.mousedown.timeStamp;
+            var md = genro._lastMouseEvent.mousedown;
+            if(duration>genro._longClickDuration && e.target===md.target && e.x==md.x && e.y==md.y){
+                genro.publish('longClick',{target:e.target,mouseup:e,mousedown:md});
+                var sn = genro.dom.getSourceNode(e.target);
+                if(sn){
+                    sn.publish('longClick',{mouseup:e,mousedown:md});
+                }
+            }
+
+        },true);
     },
 
     serverLog:function(data){

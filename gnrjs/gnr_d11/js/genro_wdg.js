@@ -1494,6 +1494,15 @@ dojo.declare("gnr.GridEditor", null, {
                 };
             var cellNext = widget.cellNext; //|| 'RIGHT'; dannoso
             widget.cellNext = null;
+            //START Safari checkbox in cell bugfix
+            if(dojo.isSafari && widget && widget.focusNode && widget.focusNode.type=='checkbox'){
+                if(genro._lastMouseEvent.mousedown.target===widget.focusNode){
+                    widget.focus();
+                    return;
+                }
+            }
+            //END Safari checkbox in cell bugfix
+
             setTimeout(function(){
                 gridEditor.endEdit(widget,deltaDict[cellNext],editingInfo);
             },1);

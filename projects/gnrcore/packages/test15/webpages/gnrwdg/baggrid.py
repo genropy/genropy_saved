@@ -30,6 +30,7 @@ class GnrCustomWebPage(object):
         r.cell('colli',dtype='L',name='Colli',width='5em',edit=True)  
         r.cell('totale',dtype='L',name='Colli',width='5em',formula='colli*qty')  
         r.cell('cist',name='Codice istat')
+        r.cell('montano',dtype='B',edit=True)
 
     def test_1_remotestruct(self,pane):
         """First test description"""
