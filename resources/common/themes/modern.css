@@ -602,10 +602,10 @@
 }
 
 .menutree .menu_shape {
-    padding-top: 2px;
-    line-height: 18px;
+    padding-top: 0px;
+    line-height: 16px;
     margin-right: 8px;
-    margin-top: 1px;
+    margin-top: 0px;
     color: #444;
 }
 
