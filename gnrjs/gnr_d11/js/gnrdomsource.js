@@ -716,6 +716,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if (this.attr.href) {
             genro.dom.loadCss(this.attr.href, this.attr.cssTitle);
         } else {
+            console.log('_bld_stylesheet',this.getValue())
             genro.dom.addStyleSheet(this.getValue(), this.attr.cssTitle);
         }
     },

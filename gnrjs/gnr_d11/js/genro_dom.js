@@ -84,7 +84,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 setFunc();
             }
         } else { // w3c
-            var cssText = document.createTextNode(cssText);
+            cssText = document.createTextNode(cssText);
             style.appendChild(cssText);
         }
         document.getElementsByTagName("head")[0].appendChild(style);
@@ -638,7 +638,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
     setSelectorStyle: function(selector, kw, path) {
         var path = path || 'gnr.stylesheet';
         var selectorbag = this.css_selectors[selector];
-        for (st in kw) {
+        for (var st in kw) {
             selectorbag.setItem(st, kw[st]);
         }
     },
@@ -672,13 +672,13 @@ dojo.declare("gnr.GnrDomHandler", null, {
         return result;
     },
     styleToBag:function(s) {
-        result = new gnr.GnrBag();
+        var result = new gnr.GnrBag();
         var rule;
         // for (var i=0; i < s.length; i++) {
         //     st = s[i];
         //     result.setItem(st, s.getPropertyValue(st)); 
         // };
-        for (var i = s.length; s--;) {
+        for (var i = s.length; i>=0 ;i--) {
             var st = s[i];
             result.setItem(st, s.getPropertyValue(st));
         }

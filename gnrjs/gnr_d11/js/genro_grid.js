@@ -150,8 +150,19 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var headerList = dojo.query('th',this.viewsHeaderNode);
         var structureList = this.views.views[0].structure.rows[0];
         var result = new gnr.GnrBag();
+        var hiddenBetween = 0;
+        var headerNode,isHidden,rel_index;
         structureList.forEach(function(n){
-            result.setItem(n.field,null,{cell:n,headerNode:headerList[n.index]});
+            headerNode = headerList[n.index];
+            isHidden = !genro.dom.isVisible(headerNode);
+            rel_index = n.index;
+            if(isHidden){
+                hiddenBetween+=1;
+                rel_index = -1;
+            }else{
+                rel_index-=hiddenBetween;
+            }
+            result.setItem(n.field,null,{cell:n,headerNode:headerNode,isHidden:isHidden,rel_index:rel_index});
         });
         return cell?result.getAttr(cell):result;
     },
@@ -267,8 +278,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
            //}
             
             var cell = infopars.cell;
-            var idx = cell.index;
-            item.idx = idx;
+            item.idx = infopars.rel_index;
             var value = objectPop(item,'value');
             if(!value){
                 if(cell.totalize){
@@ -295,7 +305,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             colspan = objectPop(item,'colspan') || 1;
             currIdx = idx+colspan;
             var infopars = colinfo.getAttr(item.field);
-            if(genro.dom.isVisible(infopars.headerNode)){
+            if(!infopars.isHidden){
                 item._class = (item._class) || '' +' groupcontent';
                 tr._('td',item.field,{idx:idx,colspan:colspan})._('div',item);
             }

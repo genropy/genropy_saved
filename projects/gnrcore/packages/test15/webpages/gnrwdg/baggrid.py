@@ -194,3 +194,47 @@ class GnrCustomWebPage(object):
        #f.item('gross')
        #f.item('vat')
 
+    def test_10_footersbug(self,pane):
+        def struct(struct):
+            r = struct.view().rows()
+            r.cell('description',name='Description',width='15em',edit=True)
+
+            r.cell('number',name='Number',width='7em',dtype='L',
+                    edit=True)
+            r.cell('price',name='Price',width='7em',dtype='N',
+                    edit=True)
+            r.cell('total',name='Total',width='7em',dtype='N',formula='number*price',
+                    totalize='.sum_total',format='###,###,###.00')
+            r.cell('discount',name='Disc.%',width='7em',dtype='N',edit=True)
+            r.cell('discount_val',name='Discount',width='7em',dtype='N',formula='total*discount/100',
+                    columnset='disc')
+            r.cell('net_price',name='F.Price',width='7em',dtype='N',
+                        formula='total-discount_val',
+                        columnset='tot')
+            r.cell('vat',name='Vat',width='7em',dtype='N',
+                    formula='net_price+net_price*vat_p/100',formula_vat_p='^vat_perc',
+                    format='###,###,###.00',columnset='tot',hidden='^nascondi')
+            r.cell('gross',name='Gross',width='7em',dtype='N',formula='net_price+vat',
+                    totalize='.sum_gross',format='###,###,###.00')
+
+
+        bc = pane.borderContainer(height='400px',width='800px')
+        top = bc.contentPane(region='top',height='40px')
+        top.checkbox(value='^nascondi',label='Nascondi')
+        fb = top.formbuilder(cols=2,border_spacing='3px')
+        bc.contentPane(region='right',splitter=True,width='5px')
+        bc.contentPane(region='bottom',splitter=True,height='50px')
+        fb.numberTextBox(value='^vat_perc',lbl='Vat perc.',default_value=10)
+        fb.button('clear',fire='.clear')
+        bc.dataFormula('.surfaces.store',"new gnr.GnrBag({r1:new gnr.GnrBag({description:'pipp'})})",_onStart=True,_fired='^.clear')
+        frame = bc.contentPane(region='center').bagGrid(frameCode='formule',datapath='.surfaces',
+                                                    struct=struct,height='300px',fillDown=True,
+                                                    pbl_classes=True,margin='5px',
+                              
+                                                    #footer=True,
+                                                    )
+
+        f = frame.grid.footer()
+        f.item('total',value='10',text_align='center')
+        f.item('gross',value='20')
+
