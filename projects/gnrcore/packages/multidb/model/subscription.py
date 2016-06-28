@@ -96,7 +96,7 @@ class Table(object):
         else:
             data_record = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False).fetch()
             if data_record:
-                data_record = data_record[0]
+                data_record = dict(data_record[0])
             else:
                 return
         with self.db.tempEnv(storename=storename,_systemDbEvent=True,_multidbSync=True):

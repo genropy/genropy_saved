@@ -395,7 +395,7 @@ class GnrNamedList(list):
             result[v] = k
         return result
         
-    @deprecated
+    @deprecated(message='do not use pop in named tuple')
     def pop(self, x,dflt=None):
         """Same of ``pop`` method's dict
         
