@@ -586,6 +586,15 @@
 
 /* @group MenuTree */
 
+.menutree .opendir{
+    width: 12px;
+    background: url(/_gnr/11/css/icons/base10/tinyOpenBranch_white.png) no-repeat center center;
+}
+.menutree .closedir{
+    width: 12px;
+    background: url(/_gnr/11/css/icons/base10/tinyCloseBranch_white.png) no-repeat center center;
+}
+
 .menu_page  > a {
     color: #FFFFFF;
     text-decoration: none;

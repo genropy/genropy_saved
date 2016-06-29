@@ -101,9 +101,14 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
         var ddbId = kw.openerId || sourceNode.getStringId();
         var modifiers = objectPop(kw,'modifiers') || '*';
         var onOpening = objectPop(kw,'onOpening');
+        var onClosing = objectPop(kw,'onClosing');
+
         var modal = objectPop(kw,'modal');
         if (onOpening){
             onOpening = funcCreate(onOpening,'e,sourceNode,dialogNode,kwargs',sourceNode);
+        }
+        if (onClosing){
+            onClosing = funcCreate(onClosing,'e,sourceNode,dialogNode,kwargs',sourceNode);
         }
         var evt = objectPop(kw,'evt') || 'onclick';
         var parentDomNode;
@@ -121,7 +126,11 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
                                         this.widget._openDropDown(kw.domNode);
                                     }
                                 },
-                                selfsubscribe_close:function(){this.widget._closeDropDown();}}
+                                selfsubscribe_close:function(){
+                                    if(!onClosing || onClosing(kw.evt,kw.domNode.sourceNode,this._value.getNode('ttd'),kw)!==false){
+                                        this.widget._closeDropDown();
+                                    }
+                                }};
         if(placingId){
             ddkw.onOpeningPopup = function(openKw,evtDomNode){
                                     var placingDomNode = genro.domById(placingId);
