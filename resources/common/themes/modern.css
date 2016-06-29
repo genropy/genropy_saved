@@ -1,6 +1,6 @@
 /*vico*/
 .frameindexroot{
-    background:#e5e5e5;
+    background:#eeeeee;
 }
 .frameindexcenter{
     background:#f6f6f6;
@@ -72,7 +72,7 @@
 }
 
 ._common_d11.tundra.theme_variant_orange .dojoxFloatingPaneTitle{
-    background-color: #863B06;
+    background-color: #FF5226;
 }
 
 ._common_d11.tundra.theme_variant_yellow .dojoxFloatingPaneTitle{
@@ -126,7 +126,7 @@
 }
 
 .theme_variant_orange .pbl_root_top{
-    background-color:#863B06;
+    background-color:#FF5226;
 }
 
 .theme_variant_yellow .pbl_root_top{
@@ -376,7 +376,7 @@
 }
 
 .tundra._common_d11.theme_variant_orange .dijitDialogTitleBar{
-    background-color: #863B06;
+    background-color: #FF5226;
 }
 
 .tundra._common_d11.theme_variant_yellow .dijitDialogTitleBar{
