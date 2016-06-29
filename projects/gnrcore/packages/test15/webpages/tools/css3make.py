@@ -110,3 +110,19 @@ class GnrCustomWebPage(object):
         sl.duration.numbertextbox(lbl='duration',default=2,value='^.duration',width='8em')
         sl.test.div(width='^.w',background='^.color',height='50px',border='1px solid gray',
                     transition='all 3s',transition_function='.^function',transition_duration='^.duration')
+
+
+
+    def test_6_filter(self, pane):
+        sl = pane.slotBar('fld,*,test,*')
+        fb = sl.fld.formbuilder(lbl_font_size='10px',lbl_color='teal')
+        fb.horizontalSlider(value='^.rotate',minimum=0,maximum=180,lbl='rotate',
+                            intermediateChanges=True,width='150px',default_value=0)
+        fb.horizontalSlider(value='^.invert',minimum=0,maximum=1,lbl='invert',
+                            intermediateChanges=True,width='150px',default_value=0)
+        fb.horizontalSlider(value='^.contrast',minimum=0,maximum=1,lbl='contrast',
+                            intermediateChanges=True,width='150px',default_value=1)
+        sl.test.div('CIAONE',color='white',margin='100px',display='inline-block',border='1px solid gray',width='90px',height='120px',
+                    filter_rotate='^.rotate',filter_invert='^.invert',filter_contrast='^.contrast',
+                    background='red')
+                    

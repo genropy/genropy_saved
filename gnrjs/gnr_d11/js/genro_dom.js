@@ -28,7 +28,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
 
     constructor: function(application) {
         this.application = application;
-        this.css3AttrNames = ['rounded','gradient','shadow','transform','transition','zoom'];
+        this.css3AttrNames = ['rounded','gradient','shadow','transform','transition','zoom','filter'];
         this.styleAttrNames = ['height', 'width','top','left', 'right', 'bottom', 'resize',
             'visibility','opacity', 'overflow', 'float', 'clear', 'display',
             'z_index', 'border','position','padding','margin','cursor',
@@ -428,6 +428,15 @@ dojo.declare("gnr.GnrDomHandler", null, {
         this.style_setall('border', styledict, attributes, noConvertStyle);
         this.style_setall('overflow', styledict, attributes, noConvertStyle);
         return styledict;
+    },
+    css3style_filter:function(value,valuedict, styledict,noConvertStyle){
+        var result='';
+        var key= dojo.isSafari?'-webkit-filter':'-moz-filter';
+        if('rotate' in valuedict){result+='hue-rotate('+(valuedict['rotate']||'0')+'deg) ';}
+        if('invert' in valuedict){result+='invert('+(valuedict['invert']||'0')+') ';}
+        if('contrast' in valuedict){result+='contrast('+(valuedict['contrast']||'0')+') ';}
+
+        styledict[key] =(styledict[key] || '') + result;
     },
     css3style_zoom:function(value,valuedict, styledict,noConvertStyle){
         if (dojo.isSafari){

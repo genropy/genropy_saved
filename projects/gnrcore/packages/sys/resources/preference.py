@@ -34,6 +34,10 @@ class AppPref(object):
         stylepane = tc.contentPane(title='Styling')
         fb = stylepane.formbuilder(cols=1, border_spacing='4px',datapath='.theme')
         fb.filteringSelect(value='^.theme_variant',values='red,green,yellow,orange,',lbl='Theme variant')
+        fb.horizontalSlider(value='^.body.filter_rotate',intermediateChanges=True,width='150px',default_value=0,
+                        minimum=0,maximum=360,lbl='Color rotate',livePreference=True)
+        fb.horizontalSlider(value='^.body.filter_invert',intermediateChanges=True,width='150px',default_value=0,
+                        minimum=0,maximum=1,lbl='Color invert',livePreference=True)
         fb.filteringSelect(value='^.default_fontsize',values='!!12px:Small,13px:Medium,14px:Large,15px:Extra Large',lbl='Font size')
         fb.comboBox(value='^.rootstyle.font_family',values=FONTFAMILIES,lbl='Font family',width='20em')        
         

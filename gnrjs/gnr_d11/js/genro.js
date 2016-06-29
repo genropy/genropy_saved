@@ -57,6 +57,9 @@ dojo.declare('gnr.GenroClient', null, {
         this.debuglevel = kwargs.startArgs.debug || null;
         this.debug_sql = kwargs.startArgs.debug_sql;
         dojo.subscribe('gnrServerLog', this, 'serverLog');
+        dojo.subscribe('externalSetData', this, function(kw){
+            genro.setData(kw.path,kw.value,kw.attr,{doTrigger:'externalSetData'});
+        });
         //this.debug_py = kwargs.startArgs.debug_py;
         this.websockets_url = objectPop(kwargs.startArgs,'websockets_url');
         this.pageMode = kwargs.pageMode;
