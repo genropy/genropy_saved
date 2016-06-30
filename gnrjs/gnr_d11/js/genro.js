@@ -341,19 +341,45 @@ dojo.declare('gnr.GenroClient', null, {
             genro.currProfilers = {nc:0,st:0,sqlt:0,sqlc:0};
         },15000);
         
+        window.addEventListener("click", function(e){
+            e._clickDuration = genro._lastMouseEvent.duration;
+            e._longClick = genro._lastMouseEvent.longClick;
+            genro._lastMouseEvent.mousedown = e;
+         },true);
         window.addEventListener("mousedown", function(e){
-            genro._lastMouseEvent.mousedown =e;
+            genro._lastMouseEvent.duration = null;
+            genro._lastMouseEvent.longClick = null;
+            genro._lastMouseEvent.mousedown = e;
+            var mu = genro._lastMouseEvent.mouseup;
+            var hasRecentClick =  mu && (e.timeStamp - mu.timeStamp)<500;
+            genro._lastMouseEvent.startMouseDown = setTimeout(function(){
+                var topic = hasRecentClick?'clickAndHold':'longMouseDown';
+                genro.publish(topic,{event:e});
+                var target = e.target;
+                var handler = target.getAttribute('on'+topic.toLowerCase());
+                var sn = genro.dom.getSourceNode(e.target);
+                if(handler){
+                    funcApply(handler,{event:e},sn || target);
+                }
+                if(sn){
+                    sn.publish(topic,{event:e});
+                }
+            },1500);
+            
          },true);
         window.addEventListener("mouseup", function(e){
             genro._lastMouseEvent.mouseup = e;
             var duration = genro._lastMouseEvent.mouseup.timeStamp - genro._lastMouseEvent.mousedown.timeStamp;
             var md = genro._lastMouseEvent.mousedown;
+            genro._lastMouseEvent.duration = duration;
+            clearTimeout(genro._lastMouseEvent.startMouseDown);
             if(duration>genro._longClickDuration && e.target===md.target && e.x==md.x && e.y==md.y){
-                genro.publish('longClick',{target:e.target,mouseup:e,mousedown:md});
-                var sn = genro.dom.getSourceNode(e.target);
-                if(sn){
-                    sn.publish('longClick',{mouseup:e,mousedown:md});
-                }
+                genro._lastMouseEvent.longClick = true;
+                //genro.publish('longClick',{target:e.target,mouseup:e,mousedown:md});
+                //var sn = genro.dom.getSourceNode(e.target);
+                //if(sn){
+                //    sn.publish('longClick',{mouseup:e,mousedown:md});
+                //}
             }
 
         },true);

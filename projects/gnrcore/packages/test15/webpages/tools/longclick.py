@@ -16,6 +16,6 @@ class GnrCustomWebPage(object):
          
 
     def test_0_longclick(self,pane):
-        pane.div('Ciao',background='lime')
-        pane.button('Bao',action='alert("pippo");',selfsubscribe_longclick='console.log("selflongclick")')
-        pane.dataController("console.log('longclick target',target);",subscribe_longClick=True)
+        pane.div('Ciao',background='lime',connect_onclick="if($1._longClick){alert('long '+$1._clickDuration)}")
+        pane.div('Click and hold',background='pink',selfsubscribe_clickAndHold="alert('clickAndHold');",
+                selfsubscribe_longMouseDown="alert('longMouseDown');")

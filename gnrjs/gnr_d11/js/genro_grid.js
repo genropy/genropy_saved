@@ -1166,11 +1166,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 v = opt['js'](v, this.grid.storebag().getNodes()[inRowIndex]);
             }
             var zoomAttr = objectExtract(opt,'zoom_*',true);
-            if (objectNotEmpty(zoomAttr)) {
-                v = "<span draggable='false' onclick='if(event.shiftKey){dojo.stopEvent(event); genro.dlg.zoomFromCell(event);}' class='gnrzoomcell'>" + v + "</span>";
-            }
             var draggable = this.draggable ? ' draggable=true ' : '';
-            return '<div ' + draggable + 'class="cellContent">' + v + '</div>';
+            if (objectNotEmpty(zoomAttr)) {
+                return "<div "+draggable+" class='cellContent gnrzoomcell' onclick='if(event.shiftKey){dojo.stopEvent(event); genro.dlg.zoomFromCell(event);}'>" + v + "</div>";
+            }else{
+                return '<div ' + draggable + 'class="cellContent">' + v + '</div>';
+            }
+            
         };
     },
     subtableGetter:function(row,idx){

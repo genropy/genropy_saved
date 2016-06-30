@@ -5367,3 +5367,9 @@ div[disabled='true'], div[disabled='disabled']{
 .multidb_local_change{
     color:blue;
 }
+
+.iconbox{
+    filter: none;
+    -webkit-filter:none;
+    -moz-filter:none;
+}

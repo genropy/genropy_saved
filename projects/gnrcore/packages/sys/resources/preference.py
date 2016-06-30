@@ -39,7 +39,7 @@ class AppPref(object):
         fb.horizontalSlider(value='^.body.filter_invert',intermediateChanges=True,width='150px',default_value=0,
                         minimum=0,maximum=1,lbl='Color invert',livePreference=True)
         fb.filteringSelect(value='^.default_fontsize',values='!!12px:Small,13px:Medium,14px:Large,15px:Extra Large',lbl='Font size')
-        fb.comboBox(value='^.rootstyle.font_family',values=FONTFAMILIES,lbl='Font family',width='20em')        
+        fb.comboBox(value='^.body.font_family',values=FONTFAMILIES,lbl='Font family',width='20em',livePreference=True)        
         
         pdfpane = tc.borderContainer(title='Print')
         fb = pdfpane.roundedGroup(title='Print Modes',region='top',height='50px')
