@@ -165,26 +165,27 @@ class MultidbTable(object):
 
 
     def unifyRecords(self,sourcePkey=None,destPkey=None):
-        #se sono nel mainstore
-        #metto contextmanager
-        #self.unifyRecords_(sourcePkey,destPkey)
         if self.db.usingRootstore():
+            sourceRecord = self.record(pkey=sourcePkey,for_update=True).output('dict')
+            destRecord = self.record(pkey=destPkey,for_update=True).output('dict')
             with self.db.tempEnv(avoid_trigger_multidb='*'):
-                sourceRecord = self.record(pkey=sourcePkey,for_update=True).output('dict')
-                destRecord = self.record(pkey=destPkey,for_update=True).output('dict')
                 self._unifyRecords_default(sourceRecord,destRecord)
-            for store in self.db.dbstores:
-                print 'faccio per store',store
-                with self.db.tempEnv(storename=store):
-                    sf = self.query(where='$%s=:pk' %self.pkey,pk=sourcePkey,for_update=True).fetch()
-                    df = self.query(where='$%s=:pk' %self.pkey,pk=destPkey,for_update=True).fetch()
-                    if sf and df:
-                        self._unifyRecords_default(dict(sf[0]),dict(df[0]))
-                    elif sf and self.multidb is True:
+            sourceRecord_stores = set(self.getSubscribedStores(sourceRecord))
+            destRecord_stores = set(self.getSubscribedStores(sourceRecord))
+            stores_to_check =  destRecord_stores.union(sourceRecord_stores)
+            common_stores = destRecord_stores.intersection(sourceRecord_stores)
+            for store in stores_to_check:
+                with self.db.tempEnv(storename=store,_multidbSync=True):
+                    if store in common_stores:
+                        sr = self.record(pkey=sourcePkey,for_update=True).output('dict')
+                        dr = self.record(pkey=destPkey,for_update=True).output('dict')
+                        self._unifyRecords_default(sr,dr)
+                    elif store in sourceRecord_stores:
                         with self.db.tempEnv(storename=self.db.rootstore):
                             self.multidbSubscribe(pkey=destPkey,dbstore=store)
-                        df = self.query(where='$%s=:dp' %self.pkey, dp=destPkey).fetch()
-                        self._unifyRecords_default(dict(sf[0]),dict(df[0]))
+                        sr = self.record(pkey=sourcePkey,for_update=True).output('dict')
+                        dr = self.record(pkey=destPkey,for_update=True).output('dict')
+                        self._unifyRecords_default(sr,dr)
 
 
 
