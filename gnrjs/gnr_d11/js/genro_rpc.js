@@ -73,6 +73,7 @@ dojo.declare("gnr.GnrRemoteResolver", gnr.GnrBagResolver, {
         return result;
     },
     errorHandler: function(response, ioArgs) {
+        
         return genro.rpc.errorHandler(response, ioArgs);
     },
     resultHandler: function(response, ioArgs) {
@@ -123,6 +124,11 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         this.rpc_level = 0;
 
     },
+
+    hasPendingCall:function(){
+        return objectNotEmpty(this.rpc_register);
+    },
+
     register_call:function(kw) {
         this.rpc_counter = this.rpc_counter + 1;
         this.rpc_level = this.rpc_level + 1;
@@ -410,6 +416,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         
     },
     errorHandler: function(response, ioArgs) {
+        this.unregister_call(ioArgs);
         genro.dev.handleRpcHttpError(response, ioArgs);
     },
     setDatachangesInData:function (datachanges) {

@@ -127,18 +127,23 @@ class TableScriptHandler(BaseComponent):
         extra_parameters = extra_parameters or Bag()
         immediate = extra_parameters.getItem('batch_immediate') or batch_dict.get('immediate')
         pane.dataController("""
-                            dlgpars.hide();
-                            dlgoptions.hide();
-                            SET #table_script_runner.parameters=pars;
-                            if (immediate){
-                                genro.dom.setClass(dojo.body(),'runningBatch',true);
-                            }else{
-                                var modifier = _node.attr.modifier;
-                                if(modifier!='Shift'){
-                                    genro.mainGenroWindow.genro.publish('open_batch');
-                                }                                
-                            }
-                            FIRE .run;
+                            var that = this;
+                            var modifier = _node.attr.modifier;
+                            this.watch('pendingRpc',function(){
+                                return !genro.rpc.hasPendingCall();
+                            },function(){
+                                dlgpars.hide();
+                                dlgoptions.hide();
+                                that.setRelativeData('#table_script_runner.parameters',pars);
+                                if (immediate){
+                                    genro.dom.setClass(dojo.body(),'runningBatch',true);
+                                }else{
+                                    if(modifier!='Shift'){
+                                        genro.mainGenroWindow.genro.publish('open_batch');
+                                    }                                
+                                }
+                                that.fireEvent('.run',true);
+                            });
                             """,
                            _fired="^.confirm", pars='=.data',
                            immediate=immediate or False,
