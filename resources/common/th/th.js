@@ -15,6 +15,7 @@ var th_unifyrecord = function(kw){
         }
         var message = messagebag.getItem('tabledata').getFormattedValue();
         message = '<div style="margin:auto;">' +message+'</div>';
+        kw.timeout = 60*1000*10;
         genro.dlg.ask(title,message,null,{confirm:function(){
             genro.serverCall('app.unifyRecords',kw,function(result){console.log('ok');});}
         });

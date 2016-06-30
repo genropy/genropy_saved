@@ -1789,7 +1789,6 @@ class GnrWebPage(GnrBaseWebPage):
             page.dataController("""
                 var rotate_val = user_theme_filter_rotate || app_theme_filter_rotate || 0;
                 var invert_val = user_theme_filter_invert || app_theme_filter_invert || 0;
-                console.log('app_theme_font_family',app_theme_font_family)
                 var kw = {'rotate':rotate_val,'invert':invert_val};
                 var styledict = {font_family:app_theme_font_family};
                 genro.dom.css3style_filter(null,kw,styledict);

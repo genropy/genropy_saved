@@ -650,21 +650,26 @@ class SqlTable(GnrObject):
         return moved_relations
 
     def unifyRecords(self,sourcePkey=None,destPkey=None):
-        moved_relations = Bag()
         sourceRecord = self.record(pkey=sourcePkey,for_update=True).output('dict')
         destRecord = self.record(pkey=destPkey,for_update=True).output('dict')
-        self._onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations)
-        if hasattr(self,'onUnifying'):
-            self.onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations)
-        moved_relations = self.unifyRelatedRecords(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations)
-        if self.model.column('__moved_related') is not None:
-            old_record = dict(sourceRecord)
-            moved_relations.setItem('destPkey',destPkey)
-            moved_relations = moved_relations.toXml()
-            sourceRecord.update(__del_ts=datetime.now(),__moved_related=moved_relations)
-            self.raw_update(sourceRecord,old_record=old_record)
-        else:
-            self.delete(sourcePkey)
+        self._unifyRecords_default(sourceRecord,destRecord)
+
+    def _unifyRecords_default(self,sourceRecord=None,destRecord=None):
+        moved_relations = Bag()
+        with self.db.tempEnv(unifying='related'):
+            self._onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations)
+            if hasattr(self,'onUnifying'):
+                self.onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations)
+            moved_relations = self.unifyRelatedRecords(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations)
+        with self.db.tempEnv(unifying='main_record'):
+            if self.model.column('__moved_related') is not None:
+                old_record = dict(sourceRecord)
+                moved_relations.setItem('destPkey',sourceRecord[self.pkey])
+                moved_relations = moved_relations.toXml()
+                sourceRecord.update(__del_ts=datetime.now(),__moved_related=moved_relations)
+                self.raw_update(sourceRecord,old_record=old_record)
+            else:
+                self.delete(destRecord[self.pkey])
             
 
     def hasRelations(self,recordOrPkey):
@@ -1372,7 +1377,13 @@ class SqlTable(GnrObject):
         if not self.db.application:
             return
         for pkg_id in self.db.application.packages.keys():
-            trgFunc = getattr(self, 'trigger_%s_%s'%(triggerEvent, pkg_id), None)
+            trigger_name = 'trigger_%s_%s'%(triggerEvent, pkg_id)
+            avoid_trigger_par = self.db.currentEnv.get('avoid_trigger_%s' %pkg_id)
+            if avoid_trigger_par:
+                if avoid_trigger_par=='*' or triggerEvent in avoid_trigger_par.split(','):
+                    print 'avoiding trigger',triggerEvent
+                    continue
+            trgFunc = getattr(self, trigger_name, None)
             if callable(trgFunc):
                 trgFunc(record, **kwargs)
 

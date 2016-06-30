@@ -358,7 +358,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         var callKwargs = objectUpdate({}, params);
         callKwargs.method = method;
         //console.log(method,params);
-        var mode = mode || 'bag';
+        mode = mode || 'bag';
         var preprocessor, handleAs, result;
         if ((mode == 'bag') || (mode == 'xml')) {
             handleAs = 'xml';
@@ -402,7 +402,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             if(async_cb){
                 result.addCallback(async_cb);
             }
-            return result
+            return result;
         }else{
             var deferred = this._serverCall(callKwargs, xhrKwargs, httpMethod);        
             return sync? deferred.ioArgs.syncresult:deferred;

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage
+from gnr.core.gnrdecorator import metadata
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrlang import instanceMixin
 #from gnrpkg.multidb.multidbtable import MultidbTable
@@ -160,6 +161,33 @@ class MultidbTable(object):
         self.trigger_onDeleting_multidb(record)
         self.db.raw_delete(self, record,**kwargs)
 
+
+
+
+    def unifyRecords(self,sourcePkey=None,destPkey=None):
+        #se sono nel mainstore
+        #metto contextmanager
+        #self.unifyRecords_(sourcePkey,destPkey)
+        if self.db.usingRootstore():
+            with self.db.tempEnv(avoid_trigger_multidb='*'):
+                sourceRecord = self.record(pkey=sourcePkey,for_update=True).output('dict')
+                destRecord = self.record(pkey=destPkey,for_update=True).output('dict')
+                self._unifyRecords_default(sourceRecord,destRecord)
+            for store in self.db.dbstores:
+                print 'faccio per store',store
+                with self.db.tempEnv(storename=store):
+                    sf = self.query(where='$%s=:pk' %self.pkey,pk=sourcePkey,for_update=True).fetch()
+                    df = self.query(where='$%s=:pk' %self.pkey,pk=destPkey,for_update=True).fetch()
+                    if sf and df:
+                        self._unifyRecords_default(dict(sf[0]),dict(df[0]))
+                    elif sf and self.multidb is True:
+                        with self.db.tempEnv(storename=self.db.rootstore):
+                            self.multidbSubscribe(pkey=destPkey,dbstore=store)
+                        df = self.query(where='$%s=:dp' %self.pkey, dp=destPkey).fetch()
+                        self._unifyRecords_default(dict(sf[0]),dict(df[0]))
+
+
+
     def checkForeignKeys(self,record=None,old_record=None):
         for rel_table,rel_table_pkey,fkey in self.model.oneRelationsList(True):
             if old_record:
@@ -216,6 +244,7 @@ class MultidbTable(object):
             if old_record.get('__multidb_default_subscribed') != record.get('__multidb_default_subscribed'):
                 self._onUpdating_master(record,old_record=old_record,**kwargs)
         else:
+            print 'trigger_onUpdating_multidb'
             self._onUpdating_slave(record,old_record=old_record)
             
     def _onUpdating_master(self, record,old_record=None,**kwargs):
@@ -233,6 +262,7 @@ class MultidbTable(object):
             raise GnrMultidbException(description='Multidb exception',msg="You cannot unset default subscription")
 
     def _onUpdating_slave(self, record,old_record=None,**kwargs):
+        print '_onUpdating_slave',self.db.currentEnv.get('storename')
         if self.db.currentEnv.get('_multidbSync'):
             slaveEventHook = getattr(self,'onSlaveSyncing',None)
             if slaveEventHook:
