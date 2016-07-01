@@ -1781,9 +1781,26 @@ class GnrWebPage(GnrBaseWebPage):
         if self.dbstore:
             page.data('gnr.dbstore',self.dbstore)
         if has_adm:
-            page.dataRemote('gnr.user_preference', self.getUserPreference,username='^gnr.avatar.user')
-            page.dataRemote('gnr.app_preference', self.getAppPreference)
+            page.dataRemote('gnr.user_preference', self.getUserPreference,username='^gnr.avatar.user',
+                            _resolved=True,_resolved_username=self.user)
+            page.dataRemote('gnr.app_preference', self.getAppPreference,_resolved=True)
             page.dataRemote('gnr.shortcuts.store', self.getShortcuts)
+
+            page.dataController("""
+                var rotate_val = user_theme_filter_rotate || app_theme_filter_rotate || 0;
+                var invert_val = user_theme_filter_invert || app_theme_filter_invert || 0;
+                var kw = {'rotate':rotate_val,'invert':invert_val};
+                var styledict = {font_family:app_theme_font_family};
+                genro.dom.css3style_filter(null,kw,styledict);
+                dojo.style(dojo.body(),styledict);
+                """,app_theme_filter_rotate='^gnr.app_preference.sys.theme.body.filter_rotate',
+                    user_theme_filter_rotate='^gnr.user_preference.sys.theme.body.filter_rotate',
+                    app_theme_filter_invert='^gnr.app_preference.sys.theme.body.filter_invert',
+                    user_theme_filter_invert='^gnr.user_preference.sys.theme.body.filter_invert',
+                    app_theme_font_family='^gnr.app_preference.sys.theme.body.font_family',
+                    _onStart=True)
+
+
 
         page.dataController('genro.dlg.serverMessage("gnr.servermsg");', _fired='^gnr.servermsg')
         page.dataController("genro.dom.setClass(dojo.body(),'bordered_icons',bordered);",

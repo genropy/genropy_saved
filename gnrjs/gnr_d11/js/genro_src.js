@@ -54,7 +54,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
 
 
     updatePageSource:function(nodeId){
-        var nodeId = nodeId || '_pageRoot';
+        nodeId = nodeId || '_pageRoot';
         var tempcontent = this.newRoot();
         tempcontent._('div',{_class:'waiting'});
         var node = genro.nodeById(nodeId);
@@ -63,7 +63,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         genro.callAfter(function(){
             var newcontent = newpage._value.getNodeByAttr('nodeId',nodeId)._value;
             node.setValue(newcontent);
-        },20,this,'reloading');
+        },20,this,'reloadingPageSource');
        
     },
 
@@ -486,13 +486,14 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         var attributes = node.registerNodeDynAttr(false);
         var tag = objectPop(attributes, 'tag');
         var path = objectPop(attributes, 'path');
+        var value;
         if (tag == 'data' && attributes.remote) {
             attributes['method'] = objectPop(attributes, 'remote');
             tag = 'dataRemote';
         }
         if (tag == 'data') {
             path = node.absDatapath(path);
-            var value = node.getValue('static');
+            value = node.getValue('static');
             node._value = null;
             if (value instanceof gnr.GnrBag) {
                 value.clearBackRef();
@@ -513,6 +514,13 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             }
         } else if (tag == 'dataRemote') {
             node._dataprovider = tag;
+            var isResolved = objectPop(node.attr,'_resolved');
+            if(isResolved){
+                value = node.getValue('static');
+                path = node.absDatapath(path);
+                node._value = null;
+                node._resolvedValue = value;
+            }
             node.setDataNodeValue();
         } else {         
             var initialize = objectPop(attributes, '_init');

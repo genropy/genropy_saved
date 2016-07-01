@@ -84,7 +84,7 @@ class Table(object):
         
         tbl.formulaColumn('__protected_by_author',"""
             CASE WHEN :env_orgn_author_only IS NOT TRUE THEN string_to_array(:env_userTags,',') @> string_to_array(COALESCE(:env_orgn_superuser_tag,''),',')
-            ELSE TRUE END
+            ELSE $author_user_id!=:env_user_id END
             """,dtype='B')
         tbl.pyColumn('calc_description',name_long='!!Calc description',required_columns='calculated_date_due,time_due,$action_type_description,$following_actions')
 

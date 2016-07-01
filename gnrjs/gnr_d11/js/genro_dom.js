@@ -28,7 +28,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
 
     constructor: function(application) {
         this.application = application;
-        this.css3AttrNames = ['rounded','gradient','shadow','transform','transition','zoom'];
+        this.css3AttrNames = ['rounded','gradient','shadow','transform','transition','zoom','filter'];
         this.styleAttrNames = ['height', 'width','top','left', 'right', 'bottom', 'resize',
             'visibility','opacity', 'overflow', 'float', 'clear', 'display',
             'z_index', 'border','position','padding','margin','cursor',
@@ -84,7 +84,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 setFunc();
             }
         } else { // w3c
-            var cssText = document.createTextNode(cssText);
+            cssText = document.createTextNode(cssText);
             style.appendChild(cssText);
         }
         document.getElementsByTagName("head")[0].appendChild(style);
@@ -429,6 +429,15 @@ dojo.declare("gnr.GnrDomHandler", null, {
         this.style_setall('overflow', styledict, attributes, noConvertStyle);
         return styledict;
     },
+    css3style_filter:function(value,valuedict, styledict,noConvertStyle){
+        var result='';
+        var key= dojo.isSafari?'-webkit-filter':'-moz-filter';
+        if('rotate' in valuedict){result+='hue-rotate('+(valuedict['rotate']||'0')+'deg) ';}
+        if('invert' in valuedict){result+='invert('+(valuedict['invert']||'0')+') ';}
+        if('contrast' in valuedict){result+='contrast('+(valuedict['contrast']||'0')+') ';}
+
+        styledict[key] =(styledict[key] || '') + result;
+    },
     css3style_zoom:function(value,valuedict, styledict,noConvertStyle){
         if (dojo.isSafari){
             styledict['zoom'] = value;
@@ -638,7 +647,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
     setSelectorStyle: function(selector, kw, path) {
         var path = path || 'gnr.stylesheet';
         var selectorbag = this.css_selectors[selector];
-        for (st in kw) {
+        for (var st in kw) {
             selectorbag.setItem(st, kw[st]);
         }
     },
@@ -672,13 +681,13 @@ dojo.declare("gnr.GnrDomHandler", null, {
         return result;
     },
     styleToBag:function(s) {
-        result = new gnr.GnrBag();
+        var result = new gnr.GnrBag();
         var rule;
         // for (var i=0; i < s.length; i++) {
         //     st = s[i];
         //     result.setItem(st, s.getPropertyValue(st)); 
         // };
-        for (var i = s.length; s--;) {
+        for (var i = s.length; i>=0 ;i--) {
             var st = s[i];
             result.setItem(st, s.getPropertyValue(st));
         }
@@ -1654,6 +1663,15 @@ dojo.declare("gnr.GnrDomHandler", null, {
             domNode.style.transform = "scale("+zoom_x+","+zoom_y+")";   //Math.min(zoom_x,zoom_y);
             domNode.style.transformOrigin = '0';
         },50);
+    },
+    setEventListener:function(domNode,evtname,cb,capture,code){
+        code = code || evtname;
+        var oldlistener = domNode['_listener_'+code];
+        if(oldlistener){
+            domNode.removeEventListener(evtname,oldlistener[0],oldlistener[1]);
+        }
+        domNode['_listener_'+code] = [cb,capture];
+        domNode.addEventListener(evtname,cb,capture);
     }
 
 

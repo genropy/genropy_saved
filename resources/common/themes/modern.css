@@ -15,7 +15,7 @@
 }
 
 ._common_d11 .dojoxDockNode {
-    -moz-border-radius: 3px 3px 3px 3px;
+    border-radius:2px;
     border: 1px solid #ADADAD;
     cursor: pointer;
     float: left;
@@ -41,42 +41,42 @@
 }
 
 ._common_d11 .dojoxFloatingPane {
-    border-radius: 4px;
+    border-radius: 2px;
     box-shadow: 3px 3px 4px #666;
     border-color:silver;
 }
 
 ._common_d11.tundra .dojoxFloatingPaneTitle {
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#5B6F8D), to(#224272));
-    background-image: -moz-linear-gradient(-90deg, #5B6F8D, #224272);
+    background-color: #711B2A;
     vertical-align: middle;
     text-align: center;
     color: #f6f6f6;
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
+    background-image:none;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
     padding-top: 2px;
     padding-bottom: 3px;
     border:0;
 }
+.slotbar_toolbar_standard{
+    background-image: none;
+    background-color:#E4E4E4;
+}
 
 ._common_d11.tundra.theme_variant_green .dojoxFloatingPaneTitle{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#54AC45), to(#306227));
-    background-image: -moz-linear-gradient(-90deg, #54AC45, #306227);
+    background-color: #306227;
 }
 
 ._common_d11.tundra.theme_variant_red .dojoxFloatingPaneTitle{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#AF0D1E), to(#660712));
-    background-image: -moz-linear-gradient(-90deg, #AF0D1E, #660712);
+    background-color: #660712;
 }
 
 ._common_d11.tundra.theme_variant_orange .dojoxFloatingPaneTitle{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#D25D09), to(#863B06));
-    background-image: -moz-linear-gradient(-90deg, #D25D09, #863B06);
+    background-color: #FF5226;
 }
 
 ._common_d11.tundra.theme_variant_yellow .dojoxFloatingPaneTitle{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#BBA713), to(#86770E));
-    background-image: -moz-linear-gradient(-90deg, #BBA713, #86770E);
+    background-color: #86770E;
 }
 
 
@@ -91,7 +91,7 @@
 /* @group top */
 
 .pbl_username {
-    border-radius: 6px;
+    border-radius: 2px;
     background-color: #bfb6ae;
     color: #403b3b;
     font-size: 0.9em;
@@ -112,30 +112,25 @@
     height: 22px;
     vertical-align: middle;
     color: white;
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#5B6F8D), to(#224272));
-    background-image: -moz-linear-gradient(-90deg, #5B6F8D, #224272);
+    background-color: #711B2A;
 }
 
 
 
 .theme_variant_green .pbl_root_top{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#54AC45), to(#306227));
-    background-image: -moz-linear-gradient(-90deg, #54AC45, #306227);
+    background-color: #306227;
 }
 
 .theme_variant_red .pbl_root_top{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#AF0D1E), to(#660712));
-    background-image: -moz-linear-gradient(-90deg, #AF0D1E, #660712);
+    background-color: #660712;
 }
 
 .theme_variant_orange .pbl_root_top{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#D25D09), to(#863B06));
-    background-image: -moz-linear-gradient(-90deg, #D25D09, #863B06);
+    background-color:#FF5226;
 }
 
 .theme_variant_yellow .pbl_root_top{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#BBA713), to(#86770E));
-    background-image: -moz-linear-gradient(-90deg, #BBA713, #86770E);
+    background-color:#86770E;
 }
 
 
@@ -151,7 +146,7 @@
     background: white;
     margin: 2px;
     border:1px solid #ddd ;
-    border-radius: 6px;
+    border-radius: 2px;
 }
 
 /* @group Logo */
@@ -190,8 +185,7 @@
 }
 .pbl_root_bottom {
     vertical-align: middle;
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#5B6F8D), to(#224272));
-    background-image: -moz-linear-gradient(-90deg, #5B6F8D, #224272);
+    background-color: #711B2A;
 }
 
 
@@ -212,22 +206,20 @@
 .pbl_viewBox {
     padding: 5px;
 
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
     background-color: rgba(170, 190, 201, 0.2);
 }
 
 .pbl_viewBoxLabel {
     height: 18px;
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
     padding-left: 10px;
     font-size: 0.9em;
     padding-top: 3px;
     padding-bottom: 2px;
     background-color: rgba(177,191,206,0.9);
-    background-image: -webkit-gradient(linear, left top, right bottom, from(rgba(177,191,206,0.9)), to(rgba(254,255,255,0.9)));
-    background-image: -moz-linear-gradient(180deg, rgba(254,255,255,0.9), rgba(177,191,206,0.9));
     color: #000;
 }
 
@@ -237,11 +229,10 @@
 
 /* @group Form group */
 .gnr_footer{
-    background-image: -webkit-gradient(linear,  0% 0%, 0% 90%, from(rgb(190, 196, 204)), to(rgb(217, 227, 233)));
-    background-image: -moz-linear-gradient(0deg, rgb(190, 196, 204), rgb(217, 227, 233));
+    background-color: rgb(217, 227, 233);
 }
 .pbl_roundedBlock{
-    border-radius: 6px;
+    border-radius: 2px;
     position: absolute;
     top:2px;
     bottom:2px;
@@ -251,7 +242,7 @@
 }
 
 .pbl_roundedGroup {
-    border-radius: 6px;
+    border-radius: 2px;
     border:1px solid #ddd;
 }
 
@@ -261,18 +252,15 @@
     padding-bottom: 0;
     padding-left: 4px;
     padding-right: 4px;
-    background-color: #49637c;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
     font-size: 0.9em;
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#C8D1DC), to(#B4BECB));
-    background-image: -moz-linear-gradient(-90deg, #C8D1DC, #B4BECB);
+    background-color:#D9E9FC;
     color: #555;
 	text-indent: 2px;
 }
 .pbl_roundedGroupVertical {
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 0, from(#C8D1DC), to(#B4BECB));
-    background-image: -moz-linear-gradient(0deg, #C8D1DC, #B4BECB);
+    background-color: #D9E9FC;
 }
 
 
@@ -298,7 +286,7 @@
 }
 .tundra._common_d11 .dijitButtonText{
     text-align: center;
-    padding: 0 0.4em;
+    padding: 1px 0.4em;
     color: #444;
 }
 
@@ -306,8 +294,7 @@
     height: 18px;
     padding-left: 10px;
     font-size: 0.9em;
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#C8D1DC), to(#B4BECB));
-    background-image: -moz-linear-gradient(-90deg, #C8D1DC, #B4BECB);
+    background-color:#B4BECB;
 }
 
 /* @end */
@@ -321,12 +308,10 @@
 
 .pbl_rectGroupLabel {
     height: 18px;
-    background-color: #49637c;
     padding-left: 10px;
     font-size: 0.9em;
     padding-top: 5px;
-    background-image: -webkit-gradient(linear, left top, right bottom, from(rgba(73, 99, 124, 99)), to(rgba(225, 233, 233, 0.99)));
-    background-image: -moz-linear-gradient(180deg, rgba(238,245,254, 99), rgba(73, 99, 124, 0.99));
+    background-color:#D9E9FC;
     color: #feffff;
 }
 
@@ -335,7 +320,7 @@
     padding-left: 10px;
     font-size: 0.9em;
     padding-bottom: 5px;
-    background-color: #B2BDC7
+    background-color:#D9E9FC;
 }
 
 /* @end */
@@ -360,7 +345,7 @@
     vertical-align: middle;
     font-size: 1em;
     padding-top: 2em;
-    border-radius: 6px;
+    border-radius: 2px;
 }
 
 .alertBodyMessage{
@@ -370,12 +355,12 @@
 /* @end */
 
 .tundra._common_d11 .dijitDialogTitleBar {
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#5B6F8D), to(#224272));
-    background-image: -moz-linear-gradient(-90deg, #5B6F8D, #224272);
+    background-color:#711B2A;
     color: #ffffff;
+    background-image:none;
     vertical-align: middle;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
     text-align: center;
     font-weight:normal;
     border-bottom:1px solid #ccc;
@@ -383,23 +368,19 @@
 }
 
 .tundra._common_d11.theme_variant_green .dijitDialogTitleBar{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#54AC45), to(#306227));
-    background-image: -moz-linear-gradient(-90deg, #54AC45, #306227);
+    background-color: #306227;
 }
 
 .tundra._common_d11.theme_variant_red .dijitDialogTitleBar{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#AF0D1E), to(#660712));
-    background-image: -moz-linear-gradient(-90deg, #AF0D1E, #660712);
+    background-color:#660712;
 }
 
 .tundra._common_d11.theme_variant_orange .dijitDialogTitleBar{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#D25D09), to(#863B06));
-    background-image: -moz-linear-gradient(-90deg, #D25D09, #863B06);
+    background-color: #FF5226;
 }
 
 .tundra._common_d11.theme_variant_yellow .dijitDialogTitleBar{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#BBA713), to(#86770E));
-    background-image: -moz-linear-gradient(-90deg, #BBA713, #86770E);
+    background-color:#86770E;
 }
 
 /*._common_d11 .dijitDialogCloseIcon {
@@ -478,11 +459,11 @@
 
 ._common_d11 .dijitTab {
     font-size: .9em;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
 
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#C8D1DC), to(#B4BECB));
-    background-image: -moz-linear-gradient(-90deg, #C8D1DC, #B4BECB);
+    background-color:#D9E9FC;
+    background-image: none;
     margin-right: 2px;
     color: #444;
     font-weight: plain;
@@ -518,7 +499,7 @@
 }
 
 ._common_d11 .dijitTabPaneWrapper {
-    border-radius: 6px;
+    border-radius: 2px;
     border-top-left-radius: 0px;
 }
 
@@ -526,8 +507,8 @@
 
 ._common_d11 .dijitTabLabels-right-h .dijitTab {
 
-    border-bottom-right-radius: 6px;
-    border-top-right-radius: 6px;
+    border-bottom-right-radius: 2px;
+    border-top-right-radius: 2px;
     border-bottom-left-radius: 0px;
     border-top-left-radius: 0px;
 }
@@ -572,28 +553,18 @@
 /* @group tootlipDialog */
 
 ._common_d11 .dijitTooltipDialog .dijitTooltipContainer {
-    border-radius: 4px;
+    border-radius: 2px;
     padding: 0px;
     border: 1px solid silver;
     font-size: inherit;
     -webkit-box-shadow:3px 3px 5px #adadad !important;
     -webkit-box-shadow:3px 3px 5px #adadad !important;
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#FFFFFF), to(#f6f6f6));
-    background-image: -moz-linear-gradient(-90deg, #FFFFFF, #f6f6f6);
+    background-color:#f6f6f6;
 }
 
 /* @end */
 
 /* @group MenuTree */
-
-.menutree .opendir{
-    width: 12px;
-    background: url(/_gnr/11/css/icons/base10/tinyOpenBranch_white.png) no-repeat center center;
-}
-.menutree .closedir{
-    width: 12px;
-    background: url(/_gnr/11/css/icons/base10/tinyCloseBranch_white.png) no-repeat center center;
-}
 
 .menu_page  > a {
     color: #FFFFFF;
@@ -631,28 +602,21 @@
 }
 
 .menutree .menu_shape {
-    border-bottom-right-radius: 4px;
-    border-top-right-radius: 4px;
-    padding-top: 3px;
-    line-height: 18px;
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#C8D1DC), to(#B4BECB));
-    background-image: -moz-linear-gradient(-90deg, #C8D1DC, #B4BECB);
+    padding-top: 6px;
+    line-height: 11px;
     margin-right: 8px;
-    box-shadow: 2px 2px 2px #403b3b;
-    margin-top: 4px;
+    margin-top: 0px;
     color: #444;
 }
 
 .menutree .menu_current_page {
-    background:#488fd7;
-    color:#ddd;
+    color:#444;
 }
 .menutree .menu_existing_page.menu_shape  {
     font-weight:bold;
 }
 
 .menutree .menu_shape:hover {
-    box-shadow: 3px 3px 2px #403b3b;
 }
 
 /* @end */
@@ -714,7 +678,7 @@
     padding: 5px;
     background-color: #f6f6f6;
     box-shadow: rgb(158, 133, 111) 2px 2px 2px;
-    border-radius: 6px;
+    border-radius: 2px;
 }
 
 /* @end */
@@ -872,8 +836,7 @@
 
 
 ._common_d11.tundra .dojoxGrid-header{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#d8d8d8), to(#f6f6f6));
-    background-image: -moz-linear-gradient(-90deg, #d8d8d8, #f6f6f6);
+    background-color: #f6f6f6;
     border-color:#666 !important;
     border-bottom:1px solid silver !important;
 }
@@ -924,7 +887,7 @@
 }
 
 .buttons_grid .cellContent{
-    border-radius:4px;
+    border-radius:2px;
     margin-top:0;
     margin-right:0px;
     text-align:center;
@@ -934,8 +897,7 @@
     font-size: 8pt;
     font-variant:small-caps;
     color:#333;
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EDEDEE), to(#CDCDCD));
-    background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);
+    background-color: #CDCDCD;
     border: 1px solid #666;
     cursor:pointer;
     margin-top:2px;
@@ -998,3 +960,120 @@
     opacity: 1;
 }
 
+.framedindex_tablist{
+    background-image: none;
+    background-color: #555;
+}
+
+.multibutton:last-child{
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-right: 1px solid #666;
+}
+.multibutton:first-child{
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+.multibutton_selected.multibutton, .multibutton:active{
+    -moz-box-shadow: none;
+    -webkit-box-shadow:none;
+}
+.multibutton{
+    background-image: none;
+    background-color: #EDEDEE;
+
+    /*line-height:20px;
+    font-size: 9pt;
+    font-variant:small-caps;*/
+}
+
+.iframetab:last-child{
+    -moz-border-radius-topright: 4px;
+    -moz-border-radius-bottomright: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+.iframetab:first-child{
+    -moz-border-radius-topleft: 4px;
+    -moz-border-radius-bottomleft: 4px;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+.iframesubtab.iframetab{
+    background-image: none;
+    background-color: #A6CAEE;
+    background-image: -moz-linear-gradient(-90deg, #A6CAEE, #467399);
+}
+
+
+.iframetab_selected.iframetab{
+    -moz-box-shadow:none;
+    box-shadow:none;   
+}
+.iframetab_selected.iframesubtab.iframetab{
+    background-color: #467399;
+    background-image: none;
+}
+.iframetab{
+    background-image:none; 
+    background-color: #EDEDEE;
+}
+
+
+.tundra .dijitButtonNode {
+    /* enabled state - inner */
+    background-color: #E4E4E4;
+    background-image: none;
+    border-radius: 2px;
+}
+
+.tundra .dijitButtonHover .dijitButtonNode,
+.tundra .dijitButtonNodeHover,
+.tundra .dijitToggleButtonHover .dijitButtonNode,
+.tundra .dijitDropDownButtonHover .dijitButtonNode,
+.tundra .dijitComboButton .dijitButtonContentsHover,
+.tundra .dijitComboButton .dijitDownArrowButtonHover {
+    /* hover state - inner */
+    /* TODO: change from Hover to Selected so that button is still highlighted while drop down is being used */
+    border-color: #666;
+    background-image: none;
+    background-color:#E4E4E4;
+}
+
+.tundra .dijitButton.dijitButtonActive .dijitButtonNode,
+.tundra .dijitButtonNodeActive,
+.tundra .dijitToggleButtonActive .dijitButtonNode,
+.tundra .dijitDropDownButtonActive .dijitButtonNode,
+.tundra .dijitComboButton .dijitButtonContentsActive,
+.tundra .dijitComboButton .dijitDownArrowButtonActive{
+    /* hover state - inner */
+    /* TODO: change from Hover to Selected so that button is still highlighted while drop down is being used */
+    /*background-image: -webkit-gradient(linear, 0% 0%, 0% 90%,  from(rgba(182, 182, 182, 0.75)),to(rgba(239, 239, 239, 0.9)));
+    background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75),rgba(239, 239, 239, 0.9));*/
+    background:#888;
+    -moz-box-shadow: inset 1px 1px 2px #222;
+    -webkit-box-shadow:inset 1px 1px 2px #222;
+    border-color: silver;
+}
+.tundra .dijitDisabled.dijitTextBoxReadOnly,
+.tundra .dijitDisabled.dijitTextBoxReadOnly .dijitButtonNode,
+.tundra .dijitDisabled.dijitButtonDisabled .dijitButtonNode,
+.tundra .dijitDisabled.dijitToggleButtonDisabled .dijitButtonNode,
+.tundra .dijitDisabled.dijitDropDownButtonDisabled .dijitButtonNode,
+.tundra .dijitDisabled.dijitComboButtonDisabled .dijitButtonNode,
+.tundra .dijitDisabled.dijitTextBoxDisabled,
+.tundra .dijitDisabled.dijitComboBoxDisabled,
+.tundra .dijitDisabled.dijitTextBoxDisabled .dijitButtonNode ,
+.dijitTextArea.dijitTextAreaDisabled.dijitDisabled{
+    /* disabled state - inner */
+    border-color: #dedede;
+    background-image: none;
+    opacity: .8;
+    /*background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EEEEEE), to(#EDEDEE));
+    background-image: -moz-linear-gradient(-90deg, #EEEEEE, #EDEDEE);*/
+}
+.fakeButton{
+    background-image: none;
+    background-color: #E4E4E4;
+    cursor:pointer;
+}

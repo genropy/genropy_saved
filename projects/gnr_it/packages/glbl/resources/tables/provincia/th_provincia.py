@@ -45,7 +45,7 @@ class View(BaseComponent):
         top.bar.replaceSlots('searchOn','searchOn,sections@zone')
 
     def th_options(self):
-        return dict(virtualStore=False)
+        return dict() #virtualStore=False
         
 
 class ViewFromRegione(BaseComponent):    

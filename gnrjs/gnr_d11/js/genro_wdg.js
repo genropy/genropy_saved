@@ -1239,7 +1239,7 @@ dojo.declare("gnr.GridEditor", null, {
                 var result = this.callRemoteControllerBatch(rows,kw);
                 this._pendingRemoteController = null;
                 this.grid.sourceNode.publish('remoteRowControllerDone',{result:result});
-            },1,this,'callRemoteControllerBatch');
+            },1,this,'callRemoteControllerBatch_'+this.grid.sourceNode._id);
             return;
         }
         var that = this;
@@ -1494,6 +1494,15 @@ dojo.declare("gnr.GridEditor", null, {
                 };
             var cellNext = widget.cellNext; //|| 'RIGHT'; dannoso
             widget.cellNext = null;
+            //START Safari checkbox in cell bugfix
+            if(dojo.isSafari && widget && widget.focusNode && widget.focusNode.type=='checkbox'){
+                if(genro._lastMouseEvent.mousedown.target===widget.focusNode){
+                    widget.focus();
+                    return;
+                }
+            }
+            //END Safari checkbox in cell bugfix
+
             setTimeout(function(){
                 gridEditor.endEdit(widget,deltaDict[cellNext],editingInfo);
             },1);
@@ -1557,17 +1566,25 @@ dojo.declare("gnr.GridEditor", null, {
         }
 
     },
+    
     editableCell:function(col,row,clicked) {
         var cell = this.grid.getCell(col);
         if (!(cell.field in this.columns)){return false;}
         if ((cell.classes || '').indexOf('hiddenColumn')>=0){return false}
         this.grid.currRenderedRowIndex = row;
-        if(!clicked && this.grid.sourceNode.currentFromDatasource(cell.editLazy)){
+        if(this.grid.sourceNode.currentFromDatasource(cell.editDisabled)){
             return false;
+        }else if(clicked){
+            return true;
+        }else if(this.grid.sourceNode.currentFromDatasource(cell.editLazy)){
+            var editpars = cell.edit==true?{}:this.grid.sourceNode.evaluateOnNode(cell.edit);
+            return (editpars.validate_notnull && this.grid.rowByIndex(row)[cell.field]===null);
+        }else{
+            return true;
         }
-        return !this.grid.sourceNode.currentFromDatasource(cell.editDisabled)
+       
     },
-    
+
     onExternalChange:function(pkey){
         var rowEditor = this.grid.getRowEditor({rowId:pkey});
         if(rowEditor){
@@ -1646,12 +1663,12 @@ dojo.declare("gnr.GridChangeManager", null, {
         }
     },
 
-
     resolveTotalizeColumns:function(){
         for(var k in this.totalizeColumns){
             this.updateTotalizer(k);
         }
     },
+    
     updateTotalizer:function(k){
         this.sourceNode.setRelativeData(this.grid.cellmap[k].totalize,this.data.sum(this.grid.datamode=='bag'?k:'#a.'+k));
     },

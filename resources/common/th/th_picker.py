@@ -15,7 +15,7 @@ class THPicker(BaseComponent):
 
     @struct_method
     def pk_palettePicker(self,pane,grid=None,table=None,relation_field=None,paletteCode=None,
-                         viewResource=None,searchOn=True,multiSelect=True,
+                         viewResource=None,searchOn=True,multiSelect=True,structure_field=None,
                          title=None,autoInsert=None,dockButton=None,picker_kwargs=None,
                          height=None,width=None,checkbox=False,defaults=None,**kwargs):
         
@@ -62,7 +62,7 @@ class THPicker(BaseComponent):
                                             searchOn=searchOn,multiSelect=multiSelect,title=title,
                                             dockButton=dockButton,height=height,
                                             width=width,condition=condition,condition_kwargs=condition_kwargs,
-                                            checkbox=checkbox,structure_field = picker_kwargs.get('structure_field'),
+                                            checkbox=checkbox,structure_field = structure_field or picker_kwargs.get('structure_field'),
                                             uniqueRow=picker_kwargs.get('uniqueRow',True),
                                             top_height=picker_kwargs.get('top_height'))
 
@@ -77,7 +77,9 @@ class THPicker(BaseComponent):
                     oneJoiner = formtblobj.model.getJoiner(maintable)
                     one = oneJoiner.get('many_relation').split('.')[-1]
                 controller = "THPicker.onDropElement(this,data,mainpkey,rpcmethod,treepicker,tbl,one,many,grid,defaults)" if autoInsert is True else autoInsert
-                grid.dataController(controller,data='^.dropped_%s' %paletteCode,mainpkey='=#FORM.pkey' if formNode else None,
+                grid.dataController(controller,data='^.dropped_%s' %paletteCode,
+                    droppedInfo='=.droppedInfo_%s' %paletteCode,
+                    mainpkey='=#FORM.pkey' if formNode else None,
                         rpcmethod=method,treepicker=treepicker,tbl=maintable,
                         one=one,many=many,grid=grid.js_widget,defaults=defaults)  
         return palette
@@ -135,7 +137,7 @@ class THPicker(BaseComponent):
                         ).htableViewStore(table=structure_tblobj.fullname)
 
             paletteth.view.store.attributes.update(where = """
-                                                        ( (:selected_pkey IS NOT NULL) AND (@%s.hierarchical_pkey ILIKE (:hierarchical_pkey || '%s') )  
+                                                        ( (:selected_pkey IS NOT NULL) AND (@%s.hierarchical_pkey ILIKE (:hierarchical_pkey || '%s') OR :hierarchical_pkey IS NULL)  
                                                             OR ( ($%s IS NULL) AND (:selected_pkey IS NULL) ) )
                                                     """ %(structure_field,'%%',structure_field),
                                   hierarchical_pkey='^#ANCHOR.structuretree.tree.hierarchical_pkey',

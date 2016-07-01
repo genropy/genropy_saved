@@ -42,6 +42,13 @@ class GnrCustomWebPage(object):
         """APPLICATION PREFERENCE BUILDER"""
         self.controllers(rootBC)
         self.bottom(rootBC.contentPane(region='bottom', _class='dialog_bottom'))
+        rootBC.dataController("""
+            var tkw = _triggerpars.kw;
+            if(tkw.reason && tkw.reason.attr && tkw.reason.attr.livePreference){
+                genro.publish({topic:'externalSetData',
+                iframe:'*',parent:true},{path:'gnr.app_preference.'+tkw.pathlist.slice(2).join('.'),value:tkw.value});
+            }""",
+                                preference='^preference')
         tc = rootBC.tabContainer(region='center', datapath='preference', formId='preference',margin='2px')
         for pkg in self.db.packages.values():
             permmissioncb = getattr(self, 'permission_%s' % pkg.name, None)

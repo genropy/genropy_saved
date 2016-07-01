@@ -98,7 +98,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     
     getParentWidget:function(tagToFind) {
-		var tag=tagToFind?tagToFind.toLowerCase():none;
+        var tag=tagToFind?tagToFind.toLowerCase():none;
         var parentNode = this.getParentNode();
         if (parentNode) {
             return (parentNode.widget && (!tag || ((parentNode.attr.tag ||'' ).toLowerCase()==tag)))?parentNode.widget : parentNode.getParentWidget(tagToFind);
@@ -420,20 +420,27 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         else {
             if (if_result) {
-                var method = expr;
+                method = expr;
                 var cacheTime = objectPop(attributes, 'cacheTime', -1);
                 var isGetter = objectPop(attributes, 'isGetter', false);
                 attributes.sync = ('sync' in attributes) ? attributes.sync : true;
                 attributes['_sourceNode'] = this;
+                var resolvedValue = this._resolvedValue;
                 var resolver = genro.rpc.remoteResolver(method, attributes, {'cacheTime':cacheTime,
                     'isGetter':isGetter});
                 dataNode.setValue(resolver, true, attributes);
+                if(resolvedValue){
+                    dataNode._status = 'loaded';
+                    dataNode.setValue(resolvedValue,'resolver');
+                    dataNode._resolver.lastUpdate = new Date();
+                    delete this._resolvedValue;
+                }
             }
         }
         
     },
     setAttributeInDatasource: function(attrname, value, doTrigger, attributes, forceChanges) {
-        var doTrigger = (doTrigger == null) ? this:doTrigger;
+        doTrigger = (doTrigger == null) ? this:doTrigger;
         var path = this.attrDatapath(attrname);
         var old_value = genro._data.getItem(path);
         //if (forceChanges){
@@ -709,6 +716,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if (this.attr.href) {
             genro.dom.loadCss(this.attr.href, this.attr.cssTitle);
         } else {
+            console.log('_bld_stylesheet',this.getValue())
             genro.dom.addStyleSheet(this.getValue(), this.attr.cssTitle);
         }
     },

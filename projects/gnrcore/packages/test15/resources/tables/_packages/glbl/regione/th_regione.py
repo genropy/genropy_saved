@@ -51,10 +51,14 @@ class TestDyinCheckboxForm(BaseComponent):
     def th_form(self,form):
         fb = form.record.formbuilder(cols=1,border_spacing='3px')
         fb.field('nome')
+        fb.checkbox(value='^.$mandatory',label='Mandatory')
+        fb.checkbox(value='^.$disabled',label='Disabled')
+
         fb.checkBoxText(value='^.province_principali_sigla',#values='MI:Milano,CO:Como,SO:Sondrio')
                         table='glbl.provincia',
                         condition='$regione=:reg',condition_reg='^.sigla' ,popup=True,
-                        lbl='AAA')
+                        lbl='AAA',validate_notnull='^.$mandatory',
+                        disabled='^.$disabled')
 
 
 class TestDyinCheckboxTree(BaseComponent):

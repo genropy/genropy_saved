@@ -725,7 +725,8 @@ class GnrWsgiSite(object):
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='RESOURCE')
             try:
                 page = self.resource_loader(path_list, request, response, environ=environ,request_kwargs=request_kwargs)
-                page.download_name = download_name
+                if page:
+                    page.download_name = download_name
             except WSGIHTTPException, exc:
                 return exc(environ, start_response)
             except Exception, exc:
@@ -1145,7 +1146,7 @@ class GnrWsgiSite(object):
 
     def sqlDebugger(self,**kwargs):
         page = self.currentPage
-        if page and (self.debug or page.isDeveloper()):
+        if page and self.debug:
             page.dev.sqlDebugger.output(page, **kwargs)
             page.sql_count = page.sql_count + 1
             page.sql_time = page.sql_time + kwargs.get('delta_time',0)

@@ -1193,7 +1193,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """
         return self.child('dataRpc', path=path, table=table, pkey=pkey, method=method, **kwargs)
         
-    def dataRemote(self, path, method, **kwargs):
+    def dataRemote(self, path, method,_resolved=None, **kwargs):
         """Create a :ref:`dataremote` and returns it. dataRemote is a synchronous :ref:`datarpc`:
         it calls a (specified) dataRspc as its resolver. When ``dataRemote`` is brought to the
         client, it will be changed in a Javascript resolver that at the desired path perform
@@ -1204,7 +1204,13 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param \*\*kwargs: *cacheTime=NUMBER*: The cache stores the retrieved value and keeps
                            it for a number of seconds equal to ``NUMBER``
         """
-        return self.child('dataRemote', path=path, method=method, **kwargs)
+        childcontent =None
+        if _resolved:
+            resolved_kwargs = dictExtract(kwargs,'_resolved_',pop=True)
+            kw = dict(kwargs)
+            kw.update(resolved_kwargs)
+            childcontent = method(**kw)
+        return self.child('dataRemote', path=path, method=method,childcontent=childcontent,_resolved=_resolved, **kwargs)
         
     def dataResource(self, path, resource=None, ext=None, pkg=None):
         """Create a :ref:`dataresource` and returns it. dataResource is a :ref:`dataRemote`
@@ -1312,6 +1318,12 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 ivattr['onDrop_%s' % dropCode] = 'SET .droppedInfo_%s = dropInfo; FIRE .dropped_%s = data;' % (dropCode,dropCode)
                 #ivattr['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" % dropCode
                 
+    def newincludedview_footer(self,**kwargs):
+        return self.child('footer',**kwargs)
+
+    def footer_item(self,field=None,**kwargs):
+        return self.child('item',field=field,**kwargs)
+
     def newincludedview_draganddrop(self,dropCodes=None,**kwargs):
         self.includedview_draganddrop(dropCodes=dropCodes,**kwargs)
         

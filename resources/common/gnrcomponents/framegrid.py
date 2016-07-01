@@ -103,13 +103,19 @@ class FrameGridSlots(BaseComponent):
                                 
 class FrameGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGridSlots'
-    @extract_kwargs(top=True,grid=True)
+    @extract_kwargs(top=True,grid=True,columnset=dict(slice_prefix=False),footer=dict(slice_prefix=False))
     @struct_method
     def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,dynamicStorepath=None,structpath=None,
                     datamode=None,table=None,grid_kwargs=True,top_kwargs=None,iconSize=16,
+                    footer_kwargs=None,columnset_kwargs=None,footer=None,columnset=None,fillDown=None,
                     _newGrid=None,**kwargs):
         pane.attributes.update(overflow='hidden')
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
+        grid_kwargs.setdefault('fillDown', fillDown)
+        grid_kwargs.update(footer_kwargs)
+        grid_kwargs.update(columnset_kwargs)
+        grid_kwargs.setdefault('footer',footer)
+        grid_kwargs['columnset'] = columnset
         grid_kwargs.setdefault('_newGrid',_newGrid)
         grid_kwargs.setdefault('structpath',structpath)
         grid_kwargs.setdefault('sortedBy','^.sorted')

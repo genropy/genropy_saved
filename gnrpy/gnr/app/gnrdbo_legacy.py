@@ -149,15 +149,13 @@ class DynamicFieldsTable(GnrDboTable):
         mastertbl =  model.src['packages.%s.tables.%s' %(pkgname,mastertblname)]
         mastertbl.attributes['df_fieldstable'] = '%s.%s' %(pkgname,tblname)
         mastertbl_name_long = mastertbl.attributes.get('name_long')
-        mastertbl_multidb = mastertbl.attributes.get('multidb')
         mastertbl.column('df_fbcolumns','L',group='_')
         mastertbl.column('df_custom_templates','X',group='_')
         tbl.attributes.setdefault('caption_field','description')
         tbl.attributes.setdefault('rowcaption','$description')
         tbl.attributes.setdefault('name_long','%s dyn field' %mastertbl_name_long)
         tbl.attributes.setdefault('name_plural','%s dyn fields' %mastertbl_name_long)
-
-        self.sysFields(tbl,id=True, ins=False, upd=False,counter='maintable_id',multidb=mastertbl_multidb)
+        self.sysFields(tbl,id=True, ins=False, upd=False,counter='maintable_id')
         tbl.column('id',size='22',group='_',name_long='Id')
         tbl.column('code',name_long='!!Code')
         tbl.column('default_value',name_long='!!Default value')

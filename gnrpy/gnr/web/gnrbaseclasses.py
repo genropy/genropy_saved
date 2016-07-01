@@ -224,7 +224,10 @@ class TableScriptToHtml(BagToHtml):
     @extract_kwargs(pdf=True)
     def writePdf(self,filepath=None, pdfpath=None,docname=None,pdf_kwargs=None,**kwargs):
         self.pdfpath = pdfpath or self.getPdfPath('%s.pdf' % docname, autocreate=-1)
-        self.print_handler.htmlToPdf(filepath or self.filepath, self.pdfpath, orientation=self.orientation(), page_height=self.page_height, page_width=self.page_width,pdf_kwargs=pdf_kwargs)
+        pdf_kw = dict([(k[10:],getattr(self,k)) for k in dir(self) if k.startswith('htmltopdf_')])
+        pdf_kw.update(pdf_kwargs)
+        self.print_handler.htmlToPdf(filepath or self.filepath, self.pdfpath, orientation=self.orientation(), page_height=self.page_height, 
+                                        page_width=self.page_width,pdf_kwargs=pdf_kw)
 
     def get_css_requires(self):
         """TODO"""

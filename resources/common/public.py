@@ -527,6 +527,8 @@ class TableHandlerMain(BaseComponent):
         for n in tblobj.model.relations:
             joiner =  n.attr.get('joiner')
             if joiner and joiner['mode'] == 'M':
+                if joiner.get('external_relation'):
+                    continue
                 rowdata = Bag()
                 fldlist = joiner['many_relation'].split('.')
                 tblname = fldlist[0:2]
