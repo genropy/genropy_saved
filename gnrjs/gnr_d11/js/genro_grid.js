@@ -2061,7 +2061,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
     },
 
-    mixin_fillServerTotalize(){
+    mixin_fillServerTotalize:function(){
 
     },
 
@@ -3453,7 +3453,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         selection.endUpdate();
     },
     
-    mixin_fillServerTotalize(){
+    mixin_fillServerTotalize:function(){
         var totalizeColumns = this.sourceNode._totalizeColumns;
         if(!objectNotEmpty(totalizeColumns)){
             return;
