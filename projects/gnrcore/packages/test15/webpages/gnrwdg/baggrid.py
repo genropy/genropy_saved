@@ -30,7 +30,7 @@ class GnrCustomWebPage(object):
         r.cell('colli',dtype='L',name='Colli',width='5em',edit=True)  
         r.cell('totale',dtype='L',name='Colli',width='5em',formula='colli*qty')  
         r.cell('cist',name='Codice istat')
-        r.cell('montano',dtype='B',edit=True)
+       # r.cell('montano',dtype='B',edit=True)
 
     def test_1_remotestruct(self,pane):
         """First test description"""
@@ -194,47 +194,21 @@ class GnrCustomWebPage(object):
        #f.item('gross')
        #f.item('vat')
 
-    def test_10_footersbug(self,pane):
-        def struct(struct):
-            r = struct.view().rows()
-            r.cell('description',name='Description',width='15em',edit=True)
+    def test_10_autorow(self,pane):
+        bc = pane.borderContainer(height='400px')
+        fb = bc.contentPane(region='top').formbuilder(cols=2,border_spacing='3px')
+        fb.checkbox(value='^autoInsert',label='autoInsert',default=True)
+        fb.checkbox(value='^autoDelete',label='autoDelete',default=True)
 
-            r.cell('number',name='Number',width='7em',dtype='L',
-                    edit=True)
-            r.cell('price',name='Price',width='7em',dtype='N',
-                    edit=True)
-            r.cell('total',name='Total',width='7em',dtype='N',formula='number*price',
-                    totalize='.sum_total',format='###,###,###.00')
-            r.cell('discount',name='Disc.%',width='7em',dtype='N',edit=True)
-            r.cell('discount_val',name='Discount',width='7em',dtype='N',formula='total*discount/100',
-                    columnset='disc')
-            r.cell('net_price',name='F.Price',width='7em',dtype='N',
-                        formula='total-discount_val',
-                        columnset='tot')
-            r.cell('vat',name='Vat',width='7em',dtype='N',
-                    formula='net_price+net_price*vat_p/100',formula_vat_p='^vat_perc',
-                    format='###,###,###.00',columnset='tot',hidden='^nascondi')
-            r.cell('gross',name='Gross',width='7em',dtype='N',formula='net_price+vat',
-                    totalize='.sum_gross',format='###,###,###.00')
+        fb.textbox(value='^.pippo',lbl='Pippo')
+        fb.textbox(value='^.pluto',lbl='Pluto')
 
+        bc.bagGrid(frameCode='test_10',title='AutoInsert',datapath='.mygrid',
+                            struct=self.gridstruct,region='center',
+                            storepath='.data',
+                            addrow='auto',delrow='auto',
+                            default_colli=4)
 
-        bc = pane.borderContainer(height='400px',width='800px')
-        top = bc.contentPane(region='top',height='40px')
-        top.checkbox(value='^nascondi',label='Nascondi')
-        fb = top.formbuilder(cols=2,border_spacing='3px')
-        bc.contentPane(region='right',splitter=True,width='5px')
-        bc.contentPane(region='bottom',splitter=True,height='50px')
-        fb.numberTextBox(value='^vat_perc',lbl='Vat perc.',default_value=10)
-        fb.button('clear',fire='.clear')
-        bc.dataFormula('.surfaces.store',"new gnr.GnrBag({r1:new gnr.GnrBag({description:'pipp'})})",_onStart=True,_fired='^.clear')
-        frame = bc.contentPane(region='center').bagGrid(frameCode='formule',datapath='.surfaces',
-                                                    struct=struct,height='300px',fillDown=True,
-                                                    pbl_classes=True,margin='5px',
-                              
-                                                    #footer=True,
-                                                    )
-
-        f = frame.grid.footer()
-        f.item('total',value='10',text_align='center')
-        f.item('gross',value='20')
-
+        fb = bc.contentPane(region='bottom').formbuilder(cols=2,border_spacing='3px')
+        fb.textbox(value='^.foo',lbl='foo')
+        fb.textbox(value='^.bar',lbl='bar')

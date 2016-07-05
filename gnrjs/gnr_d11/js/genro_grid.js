@@ -585,7 +585,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             attributes.autoHeight=true;
         }
         attributes.style=objectAsStyle(styleDict);
-        attributesToKeep = attributesToKeep + 'style,datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled,filteringGrid,editorSaveMethod';
+        attributesToKeep = attributesToKeep + 'style,datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled,filteringGrid,editorSaveMethod,autoInsert,autoDelete';
         var gridAttributes = objectExtract(attributes, attributesToKeep);
         objectPopAll(attributes);
         objectUpdate(attributes, gridAttributes);
@@ -786,9 +786,54 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         dojo.connect(sourceNode.widget,'setCellWidth',function(inIndex, inUnitWidth){
             this.structBag.getNodeByAttr('field',this.getCell(inIndex).original_field).updAttributes({width:inUnitWidth});
         });
+        dojo.connect(widget,'onFocus',function(){
+            this.changedFocus(true); 
+        });
+        dojo.connect(widget,'onBlur',function(){
+            this.changedFocus(false); 
+        });
+        if(sourceNode.attr.autoInsert){
+            dojo.connect(widget,'setStorepath',function(val,kw){
+                if(kw.evt=='upd' && kw.reason!='autoRow' && kw.node.label==this.gridEditor.masterEditColumn){
+                    if(!isNullOrBlank(kw.value) && isNullOrBlank(kw.oldvalue) && this.autoInsert){
+                        this.autoInsertHandler();
+                    }
+                }
+            });
+        }
+        
         setTimeout(function(){widget.updateRowCount('*');},1);
         
     },
+
+    mixin_setAutoInsert:function(autoInsert){
+        this.autoInsert = autoInsert;
+    },
+    mixin_setAutoDelete:function(autoDelete){
+        this.autoDelete = autoDelete;
+    },
+
+    mixin_changedFocus:function(focus){
+        genro.dom.setClass(this.domNode,'focusedGrid',focus);
+        this.sourceNode.setRelativeData('.focused',focus);
+        this.isFocused = focus;
+        if(this.autoInsert){
+            var that = this;
+            var wastabbed = genro._lastKeyDown?genro._lastKeyDown.code=='Tab':false;
+            setTimeout(function(){
+                var insertedNode = that.autoInsertHandler();
+                if(insertedNode){
+                    that.domNode.focus();//because lost focus after insert
+                }
+                if(wastabbed){
+                    that.editBagRow(genro._lastKeyDown.shiftKey?-1:0);
+                }
+            },1);
+            
+        }
+    },
+
+    mixin_autoInsertHandler:function(){},
 
     mixin_rowBagNodeByIdentifier:function(identifier){
         return this.storebag().getNodeByAttr(this.rowIdentifier(),pkey);
@@ -1095,7 +1140,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         return function(v, inRowIndex) {
             var renderedRow = this.grid.currRenderedRow;
             if(!objectNotEmpty(renderedRow)){
-                return '<div class="cellContent">' + '&nbsp;' + '</div>';;
+                return '<div class="cellContent">' + '&nbsp;' + '</div>';
             }
             var baseStyleDict = objectUpdate(objectFromStyle(this.cellStyles),
                                                      sourceNode.evaluateOnNode(genro.dom.getStyleDict(objectUpdate({},this), [ 'width'])))
@@ -2638,6 +2683,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         return idx;        
     },
     mixin_editBagRow: function(r, delay) {
+        if(r==-1){
+            r = this.storeRowCount()-1;
+        }
         if(r==null){
             var r = this.selection.selectedIndex;
         }
@@ -2932,6 +2980,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             if(cellmap[k].edit){
                 if(!this.gridEditor){
                     this.gridEditor = new gnr.GridEditor(this);
+                    this.gridEditor.masterEditColumn = k;
                 }
                 this.gridEditor.addEditColumn(cellmap[k].field,objectUpdate({},cellmap[k]));
             }else if(this.gridEditor){
@@ -3326,11 +3375,12 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
                 objectPop(row,identifier);
                 that.addBagRow('#id', null, that.newBagRow(row),evt)
             });
+        }else{
+            var that = this;
+            source.forEach(function(dflt){
+                firstRow = firstRow || that.addBagRow('#id', addrow_kwargs.position || '*', that.newBagRow(dflt),evt);
+            });
         }
-        var that = this;
-        source.forEach(function(dflt){
-            firstRow = firstRow || that.addBagRow('#id', addrow_kwargs.position || '*', that.newBagRow(dflt),evt);
-        });
         this.sourceNode.publish('onAddedRows');
         if(!duplicate){
             var doEdit = true;
@@ -3478,6 +3528,27 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     
     mixin_storebag:function(){
         return this.collectionStore().getData();
+    },
+
+    mixin_autoInsertHandler:function(){
+        var data = this.storebag();
+        var lastidx = data.len()-1;
+        var masterEditColumn = this.gridEditor.masterEditColumn;
+        var emptyRowCb = function(n){
+            return isNullOrBlank(n.getValue().getItem(masterEditColumn))
+        };
+        if(this.isFocused && !(lastidx>=0 && emptyRowCb(data.getNode('#'+lastidx)))){
+            return data.setItem('#id',this.newBagRow(),null,{doTrigger:'autoRow'});
+        }
+        else if(!this.isFocused && !this.gnrediting){
+            var idxToDel = [lastidx];
+            if(this.autoDelete){
+                idxToDel = data.getNodes().map(function(n,idx){return emptyRowCb(n)?idx:-1});
+            }
+            idxToDel.filter(function(idx){return idx>=0}).sort(function(a,b){return b>a?1:-1}).forEach(function(idx){
+                data.popNode('#'+idx,'autoRow');
+            });
+        }
     },
 
     mixin_addNewSetColumn:function(kw) {

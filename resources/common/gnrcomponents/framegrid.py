@@ -157,6 +157,12 @@ class FrameGrid(BaseComponent):
             dynamicStorepath = storepath
             storepath = '.dummystore'
         datamode= datamode or 'bag'
+        if addrow=='auto':
+            addrow = False
+            kwargs['grid_autoInsert'] = True
+        if delrow=='auto':
+            delrow = False
+            kwargs['grid_autoDelete'] = True
         frame = pane.frameGrid(_newGrid=True,datamode= datamode,
                                 dynamicStorepath=dynamicStorepath,
                                 title=title,

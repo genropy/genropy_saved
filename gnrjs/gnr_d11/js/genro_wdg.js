@@ -755,7 +755,13 @@ dojo.declare("gnr.RowEditor", null, {
 dojo.declare("gnr.GridEditor", null, {
     constructor:function(grid) {
         this.grid = grid;
+        var that = this;
         var sourceNode = grid.sourceNode;
+        sourceNode.subscribe('duplicateCommand',function(e){
+            if(that.enabled()){
+                grid.addRows(null,e,true);
+            }
+        });
         this.viewId = sourceNode.attr.nodeId;
         this.table= sourceNode.attr.table;
         this.editorPars = objectUpdate({},sourceNode.attr.gridEditorPars);
@@ -778,7 +784,6 @@ dojo.declare("gnr.GridEditor", null, {
         };
         var sourceNodeContent = sourceNode.getValue();
         var gridEditorNode = sourceNodeContent.getNodeByAttr('tag', 'grideditor',true);
-        var that = this;
         this.widgetRootNode = sourceNodeContent.getNode('_grideditor_',null,true);
         if(gridEditorNode){
             console.warn('legacy mode: use new grid and edit attribute in cell instead of this way')
