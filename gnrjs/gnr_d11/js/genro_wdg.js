@@ -253,7 +253,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
     },
 
     create:function(tag, destination, attributes, ind, sourceNode) {
-        var attributes = attributes || {};
+        attributes = attributes || {};
         var newobj, domnode,domtag;
         var handler = this.getHandler(tag);
         var onCreating = objectPop(attributes,'onCreating');
@@ -271,7 +271,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             }
             domtag =objectPop(attributes,'domtag')
         }
-        var domtag = domtag || handler._domtag || tag;
+        domtag = domtag || handler._domtag || tag;
         if (ind == 'replace') {
             domnode = destination;
         } else if (domtag == '*') {
@@ -355,7 +355,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             if(newobj.setHidden && currentHidden){
                 genro.src.onBuiltCall(function(){
                     newobj.setHidden(currentHidden);
-                })
+                });
             }
         }
         handler._created(newobj, kw.postCreation, sourceNode, ind);
@@ -632,11 +632,12 @@ dojo.declare("gnr.RowEditor", null, {
     },
 
     inititializeData:function(data){
-        var data = data || new gnr.GnrBag();
+        data = data || new gnr.GnrBag();
         this.data = data;
         var cellmap = this.grid.cellmap;
         default_kwargs = objectUpdate({},this.gridEditor.editorPars.default_kwargs);
-        for(var k in cellmap){
+        var k;
+        for(k in cellmap){
             objectPop(default_kwargs,k);
             var kw = {dtype:cellmap[k].dtype};
             var wdg_dtype = data.getAttr(k,'wdg_dtype') ;
@@ -647,7 +648,7 @@ dojo.declare("gnr.RowEditor", null, {
             data.setItem(k,this.original_values[k],kw);
         }
         if(this.newrecord){
-            for (var k in default_kwargs){
+            for (k in default_kwargs){
                 data.setItem(k,this.original_values[k]);
             }
             this.checkNotNull();
@@ -1547,29 +1548,33 @@ dojo.declare("gnr.GridEditor", null, {
         var cellNode = editingInfo.cellNode;
         var contentText = editingInfo.contentText;
         var editWidgetNode = this.widgetRootNode._value.getNode('cellWidget');
-        var h = editWidgetNode.widget || editWidgetNode.gnrwdg || editWidgetNode.domNode;
-        h.gnr.cell_onDestroying(editWidgetNode,this,editingInfo);
-        editWidgetNode._destroy();
-        editingInfo.cellNode.innerHTML = contentText;
-        this.onEditCell(false);
-        if(editingInfo.editedRowId){
-            var rowEditor = this.grid.getRowEditor({rowId:editingInfo.editedRowId});
-            if(rowEditor){
-                rowEditor.endEditCell(editingInfo);
-                this.grid.currRenderedRowIndex = null;
-                this.grid.updateRow(editingInfo.row);
+        var that = this;
+        editWidgetNode.watch('waiting_rpc',function(){
+            return !editWidgetNode._waiting_rpc;
+        },function(){
+            var h = editWidgetNode.widget || editWidgetNode.gnrwdg || editWidgetNode.domNode;
+            h.gnr.cell_onDestroying(editWidgetNode,this,editingInfo);
+            editWidgetNode._destroy();
+            editingInfo.cellNode.innerHTML = contentText;
+            that.onEditCell(false);
+            if(editingInfo.editedRowId){
+                var rowEditor = that.grid.getRowEditor({rowId:editingInfo.editedRowId});
+                if(rowEditor){
+                    rowEditor.endEditCell(editingInfo);
+                    that.grid.currRenderedRowIndex = null;
+                    that.grid.updateRow(editingInfo.row);
+                }
             }
-        }
-        if(this._exitCellTimeout){
-            this._exitCellTimeout = null;
-        }
-        if (delta) {
-            var rc = this.findNextEditableCell({row:editingInfo.row, col:editingInfo.col}, delta);
-            if (rc) {
-                this.startEdit(rc.row, rc.col);
+            if(that._exitCellTimeout){
+                that._exitCellTimeout = null;
             }
-        }
-
+            if (delta) {
+                var rc = that.findNextEditableCell({row:editingInfo.row, col:editingInfo.col}, delta);
+                if (rc) {
+                    that.startEdit(rc.row, rc.col);
+                }
+            }
+        });
     },
     
     editableCell:function(col,row,clicked) {

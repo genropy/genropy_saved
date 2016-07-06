@@ -5292,7 +5292,10 @@ div[disabled='true'], div[disabled='disabled']{
 .gr_scrollbox{
     overflow: hidden;
 }
-
+.gr_columnset{
+    border-bottom: 1px solid silver;
+    margin-top: 1px;
+}
 .gr_columnset .gr_table td{
 }
 

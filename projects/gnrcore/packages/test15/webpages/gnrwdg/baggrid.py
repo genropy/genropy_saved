@@ -130,6 +130,7 @@ class GnrCustomWebPage(object):
         frame = pane.bagGrid(frameCode='mpath',datapath='.mygrid',struct=self.gridstruct_2,height='300px',
                             table='glbl.localita',storepath='.dati')
         bar = frame.top.bar.replaceSlots('addrow','testpicker')
+
         bar.testpicker.palettePicker(grid=frame.grid,
                                     table='glbl.provincia',#paletteCode='mypicker',
                                     viewResource='View',
@@ -140,34 +141,38 @@ class GnrCustomWebPage(object):
     def test_9_bagridformula(self,pane):
         def struct(struct):
             r = struct.view().rows()
-            r.cell('description',name='Description',width='15em',edit=True)
+            r.cell('description',name='Description',width='15em',edit=True,hidden='^hidden_0')
 
-            r.cell('number',name='Number',width='7em',dtype='L',
+            r.cell('number',name='Number',width='7em',dtype='L',hidden='^hidden_1',
                     edit=True,columnset='ent')
-            r.cell('price',name='Price',width='7em',dtype='N',
+            r.cell('price',name='Price',width='7em',dtype='N',hidden='^hidden_2',
                     edit=True,columnset='ent')
-            r.cell('total',name='Total',width='7em',dtype='N',formula='number*price',
+            r.cell('total',name='Total',width='7em',dtype='N',formula='number*price',hidden='^hidden_3',
                     totalize='.sum_total',format='###,###,###.00')
-            r.cell('discount',name='Disc.%',width='7em',dtype='N',edit=True,columnset='disc')
+            r.cell('discount',name='Disc.%',width='7em',dtype='N',edit=True,columnset='disc',hidden='^hidden_4')
             r.cell('discount_val',name='Discount',width='7em',dtype='N',formula='total*discount/100',
-                    totalize='.sum_discount',
+                    totalize='.sum_discount',hidden='^hidden_5',
                     columnset='disc')
             r.cell('net_price',name='F.Price',width='7em',dtype='N',
                         formula='total-discount_val',totalize='.sum_net_price',
-                        columnset='tot')
+                        columnset='tot',hidden='^hidden_6')
             r.cell('vat',name='Vat',width='7em',dtype='N',
                     formula='net_price+net_price*vat_p/100',formula_vat_p='^vat_perc',
-                    totalize='.sum_vat',format='###,###,###.00',columnset='tot')
+                    totalize='.sum_vat',format='###,###,###.00',columnset='tot',hidden='^hidden_7')
             r.cell('gross',name='Gross',width='7em',dtype='N',formula='net_price+vat',
-                    totalize='.sum_gross',format='###,###,###.00',columnset='tot')
+                    totalize='.sum_gross',format='###,###,###.00',columnset='tot',hidden='^hidden_8')
 
 
         bc = pane.borderContainer(height='400px',width='800px')
-        top = bc.contentPane(region='top',height='40px')
-        fb = top.formbuilder(cols=2,border_spacing='3px')
+        top = bc.contentPane(region='top',height='80px')
+        fb = top.formbuilder(cols=10,border_spacing='3px')
         bc.contentPane(region='right',splitter=True,width='5px')
         bc.contentPane(region='bottom',splitter=True,height='50px')
-        fb.numberTextBox(value='^vat_perc',lbl='Vat perc.',default_value=10)
+        fb.numberTextBox(value='^vat_perc',lbl='Vat perc.',default_value=10,colspan='10')
+        fb.br()
+        for i in range(9):
+            fb.checkbox(value='^hidden_%s' %i,label='last %s' %i)
+
         fb.button('clear',fire='.clear')
         bc.dataFormula('.surfaces.store',"new gnr.GnrBag({r1:new gnr.GnrBag({description:'pipp'})})",_onStart=True,_fired='^.clear')
         frame = bc.contentPane(region='center').bagGrid(frameCode='formule',datapath='.surfaces',
@@ -181,10 +186,10 @@ class GnrCustomWebPage(object):
                                                     columnset_tot_background='red'
                                                     )
 
-        f = frame.grid.footer()
-        f.item('description',value='Questa fattura ha valore',colspan=3,text_align='center')
-        f = frame.grid.footer()
-        f.item('description',value='test',colspan=2,text_align='center')
+       # f = frame.grid.footer()
+       # f.item('description',value='Questa fattura ha valore',colspan=3,text_align='center')
+       # f = frame.grid.footer()
+       # f.item('description',value='test',colspan=2,text_align='center')
 
        #f.item('total')
        #f.item('discount_val')
@@ -212,3 +217,19 @@ class GnrCustomWebPage(object):
         fb = bc.contentPane(region='bottom').formbuilder(cols=2,border_spacing='3px')
         fb.textbox(value='^.foo',lbl='foo')
         fb.textbox(value='^.bar',lbl='bar')
+
+
+    def test_11_multi(self,pane):
+        bc = pane.borderContainer(height='800px')
+        top = bc.contentPane(region='top',height='200px',splitter=True,background='lime')
+        innerbc = bc
+        l = ['alfa','beta','gamma','pippo']
+        s = len(l)
+        for r in l:
+            region,height=('center',None) if s==1 else ('top','%s%%' %(100./s))
+            innerbc = innerbc.borderContainer(region='center')
+            innerbc.bagGrid(frameCode=r ,title=r,datapath='.%s' %r,region=region,splitter=True,
+                        struct=self.gridstruct,height=height,
+                        addrow='auto',delrow='auto')
+            s-=1
+
