@@ -86,7 +86,7 @@ class GnrCustomWebPage(object):
         fb.dbSelect(dbtable='adm.user',value='^.user_id',lbl='/me action',
                     selected_username='.username',width='25em',
                     switch_me='/me',
-                    switch_me_action="this.widget.setValue(genro.getData('gnr.avatar.user_id'),true);",
+                    switch_me_action="alert('ciao');",
                     hasDownArrow=True)
 
 
