@@ -3803,7 +3803,20 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
         var store;
         savedAttrs['record'] = objectPop(storeAttrs, 'record');
         attributes.searchAttr = storeAttrs['caption'] || 'caption';
-        store = new gnr.GnrStoreQuery({'searchAttr':attributes.searchAttr,_parentSourceNode:sourceNode});
+        var sw = objectExtract(attributes,'switch_*');
+        var switches = {};
+        for(var k in sw){
+            var ks = k.split('_');
+            if(ks.length==1){
+                switches[k] = {'search':new RegExp(sw[k])};
+                objectUpdate(switches[k],objectExtract(sourceNode.attr,'switch_'+k+'_*',true));
+                if(switches[k].action){
+                    switches[k].action = funcCreate(switches[k].action,null,sourceNode);
+                }
+            }
+        }
+        switches = objectNotEmpty(switches)?switches:null;
+        store = new gnr.GnrStoreQuery({'searchAttr':attributes.searchAttr,_parentSourceNode:sourceNode,switches:switches});
         store._identifier = resolverAttrs['alternatePkey'] || storeAttrs['id'] || '_pkey';
         resolverAttrs._sourceNode = sourceNode;
 

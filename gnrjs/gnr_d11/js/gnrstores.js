@@ -661,10 +661,30 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
     _doFetch : function(request, findCallback, errCallback) {
         //this.rootData.clear(true)
         var query = request.query;
-
         if (!query.caption) {
             findCallback([], request);
         } else {
+            if(this.switches){
+                var sn = this._parentSourceNode;
+                for (var sw in this.switches){
+                    var sobj = this.switches[sw];
+                    if(query.caption.match(sobj.search)){
+                        var switchcb;
+                        if(sobj.set){
+                            switchcb = function(){sn.widget.setDisplayedValue(sn.currentFromDatasource(sobj.set),true);};
+                        }else if(sobj.value){
+                            switchcb = function(){sn.widget.setValue(sn.currentFromDatasource(sobj.value),true);};
+                        }else if(sobj.action){
+                            switchcb = sobj.action;
+                        }
+                        if(switchcb){
+                            setTimeout(switchcb,1);
+                            findCallback([], request);
+                            return;
+                        }
+                    }
+                }
+            }
             var ignoreCase = request.queryOptions ? request.queryOptions.ignoreCase : false;
             var kwargs = {_id:'',_querystring:query.caption,ignoreCase:ignoreCase};
             var s_time = new Date();
