@@ -722,7 +722,10 @@ class GnrWebPage(GnrBaseWebPage):
             login['message'] = ''
             loginPars = avatar.loginPars
             loginPars.update(avatar.extra_kwargs)
-            self.btc.cleanUserBatches(self.user)
+            try:
+                self.btc.cleanUserBatches(self.user)
+            except self.siter.register.locked_exception:
+                pass
         else:
             login['message'] = 'invalid login'
         return (login, loginPars)

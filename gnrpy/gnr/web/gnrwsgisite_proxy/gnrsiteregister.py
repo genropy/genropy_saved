@@ -20,26 +20,34 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import Pyro4
-if hasattr(Pyro4.config, 'METADATA'):
-    Pyro4.config.METADATA = False
-OLD_HMAC_MODE = hasattr(Pyro4.config,'HMAC_KEY')
-from datetime import datetime
 import time
+import thread
+import Pyro4
+import os
+import re
+from datetime import datetime
 from gnr.core.gnrbag import Bag,BagResolver
 from gnr.web.gnrwebpage import ClientDataChange
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.app.gnrconfig import gnrConfigPath
-import thread
+
+if hasattr(Pyro4.config, 'METADATA'):
+    Pyro4.config.METADATA = False
+OLD_HMAC_MODE = hasattr(Pyro4.config,'HMAC_KEY')
+
+
+class GnrDaemonException(Exception):
+    pass
+
+class GnrDaemonLocked(GnrDaemonException):
+    pass
+
 
 
 try:
     import cPickle as pickle
 except ImportError:
     import pickle
-import os
-
-import re
 
 BAG_INSTANCE = Bag()
 
@@ -48,6 +56,7 @@ PYRO_PORT = 40004
 PYRO_HMAC_KEY = 'supersecretkey'
 PYRO_MULTIPLEX = True
 LOCK_MAX_RETRY = 100
+LOCK_EXPIRY_SECONDS = 30
 RETRY_DELAY = 0.01
 
 def remotebag_wrapper(func):
@@ -163,13 +172,16 @@ class BaseRegister(BaseRemoteObject):
         #print 'locking ',self.registerName,register_item_id,reason
         locker = self.locked_items.get(register_item_id)
         if not locker:
-            self.locked_items[register_item_id] = dict(reason=reason,count=1)
+            self.locked_items[register_item_id] = dict(reason=reason,count=1,last_lock_ts=datetime.now())
             #print 'ok'
             return True
         elif locker['reason']==reason:
             locker['count'] += 1
+            locker['last_lock_ts'] = datetime.now()
             return True
         #print 'failed'
+        if (datetime.now()-locker['last_lock_ts']).total_seconds() > LOCK_EXPIRY_SECONDS:
+            self.locked_items.pop(register_item_id,None)
         return False
 
     def unlock_item(self,register_item_id,reason=None):
@@ -865,6 +877,7 @@ class SiteRegisterClient(object):
     STORAGE_PATH = 'siteregister_data.pik'
 
     def __init__(self,site):
+        self.locked_exception = GnrDaemonLocked
         self.site = site
         self.siteregisterserver_uri = None
         self.siteregister_uri = None
@@ -1122,7 +1135,7 @@ class ServerStore(object):
             k += 1
             if k>self.max_retry:
                 print '************UNABLE TO LOCK STORE : %s ITEM %s ***************' % (self.register_name, self.register_item_id)
-                return
+                raise GnrDaemonLocked()
         self.success_locking_time = time.time()
         return self
 
