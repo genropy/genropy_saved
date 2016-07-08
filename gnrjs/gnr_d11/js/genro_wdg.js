@@ -1296,7 +1296,7 @@ dojo.declare("gnr.GridEditor", null, {
     },
     
     getCellValue:function(rowIdx,cellname){
-        return this.grid.rowByIndex(rowIdx)[cellname];
+        return this.grid.rowByIndex(rowIdx,true)[cellname];
     },
 
 

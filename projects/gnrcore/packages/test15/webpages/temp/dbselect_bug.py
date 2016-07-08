@@ -16,7 +16,7 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return ''
          
-    def test_5_combobug(self,pane):
+    def test_0_combobug(self,pane):
         fb = pane.formbuilder(cols=1, border_spacing='4px')
         fb.dbCombobox(dbtable='adm.user',value='^.user',lbl='dbCombo',
                     width='25em',hasDownArrow=True)
@@ -24,7 +24,7 @@ class GnrCustomWebPage(object):
 
         fb.filteringSelect(value='^.filtering',values='pippo:Pippo,pluto:Pluto,paperino:Paperino',lbl='Filtering')
 
-    def test_0_firsttest(self,pane):
+    def test_1_firsttest(self,pane):
         """dbselect with auxcol"""
         fb = pane.formbuilder(cols=1, border_spacing='4px')
         fb.dbSelect(dbtable='adm.user',value='^.user_id',lbl='User',
