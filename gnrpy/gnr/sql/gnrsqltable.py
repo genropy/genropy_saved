@@ -274,7 +274,7 @@ class SqlTable(GnrObject):
             if env.get('current_%(path)s' %partitionParameters):
                 return "$%(field)s =:env_current_%(path)s" %partitionParameters
             elif env.get('allowed_%(path)s' %partitionParameters):
-                return "( $%(field)s IN :env_allowed_%(path)s )" %partitionParameters
+                return "( $%(field)s IS NULL OR $%(field)s IN :env_allowed_%(path)s )" %partitionParameters
 
     @property
     def partitionParameters(self):
