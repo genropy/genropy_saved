@@ -346,10 +346,12 @@ dojo.declare('gnr.GenroClient', null, {
             e._longClick = genro._lastMouseEvent.longClick;
             genro._lastMouseEvent.mousedown = e;
          },true);
+
         window.addEventListener("mousedown", function(e){
             genro._lastMouseEvent.duration = null;
             genro._lastMouseEvent.longClick = null;
             genro._lastMouseEvent.mousedown = e;
+            genro._lastKeyDown = null;
             var mu = genro._lastMouseEvent.mouseup;
             var hasRecentClick =  mu && (e.timeStamp - mu.timeStamp)<500;
             genro._lastMouseEvent.startMouseDown = setTimeout(function(){
@@ -365,7 +367,6 @@ dojo.declare('gnr.GenroClient', null, {
                     sn.publish(topic,{event:e});
                 }
             },1500);
-            
          },true);
         window.addEventListener("mouseup", function(e){
             genro._lastMouseEvent.mouseup = e;
@@ -375,14 +376,11 @@ dojo.declare('gnr.GenroClient', null, {
             clearTimeout(genro._lastMouseEvent.startMouseDown);
             if(duration>genro._longClickDuration && e.target===md.target && e.x==md.x && e.y==md.y){
                 genro._lastMouseEvent.longClick = true;
-                //genro.publish('longClick',{target:e.target,mouseup:e,mousedown:md});
-                //var sn = genro.dom.getSourceNode(e.target);
-                //if(sn){
-                //    sn.publish('longClick',{mouseup:e,mousedown:md});
-                //}
             }
-
         },true);
+        window.addEventListener("keydown", function(e){
+            genro._lastKeyDown = e;
+         },true);
     },
 
     serverLog:function(data){
@@ -562,7 +560,13 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dev.shortcut("Ctrl+Shift+D", function() {
             genro.dev.showInspector();
         });
-
+        var dupKey = genro.isMac?"Cmd+D":"Ctrl+D";
+        genro.dev.shortcut(dupKey, function(e) {
+            var sn = genro.dom.getSourceNode(e.target);
+            if(sn){
+                sn.publish('duplicateCommand',{targetDomNode:e.target});
+            }
+        });
         genro.dev.shortcut("Ctrl+Shift+I", function() {
             genro.dev.openGnrIde();
         });

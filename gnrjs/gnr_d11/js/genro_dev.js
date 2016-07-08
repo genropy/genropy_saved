@@ -756,7 +756,10 @@ dojo.declare("gnr.GnrDevHandler", null, {
                 if (k == 'ctrl' || k == 'control') {
                     if (e.ctrlKey) kp++;
 
-                } else if (k == 'shift') {
+                } else if(k=='cmd' || k=='command'){
+                    if(e.metaKey) kp++;
+                }
+                else if (k == 'shift') {
                     if (e.shiftKey) kp++;
 
                 } else if (k == 'alt') {

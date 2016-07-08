@@ -4742,6 +4742,7 @@ dojo.declare("gnr.widgets.BagStore", gnr.widgets.gnrwdg, {
             kw.selfUpdate = kw.selfUpdate || false;
             kw.script = "this.store.loadData(data,selfUpdate);";
         }
+
         var identifier = objectPop(kw,'_identifier') || '_pkey';
         var storeType = objectPop(kw,'storeType') || 'ValuesBagRows';
         var deleteRows = objectPop(kw,'deleteRows');
@@ -4773,9 +4774,6 @@ dojo.declare("gnr.stores._Collection",null,{
         this.storeNode = node;
         this.storepath = this.storeNode.absDatapath(this.storeNode.attr.storepath);
         var startData = this.storeNode.getRelativeData(this.storepath,true);
-       //if(!startData){
-       //    this.storeNode.setRelativeData(this.storepath,null,null,null,'initStore');
-       //}
         this.locked = null;
         var deleteRows = objectPop(kw,'deleteRows');
         if (deleteRows){
@@ -4803,17 +4801,12 @@ dojo.declare("gnr.stores._Collection",null,{
             dojo.subscribe('onPageStart',function(){
                 startLocked = parentForm?parentForm.isDisabled():startLocked;
                 that.setLocked(startLocked);
-                //if(startData){
-                //    that.loadData(startData);
-                //}
             });
-           //if(startData){
-           //    that.loadData(startData);
-           //}
         };
         genro.src.onBuiltCall(cb);
 
     },
+
 
     setNewStorepath:function(newstorepath){
         this.storeNode.attr.storepath = newstorepath;
@@ -4865,7 +4858,7 @@ dojo.declare("gnr.stores._Collection",null,{
 
     },
     onLoaded:function(result){
-        this.storeNode.setRelativeData(this.storepath,result);
+        this.storeNode.setRelativeData(this.storepath,result,null,null,'loadData');
         return result;
     },
 
@@ -4998,7 +4991,7 @@ dojo.declare("gnr.stores._Collection",null,{
         var result = this.storeNode.getRelativeData(this.storepath);
         if(!result){
             result = new gnr.GnrBag();
-            this.storeNode.setRelativeData(this.storepath,result);
+            this.storeNode.setRelativeData(this.storepath,result,null,null,'loadData');
         }
         return result;
     },
@@ -5292,6 +5285,7 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
 
         return result;
     },
+
     updateRowNode:function(rowNode,updDict){
         var rowData = rowNode.getValue();
         var idx = this.getData().index(rowNode.label);
@@ -5879,7 +5873,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
                 this.loadBagPageFromServer(page,true,data);
             }
         }
-        this.storeNode.setRelativeData(this.storepath,data,resultattr);
+        this.storeNode.setRelativeData(this.storepath,data,resultattr,null,'loadData');
         return result;
     },
     onExternalChangeResult:function(changelist){

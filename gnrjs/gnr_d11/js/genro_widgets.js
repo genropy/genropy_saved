@@ -3193,32 +3193,55 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
     },
 
     patch_parse:function(value,constraints){
-        if(value && value.match(/^\d{6}$|^\d{8}$/) && !this._focused){
-            var tokens = dojo.date.locale._parseInfo(constraints).tokens;
-            var d1 = parseInt(value.slice(0,2));
-            var d2 = parseInt(value.slice(2,4));
-            var y = parseInt(value.slice(4));
-            var d,m;
-            if(tokens[0]=='dd'){
-                d = d1;
-                m = d2;
+        if(value && !this._focused){
+            var r;
+            if(value.match(/^\d{6}$|^\d{8}$/)){
+                var tokens = dojo.date.locale._parseInfo(constraints).tokens;
+                var d1 = parseInt(value.slice(0,2));
+                var d2 = parseInt(value.slice(2,4));
+                var y = parseInt(value.slice(4));
+                var d,m;
+                if(tokens[0]=='dd'){
+                    d = d1;
+                    m = d2;
+                }else{
+                    m = d1;
+                    d = d2;
+                }
+                if(y<100){
+                    var pivotYear ='pivotYear' in this.sourceNode.attr?this.sourceNode.attr.pivotYear:20;
+                    var year = '' + new Date().getFullYear();
+                    var century = year.substring(0, 2) * 100;
+                    var cutoff = Math.min(Number(year.substring(2, 4)) + pivotYear, 99);
+                    var y = (y < cutoff) ? century + y : century - 100 + y;
+                }
+                r = new Date(y,m-1,d);  
             }else{
-                m = d1;
-                d = d2;
+                var q = dojo.date.locale.parse(value, constraints) || undefined; 
+                if(q===undefined){
+                    var that = this;
+                    this.setValue(null);
+                    var sn = this.sourceNode;
+                    sn._waiting_rpc = true;
+                    genro.serverCall('decodeDatePeriod',{datestr:value},function(v){
+                        if(v.getItem('from')){
+                            that.setValue(v.getItem('from'),true);
+                        }
+                        if(that.sourceNode.attr.period_to){
+                            that.sourceNode.setRelativeData(that.sourceNode.attr.period_to,v.getItem('to'));
+                        }
+                        sn._waiting_rpc = false;
+                    });
+                }
             }
-            if(y<100){
-                var pivotYear ='pivotYear' in this.sourceNode.attr?this.sourceNode.attr.pivotYear:20;
-                var year = '' + new Date().getFullYear();
-                var century = year.substring(0, 2) * 100;
-                var cutoff = Math.min(Number(year.substring(2, 4)) + pivotYear, 99);
-                var y = (y < cutoff) ? century + y : century - 100 + y;
+            if(r){
+                var that = this;
+                setTimeout(function(){
+                    that.setValue(r,true);
+                },1);
+                return;
             }
-            var r = new Date(y,m-1,d);
-            var that = this;
-            setTimeout(function(){
-                that.setValue(r,true);
-            },1);
-            return;
+            return q;
         }
         return dojo.date.locale.parse(value, constraints) || undefined; 
     }
@@ -3780,7 +3803,20 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
         var store;
         savedAttrs['record'] = objectPop(storeAttrs, 'record');
         attributes.searchAttr = storeAttrs['caption'] || 'caption';
-        store = new gnr.GnrStoreQuery({'searchAttr':attributes.searchAttr,_parentSourceNode:sourceNode});
+        var sw = objectExtract(attributes,'switch_*');
+        var switches = {};
+        for(var k in sw){
+            var ks = k.split('_');
+            if(ks.length==1){
+                switches[k] = {'search':new RegExp(sw[k])};
+                objectUpdate(switches[k],objectExtract(sourceNode.attr,'switch_'+k+'_*',true));
+                if(switches[k].action){
+                    switches[k].action = funcCreate(switches[k].action,null,sourceNode);
+                }
+            }
+        }
+        switches = objectNotEmpty(switches)?switches:null;
+        store = new gnr.GnrStoreQuery({'searchAttr':attributes.searchAttr,_parentSourceNode:sourceNode,switches:switches});
         store._identifier = resolverAttrs['alternatePkey'] || storeAttrs['id'] || '_pkey';
         resolverAttrs._sourceNode = sourceNode;
 

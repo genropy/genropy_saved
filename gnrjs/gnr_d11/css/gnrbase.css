@@ -1739,9 +1739,18 @@ div.dojoxDock {
     -moz-box-shadow: 2px 2px 4px #403b3b;
     -webkit-box-shadow: 2px 2px 4px #403b3b;
 }
-._common_d11.tundra .dijitPopup{
+
+/*._common_d11.tundra .dijitPopup{
     border:1px solid #ccc;
+}*/
+
+._common_d11.tundra .dijitMenuSeparatorTop {
+    border-bottom: 0px;
+    box-shadow: 0px -1px 1px #777;
+    height: 1px;
+    margin-top: 1px;
 }
+
 .floatingTooltipPane{
 
 }
@@ -4776,6 +4785,10 @@ div[disabled='true'], div[disabled='disabled']{
     margin-left: -1px;
 }
 
+._common_d11 .dojoxGrid.focusedGrid{
+    /*todo*/
+}
+
 ._common_d11 .dojoxGrid-scrollbox {
     overflow: scroll;
     background-color: transparent;
@@ -5288,7 +5301,10 @@ div[disabled='true'], div[disabled='disabled']{
 .gr_scrollbox{
     overflow: hidden;
 }
-
+.gr_columnset{
+    border-bottom: 1px solid silver;
+    margin-top: 1px;
+}
 .gr_columnset .gr_table td{
 }
 
