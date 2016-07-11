@@ -1352,7 +1352,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             if(cell.totalize){
                 cell.totalize = cell.totalize===true?'.totalize.'+cell.field:cell.totalize;
-                sourceNode._totalizeColumns[cell.field] = cell.totalize;
             }
             if(cell.semaphore){
                 formats['trueclass'] = 'greenLight';
@@ -1372,7 +1371,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         cellmap = cellmap || {};
         var result = [];
         if (struct) {
-            sourceNode._totalizeColumns = {};
+            sourceNode._serverTotalizeColumns = {};
             var bagnodes = struct.getNodes();
             var formats, dtype, editor;
             var view, viewnode, rows, rowsnodes, i, k, j, cellsnodes, row, cell, rowattrs, rowBag;
@@ -2126,6 +2125,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         this.sourceNode.publish('onNewDatastore');
         this.updateRowCount('*');
         this.restoreSelectedRows();
+
         this.fillServerTotalize();
     },
 
@@ -3038,7 +3038,9 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             }
             if(cell.totalize){
                 var snode = genro.nodeById(this.sourceNode.attr.store+'_store');
-                if(!snode.attr.table){
+                if(snode.attr.table && !this.gridEditor){
+                    this.sourceNode._serverTotalizeColumns[cell.field] = cell.totalize; //server totals
+                }else{
                     getChangeManager().addTotalizer(cellmap[k].field,objectUpdate({},cellmap[k]));
                 }
             }else if (this.changeManager){
@@ -3509,7 +3511,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     },
     
     mixin_fillServerTotalize:function(){
-        var totalizeColumns = this.sourceNode._totalizeColumns;
+        var totalizeColumns = this.sourceNode._serverTotalizeColumns;
         if(!objectNotEmpty(totalizeColumns)){
             return;
         }

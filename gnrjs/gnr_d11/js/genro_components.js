@@ -5492,8 +5492,8 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         var sum_columns = this.storeNode.getRelativeData('.sum_columns');
         sum_columns = sum_columns?sum_columns.split(','):[];
         this.linkedGrids().forEach(function(grid){
-            if(grid.sourceNode._totalizeColumns && !grid.gridEditor){
-                for (var field in grid.sourceNode._totalizeColumns){
+            if(grid.sourceNode._serverTotalizeColumns && !grid.gridEditor){
+                for (var field in grid.sourceNode._serverTotalizeColumns){
                     arrayPushNoDup(sum_columns,field);
                 }
             }
