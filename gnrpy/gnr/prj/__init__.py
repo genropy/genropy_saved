@@ -14,7 +14,7 @@ class GnrProjectMeta(object):
     def find_module(self, fullname, path=None):
         if fullname.startswith('gnr.prj.'):
             splitted=fullname.split('.')
-            print splitted
+            
             
             project_name = splitted[2]
             return self._get_prj_importer(project_name)
