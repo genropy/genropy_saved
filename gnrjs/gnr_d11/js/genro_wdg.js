@@ -294,7 +294,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             if(currentHidden){
                 attributes.display = 'none';
             }
-            
+
         }
         //var disabled=objectPop(attributes, 'disabled') ? true:false;
         //attributes.disabled=disabled;
@@ -745,7 +745,7 @@ dojo.declare("gnr.RowEditor", null, {
        //if(!this.hasChanges()){
        //    this.deleteRowEditor();
        //}else{
-       //    
+       //
        //}
         if(rowIndex>=0){
             this.grid.updateRow(rowIndex);
@@ -860,7 +860,7 @@ dojo.declare("gnr.GridEditor", null, {
         }
         this.widgetRootNode.attr.datapath = absStorepath;
     },
-    
+
     onFormatCell:function(cell, inRowIndex,renderedRow){
         if (this.invalidCell(cell, inRowIndex)) {
             cell.customClasses.push('invalidCell');
@@ -869,7 +869,7 @@ dojo.declare("gnr.GridEditor", null, {
             cell.customClasses.push('newRowCell');
         }
     },
-    
+
     resetEditor:function(){
         this.deletedRows = new gnr.GnrBag();
         this.updateStatus(true);
@@ -896,7 +896,7 @@ dojo.declare("gnr.GridEditor", null, {
             this.grid.sourceNode.form.updateStatus();
         }
     },
-    
+
     addEditColumn:function(colname,colattr){
         colattr['parentForm'] = false;
         var edit = objectPop(colattr,'edit');
@@ -927,7 +927,7 @@ dojo.declare("gnr.GridEditor", null, {
     delEditColumn:function(colname){
         objectPop(this.columns,colname.replace(/\W/g, '_'));
     },
-    
+
     enabled:function(){
         var gridSourceNode = this.grid.sourceNode;
         var form = gridSourceNode.form;
@@ -984,7 +984,7 @@ dojo.declare("gnr.GridEditor", null, {
                 }
             });
         }
-        
+
         var insertedRows = result.getItem('insertedRecords');
         if(insertedRows){
             insertedRows.forEach(function(n){
@@ -997,7 +997,7 @@ dojo.declare("gnr.GridEditor", null, {
         }
         this.resetEditor();
         this.grid.sourceNode.publish('savedRows');
-        this.updateStatus();         
+        this.updateStatus();
     },
     saveChangedRows:function(){
         var that = this;
@@ -1068,7 +1068,7 @@ dojo.declare("gnr.GridEditor", null, {
             }
         }
     },
-    
+
     markDeleted:function(pkeys){
         var that = this;
         var grid = this.grid;
@@ -1089,7 +1089,7 @@ dojo.declare("gnr.GridEditor", null, {
         if(this.storeInForm){
             var n = storebag.getParentNode().attributeOwnerNode('dtype','X');
             if(n){n.attr._sendback = true;}
-            
+
         }
         this.updateStatus();
     },
@@ -1120,7 +1120,7 @@ dojo.declare("gnr.GridEditor", null, {
                     }
                     if(hcols.length>0){
                         //queries.setItem(rcol,null,{table:cmap.related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'}); OLDVERSION
-                        
+
                         //FIX: it should be the related_table of relating_column instead of cmap related table which is the last related table in relation path
                         // @product_id.@product_type_id.description ---> relating_column:product_id, related_table:product_type -- related_table of relating column: foo.product
                         queries.setItem(rcol,null,{table:cellmap[rcol].related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'});
@@ -1176,7 +1176,7 @@ dojo.declare("gnr.GridEditor", null, {
         var rowEditor = new gnr.RowEditor(this,rowNode);
         return rowEditor;
     },
-    
+
     addNewRows:function(rows){
         var that = this;
         dojo.forEach(rows,function(n){
@@ -1219,7 +1219,7 @@ dojo.declare("gnr.GridEditor", null, {
                                     rows:rows,_sourceNode:this.grid.sourceNode})
                                     );
         result.forEach(function(n){
-            that.updateRowFromRemote(n.label,n.getValue());            
+            that.updateRowFromRemote(n.label,n.getValue());
         },'static');
         this.updateStatus()
         return result
@@ -1294,7 +1294,7 @@ dojo.declare("gnr.GridEditor", null, {
             sourceNode.widget.setValue(this.getCellValue(sourceNode.editedRowIndex-1,sourceNode.attr.field),true);
         }
     },
-    
+
     getCellValue:function(rowIdx,cellname){
         return this.grid.rowByIndex(rowIdx,true)[cellname];
     },
@@ -1338,7 +1338,7 @@ dojo.declare("gnr.GridEditor", null, {
                 this.setCellValue(rowIdx,p,kw[selected]);
             }
         }if(valueCaption!=undefined) {
-            newAttr[cell.field_getter] = valueCaption 
+            newAttr[cell.field_getter] = valueCaption
         }
         this.grid.collectionStore().updateRow(rowIdx,newAttr);
     },
@@ -1432,7 +1432,7 @@ dojo.declare("gnr.GridEditor", null, {
             attr.margin_left = ( (cellNode.clientWidth-10-16)/2)+'px';
             attr.margin_top ='1px';
         }
-        //attr.preventChangeIfIvalid = true;     
+        //attr.preventChangeIfIvalid = true;
         if ('value' in attr) {
             if (attr.tag.toLowerCase() == 'dbselect') {
                 attr.selectedCaption = '.' + gridcell;
@@ -1512,7 +1512,7 @@ dojo.declare("gnr.GridEditor", null, {
             setTimeout(function(){
                 gridEditor.endEdit(widget,deltaDict[cellNext],editingInfo);
             },1);
-           
+
         };
         attr._parentDomNode = cellNode;
         attr._class = attr._class ? attr._class + ' widgetInCell' : 'widgetInCell';
@@ -1553,7 +1553,7 @@ dojo.declare("gnr.GridEditor", null, {
             return !editWidgetNode._waiting_rpc;
         },function(){
             var h = editWidgetNode.widget || editWidgetNode.gnrwdg || editWidgetNode.domNode;
-            h.gnr.cell_onDestroying(editWidgetNode,this,editingInfo);
+            h.gnr.cell_onDestroying(editWidgetNode,that,editingInfo);
             editWidgetNode._destroy();
             editingInfo.cellNode.innerHTML = contentText;
             that.onEditCell(false);
@@ -1576,7 +1576,7 @@ dojo.declare("gnr.GridEditor", null, {
             }
         });
     },
-    
+
     editableCell:function(col,row,clicked) {
         var cell = this.grid.getCell(col);
         if (!(cell.field in this.columns)){return false;}
@@ -1592,7 +1592,7 @@ dojo.declare("gnr.GridEditor", null, {
         }else{
             return true;
         }
-       
+
     },
 
     onExternalChange:function(pkey){
@@ -1602,7 +1602,7 @@ dojo.declare("gnr.GridEditor", null, {
         }
         this.updateStatus();
     },
-    
+
     statusColGetter:function(rowdata,idx){
         var statusClass = 'rowEditorStatus_noedit';
         var rowId = this.grid.rowIdentity(rowdata);
@@ -1678,7 +1678,7 @@ dojo.declare("gnr.GridChangeManager", null, {
             this.updateTotalizer(k);
         }
     },
-    
+
     updateTotalizer:function(k){
         this.sourceNode.setRelativeData(this.grid.cellmap[k].totalize,this.data.sum(this.grid.datamode=='bag'?k:'#a.'+k));
     },
@@ -1737,7 +1737,7 @@ dojo.declare("gnr.GridChangeManager", null, {
         }
         var struct = this.grid.structBag.getItem('#0.#0');
         var bagcellattr = struct.getNode(cellmap[formulaKey]._nodelabel).attr;
-        var dynPars = objectExtract(bagcellattr,'formula_*',true);        
+        var dynPars = objectExtract(bagcellattr,'formula_*',true);
        // for(var p in dynPars){
        //     if(dynPars[p][0] == '.'){
        //         dynPars[p] = rowNode.attr[p];
@@ -1768,7 +1768,7 @@ dojo.declare("gnr.GridChangeManager", null, {
     },
 
 
-    
+
     onDataChange:function(kw){
         var dpath = kw.pathlist.slice(1).join('.');
         var struct = this.grid.structBag.getItem('#0.#0');
@@ -1799,7 +1799,7 @@ dojo.declare("gnr.GridChangeManager", null, {
                 grid.setStructpath();
             },1);
         }
-    }, 
+    },
     addDynamicCellPar:function(cell,parname,parpath){
         var dependences = this.cellpars[parpath];
         if(!dependences){
@@ -1903,4 +1903,3 @@ dojo.declare("gnr.GridChangeManager", null, {
         }
     }
 });
-
