@@ -2,10 +2,21 @@ import os
 import glob
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrsys import expandpath
-from gnr.core.gnrlang import uniquify
+from gnr.core.gnrlang import uniquify, GnrException
 from collections import defaultdict
 from gnr.app.gnrconfig import MenuStruct
 from gnr.app.gnrconfig import getGnrConfig, setEnvironment
+
+
+    
+class EntityNotFoundException(GnrException):
+    pass
+    
+
+    
+class UnknownEntityTypeException(GnrException):
+    pass
+    
 
 class PathResolver(object):
     """TODO"""
@@ -41,7 +52,7 @@ class PathResolver(object):
         :param look_in_projects: TODO"""
         entity = self.entities.get(entity_type)
         if not entity:
-            raise Exception('Error: entity type %s not known' % entity_type)
+            raise UnknownEntityTypeException('Error: entity type %s not known' % entity_type)
         if entity in self.gnr_config['gnr.environment_xml']:
             for path in [expandpath(path) for path in
                          self.gnr_config['gnr.environment_xml'].digest('%s:#a.path' % entity) if
@@ -57,7 +68,7 @@ class PathResolver(object):
                     entity_path = os.path.join(path, entity_name)
                     if os.path.isdir(entity_path):
                         return expandpath(entity_path)
-        raise Exception('Error: %s %s not found' % (entity_type, entity_name))
+        raise EntityNotFoundException('Error: %s %s not found' % (entity_type, entity_name))
         
     def site_name_to_path(self, site_name):
         """TODO
@@ -99,7 +110,7 @@ class PathResolver(object):
             if path:
                 return expandpath(path)
         else:
-            raise Exception('Error: Project Repository %s not found' % project_repository_name)
+            raise EntityNotFoundException('Error: Project Repository %s not found' % project_repository_name)
             
 class ProjectMaker(object):
     """Handle the autocreation of a package.
