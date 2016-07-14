@@ -1598,7 +1598,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self.site.getPreference(path, pkg=pkg, dflt=dflt)
        
     @public_method 
-    def getUserPreference(self, path='*', pkg=None, dflt=None, username=None):
+    def getUserPreference(self, path='*', pkg=None, dflt=None, username=None,**kwargs):
         """TODO
         
         :param path: TODO
@@ -1610,7 +1610,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self.site.getUserPreference(path, pkg=pkg, dflt=dflt, username=username)
         
     @public_method
-    def getAppPreference(self, path='*'):
+    def getAppPreference(self, path='*',**kwargs):
         """TODO
         
         :param path: TODO"""
