@@ -516,7 +516,11 @@ class SqlTable(GnrObject):
         keyField = keyField or self.pkey
         ignoreMissing = createCb is not None
         def recordFromCache(cache=None,pkey=None,virtual_columns_set=None):
-            result,cached_virtual_columns_set = cache.get(pkey,(None,None))
+            cacheNode = cache.getNode(pkey)
+            if cacheNode:
+                result,cached_virtual_columns_set = cacheNode.value,cacheNode.getAttr('virtual_columns_set')
+            else:
+                result,cached_virtual_columns_set = None,None
             in_cache = bool(result)
             if in_cache and not virtual_columns_set.issubset(cached_virtual_columns_set):
                 in_cache = False
@@ -527,7 +531,7 @@ class SqlTable(GnrObject):
                     result = createCb(pkey)
                     if virtual_columns and result:
                         result = self.record(virtual_columns=','.join(virtual_columns_set),**{keyField:pkey}).output('dict')
-                cache[pkey] = (result,virtual_columns_set)
+                cache.setItem(pkey,result,virtual_columns_set=virtual_columns_set)
             return result,in_cache
         virtual_columns_set = set(virtual_columns.split(',')) if virtual_columns else set()
         return self.tableCachedData('cachedRecord',recordFromCache,pkey=pkey,
@@ -552,12 +556,12 @@ class SqlTable(GnrObject):
             with currentPage.pageStore() as store:
                 if store:
                     localcache = store.getItem(cacheKey)
-                localcache = localcache or dict()
+                localcache = localcache or Bag()
                 data,in_cache = cb(cache=localcache,**kwargs)
                 if store and not in_cache:
                     store.setItem(cacheKey,localcache)
         else:
-            localcache = self.db.currentEnv.setdefault(cacheKey,dict())
+            localcache = self.db.currentEnv.setdefault(cacheKey,Bag())
             data,in_cache = cb(cache=localcache,**kwargs)
         return data
 

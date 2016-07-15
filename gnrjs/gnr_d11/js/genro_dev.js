@@ -406,8 +406,6 @@ dojo.declare("gnr.GnrDevHandler", null, {
                     dflt:existing?new gnr.GnrBag(existing):null
                 });
         }
-        
-        console.log('dataNode',dataNode);
     },
     openInspector:function(){
         var root = genro.src.newRoot();
