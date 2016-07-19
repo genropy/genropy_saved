@@ -1508,10 +1508,10 @@ dojo.declare("gnr.GnrBag", null, {
         for(var i =0; i<nodes.length; i++){
             n = nodes[i];
             if(n.getValue().getItem(path)==value){
-                break;
+                return n;
             };
         }
-        return n;
+        return;
     },
 
     /**
