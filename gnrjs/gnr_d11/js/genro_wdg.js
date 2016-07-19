@@ -1394,6 +1394,7 @@ dojo.declare("gnr.GridEditor", null, {
         }
 
         var attr = objectUpdate({}, fldDict.attr);
+        objectExtract(attr,'editDisabled,editLazy,hidden');
         var lastRenderedRowIndex = grid.currRenderedRowIndex;
         grid.currRenderedRowIndex = row;
         attr = grid.sourceNode.evaluateOnNode(attr,function(path){return path.indexOf('#ROW')>=0});
