@@ -3811,7 +3811,7 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
                 switches[k] = {'search':new RegExp(sw[k])};
                 objectUpdate(switches[k],objectExtract(sourceNode.attr,'switch_'+k+'_*',true));
                 if(switches[k].action){
-                    switches[k].action = funcCreate(switches[k].action,null,sourceNode);
+                    switches[k].action = funcCreate(switches[k].action,'match',sourceNode);
                 }
             }
         }
