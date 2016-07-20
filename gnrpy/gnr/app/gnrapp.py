@@ -190,7 +190,7 @@ class GnrSqlAppDb(GnrSqlDb):
 
 
     def notifyDbUpdate(self,tblobj,recordOrPkey=None,**kwargs):
-        pass
+        self.application.notifyDbUpdate(tblobj,recordOrPkey=recordOrPkey,**kwargs)
     
         
     def delete(self, tblobj, record, **kwargs):
