@@ -559,7 +559,8 @@ class SqlTable(GnrObject):
                 localcache = localcache or Bag()
                 data,in_cache = cb(cache=localcache,**kwargs)
                 if store and not in_cache:
-                    store.setItem(cacheKey,localcache)
+                    print 'caching',self.fullname,data.get(self.pkey)
+                    store.setItem(cacheKey,localcache,_caching_table=self.fullname)
         else:
             localcache = self.db.currentEnv.setdefault(cacheKey,Bag())
             data,in_cache = cb(cache=localcache,**kwargs)
