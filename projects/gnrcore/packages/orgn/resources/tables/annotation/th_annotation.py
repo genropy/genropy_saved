@@ -280,7 +280,7 @@ class Form(BaseComponent):
                                             condition_system_annotations=self.db.table('orgn.annotation_type').systemAnnotations())
             action_type_condition = "(CASE WHEN $restrictions IS NOT NULL THEN :restriction = ANY(string_to_array($restrictions,',')) ELSE TRUE END)"
             action_type_kwargs = dict(condition_restriction=linked_entity)
-        topbc = bc.borderContainer(region='top',datapath='.record',height='50%')
+        topbc = bc.borderContainer(region='top',datapath='.record',height='55%')
         fb = topbc.contentPane(region='top').div(margin_right='20px',margin='10px').formbuilder(cols=2, border_spacing='4px',
                                                                                             fld_width='100%',
                                                                                             colswidth='auto',width='100%')

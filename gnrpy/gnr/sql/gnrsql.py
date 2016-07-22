@@ -600,12 +600,9 @@ class GnrSqlDb(GnrObject):
         self._tablesMasterIndex_step(toImport=toImport,imported=imported,dependencies=dependencies,result=result,deferred=deferred,blocking=blocking)
         if len(deferred)==0:
             return result
-        print 'deferred',deferred.keys()
         for k,v in deferred.items():
             print 'table ',k,
             print '\t\t bloccata da',v
-
-
         raise GnrSqlException(message='Blocked dependencies')
 
 

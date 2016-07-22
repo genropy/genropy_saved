@@ -26,6 +26,7 @@ import Pyro4
 import os
 import re
 from datetime import datetime
+from collections import defaultdict
 from gnr.core.gnrbag import Bag,BagResolver
 from gnr.web.gnrwebpage import ClientDataChange
 from gnr.core.gnrclasses import GnrClassCatalog
@@ -166,6 +167,8 @@ class BaseRegister(BaseRemoteObject):
         self.itemsData = dict()
         self.itemsTS = dict()
         self.locked_items = dict()
+        self.cached_tables = defaultdict(dict)
+
 
 
     def lock_item(self,register_item_id,reason=None):
@@ -207,11 +210,28 @@ class BaseRegister(BaseRemoteObject):
         if evt == 'ins':
             pathlist.append(node.label)
         path = '.'.join(pathlist)
+        if evt!='del' and node.attr.get('_caching_table'):
+            caching_subscribers = self.cached_tables[node.attr['_caching_table']]
+            register_item_id = register_item['register_item_id']
+            if not register_item_id in caching_subscribers:
+                caching_subscribers[register_item_id] = set([path])
+            else:
+                caching_subscribers[register_item_id].add(path)
         for subscribed in register_item['subscribed_paths']:
             if path.startswith(subscribed):
                 register_item['datachanges'].append(
                         ClientDataChange(path=path, value=node.value, reason='serverChange', attributes=node.attr))
                 break
+
+    def invalidateTableCache(self,table):
+        table_cache = self.cached_tables.pop(table)
+        for register_item_id,pathset in table_cache.items():
+            data = self.get_item_data(register_item_id)
+            if not data:
+                continue #dead item
+            for p in pathset:
+                data[p] = None
+
     def getRemoteData(self,register_item_id):
         pass
 
@@ -515,6 +535,7 @@ class PageRegister(BaseRegister):
             if not dbevents: 
                 continue
             table_code = table.replace('.', '_')
+            self.siteregister.checkCachedTables(table)
             subscribers = self.subscribed_table_pages(table)
             if not subscribers: 
                 continue
@@ -565,7 +586,10 @@ class SiteRegister(BaseRemoteObject):
         self.allowed_users = None
 
 
-
+    def checkCachedTables(self,table):
+        for register in (self.page_register,self.connection_register,self.user_register):
+            if table in register.cached_tables:
+                register.invalidateTableCache(table)
 
     def setConfiguration(self,cleanup=None):
         cleanup = cleanup or dict()

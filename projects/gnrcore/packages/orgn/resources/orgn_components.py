@@ -15,7 +15,7 @@ class OrganizerComponent(BaseComponent):
 
     @extract_kwargs(user=True)
     @struct_method
-    def td_annotationTableHandler(self,pane,linked_entity=None,user_kwargs=None,configurable=True,nodeId=None,**kwargs):
+    def td_annotationTableHandler(self,pane,linked_entity=None,user_kwargs=None,configurable=True,parentForm=False,nodeId=None,**kwargs):
         pid = id(pane)
         if not linked_entity:
             parentTable = pane.getInheritedAttributes()['table']
@@ -31,7 +31,8 @@ class OrganizerComponent(BaseComponent):
                                 form_user_kwargs=user_kwargs,configurable=configurable,
                                 default_linked_entity=linked_entity,
                                 form_linked_entity=linked_entity,
-                                liveUpdate=True,
+                                liveUpdate=True,parentForm=parentForm,
+                                form_form_parentLock=False if parentForm is False else None,
                                 view_grid_canSort=False,
                                 view_grid_selfsubscribe_do_action="genro.formById('%s').goToRecord($1.pkey);" %formOutcomeId,
                                 addrow=[('Annotation',dict(rec_type='AN')),('Action',dict(rec_type='AC'))],
@@ -79,6 +80,7 @@ class OrganizerComponent(BaseComponent):
         if pkey:
             bc.dataController('SET .pkey = pkey; FIRE .controller.loaded=pkey;',pkey=pkey,_onStart=True)
             bc.dataRecord('.record',table,pkey='^#FORM.pkey',_if='pkey')
-        th = bc.annotationTableHandler(nodeId='annotationTH',linked_entity=linked_entity,region='center',lockable=True,**kwargs)
+        th = bc.annotationTableHandler(nodeId='annotationTH',linked_entity=linked_entity,
+                                        region='center',lockable=True,**kwargs)
         bc.dataController("form.newrecord(default_kw)",form=th.form.js_form,subscribe_newAnnotation=True)
 

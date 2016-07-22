@@ -205,8 +205,8 @@ class Table(object):
     def relatedEntityInfo(self,record):
         for colname,colobj in self.columns.items():
             related_table = colobj.relatedTable()
-            if colname.startswith('le_') and record[colname]:
-                return related_table.fullname,record['linked_entity'] or self.linkedEntityName(related_table),record[colname]
+            if colname.startswith('le_') and record.get(colname):
+                return related_table.fullname,record.get('linked_entity') or self.linkedEntityName(related_table),record[colname]
 
 
     def trigger_onInserting(self,record_data=None):

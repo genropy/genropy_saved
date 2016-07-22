@@ -666,16 +666,22 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
         } else {
             if(this.switches){
                 var sn = this._parentSourceNode;
+                var foundmatch = false;
                 for (var sw in this.switches){
                     var sobj = this.switches[sw];
-                    if(query.caption.match(sobj.search)){
+                    var m = query.caption.match(sobj.search);
+                    if(m){
                         var switchcb;
                         if(sobj.set){
                             switchcb = function(){sn.widget.setDisplayedValue(sn.currentFromDatasource(sobj.set),true);};
                         }else if(sobj.value){
                             switchcb = function(){sn.widget.setValue(sn.currentFromDatasource(sobj.value),true);};
                         }else if(sobj.action){
-                            switchcb = sobj.action;
+                            switchcb = function(){
+                                sobj.action(m);
+                            };
+                        }else{
+                            foundmatch = m;
                         }
                         if(switchcb){
                             setTimeout(switchcb,1);
@@ -683,6 +689,10 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                             return;
                         }
                     }
+                }
+                if(foundmatch){
+                    findCallback([], request);
+                    return;
                 }
             }
             var ignoreCase = request.queryOptions ? request.queryOptions.ignoreCase : false;

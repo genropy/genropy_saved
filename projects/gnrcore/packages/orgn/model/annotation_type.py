@@ -26,6 +26,10 @@ class Table(object):
         return self.newrecord(code='ACT_RESCHEDULED',description='Action Rescheduled',reserved=True)
 
 
+    def sysRecord_SYS_ANNOTATION(self):
+        return self.newrecord(code='SYS_ANNOTATION',description='System Annotation',reserved=True)
+
+
 
     def systemAnnotations(self):
         return ['ACT_CONFIRMED','ACT_CANCELLED','ACT_RESCHEDULED']

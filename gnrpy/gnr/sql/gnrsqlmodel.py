@@ -861,8 +861,13 @@ class DbTableObj(DbModelObj):
 
     @property  
     def dependencies(self):
-        return uniquify([('.'.join(x.split('.')[:-1]),deferred or onDelete=='setnull') for x,deferred,foreignkey,onDelete in self.relations_one.digest('#v,#a.deferred,#a.foreignkey,#a.onDelete') if foreignkey and not x.startswith(self.fullname)])
-      
+        r = []
+        for x,deferred,foreignkey,onDelete in self.relations_one.digest('#v,#a.deferred,#a.foreignkey,#a.onDelete'):
+            reltbl = '.'.join(x.split('.')[0:-1])
+            if foreignkey and reltbl!=self.fullname:
+                r.append((reltbl,deferred or onDelete=='setnull'))
+        return r
+
     @property  
     def virtual_columns(self):
         """Returns a DbColAliasListObj"""

@@ -1843,6 +1843,11 @@ class GnrWebPage(GnrBaseWebPage):
         root.div(id='auxDragImage')
         root.div(id='srcHighlighter')
         pageOptions = self.pageOptions or dict()
+        clientCachedRecord = pageOptions.get('clientCachedRecord')
+        if clientCachedRecord:
+            for table in clientCachedRecord.split(','):
+                root.data('gnr.cachedRecord.%s' %table,None,
+                            serverpath='cachedRecord.%s' %table)
         if self.root_page_id and self.root_page_id==self.parent_page_id:
             root.dataController("""var openMenu = genro.isMobile?false:openMenu;
                                if(openMenu===false){

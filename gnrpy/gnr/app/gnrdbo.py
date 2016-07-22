@@ -158,8 +158,8 @@ class GnrDboPackage(object):
         all_pref[self.name] = s['preferences']
         self.db.table('adm.preference').savePreference(all_pref)
         db.commit()
-        tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
-        for tablename in tables:
+        tw = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
+        for tablename in tw:
             tblobj = db.table('%s.%s' %(self.name,tablename))
             currentRecords = tblobj.query().fetchAsDict('pkey')
             records = s[tablename]
@@ -208,11 +208,16 @@ class GnrDboPackage(object):
         tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
         for tname in tables:
             tblobj = self.tables[tname]
-            handler = getattr(tblobj,'startupData',None)
+            handler = getattr(tblobj.dbtable,'startupData',None)
             if handler:
                 f = handler()
             else:
-                f = tblobj.dbtable.query(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False).fetch()
+                qp_handler = getattr(tblobj.dbtable,'startupDataQueryPars',None)
+                queryPars = dict(addPkeyColumn=False,bagFields=True)
+                if qp_handler:
+                    queryPars.update(qp_handler())
+                    print 'queryPars',tblobj.dbtable.fullname,queryPars,
+                f = tblobj.dbtable.query(**queryPars).fetch()
             s[tname] = f
         s['preferences'] = self.db.table('adm.preference').loadPreference()[self.name]
         s.makePicklable()
@@ -882,8 +887,11 @@ class TableBase(object):
 
 
     def isInStartupData(self):
-        if self.attributes.get('inStartupData') is False:
+        inStartupData = self.attributes.get('inStartupData')
+        if inStartupData is False:
             return False
+        elif inStartupData is not None:
+            return True
         for t,isdeferred in self.model.dependencies:
             if not self.db.table(t).isInStartupData():
                 return False
