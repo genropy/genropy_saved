@@ -2552,6 +2552,9 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
     },
     versionpatch_11__openMyself: function (e) {
         var contextclick = (e.button==2 ||  genro.dom.getEventModifiers(e)=='Ctrl');
+        if(this.validclass && !genro.wdg.filterEvent(e,null,this.validclass)){
+            return;
+        }
         if (contextclick && (!this.modifiers)) {
             this._openMyself_replaced.call(this, e);
 
