@@ -135,6 +135,7 @@ class GnrDaemon(object):
         self.socket = socket 
         self.sockets = sockets
         self.hmac_key = str(hmac_key or PYRO_HMAC_KEY)
+        Pyro4.config.REQUIRE_EXPOSE = False
         if OLD_HMAC_MODE:
             Pyro4.config.HMAC_KEY = self.hmac_key
         if compression:

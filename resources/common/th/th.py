@@ -496,7 +496,7 @@ class MultiButtonForm(BaseComponent):
         columns = store_kwargs.pop('columns','*')
         tbkw = dict()
         if darkToolbar:
-            tbkw = dict(gradient_from='#999',gradient_to='#666')
+            tbkw = dict(_class='darktoolbar')
         bar = frame.top.slotToolbar('5,mbslot,*',height='20px',**tbkw)
         caption_field = caption or self.db.table(table).attributes['caption_field']
         multibutton_kwargs.setdefault('caption',caption_field)
