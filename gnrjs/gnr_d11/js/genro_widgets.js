@@ -4145,7 +4145,7 @@ dojo.declare("gnr.widgets.BaseSelect", null, {
             for (var k in related_setter){
                 values[related_setter[k]] = selectRow[k];
             }
-            grid.collectionStore().updateRow(this.editedRowIndex,values)
+            grid.collectionStore().updateRow(this.editedRowIndex,values);
         }
     }
 });
