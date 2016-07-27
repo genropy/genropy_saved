@@ -7,6 +7,7 @@ vobject
 pytz
 babel
 httplib2
+selectors34
 serpent
 pyro4
 argparse

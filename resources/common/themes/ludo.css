@@ -992,3 +992,8 @@
     opacity: 1;
 }
 
+.slotbar_toolbar_standard.darktoolbar{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#999), to(#224272));
+    background-image: -moz-linear-gradient(-90deg, #666, #999);
+}
+

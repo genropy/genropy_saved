@@ -1083,3 +1083,7 @@
     background-color: #E4E4E4;
     cursor:pointer;
 }
+
+.darktoolbar{
+    background-color: #666;
+}
