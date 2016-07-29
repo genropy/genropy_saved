@@ -222,7 +222,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     publish: function(command,kw,topic_kw){
-        var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent}; //iframe:'*' removed (useless?) it gives problem with multipage
+        var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent,iframe:'*'} // re add iframe:'*', (it gives problem with multipage?)
         genro.publish(topic,kw);
     },
 
