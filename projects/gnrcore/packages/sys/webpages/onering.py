@@ -11,6 +11,8 @@ from gnr.core.gnrbag import Bag
 import Pyro4
 if hasattr(Pyro4.config, 'METADATA'):
     Pyro4.config.METADATA = False
+if hasattr(Pyro4.config, 'REQUIRE_EXPOSE'):
+    Pyro4.config.REQUIRE_EXPOSE = False
 
 from gnr.core.gnrstring import fromJson
 from datetime import datetime,timedelta
