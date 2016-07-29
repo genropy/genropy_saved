@@ -11,6 +11,8 @@ from gnr.core.gnrbag import Bag
 import Pyro4
 if hasattr(Pyro4.config, 'METADATA'):
     Pyro4.config.METADATA = False
+if hasattr(Pyro4.config, 'REQUIRE_EXPOSE'):
+    Pyro4.config.REQUIRE_EXPOSE = False
 
 from gnr.core.gnrstring import fromJson
 from datetime import datetime,timedelta
@@ -188,8 +190,8 @@ class GnrCustomWebPage(object):
                          SET current_site.data.loaded_connections = result.popNode("connections");
                          SET current_site.data.loaded_pages = result.popNode("pages");
                          """,_timing=3,
-            sysrpc=True,sitename='^main.sitename')
-        frame.dataRpc('current_site.record',self.getSiteRecord,sitename='^main.sitename')
+            sysrpc=True,sitename='^main.sitename',_if='sitename')
+        frame.dataRpc('current_site.record',self.getSiteRecord,sitename='^main.sitename',_if='sitename')
         frame.top.slotBar('2,vtitle,*',vtitle='Running sites',_class='pbl_roundedGroupLabel')
 
     def siteControlPane(self,frame):

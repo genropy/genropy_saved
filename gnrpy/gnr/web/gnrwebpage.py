@@ -722,7 +722,10 @@ class GnrWebPage(GnrBaseWebPage):
             login['message'] = ''
             loginPars = avatar.loginPars
             loginPars.update(avatar.extra_kwargs)
-            self.btc.cleanUserBatches(self.user)
+            try:
+                self.btc.cleanUserBatches(self.user)
+            except self.siter.register.locked_exception:
+                pass
         else:
             login['message'] = 'invalid login'
         return (login, loginPars)
@@ -1595,7 +1598,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self.site.getPreference(path, pkg=pkg, dflt=dflt)
        
     @public_method 
-    def getUserPreference(self, path='*', pkg=None, dflt=None, username=None):
+    def getUserPreference(self, path='*', pkg=None, dflt=None, username=None,**kwargs):
         """TODO
         
         :param path: TODO
@@ -1607,7 +1610,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self.site.getUserPreference(path, pkg=pkg, dflt=dflt, username=username)
         
     @public_method
-    def getAppPreference(self, path='*'):
+    def getAppPreference(self, path='*',**kwargs):
         """TODO
         
         :param path: TODO"""
@@ -1781,9 +1784,26 @@ class GnrWebPage(GnrBaseWebPage):
         if self.dbstore:
             page.data('gnr.dbstore',self.dbstore)
         if has_adm:
-            page.dataRemote('gnr.user_preference', self.getUserPreference,username='^gnr.avatar.user')
-            page.dataRemote('gnr.app_preference', self.getAppPreference)
+            page.dataRemote('gnr.user_preference', self.getUserPreference,username='^gnr.avatar.user',
+                            _resolved=True,_resolved_username=self.user)
+            page.dataRemote('gnr.app_preference', self.getAppPreference,_resolved=True)
             page.dataRemote('gnr.shortcuts.store', self.getShortcuts)
+
+            page.dataController("""
+                var rotate_val = user_theme_filter_rotate || app_theme_filter_rotate || 0;
+                var invert_val = user_theme_filter_invert || app_theme_filter_invert || 0;
+                var kw = {'rotate':rotate_val,'invert':invert_val};
+                var styledict = {font_family:app_theme_font_family};
+                genro.dom.css3style_filter(null,kw,styledict);
+                dojo.style(dojo.body(),styledict);
+                """,app_theme_filter_rotate='^gnr.app_preference.sys.theme.body.filter_rotate',
+                    user_theme_filter_rotate='^gnr.user_preference.sys.theme.body.filter_rotate',
+                    app_theme_filter_invert='^gnr.app_preference.sys.theme.body.filter_invert',
+                    user_theme_filter_invert='^gnr.user_preference.sys.theme.body.filter_invert',
+                    app_theme_font_family='^gnr.app_preference.sys.theme.body.font_family',
+                    _onStart=True)
+
+
 
         page.dataController('genro.dlg.serverMessage("gnr.servermsg");', _fired='^gnr.servermsg')
         page.dataController("genro.dom.setClass(dojo.body(),'bordered_icons',bordered);",
@@ -1823,6 +1843,11 @@ class GnrWebPage(GnrBaseWebPage):
         root.div(id='auxDragImage')
         root.div(id='srcHighlighter')
         pageOptions = self.pageOptions or dict()
+        clientCachedRecord = pageOptions.get('clientCachedRecord')
+        if clientCachedRecord:
+            for table in clientCachedRecord.split(','):
+                root.data('gnr.cachedRecord.%s' %table,None,
+                            serverpath='cachedRecord.%s' %table)
         if self.root_page_id and self.root_page_id==self.parent_page_id:
             root.dataController("""var openMenu = genro.isMobile?false:openMenu;
                                if(openMenu===false){
@@ -1997,14 +2022,18 @@ class GnrWebPage(GnrBaseWebPage):
         return result
     
     @public_method                                 
-    def remoteBuilder(self, handler=None, py_requires=None,**kwargs):
+    def remoteBuilder(self, handler=None,tag=None, py_requires=None,**kwargs):
         """TODO
         
         :param handler: TODO"""
         if py_requires:
             for p in py_requires.split(','):
                 self.mixinComponent(p)
-        handler = self.getPublicMethod('remote', handler)
+        if tag:
+            def handler(root,**pars):
+                root.child(tag,**pars)
+        else:
+            handler = self.getPublicMethod('remote', handler)
         if handler:
             pane = self.newSourceRoot()
             self._root = pane
@@ -2013,6 +2042,7 @@ class GnrWebPage(GnrBaseWebPage):
                     kwargs[k[0:-5]] = kwargs.pop(k)[1:]
             handler(pane, **kwargs)
             return pane
+        
             
     def rpc_ping(self, **kwargs):
         """TODO"""

@@ -1,10 +1,12 @@
 .menutree .opendir{
     width: 12px;
-    background: url(icons/tinyOpenBranch.png) no-repeat center center;
+    background: url(/_gnr/11/css/icons/base10/tinyOpenBranch.png) no-repeat center center;
+
 }
 .menutree .closedir{
     width: 12px;
-    background: url(icons/tinyCloseBranch.png) no-repeat center center;
+    background: url(/_gnr/11/css/icons/base10/tinyCloseBranch.png) no-repeat center center;
+
 }
 
 .tundra .menutree .dijitTreeIcon{

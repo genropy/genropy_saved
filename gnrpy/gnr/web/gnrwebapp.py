@@ -32,7 +32,7 @@ class GnrWsgiWebApp(GnrApp):
             else:
                 records = [recordOrPkey]
         for record in records:
-            self.application.notifyDbEvent(tblobj, record, 'U')
+            self.notifyDbEvent(tblobj, record, 'U')
 
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
         """TODO

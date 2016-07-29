@@ -62,7 +62,7 @@ class ViewMixedComponent(View):
         r.fieldcell('__mod_ts',name='!!Last upd.',width='6em')
         r.fieldcell('__mod_user',name='!!Upd.User',width='9em')
         r.cell('annotation_template',name='!!Type',width='9em',
-                rowTemplate="""<div style='background:$annotation_background;color:$annotation_color;border:1px solid $color;text-align:center;border-radius:10px;'>$annotation_caption</div>""")
+                rowTemplate="""<div style='background:$annotation_background;color:$annotation_color;border:1px solid $annotation_color;text-align:center;border-radius:10px;'>$annotation_caption</div>""")
         r.fieldcell('annotation_caption',hidden=True)
         r.fieldcell('calc_description',width='25em',name='Description')
         r.cell('action_do',name=" ",calculated=True,width='3em',
@@ -255,6 +255,7 @@ class ActionOutcomeForm(BaseComponent):
 
     @public_method
     def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
+        recInfo.pop('_protect_write',None)
         record['$allowed_user_pkeys'] = self.db.table('orgn.annotation').getAllowedActionUsers(record)
         record.setItem('.exit_status','more_info',_sendback=True)
 
@@ -279,7 +280,7 @@ class Form(BaseComponent):
                                             condition_system_annotations=self.db.table('orgn.annotation_type').systemAnnotations())
             action_type_condition = "(CASE WHEN $restrictions IS NOT NULL THEN :restriction = ANY(string_to_array($restrictions,',')) ELSE TRUE END)"
             action_type_kwargs = dict(condition_restriction=linked_entity)
-        topbc = bc.borderContainer(region='top',datapath='.record',height='50%')
+        topbc = bc.borderContainer(region='top',datapath='.record',height='55%')
         fb = topbc.contentPane(region='top').div(margin_right='20px',margin='10px').formbuilder(cols=2, border_spacing='4px',
                                                                                             fld_width='100%',
                                                                                             colswidth='auto',width='100%')

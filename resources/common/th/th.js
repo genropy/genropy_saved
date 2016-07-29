@@ -15,6 +15,7 @@ var th_unifyrecord = function(kw){
         }
         var message = messagebag.getItem('tabledata').getFormattedValue();
         message = '<div style="margin:auto;">' +message+'</div>';
+        kw.timeout = 60*1000*10;
         genro.dlg.ask(title,message,null,{confirm:function(){
             genro.serverCall('app.unifyRecords',kw,function(result){console.log('ok');});}
         });
@@ -251,7 +252,7 @@ dojo.declare("gnr.LinkerManager", null, {
             if(this.embedded || this.getCurrentPkey()){
                 genro.dom.removeClass(this.sourceNode,"th_enableLinker");
             }
-        },10,this,'closing')
+        },10,this,'closing_linker_'+this.sourceNode._id);
         
     },
     getCurrentPkey:function(){

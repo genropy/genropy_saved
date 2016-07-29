@@ -20,8 +20,10 @@ class Main(BaseResourceAction):
     def do(self):
         values = self.batch_parameters.get('values')
         updater = dict()
-        for k,v in values.items():
-            if v is not None:
+        for k,v,forced_null in values.digest('#k,#v,#a.forced_null'):
+            if forced_null:
+                updater[k] = None
+            elif v is not None:
                 updater[k] = v
         self.batchUpdate(updater,_raw_update=True,message='setting_values')
         self.db.commit()
@@ -29,10 +31,16 @@ class Main(BaseResourceAction):
     def table_script_parameters_pane(self, pane, table=None,**kwargs):
         tblobj = self.db.table(table)
         cols = int(len(tblobj.columns)/30)+1
-        fb = pane.div(max_height='600px',overflow='auto').formbuilder(margin='5px',cols=cols,border_spacing='3px',dbtable=table,datapath='.values')
+        box = pane.div(max_height='600px',overflow='auto')
+        box.menu(validclass='gnrfieldlabel').menuline('Force value to NULL',
+                                                    action="""var lablesn = $2;
+                                                              lablesn.setRelativeData('.'+lablesn.attr.fieldname+'?forced_null',true);""")
+        fb = box.formbuilder(margin='5px',cols=cols,border_spacing='3px',dbtable=table,datapath='.values')
         for k,v in tblobj.columns.items():
             attr = v.attributes
             if not (attr.get('_sysfield') or attr.get('dtype') == 'X'):
-                fb.field(k,validate_notnull=False,html_label=True)
+                fb.field(k,validate_notnull=False,html_label=True,zoom=False,lbl_fieldname=k,
+                            validate_onAccept='SET .%s?forced_null=false;' %k,
+                            lbl_color='^.%s?forced_null?=#v?"red":null' %k)
 
 

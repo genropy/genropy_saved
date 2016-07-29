@@ -22,15 +22,13 @@
 
 from __future__ import with_statement
 
-__version__ = '1.0b'
 
 import logging
-
-gnrlogger = logging.getLogger(__name__)
 import cPickle
 import os
 import shutil
 from time import time
+from gnr.core.gnrstring import boolean
 from gnr.core.gnrlang import getUuid
 from gnr.core.gnrlang import GnrObject
 from gnr.core.gnrlang import importModule, GnrException
@@ -45,6 +43,9 @@ from datetime import datetime
 import re
 import thread
 import locale
+
+__version__ = '1.0b'
+gnrlogger = logging.getLogger(__name__)
 
 def in_triggerstack(func):
     """TODO"""
@@ -148,7 +149,7 @@ class GnrSqlDb(GnrObject):
     @property
     def reuse_relation_tree(self):
         if self.application:
-            return self.application.config['db?reuse_relation_tree']
+            return boolean(self.application.config['db?reuse_relation_tree']) is not False
         return
 
     def createModel(self):
@@ -394,6 +395,8 @@ class GnrSqlDb(GnrObject):
                     for c in cursor:
                         c.execute(sql, sqlargs)
                 else:
+                    #if sql.startswith('INSERT') or sql.startswith('UPDATE') or sql.startswith('DELETE'):
+                    #    print sql.split(' ',1)[0],storename,self.currentEnv.get('connectionName'),'dbtable',dbtable
                     cursor.execute(sql, sqlargs)
                 if self.debugger:
                     self.debugger(sql=sql, sqlargs=sqlargs, dbtable=dbtable,delta_time=time()-t_0)
@@ -443,7 +446,7 @@ class GnrSqlDb(GnrObject):
     def raw_insert(self, tblobj, record, **kwargs):
         self.adapter.insert(tblobj, record,**kwargs)
 
-    def raw_update(self, tblobj, record, **kwargs):
+    def raw_update(self, tblobj, record,old_record=None, **kwargs):
         self.adapter.update(tblobj, record,**kwargs)
 
     def raw_delete(self, tblobj, record, **kwargs):
@@ -574,13 +577,15 @@ class GnrSqlDb(GnrObject):
             
     packages = property(_get_packages)
 
-    def tablesMasterIndex(self,hard=False):
+    def tablesMasterIndex(self,hard=False,filterCb=None):
         packages = self.packages.keys()
         toImport = []
         dependencies = dict()
         for k,pkg in enumerate(packages):
             pkgobj = self.package(pkg)
             tables = pkgobj.tables.values()
+            if filterCb:
+                tables = filter(filterCb,tables)
             toImport.extend(tables)
             for tbl in tables:
                 dset = set()
@@ -595,12 +600,9 @@ class GnrSqlDb(GnrObject):
         self._tablesMasterIndex_step(toImport=toImport,imported=imported,dependencies=dependencies,result=result,deferred=deferred,blocking=blocking)
         if len(deferred)==0:
             return result
-        print 'deferred',deferred.keys()
         for k,v in deferred.items():
-            print '\n table ',k
+            print 'table ',k,
             print '\t\t bloccata da',v
-
-
         raise GnrSqlException(message='Blocked dependencies')
 
 

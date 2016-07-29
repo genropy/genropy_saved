@@ -57,8 +57,11 @@ dojo.declare('gnr.GenroClient', null, {
         this.debuglevel = kwargs.startArgs.debug || null;
         this.debug_sql = kwargs.startArgs.debug_sql;
         dojo.subscribe('gnrServerLog', this, 'serverLog');
+        dojo.subscribe('externalSetData', this, function(kw){
+            genro.setData(kw.path,kw.value,kw.attr,{doTrigger:'externalSetData'});
+        });
         //this.debug_py = kwargs.startArgs.debug_py;
-        this.websockets_url=kwargs.startArgs.websockets_url;
+        this.websockets_url = objectPop(kwargs.startArgs,'websockets_url');
         this.pageMode = kwargs.pageMode;
         this.pageModule = kwargs.pageModule;
         this.baseUrl = kwargs.baseUrl;
@@ -87,6 +90,8 @@ dojo.declare('gnr.GenroClient', null, {
         this.lastPing = start_ts;
         this._debugPaths = {};
         this.sendAllEvents=true;
+        this._lastMouseEvent = {};
+        this._longClickDuration = 1500;
         this._lastUserEventTs = start_ts;
         this._lastChildUserEventTs = start_ts;
         this._lastGlobalUserEventTs = start_ts;
@@ -335,6 +340,47 @@ dojo.declare('gnr.GenroClient', null, {
             }
             genro.currProfilers = {nc:0,st:0,sqlt:0,sqlc:0};
         },15000);
+        
+        window.addEventListener("click", function(e){
+            e._clickDuration = genro._lastMouseEvent.duration;
+            e._longClick = genro._lastMouseEvent.longClick;
+            genro._lastMouseEvent.mousedown = e;
+         },true);
+
+        window.addEventListener("mousedown", function(e){
+            genro._lastMouseEvent.duration = null;
+            genro._lastMouseEvent.longClick = null;
+            genro._lastMouseEvent.mousedown = e;
+            genro._lastKeyDown = null;
+            var mu = genro._lastMouseEvent.mouseup;
+            var hasRecentClick =  mu && (e.timeStamp - mu.timeStamp)<500;
+            genro._lastMouseEvent.startMouseDown = setTimeout(function(){
+                var topic = hasRecentClick?'clickAndHold':'longMouseDown';
+                genro.publish(topic,{event:e});
+                var target = e.target;
+                var handler = target.getAttribute('on'+topic.toLowerCase());
+                var sn = genro.dom.getSourceNode(e.target);
+                if(handler){
+                    funcApply(handler,{event:e},sn || target);
+                }
+                if(sn){
+                    sn.publish(topic,{event:e});
+                }
+            },1500);
+         },true);
+        window.addEventListener("mouseup", function(e){
+            genro._lastMouseEvent.mouseup = e;
+            var duration = genro._lastMouseEvent.mouseup.timeStamp - genro._lastMouseEvent.mousedown.timeStamp;
+            var md = genro._lastMouseEvent.mousedown;
+            genro._lastMouseEvent.duration = duration;
+            clearTimeout(genro._lastMouseEvent.startMouseDown);
+            if(duration>genro._longClickDuration && e.target===md.target && e.x==md.x && e.y==md.y){
+                genro._lastMouseEvent.longClick = true;
+            }
+        },true);
+        window.addEventListener("keydown", function(e){
+            genro._lastKeyDown = e;
+         },true);
     },
 
     serverLog:function(data){
@@ -514,7 +560,13 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dev.shortcut("Ctrl+Shift+D", function() {
             genro.dev.showInspector();
         });
-
+        var dupKey = genro.isMac?"Cmd+D":"Ctrl+D";
+        genro.dev.shortcut(dupKey, function(e) {
+            var sn = genro.dom.getSourceNode(e.target);
+            if(sn){
+                sn.publish('duplicateCommand',{targetDomNode:e.target});
+            }
+        });
         genro.dev.shortcut("Ctrl+Shift+I", function() {
             genro.dev.openGnrIde();
         });
@@ -901,7 +953,7 @@ dojo.declare('gnr.GenroClient', null, {
             if (this.pendingCallAfter[reason]){
                 clearTimeout(this.pendingCallAfter[reason]);
             }
-             this.pendingCallAfter[reason] = setTimeout(dojo.hitch(scope, cb), timeout);
+            this.pendingCallAfter[reason] = setTimeout(dojo.hitch(scope, cb), timeout);
         }
         else{
             setTimeout(dojo.hitch(scope, cb), timeout);
@@ -1006,7 +1058,8 @@ dojo.declare('gnr.GenroClient', null, {
             v = genro.formatter.asText(v,f.joiner);
    
         }else if(v instanceof gnr.GnrBag){
-            v = genro.formatter.asText(v,objectUpdate({format:objectExtract(f,'bag_*',true)}) );
+            v = v.getFormattedValue(objectExtract(f,'bag_*',true));
+            //genro.formatter.asText(v,objectUpdate({format:objectExtract(f,'bag_*',true)}) );
         }else if (v && f.dtype=='X'){
             console.warn('DEPRECATED')
             var b = new gnr.GnrBag();
@@ -1015,7 +1068,8 @@ dojo.declare('gnr.GenroClient', null, {
                 var xmlDoc = parser.parseFromString(v,"text/xml");
                 b.fromXmlDoc(xmlDoc,genro.clsdict);
                 if(b.keys().length>0){
-                    v = genro.formatter.asText(b,objectUpdate({format:objectExtract(f,'bag_*',true)}) );
+                    //v = genro.formatter.asText(b,objectUpdate({format:objectExtract(f,'bag_*',true)}) );
+                    v = b.getFormattedValue(objectExtract(f,'bag_*',true));
                 }else{
                     v='';
                 }

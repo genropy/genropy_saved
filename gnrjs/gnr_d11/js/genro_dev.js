@@ -406,8 +406,6 @@ dojo.declare("gnr.GnrDevHandler", null, {
                     dflt:existing?new gnr.GnrBag(existing):null
                 });
         }
-        
-        console.log('dataNode',dataNode);
     },
     openInspector:function(){
         var root = genro.src.newRoot();
@@ -439,7 +437,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
                            'tree_connect_onclick':cbLog,
 
                            tree_getLabel:function(n){
-                               return n.attr.tag+':'+(n.attr.nodeId || n._id);
+                               return n.label+'['+n.attr.tag+':'+(n.attr.nodeId || n._id)+']';
                            },
                            tree_selectedPath:'.tree.selectedPath'});
         sourcePane._('dataController',{'script':'genro.src.highlightNode(fpath)', 
@@ -756,7 +754,10 @@ dojo.declare("gnr.GnrDevHandler", null, {
                 if (k == 'ctrl' || k == 'control') {
                     if (e.ctrlKey) kp++;
 
-                } else if (k == 'shift') {
+                } else if(k=='cmd' || k=='command'){
+                    if(e.metaKey) kp++;
+                }
+                else if (k == 'shift') {
                     if (e.shiftKey) kp++;
 
                 } else if (k == 'alt') {

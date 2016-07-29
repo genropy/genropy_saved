@@ -11,7 +11,8 @@ class Package(GnrDboPackage):
         pass
         
     def sidebarPlugins(self):
-        return 'organizer','frameplugin_organizer'
+        if self.getPreference('organizer_enabled'):
+            return 'organizer','frameplugin_organizer'
 
 class Table(GnrDboTable):
     pass

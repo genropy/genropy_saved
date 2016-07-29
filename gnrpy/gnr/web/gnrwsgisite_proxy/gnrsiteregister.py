@@ -20,26 +20,38 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import Pyro4
-if hasattr(Pyro4.config, 'METADATA'):
-    Pyro4.config.METADATA = False
-OLD_HMAC_MODE = hasattr(Pyro4.config,'HMAC_KEY')
-from datetime import datetime
 import time
+import thread
+import Pyro4
+import os
+import re
+from datetime import datetime
+from collections import defaultdict
 from gnr.core.gnrbag import Bag,BagResolver
 from gnr.web.gnrwebpage import ClientDataChange
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.app.gnrconfig import gnrConfigPath
-import thread
+
+if hasattr(Pyro4.config, 'METADATA'):
+    Pyro4.config.METADATA = False
+if hasattr(Pyro4.config, 'REQUIRE_EXPOSE'):
+    Pyro4.config.REQUIRE_EXPOSE = False
+
+OLD_HMAC_MODE = hasattr(Pyro4.config,'HMAC_KEY')
+
+
+class GnrDaemonException(Exception):
+    pass
+
+class GnrDaemonLocked(GnrDaemonException):
+    pass
+
 
 
 try:
     import cPickle as pickle
 except ImportError:
     import pickle
-import os
-
-import re
 
 BAG_INSTANCE = Bag()
 
@@ -48,6 +60,7 @@ PYRO_PORT = 40004
 PYRO_HMAC_KEY = 'supersecretkey'
 PYRO_MULTIPLEX = True
 LOCK_MAX_RETRY = 100
+LOCK_EXPIRY_SECONDS = 30
 RETRY_DELAY = 0.01
 
 def remotebag_wrapper(func):
@@ -157,19 +170,24 @@ class BaseRegister(BaseRemoteObject):
         self.itemsData = dict()
         self.itemsTS = dict()
         self.locked_items = dict()
+        self.cached_tables = defaultdict(dict)
+
 
 
     def lock_item(self,register_item_id,reason=None):
         #print 'locking ',self.registerName,register_item_id,reason
         locker = self.locked_items.get(register_item_id)
         if not locker:
-            self.locked_items[register_item_id] = dict(reason=reason,count=1)
+            self.locked_items[register_item_id] = dict(reason=reason,count=1,last_lock_ts=datetime.now())
             #print 'ok'
             return True
         elif locker['reason']==reason:
             locker['count'] += 1
+            locker['last_lock_ts'] = datetime.now()
             return True
         #print 'failed'
+        if (datetime.now()-locker['last_lock_ts']).total_seconds() > LOCK_EXPIRY_SECONDS:
+            self.locked_items.pop(register_item_id,None)
         return False
 
     def unlock_item(self,register_item_id,reason=None):
@@ -195,11 +213,28 @@ class BaseRegister(BaseRemoteObject):
         if evt == 'ins':
             pathlist.append(node.label)
         path = '.'.join(pathlist)
+        if evt!='del' and node.attr.get('_caching_table'):
+            caching_subscribers = self.cached_tables[node.attr['_caching_table']]
+            register_item_id = register_item['register_item_id']
+            if not register_item_id in caching_subscribers:
+                caching_subscribers[register_item_id] = set([path])
+            else:
+                caching_subscribers[register_item_id].add(path)
         for subscribed in register_item['subscribed_paths']:
             if path.startswith(subscribed):
                 register_item['datachanges'].append(
                         ClientDataChange(path=path, value=node.value, reason='serverChange', attributes=node.attr))
                 break
+
+    def invalidateTableCache(self,table):
+        table_cache = self.cached_tables.pop(table)
+        for register_item_id,pathset in table_cache.items():
+            data = self.get_item_data(register_item_id)
+            if not data:
+                continue #dead item
+            for p in pathset:
+                data[p] = None
+
     def getRemoteData(self,register_item_id):
         pass
 
@@ -503,6 +538,7 @@ class PageRegister(BaseRegister):
             if not dbevents: 
                 continue
             table_code = table.replace('.', '_')
+            self.siteregister.checkCachedTables(table)
             subscribers = self.subscribed_table_pages(table)
             if not subscribers: 
                 continue
@@ -553,7 +589,10 @@ class SiteRegister(BaseRemoteObject):
         self.allowed_users = None
 
 
-
+    def checkCachedTables(self,table):
+        for register in (self.page_register,self.connection_register,self.user_register):
+            if table in register.cached_tables:
+                register.invalidateTableCache(table)
 
     def setConfiguration(self,cleanup=None):
         cleanup = cleanup or dict()
@@ -865,6 +904,7 @@ class SiteRegisterClient(object):
     STORAGE_PATH = 'siteregister_data.pik'
 
     def __init__(self,site):
+        self.locked_exception = GnrDaemonLocked
         self.site = site
         self.siteregisterserver_uri = None
         self.siteregister_uri = None
@@ -1122,7 +1162,7 @@ class ServerStore(object):
             k += 1
             if k>self.max_retry:
                 print '************UNABLE TO LOCK STORE : %s ITEM %s ***************' % (self.register_name, self.register_item_id)
-                return
+                raise GnrDaemonLocked()
         self.success_locking_time = time.time()
         return self
 

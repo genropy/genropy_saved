@@ -103,13 +103,19 @@ class FrameGridSlots(BaseComponent):
                                 
 class FrameGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGridSlots'
-    @extract_kwargs(top=True,grid=True)
+    @extract_kwargs(top=True,grid=True,columnset=dict(slice_prefix=False),footer=dict(slice_prefix=False))
     @struct_method
     def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,dynamicStorepath=None,structpath=None,
                     datamode=None,table=None,grid_kwargs=True,top_kwargs=None,iconSize=16,
+                    footer_kwargs=None,columnset_kwargs=None,footer=None,columnset=None,fillDown=None,
                     _newGrid=None,**kwargs):
         pane.attributes.update(overflow='hidden')
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
+        grid_kwargs.setdefault('fillDown', fillDown)
+        grid_kwargs.update(footer_kwargs)
+        grid_kwargs.update(columnset_kwargs)
+        grid_kwargs.setdefault('footer',footer)
+        grid_kwargs['columnset'] = columnset
         grid_kwargs.setdefault('_newGrid',_newGrid)
         grid_kwargs.setdefault('structpath',structpath)
         grid_kwargs.setdefault('sortedBy','^.sorted')
@@ -135,7 +141,7 @@ class FrameGrid(BaseComponent):
     def fgr_bagGrid(self,pane,storepath=None,dynamicStorepath=None,
                     title=None,default_kwargs=None,
                     pbl_classes=None,gridEditor=True,
-                    addrow=True,delrow=True,slots=None,
+                    addrow=True,delrow=True,export=None,slots=None,
                     autoToolbar=True,semaphore=None,
                     datamode=None,
                     store_kwargs=True,parentForm=None,**kwargs):
@@ -151,6 +157,12 @@ class FrameGrid(BaseComponent):
             dynamicStorepath = storepath
             storepath = '.dummystore'
         datamode= datamode or 'bag'
+        if addrow=='auto':
+            addrow = False
+            kwargs['grid_autoInsert'] = True
+        if delrow=='auto':
+            delrow = False
+            kwargs['grid_autoDelete'] = True
         frame = pane.frameGrid(_newGrid=True,datamode= datamode,
                                 dynamicStorepath=dynamicStorepath,
                                 title=title,
@@ -160,6 +172,8 @@ class FrameGrid(BaseComponent):
             title = title or ''
             default_slots.append('5,vtitle')
             default_slots.append('*')
+            if export:
+                default_slots.append('export')
             if delrow:
                 default_slots.append('delrow')
             if addrow:

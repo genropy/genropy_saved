@@ -340,6 +340,8 @@ class TableHandler(BaseComponent):
             hider=True
             delrow = True if delrow is None else delrow
             addrow = False if addrow is None else addrow
+        if not delrow and rowStatusColumn is None:
+            rowStatusColumn = False
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,handlerType='plain',
                                         viewResource=viewResource,hider=hider,rowStatusColumn=rowStatusColumn,
                                         picker=picker,addrow=addrow,delrow=delrow,**kwargs)
@@ -494,7 +496,7 @@ class MultiButtonForm(BaseComponent):
         columns = store_kwargs.pop('columns','*')
         tbkw = dict()
         if darkToolbar:
-            tbkw = dict(gradient_from='#999',gradient_to='#666')
+            tbkw = dict(_class='darktoolbar')
         bar = frame.top.slotToolbar('5,mbslot,*',height='20px',**tbkw)
         caption_field = caption or self.db.table(table).attributes['caption_field']
         multibutton_kwargs.setdefault('caption',caption_field)

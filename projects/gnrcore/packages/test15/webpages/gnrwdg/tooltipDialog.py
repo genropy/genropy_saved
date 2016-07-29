@@ -109,3 +109,8 @@ class GnrCustomWebPage(object):
                     edit=dict(fields='genro.bp(true)'))
         pane.data('currentRow','dummy')
         pane.bagGrid(storepath='.data',struct=struct,height='500px',pbl_classes='*',title='Pippo')
+
+    def test_8_placing_id(self,pane):
+        fb = pane.formbuilder(cols=1,border_spacing='3px')
+        fb.textbox(value='^.pippo',nodeId='piero',width='15em').comboArrow().tooltipPane(placingId='piero').div(height='400px',width='15em').div('ciao')
+

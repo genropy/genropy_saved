@@ -586,6 +586,15 @@
 
 /* @group MenuTree */
 
+.menutree .opendir{
+    width: 12px;
+    background: url(/_gnr/11/css/icons/base10/tinyOpenBranch_white.png) no-repeat center center;
+}
+.menutree .closedir{
+    width: 12px;
+    background: url(/_gnr/11/css/icons/base10/tinyCloseBranch_white.png) no-repeat center center;
+}
+
 .menu_page  > a {
     color: #FFFFFF;
     text-decoration: none;
@@ -789,7 +798,7 @@
 ._common_d11.tundra .dojoxGrid-row.dojoxGrid-row-selected .dojoxGrid-cell{
     border-left: 0px;
     border-top: 0;
-    border-right: 1px solid #dee;
+    border-right: 1px solid #DDDDDD;
     border-bottom: 0px;
     /*height: 21px;*/
     height:0px;
@@ -802,7 +811,7 @@
 .touchDevice._common_d11 .dojoxGrid-row-selected .dojoxGrid-cell{
     border-left: 0px !important;
     border-top: 0 !important;
-    border-right: 1px solid #dee;
+    border-right: 1px solid #DDDDDD;
     border-bottom: 0px !important;
     /*height: 21px;*/
     height:0px;
@@ -814,7 +823,7 @@
 
 
 .tundra._common_d11 .dojoxGrid-content>div{
-    border-bottom: 1px solid #DDEEEE;
+    border-bottom: 1px solid #DDDDDD;
 }
 
 .tundra._common_d11 .editingGrid .dojoxGrid-row-odd.dojoxGrid-row-selected,
@@ -879,8 +888,12 @@
 }
 
 ._common_d11 .dojoxGrid-scrollbox {
-    overflow: auto;
+    overflow: scroll;
     /*background-color: white ; */
+}
+
+._common_d11 .buttons_grid  .dojoxGrid-scrollbox{
+    overflow: auto;
 }
 
 .buttons_grid .dojoxGrid-scrollbox{
@@ -972,15 +985,15 @@
     background: transparent;
 }
 
-._common_d11.tundra .dijitMenuSeparatorTop {
-    border-bottom: 0px;
-    box-shadow: 0px -1px 1px #777;
-    height: 2px;
-    margin-top: 1px;
-}
 ._common_d11.tundra .dijitMenuSeparatorBottom {
     display: none;
 }
 ._common_d11.tundra .dijitPopup > div, .tundra .dijitPopup > table{
     opacity: 1;
 }
+
+.slotbar_toolbar_standard.darktoolbar{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#999), to(#224272));
+    background-image: -moz-linear-gradient(-90deg, #666, #999);
+}
+

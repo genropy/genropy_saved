@@ -33,9 +33,6 @@ from datetime import datetime
 from gnr.core.gnrlang import gnrImport
 
 import logging
-
-gnrlogger = logging.getLogger(__name__)
-
 from gnr.core.gnrbag import Bag,DirectoryResolver
 from gnr.core import gnrlist
 
@@ -44,8 +41,11 @@ from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson,fromJson
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.web.gnrwebstruct import cellFromField
-from gnr.sql.gnrsql_exceptions import GnrSqlSaveException, GnrSqlDeleteException
+from gnr.sql.gnrsql_exceptions import GnrSqlDeleteException
 from gnr.sql.gnrsql import GnrSqlException
+
+
+gnrlogger = logging.getLogger(__name__)
 
 
 ESCAPE_SPECIAL = re.compile(r'[\[\\\^\$\.\|\?\*\+\(\)\]\{\}]')
@@ -1318,8 +1318,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         pkey = record[tblobj.pkey] or '*newrecord*'
         newrecord = pkey == '*newrecord*'
         recInfo = dict(_pkey=pkey,
-                       _newrecord=newrecord, sqlContextName=sqlContextName,_storename=_storename,
-                       from_fld=from_fld)
+                       _newrecord=newrecord, 
+                       sqlContextName=sqlContextName,_storename=_storename,
+                       from_fld=from_fld,ignoreReadOnly=ignoreReadOnly)
         #if lock and not newrecord:
         if not newrecord and not readOnly:
             recInfo['_protect_write'] =  tblobj._islocked_write(record) or not tblobj.check_updatable(record,ignoreReadOnly=ignoreReadOnly)
@@ -1332,6 +1333,12 @@ class GnrWebAppHandler(GnrBaseProxy):
         if _eager_record_stack:
             loadingParameters['_eager_record_stack'] = _eager_record_stack
         method = None
+        table_onLoading = getattr(tblobj,'onLoading',None)
+        if table_onLoading:
+            table_onLoading(record, newrecord, loadingParameters, recInfo)
+        table_onloading_handlers = [getattr(tblobj,k) for k in dir(tblobj) if k.startswith('onLoading_')]
+        for h in table_onloading_handlers:
+            h(record, newrecord, loadingParameters, recInfo)
         onLoadingHandler = onLoadingHandler or  loadingParameters.pop('method', None)
         if onLoadingHandler:
             handler = self.page.getPublicMethod('rpc', onLoadingHandler)
@@ -1651,12 +1658,13 @@ class GnrWebAppHandler(GnrBaseProxy):
         return result
 
     @public_method
-    def getValuesString(self,table,**kwargs):
+    def getValuesString(self,table,caption_field=None,**kwargs):
         tblobj = self.db.table(table)
         pkey = tblobj.pkey
-        caption_field = tblobj.attributes.get('caption_field')
+       
+        caption_field = caption_field or tblobj.attributes.get('caption_field') or tblobj.pkey
         f = tblobj.query(columns='$%s,$%s' %(pkey,caption_field),**kwargs).fetch()
-        return ','.join(['%s:%s' %(r[pkey],r[caption_field]) for r in f])
+        return ','.join(['%s:%s' %(r[pkey],(r[caption_field] or '').replace(',',' ')) for r in f])
 
     @public_method
     def getMultiFetch(self,queries=None):

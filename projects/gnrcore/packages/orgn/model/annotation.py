@@ -75,7 +75,7 @@ class Table(object):
 
         tbl.formulaColumn("calculated_date_due","""COALESCE ($date_due,$pivot_date_due)""",dtype='D',name_long='!!Calc.Date due')
 
-        tbl.formulaColumn("pivot_date_due","""(CASE WHEN @action_type_id.deadline_days IS NOT NULL AND $pivot_date IS NOT NULL
+        tbl.formulaColumn("pivot_date_due","""(CASE WHEN @action_type_id.deadline_days IS NOT NULL
                                                         THEN $pivot_date+@action_type_id.deadline_days
                                                     ELSE NULL END)""",dtype='D',name_long='!!Pivot date due')
 
@@ -84,7 +84,7 @@ class Table(object):
         
         tbl.formulaColumn('__protected_by_author',"""
             CASE WHEN :env_orgn_author_only IS NOT TRUE THEN string_to_array(:env_userTags,',') @> string_to_array(COALESCE(:env_orgn_superuser_tag,''),',')
-            ELSE TRUE END
+            ELSE $author_user_id!=:env_user_id END
             """,dtype='B')
         tbl.pyColumn('calc_description',name_long='!!Calc description',required_columns='calculated_date_due,time_due,$action_type_description,$following_actions')
 
@@ -185,7 +185,7 @@ class Table(object):
                     if related_table.column('orgn_pivot_date') is not None:
                         pivot_dates.append('@%s.orgn_pivot_date' %colname)
         description_formula = "COALESCE(%s,'Missing caption')" %','.join(desc_fields) if desc_fields else "'NOT PLUGGED'"
-        pivot_date_formula =  "COALESCE(%s)" %','.join(pivot_dates) if pivot_dates else "NULL"
+        pivot_date_formula =  "COALESCE(%s,CAST($__ins_ts AS date))" %','.join(pivot_dates) if pivot_dates else "CAST($__ins_ts AS date)"
         assigment_formula = ' AND '.join(assigments_restrictions)
         return [dict(name='connected_description',sql_formula=description_formula),
                 dict(name='pivot_date',sql_formula=pivot_date_formula,name_long='!!Pivot date',dtype='D'),
@@ -205,8 +205,8 @@ class Table(object):
     def relatedEntityInfo(self,record):
         for colname,colobj in self.columns.items():
             related_table = colobj.relatedTable()
-            if colname.startswith('le_') and record[colname]:
-                return related_table.fullname,record['linked_entity'] or self.linkedEntityName(related_table),record[colname]
+            if colname.startswith('le_') and record.get(colname):
+                return related_table.fullname,record.get('linked_entity') or self.linkedEntityName(related_table),record[colname]
 
 
     def trigger_onInserting(self,record_data=None):

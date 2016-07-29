@@ -15,6 +15,8 @@ import time
 import Pyro4
 if hasattr(Pyro4.config, 'METADATA'):
     Pyro4.config.METADATA = False
+if hasattr(Pyro4.config, 'REQUIRE_EXPOSE'):
+    Pyro4.config.REQUIRE_EXPOSE = False
 OLD_HMAC_MODE = hasattr(Pyro4.config,'HMAC_KEY')
 PYRO_HOST = 'localhost'
 PYRO_PORT = 40004

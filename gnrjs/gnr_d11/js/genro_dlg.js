@@ -29,6 +29,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
 
     constructor: function(application) {
         this.application = application;
+        this.alert_count = 0;
         this._quickDialogDestroyTimeout = 500;
     },
     recordChange: function(record_path, selected_pkey) {
@@ -248,17 +249,25 @@ dojo.declare("gnr.GnrDlgHandler", null, {
 
 
     alert:function(msg, title, buttons, resultPath, kw) {
-        genro.src.getNode()._('div', '_dlg_alert');
+        var alertCode = '_dlg_alert_'+this.alert_count;
+        genro.src.getNode()._('div', alertCode);
         var title = title || '';
         var buttons = buttons || {confirm:'OK'};
         //var kw = objectUpdate({'width':'20em'}, kw);
         var kw = kw || {};
         var confirmCb = objectPop(kw,'confirmCb')
         var resultPath = resultPath;
-        var node = genro.src.getNode('_dlg_alert').clearValue().freeze();
-        var dlg = node._('dialog', objectUpdate({nodeId:'_dlg_alert', title:title, toggle:"fade", toggleDuration:250},kw))._('div', {_class:'dlg_ask',
+        var that = this;
+        var node = genro.src.getNode(alertCode).clearValue().freeze();
+        var dlg = node._('dialog', objectUpdate({nodeId:alertCode, title:title, 
+                                                connect_show:function(){
+                                                    that.alert_count+=1;
+                                                },connect_hide:function(){
+                                                    that.alert_count-=1;
+                                                },
+                                                toggle:"fade", toggleDuration:250},kw))._('div', {_class:'dlg_ask',
             action:function(){
-                genro.wdgById('_dlg_alert').hide();
+                genro.wdgById(alertCode).hide();
                 if(resultPath){
                     genro.fireEvent(resultPath,this.attr.actCode);
                 }
@@ -273,7 +282,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             dlg._('button', {'_class':'dlg_ask_btn','label':buttons[btn],'actCode':btn});
         }
         node.unfreeze();
-        genro.wdgById('_dlg_alert').show();
+        genro.wdgById(alertCode).show();
     },
 
     serverMessage: function(msgpath) {
@@ -288,21 +297,29 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
 
     ask: function(title, msg, buttons, resultPathOrActions,kw) {
-        genro.src.getNode()._('div', '_dlg_ask');
+        var alertCode = '_dlg_ask_'+this.alert_count;
+
+        genro.src.getNode()._('div', alertCode);
         var kw = kw || {};
         var buttons = buttons || {confirm:'Confirm',cancel:'Cancel'};
         var action;
-        var node = genro.src.getNode('_dlg_ask').clearValue().freeze();
+        var that = this;
+        var node = genro.src.getNode(alertCode).clearValue().freeze();
         if (typeof(resultPathOrActions) == 'string') {
             var resultPath = resultPathOrActions;
             var actions = {};
-            action = "genro.wdgById('_dlg_ask').hide();genro.fireEvent('" + resultPath + "',this.attr.actCode);";
+            action = "genro.wdgById('"+alertCode+"').hide();genro.fireEvent('" + resultPath + "',this.attr.actCode);";
         }
         else {
             var actions = resultPathOrActions || {};
-            action = "genro.wdgById('_dlg_ask').hide();if (this.attr.act){funcCreate(this.attr.act).call();};";
+            action = "genro.wdgById('"+alertCode+"').hide();if (this.attr.act){funcCreate(this.attr.act).call();};";
         }
-        var dlg = node._('dialog', {nodeId:'_dlg_ask',title:title,centerOn:'_pageRoot'})._('div', {_class:'dlg_ask','action':action});
+        var dlg = node._('dialog', {nodeId:alertCode,title:title,
+                                    connect_show:function(){
+                                        that.alert_count+=1;
+                                    },connect_hide:function(){
+                                        that.alert_count-=1;
+                                    },centerOn:'_pageRoot'})._('div', {_class:'dlg_ask','action':action});
         dlg._('div', {'content':msg,'_class':'selectable dlg_ask_msg',width:kw.width});
         //var buttonBox = dlg._('div', {'_class':'dlg_ask_btnBox'});
 
@@ -310,7 +327,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             dlg._('button', {'_class':'dlg_ask_btn','label':buttons[btn],'actCode':btn,'act':actions[btn]});
         }
         node.unfreeze();
-        genro.wdgById('_dlg_ask').show();
+        genro.wdgById(alertCode).show();
     },
 
     batchMonitor:function(thermopath) {

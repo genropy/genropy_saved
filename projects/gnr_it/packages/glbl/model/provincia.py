@@ -18,7 +18,7 @@ class Table(object):
         tbl.column('ordine_tot', size='6', name_long='!![it]Ordine tot Gnr')
         tbl.column('cap_valido', size='2', name_long='!![it]CAP Valido')
             
-        tbl.column('nuts', size=':128' ,name_long='!![it]NUTS3').relation('glbl.nuts.code',relation_name='province',onDelete='raise')
+        tbl.column('nuts', size=':128' ,name_long='!![it]NUTS3').relation('glbl.nuts.code',relation_name='province')
 
 
 

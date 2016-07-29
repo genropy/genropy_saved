@@ -73,6 +73,7 @@ dojo.declare("gnr.GnrRemoteResolver", gnr.GnrBagResolver, {
         return result;
     },
     errorHandler: function(response, ioArgs) {
+        
         return genro.rpc.errorHandler(response, ioArgs);
     },
     resultHandler: function(response, ioArgs) {
@@ -123,6 +124,11 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         this.rpc_level = 0;
 
     },
+
+    hasPendingCall:function(){
+        return objectNotEmpty(this.rpc_register);
+    },
+
     register_call:function(kw) {
         this.rpc_counter = this.rpc_counter + 1;
         this.rpc_level = this.rpc_level + 1;
@@ -225,7 +231,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
          headers - Object. Additional HTTP headers to send in the request.
 
          */
-        var httpMethod = httpMethod || 'POST';
+        httpMethod = httpMethod || 'POST';
         if (genro._serverstore_changes) {
             callKwargs._serverstore_changes = genro._serverstore_changes;
             genro._serverstore_changes = null;
@@ -358,7 +364,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         var callKwargs = objectUpdate({}, params);
         callKwargs.method = method;
         //console.log(method,params);
-        var mode = mode || 'bag';
+        mode = mode || 'bag';
         var preprocessor, handleAs, result;
         if ((mode == 'bag') || (mode == 'xml')) {
             handleAs = 'xml';
@@ -402,7 +408,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             if(async_cb){
                 result.addCallback(async_cb);
             }
-            return result
+            return result;
         }else{
             var deferred = this._serverCall(callKwargs, xhrKwargs, httpMethod);        
             return sync? deferred.ioArgs.syncresult:deferred;
@@ -410,6 +416,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         
     },
     errorHandler: function(response, ioArgs) {
+        this.unregister_call(ioArgs);
         genro.dev.handleRpcHttpError(response, ioArgs);
     },
     setDatachangesInData:function (datachanges) {
@@ -463,7 +470,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             envelope.fromXmlDoc(response, genro.clsdict);
         }
         catch(e) {
-            console.log('error in fromXmlDoc');
+            console.log('error in fromXmlDoc',e);
             console.log(response);
             return;
         }

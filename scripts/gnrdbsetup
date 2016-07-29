@@ -172,4 +172,4 @@ if __name__ == '__main__':
                 app.db.model.applyModelChanges()
                 print 'CHANGES APPLIED TO DATABASE'
             app.db.model.checker.addExtesions()
-
+        app.db.closeConnection()

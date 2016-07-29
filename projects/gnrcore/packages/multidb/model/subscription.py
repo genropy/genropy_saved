@@ -1,6 +1,8 @@
 # encoding: utf-8
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
+from copy import deepcopy
+
 
 class Table(object):
     def config_db(self, pkg):
@@ -29,7 +31,7 @@ class Table(object):
         if tblobj.attributes.get('hierarchical'):
             queryargs.setdefault('order_by','$hierarchical_pkey')
         records = tblobj.query(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,**queryargs).fetch()
-        with self.db.tempEnv(storename=dbstore):
+        with self.db.tempEnv(storename=dbstore,_multidbSync=True):
             for rec in records:
                 tblobj.insertOrUpdate(Bag(dict(rec)))
             self.db.deferredCommit()  
@@ -50,7 +52,7 @@ class Table(object):
             handler(pkey,dbstore)
         if not self.checkDuplicate(**dict(record)):
             self.insert(record)
-
+            self.db.table(table).syncChildren(pkey)
     
     @public_method
     def delRowsSubscription(self,table,pkeys=None,dbstore=None):
@@ -75,12 +77,13 @@ class Table(object):
     def trigger_onDeleted(self,record):        
         self.syncStore(record,'D')
 
-    def cloneSubscriptions(self,table,sourcePkey,destPkey):
-        sourcestores = self.query(where="""$tablename=:t AND $%s =:fkey""" %self.tableFkey(table),t=table,fkey=sourcePkey,columns='$dbstore').fetch()
-        for store in sourcestores:
-            self.addSubscription(table=table,pkey=destPkey,dbstore=store['dbstore'])
+   #def cloneSubscriptions(self,table,sourcePkey,destPkey):
+   #    sourcestores = self.query(where="""$tablename=:t AND $%s =:fkey""" %self.tableFkey(table),t=table,fkey=sourcePkey,columns='$dbstore').fetch()
+   #    for store in sourcestores:
+   #        self.addSubscription(table=table,pkey=destPkey,dbstore=store['dbstore'])
 
-    def syncStore(self,subscription_record=None,event=None,storename=None,tblobj=None,pkey=None):
+    def syncStore(self,subscription_record=None,event=None,storename=None,
+                  tblobj=None,pkey=None,master_record=None,master_old_record=None,mergeUpdate=None):
         if subscription_record:
             table = subscription_record['tablename']
             pkey = subscription_record[self.tableFkey(table)]
@@ -88,13 +91,17 @@ class Table(object):
             storename = subscription_record['dbstore']
         if not self.db.dbstores.get(storename):
             return
-        data_record = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False).fetch()
-        if data_record:
-            data_record = data_record[0]
+        if master_record:
+            data_record = deepcopy(master_record)
         else:
-            return
-        with self.db.tempEnv(storename=storename,_systemDbEvent=True):
-            f = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,for_update=True,addPkeyColumn=False,excludeLogicalDeleted=False).fetch()
+            data_record = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False).fetch()
+            if data_record:
+                data_record = dict(data_record[0])
+            else:
+                return
+        with self.db.tempEnv(storename=storename,_systemDbEvent=True,_multidbSync=True):
+            f = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,for_update=True,
+                            addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False).fetch()
             if event == 'I':
                 if not f:
                     tblobj.insert(data_record)
@@ -103,8 +110,13 @@ class Table(object):
                 self.db.deferredCommit()
             else:
                 if f:
+                    old_record = f[0]
                     if event=='U':
-                        tblobj.update(data_record,old_record=f[0])
+                        if mergeUpdate:
+                            for k,v in data_record.items(): 
+                                if (v!=old_record[k]) and (old_record[k] != master_old_record[k]):
+                                    data_record.pop(k)
+                        tblobj.update(data_record,old_record=old_record)
                     else:
                         tblobj.delete(data_record)
                     self.db.deferredCommit()
@@ -121,24 +133,16 @@ class Table(object):
         if isinstance(table,basestring):
             table = self.db.table(table)
         return '%s_%s' %(table.fullname.replace('.','_'),table.pkey)
-        
-    def onSubscriberTrigger(self,tblobj,record,old_record=None,event=None):
-        if not self.db.usingRootstore():
-            return
+
+
+    def getSubscriptionId(self,tblobj=None,pkey=None,dbstore=None):
         fkeyname = self.tableFkey(tblobj)
-        pkey = record[tblobj.pkey]
-        tablename = tblobj.fullname
-        subscribedStores = []
-        if tblobj.attributes.get('multidb_forcedStore'):
-            store = tblobj.multidb_getForcedStore(record)
-            if store:
-                subscribedStores.append(store)
-        elif tblobj.attributes.get('multidb_allRecords') or record.get('__multidb_default_subscribed'):
-            subscribedStores = self.db.dbstores.keys()
-        else:
-            subscribedStores = self.query(where='$tablename=:tablename AND $%s=:pkey' %fkeyname,
-                                    columns='$dbstore',addPkeyColumn=False,
-                                    tablename=tablename,pkey=pkey,distinct=True).fetch()                
-            subscribedStores = [s['dbstore'] for s in subscribedStores]
-        for storename in subscribedStores:
-            self.syncStore(event=event,storename=storename,tblobj=tblobj,pkey=pkey)
+        f = self.query(where="""$tablename=:tablename AND 
+                            $%s=:pkey AND 
+                            $dbstore=:dbstore""" %fkeyname,
+                            dbstore=dbstore,
+                            tablename=tblobj.fullname,pkey=pkey).fetch()
+        return f[0]['id'] if f else None
+        
+
+

@@ -122,7 +122,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(this.canBeSaved() && !this.isNewRecord()){
              genro.callAfter(function(){
                 that.lazySave();
-             },this.autoSave,this.sourceNode,'autoSaveForm');
+             },this.autoSave,this.sourceNode,'autoSaveForm_'+this.formId);
         }
     },
 
@@ -222,7 +222,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     publish: function(command,kw,topic_kw){
-        var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent}; //iframe:'*' removed (useless?) it gives problem with multipage
+        var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent,iframe:'*'} // re add iframe:'*', (it gives problem with multipage?)
         genro.publish(topic,kw);
     },
 
@@ -338,7 +338,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             return '<div class="form_errorslogger">No record loaded</div>';
         }
         if(this.status=='readOnly'){
-            return '<div class="form_errorslogger">Read Only</div>';
+            var readOnlyMsg = 'Read Only';
+            var protectWriteMessage = this.getDataNodeAttributes()._protect_write_message;
+            return '<div class="form_errorslogger">'+protectWriteMessage || readOnlyMsg+'</div>';
         }
         if(this.status=='ok'){
             return '<div class="form_okmessage">No changes to save</div>';
@@ -803,14 +805,14 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             //}
             if(this.store.parentStore){
                 this.store.parentStore.onStartEditItem(this);
-            };
+            }
             this.applyDisabledStatus();
             //this.focus()
-            this.handlePendingValidations()
-            var that = this;
+            this.handlePendingValidations();
+            that = this;
             var parentForm = this.getParentForm();
             if(!parentForm || !parentForm.currentFocused){
-                if(this.autoFocus){
+                if(this.autoFocus && this.isNewRecord()){
                     setTimeout(function(){ 
                         that.focus();
                     },1);
@@ -1158,7 +1160,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 n.attr._keep = true;
             }
         }
-        var data = data || new gnr.GnrBag();
+        data = data || new gnr.GnrBag();
         this.sourceNode.setRelativeData(this.formDatapath,data);
     },
     getDataNodeAttributes:function(){
@@ -1186,7 +1188,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     isProtectWrite:function(){
         var parentForm = this.getParentForm();
-        var protect_write = this.getDataNodeAttributes()._protect_write;
+        var recAttr = this.getDataNodeAttributes();
+        var protect_write = recAttr._protect_write;
         if (parentForm && this.parentLock=='auto'){
             protect_write = protect_write || parentForm.isProtectWrite();
         }
@@ -1934,11 +1937,11 @@ dojo.declare("gnr.GnrValidator", null, {
     },
     
     validate_min: function(param, value) {
-        return value>=param;
+        return Math.round10(value,-9)>=Math.round10(param,-9);
     },
     
     validate_max: function(param, value) {
-        return value<=param;
+        return Math.round10(value,-9)<=Math.round10(param,-9);
     },
     
     validate_len: function(param, value) {
@@ -2481,7 +2484,7 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
     },
     load_memory:function(loadkw){
         //ITEM
-        var default_kw = loadkw.default_kw;
+        var default_kw = loadkw.default_kw || {};
         var destPkey = loadkw.destPkey;
         var form=this.form;
         var that = this;
@@ -2494,9 +2497,11 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
         var recordLoaded = new gnr.GnrBag();
         var sourceBag = form.sourceNode.getRelativeData(this.locationpath);
         kw._newrecord = (destPkey=='*newrecord*' || sourceBag==null || sourceBag.len()===0) ;
-        if(kw._newrecord && default_kw){
+        if(kw._newrecord){
+            this._load_prepareDefaults(null,default_kw,kw);
+            default_kw = objectExtract(kw,'default_*');
             for(var k in default_kw){
-                recordLoaded.setItem(k,default_kw[k])
+                recordLoaded.setItem(k,objectPop(default_kw,k));
             }
         }
         else if(sourceBag && this.locationpath){

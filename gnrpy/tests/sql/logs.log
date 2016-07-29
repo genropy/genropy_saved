@@ -321,3 +321,60 @@ error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - wi
 error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x103324dd0>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x103331a10>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 39, 2, 106693)} 
 
 
+UNIQUE constraint failed: video_movie.id
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 342, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: UNIQUE constraint failed: video_movie.id
+UNIQUE constraint failed: video_movie.id
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 342, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: UNIQUE constraint failed: video_movie.id
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x105058310>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x1050a0a10>, 'env_workdate': datetime.datetime(2016, 5, 17, 16, 26, 32, 262414)} 
+
+
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x105058310>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x1050a0a10>, 'env_workdate': datetime.datetime(2016, 5, 17, 16, 26, 32, 262414)} 
+
+
+error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x105c1c650>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x105c1c910>, 'env_workdate': datetime.datetime(2016, 5, 17, 16, 26, 33, 133726)} 
+
+
+error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x105c1c650>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x105c1c910>, 'env_workdate': datetime.datetime(2016, 5, 17, 16, 26, 33, 133726)} 
+
+
+error executing:INSERT INTO glbl.glbl_provincia(sigla,nome) VALUES (%(sigla)s,%(nome)s); - with kwargs:{'nome': 'TEST_PROV', 'sigla': 'TT', 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x104b8f9d0>, 'env_workdate': datetime.datetime(2016, 5, 17, 16, 45, 41, 813865)} 
+
+
+error executing:SELECT  t0."sigla" AS "sigla",
+t0."regione" AS "regione",
+t0."nome" AS "nome",
+t0."nome_locale" AS "nome_locale",
+t0."codice" AS "codice",
+t0."codice_istat" AS "codice_istat",
+t0."ordine" AS "ordine",
+t0."ordine_tot" AS "ordine_tot",
+t0."cap_valido" AS "cap_valido",
+t0."nuts" AS "nuts",
+t0."__multidb_flag" AS "__multidb_flag"
+ FROM glbl.glbl_provincia AS t0
+WHERE t0."sigla"=%(pkey)s
+FOR UPDATE OF t0 - with kwargs:{'pkey': u'TT', 'env_storename': u'scurreria_1', 'env__systemDbEvent': True, 'env_workdate': datetime.datetime(2016, 5, 17, 16, 46, 22, 865271), 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x110752690>, 'env__multidbSync': True, 'env__storesToCommit': (u'san_bartolomeo_del_fossato_58_60', u'san_giacomo_22', u'balbi_piovera_16', u'pola_9a', u'nocera_umbra_28', u'viazze_2', u'marconi_16', u'comun_strada_via_gualco', u'mignone_9b', u'seminario_dei_chierici', u'centro_produttivo_molassana', u'roma_50', u'selinunte_95', u'comun_strada_pisa_38_38a', u'suardi_7', u'due_giugno_41', u'roma_2_xxv_aprile_5_7', u'fieschi_32', u'posti_auto_gherzi', u'isorelle_17', u'milano_logistic_center', u'pagin_scaglioso_2_4_6', u'martinetti_13', u'palazzo_del_principe_anfosso_8_10', u'teglia_89_91', u'pisa_38', u'patr_traverso_roccatagliata', u'martiri_della_benedicta_11', u'digione_5', u'carbonasca_41_43', u'birra', u'tortosa_6', u'borzoli_78', u'poire_201', u'autobox_coronata', u'roma_24', u'marconi_19', u'centro_polifunzionale_cavallotti', u'fossato_san_nicolo_11', u'gandolfo_185_187_189', u'patr_gabbi_roccatagliata', u'malerba_28', u'comun_strada_calasanzio', u'patr_sozzi', u'monte_fasce_75', u'flaminia_61', u'casartelli_9_11', u'comun_ct_mastrangelo_3_6', u'autobox_de_gaspari', u'basso_4', u'sansone_15', u'rubens_20', u'isorelle_61', u'inagea', u'borghetto_san_pier_di_canne_32a_3', u'comun_ct_gavette_41_43_45', u'rela_1', u'chiesa_24_25', u'alizeri_4a_4b_digione_7_9', u'mastrangelo_6', u'mastrangelo_3', u'lucarno_19', u'napoli_4', u'mercantini_6_8', u'mazzini_71', u'enrico_15_21_cechov_21_44', u'europa_16', u'autobox_toti_19r', u'carbonasca_24', u'san_luca_11', u'patrimonio_cominetti', u'gavette_41', u'docks_ligorna_gualco_54', u'patr_bavastro', u'sampierdarena_29', u'sampierdarena_25', u'mainetti_2', u'sforza_6_8', u'martinetti_87', u'dandolo_35', u'centro_direzionale_milano2')} 
+
+
+error executing:SELECT  t0."sigla" AS "sigla",
+t0."regione" AS "regione",
+t0."nome" AS "nome",
+t0."nome_locale" AS "nome_locale",
+t0."codice" AS "codice",
+t0."codice_istat" AS "codice_istat",
+t0."ordine" AS "ordine",
+t0."ordine_tot" AS "ordine_tot",
+t0."cap_valido" AS "cap_valido",
+t0."nuts" AS "nuts",
+t0."__multidb_flag" AS "__multidb_flag"
+ FROM glbl.glbl_provincia AS t0
+WHERE t0."sigla"=%(pkey)s
+FOR UPDATE OF t0 - with kwargs:{'pkey': u'TT', 'env_storename': u'sant_ugo_7', 'env__systemDbEvent': True, 'env_workdate': datetime.datetime(2016, 5, 17, 16, 47, 54, 965449), 'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x111bc8a10>, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x112506910>, 'env__multidbSync': True, 'env__storesToCommit': (u'comun_strada_via_gualco', u'mignone_9b', u'selinunte_95', u'suardi_7', u'roma_2_xxv_aprile_5_7', u'milano_logistic_center', u'pagin_scaglioso_2_4_6', u'teglia_89_91', u'pisa_38', u'borzoli_78', u'napoli_4', u'fossato_san_nicolo_11', u'gandolfo_185_187_189', u'malerba_28', u'flaminia_61', u'rubens_20', u'isorelle_61', u'comun_ct_gavette_41_43_45', u'alizeri_4a_4b_digione_7_9', u'san_luca_11', u'docks_ligorna_gualco_54', u'centro_direzionale_milano2', u'viazze_2', u'comun_strada_pisa_38_38a', u'due_giugno_41', u'mainetti_2', u'fieschi_32', u'comun_ct_mastrangelo_3_6', u'patr_traverso_roccatagliata', u'poire_201', u'autobox_coronata', u'carbonasca_41_43', u'mastrangelo_6', u'mastrangelo_3', u'chiesa_24_25', u'mazzini_71', u'enrico_15_21_cechov_21_44', u'carbonasca_24', u'patrimonio_cominetti', u'gavette_41', u'sampierdarena_29', u'sampierdarena_25', u'sforza_6_8', u'martinetti_87', u'digione_5', u'marconi_16', u'marconi_19', u'seminario_dei_chierici', u'borghetto_san_pier_di_canne_32a_3', u'europa_16', u'patr_sozzi', u'martinetti_13', u'palazzo_del_principe_anfosso_8_10', u'isorelle_17', u'tortosa_6', u'centro_produttivo_molassana', u'monte_fasce_75', u'roma_50', u'autobox_de_gaspari', u'sansone_15', u'balbi_piovera_16', u'san_bartolomeo_del_fossato_58_60', u'inagea', u'nocera_umbra_28', u'rela_1', u'mercantini_6_8', u'lucarno_19', u'autobox_toti_19r', u'patr_bavastro', u'san_giacomo_22', u'casartelli_9_11', u'roma_24', u'posti_auto_gherzi', u'centro_polifunzionale_cavallotti', u'pola_9a', u'patr_gabbi_roccatagliata', u'basso_4', u'martiri_della_benedicta_11', u'birra', u'dandolo_35', u'scurreria_1', u'autobox_santa_chiara', u'sant_ugo_9', u'autobox_bovio_10r_12r', u'palazzo_spinola_garibaldi_7', u'comun_strada_calasanzio', u'sampierdarena_65')} 
+
+

@@ -20,7 +20,6 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-__version__ = '1.0b'
 
 #import weakref
 import os
@@ -38,6 +37,7 @@ from gnr.sql.gnrsql import GnrSqlException
 from datetime import datetime
 import logging
 
+__version__ = '1.0b'
 gnrlogger = logging.getLogger(__name__)
 
 
@@ -274,7 +274,7 @@ class SqlTable(GnrObject):
             if env.get('current_%(path)s' %partitionParameters):
                 return "$%(field)s =:env_current_%(path)s" %partitionParameters
             elif env.get('allowed_%(path)s' %partitionParameters):
-                return "( $%(field)s IN :env_allowed_%(path)s )" %partitionParameters
+                return "( $%(field)s IS NULL OR $%(field)s IN :env_allowed_%(path)s )" %partitionParameters
 
     @property
     def partitionParameters(self):
@@ -351,6 +351,10 @@ class SqlTable(GnrObject):
     def logicalDeletionField(self):
         """Return the logicalDeletionField DbColumnObj object"""
         return self.model.logicalDeletionField
+
+    @property
+    def multidb(self):
+        return self.attributes.get('multidb',None)
 
     @property
     def draftField(self):
@@ -512,7 +516,11 @@ class SqlTable(GnrObject):
         keyField = keyField or self.pkey
         ignoreMissing = createCb is not None
         def recordFromCache(cache=None,pkey=None,virtual_columns_set=None):
-            result,cached_virtual_columns_set = cache.get(pkey,(None,None))
+            cacheNode = cache.getNode(pkey)
+            if cacheNode:
+                result,cached_virtual_columns_set = cacheNode.value,cacheNode.getAttr('virtual_columns_set')
+            else:
+                result,cached_virtual_columns_set = None,None
             in_cache = bool(result)
             if in_cache and not virtual_columns_set.issubset(cached_virtual_columns_set):
                 in_cache = False
@@ -523,7 +531,7 @@ class SqlTable(GnrObject):
                     result = createCb(pkey)
                     if virtual_columns and result:
                         result = self.record(virtual_columns=','.join(virtual_columns_set),**{keyField:pkey}).output('dict')
-                cache[pkey] = (result,virtual_columns_set)
+                cache.setItem(pkey,result,virtual_columns_set=virtual_columns_set)
             return result,in_cache
         virtual_columns_set = set(virtual_columns.split(',')) if virtual_columns else set()
         return self.tableCachedData('cachedRecord',recordFromCache,pkey=pkey,
@@ -543,17 +551,17 @@ class SqlTable(GnrObject):
 
     def tableCachedData(self,topic,cb,**kwargs):
         currentPage = self.db.currentPage
-        cacheKey = '%s_%s' %(topic,self.fullname)
+        cacheKey = '%s.%s' %(topic,self.fullname)
         if currentPage:
             with currentPage.pageStore() as store:
                 if store:
                     localcache = store.getItem(cacheKey)
-                localcache = localcache or dict()
+                localcache = localcache or Bag()
                 data,in_cache = cb(cache=localcache,**kwargs)
                 if store and not in_cache:
-                    store.setItem(cacheKey,localcache)
+                    store.setItem(cacheKey,localcache,_caching_table=self.fullname)
         else:
-            localcache = self.db.currentEnv.setdefault(cacheKey,dict())
+            localcache = self.db.currentEnv.setdefault(cacheKey,Bag())
             data,in_cache = cb(cache=localcache,**kwargs)
         return data
 
@@ -619,36 +627,84 @@ class SqlTable(GnrObject):
     def _onUnifying(self,destRecord=None,sourceRecord=None,moved_relations=None,relations=None):
         pass
 
-    def unifyRecords(self,sourcePkey=None,destPkey=None):
-        moved_relations = Bag()
-        sourceRecord = self.record(pkey=sourcePkey,for_update=True).output('dict')
-        destRecord = self.record(pkey=destPkey,for_update=True).output('dict')
+    def unifyRelatedRecords(self,sourceRecord=None,destRecord=None,moved_relations=None,relations=None):
         relations = self.model.relations.keys()
-        self._onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations,relations=relations)
-        if hasattr(self,'onUnifying'):
-            self.onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations)
+        old_destRecord = dict(destRecord)
+        upd_destRec = False
         for k in relations:
             n = self.relations.getNode(k)
             joiner =  n.attr.get('joiner')
             if joiner and joiner['mode'] == 'M':
+                if joiner.get('external_relation'):
+                    continue
                 fldlist = joiner['many_relation'].split('.')
                 tblname = '.'.join(fldlist[0:2])
                 tblobj = self.db.table(tblname)
                 fkey = fldlist[-1]
                 joinkey = joiner['one_relation'].split('.')[-1]
                 updater = dict()
+                if not destRecord[joinkey]:
+                    destRecord[joinkey] = sourceRecord[joinkey]
+                    upd_destRec = True
                 updater[fkey] = destRecord[joinkey]
                 updatedpkeys = tblobj.batchUpdate(updater,where='$%s=:spkey' %fkey,spkey=sourceRecord[joinkey],_raw_update=True)
                 moved_relations.setItem('relations.%s' %tblname.replace('.','_'), ','.join(updatedpkeys),tblname=tblname,fkey=fkey)
-        if self.model.column('__moved_related') is not None:
-            old_record = dict(sourceRecord)
-            moved_relations.setItem('destPkey',destPkey)
-            moved_relations = moved_relations.toXml()
-            sourceRecord.update(__del_ts=datetime.now(),__moved_related=moved_relations)
-            self.raw_update(sourceRecord,old_record=old_record)
-        else:
-            self.delete(sourcePkey)
+        if upd_destRec:
+            self.raw_update(destRecord,old_destRecord)
+        return moved_relations
+
+    def unifyRecords(self,sourcePkey=None,destPkey=None):
+        sourceRecord = self.record(pkey=sourcePkey,for_update=True).output('dict')
+        destRecord = self.record(pkey=destPkey,for_update=True).output('dict')
+        self._unifyRecords_default(sourceRecord,destRecord)
+
+    def _unifyRecords_default(self,sourceRecord=None,destRecord=None):
+        moved_relations = Bag()
+        with self.db.tempEnv(unifying='related'):
+            self._onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations)
+            if hasattr(self,'onUnifying'):
+                self.onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations)
+            moved_relations = self.unifyRelatedRecords(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations)
+        with self.db.tempEnv(unifying='main_record'):
+            if self.model.column('__moved_related') is not None:
+                old_record = dict(sourceRecord)
+                moved_relations.setItem('destPkey',sourceRecord[self.pkey])
+                moved_relations = moved_relations.toXml()
+                sourceRecord.update(__del_ts=datetime.now(),__moved_related=moved_relations)
+                self.raw_update(sourceRecord,old_record=old_record)
+            else:
+                self.delete(destRecord[self.pkey])
             
+
+    def hasRelations(self,recordOrPkey):
+        return bool(self.currentRelations(recordOrPkey,checkOnly=True))
+
+    def currentRelations(self,recordOrPkey,checkOnly=False):
+        result = Bag()
+        i = 0
+        if isinstance(recordOrPkey,basestring):
+            record = self.record(pkey=recordOrPkey).output('dict')
+        else:
+            record = recordOrPkey
+        for n in self.model.relations:
+            joiner =  n.attr.get('joiner')
+            if joiner and joiner['mode'] == 'M':
+                rowdata = Bag()
+                fldlist = joiner['many_relation'].split('.')
+                tblname = fldlist[0:2]
+                linktblobj = self.db.table('.'.join(tblname))
+                fkey = fldlist[-1]
+                joinkey = joiner['one_relation'].split('.')[-1]
+                rel_count = linktblobj.query(where='$%s=:spkey' %fkey,spkey=record[joinkey]).count()
+                linktblobj_name = linktblobj.fullname
+                rowdata.setItem('linktbl',linktblobj_name)
+                rowdata.setItem('count',rel_count)
+                if rel_count:
+                    if checkOnly:
+                        return True
+                    result.setItem('r_%i' %i,rowdata)
+                i+=1
+        return result
 
     def itemsAsText(self,caption_field=None,cols=None,**kwargs):
         caption_field = caption_field or self.attributes['caption_field']
@@ -900,6 +956,15 @@ class SqlTable(GnrObject):
         return data
 
 
+    def setColumns(self, pkey,**kwargs):
+        record = self.record(pkey,for_update=True).output('dict')
+        old_record = dict(record)
+        for k,v in kwargs.items():
+            if record[k]!=v:
+                record[k] = v
+        if record != old_record:
+            self.update(record,old_record)
+
     def readColumns(self, pkey=None, columns=None, where=None, **kwargs):
         """TODO
         
@@ -1067,10 +1132,14 @@ class SqlTable(GnrObject):
         
         :param record: a dictionary that represent the record that must be updated"""
         pkey = record.get(self.pkey)
-        if (not pkey in (None, '')) and self.existsRecord(record):
-            return self.update(record)
-        else:
+        old_record = None
+        if not (pkey in (None,'')):
+            old_record = self.query(where="$%s=:pk" %self.pkey, pk=pkey,for_update=True).fetch()
+        if not old_record:
             return self.insert(record)
+        else:
+            self.update(record,old_record=old_record[0])
+
 
     def countRecords(self):
         return self.query(excludeLogicalDeleted=False,excludeDraft=False).count()
@@ -1106,7 +1175,7 @@ class SqlTable(GnrObject):
         self.db.insertMany(self, records, **kwargs)
 
     def raw_update(self,record=None,old_record=None,pkey=None,**kwargs):
-        self.db.raw_update(self, record, pkey=pkey,old_record=old_record,**kwargs)
+        self.db.raw_update(self, record,old_record=old_record,pkey=pkey,**kwargs)
 
     def delete(self, record, **kwargs):
         """Delete a single record from this table.
@@ -1142,12 +1211,15 @@ class SqlTable(GnrObject):
         """TODO
         
         :param record: a dictionary, bag or pkey (string)"""
+        usingRootstore = self.db.usingRootstore()
         for rel in self.relations_many:
             onDelete = rel.getAttr('onDelete', 'raise').lower()
             if onDelete and not (onDelete in ('i', 'ignore')):
                 mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')
                 opkg, otbl, ofld = rel.attr['one_relation'].split('.')
                 relatedTable = self.db.table(mtbl, pkg=mpkg)
+                if not usingRootstore and relatedTable.use_dbstores() is False:
+                    continue
                 sel = relatedTable.query(columns='*', where='$%s = :pid' % mfld,
                                          pid=record[ofld], for_update=True,excludeDraft=False).fetch()
                 if sel:
@@ -1309,7 +1381,13 @@ class SqlTable(GnrObject):
         if not self.db.application:
             return
         for pkg_id in self.db.application.packages.keys():
-            trgFunc = getattr(self, 'trigger_%s_%s'%(triggerEvent, pkg_id), None)
+            trigger_name = 'trigger_%s_%s'%(triggerEvent, pkg_id)
+            avoid_trigger_par = self.db.currentEnv.get('avoid_trigger_%s' %pkg_id)
+            if avoid_trigger_par:
+                if avoid_trigger_par=='*' or triggerEvent in avoid_trigger_par.split(','):
+                    print 'avoiding trigger',triggerEvent
+                    continue
+            trgFunc = getattr(self, trigger_name, None)
             if callable(trgFunc):
                 trgFunc(record, **kwargs)
 
@@ -1453,18 +1531,17 @@ class SqlTable(GnrObject):
     def _isReadOnly(self,record):
         if self.attributes.get('readOnly'):
             return True
-        if record.get('__protection_tag'):
-            return not (record['__protection_tag'] in self.db.currentEnv['userTags'].split(','))
 
     def _islocked_write(self,record):
         return self._isReadOnly(record) or self.islocked_write(record)
-    
+
     def islocked_write(self,record):
         #OVERRIDE THIS
         pass
 
+
     def _islocked_delete(self,record):
-        return self._isReadOnly(record) or self.attributes.get('readOnly') or self.islocked_delete(record)
+        return self._isReadOnly(record) or self.islocked_delete(record)
 
     def islocked_delete(self,record):
         #OVERRIDE THIS
@@ -1699,7 +1776,7 @@ class SqlTable(GnrObject):
             else:
                 dest_tbl.insertOrUpdate(record)
     
-    def copyToDbstore(self,pkey=None,dbstore=None,bagFields=True,**kwargs):
+    def copyToDbstore(self,pkey=None,dbstore=None,bagFields=True,empty_before=False,**kwargs):
         """TODO
         
         :param pkey: the record :ref:`primary key <pkey>`
@@ -1710,6 +1787,8 @@ class SqlTable(GnrObject):
             queryargs = dict(where='$pkey=:pkey',pkey=pkey)
         records = self.query(addPkeyColumn=False,bagFields=bagFields,**queryargs).fetch()
         with self.db.tempEnv(storename=dbstore):
+            if empty_before:
+                self.empty()
             for rec in records:
                 self.insertOrUpdate(rec)
             self.db.deferredCommit()

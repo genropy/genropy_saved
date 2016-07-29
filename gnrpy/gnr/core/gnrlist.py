@@ -25,6 +25,7 @@
 Some useful operations on lists.
 """
 from gnr.core.gnrlang import GnrException
+from gnr.core.gnrdecorator import deprecated
 import csv
 
 class FakeList(list):
@@ -394,6 +395,7 @@ class GnrNamedList(list):
             result[v] = k
         return result
         
+    @deprecated(message='do not use pop in named tuple')
     def pop(self, x,dflt=None):
         """Same of ``pop`` method's dict
         

@@ -35,7 +35,10 @@ class FrameIndex(BaseComponent):
         frameplugins = ['iframemenu_plugin','batch_monitor','chat_plugin']
         for pkgId,pkgobj in self.packages.items():
             if hasattr(pkgobj,'sidebarPlugins'):
-                package_plugins,requires = pkgobj.sidebarPlugins()
+                plugins = pkgobj.sidebarPlugins()
+                if not plugins:
+                    continue
+                package_plugins,requires = plugins
                 frameplugins.extend(package_plugins.split(','))
                 if requires:
                     for p in requires.split(','):
@@ -52,7 +55,7 @@ class FrameIndex(BaseComponent):
                     genro.pageReload()}})""",msg='!!Invalid Access',_onStart=True)
             return 
         root.attributes['overflow'] = 'hidden'
-        if self.root_page_id:
+        if self.root_page_id and (custom_index or hasattr(self,'index_dashboard')):
             if custom_index:
                 getattr(self,'index_%s' %custom_index)(root)
             else:
@@ -116,7 +119,7 @@ class FrameIndex(BaseComponent):
         return frame
         
     def prepareTop(self,pane,onCreatingTablist=None):
-        pane.attributes.update(dict(height='30px',overflow='hidden',gradient_from='gray',gradient_to='silver',gradient_deg=90))
+        pane.attributes.update(dict(height='30px',overflow='hidden',_class='framedindex_tablist'))
         bc = pane.borderContainer(margin_top='4px') 
         leftbar = bc.contentPane(region='left',overflow='hidden').div(display='inline-block', margin_left='10px')  
         for btn in ['menuToggle']+self.plugin_list.split(','):

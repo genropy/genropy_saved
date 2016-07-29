@@ -199,7 +199,8 @@ class Table(object):
                 period.append(ymd[1])
             if '$D' in format:
                 period.append(ymd[2])
-            counter_record['period'] = ''.join(period)
+            if period:
+                counter_record['period'] = ''.join(period)
         return counter_record
 
     def assignCounter(self,tblobj=None,field=None,record=None):

@@ -154,9 +154,16 @@ dojo.declare("gnr.GnrBagNode", null, {
         }
         return fullpath;
     },
+
+    backrefOk:function(){
+        return this._parentbag.backrefOk(); 
+    },
+
     /**
      * @id getValue
      */
+
+
     getValue2:function(mode/*str*/, optkwargs) {
         return this.getValue(mode, optkwargs);
     },
@@ -1501,10 +1508,10 @@ dojo.declare("gnr.GnrBag", null, {
         for(var i =0; i<nodes.length; i++){
             n = nodes[i];
             if(n.getValue().getItem(path)==value){
-                break;
+                return n;
             };
         }
-        return n;
+        return;
     },
 
     /**
@@ -1868,13 +1875,11 @@ dojo.declare("gnr.GnrBag", null, {
     },
 
     setBackRef: function(node, parent) {
-        if (this._backref != true) {
-            this._backref = true;
-            this._parent = parent;
-            this._parentnode = node;
-            for (var i = 0; i < this._nodes.length; i++) {
-                this._nodes[i].setParentBag(this);
-            }
+        this._backref = true;
+        this._parent = parent;
+        this._parentnode = node;
+        for (var i = 0; i < this._nodes.length; i++) {
+            this._nodes[i].setParentBag(this);
         }
     },
 
@@ -1892,6 +1897,10 @@ dojo.declare("gnr.GnrBag", null, {
                 }
             }
         }
+    },
+
+    backrefOk:function(){
+        return this._parentnode._parentbag===this._parent; 
     },
 
     runTrigger:function(kw) {

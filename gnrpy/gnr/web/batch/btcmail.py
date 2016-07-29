@@ -20,7 +20,7 @@ class BaseResourceMail(BaseResourceBatch):
         self.mail_handler.sendmail_template(record,body=body,to_address=to_address,attachments=attachments,
                                             cc_address=cc_address,subject=subject,**kwargs)
 
-    def send_one_email(self,to_address=None,cc_address=None,subject=None,body=None,attachments=None,_record_id=None):
+    def send_one_email(self,to_address=None,from_address=None,cc_address=None,subject=None,body=None,attachments=None,_record_id=None):
         mp = self.mail_preference
         mail_code = self.batch_parameters.get('mail_code')
         tbl = self.tblobj.fullname
@@ -29,7 +29,7 @@ class BaseResourceMail(BaseResourceBatch):
             self.mail_handler.sendmail(to_address=to_address,
                                     body=body, subject=subject,
                                     cc_address=cc_address, bcc_address=mp['bcc_address'],
-                                    from_address=mp['from_address'],
+                                    from_address=from_address or mp['from_address'],
                                     attachments=attachments or mp['attachments'], 
                                     account=mp['account'],
                                     smtp_host=mp['smtp_host'], port=mp['port'], user=mp['user'], password=mp['password'],

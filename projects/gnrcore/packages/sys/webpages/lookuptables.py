@@ -62,6 +62,8 @@ class GnrCustomWebPage(object):
                     cell_edit['condition'] = condition
                     cell_edit['condition_kwargs'] = condition_kwargs
                 r.fieldcell(k,edit=attr['cell_edit'] if 'cell_edit' in attr else True)
+        if '__syscode' in struct.tblobj.model.columns and self.application.checkResourcePermission('_DEV_,superadmin', self.userTags):
+            r.fieldcell('__syscode',edit=True)
 
     @public_method
     def remoteTh(self,pane,table=None,fixed_table=None):

@@ -57,9 +57,7 @@ var genro_plugin_grid_configurator = {
     
 
     addGridConfigurator:function(sourceNode){
-        dojo.connect(sourceNode.widget,'setCellWidth',function(inIndex, inUnitWidth){
-            this.structBag.getNodeByAttr('field',this.getCell(inIndex).field).updAttributes({width:inUnitWidth});
-        });
+
         sourceNode.attr.selfDragColumns = 'trashable';
         var table = sourceNode.attr.table;
         if(!table && sourceNode.attr.storepath){
@@ -105,7 +103,7 @@ var genro_plugin_grid_configurator = {
             }
         }
         if(!structbag){
-            var menubag = gridSourceNode.getRelativeData('.structMenuBag')
+            var menubag = gridSourceNode.getRelativeData('.structMenuBag');
             if(!menubag.getNode(currPath)){
                 gridSourceNode.setRelativeData('.currViewPath','__baseview__');
                 return;

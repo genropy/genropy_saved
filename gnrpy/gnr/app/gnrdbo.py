@@ -158,8 +158,8 @@ class GnrDboPackage(object):
         all_pref[self.name] = s['preferences']
         self.db.table('adm.preference').savePreference(all_pref)
         db.commit()
-        tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
-        for tablename in tables:
+        tw = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
+        for tablename in tw:
             tblobj = db.table('%s.%s' %(self.name,tablename))
             currentRecords = tblobj.query().fetchAsDict('pkey')
             records = s[tablename]
@@ -208,11 +208,16 @@ class GnrDboPackage(object):
         tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
         for tname in tables:
             tblobj = self.tables[tname]
-            handler = getattr(tblobj,'startupData',None)
+            handler = getattr(tblobj.dbtable,'startupData',None)
             if handler:
                 f = handler()
             else:
-                f = tblobj.dbtable.query(addPkeyColumn=False,bagFields=True).fetch()
+                qp_handler = getattr(tblobj.dbtable,'startupDataQueryPars',None)
+                queryPars = dict(addPkeyColumn=False,bagFields=True)
+                if qp_handler:
+                    queryPars.update(qp_handler())
+                    print 'queryPars',tblobj.dbtable.fullname,queryPars,
+                f = tblobj.dbtable.query(**queryPars).fetch()
             s[tname] = f
         s['preferences'] = self.db.table('adm.preference').loadPreference()[self.name]
         s.makePicklable()
@@ -231,8 +236,7 @@ class TableBase(object):
                   draftField=False, invalidFields=None,invalidRelations=None,md5=False,
                   counter=None,hierarchical=None,useProtectionTag=None,
                   group='zzz', group_name='!!System',
-                  multidb=None,
-                  df=None,counter_kwargs=None):
+                  df=None,counter_kwargs=None,**kwargs):
         """Add some useful columns for tables management (first of all, the ``id`` column)
         
         :param tbl: the :ref:`table` object
@@ -346,8 +350,6 @@ class TableBase(object):
             draftField = '__is_draft' if draftField is True else draftField
             tbl.attributes['draftField'] = draftField
             tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group,_sysfield=True)
-        if multidb and self.db.model.src['packages.multidb']:
-            self.setMultidbSubscription(tbl,allRecords=(multidb=='*'),forcedStore=(multidb=='**'),group=group)
         if invalidFields or invalidRelations:
             if invalidFields:
                 tbl.attributes['invalidFields'] = '__invalid_fields'
@@ -359,12 +361,6 @@ class TableBase(object):
                 for rel in invalidRelations.split(','):
                     r.append('%s.__is_invalid' %rel)
             tbl.formulaColumn('__is_invalid', ' ( %s ) '  %' OR '.join(r), dtype='B',aggregator='OR')
-        sync = tbl.attributes.get('sync')
-        if sync:
-            tbl.column('__syncaux','B',group=group,
-                        onUpdated='syncRecordUpdated',
-                        onDeleting='syncRecordDeleting',
-                        onInserted='syncRecordInserted',_sysfield=True)
         if df:
             self.sysFields_df(tbl)
         tbl.formulaColumn('__is_protected_row',sql_formula=True,group=group,name_long='!!Row Protected',_sysfield=True)
@@ -424,6 +420,14 @@ class TableBase(object):
                       ELSE NULL END )""" %(arr,arr)
         else:
             return " NULL "
+
+    def _isReadOnly(self,record):
+        if self.attributes.get('readOnly'):
+            return True
+        if record.get('__is_protected_row'):
+            return True
+        if record.get('__protection_tag'):
+            return not (record['__protection_tag'] in self.db.currentEnv['userTags'].split(','))
 
     def formulaColumn_allowedForPartition(self):
 
@@ -666,12 +670,6 @@ class TableBase(object):
     def hasRecordTags(self):
         """TODO"""
         return self.attributes.get('hasRecordTags', False)
-    
-    def isMultidbTable(self):
-        return 'multidb_allRecords' in self.attributes
-
-    def multidb_readOnly(self):
-        return self.db.currentPage.dbstore and 'multidb_allRecords' in self.attributes
 
     def checkDiagnostic(self,record):
         if self.attributes.get('diagnostic'):
@@ -808,66 +806,6 @@ class TableBase(object):
                                 fieldpath=fieldpath,fullcaption=fullcaption)
         return result
                      
-    def multidbSubscribe(self,pkey,dbstore=None):
-        self.db.table('multidb.subscription').addSubscription(table=self.fullname,pkey=pkey,dbstore=dbstore)
-           
-    def setMultidbSubscription(self,tbl,allRecords=False,forcedStore=False,group='zzz'):
-        """TODO
-        
-        :param tblname: a string composed by the package name and the database :ref:`table` name
-                        separated by a dot (``.``)"""
-        pkg = tbl.attributes['pkg']
-        tbl.attributes.update(multidb='*' if allRecords else True)
-
-        tblname = tbl.parentNode.label
-        tblfullname = '%s.%s' %(pkg,tblname)
-        model = self.db.model
-        subscriptiontbl =  model.src['packages.multidb.tables.subscription']
-        pkey = tbl.parentNode.getAttr('pkey')
-        pkeycolAttrs = tbl.column(pkey).getAttr()
-        tblname = tbl.parentNode.label
-        rel = '%s.%s.%s' % (pkg,tblname, pkey)
-        fkey = rel.replace('.', '_')
-        if subscriptiontbl:
-            tbl.attributes.update(multidb_allRecords=allRecords,multidb_forcedStore=forcedStore)
-            tbl.column('__multidb_flag',dtype='B',comment='!!Fake field always NULL',
-                        onUpdated='multidbSyncUpdated',
-                        onDeleting='multidbSyncDeleting',
-                        onInserted='multidbSyncInserted',
-                        group=group,_sysfield=True)
-            if allRecords or forcedStore:
-                return 
-                
-            tbl.column('__multidb_default_subscribed',dtype='B',_pluggedBy='multidb.subscription',
-                    name_long='!!Subscribed by default',plugToForm=True,group=group,_sysfield=True)
-            tbl.formulaColumn('__multidb_subscribed',"""EXISTS (SELECT * 
-                                                        FROM multidb.multidb_subscription AS sub
-                                                        WHERE sub.dbstore = :env_target_store 
-                                                              AND sub.tablename = '%s'
-                                                        AND sub.%s = #THIS.%s
-                                                        )""" %(tblfullname,fkey,pkey),dtype='B',
-                                                        name_long='!!Subscribed',_sysfield=True,group=group)
-            subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),_sysfield=True,
-                              size=pkeycolAttrs.get('size'), group=group).relation(rel, relation_name='subscriptions',
-                                                                                 many_group=group, one_group=group)
-    def hasMultidbSubscription(self):
-        return self.attributes.get('multidb')==True and self.db.model.src['packages.multidb']
-
-    def _onUnifying(self,destRecord=None,sourceRecord=None,moved_relations=None,relations=None):
-        if self.hasMultidbSubscription():
-            relations.remove('@subscriptions')
-            self.db.table('multidb.subscription').cloneSubscriptions(self.fullname,sourceRecord[self.pkey],destRecord[self.pkey])
-
-    def trigger_multidbSyncUpdated(self, record,old_record=None,**kwargs):
-        self.db.table('multidb.subscription').onSubscriberTrigger(self,record,old_record=old_record,event='U')
-     
-    def trigger_multidbSyncInserted(self, record,**kwargs):
-        self.db.table('multidb.subscription').onSubscriberTrigger(self,record,event='I')
-    
-    def trigger_multidbSyncDeleting(self, record,**kwargs):        
-        self.db.table('multidb.subscription').onSubscriberTrigger(self,record,event='D')
-     
-                                                               
     def setTagColumn(self, tbl, name_long=None, group=None):
         """TODO
         
@@ -876,15 +814,6 @@ class TableBase(object):
         :param group: a hierarchical path of logical categories and subacategories
                       the columns belongs to. For more information, check the :ref:`group` section"""
         warnings_module.warn(""" setTagColumn has been removed """, DeprecationWarning, 2) 
-
-    def trigger_syncRecordUpdated(self,record,old_record=None,**kwargs):
-        self.pkg.table('sync_event').onTableTrigger(self,record,old_record=old_record,event='U')
-
-    def trigger_syncRecordInserted(self, record,**kwargs):
-        self.pkg.table('sync_event').onTableTrigger(self,record,event='I')
-    
-    def trigger_syncRecordDeleting(self, record,**kwargs):        
-        self.pkg.table('sync_event').onTableTrigger(self,record,event='D')
 
     #FUNCTIONS SQL
     def normalizeText(self,text):
@@ -958,8 +887,11 @@ class TableBase(object):
 
 
     def isInStartupData(self):
-        if self.attributes.get('inStartupData') is False:
+        inStartupData = self.attributes.get('inStartupData')
+        if inStartupData is False:
             return False
+        elif inStartupData is not None:
+            return True
         for t,isdeferred in self.model.dependencies:
             if not self.db.table(t).isInStartupData():
                 return False
@@ -1097,22 +1029,20 @@ class AttachmentTable(GnrDboTable):
         model = self.db.model
         mastertbl =  model.src['packages.%s.tables.%s' %(pkgname,mastertblname)]
         mastertbl.attributes['atc_attachmenttable'] = '%s.%s' %(pkgname,tblname)
-        mastertbl_name_long = mastertbl.attributes.get('name_long')
-        mastertbl_multidb = mastertbl.attributes.get('multidb')
-        
+        mastertbl_name_long = mastertbl.attributes.get('name_long')        
         tbl.attributes.setdefault('caption_field','description')
         tbl.attributes.setdefault('rowcaption','$description')
         tbl.attributes.setdefault('name_long','%s  Attachment' %mastertbl_name_long)
         tbl.attributes.setdefault('name_plural','%s Attachments' %mastertbl_name_long)
 
-        self.sysFields(tbl,id=True, ins=False, upd=False,counter='maintable_id',multidb=mastertbl_multidb)
+        self.sysFields(tbl,id=True, ins=False, upd=False,counter='maintable_id')
         tbl.column('id',size='22',group='_',name_long='Id')
         tbl.column('filepath' ,name_long='!!Filepath',onDeleted='onDeletedAtc',onInserted='convertDocFile')
         tbl.column('description' ,name_long='!!Description')
         tbl.column('mimetype' ,name_long='!!Mimetype')
         tbl.column('text_content',name_long='!!Content')
         tbl.column('info' ,'X',name_long='!!Additional info')
-        tbl.column('maintable_id',size='22',group='_',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
+        tbl.column('maintable_id',size='22',group='*',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
                     mode='foreignkey', onDelete_sql='cascade',onDelete='cascade', relation_name='atc_attachments',
                     one_group='_',many_group='_',deferred=True)
         tbl.formulaColumn('fileurl',"'/_vol/' || $filepath",name_long='Fileurl')

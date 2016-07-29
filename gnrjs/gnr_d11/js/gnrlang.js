@@ -44,16 +44,17 @@ function _T(str){
         var toTranslate = (str.search(/^!!|\[!!/)<0)?'!!'+str:str;
         var result = genro.serverCall('getRemoteTranslation',{txt:toTranslate,language:language}) || {};
         var localizedString = result['translation'];
-        if(result.status=='OK'){
-            localsdict[str] = localizedString;
-            genro.setInStorage('local',localekey,localsdict);
+        if(result.status!='OK'){
+            localsdict[str] ='<span class="unlocalized">'+localizedString+'</span>';
         }
+        localsdict[str] = localizedString;
+        genro.setInStorage('local',localekey,localsdict);
         return localizedString;
     }else{
-        return localsdict[str]
+        return localsdict[str];
     }
     return str;
-};
+}
 
 function _F(val,format,dtype){
     return gnrformatter.asText(val,{format:format,dtype:dtype});
@@ -112,7 +113,7 @@ function objectAsGrid(obj,labels){
     return result;
 };
 function objectAsHTMLTable(obj,labels){
-    var labels = labels || 'label,value';
+    labels = labels || 'label,value';
     var b = objectAsGrid(obj);
     return b.asHtmlTable({cells:labels});
 };
@@ -643,7 +644,7 @@ function objectIsEqual(obj1, obj2) {
 }
 
 function objectRemoveNulls(obj, blackList) {
-    var blackList = blackList || [null];
+    blackList = blackList || [null];
     var result = {};
     for (var prop in obj) {
         if ((obj[prop] != null) && (obj[prop] != '')) {
@@ -663,7 +664,7 @@ function objectDifference(objOld, objNew) {
         }
     }
     for (var prop in objOld) {
-        if (! prop in objNew) {
+        if (! (prop in objNew)) {
             result[prop] = ['D',objOld[prop]];
         }
     }
@@ -916,7 +917,6 @@ function convertFromText(value, t, fromLocale) {
     }
     return value;
 }
-
 var gnrformatter = {
     asText :function (value,valueAttr){
         var formatKw =  objectUpdate({},valueAttr);
@@ -924,16 +924,16 @@ var gnrformatter = {
         if(value==null || value==undefined){
             return '';
         }
-        var format = objectPop(formatKw,'format');
-        if(typeof(format)!='string'){
-            //fix to change
-            var formatdict = format;
-            format = objectPop(format,'format');
-            objectUpdate(formatKw,formatdict);
-        }
         var dtype = objectPop(formatKw,'dtype') || guessDtype(value);
         
-  
+        var format = objectPop(formatKw,'format');
+
+        if(format && typeof(format)!='string'){
+            var formatdict = format;
+            format = objectPop(format,'format') || objectPop(format,'pattern');
+            objectUpdate(formatKw,formatdict);
+        }
+        
         if(format && dtype=='L' && format.indexOf('.')>=0){
             dtype='N';
         }
@@ -1023,7 +1023,7 @@ var gnrformatter = {
         if(format=='playsound'){
             return makeLink('javascript:genro.lockScreen(true,"sound"); genro.playUrl("'+value+'",function(){genro.lockScreen(false,"sound")});','<div class="iconbox sound"></div>')
         }
-        if(format.indexOf('#')>=0){
+        if(typeof(format)=='string' && format.indexOf('#')>=0){ //to check
             format = format.split('');
             value = value.split('');
             var result = [];
