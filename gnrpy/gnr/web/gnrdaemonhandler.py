@@ -15,8 +15,9 @@ import time
 import Pyro4
 if hasattr(Pyro4.config, 'METADATA'):
     Pyro4.config.METADATA = False
+if hasattr(Pyro4.config, 'REQUIRE_EXPOSE'):
+    Pyro4.config.REQUIRE_EXPOSE = False
 OLD_HMAC_MODE = hasattr(Pyro4.config,'HMAC_KEY')
-HAS_REQUIRE_EXPOSE = hasattr(Pyro4.config,'REQUIRE_EXPOSE')
 PYRO_HOST = 'localhost'
 PYRO_PORT = 40004
 PYRO_HMAC_KEY = 'supersecretkey'
@@ -80,8 +81,6 @@ class GnrDaemonProxy(object):
         self.hmac_key = str(options.get('hmac_key') or PYRO_HMAC_KEY)
         if OLD_HMAC_MODE:
             Pyro4.config.HMAC_KEY = self.hmac_key
-        if HAS_REQUIRE_EXPOSE:
-            Pyro4.config.REQUIRE_EXPOSE = False
         Pyro4.config.SERIALIZER = options.get('serializer','pickle')
         Pyro4.config.COMPRESSION = options.get('compression',True)
 
@@ -138,8 +137,6 @@ class GnrDaemon(object):
         self.socket = socket 
         self.sockets = sockets
         self.hmac_key = str(hmac_key or PYRO_HMAC_KEY)
-        if HAS_REQUIRE_EXPOSE:
-            Pyro4.config.REQUIRE_EXPOSE = False
         if OLD_HMAC_MODE:
             Pyro4.config.HMAC_KEY = self.hmac_key
         if compression:
