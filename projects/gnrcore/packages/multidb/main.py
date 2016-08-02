@@ -531,3 +531,46 @@ class MultidbTable(object):
                 if store_record[k] != v:
                     result[k] = (v,store_record[k])
         return result
+
+
+
+    def createSysRecords(self):
+        if not self.db.usingRootstore():
+            return
+        syscodes = []
+        for m in dir(self):
+            if m.startswith('sysRecord_') and m!='sysRecord_':
+                method = getattr(self,m)
+                if getattr(method,'mandatory',False):
+                    syscodes.append(m[10:])
+        commit = False
+        if syscodes:
+            f = self.query(where='$__syscode IN :codes',codes=syscodes).fetchAsDict('__syscode')
+            for syscode in syscodes:
+                if not syscode in f:
+                    self.sysRecord(syscode)
+                    commit = True
+        if commit:
+            self.db.commit()
+
+    def sysRecord(self,syscode):
+        if not self.db.usingRootstore():
+            return
+        def createCb(key):
+            record = getattr(self,'sysRecord_%s' %syscode)()
+            record['__syscode'] = key
+            pkey = record[self.pkey]
+            if pkey:
+                oldrecord = self.query(where='$%s=:pk' %self.pkey,pk=pkey,
+                                            addPkeyColumn=False).fetch()
+                if oldrecord:
+                    oldrecord = oldrecord[0]
+                    record = dict(oldrecord)
+                    record['__syscode'] = syscode
+                    self.update(record,oldrecord)
+                    return record
+            if self.multidb=='*':
+                record['__multidb_subscribed'] = True
+            self.insert(record)
+            return record
+        return self.cachedRecord(syscode,keyField='__syscode',createCb=createCb)
