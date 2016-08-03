@@ -180,8 +180,10 @@ class GnrWebConnection(GnrBaseProxy):
             _customClasses = []
             row['_pkey'] = user
             row['iconClass'] = 'greenLight'
-            last_refresh_age = (now - arguments.get('last_refresh_ts',arguments['start_ts'])).seconds
-            last_event_age = (now - arguments.get('last_user_ts',arguments['start_ts'])).seconds
+            last_refresh_ts = arguments.get('last_refresh_ts') or arguments['start_ts']
+            last_user_ts = arguments.get('last_user_ts') or arguments['start_ts']
+            last_refresh_age = (now - last_refresh_ts).seconds
+            last_event_age = (now - last_user_ts).seconds
             if last_refresh_age > 60:
                 _customClasses.append('user_disconnected')
                 row['iconClass'] = 'grayLight'
