@@ -148,20 +148,25 @@ class MultidbTable(object):
         return GnrMultidbException
 
     def raw_insert(self, record, **kwargs):
-        self.trigger_onInserting_multidb(record)
+        do_multidb_trigger = not self.currentEnv.get('avoid_trigger_multidb')
+        if do_multidb_trigger:
+            self.trigger_onInserting_multidb(record)
         self.db.raw_insert(self, record,**kwargs)
-        self.trigger_onInserted_multidb(record)
+        if do_multidb_trigger:
+            self.trigger_onInserted_multidb(record)
 
     def raw_update(self, record, old_record=None,**kwargs):
-        self.trigger_onUpdating_multidb(record,old_record=old_record)
+        do_multidb_trigger = not self.currentEnv.get('avoid_trigger_multidb')
+        if do_multidb_trigger:
+            self.trigger_onUpdating_multidb(record,old_record=old_record)
         self.db.raw_update(self, record,old_record=old_record,**kwargs)
-        self.trigger_onUpdated_multidb(record,old_record=old_record)
+        if do_multidb_trigger:
+            self.trigger_onUpdated_multidb(record,old_record=old_record)
 
     def raw_delete(self, record, **kwargs):
-        self.trigger_onDeleting_multidb(record)
+        if not self.currentEnv.get('avoid_trigger_multidb'):
+            self.trigger_onDeleting_multidb(record)
         self.db.raw_delete(self, record,**kwargs)
-
-
 
 
     def unifyRecords(self,sourcePkey=None,destPkey=None):
