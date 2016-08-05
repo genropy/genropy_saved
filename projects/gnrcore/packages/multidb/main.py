@@ -282,8 +282,11 @@ class MultidbTable(object):
             slaveEventHook = getattr(self,'onSlaveSyncing',None)
             if slaveEventHook:
                 slaveEventHook(record,old_record=old_record,event='updating')
+            print 'before checkLocalUnify'
             self.checkLocalUnify(record,old_record=old_record)
+            print 'before checkForeignKeys'
             self.checkForeignKeys(record,old_record=old_record)
+            print 'done'
         else:
             onLocalWrite = self.attributes.get('multidb_onLocalWrite') or 'raise'
             if onLocalWrite!='merge':
