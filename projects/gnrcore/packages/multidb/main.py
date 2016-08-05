@@ -184,6 +184,7 @@ class MultidbTable(object):
                     if store in common_stores:
                         sr = self.record(pkey=sourcePkey,for_update=True).output('dict')
                         dr = self.record(pkey=destPkey,for_update=True).output('dict')
+                        print 'unifiy in ',store
                         self._unifyRecords_default(sr,dr)
                     elif store in sourceRecord_stores:
                         with self.db.tempEnv(storename=self.db.rootstore):
@@ -191,6 +192,7 @@ class MultidbTable(object):
                         sr = self.record(pkey=sourcePkey,for_update=True).output('dict')
                         dr = self.record(pkey=destPkey,for_update=True).output('dict')
                         self._unifyRecords_default(sr,dr)
+        print 'done'
 
 
 
