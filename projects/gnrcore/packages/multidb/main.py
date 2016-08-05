@@ -185,15 +185,19 @@ class MultidbTable(object):
                 with self.db.tempEnv(storename=store,_multidbSync=True):
                     print 'in store',store
                     if store in common_stores:
+                        print 'aaa'
                         sr = self.record(pkey=sourcePkey,for_update=True).output('dict')
                         dr = self.record(pkey=destPkey,for_update=True).output('dict')
                         print 'unifiy in ',store
                         self._unifyRecords_default(sr,dr)
                     elif store in sourceRecord_stores:
+                        print 'bbbb'
                         with self.db.tempEnv(storename=self.db.rootstore):
+                            print 'adding subscription'
                             self.multidbSubscribe(pkey=destPkey,dbstore=store)
                         sr = self.record(pkey=sourcePkey,for_update=True).output('dict')
                         dr = self.record(pkey=destPkey,for_update=True).output('dict')
+                        print 'now can unify'
                         self._unifyRecords_default(sr,dr)
         print 'done'
 
