@@ -220,25 +220,26 @@ class MultidbTable(object):
                 with self.db.tempEnv(storename=self.db.rootstore):
                     reltable.multidbSubscribe(pkey=checkKey,dbstore=storename)
 
-    def checkLocalUnify(self,record=None,old_record=None):
-        if record.get(self.logicalDeletionField)\
-            and not old_record.get(self.logicalDeletionField)\
-            and record.get('__moved_related'):
-                moved_related = Bag(record['__moved_related'])
-                destPkey = moved_related['destPkey']
-                destRecord = self.query(where='$%s=:dp' %self.pkey, 
-                                          dp=destPkey).fetch()
-                with self.db.tempEnv(connectionName='system'):
-                    if destRecord:
-                        destRecord = destRecord[0]
-                    else:
-                        storename = self.db.currentEnv['storename']
-                        with self.db.tempEnv(storename=self.db.rootstore):
-                            self.multidbSubscribe(pkey=destPkey,dbstore=storename)                        
-                        f = self.query(where='$%s=:dp' %self.pkey, 
-                                              dp=destPkey).fetch()
-                        destRecord = f[0]
-                    self.unifyRelatedRecords(sourceRecord=record,destRecord=destRecord,moved_relations=moved_related)
+   #def checkLocalUnify(self,record=None,old_record=None):
+   #    if record.get(self.logicalDeletionField)\
+   #        and not old_record.get(self.logicalDeletionField)\
+   #        and record.get('__moved_related'):
+   #            moved_related = Bag(record['__moved_related'])
+   #            destPkey = moved_related['destPkey']
+   #            destRecord = self.query(where='$%s=:dp' %self.pkey, 
+   #                                      dp=destPkey).fetch()
+   #            with self.db.tempEnv(connectionName='system'):
+   #                if destRecord:
+   #                    destRecord = destRecord[0]
+   #                else:
+   #                    storename = self.db.currentEnv['storename']
+   #                    with self.db.tempEnv(storename=self.db.rootstore):
+   #                        self.multidbSubscribe(pkey=destPkey,dbstore=storename)                        
+   #                    f = self.query(where='$%s=:dp' %self.pkey, 
+   #                                          dp=destPkey).fetch()
+   #                    destRecord = f[0]
+   #                self.unifyRelatedRecords(sourceRecord=record,destRecord=destRecord,moved_relations=moved_related)
+
 
     def trigger_onInserting_multidb(self, record,old_record=None,**kwargs):
         if self.db.usingRootstore():
@@ -282,8 +283,8 @@ class MultidbTable(object):
             slaveEventHook = getattr(self,'onSlaveSyncing',None)
             if slaveEventHook:
                 slaveEventHook(record,old_record=old_record,event='updating')
-            print 'before checkLocalUnify'
-            self.checkLocalUnify(record,old_record=old_record)
+            #print 'before checkLocalUnify'
+            #self.checkLocalUnify(record,old_record=old_record) #REMOVED UNIFY CUSTOM FOR MULTDB MAKE IT USELESS
             print 'before checkForeignKeys'
             self.checkForeignKeys(record,old_record=old_record)
             print 'done'
