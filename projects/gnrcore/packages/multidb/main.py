@@ -176,7 +176,7 @@ class MultidbTable(object):
             with self.db.tempEnv(avoid_trigger_multidb='*'):
                 self._unifyRecords_default(sourceRecord,destRecord)
             sourceRecord_stores = set(self.getSubscribedStores(sourceRecord))
-            destRecord_stores = set(self.getSubscribedStores(sourceRecord))
+            destRecord_stores = set(self.getSubscribedStores(destRecord))
             stores_to_check =  destRecord_stores.union(sourceRecord_stores)
             common_stores = destRecord_stores.intersection(sourceRecord_stores)
             for store in stores_to_check:
