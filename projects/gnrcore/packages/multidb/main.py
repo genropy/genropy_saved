@@ -173,7 +173,6 @@ class MultidbTable(object):
         if self.db.usingRootstore():
             sourceRecord = self.record(pkey=sourcePkey,for_update=True).output('dict')
             destRecord = self.record(pkey=destPkey,for_update=True).output('dict')
-            print 'in mainstore'
             with self.db.tempEnv(avoid_trigger_multidb='*'):
                 self._unifyRecords_default(sourceRecord,destRecord)
             sourceRecord_stores = set(self.getSubscribedStores(sourceRecord))
@@ -185,23 +184,16 @@ class MultidbTable(object):
                 with self.db.tempEnv(storename=store,_multidbSync=True):
                     print 'in store',store
                     if store in common_stores:
-                        print 'aaa'
                         sr = self.record(pkey=sourcePkey,for_update=True).output('dict')
                         dr = self.record(pkey=destPkey,for_update=True).output('dict')
                         print 'unifiy in ',store
                         self._unifyRecords_default(sr,dr)
                     elif store in sourceRecord_stores:
-                        print 'bbbb'
                         with self.db.tempEnv(storename=self.db.rootstore):
-                            print 'adding subscription'
                             self.multidbSubscribe(pkey=destPkey,dbstore=store)
                         sr = self.record(pkey=sourcePkey,for_update=True).output('dict')
                         dr = self.record(pkey=destPkey,for_update=True).output('dict')
-                        print 'now can unify'
                         self._unifyRecords_default(sr,dr)
-        print 'done'
-
-
 
     def checkForeignKeys(self,record=None,old_record=None):
         for rel_table,rel_table_pkey,fkey in self.model.oneRelationsList(True):
@@ -285,9 +277,7 @@ class MultidbTable(object):
                 slaveEventHook(record,old_record=old_record,event='updating')
             #print 'before checkLocalUnify'
             #self.checkLocalUnify(record,old_record=old_record) #REMOVED UNIFY CUSTOM FOR MULTDB MAKE IT USELESS
-            print 'before checkForeignKeys'
             self.checkForeignKeys(record,old_record=old_record)
-            print 'done'
         else:
             onLocalWrite = self.attributes.get('multidb_onLocalWrite') or 'raise'
             if onLocalWrite!='merge':
