@@ -173,14 +173,17 @@ class MultidbTable(object):
         if self.db.usingRootstore():
             sourceRecord = self.record(pkey=sourcePkey,for_update=True).output('dict')
             destRecord = self.record(pkey=destPkey,for_update=True).output('dict')
+            print 'in mainstore'
             with self.db.tempEnv(avoid_trigger_multidb='*'):
                 self._unifyRecords_default(sourceRecord,destRecord)
             sourceRecord_stores = set(self.getSubscribedStores(sourceRecord))
             destRecord_stores = set(self.getSubscribedStores(destRecord))
             stores_to_check =  destRecord_stores.union(sourceRecord_stores)
             common_stores = destRecord_stores.intersection(sourceRecord_stores)
+
             for store in stores_to_check:
                 with self.db.tempEnv(storename=store,_multidbSync=True):
+                    print 'in store',store
                     if store in common_stores:
                         sr = self.record(pkey=sourcePkey,for_update=True).output('dict')
                         dr = self.record(pkey=destPkey,for_update=True).output('dict')
