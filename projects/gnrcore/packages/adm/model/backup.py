@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+import os
 
 class Table(object):
     def config_db(self, pkg):
@@ -9,3 +10,9 @@ class Table(object):
         tbl.column('start_ts',dtype='DH',name_long='!!Backup start ts')
         tbl.column('end_ts',dtype='DH',name_long='!!Backup end ts')
         tbl.formulaColumn('dl_link',""" '/_site/maintenance/backups/'|| $name """)
+
+    def trigger_onDeleted(self,record):
+        try:
+            os.remove(self.db.application.site.getStaticPath('site:maintenance','backups','%s.zip' %record['name']))
+        except Exception:
+            pass
