@@ -54,7 +54,7 @@ def listdirs(path, invisible_files=False):
                 files.append(file_path)
                 
     files = []
-    os.path.walk(path, callb, files)
+    os.walk(path, callb, files)
     return files
 
 def resolvegenropypath(path):
