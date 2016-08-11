@@ -54,13 +54,11 @@ to interact with BagNode instances inside a Bag.
           You will see this notation frequently in the :ref:`Genro Library Reference <library_reference>`
           
 .. note:: Some methods have the "square-brackets notation": it is a shorter notation for the method"""
-
+from __future__ import print_function
 #import weakref
 import copy
-import cPickle as pickle
+#import cPickle as pickle
 from datetime import datetime, timedelta
-import urllib
-import urlparse
 from gnr.core import gnrstring
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrlang import setCallable, GnrObject, GnrException
@@ -68,6 +66,8 @@ import os.path
 import logging
 import sys
 import re
+from gnr.core import six
+from gnr.core.six.moves import cPickle as pickle
 
 gnrlogger = logging.getLogger(__name__)
 
@@ -355,7 +355,7 @@ class BagNode(object):
 
     def delAttr(self, *attrToDelete):
         """Receive one or more attributes' labels and remove them from the node's attributes"""
-        if isinstance(attrToDelete, basestring):
+        if isinstance(attrToDelete, six.string_types):
             attrToDelete = attrToDelete.split(',')
         for attr in attrToDelete:
             if attr in self.attr.keys():
@@ -378,7 +378,7 @@ class BagNode(object):
         
         :param validator: the type of validation to set into the list of the node
         :param parameterString: the parameter for a single validation type"""
-        print x
+        print(x)
         if self._validators is None:
             self._validators = BagValidationList(self)
         self._validators.add(validator, parameterString)
@@ -520,7 +520,7 @@ class Bag(GnrObject):
         in the Bag, ``False`` otherwise
         
         :param what: the key path to test"""
-        if isinstance(what, basestring):
+        if isinstance(what, six.string_types):
             return bool(self.getNode(what))
         elif isinstance(what, BagNode):
             return (what in self._nodes)
@@ -565,11 +565,11 @@ class Bag(GnrObject):
         
         >>> mybag = Bag({'a':1,'b':2})
         >>> second = mybag['b']
-        >>> print second
+        >>> print(second)
         2"""
         if not path:
             return self
-        if isinstance(path, basestring):
+        if isinstance(path, six.string_types):
             if '?' in path:
                 path, mode = path.split('?')
                 if mode == '': mode = 'k'
@@ -600,21 +600,18 @@ class Bag(GnrObject):
         :param caption: the attribute to use for the leaf key. If not specified, it uses the original key
         :param attributes: keys to copy as attributes of the leaves. Default value
                            is ``*`` (= select all the attributes)"""
-        #if isinstance(group_by, str) or isinstance(group_by, unicode): 
-        # just test if is instance of basestring 
-        # both str and unicode will return True
-        if isinstance(group_by, basestring):
+        if isinstance(group_by, six.string_types):
             group_by = group_by.split(',')
         result = Bag()
         for key, item in self.iteritems():
             path = []
             for g in group_by:
-                path.append(unicode(item[g]))
+                path.append(six.u(str(item[g])))
             if caption is None:
                 val = key
             else:
                 val = item[caption]
-            path.append(unicode(val).replace(u'.', u'_'))
+            path.append(six.u(str(val)).replace(u'.', u'_'))
             if attributes == '*':
                 attributes = item.keys()
             attrs = dict([(k, item[k]) for k in attributes])
@@ -625,7 +622,7 @@ class Bag(GnrObject):
         """TODO
         
         :param pars: TODO None: label ascending"""
-        if not isinstance(pars, basestring):
+        if not isinstance(pars, six.string_types):
             self._nodes.sort(pars)
         else:
             levels = pars.split(',')
@@ -657,10 +654,10 @@ class Bag(GnrObject):
             result = []
             wlist = what.split(',')
             for w in wlist:
-                result.append(sum(map(lambda n: n or 0, self.digest(w))))
+                result.append(sum([n or 0 for n in self.digest(w)]))
             return result
         else:
-            return sum(map(lambda n: n or 0, self.digest(what)))
+            return sum([n or 0 for n in self.digest(what)])
             
     def get(self, label, default=None, mode=None):
         """TODO
@@ -712,7 +709,7 @@ class Bag(GnrObject):
         :param autocreate: boolean. If ``True``, it creates all the not existing nodes of the pathlist
         :param returnLastMatch: boolean. TODO"""
         curr = self
-        if isinstance(pathlist, basestring):
+        if isinstance(pathlist, six.string_types):
             orpa=pathlist
             pathlist = gnrstring.smartsplit(pathlist.replace('../', '#^.'), '.')
             pathlist = [x for x in pathlist if x]
@@ -792,18 +789,18 @@ class Bag(GnrObject):
                 else:
                     exploredNodes[el_id] = el.label
                     innerBagStr = '\n'.join(["    %s" % (line,)
-                                             for line in unicode(
+                                             for line in six.u(
                             value.__str__(exploredNodes, mode=mode)).split('\n')])
                 outlist.append(innerBagStr)
             else:
                 currtype = str(type(value)).split(" ")[1][1:][:-2]
                 if currtype == 'NoneType': currtype = 'None'
                 if '.' in currtype: currtype = currtype.split('.')[-1]
-                if not isinstance(value, unicode):
-                    if isinstance(value, basestring):
+                if not isinstance(value, six.text_type):
+                    if isinstance(value, six.string_types):
                         value = value.decode('UTF-8', 'ignore')
                 outlist.append(("%s - (%s) %s: %s  %s" % (str(idx), currtype,
-                                                          el.label, unicode(value), attr)))
+                                                          el.label, value, attr)))
         return '\n'.join(outlist)
 
     def asString(self, encoding='UTF-8', mode='weak'):
@@ -892,21 +889,21 @@ class Bag(GnrObject):
             >>> b.setItem('documents.letters.letter_to_sheila','file2')
             >>> b.setAttr('documents.letters.letter_to_sheila',createdOn='12-4-2003',createdBy='Walter',
             ... lastModify='12-9-2003',fileOwner='Steve')
-            >>> print b['documents.letters'].digest('#k,#a.createdOn,#a.createdBy')
+            >>> print(b['documents.letters'].digest('#k,#a.createdOn,#a.createdBy'))
             [('letter_to_sheila','12-4-2003','Walter'),('letter_to_mark','10-7-2003','Jack'),('letter_to_john','11-5-2003','Mark')]
             
         **Square-brackets notations:**
         
         You have to use the special char ``?`` followed by ``d:`` followed by one or more *expressions*:
             
-            >>> print b['documents.letters.?d:#k,#a.createdOn,#a.createdBy']
+            >>> print(b['documents.letters.?d:#k,#a.createdOn,#a.createdBy'])
             [('letter_to_sheila','12-4-2003','Walter'),('letter_to_mark','10-7-2003','Jack'),('letter_to_john','11-5-2003','Mark')]
-            >>> print b['documents.letters.?d:#v,#a.createdOn']
+            >>> print(b['documents.letters.?d:#v,#a.createdOn'])
             [('file0', '10-7-2003'), ('file1', '11-5-2003'), ('file2', '12-4-2003')]"""
 
         if not what:
             what = '#k,#v,#a'
-        if isinstance(what, basestring):
+        if isinstance(what, six.string_types):
             if ':' in what:
                 where, what = what.split(':')
                 obj = self[where]
@@ -921,7 +918,7 @@ class Bag(GnrObject):
         for w in whatsplit:
             if w == '#k':
                 result.append([x.label for x in nodes])
-            elif callable(w):
+            elif six.callable(w):
                 result.append([w(x) for x in nodes])
             elif w == '#v':
                 result.append([x.value for x in nodes])
@@ -949,7 +946,7 @@ class Bag(GnrObject):
         
         :param cols: TODO
         :param attrMode: boolean. TODO"""
-        if isinstance(cols, basestring):
+        if isinstance(cols, six.string_types):
             cols = cols.split(',')
         mode = ''
         if attrMode:
@@ -1004,7 +1001,7 @@ class Bag(GnrObject):
         >>> b.addItem('a',3)
         >>> b.pop('a')
         1
-        >>> print b
+        >>> print(b)
         0 - (int) a: 2
         1 - (int) a: 3"""
         result = dflt
@@ -1047,7 +1044,7 @@ class Bag(GnrObject):
             for k, v in otherbag.items():
                 self.setItem(k, v)
             return
-        if isinstance(otherbag, basestring):
+        if isinstance(otherbag, six.string_types):
             cls = self.__class__
             b = Bag()
             b.fromXml(otherbag, bagcls=cls, empty=cls)
@@ -1117,7 +1114,7 @@ class Bag(GnrObject):
         >>> other_numbers=Bag({'mobile':444334523, 'office':3320924, 'house':2929387})
         >>> other_numbers.setAttr('office',{'from': 9, 'to':17})
         >>> john_doe['telephones']=john_doe['telephones'].merge(other_numbers)
-        >>> print john_doe
+        >>> print(john_doe)
         0 - (Bag) telephones:
             0 - (int) house: 2929387
             1 - (int) mobile: 444334523
@@ -1283,7 +1280,7 @@ class Bag(GnrObject):
         >>> b.setAttr('documents.letters.letter_to_sheila', createdOn='12-4-2003', createdBy='Walter', lastModify= '12-9-2003')
         >>> b.setAttr('documents.letters.letter_to_sheila', fileOwner='Steve')
         >>> b.setAttr('documents',{'type':'secret','createdOn':'2010-11-15'})
-        >>> print b
+        >>> print(b)
         0 - (Bag) documents: <createdOn='2010-11-15' type='secret'>
             0 - (Bag) letters: 
                 0 - (str) letter_to_mark: file0  <createdOn='10-7-2003' createdBy='Jack'>
@@ -1293,7 +1290,7 @@ class Bag(GnrObject):
         You may delete an attribute assigning ``None`` to an existing value:
         
         >>> b.setAttr('documents.letters.letter_to_sheila', fileOwner=None, createdOn=None, createdBy=None)
-        >>> print b
+        >>> print(b)
         0 - (Bag) documents: <createdOn='2010-11-15' type='secret'>
             0 - (Bag) letters:
                 0 - (str) letter_to_sheila: file2  <lastModify='12-9-2003'>
@@ -1311,22 +1308,22 @@ class Bag(GnrObject):
         
         >>> b = Bag()
         >>> b.setItem('documents.letters.letter_to_mark','file0',createdOn='10-7-2003',createdBy= 'Jack')
-        >>> print b
+        >>> print(b)
         0 - (Bag) documents: 
             0 - (Bag) letters: 
                 0 - (str) letter_to_mark: file0  <createdOn='10-7-2003' createdBy='Jack'>
-        >>> print b.getAttr('documents.letters.letter_to_mark', 'createdBy')
+        >>> print(b.getAttr('documents.letters.letter_to_mark', 'createdBy'))
         Jack
-        >>> print b.getAttr('documents.letters.letter_to_mark', 'fileOwner')
+        >>> print(b.getAttr('documents.letters.letter_to_mark', 'fileOwner'))
         None
-        >>> print b.getAttr('documents.letters.letter_to_mark', 'fileOwner', default='wrong')
+        >>> print(b.getAttr('documents.letters.letter_to_mark', 'fileOwner', default='wrong'))
         wrong
         
         **Square-brackets notations:**
         
         You have to use the special char ``?`` followed by the attribute's name:
         
-        >>> print b['documents.letters.letter_to_sheila?fileOwner']
+        >>> print(b['documents.letters.letter_to_sheila?fileOwner'])
         Steve"""
         node = self.getNode(path)
         if node:
@@ -1353,7 +1350,7 @@ class Bag(GnrObject):
         and the first list's element label.
         
         :param path: the given path"""
-        if isinstance(path, basestring):
+        if isinstance(path, six.string_types):
             escape = "\\."
             if escape in path:
                 path = path.replace(escape, chr(1))
@@ -1434,7 +1431,7 @@ class Bag(GnrObject):
         >>> beatles.addItem('member','Paul')
         >>> beatles.addItem('member','George')
         >>> beatles.addItem('member','Ringo')
-        >>> print beatles
+        >>> print(beatles)
         0 - (str) member: John
         1 - (str) member: Paul
         2 - (str) member: George
@@ -1498,7 +1495,7 @@ class Bag(GnrObject):
         >>> mybag.setItem('e',5, _position= '<')
         >>> mybag.setItem('f',6, _position= '<c')
         >>> mybag.setItem('g',7, _position= '<#3')
-        >>> print mybag
+        >>> print(mybag)
         0 - (int) e: 5
         1 - (int) a: 1
         2 - (int) b: 2
@@ -1516,7 +1513,7 @@ class Bag(GnrObject):
         >>> mybag = Bag()
         >>> mybag['a'] = 1
         >>> mybag['b.c.d'] = 2
-        >>> print mybag
+        >>> print(mybag)
         0 - (int) a: 1
         1 - (Bag) b:
             0 - (Bag) c:
@@ -1590,7 +1587,7 @@ class Bag(GnrObject):
         >>> mybag.defineFormula(calculate_perimeter='2*($base + $height)' )
         >>> mybag.defineSymbol(base ='params.base',  height='params.height')
         >>> mybag['rect.perimeter']= mybag.formula('calculate_perimeter')
-        >>> print mybag['rect.perimeter']
+        >>> print(mybag['rect.perimeter'])
         60"""
         if self._symbols == None:
             self._symbols = {}
@@ -1842,7 +1839,7 @@ class Bag(GnrObject):
         """Fill a void Bag from a source (basestring, Bag or list)
         
         :param source: the source for the Bag"""
-        if isinstance(source, basestring):
+        if isinstance(source, six.string_types):
             b = self._fromSource(*self._sourcePrepare(source))
             if not b: b = Bag()
             self._nodes[:] = b._nodes[:]
@@ -1912,7 +1909,7 @@ class Bag(GnrObject):
         if sys.platform == "win32" and ":\\" in source:
             urlparsed = ('file', None, source)
         else:
-            urlparsed = urlparse.urlparse(source)
+            urlparsed = six.moves.urllib.parse.urlparse(source)
         if not urlparsed[0] or urlparsed[0] == 'file':
             source = urlparsed[2]
             if os.path.exists(source):
@@ -1935,7 +1932,7 @@ class Bag(GnrObject):
                     return source, False, 'isdir' #it's a directory
             else:
                 return originalsource, False, 'unknown' #short string of unknown type
-        urlobj = urllib.urlopen(source)
+        urlobj = six.moves.urllib.request.urlopen(source)
         info = urlobj.info()
         contentType = info.gettype().lower()
         if 'xml' in contentType or 'html' in contentType:
@@ -1943,7 +1940,7 @@ class Bag(GnrObject):
         return source, False, 'direct' #urlresolver
 
     def fromJson(self,json,listJoiner=None):
-        if isinstance(json,basestring):
+        if isinstance(json, six.string_types):
             json = gnrstring.fromJson(json)
         if not (isinstance(json,list) or isinstance(json,dict)):
             json = dict(value = json)
@@ -1955,7 +1952,7 @@ class Bag(GnrObject):
         if isinstance(json,list):
             if not json:
                 return
-            if listJoiner and all(map(lambda r: isinstance(r,basestring) and not converter.isTypedText(r),json)):
+            if listJoiner and all(map(lambda r: isinstance(r,six.string_types) and not converter.isTypedText(r),json)):
                 return listJoiner.join(json)
             for n,v in enumerate(json):
                 result.setItem('r_%i' %n,self._fromJson(v,listJoiner=listJoiner),_autolist=True)
@@ -1966,7 +1963,7 @@ class Bag(GnrObject):
             for k,v in json.items():
                 result.setItem(k,self._fromJson(v,listJoiner=listJoiner))
         else:
-            if isinstance(json,basestring) and converter.isTypedText(json):
+            if isinstance(json,six.string_types) and converter.isTypedText(json):
                 json = converter.fromTypedText(json)
             return json
         return result
@@ -2131,7 +2128,7 @@ class Bag(GnrObject):
         :param result: TODO"""
         if result is None:
             result = []
-        if isinstance(pathlist, basestring):
+        if isinstance(pathlist, six.string_types):
             pathlist = gnrstring.smartsplit(pathlist.replace('../', '#^.'), '.')
             pathlist = [x for x in pathlist if x]
         label = pathlist.pop(0)
@@ -2261,7 +2258,7 @@ class Bag(GnrObject):
             result = None
             
         if _parentTag:
-            if isinstance(_parentTag, basestring):
+            if isinstance(_parentTag, six.string_types):
                 _parentTag = gnrstring.splitAndStrip(_parentTag, ',')
             actualParentTag = where.getAttr('', tag)
             if not actualParentTag in _parentTag:
@@ -2318,7 +2315,7 @@ class BagValidationList(object):
         
         :param validator: type of validator
         :param parameterString: the string that contains the parameters for the validators"""
-        if isinstance(validator, basestring):
+        if isinstance(validator, six.string_types):
             validator = getattr(self, 'validate_%s' % validator, self.defaultExt)
         if not validator in self.validators:
             self.validators.append(validator)
@@ -2344,7 +2341,7 @@ class BagValidationList(object):
         :param oldvalue: TODO
         :param parameterString: values = 'upper' or 'lower' or 'capitalize'"""
         mode = parameterString
-        if not isinstance(value, basestring):
+        if not isinstance(value, six.string_types):
             raise BagValidationError('not a string value', value, 'The value is not a string')
         else:
             if mode.lower() == 'upper':
@@ -2422,7 +2419,7 @@ class BagValidationList(object):
         :param value: TODO
         :param oldvalue: TODO
         :param parameterString: TODO"""
-        print 'manca il validatore'
+        print('manca il validatore')
 
 class BagResolver(object):
     """BagResolver is an abstract class, that defines the interface for a new kind
@@ -2618,10 +2615,10 @@ class BagResolver(object):
 
 class VObjectBag(Bag):
     def fillFrom(self,source):
-        if isinstance(source,basestring):
+        if isinstance(source, six.string_types):
             source, fromFile, mode = self._sourcePrepare(source)
             if fromFile:
-                urlobj = urllib.urlopen(source)
+                urlobj = six.moves.urllib.request.urlopen(source)
                 info = urlobj.info()
                 contentType = info.gettype().lower()
                 source= urlobj.read()
@@ -2666,7 +2663,7 @@ class GeoCoderBag(Bag):
         urlparams = dict(address=address,sensor='false')
         if language:
             urlparams['language']=language
-        url = "http://maps.googleapis.com/maps/api/geocode/xml?%s" % urllib.urlencode(urlparams)
+        url = "http://maps.googleapis.com/maps/api/geocode/xml?%s" % six.moves.urllib.parse.urlencode(urlparams)
         self._result = Bag()
         answer = Bag(url)
         if answer['GeocodeResponse.status']=='OK':
@@ -2704,7 +2701,7 @@ class UrlResolver(BagResolver):
         
     def load(self):
         """TODO"""
-        x = urllib.urlopen(self.url)
+        x = six.moves.urllib.request.urlopen(self.url)
         result = {}
         result['data'] = x.read()
         result['info'] = x.info()
@@ -2725,7 +2722,7 @@ class NetBag(BagResolver):
             params = {k:self.converter.asTypedText(v) for k,v in self.kwargs.items()}
             response = self.requests.post('%s/%s' %(self.url,self.method),data=params)
             return Bag(response.text)
-        except Exception, e:
+        except Exception as e:
             return Bag(dict(error=str(e)))
         
         
@@ -2908,9 +2905,7 @@ class BagResolverNew(object):
         
     def _getPar(self, name):
         attr = getattr(self, name)
-        if isinstance(attr, basestring) or\
-           isinstance(attr, int) or\
-           isinstance(attr, float):
+        if isinstance(attr, six.string_types+six.integer_types):
             return attr
         elif self.serializerStore is None:
             raise BagException('Missing SerializerStore')
@@ -3097,22 +3092,22 @@ def testFormule():
 
     a = b['ft1.righe.1.lordo']
 
-    print b
-    print b['?']
-    print b['ft1.righe.?']
+    print(b)
+    print(b['?'])
+    print(b['ft1.righe.?'])
 
-    print b['ft1.totalefattura']
-    print b['ft1.netto']
-    print b['ft1.iva']
+    print(b['ft1.totalefattura'])
+    print(b['ft1.netto'])
+    print(b['ft1.iva'])
 
-    print b['ft1.righe.1.lordo']
-    print b['ft1.righe.1.netto']
-    print b['ft1.righe.2.lordo']
-    print b['ft1.righe.2.netto']
-    print b['ft1.righe.3.lordo']
-    print b['ft1.righe.3.netto']
+    print(b['ft1.righe.1.lordo'])
+    print(b['ft1.righe.1.netto'])
+    print(b['ft1.righe.2.lordo'])
+    print(b['ft1.righe.2.netto'])
+    print(b['ft1.righe.3.lordo'])
+    print(b['ft1.righe.3.netto'])
     b['ft1.sconto'] = 10
-    print b['ft1.totalefattura']
+    print(b['ft1.totalefattura'])
 
 class TraceBackResolver(BagResolver):
     classKwargs = {'cacheTime': 0, 'limit': None}
@@ -3153,7 +3148,7 @@ class TraceBackResolver(BagResolver):
         return result
 
 def testfunc (**kwargs):
-    print kwargs
+    print(kwargs)
 
 #import Pyro.core
 #class PyroBag(Bag, Pyro.core.ObjBase):
@@ -3164,4 +3159,4 @@ def testfunc (**kwargs):
 if __name__ == '__main__':
     b = Bag()
     b.setItem('aa', 4, _attributes={'aa': 4, 'bb': None}, _removeNullAttributes=False)
-    print b.toXml()
+    print(b.toXml())

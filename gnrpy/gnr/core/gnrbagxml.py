@@ -32,7 +32,8 @@ from decimal import Decimal
 from gnr.core import gnrstring
 from gnr.core import gnrclasses
 import time
-import StringIO
+
+from gnr.core import six
 
 REGEX_XML_ILLEGAL = re.compile(r'<|>|&')
 ZERO_TIME=datetime.time(0,0)
@@ -60,7 +61,7 @@ class BagFromXml(object):
         done = False
         testmode = False
         nerror = 0
-        if isinstance(source, unicode):
+        if isinstance(source, six.text_type):
             source = source.encode('utf8')
         while not done:
             try:
@@ -115,9 +116,9 @@ class BagFromXml(object):
             source = infile.read()
             infile.close()
                 
-        if isinstance(source, unicode):
+        if isinstance(source, six.text_type):
             if source.startswith('<?xml'):
-                source = source[source.index('?>'):]
+                source = source[source.index('?>')+2:]
             source = "<?xml version='1.0' encoding='UTF-8'?>%s" % source.encode('UTF-8')
         source = re.sub("&(?!([a-zA-Z][a-zA-Z0-9]*|#\d+);)", "&amp;", source)
         sax.parseString(source, bagImport)
@@ -220,7 +221,7 @@ class _SaxImporter(sax.handler.ContentHandler):
             curr, attributes = self.bags.pop()
             if value or isValidValue(value):
                 if curr:
-                    if isinstance(value, basestring):
+                    if isinstance(value, six.string_types):
                         value = value.strip()
                     if value:
                         curr.nodes.append(BagNode(curr, '_', value))
@@ -360,7 +361,7 @@ class BagToXml(object):
             result = result + self.bagToXmlBlock(bag)
         else:
             result = result + self.buildTag('GenRoBag', self.bagToXmlBlock(bag), xmlMode=True, localize=False)
-        result = unicode(result).encode(encoding, 'replace')
+        result = result.decode().encode(encoding, 'replace')
         if pretty:
             from xml.dom.minidom import parseString
             result = parseString(result)
@@ -402,10 +403,10 @@ class BagToXml(object):
                         value = float(value)
                     value, t = self.catalog.asTextAndType(value, translate_cb=self.translate_cb if localize else None)
                 if isinstance(value, BagAsXml):
-                    print x
+                    print(x)
                 try:
-                    value = unicode(value)
-                except Exception, e:
+                    value = value.decode()
+                except Exception as e:
                     raise e
                     #raise '%s: %s' % (str(tagName), value)
         if attributes:
@@ -416,10 +417,10 @@ class BagToXml(object):
                 return value
             if self.omitUnknownTypes:
                 attributes = dict([(k, v) for k, v in attributes.items()
-                                    if isinstance(v,basestring) or 
-                                                ( type(v) in (int, float, long,
+                                    if isinstance(v,six.string_types) or 
+                                                ( type(v) in six.integer_types+(float,
                                                   datetime.date, datetime.time, datetime.datetime,
-                                                  bool, type(None), list, tuple, dict, Decimal) ) or (callable(v) and 
+                                                  bool, type(None), list, tuple, dict, Decimal) ) or (six.callable(v) and 
                                             (hasattr(v,'is_rpc') or 
                                             (hasattr(v,'__name__') and v.__name__.startswith('rpc_')))
                                             )])
@@ -449,9 +450,9 @@ class BagToXml(object):
             result = '%s _T="%s"' % (result, t)
         if attributes: result = "%s %s" % (result, attributes)
         if isinstance(value, BagAsXml):
-            print x
+            print(x)
         if not xmlMode:
-            if not isinstance(value, unicode): value = unicode(value, 'UTF-8')
+            if six.PY2 and not isinstance(value, six.text_type): value = value.decode('UTF-8')
             #if REGEX_XML_ILLEGAL.search(value): value='<![CDATA[%s]]>' % value
             #else: value = saxutils.escape((value))
             
@@ -498,7 +499,7 @@ class XmlOutputBag(object):
                 output=open(filepath,'w')
     
             else:
-                output = StringIO.StringIO()
+                output = six.StringIO()
         self.output = output
 
     def __enter__(self):
