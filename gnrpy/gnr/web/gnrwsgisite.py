@@ -636,9 +636,7 @@ class GnrWsgiSite(object):
             return self.maintenanceDispatcher(environ, start_response)
         else:
             try:
-                res = self._dispatcher(environ, start_response)
-                print res
-                return res
+                return self._dispatcher(environ, start_response)
             except self.register.errors.ConnectionClosedError:
                 self.currentMaintenance = 'register_error'
                 self._register = None
