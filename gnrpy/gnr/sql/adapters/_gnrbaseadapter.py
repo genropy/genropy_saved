@@ -918,9 +918,9 @@ class GnrDictRow(GnrNamedList):
     def __init__(self, cursor, values=None):
         self._index = cursor.index
         if values is None:
-            self[:] = [None] * len(cursor.description)
-        else:
-            self[:] = values
+            values = [None] * len(cursor.description)
+        super(GnrDictRow, self).__init__(cursor.index, values=values)
+        
 
 class DbAdapterException(Exception):
     pass

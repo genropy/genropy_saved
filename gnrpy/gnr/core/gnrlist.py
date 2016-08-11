@@ -293,20 +293,20 @@ class CsvReader(object):
             yield GnrNamedList(self.index, r)
         self.filecsv.close()
             
-class GnrNamedList(list):
+class GnrNamedList(object):
     """Row object. Allow access to data by column name. Allow also to add columns and alter data."""
     def __init__(self, index, values=None):
         self._index = index
         if values is None:
-            self[:] = [None] * len(index)
+            self._list = [None] * len(index)
         else:
-            self[:] = values
+            self._list = values
             
     def __getitem__(self, x):
         if type(x) != int:
             x = self._index[x]
         try:
-            return list.__getitem__(self, x)
+            return self._list[x]
         except:
             if x > len(self._index):
                 raise
@@ -340,21 +340,28 @@ class GnrNamedList(list):
                 self._index[x] = n
             x = n
         try:
-            list.__setitem__(self, x, v)
+            self._list[x] = v
         except:
             n = len(self._index)
             if x > n:
                 raise
             else:
-                self.extend([None] * (n - len(self)))
-                list.__setitem__(self, x, v)
+                self._list.extend([None] * (n - len(self)))
+                self._list[x] = v
                 
     def __str__(self):
         return '[%s]' % ','.join(['%s=%s' % (k, v) for k, v in self.items()])
         
     def __repr__(self):
         return '[%s]' % ','.join(['%s=%s' % (k, v) for k, v in self.items()])
-        
+
+    def __contains__(self, value):
+        return value in self._index
+
+    def __len__(self):
+        return len(self._list)
+
+
     def get(self, x, default=None):
         """Same of ``get`` method's dict
         
@@ -404,7 +411,7 @@ class GnrNamedList(list):
         if type(x) != int:
             x = self._index[x]
         try:
-            return list.pop(self, x)
+            return self._list.pop(x)
         except:
             if x > len(self._index):
                 raise
@@ -419,7 +426,7 @@ class GnrNamedList(list):
             
     def values(self):
         """Same of ``values`` method's dict"""
-        return tuple(self[:] + [None] * (len(self._index) - len(self)))
+        return tuple(self._list + [None] * (len(self._index) - len(self)))
         
     def extractItems(self, columns):
         """It is a utility method of the sql :meth:`fetch() <gnr.sql.gnrsqldata.SqlQuery.fetch()>`

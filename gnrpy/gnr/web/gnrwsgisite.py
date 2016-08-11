@@ -1,7 +1,9 @@
 from gnr.core.gnrbag import Bag
-from weberror.evalexception import EvalException
+#from weberror.evalexception import EvalException
+from backlash import DebuggedApplication
+
 #from paste.exceptions.errormiddleware import ErrorMiddleware
-from weberror.errormiddleware import ErrorMiddleware
+#from weberror.errormiddleware import ErrorMiddleware
 from webob import Request, Response
 from webob.exc import WSGIHTTPException, HTTPNotFound, HTTPForbidden, HTTPPreconditionFailed, HTTPClientError
 from gnr.web.gnrwebapp import GnrWsgiWebApp
@@ -25,7 +27,6 @@ from threading import RLock
 import thread
 import mimetypes
 from gnr.core.gnrsys import expandpath
-import cPickle
 from gnr.core.gnrstring import boolean
 from gnr.core.gnrdecorator import extract_kwargs
 
@@ -40,9 +41,8 @@ from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import SiteRegisterClient
 from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import WsgiWebSocketHandler
-import pdb
-
 import warnings
+
 try:
     import uwsgi
     UWSGIMODE = True
@@ -135,12 +135,12 @@ class UrlInfo(object):
         else:
             self.request_args = path_list
 
-class SafeEvalException(EvalException):
-    def __call__(self, environ, start_response):
-        if not environ['wsgi.multiprocess']:
-            return super(SafeEvalException, self).__call__(environ, start_response)
-        else:
-            return self.application(environ, start_response)
+#class SafeEvalException(EvalException):
+#    def __call__(self, environ, start_response):
+#        if not environ['wsgi.multiprocess']:
+#            return super(SafeEvalException, self).__call__(environ, start_response)
+#        else:
+#            return self.application(environ, start_response)
 
 class GnrWsgiSite(object):
     """TODO"""
@@ -636,7 +636,9 @@ class GnrWsgiSite(object):
             return self.maintenanceDispatcher(environ, start_response)
         else:
             try:
-                return self._dispatcher(environ, start_response)
+                res = self._dispatcher(environ, start_response)
+                print res
+                return res
             except self.register.errors.ConnectionClosedError:
                 self.currentMaintenance = 'register_error'
                 self._register = None
@@ -959,24 +961,26 @@ class GnrWsgiSite(object):
                   )
 
         if self.debug:
-            wsgiapp = SafeEvalException(wsgiapp, debug=True)
+            #wsgiapp = SafeEvalException(wsgiapp, debug=True)
+            wsgiapp = DebuggedApplication(wsgiapp)
         else:
-            err_kwargs = dict(debug=True)
-            if 'debug_email' in self.config:
-                error_smtp_kwargs = self.config.getAttr('debug_email')
-                if error_smtp_kwargs.get('smtp_password'):
-                    error_smtp_kwargs['smtp_password'] = error_smtp_kwargs['smtp_password'].encode('utf-8')
-                if error_smtp_kwargs.get('smtp_username'):
-                    error_smtp_kwargs['smtp_username'] = error_smtp_kwargs['smtp_username'].encode('utf-8')
-                if 'error_subject_prefix' not in error_smtp_kwargs:
-                    error_smtp_kwargs['error_subject_prefix'] = '[%s] ' % self.site_name
-                error_smtp_kwargs['error_email'] = error_smtp_kwargs['error_email'].replace(';', ',').split(',')
-                if 'smtp_use_tls' in error_smtp_kwargs:
-                    error_smtp_kwargs['smtp_use_tls'] = (error_smtp_kwargs['smtp_use_tls'] in (True, 'true', 't', 'True', '1', 'TRUE'))
-                self.error_smtp_kwargs = dict(error_smtp_kwargs)
-                self.error_smtp_kwargs['error_email_from'] = self.error_smtp_kwargs.pop('from_address')
-                err_kwargs.update(error_smtp_kwargs)
-            wsgiapp = ErrorMiddleware(wsgiapp, **err_kwargs)
+            pass
+            #err_kwargs = dict(debug=True)
+            #if 'debug_email' in self.config:
+            #    error_smtp_kwargs = self.config.getAttr('debug_email')
+            #    if error_smtp_kwargs.get('smtp_password'):
+            #        error_smtp_kwargs['smtp_password'] = error_smtp_kwargs['smtp_password'].encode('utf-8')
+            #    if error_smtp_kwargs.get('smtp_username'):
+            #        error_smtp_kwargs['smtp_username'] = error_smtp_kwargs['smtp_username'].encode('utf-8')
+            #    if 'error_subject_prefix' not in error_smtp_kwargs:
+            #        error_smtp_kwargs['error_subject_prefix'] = '[%s] ' % self.site_name
+            #    error_smtp_kwargs['error_email'] = error_smtp_kwargs['error_email'].replace(';', ',').split(',')
+            #    if 'smtp_use_tls' in error_smtp_kwargs:
+            #        error_smtp_kwargs['smtp_use_tls'] = (error_smtp_kwargs['smtp_use_tls'] in (True, 'true', 't', 'True', '1', 'TRUE'))
+            #    self.error_smtp_kwargs = dict(error_smtp_kwargs)
+            #    self.error_smtp_kwargs['error_email_from'] = self.error_smtp_kwargs.pop('from_address')
+            #    err_kwargs.update(error_smtp_kwargs)
+            #wsgiapp = ErrorMiddleware(wsgiapp, **err_kwargs)
         if gzip:
             from paste.gzipper import middleware as gzipper_middleware
             wsgiapp = gzipper_middleware(wsgiapp)

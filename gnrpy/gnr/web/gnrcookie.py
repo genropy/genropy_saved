@@ -68,7 +68,7 @@ class metaCookie(type):
                                    "_expires", "__data__")
                                    
         clsdict["_valid_attr"] = _valid_attr
-        clsdict["__slots__"] = __slots__
+        #clsdict["__slots__"] = __slots__
         
         def set_expires(self, value):
             if type(value) == type(""):
