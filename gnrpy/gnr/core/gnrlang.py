@@ -31,6 +31,7 @@ import uuid
 import base64
 import time
 from gnr.core.gnrdecorator import deprecated,extract_kwargs # keep for compatibility
+from types import MethodType
 thread_ws = dict()
 
 def tracebackBag(limit=None):
@@ -212,7 +213,7 @@ def timer_call(time_list=None, print_time=True):
 
 def getUuid():
     """Return a Python Universally Unique IDentifier 3 (UUID3) through the Python \'base64.urlsafe_b64encode\' method"""
-    return base64.urlsafe_b64encode(uuid.uuid3(uuid.uuid1(), str(thread.get_ident())).bytes)[0:22].replace('-','_')
+    return str(base64.urlsafe_b64encode(uuid.uuid3(uuid.uuid1(), str(thread.get_ident())).bytes))[0:22].replace('-','_')
     
 def safe_dict(d):
     """Use the str method, coercing all the dict keys into a string type and return the dict
@@ -899,10 +900,13 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
     __mixin_pkg = getattr(source, '__mixin_pkg', None)
     __mixin_path = getattr(source, '__mixin_path', None)
     for name in mlist:
-        method = getattr(source, name).im_func
-        method.__mixin_pkg = __mixin_pkg
-        method.__mixin_path = __mixin_path
-        k = instmethod(method, obj, obj.__class__)
+        method = getattr(source, name)
+        if type(method)==MethodType:
+            method = method.__func__
+        k = MethodType(method, obj, obj.__class__)
+        k.__dict__['__mixin_pkg'] = __mixin_pkg
+        k.__dict__['__mixin_path'] = __mixin_path
+        
         curr_prefix = prefix
         name_as = name
         if mangling_kwargs and '_' in name:
