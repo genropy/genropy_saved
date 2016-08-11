@@ -19,11 +19,12 @@
 #You should have received a copy of the GNU Lesser General Public
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-
+from __future__ import print_function
+from gnr.core import six
 import re
-import cPickle
+#import cPickle
 import zipfile
-import StringIO
+#import StringIO
 import logging
 import datetime
 
@@ -122,7 +123,7 @@ try:
             dtype = self.dtypes.get(as_name)
             if dtype =='P' and self.urlformatter:
                 value = self.urlformatter(value)
-            if (isinstance(value,basestring) or isinstance(value,unicode)) and dtype:
+            if (isinstance(value, six.string_types)) and dtype:
                 value = '%s::%s' %(value,dtype)
             if mask and '#' in mask:
                 caption = self.localizer.translate(caption) if self.localizer else caption.replace('!!','')
@@ -394,9 +395,9 @@ def filter(item, include=None, exclude=None, wildcard='%'):
     :param wildcard: TODO. Default value is ``%``
     :returns: TODO
     """
-    if include and isinstance(include, basestring):
+    if include and isinstance(include, six.string_types):
         include = include.split(',')
-    if exclude and isinstance(exclude, basestring):
+    if exclude and isinstance(exclude, six.string_types):
         exclude = exclude.split(',')
     if exclude:
         for excl in exclude:
@@ -525,7 +526,8 @@ def stringDict(myDict, itemSep=',', argSep='=',isSorted=False):
     """
     keys = myDict.keys()
     if isSorted:
-        keys = keys.sort()
+        #keys = keys.sort() # argh!
+        keys = sorted(keys)
     return itemSep.join([argSep.join((str(k), str(myDict[k]))) for k in keys])
     
 def updateString(source, s, sep=','):
@@ -793,9 +795,9 @@ def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=Non
     if isinstance(obj, list) or isinstance(obj, tuple):
         return ','.join([toText(v) for v in obj])
         #what?
-    if obj in (None,''): return u''
+    if obj in (None,''): return six.u('')
     if not (locale or format):
-        result = unicode(obj)
+        result = six.u(str(obj))
     else:
         result = localize(obj, locale=locale, format=format, currency=currency)
         
@@ -831,7 +833,7 @@ def boolean(obj):
     (the ``obj`` is lowered before comparing it)
     
     :param obj: The given object"""
-    if obj and isinstance(obj, basestring):
+    if obj and isinstance(obj, six.string_types):
         if obj.lower() in ('n', 'no', 'f', 'false', '0'):
             obj = False
     return bool(obj)
@@ -841,7 +843,7 @@ def pickleObject(obj, zipfilename=None):
         
     :param obj: The given object
     :param zipfilename: TODO"""
-    objstr = cPickle.dumps(obj)
+    objstr = six.moves.cPickle.dumps(obj)
     if zipfilename:
         objstr = zipString(objstr, zipfilename)
     return objstr
@@ -853,14 +855,14 @@ def unpickleObject(objstr, zipfilename=None):
     :param zipfilename: TODO"""
     if zipfilename:
         objstr = unzipString(objstr, zipfilename)
-    return cPickle.loads(objstr)
+    return six.moves.cPickle.loads(objstr)
     
 def zipString(mystring, filename):
     """Return a zip compressed version of the *mystring* string
         
     :param mystring: The given string
     :param filename: name of the zipped file"""
-    zipresult = StringIO.StringIO()
+    zipresult = six.StringIO()
     zip = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED)
     zip.writestr(filename, mystring)
     zip.close()
@@ -873,7 +875,7 @@ def unzipString(mystring, filename):
         
     :param mystring: the compressed string to decompress
     :param filename: the name of the unzipped file"""
-    zipresult = StringIO.StringIO(mystring)
+    zipresult = six.StringIO(mystring)
     zip = zipfile.ZipFile(zipresult, mode='r', compression=zipfile.ZIP_DEFLATED)
     result = zip.read(filename)
     zip.close()
@@ -918,9 +920,9 @@ def slugify(value,sep='-'):
         
     :param value: TODO"""
     import unicodedata
-    value = unicode(value)
+    value = six.u(str(value))
     value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
-    value = unicode(re.sub('[^\w\s-]', '', value).strip().lower())
+    value = six.u(str(re.sub('[^\w\s-]', '', value).strip().lower()))
     return re.sub('[-\s]+', sep, value)
     
 def fromJson(obj):
@@ -947,17 +949,15 @@ def jsquote(str_or_unicode):
     'pippo'
     >>> print jsquote(u'pippo')
     'pippo'"""
-    if isinstance(str_or_unicode, str):
-        return repr(str_or_unicode)
-    elif isinstance(str_or_unicode, unicode):
+    if isinstance(str_or_unicode, six.string_types):
         return repr(str_or_unicode.encode('utf-8'))
-
+    
         
 if __name__ == '__main__':
     incl = '%.py,%.css'
     excl = '_%,.%'
     lst = ['pippo.py', 'piero.txt', '_gino.py', '.ugo.css', 'mario.css', 'sergio.py']
     result = [x for x in lst if filter(x, include=incl, exclude=excl)]
-    print toJson([1, 2, 4])
-    print result
+    print(toJson([1, 2, 4]))
+    print(result)
     
