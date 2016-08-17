@@ -33,7 +33,7 @@ import re
 import smtplib
 import time
 import glob
-from email.MIMEText import MIMEText
+from email.mime.text import MIMEText
 from gnr.utils import ssmtplib
 from gnr.app.gnrdeploy import PathResolver
 from gnr.app.gnrconfig import MenuStruct

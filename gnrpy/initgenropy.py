@@ -10,7 +10,7 @@ class GnrConfigException(Exception):
 
 
 def get_random_password(size = 12):
-    return ''.join( random.Random().sample(string.letters+string.digits, size)).lower()
+    return ''.join( random.Random().sample(string.ascii_letters+string.digits, size)).lower()
 
 
 def build_environment_xml(path=None, gnrpy_path=None, gnrdaemon_password=None):
