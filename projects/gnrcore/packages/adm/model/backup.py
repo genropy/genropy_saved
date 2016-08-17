@@ -13,6 +13,8 @@ class Table(object):
 
     def trigger_onDeleted(self,record):
         try:
-            os.remove(self.db.application.site.getStaticPath('site:maintenance','backups','%s.zip' %record['name']))
+            path = self.db.application.site.getStaticPath('site:maintenance','backups','%s.zip' %record['name'])
+            print 'backup to delete',path
+            os.remove(path)
         except Exception:
             pass
