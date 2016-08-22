@@ -1633,8 +1633,10 @@ class GnrWebAppHandler(GnrBaseProxy):
 
         if not srclist:
             return getSelection(None)
-
-        result = getSelection("%s ILIKE :searchval" % querycolumns[0], searchval='%s%%' % ('%% '.join(srclist)))
+        searchval = '%s%%' % ('%% '.join(srclist))
+        sqlArgs = dict()
+        cond = tblobj.opTranslate(querycolumns[0],'contains',searchval,sqlArgs=sqlArgs)
+        result = getSelection(cond,**sqlArgs)
         #columns_concat = "ARRAY_TO_STRING(ARRAY[%s], ' ')" % ','.join(querycolumns)
         columns_concat = " || ' ' || ".join(["CAST ( COALESCE(%s,'') AS TEXT ) " %c for c in querycolumns])
         if len(result) == 0: # few results from the startswith query on first col

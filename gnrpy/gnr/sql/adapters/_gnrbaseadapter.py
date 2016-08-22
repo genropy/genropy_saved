@@ -737,6 +737,8 @@ class GnrWhereTranslator(object):
         return result
 
     def prepareCondition(self, column, op, value, dtype, sqlArgs,tblobj=None):
+        if not dtype:
+            dtype = tblobj.column(column).dtype
         if not column[0] in '@$':
             column = '$%s' % column
         if dtype in('D', 'DH','DHZ'):

@@ -547,7 +547,11 @@ class SqlTable(GnrObject):
             return [r['pkey'] for r in q.fetch()]
         else:
             return [l[0]['pkey'] for l in q.fetchGrouped('_duplicate_finder').values()]
-       
+
+
+    def opTranslate(self,column,op,value,dtype=None,sqlArgs=None):
+        translator = self.db.adapter.getWhereTranslator()
+        return translator.prepareCondition(column, op, value, dtype, sqlArgs,tblobj=self)
 
     def tableCachedData(self,topic,cb,**kwargs):
         currentPage = self.db.currentPage
