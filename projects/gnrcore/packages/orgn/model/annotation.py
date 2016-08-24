@@ -211,6 +211,11 @@ class Table(object):
 
     def trigger_onInserting(self,record_data=None):
         now = datetime.datetime.now(pytz.utc)
+        if record_data['rec_type'] == 'AC' and not record_data['date_due']:
+            pivot_date = self.getPivotDateFromDefaults(record_data)
+            date_due_from_pivot = datetime.datetime(pivot_date.year,pivot_date.month,pivot_date.day)
+            if date_due_from_pivot<record_data['__ins_ts']:
+                record_data['date_due'] = record_data['__ins_ts'].date()
         record_data['annotation_date'] = record_data.get('annotation_date') or now.date()
         record_data['annotation_time'] = record_data.get('annotation_time') or now.time()
         self.setAnnotationTs(record_data)
@@ -271,7 +276,7 @@ class Table(object):
 
 
     def getPivotDateFromDefaults(self,action_defaults):
-        fkey_field = [k for k in action_defaults if k.startswith('le_')]
+        fkey_field = [k for k in action_defaults.keys() if k.startswith('le_')]
         if fkey_field:
             fkey_field = fkey_field[0] if fkey_field else None
             related_table = self.column(fkey_field).relatedTable()
