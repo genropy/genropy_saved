@@ -214,9 +214,8 @@ class Table(object):
         now = datetime.datetime.now(pytz.utc)
         if record_data['rec_type'] == 'AC' and not record_data['date_due']:
             pivot_date = self.getPivotDateFromDefaults(record_data)
-            date_due_from_pivot = datetime.datetime(pivot_date.year,pivot_date.month,pivot_date.day)
             ts = record_data['__ins_ts']
-            if date_due_from_pivot<ts:
+            if not pivot_date or datetime.datetime(pivot_date.year,pivot_date.month,pivot_date.day)<ts:
                 ts = ts + datetime.timedelta(seconds=1)
                 record_data['date_due'] = ts.date()
                 record_data['time_due'] = ts.time()
