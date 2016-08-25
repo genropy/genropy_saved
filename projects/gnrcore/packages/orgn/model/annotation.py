@@ -2,6 +2,7 @@
 import datetime
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrdecorator import public_method,metadata
+
 import pytz
 class Table(object):
     def config_db(self,pkg):
@@ -214,8 +215,11 @@ class Table(object):
         if record_data['rec_type'] == 'AC' and not record_data['date_due']:
             pivot_date = self.getPivotDateFromDefaults(record_data)
             date_due_from_pivot = datetime.datetime(pivot_date.year,pivot_date.month,pivot_date.day)
-            if date_due_from_pivot<record_data['__ins_ts']:
-                record_data['date_due'] = record_data['__ins_ts'].date()
+            ts = record_data['__ins_ts']
+            if date_due_from_pivot<ts:
+                ts = ts + datetime.timedelta(seconds=1)
+                record_data['date_due'] = ts.date()
+                record_data['time_due'] = ts.time()
         record_data['annotation_date'] = record_data.get('annotation_date') or now.date()
         record_data['annotation_time'] = record_data.get('annotation_time') or now.time()
         self.setAnnotationTs(record_data)
