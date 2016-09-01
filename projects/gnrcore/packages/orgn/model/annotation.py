@@ -279,7 +279,7 @@ class Table(object):
 
 
     def getPivotDateFromDefaults(self,action_defaults):
-        fkey_field = [k for k in action_defaults.keys() if k.startswith('le_')]
+        fkey_field = [k for k,v in action_defaults.items() if k.startswith('le_') if v]
         if fkey_field:
             fkey_field = fkey_field[0] if fkey_field else None
             related_table = self.column(fkey_field).relatedTable()
