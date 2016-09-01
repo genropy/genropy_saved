@@ -1888,8 +1888,8 @@ dojo.declare("gnr.GridChangeManager", null, {
         if(gridEditor && parent_lv<2){
             var rowEditor = this.grid.getRowEditor({rowId:kw.node.label});
             if(!rowEditor){
-                gridEditor.newRowEditor(kw.node);
-                if(gridEditor.remoteRowController){
+                rowEditor = gridEditor.newRowEditor(kw.node);
+                if(gridEditor.remoteRowController && rowEditor.data.getItem(this.grid.masterEditColumn())){
                     gridEditor.callRemoteController(kw.node,null,null,true);
                 }
             }
