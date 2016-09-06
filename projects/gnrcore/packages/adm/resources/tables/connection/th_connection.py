@@ -36,6 +36,7 @@ class Form(BaseComponent):
         fb.field('end_ts')
         fb.field('end_reason')
         fb.field('user_agent')
+        
         bc.contentPane(region='center').plainTableHandler(relation='@pages',viewResource='ViewFromConnection')
 
 

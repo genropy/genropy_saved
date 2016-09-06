@@ -285,6 +285,7 @@ class GnrWsgiSite(object):
     def register(self):
         if not self._register:
             self._register = SiteRegisterClient(self)
+            self.checkPendingConnection()
         return self._register
 
     def getSubscribedTables(self,tables):
@@ -415,7 +416,8 @@ class GnrWsgiSite(object):
             self.initializePackages()
         else:
             pass
-            
+
+
     def on_reloader_restart(self):
         """TODO"""
         pass
@@ -1026,6 +1028,12 @@ class GnrWsgiSite(object):
        #     if hasattr(pkg,'onAuthenticated'):
        #         pkg.onAuthenticated(avatar)
        # 
+
+    def checkPendingConnection(self):
+        if self.connectionLogEnabled:
+            print 'checkPendingConnection'
+            self.db.table('adm.connection').dropExpiredConnections()
+
     def pageLog(self, event, page_id=None):
         """TODO
         

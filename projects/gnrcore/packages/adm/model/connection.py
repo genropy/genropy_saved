@@ -23,6 +23,18 @@ class Table(object):
                                                                end_ts=record['end_ts'],
                                                                end_reason=record['end_reason'])
 
+    
+    def dropExpiredConnections(self):
+        live_connections = [v['register_item_id'] for v in self.db.application.site.register.connections()]
+        ts = datetime.now()
+        with self.db.tempEnv(connectionName='system'):
+            updatedKeys = self.batchUpdate(dict(end_ts=ts,end_reason='aborted'),
+                            where="$id NOT IN :live_connections AND $end_ts IS NULL",
+                            live_connections=live_connections)
+            if updatedKeys:
+                self.db.commit()
+
+
     def getPendingConnections(self, userid=None):
         where = '$end_ts IS NULL'
         if userid:
