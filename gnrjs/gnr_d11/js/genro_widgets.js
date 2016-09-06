@@ -3924,10 +3924,13 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
 
 dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.DynamicBaseCombo, {
     resolver:function(sourceNode,attributes,resolverAttrs,savedAttrs){
-        objectUpdate(resolverAttrs,objectExtract(attributes,'dbtable,table,selectmethod,weakCondition,excludeDraft,ignorePartition,distinct,httpMethod'));
+        objectUpdate(resolverAttrs,objectExtract(attributes,'dbtable,table,selectmethod,weakCondition,excludeDraft,ignorePartition,distinct,httpMethod,dbstore'));
         resolverAttrs.dbtable = resolverAttrs.dbtable || objectPop(resolverAttrs,'table');
         if('_storename' in sourceNode.attr){
             resolverAttrs._storename = sourceNode.attr._storename;
+        }
+        if(resolverAttrs.dbstore){
+            resolverAttrs.temp_dbstore = objectPop(resolverAttrs,'dbstore')
         }
         resolverAttrs['method'] = resolverAttrs['method'] || 'app.dbSelect';
         savedAttrs['dbtable'] = resolverAttrs['dbtable'];
