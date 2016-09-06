@@ -8,7 +8,7 @@ class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('userid')
+        r.fieldcell('userid',caption_field=False)
         r.fieldcell('username')
         r.fieldcell('ip')
         r.fieldcell('start_ts')
@@ -20,15 +20,15 @@ class View(BaseComponent):
         return 'userid'
 
     def th_query(self):
-        return dict(column='userid', op='contains', val='')
+        return dict(column='username', op='contains', val='')
 
 
 
 class Form(BaseComponent):
 
     def th_form(self, form):
-        pane = form.record
-        fb = pane.formbuilder(cols=2, border_spacing='4px')
+        bc = form.center.borderContainer()
+        fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=2, border_spacing='4px')
         fb.field('userid')
         fb.field('username')
         fb.field('ip')
@@ -36,6 +36,7 @@ class Form(BaseComponent):
         fb.field('end_ts')
         fb.field('end_reason')
         fb.field('user_agent')
+        bc.contentPane(region='center').plainTableHandler(relation='@pages',viewResource='ViewFromConnection')
 
 
     def th_options(self):

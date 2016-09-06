@@ -22,6 +22,22 @@ class View(BaseComponent):
         return dict(column='page_id', op='contains', val='')
 
 
+    def th_bottom_custom(self,bottom):
+        bottom.slotToolbar('sections@isopen,*')
+
+    def th_sections_isopen(self):
+        return [dict(code='open',caption='!!Open',condition="$end_ts IS NULL"),
+                dict(code='closed',caption='!!Closed',condition="$end_ts IS NOT NULL"),
+                dict(code='all',caption='!!All')]
+
+class ViewFromConnection(View):
+
+    def th_top_custom(self,top):
+        top.bar.replaceSlots('vtitle','sections@isopen')
+
+
+    def th_bottom_custom(self,bar):
+        pass
 
 class Form(BaseComponent):
 

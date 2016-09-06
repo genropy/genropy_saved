@@ -719,6 +719,7 @@ class GnrWebPage(GnrBaseWebPage):
                 return (login, loginPars)
             self.site.onAuthenticated(avatar)
             self.connection.change_user(avatar)
+            self.site.connectionLog('open')
             login['message'] = ''
             loginPars = avatar.loginPars
             loginPars.update(avatar.extra_kwargs)
@@ -1900,7 +1901,7 @@ class GnrWebPage(GnrBaseWebPage):
                     page.script('genro.dom.loadJs("%s")' %v)
         if self._pendingContext:
             self.site.register.setPendingContext(self.page_id,self._pendingContext,register_name='page')                        
-        if self.user:
+        if not self.isGuest:
             self.site.pageLog('open')
 
         if _auth == AUTH_NOT_LOGGED:
