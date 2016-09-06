@@ -1049,9 +1049,7 @@ class GnrWsgiSite(object):
         
         :param event: TODO
         :param connection_id: TODO"""
-        
         if self.connectionLogEnabled:
-            print 'connectionLog',event,connection_id
             self.db.table('adm.connection').connectionLog(event, connection_id=connection_id)
             
     def setPreference(self, path, data, pkg=''):
