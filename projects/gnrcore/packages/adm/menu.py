@@ -11,6 +11,8 @@ def config(root,application=None):
     administration.thpage(u"!!Menu Manager", table="adm.menu",tags='_DEV_')
     administration.thpage(u"!!Menu Pages", table="adm.menu_page",tags='_DEV_')
     administration.thpage(u"!!Datacatalog", table="adm.datacatalog",tags='_DEV_')
+    administration.thpage(u"!!Tableinfo", table="adm.tblinfo",tags='_DEV_')
+
     administration.lookups(u"!!Utility tables", lookup_manager="adm")
     administration.thpage(u"!!Counter", table="adm.counter")
 

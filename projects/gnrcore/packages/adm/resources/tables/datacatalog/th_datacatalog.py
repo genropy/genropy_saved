@@ -44,20 +44,10 @@ class Form(BaseComponent):
     def th_form(self, form):
         tc = form.center.tabContainer()
         self.element_info(tc.borderContainer(title='Info',datapath='.record'))
-        #self.element_permissions(tc.contentPane(title='Permissions'))
+        self.element_permissions(tc.contentPane(title='Permissions'))
 
     def element_permissions(self,pane):
-        th = pane.plainTableHandler(relation='@permissions',viewResource=':ViewFromCatalog')
-        viewbar = th.view.top.bar
-        viewbar.replaceSlots('#','#,picker')
-        viewbar.picker.paletteTree('tag',tree_persist=True,
-                                dockButton_iconClass='icnOpenPalette',
-                                ).htableStore('adm.htag')        
-        grid = th.view.grid
-        grid.dragAndDrop(dropCodes='tag')
-        
-        grid.dataRpc("dummy",self.addPermission,data='^.dropped_tag', 
-                     datacatalog_id='=#FORM.pkey')
+        th = pane.plainTableHandler(relation='@permissions',viewResource=':ViewFromCatalog',picker='tag_id')
         
     @public_method
     def addPermission(self,data=None,datacatalog_id=None):
