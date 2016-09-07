@@ -25,7 +25,7 @@ class Table(object):
 
     
     def dropExpiredConnections(self):
-        live_connections = [v['register_item_id'] for v in self.db.application.site.register.connections()]
+        live_connections = self.db.application.site.register.connections().keys()
         ts = datetime.now()
         with self.db.tempEnv(connectionName='system'):
             updatedKeys = self.batchUpdate(dict(end_ts=ts,end_reason='aborted'),
