@@ -1031,7 +1031,6 @@ class GnrWsgiSite(object):
 
     def checkPendingConnection(self):
         if self.connectionLogEnabled:
-            print 'checkPendingConnection'
             self.db.table('adm.connection').dropExpiredConnections()
 
     def pageLog(self, event, page_id=None):
@@ -1040,7 +1039,6 @@ class GnrWsgiSite(object):
         :param event: TODO
         :param page_id: the 22 characters page id"""
         if self.connectionLogEnabled:
-            print 'pageLog',event,page_id
             self.db.table('adm.served_page').pageLog(event, page_id=page_id)
 
 

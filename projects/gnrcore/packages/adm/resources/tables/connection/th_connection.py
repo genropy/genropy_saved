@@ -8,13 +8,13 @@ class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('userid',caption_field=False)
         r.fieldcell('username')
         r.fieldcell('ip')
         r.fieldcell('start_ts')
         r.fieldcell('end_ts')
         r.fieldcell('end_reason')
         r.fieldcell('user_agent')
+        #r.fieldcell('userid',caption_field=False)
 
     def th_order(self):
         return 'userid'
@@ -22,6 +22,13 @@ class View(BaseComponent):
     def th_query(self):
         return dict(column='username', op='contains', val='')
 
+    def th_bottom_custom(self,bottom):
+        bottom.slotToolbar('sections@isopen,*')
+
+    def th_sections_isopen(self):
+        return [dict(code='open',caption='!!Open',condition="$end_ts IS NULL"),
+                dict(code='closed',caption='!!Closed',condition="$end_ts IS NOT NULL"),
+                dict(code='all',caption='!!All')]
 
 
 class Form(BaseComponent):
