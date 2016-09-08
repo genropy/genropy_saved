@@ -90,7 +90,7 @@ class Package(GnrDboPackage):
                                                                                  many_group='zz', one_group='zz')
 
     def checkFullSyncTables(self,errorlog_folder=None,
-                            dbstores=None,store_block=5,packages=None):
+                            dbstores=None,store_block=5,packages=None,tbllist=None):
         if dbstores is None:
             dbstores = self.db.dbstores.keys()
         elif isinstance(dbstores,basestring):
@@ -98,13 +98,15 @@ class Package(GnrDboPackage):
         while dbstores:
             block = dbstores[0:store_block]
             dbstores = dbstores[store_block:]
-            self.checkFullSyncTables_do(errorlog_folder=errorlog_folder,dbstores=block,packages=packages)
+            self.checkFullSyncTables_do(errorlog_folder=errorlog_folder,dbstores=block,packages=packages,tbllist=tbllist)
             print 'dbstore to do',len(dbstores)
 
-    def checkFullSyncTables_do(self,errorlog_folder=None,dbstores=None,packages=None):
+    def checkFullSyncTables_do(self,errorlog_folder=None,dbstores=None,packages=None,tbllist=None):
         errors = Bag()
         master_index = self.db.tablesMasterIndex()['_index_'] 
         for tbl in master_index.digest('#a.tbl'):
+            if tbllist and not tbl in tbllist:
+                continue
             pkg,tblname = tbl.split('.')
             if packages and not pkg in packages:
                 continue

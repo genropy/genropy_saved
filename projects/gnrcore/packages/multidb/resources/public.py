@@ -30,7 +30,8 @@ class TableHandlerMain(BaseComponent):
                                         label_color='#666',label_font_size='.9em',
                                         label_font_weight='bold') 
             return
-        readOnly = multidb is not True or self.tblobj.attributes.get('multidb_onLocalWrite') != 'merge'
+
+        readOnly = self.tblobj.attributes.get('multidb_onLocalWrite') != 'merge'
         if readOnly:
             form.attributes.update(form_readOnly=True)
         else:

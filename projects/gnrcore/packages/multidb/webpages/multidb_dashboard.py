@@ -193,17 +193,17 @@ class GnrCustomWebPage(object):
             store_f = tbl.query(**queryargs).fetch()
 
         where = None
-        syncpkeys = None
+        syncpkeys = []
         columns = '*'
         main_f = dict()
         if tbl.attributes['multidb'] is True:
             where = '$%s in :syncpkeys' %pkey
             columns = '*,$__multidb_subscribed'
             syncpkeys = [r[pkey] for r in store_f]
-            with self.db.tempEnv(target_store=insync_store):
-                main_f = tbl.query(where=where,columns=columns,
-                                syncpkeys=syncpkeys, 
-                                **queryargs).fetchAsDict()
+        with self.db.tempEnv(target_store=insync_store):
+            main_f = tbl.query(where=where,columns=columns,
+                            syncpkeys=syncpkeys, 
+                            **queryargs).fetchAsDict()
         result = dict()
         for r in store_f:
             r = dict(r)
