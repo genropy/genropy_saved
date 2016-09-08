@@ -222,9 +222,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     publish: function(command,kw,topic_kw){
-        var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent,iframe:'*'} // re add iframe:'*', (it gives problem with multipage?)
+        var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent} // re add iframe:'*', (it gives problem with multipage?)
+        objectUpdate(topic,topic_kw)
         genro.publish(topic,kw);
     },
+
 
     message:function(kw){
         if (!(kw instanceof Array)){
@@ -297,7 +299,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.locked = value;
         this.applyDisabledStatus();
         this.setControllerData('locked',value);
-        this.publish('onLockChange',{'locked':this.locked});
+        this.publish('onLockChange',{'locked':this.locked},{iframe:'*'});
     },
     registerChild:function(sourceNode){
         var ltag = sourceNode.attr.tag.toLowerCase();
