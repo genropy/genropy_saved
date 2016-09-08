@@ -4,9 +4,9 @@
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('htag', pkey='id', name_long='!!Tag',
-                        rowcaption='$code,$description',caption_field='description',
-                        newrecord_caption='!!New tag')
-        self.sysFields(tbl,hierarchical='description')
+                        rowcaption='$code,$description',caption_field='hierarchical_description',
+                        newrecord_caption='!!New tag',hierarchical_caption_field='description')
+        self.sysFields(tbl,hierarchical='code,description')
         #self.htableFields(tbl)
         #tbl.column('parent_code').relation('htag.code',onDelete='cascade')
 

@@ -44,4 +44,4 @@ class Form(BaseComponent):
                                 viewResource='AuthItemView',formResource='AuthItemForm')
 
     def th_options(self):
-        return dict(dialog_height='400px', dialog_width='600px')
+        return dict(dialog_parentRatio=0.9)

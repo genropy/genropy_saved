@@ -22,10 +22,13 @@ class View(BaseComponent):
 class Form(BaseComponent):
 
     def th_form(self, form):
-        pane = form.record
-        fb = pane.formbuilder(cols=2, border_spacing='4px')
+        bc = form.center.borderContainer()
+        fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=2, border_spacing='4px')
         fb.field('pkg')
         fb.field('prj')
+        tc = bc.tabContainer(region='center',margin='2px')
+        tc.contentPane(title='Tables').dialogTableHandler(relation='@tables')
+        tc.contentPane(title='Permissons').plainTableHandler(relation='@permissions',viewResource='ViewEditable')
 
 
     def th_options(self):

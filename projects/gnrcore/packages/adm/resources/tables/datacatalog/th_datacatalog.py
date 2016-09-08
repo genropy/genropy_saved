@@ -44,11 +44,7 @@ class Form(BaseComponent):
     def th_form(self, form):
         tc = form.center.tabContainer()
         self.element_info(tc.borderContainer(title='Info',datapath='.record'))
-        self.element_permissions(tc.contentPane(title='Permissions'))
 
-    def element_permissions(self,pane):
-        th = pane.plainTableHandler(relation='@permissions',viewResource=':ViewFromCatalog',picker='tag_id')
-        
     @public_method
     def addPermission(self,data=None,datacatalog_id=None):
         tag_id = data['pkey']

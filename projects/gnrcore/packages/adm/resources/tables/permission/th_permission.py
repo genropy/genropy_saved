@@ -6,10 +6,10 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 
-class ViewFromCatalog(BaseComponent):
+class ViewEditable(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('@tag_id.code',name='!!Tag',threestate=True)
+        r.fieldcell('auth_tag',name='!!Tag')
         r.checkboxcell('view_read',name='VRead',threestate=True)
         r.checkboxcell('view_add',name='VAdd',threestate=True)
         r.checkboxcell('view_del',name='VDel',threestate=True)
