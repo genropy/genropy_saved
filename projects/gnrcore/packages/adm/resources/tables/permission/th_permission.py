@@ -6,7 +6,7 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 
-class ViewEditable(BaseComponent):
+class ViewIncluded(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('auth_tag',name='!!Tag')
@@ -21,10 +21,14 @@ class ViewEditable(BaseComponent):
         r.checkboxcell('column_upd',name='CUpd',threestate=True)
         
     def th_order(self):
-        return '@tag_id.code'
+        return 'auth_tag'
         
     def th_query(self):
-        return dict(column='@tag_id.code',op='contains', val='')
+        return dict(column='auth_tag',op='contains', val='')
+
+
+    def th_top_custom(self,top):
+        top.bar.replaceSlots('#','#,pickerAuth,5')
 
 class Form(BaseComponent):
     def th_form(self, form):
