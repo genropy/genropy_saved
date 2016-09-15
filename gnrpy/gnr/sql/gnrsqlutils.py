@@ -147,18 +147,17 @@ class SqlModelChecker(object):
             for r in actual_relations:
                 self.actual_relations.setdefault('%s.%s' % (r[1], r[2]), []).append(r)
             self.unique_constraints = self.db.adapter.getTableContraints()
+            enabled_unaccent = 'unaccent' in self.db.adapter.listElements('enabled_extensions')
+            unaccent_statement = None
+            if self.unaccent and not enabled_unaccent:
+                unaccent_statement = self.db.adapter.createExtensionSql('unaccent')
+            elif enabled_unaccent and not self.unaccent:
+                unaccent_statement =  self.db.adapter.dropExtensionSql('unaccent')
+            if unaccent_statement:
+                self.changes.append(unaccent_statement)
         for pkg in self.db.packages.values():
             #print '----------checking %s----------'%pkg.name
             self._checkPackage(pkg)
-        enabled_unaccent = 'unaccent' in self.db.adapter.listElements('enabled_extensions')
-        unaccent_statement = None
-        if self.unaccent and not enabled_unaccent:
-            unaccent_statement = self.db.adapter.createExtensionSql('unaccent')
-        elif enabled_unaccent and not self.unaccent:
-            unaccent_statement =  self.db.adapter.dropExtensionSql('unaccent')
-        if unaccent_statement:
-            self.changes.append(unaccent_statement)
-
         self._checkAllRelations()
         return [x for x in self.changes if x]
 
