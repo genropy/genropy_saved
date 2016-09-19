@@ -927,7 +927,7 @@ class SqlQuery(object):
                     if not r in self.relationDict: # if name is not yet defined in relationDict
                         self.relationDict[r] = self.sqlparams.pop(r)
                         
-        self.bagFields = bagFields
+        self.bagFields = bagFields or for_update
         self.db = self.dbtable.db
         self._compiled = None
         
