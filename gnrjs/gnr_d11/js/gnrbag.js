@@ -778,11 +778,12 @@ dojo.declare("gnr.GnrBag", null, {
             }
         };
         var cmp = function(a, b, reverse, caseInsensitive){
-            if (a==null){
-                return b==null?0:-1;
+            if(a===null && b===null){
+                return 0;
             }
-            if(b==null){
-                return 1;
+            if (a===null || b===null){
+                var r = a===null?-1:1;
+                return reverse?r*-1:r;
             }
             if((a instanceof Date) && (b instanceof Date)){
                 a = a.valueOf();
