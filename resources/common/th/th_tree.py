@@ -214,9 +214,9 @@ class TableHandlerHierarchicalView(BaseComponent):
     
     @struct_method
     def ht_hviewTree(self,box,table=None,picker=None,_class=None,**kwargs):  
-        if picker: 
-            bar = box.slotToolbar('*,treePicker,2',height='20px')
         pane = box.div(height='100%').div(position='absolute',top='2px',left='2px',right='2px',bottom='2px',overflow='auto')
+        if picker: 
+            bar = pane.slotToolbar('*,treePicker,2',height='20px')
         tree = pane.hTableTree(table=table,childname='htree',
                           onDrag="""var sn = dragInfo.sourceNode;
                                       if(sn.form.isNewRecord() || sn.form.locked ){return false;}""", 
@@ -228,7 +228,7 @@ class TableHandlerHierarchicalView(BaseComponent):
             picker_table = self.db.table(table).column(picker).relatedTable().dbtable.fullname
             paletteCode = 'picker_%s' %picker_table.replace('.','_')
             picker_kwargs['paletteCode'] = paletteCode
-            bar.treePicker.palettePicker(table=picker_table,autoInsert=False,multiSelect=False,picker_kwargs=picker_kwargs)
+            bar.treePicker.palettePicker(table=picker_table,autoInsert=False,multiSelect=False,picker_kwargs=picker_kwargs,dockButton=dict(parentForm=False,iconClass='iconbox app'))
             tree.attributes['onDrop_%s' %paletteCode] = "THTree.onPickerDrop(this,data,dropInfo,{type_field:'%s',maintable:'%s',typetable:'%s'});" %(picker,table,picker_table)
 
         return tree
