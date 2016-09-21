@@ -27,6 +27,8 @@ Some useful operations on lists.
 from gnr.core.gnrlang import GnrException
 from gnr.core.gnrdecorator import deprecated
 import csv
+from gnr.core import six
+
 
 class FakeList(list):
     pass
@@ -303,10 +305,10 @@ class GnrNamedList(object):
             self._list = values
             
     def __getitem__(self, x):
-        if type(x) != int:
+        if not isinstance(x,(int,slice)):
             x = self._index[x]
         try:
-            return self._list[x]
+            return self._list.__getitem__(x)
         except:
             if x > len(self._index):
                 raise
@@ -333,14 +335,14 @@ class GnrNamedList(object):
     #            raise
         
     def __setitem__(self, x, v):
-        if type(x) != int:
+        if not isinstance(x, int):
             n = self._index.get(x)
             if n is None:
                 n = len(self._index)
                 self._index[x] = n
             x = n
         try:
-            self._list[x] = v
+            self._list.__setitem__(x,v)
         except:
             n = len(self._index)
             if x > n:
@@ -355,11 +357,11 @@ class GnrNamedList(object):
     def __repr__(self):
         return '[%s]' % ','.join(['%s=%s' % (k, v) for k, v in self.items()])
 
-    def __contains__(self, value):
-        return value in self._index
-
     def __len__(self):
         return len(self._list)
+
+    def __iter__(self):
+        return self._list.__iter__()
 
 
     def get(self, x, default=None):

@@ -19,7 +19,8 @@
 #You should have received a copy of the GNU Lesser General Public
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-
+from __future__ import print_function
+from gnr.core import six
 import datetime
 import re
 
@@ -85,7 +86,7 @@ class GnrClassCatalog(object):
         :param key: TODO
         :returns: TODO
         """
-        if isinstance(key, basestring):
+        if isinstance(key, six.string_types):
             key = self.classes.get(key.upper())
         if key in self.names:
             v = self.empty.get(self.names[key])
@@ -101,7 +102,7 @@ class GnrClassCatalog(object):
         :param key: TODO
         :returns: TODO
         """
-        if isinstance(key, basestring):
+        if isinstance(key, six.string_types):
             key = self.classes.get(key.upper())
         if key in self.names:
             return self.align.get(self.names[key])
@@ -155,7 +156,7 @@ class GnrClassCatalog(object):
         :param translate_cb: TODO. 
         :returns: TODO
         """
-        if isinstance(o, basestring):
+        if isinstance(o, six.string_types):
             result = o
             if translate_cb: # a translation is needed, if no locale leave all as is including "!!"
                 result = translate_cb(result)
@@ -199,8 +200,8 @@ class GnrClassCatalog(object):
         if clsname == 'JS':
             try:
                 return self.fromJson(txt)
-            except Exception, e:
-                print 'error decoding json ',e
+            except Exception as e:
+                print('error decoding json ',e)
                 return txt
         f = self.parsers.get(clsname, None)
         if f:
@@ -271,14 +272,19 @@ class GnrClassCatalog(object):
         """TODO
         """
         from gnr.core.gnrbag import Bag
-        
-        self.addClass(cls=unicode, key='T', aliases=['TEXT', 'P', 'A'], altcls=[basestring, str], empty='')
+        #self.addClass(cls=unicode, key='T', aliases=['TEXT', 'P', 'A'], altcls=[basestring, str], empty='')
+
+        self.addClass(cls=six.text_type, key='T', aliases=['TEXT', 'P', 'A'], altcls=[basestring, str], empty='')
+        #self.addClass(cls=six.text_type, key='T', aliases=['TEXT', 'P', 'A'], altcls=list(six.string_types), empty='')
+        #self.addClass(cls=unicode, key='T', aliases=['TEXT', 'P', 'A'], altcls=list(six.string_types), empty='')
         #self.addSerializer("asText", unicode, lambda txt: txt)
         
         self.addClass(cls=float, key='R', aliases=['REAL', 'FLOAT', 'F'], align='R', empty=0.0)
         self.addParser(float, self.parse_float)
         
-        self.addClass(cls=int, key='L', aliases=['LONG', 'LONGINT', 'I', 'INT', 'INTEGER'], altcls=[long], align='R',
+        #self.addClass(cls=int, key='L', aliases=['LONG', 'LONGINT', 'I', 'INT', 'INTEGER'], altcls=[long], align='R',empty=0)
+
+        self.addClass(cls=int, key='L', aliases=['LONG', 'LONGINT', 'I', 'INT', 'INTEGER'], altcls=list(six.integer_types), align='R',
                       empty=0)
                       
         self.addClass(cls=bool, key='B', aliases=['BOOL', 'BOOLEAN'], empty=False)
@@ -330,8 +336,8 @@ class GnrClassCatalog(object):
         if funcName.startswith('rpc_'):
             funcName = funcName[4:]
         proxy_name=getattr(func, 'proxy_name', None)
-        if func.im_class.__name__=='SqlTable':
-            proxy_name = "_table.%s" % func.im_self.fullname
+        if func.__self__.__class__.__name__=='SqlTable':
+            proxy_name = "_table.%s" % func.__self__.fullname
         if proxy_name:
             funcName = '%s.%s'%(proxy_name,funcName)
         __mixin_pkg = getattr(func, '__mixin_pkg', None)
