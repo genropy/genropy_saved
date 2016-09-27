@@ -229,6 +229,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         objectExtract(attributes, 'subscribe_*');
         var tag = objectPop(attributes, 'tag').toLowerCase();
         var path = objectPop(attributes, 'path');
+        if(path=='dummy'){
+            path = null;
+        }
         objectPop(attributes, '_onStart');
         objectPop(attributes, '_onBuilt');
         objectPop(attributes, '_fired_onStart');
