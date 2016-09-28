@@ -295,7 +295,6 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     onWindowUnload:function(e) {
-        genro.lockScreen(true,'closingPage');
         if(genro.external_window_key){
             genro.mainGenroWindow.genro.publish('closeExternalWindow',{windowKey:genro.external_window_key});
         }
