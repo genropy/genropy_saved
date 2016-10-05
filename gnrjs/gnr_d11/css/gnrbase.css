@@ -3648,6 +3648,15 @@ table.draggedItem {
 
 /* @group Table */
 
+.treeCellContent{
+    -webkit-touch-callout: auto;
+    -webkit-user-select: auto;
+    -khtml-user-select: auto;
+    -moz-user-select: text;
+    -ms-user-select: auto;
+    user-select: auto;
+}
+
 .dojoxGrid td.cell_R .cellContent, .treecell.cell_R .treeCellContent,
 .dojoxGrid td.cell_I .cellContent, .treecell.cell_I .treeCellContent,
 .dojoxGrid td.cell_N .cellContent, .treecell.cell_N .treeCellContent,
