@@ -150,7 +150,7 @@ class SqlModelChecker(object):
         for pkg in self.db.packages.values():
             #print '----------checking %s----------'%pkg.name
             self._checkPackage(pkg)
-        enabled_unaccent = 'unaccent' in self.db.adapter.listElements('enabled_extensions')
+        enabled_unaccent = False if create_db else 'unaccent' in self.db.adapter.listElements('enabled_extensions')
         unaccent_statement = None
         if self.unaccent and not enabled_unaccent:
             unaccent_statement = self.db.adapter.createExtensionSql('unaccent')
@@ -158,7 +158,6 @@ class SqlModelChecker(object):
             unaccent_statement =  self.db.adapter.dropExtensionSql('unaccent')
         if unaccent_statement:
             self.changes.append(unaccent_statement)
-
         self._checkAllRelations()
         return [x for x in self.changes if x]
 
@@ -465,6 +464,8 @@ class SqlModelChecker(object):
         
         sqlfields = []
         for col in tbl.columns.values():
+            if col.attributes.get('unaccent'):
+                self.unaccent = True
             sqlfields.append(self._sqlColumn(col))
         return 'CREATE TABLE %s (%s);' % (tablename, ', '.join(sqlfields))
         

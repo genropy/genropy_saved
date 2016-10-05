@@ -621,7 +621,8 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                 }
                 recordNodePath = recordNodePath.split('.');
                 recordNodePath.push('@'+recordNodePath.pop());
-                var recordNode = parentSourceNode.getRelativeData().getNode(recordNodePath);
+                var parentBag = parentSourceNode.getRelativeData();
+                var recordNode = parentBag?parentBag.getNode(recordNodePath):null;
                 if(recordNode && 'caption' in recordNode.attr){
                     var value = recordNode.attr._newrecord? '': recordNode.attr.caption;
                     var scope = request.scope ? request.scope : dojo.global;

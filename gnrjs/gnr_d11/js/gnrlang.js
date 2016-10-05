@@ -852,6 +852,7 @@ function convertFromText(value, t, fromLocale) {
         }
     }
     var t = t || 'T';
+    var result;
     t = t.toUpperCase();
     if (t == 'NN') {
         return null;
@@ -862,7 +863,7 @@ function convertFromText(value, t, fromLocale) {
         } else {
             value = parseInt(value);
         }
-        value.genrodtype = t;
+        value._gnrdtype = t;
         return value;
     }
     else if (t == 'R' || t == 'N') {
@@ -871,7 +872,7 @@ function convertFromText(value, t, fromLocale) {
         } else {
             value = parseFloat(value);
         }
-        value.genrodtype = t;
+        value._gnrdtype = t;
         return value;
     }
     else if (t == 'B') {
@@ -880,24 +881,28 @@ function convertFromText(value, t, fromLocale) {
     else if ((t == 'D') || (t == 'DH')) {
         if (fromLocale) {
             var selector = (t == 'DH') ? 'datetime' : 'date';
-            return dojo.date.locale.parse(value, {selector:selector});
+            result = dojo.date.locale.parse(value, {selector:selector});
         } else {
             if(t=='D'){
                 value = value.split('.')[0].replace(/\-/g, '/');
             }
-            return new Date(value); 
+            result = new Date(value); 
         }
+        result._gnrdtype=t;
+        return result;
     }
     else if (t == 'H') {
         if (fromLocale) {
-            return dojo.date.locale.parse(value, {selector:'time'});
+            result = dojo.date.locale.parse(value, {selector:'time'});
         } else {
             value = value.split(':');
             if (value.length < 3) {
                 value.push('00');
             }
-            return new Date(1971, null, null, Number(value[0]), Number(value[1]), Number(value[2]));
+            result = new Date(1971, null, null, Number(value[0]), Number(value[1]), Number(value[2]));
         }
+        result._gnrdtype=t;
+        return result;
     }
     else if (t == 'JS') {
         if(window.genro){
@@ -1293,7 +1298,7 @@ function convertToText(value, params) {
     else if (value instanceof Date) {
         var selectors = {'D':'date','H':'time','DH':null};
         if (!dtype) {
-            dtype = value.toString().indexOf('Thu Dec 31 1970') == 0 ? 'H' : 'D';
+            dtype = value._gnrdtype || (value.toString().indexOf('Thu Dec 31 1970') == 0 ? 'H' : 'D');
         }
         var opt = {'selector':selectors[dtype]};
         if (forXml) {

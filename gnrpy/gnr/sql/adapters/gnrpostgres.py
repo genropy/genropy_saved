@@ -554,7 +554,7 @@ class GnrWhereTranslatorPG(GnrWhereTranslator):
         return '%s = %s(:%s)' % (phonetic_column, phonetic_mode, self.storeArgs(value, dtype, sqlArgs))
 
     def unaccentTpl(self,tblobj,column,token):
-        if tblobj.column(column).attributes.get('unaccent'):
+        if tblobj.column(column) is not None and tblobj.column(column).attributes.get('unaccent'):
             return ' '.join(['unaccent(%s)',token,'unaccent(:%s)'])
         else: 
             return ' '.join(['%s',token,':%s'])

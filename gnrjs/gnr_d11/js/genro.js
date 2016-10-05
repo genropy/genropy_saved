@@ -295,7 +295,6 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     onWindowUnload:function(e) {
-        genro.lockScreen(true,'closingPage');
         if(genro.external_window_key){
             genro.mainGenroWindow.genro.publish('closeExternalWindow',{windowKey:genro.external_window_key});
         }
@@ -1312,7 +1311,7 @@ dojo.declare('gnr.GenroClient', null, {
             url = document.location.protocol + '//' + document.location.host + url;
         }
         ;
-        return genro.addKwargs(url, kwargs);
+        return encodeURI(genro.addKwargs(url, kwargs));
     },
     addKwargs: function(url, kwargs) {
         if (kwargs) {

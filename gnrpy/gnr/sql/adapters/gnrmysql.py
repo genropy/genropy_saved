@@ -48,7 +48,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     typesDict = {'varchar': 'A', 'char': 'C', 'text': 'T', 'tinytext': 'T', 'mediumtext': 'T', 'longtext': 'T',
                  'enum': 'A',
                  'boolean': 'B', 'date': 'D', 'time': 'H', 'datetime': 'DH', 'tinyint': 'I', 'timestamp': 'DH',
-                 'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'int': 'I', 'double precision': 'R', 'real': 'R',
+                 'integer': 'I', 'bigint': 'L','mediumint':'L', 'smallint': 'I', 'int': 'I', 'double precision': 'R', 'real': 'R',
                  'bytea': 'O', 'decimal':'N', 'longblob':'O', 'float':'R', 'blob':'O', 'varbinary':'O'}
 
     revTypesDict = {'A': 'varchar', 'T': 'text', 'C': 'char',

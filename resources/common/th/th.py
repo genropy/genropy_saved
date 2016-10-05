@@ -607,7 +607,14 @@ class MultiButtonForm(BaseComponent):
                 """,pkey='^#FORM.controller.loaded',mb=mb)
         store_kwargs['_if'] = store_kwargs.pop('if',None) or store_kwargs.pop('_if',None)
         store_kwargs['_else'] = "this.store.clear();"
-        store_kwargs.setdefault('order_by','$__ins_ts')
+        tblobj = self.db.table(table)
+        table_order_by = tblobj.attributes.get('order_by')
+        if not table_order_by:
+            if tblobj.column('__ins_ts') is not None:
+                table_order_by = '$__ins_ts'
+            else:
+                table_order_by = '$%s' %(tblobj.attributes.get('caption_field') or tblobj.pkey)
+        store_kwargs.setdefault('order_by',table_order_by)
         if store_kwargs['order_by']:
             columnslist.append(store_kwargs['order_by'])
         store_kwargs['columns'] = ','.join(columnslist)
