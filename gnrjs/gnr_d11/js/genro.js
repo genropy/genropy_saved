@@ -1311,7 +1311,7 @@ dojo.declare('gnr.GenroClient', null, {
             url = document.location.protocol + '//' + document.location.host + url;
         }
         ;
-        return genro.addKwargs(url, kwargs);
+        return encodeURI(genro.addKwargs(url, kwargs));
     },
     addKwargs: function(url, kwargs) {
         if (kwargs) {
