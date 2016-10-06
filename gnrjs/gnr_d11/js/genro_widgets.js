@@ -1260,8 +1260,8 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                 innerLayout.layout();
             }
         }else{
-            fc.style.width = innercoords.w+'px';
-            fc.style.height = innercoords.h+'px';
+            fc.style.min_width = innercoords.w+'px';
+            fc.style.min_height = innercoords.h+'px';
 
         }  
     },
