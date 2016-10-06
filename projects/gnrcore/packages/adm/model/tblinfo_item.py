@@ -9,6 +9,7 @@ class Table(object):
         tbl.column('item_type' ,size=':5',name_long='!!Type',values=self.itemTypeValues())
         tbl.column('data',dtype='X',name_long='!!Data')
         tbl.column('user_group').relation('group.code',relation_name='tblinfo_items',mode='foreignkey')
+        tbl.column('section' ,size=':30',name_long='!!Section name') #eg: event/activity 
         tbl.column('tbl').relation('tblinfo.tbl',relation_name='items',mode='foreignkey',onDelete='cascade')
 
 

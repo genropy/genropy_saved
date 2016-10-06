@@ -33,16 +33,20 @@ class GnrCustomWebPage(object):
         
         fb.field('status', tag='filteringSelect', # values='!!conf:Confirmed,wait:Waiting', 
                  validate_notnull=True, validate_notnull_error='!!Required')
+        fb.field('group_code')
         fb.field('locale', lbl='!!Locale')
-
-        fb.field('avatar_rootpage',lbl='!!Startpage',tip='!!User start page',colspan=2,width='100%')
+        fb.field('avatar_rootpage',lbl='!!Startpage',tip='!!User start page')
         fb.field('email', lbl='!!Email',colspan=2,width='100%')
-        fb.field('sms_login', html_label=True,colspan=2)
-        fb.field('sms_number',row_hidden='^.sms_login?=!#v',colspan=2,width='100%')
+        fb.field('sms_login', html_label=True)
+        fb.field('sms_number',hidden='^.sms_login?=!#v',colspan=2,width='100%')
+
+
 
     def userAuth(self,pane):
         pane.inlineTableHandler(relation='@tags',viewResource='ViewFromUser',
-                            pbl_classes=True,margin='2px',addrow=False,picker='tag_id',picker_viewResource=True)
+                            pbl_classes=True,margin='2px',addrow=False,picker='tag_id',
+                            picker_condition='$child_count=0',
+                            picker_viewResource=True)
 
         
 

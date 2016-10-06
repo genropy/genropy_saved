@@ -33,5 +33,6 @@ class Form(BaseComponent):
         fb.textBox(value='^.md5pwd', lbl='Password', type='password',validate_notnull=True, validate_notnull_error='!!Required')
         fb.field('status', tag='filteringSelect', values='!!conf:Confirmed,wait:Waiting', 
                  validate_notnull=True, validate_notnull_error='!!Required')
+        fb.field('group_code')
         fb.field('email', lbl='!!Email')
 

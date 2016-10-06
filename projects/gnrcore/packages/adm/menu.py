@@ -4,6 +4,7 @@ def config(root,application=None):
     administration = root.branch(u"!!Administration", tags="admin")
     administration.webpage(u"!!Users", filepath="/adm/user_page")
     administration.thpage(u"!!Auth tags", table="adm.htag")
+    administration.thpage(u"!!Group", table="adm.group")
     administration.thpage(u"!!Letterheads", table="adm.htmltemplate")
     administration.thpage(u"!!Notifications", table="adm.notification")
     administration.thpage(u"!!Connections", table="adm.connection",tags='_DEV_')

@@ -27,6 +27,14 @@ class AuthItemView(View):
         r = struct.view().rows()
         r.fieldcell('name')
 
+class QTREEItemView(View):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('name')
+        r.fieldcell('user_group')
+        r.fieldcell('section')
+
+
 
 class Form(BaseComponent):
     def th_form(self, form):
@@ -89,3 +97,38 @@ class AuthItemForm(BaseComponent):
     def th_options(self):
         return dict(dialog_parentRatio=0.8)
 
+class QTREEItemForm(BaseComponent):
+    def th_form(self, form):
+        bc = form.center.borderContainer()
+        top = bc.contentPane(region='top',datapath='.record')
+        fb = top.formbuilder(cols=1,border_spacing='3px')
+        fb.field('name')
+        fb.field('section')
+        fb.field('user_group')
+        center = bc.borderContainer(region='center',design='sidebar')
+        center.contentPane(region='center').tree(storepath='#FORM.record.data',hideValues=True,nodeId='QTREEEditor_tree',
+                                                selectedPath='#FORM.selectedTreePath',
+                                                selectedLabelClass='selectedTreeNode',
+                                                dropTarget=True,
+                                                labelAttribute='name',
+                                                draggable=True,
+                                                editable='Shift',
+                                                selfsubscribe_onSelected="genro.publish('QTREENodeEditor_currentPath',$1.item.getFullpath(null,genro._data))",
+                                                onDrag='dragValues["layoutnode_path"]= dragValues["treenode"]["relpath"];',
+                                                onDrop_fieldvars="""console.log('zzz',data);
+                                                                        var dropPath = dropInfo.treeItem.getFullpath(null,this.getRelativeData(this.attr.storepath));
+                                                                        genro.publish('insert_layout_element',{insertPath:dropPath || 'root'});
+                                                                        """)
+        center.contentPane(region='bottom',height='50%',splitter=True,overflow='hidden').bagNodeEditor(bagpath='curr_field_node',
+            labelAttribute='label',addrow=True,delrow=True,addcol=True,nodeId='QTREENodeEditor',
+            datapath='.bagNodeEditor')
+        center.contentPane(region='left',border_right='1px solid silver',width='200px').fieldsTree(table='^#FORM.record.tbl')
+
+    def th_options(self):
+        return dict(dialog_parentRatio=0.8)
+
+
+    @public_method
+    def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
+        if not record['data']:
+            record['data'] = Bag(dict(root=Bag()))

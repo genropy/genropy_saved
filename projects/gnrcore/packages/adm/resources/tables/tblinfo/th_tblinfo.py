@@ -54,11 +54,19 @@ class Form(BaseComponent):
         fb.field('description')
         tc = bc.tabContainer(region='center',margin='2px')
         self.authorizationsItems(tc.contentPane(title='Authorization'))
+        self.qtreeItems(tc.contentPane(title='Quick Fields Tree'))
 
     def authorizationsItems(self,pane):
         pane.dialogTableHandler(relation='@items',condition='$item_type=:t',nodeId='auth_#',
                                 condition_t='AUTH',default_item_type='AUTH',
                                 viewResource='AuthItemView',formResource='AuthItemForm')
+
+
+    def qtreeItems(self,pane):
+        pane.dialogTableHandler(relation='@items',condition='$item_type=:t',nodeId='qtree_#',
+                                condition_t='QTREE',default_item_type='QTREE',
+                                datapath='#FORM.thqt',
+                                viewResource='QTREEItemView',formResource='QTREEItemForm')
 
     def th_options(self):
         return dict(dialog_parentRatio=0.9)
