@@ -105,30 +105,38 @@ class QTREEItemForm(BaseComponent):
         fb.field('name')
         fb.field('section')
         fb.field('user_group')
-        center = bc.borderContainer(region='center',design='sidebar')
-        center.contentPane(region='center').tree(storepath='#FORM.record.data',hideValues=True,nodeId='QTREEEditor_tree',
-                                                selectedPath='#FORM.selectedTreePath',
-                                                selectedLabelClass='selectedTreeNode',
-                                                dropTarget=True,
-                                                labelAttribute='name',
-                                                draggable=True,
-                                                editable='Shift',
-                                                selfsubscribe_onSelected="genro.publish('QTREENodeEditor_currentPath',$1.item.getFullpath(null,genro._data))",
-                                                onDrag='dragValues["layoutnode_path"]= dragValues["treenode"]["relpath"];',
-                                                onDrop_fieldvars="""console.log('zzz',data);
-                                                                        var dropPath = dropInfo.treeItem.getFullpath(null,this.getRelativeData(this.attr.storepath));
-                                                                        genro.publish('insert_layout_element',{insertPath:dropPath || 'root'});
-                                                                        """)
-        center.contentPane(region='bottom',height='50%',splitter=True,overflow='hidden').bagNodeEditor(bagpath='curr_field_node',
-            labelAttribute='label',addrow=True,delrow=True,addcol=True,nodeId='QTREENodeEditor',
-            datapath='.bagNodeEditor')
-        center.contentPane(region='left',border_right='1px solid silver',width='200px').fieldsTree(table='^#FORM.record.tbl')
+        left = bc.roundedGroupFrame(title='Source',region='left',width='50%')
+        left.dataFormula('#FORM.currentTable','tbl',tbl='^#FORM.record.tbl')
+        bc.dataRpc('#FORM.sourceTreeData', self.relationExplorer, 
+                            table='^#FORM.currentTable', dosort=False)
+        tree = left.treeGrid(storepath='#FORM.sourceTreeData', 
+                    #onDrag=self.onDrag(),
+                    draggable=True,
+                    dragClass='draggedItem',headers=True)
+        tree.column('fieldpath',header='Field') 
+        tree.column('dtype',size=40,header='DT')
+        tree.column('caption',header='Caption',size=200)
+        right = bc.roundedGroupFrame(title='Current data',region='center')
+        bar = right.top.bar.replaceSlots('#','#,del_element,add_group')
+        bar.del_element.slotButton('Delete')
+        bar.add_group.slotButton('Add folder',action="""
+            data =data || new gnr.GnrBag();
+            caption = caption || 'Untitled Group';
+            var label = currentDestSelectedPath && data.getItem(currentDestSelectedPath)?'g_'+data.getItem(currentDestSelectedPath).len():'g_0';
+            var dp = currentDestSelectedPath?currentDestSelectedPath+'.'+label:label;
+            data.setItem(dp,new gnr.GnrBag(),{caption:caption});
+            """,data='=#FORM.record.data',currentDestSelectedPath='=#FORM.currentDestSelectedPath',
+                ask=dict(title='Nuovo gruppo',fields=[dict(name='caption',lbl='Caption')]))
+        tree = right.treeGrid(storepath='#FORM.record.data', 
+                    #onDrag=self.onDrag(),
+                    selectedPath='#FORM.currentDestSelectedPath',
+                    draggable=True,
+                    dragClass='draggedItem',headers=True)
+
+
+        tree.column('fieldpath',header='Field') 
+        tree.column('dtype',size=40,header='DT')
+        tree.column('caption',header='Caption',size=200)
 
     def th_options(self):
-        return dict(dialog_parentRatio=0.8)
-
-
-    @public_method
-    def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
-        if not record['data']:
-            record['data'] = Bag(dict(root=Bag()))
+        return dict(dialog_parentRatio=0.95)

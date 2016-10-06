@@ -190,8 +190,8 @@ class GnrWsgiSite(object):
         self._currentMaintenances = {}
         abs_script_path = os.path.abspath(script_path)
         self.remote_db = ''
-        if site_name and ':' in site_name:
-            site_name,self.remote_db = site_name.split(':',1)
+        if site_name and '@' in site_name:
+            site_name,self.remote_db = site_name.split('@',1)
         if os.path.isfile(abs_script_path):
             self.site_path = os.path.dirname(abs_script_path)
         else:
@@ -1007,7 +1007,7 @@ class GnrWsgiSite(object):
             else:
                 restorepath = None
         if self.remote_db:
-            instance_path = '%s:%s' %(instance_path,self.remote_db)
+            instance_path = '%s@%s' %(instance_path,self.remote_db)
         app = GnrWsgiWebApp(instance_path, site=self,restorepath=restorepath)
         self.config.setItem('instances.app', app, path=instance_path)
         for f in restorefiles:
