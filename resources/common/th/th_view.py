@@ -752,7 +752,7 @@ class TableHandlerView(BaseComponent):
                    qm.setFavoriteQuery();
         """,_onStart=True,th_root=th_root)   
         fmenupath = 'gnr.qb.%s.fieldsmenu' %tablecode
-        pane.dataRemote(fmenupath,self.relationExplorer,table=table,omit='_*')
+        pane.dataRemote(fmenupath,self.getFieldsMenu,table=table,omit='_*')
         pane.data('gnr.qb.sqlop',self.getSqlOperators())   
         pane.dataController("""var th=TH(th_root).querymanager.onQueryCalling(querybag,selectmethod);
                               """,th_root=th_root,_fired="^.runQuery",
@@ -808,6 +808,14 @@ class TableHandlerView(BaseComponent):
                         tooltip='==_internalQueryTooltip || _internalQueryCaption || _caption',
                                     _internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip',
                                     hidden='^.#parent.queryAttributes.extended?=!#v',min_width='20em')
+
+    @public_method
+    def getFieldsMenu(self,table=None,omit='_*'):
+        qtree_records = self.db.table('adm.tblinfo_item').query(where='$tbl=:t AND $item_type=:it',bagFields=True,
+                                                                t=table,it='QTREE').fetch()
+        if qtree_records:
+            return Bag(qtree_records[0]['data'])['root']
+        return self.relationExplorer(table,omit=omit)
 
 
         
