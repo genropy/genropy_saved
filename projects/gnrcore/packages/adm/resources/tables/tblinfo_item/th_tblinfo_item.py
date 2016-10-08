@@ -98,6 +98,7 @@ class AuthItemForm(BaseComponent):
         return dict(dialog_parentRatio=0.8)
 
 class QTREEItemForm(BaseComponent):
+    js_requires = 'tblinfo'
     def th_form(self, form):
         bc = form.center.borderContainer()
         top = bc.contentPane(region='top',datapath='.record')
@@ -127,38 +128,66 @@ class QTREEItemForm(BaseComponent):
                                      else {return opened?'dijitFolderOpened':'dijitFolderClosed'}""")
         right = bc.roundedGroupFrame(title='Current data',region='center')
         bar = right.top.bar.replaceSlots('#','#,del_element,add_group')
-        bar.del_element.slotButton('Delete')
+        bar.del_element.slotButton('Delete',action="""
+            if(currentDestSelectedPath&&data){
+                data.popNode(currentDestSelectedPath);
+            }
+            """,data='=#FORM.record.data',currentDestSelectedPath="=#FORM.currentDestSelectedPath")
         bar.add_group.slotButton('Add folder',action="""
             data =data || new gnr.GnrBag();
+            genro.bp(true);
             caption = caption || 'Untitled Group';
-            var label = currentDestSelectedPath && data.getItem(currentDestSelectedPath)?'g_'+data.getItem(currentDestSelectedPath).len():'g_0';
-            var dp = currentDestSelectedPath?currentDestSelectedPath+'.'+label:label;
-            data.setItem(dp,new gnr.GnrBag(),{caption:caption});
+            var selnode = data.getNode(currentDestSelectedPath);
+            if(selnode.attr.dtype){
+                selnode = selnode.getParentNode();
+            }
+            var v =  selnode.getValue();
+            var label ='n_'+v.len();
+            v.setItem(label,new gnr.GnrBag(),{caption:caption});
             """,data='=#FORM.record.data',bc=bc.js_widget,currentDestSelectedPath='=#FORM.currentDestSelectedPath',
                 ask=dict(title='Nuovo gruppo',fields=[dict(name='caption',lbl='Caption')]))
-        right.tree(storepath='#FORM.record.data', 
-                    #onDrag=self.onDrag(),
+        tree = right.treeGrid(storepath='#FORM.record.data', 
+                    headers=True,
                     _class='fieldsTree',
-                    hideValues=True,
-                    getLabel="""function(node){
-                          
-                          return node.attr.fieldpath || node.attr.caption || node.label;
-                      }""",
+                    hideValues=True,nodeId="qtree_editor",
+                    onDrop_selfdrag_path="""QTREEEditor.selfDragDropTree(this,data,dropInfo);""",
+                    onDrag='dragValues["selfdrag_path"]= dragValues["treenode"]["relpath"];',
+                    dropTargetCb="""
+                        if(!dropInfo.selfdrop&&dropInfo.treeItem.attr.dtype){
+                            return false;
+                        }
+                        return true;
+                    """,
                     onDrop_fsource="""
-                        if(!dropInfo.treeItem._value){
+                        if(dropInfo.treeItem.attr.dtype){
                             return false;
                         }else{
                             var v = dropInfo.treeItem._value;
                             data.forEach(function(attr){
                                     v.setItem('n_'+v.len(),null,objectUpdate({},attr));
                                 })
-                            
                         }
                     """,
                     dropTarget=True,
                     selectedPath='#FORM.currentDestSelectedPath',
                     draggable=True,dragClass='draggedItem',
-                    selectedLabelClass='selectedTreeNode')
+                    selectedLabelClass='selectedTreeRow',
+                    connect_ondblclick="""
+                                    var item =  dijit.getEnclosingWidget($1.target).item
+                                    var row = item.attr; 
+                                    genro.dlg.prompt("Add widget",
+                                    {dflt:new gnr.GnrBag(row),
+                                    widget:[{value:'^.caption',lbl:'Caption'},
+                                            {value:'^.fullcaption',lbl:'Full caption'}],
+                                    action:function(res){
+                                        objectUpdate(row,res.asDict(),true);
+                                        item.updAttributes(row,true);
+                                    }});
+                                                """)
+        tree.column('caption',header='Caption')
+        tree.column('fullcaption',size=160,header='Full caption')
+        tree.column('dtype',size=40,header='DT')
+        tree.column('fieldpath',header='Field',size=320)
 
     def fsource_onDrag(self):
         return """var children=treeItem.getValue('static')
@@ -171,7 +200,7 @@ class QTREEItemForm(BaseComponent):
                   }
                    result=[];
                    children.forEach(function(n){
-                        if (n.attr.checked){result.push(n.attr);
+                        if (n.attr.checked && !n._value){result.push(n.attr);
                     }},'static');
                    dragValues['fsource']= result; 
                    console.log('gruppo',dragValues['fsource'])
@@ -181,7 +210,7 @@ class QTREEItemForm(BaseComponent):
     def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
         if not record['data']:
             record['data'] = Bag()
-            record['data'].setItem('root',Bag())
+            record['data'].setItem('root',Bag(),caption='Root')
 
     def th_options(self):
         return dict(dialog_parentRatio=0.95)

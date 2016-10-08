@@ -788,7 +788,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             genro.src.getNode()._('div',paletteCode,{_class:'hiddenDock'});
             var node = genro.src.getNode(paletteCode).clearValue();
             node.freeze();
-            var dockTo = kw.dockTo==false?false: (kw.dockTo || 'dummyDock:open');
+            var dockTo = kw.dockTo===false?false: (kw.dockTo || 'dummyDock:open');
             var paletteAttr = {'paletteCode':paletteCode,title:kw.title || 'Palette:'+table,
                                                         overflow:'hidden',
                                                           dockTo: dockTo,
