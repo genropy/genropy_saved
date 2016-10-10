@@ -706,7 +706,7 @@ class ThLinker(BaseComponent):
                 hiddenColumns = _customclasscol if not hiddenColumns else '%s,%s' %hiddenColumns
         linkerpath = '#FORM.linker_%s' %field
         linker = pane.div(_class='th_linker',childname='linker',datapath=linkerpath,
-                         rounded=8,tip='^.tip_link',
+                         rounded=8,tip='!!Select %s' %self._(related_tblobj.name_long),
                          onCreated='this.linkerManager = new gnr.LinkerManager(this);',
                          connect_onclick='this.linkerManager.openLinker();',
                          selfsubscribe_disable='this.linkerManager.closeLinker();',
@@ -715,15 +715,10 @@ class ThLinker(BaseComponent):
                          table=related_table,_field=field,_embedded=embedded,
                          _formUrl=formUrl,_formResource=formResource,
                          _dialog_kwargs=dialog_kwargs,_default_kwargs=default_kwargs)
-        linker.dataController("""SET .tip_link =linktpl.replace('$table1',t1).replace('$table2',t2);
-                                 SET .tip_add = addtpl.replace('$table2',t2);""",
-                            _init=True,linktpl='!!Link current $table1 record to an existing record of $table2',
-                            addtpl='!!Add a new $table2',
-                            t1=tblobj.name_long, t2=related_tblobj.name_long) 
         if kwargs.get('validate_notnull'):
             openIfEmpty = True
         if (formResource or formUrl) and addEnabled is not False:
-            add = linker.div(_class='th_linkerAdd',tip='^.tip_add',childname='addbutton',
+            add = linker.div(_class='th_linkerAdd',tip=related_tblobj.dbtable.newRecordCaption(),childname='addbutton',
                         connect_onclick="this.getParentNode().publish('newrecord')")
             if addEnabled:
                 pane.dataController("genro.dom.toggleVisible(add,addEnabled);",addEnabled=addEnabled,add=add)

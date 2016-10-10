@@ -1625,7 +1625,7 @@ class SqlTable(GnrObject):
             mask = ' - '.join(['%s' for k in fields])
         return fields, mask
 
-    def newRecordCaption(self,record):
+    def newRecordCaption(self,record=None):
         return self.newrecord_caption
         
     def recordCaption(self, record, newrecord=False, rowcaption=None):

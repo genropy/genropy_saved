@@ -3851,11 +3851,22 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
     mixin_setCondition:function(value,kw){
         var vpath = this.sourceNode.attr.value;
         var currvalue = this.sourceNode.getRelativeData(vpath);
-        //this.sourceNode.setRelativeData(vpath,null,null,null,false);
+        var reskwargs = this.store.rootDataNode().getResolver().kwargs;
+        if(reskwargs.notnull){
+            reskwargs = objectUpdate({},reskwargs);
+            var reskwargs = objectUpdate(reskwargs,{limit:2,_querystring:'*',notnull:true});
+            console.log('check singleOption')
+            var singleOption = genro.serverCall(objectPop(reskwargs,'method'),reskwargs);
+            if(singleOption._value.len()==1){
+                currvalue = singleOption._value.getAttr('#0')[this.store._identifier];
+            }
+        }
         if(!isNullOrBlank(currvalue)){
+            this.clearCache();
             this.setValue(null,true);
             this.setValue(currvalue,true);
-        }
+        } 
+
         //this.sourceNode.setRelativeData(vpath,currvalue);
     },
     
