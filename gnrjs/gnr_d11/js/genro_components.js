@@ -3930,11 +3930,11 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
                     query_kw.resolved = objectPop(kw,'resolved');
                     query_kw.parent_id =  objectPop(originalKwargs,'parent_id');
                     query_kw.root_id = objectPop(originalKwargs,'root_id');
-                    query_kw.caption_field = objectPop(originalKwargs,'caption_field') || originalKwargs.labelAttribute;
+                    query_kw.caption_field = originalKwargs.labelAttribute;
                     query_kw.alt_pkey_field = objectPop(originalKwargs,'alt_pkey_field');
                     gnrwdg.omitRoot = objectPop(kw,'omitRoot',true);
                 }else{
-                    query_kw.caption_field = objectPop(originalKwargs,'caption_field') || originalKwargs.labelAttribute;;
+                    query_kw.caption_field = originalKwargs.labelAttribute;
                     query_kw.where = condition;
                     query_kw._storename = dbstore;
                     query_kw.alt_pkey_field = objectPop(originalKwargs,'alt_pkey_field');
@@ -4082,7 +4082,10 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         }
         if(this.hierarchical){
             var inEditingGrid = this.sourceNode.grid? this.sourceNode.grid.gnrediting:false;
-            if(trigger_reason=='container' && !inEditingGrid){
+            if(kw.reason && kw.reason.sourceNode == this.treeNode){
+                return;
+            }
+            if(!inEditingGrid){
                 this.setHierarchicalCheckedPaths(value);
             }
             return;
