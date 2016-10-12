@@ -85,5 +85,10 @@ class GnrCustomWebPage(object):
 
         bc.contentPane(region='center').bagGrid(storepath='main.test',struct=struct)
 
+    def test_12_testhatag(self,pane):
+        """First test description"""
+        pane.checkBoxText(value='^.tag',table='adm.htag',popup=True,alt_pkey_field='code',
+                            labelAttribute='code')
 
+   
         
