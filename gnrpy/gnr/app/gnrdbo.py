@@ -587,7 +587,7 @@ class TableBase(object):
         if hasattr(self,'hierarchicalHandler'):
             return self.hierarchicalHandler.getHierarchicalPathsFromPkeys(pkeys=pkeys,
                                                                related_kwargs=related_kwargs,parent_id=parent_id,
-                                                              dbstore=dbstore)
+                                                              dbstore=dbstore,**kwargs)
         if related_kwargs['table']:
             related_tblobj = self.db.table(related_kwargs['table'])
             p = related_kwargs['path']

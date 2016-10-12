@@ -272,7 +272,7 @@ class HierarchicalHandler(object):
         path = hierarchical_pkey.replace('/','.') if hierarchical_pkey else 'root'
         return path
 
-    def getHierarchicalPathsFromPkeys(self,pkeys=None,related_kwargs=None,parent_id=None,dbstore=None,alt_pkey_field=None):
+    def getHierarchicalPathsFromPkeys(self,pkeys=None,related_kwargs=None,parent_id=None,dbstore=None,alt_pkey_field=None,**kwargs):
         if not pkeys:
             return 
         pkeys = pkeys.split(',')
