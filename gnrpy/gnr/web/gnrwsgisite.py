@@ -190,8 +190,8 @@ class GnrWsgiSite(object):
         self._currentMaintenances = {}
         abs_script_path = os.path.abspath(script_path)
         self.remote_db = ''
-        if site_name and '@' in site_name:
-            site_name,self.remote_db = site_name.split('@',1)
+        if site_name and ':' in site_name:
+            site_name,self.remote_db = site_name.split(':',1)
         if os.path.isfile(abs_script_path):
             self.site_path = os.path.dirname(abs_script_path)
         else:
