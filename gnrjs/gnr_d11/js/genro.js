@@ -735,11 +735,11 @@ dojo.declare('gnr.GenroClient', null, {
     setDefaultShortcut:function(){
         genro.dev.shortcut('f1', function(e) {
             if(genro.activeForm){
-                genro.activeForm.save();
+                genro.activeForm.publish('shortcut_save');
             }
         });
         genro.dev.shortcut('f3', function(e) {
-            genro.publish('PRINTRECORD', e);
+            genro.publish('shortcut_print', e);
         });
     },
 
