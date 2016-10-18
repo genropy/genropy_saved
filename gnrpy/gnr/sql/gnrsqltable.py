@@ -1074,6 +1074,12 @@ class SqlTable(GnrObject):
             # if not self.trigger_onDeleting:
             #  sql delete where
 
+
+    @property
+    def dbevents(self):
+        return self.db.dbevents[self.fullname]
+
+
     def notifyDbUpdate(self,record):
         self.db.notifyDbUpdate(self,record)
             

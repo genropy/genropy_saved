@@ -317,15 +317,19 @@ class GnrSqlDb(GnrObject):
     def usingRootstore(self):
         currentStore = self.currentEnv.get('storename')
         return  (currentStore is None) or (currentStore == self.rootstore)
+
+    def connectionKey(self,storename=None):
+        storename = storename or self.currentEnv.get('storename') or self.rootstore
+        return '%s_%s' % (storename, self.currentEnv.get('connectionName') or '_main_connection')
             
     def _get_store_connection(self, storename):
         thread_ident = thread.get_ident()
         thread_connections = self._connections.setdefault(thread_ident, {})
-        connectionName = '%s_%s' % (storename, self.currentEnv.get('connectionName') or '_main_connection')
-        connection = thread_connections.get(connectionName)
+        connectionKey = self.connectionKey(storename=storename)
+        connection = thread_connections.get(connectionKey)
         if not connection:
             connection = self.adapter.connect(storename)
-            thread_connections[connectionName] = connection
+            thread_connections[connectionKey] = connection
         return connection
     
     def _get_connection(self):
@@ -504,7 +508,7 @@ class GnrSqlDb(GnrObject):
             self.onDbCommitted()
 
     def onCommitting(self):
-        deferreds = self.currentEnv.setdefault('deferredCalls',Bag()) 
+        deferreds = self.currentEnv.setdefault('deferredCalls_%s' %self.connectionKey(),Bag()) 
         with self.tempEnv(onCommittingStep=True):
             while deferreds:
                 node =  deferreds.popNode('#0')
@@ -515,7 +519,7 @@ class GnrSqlDb(GnrObject):
                     deferreds.popNode(node.label) #pop again because during triggers it could adding the same key to deferreds bag
 
     def deferToCommit(self,cb,*args,**kwargs):
-        deferreds = self.currentEnv.setdefault('deferredCalls',Bag())
+        deferreds = self.currentEnv.setdefault('deferredCalls_%s' %self.connectionKey(),Bag())
         deferredId = kwargs.pop('_deferredId',None)
         if not deferredId:
             deferredId = getUuid()
@@ -531,6 +535,10 @@ class GnrSqlDb(GnrObject):
     def systemDbEvent(self):
         return self.currentEnv.get('_systemDbEvent',False)
     
+    @property
+    def dbevents(self):
+        return self.currentEnv.get('dbevents_%s' %self.connectionKey())
+
     def onDbCommitted(self):
         """TODO"""
         pass

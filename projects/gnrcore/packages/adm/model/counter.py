@@ -304,7 +304,8 @@ class Table(object):
             record[field] = None
             releasing_counter = int(sequence[N_start:N_end])
             if releasing_counter>counter_record['counter']:
-                raise self.exception('business_logic','Wrong counter releasing')
+                pass
+                #raise self.exception('business_logic','Wrong counter releasing')
             elif releasing_counter==counter_record['counter']:
                 counter_record['counter'] -= 1
                 previous = self.formatSequence(tblobj=tblobj,field=field,record=record,counter=counter_record['counter'])
