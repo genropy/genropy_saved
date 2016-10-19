@@ -876,8 +876,9 @@ class SqlTable(GnrObject):
         updatedKeys = []
         for row in fetch:
             new_row = dict(row)
-            self.expandBagFields(row)
-            self.expandBagFields(new_row)
+            if not _raw_update:
+                self.expandBagFields(row)
+                self.expandBagFields(new_row)
             if callable(updater):
                 doUpdate = updater(new_row)
                 if doUpdate is False:
