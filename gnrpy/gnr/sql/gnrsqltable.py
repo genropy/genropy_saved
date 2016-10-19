@@ -876,6 +876,8 @@ class SqlTable(GnrObject):
         updatedKeys = []
         for row in fetch:
             new_row = dict(row)
+            self.expandBagFields(row)
+            self.expandBagFields(new_row)
             if callable(updater):
                 doUpdate = updater(new_row)
                 if doUpdate is False:
@@ -1121,9 +1123,19 @@ class SqlTable(GnrObject):
         for row in sel:
             row._notUserChange = True
             old_record = dict(row)
+            self.expandBagFields(row)
+            self.expandBagFields(old_record)
             if onUpdating:
                 onUpdating(row, old_record=old_record)
             handler(row, old_record=old_record)
+
+    def expandBagFields(self,record,columns=None):
+        if not columns:
+            columns = [k for k,v in self.model.columns.items() if v.dtype=='X']
+        if isinstance(columns,basestring):
+            columns = columns.split(',')
+        for c in columns:
+            record[c] = Bag(record.get(c))
             
     def existsRecord(self, record):
         """Check if a record already exists in the table and return it (if it is not already in the keys)
