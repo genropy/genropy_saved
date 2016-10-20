@@ -50,20 +50,9 @@ class Package(GnrDboPackage):
         
     def onAuthentication(self, avatar):
         pass
-        #update_md5 = self.attributes.get('update_md5',False) not in ('N','n','F','f','False','false','FALSE','No','NO','no',False)
-        #if update_md5 and hasattr(avatar,'md5len') and avatar.md5len==32:
-        #    self.update_md5(avatar)
-        #avatar.login_pwd = None
 
     def onAuthenticated(self, avatar):
         pass
-        #self.db.table('adm.connection').connectionLog('open')
-
-        #def update_md5(self,avatar):
-        #    md5_userid=hashlib.md5(str(avatar.userid)).hexdigest()
-        #    new_pass=hashlib.md5(avatar.login_pwd+md5_userid).hexdigest()+':'+md5_userid
-        #    self.application.db.table('adm.user').update(dict(id=avatar.userid,md5pwd=new_pass))
-        #    self.application.db.commit()
 
     def newUserUrl(self):
         return 'adm/new_user'

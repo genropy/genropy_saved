@@ -308,8 +308,10 @@ class SqlDbAdapter(SqlDbBaseAdapter):
 
 
     def createExtensionSql(self,extension):
-        "override this"
         return """CREATE extension %s;""" %extension
+
+    def dropExtensionSql(self,extension):
+        return """DROP extension IF EXISTS %s;""" %extension
 
     def relations(self):
         """Get a list of all relations in the db. 
@@ -468,6 +470,10 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             result = result[0]
         return result
 
+    def getWhereTranslator(self):
+        return GnrWhereTranslatorPG(self.dbroot)
+
+
 
 class GnrDictConnection(_connection):
     """A connection that uses DictCursor automatically."""
@@ -539,3 +545,17 @@ class GnrDictCursor(_cursor):
             for i in xrange(len(self.description)):
                 self.index[self.description[i][0]] = i
             self._query_executed = 0
+
+class GnrWhereTranslatorPG(GnrWhereTranslator):
+    def op_similar(self, column, value, dtype, sqlArgs,tblobj):
+        "!!Similar"
+        phonetic_column =  tblobj.column(column).attributes['phonetic']
+        phonetic_mode = tblobj.column(column).table.column(phonetic_column).attributes['phonetic_mode']
+        return '%s = %s(:%s)' % (phonetic_column, phonetic_mode, self.storeArgs(value, dtype, sqlArgs))
+
+    def unaccentTpl(self,tblobj,column,token):
+        if tblobj.column(column) is not None and tblobj.column(column).attributes.get('unaccent'):
+            return ' '.join(['unaccent(%s)',token,'unaccent(:%s)'])
+        else: 
+            return ' '.join(['%s',token,':%s'])
+

@@ -21,7 +21,7 @@ class GnrCustomWebPage(object):
 
     def test_0_pupup(self, pane):
         fb = pane.formbuilder(cols=2)
-        fb.dateTextBox(value='^.date_1',lbl='Date 1')
+        fb.dateTextBox(value='^.date_1',lbl='Date 1',pivotYear=1)
         fb.dateTextBox(value='^.date_2',lbl='Date 2',popup=False)
         fb.dateTextBox(value='^.date_3',lbl='Date 3',noIcon=True)
         fb.dateTextBox(value='^.date_4',lbl='Date 4',noIcon=True,popup=False)

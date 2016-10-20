@@ -1260,8 +1260,8 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                 innerLayout.layout();
             }
         }else{
-            fc.style.width = innercoords.w+'px';
-            fc.style.height = innercoords.h+'px';
+            fc.style.min_width = innercoords.w+'px';
+            fc.style.min_height = innercoords.h+'px';
 
         }  
     },
@@ -2552,6 +2552,9 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
     },
     versionpatch_11__openMyself: function (e) {
         var contextclick = (e.button==2 ||  genro.dom.getEventModifiers(e)=='Ctrl');
+        if(this.validclass && !genro.wdg.filterEvent(e,null,this.validclass)){
+            return;
+        }
         if (contextclick && (!this.modifiers)) {
             this._openMyself_replaced.call(this, e);
 
@@ -3194,20 +3197,28 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
 
     patch_parse:function(value,constraints){
         if(value && !this._focused){
-            var r;
-            if(value.match(/^\d{6}$|^\d{8}$/)){
-                var tokens = dojo.date.locale._parseInfo(constraints).tokens;
-                var d1 = parseInt(value.slice(0,2));
-                var d2 = parseInt(value.slice(2,4));
-                var y = parseInt(value.slice(4));
-                var d,m;
-                if(tokens[0]=='dd'){
-                    d = d1;
-                    m = d2;
+            var r,d1,d2,y;
+            var info = dojo.date.locale._parseInfo(constraints);
+            var tokens = info.tokens;
+            var match = value.match(/^(\d{2})(\d{2})(\d{2}|\d{4})$/);
+            var doSetValue = true;
+            if(!match){
+                doSetValue = false;
+                var re = new RegExp("^" + info.regexp + "$");
+                match = re.exec(value);
+            }
+            if(match){
+                var d,m,y;
+                if(tokens[0][0]=='d'){
+                    d = match[1];
+                    m = match[2];
                 }else{
-                    m = d1;
-                    d = d2;
+                    d = match[2];
+                    m = match[1];
                 }
+                d = parseInt(d);
+                m = parseInt(m)-1;
+                y = parseInt(match[3]);
                 if(y<100){
                     var pivotYear ='pivotYear' in this.sourceNode.attr?this.sourceNode.attr.pivotYear:20;
                     var year = '' + new Date().getFullYear();
@@ -3215,33 +3226,30 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
                     var cutoff = Math.min(Number(year.substring(2, 4)) + pivotYear, 99);
                     var y = (y < cutoff) ? century + y : century - 100 + y;
                 }
-                r = new Date(y,m-1,d);  
-            }else{
-                var q = dojo.date.locale.parse(value, constraints) || undefined; 
-                if(q===undefined){
+                r = new Date(y,m,d);  
+                if(doSetValue){
                     var that = this;
-                    this.setValue(null);
-                    var sn = this.sourceNode;
-                    sn._waiting_rpc = true;
-                    genro.serverCall('decodeDatePeriod',{datestr:value},function(v){
-                        if(v.getItem('from')){
-                            that.setValue(v.getItem('from'),true);
-                        }
-                        if(that.sourceNode.attr.period_to){
-                            that.sourceNode.setRelativeData(that.sourceNode.attr.period_to,v.getItem('to'));
-                        }
-                        sn._waiting_rpc = false;
+                    setTimeout(function(){
+                        that.setValue(r,true);
                     });
                 }
-            }
-            if(r){
+                return r;
+            }else{
                 var that = this;
-                setTimeout(function(){
-                    that.setValue(r,true);
-                },1);
+                this.setValue(null);
+                var sn = this.sourceNode;
+                sn._waiting_rpc = true;
+                genro.serverCall('decodeDatePeriod',{datestr:value},function(v){
+                    if(v.getItem('from')){
+                        that.setValue(v.getItem('from'),true);
+                    }
+                    if(that.sourceNode.attr.period_to){
+                        that.sourceNode.setRelativeData(that.sourceNode.attr.period_to,v.getItem('to'));
+                    }
+                    sn._waiting_rpc = false;
+                });
                 return;
             }
-            return q;
         }
         return dojo.date.locale.parse(value, constraints) || undefined; 
     }
@@ -3848,11 +3856,22 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
     mixin_setCondition:function(value,kw){
         var vpath = this.sourceNode.attr.value;
         var currvalue = this.sourceNode.getRelativeData(vpath);
-        //this.sourceNode.setRelativeData(vpath,null,null,null,false);
+        var reskwargs = this.store.rootDataNode().getResolver().kwargs;
+        if(reskwargs.notnull){
+            reskwargs = objectUpdate({},reskwargs);
+            var reskwargs = objectUpdate(reskwargs,{limit:2,_querystring:'*',notnull:true});
+            console.log('check singleOption')
+            var singleOption = genro.serverCall(objectPop(reskwargs,'method'),reskwargs);
+            if(singleOption._value.len()==1){
+                currvalue = singleOption._value.getAttr('#0')[this.store._identifier];
+            }
+        }
         if(!isNullOrBlank(currvalue)){
+            this.clearCache();
             this.setValue(null,true);
             this.setValue(currvalue,true);
-        }
+        } 
+
         //this.sourceNode.setRelativeData(vpath,currvalue);
     },
     

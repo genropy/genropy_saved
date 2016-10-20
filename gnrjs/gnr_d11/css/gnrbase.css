@@ -3312,7 +3312,7 @@ body *{
 }
 
 .dijitError.dijitFocused{
-    background: none;
+    background-image: none;
 }
 .dijitError.th_linkerField{
 	background: transparent url(icons/base12/invalid.png) no-repeat right center !important;

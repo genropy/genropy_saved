@@ -250,6 +250,7 @@ class GnrWsgiSite(object):
         self.wsgiapp = self.build_wsgiapp(options=options)
         self.db = self.gnrapp.db
         self.dbstores = self.db.dbstores
+        self.connectionLogEnabled = self.db.package('adm') and boolean(self.config['options?connectionLog'])
         self.resource_loader = ResourceLoader(self)
         self.page_factory_lock = RLock()
         self.webtools = self.resource_loader.find_webtools()
@@ -284,6 +285,7 @@ class GnrWsgiSite(object):
     def register(self):
         if not self._register:
             self._register = SiteRegisterClient(self)
+            self.checkPendingConnection()
         return self._register
 
     def getSubscribedTables(self,tables):
@@ -414,7 +416,8 @@ class GnrWsgiSite(object):
             self.initializePackages()
         else:
             pass
-            
+
+
     def on_reloader_restart(self):
         """TODO"""
         pass
@@ -675,7 +678,9 @@ class GnrWsgiSite(object):
         self.external_host = self.config['wsgi?external_host'] or request.host_url
         # Url parsing start
         path_list = self.get_path_list(request.path_info)
-        self.register.cleanup()
+        expiredConnections = self.register.cleanup()
+        if expiredConnections:
+            self.connectionLog('close',expiredConnections)
         if path_list == ['favicon.ico']:
             path_list = ['_site', 'favicon.ico']
             self.log_print('', code='FAVICON')
@@ -1002,7 +1007,7 @@ class GnrWsgiSite(object):
             else:
                 restorepath = None
         if self.remote_db:
-            instance_path = '%s:%s' %(instance_path,self.remote_db)
+            instance_path = '%s@%s' %(instance_path,self.remote_db)
         app = GnrWsgiWebApp(instance_path, site=self,restorepath=restorepath)
         self.config.setItem('instances.app', app, path=instance_path)
         for f in restorefiles:
@@ -1023,20 +1028,26 @@ class GnrWsgiSite(object):
        #     if hasattr(pkg,'onAuthenticated'):
        #         pkg.onAuthenticated(avatar)
        # 
+
+    def checkPendingConnection(self):
+        if self.connectionLogEnabled:
+            self.db.table('adm.connection').dropExpiredConnections()
+
     def pageLog(self, event, page_id=None):
         """TODO
         
         :param event: TODO
         :param page_id: the 22 characters page id"""
-        if False and 'adm' in self.db.packages:
+        if self.connectionLogEnabled:
             self.db.table('adm.served_page').pageLog(event, page_id=page_id)
-            
+
+
     def connectionLog(self, event, connection_id=None):
         """TODO
         
         :param event: TODO
         :param connection_id: TODO"""
-        if False and 'adm' in self.db.packages:
+        if self.connectionLogEnabled:
             self.db.table('adm.connection').connectionLog(event, connection_id=connection_id)
             
     def setPreference(self, path, data, pkg=''):
@@ -1140,6 +1151,7 @@ class GnrWsgiSite(object):
         
         :param page: the :ref:`webpage` being closed"""
         page_id = page.page_id
+        
         self.pageLog('close', page_id=page_id)
         self.clearRecordLocks(page_id=page_id)
         page._closed = True
@@ -1189,6 +1201,7 @@ class GnrWsgiSite(object):
             site_url = self.config['wsgi?external_host'] or (self.currentRequest and self.currentRequest.host_url)
             if site_url:
                 return dict(interval=60,site_url=site_url)
+
         
     def callTableScript(self, page=None, table=None, respath=None, class_name=None, runKwargs=None, **kwargs):
         """Call a script from a table's resources (e.g: ``_resources/tables/<table>/<respath>``).

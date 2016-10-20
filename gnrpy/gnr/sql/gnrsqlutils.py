@@ -120,6 +120,7 @@ class SqlModelChecker(object):
     
     def __init__(self, db):
         self.db = db
+        self.unaccent = False
         
     def checkDb(self):
         """Return a list of instructions for the database building"""
@@ -149,6 +150,14 @@ class SqlModelChecker(object):
         for pkg in self.db.packages.values():
             #print '----------checking %s----------'%pkg.name
             self._checkPackage(pkg)
+        enabled_unaccent = False if create_db else 'unaccent' in self.db.adapter.listElements('enabled_extensions')
+        unaccent_statement = None
+        if self.unaccent and not enabled_unaccent:
+            unaccent_statement = self.db.adapter.createExtensionSql('unaccent')
+        elif enabled_unaccent and not self.unaccent:
+            unaccent_statement =  self.db.adapter.dropExtensionSql('unaccent')
+        if unaccent_statement:
+            self.changes.append(unaccent_statement)
         self._checkAllRelations()
         return [x for x in self.changes if x]
 
@@ -156,9 +165,13 @@ class SqlModelChecker(object):
         try:
             extensions = self.db.application.config['db?extensions']
             if extensions:
-                self.db.adapter.createExtension(extensions)
+                commit = self.db.adapter.createExtension(extensions)
+                if commit:
+                    self.db.commit()
         except Exception,e:
             print 'Error in adding extensions',e
+        
+
         
     def _checkPackage(self, pkg):
         """Check if the current package is contained by a not defined schema and then call the
@@ -215,6 +228,8 @@ class SqlModelChecker(object):
                 if col.sqlname in dbcolumns:
                     #it there's the column it should check if has been edited.
                     new_dtype = col.attributes['dtype']
+                    if col.attributes.get('unaccent'):
+                        self.unaccent = True
                     new_size = col.attributes.get('size')
                     new_unique = col.attributes.get('unique')
                     old_dtype = dbcolumns[col.sqlname]['dtype']
@@ -449,6 +464,8 @@ class SqlModelChecker(object):
         
         sqlfields = []
         for col in tbl.columns.values():
+            if col.attributes.get('unaccent'):
+                self.unaccent = True
             sqlfields.append(self._sqlColumn(col))
         return 'CREATE TABLE %s (%s);' % (tablename, ', '.join(sqlfields))
         

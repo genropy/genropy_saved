@@ -547,7 +547,11 @@ class SqlTable(GnrObject):
             return [r['pkey'] for r in q.fetch()]
         else:
             return [l[0]['pkey'] for l in q.fetchGrouped('_duplicate_finder').values()]
-       
+
+
+    def opTranslate(self,column,op,value,dtype=None,sqlArgs=None):
+        translator = self.db.adapter.getWhereTranslator()
+        return translator.prepareCondition(column, op, value, dtype, sqlArgs,tblobj=self)
 
     def tableCachedData(self,topic,cb,**kwargs):
         currentPage = self.db.currentPage
@@ -1069,6 +1073,12 @@ class SqlTable(GnrObject):
             self.delete(r)
             # if not self.trigger_onDeleting:
             #  sql delete where
+
+
+    @property
+    def dbevents(self):
+        return self.db.dbevents[self.fullname]
+
 
     def notifyDbUpdate(self,record):
         self.db.notifyDbUpdate(self,record)
@@ -1621,7 +1631,7 @@ class SqlTable(GnrObject):
             mask = ' - '.join(['%s' for k in fields])
         return fields, mask
 
-    def newRecordCaption(self,record):
+    def newRecordCaption(self,record=None):
         return self.newrecord_caption
         
     def recordCaption(self, record, newrecord=False, rowcaption=None):

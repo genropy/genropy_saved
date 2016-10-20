@@ -469,13 +469,31 @@ class SqlDbAdapter(object):
         "override this"
         pass
 
+    def dropExtensionSql(self,extension):
+        "override this"
+        pass
+
+    def dropExtension(self, extensions):
+        """Disable a specific db extension"""
+        extensions = extensions.split(',')
+        enabled = self.listElements('enabled_extensions')
+        commit = False
+        for extension in extensions:
+            if extension in enabled:
+                self.dbroot.execute(self.dropExtensionSql(extension))
+                commit = True
+        return commit
+
     def createExtension(self, extensions):
         """Enable a specific db extension"""
         extensions = extensions.split(',')
         enabled = self.listElements('enabled_extensions')
+        commit = False
         for extension in extensions:
             if not extension in enabled:
                 self.dbroot.execute(self.createExtensionSql(extension))
+                commit = True
+        return commit
 
     def createSchemaSql(self, sqlschema):
         """Returns the sql command to create a new database schema"""
@@ -719,6 +737,8 @@ class GnrWhereTranslator(object):
         return result
 
     def prepareCondition(self, column, op, value, dtype, sqlArgs,tblobj=None):
+        if not dtype:
+            dtype = tblobj.column(column).dtype
         if not column[0] in '@$':
             column = '$%s' % column
         if dtype in('D', 'DH','DHZ'):
@@ -792,46 +812,40 @@ class GnrWhereTranslator(object):
 
     def op_startswithchars(self, column, value, dtype, sqlArgs,tblobj):
         "!!Starts with Chars"
-        return '%s LIKE :%s' % (column, self.storeArgs('%s%%' % value, dtype, sqlArgs))
+        return self.unaccentTpl(tblobj,column,'LIKE')  % (column, self.storeArgs('%s%%' % value, dtype, sqlArgs))
 
     def op_equal(self, column, value, dtype, sqlArgs,tblobj):
         "!!Equal to"
-        return '%s = :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
+        return self.unaccentTpl(tblobj,column,'=')  % (column, self.storeArgs(value, dtype, sqlArgs))
 
     def op_startswith(self, column, value, dtype, sqlArgs,tblobj):
         "!!Starts with"
-        return '%s ILIKE :%s' % (column, self.storeArgs('%s%%' % value, dtype, sqlArgs))
+        return self.unaccentTpl(tblobj,column,'ILIKE')  % (column, self.storeArgs('%s%%' % value, dtype, sqlArgs))
 
     def op_wordstart(self, column, value, dtype, sqlArgs,tblobj):
         "!!Word start"
         value = value.replace('(', '\(').replace(')', '\)').replace('[', '\[').replace(']', '\]')
-        return '%s ~* :%s' % (column, self.storeArgs('(^|\\W)%s' % value, dtype, sqlArgs))
+        return self.unaccentTpl(tblobj,column,'~*')  % (column, self.storeArgs('(^|\\W)%s' % value, dtype, sqlArgs))
 
     def op_contains(self, column, value, dtype, sqlArgs,tblobj):
         "!!Contains"
-        return '%s ILIKE :%s' % (column, self.storeArgs('%%%s%%' % value, dtype, sqlArgs))
-
-    def op_similar(self, column, value, dtype, sqlArgs,tblobj):
-        "!!Similar"
-        phonetic_column =  tblobj.column(column).attributes['phonetic']
-        phonetic_mode = tblobj.column(column).table.column(phonetic_column).attributes['phonetic_mode']
-        return '%s = %s(:%s)' % (phonetic_column, phonetic_mode, self.storeArgs(value, dtype, sqlArgs))
+        return self.unaccentTpl(tblobj,column,'ILIKE') % (column, self.storeArgs('%%%s%%' % value, dtype, sqlArgs))
 
     def op_greater(self, column, value, dtype, sqlArgs,tblobj):
         "!!Greater than"
-        return '%s > :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
+        return self.unaccentTpl(tblobj,column,'>')  % (column, self.storeArgs(value, dtype, sqlArgs))
 
     def op_greatereq(self, column, value, dtype, sqlArgs,tblobj):
         "!!Greater or equal to"
-        return '%s >= :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
+        return self.unaccentTpl(tblobj,column,'>=')  % (column, self.storeArgs(value, dtype, sqlArgs))
 
     def op_less(self, column, value, dtype, sqlArgs,tblobj):
         "!!Less than"
-        return '%s < :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
+        return self.unaccentTpl(tblobj,column,'<')  % (column, self.storeArgs(value, dtype, sqlArgs))
 
     def op_lesseq(self, column, value, dtype, sqlArgs,tblobj):
         "!!Less or equal to"
-        return '%s <= :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
+        return self.unaccentTpl(tblobj,column,'<=')  % (column, self.storeArgs(value, dtype, sqlArgs))
 
     def op_between(self, column, value, dtype, sqlArgs,tblobj):
         "!!Between"
@@ -875,6 +889,8 @@ class GnrWhereTranslator(object):
    #    whereList = re.compile(pattern).split(whereTxt)
    #    condList = [cond for cond in whereList if cond not in ('AND', 'OR')]
 
+    def unaccentTpl(self,tblobj,column,token):
+        return ' '.join(['%s',token,':%s'])
 
     def whereFromDict(self, table, whereDict, customColumns=None):
         result = []

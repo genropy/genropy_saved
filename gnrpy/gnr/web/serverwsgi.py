@@ -115,6 +115,7 @@ class GnrReloaderMonitor(Monitor):
                 return False
         return True
 
+
     def add_reloader_callback(self, cls, callback):
         """Add a callback -- a function that takes no parameters -- that will
         return a list of filenames to watch for changes."""
@@ -401,6 +402,8 @@ class Server(object):
             self.site_path = os.path.dirname(os.path.realpath(site_script))
         self.init_options()
 
+    def isVerbose(self, level=0):
+        return self.options.verbose and self.options.verbose>level
 
     def site_name_to_path(self, site_name):
         path_list = []
@@ -596,7 +599,7 @@ class Server(object):
         if not (
         self.options.reload == 'false' or self.options.reload == 'False' or self.options.reload == False or self.options.reload == None):
             if os.environ.get(self._reloader_environ_key):
-                if self.options.verbose > 1:
+                if self.isVerbose(1):
                     print 'Running reloading file monitor'
                 gnr_reloader_install(int(self.options.reload_interval))
                 menu_path = os.path.join(self.site_path, 'menu.xml')
@@ -623,7 +626,7 @@ class Server(object):
             try:
                 self.daemonize()
             except DaemonizeException, ex:
-                if self.options.verbose > 0:
+                if self.isVerbose():
                     print str(ex)
                 return
 
@@ -633,7 +636,7 @@ class Server(object):
 
         self.set_pid_and_log()
 
-        if self.options.verbose > 0:
+        if self.isVerbose():
             if hasattr(os, 'getpid'):
                 msg = 'Starting server in PID %i.' % os.getpid()
             else:
@@ -670,7 +673,7 @@ class Server(object):
             else:
                 httpserver.serve(gnrServer, host=self.options.host, port=self.options.port)
         except (SystemExit, KeyboardInterrupt), e:
-            if self.options.verbose > 1:
+            if self.isVerbose(1):
                 raise
             if str(e):
                 msg = ' ' + str(e)
@@ -685,7 +688,7 @@ class Server(object):
             raise DaemonizeException(
                     "Daemon is already running (PID: %s from PID file %s)"
                     % (pid, self.options.pid_file))
-        if self.options.verbose > 0:
+        if self.isVerbose():
             print 'Entering daemon mode'
         pid = os.fork()
         if pid:
@@ -723,7 +726,7 @@ class Server(object):
 
     def record_pid(self, pid_file):
         pid = os.getpid()
-        if self.options.verbose > 1:
+        if self.isVerbose(1):
             print 'Writing PID %s to %s' % (pid, pid_file)
         f = open(pid_file, 'w')
         f.write(str(pid))
@@ -784,7 +787,7 @@ class Server(object):
         self.restart_with_monitor(reloader=True)
 
     def restart_with_monitor(self, reloader=False):
-        if self.options.verbose > 0:
+        if self.isVerbose():
             if reloader:
                 print 'Starting subprocess with file monitor'
             else:
@@ -807,7 +810,7 @@ class Server(object):
                     proc = None
                 except KeyboardInterrupt:
                     print '^C caught in monitor process'
-                    if self.options.verbose > 1:
+                    if self.isVerbose(1):
                         raise
                     return 1
             finally:
@@ -829,7 +832,7 @@ class Server(object):
             # a monitor, any exit code will restart
                 if exit_code != 3:
                     return exit_code
-            if self.options.verbose > 0:
+            if self.isVerbose():
                 print '-' * 20, 'Restarting', '-' * 20
 
 
@@ -862,7 +865,7 @@ class Server(object):
             if not gid:
                 gid = entry.pw_gid
             uid = entry.pw_uid
-        if self.options.verbose > 0:
+        if self.isVerbose():
             print 'Changing user to %s:%s (%s:%s)' % (
             user, group or '(unknown)', uid, gid)
         if gid:
@@ -934,6 +937,7 @@ def read_pidfile(filename):
         return None
 
 def _remove_pid_file(written_pid, filename, verbosity):
+    verbosity = verbosity or 0
     current_pid = os.getpid()
     if written_pid != current_pid:
     # A forked process must be exiting, not the process that

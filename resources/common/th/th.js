@@ -78,7 +78,7 @@ var th_sections_manager = {
                 dojo.removeClass(viewDomNode,cls);
             }
         });
-        var structToSet,sectionsbag,current,sections_name;
+        var structToSet,sectionsbag,current,sections_name,variable_struct;
         sections.forEach(function(n){
             sections_name = n.label;
             sectionsbag = n.getValue();
@@ -86,15 +86,16 @@ var th_sections_manager = {
                 return;
             }
             current = sectionsbag.getItem('current');
-            if(sectionsbag.getItem('variable_struct')){
+            variable_struct = sectionsbag.getItem('variable_struct');
+            if(variable_struct){
                 structToSet = sectionsbag.getNode('data.'+current).attr.struct;
             }
             current.split(',').forEach(function(curr){
                 dojo.addClass(viewDomNode,'sections_' + sections_name+'_' + curr);
             });
         });
-        if(structToSet){
-            viewNode.setRelativeData('.grid.currViewPath',structToSet);
+        if(variable_struct){
+            viewNode.setRelativeData('.grid.currViewPath',structToSet || '__baseView__');
         }
     },
 

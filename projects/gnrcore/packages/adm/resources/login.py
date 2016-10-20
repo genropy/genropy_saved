@@ -191,6 +191,9 @@ class LoginComponent(BaseComponent):
         data['serverTimeDelta'] = serverTimeDelta
         if hasattr(self,'onUserSelected'):
             self.onUserSelected(avatar,data)
+        for pkgId in self.packages.keys():
+            if hasattr(self,'onUserSelected_%s' %pkgId):
+                getattr(self,'onUserSelected_%s' %pkgId)(avatar,data)
         canBeChanged = self.application.checkResourcePermission(self.pageAuthTags(method='workdate'),avatar.user_tags)
         result['rootenv'] = data
         default_workdate = self.clientDatetime(serverTimeDelta=serverTimeDelta).date()

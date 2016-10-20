@@ -270,18 +270,37 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     closePage:function(){
-        window.close();
-    },
-    onWindowUnload:function(e) {
-        if(genro.external_window_key){
-            genro.mainGenroWindow.genro.publish('closeExternalWindow',{windowKey:genro.external_window_key});
+        if(genro.parentIframeSourceNode){
+            genro.parentIframeSourceNode.domNode.parentNode.removeChild(genro.parentIframeSourceNode.domNode);
+        }else{
+            window.close();
         }
+    },
+
+    notifyPageClosing:function(){
+        dojo.forEach(window.frames,function(f){
+            try{
+                if (f.genro){
+                    f.genro.notifyPageClosing();
+                }
+            }catch(e){
+
+            }
+        });
         this.rpc.remoteCall('onClosePage', {sync:true});
         genro.publish('onClosePage');
         if (genro._data) {
             genro.saveContextCookie();
-        }
+        };
     },
+
+    onWindowUnload:function(e) {
+        if(genro.external_window_key){
+            genro.mainGenroWindow.genro.publish('closeExternalWindow',{windowKey:genro.external_window_key});
+        }
+        this.notifyPageClosing();
+    },
+    
     saveContextCookie:function() {
         var clientCtx = genro.getData('_clientCtx');
         //genro.publish('onCookieSaving');
@@ -707,7 +726,7 @@ dojo.declare('gnr.GenroClient', null, {
         if(this.parentIframeSourceNode){
             return window.parent.genro;
         }
-        if(this.page_id != this.root_page_id){
+        if(this.root_page_id && this.page_id != this.root_page_id){
             //external window
             return this.mainGenroWindow.genro;
         }
@@ -716,11 +735,11 @@ dojo.declare('gnr.GenroClient', null, {
     setDefaultShortcut:function(){
         genro.dev.shortcut('f1', function(e) {
             if(genro.activeForm){
-                genro.activeForm.save();
+                genro.activeForm.publish('shortcut_save');
             }
         });
         genro.dev.shortcut('f3', function(e) {
-            genro.publish('PRINTRECORD', e);
+            genro.publish('shortcut_print', e);
         });
     },
 
@@ -866,16 +885,33 @@ dojo.declare('gnr.GenroClient', null, {
         }
     },
 
+    hasPendingChanges:function(){
+        return (this.activeForm && this.activeForm.changed)|| this.childrenHasPendingChanges();
+    },
+
+    childrenHasPendingChanges:function(){
+        var f;
+        for (var i=0;i<window.frames.length; i++){
+            f = window.frames[i];
+            try{
+                if (f.genro && f.genro.hasPendingChanges()){
+                    return true;
+                }
+            }catch(e){
+
+            }
+        }
+        return false;
+    },
+
 
     checkBeforeUnload:function(){
         var parentGenro = this.getParentGenro();
         if (parentGenro && parentGenro._windowClosing){
             return
         }
-        if(genro.activeForm){
-            if(genro.activeForm.changed){
-                return _T('You have an active form with pending changes')
-            }
+        if(genro.hasPendingChanges()){
+            return _T('You have an active form with pending changes')
         }
 
     },

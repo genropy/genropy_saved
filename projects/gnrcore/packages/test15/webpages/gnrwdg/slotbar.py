@@ -8,6 +8,7 @@
 
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrdecorator import public_method
 
 class GnrCustomWebPage(object):
     testOnly = '_0_'
@@ -158,11 +159,14 @@ class GnrCustomWebPage(object):
     def test_13_multibuttonForm(self,pane):
         bc = pane.borderContainer(height='500px')
         fb = bc.contentPane(region='top').formbuilder(cols=1,border_spacing='3px')
+        fb.button('Remoto',action='genro.dlg.remoteDialog("pr_multi","multibuttonRegione");')
         fb.dbselect(value='^aux.regione',dbtable='glbl.regione',lbl='Regione')
-        bc.contentPane(region='center').multiButtonForm(table='glbl.provincia',
-                                                                        condition='$regione=:reg',
-                                                                        condition_reg='^aux.regione',
-                                                                        formResource='Form')
+
+    @public_method
+    def multibuttonRegione(self,pane,**kwargs):
+        bc = pane.borderContainer(height='300px',width='400px',datapath='pippo') #.div('bao')
+        bc.contentPane(region='center').multiButtonForm(table='glbl.provincia',condition='$regione=:reg',
+                                condition_reg='^aux.regione',condition__onBuilt=True,formResource='Form')
 
    #def test_14_multibuttonForm(self,pane):
    #    pane.multiButtonForm(table='glbl.provincia',condition='$regione=:reg',reg='MOL',switch='zona',

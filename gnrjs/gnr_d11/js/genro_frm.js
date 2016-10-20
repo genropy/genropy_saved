@@ -62,7 +62,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }else{
             this.formParentNode = this.sourceNode.getParentNode();
         }
-        this.subscribe('save,reload,load,goToRecord,abort,loaded,setLocked,navigationEvent,newrecord,pendingChangesAnswer,dismiss,deleteItem,deleteConfirmAnswer,message');
+        this.subscribe('save,reload,load,goToRecord,abort,loaded,setLocked,navigationEvent,newrecord,pendingChangesAnswer,dismiss,deleteItem,deleteConfirmAnswer,message,shortcut_save');
         this._register = {};
         this._status_list = ['ok','error','changed','readOnly','noItem'];
         //this.store=new.....
@@ -126,6 +126,15 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
 
+    shortcut_save:function(kw){
+        if(this.isDisabled()){
+            this.publish('message',{message:_T('Cannot save. Blocked Form'),sound:'$error',messageType:'warning'});
+            return;
+        }
+        kw = kw || {};
+        console.log('aaa',kw)
+        this.save(kw.forced);
+    },
     lazySave:function(savedCb){
         savedCb = savedCb?funcCreate(savedCb,{},this):false;
         if(this.canBeSaved()){
@@ -222,9 +231,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     publish: function(command,kw,topic_kw){
-        var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent}; //iframe:'*' removed (useless?) it gives problem with multipage
+        var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent} // re add iframe:'*', (it gives problem with multipage?)
+        objectUpdate(topic,topic_kw)
         genro.publish(topic,kw);
     },
+
 
     message:function(kw){
         if (!(kw instanceof Array)){
@@ -297,7 +308,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.locked = value;
         this.applyDisabledStatus();
         this.setControllerData('locked',value);
-        this.publish('onLockChange',{'locked':this.locked});
+        this.publish('onLockChange',{'locked':this.locked},{iframe:'*'});
     },
     registerChild:function(sourceNode){
         var ltag = sourceNode.attr.tag.toLowerCase();
@@ -975,6 +986,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var always;
         if (typeof(kw)=='object'){
             always=kw.command;
+            if(kw.modifiers=='Shift'){
+                always = true;
+            }
         }else{
             always = kw;
             kw = {};
@@ -1002,6 +1016,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     do_save:function(kw){
+        if(this.isDisabled()){
+            this.publish('message',{message:_T('Cannot save. Blocked Form'),sound:'$error',messageType:'warning'});
+        }
         var destPkey = kw.destPkey;
         this.setOpStatus('saving');
         this.fireControllerData('saving');

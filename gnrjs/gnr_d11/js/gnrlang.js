@@ -454,8 +454,39 @@ function objectKeyByIdx(obj, idx) {
     }
 }
 function isEqual(a,b){
-    return (a==b)||((a+'')==(b+''));
+    if(a instanceof gnr.GnrBag && b instanceof gnr.GnrBag){
+        return a.isEqual(b);
+    }
+    if(a instanceof Array && b instanceof Array){
+        return a.length == b.length && !a.some(function(elem,idx){return !isEqual(elem,b[idx])});
+    }
+    var a = a instanceof Date ? a.valueOf() : a;
+    var b = b instanceof Date ? b.valueOf() : b;
+    return objectIsEqual(a,b);
 };
+
+function objectIsEqual(obj1, obj2) {
+    if (obj1 == obj2) {
+        return true;
+    } else {
+        if ((obj1 instanceof Object) && (obj2 instanceof Object)) {
+            for (a in obj1) {
+                if (!(obj2[a] === obj1[a])) {
+                    return false;
+                }
+            }
+            for (a in obj2) {
+                if (!(obj2[a] === obj1[a])) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
 function isNullOrBlank(elem){
     return elem === null || elem===undefined || elem === '';
 }
@@ -617,30 +648,6 @@ function objectIsContained(obj1, obj2) {
         }
     }
     return true;
-}
-
-function objectIsEqual(obj1, obj2) {
-    if (obj1 == obj2) {
-        return true;
-    } else {
-        if ((obj1 instanceof Object) && (obj2 instanceof Object)) {
-            for (a in obj1) {
-                if (!(obj2[a] === obj1[a])) {
-                    return false;
-                }
-            }
-            for (a in obj2) {
-                if (!(obj2[a] === obj1[a])) {
-                    return false;
-                }
-            }
-            return true;
-        } else {
-            return false;
-        }
-
-    }
-
 }
 
 function objectRemoveNulls(obj, blackList) {

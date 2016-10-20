@@ -229,6 +229,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         objectExtract(attributes, 'subscribe_*');
         var tag = objectPop(attributes, 'tag').toLowerCase();
         var path = objectPop(attributes, 'path');
+        if(path=='dummy'){
+            path = null;
+        }
         objectPop(attributes, '_onStart');
         objectPop(attributes, '_onBuilt');
         objectPop(attributes, '_fired_onStart');
@@ -446,7 +449,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         //if (forceChanges){
         //    genro._data.setItem(path,v,null,{'doTrigger':false});
         //}
-        if (old_value != value || (forceChanges && value != null)) {
+        if (!isEqual(value,old_value) || (forceChanges && value != null)) {
             genro._data.setItem(path, value, attributes, {'doTrigger':doTrigger});
         }
     },
