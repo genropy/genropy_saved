@@ -162,11 +162,32 @@ class GnrCustomWebPage(object):
         fb.button('Remoto',action='genro.dlg.remoteDialog("pr_multi","multibuttonRegione");')
         fb.dbselect(value='^aux.regione',dbtable='glbl.regione',lbl='Regione')
 
+
+
+    def test_14_slotToolbar_multibutton_store(self,pane):
+        frame = pane.framePane(frameCode='frameMultibuttonStore',height='400px')
+        bar = frame.top.slotToolbar(slots='10,selettore_regione,*,mb_0,5,mb,5,mb_1,10')
+        bar.selettore_regione.dbselect(value='^.regione',dbtable='glbl.regione')
+        mb_0 = bar.mb_0.multibutton(value='^.curval',caption='nome',mandatory=False)
+        mb_0.item('Pippo',sticky=True)
+        #mb_0.item('Pluto',sticky=True)
+
+        mb = bar.mb.multibutton(value='^.curval',caption='nome',mandatory=False)
+        mb.store(table='glbl.provincia',where='$regione=:reg',reg='^.regione')
+
+
+        mb_1 = bar.mb_1.multibutton(value='^.curval',caption='nome',hidden='^.regione?=#v!="LAZ"',mandatory=False)
+        mb_1.item('Paperino',sticky=True)
+        #mb_1.item('Pancrazio',sticky=True)
+
+
     @public_method
     def multibuttonRegione(self,pane,**kwargs):
         bc = pane.borderContainer(height='300px',width='400px',datapath='pippo') #.div('bao')
         bc.contentPane(region='center').multiButtonForm(table='glbl.provincia',condition='$regione=:reg',
                                 condition_reg='^aux.regione',condition__onBuilt=True,formResource='Form')
+
+
 
    #def test_14_multibuttonForm(self,pane):
    #    pane.multiButtonForm(table='glbl.provincia',condition='$regione=:reg',reg='MOL',switch='zona',

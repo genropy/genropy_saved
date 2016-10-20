@@ -758,7 +758,8 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             kwargs['loadingParameters'] = loadingParameters;
         };
         resolver.onloaded = function(){
-            genro.publish('resolverOneLoaded_'+this.attr._from_fld.replace(/\./g, '_'),{path:this.getFullpath(),node:this});
+            var f = this.attr._from_fld || this.attr._target_fld || table;
+            genro.publish('resolverOneLoaded_'+f.replace(/\./g, '_'),{path:this.getFullpath(),node:this});
         }
         var _related_field = params._target_fld.split('.')[2];
 
