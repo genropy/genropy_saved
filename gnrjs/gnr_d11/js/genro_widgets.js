@@ -1262,6 +1262,8 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
         }else{
             fc.style.min_width = innercoords.w+'px';
             fc.style.min_height = innercoords.h+'px';
+
+        }  
     },
 
     mixin_adjustDialogSize:function(parentDialog){
@@ -4960,6 +4962,3 @@ dojo.declare("gnr.widgets.fileUploader", gnr.widgets.baseDojo, {
         }
     }
 });
-    
-    
-
