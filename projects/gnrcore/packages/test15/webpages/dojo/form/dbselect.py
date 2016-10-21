@@ -103,3 +103,8 @@ class GnrCustomWebPage(object):
                     switch_me_value="=gnr.avatar.user_id",
                     hasDownArrow=True)
 
+    def test_5_single_condition(self,pane):
+        fb = pane.formbuilder(cols=1, border_spacing='4px')
+        fb.dbSelect(value='^.regione',dbtable='glbl.regione',lbl='Regione')
+        fb.dbSelect(value='^.provincia',dbtable='glbl.provincia',condition='$regione=:r',
+                    condition_r='^.regione',lbl='Provincia',hasDownArrow=True,validate_notnull=True)
