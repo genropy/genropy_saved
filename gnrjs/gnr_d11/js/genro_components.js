@@ -3540,8 +3540,10 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             var mb = this.multibuttonSource;
             if (value && mb){
                 value = value.split(',');
+                var identifier = this.identifier;
                 mb.forEach(function(n){
-                    genro.dom.setClass(n,'multibutton_selected',value.indexOf(n.label)>=0);
+                    var code = n.attr[identifier] || n.attr['code'] || n.label;
+                    genro.dom.setClass(n,'multibutton_selected',value.indexOf(code)>=0);
                 });
             } 
         }
@@ -3601,8 +3603,10 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             },'static');
             if(!currentSelected && this.mandatory && this.multibuttonSource.len()){
                 var currentSelectedNode = this.multibuttonSource.getNode('#0');
-                currentSelectedNode.attr['_class'] +=' multibutton_selected';
-                currentSelected = currentSelectedNode.attr[this.identifier] || currentSelectedNode.attr['code'] || currentSelectedNode.label;
+                if(currentSelectedNode && !currentSelectedNode.attr.action){
+                    currentSelectedNode.attr['_class'] +=' multibutton_selected';
+                    currentSelected = currentSelectedNode.attr[this.identifier] || currentSelectedNode.attr['code'] || currentSelectedNode.label;
+                }
             }
             sourceNode.setRelativeData(sourceNode.attr.value,currentSelected);
 
@@ -3633,7 +3637,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         kw._class = (kw._class || '') +' '+btn_class;
         content_kw.innerHTML = _F(caption,this.caption_format,this.caption_dtype);
         content_kw._class = (content_kw._class || '') + ' '+'multibutton_caption';
-        var btn = mb._('lightbutton',code,kw)
+        var btn = mb._('lightbutton',kw);
         btn._('div',content_kw);
         if(deleteAction){
             btn._('div',{_class:'multibutton_closer framecloserIcon'+(this.deleteSelectedOnly?' deleteSelectedOnly':''),

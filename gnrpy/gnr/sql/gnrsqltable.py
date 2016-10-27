@@ -408,6 +408,11 @@ class SqlTable(GnrObject):
     def counterColumns(self):
         return
 
+    @property
+    def tableBranches(self):
+        return [k[7:] for k in dir(self) if k.startswith('branch_') and not k[-1]=='_']
+
+
     def recordCoerceTypes(self, record, null='NULL'):
         """Check and coerce types in record.
         
@@ -1431,7 +1436,8 @@ class SqlTable(GnrObject):
             lastid = self.query(columns='max($%s)' % pkey, group_by='*').fetch()[0]
             return (lastid[0] or 0) + 1
         elif self.attributes.get('pkey_columns'):
-            return '_'.join([str(record.get(col)) for col in self.attributes.get('pkey_columns').split(',') if record.get(col) is not None])
+            joiner = self.attributes.get('pkey_columns_joiner') or '_'
+            return joiner.join([str(record.get(col)) for col in self.attributes.get('pkey_columns').split(',') if record.get(col) is not None])
         else:
             return getUuid()
             
@@ -1613,6 +1619,7 @@ class SqlTable(GnrObject):
                 #FIX 
             result.append(col)
         return result
+
         
     def getQueryFields(self, columns=None, captioncolumns=None):
         """TODO

@@ -55,6 +55,7 @@ class TableHandlerView(BaseComponent):
                        unlinkdict=None,searchOn=True,count=None,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,
                        store_kwargs=None,parentForm=None,liveUpdate=None,**kwargs):
         extendedQuery = virtualStore and extendedQuery
+        options = self._th_hook('options',mangler=pane)() or dict()
         condition_kwargs = condition_kwargs
         if condition:
             condition_kwargs['condition'] = condition
@@ -112,7 +113,7 @@ class TableHandlerView(BaseComponent):
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title,
                         liveUpdate=liveUpdate,store_kwargs=store_kwargs)
-        self._th_view_contextMenu(frame.grid)
+        self._th_view_contextMenu(frame.grid,options=options)
         if virtualStore:    
             self._extTableRecords(frame)
         frame.dataController("""if(!firedkw.res_type){return;}
@@ -142,7 +143,7 @@ class TableHandlerView(BaseComponent):
                 """,modifiers='Ctrl',validclass='dojoxGrid-cell,cellContent')
         return frame
 
-    def _th_view_contextMenu(self,grid):
+    def _th_view_contextMenu(self,grid,options=None):
         b = Bag()
         b.rowchild(label='!!Reload',action="$2.widget.reload();")
         b.rowchild(label='-')
@@ -152,7 +153,8 @@ class TableHandlerView(BaseComponent):
         b.rowchild(label='!!Totals count',action='SET .#parent.tableRecordCount= !GET .#parent.tableRecordCount;',
                             checked='^.#parent.tableRecordCount')
         b.rowchild(label='-')
-        b.rowchild(label='!!Configure Table',action='genro.dev.fieldsTreeConfigurator($2.attr.table)')
+        b.rowchild(label='!!Configure Table',
+                    action='genro.dev.fieldsTreeConfigurator($2.attr.table,$1.branch);',branch=options.get('branch'))
         b.rowchild(childname='configure',label='!!Configure View',action="""$2.widget.configureStructure();""")
         grid.data('.contextMenu',b)
 
@@ -166,7 +168,9 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_viewConfigurator(self,pane,table,th_root,configurable=None):
+        options = self._th_hook('options',mangler=pane)() or dict()
         bar = pane.slotBar('confBar,fieldsTree,*',width='160px',closable='close',fieldsTree_table=table,
+                            fieldsTree_branch=options.get('branch'),
                             fieldsTree_height='100%',splitter=True,border_left='1px solid silver')
         confBar = bar.confBar.slotToolbar('viewsMenu,currviewCaption,*,defView,saveView,deleteView',background='whitesmoke')
         confBar.currviewCaption.div('^.grid.currViewAttrs.caption',font_size='.9em',color='#666',line_height='16px')
@@ -752,7 +756,10 @@ class TableHandlerView(BaseComponent):
                    qm.setFavoriteQuery();
         """,_onStart=True,th_root=th_root)   
         fmenupath = 'gnr.qb.%s.fieldsmenu' %tablecode
-        pane.dataRemote(fmenupath,self.getFieldsMenu,table=table,omit='_*')
+        options = self._th_hook('options',mangler=pane)() or dict()
+        pane.dataRemote(fmenupath,self.relationExplorer,item_type='QTREE',
+                        branch=options.get('branch'),
+                        table=table,omit='_*')
         pane.data('gnr.qb.sqlop',self.getSqlOperators())   
         pane.dataController("""var th=TH(th_root).querymanager.onQueryCalling(querybag,selectmethod);
                               """,th_root=th_root,_fired="^.runQuery",
@@ -808,15 +815,6 @@ class TableHandlerView(BaseComponent):
                         tooltip='==_internalQueryTooltip || _internalQueryCaption || _caption',
                                     _internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip',
                                     hidden='^.#parent.queryAttributes.extended?=!#v',min_width='20em')
-
-    @public_method
-    def getFieldsMenu(self,table=None,omit='_*'):
-        qtree_records = self.db.table('adm.tblinfo_item').query(where='$tbl=:t AND $item_type=:it',bagFields=True,
-                                                                t=table,it='QTREE').fetch()
-        if qtree_records:
-            return Bag(qtree_records[0]['data'])['root']
-        return self.relationExplorer(table,omit=omit)
-
 
         
     def _th_viewController(self,pane,table=None,th_root=None,default_totalRowCount=None):

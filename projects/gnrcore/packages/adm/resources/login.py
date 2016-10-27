@@ -166,6 +166,7 @@ class LoginComponent(BaseComponent):
             return dict(error=login['error'])
         rootenv['user'] = self.avatar.user
         rootenv['user_id'] = self.avatar.user_id
+        rootenv['user_group_code'] = self.avatar.group_code
         rootenv['workdate'] = rootenv['workdate'] or self.workdate
         rootenv['login_date'] = date.today()
         rootenv['language'] = rootenv['language'] or self.language

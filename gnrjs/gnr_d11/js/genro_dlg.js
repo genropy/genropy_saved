@@ -196,11 +196,18 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var dlgNode = genro.nodeById(dialogId);
         if(!dlgNode){
             var root = genro.src.getNode()._('div', '_dlg_iframe');
-            var dlg = root._('dialog',{title:kw.title,closable:kw.closable,nodeId:dialogId});
+            var parentRatio = objectPop(kw,'parentRatio');
+            var windowRatio = objectPop(kw,'windowRatio')
+            var dlg = root._('dialog',{title:kw.title,closable:kw.closable,nodeId:dialogId,parentRatio:parentRatio,windowRatio:windowRatio});
             var iframekw = {src:kw.src,border:0,height:'100%',width:'100%',nodeId:iframeId};
             iframekw.selfsubscribe_close = "this.dialog.hide();";
             objectUpdate(iframekw,objectExtract(kw,'selfsubscribe_*',true,true));
-            var iframe = dlg._('div',{height:kw.height,width:kw.width,overflow:'hidden'})._('iframe','iframe',iframekw);
+            if(!(parentRatio || windowRatio)){
+                var iframe = dlg._('div',{height:kw.height,width:kw.width,overflow:'hidden'})._('iframe','iframe',iframekw);
+            }else{
+                var iframe = dlg._('borderContainer')._('ContentPane',{'region':'center',overflow:'hidden'})._('iframe','iframe',iframekw);
+            }
+            
             dlgNode = dlg.getParentNode();
             dlgNode._iframeNode = iframe.getParentNode();
             dlgNode._iframeNode.dialog = dlgNode.widget;

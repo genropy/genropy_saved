@@ -20,8 +20,11 @@ class GnrCustomWebPage(object):
     def th_form(self,form,**kwargs):
         bc = form.center.borderContainer()
         self.loginData(bc.roundedGroup(title='Login',region='top',datapath='.record',height='200px'))
-        self.userAuth(bc.contentPane(region='center'))
-    
+        center = bc.tabContainer(region='center',margin='2px')
+
+        self.userAuth(center.contentPane(title='Auth'))
+        self.qtreeConf(center.contentPane(title='Quick tree conf'))
+
     
     def loginData(self,pane):
         fb = pane.div(margin_right='10px').formbuilder(cols=2, border_spacing='4px',colswidth='12em')
@@ -48,7 +51,27 @@ class GnrCustomWebPage(object):
                             picker_condition='$child_count=0',
                             picker_viewResource=True)
 
-        
+
+    def qtreeConf(self,pane):
+        pane.inlineTableHandler(relation='@custom_info',viewResource='QTreeViewFromUser',
+                            pbl_classes=True,margin='2px',condition='$info_type=:it',condition_it='QTREE')
+ 
+
+    def qtreeConf_zz(self,sc):
+        th_all = sc.contentPane(title='View').inlineTableHandler(table='adm.user_tblinfo',
+                            viewResource='QTreeViewFromUserRO',
+                            nodeId='QTREEEDit',
+                            margin='2px',
+                            condition="""($user_group IS NULL OR $user_group=:gc) AND 
+                                        ($user_id IS NULL OR $user_id=:uid)""",
+                            condition_gc='^#FORM.record.group_code',
+                            condition_uid='^#FORM.record.id',condition_if='uid')
+        th_all.view.top.bar.replaceSlots('vtitle','parentStackButtons')
+        th_edit = sc.contentPane(title='Edit').inlineTableHandler(relation='@custom_info',viewResource='QTreeViewFromUser',
+                            nodeId='QTREEView',datapath='#FORM.qtreeedit',
+                            margin='2px')
+        th_edit.view.top.bar.replaceSlots('vtitle','parentStackButtons')
+
 
     def onSaving(self, recordCluster, recordClusterAttr, resultAttr=None):
         if recordCluster['md5pwd']:

@@ -605,6 +605,9 @@ class MultiButtonForm(BaseComponent):
                 }
                 mb.setRelativeData('.value',pkey=='*newrecord*'?'_newrecord_':pkey);
                 """,pkey='^#FORM.controller.loaded',mb=mb)
+            form.dataController("""
+                mb.setRelativeData('.value',pkey=='*newrecord*'?'_newrecord_':pkey);
+                """,formsubscribe_onCancel=True,mb=mb,pkey='=.pkey')
         store_kwargs['_if'] = store_kwargs.pop('if',None) or store_kwargs.pop('_if',None)
         store_kwargs['_else'] = "this.store.clear();"
         tblobj = self.db.table(table)
@@ -665,7 +668,12 @@ class MultiButtonForm(BaseComponent):
                             """,
                             mainstack=sc,fid=formId,caption_field=caption_field,
                             fkey='=#FORM.record.%s' %fkey,code=frameCode,switch_field=switch,
-                            formsubscribe_onLoaded=True)        
+                            formsubscribe_onLoaded=True)     
+        form.dataController("""
+                mainstack.setRelativeData('.value',fkey);
+                mainstack.setRelativeData('.selectedForm',fid);
+                """,formsubscribe_onCancel=True,mainstack=sc,fid=formId,
+                fkey='=#FORM.record.%s' %fkey)   
 
 class ThLinker(BaseComponent):
     py_requires='gnrcomponents/tpleditor:ChunkEditor'

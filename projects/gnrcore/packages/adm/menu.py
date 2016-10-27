@@ -16,4 +16,6 @@ def config(root,application=None):
     administration.thpage(u"!!Tableinfo", table="adm.tblinfo",tags='_DEV_')
     administration.lookups(u"!!Utility tables", lookup_manager="adm")
     administration.thpage(u"!!Counter", table="adm.counter")
+    administration.webpage(u"!!User configurator", filepath="/adm/user_configuration")
+
 

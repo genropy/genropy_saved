@@ -247,12 +247,17 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
 
 
-    fieldsTreeConfigurator:function(table){
-        var kw = {height:'550px', width:'840px', title:'Fields tree configurator',src:'/sys/tableconf/'+table.replace('.','/'),closable:true};
+    fieldsTreeConfigurator:function(table,branch){
+        var src = '/adm/tableconf/'+table.replace('.','/');
+        if(branch){
+            src+=('/'+branch);
+        }
+        var kw = {windowRatio:.9, title:'Fields tree configurator',
+            src:src,closable:true};
         kw.selfsubscribe_exit = function(kw){
             console.log('refresh remoteResolver albero')
         };
-        genro.dlg.iframeDialog('fieldsTreeConfigurator_'+table.replace('.','_'), kw)
+        genro.dlg.iframeDialog('fieldsTreeConfigurator_'+src.replace(/\//g,'_'), kw)
 
     },
     
@@ -260,7 +265,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var kw = kw || {};
         var path = kw.explorerPath || 'gnr.relation_explorers.' + table;
         var dragCode = objectPop(kw,'dragCode') || 'gnrdbfld_'+table.replace('.', '_');
-        genro.setData(path,genro.rpc.remoteResolver('relationExplorer', {'table':table,'currRecordPath':objectPop(kw,'currRecordPath'),omit:'_'}));
+        genro.setData(path,genro.rpc.remoteResolver('relationExplorer', {'table':table,'currRecordPath':objectPop(kw,'currRecordPath'),omit:'_',item_type:'FTREE',branch:objectPop(kw,'branch')}));
         var treeattr = objectUpdate({storepath:path,margin:'4px'},kw);
         treeattr.labelAttribute = 'caption';
         treeattr._class = 'fieldsTree noIcon noExpando';
