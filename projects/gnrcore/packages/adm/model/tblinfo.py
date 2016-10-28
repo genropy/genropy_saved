@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from gnr.core.gnrdecorator import public_method
 
 class Table(object):
     def config_db(self, pkg):
@@ -43,9 +44,6 @@ class Table(object):
         if branch:
             where.append('$branch=:b')
             wherekw['b'] = branch
-
-
-
        #group_code = 
        #if self.avatar.group_code:
        #    where
@@ -55,3 +53,12 @@ class Table(object):
        #                                                        t=table,it=item_type,branch=branch).fetch()
 
        #getTableResourceContent
+
+    @public_method
+    def getTblInfoCols(self,tbl=None,**kwargs):
+        tblobj = self.db.table(tbl.split('/')[0])
+        result = []
+        for field,colobj in tblobj.model.columns.items():
+            result.append('%s:%s' %(field,field))
+        return ','.join(result)
+

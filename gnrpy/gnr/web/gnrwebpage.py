@@ -2115,15 +2115,16 @@ class GnrWebPage(GnrBaseWebPage):
     @public_method
     def relationExplorer(self,table=None,item_type=None,branch=None,**kwargs):
         table = table if not branch else '%s/%s' %(table,branch)
-        r = self.db.table('adm.user_tblinfo').loadUserTblInfoRecord(info_type=item_type,tbl=table)
-        if not r:
-            return self.dbRelationExplorerFull(table,**kwargs)
-        code = r['value']
-        if not code or code=='_RAW_': #RAW 
-            return self.dbRelationExplorerFull(table,**kwargs)
-        item = self.db.table('adm.tblinfo_item').getInfoItem(item_type=item_type,tbl=table,code=code)
-        if item:
-            return Bag(item['data'])['root']
+        if item_type:
+            r = self.db.table('adm.user_tblinfo').loadUserTblInfoRecord(info_type=item_type,tbl=table)
+            if not r:
+                return self.dbRelationExplorerFull(table,**kwargs)
+            code = r[item_type.lower()]
+            if not code or code=='_RAW_': #RAW 
+                return self.dbRelationExplorerFull(table,**kwargs)
+            item = self.db.table('adm.tblinfo_item').getInfoItem(item_type=item_type,tbl=table,code=code)
+            if item:
+                return Bag(item['data'])['root']
         return self.dbRelationExplorerFull(table,**kwargs)
 
     def dbRelationExplorerFull(self, table=None, currRecordPath=None,prevRelation='', prevCaption='',

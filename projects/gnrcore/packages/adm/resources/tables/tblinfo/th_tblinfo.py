@@ -82,7 +82,7 @@ class Form(BaseComponent):
                                                                     condition_tbl='=#tblinfo_rec.tbl_key',
                                                                     condition_item_type='QTREE',
                                                                     selected_description='.description',
-                                                                    values=self.db.table('adm.user_tblinfo').type_QTREE(),
+                                                                    values=self.db.table('adm.user_config').type_QTREE(),
                                                                     hasDownArrow=True),
                                                                 dict(lbl='Custom code',
                                                                     name='custom_code',disabled='^.standard_code'), 

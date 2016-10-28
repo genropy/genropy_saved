@@ -8,23 +8,27 @@ from gnr.core.gnrdecorator import public_method
 class ViewFromUserConfigurator(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('user_group',edit=True,hidden='^#mainpars.user_group')
-        r.fieldcell('user_id',edit=True,hidden='^#mainpars.user_id')
-        r.fieldcell('pkg',edit=True,hidden='^#mainpars.pkg')
-        r.fieldcell('tbl',edit=dict(condition='$pkg=:p',condition_p='=.pkg'),hidden='^#mainpars.tbl')
+        r.fieldcell('user_group',edit=True,hidden='^#mainpars.user_group',width='6em')
+        r.fieldcell('user_id',edit=True,hidden='^#mainpars.user_id',width='7em')
+        r.fieldcell('pkg',edit=True,hidden='^#mainpars.pkg',width='4em')
+        r.fieldcell('tbl',edit=dict(condition='$pkg=:p',condition_p='=.pkg'),hidden='^#mainpars.tbl',width='8em')
         r.fieldcell('qtree',edit=dict(tag='remoteSelect',auxColumns='code,description',
-                        method='_table.adm.user_tblinfo.getCustomCodes',condition_tbl='=.tbl',
+                        method='_table.adm.user_config.getCustomCodes',condition_tbl='=.tbl',
                         condition_item_type='QTREE',
                         hasDownArrow=True),
-                        _customGetter=self.valgetter('QTREE'))
+                        _customGetter=self.valgetter('QTREE'),width='6em')
 
         r.fieldcell('ftree',edit=dict(tag='remoteSelect',auxColumns='code,description',
-                        method='_table.adm.user_tblinfo.getCustomCodes',condition_tbl='=.tbl',
+                        method='_table.adm.user_config.getCustomCodes',condition_tbl='=.tbl',
                         condition_item_type='FTREE',
                         hasDownArrow=True),
-                        _customGetter=self.valgetter('FTREE'))
-        r.fieldcell('view_permission',edit=True)
-        r.fieldcell('form_permission',edit=True)
+                        _customGetter=self.valgetter('FTREE'),width='6em')
+        r.fieldcell('view_permission',edit=True,width='6em',name='View')
+        r.fieldcell('form_permission',edit=True,width='6em',name='Form')
+        r.fieldcell('forbidden_columns',edit=dict(tag='checkBoxText',remoteValues='_table.adm.tblinfo.getTblInfoCols',condition_tbl='=.tbl'),
+                        width='25em',editDisabled='=#ROW.tbl?=!#v')
+        r.fieldcell('readonly_columns',edit=dict(tag='checkBoxText',remoteValues='_table.adm.tblinfo.getTblInfoCols',condition_tbl='=.tbl'),
+                        width='25em',editDisabled='=#ROW.tbl?=!#v')
 
     def th_options(self):
         return dict(default_user_group='=#mainpars.user_group',default_user_id='=#mainpars.user_id',
@@ -36,7 +40,7 @@ class ViewFromUserConfigurator(BaseComponent):
     def valgetter(self,type=None):
         t = type.lower()
         return """function(row){var p = objectFromString('%s');
-                                return p[row['%s']] || row['%s']}""" % (getattr(self.db.table('adm.user_tblinfo'),'type_%s' %type)(),t,t)
+                                return p[row['%s']] || row['%s']}""" % (getattr(self.db.table('adm.user_config'),'type_%s' %type)(),t,t)
 
     def th_order(self):
         return 'rank:a'
@@ -60,7 +64,7 @@ class View_QTREE(ViewFromUserConfigurator):
         r.fieldcell('pkg',edit=True,hidden='^#mainpars.pkg')
         r.fieldcell('tbl',edit=dict(condition='$pkg=:p',condition_p='=.pkg'),hidden='^#mainpars.tbl')
         r.fieldcell(self.typetree().lower(),edit=dict(tag='remoteSelect',auxColumns='code,description',
-                        method='_table.adm.user_tblinfo.getCustomCodes',condition_tbl='=.tbl',
+                        method='_table.adm.user_config.getCustomCodes',condition_tbl='=.tbl',
                         condition_item_type=self.typetree(),
                         hasDownArrow=True),
                         _customGetter=self.valgetter())
@@ -120,7 +124,7 @@ class QTreeViewFromUserRO(View_QTREE):
         r.fieldcell('user_group')
         r.fieldcell('pkg')
         r.fieldcell('tbl')
-        r.fieldcell('value',_customGetter="""function(row){return objectFromString('%s')[row['value']] || row['value']}""" %self.db.table('adm.user_tblinfo').type_QTREE()
+        r.fieldcell('value',_customGetter="""function(row){return objectFromString('%s')[row['value']] || row['value']}""" %self.db.table('adm.user_config').type_QTREE()
                         )
 
 
@@ -133,9 +137,9 @@ class QTreeViewFromUser(View_QTREE):
         r.fieldcell('pkg',edit=True)
         r.fieldcell('tbl',edit=dict(condition='$pkg=:p',condition_p='=.pkg'))
         r.fieldcell('value',edit=dict(tag='remoteSelect',auxColumns='code,description',
-                        method='_table.adm.user_tblinfo.getCustomCodes',condition_tbl='=.tbl',condition_item_type='QTREE',
+                        method='_table.adm.user_config.getCustomCodes',condition_tbl='=.tbl',condition_item_type='QTREE',
                         hasDownArrow=True),
-                        _customGetter="""function(row){return objectFromString('%s')[row['value']] || row['value']}""" %self.db.table('adm.user_tblinfo').type_QTREE()
+                        _customGetter="""function(row){return objectFromString('%s')[row['value']] || row['value']}""" %self.db.table('adm.user_config').type_QTREE()
                         )
 
     def th_order(self):

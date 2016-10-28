@@ -39,6 +39,7 @@ class TableHandlerView(BaseComponent):
                                  virtualStore=virtualStore,
                                  condition=condition,condition_kwargs=condition_kwargs,
                                  **kwargs)
+        self._th_user_config(view,table=table,branch=options.get('branch'))
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=frameCode,asDict=True)
             for k in sorted(hooks.keys()):
@@ -47,6 +48,15 @@ class TableHandlerView(BaseComponent):
         if viewhook:
             viewhook(view)
         return view
+
+    def _th_user_config(self,view,table=None,branch=None):
+        if 'adm' in self.db.packages:
+            tblkey = table
+            if branch:
+                tblkey = '%s/%s' %(table,branch)
+            self.db.table('adm.user_config').getInfoBag(tbl=tblkey,
+                                                        user_id=self.avatar.user_id,
+                                                        user_group=self.avatar.group_code)
     
     @extract_kwargs(top=True,preview=True)
     @struct_method

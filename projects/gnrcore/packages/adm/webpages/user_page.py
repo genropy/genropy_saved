@@ -58,7 +58,7 @@ class GnrCustomWebPage(object):
  
 
     def qtreeConf_zz(self,sc):
-        th_all = sc.contentPane(title='View').inlineTableHandler(table='adm.user_tblinfo',
+        th_all = sc.contentPane(title='View').inlineTableHandler(table='adm.user_config',
                             viewResource='QTreeViewFromUserRO',
                             nodeId='QTREEEDit',
                             margin='2px',

@@ -26,7 +26,7 @@ class Table(object):
                         it=item_type,tbl=tbl,bagFields=True).fetchAsDict('code')
         if code in f:
             return f[code]
-        types = self.db.table('adm.user_tblinfo').getTypeList(item_type)
+        types = self.db.table('adm.user_config').getTypeList(item_type)
         tl = [c for c,d in types if c!='_RAW_']
         if not code in tl:
             return
@@ -39,7 +39,7 @@ class Table(object):
     @public_method
     def getFilteredOptions(self,_querystring=None,_id=None,tbl=None,item_type=None,**kwargs):
         result = Bag()
-        standard_codes = self.db.table('adm.user_tblinfo').getTypeList(item_type)
+        standard_codes = self.db.table('adm.user_config').getTypeList(item_type)
         d = dict(standard_codes)
         if tbl:
             codes_to_remove = self.db.table('adm.tblinfo_item').query(where='$tbl=:t AND $item_type=:it AND $code IN :c',

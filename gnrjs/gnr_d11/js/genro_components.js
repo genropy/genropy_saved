@@ -3903,6 +3903,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         gnrwdg.identifier = objectPop(kw,'identifier')
         gnrwdg.labelAttribute = objectPop(kw,'labelAttribute')
         gnrwdg._valuelabel = kw._valuelabel;
+        gnrwdg.remoteValuesRpc = objectPop(kw,'remoteValues');
         if(codeSeparator!==false){
             codeSeparator =  codeSeparator || ':'
         }
@@ -3913,14 +3914,12 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         }
         if(!values){
             var table = objectPop(originalKwargs,'table');
-            if(table){
+            if(table || gnrwdg.remoteValuesRpc){
                 var hierarchical = objectPop(kw,'hierarchical');
                 var condition_kw = objectExtract(originalKwargs,'condition_*',null,hierarchical);
                 var condition = objectPop(originalKwargs,'condition');
                 var dbstore = objectPop(originalKwargs,'dbstore');
-                
                 var query_kw = {};
-
                 objectUpdate(query_kw,condition_kw)
                 query_kw.table = table;
                 if(hierarchical){
@@ -4128,8 +4127,11 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
     gnrwdg_getRemoteValuesFromQuery:function(){
         if(this.hierarchical){
             return genro.serverCall('_table.'+this.query_kw.table+'.getHierarchicalData',objectUpdate({_sourceNode:this.sourceNode},this.query_kw))
+        }else{
+            var rpc = this.remoteValuesRpc || 'app.getValuesString';
+            return genro.serverCall(rpc,objectUpdate({_sourceNode:this.sourceNode},this.query_kw));
         }
-        return genro.serverCall('app.getValuesString',objectUpdate({_sourceNode:this.sourceNode},this.query_kw));
+        
     },
 
     gnrwdg_alignCheckedValues:function(){

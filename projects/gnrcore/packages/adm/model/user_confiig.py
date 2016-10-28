@@ -6,7 +6,7 @@ from gnr.core.gnrbag import Bag
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('user_tblinfo', pkey='id', name_long='!!User tblinfo', name_plural='!!User tblinfo')
+        tbl = pkg.table('user_config', pkey='id', name_long='!!User tblinfo', name_plural='!!User tblinfo')
         self.sysFields(tbl)
         tbl.column('user_group',name_long='!!Group').relation('group.code',relation_name='custom_info',mode='foreignkey')
         tbl.column('user_id',size='22' ,group='_',name_long='!!User').relation('user.id',relation_name='custom_info',
@@ -22,8 +22,11 @@ class Table(object):
         tbl.column('qtree',size=':30',name_long='!!QTree')
         tbl.column('ftree',size=':30',name_long='!!FTree')
 
-        tbl.formulaColumn('forbidden_columns',name_long='!!Forbidden columns')
-        tbl.formulaColumn('readonly_columns',name_long='!!ReadOnly columns')
+        tbl.column('forbidden_columns',name_long='!!Forbidden columns')
+        tbl.column('forbidden_override',name_long='!!Override forbidden',name_short='Override')
+
+        tbl.column('readonly_columns',name_long='!!ReadOnly columns')
+        tbl.column('readonly_override',name_long='!!Override readony',name_short='Override')
 
         tbl.formulaColumn('rank',"""CAST(($tbl IS NOT NULL) AS int)*8+
                                     CAST(($pkg IS NOT NULL) AS int)*2+
@@ -108,10 +111,47 @@ class Table(object):
     def trigger_onInserting(self,record):
         self.trigger_tblpkg(record)
 
-    def trigger_onUpdating(self,record):
+    def trigger_onUpdating(self,record,old_record=None):
         self.trigger_tblpkg(record)
 
     def trigger_tblpkg(self,record):
         if record['tbl'] and not record['pkg']:
             record['pkg'] = record['tbl'].split('.')[0]
 
+    def _col_auth(self,mode=None,row=None,result=None):
+        fieldcols = '%s_columns' %mode
+        fieldoverride = '%s_override' %mode
+        columns = row.pop(fieldcols)
+        override = row.pop(fieldoverride)
+        columns = columns.split(',') if columns else []
+        if columns or override:
+            if override:
+                result[fieldcols] = columns
+            elif columns:
+                current = result[fieldcols]
+                current = set(current) if current else set()
+                current.add(set(columns))
+                result[fieldcols] = list(columns)
+
+    def getInfoBag(self,pkg=None,tbl=None,user_id=None,user_group=None):
+        if not pkg and tbl:
+            pkg = tbl.split('.')[0]
+        result = Bag()
+        f = self.query(where="""($pkg IS NULL OR $pkg=:pkg) AND
+                                ($tbl IS NULL OR $tbl=:tbl) AND
+                                ($user_group IS NULL OR $user_group=:user_group) AND 
+                                ($user_id IS NULL OR $user_id=:user_id)
+                              """,pkg=pkg,tbl=tbl,user_group=user_group,user_id=user_id,
+                              order_by='$rank ASC',columns="""$qtree,$ftree,$view_permission,$form_permission,
+                                                               $forbidden_columns,
+                                                               $forbidden_override,
+                                                               $readonly_columns,
+                                                               $readonly_override""",addPkeyColumn=False).fetch()
+        for r in f:
+            r = dict(r)
+            self._col_auth('forbidden',r,result)
+            self._col_auth('readonly',r,result)
+            for k,v in r.items():
+                if v is not None:
+                    result[k] = v
+        return result
