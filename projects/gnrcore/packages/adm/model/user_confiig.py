@@ -14,10 +14,7 @@ class Table(object):
         tbl.column('pkg' ,size=':30',name_long='!!Pkg').relation('pkginfo.pkg',relation_name='rules',mode='foreignkey')
         tbl.column('tbl' ,size=':30',name_long='!!Tbl').relation('tblinfo.tbl_key',relation_name='rules',mode='foreignkey')
         
-        tbl.column('view_permission' ,size=':10',name_long='!!View permission',
-                    values='N:No,R:Read,RW:Read/Write,RWD:Read/Write/Del')
-        tbl.column('form_permission' ,size=':10',name_long='!!Form permission',
-                    values='N:No,R:Read,RW:Read/Write,RWD:Read/Write/Del')
+        tbl.column('tbl_permission' ,size=':20',name_long='!!Table permission',name_short='!!Permission')#values='read,ins,upd,del'
 
         tbl.column('qtree',size=':30',name_long='!!QTree')
         tbl.column('ftree',size=':30',name_long='!!FTree')
@@ -142,7 +139,7 @@ class Table(object):
                                 ($user_group IS NULL OR $user_group=:user_group) AND 
                                 ($user_id IS NULL OR $user_id=:user_id)
                               """,pkg=pkg,tbl=tbl,user_group=user_group,user_id=user_id,
-                              order_by='$rank ASC',columns="""$qtree,$ftree,$view_permission,$form_permission,
+                              order_by='$rank ASC',columns="""$qtree,$ftree,$tbl_permission,
                                                                $forbidden_columns,
                                                                $forbidden_override,
                                                                $readonly_columns,

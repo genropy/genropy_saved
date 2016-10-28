@@ -23,8 +23,8 @@ class ViewFromUserConfigurator(BaseComponent):
                         condition_item_type='FTREE',
                         hasDownArrow=True),
                         _customGetter=self.valgetter('FTREE'),width='6em')
-        r.fieldcell('view_permission',edit=True,width='6em',name='View')
-        r.fieldcell('form_permission',edit=True,width='6em',name='Form')
+        r.fieldcell('tbl_permission',edit=dict(tag='checkBoxText',values='read,ins,upd,del'),
+                    width='6em',name='!!Permission')
         r.fieldcell('forbidden_columns',edit=dict(tag='checkBoxText',remoteValues='_table.adm.tblinfo.getTblInfoCols',condition_tbl='=.tbl'),
                         width='25em',editDisabled='=#ROW.tbl?=!#v')
         r.fieldcell('readonly_columns',edit=dict(tag='checkBoxText',remoteValues='_table.adm.tblinfo.getTblInfoCols',condition_tbl='=.tbl'),

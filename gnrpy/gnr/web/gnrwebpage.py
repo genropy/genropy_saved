@@ -2116,7 +2116,7 @@ class GnrWebPage(GnrBaseWebPage):
     def relationExplorer(self,table=None,item_type=None,branch=None,**kwargs):
         table = table if not branch else '%s/%s' %(table,branch)
         if item_type:
-            r = self.db.table('adm.user_tblinfo').loadUserTblInfoRecord(info_type=item_type,tbl=table)
+            r = self.db.table('adm.user_config').loadUserTblInfoRecord(info_type=item_type,tbl=table)
             if not r:
                 return self.dbRelationExplorerFull(table,**kwargs)
             code = r[item_type.lower()]
