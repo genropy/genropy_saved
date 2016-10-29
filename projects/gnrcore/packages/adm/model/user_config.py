@@ -6,7 +6,7 @@ from gnr.core.gnrbag import Bag
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('user_config', pkey='id', name_long='!!User tblinfo', name_plural='!!User tblinfo')
+        tbl = pkg.table('user_config', pkey='id', name_long='!!User config', name_plural='!!User config')
         self.sysFields(tbl)
         tbl.column('user_group',name_long='!!Group').relation('group.code',relation_name='custom_info',mode='foreignkey')
         tbl.column('user_id',size='22' ,group='_',name_long='!!User').relation('user.id',relation_name='custom_info',
@@ -24,6 +24,7 @@ class Table(object):
 
         tbl.column('readonly_columns',name_long='!!ReadOnly columns')
         tbl.column('readonly_override',name_long='!!Override readony',name_short='Override')
+        tbl.column('entity' ,size=':12',name_long='!!Entity')
 
         tbl.formulaColumn('rank',"""CAST(($tbl IS NOT NULL) AS int)*8+
                                     CAST(($pkg IS NOT NULL) AS int)*2+
