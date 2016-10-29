@@ -12,6 +12,9 @@ class ViewFromUserConfigurator(BaseComponent):
         r.fieldcell('user_id',edit=True,hidden='^#mainpars.user_id',width='7em')
         r.fieldcell('pkg',edit=True,hidden='^#mainpars.pkg',width='4em')
         r.fieldcell('tbl',edit=dict(condition='$pkg=:p',condition_p='=.pkg'),hidden='^#mainpars.tbl',width='8em')
+        r.fieldcell('entity',edit=True,width='5em')
+
+
         r.fieldcell('qtree',edit=dict(tag='remoteSelect',auxColumns='code,description',
                         method='_table.adm.user_config.getCustomCodes',condition_tbl='=.tbl',
                         condition_item_type='QTREE',
@@ -23,8 +26,8 @@ class ViewFromUserConfigurator(BaseComponent):
                         condition_item_type='FTREE',
                         hasDownArrow=True),
                         _customGetter=self.valgetter('FTREE'),width='6em')
-        r.fieldcell('tbl_permission',edit=dict(tag='checkBoxText',values='read,ins,upd,del'),
-                    width='6em',name='!!Permission')
+        r.fieldcell('tbl_permission',edit=dict(tag='checkBoxText',values='hidden,readonly,/,ins,upd,del',cols=3),
+                    width='12em',name='!!Permission')
         r.fieldcell('forbidden_columns',edit=dict(tag='checkBoxText',remoteValues='_table.adm.tblinfo.getTblInfoCols',condition_tbl='=.tbl'),
                         width='25em',editDisabled='=#ROW.tbl?=!#v')
         r.fieldcell('readonly_columns',edit=dict(tag='checkBoxText',remoteValues='_table.adm.tblinfo.getTblInfoCols',condition_tbl='=.tbl'),
@@ -33,6 +36,23 @@ class ViewFromUserConfigurator(BaseComponent):
     def th_options(self):
         return dict(default_user_group='=#mainpars.user_group',default_user_id='=#mainpars.user_id',
                     default_pkg='=#mainpars.pkg',default_tbl='=#mainpars.tbl')
+
+    def th_view(self,view):
+        view.dataController("""
+                if(_node.label=='tbl_permission'){
+                    var v = _triggerpars.kw.value;
+                    var reason = _triggerpars.kw.reason;
+                    if(!v || reason=='reset_hidden_readonly'){
+                        return;
+                    }
+                    if(v.indexOf('hidden')>=0 || v.indexOf('readonly')>=0){
+                        setTimeout(function(){
+                            _node.getParentBag().setItem('tbl_permission',v.indexOf('hidden')>=0?'hidden':'readonly',null,{doTrigger:'reset_hidden_readonly'});
+                        },1);
+                    }
+                }
+
+            """,store='^.store')
 
     def th_hiddencolumns(self):
         return '$rank'
