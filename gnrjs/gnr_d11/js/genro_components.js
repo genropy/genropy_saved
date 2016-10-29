@@ -1209,7 +1209,7 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
         if(this.source_item){
             return this.source_item;
         }
-        var result = isNullOrBlank(this.valuepath)?this.source_root:this.source_root.getItem(this.valuepath);
+        var result = isNullOrBlank(this.valuepath)?this.source_root:this.source_root.getItem(this.valuepath,null,'static');
         if(!result && this.valuepath){
             result = new gnr.GnrBag();
             this.source_root.setItem(this.valuepath,result,null,{doTrigger:false});
