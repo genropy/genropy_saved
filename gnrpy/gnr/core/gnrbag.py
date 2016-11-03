@@ -786,7 +786,7 @@ class Bag(GnrObject):
             if isinstance(value, Bag):
                 el_id = id(el)
                 bf = '(*)' if value.backref else ''
-                outlist.append(("%s%s - (%s) %s: %s" %
+                outlist.append(("%s - (%s) %s%s: %s" %
                                 (str(idx), value.__class__.__name__, el.label,bf, attr)))
                 if el_id in exploredNodes:
                     innerBagStr = 'visited at :%s' % exploredNodes[el_id]
