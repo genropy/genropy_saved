@@ -1086,6 +1086,31 @@ class GnrWebPage(GnrBaseWebPage):
         """TODO"""
         pkg = kwargs.get('pkg', self.packageId)
         return self.site.pkg_page_url(pkg, *args)
+
+    @property
+    def userConfig(self):
+        if not hasattr(self,'_userConfig'):
+            self._userConfig = self.pageStore().getItem('userConfig') or Bag()
+        return self._userConfig
+
+
+    def getUserTableConfig(self,path='',table=None,branch=None):
+        if not ('adm' in self.db.packages):
+            return Bag() if not path else None
+        userConfig = self.userConfig
+        tableConfig = userConfig['tables']
+        if tableConfig is None:
+            tableConfig = Bag()
+            userConfig['tables'] = tableConfig
+        tblkey = table
+        if branch:
+            tblkey = '%s/%s' %(table,branch)
+        if not tblkey in tableConfig:
+            tableConfig[tblkey] = self.db.table('adm.user_config').getInfoBag(tbl=tblkey,
+                                                    user_id=self.avatar.user_id,
+                                                    user_group=self.avatar.group_code)
+            self.pageStore().setItem('userConfig.tables.%s' %tblkey, tableConfig[tblkey])
+        return tableConfig[tblkey][path]
         
     def getDomainUrl(self, path='', **kwargs):
         """TODO
@@ -1883,6 +1908,7 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             polling_enabled = True
         page.data('gnr.polling.polling_enabled', polling_enabled)
+        page.data('gnr.userConfig',self.userConfig,serverpath='userConfig')
         page.dataController("""genro.user_polling = user_polling;
                                genro.auto_polling = auto_polling;
                                genro.polling_enabled = polling_enabled;

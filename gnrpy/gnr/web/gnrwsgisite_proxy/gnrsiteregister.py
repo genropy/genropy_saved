@@ -549,6 +549,9 @@ class PageRegister(BaseRegister):
         data = self.get_item_data(page_id)
         for serverpath,value,attr in pendingContext:
             data.setItem(serverpath, value, attr)
+            if isinstance(value,Bag):
+                data.clearBackRef()
+                data.setBackRef()
             self.subscribe_path(page_id,serverpath)
 
     def pageInMaintenance(self,page_id=None):
