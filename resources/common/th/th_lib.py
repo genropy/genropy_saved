@@ -128,7 +128,7 @@ class TableHandlerCommon(BaseComponent):
     def _th_hook(self,method,mangler=None,asDict=False,dflt=None,defaultCb=None):
         if isinstance(mangler,Bag):
             inattr = mangler.getInheritedAttributes()
-            mangler = inattr.get('th_root') or inattr.get('frameCode')
+            mangler = inattr.get('th_root') or inattr.get('frameCode') or inattr.get('nodeId')
         if hasattr(self,'legacy_dict'):
             method=self.legacy_dict.get(method,method)
         if asDict:
