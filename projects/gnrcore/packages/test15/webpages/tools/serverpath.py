@@ -48,14 +48,14 @@ class GnrCustomWebPage(object):
                    serverpath='mytest3.mirror.answer.1.2.3')
         
     def test_4_innerpath(self,pane):
-        pane.data('.mypath4.pino',None,serverpath='pierone')
-        
+        b = Bag()
+        b['foo.bar'] = 'test'
+        pane.data('.mypath4',b,serverpath='myserverpath4')
         fb = pane.formbuilder(cols=2)
-        fb.textbox(value='^.mypath4.pippero',lbl='pippero',attr_dbenv=True)
-        fb.div('^.mypath4.elio',lbl='elio')
         fb.textbox(value='^.tosend',lbl='Value to send')
-        fb.button('Send')
-        fb.dataRpc('dummy','setval',serverpath='pierone.elio',value='^.tosend')
+        fb.div('^.mypath4.foo.bar',lbl='Result')
+        fb.dataRpc('dummy','setval',serverpath='myserverpath4.foo.bar',
+                    value='^.tosend')
         #
     def test_5_serverpath_widget(self, pane):
         fb = pane.formbuilder(cols=1, border_spacing='3px')
@@ -69,9 +69,8 @@ class GnrCustomWebPage(object):
                     lbl='!!Specialità')
         fb.dbSelect(dbtable='polimed.medico',value='^.medico_id',condition='@medico_specialita.specialita_id=:env_curr_spec')
         
-             
+            
     def rpc_setval(self, serverpath=None, value=None):
         with self.pageStore() as store:
-            print 'setting at %s value %s' % (serverpath, value)
             store.setItem(serverpath, value)
         
