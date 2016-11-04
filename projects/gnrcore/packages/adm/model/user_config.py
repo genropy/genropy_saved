@@ -20,10 +20,10 @@ class Table(object):
         tbl.column('ftree',size=':30',name_long='!!FTree')
 
         tbl.column('forbidden_columns',name_long='!!Forbidden columns')
-        tbl.column('forbidden_override',name_long='!!Override forbidden',name_short='Override')
+        tbl.column('forbidden_override',dtype='B',name_long='!!Override forbidden',name_short='Override')
 
         tbl.column('readonly_columns',name_long='!!ReadOnly columns')
-        tbl.column('readonly_override',name_long='!!Override readony',name_short='Override')
+        tbl.column('readonly_override',dtype='B',name_long='!!Override readony',name_short='Override')
         tbl.column('entity' ,size=':12',name_long='!!Entity')
 
         tbl.formulaColumn('rank',"""CAST(($tbl IS NOT NULL) AS int)*8+

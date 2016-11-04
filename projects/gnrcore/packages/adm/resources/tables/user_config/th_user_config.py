@@ -30,8 +30,10 @@ class ViewFromUserConfigurator(BaseComponent):
                     width='12em',name='!!Permission')
         r.fieldcell('forbidden_columns',edit=dict(tag='checkBoxText',remoteValues='_table.adm.tblinfo.getTblInfoCols',condition_tbl='=.tbl'),
                         width='25em',editDisabled='=#ROW.tbl?=!#v')
+        r.fieldcell('forbidden_override',edit=True)
         r.fieldcell('readonly_columns',edit=dict(tag='checkBoxText',remoteValues='_table.adm.tblinfo.getTblInfoCols',condition_tbl='=.tbl'),
                         width='25em',editDisabled='=#ROW.tbl?=!#v')
+        r.fieldcell('readonly_override',edit=True)
 
     def th_options(self):
         return dict(default_user_group='=#mainpars.user_group',default_user_id='=#mainpars.user_id',
