@@ -424,10 +424,17 @@ class TableBase(object):
     def _isReadOnly(self,record):
         if self.attributes.get('readOnly'):
             return True
+        if self.checkUserLock('readonly',record=record) or self.checkUserLock('hidden',record=record):
+            return
         if record.get('__is_protected_row'):
             return True
         if record.get('__protection_tag'):
             return not (record['__protection_tag'] in self.db.currentEnv['userTags'].split(','))
+
+
+    def _checkUserLock(self,check,record=None):
+        pass
+
 
     def formulaColumn_allowedForPartition(self):
 

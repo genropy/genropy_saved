@@ -1557,12 +1557,28 @@ class SqlTable(GnrObject):
         "Inside dbo"
         pass
 
+    def checkUserLock(self,check,record=None):
+        self._checkUserLock(check,record=record)
+
+    def _checkUserLock(self,check,record=None):
+        "Inside dbo"
+        pass
+
     def _isReadOnly(self,record):
-        if self.attributes.get('readOnly'):
+        if self.attributes.get('readOnly') or self.checkUserLock('readonly',record=record) or self.checkUserLock('hidden',record=record):
             return True
 
+
+    def _islocked_insert(self,record):
+        return self._isReadOnly(record) or self.checkUserLock('ins',record=record) or self.islocked_insert(record)
+
+    def islocked_insert(self,record):
+        #OVERRIDE THIS
+        pass
+
+
     def _islocked_write(self,record):
-        return self._isReadOnly(record) or self.islocked_write(record)
+        return self._isReadOnly(record) or self.checkUserLock('upd',record=record) or self.islocked_write(record)
 
     def islocked_write(self,record):
         #OVERRIDE THIS
@@ -1570,7 +1586,7 @@ class SqlTable(GnrObject):
 
 
     def _islocked_delete(self,record):
-        return self._isReadOnly(record) or self.islocked_delete(record)
+        return self._isReadOnly(record) or self.checkUserLock('del',record=record) or self.islocked_delete(record)
 
     def islocked_delete(self,record):
         #OVERRIDE THIS

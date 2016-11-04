@@ -60,7 +60,7 @@ class TableHandlerForm(BaseComponent):
 
     @extract_kwargs(default=True,store=True,dialog=True,palette=True)
     @struct_method
-    def th_thFormHandler(self,pane,formId=None,table=None,formResource=None,startKey=None,formCb=None,datapath=None,
+    def th_thFormHandler(self,pane,formId=None,table=None,table_branch=None,formResource=None,startKey=None,formCb=None,datapath=None,
                         store_kwargs=None,default_kwargs=None,dialog_kwargs=None,palette_kwargs=None,dbstore=None,
                         store='recordCluster',handlerType=None,**kwargs):
         tableCode = table.replace('.','_')
@@ -79,7 +79,10 @@ class TableHandlerForm(BaseComponent):
             formroot = pane
             if datapath:
                 formroot.attributes.update(datapath=datapath)
-        form = formroot.frameForm(frameCode=formId,formId=formId,table=table,
+        tblconfig = self.getUserTableConfig(table=table,branch=table_branch)
+        if tblconfig['tbl_permission'] == 'readonly':
+            resource_options['readOnly'] = True
+        form = formroot.frameForm(frameCode=formId,formId=formId,table=table,table_branch=table_branch,
                              store_startKey=startKey,context_dbstore=dbstore,
                              datapath='.form',store=store,store_kwargs=store_kwargs,
                              **kwargs)

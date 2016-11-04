@@ -46,7 +46,10 @@ class View(BaseComponent):
 
     def th_options(self):
         return dict() #virtualStore=False
-        
+
+   #def th_tags(self):
+   #    return 'pippero'
+   #    
 
 class ViewFromRegione(BaseComponent):    
     def th_struct(self,struct):

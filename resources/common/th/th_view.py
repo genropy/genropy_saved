@@ -39,7 +39,7 @@ class TableHandlerView(BaseComponent):
                                  virtualStore=virtualStore,
                                  condition=condition,condition_kwargs=condition_kwargs,
                                  **kwargs)
-        self._th_user_config(view,table=table,branch=options.get('branch'))
+        
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=frameCode,asDict=True)
             for k in sorted(hooks.keys()):
@@ -49,23 +49,13 @@ class TableHandlerView(BaseComponent):
             viewhook(view)
         return view
 
-    def _th_user_config(self,view,table=None,branch=None):
-        if 'adm' in self.db.packages:
-            tblkey = table
-            if branch:
-                tblkey = '%s/%s' %(table,branch)
-            self.db.table('adm.user_config').getInfoBag(tbl=tblkey,
-                                                        user_id=self.avatar.user_id,
-                                                        user_group=self.avatar.group_code)
-    
     @extract_kwargs(top=True,preview=True)
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
                        unlinkdict=None,searchOn=True,count=None,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,
-                       store_kwargs=None,parentForm=None,liveUpdate=None,**kwargs):
+                       store_kwargs=None,parentForm=None,liveUpdate=None,branch=None,**kwargs):
         extendedQuery = virtualStore and extendedQuery
-        options = self._th_hook('options',mangler=pane)() or dict()
         condition_kwargs = condition_kwargs
         if condition:
             condition_kwargs['condition'] = condition
@@ -123,7 +113,7 @@ class TableHandlerView(BaseComponent):
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title,
                         liveUpdate=liveUpdate,store_kwargs=store_kwargs)
-        self._th_view_contextMenu(frame.grid,options=options)
+        self._th_view_contextMenu(frame.grid,branch=branch)
         if virtualStore:    
             self._extTableRecords(frame)
         frame.dataController("""if(!firedkw.res_type){return;}
@@ -153,7 +143,7 @@ class TableHandlerView(BaseComponent):
                 """,modifiers='Ctrl',validclass='dojoxGrid-cell,cellContent')
         return frame
 
-    def _th_view_contextMenu(self,grid,options=None):
+    def _th_view_contextMenu(self,grid,branch=None):
         b = Bag()
         b.rowchild(label='!!Reload',action="$2.widget.reload();")
         b.rowchild(label='-')
@@ -164,7 +154,7 @@ class TableHandlerView(BaseComponent):
                             checked='^.#parent.tableRecordCount')
         b.rowchild(label='-')
         b.rowchild(label='!!Configure Table',
-                    action='genro.dev.fieldsTreeConfigurator($2.attr.table,$1.branch);',branch=options.get('branch'))
+                    action='genro.dev.fieldsTreeConfigurator($2.attr.table,$1.branch);',branch=branch)
         b.rowchild(childname='configure',label='!!Configure View',action="""$2.widget.configureStructure();""")
         grid.data('.contextMenu',b)
 

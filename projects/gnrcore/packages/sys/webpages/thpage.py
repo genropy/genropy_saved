@@ -49,10 +49,10 @@ class GnrCustomWebPage(object):
         return 'thpage_%(th_pkg)s_%(th_table)s' %callArgs
 
     #FOR ALTERNATE MAIN HOOKS LOOK AT public:TableHandlerMain component
-    def main(self,root,th_pkey=None,**kwargs):
+    def main(self,root,th_pkey=None,table_branch=None,**kwargs):
         callArgs = self.getCallArgs('th_pkg','th_table','th_pkey')  
         root.data('gnr.pagename', self.pagename)
         pkey = callArgs.pop('th_pkey',None)  
         th_pkey = pkey or th_pkey
-        root.rootTableHandler(th_pkey=th_pkey,**kwargs)
+        root.rootTableHandler(th_pkey=th_pkey,table_branch=table_branch,**kwargs)
     

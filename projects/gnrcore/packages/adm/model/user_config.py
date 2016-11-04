@@ -12,7 +12,7 @@ class Table(object):
         tbl.column('user_id',size='22' ,group='_',name_long='!!User').relation('user.id',relation_name='custom_info',
                                                                                 mode='foreignkey',onDelete='cascade')
         tbl.column('pkg' ,size=':30',name_long='!!Pkg').relation('pkginfo.pkg',relation_name='rules',mode='foreignkey')
-        tbl.column('tbl' ,size=':30',name_long='!!Tbl').relation('tblinfo.tbl_key',relation_name='rules',mode='foreignkey')
+        tbl.column('tbl' ,size=':30',name_long='!!Tbl').relation('tblinfo.tbl',relation_name='rules',mode='foreignkey')
         
         tbl.column('tbl_permission' ,size=':20',name_long='!!Table permission',name_short='!!Permission')#values='read,ins,upd,del'
 
@@ -47,13 +47,12 @@ class Table(object):
         return info_type_condition
 
     def loadUserTblInfoRecord(self,info_type=None,pkg=None,
-                            tbl=None,branch=None,user_id=None,
+                            tbl=None,user_id=None,
                             user_group=None):
         if tbl and not pkg:
             pkg = tbl.split('.')[0]
         user_group=user_group or self.db.currentEnv.get('user_group_code')
         user_id=user_id or self.db.currentEnv.get('user_id')
-        
         f = self.query(where=""" %s AND
                             ($tbl IS NULL OR $tbl=:tbl) AND 
                             ($pkg IS NULL OR $pkg=:pkg) AND
@@ -131,7 +130,7 @@ class Table(object):
                 current.add(set(columns))
                 result[fieldcols] = list(columns)
 
-    def getInfoBag(self,pkg=None,tbl=None,user_id=None,user_group=None):
+    def getInfoBag(self,pkg=None,tbl=None,table_branch=None,user_id=None,user_group=None):
         if not pkg and tbl:
             pkg = tbl.split('.')[0]
         result = Bag()

@@ -8,16 +8,15 @@ class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('tbl_key')
         r.fieldcell('tbl')
         r.fieldcell('pkg')
         r.fieldcell('description')
 
     def th_order(self):
-        return 'tbl_key'
+        return 'tbl'
 
     def th_query(self):
-        return dict(column='tbl_key', op='contains', val='')
+        return dict(column='tbl', op='contains', val='')
 
 
     def th_top_custom(self,top):
@@ -30,15 +29,14 @@ class ViewFromPackage(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('tbl_key')
         r.fieldcell('tbl')
         r.fieldcell('description')
 
     def th_order(self):
-        return 'tbl_key'
+        return 'tbl'
 
     def th_query(self):
-        return dict(column='tbl_key', op='contains', val='')
+        return dict(column='tbl', op='contains', val='')
 
     def th_options(self):
         return dict(virtualStore=False)
@@ -51,17 +49,9 @@ class Form(BaseComponent):
         fb = bc.contentPane(region='top',datapath='.record',nodeId='tblinfo_rec').formbuilder(cols=3, border_spacing='4px')
         fb.field('pkg')
         fb.field('tbl')
-        fb.field('branch')
         fb.field('description',colspan=3,width='100%')
         tc = bc.tabContainer(region='center',margin='2px')
         self.qtreeItems(tc.contentPane(title='Quick Fields Tree'))
-        self.authorizationsItems(tc.contentPane(title='Authorization'))
-
-    def authorizationsItems(self,pane):
-        pane.dialogTableHandler(relation='@items',condition='$item_type=:t',nodeId='auth_#',
-                                condition_t='AUTH',default_item_type='AUTH',
-                                viewResource='AuthItemView',formResource='AuthItemForm')
-
 
     def qtreeItems(self,pane):
         frame = pane.multiButtonForm(frameCode='qtree_#',relation='@items',
@@ -79,7 +69,7 @@ class Form(BaseComponent):
                                                                     name='standard_code',tag='remoteSelect',
                                                                     auxColumns='code,description',
                                                                     method='_table.adm.tblinfo_item.getFilteredOptions',
-                                                                    condition_tbl='=#tblinfo_rec.tbl_key',
+                                                                    condition_tbl='=#tblinfo_rec.tbl',
                                                                     condition_item_type='QTREE',
                                                                     selected_description='.description',
                                                                     values=self.db.table('adm.user_config').type_QTREE(),

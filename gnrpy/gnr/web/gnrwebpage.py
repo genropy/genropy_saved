@@ -1094,7 +1094,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self._userConfig
 
 
-    def getUserTableConfig(self,path='',table=None,branch=None):
+    def getUserTableConfig(self,path='',table=None,table_branch=None,**kwargs):
         if not ('adm' in self.db.packages):
             return Bag() if not path else None
         userConfig = self.userConfig
@@ -1102,13 +1102,12 @@ class GnrWebPage(GnrBaseWebPage):
         if tableConfig is None:
             tableConfig = Bag()
             userConfig['tables'] = tableConfig
-        tblkey = table
-        if branch:
-            tblkey = '%s/%s' %(table,branch)
+        tblkey = '%s.%s' (table,table_branch) if table_branch else table
         if not tblkey in tableConfig:
-            tableConfig[tblkey] = self.db.table('adm.user_config').getInfoBag(tbl=tblkey,
+            tableConfig[tblkey] = self.db.table('adm.user_config').getInfoBag(tbl=table,
                                                     user_id=self.avatar.user_id,
-                                                    user_group=self.avatar.group_code)
+                                                    user_group=self.avatar.group_code,
+                                                    table_branch=table_branch)
             self.pageStore().setItem('userConfig.tables.%s' %tblkey, tableConfig[tblkey])
         return tableConfig[tblkey][path]
         
@@ -2139,8 +2138,7 @@ class GnrWebPage(GnrBaseWebPage):
         return result or True
 
     @public_method
-    def relationExplorer(self,table=None,item_type=None,branch=None,**kwargs):
-        table = table if not branch else '%s/%s' %(table,branch)
+    def relationExplorer(self,table=None,item_type=None,**kwargs):
         if item_type:
             r = self.db.table('adm.user_config').loadUserTblInfoRecord(info_type=item_type,tbl=table)
             if not r:

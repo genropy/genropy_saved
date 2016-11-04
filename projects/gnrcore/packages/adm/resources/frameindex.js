@@ -285,6 +285,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         if(table){
             url = this.thpage_url+table.replace('.','/');
             urlPars['th_from_package'] = kw['pkg_menu'] || genro.getData("gnr.package");
+            urlPars['th_table_branch'] = kw.table_branch;
         }else if(lookup_manager){
             url = this.lookup_url+(lookup_manager=='*'?'':('/'+lookup_manager.replace('.','/')));
         }

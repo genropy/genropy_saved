@@ -16,10 +16,10 @@ class Table(object):
         tbl.column('description' ,size=':30',name_long='!!Description',_sysfield=True)
         tbl.column('item_type' ,size=':5',name_long='!!Type',values=self.itemTypeValues())
         tbl.column('data',dtype='X',name_long='!!Data')
-        tbl.column('tbl').relation('tblinfo.tbl_key',relation_name='items',mode='foreignkey',onDelete='cascade')
+        tbl.column('tbl').relation('tblinfo.tbl',relation_name='items',mode='foreignkey',onDelete='cascade')
 
     def itemTypeValues(self):
-        return "AUTH:Authorizations,QTREE:Quick tree,FTREE:Full tree"
+        return "QTREE:Quick tree,FTREE:Full tree"
 
     def getInfoItem(self,item_type=None,tbl=None,code=None):
         f = self.query(where='$item_type=:it AND $tbl=:tbl',
