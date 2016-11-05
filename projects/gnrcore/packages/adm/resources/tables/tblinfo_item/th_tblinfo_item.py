@@ -12,7 +12,7 @@ class View(BaseComponent):
         r.fieldcell('code')
         r.fieldcell('item_type')
         r.fieldcell('data')
-        r.fieldcell('tbl')
+        r.fieldcell('tblid')
 
     def th_order(self):
         return 'code'
@@ -37,7 +37,7 @@ class Form(BaseComponent):
         fb.field('code')
         fb.field('item_type')
         fb.field('data')
-        fb.field('tbl')
+        fb.field('tblid')
 
     def th_options(self):
         return dict(dialog_height='400px', dialog_width='600px')
@@ -47,7 +47,7 @@ class QTREEItemForm(BaseComponent):
     def th_form(self, form):
         bc = form.center.borderContainer()
         left = bc.roundedGroupFrame(title='Source',region='left',width='200px')
-        left.dataFormula('#FORM.currentTable','tbl',tbl='^#FORM.record.tbl')
+        left.dataFormula('#FORM.currentTable','tblid',tblid='^#FORM.record.tblid')
         bc.dataRpc('#FORM.sourceTreeData', self.relationExplorer, 
                             table='^#FORM.currentTable', dosort=False)
         left.tree(storepath='#FORM.sourceTreeData', 

@@ -4,7 +4,7 @@ from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('tblinfo_item',pkey='info_key', pkey_columns='tbl,item_type,code', 
+        tbl = pkg.table('tblinfo_item',pkey='info_key', pkey_columns='tblid,item_type,code', 
                         name_long='!!Tblinfo item',pkey_columns_joiner='/',
                          name_plural='!!Tblinfo items',caption_field='description')
         self.sysFields(tbl,id=False)
@@ -16,13 +16,13 @@ class Table(object):
         tbl.column('description' ,size=':30',name_long='!!Description',_sysfield=True)
         tbl.column('item_type' ,size=':5',name_long='!!Type',values=self.itemTypeValues())
         tbl.column('data',dtype='X',name_long='!!Data')
-        tbl.column('tbl').relation('tblinfo.tbl',relation_name='items',mode='foreignkey',onDelete='cascade')
+        tbl.column('tblid').relation('tblinfo.tblid',relation_name='items',mode='foreignkey',onDelete='cascade')
 
     def itemTypeValues(self):
         return "QTREE:Quick tree,FTREE:Full tree"
 
     def getInfoItem(self,item_type=None,tbl=None,code=None):
-        f = self.query(where='$item_type=:it AND $tbl=:tbl',
+        f = self.query(where='$item_type=:it AND $tblid=:tbl',
                         it=item_type,tbl=tbl,bagFields=True).fetchAsDict('code')
         if code in f:
             return f[code]
@@ -42,7 +42,7 @@ class Table(object):
         standard_codes = self.db.table('adm.user_config').getTypeList(item_type)
         d = dict(standard_codes)
         if tbl:
-            codes_to_remove = self.db.table('adm.tblinfo_item').query(where='$tbl=:t AND $item_type=:it AND $code IN :c',
+            codes_to_remove = self.db.table('adm.tblinfo_item').query(where='$tblid=:t AND $item_type=:it AND $code IN :c',
                                         t=tbl,it=item_type,c=d.keys(),columns='$code,$description').fetchAsDict('code')
             
         standard_codes = filter(lambda c: not c[0] in codes_to_remove, standard_codes)

@@ -21,10 +21,9 @@ class GnrCustomWebPage(object):
         fb.dbselect(value='^.user_id',dbtable='adm.user',lbl='User',
                     condition='$group_code IS NULL OR :ugroup IS NULL OR $group_code=:ugroup',
                     condition_ugroup='=.user_group',hasDownArrow=True)
-        fb.dbselect(value='^.pkg',dbtable='adm.pkginfo',lbl='Pkg',hasDownArrow=True)
-        fb.dbselect(value='^.tbl',dbtable='adm.tblinfo',lbl='Tbl',condition=':pkginfo IS NULL OR $pkg=:pkginfo',
-                    condition_pkginfo='=.pkginfo',hasDownArrow=True)
-        frame.contentPane(region='center').inlineTableHandler(table='adm.user_config',autoSave=False,saveButton=True,
-                               semaphore=True,viewResource='ViewFromUserConfigurator',view_store_onStart=True)
+        fb.dbselect(value='^.pkgid',dbtable='adm.pkginfo',lbl='Pkg',hasDownArrow=True)
+        fb.dbselect(value='^.tblid',dbtable='adm.tblinfo',lbl='Tbl',condition=':pkgid IS NULL OR $pkgid=:pkgid',
+                    condition_pkgid='=.pkgid',hasDownArrow=True)
+        frame.contentPane(region='center').dialogTableHandler(table='adm.user_config',view_store_onStart=True)
 
 

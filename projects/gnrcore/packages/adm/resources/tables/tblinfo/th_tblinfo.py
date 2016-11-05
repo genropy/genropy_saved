@@ -8,15 +8,15 @@ class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('tbl')
-        r.fieldcell('pkg')
+        r.fieldcell('tblid')
+        r.fieldcell('pkgid')
         r.fieldcell('description')
 
     def th_order(self):
-        return 'tbl'
+        return 'tblid'
 
     def th_query(self):
-        return dict(column='tbl', op='contains', val='')
+        return dict(column='tblid', op='contains', val='')
 
 
     def th_top_custom(self,top):
@@ -29,14 +29,12 @@ class ViewFromPackage(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('tbl')
+        r.fieldcell('tblid')
         r.fieldcell('description')
 
     def th_order(self):
-        return 'tbl'
+        return 'tblid'
 
-    def th_query(self):
-        return dict(column='tbl', op='contains', val='')
 
     def th_options(self):
         return dict(virtualStore=False)
@@ -47,8 +45,8 @@ class Form(BaseComponent):
     def th_form(self, form):
         bc = form.center.borderContainer()
         fb = bc.contentPane(region='top',datapath='.record',nodeId='tblinfo_rec').formbuilder(cols=3, border_spacing='4px')
-        fb.field('pkg')
-        fb.field('tbl')
+        fb.field('pkgid')
+        fb.field('tblid')
         fb.field('description',colspan=3,width='100%')
         tc = bc.tabContainer(region='center',margin='2px')
         self.qtreeItems(tc.contentPane(title='Quick Fields Tree'))
@@ -79,7 +77,7 @@ class Form(BaseComponent):
                                                                 dict(lbl='Custom description',
                                                                     name='custom_description',disabled='^.standard_code')],
                                                                ),
-                parentForm=True,deleteAction=False)
+                parentForm=True,deleteAction=True)
 
 
     def th_options(self):
