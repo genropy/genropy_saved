@@ -20,7 +20,7 @@ class View(BaseComponent):
 
 
     def th_top_custom(self,top):
-        top.bar.replaceSlots('searchOn','searchOn,sections@pkg')
+        top.bar.replaceSlots('searchOn','searchOn,sections@pkgid')
 
     def th_options(self):
         return dict(virtualStore=False)
