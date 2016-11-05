@@ -5,10 +5,10 @@ from gnr.core.gnrdecorator import public_method
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('tblinfo', pkey='tblid', pkey_columns_joiner='/',
-                    name_long='!!Table Info', name_plural='!!Table info',caption_field='tbl')
+                    name_long='!!Table Info', name_plural='!!Table info',caption_field='tblid')
         self.sysFields(tbl,id=False)
-        tbl.column('pkgid' ,size=':50',name_long='!!Package').relation('pkginfo.pkgid',relation_name='tables')
         tbl.column('tblid' ,size=':50',name_long='!!Table')
+        tbl.column('pkgid' ,size=':50',name_long='!!Package').relation('pkginfo.pkgid',relation_name='tables')
         tbl.column('description' ,size=':30',name_long='!!Description')
 
     def createSysRecords(self):
