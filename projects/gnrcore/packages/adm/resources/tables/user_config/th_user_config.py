@@ -51,6 +51,10 @@ class Form(BaseComponent):
         bar.data('.currpath','#config_controller.record.__base__')
         bar.dataFormula('.currpath',"this.absDatapath('.record.'+branch || baseCode)",branch='^.branch',
                         baseCode=baseCode)
+        bar.dataFormula('.readonlyFieldsStore',"this.absDatapath('.record.'+branch || baseCode) +'.readonly_fields';",branch='^.branch',
+                        baseCode=baseCode)
+        bar.dataFormula('.forbiddenFieldsStore',"this.absDatapath('.record.'+branch || baseCode) +'.forbidden_fields'; ",branch='^.branch',
+                        baseCode=baseCode)
         bar.mb.multiButton(value='^.branch',items='^.databranches')
         bar.dataRpc('.databranches',self.getDataBranches,tbl='^.record.tblid',baseCode=baseCode,baseCaption='!!Base',
                     _if='tbl',
@@ -60,8 +64,9 @@ class Form(BaseComponent):
                     SET .branch = baseCode;
                     return result;
                     """,_onResult="SET .branch = kwargs.baseCode")
-        pane = frame.center.contentPane(datapath='^#config_controller.currpath')
-        fb = pane.formbuilder(cols=2,border_spacing='3px')
+        
+        bc = frame.center.borderContainer()
+        fb = bc.contentPane(region='top',datapath='^#config_controller.currpath').formbuilder(cols=2,border_spacing='3px')
         fb.remoteSelect(value='^.qtree',lbl='Fields Tree (quick)',auxColumns='code,description',
                         method=self.db.table('adm.user_config').getCustomCodes,
                         condition_tbl='=#FORM.record.tblid',
@@ -74,6 +79,27 @@ class Form(BaseComponent):
                         hasDownArrow=True)
         fb.checkBoxText(value='^.tbl_permission',values='hidden,readonly,/,ins,upd,del',cols=3,
                         lbl='Permissions',colspan=2)
+        sc = bc.stackContainer(region='center')
+        bc.dataController("sc.switchPage(tblid?1:0);",sc=sc.js_widget,tblid='^#FORM.record.tblid')
+        self.columnsPermissionGrids(sc)
+
+    def struct_permissiongrid(self,struct):
+        r = struct.view().rows()
+        r.checkboxcolumn('permission',threestate=True,name=' ')
+        r.cell('colname',name='Column',width='100%')
+
+
+    def columnsPermissionGrids(self,sc):
+        sc.contentPane().div('Choose table')
+        bc = sc.borderContainer()
+        bc.contentPane(region='left',width='50%').bagGrid(datapath='#FORM.readonlycols_grid',title='Read only fields',
+                                                            struct=self.struct_permissiongrid,
+                                                            storepath='^#config_controller.readonlyFieldsStore',
+                                                            pbl_classes='*',margin='2px',addrow=False,delrow=False)
+        bc.contentPane(region='center').bagGrid(datapath='#FORM.forbiddencols_grid',title='Forbidden fields',
+                                                            struct=self.struct_permissiongrid,
+                                                            storepath='^#config_controller.forbiddenFieldsStore',
+                                                            pbl_classes='*',margin='2px',addrow=False,delrow=False)
 
     @public_method
     def getDataBranches(self,tbl=None,baseCode=None,baseCaption=None):

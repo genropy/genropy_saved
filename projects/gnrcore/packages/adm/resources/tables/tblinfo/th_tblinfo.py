@@ -23,7 +23,7 @@ class View(BaseComponent):
         top.bar.replaceSlots('searchOn','searchOn,sections@pkgid')
 
     def th_options(self):
-        return dict(virtualStore=False)
+        return dict(virtualStore=False,readOnly=True)
 
 class ViewFromPackage(BaseComponent):
 
@@ -48,7 +48,7 @@ class Form(BaseComponent):
         fb.field('pkgid')
         fb.field('tblid')
         fb.field('description',colspan=3,width='100%')
-        tc = bc.tabContainer(region='center',margin='2px')
+        tc = bc.tabContainer(region='center',margin='2px',parentForm=False)
         self.qtreeItems(tc.contentPane(title='Quick Fields Tree'))
 
     def qtreeItems(self,pane):
@@ -59,7 +59,10 @@ class Form(BaseComponent):
                                 datapath='#FORM.thqt',
                                 #viewResource='QTREEItemView',
                                 formResource='QTREEItemForm',
-                                multibutton_deleteSelectedOnly=True,
+                                multibutton_deleteSelectedOnly=True,multibutton_deleteAction="""
+                                var s = this._value.getNode('store').gnrwdg.store;
+                                s.deleteAsk([value]);
+                            """,
                                 margin='3px',border='1px solid silver')
         frame.multiButtonView.item(code='add_it',caption='+',frm=frame.form.js_form,
                                     action='frm.newrecord({code:custom_code || standard_code,description:custom_description || description || custom_code});',
@@ -77,7 +80,7 @@ class Form(BaseComponent):
                                                                 dict(lbl='Custom description',
                                                                     name='custom_description',disabled='^.standard_code')],
                                                                ),
-                parentForm=True,deleteAction=True)
+                parentForm=True,deleteAction=False)
 
 
     def th_options(self):
