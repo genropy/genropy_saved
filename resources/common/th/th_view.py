@@ -29,6 +29,8 @@ class TableHandlerView(BaseComponent):
         self._th_setDocumentation(table=table,resource = viewResource or 'View',doc=options.get('doc'),
                                     custdoc=options.get('custdoc'))
         kwargs.update(dictExtract(options,'grid_'),slice_prefix=False)
+        if options.get('addrow') and options.get('addrow') is not True:
+            kwargs['top_addrow_defaults'] = kwargs.get('top_addrow_defaults') or options['addrow']
         resourceConditionPars = self._th_hook('condition',mangler=frameCode,dflt=dict())()
         resourceCondition = resourceConditionPars.pop('condition',None)
         if resourceCondition:
