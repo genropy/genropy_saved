@@ -820,7 +820,10 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                         onSavedCb(kw);
                     });
                 }
-                wdg.setBoxAttributes({height:palette_height,width:palette_width});
+                if(!wdg._size_from_cache){
+                    wdg.setBoxAttributes({height:palette_height,width:palette_width});
+                }
+
             }}).getParentNode();         
             node.unfreeze(); 
             var paletteNode = genro.nodeById(paletteCode+'_floating');

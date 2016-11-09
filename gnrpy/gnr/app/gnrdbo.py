@@ -820,7 +820,7 @@ class TableBase(object):
 
     #FUNCTIONS SQL
     def normalizeText(self,text):
-        return """regexp_replace(translate(%s,'àèéìòù-','aeeiou '),'[.|,|;]', '', 'g')""" %text
+        return """regexp_replace(translate(%s,'-',' '),'[.|,|;]', '', 'g')""" %text
 
 
     def templateColumn(self,record=None,field=None):

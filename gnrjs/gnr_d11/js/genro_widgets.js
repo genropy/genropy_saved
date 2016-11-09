@@ -2122,6 +2122,9 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         if (this.sourceNode.attr.nodeId){
             var storeKey = 'palette_rect_' + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
             rect = genro.getFromStorage("local", storeKey, dojo.coords(this.domNode));
+            if(rect){
+                this._size_from_cache = true;
+            }
         }
         var oh = this.domNode.parentElement.offsetHeight;
         var ow = this.domNode.parentElement.offsetWidth;
