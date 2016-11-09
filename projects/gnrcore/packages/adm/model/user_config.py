@@ -6,15 +6,16 @@ from gnr.core.gnrbag import Bag
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('user_config', pkey='id', name_long='!!User config', name_plural='!!User config')
-        self.sysFields(tbl)
+        tbl = pkg.table('user_config', pkey='ruleid', name_long='!!User config', name_plural='!!User config')
+        self.sysFields(tbl,id=False)
+        tbl.column('ruleid',size=':80')
         tbl.column('user_group',name_long='!!Group').relation('group.code',relation_name='custom_info',mode='foreignkey')
-        tbl.column('user_id',size='22' ,group='_',name_long='!!User').relation('user.id',relation_name='custom_info',
-                                                                                mode='foreignkey',onDelete='cascade')
+        tbl.column('username',size='22' ,group='_',name_long='!!User').relation('user.username',relation_name='custom_info',
+                                                                              onDelete='cascade')
         tbl.column('pkgid' ,size=':30',name_long='!!Pkg').relation('pkginfo.pkgid',relation_name='rules',mode='foreignkey')
         tbl.column('tblid' ,size=':30',name_long='!!Tbl').relation('tblinfo.tblid',relation_name='rules',mode='foreignkey')
         
-        tbl.column('data',dtype='X',name_long='!!Data') #configuration data (tbl_permission,qtree,ftree,forbidden_cols,readonly_cols)
+        tbl.column('data',dtype='X',name_long='!!Data',_sendback=True) #configuration data (tbl_permission,qtree,ftree,forbidden_cols,readonly_cols)
 
         #tbl.column('tbl_permission' ,size=':20',name_long='!!Table permission',name_short='!!Permission')#values='read,ins,upd,del'
 
@@ -30,9 +31,38 @@ class Table(object):
 
         tbl.formulaColumn('rank',"""CAST(($tblid IS NOT NULL) AS int)*8+
                                     CAST(($pkgid IS NOT NULL) AS int)*2+
-                                    CAST(($user_id IS NOT NULL) AS int)*4+
+                                    CAST(($username IS NOT NULL) AS int)*4+
                                     CAST(($user_group IS NOT NULL) AS int)*1""",dtype='L')
 
+
+    def pkeyValue(self,record=None):
+        pkeylist = []
+        for f in ('user_group','username'):
+            v = record[f] or '*'
+            pkeylist.append(v.replace('.','_'))
+        if record['tblid']:
+            tbllist = record['tblid'].split('.')
+            record['pkgid'] = tbllist[0]
+            pkeylist.extend(tbllist)
+        elif record['pkgid']:
+            pkeylist.append(record['pkgid'])
+            pkeylist.append('*')
+        return '/'.join(pkeylist)
+
+    @public_method
+    def newConfigRule(self,user_group=None,username=None,pkgid=None,tblid=None):
+        if username and not user_group:
+            user_group = self.db.table('adm.user').readColumns(columns='$group_code',where='$username=:u',u=username)
+        if tblid:
+            pkgid = tblid.split('.')[0]
+        r = dict(user_group=user_group,username=username,pkgid=pkgid,tblid=tblid)
+        pkeyValue = self.pkeyValue(r)
+        if self.checkDuplicate(ruleid=pkeyValue):
+            return pkeyValue
+        else:
+            self.insert(r)
+            self.db.commit()
+            return r['ruleid']
 
     def info_type_condition(self,info_type=None):
         info_type_condition = 'True'
@@ -49,22 +79,22 @@ class Table(object):
         return info_type_condition
 
     def loadUserTblInfoRecord(self,info_type=None,pkg=None,
-                            tbl=None,user_id=None,
+                            tbl=None,user=None,
                             user_group=None):
         if tbl and not pkg:
             pkg = tbl.split('.')[0]
         user_group=user_group or self.db.currentEnv.get('user_group_code')
-        user_id=user_id or self.db.currentEnv.get('user_id')
+        user=user or self.db.currentEnv.get('user')
         f = self.query(where=""" %s AND
                             ($tblid IS NULL OR $tblid=:tbl) AND 
                             ($pkgid IS NULL OR $pkg=:pkg) AND
-                            ($user_id IS NULL OR $user_id=:user_id) AND 
+                            ($username IS NULL OR $username=:user) AND 
                             ($user_group IS NULL OR $user_group=:user_group)
                             """ %self.info_type_condition(info_type),
                     
                     pkg=pkg,
                     tbl=tbl,
-                    user_id=user_id,
+                    user=user,
                     user_group=user_group,
                     order_by='$rank desc',limit=1).fetch()
         return f[0] if f else None
@@ -132,7 +162,19 @@ class Table(object):
                 current.add(set(columns))
                 result[fieldcols] = list(columns)
 
-    def getInfoBag(self,pkg=None,tbl=None,table_branch=None,user_id=None,user_group=None):
+    def userConfiguration(self,pkg=None,tbl=None,table_branch=None,user=None,user_group=None):
+        if not pkg and tbl:
+            pkg = tbl.split('.')[0]
+        f = self.query(where="""($pkgid IS NULL OR $pkgid=:pkg) AND
+                                    ($tblid IS NULL OR $tblid=:tbl) AND
+                                    ($user_group IS NULL OR $user_group=:user_group) AND 
+                                    ($username IS NULL OR $username=:user)
+                                  """,pkg=pkg,tbl=tbl,user_group=user_group,user=user,
+                                  order_by='$rank ASC',columns="""$data""",addPkeyColumn=False).fetch()
+        ancestors = [Bag(r['data']) for r in f]
+        
+
+    def getInfoBag(self,pkg=None,tbl=None,table_branch=None,user=None,user_group=None):
         if not pkg and tbl:
             pkg = tbl.split('.')[0]
         result = Bag()
@@ -140,8 +182,8 @@ class Table(object):
             f = self.query(where="""($pkgid IS NULL OR $pkgid=:pkg) AND
                                     ($tblid IS NULL OR $tblid=:tbl) AND
                                     ($user_group IS NULL OR $user_group=:user_group) AND 
-                                    ($user_id IS NULL OR $user_id=:user_id)
-                                  """,pkg=pkg,tbl=tbl,user_group=user_group,user_id=user_id,
+                                    ($username IS NULL OR $username=:user)
+                                  """,pkg=pkg,tbl=tbl,user_group=user_group,user=user,
                                   order_by='$rank ASC',columns="""$qtree,$ftree,$tbl_permission,
                                                                    $forbidden_columns,
                                                                    $forbidden_override,

@@ -410,7 +410,10 @@ class SqlTable(GnrObject):
 
     @property
     def tableBranches(self):
-        return [k[7:] for k in dir(self) if k.startswith('branch_') and not k[-1]=='_']
+        branch_field = self.attributes.get('branch_field')
+        if branch_field: 
+            return [k.split(':')[0] for k in self.column(branch_field).attributes['values'].split(',')]
+ 
 
 
     def recordCoerceTypes(self, record, null='NULL'):

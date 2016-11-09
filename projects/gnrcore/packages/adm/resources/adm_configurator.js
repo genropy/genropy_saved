@@ -31,4 +31,17 @@ var QTREEEditor = {
             destBag.setItem(dragNode.label,dragNode);
         }
     }
+};
+
+
+var PermissionComponent = {
+    branchPermissions:function(data){
+        var result = new gnr.GnrBag();
+        data.forEach(function(cnode){
+            if(!isNullOrBlank(cnode.attr.forbidden) || !isNullOrBlank(cnode.attr.readonly)){
+                result.setItem(cnode.label,null,{forbidden:cnode.attr.forbidden,readonly:cnode.attr.readonly,colname:cnode.label})
+            }
+        });
+        return result;
+    }
 }

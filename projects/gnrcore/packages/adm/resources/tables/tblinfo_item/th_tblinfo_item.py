@@ -43,7 +43,7 @@ class Form(BaseComponent):
         return dict(dialog_height='400px', dialog_width='600px')
 
 class QTREEItemForm(BaseComponent):
-    js_requires = 'tblinfo'
+    js_requires = 'adm_configurator'
     def th_form(self, form):
         bc = form.center.borderContainer()
         left = bc.roundedGroupFrame(title='Source',region='left',width='200px')

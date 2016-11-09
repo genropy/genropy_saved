@@ -1105,7 +1105,7 @@ class GnrWebPage(GnrBaseWebPage):
         tblkey = '%s.%s' (table,table_branch) if table_branch else table
         if not tblkey in tableConfig:
             tableConfig[tblkey] = self.db.table('adm.user_config').getInfoBag(tbl=table,
-                                                    user_id=self.avatar.user_id,
+                                                    user=self.user,
                                                     user_group=self.avatar.group_code,
                                                     table_branch=table_branch)
             self.pageStore().setItem('userConfig.tables.%s' %tblkey, tableConfig[tblkey])
