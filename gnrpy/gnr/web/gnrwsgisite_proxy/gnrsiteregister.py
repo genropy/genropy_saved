@@ -38,7 +38,7 @@ if hasattr(Pyro4.config, 'REQUIRE_EXPOSE'):
     Pyro4.config.REQUIRE_EXPOSE = False
 
 OLD_HMAC_MODE = hasattr(Pyro4.config,'HMAC_KEY')
-
+DAEMON_TIMEOUT_START = 5
 
 class GnrDaemonException(Exception):
     pass
@@ -941,8 +941,9 @@ class SiteRegisterClient(object):
             if not self.runningDaemon(daemonProxy):
                 raise Exception('GnrDaemon is not started')
             t_start = time.time()
-            while not self.checkSiteRegisterServerUri(daemonProxy) and (time.time()-t_start)<2:
-                pass
+            while not self.checkSiteRegisterServerUri(daemonProxy):
+                if (time.time()-t_start)>DAEMON_TIMEOUT_START:
+                    raise Exception('GnrDaemon timout')
         print 'creating proxy',self.siteregister_uri,self.siteregisterserver_uri
         self.siteregister = Pyro4.Proxy(self.siteregister_uri)
         if not OLD_HMAC_MODE:

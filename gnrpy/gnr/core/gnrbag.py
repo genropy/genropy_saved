@@ -1762,7 +1762,7 @@ class Bag(GnrObject):
         if isinstance(destination, file):
             pickle.dump(self, destination, bin)
         else:
-            destination = file(destination, mode='w')
+            destination = file(destination, mode='wb')
             pickle.dump(self, destination, bin)
             destination.close()
             
@@ -1778,7 +1778,7 @@ class Bag(GnrObject):
             
     def _unpickle(self, source, fromFile):
         if fromFile:
-            source = file(source, mode='r')
+            source = file(source, mode='rb')
             result = pickle.load(source)
             source.close()
         else:

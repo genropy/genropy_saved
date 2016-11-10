@@ -1195,6 +1195,9 @@ dojo.declare("gnr.GridEditor", null, {
 
     updateRowFromRemote:function(rowId,value){
         var rowEditor = this.grid.getRowEditor({rowId:rowId});
+        if(!rowEditor){
+            rowEditor = this.newRowEditor(this.grid.rowBagNodeByIdentifier(rowId));
+        }
         if(this.grid.datamode=='bag'){
             rowEditor.replaceData(value,'remoteController');
         }else{
