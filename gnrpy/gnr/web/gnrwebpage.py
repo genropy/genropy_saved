@@ -2146,13 +2146,14 @@ class GnrWebPage(GnrBaseWebPage):
     @public_method
     def relationExplorer(self,table=None,item_type=None,**kwargs):
         if item_type:
-            r = self.db.table('adm.user_config').loadUserTblInfoRecord(info_type=item_type,tbl=table)
-            if not r:
+            item_code = self.userConfig['tables.%s.%s' %(table ,item_type.lower())]
+            if item_code is None:
                 return self.dbRelationExplorerFull(table,**kwargs)
-            code = r[item_type.lower()]
-            if not code or code=='_RAW_': #RAW 
-                return self.dbRelationExplorerFull(table,**kwargs)
-            item = self.db.table('adm.tblinfo_item').getInfoItem(item_type=item_type,tbl=table,code=code)
+            elif item_code == '_RAW_':
+                return self.dbRelationExplorerFull(table)
+            elif item_code == '_NO_':
+                return Bag()
+            item = self.db.table('adm.tblinfo_item').getInfoItem(item_type=item_type,tbl=table,code=item_code)
             if item:
                 return Bag(item['data'])['root']
         return self.dbRelationExplorerFull(table,**kwargs)

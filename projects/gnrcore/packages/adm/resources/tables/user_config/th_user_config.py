@@ -100,7 +100,10 @@ class Form(BaseComponent):
     @public_method
     def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
         if record['tblid']:
-            current_full_data = self.db.table('adm.user_config').getInfoBag(pkg=record['pkgid'],tbl=record['tblid'],user=record['username'],user_group=record['user_group'])
+            current_full_data = self.db.table('adm.user_config').getInfoBag(pkg=record['pkgid'],tbl=record['tblid'],
+                                                                            user=record['username'],
+                                                                            user_group=record['user_group'],
+                                                                            _allColumns=True)
             record['data.cols_permission'] = current_full_data['cols_permission']
 
     def th_top_custom(self,top):

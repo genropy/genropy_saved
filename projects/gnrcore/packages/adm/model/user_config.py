@@ -67,11 +67,11 @@ class Table(object):
 
     @metadata(order=1,title="!!Quick Fields Tree",default=1)
     def type_QTREE(self):
-        return 'NO:No,0:Easy,1:Avarage,2:Expert,_RAW_:Raw'
+        return '_NO_:No,0:Easy,1:Avarage,2:Expert,_RAW_:Raw'
 
     @metadata(order=2,title="!!Full Fields Tree",default=1)
     def type_FTREE(self):
-        return 'NO:No,0:Easy,1:Avarage,2:Expert,_RAW_:Raw'
+        return '_NO_:No,0:Easy,1:Avarage,2:Expert,_RAW_:Raw'
 
 
     def getTypeList(self,type):
@@ -125,7 +125,7 @@ class Table(object):
             cnode.attr['readonly'] = updattr.get('readonly')
             cnode.attr['forbidden'] = updattr.get('forbidden')
 
-    def getInfoBag(self,pkg=None,tbl=None,user=None,user_group=None):
+    def getInfoBag(self,pkg=None,tbl=None,user=None,user_group=None,_allColumns=False):
         if not pkg and tbl:
             pkg = tbl.split('.')[0]
         result = Bag()
@@ -135,7 +135,6 @@ class Table(object):
             for c in tblobj.columns.keys():
                 cols_permission_base.setItem(c,None,colname=c)
             result['cols_permission'] = cols_permission_base
-
         f = self.query(where="""($pkgid IS NULL OR $pkgid=:pkg) AND
                                 ($tblid IS NULL OR $tblid=:tbl) AND
                                 ($user_group IS NULL OR $user_group=:user_group) AND 
@@ -150,4 +149,12 @@ class Table(object):
                 else:
                     if v is not None:
                         result[k] = v
+        if not _allColumns:
+            filtered_cols_permission = Bag()
+            l = ('readony','forbidden','readonly_inherited','forbidden_inherited')
+            for n in result['cols_permission']:
+                d = dict( [(k,v) for k,v in n.attr.items() if k in l and v is not None])
+                if d:
+                    filtered_cols_permission.setItem(n.label,None,**d)
+            result['cols_permission'] = filtered_cols_permission
         return result
