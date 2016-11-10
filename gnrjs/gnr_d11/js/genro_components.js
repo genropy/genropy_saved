@@ -5550,7 +5550,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             var k = 0;
             var dataColumns = {};
             do{
-                dataColumns = this.rowByIndex(k);
+                dataColumns = this.rowByIndex(k,true);
                 k++;
             }while(k<=n && ('_newrecord' in dataColumns))
             if('_newrecord' in dataColumns){
