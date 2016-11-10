@@ -1093,11 +1093,16 @@ class GnrWebPage(GnrBaseWebPage):
     @property
     def userConfig(self):
         if not hasattr(self,'_userConfig'):
-            self._userConfig = self.pageStore().getItem('userConfig') or Bag()
+            if self.pageOptions.get('userConfig') is False:
+                self._userConfig = Bag()
+            else:
+                self._userConfig = self.pageStore().getItem('userConfig') or Bag()
         return self._userConfig
 
 
     def getUserTableConfig(self,path='',table=None,**kwargs):
+        if self.pageOptions.get('userConfig') is False:
+            return Bag()
         if not ('adm' in self.db.packages):
             return Bag() if not path else None
         userConfig = self.userConfig

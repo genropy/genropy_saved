@@ -3,6 +3,7 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrbag import Bag
 
 class View(BaseComponent):
 
@@ -64,13 +65,13 @@ class Form(BaseComponent):
                                 s.deleteAsk([value]);
                             """,
                                 margin='3px',border='1px solid silver')
-        frame.multiButtonView.item(code='add_it',caption='+',frm=frame.form.js_form,
-                                    action='frm.newrecord({code:custom_code || standard_code,description:custom_description || description || custom_code});',
+        frame.multiButtonView.item(code='add_it',caption='+',
+                                    action='genro.publish("new_qtree",{code:custom_code || standard_code,description:custom_description || description || custom_code,based_on:based_on});',
                                     ask=dict(title='New Item',fields=[dict(lbl='Standard code',
                                                                     name='standard_code',tag='remoteSelect',
                                                                     auxColumns='code,description',
                                                                     method='_table.adm.tblinfo_item.getFilteredOptions',
-                                                                    condition_tbl='=#tblinfo_rec.tbl',
+                                                                    condition_tbl='=#tblinfo_rec.tblid',
                                                                     condition_item_type='QTREE',
                                                                     selected_description='.description',
                                                                     values=self.db.table('adm.user_config').type_QTREE(),
@@ -78,10 +79,29 @@ class Form(BaseComponent):
                                                                 dict(lbl='Custom code',
                                                                     name='custom_code',disabled='^.standard_code'), 
                                                                 dict(lbl='Custom description',
-                                                                    name='custom_description',disabled='^.standard_code')],
+                                                                    name='custom_description',disabled='^.standard_code'),
+                                                                dict(lbl='Based on',
+                                                                    name='based_on',tag='dbselect',
+                                                                    dbtable='adm.tblinfo_item',condition='$tblid=:tbl AND $item_type=:item_type',
+                                                                        condition_tbl='=#tblinfo_rec.tblid',
+                                                                        condition_item_type='QTREE')],
                                                                ),
                 parentForm=True,deleteAction=False)
+        frame.dataRpc(None,self.newTblInfoItem,subscribe_new_qtree=True,
+                        tblid='=#FORM.record.tblid',item_type='QTREE',
+                    _onResult="SET .value = result;")
 
+    @public_method
+    def newTblInfoItem(self,code=None,description=None,based_on=None,item_type=None,tblid=None):
+        data = Bag()
+        data['root'] = Bag()
+        infoitem_tbl = self.db.table('adm.tblinfo_item')
+        if based_on:
+            data = infoitem_tbl.readColumns(pkey=based_on,columns='$data')
+        rec = dict(code=code,description=description,item_type=item_type,tblid=tblid,data=data)
+        infoitem_tbl.insert(rec)
+        self.db.commit()
+        return rec['info_key']
 
     def th_options(self):
         return dict(dialog_parentRatio=0.9)

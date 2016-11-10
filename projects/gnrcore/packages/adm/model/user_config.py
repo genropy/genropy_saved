@@ -64,41 +64,6 @@ class Table(object):
             self.db.commit()
             return r['ruleid']
 
-    def info_type_condition(self,info_type=None):
-        info_type_condition = 'True'
-        if info_type=='QTREE':
-            info_type_condition = '$qtree IS NOT NULL'
-        elif info_type=='FTREE':
-            info_type_condition = '$ftree IS NOT NULL'
-        elif info_type=='VIEW':
-            info_type_condition = '$view_permission IS NOT NULL'
-        elif info_type=='FORM':
-            info_type_condition = '$form_permission IS NOT NULL'
-        elif info_type=='COLS':
-            info_type_condition = '$columns_permission IS NOT NULL'
-        return info_type_condition
-
-    def loadUserTblInfoRecord(self,info_type=None,pkg=None,
-                            tbl=None,user=None,
-                            user_group=None):
-        if tbl and not pkg:
-            pkg = tbl.split('.')[0]
-        user_group=user_group or self.db.currentEnv.get('user_group_code')
-        user=user or self.db.currentEnv.get('user')
-        f = self.query(where=""" %s AND
-                            ($tblid IS NULL OR $tblid=:tbl) AND 
-                            ($pkgid IS NULL OR $pkg=:pkg) AND
-                            ($username IS NULL OR $username=:user) AND 
-                            ($user_group IS NULL OR $user_group=:user_group)
-                            """ %self.info_type_condition(info_type),
-                    
-                    pkg=pkg,
-                    tbl=tbl,
-                    user=user,
-                    user_group=user_group,
-                    order_by='$rank desc',limit=1).fetch()
-        return f[0] if f else None
-
 
     @metadata(order=1,title="!!Quick Fields Tree",default=1)
     def type_QTREE(self):
@@ -147,41 +112,42 @@ class Table(object):
         if record['tblid'] and not record['pkgid']:
             record['pkgid'] = record['tblid'].split('.')[0]
 
-    def _col_auth(self,mode=None,row=None,result=None):
-        fieldcols = '%s_columns' %mode
-        fieldoverride = '%s_override' %mode
-        columns = row.pop(fieldcols)
-        override = row.pop(fieldoverride)
-        columns = columns.split(',') if columns else []
-        if columns or override:
-            if override:
-                result[fieldcols] = columns
-            elif columns:
-                current = result[fieldcols]
-                current = set(current) if current else set()
-                current.add(set(columns))
-                result[fieldcols] = list(columns)
+
+    def _updateColsPermission(self,cols_permission,updater):
+        for cnode in cols_permission:
+            updattr = updater.getAttr(cnode.label) or dict()
+            last_readonly = cnode.attr.get('readonly')
+            last_forbidden = cnode.attr.get('forbidden')
+            if last_readonly is not None:
+                cnode.attr['readonly_inherited'] = last_readonly
+            if last_forbidden:
+                cnode.attr['forbidden_inherited'] = last_forbidden
+            cnode.attr['readonly'] = updattr.get('readonly')
+            cnode.attr['forbidden'] = updattr.get('forbidden')
 
     def getInfoBag(self,pkg=None,tbl=None,user=None,user_group=None):
         if not pkg and tbl:
             pkg = tbl.split('.')[0]
         result = Bag()
-        if False:
-            f = self.query(where="""($pkgid IS NULL OR $pkgid=:pkg) AND
-                                    ($tblid IS NULL OR $tblid=:tbl) AND
-                                    ($user_group IS NULL OR $user_group=:user_group) AND 
-                                    ($username IS NULL OR $username=:user)
-                                  """,pkg=pkg,tbl=tbl,user_group=user_group,user=user,
-                                  order_by='$rank ASC',columns="""$qtree,$ftree,$tbl_permission,
-                                                                   $forbidden_columns,
-                                                                   $forbidden_override,
-                                                                   $readonly_columns,
-                                                                   $readonly_override""",addPkeyColumn=False).fetch()
-            for r in f:
-                r = dict(r)
-                self._col_auth('forbidden',r,result)
-                self._col_auth('readonly',r,result)
-                for k,v in r.items():
+        if tbl:
+            tblobj =  self.db.table(tbl)
+            cols_permission_base = Bag()
+            for c in tblobj.columns.keys():
+                cols_permission_base.setItem(c,None,colname=c)
+            result['cols_permission'] = cols_permission_base
+
+        f = self.query(where="""($pkgid IS NULL OR $pkgid=:pkg) AND
+                                ($tblid IS NULL OR $tblid=:tbl) AND
+                                ($user_group IS NULL OR $user_group=:user_group) AND 
+                                ($username IS NULL OR $username=:user)
+                              """,pkg=pkg,tbl=tbl,user_group=user_group,user=user,
+                              order_by='$rank ASC',columns="""$data""",addPkeyColumn=False).fetch()
+        for r in f:
+            data = Bag(r['data'])
+            for k,v in data.items():
+                if k == 'cols_permission' and v:
+                    self._updateColsPermission(result['cols_permission'],v)
+                else:
                     if v is not None:
                         result[k] = v
         return result

@@ -41,6 +41,7 @@ class Table(object):
         result = Bag()
         standard_codes = self.db.table('adm.user_config').getTypeList(item_type)
         d = dict(standard_codes)
+        codes_to_remove = []
         if tbl:
             codes_to_remove = self.db.table('adm.tblinfo_item').query(where='$tblid=:t AND $item_type=:it AND $code IN :c',
                                         t=tbl,it=item_type,c=d.keys(),columns='$code,$description').fetchAsDict('code')

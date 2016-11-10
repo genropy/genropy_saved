@@ -10,7 +10,9 @@ from gnr.core.gnrdecorator import public_method
 class GnrCustomWebPage(object):
     dojo_source=True
     py_requires = """public:Public,th/th:TableHandler"""
-    pageOptions={'openMenu':False,'liveUpdate':True}
+    auth_page='_DEV_,superadmin'
+    auth_main = '_DEV_,superadmin'
+    pageOptions={'openMenu':False,'liveUpdate':True,'userConfig':False}
 
     def main(self, root,**kwargs):
         frame = root.rootBorderContainer(datapath='main',design='sidebar',title='!![it]Admin Configurator') 
@@ -39,7 +41,7 @@ class GnrCustomWebPage(object):
                                                                 dict(lbl='User',hasDownArrow=True,
                                                                     name='username',tag='dbselect',dbtable='adm.user',
                                                                     alternatePkey='username',
-                                                                    condition='$user_group IS NULL OR $user_group=:ugroup',
+                                                                    condition='$group_code IS NULL OR $group_code=:ugroup',
                                                                     condition_ugroup='=.user_group'), 
                                                                 dict(lbl='Pkg',hasDownArrow=True,
                                                                     name='pkgid',tag='dbselect',dbtable='adm.pkginfo'),

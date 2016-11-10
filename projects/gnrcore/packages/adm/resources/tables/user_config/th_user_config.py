@@ -12,7 +12,7 @@ class View(BaseComponent):
         r.fieldcell('username',hidden='^#mainpars.username',width='7em')
         r.fieldcell('pkgid',hidden='^#mainpars.pkgid',width='4em')
         r.fieldcell('tblid',hidden='^#mainpars.tblid',width='8em')
-        r.fieldcell('data')
+        r.fieldcell('data',width='30em')
 
     def th_hiddencolumns(self):
         return '$rank'
@@ -67,7 +67,7 @@ class Form(BaseComponent):
         sc.contentPane()
         sc.contentPane().bagGrid(frameCode='cols_permission',datapath='#FORM.fields_grid',title='Fields',
                                                             struct=self.struct_permissiongrid,
-                                                            storepath='^#FORM.record.cols_permission',
+                                                            storepath='#FORM.record.data.cols_permission',
                                                             pbl_classes=True,margin='2px',
                                                             addrow=False,delrow=False,datamode='attr')
         
@@ -76,8 +76,8 @@ class Form(BaseComponent):
     def struct_permissiongrid(self,struct):
         r = struct.view().rows()
         r.cell('colname',name='Column',width='22em')
-        r.checkboxcell('readonly',threestate=True,name='RO')
-        r.checkboxcell('forbidden',threestate=True,name='NO')
+        r.checkboxcell('readonly',threestate=True,name='Readonly')
+        r.checkboxcell('forbidden',threestate=True,name='Forbidden')
         r.cell('status',name='Status',width='12em',
             _customGetter="""function(row){
                 var result = [];
@@ -85,7 +85,7 @@ class Form(BaseComponent):
                 ['forbidden','readonly'].forEach(function(c){
                     inherited = false;
                     v = row[c];
-                    if(v===null){
+                    if(isNullOrBlank(v)){
                         v=row[c+'_inherited'];
                         inherited=true;
                     }
@@ -97,26 +97,11 @@ class Form(BaseComponent):
             }""")
 
 
-
-
     @public_method
     def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
-        if not record['tblid']:
-            return
-        tblobj =  self.db.table(record['tblid'])
-        cols_permission_base = Bag()
-        for c in tblobj.columns.keys():
-            cols_permission_base.setItem(c,None,colname=c)
-
-       # f = self.query(where="""($pkgid IS NULL OR $pkgid=:pkg) AND
-       #                             ($tblid IS NULL OR $tblid=:tbl) AND
-       #                             ($user_group IS NULL OR $user_group=:user_group) AND 
-       #                             ($username IS NULL OR $username=:user)
-       #                           """,pkg=record['pkgid'],tbl=record['tblid'],
-       #                               user_group=record['user_group'],
-       #                               user=record['username'],
-       #                           order_by='$rank ASC',columns="""$data""",addPkeyColumn=False).fetch()
-
+        if record['tblid']:
+            current_full_data = self.db.table('adm.user_config').getInfoBag(pkg=record['pkgid'],tbl=record['tblid'],user=record['username'],user_group=record['user_group'])
+            record['data.cols_permission'] = current_full_data['cols_permission']
 
     def th_top_custom(self,top):
         self.newRuleButton(top.bar.replaceSlots('form_add','newrule'))
