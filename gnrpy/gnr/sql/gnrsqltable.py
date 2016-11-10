@@ -408,14 +408,6 @@ class SqlTable(GnrObject):
     def counterColumns(self):
         return
 
-    @property
-    def tableBranches(self):
-        branch_field = self.attributes.get('branch_field')
-        if branch_field: 
-            return [k.split(':')[0] for k in self.column(branch_field).attributes['values'].split(',')]
- 
-
-
     def recordCoerceTypes(self, record, null='NULL'):
         """Check and coerce types in record.
         

@@ -35,7 +35,7 @@ var QTREEEditor = {
 
 
 var PermissionComponent = {
-    branchPermissions:function(data){
+    colsPermissionsData:function(data){
         var result = new gnr.GnrBag();
         data.forEach(function(cnode){
             if(!isNullOrBlank(cnode.attr.forbidden) || !isNullOrBlank(cnode.attr.readonly)){

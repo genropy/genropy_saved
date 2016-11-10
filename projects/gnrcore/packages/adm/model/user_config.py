@@ -162,19 +162,7 @@ class Table(object):
                 current.add(set(columns))
                 result[fieldcols] = list(columns)
 
-    def userConfiguration(self,pkg=None,tbl=None,table_branch=None,user=None,user_group=None):
-        if not pkg and tbl:
-            pkg = tbl.split('.')[0]
-        f = self.query(where="""($pkgid IS NULL OR $pkgid=:pkg) AND
-                                    ($tblid IS NULL OR $tblid=:tbl) AND
-                                    ($user_group IS NULL OR $user_group=:user_group) AND 
-                                    ($username IS NULL OR $username=:user)
-                                  """,pkg=pkg,tbl=tbl,user_group=user_group,user=user,
-                                  order_by='$rank ASC',columns="""$data""",addPkeyColumn=False).fetch()
-        ancestors = [Bag(r['data']) for r in f]
-        
-
-    def getInfoBag(self,pkg=None,tbl=None,table_branch=None,user=None,user_group=None):
+    def getInfoBag(self,pkg=None,tbl=None,user=None,user_group=None):
         if not pkg and tbl:
             pkg = tbl.split('.')[0]
         result = Bag()

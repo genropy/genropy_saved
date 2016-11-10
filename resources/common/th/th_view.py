@@ -54,7 +54,7 @@ class TableHandlerView(BaseComponent):
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
                        unlinkdict=None,searchOn=True,count=None,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,
-                       store_kwargs=None,parentForm=None,liveUpdate=None,branch=None,**kwargs):
+                       store_kwargs=None,parentForm=None,liveUpdate=None,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         if condition:
@@ -113,7 +113,7 @@ class TableHandlerView(BaseComponent):
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title,
                         liveUpdate=liveUpdate,store_kwargs=store_kwargs)
-        self._th_view_contextMenu(frame.grid,branch=branch)
+        self._th_view_contextMenu(frame.grid)
         if virtualStore:    
             self._extTableRecords(frame)
         frame.dataController("""if(!firedkw.res_type){return;}
@@ -143,7 +143,7 @@ class TableHandlerView(BaseComponent):
                 """,modifiers='Ctrl',validclass='dojoxGrid-cell,cellContent')
         return frame
 
-    def _th_view_contextMenu(self,grid,branch=None):
+    def _th_view_contextMenu(self,grid):
         b = Bag()
         b.rowchild(label='!!Reload',action="$2.widget.reload();")
         b.rowchild(label='-')
@@ -154,7 +154,7 @@ class TableHandlerView(BaseComponent):
                             checked='^.#parent.tableRecordCount')
         b.rowchild(label='-')
         b.rowchild(label='!!Configure Table',
-                    action='genro.dev.fieldsTreeConfigurator($2.attr.table,$1.branch);',branch=branch)
+                    action='genro.dev.fieldsTreeConfigurator($2.attr.table);')
         b.rowchild(childname='configure',label='!!Configure View',action="""$2.widget.configureStructure();""")
         grid.data('.contextMenu',b)
 

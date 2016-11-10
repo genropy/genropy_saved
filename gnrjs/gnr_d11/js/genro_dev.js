@@ -247,11 +247,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
 
 
-    fieldsTreeConfigurator:function(table,branch){
+    fieldsTreeConfigurator:function(table){
         var src = '/adm/tableconf/'+table.replace('.','/');
-        if(branch){
-            src+=('/'+branch);
-        }
         var kw = {windowRatio:.9, title:'Fields tree configurator',
             src:src,closable:true};
         kw.selfsubscribe_exit = function(kw){

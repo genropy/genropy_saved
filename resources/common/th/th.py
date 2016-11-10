@@ -35,7 +35,7 @@ class TableHandler(BaseComponent):
                   """
     
     @extract_kwargs(condition=True,grid=True,view=True,picker=True,export=True,addrowmenu=True,hider=True,preview=True,relation=True)
-    def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,table_branch=None,relation=None,datapath=None,viewResource=None,
+    def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,pageName=None,readOnly=False,tag=None,
                             lockable=False,pbl_classes=False,configurable=True,hider=True,searchOn=True,count=None,
@@ -59,7 +59,7 @@ class TableHandler(BaseComponent):
                                                     default_kwargs=default_kwargs,original_kwargs=kwargs)
         tblattr = self.db.table(table).attributes
         readOnly = readOnly or tblattr.get('readOnly')
-        tblconfig = self.getUserTableConfig(table=table,branch=table_branch)
+        tblconfig = self.getUserTableConfig(table=table)
         if tblconfig['tbl_permission'] == 'readonly':
             readOnly = True
         delrow = tblattr.get('deletable',delrow)
@@ -85,7 +85,6 @@ class TableHandler(BaseComponent):
                         thform_root=formCode,
                         th_viewResource=self._th_getResourceName(viewResource,defaultClass='View',defaultModule=defaultModule),
                         th_formResource=self._th_getResourceName(kwargs.get('formResource'),defaultClass='Form',defaultModule=defaultModule),
-                        table_branch=table_branch,
                         table=table,
                         nodeId=th_root,
                         context_dbstore=dbstore,
@@ -201,11 +200,10 @@ class TableHandler(BaseComponent):
         return wdg
 
 
-    def th_checkPermission(self,pane,table=None,branch=None):
+    def th_checkPermission(self,pane,table=None):
         inattr = pane.getInheritedAttributes()
         table = table or inattr['table']
-        branch =inattr.get('table_branch')
-        tblconfig = self.getUserTableConfig(table=table,branch=branch)
+        tblconfig = self.getUserTableConfig(table=table)
         if tblconfig['tbl_permission'] == 'hidden':
             return False
         dflt = self.pageAuthTags(method='main')

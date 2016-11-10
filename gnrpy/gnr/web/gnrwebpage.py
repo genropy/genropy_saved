@@ -1094,7 +1094,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self._userConfig
 
 
-    def getUserTableConfig(self,path='',table=None,table_branch=None,**kwargs):
+    def getUserTableConfig(self,path='',table=None,**kwargs):
         if not ('adm' in self.db.packages):
             return Bag() if not path else None
         userConfig = self.userConfig
@@ -1102,14 +1102,12 @@ class GnrWebPage(GnrBaseWebPage):
         if tableConfig is None:
             tableConfig = Bag()
             userConfig['tables'] = tableConfig
-        tblkey = '%s.%s' (table,table_branch) if table_branch else table
-        if not tblkey in tableConfig:
-            tableConfig[tblkey] = self.db.table('adm.user_config').getInfoBag(tbl=table,
+        if not table in tableConfig:
+            tableConfig[table] = self.db.table('adm.user_config').getInfoBag(tbl=table,
                                                     user=self.user,
-                                                    user_group=self.avatar.group_code,
-                                                    table_branch=table_branch)
-            self.pageStore().setItem('userConfig.tables.%s' %tblkey, tableConfig[tblkey])
-        return tableConfig[tblkey][path]
+                                                    user_group=self.avatar.group_code)
+            self.pageStore().setItem('userConfig.tables.%s' %table, tableConfig[table])
+        return tableConfig[table][path]
         
     def getDomainUrl(self, path='', **kwargs):
         """TODO
