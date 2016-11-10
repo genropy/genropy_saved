@@ -64,7 +64,7 @@ class Form(BaseComponent):
                         lbl='Permissions',colspan=2)
         sc = bc.stackContainer(region='center')
         bc.dataController("sc.switchPage(tblid?1:0);",sc=sc.js_widget,tblid='^#FORM.record.tblid')
-        sc.contentPane().div('Choose table')
+        sc.contentPane()
         sc.contentPane().bagGrid(frameCode='cols_permission',datapath='#FORM.fields_grid',title='Fields',
                                                             struct=self.struct_permissiongrid,
                                                             storepath='^#FORM.record.cols_permission',
