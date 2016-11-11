@@ -45,7 +45,7 @@ class FrameIndex(BaseComponent):
                         self.mixinComponent(p)
         frameplugins.append('maintenance')
         return ','.join(frameplugins)
-    
+
     def main(self,root,new_window=None,gnrtoken=None,custom_index=None,**kwargs):
         if gnrtoken and not self.db.table('sys.external_token').check_token(gnrtoken):
             root.dataController("""genro.dlg.alert(msg,'Error',null,null,{confirmCb:function(){
@@ -288,8 +288,8 @@ class FrameIndex(BaseComponent):
     def prepareLeft(self,pane):
         pane.attributes.update(dict(splitter=True,width='210px',datapath='left',
                                     margin_right='-4px',overflow='hidden',hidden=self.hideLeftPlugins,border_right='1px solid #ddd'))
-        bc = pane.borderContainer()
-        sc = bc.stackContainer(selectedPage='^.selected',nodeId='gnr_main_left_center',
+       # bc = pane.borderContainer()
+        sc = pane.stackContainer(selectedPage='^.selected',nodeId='gnr_main_left_center',
                                 subscribe_open_plugin="""var plugin_name = $1.plugin;
                                                          SET left.selected = plugin_name;
                                                          var width = $1.forcedWidth || genro.getFromStorage('local','frameindex_left_'+plugin_name+'_width') || $1.defaultWidth;
@@ -297,7 +297,7 @@ class FrameIndex(BaseComponent):
                                                               SET frameindex.regions.left = width;
                                                          }
                                                          genro.getFrameNode('standard_index').publish('showLeft');""",
-                                overflow='hidden',region='center')
+                                overflow='hidden')
         sc.dataController("""if(!page){return;}
                              genro.publish(page+'_'+(selected?'on':'off'));
                              genro.dom.setClass(genro.nodeById('plugin_block_'+page).getParentNode(),'iframetab_selected',selected);
@@ -310,11 +310,11 @@ class FrameIndex(BaseComponent):
             if not cb:
                 return
             assert cb, 'Plugin %s not found' % plugin
-            cb(sc.contentPane(pageName=plugin,overflow='hidden'))
+            cb(sc.contentPane(pageName=plugin,overflow='hidden',_lazyBuild=True))
+
             sc.dataController("""PUBLISH main_left_set_status = true;
                                  SET .selected=plugin;
                                  """, **{'subscribe_%s_open' % plugin: True, 'plugin': plugin})
-
 
     def btn_menuToggle(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='application_menu',tip='!!Show/Hide the left pane',
