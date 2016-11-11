@@ -1637,6 +1637,10 @@ class GnrWebAppHandler(GnrBaseProxy):
         sqlArgs = dict()
         cond = tblobj.opTranslate(querycolumns[0],'contains',searchval,sqlArgs=sqlArgs)
         result = getSelection(cond,**sqlArgs)
+        if len(result) >= (limit or 50):
+            cond = tblobj.opTranslate(querycolumns[0],'startswith',searchval,sqlArgs=sqlArgs)
+            result = getSelection(cond,**sqlArgs)
+
         #columns_concat = "ARRAY_TO_STRING(ARRAY[%s], ' ')" % ','.join(querycolumns)
         columns_concat = " || ' ' || ".join(["CAST ( COALESCE(%s,'') AS TEXT ) " %c for c in querycolumns])
         if len(result) == 0: # few results from the startswith query on first col
@@ -1656,6 +1660,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             #where =" AND ".join(["(%s)  ILIKE :w%i" % (" || ' ' || ".join(querycolumns), i) for i,w in enumerate(srclist)])
             where = " AND ".join(["(%s)  ILIKE :w%i" % (columns_concat, i) for i, w in enumerate(srclist)])
             result = getSelection(where, **whereargs)
+
+
 
         return result
 
