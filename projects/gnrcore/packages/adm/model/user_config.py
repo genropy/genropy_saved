@@ -144,8 +144,9 @@ class Table(object):
         for r in f:
             data = Bag(r['data'])
             for k,v in data.items():
-                if k == 'cols_permission' and v:
-                    self._updateColsPermission(result['cols_permission'],v)
+                if k == 'cols_permission':
+                    if v:
+                        self._updateColsPermission(result['cols_permission'],v)
                 else:
                     if v is not None:
                         result[k] = v

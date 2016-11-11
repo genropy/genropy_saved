@@ -586,6 +586,7 @@ class MultiButtonForm(BaseComponent):
                 """,row='^.row',switchdict=switchdict,
                 sw=switch,_if='row && row.getItem("_pkey")')
         else:
+            formId= formId or '%s_frm' %frameCode
             form = frame.center.contentPane(overflow='hidden').thFormHandler(formResource=formResource,table=table,
                                     default_kwargs=default_kwargs,formId=formId,**form_kwargs)
             frame.form = form

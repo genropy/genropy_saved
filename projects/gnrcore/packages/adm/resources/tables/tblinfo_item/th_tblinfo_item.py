@@ -42,7 +42,7 @@ class Form(BaseComponent):
     def th_options(self):
         return dict(dialog_height='400px', dialog_width='600px')
 
-class QTREEItemForm(BaseComponent):
+class ConfTreeItemForm(BaseComponent):
     js_requires = 'adm_configurator'
     def th_form(self, form):
         bc = form.center.borderContainer()
@@ -88,8 +88,8 @@ class QTREEItemForm(BaseComponent):
         tree = right.treeGrid(storepath='#FORM.record.data', 
                     headers=True,
                     _class='fieldsTree',
-                    hideValues=True,nodeId="qtree_editor",
-                    onDrop_selfdrag_path="""QTREEEditor.selfDragDropTree(this,data,dropInfo);""",
+                    hideValues=True,
+                    onDrop_selfdrag_path="""ConfTreeEditor.selfDragDropTree(this,data,dropInfo);""",
                     onDrag='dragValues["selfdrag_path"]= dragValues["treenode"]["relpath"];',
                     dropTargetCb="""
                         if(!dropInfo.selfdrop&&dropInfo.treeItem.attr.dtype){

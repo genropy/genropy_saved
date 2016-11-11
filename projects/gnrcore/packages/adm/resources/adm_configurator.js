@@ -1,4 +1,4 @@
-var QTREEEditor = {
+var ConfTreeEditor = {
     selfDragDropTree:function(sourceNode,data,dropInfo){
         if(!dropInfo.selfdrop){
             return;

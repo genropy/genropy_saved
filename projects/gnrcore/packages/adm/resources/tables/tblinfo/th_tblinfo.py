@@ -50,31 +50,32 @@ class Form(BaseComponent):
         fb.field('tblid')
         fb.field('description',colspan=3,width='100%')
         tc = bc.tabContainer(region='center',margin='2px',parentForm=False)
-        self.qtreeItems(tc.contentPane(title='Quick Fields Tree'))
+        self.congTreeItems(tc.contentPane(title='Quick Fields Tree'),'QTREE')
+        self.congTreeItems(tc.contentPane(title='Full Fields Tree'),'FTREE')
 
-    def qtreeItems(self,pane):
-        frame = pane.multiButtonForm(frameCode='qtree_#',relation='@items',
+    def congTreeItems(self,pane,item_type):
+        frame = pane.multiButtonForm(frameCode='conf_tree_%s' %item_type.lower(),relation='@items',
                                 condition='$item_type=:t',
-                                condition_t='QTREE',default_item_type='QTREE',
+                                condition_t=item_type,default_item_type=item_type,
                                 caption='description',
-                                datapath='#FORM.thqt',
+                                datapath='#FORM.th_%s' %item_type,
                                 #viewResource='QTREEItemView',
-                                formResource='QTREEItemForm',
+                                formResource='ConfTreeItemForm',
                                 multibutton_deleteSelectedOnly=True,multibutton_deleteAction="""
                                 var s = this._value.getNode('store').gnrwdg.store;
                                 s.deleteAsk([value]);
                             """,
                                 margin='3px',border='1px solid silver')
         frame.multiButtonView.item(code='add_it',caption='+',
-                                    action='genro.publish("new_qtree",{code:custom_code || standard_code,description:custom_description || description || custom_code,based_on:based_on});',
+                                    action='FIRE .new_item = {code:custom_code || standard_code,description:custom_description || description || custom_code,based_on:based_on};',
                                     ask=dict(title='New Item',fields=[dict(lbl='Standard code',
                                                                     name='standard_code',tag='remoteSelect',
                                                                     auxColumns='code,description',
                                                                     method='_table.adm.tblinfo_item.getFilteredOptions',
                                                                     condition_tbl='=#tblinfo_rec.tblid',
-                                                                    condition_item_type='QTREE',
+                                                                    condition_item_type=item_type,
                                                                     selected_description='.description',
-                                                                    values=self.db.table('adm.user_config').type_QTREE(),
+                                                                    values=getattr(self.db.table('adm.user_config'),'type_%s' %item_type)(),
                                                                     hasDownArrow=True),
                                                                 dict(lbl='Custom code',
                                                                     name='custom_code',disabled='^.standard_code'), 
@@ -84,24 +85,28 @@ class Form(BaseComponent):
                                                                     name='based_on',tag='dbselect',
                                                                     dbtable='adm.tblinfo_item',condition='$tblid=:tbl AND $item_type=:item_type',
                                                                         condition_tbl='=#tblinfo_rec.tblid',
-                                                                        condition_item_type='QTREE')],
+                                                                        condition_item_type=item_type)],
                                                                ),
                 parentForm=True,deleteAction=False)
         frame.dataRpc(None,self.newTblInfoItem,subscribe_new_qtree=True,
-                        tblid='=#FORM.record.tblid',item_type='QTREE',
+                        new_item='^.new_item',
+                        tblid='=#FORM.record.tblid',item_type=item_type,
                     _onResult="SET .value = result;")
 
     @public_method
-    def newTblInfoItem(self,code=None,description=None,based_on=None,item_type=None,tblid=None):
+    def newTblInfoItem(self,new_item=None,tblid=None,item_type=None,**kwargs):
         data = Bag()
-        data['root'] = Bag()
+        data.setItem('root', Bag(),caption=self.db.table(tblid).name_long)
         infoitem_tbl = self.db.table('adm.tblinfo_item')
+        based_on = new_item.pop('based_on')
         if based_on:
             data = infoitem_tbl.readColumns(pkey=based_on,columns='$data')
-        rec = dict(code=code,description=description,item_type=item_type,tblid=tblid,data=data)
-        infoitem_tbl.insert(rec)
+        new_item['data'] = data
+        new_item['tblid'] = tblid
+        new_item['item_type'] = item_type
+        infoitem_tbl.insert(new_item)
         self.db.commit()
-        return rec['info_key']
+        return new_item['info_key']
 
     def th_options(self):
         return dict(dialog_parentRatio=0.9)
@@ -109,8 +114,8 @@ class Form(BaseComponent):
 class FormFromTH(Form):
     def th_form(self, form):
         tc = form.center.tabContainer(margin='3px')
-        self.qtreeItems(tc.contentPane(title='Quick Fields Tree'))
-        self.authorizationsItems(tc.contentPane(title='Authorization'))
+        self.congTreeItems(tc.contentPane(title='Quick Fields Tree'),'QTREE')
+        self.congTreeItems(tc.contentPane(title='Full Fields Tree'),'FTREE')
 
     def th_options(self):
         return dict(dialog_parentRatio=0.9,showtoolbar=False)
