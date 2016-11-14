@@ -310,7 +310,7 @@ class FrameIndex(BaseComponent):
             if not cb:
                 return
             assert cb, 'Plugin %s not found' % plugin
-            cb(sc.contentPane(pageName=plugin,overflow='hidden',_lazyBuild=True))
+            cb(sc.contentPane(pageName=plugin,overflow='hidden'))
 
             sc.dataController("""PUBLISH main_left_set_status = true;
                                  SET .selected=plugin;
