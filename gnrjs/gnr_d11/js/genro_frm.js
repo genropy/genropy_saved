@@ -54,8 +54,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.formDatapath = formDatapath;
         this.pkeyPath = pkeyPath;
         this.sourceNode = sourceNode;
-        this.contentSourceNode = this.store? this.sourceNode.getValue().getNode('center'):sourceNode;
-        
+        var formCenter = this.sourceNode.getValue().getNode('center');
+        this.contentSourceNode = this.store? (formCenter?formCenter:sourceNode):sourceNode;
         this.frameCode = sourceNode.attr.frameCode;
         if(this.frameCode){
             this.formParentNode = genro.getFrameNode(this.frameCode,'frame').getParentNode().getParentNode();
@@ -160,7 +160,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var that = this;
             dojo.connect(this.formContentDomNode,'onclick',function(e){
                 var wdg = dijit.getEnclosingWidget(e.target);
-                if(wdg && wdg.isFocusable && !wdg.isFocusable() && wdg.sourceNode && (wdg.sourceNode.form != genro.activeForm)){
+                if(wdg && wdg.sourceNode.form && wdg.isFocusable && !wdg.isFocusable() && wdg.sourceNode && (wdg.sourceNode.form != genro.activeForm)){
                    wdg.sourceNode.form.focusCurrentField();
                 }
             });
@@ -841,7 +841,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     focus:function(node){
         if(!this.isDisabled()){
             var formContentDomNode = this.formContentDomNode || this.sourceNode.widget.domNode;
-            if(this.sourceNode.widget.getSelected){
+            if(this.sourceNode.widget && this.sourceNode.widget.getSelected){
                 formContentDomNode = this.sourceNode.widget.getSelected().domNode;
             }
             if(!node && this._firstField){
@@ -1179,6 +1179,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         data = data || new gnr.GnrBag();
         this.sourceNode.setRelativeData(this.formDatapath,data);
+        this.getDataNodeAttributes().record_root = true;
     },
     getDataNodeAttributes:function(){
         var data = this.sourceNode.getRelativeData(this.formDatapath);
@@ -1539,7 +1540,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     recordOwnerNode:function(changeDataNode){
         var rnode = changeDataNode.getParentNode();
-        while(rnode && !(rnode.label=='record' || rnode.label[0]=='@')){
+        while(rnode && !(rnode.label=='record' || rnode.label[0]=='@' || rnode.attr.record_root)){
             rnode = rnode.getParentNode();
         }
         return rnode;
@@ -2138,6 +2139,13 @@ dojo.declare("gnr.formstores.Base", null, {
     getParentStoreData:function(){
         return this.parentStore.getData();
     },
+    load_dummy:function(loadkw){
+        var result = this.form.getFormData().deepCopy();
+        this.loaded('*newrecord*',result);
+        return result;
+    },
+    save_dummy:function(loadkw){},
+
     load_document:function(kw){
         /*
         pkey=discpath; it can use the static shortcut syntax;
@@ -2447,6 +2455,9 @@ dojo.declare("gnr.formstores.Base", null, {
     getDefaultDestPkey:function(){
     }
 });
+
+
+
 dojo.declare("gnr.formstores.SubForm", gnr.formstores.Base, {
     load_memory:function(){
         var form= this.form;
@@ -2480,7 +2491,6 @@ dojo.declare("gnr.formstores.SubForm", gnr.formstores.Base, {
     getDefaultDestPkey:function(){
         return '*subform*';
     }
-
 });
 
 dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {

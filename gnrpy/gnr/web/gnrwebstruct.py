@@ -367,7 +367,7 @@ class GnrDomSrc(GnrStructData):
         """TODO"""
         assert self.attributes['tag'] == 'FrameForm','only on FrameForm'
         return self.center.contentPane(datapath='.record')
-        
+
     @extract_kwargs(store=True)
     def frameform(self, formId=None, frameCode=None, store=None,storeType=None, storeCode=None,
                   slots=None, table=None, store_kwargs=None, **kwargs):
@@ -878,7 +878,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
              'tinyMCE', 'protovis','codemirror','dygraph','MultiButton','PaletteGroup','DocumentFrame','DownloadButton','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','PaletteImporter','DropUploader','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','GeoSearch','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
-             'FramePane', 'FrameForm','QuickEditor','CodeEditor','TreeGrid','QuickGrid',"GridGallery","VideoPlayer",'MultiValueEditor','QuickTree','SharedObject','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
+             'FramePane', 'FrameForm','BoxForm','QuickEditor','CodeEditor','TreeGrid','QuickGrid',"GridGallery","VideoPlayer",'MultiValueEditor','QuickTree','SharedObject','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
