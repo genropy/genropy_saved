@@ -1311,7 +1311,7 @@ dojo.declare('gnr.GenroClient', null, {
             url = document.location.protocol + '//' + document.location.host + url;
         }
         ;
-        return encodeURI(genro.addKwargs(url, kwargs));
+        return genro.addKwargs(url, kwargs);
     },
     addKwargs: function(url, kwargs) {
         if (kwargs) {
@@ -1321,7 +1321,7 @@ dojo.declare('gnr.GenroClient', null, {
             currParams['_no_cache_'] = genro.getCounter();
             objectUpdate(currParams, kwargs);
             for (var key in currParams) {
-                parameters.push(key + '=' + escape(currParams[key]));
+                parameters.push(key + '=' + encodeURIComponent(currParams[key]));
             }
             url = url + '?' + parameters.join('&');
         } else {
