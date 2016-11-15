@@ -239,6 +239,9 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         var delayOnCall = objectPop(callKwargs, '_delayOnCall');
         var sourceNode = callKwargs['_sourceNode'];
         var sysrpc = objectPop(callKwargs,'sysrpc');
+        if(sourceNode){
+            objectUpdate(callKwargs,objectExtract(sourceNode.attr,'dbenv_*',true,true));
+        }
         callKwargs = this.serializeParameters(genro.src.dynamicParameters(callKwargs));
         objectPop(callKwargs, '_destFullpath');
        //if(genro.root_page_id){

@@ -160,7 +160,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var that = this;
             dojo.connect(this.formContentDomNode,'onclick',function(e){
                 var wdg = dijit.getEnclosingWidget(e.target);
-                if(wdg && wdg.sourceNode.form && wdg.isFocusable && !wdg.isFocusable() && wdg.sourceNode && (wdg.sourceNode.form != genro.activeForm)){
+                if(wdg && wdg.sourceNode && wdg.sourceNode.form && wdg.isFocusable && !wdg.isFocusable() && wdg.sourceNode && (wdg.sourceNode.form != genro.activeForm)){
                    wdg.sourceNode.form.focusCurrentField();
                 }
             });
