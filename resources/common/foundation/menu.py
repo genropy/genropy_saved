@@ -87,7 +87,7 @@ class MenuIframes(MenuBase):
 
     def btn_iframemenu_plugin(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='iframemenu_plugin_icon',tip='!!Menu',
-                 connect_onclick="""SET left.selected='iframemenu_plugin';genro.getFrameNode('standard_index').publish('showLeft');""",
+                 connect_onclick="""SET left.selected='iframemenu_plugin';genro.nodeById('standard_index').publish('showLeft');""",
                  nodeId='plugin_block_iframemenu_plugin')
                  
     def menu_iframemenuPane(self, pane, **kwargs):
