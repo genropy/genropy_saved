@@ -299,7 +299,7 @@ class SqlTable(GnrObject):
         user_config = self.user_config.get((user_group,user))
         if user_config is None:
             with self._lock:
-                user_config = self.db.getUserConfiguration(table=self.fullname,user_group=user_group,user=user)
+                user_config = self.db._getUserConfiguration(table=self.fullname,user_group=user_group,user=user)
                 self.user_config[(user_group,user)] = user_config or False
         return user_config
 

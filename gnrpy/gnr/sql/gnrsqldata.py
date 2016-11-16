@@ -142,7 +142,7 @@ class SqlQueryCompiler(object):
         self.aliases = {self.tblobj.sqlfullname: self.aliasCode(0)}
         self.fieldlist = []
         
-    def getFieldAlias(self, fieldpath, curr=None,basealias=None):
+    def getFieldAlias(self, fieldpath, curr=None,basealias=None,_ignorePermissions=False):
         """Internal method. Translate fields path and related fields path in a valid sql string for the column.
         
         It translates ``@relname.@rel2name.colname`` to ``t4.colname``.
@@ -159,7 +159,7 @@ class SqlQueryCompiler(object):
 
         def expandThis(m):
             fld = m.group(1)
-            return self.getFieldAlias(fld,curr=curr,basealias=alias)
+            return self.getFieldAlias(fld,curr=curr,basealias=alias,_ignorePermissions=_ignorePermissions)
 
         def expandPref(m):
             """#PREF(myprefpath,default)"""
@@ -195,6 +195,9 @@ class SqlQueryCompiler(object):
         else:
             alias = basealias
         curr_tblobj = self.db.table(curr.tbl_name, pkg=curr.pkg_name)
+        col = curr_tblobj.column(fld)
+        if not _ignorePermissions and self.cpl.checkPermissions and not col.allowed(**self.cpl.checkPermissions):
+            return 'NULL'
         if not fld in curr.keys():
             fldalias = curr_tblobj.model.virtual_columns[fld]
             if fldalias == None:
@@ -205,7 +208,7 @@ class SqlQueryCompiler(object):
                 #newfieldpath = '.'.join(pathlist)        # replace the field alias with the column relation_path
                 # then call getFieldAlias again with the real path
                 return self.getFieldAlias(fldalias.relation_path, curr=curr,
-                                          basealias=alias)  # call getFieldAlias recursively
+                                          basealias=alias,_ignorePermissions=_ignorePermissions)  # call getFieldAlias recursively
             elif fldalias.sql_formula or fldalias.select or fldalias.exists:
                 sql_formula = fldalias.sql_formula
                 attr = dict(fldalias.attributes)
@@ -246,7 +249,7 @@ class SqlQueryCompiler(object):
                         sql_formula = re.sub("(:)(%s)(\\W|$)" %k,lambda m: '%senv_%s%s'%(m.group(1),newk,m.group(3)), sql_formula)
                 subColPars = {}
                 for key, value in subreldict.items():
-                    subColPars[key] = self.getFieldAlias(value, curr=curr, basealias=alias)
+                    subColPars[key] = self.getFieldAlias(value, curr=curr, basealias=alias,_ignorePermissions=True)
                 sql_formula = gnrstring.templateReplace(sql_formula, subColPars, safeMode=True)
                 return sql_formula
             elif fldalias.py_method:
@@ -256,13 +259,7 @@ class SqlQueryCompiler(object):
             else:
                 raise GnrSqlMissingColumn('Invalid column %s in table %s.%s (requested field %s)' % (
                 fld, curr.pkg_name, curr.tbl_name, '.'.join(newpath)))
-
-        col = curr_tblobj.column(fld)
-        if self.cpl.checkPermissions and not col.allowed(**self.cpl.checkPermissions):
-            #permissions = self.db.permissions.get(curr_tblobj.fullname,{}).get(fld)
-            return 'NULL'
-        else:
-            return '%s.%s' % (alias, col.adapted_sqlname)
+        return '%s.%s' % (alias, col.adapted_sqlname)
         
     def _findRelationAlias(self, pathlist, curr, basealias, newpath):
         """Internal method: called by getFieldAlias to get the alias (t1, t2...) for the join table.

@@ -687,7 +687,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                          pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
                          selectmethod=None, expressions=None, sum_columns=None,
                          sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,hardQueryLimit=None,
-                         savedQuery=None,savedView=None, externalChanges=None,prevSelectedDict=None,**kwargs):
+                         savedQuery=None,savedView=None, externalChanges=None,prevSelectedDict=None,
+                         checkPermissions=None,**kwargs):
         """TODO
         
         ``getSelection()`` method is decorated with the :meth:`public_method
@@ -741,6 +742,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             limit = hardQueryLimit
         wherebag = where if isinstance(where,Bag) else None
         resultAttributes = {}
+        if checkPermissions is True:
+            checkPermissions = dict(user=self.page.user,user_group=self.page.avatar.group_code)
         for k in kwargs.keys():
             if k.startswith('format_'):
                 formats[7:] = kwargs.pop(k)
@@ -776,7 +779,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                                       order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
                                       relationDict=relationDict, sqlparams=sqlparams,
                                       recordResolver=recordResolver, selectionName=selectionName, 
-                                      pkeys=pkeys, sortedBy=sortedBy, excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft, **kwargs)
+                                      pkeys=pkeys, sortedBy=sortedBy, excludeLogicalDeleted=excludeLogicalDeleted,
+                                      excludeDraft=excludeDraft,checkPermissions=checkPermissions ,**kwargs)
             if external_queries:
                 self._externalQueries(selection=selection,external_queries=external_queries)
             if applymethod:

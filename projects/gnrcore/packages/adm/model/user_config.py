@@ -113,27 +113,38 @@ class Table(object):
             record['pkgid'] = record['tblid'].split('.')[0]
 
 
-    def _updateColsPermission(self,cols_permission,updater):
-        for cnode in cols_permission:
-            updattr = updater.getAttr(cnode.label) or dict()
-            last_readonly = cnode.attr.get('readonly')
-            last_forbidden = cnode.attr.get('forbidden')
-            if last_readonly is not None:
-                cnode.attr['readonly_inherited'] = last_readonly
-            if last_forbidden:
-                cnode.attr['forbidden_inherited'] = last_forbidden
-            cnode.attr['readonly'] = updattr.get('readonly')
-            cnode.attr['forbidden'] = updattr.get('forbidden')
+    def _updateColsPermission(self,cols_permission,updater,allcols,editMode):
+        result = Bag()
+        for colname in allcols:
+            currattr = cols_permission.getAttr(colname) or dict()
+            updattr = updater.getAttr(colname) or {}
+            if currattr or updattr:
+                if editMode:
+                    currattr['colname'] = colname
+                result.setItem(colname,None,_attributes=currattr)
+                currattr = result.getAttr(colname)
+                for permission in ('forbidden','readonly'):
+                    last = currattr.get(permission)
+                    upd = updattr.get(permission)
+                    if editMode:
+                        currattr[permission] = upd
+                        if last is not None:
+                            currattr['%s_inherited' %permission] = last
+                    else:
+                        currattr[permission] = upd if upd is not None else last
+        return result
 
-    def getInfoBag(self,pkg=None,tbl=None,user=None,user_group=None,_allColumns=False):
+
+
+
+    def getInfoBag(self,pkg=None,tbl=None,user=None,user_group=None,_editMode=False):
         if not pkg and tbl:
             pkg = tbl.split('.')[0]
         result = Bag()
         if tbl:
             tblobj =  self.db.table(tbl)
             cols_permission_base = Bag()
-            for c in tblobj.columns.keys():
-                cols_permission_base.setItem(c,None,colname=c)                
+            allcols = tblobj.columns.keys() + tblobj.model.virtual_columns.keys()
             result['cols_permission'] = cols_permission_base
         f = self.query(where="""($pkgid IS NULL OR $pkgid=:pkg) AND
                                 ($tblid IS NULL OR $tblid=:tbl) AND
@@ -145,19 +156,8 @@ class Table(object):
             data = Bag(r['data'])
             last_permissions = data.pop('cols_permission')
             if tbl:
-                self._updateColsPermission(result['cols_permission'],last_permissions or Bag())
+                result['cols_permission'] = self._updateColsPermission(result['cols_permission'],last_permissions or Bag(),allcols,_editMode)
             for k,v in data.items():
                 if v is not None:
                     result[k] = v
-        if not _allColumns:
-            filtered_cols_permission = Bag()
-            l = ('readony','forbidden','readonly_inherited','forbidden_inherited')
-            for n in result['cols_permission']:
-                d = dict( [(k,v) for k,v in n.attr.items() if k in l and v is not None])
-                if d:
-                    filtered_cols_permission.setItem(n.label,None,
-                                                    forbidden=d.get('forbidden') or d.get('forbidden_inherited') or False,
-                                                    readony=d.get('readony') or d.get('readony_inherited') or False
-                                                    )
-            result['cols_permission'] = filtered_cols_permission
         return result

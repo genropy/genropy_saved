@@ -42,6 +42,7 @@ class Form(BaseComponent):
                 conf.setItem('cols_permission',PermissionComponent.colsPermissionsData(cols_permission));
             }
             """)
+        form.css('.dojoxGrid-row.virtualCol',"color:green;")
         bc = form.center.borderContainer()
         top = bc.contentPane(region='top',datapath='.record')
         fb = top.formbuilder(cols=2,border_spacing='3px')
@@ -65,13 +66,30 @@ class Form(BaseComponent):
         sc = bc.stackContainer(region='center')
         bc.dataController("sc.switchPage(tblid?1:0);",sc=sc.js_widget,tblid='^#FORM.record.tblid')
         sc.contentPane()
-        sc.contentPane().bagGrid(frameCode='cols_permission',datapath='#FORM.fields_grid',title='Fields',
+        frame = sc.contentPane().bagGrid(frameCode='cols_permission',datapath='#FORM.fields_grid',title='Fields',
                                                             struct=self.struct_permissiongrid,
                                                             storepath='#FORM.record.data.cols_permission',
                                                             pbl_classes=True,margin='2px',
                                                             addrow=False,delrow=False,datamode='attr')
-        
-        
+        bar = frame.top.bar.replaceSlots('#','#,colspicker,5')
+        palette = bar.colspicker.paletteGrid(paletteCode='colspicker',
+                                            struct=self.colspicker_struct,dockButton=True,
+                                            grid_filteringGrid=frame.grid.js_sourceNode(),
+                                            grid_filteringColumn='_pkey:colname'
+                                            )
+        palette.bagStore(storepath='#FORM.record.$current_cols',storeType='AttributesBagRows')
+        frame.grid.dragAndDrop('colspicker')
+        frame.grid.dataController("""
+            data.forEach(function(r){
+                    permissions_store.setItem(r.colname,null,{colname:r.colname});
+                });
+            """,data='^.dropped_colspicker',_if='data',
+            permissions_store='=#FORM.record.data.cols_permission')
+
+    def colspicker_struct(self,struct):
+        r = struct.view().rows()
+        r.cell('colname',name='Column',width='22em')
+        r.cell('datatype',name='Dtype',width='7em')
 
     def struct_permissiongrid(self,struct):
         r = struct.view().rows()
@@ -103,8 +121,9 @@ class Form(BaseComponent):
             current_full_data = self.db.table('adm.user_config').getInfoBag(pkg=record['pkgid'],tbl=record['tblid'],
                                                                             user=record['username'],
                                                                             user_group=record['user_group'],
-                                                                            _allColumns=True)
+                                                                            _editMode=True)
             record['data.cols_permission'] = current_full_data['cols_permission']
+            record['$current_cols'] = self.colsPickerStore(record['tblid'])
 
     def th_top_custom(self,top):
         self.newRuleButton(top.bar.replaceSlots('form_add','newrule'))
@@ -112,4 +131,19 @@ class Form(BaseComponent):
     def th_options(self):
         return dict(dialog_parentRatio=.9)
 
+
+    @public_method
+    def colsPickerStore(self,table=None):
+        tblobj = self.db.table(table)
+        result = Bag()
+        for field,colobj in tblobj.model.columns.items():
+            colattr = colobj.attributes
+            result.setItem(field,None,colname=field,name_long=colattr.get('name_long'),
+                                    datatype=colattr.get('dtype','T'),_pkey=field)
+
+        for field,colobj in tblobj.model.virtual_columns.items():
+            colattr = colobj.attributes
+            result.setItem(field,None,colname=field,name_long=colattr.get('name_long'),datatype=colattr.get('dtype','T'),_customClasses='virtualCol',_pkey=field)
+
+        return result
 

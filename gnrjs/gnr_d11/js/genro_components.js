@@ -4730,6 +4730,9 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
         attributes.columns = attributes.columns || '==gnr.getGridColumns(this);';
         attributes.sum_columns = attributes.sum_columns || '==this.store.getSumColumns();';
         attributes.method = attributes.method || 'app.getSelection';
+        if (!('checkPermissions' in attributes)){
+            attributes.checkPermissions = true;
+        }
         if('chunkSize' in attributes && !('selectionName' in attributes)){
             attributes['selectionName'] = '*';
         }

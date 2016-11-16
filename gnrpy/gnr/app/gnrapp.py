@@ -333,7 +333,7 @@ class GnrSqlAppDb(GnrSqlDb):
                 result.setItem(b.pop('fieldname'),None,**kw)
             return result
 
-    def getUserConfiguration(self,table=None,user=None,user_group=None):
+    def _getUserConfiguration(self,table=None,user=None,user_group=None):
         if self.package('adm'):
             return self.table('adm.user_config').getInfoBag(tbl=table,user=user,
                                                         user_group=user_group)

@@ -211,8 +211,6 @@ class GnrWebPage(GnrBaseWebPage):
                           filepath=filepath, packageId=packageId, pluginId=pluginId,  basename=basename)
             self.page_item = self._register_new_page(kwargs=request_kwargs,class_info=class_info,init_info=init_info)
 
-
-
         self.isMobile = (self.connection.user_device.startswith('mobile')) or self.page_item['data']['pageArgs'].get('is_mobile')
         self.deviceScreenSize = self.connection.user_device.split(':')[1]
         self._inited = True
@@ -1090,32 +1088,10 @@ class GnrWebPage(GnrBaseWebPage):
         pkg = kwargs.get('pkg', self.packageId)
         return self.site.pkg_page_url(pkg, *args)
 
-    @property
-    def userConfig(self):
-        if not hasattr(self,'_userConfig'):
-            if self.pageOptions.get('userConfig') is False:
-                self._userConfig = Bag()
-            else:
-                self._userConfig = self.pageStore().getItem('userConfig') or Bag()
-        return self._userConfig
-
-
-    def getUserTableConfig(self,path='',table=None,**kwargs):
-        if self.pageOptions.get('userConfig') is False:
+    def getUserTableConfig(self,table=None,**kwargs):
+        if not self.avatar or self.pageOptions.get('userConfig') is False:
             return Bag()
-        if not ('adm' in self.db.packages):
-            return Bag() if not path else None
-        userConfig = self.userConfig
-        tableConfig = userConfig['tables']
-        if tableConfig is None:
-            tableConfig = Bag()
-            userConfig['tables'] = tableConfig
-        if not table in tableConfig:
-            tableConfig[table] = self.db.table('adm.user_config').getInfoBag(tbl=table,
-                                                    user=self.user,
-                                                    user_group=self.avatar.group_code)
-            self.pageStore().setItem('userConfig.tables.%s' %table, tableConfig[table])
-        return tableConfig[table][path]
+        return self.db.table(table).getUserConfiguration(user=self.user,user_group=self.avatar.group_code)
         
     def getDomainUrl(self, path='', **kwargs):
         """TODO
@@ -1913,7 +1889,6 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             polling_enabled = True
         page.data('gnr.polling.polling_enabled', polling_enabled)
-        page.data('gnr.userConfig',self.userConfig,serverpath='userConfig')
         page.dataController("""genro.user_polling = user_polling;
                                genro.auto_polling = auto_polling;
                                genro.polling_enabled = polling_enabled;
@@ -2146,7 +2121,8 @@ class GnrWebPage(GnrBaseWebPage):
     @public_method
     def relationExplorer(self,table=None,item_type=None,**kwargs):
         if item_type:
-            item_code = self.userConfig['tables.%s.%s' %(table ,item_type.lower())]
+            userConfig = self.getUserTableConfig(table=table)
+            item_code = userConfig[item_type.lower()]
             if item_code is None:
                 return self.dbRelationExplorerFull(table,**kwargs)
             elif item_code == '_RAW_':
