@@ -1261,6 +1261,7 @@ class DbColumnObj(DbBaseColumnObj):
         self.column_relation = children['relation']
         return False
         
+
     def doInit(self):
         """TODO"""
         if not self.attributes.get('dtype'):
@@ -1309,6 +1310,11 @@ class DbColumnObj(DbBaseColumnObj):
         r = self.table.relations.getAttr('@%s' % self.name)
         if r:
             return r['joiner']
+
+    def allowed(self,user=None,user_group=None):
+        user_conf = self.table.dbtable.getUserConfiguration(user_group=user_group,user=user)
+        colconf = user_conf.getAttr('cols_permission.%s' %self.name) or dict()
+        return not colconf.get('forbidden',False)
 
     def rename(self,newname):
         self.db.adapter.renameColumn(self.table.sqlname,self.sqlname,newname)

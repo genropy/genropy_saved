@@ -36,6 +36,7 @@ from gnr.sql.gnrsqltable_proxy.hierarchical import HierarchicalHandler
 from gnr.sql.gnrsql import GnrSqlException
 from datetime import datetime
 import logging
+import threading
 
 __version__ = '1.0b'
 gnrlogger = logging.getLogger(__name__)
@@ -208,6 +209,8 @@ class SqlTable(GnrObject):
         self.fullname = tblobj.fullname
         self.name_long = tblobj.name_long
         self.name_plural = tblobj.name_plural
+        self.user_config = {}
+        self._lock = threading.RLock()
         if tblobj.attributes.get('hierarchical'):
             self.hierarchicalHandler = HierarchicalHandler(self)
         
@@ -257,7 +260,8 @@ class SqlTable(GnrObject):
         
         :param name: A column's name or a :ref:`relation <relations>` starting from
                      the current :ref:`table`. (eg. ``@director_id.name``)"""
-        return self.model.column(name)
+        result = self.model.column(name)
+        return result
         
     def fullRelationPath(self, name):
         """TODO
@@ -290,6 +294,15 @@ class SqlTable(GnrObject):
         else:
             result['table'] = col.relatedColumn().table.fullname
         return result
+
+    def getUserConfiguration(self,user_group=None,user=None):
+        user_config = self.user_config.get((user_group,user))
+        if user_config is None:
+            with self._lock:
+                user_config = self.db.getUserConfiguration(table=self.fullname,user_group=user_group,user=user)
+                self.user_config[(user_group,user)] = user_config or False
+        return user_config
+
 
     def getColumnPrintWidth(self, column):
         """Allow to find the correct width for printing and return it
@@ -573,7 +586,7 @@ class SqlTable(GnrObject):
     def record(self, pkey=None, where=None,
                lazy=None, eager=None, mode=None, relationDict=None, ignoreMissing=False, virtual_columns=None,
                ignoreDuplicate=False, bagFields=True, joinConditions=None, sqlContextName=None,
-               for_update=False, _storename=None,aliasPrefix=None,**kwargs):
+               for_update=False, _storename=None,checkPermissions=False,aliasPrefix=None,**kwargs):
         """Get a single record of the table. It returns a SqlRecordResolver.
         
         The record can be identified by:
@@ -606,6 +619,7 @@ class SqlTable(GnrObject):
                            ignoreDuplicate=ignoreDuplicate,
                            joinConditions=joinConditions, sqlContextName=sqlContextName,
                            bagFields=bagFields, for_update=for_update, _storename=_storename,
+                           checkPermissions=checkPermissions,
                            aliasPrefix=aliasPrefix,**kwargs)
 
         if mode:
@@ -801,7 +815,7 @@ class SqlTable(GnrObject):
               excludeDraft=True,
               addPkeyColumn=True,
               ignoreTableOrderBy=False,ignorePartition=False, locale=None,
-              mode=None,_storename=None,aliasPrefix=None, **kwargs):
+              mode=None,_storename=None,checkPermissions=False,aliasPrefix=None, **kwargs):
         """Return a SqlQuery (a method of ``gnr/sql/gnrsqldata``) object representing a query.
         This query is executable with different modes.
         
@@ -836,6 +850,7 @@ class SqlTable(GnrObject):
                          ignorePartition=ignorePartition,
                          addPkeyColumn=addPkeyColumn,ignoreTableOrderBy=ignoreTableOrderBy,
                         locale=locale,_storename=_storename,
+                        checkPermissions=checkPermissions,
                          aliasPrefix=aliasPrefix,**kwargs)
         return query
 

@@ -21,4 +21,6 @@ class Table(object):
         tbl.column('nuts', size=':128' ,name_long='!![it]NUTS3').relation('glbl.nuts.code',relation_name='province')
 
 
+        tbl.aliasColumn('zona',relation_path='@regione.zona',name_long='Zona')
 
+        tbl.formulaColumn('ztest',"$zona || 'pippo'",name_long='ztest')

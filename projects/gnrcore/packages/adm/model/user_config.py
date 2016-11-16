@@ -10,7 +10,7 @@ class Table(object):
         self.sysFields(tbl,id=False)
         tbl.column('ruleid',size=':80')
         tbl.column('user_group',name_long='!!Group').relation('group.code',relation_name='custom_info',mode='foreignkey')
-        tbl.column('username',size='22' ,group='_',name_long='!!User').relation('user.username',relation_name='custom_info',
+        tbl.column('username',size=':32' ,group='_',name_long='!!User').relation('user.username',relation_name='custom_info',
                                                                               onDelete='cascade')
         tbl.column('pkgid' ,size=':30',name_long='!!Pkg').relation('pkginfo.pkgid',relation_name='rules',mode='foreignkey')
         tbl.column('tblid' ,size=':30',name_long='!!Tbl').relation('tblinfo.tblid',relation_name='rules',mode='foreignkey')
@@ -133,29 +133,31 @@ class Table(object):
             tblobj =  self.db.table(tbl)
             cols_permission_base = Bag()
             for c in tblobj.columns.keys():
-                cols_permission_base.setItem(c,None,colname=c)
+                cols_permission_base.setItem(c,None,colname=c)                
             result['cols_permission'] = cols_permission_base
         f = self.query(where="""($pkgid IS NULL OR $pkgid=:pkg) AND
                                 ($tblid IS NULL OR $tblid=:tbl) AND
                                 ($user_group IS NULL OR $user_group=:user_group) AND 
                                 ($username IS NULL OR $username=:user)
                               """,pkg=pkg,tbl=tbl,user_group=user_group,user=user,
-                              order_by='$rank ASC',columns="""$data""",addPkeyColumn=False).fetch()
+                              order_by='$rank ASC',columns="""$data""").fetch()
         for r in f:
             data = Bag(r['data'])
+            last_permissions = data.pop('cols_permission')
+            if tbl:
+                self._updateColsPermission(result['cols_permission'],last_permissions or Bag())
             for k,v in data.items():
-                if k == 'cols_permission':
-                    if v:
-                        self._updateColsPermission(result['cols_permission'],v)
-                else:
-                    if v is not None:
-                        result[k] = v
+                if v is not None:
+                    result[k] = v
         if not _allColumns:
             filtered_cols_permission = Bag()
             l = ('readony','forbidden','readonly_inherited','forbidden_inherited')
             for n in result['cols_permission']:
                 d = dict( [(k,v) for k,v in n.attr.items() if k in l and v is not None])
                 if d:
-                    filtered_cols_permission.setItem(n.label,None,**d)
+                    filtered_cols_permission.setItem(n.label,None,
+                                                    forbidden=d.get('forbidden') or d.get('forbidden_inherited') or False,
+                                                    readony=d.get('readony') or d.get('readony_inherited') or False
+                                                    )
             result['cols_permission'] = filtered_cols_permission
         return result

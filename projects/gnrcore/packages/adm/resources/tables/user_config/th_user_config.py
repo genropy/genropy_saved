@@ -46,7 +46,7 @@ class Form(BaseComponent):
         top = bc.contentPane(region='top',datapath='.record')
         fb = top.formbuilder(cols=2,border_spacing='3px')
         fb.field('user_group',fld_disabled=True)
-        fb.field('username',fld_disabled=True)
+        fb.field('username',fld_disabled=True,tag='textbox')
         fb.field('pkgid',fld_disabled=True)
         fb.field('tblid',fld_disabled=True)
 

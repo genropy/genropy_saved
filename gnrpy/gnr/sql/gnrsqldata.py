@@ -256,7 +256,13 @@ class SqlQueryCompiler(object):
             else:
                 raise GnrSqlMissingColumn('Invalid column %s in table %s.%s (requested field %s)' % (
                 fld, curr.pkg_name, curr.tbl_name, '.'.join(newpath)))
-        return '%s.%s' % (alias, curr_tblobj.column(fld).adapted_sqlname)
+
+        col = curr_tblobj.column(fld)
+        if self.cpl.checkPermissions and not col.allowed(**self.cpl.checkPermissions):
+            #permissions = self.db.permissions.get(curr_tblobj.fullname,{}).get(fld)
+            return 'NULL'
+        else:
+            return '%s.%s' % (alias, col.adapted_sqlname)
         
     def _findRelationAlias(self, pathlist, curr, basealias, newpath):
         """Internal method: called by getFieldAlias to get the alias (t1, t2...) for the join table.
@@ -453,7 +459,7 @@ class SqlQueryCompiler(object):
                       relationDict=None,
                       bagFields=False,
                       count=False, excludeLogicalDeleted=True,excludeDraft=True,
-                      ignorePartition=False,ignoreTableOrderBy=False,
+                      ignorePartition=False,checkPermissions=False,ignoreTableOrderBy=False,
                       addPkeyColumn=True):
         """Prepare the SqlCompiledQuery to get the sql query for a selection.
         
@@ -482,6 +488,8 @@ class SqlQueryCompiler(object):
         :param addPkeyColumn: boolean. If ``True``, add a column with the pkey attribute"""
         # get the SqlCompiledQuery: an object that mantains all the informations to build the sql text
         self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname,relationDict=relationDict,maintable_as=self.aliasCode(0))
+        self.cpl.checkPermissions = checkPermissions  
+
         distinct = distinct or '' # distinct is a text to be inserted in the sql query string
         
         # aggregate: test if the result will aggregate db rows
@@ -633,7 +641,6 @@ class SqlQueryCompiler(object):
                         # That gives the count of rows on the main table: the result is different from the actual number
                         # of rows returned by the query, but it is correct in terms of main table records.
                         # It is the right behaviour ???? Yes in some cases: see SqlSelection._aggregateRows
-                        
         self.cpl.distinct = distinct
         self.cpl.columns = columns
         self.cpl.where = where
@@ -647,7 +654,7 @@ class SqlQueryCompiler(object):
         return self.cpl
         
     def compiledRecordQuery(self, lazy=None, eager=None, where=None,
-                            bagFields=True, for_update=False, relationDict=None, virtual_columns=None):
+                            bagFields=True, for_update=False, relationDict=None, virtual_columns=None,checkPermissions=False):
         """Prepare the :class:`SqlCompiledQuery` class to get the sql query for a selection.
         
         :param lazy: TODO. 
@@ -660,6 +667,7 @@ class SqlQueryCompiler(object):
                              check the :ref:`relationdict` documentation section
         :param virtual_columns: TODO."""
         self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname, relationDict=relationDict)
+        self.cpl.checkPermissions = checkPermissions  
         if not 'pkey' in self.cpl.relationDict:
             self.cpl.relationDict['pkey'] = self.tblobj.pkey
         self.init(lazy=lazy, eager=eager)
@@ -677,7 +685,6 @@ class SqlQueryCompiler(object):
         if virtual_columns:
             self._handle_virtual_columns(virtual_columns)
         self.cpl.where = self._recordWhere(where=where)
-        
         self.cpl.columns = ',\n       '.join(self.fieldlist)
         #self.cpl.limit = 2
         self.cpl.for_update = for_update
@@ -896,6 +903,7 @@ class SqlQuery(object):
                  ignorePartition=False,
                  addPkeyColumn=True, ignoreTableOrderBy=False,
                  locale=None,_storename=None,
+                 checkPermissions=None,
                  aliasPrefix=None,
                  **kwargs):
         self.dbtable = dbtable
@@ -916,6 +924,7 @@ class SqlQuery(object):
         self.ignoreTableOrderBy = ignoreTableOrderBy
         self.locale = locale
         self.storename = _storename
+        self.checkPermissions = checkPermissions
         self.aliasPrefix = aliasPrefix
         
         test = " ".join([v for v in (columns, where, order_by, group_by, having) if v])
@@ -975,6 +984,7 @@ class SqlQuery(object):
                                                                   excludeDraft=self.excludeDraft,
                                                                   addPkeyColumn=self.addPkeyColumn,
                                                                   ignorePartition=self.ignorePartition,
+                                                                  checkPermissions=self.checkPermissions,
                                                                   ignoreTableOrderBy=self.ignoreTableOrderBy,
                                                                   **self.querypars)
                                                                   
@@ -2071,6 +2081,7 @@ class SqlRecord(object):
                  bagFields=True, for_update=False,
                  joinConditions=None, sqlContextName=None,
                  virtual_columns=None,_storename=None,
+                 checkPermissions=None,
                  aliasPrefix=None,
                  **kwargs):
         self.dbtable = dbtable
@@ -2091,6 +2102,7 @@ class SqlRecord(object):
         self.for_update = for_update
         self.virtual_columns = virtual_columns
         self.storename = _storename
+        self.checkPermissions = checkPermissions
         self.aliasPrefix = aliasPrefix or 't'
 
         
@@ -2133,6 +2145,7 @@ class SqlRecord(object):
                                   sqlContextName=self.sqlContextName,aliasPrefix=self.aliasPrefix)
         return compiler.compiledRecordQuery(where=where,relationDict=self.relationDict,bagFields=self.bagFields,
                                                 for_update=self.for_update,virtual_columns=self.virtual_columns,
+                                                checkPermissions=self.checkPermissions,
                                                 **self.relmodes)
         
     def _get_result(self):

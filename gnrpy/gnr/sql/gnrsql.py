@@ -270,7 +270,7 @@ class GnrSqlDb(GnrObject):
         self._currentEnv[thread.get_ident()] = env
         
     currentEnv = property(_get_currentEnv, _set_currentEnv)
-        
+
     def _get_workdate(self):
         """currentEnv TempEnv. Return the workdate used in the current thread"""
         return self.currentEnv.get('workdate') or datetime.today()
@@ -299,6 +299,10 @@ class GnrSqlDb(GnrObject):
                     currentEnv[k] = v
         else:
             self.currentEnv.update(kwargs)
+
+
+    def getUserConfiguration(self,**kwargs):
+        pass
         
     def use_store(self, storename=None):
         """TODO
