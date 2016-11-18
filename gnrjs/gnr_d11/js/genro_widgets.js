@@ -929,7 +929,7 @@ dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
             if(onAccept){
                 funcApply(onAccept,{},sourceNode);
             }
-            sourceNode.domNode.src=window.webkitURL? window.webkitURL.createObjectURL(stream):stream;
+            sourceNode.domNode.src=window.URL? window.URL.createObjectURL(stream):stream;
         };
         if(navigator.webkitGetUserMedia){
             navigator.webkitGetUserMedia(capture_kw,onOk,onErr);
