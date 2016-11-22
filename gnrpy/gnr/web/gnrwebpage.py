@@ -1749,6 +1749,7 @@ class GnrWebPage(GnrBaseWebPage):
         data = Bag(dict(root_page_id=self.root_page_id,parent_page_id=self.parent_page_id,rootenv=rootenv,prefenv=prefenv))
         self.pageStore().update(data)
         self._db = None #resetting db property after setting dbenv
+        page.data('gnr.mapkey',self.application.config['google?mapkey'])
         if hasattr(self, 'main_root'):
             self.main_root(page, **kwargs)
             return (page, pageattr)
