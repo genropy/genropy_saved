@@ -1,6 +1,5 @@
 dojo.declare("gnr.widgets.GoogleLoader", null, {
-    geocoder:{module_name:'maps',version:'3.x',
-              other_params: "sensor=false",language:navigator.language
+    geocoder:{module_name:'maps',other_params: "sensor=false",language:navigator.language
     },
               
     constructor: function(application) {
@@ -54,6 +53,9 @@ dojo.declare("gnr.widgets.GoogleLoader", null, {
     },
     setGeocoder:function(widget,cb){
         var obj=widget;
+        if(this._mapkey){
+            this.geocoder.other_params+=('&key='+this._mapkey)
+        }
         this.runCommand(this.geocoder,function(){
             obj.geocoder = new google.maps.Geocoder();
             if (cb){
