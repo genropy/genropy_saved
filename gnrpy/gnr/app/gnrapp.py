@@ -696,7 +696,7 @@ class GnrApp(object):
         
         
 
-        for pkgid, attrs in self.config['packages'].digest('#k,#a'):
+        for pkgid, attrs,pkgcontent in self.config['packages'].digest('#k,#a,#v'):
             if ':' in pkgid:
                 project,pkgid=pkgid.split(':')
             else:
@@ -706,6 +706,7 @@ class GnrApp(object):
             if not os.path.isabs(attrs['path']):
                 attrs['path'] = self.realPath(attrs['path'])
             apppkg = GnrPackage(pkgid, self, **attrs)
+            apppkg.content = pkgcontent or Bag()
             self.packagesIdByPath[os.path.realpath(apppkg.packageFolder)] = pkgid
             self.packages[pkgid] = apppkg
 
