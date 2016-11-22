@@ -21,6 +21,8 @@ class Package(GnrDboPackage):
             pars = getattr(annotaton_mixins,m)()
             pars['code'] = m[5:]
             self.configureEntity(annotaton_src,**pars)
+        if not config_entities:
+            return
         for k,pars in config_entities.digest('#k,#a'):
             pars['code'] = k
             self.configureEntity(annotaton_src,**pars)
