@@ -254,6 +254,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         kw.url = kw.url || this.pageIndexUrl();
 
         if(sourceNode){
+            objectUpdate(callKwargs,objectExtract(sourceNode.attr,'dbenv_*',true,true));
             var req_dbstore = sourceNode.inheritedAttribute('context_dbstore');
             if (req_dbstore){
                 kw.url = '/'+req_dbstore+kw.url;
