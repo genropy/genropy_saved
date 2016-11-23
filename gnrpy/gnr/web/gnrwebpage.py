@@ -400,6 +400,9 @@ class GnrWebPage(GnrBaseWebPage):
             envPageArgs = dictExtract(self.pageArgs,'env_')
             if envPageArgs:
                 self._db.updateEnv(**envPageArgs)
+            envCallArgs = dictExtract(self._call_kwargs,'dbenv_')
+            if envCallArgs:
+                self._db.updateEnv(**envCallArgs)
             for dbenv in [getattr(self, x) for x in dir(self) if x.startswith('dbenv_')]:
                 kwargs = dbenv() or {}
                 self._db.updateEnv(**kwargs)
