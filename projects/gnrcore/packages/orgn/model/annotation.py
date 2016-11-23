@@ -281,8 +281,12 @@ class Table(object):
         if fkey_field:
             fkey_field = fkey_field[0] if fkey_field else None
             related_table = self.column(fkey_field).relatedTable()
+            orgn_pivot_date_field = self.getPivotDateField(related_table,fkey_field)
             if related_table.column('orgn_pivot_date') is not None:
-                return related_table.dbtable.readColumns(pkey=action_defaults[fkey_field],columns='$orgn_pivot_date')
+                return related_table.dbtable.readColumns(pkey=action_defaults[fkey_field],columns='$%s' %orgn_pivot_date_field)
+
+    def getPivotDateField(self,related_table=None,fkey_field=None):
+        return self.column(fkey_field).attributes.get('pivot_date') or 'orgn_pivot_date'
 
     @public_method
     def getDueDateFromDeadline(self,deadline_days=None,pivot_date=None,**action_defaults):

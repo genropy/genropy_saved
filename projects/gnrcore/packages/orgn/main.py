@@ -28,7 +28,7 @@ class Package(GnrDboPackage):
             self.configureEntity(annotaton_src,**pars)
 
 
-    def configureEntity(self,src,code=None,caption=None,tbl=None,**kwargs):
+    def configureEntity(self,src,code=None,caption=None,tbl=None,pivot_date=None,**kwargs):
         pkg,tblname = tbl.split('.')
         tblsrc = self.db.model.src['packages.%s.tables.%s' %(pkg,tblname)]
         tblattrs = tblsrc.attributes
@@ -41,6 +41,7 @@ class Package(GnrDboPackage):
         if caption.startswith('!!'):
             caption = '[%s]' %caption
         entity = '%s:%s' %(code,caption)
+        linked_attrs = dict([('linked_%s' %k,v) for k,v in kwargs.items()])
         if fkey in curr_columns:
             colsrc = src['columns'][fkey]
             related_column = colsrc.getAttr('relation')['related_column']
@@ -57,7 +58,8 @@ class Package(GnrDboPackage):
 
         src.column(fkey, dtype=pkeycolAttrs.get('dtype'),_sysfield=True,group='_',
                     name_long=tblattrs.get('name_long'),
-                    size=pkeycolAttrs.get('size'),linked_entity=entity,**kwargs).relation(rel,relation_name='annotations',mode='foreignKey')
+                    size=pkeycolAttrs.get('size'),linked_entity=entity,
+                    pivot_date=pivot_date,**linked_attrs).relation(rel,relation_name='annotations',mode='foreignKey',onDelete='cascade')
 
 
 class Table(GnrDboTable):
