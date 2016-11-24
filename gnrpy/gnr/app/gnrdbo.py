@@ -435,6 +435,8 @@ class TableBase(object):
         sql_formula = None
         if partitionParameters:
             sql_formula = "( $%(field)s IN :env_allowed_%(path)s )" %partitionParameters
+        else:
+            sql_formula = "TRUE"
         return [dict(name='__allowed_for_partition',sql_formula=sql_formula or 'FALSE',
                     dtype='B',name_long='!!Allowed for partition',group='_')]
 

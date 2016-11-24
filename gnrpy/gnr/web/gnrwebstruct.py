@@ -1622,9 +1622,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def pluggedFields(self):
         tblobj = self.parentfb.tblobj
         collist = tblobj.model['columns']
-        pluggedCols = [(col,collist[col].attributes.get('_pluggedBy')) for col in collist if collist[col].attributes.get('plugToForm')]
-        for f,pluggedBy in pluggedCols:
-            kwargs = dict()
+        pluggedCols = [(col,collist[col].attributes.get('_pluggedBy'),collist[col].attributes['plugToForm']) for col in collist if collist[col].attributes.get('plugToForm')]
+        for f,pluggedBy,pluggedKwargs in pluggedCols:
+            kwargs = dict() if pluggedKwargs is True else pluggedKwargs
             if pluggedBy:
                 handler = getattr(self.page.db.table(pluggedBy),'onPlugToForm',None)
                 if handler:

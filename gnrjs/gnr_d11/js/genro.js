@@ -2110,9 +2110,11 @@ dojo.declare('gnr.GenroClient', null, {
     invalidFields: function(name) {
         return genro.formInfo(name).getItem('invalidFields');
     },
-    google:function(){
+
+    google:function(key){
         if(! this._googleHandler){
             this._googleHandler=this.wdg.getHandler('GoogleLoader')
+            this._googleHandler._mapkey = key || genro.getData('gnr.mapkey')
         } 
         return this._googleHandler;  
     },
