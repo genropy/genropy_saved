@@ -179,15 +179,20 @@ class THPicker(BaseComponent):
     @public_method
     def _th_insertPicker(self,dragPkeys=None,dropPkey=None,tbl=None,one=None,many=None,dragDefaults=None,**kwargs):
         tblobj = self.db.table(tbl)
+        pkeyfield = tblobj.pkey
         commit = False
         for fkey in dragPkeys:
             commit = True
             d = {one:dropPkey,many:fkey}
-            r = tblobj.newrecord()
-            r.update(d)
-            if dragDefaults:
-                r.update(dragDefaults[fkey])
-            tblobj.insert(r)
+            if many==pkeyfield:
+                with tblobj.recordToUpdate(fkey) as rec:
+                    rec[one] = dropPkey
+            else:
+                r = tblobj.newrecord()
+                r.update(d)
+                if dragDefaults:
+                    r.update(dragDefaults[fkey])
+                tblobj.insert(r)
         if commit:
             self.db.commit()
 

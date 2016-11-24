@@ -17,7 +17,18 @@ class ViewFromUser(BaseComponent):
         
    # def th_query(self):
    #     return dict(column='tag_code',op='contains', val='')
-   #     
+   #    
+
+
+class ViewFromGroup(BaseComponent):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('tag_id',name='Tag',width='20em',edit=True)
+        r.fieldcell('@tag_id.note',name='Notes',width='100%')
+        
+    def th_order(self):
+        return 'tag_id'
+
 class ViewFromTag(BaseComponent):
     def th_hiddencolumns(self):
         return '$user_id'

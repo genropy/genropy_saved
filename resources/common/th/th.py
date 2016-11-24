@@ -57,7 +57,8 @@ class TableHandler(BaseComponent):
                                                     condition_kwargs=condition_kwargs,
                                                     relation_kwargs=relation_kwargs,
                                                     default_kwargs=default_kwargs,original_kwargs=kwargs)
-        tblattr = self.db.table(table).attributes
+        tblobj = self.db.table(table)
+        tblattr = tblobj.attributes
         readOnly = readOnly or tblattr.get('readOnly')
         tblconfig = self.getUserTableConfig(table=table)
         if tblconfig['tbl_permission'] == 'readonly':
@@ -111,7 +112,20 @@ class TableHandler(BaseComponent):
 
         if picker:
             top_slots.append('thpicker')
+            if picker is True:
+                picker = tblobj.pkey
+                picker_kwargs['table'] = table
+                picker_base_condition = '$%(_fkey_name)s IS NULL OR $%(_fkey_name)s!=:fkey' %condition_kwargs
+                picker_custom_condition = view_kwargs.get('picker_condition')
+                picker_kwargs['condition'] = picker_base_condition if not picker_custom_condition else '(%s) AND (%s)' %(picker_base_condition,picker_custom_condition)
+                if delrow:
+                    tblname = tblattr.get('name_plural') or tblattr.get('name_one') or tblobj.name
+                    unlinkdict = dict(one_name=tblname.lower(),
+                                    field=condition_kwargs['_fkey_name'])
+                for k,v in condition_kwargs.items():
+                    picker_kwargs['condition_%s' %k] = v
             picker_kwargs['relation_field'] = picker
+
         if addrowmenu:
             top_slots.append('addrowmenu')
             addrowmenu_kwargs['relation_field'] = addrowmenu

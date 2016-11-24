@@ -30,6 +30,18 @@ class View(BaseComponent):
                                  condition_tblinfo='^#mainpars.tblid',
                                  condition_pkginfo='^#mainpars.pkgid'
                                  )
+class ViewFromUser(View):
+    def th_condition(self):
+        return dict(condition="""($user_group IS NULL OR $user_group=:ugroup) AND
+                                ($username IS NULL OR $username=:uid)
+                            """,condition_ugroup='^#FORM.record.group_code',
+                                 condition_uid='^#FORM.record.username')
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('user_group',width='6em')
+        r.fieldcell('pkgid',width='4em')
+        r.fieldcell('tblid',width='8em')
+        r.fieldcell('data',width='30em')
 
 class Form(BaseComponent):
     js_requires = 'adm_configurator'

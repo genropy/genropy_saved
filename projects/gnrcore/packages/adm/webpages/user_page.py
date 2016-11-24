@@ -23,8 +23,7 @@ class GnrCustomWebPage(object):
         center = bc.tabContainer(region='center',margin='2px')
 
         self.userAuth(center.contentPane(title='Auth'))
-        self.qtreeConf(center.contentPane(title='Quick tree conf'))
-
+        self.userConfigView(center.contentPane(title='Config'))
     
     def loginData(self,pane):
         fb = pane.div(margin_right='10px').formbuilder(cols=2, border_spacing='4px',colswidth='12em')
@@ -43,35 +42,16 @@ class GnrCustomWebPage(object):
         fb.field('sms_login', html_label=True)
         fb.field('sms_number',hidden='^.sms_login?=!#v',colspan=2,width='100%')
 
-
-
     def userAuth(self,pane):
         pane.inlineTableHandler(relation='@tags',viewResource='ViewFromUser',
                             pbl_classes=True,margin='2px',addrow=False,picker='tag_id',
                             picker_condition='$child_count=0',
                             picker_viewResource=True)
 
-
-    def qtreeConf(self,pane):
-        pane.inlineTableHandler(relation='@custom_info',viewResource='QTreeViewFromUser',
-                            pbl_classes=True,margin='2px',condition='$info_type=:it',condition_it='QTREE')
- 
-
-    def qtreeConf_zz(self,sc):
-        th_all = sc.contentPane(title='View').inlineTableHandler(table='adm.user_config',
-                            viewResource='QTreeViewFromUserRO',
-                            nodeId='QTREEEDit',
-                            margin='2px',
-                            condition="""($user_group IS NULL OR $user_group=:gc) AND 
-                                        ($user_id IS NULL OR $user_id=:uid)""",
-                            condition_gc='^#FORM.record.group_code',
-                            condition_uid='^#FORM.record.id',condition_if='uid')
-        th_all.view.top.bar.replaceSlots('vtitle','parentStackButtons')
-        th_edit = sc.contentPane(title='Edit').inlineTableHandler(relation='@custom_info',viewResource='QTreeViewFromUser',
-                            nodeId='QTREEView',datapath='#FORM.qtreeedit',
-                            margin='2px')
-        th_edit.view.top.bar.replaceSlots('vtitle','parentStackButtons')
-
+    def userConfigView(self,pane):
+        pane.plainTableHandler(table='adm.user_config',view_store_onStart=True,
+                                pbl_classes=True,margin='2px',
+                                viewResource='ViewFromUser')
 
     def onSaving(self, recordCluster, recordClusterAttr, resultAttr=None):
         if recordCluster['md5pwd']:
