@@ -975,6 +975,7 @@ class GnrApp(object):
                 kw.update(kwargs)
                 return self.makeAvatar(user=user, user_name=user_name, user_id=user_id,
                                        login_pwd=password, authenticate=authenticate,
+                                       group_code=kw.pop('group_code','xml_group'),
                                        defaultTags=defaultTags, **kw)
                                        
     def auth_py(self, node, user, password=None, authenticate=False,tags=None, **kwargs):

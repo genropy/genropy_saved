@@ -170,9 +170,9 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_viewConfigurator(self,pane,table,th_root,configurable=None):
-        options = self._th_hook('options',mangler=pane)() or dict()
-        bar = pane.slotBar('confBar,fieldsTree,*',width='160px',closable='close',fieldsTree_table=table,
-                            fieldsTree_branch=options.get('branch'),
+        bar = pane.slotBar('confBar,fieldsTree,*',width='160px',closable='close',
+                            fieldsTree_table=table,
+                            fieldsTree_checkPermissions=True,
                             fieldsTree_height='100%',splitter=True,border_left='1px solid silver')
         confBar = bar.confBar.slotToolbar('viewsMenu,currviewCaption,*,defView,saveView,deleteView',background='whitesmoke')
         confBar.currviewCaption.div('^.grid.currViewAttrs.caption',font_size='.9em',color='#666',line_height='16px')

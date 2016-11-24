@@ -142,7 +142,7 @@ class SqlQueryCompiler(object):
         self.aliases = {self.tblobj.sqlfullname: self.aliasCode(0)}
         self.fieldlist = []
         
-    def getFieldAlias(self, fieldpath, curr=None,basealias=None,_ignorePermissions=False):
+    def getFieldAlias(self, fieldpath, curr=None,basealias=None):
         """Internal method. Translate fields path and related fields path in a valid sql string for the column.
         
         It translates ``@relname.@rel2name.colname`` to ``t4.colname``.
@@ -159,7 +159,7 @@ class SqlQueryCompiler(object):
 
         def expandThis(m):
             fld = m.group(1)
-            return self.getFieldAlias(fld,curr=curr,basealias=alias,_ignorePermissions=_ignorePermissions)
+            return self.getFieldAlias(fld,curr=curr,basealias=alias)
 
         def expandPref(m):
             """#PREF(myprefpath,default)"""
@@ -195,9 +195,6 @@ class SqlQueryCompiler(object):
         else:
             alias = basealias
         curr_tblobj = self.db.table(curr.tbl_name, pkg=curr.pkg_name)
-        col = curr_tblobj.column(fld)
-        if not _ignorePermissions and self.cpl.checkPermissions and not col.allowed(**self.cpl.checkPermissions):
-            return 'NULL'
         if not fld in curr.keys():
             fldalias = curr_tblobj.model.virtual_columns[fld]
             if fldalias == None:
@@ -208,7 +205,7 @@ class SqlQueryCompiler(object):
                 #newfieldpath = '.'.join(pathlist)        # replace the field alias with the column relation_path
                 # then call getFieldAlias again with the real path
                 return self.getFieldAlias(fldalias.relation_path, curr=curr,
-                                          basealias=alias,_ignorePermissions=_ignorePermissions)  # call getFieldAlias recursively
+                                          basealias=alias)  # call getFieldAlias recursively
             elif fldalias.sql_formula or fldalias.select or fldalias.exists:
                 sql_formula = fldalias.sql_formula
                 attr = dict(fldalias.attributes)
@@ -249,7 +246,7 @@ class SqlQueryCompiler(object):
                         sql_formula = re.sub("(:)(%s)(\\W|$)" %k,lambda m: '%senv_%s%s'%(m.group(1),newk,m.group(3)), sql_formula)
                 subColPars = {}
                 for key, value in subreldict.items():
-                    subColPars[key] = self.getFieldAlias(value, curr=curr, basealias=alias,_ignorePermissions=True)
+                    subColPars[key] = self.getFieldAlias(value, curr=curr, basealias=alias)
                 sql_formula = gnrstring.templateReplace(sql_formula, subColPars, safeMode=True)
                 return sql_formula
             elif fldalias.py_method:
@@ -259,7 +256,7 @@ class SqlQueryCompiler(object):
             else:
                 raise GnrSqlMissingColumn('Invalid column %s in table %s.%s (requested field %s)' % (
                 fld, curr.pkg_name, curr.tbl_name, '.'.join(newpath)))
-        return '%s.%s' % (alias, col.adapted_sqlname)
+        return '%s.%s' % (alias, curr_tblobj.column(fld).adapted_sqlname)
         
     def _findRelationAlias(self, pathlist, curr, basealias, newpath):
         """Internal method: called by getFieldAlias to get the alias (t1, t2...) for the join table.
@@ -456,7 +453,7 @@ class SqlQueryCompiler(object):
                       relationDict=None,
                       bagFields=False,
                       count=False, excludeLogicalDeleted=True,excludeDraft=True,
-                      ignorePartition=False,checkPermissions=False,ignoreTableOrderBy=False,
+                      ignorePartition=False,ignoreTableOrderBy=False,
                       addPkeyColumn=True):
         """Prepare the SqlCompiledQuery to get the sql query for a selection.
         
@@ -485,8 +482,6 @@ class SqlQueryCompiler(object):
         :param addPkeyColumn: boolean. If ``True``, add a column with the pkey attribute"""
         # get the SqlCompiledQuery: an object that mantains all the informations to build the sql text
         self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname,relationDict=relationDict,maintable_as=self.aliasCode(0))
-        self.cpl.checkPermissions = checkPermissions  
-
         distinct = distinct or '' # distinct is a text to be inserted in the sql query string
         
         # aggregate: test if the result will aggregate db rows
@@ -651,7 +646,7 @@ class SqlQueryCompiler(object):
         return self.cpl
         
     def compiledRecordQuery(self, lazy=None, eager=None, where=None,
-                            bagFields=True, for_update=False, relationDict=None, virtual_columns=None,checkPermissions=False):
+                            bagFields=True, for_update=False, relationDict=None, virtual_columns=None):
         """Prepare the :class:`SqlCompiledQuery` class to get the sql query for a selection.
         
         :param lazy: TODO. 
@@ -664,7 +659,6 @@ class SqlQueryCompiler(object):
                              check the :ref:`relationdict` documentation section
         :param virtual_columns: TODO."""
         self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname, relationDict=relationDict)
-        self.cpl.checkPermissions = checkPermissions  
         if not 'pkey' in self.cpl.relationDict:
             self.cpl.relationDict['pkey'] = self.tblobj.pkey
         self.init(lazy=lazy, eager=eager)
@@ -981,7 +975,6 @@ class SqlQuery(object):
                                                                   excludeDraft=self.excludeDraft,
                                                                   addPkeyColumn=self.addPkeyColumn,
                                                                   ignorePartition=self.ignorePartition,
-                                                                  checkPermissions=self.checkPermissions,
                                                                   ignoreTableOrderBy=self.ignoreTableOrderBy,
                                                                   **self.querypars)
                                                                   
@@ -1110,6 +1103,7 @@ class SqlQuery(object):
                             key=key,
                             sortedBy=sortedBy,
                             explodingColumns=self.compiled.explodingColumns,
+                            checkPermissions = self.checkPermissions,
                             _aggregateRows=_aggregateRows,
                             _aggregateDict = self.compiled.aggregateDict
                             )
@@ -1124,7 +1118,7 @@ class SqlQuery(object):
                 f = f.strip()
                 f = f.strip('$')
                 fld = self.compiled.relationDict.get(f, f)
-            col = self.dbtable.column(fld)
+            col = self.dbtable.column(fld,checkPermissions=self.checkPermissions)
             if col is not None:
                 attrs = dict(col.attributes)
                 attrs.pop('comment', None)
@@ -1190,7 +1184,7 @@ class SqlSelection(object):
     can :meth:`freeze()` it into a file. You can also use the :meth:`sort()` and the :meth:`filter()` methods
     on a SqlSelection."""
     def __init__(self, dbtable, data, index=None, colAttrs=None, key=None, sortedBy=None,
-                 joinConditions=None, sqlContextName=None, explodingColumns=None, _aggregateRows=False,_aggregateDict=None):
+                 joinConditions=None, sqlContextName=None, explodingColumns=None, checkPermissions=None,_aggregateRows=False,_aggregateDict=None):
         self._frz_data = None
         self._frz_filtered_data = None
         self.dbtable = dbtable
@@ -1221,6 +1215,7 @@ class SqlSelection(object):
         self.isChangedFiltered = True
         self.joinConditions = joinConditions
         self.sqlContextName = sqlContextName
+        self.checkPermissions = checkPermissions
         
     def _aggregateRows(self, data, index, explodingColumns,aggregateDict=None):
         if self.explodingColumns:
@@ -1655,7 +1650,7 @@ class SqlSelection(object):
             result.append(sum(filter(lambda r: r is not None, data[k])))
         return result
 
-        
+
     def _out(self, columns=None, offset=0, limit=None, filterCb=None):
         if filterCb:
             source = itertools.ifilter(filterCb, self.data)
@@ -1665,6 +1660,7 @@ class SqlSelection(object):
             stop = offset + limit
         else:
             stop = None
+        columns = filter(lambda cname: not self.colAttrs.get(cname,{}).get('user_forbidden'),columns)
         if columns != ['**rawdata**']:
             for r in itertools.islice(source, offset, stop):
                 yield r.extractItems(columns)
@@ -2142,7 +2138,6 @@ class SqlRecord(object):
                                   sqlContextName=self.sqlContextName,aliasPrefix=self.aliasPrefix)
         return compiler.compiledRecordQuery(where=where,relationDict=self.relationDict,bagFields=self.bagFields,
                                                 for_update=self.for_update,virtual_columns=self.virtual_columns,
-                                                checkPermissions=self.checkPermissions,
                                                 **self.relmodes)
         
     def _get_result(self):
@@ -2172,7 +2167,6 @@ class SqlRecord(object):
                                                                                  params))
             else:
                 if self.ignoreDuplicate:
-                    print
                     self._result = data[0]
                 else:
                     raise RecordDuplicateError(

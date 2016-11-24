@@ -4357,6 +4357,7 @@ dojo.declare("gnr.widgets.FieldsTree", gnr.widgets.gnrwdg, {
             };
             sourceNode._('div',trashKw);
         }
+        console.log('FieldsTree kw',kw)
         genro.dev.fieldsTree(box,table,kw);
         return box;
     }
@@ -4671,6 +4672,8 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     slot_fieldsTree:function(pane,slotValue,slotKw,frameCode){
         var table = objectPop(slotKw,'table');
         table = pane.getParentNode().currentFromDatasource(table);
+        var checkPermissions = objectPop(slotKw,'checkPermissions');
+
         var dragCode = objectPop(slotKw,'dragCode');
         var treeKw = objectExtract(slotKw,'tree_*') || {};
         treeKw.dragCode = dragCode;
@@ -4680,7 +4683,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         var explorerPath = objectPop(slotKw,'explorerPath');
 
         var slot = pane._('div',slotKw);
-        slot._('FieldsTree',objectUpdate({table:table,trash:true,currRecordPath:currRecordPath,explorerPath:explorerPath},treeKw));
+        slot._('FieldsTree',objectUpdate({table:table,trash:true,currRecordPath:currRecordPath,explorerPath:explorerPath,checkPermissions:checkPermissions},treeKw));
     },
     
     slot_count:function(pane,slotValue,slotKw,frameCode){

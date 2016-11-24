@@ -255,12 +255,12 @@ class SqlTable(GnrObject):
         
     dbroot = db
         
-    def column(self, name):
+    def column(self, name,**kwargs):
         """Returns a :ref:`column` object.
         
         :param name: A column's name or a :ref:`relation <relations>` starting from
                      the current :ref:`table`. (eg. ``@director_id.name``)"""
-        result = self.model.column(name)
+        result = self.model.column(name,**kwargs)
         return result
         
     def fullRelationPath(self, name):
@@ -1926,7 +1926,8 @@ class SqlTable(GnrObject):
 
 
 
-    def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, relationStack='',**kwargs):
+    def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, 
+                        relationStack='',checkPermissions=None,**kwargs):
         """TODO
         
         :param omit: TODO
@@ -1980,6 +1981,8 @@ class SqlTable(GnrObject):
                     return 
                 attributes['relationStack'] = gnrstring.concat(relationStack, relkey,'|')
             else:
+                if checkPermissions:
+                    attributes.update(self.model.getColPermissions(relnode.label,**checkPermissions))
                 attributes['name_long'] = attributes.get('name_long') or relnode.label
             return attributes
             
@@ -1988,7 +1991,7 @@ class SqlTable(GnrObject):
         result = Bag()
         for relnode in tblmodel.relations: # add columns relations
             attributes = convertAttributes(result, relnode, prevRelation, omit,relationStack)
-            if attributes:
+            if attributes and not attributes.get('user_forbidden'):
                 resultAppend(result, relnode.label, attributes, omit)
             
         for vcolname, vcol in tblmodel.virtual_columns.items():

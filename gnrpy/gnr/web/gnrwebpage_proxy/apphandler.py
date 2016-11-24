@@ -743,7 +743,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         wherebag = where if isinstance(where,Bag) else None
         resultAttributes = {}
         if checkPermissions is True:
-            checkPermissions = dict(user=self.page.user,user_group=self.page.avatar.group_code)
+            checkPermissions = self.page.permissionPars
         for k in kwargs.keys():
             if k.startswith('format_'):
                 formats[7:] = kwargs.pop(k)

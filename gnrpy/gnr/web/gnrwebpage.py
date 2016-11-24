@@ -2120,23 +2120,26 @@ class GnrWebPage(GnrBaseWebPage):
         return result or True
 
     @public_method
-    def relationExplorer(self,table=None,item_type=None,**kwargs):
+    def relationExplorer(self,table=None,item_type=None,checkPermissions=None,**kwargs):
+        if checkPermissions is True:
+            checkPermissions = self.permissionPars
         if item_type:
             userConfig = self.getUserTableConfig(table=table)
             item_code = userConfig[item_type.lower()]
             if item_code is None:
-                return self.dbRelationExplorerFull(table,**kwargs)
+                return self.dbRelationExplorerFull(table,checkPermissions=checkPermissions,**kwargs)
             elif item_code == '_RAW_':
-                return self.dbRelationExplorerFull(table)
+                return self.dbRelationExplorerFull(table,checkPermissions=checkPermissions)
             elif item_code == '_NO_':
                 return Bag()
             item = self.db.table('adm.tblinfo_item').getInfoItem(item_type=item_type,tbl=table,code=item_code)
             if item:
                 return Bag(item['data'])['root']
-        return self.dbRelationExplorerFull(table,**kwargs)
+
+        return self.dbRelationExplorerFull(table,checkPermissions=checkPermissions,**kwargs)
 
     def dbRelationExplorerFull(self, table=None, currRecordPath=None,prevRelation='', prevCaption='',
-                             omit='',relationStack='', **kwargs):
+                             omit='',relationStack='', checkPermissions=None,**kwargs):
         """TODO
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
@@ -2147,6 +2150,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param omit: TODO"""
         if not table:
             return Bag()
+        cps = 'false' if not checkPermissions else 'true'
         def buildLinkResolver(node, prevRelation, prevCaption,relationStack):
             nodeattr = node.getAttr()
             if not 'name_long' in nodeattr:
@@ -2165,26 +2169,25 @@ class GnrWebPage(GnrBaseWebPage):
                     relpkg, reltbl, relfld = nodeattr['many_relation'].split('.')
                     relkey =  '%(one_relation)s/%(many_relation)s' %node.attr
                 relkey = str(hash(relkey) & 0xffffffff)
-                jsresolver = "genro.rpc.remoteResolver('relationExplorer',{table:%s, prevRelation:%s, prevCaption:%s, omit:%s,currRecordPath:%s,relationStack:%s})"
+                jsresolver = "genro.rpc.remoteResolver('relationExplorer',{table:%s, prevRelation:%s, prevCaption:%s, omit:%s,currRecordPath:%s,relationStack:%s,checkPermissions:%s})"
                 node.setValue(jsresolver % (
                 jsquote("%s.%s" % (relpkg, reltbl)), jsquote(concat(prevRelation, node.label)),
                 jsquote(nodeattr['fullcaption']), jsquote(omit),
-                jsquote(innerCurrRecordPath),jsquote(concat(relationStack,relkey,'|'))
+                jsquote(innerCurrRecordPath),jsquote(concat(relationStack,relkey,'|')),cps
                 ))
             elif 'subfields' in nodeattr and currRecordPath:
                 nodeattr['_T'] = 'JS'
-                jsresolver = "genro.rpc.remoteResolver('subfieldExplorer',{table:%s, field:%s,fieldvalue:%s,prevRelation:%s, prevCaption:%s, omit:%s},{cacheTime:1})"
+                jsresolver = "genro.rpc.remoteResolver('subfieldExplorer',{table:%s, field:%s,fieldvalue:%s,prevRelation:%s, prevCaption:%s, omit:%s,checkPermissions:%s},{cacheTime:1})"
                 node.setValue(jsresolver % (
                 jsquote("%(pkg)s.%(table)s" %nodeattr),
                 jsquote(nodeattr['subfields']),
                 jsquote("=%s.%s" %(currRecordPath,nodeattr['subfields'])),
                 jsquote(concat(prevRelation, node.label)),
-                jsquote(nodeattr['fullcaption']), jsquote(omit)))
-                
+                jsquote(nodeattr['fullcaption']), jsquote(omit),cps))
         result = self.db.relationExplorer(table=table,
                                           prevRelation=prevRelation,
                                           relationStack=relationStack,
-                                          omit=omit,
+                                          omit=omit,checkPermissions=checkPermissions,
                                           **kwargs)
         result.walk(buildLinkResolver, prevRelation=prevRelation, prevCaption=prevCaption,relationStack=relationStack)
         return result
@@ -2275,6 +2278,9 @@ class GnrWebPage(GnrBaseWebPage):
                 f.write(data['content'])
         return dict(path=path)
 
+    @property
+    def permissionPars(self):
+        return dict(user=self.user,user_group=getattr(self.avatar,'group_code',None))
 
     def isLocalizer(self):
         """TODO"""
