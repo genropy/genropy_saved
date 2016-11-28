@@ -223,7 +223,8 @@ class TableHandlerView(BaseComponent):
         box.div('==_sumvalue|| 0;',_sumvalue='^.store?sum_%s' %sum_column,format=format,width=width or '5em',_class='fakeTextBox',
                  font_size='.9em',text_align='right',padding_right='2px',display='inline-block')
 
-    def _th_section_from_type(self,tblobj,sections,condition=None,condition_kwargs=None,all_begin=None,all_end=None,codePkey=False):
+    def _th_section_from_type(self,tblobj,sections,condition=None,condition_kwargs=None,
+                            all_begin=None,all_end=None,codePkey=False,include_inherited=None):
         rt = tblobj.column(sections).relatedTable() 
         if rt:
             section_table = tblobj.column(sections).relatedTable().dbtable
@@ -240,12 +241,15 @@ class TableHandlerView(BaseComponent):
                 s = s.split(':')
                 f.append(dict(code=s[0],description=s[1] if len(s)==2 else s[0]))
         s = []
+        sec_cond = '$%s=:s_id' %sections
+        if include_inherited:
+            sec_cond = '(($%s IS NULL) OR ($%s=:s_id))' %(sections,sections)
         if all_begin is None and all_end is None:
             all_begin = True
         if all_begin:
             s.append(dict(code='c_all_begin',caption='!!All' if all_begin is True else all_begin))
         for i,r in enumerate(f):
-            s.append(dict(code=slugify(r[pkeyfield],'_'),caption=r[caption_field],condition='$%s=:s_id' %sections,condition_s_id=r[pkeyfield]))
+            s.append(dict(code=slugify(r[pkeyfield],'_'),caption=r[caption_field],condition=sec_cond,condition_s_id=r[pkeyfield]))
         if all_end:
             s.append(dict(code='c_all_end',caption='!!All' if all_end is True else all_end))
         return s
@@ -253,7 +257,7 @@ class TableHandlerView(BaseComponent):
     @extract_kwargs(condition=True,lbl=dict(slice_prefix=False))
     @struct_method
     def th_slotbar_sections(self,parent,sections=None,condition=None,condition_kwargs=None,
-                            all_begin=None,all_end=None,multiButton=None,lbl=None,lbl_kwargs=None,**kwargs):
+                            all_begin=None,all_end=None,include_inherited=False,multiButton=None,lbl=None,lbl_kwargs=None,**kwargs):
         inattr = parent.getInheritedAttributes()    
         th_root = inattr['th_root']
         pane = parent.div(datapath='.sections.%s' %sections)
@@ -274,7 +278,8 @@ class TableHandlerView(BaseComponent):
             depending_condition_kwargs = dictExtract(dict(m.__dict__),'_if_')
         elif sections in  tblobj.model.columns and (tblobj.column(sections).relatedTable() is not None or 
                                                 tblobj.column(sections).attributes.get('values')):
-            sectionslist = self._th_section_from_type(tblobj,sections,condition=condition,condition_kwargs=condition_kwargs,all_begin=all_begin,all_end=all_end)
+            sectionslist = self._th_section_from_type(tblobj,sections,condition=condition,condition_kwargs=condition_kwargs,
+                                                    all_begin=all_begin,all_end=all_end,include_inherited=include_inherited)
             dflt = None
             multivalue = True
             variable_struct = False

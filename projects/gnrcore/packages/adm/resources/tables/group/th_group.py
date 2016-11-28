@@ -34,5 +34,9 @@ class Form(BaseComponent):
                             picker_condition='$child_count=0',
                             picker_viewResource=True)
 
+        tc.contentPane(title='!!Config').dialogTableHandler(table='adm.user_config',
+                                margin='2px',
+                                viewResource='ViewFromGroup',
+                                formResource='FormFromGroup')
     def th_options(self):
         return dict(dialog_height='400px', dialog_width='600px')

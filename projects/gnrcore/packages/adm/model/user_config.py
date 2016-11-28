@@ -16,18 +16,14 @@ class Table(object):
         tbl.column('tblid' ,size=':30',name_long='!!Tbl').relation('tblinfo.tblid',relation_name='rules',mode='foreignkey')
         
         tbl.column('data',dtype='X',name_long='!!Data',_sendback=True) #configuration data (tbl_permission,qtree,ftree,forbidden_cols,readonly_cols)
-
-        #tbl.column('tbl_permission' ,size=':20',name_long='!!Table permission',name_short='!!Permission')#values='read,ins,upd,del'
-
-       #tbl.column('qtree',size=':30',name_long='!!QTree')
-       #tbl.column('ftree',size=':30',name_long='!!FTree')
-
-       #tbl.column('forbidden_columns',name_long='!!Forbidden columns')
-       #tbl.column('forbidden_override',dtype='B',name_long='!!Override forbidden',name_short='Override')
-
-       #tbl.column('readonly_columns',name_long='!!ReadOnly columns')
-       #tbl.column('readonly_override',dtype='B',name_long='!!Override readony',name_short='Override')
-       #tbl.column('entity' ,size=':12',name_long='!!Entity')
+        
+        tbl.formulaColumn('calc_pkgid',"""CASE WHEN $pkgid IS NOT NULL THEN $pkgid
+                                               WHEN $tblid IS NOT NULL THEN split_part($tblid,'.',1)
+                                               ELSE NULL END""")
+        tbl.formulaColumn('calc_user_group',"""
+                CASE WHEN $user_group IS NOT NULL THEN $user_group
+                     WHEN $username IS NOT NULL THEN @username.group_code
+                     ELSE NULL END""")
 
         tbl.formulaColumn('rank',"""CAST(($tblid IS NOT NULL) AS int)*8+
                                     CAST(($pkgid IS NOT NULL) AS int)*2+
@@ -103,15 +99,16 @@ class Table(object):
 
 
     def trigger_onInserting(self,record):
-        self.trigger_tblpkg(record)
+        self.trigger_common(record)
 
     def trigger_onUpdating(self,record,old_record=None):
-        self.trigger_tblpkg(record)
+        self.trigger_common(record)
 
-    def trigger_tblpkg(self,record):
-        if record['tblid'] and not record['pkgid']:
-            record['pkgid'] = record['tblid'].split('.')[0]
-
+    def trigger_common(self,record):
+        if record['tblid']:
+            record['pkgid'] = None
+        if record['username']:
+            record['user_group'] = None
 
     def _updateColsPermission(self,cols_permission,updater,allcols,editMode):
         result = Bag()
@@ -134,18 +131,16 @@ class Table(object):
                         currattr[permission] = upd if upd is not None else last
         return result
 
-
-
-
     def getInfoBag(self,pkg=None,tbl=None,user=None,user_group=None,_editMode=False):
-        if not pkg and tbl:
-            pkg = tbl.split('.')[0]
         result = Bag()
         if tbl:
+            pkg = None
             tblobj =  self.db.table(tbl)
             cols_permission_base = Bag()
             allcols = tblobj.columns.keys() + tblobj.model.virtual_columns.keys()
             result['cols_permission'] = cols_permission_base
+        if user:
+            user_group = None
         f = self.query(where="""($pkgid IS NULL OR $pkgid=:pkg) AND
                                 ($tblid IS NULL OR $tblid=:tbl) AND
                                 ($user_group IS NULL OR $user_group=:user_group) AND 
@@ -156,7 +151,9 @@ class Table(object):
             data = Bag(r['data'])
             last_permissions = data.pop('cols_permission')
             if tbl:
-                result['cols_permission'] = self._updateColsPermission(result['cols_permission'],last_permissions or Bag(),allcols,_editMode)
+                result['cols_permission'] = self._updateColsPermission(result['cols_permission'],
+                                                                        last_permissions or Bag(),
+                                                                        allcols,_editMode)
             for k,v in data.items():
                 if v is not None:
                     result[k] = v

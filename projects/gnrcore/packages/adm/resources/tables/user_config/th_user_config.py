@@ -8,17 +8,38 @@ from gnr.core.gnrdecorator import public_method
 class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('user_group',hidden='^#mainpars.user_group',width='6em')
-        r.fieldcell('username',hidden='^#mainpars.username',width='7em')
-        r.fieldcell('pkgid',hidden='^#mainpars.pkgid',width='4em')
-        r.fieldcell('tblid',hidden='^#mainpars.tblid',width='8em')
+        r.fieldcell('user_group',width='6em')
+        r.fieldcell('username',width='7em')
+        r.fieldcell('pkgid',width='4em')
+        r.fieldcell('tblid',width='8em')
         r.fieldcell('data',width='30em')
+
+    def th_top_custom(self,top):
+        top.bar.replaceSlots('vtitle','sections@onpkg')
+
+    def th_sections_onpkg(self):
+        result =[dict(code='_all_',caption='!!All')]
+        for pkg in self.db.application.packages.keys():
+            result.append(dict(code=pkg,caption=pkg,condition='$calc_pkgid IS NULL OR $calc_pkgid=:cpkgid',condition_cpkgid=pkg))
+        return result
 
     def th_hiddencolumns(self):
         return '$rank'
 
     def th_order(self):
         return 'rank:a'
+
+
+
+class ViewConfigurator(View):
+
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('user_group',hidden='^#mainpars.user_group',width='6em')
+        r.fieldcell('username',hidden='^#mainpars.username',width='7em')
+        r.fieldcell('pkgid',hidden='^#mainpars.pkgid',width='4em')
+        r.fieldcell('tblid',hidden='^#mainpars.tblid',width='8em')
+        r.fieldcell('data',width='30em')
 
     def th_condition(self):
         return dict(condition="""(:ugroup IS NULL OR $user_group=:ugroup) AND
@@ -30,7 +51,33 @@ class View(BaseComponent):
                                  condition_tblinfo='^#mainpars.tblid',
                                  condition_pkginfo='^#mainpars.pkgid'
                                  )
-class ViewFromUser(View):
+    def th_view(self,view):
+        bar = view.top.bar.replaceSlots('addrow','newrule')
+        self.newRuleButton(bar)
+        rpc = bar.dataRpc(None,self.db.table('adm.user_config').newConfigRule,subscribe_new_config_rule=True)
+        rpc.addCallBack("""
+            grid.publish('editrow',{pkey:result});
+            """,grid=view.grid)
+
+    def newRuleButton(self,bar):
+        bar.newrule.slotButton('!!Add rule',ask=dict(title='Rule',fields=[dict(lbl='User Group',hasDownArrow=True,
+                                                                    name='user_group',tag='dbselect',dbtable='adm.group'),
+                                                                dict(lbl='User',hasDownArrow=True,
+                                                                    name='username',tag='dbselect',dbtable='adm.user',
+                                                                    alternatePkey='username',
+                                                                    condition=':ugroup IS NULL OR $group_code=:ugroup',
+                                                                    condition_ugroup='=.user_group'), 
+                                                                dict(lbl='Pkg',hasDownArrow=True,
+                                                                    name='pkgid',tag='dbselect',dbtable='adm.pkginfo'),
+                                                                dict(lbl='Table',
+                                                                    name='tblid',tag='dbselect',dbtable='adm.tblinfo',
+                                                                    condition=':pkgid IS NULL OR $pkgid=:pkgid',
+                                                                    condition_pkgid='=.pkgid',hasDownArrow=True)],
+                                                               ),
+                                action="""
+                                PUBLISH new_config_rule = {user_group:user_group,username:username,pkgid:pkgid,tblid:tblid};
+        """)
+class ViewFromUser(ViewConfigurator):
     def th_condition(self):
         return dict(condition="""($user_group IS NULL OR $user_group=:ugroup) AND
                                 ($username IS NULL OR $username=:uid)
@@ -39,9 +86,68 @@ class ViewFromUser(View):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('user_group',width='6em')
+        r.fieldcell('username',width='6em')
         r.fieldcell('pkgid',width='4em')
         r.fieldcell('tblid',width='8em')
         r.fieldcell('data',width='30em')
+
+
+    def newRuleButton(self,bar):
+        bar.newrule.slotButton('!!Add rule',ask=dict(title='Rule',fields=[
+                                                                dict(lbl='Pkg',hasDownArrow=True,
+                                                                    name='pkgid',tag='dbselect',dbtable='adm.pkginfo'),
+                                                                dict(lbl='Table',
+                                                                    name='tblid',tag='dbselect',dbtable='adm.tblinfo',
+                                                                    condition=':pkgid IS NULL OR $pkgid=:pkgid',
+                                                                    condition_pkgid='=.pkgid',hasDownArrow=True)],
+                                                               ),
+                                action="""
+                                PUBLISH new_config_rule = {username:username,pkgid:pkgid,tblid:tblid};
+        """,username='=#FORM.record.username',parentForm=True)
+
+    @public_method
+    def th_applymethod(self,selection):
+        def cb(row):
+            if not row['username']:
+                return dict(_customClasses='dimmed')
+            return dict()
+        selection.apply(cb)
+
+class ViewFromGroup(ViewConfigurator):
+    def th_condition(self):
+        return dict(condition="""($user_group IS NULL OR $user_group=:ugroup) AND
+                                 $username IS NULL
+                            """,condition_ugroup='^#FORM.record.code')
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('user_group',width='6em')
+        r.fieldcell('pkgid',width='4em')
+        r.fieldcell('tblid',width='8em')
+        r.fieldcell('data',width='30em')
+
+
+    def newRuleButton(self,bar):
+        bar.newrule.slotButton('!!Add rule',ask=dict(title='Rule',fields=[
+                                                                dict(lbl='Pkg',hasDownArrow=True,
+                                                                    name='pkgid',tag='dbselect',dbtable='adm.pkginfo'),
+                                                                dict(lbl='Table',
+                                                                    name='tblid',tag='dbselect',dbtable='adm.tblinfo',
+                                                                    condition=':pkgid IS NULL OR $pkgid=:pkgid',
+                                                                    condition_pkgid='=.pkgid',hasDownArrow=True)],
+                                                               ),
+                                action="""
+                                PUBLISH new_config_rule = {user_group:user_group,pkgid:pkgid,tblid:tblid};
+        """,user_group='=#FORM.record.code',parentForm=True)
+
+
+    @public_method
+    def th_applymethod(self,selection):
+        def cb(row):
+            if not row['user_group']:
+                return dict(_customClasses='dimmed')
+            return dict()
+        selection.apply(cb)
+
 
 class Form(BaseComponent):
     js_requires = 'adm_configurator'
@@ -159,3 +265,16 @@ class Form(BaseComponent):
 
         return result
 
+
+class FormFromGroup(Form):
+    @public_method
+    def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
+        if not record['user_group']:
+            recInfo['_protect_write'] = True
+
+
+class FormFromUser(Form):
+    @public_method
+    def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
+        if not record['username']:
+            recInfo['_protect_write'] = True

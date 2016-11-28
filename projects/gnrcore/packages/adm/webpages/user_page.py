@@ -49,9 +49,9 @@ class GnrCustomWebPage(object):
                             picker_viewResource=True)
 
     def userConfigView(self,pane):
-        pane.plainTableHandler(table='adm.user_config',view_store_onStart=True,
-                                pbl_classes=True,margin='2px',
-                                viewResource='ViewFromUser')
+        pane.dialogTableHandler(table='adm.user_config',margin='2px',
+                                viewResource='ViewFromUser',
+                                formResource='FormFromUser')
 
     def onSaving(self, recordCluster, recordClusterAttr, resultAttr=None):
         if recordCluster['md5pwd']:
