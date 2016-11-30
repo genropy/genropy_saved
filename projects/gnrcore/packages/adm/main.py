@@ -20,11 +20,11 @@ class Package(GnrDboPackage):
         def cb(cache=None,identifier=None,**kwargs):
             if identifier in cache:
                 return cache[identifier],True
-            result = tblobj.query(columns='*',where='$username = :user',user=username, limit=1).fetch()
+            result = tblobj.query(columns='*,$all_tags',where='$username = :user',user=username, limit=1).fetch()
             kwargs = dict()
             if result:
                 user_record = dict(result[0])
-                kwargs['tags'] = user_record.pop('auth_tags')
+                kwargs['tags'] = user_record.pop('all_tags')
                 kwargs['pwd'] = user_record.pop('md5pwd')
                 kwargs['status'] = user_record['status']
                 kwargs['email'] = user_record['email']

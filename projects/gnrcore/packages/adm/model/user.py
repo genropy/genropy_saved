@@ -35,6 +35,11 @@ class Table(object):
         tbl.column('sms_login' ,dtype='B',name_long='!!Sms login')
         tbl.column('sms_number',name_long='!!Sms Number')
         tbl.column('group_code',size=':15',name_long='!!Group').relation('group.code',relation_name='users',mode='foreignkey')
+        
+        tbl.formulaColumn('all_tags',"""array_to_string(ARRAY(#alltags),',')""",
+                            select_alltags=dict(where="$user_id=#THIS.id OR $group_code=#THIS.group_code",
+                                                columns='$tag_code',table='adm.user_tag',distinct=True))
+
         tbl.formulaColumn('fullname', "$firstname||' '||$lastname", name_long=u'!!Name')
 
     def partitionioning_pkeys(self):
