@@ -27,7 +27,9 @@ class Form(BaseComponent):
         fb.field('code')
         fb.field('description')
         tc = bc.tabContainer(region='center',margin='2px')
-        tc.contentPane(title='!!Users').plainTableHandler(relation='@users',picker=True,pbl_classes=True,margin='2px')
+        tc.contentPane(title='!!Users').plainTableHandler(relation='@users',picker=True,
+                            picker_viewResource='ViewPicker',
+                            pbl_classes=True,margin='2px')
         tc.contentPane(title='!!Tag').inlineTableHandler(relation='@tags',
                             viewResource='ViewFromGroup',
                             pbl_classes=True,margin='2px',addrow=False,picker='tag_id',

@@ -36,7 +36,7 @@ class THPicker(BaseComponent):
         title = title or picker_kwargs.get('title')
         viewResource = viewResource or picker_kwargs.get('viewResource')
         if viewResource is True:
-            viewResource = ':ViewPicker'
+            viewResource = 'ViewPicker'
         searchOn = searchOn or picker_kwargs.get('searchOn')
         maintable = None
         if grid:

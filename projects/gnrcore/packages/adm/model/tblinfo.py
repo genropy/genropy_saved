@@ -18,11 +18,11 @@ class Table(object):
         docommit =False
         for pkgId,pkg in self.db.packages.items():
             if not pkgId in currentPackages:
-                pkgtable.insert(dict(pkg=pkgId))
+                pkgtable.insert(dict(pkgid=pkgId))
                 docommit = True
             for tbl in pkg.tables.values():
                 if not tbl.fullname in current:
-                    self.insert(dict(pkg=pkgId,tbl=tbl.fullname))
+                    self.insert(dict(pkgid=pkgId,tblid=tbl.fullname))
                 docommit = True
         if docommit:
             self.db.commit()

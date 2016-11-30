@@ -115,7 +115,10 @@ class TableHandler(BaseComponent):
             if picker is True:
                 picker = tblobj.pkey
                 picker_kwargs['table'] = table
-                picker_base_condition = '$%(_fkey_name)s IS NULL OR $%(_fkey_name)s!=:fkey' %condition_kwargs
+                if picker_kwargs.pop('exclude_assigned',None):
+                    picker_base_condition = '$%(_fkey_name)s IS NULL' %condition_kwargs 
+                else:
+                    picker_base_condition = '$%(_fkey_name)s IS NULL OR $%(_fkey_name)s!=:fkey' %condition_kwargs 
                 picker_custom_condition = view_kwargs.get('picker_condition')
                 picker_kwargs['condition'] = picker_base_condition if not picker_custom_condition else '(%s) AND (%s)' %(picker_base_condition,picker_custom_condition)
                 if delrow:
