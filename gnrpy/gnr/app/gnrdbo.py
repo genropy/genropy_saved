@@ -295,17 +295,24 @@ class TableBase(object):
             tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname),group='*')
             tbl.formulaColumn('hlevel',"""length($hierarchical_pkey)-length(replace($hierarchical_pkey,'/',''))+1""",group='*')
 
-            hfields = hierarchical.split(',')
-            for fld in hfields:
+            hfields = []
+            for fld in hierarchical.split(','):
                 if fld=='pkey':
                     tbl.column('hierarchical_pkey',unique=True,group=group,_sysfield=True) 
                     tbl.column('_parent_h_pkey',group=group,_sysfield=True)
+                    hfields.append(fld)
                 else:
+                    unique = False
+                    if ':' in fld:
+                        fld,mode = fld.split(':')
+                        unique = mode=='unique'
                     hcol = tbl.column(fld)
-                    fld_caption=hcol.attributes.get('name_long',fld).replace('!!','')                   
-                    tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption,group=group,_sysfield=True)
+                    fld_caption=hcol.attributes.get('name_long',fld).replace('!!','')  
+                    hfields.append(fld)
+                    tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption,group=group,_sysfield=True,
+                                unique=unique)
                     tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption,group=group,_sysfield=True)
-            tbl.attributes['hierarchical'] = hierarchical  
+            tbl.attributes['hierarchical'] = ','.join(hfields)
             if not counter:
                 tbl.attributes.setdefault('order_by','$hierarchical_%s' %hfields[0] )
             broadcast = tbl.attributes.get('broadcast')
@@ -563,13 +570,14 @@ class TableBase(object):
             self.db.commit()
 
     def sysRecord(self,syscode):
+        sysRecord_masterfield = self.attributes.get('sysRecord_masterfield') or self.pkey
         def createCb(key):
             with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
                 record = getattr(self,'sysRecord_%s' %syscode)()
                 record['__syscode'] = key
-                pkey = record[self.pkey]
-                if pkey:
-                    oldrecord = self.query(where='$%s=:pk' %self.pkey,pk=pkey,
+                masterfield_value = record[sysRecord_masterfield]
+                if masterfield_value is not None:
+                    oldrecord = self.query(where='$%s=:mv' %sysRecord_masterfield,mv=masterfield_value,
                                                 addPkeyColumn=False).fetch()
                     if oldrecord:
                         oldrecord = oldrecord[0]
