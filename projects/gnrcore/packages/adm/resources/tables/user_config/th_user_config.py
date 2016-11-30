@@ -271,6 +271,14 @@ class FormFromGroup(Form):
     def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
         if not record['user_group']:
             recInfo['_protect_write'] = True
+        if record['tblid']:
+            current_full_data = self.db.table('adm.user_config').getInfoBag(pkg=record['pkgid'],tbl=record['tblid'],
+                                                                            user=record['username'],
+                                                                            user_group=record['user_group'],
+                                                                            _editMode=True)
+            record['data.cols_permission'] = current_full_data['cols_permission']
+            record['$current_cols'] = self.colsPickerStore(record['tblid'])
+
 
 
 class FormFromUser(Form):
@@ -278,3 +286,10 @@ class FormFromUser(Form):
     def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
         if not record['username']:
             recInfo['_protect_write'] = True
+        if record['tblid']:
+            current_full_data = self.db.table('adm.user_config').getInfoBag(pkg=record['pkgid'],tbl=record['tblid'],
+                                                                            user=record['username'],
+                                                                            user_group=record['user_group'],
+                                                                            _editMode=True)
+            record['data.cols_permission'] = current_full_data['cols_permission']
+            record['$current_cols'] = self.colsPickerStore(record['tblid'])
