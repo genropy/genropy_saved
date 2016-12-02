@@ -1831,7 +1831,6 @@ class SqlTable(GnrObject):
                 self.empty()
             for rec in records:
                 self.insertOrUpdate(rec)
-            self.db.deferredCommit()
                 
     def exportToAuxInstance(self, instance, empty_before=False, excludeLogicalDeleted=True,
                             excludeDraft=True, source_records=None, **querykwargs):

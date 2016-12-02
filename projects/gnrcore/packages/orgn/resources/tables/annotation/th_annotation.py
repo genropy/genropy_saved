@@ -89,12 +89,15 @@ class ViewMixedComponent(View):
 
     @metadata(variable_struct=True,isMain=True)
     def th_sections_modesec(self):
-        return [dict(code='all',caption='All'),
-                dict(code='annotation',caption='Annotations',condition='$rec_type=:rt',condition_rt='AN',struct='ann'),
-                dict(code='action',caption='Actions',condition='$rec_type=:rt',condition_rt='AC',struct='')]
+        return [dict(code='all',caption='!!Actions and annotations'),
+                dict(code='annotation',caption='!!Annotations',condition='$rec_type=:rt',condition_rt='AN',struct='ann'),
+                dict(code='action',caption='!!Actions',condition='$rec_type=:rt',condition_rt='AC',struct='')]
+
+    def th_top_custom(self,top):
+        top.bar.replaceSlots('vtitle','sections@modesec')
 
     def th_bottom_custom(self,bottom):
-        bottom.slotToolbar('2,sections@modesec,*')
+        pass
 
 class ViewZoomAnnotationAndAction(object):
     def th_struct(self,struct):

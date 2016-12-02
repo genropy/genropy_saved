@@ -307,3 +307,8 @@ class Table(object):
         record['annotation_date'] = record.get('annotation_date') or ins_ts.date()
         record['annotation_time'] = record.get('annotation_time') or ins_ts.time()
 
+    def newRecordCaption(self,record,**kwargs):
+        if record['rec_type'] == 'AN':
+            return '!!New annotation'
+        else:
+            return '!!New action'
