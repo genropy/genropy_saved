@@ -118,10 +118,8 @@ class Package(GnrDboPackage):
                                 excludeLogicalDeleted=False,ignorePartition=True,
                                 excludeDraft=False).fetch()
             if multidb=='*':
-                print 'syncall',tbl.fullname
                 tbl.checkSyncAll(dbstores=dbstores,main_fetch=main_f,errors=errors)
             else:
-                print 'partial',tbl.fullname
                 tbl.checkSyncPartial(dbstores=dbstores,main_fetch=main_f,errors=errors)
 
         if errorlog_folder:
