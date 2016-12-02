@@ -150,4 +150,4 @@ class ConfTreeItemForm(BaseComponent):
             record['data'].setItem('root',Bag(),caption='Root')
 
     def th_options(self):
-        return dict(dialog_parentRatio=0.95,modal=True)
+        return dict(dialog_parentRatio=0.95,showtoolbar=False)

@@ -88,6 +88,9 @@ class Form(BaseComponent):
                                                                         condition_item_type=item_type)],
                                                                ),
                 parentForm=True,deleteAction=False)
+        bar = frame.top.bar.replaceSlots('#','#,cancel_btn,5,save_btn,5')
+        bar.cancel_btn.slotButton('!!Undo',action="frm.reload();",frm=frame.form.js_form,iconClass='iconbox revert')
+        bar.save_btn.slotButton('!!Apply',action="frm.save();",frm=frame.form.js_form,iconClass='iconbox save')
         frame.dataRpc(None,self.newTblInfoItem,subscribe_new_qtree=True,
                         new_item='^.new_item',
                         tblid='=#FORM.record.tblid',item_type=item_type,

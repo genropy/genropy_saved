@@ -247,15 +247,11 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
 
 
-    fieldsTreeConfigurator:function(table){
-        var src = '/adm/tableconf/'+table.replace('.','/');
-        var kw = {windowRatio:.9, title:'Fields tree configurator',
-            src:src,closable:true};
-        kw.selfsubscribe_exit = function(kw){
-            console.log('refresh remoteResolver albero')
-        };
-        genro.dlg.iframeDialog('fieldsTreeConfigurator_'+src.replace(/\//g,'_'), kw)
-
+    tableUserConfiguration:function(table){
+        var onSavedCb=null;
+        genro.dlg.zoomPalette({height:'600px',width:'700px',table:'adm.tblinfo',pkey:table,
+                                      formResource:'FormFromTH',main_call:'main_form',
+                                      onSavedCb:onSavedCb,top:'30px',right:'40px'});
     },
     
     fieldsTree:function(pane,table,kw){

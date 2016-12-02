@@ -155,8 +155,8 @@ class TableHandlerView(BaseComponent):
         b.rowchild(label='!!Totals count',action='SET .#parent.tableRecordCount= !GET .#parent.tableRecordCount;',
                             checked='^.#parent.tableRecordCount')
         b.rowchild(label='-')
-        b.rowchild(label='!!Configure Table',
-                    action='genro.dev.fieldsTreeConfigurator($2.attr.table);')
+        b.rowchild(label='!!User Configuration',
+                    action='genro.dev.tableUserConfiguration($2.attr.table);')
         b.rowchild(childname='configure',label='!!Configure View',action="""$2.widget.configureStructure();""")
         grid.data('.contextMenu',b)
 

@@ -4,7 +4,7 @@ from gnr.core.gnrdecorator import public_method
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('tblinfo', pkey='tblid', pkey_columns_joiner='/',
+        tbl = pkg.table('tblinfo', pkey='tblid',
                     name_long='!!Table Info', name_plural='!!Table info',caption_field='tblid')
         self.sysFields(tbl,id=False)
         tbl.column('tblid' ,size=':50',name_long='!!Table')

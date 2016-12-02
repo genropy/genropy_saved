@@ -512,9 +512,7 @@ class MultiButtonForm(BaseComponent):
                                                     default_kwargs=default_kwargs,original_kwargs=kwargs)
         pane.attributes.update(overflow='hidden')
         frameCode = frameCode or 'fhmb_%s' %table.replace('.','_')
-        frame = pane.framePane(frameCode=frameCode,
-
-                                datapath=datapath,**kwargs)
+        frame = pane.framePane(frameCode=frameCode,datapath=datapath,**kwargs)
         storepath  = storepath or '.store' 
         store_kwargs['storepath'] = storepath
         store_kwargs.update(condition_kwargs)
