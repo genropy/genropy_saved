@@ -62,6 +62,21 @@ class WebMailHandler(MailHandler):
             attachments = attachments.replace('\n',',').split(',')
 
         assert to_address,'Missing email address'
+        cc_address = set(cc_address.split(',') if cc_address else [])
+        bcc_address = set(bcc_address.split(',') if bcc_address else [])
+
+        to_address = to_address.split('\n')
+        filtered_to_address = set()
+        for addr in to_address:
+            if addr.lower().startswith('cc:'):
+                cc_address = cc_address.union(set(addr[3:].split(',')))
+            elif addr.lower().startswith('bcc:'):
+                bcc_address = bcc_address.union(set(addr[4:].split(',')))
+            else:
+                filtered_to_address = filtered_to_address.union(set(addr.split(',')))
+        cc_address = ','.join(cc_address)
+        bcc_address = ','.join(bcc_address)
+        to_address = ','.join(filtered_to_address)
         kwargs.setdefault('html',True)
         self.sendmail(to_address=to_address,subject=subject,cc_address=cc_address, bcc_address=bcc_address,
                       from_address=from_address, body=html_text,attachments=attachments,**kwargs)
