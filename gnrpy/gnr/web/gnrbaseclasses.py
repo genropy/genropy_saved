@@ -188,6 +188,7 @@ class TableScriptToHtml(BagToHtml):
         self.templateLoader = self.db.table('adm.htmltemplate').getTemplate
         self.thermo_wrapper = self.page.btc.thermo_wrapper
         self.print_handler = self.page.getService('print')
+        self.letterhead_sourcedata = None
         self.record = None
         
     def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None,serveAsLocalhost=None, **kwargs):
@@ -283,13 +284,14 @@ class TableScriptToHtml(BagToHtml):
         return doc_name
 
 class TableTemplateToHtml(BagToHtml):
-    def __init__(self, table=None, **kwargs):
+    def __init__(self, table=None,letterhead_sourcedata=None, **kwargs):
         super(TableTemplateToHtml, self).__init__(**kwargs)
         self.db = table.db
         self.site = self.db.application.site
         self.tblobj = table
         self.maintable = table.fullname
         self.templateLoader = self.db.table('adm.htmltemplate').getTemplate
+        self.letterhead_sourcedata = letterhead_sourcedata
         self.print_handler = self.site.getService('print')
         self.record = None
 

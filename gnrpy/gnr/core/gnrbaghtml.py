@@ -7,7 +7,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 import os
-from gnr.core.gnrstring import toText
+from gnr.core.gnrstring import toText,templateReplace
 from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrbag import Bag, BagCbResolver
 from gnr.core.gnrdecorator import extract_kwargs
@@ -18,6 +18,7 @@ class BagToHtml(object):
     css_requires = ''
     templates = ''
     letterhead_id = ''
+    letterhead_sourcedata = None
     currencyFormat = u'#,###.00'
     encoding = 'utf-8'
     page_debug = False
@@ -139,6 +140,10 @@ class BagToHtml(object):
         """Get the :ref:`"css_requires" webpage variable <css_requires>` in its string format
         and return it as a list"""
         return self.css_requires.split(',')
+
+    def fillLetterheadSourceData(self,node,**kwargs):
+        if node.label=='html':
+            node.value = templateReplace(node.value,self.letterhead_sourcedata)
         
     def prepareTemplates(self):
         """Set the correct value of every measure of the page: height, width, header, footer, margins"""
@@ -146,6 +151,8 @@ class BagToHtml(object):
         if not self.htmlTemplate:
             self.htmlTemplate = self.templateLoader(letterhead_id=self.letterhead_id,name=self.templates)
             if self.htmlTemplate:
+                if self.letterhead_sourcedata:
+                    self.htmlTemplate.walk(self.fillLetterheadSourceData)
                 top_layer =  self.htmlTemplate['#%i' %(len(self.htmlTemplate)-1)]
         d = self.__dict__
         self.page_height = float(d.get('page_height') or top_layer['main.page.height'] or self.page_height)
