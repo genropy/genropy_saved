@@ -312,3 +312,8 @@ class Table(object):
             return '!!New annotation'
         else:
             return '!!New action'
+
+    def orgn_base_entity(self):
+        return dict(tbl='orgn.entity')
+
+
