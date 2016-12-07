@@ -652,27 +652,30 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
     }
 });
 
-dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
+
+dojo.declare("gnr.widgets.BoxForm",gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var formId = objectPop(kw,'formId');
         var storeNode = children.popNode('store');
-        var contentNode = children.getNode('center');
-        genro.assert(contentNode,'missing contentNode:  attach to form.center a layout widget');
-        if(contentNode.attr.tag=='autoslot'){
-            var contentNode = children.getNode('center.#0');
-            genro.assert(contentNode,'missing contentNode:  attach to form.center a layout widget');
+        kw._class =  (kw._class || '') + ' fh_content';
+        var store;
+        if(storeNode){
+            store = this.createStoreFromStoreNode(storeNode);
+        }else{
+            var storekw = objectExtract(kw,'store_*');
+            storekw.handler = storekw.handler || objectPop(kw,'store') || 'memory';
+            var storeType = objectPop(kw,'storeType');
+            var parentStore = objectPop(kw,'parentStore');
+            storeType = storeType ||(parentStore?'Collection':'Item');
+            store = new gnr.formstores[storeType](storekw,{});
         }
-        contentNode.attr['_class'] =  (contentNode.attr['_class'] || '') + ' fh_content';
-        var store = this.createStore(storeNode);
-        var frameCode = kw.frameCode;
-        formId = formId || frameCode+'_form';
-        var frame = sourceNode._('FramePane',objectUpdate({controllerPath:'.controller',formDatapath:'.record',
-                                                            pkeyPath:'.pkey',formId:formId,form_store:store},kw));        
-        var storeId = kw.store+'_store';
-        return frame;
+        var controllerPath = objectPop(kw, 'controllerPath') || '#WORKSPACE.controller';
+        var pkeyPath = objectPop(kw,'pkeyPath') || '#WORKSPACE.pkey';
+        var formDatapath = objectPop(kw, 'formDatapath');
+        return sourceNode._('div',objectUpdate({controllerPath:controllerPath,formDatapath:formDatapath,
+                                                     pkeyPath:pkeyPath,formId:formId,form_store:store,_workspace:true},kw));
     },
-    createStore:function(storeNode){
-        var storeCode = storeNode.attr.storeCode;
+    createStoreFromStoreNode:function(storeNode){
         var storeContent = storeNode.getValue();
         var action,callbacks;
         storeNode._value = null;
@@ -696,6 +699,50 @@ dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
         return new gnr.formstores[storeType](kw,handlers);
     }
 });
+
+dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        var formId = objectPop(kw,'formId');
+        var storeNode = children.popNode('store');
+        var contentNode = children.getNode('center');
+        genro.assert(contentNode,'missing contentNode:  attach to form.center a layout widget');
+        if(contentNode.attr.tag=='autoslot'){
+            var contentNode = children.getNode('center.#0');
+            genro.assert(contentNode,'missing contentNode:  attach to form.center a layout widget');
+        }
+        contentNode.attr['_class'] =  (contentNode.attr['_class'] || '') + ' fh_content';
+        var store = this.createStore(storeNode);
+        var frameCode = kw.frameCode;
+        formId = formId || frameCode+'_form';
+        var frame = sourceNode._('FramePane',objectUpdate({controllerPath:'.controller',formDatapath:'.record',
+                                                            pkeyPath:'.pkey',formId:formId,form_store:store},kw));        
+        return frame;
+    },
+    createStore:function(storeNode){
+        var storeContent = storeNode.getValue();
+        var action,callbacks;
+        storeNode._value = null;
+        var handlers = {};
+        if(storeContent){
+            storeContent.forEach(function(n){
+                action = objectPop(n.attr,'action');
+                if(action){
+                    objectPop(n.attr,'tag');
+                    handlers[action] = n.attr;
+                    callbacks = n.getValue();
+                    if(callbacks){
+                        handlers[action]['callbacks'] = callbacks;
+                    }
+                }
+            });
+        }        
+        var kw = storeNode.attr;
+        var storeType = objectPop(kw,'storeType');
+        storeType = storeType ||(kw.parentStore?'Collection':'Item');
+        return new gnr.formstores[storeType](kw,handlers);
+    }
+});
+
 dojo.declare("gnr.widgets.PaletteMap", gnr.widgets.gnrwdg, {
     contentKwargs:function(sourceNode, attributes){
         return attributes;

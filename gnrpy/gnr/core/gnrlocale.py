@@ -249,6 +249,7 @@ def getMonthNames(locale=None):
     locale = (locale or DEFAULT_LOCALE).replace('-', '_')
     d = dict([(v.lower(), k) for k, v in dates.get_month_names(width='wide', locale=locale).items()])
     d.update([(v.lower(), k) for k, v in dates.get_month_names(width='abbreviated', locale=locale).items()])
+    d.update(dict([('m%s' %k,k) for k in range(1,13)]))
     return d
     
 def getDayNames(locale=None):

@@ -503,9 +503,9 @@ class GnrSqlDb(GnrObject):
     def commit(self):
         """Commit a transaction"""
         self.onCommitting()
-        self.connection.commit()
-        if not self.systemDbEvent():
-            self.onDbCommitted()
+        for conn in self._connections.get(thread.get_ident(), {}).values():
+            conn.commit()
+        self.onDbCommitted()
 
     def onCommitting(self):
         deferreds = self.currentEnv.setdefault('deferredCalls_%s' %self.connectionKey(),Bag()) 
@@ -525,13 +525,7 @@ class GnrSqlDb(GnrObject):
             deferredId = getUuid()
         if not deferredId in deferreds:
             deferreds.setItem(deferredId,(cb,args,kwargs))
-    
-    def deferredCommit(self):
-        currentEnv = self.currentEnv
-        dbstore = currentEnv.get('storename')
-        assert dbstore, 'deferredCommit must have a dbstore'
-        currentEnv.setdefault('_storesToCommit',set()).add(dbstore)
-    
+
     def systemDbEvent(self):
         return self.currentEnv.get('_systemDbEvent',False)
     
