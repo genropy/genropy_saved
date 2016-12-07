@@ -35,8 +35,9 @@ from copy import copy
 
 def cellFromField(field,tableobj,checkPermissions=None):
     kwargs = dict()
-    fldobj = tableobj.column(field,checkPermissions=checkPermissions)
+    fldobj = tableobj.column(field)
     fldattr = dict(fldobj.attributes or dict())
+    fldattr.update(fldobj.getPermissions(**checkPermissions))
     if fldattr.get('user_forbidden'):
         kwargs['hidden'] = True
     if 'values' in fldattr:
@@ -1699,7 +1700,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         else:
             raise GnrDomSrcError('No table')
                 
-        fieldobj = tblobj.column(fld,checkPermissions=self.page.permissionPars)
+        fieldobj = tblobj.column(fld)
         if fieldobj is None:
             raise GnrDomSrcError('Not existing field %s' % fld)
         wdgattr = self.wdgAttributesFromColumn(fieldobj, fld=fld,**kwargs)     
@@ -1714,9 +1715,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             wdgattr['_fired'] ='^.%s' % fld
         else:
             wdgattr['value'] = '^.%s' % fld
-        if fieldobj.attributes.get('user_readonly'):
+        permissions = fieldobj.getPermissions(**self.page.permissionPars)
+        if permissions.get('user_readonly'):
             wdgattr['readOnly'] = True
-        if fieldobj.attributes.get('user_forbidden'):
+        if permissions.get('user_forbidden'):
             wdgattr['tag'] = 'div'
             wdgattr['_class'] = 'gnr_forbidden_field'
             wdgattr.pop('value',None)

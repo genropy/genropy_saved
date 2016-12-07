@@ -1118,9 +1118,11 @@ class SqlQuery(object):
                 f = f.strip()
                 f = f.strip('$')
                 fld = self.compiled.relationDict.get(f, f)
-            col = self.dbtable.column(fld,checkPermissions=self.checkPermissions)
+            col = self.dbtable.column(fld)
             if col is not None:
                 attrs = dict(col.attributes)
+                if self.checkPermissions:
+                    attrs.update(col.getPermissions(**self.checkPermissions))
                 attrs.pop('comment', None)
                 attrs['dataType'] = attrs.pop('dtype', 'T')
                 attrs['label'] = attrs.pop('name_long', k)

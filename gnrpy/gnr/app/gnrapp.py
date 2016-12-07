@@ -564,6 +564,18 @@ class GnrPackage(object):
         "key:preference path, value:path inside dbenv"
         return {}        
 
+    def tableBroadcast(self,evt,autocommit=False,**kwargs):
+        changed = False
+        db = self.application.db
+        for tname,tblobj in db.packages[self.id].tables.items():
+            handler = getattr(tblobj.dbtable,evt,None)
+            if handler:
+                result = handler(**kwargs)
+                changed = changed or result
+        if changed and autocommit:
+            db.commit()
+        return changed
+
 
 class GnrApp(object):
     """Opens a GenroPy application :ref:`instance <instances>`

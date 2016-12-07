@@ -39,6 +39,7 @@ if hasattr(Pyro4.config, 'REQUIRE_EXPOSE'):
 
 OLD_HMAC_MODE = hasattr(Pyro4.config,'HMAC_KEY')
 DAEMON_TIMEOUT_START = 5
+PROCESS_SELFDESTROY_TIMEOUT = 600
 
 class GnrDaemonException(Exception):
     pass
@@ -590,6 +591,7 @@ class SiteRegister(BaseRemoteObject):
         self.catalog = GnrClassCatalog()
         self.maintenance = False
         self.allowed_users = None
+        self.interproces_commands = dict()
 
 
     def checkCachedTables(self,table):
@@ -872,6 +874,34 @@ class SiteRegister(BaseRemoteObject):
             return True
         except EOFError:
             return False
+
+    def pendingProcessCommands(self):
+        pid = os.getpid()
+        if not pid in self.interproces_commands:
+            self.interproces_commands[pid] = dict(commands=[])
+        pidhandler = self.interproces_commands[pid]
+        commands = pidhandler['commands']
+        pidhandler['commands'] = []
+        pidhandler['ts'] = datetime.now()
+        
+        return commands
+
+    def sendProcessCommand(self,command,pid=None):
+        if pid is None:
+            pid = self.interproces_commands.keys()
+        else:
+            pid = [pid]
+        now = datetime.now()
+        for p in pid:
+            pidhandler = self.interproces_commands[p]
+            if (now - pidhandler['ts']).total_seconds() > PROCESS_SELFDESTROY_TIMEOUT:
+                self.interproces_commands.pop(p)
+            else:
+                if isinstance(command,list):
+                    pidhandler['commands'].extend(command)
+                else:
+                    pidhandler['commands'].append(command)
+
 
     def setMaintenance(self,status,allowed_users=None):
         if status is False:

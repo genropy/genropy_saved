@@ -924,10 +924,10 @@ class DbTableObj(DbModelObj):
 
     def getColPermissions(self,name,**checkPermissions):
         user_conf = self.dbtable.getUserConfiguration(**checkPermissions)
-        colconf = user_conf.getAttr('cols_permission.%s' %name) or dict()
+        colconf = user_conf.getAttr('cols_permission.%s' %name) or dict()        
         return dict([('user_%s' %k,v) for k,v in colconf.items() if v is not None])
 
-    def column(self, name,checkPermissions=None):
+    def column(self, name):
         """Return a column object or None if it doesn't exists.
         
         :param name: A column's name or a :ref:`relation_path` starting from the current table.
@@ -939,34 +939,27 @@ class DbTableObj(DbModelObj):
         if not name.startswith('@'):
             col = self['columns.%s' % name]
             if col is not None:
-                if checkPermissions:
-                    col.attributes.update(self.getColPermissions(name,**checkPermissions))
                 return col
             colalias = self['virtual_columns.%s' % name]
             if colalias is not None:
                 if colalias.relation_path:
                     name = colalias.relation_path
                 elif colalias.sql_formula or colalias.select or colalias.exists:
-                    if checkPermissions:
-                        colalias.attributes.update(self.getColPermissions(name,**checkPermissions))
                     return colalias
                 elif colalias.py_method:
-                    if checkPermissions:
-                        colalias.attributes.update(self.getColPermissions(name,**checkPermissions))
                     return colalias
                 else:
                     raise GnrSqlMissingColumn('Invalid column %s in table %s' % (name, self.name_full))
         if name.startswith('@'):
-            relcol = self._relatedColumn(name,checkPermissions=checkPermissions)
+            relcol = self._relatedColumn(name)
             assert relcol is not None, 'relation %s does not exist in table %s' %(relcol,name)
             if colalias is None:
                 return relcol
-                
             if not 'virtual_column' in colalias.attributes:
                 raise             
             return AliasColumnWrapper(relcol,colalias.attributes)
      
-    def _relatedColumn(self, fieldpath,checkPermissions=None):
+    def _relatedColumn(self, fieldpath):
         """Return a column object corresponding to the relation path
         
         :param fieldpath: e.g: ``@member_id.name``
@@ -992,7 +985,7 @@ class DbTableObj(DbModelObj):
                 relpkg, reltbl, relfld = joiner['many_relation'].split('.')
             reltbl = self.dbroot.package(relpkg).table(reltbl)
             
-        return reltbl.column('.'.join(relpath),checkPermissions=checkPermissions)
+        return reltbl.column('.'.join(relpath))
 
     def virtualColumnAttributes(self,name):
         column = self.virtual_columns[name]
@@ -1262,6 +1255,9 @@ class DbBaseColumnObj(DbModelObj):
         return self.attributes['print_width']
         
     print_width = property(_get_print_width, _set_print_width)
+
+    def getPermissions(self,**kwargs):
+        return self.table.getColPermissions(self.name,**kwargs)
         
         
 class DbColumnObj(DbBaseColumnObj):

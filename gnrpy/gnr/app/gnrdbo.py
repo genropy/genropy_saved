@@ -115,19 +115,6 @@ class GnrDboPackage(object):
         :param path: a dotted name of the preference item
         :param value: the new value"""
         self.db.table('adm.preference').setPreference(path, value, pkg=self.name)
-        
-    def tableBroadcast(self,evt,autocommit=False,**kwargs):
-        changed = False
-        db = self.application.db
-        for tname,tblobj in db.packages[self.id].tables.items():
-            handler = getattr(tblobj.dbtable,evt,None)
-            if handler:
-                result = handler(**kwargs)
-                changed = changed or result
-        if changed and autocommit:
-            db.commit()
-        return changed
-
          
     @public_method
     def loadStartupData(self,basepath=None,empty_before=None):

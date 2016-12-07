@@ -295,6 +295,9 @@ class SqlTable(GnrObject):
             result['table'] = col.relatedColumn().table.fullname
         return result
 
+    def clearUserConfiguration(self):
+        self.user_config = {}
+
     def getUserConfiguration(self,user_group=None,user=None):
         user_config = self.user_config.get((user_group,user))
         if user_config is None:

@@ -97,12 +97,25 @@ class Table(object):
                code=r[0],description=r[1],_pkey=r[0],caption=r[1])
         return result,dict(columns='code,description',headers='Code,Description')
 
+    def emptyTableUserConfigCache(self,record=None):
+        site = getattr(self.db.application,'site',None)
+        if site:
+            site.process_cmd.clearTableUserConfig(pkg=record['pkgid'],table=record['tblid'])
 
     def trigger_onInserting(self,record):
         self.trigger_common(record)
 
+    def trigger_onInserted(self,record):
+        self.emptyTableUserConfigCache(record)
+
     def trigger_onUpdating(self,record,old_record=None):
         self.trigger_common(record)
+
+    def trigger_onUpdated(self,record,old_record=None):
+        self.emptyTableUserConfigCache(record)
+
+    def trigger_onDeleted(self,record):
+        self.emptyTableUserConfigCache(record)
 
     def trigger_common(self,record):
         if record['tblid']:
