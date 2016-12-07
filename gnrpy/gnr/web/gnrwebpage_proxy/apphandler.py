@@ -1633,8 +1633,14 @@ class GnrWebAppHandler(GnrBaseProxy):
 
         if not srclist:
             return getSelection(None)
+        searchval = '%s%%' % ('%% '.join(srclist))
+        sqlArgs = dict()
+        cond = tblobj.opTranslate(querycolumns[0],'contains',searchval,sqlArgs=sqlArgs)
+        result = getSelection(cond,**sqlArgs)
+        if len(result) >= (limit or 50):
+            cond = tblobj.opTranslate(querycolumns[0],'startswith',searchval,sqlArgs=sqlArgs)
+            result = getSelection(cond,**sqlArgs)
 
-        result = getSelection("%s ILIKE :searchval" % querycolumns[0], searchval='%s%%' % ('%% '.join(srclist)))
         #columns_concat = "ARRAY_TO_STRING(ARRAY[%s], ' ')" % ','.join(querycolumns)
         columns_concat = " || ' ' || ".join(["CAST ( COALESCE(%s,'') AS TEXT ) " %c for c in querycolumns])
         if len(result) == 0: # few results from the startswith query on first col
@@ -1655,13 +1661,14 @@ class GnrWebAppHandler(GnrBaseProxy):
             where = " AND ".join(["(%s)  ILIKE :w%i" % (columns_concat, i) for i, w in enumerate(srclist)])
             result = getSelection(where, **whereargs)
 
+
+
         return result
 
     @public_method
-    def getValuesString(self,table,caption_field=None,**kwargs):
+    def getValuesString(self,table,caption_field=None,alt_pkey_field=None,**kwargs):
         tblobj = self.db.table(table)
-        pkey = tblobj.pkey
-       
+        pkey = alt_pkey_field or tblobj.pkey
         caption_field = caption_field or tblobj.attributes.get('caption_field') or tblobj.pkey
         f = tblobj.query(columns='$%s,$%s' %(pkey,caption_field),**kwargs).fetch()
         return ','.join(['%s:%s' %(r[pkey],(r[caption_field] or '').replace(',',' ')) for r in f])

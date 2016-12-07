@@ -2,6 +2,7 @@
 import datetime
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrdecorator import public_method,metadata
+
 import pytz
 class Table(object):
     def config_db(self,pkg):
@@ -206,17 +207,23 @@ class Table(object):
         for colname,colobj in self.columns.items():
             related_table = colobj.relatedTable()
             if colname.startswith('le_') and record.get(colname):
-                return related_table.fullname,record.get('linked_entity') or self.linkedEntityName(related_table),record[colname]
+                return related_table.fullname,(record.get('linked_entity') or self.linkedEntityName(related_table)),record[colname]
 
 
     def trigger_onInserting(self,record_data=None):
         now = datetime.datetime.now(pytz.utc)
+        if record_data['rec_type'] == 'AC' and not record_data['date_due']:
+            pivot_date = self.getPivotDateFromDefaults(record_data)
+            ts = record_data['__ins_ts']
+            if not pivot_date or datetime.datetime(pivot_date.year,pivot_date.month,pivot_date.day)<ts:
+                ts = ts + datetime.timedelta(seconds=1)
+                record_data['date_due'] = ts.date()
+                record_data['time_due'] = ts.time()
         record_data['annotation_date'] = record_data.get('annotation_date') or now.date()
         record_data['annotation_time'] = record_data.get('annotation_time') or now.time()
         self.setAnnotationTs(record_data)
         record_data['author_user_id'] = self.db.currentEnv.get('user_id')
         record_data['linked_table'],record_data['linked_entity'],record_data['linked_fkey'] = self.relatedEntityInfo(record_data)
-
 
     def trigger_onUpdating(self,record_data,old_record=None):
         if old_record['rec_type'] == 'AC' and record_data['rec_type'] == 'AN':
@@ -262,23 +269,24 @@ class Table(object):
     def linkedEntityName(self,tblobj):
         joiner = tblobj.relations.getNode('@annotations').attr['joiner']
         pkg,tbl,fkey = joiner['many_relation'].split('.')
-        restrictions = self.db.table('orgn.annotation').column(fkey).attributes.get('restrictions')
+        restrictions = self.db.table('orgn.annotation').column(fkey).attributes.get('linked_entity')
         if restrictions:
-            restrictions = ','.join([r.split(':')[0] for r in restrictions.split(',')])
+            restrictions = [r.split(':')[0] for r in restrictions.split(',')]
             return restrictions[0]
         else:
             return tblobj.name
 
-
     def getPivotDateFromDefaults(self,action_defaults):
-        fkey_field = [k for k in action_defaults if k.startswith('le_')]
+        fkey_field = [k for k,v in action_defaults.items() if k.startswith('le_') if v]
         if fkey_field:
             fkey_field = fkey_field[0] if fkey_field else None
             related_table = self.column(fkey_field).relatedTable()
+            orgn_pivot_date_field = self.getPivotDateField(related_table,fkey_field)
             if related_table.column('orgn_pivot_date') is not None:
-                return related_table.dbtable.readColumns(pkey=action_defaults[fkey_field],columns='$orgn_pivot_date')
+                return related_table.dbtable.readColumns(pkey=action_defaults[fkey_field],columns='$%s' %orgn_pivot_date_field)
 
-
+    def getPivotDateField(self,related_table=None,fkey_field=None):
+        return self.column(fkey_field).attributes.get('pivot_date') or 'orgn_pivot_date'
 
     @public_method
     def getDueDateFromDeadline(self,deadline_days=None,pivot_date=None,**action_defaults):
@@ -299,3 +307,8 @@ class Table(object):
         record['annotation_date'] = record.get('annotation_date') or ins_ts.date()
         record['annotation_time'] = record.get('annotation_time') or ins_ts.time()
 
+    def newRecordCaption(self,record,**kwargs):
+        if record['rec_type'] == 'AN':
+            return '!!New annotation'
+        else:
+            return '!!New action'

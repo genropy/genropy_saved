@@ -251,6 +251,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         kw.url = kw.url || this.pageIndexUrl();
 
         if(sourceNode){
+            objectUpdate(callKwargs,objectExtract(sourceNode.attr,'dbenv_*',true,true));
             var req_dbstore = sourceNode.inheritedAttribute('context_dbstore');
             if (req_dbstore){
                 kw.url = '/'+req_dbstore+kw.url;
@@ -758,7 +759,8 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             kwargs['loadingParameters'] = loadingParameters;
         };
         resolver.onloaded = function(){
-            genro.publish('resolverOneLoaded_'+this.attr._from_fld.replace(/\./g, '_'),{path:this.getFullpath(),node:this});
+            var f = this.attr._from_fld || this.attr._target_fld || table;
+            genro.publish('resolverOneLoaded_'+f.replace(/\./g, '_'),{path:this.getFullpath(),node:this});
         }
         var _related_field = params._target_fld.split('.')[2];
 

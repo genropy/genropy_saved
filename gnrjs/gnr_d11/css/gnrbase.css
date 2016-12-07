@@ -3312,7 +3312,7 @@ body *{
 }
 
 .dijitError.dijitFocused{
-    background: none;
+    background-image: none;
 }
 .dijitError.th_linkerField{
 	background: transparent url(icons/base12/invalid.png) no-repeat right center !important;
@@ -3647,6 +3647,15 @@ table.draggedItem {
 /* @end */
 
 /* @group Table */
+
+.treeCellContent{
+    -webkit-touch-callout: auto;
+    -webkit-user-select: auto;
+    -khtml-user-select: auto;
+    -moz-user-select: text;
+    -ms-user-select: auto;
+    user-select: auto;
+}
 
 .dojoxGrid td.cell_R .cellContent, .treecell.cell_R .treeCellContent,
 .dojoxGrid td.cell_I .cellContent, .treecell.cell_I .treeCellContent,

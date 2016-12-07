@@ -435,6 +435,8 @@ class TableBase(object):
         sql_formula = None
         if partitionParameters:
             sql_formula = "( $%(field)s IN :env_allowed_%(path)s )" %partitionParameters
+        else:
+            sql_formula = "TRUE"
         return [dict(name='__allowed_for_partition',sql_formula=sql_formula or 'FALSE',
                     dtype='B',name_long='!!Allowed for partition',group='_')]
 
@@ -562,19 +564,22 @@ class TableBase(object):
 
     def sysRecord(self,syscode):
         def createCb(key):
-            record = getattr(self,'sysRecord_%s' %syscode)()
-            record['__syscode'] = key
-            pkey = record[self.pkey]
-            if pkey:
-                oldrecord = self.query(where='$%s=:pk' %self.pkey,pk=pkey,
-                                            addPkeyColumn=False).fetch()
-                if oldrecord:
-                    oldrecord = oldrecord[0]
-                    record = dict(oldrecord)
-                    record['__syscode'] = syscode
-                    self.update(record,oldrecord)
-                    return record
-            self.insert(record)
+            with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
+                record = getattr(self,'sysRecord_%s' %syscode)()
+                record['__syscode'] = key
+                pkey = record[self.pkey]
+                if pkey:
+                    oldrecord = self.query(where='$%s=:pk' %self.pkey,pk=pkey,
+                                                addPkeyColumn=False).fetch()
+                    if oldrecord:
+                        oldrecord = oldrecord[0]
+                        record = dict(oldrecord)
+                        record['__syscode'] = syscode
+                        self.update(record,oldrecord)
+                        self.db.commit()
+                        return record
+                self.insert(record)
+                self.db.commit()
             return record
         return self.cachedRecord(syscode,keyField='__syscode',createCb=createCb)
 
@@ -587,7 +592,7 @@ class TableBase(object):
         if hasattr(self,'hierarchicalHandler'):
             return self.hierarchicalHandler.getHierarchicalPathsFromPkeys(pkeys=pkeys,
                                                                related_kwargs=related_kwargs,parent_id=parent_id,
-                                                              dbstore=dbstore)
+                                                              dbstore=dbstore,**kwargs)
         if related_kwargs['table']:
             related_tblobj = self.db.table(related_kwargs['table'])
             p = related_kwargs['path']
@@ -817,7 +822,7 @@ class TableBase(object):
 
     #FUNCTIONS SQL
     def normalizeText(self,text):
-        return """regexp_replace(translate(%s,'àèéìòù-','aeeiou '),'[.|,|;]', '', 'g')""" %text
+        return """regexp_replace(translate(%s,'-',' '),'[.|,|;]', '', 'g')""" %text
 
 
     def templateColumn(self,record=None,field=None):

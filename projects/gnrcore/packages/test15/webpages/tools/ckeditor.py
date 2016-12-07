@@ -20,6 +20,7 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^.height',lbl='Height')
         fb.textbox(value='^.width',lbl='Width')
         pane.ckeditor(value='^.testdata',constrain_height='^.height',
+                    config_disableNativeSpellChecker=False,
                       config_stylesSet='/_site/styles/style_pippo.js',
                       constrain_width='^.width',constrain_border='1px solid red')
 

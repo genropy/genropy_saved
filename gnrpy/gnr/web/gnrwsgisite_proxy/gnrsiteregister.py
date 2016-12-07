@@ -38,7 +38,7 @@ if hasattr(Pyro4.config, 'REQUIRE_EXPOSE'):
     Pyro4.config.REQUIRE_EXPOSE = False
 
 OLD_HMAC_MODE = hasattr(Pyro4.config,'HMAC_KEY')
-
+DAEMON_TIMEOUT_START = 5
 
 class GnrDaemonException(Exception):
     pass
@@ -727,12 +727,15 @@ class SiteRegister(BaseRemoteObject):
             last_refresh_ts = page.get('last_refresh_ts') or page.get('start_ts')
             if ((now - last_refresh_ts).seconds > page_max_age):
                 self.drop_page(page['register_item_id'])
+        dropped_connections = []
         for connection in self.connections():
             last_refresh_ts = connection.get('last_refresh_ts') or  connection.get('start_ts')
             connection_max_age = self.connection_max_age if not connection['user'].startswith('guest_') else 40
             if (now - last_refresh_ts).seconds > connection_max_age:
+                dropped_connections.append(connection['register_item_id'])
                 self.drop_connection(connection['register_item_id'],cascade=True)
         self.last_cleanup = time.time()
+        return dropped_connections
 
 
     def get_register(self,register_name):
@@ -935,8 +938,9 @@ class SiteRegisterClient(object):
             if not self.runningDaemon(daemonProxy):
                 raise Exception('GnrDaemon is not started')
             t_start = time.time()
-            while not self.checkSiteRegisterServerUri(daemonProxy) and (time.time()-t_start)<2:
-                pass
+            while not self.checkSiteRegisterServerUri(daemonProxy):
+                if (time.time()-t_start)>DAEMON_TIMEOUT_START:
+                    raise Exception('GnrDaemon timout')
         print 'creating proxy',self.siteregister_uri,self.siteregisterserver_uri
         self.siteregister = Pyro4.Proxy(self.siteregister_uri)
         if not OLD_HMAC_MODE:

@@ -44,7 +44,7 @@ class GnrCustomWebPage(object):
 
     def test_5_multicb(self,pane):
         pane.checkBoxText(values="""0:Foo,1:Bar,/,3:Span,4:Zum,5:Pap,6:Mas,/,8:Ilo""",value='^.pluto')
-    
+        
 
 
     def test_6_mode_values(self,pane):
@@ -85,5 +85,14 @@ class GnrCustomWebPage(object):
 
         bc.contentPane(region='center').bagGrid(storepath='main.test',struct=struct)
 
+    def test_12_testhatag(self,pane):
+        """First test description"""
+        pane.button('TEST',action='SET .tag="admin,manager";')
+        pane.checkBoxText(value='^.tag',table='adm.htag',popup=True,hierarchical=True,alt_pkey_field='code',
+                            labelAttribute='code')
 
-        
+   
+    def test_13_localization(self,pane):
+        pane.checkBoxText(values="fatt:[!![it]Fattura],cli:[!![it]Cliente]",value='^.cbt',popup=True)
+        pane.filteringSelect(values="fatt:!![it]Fattura,cli:!![it]Cliente",value='^.flt')
+        pane.multiButton(values="fatt:!![it]Fattura,cli:!![it]Cliente",value='^.mb')

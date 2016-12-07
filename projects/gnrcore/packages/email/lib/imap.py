@@ -139,7 +139,7 @@ class ImapReceiver(object):
         self.atc_counter+=1
         filename = fname+ext
         new_attachment['filename'] = filename
-        date = new_mail['send_date']
+        date = new_mail.get('send_date') or  datetime.datetime.today()
         attachment_path =  self.getAttachmentPath(date=date,filename=filename, message_id=new_mail['id'])
         #year = str(date.year)
         #month = '%02i' %date.month

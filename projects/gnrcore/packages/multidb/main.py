@@ -90,7 +90,7 @@ class Package(GnrDboPackage):
                                                                                  many_group='zz', one_group='zz')
 
     def checkFullSyncTables(self,errorlog_folder=None,
-                            dbstores=None,store_block=5,packages=None):
+                            dbstores=None,store_block=5,packages=None,tbllist=None):
         if dbstores is None:
             dbstores = self.db.dbstores.keys()
         elif isinstance(dbstores,basestring):
@@ -98,13 +98,15 @@ class Package(GnrDboPackage):
         while dbstores:
             block = dbstores[0:store_block]
             dbstores = dbstores[store_block:]
-            self.checkFullSyncTables_do(errorlog_folder=errorlog_folder,dbstores=block,packages=packages)
+            self.checkFullSyncTables_do(errorlog_folder=errorlog_folder,dbstores=block,packages=packages,tbllist=tbllist)
             print 'dbstore to do',len(dbstores)
 
-    def checkFullSyncTables_do(self,errorlog_folder=None,dbstores=None,packages=None):
+    def checkFullSyncTables_do(self,errorlog_folder=None,dbstores=None,packages=None,tbllist=None):
         errors = Bag()
         master_index = self.db.tablesMasterIndex()['_index_'] 
         for tbl in master_index.digest('#a.tbl'):
+            if tbllist and not tbl in tbllist:
+                continue
             pkg,tblname = tbl.split('.')
             if packages and not pkg in packages:
                 continue
@@ -116,10 +118,8 @@ class Package(GnrDboPackage):
                                 excludeLogicalDeleted=False,ignorePartition=True,
                                 excludeDraft=False).fetch()
             if multidb=='*':
-                print 'syncall',tbl.fullname
                 tbl.checkSyncAll(dbstores=dbstores,main_fetch=main_f,errors=errors)
             else:
-                print 'partial',tbl.fullname
                 tbl.checkSyncPartial(dbstores=dbstores,main_fetch=main_f,errors=errors)
 
         if errorlog_folder:
@@ -148,20 +148,25 @@ class MultidbTable(object):
         return GnrMultidbException
 
     def raw_insert(self, record, **kwargs):
-        self.trigger_onInserting_multidb(record)
+        do_multidb_trigger = not self.db.currentEnv.get('avoid_trigger_multidb')
+        if do_multidb_trigger:
+            self.trigger_onInserting_multidb(record)
         self.db.raw_insert(self, record,**kwargs)
-        self.trigger_onInserted_multidb(record)
+        if do_multidb_trigger:
+            self.trigger_onInserted_multidb(record)
 
     def raw_update(self, record, old_record=None,**kwargs):
-        self.trigger_onUpdating_multidb(record,old_record=old_record)
+        do_multidb_trigger = not self.db.currentEnv.get('avoid_trigger_multidb')
+        if do_multidb_trigger:
+            self.trigger_onUpdating_multidb(record,old_record=old_record)
         self.db.raw_update(self, record,old_record=old_record,**kwargs)
-        self.trigger_onUpdated_multidb(record,old_record=old_record)
+        if do_multidb_trigger:
+            self.trigger_onUpdated_multidb(record,old_record=old_record)
 
     def raw_delete(self, record, **kwargs):
-        self.trigger_onDeleting_multidb(record)
+        if not self.db.currentEnv.get('avoid_trigger_multidb'):
+            self.trigger_onDeleting_multidb(record)
         self.db.raw_delete(self, record,**kwargs)
-
-
 
 
     def unifyRecords(self,sourcePkey=None,destPkey=None):
@@ -171,14 +176,17 @@ class MultidbTable(object):
             with self.db.tempEnv(avoid_trigger_multidb='*'):
                 self._unifyRecords_default(sourceRecord,destRecord)
             sourceRecord_stores = set(self.getSubscribedStores(sourceRecord))
-            destRecord_stores = set(self.getSubscribedStores(sourceRecord))
+            destRecord_stores = set(self.getSubscribedStores(destRecord))
             stores_to_check =  destRecord_stores.union(sourceRecord_stores)
             common_stores = destRecord_stores.intersection(sourceRecord_stores)
+
             for store in stores_to_check:
                 with self.db.tempEnv(storename=store,_multidbSync=True):
+                    print 'in store',store
                     if store in common_stores:
                         sr = self.record(pkey=sourcePkey,for_update=True).output('dict')
                         dr = self.record(pkey=destPkey,for_update=True).output('dict')
+                        print 'unifiy in ',store
                         self._unifyRecords_default(sr,dr)
                     elif store in sourceRecord_stores:
                         with self.db.tempEnv(storename=self.db.rootstore):
@@ -186,8 +194,6 @@ class MultidbTable(object):
                         sr = self.record(pkey=sourcePkey,for_update=True).output('dict')
                         dr = self.record(pkey=destPkey,for_update=True).output('dict')
                         self._unifyRecords_default(sr,dr)
-
-
 
     def checkForeignKeys(self,record=None,old_record=None):
         for rel_table,rel_table_pkey,fkey in self.model.oneRelationsList(True):
@@ -206,25 +212,26 @@ class MultidbTable(object):
                 with self.db.tempEnv(storename=self.db.rootstore):
                     reltable.multidbSubscribe(pkey=checkKey,dbstore=storename)
 
-    def checkLocalUnify(self,record=None,old_record=None):
-        if record.get(self.logicalDeletionField)\
-            and not old_record.get(self.logicalDeletionField)\
-            and record.get('__moved_related'):
-                moved_related = Bag(record['__moved_related'])
-                destPkey = moved_related['destPkey']
-                destRecord = self.query(where='$%s=:dp' %self.pkey, 
-                                          dp=destPkey).fetch()
-                with self.db.tempEnv(connectionName='system'):
-                    if destRecord:
-                        destRecord = destRecord[0]
-                    else:
-                        storename = self.db.currentEnv['storename']
-                        with self.db.tempEnv(storename=self.db.rootstore):
-                            self.multidbSubscribe(pkey=destPkey,dbstore=storename)                        
-                        f = self.query(where='$%s=:dp' %self.pkey, 
-                                              dp=destPkey).fetch()
-                        destRecord = f[0]
-                    self.unifyRelatedRecords(sourceRecord=record,destRecord=destRecord,moved_relations=moved_related)
+   #def checkLocalUnify(self,record=None,old_record=None):
+   #    if record.get(self.logicalDeletionField)\
+   #        and not old_record.get(self.logicalDeletionField)\
+   #        and record.get('__moved_related'):
+   #            moved_related = Bag(record['__moved_related'])
+   #            destPkey = moved_related['destPkey']
+   #            destRecord = self.query(where='$%s=:dp' %self.pkey, 
+   #                                      dp=destPkey).fetch()
+   #            with self.db.tempEnv(connectionName='system'):
+   #                if destRecord:
+   #                    destRecord = destRecord[0]
+   #                else:
+   #                    storename = self.db.currentEnv['storename']
+   #                    with self.db.tempEnv(storename=self.db.rootstore):
+   #                        self.multidbSubscribe(pkey=destPkey,dbstore=storename)                        
+   #                    f = self.query(where='$%s=:dp' %self.pkey, 
+   #                                          dp=destPkey).fetch()
+   #                    destRecord = f[0]
+   #                self.unifyRelatedRecords(sourceRecord=record,destRecord=destRecord,moved_relations=moved_related)
+
 
     def trigger_onInserting_multidb(self, record,old_record=None,**kwargs):
         if self.db.usingRootstore():
@@ -268,7 +275,8 @@ class MultidbTable(object):
             slaveEventHook = getattr(self,'onSlaveSyncing',None)
             if slaveEventHook:
                 slaveEventHook(record,old_record=old_record,event='updating')
-            self.checkLocalUnify(record,old_record=old_record)
+            #print 'before checkLocalUnify'
+            #self.checkLocalUnify(record,old_record=old_record) #REMOVED UNIFY CUSTOM FOR MULTDB MAKE IT USELESS
             self.checkForeignKeys(record,old_record=old_record)
         else:
             onLocalWrite = self.attributes.get('multidb_onLocalWrite') or 'raise'
@@ -531,3 +539,46 @@ class MultidbTable(object):
                 if store_record[k] != v:
                     result[k] = (v,store_record[k])
         return result
+
+
+
+    def createSysRecords(self):
+        if not self.db.usingRootstore():
+            return
+        syscodes = []
+        for m in dir(self):
+            if m.startswith('sysRecord_') and m!='sysRecord_':
+                method = getattr(self,m)
+                if getattr(method,'mandatory',False):
+                    syscodes.append(m[10:])
+        commit = False
+        if syscodes:
+            f = self.query(where='$__syscode IN :codes',codes=syscodes).fetchAsDict('__syscode')
+            for syscode in syscodes:
+                if not syscode in f:
+                    self.sysRecord(syscode)
+                    commit = True
+        if commit:
+            self.db.commit()
+
+    def sysRecord(self,syscode):
+        if not self.db.usingRootstore():
+            return
+        def createCb(key):
+            record = getattr(self,'sysRecord_%s' %syscode)()
+            record['__syscode'] = key
+            pkey = record[self.pkey]
+            if pkey:
+                oldrecord = self.query(where='$%s=:pk' %self.pkey,pk=pkey,
+                                            addPkeyColumn=False).fetch()
+                if oldrecord:
+                    oldrecord = oldrecord[0]
+                    record = dict(oldrecord)
+                    record['__syscode'] = syscode
+                    self.update(record,oldrecord)
+                    return record
+            if self.multidb=='*':
+                record['__multidb_subscribed'] = True
+            self.insert(record)
+            return record
+        return self.cachedRecord(syscode,keyField='__syscode',createCb=createCb)

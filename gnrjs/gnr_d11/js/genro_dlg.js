@@ -397,8 +397,11 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var remoteKw = remoteKw || {};
         var dlgKw = dlgKw || {};
         dlgKw.nodeId = 'remote_dlg_'+name;
+
         var dlgNode = genro.nodeById(dlgKw.nodeId);
         if(!dlgNode){
+            dlgKw.autoSize = false;
+            dlgKw.closable = true;
             var dlg = genro.src.create('dialog',dlgKw,'_rmt_dlg');
             var kw = {};
             for (var k in remoteKw){
@@ -406,8 +409,10 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             }
             kw.min_height = '1px';
             kw.min_width = '1px';
+            kw.remote__onRemote = function(){setTimeout(function(){
+                dlgNode.widget.adjustDialogSize();
+            },1)};
             kw.remote = remote;
-            console.log('remote pars',kw);
             dlg._('div',kw);
             dlgNode = dlg.getParentNode();
         }
@@ -815,7 +820,10 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                         onSavedCb(kw);
                     });
                 }
-                wdg.setBoxAttributes({height:palette_height,width:palette_width});
+                if(!wdg._size_from_cache){
+                    wdg.setBoxAttributes({height:palette_height,width:palette_width});
+                }
+
             }}).getParentNode();         
             node.unfreeze(); 
             var paletteNode = genro.nodeById(paletteCode+'_floating');

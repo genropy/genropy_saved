@@ -54,15 +54,15 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.formDatapath = formDatapath;
         this.pkeyPath = pkeyPath;
         this.sourceNode = sourceNode;
-        this.contentSourceNode = this.store? this.sourceNode.getValue().getNode('center'):sourceNode;
-        
+        var formCenter = this.sourceNode.getValue().getNode('center');
+        this.contentSourceNode = this.store? (formCenter?formCenter:sourceNode):sourceNode;
         this.frameCode = sourceNode.attr.frameCode;
         if(this.frameCode){
             this.formParentNode = genro.getFrameNode(this.frameCode,'frame').getParentNode().getParentNode();
         }else{
             this.formParentNode = this.sourceNode.getParentNode();
         }
-        this.subscribe('save,reload,load,goToRecord,abort,loaded,setLocked,navigationEvent,newrecord,pendingChangesAnswer,dismiss,deleteItem,deleteConfirmAnswer,message');
+        this.subscribe('save,reload,load,goToRecord,abort,loaded,setLocked,navigationEvent,newrecord,pendingChangesAnswer,dismiss,deleteItem,deleteConfirmAnswer,message,shortcut_save');
         this._register = {};
         this._status_list = ['ok','error','changed','readOnly','noItem'];
         //this.store=new.....
@@ -126,6 +126,15 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
 
+    shortcut_save:function(kw){
+        if(this.isDisabled()){
+            this.publish('message',{message:_T('Cannot save. Blocked Form'),sound:'$error',messageType:'warning'});
+            return;
+        }
+        kw = kw || {};
+        console.log('aaa',kw)
+        this.save(kw.forced);
+    },
     lazySave:function(savedCb){
         savedCb = savedCb?funcCreate(savedCb,{},this):false;
         if(this.canBeSaved()){
@@ -151,7 +160,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var that = this;
             dojo.connect(this.formContentDomNode,'onclick',function(e){
                 var wdg = dijit.getEnclosingWidget(e.target);
-                if(wdg && wdg.isFocusable && !wdg.isFocusable() && wdg.sourceNode && (wdg.sourceNode.form != genro.activeForm)){
+                if(wdg && wdg.sourceNode && wdg.sourceNode.form && wdg.isFocusable && !wdg.isFocusable() && wdg.sourceNode && (wdg.sourceNode.form != genro.activeForm)){
                    wdg.sourceNode.form.focusCurrentField();
                 }
             });
@@ -222,9 +231,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     publish: function(command,kw,topic_kw){
-        var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent,iframe:'*'} // re add iframe:'*', (it gives problem with multipage?)
+        var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent} // re add iframe:'*', (it gives problem with multipage?)
+        objectUpdate(topic,topic_kw)
         genro.publish(topic,kw);
     },
+
 
     message:function(kw){
         if (!(kw instanceof Array)){
@@ -297,7 +308,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.locked = value;
         this.applyDisabledStatus();
         this.setControllerData('locked',value);
-        this.publish('onLockChange',{'locked':this.locked});
+        this.publish('onLockChange',{'locked':this.locked},{iframe:'*'});
     },
     registerChild:function(sourceNode){
         var ltag = sourceNode.attr.tag.toLowerCase();
@@ -830,7 +841,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     focus:function(node){
         if(!this.isDisabled()){
             var formContentDomNode = this.formContentDomNode || this.sourceNode.widget.domNode;
-            if(this.sourceNode.widget.getSelected){
+            if(this.sourceNode.widget && this.sourceNode.widget.getSelected){
                 formContentDomNode = this.sourceNode.widget.getSelected().domNode;
             }
             if(!node && this._firstField){
@@ -975,6 +986,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var always;
         if (typeof(kw)=='object'){
             always=kw.command;
+            if(kw.modifiers=='Shift'){
+                always = true;
+            }
         }else{
             always = kw;
             kw = {};
@@ -1002,6 +1016,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     do_save:function(kw){
+        if(this.isDisabled()){
+            this.publish('message',{message:_T('Cannot save. Blocked Form'),sound:'$error',messageType:'warning'});
+        }
         var destPkey = kw.destPkey;
         this.setOpStatus('saving');
         this.fireControllerData('saving');
@@ -1162,6 +1179,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         data = data || new gnr.GnrBag();
         this.sourceNode.setRelativeData(this.formDatapath,data);
+        this.getDataNodeAttributes().record_root = true;
     },
     getDataNodeAttributes:function(){
         var data = this.sourceNode.getRelativeData(this.formDatapath);
@@ -1522,7 +1540,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     recordOwnerNode:function(changeDataNode){
         var rnode = changeDataNode.getParentNode();
-        while(rnode && !(rnode.label=='record' || rnode.label[0]=='@')){
+        while(rnode && !(rnode.label=='record' || rnode.label[0]=='@' || rnode.attr.record_root)){
             rnode = rnode.getParentNode();
         }
         return rnode;
@@ -2121,6 +2139,13 @@ dojo.declare("gnr.formstores.Base", null, {
     getParentStoreData:function(){
         return this.parentStore.getData();
     },
+    load_dummy:function(loadkw){
+        var result = this.form.getFormData().deepCopy();
+        this.loaded('*newrecord*',result);
+        return result;
+    },
+    save_dummy:function(loadkw){},
+
     load_document:function(kw){
         /*
         pkey=discpath; it can use the static shortcut syntax;
@@ -2430,6 +2455,9 @@ dojo.declare("gnr.formstores.Base", null, {
     getDefaultDestPkey:function(){
     }
 });
+
+
+
 dojo.declare("gnr.formstores.SubForm", gnr.formstores.Base, {
     load_memory:function(){
         var form= this.form;
@@ -2463,7 +2491,6 @@ dojo.declare("gnr.formstores.SubForm", gnr.formstores.Base, {
     getDefaultDestPkey:function(){
         return '*subform*';
     }
-
 });
 
 dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {

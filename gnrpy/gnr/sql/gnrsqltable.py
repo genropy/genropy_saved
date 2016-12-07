@@ -547,7 +547,11 @@ class SqlTable(GnrObject):
             return [r['pkey'] for r in q.fetch()]
         else:
             return [l[0]['pkey'] for l in q.fetchGrouped('_duplicate_finder').values()]
-       
+
+
+    def opTranslate(self,column,op,value,dtype=None,sqlArgs=None):
+        translator = self.db.adapter.getWhereTranslator()
+        return translator.prepareCondition(column, op, value, dtype, sqlArgs,tblobj=self)
 
     def tableCachedData(self,topic,cb,**kwargs):
         currentPage = self.db.currentPage
@@ -872,6 +876,9 @@ class SqlTable(GnrObject):
         updatedKeys = []
         for row in fetch:
             new_row = dict(row)
+            if not _raw_update:
+                self.expandBagFields(row)
+                self.expandBagFields(new_row)
             if callable(updater):
                 doUpdate = updater(new_row)
                 if doUpdate is False:
@@ -1070,6 +1077,12 @@ class SqlTable(GnrObject):
             # if not self.trigger_onDeleting:
             #  sql delete where
 
+
+    @property
+    def dbevents(self):
+        return self.db.dbevents[self.fullname]
+
+
     def notifyDbUpdate(self,record):
         self.db.notifyDbUpdate(self,record)
             
@@ -1111,9 +1124,19 @@ class SqlTable(GnrObject):
         for row in sel:
             row._notUserChange = True
             old_record = dict(row)
+            self.expandBagFields(row)
+            self.expandBagFields(old_record)
             if onUpdating:
                 onUpdating(row, old_record=old_record)
             handler(row, old_record=old_record)
+
+    def expandBagFields(self,record,columns=None):
+        if not columns:
+            columns = [k for k,v in self.model.columns.items() if v.dtype=='X']
+        if isinstance(columns,basestring):
+            columns = columns.split(',')
+        for c in columns:
+            record[c] = Bag(record.get(c))
             
     def existsRecord(self, record):
         """Check if a record already exists in the table and return it (if it is not already in the keys)
@@ -1621,7 +1644,7 @@ class SqlTable(GnrObject):
             mask = ' - '.join(['%s' for k in fields])
         return fields, mask
 
-    def newRecordCaption(self,record):
+    def newRecordCaption(self,record=None):
         return self.newrecord_caption
         
     def recordCaption(self, record, newrecord=False, rowcaption=None):
@@ -1791,7 +1814,6 @@ class SqlTable(GnrObject):
                 self.empty()
             for rec in records:
                 self.insertOrUpdate(rec)
-            self.db.deferredCommit()
                 
     def exportToAuxInstance(self, instance, empty_before=False, excludeLogicalDeleted=True,
                             excludeDraft=True, source_records=None, **querykwargs):

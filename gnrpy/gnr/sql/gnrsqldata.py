@@ -621,11 +621,11 @@ class SqlQueryCompiler(object):
                 if not aggregate:              # if there is not yet a group_by
                     distinct = 'DISTINCT '     # add a DISTINCT to remove unusefull rows: eg. a JOIN used only for a where, not for columns
                     if order_by:
-                        xorderby=(('%s '%order_by.lower()).replace(' ascending ','').replace(' descending ','').replace(' asc ','').replace(' desc','')).split(',')
+                        xorderby= gnrstring.split((('%s '%order_by.lower()).replace(' ascending ','').replace(' descending ','').replace(' asc ','').replace(' desc','')),',')
                         lowercol=columns.lower()
-                        for xrd in xorderby:
+                        for i,xrd in enumerate(xorderby):
                             if not xrd.strip() in lowercol:
-                                columns = '%s, \n%s' % (columns, xrd)
+                                columns = '%s, \n%s AS __ord_col_%s' % (columns, xrd,i)
                     #order_by=None
                     if count:
                         columns = '%s.%s' % (self.aliasCode(0),self.tblobj.pkey)
@@ -927,7 +927,7 @@ class SqlQuery(object):
                     if not r in self.relationDict: # if name is not yet defined in relationDict
                         self.relationDict[r] = self.sqlparams.pop(r)
                         
-        self.bagFields = bagFields
+        self.bagFields = bagFields or for_update
         self.db = self.dbtable.db
         self._compiled = None
         

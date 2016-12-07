@@ -1195,6 +1195,9 @@ dojo.declare("gnr.GridEditor", null, {
 
     updateRowFromRemote:function(rowId,value){
         var rowEditor = this.grid.getRowEditor({rowId:rowId});
+        if(!rowEditor){
+            rowEditor = this.newRowEditor(this.grid.rowBagNodeByIdentifier(rowId));
+        }
         if(this.grid.datamode=='bag'){
             rowEditor.replaceData(value,'remoteController');
         }else{
@@ -1888,8 +1891,8 @@ dojo.declare("gnr.GridChangeManager", null, {
         if(gridEditor && parent_lv<2){
             var rowEditor = this.grid.getRowEditor({rowId:kw.node.label});
             if(!rowEditor){
-                gridEditor.newRowEditor(kw.node);
-                if(gridEditor.remoteRowController){
+                rowEditor = gridEditor.newRowEditor(kw.node);
+                if(gridEditor.remoteRowController && rowEditor.data.getItem(this.grid.masterEditColumn())!==null ){
                     gridEditor.callRemoteController(kw.node,null,null,true);
                 }
             }

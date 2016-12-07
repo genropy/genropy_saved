@@ -468,7 +468,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                  }
              },walkmode);
              for(var k in checked_attr){
-                 this.sourceNode.setRelativeData(checked_attr[k],result[k].join(checked_attr_joiners[k] || ','))
+                 this.sourceNode.setRelativeData(checked_attr[k],result[k].join(checked_attr_joiners[k] || ','),null,null,this);
              }
              if(checkedPaths){
                  this.sourceNode.setRelativeData(checkedPaths,cp.join(checkedPaths_joiner || ','),null,null,this);

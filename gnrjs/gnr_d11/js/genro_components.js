@@ -652,27 +652,30 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
     }
 });
 
-dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
+
+dojo.declare("gnr.widgets.BoxForm",gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var formId = objectPop(kw,'formId');
         var storeNode = children.popNode('store');
-        var contentNode = children.getNode('center');
-        genro.assert(contentNode,'missing contentNode:  attach to form.center a layout widget');
-        if(contentNode.attr.tag=='autoslot'){
-            var contentNode = children.getNode('center.#0');
-            genro.assert(contentNode,'missing contentNode:  attach to form.center a layout widget');
+        kw._class =  (kw._class || '') + ' fh_content';
+        var store;
+        if(storeNode){
+            store = this.createStoreFromStoreNode(storeNode);
+        }else{
+            var storekw = objectExtract(kw,'store_*');
+            storekw.handler = storekw.handler || objectPop(kw,'store') || 'memory';
+            var storeType = objectPop(kw,'storeType');
+            var parentStore = objectPop(kw,'parentStore');
+            storeType = storeType ||(parentStore?'Collection':'Item');
+            store = new gnr.formstores[storeType](storekw,{});
         }
-        contentNode.attr['_class'] =  (contentNode.attr['_class'] || '') + ' fh_content';
-        var store = this.createStore(storeNode);
-        var frameCode = kw.frameCode;
-        formId = formId || frameCode+'_form';
-        var frame = sourceNode._('FramePane',objectUpdate({controllerPath:'.controller',formDatapath:'.record',
-                                                            pkeyPath:'.pkey',formId:formId,form_store:store},kw));        
-        var storeId = kw.store+'_store';
-        return frame;
+        var controllerPath = objectPop(kw, 'controllerPath') || '#WORKSPACE.controller';
+        var pkeyPath = objectPop(kw,'pkeyPath') || '#WORKSPACE.pkey';
+        var formDatapath = objectPop(kw, 'formDatapath');
+        return sourceNode._('div',objectUpdate({controllerPath:controllerPath,formDatapath:formDatapath,
+                                                     pkeyPath:pkeyPath,formId:formId,form_store:store,_workspace:true},kw));
     },
-    createStore:function(storeNode){
-        var storeCode = storeNode.attr.storeCode;
+    createStoreFromStoreNode:function(storeNode){
         var storeContent = storeNode.getValue();
         var action,callbacks;
         storeNode._value = null;
@@ -696,6 +699,50 @@ dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
         return new gnr.formstores[storeType](kw,handlers);
     }
 });
+
+dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        var formId = objectPop(kw,'formId');
+        var storeNode = children.popNode('store');
+        var contentNode = children.getNode('center');
+        genro.assert(contentNode,'missing contentNode:  attach to form.center a layout widget');
+        if(contentNode.attr.tag=='autoslot'){
+            var contentNode = children.getNode('center.#0');
+            genro.assert(contentNode,'missing contentNode:  attach to form.center a layout widget');
+        }
+        contentNode.attr['_class'] =  (contentNode.attr['_class'] || '') + ' fh_content';
+        var store = this.createStore(storeNode);
+        var frameCode = kw.frameCode;
+        formId = formId || frameCode+'_form';
+        var frame = sourceNode._('FramePane',objectUpdate({controllerPath:'.controller',formDatapath:'.record',
+                                                            pkeyPath:'.pkey',formId:formId,form_store:store},kw));        
+        return frame;
+    },
+    createStore:function(storeNode){
+        var storeContent = storeNode.getValue();
+        var action,callbacks;
+        storeNode._value = null;
+        var handlers = {};
+        if(storeContent){
+            storeContent.forEach(function(n){
+                action = objectPop(n.attr,'action');
+                if(action){
+                    objectPop(n.attr,'tag');
+                    handlers[action] = n.attr;
+                    callbacks = n.getValue();
+                    if(callbacks){
+                        handlers[action]['callbacks'] = callbacks;
+                    }
+                }
+            });
+        }        
+        var kw = storeNode.attr;
+        var storeType = objectPop(kw,'storeType');
+        storeType = storeType ||(kw.parentStore?'Collection':'Item');
+        return new gnr.formstores[storeType](kw,handlers);
+    }
+});
+
 dojo.declare("gnr.widgets.PaletteMap", gnr.widgets.gnrwdg, {
     contentKwargs:function(sourceNode, attributes){
         return attributes;
@@ -1209,7 +1256,7 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
         if(this.source_item){
             return this.source_item;
         }
-        var result = isNullOrBlank(this.valuepath)?this.source_root:this.source_root.getItem(this.valuepath);
+        var result = isNullOrBlank(this.valuepath)?this.source_root:this.source_root.getItem(this.valuepath,null,'static');
         if(!result && this.valuepath){
             result = new gnr.GnrBag();
             this.source_root.setItem(this.valuepath,result,null,{doTrigger:false});
@@ -3930,11 +3977,14 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
                     query_kw.resolved = objectPop(kw,'resolved');
                     query_kw.parent_id =  objectPop(originalKwargs,'parent_id');
                     query_kw.root_id = objectPop(originalKwargs,'root_id');
+                    query_kw.caption_field = originalKwargs.labelAttribute;
+                    query_kw.alt_pkey_field = objectPop(originalKwargs,'alt_pkey_field');
                     gnrwdg.omitRoot = objectPop(kw,'omitRoot',true);
                 }else{
-                    query_kw.caption_field = objectPop(originalKwargs,'caption_field');
+                    query_kw.caption_field = originalKwargs.labelAttribute;
                     query_kw.where = condition;
                     query_kw._storename = dbstore;
+                    query_kw.alt_pkey_field = objectPop(originalKwargs,'alt_pkey_field');
                     kw.cols = kw.cols || 1;
                 }
                 for(var k in query_kw){
@@ -4040,7 +4090,8 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
     gnrwdg_createTreeCheckbox:function(){
         var valuepath = this.sourceNode.attr.value.replace('^','');
         var tree = this.rootNode._('tree',{storepath:this.treestorepath,hideValues:true,identifier:'treeIdentifier',
-                                labelAttribute:'caption',selectedLabelClass:'',_class:'pickerCheckboxTree',
+                                labelAttribute:'caption',
+                                selectedLabelClass:'',_class:'pickerCheckboxTree',
                                 checked_pkey:valuepath,
                                 checkedPaths:this.checkedpath,
                                 checked_caption:valuepath+'?_displayedValue',
@@ -4061,7 +4112,9 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         this.sourceNode.setRelativeData(this.checkedpath,null,null,null,this.cbgroupReason());
         if(value){
             var pathsFromPkeys = genro.serverCall('_table.'+this.query_kw.table+'.getHierarchicalPathsFromPkeys',{pkeys:value,related_kwargs:this.query_kw.related_kwargs,
-                                                                                                                      dbstore:this.query_kw.dbstore,parent_id:this.query_kw.parent_id,
+                                                                                                                      dbstore:this.query_kw.dbstore,
+                                                                                                                      parent_id:this.query_kw.parent_id,
+                                                                                                                      alt_pkey_field:this.query_kw.alt_pkey_field,
                                                                                                                       _sourceNode:this.sourceNode});
                 
             
@@ -4076,7 +4129,10 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         }
         if(this.hierarchical){
             var inEditingGrid = this.sourceNode.grid? this.sourceNode.grid.gnrediting:false;
-            if(trigger_reason=='container' && !inEditingGrid){
+            if(kw.reason && kw.reason.sourceNode == this.treeNode){
+                return;
+            }
+            if(!inEditingGrid){
                 this.setHierarchicalCheckedPaths(value);
             }
             return;
@@ -5541,7 +5597,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             var k = 0;
             var dataColumns = {};
             do{
-                dataColumns = this.rowByIndex(k);
+                dataColumns = this.rowByIndex(k,true);
                 k++;
             }while(k<=n && ('_newrecord' in dataColumns))
             if('_newrecord' in dataColumns){
@@ -5549,7 +5605,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             }
             gnr.getGridColumns(this.storeNode);
             var newColumns = this.storeNode._currentColumns? this.storeNode._currentColumns.split(','):[];
-            if(newColumns.some(function(n){return !(n.replace('$','').replace(/\./g, '_').replace(/@/g, '_') in dataColumns)})){
+            if(newColumns.some(function(n){return !(n.trim().split(' ')[0].replace('$','').replace(/\./g, '_').replace(/@/g, '_') in dataColumns)})){
                 this.loadData();
             } 
         }

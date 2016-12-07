@@ -674,7 +674,15 @@ genropatches.borderContainer = function() {
                 if (child.splitter && !this._splitters[region]) {
                     var _Splitter = dojo.getObject(this._splitterClass);
                     var flip = {left:'right', right:'left', top:'bottom', bottom:'top', leading:'trailing', trailing:'leading'};
-                    var oppNodeList = dojo.query('[region=' + flip[child.region] + ']', this.domNode);
+                    try{
+                        var oppNodeList = dojo.query('[region=' + flip[child.region] + ']', this.domNode);
+                    }catch(e){
+                        //fix safari
+                        var oppNodeList = Array();
+                        oppNodeList.constructor = dojo.NodeList;
+                        dojo._mixin(oppNodeList, dojo.NodeList.prototype);
+                    }
+                    
                     var splitter = new _Splitter({ container: this, child: child, region: region,
                         oppNode: oppNodeList[0], live: this.liveSplitters });
                     this._splitters[region] = splitter.domNode;

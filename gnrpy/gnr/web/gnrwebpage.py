@@ -400,6 +400,9 @@ class GnrWebPage(GnrBaseWebPage):
             envPageArgs = dictExtract(self.pageArgs,'env_')
             if envPageArgs:
                 self._db.updateEnv(**envPageArgs)
+            envCallArgs = dictExtract(self._call_kwargs,'dbenv_')
+            if envCallArgs:
+                self._db.updateEnv(**envCallArgs)
             for dbenv in [getattr(self, x) for x in dir(self) if x.startswith('dbenv_')]:
                 kwargs = dbenv() or {}
                 self._db.updateEnv(**kwargs)
@@ -719,6 +722,7 @@ class GnrWebPage(GnrBaseWebPage):
                 return (login, loginPars)
             self.site.onAuthenticated(avatar)
             self.connection.change_user(avatar)
+            self.site.connectionLog('open')
             login['message'] = ''
             loginPars = avatar.loginPars
             loginPars.update(avatar.extra_kwargs)
@@ -1748,6 +1752,7 @@ class GnrWebPage(GnrBaseWebPage):
         data = Bag(dict(root_page_id=self.root_page_id,parent_page_id=self.parent_page_id,rootenv=rootenv,prefenv=prefenv))
         self.pageStore().update(data)
         self._db = None #resetting db property after setting dbenv
+        page.data('gnr.mapkey',self.application.config['google?mapkey'])
         if hasattr(self, 'main_root'):
             self.main_root(page, **kwargs)
             return (page, pageattr)
@@ -1900,7 +1905,7 @@ class GnrWebPage(GnrBaseWebPage):
                     page.script('genro.dom.loadJs("%s")' %v)
         if self._pendingContext:
             self.site.register.setPendingContext(self.page_id,self._pendingContext,register_name='page')                        
-        if self.user:
+        if not self.isGuest:
             self.site.pageLog('open')
 
         if _auth == AUTH_NOT_LOGGED:

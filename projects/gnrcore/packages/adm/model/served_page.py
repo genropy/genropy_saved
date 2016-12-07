@@ -8,10 +8,10 @@ class Table(object):
                         name_plural='!!Served pages', broadcast='old')
         tbl.column('page_id', size='22', name_long='!!Page id')
         tbl.column('pagename', name_long='!!Page name')
-        tbl.column('connection_id', size='22', group='_').relation('connection.id', mode='foreignkey',
+        tbl.column('connection_id', size='22', group='_').relation('connection.id', mode='foreignkey',relation_name='pages',
                                                                    onDelete='cascade')
         tbl.column('start_ts', 'DH', name_long='!!Start ts')
-        tbl.column('end_ts', 'DH', name_long='!!Start ts')
+        tbl.column('end_ts', 'DH', name_long='!!End ts')
         tbl.column('end_reason', size=':12', name_long='!!End Reason')
 
     def getLivePages(self, connection_id=None, current_page_id=None):

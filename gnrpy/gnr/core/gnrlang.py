@@ -322,7 +322,8 @@ class GnrException(Exception):
         
     def __str__(self):
         msgargs = dict(code=self.code, description=self.description)
-        msgargs.update(self.msgargs)
+        if hasattr(self,'msgargs'):
+            msgargs.update(self.msgargs)
         return self.localizedMsg(self.caption, msgargs)
         
     def setLocalizer(self, localizer):

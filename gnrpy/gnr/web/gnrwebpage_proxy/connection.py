@@ -161,7 +161,8 @@ class GnrWebConnection(GnrBaseProxy):
         self.write_cookie()
 
     def rpc_logout(self):
-        self.page.site.register.drop_user(user=self.user)
+        self.page.site.register.drop_connection(self.connection_id,cascade=True)
+        self.page.site.connectionLog('close',connection_id=self.connection_id)
 
     @public_method
     def connected_users_bag(self, exclude=None, exclude_guest=True, max_age=600):
@@ -180,8 +181,10 @@ class GnrWebConnection(GnrBaseProxy):
             _customClasses = []
             row['_pkey'] = user
             row['iconClass'] = 'greenLight'
-            last_refresh_age = (now - arguments.get('last_refresh_ts',arguments['start_ts'])).seconds
-            last_event_age = (now - arguments.get('last_user_ts',arguments['start_ts'])).seconds
+            last_refresh_ts = arguments.get('last_refresh_ts') or arguments['start_ts']
+            last_user_ts = arguments.get('last_user_ts') or arguments['start_ts']
+            last_refresh_age = (now - last_refresh_ts).seconds
+            last_event_age = (now - last_user_ts).seconds
             if last_refresh_age > 60:
                 _customClasses.append('user_disconnected')
                 row['iconClass'] = 'grayLight'

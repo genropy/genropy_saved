@@ -33,7 +33,7 @@ import re
 import smtplib
 import time
 import glob
-from email.MIMEText import MIMEText
+from email.mime.text import MIMEText
 from gnr.utils import ssmtplib
 from gnr.app.gnrdeploy import PathResolver
 from gnr.app.gnrconfig import MenuStruct
@@ -696,7 +696,7 @@ class GnrApp(object):
         
         
 
-        for pkgid, attrs in self.config['packages'].digest('#k,#a'):
+        for pkgid, attrs,pkgcontent in self.config['packages'].digest('#k,#a,#v'):
             if ':' in pkgid:
                 project,pkgid=pkgid.split(':')
             else:
@@ -706,6 +706,7 @@ class GnrApp(object):
             if not os.path.isabs(attrs['path']):
                 attrs['path'] = self.realPath(attrs['path'])
             apppkg = GnrPackage(pkgid, self, **attrs)
+            apppkg.content = pkgcontent or Bag()
             self.packagesIdByPath[os.path.realpath(apppkg.packageFolder)] = pkgid
             self.packages[pkgid] = apppkg
 
@@ -1245,10 +1246,7 @@ class GnrApp(object):
         
     def onDbCommitted(self):
         """Hook method called during the database commit"""
-        _storesToCommit = self.db.currentEnv.pop('_storesToCommit',None) or []
-        for s in _storesToCommit:
-            with self.db.tempEnv(storename=s,_systemDbEvent=True):
-                self.db.commit()
+        pass
 
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
         pass
