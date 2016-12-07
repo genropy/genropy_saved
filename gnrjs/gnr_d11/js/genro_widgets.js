@@ -4947,6 +4947,3 @@ dojo.declare("gnr.widgets.fileUploader", gnr.widgets.baseDojo, {
         }
     }
 });
-    
-    
-

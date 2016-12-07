@@ -57,8 +57,12 @@ class TableHandler(BaseComponent):
                                                     condition_kwargs=condition_kwargs,
                                                     relation_kwargs=relation_kwargs,
                                                     default_kwargs=default_kwargs,original_kwargs=kwargs)
-        tblattr = self.db.table(table).attributes
+        tblobj = self.db.table(table)
+        tblattr = tblobj.attributes
         readOnly = readOnly or tblattr.get('readOnly')
+        tblconfig = self.getUserTableConfig(table=table)
+        if tblconfig['tbl_permission'] == 'readonly':
+            readOnly = True
         delrow = tblattr.get('deletable',delrow)
         if isinstance(delrow,basestring):
             delrow = self.application.checkResourcePermission(delrow, self.userTags)
@@ -82,8 +86,8 @@ class TableHandler(BaseComponent):
                         thform_root=formCode,
                         th_viewResource=self._th_getResourceName(viewResource,defaultClass='View',defaultModule=defaultModule),
                         th_formResource=self._th_getResourceName(kwargs.get('formResource'),defaultClass='Form',defaultModule=defaultModule),
-                        nodeId=th_root,
                         table=table,
+                        nodeId=th_root,
                         context_dbstore=dbstore,
                         overflow='hidden',
                         **kwargs) 
@@ -108,7 +112,23 @@ class TableHandler(BaseComponent):
 
         if picker:
             top_slots.append('thpicker')
+            if picker is True:
+                picker = tblobj.pkey
+                picker_kwargs['table'] = table
+                if picker_kwargs.pop('exclude_assigned',None):
+                    picker_base_condition = '$%(_fkey_name)s IS NULL' %condition_kwargs 
+                else:
+                    picker_base_condition = '$%(_fkey_name)s IS NULL OR $%(_fkey_name)s!=:fkey' %condition_kwargs 
+                picker_custom_condition = view_kwargs.get('picker_condition')
+                picker_kwargs['condition'] = picker_base_condition if not picker_custom_condition else '(%s) AND (%s)' %(picker_base_condition,picker_custom_condition)
+                if delrow:
+                    tblname = tblattr.get('name_plural') or tblattr.get('name_one') or tblobj.name
+                    unlinkdict = dict(one_name=tblname.lower(),
+                                    field=condition_kwargs['_fkey_name'])
+                for k,v in condition_kwargs.items():
+                    picker_kwargs['condition_%s' %k] = v
             picker_kwargs['relation_field'] = picker
+
         if addrowmenu:
             top_slots.append('addrowmenu')
             addrowmenu_kwargs['relation_field'] = addrowmenu
@@ -197,7 +217,12 @@ class TableHandler(BaseComponent):
         return wdg
 
 
-    def th_checkPermission(self,pane):
+    def th_checkPermission(self,pane,table=None):
+        inattr = pane.getInheritedAttributes()
+        table = table or inattr['table']
+        tblconfig = self.getUserTableConfig(table=table)
+        if tblconfig['tbl_permission'] == 'hidden':
+            return False
         dflt = self.pageAuthTags(method='main')
         tags = self._th_hook('tags',mangler=pane,dflt=dflt)()
         if tags:
@@ -487,9 +512,7 @@ class MultiButtonForm(BaseComponent):
                                                     default_kwargs=default_kwargs,original_kwargs=kwargs)
         pane.attributes.update(overflow='hidden')
         frameCode = frameCode or 'fhmb_%s' %table.replace('.','_')
-        frame = pane.framePane(frameCode=frameCode,
-
-                                datapath=datapath,**kwargs)
+        frame = pane.framePane(frameCode=frameCode,datapath=datapath,**kwargs)
         storepath  = storepath or '.store' 
         store_kwargs['storepath'] = storepath
         store_kwargs.update(condition_kwargs)
@@ -578,6 +601,7 @@ class MultiButtonForm(BaseComponent):
                 """,row='^.row',switchdict=switchdict,
                 sw=switch,_if='row && row.getItem("_pkey")')
         else:
+            formId= formId or '%s_frm' %frameCode
             form = frame.center.contentPane(overflow='hidden').thFormHandler(formResource=formResource,table=table,
                                     default_kwargs=default_kwargs,formId=formId,**form_kwargs)
             frame.form = form
@@ -605,6 +629,9 @@ class MultiButtonForm(BaseComponent):
                 }
                 mb.setRelativeData('.value',pkey=='*newrecord*'?'_newrecord_':pkey);
                 """,pkey='^#FORM.controller.loaded',mb=mb)
+            form.dataController("""
+                mb.setRelativeData('.value',pkey=='*newrecord*'?'_newrecord_':pkey);
+                """,formsubscribe_onCancel=True,mb=mb,pkey='=.pkey')
         store_kwargs['_if'] = store_kwargs.pop('if',None) or store_kwargs.pop('_if',None)
         store_kwargs['_else'] = "this.store.clear();"
         tblobj = self.db.table(table)
@@ -665,7 +692,12 @@ class MultiButtonForm(BaseComponent):
                             """,
                             mainstack=sc,fid=formId,caption_field=caption_field,
                             fkey='=#FORM.record.%s' %fkey,code=frameCode,switch_field=switch,
-                            formsubscribe_onLoaded=True)        
+                            formsubscribe_onLoaded=True)     
+        form.dataController("""
+                mainstack.setRelativeData('.value',fkey);
+                mainstack.setRelativeData('.selectedForm',fid);
+                """,formsubscribe_onCancel=True,mainstack=sc,fid=formId,
+                fkey='=#FORM.record.%s' %fkey)   
 
 class ThLinker(BaseComponent):
     py_requires='gnrcomponents/tpleditor:ChunkEditor'

@@ -608,10 +608,12 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                 return;     
             }
             var parentSourceNode = this._parentSourceNode;
-           // if(parentSourceNode.widget && parentSourceNode.widget._lastValue==request.identity){
-           //     //lastValue equal to requested identitiy: the fetchItemByIdentity is skipped 9/6/2013 fporcari
-           //     return;
-           // }
+            if(parentSourceNode.widget && parentSourceNode.widget._lastValue==request.identity){
+                //lastValue equal to requested identitiy: the fetchItemByIdentity is skipped 9/6/2013 fporcari
+                //for avoiding useless rpc. Uncommented on 5/11/2016. (for remoteSelect tab after select in options)
+                return;
+            }
+
             var selectedAttrs = objectExtract(parentSourceNode.attr,'selected_*',true)
             if(!(('rowcaption' in parentSourceNode.attr) || parentSourceNode.attr._hdbselect || parentSourceNode.attr.condition || objectNotEmpty(selectedAttrs))){
                 var recordNodePath = parentSourceNode.attr.value;

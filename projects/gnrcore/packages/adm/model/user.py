@@ -12,7 +12,8 @@ class Table(object):
         self.sysFields(tbl, ins=True, upd=True, md5=True)
         tbl.column('id', size='22', group='_', readOnly='y', name_long='Id')
         tbl.column('username', size=':32', name_long='!!Username', unique='y', _sendback=True,
-                   indexed='y', validate_notnull=True, validate_notnull_error='!!Mandatory field')
+                   indexed='y', validate_notnull=True, validate_notnull_error='!!Mandatory field',
+                   unmodifiable=True)
         tbl.column('email', name_long='Email', validate_notnull=True,
                    validate_notnull_error='!!Mandatory field')
 
@@ -33,7 +34,12 @@ class Table(object):
         tbl.column('avatar_rootpage', name_long='!!Root Page')
         tbl.column('sms_login' ,dtype='B',name_long='!!Sms login')
         tbl.column('sms_number',name_long='!!Sms Number')
-        tbl.column('group_code',name_long='!!Group').relation('group.code',relation_name='users',mode='foreignkey')
+        tbl.column('group_code',size=':15',name_long='!!Group').relation('group.code',relation_name='users',mode='foreignkey')
+        
+        tbl.formulaColumn('all_tags',"""array_to_string(ARRAY(#alltags),',')""",
+                            select_alltags=dict(where="$user_id=#THIS.id OR $group_code=#THIS.group_code",
+                                                columns='$tag_code',table='adm.user_tag',distinct=True))
+
         tbl.formulaColumn('fullname', "$firstname||' '||$lastname", name_long=u'!!Name')
 
     def partitionioning_pkeys(self):
@@ -43,7 +49,10 @@ class Table(object):
         password = getUuid()[0:6]
         return password
 
-    def trigger_onUpdating(self, record, **kwargs):
+    def trigger_onUpdating(self, record, old_record=None):
+        if record['username']!=old_record['username']:
+            raise self.exception('protect_update',record=record,
+                                 msg='!!Username is not modifiable %(username)s')
         self.passwordTrigger(record)
 
     def trigger_onInserting(self, record, **kwargs):

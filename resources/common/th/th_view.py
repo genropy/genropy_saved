@@ -41,6 +41,7 @@ class TableHandlerView(BaseComponent):
                                  virtualStore=virtualStore,
                                  condition=condition,condition_kwargs=condition_kwargs,
                                  **kwargs)
+        
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=frameCode,asDict=True)
             for k in sorted(hooks.keys()):
@@ -49,7 +50,7 @@ class TableHandlerView(BaseComponent):
         if viewhook:
             viewhook(view)
         return view
-    
+
     @extract_kwargs(top=True,preview=True)
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
@@ -154,7 +155,8 @@ class TableHandlerView(BaseComponent):
         b.rowchild(label='!!Totals count',action='SET .#parent.tableRecordCount= !GET .#parent.tableRecordCount;',
                             checked='^.#parent.tableRecordCount')
         b.rowchild(label='-')
-        b.rowchild(label='!!Configure Table',action='genro.dev.fieldsTreeConfigurator($2.attr.table)')
+        b.rowchild(label='!!User Configuration',
+                    action='genro.dev.tableUserConfiguration($2.attr.table);')
         b.rowchild(childname='configure',label='!!Configure View',action="""$2.widget.configureStructure();""")
         grid.data('.contextMenu',b)
 
@@ -168,7 +170,9 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_viewConfigurator(self,pane,table,th_root,configurable=None):
-        bar = pane.slotBar('confBar,fieldsTree,*',width='160px',closable='close',fieldsTree_table=table,
+        bar = pane.slotBar('confBar,fieldsTree,*',width='160px',closable='close',
+                            fieldsTree_table=table,
+                            fieldsTree_checkPermissions=True,
                             fieldsTree_height='100%',splitter=True,border_left='1px solid silver')
         confBar = bar.confBar.slotToolbar('viewsMenu,currviewCaption,*,defView,saveView,deleteView',background='whitesmoke')
         confBar.currviewCaption.div('^.grid.currViewAttrs.caption',font_size='.9em',color='#666',line_height='16px')
@@ -219,7 +223,8 @@ class TableHandlerView(BaseComponent):
         box.div('==_sumvalue|| 0;',_sumvalue='^.store?sum_%s' %sum_column,format=format,width=width or '5em',_class='fakeTextBox',
                  font_size='.9em',text_align='right',padding_right='2px',display='inline-block')
 
-    def _th_section_from_type(self,tblobj,sections,condition=None,condition_kwargs=None,all_begin=None,all_end=None,codePkey=False):
+    def _th_section_from_type(self,tblobj,sections,condition=None,condition_kwargs=None,
+                            all_begin=None,all_end=None,codePkey=False,include_inherited=None):
         rt = tblobj.column(sections).relatedTable() 
         if rt:
             section_table = tblobj.column(sections).relatedTable().dbtable
@@ -236,12 +241,15 @@ class TableHandlerView(BaseComponent):
                 s = s.split(':')
                 f.append(dict(code=s[0],description=s[1] if len(s)==2 else s[0]))
         s = []
+        sec_cond = '$%s=:s_id' %sections
+        if include_inherited:
+            sec_cond = '(($%s IS NULL) OR ($%s=:s_id))' %(sections,sections)
         if all_begin is None and all_end is None:
             all_begin = True
         if all_begin:
             s.append(dict(code='c_all_begin',caption='!!All' if all_begin is True else all_begin))
         for i,r in enumerate(f):
-            s.append(dict(code=slugify(r[pkeyfield],'_'),caption=r[caption_field],condition='$%s=:s_id' %sections,condition_s_id=r[pkeyfield]))
+            s.append(dict(code=slugify(r[pkeyfield],'_'),caption=r[caption_field],condition=sec_cond,condition_s_id=r[pkeyfield]))
         if all_end:
             s.append(dict(code='c_all_end',caption='!!All' if all_end is True else all_end))
         return s
@@ -249,7 +257,7 @@ class TableHandlerView(BaseComponent):
     @extract_kwargs(condition=True,lbl=dict(slice_prefix=False))
     @struct_method
     def th_slotbar_sections(self,parent,sections=None,condition=None,condition_kwargs=None,
-                            all_begin=None,all_end=None,multiButton=None,lbl=None,lbl_kwargs=None,**kwargs):
+                            all_begin=None,all_end=None,include_inherited=False,multiButton=None,lbl=None,lbl_kwargs=None,**kwargs):
         inattr = parent.getInheritedAttributes()    
         th_root = inattr['th_root']
         pane = parent.div(datapath='.sections.%s' %sections)
@@ -270,7 +278,8 @@ class TableHandlerView(BaseComponent):
             depending_condition_kwargs = dictExtract(dict(m.__dict__),'_if_')
         elif sections in  tblobj.model.columns and (tblobj.column(sections).relatedTable() is not None or 
                                                 tblobj.column(sections).attributes.get('values')):
-            sectionslist = self._th_section_from_type(tblobj,sections,condition=condition,condition_kwargs=condition_kwargs,all_begin=all_begin,all_end=all_end)
+            sectionslist = self._th_section_from_type(tblobj,sections,condition=condition,condition_kwargs=condition_kwargs,
+                                                    all_begin=all_begin,all_end=all_end,include_inherited=include_inherited)
             dflt = None
             multivalue = True
             variable_struct = False
@@ -754,7 +763,10 @@ class TableHandlerView(BaseComponent):
                    qm.setFavoriteQuery();
         """,_onStart=True,th_root=th_root)   
         fmenupath = 'gnr.qb.%s.fieldsmenu' %tablecode
-        pane.dataRemote(fmenupath,self.relationExplorer,table=table,omit='_*')
+        options = self._th_hook('options',mangler=pane)() or dict()
+        pane.dataRemote(fmenupath,self.relationExplorer,item_type='QTREE',
+                        branch=options.get('branch'),
+                        table=table,omit='_*')
         pane.data('gnr.qb.sqlop',self.getSqlOperators())   
         pane.dataController("""var th=TH(th_root).querymanager.onQueryCalling(querybag,selectmethod);
                               """,th_root=th_root,_fired="^.runQuery",
@@ -810,7 +822,6 @@ class TableHandlerView(BaseComponent):
                         tooltip='==_internalQueryTooltip || _internalQueryCaption || _caption',
                                     _internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip',
                                     hidden='^.#parent.queryAttributes.extended?=!#v',min_width='20em')
-
 
         
     def _th_viewController(self,pane,table=None,th_root=None,default_totalRowCount=None):

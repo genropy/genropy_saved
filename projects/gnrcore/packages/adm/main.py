@@ -20,17 +20,18 @@ class Package(GnrDboPackage):
         def cb(cache=None,identifier=None,**kwargs):
             if identifier in cache:
                 return cache[identifier],True
-            result = tblobj.query(columns='*',where='$username = :user',user=username, limit=1).fetch()
+            result = tblobj.query(columns='*,$all_tags',where='$username = :user',user=username, limit=1).fetch()
             kwargs = dict()
             if result:
                 user_record = dict(result[0])
-                kwargs['tags'] = user_record.pop('auth_tags')
+                kwargs['tags'] = user_record.pop('all_tags')
                 kwargs['pwd'] = user_record.pop('md5pwd')
                 kwargs['status'] = user_record['status']
                 kwargs['email'] = user_record['email']
                 kwargs['firstname'] = user_record['firstname']
                 kwargs['lastname'] = user_record['lastname']
                 kwargs['user_id'] = user_record['id']
+                kwargs['group_code'] = user_record['group_code']
                 kwargs['locale'] = user_record['locale'] or self.application.config('default?client_locale')
                 kwargs['user_name'] = '%s %s' % (user_record['firstname'], user_record['lastname'])
                 kwargs.update(dictExtract(user_record, 'avatar_'))
