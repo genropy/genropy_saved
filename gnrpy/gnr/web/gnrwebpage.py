@@ -1017,7 +1017,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.frontend.frontend_arg_dict(arg_dict)
         arg_dict['customHeaders'] = self._htmlHeaders
         arg_dict['charset'] = self.charset
-        arg_dict['pageModule'] = self.filepath
+        arg_dict['pageModule'] = self.filepath.replace('\\',r'\\')
         arg_dict['filename'] = self.pagename
         arg_dict['pageMode'] = 'wsgi_10'
         arg_dict['baseUrl'] = self.site.home_uri
