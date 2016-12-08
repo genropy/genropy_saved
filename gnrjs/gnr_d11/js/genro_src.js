@@ -450,9 +450,6 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                     if ((typeof (attrvalue) == 'string') && node.isPointerPath(attrvalue)) {
                         if (attr=='value'){
                             dflt = nodeattr['default'] || nodeattr['default_value'];
-                            if(dflt==undefined){
-                                dflt = '';
-                            }
                         }else{
                             dflt = nodeattr['default_' + attr];
                         }

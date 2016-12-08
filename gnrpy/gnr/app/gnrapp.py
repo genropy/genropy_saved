@@ -333,6 +333,13 @@ class GnrSqlAppDb(GnrSqlDb):
                 result.setItem(b.pop('fieldname'),None,**kw)
             return result
 
+    def _getUserConfiguration(self,table=None,user=None,user_group=None):
+        if self.package('adm'):
+            return self.table('adm.user_config').getInfoBag(tbl=table,user=user,
+                                                        user_group=user_group)
+
+
+
 class GnrPackagePlugin(object):
     """TODO"""
     def __init__(self, pkg, path):
@@ -556,6 +563,18 @@ class GnrPackage(object):
     def envPreferences(self):
         "key:preference path, value:path inside dbenv"
         return {}        
+
+    def tableBroadcast(self,evt,autocommit=False,**kwargs):
+        changed = False
+        db = self.application.db
+        for tname,tblobj in db.packages[self.id].tables.items():
+            handler = getattr(tblobj.dbtable,evt,None)
+            if handler:
+                result = handler(**kwargs)
+                changed = changed or result
+        if changed and autocommit:
+            db.commit()
+        return changed
 
 
 class GnrApp(object):
@@ -968,6 +987,7 @@ class GnrApp(object):
                 kw.update(kwargs)
                 return self.makeAvatar(user=user, user_name=user_name, user_id=user_id,
                                        login_pwd=password, authenticate=authenticate,
+                                       group_code=kw.pop('group_code','xml_group'),
                                        defaultTags=defaultTags, **kw)
                                        
     def auth_py(self, node, user, password=None, authenticate=False,tags=None, **kwargs):

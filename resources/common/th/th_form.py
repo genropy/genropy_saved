@@ -79,6 +79,9 @@ class TableHandlerForm(BaseComponent):
             formroot = pane
             if datapath:
                 formroot.attributes.update(datapath=datapath)
+        tblconfig = self.getUserTableConfig(table=table)
+        if tblconfig['tbl_permission'] == 'readonly':
+            resource_options['readOnly'] = True
         form = formroot.frameForm(frameCode=formId,formId=formId,table=table,
                              store_startKey=startKey,context_dbstore=dbstore,
                              datapath='.form',store=store,store_kwargs=store_kwargs,

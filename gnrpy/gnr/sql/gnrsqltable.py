@@ -36,6 +36,7 @@ from gnr.sql.gnrsqltable_proxy.hierarchical import HierarchicalHandler
 from gnr.sql.gnrsql import GnrSqlException
 from datetime import datetime
 import logging
+import threading
 
 __version__ = '1.0b'
 gnrlogger = logging.getLogger(__name__)
@@ -208,6 +209,8 @@ class SqlTable(GnrObject):
         self.fullname = tblobj.fullname
         self.name_long = tblobj.name_long
         self.name_plural = tblobj.name_plural
+        self.user_config = {}
+        self._lock = threading.RLock()
         if tblobj.attributes.get('hierarchical'):
             self.hierarchicalHandler = HierarchicalHandler(self)
         
@@ -252,12 +255,13 @@ class SqlTable(GnrObject):
         
     dbroot = db
         
-    def column(self, name):
+    def column(self, name,**kwargs):
         """Returns a :ref:`column` object.
         
         :param name: A column's name or a :ref:`relation <relations>` starting from
                      the current :ref:`table`. (eg. ``@director_id.name``)"""
-        return self.model.column(name)
+        result = self.model.column(name,**kwargs)
+        return result
         
     def fullRelationPath(self, name):
         """TODO
@@ -290,6 +294,18 @@ class SqlTable(GnrObject):
         else:
             result['table'] = col.relatedColumn().table.fullname
         return result
+
+    def clearUserConfiguration(self):
+        self.user_config = {}
+
+    def getUserConfiguration(self,user_group=None,user=None):
+        user_config = self.user_config.get((user_group,user))
+        if user_config is None:
+            with self._lock:
+                user_config = self.db._getUserConfiguration(table=self.fullname,user_group=user_group,user=user)
+                self.user_config[(user_group,user)] = user_config or False
+        return user_config
+
 
     def getColumnPrintWidth(self, column):
         """Allow to find the correct width for printing and return it
@@ -573,7 +589,7 @@ class SqlTable(GnrObject):
     def record(self, pkey=None, where=None,
                lazy=None, eager=None, mode=None, relationDict=None, ignoreMissing=False, virtual_columns=None,
                ignoreDuplicate=False, bagFields=True, joinConditions=None, sqlContextName=None,
-               for_update=False, _storename=None,aliasPrefix=None,**kwargs):
+               for_update=False, _storename=None,checkPermissions=False,aliasPrefix=None,**kwargs):
         """Get a single record of the table. It returns a SqlRecordResolver.
         
         The record can be identified by:
@@ -606,6 +622,7 @@ class SqlTable(GnrObject):
                            ignoreDuplicate=ignoreDuplicate,
                            joinConditions=joinConditions, sqlContextName=sqlContextName,
                            bagFields=bagFields, for_update=for_update, _storename=_storename,
+                           checkPermissions=checkPermissions,
                            aliasPrefix=aliasPrefix,**kwargs)
 
         if mode:
@@ -801,7 +818,7 @@ class SqlTable(GnrObject):
               excludeDraft=True,
               addPkeyColumn=True,
               ignoreTableOrderBy=False,ignorePartition=False, locale=None,
-              mode=None,_storename=None,aliasPrefix=None, **kwargs):
+              mode=None,_storename=None,checkPermissions=False,aliasPrefix=None, **kwargs):
         """Return a SqlQuery (a method of ``gnr/sql/gnrsqldata``) object representing a query.
         This query is executable with different modes.
         
@@ -836,6 +853,7 @@ class SqlTable(GnrObject):
                          ignorePartition=ignorePartition,
                          addPkeyColumn=addPkeyColumn,ignoreTableOrderBy=ignoreTableOrderBy,
                         locale=locale,_storename=_storename,
+                        checkPermissions=checkPermissions,
                          aliasPrefix=aliasPrefix,**kwargs)
         return query
 
@@ -1431,7 +1449,8 @@ class SqlTable(GnrObject):
             lastid = self.query(columns='max($%s)' % pkey, group_by='*').fetch()[0]
             return (lastid[0] or 0) + 1
         elif self.attributes.get('pkey_columns'):
-            return '_'.join([str(record.get(col)) for col in self.attributes.get('pkey_columns').split(',') if record.get(col) is not None])
+            joiner = self.attributes.get('pkey_columns_joiner') or '_'
+            return joiner.join([str(record.get(col)) for col in self.attributes.get('pkey_columns').split(',') if record.get(col) is not None])
         else:
             return getUuid()
             
@@ -1613,6 +1632,7 @@ class SqlTable(GnrObject):
                 #FIX 
             result.append(col)
         return result
+
         
     def getQueryFields(self, columns=None, captioncolumns=None):
         """TODO
@@ -1908,7 +1928,8 @@ class SqlTable(GnrObject):
 
 
 
-    def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, relationStack='',**kwargs):
+    def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, 
+                        relationStack='',checkPermissions=None,**kwargs):
         """TODO
         
         :param omit: TODO
@@ -1962,6 +1983,8 @@ class SqlTable(GnrObject):
                     return 
                 attributes['relationStack'] = gnrstring.concat(relationStack, relkey,'|')
             else:
+                if checkPermissions:
+                    attributes.update(self.model.getColPermissions(relnode.label,**checkPermissions))
                 attributes['name_long'] = attributes.get('name_long') or relnode.label
             return attributes
             
@@ -1970,7 +1993,7 @@ class SqlTable(GnrObject):
         result = Bag()
         for relnode in tblmodel.relations: # add columns relations
             attributes = convertAttributes(result, relnode, prevRelation, omit,relationStack)
-            if attributes:
+            if attributes and not attributes.get('user_forbidden'):
                 resultAppend(result, relnode.label, attributes, omit)
             
         for vcolname, vcol in tblmodel.virtual_columns.items():

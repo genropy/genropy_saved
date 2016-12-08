@@ -23,7 +23,7 @@ class Form(BaseComponent):
     def th_form(self, form):
         bc = form.center.borderContainer()
         top = bc.contentPane(region='top',datapath='.record')
-        fb = top.div(margin='5px').formbuilder(cols=2, border_spacing='2px',width='100%',fld_width='100%')
+        fb = top.div(margin='5px').formbuilder(cols=2, border_spacing='2px',colswidth='20em')
         fb.field('code')
         fb.field('description')
         fb.field('isreserved', lbl='',label='Is reserved')
@@ -31,7 +31,7 @@ class Form(BaseComponent):
         self.usersPane(bc.contentPane(region='center',datapath='#FORM'))
 
     def usersPane(self,pane):
-        pane.plainTableHandler(relation='@users',viewResource=':ViewFromTag',picker='user_id',
+        pane.plainTableHandler(relation='@users',viewResource=':ViewFromTag',picker='user_id',picker_viewResource=True,
                                 delrow=True,pbl_classes=True,margin='2px')
  
 

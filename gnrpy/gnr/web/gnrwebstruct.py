@@ -33,10 +33,13 @@ from copy import copy
 
 
 
-def cellFromField(field,tableobj):
+def cellFromField(field,tableobj,checkPermissions=None):
     kwargs = dict()
     fldobj = tableobj.column(field)
     fldattr = dict(fldobj.attributes or dict())
+    fldattr.update(fldobj.getPermissions(**checkPermissions))
+    if fldattr.get('user_forbidden'):
+        kwargs['hidden'] = True
     if 'values' in fldattr:
         values = fldattr['values']
         values = getattr(fldobj.table.dbtable, values ,lambda: values)()
@@ -54,6 +57,8 @@ def cellFromField(field,tableobj):
         kwargs['caption_field'] = fldattr['caption_field']
     relfldlst = tableobj.fullRelationPath(field).split('.')
     validations = dictExtract(fldobj.attributes,'validate_',slice_prefix=False)
+    if fldattr.get('user_readonly'):
+        kwargs.pop('edit',None)
     if validations and kwargs.get('edit'):
         edit = kwargs['edit']
         if edit is not True:
@@ -77,7 +82,7 @@ def cellFromField(field,tableobj):
                     caption_fieldobj = tableobj.column(rel_caption_field)
                     kwargs['width'] = '%iem' % int(caption_fieldobj.print_width*.6) if caption_fieldobj.print_width else None
                     kwargs['caption_field'] = rel_caption_field
-                    caption_field_kwargs = cellFromField(rel_caption_field,tableobj)
+                    caption_field_kwargs = cellFromField(rel_caption_field,tableobj,checkPermissions=checkPermissions)
                     if '_joiner_storename' in caption_field_kwargs:
                         kwargs['_joiner_storename'] = caption_field_kwargs['_joiner_storename']
                         kwargs['_external_fkey'] = caption_field_kwargs['_external_fkey']
@@ -1710,6 +1715,15 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             wdgattr['_fired'] ='^.%s' % fld
         else:
             wdgattr['value'] = '^.%s' % fld
+        permissions = fieldobj.getPermissions(**self.page.permissionPars)
+        if permissions.get('user_readonly'):
+            wdgattr['readOnly'] = True
+        if permissions.get('user_forbidden'):
+            wdgattr['tag'] = 'div'
+            wdgattr['_class'] = 'gnr_forbidden_field'
+            wdgattr.pop('value',None)
+            wdgattr.pop('innerHTML','&nbsp;')
+            
         return wdgattr
         
     def wdgAttributesFromColumn(self, fieldobj,fld=None, **kwargs):
@@ -2332,7 +2346,7 @@ class GnrGridStruct(GnrStructData):
             self.root._missing_table = True
             return
         fldobj = tableobj.column(field)
-        cellpars = cellFromField(field,tableobj)
+        cellpars = cellFromField(field,tableobj,checkPermissions=self.page.permissionPars)
         cellpars.update(kwargs)
         template_name = template_name or fldobj.attributes.get('template_name')
         if template_name:

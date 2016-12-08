@@ -1487,7 +1487,7 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
         var editor = objectPop(areaAttr,'editor');
         var tag = this._domtag;
         var notrigger = {'doTrigger':false};
-        if (editor || speech){
+        if (editor){
             var parentNode =sourceNode.getParentNode();
             var insideTable = parentNode && parentNode.attr.tag=='td';
             var _class = 'textAreaWrapper';
@@ -1497,8 +1497,10 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
             if(editor){
                 _class+= ' textAreaIsEditor';
             }
+            var currAttr = sourceNode.attr;
             sourceNode.attr = {'tag':'div',_class:_class};
-            var tKw = {overflow:'hidden',_class:'textAreaWrapperArea'}; 
+            objectExtract(currAttr,'tag,width');
+            var tKw = objectUpdate({overflow:'hidden',_class:'textAreaWrapperArea'},currAttr); 
             if(editor){
                 tKw['border'] = '1px solid silver';
                 tKw['rounded'] = 4;
@@ -1519,26 +1521,6 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
                 this._dojotag = null;
             }
             var textarea = top._(tag,areaAttr,notrigger).getParentNode();
-            if(speech){
-                var b = bottom._('div',{_class:'TAspeechInputBox'},notrigger);
-
-                b._('input',{_class:'TAspeechInput','tabindex':32767,
-                            "x-webkit-speech":"x-webkit-speech",onCreated:function(newobj,attributes){
-                                newobj.onwebkitspeechchange = function(){
-                                    var v = this.value;
-                                    this.value = '';
-                                    if(textarea.widget){
-                                        textarea.widget.gnr.onSpeechEnd(textarea,v);
-                                    }
-                                    else if(textarea.externalWidget){
-                                        textarea.externalWidget.gnr.onSpeechEnd(textarea,v);
-                                    }
-
-                                    
-                                };
-                            }          
-                },{'doTrigger':false});
-            }
         }
     },
     onSpeechEnd:function(sourceNode,v){
@@ -4965,6 +4947,3 @@ dojo.declare("gnr.widgets.fileUploader", gnr.widgets.baseDojo, {
         }
     }
 });
-    
-    
-

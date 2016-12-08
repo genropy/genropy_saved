@@ -76,7 +76,8 @@ class MenuStruct(ConfigStruct):
         return self.child('webpage',label=label,multipage=multipage,tags=tags,file=filepath,_returnStruct=False,**kwargs)
 
     def thpage(self, label,table=None,tags='',multipage=None, **kwargs):
-        return self.child('thpage',label=label,table=table,multipage=multipage,tags=tags,_returnStruct=False,**kwargs)
+        return self.child('thpage',label=label,table=table,
+                            multipage=multipage,tags=tags,_returnStruct=False,**kwargs)
 
     def lookups(self,label,lookup_manager=None,tags=None,**kwargs):
         return self.child('lookups',label=label,lookup_manager=lookup_manager,tags=tags,_returnStruct=False,**kwargs)

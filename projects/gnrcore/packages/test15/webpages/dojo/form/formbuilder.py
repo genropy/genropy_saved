@@ -8,6 +8,17 @@ class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerBase"
     dojo_theme = 'tundra'
     
+    def test_0_htmltable(self, pane):
+        t = pane.table(style='border-collapse:collapse',border='1px solid silver').tbody()
+        r = t.tr()
+        r.td(width='100%')
+        r.td(width='50%').div('Pippo')
+        r.td(width='50%').div('Pluto')
+
+        fb = pane.formbuilder(cols=2,border_spacing='3px',border='1px solid silver',colswidth='auto')
+        fb.div('Pippo',lbl='AAlfa')
+        fb.div('Pluto',lbl='Beta')
+
     def test_1_basic(self, pane):
         """Basic formbuilder"""
         fb = pane.formbuilder(cols=2, border_spacing='3px', width='100%', fld_width='30px')

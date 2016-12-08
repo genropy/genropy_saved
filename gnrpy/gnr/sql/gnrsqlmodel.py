@@ -921,7 +921,12 @@ class DbTableObj(DbModelObj):
         return self['table_aliases']
         
     table_aliases = property(_get_table_aliases)
-        
+
+    def getColPermissions(self,name,**checkPermissions):
+        user_conf = self.dbtable.getUserConfiguration(**checkPermissions)
+        colconf = user_conf.getAttr('cols_permission.%s' %name) or dict()        
+        return dict([('user_%s' %k,v) for k,v in colconf.items() if v is not None])
+
     def column(self, name):
         """Return a column object or None if it doesn't exists.
         
@@ -935,7 +940,6 @@ class DbTableObj(DbModelObj):
             col = self['columns.%s' % name]
             if col is not None:
                 return col
-            
             colalias = self['virtual_columns.%s' % name]
             if colalias is not None:
                 if colalias.relation_path:
@@ -951,7 +955,6 @@ class DbTableObj(DbModelObj):
             assert relcol is not None, 'relation %s does not exist in table %s' %(relcol,name)
             if colalias is None:
                 return relcol
-                
             if not 'virtual_column' in colalias.attributes:
                 raise             
             return AliasColumnWrapper(relcol,colalias.attributes)
@@ -1252,6 +1255,10 @@ class DbBaseColumnObj(DbModelObj):
         return self.attributes['print_width']
         
     print_width = property(_get_print_width, _set_print_width)
+
+    def getPermissions(self,**kwargs):
+        return self.table.getColPermissions(self.name,**kwargs)
+        
         
 class DbColumnObj(DbBaseColumnObj):
     """TODO"""
@@ -1261,6 +1268,7 @@ class DbColumnObj(DbBaseColumnObj):
         self.column_relation = children['relation']
         return False
         
+
     def doInit(self):
         """TODO"""
         if not self.attributes.get('dtype'):

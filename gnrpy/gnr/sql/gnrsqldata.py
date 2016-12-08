@@ -633,7 +633,6 @@ class SqlQueryCompiler(object):
                         # That gives the count of rows on the main table: the result is different from the actual number
                         # of rows returned by the query, but it is correct in terms of main table records.
                         # It is the right behaviour ???? Yes in some cases: see SqlSelection._aggregateRows
-                        
         self.cpl.distinct = distinct
         self.cpl.columns = columns
         self.cpl.where = where
@@ -677,7 +676,6 @@ class SqlQueryCompiler(object):
         if virtual_columns:
             self._handle_virtual_columns(virtual_columns)
         self.cpl.where = self._recordWhere(where=where)
-        
         self.cpl.columns = ',\n       '.join(self.fieldlist)
         #self.cpl.limit = 2
         self.cpl.for_update = for_update
@@ -896,6 +894,7 @@ class SqlQuery(object):
                  ignorePartition=False,
                  addPkeyColumn=True, ignoreTableOrderBy=False,
                  locale=None,_storename=None,
+                 checkPermissions=None,
                  aliasPrefix=None,
                  **kwargs):
         self.dbtable = dbtable
@@ -916,6 +915,7 @@ class SqlQuery(object):
         self.ignoreTableOrderBy = ignoreTableOrderBy
         self.locale = locale
         self.storename = _storename
+        self.checkPermissions = checkPermissions
         self.aliasPrefix = aliasPrefix
         
         test = " ".join([v for v in (columns, where, order_by, group_by, having) if v])
@@ -1103,6 +1103,7 @@ class SqlQuery(object):
                             key=key,
                             sortedBy=sortedBy,
                             explodingColumns=self.compiled.explodingColumns,
+                            checkPermissions = self.checkPermissions,
                             _aggregateRows=_aggregateRows,
                             _aggregateDict = self.compiled.aggregateDict
                             )
@@ -1120,6 +1121,8 @@ class SqlQuery(object):
             col = self.dbtable.column(fld)
             if col is not None:
                 attrs = dict(col.attributes)
+                if self.checkPermissions:
+                    attrs.update(col.getPermissions(**self.checkPermissions))
                 attrs.pop('comment', None)
                 attrs['dataType'] = attrs.pop('dtype', 'T')
                 attrs['label'] = attrs.pop('name_long', k)
@@ -1183,7 +1186,7 @@ class SqlSelection(object):
     can :meth:`freeze()` it into a file. You can also use the :meth:`sort()` and the :meth:`filter()` methods
     on a SqlSelection."""
     def __init__(self, dbtable, data, index=None, colAttrs=None, key=None, sortedBy=None,
-                 joinConditions=None, sqlContextName=None, explodingColumns=None, _aggregateRows=False,_aggregateDict=None):
+                 joinConditions=None, sqlContextName=None, explodingColumns=None, checkPermissions=None,_aggregateRows=False,_aggregateDict=None):
         self._frz_data = None
         self._frz_filtered_data = None
         self.dbtable = dbtable
@@ -1214,6 +1217,7 @@ class SqlSelection(object):
         self.isChangedFiltered = True
         self.joinConditions = joinConditions
         self.sqlContextName = sqlContextName
+        self.checkPermissions = checkPermissions
         
     def _aggregateRows(self, data, index, explodingColumns,aggregateDict=None):
         if self.explodingColumns:
@@ -1648,7 +1652,7 @@ class SqlSelection(object):
             result.append(sum(filter(lambda r: r is not None, data[k])))
         return result
 
-        
+
     def _out(self, columns=None, offset=0, limit=None, filterCb=None):
         if filterCb:
             source = itertools.ifilter(filterCb, self.data)
@@ -1658,6 +1662,7 @@ class SqlSelection(object):
             stop = offset + limit
         else:
             stop = None
+        columns = filter(lambda cname: not self.colAttrs.get(cname,{}).get('user_forbidden'),columns)
         if columns != ['**rawdata**']:
             for r in itertools.islice(source, offset, stop):
                 yield r.extractItems(columns)
@@ -2071,6 +2076,7 @@ class SqlRecord(object):
                  bagFields=True, for_update=False,
                  joinConditions=None, sqlContextName=None,
                  virtual_columns=None,_storename=None,
+                 checkPermissions=None,
                  aliasPrefix=None,
                  **kwargs):
         self.dbtable = dbtable
@@ -2091,6 +2097,7 @@ class SqlRecord(object):
         self.for_update = for_update
         self.virtual_columns = virtual_columns
         self.storename = _storename
+        self.checkPermissions = checkPermissions
         self.aliasPrefix = aliasPrefix or 't'
 
         
@@ -2162,7 +2169,6 @@ class SqlRecord(object):
                                                                                  params))
             else:
                 if self.ignoreDuplicate:
-                    print
                     self._result = data[0]
                 else:
                     raise RecordDuplicateError(

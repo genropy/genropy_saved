@@ -3587,8 +3587,10 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             var mb = this.multibuttonSource;
             if (value && mb){
                 value = value.split(',');
+                var identifier = this.identifier;
                 mb.forEach(function(n){
-                    genro.dom.setClass(n,'multibutton_selected',value.indexOf(n.label)>=0);
+                    var code = n.attr[identifier] || n.attr['code'] || n.label;
+                    genro.dom.setClass(n,'multibutton_selected',value.indexOf(code)>=0);
                 });
             } 
         }
@@ -3648,8 +3650,10 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             },'static');
             if(!currentSelected && this.mandatory && this.multibuttonSource.len()){
                 var currentSelectedNode = this.multibuttonSource.getNode('#0');
-                currentSelectedNode.attr['_class'] +=' multibutton_selected';
-                currentSelected = currentSelectedNode.attr[this.identifier] || currentSelectedNode.attr['code'] || currentSelectedNode.label;
+                if(currentSelectedNode && !currentSelectedNode.attr.action){
+                    currentSelectedNode.attr['_class'] +=' multibutton_selected';
+                    currentSelected = currentSelectedNode.attr[this.identifier] || currentSelectedNode.attr['code'] || currentSelectedNode.label;
+                }
             }
             sourceNode.setRelativeData(sourceNode.attr.value,currentSelected);
 
@@ -3680,7 +3684,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         kw._class = (kw._class || '') +' '+btn_class;
         content_kw.innerHTML = _F(caption,this.caption_format,this.caption_dtype);
         content_kw._class = (content_kw._class || '') + ' '+'multibutton_caption';
-        var btn = mb._('lightbutton',code,kw)
+        var btn = mb._('lightbutton',kw);
         btn._('div',content_kw);
         if(deleteAction){
             btn._('div',{_class:'multibutton_closer framecloserIcon'+(this.deleteSelectedOnly?' deleteSelectedOnly':''),
@@ -3946,6 +3950,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         gnrwdg.identifier = objectPop(kw,'identifier')
         gnrwdg.labelAttribute = objectPop(kw,'labelAttribute')
         gnrwdg._valuelabel = kw._valuelabel;
+        gnrwdg.remoteValuesRpc = objectPop(kw,'remoteValues');
         if(codeSeparator!==false){
             codeSeparator =  codeSeparator || ':'
         }
@@ -3956,14 +3961,12 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         }
         if(!values){
             var table = objectPop(originalKwargs,'table');
-            if(table){
+            if(table || gnrwdg.remoteValuesRpc){
                 var hierarchical = objectPop(kw,'hierarchical');
                 var condition_kw = objectExtract(originalKwargs,'condition_*',null,hierarchical);
                 var condition = objectPop(originalKwargs,'condition');
                 var dbstore = objectPop(originalKwargs,'dbstore');
-                
                 var query_kw = {};
-
                 objectUpdate(query_kw,condition_kw)
                 query_kw.table = table;
                 if(hierarchical){
@@ -4171,8 +4174,11 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
     gnrwdg_getRemoteValuesFromQuery:function(){
         if(this.hierarchical){
             return genro.serverCall('_table.'+this.query_kw.table+'.getHierarchicalData',objectUpdate({_sourceNode:this.sourceNode},this.query_kw))
+        }else{
+            var rpc = this.remoteValuesRpc || 'app.getValuesString';
+            return genro.serverCall(rpc,objectUpdate({_sourceNode:this.sourceNode},this.query_kw));
         }
-        return genro.serverCall('app.getValuesString',objectUpdate({_sourceNode:this.sourceNode},this.query_kw));
+        
     },
 
     gnrwdg_alignCheckedValues:function(){
@@ -4351,6 +4357,7 @@ dojo.declare("gnr.widgets.FieldsTree", gnr.widgets.gnrwdg, {
             };
             sourceNode._('div',trashKw);
         }
+        console.log('FieldsTree kw',kw)
         genro.dev.fieldsTree(box,table,kw);
         return box;
     }
@@ -4665,6 +4672,8 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     slot_fieldsTree:function(pane,slotValue,slotKw,frameCode){
         var table = objectPop(slotKw,'table');
         table = pane.getParentNode().currentFromDatasource(table);
+        var checkPermissions = objectPop(slotKw,'checkPermissions');
+
         var dragCode = objectPop(slotKw,'dragCode');
         var treeKw = objectExtract(slotKw,'tree_*') || {};
         treeKw.dragCode = dragCode;
@@ -4674,7 +4683,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         var explorerPath = objectPop(slotKw,'explorerPath');
 
         var slot = pane._('div',slotKw);
-        slot._('FieldsTree',objectUpdate({table:table,trash:true,currRecordPath:currRecordPath,explorerPath:explorerPath},treeKw));
+        slot._('FieldsTree',objectUpdate({table:table,trash:true,currRecordPath:currRecordPath,explorerPath:explorerPath,checkPermissions:checkPermissions},treeKw));
     },
     
     slot_count:function(pane,slotValue,slotKw,frameCode){
@@ -4724,6 +4733,9 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
         attributes.columns = attributes.columns || '==gnr.getGridColumns(this);';
         attributes.sum_columns = attributes.sum_columns || '==this.store.getSumColumns();';
         attributes.method = attributes.method || 'app.getSelection';
+        if (!('checkPermissions' in attributes)){
+            attributes.checkPermissions = true;
+        }
         if('chunkSize' in attributes && !('selectionName' in attributes)){
             attributes['selectionName'] = '*';
         }

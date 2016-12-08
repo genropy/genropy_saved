@@ -3657,6 +3657,10 @@ table.draggedItem {
     user-select: auto;
 }
 
+.selectedTreeRow .treeCellContent{
+    font-weight: bold;
+}
+
 .dojoxGrid td.cell_R .cellContent, .treecell.cell_R .treeCellContent,
 .dojoxGrid td.cell_I .cellContent, .treecell.cell_I .treeCellContent,
 .dojoxGrid td.cell_N .cellContent, .treecell.cell_N .treeCellContent,
