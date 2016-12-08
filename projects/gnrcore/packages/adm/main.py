@@ -64,7 +64,7 @@ class Package(GnrDboPackage):
     def loginUrl(self):
         return 'adm/login'
 
-    def onApplicationInited(self):
+    def onSiteInited(self):
         touchRecords = self.db.table('adm.htag').touchRecords(where='$hierarchical_code IS NULL')
         if touchRecords:
             self.db.commit()
