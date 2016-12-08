@@ -16,7 +16,8 @@ class OrganizerComponent(BaseComponent):
     @extract_kwargs(user=True)
     @struct_method
     def td_annotationTableHandler(self,pane,linked_entity=None,user_kwargs=None,configurable=True,
-                                parentForm=False,nodeId=None,viewResource=None,formResource=None,**kwargs):
+                                parentForm=False,nodeId=None,viewResource=None,formResource=None,
+                                thwidget=None,**kwargs):
         pid = id(pane)
         if not linked_entity:
             parentTable = pane.getInheritedAttributes()['table']
@@ -40,7 +41,8 @@ class OrganizerComponent(BaseComponent):
         if formResource is False:
             th = pane.plainTableHandler(**pars)
         else:
-            th = pane.dialogTableHandler(formResource=formResource or 'FormMixedComponent',addrow=[('Annotation',dict(rec_type='AN')),('Action',dict(rec_type='AC'))],**pars)
+            thwidget = thwidget or 'stack'
+            th = getattr(pane,'%sTableHandler' %thwidget)(formResource=formResource or 'FormMixedComponent',addrow=[('Annotation',dict(rec_type='AN')),('Action',dict(rec_type='AC'))],**pars)
         return th
 
     def actionOutcomeDialog(self,pane,formId=None):
@@ -69,9 +71,34 @@ class OrganizerComponent(BaseComponent):
         pane.dataController("""
             iframe.domNode.gnr.postMessage(iframe,{topic:'changedMainRecord',pkey:pkey});
             """,iframe=iframe,pkey='^#FORM.controller.loaded')
-  
         pane.slotButton('!!See annotations',action="""genro.nodeById("%s_floating").widget.show();""" %paletteCode,
                         hidden='^#FORM.pkey?=#v=="*newrecord*"',iconClass='iconbox comment')
+
+    @struct_method
+    def td_gridAnnotationTool(self,pane,linked_entity=None,table=None,height=None,width=None,**kwargs):
+        pid = id(pane)
+        paletteCode='annotation_%s' %pid
+        parentTable = table or pane.getInheritedAttributes()['table']
+        tblobj = self.db.table(parentTable)
+        joiner = tblobj.relations.getNode('@annotations').attr['joiner']
+        pkg,tbl,fkey = joiner['many_relation'].split('.')
+        if not linked_entity:
+            linked_entity = self.db.table('orgn.annotation').linkedEntityName(tblobj)
+        palette = pane.palettePane(paletteCode=paletteCode,title='!!Row annotations',
+                                    dockTo='dummyDock',width=width or '730px',height=height or '500px')
+
+        kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
+        iframe = palette.iframe(main=self.orgn_remoteAnnotationTool,
+                            main_linked_entity=linked_entity,
+                            main_table=parentTable,
+                            main_pkey='=.grid.selectedId',
+                            **kwargs)
+        pane.dataController("""
+            iframe.domNode.gnr.postMessage(iframe,{topic:'changedMainRecord',pkey:pkey});
+            """,iframe=iframe,pkey='^.grid.selectedId')
+        
+        pane.slotButton('!!See annotations',action="""genro.nodeById("%s_floating").widget.show();""" %paletteCode,
+                        hidden='^.grid.selectedId?=!#v',iconClass='iconbox comment')
 
     @public_method
     def orgn_remoteAnnotationTool(self,root,table=None,pkey=None,linked_entity=None,**kwargs):

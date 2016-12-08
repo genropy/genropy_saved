@@ -324,18 +324,22 @@ class Form(BaseComponent):
                                             condition_system_annotations=self.db.table('orgn.annotation_type').systemAnnotations())
             action_type_condition = "(CASE WHEN $restrictions IS NOT NULL THEN :restriction = ANY(string_to_array($restrictions,',')) ELSE TRUE END)"
             action_type_kwargs = dict(condition_restriction=linked_entity)
-        topbc = bc.borderContainer(region='top',datapath='.record',height='55%')
-        fb = topbc.contentPane(region='top').div(margin_right='20px',margin='10px').formbuilder(cols=2, border_spacing='4px',
+        top = bc.contentPane(region='top',datapath='.record')
+        fb = top.div(margin_right='20px',margin='10px').formbuilder(cols=3, border_spacing='4px',
                                                                                             fld_width='100%',
                                                                                             colswidth='auto',width='100%')
         fb.field('annotation_type_id',condition=annotation_type_condition,
                     hasDownArrow=True,width='15em',validate_notnull='^.rec_type?=#v=="AN"',
-                    colspan=2,**annotation_type_kwargs)
+                    **annotation_type_kwargs)
 
-        fb.field('description',tag='simpleTextArea',colspan=2)
-        fb.field('annotation_date',width='7em')
-        fb.field('annotation_time',width='7em')
-        topbc.contentPane(region='center').dynamicFieldsPane('annotation_fields',margin='2px')
+        fb.field('annotation_date',width='7em',placeholder='^.$current_ts?=_F(#v,null,"D")')
+        fb.field('annotation_time',width='7em',placeholder='^.$$current_ts?=_F(#v,null,"H")')
+        fb.dataFormula('.$current_ts',"new Date()",_fired='^#FORM.controller.loaded')
+        fb.field('description',tag='simpleTextArea',colspan=3)
+        
+        tc = bc.tabContainer(region='center',margin='2px')
+        self.orgn_annotationForm_extra(tc.borderContainer(title='!!Extra info'))
+        
         def following_actions_struct(struct):
             r = struct.view().rows()
             r.cell('_date_due_from_pivot',calculated=True,hidden=True)
@@ -358,8 +362,8 @@ class Form(BaseComponent):
                                          }""")
             r.fieldcell('time_due',edit=True,width='7em')
             r.fieldcell('notice_days',edit=True,width='4em')
-        th = bc.contentPane(region='center').inlineTableHandler(title='!!Actions',relation='@orgn_related_actions',
-                        viewResource='orgn_components:ViewActionComponent',
+        th = tc.contentPane(title='Following actions').inlineTableHandler(title='!!Actions',relation='@orgn_related_actions',
+                        viewResource='orgn_components:ViewActionComponent',pbl_classes=True,margin='2px',
                         view_structCb=following_actions_struct,searchOn=False,
                         nodeId='orgn_action_#',default_rec_type='AC',default_priority='L',
                         **dict([('default_%s' %k,v) for k,v in sub_action_default_kwargs.items()]))
@@ -367,7 +371,14 @@ class Form(BaseComponent):
                         _if='annotation_type_id&&_is_newrecord',_is_newrecord='=#FORM.controller.is_newrecord',**sub_action_default_kwargs)
         rpc.addCallback("""if(result){
                                 grid.gridEditor.addNewRows(result)
-                            }""",grid = th.view.grid.js_widget)          
+                            }""",grid = th.view.grid.js_widget)    
+
+    def orgn_annotationForm_extra(self,bc):
+        bc.roundedGroupFrame(title='!!Custom Fields',region='right',width='50%').dynamicFieldsPane('annotation_fields',margin='2px')
+        bc.contentPane(region='center').inlineTableHandler(relation='@attention_users',title='!!User Attention',
+                                                        pbl_classes=True,margin='2px',
+                                                        viewResource='ViewFromAnnotation',
+                                                        addrow=False,picker='user_id')
 
     def orgn_actionForm(self,bc,linked_entity=None,default_kwargs=None):
         action_type_condition = None

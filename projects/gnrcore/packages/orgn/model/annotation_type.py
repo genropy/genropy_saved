@@ -8,7 +8,7 @@ class Table(object):
         self.sysFields(tbl,df=True,counter=True)
         tbl.column('code',size=':30',name_long='!!Code')
         tbl.column('description',name_long='!!Description')
-        tbl.column('restrictions',name_long='!!Restrictions')
+        tbl.column('restrictions',name_long='!!Entities')
         tbl.column('background_color',name_long='!!Background')
         tbl.column('color',name_long='!!Text color')
         tbl.column('reserved',dtype='B',name_long='!!Reserved')

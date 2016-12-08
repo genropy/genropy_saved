@@ -9,9 +9,9 @@ class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('user_id')
-        r.fieldcell('annotation_id')
-        r.fieldcell('confirm_ts')
-        r.fieldcell('note')
+        r.fieldcell('group_code')
+        r.fieldcell('tag_id')
+        r.fieldcell('annotation_type_id')
 
     def th_order(self):
         return 'user_id'
@@ -19,19 +19,17 @@ class View(BaseComponent):
     def th_query(self):
         return dict(column='user_id', op='contains', val='')
 
-
-class ViewFromAnnotation(BaseComponent):
+class ViewFromType(BaseComponent):
+    def th_hiddencolumns(self):
+        return '$__ins_ts'
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('user_id')
-        r.fieldcell('note',width='20em',edit=True)
-        r.fieldcell('confirm_ts')
+        r.fieldcell('caption',width='100%')
 
 
     def th_order(self):
-        return 'user_id'
-
+        return '__ins_ts'
 
 class Form(BaseComponent):
 
@@ -39,9 +37,9 @@ class Form(BaseComponent):
         pane = form.record
         fb = pane.formbuilder(cols=2, border_spacing='4px')
         fb.field('user_id')
-        fb.field('annotation_id')
-        fb.field('confirm_ts')
-        fb.field('note')
+        fb.field('group_code')
+        fb.field('tag_id')
+        fb.field('annotation_type_id')
 
 
     def th_options(self):

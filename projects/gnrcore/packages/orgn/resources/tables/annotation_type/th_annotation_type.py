@@ -51,8 +51,11 @@ class Form(BaseComponent):
     def th_form(self, form):
         bc = form.center.borderContainer()
         topbc = bc.borderContainer(region='top',height='200px')
-        topleft = topbc.roundedGroup(title='!!Type info',region='left',datapath='.record',width='500px')
-        self.defaultActions(topbc.contentPane(region='center'))
+        topleft = topbc.roundedGroup(title='!!Type info',region='left',datapath='.record',width='520px')
+        topbc.contentPane(region='center').plainTableHandler(relation='@default_attentions',pbl_classes='*',
+                                                             viewResource='ViewFromType',
+                                                                        picker='user_id,group_code,tag_id',
+                                                                        margin='2px')
 
         fb = topleft.formbuilder(cols=2, border_spacing='4px')
         fb.field('code',width='5em')
@@ -67,7 +70,9 @@ class Form(BaseComponent):
                border='1px solid gray',
                cursor='pointer',background='^.color').menu(modifiers='*',_class='colorPaletteMenu').menuItem().colorPalette(value='^.color')
 
-        bc.contentPane(region='center',margin='2px').fieldsGrid(title='Fields',pbl_classes=True,margin='2px')
+        tc = bc.tabContainer(region='center',margin='2px')
+        self.defaultActions(tc.contentPane(title='!!Default actions'))
+        tc.contentPane(title='!!Custom Fields').fieldsGrid(pbl_classes=True,margin='2px')
 
     def defaultActions(self,pane):
         pane.plainTableHandler(relation='@default_actions',viewResource='ViewFromAnnotationType',

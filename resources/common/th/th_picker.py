@@ -172,9 +172,17 @@ class THPicker(BaseComponent):
         return palette
 
     @struct_method
-    def th_slotbar_thpicker(self,pane,relation_field=None,picker_kwargs=None,**kwargs):
+    def th_slotbar_thpicker(self,pane,relation_field=None,picker_kwargs=None,title=None,**kwargs):
         view = pane.parent.parent.parent    
-        return pane.palettePicker(view.grid,relation_field=relation_field,picker_kwargs=picker_kwargs,**kwargs)
+        relation_field = relation_field or picker_kwargs.pop('relation_field',None)
+        if ',' in relation_field:
+            pg = pane.paletteGroup(groupCode='pickers_%s' %view.getInheritedAttributes().get('nodeId'),title=title or '!!Picker',
+                            dockButton=dict(parentForm=True,iconClass='iconbox app'))
+            for rf in relation_field.split(','):
+                pg.palettePicker(view.grid,relation_field=rf,picker_kwargs=picker_kwargs,**kwargs)
+            return pg
+        else:
+            return pane.palettePicker(view.grid,relation_field=relation_field,picker_kwargs=picker_kwargs,title=title,**kwargs)
 
     @public_method
     def _th_insertPicker(self,dragPkeys=None,dropPkey=None,tbl=None,one=None,many=None,dragDefaults=None,**kwargs):

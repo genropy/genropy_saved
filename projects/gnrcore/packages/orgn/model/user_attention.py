@@ -8,7 +8,7 @@ class Table(object):
         tbl.column('user_id',size='22' ,group='_',
             name_long='!!User').relation('adm.user.id',
             relation_name='attentions',mode='foreignkey',onDelete='cascade')
-        tbl.column('annotation_id',size='22' ,group='_',name_long='!!Annotation').relation('adm.user.id',relation_name='attention_users',
+        tbl.column('annotation_id',size='22' ,group='_',name_long='!!Annotation').relation('annotation.id',relation_name='attention_users',
                         mode='foreignkey',onDelete='cascade')
         tbl.column('confirm_ts',dtype='DH',name_long='!!Confirm ts')
         tbl.column('note',name_long='!!Note')

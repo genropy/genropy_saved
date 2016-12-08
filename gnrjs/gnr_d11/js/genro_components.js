@@ -4357,7 +4357,6 @@ dojo.declare("gnr.widgets.FieldsTree", gnr.widgets.gnrwdg, {
             };
             sourceNode._('div',trashKw);
         }
-        console.log('FieldsTree kw',kw)
         genro.dev.fieldsTree(box,table,kw);
         return box;
     }
