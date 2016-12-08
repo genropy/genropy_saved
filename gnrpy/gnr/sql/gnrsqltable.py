@@ -1147,6 +1147,7 @@ class SqlTable(GnrObject):
             if onUpdating:
                 onUpdating(row, old_record=old_record)
             handler(row, old_record=old_record)
+        return sel
 
     def expandBagFields(self,record,columns=None):
         if not columns:

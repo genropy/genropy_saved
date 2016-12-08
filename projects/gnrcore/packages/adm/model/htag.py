@@ -49,14 +49,4 @@ class Table(object):
                             isreserved=True,hierarchical_code='_DOC_')
 
 
-    def adaptToNewHtable(self):
-        if self.query(where='$hierarchical_pkey IS NULL').count():
-            f = self.query(order_by='$code',columns='*,@parent_code.id AS calc_parent_id',addPkeyColumn=False).fetch()
-            for r in f:
-                r = dict(r)
-                parent_id = r.pop('calc_parent_id')
 
-                old_rec = dict(r)
-                r['parent_id'] = parent_id
-                self.update(r,old_rec)
-            self.db.commit()
