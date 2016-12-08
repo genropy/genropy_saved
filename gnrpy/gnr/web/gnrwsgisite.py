@@ -192,6 +192,7 @@ class GnrWsgiSite(object):
         self._currentMaintenances = {}
         abs_script_path = os.path.abspath(script_path)
         self.remote_db = ''
+        self._register = None
         if site_name and ':' in site_name:
             site_name,self.remote_db = site_name.split(':',1)
         if os.path.isfile(abs_script_path):
@@ -262,7 +263,7 @@ class GnrWsgiSite(object):
         self.task_handler = self.addService(TaskHandler, service_name='task')
         self.process_cmd = CommandHandler(self)
         self.services.addSiteServices()
-        self._register = None
+        
         self._remote_edit = options.remote_edit if options else None
         if counter == 0 and self.debug:
             self.onInited(clean=not noclean)
