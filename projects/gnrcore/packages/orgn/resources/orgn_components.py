@@ -7,11 +7,23 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs,public_method
+from gnr.core.gnrbag import Bag
 
 
 class OrganizerComponent(BaseComponent):
     py_requires='th/th:TableHandler'
     css_requires='orgn_components'
+    js_requires='orgn_components'
+
+    def onMain_orgn_quickAnnotationDialog(self):
+        if not hasattr(self,'_orgn_quick_annotation_dlg'):
+            page = self.pageSource()
+            self._orgn_quick_annotation_dlg =  page.thFormHandler(table='orgn.annotation',
+                        formResource='QuickAnnotationForm',
+                        dialog_height='350px',dialog_width='600px',
+                        formId='orgn_quick_annotation',
+                        datapath='gnr.orgn.quick_annotation')
+
 
     @extract_kwargs(user=True)
     @struct_method
@@ -111,7 +123,36 @@ class OrganizerComponent(BaseComponent):
         if pkey:
             bc.dataController('SET .pkey = pkey; FIRE .controller.loaded=pkey;',pkey=pkey,_onStart=True)
             bc.dataRecord('.record',table,pkey='^#FORM.pkey',_if='pkey')
-        th = bc.annotationTableHandler(nodeId='annotationTH',linked_entity=linked_entity,
+        bc.annotationTableHandler(nodeId='annotationTH',linked_entity=linked_entity,
                                         region='center',lockable=True,**kwargs)
-        bc.dataController("form.newrecord(default_kw)",form=th.form.js_form,subscribe_newAnnotation=True)
 
+    @struct_method
+    def td_quickAnnotationTool(self,pane,linked_entity=None,table=None,height=None,width=None,**kwargs):
+        parentTable = table or pane.getInheritedAttributes()['table']
+        tblobj = self.db.table(parentTable)
+        joiner = tblobj.relations.getNode('@annotations').attr['joiner']
+        pkg,tbl,fkey = joiner['many_relation'].split('.')
+        if not linked_entity:
+            linked_entity = self.db.table('orgn.annotation').linkedEntityName(tblobj)
+        pane.dataRemote('.annotation_type_menu',self.orgn_getAnnotationTypes,
+                        cacheTime=120,entity=linked_entity)
+        pane.menudiv(storepath='.annotation_type_menu',iconClass='comment',tip='!!Add annotation',
+                        action='FIRE .new_annotation = $1.pkey;', disabled='^.grid.selectedId?=!#v')
+        pane.dataController(""" var kw = {annotation_type_id:annotation_type_id,entity:entity};
+                                kw[fkey] = entity_id;
+                                genro.orgn.newQuickAnnotation(kw);""",
+                                annotation_type_id='^.new_annotation',
+                                entity_id='=.grid.selectedId',entity=linked_entity,fkey=fkey)
+
+    @public_method
+    def orgn_getAnnotationTypes(self,entity=None):
+        result = Bag()
+        tblobj = self.db.table('orgn.annotation_type')
+        caption_field = tblobj.attributes['caption_field']
+        fetch = tblobj.query(columns='*,$%s' %(caption_field),where="""
+            ($__syscode IS NULL OR $__syscode NOT IN :system_annotations) AND
+            (CASE WHEN $restrictions IS NOT NULL THEN :entity = ANY(string_to_array($restrictions,','))  ELSE TRUE END)
+            """,entity=entity,system_annotations=tblobj.systemAnnotations()).fetch()
+        for i,r in enumerate(fetch):
+            result.setItem('r_%i' %i,None,caption=r[caption_field],pkey=r['pkey'])
+        return result

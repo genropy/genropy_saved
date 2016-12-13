@@ -380,6 +380,7 @@ class Form(BaseComponent):
                                                         viewResource='ViewFromAnnotation',
                                                         addrow=False,picker='user_id')
 
+
     def orgn_actionForm(self,bc,linked_entity=None,default_kwargs=None):
         action_type_condition = None
         action_type_kwargs = dict()
@@ -456,6 +457,12 @@ class FormMixedComponent(Form):
         sc = form.center.stackContainer(selectedPage='^.record.rec_type')
         self.orgn_annotationForm(sc.borderContainer(pageName='AN'),linked_entity=linked_entity,sub_action_default_kwargs=default_kwargs)
         self.orgn_actionForm(sc.borderContainer(pageName='AC'),linked_entity=linked_entity,default_kwargs=default_kwargs)
+
+
+class QuickAnnotationForm(BaseComponent):
+    def th_form(self, form):
+        form.record.div('^.annotation_type_id',lbl='Annotation type')
+        form.record.div('^.linked_entity',lbl='Entity')
 
 
 class ViewActionComponent(BaseComponent):
