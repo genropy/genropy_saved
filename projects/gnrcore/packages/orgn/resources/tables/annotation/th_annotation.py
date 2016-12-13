@@ -332,9 +332,8 @@ class Form(BaseComponent):
                     hasDownArrow=True,width='15em',validate_notnull='^.rec_type?=#v=="AN"',
                     **annotation_type_kwargs)
 
-        fb.field('annotation_date',width='7em',placeholder='^.$current_ts?=_F(#v,null,"D")')
-        fb.field('annotation_time',width='7em',placeholder='^.$$current_ts?=_F(#v,null,"H")')
-        fb.dataFormula('.$current_ts',"new Date()",_fired='^#FORM.controller.loaded')
+        fb.field('annotation_date',width='7em')
+        fb.field('annotation_time',width='7em')
         fb.field('description',tag='simpleTextArea',colspan=3)
         
         tc = bc.tabContainer(region='center',margin='2px')
@@ -461,9 +460,33 @@ class FormMixedComponent(Form):
 
 class QuickAnnotationForm(BaseComponent):
     def th_form(self, form):
-        form.record.div('^.annotation_type_id',lbl='Annotation type')
-        form.record.div('^.linked_entity',lbl='Entity')
+        bc = form.center.borderContainer(design='sidebar')
+        top = bc.contentPane(region='top',datapath='.record')
+        fb = top.div(margin_right='20px').formbuilder(cols=2, border_spacing='4px',
+                                                        fld_width='100%',
+                                                        colswidth='auto',width='100%')
+        fb.field('annotation_date',width='7em')
+        fb.field('annotation_time',width='7em')
+        fb.field('description',colspan=2)
+        fb.simpleTextArea(value='^.annotation_content',editor=True,lbl='!!Annotation',colspan=2)
+        bc.contentPane(region='right',width='200px')
+        #center = bc.borderContainer(region='center')
+        #center.roundedGroupFrame(title='!!Annotation',region='top',height='50%').simpleTextArea(value='^.annotation_content',editor=True)
+        bc.contentPane(region='center').dynamicFieldsPane('annotation_fields')
 
+
+    @public_method
+    def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
+        now = datetime.now()
+        record['annotation_date'] = now.date()
+        record['annotation_time'] = now.time()
+
+        #recInfo.pop('_protect_write',None)
+        #record['$allowed_user_pkeys'] = self.db.table('orgn.annotation').getAllowedActionUsers(record)
+        #record.setItem('.exit_status','more_info',_sendback=True)
+
+    def th_options(self):
+        return dict(modal=True)
 
 class ViewActionComponent(BaseComponent):
     def th_hiddencolumns(self):

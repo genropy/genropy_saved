@@ -15,6 +15,7 @@ class Table(object):
         tbl.column('author_user_id',size='22',group='_',name_long='User').relation('adm.user.id',relation_name='annotations',onDelete='raise')
 
         tbl.column('description',name_long='!!Description')
+        tbl.column('annotation_content',name_long='Content')
         tbl.column('annotation_type_id',size='22',name_long='!!Annotation type',group='_').relation('annotation_type.id',mode='foreignkey', onDelete='raise')
         tbl.column('annotation_fields',dtype='X',name_long='!!Annotation Fields',subfields='annotation_type_id')
         tbl.column('annotation_date',dtype='D',name_long='!!Date',indexed=True)
