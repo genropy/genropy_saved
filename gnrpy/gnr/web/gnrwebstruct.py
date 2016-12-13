@@ -765,6 +765,7 @@ class GnrDomSrc(GnrStructData):
                                       head_rows=head_rows, 
                                       excludeCols=excludeCols,
                                       byColumn=byColumn,
+                                      colswidth=colswidth,
                                       commonKwargs=commonKwargs)
         
         inattr = self.getInheritedAttributes()
@@ -1856,6 +1857,7 @@ class GnrFormBuilder(object):
     """The class that handles the creation of the :ref:`formbuilder` widget"""
     def __init__(self, tbl, cols=None, dbtable=None, fieldclass=None,
                  lblclass='gnrfieldlabel', lblpos='L',byColumn=None, lblalign=None, fldalign=None,
+                 colswidth=None,
                  lblvalign='top', fldvalign='top', rowdatapath=None, head_rows=None,
                  excludeCols=None, commonKwargs=None):
         self.commonKwargs = commonKwargs or {}
@@ -1867,8 +1869,10 @@ class GnrFormBuilder(object):
         self.fieldclass = fieldclass
         self.colmax = cols
         self.lblpos = lblpos
-        self.rowlast = -1
         self.byColumn = byColumn
+        self.colswidth = colswidth
+
+        self.rowlast = -1
         #self._tbl=weakref.ref(tbl)
         self._tbl = tbl
         self.maintable = dbtable
