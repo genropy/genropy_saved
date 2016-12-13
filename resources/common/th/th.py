@@ -513,6 +513,10 @@ class MultiButtonForm(BaseComponent):
         pane.attributes.update(overflow='hidden')
         frameCode = frameCode or 'fhmb_%s' %table.replace('.','_')
         frame = pane.framePane(frameCode=frameCode,datapath=datapath,**kwargs)
+<<<<<<< HEAD
+=======
+        frameCode = frame.attributes['frameCode'] # frameCode dynamic value
+>>>>>>> hotfix/fixmultibutton
         storepath  = storepath or '.store' 
         store_kwargs['storepath'] = storepath
         store_kwargs.update(condition_kwargs)
