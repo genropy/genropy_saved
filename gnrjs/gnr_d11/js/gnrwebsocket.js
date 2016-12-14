@@ -29,7 +29,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     constructor: function(application, wsroot, options) {
         this.application = application;
         this.wsroot=wsroot;
-        this.url=window.location.protocol=='https:'?'wss://':'ws://'+window.location.host+wsroot;
+        this.url=(window.location.protocol=='https:'?'wss://':'ws://')+window.location.host+wsroot;
         this.options=objectUpdate({ debug: false, reconnectInterval: 4000, ping_time:1000 },
                                   options);
         this.waitingCalls={};
