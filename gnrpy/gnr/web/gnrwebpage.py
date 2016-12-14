@@ -650,7 +650,7 @@ class GnrWebPage(GnrBaseWebPage):
         return data['compiled'] if data else missingMessage
         
     @public_method
-    def saveTemplate(self,template_address,data):
+    def saveTemplate(self,template_address,data,inMainResource=False):
         #pkg.table.field:pkey
         #pkg.table:resource_module
         #pkg.table:resource_module,custom
@@ -675,7 +675,7 @@ class GnrWebPage(GnrBaseWebPage):
             if ',' in resource_name:
                 resource_name = resource_name.split(',')[0]
                 custom = True
-            respath = self._packageResourcePath(table=resource_table,filepath=filepath,custom=custom)
+            respath = self._packageResourcePath(table=resource_table,filepath=filepath,custom=custom,inMainResource=inMainResource)
             data.toXml(respath,autocreate=True)
             return respath
         else:
@@ -1434,7 +1434,7 @@ class GnrWebPage(GnrBaseWebPage):
             url = '%s?mtime=%0.0f' % (url, mtime)
         return url
     
-    def _packageResourcePath(self,table=None,filepath=None,custom=False):
+    def _packageResourcePath(self,table=None,filepath=None,custom=False,inMainResource=None):
         page_pkg = self.package.name 
         table_pkg = None
         if table:
@@ -1446,7 +1446,7 @@ class GnrWebPage(GnrBaseWebPage):
         if custom:
             return os.path.join(self.site.site_path, '_custom', page_pkg, '_resources',respath)
         packageFolder = self.site.gnrapp.packages[self.package.name].packageFolder
-        if table_pkg and page_pkg != table_pkg:
+        if table_pkg and page_pkg != table_pkg and not inMainResource:
             respath = 'tables/_packages/%s/%s/%s' %(table_pkg,tblname,filepath)        
         return os.path.join(packageFolder,'resources',respath)
             
