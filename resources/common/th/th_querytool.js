@@ -51,6 +51,7 @@ dojo.declare("gnr.QueryManager", null, {
         var connect_onClick = "TH('"+this.th_root+"').querymanager.onChangedQueryColumn(this.widget.originalContextTarget.sourceNode,$1.attr,this.widget.originalContextTarget.sourceNode.attr.relpath);";
         node._('tree', {storepath:'gnr.qb.'+this.tablecode+'.fieldsmenu',
                         popup_id:this.relativeId('qb_fields_menu'),popup:true,
+                        popup_closeEvent:'onClick',
                         connect_onClick:connect_onClick});
 
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.op',id:this.relativeId('qb_op_menu')});
@@ -89,7 +90,6 @@ dojo.declare("gnr.QueryManager", null, {
         var label = label || 'c_0';
         var relpath = '.' + label;
         this.onChangedQueryColumnDo(contextNode,relpath,column_attr);
-        
     },
 
     onChangedQueryColumnDo:function(sourceNode,path,column_attr){

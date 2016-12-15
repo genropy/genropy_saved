@@ -31,7 +31,8 @@ class GnrCustomWebPage(object):
     
         pane.div(height='20px',width='20px',
                     background='green',margin='20px'
-                    ).tree(storepath='.tree',popup=True)
+                    ).tree(storepath='.tree',popup=True,
+                    popup_closeEvent='onClick')
 
     def test_2_tree_checkbox(self,pane):
         pane.dataRemote('.tree',self.relationExplorer,table='glbl.provincia',omit='_*',
@@ -53,7 +54,7 @@ class GnrCustomWebPage(object):
 
         pane.div(height='20px',width='20px',
                     background='red',margin='20px'
-                    ).tree(storepath='.tree',popup=True)
+                    ).tree(storepath='.tree',popup=True,popup_close='click')
 
 
     def test_4_tree_and_menu(self,pane):

@@ -221,6 +221,10 @@ cursorZoom_plus{
     font-weight: bold;
 }
 
+.search_highlight{
+    background: yellow;
+}
+
 
 .noExpando .dijitTreeExpando {
     display: none;
@@ -2572,6 +2576,12 @@ textarea:disabled {
     border: 1px solid #AEB6BD;
     background: white url(icons/base10/lens.gif) no-repeat 95%;
 }
+
+.searchInputBox.activeSearch{
+    background: white url(icons/base10/frametabclose.png) no-repeat 95%;
+    cursor: pointer;
+}
+
 .searchInputBox>input{
     width:100%;
     border:0;
