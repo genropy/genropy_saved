@@ -757,7 +757,7 @@ class DelayedCall(object):
         
         
 class GnrBaseAsyncServer(object):
-    def __init__(self,port=None,instance=None):
+    def __init__(self, port=None, instance=None, ssl_crt=None, ssl_key=None):
         self.port=port
         self.handlers=[]
         self.executors=dict()
@@ -769,6 +769,8 @@ class GnrBaseAsyncServer(object):
         self.gnrsite.ws_site = self
         self.gnrapp = self.gnrsite.gnrapp
         self.db = self.gnrapp.db
+        self.ssl_key = ssl_key
+        self.ssl_crt = ssl_crt
         self.wsk = AsyncWebSocketHandler(self)
         self.som = SharedObjectsManager(self)
         self.interval = 1000
@@ -837,12 +839,20 @@ class GnrBaseAsyncServer(object):
     def start(self):
         self.tornadoApp=tornado.web.Application(self.handlers)
         self.tornadoApp.server=self
+        if self.ssl_crt and self.ssl_key:
+            import ssl
+            ssl_options = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+            ssl_options.load_cert_chain(self.ssl_crt,self.ssl_key)
+        else:
+            ssl_options = None
+        server = HTTPServer(self.tornadoApp, ssl_options=ssl_options)
         if self.port:
-            self.tornadoApp.listen(int(self.port))
+            server.listen(int(self.port))
+            #self.tornadoApp.listen(int(self.port))
         else:
             socket_path = os.path.join(gnrConfigPath(), 'sockets', '%s.tornado'%self.instance_name)
             main_socket = bind_unix_socket(socket_path)
-            server = HTTPServer(self.tornadoApp)
+            #server = HTTPServer(self.tornadoApp)
             server.add_socket(main_socket)
         debug_socket_path = os.path.join(gnrConfigPath(), 'sockets', '%s_debug.tornado'%self.instance_name)
         debug_socket = bind_unix_socket(debug_socket_path)
