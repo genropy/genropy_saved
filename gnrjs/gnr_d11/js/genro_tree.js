@@ -35,10 +35,13 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             return;
         }
         var popup_kw = {tag:'menu',modifiers:'*',_class:'menupane',
-                        connect_ondblclick:function(bagNode,treeNode){
-                            this.widget.onCancel();
-                        }};
+                       //connect_ondblclick:function(bagNode,treeNode){
+                       //    this.widget.onCancel();
+                       //}
+                    };
         var treeattr = objectUpdate({},sourceNode.attr);
+        var extraPopupKw = objectExtract(sourceNode.attr,'popup_*');
+        var closeEvent = objectPop(extraPopupKw,'closeEvent');
         popup_kw.datapath = objectPop(treeattr,'datapath');
         popup_kw.connect_onOpen = function(evt){
             var box = this.getValue().getItem('m_item.m_scrollbox.m_spacer');
@@ -48,11 +51,22 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                             hideValues:true,autoCollapse:true, //excludeRoot:true,
                             labelAttribute:'caption',selectedLabelClass:'selectedFieldTreeNode',
                             parentMenu:this,_class:"branchtree noIcon"},treeattr));
+                console.log("box.getNode('treemenu')",box.getNode('treemenu'))
+                if(closeEvent){
+                    var that = this;
+                    var wdg = box.getNode('treemenu').widget;
+                    var connectNode;
+                    connectNode = closeEvent =='onClick'? wdg:wdg.domNode;
+                    dojo.connect(connectNode,closeEvent,function(e){
+                        that.widget.onCancel();
+                    });
+                }
+
             }
             box.getNode('treemenu').widget.originalContextTarget = this.widget.originalContextTarget;
         };
         var box_kw = objectExtract(popup_kw,'max_height,min_width');
-        objectUpdate(popup_kw,objectExtract(sourceNode.attr,'popup_*'));
+        objectUpdate(popup_kw,extraPopupKw);
         sourceNode.attr = popup_kw;
         box_kw.max_height= box_kw.max_height || '300px';
         box_kw.min_width= box_kw.min_width || '220px';
@@ -209,11 +223,10 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
         if (savedAttrs.autoCollapse) {
             dojo.connect(widget, '_expandNode', function(node) {
-                dojo.forEach(node.getParent().getChildren(), function(n) {
-                    if (n != node && n.isExpanded) {
-                        n.tree._collapseNode(n);
-                    }
-                });
+                if(this._filteringValue){
+                    return;
+                }
+                this.collapseAll(node.getParent(),node)
             });
         }
         var nodeId = sourceNode.attr.nodeId;
@@ -293,11 +306,11 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         return ck;
     },
 
-    mixin_collapseAll:function(curr){
+    mixin_collapseAll:function(curr,exceptNode){
         curr = curr || this.rootNode;
         var tree = this;
         dojo.forEach(curr.getChildren(), function(n) {
-            if (n.isExpanded) {
+            if (n.isExpanded && n!==exceptNode) {
                 tree.collapseAll(n);
                 tree._collapseNode(n);
             }
@@ -305,11 +318,16 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
     },
 
     mixin_applyFilter:function(search){
+        if(!search && this._filteringValue){
+            this.collapseAll();
+        }
+        this._filteringValue = search || null;
         var treeNodes=dojo.query('.dijitTreeNode',this.domNode);
         treeNodes.removeClass('hidden');
-        if (!search){return;}
+        //if (!search){return;}
         var searchmode=null;
-        if (search.indexOf('#')==0){
+        var filterRegExp = new RegExp('('+(search || '[]')+')','ig');
+        if (search&& search.indexOf('#')==0){
             var k=search.indexOf('=');
             if ((k<0 )||(k==(search.length-1))){
                 return;
@@ -322,13 +340,13 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         cb_match=function(n){
             if (!searchmode){
                 var label=_this.getLabel(n);
-                return (label.toLowerCase().indexOf(search)>=0);
+                return label.match(filterRegExp);
             }else if(searchmode=='#'){
                 console.log('ss');
             }else {
                 var label=n.attr[searchmode.slice(1)]+'';
                 if (label){
-                    return (label.toLowerCase().indexOf(search)>=0);
+                    return label.match(filterRegExp);
                 }
             }
             
@@ -337,17 +355,27 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         cb=function(n){
             if (cb_match(n)){
                 var fullpath=n.getFullpath(null,root);
-                _this.showNodeAtPath(fullpath);
+                var lastTreeNode = _this.showNodeAtPath(fullpath);
+                if(lastTreeNode){
+                    genro.dom.addClass('')
+                }
             }
         };
         var mode = this.sourceNode.attr.searchMode;
-        root.walk(cb,mode)
+        root.walk(cb,mode);
+        treeNodes=dojo.query('.dijitTreeNode',this.domNode);
         treeNodes.addClass('hidden');
         treeNodes.forEach(function(n){
             var tn = dijit.getEnclosingWidget(n);
             var parent=tn.getParent();
-            if((!parent) || cb_match(tn.item)){
+            if((!parent) || cb_match(tn.item) || !search){
                 dojo.removeClass(tn.domNode,'hidden');
+                var item = tn.item;
+                var label = _this.getLabel(item);
+                if(label){
+                    tn.labelNode.innerHTML = label.replace(filterRegExp,"<span class='search_highlight'>$1</span>");
+                }
+                //dojo.addClass(tn.domNode,'search_highlight');
                 while(parent&&dojo.hasClass(parent.domNode,'hidden')){
                     dojo.removeClass(parent.domNode,'hidden');
                     parent=parent.getParent();
@@ -696,15 +724,16 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }, 100);
     },
      mixin_showNodeAtPath:function(path) {
-         var curr = this.model.store.rootData();
-         var pathList = path.split('.');
-         for (var i = 0; i < pathList.length; i++) {
+        var curr = this.model.store.rootData();
+        var pathList = path.split('.');
+        var treeNode;
+        for (var i = 0; i < pathList.length; i++) {
             var currNode = curr.getNode(pathList[i]);
             if (!currNode){
                 return;
             }
             var identity = this.model.store.getIdentity(currNode);
-            var treeNode = this._itemNodeMap[identity];
+            treeNode = this._itemNodeMap[identity];
             curr = currNode.getValue('static');
             if (i < pathList.length - 1) {
                 if (!treeNode.isExpanded) {
@@ -712,6 +741,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                 }
             }
         }
+        return treeNode;
      },
     mixin_setSelected:function(node) {
         if(node){

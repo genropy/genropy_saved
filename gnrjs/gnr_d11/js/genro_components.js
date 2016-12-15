@@ -1439,16 +1439,10 @@ dojo.declare("gnr.widgets.BagNodeEditor", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
     contentKwargs: function(sourceNode, attributes) {
         //var topic = attributes.nodeId+'_keyUp';
-        var delay = 'delay' in attributes ? objectPop(attributes, 'delay') : 100;
         attributes.onKeyUp = function(e) {
             var sourceNode = e.target.sourceNode;
-            if (sourceNode._onKeyUpCb) {
-                clearTimeout(sourceNode._onKeyUpCb);
-            }
-            var v = e.target.value;
-            sourceNode._onKeyUpCb = setTimeout(function() {
-                sourceNode.setRelativeData('.currentValue', v);
-            }, delay);
+            genro.dom.setClass(sourceNode.getParentNode(),'activeSearch',!isNullOrBlank(e.target.value));
+            sourceNode.setRelativeData('.currentValue', e.target.value);
         };
         return attributes;
     },
@@ -1471,14 +1465,23 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         this._prepareSearchBoxMenu(searchOn, databag);
         sourceNode.setRelativeData(null, databag);
         var searchbox = sourceNode._('table', {nodeId:nodeId})._('tbody')._('tr');
+        var delay = 'delay' in kw ? objectPop(kw, 'delay') : 100;
         sourceNode._('dataController', {'script':'genro.publish(searchBoxId+"_changedValue",currentValue,field)',
-            'searchBoxId':nodeId,currentValue:'^.currentValue',field:'=.field',_userChanges:true});
+            'searchBoxId':nodeId,currentValue:'^.currentValue',field:'=.field',_userChanges:true,_delay:delay});
         var searchlbl = searchbox._('td');
         searchlbl._('div', {'innerHTML':'^.caption',_class:'buttonIcon'});
         searchlbl._('menu', {'modifiers':'*',_class:'smallmenu',storepath:'.menubag',
             selected_col:'.field',selected_caption:'.caption',action:'SET .value = null;SET .currentValue = null;'});
         
-        searchbox._('td')._('div',{_class:'searchInputBox'})._('input', {'value':'^.value',connect_onkeyup:kw.onKeyUp,parentForm:false,width:objectPop(kw,'width') || '6em'});
+        searchbox._('td')._('div',{_class:'searchInputBox',connect_onclick:function(e){
+            if(e.target.tagName.toLowerCase()!='input'){
+                this.setRelativeData('.value',null);
+                this.setRelativeData('.currentValue',null);
+                genro.dom.removeClass(this,'activeSearch');
+            }
+        }})._('input', {'value':'^.value',connect_onkeyup:kw.onKeyUp,
+                         parentForm:false,width:objectPop(kw,'width') || '6em',
+                        connect_focus:function(){this.domNode.select()}});
         sourceNode.registerSubscription(nodeId + '_updmenu', this, function(searchOn) {
             menubag = this._prepareSearchBoxMenu(searchOn, databag);
         });
@@ -4651,6 +4654,10 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     slot_searchOn:function(pane,slotValue,slotKw,frameCode){
         var div = pane._('div'); //{'width':slotKw.width || '15em'}
         var nodeId = objectPop(slotKw,'nodeId') || frameCode+'_searchbox';
+        var targetNodeId = objectPop(slotKw, 'targetNodeId')
+        if(targetNodeId){
+            nodeId = targetNodeId+'_searchbox';
+        }
         div._('SearchBox', {searchOn:slotValue,nodeId:nodeId,datapath:'.searchbox',parentForm:false,'width':slotKw.width});
     },
     slot_stackButtons:function(pane,slotValue,slotKw,frameCode){
