@@ -120,6 +120,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
         dojo.publish("standardDebugger", {message: msg, type:level.toUpperCase(), duration:duration});
     },
     handleRpcHttpError:function(response, ioArgs) {
+        if(response.dojoType=='cancel'){
+            return;
+        }
         var xhr = ioArgs.xhr;
         var status = xhr.status;
         var statusText = xhr.statusText;

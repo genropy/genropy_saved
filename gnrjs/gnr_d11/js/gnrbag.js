@@ -165,7 +165,11 @@ dojo.declare("gnr.GnrBagNode", null, {
 
 
     getValue2:function(mode/*str*/, optkwargs) {
-        return this.getValue(mode, optkwargs);
+        console.log('called by meToo')
+        var result =  this.getValue('static');
+        console.log('result getValue2',result)
+
+        return result;
     },
     getFormattedValue: function(kw,mode) {
         var v = this.getValue(mode);
@@ -1851,22 +1855,24 @@ dojo.declare("gnr.GnrBag", null, {
 
     
     forEach: function(callback, mode, kw) {
-        this.walk(callback, mode, kw, true);
+        this.walk(callback, 'static', kw, true);
     },
+
     walk: function (callback, mode, kw, notRecursive) {
         var result;
         var bagnodes = this.getNodes();
         for (var i = 0; ((i < bagnodes.length) && ((result == null)|| (result=='__continue__'))); i++) {
             result = callback(bagnodes[i], kw, i);
-            if (result == null) {
+            if (result == null && !notRecursive) {
                 var value = bagnodes[i].getValue(mode);
-                if ((!notRecursive) && (isBag(value))) {
+                if (isBag(value)) {
                     result = value.walk(callback, mode, kw);
                 }
             }
         }
         return result;
     },
+
     getBackRef: function() {
         return this._backref;
     },
@@ -2310,6 +2316,7 @@ dojo.declare("gnr.GnrBagResolver", null, {
 
             if (result instanceof dojo.Deferred) {
                 //this._mainDeferred = result; // keep a reference for avoid garbage collector
+                var that = this;
                 return result.addCallback(finalize);
                 //return this.meToo();
             }
@@ -2318,13 +2325,21 @@ dojo.declare("gnr.GnrBagResolver", null, {
             }
         }
     },
+    cancelMeToo:function(r){
+        var _pendingDeferred = this._pendingDeferred || [];
+        this._pendingDeferred = [];
+        _pendingDeferred.forEach(function(d){
+            d.cancel();
+        });
+    },
     meToo: function(cb) {
-        console.error('Calling meToo');
+        console.log('Calling meToo');
         var newdeferred = new dojo.Deferred();
         newdeferred.addCallback(cb);
         this._pendingDeferred.push(newdeferred);
         return newdeferred;
     },
+
     runPendingDeferred:function(pendingDeferred) {
         for (var i = 0; i < pendingDeferred.length; i++) {
             pendingDeferred[i].callback();

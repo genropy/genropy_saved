@@ -73,7 +73,6 @@ dojo.declare("gnr.GnrRemoteResolver", gnr.GnrBagResolver, {
         return result;
     },
     errorHandler: function(response, ioArgs) {
-        
         return genro.rpc.errorHandler(response, ioArgs);
     },
     resultHandler: function(response, ioArgs) {
