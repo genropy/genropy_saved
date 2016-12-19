@@ -328,20 +328,12 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             searchmode=search[0];
             search=search[1];
         }
-<<<<<<< Updated upstream
-        var _this=this;
-        cb_match=function(n){
-            if (!searchmode){
-                var label=_this.getLabel(n);
-=======
         var that=this;
         var searchColumn = this.sourceNode.attr.searchColumn;
         var cb_match=function(n){
             if (!searchmode){
                 var label = searchColumn? n.attr[searchColumn]:that.getLabel(n);
                 label = label || '';
-                console.log('cb_match',label);
->>>>>>> Stashed changes
                 return label.match(filterRegExp);
             }else if(searchmode=='#'){
                 console.log('ss');
