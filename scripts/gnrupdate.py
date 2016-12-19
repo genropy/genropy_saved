@@ -42,6 +42,7 @@ class UwsgiUpdater(object):
     def update(self):
         instances = [l for l in os.listdir(self.vassals_path) if l not in ('gnrdaemon.ini','pg.ini')]
         for s in instances:
+            s = os.path.splitext(s)[0]
             print 'Instance ',s
             self.stop_vassal(s)
             print '\t server stopped'
