@@ -33,7 +33,7 @@ class MenuIframes(BaseComponent):
 
     def mainLeft_iframemenu_plugin(self, tc):
         pane = tc.framePane(title="Menu", pageName='menu_plugin')
-        pane.top.slotToolbar('2,searchOn,*',searchOn=True,searchOn_nodeId='_menutree__searchbox')
+        pane.top.slotToolbar('2,searchOn,*',searchOn=True)
         pane.bottom.slotToolbar('5,newWindow,*')
         self.menu_iframemenuPane(pane.div(position='absolute', top='2px', left='0', right='2px', bottom='2px', overflow='auto'))
 

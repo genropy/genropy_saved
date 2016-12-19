@@ -51,7 +51,6 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                             hideValues:true,autoCollapse:true, //excludeRoot:true,
                             labelAttribute:'caption',selectedLabelClass:'selectedFieldTreeNode',
                             parentMenu:this,_class:"branchtree noIcon"},treeattr));
-                console.log("box.getNode('treemenu')",box.getNode('treemenu'))
                 if(closeEvent){
                     var that = this;
                     var wdg = box.getNode('treemenu').widget;
@@ -309,6 +308,21 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         });
     },
 
+    mixin_stopApplyFilter:function(){
+        var _pending_deferred = this._pending_deferred;
+        this._pending_deferred = {};
+        var pd,r;
+        if(_pending_deferred){
+            for(var token in _pending_deferred){
+                pd = _pending_deferred[token];
+                pd.deferred.cancel();
+                r = pd.bagNode.getResolver();
+                r.reset();
+                delete _pending_deferred[token];
+            }
+        }
+    },
+
     mixin_applyFilter:function(search){
         if(!search && this._filteringValue){
             this.collapseAll();
@@ -346,40 +360,36 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             
         };
         var root=this.model.store.rootData();
-        cb=function(n){
+        var cb=function(n){
             if (cb_match(n)){
                 var fullpath=n.getFullpath(null,root);
-                var lastTreeNode = _this.showNodeAtPath(fullpath);
-                if(lastTreeNode){
-                    genro.dom.addClass('')
-                }
+                that.showNodeAtPath(fullpath);
             }
         };
-        var mode = this.sourceNode.attr.searchMode;
-        root.walk(cb,mode);
-        treeNodes=dojo.query('.dijitTreeNode',this.domNode);
-        treeNodes.addClass('hidden');
-        treeNodes.forEach(function(n){
-            var tn = dijit.getEnclosingWidget(n);
-            var parent=tn.getParent();
-            if((!parent) || cb_match(tn.item) || !search){
-                dojo.removeClass(tn.domNode,'hidden');
-                var item = tn.item;
-                var label = _this.getLabel(item);
-                if(label){
-                    tn.labelNode.innerHTML = label.replace(filterRegExp,"<span class='search_highlight'>$1</span>");
+        this._pending_deferred = {};
+        var filterForEach = function(b,cb,mode){
+            b.forEach(function(n){
+                if(mode=='async' && n.getResolver() && n.getResolver().expired()){
+                    var deferred = n.getValue(null,{rpc_sync:false});
+                    var token='treesearch_'+genro.getCounter('treesearch');
+                    that._pending_deferred[token] = {'deferred':deferred,'bagNode':n};
+                    deferred.addCallback(function(result){
+                        delete that._pending_deferred[token];
+                        if(result instanceof gnr.GnrBag){
+                            filterForEach(result,cb,'async');
+                            that.sourceNode.delayedCall(function(){
+                                showResult();
+                            },30,'applyFilter_asyncSearch')
+                        }
+                    });
+                }else{
+                    var v = n.getValue();
+                    if(v instanceof gnr.GnrBag){
+                        filterForEach(v,cb,mode)
+                    }else{
+                        cb(n);
+                    }
                 }
-<<<<<<< Updated upstream
-                //dojo.addClass(tn.domNode,'search_highlight');
-                while(parent&&dojo.hasClass(parent.domNode,'hidden')){
-                    dojo.removeClass(parent.domNode,'hidden');
-                    parent=parent.getParent();
-                }
-                
-            };
-        });
-        
-=======
             });
         }
         var showResult = function(){
@@ -407,7 +417,6 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         var m = ('searchMode' in this.sourceNode.attr)? this.sourceNode.attr.searchMode:'async';
         filterForEach(root,cb,m);
         showResult();
->>>>>>> Stashed changes
     },
 
     mixin_updateLabels:function(){
