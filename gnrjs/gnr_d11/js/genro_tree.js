@@ -238,12 +238,12 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                 }
             });
         }
-        
-        if(nodeId){
-            var searchBoxCode = (sourceNode.attr.frameCode || nodeId)+'_searchbox';
-            var searchBoxNode = genro.nodeById(searchBoxCode);
+        var searchCode = sourceNode.attr.searchCode || (sourceNode.getInheritedAttributes().frameCode || nodeId);
+        if(searchCode){
+            var searchId = searchCode+'_searchbox';
+            var searchBoxNode = genro.nodeById(searchId);
             if (searchBoxNode){
-                sourceNode.registerSubscription(searchBoxCode+'_changedValue',widget,function(v,field){
+                sourceNode.registerSubscription(searchId+'_changedValue',widget,function(v,field){
                     if(this._filteringValue){
                         if(this._filteringValue!=v){
                             this.stopApplyFilter();
@@ -257,9 +257,6 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
     },
 
-
-    
-    
     fillDragInfo:function(dragInfo) {
         dragInfo.treenode = dragInfo.widget;
         dragInfo.widget = dragInfo.widget.tree;
@@ -345,11 +342,28 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             searchmode=search[0];
             search=search[1];
         }
+<<<<<<< HEAD
         var that=this;
         
         var cb_match=function(n){
             if (!searchmode){
                 var label=that.getLabel(n);
+=======
+<<<<<<< Updated upstream
+        var _this=this;
+        cb_match=function(n){
+            if (!searchmode){
+                var label=_this.getLabel(n);
+=======
+        var that=this;
+        var searchColumn = this.sourceNode.attr.searchColumn;
+        var cb_match=function(n){
+            if (!searchmode){
+                var label = searchColumn? n.attr[searchColumn]:that.getLabel(n);
+                label = label || '';
+                console.log('cb_match',label);
+>>>>>>> Stashed changes
+>>>>>>> hotfix/fixsearch
                 return label.match(filterRegExp);
             }else if(searchmode=='#'){
                 console.log('ss');
@@ -392,6 +406,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                         cb(n);
                     }
                 }
+<<<<<<< HEAD
             });
         }
         var showResult = function(){
@@ -416,6 +431,47 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
         filterForEach(root,cb,this.sourceNode.attr.searchMode);
         showResult();
+=======
+<<<<<<< Updated upstream
+                //dojo.addClass(tn.domNode,'search_highlight');
+                while(parent&&dojo.hasClass(parent.domNode,'hidden')){
+                    dojo.removeClass(parent.domNode,'hidden');
+                    parent=parent.getParent();
+                }
+                
+            };
+        });
+        
+=======
+            });
+        }
+        var showResult = function(){
+            treeNodes = dojo.query('.dijitTreeNode',that.domNode);
+            treeNodes.addClass('hidden');
+            treeNodes.forEach(function(n){
+                var tn = dijit.getEnclosingWidget(n);
+                var parent=tn.getParent();
+                if((!parent) || cb_match(tn.item) || !search){
+                    dojo.removeClass(tn.domNode,'hidden');
+                    var item = tn.item;
+                    if(!searchColumn){
+                        var label = that.getLabel(item);
+                        if(label){
+                            tn.labelNode.innerHTML = label.replace(filterRegExp,"<span class='search_highlight'>$1</span>");
+                        }
+                    }
+                    while(parent&&dojo.hasClass(parent.domNode,'hidden')){
+                        dojo.removeClass(parent.domNode,'hidden');
+                        parent=parent.getParent();
+                    }
+                }
+            });
+        }
+        var m = ('searchMode' in this.sourceNode.attr)? this.sourceNode.attr.searchMode:'async';
+        filterForEach(root,cb,m);
+        showResult();
+>>>>>>> Stashed changes
+>>>>>>> hotfix/fixsearch
     },
 
     mixin_updateLabels:function(){
