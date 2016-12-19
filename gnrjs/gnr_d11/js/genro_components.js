@@ -1466,8 +1466,9 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         sourceNode.setRelativeData(null, databag);
         var searchbox = sourceNode._('table', {nodeId:nodeId})._('tbody')._('tr');
         var delay = 'delay' in kw ? objectPop(kw, 'delay') : 100;
-        sourceNode._('dataController', {'script':'genro.publish(searchBoxId+"_changedValue",currentValue,field)',
-            'searchBoxId':nodeId,currentValue:'^.currentValue',field:'=.field',_userChanges:true,_delay:delay});
+        var minLen = objectPop(kw,'minLen') || 0;
+        sourceNode._('dataController', {'script':'(currentValue && currentValue.length<minLen)?genro.publish(searchBoxId+"_changedValue","",field):genro.publish(searchBoxId+"_changedValue",currentValue,field);',
+            'searchBoxId':nodeId,currentValue:'^.currentValue',field:'=.field',_userChanges:true,_delay:delay,minLen:minLen});
         var searchlbl = searchbox._('td');
         searchlbl._('div', {'innerHTML':'^.caption',_class:'buttonIcon'});
         searchlbl._('menu', {'modifiers':'*',_class:'smallmenu',storepath:'.menubag',
@@ -1751,10 +1752,12 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
             sourceNode.registerDynAttr('columns');
         }
         gnrwdg.columns_bag = this._getColumnsBag(sourceNode,columns,subTagItems['column']);
+        var searchColumn = gnrwdg.columns_bag.getNode('#0').attr.field;
         var defaultKw = {
             autoCollapse:true,
             hideValues:true,
             background:'white',
+            searchColumn:searchColumn,
             _class:'treegrid branchtree noIcon',
             connect__expandNode:function(){
                 gnrwdg.updateScroll();
@@ -4646,12 +4649,13 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     
     slot_searchOn:function(pane,slotValue,slotKw,frameCode){
         var div = pane._('div'); //{'width':slotKw.width || '15em'}
-        var nodeId = objectPop(slotKw,'nodeId') || frameCode+'_searchbox';
-        var targetNodeId = objectPop(slotKw, 'targetNodeId')
-        if(targetNodeId){
-            nodeId = targetNodeId+'_searchbox';
+        var searchId = objectPop(slotKw,'nodeId') || frameCode+'_searchbox';
+        var searchCode = objectPop(slotKw,'searchCode');
+        var minLen = objectPop(slotKw,'minLen')
+        if(searchCode){
+            searchId = searchCode+'_searchbox';
         }
-        div._('SearchBox', {searchOn:slotValue,nodeId:nodeId,datapath:'.searchbox',parentForm:false,'width':slotKw.width});
+        div._('SearchBox', {searchOn:slotValue,nodeId:searchId,datapath:'.searchbox',parentForm:false,'width':slotKw.width,minLen:minLen});
     },
     slot_stackButtons:function(pane,slotValue,slotKw,frameCode){
         var scNode = objectPop(slotKw,'stackNode');
