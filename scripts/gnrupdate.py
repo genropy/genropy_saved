@@ -48,7 +48,12 @@ class UwsgiUpdater(object):
             print '\t server stopped'
             app = GnrApp(s)
             print '\t running dbsetup'
-            app.db.model.applyModelChanges()
+            changes = self.check_db(app)
+            if changes:
+                print 'APPLYING CHANGES TO DATABASE...'
+                app.db.model.applyModelChanges()
+                print 'CHANGES APPLIED TO DATABASE'
+            app.db.model.checker.addExtesions()
             print '\t done'
         self.restart_vassal('gnrdaemon')
         for s in instances:
@@ -76,6 +81,17 @@ class UwsgiUpdater(object):
             with open(vassal_path, 'a'):
                 os.utime(vassal_path,None)
             print "Vassal %s restarted" % name
+
+    def check_db(self,app):
+        changes = app.db.model.check()
+        dbname = app.db.currentEnv.get('storename')
+        dbname = dbname or 'Main'
+        print 'DB %s:' % dbname
+        if changes:
+            print 'STUCTURE NEEDS CHANGES'
+        else:
+            print 'STRUCTURE OK'
+        return changes
 
 
 
