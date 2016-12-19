@@ -72,7 +72,7 @@ class UwsgiUpdater(object):
         vassal_off_path = os.path.join(self.vassals_path, '%s.off' %name)
         if os.path.exists(vassal_off_path):
             os.rename(vassal_off_path, vassal_start_path)
-            print "Site %s start" % self.site_name
+            print "Site %s start" % name
 
     def restart_vassal(self,name):
         vassal_path = os.path.join(self.vassals_path,'%s.ini' %name)
