@@ -178,8 +178,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         return this.setDataNodeValue(runKwargs);
     },
     setDataNodeValue:function(nodeOrRunKwargs, kw, trigger_reason, subscription_args) {
-
-        var delay = this.attr._delay;
+        var currentAttributes = this.currentAttributes();
+        var delay = currentAttributes._delay;
         if(delay == 'auto'){
             delay = null;//genro.rpc.rpc_level>2? genro.rpc.rpc_level * 100 : null;
         }
@@ -192,7 +192,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             if((kw && kw.reason == 'autocreate' ) || (trigger_reason != 'node')){
                 return; //askmode
             }
-            var currentAttributes = this.currentAttributes();
             if(!this.attr._ask_if ||  funcApply('return ('+this.attr._ask_if+');',currentAttributes,this) ){
                 var that = this;
                 var _ask_onCancel= this.attr._ask_onCancel || function(){};
@@ -961,9 +960,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     
     delayedCall:function(cb,delay,code){
-        var code = code || 'delayedCall';
+        code = code || 'delayedCall';
         var handlerName = '_dc_'+code;
-        var delay = delay || 1;
+        delay = delay || 1;
         if(this[handlerName]){
             clearTimeout(this[handlerName]);
         }

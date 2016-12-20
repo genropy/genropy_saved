@@ -198,6 +198,20 @@ class HierarchicalHandler(object):
         self.db = self.tblobj.db
 
 
+    def hierarchicalSearch(self,seed=None,related_table=None,related_path=None,related_caption_field=None,**kwargs):
+        """return hierarchical paths for a given search seed"""
+        related_tblobj = self.db.table(related_table)
+        caption_field = related_caption_field or related_tblobj.attributes['caption_field']
+        f = related_tblobj.query(where="$%s ILIKE :seed" %caption_field,addPkeyColumn=False,
+                                seed='%%%s%%' %seed,columns="""@%s.hierarchical_pkey AS hrelpk""" %related_path,
+                                ).fetch()
+        result = set()
+        for r in f:
+            result = result.union(r['hrelpk'].split('/'))
+        return list(result)
+
+
+
     def trigger_before(self,record,old_record=None):
         tblobj = self.tblobj
         pkeyfield = tblobj.pkey
