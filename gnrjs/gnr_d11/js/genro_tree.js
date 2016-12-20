@@ -244,27 +244,31 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             var searchBoxNode = genro.nodeById(searchId);
             if (searchBoxNode){
                 sourceNode.registerSubscription(searchId+'_changedValue',widget,function(v,field,search_kw){
-                    if(this._filteringValue){
+                    var was_filtering = !isNullOrBlank(this._filteringValue);
+                    var end_filtering = isNullOrBlank(v);
+                    if(was_filtering){
                         if(this._filteringValue!=v){
                             this.stopApplyFilter();
+                            if(end_filtering){
+                                this.collapseAll();
+                                this._filteringValue = null;
+                                this.applyFilter(search_kw);
+                                return;
+                            }
                         }else{
                             return;
                         }
                     }
-                    if(isNullOrBlank(v) && isNullOrBlank(this._filteringValue)){
+                    if(end_filtering){
                         return;
                     }
-                    if(!v){
-                        this.applyFilter(v,search_kw);
-                        return;
-                    }
+                    this._filteringValue = v;
                     var vl = v.length;
                     var delay = vl==1?4000:vl==2?2000:vl==3?500:150;
                     var that = this;
                     sourceNode.delayedCall(function(){
-                        that.applyFilter(v,search_kw);
+                        that.applyFilter(search_kw);
                     },delay,'shortSeed_delay');
-                    
                 });
             }
         }
@@ -336,12 +340,9 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
     },
 
-    mixin_applyFilter:function(search,search_kw){
+    mixin_applyFilter:function(search_kw){
         search_kw = search_kw || {};
-        if(!search && this._filteringValue){
-            this.collapseAll();
-        }
-        this._filteringValue = search || null;
+        var search = this._filteringValue;
         var treeNodes=dojo.query('.dijitTreeNode',this.domNode);
         treeNodes.removeClass('hidden');
         //if (!search){return;}
@@ -450,7 +451,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             
         }   
         
-        if(this._filteringValue && this._searchRpcProxy){
+        if(this._filteringValue && this._searchRpcProxy.method){
             if(this._searchRpcProxy.cache.some(function(c){return that._filteringValue.match(c);})){
                 filterForEach(root,cb,m,[]);
                 showResult();
