@@ -437,10 +437,12 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             this._searchRpcProxy = {kw:{},cache:[],_sourceNode:this.sourceNode};
             var data_inattr = root.getParentNode().getInheritedAttributes();
             if(!('rpcmethod' in search_kw)){
-                if(data_inattr.related_table){
-                    this._searchRpcProxy.method = '_table.'+data_inattr.table+'.hierarchicalSearch';
-                    this._searchRpcProxy.kw.related_table = data_inattr.related_table;
-                    this._searchRpcProxy.kw.related_path = data_inattr.related_path;
+                var rootattr = objectUpdate({},root.getParentNode().attr);
+                var search_attr = objectExtract(rootattr,'search_*');
+                var storeRpcSearch = objectPop(search_attr,'method');
+                if(storeRpcSearch){
+                    this._searchRpcProxy.method = storeRpcSearch;
+                    this._searchRpcProxy.kw = search_attr;
                 }
             }else{
                 this._searchRpcProxy.method = objectPop(search_kw,'rpcmethod');
