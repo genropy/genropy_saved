@@ -114,13 +114,15 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
 
     debugMessage: function(msg, level, duration) {
-
-        var level = level || 'MESSAGE';
-        var duration = duration || 50;
+        level = level || 'MESSAGE';
+        duration = duration || 50;
         dojo.publish("standardDebugger", {message: msg, type:level.toUpperCase(), duration:duration});
     },
     handleRpcHttpError:function(response, ioArgs) {
         var xhr = ioArgs.xhr;
+        if(response.dojoType=='cancel'){
+            return;
+        }
         var status = xhr.status;
         var statusText = xhr.statusText;
         var readyState = xhr.readyState;
@@ -134,7 +136,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
             mainGenroWindow.polling_enabled = false;
             mainGenroWindow.dlg.alert('No longer existing page','Error',null,null,{confirmCb:genro.pageReload});
             return;
-        } else if (status == 0) {
+        } else if (status === 0) {
             //genro.dlg.alert('Site temporary un available. Retry later');
 
             var msg = 'status: ' + xhr.status + ' - statusText:' + xhr.statusText + ' - readyState:' + xhr.readyState + ' - responseText:' + responseText;
