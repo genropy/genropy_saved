@@ -251,6 +251,9 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                             return;
                         }
                     }
+                    if(isNullOrBlank(v) && isNullOrBlank(this._filteringValue)){
+                        return;
+                    }
                     this.applyFilter(v);
                 });
             }
@@ -333,7 +336,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         //if (!search){return;}
         var searchmode=null;
         var filterRegExp = new RegExp('('+(search || '[]')+')','ig');
-        if (search&& search.indexOf('#')==0){
+        if (search&& search.indexOf('#')===0){
             var k=search.indexOf('=');
             if ((k<0 )||(k==(search.length-1))){
                 return;
@@ -343,16 +346,17 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             search=search[1];
         }
         var that=this;
+        var label;
         var searchColumn = this.sourceNode.attr.searchColumn;
         var cb_match=function(n){
             if (!searchmode){
-                var label = searchColumn? n.attr[searchColumn]:that.getLabel(n);
+                label = searchColumn? n.attr[searchColumn]:that.getLabel(n);
                 label = label || '';
                 return label.match(filterRegExp);
             }else if(searchmode=='#'){
                 console.log('ss');
             }else {
-                var label=n.attr[searchmode.slice(1)]+'';
+                label=n.attr[searchmode.slice(1)]+'';
                 if (label){
                     return label.match(filterRegExp);
                 }
@@ -379,19 +383,19 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                             filterForEach(result,cb,'async');
                             that.sourceNode.delayedCall(function(){
                                 showResult();
-                            },30,'applyFilter_asyncSearch')
+                            },30,'applyFilter_asyncSearch');
                         }
                     });
                 }else{
                     var v = n.getValue();
                     if(v instanceof gnr.GnrBag){
-                        filterForEach(v,cb,mode)
+                        filterForEach(v,cb,mode);
                     }else{
                         cb(n);
                     }
                 }
             });
-        }
+        };
         var showResult = function(){
             treeNodes = dojo.query('.dijitTreeNode',that.domNode);
             treeNodes.addClass('hidden');
@@ -413,7 +417,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                     }
                 }
             });
-        }
+        };
         var m = ('searchMode' in this.sourceNode.attr)? this.sourceNode.attr.searchMode:'async';
         filterForEach(root,cb,m);
         showResult();
