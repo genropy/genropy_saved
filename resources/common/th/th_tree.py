@@ -116,10 +116,10 @@ class HTableTree(BaseComponent):
     @struct_method
     def ht_hTableTree(self,pane,storepath='.store',table=None,root_id=None,draggable=True,columns=None,
                         caption_field=None,condition=None,caption=None,dbstore=None,condition_kwargs=None,store_kwargs=True,related_kwargs=None,root_id_delay=None,
-                        moveTreeNode=True,excludeRoot=None,resolved=False,**kwargs):
+                        moveTreeNode=True,excludeRoot=None,resolved=False,searchCode=None,**kwargs):
         
         treeattr = dict(storepath=storepath,hideValues=True,draggable=draggable,identifier='treeIdentifier',
-                            labelAttribute='caption',selectedLabelClass='selectedTreeNode',dropTarget=True)
+                            labelAttribute='caption',selectedLabelClass='selectedTreeNode',searchCode=searchCode,dropTarget=True)
         treeattr.update(kwargs)
         if excludeRoot:
             treeattr['storepath'] = '%(storepath)s.root' %treeattr
@@ -219,7 +219,7 @@ class TableHandlerHierarchicalView(BaseComponent):
             bar = pane.slotToolbar('*,treePicker,2',height='20px')
         tree = pane.hTableTree(table=table,childname='htree',
                           onDrag="""var sn = dragInfo.sourceNode;
-                                      if(sn.form.isNewRecord() || sn.form.locked ){return false;}""", 
+                                      if(sn.widget._filteringValue || sn.form.isNewRecord() || sn.form.locked ){return false;}""", 
                           selected_pkey='.tree.pkey',
                           selected_hierarchical_pkey='.tree.hierarchical_pkey',                          
                           selectedPath='.tree.path',margin='2px',_class=_class,**kwargs)

@@ -220,7 +220,10 @@ class TableHandlerForm(BaseComponent):
                     leftkw['closable'] = 'open'      
             elif hierarchical=='closed':
                 leftkw['closable'] = 'close'
-            bar = form.left.slotBar('0,htreeSlot,0',width=tree_kwargs.pop('width','200px'),border_right='1px solid silver',**leftkw)
+            bar = form.left.slotBar('htreeSearchbar,htreeSlot,0',width=tree_kwargs.pop('width','200px'),border_right='1px solid silver',**leftkw)
+            searchCode = form.attributes['frameCode']
+            bar.htreeSearchbar.slotToolbar('2,searchOn,*',searchOn=True,searchOn_searchCode=searchCode)
+            tree_kwargs['searchCode'] = searchCode
             bar.htreeSlot.treeViewer(**tree_kwargs)
 
         for side in ('top','bottom','left','right'):
