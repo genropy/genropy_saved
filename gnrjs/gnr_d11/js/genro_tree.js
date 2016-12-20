@@ -196,7 +196,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             }).connectOneNode(widget.domNode);
         }
         if (savedAttrs.inspect) {
-            var modifiers = (savedAttrs.inspect == true) ? '' : savedAttrs.inspect;
+            var modifiers = (savedAttrs.inspect === true) ? '' : savedAttrs.inspect;
             genro.wdg.create('tooltip', null, {label:function(n) {
                 return genro.dev.bagAttributesTable(n);
             },
@@ -216,7 +216,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
         if (savedAttrs.onChecked) {
             widget.checkBoxTree = true;
-            if (savedAttrs.onChecked != true) {
+            if (savedAttrs.onChecked !== true) {
                 widget.onChecked = funcCreate(savedAttrs.onChecked, 'node,event');
             }
         }
@@ -225,12 +225,12 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                 if(this._filteringValue){
                     return;
                 }
-                this.collapseAll(node.getParent(),node)
+                this.collapseAll(node.getParent(),node);
             });
         }
         var nodeId = sourceNode.attr.nodeId;
         if(savedAttrs.editable){
-            var editmodifiers = savedAttrs.editable==true?'Shift':savedAttrs.editable;
+            var editmodifiers = savedAttrs.editable===true?'Shift':savedAttrs.editable;
             dojo.connect(widget,'onClick',function(item,treeNode){
                 if(treeNode.__eventmodifier==editmodifiers){
                     var origin=storepath.startsWith('*S')?'*S':null;
@@ -243,18 +243,32 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             var searchId = searchCode+'_searchbox';
             var searchBoxNode = genro.nodeById(searchId);
             if (searchBoxNode){
-                sourceNode.registerSubscription(searchId+'_changedValue',widget,function(v,field){
-                    if(this._filteringValue){
+                sourceNode.registerSubscription(searchId+'_changedValue',widget,function(v,field,search_kw){
+                    var was_filtering = !isNullOrBlank(this._filteringValue);
+                    var end_filtering = isNullOrBlank(v);
+                    if(was_filtering){
                         if(this._filteringValue!=v){
                             this.stopApplyFilter();
+                            if(end_filtering){
+                                this.collapseAll();
+                                this._filteringValue = null;
+                                this.applyFilter(search_kw);
+                                return;
+                            }
                         }else{
                             return;
                         }
                     }
-                    if(isNullOrBlank(v) && isNullOrBlank(this._filteringValue)){
+                    if(end_filtering){
                         return;
                     }
-                    this.applyFilter(v);
+                    this._filteringValue = v;
+                    var vl = v.length;
+                    var delay = vl==1?4000:vl==2?2000:vl==3?500:150;
+                    var that = this;
+                    sourceNode.delayedCall(function(){
+                        that.applyFilter(search_kw);
+                    },delay,'shortSeed_delay');
                 });
             }
         }
@@ -326,11 +340,9 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
     },
 
-    mixin_applyFilter:function(search){
-        if(!search && this._filteringValue){
-            this.collapseAll();
-        }
-        this._filteringValue = search || null;
+    mixin_applyFilter:function(search_kw){
+        search_kw = search_kw || {};
+        var search = this._filteringValue;
         var treeNodes=dojo.query('.dijitTreeNode',this.domNode);
         treeNodes.removeClass('hidden');
         //if (!search){return;}
@@ -363,7 +375,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             }
             
         };
-        var root=this.model.store.rootData();
+        var root = this.model.store.rootData();
         var cb=function(n){
             if (cb_match(n)){
                 var fullpath=n.getFullpath(null,root);
@@ -371,16 +383,19 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             }
         };
         this._pending_deferred = {};
-        var filterForEach = function(b,cb,mode){
+        var filterForEach = function(b,cb,mode,valid_paths){
             b.forEach(function(n){
                 if(mode=='async' && n.getResolver() && n.getResolver().expired()){
+                    if(valid_paths && valid_paths.indexOf(n.label)<0){
+                        return;
+                    }
                     var deferred = n.getValue(null,{rpc_sync:false});
                     var token='treesearch_'+genro.getCounter('treesearch');
                     that._pending_deferred[token] = {'deferred':deferred,'bagNode':n};
                     deferred.addCallback(function(result){
                         delete that._pending_deferred[token];
                         if(result instanceof gnr.GnrBag){
-                            filterForEach(result,cb,'async');
+                            filterForEach(result,cb,'async',valid_paths);
                             that.sourceNode.delayedCall(function(){
                                 showResult();
                             },30,'applyFilter_asyncSearch');
@@ -419,8 +434,45 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             });
         };
         var m = ('searchMode' in this.sourceNode.attr)? this.sourceNode.attr.searchMode:'async';
-        filterForEach(root,cb,m);
-        showResult();
+        if (!('_searchRpcProxy' in this)){
+            this._searchRpcProxy = {kw:{},cache:[],_sourceNode:this.sourceNode};
+            var data_inattr = root.getParentNode().getInheritedAttributes();
+            if(!('rpcmethod' in search_kw)){
+                var rootattr = objectUpdate({},root.getParentNode().attr);
+                var search_attr = objectExtract(rootattr,'search_*');
+                var storeRpcSearch = objectPop(search_attr,'method');
+                if(storeRpcSearch){
+                    this._searchRpcProxy.method = storeRpcSearch;
+                    this._searchRpcProxy.kw = search_attr;
+                }
+            }else{
+                this._searchRpcProxy.method = objectPop(search_kw,'rpcmethod');
+            }
+            
+        }   
+        
+        if(this._filteringValue && this._searchRpcProxy.method){
+            if(this._searchRpcProxy.cache.some(function(c){return that._filteringValue.match(c);})){
+                filterForEach(root,cb,m,[]);
+                showResult();
+            }else{
+                var rpc_kw = objectUpdate({},this._searchRpcProxy.kw);
+                objectUpdate(rpc_kw,search_kw);
+                rpc_kw.seed = this._filteringValue;
+                this._searchRpcProxy.cache.push(new RegExp('('+this._filteringValue+')','ig'));
+                genro.serverCall(this._searchRpcProxy.method,rpc_kw,function(result){
+                    if(result){
+                        filterForEach(root,cb,m,result);
+                        showResult();
+                    }
+                });
+            }
+        }else{
+            filterForEach(root,cb,m);
+            showResult();
+        }
+        
+        
     },
 
     mixin_updateLabels:function(){
@@ -446,17 +498,17 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         var updBranchCheckedStatus = function(bag) {
             bag.forEach(function(n) {
                 if(n.attr.checked == 'disabled:on' || n.attr.checked=='disabled:off'){
-                    return
+                    return;
                 }
                 var v = n.getValue(walkmode);
                 if ((v instanceof gnr.GnrBag) && v.len()) {
                     updBranchCheckedStatus(v);
                     var checkedStatus = dojo.every(v.getNodes(), function(cn) {
-                        return cn.attr.checked == true;
+                        return cn.attr.checked === true;
                     });
                     if (!checkedStatus) {
                         var allUnchecked = dojo.every(v.getNodes(), function(cn) {
-                            return cn.attr.checked == false;
+                            return cn.attr.checked === false;
                         });
                         checkedStatus = allUnchecked ? false : -1;
                     }
@@ -480,12 +532,12 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         var rootNodeId = genro.getDataNode(this.model.store.datapath)._id;
         while (parentNode && (parentNode._id != rootNodeId)) {
             parentNode.setAttr({'checked':this.checkBoxCalcStatus(parentNode)}, true, true);
-            var parentNode = parentNode.getParentNode();
+            parentNode = parentNode.getParentNode();
         }
         if (this.sourceNode.attr.nodeId) {
             genro.publish(this.sourceNode.attr.nodeId + '_checked', bagnode);
         }
-         this.updateCheckedAttr()
+         this.updateCheckedAttr();
     },
 
     mixin_updateCheckedAttr:function(){

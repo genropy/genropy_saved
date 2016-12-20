@@ -18,7 +18,7 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
                 sourceNode.attr[k] = attributes[k];
             }else{
                 for(var c in catchersHandlers){
-                    if(k.indexOf(c+'_')==0){
+                    if(k.indexOf(c+'_')===0){
                         sourceNode.attr[k] = attributes[k];
                         sourceNode.gnrwdg.catchers[k] = 'catch_'+c;
                         break;
@@ -1462,13 +1462,15 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         var defaultLabel = objectPop(kw, 'searchLabel') || 'Search';
         databag.setItem('menu_dtypes', searchDtypes);
         databag.setItem('caption', defaultLabel);
+        databag.setItem('searchDelay',1000);
         this._prepareSearchBoxMenu(searchOn, databag);
         sourceNode.setRelativeData(null, databag);
         var searchbox = sourceNode._('table', {nodeId:nodeId})._('tbody')._('tr');
-        var delay = 'delay' in kw ? objectPop(kw, 'delay') : 100;
-        var minLen = objectPop(kw,'minLen') || 0;
-        sourceNode._('dataController', {'script':'(currentValue && currentValue.length<minLen)?genro.publish(searchBoxId+"_changedValue","",field):genro.publish(searchBoxId+"_changedValue",currentValue,field);',
-            'searchBoxId':nodeId,currentValue:'^.currentValue',field:'=.field',_userChanges:true,_delay:delay,minLen:minLen});
+        var delay = objectPop(kw, 'delay') || objectPop(search_kw, 'delay') || 100;
+        var search_kw = objectPop(kw,'search_kw') || {};
+        sourceNode._('dataController', {'script':'genro.publish(searchBoxId+"_changedValue",currentValue,field,this.evaluateOnNode(search_kw));',
+            'searchBoxId':nodeId,currentValue:'^.currentValue',field:'=.field',
+            _userChanges:true,_delay:delay,search_kw:search_kw});
         var searchlbl = searchbox._('td');
         searchlbl._('div', {'innerHTML':'^.caption',_class:'buttonIcon'});
         searchlbl._('menu', {'modifiers':'*',_class:'smallmenu',storepath:'.menubag',
@@ -4658,11 +4660,11 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         var div = pane._('div'); //{'width':slotKw.width || '15em'}
         var searchId = objectPop(slotKw,'nodeId') || frameCode+'_searchbox';
         var searchCode = objectPop(slotKw,'searchCode');
-        var minLen = objectPop(slotKw,'minLen')
         if(searchCode){
             searchId = searchCode+'_searchbox';
         }
-        div._('SearchBox', {searchOn:slotValue,nodeId:searchId,datapath:'.searchbox',parentForm:false,'width':slotKw.width,minLen:minLen});
+        div._('SearchBox', {searchOn:slotValue,nodeId:searchId,datapath:'.searchbox',parentForm:false,
+                            'width':objectPop(slotKw,'width'),search_kw:slotKw});
     },
     slot_stackButtons:function(pane,slotValue,slotKw,frameCode){
         var scNode = objectPop(slotKw,'stackNode');

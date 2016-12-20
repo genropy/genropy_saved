@@ -486,6 +486,11 @@ class TableBase(object):
                                                 condition_kwargs=condition_kwargs,caption=caption,dbstore=dbstore,columns=columns,
                                                 related_kwargs=related_kwargs,resolved=resolved,**kwargs)
 
+    @public_method
+    def hierarchicalSearch(self,seed=None,related_table=None,**kwargs):
+        if hasattr(self,'hierarchicalHandler'):
+            return self.hierarchicalHandler.hierarchicalSearch(seed=seed,related_table=related_table,**kwargs)
+
 
     @extract_kwargs(condition=True,related=True)
     def getHierarchicalDataBag(self,caption_field=None,condition=None,

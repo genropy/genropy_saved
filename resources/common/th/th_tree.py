@@ -88,7 +88,12 @@ class HTableTree(BaseComponent):
         b = tblobj.getHierarchicalData(caption_field=caption_field,dbstore=dbstore,
                                                     related_kwargs=related_kwargs,
                                                     root_id=root_id,columns=columns,resolved=resolved)
-        d = pane.data(storepath,b,childname='store',caption=caption,table=table) 
+        d = pane.data(storepath,b,childname='store',caption=caption,table=table,
+                    search_method=self.db.table(table).hierarchicalSearch,
+                    search_related_table=related_kwargs.get('table'),
+                    search_related_path=related_kwargs.get('path'),
+                    search_related_caption_field=related_kwargs.get('caption_field')
+                    ) 
         return d
 
     @public_method    
