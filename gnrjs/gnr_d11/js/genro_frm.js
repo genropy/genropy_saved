@@ -448,12 +448,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         //this.updateInvalidField(sourceNode, sourceNode.attrDatapath('value'));
     },
     reload: function(kw) {
-        var kw = kw || {};
+        kw = kw || {};
         this.load(objectUpdate({destPkey:this.getCurrentPkey()},kw));
     },
     
-    goToRecord:function(pkey){
-        if(pkey!=this.getCurrentPkey()){
+    goToRecord:function(pkey,ts){
+        if(pkey!=this.getCurrentPkey() || (ts && !isEqual(new Date(this.getDataNodeAttributes().lastTS),ts))){
             this.load({destPkey:pkey});
         }
     },

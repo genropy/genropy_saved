@@ -598,7 +598,7 @@ class MultiButtonForm(BaseComponent):
                 SET .selectedForm = formId;
                 var loadPkeyValue = row.getItem(pkeyColumn);
                 var relatedForm = genro.formById(formId);
-                relatedForm.goToRecord(loadPkeyValue);
+                relatedForm.goToRecord(loadPkeyValue,row.getItem('__mod_ts'));
                 """,row='^.row',switchdict=switchdict,
                 sw=switch,_if='row && row.getItem("_pkey")')
         else:
