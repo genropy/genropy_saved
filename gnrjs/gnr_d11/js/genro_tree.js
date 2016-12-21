@@ -29,27 +29,40 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         this._dojotag = 'Tree';
     },
 
-    onBuilding:function(sourceNode){
+
+    onBuilding_searchOn:function(sourceNode){
+        var searchOn = normalizeKwargs(sourceNode.attr,'searchOn');
+        if(!searchOn){
+            return;
+        }
+        var boxkw = objectExtract(sourceNode.attr,'height,max_height,width,max_width,overflow,border');
+        var treeattr = objectUpdate({},sourceNode.attr);
+        sourceNode.attr = {tag:'div',_class:'searchtree_container',display:'inline-block',width:objectPop(boxkw,'width'),
+                            border:objectPop(boxkw,'border')};
+        searchCode = searchOn.searchCode || 'search_'+sourceNode.getStringId();
+        searchOn.nodeId = searchCode +'_searchbox';
+        searchOn.parentForm = false;
+        treeattr.searchCode = searchCode;
+        sourceNode._('div','t_searchbox',{_class:'tree_searchbox'},{doTrigger:false})._('div',{display:'inline-block',position:'absolute',right:'5px'},{doTrigger:false})._('SearchBox',searchOn,{doTrigger:false});
+        sourceNode._('div','t_scrollbox',boxkw,{doTrigger:false})._('tree',treeattr,{doTrigger:false});
+    },
+
+    onBuilding_popup:function(sourceNode){
         var popup_kw = normalizeKwargs(sourceNode.attr,'popup');
         if(!popup_kw){
             return;
         }
         popup_kw = objectUpdate({tag:'menu',modifiers:'*',_class:'menupane'},popup_kw);
-
         var treeattr = objectUpdate({},sourceNode.attr);
+        treeattr.max_height= treeattr.max_height || '300px';
+        treeattr.min_width= treeattr.min_width || '220px';
+        treeattr.searchOn = normalizeKwargs(treeattr,'searchOn');
         var closeEvent = objectPop(popup_kw,'closeEvent');
-        var searchOn = normalizeKwargs(popup_kw,'searchOn');
-        var searchCode;
-        if(searchOn){
-            searchCode = searchOn.searchCode || 'search_'+sourceNode.getStringId();
-            searchOn.nodeId = searchCode +'_searchbox';
-            searchOn.parentForm = false;
-            treeattr.searchCode = searchCode;
-        }
         popup_kw.datapath = objectPop(treeattr,'datapath');
         popup_kw.connect_onOpen = function(evt){
-            var box = this.getValue().getItem('m_item.m_box.m_scrollbox.m_spacer');
-            if(!box.getNode('treemenu')){
+            var box = this.getValue().getItem('m_item.m_spacer');
+            var treeNode = box.getNodeByAttr('tag','tree',true);
+            if(!treeNode){
                 box._('tree','treemenu',
                         objectUpdate({openOnClick:true,
                             hideValues:true,autoCollapse:true, //excludeRoot:true,
@@ -64,23 +77,32 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                         that.widget.onCancel();
                     });
                 }
-
+                treeNode = box.getNodeByAttr('tag','tree',true);
             }
-            box.getNode('treemenu').widget.originalContextTarget = this.widget.originalContextTarget;
+            treeNode.widget.originalContextTarget = this.widget.originalContextTarget;
         };
         var box_kw = objectExtract(popup_kw,'max_height,min_width');
         sourceNode.attr = popup_kw;
-        box_kw.max_height= box_kw.max_height || '300px';
-        box_kw.min_width= box_kw.min_width || '220px';
-        box_kw.overflow='auto';
-        var ext_kw = {};
-        ext_kw.connect_onclick = function(e){e.stopPropagation();e.preventDefault();};
-        var mi = sourceNode._('menuItem','m_item',{},{doTrigger:false})._('div','m_box',ext_kw,{doTrigger:false});
-        if(searchOn){
-            mi._('div','m_searchbox',{_class:'menutree_searchbox'},{doTrigger:false})._('div',{display:'inline-block',position:'absolute',right:'5px'},{doTrigger:false})._('SearchBox',searchOn,{doTrigger:false});
+        var connect_onclick = function(e){e.stopPropagation();e.preventDefault();};
+        var mi = sourceNode._('menuItem','m_item',{},{doTrigger:false});
+        var spacer_padding_top = '4px';
+        if(treeattr.searchOn){
+            spacer_padding_top = 0;
         }
+        mi._('div','m_spacer',{padding_top:spacer_padding_top, padding_bottom:'4px',connect_onclick:connect_onclick},{doTrigger:false});
+        return true;
+    },
 
-        mi._('div','m_scrollbox',box_kw,{doTrigger:false})._('div','m_spacer',{padding_top:'4px', padding_bottom:'4px'},{doTrigger:false});
+    onBuilding:function(sourceNode){
+        if(this.onBuilding_popup(sourceNode)){
+            return;
+        }
+        if(sourceNode.attr.height || sourceNode.attr.max_height || sourceNode.attr.width || sourceNode.attr.max_width){
+            sourceNode.attr.overflow = 'auto';
+        }
+        if(this.onBuilding_searchOn(sourceNode)){
+            return;
+        }
     },
 
 

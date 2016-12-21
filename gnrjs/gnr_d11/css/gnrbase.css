@@ -1618,13 +1618,13 @@ table.formbuilder {
     height: 12px;
 }
 
-.menutree_searchbox{
-    height: 22px;
+.tree_searchbox{
+    height: 21px;
     background-color: #444;
     position: relative;
 }
 
-.menutree_searchbox .searchboxLabel{
+.tree_searchbox .searchboxLabel{
     color:white;
 }
 
