@@ -727,6 +727,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 this.updateTotalsCount();
                 
             });
+            sourceNode.registerSubscription(searchBoxCode+'_stopSearch',widget,function(kw){
+                kw.finalize();
+            });
             sourceNode.subscribe('command',function(){
                 widget[arguments[0]](arguments.slice(1));
             });

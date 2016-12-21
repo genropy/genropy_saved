@@ -30,21 +30,25 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
     },
 
     onBuilding:function(sourceNode){
-        var popup = objectPop(sourceNode.attr,'popup');
-        if(!popup){
+        var popup_kw = normalizeKwargs(sourceNode.attr,'popup');
+        if(!popup_kw){
             return;
         }
-        var popup_kw = {tag:'menu',modifiers:'*',_class:'menupane',
-                       //connect_ondblclick:function(bagNode,treeNode){
-                       //    this.widget.onCancel();
-                       //}
-                    };
+        popup_kw = objectUpdate({tag:'menu',modifiers:'*',_class:'menupane'},popup_kw);
+
         var treeattr = objectUpdate({},sourceNode.attr);
-        var extraPopupKw = objectExtract(sourceNode.attr,'popup_*');
-        var closeEvent = objectPop(extraPopupKw,'closeEvent');
+        var closeEvent = objectPop(popup_kw,'closeEvent');
+        var searchOn = normalizeKwargs(popup_kw,'searchOn');
+        var searchCode;
+        if(searchOn){
+            searchCode = searchOn.searchCode || 'search_'+sourceNode.getStringId();
+            searchOn.nodeId = searchCode +'_searchbox';
+            searchOn.parentForm = false;
+            treeattr.searchCode = searchCode;
+        }
         popup_kw.datapath = objectPop(treeattr,'datapath');
         popup_kw.connect_onOpen = function(evt){
-            var box = this.getValue().getItem('m_item.m_scrollbox.m_spacer');
+            var box = this.getValue().getItem('m_item.m_box.m_scrollbox.m_spacer');
             if(!box.getNode('treemenu')){
                 box._('tree','treemenu',
                         objectUpdate({openOnClick:true,
@@ -65,13 +69,18 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             box.getNode('treemenu').widget.originalContextTarget = this.widget.originalContextTarget;
         };
         var box_kw = objectExtract(popup_kw,'max_height,min_width');
-        objectUpdate(popup_kw,extraPopupKw);
         sourceNode.attr = popup_kw;
         box_kw.max_height= box_kw.max_height || '300px';
         box_kw.min_width= box_kw.min_width || '220px';
         box_kw.overflow='auto';
-        box_kw.connect_onclick = function(e){e.stopPropagation();e.preventDefault();};
-        sourceNode._('menuItem','m_item',{},{doTrigger:false})._('div','m_scrollbox',box_kw,{doTrigger:false})._('div','m_spacer',{padding_top:'4px', padding_bottom:'4px'},{doTrigger:false});
+        var ext_kw = {};
+        ext_kw.connect_onclick = function(e){e.stopPropagation();e.preventDefault();};
+        var mi = sourceNode._('menuItem','m_item',{},{doTrigger:false})._('div','m_box',ext_kw,{doTrigger:false});
+        if(searchOn){
+            mi._('div','m_searchbox',{_class:'menutree_searchbox'},{doTrigger:false})._('div',{display:'inline-block',position:'absolute',right:'5px'},{doTrigger:false})._('SearchBox',searchOn,{doTrigger:false});
+        }
+
+        mi._('div','m_scrollbox',box_kw,{doTrigger:false})._('div','m_spacer',{padding_top:'4px', padding_bottom:'4px'},{doTrigger:false});
     },
 
 
@@ -270,6 +279,14 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                         that.applyFilter(search_kw);
                     },delay,'shortSeed_delay');
                 });
+                sourceNode.registerSubscription(searchId+'_stopSearch',widget,function(kw){
+                    if(objectNotEmpty(this._pending_deferred)){
+                        this.stopApplyFilter();
+                    }else{
+                        kw.finalize();
+                    }
+                });
+
             }
         }
     },

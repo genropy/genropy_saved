@@ -493,8 +493,27 @@ function isNullOrBlank(elem){
 
 function localType(dtype){
     return {'R':{places:2},'L':{places:0},'I':{places:0},'D':{date:'short'},'H':{time:'short'},'HZ':{time:'short'},'DH':{datetime:'short'},'DHZ':{datetime:'short'}}[dtype];
-};
-    
+}
+   
+function normalizeKwargs(kwargs,str){
+    if(!kwargs){
+        return;
+    }
+    var p = objectPop(kwargs,str);
+    var kw = objectExtract(kwargs,str+'_*');
+    if(!objectNotEmpty(kw)){
+        kw = null;
+    }
+    if(p===true || p===null){
+        return kw || (p?{}:null);
+    }
+    if(typeof(p) == 'object'){
+        kw = objectUpdate(kw || {},p);
+    }else{
+        kw._ = p;
+    }
+    return kw;
+}
 
 function objectExtract(obj, keys, dontpop,dontslice) {
     if(!obj){

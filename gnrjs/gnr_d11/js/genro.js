@@ -49,7 +49,7 @@ dijit.showTooltip = function(/*String*/ innerHTML, /*DomNode*/ aroundNode) {
 dojo.declare('gnr.GenroClient', null, {
 
     constructor: function(kwargs) {
-        //this.patchConsole();
+        this.patchConsole();
         kwargs = mapConvertFromText(kwargs);
         this.domRootName = kwargs.domRootName || 'mainWindow';
         this.page_id = kwargs.page_id;
@@ -110,15 +110,33 @@ dojo.declare('gnr.GenroClient', null, {
             this._debugPaths[path] = kw;
         }
     },
+    patchConsole_debug:function(){
+        if(arguments[0].dojoType=='cancel'){
+            return;
+        }else{
+            console.zdebug(arguments);
+        }
+    },
+
+    patchConsole_warn:function(){
+        if(arguments[0].dojoType=='cancel'){
+            return;
+        }else{
+            console.zdebug(arguments);
+        }
+    },
 
     patchConsole:function(){
-        console.zlog = console.log;
-        console.log = function(){
-            if(!arguments[0]){
-                genro.bp(true)
-            }
-            console.zlog(arguments);
+        dojo.experimental = function(){
+            //removed console warn experimental dojox
         };
+        var patchers = objectExtract(this,'patchConsole_*',true);
+        for(var p in patchers){
+            if(p in console){
+                console['z'+p] = console[p];
+                console[p] = patchers[p];
+            }
+        }
     },
 
     genroInit:function() {

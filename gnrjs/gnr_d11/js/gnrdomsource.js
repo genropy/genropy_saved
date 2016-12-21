@@ -508,12 +508,12 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
     },
     getAttributeFromDatasource: function(attrname, autocreate, dflt) {
-        var attrname = attrname || 'value';
+        attrname = attrname || 'value';
         var value = this.attr[attrname];
         value = this.currentFromDatasource(value, autocreate, dflt);
         if (((attrname == 'innerHTML')) && (this.attr.mask || this.attr.format || (value instanceof gnr.GnrBag)) ) {
             var kw = objectUpdate({},this.attr);
-            objectPop(kw,attrname)
+            objectPop(kw,attrname);
             value = genro.formatter.asText(value, this.evaluateOnNode(kw));
         }
         return value;
@@ -758,7 +758,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         return attributes;
     },
     onNodeCall:function(func,kw){
-        var kw = objectUpdate(objectUpdate({},this.attr),kw); 
+        kw = objectUpdate(objectUpdate({},this.attr),kw); 
         return funcApply(func,this.evaluateOnNode(kw),this);
     },
     
@@ -778,6 +778,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         return result;
     },
+
+    normalizeKwargs:function(str){
+        return this.evaluateOnNode(normalizeKwargs(objectUpdate({},this.attr),str));
+    },
+
     currentAttributes: function() {
         var attributes = {};
         for (var attr in this.attr) {

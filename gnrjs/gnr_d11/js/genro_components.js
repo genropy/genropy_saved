@@ -1472,15 +1472,20 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
             'searchBoxId':nodeId,currentValue:'^.currentValue',field:'=.field',
             _userChanges:true,_delay:delay,search_kw:search_kw});
         var searchlbl = searchbox._('td');
-        searchlbl._('div', {'innerHTML':'^.caption',_class:'buttonIcon'});
+        searchlbl._('div', {'innerHTML':'^.caption',_class:'buttonIcon searchboxLabel'});
         searchlbl._('menu', {'modifiers':'*',_class:'smallmenu',storepath:'.menubag',
             selected_col:'.field',selected_caption:'.caption',action:'SET .value = null;SET .currentValue = null;'});
         
         searchbox._('td')._('div',{_class:'searchInputBox',connect_onclick:function(e){
             if(e.target.tagName.toLowerCase()!='input'){
-                this.setRelativeData('.value',null);
-                this.setRelativeData('.currentValue',null);
-                genro.dom.removeClass(this,'activeSearch');
+                var that = this;
+                var finalize = function(){
+                    that.setRelativeData('.value',null);
+                    that.setRelativeData('.currentValue',null);
+                    genro.dom.removeClass(this,'activeSearch');
+                };
+                genro.publish(nodeId+"_stopSearch",{inputSourceNode:this,finalize:finalize});
+               
             }
         }})._('input', {'value':'^.value',connect_onkeyup:kw.onKeyUp,
                          parentForm:false,width:objectPop(kw,'width') || '6em',

@@ -1618,6 +1618,16 @@ table.formbuilder {
     height: 12px;
 }
 
+.menutree_searchbox{
+    height: 22px;
+    background-color: #444;
+    position: relative;
+}
+
+.menutree_searchbox .searchboxLabel{
+    color:white;
+}
+
 .smallmenu .dijitMenuItem {
     font-size: .9em;
 }
