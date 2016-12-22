@@ -2015,7 +2015,6 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
                                 var video = top.children[0];
                                 var subH = bcdn.clientHeight - top.clientHeight;
                                 if(subH<(minH-3)){
-                                    console.log('devo risizare top')
                                     var topH = (bcdn.clientHeight-minH);
                                     video.style.height = topH+'px';
                                     video.style.width = null;
@@ -4370,7 +4369,6 @@ dojo.declare("gnr.widgets.FieldsTree", gnr.widgets.gnrwdg, {
             };
             sourceNode._('div',trashKw);
         }
-        console.log('FieldsTree kw',kw)
         genro.dev.fieldsTree(box,table,kw);
         return box;
     }

@@ -137,8 +137,12 @@
 
 .iframeroot_bar{
     height: 20px;
+    padding-top: 1px;
 }
 
+.iframeroot_bar, .iframeroot_bar.slotbar_toolbar_standard{
+    background: #444;
+}
 .iframeroot_bar .multibutton{
 }
 
