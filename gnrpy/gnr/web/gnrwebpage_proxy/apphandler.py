@@ -1074,7 +1074,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     @public_method
     def getFieldcellPars(self,field=None,table=None):
         tableobj = self.db.table(table)
-        cellpars = cellFromField(field,tableobj)
+        cellpars = cellFromField(field,tableobj,checkPermissions=self.page.permissionPars)
         cellpars['field'] = field
         return Bag(cellpars)
         

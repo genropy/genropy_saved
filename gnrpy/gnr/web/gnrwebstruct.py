@@ -37,7 +37,8 @@ def cellFromField(field,tableobj,checkPermissions=None):
     kwargs = dict()
     fldobj = tableobj.column(field)
     fldattr = dict(fldobj.attributes or dict())
-    fldattr.update(fldobj.getPermissions(**checkPermissions))
+    if checkPermissions:
+        fldattr.update(fldobj.getPermissions(**checkPermissions))
     if fldattr.get('user_forbidden'):
         kwargs['hidden'] = True
     if 'values' in fldattr:
