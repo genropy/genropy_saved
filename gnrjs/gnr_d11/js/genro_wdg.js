@@ -1314,7 +1314,7 @@ dojo.declare("gnr.GridEditor", null, {
         var cellmap = this.grid.cellmap;
         genro.assert(cellname in cellmap,'cell '+cellname,+' does not exist');
         var cell = cellmap[cellname];
-        if(cell.edit || cell.counter){
+        if(cell.edit || cell.counter || cell.isCheckBoxCell){
             var n = rowEditor.data.setItem(cellname,value);
             delete n.attr._validationError //trust the programmatical value
             this.updateStatus();
@@ -1862,7 +1862,7 @@ dojo.declare("gnr.GridChangeManager", null, {
         if(kw.updvalue){
             var gridEditor = this.grid.gridEditor;
             var cell = this.grid.cellmap[kw.node.label];
-            if(kw.value!=kw.oldvalue && gridEditor && ((kw.node.label in gridEditor.columns) || (cell && cell.counter))){
+            if(kw.value!=kw.oldvalue && gridEditor && ((kw.node.label in gridEditor.columns) || (cell && (cell.counter || cell.isCheckBoxCell)))){
                 var attr = kw.node.attr;
                 if(!('_loadedValue' in attr)){
                     if(kw.oldvalue instanceof gnr.GnrBag){

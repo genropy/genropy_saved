@@ -1305,8 +1305,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 dtype = 'T';
             }
             var checkboxPars = objectPop(cell,'checkBoxColumn');
+
             if(checkboxPars){
                 cell = this.getCheckBoxKw(checkboxPars,sourceNode,cell);
+                cell.isCheckBoxCell = true;
                 this.setCheckedIdSubscription(sourceNode,cell);
                 dtype ='B';
             }     
@@ -3110,6 +3112,19 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         var action = cellkw.action;
         var action_delay = cellkw.action_delay;
         var sourceNode = this.sourceNode;
+        var gridEditor = this.gridEditor;
+        var cellsetter;
+        var currpath;
+        if(gridEditor){
+            cellsetter = function(idx,cell,value){
+                gridEditor.setCellValue(idx,cell,value);
+            }
+        }else{
+            cellsetter = function(idx,cell,value){
+                currpath = '#'+idx+sep+fieldname;
+                storebag.setItem(currpath,value,null,{lazySet:true});
+            }
+        }
         if (currNode.attr.disabled) {
             return;
         }
@@ -3118,17 +3133,23 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             if(checked){
                 return;
             }
-            var currpath;
-            for (var i=0; i<storebag.len(); i++){
-                currpath = '#'+i+sep+fieldname;
-                if(i==rowIndex){
-                    storebag.setItem(currpath,true,null,{lazySet:true});
-                }else{
-                    storebag.setItem(currpath,false,null,{lazySet:true});
+            if(cellkw.radioButton===true){
+                for (var i=0; i<storebag.len(); i++){
+                    cellsetter(i,fieldname,i==rowIndex);
+                }
+            }else{
+                for (var c in this.cellmap){
+                    var s_cell = this.cellmap[c];
+                    if(s_cell.radioButton==cellkw.radioButton){
+                        cellsetter(rowIndex,s_cell.original_field,fieldname==s_cell.original_field);
+                    }
                 }
             }
+
+
+
         }else{
-            storebag.setItem(valuepath, !checked);
+            cellsetter(rowIndex,cellkw.original_field,!checked);
         }
         if(cellkw.checkedId){
             var checkedKeys = this.getCheckedId(fieldname,checkedField) || '';
@@ -3141,10 +3162,10 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             genro.publish(gridId + '_row_checked', currNode.label, newval, currNode.attr);
         }
         if (action){
-            var changedRow = this.rowByIndex(idx);
+            var changedRow = this.rowByIndex(rowIndex);
             var changedKey = changedRow[checkedField];
             var changedValue = changedRow[fieldname];
-            var actionKw = {};
+            var actionKw = {_idx:rowIndex,_row:changedRow};
             actionKw[changedKey] = changedValue;
             if (!action_delay){
                 action.call(this.sourceNode,actionKw);
