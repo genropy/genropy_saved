@@ -7,5 +7,3 @@ class Table(object):
         tbl.column('voto_si',dtype='B',name_long=u'!!Sì')
         tbl.column('voto_no',dtype='B',name_long='!!No')
         tbl.column('voto_astenuto',dtype='B',name_long='!!Astenuto')
-        tbl.formulaColumn('millesimi',select=dict(columns='SUM($popolazione_residente)',
-                                                    where='$sigla_provincia=#THIS.sigla'),dtype='L')
