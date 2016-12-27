@@ -74,7 +74,7 @@ var th_sections_manager = {
     updateSectionsStatus:function(sections,viewNode){
         var viewDomNode = viewNode.getDomNode();
         dojo.forEach(viewDomNode.classList,function(cls){
-            if(cls.indexOf('section_')==0){
+            if(cls.indexOf('section_')===0){
                 dojo.removeClass(viewDomNode,cls);
             }
         });

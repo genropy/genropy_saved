@@ -1077,8 +1077,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 selection.select(idx);
             }
         }
-        if(scrollTo && typeof(idx)=='number' && idx>=0){
-            this.scrollToRow(scrollTo===true?idx:scrollTo);
+        if(scrollTo===true && typeof(idx)=='number' && idx>=0){
+            scrollTo = idx;
+        }
+        if(scrollTo){
+            this.scrollToRow(scrollTo);
         }
         return idx;
     },
@@ -2497,6 +2500,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                 this.selectByRowAttr(this._identifier, this.prevSelectedIdentifiers,null,this.prevFirstVisibleRow,this.prevSelectedIdx);
                 this.prevSelectedIdx = null;
                 this.prevSelectedIdentifiers = null;
+                this.prevFirstVisibleRow = null;
+            }else if(this.prevFirstVisibleRow){
+                this.scrollToRow(this.prevFirstVisibleRow);
                 this.prevFirstVisibleRow = null;
             }
            //if(this.prevFilterValue){
