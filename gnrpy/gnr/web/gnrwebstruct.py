@@ -2256,7 +2256,10 @@ class GnrGridStruct(GnrStructData):
     
     def checkboxcolumn(self,field='_checked',checkedId=None,radioButton=False,calculated=True,name=None,
                         checkedField=None,action=None,action_delay=None,remoteUpdate=False,**kwargs):
-        calculated = not remoteUpdate
+        if hasattr(self,'tblobj'):
+            calculated = self.tblobj.column(field) is None
+        else:
+            calculated = not remoteUpdate
         self.cell(field=field,checkBoxColumn=dict(checkedId=checkedId,radioButton=radioButton,checkedField=checkedField,action=action,
                                                   action_delay=action_delay,remoteUpdate=remoteUpdate),calculated=calculated,name=name,
                                                   **kwargs)

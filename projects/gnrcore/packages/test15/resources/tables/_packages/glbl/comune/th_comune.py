@@ -15,14 +15,11 @@ class TestViewVotoRadio(BaseComponent):
         r.fieldcell('popolazione_residente', width='10em',edit=True,
             name='Popolazione')
         r.checkboxcolumn('voto_si',radioButton='voto',
-            remoteUpdate=False,
             columnset='voto',name=u'Sì',width='4em')
         r.checkboxcolumn('voto_no',radioButton='voto',
-            columnset='voto',name='No',width='4em',
-            remoteUpdate=False)
+            columnset='voto',name='No',width='4em')
         r.checkboxcolumn('voto_astenuto',radioButton='voto',
-            columnset='voto',name='Ast.',width='4em',
-            remoteUpdate=False)
+            columnset='voto',name='Ast.',width='4em')
 
     def th_order(self):
         return 'denominazione'
