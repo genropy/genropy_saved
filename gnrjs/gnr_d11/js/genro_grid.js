@@ -3070,7 +3070,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         }
         return columns;
     },
-    mixin_onCheckedColumn:function(idx,fieldname) {
+    mixin_onCheckedColumn:function(idx,fieldname,evt) {
         if(this.sourceNode.attr.parentForm!==false && this.sourceNode.form && this.sourceNode.form.isDisabled()){
             return;
         }
@@ -3085,7 +3085,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         var valuepath = rowpath+sep+kw.original_field;
         var checked = storebag.getItem(valuepath);
         var selectedIdx;
-        if (kw.radioButton){
+        if (kw.radioButton===true){
             selectedIdx = [idx];
         }else{
             selectedIdx = this.getSelectedRowidx();
@@ -3095,11 +3095,11 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         }
         var that = this;
         selectedIdx.forEach(function(idx){
-            that.onCheckedColumn_one(idx,fieldname,checked,kw);
+            that.onCheckedColumn_one(idx,fieldname,checked,kw,evt);
         });
     },
 
-    mixin_onCheckedColumn_one:function(idx,fieldname,checked,cellkw) {
+    mixin_onCheckedColumn_one:function(idx,fieldname,checked,cellkw,evt) {
         var rowIndex = this.absIndex(idx);
         var grid = this;
         var rowpath = '#' + rowIndex;
@@ -3131,18 +3131,18 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         }
         var newval = !checked;
         if(cellkw.radioButton){
-            if(checked){
+            if(checked && !evt.shiftKey){
                 return;
             }
             if(cellkw.radioButton===true){
                 for (var i=0; i<storebag.len(); i++){
-                    cellsetter(i,fieldname,i==idx);
+                    cellsetter(i,fieldname,(i==idx) && !evt.shiftKey);
                 }
             }else{
                 for (var c in this.cellmap){
                     var s_cell = this.cellmap[c];
                     if(s_cell.radioButton==cellkw.radioButton){
-                        cellsetter(idx,s_cell.original_field,fieldname==s_cell.original_field);
+                        cellsetter(idx,s_cell.original_field,(fieldname==s_cell.original_field) && !evt.shiftKey);
                     }
                 }
             }
@@ -3225,7 +3225,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             });
             if(kw.checkedOnRowClick){
                 dojo.connect(sourceNode.widget,'onRowClick',function(e){
-                    sourceNode.widget.onCheckedColumn(e.rowIndex,fieldname);
+                    sourceNode.widget.onCheckedColumn(e.rowIndex,fieldname,e);
                 });
             }
         }
@@ -3254,7 +3254,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             };
             celldata['action_delay'] = typeof(kw.remoteUpdate)=='number'?kw.remoteUpdate:1000;
         }
-        celldata['format_onclick'] = "this.widget.onCheckedColumn(kw.rowIndex,'"+fieldname+"')";
+        celldata['format_onclick'] = "this.widget.onCheckedColumn(kw.rowIndex,'"+fieldname+"',e)";
         return celldata;
     },
     mixin_getCheckedId:function(fieldname,checkedField){
