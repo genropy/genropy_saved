@@ -77,3 +77,4 @@ class TestDyinCheckboxNutsEdit(BaseComponent):
         r.fieldcell('province_principali_nuts',edit=dict(tag='checkBoxText',value='^.province_principali_nuts',
                                                         table='glbl.nuts',parent_id='YWoeKA1qM2m69mJZWsLo3A',
                                                         hierarchical=True))
+
