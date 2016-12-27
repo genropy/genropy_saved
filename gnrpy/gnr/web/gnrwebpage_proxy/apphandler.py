@@ -1693,8 +1693,12 @@ class GnrWebAppHandler(GnrBaseProxy):
         if not changesDict:
             return
         tblobj = self.db.table(table)
+        fields = changesDict.pop('_fields',None)
+        if not fields:
+            fields = [field]
         def cb(row):
-            row[field] = changesDict[row[tblobj.pkey]]
+            for f in fields:
+                row[f] = changesDict[row[tblobj.pkey]] if f==field else False
         tblobj.batchUpdate(cb,where='$%s IN :pkeys' %tblobj.pkey,pkeys=changesDict.keys())
         self.db.commit()
         

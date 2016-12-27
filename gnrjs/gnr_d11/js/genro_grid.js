@@ -3116,13 +3116,14 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         var gridEditor = this.gridEditor;
         var cellsetter;
         var currpath;
+        var changedFields = [];
         if(gridEditor){
-            cellsetter = function(idx,cell,value){
-                gridEditor.setCellValue(idx,cell,value);
+            cellsetter = function(idx,cellname,value){
+                gridEditor.setCellValue(idx,cellname,value);
             }
         }else{
-            cellsetter = function(idx,cell,value){
-                currpath = '#'+grid.absIndex(idx)+sep+fieldname;
+            cellsetter = function(idx,cellname,value){
+                currpath = '#'+grid.absIndex(idx)+sep+cellname;
                 storebag.setItem(currpath,value,null,{lazySet:true});
             }
         }
@@ -3142,6 +3143,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
                 for (var c in this.cellmap){
                     var s_cell = this.cellmap[c];
                     if(s_cell.radioButton==cellkw.radioButton){
+                        changedFields.push(s_cell.original_field);
                         cellsetter(idx,s_cell.original_field,(fieldname==s_cell.original_field) && !evt.shiftKey);
                     }
                 }
@@ -3166,7 +3168,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             var changedRow = this.rowByIndex(rowIndex);
             var changedKey = changedRow[checkedField];
             var changedValue = changedRow[fieldname];
-            var actionKw = {_idx:rowIndex,_row:changedRow};
+            var actionKw = {_idx:rowIndex,_row:changedRow,_fields:changedFields};
             actionKw[changedKey] = changedValue;
             if (!action_delay){
                 action.call(this.sourceNode,actionKw);
