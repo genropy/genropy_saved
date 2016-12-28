@@ -537,6 +537,19 @@ class GnrWebPage(GnrBaseWebPage):
     @property
     def defaultAuthTags(self):
         return self.package.attributes.get('auth_default','')
+
+    def mangledHook(self,method,mangler=None,asDict=False,dflt=None,defaultCb=None):
+        if asDict:
+            prefix='%s_%s_'% (mangler,method)
+            return dict([(fname,getattr(self,fname)) for fname in dir(self) 
+                                     if fname.startswith(prefix) and fname != prefix])       
+        def emptyCb(*args,**kwargs):
+            return dflt
+        handler = getattr(self,'%s_%s' %(mangler.replace('.','_'),method),None)
+        if handler is None and defaultCb is False:
+            return None
+        return handler or defaultCb or emptyCb
+        
         
     def mixinComponent(self, *path,**kwargs):
         """TODO

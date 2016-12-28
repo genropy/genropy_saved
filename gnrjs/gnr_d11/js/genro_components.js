@@ -5179,33 +5179,40 @@ dojo.declare("gnr.stores._Collection",null,{
     },
     
     compileFilter:function(grid,value,filterColumn,colType){
-        if(isNullOrBlank(value)){
-            return null;
-        }
+        var cbsearch;
         var cb;
-        if (colType in {'A':null,'T':null}) {
-            var regexp = new RegExp(value, 'i');
-            cb = function(rowdata, index, array) {
-                return regexp.test(grid.getRowText(index,' ',filterColumn.split('+'),true));
-            };
-        } else {
-            var toSearch = /^(\s*)([\<\>\=\!\#]+)(\s*)(.+)$/.exec(value);
-            if (toSearch) {
-                var val;
-                var op = toSearch[2];
-                if (op == '=') {op = '==';}
-                if ((op == '!') || (op == '#')) {op = '!=';}
-                if (colType in {'R':null,'L':null,'I':null,'N':null}) {
-                    val = dojo.number.parse(toSearch[4]);
-                } else if (colType == 'D') {
-                    val = dojo.date.locale.parse(toSearch[4], {formatLength: "short",selector:'date'});
-                } else if (colType == 'DH') {
-                    val = dojo.date.locale.parse(toSearch[4], {formatLength: "short"});
-                }                
-                cb = function(rowdata, index, array) {
-                    return genro.compare(op,rowdata[filterColumn],val);
+        if(!isNullOrBlank(value)){
+            if (colType in {'A':null,'T':null}) {
+                var regexp = new RegExp(value, 'i');
+                cbsearch = function(rowdata, index, array) {
+                    return regexp.test(grid.getRowText(index,' ',filterColumn.split('+'),true));
                 };
+            } else {
+                var toSearch = /^(\s*)([\<\>\=\!\#]+)(\s*)(.+)$/.exec(value);
+                if (toSearch) {
+                    var val;
+                    var op = toSearch[2];
+                    if (op == '=') {op = '==';}
+                    if ((op == '!') || (op == '#')) {op = '!=';}
+                    if (colType in {'R':null,'L':null,'I':null,'N':null}) {
+                        val = dojo.number.parse(toSearch[4]);
+                    } else if (colType == 'D') {
+                        val = dojo.date.locale.parse(toSearch[4], {formatLength: "short",selector:'date'});
+                    } else if (colType == 'DH') {
+                        val = dojo.date.locale.parse(toSearch[4], {formatLength: "short"});
+                    }                
+                    cbsearch = function(rowdata, index, array) {
+                        return genro.compare(op,rowdata[filterColumn],val);
+                    };
+                }
             }
+        }
+        if(grid.filterManager && grid.filterManager.hasActiveFilter()){
+            cb = function(rowdata, index, array){
+                return grid.filterManager.isInFilterSet(rowdata) && (cbsearch?cbsearch(rowdata, index, array):true);
+            };
+        }else{
+            cb = cbsearch;
         }
         return cb;
     },

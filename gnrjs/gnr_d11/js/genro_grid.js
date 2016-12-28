@@ -704,6 +704,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var selectedIndex = widget.selection.selectedIndex;
             widget.sourceNode.setAttributeInDatasource('selectedId', widget.rowIdByIndex(selectedIndex), null, widget.rowByIndex(selectedIndex), true);
         });
+
+        if(sourceNode.getRelativeData('.filterset')){
+            widget.filterManager = new gnr.GridFilterManager(widget);
+            sourceNode.attr.filterset = '.filterset';
+            sourceNode.registerDynAttr('filterset');
+        }
         //dojo.subscribe(gridId+'_searchbox_keyUp',this,function(v){console.log(v)});
         var searchBoxCode =(sourceNode.attr.frameCode || nodeId)+'_searchbox';
         var searchBoxNode = genro.nodeById(searchBoxCode);
@@ -2158,6 +2164,13 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         this.onRowDblClick(e);
 
+    },
+
+    mixin_setFilterset:function(val,kw){
+        if(kw.reason=='autocreate'){
+            return;
+        }
+        this.applyFilter();
     },
     
     mixin_setStorepath:function(val, kw) {

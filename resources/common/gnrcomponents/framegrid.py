@@ -7,6 +7,7 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs,public_method
+from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrbag import Bag
 
 class FrameGridSlots(BaseComponent):
@@ -100,7 +101,56 @@ class FrameGridSlots(BaseComponent):
     @struct_method
     def fgr_slotbar_gridsemaphore(self,pane,**kwargs):
         return pane.div(_class='editGrid_semaphore',padding_left='4px')
-                                
+
+    @extract_kwargs(cb=True,lbl=dict(slice_prefix=False))
+    @struct_method
+    def fgr_slotbar_filterset(self,parent,filterset=None,cb=None,cb_kwargs=None,
+                            all_begin=None,all_end=None,include_inherited=False,
+                            multiButton=None,multivalue=None,mandatory=None,lbl=None,lbl_kwargs=None,
+                            frameCode=None,**kwargs):
+        pane = parent.div(datapath='.grid.filterset.%s' %filterset)
+        m = self.mangledHook('filterset_%s' %filterset,mangler=frameCode,defaultCb=False)
+        filterlist = None
+        if m:
+            filterlist = m()
+            dflt = getattr(m,'default',None)
+            multivalue=getattr(m,'multivalue',True)
+            mandatory= getattr(m,'mandatory',False)
+            multiButton = getattr(m,'multiButton',multiButton)
+            lbl = lbl or getattr(m,'lbl',None)
+            lbl_kwargs = lbl_kwargs or dictExtract(dict(m.__dict__),'lbl_',slice_prefix=False)
+        if filterlist:
+            filtersetBag = Bag()
+            dflt = []
+            for i,kw in enumerate(filterlist):
+                code = kw.get('code') or 'r_%i' %i
+                if kw.get('isDefault'):
+                    dflt.append(code)
+                filtersetBag.setItem(code,None,**kw)
+            pane.data('.data',filtersetBag)
+            pane.data('.current',','.join(dflt) if dflt else None)
+        multiButton = multiButton is True or multiButton is None or multiButton and len(filtersetBag)<=multiButton
+        if multiButton:
+            mb = pane.multiButton(items='^.data',value='^.current',multivalue=multivalue,mandatory=mandatory,
+                                disabled='^.#parent.#parent.loadingData',**kwargs)
+    
+        else:
+            mb = pane.formbuilder(cols=1,border_spacing='3px',**lbl_kwargs)
+            lbl = lbl or filterset.capitalize()
+            if multivalue:
+                mb.checkBoxText(values='^.data',value='^.current',lbl=lbl,
+                                labelAttribute='caption',parentForm=False,
+                                disabled='^.#parent.#parent.loadingData',
+                                        popup=True,cols=1)
+            else:
+                mb.filteringSelect(storepath='.data',value='^.current',lbl=lbl,
+                                disabled='^.#parent.#parent.loadingData',
+                                storeid='#k',parentForm=False,
+                                validate_notnull=mandatory,
+                                popup=True,cols=1)
+  #
+
+          
 class FrameGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGridSlots'
     @extract_kwargs(top=True,grid=True,columnset=dict(slice_prefix=False),footer=dict(slice_prefix=False))

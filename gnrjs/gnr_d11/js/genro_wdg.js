@@ -1649,6 +1649,49 @@ dojo.declare("gnr.GridEditor", null, {
 
 });
 
+dojo.declare("gnr.GridFilterManager", null, {
+    constructor:function(grid){
+        this.grid = grid;
+    },
+    filterset:function(){
+        return this.grid.sourceNode.getRelativeData('.filterset');
+    },
+    isInFilterSet:function(row){
+        var gridNode = this.grid.sourceNode;
+        var cb_attr,cb;
+        return this.activeFilters().some(function(kw){
+            cb_attr = gridNode.evaluateOnNode(kw.cb_attr);
+            objectUpdate(cb_attr,row);
+            return funcApply("return "+kw.cb,cb_attr,gridNode);
+        });
+    },
+
+    activeFilters:function(){
+        var result = [];
+        var fn;
+        this.filterset().forEach(function(n){
+            var data = n.getValue().getItem('data');
+            var current = n.getValue().getItem('current');
+            if(!(current && data  && data.len())){
+                return;
+            }
+            current.split(',').forEach(function(f){
+                fn = data.getNode(f);
+                if(!fn){
+                    console.error('missing filter',n.label+'.'+f)
+                }
+                if(fn.attr.cb){
+                    result.push({cb:fn.attr.cb,cb_attr:objectExtract(fn.attr,'cb_*',true)})
+                }
+            });
+        });
+        return result;
+    },
+
+    hasActiveFilter:function(){
+        return this.activeFilters().length>0;
+    }
+});
 dojo.declare("gnr.GridChangeManager", null, {
     constructor:function(grid){
         this.grid = grid;

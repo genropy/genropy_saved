@@ -123,27 +123,9 @@ class TableHandlerCommon(BaseComponent):
         defaultModule = 'th_%s' %tablename
         resourceName = self._th_getResourceName(resourceName,defaultModule,defaultClass)
         return self.importTableResource(table,resourceName)
-        
             
     def _th_hook(self,method,mangler=None,asDict=False,dflt=None,defaultCb=None):
         if isinstance(mangler,Bag):
             inattr = mangler.getInheritedAttributes()
             mangler = inattr.get('th_root') or inattr.get('frameCode') or inattr.get('nodeId')
-        if hasattr(self,'legacy_dict'):
-            method=self.legacy_dict.get(method,method)
-        if asDict:
-            prefix='%s_%s_'% (mangler,method)
-            return dict([(fname,getattr(self,fname)) for fname in dir(self) 
-                                     if fname.startswith(prefix) and fname != prefix])
-        if hasattr(self,'legacy_dict'):
-            return getattr(self,method)          
-        def emptyCb(*args,**kwargs):
-            return dflt
-        handler = getattr(self,'%s_%s' %(mangler.replace('.','_'),method),None)
-        if handler is None and defaultCb is False:
-            return None
-        return handler or defaultCb or emptyCb
-        
-
-
-
+        return self.mangledHook(method,mangler=mangler,asDict=asDict,dflt=dflt,defaultCb=defaultCb)

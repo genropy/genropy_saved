@@ -12,7 +12,6 @@ class TestViewVotoRadio(BaseComponent):
         r = struct.view().rows()
         r.fieldcell('denominazione', width='20em',edit=True
             )
- 
         r.checkboxcolumn('voto_si',radioButton='voto',
             columnset='voto',name=u'Sì',width='4em')
         r.checkboxcolumn('voto_no',radioButton='voto',
@@ -43,6 +42,7 @@ class TestViewVotoRadio(BaseComponent):
     def th_order(self):
         return 'denominazione'
 
+
     def th_view(self,view):
         grid = view.grid
         f = grid.footer(background_color='#B0CCEB')
@@ -64,6 +64,16 @@ class TestViewVotoRadio(BaseComponent):
                 n_voti_no='^#FORM.record.mill_no',
                 n_voti_astenuti='^#FORM.record.mill_ast',
                 n_voti_totali='^.totalize.popolazione_residente',_delay=1)
+
+        view.top.bar.replaceSlots('vtitle','vtitle,filterset@per_voto')
+
+    def th_filterset_per_voto(self):
+        return [dict(code='tutti',caption='Tutti'),
+                dict(code='voto_si',caption=u'Sì',cb='voto_si'),
+                dict(code='voto_no',caption=u'No',cb='voto_no',isDefault=True),
+                dict(code='voto_ast',caption=u'Astenuti',cb='voto_astenuto'),
+                dict(code='voto_ass',caption=u'Assenti',cb='!(voto_si || voto_no || voto_astenuto)')
+                ]
 
 
     def th_options(self):
