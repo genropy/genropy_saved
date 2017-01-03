@@ -257,6 +257,155 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
     }
 });
 
+
+dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
+    constructor: function(application) {
+        this._domtag = 'canvas';
+    },
+
+    creating: function(attributes, sourceNode) {
+        var savedAttrs = objectExtract(attributes,'chartType,value,filter,datasets,columnCaption,options,data');
+        return savedAttrs;
+    },
+    
+
+    created:function(domNode, savedAttrs, sourceNode){
+        //var chartjs_root = document.createElement('canvas');
+        //domNode.appendChild(chartjs_root);
+        var data = savedAttrs.data;
+        var value = savedAttrs.value;
+        var dataset = savedAttrs.dataset;
+        var filter = savedAttrs.filter;
+        var columnCaption = savedAttrs.columnCaption;
+
+
+        var options = savedAttrs.options || {};
+        var chartType = savedAttrs.chartType;
+        //if(options instanceof gnr.GnrBag){
+        //    options =  options.asDict(true);
+        //}
+        if(sourceNode.attr.title){
+            options.title = options.title || sourceNode.attr.title; 
+        }
+        if(sourceNode.attr.detachable){
+            options.title = options.title || 'Untiled Graph';
+        }
+        //if(value){
+        //    data = this.calculateData(sourceNode,value,dataset,filter,columnCaption);
+        //}
+
+        var that = this;
+        var cb = function(){
+            sourceNode._current_height = domNode.clientHeight;
+            sourceNode._current_width = domNode.clientWidth;
+            options.height = sourceNode._current_height;
+            options.width = sourceNode._current_width;
+            var chartjs = new Chart(domNode,{'type':chartType,'data':data,'options':options});
+            sourceNode.externalWidget = chartjs;
+            chartjs.sourceNode = sourceNode;
+            chartjs.gnr = that;
+            for (var prop in that) {
+                if (prop.indexOf('mixin_') === 0) {
+                    chartjs[prop.replace('mixin_', '')] = that[prop];
+                }
+            }
+            chartjs.gnr_updateChart();
+
+           //genro.dom.setAutoSizer(sourceNode,domNode,function(w,h){
+           //     dygraph.resize(w,h);
+           //});
+        };
+
+        
+        if(!window.Chart){
+            genro.dom.loadJs('/_rsrc/js_libs/Chart.min.js',cb);
+        }else{
+            setTimeout(cb,1);
+        }
+    },
+
+    makeDataset:function(kw){
+        var dataset = objectUpdate({data:[]},kw.pars);
+        objectPop(dataset,'enabled');
+        var field = objectPop(dataset,'field');
+        dataset.label = dataset.label || objectPop(dataset,'name');
+        kw.rows.forEach(function(n){
+            var row = kw.datamode==='bag'?n.getValue('static').asDict() : n.attr;
+            var pkey = row._pkey || n.label;
+            if(kw.filterCb(pkey,row)){
+                if('labels' in kw){
+                    kw.labels.push(row[kw.columnCaption] || (dataset.label || field)+' '+idx);
+                }
+                dataset.data.push(row[field]);
+            }
+        });
+        return dataset;
+    },
+
+    mixin_gnr_updateChart:function(){
+        var data = this.sourceNode.getAttributeFromDatasource('data'); 
+        if(!data){
+            var rows = this.sourceNode.getAttributeFromDatasource('value'); 
+            var filter = this.sourceNode.getAttributeFromDatasource('filter'); 
+            var datasets = this.sourceNode.getAttributeFromDatasource('datasets'); 
+            var columnCaption = this.sourceNode.getAttributeFromDatasource('columnCaption');
+            var filterCb;
+            if(typeof(filter)=='string'){
+                filter = filter.split(',');
+            }
+            if(typeof(filter)!='function'){
+                filterCb = filter?function(pkey,row){return filter.indexOf(pkey)>=0;}:function(){return true;};
+            }else{
+                filterCb = filter;
+            }
+            var attrs,dslabel,dsfield;
+            var datamode = this.sourceNode.attr.datamode || 'attr';
+            var that = this;
+            data = {labels:[],datasets:[]};
+            var dskw = {'rows':rows,'datamode':datamode,
+                        'filterCb':filterCb,'labels':data.labels,
+                        'columnCaption':columnCaption};
+            datasets._nodes.forEach(function(n){
+                if(!('enabled' in n.attr) || n.attr.enabled){
+                    dskw.pars = n.attr;
+                    data.datasets.push(that.gnr.makeDataset(dskw));
+                    objectPop(dskw,'labels');
+                }
+            });
+        }
+        this.config.type = this.sourceNode.getAttributeFromDatasource('chartType'); 
+        console.log('data',data);
+        objectUpdate(this.data,data);
+        this.update();
+    },
+    
+    mixin_gnr_value:function(value,kw, trigger_reason){  
+        this.gnr_updateChart();
+    },
+
+    
+    mixin_gnr_chartType:function(value,kw, trigger_reason){  
+        this.gnr_updateChart();
+    },
+
+    mixin_gnr_datasets:function(value,kw, trigger_reason){ 
+        console.log('zzz',value); 
+        this.gnr_updateChart();
+    },
+
+    mixin_gnr_filter:function(value,kw, trigger_reason){  
+        this.gnr_updateChart();
+    },
+
+    mixin_gnr_columnCaption:function(value,kw, trigger_reason){  
+        this.gnr_updateChart();
+    },
+
+    mixin_gnr_options:function(options,kw, trigger_reason){   
+        this.gnr_updateChart();
+    }
+});
+
 dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
     constructor: function(application) {
         this._domtag = 'div';
@@ -297,14 +446,14 @@ dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
             dygraph.sourceNode = sourceNode;
             dygraph.gnr = that;
             for (var prop in that) {
-                if (prop.indexOf('mixin_') == 0) {
+                if (prop.indexOf('mixin_') === 0) {
                     dygraph[prop.replace('mixin_', '')] = that[prop];
                 }
             }
             genro.dom.setAutoSizer(sourceNode,domNode,function(w,h){
                  dygraph.resize(w,h);
             });
-        }
+        };
         if(!window.Dygraph){
             genro.dom.loadJs('/_rsrc/js_libs/dygraph-combined.js',cb);
         }else{
@@ -347,149 +496,11 @@ dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
     },
 
     mixin_gnr_options:function(options,kw, trigger_reason){   
-        var options = this.sourceNode.getAttributeFromDatasource('options');      
+        options = this.sourceNode.getAttributeFromDatasource('options');      
         if(options instanceof gnr.GnrBag){
             options = options.asDict(true);
         }    
         this.updateOptions(options);
-    }
-
-
-});
-
-dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
-    constructor: function(application) {
-        this._domtag = 'div';
-    },
-    creating: function(attributes, sourceNode) {
-        if (sourceNode.attr.storepath) {
-            sourceNode.registerDynAttr('storepath');
-        }
-    },
-    created: function(newobj, savedAttrs, sourceNode) {
-        sourceNode.registerSubscription(sourceNode.attr.nodeId + '_render', this, function() {
-            this.render(newobj);
-        });
-
-    },
-    setStorepath:function(obj, value) {
-        obj.gnr.update(obj);
-    },
-    attachToDom:function(domNode, vis) {
-        var span = document.createElement('span');
-        var fc = domNode.firstElementChild;
-        if (fc) {
-            domNode.replaceChild(span, fc);
-        } else {
-            domNode.appendChild(span);
-        }
-        vis.$dom = span;
-        return span;
-    },
-    update:function(domNode) {
-        var sourceNode = domNode.sourceNode;
-        if ((sourceNode.vis) && (!sourceNode.visError)) {
-            sourceNode.vis.render();
-        } else {
-            this.render(domNode);
-        }
-
-    },
-    render:function(domNode) {
-        var sourceNode = domNode.sourceNode;
-        try {
-            this._doRender(domNode);
-            sourceNode.visError = null;
-        } catch(e) {
-            console.log('error in rendering protovis ' + sourceNode.attr.nodeId + ' : ' + e);
-            sourceNode.visError = e;
-        }
-
-    },
-    _doRender:function(domNode) {
-        var sourceNode = domNode.sourceNode;
-        if (sourceNode.attr.js) {
-            var vis = new pv.Panel();
-            var protovis = pv.parse(sourceNode.getAttributeFromDatasource('js'));
-            funcApply(protovis, objectUpdate({'vis':vis}, sourceNode.currentAttributes()), sourceNode);
-        }
-        else if (sourceNode.attr.storepath) {
-            var storepath = sourceNode.attr.storepath;
-            var visbag = sourceNode.getRelativeData(storepath).getItem('#0');
-            var vis;
-            _this = this;
-            sourceNode.protovisEnv = {};
-            visbag.forEach(function(n) {
-                vis = _this.bnode(sourceNode, n) || vis;
-            });
-        }
-        this.attachToDom(domNode, vis);
-        sourceNode.vis = vis;
-        vis.render();
-    },
-    storegetter:function(sourceNode, path) {
-        var p = path;
-        var s = sourceNode;
-        return function() {
-            //console.log('getting: ' + p)
-            return s.getRelativeData(p);
-        };
-    },
-    bnode:function(sourceNode, node, parent) {
-        var env = sourceNode.protovisEnv;
-        var storepath = sourceNode.attr.storepath;
-        var attr = objectUpdate({}, node.attr);
-        var tag = objectPop(attr, 'tag');
-        if (tag == 'env') {
-            console.log(node.getValue());
-            env[node.label] = eval(node.getValue());
-            return;
-        }
-        var obj = parent ? parent.add(pv[tag]) : new pv[tag]();
-        this._convertAttr(sourceNode, obj, attr);
-        var v = node.getValue();
-        _this = this;
-        if (v instanceof gnr.GnrBag) {
-            v.forEach(function(n) {
-                _this.bnode(sourceNode, n, obj);
-            });
-        }
-        return obj;
-    },
-    _convertAttr:function(sourceNode, obj, attr) {
-        var env = sourceNode.protovisEnv;
-        var storepath = sourceNode.attr.storepath;
-        for (var k in attr) {
-            var v = attr[k];
-            if (stringEndsWith(k, '_js')) {
-                k = k.slice(0, -3);
-                v = genro.evaluate(v);
-            }
-            else if (stringEndsWith(k, '_fn')) {
-                k = k.slice(0, -3);
-                v = genro.evaluate('function(){return ' + v + '}');
-            }
-            else if (k.indexOf('_fn_') > 0) {
-                k = k.split('_fn_');
-                var fn = 'function(' + k[1] + '){return (' + v + ')}';
-                v = genro.evaluate(fn);
-                k = k[0];
-            }
-
-            if ((typeof(v) == 'string') && (v[0] == '=')) {
-                path = v.slice(1);
-                if (path[0] == '.') {
-                    path = storepath + path;
-                }
-                v = this.storegetter(sourceNode, path);
-            }
-            if (k.indexOf('_') > 0) {
-                k = k.split('_');
-                obj[k[0]](k[1], v);
-            } else {
-                obj[k](v);
-            }
-        }
     }
 });
 

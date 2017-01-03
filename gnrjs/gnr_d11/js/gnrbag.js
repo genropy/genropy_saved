@@ -59,7 +59,7 @@ dojo.declare("gnr.GnrBagNode", null, {
             var attr = objectUpdate({}, _attr);
             this.setAttr(attr, /*update trigger*/false);
         }
-        if (value == undefined) {
+        if (value === undefined) {
             value = null;
         }
         if (!_resolver) {

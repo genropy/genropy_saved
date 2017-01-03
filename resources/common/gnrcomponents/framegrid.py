@@ -11,6 +11,7 @@ from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrbag import Bag
 
 class FrameGridSlots(BaseComponent):
+
     @struct_method
     def fgr_slotbar_export(self,pane,_class='iconbox export',mode='xls',enable=None,rawData=True,parameters=None,**kwargs):
         kwargs.setdefault('visible',enable)
@@ -81,7 +82,6 @@ class FrameGridSlots(BaseComponent):
         
     @struct_method
     def fgr_slotbar_viewlocker(self, pane,frameCode=None,**kwargs):
-       # kw['subscribe_%s_onLockChange' %storeId] = "this.widget.setIconClass($1.locked?'icnBaseLocked':'icnBaseUnlocked');"
         pane.slotButton('!!Locker',publish='viewlocker',iconClass='==_locked?"iconbox lock":"iconbox unlock";',_locked='^.locked',**kwargs)
     
     @struct_method
@@ -148,7 +148,6 @@ class FrameGridSlots(BaseComponent):
                                 storeid='#k',parentForm=False,
                                 validate_notnull=mandatory,
                                 popup=True,cols=1)
-  #
 
           
 class FrameGrid(BaseComponent):

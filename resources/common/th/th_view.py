@@ -398,7 +398,7 @@ class TableHandlerView(BaseComponent):
                         _resolved=True)
         pane.dataController("TH(th_root).querymanager.queryEditor(open);",
                         th_root=th_root,open="^.query.queryEditor")
-        if not 'adm' in self.db.packages:
+        if 'adm' not in self.db.packages:
             return
         pane.dataRemote('.query.savedqueries',self.th_menuQueries,
                         #favoriteQueryPath='=.query.favoriteQueryPath',
@@ -438,7 +438,6 @@ class TableHandlerView(BaseComponent):
         #SOURCE MENUACTIONS
         pane.dataRemote('.resources.action.menu',self.table_script_resource_tree_data,
                         res_type='action', table=table,cacheTime=5)
-
 
     @struct_method
     def th_slotbar_viewsMenu(self,pane,**kwargs):
@@ -495,11 +494,6 @@ class TableHandlerView(BaseComponent):
         pane.paletteTemplateEditor(maintable=table,paletteCode=paletteCode,dockButton_iconClass='iconbox document')
 
       
-
-   # @struct_method
-   # def th_slotbar_batch_export(self,pane,_class='iconbox export',enable=None,rawData=True,parameters=None,**kwargs):
-   #     return pane.slotButton(label='!!Export',action='FIRE .th_batch_run = {resource:"_common/export",res_type:"action"}',iconClass=_class,**kwargs) 
-
     @struct_method
     def th_gridPane(self, frame,table=None,th_pkey=None,
                         virtualStore=None,condition=None,unlinkdict=None,

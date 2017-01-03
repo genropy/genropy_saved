@@ -596,7 +596,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             return this.widget?this.widget.cellCurrentDatapath(path):null;
         }
         if(nodeId=='WORKSPACE'){
-            node=this.attributeOwnerNode('_workspace');
+            var node=this.attributeOwnerNode('_workspace');
             genro.assert(node,'with WORKSPACE path you need an ancestor node with attribute _workspace');
             var wsname = node.attr._workspace===true?(node.attr.nodeId || (node.attr.tag+'_'+node.getPathId())):node.attr._workspace;
             return 'gnr.workspace.'+wsname+'.'+relpath;
@@ -616,7 +616,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         return path;
     },
     absDatapath: function(path) { 
-        var path = path || '';
+        path = path || '';
         if (this.isPointerPath(path)) {
             path = path.slice(1);
         }

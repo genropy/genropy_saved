@@ -6,6 +6,22 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import metadata
 
+
+class ViewTestGraph(BaseComponent):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('nome', width='20em')
+        r.fieldcell('sigla',width='3em')
+        r.fieldcell('numero_abitanti',width='8em')
+        r.fieldcell('tot_superficie',width='8em')
+
+    def th_order(self):
+        return 'numero_abitanti:d'
+
+    def th_query(self):
+        return dict(column='nome',op='contains', val='')
+
+
 class ViewTestSections(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()

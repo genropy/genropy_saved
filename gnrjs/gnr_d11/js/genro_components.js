@@ -191,8 +191,8 @@ dojo.declare("gnr.widgets.MenuDiv", gnr.widgets.gnrwdg, {
             box._('div',{_class:iconClass});
         }
 
-        kw['_class'] = kw['_class'] || 'smallmenu';
-        kw['modifiers'] = kw['modifiers'] || '*';
+        kw._class = kw._class || 'smallmenu';
+        kw.modifiers = kw.modifiers || '*';
         return box._('menu',kw);
     }
 });
@@ -1374,38 +1374,56 @@ dojo.declare("gnr.widgets.PaletteBagNodeEditor", gnr.widgets.gnrwdg, {
 
 dojo.declare("gnr.widgets.PaletteBagEditor", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
-        kw.palette_width = kw.palette_width || '500px';
-        var gnrwdg = sourceNode.gnrwdg;
-
-        var pane = sourceNode._('PalettePane', kw);
-        var path = objectPop(kw,'path');
-        var multiValuePars = objectExtract(kw,'origin,exclude')
-        var bc = pane._('BorderContainer',{background:'#EEF2F4'});
-        var left = bc._('ContentPane',{region:'left',width:'200px',_class:'noheader buttons_grid no_over',
-                        splitter:true});
-        var g = left._('quickGrid',{value:'^'+path,datamode:'attr',
-                          selfDragRows:true,
-                          selfsubscribe_onSelectedRow:function(kw){
-                                if(kw.idx>=0){
-                                    var n = this.widget.collectionStore().itemByIdx(kw.idx);
-                                    //gnrwdg.mveNode.gnrwdg.setSource(nodePath+'?#node');
-                                    gnrwdg.mveNode.gnrwdg.setSource(path+'.'+n.label+'?#node');
-                                }
-                          },
-                           onCreated:function(){
-                                var w = this.widget;
-                                setTimeout(function(){
-                                    w.updateRowCount();
-                                },1);
-                           }}) //
-        g._('column',{field:'field',name:'Cells',width:'100%'});
-        multiValuePars.tools_position = 'BL';
-        var mve = bc._('ContentPane',{region:'center',margin:'2px',overflow:'hidden'})._('MultiValueEditor','mve',multiValuePars);
-        gnrwdg.mveNode = mve.getParentNode();
+        var palette_kw = objectExtract(kw,'paletteCode,dockTo,title');
+        objectUpdate(palette_kw,objectExtract(kw,'palette_*',null,true));
+        palette_kw.palette_width = kw.palette_width || '500px';
+        var pane = sourceNode._('PalettePane', palette_kw);
+        pane._('FlatBagEditor',kw);
         return pane;
     }
 });
 
+dojo.declare("gnr.widgets.FlatBagEditor", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw) {
+        var gnrwdg = sourceNode.gnrwdg;
+        var path = objectPop(kw,'path');
+        var multiValuePars = objectExtract(kw,'origin,exclude');
+        var box_kw = objectUpdate({background:'#EEF2F4'},objectExtract(kw,'box_*'));
+        var bc = sourceNode._('BorderContainer',box_kw);
+        var grid_region = objectPop(kw,'grid_region','left');
+        var boxpars = {region:grid_region,_class:'noheader no_over',
+                        splitter:true};
+        if(grid_region=='left' || grid_region=='right'){
+            boxpars.width = '30%';
+        }else{
+            boxpars.height = '50%';
+        }
+        var left = bc._('ContentPane',boxpars);
+        var grid_attr = {value:'^'+path,datamode:'attr',
+            selfDragRows:true,
+            selfsubscribe_onSelectedRow:function(kw){
+                  if(kw.idx>=0){
+                      var n = this.widget.collectionStore().itemByIdx(kw.idx);
+                      //gnrwdg.mveNode.gnrwdg.setSource(nodePath+'?#node');
+                      gnrwdg.mveNode.gnrwdg.setSource(path+'.'+n.label+'?#node');
+                  }
+            },
+             onCreated:function(){
+                  var w = this.widget;
+                  setTimeout(function(){
+                      w.updateRowCount();
+                  },1);
+            }
+        };
+        objectUpdate(grid_attr,objectExtract(kw,'grid_*'));
+        var g = left._('quickGrid',grid_attr);
+        g._('column',{field:'field',name:'Cells',width:'100%'});
+        multiValuePars.tools_position = 'BL';
+        var mve = bc._('ContentPane',{region:'center',margin:'2px',overflow:'hidden'})._('MultiValueEditor','mve',multiValuePars);
+        gnrwdg.mveNode = mve.getParentNode();
+        return bc;
+    }
+});
 
 dojo.declare("gnr.widgets.BagNodeEditor", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
