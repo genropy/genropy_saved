@@ -89,6 +89,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.profile_count = 4;
         this.lastPing = start_ts;
         this._debugPaths = {};
+        this._aliasDatapaths = {};
         this.sendAllEvents=true;
         this._lastMouseEvent = {};
         this._longClickDuration = 1500;
@@ -101,6 +102,9 @@ dojo.declare('gnr.GenroClient', null, {
         }
         
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
+    },
+    setAliasDatapath:function(alias,path){
+        this._aliasDatapaths[alias] = path;
     },
 
     setDebugPath:function(path,kw){
@@ -250,6 +254,22 @@ dojo.declare('gnr.GenroClient', null, {
     assert:function(condition,msg,level){
         if(!condition){
             console[level || 'error'](msg);
+        }
+    },
+
+    pluginCommand:function(kw){
+        var plugin = objectPop(kw,'plugin');
+        var cb = function(){
+            genro[plugin][objectPop(kw,'command')](kw);
+        };
+        if(plugin in genro){
+            cb();
+        }else{
+            genro.dom.loadCss('/_rsrc/common/js_plugins/'+plugin+'/'+plugin+'.css');
+            genro.dom.loadJs('/_rsrc/common/js_plugins/'+plugin+'/'+plugin+'.js',function(){
+                genro[plugin] = objectPop(window,'genro_plugin_'+plugin);
+                cb();
+            });
         }
     },
 
@@ -1560,7 +1580,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     setData: function(path, value, attributes, doTrigger) {
         var path = genro.pathResolve(path);
-        genro._data.setItem(path, value, attributes, {'_doTrigger': doTrigger});
+        genro._data.setItem(path, value, attributes, {'doTrigger': doTrigger});
     },
 
     setDataFromRemote:function(path, method, params, attributes) {

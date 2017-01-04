@@ -841,9 +841,12 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
 
 });
 
-dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
+dojo.declare("gnr.widgets.TreeFrame", gnr.widgets.gnrwdg, {
+    getRoot:function(sourceNode,kw){
+        return sourceNode._('FramePane',kw);
+    },
+
     createContent:function(sourceNode, kw) {
-        
         var frameCode = kw.frameCode = kw.paletteCode;
         var editable = objectPop(kw, 'editable');
         var treeId = objectPop(kw, 'treeId') || frameCode + '_tree';
@@ -863,8 +866,7 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
                         };
         objectUpdate(tree_kwargs, objectExtract(kw, 'tree_*'));
         var searchOn = objectPop(kw, 'searchOn');
-        kw['contentWidget'] = 'FramePane';
-        var pane = sourceNode._('PalettePane',kw);
+        var pane = this.getRoot(sourceNode,kw);
         if (searchOn) {
             pane._('SlotBar',{'side':'top',slots:'*,searchOn',searchOn:true,toolbar:true});
         }
@@ -882,6 +884,13 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
         }
         pane._('tree', tree_kwargs);
         return pane;
+    }
+});
+
+dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.TreeFrame, {
+    getRoot:function(sourceNode,kw){
+        kw['contentWidget'] = 'FramePane';
+        return sourceNode._('PalettePane',kw);
     }
 });
 
@@ -5968,7 +5977,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         var selection = result.getValue(); 
         var data = new gnr.GnrBag();
         var resultattr = result.attr;
-        data.setItem('P_0',result.getValue()); 
+        data.setItem('P_0',result.getValue(),{pageIdx:0}); 
         this.rowtotal = resultattr.rowcount;
         this.totalRowCount = resultattr.totalRowCount;
         this.selectionName = resultattr.selectionName;
@@ -6156,7 +6165,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
     },
     onChunkLoaded:function(result,pageIdx){
         var data = result.getValue();
-        this.getData().setItem('P_' + pageIdx, data,null,{'doTrigger':false});
+        this.getData().setItem('P_' + pageIdx, data,{pageIdx:pageIdx},{'doTrigger':false});
         objectPop(this.pendingPages,pageIdx);
         this.storeNode.publish('updateRows');
         this.pendingTimeout = {};
@@ -6186,7 +6195,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             sync?null:function(result){return that.onChunkLoaded(result,pageIdx);});
         if(sync){
             if(buffer){
-                buffer.setItem('P_' + pageIdx, result.getValue());
+                buffer.setItem('P_' + pageIdx, result.getValue(),{pageIdx:pageIdx});
             }else{
                 return this.onChunkLoaded(result,pageIdx);
             }

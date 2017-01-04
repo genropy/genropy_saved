@@ -9,23 +9,19 @@ from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag 
 
 class ChartManager(BaseComponent):
-    js_requires = 'gnrcomponents/chartmanager/chartmanager'
+    js_requires = 'js_plugins/chartjs/chartjs'
+    css_requires = 'js_plugins/chartjs/chartjs'
 
     @struct_method
-    def crt_slotbar_charts(self,pane,_class='iconbox chart_bar',mode='bar',enable=None,rawData=True,parameters=None,**kwargs):
+    def crt_slotbar_chartjs(self,pane,_class='iconbox chart_bar',mode='bar',
+                            enable=None,rawData=True,parameters=None,**kwargs):
         gridattr = pane.frame.grid.attributes
         gridId = gridattr['nodeId']
         storepath = '#%s.chartsMenu' %gridId
         pane.menudiv(iconClass=_class,storepath=storepath,tip='!!Charts',
                     action="genro.publish({topic:'openChart',nodeId:'%(nodeId)s'},$1);" %gridattr)
-        gridattr['selfsubscribe_openChart'] = """
-            genro.charts.openChart({data:this.widget.storebag(),
-                                    code:this.attr.nodeId+'_chart_'+($1.pkey || '_newchart') +'_'+ genro.getCounter(),
-                                    title:$1.caption,
-                                    pkeys:this.widget.getSelectedPkeys(),
-                                    struct:this.widget.structbag().deepCopy(),
-                                    datamode:this.widget.datamode});
-        """
+        gridattr['selfsubscribe_openChart'] = """this.publish('pluginCommand',{plugin:'chartjs',command:'openGridChart',pkey:$1.pkey,caption:$1.caption});"""
+
         pane.dataRemote(storepath,self.crt_menuCharts,table=gridattr.get('table'),
                         gridId=gridId)
 
@@ -35,7 +31,7 @@ class ChartManager(BaseComponent):
         if pyviews:
             for k,caption in pyviews:
                 result.setItem(k.replace('_','.'),None,description=caption,caption=caption,viewkey=k,gridId=gridId)
-        userobjects = self.db.table('adm.userobject').userObjectMenu(objtype='chart',flags='%s_%s' % (self.pagename, gridId) if gridId else None,table=table)
+        userobjects = self.db.table('adm.userobject').userObjectMenu(objtype='chartjs',flags='%s_%s' % (self.pagename, gridId) if gridId else None,table=table)
         if len(userobjects)>0:
             result.update(userobjects)
             result.setItem('r_sep',None,caption='-')

@@ -281,26 +281,11 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
 
         var options = savedAttrs.options || {};
         var chartType = savedAttrs.chartType;
-        //if(options instanceof gnr.GnrBag){
-        //    options =  options.asDict(true);
-        //}
-        if(sourceNode.attr.title){
-            options.title = options.title || sourceNode.attr.title; 
-        }
-        if(sourceNode.attr.detachable){
-            options.title = options.title || 'Untiled Graph';
-        }
-        //if(value){
-        //    data = this.calculateData(sourceNode,value,dataset,filter,columnCaption);
-        //}
-
         var that = this;
         var cb = function(){
             sourceNode._current_height = domNode.clientHeight;
             sourceNode._current_width = domNode.clientWidth;
-            options.height = sourceNode._current_height;
-            options.width = sourceNode._current_width;
-            var chartjs = new Chart(domNode,{'type':chartType,'data':data,'options':options});
+            var chartjs = new Chart(domNode,{'type':chartType});
             sourceNode.externalWidget = chartjs;
             chartjs.sourceNode = sourceNode;
             chartjs.gnr = that;
@@ -309,8 +294,8 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
                     chartjs[prop.replace('mixin_', '')] = that[prop];
                 }
             }
+            sourceNode.publish('chartReady');
             chartjs.gnr_updateChart();
-
            //genro.dom.setAutoSizer(sourceNode,domNode,function(w,h){
            //     dygraph.resize(w,h);
            //});
@@ -318,7 +303,10 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
 
         
         if(!window.Chart){
-            genro.dom.loadJs('/_rsrc/js_libs/Chart.min.js',cb);
+            genro.dom.loadJs('/_rsrc/js_libs/Chart.min.js',function(){
+                genro.setData('gnr.chartjs.defaults',new gnr.GnrBag(Chart.defaults));
+                cb();
+            });
         }else{
             setTimeout(cb,1);
         }
@@ -329,7 +317,9 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         objectPop(dataset,'enabled');
         var field = objectPop(dataset,'field');
         dataset.label = dataset.label || objectPop(dataset,'name');
-        kw.rows.forEach(function(n){
+        var idx = 0;
+        kw.rows.walk(function(n){
+            if('pageIdx' in n.attr){return;}
             var row = kw.datamode==='bag'?n.getValue('static').asDict() : n.attr;
             var pkey = row._pkey || n.label;
             if(kw.filterCb(pkey,row)){
@@ -337,8 +327,9 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
                     kw.labels.push(row[kw.columnCaption] || (dataset.label || field)+' '+idx);
                 }
                 dataset.data.push(row[field]);
+                idx++;
             }
-        });
+        },'static');
         return dataset;
     },
 
@@ -354,7 +345,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
                 filter = filter.split(',');
             }
             if(typeof(filter)!='function'){
-                filterCb = filter?function(pkey,row){return filter.indexOf(pkey)>=0;}:function(){return true;};
+                filterCb = filter?function(pkey,row){return filter.length===0 ||filter.indexOf(pkey)>=0;}:function(){return true;};
             }else{
                 filterCb = filter;
             }
@@ -372,11 +363,10 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
                     objectPop(dskw,'labels');
                 }
             });
-        }
-        this.config.type = this.sourceNode.getAttributeFromDatasource('chartType'); 
-        console.log('data',data);
+        }         
         objectUpdate(this.data,data);
         this.update();
+        this.resize();
     },
     
     mixin_gnr_value:function(value,kw, trigger_reason){  
@@ -385,11 +375,11 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
 
     
     mixin_gnr_chartType:function(value,kw, trigger_reason){  
+        this.config.type = this.sourceNode.getAttributeFromDatasource('chartType');
         this.gnr_updateChart();
     },
 
     mixin_gnr_datasets:function(value,kw, trigger_reason){ 
-        console.log('zzz',value); 
         this.gnr_updateChart();
     },
 
@@ -401,8 +391,29 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         this.gnr_updateChart();
     },
 
-    mixin_gnr_options:function(options,kw, trigger_reason){   
-        this.gnr_updateChart();
+    mixin_gnr_options:function(value,kw, trigger_reason){ 
+        var options_bag = this.sourceNode.getAttributeFromDatasource('options');
+        if(kw.node._id == options_bag.getParentNode()._id){
+            return;
+        } 
+        var optpath = kw.node.getFullpath(null,options_bag);
+        var curr = this.options;
+        var currOptionBag = options_bag;
+        var node,val;
+        var optlist = optpath.split('.');
+        var lastLabel = optlist.pop();
+        optlist.forEach(function(chunk){
+            node = currOptionBag.getNode(chunk);
+            curr = node.attr._autolist?curr[currOptionBag.index(chunk)]:curr[chunk]; 
+            currOptionBag = node.getValue();
+        });
+        curr[lastLabel] = kw.value;
+        var that = this;
+        this.sourceNode.delayedCall(function(){
+            that.update();
+            that.resize();
+        },100,'updatingOptions');
+        
     }
 });
 

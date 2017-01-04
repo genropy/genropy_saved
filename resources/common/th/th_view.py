@@ -158,6 +158,8 @@ class TableHandlerView(BaseComponent):
         b.rowchild(label='!!User Configuration',
                     action='genro.dev.tableUserConfiguration($2.attr.table);')
         b.rowchild(childname='configure',label='!!Configure View',action="""$2.widget.configureStructure();""")
+        b.rowchild(childname='chartjs',label='!!Chartjs',
+                    action="""$2.publish('pluginCommand',{plugin:'chartjs',command:'openGridChart'});""")
         grid.data('.contextMenu',b)
 
     @struct_method

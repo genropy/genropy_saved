@@ -700,6 +700,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 this.serverAction(kw);
             }
         });
+        sourceNode.subscribe('pluginCommand',function(kw){
+            kw.grid = this.widget;
+            genro.pluginCommand(kw);
+        });
         sourceNode.subscribe('updatedSelectedRow',function(){
             var selectedIndex = widget.selection.selectedIndex;
             widget.sourceNode.setAttributeInDatasource('selectedId', widget.rowIdByIndex(selectedIndex), null, widget.rowByIndex(selectedIndex), true);
@@ -980,6 +984,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             this.sourceNode.setAttributeInDatasource('selectedLabel', selectedLabel);
         }
         var selattr = objectExtract(this.sourceNode.attr, 'selected_*', true);
+        var selectedPkeys = this.getSelectedPkeys();
         if (objectNotEmpty(selattr)) {
             var row = this.rowByIndex(idx);
             var value;
@@ -996,7 +1001,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             this.sourceNode.setAttributeInDatasource('selectedIndex', ((idx < 0) ? null : idx));
         }
         if (this.sourceNode.attr.selectedPkeys) {
-            this.sourceNode.setAttributeInDatasource('selectedPkeys', this.getSelectedPkeys());
+            this.sourceNode.setAttributeInDatasource('selectedPkeys', selectedPkeys);
         }
         if (this.sourceNode.attr.selectedRowidx) {
             this.sourceNode.setAttributeInDatasource('selectedRowidx', this.getSelectedRowidx().join(','));
@@ -1024,7 +1029,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             this.sourceNode.setAttributeInDatasource('selectedId', selectedId, null, row, true);
         }
         this.sourceNode.publish('onSelectedRow',{'idx':idx,'selectedId':idx>=0?this.rowIdentity(this.rowByIndex(idx)):null,
-                                                'grid':this});
+                                                'grid':this,'selectedPkeys':selectedPkeys});
     },
 
     mixin_indexByRowAttr:function(attrName, attrValue, op,backward) {

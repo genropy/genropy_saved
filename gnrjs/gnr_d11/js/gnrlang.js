@@ -1249,6 +1249,9 @@ function guessDtype(value){
     if(value===null || value===undefined){
         return 'NN';
     }
+    if(isBag(value)){
+        return 'X'
+    }
     var t = typeof(value);
     if(t=='string'){
         return 'T';
@@ -1269,9 +1272,6 @@ function guessDtype(value){
             return 'D';
         }
         return 'DH';
-    }
-    if(value instanceof gnr.GnrBag){
-        return 'X'
     }
     if(value instanceof Array){
         return 'AR';

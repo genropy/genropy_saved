@@ -7,13 +7,14 @@
 
 from gnr.core.gnrbag import Bag 
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerFull,th/th:TableHandler,gnrcomponents/chartmanager/chartmanager:ChartManager"
+    py_requires="gnrcomponents/testhandler:TestHandlerFull,th/th:TableHandler,js_plugins/chartjs/chartjs:ChartManager"
 
     def source_viewer_open(self):
         return False
     def test_0_simple(self, pane):
         pane.chartjs(nodeId='testchart_0',chartType='bar',data={
-                'labels': ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+                'ylabels': ["yRed", "yBlue", "yYellow", "yGreen", "yPurple", "yOrange"],
+                'xLabels': ["xRed", "xBlue", "xYellow", "xGreen", "xPurple", "xOrange"],
                 'datasets': [{
                     'label': '# of Votes',
                     'data': [12, 19, 3, 5, 2, 3],
@@ -36,7 +37,7 @@ class GnrCustomWebPage(object):
                     }]
                 }},
             height='300px',width='600px',border='1px solid silver')
-
+        return
         pane.chartjs(nodeId='testchart_2',chartType='line',data={
                 'labels': ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
                 'datasets': [{
@@ -82,7 +83,7 @@ class GnrCustomWebPage(object):
                                                 condition='$regione=:reg',
                                                 condition_reg='^#ANCHOR.regione',
                                                 viewResource='ViewTestGraph')
-        th.view.top.bar.replaceSlots('searchOn','charts,10,searchOn')
+        th.view.top.bar.replaceSlots('searchOn','chartjs,10,searchOn')
 
 
 
@@ -90,7 +91,7 @@ class GnrCustomWebPage(object):
         pane.data('.data',self.getTestData())
         bc = pane.borderContainer(height='600px',width='800px',_anchor=True)
         frame = bc.bagGrid(storepath='#ANCHOR.data',region='center',struct=self.bmiStruct)
-        frame.top.bar.replaceSlots('delrow','charts,delrow')
+        frame.top.bar.replaceSlots('delrow','chartjs,delrow')
 
     def bmiStruct(self,struct):
         r = struct.view().rows()

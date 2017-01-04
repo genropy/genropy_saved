@@ -554,26 +554,40 @@ dojo.declare("gnr.GnrBag", null, {
     },
 
     fillFrom: function(source) {
-        if (source instanceof Array) {
-            for (var i = 0; i < source.length; i++) {
-                this.setItem(source[i][0], source[i][1]);
+        var sourceType = guessDtype(source);
+        var dest = this;
+        if (sourceType=='AR') {
+            var firstElemType = guessDtype(source[0]);
+            if(firstElemType=='AR'){
+                source.forEach(function(elem,idx){
+                    dest.setItem(elem[0],elem[1],elem[2]);
+                });
+            }else if(firstElemType=='OBJ'){
+                source.forEach(function(elem,idx){
+                    dest.setItem('r_'+idx,new gnr.GnrBag(elem),{_autolist:true});
+                });
             }
-        } else if (isBag(source)) {
-            var dest = this;
+        } else if (sourceType=='X') {
             source.forEach(function(node) {
                 dest.setItem(node.label, node.getValue(), objectUpdate({}, node.getAttr()));
             });
-        }else if(typeof(source)=='string'){
+        }else if(sourceType=='T'){
             //always xml string
             var parser=new window.DOMParser();
             this.fromXmlDoc(parser.parseFromString(source,'text/xml'),genro.clsdict);
         }
-        else if (source instanceof Object) {
+        else if (sourceType=='OBJ') {
             for (var k in source) {
-                this.setItem(k, source[k]);
+                var val = source[k];
+                var valType = guessDtype(val);
+                if(valType=='FUNC'){
+                    val = val.toString();
+                }else if(valType=='OBJ' || valType=='AR'){
+                    val = new gnr.GnrBag(val);
+                }
+                this.setItem(k, val);
             }
         }
-
     },
     
     /**
@@ -651,14 +665,14 @@ dojo.declare("gnr.GnrBag", null, {
             r ='';
             b = n._value;
             dojo.forEach(cells,function(cell){
-                var align = 'left'
+                var align = 'left';
                 vnode = b.getNode(cell);
                 cell_kw = kw[cell] || {};
                 if(vnode){
                     v = vnode._value;
                     if(v instanceof gnr.GnrBag){
                         v = v.getFormattedValue(kw,mode);
-                    }else if(v==null){
+                    }else if(isNullOrBlank(v)){
                         v='';
                     }
                     else{
@@ -701,7 +715,7 @@ dojo.declare("gnr.GnrBag", null, {
     },
 
     getFormattedValue:function(kw,mode){
-        var kw = kw || {};
+        kw = kw || {};
         if(this._parentnode && this._parentnode.attr.format_bag_cells){
             return this.asHtmlTable(objectExtract(this._parentnode.attr,'format_bag_*',true));
         }else if(kw.cells){
@@ -710,14 +724,13 @@ dojo.declare("gnr.GnrBag", null, {
             return this.asNestedTable(kw,mode);
         }
         var r = [];
-        var kw = kw || {};
         kw.joiner = kw.joiner || '<br/>';
         kw.omitEmpty = 'omitEmpty' in kw? kw.omitEmpty:true;
         var fv;
         this.forEach(function(n){
             if(n.label[0]!='_'){
                 fv = n.getFormattedValue(kw,mode);
-                if(kw.omitEmpty && !fv){
+                if(kw.omitEmpty && isNullOrBlank(fv)){
                     return;
                 }
                 r.push(fv);
@@ -1618,6 +1631,7 @@ dojo.declare("gnr.GnrBag", null, {
     /**
      * todo
      */
+
     asDict: function(recursive) {
         var result = {};
         var node,value;

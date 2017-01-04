@@ -592,6 +592,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var pathlist = path.split('.');
         var nodeId = pathlist[0].slice(1);
         var relpath = pathlist.slice(1).join('.');
+        if(nodeId in genro._aliasDatapaths){
+            return genro._aliasDatapaths[nodeId]+'.'+relpath;
+        }
         if(nodeId=='ROW'){
             return this.widget?this.widget.cellCurrentDatapath(path):null;
         }
@@ -620,7 +623,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if (this.isPointerPath(path)) {
             path = path.slice(1);
         }
-        if (path.indexOf('#') == 0) {
+        if (path.indexOf('#') === 0) {
             return this.symbolicDatapath(path);
         }
         if(path=='.'){
