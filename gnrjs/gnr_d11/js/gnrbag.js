@@ -568,6 +568,7 @@ dojo.declare("gnr.GnrBag", null, {
                 });
             }
         } else if (sourceType=='X') {
+
             source.forEach(function(node) {
                 dest.setItem(node.label, node.getValue(), objectUpdate({}, node.getAttr()));
             });
@@ -589,7 +590,6 @@ dojo.declare("gnr.GnrBag", null, {
             }
         }
     },
-    
     /**
      * @id getParent
      */

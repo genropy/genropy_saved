@@ -1731,9 +1731,11 @@ dojo.declare("gnr.GridChangeManager", null, {
     },
     recalculateOneFormula:function(key){
         var that = this;
-        this.grid.storebag().forEach(function(n){
+        var isBagMode = this.grid.datamode=='bag';
+        this.grid.storebag().walk(function(n){
+            if('pageIdx' in n.attr){return;}
             that.calculateFormula(key,n);
-        });
+        },'static',null,isBagMode);
     },
 
     addRemoteControllerColumn:function(field,kw){

@@ -2239,8 +2239,8 @@ class GnrGridStruct(GnrStructData):
         :param headerClasses: TODO"""
         return self.child('rows', classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
         
-    def cell(self, field=None, name=None, width=None, dtype=None, classes=None, cellClasses=None, headerClasses=None,
-             **kwargs):
+    def cell(self, field=None, name=None, width=None, dtype=None, classes=None, cellClasses=None, 
+            headerClasses=None,**kwargs):
         """Return a :ref:`cell`
         
         :param field: TODO
@@ -2250,8 +2250,10 @@ class GnrGridStruct(GnrStructData):
         :param classes: TODO
         :param cellClasses: TODO
         :param headerClasses: TODO"""
+        if hasattr(self,'tblobj'):
+            kwargs.setdefault('calculated',self.tblobj.column(field) is None)
         return self.child('cell', childcontent='', field=field, name=name or field, width=width, dtype=dtype,
-                          classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
+                          classes=classes, cellClasses=cellClasses, headerClasses=headerClasses,**kwargs)
                           
     
     def checkboxcolumn(self,field='_checked',checkedId=None,radioButton=False,calculated=True,name=None,

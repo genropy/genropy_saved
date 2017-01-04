@@ -318,9 +318,10 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         var field = objectPop(dataset,'field');
         dataset.label = dataset.label || objectPop(dataset,'name');
         var idx = 0;
+        var isBagMode = kw.datamode=='bag';
         kw.rows.walk(function(n){
             if('pageIdx' in n.attr){return;}
-            var row = kw.datamode==='bag'?n.getValue('static').asDict() : n.attr;
+            var row = isBagMode?n.getValue('static').asDict() : n.attr;
             var pkey = row._pkey || n.label;
             if(kw.filterCb(pkey,row)){
                 if('labels' in kw){
@@ -329,7 +330,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
                 dataset.data.push(row[field]);
                 idx++;
             }
-        },'static');
+        },'static',null,isBagMode);
         return dataset;
     },
 

@@ -14,6 +14,7 @@ class ViewTestGraph(BaseComponent):
         r.fieldcell('sigla',width='3em')
         r.fieldcell('numero_abitanti',width='8em')
         r.fieldcell('tot_superficie',width='8em')
+        r.cell('densita',formula='tot_superficie/numero_abitanti',dtype='N')
 
     def th_order(self):
         return 'numero_abitanti:d'

@@ -75,11 +75,11 @@ class GnrCustomWebPage(object):
             height='300px',width='600px',border='1px solid silver')
 
     def test_1_glbl(self,pane):
-        bc = pane.borderContainer(height='500px',width='900px',_anchor=True)
+        bc = pane.borderContainer(height='500px',_anchor=True)
         fb = bc.contentPane(region='top').formbuilder(cols=1,border_spacing='3px')
         fb.dbSelect(value='^.regione',dbtable='glbl.regione',lbl='Regione')
         fb.dataFormula('.regione','reg',reg='LOM',_onStart=True)
-        th = bc.contentPane(region='left',width='50%').plainTableHandler(table='glbl.provincia',
+        th = bc.contentPane(region='center').plainTableHandler(table='glbl.provincia',
                                                 condition='$regione=:reg',
                                                 condition_reg='^#ANCHOR.regione',
                                                 viewResource='ViewTestGraph')
@@ -88,7 +88,8 @@ class GnrCustomWebPage(object):
 
 
     def test_2_bagDataValue(self, pane):
-        pane.data('.data',self.getTestData())
+        pane.data('.databag',self.getTestData())
+        pane.dataFormula('.data','databag',databag='=.databag',_onStart=True)
         bc = pane.borderContainer(height='600px',width='800px',_anchor=True)
         frame = bc.bagGrid(storepath='#ANCHOR.data',region='center',struct=self.bmiStruct)
         frame.top.bar.replaceSlots('delrow','chartjs,delrow')
@@ -98,8 +99,8 @@ class GnrCustomWebPage(object):
         r.cell('nome',edit=True,name='Nome')
         r.cell('eta',edit=True,name=u'Età',dtype='L')
         r.cell('peso',edit=True,name='Peso',dtype='L')
-        r.cell('altezza',edit=True,name='Altezza',dtype='L')
-        r.cell('bmi',formula='(peso||0)/((altezza||1)*(altezza||1))',name='BMI',dtype='L')
+        r.cell('altezza',edit=True,name='Altezza',dtype='L')#(peso||0)/((altezza||1)*(altezza||1))
+        r.cell('bmi',formula='(peso||0)/((altezza/100||1)*(altezza/100||1))',name='BMI',dtype='N',calculated=True)
 
     def getTestData(self):
         result = Bag()

@@ -1252,6 +1252,9 @@ function guessDtype(value){
     if(isBag(value)){
         return 'X'
     }
+    if(value instanceof gnr.GnrBagNode){
+        return 'BAGNODE';
+    }
     var t = typeof(value);
     if(t=='string'){
         return 'T';
