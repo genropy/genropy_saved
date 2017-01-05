@@ -2750,7 +2750,9 @@ dojo.declare("gnr.widgets._ButtonLogic",null, {
                 promptkw.widget = objectPop(promptkw,'fields');
                 promptkw.action = function(result){
                     if(result && result.len()){
-                        objectUpdate(action_attributes,result.asDict());
+                        result = result.asDict();
+                        objectUpdate(action_attributes,result);
+                        action_attributes._askResult = result;
                     }
                     funcApply(action, objectUpdate(action_attributes, {event:e,_counter:count}), sourceNode);
                 }

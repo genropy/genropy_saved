@@ -144,6 +144,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         this.cellmap = {};
         this.setStructure(this.gnr.structFromBag(this.sourceNode, this.structBag, this.cellmap));
         this.onSetStructpath(this.structBag);
+        this.sourceNode.publish('onSetStructpath');
     },
 
     mixin_getColumnInfo:function(cell){
@@ -3218,7 +3219,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         }
     },
     mixin_addCheckBoxColumn:function(kw) {
-        kw = this.gnr.getCheckBoxKw(kw, this.sourceNode);
+        //kw = this.gnr.getCheckBoxKw(kw, this.sourceNode);
         this.gnr.addCheckBoxColumn(kw, this.sourceNode);
         this.gnr.setCheckedIdSubscription(this.sourceNode,kw);
     },
@@ -3492,7 +3493,24 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
 
     mixin_configureStructure:function(title){
         var path = this.sourceNode.absDatapath(this.sourceNode.attr.structpath+'.#0.#0');
+        var that = this;
+        var addrow = {content_class:'iconbox add_row',dtype:'N',calculated:true,
+                     ask:{title:_T('New Column'),
+                          fields:[{name:'field',lbl:'Field',validate_notnull:true},
+                                  {name:'name',lbl:'Name'},
+                                  {name:'dtype',lbl:'Dtype',values:'N:Numeric,T:Text,D:Date',wdg:'Combobox'},
+                                  {name:'formula',lbl:'Formula'},
+                                  {name:'calculated',label:'Calculated',wdg:'checkbox'}]}
+                    };
         genro.dev.openBagEditorPalette(path,{title:title || 'Edit view '+this.sourceNode.attr.nodeId,
+                                            addrow:addrow,delrow:true,
+                                            grid_nodeId:this.sourceNode.attr.nodeId+'_viewEditor',
+                                            grid_addCheckBoxColumn:{field:'hidden',trueclass:'checkboxOff',falseclass:'checkboxOn'},
+                                            grid_onCreated:function(widget){
+                                                dojo.connect(that,'onSetStructpath',function(){
+                                                    widget.updateRowCount();
+                                                });
+                                            },
                                            exclude:'dtype,field,tag,related_table,related_table_lookup,related_column,relating_column,rowcaption,caption_field'});
     },
 

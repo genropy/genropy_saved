@@ -114,7 +114,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
                                         title:kw.title || 'Bag editor',
                                         'path':path},kw));
         node.unfreeze();
-        
+        return;
     },
 
     siteLockedStatus:function(set){

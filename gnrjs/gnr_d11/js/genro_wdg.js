@@ -1710,6 +1710,9 @@ dojo.declare("gnr.GridChangeManager", null, {
             that.resolveCalculatedColumns();
             that.resolveTotalizeColumns();
             });
+        this.sourceNode.subscribe('onSetStructpath',function(){
+            that.resolveCalculatedColumns();
+        });
     },
     resolveCalculatedColumns:function(){
         var cellmap = this.grid.cellmap;

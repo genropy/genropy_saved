@@ -751,7 +751,7 @@ dojo.declare("gnr.widgets.PaletteMap", gnr.widgets.gnrwdg, {
         var paletteCode=kw.paletteCode;
         kw.frameCode = paletteCode;
         kw['contentWidget'] = 'FramePane';
-        var mapKw = objectExtract(kw,'map_*',false,true);
+        var mapKw = objectExtract(kw,'map_*',false,true)
         var pane = sourceNode._('PalettePane',kw);
         var centerMarker = objectPop(kw,'centerMarker',true);
         if(centerMarker){
@@ -1396,6 +1396,8 @@ dojo.declare("gnr.widgets.FlatBagEditor", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
         var gnrwdg = sourceNode.gnrwdg;
         var path = objectPop(kw,'path');
+        var toolskw = objectExtract(kw,'addrow,delrow');
+
         var multiValuePars = objectExtract(kw,'origin,exclude');
         var box_kw = objectUpdate({background:'#EEF2F4'},objectExtract(kw,'box_*'));
         var bc = sourceNode._('BorderContainer',box_kw);
@@ -1425,8 +1427,26 @@ dojo.declare("gnr.widgets.FlatBagEditor", gnr.widgets.gnrwdg, {
             }
         };
         objectUpdate(grid_attr,objectExtract(kw,'grid_*'));
-        var g = left._('quickGrid',grid_attr);
+        var g = left._('quickGrid','nodeListGrid',grid_attr);
         g._('column',{field:'field',name:'Cells',width:'100%'});
+        var t = [];
+        if(toolskw.delrow){
+            t.push('delrow');
+            if(toolskw.delrow===true){
+                objectPop(toolskw,'delrow')
+            }
+        }       
+        if(toolskw.addrow){
+            t.push('addrow');
+            if(toolskw.addrow===true){
+                objectPop(toolskw,'addrow')
+            }
+        }
+        if(t.length){
+            g._('tools',{tools:t.join(','),
+                    custom_tools:toolskw,
+                    position:'TR'});
+        }
         multiValuePars.tools_position = 'BL';
         var mve = bc._('ContentPane',{region:'center',margin:'2px',overflow:'hidden'})._('MultiValueEditor','mve',multiValuePars);
         gnrwdg.mveNode = mve.getParentNode();
@@ -2527,7 +2547,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         kw.structpath = kw.structpath || '#WORKSPACE.struct';
         kw.controllerPath = '#WORKSPACE.controllers';
         kw.frameTarget = kw.frameTarget===false?false:true;
-        kw.selfsubscribe_addrow= kw.selfsubscribe_addrow || 'this.widget.addRows($1._counter,$1.evt)';
+        kw.selfsubscribe_addrow= kw.selfsubscribe_addrow || 'this.widget.addRows($1._askResult? [$1._askResult]:$1._counter,$1.evt);';
         kw.selfsubscribe_delrow= kw.selfsubscribe_delrow || 'this.widget.deleteSelectedRows();';
         kw.selfsubscribe_export= kw.selfsubscribe_export || function(kwargs){
             this.widget.serverAction({command:"export", opt:{rawData:true,
@@ -5399,7 +5419,7 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
                 result[n.label] = v;
             })
         }
-        result[this.identifier] = result[this.identifier] || item.label;
+        result[this.identifier] = isNullOrBlank(result[this.identifier])? item.label:result[this.identifier];
 
         return result;
     },
@@ -5450,6 +5470,7 @@ dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
                 }
             }
         }
+        result[this.identifier] = isNullOrBlank(result[this.identifier])? item.label:result[this.identifier];
         return result;
     },
     updateRowNode:function(rowNode,updDict){

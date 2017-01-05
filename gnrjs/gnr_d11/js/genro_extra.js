@@ -414,8 +414,10 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
             that.update();
             that.resize();
         },100,'updatingOptions');
-        
-    }
+    },
+    _dateset_bar:function(){},
+    _dateset_line:function(){},
+    _dateset_pie:function(){},
 });
 
 dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {

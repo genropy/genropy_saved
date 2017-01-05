@@ -1163,7 +1163,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     doUpdateAttrBuiltObj:function(attr, kw, trigger_reason) {
         if(stringStartsWith(attr,'attr_')){
-            var valuepath = this.attr.value || this.attr.src ||this.attr.innerHTML
+            var valuepath = this.attr.value || this.attr.src ||this.attr.innerHTML;
             if(valuepath){
                 var updattr = {};
                 updattr[attr.slice(5)] = kw.value;
