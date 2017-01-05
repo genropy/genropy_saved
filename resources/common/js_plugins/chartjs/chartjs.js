@@ -11,12 +11,51 @@ var genro_plugin_chartjs =  {
                                     pkeys:grid.getSelectedPkeys(),
                                     struct:grid.structbag().deepCopy(),
                                     datamode:grid.datamode,
-                                    chartMenuPath:sn.absDatapath('.chartsMenu')
+                                    chartMenuPath:sn.absDatapath('.chartsMenu'),
+                                    captionGetter:function(kw){
+                                         return genro.chartjs.gridCaptionGetter(grid,kw);
+                                    },
+                                    datasetGetter:function(kw){
+                                         return genro.chartjs.gridDatasetGetter(grid,kw);
+                                    },
                                 });
         var chartNodeId = chartNode.attr.nodeId;
         chartNode.registerSubscription(sn.attr.nodeId+'_onSelectedRow',function(kw){
             genro.nodeById(chartNodeId).setRelativeData('.filter',kw.selectedPkeys);
         });
+    },
+
+    gridCaptionGetter:function(grid,kw){
+        var r = grid.structbag().getItem('#0.#0');
+        var text_types = {'T':true,'A':true,'C':true};
+        var _id = kw._id;
+        var _querystring = kw._querystring;
+        var data = [];
+        r.forEach(function(n){
+            var dtype = n.attr.dtype || 'T';
+            if(!(dtype in text_types)){
+                return;
+            }
+            var caption = n.attr.name || n.attr.field;
+            if(_id && n.attr.field==_id || _querystring && caption.toLowerCase().indexOf(_querystring.slice(0,-1).toLowerCase())>=0){
+                data.push({_pkey:n.attr.field,caption:caption});
+            }
+        });
+        return {headers:'name:Customer,addr:Address,state:State',data:data};
+    },
+
+    gridDatasetGetter:function(grid,kw){
+        var result = [];
+        var numeric_types = {'I':true,'L':true,'N':true,'R':true};
+        var s = {};
+        grid.structbag().getItem('#0.#0').forEach(function(n){
+            var c = n.attr;
+            if(c.dtype in numeric_types && !(c.field in s)){
+                s[c.field] = true;
+                result.push(c);
+            }
+        });
+        return result;
     },
 
     saveChart:function(widgetNodeId,chartNode) {
@@ -67,7 +106,6 @@ var genro_plugin_chartjs =  {
         var datastruct = objectPop(kw,'struct');
         var storepath = objectPop(kw,'storepath');
         var pkeys = objectPop(kw,'pkeys');
-
         var wdg = genro.wdgById(code+'_floating');
         var chartNodeId = code+'_cjs';
         if(wdg){
@@ -89,7 +127,7 @@ var genro_plugin_chartjs =  {
         
         var confbc = bc._('BorderContainer',{region:'right',width:'320px',border_left:'1px solid #efefef',
                             drawer:kw.userObjectId?'close':true,splitter:true});
-        this._chartParametersPane(confbc,code);
+        this._chartParametersPane(confbc,code,kw);
         var chartNode = bc._('ContentPane',{region:'center'})._('chartjs',{
             nodeId:chartNodeId,
             value:'^'+storepath,
@@ -112,49 +150,93 @@ var genro_plugin_chartjs =  {
         return chartNode;
     },
 
+
+
+
     fillChartParameters:function(sourceNode,datastruct,pkeys){
         var columnCaption_all = [];
-        var numeric_types = {'I':true,'L':true,'N':true,'R':true};
-        var text_types = {'T':true,'A':true,'C':true};
-        var backgrounds = ['red','green','blue','yellow'];
-        var ds_all = [];
-        var datasets = new gnr.GnrBag();
-        var cr = new gnr.GnrBag();   
-        var common_attrs = ['backgroundColor','borderColor','borderWidth'];
-        var defkw = {backgroundColor:null,borderColor:null,borderWidth:null,enabled:false};
-        datastruct.walk(function(n){
-            if(!n.attr.field){
-                return;
-            }
-            if(n.attr.dtype in numeric_types){ 
-                datasets.setItem(n.label,null,objectUpdate({field:n.attr.field,name:n.attr.name},defkw));
-            }else if(!n.attr.dtype || n.attr.dtype in text_types){
-                columnCaption_all.push(n.attr.field);
-            }
-        });
-        sourceNode.setRelativeData('.columnCaption_all',columnCaption_all.join(','));
-        sourceNode.setRelativeData('.columnCaption',columnCaption_all[0]);
-        sourceNode.setRelativeData('.datasets',datasets);
-        sourceNode.setRelativeData('.ds_checked',null);
+        //var numeric_types = {'I':true,'L':true,'N':true,'R':true};
+        //var text_types = {'T':true,'A':true,'C':true};
+        //var datasets = new gnr.GnrBag();
+        //var cr = new gnr.GnrBag();   
+       // var common_attrs = ['backgroundColor','borderColor','borderWidth'];
+        //var defkw = {backgroundColor:null,borderColor:null,borderWidth:null,enabled:false};
+       //datastruct.walk(function(n){
+       //    if(!n.attr.field){
+       //        return;
+       //    }
+       //    if(n.attr.dtype in numeric_types){ 
+       //        datasets.setItem(n.label,null,objectUpdate({field:n.attr.field,name:n.attr.name},defkw));
+       //    }else if(!n.attr.dtype || n.attr.dtype in text_types){
+       //        columnCaption_all.push(n.attr.field);
+       //    }
+       //});
+        //sourceNode.setRelativeData('.columnCaption_all',columnCaption_all.join(','));
+        //sourceNode.setRelativeData('.columnCaption',columnCaption_all[0]);
+        //sourceNode.setRelativeData('.datasets',datasets);
+        //sourceNode.setRelativeData('.ds_checked',null);
+        sourceNode.setRelativeData('.datasets',new gnr.GnrBag());
         sourceNode.setRelativeData('.chartType','bar');
         sourceNode.setRelativeData('.filter',pkeys);
     },
 
-    _chartParametersPane:function(bc,code){
+    _chartParametersPane:function(bc,code,pars){
         var fb = genro.dev.formbuilder(bc._('ContentPane',{region:'top'}),1,{border_spacing:'1px'});
         var modes = 'bar:Bar,line:Line,radar:Radar,polar:Polar,pie:Pie & Doughnut,bubble:Bubble,scales:Scales';
         fb.addField('filteringSelect',{value:'^.chartType',values:modes,lbl:'Type'});
-        fb.addField('comboBox',{value:'^.columnCaption',width:'15em',
+        fb.addField('callbackSelect',{value:'^.columnCaption',width:'15em',
                                         lbl_text_align:'right',
                                         lbl_class:'gnrfieldlabel',
                                         lbl:_T('Caption'),
-                                        values:'^.columnCaption_all',
-                                        parentForm:false});
+                                        callback:function(kw){
+                                            return pars.captionGetter(kw);},
+                                        parentForm:false,hasDownArrow:true});
+        fb.addField('Button',{label:'Datasets',action:function(){
+            var allDatasets = pars.datasetGetter();
+            var currentDatasets = this.getRelativeData('.datasets');
+            currentDatasets = currentDatasets? currentDatasets.deepCopy():new gnr.GnrBag();
+            var that = this;
+            var dataSetsValues = [];
+            var pickerValue = [];
+            var dsIndex = {};
+            allDatasets.forEach(function(ds){
+                dataSetsValues.push(ds.field+':'+(ds.name || ds.field));
+                if(currentDatasets.getNodeByAttr('field',ds.field)){
+                    pickerValue.push(ds.field);
+                }
+                dsIndex[ds.field] = ds;
+            });
+            genro.dlg.prompt('Manage datasets',{dflt:pickerValue.join(','),
+                widget:'checkBoxText',wdg_values:dataSetsValues.join(','),
+                wdg_cols:1,
+                action:function(result){
+                    result = result? result.split(','):[];
+                    var ridx;
+                    currentDatasets.getNodes().forEach(function(n){
+                        ridx = result.indexOf(n.attr.field);
+                        if(ridx<0){
+                            currentDatasets.popNode(n.label);
+                        }else{
+                            result.splice(ridx,1);
+                        }
+                    }); 
+                    result.forEach(function(n,idx){
+                        var c = dsIndex[n];
+                        var nlab = n.replace(/\./g, '_').replace(/@/g, '_');
+                        if(!currentDatasets.getNode(nlab)){
+                            currentDatasets.setItem(nlab,null,{field:n,name:c.name || c.field,enabled:true});
+                        }
+                    });
+                    that.setRelativeData('.datasets',currentDatasets);
+            }});
+        }});
+
         fb.addField('Button',{label:'Full Options',action:function(){
             genro.dev.openBagInspector(this.absDatapath('.options'),{title:'Full Options'});
         }});
         var tc = bc._('TabContainer',{margin:'2px',region:'center'});
-        tc._('FlatBagEditor',{path:'.datasets',box_title:'Datasets',exclude:'field,enabled',grid_region:'top',grid_addCheckBoxColumn:{field:'enabled'}});
+        tc._('FlatBagEditor',{path:'.datasets',box_title:'Current Datasets',exclude:'field,enabled',
+                            grid_region:'top',grid_addCheckBoxColumn:{field:'enabled'}});
         this._optionsFormPane(tc._('ContentPane',{title:'Options',datapath:'.options'}));
         tc._('ContentPane',{title:'Options JS'})._('codemirror','optionEditor',{value:'^.options_js',config_mode:'javascript',config_lineNumbers:true,
                                                     height:'100%'});
