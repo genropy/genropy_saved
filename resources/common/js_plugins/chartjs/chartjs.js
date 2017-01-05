@@ -13,12 +13,9 @@ var genro_plugin_chartjs =  {
                                     datamode:grid.datamode,
                                     chartMenuPath:sn.absDatapath('.chartsMenu')
                                 });
-        sn.subscribe('onSelectedRow',function(kw){
-            chartNode.setRelativeData('.filter',kw.selectedPkeys);
-        });
-        var that = this;
-        chartNode.subscribe('save',function(){            
-            that.saveChart(sn.attr.nodeId,this);
+        var chartNodeId = chartNode.attr.nodeId;
+        chartNode.registerSubscription(sn.attr.nodeId+'_onSelectedRow',function(kw){
+            genro.nodeById(chartNodeId).setRelativeData('.filter',kw.selectedPkeys);
         });
     },
 
@@ -76,7 +73,7 @@ var genro_plugin_chartjs =  {
         if(wdg){
             wdg.show();
             wdg.bringToTop();
-            return;
+            return genro.nodeById(chartNodeId);
         }
         genro.src.getNode()._('div',code);
         var node = genro.src.getNode(code).clearValue();
@@ -86,7 +83,7 @@ var genro_plugin_chartjs =  {
         var bar = palette._('slotBar',{toolbar:true,side:'top',slots:'*,saveBtn,5'});
         bar._('slotButton','saveBtn',{iconClass:'iconbox save',
                                         action:function(){
-                                            genro.publish({nodeId:chartNodeId,topic:'save'});
+                                            genro.chartjs.saveChart(widgetNodeId,genro.nodeById(chartNodeId));
                                         }});
         var bc = palette._('BorderContainer',{_anchor:true,side:'center'});
         
