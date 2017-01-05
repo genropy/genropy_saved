@@ -707,7 +707,7 @@ dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
         var contentNode = children.getNode('center');
         genro.assert(contentNode,'missing contentNode:  attach to form.center a layout widget');
         if(contentNode.attr.tag=='autoslot'){
-            var contentNode = children.getNode('center.#0');
+            contentNode = children.getNode('center.#0');
             genro.assert(contentNode,'missing contentNode:  attach to form.center a layout widget');
         }
         contentNode.attr['_class'] =  (contentNode.attr['_class'] || '') + ' fh_content';
@@ -751,7 +751,7 @@ dojo.declare("gnr.widgets.PaletteMap", gnr.widgets.gnrwdg, {
         var paletteCode=kw.paletteCode;
         kw.frameCode = paletteCode;
         kw['contentWidget'] = 'FramePane';
-        var mapKw = objectExtract(kw,'map_*',false,true)
+        var mapKw = objectExtract(kw,'map_*',false,true);
         var pane = sourceNode._('PalettePane',kw);
         var centerMarker = objectPop(kw,'centerMarker',true);
         if(centerMarker){

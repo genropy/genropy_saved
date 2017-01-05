@@ -2,46 +2,99 @@ var genro_plugin_chartjs =  {
     openGridChart:function(kw){
         var grid = objectPop(kw,'grid');
         var sn = grid.sourceNode;
-        var code = sn.attr.nodeId+'_chart_'+(kw.pkey || '_newchart') +'_'+ genro.getCounter();
+        
         var chartNode = this.openChart({
-                                code:code,
-                                storepath:sn.absDatapath(sn.attr.storepath),
-                                title:kw.caption || 'New Chart',
-                                pkeys:grid.getSelectedPkeys(),
-                                struct:grid.structbag().deepCopy(),
-                                datamode:grid.datamode});
+                                    widgetNodeId:sn.attr.nodeId,
+                                    userObjectId:kw.pkey,
+                                    storepath:sn.absDatapath(sn.attr.storepath),
+                                    title:kw.caption || 'New Chart',
+                                    pkeys:grid.getSelectedPkeys(),
+                                    struct:grid.structbag().deepCopy(),
+                                    datamode:grid.datamode,
+                                    chartMenuPath:sn.absDatapath('.chartsMenu')
+                                });
         sn.subscribe('onSelectedRow',function(kw){
             chartNode.setRelativeData('.filter',kw.selectedPkeys);
         });
+        var that = this;
+        chartNode.subscribe('save',function(){            
+            that.saveChart(sn.attr.nodeId,this);
+        });
     },
+
+    saveChart:function(widgetNodeId,chartNode) {
+        var widgetSourceNode = genro.nodeById(widgetNodeId);
+        var that = this;
+        var chartCode = chartNode.getRelativeData('.metadata.code');
+        var datapath = chartNode.absDatapath('.metadata');
+        var chartPars = chartNode.getRelativeData().deepCopy();
+        chartPars.popNode('metadata');
+        chartPars.popNode('filter');
+        saveCb = function(dlg) {
+            var datapath = chartNode.absDatapath('.metadata');
+            var metadata = genro.getData(datapath);
+            var pagename = genro.getData('gnr.pagename');
+            var flags = metadata.getItem('flags');
+            metadata.setItem('flags',pagename+'_'+widgetNodeId);
+            genro.serverCall('_table.adm.userobject.saveUserObject',
+                            {'objtype':'chartjs','metadata':metadata,
+                            'data':chartPars,
+                            table:widgetSourceNode.attr.table},
+                            function(result) {
+                                dlg.close_action();
+                                var menuData = widgetSourceNode.getRelativeData('.chartsMenu');
+                                if(menuData){
+                                    menuData.getParentNode().getResolver().reset();
+                                }
+                            });
+        };
+        genro.dev.userObjectDialog(chartCode ? 'Save Chart ' + chartCode : 'Save New Chart',datapath,saveCb);
+    },
+
+    loadChart:function(chartNode,userObjectId){
+        genro.serverCall('_table.adm.userobject.loadUserObject', {pkey:userObjectId}, 
+            function(result){
+                chartNode.setRelativeData('.metadata',new gnr.GnrBag(result.attr));
+                result.getValue().forEach(function(n){
+                    chartNode.setRelativeData('.'+n.label,n.getValue());
+                });
+            });
+    },
+
     openChart:function(kw){
         genro.setAliasDatapath('CHARTJS_DFLT','gnr.chartjs.defaults');
         genro.setAliasDatapath('CHARTJS_GLOB','gnr.chartjs.defaults.global');
-        var code = objectPop(kw,'code');
+        var widgetNodeId = objectPop(kw,'widgetNodeId');
+        var code =kw.widgetNodeId+'_chart_'+(kw.userObjectId || ('_newchart_'+genro.getCounter()));
         var title = objectPop(kw,'title');
         var datastruct = objectPop(kw,'struct');
         var storepath = objectPop(kw,'storepath');
         var pkeys = objectPop(kw,'pkeys');
 
         var wdg = genro.wdgById(code+'_floating');
-
+        var chartNodeId = code+'_cjs';
         if(wdg){
-            //this.updateChartParameters(wdg.sourceNode,datastruct,pkeys,data);
             wdg.show();
             wdg.bringToTop();
-            return genro.nodeById(code+'_cjs');
+            return;
         }
         genro.src.getNode()._('div',code);
         var node = genro.src.getNode(code).clearValue();
         node.freeze();
-        var paletteAttr = {'paletteCode':code,title:title,dockTo:false,width:'600px',height:'500px'};
+        var paletteAttr = {'paletteCode':code,'frameCode':code,'title':title,'dockTo':false,'width':'600px','height':'500px','contentWidget':'FramePane'};
         var palette = node._('palettePane',code,paletteAttr);
-        var bc = palette._('BorderContainer',{_anchor:true});
+        var bar = palette._('slotBar',{toolbar:true,side:'top',slots:'*,saveBtn,5'});
+        bar._('slotButton','saveBtn',{iconClass:'iconbox save',
+                                        action:function(){
+                                            genro.publish({nodeId:chartNodeId,topic:'save'});
+                                        }});
+        var bc = palette._('BorderContainer',{_anchor:true,side:'center'});
         
-        var confbc = bc._('BorderContainer',{region:'right',width:'320px',drawer:true,splitter:true});
+        var confbc = bc._('BorderContainer',{region:'right',width:'320px',border_left:'1px solid #efefef',
+                            drawer:kw.userObjectId?'close':true,splitter:true});
         this._chartParametersPane(confbc,code);
         var chartNode = bc._('ContentPane',{region:'center'})._('chartjs',{
-            nodeId:code+'_cjs',
+            nodeId:chartNodeId,
             value:'^'+storepath,
             filter:'^.filter',
             columnCaption:'^.columnCaption',
@@ -54,12 +107,15 @@ var genro_plugin_chartjs =  {
                 this.setRelativeData('.options',new gnr.GnrBag(this.externalWidget.options));
             }
         }).getParentNode();
-        this.updateChartParameters(palette.getParentNode(),datastruct,pkeys);
+        this.fillChartParameters(palette.getParentNode(),datastruct,pkeys);
         node.unfreeze();
+        if(kw.userObjectId){
+            this.loadChart(chartNode,kw.userObjectId);
+        }
         return chartNode;
     },
 
-    updateChartParameters:function(sourceNode,datastruct,pkeys){
+    fillChartParameters:function(sourceNode,datastruct,pkeys){
         var columnCaption_all = [];
         var numeric_types = {'I':true,'L':true,'N':true,'R':true};
         var text_types = {'T':true,'A':true,'C':true};

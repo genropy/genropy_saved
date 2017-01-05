@@ -20,7 +20,10 @@ class ChartManager(BaseComponent):
         storepath = '#%s.chartsMenu' %gridId
         pane.menudiv(iconClass=_class,storepath=storepath,tip='!!Charts',
                     action="genro.publish({topic:'openChart',nodeId:'%(nodeId)s'},$1);" %gridattr)
-        gridattr['selfsubscribe_openChart'] = """this.publish('pluginCommand',{plugin:'chartjs',command:'openGridChart',pkey:$1.pkey,caption:$1.caption});"""
+        gridattr['selfsubscribe_openChart'] = """this.publish('pluginCommand',
+                                                                {plugin:'chartjs',
+                                                                command:'openGridChart',
+                                                                pkey:$1.pkey,caption:$1.caption});"""
 
         pane.dataRemote(storepath,self.crt_menuCharts,table=gridattr.get('table'),
                         gridId=gridId)
@@ -28,9 +31,6 @@ class ChartManager(BaseComponent):
     @public_method
     def crt_menuCharts(self,table=None,pyviews=None,favoriteViewPath=None,gridId=None,**kwargs):
         result = Bag()
-        if pyviews:
-            for k,caption in pyviews:
-                result.setItem(k.replace('_','.'),None,description=caption,caption=caption,viewkey=k,gridId=gridId)
         userobjects = self.db.table('adm.userobject').userObjectMenu(objtype='chartjs',flags='%s_%s' % (self.pagename, gridId) if gridId else None,table=table)
         if len(userobjects)>0:
             result.update(userobjects)
