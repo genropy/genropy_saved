@@ -8,7 +8,6 @@ dojo.declare("gnr.widgets.GoogleLoader", null, {
         var that=this;
         if (!window.google){
             this.ready = false;
-            var that=this;
             genro.dom.loadJs("https://www.google.com/jsapi",
                           function(){
                               that.ready=true;
@@ -313,10 +312,10 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
     },
 
     makeDataset:function(kw){
+        var field = objectPop(kw,'field');
+
         var dataset = objectUpdate({data:[]},kw.pars);
         objectPop(dataset,'enabled');
-        var field = objectPop(dataset,'field');
-        dataset.label = dataset.label || objectPop(dataset,'name');
         var idx = 0;
         var isBagMode = kw.datamode=='bag';
         kw.rows.walk(function(n){
@@ -358,8 +357,10 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
                         'filterCb':filterCb,'labels':data.labels,
                         'columnCaption':columnCaption};
             datasets._nodes.forEach(function(n){
-                if(!('enabled' in n.attr) || n.attr.enabled){
-                    dskw.pars = n.attr;
+                var v = n.getValue();
+                if(!(v.getNode('enabled')) || v.getItem('enabled')){
+                    dskw.pars = v.getItem('parameters').asDict(true);
+                    dskw.field = v.getItem('field');
                     data.datasets.push(that.gnr.makeDataset(dskw));
                     objectPop(dskw,'labels');
                 }
@@ -415,7 +416,12 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
             that.resize();
         },100,'updatingOptions');
     },
-    _dateset_bar:function(){},
+    _dataset__base__:function(){
+        {}
+    },
+    _dateset_bar:function(){
+        return {backgroundColor:{},borderColor:{},};
+    },
     _dateset_line:function(){},
     _dateset_pie:function(){},
 });

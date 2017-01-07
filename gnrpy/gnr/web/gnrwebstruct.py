@@ -2250,7 +2250,7 @@ class GnrGridStruct(GnrStructData):
         :param classes: TODO
         :param cellClasses: TODO
         :param headerClasses: TODO"""
-        if hasattr(self,'tblobj'):
+        if getattr(self,'tblobj',None):
             kwargs.setdefault('calculated',self.tblobj.column(field) is None)
         return self.child('cell', childcontent='', field=field, name=name or field, width=width, dtype=dtype,
                           classes=classes, cellClasses=cellClasses, headerClasses=headerClasses,**kwargs)
@@ -2258,7 +2258,7 @@ class GnrGridStruct(GnrStructData):
     
     def checkboxcolumn(self,field='_checked',checkedId=None,radioButton=False,calculated=True,name=None,
                         checkedField=None,action=None,action_delay=None,remoteUpdate=False,**kwargs):
-        if hasattr(self,'tblobj'):
+        if getattr(self,'tblobj',None):
             calculated = self.tblobj.column(field) is None
         else:
             calculated = not remoteUpdate

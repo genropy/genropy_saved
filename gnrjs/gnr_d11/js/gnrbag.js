@@ -1638,6 +1638,11 @@ dojo.declare("gnr.GnrBag", null, {
         for (var i = 0; i < this._nodes.length; i++) {
             node = this._nodes[i];
             value = node.getValue();
+            if(node.attr._autolist){
+                value = value.getNodes().map(function(n){
+                    return v instanceof gnr.GnrBag? v.asDict(recursive):v;
+                });
+            }
             if(recursive && (value instanceof gnr.GnrBag)){
                 value = value.asDict(recursive);
             }

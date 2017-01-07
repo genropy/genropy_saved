@@ -54,7 +54,7 @@ gnr.getGridColumns = function(storeNode) {
     return result;
 };
 gnr.columnsFromStruct = function(struct, columns) {
-    if (columns == undefined) {
+    if (isNullOrBlank(columns)) {
         columns = [];
     }
     if (!struct) {
