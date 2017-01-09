@@ -1529,7 +1529,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
                 var finalize = function(){
                     that.setRelativeData('.value',null);
                     that.setRelativeData('.currentValue',null);
-                    genro.dom.removeClass(this,'activeSearch');
+                    genro.dom.removeClass(that,'activeSearch');
                 };
                 genro.publish(nodeId+"_stopSearch",{inputSourceNode:this,finalize:finalize});
                
