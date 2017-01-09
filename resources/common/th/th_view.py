@@ -157,7 +157,10 @@ class TableHandlerView(BaseComponent):
         b.rowchild(label='-')
         b.rowchild(label='!!User Configuration',
                     action='genro.dev.tableUserConfiguration($2.attr.table);')
-        b.rowchild(childname='configure',label='!!Configure View',action="""$2.widget.configureStructure();""")
+        b.rowchild(childname='configure',label='!!Configure View',
+            action="""$2.widget.configureStructure();""")
+        b.rowchild(childname='chartjs',label='!!Chartjs',
+                    action="""$2.publish('pluginCommand',{plugin:'chartjs',command:'openGridChart'});""")
         grid.data('.contextMenu',b)
 
     @struct_method
@@ -398,7 +401,7 @@ class TableHandlerView(BaseComponent):
                         _resolved=True)
         pane.dataController("TH(th_root).querymanager.queryEditor(open);",
                         th_root=th_root,open="^.query.queryEditor")
-        if not 'adm' in self.db.packages:
+        if 'adm' not in self.db.packages:
             return
         pane.dataRemote('.query.savedqueries',self.th_menuQueries,
                         #favoriteQueryPath='=.query.favoriteQueryPath',
@@ -438,7 +441,6 @@ class TableHandlerView(BaseComponent):
         #SOURCE MENUACTIONS
         pane.dataRemote('.resources.action.menu',self.table_script_resource_tree_data,
                         res_type='action', table=table,cacheTime=5)
-
 
     @struct_method
     def th_slotbar_viewsMenu(self,pane,**kwargs):
@@ -495,11 +497,6 @@ class TableHandlerView(BaseComponent):
         pane.paletteTemplateEditor(maintable=table,paletteCode=paletteCode,dockButton_iconClass='iconbox document')
 
       
-
-   # @struct_method
-   # def th_slotbar_batch_export(self,pane,_class='iconbox export',enable=None,rawData=True,parameters=None,**kwargs):
-   #     return pane.slotButton(label='!!Export',action='FIRE .th_batch_run = {resource:"_common/export",res_type:"action"}',iconClass=_class,**kwargs) 
-
     @struct_method
     def th_gridPane(self, frame,table=None,th_pkey=None,
                         virtualStore=None,condition=None,unlinkdict=None,
@@ -790,11 +787,11 @@ class TableHandlerView(BaseComponent):
                  nodeId='%s_fastQueryColumn' %th_root,
                   dropTarget=True,
                  **{str('onDrop_gnrdbfld_%s' %tablecode):"TH('%s').querymanager.onChangedQueryColumn(this,data);" %th_root})
-       #tbox.tree(storepath=fmenupath,popup=True,
-       #        connect_onClick="""function(bagNode,treeNode){
-       #                            var qm = TH('%s').querymanager;
-       #                            qm.onChangedQueryColumnDo(this,this.absDatapath('.c_0'),bagNode.attr)
-       #                        }""" %th_root)
+        #tbox.tree(storepath=fmenupath,popup=True,
+        #        connect_onClick="""function(bagNode,treeNode){
+        #                            var qm = TH('%s').querymanager;
+        #                            qm.onChangedQueryColumnDo(this,this.absDatapath('.c_0'),bagNode.attr)
+        #                        }""" %th_root)
         querybox.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
                 width='1.5em', _class='th_querybox_item', nodeId='%s_fastQueryNot' %th_root)
         querybox.div('^.c_0?op_caption', nodeId='%s_fastQueryOp' %th_root, 

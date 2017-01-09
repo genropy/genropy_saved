@@ -592,11 +592,14 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var pathlist = path.split('.');
         var nodeId = pathlist[0].slice(1);
         var relpath = pathlist.slice(1).join('.');
+        if(nodeId in genro._aliasDatapaths){
+            return genro._aliasDatapaths[nodeId]+'.'+relpath;
+        }
         if(nodeId=='ROW'){
             return this.widget?this.widget.cellCurrentDatapath(path):null;
         }
         if(nodeId=='WORKSPACE'){
-            node=this.attributeOwnerNode('_workspace');
+            var node=this.attributeOwnerNode('_workspace');
             genro.assert(node,'with WORKSPACE path you need an ancestor node with attribute _workspace');
             var wsname = node.attr._workspace===true?(node.attr.nodeId || (node.attr.tag+'_'+node.getPathId())):node.attr._workspace;
             return 'gnr.workspace.'+wsname+'.'+relpath;
@@ -616,11 +619,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         return path;
     },
     absDatapath: function(path) { 
-        var path = path || '';
+        path = path || '';
         if (this.isPointerPath(path)) {
             path = path.slice(1);
         }
-        if (path.indexOf('#') == 0) {
+        if (path.indexOf('#') === 0) {
             return this.symbolicDatapath(path);
         }
         if(path=='.'){
@@ -1160,7 +1163,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     doUpdateAttrBuiltObj:function(attr, kw, trigger_reason) {
         if(stringStartsWith(attr,'attr_')){
-            var valuepath = this.attr.value || this.attr.src ||this.attr.innerHTML
+            var valuepath = this.attr.value || this.attr.src ||this.attr.innerHTML;
             if(valuepath){
                 var updattr = {};
                 updattr[attr.slice(5)] = kw.value;

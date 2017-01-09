@@ -551,7 +551,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
 
     quickTooltipPane: function(kw,contentCb,contentCbKw) {
-        var kw = objectUpdate({},kw);
+        kw = objectUpdate({},kw);
         kw.evt = kw.evt || false;
         var nodeId = kw.nodeId  || 'td_'+'tempTooltip';
         var quickRoot = '_dlgTooltip_quick_'+ nodeId;
@@ -565,32 +565,32 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             kw.onCreated = function(){
                 setTimeout(function(){
                     genro.publish(openerId+'_open',{domNode:domNode});
-                },1)
-                
-            }
+                },1);
+            };
         }
         var fields = objectPop(kw,'fields');
         var cols = objectPop(kw,'cols',1);
 
-        var tp = node._('tooltipPane',kw)._('div',{_class:'quickTooltipContainer'});
+        var tp = node._('tooltipPane',kw);
         if(fields){
             if(fields instanceof Array){
+                tp = tp._('div',{_class:'quickTooltipContainer'});
                 var fb = genro.dev.formbuilder(tp,cols,{border_spacing:'4px',width:'100%',fld_width:'100%'});
                 fields.forEach(function(n){
-                    var n = objectUpdate({},n);
+                    n = objectUpdate({},n);
                     var w = objectPop(n,'wdg','textbox');
                     fb.addField(w,objectUpdate({},n));
-                })
+                });
             }
         }else if(contentCb){
-            contentCb(tp,contentCbKw)
+            contentCb(tp,contentCbKw);
         }
         node.unfreeze();
         return tp;
     },
 
     quickDialog: function(title,kw) {
-        var kw = objectUpdate({},kw);
+        kw = objectUpdate({},kw);
         var quickRoot = '_dlg_quick_'+genro.getCounter();
         genro.src.getNode()._('div',quickRoot);
         var node = genro.src.getNode(quickRoot).clearValue();
@@ -602,10 +602,10 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                 setTimeout(function(){
                     that._destroy();
                 },genro.dlg._quickDialogDestroyTimeout);
-            }
+            };
         }
         var dlg = node._('dialog', objectUpdate({title:title},kw));
-        var box = dlg._('div',kwdimension)
+        var box = dlg._('div',kwdimension);
         var center = box._('div', {_class:'pbl_dialog_center'});
         if(kw.dialog_bottom!==false){
             var bottom = box._('div', {_class:'dialog_bottom'});

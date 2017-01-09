@@ -6,7 +6,6 @@
 
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag
-import re
 import os
 
 class TableHandlerCommon(BaseComponent):
@@ -65,7 +64,7 @@ class TableHandlerCommon(BaseComponent):
     def _th_getResourceName(self,name=None,defaultModule=None,defaultClass=None):
         if not name:
             return '%s:%s' %(defaultModule,defaultClass)
-        if not ':' in name:
+        if ':' not in name:
             return '%s:%s' %(defaultModule,name)
         if name.startswith(':'):
             return '%s%s' %(defaultModule,name)

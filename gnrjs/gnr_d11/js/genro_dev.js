@@ -67,7 +67,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
     openBagNodeEditorPalette:function(nodePath,kw){
         var root = genro.src.newRoot();
-        var name = kw.name || '_currentBagNodeEditor_'
+        var name = kw.name || '_currentBagNodeEditor_';
         genro.src.getNode()._('div', name);
 
         var node = genro.src.getNode(name).clearValue();
@@ -80,10 +80,32 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
 
 
+    openBagInspector:function(path,kw){
+        kw = kw || {};
+        var code = objectPop(kw,'code') || path.replace(/\./g, '_').replace(/@/g, '_');
+        var wdg = genro.wdgById(code+'_floating');
+        if(wdg){
+            wdg.show();
+            wdg.bringToTop();
+            return;
+        }
+        var root = genro.src.newRoot();
+        var name = kw.name || '_currentBagEditor_'+code;
+        genro.src.getNode()._('div', name);
+        var node = genro.src.getNode(name).clearValue();
+        node.freeze();
+        node._('paletteTree',{'paletteCode':code,title:objectPop(kw,'title') || 'Edit Bag '+path,
+                           storepath:path,searchOn:true,tree_inspect:'shift',tree_searchMode:'static',
+                           'tree_selectedLabelClass':'selectedTreeNode',
+                           editable:true,tree_labelAttribute:null,
+                           tree_hideValues:false,dockTo:'dummyDock:open'});
+        node.unfreeze();
+    },
+
     openBagEditorPalette:function(path,kw){
         kw = kw || {};
         var root = genro.src.newRoot();
-        var name = kw.name || '_currentPaletteBagEditor_'
+        var name = kw.name || '_currentPaletteBagEditor_';
         genro.src.getNode()._('div', name);
 
         var node = genro.src.getNode(name).clearValue();
@@ -92,7 +114,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
                                         title:kw.title || 'Bag editor',
                                         'path':path},kw));
         node.unfreeze();
-        
+        return;
     },
 
     siteLockedStatus:function(set){
@@ -386,7 +408,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
     addToDebugged:function(callcounter,data){
         var dbgpars = {debugger_page_id:data.debugger_page_id,pdb_id:data.pdb_id};
         genro.debugged_rpc['r_'+callcounter] = dbgpars;
-        genro.rpc.suspend_call(callcounter)
+        genro.rpc.suspend_call(callcounter);
     },
 
     removeFromDebugged:function(callcounter){

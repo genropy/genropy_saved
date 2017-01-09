@@ -8,7 +8,6 @@ dojo.declare("gnr.widgets.GoogleLoader", null, {
         var that=this;
         if (!window.google){
             this.ready = false;
-            var that=this;
             genro.dom.loadJs("https://www.google.com/jsapi",
                           function(){
                               that.ready=true;
@@ -257,6 +256,220 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
     }
 });
 
+
+dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
+    constructor: function(application) {
+        this._domtag = 'canvas';
+    },
+
+    creating: function(attributes, sourceNode) {
+        var savedAttrs = objectExtract(attributes,'chartType,value,filter,datasets,columnCaption,options,data');
+        return savedAttrs;
+    },
+    
+
+    created:function(domNode, savedAttrs, sourceNode){
+        //var chartjs_root = document.createElement('canvas');
+        //domNode.appendChild(chartjs_root);
+        var data = savedAttrs.data;
+        var value = savedAttrs.value;
+        var dataset = savedAttrs.dataset;
+        var filter = savedAttrs.filter;
+        var columnCaption = savedAttrs.columnCaption;
+
+
+        var options = savedAttrs.options || {};
+        var chartType = savedAttrs.chartType;
+        var that = this;
+        var cb = function(){
+            sourceNode._current_height = domNode.clientHeight;
+            sourceNode._current_width = domNode.clientWidth;
+            var chartjs = new Chart(domNode,{'type':chartType});
+            sourceNode.externalWidget = chartjs;
+            chartjs.sourceNode = sourceNode;
+            chartjs.gnr = that;
+            for (var prop in that) {
+                if (prop.indexOf('mixin_') === 0) {
+                    chartjs[prop.replace('mixin_', '')] = that[prop];
+                }
+            }
+            sourceNode.publish('chartReady');
+            chartjs.gnr_updateChart();
+           //genro.dom.setAutoSizer(sourceNode,domNode,function(w,h){
+           //     dygraph.resize(w,h);
+           //});
+        };
+
+        
+        if(!window.Chart){
+            genro.dom.loadJs('/_rsrc/js_libs/Chart.min.js',function(){
+                genro.setData('gnr.chartjs.defaults',new gnr.GnrBag(Chart.defaults));
+                cb();
+            });
+        }else{
+            setTimeout(cb,1);
+        }
+    },
+
+    makeDataset:function(kw){
+        var field = objectPop(kw,'field');
+
+        var dataset = objectUpdate({data:[]},kw.pars);
+        objectPop(dataset,'enabled');
+        var idx = 0;
+        var isBagMode = kw.datamode=='bag';
+        kw.rows.walk(function(n){
+            if('pageIdx' in n.attr){return;}
+            var row = isBagMode?n.getValue('static').asDict() : n.attr;
+            var pkey = row._pkey || n.label;
+            if(kw.filterCb(pkey,row)){
+                if('labels' in kw){
+                    kw.labels.push(row[kw.columnCaption] || (dataset.label || field)+' '+idx);
+                }
+                dataset.data.push(row[field]);
+                idx++;
+            }
+        },'static',null,isBagMode);
+        return dataset;
+    },
+
+    mixin_gnr_updateChart:function(){
+        var data = this.sourceNode.getAttributeFromDatasource('data'); 
+        if(!data){
+            var rows = this.sourceNode.getAttributeFromDatasource('value'); 
+            var filter = this.sourceNode.getAttributeFromDatasource('filter'); 
+            var datasets = this.sourceNode.getAttributeFromDatasource('datasets'); 
+            var columnCaption = this.sourceNode.getAttributeFromDatasource('columnCaption');
+            var filterCb;
+            if(typeof(filter)=='string'){
+                filter = filter.split(',');
+            }
+            if(typeof(filter)!='function'){
+                filterCb = filter?function(pkey,row){return filter.length===0 ||filter.indexOf(pkey)>=0;}:function(){return true;};
+            }else{
+                filterCb = filter;
+            }
+            var attrs,dslabel,dsfield;
+            var datamode = this.sourceNode.attr.datamode || 'attr';
+            var that = this;
+            data = {labels:[],datasets:[]};
+            var dskw = {'rows':rows,'datamode':datamode,
+                        'filterCb':filterCb,'labels':data.labels,
+                        'columnCaption':columnCaption};
+            datasets._nodes.forEach(function(n){
+                var v = n.getValue();
+                if(!(v.getNode('enabled')) || v.getItem('enabled')){
+                    dskw.pars = v.getItem('parameters').asDict(true);
+                    dskw.field = v.getItem('field');
+                    data.datasets.push(that.gnr.makeDataset(dskw));
+                    objectPop(dskw,'labels');
+                }
+            });
+        }         
+        objectUpdate(this.data,data);
+        this.update();
+        this.resize();
+    },
+    
+    mixin_gnr_value:function(value,kw, trigger_reason){  
+        this.gnr_updateChart();
+    },
+
+    
+    mixin_gnr_chartType:function(value,kw, trigger_reason){  
+        this.config.type = this.sourceNode.getAttributeFromDatasource('chartType');
+        this.gnr_updateChart();
+    },
+
+    mixin_gnr_datasets:function(value,kw, trigger_reason){ 
+        this.gnr_updateChart();
+    },
+
+    mixin_gnr_filter:function(value,kw, trigger_reason){  
+        this.gnr_updateChart();
+    },
+
+    mixin_gnr_columnCaption:function(value,kw, trigger_reason){  
+        this.gnr_updateChart();
+    },
+
+    mixin_gnr_options:function(value,kw, trigger_reason){ 
+        var options_bag = this.sourceNode.getAttributeFromDatasource('options');
+        if(kw.node._id == options_bag.getParentNode()._id){
+            return;
+        } 
+        var optpath = kw.node.getFullpath(null,options_bag);
+        var curr = this.options;
+        var currOptionBag = options_bag;
+        var node,val;
+        var optlist = optpath.split('.');
+        var lastLabel = optlist.pop();
+        optlist.forEach(function(chunk){
+            node = currOptionBag.getNode(chunk);
+            curr = node.attr._autolist?curr[currOptionBag.index(chunk)]:curr[chunk]; 
+            currOptionBag = node.getValue();
+        });
+        curr[lastLabel] = kw.value;
+        var that = this;
+        this.sourceNode.delayedCall(function(){
+            that.update();
+            that.resize();
+        },100,'updatingOptions');
+    },
+    _dataset_bar:function(){
+        var b1 = [{field:'label',dtype:'T',lbl:'Label'},
+                {field:'backgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
+                {field:'borderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
+                {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
+        var b2  = [{field:'xAxisID',dtype:'T',lbl:'xAxisID'},
+                {field:'yAxisID',dtype:'T',lbl:'yAxisID'},
+                {field:'borderSkipped',dtype:'T',lbl:'borderSkipped',values:'top,left,right,bottom',multiple:true},
+                {field:'hoverBackgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
+                {field:'hoverBorderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
+                {field:'hoverBorderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
+        return [{title:'Bar',fields:b1},{title:'Advanced',fields:b2}];
+    },
+
+
+    _dateset_line:function(){
+        var b1 = [{field:'label',dtype:'T',lbl:'Label'},
+                {field:'backgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
+                {field:'borderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
+                {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
+        return [{title:'Line',fields:b1}];
+
+
+           //return [{field:'label',dtype:'T',lbl:'Label'},
+           //    {field:'xAxisID',dtype:'T',lbl:'xAxisID'},
+           //    {field:'yAxisID',dtype:'T',lbl:'yAxisID'},
+           //    {field:'fill',dtype:'B',lbl:'Fill'},
+           //    {field:'cubicInterpolationMode',dtype:'function',lbl:'cubicInterpolationMode'},
+
+           //    {field:'backgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
+           //    {field:'borderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
+           //    {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true},
+           //    {field:'borderSkipped',dtype:'T',lbl:'borderSkipped',values:'top,left,right,bottom',multiple:true},
+           //    {field:'hoverBackgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
+           //    {field:'hoverBorderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
+           //    {field:'hoverBorderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
+
+    },
+    _dateset_pie:function(){
+        var b1 = [{field:'label',dtype:'T',lbl:'Label'},
+                {field:'backgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
+                {field:'borderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
+                {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
+        return [{title:'Pie',fields:b1}];
+    },
+    _dataset__base:function(){
+        var b1 = [{field:'label',dtype:'T',lbl:'Label'},
+                {field:'backgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
+                {field:'borderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
+                {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
+        return [{title:'Parameters',fields:b1}];
+    }
+});
+
 dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
     constructor: function(application) {
         this._domtag = 'div';
@@ -297,14 +510,14 @@ dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
             dygraph.sourceNode = sourceNode;
             dygraph.gnr = that;
             for (var prop in that) {
-                if (prop.indexOf('mixin_') == 0) {
+                if (prop.indexOf('mixin_') === 0) {
                     dygraph[prop.replace('mixin_', '')] = that[prop];
                 }
             }
             genro.dom.setAutoSizer(sourceNode,domNode,function(w,h){
                  dygraph.resize(w,h);
             });
-        }
+        };
         if(!window.Dygraph){
             genro.dom.loadJs('/_rsrc/js_libs/dygraph-combined.js',cb);
         }else{
@@ -347,149 +560,11 @@ dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
     },
 
     mixin_gnr_options:function(options,kw, trigger_reason){   
-        var options = this.sourceNode.getAttributeFromDatasource('options');      
+        options = this.sourceNode.getAttributeFromDatasource('options');      
         if(options instanceof gnr.GnrBag){
             options = options.asDict(true);
         }    
         this.updateOptions(options);
-    }
-
-
-});
-
-dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
-    constructor: function(application) {
-        this._domtag = 'div';
-    },
-    creating: function(attributes, sourceNode) {
-        if (sourceNode.attr.storepath) {
-            sourceNode.registerDynAttr('storepath');
-        }
-    },
-    created: function(newobj, savedAttrs, sourceNode) {
-        sourceNode.registerSubscription(sourceNode.attr.nodeId + '_render', this, function() {
-            this.render(newobj);
-        });
-
-    },
-    setStorepath:function(obj, value) {
-        obj.gnr.update(obj);
-    },
-    attachToDom:function(domNode, vis) {
-        var span = document.createElement('span');
-        var fc = domNode.firstElementChild;
-        if (fc) {
-            domNode.replaceChild(span, fc);
-        } else {
-            domNode.appendChild(span);
-        }
-        vis.$dom = span;
-        return span;
-    },
-    update:function(domNode) {
-        var sourceNode = domNode.sourceNode;
-        if ((sourceNode.vis) && (!sourceNode.visError)) {
-            sourceNode.vis.render();
-        } else {
-            this.render(domNode);
-        }
-
-    },
-    render:function(domNode) {
-        var sourceNode = domNode.sourceNode;
-        try {
-            this._doRender(domNode);
-            sourceNode.visError = null;
-        } catch(e) {
-            console.log('error in rendering protovis ' + sourceNode.attr.nodeId + ' : ' + e);
-            sourceNode.visError = e;
-        }
-
-    },
-    _doRender:function(domNode) {
-        var sourceNode = domNode.sourceNode;
-        if (sourceNode.attr.js) {
-            var vis = new pv.Panel();
-            var protovis = pv.parse(sourceNode.getAttributeFromDatasource('js'));
-            funcApply(protovis, objectUpdate({'vis':vis}, sourceNode.currentAttributes()), sourceNode);
-        }
-        else if (sourceNode.attr.storepath) {
-            var storepath = sourceNode.attr.storepath;
-            var visbag = sourceNode.getRelativeData(storepath).getItem('#0');
-            var vis;
-            _this = this;
-            sourceNode.protovisEnv = {};
-            visbag.forEach(function(n) {
-                vis = _this.bnode(sourceNode, n) || vis;
-            });
-        }
-        this.attachToDom(domNode, vis);
-        sourceNode.vis = vis;
-        vis.render();
-    },
-    storegetter:function(sourceNode, path) {
-        var p = path;
-        var s = sourceNode;
-        return function() {
-            //console.log('getting: ' + p)
-            return s.getRelativeData(p);
-        };
-    },
-    bnode:function(sourceNode, node, parent) {
-        var env = sourceNode.protovisEnv;
-        var storepath = sourceNode.attr.storepath;
-        var attr = objectUpdate({}, node.attr);
-        var tag = objectPop(attr, 'tag');
-        if (tag == 'env') {
-            console.log(node.getValue());
-            env[node.label] = eval(node.getValue());
-            return;
-        }
-        var obj = parent ? parent.add(pv[tag]) : new pv[tag]();
-        this._convertAttr(sourceNode, obj, attr);
-        var v = node.getValue();
-        _this = this;
-        if (v instanceof gnr.GnrBag) {
-            v.forEach(function(n) {
-                _this.bnode(sourceNode, n, obj);
-            });
-        }
-        return obj;
-    },
-    _convertAttr:function(sourceNode, obj, attr) {
-        var env = sourceNode.protovisEnv;
-        var storepath = sourceNode.attr.storepath;
-        for (var k in attr) {
-            var v = attr[k];
-            if (stringEndsWith(k, '_js')) {
-                k = k.slice(0, -3);
-                v = genro.evaluate(v);
-            }
-            else if (stringEndsWith(k, '_fn')) {
-                k = k.slice(0, -3);
-                v = genro.evaluate('function(){return ' + v + '}');
-            }
-            else if (k.indexOf('_fn_') > 0) {
-                k = k.split('_fn_');
-                var fn = 'function(' + k[1] + '){return (' + v + ')}';
-                v = genro.evaluate(fn);
-                k = k[0];
-            }
-
-            if ((typeof(v) == 'string') && (v[0] == '=')) {
-                path = v.slice(1);
-                if (path[0] == '.') {
-                    path = storepath + path;
-                }
-                v = this.storegetter(sourceNode, path);
-            }
-            if (k.indexOf('_') > 0) {
-                k = k.split('_');
-                obj[k[0]](k[1], v);
-            } else {
-                obj[k](v);
-            }
-        }
     }
 });
 

@@ -489,7 +489,7 @@ class GnrWebPage(GnrBaseWebPage):
         if _serverstore_changes:
             self.site.register.set_serverstore_changes(self.page_id, _serverstore_changes)
         auth = AUTH_OK
-        if not method in ('doLogin', 'onClosePage'):
+        if method not in ('doLogin', 'onClosePage'):
             auth = self._checkAuth(method=method, **parameters)
         try:
             result = self.rpc(method=method, _auth=auth, **parameters)
@@ -542,7 +542,8 @@ class GnrWebPage(GnrBaseWebPage):
         if asDict:
             prefix='%s_%s_'% (mangler,method)
             return dict([(fname,getattr(self,fname)) for fname in dir(self) 
-                                     if fname.startswith(prefix) and fname != prefix])       
+                                     if fname.startswith(prefix) and fname != prefix])    
+
         def emptyCb(*args,**kwargs):
             return dflt
         handler = getattr(self,'%s_%s' %(mangler.replace('.','_'),method),None)
@@ -1810,19 +1811,19 @@ class GnrWebPage(GnrBaseWebPage):
             page.dataRemote('gnr.app_preference', self.getAppPreference,_resolved=True)
             page.dataRemote('gnr.shortcuts.store', self.getShortcuts)
 
-          #page.dataController("""
-          #    var rotate_val = user_theme_filter_rotate || app_theme_filter_rotate || 0;
-          #    var invert_val = user_theme_filter_invert || app_theme_filter_invert || 0;
-          #    var kw = {'rotate':rotate_val,'invert':invert_val};
-          #    var styledict = {font_family:app_theme_font_family};
-          #    genro.dom.css3style_filter(null,kw,styledict);
-          #    dojo.style(dojo.body(),styledict);
-          #    """,app_theme_filter_rotate='^gnr.app_preference.sys.theme.body.filter_rotate',
-          #        user_theme_filter_rotate='^gnr.user_preference.sys.theme.body.filter_rotate',
-          #        app_theme_filter_invert='^gnr.app_preference.sys.theme.body.filter_invert',
-          #        user_theme_filter_invert='^gnr.user_preference.sys.theme.body.filter_invert',
-          #        app_theme_font_family='^gnr.app_preference.sys.theme.body.font_family',
-          #        _onStart=True)
+        #page.dataController("""
+        #    var rotate_val = user_theme_filter_rotate || app_theme_filter_rotate || 0;
+        #    var invert_val = user_theme_filter_invert || app_theme_filter_invert || 0;
+        #    var kw = {'rotate':rotate_val,'invert':invert_val};
+        #    var styledict = {font_family:app_theme_font_family};
+        #    genro.dom.css3style_filter(null,kw,styledict);
+        #    dojo.style(dojo.body(),styledict);
+        #    """,app_theme_filter_rotate='^gnr.app_preference.sys.theme.body.filter_rotate',
+        #        user_theme_filter_rotate='^gnr.user_preference.sys.theme.body.filter_rotate',
+        #        app_theme_filter_invert='^gnr.app_preference.sys.theme.body.filter_invert',
+        #        user_theme_filter_invert='^gnr.user_preference.sys.theme.body.filter_invert',
+        #        app_theme_font_family='^gnr.app_preference.sys.theme.body.font_family',
+        #        _onStart=True)
 
 
 
@@ -2077,11 +2078,11 @@ class GnrWebPage(GnrBaseWebPage):
         :param pageId: TODO. """
         self.pageStore(pageId).setItem(path, value)
             
-   #def rpc_setViewColumns(self, contextTable=None, gridId=None, relation_path=None, contextName=None,
-   #                       query_columns=None, **kwargs):
-   #    self.app.setContextJoinColumns(table=contextTable, contextName=contextName, reason=gridId,
-   #                                   path=relation_path, columns=query_columns)
-        
+    #def rpc_setViewColumns(self, contextTable=None, gridId=None, relation_path=None, contextName=None,
+    #                       query_columns=None, **kwargs):
+    #    self.app.setContextJoinColumns(table=contextTable, contextName=contextName, reason=gridId,
+    #                                   path=relation_path, columns=query_columns)
+         
     def rpc_getPrinters(self):
         """TODO"""
         print_handler = self.getService('print')
@@ -2254,7 +2255,7 @@ class GnrWebPage(GnrBaseWebPage):
     def userDocumentUrl(self, *args, **kwargs):
         """TODO"""
         if kwargs:
-            return self.site.getStatic('user').kwargs_url(self.user, *args, **kwargs_url)
+            return self.site.getStatic('user').kwargs_url(self.user, *args, **kwargs)
         else:
             return self.site.getStatic('user').url(self.user, *args)
    
@@ -2308,25 +2309,25 @@ class GnrWebPage(GnrBaseWebPage):
             return False
         return tag in self.userTags.split(',')
         
-  # def addToContext_old(self, value=None, serverpath=None, clientpath=None):
-  #     """TODO
-  #     
-  #     :param value: TODO
-  #     :param serverpath: TODO
-  #     :param clientpath: TODO"""
-  #     self._pendingContextToCreate.append((value, serverpath, clientpath or serverpath))
-    
+    # def addToContext_old(self, value=None, serverpath=None, clientpath=None):
+    #     """TODO
+    #     
+    #     :param value: TODO
+    #     :param serverpath: TODO
+    #     :param clientpath: TODO"""
+    #     self._pendingContextToCreate.append((value, serverpath, clientpath or serverpath))
+      
     def addToContext(self,serverpath=None,value=None,attr=None):
         self._pendingContext.append((serverpath,value,dict(attr)))
         
         
-   #def _createContext_old(self, root, pendingContext):
-   #    with self.pageStore() as store:
-   #        for value, serverpath, clientpath in pendingContext:
-   #            store.setItem(serverpath, value)
-   #    for value, serverpath, clientpath in pendingContext:
-   #        root.child('data', __cls='bag', content=value, path=clientpath, _serverpath=serverpath)
-   #        
+    #def _createContext_old(self, root, pendingContext):
+    #    with self.pageStore() as store:
+    #        for value, serverpath, clientpath in pendingContext:
+    #            store.setItem(serverpath, value)
+    #    for value, serverpath, clientpath in pendingContext:
+    #        root.child('data', __cls='bag', content=value, path=clientpath, _serverpath=serverpath)
+    #        
     def setJoinCondition(self, ctxname, target_fld='*', from_fld='*', condition=None, one_one=None, applymethod=None,
                          **kwargs):
         """Define a join condition in a given context (*ctxname*).

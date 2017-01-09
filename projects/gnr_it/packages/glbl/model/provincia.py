@@ -23,3 +23,11 @@ class Table(object):
 
         tbl.aliasColumn('zona_regione',relation_path='@regione.zona',name_long='Zona Reg')
 
+        tbl.formulaColumn('numero_abitanti',select=dict(columns='SUM($popolazione_residente)',
+                            table='glbl.comune',
+                            where="$sigla_provincia=#THIS.sigla"),dtype='L',
+                            format='#,###,###',name_long='N.Abitanti')
+        tbl.formulaColumn('tot_superficie',select=dict(columns='SUM($superficie)',
+                            table='glbl.comune',
+                            where="$sigla_provincia=#THIS.sigla"),dtype='L',
+                            format='#,###,###',name_long='Superficie')

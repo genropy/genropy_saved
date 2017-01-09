@@ -882,7 +882,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'dataFormula', 'dataScript', 'dataRpc', 'dataController', 'dataRemote',
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
-             'tinyMCE', 'protovis','codemirror','dygraph','MultiButton','PaletteGroup','DocumentFrame','DownloadButton','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','PaletteImporter','DropUploader','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
+             'tinyMCE', 'protovis','codemirror','dygraph','chartjs','MultiButton','PaletteGroup','DocumentFrame','DownloadButton','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','PaletteImporter','DropUploader','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','GeoSearch','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
              'FramePane', 'FrameForm','BoxForm','QuickEditor','CodeEditor','TreeGrid','QuickGrid',"GridGallery","VideoPlayer",'MultiValueEditor','QuickTree','SharedObject','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
@@ -2239,8 +2239,8 @@ class GnrGridStruct(GnrStructData):
         :param headerClasses: TODO"""
         return self.child('rows', classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
         
-    def cell(self, field=None, name=None, width=None, dtype=None, classes=None, cellClasses=None, headerClasses=None,
-             **kwargs):
+    def cell(self, field=None, name=None, width=None, dtype=None, classes=None, cellClasses=None, 
+            headerClasses=None,**kwargs):
         """Return a :ref:`cell`
         
         :param field: TODO
@@ -2250,13 +2250,15 @@ class GnrGridStruct(GnrStructData):
         :param classes: TODO
         :param cellClasses: TODO
         :param headerClasses: TODO"""
+        if field and getattr(self,'tblobj',None):
+            kwargs.setdefault('calculated',self.tblobj.column(field) is None)
         return self.child('cell', childcontent='', field=field, name=name or field, width=width, dtype=dtype,
-                          classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
+                          classes=classes, cellClasses=cellClasses, headerClasses=headerClasses,**kwargs)
                           
     
     def checkboxcolumn(self,field='_checked',checkedId=None,radioButton=False,calculated=True,name=None,
                         checkedField=None,action=None,action_delay=None,remoteUpdate=False,**kwargs):
-        if hasattr(self,'tblobj'):
+        if getattr(self,'tblobj',None):
             calculated = self.tblobj.column(field) is None
         else:
             calculated = not remoteUpdate
