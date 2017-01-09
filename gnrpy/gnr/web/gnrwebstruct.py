@@ -2250,7 +2250,7 @@ class GnrGridStruct(GnrStructData):
         :param classes: TODO
         :param cellClasses: TODO
         :param headerClasses: TODO"""
-        if getattr(self,'tblobj',None):
+        if field and getattr(self,'tblobj',None):
             kwargs.setdefault('calculated',self.tblobj.column(field) is None)
         return self.child('cell', childcontent='', field=field, name=name or field, width=width, dtype=dtype,
                           classes=classes, cellClasses=cellClasses, headerClasses=headerClasses,**kwargs)

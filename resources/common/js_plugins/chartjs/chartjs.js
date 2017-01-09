@@ -214,8 +214,6 @@ var genro_plugin_chartjs =  {
         }});
         var tc = bc._('TabContainer',{margin:'2px',region:'center'});
         this.datasetsGrid(tc._('ContentPane',{title:'Datasets'}),pars.chartNodeId);
-        //tc._('FlatBagEditor',{path:'.datasets',box_title:'Current Datasets',exclude:'field,enabled',
-        //                    grid_region:'top',grid_addCheckBoxColumn:{field:'enabled'}});
         this._optionsFormPane(tc._('ContentPane',{title:'Options',datapath:'.options'}));
         tc._('ContentPane',{title:'Options JS'})._('codemirror','optionEditor',{value:'^.options_js',config_mode:'javascript',config_lineNumbers:true,
                                                     height:'100%'});
@@ -223,6 +221,8 @@ var genro_plugin_chartjs =  {
 
     datasetsGrid:function(pane,chartNodeId){
         var grid = pane._('quickGrid',{value:'^.datasets',addCheckBoxColumn:{field:'enabled'}});
+        var that = this;
+        var dtypeWidgets = {'T':'TextBox','B':'Checkbox','L':'NumberTextBox','COLOR':'TextBox'};
         grid._('column',{'field':'parameters',name:'Parameters',width:'100%',
                         _customGetter:function(row){
                             return row.parameters?row.parameters.getFormattedValue():'No Parameters';
@@ -230,13 +230,37 @@ var genro_plugin_chartjs =  {
         edit:{contentCb:function(pane,kw){
             var chartNode = genro.nodeById(chartNodeId);
             var chartType = chartNode.getRelativeData('.chartType');
-            console.log('chartType',chartType);
-            var fb = genro.dev.formbuilder(pane,1,{border_spacing:'1px',datapath:'.parameters'});
-            fb.addField('textbox',{value:'^.label',lbl:'label'});
-            fb.addField('textbox',{value:'^.backgroundColor',lbl:'backgroundColor'});
-            fb.addField('textbox',{value:'^.borderColor',lbl:'borderColor'});
+            var pagesCb = chartNode.externalWidget.gnr['_dataset_'+chartType];
+            var pages;
+            if(pagesCb){
+                pages = pagesCb();
+            }else{
+                pages = chartNode.externalWidget.gnr._dataset__base();
+            }
+            var tc = pane._('tabContainer',{height:'350px',width:'300px',margin:'2px'});
+            var field,dtype,lbl;
+            pages.forEach(function(pageKw){
+                console.log('pageKw',pageKw);
+                var pane = tc._('ContentPane',{title:pageKw.title,font_size:'.9em'});
+                var fb = genro.dev.formbuilder(pane,1,{border_spacing:'1px',datapath:'.parameters',margin:'3px'});
+                pageKw.fields.forEach(function(fkw){
+                    fkw = objectUpdate({},fkw);
+                    field = objectPop(fkw,'field');
+                    dtype = objectPop(fkw,'dtype');
+                    fkw.value = '^.'+field;
+                    if(dtype=='B'){
+                        fkw.label = objectPop(fkw,'lbl');
+                    }else{
+                        fkw.lbl_text_align = 'right';
+                    }
+                    fb.addField(dtypeWidgets[dtype],fkw);
+                });
+            });
         }}});
     },
+
+
+
 
     _optionsFormPane:function(pane){
         var op_list = 'title';

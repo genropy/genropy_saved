@@ -416,14 +416,58 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
             that.resize();
         },100,'updatingOptions');
     },
-    _dataset__base__:function(){
-        {}
+    _dataset_bar:function(){
+        var b1 = [{field:'label',dtype:'T',lbl:'Label'},
+                {field:'backgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
+                {field:'borderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
+                {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
+        var b2  = [{field:'xAxisID',dtype:'T',lbl:'xAxisID'},
+                {field:'yAxisID',dtype:'T',lbl:'yAxisID'},
+                {field:'borderSkipped',dtype:'T',lbl:'borderSkipped',values:'top,left,right,bottom',multiple:true},
+                {field:'hoverBackgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
+                {field:'hoverBorderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
+                {field:'hoverBorderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
+        return [{title:'Bar',fields:b1},{title:'Advanced',fields:b2}];
     },
-    _dateset_bar:function(){
-        return {backgroundColor:{},borderColor:{},};
+
+
+    _dateset_line:function(){
+        var b1 = [{field:'label',dtype:'T',lbl:'Label'},
+                {field:'backgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
+                {field:'borderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
+                {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
+        return [{title:'Line',fields:b1}];
+
+
+           //return [{field:'label',dtype:'T',lbl:'Label'},
+           //    {field:'xAxisID',dtype:'T',lbl:'xAxisID'},
+           //    {field:'yAxisID',dtype:'T',lbl:'yAxisID'},
+           //    {field:'fill',dtype:'B',lbl:'Fill'},
+           //    {field:'cubicInterpolationMode',dtype:'function',lbl:'cubicInterpolationMode'},
+
+           //    {field:'backgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
+           //    {field:'borderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
+           //    {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true},
+           //    {field:'borderSkipped',dtype:'T',lbl:'borderSkipped',values:'top,left,right,bottom',multiple:true},
+           //    {field:'hoverBackgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
+           //    {field:'hoverBorderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
+           //    {field:'hoverBorderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
+
     },
-    _dateset_line:function(){},
-    _dateset_pie:function(){},
+    _dateset_pie:function(){
+        var b1 = [{field:'label',dtype:'T',lbl:'Label'},
+                {field:'backgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
+                {field:'borderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
+                {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
+        return [{title:'Pie',fields:b1}];
+    },
+    _dataset__base:function(){
+        var b1 = [{field:'label',dtype:'T',lbl:'Label'},
+                {field:'backgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
+                {field:'borderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
+                {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
+        return [{title:'Parameters',fields:b1}];
+    }
 });
 
 dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
