@@ -244,10 +244,6 @@ var genro_plugin_chartjs =  {
             var bc = pane._('BorderContainer',{height:'250px',width:'300px',_class:'datasetParsContainer'});
             var top = bc._('ContentPane',{region:'top',_class:'dojoxFloatingPaneTitle'})._('div',{innerHTML:'Dataset '+kw.rowDataNode.label});
             var tc = bc._('tabContainer',{region:'center',margin:'2px'});
-            top._('lightbutton',{_class:'dojoxFloatingMinimizeIcon',position:'absolute',top:'1px',right:'3px',
-                                action:function(){
-                                    genro.publish({topic:'close',nodeId:kw.tooltipOpenerId});
-                                }});
             var field,dtype,lbl,editkw;
             pages.forEach(function(pageKw){
                 var pane = tc._('ContentPane',{title:pageKw.title});

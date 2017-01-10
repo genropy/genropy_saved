@@ -146,7 +146,11 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
         kw['connect_onOpen'] = function(){
             var wdg = this.widget;
             if(modal){
-                genro.nodeById('_gnrRoot').setHiderLayer(true,{z_index:1000,opacity:'0.4'});
+                genro.nodeById('_gnrRoot').setHiderLayer(true,{z_index:1000,opacity:'0.4',
+                                                connect_onclick:function(){
+                                                    genro.publish({topic:'close',nodeId:ddbId});
+                                                }
+                                                                });
             }
             setTimeout(function(){
                 wdg.resize();
