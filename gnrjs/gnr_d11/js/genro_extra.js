@@ -360,6 +360,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
                 var v = n.getValue();
                 if(!(v.getNode('enabled')) || v.getItem('enabled')){
                     dskw.pars = v.getItem('parameters').asDict(true);
+                    dskw.pars.type = v.getItem('chartType');
                     dskw.field = v.getItem('field');
                     data.datasets.push(that.gnr.makeDataset(dskw));
                     objectPop(dskw,'labels');
@@ -374,6 +375,8 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
     mixin_gnr_value:function(value,kw, trigger_reason){  
         this.gnr_updateChart();
     },
+
+
 
     
     mixin_gnr_chartType:function(value,kw, trigger_reason){  
@@ -416,6 +419,40 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
             that.resize();
         },100,'updatingOptions');
     },
+    _defaultDict:{
+        backgroundColor:function(kw){
+            return chroma(kw._baseColor).alpha(0.6).css();
+        },
+        borderColor:function(kw){
+            return chroma(kw._baseColor).css();
+        },
+        borderWidth:3,
+    },
+
+
+    _defaultValues:function(chartType){
+        var dsCallback = this['_dataset_'+chartType] || this._dataset__base;
+        var result = {};
+        var cbkw = {};
+        cbkw._baseColor = chroma.random().hex();
+        var _defaultDict = this._defaultDict;
+        dsCallback().forEach(function(g){
+            g.fields.forEach(function(c){
+                var v = _defaultDict[c.field]
+                ;
+                if(isNullOrBlank(v)){
+                    return;
+                }
+                if(typeof(v)=='function'){
+                    v = v(cbkw);
+                }
+                console.log(c.field,v);
+                result[c.field] = v;
+            });
+        });
+        return result;
+    },
+
     _dataset_bar:function(){
         var b1 = [{field:'label',dtype:'T',lbl:'Label'},
                 {field:'backgroundColor',dtype:'T',lbl:'backgroundColor',multiple:true,

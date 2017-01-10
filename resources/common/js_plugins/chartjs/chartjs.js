@@ -162,6 +162,35 @@ var genro_plugin_chartjs =  {
         sourceNode.setRelativeData('.filter',pkeys);
     },
 
+    updateDatasetsBag:function(chartNodeId){
+        var chartNode = genro.nodeById(chartNodeId);
+        var fields = chartNode.getRelativeData('.datasetFields');
+        var fieldsCaption = chartNode.getRelativeData('.datasetFields?_displayedValue');
+        var currentDatasets = chartNode.getRelativeData('.datasets') || new gnr.GnrBag();
+        var defaultChartType = chartNode.getRelativeData('.chartType');
+        fields = fields? fields.split(','):[];
+        fieldsCaption = fieldsCaption?fieldsCaption.split(','):copyArray(fields);
+        var ridx;
+        currentDatasets.getNodes().forEach(function(n){
+            ridx = fields.indexOf(n.label);
+            if(ridx<0){
+                currentDatasets.popNode(n.label);
+            }else{
+                fields.splice(ridx,1);
+                fieldsCaption.splice(ridx,1);
+            }
+        }); 
+        fields.forEach(function(n,idx){
+            if(!currentDatasets.getNode(n)){
+                var dflt = chartNode.externalWidget.gnr._defaultValues(defaultChartType);
+                var parameters = new gnr.GnrBag(objectUpdate(dflt,{label:fieldsCaption[idx]}));
+                currentDatasets.setItem(n,new gnr.GnrBag({field:n,enabled:true,chartType:null,
+                                                             parameters:parameters}));
+            }
+        });
+        chartNode.setRelativeData('.datasets',currentDatasets);
+    },
+
     _chartParametersPane:function(bc,code,pars){
         var fb = genro.dev.formbuilder(bc._('ContentPane',{region:'top'}),1,{border_spacing:'1px'});
         var modes = 'bar:Bar,line:Line,radar:Radar,polar:Polar,pie:Pie & Doughnut,bubble:Bubble,scales:Scales';
@@ -172,47 +201,20 @@ var genro_plugin_chartjs =  {
                                         lbl:_T('Caption'),
                                         callback:function(kw){
                                             return pars.captionGetter(kw);},
-                                        parentForm:false,hasDownArrow:true});
-        fb.addField('Button',{label:'Datasets',action:function(){
-            var allDatasets = pars.datasetGetter();
-            var currentDatasets = this.getRelativeData('.datasets');
-            currentDatasets = currentDatasets? currentDatasets.deepCopy():new gnr.GnrBag();
-            var that = this;
-            var dataSetsValues = [];
-            var pickerValue = [];
-            var dsIndex = {};
-            allDatasets.forEach(function(ds){
-                dataSetsValues.push(ds.field+':'+(ds.name || ds.field));
-                if(currentDatasets.getNode(ds.field)){
-                    pickerValue.push(ds.field);
+                                        parentForm:false,hasDownArrow:true,
+                                        default_value:pars.captionGetter({_querystring:'*'}).data[0]._pkey});
+        fb.addField('checkBoxText',{lbl:'Datasets',value:'^.datasetFields',cols:1,valuesCb:function(){
+            var index = {};
+            var result = [];
+            pars.datasetGetter().forEach(function(c){
+                if(!(c.field in index)){
+                    result.push(c.field+':'+(c.name || c.field));
+                    index[c.field] = true;
                 }
-                dsIndex[ds.field] = ds;
             });
-            genro.dlg.prompt('Manage datasets',{dflt:pickerValue.join(','),
-                widget:'checkBoxText',wdg_values:dataSetsValues.join(','),
-                wdg_cols:1,
-                action:function(result){
-                    result = result? result.split(','):[];
-                    var ridx;
-                    currentDatasets.getNodes().forEach(function(n){
-                        ridx = result.indexOf(n.label);
-                        if(ridx<0){
-                            currentDatasets.popNode(n.label);
-                        }else{
-                            result.splice(ridx,1);
-                        }
-                    }); 
-                    result.forEach(function(n,idx){
-                        var c = dsIndex[n];
-                        var nlab = n.replace(/\./g, '_').replace(/@/g, '_');
-                        if(!currentDatasets.getNode(nlab)){
-                            currentDatasets.setItem(nlab,new gnr.GnrBag({field:n,enabled:true,parameters:new gnr.GnrBag({label:c.name || c.field})}));
-                        }
-                    });
-                    that.setRelativeData('.datasets',currentDatasets);
-            }});
+            return result.join(',');
         }});
-
+        bc._('dataController',{script:"genro.chartjs.updateDatasetsBag(chartNodeId);",datasetFields:'^.datasetFields',chartNodeId:pars.chartNodeId});
         fb.addField('Button',{label:'Full Options',action:function(){
             genro.dev.openBagInspector(this.absDatapath('.options'),{title:'Full Options'});
         }});
@@ -231,37 +233,39 @@ var genro_plugin_chartjs =  {
                         _customGetter:function(row){
                             return row.parameters?row.parameters.getFormattedValue():'No Parameters';
                         },
-        edit:{modal:true,contentCb:function(pane,kw){
-            var chartNode = genro.nodeById(chartNodeId);
-            var chartType = chartNode.getRelativeData('.chartType');
-            var pagesCb = chartNode.externalWidget.gnr['_dataset_'+chartType];
-            var pages;
-            if(pagesCb){
-                pages = pagesCb();
-            }else{
-                pages = chartNode.externalWidget.gnr._dataset__base();
-            }
-            var bc = pane._('BorderContainer',{height:'250px',width:'300px',_class:'datasetParsContainer'});
-            var top = bc._('ContentPane',{region:'top',_class:'dojoxFloatingPaneTitle'})._('div',{innerHTML:'Dataset '+kw.rowDataNode.label});
-            var tc = bc._('tabContainer',{region:'center',margin:'2px'});
-            var field,dtype,lbl,editkw;
-            pages.forEach(function(pageKw){
-                var pane = tc._('ContentPane',{title:pageKw.title});
-                var fb = genro.dev.formbuilder(pane,1,{border_spacing:'1px',datapath:'.parameters',margin:'3px'});
-                pageKw.fields.forEach(function(fkw){
-                    dtype = fkw.dtype;
-                    editkw = objectUpdate({},fkw.edit || {});
-                    editkw.value = '^.'+fkw.field;
-                    editkw.lbl = fkw.lbl;
-                    if(dtype=='B'){
-                        editkw.label = objectPop(editkw,'lbl');
-                    }else{
-                        editkw.lbl_text_align = 'right';
-                    }
-                    fb.addField(objectPop(editkw,'tag') || dtypeWidgets[dtype], editkw);
-                });
-            });
-        }}});
+                        edit:{modal:true,contentCb:function(pane,kw){
+                            var chartNode = genro.nodeById(chartNodeId);
+                            var chartType = kw.rowDataNode.getValue().getItem('chartType') || chartNode.getRelativeData('.chartType');
+                            var pagesCb = chartNode.externalWidget.gnr['_dataset_'+chartType];
+                            var pages;
+                            if(pagesCb){
+                                pages = pagesCb();
+                            }else{
+                                pages = chartNode.externalWidget.gnr._dataset__base();
+                            }
+                            var bc = pane._('BorderContainer',{height:'250px',width:'300px',_class:'datasetParsContainer'});
+                            var top = bc._('ContentPane',{region:'top',_class:'dojoxFloatingPaneTitle'})._('div',{innerHTML:'Dataset '+kw.rowDataNode.label});
+                            var tc = bc._('tabContainer',{region:'center',margin:'2px'});
+                            var field,dtype,lbl,editkw;
+                            pages.forEach(function(pageKw){
+                                var pane = tc._('ContentPane',{title:pageKw.title});
+                                var fb = genro.dev.formbuilder(pane,1,{border_spacing:'1px',datapath:'.parameters',margin:'3px'});
+                                pageKw.fields.forEach(function(fkw){
+                                    dtype = fkw.dtype;
+                                    editkw = objectUpdate({},fkw.edit || {});
+                                    editkw.value = '^.'+fkw.field;
+                                    editkw.lbl = fkw.lbl;
+                                    if(dtype=='B'){
+                                        editkw.label = objectPop(editkw,'lbl');
+                                    }else{
+                                        editkw.lbl_text_align = 'right';
+                                    }
+                                    fb.addField(objectPop(editkw,'tag') || dtypeWidgets[dtype], editkw);
+                                });
+                            });
+                        }}});
+        grid._('column',{field:'chartType',name:'Type',edit:{tag:'filteringSelect',values:'bar,line,bubble'}});
+
     },
 
     _optionsFormPane:function(pane){

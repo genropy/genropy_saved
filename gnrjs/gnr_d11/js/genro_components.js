@@ -4190,6 +4190,8 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         gnrwdg.labelAttribute = objectPop(kw,'labelAttribute')
         gnrwdg._valuelabel = kw._valuelabel;
         gnrwdg.remoteValuesRpc = objectPop(kw,'remoteValues');
+        gnrwdg.valuesCb = objectPop(kw,'valuesCb');
+        var onOpening;
         if(codeSeparator!==false){
             codeSeparator =  codeSeparator || ':'
         }
@@ -4235,6 +4237,14 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
                 gnrwdg.query_kw = query_kw;
                 values = sourceNode.gnrwdg.getRemoteValuesFromQuery();
                 has_code = true;
+            }else if(gnrwdg.valuesCb){
+                popup = true;
+                has_code = true;
+                onOpening = function(){
+                    var v = funcApply(gnrwdg.valuesCb,null,sourceNode);
+                    gnrwdg.has_code = (codeSeparator && v)?v.indexOf(codeSeparator)>=0:false;
+                    gnrwdg.setValues(v);
+                }
             }
         }
         var rootNode = sourceNode;
@@ -4246,7 +4256,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             objectUpdate(tbkw,originalKwargs);
             tb = sourceNode._('textbox',tbkw);
             gnrwdg.textboxNode = tb.getParentNode(); 
-            rootNode = tb._('comboArrow')._('tooltipPane',{placingId:textBoxId})._('div',{padding:'5px',overflow:'auto',max_height:'300px',min_width:'200px'});
+            rootNode = tb._('comboArrow')._('tooltipPane',{placingId:textBoxId,onOpening:onOpening})._('div',{padding:'5px',overflow:'auto',max_height:'300px',min_width:'200px'});
         }else{
             table_kw['tooltip']=objectPop(kw,'tooltip');
         }

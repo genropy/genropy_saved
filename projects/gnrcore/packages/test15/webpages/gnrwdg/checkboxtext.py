@@ -96,3 +96,21 @@ class GnrCustomWebPage(object):
         pane.checkBoxText(values="fatt:[!![it]Fattura],cli:[!![it]Cliente]",value='^.cbt',popup=True)
         pane.filteringSelect(values="fatt:!![it]Fattura,cli:!![it]Cliente",value='^.flt')
         pane.multiButton(values="fatt:!![it]Fattura,cli:!![it]Cliente",value='^.mb')
+
+    def test_14_mode_valuesCb(self,pane):
+        """First test description"""
+        fb = pane.formbuilder(cols=1,border_spacing='3px')
+        fb.textbox(value='^.source',lbl='Source for cb')
+        fb.checkBoxText(value='^.currval',
+                        valuesCb="""var result = [];
+                            source = this.getRelativeData('.source');
+                            source = source?source.split(','):['Foo','Bar','Span'];
+                            source.forEach(function(n,idx){
+                                var code = 'val_'+idx;
+                                result.push(code+':'+n);
+                            });
+                            return result.join(',');
+                        """,lbl='Checkbox dynamic')
+        fb.textbox(value='^.currval',lbl='val')
+        fb.textbox(value='^.currval?_displayedValue',lbl='val caption')
+
