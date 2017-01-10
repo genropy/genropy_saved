@@ -197,6 +197,182 @@ dojo.declare("gnr.widgets.MenuDiv", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.ColorTextBox", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw, children){
+        var chromapars = objectExtract(kw,'colors,steps,menupath,mode');
+        var gnrwdg = sourceNode.gnrwdg;
+        sourceNode.attr._workspace = true;
+        sourceNode.attr.mode = chromapars.mode;
+        sourceNode.attr.colors = chromapars.colors;
+        sourceNode.attr.steps = chromapars.steps;
+        gnrwdg.menupath = chromapars.menupath || '#WORKSPACE.colormenu';
+        var value = kw.value;
+        if(!value){
+            console.error('Missing value in ColorTextBox');
+            return;
+        }
+        kw.background = '^#WORKSPACE.currentBackground';
+        kw.color = '^#WORKSPACE.currentForeground';
+        var tb = sourceNode._('textbox',kw);
+        gnrwdg.tbNode = tb.getParentNode();
+        tb._('comboMenu',{'storepath':gnrwdg.menupath,
+                          '_class':'menupane colormenu',
+                          'selected_color':value.replace('^','')
+                     });
+        tb._('dataController',{script:'sn.gnrwdg.setTextBoxColors();','v':kw.value,sn:sourceNode});
+        if(!window.chroma){
+            genro.dom.loadJs('/_rsrc/js_libs/chroma.min.js',function(){
+                gnrwdg.loadMenuData();
+                gnrwdg.setTextBoxColors();
+            });
+        }else{
+            gnrwdg.loadMenuData();
+            gnrwdg.setTextBoxColors();
+        }
+        return tb;
+    },
+
+    gnrwdg_setTextBoxColors:function(){
+        var tbNode = this.sourceNode.gnrwdg.tbNode;
+        this.sourceNode.setRelativeData('^#WORKSPACE.currentBackground',null);
+        this.sourceNode.setRelativeData('^#WORKSPACE.currentForeground',null);
+        var v = tbNode.getAttributeFromDatasource('value');
+        if(!v){
+            tbNode.setAttributeInDatasource('value',null);
+            return;
+        }
+        var c = chroma(v);
+        var mode = this.sourceNode.getAttributeFromDatasource('mode') || 'hex';
+        var csscolor = mode=='rgba'? c.css():c.hex();
+        if(csscolor!=v){
+            this.tbNode.widget.setValue(csscolor,true);
+        }
+        var foreground = chroma.contrast(csscolor,"white")>chroma.contrast(csscolor,"#444")?"white":"#444";
+        this.sourceNode.setRelativeData('^#WORKSPACE.currentBackground',csscolor);
+        this.sourceNode.setRelativeData('^#WORKSPACE.currentForeground',foreground);
+    },
+
+    gnrwdg_loadMenuData:function(){
+        var kw = this.sourceNode.currentAttributes();
+        var mode = kw.mode || 'hex';
+        var b = new gnr.GnrBag();
+        var colors = kw.colors || genro.getData('app_preference.sys.theme.palette_colors') || 'black,white,red,green,yellow,blue,purple';
+        var steps = kw.steps || genro.getData('app_preference.sys.theme.palette_steps') || 20;
+        var s = chroma.scale(colors.split(',')).colors(steps);
+        var foreground,caption,csscolor,colorcaption;
+        var rescontent;
+        var opSteps = [1.0,0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1];
+        var opacityCb = function(color,foregroundColor){
+            var result = new gnr.GnrBag();
+            opSteps.forEach(function(v,idx){
+                var hcolor = chroma(color).alpha(v);
+                var hf = v>=0.5?foregroundColor:"#444";
+                var hcsscolor = hcolor.css();
+                var hcaption = '<div style="width:5em;text-align:right;padding-right:5px;background:'+hcsscolor+';"><div style="display:inline-block;font-family:courier;color:'+hf+'">'+v*100+'%</div></div>';
+                result.setItem('r_'+idx,null,{caption:hcaption,color:hcsscolor,foregroundColor:hf});
+            });
+            return result;
+        };
+        var l = s.forEach(function(n,idx){
+            foreground = chroma.contrast(n,"white")>chroma.contrast(n,"#444")?"white":"#444";
+            csscolor = n;
+            rescontent = null;
+            if(mode=='rgba'){
+                csscolor = chroma(n).css();
+                var c = n;
+                var fc = foreground;
+                rescontent = new gnr.GnrBagCbResolver({method:function(){
+                    return opacityCb(c,fc);
+                }},true);
+            }
+            caption = '<div style="width:100%;text-align:left;padding-left:5px;background:'+csscolor+';"><div style="display:inline-block;font-family:courier;color:'+foreground+'">'+csscolor+'</div></div>';
+            b.setItem('r_'+idx,rescontent,{caption:caption,color:csscolor,foregroundColor:foreground});
+        });
+        this.sourceNode.setRelativeData(this.menupath,b);
+    },
+    gnrwdg_setColors:function(){
+        this.loadMenuData();
+    },
+    gnrwdg_setSteps:function(){
+        this.loadMenuData();
+    },
+    gnrwdg_setMode:function(){
+        this.loadMenuData();
+    },
+    cell_onCreating:function(gridEditor,colname,colattr) {
+        console.log('cell_onCreating');
+
+        //colattr['onCreated'] = 'this.widget.focusNode.focus()';
+    },
+
+    cell_onDestroying:function(sourceNode,gridEditor,editingInfo){
+        console.log('cell_onDestroying');
+    }
+        
+
+});
+
+dojo.declare("gnr.widgets.ColorFiltering", gnr.widgets.gnrwdg, {
+
+    createContent:function(sourceNode, kw, children){
+        var value = kw.value;
+        var gnrwdg = sourceNode.gnrwdg;
+        sourceNode.attr._workspace = true;
+        if(!value){
+            console.error('Missing value in ColorTextBox');
+            return;
+        }
+        kw.callback = function(kw){
+            var _id = kw._id;
+            var _querystring = kw._querystring;
+            var colorsDict = chroma.colors;
+            var data = objectKeys(colorsDict).sort().map(function(n){
+                return {name:n,_pkey:colorsDict[n],color:'<div style="background:'+colorsDict[n]+';">&nbsp;&nbsp;<div>',caption:n};
+            });
+            var cbfilter = function(n){return true;};
+            if(_querystring){
+                _querystring = _querystring.slice(0,-1).toLowerCase();
+                cbfilter = function(n){return n.name.toLowerCase().indexOf(_querystring)>=0;};
+            }else if(_id){
+                cbfilter = function(n){return n._pkey==_id;};
+            }
+            data = data.filter(cbfilter);
+            return {headers:'name:Color,color:Sample',data:data};
+        };
+        kw.background = '^#WORKSPACE.currentBackground';
+        kw.color = '^#WORKSPACE.currentForeground';
+        kw.auxColumns='name,color';
+        kw.hasDownArrow =true;
+        kw.limit = 0;
+        var tb = sourceNode._('callbackSelect',kw);
+        gnrwdg.tbNode = tb.getParentNode();
+
+        tb._('dataController',{script:'sn.gnrwdg.setTextBoxColors(v);','v':kw.value,sn:sourceNode});
+        if(!window.chroma){
+            genro.dom.loadJs('/_rsrc/js_libs/chroma.min.js',function(){
+                gnrwdg.setTextBoxColors();
+            });
+        }else{
+            gnrwdg.setTextBoxColors();
+        }
+        return tb;
+    },
+
+    gnrwdg_setTextBoxColors:function(){
+        var tbNode = this.sourceNode.gnrwdg.tbNode;
+        var v = tbNode.getAttributeFromDatasource('value');
+        if(!v){
+            tbNode.setAttributeInDatasource('value',null);
+            return;
+        }
+        var foreground = chroma.contrast(v,"white")>chroma.contrast(v,"#444")?"white":"#444";
+        this.sourceNode.setRelativeData('^#WORKSPACE.currentBackground',v);
+        this.sourceNode.setRelativeData('^#WORKSPACE.currentForeground',foreground);
+    },
+
+
+});
+
 dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
     createContent:function(sourceNode, kw, children){
         var that = this;
@@ -373,7 +549,7 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
                     data.popNode(n.label);
                 }
             });
-            if(data.len()==0){
+            if(data.len()===0){
                 data.getParentNode().setValue(null);
             }else if(data.len()==1 || !data.getNodeByValue('mv_main',true)){
                 data.setItem('#0.mv_main',true);

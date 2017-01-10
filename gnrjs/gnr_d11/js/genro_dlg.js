@@ -558,10 +558,11 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         genro.src.getNode()._('div',quickRoot);
         var node = genro.src.getNode(quickRoot).clearValue();
         var domNode = objectPop(kw,'domNode');
+        var openerId = kw.openerId || nodeId+'_opener';
+        kw.openerId = openerId;
         node.freeze();
         if(domNode){
-            var openerId = kw.openerId || nodeId+'_opener';
-            kw.openerId = openerId;
+            
             kw.onCreated = function(){
                 setTimeout(function(){
                     genro.publish(openerId+'_open',{domNode:domNode});
@@ -583,6 +584,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                 });
             }
         }else if(contentCb){
+            contentCbKw = contentCbKw || {};
+            contentCbKw.tooltipOpenerId = openerId;
             contentCb(tp,contentCbKw);
         }
         node.unfreeze();

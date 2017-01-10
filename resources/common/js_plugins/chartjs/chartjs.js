@@ -97,6 +97,10 @@ var genro_plugin_chartjs =  {
     },
 
     openChart:function(kw){
+        if(!('chroma' in window)){
+            genro.dom.loadJs('/_rsrc/js_libs/chroma.min.js',function(){});
+            genro.dom.loadJs('/_rsrc/js_libs/distinct-colors.min.js');
+        }
         genro.setAliasDatapath('CHARTJS_DFLT','gnr.chartjs.defaults');
         genro.setAliasDatapath('CHARTJS_GLOB','gnr.chartjs.defaults.global');
         var widgetNodeId = objectPop(kw,'widgetNodeId');
@@ -179,7 +183,7 @@ var genro_plugin_chartjs =  {
             var dsIndex = {};
             allDatasets.forEach(function(ds){
                 dataSetsValues.push(ds.field+':'+(ds.name || ds.field));
-                if(currentDatasets.getNodeByAttr('field',ds.field)){
+                if(currentDatasets.getNode(ds.field)){
                     pickerValue.push(ds.field);
                 }
                 dsIndex[ds.field] = ds;
@@ -191,7 +195,7 @@ var genro_plugin_chartjs =  {
                     result = result? result.split(','):[];
                     var ridx;
                     currentDatasets.getNodes().forEach(function(n){
-                        ridx = result.indexOf(n.attr.field);
+                        ridx = result.indexOf(n.label);
                         if(ridx<0){
                             currentDatasets.popNode(n.label);
                         }else{
@@ -222,12 +226,12 @@ var genro_plugin_chartjs =  {
     datasetsGrid:function(pane,chartNodeId){
         var grid = pane._('quickGrid',{value:'^.datasets',addCheckBoxColumn:{field:'enabled'}});
         var that = this;
-        var dtypeWidgets = {'T':'TextBox','B':'Checkbox','L':'NumberTextBox','COLOR':'TextBox'};
+        var dtypeWidgets = {'T':'TextBox','B':'Checkbox','L':'NumberTextBox'};
         grid._('column',{'field':'parameters',name:'Parameters',width:'100%',
                         _customGetter:function(row){
                             return row.parameters?row.parameters.getFormattedValue():'No Parameters';
                         },
-        edit:{contentCb:function(pane,kw){
+        edit:{modal:true,contentCb:function(pane,kw){
             var chartNode = genro.nodeById(chartNodeId);
             var chartType = chartNode.getRelativeData('.chartType');
             var pagesCb = chartNode.externalWidget.gnr['_dataset_'+chartType];
@@ -237,30 +241,32 @@ var genro_plugin_chartjs =  {
             }else{
                 pages = chartNode.externalWidget.gnr._dataset__base();
             }
-            var tc = pane._('tabContainer',{height:'350px',width:'300px',margin:'2px'});
-            var field,dtype,lbl;
+            var bc = pane._('BorderContainer',{height:'250px',width:'300px',_class:'datasetParsContainer'});
+            var top = bc._('ContentPane',{region:'top',_class:'dojoxFloatingPaneTitle'})._('div',{innerHTML:'Dataset '+kw.rowDataNode.label});
+            var tc = bc._('tabContainer',{region:'center',margin:'2px'});
+            top._('lightbutton',{_class:'dojoxFloatingMinimizeIcon',position:'absolute',top:'1px',right:'3px',
+                                action:function(){
+                                    genro.publish({topic:'close',nodeId:kw.tooltipOpenerId});
+                                }});
+            var field,dtype,lbl,editkw;
             pages.forEach(function(pageKw){
-                console.log('pageKw',pageKw);
-                var pane = tc._('ContentPane',{title:pageKw.title,font_size:'.9em'});
+                var pane = tc._('ContentPane',{title:pageKw.title});
                 var fb = genro.dev.formbuilder(pane,1,{border_spacing:'1px',datapath:'.parameters',margin:'3px'});
                 pageKw.fields.forEach(function(fkw){
-                    fkw = objectUpdate({},fkw);
-                    field = objectPop(fkw,'field');
-                    dtype = objectPop(fkw,'dtype');
-                    fkw.value = '^.'+field;
+                    dtype = fkw.dtype;
+                    editkw = objectUpdate({},fkw.edit || {});
+                    editkw.value = '^.'+fkw.field;
+                    editkw.lbl = fkw.lbl;
                     if(dtype=='B'){
-                        fkw.label = objectPop(fkw,'lbl');
+                        editkw.label = objectPop(editkw,'lbl');
                     }else{
-                        fkw.lbl_text_align = 'right';
+                        editkw.lbl_text_align = 'right';
                     }
-                    fb.addField(dtypeWidgets[dtype],fkw);
+                    fb.addField(objectPop(editkw,'tag') || dtypeWidgets[dtype], editkw);
                 });
             });
         }}});
     },
-
-
-
 
     _optionsFormPane:function(pane){
         var op_list = 'title';

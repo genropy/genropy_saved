@@ -418,14 +418,15 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
     },
     _dataset_bar:function(){
         var b1 = [{field:'label',dtype:'T',lbl:'Label'},
-                {field:'backgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
-                {field:'borderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
-                {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
+                {field:'backgroundColor',dtype:'T',lbl:'backgroundColor',multiple:true,
+                        edit:{tag:'colorTextBox',mode:'rgba'}},
+                {field:'borderColor',dtype:'T',lbl:'borderColor',multiple:true,edit:{tag:'colorTextBox',mode:'rgba'}},
+                {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true,edit:{tag:'numberSpinner',minimum:0,maximum:8,width:'5em'}}];
         var b2  = [{field:'xAxisID',dtype:'T',lbl:'xAxisID'},
                 {field:'yAxisID',dtype:'T',lbl:'yAxisID'},
                 {field:'borderSkipped',dtype:'T',lbl:'borderSkipped',values:'top,left,right,bottom',multiple:true},
-                {field:'hoverBackgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
-                {field:'hoverBorderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
+                {field:'hoverBackgroundColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'backgroundColor',multiple:true},
+                {field:'hoverBorderColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'borderColor',multiple:true},
                 {field:'hoverBorderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
         return [{title:'Bar',fields:b1},{title:'Advanced',fields:b2}];
     },
@@ -433,38 +434,22 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
 
     _dateset_line:function(){
         var b1 = [{field:'label',dtype:'T',lbl:'Label'},
-                {field:'backgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
-                {field:'borderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
+                {field:'backgroundColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'backgroundColor',multiple:true},
+                {field:'borderColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'borderColor',multiple:true},
                 {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
         return [{title:'Line',fields:b1}];
-
-
-           //return [{field:'label',dtype:'T',lbl:'Label'},
-           //    {field:'xAxisID',dtype:'T',lbl:'xAxisID'},
-           //    {field:'yAxisID',dtype:'T',lbl:'yAxisID'},
-           //    {field:'fill',dtype:'B',lbl:'Fill'},
-           //    {field:'cubicInterpolationMode',dtype:'function',lbl:'cubicInterpolationMode'},
-
-           //    {field:'backgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
-           //    {field:'borderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
-           //    {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true},
-           //    {field:'borderSkipped',dtype:'T',lbl:'borderSkipped',values:'top,left,right,bottom',multiple:true},
-           //    {field:'hoverBackgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
-           //    {field:'hoverBorderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
-           //    {field:'hoverBorderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
-
     },
     _dateset_pie:function(){
         var b1 = [{field:'label',dtype:'T',lbl:'Label'},
-                {field:'backgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
-                {field:'borderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
+                {field:'backgroundColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'backgroundColor',multiple:true},
+                {field:'borderColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'borderColor',multiple:true},
                 {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
         return [{title:'Pie',fields:b1}];
     },
     _dataset__base:function(){
         var b1 = [{field:'label',dtype:'T',lbl:'Label'},
-                {field:'backgroundColor',dtype:'COLOR',lbl:'backgroundColor',multiple:true},
-                {field:'borderColor',dtype:'COLOR',lbl:'borderColor',multiple:true},
+                {field:'backgroundColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'backgroundColor',multiple:true},
+                {field:'borderColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'borderColor',multiple:true},
                 {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
         return [{title:'Parameters',fields:b1}];
     }

@@ -1644,6 +1644,13 @@ table.formbuilder {
     color:#333;
 }
 
+.tundra .menupane.colormenu .dijitMenuExpandEnabled{
+    width: 2px;
+    background: none;
+}
+
+
+
 .tundra .smallmenu .dijitMenuItem td {
     padding-top: 0px !important;
     padding-bottom: 0px !important;
@@ -4702,6 +4709,9 @@ div[disabled='true'], div[disabled='disabled']{
     border: 0;
     -moz-box-shadow: 4px 4px 4px #403b3b;
     -webkit-box-shadow: 4px 4px 4px #403b3b;
+}
+._common_d11.tundra .dijitTooltipContainer{
+    background: white;
 }
 
 ._common_d11 .dijitTooltipDialog.dijitTooltipBelow[connector='none']{

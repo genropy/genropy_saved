@@ -508,7 +508,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         if(objectNotEmpty(valuedict)){
             var colordict=objectExtract(valuedict,'color_*');
-            colors=[];
+            var colors=[];
             for(var col in colordict){colors.push(col);}
             colors.sort();
             var color_from=valuedict['from'];
