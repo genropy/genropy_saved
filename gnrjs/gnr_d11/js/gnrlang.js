@@ -642,6 +642,10 @@ function objectMap(obj,func){
     }
 }
 
+function copyJson(obj){
+    return JSON.parse(JSON.stringify(obj));
+}
+
 function objectUpdate(obj, source, removeNulls) {
     if (source) {
         if (source instanceof gnr.GnrBag){
@@ -775,7 +779,7 @@ function objectFromString(values,sep,mode){
         return {};
     }
     var ch = sep || (values.indexOf('\n')>=0?'\n':',');
-    var values = values.split(ch);
+    values = values.split(ch);
     var result = {};
     for (var i = 0; i < values.length; i++) {
         val = values[i];

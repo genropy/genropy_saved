@@ -231,7 +231,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
 
     formbuilder:function(node, col, tblattr) {
+        var defautlLblAttr = objectExtract(tblattr,'lbl_*');
         var tbl = node._('table', tblattr || {})._('tbody');
+
         tbl.col_max = col || 1;
         tbl.col_count = tbl.col_max + 1;
         tbl.addField = function(tag, kw) {
@@ -242,6 +244,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
             var colspan = objectPop(kw,'colspan') || 1;
             colspan = colspan==1?colspan:colspan*2;
             var lblpars = {innerHTML:objectPop(kw, 'lbl'),_class:'gnrfieldlabel'};
+            lblpars = objectUpdate(defautlLblAttr,lblpars);
             objectUpdate(lblpars, objectExtract(kw, 'lbl_*'));
             var tr = this.curr_tr;
             tr._('td', lblpars);

@@ -569,7 +569,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         return path;
     },
     isPointerPath: function(path) {
-        return path? ((path.indexOf('^') == 0) || (path.indexOf('=') == 0)):false;
+        return path? ((path.indexOf('^') === 0) || (path.indexOf('=') === 0)):false;
     },
     nodeById:function(nodeId){
         return genro.nodeById(nodeId,this); 
@@ -868,7 +868,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this.form.unregisterChild(this);
         }
         if (this._timing){
-            clearInterval(this._timing)
+            clearInterval(this._timing);
         }
         if(this.watches){
             for(var w in this.watches){
@@ -1175,15 +1175,15 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this._original_attributes=null;
         }
         var autocreate = kw.reason =='autocreate';
-        var attr = attr || 'value';
+        attr = attr || 'value';
         var path;
         var value = null;
         var attr_lower = attr.toLowerCase();
         var valueNode = kw.node;
         if(trigger_reason=='container' && attr=='value' && kw.evt=='upd'){
-            var vpath = this.attr['value'];
+            var vpath = this.attr.value;
             if (this.isPointerPath(vpath)){
-                var valueNode = genro._data.getNode(this.absDatapath(vpath),null,true);
+                valueNode = genro._data.getNode(this.absDatapath(vpath),null,true);
                 if (valueNode){
                     var wdg_prefix = vpath.indexOf('?')<0?'wdg_*':'wdg_'+vpath.split('?')[1]+'_*';
                     var wdg_modifiers = objectExtract(valueNode.attr,wdg_prefix);
@@ -1215,6 +1215,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         else if (this.externalWidget) {
             if ('gnr_' + attr in this.externalWidget) {
                 this.externalWidget['gnr_' + attr](value, kw, trigger_reason);
+            }else{
+                this.rebuild();
             }
             return;
         }
@@ -1229,12 +1231,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 domnode = this.domNode;
             }
             if (oldvalue) {
+                var old_class;
                 if (oldvalue instanceof gnr.GnrBag) {
                     var q = kw.pathlist.length;
                     var p = this.absDatapath(this.attr._class).split('.').slice(q - 1);
-                    var old_class = oldvalue.getItem(p.join('.'));
+                    old_class = oldvalue.getItem(p.join('.'));
                 } else {
-                    var old_class = oldvalue;
+                    old_class = oldvalue;
                 }
                 genro.dom.removeClass(domnode, old_class);
             }
@@ -1246,14 +1249,14 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         else if (attr=='placeholder'){
             (this.widget? this.widget.focusNode:this.domNode).setAttribute('placeholder',value || '');
         }
-        else if (attr.indexOf('remote_') == 0) {
+        else if (attr.indexOf('remote_') === 0) {
             this.updateRemoteContent(this);
         }
         else if (this.widget) {
             /* if(attr.indexOf('remote_')==0){
              this.updateRemoteContent(this);
              }*/
-            if (attr.indexOf('__') == 0) {
+            if (attr.indexOf('__') === 0) {
                 return;
             }
             else if (attr_lower == 'readonly') {
@@ -1262,7 +1265,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             else if ((attr == 'storepath') && (this.attr.storepath.indexOf('^') == 0)) {
                 this.rebuild();
             }
-            else if (attr.indexOf('validate_') == 0) {
+            else if (attr.indexOf('validate_') === 0) {
                 //this.validationsOnChange(this, this.getAttributeFromDatasource('value'));
                 if ((trigger_reason == 'node') || (kw.reason=='resolver')){
                     this.resetValidationError();
@@ -1271,7 +1274,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     this.updateValidationStatus();
                     this.setAttributeInDatasource('value', newval);
                 }
-            }else if (attr.indexOf('condition_')==0){
+            }else if (attr.indexOf('condition_') === 0){
                 if('setCondition' in this.widget){
                     if ((trigger_reason == 'node') || (kw.reason=='resolver')){
                         this.widget.setCondition(value,kw);
@@ -1284,7 +1287,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     var trgevt = kw.evt;
                     if (attr != 'value') {
                         dojo.hitch(this.widget, setter)(value, kw);
-                        return
+                        return;
                     }
                     var formHandler = this.getFormHandler();
 

@@ -140,7 +140,9 @@ dojo.declare("gnr.GnrSrcHandler", null, {
     
     _trigger_upd:function(kw) {//da rivedere
         //console.log('trigger_upd',kw);
-        genro.assert(!kw.node._isComponentNode);
+        var updatingNode = kw.node;
+        genro.assert(!updatingNode._isComponentNode);
+        updatingNode._onDeleting();
         var destination = kw.node.getParentBuiltObj();
         if (!destination) {
             console.log('missing destination in rebuild');
@@ -159,7 +161,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                 var children = destination.getChildren();
                 ind = children.indexOf(widget);
                 if (destination.getSelectedIndex) {
-                    var selectedIndex = destination.getSelectedIndex();
+                    selectedIndex = destination.getSelectedIndex();
                 }
                 if ('removeChild' in destination) {
                     destination.removeChild(widget);
@@ -192,6 +194,9 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             while (domNode.childNodes.length > 0) {
                 dojo._destroyElement(domNode.childNodes[0]);
             }
+            if(updatingNode.externalWidget && updatingNode.externalWidget.destroy){
+                updatingNode.externalWidget.destroy();
+            }
         }
         this.refreshSourceIndexAndSubscribers();
         if(!kw.node._value){
@@ -223,7 +228,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             this.deleteNodeContent(deletingNode);
         }else{
             this._onDeletingContent(deletingNode._value);
-            this.deleteChildrenExternalWidget(deletingNode)
+            this.deleteChildrenExternalWidget(deletingNode);
             var widget = deletingNode.widget;
             var domNode = deletingNode.domNode;
             var externalWidget = deletingNode.externalWidget;

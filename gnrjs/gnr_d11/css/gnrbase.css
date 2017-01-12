@@ -1683,6 +1683,15 @@ div.dojoxDock {
     width:100%;
 }
 
+.tundra._common_d11 .commonTitleBar {
+    background-color:#711B2A;
+    color: #ffffff;
+    text-align: center;
+    font-weight:normal;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
 .hiddenBcPane{
     display:none;
 }

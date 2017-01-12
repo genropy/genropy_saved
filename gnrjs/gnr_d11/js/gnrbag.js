@@ -110,11 +110,12 @@ dojo.declare("gnr.GnrBagNode", null, {
     isChildOf:function(bagOrNode){
         var node = bagOrNode instanceof gnr.GnrBagNode? bagOrNode:bagOrNode.getParentNode();
         var curr = this;
+        var parentNode;
         do{
-            var parentNode = curr.getParentNode();
+            parentNode = curr.getParentNode();
             curr=parentNode;
-        }while(parentNode  && parentNode !== node)
-        return parentNode!=null;
+        }while(parentNode  && parentNode !== node);
+        return parentNode!==null;
     },
 
     /**
@@ -582,7 +583,7 @@ dojo.declare("gnr.GnrBag", null, {
                 var val = source[k];
                 var valType = guessDtype(val);
                 if(valType=='FUNC'){
-                    val = val.toString();
+                    val = val.toString()+'::JS';
                 }else if(valType=='OBJ' || valType=='AR'){
                     val = new gnr.GnrBag(val);
                 }
@@ -1632,23 +1633,29 @@ dojo.declare("gnr.GnrBag", null, {
      * todo
      */
 
-    asDict: function(recursive) {
-        var result = {};
+    asDict: function(recursive,excludeNullValues) {
+        var isArray = this._nodes.some(function(n){return n.attr._autolist});
         var node,value;
+        var result = isArray?[]:{};
         for (var i = 0; i < this._nodes.length; i++) {
             node = this._nodes[i];
             value = node.getValue();
-            if(node.attr._autolist){
-                value = value.getNodes().map(function(n){
-                    return v instanceof gnr.GnrBag? v.asDict(recursive):v;
-                });
+
+            if(excludeNullValues && value===null){
+                continue;
             }
             if(recursive && (value instanceof gnr.GnrBag)){
-                value = value.asDict(recursive);
+                value = value.asDict(recursive,excludeNullValues);
             }
-            result[node.label] = value;
+            if(isArray){
+                result.push(value);
+            }else{
+                if(typeof(value)!='string' || !stringEndsWith(value,'::JS')){
+                    result[node.label] = value;
+                }
+                
+            }
         }
-        ;
         return result;
     },
 

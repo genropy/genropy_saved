@@ -1,4 +1,5 @@
 var genro_plugin_chartjs =  {
+    chartTypes:'bar,line,bubble,doughnut,polarArea,radar,scatter',
     openGridChart:function(kw){
         var grid = objectPop(kw,'grid');
         var sn = grid.sourceNode;
@@ -7,8 +8,6 @@ var genro_plugin_chartjs =  {
                                     userObjectId:kw.pkey,
                                     storepath:sn.absDatapath(sn.attr.storepath),
                                     title:kw.caption || 'New Chart',
-                                    pkeys:grid.getSelectedPkeys(),
-                                    struct:grid.structbag().deepCopy(),
                                     datamode:grid.datamode,
                                     chartMenuPath:sn.absDatapath('.chartsMenu'),
                                     captionGetter:function(kw){
@@ -18,8 +17,9 @@ var genro_plugin_chartjs =  {
                                         return genro.chartjs.gridDatasetGetter(grid,kw);
                                     },
                                 });
+        chartNode.setRelativeData('.filter',grid.getSelectedPkeys());
         var chartNodeId = chartNode.attr.nodeId;
-        chartNode.registerSubscription(sn.attr.nodeId+'_onSelectedRow',function(kw){
+        sn.subscribe('onSelectedRow',function(kw){
             genro.nodeById(chartNodeId).setRelativeData('.filter',kw.selectedPkeys);
         });
     },
@@ -63,8 +63,19 @@ var genro_plugin_chartjs =  {
         var chartCode = chartNode.getRelativeData('.metadata.code');
         var datapath = chartNode.absDatapath('.metadata');
         var chartPars = chartNode.getRelativeData().deepCopy();
+        console.log('datasetFields',chartPars.getNode('datasetFields'));
         chartPars.popNode('metadata');
         chartPars.popNode('filter');
+        chartPars.popNode('options');
+        var options = chartNode.getRelativeData('.options');
+        var savedOptions = new gnr.GnrBag();
+        options.walk(function(n){
+            if(n.attr._userChanged){
+                var fullpath = n.getFullpath(null,options);
+                savedOptions.setItem(fullpath.replace(/\./g, '_'),null,{path:fullpath,value:n.getValue()});
+            }
+        });
+        chartPars.setItem('savedOptions',savedOptions);
         saveCb = function(dlg) {
             var datapath = chartNode.absDatapath('.metadata');
             var metadata = genro.getData(datapath);
@@ -86,12 +97,17 @@ var genro_plugin_chartjs =  {
         genro.dev.userObjectDialog(chartCode ? 'Save Chart ' + chartCode : 'Save New Chart',datapath,saveCb);
     },
 
-    loadChart:function(chartNode,userObjectId){
+    loadChart:function(sourceNode,userObjectId){
         genro.serverCall('_table.adm.userobject.loadUserObject', {pkey:userObjectId}, 
             function(result){
-                chartNode.setRelativeData('.metadata',new gnr.GnrBag(result.attr));
-                result.getValue().forEach(function(n){
-                    chartNode.setRelativeData('.'+n.label,n.getValue());
+                sourceNode.setRelativeData('.metadata',new gnr.GnrBag(result.attr));
+                var data = result.getValue();
+                var savedOptions = data.pop('savedOptions');
+                data.forEach(function(n){
+                    sourceNode.setRelativeData('.'+n.label,n.getValue(),n.attr);
+                });
+                savedOptions.forEach(function(n){
+                    sourceNode.setRelativeData('.options.'+n.attr.path,n.attr.value);
                 });
             });
     },
@@ -104,11 +120,9 @@ var genro_plugin_chartjs =  {
         genro.setAliasDatapath('CHARTJS_DFLT','gnr.chartjs.defaults');
         genro.setAliasDatapath('CHARTJS_GLOB','gnr.chartjs.defaults.global');
         var widgetNodeId = objectPop(kw,'widgetNodeId');
-        var code =widgetNodeId+'_chart_'+(kw.userObjectId || ('_newchart_'+genro.getCounter()));
+        var code =widgetNodeId+'_chart_'+(kw.userObjectId || '_newchart_')+genro.getCounter();
         var title = objectPop(kw,'title');
-        var datastruct = objectPop(kw,'struct');
         var storepath = objectPop(kw,'storepath');
-        var pkeys = objectPop(kw,'pkeys');
         var wdg = genro.wdgById(code+'_floating');
         var chartNodeId = code+'_cjs';
         kw.chartNodeId = chartNodeId;
@@ -122,7 +136,14 @@ var genro_plugin_chartjs =  {
         node.freeze();
         var paletteAttr = {'paletteCode':code,'frameCode':code,'title':title,'dockTo':false,'width':'600px','height':'500px','contentWidget':'FramePane'};
         var palette = node._('palettePane',code,paletteAttr);
-        var bar = palette._('slotBar',{toolbar:true,side:'top',slots:'*,saveBtn,5'});
+        var bar = palette._('slotBar',{toolbar:true,side:'top',slots:'5,fulloptions,refresh,*,saveBtn,5'});
+        
+        bar._('slotButton','fulloptions',{label:'Full Options',iconClass:'iconbox gear',action:function(){
+            genro.dev.openBagInspector(this.absDatapath('.options'),{title:'Full Options'});
+        }});
+        bar._('slotButton','refresh',{label:'Refresh',iconClass:'iconbox reload',action:function(){
+            genro.nodeById(chartNodeId).publish('refresh');
+        }});
         bar._('slotButton','saveBtn',{iconClass:'iconbox save',
                                         action:function(){
                                             genro.chartjs.saveChart(widgetNodeId,genro.nodeById(chartNodeId));
@@ -132,34 +153,32 @@ var genro_plugin_chartjs =  {
         var confbc = bc._('BorderContainer',{region:'right',width:'320px',border_left:'1px solid #efefef',
                             drawer:kw.userObjectId?'close':true,splitter:true});
         this._chartParametersPane(confbc,code,kw);
+        var sn = confbc.getParentNode();
+        this.initChartParameters(sn);
         var chartNode = bc._('ContentPane',{region:'center'})._('chartjs',{
             nodeId:chartNodeId,
             value:'^'+storepath,
             filter:'^.filter',
             columnCaption:'^.columnCaption',
             datasets:'^.datasets',            
-            options:'^.options',
+            optionsBag:'^.options',
             chartType:'^.chartType',
             datamode:kw.datamode,
-            selfsubscribe_chartReady:function(){
-                if(!kw.userObjectId){
-                    this.setRelativeData('.options',new gnr.GnrBag(this.externalWidget.options));
-                }
+            selfsubscribe_refresh:function(){
+                this.rebuild();
             }
         }).getParentNode();
-        this.initChartParameters(palette.getParentNode(),datastruct,pkeys);
         node.unfreeze();
         if(kw.userObjectId){
-            this.loadChart(chartNode,kw.userObjectId);
+            genro.chartjs.loadChart(chartNode,kw.userObjectId);
         }
         return chartNode;
     },
 
-    initChartParameters:function(sourceNode,datastruct,pkeys){
+    initChartParameters:function(sourceNode,pkeys){
         var columnCaption_all = [];
         sourceNode.setRelativeData('.datasets',new gnr.GnrBag());
         sourceNode.setRelativeData('.chartType','bar');
-        sourceNode.setRelativeData('.filter',pkeys);
     },
 
     updateDatasetsBag:function(chartNodeId){
@@ -182,7 +201,7 @@ var genro_plugin_chartjs =  {
         }); 
         fields.forEach(function(n,idx){
             if(!currentDatasets.getNode(n)){
-                var dflt = chartNode.externalWidget.gnr._defaultValues(defaultChartType);
+                var dflt = genro.chartjs._defaultValues(defaultChartType);
                 var parameters = new gnr.GnrBag(objectUpdate(dflt,{label:fieldsCaption[idx]}));
                 currentDatasets.setItem(n,new gnr.GnrBag({field:n,enabled:true,chartType:null,
                                                              parameters:parameters}));
@@ -192,10 +211,9 @@ var genro_plugin_chartjs =  {
     },
 
     _chartParametersPane:function(bc,code,pars){
-        var fb = genro.dev.formbuilder(bc._('ContentPane',{region:'top'}),1,{border_spacing:'1px'});
-        var modes = 'bar:Bar,line:Line,radar:Radar,polar:Polar,pie:Pie & Doughnut,bubble:Bubble,scales:Scales';
-        fb.addField('filteringSelect',{value:'^.chartType',values:modes,lbl:'Type'});
-        fb.addField('callbackSelect',{value:'^.columnCaption',width:'15em',
+        var fb = genro.dev.formbuilder(bc._('ContentPane',{region:'top'}),1,{border_spacing:'3px',margin_top:'10px'});
+        fb.addField('filteringSelect',{value:'^.chartType',colspan:1,width:'10em',values:this.chartTypes,lbl:'Type'});
+        fb.addField('callbackSelect',{value:'^.columnCaption',width:'10em',
                                         lbl_text_align:'right',
                                         lbl_class:'gnrfieldlabel',
                                         lbl:_T('Caption'),
@@ -203,7 +221,7 @@ var genro_plugin_chartjs =  {
                                             return pars.captionGetter(kw);},
                                         parentForm:false,hasDownArrow:true,
                                         default_value:pars.captionGetter({_querystring:'*'}).data[0]._pkey});
-        fb.addField('checkBoxText',{lbl:'Datasets',value:'^.datasetFields',cols:1,valuesCb:function(){
+        fb.addField('checkBoxText',{lbl:'Datasets',width:'20em',colspan:1,value:'^.datasetFields',cols:1,valuesCb:function(){
             var index = {};
             var result = [];
             pars.datasetGetter().forEach(function(c){
@@ -215,12 +233,9 @@ var genro_plugin_chartjs =  {
             return result.join(',');
         }});
         bc._('dataController',{script:"genro.chartjs.updateDatasetsBag(chartNodeId);",datasetFields:'^.datasetFields',chartNodeId:pars.chartNodeId});
-        fb.addField('Button',{label:'Full Options',action:function(){
-            genro.dev.openBagInspector(this.absDatapath('.options'),{title:'Full Options'});
-        }});
         var tc = bc._('TabContainer',{margin:'2px',region:'center'});
         this.datasetsGrid(tc._('ContentPane',{title:'Datasets'}),pars.chartNodeId);
-        this._optionsFormPane(tc._('ContentPane',{title:'Options',datapath:'.options'}));
+        this._optionsFormPane(tc._('BorderContainer',{title:'Options'}));
         tc._('ContentPane',{title:'Options JS'})._('codemirror','optionEditor',{value:'^.options_js',config_mode:'javascript',config_lineNumbers:true,
                                                     height:'100%'});
     },
@@ -228,7 +243,7 @@ var genro_plugin_chartjs =  {
     datasetsGrid:function(pane,chartNodeId){
         var grid = pane._('quickGrid',{value:'^.datasets',addCheckBoxColumn:{field:'enabled'}});
         var that = this;
-        var dtypeWidgets = {'T':'TextBox','B':'Checkbox','L':'NumberTextBox'};
+        var dtypeWidgets = {'T':'TextBox','B':'Checkbox','L':'NumberTextBox','N':'NumberTextBox'};
         grid._('column',{'field':'parameters',name:'Parameters',width:'100%',
                         _customGetter:function(row){
                             return row.parameters?row.parameters.getFormattedValue():'No Parameters';
@@ -236,24 +251,29 @@ var genro_plugin_chartjs =  {
                         edit:{modal:true,contentCb:function(pane,kw){
                             var chartNode = genro.nodeById(chartNodeId);
                             var chartType = kw.rowDataNode.getValue().getItem('chartType') || chartNode.getRelativeData('.chartType');
-                            var pagesCb = chartNode.externalWidget.gnr['_dataset_'+chartType];
+                            var pagesCb = genro.chartjs['_dataset_'+chartType];
                             var pages;
                             if(pagesCb){
                                 pages = pagesCb();
                             }else{
-                                pages = chartNode.externalWidget.gnr._dataset__base();
+                                pages = genro.chartjs._dataset__base();
                             }
-                            var bc = pane._('BorderContainer',{height:'250px',width:'300px',_class:'datasetParsContainer'});
+                            var bc = pane._('BorderContainer',{height:'300px',width:'330px',_class:'datasetParsContainer'});
                             var top = bc._('ContentPane',{region:'top',_class:'dojoxFloatingPaneTitle'})._('div',{innerHTML:'Dataset '+kw.rowDataNode.label});
                             var tc = bc._('tabContainer',{region:'center',margin:'2px'});
                             var field,dtype,lbl,editkw;
                             pages.forEach(function(pageKw){
                                 var pane = tc._('ContentPane',{title:pageKw.title});
-                                var fb = genro.dev.formbuilder(pane,1,{border_spacing:'1px',datapath:'.parameters',margin:'3px'});
+                                var fb = genro.dev.formbuilder(pane,1,{border_spacing:'3px',datapath:'.parameters',margin:'3px',margin_top:'10px'});
                                 pageKw.fields.forEach(function(fkw){
                                     dtype = fkw.dtype;
                                     editkw = objectUpdate({},fkw.edit || {});
+                                    editkw.width = editkw.width || (dtype=='N' || dtype=='L') ?'7em':'12em';
                                     editkw.value = '^.'+fkw.field;
+                                    if(fkw.values){
+                                        editkw.tag =editkw.tag || 'filteringSelect';
+                                        editkw.values = fkw.values;
+                                    }
                                     editkw.lbl = fkw.lbl;
                                     if(dtype=='B'){
                                         editkw.label = objectPop(editkw,'lbl');
@@ -268,25 +288,34 @@ var genro_plugin_chartjs =  {
 
     },
 
-    _optionsFormPane:function(pane){
-        var op_list = 'title';
-        var that = this;
-        op_list.split(',').forEach(function(op){
-            that._optioncb(pane,op);
+//CHART OPTIONS
+    
+    _op_list:'title:Title,legend:Legend,tooltip:Tooltip,hover:Hover,xAxes:X-Axes,yAxes:Y-Axes',
+
+    _optionsFormPane:function(bc){
+        var tc = bc._('tabContainer',{tabPosition:"left-h",region:'center',margin:'2px'});
+        var opcode,optitle,innerBc;
+        this._op_list.split(',').forEach(function(op){
+            op = op.split(':');
+            opcode = op[0];
+            optitle = op[1];
+            innerBc = tc._('BorderContainer',{title:optitle});
+            var top = innerBc._('ContentPane',{region:'top',font_size:'.9em',_class:'commonTitleBar'});
+            top._('div',{innerHTML:optitle,text_align:'center'});
+            if(genro.chartjs['_option_'+opcode]){
+                genro.chartjs['_option_'+opcode](innerBc,{datapath:'.options.'+opcode,region:'center'});
+            }else{
+                innerBc._('ContentPane',{region:'center'})._('div',{innerHTML:'TO DO...'});
+            }
         });
     },
     
-    _optioncb:function(pane,name){
-        //datasource:'^.'+name,template:this['_template_'+name]
-        var box = pane._('div',{_class:'chart_option_panel'});
-        box._('div',{innerHTML:stringCapitalize(name),_class:'chart_option_panel_title'});
-        box._('div',{_class:'chart_option_panel_content'})._('div',{innerHTML:"==_v?_v.getFormattedValue():'No Option'",_v:'^.'+name});
-        var tp = box._('tooltipPane',{datapath:'.'+name})._('div',{padding:'10px'});
-        this['_option_'+name](tp);
-    },
+
     
-    _option_title:function(pane){
-        var fb = genro.dev.formbuilder(pane,1,{border_spacing:'1px'});
+    _option_title:function(parent,kw){
+        var pane = parent._('ContentPane',kw);
+        var fb = genro.dev.formbuilder(pane,1,{border_spacing:'3px',margin:'3px',margin_top:'10px',
+                                    font_size:'.9em',lbl_text_align:'right'});
         fb.addField('textbox',{value:'^.text',lbl:'Text'});
         fb.addField('checkbox',{value:'^.display',label:'Display'});
         fb.addField('filteringSelect',{value:'^.position',lbl:'Position',values:'top,left,bottom,right'});
@@ -305,6 +334,106 @@ var genro_plugin_chartjs =  {
                         values:"bold,italic,normal", placeholder:'^#CHARTJS_GLOB.defaultFontStyle'});
         fb.addField('textbox',{value:'^.fontColor',lbl:'Color',
                         placeholder:'^#CHARTJS_GLOB.defaultFontColor'});
+    },
+
+//DATASETS PARAMETERS
+
+    _defaultDict:{
+        backgroundColor:function(kw){
+            return chroma(kw._baseColor).alpha(0.6).css();
+        },
+        borderColor:function(kw){
+            return chroma(kw._baseColor).css();
+        },
+        borderWidth:3,
+    },
+
+
+    _defaultValues:function(chartType){
+        var dsCallback = this['_dataset_'+chartType] || this._dataset__base;
+        var result = {};
+        var cbkw = {};
+        cbkw._baseColor = chroma.random().hex();
+        var _defaultDict = this._defaultDict;
+        dsCallback().forEach(function(g){
+            g.fields.forEach(function(c){
+                var v = _defaultDict[c.field]
+                ;
+                if(isNullOrBlank(v)){
+                    return;
+                }
+                if(typeof(v)=='function'){
+                    v = v(cbkw);
+                }
+                result[c.field] = v;
+            });
+        });
+        return result;
+    },
+
+    _dataset_bar:function(){
+        var b1 = [{field:'label',dtype:'T',lbl:'Label'},
+                {field:'xAxisID',dtype:'T',lbl:'xAxisID'},
+                {field:'yAxisID',dtype:'T',lbl:'yAxisID'},
+                {field:'backgroundColor',dtype:'T',lbl:'backgroundColor',multiple:true,
+                        edit:{tag:'colorTextBox',mode:'rgba'}},
+                {field:'borderColor',dtype:'T',lbl:'borderColor',multiple:true,edit:{tag:'colorTextBox',mode:'rgba'}},
+                {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true,edit:{tag:'numberSpinner',minimum:0,maximum:8,width:'5em'}}];
+        var b2  = [{field:'borderSkipped',dtype:'T',lbl:'borderSkipped',values:'top,left,right,bottom',multiple:true},
+                {field:'hoverBackgroundColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'backgroundColor',multiple:true},
+                {field:'hoverBorderColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'borderColor',multiple:true},
+                {field:'hoverBorderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
+        return [{title:'Bar',fields:b1},{title:'Advanced',fields:b2}];
+    },
+
+
+    _dataset_line:function(){
+        var b1 = [  {field:'label',dtype:'T',lbl:'Label'},
+                    {field:'xAxisID',dtype:'T',lbl:'xAxisID'},
+                    {field:'yAxisID',dtype:'T',lbl:'yAxisID'},
+                   //{field:'_xAxes_number',dtype:'T',lbl:'xAxes',values:'0,1,2,3,4'},
+                   //{field:'_yAxes_number',dtype:'T',lbl:'yAxes',values:'0,1,2,3,4'},
+                    {field:'fill',dtype:'T',lbl:'fill',values:'zero,top,bottom'},
+                    {field:'backgroundColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'backgroundColor'},
+                    {field:'borderColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'borderColor'},
+                    {field:'borderWidth',dtype:'L',lbl:'borderWidth'},
+                    {field:'lineTension',dtype:'N',lbl:'lineTension'},
+                    {field:'borderDash',dtype:'L',lbl:'borderDash'},
+                    {field:'borderDashOffset',dtype:'L',lbl:'borderDashOffset'},
+                    {field:'borderJoinStyle',dtype:'T',lbl:'borderJoinStyle'},
+                    {field:'showLine',dtype:'B',lbl:'showLine'},
+                    {field:'spanGaps',dtype:'B',lbl:'spanGaps'},
+                    {field:'steppedLine',dtype:'B',lbl:'steppedLine'}
+                ];
+        var point = [{field:'pointStyle',dtype:'T',lbl:'pointStyle',multiple:true,values:'circle,triangle,rect,rectRot,cross,crossRot,star,line,dash'},
+                    {field:'pointBorderColor',dtype:'T',lbl:'pointBorderColor',multiple:true,edit:{tag:'colorTextBox',mode:'rgba'}},
+                    {field:'pointBackgroundColor',dtype:'T',lbl:'pointBackgroundColor',multiple:true,edit:{tag:'colorTextBox',mode:'rgba'}},
+                    {field:'pointBorderWidth',dtype:'L',lbl:'pointBorderWidth',multiple:true,edit:{tag:'numberSpinner',minimum:0,maximum:8,width:'5em'}},
+                    {field:'pointRadius',dtype:'L',lbl:'pointRadius',multiple:true,edit:{tag:'numberSpinner',minimum:0,maximum:8,width:'5em'}},
+                    {field:'pointHoverRadius',dtype:'L',lbl:'pointHoverRadius',multiple:true,edit:{tag:'numberSpinner',minimum:0,maximum:8,width:'5em'}},
+                    {field:'pointHitRadius',dtype:'L',lbl:'pointHitRadius',multiple:true,edit:{tag:'numberSpinner',minimum:0,maximum:8,width:'5em'}},
+                    {field:'pointHoverBorderColor',dtype:'T',lbl:'pointHoverBorderColor',multiple:true,edit:{tag:'colorTextBox',mode:'rgba'}},
+                    {field:'pointHoverBackgroundColor',dtype:'T',lbl:'pointHoverBackgroundColor',multiple:true,edit:{tag:'colorTextBox',mode:'rgba'}},
+                    {field:'pointHoverBorderWidth',dtype:'L',lbl:'pointBorderWidth',multiple:true,edit:{tag:'numberSpinner',minimum:0,maximum:8,width:'5em'}},
+                    ];
+
+        var b2  = [ {field:'cubicInterpolationMode',dtype:'T',lbl:'cubicInterpolationMode'},
+                    {field:'borderCapStyle',dtype:'T',lbl:'borderCapStyle'}];
+        return [{title:'Line',fields:b1},{title:'Point',fields:point},{title:'Advanced',fields:b2}];
+    },
+    _dataset_pie:function(){
+        var b1 = [{field:'label',dtype:'T',lbl:'Label'},
+                {field:'backgroundColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'backgroundColor',multiple:true},
+                {field:'borderColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'borderColor',multiple:true},
+                {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
+        return [{title:'Pie',fields:b1}];
+    },
+    _dataset__base:function(){
+        var b1 = [{field:'label',dtype:'T',lbl:'Label'},
+                {field:'backgroundColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'backgroundColor',multiple:true},
+                {field:'borderColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'borderColor',multiple:true},
+                {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
+        return [{title:'Parameters',fields:b1}];
     }
 
 };

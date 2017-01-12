@@ -276,15 +276,15 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         var dataset = savedAttrs.dataset;
         var filter = savedAttrs.filter;
         var columnCaption = savedAttrs.columnCaption;
-
-
-        var options = savedAttrs.options || {};
+        var options = savedAttrs.options;
         var chartType = savedAttrs.chartType;
         var that = this;
+        dojo.connect(sourceNode,'_onDeleting',function(){
+            sourceNode.externalWidget.destroy();
+            Chart.helpers.removeResizeListener(sourceNode.domNode);
+        });
         var cb = function(){
-            sourceNode._current_height = domNode.clientHeight;
-            sourceNode._current_width = domNode.clientWidth;
-            var chartjs = new Chart(domNode,{'type':chartType});
+            var chartjs = new Chart(domNode,{'type':chartType,options:options});
             sourceNode.externalWidget = chartjs;
             chartjs.sourceNode = sourceNode;
             chartjs.gnr = that;
@@ -294,6 +294,18 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
                 }
             }
             sourceNode.publish('chartReady');
+            if(sourceNode.attr.optionsBag){
+                var optionsBag = sourceNode.getAttributeFromDatasource('optionsBag');
+                if(optionsBag && optionsBag.getNodeByAttr('_userChanged')){
+                    optionsBag.walk(function(n){
+                        if(n.attr._userChanged){
+                            n.setValue(n._value);
+                        }
+                    });
+                }else{
+                    sourceNode.setAttributeInDatasource('optionsBag',new gnr.GnrBag(chartjs.options));
+                }
+            }
             chartjs.gnr_updateChart();
            //genro.dom.setAutoSizer(sourceNode,domNode,function(w,h){
            //     dygraph.resize(w,h);
@@ -302,7 +314,8 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
 
         
         if(!window.Chart){
-            genro.dom.loadJs('/_rsrc/js_libs/Chart.min.js',function(){
+            var url ='/_rsrc/js_libs/Chart.js'; //'/_rsrc/js_libs/Chart.min.js';
+            genro.dom.loadJs(url,function(){
                 genro.setData('gnr.chartjs.defaults',new gnr.GnrBag(Chart.defaults));
                 cb();
             });
@@ -334,50 +347,50 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
     },
 
     mixin_gnr_updateChart:function(){
-        var data = this.sourceNode.getAttributeFromDatasource('data'); 
-        if(!data){
-            var rows = this.sourceNode.getAttributeFromDatasource('value'); 
-            var filter = this.sourceNode.getAttributeFromDatasource('filter'); 
-            var datasets = this.sourceNode.getAttributeFromDatasource('datasets'); 
-            var columnCaption = this.sourceNode.getAttributeFromDatasource('columnCaption');
-            var filterCb;
-            if(typeof(filter)=='string'){
-                filter = filter.split(',');
-            }
-            if(typeof(filter)!='function'){
-                filterCb = filter?function(pkey,row){return filter.length===0 ||filter.indexOf(pkey)>=0;}:function(){return true;};
-            }else{
-                filterCb = filter;
-            }
-            var attrs,dslabel,dsfield;
-            var datamode = this.sourceNode.attr.datamode || 'attr';
-            var that = this;
-            data = {labels:[],datasets:[]};
-            var dskw = {'rows':rows,'datamode':datamode,
-                        'filterCb':filterCb,'labels':data.labels,
-                        'columnCaption':columnCaption};
-            datasets._nodes.forEach(function(n){
-                var v = n.getValue();
-                if(!(v.getNode('enabled')) || v.getItem('enabled')){
-                    dskw.pars = v.getItem('parameters').asDict(true);
-                    dskw.pars.type = v.getItem('chartType');
-                    dskw.field = v.getItem('field');
-                    data.datasets.push(that.gnr.makeDataset(dskw));
-                    objectPop(dskw,'labels');
+        var that = this;
+        this.sourceNode.delayedCall(function(){
+            var data = that.sourceNode.getAttributeFromDatasource('data'); 
+            if(!data){
+                var rows = that.sourceNode.getAttributeFromDatasource('value'); 
+                var filter = that.sourceNode.getAttributeFromDatasource('filter'); 
+                var datasets = that.sourceNode.getAttributeFromDatasource('datasets'); 
+                var columnCaption = that.sourceNode.getAttributeFromDatasource('columnCaption');
+                var filterCb;
+                if(typeof(filter)=='string'){
+                    filter = filter.split(',');
                 }
-            });
-        }         
-        objectUpdate(this.data,data);
-        this.update();
-        this.resize();
+                if(typeof(filter)!='function'){
+                    filterCb = filter?function(pkey,row){return filter.length===0 ||filter.indexOf(pkey)>=0;}:function(){return true;};
+                }else{
+                    filterCb = filter;
+                }
+                var attrs,dslabel,dsfield;
+                var datamode = that.sourceNode.attr.datamode || 'attr';
+                data = {labels:[],datasets:[]};
+                var dskw = {'rows':rows,'datamode':datamode,
+                            'filterCb':filterCb,'labels':data.labels,
+                            'columnCaption':columnCaption};
+                datasets._nodes.forEach(function(n){
+                    var v = n.getValue();
+                    if(!(v.getNode('enabled')) || v.getItem('enabled')){
+                        dskw.pars = v.getItem('parameters').asDict(true,true);
+                        dskw.pars.type = v.getItem('chartType');
+                        dskw.field = v.getItem('field');
+                        data.datasets.push(that.gnr.makeDataset(dskw));
+                        objectPop(dskw,'labels');
+                    }
+                });
+            }         
+            objectUpdate(that.data,data);
+            that.update();
+            that.resize();
+        },1,'updateChart');
+        
     },
     
     mixin_gnr_value:function(value,kw, trigger_reason){  
         this.gnr_updateChart();
     },
-
-
-
     
     mixin_gnr_chartType:function(value,kw, trigger_reason){  
         this.config.type = this.sourceNode.getAttributeFromDatasource('chartType');
@@ -396,14 +409,15 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         this.gnr_updateChart();
     },
 
-    mixin_gnr_options:function(value,kw, trigger_reason){ 
-        var options_bag = this.sourceNode.getAttributeFromDatasource('options');
-        if(kw.node._id == options_bag.getParentNode()._id){
+    mixin_gnr_optionsBag:function(value,kw, trigger_reason){ 
+        var optionsBag = this.sourceNode.getAttributeFromDatasource('optionsBag');
+        if(kw.node._id == optionsBag.getParentNode()._id){
             return;
         } 
-        var optpath = kw.node.getFullpath(null,options_bag);
+        
+        var optpath = kw.node.getFullpath(null,optionsBag);
         var curr = this.options;
-        var currOptionBag = options_bag;
+        var currOptionBag = optionsBag;
         var node,val;
         var optlist = optpath.split('.');
         var lastLabel = optlist.pop();
@@ -412,83 +426,15 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
             curr = node.attr._autolist?curr[currOptionBag.index(chunk)]:curr[chunk]; 
             currOptionBag = node.getValue();
         });
-        curr[lastLabel] = kw.value;
+        if(curr[lastLabel]!=kw.value){
+            kw.node.attr._userChanged = true;
+            curr[lastLabel] = kw.value;
+        }
         var that = this;
         this.sourceNode.delayedCall(function(){
             that.update();
             that.resize();
         },100,'updatingOptions');
-    },
-    _defaultDict:{
-        backgroundColor:function(kw){
-            return chroma(kw._baseColor).alpha(0.6).css();
-        },
-        borderColor:function(kw){
-            return chroma(kw._baseColor).css();
-        },
-        borderWidth:3,
-    },
-
-
-    _defaultValues:function(chartType){
-        var dsCallback = this['_dataset_'+chartType] || this._dataset__base;
-        var result = {};
-        var cbkw = {};
-        cbkw._baseColor = chroma.random().hex();
-        var _defaultDict = this._defaultDict;
-        dsCallback().forEach(function(g){
-            g.fields.forEach(function(c){
-                var v = _defaultDict[c.field]
-                ;
-                if(isNullOrBlank(v)){
-                    return;
-                }
-                if(typeof(v)=='function'){
-                    v = v(cbkw);
-                }
-                console.log(c.field,v);
-                result[c.field] = v;
-            });
-        });
-        return result;
-    },
-
-    _dataset_bar:function(){
-        var b1 = [{field:'label',dtype:'T',lbl:'Label'},
-                {field:'backgroundColor',dtype:'T',lbl:'backgroundColor',multiple:true,
-                        edit:{tag:'colorTextBox',mode:'rgba'}},
-                {field:'borderColor',dtype:'T',lbl:'borderColor',multiple:true,edit:{tag:'colorTextBox',mode:'rgba'}},
-                {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true,edit:{tag:'numberSpinner',minimum:0,maximum:8,width:'5em'}}];
-        var b2  = [{field:'xAxisID',dtype:'T',lbl:'xAxisID'},
-                {field:'yAxisID',dtype:'T',lbl:'yAxisID'},
-                {field:'borderSkipped',dtype:'T',lbl:'borderSkipped',values:'top,left,right,bottom',multiple:true},
-                {field:'hoverBackgroundColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'backgroundColor',multiple:true},
-                {field:'hoverBorderColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'borderColor',multiple:true},
-                {field:'hoverBorderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
-        return [{title:'Bar',fields:b1},{title:'Advanced',fields:b2}];
-    },
-
-
-    _dateset_line:function(){
-        var b1 = [{field:'label',dtype:'T',lbl:'Label'},
-                {field:'backgroundColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'backgroundColor',multiple:true},
-                {field:'borderColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'borderColor',multiple:true},
-                {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
-        return [{title:'Line',fields:b1}];
-    },
-    _dateset_pie:function(){
-        var b1 = [{field:'label',dtype:'T',lbl:'Label'},
-                {field:'backgroundColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'backgroundColor',multiple:true},
-                {field:'borderColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'borderColor',multiple:true},
-                {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
-        return [{title:'Pie',fields:b1}];
-    },
-    _dataset__base:function(){
-        var b1 = [{field:'label',dtype:'T',lbl:'Label'},
-                {field:'backgroundColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'backgroundColor',multiple:true},
-                {field:'borderColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'borderColor',multiple:true},
-                {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
-        return [{title:'Parameters',fields:b1}];
     }
 });
 
