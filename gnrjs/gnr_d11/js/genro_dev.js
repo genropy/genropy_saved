@@ -232,6 +232,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
     formbuilder:function(node, col, tblattr) {
         var defautlLblAttr = objectExtract(tblattr,'lbl_*');
+        defautlLblAttr.text_align = defautlLblAttr.text_align || 'right';
         var tbl = node._('table', tblattr || {})._('tbody');
 
         tbl.col_max = col || 1;

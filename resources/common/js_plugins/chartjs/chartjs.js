@@ -134,9 +134,14 @@ var genro_plugin_chartjs =  {
         genro.src.getNode()._('div',code);
         var node = genro.src.getNode(code).clearValue();
         node.freeze();
-        var paletteAttr = {'paletteCode':code,'frameCode':code,'title':title,'dockTo':false,'width':'600px','height':'500px','contentWidget':'FramePane'};
+        var paletteAttr = {'paletteCode':code,'frameCode':code,'title':title,'dockTo':false,'width':'600px','height':'500px'};
         var palette = node._('palettePane',code,paletteAttr);
-        var bar = palette._('slotBar',{toolbar:true,side:'top',slots:'5,fulloptions,refresh,*,saveBtn,5'});
+        
+        var bc = palette._('BorderContainer',{_anchor:true,side:'center',design:'sidebar'});
+        
+        var confframe = bc._('FramePane',{frameCode:code+'_options',region:'right',width:'320px',border_left:'1px solid #ccc',
+                            drawer:kw.userObjectId?'close':true,splitter:true});
+        var bar = confframe._('slotBar',{toolbar:true,side:'top',slots:'5,fulloptions,refresh,*,saveBtn,5'});
         
         bar._('slotButton','fulloptions',{label:'Full Options',iconClass:'iconbox gear',action:function(){
             genro.dev.openBagInspector(this.absDatapath('.options'),{title:'Full Options'});
@@ -148,10 +153,7 @@ var genro_plugin_chartjs =  {
                                         action:function(){
                                             genro.chartjs.saveChart(widgetNodeId,genro.nodeById(chartNodeId));
                                         }});
-        var bc = palette._('BorderContainer',{_anchor:true,side:'center'});
-        
-        var confbc = bc._('BorderContainer',{region:'right',width:'320px',border_left:'1px solid #efefef',
-                            drawer:kw.userObjectId?'close':true,splitter:true});
+        var confbc = confframe._('BorderContainer',{side:'center'});
         this._chartParametersPane(confbc,code,kw);
         var sn = confbc.getParentNode();
         this.initChartParameters(sn);

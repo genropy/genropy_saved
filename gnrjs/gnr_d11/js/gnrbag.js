@@ -186,7 +186,7 @@ dojo.declare("gnr.GnrBagNode", null, {
     },
 
     getValue: function(mode/*str*/, optkwargs) {
-        var mode = mode || '';
+        mode = mode || '';
         if ((this._resolver == null) || (mode.indexOf('static') >= 0) || (this._status == 'loading')) {
             return this._value;
         }
