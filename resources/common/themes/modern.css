@@ -515,8 +515,8 @@
 }
 
 ._common_d11 .dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked {
-    background: RGBA(255, 234, 0, 1.00);
-    border-bottom-color: #ccc;
+    background: #f6f6f6;
+    border-bottom-color: transparent;
     color: #555;
 }
 

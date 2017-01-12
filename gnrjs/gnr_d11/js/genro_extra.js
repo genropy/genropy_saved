@@ -393,8 +393,10 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
     },
     
     mixin_gnr_chartType:function(value,kw, trigger_reason){  
-        this.config.type = this.sourceNode.getAttributeFromDatasource('chartType');
-        this.gnr_updateChart();
+        //this.config.type = this.sourceNode.getAttributeFromDatasource('chartType');
+        //this.gnr_updateChart();
+        this.sourceNode.rebuild();
+        
     },
 
     mixin_gnr_datasets:function(value,kw, trigger_reason){ 

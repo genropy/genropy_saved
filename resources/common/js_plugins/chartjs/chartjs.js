@@ -238,8 +238,6 @@ var genro_plugin_chartjs =  {
         var tc = bc._('TabContainer',{margin:'2px',region:'center'});
         this.datasetsGrid(tc._('ContentPane',{title:'Datasets'}),pars.chartNodeId);
         this._optionsFormPane(tc._('BorderContainer',{title:'Options'}));
-        tc._('ContentPane',{title:'Options JS'})._('codemirror','optionEditor',{value:'^.options_js',config_mode:'javascript',config_lineNumbers:true,
-                                                    height:'100%'});
     },
 
     datasetsGrid:function(pane,chartNodeId){
@@ -324,6 +322,30 @@ var genro_plugin_chartjs =  {
         fb.addField('checkbox',{value:'^.fullWidth',label:'FullWidth'});
         this._optionFonts(fb);
         fb.addField('numberTextBox',{value:'^.padding',lbl:'Padding'});
+    },
+
+    z_option_legend:function(parent,kw){
+        /*
+display Boolean true    Is the legend displayed
+position    String  'top'   Position of the legend. Possible values are 'top', 'left', 'bottom' and 'right'.
+fullWidth   Boolean true    Marks that this box should take the full width of the canvas (pushing down other boxes)
+onClick Function    function(event, legendItem) {}  A callback that is called when a 'click' event is registered on top of a label item
+onHover Function    function(event, legendItem) {}  A callback that is called when a 'mousemove' event is registered on top of a label item
+labels  Object  -   See the Legend Label Configuration section below.
+reverse Boolean false   Legend will show datasets in reverse order
+
+        */
+        kw.margin = '2px';
+        var tc = parent._('tabContainer',kw);
+        var main = parent._('ContentPane',{title:'Main'});
+        var fb = genro.dev.formbuilder(main,1,{border_spacing:'3px',margin:'3px',margin_top:'10px',
+                                    font_size:'.9em',lbl_text_align:'right'});
+        fb.addField('checkbox',{value:'^.display',label:'Display'});
+        fb.addField('filteringSelect',{value:'^.position',lbl:'Position',values:'top,left,bottom,right'});
+        fb.addField('checkbox',{value:'^.fullWidth',label:'FullWidth'});
+        fb.addField('checkbox',{value:'^.reverse',label:'reverse'});
+
+
     },
 
     _optionFonts:function(fb){
