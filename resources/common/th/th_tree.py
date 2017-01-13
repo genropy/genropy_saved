@@ -26,7 +26,7 @@ class HTableTree(BaseComponent):
         dbselect_nodeId = attr.get('nodeId') or str(id(dbselect))
         connectedMenu = connectedMenu or 'hmenu_%s' %dbselect_nodeId
         currentHMenu = self.workspace.setdefault('hmenu',{})
-        if not connectedMenu in currentHMenu:
+        if connectedMenu not in currentHMenu:
             tree_kwargs['openOnClick'] = not folderSelectable
             tree_kwargs['selected_pkey'] = kwargs.get('value').replace('^','')
             menupath = 'gnr.htablestores.%s_%s' %(attr['dbtable'],connectedMenu)
@@ -351,7 +351,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         hiddencolumns = gridattr['hiddencolumns'].split(',') if gridattr.get('hiddencolumns') else []
         for k in relation_kwargs.keys():
             altrelname = k.split('_')[0] #altrelname must not contain '_'
-            if not altrelname in relation_kwargs:
+            if altrelname not in relation_kwargs:
                 relation_kwargs[altrelname] = dictExtract(relation_kwargs,altrelname+'_',pop=True)
         for k,v in fkey_name_alt.items():
             condlist.append(" $%s = :fkey " %v)

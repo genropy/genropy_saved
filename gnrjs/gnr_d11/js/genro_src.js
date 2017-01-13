@@ -141,6 +141,10 @@ dojo.declare("gnr.GnrSrcHandler", null, {
     _trigger_upd:function(kw) {//da rivedere
         //console.log('trigger_upd',kw);
         var updatingNode = kw.node;
+        if(updatingNode.building){
+            genro.bp(true);
+            return;
+        }
         genro.assert(!updatingNode._isComponentNode);
         updatingNode._onDeleting();
         var destination = kw.node.getParentBuiltObj();

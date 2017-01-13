@@ -824,7 +824,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this[aux].call(this);
         }else{
             var attributes = this.registerNodeDynAttr(true);
-            var tag=objectPop(attributes,'tag')
+            var tag=objectPop(attributes,'tag');
             this._doBuildNode(tag, attributes, destination, ind);
             this._setDynAttributes();
         }

@@ -229,8 +229,8 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
         sourceNode.watch('isVisible',function(){
             return genro.dom.isVisible(sourceNode);
         },function(){
-            that.refresh()
-        })
+            that.refresh();
+        });
     },
 
 
@@ -262,8 +262,9 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         this._domtag = 'canvas';
     },
 
+
     creating: function(attributes, sourceNode) {
-        var savedAttrs = objectExtract(attributes,'chartType,value,filter,datasets,columnCaption,options,data');
+        var savedAttrs = objectExtract(attributes,'chartType,value,filter,datasets,columnCaption,options,data,scalesBag');
         return savedAttrs;
     },
     
@@ -278,13 +279,28 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         var columnCaption = savedAttrs.columnCaption;
         var options = savedAttrs.options || {};
         var chartType = savedAttrs.chartType;
+        var scalesBag = savedAttrs.scalesBag;
+        var scalesOpt;
         var that = this;
         dojo.connect(sourceNode,'_onDeleting',function(){
-            sourceNode.externalWidget.destroy();
             Chart.helpers.removeResizeListener(sourceNode.domNode);
         });
+        if(scalesBag){
+            if(scalesBag){
+                scalesOpt = scalesBag.asDict(true,true);
+                objectPop(scalesOpt,'radiant'); //to implement
+                if(objectNotEmpty(scalesOpt)){
+                    console.log('scalesOpt',scalesOpt);
+                    options.scales = scalesOpt;
+                }else{
+                    scalesOpt = false;
+                }
+                
+            }
+        }
+        sourceNode.freeze();
         var cb = function(){
-            var optionsBag = sourceNode.getAttributeFromDatasource('optionsBag');
+            sourceNode.unfreeze(true);
             var chartjs = new Chart(domNode,{'type':chartType,options:options});
             sourceNode.externalWidget = chartjs;
             chartjs.sourceNode = sourceNode;
@@ -296,7 +312,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
             }
             sourceNode.publish('chartReady');
             if(sourceNode.attr.optionsBag){
-                
+                var optionsBag = sourceNode.getAttributeFromDatasource('optionsBag');
                 if(optionsBag && optionsBag.getNodeByAttr('_userChanged')){
                     optionsBag.walk(function(n){
                         if(n.attr._userChanged){
@@ -306,11 +322,15 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
                 }else{
                     sourceNode.setAttributeInDatasource('optionsBag',new gnr.GnrBag(chartjs.options));
                 }
+                if(!scalesOpt){
+                    sourceNode.setAttributeInDatasource('scalesBag',new gnr.GnrBag(chartjs.options.scales));
+                }
             }
             chartjs.gnr_updateChart();
         };
         if(!window.Chart){
-            var url = '/_rsrc/js_libs/Chart.min.js'; //'/_rsrc/js_libs/Chart.js';
+            //var url = '/_rsrc/js_libs/Chart.min.js'; 
+            var url ='/_rsrc/js_libs/Chart.js';
             genro.dom.loadJs(url,function(){
                 genro.setData('gnr.chartjs.defaults',new gnr.GnrBag(Chart.defaults));
                 cb();
@@ -416,16 +436,24 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
     mixin_gnr_columnCaption:function(value,kw, trigger_reason){  
         this.gnr_updateChart();
     },
-
+    mixin_gnr_scalesBag:function(value,kw, trigger_reason){ 
+        var scalesBag = this.sourceNode.getAttributeFromDatasource('scalesBag');
+        if(kw.node._id == scalesBag.getParentNode()._id){
+            return;
+        }
+        this.gnr_updateOptionsObject(kw.node,this.options.scales,scalesBag);
+    },
     mixin_gnr_optionsBag:function(value,kw, trigger_reason){ 
         var optionsBag = this.sourceNode.getAttributeFromDatasource('optionsBag');
         if(kw.node._id == optionsBag.getParentNode()._id){
             return;
-        } 
-        
-        var optpath = kw.node.getFullpath(null,optionsBag);
-        var curr = this.options;
-        var currOptionBag = optionsBag;
+        }
+        this.gnr_updateOptionsObject(kw.node,this.options,optionsBag);
+    },
+
+    mixin_gnr_updateOptionsObject:function(triggerNode,curr,optionsBagChunk){
+        var optpath = triggerNode.getFullpath(null,optionsBagChunk);
+        var currOptionBag = optionsBagChunk;
         var node,val;
         var optlist = optpath.split('.');
         var lastLabel = optlist.pop();
@@ -445,7 +473,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
             }
         }
         if(curr[lastLabel]!=lastValue){
-            kw.node.attr._userChanged = true;
+            triggerNode.attr._userChanged = true;
             curr[lastLabel] = lastValue;
         }
 

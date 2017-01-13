@@ -538,7 +538,7 @@ dojo.declare("gnr.GnrBag", null, {
      * @param {Object} source //not implemented yet
      */
     _nodeFactory: gnr.GnrBagNode,
-    constructor: function(source) {
+    constructor: function(source,kw) {
         this._nodes = [];
         this._backref = false;
         this._parentnode = null;
@@ -546,7 +546,7 @@ dojo.declare("gnr.GnrBag", null, {
         this._symbols = null;
         this._subscribers = {};
         if (source) {
-            this.fillFrom(source);
+            this.fillFrom(source,kw);
         }
 
     },
@@ -583,7 +583,7 @@ dojo.declare("gnr.GnrBag", null, {
                 var val = source[k];
                 var valType = guessDtype(val);
                 if(valType=='FUNC'){
-                    val = val.toString()+'::JS';
+                    continue;
                 }else if(valType=='OBJ' || valType=='AR'){
                     val = new gnr.GnrBag(val);
                 }
@@ -1641,8 +1641,11 @@ dojo.declare("gnr.GnrBag", null, {
             node = this._nodes[i];
             value = node.getValue();
 
-            if(excludeNullValues && value===null){
-                continue;
+            if(excludeNullValues){
+                if(value===null || value instanceof gnr.GnrBag && value.len()===0){
+                    continue;
+                }
+                
             }
             if(recursive && (value instanceof gnr.GnrBag)){
                 value = value.asDict(recursive,excludeNullValues);

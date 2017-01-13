@@ -232,7 +232,6 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
     formbuilder:function(node, col, tblattr) {
         var defautlLblAttr = objectExtract(tblattr,'lbl_*');
-        defautlLblAttr.text_align = defautlLblAttr.text_align || 'right';
         var tbl = node._('table', tblattr || {})._('tbody');
 
         tbl.col_max = col || 1;
@@ -244,7 +243,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
             }
             var colspan = objectPop(kw,'colspan') || 1;
             colspan = colspan==1?colspan:colspan*2;
-            var lblpars = {innerHTML:objectPop(kw, 'lbl'),_class:'gnrfieldlabel'};
+            var lblpars = {innerHTML:objectPop(kw, 'lbl'),_class:'gnrfieldlabel',
+                        hidden:kw.hidden,text_align:'right'};
             lblpars = objectUpdate(defautlLblAttr,lblpars);
             objectUpdate(lblpars, objectExtract(kw, 'lbl_*'));
             var tr = this.curr_tr;

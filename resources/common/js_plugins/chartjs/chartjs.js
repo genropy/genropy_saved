@@ -164,32 +164,26 @@ var genro_plugin_chartjs =  {
             columnCaption:'^.columnCaption',
             datasets:'^.datasets',            
             optionsBag:'^.options',
+            scalesBag:'^.scales',
             chartType:'^.chartType',
             datamode:kw.datamode,
             selfsubscribe_refresh:function(){
                 this.rebuild();
             },
             selfsubscribe_addAxis:function(kw){
-                var optionsBag = this.getAttributeFromDatasource('optionsBag');
-                var axebag = optionsBag.getItem('scales.'+kw.axes);
-                var dkw = {id:kw.id,type:'linear',position:'right',scaleLabel:{
-                    labelString:'',
-                    display:true
-                },gridLines:{
-                            drawOnChartArea: false
-                        }};
+                var scalesBag = this.getAttributeFromDatasource('scalesBag');
+                var axebag = scalesBag.getItem(kw.axes);
+                if(!axebag){
+                    axebag = new gnr.GnrBag();
+                    scalesBag.setItem(kw.axes,axebag);
+                }
+                var position = kw.axes=='xAxes'?'top':'right';
+                var dkw = {id:kw.id,type:'linear',position:position,scaleLabel:{
+                          labelString:kw.id,
+                          display:true},
+                          gridLines:{drawOnChartArea:false}};
                 axebag.setItem('r_'+axebag.len(),new gnr.GnrBag(dkw),{_autolist:true});
                 this.publish('refresh');
-               //var df = Chart.scaleService.defaults.linear;
-               //var l = this.externalWidget.options.scales[kw.axes];
-               //var lastElement = l[l.length-1];
-               //for (var k in df){
-               //    lastElement[k] = lastElement[k] || df[k];
-               //}
-               //this.externalWidget.buildScales();
-
-                //this.externalWidget.update();
-                //this.publish('refresh');
             }
         }).getParentNode();
         node.unfreeze();
@@ -226,7 +220,7 @@ var genro_plugin_chartjs =  {
         fields.forEach(function(n,idx){
             if(!currentDatasets.getNode(n)){
                 var dflt = genro.chartjs._defaultValues(defaultChartType);
-                var parameters = new gnr.GnrBag(objectUpdate(dflt,{label:fieldsCaption[idx],yAxisID:'y1'}));
+                var parameters = new gnr.GnrBag(objectUpdate(dflt,{label:fieldsCaption[idx]}));
                 currentDatasets.setItem(n,new gnr.GnrBag({field:n,enabled:true,chartType:null,
                                                              parameters:parameters}));
             }
@@ -258,12 +252,12 @@ var genro_plugin_chartjs =  {
         }});
         bc._('dataController',{script:"genro.chartjs.updateDatasetsBag(chartNodeId);",datasetFields:'^.datasetFields',chartNodeId:pars.chartNodeId});
         var tc = bc._('TabContainer',{margin:'2px',region:'center'});
-        this.datasetsGrid(tc._('ContentPane',{title:'Datasets'}),pars.chartNodeId);
-        this.scalesTabs(tc._('BorderContainer',{title:'Scales'}));
-        this.optionsTabs(tc._('BorderContainer',{title:'Options'}));
+        this.datasetsTab(tc._('ContentPane',{title:'Datasets'}),pars.chartNodeId);
+        this.scalesTab(tc._('BorderContainer',{title:'Scales'}),pars.chartNodeId);
+        this.optionsTab(tc._('BorderContainer',{title:'Options'}));
     },
 
-    datasetsGrid:function(pane,chartNodeId){
+    datasetsTab:function(pane,chartNodeId){
         var grid = pane._('quickGrid',{value:'^.datasets',addCheckBoxColumn:{field:'enabled'}});
         var that = this;
         var dtypeWidgets = {'T':'TextBox','B':'Checkbox','L':'NumberTextBox','N':'NumberTextBox'};
@@ -315,7 +309,7 @@ var genro_plugin_chartjs =  {
     
     _op_list:'title:Title,legend:Legend,tooltip:Tooltip,hover:Hover,xAxes:X-Axes,yAxes:Y-Axes',
 
-    optionsTabs:function(bc){
+    optionsTab:function(bc){
         var tc = bc._('tabContainer',{tabPosition:"left-h",region:'center',margin:'2px'});
         var opcode,optitle,innerBc;
         this._op_list.split(',').forEach(function(op){
@@ -438,8 +432,6 @@ var genro_plugin_chartjs =  {
         var b1 = [  {field:'label',dtype:'T',lbl:'Label'},
                     {field:'xAxisID',dtype:'T',lbl:'xAxisID'},
                     {field:'yAxisID',dtype:'T',lbl:'yAxisID'},
-                   //{field:'_xAxes_number',dtype:'T',lbl:'xAxes',values:'0,1,2,3,4'},
-                   //{field:'_yAxes_number',dtype:'T',lbl:'yAxes',values:'0,1,2,3,4'},
                     {field:'fill',dtype:'T',lbl:'fill',values:'zero,top,bottom'},
                     {field:'backgroundColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'backgroundColor'},
                     {field:'borderColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'borderColor'},
@@ -484,54 +476,214 @@ var genro_plugin_chartjs =  {
     },
     //Scales grids
 
-    scalesTabs:function(bc){},
+    scalesTab:function(bc,chartNodeId){
+        var tc = bc._('tabContainer',{tabPosition:"left-h",region:'center',margin:'2px'});
+        this.axesGrid(tc,{title:'X-Axes',mode:'xAxes',chartNodeId:chartNodeId //,hidden:'^.chartType?=(#v=="radar" || #v=="polarArea")'
+        });
+        this.axesGrid(tc,{title:'Y-Axes',mode:'yAxes',chartNodeId:chartNodeId //,hidden:'^.chartType?=(#v=="radar" || #v=="polarArea")'
+        });
+        this.axesGrid(tc,{title:'Radiant',mode:'radiant',chartNodeId:chartNodeId //,hidden:'^.chartType?=!(#v=="radar" || #v=="polarArea")'
+        });
 
-    axesGrid:function(pane,chartNodeId){
-        var grid = pane._('quickGrid',{value:'^.datasets',addCheckBoxColumn:{field:'enabled'}});
+    },
+
+    axesGrid:function(parent,kw){
+        var bc = parent._('BorderContainer',{title:kw.title,hidden:kw.hidden});
+        var top = bc._('ContentPane',{region:'top',font_size:'.9em',_class:'commonTitleBar'});
+        top._('div',{innerHTML:kw.title,text_align:'center'});
+        var center = bc._('ContentPane',{region:'center'});
+        var grid = center._('quickGrid',{value:'^.scales.'+kw.mode});
         var that = this;
-        var dtypeWidgets = {'T':'TextBox','B':'Checkbox','L':'NumberTextBox','N':'NumberTextBox'};
-        grid._('column',{'field':'parameters',name:'Parameters',width:'100%',
-                        _customGetter:function(row){
-                            return row.parameters?row.parameters.getFormattedValue():'No Parameters';
-                        },
-                        edit:{modal:true,contentCb:function(pane,kw){
-                            var chartNode = genro.nodeById(chartNodeId);
-                            var chartType = kw.rowDataNode.getValue().getItem('chartType') || chartNode.getRelativeData('.chartType');
-                            var pagesCb = genro.chartjs['_dataset_'+chartType];
-                            var pages;
-                            if(pagesCb){
-                                pages = pagesCb();
-                            }else{
-                                pages = genro.chartjs._dataset__base();
-                            }
-                            var bc = pane._('BorderContainer',{height:'300px',width:'330px',_class:'datasetParsContainer'});
-                            var top = bc._('ContentPane',{region:'top',_class:'dojoxFloatingPaneTitle'})._('div',{innerHTML:'Dataset '+kw.rowDataNode.label});
-                            var tc = bc._('tabContainer',{region:'center',margin:'2px'});
-                            var field,dtype,lbl,editkw;
-                            pages.forEach(function(pageKw){
-                                var pane = tc._('ContentPane',{title:pageKw.title});
-                                var fb = genro.dev.formbuilder(pane,1,{border_spacing:'3px',datapath:'.parameters',margin:'3px',margin_top:'10px'});
-                                pageKw.fields.forEach(function(fkw){
-                                    dtype = fkw.dtype;
-                                    editkw = objectUpdate({},fkw.edit || {});
-                                    editkw.width = editkw.width || (dtype=='N' || dtype=='L') ?'7em':'12em';
-                                    editkw.value = '^.'+fkw.field;
-                                    if(fkw.values){
-                                        editkw.tag =editkw.tag || 'filteringSelect';
-                                        editkw.values = fkw.values;
-                                    }
-                                    editkw.lbl = fkw.lbl;
-                                    if(dtype=='B'){
-                                        editkw.label = objectPop(editkw,'lbl');
-                                    }else{
-                                        editkw.lbl_text_align = 'right';
-                                    }
-                                    fb.addField(objectPop(editkw,'tag') || dtypeWidgets[dtype], editkw);
-                                });
-                            });
-                        }}});
-        grid._('column',{field:'chartType',name:'Type',edit:{tag:'filteringSelect',values:'bar,line,bubble'}});
 
+        grid._('column',{'field':'parameters',name:'Parameters',width:'100%',
+                        _customGetter:function(row,rowIndex){
+                            var b = new gnr.GnrBag(row);
+                            return b.getFormattedValue();
+                        },
+                        edit:{modal:true,contentCb:function(pane,editkw){
+                            var chartNode = genro.nodeById(kw.chartNodeId);
+                            var chartType = editkw.rowDataNode.getValue().getItem('chartType') || chartNode.getRelativeData('.chartType');
+                            var bc = pane._('BorderContainer',{height:'300px',width:'330px',_class:'datasetParsContainer'});
+                            var top = bc._('ContentPane',{region:'top',_class:'dojoxFloatingPaneTitle'})._('div',{innerHTML:kw.title+' '+editkw.rowDataNode.getValue().getItem('id')});
+                            var center = bc._('TabContainer',{region:'center',margin:'2px'});
+                            that['scales_'+kw.mode](center._('ContentPane',{title:'Main'}),chartType);
+                            if(kw.mode!='radiant'){
+                                that.scales_mode_linear(center);
+                                that.scales_mode_logarithmic(center);
+                                if(kw.mode=='xAxes'){
+                                    that.scales_mode_time(center);
+                                }
+                            }
+                            that.scalesGridlines(center._('ContentPane',{title:'Gridlines Conf.',datapath:'.gridLines'}),chartType);
+                            that.scalesTick(center._('ContentPane',{title:'Tick Conf.',datapath:'.ticks'}),chartType);
+                        }
+                    }});
+    },
+    scales_xAxes:function(pane,chartType){
+        /*
+            type    String  "Category"  As defined in Scales.
+            display Boolean true    If true, show the scale.
+            id  String  "x-axis-0"  Id of the axis so that data can bind to it
+            stacked Boolean false   If true, bars are stacked on the x-axis
+            barThickness    Number      Manually set width of each bar in pixels. If not set, the bars are sized automatically.
+            categoryPercentage  Number  0.8 Percent (0-1) of the available width (the space between the gridlines for small datasets) for each data-point to use for the bars. Read More
+            barPercentage   Number  0.9 Percent (0-1) of the available width each bar should be within the category percentage. 1.0 will take the whole category width and put the bars right next to each other. Read More
+            gridLines   Object  See Scales  
+            gridLines.offsetGridLines   Boolean true    If true, the bars for a particular data point fall between the grid lines. If false, the grid line will go right down the middle of the bars.
+        */
+        var fb = genro.dev.formbuilder(pane,1,{border_spacing:'3px',margin:'3px',margin_top:'10px',font_size:'.9em',lbl_text_align:'right'});
+
+        fb.addField('filteringSelect',{value:'^.type',lbl:'type',
+                        values:"linear,logarithmic,time", placeholder:'linear'}); //time to be implemented
+        fb.addField('checkbox',{value:'^.display',label:'display'});
+        fb.addField('filteringSelect',{value:'^.position',lbl:'Position',values:'bottom,top'});
+
+        fb.addField('checkbox',{value:'^.stacked',label:'stacked'});
+        fb.addField('numberTextBox',{value:'^.barThickness',lbl:'barThickness'});
+        fb.addField('numberTextBox',{value:'^.barPercentage',lbl:'barPercentage'});
+    },
+
+    scales_yAxes:function(pane,chartType){
+        var fb = genro.dev.formbuilder(pane,1,{border_spacing:'3px',margin:'3px',margin_top:'10px',font_size:'.9em',lbl_text_align:'right'});
+        fb.addField('filteringSelect',{value:'^.type',lbl:'type',
+                        values:"linear,logarithmic", placeholder:'linear'});
+        fb.addField('checkbox',{value:'^.display',label:'display'});
+        fb.addField('filteringSelect',{value:'^.position',lbl:'Position',values:'left,right'});
+        fb.addField('checkbox',{value:'^.stacked',label:'stacked'});
+        fb.addField('numberTextBox',{value:'^.barThickness',lbl:'barThickness'});
+        /*
+           type    String  "linear"    As defined in Scales.
+           display Boolean true    If true, show the scale.
+           id  String  "y-axis-0"  Id of the axis so that data can bind to it.
+           stacked Boolean false   If true, bars are stacked on the y-axis
+           barThickness    Number      Manually set height of each bar in pixels. If not set, the bars are sized automatically.
+        */
+    },
+
+    scales_radiant:function(pane,chartType){
+        var fb = genro.dev.formbuilder(pane,1,{border_spacing:'3px',margin:'3px',margin_top:'10px',font_size:'.9em',lbl_text_align:'right'});
+        fb.addField('checkbox',{value:'^.display',label:'Display'});
+
+        /*
+            ********SCALES MODE radialLinear****
+            lineArc Boolean false   If true, circular arcs are used else straight lines are used. The former is used by the polar area chart and the latter by the radar chart
+            angleLines  Object  -   See the Angle Line Options section below for details.
+            pointLabels Object  -   See the Point Label Options section below for details.
+            ticks   Object  -   See the Ticks table below for options.
+        */
+    },
+
+    scales_mode_linear:function(parent){
+        var pane = parent._('ContentPane',{title:'Linear',hidden:'^.type?=#v!="linear"'});
+        var fb = genro.dev.formbuilder(pane,1,{border_spacing:'3px',margin:'3px',margin_top:'10px',
+                        font_size:'.9em',datapath:'.linear'});
+        this._scalesTitle(fb);
+        fb.addField('checkbox',{value:'^.beginAtZero',label:'beginAtZero'});
+        fb.addField('numberTextBox',{value:'^.min',lbl:'min'});
+        fb.addField('numberTextBox',{value:'^.max',lbl:'max'});
+        fb.addField('numberTextBox',{value:'^.maxTicksLimit',lbl:'maxTicksLimit'});
+        fb.addField('numberTextBox',{value:'^.fixedStepSize',lbl:'fixedStepSize'});
+        fb.addField('numberTextBox',{value:'^.stepSize',lbl:'stepSize'});
+        fb.addField('numberTextBox',{value:'^.suggestedMax',lbl:'suggestedMax'});
+        fb.addField('numberTextBox',{value:'^.suggestedMin',lbl:'suggestedMin'});
+
+        /*
+            beginAtZero Boolean -   if true, scale will include 0 if it is not already included.
+            min Number  -   User defined minimum number for the scale, overrides minimum value from data.
+            max Number  -   User defined maximum number for the scale, overrides maximum value from data.
+            maxTicksLimit   Number  11  Maximum number of ticks and gridlines to show. If not defined, it will limit to 11 ticks but will show all gridlines.
+            fixedStepSize   Number  -   User defined fixed step size for the scale. If set, the scale ticks will be enumerated by multiple of stepSize, having one tick per increment. If not set, the ticks are labeled automatically using the nice numbers algorithm.
+            stepSize    Number  -   if defined, it can be used along with the min and the max to give a custom number of steps. See the example below.
+            suggestedMax    Number  -   User defined maximum number for the scale, overrides maximum value except for if it is lower than the maximum value.
+            suggestedMin    Number  -   User defined minimum number for the scale, overrides minimum value except for if it is higher than the minimum value.
+        */
+    },
+
+    scales_mode_logarithmic:function(parent){
+        /*
+            min Number  -   User defined minimum number for the scale, overrides minimum value from data.
+            max Number  -   User defined maximum number for the scale, overrides maximum value from data
+        */
+        var pane = parent._('ContentPane',{title:'Logarithmic',hidden:'^.type?=#v!="logarithmic"'});
+        var fb = genro.dev.formbuilder(pane,1,{border_spacing:'3px',margin:'3px',margin_top:'10px',
+                        font_size:'.9em',datapath:'.logarithmic'});
+        this._scalesTitle(fb);
+        fb.addField('numberTextBox',{value:'^.min',lbl:'min'});
+        fb.addField('numberTextBox',{value:'^.max',lbl:'max'});
+    },
+
+    scales_mode_time:function(parent){
+        var pane = parent._('ContentPane',{title:'Time',hidden:'^.type?=#v!="time"'});
+        pane._('div',{innerHTML:'TO DO...'});
+        /*
+            displayFormats  Object  -   See Display Formats section below.
+            isoWeekday  Boolean false   If true and the unit is set to 'week', iso weekdays will be used.
+            max Time    -   If defined, this will override the data maximum
+            min Time    -   If defined, this will override the data minimum
+            parser  String or Function  -   If defined as a string, it is interpreted as a custom format to be used by moment to parse the date. If this is a function, it must return a moment.js object given the appropriate data value.
+            round   String  -   If defined, dates will be rounded to the start of this unit. See Time Units below for the allowed units.
+            tooltipFormat   String  ''  The moment js format string to use for the tooltip.
+            unit    String  -   If defined, will force the unit to be a certain type. See Time Units section below for details.
+            unitStepSize    Number  1   The number of units between grid lines.
+            minUnit String  'millisecond'   The minimum display format to be used for a time unit
+        */
+    },
+    scalesGridlines:function(pane){
+        /*
+            display Boolean true    
+            color   Color or Array[Color]   "rgba(0, 0, 0, 0.1)"    Color of the grid lines.
+            borderDash  Array[Number]   []  Length and spacing of dashes. See MDN
+            borderDashOffset    Number  0.0 Offset for line dashes. See MDN
+            lineWidth   Number or Array[Number] 1   Stroke width of grid lines
+            drawBorder  Boolean true    If true draw border on the edge of the chart
+            drawOnChartArea Boolean true    If true, draw lines on the chart area inside the axis lines. This is useful when there are multiple axes and you need to control which grid lines are drawn
+            drawTicks   Boolean true    If true, draw lines beside the ticks in the axis area beside the chart.
+            tickMarkLength  Number  10  Length in pixels that the grid lines will draw into the axis area.
+            zeroLineWidth   Number  1   Stroke width of the grid line for the first index (index 0).
+            zeroLineColor   Color   "rgba(0, 0, 0, 0.25)"   Stroke color of the grid line for the first index (index 0).
+            offsetGridLines Boolean false   If true, labels are shifted to be between grid lines. This is used in the bar chart.
+
+        */
+    },
+
+    _scalesTitle:function(fb){
+        fb.addField('checkbox',{value:'^.title.display',label:'Display'});
+        fb.addField('textbox',{value:'^.title.labelString',lbl:'labelString'});
+        fb.addField('colorTextBox',{value:'^.title.fontColor',lbl:'fontColor'});
+        fb.addField('numberTextBox',{value:'^.title.fontSize',lbl:'fontSize'});
+        fb.addField('filteringSelect',{value:'^.title.fontFamily',lbl:'fontFamily',
+                        values:"Helvetica Neue,Helvetica,Arial,sans-serif",
+                    });
+        fb.addField('filteringSelect',{value:'^.title.fontStyle',lbl:'fontStyle',
+                        values:"bold,italic,normal"});
+        
+        /*
+            display Boolean false   
+            labelString String  ""  The text for the title. (i.e. "# of People", "Response Choices")
+            fontColor   Color   "#666"  Font color for the scale title.
+            fontFamily  String  "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif"    Font family for the scale title, follows CSS font-family options.
+            fontSize    Number  12  Font size for the scale title.
+            fontStyle   String  "normal"    Font style for the scale title, follows CSS font-style options (i.e. normal, italic, oblique, initial, inherit).
+        */
+    },
+
+    scalesTick:function(pane){
+        /*
+            autoSkip    Boolean true    If true, automatically calculates how many labels that can be shown and hides labels accordingly. Turn it off to show all labels no matter what
+            autoSkipPadding Number  0   Padding between the ticks on the horizontal axis when autoSkip is enabled. Note: Only applicable to horizontal scales.
+            callback    Function    function(value) { return helpers.isArray(value) ? value : '' + value; } Returns the string representation of the tick value as it should be displayed on the chart. See callback section below.
+            display Boolean true    If true, show the ticks.
+            fontColor   Color   "#666"  Font color for the tick labels.
+            fontFamily  String  "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif"    Font family for the tick labels, follows CSS font-family options.
+            fontSize    Number  12  Font size for the tick labels.
+            fontStyle   String  "normal"    Font style for the tick labels, follows CSS font-style options (i.e. normal, italic, oblique, initial, inherit).
+            labelOffset Number  0   Distance in pixels to offset the label from the centre point of the tick (in the y direction for the x axis, and the x direction for the y axis). Note: this can cause labels at the edges to be cropped by the edge of the canvas
+            maxRotation Number  90  Maximum rotation for tick labels when rotating to condense labels. Note: Rotation doesn't occur until necessary. Note: Only applicable to horizontal scales.
+            minRotation Number  0   Minimum rotation for tick labels. Note: Only applicable to horizontal scales.
+            mirror  Boolean false   Flips tick labels around axis, displaying the labels inside the chart instead of outside. Note: Only applicable to vertical scales.
+            padding Number  10  Padding between the tick label and the axis. Note: Only applicable to horizontal scales.
+            reverse Boolean false   Reverses order of tick labels.
+        */
     },
 
 };
