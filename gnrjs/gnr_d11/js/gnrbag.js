@@ -115,7 +115,7 @@ dojo.declare("gnr.GnrBagNode", null, {
             parentNode = curr.getParentNode();
             curr=parentNode;
         }while(parentNode  && parentNode !== node);
-        return parentNode!==null;
+        return !isNullOrBlank(parentNode);
     },
 
     /**
