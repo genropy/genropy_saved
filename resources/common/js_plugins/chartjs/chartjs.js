@@ -63,7 +63,6 @@ var genro_plugin_chartjs =  {
         var chartCode = chartNode.getRelativeData('.metadata.code');
         var datapath = chartNode.absDatapath('.metadata');
         var chartPars = chartNode.getRelativeData().deepCopy();
-        console.log('datasetFields',chartPars.getNode('datasetFields'));
         chartPars.popNode('metadata');
         chartPars.popNode('filter');
         chartPars.popNode('options');
