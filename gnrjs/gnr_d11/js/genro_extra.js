@@ -276,7 +276,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         var dataset = savedAttrs.dataset;
         var filter = savedAttrs.filter;
         var columnCaption = savedAttrs.columnCaption;
-        var options = savedAttrs.options;
+        var options = savedAttrs.options || {};
         var chartType = savedAttrs.chartType;
         var that = this;
         dojo.connect(sourceNode,'_onDeleting',function(){
@@ -284,6 +284,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
             Chart.helpers.removeResizeListener(sourceNode.domNode);
         });
         var cb = function(){
+            var optionsBag = sourceNode.getAttributeFromDatasource('optionsBag');
             var chartjs = new Chart(domNode,{'type':chartType,options:options});
             sourceNode.externalWidget = chartjs;
             chartjs.sourceNode = sourceNode;
@@ -295,7 +296,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
             }
             sourceNode.publish('chartReady');
             if(sourceNode.attr.optionsBag){
-                var optionsBag = sourceNode.getAttributeFromDatasource('optionsBag');
+                
                 if(optionsBag && optionsBag.getNodeByAttr('_userChanged')){
                     optionsBag.walk(function(n){
                         if(n.attr._userChanged){
@@ -307,14 +308,9 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
                 }
             }
             chartjs.gnr_updateChart();
-           //genro.dom.setAutoSizer(sourceNode,domNode,function(w,h){
-           //     dygraph.resize(w,h);
-           //});
         };
-
-        
         if(!window.Chart){
-            var url ='/_rsrc/js_libs/Chart.js'; //'/_rsrc/js_libs/Chart.min.js';
+            var url = '/_rsrc/js_libs/Chart.min.js'; //'/_rsrc/js_libs/Chart.js';
             genro.dom.loadJs(url,function(){
                 genro.setData('gnr.chartjs.defaults',new gnr.GnrBag(Chart.defaults));
                 cb();
@@ -400,7 +396,17 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
     },
 
     mixin_gnr_datasets:function(value,kw, trigger_reason){ 
+        if(kw.node.label == 'xAxisID' || kw.node.label=='yAxisID'){
+            console.log('modifica assi');
+            var axes = kw.node.label=='xAxisID'?'xAxes':'yAxes';
+            var axeslist = this.options.scales[axes];
+            if(!axeslist.some(function(n){return n.id==value;})){
+                this.sourceNode.publish('addAxis',{axes:axes,id:kw.value});
+                return;
+            }
+        }
         this.gnr_updateChart();
+        
     },
 
     mixin_gnr_filter:function(value,kw, trigger_reason){  
@@ -428,10 +434,21 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
             curr = node.attr._autolist?curr[currOptionBag.index(chunk)]:curr[chunk]; 
             currOptionBag = node.getValue();
         });
-        if(curr[lastLabel]!=kw.value){
-            kw.node.attr._userChanged = true;
-            curr[lastLabel] = kw.value;
+        var lastValue = currOptionBag.getItem(lastLabel);
+        lastValue = lastValue instanceof gnr.GnrBag?lastValue.asDict(true,true):lastValue;
+        if(curr instanceof Array){
+            var lastIdx = currOptionBag.index(lastLabel);
+            if(curr.length>lastIdx){
+                curr[lastIdx] = lastValue;
+            }else{
+                curr.push(lastValue);
+            }
         }
+        if(curr[lastLabel]!=lastValue){
+            kw.node.attr._userChanged = true;
+            curr[lastLabel] = lastValue;
+        }
+
         var that = this;
         this.sourceNode.delayedCall(function(){
             that.update();
@@ -839,7 +856,7 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         var cb = function(){
             that.makeEditor(widget, savedAttrs, sourceNode);
             sourceNode.publish('editorCreated');
-        }
+        };
         if(!window.CKEDITOR){
             var suff = genro.newCkeditor? '_new':'';
             genro.dom.loadJs('/_rsrc/js_libs/ckeditor'+suff+'/ckeditor.js',function(){

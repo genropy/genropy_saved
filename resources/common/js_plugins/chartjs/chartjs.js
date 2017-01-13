@@ -40,7 +40,7 @@ var genro_plugin_chartjs =  {
                 data.push({_pkey:n.attr.field,caption:caption});
             }
         });
-        return {headers:'name:Customer,addr:Address,state:State',data:data};
+        return {data:data};
     },
 
     gridDatasetGetter:function(grid,kw){
@@ -168,6 +168,28 @@ var genro_plugin_chartjs =  {
             datamode:kw.datamode,
             selfsubscribe_refresh:function(){
                 this.rebuild();
+            },
+            selfsubscribe_addAxis:function(kw){
+                var optionsBag = this.getAttributeFromDatasource('optionsBag');
+                var axebag = optionsBag.getItem('scales.'+kw.axes);
+                var dkw = {id:kw.id,type:'linear',position:'right',scaleLabel:{
+                    labelString:'',
+                    display:true
+                },gridLines:{
+                            drawOnChartArea: false
+                        }};
+                axebag.setItem('r_'+axebag.len(),new gnr.GnrBag(dkw),{_autolist:true});
+                this.publish('refresh');
+               //var df = Chart.scaleService.defaults.linear;
+               //var l = this.externalWidget.options.scales[kw.axes];
+               //var lastElement = l[l.length-1];
+               //for (var k in df){
+               //    lastElement[k] = lastElement[k] || df[k];
+               //}
+               //this.externalWidget.buildScales();
+
+                //this.externalWidget.update();
+                //this.publish('refresh');
             }
         }).getParentNode();
         node.unfreeze();
@@ -204,7 +226,7 @@ var genro_plugin_chartjs =  {
         fields.forEach(function(n,idx){
             if(!currentDatasets.getNode(n)){
                 var dflt = genro.chartjs._defaultValues(defaultChartType);
-                var parameters = new gnr.GnrBag(objectUpdate(dflt,{label:fieldsCaption[idx]}));
+                var parameters = new gnr.GnrBag(objectUpdate(dflt,{label:fieldsCaption[idx],yAxisID:'y1'}));
                 currentDatasets.setItem(n,new gnr.GnrBag({field:n,enabled:true,chartType:null,
                                                              parameters:parameters}));
             }
@@ -237,7 +259,8 @@ var genro_plugin_chartjs =  {
         bc._('dataController',{script:"genro.chartjs.updateDatasetsBag(chartNodeId);",datasetFields:'^.datasetFields',chartNodeId:pars.chartNodeId});
         var tc = bc._('TabContainer',{margin:'2px',region:'center'});
         this.datasetsGrid(tc._('ContentPane',{title:'Datasets'}),pars.chartNodeId);
-        this._optionsFormPane(tc._('BorderContainer',{title:'Options'}));
+        this.scalesTabs(tc._('BorderContainer',{title:'Scales'}));
+        this.optionsTabs(tc._('BorderContainer',{title:'Options'}));
     },
 
     datasetsGrid:function(pane,chartNodeId){
@@ -292,7 +315,7 @@ var genro_plugin_chartjs =  {
     
     _op_list:'title:Title,legend:Legend,tooltip:Tooltip,hover:Hover,xAxes:X-Axes,yAxes:Y-Axes',
 
-    _optionsFormPane:function(bc){
+    optionsTabs:function(bc){
         var tc = bc._('tabContainer',{tabPosition:"left-h",region:'center',margin:'2px'});
         var opcode,optitle,innerBc;
         this._op_list.split(',').forEach(function(op){
@@ -326,13 +349,13 @@ var genro_plugin_chartjs =  {
 
     z_option_legend:function(parent,kw){
         /*
-display Boolean true    Is the legend displayed
-position    String  'top'   Position of the legend. Possible values are 'top', 'left', 'bottom' and 'right'.
-fullWidth   Boolean true    Marks that this box should take the full width of the canvas (pushing down other boxes)
-onClick Function    function(event, legendItem) {}  A callback that is called when a 'click' event is registered on top of a label item
-onHover Function    function(event, legendItem) {}  A callback that is called when a 'mousemove' event is registered on top of a label item
-labels  Object  -   See the Legend Label Configuration section below.
-reverse Boolean false   Legend will show datasets in reverse order
+            display Boolean true    Is the legend displayed
+            position    String  'top'   Position of the legend. Possible values are 'top', 'left', 'bottom' and 'right'.
+            fullWidth   Boolean true    Marks that this box should take the full width of the canvas (pushing down other boxes)
+            onClick Function    function(event, legendItem) {}  A callback that is called when a 'click' event is registered on top of a label item
+            onHover Function    function(event, legendItem) {}  A callback that is called when a 'mousemove' event is registered on top of a label item
+            labels  Object  -   See the Legend Label Configuration section below.
+            reverse Boolean false   Legend will show datasets in reverse order
 
         */
         kw.margin = '2px';
@@ -458,6 +481,57 @@ reverse Boolean false   Legend will show datasets in reverse order
                 {field:'borderColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'borderColor',multiple:true},
                 {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
         return [{title:'Parameters',fields:b1}];
-    }
+    },
+    //Scales grids
+
+    scalesTabs:function(bc){},
+
+    axesGrid:function(pane,chartNodeId){
+        var grid = pane._('quickGrid',{value:'^.datasets',addCheckBoxColumn:{field:'enabled'}});
+        var that = this;
+        var dtypeWidgets = {'T':'TextBox','B':'Checkbox','L':'NumberTextBox','N':'NumberTextBox'};
+        grid._('column',{'field':'parameters',name:'Parameters',width:'100%',
+                        _customGetter:function(row){
+                            return row.parameters?row.parameters.getFormattedValue():'No Parameters';
+                        },
+                        edit:{modal:true,contentCb:function(pane,kw){
+                            var chartNode = genro.nodeById(chartNodeId);
+                            var chartType = kw.rowDataNode.getValue().getItem('chartType') || chartNode.getRelativeData('.chartType');
+                            var pagesCb = genro.chartjs['_dataset_'+chartType];
+                            var pages;
+                            if(pagesCb){
+                                pages = pagesCb();
+                            }else{
+                                pages = genro.chartjs._dataset__base();
+                            }
+                            var bc = pane._('BorderContainer',{height:'300px',width:'330px',_class:'datasetParsContainer'});
+                            var top = bc._('ContentPane',{region:'top',_class:'dojoxFloatingPaneTitle'})._('div',{innerHTML:'Dataset '+kw.rowDataNode.label});
+                            var tc = bc._('tabContainer',{region:'center',margin:'2px'});
+                            var field,dtype,lbl,editkw;
+                            pages.forEach(function(pageKw){
+                                var pane = tc._('ContentPane',{title:pageKw.title});
+                                var fb = genro.dev.formbuilder(pane,1,{border_spacing:'3px',datapath:'.parameters',margin:'3px',margin_top:'10px'});
+                                pageKw.fields.forEach(function(fkw){
+                                    dtype = fkw.dtype;
+                                    editkw = objectUpdate({},fkw.edit || {});
+                                    editkw.width = editkw.width || (dtype=='N' || dtype=='L') ?'7em':'12em';
+                                    editkw.value = '^.'+fkw.field;
+                                    if(fkw.values){
+                                        editkw.tag =editkw.tag || 'filteringSelect';
+                                        editkw.values = fkw.values;
+                                    }
+                                    editkw.lbl = fkw.lbl;
+                                    if(dtype=='B'){
+                                        editkw.label = objectPop(editkw,'lbl');
+                                    }else{
+                                        editkw.lbl_text_align = 'right';
+                                    }
+                                    fb.addField(objectPop(editkw,'tag') || dtypeWidgets[dtype], editkw);
+                                });
+                            });
+                        }}});
+        grid._('column',{field:'chartType',name:'Type',edit:{tag:'filteringSelect',values:'bar,line,bubble'}});
+
+    },
 
 };
