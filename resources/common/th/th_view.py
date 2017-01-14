@@ -17,7 +17,8 @@ class TableHandlerView(BaseComponent):
                      th/th_picker:THPicker,
                      gnrcomponents/framegrid:FrameGrid,
                      gnrcomponents/tpleditor:PaletteTemplateEditor,
-                     gnrcomponents/batch_handler/batch_handler:TableScriptRunner
+                     gnrcomponents/batch_handler/batch_handler:TableScriptRunner,
+                     js_plugins/chartjs/chartjs:ChartManager
                      """
                          
     @extract_kwargs(condition=True,store=True)
@@ -69,17 +70,17 @@ class TableHandlerView(BaseComponent):
             else:
                 templateManager = False
             if extendedQuery == '*':
-                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','importer','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
+                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','importer','resourcePrints','resourceMails','resourceActions','5',templateManager,'chartjs','*']
                 if self.isMobile:
-                    base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','menuUserSets','*']
+                    base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','chartjs','5','menuUserSets','*']
 
             elif extendedQuery is True:
-                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','*','count','5']
+                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','chartjs','*','count','5']
             else:
                 base_slots = extendedQuery.split(',')
         elif not virtualStore:
             if root_tablehandler:
-                base_slots = ['5','searchOn','5','count','viewsMenu','*','export','resourcePrints','resourceMails','resourceActions','10']
+                base_slots = ['5','searchOn','5','count','viewsMenu','*','export','5','chartjs','5','resourcePrints','resourceMails','resourceActions','10']
                 if searchOn is False:
                     base_slots.remove('searchOn')
             else:

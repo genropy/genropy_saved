@@ -9,9 +9,6 @@ from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag 
 
 class ChartManager(BaseComponent):
-    js_requires = 'js_plugins/chartjs/chartjs'
-    css_requires = 'js_plugins/chartjs/chartjs'
-
     @struct_method
     def crt_slotbar_chartjs(self,pane,_class='iconbox chart_bar',mode='bar',
                             enable=None,rawData=True,parameters=None,**kwargs):

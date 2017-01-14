@@ -265,8 +265,9 @@ dojo.declare('gnr.GenroClient', null, {
         if(plugin in genro){
             cb();
         }else{
-            genro.dom.loadCss('/_rsrc/common/js_plugins/'+plugin+'/'+plugin+'.css');
-            genro.dom.loadJs('/_rsrc/common/js_plugins/'+plugin+'/'+plugin+'.js',function(){
+            var nocache =(new Date()).getTime();
+            genro.dom.loadCss('/_rsrc/common/js_plugins/'+plugin+'/'+plugin+'.css?nocache='+nocache);
+            genro.dom.loadJs('/_rsrc/common/js_plugins/'+plugin+'/'+plugin+'.js?nocache='+nocache,function(){
                 genro[plugin] = objectPop(window,'genro_plugin_'+plugin);
                 cb();
             });

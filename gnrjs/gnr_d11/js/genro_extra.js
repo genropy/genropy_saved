@@ -339,7 +339,8 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         }
     },
     autoColors:function(dataset){
-        var colorParNames = ['backgroundColor:0.7','borderColor:1'];
+        var colorParNames = ['backgroundColor:0.7','borderColor:1',
+                            'pointBackgroundColor:1','pointBorderColor:1'];
         var result = {};
         colorParNames.forEach(function(n){
             n = n.split(':'); 

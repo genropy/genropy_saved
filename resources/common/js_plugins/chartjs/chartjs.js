@@ -37,7 +37,9 @@ var genro_plugin_chartjs =  {
             }
             var caption = n.attr.name || n.attr.field;
             if(_id && n.attr.field==_id || _querystring && caption.toLowerCase().indexOf(_querystring.slice(0,-1).toLowerCase())>=0){
-                data.push({_pkey:n.attr.field,caption:caption});
+                var f = n.attr.field_getter || n.attr.field;
+                f = f.replace(/\W/g, '_');
+                data.push({_pkey:f,caption:caption});
             }
         });
         return {data:data};
@@ -48,9 +50,12 @@ var genro_plugin_chartjs =  {
         var numeric_types = {'I':true,'L':true,'N':true,'R':true};
         var s = {};
         grid.structbag().getItem('#0.#0').forEach(function(n){
-            var c = n.attr;
+            var c = objectUpdate({},n.attr);
             if(c.dtype in numeric_types && !(c.field in s)){
-                s[c.field] = true;
+                var f = c.field_getter || c.field;
+                f = f.replace(/\W/g, '_');
+                c.code = f;
+                s[f] = true;
                 result.push(c);
             }
         });
@@ -242,9 +247,9 @@ var genro_plugin_chartjs =  {
             var index = {};
             var result = [];
             pars.datasetGetter().forEach(function(c){
-                if(!(c.field in index)){
-                    result.push(c.field+':'+(c.name || c.field));
-                    index[c.field] = true;
+                if(!(c.code in index)){
+                    result.push(c.code+':'+(c.name || c.code));
+                    index[c.code] = true;
                 }
             });
             return result.join(',');

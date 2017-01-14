@@ -1,22 +1,3 @@
-.chart_option_panel{
-    border:1px solid RGBA(113, 27, 42, 1.00);
-    cursor: pointer;
-    margin:3px;
-}
-
-.chart_option_panel_title{
-    background: RGBA(113, 27, 42, 1);
-    color:RGBA(254, 255, 29, 1.00);
-    padding-left: 20px;
-    font-size: .8em;
-
-}
-
-.chart_option_panel_content{
-    padding: 5px;
-    font-size: .8em;
-}
-
 .datasetParsContainer{
     font-size: .9em;
     background: transparent;
