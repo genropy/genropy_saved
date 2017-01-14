@@ -53,7 +53,7 @@ dojo.declare("gnr.widgets.GoogleLoader", null, {
     setGeocoder:function(widget,cb){
         var obj=widget;
         if(this._mapkey){
-            this.geocoder.other_params+=('&key='+this._mapkey)
+            this.geocoder.other_params+=('&key='+this._mapkey);
         }
         this.runCommand(this.geocoder,function(){
             obj.geocoder = new google.maps.Geocoder();
@@ -283,6 +283,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         var scalesOpt;
         var that = this;
         dojo.connect(sourceNode,'_onDeleting',function(){
+            sourceNode.externalWidget.destroy();
             Chart.helpers.removeResizeListener(sourceNode.domNode);
         });
         if(scalesBag){

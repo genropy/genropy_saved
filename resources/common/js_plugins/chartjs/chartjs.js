@@ -107,6 +107,12 @@ var genro_plugin_chartjs =  {
                 sourceNode.setRelativeData('.metadata',new gnr.GnrBag(result.attr));
                 var data = result.getValue();
                 var savedOptions = data.pop('savedOptions');
+                var scales = data.pop('scales');
+                if(scales && scales.len() && (scales.getItem('xAxes').len()>1 || scales.getItem('yAxes').len()>1)){
+                    sourceNode.setRelativeData('.scales',scales);
+                    sourceNode.publish('refresh');
+                }
+
                 data.forEach(function(n){
                     sourceNode.setRelativeData('.'+n.label,n.getValue(),n.attr);
                 });
