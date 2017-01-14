@@ -1587,6 +1587,25 @@ function stringHash(str){
     return str.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
 };
 
+function stringToColour(str) {
+    if(!str){
+        return;
+    }
+    while(str.length<30){
+        str+=str;
+    }
+    var hash = 0;
+    for (var i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    var colour = '#';
+    for (var i = 0; i < 3; i++) {
+      var value = (hash >> (i * 8)) & 0xFF;
+      colour += ('00' + value.toString(16)).substr(-2);
+    }
+    return colour;
+};
+
 function parseURL(url) {
     var a =  document.createElement('a');
     a.href = url;

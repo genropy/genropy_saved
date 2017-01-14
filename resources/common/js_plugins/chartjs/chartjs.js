@@ -1,5 +1,5 @@
 var genro_plugin_chartjs =  {
-    chartTypes:'bar,line,bubble,doughnut,polarArea,radar,scatter',
+    chartTypes:'bar,line,bubble,pie,doughnut,polarArea,radar,scatter',
     openGridChart:function(kw){
         var grid = objectPop(kw,'grid');
         var sn = grid.sourceNode;
@@ -416,8 +416,8 @@ var genro_plugin_chartjs =  {
                 {field:'xAxisID',dtype:'T',lbl:'xAxisID'},
                 {field:'yAxisID',dtype:'T',lbl:'yAxisID'},
                 {field:'backgroundColor',dtype:'T',lbl:'backgroundColor',multiple:true,
-                        edit:{tag:'colorTextBox',mode:'rgba'}},
-                {field:'borderColor',dtype:'T',lbl:'borderColor',multiple:true,edit:{tag:'colorTextBox',mode:'rgba'}},
+                        edit:{tag:'colorTextBox',mode:'rgba',placeholder:'Color or "*"'}},
+                {field:'borderColor',dtype:'T',lbl:'borderColor',multiple:true,edit:{tag:'colorTextBox',mode:'rgba',placeholder:'Color or "*"'}},
                 {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true,edit:{tag:'numberSpinner',minimum:0,maximum:8,width:'5em'}}];
         var b2  = [{field:'borderSkipped',dtype:'T',lbl:'borderSkipped',values:'top,left,right,bottom',multiple:true},
                 {field:'hoverBackgroundColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'backgroundColor',multiple:true},

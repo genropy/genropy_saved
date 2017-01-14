@@ -290,7 +290,6 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
                 scalesOpt = scalesBag.asDict(true,true);
                 objectPop(scalesOpt,'radiant'); //to implement
                 if(objectNotEmpty(scalesOpt)){
-                    console.log('scalesOpt',scalesOpt);
                     options.scales = scalesOpt;
                 }else{
                     scalesOpt = false;
@@ -339,23 +338,42 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
             setTimeout(cb,1);
         }
     },
+    autoColors:function(dataset){
+        var colorParNames = ['backgroundColor:0.7','borderColor:1'];
+        var result = {};
+        colorParNames.forEach(function(n){
+            n = n.split(':'); 
+            if(dataset[n[0]]=='*'){
+                dataset[n[0]] = [];
+                result[n[0]] = n[1];
+            }
+        });
+        return result;
+    },
 
     makeDataset:function(kw){
         var field = objectPop(kw,'field');
 
         var dataset = objectUpdate({data:[]},kw.pars);
+        var autoColorsDict = this.autoColors(dataset);
         objectPop(dataset,'enabled');
         var idx = 0;
+        var caption;
         var isBagMode = kw.datamode=='bag';
         kw.rows.walk(function(n){
             if('pageIdx' in n.attr){return;}
             var row = isBagMode?n.getValue('static').asDict() : n.attr;
             var pkey = row._pkey || n.label;
             if(kw.filterCb(pkey,row)){
+                caption = row[kw.columnCaption] || (dataset.label || field)+' '+idx;
                 if('labels' in kw){
-                    kw.labels.push(row[kw.columnCaption] || (dataset.label || field)+' '+idx);
+                    kw.labels.push(caption);
                 }
                 dataset.data.push(row[field]);
+                var autocol = chroma(stringToColour(caption));
+                for(var k in autoColorsDict){
+                    dataset[k].push(chroma(autocol).alpha(autoColorsDict[k]).css());
+                }
                 idx++;
             }
         },'static',null,isBagMode);

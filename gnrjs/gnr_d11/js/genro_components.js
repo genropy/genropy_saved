@@ -146,7 +146,7 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
         kw['connect_onOpen'] = function(){
             var wdg = this.widget;
             if(modal){
-                genro.nodeById('_gnrRoot').setHiderLayer(true,{z_index:1000,opacity:'0.4',
+                genro.nodeById('_gnrRoot').setHiderLayer(true,{z_index:1000,opacity:kw.hiderOpacity || 0,
                                                 connect_onclick:function(){
                                                     genro.publish({topic:'close',nodeId:ddbId});
                                                 }
@@ -203,12 +203,14 @@ dojo.declare("gnr.widgets.MenuDiv", gnr.widgets.gnrwdg, {
 
 dojo.declare("gnr.widgets.ColorTextBox", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw, children){
-        var chromapars = objectExtract(kw,'colors,steps,menupath,mode');
+        var chromapars = objectExtract(kw,'colors,steps,menupath,mode,extraLines');
         var gnrwdg = sourceNode.gnrwdg;
+        kw._autoselect=true;
         sourceNode.attr._workspace = true;
         sourceNode.attr.mode = chromapars.mode;
         sourceNode.attr.colors = chromapars.colors;
         sourceNode.attr.steps = chromapars.steps;
+        gnrwdg.extraLines = chromapars.extraLines;
         gnrwdg.menupath = chromapars.menupath || '#WORKSPACE.colormenu';
         var value = kw.value;
         if(!value){
@@ -241,11 +243,17 @@ dojo.declare("gnr.widgets.ColorTextBox", gnr.widgets.gnrwdg, {
         this.sourceNode.setRelativeData('^#WORKSPACE.currentBackground',null);
         this.sourceNode.setRelativeData('^#WORKSPACE.currentForeground',null);
         var v = tbNode.getAttributeFromDatasource('value');
+
         if(!v){
             tbNode.setAttributeInDatasource('value',null);
             return;
         }
-        var c = chroma(v);
+        var c;
+        try{
+            c = chroma(v);
+        }catch(e){
+            return;
+        }
         var mode = this.sourceNode.getAttributeFromDatasource('mode') || 'hex';
         var csscolor = mode=='rgba'? c.css():c.hex();
         if(csscolor!=v){
@@ -292,6 +300,13 @@ dojo.declare("gnr.widgets.ColorTextBox", gnr.widgets.gnrwdg, {
             caption = '<div style="width:100%;text-align:left;padding-left:5px;background:'+csscolor+';"><div style="display:inline-block;font-family:courier;color:'+foreground+'">'+csscolor+'</div></div>';
             b.setItem('r_'+idx,rescontent,{caption:caption,color:csscolor,foregroundColor:foreground});
         });
+        if(this.extraLines){
+            b.setItem('r_'+b.len(),null,{caption:'-'});
+
+            this.extraLines.split(',').forEach(function(l,idx){
+                b.setItem('r_'+b.len(),null,{caption:l,color:l});
+            });
+        }
         this.sourceNode.setRelativeData(this.menupath,b);
     },
     gnrwdg_setColors:function(){
