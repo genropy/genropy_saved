@@ -241,6 +241,7 @@ var genro_plugin_chartjs =  {
     _chartParametersPane:function(bc,code,pars){
         var fb = genro.dev.formbuilder(bc._('ContentPane',{region:'top'}),1,{border_spacing:'3px',margin_top:'10px'});
         fb.addField('filteringSelect',{value:'^.chartType',colspan:1,width:'10em',values:this.chartTypes,lbl:'Type'});
+        var fistCap = pars.captionGetter({_querystring:'*'}).data[0] || {};
         fb.addField('callbackSelect',{value:'^.columnCaption',width:'10em',
                                         lbl_text_align:'right',
                                         lbl_class:'gnrfieldlabel',
@@ -248,7 +249,7 @@ var genro_plugin_chartjs =  {
                                         callback:function(kw){
                                             return pars.captionGetter(kw);},
                                         parentForm:false,hasDownArrow:true,
-                                        default_value:pars.captionGetter({_querystring:'*'}).data[0]._pkey});
+                                        default_value:fistCap._pkey});
         fb.addField('checkBoxText',{lbl:'Datasets',width:'20em',colspan:1,value:'^.datasetFields',cols:1,valuesCb:function(){
             var index = {};
             var result = [];

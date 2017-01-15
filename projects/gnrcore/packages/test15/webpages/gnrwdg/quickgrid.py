@@ -7,6 +7,7 @@
 """bageditor"""
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
+import psutil
 
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/framegrid:FrameGrid"
@@ -95,21 +96,27 @@ class GnrCustomWebPage(object):
         #grid.tools('addrow,delrow',position='TR')
     
 
+    def test_4_cpu(self,pane,**kwargs):
+        pane=pane.div(margin='15px',datapath='.cpuTimes',height='500px',width='500px')
+        pane.quickGrid(value='^.data',
+                       border='1px solid silver',
+                              font_family='courier',
+                              font_weight='bold',
+                              height='auto',width='auto'
+                              )
         
-    def _test_3_framepane_syntax(self,pane):
-        """basic"""
-        bc = pane.borderContainer(height='400px')
-        pane=bc.framePane(region='center')
-        ptop=pane.top(height='20px').slotToolbar('*,foo,egg,2')
-        ptop.foo.div('pppppp')
-        ptop.egg.div('pppppp')
-        pbottom=pane.bottom(height='20px')
-   
-
-
-
-
+        pane.dataRpc('.data', self.getCpuTimes,
+                     #_timing=2,
+                     _onStart=True)
     @public_method
     def getCpuTimes(self):
-        return self.site.getService('sysinfo').getCpuTimes()
-  
+        result=Bag()
+        columns=['user','nice','system','idle']
+        for j, core in enumerate(psutil.cpu_times(True)):
+            row = Bag()
+            row['core']=j+1
+            for k in columns:
+                row.setItem(k, getattr(core,k))
+            result.setItem('r_%i'%j, row)
+        return result
+
