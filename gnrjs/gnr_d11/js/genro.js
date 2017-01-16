@@ -265,12 +265,11 @@ dojo.declare('gnr.GenroClient', null, {
         if(plugin in genro){
             cb();
         }else{
-            var nocache =(new Date()).getTime();
-            genro.dom.loadCss('/_rsrc/common/js_plugins/'+plugin+'/'+plugin+'.css?nocache='+nocache);
-            genro.dom.loadJs('/_rsrc/common/js_plugins/'+plugin+'/'+plugin+'.js?nocache='+nocache,function(){
+            genro.dom.loadCss('/_rsrc/common/js_plugins/'+plugin+'/'+plugin+'.css',null,null,genro.isDeveloper);
+            genro.dom.loadJs('/_rsrc/common/js_plugins/'+plugin+'/'+plugin+'.js',function(){
                 genro[plugin] = objectPop(window,'genro_plugin_'+plugin);
                 cb();
-            });
+            },genro.isDeveloper);
         }
     },
 

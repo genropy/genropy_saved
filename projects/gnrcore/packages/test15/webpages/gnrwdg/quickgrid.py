@@ -106,7 +106,7 @@ class GnrCustomWebPage(object):
                               )
         
         pane.dataRpc('.data', self.getCpuTimes,
-                     #_timing=2,
+                     _timing=2,
                      _onStart=True)
     @public_method
     def getCpuTimes(self):

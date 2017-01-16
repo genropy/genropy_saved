@@ -669,7 +669,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
        
         if(menuNode){
             widget.onCellContextMenu = function(e){
-                menuNode.rowIndex = e.rowIndex
+                menuNode.rowIndex = e.rowIndex;
                 menuNode.cellIndex = e.cellIndex;
             };
         }

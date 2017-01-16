@@ -1065,13 +1065,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     subscribe:function(command,handler,subscriberNode){
         var that=this;
         var h = handler;
-        var handler = function(){
+        handler = function(){
             var argNames = [];
             var argValues = [];
             for (var i=0; i < arguments.length; i++) {
                 argValues.push(arguments[i]);
                 argNames.push('p_'+i);
-            };
+            }
             var currAttr = that.currentAttributes();
             funcApply(h, that.currentAttributes(),that,argNames,argValues);
         };

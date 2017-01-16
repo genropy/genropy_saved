@@ -90,27 +90,35 @@ dojo.declare("gnr.GnrDomHandler", null, {
         document.getElementsByTagName("head")[0].appendChild(style);
         style.disabled = false; //to control why appending child style change disable attr
     },
-    loadCss: function(url, cssTitle, cb) {
+    loadCss: function(url, cssTitle, cb,avoidCache) {
+        if(avoidCache){
+            var nocache =(new Date()).getTime();
+            url = genro.addParamsToUrl(url,{nocache:nocache});
+        }
         var e = document.createElement("link");
         e.href = url;
         e.type = "text/css";
         e.rel = "stylesheet";
         e.media = "screen";
         document.getElementsByTagName("head")[0].appendChild(e);
-        if (cb) e.onload = cb;
+        if (cb){ 
+            e.onload = cb;
+        }
     },
-    loadJs: function(url, cb) {
+    loadJs: function(url, cb,avoidCache) {
+        if(avoidCache){
+            var nocache =(new Date()).getTime();
+            url = genro.addParamsToUrl(url,{nocache:nocache});
+        }
         var e = document.createElement("script");
         e.src = url;
         e.type = "text/javascript";
         document.getElementsByTagName("head")[0].appendChild(e);
-        
         if (cb) {
             e.onload = cb;
-            }
+        }
     },
-    loadExternal:function(urlList){
-        var urlList;
+    loadExternal:function(urlList,avoidCache){
         if (typeof(urlList)=='string'){
             if (urlList.indexOf(',')>-1){
                 urlList = urlList.split(',');
@@ -124,10 +132,10 @@ dojo.declare("gnr.GnrDomHandler", null, {
             var splitted_name = name.split('.');
             var file_ext =splitted_name[splitted_name.length-1].toLowerCase();
             if (file_ext=='js'){
-                this.loadJs(url);
+                this.loadJs(url,null,avoidCache);
             }
             else if (file_ext=='css'){
-                this.loadCss(url);
+                this.loadCss(url,null,null,avoidCache);
             }
         });
     },

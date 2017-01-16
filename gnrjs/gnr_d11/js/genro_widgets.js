@@ -2264,26 +2264,11 @@ dojo.declare("gnr.widgets.Menuline", gnr.widgets.baseDojo, {
             this.addChild_replaced.call(this, popUpContent);
         }
     },
+    
     patch_onClick:function(evt) {
-        var originalTarget = this.getParent().originalContextTarget;
-        var ctxSourceNode;
         var sourceNode = this.sourceNode;
+        var ctxSourceNode = this.getParent().ctxTargetSourceNode || sourceNode;
         var menuAttr = sourceNode.getAttr();
-        if (!originalTarget) {
-            ctxSourceNode = sourceNode;
-        } else {
-            if (originalTarget.sourceNode) {
-                ctxSourceNode = originalTarget.sourceNode;
-            }
-            else {
-                var w = genro.dom.getBaseWidget(originalTarget);
-                if(w){
-                    ctxSourceNode = w.sourceNode;
-                }
-                //ctxSourceNode = dijit.getEnclosingWidget(originalTarget).sourceNode;
-            }
-        }
-        // var ctxSourceNode = originalTarget ? originalTarget.sourceNode || dijit.byId(originalTarget.attributes.id.value).sourceNode :sourceNode
         var inAttr = sourceNode.getInheritedAttributes();
         var actionScope = sourceNode.attributeOwnerNode('action');
         var action = inAttr.action;
@@ -2307,6 +2292,7 @@ dojo.declare("gnr.widgets.Menuline", gnr.widgets.baseDojo, {
         }
     }
 });
+
 dojo.declare("gnr.widgets.ContentPane", gnr.widgets.baseDojo, {
     constructor: function(application) {
         this._domtag = 'div';
@@ -2444,6 +2430,19 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
         if(genro.dom.isDisabled(this.originalContextTarget,true)){
             return;
         }
+        var ctxSourceNode;
+        if (this.originalContextTarget) {
+            if (this.originalContextTarget.sourceNode) {
+                ctxSourceNode = this.originalContextTarget.sourceNode;
+            }
+            else {
+                var w = genro.dom.getBaseWidget(this.originalContextTarget);
+                if(w){
+                    ctxSourceNode = w.sourceNode;
+                }
+            }
+        }
+        this.ctxTargetSourceNode = ctxSourceNode;
         var sourceNode = this.sourceNode;
         var wdg = sourceNode.widget;
 
@@ -2513,29 +2512,6 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
 
     },
     
-    versionpatch_15__openMyself: function (e) {
-        this.originalContextTarget = e.target;
-        var sourceNode = this.sourceNode;
-        if (sourceNode) {
-            var resolver = sourceNode.getResolver();
-            if (resolver && resolver.expired()) {
-                var result = sourceNode.getValue('notrigger');
-                if (result instanceof gnr.GnrBag) {
-                    var menubag = new gnr.GnrDomSource();
-                    gnr.menuFromBag(result, menubag, sourceNode.attr._class, sourceNode.attr.fullpath);
-                    sourceNode.setValue(menubag);
-                } else {
-                    sourceNode.setValue(result);
-                }
-            }
-        }
-        if ((e.button == 2) && (!this.modifiers)) {
-            this._openMyself_replaced.call(this, e);
-        }
-        else if (this.modifiers && genro.wdg.filterEvent(e, this.modifiers, this.validclass)) {
-            this._openMyself_replaced.call(this, e);
-        }
-    },
     versionpatch_11__openMyself: function (e) {
         var contextclick = (e.button==2 ||  genro.dom.getEventModifiers(e)=='Ctrl');
         if(this.validclass && !genro.wdg.filterEvent(e,null,this.validclass)){
