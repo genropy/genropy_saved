@@ -169,9 +169,9 @@ class VolumesStaticHandler(StaticHandler):
 
     def path(self,volume,*args,**kwargs):
         vpath = self.volumes.get(volume,volume)
-        print 'volumes',self.volumes,'volume'
+        #print 'volumes',self.volumes,'volume'
         result = expandpath(os.path.join(self.site.site_static_dir,vpath, *args))
-        print 'aaa',result
+        #print 'aaa',result
         return result
 
 class ExternalVolumesStaticHandler(VolumesStaticHandler):
