@@ -75,7 +75,7 @@ class GnrHtmlSrc(GnrStructData):
         """Creates a ``<link>`` tag"""
         self.root.builder.head.child('link', href=href,_type=_type, **kwargs)
         
-    def csslink(self, href='', media='screen', **kwargs ):
+    def csslink(self, href='', media='all', **kwargs ):
         """Shortcut to create a ``<link rel="stylesheet" type="text/css"">`` tag"""
         self.root.builder.head.child('link', href=href, rel="stylesheet", _type="text/css", media=media, **kwargs)
         
