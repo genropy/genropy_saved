@@ -385,7 +385,7 @@ class TableBase(object):
         tbl.column('df_fields',dtype='X',group='_',_sendback=True)
         tbl.column('df_fbcolumns','L',group='_')
         tbl.column('df_custom_templates','X',group='_')
-        tbl.column('df_colswith',group='_')
+        tbl.column('df_colswidth',group='_')
 
 
     def sysFields_counter(self,tbl,fldname,counter=None,group=None,name_long='!!Counter'):
