@@ -611,6 +611,13 @@ function objectKeys(obj) {
     return keys;
 }
 
+function objectItems(obj) {
+    var keys = [];
+    for (var prop in obj) {
+        keys.push({key:prop,value:obj[prop]});
+    }
+    return keys;
+}
 
 function objectValues(obj) {
     var values = [];

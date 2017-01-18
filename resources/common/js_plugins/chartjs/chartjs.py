@@ -15,7 +15,7 @@ class ChartManager(BaseComponent):
         gridattr = pane.frame.grid.attributes
         gridId = gridattr['nodeId']
         storepath = '#%s.chartsMenu' %gridId
-        pane.menudiv(iconClass=_class,storepath=storepath,tip='!!Charts',
+        pane.slotButton(iconClass=_class,menupath=storepath,label='!!Charts',
                     action="genro.publish({topic:'openChart',nodeId:'%(nodeId)s'},$1);" %gridattr)
         gridattr['selfsubscribe_openChart'] = """this.publish('pluginCommand',
                                                                 {plugin:'chartjs',

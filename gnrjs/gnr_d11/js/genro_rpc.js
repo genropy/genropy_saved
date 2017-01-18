@@ -461,7 +461,6 @@ dojo.declare("gnr.GnrRpcHandler", null, {
 
     loadRequires:function(envelope){
         var js_requires = envelope.getItem('js_requires');
-        console.log('js_requires',js_requires)
         var css_requires = envelope.getItem('css_requires');
         var jslist = [];
         var csslist = [];

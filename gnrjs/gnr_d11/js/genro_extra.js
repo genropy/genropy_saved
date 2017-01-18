@@ -283,8 +283,8 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         var scalesOpt;
         var that = this;
         dojo.connect(sourceNode,'_onDeleting',function(){
-            sourceNode.externalWidget.destroy();
-            Chart.helpers.removeResizeListener(sourceNode.domNode);
+            //Chart.helpers.removeResizeListener(sourceNode.domNode);
+            //sourceNode.externalWidget.destroy();
         });
         if(scalesBag){
             if(scalesBag){
@@ -406,16 +406,18 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
                 var dskw = {'rows':rows,'datamode':datamode,
                             'filterCb':filterCb,'labels':data.labels,
                             'captionField':captionField};
-                datasets._nodes.forEach(function(n){
-                    var v = n.getValue();
-                    if(!(v.getNode('enabled')) || v.getItem('enabled')){
-                        dskw.pars = v.getItem('parameters').asDict(true,true);
-                        dskw.pars.type = v.getItem('chartType');
-                        dskw.field = v.getItem('field');
-                        data.datasets.push(that.gnr.makeDataset(dskw));
-                        objectPop(dskw,'labels');
-                    }
-                });
+                if(datasets){
+                    datasets._nodes.forEach(function(n){
+                        var v = n.getValue();
+                        if(!(v.getNode('enabled')) || v.getItem('enabled')){
+                            dskw.pars = v.getItem('parameters').asDict(true,true);
+                            dskw.pars.type = v.getItem('chartType');
+                            dskw.field = v.getItem('field');
+                            data.datasets.push(that.gnr.makeDataset(dskw));
+                            objectPop(dskw,'labels');
+                        }
+                    });
+                }
             }         
             objectUpdate(that.data,data);
             that.update();
@@ -437,7 +439,6 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
 
     mixin_gnr_datasets:function(value,kw, trigger_reason){ 
         if(kw.node.label == 'xAxisID' || kw.node.label=='yAxisID'){
-            console.log('modifica assi');
             var axes = kw.node.label=='xAxisID'?'xAxes':'yAxes';
             var axeslist = this.options.scales[axes];
             if(!axeslist.some(function(n){return n.id==value;})){
@@ -446,7 +447,6 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
             }
         }
         this.gnr_updateChart();
-        
     },
 
     mixin_gnr_filter:function(value,kw, trigger_reason){  
@@ -496,12 +496,8 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
             triggerNode.attr._userChanged = true;
             curr[lastLabel] = lastValue;
         }
-
-        var that = this;
-        this.sourceNode.delayedCall(function(){
-            that.update();
-            that.resize();
-        },100,'updatingOptions');
+        this.update();
+        this.resize();
     }
 });
 

@@ -140,12 +140,11 @@ dojo.declare("gnr.GnrSrcHandler", null, {
     _trigger_upd:function(kw) {//da rivedere
         //console.log('trigger_upd',kw);
         var updatingNode = kw.node;
-        if(updatingNode.building){
-            genro.bp(true);
-            return;
-        }
         genro.assert(!updatingNode._isComponentNode);
         updatingNode._onDeleting();
+        if(updatingNode.externalWidget && updatingNode.externalWidget.destroy){
+            updatingNode.externalWidget.destroy();
+        }
         var destination = kw.node.getParentBuiltObj();
         if (!destination) {
             console.log('missing destination in rebuild');
@@ -172,7 +171,6 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                 widget.destroyRecursive();
             } else if(destination._singleChild){
                 destination.destroyDescendants();
-                
             }
             else {
                 if (domNode.parentNode) {
@@ -196,9 +194,6 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             //dojo.forEach(widgets, function(widget){ widget.destroyRecursive(); });
             while (domNode.childNodes.length > 0) {
                 dojo._destroyElement(domNode.childNodes[0]);
-            }
-            if(updatingNode.externalWidget && updatingNode.externalWidget.destroy){
-                updatingNode.externalWidget.destroy();
             }
         }
         this.refreshSourceIndexAndSubscribers();

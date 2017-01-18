@@ -929,8 +929,8 @@ class THViewUtils(BaseComponent):
         else:
             querymenu.setItem('__newquery__',None,caption='!!New query',description='',
                                 extended=True)
-        if self.application.checkResourcePermission('_DEV_,dbadmin', self.userTags):
-            querymenu.setItem('__custom_columns__',None,caption='!!Custom columns',action="""FIRE .handle_custom_column;""")
+        #if self.application.checkResourcePermission('_DEV_,dbadmin', self.userTags):
+        #    querymenu.setItem('__custom_columns__',None,caption='!!Custom columns',action="""FIRE .handle_custom_column;""")
         #querymenu.walk(self._th_checkFavoriteLine,favPath=favoriteQueryPath)
         return querymenu
             

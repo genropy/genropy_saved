@@ -115,18 +115,39 @@ class GnrCustomWebPage(object):
         fb = bc.contentPane(region='top').formbuilder(cols=1,border_spacing='3px')
         fb.dbSelect(value='^.regione',dbtable='glbl.regione',lbl='Regione')
         fb.dataFormula('.regione','reg',reg='LOM',_onStart=True)
+        
+        #bc.framePane(frameCode='pippo',region='right',width='200px')
+
+        bc.chartPane(value='^.glbl_provincia.view.store',
+                    filter='^.glbl_provincia.view.grid.righe_pkeys',
+                    region='bottom',height='500px',
+                    captionField='sigla',
+                    configurator=True,
+                    datasetFields="tot_superficie",
+                    chartType='bar')
+
+        bc.contentPane(region='center').plainTableHandler(table='glbl.provincia',
+                                                condition='$regione=:reg',
+                                                condition_reg='^#ANCHOR.regione',
+                                                grid_selectedPkeys='.righe_pkeys',
+                                                viewResource='ViewTestGraph')
+
+
+    def test_4_chartPane(self,pane):
+        bc = pane.borderContainer(height='800px',_anchor=True)
+        fb = bc.contentPane(region='top').formbuilder(cols=1,border_spacing='3px')
+        fb.dbSelect(value='^.regione',dbtable='glbl.regione',lbl='Regione')
+        fb.dataFormula('.regione','reg',reg='LOM',_onStart=True)
+        
+        #bc.framePane(frameCode='pippo',region='right',width='200px')
         th = bc.contentPane(region='center').plainTableHandler(table='glbl.provincia',
                                                 condition='$regione=:reg',
                                                 condition_reg='^#ANCHOR.regione',
                                                 grid_selectedPkeys='.righe_pkeys',
                                                 viewResource='ViewTestGraph')
-        #bc.framePane(frameCode='pippo',region='right',width='200px')
 
-        bc.chartPane(storepath='.glbl_provincia.view.store',
-                    filter='^.glbl_provincia.view.righe_pkeys',
-                    region='bottom',height='400px',
-                    captionField='sigla',
-                    datasetFields="tot_superficie",
+        bc.chartPane(connectedTo=th.view.grid,  
+                    region='bottom',height='500px',
+                    configurator=True,
                     chartType='bar')
-
 
