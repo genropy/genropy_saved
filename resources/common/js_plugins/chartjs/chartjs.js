@@ -752,6 +752,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         sourceNode.attr.datasetFields = '^#WORKSPACE.datasetFields';
         if(gnrwdg.connectedWidgetId){
             var sn = genro.nodeById(gnrwdg.connectedWidgetId);
+            gnrwdg.table = sn.attr.table;
             if(sn.attr.tag.toLowerCase()=='tree'){
                 sn.subscribe('onSelected',function(kw){
                     console.log('tree selected',kw);
@@ -781,15 +782,21 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
             gnrwdg.configuratorFrame(rootbc,kw);
         }
         gnrwdg.datamode = objectPop(kw,'datamode') || gnrwdg.datamode;
-        sourceNode.setRelativeData('#WORKSPACE.loadMenu',new gnr.GnrBagCbResolver({method:gnrwdg.loadMenu},null,-1));
         gnrwdg.setDefaults();
         gnrwdg.setDatasetFields();
         gnrwdg.chartCenter(rootbc,kw);
         return rootbc;
     },
-    gnrwdg_loadMenu:function(){
-        var result = new gnr.GnrBag();
+    gnrwdg_setLoadMenuData:function(){
+        var kw = {'objtype':'chartjs',
+                  'flags':genro.getData('gnr.pagename')+'_'+this.connectedWidgetId,
+                    'table':this.table};
+        var result = genro.serverCall('_table.adm.userobject.userObjectMenu',kw) || new gnr.GnrBag();
+        if(result.len()){
+            result.setItem('r_'+result.len(),null,{caption:'-'});
+        }
         result.setItem('__newchart__',null,{caption:'New Chart'});
+        this.sourceNode.setRelativeData('#WORKSPACE.loadMenu',result);
     },
 
     gnrwdg_setDefaults:function(){
@@ -955,6 +962,8 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
     gnrwdg_configuratorFrame:function(parentBc,kw){
         var confkw = objectPop(kw,'configurator');
         confkw = confkw===true?{region:'right',drawer:'close',splitter:true,border_left:'1px solid #ccc',width:'320px'}:configurator;        
+        this.setLoadMenuData();
+
         var confframe = parentBc._('FramePane',objectUpdate(confkw,{frameCode:this.chartNodeId+'_options'}));
         var bar = confframe._('slotBar',{toolbar:true,side:'top',slots:'5,fulloptions,refresh,*,loadMenu,saveBtn,5'});
         var that = this;
@@ -966,11 +975,15 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         }});
         bar._('slotButton','loadMenu',{iconClass:'iconbox folder',label:'Load',
             menupath:'#WORKSPACE.loadMenu',action:function(item){
-                console.log('item',item);
+                if(item.pkey){
+                    that.loadChart(item.pkey);
+                }else if(item.fullpath == '__newchart__'){
+                    that.loadChart('__newchart__');
+                }
             }});
         bar._('slotButton','saveBtn',{iconClass:'iconbox save',label:'Save',
                                         action:function(){
-                                            genro.chartjs.saveChart({connectedWidgetId:that.connectedWidgetId,chartNodeId:that.chartNodeId});
+                                            that.saveChart();
                                         }});
         var bc = confframe._('BorderContainer',{side:'center'});
 
@@ -1109,6 +1122,81 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
                 innerBc._('ContentPane',{region:'center'})._('div',{innerHTML:'TO DO...'});
             }
         });
-    }
+    },
+
+    gnrwdg_saveChart:function() {
+        var connectedWidgetId = this.connectedWidgetId || this.chartNodeId;
+        var chartNode =genro.nodeById(this.chartNodeId);
+        var that = this;
+        var instanceCode = chartNode.getRelativeData('#WORKSPACE.metadata.code');
+        var chartPars = chartNode.getRelativeData('#WORKSPACE').deepCopy();
+        chartPars.popNode('metadata');
+        chartPars.popNode('filter');
+        chartPars.popNode('options');
+        var options = chartNode.getRelativeData(chartNode.attr.optionsBag);
+        var savedOptions = new gnr.GnrBag();
+        options.walk(function(n){
+            if(n.attr._userChanged){
+                var fullpath = n.getFullpath(null,options);
+                savedOptions.setItem(fullpath.replace(/\./g, '_'),null,{path:fullpath,value:n.getValue()});
+            }
+        });
+        chartPars.setItem('savedOptions',savedOptions);
+        saveCb = function(dlg) {
+            var datapath = chartNode.absDatapath('#WORKSPACE.metadata');
+            var metadata = genro.getData(datapath);
+            var pagename = genro.getData('gnr.pagename');
+            var flags = metadata.getItem('flags');
+            metadata.setItem('flags',pagename+'_'+connectedWidgetId);
+            genro.serverCall('_table.adm.userobject.saveUserObject',
+                            {'objtype':'chartjs','metadata':metadata,
+                            'data':chartPars,
+                            table:that.table},
+                            function(result) {
+                                dlg.close_action();
+                                that.setLoadMenuData();
+                            });
+        };
+        genro.dev.userObjectDialog(instanceCode ? 'Save Chart ' + instanceCode : 'Save New Chart',datapath,saveCb);
+    },
+
+    gnrwdg_loadChart:function(userObjectId){
+        var chartNode = genro.nodeById(this.chartNodeId);
+        if(userObjectId=='__newchart__'){
+            chartNode.freeze();
+            chartNode.setRelativeData('#WORKSPACE.metadata',new gnr.GnrBag());
+            chartNode.setRelativeData('#WORKSPACE.datasetFields',null);
+            chartNode.setRelativeData('#WORKSPACE.captionField',null);
+            chartNode.setRelativeData('#WORKSPACE.scales',new gnr.GnrBag());
+            chartNode.setRelativeData('#WORKSPACE.options',new gnr.GnrBag());
+            chartNode.setRelativeData('#WORKSPACE.chartType','bar');
+            setTimeout(function(){
+                chartNode.unfreeze();
+            },1);
+        }else{
+            genro.serverCall('_table.adm.userobject.loadUserObject', {pkey:userObjectId}, 
+            function(result){
+                chartNode.freeze();
+                chartNode.setRelativeData('#WORKSPACE.metadata',new gnr.GnrBag(result.attr));
+                var data = result.getValue();
+                var savedOptions = data.pop('savedOptions');
+                var scales = data.pop('scales');
+                if(scales && scales.len() && (scales.getItem('xAxes').len()>1 || scales.getItem('yAxes').len()>1)){
+                    chartNode.setRelativeData('#WORKSPACE.scales',scales);
+                }
+                data.forEach(function(n){
+                    chartNode.setRelativeData('#WORKSPACE.'+n.label,n.getValue(),n.attr);
+                });
+                savedOptions.forEach(function(n){
+                    chartNode.setRelativeData('#WORKSPACE.options.'+n.attr.path,n.attr.value);
+                });
+                setTimeout(function(){
+                    chartNode.unfreeze();
+                },1);
+            });
+        }
+
+    },
+
 
 });
