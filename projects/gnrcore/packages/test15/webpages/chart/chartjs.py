@@ -92,7 +92,7 @@ class GnrCustomWebPage(object):
         pane.dataFormula('.data','databag',databag='=.databag',_onStart=True)
         bc = pane.borderContainer(height='600px',width='800px',_anchor=True)
         frame = bc.bagGrid(storepath='#ANCHOR.data',region='center',struct=self.bmiStruct)
-        frame.top.bar.replaceSlots('delrow','chartjs,delrow')
+        frame.top.bar.replaceSlots('delrow','chartjs,delrow,duprow')
 
     def bmiStruct(self,struct):
         r = struct.view().rows()
@@ -108,4 +108,25 @@ class GnrCustomWebPage(object):
         result.setItem('r_1',Bag(dict(nome='Luigi Bianchi',eta=38,peso=90,altezza=180)))
         result.setItem('r_2',Bag(dict(nome='Rossella Albini',eta=22,peso=60,altezza=170)))
         return result
+
+
+    def test_3_chartPane(self,pane):
+        bc = pane.borderContainer(height='800px',_anchor=True)
+        fb = bc.contentPane(region='top').formbuilder(cols=1,border_spacing='3px')
+        fb.dbSelect(value='^.regione',dbtable='glbl.regione',lbl='Regione')
+        fb.dataFormula('.regione','reg',reg='LOM',_onStart=True)
+        th = bc.contentPane(region='center').plainTableHandler(table='glbl.provincia',
+                                                condition='$regione=:reg',
+                                                condition_reg='^#ANCHOR.regione',
+                                                grid_selectedPkeys='.righe_pkeys',
+                                                viewResource='ViewTestGraph')
+        #bc.framePane(frameCode='pippo',region='right',width='200px')
+
+        bc.chartPane(storepath='.glbl_provincia.view.store',
+                    filter='^.glbl_provincia.view.righe_pkeys',
+                    region='bottom',height='400px',
+                    captionField='sigla',
+                    datasetFields="tot_superficie",
+                    chartType='bar')
+
 

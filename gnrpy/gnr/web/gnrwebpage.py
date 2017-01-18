@@ -167,8 +167,8 @@ class GnrWebPage(GnrBaseWebPage):
                         or self.site.config['gui?css_icons'] or 'retina/gray'
         self.dojo_theme = request_kwargs.pop('dojo_theme', None) or getattr(self, 'dojo_theme', None)
         self.dojo_version = request_kwargs.pop('dojo_version', None) or getattr(self, 'dojo_version', None)
-        self.dynamic_js_requires= {}
-        self.dynamic_css_requires= {}
+        self.envelope_js_requires= {}
+        self.envelope_css_requires= {}
         self._avoid_module_cache = _avoid_module_cache
         self.debug_sql = boolean(request_kwargs.pop('debug_sql', None))
         debug_py = request_kwargs.pop('debug_py', None)
@@ -1413,6 +1413,10 @@ class GnrWebPage(GnrBaseWebPage):
         :param ext: TODO
         :param add_mtime: TODO
         :param pkg: the :ref:`package <packages>` object"""
+        if path and path.startswith('/'):
+            lpath = path.split('/')[1:]   
+            if self.site.getStatic(lpath[0][1:]):
+                path = self.site.getStatic(lpath[0][1:]).path(*lpath[1:])
         fpath = self.getResource(path, ext=ext,pkg=pkg)
         if not fpath:
             return
@@ -1427,7 +1431,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param pkg: the :ref:`package <packages>` object"""
         url = None 
         packageFolder = self.site.getPackageFolder(pkg) if pkg else self.package_folder
-        pkg = pkg or self.packageId
+        pkg = pkg or self.packageId  
         if fpath.startswith(self.site.site_path):
             uripath = fpath[len(self.site.site_path):].lstrip('/').split(os.path.sep)
             url = self.site.getStatic('site').url(*uripath)
@@ -1912,14 +1916,6 @@ class GnrWebPage(GnrBaseWebPage):
                             auto_polling="^gnr.polling.auto_polling",
                             polling_enabled="^gnr.polling.polling_enabled",
                             _init=True)
-        if self.dynamic_css_requires:
-            for v in self.dynamic_css_requires.values():
-                if v:
-                    page.script('genro.dom.loadCss("%s")' %v)
-        if self.dynamic_js_requires:
-            for v in self.dynamic_js_requires.values():
-                if v:
-                    page.script('genro.dom.loadJs("%s")' %v)
         if self._pendingContext:
             self.site.register.setPendingContext(self.page_id,self._pendingContext,register_name='page')                        
         if not self.isGuest:

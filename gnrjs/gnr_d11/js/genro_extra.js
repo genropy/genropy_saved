@@ -264,7 +264,8 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
 
 
     creating: function(attributes, sourceNode) {
-        var savedAttrs = objectExtract(attributes,'chartType,value,filter,datasets,columnCaption,options,data,scalesBag');
+        sourceNode.registerDynAttr('storepath');
+        var savedAttrs = objectExtract(attributes,'chartType,filter,datasets,captionField,options,data,scalesBag');
         return savedAttrs;
     },
     
@@ -273,10 +274,9 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         //var chartjs_root = document.createElement('canvas');
         //domNode.appendChild(chartjs_root);
         var data = savedAttrs.data;
-        var value = savedAttrs.value;
         var dataset = savedAttrs.dataset;
         var filter = savedAttrs.filter;
-        var columnCaption = savedAttrs.columnCaption;
+        var captionField = savedAttrs.captionField;
         var options = savedAttrs.options || {};
         var chartType = savedAttrs.chartType;
         var scalesBag = savedAttrs.scalesBag;
@@ -367,7 +367,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
             var row = isBagMode?n.getValue('static').asDict() : n.attr;
             var pkey = row._pkey || n.label;
             if(kw.filterCb(pkey,row)){
-                caption = row[kw.columnCaption] || (dataset.label || field)+' '+idx;
+                caption = row[kw.captionField] || (dataset.label || field)+' '+idx;
                 if('labels' in kw){
                     kw.labels.push(caption);
                 }
@@ -387,10 +387,10 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         this.sourceNode.delayedCall(function(){
             var data = that.sourceNode.getAttributeFromDatasource('data'); 
             if(!data){
-                var rows = that.sourceNode.getAttributeFromDatasource('value'); 
+                var rows = that.sourceNode.getRelativeData(that.sourceNode.attr.storepath); 
                 var filter = that.sourceNode.getAttributeFromDatasource('filter'); 
                 var datasets = that.sourceNode.getAttributeFromDatasource('datasets'); 
-                var columnCaption = that.sourceNode.getAttributeFromDatasource('columnCaption');
+                var captionField = that.sourceNode.getAttributeFromDatasource('captionField');
                 var filterCb;
                 if(typeof(filter)=='string'){
                     filter = filter.split(',');
@@ -405,7 +405,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
                 data = {labels:[],datasets:[]};
                 var dskw = {'rows':rows,'datamode':datamode,
                             'filterCb':filterCb,'labels':data.labels,
-                            'columnCaption':columnCaption};
+                            'captionField':captionField};
                 datasets._nodes.forEach(function(n){
                     var v = n.getValue();
                     if(!(v.getNode('enabled')) || v.getItem('enabled')){
@@ -424,7 +424,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         
     },
     
-    mixin_gnr_value:function(value,kw, trigger_reason){  
+    mixin_gnr_storepath:function(value,kw, trigger_reason){  
         this.gnr_updateChart();
     },
     
@@ -453,7 +453,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         this.gnr_updateChart();
     },
 
-    mixin_gnr_columnCaption:function(value,kw, trigger_reason){  
+    mixin_gnr_captionField:function(value,kw, trigger_reason){  
         this.gnr_updateChart();
     },
     mixin_gnr_scalesBag:function(value,kw, trigger_reason){ 

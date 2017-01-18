@@ -140,7 +140,7 @@ class GnrHtmlPage(GnrWebPage):
     def setCssRequires(self):
         css_import_statements_list=[]
         css_requires = getattr(self, 'css_requires', [])
-        css_requires.extend([k.split('.')[0] for k in self.dynamic_css_requires.keys()])
+        css_requires.extend([k.split('.')[0] for k in self.envelope_css_requires.keys()])
         for css_require in css_requires:
              urls =self.getResourceExternalUriList(css_require,'css') or []
              for url in urls:
@@ -151,7 +151,7 @@ class GnrHtmlPage(GnrWebPage):
 
     def setJsRequires(self):
         js_requires = getattr(self, 'js_requires', [])
-        js_requires.extend([k.split('.')[0] for k in self.dynamic_js_requires.keys()])
+        js_requires.extend([k.split('.')[0] for k in self.envelope_js_requires.keys()])
         for js_require in js_requires:
              urls =self.getResourceExternalUriList(js_require,'js',add_mtime=True) or []
              for url in urls:
@@ -234,12 +234,12 @@ class GnrHtmlDojoPage(GnrHtmlPage):
         self.setJsRequires()
         self.setCssRequires()
 
-       #if self.dynamic_css_requires:
-       #    for v in self.dynamic_css_requires.values():
+       #if self.envelope_css_requires:
+       #    for v in self.envelope_css_requires.values():
        #        if v:
        #            page.script('genro.dom.loadCss("%s")' %v)
-       #if self.dynamic_js_requires:
-       #    for v in self.dynamic_js_requires.values():
+       #if self.envelope_js_requires:
+       #    for v in self.envelope_js_requires.values():
        #        if v:
        #            page.script('genro.dom.loadJs("%s")' %v)
         self.main(self.body, *args, **kwargs)

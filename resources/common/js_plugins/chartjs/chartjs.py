@@ -34,4 +34,9 @@ class ChartManager(BaseComponent):
             result.setItem('r_sep',None,caption='-')
         result.setItem('__newchart__',None,caption='!!New Chart')
         return result
+
+class ChartPane(BaseComponent):
+    js_requires='js_plugins/chartjs/chartjs,/_rsrc/js_libs/chroma.min,/_rsrc/js_libs/distinct-colors.min'
+    css_requires='js_plugins/chartjs/chartjs'
+
     

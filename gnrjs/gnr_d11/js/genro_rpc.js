@@ -121,7 +121,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         this.rpc_register = {};
         this.rpc_counter = 0;
         this.rpc_level = 0;
-
+        this.dynRequires = {js:{},css:{}};
     },
 
     hasPendingCall:function(){
@@ -457,13 +457,43 @@ dojo.declare("gnr.GnrRpcHandler", null, {
                 }
             }
         }
-        ;
+    },
+
+    loadRequires:function(envelope){
+        var js_requires = envelope.getItem('js_requires');
+        console.log('js_requires',js_requires)
+        var css_requires = envelope.getItem('css_requires');
+        var jslist = [];
+        var csslist = [];
+        var k;
+        for (k in js_requires){
+            if(!(k in this.dynRequires.js)){
+                if(js_requires[k]){
+                    jslist.push({htype:'script',src:js_requires[k]});
+                }
+                this.dynRequires.js[k] = true;
+            }
+        }
+        for (k in css_requires){
+            if(!(k in this.dynRequires.css)){
+                if(css_requires[k]){
+                    jslist.push({htype:'link',href:css_requires[k]});
+                }
+                this.dynRequires.css[k] = true;
+            }
+        }
+        var urlist = jslist.concat(csslist);
+        if(urlist.length){
+            genro.dom.addHeaders(urlist,function(){
+                genro.wdg.updateWidgetCatalog();
+            });
+        }
     },
 
     resultHandler: function(response, ioArgs, currentAttr) {
         genro._last_rpc = {response:response,ioArgs:ioArgs};
         this.unregister_call(ioArgs);
-        var siteMaintenance = ioArgs.xhr.getResponseHeader('X-GnrSiteMaintenance') 
+        var siteMaintenance = ioArgs.xhr.getResponseHeader('X-GnrSiteMaintenance');
         genro.dev.siteLockedStatus(siteMaintenance!=null);
         var envelope = new gnr.GnrBag();
         try {
@@ -491,6 +521,8 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         if (datachanges) {
             genro.rpc.setDatachangesInData(datachanges);
         }
+        var req,url;
+        this.loadRequires(envelope);
         var childDataChanges = envelope.getItem('childDataChanges');
         if(childDataChanges){
             childDataChanges.forEach(function(n){
@@ -507,7 +539,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
                 genro.setLocStatus(locStatus);
             }
             if (currentAttr) {
-                var attr = objectUpdate({}, currentAttr);
+                attr = objectUpdate({}, currentAttr);
                 if (!envNode) {
                     console.log(envNode);
                     debugger;

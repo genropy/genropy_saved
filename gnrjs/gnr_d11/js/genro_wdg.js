@@ -125,8 +125,6 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             tag = htmlspace[i];
             this.namespace[tag.toLowerCase()] = ['html',tag];
         }
-        ;
-
         this.widgetcatalog = {'CheckBox':'dijit.form.CheckBox',
             'RadioButton':'dijit.form.CheckBox',
             'ComboBox':'dijit.form.ComboBox',
@@ -204,6 +202,9 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'codemirror':'',
             'LightButton':''
         };
+        this.updateWidgetCatalog();
+    },
+    updateWidgetCatalog:function(){
         var tag;
         for (tag in this.widgetcatalog) {
             this.namespace[tag.toLowerCase()] = ['dojo',tag];

@@ -71,7 +71,6 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         if (typeof(sourceNode) == 'string') {
             sourceNode = this.sourceRoot.getValue().getNode(sourceNode);
         }
-        ;
         if (this.highlightedNode) {
             domnode = this.highlightedNode.getDomNode();
             if (domnode) {
@@ -101,7 +100,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         if (!this.building) {
             this.building = true;
             while (this.pendingBuild.length > 0) {
-                var kw = this.pendingBuild.pop();
+                kw = this.pendingBuild.pop();
                 dojo.hitch(this, '_trigger_' + kw.evt)(kw);
             }
             this.building = false;
@@ -317,7 +316,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
     },
 
     getNode:function(obj,autocreate) {
-        var autocreate = autocreate===false?false:true;
+        autocreate = autocreate===false?false:true;
         if (!obj) {
             return this._main.getNode('main');
         }
@@ -355,7 +354,6 @@ dojo.declare("gnr.GnrSrcHandler", null, {
     },
 
     startUp:function(source) {//nome troppo generico?
-      
         this._main.setItem('main', source);
         this.sourceRoot = source;
         this._started=true;

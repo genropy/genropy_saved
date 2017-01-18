@@ -44,15 +44,11 @@ class TableScriptHandler(BaseComponent):
             if py:
                 self.mixinComponent(py)
         for css in css_requires.split(','):
-            if css and not css in self.dynamic_css_requires and not css in self.css_requires:
-                url = self.getResourceUri(css,'css',add_mtime=True)
-                if url:
-                    pane.dataController('genro.dom.loadCss(url)' ,url=url,_onBuilt=True)
+            if css and css not in self.envelope_css_requires and css not in self.css_requires:
+                self.envelope_css_requires[css] =  self.getResourceUri(css,'css',add_mtime=True)
         for js in js_requires.split(','):
-            if js and not js in self.dynamic_js_requires and not js in self.js_requires:
-                url = self.getResourceUri(js,'js',add_mtime=True)
-                if url:
-                    pane.dataController('genro.dom.loadJs(url)', url=url,_onBuilt=True)
+            if js and js not in self.envelope_js_requires and js not in self.js_requires:
+                self.envelope_js_requires[js] = self.getResourceUri(js,'js',add_mtime=True)
             
     def table_script_plan(self,bar,plan_tag='admin',**kwargs):
         if self.application.checkResourcePermission(plan_tag,self.userTags):

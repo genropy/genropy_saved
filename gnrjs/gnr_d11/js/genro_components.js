@@ -998,6 +998,7 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
         return pane._('ContentPane','remoteTH',{
             overflow:'hidden',
             remote:'th_remoteTableHandler',
+            remote_py_requires:'th/th:TableHandler',
             remote_thkwargs:kw
         });
     },

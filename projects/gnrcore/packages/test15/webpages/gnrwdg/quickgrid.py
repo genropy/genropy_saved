@@ -16,10 +16,10 @@ class GnrCustomWebPage(object):
         t = pane.table().tbody()
         r = t.tr()
         self.quickGridEditable(r.td(border='1px solid silver',padding='4px'),pos='TL')
-       #self.quickGridEditable(r.td(border='1px solid silver',padding='4px'),pos='TR')
-       #r = t.tr()
-       #self.quickGridEditable(r.td(border='1px solid silver',padding='4px'),pos='BL')
-       #self.quickGridEditable(r.td(border='1px solid silver',padding='4px'),pos='BR')
+        #self.quickGridEditable(r.td(border='1px solid silver',padding='4px'),pos='TR')
+        #r = t.tr()
+        #self.quickGridEditable(r.td(border='1px solid silver',padding='4px'),pos='BL')
+        #self.quickGridEditable(r.td(border='1px solid silver',padding='4px'),pos='BR')
 
 
     def quickGridEditable(self,pane,pos=None):

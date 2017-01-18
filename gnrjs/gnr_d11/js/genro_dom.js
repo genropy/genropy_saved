@@ -28,6 +28,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
 
     constructor: function(application) {
         this.application = application;
+        this.pendingHeaders = {};
         this.css3AttrNames = ['rounded','gradient','shadow','transform','transition','zoom','filter'];
         this.styleAttrNames = ['height', 'width','top','left', 'right', 'bottom', 'resize',
             'visibility','opacity', 'overflow', 'float', 'clear', 'display',
@@ -146,20 +147,21 @@ dojo.declare("gnr.GnrDomHandler", null, {
         */
 
         if (typeof(headers)=='string'){
-            headers = headers.split(',')
+            headers = headers.split(',');
         }
-        var pendingHeaders = {};
         var firstHead = document.getElementsByTagName("head")[0];
         var waitCb = function(url){
-            objectPop(pendingHeaders,url);
-            if(!objectNotEmpty(pendingHeaders)){
+            objectPop(genro.dom.pendingHeaders,url);
+            if(!objectNotEmpty(genro.dom.pendingHeaders)){
                 cb();
             }
-        }
+        };
         headers.forEach(function(h){
             if(typeof(h)=='string'){
                 h = {url:h,htype:stringEndsWith(h,'.js')?'script':'link'};
             }
+            var original_h = objectUpdate({},h);
+            h = objectUpdate({},h);
             var htype = objectPop(h,'htype');
             var e = document.createElement(htype);
             var url = objectPop(h,'url');
@@ -177,11 +179,11 @@ dojo.declare("gnr.GnrDomHandler", null, {
             for (var k in h){
                 e[k] = h[k];
             }
-            pendingHeaders[url] = true;
+            genro.dom.pendingHeaders[url] = true;
             firstHead.appendChild(e);
             e.onload = function(){
-                waitCb(url)
-            }
+                waitCb(url);
+            };
         });
     },
 

@@ -1488,11 +1488,15 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                                 if(result.error){
                                     genro.dlg.alert('Error in remote '+result.error,'Error')
                                 }else{
-                                    that.replaceContent(result);
-                                }
-                                
-                                if (_onRemote) {
-                                    _onRemote();
+                                    that.watch('checkPendingRequirs',function(){
+                                        console.log(genro.dom.pendingHeaders);
+                                        return !objectNotEmpty(genro.dom.pendingHeaders);
+                                    },function(){
+                                        that.replaceContent(result)
+                                        if (_onRemote) {
+                                            _onRemote();
+                                        }
+                                    });
                                 }
                             });
     },
