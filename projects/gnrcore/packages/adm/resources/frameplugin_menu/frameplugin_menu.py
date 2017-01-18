@@ -80,8 +80,11 @@ class MenuIframes(BaseComponent):
                         var selectingPageKw = objectUpdate({name:node.label,pkg_menu:inattr.pkg_menu,"file":null,table:null,
                                                             formResource:null,viewResource:null,fullpath:$1.fullpath,
                                                             modifiers:$1.modifiers},node.attr);
-
-                        if (selectingPageKw.externalWindow==true || selectingPageKw.modifiers == 'Shift' || genro.isMobile){
+                        if (genro.isMobile){
+                            genro.framedIndexManager.makePageUrl(selectingPageKw);
+                            genro.openWindow(selectingPageKw.url,selectingPageKw.label);
+                        }
+                        else if (selectingPageKw.externalWindow==true || selectingPageKw.modifiers == 'Shift'){
                             genro.publish("newBrowserWindowPage",selectingPageKw);
                         }else{
                             if(labelClass.indexOf('menu_existing_page')<0){
