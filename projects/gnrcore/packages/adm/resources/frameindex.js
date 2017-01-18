@@ -202,9 +202,8 @@ dojo.declare("gnr.FramedIndexManager", null, {
              genro.publish({extWin:'DOCUMENTATION',topic:'onSelectedFrame'});
         })
     },
-
     newBrowserWindowPage:function(kw){
-        this.makePageUrl(kw)
+        this.makePageUrl(kw);
         if(kw.rootPageName in genro.externalWindowsObjects){
             genro.externalWindowsObjects[kw.rootPageName].focus();
             return;
@@ -218,7 +217,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         w.resizeTo(externalWindowKw.width,externalWindowKw.height);
         var that = this;
         var url = kw.url;
-        var windowKey = kw.rootPageName
+        var windowKey = kw.rootPageName;
         this.subscribeExternalWindow(w,windowKey);
         var b = this.externalWindowsBag();
         b.setItem(windowKey, null,{caption:kw.label,url:url,windowKey:windowKey});
