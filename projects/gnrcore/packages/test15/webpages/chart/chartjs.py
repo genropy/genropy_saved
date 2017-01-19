@@ -124,7 +124,7 @@ class GnrCustomWebPage(object):
                     captionField='sigla',
                     configurator=True,
                     datasetFields="tot_superficie",
-                    chartType='bar')
+                    chartType='bar',nodeId='mychart')
 
         bc.contentPane(region='center').plainTableHandler(table='glbl.provincia',
                                                 condition='$regione=:reg',
@@ -148,6 +148,25 @@ class GnrCustomWebPage(object):
 
         bc.chartPane(connectedTo=th.view.grid,  
                     region='bottom',height='500px',
+                    configurator=True,
+                    chartType='bar')
+
+    def test_5_paletteChart(self,pane):
+        bc = pane.borderContainer(height='800px',_anchor=True)
+        fb = bc.contentPane(region='top').formbuilder(cols=1,border_spacing='3px')
+        fb.dbSelect(value='^.regione',dbtable='glbl.regione',lbl='Regione')
+        fb.dataFormula('.regione','reg',reg='LOM',_onStart=True)
+        
+        #bc.framePane(frameCode='pippo',region='right',width='200px')
+        th = bc.contentPane(region='center').plainTableHandler(table='glbl.provincia',
+                                                condition='$regione=:reg',
+                                                condition_reg='^#ANCHOR.regione',
+                                                grid_selectedPkeys='.righe_pkeys',
+                                                viewResource='ViewTestGraph')
+        bar = th.view.top.bar.replaceSlots('#','#,chartPalette,5')
+        bar.chartPalette.paletteChart(connectedTo=th.view.grid, 
+                    title='Chart Province', 
+                    region='bottom',height='500px',width='700px',dockButton=True,
                     configurator=True,
                     chartType='bar')
 

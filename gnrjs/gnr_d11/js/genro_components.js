@@ -59,7 +59,7 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
             sc.forEach(function(n){
                 delete n.attr.tag;
                 subtag_items.setItem(n.label,children.popNode(n.label));
-            })
+            });
             subtag_items._subtag_handler = this.subtags[tag];
             result[tag] = subtag_items;
         }
@@ -982,7 +982,7 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
     },
     createContent:function(sourceNode, kw,children) {
         kw['contentWidget'] = 'FramePane';
-        kw['center_overflow'] = 'hidden'
+        kw['center_overflow'] = 'hidden';
         var pane = sourceNode._('PalettePane',kw);
         if(kw.viewResource){
             return this.createContent_remoteTableHandler(pane,sourceNode,kw);

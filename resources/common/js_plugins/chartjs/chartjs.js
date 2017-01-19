@@ -2,6 +2,28 @@ genro.setAliasDatapath('CHARTJS_DFLT','gnr.chartjs.defaults');
 genro.setAliasDatapath('CHARTJS_GLOB','gnr.chartjs.defaults.global');
 genro.chartjs =  {
     chartTypes:'bar,line,bubble,pie,doughnut,polarArea,radar,scatter',
+
+    openPaletteChart:function(kw){
+        //kw.chartCode
+        var chartCode = objectPop(kw,'chartCode');
+        if(chartCode){
+            var wdg = genro.wdgById(chartCode+'_floating');
+            if(wdg){
+                wdg.show();
+                wdg.bringToTop();
+                return;
+            }
+            kw.nodeId = chartCode;
+        }
+        
+        genro.src.getNode()._('div',chartCode);
+        var node = genro.src.getNode(chartCode).clearValue();
+        node.freeze();
+        kw.dockTo = kw.dockTo || 'dummyDock:open';
+        return node._('PaletteChart',kw);
+    },
+
+
     openGridChart:function(kw){
         var grid = objectPop(kw,'grid');
         var sn = grid.sourceNode;
@@ -704,25 +726,9 @@ genro.chartjs =  {
     },
     chartPane_config:function(){
 
-    },
-
+    }
 };
 
-//openPaletteChart:function(kw){
-   //    //kw.chartCode
-   //    var chartCode = objectPop(kw,'chartCode');
-   //    var wdg = genro.wdgById(chartCode+'_floating');
-   //    if(wdg){
-   //        wdg.show();
-   //        wdg.bringToTop();
-   //        return;
-   //    }
-   //    genro.src.getNode()._('div',chartCode);
-   //    var node = genro.src.getNode(chartCode).clearValue();
-   //    node.freeze();
-   //    var paletteAttr = {'paletteCode':code,'dockTo':'dummyDock:open','width':'600px','height':'500px'};
-   //    var palette = node._('paletteChart',chartCode,objectUpdate(paletteAttr,kw));
-   //},
 
 
 
@@ -730,22 +736,13 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw, children){
         var gnrwdg = sourceNode.gnrwdg;
         var rootKw = objectExtract(kw,'height,width,region,side');
-        var connectedTo = objectPop(kw,'connectedTo');
-        if(typeof(connectedTo)=='string'){
-            if(sourceNode.isPointerPath(connectedTo)){
-                connectedTo = sourceNode.currentFromDatasource(connectedTo);
-            }else{
-                connectedTo = genro.nodeById(connectedTo);
-            }
-        }
-        if(connectedTo){
-            gnrwdg.connectedWidgetId = connectedTo.attr.nodeId;
-            genro.assert(gnrwdg.connectedWidgetId,'connectedTo must have a nodeId');
-        }
-        var chartNodeId = objectPop(kw,'nodeId') || 'chart_'+ (gnrwdg.connectedWidgetId || sourceNode.getStringId());
+        gnrwdg.connectedWidgetId = this.getConnectedWidgetId(sourceNode,objectPop(kw,'connectedTo'));
+        var chartNodeId = objectPop(kw,'nodeId') || this.autoChartNodeId(gnrwdg.connectedWidgetId);
         gnrwdg.chartNodeId = chartNodeId;
         sourceNode.attr.nodeId = 'cp_' +chartNodeId;
-        sourceNode.attr._workspace = true;
+        if(objectPop(kw,'_workspace')!==false){
+            sourceNode.attr._workspace = true;
+        }
         gnrwdg.defaultDatasetFields = objectPop(kw,'datasetFields');
         gnrwdg.defaultChartType = objectPop(kw,'chartType','bar');
         gnrwdg.defaultCaptionField = objectPop(kw,'captionField');
@@ -787,9 +784,30 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         gnrwdg.chartCenter(rootbc,kw);
         return rootbc;
     },
+
+    autoChartNodeId:function(connectedWidgetId){
+        return  'chart_'+ (connectedWidgetId || genro.getCounter());
+    },
+
+    getConnectedWidgetId:function(sourceNode,connectedTo){
+        var connectedWidgetId;
+        if(typeof(connectedTo)=='string'){
+            if(sourceNode.isPointerPath(connectedTo)){
+                connectedTo = sourceNode.currentFromDatasource(connectedTo);
+            }else{
+                connectedTo = genro.nodeById(connectedTo);
+            }
+        }
+        if(connectedTo){
+            connectedWidgetId = connectedTo.attr.nodeId;
+            genro.assert(connectedWidgetId,'connectedTo must have a nodeId');
+        }
+        return connectedWidgetId;
+    },
+
     gnrwdg_setLoadMenuData:function(){
         var kw = {'objtype':'chartjs',
-                  'flags':genro.getData('gnr.pagename')+'_'+this.connectedWidgetId,
+                  'flags':genro.getData('gnr.pagename')+'_'+(this.connectedWidgetId || this.chartNodeId),
                     'table':this.table};
         var result = genro.serverCall('_table.adm.userobject.userObjectMenu',kw) || new gnr.GnrBag();
         if(result.len()){
@@ -834,16 +852,18 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
             var widgetNode = genro.nodeById(this.connectedWidgetId);
             if(widgetNode.attr.structpath){
                 var structbag = widgetNode.getRelativeData(widgetNode.attr.structpath);
-                structbag.getItem('#0.#0').forEach(function(n){
-                    var c = objectUpdate({},n.attr);
-                    if((c.dtype || 'T') in types && !(c.field in s)){
-                        var f = c.field_getter || c.field;
-                        f = f.replace(/\W/g, '_');
-                        c.code = f;
-                        s[f] = true;
-                        result.push(c);
-                    }
-                });
+                if(structbag){
+                    structbag.getItem('#0.#0').forEach(function(n){
+                        var c = objectUpdate({},n.attr);
+                        if((c.dtype || 'T') in types && !(c.field in s)){
+                            var f = c.field_getter || c.field;
+                            f = f.replace(/\W/g, '_');
+                            c.code = f;
+                            s[f] = true;
+                            result.push(c);
+                        }
+                    });
+                }
             }
         }else{
             var storebag = this.getData();
@@ -965,8 +985,9 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         this.setLoadMenuData();
 
         var confframe = parentBc._('FramePane',objectUpdate(confkw,{frameCode:this.chartNodeId+'_options'}));
-        var bar = confframe._('slotBar',{toolbar:true,side:'top',slots:'5,fulloptions,refresh,*,loadMenu,saveBtn,5'});
+        var bar = confframe._('slotBar',{toolbar:true,side:'top',slots:'5,loadMenu,2,chartTitle,*,fulloptions,refresh,saveBtn,5'});
         var that = this;
+        bar._('div','chartTitle',{innerHTML:'^#WORKSPACE.metadata.description?=(#v || "New Chart")',font_weight:'bold',font_size:'.9em',color:'#666'});
         bar._('slotButton','fulloptions',{label:'Full Options',iconClass:'iconbox gear',action:function(){
             genro.dev.openBagInspector(this.absDatapath('#WORKSPACE.options'),{title:'Full Options'});
         }});
@@ -1130,9 +1151,12 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         var that = this;
         var instanceCode = chartNode.getRelativeData('#WORKSPACE.metadata.code');
         var chartPars = chartNode.getRelativeData('#WORKSPACE').deepCopy();
+        var datapath = chartNode.absDatapath('#WORKSPACE.metadata');
         chartPars.popNode('metadata');
         chartPars.popNode('filter');
         chartPars.popNode('options');
+        chartPars.popNode('loadMenu');
+
         var options = chartNode.getRelativeData(chartNode.attr.optionsBag);
         var savedOptions = new gnr.GnrBag();
         options.walk(function(n){
@@ -1143,7 +1167,6 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         });
         chartPars.setItem('savedOptions',savedOptions);
         saveCb = function(dlg) {
-            var datapath = chartNode.absDatapath('#WORKSPACE.metadata');
             var metadata = genro.getData(datapath);
             var pagename = genro.getData('gnr.pagename');
             var flags = metadata.getItem('flags');
@@ -1195,8 +1218,26 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
                 },1);
             });
         }
-
     },
+});
 
 
+
+dojo.declare("gnr.widgets.PaletteChart", gnr.widgets.ChartPane, {
+    createContent:function(sourceNode, kw, children){
+        var palettePars = objectExtract(kw,'paletteCode,title,height,width,top,right,dockButton,dockTo');
+        if(palettePars.dockButton===true){
+            palettePars.dockButton = {iconClass:'iconbox chart_bar'};
+        }
+        palettePars._lazyBuild = true;
+        palettePars._workspace = true;
+        var connectedWidgetId = this.getConnectedWidgetId(sourceNode,kw.connectedTo);
+        var chartNodeId = kw.nodeId || this.autoChartNodeId(connectedWidgetId);
+        palettePars.paletteCode = palettePars.paletteCode || chartNodeId;
+        palettePars.title = palettePars.title || 'Chart';
+        kw._workspace = false;
+        var palette = sourceNode._('palettePane',palettePars);
+        var chartPane = palette._('ChartPane','chartPane',kw);
+        return chartPane;
+    }
 });

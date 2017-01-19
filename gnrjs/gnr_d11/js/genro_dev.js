@@ -35,7 +35,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
     
         
     inspectConnect:function(pane){
-        var pane = pane || genro.domById('mainWindow');
+        pane = pane || genro.domById('mainWindow');
         dojo.connect(pane,'onmousemove',function(e){
             if(e.altKey && e.shiftKey){
                 var sourceNode = genro.src.enclosingSourceNode(e.target);
@@ -262,7 +262,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
 
     relationExplorer:function(table, title, rect) {
-        var rect = rect || {'top':'10px','right':'10px','height':'300px','width':'200px'};
+        rect = rect || {'top':'10px','right':'10px','height':'300px','width':'200px'};
         var code = table.replace('.', '_');
         genro.src.getNode()._('div', '_relationExplorer_' + code);
         var node = genro.src.getNode('_relationExplorer_' + code).clearValue();
@@ -286,7 +286,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
     
     fieldsTree:function(pane,table,kw){
-        var kw = kw || {};
+        kw = kw || {};
         var path = kw.explorerPath || 'gnr.relation_explorers.' + table;
         var checkPermissions = objectPop(kw,'checkPermissions');
         var dragCode = objectPop(kw,'dragCode') || 'gnrdbfld_'+table.replace('.', '_');
@@ -362,13 +362,13 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
 
     updateDebuggerStepBox:function(callcounter,data){
-        var debugger_box = dojo.byId('pdb_root')
+        var debugger_box = dojo.byId('pdb_root');
         var debuggerStepBox = dojo.byId('_debugger_step_'+callcounter);
         if(!debuggerStepBox){
             debuggerStepBox = document.createElement('div');
             debuggerStepBox.setAttribute('id','_debugger_step_'+callcounter);
             debuggerStepBox.setAttribute('class','pdb_debugger_step');
-            debugger_box.appendChild(debuggerStepBox)
+            debugger_box.appendChild(debuggerStepBox);
         }else{
             dojo.removeClass(debuggerStepBox,'pdb_running');
             debuggerStepBox.removeChild(debuggerStepBox.firstChild);
@@ -376,21 +376,21 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var container = document.createElement('div');
         var message = document.createElement('div');
         var footer = document.createElement('div');
-        footer.setAttribute('class','pdb_debugger_step_footer')
-        container.appendChild(message)
-        container.appendChild(footer)
-        debuggerStepBox.appendChild(container)
+        footer.setAttribute('class','pdb_debugger_step_footer');
+        container.appendChild(message);
+        container.appendChild(footer);
+        debuggerStepBox.appendChild(container);
         message.innerHTML = dataTemplate('<table><tbody><tr><td class="pdb_label">Rpc:</td><td>$methodname</td></tr><tr><td class="pdb_label">Module:</td><td>$filename</td><tr><td class="pdb_label">Function:</td><td>$functionName</td></tr><td class="pdb_label">Line:</td><td>$lineno</td></tr></tbody></table>',data);
         var link = document.createElement('div');
-        link.setAttribute('class','pdb_footer_button pdb_footer_button_right')
-        link.innerHTML = 'Debug'
-        link.setAttribute('onclick',dataTemplate("genro.dev.openDebugInIde('$pdb_id','$debugger_page_id');",data))
-        footer.appendChild(link)
+        link.setAttribute('class','pdb_footer_button pdb_footer_button_right');
+        link.innerHTML = 'Debug';
+        link.setAttribute('onclick',dataTemplate("genro.dev.openDebugInIde('$pdb_id','$debugger_page_id');",data));
+        footer.appendChild(link);
         link = document.createElement('div');
-        link.setAttribute('class','pdb_footer_button pdb_footer_button_left')
-        link.innerHTML = 'Continue'
-        link.setAttribute('onclick',dataTemplate("dojo.addClass(dojo.byId('_debugger_step_"+callcounter+"'),'pdb_running'); genro.dev.continueDebugInIde('$pdb_id','$debugger_page_id',"+callcounter+");",data))
-        footer.appendChild(link)
+        link.setAttribute('class','pdb_footer_button pdb_footer_button_left');
+        link.innerHTML = 'Continue';
+        link.setAttribute('onclick',dataTemplate("dojo.addClass(dojo.byId('_debugger_step_"+callcounter+"'),'pdb_running'); genro.dev.continueDebugInIde('$pdb_id','$debugger_page_id',"+callcounter+");",data));
+        footer.appendChild(link);
     },
 
     continueDebugInIde:function(pdb_id,debugger_page_id,callcounter){

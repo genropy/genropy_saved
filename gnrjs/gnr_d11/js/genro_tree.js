@@ -295,7 +295,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                     }
                     this._filteringValue = v;
                     var vl = v.length;
-                    var delay = vl==1?4000:vl==2?2000:vl==3?500:150;
+                    var delay = vl==1?3000:vl==2?1000:vl==3?300:150;
                     var that = this;
                     sourceNode.delayedCall(function(){
                         that.applyFilter(search_kw);
@@ -441,7 +441,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                         }
                     });
                 }else{
-                    var v = n.getValue();
+                    var v = n.getValue(mode=='static'?'static':null);
                     if(v instanceof gnr.GnrBag){
                         filterForEach(v,cb,mode);
                     }else{
