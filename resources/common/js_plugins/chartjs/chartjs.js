@@ -5,6 +5,10 @@ genro.chartjs =  {
 
     openPaletteChart:function(kw){
         //kw.chartCode
+        if(!('chroma' in window)){
+            genro.dom.loadJs('/_rsrc/js_libs/chroma.min.js',function(){});
+            genro.dom.loadJs('/_rsrc/js_libs/distinct-colors.min.js');
+        }
         var chartCode = objectPop(kw,'chartCode');
         if(chartCode){
             var wdg = genro.wdgById(chartCode+'_floating');
@@ -15,353 +19,43 @@ genro.chartjs =  {
             }
             kw.nodeId = chartCode;
         }
-        
+        chartCode = chartCode || '_chart_'+genro.getCounter();
         genro.src.getNode()._('div',chartCode);
         var node = genro.src.getNode(chartCode).clearValue();
         node.freeze();
         kw.dockTo = kw.dockTo || 'dummyDock:open';
-        return node._('PaletteChart',kw);
+        if(kw.configurator!==false){
+            kw.configurator = true;
+        }
+        kw.top = kw.top || '20px';
+        kw.right = kw.right || '20px';
+        kw.height = kw.height || '400px';
+        kw.width = kw.width || '700px';
+        var palette = node._('PaletteChart',kw);
+        node.unfreeze();
+        return palette;
     },
-
 
     openGridChart:function(kw){
-        var grid = objectPop(kw,'grid');
-        var sn = grid.sourceNode;
-        var chartNode = this.openChart({
-                                    connectedWidgetId:sn.attr.nodeId,
-                                    userObjectId:kw.pkey,
-                                    storepath:sn.absDatapath(sn.attr.storepath),
-                                    title:kw.caption || 'New Chart',
-                                    datamode:grid.datamode,
-                                    chartMenuPath:sn.absDatapath('.chartsMenu'),
-                                    captionGetter:function(kw){
-                                        return genro.chartjs.gridCaptionGetter(grid,kw);
-                                    },
-                                    datasetGetter:function(kw){
-                                        return genro.chartjs.gridDatasetGetter(grid,kw);
-                                    },
-                                });
-        chartNode.setRelativeData('.filter',grid.getSelectedPkeys());
-        var chartNodeId = chartNode.attr.nodeId;
-        sn.subscribe('onSelectedRow',function(kw){
-            genro.nodeById(chartNodeId).setRelativeData('.filter',kw.selectedPkeys);
-        });
+        kw.connectedTo = objectPop(kw,'grid').sourceNode;
+        kw.userObjectId = objectPop(kw,'pkey');
+        return this.openPaletteChart(kw);
     },
 
-    gridCaptionGetter:function(grid,kw){
-        var r = grid.structbag().getItem('#0.#0');
-        var text_types = {'T':true,'A':true,'C':true};
-        var _id = kw._id;
-        var _querystring = kw._querystring;
-        var data = [];
-        r.forEach(function(n){
-            var dtype = n.attr.dtype || 'T';
-            if(!(dtype in text_types)){
-                return;
-            }
-            var caption = n.attr.name || n.attr.field;
-            if(_id && n.attr.field==_id || _querystring && caption.toLowerCase().indexOf(_querystring.slice(0,-1).toLowerCase())>=0){
-                var f = n.attr.field_getter || n.attr.field;
-                f = f.replace(/\W/g, '_');
-                data.push({_pkey:f,caption:caption});
-            }
-        });
-        return {data:data};
+    _defaultDict:{
+        backgroundColor:function(kw){
+            return chroma(kw._baseColor).alpha(0.6).css();
+        },
+        borderColor:function(kw){
+            return chroma(kw._baseColor).css();
+        },
+        borderWidth:3,
     },
 
-    gridDatasetGetter:function(grid,kw){
-        var result = [];
-        var numeric_types = {'I':true,'L':true,'N':true,'R':true};
-        var s = {};
-        grid.structbag().getItem('#0.#0').forEach(function(n){
-            var c = objectUpdate({},n.attr);
-            if(c.dtype in numeric_types && !(c.field in s)){
-                var f = c.field_getter || c.field;
-                f = f.replace(/\W/g, '_');
-                c.code = f;
-                s[f] = true;
-                result.push(c);
-            }
-        });
-        return result;
-    },
-
-    saveChart:function(kw) {
-        var connectedWidgetId = kw.connectedWidgetId || kw.chartNodeId;
-        var chartNode =genro.nodeById(kw.chartNodeId);
-        var widgetSourceNode = genro.nodeById(connectedWidgetId);
-        var that = this;
-        var chartCode = chartNode.getRelativeData('.metadata.code');
-        var datapath = chartNode.absDatapath('.metadata');
-        var chartPars = chartNode.getRelativeData().deepCopy();
-        chartPars.popNode('metadata');
-        chartPars.popNode('filter');
-        chartPars.popNode('options');
-        var options = chartNode.getRelativeData(chartNode.attr.optionsBag);
-        var savedOptions = new gnr.GnrBag();
-        options.walk(function(n){
-            if(n.attr._userChanged){
-                var fullpath = n.getFullpath(null,options);
-                savedOptions.setItem(fullpath.replace(/\./g, '_'),null,{path:fullpath,value:n.getValue()});
-            }
-        });
-        chartPars.setItem('savedOptions',savedOptions);
-        saveCb = function(dlg) {
-            var datapath = chartNode.absDatapath('.metadata');
-            var metadata = genro.getData(datapath);
-            var pagename = genro.getData('gnr.pagename');
-            var flags = metadata.getItem('flags');
-            metadata.setItem('flags',pagename+'_'+connectedWidgetId);
-            genro.serverCall('_table.adm.userobject.saveUserObject',
-                            {'objtype':'chartjs','metadata':metadata,
-                            'data':chartPars,
-                            table:widgetSourceNode.attr.table},
-                            function(result) {
-                                dlg.close_action();
-                                var menuData = widgetSourceNode.getRelativeData('.chartsMenu');
-                                if(menuData){
-                                    menuData.getParentNode().getResolver().reset();
-                                }
-                            });
-        };
-        genro.dev.userObjectDialog(chartCode ? 'Save Chart ' + chartCode : 'Save New Chart',datapath,saveCb);
-    },
-
-    loadChart:function(kw){
-        var userObjectId = kw.userObjectId;
-        var sourceNode = genro.nodeById(kw.chartNodeId);
-        genro.serverCall('_table.adm.userobject.loadUserObject', {pkey:userObjectId}, 
-            function(result){
-                sourceNode.setRelativeData('.metadata',new gnr.GnrBag(result.attr));
-                var data = result.getValue();
-                var savedOptions = data.pop('savedOptions');
-                var scales = data.pop('scales');
-                if(scales && scales.len() && (scales.getItem('xAxes').len()>1 || scales.getItem('yAxes').len()>1)){
-                    sourceNode.setRelativeData('.scales',scales);
-                    sourceNode.publish('refresh');
-                }
-
-                data.forEach(function(n){
-                    sourceNode.setRelativeData('.'+n.label,n.getValue(),n.attr);
-                });
-                savedOptions.forEach(function(n){
-                    sourceNode.setRelativeData('.options.'+n.attr.path,n.attr.value);
-                });
-            });
-    },
-
-    openChart:function(kw){
-        if(!('chroma' in window)){
-            genro.dom.loadJs('/_rsrc/js_libs/chroma.min.js',function(){});
-            genro.dom.loadJs('/_rsrc/js_libs/distinct-colors.min.js');
-        }
-        var connectedWidgetId = objectPop(kw,'connectedWidgetId');
-        var code = connectedWidgetId+'_chart_'+(kw.userObjectId || '_newchart_')+genro.getCounter();
-        var title = objectPop(kw,'title');
-        var paletteAttr = {'paletteCode':code,'title':title,'dockTo':false,
-                            'width':'600px','height':'500px'};
-        var storepath = objectPop(kw,'storepath');
-        var wdg = genro.wdgById(code+'_floating');
-        var chartNodeId = code+'_cjs';
-        kw.chartNodeId = chartNodeId;
-        if(wdg){
-            wdg.show();
-            wdg.bringToTop();
-            return genro.nodeById(chartNodeId);
-        }
-        genro.src.getNode()._('div',code);
-        var node = genro.src.getNode(code).clearValue();
-        node.freeze();
-        var palette = node._('palettePane',code,paletteAttr);
-        var bc = palette._('BorderContainer',{_anchor:true,side:'center',design:'sidebar'});
-        var confframe = bc._('FramePane',{frameCode:code+'_options',region:'right',width:'320px',border_left:'1px solid #ccc',
-                            drawer:kw.parsDrawer || (kw.userObjectId?'close':true), splitter:true });
-        var bar = confframe._('slotBar',{toolbar:true,side:'top',slots:'5,fulloptions,refresh,*,saveBtn,5'});
-        bar._('slotButton','fulloptions',{label:'Full Options',iconClass:'iconbox gear',action:function(){
-            genro.dev.openBagInspector(this.absDatapath('.options'),{title:'Full Options'});
-        }});
-        bar._('slotButton','refresh',{label:'Refresh',iconClass:'iconbox reload',action:function(){
-            genro.nodeById(chartNodeId).publish('refresh');
-        }});
-        bar._('slotButton','saveBtn',{iconClass:'iconbox save',
-                                        action:function(){
-                                            genro.chartjs.saveChart({connectedWidgetId:connectedWidgetId,chartNodeId:chartNodeId});
-                                        }});
-        var confbc = confframe._('BorderContainer',{side:'center'});
-        this._chartParametersPane(confbc,code,kw);
-        var sn = confbc.getParentNode();
-        this.initChartParameters(sn);
-        var chartNode = bc._('ContentPane',{region:'center'})._('chartjs',{
-            nodeId:chartNodeId,
-            storepath:storepath,
-            filter:'^.filter',
-            captionField:'^.captionField',
-            datasets:'^.datasets',            
-            optionsBag:'^.options',
-            scalesBag:'^.scales',
-            chartType:'^.chartType',
-            datamode:kw.datamode,
-            selfsubscribe_refresh:function(){
-                this.rebuild();
-            },
-            selfsubscribe_addAxis:function(kw){
-                var scalesBag = this.getAttributeFromDatasource('scalesBag');
-                var axebag = scalesBag.getItem(kw.axes);
-                if(!axebag){
-                    axebag = new gnr.GnrBag();
-                    scalesBag.setItem(kw.axes,axebag);
-                }
-                var position = kw.axes=='xAxes'?'top':'right';
-                var dkw = {id:kw.id,type:'linear',position:position,scaleLabel:{
-                          labelString:kw.id,
-                          display:true},
-                          gridLines:{drawOnChartArea:false}};
-                axebag.setItem('r_'+axebag.len(),new gnr.GnrBag(dkw),{_autolist:true});
-                this.publish('refresh');
-            }
-        }).getParentNode();
-        node.unfreeze();
-        if(kw.userObjectId){
-            genro.chartjs.loadChart({chartNodeId:chartNodeId,userObjectId:kw.userObjectId});
-        }
-        return chartNode;
-    },
-
-    initChartParameters:function(sourceNode,pkeys){
-        var captionField_all = [];
-        sourceNode.setRelativeData('.datasets',new gnr.GnrBag());
-        sourceNode.setRelativeData('.chartType','bar');
-    },
-
-    updateDatasetsBag:function(chartNodeId){
-        var chartNode = genro.nodeById(chartNodeId);
-        var fields = chartNode.getRelativeData('.datasetFields');
-        var fieldsCaption = chartNode.getRelativeData('.datasetFields?_displayedValue');
-        var currentDatasets = chartNode.getRelativeData('.datasets') || new gnr.GnrBag();
-        var defaultChartType = chartNode.getRelativeData('.chartType');
-        fields = fields? fields.split(','):[];
-        fieldsCaption = fieldsCaption?fieldsCaption.split(','):copyArray(fields);
-        var ridx;
-        currentDatasets.getNodes().forEach(function(n){
-            ridx = fields.indexOf(n.label);
-            if(ridx<0){
-                currentDatasets.popNode(n.label);
-            }else{
-                fields.splice(ridx,1);
-                fieldsCaption.splice(ridx,1);
-            }
-        }); 
-        fields.forEach(function(n,idx){
-            if(!currentDatasets.getNode(n)){
-                var dflt = genro.chartjs.datasetDefaults(defaultChartType);
-                var parameters = new gnr.GnrBag(objectUpdate(dflt,{label:fieldsCaption[idx]}));
-                currentDatasets.setItem(n,new gnr.GnrBag({field:n,enabled:true,chartType:null,
-                                                             parameters:parameters}));
-            }
-        });
-        chartNode.setRelativeData('.datasets',currentDatasets);
-    },
-
-    _chartParametersPane:function(bc,code,pars){
-        var fb = genro.dev.formbuilder(bc._('ContentPane',{region:'top'}),1,{border_spacing:'3px',margin_top:'10px'});
-        fb.addField('filteringSelect',{value:'^.chartType',colspan:1,width:'10em',values:this.chartTypes,lbl:'Type'});
-        var fistCap = pars.captionGetter({_querystring:'*'}).data[0] || {};
-        fb.addField('callbackSelect',{value:'^.captionField',width:'10em',
-                                        lbl_text_align:'right',
-                                        lbl_class:'gnrfieldlabel',
-                                        lbl:_T('Caption'),
-                                        callback:function(kw){
-                                            return pars.captionGetter(kw);},
-                                        parentForm:false,hasDownArrow:true,
-                                        default_value:fistCap._pkey});
-        fb.addField('checkBoxText',{lbl:'Datasets',width:'20em',colspan:1,value:'^.datasetFields',cols:1,valuesCb:function(){
-            var index = {};
-            var result = [];
-            pars.datasetGetter().forEach(function(c){
-                if(!(c.code in index)){
-                    result.push(c.code+':'+(c.name || c.code));
-                    index[c.code] = true;
-                }
-            });
-            return result.join(',');
-        }});
-        bc._('dataController',{script:"genro.chartjs.updateDatasetsBag(chartNodeId);",datasetFields:'^.datasetFields',chartNodeId:pars.chartNodeId});
-        var tc = bc._('TabContainer',{margin:'2px',region:'center'});
-        this.datasetsTab(tc._('ContentPane',{title:'Datasets'}),pars.chartNodeId);
-        this.scalesTab(tc._('BorderContainer',{title:'Scales'}),pars.chartNodeId);
-        this.optionsTab(tc._('BorderContainer',{title:'Options'}));
-    },
-
-    datasetsTab:function(pane,chartNodeId){
-        var grid = pane._('quickGrid',{value:'^.datasets',addCheckBoxColumn:{field:'enabled'}});
-        var that = this;
-        var dtypeWidgets = {'T':'TextBox','B':'Checkbox','L':'NumberTextBox','N':'NumberTextBox'};
-        grid._('column',{'field':'parameters',name:'Parameters',width:'100%',
-                        _customGetter:function(row){
-                            return row.parameters?row.parameters.getFormattedValue():'No Parameters';
-                        },
-                        edit:{modal:true,contentCb:function(pane,kw){
-                            var chartNode = genro.nodeById(chartNodeId);
-                            var chartType = kw.rowDataNode.getValue().getItem('chartType') || chartNode.getRelativeData('.chartType');
-                            var pagesCb = genro.chartjs['_dataset_'+chartType];
-                            var pages;
-                            if(pagesCb){
-                                pages = pagesCb();
-                            }else{
-                                pages = genro.chartjs._dataset__base();
-                            }
-                            var bc = pane._('BorderContainer',{height:'300px',width:'330px',_class:'datasetParsContainer'});
-                            var top = bc._('ContentPane',{region:'top',_class:'dojoxFloatingPaneTitle'})._('div',{innerHTML:'Dataset '+kw.rowDataNode.label});
-                            var tc = bc._('tabContainer',{region:'center',margin:'2px'});
-                            var field,dtype,lbl,editkw;
-                            pages.forEach(function(pageKw){
-                                var pane = tc._('ContentPane',{title:pageKw.title});
-                                var fb = genro.dev.formbuilder(pane,1,{border_spacing:'3px',datapath:'.parameters',margin:'3px',margin_top:'10px'});
-                                pageKw.fields.forEach(function(fkw){
-                                    dtype = fkw.dtype;
-                                    editkw = objectUpdate({},fkw.edit || {});
-                                    editkw.width = editkw.width || (dtype=='N' || dtype=='L') ?'7em':'12em';
-                                    editkw.value = '^.'+fkw.field;
-                                    if(fkw.values){
-                                        editkw.tag =editkw.tag || 'filteringSelect';
-                                        editkw.values = fkw.values;
-                                    }
-                                    editkw.lbl = fkw.lbl;
-                                    if(dtype=='B'){
-                                        editkw.label = objectPop(editkw,'lbl');
-                                    }else{
-                                        editkw.lbl_text_align = 'right';
-                                    }
-                                    fb.addField(objectPop(editkw,'tag') || dtypeWidgets[dtype], editkw);
-                                });
-                            });
-                        }}});
-        grid._('column',{field:'chartType',name:'Type',edit:{tag:'filteringSelect',values:'bar,line,bubble'}});
-
-    },
 
 //CHART OPTIONS
     
-    option_list:'title:Title,legend:Legend,tooltip:Tooltip,hover:Hover,xAxes:X-Axes,yAxes:Y-Axes',
-
-    optionsTab:function(bc){
-        var tc = bc._('tabContainer',{tabPosition:"left-h",region:'center',margin:'2px'});
-        var opcode,optitle,innerBc;
-        this.option_list.split(',').forEach(function(op){
-            op = op.split(':');
-            opcode = op[0];
-            optitle = op[1];
-            innerBc = tc._('BorderContainer',{title:optitle});
-            var top = innerBc._('ContentPane',{region:'top',font_size:'.9em',_class:'commonTitleBar'});
-            top._('div',{innerHTML:optitle,text_align:'center'});
-            if(genro.chartjs['_option_'+opcode]){
-                genro.chartjs['_option_'+opcode](innerBc,{datapath:'.options.'+opcode,region:'center'});
-            }else{
-                innerBc._('ContentPane',{region:'center'})._('div',{innerHTML:'TO DO...'});
-            }
-        });
-    },
-    
+    option_list:'title:Title,legend:Legend,tooltip:Tooltip,hover:Hover,xAxes:X-Axes,yAxes:Y-Axes',    
 
     
     _option_title:function(parent,kw){
@@ -414,15 +108,6 @@ genro.chartjs =  {
 
 //DATASETS PARAMETERS
 
-    _defaultDict:{
-        backgroundColor:function(kw){
-            return chroma(kw._baseColor).alpha(0.6).css();
-        },
-        borderColor:function(kw){
-            return chroma(kw._baseColor).css();
-        },
-        borderWidth:3,
-    },
 
 
     datasetDefaults:function(chartType){
@@ -509,7 +194,7 @@ genro.chartjs =  {
                 {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
         return [{title:'Parameters',fields:b1}];
     },
-    //Scales grids
+//Scales grids
 
     scalesTab:function(bc,chartNodeId){
         var tc = bc._('tabContainer',{tabPosition:"left-h",region:'center',margin:'2px'});
@@ -719,13 +404,6 @@ genro.chartjs =  {
             padding Number  10  Padding between the tick label and the axis. Note: Only applicable to horizontal scales.
             reverse Boolean false   Reverses order of tick labels.
         */
-    },
-
-    chartPane_chart:function(){
-
-    },
-    chartPane_config:function(){
-
     }
 };
 
@@ -779,14 +457,22 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
             gnrwdg.configuratorFrame(rootbc,kw);
         }
         gnrwdg.datamode = objectPop(kw,'datamode') || gnrwdg.datamode;
+        var userObjectId = objectPop(kw,'userObjectId');            
         gnrwdg.setDefaults();
         gnrwdg.setDatasetFields();
         gnrwdg.chartCenter(rootbc,kw);
+        if(userObjectId){
+            sourceNode.watch('waitingBuild',function(){
+                return genro.nodeById(gnrwdg.chartNodeId).externalWidget;
+            },function(){
+                gnrwdg.loadChart(userObjectId);
+            });
+        }
         return rootbc;
     },
 
     autoChartNodeId:function(connectedWidgetId){
-        return  'chart_'+ (connectedWidgetId || genro.getCounter());
+        return  'chart_'+ (connectedWidgetId || '') +'_'+genro.getCounter();
     },
 
     getConnectedWidgetId:function(sourceNode,connectedTo){
@@ -981,7 +667,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
     },
     gnrwdg_configuratorFrame:function(parentBc,kw){
         var confkw = objectPop(kw,'configurator');
-        confkw = confkw===true?{region:'right',drawer:'close',splitter:true,border_left:'1px solid #ccc',width:'320px'}:configurator;        
+        confkw = confkw===true?{region:'right',drawer:(kw.userObjectId || this.defaultDatasetFields)?'close':true,splitter:true,border_left:'1px solid #ccc',width:'320px'}:configurator;        
         this.setLoadMenuData();
 
         var confframe = parentBc._('FramePane',objectUpdate(confkw,{frameCode:this.chartNodeId+'_options'}));
@@ -1183,7 +869,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         genro.dev.userObjectDialog(instanceCode ? 'Save Chart ' + instanceCode : 'Save New Chart',datapath,saveCb);
     },
 
-    gnrwdg_loadChart:function(userObjectId){
+    gnrwdg_loadChart:function(userObjectId,fistLoad){
         var chartNode = genro.nodeById(this.chartNodeId);
         if(userObjectId=='__newchart__'){
             chartNode.freeze();
@@ -1232,8 +918,8 @@ dojo.declare("gnr.widgets.PaletteChart", gnr.widgets.ChartPane, {
         palettePars._lazyBuild = true;
         palettePars._workspace = true;
         var connectedWidgetId = this.getConnectedWidgetId(sourceNode,kw.connectedTo);
-        var chartNodeId = kw.nodeId || this.autoChartNodeId(connectedWidgetId);
-        palettePars.paletteCode = palettePars.paletteCode || chartNodeId;
+        kw.nodeId = kw.nodeId || this.autoChartNodeId(connectedWidgetId);
+        palettePars.paletteCode = palettePars.paletteCode || kw.nodeId;
         palettePars.title = palettePars.title || 'Chart';
         kw._workspace = false;
         var palette = sourceNode._('palettePane',palettePars);

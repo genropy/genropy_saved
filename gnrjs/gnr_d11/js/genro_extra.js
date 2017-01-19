@@ -383,7 +383,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
     },
 
     mixin_gnr_updateChart:function(){
-        if(this.sourceNode._isFreezed){
+        if(this.sourceNode.isFreezed()){
             return;
         }
         var that = this;
@@ -436,7 +436,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
     mixin_gnr_chartType:function(value,kw, trigger_reason){  
         //this.config.type = this.sourceNode.getAttributeFromDatasource('chartType');
         //this.gnr_updateChart();
-        if(this.sourceNode._isFreezed){
+        if(this.sourceNode.isFreezed()){
             return;
         }
         this.sourceNode.rebuild();
@@ -502,7 +502,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
             triggerNode.attr._userChanged = true;
             curr[lastLabel] = lastValue;
         }
-        if(this.sourceNode._isFreezed){
+        if(this.sourceNode.isFreezed()){
             return;
         }
         this.update();
