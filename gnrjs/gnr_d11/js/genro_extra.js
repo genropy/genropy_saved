@@ -378,7 +378,6 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
                 for(k in autoColorsDict){
                     dataset[k].push(chroma(autocol).alpha(autoColorsDict[k]).css());
                 }
-                console.log('chart_row_pars',chart_row_pars);
                 for(k in chart_row_pars){
                     if(isNullOrBlank(dataset[k])){
                         dataset[k] = [];
@@ -391,7 +390,6 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
                 idx++;
             }
         },'static',null,isBagMode);
-        console.log('backgroundColor',dataset.backgroundColor);
         return dataset;
     },
 
@@ -496,9 +494,21 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         var node,val;
         var optlist = optpath.split('.');
         var lastLabel = optlist.pop();
+        var k;
         optlist.forEach(function(chunk){
             node = currOptionBag.getNode(chunk);
-            curr = node.attr._autolist?curr[currOptionBag.index(chunk)]:curr[chunk]; 
+            if(node.attr._autolist){
+                k = currOptionBag.index(chunk);
+                if(isNullOrBlank(curr[k])){
+                    curr[k] = {};
+                }
+                curr = curr[k];
+            }else{
+                if(!(chunk in curr)){
+                    curr[chunk] = {};
+                }
+                curr = curr[chunk];
+            }
             currOptionBag = node.getValue();
         });
         var lastValue = currOptionBag.getItem(lastLabel);

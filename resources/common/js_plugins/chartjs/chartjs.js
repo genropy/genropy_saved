@@ -204,7 +204,7 @@ genro.chartjs =  {
         });
 
     },
-    
+
     scales_xAxes:function(pane,chartType){
         /*
             type    String  "Category"  As defined in Scales.
@@ -354,6 +354,9 @@ genro.chartjs =  {
     },
 
     scalesTick:function(pane){
+        var fb = genro.dev.formbuilder(pane,1,{border_spacing:'3px',margin:'3px',margin_top:'10px',
+                        font_size:'.9em',datapath:'.ticks'});
+        fb.addField('checkbox',{value:'^.beginAtZero',label:'beginAtZero'});
         /*
             autoSkip    Boolean true    If true, automatically calculates how many labels that can be shown and hides labels accordingly. Turn it off to show all labels no matter what
             autoSkipPadding Number  0   Padding between the ticks on the horizontal axis when autoSkip is enabled. Note: Only applicable to horizontal scales.
