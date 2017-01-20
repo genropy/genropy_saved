@@ -46,7 +46,7 @@ class ConfTreeItemForm(BaseComponent):
     js_requires = 'adm_configurator'
     def th_form(self, form):
         bc = form.center.borderContainer()
-        left = bc.roundedGroupFrame(title='Source',region='left',width='200px')
+        left = bc.roundedGroupFrame(title='Source',region='left',width='250px',splitter=True)
         left.dataFormula('#FORM.currentTable','tblid',tblid='^#FORM.record.tblid')
         bc.dataRpc('#FORM.sourceTreeData', self.relationExplorer, 
                             table='^#FORM.currentTable', dosort=False)
@@ -84,7 +84,7 @@ class ConfTreeItemForm(BaseComponent):
             var label ='n_'+v.len();
             v.setItem(label,new gnr.GnrBag(),{caption:caption});
             """,data='=#FORM.record.data',bc=bc.js_widget,currentDestSelectedPath='=#FORM.currentDestSelectedPath',
-                ask=dict(title='Nuovo gruppo',fields=[dict(name='caption',lbl='Caption')]))
+                ask=dict(title='Folder name',fields=[dict(name='caption',lbl='Caption')]))
         tree = right.treeGrid(storepath='#FORM.record.data', 
                     headers=True,
                     _class='fieldsTree',

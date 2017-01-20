@@ -29,7 +29,7 @@ class CommandHandler(object):
         if not table:
             pkglist = [pkg] if pkg else self.db.application.packages.keys()
             for p in pkglist:
-                self.db.package[p].tableBroadcast('clearUserConfiguration')
+                self.db.application.packages[p].tableBroadcast('clearUserConfiguration')
         else:
             self.db.table(table).clearUserConfiguration()
 

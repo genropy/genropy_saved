@@ -28,7 +28,7 @@ class Table(object):
             return f[code]
         types = self.db.table('adm.user_config').getTypeList(item_type)
         tl = [c for c,d in types if c!='_RAW_']
-        if not code in tl:
+        if code not in tl:
             return
         tl = tl[:tl.index(code)]
         tl.reverse()
