@@ -40,7 +40,6 @@ class GnrCustomWebPage(object):
     def test_2_clientmethod(self,pane):
         fb = pane.formbuilder(cols=1, border_spacing='4px')
         fb.callbackSelect(value='^.test',callback="""function(kw){
-                console.log('pars',kw,this)
                 var _id = kw._id;
                 var _querystring = kw._querystring;
                 var data = [{name:'Mario Rossi',addr:'Via del Pero',state:'Milano',_pkey:'mrossi',caption:'Mario Rossi (mrossi)'},
