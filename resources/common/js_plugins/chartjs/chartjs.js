@@ -27,10 +27,6 @@ genro.chartjs =  {
         if(kw.configurator!==false){
             kw.configurator = true;
         }
-        kw.top = kw.top || '20px';
-        kw.right = kw.right || '20px';
-        kw.height = kw.height || '400px';
-        kw.width = kw.width || '700px';
         var palette = node._('PaletteChart',kw);
         node.unfreeze();
         return palette;
@@ -187,6 +183,8 @@ genro.chartjs =  {
                 {field:'borderWidth',dtype:'L',lbl:'borderWidth',multiple:true}];
         return [{title:'Pie',fields:b1}];
     },
+
+
     _dataset__base:function(){
         var b1 = [{field:'label',dtype:'T',lbl:'Label'},
                 {field:'backgroundColor',dtype:'T',edit:{tag:'colorTextBox',mode:'rgba'},lbl:'backgroundColor',multiple:true},
@@ -206,39 +204,7 @@ genro.chartjs =  {
         });
 
     },
-
-    axesGrid:function(parent,kw){
-        var bc = parent._('BorderContainer',{title:kw.title,hidden:kw.hidden});
-        var top = bc._('ContentPane',{region:'top',font_size:'.9em',_class:'commonTitleBar'});
-        top._('div',{innerHTML:kw.title,text_align:'center'});
-        var center = bc._('ContentPane',{region:'center'});
-        var grid = center._('quickGrid',{value:'^.scales.'+kw.mode});
-        var that = this;
-
-        grid._('column',{'field':'parameters',name:'Parameters',width:'100%',
-                        _customGetter:function(row,rowIndex){
-                            var b = new gnr.GnrBag(row);
-                            return b.getFormattedValue();
-                        },
-                        edit:{modal:true,contentCb:function(pane,editkw){
-                            var chartNode = genro.nodeById(kw.chartNodeId);
-                            var chartType = editkw.rowDataNode.getValue().getItem('chartType') || chartNode.getRelativeData('.chartType');
-                            var bc = pane._('BorderContainer',{height:'300px',width:'330px',_class:'datasetParsContainer'});
-                            var top = bc._('ContentPane',{region:'top',_class:'dojoxFloatingPaneTitle'})._('div',{innerHTML:kw.title+' '+editkw.rowDataNode.getValue().getItem('id')});
-                            var center = bc._('TabContainer',{region:'center',margin:'2px'});
-                            that['scales_'+kw.mode](center._('ContentPane',{title:'Main'}),chartType);
-                            if(kw.mode!='radiant'){
-                                that.scales_mode_linear(center);
-                                that.scales_mode_logarithmic(center);
-                                if(kw.mode=='xAxes'){
-                                    that.scales_mode_time(center);
-                                }
-                            }
-                            that.scalesGridlines(center._('ContentPane',{title:'Gridlines Conf.',datapath:'.gridLines'}),chartType);
-                            that.scalesTick(center._('ContentPane',{title:'Tick Conf.',datapath:'.ticks'}),chartType);
-                        }
-                    }});
-    },
+    
     scales_xAxes:function(pane,chartType){
         /*
             type    String  "Category"  As defined in Scales.
@@ -644,7 +610,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
             optionsBag:'^#WORKSPACE.options',
             scalesBag:'^#WORKSPACE.scales',
             chartType:'^#WORKSPACE.chartType',
-            datamode:objectPop(kw,'datamode'),
+            datamode:this.datamode,
             selfsubscribe_refresh:function(){
                 this.rebuild();
             },
@@ -727,6 +693,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
 
     gnrwdg_datasetsTab:function(pane){
         var grid = pane._('quickGrid',{value:'^'+this.sourceNode.absDatapath('#WORKSPACE.datasets'),
+                                    selfDragRows:true,canSort:false,
                                     addCheckBoxColumn:{field:'enabled'}});
         var that = this;
         var dtypeWidgets = {'T':'TextBox','B':'Checkbox','L':'NumberTextBox','N':'NumberTextBox'};
@@ -787,7 +754,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         var top = bc._('ContentPane',{region:'top',font_size:'.9em',_class:'commonTitleBar'});
         top._('div',{innerHTML:kw.title,text_align:'center'});
         var center = bc._('ContentPane',{region:'center'});
-        var grid = center._('quickGrid',{value:'^'+this.sourceNode.absDatapath('#WORKSPACE.scales.'+kw.mode)});
+        var grid = center._('quickGrid',{value:'^'+this.sourceNode.absDatapath('#WORKSPACE.scales.'+kw.mode),canSort:false});
         var that = this;
         grid._('column',{'field':'parameters',name:'Parameters',width:'100%',
                         _customGetter:function(row,rowIndex){
@@ -917,10 +884,14 @@ dojo.declare("gnr.widgets.PaletteChart", gnr.widgets.ChartPane, {
         }
         palettePars._lazyBuild = true;
         palettePars._workspace = true;
+        palettePars.title = palettePars.title || 'Chart';
+        palettePars.top = palettePars.top || '20px';
+        palettePars.right = palettePars.right || '20px';
+        palettePars.height = palettePars.height || '400px';
+        palettePars.width = palettePars.width || '700px';
         var connectedWidgetId = this.getConnectedWidgetId(sourceNode,kw.connectedTo);
         kw.nodeId = kw.nodeId || this.autoChartNodeId(connectedWidgetId);
         palettePars.paletteCode = palettePars.paletteCode || kw.nodeId;
-        palettePars.title = palettePars.title || 'Chart';
         kw._workspace = false;
         var palette = sourceNode._('palettePane',palettePars);
         var chartPane = palette._('ChartPane','chartPane',kw);

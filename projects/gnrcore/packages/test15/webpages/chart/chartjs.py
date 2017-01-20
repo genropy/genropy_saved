@@ -104,9 +104,12 @@ class GnrCustomWebPage(object):
 
     def getTestData(self):
         result = Bag()
-        result.setItem('r_0',Bag(dict(nome='Mario Rossi',eta=30,peso=80,altezza=190)))
-        result.setItem('r_1',Bag(dict(nome='Luigi Bianchi',eta=38,peso=90,altezza=180)))
-        result.setItem('r_2',Bag(dict(nome='Rossella Albini',eta=22,peso=60,altezza=170)))
+        result.setItem('r_0',Bag(dict(nome='Mario Rossi',eta=30,peso=80,altezza=190,
+                                     chart_backgroundColor='red')))
+        result.setItem('r_1',Bag(dict(nome='Luigi Bianchi',eta=38,peso=90,altezza=180,
+                                    chart_backgroundColor='green')))
+        result.setItem('r_2',Bag(dict(nome='Rossella Albini',eta=22,peso=60,altezza=170,
+                                    chart_backgroundColor='navy')))
         return result
 
 
@@ -118,7 +121,7 @@ class GnrCustomWebPage(object):
         
         #bc.framePane(frameCode='pippo',region='right',width='200px')
 
-        bc.chartPane(value='^.glbl_provincia.view.store',
+        c = bc.chartPane(value='^.glbl_provincia.view.store',
                     filter='^.glbl_provincia.view.grid.righe_pkeys',
                     region='bottom',height='500px',
                     captionField='sigla',

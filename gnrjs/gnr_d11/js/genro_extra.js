@@ -360,6 +360,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         var autoColorsDict = this.autoColors(dataset);
         objectPop(dataset,'enabled');
         var idx = 0;
+        var k;
         var caption;
         var isBagMode = kw.datamode=='bag';
         kw.rows.walk(function(n){
@@ -367,18 +368,30 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
             var row = isBagMode?n.getValue('static').asDict() : n.attr;
             var pkey = row._pkey || n.label;
             if(kw.filterCb(pkey,row)){
+                var chart_row_pars = objectExtract(row,'chart_*');
                 caption = row[kw.captionField] || (dataset.label || field)+' '+idx;
                 if('labels' in kw){
                     kw.labels.push(caption);
                 }
                 dataset.data.push(row[field]);
                 var autocol = chroma(stringToColour(caption));
-                for(var k in autoColorsDict){
+                for(k in autoColorsDict){
                     dataset[k].push(chroma(autocol).alpha(autoColorsDict[k]).css());
+                }
+                console.log('chart_row_pars',chart_row_pars);
+                for(k in chart_row_pars){
+                    if(isNullOrBlank(dataset[k])){
+                        dataset[k] = [];
+                    }
+                    if(dataset[k] instanceof Array){
+                        dataset[k].push(chart_row_pars[k]);
+                    }
+                    
                 }
                 idx++;
             }
         },'static',null,isBagMode);
+        console.log('backgroundColor',dataset.backgroundColor);
         return dataset;
     },
 
