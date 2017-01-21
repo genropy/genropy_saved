@@ -389,6 +389,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
                 }
                 idx++;
             }
+            return '__continue__';
         },'static',null,isBagMode);
         return dataset;
     },
