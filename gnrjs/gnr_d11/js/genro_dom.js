@@ -93,8 +93,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
     },
     loadCss: function(url, cssTitle, cb,avoidCache) {
         if(avoidCache){
-            var nocache =(new Date()).getTime();
-            url = genro.addParamsToUrl(url,{nocache:nocache});
+            url = genro.addParamsToUrl(url,{nocache:timeStamp()});
         }
         var e = document.createElement("link");
         e.href = url;
@@ -108,8 +107,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
     },
     loadJs: function(url, cb,avoidCache) {
         if(avoidCache){
-            var nocache =(new Date()).getTime();
-            url = genro.addParamsToUrl(url,{nocache:nocache});
+            url = genro.addParamsToUrl(url,{nocache:timeStamp()});
         }
         var e = document.createElement("script");
         e.src = url;
