@@ -1492,7 +1492,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         querycolumns = tblobj.getQueryFields(columns, captioncolumns)
         showcolumns = gnrlist.merge(captioncolumns, tblobj.columnsFromString(auxColumns))
         resultcolumns = gnrlist.merge(showcolumns, captioncolumns, tblobj.columnsFromString(hiddenColumns))
-        if alternatePkey and not alternatePkey in resultcolumns:
+        if alternatePkey and alternatePkey not in resultcolumns:
             resultcolumns.append("$%s" % alternatePkey if not alternatePkey.startswith('$') else alternatePkey)
         selection = None
         identifier = 'pkey'
