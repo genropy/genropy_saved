@@ -35,12 +35,21 @@ class Table(object):
         tbl.column('sms_login' ,dtype='B',name_long='!!Sms login')
         tbl.column('sms_number',name_long='!!Sms Number')
         tbl.column('group_code',size=':15',name_long='!!Group').relation('group.code',relation_name='users',mode='foreignkey')
-        
-        tbl.formulaColumn('all_tags',"""array_to_string(ARRAY(#alltags),',')""",
-                            select_alltags=dict(where="$user_id=#THIS.id OR $group_code=#THIS.group_code",
-                                                columns='$tag_code',table='adm.user_tag',distinct=True))
+         
+        #tbl.formulaColumn('all_tags',"""array_to_string(ARRAY(#alltags),',')""",
+        #                    select_alltags=dict(where="$user_id=#THIS.id OR $group_code=#THIS.group_code",
+        #                                        columns='$tag_code',table='adm.user_tag',
+        #                                        distinct=True))
+        tbl.pyColumn('all_tags',name_long='All tags',dtype='A')
 
         tbl.formulaColumn('fullname', "$firstname||' '||$lastname", name_long=u'!!Name')
+
+    def pyColumn_all_tags(self,record,**kwargs):
+        alltags = self.db.table('adm.user_tag').query(where='$user_id=:uid OR $group_code=:gc',
+                                                            uid=record['id'],
+                                                            gc=record['group_code'],
+                                                            columns='$tag_code',distinct=True).fetch()
+        return ','.join([r['tag_code'] for r in alltags])
 
     def partitionioning_pkeys(self):
         return None

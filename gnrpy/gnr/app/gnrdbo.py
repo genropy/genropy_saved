@@ -304,7 +304,7 @@ class TableBase(object):
                 tbl.attributes.setdefault('order_by','$hierarchical_%s' %hfields[0] )
             broadcast = tbl.attributes.get('broadcast')
             broadcast = broadcast.split(',') if broadcast else []
-            if not 'parent_id' in broadcast:
+            if 'parent_id' not in broadcast:
                 broadcast.append('parent_id')
             tbl.attributes['broadcast'] = ','.join(broadcast)
 
@@ -404,14 +404,9 @@ class TableBase(object):
             pcol = self.attributes['protectionColumn']
             protections.append('( CASE WHEN $%s IS NULL THEN NULL ELSE TRUE END ) ' %pcol)
         for field in filter(lambda r: r.startswith('__protected_by_'), self.model.virtual_columns.keys()):
-            protections.append(' $%s  ' %field)
+            protections.append('( $%s IS TRUE ) ' %field)
         if protections:
-            arr = " %s  " %' , '.join(protections)
-            return """( CASE WHEN ( TRUE IN ( %s ) ) 
-                      THEN TRUE 
-                      WHEN ( FALSE IN ( %s ) ) 
-                      THEN FALSE 
-                      ELSE NULL END )""" %(arr,arr)
+            return ' OR '.join(protections)
         else:
             return " NULL "
 
