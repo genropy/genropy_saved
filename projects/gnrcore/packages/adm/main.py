@@ -17,6 +17,7 @@ class Package(GnrDboPackage):
 
     def authenticate(self, username, service=None,**kwargs):
         tblobj = self.db.table('adm.user')
+        
         def cb(cache=None,identifier=None,**kwargs):
             if identifier in cache:
                 return cache[identifier],True

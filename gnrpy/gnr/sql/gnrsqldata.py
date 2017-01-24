@@ -922,9 +922,9 @@ class SqlQuery(object):
         rels = set(re.findall('\$(\w*)', test))
         params = set(re.findall('\:(\w*)', test))
         for r in rels:                             # for each $name in the query
-            if not r in params:                    # if name is also present as :name skip
+            if r not in params:                    # if name is also present as :name skip
                 if r in self.sqlparams:            # if name is present in kwargs
-                    if not r in self.relationDict: # if name is not yet defined in relationDict
+                    if r not in self.relationDict: # if name is not yet defined in relationDict
                         self.relationDict[r] = self.sqlparams.pop(r)
                         
         self.bagFields = bagFields or for_update

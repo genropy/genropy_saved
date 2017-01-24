@@ -207,3 +207,4 @@ class DynamicFieldsTable(GnrDboTable):
             print 'IMPORTING DynamicFields FROM LEGACY',mastertbl
             tblobj.df_importLegacyScript()
             return True
+            
