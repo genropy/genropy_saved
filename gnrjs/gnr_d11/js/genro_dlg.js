@@ -258,12 +258,12 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     alert:function(msg, title, buttons, resultPath, kw) {
         var alertCode = '_dlg_alert_'+this.alert_count;
         genro.src.getNode()._('div', alertCode);
-        var title = title || '';
-        var buttons = buttons || {confirm:'OK'};
+        title = title || '';
+        buttons = buttons || {confirm:'OK'};
         //var kw = objectUpdate({'width':'20em'}, kw);
-        var kw = kw || {};
-        var confirmCb = objectPop(kw,'confirmCb')
-        var resultPath = resultPath;
+        kw = kw || {};
+        confirmCb = objectPop(kw,'confirmCb');
+        resultPath = resultPath;
         var that = this;
         var node = genro.src.getNode(alertCode).clearValue().freeze();
         var dlg = node._('dialog', objectUpdate({nodeId:alertCode, title:title, 
@@ -307,18 +307,18 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var alertCode = '_dlg_ask_'+this.alert_count;
 
         genro.src.getNode()._('div', alertCode);
-        var kw = kw || {};
-        var buttons = buttons || {confirm:'Confirm',cancel:'Cancel'};
-        var action;
+        kw = kw || {};
+        buttons = buttons || {confirm:'Confirm',cancel:'Cancel'};
+        var action,actions;
         var that = this;
         var node = genro.src.getNode(alertCode).clearValue().freeze();
         if (typeof(resultPathOrActions) == 'string') {
             var resultPath = resultPathOrActions;
-            var actions = {};
+            actions = {};
             action = "genro.wdgById('"+alertCode+"').hide();genro.fireEvent('" + resultPath + "',this.attr.actCode);";
         }
         else {
-            var actions = resultPathOrActions || {};
+            actions = resultPathOrActions || {};
             action = "genro.wdgById('"+alertCode+"').hide();if (this.attr.act){funcCreate(this.attr.act).call();};";
         }
         var dlg = node._('dialog', {nodeId:alertCode,title:title,
@@ -338,7 +338,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
 
     batchMonitor:function(thermopath) {
-        var thermopath = thermopath || '_thermo';
+        thermopath = thermopath || '_thermo';
         genro.src.getNode()._('div', '_thermo_floating');
         var node = genro.src.getNode('_thermo_floating').clearValue().freeze();
         var floatingPars = {};
