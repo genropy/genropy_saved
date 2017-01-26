@@ -483,7 +483,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
             var d = this.getData();
             if(d && d.len()){
                 var n = d.getNode('#0');
-                if(n.attr.pageIdx){
+                if('pageIdx' in n.attr){
                     this.datamode = 'attr';
                 }
                 else if(d.getItem('#0') instanceof gnr.GnrBag){
@@ -527,7 +527,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
             var items;
             if(storebag){
                 storebag.walk(function(n){
-                    if(n.attr.pageIdx){
+                    if('pageIdx' in n.attr){
                         return;
                     }
                     if(datamode=='bag'){

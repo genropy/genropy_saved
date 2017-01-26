@@ -378,10 +378,18 @@ class GnrDomSrc(GnrStructData):
         self.page.mixinComponent('js_plugins/chartjs/chartjs:ChartPane')
         self.child('chartpane',**kwargs)
 
-
     def palettechart(self,**kwargs):
         self.page.mixinComponent('js_plugins/chartjs/chartjs:ChartPane')
         self.child('palettechart',**kwargs)
+
+    def statspane(self,**kwargs):
+        self.page.mixinComponent('js_plugins/stats/stats:StatsPane')
+        self.child('statspane',**kwargs)
+
+    def palettestats(self,**kwargs):
+        self.page.mixinComponent('js_plugins/stats/stats:StatsPane')
+        self.child('palettestats',**kwargs)
+
 
     @extract_kwargs(store=True)
     def frameform(self, formId=None, frameCode=None, store=None,storeType=None, storeCode=None,

@@ -2743,7 +2743,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         kw.structpath = kw.structpath || '#WORKSPACE.struct';
         kw.controllerPath = '#WORKSPACE.controllers';
         kw.frameTarget = kw.frameTarget===false?false:true;
-        kw.selfsubscribe_addrow= kw.selfsubscribe_addrow || 'this.widget.addRows($1._askResult? [$1._askResult]:$1._counter,$1.evt);';
+        kw.selfsubscribe_addrow= kw.selfsubscribe_addrow || '$1 = $1 || {}; this.widget.addRows($1._askResult? [$1._askResult]:$1._counter,$1.evt);';
         kw.selfsubscribe_delrow= kw.selfsubscribe_delrow || 'this.widget.deleteSelectedRows();';
         kw.selfsubscribe_export= kw.selfsubscribe_export || function(kwargs){
             this.widget.serverAction({command:"export", opt:{rawData:true,
