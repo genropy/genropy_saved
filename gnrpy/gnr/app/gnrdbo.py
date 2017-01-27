@@ -231,8 +231,9 @@ class GnrDboPackage(object):
         
 class TableBase(object):
     """TODO"""
+
     @extract_kwargs(counter=True)
-    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, user_ins=False, user_upd=False, 
+    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, user_ins=None, user_upd=None, 
                   draftField=False, invalidFields=None,invalidRelations=None,md5=False,
                   counter=None,hierarchical=None,useProtectionTag=None,
                   group='zzz', group_name='!!System',
@@ -253,6 +254,7 @@ class TableBase(object):
         :param group: a hierarchical path of logical categories and subacategories the columns belong to.
                       For more information, check the :ref:`group` section
         :param group_name: TODO"""
+        user_ins,user_upd = self._sysFields_defaults(user_ins=user_ins,user_upd=user_upd)
         if id:
             tbl.column('id', size='22', group=group, readOnly='y', name_long='!!Id',_sendback=True,_sysfield=True)
             pkey = tbl.attributes.get('pkey')
@@ -377,8 +379,13 @@ class TableBase(object):
                                    END ) """,
                                 dtype='B',var_systag=tbl.attributes.get('syscodeTag') or 'superadmin',_sysfield=True,
                                 group=group)
- 
-            
+
+    def _sysFields_defaults(self,user_ins=None,user_upd=None):
+        default_user_ins = self.db.application.config['sysfield?user_ins']
+        default_user_ins = boolean(default_user_ins) if default_user_ins is not None else True
+        default_user_upd = self.db.application.config['sysfield?user_upd']
+        default_user_upd = boolean(default_user_upd) if default_user_upd is not None else True
+        return user_ins or default_user_ins,user_upd or default_user_upd
 
     def sysFields_protectionTag(self,tbl,protectionTag=None,group=None):
         tbl.column('__protection_tag', name_long='!!Protection tag', group=group,_sysfield=True,_sendback=True,onInserting='setProtectionTag')
