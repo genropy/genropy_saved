@@ -173,7 +173,16 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_statsCenter:function(bc,kw){
-        
+        var framestats = bc._('FramePane',{frameCode:this.statsNodeId,region:'center'});
+        var bar = framestats._('slotBar',{toolbar:true,side:'top',slots:'5,runstats,*'});
+        bar._('slotButton','runstats',{iconClass:'iconbox run',action:function(){
+            //servercall
+        }});
+        var center = framestats._('borderContainer',{side:'center'});
+        var treepane = center._('ContentPane',{region:'left',width:'250px',splitter:true});
+        treepane._('tree',{storepath:'#WORKSPACE.stats_result'});
+        var gridpane = center._('ContentPane',{region:'center',background:'silver'});
+
     },
 
     gnrwdg_configuratorFrame:function(parentBc,kw){
@@ -187,11 +196,9 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.gnrwdg, {
         }},true));
 
         var confframe = parentBc._('FramePane',objectUpdate(confkw,{frameCode:this.statsNodeId+'_options'}));
-        var bar = confframe._('slotBar',{toolbar:true,side:'top',slots:'5,refresh,saveBtn,loadMenu,2,statsTitle,*,delgroup,addgroup,10,runstats'});
+        var bar = confframe._('slotBar',{toolbar:true,side:'top',slots:'5,saveBtn,loadMenu,2,statsTitle,*,delgroup,addgroup,5'});
         bar._('div','statsTitle',{innerHTML:'^#WORKSPACE.metadata.description?=(#v || "New Stats")',font_weight:'bold',font_size:'.9em',color:'#666'});
-        bar._('slotButton','refresh',{label:'Refresh',iconClass:'iconbox reload',action:function(){
-            genro.nodeById(that.statsNodeId).publish('refresh');
-        }});
+
         bar._('slotButton','loadMenu',{iconClass:'iconbox folder',label:'Load',
             menupath:'#WORKSPACE.loadMenu',action:function(item){
                 if(item.pkey){
@@ -206,7 +213,7 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.gnrwdg, {
                                         }});
 
         bar._('slotButton','delgroup',{iconClass:'iconbox delete_row',label:'Delete',action:function(){
-                                                genro.nodeById(that.sourceNode.attr.nodeId+'_groupby_grid').publish('delrow');
+                                                genro.nodeById(that.statsNodeId+'_groupby_grid').publish('delrow');
                                             }});
         bar._('slotButton','addgroup',{iconClass:'iconbox add_row',label:'Add',
 
@@ -220,9 +227,6 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.gnrwdg, {
                                                 groupBy.setItem(item.code,new gnr.GnrBag(item));
                                                 
                                             }});
-        bar._('slotButton','runstats',{iconClass:'iconbox run',action:function(){
-            
-        }});
 
         this.groupByGrid(confframe._('ContentPane',{title:'GroupBy',region:'center'}));
     },
@@ -230,7 +234,7 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.gnrwdg, {
     gnrwdg_groupByGrid:function(pane){
         var grid = pane._('quickGrid',{value:'^'+this.sourceNode.absDatapath('#WORKSPACE.groupBy'),
                                     selfDragRows:true,canSort:false,
-                                    nodeId:this.sourceNode.attr.nodeId +'_groupby_grid'});
+                                    nodeId:this.statsNodeId +'_groupby_grid'});
         var that = this;
         grid._('column',{'field':'label',name:'Label',width:'22em',edit:true});
         grid._('column',{'field':'format',name:'Format',width:'7em',edit:true});
