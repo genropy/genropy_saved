@@ -876,7 +876,7 @@ class TableBase(object):
               excludeDraft=False,where='$%s IN :pk' %pkey,pk=[r[pkey] for r in source_rows]).fetchAsDict(pkey)
         all_dest.update(existing_dest)
         if source_rows:
-            fieldsToCheck = ','.join([c for c in source_rows[0].keys() if c not in ('__ins_ts','__mod_ts')])
+            fieldsToCheck = ','.join([c for c in source_rows[0].keys() if c not in ('__ins_ts','__mod_ts','__ins_user','__mod_user')])
             for r in source_rows:
                 r = dict(r)
                 if r[pkey] in all_dest:
