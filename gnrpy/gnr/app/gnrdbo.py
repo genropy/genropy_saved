@@ -168,7 +168,7 @@ class GnrDboPackage(object):
                 recordsToInsert.append(r)
             if recordsToInsert:
                 tblobj.insertMany(recordsToInsert)
-                db.commit()
+        db.commit()
         os.remove('%s.pik' %bagpath)
 
 
