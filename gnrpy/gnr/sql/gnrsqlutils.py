@@ -251,6 +251,8 @@ class SqlModelChecker(object):
                         new_size = '%s,0' % new_size
                     elif new_dtype in ('X', 'Z', 'P') and old_dtype == 'T':
                         pass
+                    elif new_dtype in ('L','I') and old_dtype in ('L','I') and not self.db.adapter.allowAlterColumn:
+                        pass
                     elif new_dtype != old_dtype or new_size != old_size or bool(old_unique)!=bool(new_unique):
                         if (new_dtype != old_dtype or new_size != old_size):
                             change = self._alterColumnType(col, new_dtype, new_size)

@@ -264,8 +264,8 @@ class DbModel(object):
         if self.modelChanges[0].startswith('CREATE DATABASE'):
             self.db.adapter.createDb()
             self.modelChanges.pop(0)
-        for x in self.modelChanges:
-            self.db.execute(x)
+        for change in self.modelChanges:
+            self.db.execute(change)
         self.db.commit()
         
     def _doMixin(self, path, obj):

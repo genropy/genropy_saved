@@ -62,6 +62,7 @@ class SqlDbAdapter(object):
     #         pass
     support_multiple_connections = True
     paramstyle = 'named'
+    allowAlterColumn=True
 
     def __init__(self, dbroot, **kwargs):
         self.dbroot = dbroot
