@@ -383,11 +383,11 @@ class GnrDomSrc(GnrStructData):
         self.child('palettechart',**kwargs)
 
     def statspane(self,**kwargs):
-        self.page.mixinComponent('js_plugins/stats/stats:StatsPane')
+        self.page.mixinComponent('js_plugins/statspane/statspane:StatsPane')
         self.child('statspane',**kwargs)
 
     def palettestats(self,**kwargs):
-        self.page.mixinComponent('js_plugins/stats/stats:StatsPane')
+        self.page.mixinComponent('js_plugins/statspane/statspane:StatsPane')
         self.child('palettestats',**kwargs)
 
 
