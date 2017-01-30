@@ -58,7 +58,7 @@ class GnrCustomWebPage(object):
 
     def dbstructPane(self,frame):
         frame.data('main.dbstructure',self.app.dbStructure())
-        frame.top.slotToolbar('*,searchOn,2',height='20px',searchOn_nodeId='dbstructure_tree_searchbox')
+        frame.top.slotToolbar('*,searchOn,2',height='20px',datapath='main.dbmodel')
         pane = frame.center.contentPane(overflow='auto')
         pane.div(padding='10px').tree(nodeId='dbstructure_tree',storepath='main.dbstructure',_class='branchtree noIcon',
             hideValues=True,openOnClick=True)
@@ -66,7 +66,7 @@ class GnrCustomWebPage(object):
 
     def drawerPane(self,frame):
         b = Bag()
-        frame.top.slotToolbar('*,searchOn,2',height='20px',searchOn_nodeId='drawer_tree_searchbox')
+        frame.top.slotToolbar('*,searchOn,2',height='20px',datapath='main.dir')
         for k,pkgobj in self.application.packages.items():
             b.setItem('projects.%s' %k,DirectoryResolver(pkgobj.packageFolder,cacheTime=10,
                             include='*.py', exclude='_*,.*',dropext=True,readOnly=False)(),caption= pkgobj.attributes.get('name_long',k))
