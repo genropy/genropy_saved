@@ -405,6 +405,7 @@ class TableBase(object):
         if filter(lambda r: r.startswith('__protected_by_'), self.model.virtual_columns.keys()) or self.attributes.get('protectionColumn'):
             return '__is_protected_row'
 
+
     def sql_formula___is_protected_row(self,attr):
         protections= []
         if self.attributes.get('protectionColumn'):
@@ -413,7 +414,7 @@ class TableBase(object):
         for field in filter(lambda r: r.startswith('__protected_by_'), self.model.virtual_columns.keys()):
             protections.append('( $%s IS TRUE ) ' %field)
         if protections:
-            return ' OR '.join(protections)
+            return "( %s )" %' OR '.join(protections)
         else:
             return " NULL "
 
