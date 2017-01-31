@@ -424,6 +424,21 @@ class SqlTable(GnrObject):
     def counterColumns(self):
         return
 
+    def columnsByAttr(self,attr=None,attr_value=None):
+        def checkcb(colobj):
+            attrs = colobj.attributes
+            result = attr in attrs
+            if result and attr_value is not None:
+                result = attrs[attr] == attr_value
+            return result
+        res = Bag()
+        for f in self.columns.keys() + self.model.virtual_columns.keys():
+            colobj = self.column(f)
+            if checkcb(colobj):
+                res.setItem(f,None,colobj.attributes)
+        return res
+
+
     def recordCoerceTypes(self, record, null='NULL'):
         """Check and coerce types in record.
         
@@ -441,7 +456,7 @@ class SqlTable(GnrObject):
                     record[k] = bool(v)
                 else:
                     if dtype and isinstance(v, basestring):
-                        if not dtype in ['T', 'A', 'C']:
+                        if dtype not in ['T', 'A', 'C']:
                             v = converter.fromText(record[k], dtype)
                     if 'rjust' in colattr:
                         v = v.rjust(int(colattr['size']), colattr['rjust'])
