@@ -2709,11 +2709,15 @@ dojo.declare("gnr.widgets._ButtonLogic",null, {
             var action_attributes = sourceNode.currentAttributes();
             var ask_params = sourceNode._ask_params;
             var modifiers = genro.dom.getEventModifiers(e);
-            var skipOn,askOn,doAsk;
+            var skipOn,askOn,doAsk,_if;
             if(ask_params){
                 skipOn = ask_params.skipOn;
                 askOn = ask_params.askOn;
-                doAsk = !(askOn || skipOn) || (askOn && askOn==modifiers) || (skipOn && skipOn!=modifiers);
+                askIf = ask_params.askIf;
+                if(askIf){
+                    askIf = funcApply('return '+askIf,action_attributes,sourceNode);
+                }
+                doAsk = askIf || !(askOn || skipOn) || (askOn && askOn==modifiers) || (skipOn && skipOn!=modifiers);
             }
             if(ask_params && doAsk){
                 var promptkw = objectUpdate({},sourceNode._ask_params);

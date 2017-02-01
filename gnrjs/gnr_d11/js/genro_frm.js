@@ -2708,7 +2708,9 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
                     newPkey = 'r_'+(sourceBag?sourceBag.len():0);
                 }
                 data.setItem(pkeyField,newPkey);
+                formData.setItem(pkeyField,newPkey);
             }
+
             sourceBag.setItem(newPkey,data);
         }else{
             data = sourceBag.getItem(currPkey);
