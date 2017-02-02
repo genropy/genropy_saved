@@ -239,8 +239,8 @@ class GnrCustomWebPage(object):
             s-=1
 
 
-    def test_13_autorow(self,pane):
-        bc = pane.borderContainer(height='800px')
+    def test_13_autorow_date(self,pane):
+        bc = pane.borderContainer(height='300px')
         top = bc.contentPane(region='top')
         fb = top.formbuilder(cols=1,border_spacing='3px')
         fb.dateTextBox(value='^s_date_base',lbl='Start date')
@@ -267,5 +267,6 @@ class GnrCustomWebPage(object):
                 r.cell('day_%02i' %i, name='^s_date_%i' %i,name_format='EEE d',
                     hidden='^s_date_%i?=!#v' %i,dtype='N',edit=True)
 
-        center.bagGrid(storepath='.store',struct=struct,datapath='.mygrid')
+        center.bagGrid(storepath='.store',title='Date grid',struct=struct,datapath='.mygrid',
+                    addrow='auto',delrow='auto')
 

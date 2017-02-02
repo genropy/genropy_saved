@@ -669,12 +669,16 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         var menuNode = gridContent.getNodeByAttr('tag', 'menu',true);
         if(!menuNode){
-            var contextMenuBag = sourceNode.getRelativeData('.contextMenu');
-            if(!contextMenuBag){
-                contextMenuBag = new gnr.GnrBag();
-                contextMenuBag.setItem('#id',null,{caption:_T('Configure view'),action:"$2.widget.configureStructure();"});
-                contextMenuBag.setItem('#id',null,{caption:_T('New Chart'),action:"$2.publish('pluginCommand',{plugin:'chartjs',command:'openGridChart'});"});
-                sourceNode.setRelativeData('.contextMenu',contextMenuBag);
+            var customContextMenuBag = sourceNode.getRelativeData('.contextMenu');
+            var standardContextMenuBag = new gnr.GnrBag();
+            standardContextMenuBag.setItem('#id',null,{caption:_T('Configure view'),action:"$2.widget.configureStructure();"});
+            standardContextMenuBag.setItem('#id',null,{caption:_T('New Chart'),action:"$2.publish('pluginCommand',{plugin:'chartjs',command:'openGridChart'});"});
+
+            if(!customContextMenuBag){
+                sourceNode.setRelativeData('.contextMenu',standardContextMenuBag);
+            }else{
+                customContextMenuBag.setItem('r_'+customContextMenuBag.len(),null,{caption:'-'});
+                customContextMenuBag.setItem('r_'+customContextMenuBag.len(),standardContextMenuBag,{caption:_T('Tools')});
             }
             sourceNode._('menu','contextMenu',{storepath:'.contextMenu',_class:'smallmenu'},{doTrigger:false});
             gridContent = sourceNode.getValue();
