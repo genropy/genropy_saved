@@ -169,6 +169,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     },
 
     onBuilding:function(sourceNode){
+        if(sourceNode._wrapperNode){
+            return;
+        }
         var content = sourceNode._value;
         var footers = new gnr.GnrBag();
         var node;
@@ -208,9 +211,20 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             gridNode._footers = footers;
             gridNode._autoFooter = autoFooter;
             gridNode._autoColumnset = autoColumnset;
+            for (var k in autoColumnset){
+                var av = autoColumnset[k];
+                if(typeof(av)=='string' && av[0]=='^'){
+                    gridNode.attr['columnset_'+k] = av;
+
+                }
+            }
             gridNode._wrapperNode = sourceNode;
-            
+
         }
+    },
+
+    mixin_catch_columnset:function(value,kw,attr){
+        this.updateColumnsetsAndFooters();
     },
 
     mixin_columnsetsAndFooters_size:function(){

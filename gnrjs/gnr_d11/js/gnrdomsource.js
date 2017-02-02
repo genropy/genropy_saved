@@ -1283,10 +1283,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
             else {
                 var setter = 'set' + stringCapitalize(attr);
+                if(!(setter in this.widget)){
+                    setter = 'catch_'+attr.split('_')[0];
+                }
                 if (setter in this.widget) {
                     var trgevt = kw.evt;
                     if (attr != 'value') {
-                        dojo.hitch(this.widget, setter)(value, kw);
+                        dojo.hitch(this.widget, setter)(value, kw, attr);
                         return;
                     }
                     var formHandler = this.getFormHandler();

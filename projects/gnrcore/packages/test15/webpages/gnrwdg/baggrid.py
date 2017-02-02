@@ -171,6 +171,8 @@ class GnrCustomWebPage(object):
         fb.numberTextBox(value='^vat_perc',lbl='Vat perc.',default_value=10,colspan='10')
         fb.data('first_header_name','Variable head')
         fb.textbox(value='^first_header_name',lbl='First header')
+        fb.textbox(value='^colsetname',lbl='Colset',default_value='Enterable')
+        fb.textbox(value='^colsetentbg',lbl='Colset bg',default_value='green')
 
         fb.br()
         for i in range(9):
@@ -182,10 +184,10 @@ class GnrCustomWebPage(object):
                                                     struct=struct,height='300px',fillDown=True,
                                                     grid_footer='Totals',
                                                     pbl_classes=True,margin='5px',
-                                                    columnset_ent='^first_header_name',
+                                                    columnset_ent='^colsetname',
                                                     columnset_disc='Discount',
                                                     columnset_tot='Totals',
-                                                    columnset_ent_background='green',
+                                                    columnset_ent_background='^colsetentbg',
                                                     columnset_tot_background='red'
                                                     )
 

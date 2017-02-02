@@ -158,7 +158,7 @@ class FrameGridSlots(BaseComponent):
           
 class FrameGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGridSlots'
-    @extract_kwargs(top=True,grid=True,columnset=dict(slice_prefix=False),footer=dict(slice_prefix=False))
+    @extract_kwargs(top=True,grid=True,columnset=dict(slice_prefix=False,pop=True),footer=dict(slice_prefix=False,pop=True))
     @struct_method
     def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,dynamicStorepath=None,structpath=None,
                     datamode=None,table=None,grid_kwargs=True,top_kwargs=None,iconSize=16,
