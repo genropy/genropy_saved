@@ -852,13 +852,6 @@ class TableBase(object):
     def hosting_copyToInstance(self,source_instance=None,dest_instance=None,_commit=False,logger=None,onSelectedSourceRows=None,**kwargs):
         #attr = self.attributes
         #logger.append('** START COPY %(name_long)s **'%attr)
-        def log(*args):
-            if self.db.currentPage:
-                self.db.currentPage.log(*args)
-            else:
-                print(args)
-
-
         source_db = self.db if not source_instance else self.db.application.getAuxInstance(source_instance).db 
         dest_db = self.db if not dest_instance else self.db.application.getAuxInstance(dest_instance).db 
         source_tbl = source_db.table(self.fullname)
@@ -868,17 +861,11 @@ class TableBase(object):
               excludeDraft=False,**kwargs).fetch()
         if onSelectedSourceRows:
             onSelectedSourceRows(source_instance=source_instance,dest_instance=dest_instance,source_rows=source_rows)
-        
-        all_dest_query = dest_tbl.query(addPkeyColumn=False,for_update=True,excludeLogicalDeleted=False,
-              excludeDraft=False,**kwargs)
-        log('dest_tbl',dest_tbl.fullname)
-        log('all_dest_query',all_dest_query.sqltext)
-        all_dest = all_dest_query.fetchAsDict(pkey)
-        log('before existing dest query')
+        all_dest = dest_tbl.query(addPkeyColumn=False,for_update=True,excludeLogicalDeleted=False,
+              excludeDraft=False,**kwargs).fetchAsDict(pkey)
         existing_dest = dest_tbl.query(addPkeyColumn=False,for_update=True,excludeLogicalDeleted=False,
               excludeDraft=False,where='$%s IN :pk' %pkey,pk=[r[pkey] for r in source_rows]).fetchAsDict(pkey)
         all_dest.update(existing_dest)
-        log('before check')
         if source_rows:
             fieldsToCheck = ','.join([c for c in source_rows[0].keys() if c not in ('__ins_ts','__mod_ts','__ins_user','__mod_user')])
             for r in source_rows:
@@ -894,7 +881,6 @@ class TableBase(object):
                     dest_tbl.raw_insert(r)  
             #self.hosting_removeUnused(dest_db,all_dest.keys())
             if _commit:
-                log('dest before commit')
                 dest_db.commit()
         return source_rows
 
