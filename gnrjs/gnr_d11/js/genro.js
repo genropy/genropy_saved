@@ -1186,7 +1186,7 @@ dojo.declare('gnr.GenroClient', null, {
         }
         else if (typeof(v) == 'boolean' || f.dtype == 'B') {
             if(typeof(v)=='string'){
-                return v;
+                return (v[0]=='^' || v[0]=='=')?'&nbsp;':v;
             }
             var divcontent,divclass;
             var falsecontent = f['false'] || (f['falseclass'] ? '' : 'false');

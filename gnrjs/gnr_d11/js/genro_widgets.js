@@ -2267,7 +2267,7 @@ dojo.declare("gnr.widgets.Menuline", gnr.widgets.baseDojo, {
     
     patch_onClick:function(evt) {
         var sourceNode = this.sourceNode;
-        var ctxSourceNode = this.getParent().ctxTargetSourceNode || sourceNode;
+        var ctxSourceNode = this.getParent().ctxTargetSourceNode || genro._lastCtxTargetSourceNode || sourceNode;
         var menuAttr = sourceNode.getAttr();
         var inAttr = sourceNode.getInheritedAttributes();
         var actionScope = sourceNode.attributeOwnerNode('action');
@@ -2426,6 +2426,7 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
     },
     
     versionpatch_11__contextMouse: function (e) {
+        console.log('versionpatch_11__contextMouse');
         this.originalContextTarget = e.target;
         if(genro.dom.isDisabled(this.originalContextTarget,true)){
             return;
@@ -2442,6 +2443,7 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
                 }
             }
         }
+        genro._lastCtxTargetSourceNode = ctxSourceNode;
         this.ctxTargetSourceNode = ctxSourceNode;
         var sourceNode = this.sourceNode;
         var wdg = sourceNode.widget;
@@ -2513,6 +2515,8 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
     },
     
     versionpatch_11__openMyself: function (e) {
+        console.log('versionpatch_11__openMyself')
+
         var contextclick = (e.button==2 ||  genro.dom.getEventModifiers(e)=='Ctrl');
         if(this.validclass && !genro.wdg.filterEvent(e,null,this.validclass)){
             return;
@@ -2524,6 +2528,7 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
     },
 
     patch__openPopup: function (e) {
+        console.log('patch__openPopup')
         var sourceNode = this.focusedChild.popup.sourceNode;
         if (sourceNode) {
             var resolver = sourceNode.getResolver();
