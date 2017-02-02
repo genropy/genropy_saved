@@ -1265,8 +1265,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var cell = objectUpdate({field:cellNode.label}, rowattrs);
         cell = objectUpdate(cell, cellNode.attr);
         var dtype = cell.dtype;
+        var cell_name = _F(sourceNode.currentFromDatasource(cell.name),cell.name_format);
         cell.original_field = cell.field;
-        cell.original_name = cell.name;
+        cell.original_name = cell_name;
         cell._nodelabel = cellNode.label;
         var userSets = objectPop(cell,'userSets');
         if(userSets){
@@ -1285,7 +1286,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         //cell = sourceNode.evaluateOnNode(cell);
 
-        cell.name = '<div '+ ((sourceNode.attr.draggable_column)?'draggable="true"' :'' )+ ' class="cellHeaderContent" >'+cell.name+'</div>';
+        cell.name = '<div '+ ((sourceNode.attr.draggable_column)?'draggable="true"' :'' )+ ' class="cellHeaderContent" >'+cell_name || '&nbsp;'+'</div>';
         if (cell.field) {
             if(cell.field.indexOf(':')>=0 && !cell._customGetter){
                 var f = cell.field.split(':');

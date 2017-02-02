@@ -10,8 +10,8 @@ from gnr.web.gnrbaseclasses import BaseComponent
 
 class StatsPane(BaseComponent):
     py_requires='js_plugins/chartjs/chartjs:ChartPane'
-    js_requires='js_plugins/stats/stats'
-    css_requires='js_plugins/stats/stats'
+    js_requires='js_plugins/statspane/statspane'
+    css_requires='js_plugins/statspane/statspane'
 
 
 
