@@ -2426,7 +2426,6 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
     },
     
     versionpatch_11__contextMouse: function (e) {
-        console.log('versionpatch_11__contextMouse');
         this.originalContextTarget = e.target;
         if(genro.dom.isDisabled(this.originalContextTarget,true)){
             return;
@@ -2515,8 +2514,6 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
     },
     
     versionpatch_11__openMyself: function (e) {
-        console.log('versionpatch_11__openMyself')
-
         var contextclick = (e.button==2 ||  genro.dom.getEventModifiers(e)=='Ctrl');
         if(this.validclass && !genro.wdg.filterEvent(e,null,this.validclass)){
             return;
@@ -2528,7 +2525,6 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
     },
 
     patch__openPopup: function (e) {
-        console.log('patch__openPopup')
         var sourceNode = this.focusedChild.popup.sourceNode;
         if (sourceNode) {
             var resolver = sourceNode.getResolver();

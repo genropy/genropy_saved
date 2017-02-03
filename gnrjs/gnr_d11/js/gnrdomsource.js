@@ -1492,7 +1492,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                                     genro.dlg.alert('Error in remote '+result.error,'Error')
                                 }else{
                                     that.watch('checkPendingRequirs',function(){
-                                        console.log(genro.dom.pendingHeaders);
                                         return !objectNotEmpty(genro.dom.pendingHeaders);
                                     },function(){
                                         that.replaceContent(result)

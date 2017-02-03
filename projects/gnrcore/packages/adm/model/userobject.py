@@ -20,6 +20,7 @@ class Table(object):
                 
     def listUserObject(self, objtype=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None, flags=None):
         onlyQuicklist = onlyQuicklist or False
+        
         def checkUserObj(r):
             condition = (not r['private']) or (r['userid'] == userid)
             if onlyQuicklist:

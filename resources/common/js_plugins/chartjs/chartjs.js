@@ -459,17 +459,18 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         }
         return connectedWidgetId;
     },
+    gnrwdg_resetMenuData:function(){
+        var m = this.sourceNode.getRelativeData('#WORKSPACE.loadMenu');
+        m.getParentNode().getResolver().reset();
+    },
+
 
     gnrwdg_setLoadMenuData:function(){
         var kw = {'objtype':'chartjs',
                   'flags':genro.getData('gnr.pagename')+'_'+(this.connectedWidgetId || this.chartNodeId),
                     'table':this.table};
-        var result = genro.serverCall('_table.adm.userobject.userObjectMenu',kw) || new gnr.GnrBag();
-        if(result.len()){
-            result.setItem('r_'+result.len(),null,{caption:'-'});
-        }
-        result.setItem('__newchart__',null,{caption:'New Chart'});
-        this.sourceNode.setRelativeData('#WORKSPACE.loadMenu',result);
+        this.sourceNode.setRelativeData('#WORKSPACE.loadMenu',
+                                        genro.dev.userObjectMenuData(kw,[{pkey:'__newchart__',caption:_T('New chart')}]));
     },
 
     gnrwdg_setDefaults:function(){
@@ -651,11 +652,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         }});
         bar._('slotButton','loadMenu',{iconClass:'iconbox folder',label:'Load',
             menupath:'#WORKSPACE.loadMenu',action:function(item){
-                if(item.pkey){
-                    that.loadChart(item.pkey);
-                }else if(item.fullpath == '__newchart__'){
-                    that.loadChart('__newchart__');
-                }
+                that.loadChart(item.pkey);
             }});
         bar._('slotButton','saveBtn',{iconClass:'iconbox save',label:'Save',
                                         action:function(){
@@ -833,7 +830,8 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
                             table:that.table},
                             function(result) {
                                 dlg.close_action();
-                                that.setLoadMenuData();
+
+                                that.resetMenuData();
                             });
         };
         genro.dev.userObjectDialog(instanceCode ? 'Save Chart ' + instanceCode : 'Save New Chart',datapath,saveCb);
@@ -874,7 +872,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
                 },1);
             });
         }
-    },
+    }
 });
 
 

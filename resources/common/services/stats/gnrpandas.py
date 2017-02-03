@@ -48,7 +48,6 @@ class GnrDataFrame(object):
             d['label'] = v['label']
             d['dataType'] = v['dataType'] 
             d['calc_series'] = v['calc_series']
-        print x
 
     def convertData(self,data):
         decimalCols = [k for k,v in self.colAttrs.items() if v['dataType'] == 'N']

@@ -44,6 +44,7 @@ dojo.declare("gnr.GnrRemoteResolver", gnr.GnrBagResolver, {
         this.xhrKwargs.error = dojo.hitch(this, this.xhrKwargs.error);
         this.httpMethod = objectPop(kwargs, 'httpMethod') || 'POST';
         this.onloading = null;
+        this.onResult = objectPop(kwargs,'_onResult');
     },
     load: function (kwargs) {
         if (this.onloading) {
@@ -56,18 +57,31 @@ dojo.declare("gnr.GnrRemoteResolver", gnr.GnrBagResolver, {
             kwargs.resolverPars.kwargs = kwargs._sourceNode.evaluateOnNode(kwargs.resolverPars.kwargs);
         }
         var kw = objectUpdate({},kwargs);
-        
+        var onResult = this.onResult;
+        var result;
         if (this.httpMethod=='WSK'){
-            var result = genro.wsk.call(kw);
-            result.addErrback(function(error){console.error(error)})
-            return result
+            result = genro.wsk.call(kw);
+            result.addErrback(function(error){console.error(error);});
+            if(onResult){
+                result.addCallback(function(value){
+                    funcApply(onResult,{result:value},kwargs._sourceNode);
+                });
+            }
+            return result;
         }else{
-            var result = genro.rpc._serverCall(kwargs, xhrKwargs, this.httpMethod);
+            result = genro.rpc._serverCall(kwargs, xhrKwargs, this.httpMethod);
             if (sync) {
                 result.addCallback(function(value) {
                     result = value;
+                    if(onResult){
+                        funcApply(onResult,{result:result},kwargs._sourceNode);
+                    }
                 });
-            }  
+            }else if(onResult){
+                result.addCallback(function(value){
+                    funcApply(onResult,{result:value},kwargs._sourceNode);
+                });
+            }
         }
  
         return result;
@@ -585,7 +599,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
 
 
     remoteResolver: function(methodname, params, kw /*readOnly, cacheTime*/) {
-        var kw = kw || {};
+        kw = kw || {};
         var cacheTime = kw.cacheTime==null?-1:kw.cacheTime;
         var isGetter = kw.isGetter || null;
 

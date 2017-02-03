@@ -218,9 +218,8 @@ class TableScriptHandler(BaseComponent):
         resources_custom = self.site.resource_loader.resourcesAtPath(page=self,pkg=self.package.name, path='tables/_packages/%s/%s/%s' % (pkg,tblname, res_type))
         resources.update(resources_pkg)
         resources.update(resources_custom)
-        
-        
         forbiddenNodes = []
+        
         def cb(node, _pathlist=None):
             has_parameters = False
             if node.attr['file_ext'] == 'py':

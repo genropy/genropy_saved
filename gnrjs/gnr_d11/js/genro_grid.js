@@ -669,22 +669,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         var menuNode = gridContent.getNodeByAttr('tag', 'menu',true);
         if(!menuNode){
-            var contextMenuBag = sourceNode.getRelativeData('.contextMenu');
-            var standardContextMenuBag = new gnr.GnrBag();
-            standardContextMenuBag.setItem('#id',null,{caption:_T('Configure view'),action:"$2.widget.configureStructure();"});
-            standardContextMenuBag.setItem('#id',null,{caption:_T('New Chart'),action:"$2.publish('pluginCommand',{plugin:'chartjs',command:'openGridChart'});"});
-            if(!contextMenuBag){
-                contextMenuBag = standardContextMenuBag;
-            }else{
-                contextMenuBag.setItem('r_'+contextMenuBag.len(),null,{caption:'-'});
-                contextMenuBag.setItem('r_'+contextMenuBag.len(),standardContextMenuBag,{caption:_T('Tools')});
-            }
-            sourceNode.setRelativeData('.contextMenu',contextMenuBag);
+            sourceNode.setRelativeData('.contextMenu',this.pluginContextMenuBag(sourceNode));
             sourceNode._('menu','contextMenu',{storepath:'.contextMenu',_class:'smallmenu'},{doTrigger:false});
             gridContent = sourceNode.getValue();
             menuNode = gridContent.getNode('contextMenu');
         }
-       
         if(menuNode){
             widget.onCellContextMenu = function(e){
                 menuNode.rowIndex = e.rowIndex;
@@ -841,7 +830,26 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         
         setTimeout(function(){widget.updateRowCount('*');},1);
-        
+    },
+
+    pluginContextMenuBag:function(sourceNode){
+
+        var contextMenuBag = sourceNode.getRelativeData('.contextMenu');
+        var standardContextMenuBag = new gnr.GnrBag();
+        standardContextMenuBag.setItem('#id',null,{caption:_T('Configure view'),action:"$2.widget.configureStructure();"});
+        standardContextMenuBag.setItem('#id',
+            genro.dev.userObjectMenuData({'objtype':'chartjs',
+                  'flags':genro.getData('gnr.pagename')+'_'+sourceNode.attr.nodeId,
+                    'table':sourceNode.attr.table},[{pkey:'__newchart__',caption:_T('New chart')}]),
+            {caption:_T('Charts'),
+            action:"$2.publish('pluginCommand',{plugin:'chartjs',command:'openGridChart',pkey:$1.pkey,caption:$1.caption});"});
+        if(!contextMenuBag){
+            contextMenuBag = standardContextMenuBag;
+        }else{
+            contextMenuBag.setItem('r_'+contextMenuBag.len(),null,{caption:'-'});
+            contextMenuBag.setItem('r_'+contextMenuBag.len(),standardContextMenuBag,{caption:_T('Tools')});
+        }
+        return contextMenuBag;
     },
 
     mixin_setAutoInsert:function(autoInsert){

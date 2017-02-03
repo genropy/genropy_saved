@@ -1,4 +1,66 @@
-dojo.declare("gnr.widgets.StatsPane", gnr.widgets.gnrwdg, {
+dojo.declare("gnr.widgets.StatsPane", gnr.widgets.UserObjectLayout, {
+    objtype:'stats',
+
+    contentKwargs: function(sourceNode, attributes) {
+        sourceNode.gnrwdg.table = attributes.table;
+        var code = objectPop(attributes,'code');
+        if(!code){
+            code = attributes.table?'stats_'+attributes.table.replace('.','_'):'stats_'+genro.getCounter();
+        }
+        attributes.nodeId = code;
+        return attributes;
+    },
+
+    gnrwdg_viewerFrame:function(frame,kw){
+        //override
+        var center = frame._('ContentPane',{region:'center'});
+        var gridId = this.sourceNode.attr.nodeId+'_pivot_grid';
+        center._('BagStore',{storepath:'#WORKSPACE.pivot.result.store',
+                        nodeId:gridId+'_store',
+                        storeType:'AttributesBagRows',
+                        datapath:'#WORKSPACE.pivot'});
+        center._('newIncludedView',{structpath:'#WORKSPACE.pivot.result.struct',
+                                    datamode:'attr',datapath:'#WORKSPACE.pivot',
+                                    nodeId:gridId,store:gridId});
+
+
+    },
+
+    gnrwdg_configuratorFrame:function(frame,kw){
+        var cpkw = {side:'center',overflow:'hidden',remote:'pdstats_configuratorTabs',
+                              remote_table:this.table,
+                              remote_dataframeName:this.sourceNode.attr.nodeId,
+                              remote_py_requires:'js_plugins/statspane/statspane:StatsPane',
+                              _anchor:true};
+
+        cpkw.remote_query_pars = normalizeKwargs(kw,'condition');
+        frame._('ContentPane',cpkw);
+    },
+
+    gnrwdg_userObjectData:function(){
+        //override
+        return new gnr.GnrBag();
+    },
+
+    gnrwdg_onLoadingObject:function(userObjectId,fistLoad){
+        //override
+    },
+
+    gnrwdg_onLoadedObject:function(result,userObjectId,fistLoad){
+        //override
+    },
+
+});
+
+
+
+
+
+
+
+
+
+dojo.declare("gnr.widgets.StatsPaneOld", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw, children){
         var gnrwdg = sourceNode.gnrwdg;
         var rootKw = objectExtract(kw,'height,width,region,side');

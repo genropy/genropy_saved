@@ -4133,6 +4133,120 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
+    objtype:null,
+    createContent:function(sourceNode,kw){
+        var gnrwdg = sourceNode.gnrwdg;
+        sourceNode.attr.nodeId = objectPop(kw,'nodeId');
+        if(objectPop(kw,'_workspace')!==false){
+            sourceNode.attr._workspace = true;
+        }
+        var userObjectPars = objectExtract(kw,'table,flags,objtype');
+        userObjectPars.objtype = userObjectPars.objtype || this.objtype;
+        gnrwdg.newcaption  = _T(objectPop(kw,'newcaption') || 'New '+userObjectPars.objtype);
+        gnrwdg.table = userObjectPars.table;
+        objectUpdate(userObjectPars,objectExtract(kw,'userobject_*'));
+        gnrwdg.userObjectPars = userObjectPars;
+        var bc = sourceNode._('BorderContainer',objectExtract(kw,'top,bottom,left,right,border,margin,height,width,rounded,region,side'));
+        if(kw.configurator){
+            gnrwdg.prepareConfiguratorFrame(bc,kw);
+        }
+        gnrwdg.prepareViewerFrame(bc,kw);
+        return bc;
+    },
+
+    gnrwdg_resetMenuData:function(){
+        var m = this.sourceNode.getRelativeData('#WORKSPACE.loadMenu');
+        m.getParentNode().getResolver().reset();
+    },
+
+    gnrwdg_setLoadMenuData:function(){
+        this.sourceNode.setRelativeData('#WORKSPACE.loadMenu',
+                                        genro.dev.userObjectMenuData(objectUpdate({},this.userObjectPars),
+                                                    [{pkey:'__newobj__',caption:this.newcaption}]));
+    },
+
+    gnrwdg_prepareViewerFrame:function(bc,kw){
+        //override
+        var frame = bc._('FramePane','viewer',{region:'center',frameCode:this.sourceNode.attr.nodeId+'_viewer'});
+        this.viewerFrame(frame);
+    },
+
+
+    gnrwdg_viewerFrame:function(frame,kw){
+        //override
+    },
+
+    gnrwdg_configuratorFrame:function(frame,kw){
+        //override
+    },
+
+    gnrwdg_prepareConfiguratorFrame:function(bc,kw){
+        var confkw = objectPop(kw,'configurator');
+        confkw = confkw===true?{region:'right',drawer:kw.userObjectId?'close':true,splitter:true,border_left:'1px solid #ccc',width:'320px'}:configurator;        
+        this.setLoadMenuData();
+        var frame = bc._('FramePane','configurator',objectUpdate(confkw,{frameCode:this.sourceNode.attr.nodeId+'_conf'}));
+        var bar = frame._('slotBar',{toolbar:true,side:'top',slots:'5,loadMenu,2,objTitle,*,saveBtn,5'});
+        var that = this;
+        bar._('div','objTitle',{innerHTML:'^#WORKSPACE.metadata.description?=(#v || "New")',font_weight:'bold',font_size:'.9em',color:'#666'});
+        bar._('slotButton','loadMenu',{iconClass:'iconbox folder',label:'Load',
+            menupath:'#WORKSPACE.loadMenu',action:function(item){
+                that.loadObject(item.pkey);
+        }});
+        bar._('slotButton','saveBtn',{iconClass:'iconbox save',label:'Save',
+                                        action:function(){
+                                            that.saveObject();
+                                        }});
+        this.configuratorFrame(frame,kw);
+    },
+
+
+    gnrwdg_userObjectData:function(){
+        //override
+        return new gnr.GnrBag();
+    },
+
+    gnrwdg_saveObject:function() {
+        var datapath = this.sourceNode.absDatapath('#WORKSPACE.metadata');
+        var instanceCode = this.sourceNode.getRelativeData('#WORKSPACE.metadata.code');
+        var data = this.userObjectData();
+        saveCb = function(dlg) {
+            var metadata = genro.getData(datapath);
+            metadata.setItem('flags',this.userObjectPars.flags);
+            genro.serverCall('_table.adm.userobject.saveUserObject',
+                            {'objtype':this.userObjectPars.objtype,'metadata':metadata,
+                            'data':data,table:this.userObjectPars.table},
+                            function(result) {
+                                dlg.close_action();
+                                that.resetMenuData();
+                            });
+        };
+        genro.dev.userObjectDialog(instanceCode ? 'Save ' + this.userObjectPars.objtype +' '+instanceCode : 'Save '+this.newcaption,datapath,saveCb);
+    },
+
+    gnrwdg_loadObject:function(userObjectId,fistLoad){
+        this.onLoadingObject(userObjectId,fistLoad);
+        if(userObjectId=='__newobj__'){
+            this.onLoadedObject(null,userObjectId,firstLoad);
+        }else{
+            var that = this;
+            genro.serverCall('_table.adm.userobject.loadUserObject', {pkey:userObjectId}, 
+            function(result){
+                that.onLoadedObject(result,userObjectId,firstLoad);
+            });
+        }
+    },
+
+    gnrwdg_onLoadingObject:function(userObjectId,fistLoad){
+        //override
+    },
+
+    gnrwdg_onLoadedObject:function(result,userObjectId,fistLoad){
+        //override
+    },
+});
+
+
 
 dojo.declare("gnr.widgets.SharedObject", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw){

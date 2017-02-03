@@ -830,6 +830,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         else if (ele.attachEvent) ele.attachEvent('on' + opt['type'], func);
         else ele['on' + opt['type']] = func;
     },
+
     userObjectDialog:function(title,datapath,saveCb){
         var dlg = genro.dlg.quickDialog(title);
         var center = dlg.center;
@@ -845,11 +846,29 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var data = new gnr.GnrBag();
         saveattr.action = function(){
             saveCb(dlg);
-        }
+        };
         bottom._('button', saveattr);
         bottom._('button', {'float':'right',label:_T('Cancel'),action:dlg.close_action});
         dlg.show_action();
     },
+
+    userObjectMenuData:function(kw,extraRows){
+        if(extraRows){
+            kw._onResult = function(result){
+                var offset = result.len();
+                if(offset){
+                    result.setItem('r_'+offset,null,{caption:'-'});
+                }
+                offset+=1;
+                extraRows.forEach(function(n,i){
+                    result.setItem('r_'+(i+offset),null,n);
+                });
+            };
+        }
+        var resolver = genro.rpc.remoteResolver('_table.adm.userobject.userObjectMenu', kw);
+        return resolver;
+    },
+
 
     addError:function(error,error_type,show){
         var msg = "<div style='text-align:center;font-size:1em;font-weight:bold;'>"+error_type.toUpperCase()+" Error "+_F(new Date(),'short')+"</div>"+error;
