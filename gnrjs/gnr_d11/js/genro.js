@@ -877,7 +877,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     getServerLastTs:function(){
-        return asTypedTxt(new Date(genro._lastUserEventTs.getTime()+(genro.serverTimeDelta || 0)),'DH')
+        return asTypedTxt(new Date(genro._lastUserEventTs.getTime()+(genro.serverTimeDelta || 0)),'DH');
     },
 
     getServerLastRpc:function(){
