@@ -5,6 +5,7 @@
 # Copyright (c) 2017 Softwell. All rights reserved.
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method
+from gnr.xtnd.gnrpandas import GnrPandas
 
 class StatsPane(BaseComponent):
     py_requires='js_plugins/chartjs/chartjs:ChartPane'
@@ -12,29 +13,23 @@ class StatsPane(BaseComponent):
     css_requires='js_plugins/statspane/statspane'
 
     @public_method
-    def pdstats_configuratorTabs(self,pane,table=None,dataframeName=None,query_pars=None,**kwargs):
+    def pdstats_configuratorTabs(self,pane,table=None,dfname=None,query_pars=None,**kwargs):
         if query_pars:
             query_pars['where'] = query_pars.pop('_')
         bc = pane.borderContainer()
         top = bc.contentPane(region='top',border_bottom='1px solid silver')
         fb = top.formbuilder(cols=2,border_spacing='3px',_anchor=True)
         fb.button('Load',fire='#WORKSPACE.df.load_dataframe')
-        fb.dataRpc('#WORKSPACE.df.info.store',self.getDataframe,_fired='^#WORKSPACE.df.load_dataframe',
-                    table=table,dataframeName=dataframeName,
+        fb.dataRpc('#WORKSPACE.df.info.store',self.dataframeFromDb,_fired='^#WORKSPACE.df.load_dataframe',
+                    tablename=table,dfname=dfname,
                     _onResult='FIRE #WORKSPACE.df.loadedDataframe',
                     **query_pars)
         tc = bc.tabContainer(region='center',margin='2px')
-        self.pivotTables(tc.borderContainer(title='Pivot',_class='noheader'),table=table,dataframeName=dataframeName)
-        self.dataFrameCoords(tc.borderContainer(title='Dataframe'),table=table,dataframeName=dataframeName)
+        self.pivotTables(tc.borderContainer(title='Pivot',_class='noheader'),table=table,dfname=dfname)
+        self.dataFrameCoords(tc.borderContainer(title='Dataframe'),table=table,dfname=dfname)
 
 
-    #def test_0_dataframe(self,pane,table=None,dataframeName=None):
-    #    pane.bagGrid(frameCode='pivotGrid',title='Pivot Grid',
-    #                datapath='.pivot',storepath='#WORKSPACE.pivot.result.store',
-    #                structpath='#WORKSPACE.pivot.result.struct',
-    #                datamode='attr')
-
-    def dataFrameCoords(self,bc,table=None,dataframeName=None):
+    def dataFrameCoords(self,bc,table=None,dfname=None):
         frame = bc.contentPane(region='top',height='50%').bagGrid(frameCode='dataFrameInfo',storepath='.store',title='DF coords',
                                                                 datapath='#WORKSPACE.df.info',
                                                                 struct=self.dfcoords_struct,
@@ -43,7 +38,7 @@ class StatsPane(BaseComponent):
         bar = frame.bottom.slotBar('*,updateDataframe,5',margin_bottom='2px',_class='slotbar_dialog_footer')
         bar.updateDataframe.slotButton('Update',fire='#WORKSPACE.df.update')
         bc.dataRpc('#WORKSPACE.df.info.store',self.updateDataframe,table='=#WORKSPACE.df.table',limit='=#WORKSPACE.df.limit',
-                    dataframeName='=#WORKSPACE.df.dataframeName',info='=#WORKSPACE.df.info.store',_fired='^#WORKSPACE.df.update')
+                    dfname='=#WORKSPACE.df.dfname',info='=#WORKSPACE.df.info.store',_fired='^#WORKSPACE.df.update')
 
     def pivotTablesStruct(self,struct):
         r = struct.view().rows()
@@ -55,22 +50,22 @@ class StatsPane(BaseComponent):
             """,width='100%')
 
 
-    def pivotTables(self,bc,table=None,dataframeName=None):
-        view = bc.contentPane(region='bottom',height='40%').bagGrid(title='Stored pivots',frameCode='V_%s_pivotTable' %dataframeName,storepath='.store',
+    def pivotTables(self,bc,table=None,dfname=None):
+        view = bc.contentPane(region='bottom',height='40%').bagGrid(title='Stored pivots',frameCode='V_%s_pivotTable' %dfname,storepath='.store',
                                                                     datapath='#WORKSPACE.df.storedPivots',
                                                                     struct=self.pivotTablesStruct,
                                                                     addrow=False,delrow=True)
-        self.pivotTableForm(view.grid.linkedForm(frameCode='F_%s_pivotTable' %dataframeName,
+        self.pivotTableForm(view.grid.linkedForm(frameCode='F_%s_pivotTable' %dfname,
                                  datapath='#WORKSPACE.df.storedPivots.form',loadEvent='onRowDblClick',
                                  handlerType='border',
                                  childname='form',attachTo=bc,
                                  formRoot=bc.contentPane(region='center'),
                                  store='memory',
-                                 store_pkeyField='code'),table=table,dataframeName=dataframeName)
+                                 store_pkeyField='code'),table=table,dfname=dfname)
 
 
 
-    def pivotTableForm(self,form,table=None,dataframeName=None):
+    def pivotTableForm(self,form,table=None,dfname=None):
         topbar = form.top.slotToolbar('10,ftitle,*')
         bottom = form.bottom.slotBar('5,clearCurrent,savePivot,*,runCurrent,5',margin_bottom='2px',_class='slotbar_dialog_footer')
 
@@ -82,7 +77,7 @@ class StatsPane(BaseComponent):
             """)
         bottom.runCurrent.slotButton('Run',fire='.run')
         form.dataRpc('#WORKSPACE.pivot.result',self.getPivotTable,data='=#FORM.record',
-                    dataframeName=dataframeName,table=table,_fired='^.run')
+                    dfname=dfname,table=table,_fired='^.run')
         bottom.savePivot.slotButton('Save',#iconClass="iconbox save",
                                 parentForm=True,
                                 ask=dict(askIf="!code",title='Save new pivot',askOn='Shift',
@@ -126,8 +121,6 @@ class StatsPane(BaseComponent):
         r = struct.view().rows()
         r.cell('fieldname',name='Field',width='100%')
 
-
-
     def dfcoords_struct(self,struct):
         r = struct.view().rows()
         r.cell('fieldname',name='Field',width='10em')
@@ -135,28 +128,28 @@ class StatsPane(BaseComponent):
         r.cell('label',name='Label',width='12em',edit=True)
         r.cell('element_count',name='C.',width='4em',dtype='L')
 
+    @public_method
+    def dataframeFromDb(self,dfname=None,tablename=None,where=None,columns=None,statname=None,**kwargs):
+        statname = statname or 'stats_%s' %dfname
+        path = self.site.getStaticPath('page:stats',statname)
+        with GnrPandas(path) as gp:
+            gp.dataframeFromDb(dfname=dfname,db=self.db,tablename=tablename,where=where,**kwargs)
+        return gp[dfname].getInfo()
+
+    #@public_method
+    #def updateDataframe(self,table=None,dfname=None,info=None,**kwargs):
+    #    service = self.site.getService('stats')
+    #    gnrdf = service.gnrDataFrame(filepath='page:stats/%s/%s' %(table.replace('.','/'),dfname))
+    #    gnrdf.updateInfo(info)
+    #    gnrdf.to_pickle('page:stats/%s/%s' %(table.replace('.','/'),dfname))
+    #    return gnrdf.getInfo()
 
     @public_method
-    def getDataframe(self,table=None,where=None,columns=None,dataframeName=None,**kwargs):
-        service = self.site.getService('stats')
-        gnrdf = service.gnrDataFrame(table,where=where,**kwargs)
-        gnrdf.to_pickle('page:stats/%s/%s' %(table.replace('.','/'),dataframeName))
-        return gnrdf.getInfo()
-
-    @public_method
-    def updateDataframe(self,table=None,dataframeName=None,info=None,**kwargs):
-        service = self.site.getService('stats')
-        gnrdf = service.gnrDataFrame(filepath='page:stats/%s/%s' %(table.replace('.','/'),dataframeName))
-        gnrdf.updateInfo(info)
-        gnrdf.to_pickle('page:stats/%s/%s' %(table.replace('.','/'),dataframeName))
-        return gnrdf.getInfo()
-
-    @public_method
-    def getPivotTable(self,table=None,dataframeName=None,data=None,**kwargs):
-        service = self.site.getService('stats')
-        gnrdf = service.gnrDataFrame(filepath='page:stats/%s/%s' %(table.replace('.','/'),dataframeName))
-        return gnrdf.pivotTableGrid(index=data['index'].keys() if data['index'] else None,
+    def getPivotTable(self,table=None,dfname=None,data=None,statname=None,**kwargs):
+        statname = statname or 'stats_%s' %dfname
+        path = self.site.getStaticPath('page:stats',statname)
+        with GnrPandas(path) as gp:
+            return gp[dfname].dataframeFromDb(index=data['index'].keys() if data['index'] else None,
                                     values=data['values'].keys() if data['values'] else None,
                                     columns=data['columns'].keys() if data['columns'] else None)
-
 

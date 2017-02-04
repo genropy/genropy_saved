@@ -29,7 +29,7 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.UserObjectLayout, {
     gnrwdg_configuratorFrame:function(frame,kw){
         var cpkw = {side:'center',overflow:'hidden',remote:'pdstats_configuratorTabs',
                               remote_table:this.table,
-                              remote_dataframeName:this.sourceNode.attr.nodeId,
+                              remote_dfname:this.sourceNode.attr.nodeId,
                               remote_py_requires:'js_plugins/statspane/statspane:StatsPane',
                               _anchor:true};
 

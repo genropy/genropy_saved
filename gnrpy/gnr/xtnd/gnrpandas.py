@@ -5,10 +5,11 @@
 #  Copyright (c) 2013 Softwell. All rights reserved.
 
 import os
-from gnr.core.gnrbaseservice import GnrBaseService
 from gnr.core.gnrbag import Bag
 from datetime import datetime
 from gnr.core.gnrstring import toText
+from functools import wraps
+
 
 try:
     import cPickle as pickle
@@ -22,21 +23,69 @@ except:
     pd = False
     np = False
 
-class GnrDataFrame(object):
+def remember(f):
+    @wraps(f)
+    def wrapper(self, *args, **kwargs):
+        res = f(self,*args, **kwargs)
+        if 'db' in kwargs:
+            kwargs['db'] = None
+        self.steps.append({'name':f.func_name,'args':args,'kwargs':kwargs})
+        return res
+    return wrapper
+
+
+class GnrPandas(object):
+
+    def __init__(self,path=None):
+        self.defaultpath = path
+        self.dataframes = {}
+        self.steps = []
+
+    def __enter__(self):
+        if self.defaultpath:
+            if os.path.exists(self.defaultpath):
+                self.load()
+        return self
+
+    def __exit__(self,type, value, tb):
+        self.save()
+
+    @remember
+    def dataframeFromDb(self,dfname=None,db=None,tablename=None,columns=None,where=None,**kwargs):
+        self.dataframes[dfname] = GnrDataframe(dfname)
+        self.dataframes[dfname].dataframeFromDb(db=db,tablename=tablename,columns=columns,where=where,**kwargs)
+
+    def save(self,path=None):
+        path = path or self.defaultpath
+        if not os.path.exists(path):
+            os.makedirs(path)
+        with open(os.path.join(path,'meta.pik'), 'w') as storagefile:
+            pickle.dump(self.steps,storagefile)
+            for dfname,gnrdf in self.dataframes.items():
+                gnrdf.to_pickle(path)
+
+    def load(self,path=None):
+        pass
+
+    def __getitem__(self,name):
+        return self.dataframes[name]
+
+
+class GnrDataframe(object):
     """docstring for GnrDataFrame"""
-    def __init__(self,service,filepath=None,tbl=None,where=None,columns=None,**kwargs):
-        self.service = service
-        if filepath:
-            self.from_pickle(filepath)
-        else:
-            self.tbl = tbl
-            self.tblobj = self.service.site.db.table(tbl)
-            selection = self.tblobj.query(where=where,columns=columns or self.defaultColumns(),
+    def __init__(self,dfname):
+        self.dfname = dfname
+        self.steps = []
+
+    @remember
+    def dataframeFromDb(self,db=None,tablename=None,columns=None,where=None,**kwargs):
+        tblobj = db.table(tablename)
+        selection = tblobj.query(where=where,columns=columns or self.defaultColumns(tblobj),
                                                 addPkeyColumn=False,
                                                 **kwargs).selection()
-            self.colAttrs = selection.colAttrs
-            self.columns = selection.columns
-            self.dataframe = pd.DataFrame(self.convertData(selection.data))
+        self.colAttrs = selection.colAttrs
+        self.columns = selection.columns
+        self.dataframe = pd.DataFrame(self.convertData(selection.data))
 
     def updateInfo(self,info):
         self.columns = info.keys()
@@ -104,67 +153,31 @@ class GnrDataFrame(object):
             store.setItem('r_%s' %k,None,**rec)
         return result
 
-    def defaultColumns(self):
+    def defaultColumns(self,tblobj):
         columns = []
-        for f in self.tblobj.columns.keys() + self.tblobj.model.virtual_columns.keys():
-            if self.tblobj.column(f).attributes.get('stats'):
+        for f in tblobj.columns.keys() + tblobj.model.virtual_columns.keys():
+            if tblobj.column(f).attributes.get('stats'):
                 columns.append('$%s' %f)
         return ','.join(columns)
 
-
     def to_pickle(self,path):
-        path = self.service.site.getStaticPath(path,autocreate=True)
-        self.dataframe.to_pickle(os.path.join(path,'dataframe.pik'))
-        with open(os.path.join(path,'meta.pik'), 'w') as storagefile:
+        folder = os.path.join(path,self.dfname)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        self.dataframe.to_pickle(os.path.join(folder,'dataframe.pik'))
+        with open(os.path.join(folder,'meta.pik'), 'w') as storagefile:
             self.dump(storagefile)
 
     def from_pickle(self,path):
-        path = self.service.site.getStaticPath(path)
         self.dataframe = pd.read_pickle(os.path.join(path,'dataframe.pik'))
         with open(os.path.join(path,'meta.pik'), 'r') as storagefile:
             self.load(storagefile)
 
-
     def dump(self,storagefile):
         pickle.dump(self.colAttrs,storagefile)
         pickle.dump(self.columns,storagefile)
-        pickle.dump(self.tblobj.fullname,storagefile)
 
     def load(self,storagefile):
         self.colAttrs = pickle.load(storagefile)
         self.columns = pickle.load(storagefile)
         self.tbl = pickle.load(storagefile)
-        self.tblobj = self.service.site.db.table(self.tbl)
-
-class Main(GnrBaseService):
-    def __init__(self, parent=None):
-        self.site = parent
-
-    def gnrDataFrame(self,tbl=None,filepath=None,**kwargs):
-        return GnrDataFrame(self,tbl=tbl,filepath=filepath,**kwargs) 
-
-    def dataframeInfo(self,df):
-        result = Bag()
-        result.setItem('values',Bag(),caption='Values')
-        for col in df.columns:
-            colelem = df[col]
-            if pd.types.common.is_numeric_dtype(colelem):
-                result.setItem('values.%s' %col,None,caption=col)
-            elif pd.types.common.is_datetimelike(colelem): #alternativa pd.types.common.is_datetime64_dtype(colelem):
-                continue
-                #years = Bag()
-                #result.setItem(col,years,caption=col)
-                #for y in colelem.dt.year.unique():
-                #    months = Bag()
-                #    result.setItem(str(y),months,caption=y)
-                #    for m in colelem.dt.to_period('m').unique():
-                #        months.setItem(str(m),None,caption=str(m))
-            else:
-                for i,e in enumerate(colelem.unique()):
-                    if e:
-                        result.setItem('%s.r_%s' %(col,i),None,caption=e)
-        return result
-
-
-
-
