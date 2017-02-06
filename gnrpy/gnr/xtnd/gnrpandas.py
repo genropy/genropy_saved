@@ -9,7 +9,6 @@ from gnr.core.gnrbag import Bag
 from datetime import datetime
 from gnr.core.gnrstring import toText
 from functools import wraps
-from collections import OrderedDict
 
 
 try:
@@ -39,7 +38,7 @@ class GnrPandas(object):
 
     def __init__(self,path=None):
         self.defaultpath = path
-        self.dataframes = OrderedDict()
+        self.dataframes = {}
         self.steps = []
 
     def __enter__(self):
@@ -53,7 +52,8 @@ class GnrPandas(object):
 
     @remember
     def dataframeFromDb(self,dfname=None,db=None,tablename=None,columns=None,where=None,**kwargs):
-        self.dataframes[dfname] = GnrDataframe(dfname)
+        df = GnrDataframe(dfname)
+        self.dataframes[dfname] = df
         self.dataframes[dfname].dataframeFromDb(db=db,tablename=tablename,columns=columns,where=where,**kwargs)
 
     def save(self,path=None):
@@ -62,7 +62,7 @@ class GnrPandas(object):
             os.makedirs(path)
         with open(os.path.join(path,'meta.pik'), 'wb') as storagefile:
             pickle.dump(self.steps,storagefile)
-            pf = OrderedDict()
+            pf = {}
             for dfname,gnrdf in self.dataframes.items():
                 pf[dfname] = os.path.join(path,dfname)
                 gnrdf.to_pickle(path)
@@ -173,7 +173,7 @@ class GnrDataframe(object):
         for f in allcols:
             if tblobj.column(f).attributes.get('stats'):
                 columns.append('$%s' %f)
-        columns = columns or allcols
+        columns = columns or tblobj.columns.keys()
         return ','.join(columns) 
 
     def to_pickle(self,path):
