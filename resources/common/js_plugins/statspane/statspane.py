@@ -136,20 +136,21 @@ class StatsPane(BaseComponent):
             gp.dataframeFromDb(dfname=dfname,db=self.db,tablename=tablename,where=where,**kwargs)
         return gp[dfname].getInfo()
 
-    #@public_method
-    #def updateDataframe(self,table=None,dfname=None,info=None,**kwargs):
-    #    service = self.site.getService('stats')
-    #    gnrdf = service.gnrDataFrame(filepath='page:stats/%s/%s' %(table.replace('.','/'),dfname))
-    #    gnrdf.updateInfo(info)
-    #    gnrdf.to_pickle('page:stats/%s/%s' %(table.replace('.','/'),dfname))
-    #    return gnrdf.getInfo()
+    @public_method
+    def updateDataframe(self,table=None,dfname=None,info=None,**kwargs):
+        service = self.site.getService('stats')
+        gnrdf = service.gnrDataFrame(filepath='page:stats/%s/%s' %(table.replace('.','/'),dfname))
+        gnrdf.updateInfo(info)
+        gnrdf.to_pickle('page:stats/%s/%s' %(table.replace('.','/'),dfname))
+        return gnrdf.getInfo()
 
     @public_method
     def getPivotTable(self,table=None,dfname=None,data=None,statname=None,**kwargs):
         statname = statname or 'stats_%s' %dfname
         path = self.site.getStaticPath('page:stats',statname)
         with GnrPandas(path) as gp:
-            return gp[dfname].dataframeFromDb(index=data['index'].keys() if data['index'] else None,
+            return gp[dfname].pivotTableGrid(index=data['index'].keys() if data['index'] else None,
                                     values=data['values'].keys() if data['values'] else None,
                                     columns=data['columns'].keys() if data['columns'] else None)
+
 

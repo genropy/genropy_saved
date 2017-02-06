@@ -9,6 +9,7 @@ from gnr.core.gnrbag import Bag
 from datetime import datetime
 from gnr.core.gnrstring import toText
 from functools import wraps
+from collections import OrderedDict
 
 
 try:
@@ -38,7 +39,7 @@ class GnrPandas(object):
 
     def __init__(self,path=None):
         self.defaultpath = path
-        self.dataframes = {}
+        self.dataframes = OrderedDict()
         self.steps = []
 
     def __enter__(self):
@@ -59,17 +60,30 @@ class GnrPandas(object):
         path = path or self.defaultpath
         if not os.path.exists(path):
             os.makedirs(path)
-        with open(os.path.join(path,'meta.pik'), 'w') as storagefile:
+        with open(os.path.join(path,'meta.pik'), 'wb') as storagefile:
             pickle.dump(self.steps,storagefile)
+            pf = OrderedDict()
             for dfname,gnrdf in self.dataframes.items():
+                pf[dfname] = os.path.join(path,dfname)
                 gnrdf.to_pickle(path)
+            pickle.dump(pf,storagefile)
 
     def load(self,path=None):
-        pass
+        path = path or self.defaultpath
+        with open(os.path.join(path,'meta.pik'), 'rb') as storagefile:
+            self.steps = pickle.load(storagefile)
+            self.dataframes = pickle.load(storagefile)
 
-    def __getitem__(self,name):
-        return self.dataframes[name]
 
+
+    def __getitem__(self,dfname):
+        df = self.dataframes[dfname]
+        if isinstance(df,basestring):
+            path = df
+            df = GnrDataframe(dfname)
+            df.from_pickle(path)
+            self.dataframes[dfname] = df
+        return df
 
 class GnrDataframe(object):
     """docstring for GnrDataFrame"""
@@ -165,19 +179,20 @@ class GnrDataframe(object):
         if not os.path.exists(folder):
             os.makedirs(folder)
         self.dataframe.to_pickle(os.path.join(folder,'dataframe.pik'))
-        with open(os.path.join(folder,'meta.pik'), 'w') as storagefile:
+        with open(os.path.join(folder,'meta.pik'), 'wb') as storagefile:
             self.dump(storagefile)
 
     def from_pickle(self,path):
         self.dataframe = pd.read_pickle(os.path.join(path,'dataframe.pik'))
-        with open(os.path.join(path,'meta.pik'), 'r') as storagefile:
+        with open(os.path.join(path,'meta.pik'), 'rb') as storagefile:
             self.load(storagefile)
 
     def dump(self,storagefile):
+        pickle.dump(self.steps,storagefile)
         pickle.dump(self.colAttrs,storagefile)
         pickle.dump(self.columns,storagefile)
 
     def load(self,storagefile):
+        self.steps = pickle.load(storagefile)
         self.colAttrs = pickle.load(storagefile)
         self.columns = pickle.load(storagefile)
-        self.tbl = pickle.load(storagefile)
