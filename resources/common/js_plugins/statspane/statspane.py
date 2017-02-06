@@ -13,15 +13,19 @@ class StatsPane(BaseComponent):
     css_requires='js_plugins/statspane/statspane'
 
     @public_method
-    def pdstats_configuratorTabs(self,pane,table=None,dfname=None,query_pars=None,**kwargs):
+    def pdstats_configuratorTabs(self,pane,table=None,dfname=None,query_pars=None,connectedWidgetId=None,**kwargs):
+        query_pars = query_pars or {}
         if query_pars:
             query_pars['where'] = query_pars.pop('_')
         bc = pane.borderContainer()
         top = bc.contentPane(region='top',border_bottom='1px solid silver')
         fb = top.formbuilder(cols=2,border_spacing='3px',_anchor=True)
         fb.button('Load',fire='#WORKSPACE.df.load_dataframe')
-        fb.dataRpc('#WORKSPACE.df.info.store',self.dataframeFromDb,_fired='^#WORKSPACE.df.load_dataframe',
+        fb.dataRpc('#WORKSPACE.df.info.store',self.dataframeFromDb,
+                    _connectedWidgetId=connectedWidgetId,
+                    _fired='^#WORKSPACE.df.load_dataframe',
                     tablename=table,dfname=dfname,
+                    #_onCalling="genro.bp(true);",
                     _onResult='FIRE #WORKSPACE.df.loadedDataframe',
                     **query_pars)
         tc = bc.tabContainer(region='center',margin='2px')

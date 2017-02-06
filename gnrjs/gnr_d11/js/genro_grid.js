@@ -832,17 +832,38 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         setTimeout(function(){widget.updateRowCount('*');},1);
     },
 
-    pluginContextMenuBag:function(sourceNode){
+    cm_plugin_configurator:function(sourceNode,menu){
+        menu.setItem('#id',null,{caption:_T('Configure view'),action:"$2.widget.configureStructure();"});
+    },
 
-        var contextMenuBag = sourceNode.getRelativeData('.contextMenu');
-        var standardContextMenuBag = new gnr.GnrBag();
-        standardContextMenuBag.setItem('#id',null,{caption:_T('Configure view'),action:"$2.widget.configureStructure();"});
-        standardContextMenuBag.setItem('#id',
+    cm_plugin_chartjs:function(sourceNode,menu){
+        menu.setItem('#id',
             genro.dev.userObjectMenuData({'objtype':'chartjs',
                   'flags':genro.getData('gnr.pagename')+'_'+sourceNode.attr.nodeId,
                     'table':sourceNode.attr.table},[{pkey:'__newchart__',caption:_T('New chart')}]),
             {caption:_T('Charts'),
             action:"$2.publish('pluginCommand',{plugin:'chartjs',command:'openGridChart',pkey:$1.pkey,caption:$1.caption});"});
+        
+    },
+    cm_plugin_stats:function(sourceNode,menu){
+        menu.setItem('#id',
+            genro.dev.userObjectMenuData({'objtype':'stats',
+                  'flags':genro.getData('gnr.pagename')+'_'+sourceNode.attr.nodeId,
+                    'table':sourceNode.attr.table},[{pkey:'__newobj__',caption:_T('New stats')}]),
+            {caption:_T('Stats'),
+            action:"$2.publish('pluginCommand',{plugin:'statspane',command:'openGridStats',pkey:$1.pkey,caption:$1.caption});"});
+    },
+
+    pluginContextMenuBag:function(sourceNode){
+        var gridplugins = sourceNode.attr.gridplugins || 'configurator,chartjs';
+        var contextMenuBag = sourceNode.getRelativeData('.contextMenu');
+        var standardContextMenuBag = new gnr.GnrBag();
+
+        gridplugins = gridplugins?gridplugins.split(','):[];
+        var that = this;
+        gridplugins.forEach(function(cm_plugin){
+            that['cm_plugin_'+cm_plugin](sourceNode,standardContextMenuBag);
+        });
         if(!contextMenuBag){
             contextMenuBag = standardContextMenuBag;
         }else{

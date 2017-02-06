@@ -169,10 +169,12 @@ class GnrDataframe(object):
 
     def defaultColumns(self,tblobj):
         columns = []
-        for f in tblobj.columns.keys() + tblobj.model.virtual_columns.keys():
+        allcols = tblobj.columns.keys() + tblobj.model.virtual_columns.keys()
+        for f in allcols:
             if tblobj.column(f).attributes.get('stats'):
                 columns.append('$%s' %f)
-        return ','.join(columns)
+        columns = columns or allcols
+        return ','.join(columns) 
 
     def to_pickle(self,path):
         folder = os.path.join(path,self.dfname)

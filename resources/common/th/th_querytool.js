@@ -486,7 +486,7 @@ dojo.declare("gnr.QueryManager", null, {
             }
         }else if(querybag.getItem("#0?column")){
             this.cleanQueryPane(querybag); 
-            var parslist = this.translateQueryPars();
+            parslist = this.translateQueryPars();
         }
         if (parslist.length>0){
             this.buildParsDialog(parslist);
