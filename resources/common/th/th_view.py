@@ -628,12 +628,14 @@ class TableHandlerView(BaseComponent):
                                }
                                if(kwargs['where'] && kwargs['where'] instanceof gnr.GnrBag){
                                     var newwhere = kwargs['where'].deepCopy();
-                                    kwargs['where'].walk(function(n){
-                                        if(n.label.indexOf('parameter_')==0){
-                                            newwhere.popNode(n.label);
-                                            kwargs[n.label.replace('parameter_','')]=n._value;
+                                    var where = kwargs['where'];
+                                    where.walk(function(n){
+                                        var p = n.getFullpath(null,where);
+                                        if(p.indexOf('parameter_')==0){
+                                            newwhere.popNode(p);
+                                            kwargs[n.label.replace('parameter_','')] = n._value;
                                         }else{
-                                            objectPop(newwhere.getNode(n.label).attr,'value_caption');
+                                            objectPop(newwhere.getNode(p).attr,'value_caption');
                                         }
                                     });
                                     kwargs['where'] = newwhere;

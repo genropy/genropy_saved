@@ -397,6 +397,7 @@ class TableHandlerMain(BaseComponent):
             lockable = False
         kwargs.setdefault('preview_tpl',True)
         kwargs.setdefault('form_form_isRootForm',True)
+        kwargs.setdefault('view_store_onStart',not extendedQuery)
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,lockable=lockable,
                                                       extendedQuery=extendedQuery,**kwargs)
         root.dataController("""
@@ -445,8 +446,6 @@ class TableHandlerMain(BaseComponent):
             viewbar.captionslot.publicRoot_captionslot()
 
         storeupd = dict(startLocked=lockable)
-        if not extendedQuery:
-            storeupd['_onStart'] = True
         vstore.attributes.update(storeupd)
         if len(extras)>0:
             viewbar.replaceSlots('resourceMails','resourceMails,5,%s' %','.join(extras))  
