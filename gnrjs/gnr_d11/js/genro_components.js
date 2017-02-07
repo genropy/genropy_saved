@@ -4183,7 +4183,7 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
 
     gnrwdg_prepareConfiguratorFrame:function(bc,kw){
         var confkw = objectPop(kw,'configurator');
-        confkw = confkw===true?{region:'right',drawer:kw.userObjectId?'close':true,splitter:true,border_left:'1px solid #ccc',width:'320px'}:configurator;        
+        confkw = confkw===true?{region:'right',drawer:(kw.userObjectId && kw.userObjectId!='__newobj__')?'close':true,splitter:true,border_left:'1px solid #ccc',width:'320px'}:configurator;        
         this.setLoadMenuData();
         var frame = bc._('FramePane','configurator',objectUpdate(confkw,{frameCode:this.sourceNode.attr.nodeId+'_conf'}));
         var bar = frame._('slotBar',{toolbar:true,side:'top',slots:'5,loadMenu,2,objTitle,*,saveBtn,5'});

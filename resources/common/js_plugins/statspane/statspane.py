@@ -6,6 +6,7 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method
 from gnr.xtnd.gnrpandas import GnrPandas
+from gnr.core.gnrbag import Bag
 
 class StatsPane(BaseComponent):
     py_requires='js_plugins/chartjs/chartjs:ChartPane'
@@ -25,7 +26,9 @@ class StatsPane(BaseComponent):
                     _connectedWidgetId=connectedWidgetId,
                     _fired='^#WORKSPACE.df.load_dataframe',
                     tablename=table,dfname=dfname,
-                    #_onCalling="genro.bp(true);",
+                    _onCalling="""
+                        genro.statspane.queryParsFromGrid(kwargs);
+                    """,
                     _onResult='FIRE #WORKSPACE.df.loadedDataframe',
                     **query_pars)
         tc = bc.tabContainer(region='center',margin='2px')
@@ -133,11 +136,20 @@ class StatsPane(BaseComponent):
         r.cell('element_count',name='C.',width='4em',dtype='L')
 
     @public_method
-    def dataframeFromDb(self,dfname=None,tablename=None,where=None,columns=None,statname=None,**kwargs):
-        statname = statname or 'stats_%s' %dfname
+    def dataframeFromDb(self,dfname=None,tablename=None,where=None,condition=None,columns=None,statname=None,selectionKwargs=None,**kwargs):
+        statname = statname or dfname
         path = self.site.getStaticPath('page:stats',statname)
-        with GnrPandas(path) as gp:
-            gp.dataframeFromDb(dfname=dfname,db=self.db,tablename=tablename,where=where,**kwargs)
+        if selectionKwargs:
+            kwargs.update(selectionKwargs)
+        if isinstance(where,Bag):
+            where,kwargs = self.db.table(tablename).sqlWhereFromBag(where, kwargs)
+        if condition:
+            where = ' ( %s ) AND ( %s ) ' % (where, condition) if where else condition
+        gp = GnrPandas()
+        #with GnrPandas(path) as gp:
+        gp.dataframeFromDb(dfname=dfname,db=self.db,tablename=tablename,where=where,condition=condition,
+                                columns=columns,**kwargs)
+        gp.save(path)
         return gp[dfname].getInfo()
 
     @public_method
@@ -150,10 +162,12 @@ class StatsPane(BaseComponent):
 
     @public_method
     def getPivotTable(self,table=None,dfname=None,data=None,statname=None,**kwargs):
-        statname = statname or 'stats_%s' %dfname
+        statname = statname or dfname
         path = self.site.getStaticPath('page:stats',statname)
-        with GnrPandas(path) as gp:
-            return gp[dfname].pivotTableGrid(index=data['index'].keys() if data['index'] else None,
+        gp = GnrPandas()
+        gp.load(path)
+        #with GnrPandas(path) as gp:
+        return gp[dfname].pivotTableGrid(index=data['index'].keys() if data['index'] else None,
                                     values=data['values'].keys() if data['values'] else None,
                                     columns=data['columns'].keys() if data['columns'] else None)
 

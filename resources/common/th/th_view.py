@@ -98,7 +98,7 @@ class TableHandlerView(BaseComponent):
         #top_kwargs['height'] = top_kwargs.get('height','20px')
         top_kwargs['_class'] = 'th_view_toolbar'
         grid_kwargs['configurable'] = configurable
-        grid_kwargs['gridplugins'] = 'configurator,chartjs,stats';
+        grid_kwargs.setdefault('gridplugins', 'configurator,chartjs,stats' if virtualStore else 'configurator,chartjs')
         grid_kwargs['item_name_singular'] = self.db.table(table).name_long
         grid_kwargs['item_name_plural'] = self.db.table(table).name_plural or grid_kwargs['item_name']
         grid_kwargs.setdefault('loadingHider',loadingHider)

@@ -11,11 +11,13 @@ genro.statspane =  {
             }
             kw.nodeId = statsCode;
         }
-        statsCode = statsCode || '_stats_'+genro.getCounter();
+
         genro.src.getNode()._('div',statsCode);
         var node = genro.src.getNode(statsCode).clearValue();
         node.freeze();
         kw.dockTo = kw.dockTo || 'dummyDock:open';
+        kw.paletteCode = statsCode;
+        console.log('openPaletteStats',kw);
         if(kw.configurator!==false){
             kw.configurator = true;
         }
@@ -27,7 +29,55 @@ genro.statspane =  {
     openGridStats:function(kw){
         kw.connectedTo = objectPop(kw,'grid').sourceNode;
         kw.userObjectId = objectPop(kw,'pkey');
+        kw.statsCode = 'stats_palette_'+kw.connectedTo.attr.nodeId;
         return this.openPaletteStats(kw);
+    },
+    queryParsFromGrid:function(kw){
+        if(!kw._connectedWidgetId){
+            return;
+        }
+        var widgetSourceNode = genro.nodeById(kw._connectedWidgetId);
+        var w = widgetSourceNode.widget;
+        if(w.collectionStore){
+            var s = w.collectionStore();
+            var sn = s.storeNode;
+            var selattr = sn.currentAttributes();
+            if(selattr._sections){
+                th_sections_manager.onCalling(selattr._sections,selattr);
+            }
+            kw.where = objectPop(selattr,'where');
+            kw.condition = objectPop(selattr,'condition');
+            objectExtract(selattr,'_*');
+            objectExtract(selattr,'hardQueryLimit,checkPermissions');
+            var columns = objectPop(selattr,'columns');
+            if(widgetSourceNode.attr.structpath){
+                var struct = widgetSourceNode.getRelativeData(widgetSourceNode.attr.structpath);
+                var row_head = struct.getItem('#0.#0');
+                var headers = {};
+                columns = [];
+                row_head.forEach(function(n){
+                    if(n.attr.calculated){
+                        return;
+                    }
+                    if('hidden' in n.attr){
+                        if(widgetSourceNode.currentFromDatasource(n.attr.hidden)){
+                            return;
+                        }
+                    }
+                    var f = n.attr.caption_field || n.attr.field;
+                    headers[f.replace(/\./g, '_').replace(/@/g, '_')] = {dataType:n.attr.dtype,label:n.attr.name};
+                    if(f[0]!='@' && f[0]!='$'){
+                        f = '$'+f;
+                    }
+                    arrayPushNoDup(columns,f);
+                });
+                columns = columns.join(',');
+                kw.headers = headers;
+            }
+            kw.columns = columns;
+            kw.selectionKwargs = selattr;
+        }
+        
     }
 };
 
@@ -125,7 +175,9 @@ dojo.declare("gnr.widgets.PaletteStats", gnr.widgets.StatsPane, {
         palettePars.height = palettePars.height || '400px';
         palettePars.width = palettePars.width || '700px';
         var connectedWidgetId = this.getConnectedWidgetId(sourceNode,kw.connectedTo);
-        palettePars.paletteCode = palettePars.paletteCode || kw.nodeId || connectedWidgetId?'palette_'+connectedWidgetId:'palette_stats_' %genro.getCounter();
+        if(!palettePars.paletteCode){
+            palettePars.paletteCode =  kw.nodeId || (connectedWidgetId?'palette_'+connectedWidgetId:'palette_stats_' %genro.getCounter());
+        }
         kw._workspace = false;
         var palette = sourceNode._('palettePane',palettePars);
         return palette._('StatsPane','statsPane',kw);

@@ -92,12 +92,14 @@ class GnrDataframe(object):
         self.steps = []
 
     @remember
-    def dataframeFromDb(self,db=None,tablename=None,columns=None,where=None,**kwargs):
+    def dataframeFromDb(self,db=None,tablename=None,columns=None,where=None,headers=None,**kwargs):
         tblobj = db.table(tablename)
         selection = tblobj.query(where=where,columns=columns or self.defaultColumns(tblobj),
                                                 addPkeyColumn=False,
                                                 **kwargs).selection()
         self.colAttrs = selection.colAttrs
+        if headers:
+            self.colAttrs.update(headers)
         self.columns = selection.columns
         self.dataframe = pd.DataFrame(self.convertData(selection.data))
 
@@ -152,7 +154,7 @@ class GnrDataframe(object):
         struct['view_0.rows_0'] = r
         for i,col in enumerate(index+values):
             cattr = self.colAttrs[col]
-            cattr['print_width'] = cattr['print_width'] or 10
+            cattr['print_width'] = cattr.get('print_width') or 10
             r.setItem('cell_%s' %i,None,field=col,
                             name=cattr.get('label'),
                             dtype=cattr.get('dataType'),
