@@ -160,13 +160,18 @@ class GnrDataframe(object):
                             dtype=cattr.get('dataType'),
                             width='%(print_width)sem' %cattr,
                             format=cattr.get('format'))
-        for k,r in enumerate(pt.to_records()):
+        k = 0
+        for index_vals,sel_vals in pt.iterrows():
             rec = {}
-            for col in index:
-                rec[col] = toText(r[col])
+            if isinstance(index_vals,tuple):
+                for i,col in enumerate(index):
+                    rec[col] = index_vals[i]
+            else:
+                rec[index[0]] = index_vals
             for col in values:
-                rec[col] = float(r[col])
+                rec[col] = float(sel_vals[col])
             store.setItem('r_%s' %k,None,**rec)
+            k+=1
         return result
 
     def defaultColumns(self,tblobj):
