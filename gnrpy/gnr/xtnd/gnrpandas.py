@@ -9,6 +9,7 @@ from gnr.core.gnrbag import Bag
 from datetime import datetime
 from gnr.core.gnrstring import toText
 from functools import wraps
+from gnr.core.gnrdecorator import timer_call
 
 
 try:
@@ -56,6 +57,7 @@ class GnrPandas(object):
         self.dataframes[dfname] = df
         self.dataframes[dfname].dataframeFromDb(db=db,tablename=tablename,columns=columns,where=where,**kwargs)
 
+    @timer_call()
     def save(self,path=None):
         path = path or self.defaultpath
         if not os.path.exists(path):
@@ -68,6 +70,7 @@ class GnrPandas(object):
                 gnrdf.to_pickle(path)
             pickle.dump(pf,storagefile)
 
+    @timer_call()
     def load(self,path=None):
         path = path or self.defaultpath
         with open(os.path.join(path,'meta.pik'), 'rb') as storagefile:
@@ -92,6 +95,7 @@ class GnrDataframe(object):
         self.steps = []
 
     @remember
+    @timer_call()
     def dataframeFromDb(self,db=None,tablename=None,columns=None,where=None,headers=None,**kwargs):
         tblobj = db.table(tablename)
         selection = tblobj.query(where=where,columns=columns or self.defaultColumns(tblobj),
@@ -115,9 +119,8 @@ class GnrDataframe(object):
             d['calc_series'] = v['calc_series']
 
     def convertData(self,data):
-        decimalCols = [k for k,v in self.colAttrs.items() if v['dataType'] == 'N']
+        decimalCols = [k for k,v in self.colAttrs.items() if v['dataType'] in ('N','R')]
         dateCols = [k for k,v in self.colAttrs.items() if v['dataType'] == 'D']
-
         for r in data:
             c = dict(r)
             for col in decimalCols:

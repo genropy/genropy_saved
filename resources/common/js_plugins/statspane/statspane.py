@@ -30,6 +30,7 @@ class StatsPane(BaseComponent):
                         genro.statspane.queryParsFromGrid(kwargs);
                     """,
                     _onResult='FIRE #WORKSPACE.df.loadedDataframe',
+                    _lockScreen=True,timeout=300000,
                     **query_pars)
         tc = bc.tabContainer(region='center',margin='2px')
         self.pivotTables(tc.borderContainer(title='Pivot',_class='noheader'),table=table,dfname=dfname)

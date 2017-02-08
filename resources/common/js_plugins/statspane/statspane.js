@@ -172,8 +172,8 @@ dojo.declare("gnr.widgets.PaletteStats", gnr.widgets.StatsPane, {
         palettePars.title = palettePars.title || 'Stats';
         palettePars.top = palettePars.top || '20px';
         palettePars.right = palettePars.right || '20px';
-        palettePars.height = palettePars.height || '400px';
-        palettePars.width = palettePars.width || '700px';
+        palettePars.height = palettePars.height || '600px';
+        palettePars.width = palettePars.width || '800px';
         var connectedWidgetId = this.getConnectedWidgetId(sourceNode,kw.connectedTo);
         if(!palettePars.paletteCode){
             palettePars.paletteCode =  kw.nodeId || (connectedWidgetId?'palette_'+connectedWidgetId:'palette_stats_' %genro.getCounter());

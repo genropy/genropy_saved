@@ -856,19 +856,14 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
     pluginContextMenuBag:function(sourceNode){
         var gridplugins = sourceNode.attr.gridplugins || 'configurator,chartjs';
-        var contextMenuBag = sourceNode.getRelativeData('.contextMenu');
-        var standardContextMenuBag = new gnr.GnrBag();
-
+        var contextMenuBag = sourceNode.getRelativeData('.contextMenu') || new gnr.GnrBag();
         gridplugins = gridplugins?gridplugins.split(','):[];
         var that = this;
-        gridplugins.forEach(function(cm_plugin){
-            that['cm_plugin_'+cm_plugin](sourceNode,standardContextMenuBag);
-        });
-        if(!contextMenuBag){
-            contextMenuBag = standardContextMenuBag;
-        }else{
+        if(gridplugins){
             contextMenuBag.setItem('r_'+contextMenuBag.len(),null,{caption:'-'});
-            contextMenuBag.setItem('r_'+contextMenuBag.len(),standardContextMenuBag,{caption:_T('Tools')});
+            gridplugins.forEach(function(cm_plugin){
+                that['cm_plugin_'+cm_plugin](sourceNode,contextMenuBag);
+            });
         }
         return contextMenuBag;
     },

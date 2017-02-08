@@ -1712,7 +1712,10 @@ dojo.declare("gnr.GridChangeManager", null, {
             that.resolveTotalizeColumns();
             });
         this.sourceNode.subscribe('onSetStructpath',function(){
-            that.resolveCalculatedColumns();
+            this.delayedCall(function(){
+                that.resolveCalculatedColumns();
+            },1,'resolveCalculatedColumns')
+            
         });
     },
     resolveCalculatedColumns:function(){
