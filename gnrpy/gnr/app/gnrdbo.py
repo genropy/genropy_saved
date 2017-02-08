@@ -1054,6 +1054,8 @@ class AttachmentTable(GnrDboTable):
                     mode='foreignkey', onDelete_sql='cascade',onDelete='cascade', relation_name='atc_attachments',
                     one_group='_',many_group='_',deferred=True)
         tbl.formulaColumn('fileurl',"'/_vol/' || $filepath",name_long='Fileurl')
+        if hasattr(self,'atc_types'):
+            tbl.column('atc_type',values=self.atc_types())
         self.onTableConfig(tbl)
 
     def onTableConfig(self,tbl):
