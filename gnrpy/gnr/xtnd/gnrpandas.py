@@ -107,6 +107,10 @@ class GnrDataframe(object):
         self.columns = selection.columns
         self.dataframe = pd.DataFrame(self.convertData(selection.data))
 
+    def renameColumns(self,**kwargs):
+        df = self.dataframe
+        df.columns = [kwargs[k] if k in kwargs else k for k in df.columns]
+
     def updateInfo(self,info):
         self.columns = info.keys()
         for k in self.colAttrs.keys():
