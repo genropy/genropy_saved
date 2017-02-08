@@ -1567,6 +1567,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     
     updateValidationStatus: function(kw) {
         if (this.widget) {
+            if(this.widget.validate){
+                this.widget.validate();
+            }
             this.updateValidationClasses();
             this.widget.state = this.hasValidationError() ? 'Error' : null;
             this.widget._setStateClass();
