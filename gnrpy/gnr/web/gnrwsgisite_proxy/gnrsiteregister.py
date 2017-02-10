@@ -603,6 +603,7 @@ class SiteRegister(BaseRemoteObject):
         cleanup = cleanup or dict()
         self.cleanup_interval = int(cleanup.get('interval') or 120)
         self.page_max_age = int(cleanup.get('page_max_age') or 120)
+        self.guest_connection_max_age = int(cleanup.get('guest_connection_max_age') or 40)
         self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
 
     def new_connection(self,connection_id,connection_name=None,user=None,user_id=None,
@@ -728,14 +729,14 @@ class SiteRegister(BaseRemoteObject):
             return
         now = datetime.now()
         for page in self.pages():
-            page_max_age = self.page_max_age if not page['user'].startswith('guest_') else 40
+            page_max_age = self.page_max_age if not page['user'].startswith('guest_') else self.guest_connection_max_age
             last_refresh_ts = page.get('last_refresh_ts') or page.get('start_ts')
             if ((now - last_refresh_ts).seconds > page_max_age):
                 self.drop_page(page['register_item_id'])
         dropped_connections = []
         for connection in self.connections():
             last_refresh_ts = connection.get('last_refresh_ts') or  connection.get('start_ts')
-            connection_max_age = self.connection_max_age if not connection['user'].startswith('guest_') else 40
+            connection_max_age = self.connection_max_age if not connection['user'].startswith('guest_') else  self.guest_connection_max_age
             if (now - last_refresh_ts).seconds > connection_max_age:
                 dropped_connections.append(connection['register_item_id'])
                 self.drop_connection(connection['register_item_id'],cascade=True)
