@@ -40,7 +40,8 @@ def build_instanceconfig_xml(path=None):
     instanceconfig_bag.setItem('packages',None)
     instanceconfig_bag.setItem('authentication.xml_auth',None, dict(defaultTags='user,xml'))
     password = get_random_password(size=6)
-    instanceconfig_bag.setItem('authentication.xml_auth.admin',None, dict(pwd=password, tags='_DEV_,admin,user'))
+    instanceconfig_bag.setItem('authentication.xml_auth.admin',None, dict(
+        pwd=password, tags='superadmin,_DEV_,admin,user'))
     print "Default password for user admin is %s, you can change it by editing %s" %(password, path)
     instanceconfig_bag.toXml(path,typevalue=False,pretty=True)
     
