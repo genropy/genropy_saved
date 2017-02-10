@@ -647,35 +647,4 @@ class TableHandlerMain(BaseComponent):
     @struct_method
     def public_publicRoot_tablelimiter(self,pane,title='',**kwargs): 
         pane.div()
-
-#OLD STUFF TO REMOVE
-class ThermoDialog(BaseComponent):
-    py_requires = 'foundation/thermo'
-    
-class UserObject(BaseComponent):
-    py_requires = 'foundation/userobject'
-    
-class IncludedView(BaseComponent):
-    py_requires = 'foundation/includedview'
-    
-class RecordHandler(BaseComponent):
-    py_requires = 'foundation/recorddialog'
-    
-class Tools(BaseComponent):
-    py_requires = 'foundation/tools'
-    
-class SelectionHandler(BaseComponent):
-    py_requires = 'gnrcomponents/selectionhandler'
-    
-class RecordLinker(BaseComponent):
-    py_requires = 'gnrcomponents/recordlinker'
-    
-class MultiSelect(BaseComponent):
-    py_requires = 'gnrcomponents/multiselect'
-    
-class DynamicEditor(BaseComponent):
-    py_requires = 'foundation/macrowidgets:DynamicEditor'
-    
-class RecordToHtmlFrame(BaseComponent):
-    py_requires = 'foundation/htmltoframe'
                                     
