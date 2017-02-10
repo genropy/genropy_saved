@@ -33,8 +33,8 @@ class StatsPane(BaseComponent):
                     _lockScreen=True,timeout=300000,
                     **query_pars)
         tc = bc.tabContainer(region='center',margin='2px')
-        self.pivotTables(tc.borderContainer(title='Pivot',_class='noheader'),table=table,dfname=dfname)
         self.dataFrameCoords(tc.borderContainer(title='Dataframe'),table=table,dfname=dfname)
+        self.pivotTables(tc.borderContainer(title='Pivot',_class='noheader'),table=table,dfname=dfname)
 
 
     def dataFrameCoords(self,bc,table=None,dfname=None):
@@ -132,8 +132,8 @@ class StatsPane(BaseComponent):
     def dfcoords_struct(self,struct):
         r = struct.view().rows()
         r.cell('fieldname',name='Field',width='10em')
-        r.cell('dataType',name='Dtype',width='5em')
-        r.cell('label',name='Label',width='12em',edit=True)
+        #r.cell('dataType',name='Dtype',width='5em')
+        r.cell('name',name='Label',width='12em',edit=True)
         r.cell('element_count',name='C.',width='4em',dtype='L')
 
     @public_method
@@ -154,15 +154,16 @@ class StatsPane(BaseComponent):
         return gp[dfname].getInfo()
 
     @public_method
-    def updateDataframe(self,table=None,dfname=None,info=None,**kwargs):
-        service = self.site.getService('stats')
-        gnrdf = service.gnrDataFrame(filepath='page:stats/%s/%s' %(table.replace('.','/'),dfname))
-        gnrdf.updateInfo(info)
-        gnrdf.to_pickle('page:stats/%s/%s' %(table.replace('.','/'),dfname))
-        return gnrdf.getInfo()
+    def updateDataframe(self,dfname=None,statname=None,info=None,**kwargs):
+        statname = statname or dfname
+        path = self.site.getStaticPath('page:stats',statname)
+        gp = GnrPandas()
+        gp.load(path)
+
+        #return gnrdf.getInfo()
 
     @public_method
-    def getPivotTable(self,table=None,dfname=None,data=None,statname=None,**kwargs):
+    def getPivotTable(self,dfname=None,data=None,statname=None,**kwargs):
         statname = statname or dfname
         path = self.site.getStaticPath('page:stats',statname)
         gp = GnrPandas()

@@ -53,7 +53,7 @@ genro.statspane =  {
             if(widgetSourceNode.attr.structpath){
                 var struct = widgetSourceNode.getRelativeData(widgetSourceNode.attr.structpath);
                 var row_head = struct.getItem('#0.#0');
-                var headers = {};
+                var colInfo = {};
                 columns = [];
                 row_head.forEach(function(n){
                     if(n.attr.calculated){
@@ -65,14 +65,14 @@ genro.statspane =  {
                         }
                     }
                     var f = n.attr.caption_field || n.attr.field;
-                    headers[f.replace(/\./g, '_').replace(/@/g, '_')] = {dataType:n.attr.dtype,label:n.attr.name};
+                    colInfo[f.replace(/\./g, '_').replace(/@/g, '_')] = {dtype:n.attr.dtype,name:n.attr.name,format:n.attr.format};
                     if(f[0]!='@' && f[0]!='$'){
                         f = '$'+f;
                     }
                     arrayPushNoDup(columns,f);
                 });
                 columns = columns.join(',');
-                kw.headers = headers;
+                kw.colInfo = colInfo;
             }
             kw.columns = columns;
             kw.selectionKwargs = selattr;

@@ -52,10 +52,14 @@ class GnrPandas(object):
         self.save()
 
     @remember
-    def dataframeFromDb(self,dfname=None,db=None,tablename=None,columns=None,where=None,**kwargs):
-        df = GnrDataframe(dfname)
-        self.dataframes[dfname] = df
-        self.dataframes[dfname].dataframeFromDb(db=db,tablename=tablename,columns=columns,where=where,**kwargs)
+    def dataframeFromDb(self,dfname=None,db=None,tablename=None,columns=None,where=None,colInfo=None,**kwargs):
+        gnrdf =  GnrDbDataframe(dfname,db=db)
+        self.dataframes[dfname] = gnrdf
+        gnrdf.query(tablename=tablename,columns=columns,where=where,**kwargs)
+        if colInfo:
+            gnrdf.setColInfo(colInfo)
+        return gnrdf
+
 
     @timer_call()
     def save(self,path=None):
@@ -90,62 +94,47 @@ class GnrPandas(object):
 
 class GnrDataframe(object):
     """docstring for GnrDataFrame"""
+    base_pickle_attr = ['dfname','steps','colInfo']
+    custom_pickle_attr = []
+
+    @property
+    def pickle_attr(self):
+        return self.base_pickle_attr+self.custom_pickle_attr
+
     def __init__(self,dfname):
         self.dfname = dfname
         self.steps = []
+        self.colInfo = {}
 
-    @remember
-    @timer_call()
-    def dataframeFromDb(self,db=None,tablename=None,columns=None,where=None,headers=None,**kwargs):
-        tblobj = db.table(tablename)
-        selection = tblobj.query(where=where,columns=columns or self.defaultColumns(tblobj),
-                                                addPkeyColumn=False,
-                                                **kwargs).selection()
-        self.colAttrs = selection.colAttrs
-        if headers:
-            self.colAttrs.update(headers)
-        self.columns = selection.columns
-        self.dataframe = pd.DataFrame(self.convertData(selection.data))
 
     def renameColumns(self,**kwargs):
         df = self.dataframe
         df.columns = [kwargs[k] if k in kwargs else k for k in df.columns]
 
-    def updateInfo(self,info):
-        self.columns = info.keys()
-        for k in self.colAttrs.keys():
-            if k not in self.columns:
-                self.colAttrs.pop(k)
-        for k,v in info.items():
-            d = self.colAttrs.setdefault(k,{})
-            d['label'] = v['label']
-            d['dataType'] = v['dataType'] 
-            d['calc_series'] = v['calc_series']
-
-    def convertData(self,data):
-        decimalCols = [k for k,v in self.colAttrs.items() if v['dataType'] in ('N','R')]
-        dateCols = [k for k,v in self.colAttrs.items() if v['dataType'] == 'D']
-        for r in data:
-            c = dict(r)
-            for col in decimalCols:
-                v = c[col]
-                if v is not None:
-                    c[col] = float(v)
-            for col in dateCols:
-                v = c[col]
-                if v is not None:
-                    c[col] = datetime(v.year,v.month,v.day)
-            yield c
-
+    #def updateInfo(self,info):
+    #    self.dbcolumns = info.keys()
+    #    for k in self.colAttrs.keys():
+    #        if k not in self.dbcolumns:
+    #            self.colAttrs.pop(k)
+    #    for k,v in info.items():
+    #        d = self.colAttrs.setdefault(k,{})
+    #        d['label'] = v['label']
+    #        d['dataType'] = v['dataType'] 
+    #        d['calc_series'] = v['calc_series']
+    
+    def columnInfo(self,colname):
+        pass
+   
     def getInfo(self):
         df = self.dataframe
+        colInfo = self.colInfo
         result = Bag()
-        for c in self.columns:
+        for c in self.dataframe.columns:
             row = Bag()
-            attr = self.colAttrs.get(c,{})
+            attr = colInfo.get(c,{})
             row['fieldname'] = c
-            row['dataType'] = attr.get('dataType')
-            row['label'] = attr.get('label')
+            #row['dataType'] = attr.get('dtype')
+            row['name'] = attr.get('name')
             row['element_count'] = len(df[c].unique())
             result.setItem(c,row)
         return result
@@ -153,18 +142,17 @@ class GnrDataframe(object):
     def pivotTableGrid(self,index=None,values=None,columns=None,aggr=None):
         struct = Bag()
         r = Bag()
-        
         store = Bag()
         result = Bag(dict(store=store,struct=struct))
         pt = self.dataframe.pivot_table(index=index,values=values, columns=columns)
         values = values or list(pt.columns)
         struct['view_0.rows_0'] = r
         for i,col in enumerate(index+values):
-            cattr = self.colAttrs[col]
+            cattr = self.colInfo[col]
             cattr['print_width'] = cattr.get('print_width') or 10
             r.setItem('cell_%s' %i,None,field=col,
-                            name=cattr.get('label'),
-                            dtype=cattr.get('dataType'),
+                            name=cattr.get('name'),
+                            dtype=cattr.get('dtype'),
                             width='%(print_width)sem' %cattr,
                             format=cattr.get('format'))
         k = 0
@@ -181,15 +169,6 @@ class GnrDataframe(object):
             k+=1
         return result
 
-    def defaultColumns(self,tblobj):
-        columns = []
-        allcols = tblobj.columns.keys() + tblobj.model.virtual_columns.keys()
-        for f in allcols:
-            if tblobj.column(f).attributes.get('stats'):
-                columns.append('$%s' %f)
-        columns = columns or tblobj.columns.keys()
-        return ','.join(columns) 
-
     def to_pickle(self,path):
         folder = os.path.join(path,self.dfname)
         if not os.path.exists(folder):
@@ -204,11 +183,69 @@ class GnrDataframe(object):
             self.load(storagefile)
 
     def dump(self,storagefile):
-        pickle.dump(self.steps,storagefile)
-        pickle.dump(self.colAttrs,storagefile)
-        pickle.dump(self.columns,storagefile)
+        for k in self.pickle_attr:
+            pickle.dump(getattr(self,k),storagefile)
+
 
     def load(self,storagefile):
-        self.steps = pickle.load(storagefile)
-        self.colAttrs = pickle.load(storagefile)
-        self.columns = pickle.load(storagefile)
+        for k in self.pickle_attr:
+            setattr(self,k,pickle.load(storagefile))
+        #self.steps = pickle.load(storagefile)
+        #self.colAttrs = pickle.load(storagefile)
+        #self.dbcolumns = pickle.load(storagefile)
+
+class GnrDbDataframe(GnrDataframe):
+    custom_pickle_attr = ['dbColAttrs','dbcolumns']
+
+    def __init__(self,dfname,db=None,**kwargs):
+        super(GnrDbDataframe, self).__init__(dfname)
+        self.db = db
+
+    @timer_call()
+    @remember
+    def query(self,tablename=None,columns=None,where=None,**kwargs):
+        tblobj = self.db.table(tablename)
+        selection = tblobj.query(where=where,columns=columns or self.defaultColumns(tblobj),
+                                                addPkeyColumn=False,
+                                                **kwargs).selection()
+        self.dbColAttrs = selection.colAttrs
+        self.dbcolumns = selection.columns
+        for k,v in self.dbColAttrs.items():
+            self.colInfo[k] = dict(name=v.get('label'),name_short=v.get('name_short'),
+                                  width=v.get('print_width'),format=v.get('format'),
+                                  dtype= v.get('dataType'))
+        self.dataframe = pd.DataFrame(self.convertData(selection.data))
+        return self.dataframe
+
+    @remember
+    def setColInfo(self,colInfo):
+        for k,v in colInfo.items():
+            self.colInfo[k].update(v)
+
+    def convertData(self,data):
+        decimalCols = [k for k,v in self.dbColAttrs.items() if v['dataType'] in ('N','R')]
+        dateCols = [k for k,v in self.dbColAttrs.items() if v['dataType'] == 'D']
+        for r in data:
+            c = dict(r)
+            for col in decimalCols:
+                v = c[col]
+                if v is not None:
+                    c[col] = float(v)
+            for col in dateCols:
+                v = c[col]
+                if v is not None:
+                    c[col] = datetime(v.year,v.month,v.day)
+            yield c
+
+
+    def defaultColumns(self,tblobj):
+        columns = []
+        allcols = tblobj.columns.keys() + tblobj.model.virtual_columns.keys()
+        for f in allcols:
+            if tblobj.column(f).attributes.get('stats'):
+                columns.append('$%s' %f)
+        columns = columns or tblobj.columns.keys()
+        return ','.join(columns) 
+
+
+        
