@@ -12,34 +12,9 @@ class GnrCustomWebPage(object):
     def source_viewer_open(self):
         return False
     def test_0_simple(self, pane):
-        pane.chartjs(nodeId='testchart_0',chartType='bar',data={
-                'ylabels': ["yRed", "yBlue", "yYellow", "yGreen", "yPurple", "yOrange"],
-                'xLabels': ["xRed", "xBlue", "xYellow", "xGreen", "xPurple", "xOrange"],
-                'datasets': [{
-                    'label': '# of Votes',
-                    'data': [12, 19, 3, 5, 2, 3],
-                    'backgroundColor': 'rgba(255, 99, 132, 0.2)',
-                    'borderColor': 'rgba(255,99,132,1)',
-                    'borderWidth': 1
-                },{
-                    'label': '# of Votes last year',
-                    'data': [10, 16, 8, 9, 6, 3],
-                    'backgroundColor': 'rgba(54, 162, 235, 0.2)',
-                    'borderColor': 'rgba(54, 162, 235, 1)',
-                    'borderWidth': 1
-                }]
-            },options={
-                'scales': {
-                    'yAxes': [{
-                        'ticks': {
-                            'beginAtZero':True
-                        }
-                    }]
-                }},
-            height='300px',width='600px',border='1px solid silver')
-        return
-        #pane.chartjs(nodeId='testchart_2',chartType='line',data={
-        #        'labels': ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+        #pane.chartjs(nodeId='testchart_0',chartType='bar',data={
+        #        'ylabels': ["yRed", "yBlue", "yYellow", "yGreen", "yPurple", "yOrange"],
+        #        'xLabels': ["xRed", "xBlue", "xYellow", "xGreen", "xPurple", "xOrange"],
         #        'datasets': [{
         #            'label': '# of Votes',
         #            'data': [12, 19, 3, 5, 2, 3],
@@ -59,20 +34,45 @@ class GnrCustomWebPage(object):
         #                'ticks': {
         #                    'beginAtZero':True
         #                }
-        #            },{
-        #                'ticks': {
-        #                    'beginAtZero':True,
-        #                    'max':100
-        #                }
-        #            },{
-        #                'ticks': {
-        #                    'min':-8,
-        #                    'beginAtZero':False,
-        #                    'max':70
-        #                }
         #            }]
         #        }},
         #    height='300px',width='600px',border='1px solid silver')
+        #return
+        pane.chartjs(nodeId='testchart_2',chartType='line',data={
+                'labels': ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+                'datasets': [{
+                    'label': '# of Votes',
+                    'data': [12, 19, 3, 5, 2, 3],
+                    'backgroundColor': 'rgba(255, 99, 132, 0.2)',
+                    'borderColor': 'rgba(255,99,132,1)',
+                    'borderWidth': 1
+                },{
+                    'label': '# of Votes last year',
+                    'data': [10, 16, 8, 9, 6, 3],
+                    'backgroundColor': 'rgba(54, 162, 235, 0.2)',
+                    'borderColor': 'rgba(54, 162, 235, 1)',
+                    'borderWidth': 1
+                }]
+            },options={
+                'scales': {
+                    'yAxes': [{
+                        'ticks': {
+                            'beginAtZero':True
+                        }
+                    },{
+                        'ticks': {
+                            'beginAtZero':True,
+                            'max':100
+                        }
+                    },{
+                        'ticks': {
+                            'min':-8,
+                            'beginAtZero':False,
+                            'max':70
+                        }
+                    }]
+                }},
+            height='300px',width='600px',border='1px solid silver')
 
     def test_1_glbl(self,pane):
         bc = pane.borderContainer(height='500px',_anchor=True)
@@ -113,6 +113,19 @@ class GnrCustomWebPage(object):
         return result
 
 
+
+    def test_9_chartPane(self,pane):
+        bc = pane.borderContainer(height='800px',_anchor=True)
+        bc.data('.testData',self.getTestData())
+        bc.chartPane(value='^.testData',
+                    region='center',
+                    captionField='nome',
+                    configurator=True,
+                    datamode='bag',
+                    datasetFields="peso,altezza",
+                    chartType='bar')
+
+
     def test_3_chartPane(self,pane):
         bc = pane.borderContainer(height='800px',_anchor=True)
         fb = bc.contentPane(region='top').formbuilder(cols=1,border_spacing='3px')
@@ -121,7 +134,7 @@ class GnrCustomWebPage(object):
         
         #bc.framePane(frameCode='pippo',region='right',width='200px')
 
-        c = bc.chartPane(value='^.glbl_provincia.view.store',
+        bc.chartPane(value='^.glbl_provincia.view.store',
                     filter='^.glbl_provincia.view.grid.righe_pkeys',
                     region='bottom',height='500px',
                     captionField='sigla',

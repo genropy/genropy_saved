@@ -544,7 +544,9 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
                                 result.push({'code':n.key,'name':n.key});
                             }
                         }
-                    });
+                    }
+                    );
+                    return '__continue__';
                 },'static');
             }
             

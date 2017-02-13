@@ -4,6 +4,7 @@
 # Created by Francesco Porcari on 2017-01-01.
 # Copyright (c) 2017 Softwell. All rights reserved.
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.web.gnrasync import SharedObject
 from gnr.core.gnrdecorator import public_method
 from gnr.xtnd.gnrpandas import GnrPandas
 from gnr.core.gnrbag import Bag
@@ -173,4 +174,19 @@ class StatsPane(BaseComponent):
                                     values=data['values'].keys() if data['values'] else None,
                                     columns=data['columns'].keys() if data['columns'] else None)
 
+
+class GnrPandasSharedStore(SharedObject):
+        
+    def onInit(self,**kwargs):
+        print 'onInit',self.shared_id
+        
+    def onSubscribePage(self,page_id):
+        print 'onSubscribePage',self.shared_id,page_id
+        
+    def onUnsubscribePage(self,page_id):
+        print 'onUnsubscribePage',self.shared_id,page_id
+    
+    def onDestroy(self):
+        print 'onDestroy',self.shared_id
+    
 

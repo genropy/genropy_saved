@@ -605,11 +605,11 @@ class SharedStatus(SharedObject):
         page_item = page.page_item
         users = self.users
         page_id = page.page_id
-        if not page.user in users:
+        if page.user not in users:
             users[page.user] = Bag(dict(start_ts=page_item['start_ts'],user=page.user,connections=Bag()))
         userbag = users[page.user]
         connection_id = page.connection_id
-        if not connection_id in userbag['connections']:
+        if connection_id not in userbag['connections']:
             userbag['connections'][connection_id] = Bag(dict(start_ts=page_item['start_ts'],
                                                         user_ip=page_item['user_ip'],
                                                         user_agent=page_item['user_agent'],
