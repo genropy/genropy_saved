@@ -2853,9 +2853,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             return;
         }
         if (this.datamode == 'bag' || this.gridEditor) {
-            if(this.collectionStore){
+            var ge = this.gridEditor;
+            if(this.collectionStore && ge){
                 //new gridEditor
-                var ge = this.gridEditor;
                 var cb = function(n){
                     ge.updateCounterColumn(n,k,counterField);
                     k++;
