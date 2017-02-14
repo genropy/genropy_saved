@@ -962,11 +962,12 @@ function convertFromText(value, t, fromLocale) {
 var gnrformatter = {
     asText :function (value,valueAttr){
         var formatKw =  objectUpdate({},valueAttr);
+        var dtype = objectPop(formatKw,'dtype');
         var formattedValue;
-        if(value==null || value==undefined){
+        if((value===null || value===undefined) && dtype!='B'){
             return '';
         }
-        var dtype = objectPop(formatKw,'dtype') || guessDtype(value);
+        dtype = dtype|| guessDtype(value);
         
         var format = objectPop(formatKw,'format');
 
