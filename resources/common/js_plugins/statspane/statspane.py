@@ -5,14 +5,90 @@
 # Copyright (c) 2017 Softwell. All rights reserved.
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrasync import SharedObject
-from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrdecorator import public_method,metadata
 from gnr.xtnd.gnrpandas import GnrPandas
 from gnr.core.gnrbag import Bag
+from gnr.web.gnrwebstruct import struct_method
+
+
+
+class StatsCommandForms(object):
+
+    def __init__(self,page=None):
+        self.page = page
+
+    @classmethod
+    def commandlist(cls):
+        z = [(m.order,m.__name__[4:],m.name) for m in [getattr(cls,c) for c in dir(cls) if c.startswith('cmd_')]]
+        return sorted(z)
+
+
+    @metadata(order=0,name='!!Dataframe from db')
+    def cmd_dataframeFromDb(self,pane):
+        bc = pane.borderContainer()
+        fb = bc.contentPane(region='top').formbuilder()
+        fb.textbox(value='^.dfname',lbl='Dataframe',validate_notnull=True)
+        fb.textbox(value='^.table',lbl='Table',validate_notnull=True)
+        fb.textbox(value='^.where',lbl='Where')
+        fb.textbox(value='^.columns',lbl='Columns')
+        #bc.roundedGroupFrame(title='Extra kwargs',region='center').multiValueEditor(value='^#FORM.record.query_kwargs')
+
+    @metadata(order=1,name='!!New Pivot table')
+    def cmd_pivotTable(self,pane):
+        pass
+
+class PdCommandsGrid(BaseComponent):
+    py_requires="""public:Public,
+                   gnrcomponents/framegrid:FrameGrid,
+                    gnrcomponents/formhandler:FormHandler"""
+
+    @public_method
+    def pdstats_commandForm(self,pane,command=None,**kwargs):
+        fh = StatsCommandForms(self)
+        getattr(fh,'cmd_%s' %command)(pane)
+
+
+    def pdcommand_struct(self,struct):
+        r = struct.view().rows()
+        r.cell('counter',name='C.',width='3em',counter=True,dtype='L')
+        r.cell('command',name='Command',width='15em')
+        r.cell('_tpl',name='Pars',width='100%',_customGetter="""function(row){
+                //objectExtract(row,'counter,command,done,code');
+                var v = new gnr.GnrBag(row);
+                return v.getFormattedValue()
+            }
+            """)
+        r.cell('done',dtype='B',semaphore=True)
+
+    @struct_method
+    def pdstats_pdCommandsGrid(self,pane,code=None,storepath=None,**kwargs):
+
+        frame = pane.bagGrid(frameCode='V_%s' %code,title='Stats commands',datapath='.pdcommands',storepath=storepath,
+                            grid_canSort=False,
+                            addrow=False,delrow=True,struct=self.pdcommand_struct,**kwargs)
+        frame.top.bar.replaceSlots('delrow','delrow,addrow',
+                                    addrow_defaults=[(caption,dict(command=command)) for order,command,caption in StatsCommandForms.commandlist()])
+
+        form = frame.grid.linkedForm(frameCode='F_%s' %code,
+                                 datapath='.pdcommands.form',loadEvent='onRowDblClick',
+                                 dialog_height='300px',dialog_width='400px',
+                                 dialog_title='Command',handlerType='dialog',
+                                 childname='form',attachTo=pane,store='memory',default_data_type='T',
+                                 store_pkeyField='code',modal=True)
+        form.dataController("""grid.updateCounterColumn();
+            """,formsubscribe_onDismissed=True,grid=frame.grid.js_widget)
+
+        form.center.contentPane(datapath='.record').contentPane().remote(self.pdstats_commandForm,command='^.command')
+        bar = form.bottom.slotBar('*,cancel,savebtn',margin_bottom='2px',_class='slotbar_dialog_footer')
+        bar.cancel.button('!!Cancel',action='this.form.abort();')
+        bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})')
+
 
 class StatsPane(BaseComponent):
     py_requires='js_plugins/chartjs/chartjs:ChartPane'
     js_requires='js_plugins/statspane/statspane'
     css_requires='js_plugins/statspane/statspane'
+
 
     @public_method
     def pdstats_configuratorTabs(self,pane,table=None,dfname=None,query_pars=None,connectedWidgetId=None,**kwargs):
@@ -35,7 +111,7 @@ class StatsPane(BaseComponent):
                     **query_pars)
         tc = bc.tabContainer(region='center',margin='2px')
         self.dataFrameCoords(tc.borderContainer(title='Dataframe'),table=table,dfname=dfname)
-        self.pivotTables(tc.borderContainer(title='Pivot',_class='noheader'),table=table,dfname=dfname)
+        self.pivotTables(tc.borderContainer(title='Pivot',_class='noheader'),table=table,dfname=dfname)        
 
 
     def dataFrameCoords(self,bc,table=None,dfname=None):

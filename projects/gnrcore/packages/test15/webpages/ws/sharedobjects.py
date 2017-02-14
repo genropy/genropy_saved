@@ -6,9 +6,14 @@
 
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
+from gnr.xtnd.gnrpandas import PandasSharedObject
+
+
+        
 "Test sharedobjects"
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerFull"
+    py_requires="""gnrcomponents/testhandler:TestHandlerFull,
+                  js_plugins/statspane/statspane:PdCommandsGrid"""
     dojo_source = True
 
     def windowTitle(self):
@@ -21,7 +26,12 @@ class GnrCustomWebPage(object):
         fb.textbox('^.address', lbl='Address')
         fb.numbertextbox('^.age', lbl='Age')
 
-    @public_method
-    def testDebug(self):
-        return Bag(dict(pipo='pipo'))
+
+    def test_1_pandasSharedObject(self,pane):
+        pane.sharedObject('.so_test',shared_id='so_test6',factory=PandasSharedObject,
+                        nodeId='so_panda',autoSave=True,autoLoad=True)
+
+        pane.pdCommandsGrid('test_3',height='300px',width='400px',storepath='#so_panda.so_test.commands')
+
     
+

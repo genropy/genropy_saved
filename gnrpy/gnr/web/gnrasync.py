@@ -126,7 +126,7 @@ class DebugSession(GnrBaseHandler):
         page_id,pdb_id = debugkey.split(',')
         self.page_id = page_id
         self.pdb_id = pdb_id
-        if not debugkey in self.debug_queues:
+        if debugkey not in self.debug_queues:
             self.debug_queues[debugkey] = queues.Queue(maxsize=40)
         self.websocket_input_queue = self.debug_queues[debugkey]
         self.consume_websocket_output_queue()
@@ -288,27 +288,27 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
 
     def do_connected(self,page_id=None,**kwargs):
         self._page_id=page_id
-        if not page_id in self.channels:
+        if page_id not in self.channels:
             #print 'setting in channels',self.page_id
             self.channels[page_id]=self
         else:
             pass
              #print 'already in channels',self.page_id
-        if not page_id in self.pages:
+        if page_id not in self.pages:
             print 'do_connected: missing page %s trying to register it again' % page_id
             self.server.registerPage(page_id=page_id)
         else:
             pass
             #print 'already in pages',self.page_id
 
-  #  def do_som_command(self,cmd=None,_time_start=None,**kwargs):
-  #      return self.server.som(cmd,page_id=self._page_id,**kwargs)
-  #
+    #def do_som_command(self,cmd=None,_time_start=None,**kwargs):
+    #    return self.server.som(cmd,page_id=self._page_id,**kwargs)
+    #
     def do_pdb_command(self, cmd=None, pdb_id=None,**kwargs):
         #self.debugger.put_data(data)
         print 'CMD',cmd
         debugkey = '%s,%s' %(self.page_id,pdb_id)
-        if not debugkey in self.debug_queues:
+        if debugkey not in self.debug_queues:
             self.debug_queues[debugkey] = queues.Queue(maxsize=40)
         data_queue = self.debug_queues[debugkey]
         data_queue.put(cmd)
@@ -681,7 +681,7 @@ class SharedObjectsManager(object):
 
         
     def getSharedObject(self,shared_id,expire=None,startData=None,read_tags=None,write_tags=None, factory=SharedObject,**kwargs):
-        if not shared_id in self.sharedObjects:
+        if shared_id not in self.sharedObjects:
             self.sharedObjects[shared_id] = factory(self,shared_id=shared_id,expire=expire,startData=startData,
                                                                 read_tags=read_tags,write_tags=write_tags,**kwargs)
             sharingkw=dict(kwargs)
@@ -796,13 +796,14 @@ class GnrBaseAsyncServer(object):
    
     def registerPage(self,page=None,page_id=None):
         if not page:
-            print 'Trying to retrieve page %s in gnrdaemon register'
+            #print 'Trying to retrieve page %s in gnrdaemon register' %page_id
             page = self.gnrsite.resource_loader.get_page_by_id(page_id)
             if not page:
-                print '     page %s not existing in gnrdaemon register'
+                print '     page %s not existing in gnrdaemon register' %page_id
                 return
             else:
-                print '     page %s restored succesfully from gnrdaemon register'
+                pass
+                #print '     page %s restored succesfully from gnrdaemon register' %page_id
         page.asyncServer = self
         page.sharedObjects = set()
         self.pages[page.page_id] = page

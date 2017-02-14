@@ -67,7 +67,7 @@ dojo.declare("gnr.GnrSharedObjectHandler", null, {
         var on_unregistered = objectPop(kw,'on_unregistered');
         var on_registered = objectPop(kw,'on_registered');
 
-        var that =this
+        var that =this;
         if(!(shared_id in genro._sharedObjects)){
             genro._sharedObjects[shared_id] = {shared_id:shared_id,path:path,ready:false, on_unregistered:on_unregistered};
             var onResult = function(resultNode){
