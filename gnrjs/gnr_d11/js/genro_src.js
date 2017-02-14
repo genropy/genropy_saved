@@ -459,7 +459,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                             dflt = convertFromText(dflt,node.attr.dtype);
                         }
                         var currval=node.getAttributeFromDatasource(attr, true, dflt);
-                        if ((dflt!='') && ((currval=undefined)||(currval=''))){
+                        if ((dflt!='') && ((currval==undefined)||(currval==''))){
                             node.setAttributeInDatasource(attr, dflt)
                         }
                     }
