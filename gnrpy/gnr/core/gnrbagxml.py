@@ -420,7 +420,7 @@ class BagToXml(object):
                                                 ( type(v) in (int, float, long,
                                                   datetime.date, datetime.time, datetime.datetime,
                                                   bool, type(None), list, tuple, dict, Decimal) ) or (callable(v) and 
-                                            (hasattr(v,'is_rpc') or 
+                                            (hasattr(v,'is_rpc') or hasattr(v,'__safe__') or
                                             (hasattr(v,'__name__') and v.__name__.startswith('rpc_')))
                                             )])
             else:
