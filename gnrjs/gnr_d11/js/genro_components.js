@@ -4256,6 +4256,7 @@ dojo.declare("gnr.widgets.SharedObject", gnr.widgets.gnrwdg, {
         sourceNode.gnrwdg.handleSubscriptions();
         return dc;
     },
+
     gnrwdg_handleSubscriptions:function(old_shared_id){
         var sharedKw = this.sourceNode.evaluateOnNode(this.sharedKw);
         var shared_id=objectPop(sharedKw,'shared_id');
@@ -4264,7 +4265,7 @@ dojo.declare("gnr.widgets.SharedObject", gnr.widgets.gnrwdg, {
             genro.som.unregisterSharedObject(old_shared_id);
         }
         if(shared_id && path){
-            genro.som.registerSharedObject(path,shared_id,sharedKw);
+            genro.som.registerSharedObject(this.sourceNode.absDatapath(path),shared_id,sharedKw);
         }
     }
 });
