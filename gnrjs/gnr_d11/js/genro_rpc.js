@@ -253,6 +253,9 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         var sourceNode = callKwargs['_sourceNode'];
         var sysrpc = objectPop(callKwargs,'sysrpc');
         callKwargs = this.serializeParameters(genro.src.dynamicParameters(callKwargs));
+        if(sourceNode){
+            objectUpdate(callKwargs,objectExtract(sourceNode.attr,'dbenv_*',true,true));
+        }
         objectPop(callKwargs, '_destFullpath');
        //if(genro.root_page_id){
        //    callKwargs._root_page_id = genro.root_page_id;
@@ -264,7 +267,6 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         kw.url = kw.url || this.pageIndexUrl();
 
         if(sourceNode){
-            objectUpdate(callKwargs,objectExtract(sourceNode.attr,'dbenv_*',true,true));
             var req_dbstore = sourceNode.inheritedAttribute('context_dbstore');
             if (req_dbstore){
                 kw.url = '/'+req_dbstore+kw.url;
