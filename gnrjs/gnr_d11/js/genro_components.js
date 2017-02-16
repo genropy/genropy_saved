@@ -1707,6 +1707,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         databag.setItem('caption', defaultLabel);
         databag.setItem('searchDelay',1000);
         this._prepareSearchBoxMenu(searchOn, databag);
+        databag.setItem('value', '');
         sourceNode.setRelativeData(null, databag);
         var searchbox = sourceNode._('table', {nodeId:nodeId})._('tbody')._('tr');
         var delay = objectPop(kw, 'delay') || objectPop(search_kw, 'delay') || 100;
@@ -1764,7 +1765,8 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
             databag.setItem('caption', defaultLabel);
         }
         databag.setItem('menubag', menubag);
-        databag.setItem('value', '');
+        //databag.setItem('value', '');
+        //databag.setItem('currentValue',null);
     }
 
 });
@@ -2797,6 +2799,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
                                                  localized_data:true,
                                                  ask:{title:'Export selection',skipOn:'Shift',
                                                  fields:[{name:'downloadAs',lbl:'Download as'},
+                                                          {name:'allRows',label:'All rows',wdg:'checkbox'},
                                                          {name:'export_mode',wdg:'filteringSelect',values:'xls:Excel,csv:CSV',lbl:'Mode'},
                                                          {name:'localized_data',wdg:'checkbox',label:'Localized data'}]
                                              }}
@@ -2925,6 +2928,7 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
         var gnrwdg = sourceNode.gnrwdg;
         var selectedBranch = kw.selectedBranch || '#WORKSPACE.selectedBranch';
         var treekw = objectExtract(kw,'storepath,labelAttribute');
+        var barkw = objectExtract(kw,'addrow,delrow,addcol,searchOn,export');
         sourceNode.attr._workspace = true;
         objectUpdate(treekw,{hideValues:true,selectedLabelClass:'selectedTreeNode',_class:"branchtree noIcon",autoCollapse:true});
         objectUpdate(treekw,objectExtract(kw,'tree_*'));
@@ -2942,23 +2946,41 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
         gnrwdg.treeNode = tree.getParentNode();
         var frameCode = 'bagEditor_'+ genro.getCounter();
         var gridId = frameCode+'_grid';
-        var gridframe = bc._('framePane',{frameCode:frameCode,region:'center',target:gridId});
-        var barkw = objectExtract(kw,'addrow,delrow,addcol');
+        var gridframe = bc._('framePane',{frameCode:frameCode,region:'center',target:gridId,margin_left:'4px'});
         if(objectNotEmpty(barkw)){
-            var slots = '*,'+['delrow','addrow','addcol'].filter(function(n){return n in barkw}).join(',')+',5';
+            var slots = '*,'+['delrow','addrow','addcol','export','searchOn'].filter(function(n){return n in barkw}).join(',')+',5';
             var bar = gridframe._('SlotBar',{'side':'top',slots:slots,toolbar:true});
-            bar._('SlotButton','delrow',{label:_T('Delete row'),publish:'delrow',iconClass:'iconbox delete_row'});
-            bar._('SlotButton','addrow',{label:_T('Add row'),publish:'addrow',iconClass:'iconbox add_row'});
-            bar._('SlotButton','addcol',{label:_T('Add column'),publish:'addcol'});
-
+            if(barkw.delrow){
+                bar._('SlotButton','delrow',{label:_T('Delete row'),publish:'delrow',iconClass:'iconbox delete_row'});
+            }
+            if(barkw.addrow){
+                bar._('SlotButton','addrow',{label:_T('Add row'),publish:'addrow',iconClass:'iconbox add_row'});
+            }
+            if(barkw.addcol){
+                bar._('SlotButton','addcol',{label:_T('Add column'),publish:'addcol'});
+            }
+            if(barkw.export){
+                bar._('SlotButton','export',{iconClass:'iconbox export',
+                                                 opt_export_mode:'xls',
+                                                 opt_downloadAs:'',
+                                                 opt_localized_data:true,
+                                                 publish:'serverAction',command:'export',
+                                                 ask:{title:'Export selection',skipOn:'Shift',
+                                                 fields:[{name:'opt_downloadAs',lbl:'Download as'},
+                                                          {name:'opt_allRows',label:'All rows',wdg:'checkbox'},
+                                                         {name:'opt_export_mode',wdg:'filteringSelect',values:'xls:Excel,csv:CSV',lbl:'Mode'},
+                                                         {name:'opt_localized_data',wdg:'checkbox',label:'Localized data'}]
+                                             }
+                                         })
+            }
         }
         var gridkw = objectExtract(kw,'grid_*');
         gridkw.nodeId = gridId;
+        gridkw.frameCode = frameCode;
         gridkw.selfDragRows = true;
         gridkw.datapath = '#WORKSPACE.grid';
         var branchPath = kw.branchPath || '#WORKSPACE.branchBag';
-
-
+        gridkw.controllerPath = gridkw.datapath;
         gridkw.structpath = '#WORKSPACE.grid.struct';
         gridkw.store = frameCode;
         gridkw.selfsubscribe_delrow = function(){
@@ -2999,17 +3021,20 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
         struct.setItem('view_0.rows_0',header);
         var store = new gnr.GnrBag();
         var i = 0;
+        var f;
         header.setItem('cell_0',null,{field:'nodelabel',width:'12em',name:'Node Label'});
         if(rows && rows.len && rows.len()){
-            rows.forEach(function(n){
+            rows._nodes.forEach(function(n,idx){
                     var attr = objectUpdate({},n.attr);
                     for(var k in attr){
-                        if(!header.getNodeByAttr('field',k)){
-                            header.setItem('cell_'+genro.getCounter(),null,{field:k,width:'10em',name:k,dtype:guessDtype(attr[k]),edit:true});
+                        f = k.replace(/\W/g, '_');
+                        attr[f] = objectPop(attr,k);
+                        if(!header.getNodeByAttr('field',f)){
+                            header.setItem('cell_'+genro.getCounter(),null,{field:f,width:'10em',name:f,dtype:guessDtype(attr[f]),original_field:k,edit:true});
                         }
                     }
                     attr.nodelabel = n.label;
-                    store.setItem(n.label,new gnr.GnrBag(attr));
+                    store.setItem('r_'+idx,new gnr.GnrBag(attr));
                     i++;
                 },'static');
         }
