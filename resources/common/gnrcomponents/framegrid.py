@@ -22,13 +22,13 @@ class FrameGridSlots(BaseComponent):
         placeholder = table.replace('.','_') if table else None
         return pane.slotButton(label='!!Export',publish='serverAction',
                                 command='export',opt_export_mode=mode or 'xls',
-                                
                                 opt_downloadAs=parameters.get('downloadAs'),
                                 opt_rawData=rawData, iconClass=_class,
                                 opt_localized_data=True,
                                 ask=dict(title='Export selection',skipOn='Shift',
                                         fields=[dict(name='opt_downloadAs',lbl='Download as',placeholder=placeholder),
                                                 dict(name='opt_export_mode',wdg='filteringSelect',values='xls:Excel,csv:CSV',lbl='Mode'),
+                                                dict(name='opt_allRows',label='All rows',wdg='checkbox'),
                                                 dict(name='opt_localized_data',wdg='checkbox',label='Localized data')]),
 
                                 **kwargs) 
