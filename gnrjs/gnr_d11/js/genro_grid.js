@@ -921,7 +921,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var values = [];
         var auto = [];
         values.push(null);
-        var cellsbag = widget.structbag().getItem('#0.#0');
+        var struct = widget.structbag();
+        var cellsbag = struct?struct.getItem('#0.#0'): new gnr.GnrBag();
         var caption,cellattr,cell_cap,cell_field,fltList,colList,col;
         var cellmap = widget.cellmap;
         var cellobj;
@@ -3999,6 +4000,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     },
     mixin_serverAction:function(kw){
         var options = objectPop(kw,'opt');
+        var allRows = objectPop(kw,'allRows');
         var method = objectPop(options,"method") || "app.includedViewAction";
         var kwargs = objectUpdate({},options);
         kwargs['action'] = objectPop(kw,'command');
@@ -4006,9 +4008,9 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         genro.lockScreen(true,sourceNode.getStringId());
         if (this.collectionStore().storeType=='VirtualSelection'){
             kwargs['selectionName'] = this.collectionStore().selectionName;
-            kwargs['selectedRowidx'] = this.getSelectedRowidx();
+            kwargs['selectedRowidx'] = allRows?[]:this.getSelectedRowidx();
         }else{
-            kwargs['data'] = this.currentData(null, options['rawData']===true);
+            kwargs['data'] = this.currentData(allRows?'all':null , options['rawData']===true);
         }
         kwargs['table'] =this.sourceNode.attr.table;
         kwargs['datamode'] = this.datamode;
