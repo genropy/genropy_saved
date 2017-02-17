@@ -2006,7 +2006,7 @@ class Bag(GnrObject):
                     if link:
                         if not link.startswith('http'):
                             link = os.path.join(dirname,link)
-                        n.value = Bag(link)
+                            n.value = Bag(link)
         return result
 
 

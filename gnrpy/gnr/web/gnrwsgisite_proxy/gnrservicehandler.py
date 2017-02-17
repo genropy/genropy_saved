@@ -42,6 +42,8 @@ class ServiceHandlerManager(object):
             return
         for service in services:
             kw = dict(service.attr)
+            if service.value:
+                kw['_content'] = service.value
             resource = kw.pop('resource',service.label)
             service_type = kw.pop('service_type',service.label)
             resmodule,resclass = resource.split(':') if ':' in resource else resource,'Main'
