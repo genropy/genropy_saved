@@ -115,6 +115,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         var hideValues = objectPop(attributes, 'hideValues');
         var _identifier = objectPop(attributes, 'identifier') || '#id';
         var hasChildrenCb = objectPop(attributes, 'hasChildrenCb');
+        var nodeFilter = objectPop(attributes,'nodeFilter');
         if (hasChildrenCb){
             hasChildrenCb = funcCreate(hasChildrenCb);
         }
@@ -122,11 +123,16 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         if (labelCb) {
             labelCb = funcCreate(labelCb);
         }
+        if(nodeFilter){
+            nodeFilter = funcCreate(nodeFilter);
+        }
+
         var store = new gnr.GnrStoreBag({datapath:storepath,_identifier:_identifier,
             hideValues:hideValues,
             labelAttribute:labelAttribute,
             labelCb:labelCb,
             hasChildrenCb:hasChildrenCb,
+            nodeFilter:nodeFilter,
             sourceNode:sourceNode
             });
         var model = new dijit.tree.ForestStoreModel({store: store,childrenAttrs: ["#v"]});
@@ -154,6 +160,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         var labelClassGetter = funcCreate(attributes['getLabelClass'], 'node,opened');
 
         var selectedLabelClass = attributes['selectedLabelClass'];
+
         attributes.getLabelClass = function(node, opened) {
             if (node.attr) {
                 var labelClass = labelClassGetter.call(this, node, opened) || '';

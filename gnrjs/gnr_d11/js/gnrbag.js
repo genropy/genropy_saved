@@ -1320,12 +1320,9 @@ dojo.declare("gnr.GnrBag", null, {
      *
      * @param {Object} condition
      */
+     
     getNodes: function(condition/*opzionale*/) {
-        /*if(!condition)*/
-        return this._nodes;
-        /*else :
-         return [n for n in self._nodes if condition (n)]
-         */
+        return condition?this._nodes.filter(condition):this._nodes;
     },
 
     /**

@@ -1043,7 +1043,9 @@ dojo.declare("gnr.widgets.TreeFrame", gnr.widgets.gnrwdg, {
     },
 
     createContent:function(sourceNode, kw) {
-        var frameCode = kw.frameCode = kw.paletteCode;
+        
+        kw.frameCode = kw.frameCode || kw.paletteCode;
+        var frameCode = kw.frameCode;
         var editable = objectPop(kw, 'editable');
         var treeId = objectPop(kw, 'treeId') || frameCode + '_tree';
         var storepath = objectPop(kw, 'storepath') || '.store';

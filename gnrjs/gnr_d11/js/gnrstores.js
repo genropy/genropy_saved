@@ -100,7 +100,7 @@ dojo.declare("gnr.GnrStoreBag", null, {
         if (attribute == '#v') {
             var itemvalue = item.getValue(null,{_sourceNode:this.sourceNode});
             if (itemvalue instanceof gnr.GnrBag) {
-                return itemvalue.getNodes();
+                return itemvalue.getNodes(this.nodeFilter);
             }else if(this.isDictItem(itemvalue)){
                 return new gnr.GnrBag(itemvalue).getNodes()
             }
@@ -148,7 +148,7 @@ dojo.declare("gnr.GnrStoreBag", null, {
                         return null;
                     }
                     if (result instanceof gnr.GnrBag) {
-                        return (result.len() > 0);
+                        return (result.getNodes(this.nodeFilter).length > 0);
                     }
                     else if (this.hideValues) {
                         return null;
