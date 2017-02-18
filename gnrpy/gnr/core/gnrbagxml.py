@@ -244,12 +244,16 @@ class _SaxImporter(sax.handler.ContentHandler):
 class BagToXml(object):
     """The class that handles the conversion from the :class:`Bag <gnr.core.gnrbag.Bag>`
     class to the XML format"""
-    def nodeToXmlBlock(self, node):
+    def nodeToXmlBlock(self, node, namespaces=None):
         """Handle all the different node types, call the method build tag. Return
         the XML tag that represent the BagNode
         
         :param node: the :meth:`BagNode <gnr.core.gnrbag.BagNode>`"""
         nodeattr = dict(node.attr)
+        local_namespaces = [k[6:] for k in nodeattr.keys() if k.startswith('xmlns:')]
+        current_namespaces = namespaces+local_namespaces
+        #filter(lambda k: k.startswith('xmlns:'), nodeattr.keys())
+
         if '__forbidden__' in nodeattr:
             return ''
         if self.unresolved and node.resolver is not None and not getattr(node.resolver,'_xmlEager',None):
@@ -257,16 +261,18 @@ class BagToXml(object):
                 nodeattr['_resolver'] = gnrstring.toJson(node.resolver.resolverSerialize())
             value = ''
             if isinstance(node._value, Bag):
-                value = self.bagToXmlBlock(node._value)
-            return self.buildTag(node.label, value, nodeattr, '', xmlMode=True)
+                value = self.bagToXmlBlock(node._value,namespaces=current_namespaces)
+            return self.buildTag(node.label, value, nodeattr, '', xmlMode=True,namespaces=namespaces)
 
         nodeValue = node.getValue()
         if isinstance(nodeValue, Bag) and nodeValue: #<---Add the second condition in order to type the empty bag.
             result = self.buildTag(node.label,
-                                   self.bagToXmlBlock(nodeValue), nodeattr, '', xmlMode=True,localize=False)
+                                   self.bagToXmlBlock(nodeValue,namespaces=current_namespaces), 
+                                   nodeattr, '', xmlMode=True,localize=False,namespaces=namespaces)
+
 
         elif isinstance(nodeValue, BagAsXml):
-            result = self.buildTag(node.label, nodeValue, nodeattr, '', xmlMode=True)
+            result = self.buildTag(node.label, nodeValue, nodeattr, '', xmlMode=True,namespaces=namespaces)
 
         #elif ((isinstance(nodeValue, list) or isinstance(nodeValue, dict))):
         #    nodeValue = gnrstring.toJson(nodeValue)
@@ -283,16 +289,16 @@ class BagToXml(object):
             else:
                 cls4d = 'A%s' % self.catalog.getClassKey(nodeValue[0])
             result = self.buildTag(node.label,
-                       '\n'.join([self.buildTag('C', c) for c in nodeValue]),
+                       '\n'.join([self.buildTag('C', c,namespaces=current_namespaces) for c in nodeValue]),
                        node.attr, cls=cls4d,
-                       xmlMode=True)
+                       xmlMode=True,namespaces=namespaces)
 
         else:
-            result = self.buildTag(node.label, nodeValue, node.attr)
+            result = self.buildTag(node.label, nodeValue, node.attr,namespaces=namespaces)
         return result
 
     #-------------------- toXmlBlock --------------------------------
-    def bagToXmlBlock(self, bag):
+    def bagToXmlBlock(self, bag,namespaces=None):
         """Return an XML block version of the Bag.
         
         The XML block version of the Bag uses XML attributes for an efficient representation of types:
@@ -305,7 +311,7 @@ class BagToXml(object):
         >>> mybag['aa.cc']='test'
         >>> mybag.toXmlBlock()
         ['<aa>', u'<cc>test</cc>', u'<bb T="L">4567</bb>', '</aa>']"""
-        return '\n'.join([self.nodeToXmlBlock(node) for node in bag.nodes])
+        return '\n'.join([self.nodeToXmlBlock(node,namespaces=namespaces) for node in bag.nodes])
         
     #-------------------- toXml --------------------------------
     def build(self, bag, filename=None, encoding='UTF-8', catalog=None, typeattrs=True, typevalue=True,
@@ -357,9 +363,9 @@ class BagToXml(object):
             
         self.unresolved = unresolved
         if omitRoot:
-            result = result + self.bagToXmlBlock(bag)
+            result = result + self.bagToXmlBlock(bag,namespaces=[])
         else:
-            result = result + self.buildTag('GenRoBag', self.bagToXmlBlock(bag), xmlMode=True, localize=False)
+            result = result + self.buildTag('GenRoBag', self.bagToXmlBlock(bag,namespaces=[]), xmlMode=True, localize=False)
         result = unicode(result).encode(encoding, 'replace')
         if pretty:
             from xml.dom.minidom import parseString
@@ -376,7 +382,7 @@ class BagToXml(object):
             output.close()
         return result
         
-    def buildTag(self, tagName, value, attributes=None, cls='', xmlMode=False,localize=True):
+    def buildTag(self, tagName, value, attributes=None, cls='', xmlMode=False,localize=True,namespaces=None):
         """TODO Return the XML tag that represent self BagNode
         
         :param tagName: TODO
@@ -437,7 +443,9 @@ class BagToXml(object):
         originalTag = tagName
         if not tagName:
             tagName = '_none_'
-        tagName = re.sub(r'[^\w:.]', '_', originalTag).replace('__', '_')
+        if ':' in originalTag and not originalTag.split(':')[0] in namespaces:
+            tagName = tagName.replace(':','_')
+        tagName = re.sub(r'[^\w.]', '_', originalTag).replace('__', '_')
         if tagName[0].isdigit(): tagName = '_' + tagName
         
         if tagName != originalTag:
