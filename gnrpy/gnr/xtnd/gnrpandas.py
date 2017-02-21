@@ -23,40 +23,41 @@ try:
 except:
     pd = False
     np = False
+try:
+    from gnr.web.gnrasync import SharedObject
 
-from gnr.web.gnrasync import SharedObject
+    class PandasSharedObject(SharedObject):
+        """docstring for TestSHaredObject"""
+        __safe__ = True
 
+        def onInit(self,**kwargs):
+            if self.autoLoad:
+                self.load()
+            if 'commands' not in self.data:
+                self.data['commands'] = Bag()
+            self._data.subscribe('commandslog', any=self._on_command_trigger)
+            
 
+        def _on_command_trigger(self, node=None, ind=None, evt=None, pathlist=None,reason=None, **kwargs):
+            if evt=='ins':
+                print 'command',node,kwargs
+            #self.changes=True
+            #if reason=='autocreate':
+            #    return
+            #plist = pathlist[1:]
+            #if evt=='ins' or evt=='del':
+            #    plist = plist+[node.label]
+            #path = '.'.join(plist)
+            #data = Bag(dict(value=node.value,attr=node.attr,path=path,shared_id=self.shared_id,evt=evt))
+            #from_page_id = reason
+            #self.broadcast(command='som.sharedObjectChange',data=data,from_page_id=from_page_id)
 
-class PandasSharedObject(SharedObject):
-    """docstring for TestSHaredObject"""
-    __safe__ = True
+        @property
+        def commands(self):
+            return self.data['commands']
 
-    def onInit(self,**kwargs):
-        if self.autoLoad:
-            self.load()
-        if 'commands' not in self.data:
-            self.data['commands'] = Bag()
-        self._data.subscribe('commandslog', any=self._on_command_trigger)
-        
-
-    def _on_command_trigger(self, node=None, ind=None, evt=None, pathlist=None,reason=None, **kwargs):
-        if evt=='ins':
-            print 'command',node,kwargs
-        #self.changes=True
-        #if reason=='autocreate':
-        #    return
-        #plist = pathlist[1:]
-        #if evt=='ins' or evt=='del':
-        #    plist = plist+[node.label]
-        #path = '.'.join(plist)
-        #data = Bag(dict(value=node.value,attr=node.attr,path=path,shared_id=self.shared_id,evt=evt))
-        #from_page_id = reason
-        #self.broadcast(command='som.sharedObjectChange',data=data,from_page_id=from_page_id)
-
-    @property
-    def commands(self):
-        return self.data['commands']
+except Exception:
+    pass
 
 def remember(f):
     @wraps(f)
