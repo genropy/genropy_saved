@@ -22,8 +22,8 @@ class TableHandlerForm(BaseComponent):
         self._th_mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form') 
         options = self._th_hook('options',mangler=frameCode,dflt=dict())()
         options['readOnly'] = options.get('readOnly',readOnly)
-       #slots = '*,|,semaphore,|,formcommands,|,dismiss,5,locker,5'
-       #options['slots'] = options.get('slots',slots)
+        #slots = '*,|,semaphore,|,formcommands,|,dismiss,5,locker,5'
+        #options['slots'] = options.get('slots',slots)
         options.update(kwargs)
         linkTo = pane        
         if hasattr(pane,'view'):

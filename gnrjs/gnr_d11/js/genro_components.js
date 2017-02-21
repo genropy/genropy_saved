@@ -1041,8 +1041,8 @@ dojo.declare("gnr.widgets.TreeFrame", gnr.widgets.gnrwdg, {
     getRoot:function(sourceNode,kw){
         return sourceNode._('FramePane',kw);
     },
-
-    createContent:function(sourceNode, kw) {
+    subtags : {column:true},
+    createContent:function(sourceNode, kw,children,subTagItems) {
         
         kw.frameCode = kw.frameCode || kw.paletteCode;
         var frameCode = kw.frameCode;
@@ -1080,7 +1080,15 @@ dojo.declare("gnr.widgets.TreeFrame", gnr.widgets.gnrwdg, {
             bottom._('BagNodeEditor', {nodeId:bagNodeEditorId,datapath:'.bagNodeEditor',origin:origin});
             pane = bc._('ContentPane',{'region':'center'});
         }
-        pane._('tree', tree_kwargs);
+        if(subTagItems['column'] && subTagItems['column'].len()){
+            var tg = pane._('treegrid',tree_kwargs);
+            subTagItems['column'].forEach(function(n){
+                tg._('column',null,n.attr);
+            });
+        }else{
+            pane._('tree', tree_kwargs);
+        }
+        
         return pane;
     }
 });

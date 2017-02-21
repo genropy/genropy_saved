@@ -117,14 +117,14 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         var hasChildrenCb = objectPop(attributes, 'hasChildrenCb');
         var nodeFilter = objectPop(attributes,'nodeFilter');
         if (hasChildrenCb){
-            hasChildrenCb = funcCreate(hasChildrenCb);
+            hasChildrenCb = funcCreate(hasChildrenCb,null,sourceNode);
         }
 
         if (labelCb) {
-            labelCb = funcCreate(labelCb);
+            labelCb = funcCreate(labelCb,null,sourceNode);
         }
         if(nodeFilter){
-            nodeFilter = funcCreate(nodeFilter);
+            nodeFilter = funcCreate(nodeFilter,null,sourceNode);
         }
 
         var store = new gnr.GnrStoreBag({datapath:storepath,_identifier:_identifier,
