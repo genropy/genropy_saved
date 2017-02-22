@@ -204,7 +204,7 @@ class GnrWebUtils(GnrBaseProxy):
                     legacy_match[colobj.attributes['legacy_name']] = colname
             result['methodlist'] = ','.join([k[9:] for k in dir(tblobj) if k.startswith('importer_')])
         for k,i in sorted(reader.index.items(),key=lambda tup:tup[1]):
-            columns.setItem(k,None,name=reader.headers[i],field=k,width='10em')
+            columns.setItem(k,None,name=k,field=k,width='10em')
             if k in table_col_list:
                 dest_field = k 
                 do_import = True
@@ -216,6 +216,7 @@ class GnrWebUtils(GnrBaseProxy):
                 do_import = not table
             match_data.setItem(k,Bag(dict(do_import=do_import,source_field=k,dest_field=dest_field)))
         for i,r in enumerate(reader()):
+            print 'r',r
             if limit and i>=limit:
                 break
             rows.setItem('r_%i' %i,Bag(dict(r)))
@@ -249,7 +250,7 @@ class GnrWebUtils(GnrBaseProxy):
 
     def getReader(self,file_path):
         filename,ext = os.path.splitext(file_path)
-        if ext=='.xls':
+        if ext in ('.xls','.xlsx'):
             reader = XlsReader(file_path)
         else:
             reader = CsvReader(file_path)

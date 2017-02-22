@@ -1,5 +1,5 @@
 dojo.declare("gnr.widgets.GoogleLoader", null, {
-    geocoder:{module_name:'maps',other_params: "sensor=false",language:navigator.language
+    geocoder:{module_name:'maps',other_params: "sensor=false",version:'3.26',language:navigator.language
     },
               
     constructor: function(application) {
