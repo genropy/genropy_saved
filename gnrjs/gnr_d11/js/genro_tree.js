@@ -750,6 +750,14 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             }, this);
         }*/
     },
+
+    mixin_setDynamicStorepath:function(newstorepath){
+        if(newstorepath!=this.sourceNode.attr.storepath){
+            this.sourceNode.attr.storepath = newstorepath;
+            this.sourceNode.rebuild();
+        }
+    },
+
     mixin_setStorepath:function(val, kw) {
         //genro.debug('trigger_store:'+kw.evt+' at '+kw.pathlist.join('.'));
         var storeAbsPath = this.sourceNode.absDatapath(this.sourceNode.attr.storepath);
