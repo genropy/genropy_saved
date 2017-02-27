@@ -208,7 +208,10 @@ function stringContains(s, v) {
     return (s.indexOf(v) >= 0);
 }
 
-function stringCapitalize(str) {
+function stringCapitalize(str,firstOnly) {
+    if (firstOnly){
+        return str[0].toUpperCase() + str.slice(1);
+    }
     return str.replace(/\w+/g, function(a) {
         //return a.charAt(0).toUpperCase() + a.substr(1).toLowerCase();
         return a.charAt(0).toUpperCase() + a.substr(1);

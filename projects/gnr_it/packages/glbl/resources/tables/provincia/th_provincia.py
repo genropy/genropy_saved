@@ -4,12 +4,17 @@
 # Created by Francesco Porcari on 2011-03-31.
 # Copyright (c) 2011 Softwell. All rights reserved.
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.core.gnrdecorator import customizable
 
 class Form(BaseComponent):
 
     def th_form(self,form,**kwargs):
         pane = form.record
         fb = pane.formbuilder(cols=1, margin_left='2em',border_spacing='5px')
+        self.campi_provincia(fb)
+
+    @customizable
+    def campi_provincia(self,fb):
         fb.field('nome', width='20em')
         fb.field('sigla',width='3em')
         fb.field('codice_istat',width='7em')
