@@ -871,7 +871,7 @@ class SqlTable(GnrObject):
         :param autocommit: boolan. If ``True``, perform the commit of the database (``self.db.commit()``)
         :param **kwargs: insert all the :ref:`query` parameters, like the :ref:`sql_where` parameter
         """
-        if not 'where' in kwargs:
+        if 'where' not in kwargs:
             if pkey:
                 _pkeys = [pkey]
             if not _pkeys:
