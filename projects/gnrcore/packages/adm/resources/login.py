@@ -80,6 +80,9 @@ class LoginComponent(BaseComponent):
             rpcmethod = self.login_doLogin    
         
         fb.dateTextBox(value='^.workdate',lbl='!!Workdate')
+        valid_token = False
+        if gnrtoken:
+            valid_token = self.db.table('sys.external_token').check_token(gnrtoken)
         if hasattr(self,'rootenvForm'):
             self.rootenvForm(fb)
         for fbnode in fb.getNodes()[start:]:
@@ -95,13 +98,23 @@ class LoginComponent(BaseComponent):
                                 window.history.replaceState({},document.title,href);
                             }
                             if(new_password){
-                                newPasswordDialog.show();
+                                if(valid_token){
+                                    newPasswordDialog.show();
+                                }else{
+
+                                    PUBLISH openLogin;
+                                    setTimeout(function(){
+                                            genro.publish('failed_login_msg',{message:invalid_token_message});
+                                        },1000);
+                                }
+                                
                             }else{
                                 PUBLISH openLogin;
                             }
                             
                             """,_onBuilt=True,
                             new_password=gnrtoken or False,loginDialog = dlg.js_widget,
+                            valid_token = valid_token,invalid_token_message='!!Change password link expired',
                             newPasswordDialog = self.login_newPassword(pane,gnrtoken=gnrtoken,dlg_login=dlg).js_widget,
                             fb=fb)
 
@@ -395,6 +408,8 @@ class LoginComponent(BaseComponent):
         if not gnrtoken:
             return
         method,args,kwargs,user_id = self.db.table('sys.external_token').use_token(gnrtoken)
+        if not kwargs:
+            return
         if kwargs.get('userid'):
             self.db.table('adm.user').batchUpdate(dict(status='conf',md5pwd=password),_pkeys=kwargs['userid'])
         self.db.commit()
