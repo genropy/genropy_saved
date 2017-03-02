@@ -35,9 +35,7 @@ class Table(object):
         return record['id']
 
     def use_token(self, token, host=None, commit=False):
-        record = self.record(id=token)
-        record = record and record.output('bag') or Bag()
-        # if host .... check if is equal ...
+        record = self.record(id=token, ignoreMissing=True).output('bag')
         record = self.check_token(record, host)
         if record:
             self.db.table('sys.external_token_use').insert(
@@ -50,14 +48,16 @@ class Table(object):
 
     def check_token(self, record, host=None):
         record = self.recordAs(record,'dict')
+        if not record:
+            return False
         if host:
             pass
         if record['expiry'] and record['expiry'] >= datetime.now():
-            return None
+            return False
         if record['max_usages']:
             uses = self.db.table('sys.external_token_use').query(where='external_token_id =:cid',
                                                                  cid=record['id']).count()
             if uses >= record['max_usages']:
-                return None
+                return False
         return record
         
