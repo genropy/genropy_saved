@@ -111,10 +111,11 @@ if __name__ == '__main__':
     """
 
     parser = OptionParser(usage)
-    parser.add_option('-to', '--touchonly',
+    parser.add_option('--touchonly',
                   dest='touchonly',
                   action='store_true',
                   help="Touch all vassals")  
+
     (options, args) = parser.parse_args()
 
     updater = UwsgiUpdater()
