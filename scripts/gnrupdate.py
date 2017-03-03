@@ -6,6 +6,8 @@
 from gnr.core.gnrbag import Bag
 from gnr.app.gnrapp import GnrApp
 from gnr.app.gnrconfig import gnrConfigPath, getGnrConfig
+from optparse import OptionParser
+
 import os
 
 
@@ -60,6 +62,14 @@ class UwsgiUpdater(object):
             self.start_vassal(s)
         print 'Update ok'
 
+    def touchonly(self):
+        instances = [os.path.splitext(l)[0] for l in os.listdir(self.vassals_path) if l not in ('gnrdaemon.ini','pg.ini')]
+        for s in instances:
+            print 'Instance ',s
+            self.restart_vassal(s)
+            print 'restarted',s
+        print 'touch ok'
+
     def stop_vassal(self,name):
         vassal_start_path = os.path.join(self.vassals_path,'%s.ini' %name)
         vassal_off_path = os.path.join(self.vassals_path, '%s.off' %name)
@@ -97,7 +107,19 @@ class UwsgiUpdater(object):
 if __name__ == '__main__':
     usage = """
     gnrupdate
+    -to, --touchonly avoid dbsetup
     """
+
+    parser = OptionParser(usage)
+    parser.add_option('-to', '--touchonly',
+                  dest='touchonly',
+                  action='store_true',
+                  help="Touch all vassals")  
+    (options, args) = parser.parse_args()
+
     updater = UwsgiUpdater()
-    updater.update()
+    if options.touchonly:
+        updater.touchonly()
+    else:
+        updater.update()
     
