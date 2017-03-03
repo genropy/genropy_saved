@@ -216,7 +216,6 @@ class GnrWebUtils(GnrBaseProxy):
                 do_import = not table
             match_data.setItem(k,Bag(dict(do_import=do_import,source_field=k,dest_field=dest_field)))
         for i,r in enumerate(reader()):
-            print 'r',r
             if limit and i>=limit:
                 break
             rows.setItem('r_%i' %i,Bag(dict(r)))
