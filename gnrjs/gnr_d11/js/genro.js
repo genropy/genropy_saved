@@ -2191,6 +2191,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     lockScreen:function(locking, reason, options) {
+        options = options || {};
         if (reason) {
             genro.lockingElements[reason] = reason;
         }
