@@ -44,6 +44,26 @@ class GnrWebUtils(GnrBaseProxy):
             topath = '%s?%s' % (topath, urllib.urlencode({'fromPage': fromPage}))
         return topath
 
+    def quickThermo(self,iterator,path=None,maxidx=None,labelfield=None,labelcb=None,thermo_width=None):
+        idx = 0
+        for v in iterator:
+            idx+=1
+            if labelfield:
+                if labelfield in v:
+                    lbl = v[labelfield]
+                else:
+                    lbl = '%s %s' %(labelfield,idx)
+            elif labelcb:
+                lbl = labelcb(v)
+            themropars = dict(maxidx=maxidx,idx=idx,lbl=lbl,thermo_width=thermo_width or '12em')
+            if maxidx:
+                thermo = r"""<div class="quickthermo_box"> <progress style="width:%(thermo_width)s" max="%(maxidx)s" value="%(idx)s"></progress> <div class="quickthermo_caption">%(idx)s/%(maxidx)s - %(lbl)s</div></div>""" %themropars
+            else:
+                thermo = """<div class="quickthermo_box"> <div class="form_waiting"></div> <div class="quickthermo_caption">%(idx)s - %(lbl)s</div> </div>"""  %themropars
+            self.page.setInClientData(path,thermo,idx=idx,maxidx=maxidx,lbl=lbl)
+            
+            yield v
+
     def rootFolder(self, *args, **kwargs):
         """The mod_python root"""
         path = os.path.normpath(os.path.join(self.directory, *args))
@@ -223,7 +243,7 @@ class GnrWebUtils(GnrBaseProxy):
 
 
     @public_method
-    def tableImporterRun(self,table=None,file_path=None,match_index=None,import_method=None,no_trigger=None,**kwargs):
+    def tableImporterRun(self,table=None,file_path=None,match_index=None,import_method=None,sql_mode=None,**kwargs):
         tblobj = self.page.db.table(table)
         docommit = False
         reader = self.getReader(file_path)
@@ -231,20 +251,25 @@ class GnrWebUtils(GnrBaseProxy):
             handler = getattr(tblobj,'importer_%s' %import_method)
             return handler(reader)
         elif match_index:
-            l = []
-            for row in reader():
+            rows_to_insert = []
+            tpkey = tblobj.pkey
+            for row in self.quickThermo(reader(),maxidx=reader.nrows,labelfield=tblobj.attributes.get('caption_field') or tblobj.name,
+                                        path='gnr.lockScreen.thermo'):
                 r = {v:row[k] for k,v in match_index.items() if v is not ''}
                 tblobj.recordCoerceTypes(r)
-                if not no_trigger:
+                if sql_mode:
+                    if r.get(tpkey):
+                        r[tpkey] = tblobj.newPkeyValue(r)
+                    rows_to_insert.append(r)
+                else:
                     tblobj.insert(r)
                     docommit = True
-                else:
-                    l.append(r)
-            if l:
-                tblobj.insertMany(l)
+            if rows_to_insert:
+                tblobj.insertMany(rows_to_insert)
                 docommit = True
             if docommit:
                 self.page.db.commit()
+
             return 'OK'
 
     def getReader(self,file_path):

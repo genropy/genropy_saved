@@ -1223,8 +1223,8 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
                                         hidden:'^.methodlist?=!#v',
                                         parentForm:false});
         if (this.table){
-            fb.addField('checkbox',{value:'^.no_trigger',default_value:true,
-                                label:_T('No trigger'),parentForm:false});   
+            fb.addField('checkbox',{value:'^.sql_mode',
+                                label:_T('SQL Mode'),parentForm:false});   
         }
         var grid = frame._('ContentPane',{'side':'center',overflow:'hidden'})._('quickGrid',{value:'^.match',_class:'noselect'});
         grid.getParentNode().importer_gnrwdg = this;
@@ -1307,13 +1307,17 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
             })
         }
         var that = this;
+        genro.lockScreen(true,'import_data',{thermo:true});
         genro.serverCall(this.importMethod || 'utils.tableImporterRun',{table:this.table,file_path:'=.imported_file_path',
                                                     match_index:match_index,
                                                     import_method:'=.import_method',
                                                     no_trigger:'=.no_trigger',
+                                                    timeout:3600,
                                                     _sourceNode:buttonNode},function(result){
+                                                        console.log('batch finito');
                                                         genro.dlg.floatingMessage(that.rootNode,{message:_T('Import finished')});
                                                         that.resetImporter();
+                                                        genro.lockScreen(false,'import_data');
                                                     });
     }
 });

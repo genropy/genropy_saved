@@ -2198,7 +2198,11 @@ dojo.declare('gnr.GenroClient', null, {
             if (!reason) {
                 return;
             }
-            genro.nodeById('_gnrRoot').setHiderLayer(true,{message:'<div class="form_waiting"></div>',z_index:999998});
+            var message = '<div class="form_waiting"></div>';
+            if(options.thermo){
+                message = options.thermo === true?'^gnr.lockScreen.thermo':options.thermo;
+            }
+            genro.nodeById('_gnrRoot').setHiderLayer(true,{message:message,z_index:999998});
         } else {
             if (reason) {
                 objectPop(genro.lockingElements, reason);
