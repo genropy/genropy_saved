@@ -8,4 +8,7 @@ class Table(object):
         tbl.column('code' ,size=':2',name_long='!!Code',unique=True)
         tbl.column('name' ,name_long='!!Name')
 
-    
+
+    def isInStartupData(self):
+        return True
+        
