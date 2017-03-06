@@ -38,11 +38,18 @@ class FrameGridSlots(BaseComponent):
         kwargs.setdefault('visible',enable)
         menupath = None
         if defaults:
-            menubag = Bag()
-            for i,(caption,default_kw) in enumerate(defaults):
-                menubag.setItem('r_%i' %i,None,caption=caption,default_kw=default_kw)
-            pane.data('.addrow_menu_store',menubag)
+            menubag = None
             menupath = '.addrow_menu_store'
+            if isinstance(defaults,Bag):
+                menubag = defaults
+            elif isinstance(defaults,basestring):
+                menupath = defaults
+            else:
+                menubag = Bag()
+                for i,(caption,default_kw) in enumerate(defaults):
+                    menubag.setItem('r_%i' %i,None,caption=caption,default_kw=default_kw)
+            if menubag:
+                pane.data('.addrow_menu_store',menubag)
         return pane.slotButton(label='!!Add',publish='addrow',iconClass=_class,disabled=disabled,
                                 _delay=delay,menupath=menupath,**kwargs)
          
