@@ -2405,6 +2405,19 @@ div.dojoxDock {
 
 /* @group FileInput */
 
+/* quickthermo*/
+.quickthermo_box{
+    background: white;
+    border-radius: 4px;
+    padding: 5px;
+    border:1px solid #ccc;
+}
+.quickthermo_caption{
+    font-variant: normal;
+    font-size: 18px;
+    color:#555;
+}
+
 .dijitFileInput {
     position: relative;
     height: 1.3em;
