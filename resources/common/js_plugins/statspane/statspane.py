@@ -22,22 +22,34 @@ class StatsCommandForms(object):
         z = [(m.order,m.__name__[4:],m.name) for m in [getattr(cls,c) for c in dir(cls) if c.startswith('cmd_')]]
         return sorted(z)
 
+    @classmethod
+    def commandmenubags(cls):
+        basecommands = Bag()
+        dfcommands = Bag()
+        for m in [getattr(cls,c) for c in dir(cls) if c.startswith('cmd_')]:
+            b = basecommands if getattr(m,'basecmd',None) else dfcommands
+            b.setItem('r_%s' %m.order,None,default_kw=dict(command=m.__name__[4:]),caption=m.name)
+        basecommands.sort('#k')
+        dfcommands.sort('#k')
+        return basecommands,dfcommands
 
-    @metadata(order=0,name='!!Dataframe from db')
+
+    @metadata(order=0,name='!!Dataframe from db',basecmd=True)
     def cmd_dataframeFromDb(self,pane):
         bc = pane.borderContainer()
         fb = bc.contentPane(region='top').formbuilder()
-        fb.textbox(value='^.dfname',lbl='Dataframe',validate_notnull=True)
-        fb.textbox(value='^.table',lbl='Table',validate_notnull=True)
-        fb.textbox(value='^.where',lbl='Where')
-        fb.textbox(value='^.columns',lbl='Columns')
+        fb.textbox(value='^.dfname',lbl='Dataframe',validate_notnull=True,unmodifiable=True)
+        fb.textbox(value='^.pars.table',lbl='Table',validate_notnull=True)
+        fb.textbox(value='^.pars.where',lbl='Where')
+        fb.textbox(value='^.pars.columns',lbl='Columns')
         #bc.roundedGroupFrame(title='Extra kwargs',region='center').multiValueEditor(value='^#FORM.record.query_kwargs')
 
-    @metadata(order=1,name='!!New Pivot table')
+    @metadata(order=0,name='!!New Pivot table',)
     def cmd_pivotTable(self,pane):
         pass
 
 class PdCommandsGrid(BaseComponent):
+    js_requires='js_plugins/statspane/pandas'
     py_requires="""public:Public,
                    gnrcomponents/framegrid:FrameGrid,
                     gnrcomponents/formhandler:FormHandler"""
@@ -51,10 +63,11 @@ class PdCommandsGrid(BaseComponent):
     def pdcommand_struct(self,struct):
         r = struct.view().rows()
         r.cell('counter',name='C.',width='3em',counter=True,dtype='L')
-        r.cell('command',name='Command',width='15em')
+        r.cell('dfname',name='Dataframe',width='7em')
+        r.cell('command',name='Command',width='10em')
         r.cell('_tpl',name='Pars',width='100%',_customGetter="""function(row){
                 //objectExtract(row,'counter,command,done,code');
-                var v = new gnr.GnrBag(row);
+                var v = new gnr.GnrBag(row.pars);
                 return v.getFormattedValue()
             }
             """)
@@ -67,7 +80,19 @@ class PdCommandsGrid(BaseComponent):
                             grid_canSort=False,
                             addrow=False,delrow=True,struct=self.pdcommand_struct,**kwargs)
         frame.top.bar.replaceSlots('delrow','delrow,addrow',
-                                    addrow_defaults=[(caption,dict(command=command)) for order,command,caption in StatsCommandForms.commandlist()])
+                                    addrow_defaults='.menucommands')
+        basecommands,dfcommands = StatsCommandForms.commandmenubags()
+        frame.data('.basecommands',basecommands)
+        frame.data('.dfcommands',dfcommands)
+        frame.dataController("""var cb = function(){
+                                    var currentCommands = g.storebag();
+                                    return pandas_commands_manager.commandMenu(currentCommands,basecommands,dfcommands);
+                                };
+                                SET .menucommands = new gnr.GnrBagCbResolver({method:cb});
+                                """,
+                        _onStart=True,basecommands='=.basecommands',dfcommands='=.dfcommands',g=frame.grid.js_widget)
+
+        #[(caption,dict(command=command)) for order,command,caption in StatsCommandForms.commandlist()]
 
         form = frame.grid.linkedForm(frameCode='F_%s' %code,
                                  datapath='.pdcommands.form',loadEvent='onRowDblClick',
