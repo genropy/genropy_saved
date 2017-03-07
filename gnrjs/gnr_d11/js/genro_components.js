@@ -1314,7 +1314,6 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
                                                     no_trigger:'=.no_trigger',
                                                     timeout:3600,
                                                     _sourceNode:buttonNode},function(result){
-                                                        console.log('batch finito');
                                                         genro.dlg.floatingMessage(that.rootNode,{message:_T('Import finished')});
                                                         that.resetImporter();
                                                         genro.lockScreen(false,'import_data');
