@@ -344,7 +344,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 var cb = function(result, error) {
                     error = error || result?result.error:null;
                     if (_lockScreen) {
-                        genro.lockScreen(false, domsource_id);
+                        genro.lockScreen(false, domsource_id,_lockScreen);
                     }
                     if(_execClass){
                         genro.dom.removeClass(dojo.body(),_execClass);
@@ -379,7 +379,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 objectExtract(kwargs, '_*');
                 if (doCall != false) {
                     if (_lockScreen) {
-                        genro.lockScreen(true, domsource_id);
+                        genro.lockScreen(true, domsource_id,_lockScreen);
                     }   
                     if (!this._deferredRegister){
                         this._deferredRegister ={};

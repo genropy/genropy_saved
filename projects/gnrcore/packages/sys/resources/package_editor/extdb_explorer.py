@@ -39,6 +39,7 @@ class ExtDbExplorer(BaseComponent):
                     instance='=.instance',
                     project='=.project',
                     data='=.data',
+                    _lockScreen=dict(thermo=True),
                     _fired='^.addToModel',
                     _onCalling="""
                     var columns = new gnr.GnrBag();
@@ -151,7 +152,7 @@ class ExtDbExplorer(BaseComponent):
         instance_bag.setItem('legacy_db.%s' %legacydb,None,**parsdict)
         instance_bag.toXml(instance_path,typevalue=False,pretty=True)
         for srcpkg,tables in data.items():
-            for tablename,columns in tables.items():
+            for tablename,columns in self.utils.quickThermo(tables.items(),labelcb=lambda r: '%s.%s' %(srcpkg,r[0]),maxidx=len(tables)):
                 firstColAttr = columns.getAttr('#0')
                 tablename = tablename.lower()
                 table_data = Bag()
