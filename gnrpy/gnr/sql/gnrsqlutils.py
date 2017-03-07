@@ -301,7 +301,7 @@ class SqlModelChecker(object):
     def _checkTblRelations(self, tbl):
         if not tbl.relations:
             return
-        tbl_actual_rels = self.actual_relations.get(tbl.sqlfullname, [])[
+        tbl_actual_rels = self.actual_relations.get('%s.%s' %(tbl.sqlschema,tbl.sqlname), [])[
                           :] #get all db foreignkey of the current table
         relations = [rel for rel in tbl.relations.digest('#a.joiner') if rel]
         for rel in relations:

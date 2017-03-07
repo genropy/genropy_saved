@@ -776,12 +776,16 @@ class DbTableObj(DbModelObj):
         if not sqlname:
             sqlname = self.pkg.tableSqlName(self)
         return sqlname
+
+    @property
+    def adapted_sqlname(self):
+        return self.adapter.adaptSqlName(self.sqlname)
         
     sqlname = property(_get_sqlname)
         
     def _get_sqlfullname(self):
         """property. Returns the table's sqlfullname"""
-        return '%s.%s' % (self.sqlschema, self.sqlname)
+        return '%s.%s' % (self.sqlschema, self.adapted_sqlname)
         
     sqlfullname = property(_get_sqlfullname)
         
@@ -1282,7 +1286,7 @@ class DbColumnObj(DbBaseColumnObj):
             self.attributes['dtype'] = attributes_mixin.pop('dtype')
             attributes_mixin.update(self.attributes)
             self.attributes = attributes_mixin
-        self.table.sqlnamemapper[self.name] = self.sqlname
+        self.table.sqlnamemapper[self.name] = self.adapted_sqlname
         column_relation = self.structnode.value['relation']
         if column_relation is not None:
             reldict = dict(column_relation.attributes)

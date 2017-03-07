@@ -314,8 +314,9 @@ class SqlQueryCompiler(object):
             from_tbl = self.dbmodel.table(attrs['one_relation'])
             from_column = attrs['one_relation'].split('.')[-1]
             manyrelation = not attrs.get('one_one', False)
-        target_sqlschema = target_tbl.sqlschema
-        target_sqltable = target_tbl.sqlname
+        #target_sqlschema = target_tbl.sqlschema
+        #target_sqltable = target_tbl.sqlname
+        target_sqlfullname = target_tbl.sqlfullname
         target_sqlcolumn = target_tbl.sqlnamemapper[target_column]
         from_sqlcolumn = from_tbl.sqlnamemapper[from_column]
         
@@ -343,8 +344,8 @@ class SqlQueryCompiler(object):
         #        wherelist.append('( %s )' %condition)
         #    where = ' AND '.join(wherelist)
 
-        self.cpl.joins.append('LEFT JOIN %s.%s AS %s ON %s' %
-                              (target_sqlschema, target_sqltable, alias, cnd))
+        self.cpl.joins.append('LEFT JOIN %s AS %s ON %s' %
+                              (target_sqlfullname, alias, cnd))
         #raise str('LEFT JOIN %s.%s AS %s ON %s' % (target_sqlschema, target_sqltable, alias, cnd))
         
         # if a relation many is traversed the number of returned rows are more of the rows in the main table.
