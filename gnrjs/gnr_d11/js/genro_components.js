@@ -1312,7 +1312,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
                                                     match_index:match_index,
                                                     import_method:'=.import_method',
                                                     no_trigger:'=.no_trigger',
-                                                    timeout:3600,
+                                                    timeout:3600000,
                                                     _sourceNode:buttonNode},function(result){
                                                         genro.dlg.floatingMessage(that.rootNode,{message:_T('Import finished')});
                                                         that.resetImporter();
