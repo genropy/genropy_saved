@@ -495,7 +495,7 @@ class SqlQueryCompiler(object):
         if not ignoreTableOrderBy and not aggregate:
             order_by = order_by or self.tblobj.attributes.get('order_by')
         self.init()
-        if not 'pkey' in self.cpl.relationDict:
+        if ('pkey' not in self.cpl.relationDict) and self.tblobj.pkey:
             self.cpl.relationDict['pkey'] = self.tblobj.pkey
             
         # normalize the columns string
@@ -659,7 +659,7 @@ class SqlQueryCompiler(object):
                              check the :ref:`relationdict` documentation section
         :param virtual_columns: TODO."""
         self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname, relationDict=relationDict)
-        if not 'pkey' in self.cpl.relationDict:
+        if not 'pkey' in self.cpl.relationDict and self.tblobj.pkey:
             self.cpl.relationDict['pkey'] = self.tblobj.pkey
         self.init(lazy=lazy, eager=eager)
         for fieldname, value, attrs in self.relations.digest('#k,#v,#a'):

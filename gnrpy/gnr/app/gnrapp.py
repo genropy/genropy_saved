@@ -1286,15 +1286,18 @@ class GnrApp(object):
             print 'got externaldb',name
         return externaldb
 
-    def importFromLegacyDb(self,packages=None,legacy_db=None):
+    def importFromLegacyDb(self,packages=None,legacy_db=None,thermo_wrapper=None,thermo_wrapper_kwargs=None):
         if not packages:
             packages = self.packages.keys()
         else:
             packages = packages.split(',')
-        for table in self.db.tablesMasterIndex()['_index_'].digest('#a.tbl'):
+        tables = self.db.tablesMasterIndex()['_index_'].digest('#a.tbl')
+        if thermo_wrapper:
+            thermo_wrapper_kwargs = thermo_wrapper_kwargs or dict()
+            tables = thermo_wrapper(tables,**thermo_wrapper_kwargs)
+        for table in tables:
             pkg,tablename = table.split('.')
             if pkg in packages:
-                print 'sto per importare',table
                 self.importTableFromLegacyDb(table,legacy_db=legacy_db)
         self.db.commit()
         self.db.closeConnection()
@@ -1321,7 +1324,6 @@ class GnrApp(object):
                     columns.append(" $%s AS %s " %(colummn_legacy_name,k))
             columns = ', '.join(columns)
         columns = columns or '*'
-        print 'table legacy_name',table_legacy_name
         oldtbl = None
         try:
             oldtbl = sourcedb.table(table_legacy_name)
@@ -1336,6 +1338,7 @@ class GnrApp(object):
         adaptLegacyRow =  getattr(destbl,'adaptLegacyRow',None)
         for r in f:
             r = dict(r)
+            destbl.recordCoerceTypes(r)
             if adaptLegacyRow:
                 adaptLegacyRow(r)
             rows.append(r)

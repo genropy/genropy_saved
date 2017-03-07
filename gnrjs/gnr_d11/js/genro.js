@@ -2204,6 +2204,7 @@ dojo.declare('gnr.GenroClient', null, {
             }
             var message = '<div class="form_waiting"></div>';
             if(options.thermo){
+                genro.setData('gnr.lockScreen.thermo',message);
                 message = options.thermo === true?'^gnr.lockScreen.thermo':options.thermo;
             }
             genro.nodeById('_gnrRoot').setHiderLayer(true,{message:message,z_index:999998});

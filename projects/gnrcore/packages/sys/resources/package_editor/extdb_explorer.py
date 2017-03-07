@@ -39,6 +39,7 @@ class ExtDbExplorer(BaseComponent):
                     instance='=.instance',
                     project='=.project',
                     data='=.data',
+                    timeout=5000000,
                     _lockScreen=dict(thermo=True),
                     _fired='^.addToModel',
                     _onCalling="""
@@ -55,6 +56,7 @@ class ExtDbExplorer(BaseComponent):
                     kwargs['data'] = columns
                     """,
                     _onResult="""
+                    console.log('extdb_buildTableModules finished');
                     genro.publish('reloadTableModules');
                     genro.publish('closeDbConnectionDialog');""")
         bar = frame.bottom.slotBar('*,cancel,confirm,5',margin_bottom='2px',_class='slotbar_dialog_footer')
@@ -80,6 +82,7 @@ class ExtDbExplorer(BaseComponent):
         top.dataRpc('.data',
                     self.extdb_getDbStructure,project='=.project',package='=.package',
                     connection_params='=.connection_params',
+                    timeout=5000000,
                     _fired='^.connect',
                     _lockScreen=True)
         center = bc.borderContainer(region='center')
@@ -155,6 +158,7 @@ class ExtDbExplorer(BaseComponent):
             for tablename,columns in self.utils.quickThermo(tables.items(),labelcb=lambda r: '%s.%s' %(srcpkg,r[0]),maxidx=len(tables)):
                 firstColAttr = columns.getAttr('#0')
                 tablename = tablename.lower()
+                tablename = tablename.replace(' ','_').replace('.','_')
                 table_data = Bag()
                 table_data['name'] = tablename
                 table_data['legacy_name'] = firstColAttr.get('table_fullname')
