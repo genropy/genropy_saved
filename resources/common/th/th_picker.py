@@ -64,7 +64,7 @@ class THPicker(BaseComponent):
                                             width=width,condition=condition,condition_kwargs=condition_kwargs,
                                             checkbox=checkbox,structure_field = structure_field or picker_kwargs.get('structure_field'),
                                             uniqueRow=picker_kwargs.get('uniqueRow',True),
-                                            top_height=picker_kwargs.get('top_height'))
+                                            top_height=picker_kwargs.get('top_height'),structure_kwargs = dictExtract(picker_kwargs,'structure_'))
 
         if grid:
             grid.attributes.update(dropTargetCb_picker='return this.form?!this.form.isDisabled():true')
@@ -91,7 +91,7 @@ class THPicker(BaseComponent):
                          title=None,dockButton=True,
                          height=None,width=None,condition=None,condition_kwargs=None,
                          structure_field=None,uniqueRow=True,top_height=None,
-                         checkbox=None,
+                         checkbox=None,structure_kwargs=None,
                         **kwargs):
         many = relation_field 
         if viewResource is True:
@@ -111,9 +111,11 @@ class THPicker(BaseComponent):
 
         palette = pane.palettePane(paletteCode=paletteCode,dockButton=dockButton,
                                         title=title,width=width,height=height)
+
         def struct(struct):
             r = struct.view().rows()
             r.fieldcell(tblobj.attributes['caption_field'], name=tblobj.name_long, width='100%')
+
         viewResource = viewResource or 'PickerView'
         bc = palette.borderContainer(_anchor=True)
         center = bc.contentPane(region='center')
@@ -134,12 +136,18 @@ class THPicker(BaseComponent):
                             selected_hierarchical_pkey='.tree.hierarchical_pkey',                          
                             selectedPath='.tree.path',  
                             identifier='treeIdentifier',margin='6px',
-                        ).htableViewStore(table=structure_tblobj.fullname)
-
+                        ).htableViewStore(table=structure_tblobj.fullname,**structure_kwargs)
+            if structure_field.startswith('@'):
+                sf = structure_field.split('.')
+                hpkey_ref = '%s.@%s.hierarchical_pkey' %(sf[0],sf[-1]) 
+                fkey_ref = structure_field
+            else:
+                hpkey_ref = '@%s.hierarchical_pkey' %structure_field 
+                fkey_ref = '$%s' %structure_field
             paletteth.view.store.attributes.update(where = """
-                                                        ( (:selected_pkey IS NOT NULL) AND (@%s.hierarchical_pkey ILIKE (:hierarchical_pkey || '%s') OR :hierarchical_pkey IS NULL)  
-                                                            OR ( ($%s IS NULL) AND (:selected_pkey IS NULL) ) )
-                                                    """ %(structure_field,'%%',structure_field),
+                                                        ( (:selected_pkey IS NOT NULL) AND (%s ILIKE (:hierarchical_pkey || '%s') OR :hierarchical_pkey IS NULL)  
+                                                            OR ( (%s IS NULL) AND (:selected_pkey IS NULL) ) )
+                                                    """ %(hpkey_ref,'%%',fkey_ref),
                                   hierarchical_pkey='^#ANCHOR.structuretree.tree.hierarchical_pkey',
                                   selected_pkey='^#ANCHOR.structuretree.tree.pkey',_delay=500)
         if checkbox or self.isMobile:

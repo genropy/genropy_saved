@@ -1341,8 +1341,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         if table_onLoading:
             table_onLoading(record, newrecord, loadingParameters, recInfo)
         table_onloading_handlers = [getattr(tblobj,k) for k in dir(tblobj) if k.startswith('onLoading_')]
-        for h in table_onloading_handlers:
-            h(record, newrecord, loadingParameters, recInfo)
+        
         onLoadingHandler = onLoadingHandler or  loadingParameters.pop('method', None)
         if onLoadingHandler:
             handler = self.page.getPublicMethod('rpc', onLoadingHandler)
@@ -1356,16 +1355,17 @@ class GnrWebAppHandler(GnrBaseProxy):
             handler = getattr(self.page, method, None)
             
 
-        if handler:
+        if handler or table_onloading_handlers:
             if default_kwargs and newrecord:
                 self.setRecordDefaults(record, default_kwargs)
-            handler(record, newrecord, loadingParameters, recInfo)
+            for h in table_onloading_handlers:
+                h(record, newrecord, loadingParameters, recInfo)
+            if handler:
+                handler(record, newrecord, loadingParameters, recInfo)
         elif newrecord and loadingParameters:
-
             for k in default_kwargs:
-                if not k in record:
+                if k not in record:
                     record[k]=None
-        
             self.setRecordDefaults(record, loadingParameters)
 
         if applymethod:
