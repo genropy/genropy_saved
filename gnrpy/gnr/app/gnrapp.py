@@ -613,6 +613,7 @@ class GnrApp(object):
         self.packagesIdByPath = {}
         self.config = self.load_instance_config()
         self.instanceMenu = self.load_instance_menu()
+        self.cache = {}
 
         self.build_package_path()
         db_settings_path = os.path.join(self.instanceFolder, 'dbsettings.xml')
@@ -914,7 +915,7 @@ class GnrApp(object):
         if self.db.package('adm'):
             self.db.table('adm.preference').setPreference(path, data, pkg=pkg)
 
-    def getPreference(self, path, pkg, dflt=None):
+    def getPreference(self, path, pkg=None, dflt=None):
         if self.db.package('adm'):
             return self.db.table('adm.preference').getPreference(path, pkg=pkg, dflt=dflt)
     
@@ -1180,6 +1181,15 @@ class GnrApp(object):
             if valid:
                 return True
         return False
+
+    def allowedByPreference(self,checkpref,path=None,**kwargs):
+        preflist = splitAndStrip(checkpref, ' OR ')
+        allowed = []
+        prefdata = self.getPreference(path) or Bag()
+        for pref in preflist:
+            allowed.append(filter(lambda n: not n, [prefdata[pr] for pr in splitAndStrip(pref, ' AND ')]))
+        return len(filter(lambda n: not n,allowed))>0
+
         
     def addResourceTags(self, resourceTags, newTags):
         """Add resource Tags
