@@ -59,6 +59,7 @@ class TableHandler(BaseComponent):
                                                     default_kwargs=default_kwargs,original_kwargs=kwargs)
         tblobj = self.db.table(table)
         tblattr = tblobj.attributes
+
         readOnly = readOnly or tblattr.get('readOnly')
         tblconfig = self.getUserTableConfig(table=table)
         if tblconfig['tbl_permission'] == 'readonly':
@@ -212,7 +213,7 @@ class TableHandler(BaseComponent):
             wdg.view.top.bar.attributes.update(toolbar=False,_class='slotbar_toolbar pbl_roundedGroupLabel')
             if count is None:
                 wdg.view.top.bar.replaceSlots('count','')
-        if not self.th_checkPermission(wdg.view):
+        if not self.th_checkPermission(wdg.view) or not self.application.allowedByPreference(**tblattr):
             wdg.attributes['_notallowed'] = True
         return wdg
 

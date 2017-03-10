@@ -39,6 +39,7 @@ from gnr.app.gnrdeploy import PathResolver
 from gnr.app.gnrconfig import MenuStruct
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrdecorator import extract_kwargs
 
 from gnr.core.gnrlang import  gnrImport, instanceMixin, GnrException
 from gnr.core.gnrstring import makeSet, toText, splitAndStrip, like, boolean
@@ -632,7 +633,7 @@ class GnrApp(object):
                 sshattr.update(remotedbattr)
                 sshattr['forwarded_port'] = sshattr.pop('port',None)
                 db_node.attr['port'] = self.gnrdaemon.sshtunnel_port(**sshattr)
-        if not 'menu' in self.config:
+        if 'menu' not in self.config:
             self.config['menu'] = Bag()
             #------ application instance customization-------
         self.customFolder = os.path.join(self.instanceFolder, 'custom')
@@ -657,6 +658,7 @@ class GnrApp(object):
         """TODO"""
         if not self.instanceFolder:
             return Bag()
+
         def normalizePackages(config):
             if config['packages']:
                 packages = Bag()
@@ -1182,10 +1184,15 @@ class GnrApp(object):
                 return True
         return False
 
-    def allowedByPreference(self,checkpref,path=None,**kwargs):
+    @extract_kwargs(checkpref=True)
+    def allowedByPreference(self,checkpref=None,checkpref_kwargs=None,**kwargs):
+        if not checkpref:
+            return True
+        if isinstance(checkpref,dict):
+            checkpref = checkpref.get('')
         preflist = splitAndStrip(checkpref, ' OR ')
         allowed = []
-        prefdata = self.getPreference(path) or Bag()
+        prefdata = self.getPreference(checkpref_kwargs.get('path')) or Bag()
         for pref in preflist:
             allowed.append(filter(lambda n: not n, [prefdata[pr] for pr in splitAndStrip(pref, ' AND ')]))
         return len(filter(lambda n: not n,allowed))>0
@@ -1202,7 +1209,7 @@ class GnrApp(object):
         if isinstance(newTags, basestring):
             newTags = newTags.split(',')
         for tag in newTags:
-            if not tag in resourceTags:
+            if tag not in resourceTags:
                 resourceTags.append(tag)
         return ','.join(resourceTags)
         

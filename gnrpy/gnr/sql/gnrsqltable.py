@@ -531,6 +531,7 @@ class SqlTable(GnrObject):
     def cachedRecord(self,pkey=None,virtual_columns=None,keyField=None,createCb=None):
         keyField = keyField or self.pkey
         ignoreMissing = createCb is not None
+
         def recordFromCache(cache=None,pkey=None,virtual_columns_set=None):
             cacheNode = cache.getNode(pkey)
             if cacheNode:
@@ -1952,6 +1953,18 @@ class SqlTable(GnrObject):
                                      **kwargs)
                                      
         def resultAppend(result, label, attributes, omit):
+            if not self.db.application.allowedByPreference(**attributes):
+                return
+            if 'one_relation' in attributes or 'many_relation' in attributes:
+                if not self.db.application.allowedByPreference(**self.db.model.column(attributes['one_relation']).table.attributes):
+                    return
+                if not self.db.application.allowedByPreference(**self.db.model.column(attributes['many_relation']).table.attributes):
+                    return
+            elif not attributes.get('virtual_column'):
+                reltable = self.column(label).relatedTable()
+                if reltable:
+                    if not self.db.application.allowedByPreference(**reltable.attributes):
+                        return
             gr = attributes.get('group') or ' '
             if '%' in gr:
                 subgroups = dictExtract(attributes,'subgroup_')
@@ -1994,8 +2007,9 @@ class SqlTable(GnrObject):
         result = Bag()
         for relnode in tblmodel.relations: # add columns relations
             attributes = convertAttributes(result, relnode, prevRelation, omit,relationStack)
-            if attributes and not attributes.get('user_forbidden'):
-                resultAppend(result, relnode.label, attributes, omit)
+            if attributes:
+                if not attributes.get('user_forbidden'):
+                    resultAppend(result, relnode.label, attributes, omit)
             
         for vcolname, vcol in tblmodel.virtual_columns.items():
             targetcol = self.column(vcolname)
@@ -2034,7 +2048,7 @@ class SqlTable(GnrObject):
                 if grplist and grplist[0] in grdict:
                     for j,kg in enumerate(grplist):
                         grplevel='.'.join(grplist[0:j+1])
-                        if not grplevel in newresult:
+                        if grplevel not in newresult:
                             newresult.setItem(grplevel, None, name_long=grdict.get(grplevel,grplevel.split('.')[-1]))
                     newresult.setItem('%s.%s' % ('.'.join(grplist), node.label), node.getValue(), node.getAttr())
 

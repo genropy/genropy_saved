@@ -2161,15 +2161,17 @@ class GnrWebPage(GnrBaseWebPage):
         if not table:
             return Bag()
         cps = 'false' if not checkPermissions else 'true'
+        
         def buildLinkResolver(node, prevRelation, prevCaption,relationStack):
             nodeattr = node.getAttr()
-            if not 'name_long' in nodeattr:
+            if  'name_long' not in nodeattr:
                 raise Exception(nodeattr) # FIXME: use a specific exception class
             nodeattr['caption'] = nodeattr.pop('name_long')
             nodeattr.pop('tag',None)
             nodeattr['fullcaption'] = concat(prevCaption, self._(nodeattr['caption']), '/')
 
             if nodeattr.get('one_relation'):
+                #print node.label
                 innerCurrRecordPath = '%s.%s' %(node.label,currRecordPath) if currRecordPath else ''
                 nodeattr['_T'] = 'JS'
                 if nodeattr['mode'] == 'O':
