@@ -148,7 +148,7 @@ class MailHandler(GnrBaseService):
         return account_params
 
     def getDefaultMailAccount(self):
-        dict()
+        return dict()
         
     def get_smtp_connection(self, account=None, smtp_host=None, port=None,
                             user=None, password=None, ssl=False, tls=False, timeout=None,**kwargs):
