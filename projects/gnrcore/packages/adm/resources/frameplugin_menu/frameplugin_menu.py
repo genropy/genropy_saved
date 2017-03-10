@@ -27,6 +27,7 @@ Component for menu handling:
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag,BagResolver
 from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrdict import dictExtract
 
 class MenuIframes(BaseComponent):
     css_requires='frameplugin_menu/frameplugin_menu'
@@ -136,10 +137,16 @@ class MenuResolver(BagResolver):
             level = len(self.path.split('.'))
         for node in sitemenu[self.path]:
             allowed = True
-            nodetags = node.getAttr('tags')
-            filepath = node.getAttr('file')
+            nodeattr = node.attr
+            nodetags = nodeattr.get('tags')
+            filepath = nodeattr.get('file')
+            checkpref = nodeattr.get('checkpref')
+            prefkw = dictExtract(nodeattr,'checkpref_')
+
             if nodetags:
                 allowed = self._page.application.checkResourcePermission(nodetags, userTags)
+            if allowed and checkpref:
+                allowed = allowed and self._page.application.allowedByPreference(checkpref,**prefkw)
             if allowed and filepath:
                 allowed = self._page.checkPermission(filepath)
             if allowed:
