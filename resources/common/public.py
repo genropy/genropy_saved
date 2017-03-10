@@ -228,8 +228,8 @@ class PublicSlots(BaseComponent):
                             dbtable=related_tblobj.fullname,lbl=related_tblobj.name_long,
                             hasDownArrow=True,font_size='.8em',lbl_color='white',
                             color='#666',lbl_font_size='.8em',nodeId='pbl_partition_selector')
-        else:
-            fb.div('!!Partition not allowed',color='orange',font_size='.8em',font_weight='bold') 
+        #else:
+        #    fb.div('!!Partition not allowed',color='orange',font_size='.8em',font_weight='bold') 
         fb.dataController("""SET current.%s = currentValue || null;
                              """ %partition_field,
             currentValue='^current.current_partition_value',_onStart=True)
