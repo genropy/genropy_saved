@@ -444,7 +444,7 @@ class SqlModelChecker(object):
         if old_unique:
             alter_unique+=' DROP CONSTRAINT IF EXISTS %s'%old_unique
         if new_unique:
-            alter_unique+=' ADD CONSTRAINT un_%s_%s UNIQUE(%s)'%(col.table.sqlfullname.replace('.','_'), col.sqlname,col.sqlname)
+            alter_unique+=' ADD CONSTRAINT un_%s_%s UNIQUE(%s)'%(col.table.sqlfullname.replace('"','').replace('.','_'), col.sqlname,col.sqlname)
         return 'ALTER TABLE %s %s' % (col.table.sqlfullname, alter_unique)
         
     def _buildForeignKey(self, o_pkg, o_tbl, o_fld, m_pkg, m_tbl, m_fld, on_up, on_del, init_deferred):
