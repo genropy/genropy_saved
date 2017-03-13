@@ -384,7 +384,6 @@
     padding-bottom: 2px;
 }
 
-
 .tundra._common_d11.theme_variant_green .dijitDialogTitleBar,.tundra._common_d11.theme_variant_green .commonTitleBar{
     background-color: #306227;
 }
@@ -392,15 +391,15 @@
 .tundra._common_d11.theme_variant_red .dijitDialogTitleBar, .tundra._common_d11.theme_variant_red .commonTitleBar{
     background-color:#E4E4E4;
 }
-.tundra._common_d11.theme_variant_blue .dijitDialogTitleBar .tundra._common_d11.theme_variant_blue .commonTitleBar{
+.tundra._common_d11.theme_variant_blue .dijitDialogTitleBar, .tundra._common_d11.theme_variant_blue .commonTitleBar{
     background-color:#1A415E;
 }
 
-.tundra._common_d11.theme_variant_orange .dijitDialogTitleBar .tundra._common_d11.theme_variant_orange .commonTitleBar{
+.tundra._common_d11.theme_variant_orange .dijitDialogTitleBar, .tundra._common_d11.theme_variant_orange .commonTitleBar{
     background-color: #FF5226;
 }
 
-.tundra._common_d11.theme_variant_yellow .dijitDialogTitleBar .tundra._common_d11.theme_variant_yellow .commonTitleBar{
+.tundra._common_d11.theme_variant_yellow .dijitDialogTitleBar, .tundra._common_d11.theme_variant_yellow .commonTitleBar{
     background-color:#86770E;
 }
 

@@ -4262,8 +4262,8 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
         genro.dev.userObjectDialog(instanceCode ? 'Save ' + this.userObjectPars.objtype +' '+instanceCode : 'Save '+this.newcaption,datapath,saveCb);
     },
 
-    gnrwdg_loadObject:function(userObjectId,fistLoad){
-        this.onLoadingObject(userObjectId,fistLoad);
+    gnrwdg_loadObject:function(userObjectId,firstLoad){
+        this.onLoadingObject(userObjectId,firstLoad);
         if(userObjectId=='__newobj__'){
             this.onLoadedObject(null,userObjectId,firstLoad);
         }else{
@@ -4275,11 +4275,11 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
         }
     },
 
-    gnrwdg_onLoadingObject:function(userObjectId,fistLoad){
+    gnrwdg_onLoadingObject:function(userObjectId,firstLoad){
         //override
     },
 
-    gnrwdg_onLoadedObject:function(result,userObjectId,fistLoad){
+    gnrwdg_onLoadedObject:function(result,userObjectId,firstLoad){
         //override
     },
 });
