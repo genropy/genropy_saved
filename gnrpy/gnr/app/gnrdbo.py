@@ -107,7 +107,7 @@ class GnrDboPackage(object):
         
         :param path: a dotted name of the preference item
         :param dflt: the default value"""
-        return self.db.table('adm.preference').getPreference(path, pkg=self.name if path!='*' else None, dflt=dflt)
+        return self.db.table('adm.preference').getPreference(path, pkg=self.name, dflt=dflt)
         
     def setPreference(self, path, value):
         """Set a preference for the current package.

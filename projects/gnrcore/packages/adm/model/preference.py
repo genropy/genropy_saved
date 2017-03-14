@@ -26,9 +26,12 @@ class Table(object):
         #       'data.%(path)s' will be used if pkg is ''
         # 
         result = result['data'] or Bag()
+        if path=='*':
+            path = None
+            pkg = None
         if pkg:
             result = result[pkg] or Bag()
-        if path == '*' or not path:
+        if not path:
             return result
         if path:
             result = result[path]
