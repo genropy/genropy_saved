@@ -26,6 +26,7 @@ from datetime import datetime
 from copy import deepcopy
 from functools import wraps
 from concurrent.futures import ThreadPoolExecutor,Future
+from tornado.concurrent import Future as TornadoFuture
 import tornado.web
 from tornado import gen,locks
 import tornado.websocket as websocket
@@ -258,11 +259,22 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
                 result = handler(_time_start=time.time(),**kwargs)
                 if isinstance(result,Future):
                     result = yield result
+                elif isinstance(result,TornadoFuture):
+                    result = yield result
+                    #result.add_done_callback(lambda f: self.tornado_future_result(f,result_token=result_token))
+                    #yield None
             if result_token:
                 result = Bag(dict(token=result_token,envelope=result)).toXml(unresolved=True)
             if result is not None:
                 self.write_message(result)
-           
+
+    #def tornado_future_result(self,f,result_token=None):
+    #    result = f.result()
+    #    print 'tornado_future_result',result,result_token,f.done(),f.exc_info()
+    #    result = Bag(dict(token=result_token,envelope=result)).toXml(unresolved=True)
+    #    self.write_message(result)
+
+
     def on_close(self):
       #  print "WebSocket on_close",self.page_id
         self.channels.pop(self.page_id,None)
@@ -722,6 +734,22 @@ class SharedObjectsManager(object):
 
     def do_loadSharedObject(self,shared_id=None,**kwargs):
         self.getSharedObject(shared_id).load()
+
+    def do_dispatch(self,shared_id=None,so_method=None,so_pars=None,**kwargs):
+        so = self.getSharedObject(shared_id)
+        pars = so_pars or dict()
+        result = getattr(so,so_method)(**pars)
+        return result
+    #    if isinstance(result,TornadoFuture):
+    #        result.add_done_callback(self.return_result)
+    #    else:
+    #        return result
+#
+    #def return_result(self,future_instance):
+    #    result = future_instance.result()
+#
+
+
                     
     def onShutdown(self):
         for so in self.sharedObjects.values():

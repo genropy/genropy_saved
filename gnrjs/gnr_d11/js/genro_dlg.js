@@ -401,8 +401,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
 
     remoteDialog:function(name,remote,remoteKw,dlgKw){
-        var remoteKw = remoteKw || {};
-        var dlgKw = dlgKw || {};
+        remoteKw = remoteKw || {};
+        dlgKw = dlgKw || {};
         dlgKw.nodeId = 'remote_dlg_'+name;
 
         var dlgNode = genro.nodeById(dlgKw.nodeId);

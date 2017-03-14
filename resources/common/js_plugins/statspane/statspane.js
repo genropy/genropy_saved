@@ -78,6 +78,52 @@ genro.statspane =  {
             kw.selectionKwargs = selattr;
         }
         
+    },
+    commandMenu:function(commandStore,basecommands,dfcommands,baseParsDefaults){
+        var datasets_index = {};
+        var result = basecommands.deepCopy();
+        result.forEach(function(n){
+            n.attr.default_kw.pars = new gnr.GnrBag(baseParsDefaults);
+        });
+        if(!commandStore || commandStore.len()===0){
+            return result;
+        }
+        var r;
+        result.setItem('sep',null,{caption:'-'});
+        commandStore.values().forEach(function(v){
+            var dfname = v.getItem('dfname');
+            if(!(dfname in datasets_index)){
+                datasets_index[dfname] = true;
+                r = dfcommands.deepCopy();
+                r._nodes.forEach(function(n){
+                    n.attr.default_kw.dfname = dfname;
+                });
+                result.setItem('r_'+result.len(),r,{caption:dfname});
+            }
+        });
+        return result;
+    },
+    parentDataFrame:function(sourceNode){
+        var dfname = sourceNode.getRelativeData('.record.dfname');
+        var rows = sourceNode.getRelativeData('#ANCHOR.viewer.rows');
+        if(!rows){
+            return new gnr.GnrBag();
+        }
+        var nodes = rows.getNodes();
+        var counter = sourceNode.getRelativeData('.record.counter') || nodes.length;
+        var dataFrameNode;
+        for (var i = counter - 1; i >= 0; i--) {
+            dataFrameNode = nodes[i];
+            if(dataFrameNode.attr.infostatus==dfname){
+                break;
+            }
+        }
+        if(!dataFrameNode){
+            return new gnr.GnrBag();
+        }
+        else{
+            return dataFrameNode.getValue().getItem('store').deepCopy();
+        }
     }
 };
 
@@ -100,6 +146,9 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.UserObjectLayout, {
             attributes.table = genro.nodeById(connectedWidgetId).attr.table;
         }
         attributes.nodeId = code;
+        sourceNode.attr.nodeId = code;
+        sourceNode.attr._anchor = true;
+        sourceNode._registerNodeId();
         return attributes;
     },
 
@@ -121,27 +170,34 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.UserObjectLayout, {
 
     gnrwdg_viewerFrame:function(frame,kw){
         //override
-        var center = frame._('ContentPane',{region:'center'});
-        var gridId = this.sourceNode.attr.nodeId+'_pivot_grid';
-        center._('BagStore',{storepath:'#WORKSPACE.pivot.result.store',
-                        nodeId:gridId+'_store',
-                        storeType:'AttributesBagRows',
-                        datapath:'#WORKSPACE.pivot'});
-        center._('newIncludedView',{structpath:'#WORKSPACE.pivot.result.struct',
-                                    controllerPath:'#WORKSPACE.pivot',
-                                    datamode:'attr',datapath:'#WORKSPACE.pivot',
-                                    nodeId:gridId,store:gridId});
-
+        var sckw = {selectedPage:'^#ANCHOR.selectedStep',datapath:'.viewer'};
+        var topic = 'subscribe_'+this.sourceNode.attr.nodeId+'_pandas_step';
+        sckw[topic] = function(kw){
+            var result = kw.result;
+            var data = result.getItem('store');
+            var infostatus = result.getItem('infostatus');
+            this.setRelativeData('.rows.'+kw.step,new gnr.GnrBag(),{infostatus:infostatus});
+            if(!(kw.step in this.widget.gnrPageDict)){
+                var f = this._('borderContainer',{datapath:'.rows.'+kw.step,
+                                    pageName:kw.step});
+                f._('ContentPane',{region:'top',height:'20px',background:'#ccc'})._('div',{innerHTML:'OUTPUT '+kw.counter,padding:'3px'});
+                f._('ContentPane',{region:'center'})._('quickGrid',{value:'^.store'});
+            }
+            this.setRelativeData('#ANCHOR.dfcommands.commands.rows.'+kw.step+'.done',true);
+            this.setRelativeData('.rows.'+kw.step+'.store',data.deepCopy());
+            this.setRelativeData('#ANCHOR.selectedStep',kw.step);
+        };
+        sc = frame._('StackContainer',sckw);
+        sc._('ContentPane',{pageName:'emptyStep'})._('div',{innerHTML:'Empty Step',font_size:'20px',margin_top:'20px',text_align:'center',color:'#ccc'});      
 
     },
 
     gnrwdg_configuratorFrame:function(frame,kw){
-        var cpkw = {side:'center',overflow:'hidden',remote:'pdstats_configuratorTabs',
+        var cpkw = {side:'center',overflow:'hidden',remote:'pdstats_commandsGrid',
                               remote_table:this.table,
+                              remote_code:this.sourceNode.attr.nodeId,
                               remote_connectedWidgetId:this.connectedWidgetId,   
-                              remote_dfname:this.sourceNode.attr.nodeId,
-                              remote_py_requires:'js_plugins/statspane/statspane:StatsPane',
-                              _anchor:true};
+                              remote_py_requires:'js_plugins/statspane/statspane:StatsPane'};
 
         cpkw.remote_query_pars = normalizeKwargs(kw,'condition');
         frame._('ContentPane',cpkw);

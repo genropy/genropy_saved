@@ -993,12 +993,18 @@ class GnrWebPage(GnrBaseWebPage):
                        
         :param method: TODO"""
         handler = None
+        if ';' in method:
+            mixin_info, method = method.split(';')
+            __mixin_pkg, __mixin_path = mixin_info.split('|')
+            if __mixin_pkg=='*':
+                __mixin_pkg=None
+            __mixin_path_list = __mixin_path.split('/')
+            self.mixinComponent(*__mixin_path_list, pkg=__mixin_pkg)
         if '.' in method:
             proxy_object,submethod = self._getProxyObject(method)                 
         else:
             proxy_object = self
             submethod = method
-
         handler = getattr(proxy_object, submethod, None)
         if handler and getattr(handler, 'tags',None):
             if not self.application.checkResourcePermission(handler.tags, self.userTags):

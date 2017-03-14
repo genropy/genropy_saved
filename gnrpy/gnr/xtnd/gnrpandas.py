@@ -8,9 +8,7 @@ import os
 from gnr.core.gnrbag import Bag
 from datetime import datetime
 from gnr.core.gnrstring import toText
-from functools import wraps
 from gnr.core.gnrdecorator import timer_call
-
 
 try:
     import cPickle as pickle
@@ -23,51 +21,6 @@ try:
 except:
     pd = False
     np = False
-try:
-    from gnr.web.gnrasync import SharedObject
-
-    class PandasSharedObject(SharedObject):
-        """docstring for TestSHaredObject"""
-        __safe__ = True
-
-        def onInit(self,**kwargs):
-            if self.autoLoad:
-                self.load()
-            if 'commands' not in self.data:
-                self.data['commands'] = Bag()
-            self._data.subscribe('commandslog', any=self._on_command_trigger)
-            
-
-        def _on_command_trigger(self, node=None, ind=None, evt=None, pathlist=None,reason=None, **kwargs):
-            if evt=='ins':
-                print 'command',node,kwargs
-            #self.changes=True
-            #if reason=='autocreate':
-            #    return
-            #plist = pathlist[1:]
-            #if evt=='ins' or evt=='del':
-            #    plist = plist+[node.label]
-            #path = '.'.join(plist)
-            #data = Bag(dict(value=node.value,attr=node.attr,path=path,shared_id=self.shared_id,evt=evt))
-            #from_page_id = reason
-            #self.broadcast(command='som.sharedObjectChange',data=data,from_page_id=from_page_id)
-
-        @property
-        def commands(self):
-            return self.data['commands']
-
-except Exception:
-    pass
-
-def remember(f):
-    @wraps(f)
-    def wrapper(self, *args, **kwargs):
-        res = f(self,*args, **kwargs)
-        if 'db' in kwargs:
-            kwargs['db'] = None
-        self.steps.append({'name':f.func_name,'args':args,'kwargs':kwargs})
-        return res
-    return wrapper
 
 
 class GnrPandas(object):
@@ -86,7 +39,6 @@ class GnrPandas(object):
     def __exit__(self,type, value, tb):
         self.save()
 
-    @remember
     def dataframeFromDb(self,dfname=None,db=None,tablename=None,
                         columns=None,where=None,colInfo=None,**kwargs):
         gnrdf =  GnrDbDataframe(dfname,db=db)
@@ -238,7 +190,6 @@ class GnrDbDataframe(GnrDataframe):
         self.db = db
 
     @timer_call()
-    @remember
     def query(self,tablename=None,columns=None,where=None,**kwargs):
         tblobj = self.db.table(tablename)
         selection = tblobj.query(where=where,columns=columns or self.defaultColumns(tblobj),
@@ -253,7 +204,6 @@ class GnrDbDataframe(GnrDataframe):
         self.dataframe = pd.DataFrame(self.convertData(selection.data))
         return self.dataframe
 
-    @remember
     def setColInfo(self,colInfo):
         for k,v in colInfo.items():
             self.colInfo[k].update(v)
