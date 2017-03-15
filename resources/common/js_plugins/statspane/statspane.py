@@ -33,6 +33,13 @@ class StatsCommandForms(object):
         r = struct.view().rows()
         r.cell('fieldname',name='Field',width='100%')
 
+    def pt_valuesStruct(self,struct):
+        r = struct.view().rows()
+        r.cell('fieldname',name='Field',width='100%')
+        values = ','.join(GnrPandas.AGGFUNCDICT.keys())
+        r.cell('aggregators',name='Aggregators',width='15em',edit=dict(tag='checkBoxText',
+                                                                        values=values))
+
 
 
     @metadata(order=0,name='!!Dataframe from db',basecmd=True)
@@ -57,6 +64,7 @@ class StatsCommandForms(object):
         fb = mainbc.contentPane(region='top').formbuilder(datapath='.record')
         fb.textbox(value='^.pars.name',lbl='Name',validate_notnull='^#FORM.record.command?=#v=="pivotTable"')
         bc = mainbc.borderContainer(region='center',design='sidebar')
+
 
         def picker_struct(struct):
             r = struct.view().rows()
@@ -84,6 +92,7 @@ class StatsCommandForms(object):
                                                           datapath='#FORM.indexgrid',**commonKw)
         bc.contentPane(region='bottom',height='33%').bagGrid(title='Columns',frameCode='pt_columns',storepath='#FORM.record.pars.pivot.columns',
                                                           datapath='#FORM.columnsgrid',**commonKw)
+        commonKw['struct'] = self.pt_valuesStruct
         bc.contentPane(region='center').bagGrid(title='Values',frameCode='pt_values',storepath='#FORM.record.pars.pivot.values',
                                                           datapath='#FORM.valuesgrid',**commonKw)
 
@@ -230,9 +239,7 @@ class PdCommandsGrid(BaseComponent):
 
 
     def statspane_run_pivotTable(self,gnrpandas=None,dfname=None,name=None,pivot=None,**kwargs):
-        return gnrpandas[dfname].pivotTableGrid(index=pivot['index'].keys() if pivot['index'] else None,
-                                    values=pivot['values'].keys() if pivot['values'] else None,
-                                    columns=pivot['columns'].keys() if pivot['columns'] else None)
+        return gnrpandas[dfname].pivotTableGrid(index=pivot['index'],values=pivot['values'],columns=pivot['columns'])
 
 
 

@@ -2574,11 +2574,7 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
             if(v instanceof gnr.GnrBag){
                 oldsubbag = sourceBag.getItem(path);
                 if(oldsubbag){
-                    oldsubbag.keys().forEach(function(k){
-                        if(!v.getNode(k)){
-                            oldsubbag.popNode(k);
-                        }
-                    });
+                    data.pop(path);
                 }
                 return;
             }
@@ -2734,11 +2730,7 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
             if(v instanceof gnr.GnrBag){
                 oldsubbag = data.getItem(path);
                 if(oldsubbag){
-                    oldsubbag.keys().forEach(function(k){
-                        if(!v.getNode(k)){
-                            oldsubbag.popNode(k);
-                        }
-                    });
+                    data.pop(path);
                 }
                 return;
             }

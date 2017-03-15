@@ -23,7 +23,10 @@ except:
     np = False
 
 
+
+
 class GnrPandas(object):
+    AGGFUNCDICT = {'sum':np.sum,'mean':np.mean,'count':len,'min':np.min,'max':np.max}
 
     def __init__(self,path=None,language=None):
         self.defaultpath = path
@@ -42,7 +45,7 @@ class GnrPandas(object):
 
     def dataframeFromDb(self,dfname=None,db=None,tablename=None,
                         columns=None,where=None,colInfo=None,**kwargs):
-        gnrdf =  GnrDbDataframe(dfname,db=db,language=self.language)
+        gnrdf =  GnrDbDataframe(dfname,parent=self,db=db,language=self.language)
         self.dataframes[dfname] = gnrdf
         gnrdf.query(tablename=tablename,columns=columns,where=where,**kwargs)
         if colInfo:
@@ -90,8 +93,9 @@ class GnrDataframe(object):
     def pickle_attr(self):
         return self.base_pickle_attr+self.custom_pickle_attr
 
-    def __init__(self,dfname,language=None,**kwargs):
+    def __init__(self,dfname,parent=None,language=None,**kwargs):
         self.dfname = dfname
+        self.parent = parent
         self.steps = []
         self.colInfo = {}
         self.language = language
@@ -129,33 +133,47 @@ class GnrDataframe(object):
             result.setItem(c,row)
         return result
 
-    def pivotTableGrid(self,index=None,values=None,columns=None,aggr=None):
-        struct = Bag()
-        r = Bag()
+    def pivotTableGrid(self,index=None,values=None,columns=None):
+        funckeys = set()
+        values_list =[]
+        aggfunc = None
+        if isinstance(index,Bag):
+            index = index.keys()
+        if isinstance(columns,Bag):
+            columns = columns.keys()
+        if isinstance(values,Bag):
+            values_list = []
+            for k,v in values.items():
+                values_list.append(k)
+                aggregators = v['aggregators'] or 'mean'
+                funckeys = funckeys.union(aggregators.split(','))
+        else:
+            values_list = values
+            values = None
+        aggfunc = [np.mean]
+        adict = self.parent.AGGFUNCDICT
+        if funckeys:
+            aggfunc = [adict[k] for k in funckeys]
         store = Bag()
-        result = Bag(dict(store=store,struct=struct))
-        pt = self.dataframe.pivot_table(index=index,values=values, columns=columns)
-        values = values or list(pt.columns)
-        struct['view_0.rows_0'] = r
-        for i,col in enumerate(index+values):
-            cattr = self.colInfo[col]
-            cattr['print_width'] = cattr.get('print_width') or 10
-            r.setItem('cell_%s' %i,None,field=col,
-                            name=cattr.get('name'),
-                            dtype=cattr.get('dtype'),
-                            width='%(print_width)sem' %cattr,
-                            format=cattr.get('format'))
+        result = Bag(dict(store=store))
+        pt = self.dataframe.pivot_table(index=index or None,
+                                        values=values_list or None, 
+                                        columns=columns or None,aggfunc=aggfunc)
+        values_list = values_list or list(pt.columns[0] if len(funckeys)>1 else pt.columns)
+        values = values or Bag()
         k = 0
         for index_vals,sel_vals in pt.iterrows():
-            rec = {}
+            rec = Bag()
             if isinstance(index_vals,tuple):
                 for i,col in enumerate(index):
                     rec[col] = index_vals[i]
             else:
                 rec[index[0]] = index_vals
-            for col in values:
-                rec[col] = float(sel_vals[col])
-            store.setItem('r_%s' %k,None,**rec)
+            for col in values_list:
+                vagg = values['%s.aggregators' %col] or 'mean'
+                for aggkey in vagg.split(','):
+                    rec['%s_%s' %(aggkey,col)] = float(sel_vals[(adict[aggkey].func_name,col)])
+            store.setItem('r_%s' %k,rec)
             k+=1
         return result
 
