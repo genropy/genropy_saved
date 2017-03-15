@@ -1523,7 +1523,7 @@ dojo.declare("gnr.GnrBag", null, {
         var n;
         for(var i =0; i<nodes.length; i++){
             n = nodes[i];
-            if(n.getValue().getItem(path)==value){
+            if(n.getValue().getItem(path)===value){
                 return n;
             };
         }

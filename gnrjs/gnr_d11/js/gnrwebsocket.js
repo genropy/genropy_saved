@@ -199,15 +199,28 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         var kw= objectUpdate({},kw);
         var _onResult = objectPop(kw,'_onResult');
         var _onError = objectPop(kw,'_onError');
-        var token='wstk_'+genro.getCounter('wstk')
-        kw['result_token']=token
-        kw['command']= kw['command'] || 'call'
+        var token='wstk_'+genro.getCounter('wstk');
+        kw['result_token']=token;
+        kw['command']= kw['command'] || 'call';
         if (!omitSerialize){
             kw=genro.rpc.serializeParameters(genro.src.dynamicParameters(kw));
         }
         this.waitingCalls[token] = deferred;
         //console.log('sending',kw)
         this.socket.send(dojo.toJson(kw));
+        deferred.addCallback(function(result){
+            if(result && result.error){
+                if(_onError){
+                    funcApply(_onError,{result:result});
+                }else{
+                    console.error('WSK ERROR',result.error);
+                    genro.setData('gnr.wsk.lastErrorTraceback',result.dataNode);
+                    genro.dev.openBagInspector('gnr.wsk.lastErrorTraceback',{title:'WSK error'});
+                    //console.log('ERROR TRACEBACK',result.dataNode.getValue());
+                }
+            }
+            return result;
+        });
         if(_onResult){
             deferred.addCallback(_onResult);
         }

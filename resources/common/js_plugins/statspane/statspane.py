@@ -118,13 +118,24 @@ class PdCommandsGrid(BaseComponent):
         frame.sharedObject('.commands',shared_id=code,autoSave=True,autoLoad=True)
         bar = frame.top.bar.replaceSlots('delrow','delrow,addrow,5',
                                     addrow_defaults='.menucommands')
-        footer = frame.bottom.slotToolbar('5,runOnSave,*,clear_res,5,run,5')
-        footer.runOnSave.checkbox(value='^.runOnSave',label='Run on save',default_value=True)
+        footer = frame.bottom.slotToolbar('5,*,clear_res,5,run,5')
         footer.clear_res.slotButton('Clear',action="""if(commands){commands.values().forEach(function(v){v.setItem('done',false)})}""",
             commands='=.commands.rows')
         footer.run.slotButton('Run stat',iconClass='iconbox run',action='FIRE .runCommands;')
 
-        footer.dataRpc(None,self.statspane_runCommands,commands='=%s' %storepath,code=code,_fired='^.runCommands',httpMethod='WSK')
+        footer.dataRpc(None,self.statspane_runCommands,_allcommands='=%s' %storepath,code=code,
+                        _fired='^.runCommands',httpMethod='WSK',
+                        _onCalling="""
+                            if(!_allcommands || _allcommands.len()===0){
+                                return false;
+                            }
+                            var filteredCommands = new gnr.GnrBag();
+                            var first = _allcommands.getNodeByValue('done',false);
+                            _allcommands.getNodes().slice(_allcommands.index(first.label)).forEach(function(n){
+                                filteredCommands.setItem(n.label,n._value);
+                            });
+                            kwargs.commands = filteredCommands;
+                        """)
         basecommands,dfcommands = StatsCommandForms.commandmenubags()
         frame.data('.basecommands',basecommands)
         frame.data('.dfcommands',dfcommands)
@@ -148,13 +159,11 @@ class PdCommandsGrid(BaseComponent):
                                  childname='form',attachTo=pane,store='memory',default_data_type='T',
                                  store_pkeyField='code',dialog_noModal=False,store_newPkeyCb="return 'c_'+new Date().getTime()")
         form.dataController("""grid.updateCounterColumn();
-            FIRE #ANCHOR.runCommands;
+            if(doRunCommand){
+                FIRE #ANCHOR.dfcommands.runCommands;
+            }
             """,formsubscribe_onDismissed=True,
-            grid=frame.grid.js_widget,
-            runOnSave='=#ANCHOR.runOnSave')
-        form.dataController("""
-            genro.bp(true);
-            """,formsubscribe_onSaved=True)
+            grid=frame.grid.js_widget,doRunCommand='=#FORM.controller.temp.doRunCommand')
 
         sc = form.center.stackContainer(selectedPage='^.record.command',
                                     selfsubscribe_selected="""
@@ -167,25 +176,30 @@ class PdCommandsGrid(BaseComponent):
                                             },1);
                                         }
                                     """ %code)
-        bar = form.bottom.slotBar('*,cancel,savebtn',margin_bottom='2px',_class='slotbar_dialog_footer')
+        bar = form.bottom.slotBar('*,cancel,savebtn,saveAndRun',margin_bottom='2px',_class='slotbar_dialog_footer')
         fh = StatsCommandForms(self)
         for commandname,commandhandler in fh.commandlist():
             commandhandler(sc,pageName=commandname)
         bar.cancel.button('!!Cancel',action='this.form.abort();')
-        bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})')
-
+        bar.savebtn.button('!!Save',iconClass='fh_semaphore',action="""
+                                SET #FORM.record.done = false;
+                                this.form.publish("save",{destPkey:"*dismiss*"})""")
+        bar.saveAndRun.button('!!Save and run',
+                        iconClass='fh_semaphore',action="""SET #FORM.record.done = false;
+                                        this.form.publish("save",{destPkey:"*dismiss*"});
+                                        SET #FORM.controller.temp.doRunCommand = true;
+                                        """)
     @websocket_method
     def statspane_runCommands(self,commands=None,code=None):
         topic = '%s_pandas_step'%code
         with self.sharedData('pandasdata') as pandasdata: 
             gp = pandasdata.get(code)
             if not gp:
-                gp = GnrPandas()
+                gp = GnrPandas(language=self.language)
                 pandasdata[code] = gp
             for n in commands:
                 v = n.value
                 result = getattr(self,'statspane_run_%(command)s' %v)(gnrpandas=gp,dfname=v['dfname'],**v['pars'].asDict(ascii=True))
-                print 'aaa'
                 self.clientPublish(topic,result=result,step=n.label,counter=v['counter'])
 
 

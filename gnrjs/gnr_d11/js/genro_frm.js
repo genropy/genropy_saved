@@ -982,10 +982,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                                     });
             return;
         }
-        var kw = kw || {};
+        kw = kw || {};
         var always;
         if (typeof(kw)=='object'){
-            always=kw.command;
+            always=kw.command || kw.always;
             if(kw.modifiers=='Shift'){
                 always = true;
             }
@@ -994,7 +994,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             kw = {};
         }
         if (!this.opStatus) {
-            var always = always || this.getControllerData('is_newrecord');
+            always = always || this.getControllerData('is_newrecord');
             var invalid = !this.isValid();
             if (invalid && !this.allowSaveInvalid) {
                 this.fireControllerData('save_failed','invalid');
@@ -2557,9 +2557,11 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
             form.sourceNode.setRelativeData(this.locationpath,sourceBag);
         }
         var formData = form.getFormData();
+        var oldsubbag,path;
         formData.walk(function(n){
             var v = n.getValue();
             var kw = {dtype:n.attr.dtype};
+            path = n.getFullpath('static',formData);
             if('_displayedValue' in n.attr){
                 kw._displayedValue = n.attr._displayedValue;
             }
@@ -2570,12 +2572,17 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
                 kw._valuelabel = n.attr._valuelabel;
             }
             if(v instanceof gnr.GnrBag){
+                oldsubbag = sourceBag.getItem(path);
+                if(oldsubbag){
+                    oldsubbag.keys().forEach(function(k){
+                        if(!v.getNode(k)){
+                            oldsubbag.popNode(k);
+                        }
+                    });
+                }
                 return;
             }
-            if(form.isNewRecord() || ('_loadedValue' in n.attr)){
-                path = n.getFullpath('static',formData);
-                sourceBag.setItem(path,v,kw);
-            }
+            data.setItem(path,n.getValue(),{dtype:n.attr.dtype},{lazySet:true});
         });
         var result = {};//{savedPkey:loadedRecordNode.label,loadedRecordNode:loadedRecordNode};
         this.saved(result);
@@ -2697,7 +2704,7 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
         var currPkey = form.getCurrentPkey();
         var pkeyField = this.pkeyField || '_pkey';
         var newPkey = pkeyField?formData.getItem(pkeyField):null;
-        var data;
+        var data,olddata;
         var newrecord = currPkey=='*newrecord*';
         if(newrecord){
             data = new gnr.GnrBag();
@@ -2714,21 +2721,28 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
             sourceBag.setItem(newPkey,data);
         }else{
             data = sourceBag.getItem(currPkey);
+
             if(currPkey != newPkey){
                 data.getParentNode().label = newPkey;
             }
         }
         form.setCurrentPkey(newPkey);
-        var path,v;
+        var path,v,oldsubbag;
         formData.walk(function(n){
             v = n.getValue();
+            path = n.getFullpath('static',formData);
             if(v instanceof gnr.GnrBag){
+                oldsubbag = data.getItem(path);
+                if(oldsubbag){
+                    oldsubbag.keys().forEach(function(k){
+                        if(!v.getNode(k)){
+                            oldsubbag.popNode(k);
+                        }
+                    });
+                }
                 return;
             }
-            if(newrecord || '_loadedValue' in n.attr){
-                path = n.getFullpath('static',formData);
-                data.setItem(path,n.getValue(),{dtype:n.attr.dtype});
-            }
+            data.setItem(path,n.getValue(),{dtype:n.attr.dtype},{lazySet:true});
         });
         var result = {};//{savedPkey:loadedRecordNode.label,loadedRecordNode:loadedRecordNode};
         this.saved(result);

@@ -92,6 +92,9 @@ genro.statspane =  {
         result.setItem('sep',null,{caption:'-'});
         commandStore.values().forEach(function(v){
             var dfname = v.getItem('dfname');
+            if(!v.getItem('done')){
+                return;
+            }
             if(!(dfname in datasets_index)){
                 datasets_index[dfname] = true;
                 r = dfcommands.deepCopy();
@@ -205,7 +208,7 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.UserObjectLayout, {
 
     gnrwdg_userObjectData:function(){
         //override
-        return new gnr.GnrBag();
+        return this.sourceNode.getRelativeData('.dfcommands.commands.rows').deepCopy();
     },
 
     gnrwdg_onLoadingObject:function(userObjectId,fistLoad){
@@ -214,6 +217,7 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.UserObjectLayout, {
 
     gnrwdg_onLoadedObject:function(result,userObjectId,fistLoad){
         //override
+        this.sourceNode.setRelativeData('.dfcommands.commands.rows',result);
     }
 });
 

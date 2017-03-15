@@ -25,10 +25,11 @@ except:
 
 class GnrPandas(object):
 
-    def __init__(self,path=None):
+    def __init__(self,path=None,language=None):
         self.defaultpath = path
         self.dataframes = {}
         self.steps = []
+        self.language = language
 
     def __enter__(self):
         if self.defaultpath:
@@ -41,7 +42,7 @@ class GnrPandas(object):
 
     def dataframeFromDb(self,dfname=None,db=None,tablename=None,
                         columns=None,where=None,colInfo=None,**kwargs):
-        gnrdf =  GnrDbDataframe(dfname,db=db)
+        gnrdf =  GnrDbDataframe(dfname,db=db,language=self.language)
         self.dataframes[dfname] = gnrdf
         gnrdf.query(tablename=tablename,columns=columns,where=where,**kwargs)
         if colInfo:
@@ -89,10 +90,11 @@ class GnrDataframe(object):
     def pickle_attr(self):
         return self.base_pickle_attr+self.custom_pickle_attr
 
-    def __init__(self,dfname):
+    def __init__(self,dfname,language=None,**kwargs):
         self.dfname = dfname
         self.steps = []
         self.colInfo = {}
+        self.language = language
 
 
     def renameColumns(self,**kwargs):
@@ -186,8 +188,12 @@ class GnrDbDataframe(GnrDataframe):
     custom_pickle_attr = ['dbColAttrs','dbcolumns']
 
     def __init__(self,dfname,db=None,**kwargs):
-        super(GnrDbDataframe, self).__init__(dfname)
+        super(GnrDbDataframe, self).__init__(dfname,**kwargs)
         self.db = db
+
+    def translate(self,txt=None):
+        return self.db.application.localizer.translate(txt,language=self.language)
+        
 
     @timer_call()
     def query(self,tablename=None,columns=None,where=None,**kwargs):
@@ -197,8 +203,10 @@ class GnrDbDataframe(GnrDataframe):
                                                 **kwargs).selection()
         self.dbColAttrs = selection.colAttrs
         self.dbcolumns = selection.columns
+ 
         for k,v in self.dbColAttrs.items():
-            self.colInfo[k] = dict(name=v.get('label'),name_short=v.get('name_short'),
+            self.colInfo[k] = dict(name=self.translate(v.get('label')),
+                                  name_short=self.translate(v.get('name_short')),
                                   width=v.get('print_width'),format=v.get('format'),
                                   dtype= v.get('dataType'))
         self.dataframe = pd.DataFrame(self.convertData(selection.data))

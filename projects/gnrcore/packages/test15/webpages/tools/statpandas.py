@@ -6,8 +6,7 @@
 
 
 from gnr.core.gnrdecorator import websocket_method, public_method
-from time import sleep
-import thread
+
 
 "Test sharedobjects"
 class GnrCustomWebPage(object):
@@ -23,48 +22,28 @@ class GnrCustomWebPage(object):
 
         
     def test_2_ripasso_ws(self,pane,**kwargs):
-        fb = pane.formBuilder(cols=4)
+        fb = pane.formBuilder(cols=2)
         #### WEBSOCKET
-        fb.button(label='WebSocket', action="""FIRE websocket_test_bt """)
-        fb.dataController("""SET result.time=new Date();
-            ; FIRE websocket_test """,_fired='^websocket_test_bt', __timing=1)
-        fb.div('^result.websocket_result')
-        fb.div('^result.diff_ws')
-        fb.dataRpc('result.websocket_result', self.test_ws, _fired='^websocket_test',httpMethod='WSK')
-        fb.dataController(""" var now = new Date();
-                SET result.diff_ws = now-last_set;""", last_set = '=result.time',_fired='^result.websocket_result')
-        
+        fb.button(label='WebSocket', action="""FIRE .websocket_test """)
+        fb.dataRpc('.ws_result', self.test_ws, _fired='^.websocket_test',httpMethod='WSK')
+        fb.div('^.ws_result')
+
 
         #### RPC
-        fb.button(label='RPC', action="""FIRE rpc_test_bt """)
-        fb.dataController("""SET result.time=new Date();
-            ; FIRE rpc_test """,_fired='^rpc_test_bt', __timing=1)
-        fb.dataRpc('result.rpc_result', self.test_rpc, _fired='^rpc_test')
-        fb.div('^result.rpc_result')
-        fb.div('^result.diff_rpc')
-        fb.dataController(""" var now = new Date();
-                SET result.diff_rpc = now-last_set;""", last_set = '=result.time',_fired='^result.rpc_result')
-        
+        fb.button(label='RPC', action="""FIRE .rpc_test_bt """)
+        fb.dataRpc('.rpc_result', self.test_rpc, _fired='^.rpc_test_bt')
+        fb.div('^.rpc_result')
+
     @websocket_method
     def test_ws(self,**kwargs):
-        th_id = thread.get_ident()
-        print 'received websocket call',th_id
-        with self.sharedData('df') as dataframes:
-            print 'lock acquired df'
-            if 'pippo' not in dataframes:
-                dataframes['pippo'] = 0
-            else:
-                dataframes['pippo']+=1
-            sleep(2)
-        print 'relased lock'
-        print 'after 1 dataframes[pippo]',dataframes['pippo']
-        return 'test ok'
+        print 'test_ws'
+        return self.language or 'No'
 
 
     @public_method
     def test_rpc(self,**kwargs):
-        print 'received http call',kwargs
-        return 'test ok'
+        return self.locale
+
 
     
 

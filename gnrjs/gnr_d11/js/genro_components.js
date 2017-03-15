@@ -4248,12 +4248,13 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
         var datapath = this.sourceNode.absDatapath('#WORKSPACE.metadata');
         var instanceCode = this.sourceNode.getRelativeData('#WORKSPACE.metadata.code');
         var data = this.userObjectData();
+        var that = this;
         saveCb = function(dlg) {
             var metadata = genro.getData(datapath);
-            metadata.setItem('flags',this.userObjectPars.flags);
+            metadata.setItem('flags',that.userObjectPars.flags);
             genro.serverCall('_table.adm.userobject.saveUserObject',
-                            {'objtype':this.userObjectPars.objtype,'metadata':metadata,
-                            'data':data,table:this.userObjectPars.table},
+                            {'objtype':that.userObjectPars.objtype,'metadata':metadata,
+                            'data':data,table:that.userObjectPars.table},
                             function(result) {
                                 dlg.close_action();
                                 that.resetMenuData();
