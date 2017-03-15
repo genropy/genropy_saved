@@ -256,7 +256,7 @@ class ExtDbExplorer(BaseComponent):
                     for column,unique in tblval['indexes'].digest('#a.columns,#a.unique'):
                         n = tableval.getNode(column)
                         if n:
-                            n.attr['is_pkey'] = column == tblattr['pkey']
+                            n.attr['is_pkey'] = column == tblattr.get('pkey')
                             n.attr['indexed'] = True
                             n.attr['unique'] = boolean(unique)
         return result
