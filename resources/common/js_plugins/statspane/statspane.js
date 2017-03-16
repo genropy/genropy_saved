@@ -92,7 +92,7 @@ genro.statspane =  {
         result.setItem('sep',null,{caption:'-'});
         commandStore.values().forEach(function(v){
             var dfname = v.getItem('dfname');
-            if(!v.getItem('done')){
+            if(v.getItem('status')!='OK'){
                 return;
             }
             if(!(dfname in datasets_index)){
@@ -125,7 +125,8 @@ genro.statspane =  {
             return new gnr.GnrBag();
         }
         else{
-            return dataFrameNode.getValue().getItem('store').deepCopy();
+            var s = dataFrameNode.getValue().getItem('store');
+            return s?s.deepCopy():new gnr.GnrBag();
         }
     }
 };
@@ -152,6 +153,7 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.UserObjectLayout, {
         sourceNode.attr.nodeId = code;
         sourceNode.attr._anchor = true;
         sourceNode._registerNodeId();
+        sourceNode.setRelativeData('.statcode',code);
         return attributes;
     },
 
@@ -174,19 +176,30 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.UserObjectLayout, {
     gnrwdg_viewerFrame:function(frame,kw){
         //override
         var sckw = {selectedPage:'^#ANCHOR.selectedStep',datapath:'.viewer'};
-        var topic = 'subscribe_'+this.sourceNode.attr.nodeId+'_pandas_step';
+        var topic = 'subscribe_'+this.sourceNode.attr.nodeId+'_stepDone';
+        sckw['subscribe_'+this.sourceNode.attr.nodeId+'_stepRemoved'] = function(kw){
+            this.setRelativeData('.rows.'+kw.step+'.store',null);
+            this.setRelativeData('#ANCHOR.selectedStep','emptyStep');
+            var that = this;
+            setTimeout(function(){
+                var v = that.getValue();
+                if(v.getNode(kw.step)){
+                    that.getValue().popNode(kw.step+'.center.grid');
+                    that.getValue().popNode(kw.step);
+                }
+            },1);
+        };
         sckw[topic] = function(kw){
             var result = kw.result;
             var data = result.getItem('store');
             var infostatus = result.getItem('infostatus');
             this.setRelativeData('.rows.'+kw.step,new gnr.GnrBag(),{infostatus:infostatus});
             if(!(kw.step in this.widget.gnrPageDict)){
-                var f = this._('borderContainer',{datapath:'.rows.'+kw.step,
+                var f = this._('borderContainer',kw.step,{datapath:'.rows.'+kw.step,
                                     pageName:kw.step});
                 f._('ContentPane',{region:'top',height:'20px',background:'#ccc'})._('div',{innerHTML:'OUTPUT '+kw.counter,padding:'3px'});
-                f._('ContentPane',{region:'center'})._('quickGrid',{value:'^.store'});
+                f._('ContentPane','center',{region:'center'})._('quickGrid','grid',{value:'^.store'});
             }
-            this.setRelativeData('#ANCHOR.dfcommands.commands.rows.'+kw.step+'.done',true);
             this.setRelativeData('.rows.'+kw.step+'.store',data.deepCopy());
             this.setRelativeData('#ANCHOR.selectedStep',kw.step);
         };
@@ -196,7 +209,7 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.UserObjectLayout, {
     },
 
     gnrwdg_configuratorFrame:function(frame,kw){
-        var cpkw = {side:'center',overflow:'hidden',remote:'pdstats_commandsGrid',
+        var cpkw = {side:'center',overflow:'hidden',remote:'pdstats_remoteCommandGrid',
                               remote_table:this.table,
                               remote_code:this.sourceNode.attr.nodeId,
                               remote_connectedWidgetId:this.connectedWidgetId,   

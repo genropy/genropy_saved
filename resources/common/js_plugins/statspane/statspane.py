@@ -53,34 +53,64 @@ class StatsCommandForms(object):
         #bc.roundedGroupFrame(title='Extra kwargs',region='center').multiValueEditor(value='^#FORM.record.query_kwargs')
 
     @metadata(order=0,name='!!Edit dataset')
-    def cmd_changeColumns(self,sc,**kwargs):
-        sc.contentPane(**kwargs).div('change')
+    def cmd_editDataset(self,sc,**kwargs):
+        bc = sc.borderContainer(size_h=400,size_w=550,**kwargs)
+        bc.dataController("SET #FORM.record.pars.edited_dataframe = genro.statspane.parentDataFrame(this);",
+                            formsubscribe_onLoaded=True,_if='command == "editDataset" && this.form.isNewRecord()',
+                            command='=#FORM.record.command')
+
+        def editable_struct(struct):
+            r = struct.view().rows()
+            r.cell('fieldname',width='10em',name='Column',edit=True,editDisabled="=#ROW.newserie?=!#v")
+            r.cell('name',width='12em',edit=True,name='Name')
+            r.cell('datatype',width='12em',name='DataType')
+            #r.cell('element_count',width='12em',name='Count')
+            r.cell('formula',width='12em',name='Formula',edit=True,editDisabled="=#ROW.newserie?=!#v")
+
+        #bc.contentPane(region='center').quickGrid('^#FORM.record.dataframe_info')
+
+
+        bc.contentPane(region='center').bagGrid(storepath='#FORM.record.pars.edited_dataframe',
+                                                datapath='#FORM.dfeditor',
+                                                addrow=True,delrow=True,title='Edit Dataframe',
+                                                struct=editable_struct,pbl_classes=True,
+                                                grid_addRowMode='>',
+                                                default_newserie =True,
+                                                margin='2px')
 
 
     @metadata(order=1,name='!!New Pivot table')
     def cmd_pivotTable(self,sc,**kwargs):
         mainbc = sc.borderContainer(size_h=600,size_w=700,**kwargs)
-        mainbc.dataController("SET #FORM.parentDataframe.store = genro.statspane.parentDataFrame(this);",formsubscribe_onLoaded=True)
+        mainbc.dataController("SET #FORM.parentDataframe.store = genro.statspane.parentDataFrame(this);",
+                                formsubscribe_onLoaded=True,_if="command=='pivotTable'",command='=#FORM.record.command')
         fb = mainbc.contentPane(region='top').formbuilder(datapath='.record')
         fb.textbox(value='^.pars.name',lbl='Name',validate_notnull='^#FORM.record.command?=#v=="pivotTable"')
-        bc = mainbc.borderContainer(region='center',design='sidebar')
+        bc = mainbc.borderContainer(design='sidebar',region='center')
 
 
         def picker_struct(struct):
             r = struct.view().rows()
             r.cell('fieldname',width='100%')
+            r.cell('datatype',width='6em',name='DataType')
 
-        bc.contentPane(region='left',width='140px').bagGrid(storepath='#FORM.parentDataframe.store',
+        bc.contentPane(region='left',width='200px').bagGrid(storepath='#FORM.parentDataframe.store',
                                                             datapath='#FORM.parentDataframe',
                                                                     grid_draggable_row=True,
                                                                     grid_dragClass='draggedItem',
                                                                     grid_onDrag='dragValues["statcol"]=dragValues.gridrow.rowset;',
+                                                                    grid_selected_fieldname='.selectedField',
+                                                                    grid_multiSelect=False,
                                                                     addrow=False,delrow=False,title='Dataframe cols',
-                                                                    struct=picker_struct)
+                                                                    struct=picker_struct,pbl_classes=True,
+                                                                    margin='2px')
+
+        tc = bc.tabContainer(region='center',margin='2px',selectedPage='^#FORM.selectedPage')
+        parsbc = tc.borderContainer(title='Pivot parameters',pageName='pivotPars')
  
         commonKw = dict(grid_selfDragRows=True,
                         struct=self.pt_fieldsStruct,addrow=False,
-                        grid_dropTarget_grid="statcol",
+                        grid_dropTarget_grid="statcol",pbl_classes=True,margin='2px',
                         grid_onDrop_statcol="""
                             var storebag = this.widget.storebag();
                             data.forEach(function(n){
@@ -88,23 +118,80 @@ class StatsCommandForms(object):
                             });
  
                         """)
-        bc.contentPane(region='top',height='33%').bagGrid(title='Index',frameCode='pt_index',storepath='#FORM.record.pars.pivot.index',
+        parsbc.contentPane(region='top',height='33%').bagGrid(title='Index',frameCode='pt_index',storepath='#FORM.record.pars.pivot.index',
                                                           datapath='#FORM.indexgrid',**commonKw)
-        bc.contentPane(region='bottom',height='33%').bagGrid(title='Columns',frameCode='pt_columns',storepath='#FORM.record.pars.pivot.columns',
+        parsbc.contentPane(region='bottom',height='33%').bagGrid(title='Columns',frameCode='pt_columns',storepath='#FORM.record.pars.pivot.columns',
                                                           datapath='#FORM.columnsgrid',**commonKw)
         commonKw['struct'] = self.pt_valuesStruct
-        bc.contentPane(region='center').bagGrid(title='Values',frameCode='pt_values',storepath='#FORM.record.pars.pivot.values',
+        parsbc.contentPane(region='center').bagGrid(title='Values',frameCode='pt_values',storepath='#FORM.record.pars.pivot.values',
                                                           datapath='#FORM.valuesgrid',**commonKw)
 
-class PdCommandsGrid(BaseComponent):
-    py_requires="""gnrcomponents/framegrid:FrameGrid,
+        filterspane = tc.contentPane(title='Dataset filters',pageName='dfFilters')
+        filterspane.dataRpc(None,self.page.statspane_availableFieldValues,httpMethod='WSK',
+                     fieldname='^#FORM.parentDataframe.grid.selectedField',dfname='=#FORM.record.dfname',
+                     code='=#ANCHOR.statcode',
+                     _if="fieldname && _pageName=='dfFilters'",
+                     _pageName='^#FORM.selectedPage',
+                     _onCalling="""
+                     if(_stores && _stores.getNode(fieldname)){
+                        return false;
+                     }
+                     """,
+                     _onResult="""
+                        this.setRelativeData('#FORM.availableFilterValuesGrid.stores.'+kwargs.fieldname,result);
+                     """,_stores='=#FORM.availableFilterValuesGrid.stores')
+
+        def filters_struct(struct):
+            r = struct.view().rows()
+            r.cell('_selected',userSets=True,name=' ')
+            r.cell('fieldvalue',width='100%')
+
+        frame=filterspane.bagGrid(storepath='^#FORM.availableFilterValuesGrid.currentFilterPath',
+                    datapath='#FORM.availableFilterValuesGrid',
+                    grid_userSets='.currentCheckeds',
+                    grid_identifier='fieldvalue',
+                        addrow=False,delrow=False,title='Filter on',
+                        struct=filters_struct,margin='2px',pbl_classes=True,datamode='attr')
+        frame.grid.dataController("""
+            if(_triggerpars.kw.reason=='fieldfilterSet'){
+                return;
+            }
+            this.setRelativeData('#FORM.record.pars.filters.'+fieldname,currentCheckeds);
+            """,currentCheckeds='^.currentCheckeds._selected',fieldname='=#FORM.parentDataframe.grid.selectedField',
+            _if='fieldname')
+        frame.grid.dataController("""
+            var fieldFilters = this.getRelativeData('#FORM.record.pars.filters.'+fieldname);
+            this.setRelativeData('.currentCheckeds._selected',fieldFilters,null,null,'fieldfilterSet');
+            """,currentCheckeds='=.currentCheckeds._selected',fieldname='^#FORM.parentDataframe.grid.selectedField',
+            _if='fieldname')
+        frame.dataController("""
+            SET #FORM.availableFilterValuesGrid.currentFilterPath = '#FORM.availableFilterValuesGrid.stores.'+fieldname;
+            """,fieldname='^#FORM.parentDataframe.grid.selectedField',_if='fieldname')
+        frame.top.bar.replaceSlots('#','#,searchOn,5')
+
+
+class StatsPane(BaseComponent):
+    py_requires="""js_plugins/chartjs/chartjs:ChartPane,
+                    gnrcomponents/framegrid:FrameGrid,
                     gnrcomponents/formhandler:FormHandler"""
+    js_requires='js_plugins/statspane/statspane'
+    css_requires='js_plugins/statspane/statspane'
+
+
+    @public_method
+    def pdstats_remoteCommandGrid(self,pane,table=None,code=None,connectedWidgetId=None,**kwargs):
+        pane.pdCommandsGrid(code,table=table,
+                            connectedWidgetId=connectedWidgetId,datapath='.dfcommands')
+
 
     def pdcommand_struct(self,struct):
         r = struct.view().rows()
         r.cell('counter',name='C.',width='3em',counter=True,dtype='L')
-        r.cell('_tpl',name='Pars',width='100%',rowTemplate='$dfname <span style="color:blue">$command</span> <br/>pars:$pars')
-        r.cell('done',dtype='B',semaphore=True)
+        r.cell('_tpl',name='Pars',width='100%',rowTemplate='$dfname <span style="color:blue">$command</span>')
+        r.cell('status',width='2em',name=' ',
+                _customGetter="""function(row){
+                    return '<div class="stat_step_status_'+row.status+'">&nbsp;</div>';
+                }""")
         r.cell('result_id',hidden=True)
 
     @struct_method
@@ -117,18 +204,35 @@ class PdCommandsGrid(BaseComponent):
                             grid_canSort=False,
                             _class='noheader',
                             addrow=False,delrow=True,struct=self.pdcommand_struct,
-                            grid_selectedLabel='.selectedCommand',
+                            grid_selectedId='^.selectedCommand',
+                            grid_identifier='code',
                             grid_multiSelect=False,
                             **kwargs)
         frame.grid.dataController("""
             var viewerNode = this.getRelativeData('#ANCHOR.viewer.rows.'+selectedCommand);
             SET #ANCHOR.selectedStep = viewerNode?selectedCommand:'emptyStep';
             """,selectedCommand='^.selectedCommand',_if='selectedCommand')
+        frame.grid.dataController("""
+            SET .selectedCommand = selectedStep;
+            """,selectedStep='^#ANCHOR.selectedStep',_if='selectedStep && selectedStep!="emptyStep"')
+        frame.dataController("""if(_reason=='child' && _triggerpars.kw.evt=='del'){
+                var parent_lv = _node.parentshipLevel(this.getRelativeData('.commands').getNode('rows'));
+                if(parent_lv==1){
+                    genro.publish(code+'_stepRemoved',{step:_node.getValue().getItem('code')});
+                }
+            }""", commands='^.commands.rows',code=code)
+        frame.dataController("""
+            this.setRelativeData('.commands.rows.'+step+'.status','OK');
+            genro.publish(code+'_stepDone',{step:step,result:result,counter:counter});
+            """,code=code,
+            **{'subscribe_%s_pandas_step' %code:True})
+
+
         frame.sharedObject('.commands',shared_id=code,autoSave=True,autoLoad=True)
         bar = frame.top.bar.replaceSlots('delrow','delrow,addrow,5',
                                     addrow_defaults='.menucommands')
         footer = frame.bottom.slotToolbar('5,*,clear_res,5,run,5')
-        footer.clear_res.slotButton('Clear',action="""if(commands){commands.values().forEach(function(v){v.setItem('done',false)})}""",
+        footer.clear_res.slotButton('Clear',action="""if(commands){commands.values().forEach(function(v){v.setItem('status','NO')})}""",
             commands='=.commands.rows')
         footer.run.slotButton('Run stat',iconClass='iconbox run',action='FIRE .runCommands;')
 
@@ -139,7 +243,13 @@ class PdCommandsGrid(BaseComponent):
                                 return false;
                             }
                             var filteredCommands = new gnr.GnrBag();
-                            var first = _allcommands.getNodeByValue('done',false);
+                            var first = _allcommands.getNodeByValue('status','TC');
+                            if(!first){
+                                first = _allcommands.getNodeByValue('status','NO');
+                            }
+                            if(!first){
+                                return false;
+                            }
                             _allcommands.getNodes().slice(_allcommands.index(first.label)).forEach(function(n){
                                 filteredCommands.setItem(n.label,n._value);
                             });
@@ -191,10 +301,10 @@ class PdCommandsGrid(BaseComponent):
             commandhandler(sc,pageName=commandname)
         bar.cancel.button('!!Cancel',action='this.form.abort();')
         bar.savebtn.button('!!Save',iconClass='fh_semaphore',action="""
-                                SET #FORM.record.done = false;
+                                SET #FORM.record.status = 'TC';
                                 this.form.publish("save",{destPkey:"*dismiss*"})""")
         bar.saveAndRun.button('!!Save and run',
-                        iconClass='fh_semaphore',action="""SET #FORM.record.done = false;
+                        iconClass='fh_semaphore',action="""SET #FORM.record.status = 'TC';
                                         this.form.publish("save",{destPkey:"*dismiss*"});
                                         SET #FORM.controller.temp.doRunCommand = true;
                                         """)
@@ -211,7 +321,17 @@ class PdCommandsGrid(BaseComponent):
                 result = getattr(self,'statspane_run_%(command)s' %v)(gnrpandas=gp,dfname=v['dfname'],**v['pars'].asDict(ascii=True))
                 self.clientPublish(topic,result=result,step=n.label,counter=v['counter'])
 
-
+    @websocket_method
+    def statspane_availableFieldValues(self,code=None,dfname=None,fieldname=None):
+        result = Bag()
+        with self.sharedData('pandasdata') as pandasdata: 
+            gp = pandasdata[code]
+        gnrdf = gp.dataframes[dfname]
+        df = gnrdf.dataframe
+        for i,v in enumerate(df[fieldname].unique()):
+            if v is not None:
+                result.setItem('r_%s' %i,None,fieldvalue=v)
+        return result
 
     def statspane_run_dataframeFromDb(self,gnrpandas=None,dfname=None,table=None,where=None,condition=None,columns=None,
                            selectionKwargs=None,**kwargs):
@@ -223,195 +343,14 @@ class PdCommandsGrid(BaseComponent):
             where = ' ( %s ) AND ( %s ) ' % (where, condition) if where else condition
         gnrpandas.dataframeFromDb(dfname=dfname,db=self.db,tablename=table,where=where,condition=condition,
                                 columns=columns,**kwargs)
-        struct = Bag()
-        r = Bag()
-        struct['view_0.rows_0'] = r
-        r.setItem('cell_0',None,field='fieldname',
-                            name='Field',
-                            width='10em')
-        r.setItem('cell_1',None,field='name',
-                            name='Label',
-                            width='10em')
-        r.setItem('cell_1',None,field='element_count',
-                            name='C.',
-                            width='4em')
-        return Bag(store=gnrpandas[dfname].getInfo(),struct=struct,infostatus=dfname)
+        return Bag(store=gnrpandas[dfname].getInfo(),infostatus=dfname)
 
 
-    def statspane_run_pivotTable(self,gnrpandas=None,dfname=None,name=None,pivot=None,**kwargs):
-        return gnrpandas[dfname].pivotTableGrid(index=pivot['index'],values=pivot['values'],columns=pivot['columns'])
+    def statspane_run_pivotTable(self,gnrpandas=None,dfname=None,name=None,pivot=None,filters=None,**kwargs):
+        return gnrpandas[dfname].pivotTableGrid(index=pivot['index'],values=pivot['values'],
+                                                columns=pivot['columns'])
 
 
+    def statspane_run_editDataset(self,gnrpandas=None,dfname=None,edited_dataframe=None,**kwargs):
+        return Bag(store=gnrpandas[dfname].applyChanges(edited_dataframe),infostatus=dfname)
 
-class StatsPane(BaseComponent):
-    py_requires='js_plugins/chartjs/chartjs:ChartPane,js_plugins/statspane/statspane:PdCommandsGrid'
-    js_requires='js_plugins/statspane/statspane'
-    css_requires='js_plugins/statspane/statspane'
-
-
-    @public_method
-    def pdstats_commandsGrid(self,pane,table=None,code=None,connectedWidgetId=None,**kwargs):
-        pane.pdCommandsGrid(code,table=table,
-                            connectedWidgetId=connectedWidgetId,datapath='.dfcommands')
-
-
-    #@public_method
-    #def pdstats_configuratorTabs(self,pane,table=None,dfname=None,query_pars=None,connectedWidgetId=None,**kwargs):
-    #    query_pars = query_pars or {}
-    #    if query_pars:
-    #        query_pars['where'] = query_pars.pop('_')
-    #    bc = pane.borderContainer()
-    #    top = bc.contentPane(region='top',border_bottom='1px solid silver')
-    #    fb = top.formbuilder(cols=2,border_spacing='3px',_anchor=True)
-    #    fb.button('Load',fire='#WORKSPACE.df.load_dataframe')
-    #    fb.dataRpc('#WORKSPACE.df.info.store',self.dataframeFromDb,
-    #                _connectedWidgetId=connectedWidgetId,
-    #                _fired='^#WORKSPACE.df.load_dataframe',
-    #                tablename=table,dfname=dfname,
-    #                _onCalling="""
-    #                    genro.statspane.queryParsFromGrid(kwargs);
-    #                """,
-    #                _onResult='FIRE #WORKSPACE.df.loadedDataframe',
-    #                _lockScreen=True,timeout=300000,
-    #                **query_pars)
-    #    tc = bc.tabContainer(region='center',margin='2px')
-    #    self.dataFrameCoords(tc.borderContainer(title='Dataframe'),table=table,dfname=dfname)
-    #    self.pivotTables(tc.borderContainer(title='Pivot',_class='noheader'),table=table,dfname=dfname)        
-#
-#
-    #def dataFrameCoords(self,bc,table=None,dfname=None):
-    #    frame = bc.contentPane(region='top',height='50%').bagGrid(frameCode='dataFrameInfo',storepath='.store',title='DF coords',
-    #                                                            datapath='#WORKSPACE.df.info',
-    #                                                            struct=self.dfcoords_struct,
-    #                                                            grid_selfDragRows=True,
-    #                                                            addrow=True,delrow=True)
-    #    bar = frame.bottom.slotBar('*,updateDataframe,5',margin_bottom='2px',_class='slotbar_dialog_footer')
-    #    bar.updateDataframe.slotButton('Update',fire='#WORKSPACE.df.update')
-    #    bc.dataRpc('#WORKSPACE.df.info.store',self.updateDataframe,table='=#WORKSPACE.df.table',limit='=#WORKSPACE.df.limit',
-    #                dfname='=#WORKSPACE.df.dfname',info='=#WORKSPACE.df.info.store',_fired='^#WORKSPACE.df.update')
-#
-    #def pivotTablesStruct(self,struct):
-    #    r = struct.view().rows()
-    #    r.cell('_tpl',_customGetter="""
-    #        function(row){
-    #            var b = new gnr.GnrBag(row);
-    #            return b.getFormattedValue();
-    #        }
-    #        """,width='100%')
-#
-#
-    #def pivotTables(self,bc,table=None,dfname=None):
-    #    view = bc.contentPane(region='bottom',height='40%').bagGrid(title='Stored pivots',frameCode='V_%s_pivotTable' %dfname,storepath='.store',
-    #                                                                datapath='#WORKSPACE.df.storedPivots',
-    #                                                                struct=self.pivotTablesStruct,
-    #                                                                addrow=False,delrow=True)
-    #    self.pivotTableForm(view.grid.linkedForm(frameCode='F_%s_pivotTable' %dfname,
-    #                             datapath='#WORKSPACE.df.storedPivots.form',loadEvent='onRowDblClick',
-    #                             handlerType='border',
-    #                             childname='form',attachTo=bc,
-    #                             formRoot=bc.contentPane(region='center'),
-    #                             store='memory',
-    #                             store_pkeyField='code'),table=table,dfname=dfname)
-#
-#
-#
-    #def pivotTableForm(self,form,table=None,dfname=None):
-    #    topbar = form.top.slotToolbar('10,ftitle,*')
-    #    bottom = form.bottom.slotBar('5,clearCurrent,savePivot,*,runCurrent,5',margin_bottom='2px',_class='slotbar_dialog_footer')
-#
-    #    topbar.ftitle.div("^#FORM.record.code?=#v?'Pivot:'+#v:'Pivot'",font_size='.9em',color='#666',font_weight='bold')
-    #    form.dataController("this.form.reset();this.form.newrecord();",_fired='^#WORKSPACE.df.loadedDataframe')
-    #    bottom.clearCurrent.slotButton('Clear',action="""
-    #        this.form.reset();
-    #        this.form.newrecord();
-    #        """)
-    #    bottom.runCurrent.slotButton('Run',fire='.run')
-    #    form.dataRpc('#WORKSPACE.pivot.result',self.getPivotTable,data='=#FORM.record',
-    #                dfname=dfname,table=table,_fired='^.run')
-    #    bottom.savePivot.slotButton('Save',#iconClass="iconbox save",
-    #                            parentForm=True,
-    #                            ask=dict(askIf="!code",title='Save new pivot',askOn='Shift',
-    #                                    fields=[dict(name='code',lbl='Code')]),
-    #                            action="""
-    #                            SET #FORM.record.code = code;
-    #                            this.form.save();
-    #                            """,code='=#FORM.record.code')
-#
-    #    bc = form.center.borderContainer(design='sidebar')
-#
-    #    def picker_struct(struct):
-    #        r = struct.view().rows()
-    #        r.cell('fieldname',width='100%')
-    #    bc.contentPane(region='left',width='140px').bagGrid(storepath='#WORKSPACE.df.info.store',
-    #                                                        datapath='#FORM.available_df_cols',
-    #                                                                grid_draggable_row=True,
-    #                                                                grid_dragClass='draggedItem',
-    #                                                                grid_onDrag='dragValues["statcol"]=dragValues.gridrow.rowset;',
-    #                                                                addrow=False,delrow=False,title='Dataframe cols',
-    #                                                                struct=picker_struct)
-#
-    #    commonKw = dict(grid_selfDragRows=True,
-    #                    struct=self.pt_fieldsStruct,addrow=False,
-    #                    grid_dropTarget_grid="statcol",
-    #                    grid_onDrop_statcol="""
-    #                        var storebag = this.widget.storebag();
-    #                        data.forEach(function(n){
-    #                            storebag.setItem(n.fieldname,new gnr.GnrBag({fieldname:n.fieldname}));
-    #                        });
-#
-    #                    """)
-    #    bc.contentPane(region='top',height='33%').bagGrid(title='Index',frameCode='pt_index',storepath='#FORM.record.index',
-    #                                                      datapath='#FORM.indexgrid',**commonKw)
-    #    bc.contentPane(region='bottom',height='33%').bagGrid(title='Values',frameCode='pt_values',storepath='#FORM.record.values',
-    #                                                      datapath='#FORM.valuesgrid',**commonKw)
-    #    bc.contentPane(region='center').bagGrid(title='Columns',frameCode='pt_columns',storepath='#FORM.record.columns',
-    #                                                      datapath='#FORM.columnsgrid',**commonKw)
-#
-    #def pt_fieldsStruct(self,struct):
-    #    r = struct.view().rows()
-    #    r.cell('fieldname',name='Field',width='100%')
-#
-    #def dfcoords_struct(self,struct):
-    #    r = struct.view().rows()
-    #    r.cell('fieldname',name='Field',width='10em')
-    #    #r.cell('dataType',name='Dtype',width='5em')
-    #    r.cell('name',name='Label',width='12em',edit=True)
-    #    r.cell('element_count',name='C.',width='4em',dtype='L')
-#
-    #@public_method
-    #def dataframeFromDb(self,dfname=None,tablename=None,where=None,condition=None,columns=None,statname=None,selectionKwargs=None,**kwargs):
-    #    statname = statname or dfname
-    #    path = self.site.getStaticPath('page:stats',statname)
-    #    if selectionKwargs:
-    #        kwargs.update(selectionKwargs)
-    #    if isinstance(where,Bag):
-    #        where,kwargs = self.db.table(tablename).sqlWhereFromBag(where, kwargs)
-    #    if condition:
-    #        where = ' ( %s ) AND ( %s ) ' % (where, condition) if where else condition
-    #    gp = GnrPandas()
-    #    #with GnrPandas(path) as gp:
-    #    gp.dataframeFromDb(dfname=dfname,db=self.db,tablename=tablename,where=where,condition=condition,
-    #                            columns=columns,**kwargs)
-    #    gp.save(path)
-    #    return gp[dfname].getInfo()
-#
-    #@public_method
-    #def updateDataframe(self,dfname=None,statname=None,info=None,**kwargs):
-    #    statname = statname or dfname
-    #    path = self.site.getStaticPath('page:stats',statname)
-    #    gp = GnrPandas()
-    #    gp.load(path)
-#
-    #    #return gnrdf.getInfo()
-#
-    #@public_method
-    #def getPivotTable(self,dfname=None,data=None,statname=None,**kwargs):
-    #    statname = statname or dfname
-    #    path = self.site.getStaticPath('page:stats',statname)
-    #    gp = GnrPandas()
-    #    gp.load(path)
-    #    #with GnrPandas(path) as gp:
-    #    return gp[dfname].pivotTableGrid(index=data['index'].keys() if data['index'] else None,
-    #                                values=data['values'].keys() if data['values'] else None,
-    #                                columns=data['columns'].keys() if data['columns'] else None)
-#

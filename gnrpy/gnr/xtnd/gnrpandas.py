@@ -115,6 +115,27 @@ class GnrDataframe(object):
     #        d['label'] = v['label']
     #        d['dataType'] = v['dataType'] 
     #        d['calc_series'] = v['calc_series']
+
+    def applyChanges(self,changedDataframeInfo):
+        colToDel = dict(self.colInfo)
+        df = self.dataframe
+        for v in changedDataframeInfo.values():
+            cname = v['fieldname']
+            if v['newserie'] and v['formula']:
+                newcol = Bag(v)
+                newcol.pop('newserie')
+                df.eval('%(fieldname)s = %(formula)s' %v,inplace=True) 
+                print 'newcol',newcol
+                self.colInfo[cname] = newcol.asDict(ascii=True)
+            else:
+                self.colInfo[cname].update(v.asDict(ascii=True))
+                colToDel.pop(cname)
+
+        for k in colToDel.keys():
+            df.drop(k, axis=1, inplace=True)
+            self.colInfo.pop(k)
+        return self.getInfo()
+
     
     def columnInfo(self,colname):
         pass
@@ -122,18 +143,20 @@ class GnrDataframe(object):
     def getInfo(self):
         df = self.dataframe
         colInfo = self.colInfo
+        print 'getInfo',self.colInfo.get('margine')
         result = Bag()
         for c in self.dataframe.columns:
             row = Bag()
             attr = colInfo.get(c,{})
             row['fieldname'] = c
+            row['datatype'] = df[c].dtype.name
             #row['dataType'] = attr.get('dtype')
             row['name'] = attr.get('name')
             row['element_count'] = len(df[c].unique())
             result.setItem(c,row)
         return result
 
-    def pivotTableGrid(self,index=None,values=None,columns=None):
+    def pivotTableGrid(self,index=None,values=None,columns=None,filters=None):
         funckeys = set()
         values_list =[]
         aggfunc = None

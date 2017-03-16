@@ -617,8 +617,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             sourceNode._usersetgetter = function(cellname,row,idx){
                 //var currSet = userSets.getItem(cellname);
                 var currSet = sourceNode.getRelativeData(sourceNode.attr.userSets+'.'+cellname);
+                var checkedField = this.widget.cellmap[cellname].checkedField;
                 if(currSet){
-                    return currSet.match(new RegExp('(^|,)'+row._pkey+'($|,)'))!=null;
+                    return currSet.match(new RegExp('(^|,)'+row[checkedField]+'($|,)'))!==null;
                 }else{
                     return false;
                 }
@@ -2317,6 +2318,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             this.selection.select(idx);
         }
     },
+
     patch_onSelectionChanged:function() {
         this.onSelectionChanged_replaced();
         var idx = this.selection.getFirstSelected();
@@ -2915,6 +2917,11 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             }
         }
         event = event || {};
+        var addRowMode = this.sourceNode.attr.addRowMode;
+        addRowMode = isNullOrBlank(addRowMode)?true:addRowMode;
+        if(addRowMode){
+            pos = addRowMode;
+        }
         if (pos == '*') {
             var curSelRow = this.absIndex(this.selection.selectedIndex);
             if (curSelRow < 0) {
@@ -3536,6 +3543,19 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         return this.collectionStore().rowBagNodeByIdentifier(identifier);
     },
 
+    mixin_setSelectedId: function(pkey) {
+        var nrow = this.rowCount;
+        if (nrow == 0 || isNullOrBlank(pkey)) {
+            this.selection.unselectAll();
+        } else {
+            var idx = this.collectionStore().getIdxFromPkey(pkey);
+            if (idx >= nrow) {
+                idx = nrow - 1;
+            }
+            this.selection.select(idx);
+        }
+    },
+
     mixin_configureStructure:function(title){
         var path = this.sourceNode.absDatapath(this.sourceNode.attr.structpath+'.#0.#0');
         var that = this;
@@ -3724,8 +3744,8 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         if(celldata['userSets_caption']){
             celldata['checkedCaption'] = sourceNode.attr.userSets+'_caption.'+fieldname;
         }
-        var checkedField = '_pkey';
-        celldata['checkedField'] = checkedField;
+        var identifier = sourceNode.widget?sourceNode.widget.rowIdentifier():sourceNode.attr.identifier; //widget could be not already created
+        celldata['checkedField'] = celldata['checkedField'] || identifier || '_pkey';
         celldata['userSets'] = true;    
         celldata['format_onclick'] = "this.widget.onChangeSetCol(kw.rowIndex,'"+fieldname+"',e)";
         celldata['_customGetter'] = celldata['_customGetter'] || function(rowdata,rowIdx){
