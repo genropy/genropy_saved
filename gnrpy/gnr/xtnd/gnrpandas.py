@@ -44,14 +44,18 @@ class GnrPandas(object):
         self.save()
 
     def dataframeFromDb(self,dfname=None,db=None,tablename=None,
-                        columns=None,where=None,colInfo=None,**kwargs):
-        gnrdf =  GnrDbDataframe(dfname,parent=self,db=db,language=self.language)
+                        columns=None,where=None,colInfo=None,description=None,**kwargs):
+        gnrdf =  GnrDbDataframe(dfname,parent=self,db=db,language=self.language,description=description)
         self.dataframes[dfname] = gnrdf
         gnrdf.query(tablename=tablename,columns=columns,where=where,**kwargs)
         if colInfo:
             gnrdf.setColInfo(colInfo)
         return gnrdf
 
+    def registerDataFrame(self,dfname=None,dataframe=None,description=None):
+        gnrdf = GnrDataframe(dfname,parent=self,language=self.language,dataframe=dataframe,description=description)
+        self.dataframes[dfname] = gnrdf
+        return gnrdf.getInfo()
 
     @timer_call()
     def save(self,path=None):
@@ -93,12 +97,15 @@ class GnrDataframe(object):
     def pickle_attr(self):
         return self.base_pickle_attr+self.custom_pickle_attr
 
-    def __init__(self,dfname,parent=None,language=None,**kwargs):
+    def __init__(self,dfname,parent=None,language=None,description=None,dataframe=None,**kwargs):
         self.dfname = dfname
         self.parent = parent
         self.steps = []
         self.colInfo = {}
         self.language = language
+        self.description = description
+        if dataframe is not None:
+            self.dataframe = dataframe
 
 
     def renameColumns(self,**kwargs):
@@ -116,7 +123,7 @@ class GnrDataframe(object):
     #        d['dataType'] = v['dataType'] 
     #        d['calc_series'] = v['calc_series']
 
-    def applyChanges(self,changedDataframeInfo):
+    def applyChanges(self,changedDataframeInfo,inplace=None):
         colToDel = dict(self.colInfo)
         df = self.dataframe
         for v in changedDataframeInfo.values():
@@ -125,7 +132,6 @@ class GnrDataframe(object):
                 newcol = Bag(v)
                 newcol.pop('newserie')
                 df.eval('%(fieldname)s = %(formula)s' %v,inplace=True) 
-                print 'newcol',newcol
                 self.colInfo[cname] = newcol.asDict(ascii=True)
             else:
                 self.colInfo[cname].update(v.asDict(ascii=True))
@@ -143,17 +149,26 @@ class GnrDataframe(object):
     def getInfo(self):
         df = self.dataframe
         colInfo = self.colInfo
-        print 'getInfo',self.colInfo.get('margine')
         result = Bag()
+        for ind in self.dataframe.index.names:
+            if ind:
+                row = Bag()
+                attr = colInfo.get(ind,{})
+                row['fieldname'] = ind
+                row['datatype'] = 'index'
+                #row['dataType'] = attr.get('dtype')
+                row['name'] =ind
+                result.setItem(ind,row)
         for c in self.dataframe.columns:
             row = Bag()
-            attr = colInfo.get(c,{})
-            row['fieldname'] = c
+            cname = '_'.join(c) if isinstance(c,tuple) else c
+            attr = colInfo.get(cname,{})
+            row['fieldname'] = cname
             row['datatype'] = df[c].dtype.name
             #row['dataType'] = attr.get('dtype')
             row['name'] = attr.get('name')
             row['element_count'] = len(df[c].unique())
-            result.setItem(c,row)
+            result.setItem(cname,row)
         return result
 
     def pivotTableGrid(self,index=None,values=None,columns=None,filters=None):
@@ -178,7 +193,6 @@ class GnrDataframe(object):
         if funckeys:
             aggfunc = [adict[k] for k in funckeys]
         store = Bag()
-        result = Bag(dict(store=store))
         pt = self.dataframe.pivot_table(index=index or None,
                                         values=values_list or None, 
                                         columns=columns or None,aggfunc=aggfunc)
@@ -198,7 +212,7 @@ class GnrDataframe(object):
                     rec['%s_%s' %(aggkey,col)] = float(sel_vals[(adict[aggkey].func_name,col)])
             store.setItem('r_%s' %k,rec)
             k+=1
-        return result
+        return pt,store
 
     def to_pickle(self,path):
         folder = os.path.join(path,self.dfname)

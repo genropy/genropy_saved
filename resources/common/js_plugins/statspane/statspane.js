@@ -17,7 +17,6 @@ genro.statspane =  {
         node.freeze();
         kw.dockTo = kw.dockTo || 'dummyDock:open';
         kw.paletteCode = statsCode;
-        console.log('openPaletteStats',kw);
         if(kw.configurator!==false){
             kw.configurator = true;
         }
@@ -79,55 +78,32 @@ genro.statspane =  {
         }
         
     },
-    commandMenu:function(commandStore,basecommands,dfcommands,baseParsDefaults){
-        var datasets_index = {};
+    commandMenu:function(dataframes,basecommands,dfcommands,baseParsDefaults){
         var result = basecommands.deepCopy();
         result.forEach(function(n){
             n.attr.default_kw.pars = new gnr.GnrBag(baseParsDefaults);
         });
-        if(!commandStore || commandStore.len()===0){
+        if(!dataframes || dataframes.len()===0){
             return result;
         }
         var r;
         result.setItem('sep',null,{caption:'-'});
-        commandStore.values().forEach(function(v){
-            var dfname = v.getItem('dfname');
-            if(v.getItem('status')!='OK'){
-                return;
-            }
-            if(!(dfname in datasets_index)){
-                datasets_index[dfname] = true;
-                r = dfcommands.deepCopy();
-                r._nodes.forEach(function(n){
-                    n.attr.default_kw.dfname = dfname;
-                });
-                result.setItem('r_'+result.len(),r,{caption:dfname});
-            }
+        dataframes.keys().forEach(function(dfname){
+            r = dfcommands.deepCopy();
+            r._nodes.forEach(function(n){
+                n.attr.default_kw.dfname = dfname;
+            });
+            result.setItem('r_'+result.len(),r,{caption:dfname});
         });
         return result;
     },
     parentDataFrame:function(sourceNode){
         var dfname = sourceNode.getRelativeData('.record.dfname');
-        var rows = sourceNode.getRelativeData('#ANCHOR.viewer.rows');
-        if(!rows){
+        var dataframes = sourceNode.getRelativeData('#ANCHOR.dataframes.store');
+        if(!dataframes){
             return new gnr.GnrBag();
         }
-        var nodes = rows.getNodes();
-        var counter = sourceNode.getRelativeData('.record.counter') || nodes.length;
-        var dataFrameNode;
-        for (var i = counter - 1; i >= 0; i--) {
-            dataFrameNode = nodes[i];
-            if(dataFrameNode.attr.infostatus==dfname){
-                break;
-            }
-        }
-        if(!dataFrameNode){
-            return new gnr.GnrBag();
-        }
-        else{
-            var s = dataFrameNode.getValue().getItem('store');
-            return s?s.deepCopy():new gnr.GnrBag();
-        }
+        return dataframes.getItem(dfname).getItem('store').deepCopy();
     }
 };
 
@@ -192,12 +168,12 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.UserObjectLayout, {
         sckw[topic] = function(kw){
             var result = kw.result;
             var data = result.getItem('store');
-            var infostatus = result.getItem('infostatus');
-            this.setRelativeData('.rows.'+kw.step,new gnr.GnrBag(),{infostatus:infostatus});
+            var dataframe_info = result.getItem('dataframe_info');
+            this.setRelativeData('.rows.'+kw.step,new gnr.GnrBag(),{dataframe_info:dataframe_info});
             if(!(kw.step in this.widget.gnrPageDict)){
                 var f = this._('borderContainer',kw.step,{datapath:'.rows.'+kw.step,
                                     pageName:kw.step});
-                f._('ContentPane',{region:'top',height:'20px',background:'#ccc'})._('div',{innerHTML:'OUTPUT '+kw.counter,padding:'3px'});
+                f._('ContentPane',{region:'top',height:'20px',background:'#ccc'})._('div',{innerHTML:dataTemplate('OUTPUT $counter: $command $description',kw),padding:'3px'});
                 f._('ContentPane','center',{region:'center'})._('quickGrid','grid',{value:'^.store'});
             }
             this.setRelativeData('.rows.'+kw.step+'.store',data.deepCopy());
@@ -247,6 +223,7 @@ dojo.declare("gnr.widgets.PaletteStats", gnr.widgets.StatsPane, {
         palettePars.right = palettePars.right || '20px';
         palettePars.height = palettePars.height || '600px';
         palettePars.width = palettePars.width || '800px';
+        palettePars.maxable = true;
         var connectedWidgetId = this.getConnectedWidgetId(sourceNode,kw.connectedTo);
         if(!palettePars.paletteCode){
             palettePars.paletteCode =  kw.nodeId || (connectedWidgetId?'palette_'+connectedWidgetId:'palette_stats_' %genro.getCounter());
