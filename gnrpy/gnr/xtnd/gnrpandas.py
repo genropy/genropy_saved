@@ -49,7 +49,7 @@ REPORT_HTML = """
 <body class='reportbody'>
     <a class='report_index_url' href='%(index_url)s'>Index</a>
     <h1 class='report_title'>%(title)s</h1>
-    <div class='report_summary'>%(comment)s</div>
+    <div class='report_summary'>%(summary)s</div>
     <div class='report_content'>
         %(content)s
     </div>
@@ -112,7 +112,7 @@ class GnrPandas(object):
                                                                                 title=v['title'],url=os.path.join(self.report_folderurl,'%s.html' %k)))
             with open(os.path.join(self.report_folderpath,'%s.html' %k),'w') as f:
                 f.write(REPORT_HTML  %dict(content=v['html'],title=v['title'],
-                                            comment=v['comment'],
+                                            summary=v['summary'] or v['comment'],
                                             index_url=index_url,mtime=build_ts))
         if li_list:
             self.publish_info['report_links'] = ''.join(li_list)
@@ -121,7 +121,6 @@ class GnrPandas(object):
         with open(os.path.join(self.report_folderpath,'index.html'),'w') as f:
             f.write(html)
         with open(os.path.join(self.report_folderpath,'report.css'),'w') as f:
-            print 'self.report_cssbase',self.report_cssbase
             f.write(self.report_cssbase)
 
     def __enter__(self):

@@ -31,11 +31,13 @@ genro.statspane =  {
         kw.statsCode = 'stats_palette_'+kw.connectedTo.attr.nodeId;
         return this.openPaletteStats(kw);
     },
-    queryParsFromGrid:function(kw){
-        if(!kw._connectedWidgetId){
+
+    queryParsFromGrid:function(connectedWidgetId){
+        if(!connectedWidgetId){
             return;
         }
-        var widgetSourceNode = genro.nodeById(kw._connectedWidgetId);
+        var result = new gnr.GnrBag();
+        var widgetSourceNode = genro.nodeById(connectedWidgetId);
         var w = widgetSourceNode.widget;
         if(w.collectionStore){
             var s = w.collectionStore();
@@ -44,8 +46,8 @@ genro.statspane =  {
             if(selattr._sections){
                 th_sections_manager.onCalling(selattr._sections,selattr);
             }
-            kw.where = objectPop(selattr,'where');
-            kw.condition = objectPop(selattr,'condition');
+            result.setItem('where',objectPop(selattr,'where'));
+            result.setItem('condition' ,objectPop(selattr,'condition'));
             objectExtract(selattr,'_*');
             objectExtract(selattr,'hardQueryLimit,checkPermissions');
             var columns = objectPop(selattr,'columns');
@@ -71,13 +73,15 @@ genro.statspane =  {
                     arrayPushNoDup(columns,f);
                 });
                 columns = columns.join(',');
-                kw.colInfo = colInfo;
+                result.setItem('colInfo',colInfo);
             }
-            kw.columns = columns;
-            kw.selectionKwargs = selattr;
+            result.setItem('columns',columns);
+            result.setItem('selectionKwargs', selattr);
         }
+        return result;
         
     },
+    
     commandMenu:function(dataframes,basecommands,dfcommands,baseParsDefaults){
         var result = basecommands.deepCopy();
         result.forEach(function(n){
@@ -86,12 +90,13 @@ genro.statspane =  {
         if(!dataframes || dataframes.len()===0){
             return result;
         }
-        var r;
         result.setItem('sep',null,{caption:'-'});
         dataframes.keys().forEach(function(dfname){
-            r = dfcommands.deepCopy();
-            r._nodes.forEach(function(n){
-                n.attr.default_kw.dfname = dfname;
+            var r = new gnr.GnrBag();
+            dfcommands._nodes.forEach(function(n){
+                var kw = objectUpdate({},n.attr);
+                kw.default_kw = objectUpdate({dfname:dfname},n.attr.default_kw);
+                r.setItem(n.label,null,kw);
             });
             result.setItem('r_'+result.len(),r,{caption:dfname});
         });

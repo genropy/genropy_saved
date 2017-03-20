@@ -43,14 +43,26 @@ class StatsCommandForms(object):
 
 
     @metadata(order=0,name='!!Dataframe from db',basecmd=True)
-    def cmd_dataframeFromDb(self,sc,**kwargs):
-        bc = sc.borderContainer(size_h=300,size_w=400,**kwargs)
-        fb = bc.contentPane(region='top',datapath='.record').div(margin_right='30px').formbuilder(colswidth='auto',width='100%',fld_width='100%')
-        fb.textbox(value='^.dfname',lbl='Dataframe',validate_notnull='^#FORM.record.command?=#v=="dataframeFromDb"',unmodifiable=True)
-        fb.textbox(value='^.comment',lbl='!!Comment')
-        fb.textbox(value='^.pars.table',lbl='Table',validate_notnull='^#FORM.record.command?=#v=="dataframeFromDb"')
-        fb.textbox(value='^.pars.columns',lbl='Columns')
-        fb.simpleTextArea(value='^.pars.where',lbl='Where',height='100px')
+    def cmd_dataframeFromDb(self,sc,connectedWidgetId=None,**kwargs):
+        bc = sc.borderContainer(size_h=300,size_w=420,**kwargs)
+        bc.dataController("""SET #FORM.record.pars.viewSelectionPars = genro.statspane.queryParsFromGrid(connectedWidgetId);""",
+                            command='=#FORM.record.command',connectedWidgetId=connectedWidgetId,
+                            _fired='^#FORM.setViewPars')
+
+        fb = bc.contentPane(region='top',datapath='.record').div(margin_right='30px').formbuilder(colswidth='auto',width='100%',fld_width='100%',cols=2)
+        fb.textbox(value='^.dfname',lbl='Dataframe',colspan=2,
+                    validate_notnull='^#FORM.record.command?=#v=="dataframeFromDb"',unmodifiable=True)
+        fb.textbox(value='^.comment',lbl='!!Comment',colspan=2)
+        fb.textbox(value='^.pars.table',lbl='Table',validate_notnull='^#FORM.record.command?=#v=="dataframeFromDb"',colspan=2)
+        fb.checkbox(value='^.pars.view_query',label="!!View's query",validate_onAccept="""if(value){
+                FIRE #FORM.setViewPars;
+            }""")
+        fb.checkbox(value='^.pars.view_columns',label="!!View's columns",validate_onAccept="""if(value){
+                FIRE #FORM.setViewPars;
+            }""")
+        fb.textbox(value='^.pars.columns',lbl='Columns',hidden='^.pars.view_columns',colspan=2)
+        fb.simpleTextArea(value='^.pars.where',lbl='Where',height='100px',hidden='^.pars.view_query',colspan=2)
+
         #bc.roundedGroupFrame(title='Extra kwargs',region='center').multiValueEditor(value='^#FORM.record.query_kwargs')
 
     @metadata(order=0,name='!!Edit dataset')
@@ -84,13 +96,13 @@ class StatsCommandForms(object):
         mainbc = sc.borderContainer(size_h=600,size_w=740,**kwargs)
         mainbc.dataController("SET #FORM.parentDataframe.store = genro.statspane.parentDataFrame(this);",
                                 formsubscribe_onLoaded=True,_if="command=='pivotTable'",command='=#FORM.record.command')
-        fb = mainbc.contentPane(region='top').div(margin_right='20px').formbuilder(datapath='.record',cols=3,width='100%',colswidth='auto')
+        fb = mainbc.contentPane(region='top',height='150px').div(margin_right='20px').formbuilder(datapath='.record',cols=3,width='100%',colswidth='auto')
         fb.textbox(value='^.comment',lbl='!!Comment',colspan=3,width='100%')
-        fb.textbox(value='^.pars.title',lbl='!!Title',colspan=3,width='100%')
-        fb.simpleTextArea(value='^.pars.description',lbl='!!Description',colspan=3,width='100%',height='40px')
         fb.checkbox(value='^.pars.out_html',label='!!Out HTML')
         fb.checkbox(value='^.pars.out_xls',label='!!Out XLS')
         fb.textbox(value='^.pars.dest_dataframe',lbl='!!Out dataframe')
+        fb.textbox(value='^.pars.title',lbl='!!Report Title',colspan=3,width='100%',hidden='^.pars.out_html?=!#v')
+        fb.simpleTextArea(value='^.pars.description',lbl='!!Report Description',colspan=3,width='100%',height='40px',hidden='^.pars.out_html?=!#v')
         bc = mainbc.borderContainer(design='sidebar',region='center')
 
 
@@ -189,11 +201,11 @@ class StatsPane(BaseComponent):
 
 
     @public_method
-    def pdstats_remoteCommandGrid(self,pane,table=None,code=None,**kwargs):
+    def pdstats_remoteCommandGrid(self,pane,table=None,code=None,connectedWidgetId=None,**kwargs):
 
         tc = pane.tabContainer(margin='2px')
         pane.sharedObject('.stored_data',shared_id=code,autoSave=True,autoLoad=True)
-        tc.pandasCommands(code,table=table,title='!!Commands')
+        tc.pandasCommands(code,table=table,title='!!Commands',connectedWidgetId=connectedWidgetId)
         tc.dataframesManager(code,table=table,title='!!Datasets')
         tc.reportSiteParameters(code,table=table,title='!!Publish')
         pane.dataController("""
@@ -219,7 +231,6 @@ class StatsPane(BaseComponent):
                 genro.publish(code+'_stepDone',{step:step,result:result,counter:counter,comment:comment,command:command});
             }
             if(last){
-                console.log('last step')
                 FIRE #ANCHOR.update_report_site;
             }
             """,code=code,commands='=.stored_data.commands',
@@ -252,7 +263,7 @@ class StatsPane(BaseComponent):
         fb.button('Apply',action='FIRE #ANCHOR.update_report_site')
         pane.dataRpc(None,self.pdstats_updateReportSiteInfo,publish_info='=.stored_data.publish_info',table=table,
                     _onResult='SET .stored_data.publish_info.site_ready = true;',
-                    _onCalling='console.log("rifaccio il publish info")',code=code,httpMethod='WSK',
+                    code=code,httpMethod='WSK',
                     _if='publish_info.getItem("published")',_fired='^.update_report_site')
 
         pane.dataFormula('#ANCHOR.report_url','p+"?no_cache=t_"+(new Date().getTime())',_onBuilt=True,
@@ -330,7 +341,7 @@ class StatsPane(BaseComponent):
 
 
     @struct_method
-    def pdstats_pandasCommands(self,parent,code=None,table=None,**kwargs):
+    def pdstats_pandasCommands(self,parent,code=None,table=None,connectedWidgetId=None,**kwargs):
         storepath = '#ANCHOR.stored_data.commands'
         pane = parent.contentPane(**kwargs)
         frame = pane.bagGrid(frameCode='V_commands_%s' %code,title='Stats commands',datapath='.dfcommands',
@@ -427,7 +438,7 @@ class StatsPane(BaseComponent):
         bar = form.bottom.slotBar('*,cancel,savebtn,saveAndRun',margin_bottom='2px',_class='slotbar_dialog_footer')
         fh = StatsCommandForms(self)
         for commandname,commandhandler in fh.commandlist():
-            commandhandler(sc,pageName=commandname)
+            commandhandler(sc,pageName=commandname,connectedWidgetId=connectedWidgetId)
         bar.cancel.button('!!Cancel',action='this.form.abort();')
         bar.savebtn.button('!!Save',iconClass='fh_semaphore',action="""
                                 SET #FORM.record.status = 'TC';
@@ -453,7 +464,7 @@ class StatsPane(BaseComponent):
         return gp
 
     @websocket_method
-    def statspane_runCommands(self,commands=None,code=None):
+    def statspane_runCommands(self,commands=None,code=None,**kwargs):
         topic = '%s_pandas_step'%code
         with self.sharedData('pandasdata') as pandasdata:
             gp = self.getGnrPandas(pandasdata,code) 
@@ -490,15 +501,21 @@ class StatsPane(BaseComponent):
         return result
 
     def statspane_run_dataframeFromDb(self,gnrpandas=None,dfname=None,table=None,where=None,condition=None,columns=None,
-                           selectionKwargs=None,comment=None,**kwargs):
-        if selectionKwargs:
-            kwargs.update(selectionKwargs)
-        if isinstance(where,Bag):
-            where,kwargs = self.db.table(table).sqlWhereFromBag(where, kwargs)
-        if condition:
-            where = ' ( %s ) AND ( %s ) ' % (where, condition) if where else condition
+                           selectionKwargs=None,comment=None,viewSelectionPars=None,view_query=None,view_columns=None,**kwargs):
+        selectionKwargs = viewSelectionPars['selectionKwargs'] if viewSelectionPars else {}
+        if view_query:
+            kwargs.update()
+            wherebag = viewSelectionPars['where']
+            selectionKwargs =selectionKwargs or {}
+            where,selectionKwargs = self.db.table(table).sqlWhereFromBag(wherebag, selectionKwargs)
+            condition = viewSelectionPars['condition']
+            if condition:
+                where = ' ( %s ) AND ( %s ) ' % (where, condition) if where else condition
+
+        if view_columns:
+            columns = viewSelectionPars['columns']
         gnrpandas.dataframeFromDb(dfname=dfname,db=self.db,tablename=table,where=where,condition=condition,
-                                columns=columns,comment=comment,**kwargs)
+                                columns=columns,comment=comment,**selectionKwargs)
         return Bag(store=gnrpandas[dfname].getInfo(),dataframe_info=dfname)
 
     @websocket_method
@@ -510,12 +527,13 @@ class StatsPane(BaseComponent):
 
 
     def statspane_run_pivotTable(self,gnrpandas=None,dfname=None,name=None,pivot=None,filters=None,
-                                dest_dataframe=None,comment=None,out_html=None,out_xls=None,title=None,counter=None,**kwargs):
+                                dest_dataframe=None,comment=None,out_html=None,out_xls=None,title=None,counter=None,
+                                description=None,**kwargs):
         
         if out_html:
             title = title or 'Pivot table %s' %counter
             out_html = Bag(code=slugify('step_%s_%s' %(title,counter)),title=title,
-                            comment=comment or '')
+                            comment=comment or '',summary=description)
         if out_xls:
             title = title or comment or 'Pivot table'
             out_xls = Bag(code=slugify('step_%s_%s' %(title,counter)),title=title)
