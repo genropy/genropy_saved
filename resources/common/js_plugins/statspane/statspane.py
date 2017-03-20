@@ -8,7 +8,7 @@ from gnr.core.gnrdecorator import public_method,websocket_method,metadata
 from gnr.xtnd.gnrpandas import GnrPandas
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrwebstruct import struct_method
-
+from gnr.core.gnrstring import slugify
 
 class StatsCommandForms(object):
 
@@ -47,7 +47,7 @@ class StatsCommandForms(object):
         bc = sc.borderContainer(size_h=300,size_w=400,**kwargs)
         fb = bc.contentPane(region='top',datapath='.record').div(margin_right='30px').formbuilder(colswidth='auto',width='100%',fld_width='100%')
         fb.textbox(value='^.dfname',lbl='Dataframe',validate_notnull='^#FORM.record.command?=#v=="dataframeFromDb"',unmodifiable=True)
-        fb.textbox(value='^.description',lbl='Description')
+        fb.textbox(value='^.comment',lbl='!!Comment')
         fb.textbox(value='^.pars.table',lbl='Table',validate_notnull='^#FORM.record.command?=#v=="dataframeFromDb"')
         fb.textbox(value='^.pars.columns',lbl='Columns')
         fb.simpleTextArea(value='^.pars.where',lbl='Where',height='100px')
@@ -57,9 +57,7 @@ class StatsCommandForms(object):
     def cmd_editDataset(self,sc,**kwargs):
         bc = sc.borderContainer(size_h=400,size_w=550,**kwargs)
         fb = bc.contentPane(region='top').formbuilder(datapath='.record',cols=2)
-        fb.textbox(value='^.description',lbl='Description')
-        fb.textbox(value='^.pars.dest_dataframe',lbl='Dest dataframe')
-
+        fb.textbox(value='^.comment',lbl='!!Comment')
         bc.dataController("SET #FORM.record.pars.edited_dataframe = genro.statspane.parentDataFrame(this);",
                             formsubscribe_onLoaded=True,_if='command == "editDataset" && this.form.isNewRecord()',
                             command='=#FORM.record.command')
@@ -86,9 +84,13 @@ class StatsCommandForms(object):
         mainbc = sc.borderContainer(size_h=600,size_w=740,**kwargs)
         mainbc.dataController("SET #FORM.parentDataframe.store = genro.statspane.parentDataFrame(this);",
                                 formsubscribe_onLoaded=True,_if="command=='pivotTable'",command='=#FORM.record.command')
-        fb = mainbc.contentPane(region='top').formbuilder(datapath='.record',cols=2)
-        fb.textbox(value='^.description',lbl='Description')
-        fb.textbox(value='^.pars.dest_dataframe',lbl='Dest dataframe')
+        fb = mainbc.contentPane(region='top').div(margin_right='20px').formbuilder(datapath='.record',cols=3,width='100%',colswidth='auto')
+        fb.textbox(value='^.comment',lbl='!!Comment',colspan=3,width='100%')
+        fb.textbox(value='^.pars.title',lbl='!!Title',colspan=3,width='100%')
+        fb.simpleTextArea(value='^.pars.description',lbl='!!Description',colspan=3,width='100%',height='40px')
+        fb.checkbox(value='^.pars.out_html',label='!!Out HTML')
+        fb.checkbox(value='^.pars.out_xls',label='!!Out XLS')
+        fb.textbox(value='^.pars.dest_dataframe',lbl='!!Out dataframe')
         bc = mainbc.borderContainer(design='sidebar',region='center')
 
 
@@ -110,10 +112,10 @@ class StatsCommandForms(object):
 
         tc = bc.tabContainer(region='center',margin='2px',selectedPage='^#FORM.selectedPage')
         parsbc = tc.borderContainer(title='Pivot parameters',pageName='pivotPars')
- 
+        parsbc_top = parsbc.borderContainer(region='top',height='50%')
         commonKw = dict(grid_selfDragRows=True,
                         struct=self.pt_fieldsStruct,addrow=False,
-                        grid_dropTarget_grid="statcol",pbl_classes=True,margin='2px',
+                        grid_dropTarget_grid="statcol",pbl_classes='*',margin='2px',
                         grid_onDrop_statcol="""
                             var storebag = this.widget.storebag();
                             data.forEach(function(n){
@@ -121,11 +123,12 @@ class StatsCommandForms(object):
                             });
  
                         """)
-        parsbc.contentPane(region='top',height='33%').bagGrid(title='Index',frameCode='pt_index',storepath='#FORM.record.pars.pivot.index',
+        parsbc_top.contentPane(region='left',width='50%').bagGrid(title='Index',frameCode='pt_index',storepath='#FORM.record.pars.pivot.index',
                                                           datapath='#FORM.indexgrid',**commonKw)
-        parsbc.contentPane(region='bottom',height='33%').bagGrid(title='Columns',frameCode='pt_columns',storepath='#FORM.record.pars.pivot.columns',
+        parsbc_top.contentPane(region='center').bagGrid(title='Columns',frameCode='pt_columns',storepath='#FORM.record.pars.pivot.columns',
                                                           datapath='#FORM.columnsgrid',**commonKw)
         commonKw['struct'] = self.pt_valuesStruct
+        commonKw['pbl_classes'] = True
         parsbc.contentPane(region='center').bagGrid(title='Values',frameCode='pt_values',storepath='#FORM.record.pars.pivot.values',
                                                           datapath='#FORM.valuesgrid',**commonKw)
 
@@ -137,11 +140,13 @@ class StatsCommandForms(object):
                      _pageName='^#FORM.selectedPage',
                      _onCalling="""
                      if(_stores && _stores.getNode(fieldname)){
+                        FIRE #FORM.loadedFilterData;
                         return false;
                      }
                      """,
                      _onResult="""
                         this.setRelativeData('#FORM.availableFilterValuesGrid.stores.'+kwargs.fieldname,result);
+                        FIRE #FORM.loadedFilterData;
                      """,_stores='=#FORM.availableFilterValuesGrid.stores')
 
         def filters_struct(struct):
@@ -169,7 +174,9 @@ class StatsCommandForms(object):
             _if='fieldname')
         frame.dataController("""
             SET #FORM.availableFilterValuesGrid.currentFilterPath = '#FORM.availableFilterValuesGrid.stores.'+fieldname;
-            """,fieldname='^#FORM.parentDataframe.grid.selectedField',_if='fieldname')
+            """,fieldname='^#FORM.parentDataframe.grid.selectedField',pageName='=#FORM.selectedPage',
+            _fired='^#FORM.loadedFilterData',
+            _if='fieldname && pageName=="dfFilters"')
         frame.top.bar.replaceSlots('#','#,searchOn,5')
 
 
@@ -183,31 +190,45 @@ class StatsPane(BaseComponent):
 
     @public_method
     def pdstats_remoteCommandGrid(self,pane,table=None,code=None,**kwargs):
+
+        tc = pane.tabContainer(margin='2px')
+        pane.sharedObject('.stored_data',shared_id=code,autoSave=True,autoLoad=True)
+        tc.pandasCommands(code,table=table,title='!!Commands')
+        tc.dataframesManager(code,table=table,title='!!Datasets')
+        tc.reportSiteParameters(code,table=table,title='!!Publish')
         pane.dataController("""
-            this.setRelativeData('.dfcommands.commands.rows.'+step+'.status','OK');
+            var steprow = commands.getItem(step);
+            if(error){
+                steprow.setItem('status','ERR');
+                steprow.setItem('error',error);
+                return;
+            }
+            steprow.setItem('status','OK');
+            steprow.setItem('error',null);
             var newdf = result.getItem('newdataframe');
             if(result.getItem('dataframe_info')){
                 this.setRelativeData('.dataframes.store.'+result.getItem('dataframe_info'),
-                                      new gnr.GnrBag({name:result.getItem('dataframe_info'),description:description,
+                                      new gnr.GnrBag({name:result.getItem('dataframe_info'),comment:comment,
                                                      store:result.getItem('store')}))
-            }else if(newdf){
+            }
+            if(newdf){
                 this.setRelativeData('.dataframes.store.'+newdf.getItem('dataframe_info'),
                                       new gnr.GnrBag({name:newdf.getItem('dataframe_info'),
-                                                        store:newdf.getItem('store'),description:description}))
+                                                        store:newdf.getItem('store'),comment:comment}))
+            }if(result.getItem('parent_dataframe')){
+                genro.publish(code+'_stepDone',{step:step,result:result,counter:counter,comment:comment,command:command});
             }
-            genro.publish(code+'_stepDone',{step:step,result:result,counter:counter,description:description,command:command});
-            
-            """,code=code,
+            if(last){
+                console.log('last step')
+                FIRE #ANCHOR.update_report_site;
+            }
+            """,code=code,commands='=.stored_data.commands',
             **{'subscribe_%s_pandas_step' %code:True})
-
-        tc = pane.tabContainer(margin='2px')
-        tc.pandasCommands(code,table=table,title='Commands')
-        tc.dataframesManager(code,table=table,title='Datasets')
 
     def pdcommand_struct(self,struct):
         r = struct.view().rows()
         r.cell('counter',name='C.',width='3em',counter=True,dtype='L')
-        r.cell('_tpl',name='Pars',width='100%',rowTemplate='$dfname <span style="color:blue">$command</span><br/>$description')
+        r.cell('_tpl',name='Pars',width='100%',rowTemplate='$dfname <span style="color:blue">$command</span><br/>$comment $error')
         r.cell('status',width='2em',name=' ',
                 _customGetter="""function(row){
                     return '<div class="stat_step_status_'+row.status+'">&nbsp;</div>';
@@ -216,13 +237,32 @@ class StatsPane(BaseComponent):
 
     def pddataframe_struct(self,struct):
         r = struct.view().rows()
-        r.cell('name',name='Name',width='12em')
-        r.cell('description',name='Description',width='15em')
+        r.cell('name',name='!!Name',width='12em')
+        r.cell('comment',name='!!Comment',width='15em')
+
+
+    @struct_method
+    def pdstats_reportSiteParameters(self,parent,code=None,storepath=None,table=None,**kwargs):
+        pane = parent.contentPane(**kwargs)
+        fb = pane.div(margin_right='20px').formbuilder(datapath='.stored_data.publish_info',width='100%',colswidth='auto',fld_width='100%')
+        fb.textbox(value='^.title',lbl='!!Title')
+        fb.dateTextBox(value='^.publish_date',lbl='!!Date')
+        fb.simpleTextArea(value='^.summary',lbl='!!Summary',height='150px')
+        fb.checkbox(value='^.published',label='!!Publish')
+        fb.button('Apply',action='FIRE #ANCHOR.update_report_site')
+        pane.dataRpc(None,self.pdstats_updateReportSiteInfo,publish_info='=.stored_data.publish_info',table=table,
+                    _onResult='SET .stored_data.publish_info.site_ready = true;',
+                    _onCalling='console.log("rifaccio il publish info")',code=code,httpMethod='WSK',
+                    _if='publish_info.getItem("published")',_fired='^.update_report_site')
+
+        pane.dataFormula('#ANCHOR.report_url','p+"?no_cache=t_"+(new Date().getTime())',_onBuilt=True,
+            p='/_site/pd_reports/%s/index.html' %code,**{'subscribe_%s_report_site_updated' %code:True})
+        pane.dataFormula('#ANCHOR.report_site_active',"(published === true && site_ready === true)",site_ready='^.stored_data.publish_info.site_ready',
+                        published='^.stored_data.publish_info.published',_delay=1)
 
 
     @struct_method
     def pdstats_dataframesManager(self,parent,code=None,storepath=None,table=None,**kwargs):
-        storepath = '.store'
         bc = parent.borderContainer(**kwargs)
         frame = bc.bagGrid(frameCode='V_dataframes_%s' %code,title='Dataframes',datapath='.dataframes',
                             storepath=storepath,
@@ -251,7 +291,7 @@ class StatsPane(BaseComponent):
                                                 addrow=False,delrow=False,title='Info',
                                                 struct=infostruct,pbl_classes=True,                                                
                                                 margin='2px')
-        f = tc.contentPane(title='Commands').bagGrid(storepath='#ANCHOR.dfcommands.commands.rows',
+        f = tc.contentPane(title='Commands').bagGrid(storepath='#ANCHOR.stored_data.commands',
                                             datapath='.dataframes.commandsgrid',
                                                 title='Commands',grid_autoSelect=True,
                                                 grid_excludeCol='code',
@@ -291,7 +331,7 @@ class StatsPane(BaseComponent):
 
     @struct_method
     def pdstats_pandasCommands(self,parent,code=None,table=None,**kwargs):
-        storepath = '.commands.rows'
+        storepath = '#ANCHOR.stored_data.commands'
         pane = parent.contentPane(**kwargs)
         frame = pane.bagGrid(frameCode='V_commands_%s' %code,title='Stats commands',datapath='.dfcommands',
                             storepath=storepath,
@@ -309,19 +349,18 @@ class StatsPane(BaseComponent):
             SET .selectedCommand = selectedStep;
             """,selectedStep='^#ANCHOR.selectedStep',_if='selectedStep && selectedStep!="emptyStep"')
         frame.dataController("""if(_reason=='child' && _triggerpars.kw.evt=='del'){
-                var parent_lv = _node.parentshipLevel(this.getRelativeData('.commands').getNode('rows'));
+                var parent_lv = _node.parentshipLevel(commands);
                 if(parent_lv==1){
                     genro.publish(code+'_stepRemoved',{step:_node.getValue().getItem('code')});
                 }
-            }""", commands='^.commands.rows',code=code)
+            }""", commands='^%s' %storepath,code=code)
 
 
-        frame.sharedObject('.commands',shared_id=code,autoSave=True,autoLoad=True)
         bar = frame.top.bar.replaceSlots('delrow','delrow,addrow,5',
                                     addrow_defaults='.menucommands')
         footer = frame.bottom.slotToolbar('5,*,clear_res,5,run,10')
         footer.clear_res.slotButton('Clear',action="""if(commands){commands.values().forEach(function(v){v.setItem('status','NO')})}""",
-            commands='=.commands.rows')
+            commands='=%s' %storepath)
         footer.run.slotButton('Run',action='FIRE .runCommands;')
 
         footer.dataRpc(None,self.statspane_runCommands,_allcommands='=%s' %storepath,code=code,
@@ -377,9 +416,11 @@ class StatsPane(BaseComponent):
                                         if($1.selected){
                                             var sizer = objectExtract(this.widget.gnrPageDict[p_0.page].sourceNode.attr,'size_*',true);
                                             var dialogNode= genro.nodeById('command_dialog_%s') //.resize();
+                                            var form = this.form;
+                                            dialogNode.widget.resize(sizer);
+                                            dialogNode.widget.adjustDialogSize();
                                             setTimeout(function(){
-                                                dialogNode.widget.resize(sizer);
-                                                dialogNode.widget.adjustDialogSize();
+                                                form.sourceNode.widget.resize({w:sizer.w});
                                             },1);
                                         }
                                     """ %code)
@@ -396,27 +437,51 @@ class StatsPane(BaseComponent):
                                         this.form.publish("save",{destPkey:"*dismiss*"});
                                         SET #FORM.controller.temp.doRunCommand = true;
                                         """)
+
+    def getGnrPandas(self,pandasdata,code=None):
+        gp = pandasdata.get(code)
+        if not gp:
+            csspath = self.site.getStaticPath('rsrc:common','js_plugins','statspane','report.css')
+            with open(csspath,'r') as f:
+                css = f.read()
+
+            gp = GnrPandas(language=self.language,stats_code=code,
+                            report_folderpath=self.site.getStaticPath('site:pd_reports',code),
+                            report_folderurl=self.site.getStaticUrl('site:pd_reports',code),
+                             report_cssbase=css)
+            pandasdata[code] = gp
+        return gp
+
     @websocket_method
     def statspane_runCommands(self,commands=None,code=None):
         topic = '%s_pandas_step'%code
-        with self.sharedData('pandasdata') as pandasdata: 
-            gp = pandasdata.get(code)
-            if not gp:
-                gp = GnrPandas(language=self.language)
-                pandasdata[code] = gp
-            for n in commands:
+        with self.sharedData('pandasdata') as pandasdata:
+            gp = self.getGnrPandas(pandasdata,code) 
+            for i,n in enumerate(commands):
+                error = None
                 v = n.value
-                result = getattr(self,'statspane_run_%(command)s' %v)(gnrpandas=gp,dfname=v['dfname'],description=v['description'],**v['pars'].asDict(ascii=True))
+                try:
+                    result = getattr(self,'statspane_run_%(command)s' %v)(gnrpandas=gp,dfname=v['dfname'],counter=v['counter'],
+                                                                        comment=v['comment'],**v['pars'].asDict(ascii=True))
+
+                except Exception as e:
+                    result = None
+                    error = str(e)
+                    raise
+
                 self.clientPublish(topic,result=result,
                                         step=n.label,counter=v['counter'],
-                                        description=v['description'],
-                                        command=v['command'])
+                                        comment=v['comment'],
+                                        command=v['command'],error=error,
+                                        last=(i+1==len(commands)))
+                if error:
+                    return                
 
     @websocket_method
     def statspane_availableFieldValues(self,code=None,dfname=None,fieldname=None):
         result = Bag()
         with self.sharedData('pandasdata') as pandasdata: 
-            gp = pandasdata[code]
+            gp = self.getGnrPandas(pandasdata,code) 
         gnrdf = gp.dataframes[dfname]
         df = gnrdf.dataframe
         for i,v in enumerate(df[fieldname].unique()):
@@ -425,7 +490,7 @@ class StatsPane(BaseComponent):
         return result
 
     def statspane_run_dataframeFromDb(self,gnrpandas=None,dfname=None,table=None,where=None,condition=None,columns=None,
-                           selectionKwargs=None,description=None,**kwargs):
+                           selectionKwargs=None,comment=None,**kwargs):
         if selectionKwargs:
             kwargs.update(selectionKwargs)
         if isinstance(where,Bag):
@@ -433,23 +498,41 @@ class StatsPane(BaseComponent):
         if condition:
             where = ' ( %s ) AND ( %s ) ' % (where, condition) if where else condition
         gnrpandas.dataframeFromDb(dfname=dfname,db=self.db,tablename=table,where=where,condition=condition,
-                                columns=columns,description=description,**kwargs)
+                                columns=columns,comment=comment,**kwargs)
         return Bag(store=gnrpandas[dfname].getInfo(),dataframe_info=dfname)
+
+    @websocket_method
+    def pdstats_updateReportSiteInfo(self,code=None,publish_info=None,table=None,**kwargs):
+        with self.sharedData('pandasdata') as pandasdata: 
+            gp = self.getGnrPandas(pandasdata,code)
+            gp.updatePublishInfo(**publish_info.asDict(ascii=True))
+            self.clientPublish('%s_report_site_updated' %code,code=code)
 
 
     def statspane_run_pivotTable(self,gnrpandas=None,dfname=None,name=None,pivot=None,filters=None,
-                                dest_dataframe=None,description=None,**kwargs):
+                                dest_dataframe=None,comment=None,out_html=None,out_xls=None,title=None,counter=None,**kwargs):
+        
+        if out_html:
+            title = title or 'Pivot table %s' %counter
+            out_html = Bag(code=slugify('step_%s_%s' %(title,counter)),title=title,
+                            comment=comment or '')
+        if out_xls:
+            title = title or comment or 'Pivot table'
+            out_xls = Bag(code=slugify('step_%s_%s' %(title,counter)),title=title)
         pt,store =  gnrpandas[dfname].pivotTableGrid(index=pivot['index'],values=pivot['values'],
-                                                columns=pivot['columns'])
+                                                columns=pivot['columns'],filters=filters,out_html=out_html,
+                                                out_xls=out_xls)
         result = Bag(store=store,parent_dataframe=dfname)
 
         if dest_dataframe:
-            info = gnrpandas.registerDataFrame(dfname=dest_dataframe,dataframe=pt,description=description)
+            info = gnrpandas.registerDataFrame(dfname=dest_dataframe,dataframe=pt,comment=comment)
             result['newdataframe'] = Bag(store=info,dataframe_info=dest_dataframe)
         return result
 
-    def statspane_run_editDataset(self,gnrpandas=None,dfname=None,edited_dataframe=None,dest_dataframe=None,description=None,**kwargs):
-        result = gnrpandas[dfname].applyChanges(edited_dataframe,inplace=dest_dataframe is None)
-        return Bag(store=result,
-                    dataframe_info=dfname)
+    def statspane_run_editDataset(self,gnrpandas=None,dfname=None,edited_dataframe=None,comment=None,**kwargs):
+        gnrdf = gnrpandas[dfname]
+        if comment:
+            gnrdf.comment = comment
+        result = gnrdf.applyChanges(edited_dataframe)
+        return Bag(store=result,dataframe_info=dfname)
 

@@ -9,6 +9,55 @@ from gnr.core.gnrbag import Bag
 from datetime import datetime
 from gnr.core.gnrstring import toText
 from gnr.core.gnrdecorator import timer_call
+from collections import defaultdict
+
+REPORT_INDEX_HTML = """
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>%(title)s</title>
+<meta name="author" content="Stats %(title)s">
+<style type="text/css">    
+    @import url("report.css?mtime=%(mtime)s");
+</style>
+</head>
+<body class='reportbody'>
+    <h1 class='report_title'>%(title)s</h1>
+    <div class='report_summary'>%(summary)s</div>
+    <div class='report_link_box'>
+        %(report_links)s
+    </div>
+</body>
+
+</html>
+"""
+
+REPORT_HTML = """
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>%(title)s</title>
+<meta name="author" content="Stats %(title)s">
+<style type="text/css">    
+    @import url("report.css?mtime=%(mtime)s");
+</style>
+</head>
+<body class='reportbody'>
+    <a class='report_index_url' href='%(index_url)s'>Index</a>
+    <h1 class='report_title'>%(title)s</h1>
+    <div class='report_summary'>%(comment)s</div>
+    <div class='report_content'>
+        %(content)s
+    </div>
+</body>
+
+</html>
+"""
+
 
 try:
     import cPickle as pickle
@@ -28,11 +77,52 @@ except:
 class GnrPandas(object):
     AGGFUNCDICT = {'sum':np.sum,'mean':np.mean,'count':len,'min':np.min,'max':np.max}
 
-    def __init__(self,path=None,language=None):
+    def __init__(self,path=None,language=None,stats_code=None,
+                report_folderpath=None,report_folderurl=None,
+                report_cssbase=None):
         self.defaultpath = path
         self.dataframes = {}
         self.steps = []
         self.language = language
+        self.stats_code = stats_code
+        self.publish_info = defaultdict(str)
+        self.report_links = {}
+        self.report_folderpath = report_folderpath
+        self.report_folderurl = report_folderurl
+        self.report_cssbase = report_cssbase
+
+    def updatePublishInfo(self,**kwargs):
+        self.publish_info.update(kwargs)
+        self.buildReportSite()
+
+    def addReportHtml(self,df,pars):
+        pars['html'] = df.to_html()
+        self.report_links[pars['code']] = pars
+
+    def buildReportSite(self):
+        if not self.publish_info['published']:
+            return False
+        if not os.path.exists(self.report_folderpath):
+            os.makedirs(self.report_folderpath)
+        li_list = []
+        build_ts = datetime.now().microsecond
+        index_url = os.path.join(self.report_folderurl,'index.html?_no_cache=%s' %build_ts)
+        for k,v in self.report_links.items():
+            li_list.append('<li><a href="%(url)s?_no_cache=%(build_ts)s">%(title)s</a></li>' %dict(build_ts=build_ts,
+                                                                                title=v['title'],url=os.path.join(self.report_folderurl,'%s.html' %k)))
+            with open(os.path.join(self.report_folderpath,'%s.html' %k),'w') as f:
+                f.write(REPORT_HTML  %dict(content=v['html'],title=v['title'],
+                                            comment=v['comment'],
+                                            index_url=index_url,mtime=build_ts))
+        if li_list:
+            self.publish_info['report_links'] = ''.join(li_list)
+        self.publish_info['mtime'] = build_ts
+        html = REPORT_INDEX_HTML %self.publish_info
+        with open(os.path.join(self.report_folderpath,'index.html'),'w') as f:
+            f.write(html)
+        with open(os.path.join(self.report_folderpath,'report.css'),'w') as f:
+            print 'self.report_cssbase',self.report_cssbase
+            f.write(self.report_cssbase)
 
     def __enter__(self):
         if self.defaultpath:
@@ -44,16 +134,16 @@ class GnrPandas(object):
         self.save()
 
     def dataframeFromDb(self,dfname=None,db=None,tablename=None,
-                        columns=None,where=None,colInfo=None,description=None,**kwargs):
-        gnrdf =  GnrDbDataframe(dfname,parent=self,db=db,language=self.language,description=description)
+                        columns=None,where=None,colInfo=None,comment=None,**kwargs):
+        gnrdf =  GnrDbDataframe(dfname,parent=self,db=db,language=self.language,comment=comment)
         self.dataframes[dfname] = gnrdf
         gnrdf.query(tablename=tablename,columns=columns,where=where,**kwargs)
         if colInfo:
             gnrdf.setColInfo(colInfo)
         return gnrdf
 
-    def registerDataFrame(self,dfname=None,dataframe=None,description=None):
-        gnrdf = GnrDataframe(dfname,parent=self,language=self.language,dataframe=dataframe,description=description)
+    def registerDataFrame(self,dfname=None,dataframe=None,comment=None):
+        gnrdf = GnrDataframe(dfname,parent=self,language=self.language,dataframe=dataframe,comment=comment)
         self.dataframes[dfname] = gnrdf
         return gnrdf.getInfo()
 
@@ -97,13 +187,13 @@ class GnrDataframe(object):
     def pickle_attr(self):
         return self.base_pickle_attr+self.custom_pickle_attr
 
-    def __init__(self,dfname,parent=None,language=None,description=None,dataframe=None,**kwargs):
+    def __init__(self,dfname,parent=None,language=None,comment=None,dataframe=None,**kwargs):
         self.dfname = dfname
         self.parent = parent
         self.steps = []
         self.colInfo = {}
         self.language = language
-        self.description = description
+        self.comment = comment
         if dataframe is not None:
             self.dataframe = dataframe
 
@@ -171,7 +261,7 @@ class GnrDataframe(object):
             result.setItem(cname,row)
         return result
 
-    def pivotTableGrid(self,index=None,values=None,columns=None,filters=None):
+    def pivotTableGrid(self,index=None,values=None,columns=None,filters=None,out_xls=None,out_html=None):
         funckeys = set()
         values_list =[]
         aggfunc = None
@@ -193,7 +283,8 @@ class GnrDataframe(object):
         if funckeys:
             aggfunc = [adict[k] for k in funckeys]
         store = Bag()
-        pt = self.dataframe.pivot_table(index=index or None,
+
+        pt = self.filteredDataframe(filters).pivot_table(index=index or None,
                                         values=values_list or None, 
                                         columns=columns or None,aggfunc=aggfunc)
         values_list = values_list or list(pt.columns[0] if len(funckeys)>1 else pt.columns)
@@ -212,7 +303,21 @@ class GnrDataframe(object):
                     rec['%s_%s' %(aggkey,col)] = float(sel_vals[(adict[aggkey].func_name,col)])
             store.setItem('r_%s' %k,rec)
             k+=1
+        if out_html:
+            self.parent.addReportHtml(pt,out_html)
         return pt,store
+
+    def filteredDataframe(self,filters=None):
+        if not filters:
+            return self.dataframe
+        querylist = []
+        mylocals = locals()
+        for col,values in filters.items():
+            if values:
+                mylocals['filter_%s'%col] = values.split(',')
+                querylist.append('%s in @filter_%s' %(col,col))
+        result = self.dataframe.query(' & '.join(querylist))
+        return result
 
     def to_pickle(self,path):
         folder = os.path.join(path,self.dfname)

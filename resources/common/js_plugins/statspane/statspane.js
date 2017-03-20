@@ -103,7 +103,12 @@ genro.statspane =  {
         if(!dataframes){
             return new gnr.GnrBag();
         }
-        return dataframes.getItem(dfname).getItem('store').deepCopy();
+        var df = dataframes.getItem(dfname);
+        if (df){
+            return df.getItem('store').deepCopy();
+        }else{
+            return new gnr.GnrBag();
+        }
     }
 };
 
@@ -151,7 +156,8 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.UserObjectLayout, {
 
     gnrwdg_viewerFrame:function(frame,kw){
         //override
-        var sckw = {selectedPage:'^#ANCHOR.selectedStep',datapath:'.viewer'};
+        var tc = frame._('TabContainer',{side:'center',margin:'2px'});
+        var sckw = {selectedPage:'^#ANCHOR.selectedStep',datapath:'.viewer',title:_T('Commands outputs')};
         var topic = 'subscribe_'+this.sourceNode.attr.nodeId+'_stepDone';
         sckw['subscribe_'+this.sourceNode.attr.nodeId+'_stepRemoved'] = function(kw){
             this.setRelativeData('.rows.'+kw.step+'.store',null);
@@ -173,15 +179,17 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.UserObjectLayout, {
             if(!(kw.step in this.widget.gnrPageDict)){
                 var f = this._('borderContainer',kw.step,{datapath:'.rows.'+kw.step,
                                     pageName:kw.step});
-                f._('ContentPane',{region:'top',height:'20px',background:'#ccc'})._('div',{innerHTML:dataTemplate('OUTPUT $counter: $command $description',kw),padding:'3px'});
+                f._('ContentPane',{region:'top',height:'20px',background:'#ccc'})._('div',{template:'OUTPUT $counter: $command $comment',datasource:'^#ANCHOR.stored_data.commands.'+kw.step,padding:'3px'});
                 f._('ContentPane','center',{region:'center'})._('quickGrid','grid',{value:'^.store'});
             }
             this.setRelativeData('.rows.'+kw.step+'.store',data.deepCopy());
             this.setRelativeData('#ANCHOR.selectedStep',kw.step);
         };
-        sc = frame._('StackContainer',sckw);
+        sc = tc._('StackContainer',sckw);
         sc._('ContentPane',{pageName:'emptyStep'})._('div',{innerHTML:'Empty Step',font_size:'20px',margin_top:'20px',text_align:'center',color:'#ccc'});      
-
+        var rs = tc._('ContentPane',{title:_T('Report site'),hidden:'^#ANCHOR.report_site_active?=!#v',overflow:'hidden'});
+        var ifkw = {src:'^#ANCHOR.report_url',height:'100%',width:'100%',border:0};
+        rs._('iframe',ifkw);
     },
 
     gnrwdg_configuratorFrame:function(frame,kw){
@@ -197,7 +205,7 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.UserObjectLayout, {
 
     gnrwdg_userObjectData:function(){
         //override
-        return this.sourceNode.getRelativeData('.dfcommands.commands.rows').deepCopy();
+        return this.sourceNode.getRelativeData('.stored_data').deepCopy();
     },
 
     gnrwdg_onLoadingObject:function(userObjectId,fistLoad){
@@ -206,7 +214,7 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.UserObjectLayout, {
 
     gnrwdg_onLoadedObject:function(result,userObjectId,fistLoad){
         //override
-        this.sourceNode.setRelativeData('.dfcommands.commands.rows',result);
+        this.sourceNode.setRelativeData('.stored_data',result || new gnr.GnrBag());
     }
 });
 
