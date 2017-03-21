@@ -44,7 +44,7 @@ class GnrCustomWebPage(object):
 
     def userAuth(self,pane):
         pane.inlineTableHandler(relation='@tags',viewResource='ViewFromUser',
-                            pbl_classes=True,margin='2px',addrow=False,picker='tag_id',
+                            pbl_classes=True,margin='2px',addrow=True,picker='tag_id',
                             picker_condition='$child_count=0',
                             picker_viewResource=True)
 

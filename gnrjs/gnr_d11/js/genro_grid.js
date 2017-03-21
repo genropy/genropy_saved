@@ -2918,20 +2918,18 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         event = event || {};
         var addRowMode = this.sourceNode.attr.addRowMode;
-        addRowMode = isNullOrBlank(addRowMode)?true:addRowMode;
         if(addRowMode){
             pos = addRowMode;
         }
         if (pos == '*') {
             var curSelRow = this.absIndex(this.selection.selectedIndex);
             if (curSelRow < 0) {
-                pos = event.shiftKey ? 0 : storebag.len();
+                pos = event.shiftKey ? 0 : '>';
             } else {
                 pos = event.shiftKey ? curSelRow : curSelRow + 1;
             }
         }
         var kw = {'_position':pos};
-        
         newnode = storebag.setItem(label, newnode, null, kw); //questa provoca la chiamata della setStorePath che ha trigger di ins.
         // ATTENZIONE: Commentato questo perchè il trigger di insert già ridisegna ed aggiorna l'indice, ma non fa apply filter.
         // Cambiare l'indice di selezione corrente nelle includedview con form significa cambiare datapath a tutti i widget. PROCESSO LENTO.
