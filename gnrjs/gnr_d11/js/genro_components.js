@@ -2716,6 +2716,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var columns = objectPop(kw,'columns');
         sourceNode.attr.fields = objectPop(kw,'fields');
         gnrwdg.guessColumns = sourceNode.attr.fields;
+        gnrwdg.infoInCellAttributes = objectPop(kw,'infoInCellAttributes');
         if(!columns){ 
             columns = '^#WORKSPACE.columns';
             sourceNode.registerDynAttr('columns');
@@ -2856,6 +2857,8 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         }else{
             fields = fields.split(',');
         }
+        var infoInCellAttributes = this.infoInCellAttributes;
+        var columns_extra = this.columns_extra || {};
         rows.forEach(function(n){
             var r = store.rowFromItem(n);
             fields.forEach(function(field){
@@ -2863,12 +2866,15 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
                 if (!(field in types)){
                     types[field]=null
                     sizes[field]=0
+                    if(infoInCellAttributes){
+                        columns_extra[field] = n.getValue().getAttr(field);
+                    }
                 }
                 if(!isNullOrBlank(v)){
                     dtype=types[field]
                     if (!dtype) {
                         dtype=guessDtype(v)
-                        types[field]=dtype
+                        types[field]=dtype;
                     }   
                     w = 8 
                     if (dtype=='D'){w = 8}
@@ -2891,6 +2897,9 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
             if(!types[t]){types[t]='T'}
             sizes[t]=(2 +(sizes[t]|| 8)*.5)+'em'
         }
+        if(objectNotEmpty(columns_extra)){
+            this.columns_extra = columns_extra;
+        }
         return {types:types,sizes:sizes}
     },
     gnrwdg_setFields:function(fields){
@@ -2900,7 +2909,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     gnrwdg_getColumnsFromValue:function(value){
         var columns = new gnr.GnrBag();
         var columns_extra = this.columns_extra || {};
-        var fields= this.sourceNode.getAttributeFromDatasource('fields')
+        var fields= this.sourceNode.getAttributeFromDatasource('fields');
         var guess = this.guessDtypeAndWidth(value, fields);
         var kw;
         for (var label in guess.types){

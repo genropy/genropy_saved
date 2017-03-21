@@ -10,6 +10,7 @@ from datetime import datetime
 from gnr.core.gnrstring import toText
 from gnr.core.gnrdecorator import timer_call
 from collections import defaultdict
+from gnr.core.gnrstring import splitAndStrip
 
 REPORT_INDEX_HTML = """
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
@@ -217,10 +218,18 @@ class GnrDataframe(object):
         df = self.dataframe
         for v in changedDataframeInfo.values():
             cname = v['fieldname']
-            if v['newserie'] and v['formula']:
+            formula = v['formula']
+            if v['newserie'] and formula:
                 newcol = Bag(v)
                 newcol.pop('newserie')
-                df.eval('%(fieldname)s = %(formula)s' %v,inplace=True) 
+                if ' AS ' in formula:
+                    from_field,cast = formula.split(' AS ')
+                    from_field = from_field.strip()
+                    cast = cast.strip()
+                    if hasattr(df[from_field],'dt'):
+                        df[cname] = df[from_field].dt.to_period(cast)
+                else:
+                    df.eval('%(fieldname)s = %(formula)s' %v,inplace=True) 
                 self.colInfo[cname] = newcol.asDict(ascii=True)
             else:
                 self.colInfo[cname].update(v.asDict(ascii=True))
@@ -260,7 +269,7 @@ class GnrDataframe(object):
             result.setItem(cname,row)
         return result
 
-    def pivotTableGrid(self,index=None,values=None,columns=None,filters=None,out_xls=None,out_html=None):
+    def pivotTableGrid(self,index=None,values=None,columns=None,filters=None,out_xls=None,out_html=None,margins=None):
         funckeys = set()
         values_list =[]
         aggfunc = None
@@ -282,28 +291,36 @@ class GnrDataframe(object):
         if funckeys:
             aggfunc = [adict[k] for k in funckeys]
         store = Bag()
-
         pt = self.filteredDataframe(filters).pivot_table(index=index or None,
                                         values=values_list or None, 
-                                        columns=columns or None,aggfunc=aggfunc)
-        values_list = values_list or list(pt.columns[0] if len(funckeys)>1 else pt.columns)
+                                        columns=columns or None,aggfunc=aggfunc,fill_value=0,margins=margins)
+        if out_html:
+            self.parent.addReportHtml(pt,out_html)
         values = values or Bag()
         k = 0
+        multiagg = aggfunc and len(aggfunc)>1
+
         for index_vals,sel_vals in pt.iterrows():
             rec = Bag()
             if isinstance(index_vals,tuple):
-                for i,col in enumerate(index):
-                    rec[col] = index_vals[i]
+                for i,col in enumerate(pt.index.names):
+                    rec[col] = str(index_vals[i])
             else:
-                rec[index[0]] = index_vals
-            for col in values_list:
-                vagg = values['%s.aggregators' %col] or 'mean'
-                for aggkey in vagg.split(','):
-                    rec['%s_%s' %(aggkey,col)] = float(sel_vals[(adict[aggkey].func_name,col)])
+                rec[pt.index.names[0]] = index_vals
+            for c in sel_vals.index:
+                if isinstance(c,tuple):
+                    ckey = '_'.join([str(z) for z in c])
+                    if not multiagg:
+                        rec.setItem(ckey,float(sel_vals[c]),dtype='R',format='###,###.00',name='<br/>'.join(ckey.split('_')))
+                    else:
+                        available_aggr = values[c[1]]['aggregators'] or 'mean'
+                        if c[0] in available_aggr.split(','):
+                            rec.setItem(ckey,float(sel_vals[c]),dtype='R',format='###,###.00',name='<br/>'.join(ckey.split('_')))
+                else:
+                    rec.setItem(c,float(sel_vals[c]),dtype='R',format='###,###.00',name='<br/>'.join(c.split('_')))
             store.setItem('r_%s' %k,rec)
             k+=1
-        if out_html:
-            self.parent.addReportHtml(pt,out_html)
+        
         return pt,store
 
     def filteredDataframe(self,filters=None):
@@ -313,7 +330,8 @@ class GnrDataframe(object):
         mylocals = locals()
         for col,values in filters.items():
             if values:
-                mylocals['filter_%s'%col] = values.split(',')
+                mapper =  dict([(str(p),p)for p in self.dataframe[col]])
+                mylocals['filter_%s'%col] = [mapper[v] for v in values.split(',')]
                 querylist.append('%s in @filter_%s' %(col,col))
         result = self.dataframe.query(' & '.join(querylist))
         return result

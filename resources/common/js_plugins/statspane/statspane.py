@@ -96,13 +96,15 @@ class StatsCommandForms(object):
         mainbc = sc.borderContainer(size_h=600,size_w=740,**kwargs)
         mainbc.dataController("SET #FORM.parentDataframe.store = genro.statspane.parentDataFrame(this);",
                                 formsubscribe_onLoaded=True,_if="command=='pivotTable'",command='=#FORM.record.command')
-        fb = mainbc.contentPane(region='top',height='150px').div(margin_right='20px').formbuilder(datapath='.record',cols=3,width='100%',colswidth='auto')
-        fb.textbox(value='^.comment',lbl='!!Comment',colspan=3,width='100%')
+        fb = mainbc.contentPane(region='top',height='160px').div(margin_right='20px').formbuilder(datapath='.record',cols=3,width='100%',colswidth='auto')
+        fb.textbox(value='^.comment',lbl='!!Comment',colspan=2,width='100%')
+        fb.textbox(value='^.pars.dest_dataframe',lbl='!!Out dataframe')
+        fb.checkbox(value='^.pars.margins',label='!!Totals')
         fb.checkbox(value='^.pars.out_html',label='!!Out HTML')
         fb.checkbox(value='^.pars.out_xls',label='!!Out XLS')
-        fb.textbox(value='^.pars.dest_dataframe',lbl='!!Out dataframe')
         fb.textbox(value='^.pars.title',lbl='!!Report Title',colspan=3,width='100%',hidden='^.pars.out_html?=!#v')
         fb.simpleTextArea(value='^.pars.description',lbl='!!Report Description',colspan=3,width='100%',height='40px',hidden='^.pars.out_html?=!#v')
+        
         bc = mainbc.borderContainer(design='sidebar',region='center')
 
 
@@ -478,8 +480,8 @@ class StatsPane(BaseComponent):
                 except Exception as e:
                     result = None
                     error = str(e)
-                    raise
-
+                    print 'errore',error
+                    #raise
                 self.clientPublish(topic,result=result,
                                         step=n.label,counter=v['counter'],
                                         comment=v['comment'],
@@ -527,7 +529,7 @@ class StatsPane(BaseComponent):
 
 
     def statspane_run_pivotTable(self,gnrpandas=None,dfname=None,name=None,pivot=None,filters=None,
-                                dest_dataframe=None,comment=None,out_html=None,out_xls=None,title=None,counter=None,
+                                dest_dataframe=None,comment=None,out_html=None,out_xls=None,title=None,margins=None,counter=None,
                                 description=None,**kwargs):
         
         if out_html:
@@ -538,6 +540,7 @@ class StatsPane(BaseComponent):
             title = title or comment or 'Pivot table'
             out_xls = Bag(code=slugify('step_%s_%s' %(title,counter)),title=title)
         pt,store =  gnrpandas[dfname].pivotTableGrid(index=pivot['index'],values=pivot['values'],
+                                                margins=margins,
                                                 columns=pivot['columns'],filters=filters,out_html=out_html,
                                                 out_xls=out_xls)
         result = Bag(store=store,parent_dataframe=dfname)
