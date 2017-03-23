@@ -24,7 +24,7 @@ class StatsCommandForms(object):
         dfcommands = Bag()
         for m in [getattr(cls,c) for c in dir(cls) if c.startswith('cmd_')]:
             b = basecommands if getattr(m,'basecmd',None) else dfcommands
-            b.setItem('r_%s' %m.order,None,default_kw=dict(command=m.__name__[4:]),caption=m.name)
+            b.setItem('r_%s' %m.order,None,default_kw=dict(command=m.__name__[4:],dfname='=#ANCHOR.dataframes.selectedDataframe'),caption=m.name)
         basecommands.sort('#k')
         dfcommands.sort('#k')
         return basecommands,dfcommands
@@ -62,7 +62,9 @@ class StatsCommandForms(object):
             }""")
         fb.textbox(value='^.pars.columns',lbl='Columns',hidden='^.pars.view_columns',colspan=2)
         fb.simpleTextArea(value='^.pars.where',lbl='Where',height='100px',hidden='^.pars.view_query',colspan=2)
-
+        fb.dataController("""
+                this.setRelativeData('#ANCHOR.stored_data.dataframes_index.'+dfname,null,{dfname:dfname})
+            """,formsubscribe_onSaved=True,dfname='=.dfname')
         #bc.roundedGroupFrame(title='Extra kwargs',region='center').multiValueEditor(value='^#FORM.record.query_kwargs')
 
     @metadata(order=0,name='!!Edit dataset')
@@ -94,7 +96,8 @@ class StatsCommandForms(object):
     @metadata(order=1,name='!!New Pivot table')
     def cmd_pivotTable(self,sc,**kwargs):
         mainbc = sc.borderContainer(size_h=600,size_w=740,**kwargs)
-        mainbc.dataController("SET #FORM.parentDataframe.store = genro.statspane.parentDataFrame(this);",
+        mainbc.dataController("""SET #FORM.parentDataframe.store = genro.statspane.parentDataFrame(this);
+                                SET #FORM.availableFilterValuesGrid.currentFilterPath = '.dummystore'; """,
                                 formsubscribe_onLoaded=True,_if="command=='pivotTable'",command='=#FORM.record.command')
         fb = mainbc.contentPane(region='top',height='160px').div(margin_right='20px').formbuilder(datapath='.record',cols=3,width='100%',colswidth='auto')
         fb.textbox(value='^.comment',lbl='!!Comment',colspan=2,width='100%')
@@ -102,8 +105,8 @@ class StatsCommandForms(object):
         fb.checkbox(value='^.pars.margins',label='!!Totals')
         fb.checkbox(value='^.pars.out_html',label='!!Out HTML')
         fb.checkbox(value='^.pars.out_xls',label='!!Out XLS')
-        fb.textbox(value='^.pars.title',lbl='!!Report Title',colspan=3,width='100%',hidden='^.pars.out_html?=!#v')
-        fb.simpleTextArea(value='^.pars.description',lbl='!!Report Description',colspan=3,width='100%',height='40px',hidden='^.pars.out_html?=!#v')
+        fb.textbox(value='^.pars.title',lbl='!!Report Title',colspan=3,width='100%')
+        fb.simpleTextArea(value='^.pars.description',lbl='!!Report Description',colspan=3,width='100%',height='40px')
         
         bc = mainbc.borderContainer(design='sidebar',region='center')
 
@@ -207,9 +210,10 @@ class StatsPane(BaseComponent):
 
         tc = pane.tabContainer(margin='2px')
         pane.sharedObject('.stored_data',shared_id=code,autoSave=True,autoLoad=True)
-        tc.pandasCommands(code,table=table,title='!!Commands',connectedWidgetId=connectedWidgetId)
-        tc.dataframesManager(code,table=table,title='!!Datasets')
+        tc.dataframesManager(code,table=table,title='!!Datasets',connectedWidgetId=connectedWidgetId)
         tc.reportSiteParameters(code,table=table,title='!!Publish')
+        tc.pandasCommands(code,table=table,title='!!Commands',connectedWidgetId=connectedWidgetId)
+
         pane.dataController("""
             var steprow = commands.getItem(step);
             if(error){
@@ -221,12 +225,12 @@ class StatsPane(BaseComponent):
             steprow.setItem('error',null);
             var newdf = result.getItem('newdataframe');
             if(result.getItem('dataframe_info')){
-                this.setRelativeData('.dataframes.store.'+result.getItem('dataframe_info'),
+                this.setRelativeData('.dataframes.info.'+result.getItem('dataframe_info'),
                                       new gnr.GnrBag({name:result.getItem('dataframe_info'),comment:comment,
                                                      store:result.getItem('store')}))
             }
             if(newdf){
-                this.setRelativeData('.dataframes.store.'+newdf.getItem('dataframe_info'),
+                this.setRelativeData('.dataframes.info.'+newdf.getItem('dataframe_info'),
                                       new gnr.GnrBag({name:newdf.getItem('dataframe_info'),
                                                         store:newdf.getItem('store'),comment:comment}))
             }if(result.getItem('parent_dataframe')){
@@ -237,6 +241,25 @@ class StatsPane(BaseComponent):
             }
             """,code=code,commands='=.stored_data.commands',
             **{'subscribe_%s_pandas_step' %code:True})
+        pane.dataRpc(None,self.statspane_runCommands,_allcommands='=#ANCHOR.stored_data.commands' ,code=code,
+                        _fired='^.runCommands',httpMethod='WSK',
+                        _onCalling="""
+                            if(!_allcommands || _allcommands.len()===0){
+                                return false;
+                            }
+                            var filteredCommands = new gnr.GnrBag();
+                            var first = _allcommands.getNodeByValue('status','TC');
+                            if(!first){
+                                first = _allcommands.getNodeByValue('status','NO');
+                            }
+                            if(!first){
+                                return false;
+                            }
+                            _allcommands.getNodes().slice(_allcommands.index(first.label)).forEach(function(n){
+                                filteredCommands.setItem(n.label,n._value);
+                            });
+                            kwargs.commands = filteredCommands;
+                        """,_lockScreen=True)
 
     def pdcommand_struct(self,struct):
         r = struct.view().rows()
@@ -250,8 +273,7 @@ class StatsPane(BaseComponent):
 
     def pddataframe_struct(self,struct):
         r = struct.view().rows()
-        r.cell('name',name='!!Name',width='12em')
-        r.cell('comment',name='!!Comment',width='15em')
+        r.cell('dfname',name='!!Name',width='100%')
 
 
     @struct_method
@@ -275,18 +297,52 @@ class StatsPane(BaseComponent):
 
 
     @struct_method
-    def pdstats_dataframesManager(self,parent,code=None,storepath=None,table=None,**kwargs):
+    def pdstats_dataframesManager(self,parent,code=None,storepath=None,table=None,connectedWidgetId=None,**kwargs):
         bc = parent.borderContainer(**kwargs)
-        frame = bc.bagGrid(frameCode='V_dataframes_%s' %code,title='Dataframes',datapath='.dataframes',
-                            storepath=storepath,
+        frame = bc.bagGrid(title='Dataframes',datapath='.dataframes.dataframesIndex',
+                            storepath='#ANCHOR.stored_data.dataframes_index',
                             grid_canSort=False,
                             _class='noheader',
-                            addrow=False,delrow=False,struct=self.pddataframe_struct,
+                            struct=self.pddataframe_struct,
                             grid_selectedId='#ANCHOR.dataframes.selectedDataframe',
-                            grid_identifier='name',
+                            grid_identifier='dfname',
                             grid_multiSelect=False,
+                            grid_autoSelect=True,
+                            addrow=True,
+                            delrow=True,
                             region='top',height='200px')
+        frame.dataController("""
+                grid.selection.select(indexstore.len()-1);
+                """,grid=frame.grid.js_widget,indexstore='^#ANCHOR.stored_data.dataframes_index',
+            _if='indexstore && indexstore.len()',_delay=1)
+        bar = frame.top.bar.replaceSlots('addrow','addNewDataframe')
+        frame.top.bar.replaceSlots('delrow','deleteSelectedDataframeCommands')
+        bar.deleteSelectedDataframeCommands.slotButton('Delete',
+                                                        action="""
+                                                            if(selectedDataframe){
+                                                                dfindex.popNode(selectedDataframe);
+                                                                commands.getNodes().reverse().forEach(function(n){
+                                                                    if(n.getValue().getItem('dfname')==selectedDataframe){
+                                                                        commands.popNode(n.label);
+                                                                    }
+                                                                })
+                                                                SET #ANCHOR.dataframes.selectedDataframe = null;
+                                                                SET #ANCHOR.dfcommands.grid.selectedCommand = null;
+                                
+                                                            }
+                                                            
+                                                        """,
+                                                        selectedDataframe='=#ANCHOR.dataframes.selectedDataframe',
+                                                        commands='=#ANCHOR.stored_data.commands',
+                                                        dfindex='=#ANCHOR.stored_data.dataframes_index',
+                                                        iconClass='iconbox delete_row')
+        bar.addNewDataframe.slotButton('New Dataframe',
+                                        action="genro.formById('F_commands_%s_form').newrecord({command:'dataframeFromDb',pars:new gnr.GnrBag({table:table})});" %code,
+                                        iconClass='iconbox add_row',table=table)
+
         tc = bc.tabContainer(region='center',margin='2px')
+
+        self.stats_dataframeCommands(tc.contentPane(title='Commands'),table=table,code=code,connectedWidgetId=connectedWidgetId)
 
         def infostruct(struct):
             r = struct.view().rows()
@@ -296,15 +352,17 @@ class StatsPane(BaseComponent):
             r.cell('element_count',width='3em',name='Count')
             #r.cell('formula',width='12em',name='Formula',edit=True,editDisabled="=#ROW.newserie?=!#v")
 
-        frame.dataFormula('.currentInfoPath',"'#ANCHOR.dataframes.store.'+dfname+'.store'",dfname='^#ANCHOR.dataframes.selectedDataframe',
-            _if='dfname',_delay=1,_else='return ".dummypath"')
-
+        frame.dataFormula('#ANCHOR.dataframes.currentInfoPath',"'#ANCHOR.dataframes.info.'+dfname+'.store'",
+            dfname='^#ANCHOR.dataframes.selectedDataframe',
+            _if='dfname',_delay=1,_else='".dummypath"')
         tc.contentPane(title='Info').bagGrid(storepath='^#ANCHOR.dataframes.currentInfoPath',
                                             datapath='.dataframes.infogrid',
                                                 addrow=False,delrow=False,title='Info',
                                                 struct=infostruct,pbl_classes=True,                                                
                                                 margin='2px')
-        f = tc.contentPane(title='Commands').bagGrid(storepath='#ANCHOR.stored_data.commands',
+
+    def stats_dataframeCommands(self,pane,table=None,code=None,connectedWidgetId=None):
+        frame = pane.bagGrid(storepath='#ANCHOR.stored_data.commands',
                                             datapath='.dataframes.commandsgrid',
                                                 title='Commands',grid_autoSelect=True,
                                                 grid_excludeCol='code',
@@ -328,87 +386,42 @@ class StatsPane(BaseComponent):
                                                 grid_selectedId='#ANCHOR.dfcommands.grid.selectedCommand',                                          
                                                 margin='2px',grid_identifier='code',
                                                 grid_multiSelect=False)
-        bc.dataController("""
+        frame.dataController("""
             g.filterToRebuild(true);
             g.updateRowCount('*');
             var that = this;
             setTimeout(function(){
-                if(g.collectionStore().len(true)){
-                     g.selection.select(0);
+                var l = g.collectionStore().len(true);
+                if(l){
+                     g.selection.select(l-1);
                 }else{
                     that.setRelativeData('#ANCHOR.dfcommands.grid.selectedCommand',null);
                 }
             },1)
-            """,g=f.grid.js_widget,selectedDataframe='^#ANCHOR.dataframes.selectedDataframe')
-
-
-    @struct_method
-    def pdstats_pandasCommands(self,parent,code=None,table=None,connectedWidgetId=None,**kwargs):
-        storepath = '#ANCHOR.stored_data.commands'
-        pane = parent.contentPane(**kwargs)
-        frame = pane.bagGrid(frameCode='V_commands_%s' %code,title='Stats commands',datapath='.dfcommands',
-                            storepath=storepath,
-                            grid_canSort=False,
-                            _class='noheader',
-                            addrow=False,delrow=True,struct=self.pdcommand_struct,
-                            grid_selectedId='^.selectedCommand',
-                            grid_identifier='code',
-                            grid_multiSelect=False)
-        frame.grid.dataController("""
-            var viewerNode = this.getRelativeData('#ANCHOR.viewer.rows.'+selectedCommand);
-            SET #ANCHOR.selectedStep = viewerNode?selectedCommand:'emptyStep';
-            """,selectedCommand='^.selectedCommand',_if='selectedCommand',_else='SET #ANCHOR.selectedStep = "emptyStep"')
-        frame.grid.dataController("""
-            SET .selectedCommand = selectedStep;
-            """,selectedStep='^#ANCHOR.selectedStep',_if='selectedStep && selectedStep!="emptyStep"')
-        frame.dataController("""if(_reason=='child' && _triggerpars.kw.evt=='del'){
-                var parent_lv = _node.parentshipLevel(commands);
-                if(parent_lv==1){
-                    genro.publish(code+'_stepRemoved',{step:_node.getValue().getItem('code')});
-                }
-            }""", commands='^%s' %storepath,code=code)
+            """,g=frame.grid.js_widget,
+            selectedDataframe='^#ANCHOR.dataframes.selectedDataframe',_fired='^#ANCHOR.dataframes.refreshFiltered')
 
 
         bar = frame.top.bar.replaceSlots('delrow','delrow,addrow,5',
                                     addrow_defaults='.menucommands')
         footer = frame.bottom.slotToolbar('5,*,clear_res,5,run,10')
         footer.clear_res.slotButton('Clear',action="""if(commands){commands.values().forEach(function(v){v.setItem('status','NO')})}""",
-            commands='=%s' %storepath)
-        footer.run.slotButton('Run',action='FIRE .runCommands;')
+            commands='=#ANCHOR.stored_data.commands')
+        footer.run.slotButton('Run',action='FIRE #ANCHOR.runCommands;')
 
-        footer.dataRpc(None,self.statspane_runCommands,_allcommands='=%s' %storepath,code=code,
-                        _fired='^.runCommands',httpMethod='WSK',
-                        _onCalling="""
-                            if(!_allcommands || _allcommands.len()===0){
-                                return false;
-                            }
-                            var filteredCommands = new gnr.GnrBag();
-                            var first = _allcommands.getNodeByValue('status','TC');
-                            if(!first){
-                                first = _allcommands.getNodeByValue('status','NO');
-                            }
-                            if(!first){
-                                return false;
-                            }
-                            _allcommands.getNodes().slice(_allcommands.index(first.label)).forEach(function(n){
-                                filteredCommands.setItem(n.label,n._value);
-                            });
-                            kwargs.commands = filteredCommands;
-                        """,_lockScreen=True)
+
+
+       
         basecommands,dfcommands = StatsCommandForms.commandmenubags()
-        frame.data('.basecommands',basecommands)
+        #frame.data('.basecommands',basecommands)
         frame.data('.dfcommands',dfcommands)
 
-        frame.dataController("""var dataframesPath = this.absDatapath('#ANCHOR.dataframes.store');
-                                var cb = function(){
-                                    return genro.statspane.commandMenu(genro.getData(dataframesPath),basecommands,dfcommands,{table:table});
-                                };
-                                SET .menucommands = new gnr.GnrBagCbResolver({method:cb});
+        frame.dataController("""
+                                SET .menucommands = dfcommands;
                                 """,
-                        _onBuilt=True,basecommands='=.basecommands',dfcommands='=.dfcommands',
+                        _onBuilt=True,dfcommands='=.dfcommands',
                         table=table)
 
-        #[(caption,dict(command=command)) for order,command,caption in StatsCommandForms.commandlist()]
 
         form = frame.grid.linkedForm(frameCode='F_commands_%s' %code,
                                  datapath='.dfcommands.form',loadEvent='onRowDblClick',
@@ -417,12 +430,16 @@ class StatsPane(BaseComponent):
                                  dialog_nodeId='command_dialog_%s' %code,
                                  childname='form',attachTo=pane,store='memory',default_data_type='T',
                                  store_pkeyField='code',dialog_noModal=False,store_newPkeyCb="return 'c_'+new Date().getTime()")
-        form.dataController("""grid.updateCounterColumn();
+        form.dataController("""
             if(doRunCommand){
-                FIRE #ANCHOR.dfcommands.runCommands;
+                FIRE #ANCHOR.runCommands;
             }
             """,formsubscribe_onDismissed=True,
-            grid=frame.grid.js_widget,doRunCommand='=#FORM.controller.temp.doRunCommand')
+           doRunCommand='=#FORM.controller.temp.doRunCommand')
+
+        form.dataController("""FIRE #ANCHOR.dataframes.refreshFiltered;
+                                grid.updateCounterColumn();""",
+                            formsubscribe_onSaved=True, grid=frame.grid.js_widget)
 
         sc = form.center.stackContainer(selectedPage='^.record.command',
                                     selfsubscribe_selected="""
@@ -451,6 +468,38 @@ class StatsPane(BaseComponent):
                                         SET #FORM.controller.temp.doRunCommand = true;
                                         """)
 
+
+
+
+    @struct_method
+    def pdstats_pandasCommands(self,parent,code=None,table=None,connectedWidgetId=None,**kwargs):
+        storepath = '#ANCHOR.stored_data.commands'
+        pane = parent.contentPane(**kwargs)
+        frame = pane.bagGrid(frameCode='V_commands_%s' %code,title='Stats commands',datapath='.dfcommands',
+                            storepath=storepath,
+                            grid_canSort=False,
+                            _class='noheader',
+                            addrow=False,delrow=True,struct=self.pdcommand_struct,
+                            grid_selectedId='^.selectedCommand',
+                            grid_identifier='code',
+                            grid_multiSelect=False)
+        frame.grid.dataController("""
+            var viewerNode = this.getRelativeData('#ANCHOR.viewer.rows.'+selectedCommand);
+            SET #ANCHOR.selectedStep = viewerNode?selectedCommand:'emptyStep';
+            """,selectedCommand='^.selectedCommand',_if='selectedCommand',_else='SET #ANCHOR.selectedStep = "emptyStep"')
+        frame.grid.dataController("""
+            SET .selectedCommand = selectedStep;
+            """,selectedStep='^#ANCHOR.selectedStep',_if='selectedStep && selectedStep!="emptyStep"')
+        frame.dataController("""if(_reason=='child' && _triggerpars.kw.evt=='del'){
+                var parent_lv = _node.parentshipLevel(commands);
+                if(parent_lv==1){
+                    genro.publish(code+'_stepRemoved',{step:_node.getValue().getItem('code')});
+                }
+            }""", commands='^%s' %storepath,code=code)
+
+        #[(caption,dict(command=command)) for order,command,caption in StatsCommandForms.commandlist()]
+
+        
     def getGnrPandas(self,pandasdata,code=None):
         gp = pandasdata.get(code)
         if not gp:
@@ -548,6 +597,8 @@ class StatsPane(BaseComponent):
         if dest_dataframe:
             info = gnrpandas.registerDataFrame(dfname=dest_dataframe,dataframe=pt,comment=comment)
             result['newdataframe'] = Bag(store=info,dataframe_info=dest_dataframe)
+        result['report_title'] = title
+        result['report_description'] = title
         return result
 
     def statspane_run_editDataset(self,gnrpandas=None,dfname=None,edited_dataframe=None,comment=None,**kwargs):
