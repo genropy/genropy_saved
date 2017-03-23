@@ -269,7 +269,8 @@ class FormHandler(BaseComponent):
                         iconClass="iconbox delete_record",parentForm=parentForm,
                         disabled='==_newrecord||_protected',
                         _newrecord='^.controller.is_newrecord',
-                        _protected='^.controller.protect_delete',tip='==_protected?_msg_protect_delete:_msg_delete',
+                        _protected='^.controller.protect_delete',
+                        tip='==_protected?_msg_protect_delete:_msg_delete',
                         _msg_protect_delete='!!This record cannot be deleted',_msg_delete='!!Delete current record',
                         **kwargs)
 
@@ -316,15 +317,23 @@ class FormHandler(BaseComponent):
     def fh_slotbar_form_add(self,pane,parentForm=True,defaults=None,**kwargs):
         menupath = None
         if defaults:
-            menubag = Bag()
-            for i,(caption,default_kw) in enumerate(defaults):
-                menubag.setItem('r_%i' %i,None,caption=caption,default_kw=default_kw)
-            pane.data('.addrow_menu_store',menubag)
+            menubag = None
             menupath = '.addrow_menu_store'
-            pane.slotButton('!!Add',action='this.form.newrecord($1.default_kw);',menupath=menupath,
+            if isinstance(defaults,Bag):
+                menubag = defaults
+            elif isinstance(defaults,basestring):
+                menupath = defaults
+            else:
+                menubag = Bag()
+                for i,(caption,default_kw) in enumerate(defaults):
+                    menubag.setItem('r_%i' %i,None,caption=caption,default_kw=default_kw)
+            if menubag:
+                pane.data('.addrow_menu_store',menubag)
+            menupath = '.addrow_menu_store'
+            pane.slotButton('!!Add',childname='addButton',action='this.form.newrecord($1.default_kw);',menupath=menupath,
                         iconClass="iconbox add_record",parentForm=parentForm,**kwargs)
         else:
-            pane.formButton('!!Add',topic='navigationEvent',command='add',
+            pane.formButton('!!Add',childname='addButton',topic='navigationEvent',command='add',
                         iconClass="iconbox add_record",parentForm=parentForm,**kwargs)
 
 

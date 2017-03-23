@@ -50,7 +50,7 @@ class FrameGridSlots(BaseComponent):
                     menubag.setItem('r_%i' %i,None,caption=caption,default_kw=default_kw)
             if menubag:
                 pane.data('.addrow_menu_store',menubag)
-        return pane.slotButton(label='!!Add',publish='addrow',iconClass=_class,disabled=disabled,
+        return pane.slotButton(label='!!Add',childname='addButton',publish='addrow',iconClass=_class,disabled=disabled,
                                 _delay=delay,menupath=menupath,**kwargs)
          
     @struct_method

@@ -209,7 +209,7 @@ class PublicSlots(BaseComponent):
         default_partition_value = self.rootenv[partition_path]
         fb = box.formbuilder(cols=1,border_spacing='0')
         if hasattr(related_tblobj,'partitionioning_pkeys'):
-            print 'deprecated way for partition: set allowed_%s during login onUserSelected instead of use partitionioning_pkeys' %partition_field
+            #to avoid this query use login onUserSelected instead of use partitionioning_pkeys
             allowedPartitionPkeys =  related_tblobj.partitionioning_pkeys()
             self.pageStore().setItem('rootenv.allowed_%s' %partition_field, allowedPartitionPkeys or [],dbenv=True)
             if not allowedPartitionPkeys and default_partition_value:
@@ -422,9 +422,9 @@ class TableHandlerMain(BaseComponent):
                     storeServerTime='=.store?servertime',_if='storeServerTime')
             #partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
             if th['view.top.bar.addrow']:
-                th.view.top.bar.addrow.getNode('#0').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
+                th.view.top.bar.addrow.getNode('addButton').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
             if th['form.top.bar.form_add']:
-                th.form.top.bar.form_add.getNode('#0').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
+                th.form.top.bar.form_add.getNode('addButton').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
             if th['form']: #and partition_kwargs:
                 th.form.dataController("SET gnr.partition_selector.disabled = pkey?true:false;",pkey='^#FORM.pkey')
         self.root_tablehandler = th

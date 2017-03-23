@@ -558,7 +558,7 @@ class TableBase(object):
         if syscodes:
             f = self.query(where='$__syscode IN :codes',codes=syscodes).fetchAsDict('__syscode')
             for syscode in syscodes:
-                if not syscode in f:
+                if syscode not in f:
                     self.sysRecord(syscode)
                     commit = True
         if commit:
@@ -566,6 +566,7 @@ class TableBase(object):
 
     def sysRecord(self,syscode):
         sysRecord_masterfield = self.attributes.get('sysRecord_masterfield') or self.pkey
+        
         def createCb(key):
             with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
                 record = getattr(self,'sysRecord_%s' %syscode)()

@@ -1604,7 +1604,7 @@ class SqlTable(GnrObject):
         try:
             self.protect_update(record,record)
             return True
-        except EXCEPTIONS['protect_update'], e:
+        except EXCEPTIONS['protect_update']:
             return False
             
     def check_deletable(self, record):
@@ -1614,7 +1614,7 @@ class SqlTable(GnrObject):
         try:
             self.protect_delete(record)
             return True
-        except EXCEPTIONS['protect_delete'], e:
+        except EXCEPTIONS['protect_delete']:
             return False
             
     def columnsFromString(self, columns=None):

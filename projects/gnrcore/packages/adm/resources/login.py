@@ -288,14 +288,18 @@ class LoginComponent(BaseComponent):
         return dlg
         
         
-    def login_newUser(self,pane):
+    def login_newUser(self,pane,closable=False,**kwargs):
         dlg = pane.dialog(_class='lightboxDialog',
                             subscribe_openNewUser='this.widget.show(); genro.formById("newUser_form").newrecord();',
                             subscribe_closeNewUser='this.widget.hide();')
+
         kw = self.loginboxPars()
         kw['width'] = '400px'
         kw['height'] = '250px'
+        kw.update(kwargs)
         form = dlg.frameForm(frameCode='newUser',datapath='new_user',store='memory',**kw)
+        if closable:
+            dlg.div(_class='dlg_closebtn',connect_onclick="genro.publish('closeNewUser')")
         form.dataController("PUT creating_new_user = false;",_fired='^#FORM.controller.loaded')
         topbar = form.top.slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
         topbar.wtitle.div('!!New User')  
