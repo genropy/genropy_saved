@@ -256,7 +256,8 @@ class GnrWebUtils(GnrBaseProxy):
         elif match_index:
             rows_to_insert = []
             tpkey = tblobj.pkey
-            for row in self.quickThermo(reader(),maxidx=reader.nrows,labelfield=tblobj.attributes.get('caption_field') or tblobj.name):
+            for row in self.quickThermo(reader(),maxidx=reader.nrows if hasattr(reader,'nrows') else None,
+                        labelfield=tblobj.attributes.get('caption_field') or tblobj.name):
                 r = {v:row[k] for k,v in match_index.items() if v is not ''}
                 tblobj.recordCoerceTypes(r)
                 if sql_mode:
