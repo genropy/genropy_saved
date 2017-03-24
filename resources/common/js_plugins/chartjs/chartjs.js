@@ -511,6 +511,10 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
                 if(structbag){
                     structbag.getItem('#0.#0').forEach(function(n){
                         var c = objectUpdate({},n.attr);
+                        if(c.name){
+                            c.name = c.name.replace(/<br\/>/g,' ');
+                        }
+                        
                         if((c.dtype || 'T') in types && !(c.field in s)){
                             var f = c.field_getter || c.field;
                             f = f.replace(/\W/g, '_');

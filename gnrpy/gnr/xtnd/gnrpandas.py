@@ -309,7 +309,7 @@ class GnrDataframe(object):
                 rec[pt.index.names[0]] = index_vals
             for c in sel_vals.index:
                 if isinstance(c,tuple):
-                    ckey = '_'.join([str(z) for z in c])
+                    ckey = '_'.join([str(z) for z in c]).replace('-','_').replace('.','_')
                     if not multiagg:
                         rec.setItem(ckey,float(sel_vals[c]),dtype='R',format='###,###.00',name='<br/>'.join(ckey.split('_')))
                     else:

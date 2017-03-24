@@ -185,7 +185,7 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.UserObjectLayout, {
                 var f = this._('borderContainer',kw.step,{datapath:'.rows.'+kw.step,
                                     pageName:kw.step,_class:'pbl_roundedGroup',margin:'5px'});
                 f._('ContentPane',{region:'top',height:'20px',_class:'pbl_roundedGroupLabel'})._('div',{template:'$counter)$command $comment',datasource:'^#ANCHOR.stored_data.commands.'+kw.step});
-                f._('ContentPane','center',{region:'center'})._('quickGrid','grid',{value:'^.store',infoInCellAttributes:true});
+                var qg =f._('ContentPane','center',{region:'center'})._('quickGrid','grid',{value:'^.store',infoInCellAttributes:true});
             }
             this.setRelativeData('.rows.'+kw.step+'.store',data.deepCopy());
             this.setRelativeData('#ANCHOR.selectedStep',kw.step);

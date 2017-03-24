@@ -349,7 +349,7 @@ class StatsPane(BaseComponent):
             r.cell('fieldname',width='10em',name='Column')
             r.cell('name',width='12em',name='Name')
             r.cell('datatype',width='7em',name='DataType')
-            r.cell('element_count',width='3em',name='Count')
+            r.cell('element_count',width='5em',name='Count',dtype='L')
             #r.cell('formula',width='12em',name='Formula',edit=True,editDisabled="=#ROW.newserie?=!#v")
 
         frame.dataFormula('#ANCHOR.dataframes.currentInfoPath',"'#ANCHOR.dataframes.info.'+dfname+'.store'",
