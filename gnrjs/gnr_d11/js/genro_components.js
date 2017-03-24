@@ -180,6 +180,8 @@ dojo.declare("gnr.widgets.MenuDiv", gnr.widgets.gnrwdg, {
         var label = objectPop(kw,'label');
         var disabled = objectPop(kw,'disabled');
         var parentForm = objectPop(kw,'parentForm');
+        buttonkw.hidden = objectPop(kw,'hidden');
+
         var tip = objectPop(kw,'tip');
         iconClass = iconClass? 'iconbox ' +iconClass :null;
         var box_kw = objectUpdate({_class:'menuButtonDiv buttonDiv',disabled:disabled,tip:tip},buttonkw);
