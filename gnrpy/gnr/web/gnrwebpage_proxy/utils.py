@@ -68,7 +68,6 @@ class GnrWebUtils(GnrBaseProxy):
                     thermo = """<div class="quickthermo_box"> <div class="form_waiting"></div> <div class="quickthermo_caption">%(idx)s - %(lbl)s</div> </div>"""  %themropars
                 self.page.setInClientData(path,thermo,idx=idx,maxidx=maxidx,lbl=lbl)
             yield v
-        print 'thermo setInClientData finale',maxidx
         self.page.setInClientData(path,thermo,idx=maxidx,maxidx=maxidx,lbl=lbl)
 
     def rootFolder(self, *args, **kwargs):
