@@ -134,8 +134,9 @@ class GnrPandas(object):
         self.save()
 
     def dataframeFromDb(self,dfname=None,db=None,tablename=None,
-                        columns=None,where=None,colInfo=None,comment=None,**kwargs):
-        gnrdf =  GnrDbDataframe(dfname,parent=self,db=db,language=self.language,comment=comment)
+                        columns=None,where=None,colInfo=None,comment=None,thermocb=None,**kwargs):
+        gnrdf =  GnrDbDataframe(dfname,parent=self,db=db,language=self.language,
+                                comment=comment,thermocb=thermocb)
         self.dataframes[dfname] = gnrdf
         gnrdf.query(tablename=tablename,columns=columns,where=where,**kwargs)
         if colInfo:
@@ -187,13 +188,14 @@ class GnrDataframe(object):
     def pickle_attr(self):
         return self.base_pickle_attr+self.custom_pickle_attr
 
-    def __init__(self,dfname,parent=None,language=None,comment=None,dataframe=None,**kwargs):
+    def __init__(self,dfname,parent=None,language=None,comment=None,dataframe=None,thermocb=None,**kwargs):
         self.dfname = dfname
         self.parent = parent
         self.steps = []
         self.colInfo = {}
         self.language = language
         self.comment = comment
+        self.thermocb = thermocb
         if dataframe is not None:
             self.dataframe = dataframe
 
@@ -262,7 +264,7 @@ class GnrDataframe(object):
             cname = '_'.join(c) if isinstance(c,tuple) else c
             attr = colInfo.get(cname,{})
             row['fieldname'] = cname
-            row['datatype'] = df[c].dtype.name
+            row['datatype'] = attr.get('dtype') or df[c].dtype.name
             #row['dataType'] = attr.get('dtype')
             row['name'] = attr.get('name')
             row['element_count'] = len(df[c].unique())
@@ -375,29 +377,40 @@ class GnrDbDataframe(GnrDataframe):
     @timer_call()
     def query(self,tablename=None,columns=None,where=None,**kwargs):
         tblobj = self.db.table(tablename)
-        selection = tblobj.query(where=where,columns=columns or self.defaultColumns(tblobj),
+        self.gnrquery = tblobj.query(where=where,columns=columns or self.defaultColumns(tblobj),
                                                 addPkeyColumn=False,
-                                                **kwargs).selection()
-        self.dbColAttrs = selection.colAttrs
-        self.dbcolumns = selection.columns
- 
-        for k,v in self.dbColAttrs.items():
-            self.colInfo[k] = dict(name=self.translate(v.get('label')),
-                                  name_short=self.translate(v.get('name_short')),
-                                  width=v.get('print_width'),format=v.get('format'),
-                                  dtype= v.get('dataType'))
-        self.dataframe = pd.DataFrame(self.convertData(selection.data))
+                                                **kwargs)
+        cursor = self.gnrquery.cursor()                            
+        #selection = tblobj.query(where=where,columns=columns or self.defaultColumns(tblobj),
+        #                                        addPkeyColumn=False,
+        #                                        **kwargs).selection()
+        
+        self.dataframe = pd.DataFrame(self.convertData(cursor))
         return self.dataframe
 
     def setColInfo(self,colInfo):
         for k,v in colInfo.items():
             self.colInfo[k].update(v)
 
-    def convertData(self,data):
-        decimalCols = [k for k,v in self.dbColAttrs.items() if v['dataType'] in ('N','R')]
-        dateCols = [k for k,v in self.dbColAttrs.items() if v['dataType'] == 'D']
-        for r in data:
+    def convertData(self,cursor):
+        thermocursor = cursor
+        if self.thermocb:
+            thermocursor = self.thermocb(cursor,maxidx=cursor.rowcount,labelfield='record')
+        decimalCols = []
+        dateCols = []
+        for r in thermocursor:
             c = dict(r)
+            if not hasattr(self,'dbColAttrs'):
+                self.dbColAttrs = self.gnrquery._prepColAttrs(cursor.index)
+                for k,v in self.dbColAttrs.items():
+                    self.colInfo[k] = dict(name=self.translate(v.get('label')),
+                                        name_short=self.translate(v.get('name_short')),
+                                        width=v.get('print_width'),format=v.get('format'),
+                                        dtype= v.get('dataType'))
+
+                decimalCols = [k for k,v in self.dbColAttrs.items() if v['dataType'] in ('N','R')]
+                dateCols = [k for k,v in self.dbColAttrs.items() if v['dataType'] == 'D']
+
             for col in decimalCols:
                 v = c[col]
                 if v is not None:

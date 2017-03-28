@@ -44,13 +44,15 @@ class GnrWebUtils(GnrBaseProxy):
             topath = '%s?%s' % (topath, urllib.urlencode({'fromPage': fromPage}))
         return topath
 
-    def quickThermo(self,iterator,path=None,maxidx=None,labelfield=None,labelcb=None,thermo_width=None):
-        idx = 0
+    def quickThermo(self,iterator,path=None,maxidx=None,labelfield=None,
+                    labelcb=None,thermo_width=None,interval=None):
         path = path or 'gnr.lockScreen.thermo'
         if isinstance(iterator,list):
             maxidx = len(iterator)
-        for v in iterator:
-            idx+=1
+        interval = 1
+        if maxidx:
+            interval = maxidx/100
+        for idx,v in enumerate(iterator):
             if labelfield:
                 if labelfield in v:
                     lbl = v[labelfield]
@@ -58,14 +60,16 @@ class GnrWebUtils(GnrBaseProxy):
                     lbl = '%s %s' %(labelfield,idx)
             elif labelcb:
                 lbl = labelcb(v)
-
-            themropars = dict(maxidx=maxidx,idx=idx,lbl=lbl or 'item %s' %idx,thermo_width=thermo_width or '12em')
-            if maxidx:
-                thermo = r"""<div class="quickthermo_box"> <progress style="width:%(thermo_width)s" max="%(maxidx)s" value="%(idx)s"></progress> <div class="quickthermo_caption">%(idx)s/%(maxidx)s - %(lbl)s</div></div>""" %themropars
-            else:
-                thermo = """<div class="quickthermo_box"> <div class="form_waiting"></div> <div class="quickthermo_caption">%(idx)s - %(lbl)s</div> </div>"""  %themropars
-            self.page.setInClientData(path,thermo,idx=idx,maxidx=maxidx,lbl=lbl)
+            if idx % interval == 0:
+                themropars = dict(maxidx=maxidx,idx=idx,lbl=lbl or 'item %s' %idx,thermo_width=thermo_width or '12em')
+                if maxidx:
+                    thermo = r"""<div class="quickthermo_box"> <progress style="width:%(thermo_width)s" max="%(maxidx)s" value="%(idx)s"></progress> <div class="quickthermo_caption">%(idx)s/%(maxidx)s - %(lbl)s</div></div>""" %themropars
+                else:
+                    thermo = """<div class="quickthermo_box"> <div class="form_waiting"></div> <div class="quickthermo_caption">%(idx)s - %(lbl)s</div> </div>"""  %themropars
+                self.page.setInClientData(path,thermo,idx=idx,maxidx=maxidx,lbl=lbl)
             yield v
+        print 'thermo setInClientData finale',maxidx
+        self.page.setInClientData(path,thermo,idx=maxidx,maxidx=maxidx,lbl=lbl)
 
     def rootFolder(self, *args, **kwargs):
         """The mod_python root"""

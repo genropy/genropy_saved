@@ -259,7 +259,7 @@ class StatsPane(BaseComponent):
                                 filteredCommands.setItem(n.label,n._value);
                             });
                             kwargs.commands = filteredCommands;
-                        """,_lockScreen=True)
+                        """,_lockScreen=dict(thermo=True))
 
     def pdcommand_struct(self,struct):
         r = struct.view().rows()
@@ -566,8 +566,9 @@ class StatsPane(BaseComponent):
         if view_columns:
             columns = viewSelectionPars['columns']
         gnrpandas.dataframeFromDb(dfname=dfname,db=self.db,tablename=table,where=where,condition=condition,
-                                columns=columns,comment=comment,**selectionKwargs)
-        return Bag(store=gnrpandas[dfname].getInfo(),dataframe_info=dfname)
+                                columns=columns,comment=comment,thermocb=self.utils.quickThermo, **selectionKwargs)
+        info = gnrpandas[dfname].getInfo()
+        return Bag(store=info,dataframe_info=dfname)
 
     @websocket_method
     def pdstats_updateReportSiteInfo(self,code=None,publish_info=None,table=None,**kwargs):
