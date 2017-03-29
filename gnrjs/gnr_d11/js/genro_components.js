@@ -4277,11 +4277,13 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
     gnrwdg_loadObject:function(userObjectId,firstLoad){
         this.onLoadingObject(userObjectId,firstLoad);
         if(userObjectId=='__newobj__'){
+            this.sourceNode.setRelativeData('#WORKSPACE.metadata',null);
             this.onLoadedObject(null,userObjectId,firstLoad);
         }else{
             var that = this;
             genro.serverCall('_table.adm.userobject.loadUserObject', {pkey:userObjectId}, 
             function(result){
+                that.sourceNode.setRelativeData('#WORKSPACE.metadata',new gnr.GnrBag(result.attr));
                 that.onLoadedObject(result,userObjectId,firstLoad);
             });
         }

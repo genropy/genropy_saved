@@ -140,13 +140,13 @@ class StatsCommandForms(object):
                             });
  
                         """)
-        parsbc_top.contentPane(region='left',width='50%').bagGrid(title='Index',frameCode='pt_index',storepath='#FORM.record.pars.pivot.index',
+        parsbc_top.contentPane(region='left',width='50%').bagGrid(title='Index',frameCode='pt_index_#',storepath='#FORM.record.pars.pivot.index',
                                                           datapath='#FORM.indexgrid',**commonKw)
-        parsbc_top.contentPane(region='center').bagGrid(title='Columns',frameCode='pt_columns',storepath='#FORM.record.pars.pivot.columns',
+        parsbc_top.contentPane(region='center').bagGrid(title='Columns',frameCode='pt_columns_#',storepath='#FORM.record.pars.pivot.columns',
                                                           datapath='#FORM.columnsgrid',**commonKw)
         commonKw['struct'] = self.pt_valuesStruct
         commonKw['pbl_classes'] = True
-        parsbc.contentPane(region='center').bagGrid(title='Values',frameCode='pt_values',storepath='#FORM.record.pars.pivot.values',
+        parsbc.contentPane(region='center').bagGrid(title='Values',frameCode='pt_values_#',storepath='#FORM.record.pars.pivot.values',
                                                           datapath='#FORM.valuesgrid',**commonKw)
 
         filterspane = tc.contentPane(title='Dataset filters',pageName='dfFilters')
@@ -210,6 +210,11 @@ class StatsPane(BaseComponent):
 
         tc = pane.tabContainer(margin='2px')
         pane.sharedObject('.stored_data',shared_id=code,autoSave=True,autoLoad=True)
+        pane.dataController("""if(_node.label=='commands' || _node.label=='stored_data'){
+            FIRE .clearCommandStatus;
+        }""",stored_data='^.stored_data')
+        pane.dataController("""if(commands){commands.values().forEach(function(v){v.setItem('status','NO')})}""",
+            commands='=#ANCHOR.stored_data.commands',_fired='^.clearCommandStatus',_delay=1)
         tc.dataframesManager(code,table=table,title='!!Datasets',connectedWidgetId=connectedWidgetId)
         tc.reportSiteParameters(code,table=table,title='!!Publish')
         tc.pandasCommands(code,table=table,title='!!Commands',connectedWidgetId=connectedWidgetId)
@@ -405,8 +410,7 @@ class StatsPane(BaseComponent):
         bar = frame.top.bar.replaceSlots('delrow','delrow,addrow,5',
                                     addrow_defaults='.menucommands')
         footer = frame.bottom.slotToolbar('5,*,clear_res,5,run,10')
-        footer.clear_res.slotButton('Clear',action="""if(commands){commands.values().forEach(function(v){v.setItem('status','NO')})}""",
-            commands='=#ANCHOR.stored_data.commands')
+        footer.clear_res.slotButton('Clear',action="""FIRE #ANCHOR.clearCommandStatus;""")
         footer.run.slotButton('Run',action='FIRE #ANCHOR.runCommands;')
 
 

@@ -72,7 +72,7 @@ class TableHandlerView(BaseComponent):
             if extendedQuery == '*':
                 base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','importer','resourcePrints','resourceMails','resourceActions','5',templateManager,'chartjs','*']
                 if self.isMobile:
-                    base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','chartjs','5','menuUserSets','*']
+                    base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','menuUserSets','*']
 
             elif extendedQuery is True:
                 base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','chartjs','*','count','5']

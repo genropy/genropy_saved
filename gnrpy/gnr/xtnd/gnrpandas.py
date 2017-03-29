@@ -308,7 +308,7 @@ class GnrDataframe(object):
                 for i,col in enumerate(pt.index.names):
                     rec[col] = str(index_vals[i])
             else:
-                rec[pt.index.names[0]] = index_vals
+                rec[pt.index.names[0]] = str(index_vals)
             for c in sel_vals.index:
                 if isinstance(c,tuple):
                     ckey = '_'.join([str(z) for z in c]).replace('-','_').replace('.','_')
@@ -318,7 +318,12 @@ class GnrDataframe(object):
                         available_aggr = values[c[1]]['aggregators'] or 'mean'
                         available_aggr = [adict[aggname].__name__ for aggname in available_aggr.split(',')]
                         if c[0] in available_aggr:
-                            rec.setItem(ckey,float(sel_vals[c]),dtype='R',format='###,###.00',name='<br/>'.join(ckey.split('_')))
+                            dtype = 'R'
+                            format = '###,###.00'
+                            if c[0]=='len':
+                                format = '###,###'
+                                dtype = 'L'
+                            rec.setItem(ckey,float(sel_vals[c]),dtype=dtype,format=format,name='<br/>'.join(ckey.split('_')))
                 else:
                     rec.setItem(c,float(sel_vals[c]),dtype='R',format='###,###.00',name='<br/>'.join(c.split('_')))
             store.setItem('r_%s' %k,rec)

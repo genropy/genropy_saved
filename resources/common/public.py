@@ -379,15 +379,23 @@ class TableHandlerMain(BaseComponent):
         else:
             root.attributes.update(_class=None,datapath=tablecode)
         extras = []
-        if hasattr(self,'stats_main') or hasattr(self,'hv_main'):
+        if hasattr(self,'stats_main') or hasattr(self,'hv_main') or th_options.get('statspane'):
             tc = root.stackContainer(selectedPage='^.view.selectedPage')
             root = tc.contentPane(title='!!Main View',pageName='th_main')
-            if hasattr(self,'stats_main'):
+            if hasattr(self,'stats_main') and not th_options.get('statspane'):
                 extras.append('statisticalHandler')
                 self.stats_main(tc,title='!!Statistical View')
             if hasattr(self,'hv_main'):
                 extras.append('hierarchicalHandler')
                 self.hv_main(tc)
+            if th_options.get('statspane'):
+                extras.append('statspane')
+                statsframe = tc.framePane(pageName='statspane')
+                bar = statsframe.top.slotToolbar('2,backbutton,*')
+                bar.backbutton.slotButton('!!Main view',action='SET .view.selectedPage="th_main";',iconClass='iconbox dismiss')
+                statsframe.center.contentPane(nodeId='pbl_statspane_container')
+
+
         self.th_mainUserSettings(kwargs=kwargs)
         thwidget = kwargs.pop('widget','stack')
         if thwidget=='inline':
@@ -503,6 +511,17 @@ class TableHandlerMain(BaseComponent):
             self._th_parentFrameMessageSubscription(th.form)
         return th
 
+
+    @struct_method
+    def th_slotbar_statspane(self,pane,**kwargs):
+        pane.slotButton('!!Stats',iconClass='iconbox sum',action = """
+                    var root = genro.nodeById('pbl_statspane_container');
+                    if(!root.getValue().getItem('statsPane')){
+                        genro.nodeById('%(frameCode)s_grid').publish('pluginCommand',{plugin:'statspane',command:'openGridStats',statsRoot:root})
+                    }
+                    SET .selectedPage="statspane";
+        """ %kwargs)
+        
 
     @public_method
     def th_getUnifierWarningBag(self,table=None,sourcePkey=None,destPkey=None):

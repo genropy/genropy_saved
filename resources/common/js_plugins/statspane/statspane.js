@@ -29,7 +29,14 @@ genro.statspane =  {
         kw.connectedTo = objectPop(kw,'grid').sourceNode;
         kw.userObjectId = objectPop(kw,'pkey');
         kw.statsCode = 'stats_palette_'+kw.connectedTo.attr.nodeId;
-        return this.openPaletteStats(kw);
+        var statsRoot = objectPop(kw,'statsRoot');
+        if(!statsRoot){
+            return this.openPaletteStats(kw);
+        }
+        if(kw.configurator!==false){
+            kw.configurator = true;
+        }
+        statsRoot._('StatsPane','statsPane',kw);
     },
 
     queryParsFromGrid:function(connectedWidgetId){
@@ -134,6 +141,9 @@ dojo.declare("gnr.widgets.StatsPane", gnr.widgets.UserObjectLayout, {
         }
         if(!attributes.table && connectedWidgetId){
             attributes.table = genro.nodeById(connectedWidgetId).attr.table;
+        }
+        if(genro.nodeById(code)){
+            code = code+'_'+genro.getCounter();
         }
         attributes.nodeId = code;
         sourceNode.attr.nodeId = code;
