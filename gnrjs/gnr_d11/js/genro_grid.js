@@ -837,6 +837,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         menu.setItem('#id',null,{caption:_T('Configure view'),action:"$2.widget.configureStructure();"});
     },
 
+    cm_plugin_export_xls:function(sourceNode,menu){
+        menu.setItem('#id',null,{caption:_T('Export XLS'),action:"$2.widget.serverAction({command:'export',allRows:true,opt:{export_mode:'xls',downloadAs:$2.attr.nodeId+'_export'}});"});
+    },
+
     cm_plugin_chartjs:function(sourceNode,menu){
         menu.setItem('#id',
             genro.dev.userObjectMenuData({'objtype':'chartjs',
@@ -856,7 +860,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     },
 
     pluginContextMenuBag:function(sourceNode){
-        var gridplugins = sourceNode.attr.gridplugins || 'configurator,chartjs';
+        var gridplugins = sourceNode.attr.gridplugins || 'configurator,chartjs,export_xls';
         var contextMenuBag = sourceNode.getRelativeData('.contextMenu') || new gnr.GnrBag();
         gridplugins = gridplugins?gridplugins.split(','):[];
         var that = this;
@@ -4031,7 +4035,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             kwargs['data'] = this.currentData(allRows?'all':null , options['rawData']===true);
         }
         kwargs['table'] =this.sourceNode.attr.table;
-        kwargs['datamode'] = this.datamode;
+        kwargs['datamode'] = 'attr';
         kwargs['struct'] =  this.getExportStruct();
         kwargs['_sourceNode'] = sourceNode;
         var cb = function(result){

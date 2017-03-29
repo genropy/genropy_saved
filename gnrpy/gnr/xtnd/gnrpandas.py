@@ -316,7 +316,8 @@ class GnrDataframe(object):
                         rec.setItem(ckey,float(sel_vals[c]),dtype='R',format='###,###.00',name='<br/>'.join(ckey.split('_')))
                     else:
                         available_aggr = values[c[1]]['aggregators'] or 'mean'
-                        if c[0] in available_aggr.split(','):
+                        available_aggr = [adict[aggname].__name__ for aggname in available_aggr.split(',')]
+                        if c[0] in available_aggr:
                             rec.setItem(ckey,float(sel_vals[c]),dtype='R',format='###,###.00',name='<br/>'.join(ckey.split('_')))
                 else:
                     rec.setItem(c,float(sel_vals[c]),dtype='R',format='###,###.00',name='<br/>'.join(c.split('_')))
@@ -335,6 +336,8 @@ class GnrDataframe(object):
                 mapper =  dict([(str(p),p)for p in self.dataframe[col]])
                 mylocals['filter_%s'%col] = [mapper[v] for v in values.split(',')]
                 querylist.append('%s in @filter_%s' %(col,col))
+        if not querylist:
+            return self.dataframe
         result = self.dataframe.query(' & '.join(querylist))
         return result
 
