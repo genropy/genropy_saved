@@ -264,8 +264,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             return;
         }
         var topic = 'form_'+this.formId+'_'+command;
-        var scope = scope || this;
-        var cb = cb || this[command];
+        scope = scope || this;
+        cb = cb || this[command];
         subscriberNode = subscriberNode || this.sourceNode;
         subscriberNode.registerSubscription(topic,scope,cb);
     },
@@ -624,7 +624,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 onAnswer(command);
             }
         }else{
-            var that = this;
             if(command=='save'){
                 this.setCurrentPkey(kw.destPkey);
                 this.save();
