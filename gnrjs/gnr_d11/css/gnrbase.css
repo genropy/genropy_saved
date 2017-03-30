@@ -2410,6 +2410,7 @@ div.dojoxDock {
     border-radius: 4px;
     padding: 5px;
     border:1px solid #ccc;
+    box-shadow: 2px 2px 3px #666;
 }
 .quickthermo_caption{
     font-variant: normal;
