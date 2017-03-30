@@ -18,14 +18,12 @@ class THPicker(BaseComponent):
                          viewResource=None,searchOn=True,multiSelect=True,structure_field=None,
                          title=None,autoInsert=None,dockButton=None,picker_kwargs=None,
                          height=None,width=None,checkbox=False,defaults=None,**kwargs):
-        
         dockButton = dockButton or dict(parentForm=True,iconClass='iconbox app')
         picker_kwargs = picker_kwargs or dict()
         checkbox = checkbox or picker_kwargs.get('checkbox',False)
         one = picker_kwargs.get('one',False)
         picker_kwargs.setdefault('uniqueRow',True)
         condition=picker_kwargs.pop('condition',None)
-        condition_kwargs = dictExtract(picker_kwargs,'condition_',pop=True,slice_prefix=True)
         many = relation_field or picker_kwargs.get('relation_field',None)
         table = table or picker_kwargs.get('table',None)
         height = height or picker_kwargs.get('height','600px')
@@ -51,10 +49,21 @@ class THPicker(BaseComponent):
         paletteCode = paletteCode or picker_kwargs.get('paletteCode') or '%s_picker' %table.replace('.','_')
         title = title or tblobj.name_long
         treepicker = tblobj.attributes.get('hierarchical') and not viewResource
+        condition_kwargs = dictExtract(picker_kwargs,'condition_',pop=True,slice_prefix=not treepicker)
         if treepicker:
-            palette = pane.paletteTree(paletteCode=paletteCode,dockButton=dockButton,title=title,
-                            tree_dragTags=paletteCode,searchOn=searchOn,width=width,height=height,
-                            draggableFolders=picker_kwargs.pop('draggableFolders',None)).htableViewStore(table=table,
+            palette = pane.palettePane(paletteCode=paletteCode,dockButton=dockButton,title=title,
+                            width=width,height=height)
+            frame = palette.framePane(frameCode=paletteCode)
+            frame.top.slotToolbar('*,searchOn,5')
+            frame.center.contentPane(overflow='auto').div(margin='10px').hTableTree(table=table,draggableFolders=picker_kwargs.pop('draggableFolders',None),
+                            dragTags=paletteCode,
+                            onDrag="""function(dragValues, dragInfo, treeItem) {
+                                                if (treeItem.attr.child_count && treeItem.attr.child_count > 0 && !draggableFolders) {
+                                                    return false;
+                                                }
+                                                dragValues['text/plain'] = treeItem.attr.caption;
+                                                dragValues['%s'] = treeItem.attr;
+                                            }""" %paletteCode,
                             condition=condition,checkbox=checkbox,**condition_kwargs)
         else:
             palette = pane.paletteGridPicker(grid=grid,table=table,relation_field=many,

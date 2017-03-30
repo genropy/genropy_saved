@@ -120,14 +120,14 @@ class TableHandler(BaseComponent):
                     picker_base_condition = '$%(_fkey_name)s IS NULL' %condition_kwargs 
                 else:
                     picker_base_condition = '$%(_fkey_name)s IS NULL OR $%(_fkey_name)s!=:fkey' %condition_kwargs 
-                picker_custom_condition = view_kwargs.get('picker_condition')
+                picker_custom_condition = picker_kwargs.get('condition')
                 picker_kwargs['condition'] = picker_base_condition if not picker_custom_condition else '(%s) AND (%s)' %(picker_base_condition,picker_custom_condition)
+                for k,v in condition_kwargs.items():
+                    picker_kwargs['condition_%s' %k] = v
                 if delrow:
                     tblname = tblattr.get('name_plural') or tblattr.get('name_one') or tblobj.name
                     unlinkdict = dict(one_name=tblname.lower(),
                                     field=condition_kwargs['_fkey_name'])
-                for k,v in condition_kwargs.items():
-                    picker_kwargs['condition_%s' %k] = v
             picker_kwargs['relation_field'] = picker
 
         if addrowmenu:

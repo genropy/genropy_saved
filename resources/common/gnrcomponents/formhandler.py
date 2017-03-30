@@ -295,12 +295,17 @@ class FormHandler(BaseComponent):
     @struct_method          
     def fh_slotbar_form_selectrecord(self,pane,table=None,pars=None,**kwargs):
         table = table or pane.getInheritedAttributes()['table']
-        pane.lightbutton(_class='iconbox magnifier',action='SET #FORM.controller.temp.selectorVisible=true;',
-                        hidden='^#FORM.controller.temp.selectorVisible')
-        box = pane.div(margin_top='2px',hidden='^#FORM.controller.temp.selectorVisible?=!#v')
-        dbselect_pars = dict(width='12em',_class='th_linker',rounded=8)
         pars = pars or dict()
+        alwaysVisible = pars.pop('alwaysVisible',False)
+        if not alwaysVisible:
+            pane.lightbutton(_class='iconbox magnifier',action='SET #FORM.controller.temp.selectorVisible=true;',
+                        hidden='^#FORM.controller.temp.selectorVisible')
+        box = pane.div(margin_top='2px',hidden=False if alwaysVisible else '^#FORM.controller.temp.selectorVisible?=!#v')
+        dbselect_pars = dict(width='12em',_class='th_linker',rounded=8,padding_left='8px')
         dbselect_pars.update(pars)
+        if alwaysVisible:
+            box = box.formbuilder(border_spacing=0)
+            dbselect_pars['lbl'] = '!!Search' if alwaysVisible is True else alwaysVisible
         box.dbselect(value="^#FORM.controller.temp.selector_pkey",dbtable=table,
                     parentForm=False,
                     #condition=':pkeys IS NULL OR ($pkey IN :pkeys)',
