@@ -85,7 +85,7 @@ class GnrCustomWebPage(object):
         fb.dbSelect(dbtable='adm.user',value='^.user_id',lbl='/me action',
                     selected_username='.username',width='25em',
                     switch_me='/me',
-                    switch_me_action="alert('ciao');",
+                    switch_me_action="console.log('pippo')",
                     hasDownArrow=True)
 
 

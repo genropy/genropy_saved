@@ -687,7 +687,11 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                             foundmatch = m;
                         }
                         if(switchcb){
-                            setTimeout(switchcb,1);
+                            setTimeout(function(){
+                                if(sn.widget._focused){
+                                    switchcb();
+                                }
+                            },1);
                             findCallback([], request);
                             return;
                         }

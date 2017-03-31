@@ -444,23 +444,32 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var dlg = genro.dlg.quickDialog(title,dlg_kw);
         var mandatory = objectPop(kw,'mandatory');
         var bar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',action:function(){
-                                                    dlg.close_action();
+                                                    var error_message;
                                                     if(this.attr.command=='confirm'){
                                                         var v = genro.getData(promptvalue_path);
                                                         if(mandatory && isNullOrBlank(v)){
                                                             return;
                                                         }
-                                                        funcApply(confirmCb,{value:genro.getData(promptvalue_path)},(sourceNode||this));
-                                                        genro.setData(promptvalue_path,null,null,false);
+                                                        error_message = funcApply(confirmCb,{value:genro.getData(promptvalue_path)},(sourceNode||this));
+                                                        if(!error_message){
+                                                            genro.setData(promptvalue_path,null,null,false);
+                                                        }
                                                     }else if(this.attr.command == 'cancel' && cancelCb){
-                                                        funcApply(cancelCb,{},(sourceNode||this));
+                                                        error_message = funcApply(cancelCb,{},(sourceNode||this));
                                                     }
-                                                    genro.dlg.prompt_counter--;
-                                                    if(!genro.dlg.prompt_counter){
-                                                        setTimeout(function(){
-                                                            genro._data.popNode('gnr.promptDlg');
-                                                        },genro.dlg._quickDialogDestroyTimeout+1);
+                                                    if(error_message){
+                                                        genro.dlg.floatingMessage(dlg.center.getParentNode(),{message:error_message,messageType:'error'})
                                                     }
+                                                    else{
+                                                        dlg.close_action();
+                                                        genro.dlg.prompt_counter--;
+                                                        if(!genro.dlg.prompt_counter){
+                                                            setTimeout(function(){
+                                                                genro._data.popNode('gnr.promptDlg');
+                                                            },genro.dlg._quickDialogDestroyTimeout+1);
+                                                        }
+                                                    }
+                                                   
                                                 }});
         bar._('button','cancel',{'label':'Cancel',command:'cancel'});
         var confirmbtnKW = {'label':'Confirm',command:'confirm'};
