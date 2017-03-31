@@ -1784,6 +1784,10 @@ class GnrWebPage(GnrBaseWebPage):
             self.main_root(page, **kwargs)
             return (page, pageattr)
         page.data('gnr.windowTitle', self.windowTitle())
+        page.dataController("""genro.src.updatePageSource('_pageRoot')""",
+                        subscribe_gnrIde_rebuildPage=True,_delay=100)
+
+
         page.dataController("PUBLISH setWindowTitle=windowTitle;",windowTitle="^gnr.windowTitle",_onStart=True)
         page.dataRemote('server.pageStore',self.getPageStoreData,cacheTime=1)
         page.dataRemote('server.userStore',self.getUserStoreData,cacheTime=1)

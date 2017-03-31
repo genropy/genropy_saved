@@ -176,7 +176,8 @@ class GnrCustomWebPage(object):
                 self.log('applyModelChanges')
                 destdb.model.applyModelChanges()
             if action =='import_legacy':
-                app.importFromLegacyDb(thermo_wrapper=self.utils.quickThermo,thermo_wrapper_kwargs=dict(labelcb=lambda table: table))
+                app.importFromLegacyDb(thermo_wrapper=self.utils.quickThermo,
+                                        thermo_wrapper_kwargs=dict(labelcb=lambda table: table))
 
 
 

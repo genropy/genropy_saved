@@ -87,8 +87,29 @@ class GnrCustomWebPage(object):
 
     @public_method
     def buildEditorTab(self,pane,module=None,ide_page=None,**kwargs):
-        frameCode = '%s_%s' %(ide_page,module.replace('/','_').replace('.','_'))
+        plist = module.split(os.sep)
+        frameCode = '%s_%s' %(ide_page,'_'.join(plist).replace('.','_'))
+        wchunk = False
+        preview_url = False
+        slots = '*,savebtn,revertbtn,5'
+        cmroot = None
+        preview_iframe = None
         frame = pane.framePane(frameCode=frameCode ,region='center',_class='viewer_box selectable')
+        if 'webpages' in plist:
+            wchunk = 'webpages'
+        if 'mobile' in plist:
+            wchunk = 'mobile'
+        if wchunk:
+            windex = plist.index(wchunk)
+            pkg = plist[windex-1]
+            if pkg not in ('sys','adm'):
+                preview_url = '/%s' %os.path.join(pkg,*plist[windex+1:])
+                slots = '5,stackButtons,*,savebtn,revertbtn,5'
+                sc = frame.center.stackContainer()
+                cmroot = sc.contentPane(title='Edit')
+                preview_iframe = sc.contentPane(title='Preview',overflow='hidden').iframe(src=preview_url,height='100%',width='100%',border=0)
+        else:
+            cmroot = frame.center.contentPane(overflow='hidden')
         source = self.__readsource(module)
         breakpoints = self.pdb.getBreakpoints(module)
         pane.data('.module',module)
@@ -96,7 +117,8 @@ class GnrCustomWebPage(object):
         bar.fpath.div('^.module',font_size='9px')
         frame.data('.source',source)
         frame.data('.breakpoints',breakpoints)
-        commandbar = frame.top.slotBar(',*,savebtn,revertbtn,5',childname='commandbar',toolbar=True,background='#efefef')
+
+        commandbar = frame.top.slotBar(slots,childname='commandbar',toolbar=True,background='#efefef')
         commandbar.savebtn.slotButton('Save',iconClass='iconbox save',
                                 _class='source_viewer_button',
                                 visible='^.changed_editor',
@@ -118,29 +140,19 @@ class GnrCustomWebPage(object):
         frame.dataRpc('dummy',self.save_source_code,docPath='=.module',
                         subscribe_sourceCodeUpdate=True,
                         sourceCode='=.source',_if='sourceCode && _source_changed',
-                        _source_changed='=.changed_editor',
+                        _source_changed='=.changed_editor',_preview_iframe=preview_iframe,
                         _onResult="""if(result=='OK'){
-                                            SET .source_oldvalue = kwargs.sourceCode;
-                                        
-                                           // genro.publish('rebuildPage');
-                                        //}else if(result.newpath){
-                                        //    if(genro.mainGenroWindow){
-                                        //        var treeMenuPath = genro.parentIframeSourceNode?genro.parentIframeSourceNode.attr.treeMenuPath:null;
-                                        //        if(treeMenuPath){
-                                        //            treeMenuPath = treeMenuPath.split('.');
-                                        //            var l = result.newpath.split('/');
-                                        //            treeMenuPath.pop();
-                                        //            treeMenuPath.push(l[l.length-1].replace('.py',''));
-                                        //            fullpath = treeMenuPath.join('.');
-                                        //        }
-                                        //        genro.dom.windowMessage(genro.mainGenroWindow,{topic:'refreshApplicationMenu',selectPath:fullpath});
-                                        //    }
-                                        }
-                                        else{
-                                            FIRE .error = result;
-                                        }""")
+                                    SET .source_oldvalue = kwargs.sourceCode;
+                                    if(kwargs._preview_iframe && kwargs._preview_iframe.domNode){
+                                        genro.dom.windowMessage(kwargs._preview_iframe.domNode.contentWindow,
+                                                                {topic:'gnrIde_rebuildPage'});
+                                    }
+                                    else{
+                                        FIRE .error = result;
+                                    }
+                                }""")
 
-        cm = frame.center.contentPane(overflow='hidden').codemirror(value='^.source',
+        cm = cmroot.codemirror(value='^.source',
                                 nodeId='%s_cm' %frameCode,
                                 config_mode='python',config_lineNumbers=True,
                                 config_indentUnit=4,config_keyMap='softTab',

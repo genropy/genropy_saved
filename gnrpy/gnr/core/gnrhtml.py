@@ -10,6 +10,7 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrstructures import GnrStructData
 from gnr.core.gnrsys import expandpath
+from gnr.core.gnrprinthandler import PrintHandler
 
 import sys
 
@@ -437,12 +438,13 @@ class GnrHtmlBuilder(object):
                                     addBagTypeAttr=False, typeattrs=False, self_closed_tags=['meta', 'br', 'img'],
                                     docHeader='<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"> \n')
         return self.html
-            
-    def toPdf(self, filename):
-        """TODO
-        
-        :param filename: TODO"""
-        from subprocess import call
+
+    def toPdf(self,filename,orientation=None,**kwargs):
+        html = self.root.toXml(omitRoot=True,
+                                    autocreate=True,
+                                    forcedTagAttr='tag',
+                                    addBagTypeAttr=False, typeattrs=False, self_closed_tags=['meta', 'br', 'img'],
+                                    docHeader='<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"> \n')
         if self.page_height<self.page_width:
             self.orientation='Landscape'
             page_height = self.page_width
@@ -451,9 +453,9 @@ class GnrHtmlBuilder(object):
             self.orientation='Portrait'
             page_height = self.page_height
             page_width = self.page_width
+        pc = PrintHandler()
+        return pc.htmlToPdf(html,filename, orientation=self.orientation,pdf_kwargs=kwargs)
 
-        res = call(['wkhtmltopdf', '-q', '-O', self.orientation, '--page-height',page_height,'--page-width',page_width, '%s.%s'%(filename, 'html'), filename])
-            
     def calculate_style(self, attr, um, **kwargs):
         """TODO
         
@@ -747,4 +749,5 @@ if __name__ == '__main__':
     builder.initializeSrc()
     builder.styleForLayout()
     test1(builder.body)
-    builder.toHtml('../../../../_testhtml/test1.html')
+    #builder.toHtml('../../../../_testhtml/test1.html')
+    builder.toPdf('piero.pdf')
