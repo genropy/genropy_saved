@@ -1311,6 +1311,7 @@ class GnrApp(object):
         tables = self.db.tablesMasterIndex()['_index_'].digest('#a.tbl')
         if thermo_wrapper:
             thermo_wrapper_kwargs = thermo_wrapper_kwargs or dict()
+            thermo_wrapper_kwargs['maxidx'] = len(tables)
             tables = thermo_wrapper(tables,**thermo_wrapper_kwargs)
         for table in tables:
             pkg,tablename = table.split('.')
