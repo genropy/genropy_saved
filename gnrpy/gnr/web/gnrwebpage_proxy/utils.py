@@ -50,7 +50,7 @@ class GnrWebUtils(GnrBaseProxy):
         if isinstance(iterator,list):
             maxidx = len(iterator)
         interval = 1
-        if maxidx:
+        if maxidx and maxidx >1000:
             interval = maxidx/100
         for idx,v in enumerate(iterator):
             if labelfield:
