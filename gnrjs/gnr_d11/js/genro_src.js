@@ -55,16 +55,10 @@ dojo.declare("gnr.GnrSrcHandler", null, {
 
     updatePageSource:function(nodeId){
         nodeId = nodeId || '_pageRoot';
-        var tempcontent = this.newRoot();
-        tempcontent._('div',{_class:'waiting'});
-        var node = genro.nodeById(nodeId);
-        node.setValue(tempcontent);
-        var newpage = this.getMainSource();
-        genro.callAfter(function(){
-            var newcontent = newpage._value.getNodeByAttr('nodeId',nodeId)._value;
-            node.setValue(newcontent);
-        },20,this,'reloadingPageSource');
-       
+        this.getMainSource(function(newpage){
+            var newcontent = newpage._value.getNodeByAttr('nodeId',nodeId);
+            genro.nodeById(nodeId).replaceContent(newcontent.getValue());
+        });
     },
 
     highlightNode:function(sourceNode) {
