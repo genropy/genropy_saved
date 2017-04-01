@@ -91,7 +91,6 @@ class GnrCustomWebPage(object):
         frameCode = '%s_%s' %(ide_page,'_'.join(plist).replace('.','_'))
         wchunk = False
         preview_url = False
-        slots = '*,savebtn,revertbtn,5'
         cmroot = None
         preview_iframe = None
         frame = pane.framePane(frameCode=frameCode ,region='center',_class='viewer_box selectable')
@@ -104,11 +103,31 @@ class GnrCustomWebPage(object):
             pkg = plist[windex-1]
             if pkg not in ('sys','adm'):
                 preview_url = '/%s' %os.path.join(pkg,*plist[windex+1:])
-                slots = '5,stackButtons,*,savebtn,revertbtn,5'
-                sc = frame.center.stackContainer()
-                cmroot = sc.contentPane(title='Edit')
-                preview_iframe = sc.contentPane(title='Preview',overflow='hidden').iframe(src=preview_url,height='100%',width='100%',border=0)
+                bc = frame.center.borderContainer()
+                cmroot = bc.contentPane(region='center')
+                rightpane = bc.contentPane(region='right',overflow='hidden',splitter=True,border_left='1px solid silver',background='white'
+                )
+                frame.data('.preview_url',preview_url)
+                preview_iframe = rightpane.iframe(src='^.preview_url',height='100%',width='100%',border=0)
+                commandbar = frame.top.slotBar('5,previewButtons,10,previewReload,*,savebtn,revertbtn,5',childname='commandbar',toolbar=True,background='#efefef')
+                commandbar.previewButtons.multiButton(value='^.sourceViewMode',values='srconly:Source,mixed:Mixed,preview:Preview')
+                commandbar.previewReload.slotButton('Reload preview',action='SET .preview_url = preview_url+"?_nocache="+(new Date().getTime())',
+                hidden='^.sourceViewMode?=#v=="srconly"',preview_url=preview_url)
+                bc.dataController("""var width = 0;
+                            status = status || 'srconly';
+                             if(status=='mixed'){
+                                width = '50%';
+                             }else if(status=='preview'){
+                                width = '100%'
+                             }
+                             right.style.width = width;
+                             bc.setRegionVisible('right',width!=0);
+                             """,
+                         bc=bc.js_widget,
+                         status='^.sourceViewMode',
+                         right=rightpane.js_domNode,_onBuilt=True)
         else:
+            commandbar = frame.top.slotBar('*,savebtn,revertbtn,5',childname='commandbar',toolbar=True,background='#efefef')
             cmroot = frame.center.contentPane(overflow='hidden')
         source = self.__readsource(module)
         breakpoints = self.pdb.getBreakpoints(module)
@@ -118,7 +137,6 @@ class GnrCustomWebPage(object):
         frame.data('.source',source)
         frame.data('.breakpoints',breakpoints)
 
-        commandbar = frame.top.slotBar(slots,childname='commandbar',toolbar=True,background='#efefef')
         commandbar.savebtn.slotButton('Save',iconClass='iconbox save',
                                 _class='source_viewer_button',
                                 visible='^.changed_editor',
@@ -167,7 +185,6 @@ class GnrCustomWebPage(object):
             cm.clearGutter('pdb_breakpoints');
             if(breakpoints){
                 breakpoints.forEach(function(n){
-                    console.log(n.attr)
                     var line_cm = n.attr.line -1;
                     cm.setGutterMarker(line_cm, "pdb_breakpoints",cm.gnrMakeMarker(n.attr.condition));
                 });
