@@ -37,7 +37,7 @@ class THPicker(BaseComponent):
             viewResource = 'ViewPicker'
         searchOn = searchOn or picker_kwargs.get('searchOn')
         maintable = None
-        if grid:
+        if grid is not None:
             maintable = grid.getInheritedAttributes()['table']
             if not table:
                 tblobj = self.db.table(maintable).column(many).relatedTable().dbtable
@@ -75,7 +75,7 @@ class THPicker(BaseComponent):
                                             uniqueRow=picker_kwargs.get('uniqueRow',True),
                                             top_height=picker_kwargs.get('top_height'),structure_kwargs = dictExtract(picker_kwargs,'structure_'))
 
-        if grid:
+        if grid is not None:
             grid.attributes.update(dropTargetCb_picker='return this.form?!this.form.isDisabled():true')
             grid.dragAndDrop(paletteCode)
             if autoInsert:
