@@ -199,8 +199,7 @@ class PublicSlots(BaseComponent):
     @struct_method
     def public_publicRoot_partition_selector(self,pane, **kwargs): 
         box = pane.div(margin_top='2px') 
-        if self.public_partitioned is True:
-            self.public_partitioned = self.tblobj.partitionParameters
+        self.public_partitioned = self.tblobj.partitionParameters if self.public_partitioned is True else self.public_partitioned
         kw = self.public_partitioned
         partition_field = kw['field']
         partition_path = kw['path']
@@ -425,7 +424,7 @@ class TableHandlerMain(BaseComponent):
             }
             """,subscribe_frameindex_external=True,
                             formNode=getattr(th,'form',False),viewNode=th.view)
-        if getattr(self,'public_partitioned',None):
+        if getattr(self,'public_partitioned',None) and not self.public_partitioned.get('children'):
             th.view.dataController("""FIRE .runQueryDo;""",subscribe_public_changed_partition=True,
                     storeServerTime='=.store?servertime',_if='storeServerTime')
             #partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
