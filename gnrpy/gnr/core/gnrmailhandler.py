@@ -309,7 +309,7 @@ class MailHandler(GnrBaseService):
         self.sendmail(to_address, subject=subject, body=body, cc_address=cc_address, reply_to=reply_to, bcc_address=bcc_address,
                       attachments=attachments, account=account,
                       from_address=from_address, smtp_host=smtp_host, port=port, user=user, password=password,
-                      ssl=ssl, tls=tls, html=html, charset=charset, async=async)
+                      ssl=ssl, tls=tls, html=html, charset=charset, async=async, **kwargs)
                       
     def sendmail(self, to_address=None, subject=None, body=None, cc_address=None, reply_to=None, bcc_address=None, attachments=None,
                  account=None,timeout=None,

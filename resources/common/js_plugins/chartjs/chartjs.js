@@ -563,7 +563,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_captionGetter:function(kw){
-        var g = this._fgetter({'T':true,'A':true,'C':true});
+        var g = this._fgetter({'T':true,'A':true,'C':true,'L':true,'I':true});
         var data = [];
         if(this.defaultCaptionField && !g.length){
             data.push({_pkey:this.defaultCaptionField,caption:this.defaultCaptionField});
