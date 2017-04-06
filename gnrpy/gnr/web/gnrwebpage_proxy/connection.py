@@ -26,7 +26,7 @@ DEVICE_AGENT_SNIFF = (('iPad','mobile:tablet'),('iPhone','mobile:phone'),('Andro
 class GnrWebConnection(GnrBaseProxy):
     def init(self, connection_id=None, user=None, **kwargs):
         page = self.page
-        self.user_agent = page.user_agent
+        self.user_agent = page.user_agent or ''
         self.browser_name = self.sniffUserAgent()
         self.user_device = self.sniffUserDevice()
         self.ip = self.page.user_ip or '0.0.0.0'
