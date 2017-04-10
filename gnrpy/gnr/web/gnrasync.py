@@ -307,7 +307,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
             pass
              #print 'already in channels',self.page_id
         if page_id not in self.pages:
-            print 'do_connected: missing page %s trying to register it again' % page_id
+            print 'do_connected: missing page %s register it again' % page_id
             self.server.registerPage(page_id=page_id)
         else:
             pass

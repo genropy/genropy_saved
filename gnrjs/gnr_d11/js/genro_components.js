@@ -4205,8 +4205,8 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_resetMenuData:function(){
-        var m = this.sourceNode.getRelativeData('#WORKSPACE.loadMenu');
-        m.getParentNode().getResolver().reset();
+        var n = this.sourceNode.getRelativeData('#WORKSPACE').getNode('loadMenu');
+        n.getResolver().reset();
     },
 
     gnrwdg_setLoadMenuData:function(){
@@ -4235,7 +4235,7 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
         confkw = confkw===true?{region:'right',drawer:(kw.userObjectId && kw.userObjectId!='__newobj__')?'close':true,splitter:true,border_left:'1px solid #ccc',width:'320px'}:configurator;        
         this.setLoadMenuData();
         var frame = bc._('FramePane','configurator',objectUpdate(confkw,{frameCode:this.sourceNode.attr.nodeId+'_conf'}));
-        var bar = frame._('slotBar',{toolbar:true,side:'top',slots:'5,loadMenu,2,objTitle,*,saveBtn,5'});
+        var bar = frame._('slotBar',{toolbar:true,side:'top',slots:'5,loadMenu,2,objTitle,*,saveBtn,deletebtn,5'});
         var that = this;
         bar._('div','objTitle',{innerHTML:'^#WORKSPACE.metadata.description?=(#v || "New")',font_weight:'bold',font_size:'.9em',color:'#666'});
         bar._('slotButton','loadMenu',{iconClass:'iconbox folder',label:'Load',
@@ -4246,6 +4246,11 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
                                         action:function(){
                                             that.saveObject();
                                         }});
+        bar._('slotButton','deletebtn',{'label':_T('Delete'),iconClass:'iconbox trash',
+                    action:function(){
+                        that.deleteCurrentObject();
+                    }});
+
         this.configuratorFrame(frame,kw);
     },
 
@@ -4253,6 +4258,20 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
     gnrwdg_userObjectData:function(){
         //override
         return new gnr.GnrBag();
+    },
+
+    gnrwdg_deleteCurrentObject:function() {
+        var metadata = this.sourceNode.getRelativeData('#WORKSPACE.metadata');
+        var pkey = metadata.getItem('pkey');
+        var that = this;
+        if(pkey){
+            genro.serverCall('_table.adm.userobject.deleteUserObject',{pkey:pkey},function(){
+                that.loadObject('__newobj__');
+                that.resetMenuData();
+            });
+        }else{
+             that.loadObject('__newobj__');
+        }
     },
 
     gnrwdg_saveObject:function() {
@@ -4268,6 +4287,7 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
                             'data':data,table:that.userObjectPars.table},
                             function(result) {
                                 dlg.close_action();
+                                metadata.setItem('pkey',result.getValue());
                                 that.resetMenuData();
                             });
         };
