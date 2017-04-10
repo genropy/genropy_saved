@@ -52,6 +52,7 @@ class GnrWebUtils(GnrBaseProxy):
         interval = 1
         if maxidx and maxidx >1000:
             interval = maxidx/100
+        thermo = """<div class="quickthermo_box"> <div class="form_waiting"></div> </div>""" 
         for idx,v in enumerate(iterator):
             if labelfield:
                 if labelfield in v:
