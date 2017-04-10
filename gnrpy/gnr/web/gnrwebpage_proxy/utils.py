@@ -47,12 +47,14 @@ class GnrWebUtils(GnrBaseProxy):
     def quickThermo(self,iterator,path=None,maxidx=None,labelfield=None,
                     labelcb=None,thermo_width=None,interval=None):
         path = path or 'gnr.lockScreen.thermo'
+        lbl = ''
         if isinstance(iterator,list):
             maxidx = len(iterator)
         interval = 1
         if maxidx and maxidx >1000:
             interval = maxidx/100
         thermo = """<div class="quickthermo_box"> <div class="form_waiting"></div> </div>""" 
+
         for idx,v in enumerate(iterator):
             if labelfield:
                 if labelfield in v:
