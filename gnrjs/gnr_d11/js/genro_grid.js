@@ -4025,17 +4025,19 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         var allRows = objectPop(kw,'allRows');
         var method = objectPop(options,"method") || "app.includedViewAction";
         var kwargs = objectUpdate({},options);
+        var useRawData = options['rawData']===true;
         kwargs['action'] = objectPop(kw,'command');
         var sourceNode = this.sourceNode;
         genro.lockScreen(true,sourceNode.getStringId());
+
         if (this.collectionStore().storeType=='VirtualSelection'){
             kwargs['selectionName'] = this.collectionStore().selectionName;
             kwargs['selectedRowidx'] = allRows?[]:this.getSelectedRowidx();
         }else{
-            kwargs['data'] = this.currentData(allRows?'all':null , options['rawData']===true);
+            kwargs['data'] = this.currentData(allRows?'all':null , useRawData);
         }
         kwargs['table'] =this.sourceNode.attr.table;
-        kwargs['datamode'] = 'attr';
+        kwargs['datamode'] = useRawData?this.datamode:'attr';
         kwargs['struct'] =  this.getExportStruct();
         kwargs['_sourceNode'] = sourceNode;
         var cb = function(result){
