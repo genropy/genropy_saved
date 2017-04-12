@@ -603,7 +603,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             attributes.autoHeight=true;
         }
         attributes.style=objectAsStyle(styleDict);
-        attributesToKeep = attributesToKeep + 'style,datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled,filteringGrid,editorSaveMethod,autoInsert,autoDelete';
+        attributesToKeep = attributesToKeep + 'style,datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled,editorSaveMethod,autoInsert,autoDelete';
         var gridAttributes = objectExtract(attributes, attributesToKeep);
         objectPopAll(attributes);
         objectUpdate(attributes, gridAttributes);
@@ -754,7 +754,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 widget[arguments[0]](arguments.slice(1));
             });
         }
-        if (widget.filteringGrid){
+        if (widget.sourceNode.attr.filteringGrid){
             var filteringColumn = sourceNode.attr.filteringColumn.replace(/\./g, '_').replace(/@/g, '_');            
             var filteredColumn = filteringColumn;
             if(filteringColumn.indexOf(':')>=0){
@@ -763,12 +763,14 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 filteringColumn = filteringColumn[0];
             }
             var connectFilteringGrid=function(){
-                var filteringGrid = widget.filteringGrid.widget || widget.filteringGrid;
+                var filteringGrid = widget.sourceNode.currentFromDatasource(widget.sourceNode.attr.filteringGrid);
+                filteringGrid = filteringGrid.widget;
                 dojo.connect(filteringGrid,'updateRowCount',function(){
                     widget.filterToRebuild(true);
                     widget.updateRowCount('*');
                 });
                 widget.excludeListCb=function(){
+                    widget.sourceNode.currentFromDatasource(widget.sourceNode.attr.filteringGrid);
                     return filteringGrid.getColumnValues(filteredColumn);
                 };
                 widget.excludeCol=filteringColumn;
