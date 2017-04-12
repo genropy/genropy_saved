@@ -247,10 +247,10 @@ class TableBase(object):
             pkey = tbl.attributes.get('pkey')
             if not pkey:
                 tbl.attributes['pkey'] = 'id'
-            if group and group_name:
-                tbl.attributes['group_%s' % group] = group_name
-            else:
-                group = '_'
+        if group and group_name:
+            tbl.attributes['group_%s' % group] = group_name
+        else:
+            group = '_'
         tsType = 'DHZ' if self.db.application.config['db?use_timezone'] else 'DH'
         if ins:
             tbl.column('__ins_ts', dtype=tsType, name_long='!!Insert date', onInserting='setTSNow', group=group,_sysfield=True,indexed=True)
