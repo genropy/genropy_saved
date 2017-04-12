@@ -91,8 +91,16 @@ class GnrCustomWebPage(object):
         pane.data('.databag',self.getTestData())
         pane.dataFormula('.data','databag',databag='=.databag',_onStart=True)
         bc = pane.borderContainer(height='600px',width='800px',_anchor=True)
-        frame = bc.bagGrid(storepath='#ANCHOR.data',region='center',struct=self.bmiStruct)
+        frame = bc.bagGrid(storepath='#ANCHOR.data',region='center',
+                        struct=self.bmiStruct,export=True)
         frame.top.bar.replaceSlots('delrow','chartjs,delrow,duprow')
+
+    def test_22_bagDataValue(self, pane):
+        pane.data('.databag',self.getTestData2())
+        pane.dataFormula('.data','databag',databag='=.databag',_onStart=True)
+        bc = pane.borderContainer(height='600px',width='800px',_anchor=True)
+        grid = bc.contentPane(region='center').quickGrid(value='^.data',datamode='attr')
+        grid.tools('addrow,delrow,export')
 
     def bmiStruct(self,struct):
         r = struct.view().rows()
@@ -110,6 +118,16 @@ class GnrCustomWebPage(object):
                                     chart_backgroundColor='green')))
         result.setItem('r_2',Bag(dict(nome='Rossella Albini',eta=22,peso=60,altezza=170,
                                     chart_backgroundColor='navy')))
+        return result
+
+    def getTestData2(self):
+        result = Bag()
+        result.setItem('r_0',None,nome='Mario Rossi',eta=30,peso=80,altezza=190,
+                                     chart_backgroundColor='red')
+        result.setItem('r_1',None,nome='Luigi Bianchi',eta=38,peso=90,altezza=180,
+                                    chart_backgroundColor='green')
+        result.setItem('r_2',None,nome='Rossella Albini',eta=22,peso=60,altezza=170,
+                                    chart_backgroundColor='navy')
         return result
 
 

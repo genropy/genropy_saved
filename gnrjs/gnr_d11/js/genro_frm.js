@@ -2573,13 +2573,12 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
             if(v instanceof gnr.GnrBag){
                 oldsubbag = sourceBag.getItem(path);
                 if(oldsubbag){
-                    data.pop(path);
+                    sourceBag.pop(path);
                 }
-                data.setItem(path,v);
+                sourceBag.setItem(path,v);
                 return '__continue__';
             }
-
-            data.setItem(path,n.getValue(),{dtype:n.attr.dtype},{lazySet:true});
+            sourceBag.setItem(path,n.getValue(),{dtype:n.attr.dtype},{lazySet:true});
         });
         var result = {};//{savedPkey:loadedRecordNode.label,loadedRecordNode:loadedRecordNode};
         this.saved(result);
