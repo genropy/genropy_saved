@@ -19,13 +19,15 @@ class Main(BaseResourceAction):
     
     def do(self):
         values = self.batch_parameters.get('values')
+        do_triggers = self.batch_parameters.get('do_triggers')
+
         updater = dict()
         for k,v,forced_null in values.digest('#k,#v,#a.forced_null'):
             if forced_null:
                 updater[k] = None
             elif v is not None:
                 updater[k] = v
-        self.batchUpdate(updater,_raw_update=True,message='setting_values')
+        self.batchUpdate(updater,_raw_update=not do_triggers,message='setting_values')
         self.db.commit()
 
     def table_script_parameters_pane(self, pane, table=None,**kwargs):
@@ -42,5 +44,6 @@ class Main(BaseResourceAction):
                 fb.field(k,validate_notnull=False,html_label=True,zoom=False,lbl_fieldname=k,
                             validate_onAccept='SET .%s?forced_null=false;' %k,
                             lbl_color='^.%s?forced_null?=#v?"red":null' %k)
+        box.div(border_top='1px solid silver',padding='3px',text_align='right').checkbox(value='^.do_triggers',label='Do triggers',_tags='_DEV_')
 
 

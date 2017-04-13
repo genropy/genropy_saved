@@ -49,11 +49,14 @@ class AttachManagerView(AttachManagerViewBase):
         r.fieldcell('description',edit=True,width='20em')
         #r.fieldcell('mimetype')
         r.fieldcell('fileurl',hidden=True)
+        if hasattr(r.tblobj,'atc_types'):
+            r.fieldcell('atc_type',edit=True,name='Type')
         r.cell('imp',calculated=True,name='!!Imp.',format_isbutton=True,format_buttonclass='iconbox document',
                 format_onclick="""
                     genro.serverCall('_table.'+this.attr.table+'.atc_importAttachment',{pkey:this.widget.rowIdByIndex($1.rowIndex)},
                                      function(){console.log("ocr done")});
                 """,width='22px')
+
 
 
 class AttachGalleryView(AttachManagerViewBase):

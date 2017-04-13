@@ -17,3 +17,4 @@ class Table(object):
         
         tbl.column('text_template',name_long='!!Text template')
         tbl.column('full_template',dtype='X',group='_',name_long='!!Full template')
+        

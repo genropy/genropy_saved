@@ -39,9 +39,18 @@ dojo.declare("gnr.FramedIndexManager", null, {
         this.lookup_url = this.dbstore?(default_uri+this.dbstore+'/'+lookup_url):(default_uri+lookup_url);
         genro.externalWindowsObjects = {};
         var that = this;
-        genro.checkBeforeUnload = function(){
-            return genro.getData('gnr.windowTitle');
-        }
+        genro.childrenHasPendingChanges_replaced = genro.childrenHasPendingChanges;
+        genro.childrenHasPendingChanges = function(){
+            if(!genro.childrenHasPendingChanges_replaced()){
+                for(var k in genro.externalWindowsObjects){
+                    if(genro.externalWindowsObjects[k].genro.hasPendingChanges()){
+                        return true
+                    }
+                }
+            }else{
+                return true;
+            }
+        };
         genro.onWindowUnload_replaced = genro.onWindowUnload;
         genro.onWindowUnload = function(){
             that.closeAllExternalWindows();
@@ -131,8 +140,8 @@ dojo.declare("gnr.FramedIndexManager", null, {
 
 
     framePageTop:function(fp,kw){
-        var bar = fp._('SlotBar',{slots:'multipageButtons,*',gradient_from:'#666',side:'top',toolbar:true,
-                                        gradient_to:'#444',_class:'iframeroot_bar',
+        var bar = fp._('SlotBar',{slots:'multipageButtons,*',side:'top',toolbar:true,
+                                        _class:'iframeroot_bar',
                                         closable:'close',closable_background:'white',
                                         closable_display:!kw.multipage?'none':null});
         var stackNodeId = kw.rootPageName+'_multipage';
@@ -193,9 +202,8 @@ dojo.declare("gnr.FramedIndexManager", null, {
              genro.publish({extWin:'DOCUMENTATION',topic:'onSelectedFrame'});
         })
     },
-
     newBrowserWindowPage:function(kw){
-        this.makePageUrl(kw)
+        this.makePageUrl(kw);
         if(kw.rootPageName in genro.externalWindowsObjects){
             genro.externalWindowsObjects[kw.rootPageName].focus();
             return;
@@ -209,7 +217,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         w.resizeTo(externalWindowKw.width,externalWindowKw.height);
         var that = this;
         var url = kw.url;
-        var windowKey = kw.rootPageName
+        var windowKey = kw.rootPageName;
         this.subscribeExternalWindow(w,windowKey);
         var b = this.externalWindowsBag();
         b.setItem(windowKey, null,{caption:kw.label,url:url,windowKey:windowKey});
@@ -386,16 +394,18 @@ dojo.declare("gnr.FramedIndexManager", null, {
                 treeItem.setAttribute('labelClass',itemclass);
             }
         }
-        var tablist = genro.nodeById('frameindex_tab_button_root');
-        var curlen = tablist.getValue().len()-1;
-        curlen = this.externalWindowsBag().len()>0?curlen-1:curlen;
-        selected = selected>=curlen? curlen-1:selected;
-        var nextPageName = 'indexpage';
-        if(selected>=0){
-            nextPageName = tablist.getValue().getNode('#'+selected)? tablist.getValue().getNode('#'+selected).attr.pageName:'indexpage';
+        if(this.stackSourceNode.getRelativeData('selectedFrame')==pageName){
+            var curlen = iframesbag.len();
+            curlen = this.externalWindowsBag().len()>0?curlen-1:curlen;
+            selected = selected>=curlen? curlen-1:selected;
+            var nextPageName = 'indexpage';
+            if(selected>=0){
+                nextPageName = iframesbag.getNode('#'+selected)? iframesbag.getNode('#'+selected).attr.pageName:'indexpage';
+            }
+            console.log('nextPageName',nextPageName)
+            this.stackSourceNode.setRelativeData('selectedFrame',nextPageName); //PUT
         }
-        console.log('nextPageName',nextPageName)
-        this.stackSourceNode.setRelativeData('selectedFrame',nextPageName); //PUT
+  
         this.stackSourceNode.fireEvent('refreshTablist',true);
 
     },

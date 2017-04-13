@@ -26,7 +26,7 @@ DEVICE_AGENT_SNIFF = (('iPad','mobile:tablet'),('iPhone','mobile:phone'),('Andro
 class GnrWebConnection(GnrBaseProxy):
     def init(self, connection_id=None, user=None, **kwargs):
         page = self.page
-        self.user_agent = page.user_agent
+        self.user_agent = page.user_agent or ''
         self.browser_name = self.sniffUserAgent()
         self.user_device = self.sniffUserDevice()
         self.ip = self.page.user_ip or '0.0.0.0'
@@ -161,7 +161,8 @@ class GnrWebConnection(GnrBaseProxy):
         self.write_cookie()
 
     def rpc_logout(self):
-        self.page.site.register.drop_user(user=self.user)
+        self.page.site.register.drop_connection(self.connection_id,cascade=True)
+        self.page.site.connectionLog('close',connection_id=self.connection_id)
 
     @public_method
     def connected_users_bag(self, exclude=None, exclude_guest=True, max_age=600):

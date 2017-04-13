@@ -219,11 +219,12 @@ class DynamicForm(BaseComponent):
         else:
             th = self.df_fieldsBagGrid(center,mastertable=mastertable,**kwargs)
         bar = th.view.top.bar.replaceSlots('*,delrow','fbfields,showpreview,*,delrow')
+        bar.replaceSlots('addrow','addrow,duprow')
         bar.showpreview.checkbox(value='^#FORM.dynamicFormTester.showpreview',label='Preview')
         bc.dataController("bc.setRegionVisible('bottom',prev)",bc=bc.js_widget,prev='^#FORM.dynamicFormTester.showpreview')
         fb = bar.fbfields.formbuilder(cols=2, border_spacing='2px')
         fb.numberTextBox(value='^#FORM.record.df_fbcolumns',lbl='!!N. Col',width='3em',default_value=1)
-        fb.textbox(value='^#FORM.record.df_colswith',lbl='!!Colswith',width='10em')
+        fb.textbox(value='^#FORM.record.df_colswidth',lbl='!!Colswidth',width='10em')
         return th
 
     def df_fieldsBagGrid(self,pane,mastertable=None,**kwargs):
@@ -233,8 +234,9 @@ class DynamicForm(BaseComponent):
         view = bh.bagGrid(frameCode='V_%s' %rootcode,storepath='#FORM.record.df_fields',
                     childname='view',struct=self.df_fieldsBagStruct,
                                 grid_selfDragRows=True,
-                               datapath='.view',_class='frameGrid',
-                                grid_connect_moveRow='FIRE .changedBagFields;',                               
+                                datapath='.view',_class='frameGrid',
+                                grid_connect_moveRow='FIRE .changedBagFields;', 
+                                grid_canSort=False,                              
                                **kwargs)
         view.grid.dataController("this.form.save();",_fired='^.changedBagFields',_delay=1500)
         form = view.grid.linkedForm(frameCode='F_%s' %rootcode,
@@ -359,17 +361,17 @@ class DynamicForm(BaseComponent):
                 if fields:
                     grp.dynamicFormGroup(fields=fields,ncol=ncol,global_vars=global_vars if gr_attr.get('global_namespace') else None,**kwargs)
         else:
-            ncol,colswith = df_tblobj.readColumns(columns='$df_fbcolumns,$df_colswith',pkey=df_pkey)
+            ncol,colswidth = df_tblobj.readColumns(columns='$df_fbcolumns,$df_colswidth',pkey=df_pkey)
             fields = global_fields[df_pkey]
-            pane.dynamicFormPage(fields=fields,ncol=ncol,colswith=colswith or None,datapath=datapath,**kwargs)
+            pane.dynamicFormPage(fields=fields,ncol=ncol,colswidth=colswidth or None,datapath=datapath,**kwargs)
     @struct_method
-    def df_dynamicFormPage(self,pane,fields=None,ncol=None,colswith=None,datapath=None,**kwargs):
+    def df_dynamicFormPage(self,pane,fields=None,ncol=None,colswidth=None,datapath=None,**kwargs):
         fdict = dict()
         for r in fields:
             page = r.pop('page',None) or 'Main'
             fdict.setdefault(page,[]).append(r)
         if len(fdict)<2:
-            pane.div(margin_right='10px',datapath=datapath,padding='10px').dynamicFormGroup(fields=fields,ncol=ncol,colswith=colswith or None,**kwargs)
+            pane.div(margin_right='10px',datapath=datapath,padding='10px').dynamicFormGroup(fields=fields,ncol=ncol,colswidth=colswidth or None,**kwargs)
             return
         pages = fdict.keys()
         tc = pane.tabContainer(datapath=datapath,margin='2px')
@@ -378,11 +380,11 @@ class DynamicForm(BaseComponent):
             pages = ['Main']+pages
         for p in pages:
             pane = tc.contentPane(title=p,padding='10px')
-            pane.dynamicFormGroup(fdict[p],ncol=ncol,colswith=colswith,**kwargs)
+            pane.dynamicFormGroup(fdict[p],ncol=ncol,colswidth=colswidth,**kwargs)
 
     @struct_method
-    def df_dynamicFormGroup(self,pane,fields=None,ncol=None,colswith=None,setInAttributes=False,**kwargs):
-        fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,keeplabel=True,colswith=colswith,width='100%',tdf_width='100%',lbl_white_space='nowrap')        
+    def df_dynamicFormGroup(self,pane,fields=None,ncol=None,colswidth=None,setInAttributes=False,**kwargs):
+        fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,keeplabel=True,colswidth=colswidth,width='100%',tdf_width='100%',lbl_white_space='nowrap')        
         fb.addDynamicFields(fields=fields,setInAttributes=setInAttributes,**kwargs)
 
     @struct_method

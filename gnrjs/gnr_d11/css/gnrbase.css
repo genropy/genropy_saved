@@ -221,6 +221,10 @@ cursorZoom_plus{
     font-weight: bold;
 }
 
+.search_highlight{
+    background: yellow;
+}
+
 
 .noExpando .dijitTreeExpando {
     display: none;
@@ -965,7 +969,6 @@ label{
     min-width:5em;
     text-align:right;
     padding-right:2px;
-    font-size: 13px;
 }
 
 .topLabelTable td:last-child{
@@ -1350,7 +1353,6 @@ table.formbuilder {
     height: 14px;
 }
 
-
 .redLight {
     background: url(icons/base16/semaphore_red.png) no-repeat center center;
     width: 14px;
@@ -1614,6 +1616,16 @@ table.formbuilder {
     height: 12px;
 }
 
+.tree_searchbox{
+    height: 21px;
+    background-color: #444;
+    position: relative;
+}
+
+.tree_searchbox .searchboxLabel{
+    color:white;
+}
+
 .smallmenu .dijitMenuItem {
     font-size: .9em;
 }
@@ -1630,6 +1642,13 @@ table.formbuilder {
     padding: 0;
     color:#333;
 }
+
+.tundra .menupane.colormenu .dijitMenuExpandEnabled{
+    width: 2px;
+    background: none;
+}
+
+
 
 .tundra .smallmenu .dijitMenuItem td {
     padding-top: 0px !important;
@@ -1661,6 +1680,15 @@ div.dojoxDock {
     height: 100%;
     margin-top: 0px;
     width:100%;
+}
+
+.tundra._common_d11 .commonTitleBar {
+    background-color:#711B2A;
+    color: #ffffff;
+    text-align: center;
+    font-weight:normal;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 
 .hiddenBcPane{
@@ -2222,11 +2250,9 @@ div.dojoxDock {
 /* @group Dev */
 
 .gnrhighlight {
+    box-shadow:inset 0px 0px 6px red;
+}
 
-    -moz-box-shadow: inset 0px 0px 6px red;
-    -webkit-box-shadow:inset 0px 0px 6px red;
-}
-}
 
 /* @end */
 
@@ -2323,18 +2349,14 @@ div.dojoxDock {
 
 
 ._common_d11 .lightboxDialog.dijitDialog {
-    border-radius: 8px;
-    padding:0;
+    padding:2px;
     background:white;
-    border:0;
+    border:1px solid #ddd;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
 }
-
-.index_loginbox{
-    border-radius:4px;
-    border:1px solid silver;
-    background-color:rgba(240, 240, 240, 0.7);
-}
-
 .index_loginbox{
     font-size:1.2em;
     color:#555;
@@ -2375,6 +2397,20 @@ div.dojoxDock {
 
 
 /* @group FileInput */
+
+/* quickthermo*/
+.quickthermo_box{
+    background: white;
+    border-radius: 4px;
+    padding: 5px;
+    border:1px solid #ccc;
+    box-shadow: 2px 2px 3px #666;
+}
+.quickthermo_caption{
+    font-variant: normal;
+    font-size: 18px;
+    color:#555;
+}
 
 .dijitFileInput {
     position: relative;
@@ -2572,6 +2608,12 @@ textarea:disabled {
     border: 1px solid #AEB6BD;
     background: white url(icons/base10/lens.gif) no-repeat 95%;
 }
+
+.searchInputBox.activeSearch{
+    background: white url(icons/base10/frametabclose.png) no-repeat 95%;
+    cursor: pointer;
+}
+
 .searchInputBox>input{
     width:100%;
     border:0;
@@ -3312,7 +3354,7 @@ body *{
 }
 
 .dijitError.dijitFocused{
-    background: none;
+    background-image: none;
 }
 .dijitError.th_linkerField{
 	background: transparent url(icons/base12/invalid.png) no-repeat right center !important;
@@ -3647,6 +3689,19 @@ table.draggedItem {
 /* @end */
 
 /* @group Table */
+
+.treeCellContent{
+    -webkit-touch-callout: auto;
+    -webkit-user-select: auto;
+    -khtml-user-select: auto;
+    -moz-user-select: text;
+    -ms-user-select: auto;
+    user-select: auto;
+}
+
+.selectedTreeRow .treeCellContent{
+    font-weight: bold;
+}
 
 .dojoxGrid td.cell_R .cellContent, .treecell.cell_R .treeCellContent,
 .dojoxGrid td.cell_I .cellContent, .treecell.cell_I .treeCellContent,
@@ -4670,6 +4725,9 @@ div[disabled='true'], div[disabled='disabled']{
     border: 0;
     -moz-box-shadow: 4px 4px 4px #403b3b;
     -webkit-box-shadow: 4px 4px 4px #403b3b;
+}
+._common_d11.tundra .dijitTooltipContainer{
+    background: white;
 }
 
 ._common_d11 .dijitTooltipDialog.dijitTooltipBelow[connector='none']{

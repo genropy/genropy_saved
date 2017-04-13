@@ -40,7 +40,10 @@ class AppPref(object):
                         minimum=0,maximum=1,lbl='Color invert',livePreference=True)
         fb.filteringSelect(value='^.default_fontsize',values='!!12px:Small,13px:Medium,14px:Large,15px:Extra Large',lbl='Font size')
         fb.comboBox(value='^.body.font_family',values=FONTFAMILIES,lbl='Font family',width='20em',livePreference=True)        
-        
+        fb.textbox(value='^.palette_colors',lbl='Default color palette')
+        fb.textbox(value='^.palette_steps',lbl='Default color steps')
+
+
         pdfpane = tc.borderContainer(title='Print')
         fb = pdfpane.roundedGroup(title='Print Modes',region='top',height='50px')
         fb.checkBoxText(value='^.print.modes',values='pdf:PDF,server_print:Server Print,mail_pdf:PDF Mail,mail_deliver:Mail Deliver',lbl='Print modes')

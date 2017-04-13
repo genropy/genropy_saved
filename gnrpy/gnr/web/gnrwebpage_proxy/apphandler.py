@@ -687,7 +687,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                          pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
                          selectmethod=None, expressions=None, sum_columns=None,
                          sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,hardQueryLimit=None,
-                         savedQuery=None,savedView=None, externalChanges=None,prevSelectedDict=None,**kwargs):
+                         savedQuery=None,savedView=None, externalChanges=None,prevSelectedDict=None,
+                         checkPermissions=None,**kwargs):
         """TODO
         
         ``getSelection()`` method is decorated with the :meth:`public_method
@@ -741,6 +742,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             limit = hardQueryLimit
         wherebag = where if isinstance(where,Bag) else None
         resultAttributes = {}
+        if checkPermissions is True:
+            checkPermissions = self.page.permissionPars
         for k in kwargs.keys():
             if k.startswith('format_'):
                 formats[7:] = kwargs.pop(k)
@@ -776,7 +779,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                                       order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
                                       relationDict=relationDict, sqlparams=sqlparams,
                                       recordResolver=recordResolver, selectionName=selectionName, 
-                                      pkeys=pkeys, sortedBy=sortedBy, excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft, **kwargs)
+                                      pkeys=pkeys, sortedBy=sortedBy, excludeLogicalDeleted=excludeLogicalDeleted,
+                                      excludeDraft=excludeDraft,checkPermissions=checkPermissions ,**kwargs)
             if external_queries:
                 self._externalQueries(selection=selection,external_queries=external_queries)
             if applymethod:
@@ -1070,7 +1074,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     @public_method
     def getFieldcellPars(self,field=None,table=None):
         tableobj = self.db.table(table)
-        cellpars = cellFromField(field,tableobj)
+        cellpars = cellFromField(field,tableobj,checkPermissions=self.page.permissionPars)
         cellpars['field'] = field
         return Bag(cellpars)
         
@@ -1337,8 +1341,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         if table_onLoading:
             table_onLoading(record, newrecord, loadingParameters, recInfo)
         table_onloading_handlers = [getattr(tblobj,k) for k in dir(tblobj) if k.startswith('onLoading_')]
-        for h in table_onloading_handlers:
-            h(record, newrecord, loadingParameters, recInfo)
+        
         onLoadingHandler = onLoadingHandler or  loadingParameters.pop('method', None)
         if onLoadingHandler:
             handler = self.page.getPublicMethod('rpc', onLoadingHandler)
@@ -1352,16 +1355,17 @@ class GnrWebAppHandler(GnrBaseProxy):
             handler = getattr(self.page, method, None)
             
 
-        if handler:
+        if handler or table_onloading_handlers:
             if default_kwargs and newrecord:
                 self.setRecordDefaults(record, default_kwargs)
-            handler(record, newrecord, loadingParameters, recInfo)
+            for h in table_onloading_handlers:
+                h(record, newrecord, loadingParameters, recInfo)
+            if handler:
+                handler(record, newrecord, loadingParameters, recInfo)
         elif newrecord and loadingParameters:
-
             for k in default_kwargs:
-                if not k in record:
+                if k not in record:
                     record[k]=None
-        
             self.setRecordDefaults(record, loadingParameters)
 
         if applymethod:
@@ -1488,7 +1492,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         querycolumns = tblobj.getQueryFields(columns, captioncolumns)
         showcolumns = gnrlist.merge(captioncolumns, tblobj.columnsFromString(auxColumns))
         resultcolumns = gnrlist.merge(showcolumns, captioncolumns, tblobj.columnsFromString(hiddenColumns))
-        if alternatePkey and not alternatePkey in resultcolumns:
+        if alternatePkey and alternatePkey not in resultcolumns:
             resultcolumns.append("$%s" % alternatePkey if not alternatePkey.startswith('$') else alternatePkey)
         selection = None
         identifier = 'pkey'
@@ -1633,8 +1637,14 @@ class GnrWebAppHandler(GnrBaseProxy):
 
         if not srclist:
             return getSelection(None)
+        searchval = '%s%%' % ('%% '.join(srclist))
+        sqlArgs = dict()
+        cond = tblobj.opTranslate(querycolumns[0],'contains',searchval,sqlArgs=sqlArgs)
+        result = getSelection(cond,**sqlArgs)
+        if len(result) >= (limit or 50):
+            cond = tblobj.opTranslate(querycolumns[0],'startswith',searchval,sqlArgs=sqlArgs)
+            result = getSelection(cond,**sqlArgs)
 
-        result = getSelection("%s ILIKE :searchval" % querycolumns[0], searchval='%s%%' % ('%% '.join(srclist)))
         #columns_concat = "ARRAY_TO_STRING(ARRAY[%s], ' ')" % ','.join(querycolumns)
         columns_concat = " || ' ' || ".join(["CAST ( COALESCE(%s,'') AS TEXT ) " %c for c in querycolumns])
         if len(result) == 0: # few results from the startswith query on first col
@@ -1655,13 +1665,14 @@ class GnrWebAppHandler(GnrBaseProxy):
             where = " AND ".join(["(%s)  ILIKE :w%i" % (columns_concat, i) for i, w in enumerate(srclist)])
             result = getSelection(where, **whereargs)
 
+
+
         return result
 
     @public_method
-    def getValuesString(self,table,caption_field=None,**kwargs):
+    def getValuesString(self,table,caption_field=None,alt_pkey_field=None,**kwargs):
         tblobj = self.db.table(table)
-        pkey = tblobj.pkey
-       
+        pkey = alt_pkey_field or tblobj.pkey
         caption_field = caption_field or tblobj.attributes.get('caption_field') or tblobj.pkey
         f = tblobj.query(columns='$%s,$%s' %(pkey,caption_field),**kwargs).fetch()
         return ','.join(['%s:%s' %(r[pkey],(r[caption_field] or '').replace(',',' ')) for r in f])
@@ -1682,8 +1693,12 @@ class GnrWebAppHandler(GnrBaseProxy):
         if not changesDict:
             return
         tblobj = self.db.table(table)
+        fields = changesDict.pop('_fields',None)
+        if not fields:
+            fields = [field]
         def cb(row):
-            row[field] = changesDict[row[tblobj.pkey]]
+            for f in fields:
+                row[f] = changesDict[row[tblobj.pkey]] if f==field else False
         tblobj.batchUpdate(cb,where='$%s IN :pkeys' %tblobj.pkey,pkeys=changesDict.keys())
         self.db.commit()
         

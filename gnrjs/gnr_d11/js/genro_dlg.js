@@ -196,11 +196,18 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var dlgNode = genro.nodeById(dialogId);
         if(!dlgNode){
             var root = genro.src.getNode()._('div', '_dlg_iframe');
-            var dlg = root._('dialog',{title:kw.title,closable:kw.closable,nodeId:dialogId});
+            var parentRatio = objectPop(kw,'parentRatio');
+            var windowRatio = objectPop(kw,'windowRatio')
+            var dlg = root._('dialog',{title:kw.title,closable:kw.closable,nodeId:dialogId,parentRatio:parentRatio,windowRatio:windowRatio});
             var iframekw = {src:kw.src,border:0,height:'100%',width:'100%',nodeId:iframeId};
             iframekw.selfsubscribe_close = "this.dialog.hide();";
             objectUpdate(iframekw,objectExtract(kw,'selfsubscribe_*',true,true));
-            var iframe = dlg._('div',{height:kw.height,width:kw.width,overflow:'hidden'})._('iframe','iframe',iframekw);
+            if(!(parentRatio || windowRatio)){
+                var iframe = dlg._('div',{height:kw.height,width:kw.width,overflow:'hidden'})._('iframe','iframe',iframekw);
+            }else{
+                var iframe = dlg._('borderContainer')._('ContentPane',{'region':'center',overflow:'hidden'})._('iframe','iframe',iframekw);
+            }
+            
             dlgNode = dlg.getParentNode();
             dlgNode._iframeNode = iframe.getParentNode();
             dlgNode._iframeNode.dialog = dlgNode.widget;
@@ -251,12 +258,12 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     alert:function(msg, title, buttons, resultPath, kw) {
         var alertCode = '_dlg_alert_'+this.alert_count;
         genro.src.getNode()._('div', alertCode);
-        var title = title || '';
-        var buttons = buttons || {confirm:'OK'};
+        title = title || '';
+        buttons = buttons || {confirm:'OK'};
         //var kw = objectUpdate({'width':'20em'}, kw);
-        var kw = kw || {};
-        var confirmCb = objectPop(kw,'confirmCb')
-        var resultPath = resultPath;
+        kw = kw || {};
+        confirmCb = objectPop(kw,'confirmCb');
+        resultPath = resultPath;
         var that = this;
         var node = genro.src.getNode(alertCode).clearValue().freeze();
         var dlg = node._('dialog', objectUpdate({nodeId:alertCode, title:title, 
@@ -300,18 +307,18 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var alertCode = '_dlg_ask_'+this.alert_count;
 
         genro.src.getNode()._('div', alertCode);
-        var kw = kw || {};
-        var buttons = buttons || {confirm:'Confirm',cancel:'Cancel'};
-        var action;
+        kw = kw || {};
+        buttons = buttons || {confirm:'Confirm',cancel:'Cancel'};
+        var action,actions;
         var that = this;
         var node = genro.src.getNode(alertCode).clearValue().freeze();
         if (typeof(resultPathOrActions) == 'string') {
             var resultPath = resultPathOrActions;
-            var actions = {};
+            actions = {};
             action = "genro.wdgById('"+alertCode+"').hide();genro.fireEvent('" + resultPath + "',this.attr.actCode);";
         }
         else {
-            var actions = resultPathOrActions || {};
+            actions = resultPathOrActions || {};
             action = "genro.wdgById('"+alertCode+"').hide();if (this.attr.act){funcCreate(this.attr.act).call();};";
         }
         var dlg = node._('dialog', {nodeId:alertCode,title:title,
@@ -331,7 +338,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
 
     batchMonitor:function(thermopath) {
-        var thermopath = thermopath || '_thermo';
+        thermopath = thermopath || '_thermo';
         genro.src.getNode()._('div', '_thermo_floating');
         var node = genro.src.getNode('_thermo_floating').clearValue().freeze();
         var floatingPars = {};
@@ -394,11 +401,14 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
 
     remoteDialog:function(name,remote,remoteKw,dlgKw){
-        var remoteKw = remoteKw || {};
-        var dlgKw = dlgKw || {};
+        remoteKw = remoteKw || {};
+        dlgKw = dlgKw || {};
         dlgKw.nodeId = 'remote_dlg_'+name;
+
         var dlgNode = genro.nodeById(dlgKw.nodeId);
         if(!dlgNode){
+            dlgKw.autoSize = false;
+            dlgKw.closable = true;
             var dlg = genro.src.create('dialog',dlgKw,'_rmt_dlg');
             var kw = {};
             for (var k in remoteKw){
@@ -406,8 +416,10 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             }
             kw.min_height = '1px';
             kw.min_width = '1px';
+            kw.remote__onRemote = function(){setTimeout(function(){
+                dlgNode.widget.adjustDialogSize();
+            },1)};
             kw.remote = remote;
-            console.log('remote pars',kw);
             dlg._('div',kw);
             dlgNode = dlg.getParentNode();
         }
@@ -432,23 +444,32 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var dlg = genro.dlg.quickDialog(title,dlg_kw);
         var mandatory = objectPop(kw,'mandatory');
         var bar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',action:function(){
-                                                    dlg.close_action();
+                                                    var error_message;
                                                     if(this.attr.command=='confirm'){
                                                         var v = genro.getData(promptvalue_path);
                                                         if(mandatory && isNullOrBlank(v)){
                                                             return;
                                                         }
-                                                        funcApply(confirmCb,{value:genro.getData(promptvalue_path)},(sourceNode||this));
-                                                        genro.setData(promptvalue_path,null,null,false);
+                                                        error_message = funcApply(confirmCb,{value:genro.getData(promptvalue_path)},(sourceNode||this));
+                                                        if(!error_message){
+                                                            genro.setData(promptvalue_path,null,null,false);
+                                                        }
                                                     }else if(this.attr.command == 'cancel' && cancelCb){
-                                                        funcApply(cancelCb,{},(sourceNode||this));
+                                                        error_message = funcApply(cancelCb,{},(sourceNode||this));
                                                     }
-                                                    genro.dlg.prompt_counter--;
-                                                    if(!genro.dlg.prompt_counter){
-                                                        setTimeout(function(){
-                                                            genro._data.popNode('gnr.promptDlg');
-                                                        },genro.dlg._quickDialogDestroyTimeout+1);
+                                                    if(error_message){
+                                                        genro.dlg.floatingMessage(dlg.center.getParentNode(),{message:error_message,messageType:'error'})
                                                     }
+                                                    else{
+                                                        dlg.close_action();
+                                                        genro.dlg.prompt_counter--;
+                                                        if(!genro.dlg.prompt_counter){
+                                                            setTimeout(function(){
+                                                                genro._data.popNode('gnr.promptDlg');
+                                                            },genro.dlg._quickDialogDestroyTimeout+1);
+                                                        }
+                                                    }
+                                                   
                                                 }});
         bar._('button','cancel',{'label':'Cancel',command:'cancel'});
         var confirmbtnKW = {'label':'Confirm',command:'confirm'};
@@ -539,46 +560,49 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
 
     quickTooltipPane: function(kw,contentCb,contentCbKw) {
-        var kw = objectUpdate({},kw);
+        kw = objectUpdate({},kw);
         kw.evt = kw.evt || false;
         var nodeId = kw.nodeId  || 'td_'+'tempTooltip';
         var quickRoot = '_dlgTooltip_quick_'+ nodeId;
         genro.src.getNode()._('div',quickRoot);
         var node = genro.src.getNode(quickRoot).clearValue();
         var domNode = objectPop(kw,'domNode');
+        var openerId = kw.openerId || nodeId+'_opener';
+        kw.openerId = openerId;
         node.freeze();
         if(domNode){
-            var openerId = kw.openerId || nodeId+'_opener';
-            kw.openerId = openerId;
+            
             kw.onCreated = function(){
                 setTimeout(function(){
                     genro.publish(openerId+'_open',{domNode:domNode});
-                },1)
-                
-            }
+                },1);
+            };
         }
         var fields = objectPop(kw,'fields');
         var cols = objectPop(kw,'cols',1);
 
-        var tp = node._('tooltipPane',kw)._('div',{_class:'quickTooltipContainer'});
+        var tp = node._('tooltipPane',kw);
         if(fields){
             if(fields instanceof Array){
+                tp = tp._('div',{_class:'quickTooltipContainer'});
                 var fb = genro.dev.formbuilder(tp,cols,{border_spacing:'4px',width:'100%',fld_width:'100%'});
                 fields.forEach(function(n){
-                    var n = objectUpdate({},n);
+                    n = objectUpdate({},n);
                     var w = objectPop(n,'wdg','textbox');
                     fb.addField(w,objectUpdate({},n));
-                })
+                });
             }
         }else if(contentCb){
-            contentCb(tp,contentCbKw)
+            contentCbKw = contentCbKw || {};
+            contentCbKw.tooltipOpenerId = openerId;
+            contentCb(tp,contentCbKw);
         }
         node.unfreeze();
         return tp;
     },
 
     quickDialog: function(title,kw) {
-        var kw = objectUpdate({},kw);
+        kw = objectUpdate({},kw);
         var quickRoot = '_dlg_quick_'+genro.getCounter();
         genro.src.getNode()._('div',quickRoot);
         var node = genro.src.getNode(quickRoot).clearValue();
@@ -590,10 +614,10 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                 setTimeout(function(){
                     that._destroy();
                 },genro.dlg._quickDialogDestroyTimeout);
-            }
+            };
         }
         var dlg = node._('dialog', objectUpdate({title:title},kw));
-        var box = dlg._('div',kwdimension)
+        var box = dlg._('div',kwdimension);
         var center = box._('div', {_class:'pbl_dialog_center'});
         if(kw.dialog_bottom!==false){
             var bottom = box._('div', {_class:'dialog_bottom'});
@@ -783,7 +807,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             genro.src.getNode()._('div',paletteCode,{_class:'hiddenDock'});
             var node = genro.src.getNode(paletteCode).clearValue();
             node.freeze();
-            var dockTo = kw.dockTo==false?false: (kw.dockTo || 'dummyDock:open');
+            var dockTo = kw.dockTo===false?false: (kw.dockTo || 'dummyDock:open');
             var paletteAttr = {'paletteCode':paletteCode,title:kw.title || 'Palette:'+table,
                                                         overflow:'hidden',
                                                           dockTo: dockTo,
@@ -815,7 +839,10 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                         onSavedCb(kw);
                     });
                 }
-                wdg.setBoxAttributes({height:palette_height,width:palette_width});
+                if(!wdg._size_from_cache){
+                    wdg.setBoxAttributes({height:palette_height,width:palette_width});
+                }
+
             }}).getParentNode();         
             node.unfreeze(); 
             var paletteNode = genro.nodeById(paletteCode+'_floating');

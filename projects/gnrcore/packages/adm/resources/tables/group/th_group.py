@@ -26,8 +26,19 @@ class Form(BaseComponent):
         fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=2, border_spacing='4px')
         fb.field('code')
         fb.field('description')
-        bc.contentPane(region='center').plainTableHandler(relation='@users')
+        tc = bc.tabContainer(region='center',margin='2px')
+        tc.contentPane(title='!!Users').plainTableHandler(relation='@users',picker=True,
+                            picker_viewResource='ViewPicker',
+                            pbl_classes=True,margin='2px')
+        tc.contentPane(title='!!Tag').inlineTableHandler(relation='@tags',
+                            viewResource='ViewFromGroup',
+                            pbl_classes=True,margin='2px',addrow=False,picker='tag_id',
+                            picker_condition='$child_count=0',
+                            picker_viewResource=True)
 
-
+        tc.contentPane(title='!!Config').dialogTableHandler(table='adm.user_config',
+                                margin='2px',
+                                viewResource='ViewFromGroup',
+                                formResource='FormFromGroup')
     def th_options(self):
         return dict(dialog_height='400px', dialog_width='600px')

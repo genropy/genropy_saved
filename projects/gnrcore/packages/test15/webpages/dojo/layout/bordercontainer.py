@@ -8,6 +8,7 @@
 
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerBase"
+
     
     
     def windowTitle(self):
@@ -66,5 +67,16 @@ class GnrCustomWebPage(object):
         bc.contentPane(region='left',background='blue',splitter=True)
         bc.contentPane(region='right',background='green',splitter=True)
         bc.contentPane(region='center',background='white')
+
+    def test_7_splitter_margins(self,pane):
+        frame = pane.framePane(height='600px',design='sidebar')
+        left = frame.left
+        left.attributes.update(splitter=True)
+        bar = frame.left.slotBar('pippo,pluto,0',width='200px',border_right='1px solid silver')
+        bar.pippo.div('slot 1')
+        bar.pluto.div('slot 2')
+
+        frame.div('Pippo',font_size='30px')
+
 
 

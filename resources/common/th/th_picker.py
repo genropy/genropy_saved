@@ -18,14 +18,12 @@ class THPicker(BaseComponent):
                          viewResource=None,searchOn=True,multiSelect=True,structure_field=None,
                          title=None,autoInsert=None,dockButton=None,picker_kwargs=None,
                          height=None,width=None,checkbox=False,defaults=None,**kwargs):
-        
         dockButton = dockButton or dict(parentForm=True,iconClass='iconbox app')
         picker_kwargs = picker_kwargs or dict()
         checkbox = checkbox or picker_kwargs.get('checkbox',False)
         one = picker_kwargs.get('one',False)
         picker_kwargs.setdefault('uniqueRow',True)
         condition=picker_kwargs.pop('condition',None)
-        condition_kwargs = dictExtract(picker_kwargs,'condition_',pop=True,slice_prefix=True)
         many = relation_field or picker_kwargs.get('relation_field',None)
         table = table or picker_kwargs.get('table',None)
         height = height or picker_kwargs.get('height','600px')
@@ -36,10 +34,10 @@ class THPicker(BaseComponent):
         title = title or picker_kwargs.get('title')
         viewResource = viewResource or picker_kwargs.get('viewResource')
         if viewResource is True:
-            viewResource = ':ViewPicker'
+            viewResource = 'ViewPicker'
         searchOn = searchOn or picker_kwargs.get('searchOn')
         maintable = None
-        if grid:
+        if grid is not None:
             maintable = grid.getInheritedAttributes()['table']
             if not table:
                 tblobj = self.db.table(maintable).column(many).relatedTable().dbtable
@@ -51,10 +49,21 @@ class THPicker(BaseComponent):
         paletteCode = paletteCode or picker_kwargs.get('paletteCode') or '%s_picker' %table.replace('.','_')
         title = title or tblobj.name_long
         treepicker = tblobj.attributes.get('hierarchical') and not viewResource
+        condition_kwargs = dictExtract(picker_kwargs,'condition_',pop=True,slice_prefix=not treepicker)
         if treepicker:
-            palette = pane.paletteTree(paletteCode=paletteCode,dockButton=dockButton,title=title,
-                            tree_dragTags=paletteCode,searchOn=searchOn,width=width,height=height,
-                            draggableFolders=picker_kwargs.pop('draggableFolders',None)).htableViewStore(table=table,
+            palette = pane.palettePane(paletteCode=paletteCode,dockButton=dockButton,title=title,
+                            width=width,height=height)
+            frame = palette.framePane(frameCode=paletteCode)
+            frame.top.slotToolbar('*,searchOn,5')
+            frame.center.contentPane(overflow='auto').div(margin='10px').hTableTree(table=table,draggableFolders=picker_kwargs.pop('draggableFolders',None),
+                            dragTags=paletteCode,
+                            onDrag="""function(dragValues, dragInfo, treeItem) {
+                                                if (treeItem.attr.child_count && treeItem.attr.child_count > 0 && !draggableFolders) {
+                                                    return false;
+                                                }
+                                                dragValues['text/plain'] = treeItem.attr.caption;
+                                                dragValues['%s'] = treeItem.attr;
+                                            }""" %paletteCode,
                             condition=condition,checkbox=checkbox,**condition_kwargs)
         else:
             palette = pane.paletteGridPicker(grid=grid,table=table,relation_field=many,
@@ -64,9 +73,9 @@ class THPicker(BaseComponent):
                                             width=width,condition=condition,condition_kwargs=condition_kwargs,
                                             checkbox=checkbox,structure_field = structure_field or picker_kwargs.get('structure_field'),
                                             uniqueRow=picker_kwargs.get('uniqueRow',True),
-                                            top_height=picker_kwargs.get('top_height'))
+                                            top_height=picker_kwargs.get('top_height'),structure_kwargs = dictExtract(picker_kwargs,'structure_'))
 
-        if grid:
+        if grid is not None:
             grid.attributes.update(dropTargetCb_picker='return this.form?!this.form.isDisabled():true')
             grid.dragAndDrop(paletteCode)
             if autoInsert:
@@ -91,7 +100,7 @@ class THPicker(BaseComponent):
                          title=None,dockButton=True,
                          height=None,width=None,condition=None,condition_kwargs=None,
                          structure_field=None,uniqueRow=True,top_height=None,
-                         checkbox=None,
+                         checkbox=None,structure_kwargs=None,
                         **kwargs):
         many = relation_field 
         if viewResource is True:
@@ -111,9 +120,11 @@ class THPicker(BaseComponent):
 
         palette = pane.palettePane(paletteCode=paletteCode,dockButton=dockButton,
                                         title=title,width=width,height=height)
+
         def struct(struct):
             r = struct.view().rows()
             r.fieldcell(tblobj.attributes['caption_field'], name=tblobj.name_long, width='100%')
+
         viewResource = viewResource or 'PickerView'
         bc = palette.borderContainer(_anchor=True)
         center = bc.contentPane(region='center')
@@ -134,12 +145,18 @@ class THPicker(BaseComponent):
                             selected_hierarchical_pkey='.tree.hierarchical_pkey',                          
                             selectedPath='.tree.path',  
                             identifier='treeIdentifier',margin='6px',
-                        ).htableViewStore(table=structure_tblobj.fullname)
-
+                        ).htableViewStore(table=structure_tblobj.fullname,**structure_kwargs)
+            if structure_field.startswith('@'):
+                sf = structure_field.split('.')
+                hpkey_ref = '%s.@%s.hierarchical_pkey' %(sf[0],sf[-1]) 
+                fkey_ref = structure_field
+            else:
+                hpkey_ref = '@%s.hierarchical_pkey' %structure_field 
+                fkey_ref = '$%s' %structure_field
             paletteth.view.store.attributes.update(where = """
-                                                        ( (:selected_pkey IS NOT NULL) AND (@%s.hierarchical_pkey ILIKE (:hierarchical_pkey || '%s') OR :hierarchical_pkey IS NULL)  
-                                                            OR ( ($%s IS NULL) AND (:selected_pkey IS NULL) ) )
-                                                    """ %(structure_field,'%%',structure_field),
+                                                        ( (:selected_pkey IS NOT NULL) AND (%s ILIKE (:hierarchical_pkey || '%s') OR :hierarchical_pkey IS NULL)  
+                                                            OR ( (%s IS NULL) AND (:selected_pkey IS NULL) ) )
+                                                    """ %(hpkey_ref,'%%',fkey_ref),
                                   hierarchical_pkey='^#ANCHOR.structuretree.tree.hierarchical_pkey',
                                   selected_pkey='^#ANCHOR.structuretree.tree.pkey',_delay=500)
         if checkbox or self.isMobile:
@@ -179,15 +196,20 @@ class THPicker(BaseComponent):
     @public_method
     def _th_insertPicker(self,dragPkeys=None,dropPkey=None,tbl=None,one=None,many=None,dragDefaults=None,**kwargs):
         tblobj = self.db.table(tbl)
+        pkeyfield = tblobj.pkey
         commit = False
         for fkey in dragPkeys:
             commit = True
             d = {one:dropPkey,many:fkey}
-            r = tblobj.newrecord()
-            r.update(d)
-            if dragDefaults:
-                r.update(dragDefaults[fkey])
-            tblobj.insert(r)
+            if many==pkeyfield:
+                with tblobj.recordToUpdate(fkey) as rec:
+                    rec[one] = dropPkey
+            else:
+                r = tblobj.newrecord()
+                r.update(d)
+                if dragDefaults:
+                    r.update(dragDefaults[fkey])
+                tblobj.insert(r)
         if commit:
             self.db.commit()
 

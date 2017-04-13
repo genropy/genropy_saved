@@ -44,11 +44,12 @@ class GnrWsgiWebApp(GnrApp):
         currentEnv = self.db.currentEnv
         if currentEnv.get('hidden_transaction'):
             return
+        dbeventKey = 'dbevents_%s' %self.db.connectionKey()
         if not currentEnv.get('env_transaction_id'):
-            self.db.updateEnv(env_transaction_id= getUuid(),dbevents=dict())
+            self.db.updateEnv(env_transaction_id= getUuid())
         broadcast = tblobj.attributes.get('broadcast')
         if broadcast is not False and broadcast != '*old*':
-            dbevents=currentEnv['dbevents']
+            dbevents=currentEnv.setdefault(dbeventKey,{})
             r=dict(dbevent=event,pkey=record.get(tblobj.pkey),old_pkey=old_record.get(tblobj.pkey) if old_record else None)
             if broadcast and broadcast is not True:
                 for field in broadcast.split(','):
@@ -66,7 +67,8 @@ class GnrWsgiWebApp(GnrApp):
    
     def onDbCommitted(self):
         super(GnrWsgiWebApp, self).onDbCommitted()
-        dbeventsDict= self.db.currentEnv.pop('dbevents',None)
+        dbeventKey = 'dbevents_%s' %self.db.connectionKey()
+        dbeventsDict= self.db.currentEnv.pop(dbeventKey,None)
         dbevent_reason = self.db.currentEnv.pop('dbevent_reason',None)
         if dbeventsDict:
             page = self.site.currentPage

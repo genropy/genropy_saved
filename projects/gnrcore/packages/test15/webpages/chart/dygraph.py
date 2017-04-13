@@ -104,3 +104,4 @@ class GnrCustomWebPage(object):
                 result.setItem('r_%s' %j,None,attr)
             j+=1
         return result
+        

@@ -10,3 +10,6 @@ class Table(object):
         tbl.column('summary',name_long='!!Summary')
         tbl.column('server',dtype='B',name_long='!!Server')
 
+
+    def isInStartupData(self):
+        return True

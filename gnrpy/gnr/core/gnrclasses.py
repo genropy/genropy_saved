@@ -26,6 +26,7 @@ import re
 
 from gnr.core import gnrstring
 from gnr.core.gnrdate import decodeOneDate, decodeDatePeriod
+from gnr.core.gnrlang import gnrImport
 from decimal import Decimal
 from dateutil.parser import parse as dateutil_parse
 from dateutil.tz import tzlocal
@@ -331,6 +332,26 @@ class GnrClassCatalog(object):
         self.addClass(cls=type(self.__init__), key='RPC', empty=None)
         self.addSerializer("asText", type(self.__init__), self.funcName)
         
+        self.addClass(cls=type, key='CLS', aliases=[],empty=None)
+        self.addSerializer("asText", type, self.serializeClass)
+        self.addParser(type, self.parseClass)
+
+
+    def parseClass(self,txt):
+        module,clsname = txt.split(':')
+        m = gnrImport(module)
+        c = getattr(m,clsname)
+        if hasattr(c,'__safe__'):
+            return c
+        else:
+            raise Exception('Unsecure class %s' %txt)
+
+    def serializeClass(self,cls):
+        return '%s:%s' %(cls.__module__,cls.__name__)
+
+
+
+
     def funcName(self, func):
         funcName = func.__name__
         if funcName.startswith('rpc_'):

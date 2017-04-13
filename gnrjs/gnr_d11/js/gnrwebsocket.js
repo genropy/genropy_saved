@@ -29,7 +29,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     constructor: function(application, wsroot, options) {
         this.application = application;
         this.wsroot=wsroot;
-        this.url='ws://'+window.location.host+wsroot;
+        this.url=(window.location.protocol=='https:'?'wss://':'ws://')+window.location.host+wsroot;
         this.options=objectUpdate({ debug: false, reconnectInterval: 4000, ping_time:1000 },
                                   options);
         this.waitingCalls={};
@@ -195,19 +195,32 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         genro.publish(topic,data)
     },
     call:function(kw,omitSerialize,cb){
-    	var deferred = new dojo.Deferred();
+        var deferred = new dojo.Deferred();
         var kw= objectUpdate({},kw);
         var _onResult = objectPop(kw,'_onResult');
         var _onError = objectPop(kw,'_onError');
-        var token='wstk_'+genro.getCounter('wstk')
-        kw['result_token']=token
-        kw['command']= kw['command'] || 'call'
+        var token='wstk_'+genro.getCounter('wstk');
+        kw['result_token']=token;
+        kw['command']= kw['command'] || 'call';
         if (!omitSerialize){
             kw=genro.rpc.serializeParameters(genro.src.dynamicParameters(kw));
         }
         this.waitingCalls[token] = deferred;
         //console.log('sending',kw)
         this.socket.send(dojo.toJson(kw));
+        deferred.addCallback(function(result){
+            if(result && result.error){
+                if(_onError){
+                    funcApply(_onError,{result:result});
+                }else{
+                    console.error('WSK ERROR',result.error);
+                    genro.setData('gnr.wsk.lastErrorTraceback',result.dataNode);
+                    genro.dev.openBagInspector('gnr.wsk.lastErrorTraceback',{title:'WSK error'});
+                    //console.log('ERROR TRACEBACK',result.dataNode.getValue());
+                }
+            }
+            return result;
+        });
         if(_onResult){
             deferred.addCallback(_onResult);
         }
@@ -448,9 +461,9 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
          * @param args Object an optional object that the event will use
          */
         function generateEvent(s, args) {
-        	var evt = document.createEvent("CustomEvent");
-        	evt.initCustomEvent(s, false, false, args);
-        	return evt;
+            var evt = document.createEvent("CustomEvent");
+            evt.initCustomEvent(s, false, false, args);
+            return evt;
         };
 
         this.open = function (reconnectAttempt) {

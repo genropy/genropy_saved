@@ -23,7 +23,8 @@
 
 from decimal import Decimal,ROUND_HALF_UP
 
-def decimalRound(value,places=2,rounding=None):
+def decimalRound(value=None,places=2,rounding=None):
+    value = value or 0
     if not isinstance(value,Decimal):
         value = floatToDecimal(value)
     return value.quantize(Decimal(str(10**-places)),rounding=rounding or ROUND_HALF_UP)

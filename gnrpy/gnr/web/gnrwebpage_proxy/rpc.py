@@ -69,6 +69,11 @@ class GnrWebRpc(GnrBaseProxy):
             self.checkNotAllowed(result)
         if page.isLocalizer():
             envelope['_localizerStatus'] = '*_localizerStatus*'
+        for k in dir(page):
+            if k.startswith('envelope_'):
+                v = getattr(page,k)
+                if v is not None:
+                    envelope.setItem(k[9:],v)
         envelope.setItem('result', result, _attributes=resultAttrs)
         if not getattr(page,'_closed',False):
             dataChanges = self.page.collectClientDatachanges()

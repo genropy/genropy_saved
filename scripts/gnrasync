@@ -20,12 +20,19 @@ if __name__ == '__main__':
     parser = OptionParser(usage)
     parser.add_option('-p', '--port',
                   dest='port',
-                  help="Check only, don't apply changes")    
+                  help="Listen port")    
+    parser.add_option('-c', '--crt',
+                  dest='ssl_crt',
+                  help="SSL Certificate path")        
+    parser.add_option('-k', '--key',
+                  dest='ssl_key',
+                  help="SSL key path")    
     (options, args) = parser.parse_args()
     if  len(args)<1:
         parser.print_help()
     else:
-        server=GnrAsyncServer(port=getattr(options,'port',None),instance=args[0])
+        server=GnrAsyncServer(port=getattr(options,'port',None),instance=args[0],
+            ssl_crt=getattr(options,'ssl_crt',None),ssl_key=getattr(options,'ssl_key',None))
         server.start()
 
 

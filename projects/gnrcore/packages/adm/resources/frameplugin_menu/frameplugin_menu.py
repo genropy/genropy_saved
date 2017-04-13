@@ -32,8 +32,9 @@ class MenuIframes(BaseComponent):
     css_requires='frameplugin_menu/frameplugin_menu'
 
     def mainLeft_iframemenu_plugin(self, tc):
-        pane = tc.framePane(title="Menu", pageName='menu_plugin',)
-        pane.bottom.slotToolbar('5,newWindow,*,searchOn',searchOn=True,searchOn_nodeId='_menutree__searchbox')
+        pane = tc.framePane(title="Menu", pageName='menu_plugin')
+        pane.top.slotToolbar('2,searchOn,*',searchOn=True)
+        pane.bottom.slotToolbar('5,newWindow,*')
         self.menu_iframemenuPane(pane.div(position='absolute', top='2px', left='0', right='2px', bottom='2px', overflow='auto'))
 
     def btn_iframemenu_plugin(self,pane,**kwargs):
@@ -79,8 +80,11 @@ class MenuIframes(BaseComponent):
                         var selectingPageKw = objectUpdate({name:node.label,pkg_menu:inattr.pkg_menu,"file":null,table:null,
                                                             formResource:null,viewResource:null,fullpath:$1.fullpath,
                                                             modifiers:$1.modifiers},node.attr);
-
-                        if (selectingPageKw.externalWindow==true || selectingPageKw.modifiers == 'Shift' || genro.isMobile){
+                        if (genro.isMobile){
+                            genro.framedIndexManager.makePageUrl(selectingPageKw);
+                            genro.openWindow(selectingPageKw.url,selectingPageKw.label);
+                        }
+                        else if (selectingPageKw.externalWindow==true || selectingPageKw.modifiers == 'Shift'){
                             genro.publish("newBrowserWindowPage",selectingPageKw);
                         }else{
                             if(labelClass.indexOf('menu_existing_page')<0){
@@ -132,10 +136,15 @@ class MenuResolver(BagResolver):
             level = len(self.path.split('.'))
         for node in sitemenu[self.path]:
             allowed = True
-            nodetags = node.getAttr('tags')
-            filepath = node.getAttr('file')
+            nodeattr = node.attr
+            nodetags = nodeattr.get('tags')
+            filepath = nodeattr.get('file')
+            tableattr = self._page.db.table(nodeattr['table']).attributes if 'table' in nodeattr else None
             if nodetags:
                 allowed = self._page.application.checkResourcePermission(nodetags, userTags)
+            allowed = allowed and self._page.application.allowedByPreference(**nodeattr)
+            if tableattr:
+                allowed = allowed and self._page.application.allowedByPreference(**tableattr)
             if allowed and filepath:
                 allowed = self._page.checkPermission(filepath)
             if allowed:

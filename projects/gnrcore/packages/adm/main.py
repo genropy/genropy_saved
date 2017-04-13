@@ -14,23 +14,24 @@ class Package(GnrDboPackage):
 
     def config_db(self, pkg):
         pass
-
-    def authenticate(self, username, service=None,**kwargs):
+    
+    def authenticate(self, username,**kwargs):
         tblobj = self.db.table('adm.user')
         def cb(cache=None,identifier=None,**kwargs):
             if identifier in cache:
                 return cache[identifier],True
-            result = tblobj.query(columns='*',where='$username = :user',user=username, limit=1).fetch()
+            result = tblobj.query(columns='*,$all_tags',where='$username = :user',user=username, limit=1).fetch()
             kwargs = dict()
             if result:
                 user_record = dict(result[0])
-                kwargs['tags'] = user_record.pop('auth_tags')
+                kwargs['tags'] = user_record.pop('all_tags')
                 kwargs['pwd'] = user_record.pop('md5pwd')
                 kwargs['status'] = user_record['status']
                 kwargs['email'] = user_record['email']
                 kwargs['firstname'] = user_record['firstname']
                 kwargs['lastname'] = user_record['lastname']
                 kwargs['user_id'] = user_record['id']
+                kwargs['group_code'] = user_record['group_code']
                 kwargs['locale'] = user_record['locale'] or self.application.config('default?client_locale')
                 kwargs['user_name'] = '%s %s' % (user_record['firstname'], user_record['lastname'])
                 kwargs.update(dictExtract(user_record, 'avatar_'))
@@ -50,21 +51,13 @@ class Package(GnrDboPackage):
         
     def onAuthentication(self, avatar):
         pass
-        #update_md5 = self.attributes.get('update_md5',False) not in ('N','n','F','f','False','false','FALSE','No','NO','no',False)
-        #if update_md5 and hasattr(avatar,'md5len') and avatar.md5len==32:
-        #    self.update_md5(avatar)
-        #avatar.login_pwd = None
 
     def onAuthenticated(self, avatar):
         pass
-        #self.db.table('adm.connection').connectionLog('open')
 
-        #def update_md5(self,avatar):
-        #    md5_userid=hashlib.md5(str(avatar.userid)).hexdigest()
-        #    new_pass=hashlib.md5(avatar.login_pwd+md5_userid).hexdigest()+':'+md5_userid
-        #    self.application.db.table('adm.user').update(dict(id=avatar.userid,md5pwd=new_pass))
-        #    self.application.db.commit()
-
+    def onExternalUser(self,externalUser=None):
+        pass
+        
     def newUserUrl(self):
         return 'adm/new_user'
 
@@ -74,10 +67,16 @@ class Package(GnrDboPackage):
     def loginUrl(self):
         return 'adm/login'
 
-    def onApplicationInited(self):
-        pass
+    def onSiteInited(self):
+        touchRecords = self.db.table('adm.htag').touchRecords(where='$hierarchical_code IS NULL')
+        if touchRecords:
+            self.db.commit()
 
 
 class Table(GnrDboTable):
     def use_dbstores(self,forced_dbstore=None,**kwargs):
         return forced_dbstore or False
+
+    def isInStartupData(self):
+        return False
+        

@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrdecorator import public_method,metadata
 from datetime import datetime,timedelta
 from gnr.core.gnrbag import Bag
 
@@ -35,6 +35,7 @@ class View(BaseComponent):
     def th_bottom_custom(self,bottom):
         bottom.slotToolbar('2,sections@entities,*,sections@rec_type,2')
 
+    
     def th_sections_entities(self):
         entities = self.db.table('orgn.annotation').getLinkedEntities()
         result = [dict(code='_all_',caption='!!All')]
@@ -76,9 +77,52 @@ class ViewMixedComponent(View):
                                     }""")       
         #r.fieldcell('log_id')
 
-    def th_bottom_custom(self,bottom):
-        bottom.slotToolbar('2,sections@rec_type,*')
+    def th_struct_ann(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('sort_ts',name='!!Datetime',width='6em')
+        r.fieldcell('__mod_ts',name='!!Last upd.',width='6em')
+        r.fieldcell('__mod_user',name='!!Upd.User',width='9em')
+        r.cell('annotation_template',name='!!Type',width='30em',
+                rowTemplate="""<div style='background:$annotation_background;color:$annotation_color;border:1px solid $annotation_color;text-align:center;border-radius:10px;'><b>$annotation_caption</b><br/>$action_description</div>""")
+        r.fieldcell('annotation_caption',hidden=True)
+        r.fieldcell('calc_description',width='30em',name='Description')
 
+    @metadata(variable_struct=True,isMain=True)
+    def th_sections_modesec(self):
+        return [dict(code='all',caption='!!Actions and annotations'),
+                dict(code='annotation',caption='!!Annotations',condition='$rec_type=:rt',condition_rt='AN',struct='ann'),
+                dict(code='action',caption='!!Actions',condition='$rec_type=:rt',condition_rt='AC',struct='')]
+
+    def th_top_custom(self,top):
+        top.bar.replaceSlots('vtitle','sections@modesec')
+
+    def th_bottom_custom(self,bottom):
+        pass
+
+class ViewZoomAnnotationAndAction(object):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.cell('priority',width='2em',
+            name='P.',rowTemplate="""
+            <div class="priority_annotation_cell priority_$priority">&nbsp;</div>
+            """)
+        r.fieldcell('sort_ts',name='!!Datetime',width='6em')
+        r.fieldcell('author_user_id',name='!!Autor',width='9em')
+        r.fieldcell('__mod_ts',name='!!Last upd.',width='6em')
+        r.fieldcell('__mod_user',name='!!Upd.User',width='9em')
+        r.cell('annotation_template',name='!!Type',width='9em',
+                rowTemplate="""<div style='background:$annotation_background;color:$annotation_color;border:1px solid $annotation_color;text-align:center;border-radius:10px;'>$annotation_caption</div>""")
+        r.fieldcell('annotation_caption',hidden=True)
+        r.fieldcell('calc_description',width='25em',name='Description')
+        r.cell('action_do',name=" ",calculated=True,width='3em',
+                    cellClasses='cellbutton',
+                    format_buttonclass='icnBaseLens auction',
+                    format_isbutton=True,format_onclick="""var row = this.widget.rowByIndex($1.rowIndex);
+                                                           this.publish('do_action',{pkey:row['_pkey']});""",
+                    cellClassCB="""var row = cell.grid.rowByIndex(inRowIndex);
+                                    if(row.rec_type=='AN'){
+                                        return 'hidden';
+                                    }""")  
 
 class ViewAction(BaseComponent):
 

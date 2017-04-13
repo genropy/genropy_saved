@@ -173,7 +173,7 @@ class PrintHandler(object):
             self.htmlToPdf(srcPath,destPath,orientation,pdf_kwargs=pdf_kwargs)
             os.remove(srcPath)
             return
-        pdf_pref = self.parent.getPreference('.pdf_render',pkg='sys')
+        pdf_pref = self.parent.getPreference('.pdf_render',pkg='sys') if self.parent else None
         if pdf_pref:
             pdf_pref = pdf_pref.asDict(ascii=True)
             pdf_kwargs = pdf_kwargs or dict()

@@ -34,7 +34,6 @@ class Table(object):
         with self.db.tempEnv(storename=dbstore,_multidbSync=True):
             for rec in records:
                 tblobj.insertOrUpdate(Bag(dict(rec)))
-            self.db.deferredCommit()  
     
     @public_method
     def addRowsSubscription(self,table,pkeys=None,dbstore=None):
@@ -107,7 +106,6 @@ class Table(object):
                     tblobj.insert(data_record)
                 else:
                     tblobj.update(data_record,f[0])
-                self.db.deferredCommit()
             else:
                 if f:
                     old_record = f[0]
@@ -119,10 +117,8 @@ class Table(object):
                         tblobj.update(data_record,old_record=old_record)
                     else:
                         tblobj.delete(data_record)
-                    self.db.deferredCommit()
                 elif event=='U':
                     tblobj.insert(data_record)   
-                    self.db.deferredCommit()
                     
     def onPlugToForm(self,field):
         if self.db.currentPage.dbstore:

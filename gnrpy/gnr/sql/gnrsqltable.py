@@ -36,6 +36,7 @@ from gnr.sql.gnrsqltable_proxy.hierarchical import HierarchicalHandler
 from gnr.sql.gnrsql import GnrSqlException
 from datetime import datetime
 import logging
+import threading
 
 __version__ = '1.0b'
 gnrlogger = logging.getLogger(__name__)
@@ -208,6 +209,8 @@ class SqlTable(GnrObject):
         self.fullname = tblobj.fullname
         self.name_long = tblobj.name_long
         self.name_plural = tblobj.name_plural
+        self.user_config = {}
+        self._lock = threading.RLock()
         if tblobj.attributes.get('hierarchical'):
             self.hierarchicalHandler = HierarchicalHandler(self)
         
@@ -252,12 +255,13 @@ class SqlTable(GnrObject):
         
     dbroot = db
         
-    def column(self, name):
+    def column(self, name,**kwargs):
         """Returns a :ref:`column` object.
         
         :param name: A column's name or a :ref:`relation <relations>` starting from
                      the current :ref:`table`. (eg. ``@director_id.name``)"""
-        return self.model.column(name)
+        result = self.model.column(name,**kwargs)
+        return result
         
     def fullRelationPath(self, name):
         """TODO
@@ -290,6 +294,18 @@ class SqlTable(GnrObject):
         else:
             result['table'] = col.relatedColumn().table.fullname
         return result
+
+    def clearUserConfiguration(self):
+        self.user_config = {}
+
+    def getUserConfiguration(self,user_group=None,user=None):
+        user_config = self.user_config.get((user_group,user))
+        if user_config is None:
+            with self._lock:
+                user_config = self.db._getUserConfiguration(table=self.fullname,user_group=user_group,user=user)
+                self.user_config[(user_group,user)] = user_config or False
+        return user_config
+
 
     def getColumnPrintWidth(self, column):
         """Allow to find the correct width for printing and return it
@@ -425,7 +441,7 @@ class SqlTable(GnrObject):
                     record[k] = bool(v)
                 else:
                     if dtype and isinstance(v, basestring):
-                        if not dtype in ['T', 'A', 'C']:
+                        if dtype not in ['T', 'A', 'C']:
                             v = converter.fromText(record[k], dtype)
                     if 'rjust' in colattr:
                         v = v.rjust(int(colattr['size']), colattr['rjust'])
@@ -515,6 +531,7 @@ class SqlTable(GnrObject):
     def cachedRecord(self,pkey=None,virtual_columns=None,keyField=None,createCb=None):
         keyField = keyField or self.pkey
         ignoreMissing = createCb is not None
+
         def recordFromCache(cache=None,pkey=None,virtual_columns_set=None):
             cacheNode = cache.getNode(pkey)
             if cacheNode:
@@ -547,7 +564,11 @@ class SqlTable(GnrObject):
             return [r['pkey'] for r in q.fetch()]
         else:
             return [l[0]['pkey'] for l in q.fetchGrouped('_duplicate_finder').values()]
-       
+
+
+    def opTranslate(self,column,op,value,dtype=None,sqlArgs=None):
+        translator = self.db.adapter.getWhereTranslator()
+        return translator.prepareCondition(column, op, value, dtype, sqlArgs,tblobj=self)
 
     def tableCachedData(self,topic,cb,**kwargs):
         currentPage = self.db.currentPage
@@ -569,7 +590,7 @@ class SqlTable(GnrObject):
     def record(self, pkey=None, where=None,
                lazy=None, eager=None, mode=None, relationDict=None, ignoreMissing=False, virtual_columns=None,
                ignoreDuplicate=False, bagFields=True, joinConditions=None, sqlContextName=None,
-               for_update=False, _storename=None,aliasPrefix=None,**kwargs):
+               for_update=False, _storename=None,checkPermissions=False,aliasPrefix=None,**kwargs):
         """Get a single record of the table. It returns a SqlRecordResolver.
         
         The record can be identified by:
@@ -602,6 +623,7 @@ class SqlTable(GnrObject):
                            ignoreDuplicate=ignoreDuplicate,
                            joinConditions=joinConditions, sqlContextName=sqlContextName,
                            bagFields=bagFields, for_update=for_update, _storename=_storename,
+                           checkPermissions=checkPermissions,
                            aliasPrefix=aliasPrefix,**kwargs)
 
         if mode:
@@ -797,7 +819,7 @@ class SqlTable(GnrObject):
               excludeDraft=True,
               addPkeyColumn=True,
               ignoreTableOrderBy=False,ignorePartition=False, locale=None,
-              mode=None,_storename=None,aliasPrefix=None, **kwargs):
+              mode=None,_storename=None,checkPermissions=False,aliasPrefix=None, **kwargs):
         """Return a SqlQuery (a method of ``gnr/sql/gnrsqldata``) object representing a query.
         This query is executable with different modes.
         
@@ -832,6 +854,7 @@ class SqlTable(GnrObject):
                          ignorePartition=ignorePartition,
                          addPkeyColumn=addPkeyColumn,ignoreTableOrderBy=ignoreTableOrderBy,
                         locale=locale,_storename=_storename,
+                        checkPermissions=checkPermissions,
                          aliasPrefix=aliasPrefix,**kwargs)
         return query
 
@@ -849,7 +872,7 @@ class SqlTable(GnrObject):
         :param autocommit: boolan. If ``True``, perform the commit of the database (``self.db.commit()``)
         :param **kwargs: insert all the :ref:`query` parameters, like the :ref:`sql_where` parameter
         """
-        if not 'where' in kwargs:
+        if 'where' not in kwargs:
             if pkey:
                 _pkeys = [pkey]
             if not _pkeys:
@@ -872,6 +895,9 @@ class SqlTable(GnrObject):
         updatedKeys = []
         for row in fetch:
             new_row = dict(row)
+            if not _raw_update:
+                self.expandBagFields(row)
+                self.expandBagFields(new_row)
             if callable(updater):
                 doUpdate = updater(new_row)
                 if doUpdate is False:
@@ -1070,6 +1096,12 @@ class SqlTable(GnrObject):
             # if not self.trigger_onDeleting:
             #  sql delete where
 
+
+    @property
+    def dbevents(self):
+        return self.db.dbevents[self.fullname]
+
+
     def notifyDbUpdate(self,record):
         self.db.notifyDbUpdate(self,record)
             
@@ -1111,9 +1143,20 @@ class SqlTable(GnrObject):
         for row in sel:
             row._notUserChange = True
             old_record = dict(row)
+            self.expandBagFields(row)
+            self.expandBagFields(old_record)
             if onUpdating:
                 onUpdating(row, old_record=old_record)
             handler(row, old_record=old_record)
+        return sel
+
+    def expandBagFields(self,record,columns=None):
+        if not columns:
+            columns = [k for k,v in self.model.columns.items() if v.dtype=='X']
+        if isinstance(columns,basestring):
+            columns = columns.split(',')
+        for c in columns:
+            record[c] = Bag(record.get(c))
             
     def existsRecord(self, record):
         """Check if a record already exists in the table and return it (if it is not already in the keys)
@@ -1408,7 +1451,8 @@ class SqlTable(GnrObject):
             lastid = self.query(columns='max($%s)' % pkey, group_by='*').fetch()[0]
             return (lastid[0] or 0) + 1
         elif self.attributes.get('pkey_columns'):
-            return '_'.join([str(record.get(col)) for col in self.attributes.get('pkey_columns').split(',') if record.get(col) is not None])
+            joiner = self.attributes.get('pkey_columns_joiner') or '_'
+            return joiner.join([str(record.get(col)) for col in self.attributes.get('pkey_columns').split(',') if record.get(col) is not None])
         else:
             return getUuid()
             
@@ -1560,7 +1604,7 @@ class SqlTable(GnrObject):
         try:
             self.protect_update(record,record)
             return True
-        except EXCEPTIONS['protect_update'], e:
+        except EXCEPTIONS['protect_update']:
             return False
             
     def check_deletable(self, record):
@@ -1570,7 +1614,7 @@ class SqlTable(GnrObject):
         try:
             self.protect_delete(record)
             return True
-        except EXCEPTIONS['protect_delete'], e:
+        except EXCEPTIONS['protect_delete']:
             return False
             
     def columnsFromString(self, columns=None):
@@ -1590,6 +1634,7 @@ class SqlTable(GnrObject):
                 #FIX 
             result.append(col)
         return result
+
         
     def getQueryFields(self, columns=None, captioncolumns=None):
         """TODO
@@ -1621,7 +1666,7 @@ class SqlTable(GnrObject):
             mask = ' - '.join(['%s' for k in fields])
         return fields, mask
 
-    def newRecordCaption(self,record):
+    def newRecordCaption(self,record=None):
         return self.newrecord_caption
         
     def recordCaption(self, record, newrecord=False, rowcaption=None):
@@ -1791,7 +1836,6 @@ class SqlTable(GnrObject):
                 self.empty()
             for rec in records:
                 self.insertOrUpdate(rec)
-            self.db.deferredCommit()
                 
     def exportToAuxInstance(self, instance, empty_before=False, excludeLogicalDeleted=True,
                             excludeDraft=True, source_records=None, **querykwargs):
@@ -1886,7 +1930,8 @@ class SqlTable(GnrObject):
 
 
 
-    def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, relationStack='',**kwargs):
+    def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, 
+                        relationStack='',checkPermissions=None,**kwargs):
         """TODO
         
         :param omit: TODO
@@ -1908,6 +1953,18 @@ class SqlTable(GnrObject):
                                      **kwargs)
                                      
         def resultAppend(result, label, attributes, omit):
+            if not self.db.application.allowedByPreference(**attributes):
+                return
+            if 'one_relation' in attributes or 'many_relation' in attributes:
+                if not self.db.application.allowedByPreference(**self.db.model.column(attributes['one_relation']).table.attributes):
+                    return
+                if not self.db.application.allowedByPreference(**self.db.model.column(attributes['many_relation']).table.attributes):
+                    return
+            elif not attributes.get('virtual_column'):
+                reltable = self.column(label).relatedTable()
+                if reltable:
+                    if not self.db.application.allowedByPreference(**reltable.attributes):
+                        return
             gr = attributes.get('group') or ' '
             if '%' in gr:
                 subgroups = dictExtract(attributes,'subgroup_')
@@ -1940,6 +1997,8 @@ class SqlTable(GnrObject):
                     return 
                 attributes['relationStack'] = gnrstring.concat(relationStack, relkey,'|')
             else:
+                if checkPermissions:
+                    attributes.update(self.model.getColPermissions(relnode.label,**checkPermissions))
                 attributes['name_long'] = attributes.get('name_long') or relnode.label
             return attributes
             
@@ -1949,7 +2008,8 @@ class SqlTable(GnrObject):
         for relnode in tblmodel.relations: # add columns relations
             attributes = convertAttributes(result, relnode, prevRelation, omit,relationStack)
             if attributes:
-                resultAppend(result, relnode.label, attributes, omit)
+                if not attributes.get('user_forbidden'):
+                    resultAppend(result, relnode.label, attributes, omit)
             
         for vcolname, vcol in tblmodel.virtual_columns.items():
             targetcol = self.column(vcolname)
@@ -1988,7 +2048,7 @@ class SqlTable(GnrObject):
                 if grplist and grplist[0] in grdict:
                     for j,kg in enumerate(grplist):
                         grplevel='.'.join(grplist[0:j+1])
-                        if not grplevel in newresult:
+                        if grplevel not in newresult:
                             newresult.setItem(grplevel, None, name_long=grdict.get(grplevel,grplevel.split('.')[-1]))
                     newresult.setItem('%s.%s' % ('.'.join(grplist), node.label), node.getValue(), node.getAttr())
 

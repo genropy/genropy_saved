@@ -58,7 +58,7 @@ class GnrCustomWebPage(object):
 
     def dbstructPane(self,frame):
         frame.data('main.dbstructure',self.app.dbStructure())
-        frame.top.slotToolbar('*,searchOn,2',height='20px',searchOn_nodeId='dbstructure_tree_searchbox')
+        frame.top.slotToolbar('*,searchOn,2',height='20px',datapath='main.dbmodel')
         pane = frame.center.contentPane(overflow='auto')
         pane.div(padding='10px').tree(nodeId='dbstructure_tree',storepath='main.dbstructure',_class='branchtree noIcon',
             hideValues=True,openOnClick=True)
@@ -66,7 +66,7 @@ class GnrCustomWebPage(object):
 
     def drawerPane(self,frame):
         b = Bag()
-        frame.top.slotToolbar('*,searchOn,2',height='20px',searchOn_nodeId='drawer_tree_searchbox')
+        frame.top.slotToolbar('*,searchOn,2',height='20px',datapath='main.dir')
         for k,pkgobj in self.application.packages.items():
             b.setItem('projects.%s' %k,DirectoryResolver(pkgobj.packageFolder,cacheTime=10,
                             include='*.py', exclude='_*,.*',dropext=True,readOnly=False)(),caption= pkgobj.attributes.get('name_long',k))
@@ -87,8 +87,48 @@ class GnrCustomWebPage(object):
 
     @public_method
     def buildEditorTab(self,pane,module=None,ide_page=None,**kwargs):
-        frameCode = '%s_%s' %(ide_page,module.replace('/','_').replace('.','_'))
+        plist = module.split(os.sep)
+        frameCode = '%s_%s' %(ide_page,'_'.join(plist).replace('.','_'))
+        wchunk = False
+        preview_url = False
+        cmroot = None
+        preview_iframe = None
         frame = pane.framePane(frameCode=frameCode ,region='center',_class='viewer_box selectable')
+        if 'webpages' in plist:
+            wchunk = 'webpages'
+        if 'mobile' in plist:
+            wchunk = 'mobile'
+        if wchunk:
+            windex = plist.index(wchunk)
+            pkg = plist[windex-1]
+            if pkg not in ('sys','adm'):
+                preview_url = '/%s' %os.path.join(pkg,*plist[windex+1:])
+                bc = frame.center.borderContainer()
+                cmroot = bc.contentPane(region='center')
+                rightpane = bc.contentPane(region='right',overflow='hidden',splitter=True,border_left='1px solid silver',background='white'
+                )
+                frame.data('.preview_url',preview_url)
+                preview_iframe = rightpane.iframe(src='^.preview_url',height='100%',width='100%',border=0)
+                commandbar = frame.top.slotBar('5,previewButtons,10,previewReload,*,savebtn,revertbtn,5',childname='commandbar',toolbar=True,background='#efefef')
+                commandbar.previewButtons.multiButton(value='^.sourceViewMode',values='srconly:Source,mixed:Mixed,preview:Preview')
+                commandbar.previewReload.slotButton('Reload preview',action='SET .preview_url = preview_url+"?_nocache="+(new Date().getTime())',
+                hidden='^.sourceViewMode?=#v=="srconly"',preview_url=preview_url)
+                bc.dataController("""var width = 0;
+                            status = status || 'srconly';
+                             if(status=='mixed'){
+                                width = '50%';
+                             }else if(status=='preview'){
+                                width = '100%'
+                             }
+                             right.style.width = width;
+                             bc.setRegionVisible('right',width!=0);
+                             """,
+                         bc=bc.js_widget,
+                         status='^.sourceViewMode',
+                         right=rightpane.js_domNode,_onBuilt=True)
+        else:
+            commandbar = frame.top.slotBar('*,savebtn,revertbtn,5',childname='commandbar',toolbar=True,background='#efefef')
+            cmroot = frame.center.contentPane(overflow='hidden')
         source = self.__readsource(module)
         breakpoints = self.pdb.getBreakpoints(module)
         pane.data('.module',module)
@@ -96,7 +136,7 @@ class GnrCustomWebPage(object):
         bar.fpath.div('^.module',font_size='9px')
         frame.data('.source',source)
         frame.data('.breakpoints',breakpoints)
-        commandbar = frame.top.slotBar(',*,savebtn,revertbtn,5',childname='commandbar',toolbar=True,background='#efefef')
+
         commandbar.savebtn.slotButton('Save',iconClass='iconbox save',
                                 _class='source_viewer_button',
                                 visible='^.changed_editor',
@@ -118,29 +158,19 @@ class GnrCustomWebPage(object):
         frame.dataRpc('dummy',self.save_source_code,docPath='=.module',
                         subscribe_sourceCodeUpdate=True,
                         sourceCode='=.source',_if='sourceCode && _source_changed',
-                        _source_changed='=.changed_editor',
+                        _source_changed='=.changed_editor',_preview_iframe=preview_iframe,
                         _onResult="""if(result=='OK'){
-                                            SET .source_oldvalue = kwargs.sourceCode;
-                                        
-                                           // genro.publish('rebuildPage');
-                                        //}else if(result.newpath){
-                                        //    if(genro.mainGenroWindow){
-                                        //        var treeMenuPath = genro.parentIframeSourceNode?genro.parentIframeSourceNode.attr.treeMenuPath:null;
-                                        //        if(treeMenuPath){
-                                        //            treeMenuPath = treeMenuPath.split('.');
-                                        //            var l = result.newpath.split('/');
-                                        //            treeMenuPath.pop();
-                                        //            treeMenuPath.push(l[l.length-1].replace('.py',''));
-                                        //            fullpath = treeMenuPath.join('.');
-                                        //        }
-                                        //        genro.dom.windowMessage(genro.mainGenroWindow,{topic:'refreshApplicationMenu',selectPath:fullpath});
-                                        //    }
-                                        }
-                                        else{
-                                            FIRE .error = result;
-                                        }""")
+                                    SET .source_oldvalue = kwargs.sourceCode;
+                                    if(kwargs._preview_iframe && kwargs._preview_iframe.domNode){
+                                        genro.dom.windowMessage(kwargs._preview_iframe.domNode.contentWindow,
+                                                                {topic:'gnrIde_rebuildPage'});
+                                    }
+                                    else{
+                                        FIRE .error = result;
+                                    }
+                                }""")
 
-        cm = frame.center.contentPane(overflow='hidden').codemirror(value='^.source',
+        cm = cmroot.codemirror(value='^.source',
                                 nodeId='%s_cm' %frameCode,
                                 config_mode='python',config_lineNumbers=True,
                                 config_indentUnit=4,config_keyMap='softTab',
@@ -155,7 +185,6 @@ class GnrCustomWebPage(object):
             cm.clearGutter('pdb_breakpoints');
             if(breakpoints){
                 breakpoints.forEach(function(n){
-                    console.log(n.attr)
                     var line_cm = n.attr.line -1;
                     cm.setGutterMarker(line_cm, "pdb_breakpoints",cm.gnrMakeMarker(n.attr.condition));
                 });

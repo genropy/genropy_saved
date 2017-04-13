@@ -283,7 +283,7 @@ class TableModuleEditor(BaseComponent):
                                                 storepath=storepath,
                                                 datapath=datapath,
                                                 struct=self.tables_viewer_struct,
-                                                pbl_classes=True,
+                                                #pbl_classes=True,
                                                 #grid_multiSelect=False,
                                                 margin='2px',
 
@@ -379,14 +379,15 @@ class TableModuleEditor(BaseComponent):
                                                     storepath='#FORM.record._columns',
                                                     struct=self.columns_struct,
                                                     structpath='#FORM.moduleColumnsStruct',
-                                                    pbl_classes=True,margin='2px',
+                                                    #pbl_classes=True,
+                                                    margin='2px',
                                                     grid_selfDragRows=True,
                                                     grid_selfsubscribe_onSelectedRow="""
                                                                 if($1.selectedId){
                                                                     genro.publish('mve_moreattr_setSource','#FORM.record._columns.'+$1.selectedId);
                                                                 }
                                                                 """,
-                                                    addrow=True,delrow=True)
+                                                    addrow=True,delrow=True,export=True)
         bottom.dataFormula('#FORM.columnsExcludedMoreAttr',"struct.getItem('#0.#0').digest('#a.field').join(',')+',_newrecord'",
                                 struct='^#FORM.moduleColumnsStruct')
         bottom.multiValueEditor(exclude='^#FORM.columnsExcludedMoreAttr',nodeId='mve_moreattr')

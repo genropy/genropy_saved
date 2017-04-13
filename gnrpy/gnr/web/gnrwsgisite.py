@@ -39,6 +39,8 @@ from gnr.web.services.gnrmail import WebMailHandler
 
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
+from gnr.web.gnrwsgisite_proxy.gnrcommandhandler import CommandHandler
+
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import SiteRegisterClient
 from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import WsgiWebSocketHandler
 import warnings
@@ -190,6 +192,7 @@ class GnrWsgiSite(object):
         self._currentMaintenances = {}
         abs_script_path = os.path.abspath(script_path)
         self.remote_db = ''
+        self._register = None
         if site_name and ':' in site_name:
             site_name,self.remote_db = site_name.split(':',1)
         if os.path.isfile(abs_script_path):
@@ -250,6 +253,7 @@ class GnrWsgiSite(object):
         self.wsgiapp = self.build_wsgiapp(options=options)
         self.db = self.gnrapp.db
         self.dbstores = self.db.dbstores
+        self.connectionLogEnabled = self.db.package('adm') and boolean(self.config['options?connectionLog'])
         self.resource_loader = ResourceLoader(self)
         self.page_factory_lock = RLock()
         self.webtools = self.resource_loader.find_webtools()
@@ -257,8 +261,9 @@ class GnrWsgiSite(object):
         self.print_handler = self.addService(PrintHandler, service_name='print')
         self.mail_handler = self.addService(WebMailHandler, service_name='mail')
         self.task_handler = self.addService(TaskHandler, service_name='task')
+        self.process_cmd = CommandHandler(self)
         self.services.addSiteServices()
-        self._register = None
+        
         self._remote_edit = options.remote_edit if options else None
         if counter == 0 and self.debug:
             self.onInited(clean=not noclean)
@@ -284,6 +289,7 @@ class GnrWsgiSite(object):
     def register(self):
         if not self._register:
             self._register = SiteRegisterClient(self)
+            self.checkPendingConnection()
         return self._register
 
     def getSubscribedTables(self,tables):
@@ -414,7 +420,8 @@ class GnrWsgiSite(object):
             self.initializePackages()
         else:
             pass
-            
+
+
     def on_reloader_restart(self):
         """TODO"""
         pass
@@ -677,7 +684,10 @@ class GnrWsgiSite(object):
         self.external_host = self.config['wsgi?external_host'] or request.host_url
         # Url parsing start
         path_list = self.get_path_list(request.path_info)
-        self.register.cleanup()
+        self.process_cmd.getPending()
+        expiredConnections = self.register.cleanup()
+        if expiredConnections:
+            self.connectionLog('close',expiredConnections)
         if path_list == ['favicon.ico']:
             path_list = ['_site', 'favicon.ico']
             self.log_print('', code='FAVICON')
@@ -1006,7 +1016,7 @@ class GnrWsgiSite(object):
             else:
                 restorepath = None
         if self.remote_db:
-            instance_path = '%s:%s' %(instance_path,self.remote_db)
+            instance_path = '%s@%s' %(instance_path,self.remote_db)
         app = GnrWsgiWebApp(instance_path, site=self,restorepath=restorepath)
         self.config.setItem('instances.app', app, path=instance_path)
         for f in restorefiles:
@@ -1027,20 +1037,26 @@ class GnrWsgiSite(object):
        #     if hasattr(pkg,'onAuthenticated'):
        #         pkg.onAuthenticated(avatar)
        # 
+
+    def checkPendingConnection(self):
+        if self.connectionLogEnabled:
+            self.db.table('adm.connection').dropExpiredConnections()
+
     def pageLog(self, event, page_id=None):
         """TODO
         
         :param event: TODO
         :param page_id: the 22 characters page id"""
-        if False and 'adm' in self.db.packages:
+        if self.connectionLogEnabled:
             self.db.table('adm.served_page').pageLog(event, page_id=page_id)
-            
+
+
     def connectionLog(self, event, connection_id=None):
         """TODO
         
         :param event: TODO
         :param connection_id: TODO"""
-        if False and 'adm' in self.db.packages:
+        if self.connectionLogEnabled:
             self.db.table('adm.connection').connectionLog(event, connection_id=connection_id)
             
     def setPreference(self, path, data, pkg=''):
@@ -1071,8 +1087,8 @@ class GnrWsgiSite(object):
         :param dflt: TODO
         :param username: TODO"""
         if self.db.package('adm'):
-            username = username or self.currentPage.user
-            pkg = pkg or self.currentPage.packageId
+            username = username or self.currentPage.user if self.currentPage else None
+            pkg = pkg or self.currentPage.packageId if self.currentPage else None
             return self.db.table('adm.user').getPreference(path=path, pkg=pkg, dflt=dflt, username=username)
             
     def setUserPreference(self, path, data, pkg=None, username=None):
@@ -1084,7 +1100,7 @@ class GnrWsgiSite(object):
         :param username: TODO"""
         if self.db.package('adm'):
             pkg = pkg or self.currentPage.packageId
-            username = username or self.currentPage.user
+            username = username or self.currentPage.user if self.currentPage else None
             self.db.table('adm.user').setPreference(path, data, pkg=pkg, username=username) 
 
     @property
@@ -1144,6 +1160,7 @@ class GnrWsgiSite(object):
         
         :param page: the :ref:`webpage` being closed"""
         page_id = page.page_id
+        
         self.pageLog('close', page_id=page_id)
         self.clearRecordLocks(page_id=page_id)
         page._closed = True
@@ -1193,6 +1210,7 @@ class GnrWsgiSite(object):
             site_url = self.config['wsgi?external_host'] or (self.currentRequest and self.currentRequest.host_url)
             if site_url:
                 return dict(interval=60,site_url=site_url)
+
         
     def callTableScript(self, page=None, table=None, respath=None, class_name=None, runKwargs=None, **kwargs):
         """Call a script from a table's resources (e.g: ``_resources/tables/<table>/<respath>``).

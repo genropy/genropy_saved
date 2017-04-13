@@ -7,9 +7,11 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs,public_method
+from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrbag import Bag
 
 class FrameGridSlots(BaseComponent):
+
     @struct_method
     def fgr_slotbar_export(self,pane,_class='iconbox export',mode='xls',enable=None,rawData=True,parameters=None,**kwargs):
         kwargs.setdefault('visible',enable)
@@ -20,13 +22,13 @@ class FrameGridSlots(BaseComponent):
         placeholder = table.replace('.','_') if table else None
         return pane.slotButton(label='!!Export',publish='serverAction',
                                 command='export',opt_export_mode=mode or 'xls',
-                                
                                 opt_downloadAs=parameters.get('downloadAs'),
                                 opt_rawData=rawData, iconClass=_class,
                                 opt_localized_data=True,
                                 ask=dict(title='Export selection',skipOn='Shift',
                                         fields=[dict(name='opt_downloadAs',lbl='Download as',placeholder=placeholder),
                                                 dict(name='opt_export_mode',wdg='filteringSelect',values='xls:Excel,csv:CSV',lbl='Mode'),
+                                                dict(name='opt_allRows',label='All rows',wdg='checkbox'),
                                                 dict(name='opt_localized_data',wdg='checkbox',label='Localized data')]),
 
                                 **kwargs) 
@@ -36,14 +38,27 @@ class FrameGridSlots(BaseComponent):
         kwargs.setdefault('visible',enable)
         menupath = None
         if defaults:
-            menubag = Bag()
-            for i,(caption,default_kw) in enumerate(defaults):
-                menubag.setItem('r_%i' %i,None,caption=caption,default_kw=default_kw)
-            pane.data('.addrow_menu_store',menubag)
+            menubag = None
             menupath = '.addrow_menu_store'
-        return pane.slotButton(label='!!Add',publish='addrow',iconClass=_class,disabled=disabled,
+            if isinstance(defaults,Bag):
+                menubag = defaults
+            elif isinstance(defaults,basestring):
+                menupath = defaults
+            else:
+                menubag = Bag()
+                for i,(caption,default_kw) in enumerate(defaults):
+                    menubag.setItem('r_%i' %i,None,caption=caption,default_kw=default_kw)
+            if menubag:
+                pane.data('.addrow_menu_store',menubag)
+        return pane.slotButton(label='!!Add',childname='addButton',publish='addrow',iconClass=_class,disabled=disabled,
                                 _delay=delay,menupath=menupath,**kwargs)
          
+    @struct_method
+    def fgr_slotbar_duprow(self,pane,_class='iconbox copy',disabled='^.disabledButton',enable=None,delay=300,defaults=None,**kwargs):
+        kwargs.setdefault('visible',enable)
+        return pane.slotButton(label='!!Duplicate',publish='duprow',iconClass=_class,disabled=disabled,
+                                _delay=delay,**kwargs)
+
     @struct_method
     def fgr_slotbar_delrow(self,pane,_class='iconbox delete_row',enable=None,disabled='^.disabledButton',**kwargs):
         kwargs.setdefault('visible',enable)
@@ -80,7 +95,6 @@ class FrameGridSlots(BaseComponent):
         
     @struct_method
     def fgr_slotbar_viewlocker(self, pane,frameCode=None,**kwargs):
-       # kw['subscribe_%s_onLockChange' %storeId] = "this.widget.setIconClass($1.locked?'icnBaseLocked':'icnBaseUnlocked');"
         pane.slotButton('!!Locker',publish='viewlocker',iconClass='==_locked?"iconbox lock":"iconbox unlock";',_locked='^.locked',**kwargs)
     
     @struct_method
@@ -100,10 +114,58 @@ class FrameGridSlots(BaseComponent):
     @struct_method
     def fgr_slotbar_gridsemaphore(self,pane,**kwargs):
         return pane.div(_class='editGrid_semaphore',padding_left='4px')
-                                
+
+    @extract_kwargs(cb=True,lbl=dict(slice_prefix=False))
+    @struct_method
+    def fgr_slotbar_filterset(self,parent,filterset=None,cb=None,cb_kwargs=None,
+                            all_begin=None,all_end=None,include_inherited=False,
+                            multiButton=None,multivalue=None,mandatory=None,lbl=None,lbl_kwargs=None,
+                            frameCode=None,**kwargs):
+        pane = parent.div(datapath='.grid.filterset.%s' %filterset)
+        m = self.mangledHook('filterset_%s' %filterset,mangler=frameCode,defaultCb=False)
+        filterlist = None
+        if m:
+            filterlist = m()
+            dflt = getattr(m,'default',None)
+            multivalue=getattr(m,'multivalue',True)
+            mandatory= getattr(m,'mandatory',False)
+            multiButton = getattr(m,'multiButton',multiButton)
+            lbl = lbl or getattr(m,'lbl',None)
+            lbl_kwargs = lbl_kwargs or dictExtract(dict(m.__dict__),'lbl_',slice_prefix=False)
+        if filterlist:
+            filtersetBag = Bag()
+            dflt = []
+            for i,kw in enumerate(filterlist):
+                code = kw.get('code') or 'r_%i' %i
+                if kw.get('isDefault'):
+                    dflt.append(code)
+                filtersetBag.setItem(code,None,**kw)
+            pane.data('.data',filtersetBag)
+            pane.data('.current',','.join(dflt) if dflt else None)
+        multiButton = multiButton is True or multiButton is None or multiButton and len(filtersetBag)<=multiButton
+        if multiButton:
+            mb = pane.multiButton(items='^.data',value='^.current',multivalue=multivalue,mandatory=mandatory,
+                                disabled='^.#parent.#parent.loadingData',**kwargs)
+    
+        else:
+            mb = pane.formbuilder(cols=1,border_spacing='3px',**lbl_kwargs)
+            lbl = lbl or filterset.capitalize()
+            if multivalue:
+                mb.checkBoxText(values='^.data',value='^.current',lbl=lbl,
+                                labelAttribute='caption',parentForm=False,
+                                disabled='^.#parent.#parent.loadingData',
+                                        popup=True,cols=1)
+            else:
+                mb.filteringSelect(storepath='.data',value='^.current',lbl=lbl,
+                                disabled='^.#parent.#parent.loadingData',
+                                storeid='#k',parentForm=False,
+                                validate_notnull=mandatory,
+                                popup=True,cols=1)
+
+          
 class FrameGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGridSlots'
-    @extract_kwargs(top=True,grid=True,columnset=dict(slice_prefix=False),footer=dict(slice_prefix=False))
+    @extract_kwargs(top=True,grid=True,columnset=dict(slice_prefix=False,pop=True),footer=dict(slice_prefix=False,pop=True))
     @struct_method
     def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,dynamicStorepath=None,structpath=None,
                     datamode=None,table=None,grid_kwargs=True,top_kwargs=None,iconSize=16,
@@ -120,6 +182,7 @@ class FrameGrid(BaseComponent):
         grid_kwargs.setdefault('structpath',structpath)
         grid_kwargs.setdefault('sortedBy','^.sorted')
         grid_kwargs['selfsubscribe_addrow'] = grid_kwargs.get('selfsubscribe_addrow','this.widget.addRows($1._counter,$1.evt);')
+        grid_kwargs['selfsubscribe_duprow'] = grid_kwargs.get('selfsubscribe_duprow','this.widget.addRows($1._counter,$1.evt,true);')
         grid_kwargs['selfsubscribe_delrow'] = grid_kwargs.get('selfsubscribe_delrow','this.widget.deleteSelectedRows();')
         grid_kwargs['selfsubscribe_archive'] = grid_kwargs.get('selfsubscribe_archive','this.widget.archiveSelectedRows();')
 

@@ -26,6 +26,8 @@ Some useful operations on lists.
 """
 from gnr.core.gnrlang import GnrException
 from gnr.core.gnrdecorator import deprecated
+from gnr.core.gnrstring import slugify
+import datetime
 import csv
 from gnr.core import six
 
@@ -253,27 +255,42 @@ class XlsReader(object):
     def __init__(self, docname):
         import xlrd
         import os.path
-        
+        self.XL_CELL_DATE = xlrd.XL_CELL_DATE
+        self.xldate_as_tuple = xlrd.xldate_as_tuple
         self.docname = docname
         self.dirname = os.path.dirname(docname)
         self.basename, self.ext = os.path.splitext(os.path.basename(docname))
         self.ext = self.ext.replace('.', '')
         self.book = xlrd.open_workbook(filename=self.docname)
         self.sheet = self.book.sheet_by_index(0)
-        headers = [self.sheet.cell_value(0, c) for c in range(self.sheet.ncols)]
+        self.linegen = self.sheetlines()
+        firstline = self.linegen.next()
+        headers = [slugify(firstline[c],sep='_') for c in range(self.sheet.ncols)]
+        self.colindex = dict([(i,True)for i,h in enumerate(headers) if h])
         self.headers = [h for h in headers if h]
         self.index = dict()
-        for i,k in enumerate(headers):
+        for i,k in enumerate(self.headers):
             if k in self.index:
                 raise GnrException('Duplicated columns in source xls')
             self.index[k] = i
         self.ncols = len(headers)
         self.nrows = self.sheet.nrows - 1
+
+
+    def sheetlines(self):
+        for lineno in range(self.sheet.nrows):
+            line = self.sheet.row_values(lineno)
+            if filter(lambda elem: elem,line):
+                row_types = self.sheet.row_types(lineno)
+                for i,c in enumerate(line):
+                    if row_types[i] == self.XL_CELL_DATE:
+                        line[i] = datetime.datetime(*self.xldate_as_tuple(c,self.sheet.book.datemode))
+                yield line 
         
     def __call__(self):
-        for r in range(1, self.sheet.nrows):
-            row = [self.sheet.cell_value(r, c) for c in range(self.ncols)]
-            yield GnrNamedList(self.index, row)
+        for line in self.linegen:
+            #row = [self.sheet.cell_value(r, c) for c in range(self.ncols)]
+            yield GnrNamedList(self.index, [c for i,c in enumerate(line) if i in self.colindex])
             
 
 class CsvReader(object):

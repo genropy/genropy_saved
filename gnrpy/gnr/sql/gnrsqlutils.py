@@ -120,6 +120,7 @@ class SqlModelChecker(object):
     
     def __init__(self, db):
         self.db = db
+        self.unaccent = False
         
     def checkDb(self):
         """Return a list of instructions for the database building"""
@@ -149,6 +150,14 @@ class SqlModelChecker(object):
         for pkg in self.db.packages.values():
             #print '----------checking %s----------'%pkg.name
             self._checkPackage(pkg)
+        enabled_unaccent = False if create_db else 'unaccent' in self.db.adapter.listElements('enabled_extensions')
+        unaccent_statement = None
+        if self.unaccent and not enabled_unaccent:
+            unaccent_statement = self.db.adapter.createExtensionSql('unaccent')
+        elif enabled_unaccent and not self.unaccent:
+            unaccent_statement =  self.db.adapter.dropExtensionSql('unaccent')
+        if unaccent_statement:
+            self.changes.append(unaccent_statement)
         self._checkAllRelations()
         return [x for x in self.changes if x]
 
@@ -156,9 +165,13 @@ class SqlModelChecker(object):
         try:
             extensions = self.db.application.config['db?extensions']
             if extensions:
-                self.db.adapter.createExtension(extensions)
+                commit = self.db.adapter.createExtension(extensions)
+                if commit:
+                    self.db.commit()
         except Exception,e:
             print 'Error in adding extensions',e
+        
+
         
     def _checkPackage(self, pkg):
         """Check if the current package is contained by a not defined schema and then call the
@@ -215,6 +228,8 @@ class SqlModelChecker(object):
                 if col.sqlname in dbcolumns:
                     #it there's the column it should check if has been edited.
                     new_dtype = col.attributes['dtype']
+                    if col.attributes.get('unaccent'):
+                        self.unaccent = True
                     new_size = col.attributes.get('size')
                     new_unique = col.attributes.get('unique')
                     old_dtype = dbcolumns[col.sqlname]['dtype']
@@ -235,6 +250,8 @@ class SqlModelChecker(object):
                     if new_size and new_dtype == 'N' and not ',' in new_size:
                         new_size = '%s,0' % new_size
                     elif new_dtype in ('X', 'Z', 'P') and old_dtype == 'T':
+                        pass
+                    elif new_dtype in ('L','I') and old_dtype in ('L','I') and not self.db.adapter.allowAlterColumn:
                         pass
                     elif new_dtype != old_dtype or new_size != old_size or bool(old_unique)!=bool(new_unique):
                         if (new_dtype != old_dtype or new_size != old_size):
@@ -284,7 +301,7 @@ class SqlModelChecker(object):
     def _checkTblRelations(self, tbl):
         if not tbl.relations:
             return
-        tbl_actual_rels = self.actual_relations.get(tbl.sqlfullname, [])[
+        tbl_actual_rels = self.actual_relations.get('%s.%s' %(tbl.sqlschema,tbl.sqlname), [])[
                           :] #get all db foreignkey of the current table
         relations = [rel for rel in tbl.relations.digest('#a.joiner') if rel]
         for rel in relations:
@@ -427,7 +444,7 @@ class SqlModelChecker(object):
         if old_unique:
             alter_unique+=' DROP CONSTRAINT IF EXISTS %s'%old_unique
         if new_unique:
-            alter_unique+=' ADD CONSTRAINT un_%s_%s UNIQUE(%s)'%(col.table.sqlfullname.replace('.','_'), col.sqlname,col.sqlname)
+            alter_unique+=' ADD CONSTRAINT un_%s_%s UNIQUE(%s)'%(col.table.sqlfullname.replace('"','').replace('.','_'), col.sqlname,col.sqlname)
         return 'ALTER TABLE %s %s' % (col.table.sqlfullname, alter_unique)
         
     def _buildForeignKey(self, o_pkg, o_tbl, o_fld, m_pkg, m_tbl, m_fld, on_up, on_del, init_deferred):
@@ -449,6 +466,8 @@ class SqlModelChecker(object):
         
         sqlfields = []
         for col in tbl.columns.values():
+            if col.attributes.get('unaccent'):
+                self.unaccent = True
             sqlfields.append(self._sqlColumn(col))
         return 'CREATE TABLE %s (%s);' % (tablename, ', '.join(sqlfields))
         

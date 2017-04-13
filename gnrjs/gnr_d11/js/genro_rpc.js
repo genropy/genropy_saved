@@ -44,6 +44,7 @@ dojo.declare("gnr.GnrRemoteResolver", gnr.GnrBagResolver, {
         this.xhrKwargs.error = dojo.hitch(this, this.xhrKwargs.error);
         this.httpMethod = objectPop(kwargs, 'httpMethod') || 'POST';
         this.onloading = null;
+        this.onResult = objectPop(kwargs,'_onResult');
     },
     load: function (kwargs) {
         if (this.onloading) {
@@ -56,24 +57,38 @@ dojo.declare("gnr.GnrRemoteResolver", gnr.GnrBagResolver, {
             kwargs.resolverPars.kwargs = kwargs._sourceNode.evaluateOnNode(kwargs.resolverPars.kwargs);
         }
         var kw = objectUpdate({},kwargs);
-        
+        var onResult = this.onResult;
+        var result;
         if (this.httpMethod=='WSK'){
-            var result = genro.wsk.call(kw);
-            result.addErrback(function(error){console.error(error)})
-            return result
+            result = genro.wsk.call(kw);
+            result.addErrback(function(error){
+                console.error(error);
+            });
+            if(onResult){
+                result.addCallback(function(value){
+                    funcApply(onResult,{result:value},kwargs._sourceNode);
+                });
+            }
+            return result;
         }else{
-            var result = genro.rpc._serverCall(kwargs, xhrKwargs, this.httpMethod);
+            result = genro.rpc._serverCall(kwargs, xhrKwargs, this.httpMethod);
             if (sync) {
                 result.addCallback(function(value) {
                     result = value;
+                    if(onResult){
+                        funcApply(onResult,{result:result},kwargs._sourceNode);
+                    }
                 });
-            }  
+            }else if(onResult){
+                result.addCallback(function(value){
+                    funcApply(onResult,{result:value},kwargs._sourceNode);
+                });
+            }
         }
  
         return result;
     },
     errorHandler: function(response, ioArgs) {
-        
         return genro.rpc.errorHandler(response, ioArgs);
     },
     resultHandler: function(response, ioArgs) {
@@ -122,7 +137,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         this.rpc_register = {};
         this.rpc_counter = 0;
         this.rpc_level = 0;
-
+        this.dynRequires = {js:{},css:{}};
     },
 
     hasPendingCall:function(){
@@ -239,6 +254,9 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         var delayOnCall = objectPop(callKwargs, '_delayOnCall');
         var sourceNode = callKwargs['_sourceNode'];
         var sysrpc = objectPop(callKwargs,'sysrpc');
+        if(sourceNode){
+            objectUpdate(callKwargs,objectExtract(sourceNode.attr,'dbenv_*',true,true));
+        }
         callKwargs = this.serializeParameters(genro.src.dynamicParameters(callKwargs));
         objectPop(callKwargs, '_destFullpath');
        //if(genro.root_page_id){
@@ -457,13 +475,42 @@ dojo.declare("gnr.GnrRpcHandler", null, {
                 }
             }
         }
-        ;
+    },
+
+    loadRequires:function(envelope){
+        var js_requires = envelope.getItem('js_requires');
+        var css_requires = envelope.getItem('css_requires');
+        var jslist = [];
+        var csslist = [];
+        var k;
+        for (k in js_requires){
+            if(!(k in this.dynRequires.js)){
+                if(js_requires[k]){
+                    jslist.push({htype:'script',src:js_requires[k]});
+                }
+                this.dynRequires.js[k] = true;
+            }
+        }
+        for (k in css_requires){
+            if(!(k in this.dynRequires.css)){
+                if(css_requires[k]){
+                    jslist.push({htype:'link',href:css_requires[k]});
+                }
+                this.dynRequires.css[k] = true;
+            }
+        }
+        var urlist = jslist.concat(csslist);
+        if(urlist.length){
+            genro.dom.addHeaders(urlist,function(){
+                genro.wdg.updateWidgetCatalog();
+            });
+        }
     },
 
     resultHandler: function(response, ioArgs, currentAttr) {
         genro._last_rpc = {response:response,ioArgs:ioArgs};
         this.unregister_call(ioArgs);
-        var siteMaintenance = ioArgs.xhr.getResponseHeader('X-GnrSiteMaintenance') 
+        var siteMaintenance = ioArgs.xhr.getResponseHeader('X-GnrSiteMaintenance');
         genro.dev.siteLockedStatus(siteMaintenance!=null);
         var envelope = new gnr.GnrBag();
         try {
@@ -491,6 +538,8 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         if (datachanges) {
             genro.rpc.setDatachangesInData(datachanges);
         }
+        var req,url;
+        this.loadRequires(envelope);
         var childDataChanges = envelope.getItem('childDataChanges');
         if(childDataChanges){
             childDataChanges.forEach(function(n){
@@ -507,7 +556,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
                 genro.setLocStatus(locStatus);
             }
             if (currentAttr) {
-                var attr = objectUpdate({}, currentAttr);
+                attr = objectUpdate({}, currentAttr);
                 if (!envNode) {
                     console.log(envNode);
                     debugger;
@@ -554,7 +603,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
 
 
     remoteResolver: function(methodname, params, kw /*readOnly, cacheTime*/) {
-        var kw = kw || {};
+        kw = kw || {};
         var cacheTime = kw.cacheTime==null?-1:kw.cacheTime;
         var isGetter = kw.isGetter || null;
 
@@ -758,7 +807,8 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             kwargs['loadingParameters'] = loadingParameters;
         };
         resolver.onloaded = function(){
-            genro.publish('resolverOneLoaded_'+this.attr._from_fld.replace(/\./g, '_'),{path:this.getFullpath(),node:this});
+            var f = this.attr._from_fld || this.attr._target_fld || table;
+            genro.publish('resolverOneLoaded_'+f.replace(/\./g, '_'),{path:this.getFullpath(),node:this});
         }
         var _related_field = params._target_fld.split('.')[2];
 

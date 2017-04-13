@@ -208,7 +208,10 @@ function stringContains(s, v) {
     return (s.indexOf(v) >= 0);
 }
 
-function stringCapitalize(str) {
+function stringCapitalize(str,firstOnly) {
+    if (firstOnly){
+        return str[0].toUpperCase() + str.slice(1);
+    }
     return str.replace(/\w+/g, function(a) {
         //return a.charAt(0).toUpperCase() + a.substr(1).toLowerCase();
         return a.charAt(0).toUpperCase() + a.substr(1);
@@ -454,16 +457,66 @@ function objectKeyByIdx(obj, idx) {
     }
 }
 function isEqual(a,b){
-    return (a==b)||((a+'')==(b+''));
+    if(a instanceof gnr.GnrBag && b instanceof gnr.GnrBag){
+        return a.isEqual(b);
+    }
+    if(a instanceof Array && b instanceof Array){
+        return a.length == b.length && !a.some(function(elem,idx){return !isEqual(elem,b[idx])});
+    }
+    var a = a instanceof Date ? a.valueOf() : a;
+    var b = b instanceof Date ? b.valueOf() : b;
+    return objectIsEqual(a,b);
 };
+
+function objectIsEqual(obj1, obj2) {
+    if (obj1 == obj2) {
+        return true;
+    } else {
+        if ((obj1 instanceof Object) && (obj2 instanceof Object)) {
+            for (a in obj1) {
+                if (!(obj2[a] === obj1[a])) {
+                    return false;
+                }
+            }
+            for (a in obj2) {
+                if (!(obj2[a] === obj1[a])) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
 function isNullOrBlank(elem){
     return elem === null || elem===undefined || elem === '';
 }
 
 function localType(dtype){
     return {'R':{places:2},'L':{places:0},'I':{places:0},'D':{date:'short'},'H':{time:'short'},'HZ':{time:'short'},'DH':{datetime:'short'},'DHZ':{datetime:'short'}}[dtype];
-};
-    
+}
+   
+function normalizeKwargs(kwargs,str){
+    if(!kwargs){
+        return;
+    }
+    var p = objectPop(kwargs,str);
+    var kw = objectExtract(kwargs,str+'_*');
+    if(!objectNotEmpty(kw)){
+        kw = null;
+    }
+    if(p===true || p===null){
+        return kw || (p?{}:null);
+    }
+    if(typeof(p) == 'object'){
+        kw = objectUpdate(kw || {},p);
+    }else{
+        kw._ = p;
+    }
+    return kw;
+}
 
 function objectExtract(obj, keys, dontpop,dontslice) {
     if(!obj){
@@ -561,6 +614,13 @@ function objectKeys(obj) {
     return keys;
 }
 
+function objectItems(obj) {
+    var keys = [];
+    for (var prop in obj) {
+        keys.push({key:prop,value:obj[prop]});
+    }
+    return keys;
+}
 
 function objectValues(obj) {
     var values = [];
@@ -592,6 +652,10 @@ function objectMap(obj,func){
     }
 }
 
+function copyJson(obj){
+    return JSON.parse(JSON.stringify(obj));
+}
+
 function objectUpdate(obj, source, removeNulls) {
     if (source) {
         if (source instanceof gnr.GnrBag){
@@ -617,30 +681,6 @@ function objectIsContained(obj1, obj2) {
         }
     }
     return true;
-}
-
-function objectIsEqual(obj1, obj2) {
-    if (obj1 == obj2) {
-        return true;
-    } else {
-        if ((obj1 instanceof Object) && (obj2 instanceof Object)) {
-            for (a in obj1) {
-                if (!(obj2[a] === obj1[a])) {
-                    return false;
-                }
-            }
-            for (a in obj2) {
-                if (!(obj2[a] === obj1[a])) {
-                    return false;
-                }
-            }
-            return true;
-        } else {
-            return false;
-        }
-
-    }
-
 }
 
 function objectRemoveNulls(obj, blackList) {
@@ -749,7 +789,7 @@ function objectFromString(values,sep,mode){
         return {};
     }
     var ch = sep || (values.indexOf('\n')>=0?'\n':',');
-    var values = values.split(ch);
+    values = values.split(ch);
     var result = {};
     for (var i = 0; i < values.length; i++) {
         val = values[i];
@@ -852,6 +892,7 @@ function convertFromText(value, t, fromLocale) {
         }
     }
     var t = t || 'T';
+    var result;
     t = t.toUpperCase();
     if (t == 'NN') {
         return null;
@@ -862,7 +903,7 @@ function convertFromText(value, t, fromLocale) {
         } else {
             value = parseInt(value);
         }
-        value.genrodtype = t;
+        value._gnrdtype = t;
         return value;
     }
     else if (t == 'R' || t == 'N') {
@@ -871,7 +912,7 @@ function convertFromText(value, t, fromLocale) {
         } else {
             value = parseFloat(value);
         }
-        value.genrodtype = t;
+        value._gnrdtype = t;
         return value;
     }
     else if (t == 'B') {
@@ -880,24 +921,28 @@ function convertFromText(value, t, fromLocale) {
     else if ((t == 'D') || (t == 'DH')) {
         if (fromLocale) {
             var selector = (t == 'DH') ? 'datetime' : 'date';
-            return dojo.date.locale.parse(value, {selector:selector});
+            result = dojo.date.locale.parse(value, {selector:selector});
         } else {
             if(t=='D'){
                 value = value.split('.')[0].replace(/\-/g, '/');
             }
-            return new Date(value); 
+            result = new Date(value); 
         }
+        result._gnrdtype=t;
+        return result;
     }
     else if (t == 'H') {
         if (fromLocale) {
-            return dojo.date.locale.parse(value, {selector:'time'});
+            result = dojo.date.locale.parse(value, {selector:'time'});
         } else {
             value = value.split(':');
             if (value.length < 3) {
                 value.push('00');
             }
-            return new Date(1971, null, null, Number(value[0]), Number(value[1]), Number(value[2]));
+            result = new Date(1971, null, null, Number(value[0]), Number(value[1]), Number(value[2]));
         }
+        result._gnrdtype=t;
+        return result;
     }
     else if (t == 'JS') {
         if(window.genro){
@@ -920,11 +965,12 @@ function convertFromText(value, t, fromLocale) {
 var gnrformatter = {
     asText :function (value,valueAttr){
         var formatKw =  objectUpdate({},valueAttr);
+        var dtype = objectPop(formatKw,'dtype');
         var formattedValue;
-        if(value==null || value==undefined){
+        if((value===null || value===undefined) && dtype!='B'){
             return '';
         }
-        var dtype = objectPop(formatKw,'dtype') || guessDtype(value);
+        dtype = dtype|| guessDtype(value);
         
         var format = objectPop(formatKw,'format');
 
@@ -1218,6 +1264,12 @@ function guessDtype(value){
     if(value===null || value===undefined){
         return 'NN';
     }
+    if(isBag(value)){
+        return 'X'
+    }
+    if(value instanceof gnr.GnrBagNode){
+        return 'BAGNODE';
+    }
     var t = typeof(value);
     if(t=='string'){
         return 'T';
@@ -1238,9 +1290,6 @@ function guessDtype(value){
             return 'D';
         }
         return 'DH';
-    }
-    if(value instanceof gnr.GnrBag){
-        return 'X'
     }
     if(value instanceof Array){
         return 'AR';
@@ -1293,7 +1342,7 @@ function convertToText(value, params) {
     else if (value instanceof Date) {
         var selectors = {'D':'date','H':'time','DH':null};
         if (!dtype) {
-            dtype = value.toString().indexOf('Thu Dec 31 1970') == 0 ? 'H' : 'D';
+            dtype = value._gnrdtype || (value.toString().indexOf('Thu Dec 31 1970') == 0 ? 'H' : 'D');
         }
         var opt = {'selector':selectors[dtype]};
         if (forXml) {
@@ -1547,6 +1596,25 @@ function serialize(_obj) {
 }
 function stringHash(str){
     return str.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+};
+
+function stringToColour(str) {
+    if(!str){
+        return;
+    }
+    while(str.length<30){
+        str+=str;
+    }
+    var hash = 0;
+    for (var i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    var colour = '#';
+    for (var i = 0; i < 3; i++) {
+      var value = (hash >> (i * 8)) & 0xFF;
+      colour += ('00' + value.toString(16)).substr(-2);
+    }
+    return colour;
 };
 
 function parseURL(url) {

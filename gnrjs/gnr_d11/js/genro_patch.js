@@ -1,6 +1,28 @@
 
 
 var genropatches = {};
+genropatches.places = function(){
+    var placeOnScreenAroundElement = dijit.placeOnScreenAroundElement;
+    dijit.placeOnScreenAroundElement = function(
+        /* DomNode */       node,
+        /* DomNode */       aroundNode,
+        /* Object */        aroundCorners,
+        /* Function */      layoutNode){
+
+        var result = placeOnScreenAroundElement(node,aroundNode,aroundCorners,layoutNode);
+        var bodyWidth = dojo.body().clientWidth;
+        var coords = dojo.coords(node);
+        var delta = bodyWidth-(coords.l+coords.w+5);
+        if(delta<0){
+            node.style.left = parseInt(node.style.left)+delta+'px';
+            result.w = result.w + result.overflow;
+            result.overflow = null;
+        }
+        //console.log('result',result);
+        return result;
+    };
+
+};
 genropatches.forEachError = function(){
     var fe = dojo.forEach;
     dojo['forEach'] = function(arr,cb,scope){
@@ -674,7 +696,15 @@ genropatches.borderContainer = function() {
                 if (child.splitter && !this._splitters[region]) {
                     var _Splitter = dojo.getObject(this._splitterClass);
                     var flip = {left:'right', right:'left', top:'bottom', bottom:'top', leading:'trailing', trailing:'leading'};
-                    var oppNodeList = dojo.query('[region=' + flip[child.region] + ']', this.domNode);
+                    try{
+                        var oppNodeList = dojo.query('[region=' + flip[child.region] + ']', this.domNode);
+                    }catch(e){
+                        //fix safari
+                        var oppNodeList = Array();
+                        oppNodeList.constructor = dojo.NodeList;
+                        dojo._mixin(oppNodeList, dojo.NodeList.prototype);
+                    }
+                    
                     var splitter = new _Splitter({ container: this, child: child, region: region,
                         oppNode: oppNodeList[0], live: this.liveSplitters });
                     this._splitters[region] = splitter.domNode;

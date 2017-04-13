@@ -59,7 +59,7 @@ dojo.declare("gnr.GnrBagNode", null, {
             var attr = objectUpdate({}, _attr);
             this.setAttr(attr, /*update trigger*/false);
         }
-        if (value == undefined) {
+        if (value === undefined) {
             value = null;
         }
         if (!_resolver) {
@@ -110,11 +110,12 @@ dojo.declare("gnr.GnrBagNode", null, {
     isChildOf:function(bagOrNode){
         var node = bagOrNode instanceof gnr.GnrBagNode? bagOrNode:bagOrNode.getParentNode();
         var curr = this;
+        var parentNode;
         do{
-            var parentNode = curr.getParentNode();
+            parentNode = curr.getParentNode();
             curr=parentNode;
-        }while(parentNode  && parentNode !== node)
-        return parentNode!=null;
+        }while(parentNode  && parentNode !== node);
+        return !isNullOrBlank(parentNode);
     },
 
     /**
@@ -165,7 +166,11 @@ dojo.declare("gnr.GnrBagNode", null, {
 
 
     getValue2:function(mode/*str*/, optkwargs) {
-        return this.getValue(mode, optkwargs);
+        console.log('called by meToo')
+        var result =  this.getValue('static');
+        console.log('result getValue2',result)
+
+        return result;
     },
     getFormattedValue: function(kw,mode) {
         var v = this.getValue(mode);
@@ -181,7 +186,7 @@ dojo.declare("gnr.GnrBagNode", null, {
     },
 
     getValue: function(mode/*str*/, optkwargs) {
-        var mode = mode || '';
+        mode = mode || '';
         if ((this._resolver == null) || (mode.indexOf('static') >= 0) || (this._status == 'loading')) {
             return this._value;
         }
@@ -533,7 +538,7 @@ dojo.declare("gnr.GnrBag", null, {
      * @param {Object} source //not implemented yet
      */
     _nodeFactory: gnr.GnrBagNode,
-    constructor: function(source) {
+    constructor: function(source,kw) {
         this._nodes = [];
         this._backref = false;
         this._parentnode = null;
@@ -541,7 +546,7 @@ dojo.declare("gnr.GnrBag", null, {
         this._symbols = null;
         this._subscribers = {};
         if (source) {
-            this.fillFrom(source);
+            this.fillFrom(source,kw);
         }
 
     },
@@ -550,28 +555,42 @@ dojo.declare("gnr.GnrBag", null, {
     },
 
     fillFrom: function(source) {
-        if (source instanceof Array) {
-            for (var i = 0; i < source.length; i++) {
-                this.setItem(source[i][0], source[i][1]);
+        var sourceType = guessDtype(source);
+        var dest = this;
+        if (sourceType=='AR') {
+            var firstElemType = guessDtype(source[0]);
+            if(firstElemType=='AR'){
+                source.forEach(function(elem,idx){
+                    dest.setItem(elem[0],elem[1],elem[2]);
+                });
+            }else if(firstElemType=='OBJ'){
+                source.forEach(function(elem,idx){
+                    dest.setItem('r_'+idx,new gnr.GnrBag(elem),{_autolist:true});
+                });
             }
-        } else if (isBag(source)) {
-            var dest = this;
+        } else if (sourceType=='X') {
+
             source.forEach(function(node) {
                 dest.setItem(node.label, node.getValue(), objectUpdate({}, node.getAttr()));
             });
-        }else if(typeof(source)=='string'){
+        }else if(sourceType=='T'){
             //always xml string
             var parser=new window.DOMParser();
             this.fromXmlDoc(parser.parseFromString(source,'text/xml'),genro.clsdict);
         }
-        else if (source instanceof Object) {
+        else if (sourceType=='OBJ') {
             for (var k in source) {
-                this.setItem(k, source[k]);
+                var val = source[k];
+                var valType = guessDtype(val);
+                if(valType=='FUNC'){
+                    continue;
+                }else if(valType=='OBJ' || valType=='AR'){
+                    val = new gnr.GnrBag(val);
+                }
+                this.setItem(k, val);
             }
         }
-
     },
-    
     /**
      * @id getParent
      */
@@ -647,14 +666,14 @@ dojo.declare("gnr.GnrBag", null, {
             r ='';
             b = n._value;
             dojo.forEach(cells,function(cell){
-                var align = 'left'
+                var align = 'left';
                 vnode = b.getNode(cell);
                 cell_kw = kw[cell] || {};
                 if(vnode){
                     v = vnode._value;
                     if(v instanceof gnr.GnrBag){
                         v = v.getFormattedValue(kw,mode);
-                    }else if(v==null){
+                    }else if(isNullOrBlank(v)){
                         v='';
                     }
                     else{
@@ -697,7 +716,7 @@ dojo.declare("gnr.GnrBag", null, {
     },
 
     getFormattedValue:function(kw,mode){
-        var kw = kw || {};
+        kw = kw || {};
         if(this._parentnode && this._parentnode.attr.format_bag_cells){
             return this.asHtmlTable(objectExtract(this._parentnode.attr,'format_bag_*',true));
         }else if(kw.cells){
@@ -706,14 +725,13 @@ dojo.declare("gnr.GnrBag", null, {
             return this.asNestedTable(kw,mode);
         }
         var r = [];
-        var kw = kw || {};
         kw.joiner = kw.joiner || '<br/>';
         kw.omitEmpty = 'omitEmpty' in kw? kw.omitEmpty:true;
         var fv;
         this.forEach(function(n){
             if(n.label[0]!='_'){
                 fv = n.getFormattedValue(kw,mode);
-                if(kw.omitEmpty && !fv){
+                if(kw.omitEmpty && isNullOrBlank(fv)){
                     return;
                 }
                 r.push(fv);
@@ -778,11 +796,12 @@ dojo.declare("gnr.GnrBag", null, {
             }
         };
         var cmp = function(a, b, reverse, caseInsensitive){
-            if (a==null){
-                return b==null?0:-1;
+            if(a===null && b===null){
+                return 0;
             }
-            if(b==null){
-                return 1;
+            if (a===null || b===null){
+                var r = a===null?-1:1;
+                return reverse?r*-1:r;
             }
             if((a instanceof Date) && (b instanceof Date)){
                 a = a.valueOf();
@@ -1301,12 +1320,9 @@ dojo.declare("gnr.GnrBag", null, {
      *
      * @param {Object} condition
      */
+     
     getNodes: function(condition/*opzionale*/) {
-        /*if(!condition)*/
-        return this._nodes;
-        /*else :
-         return [n for n in self._nodes if condition (n)]
-         */
+        return condition?this._nodes.filter(condition):this._nodes;
     },
 
     /**
@@ -1507,7 +1523,7 @@ dojo.declare("gnr.GnrBag", null, {
         var n;
         for(var i =0; i<nodes.length; i++){
             n = nodes[i];
-            if(n.getValue().getItem(path)==value){
+            if(n.getValue().getItem(path)===value){
                 return n;
             };
         }
@@ -1613,18 +1629,33 @@ dojo.declare("gnr.GnrBag", null, {
     /**
      * todo
      */
-    asDict: function(recursive) {
-        var result = {};
+
+    asDict: function(recursive,excludeNullValues) {
+        var isArray = this._nodes.some(function(n){return n.attr._autolist});
         var node,value;
+        var result = isArray?[]:{};
         for (var i = 0; i < this._nodes.length; i++) {
             node = this._nodes[i];
             value = node.getValue();
-            if(recursive && (value instanceof gnr.GnrBag)){
-                value = value.asDict(recursive);
+
+            if(excludeNullValues){
+                if(value===null || value instanceof gnr.GnrBag && value.len()===0){
+                    continue;
+                }
+                
             }
-            result[node.label] = value;
+            if(recursive && (value instanceof gnr.GnrBag)){
+                value = value.asDict(recursive,excludeNullValues);
+            }
+            if(isArray){
+                result.push(value);
+            }else{
+                if(typeof(value)!='string' || !stringEndsWith(value,'::JS')){
+                    result[node.label] = value;
+                }
+                
+            }
         }
-        ;
         return result;
     },
 
@@ -1850,22 +1881,24 @@ dojo.declare("gnr.GnrBag", null, {
 
     
     forEach: function(callback, mode, kw) {
-        this.walk(callback, mode, kw, true);
+        this.walk(callback, 'static', kw, true);
     },
+
     walk: function (callback, mode, kw, notRecursive) {
         var result;
         var bagnodes = this.getNodes();
         for (var i = 0; ((i < bagnodes.length) && ((result == null)|| (result=='__continue__'))); i++) {
             result = callback(bagnodes[i], kw, i);
-            if (result == null) {
+            if (result == null && !notRecursive) {
                 var value = bagnodes[i].getValue(mode);
-                if ((!notRecursive) && (isBag(value))) {
+                if (isBag(value)) {
                     result = value.walk(callback, mode, kw);
                 }
             }
         }
         return result;
     },
+
     getBackRef: function() {
         return this._backref;
     },
@@ -2309,6 +2342,7 @@ dojo.declare("gnr.GnrBagResolver", null, {
 
             if (result instanceof dojo.Deferred) {
                 //this._mainDeferred = result; // keep a reference for avoid garbage collector
+                var that = this;
                 return result.addCallback(finalize);
                 //return this.meToo();
             }
@@ -2317,13 +2351,20 @@ dojo.declare("gnr.GnrBagResolver", null, {
             }
         }
     },
+    cancelMeToo:function(r){
+        var _pendingDeferred = this._pendingDeferred || [];
+        this._pendingDeferred = [];
+        _pendingDeferred.forEach(function(d){
+            d.cancel();
+        });
+    },
     meToo: function(cb) {
-        console.error('Calling meToo');
         var newdeferred = new dojo.Deferred();
         newdeferred.addCallback(cb);
         this._pendingDeferred.push(newdeferred);
         return newdeferred;
     },
+
     runPendingDeferred:function(pendingDeferred) {
         for (var i = 0; i < pendingDeferred.length; i++) {
             pendingDeferred[i].callback();

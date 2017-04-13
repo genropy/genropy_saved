@@ -55,6 +55,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
 
     support_multiple_connections = False
     paramstyle = 'named'
+    allowAlterColumn=False
 
     def defaultMainSchema(self):
         return 'main'
@@ -124,6 +125,11 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         @param kwargs: schema, table
         @return: list of object names"""
         return getattr(self, '_list_%s' % elType)(**kwargs)
+
+
+    def _list_enabled_extensions(self):
+        return []
+
 
     def _list_schemata(self):
         return [r[1] for r in self.dbroot.execute("PRAGMA database_list;").fetchall()]

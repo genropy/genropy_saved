@@ -7,3 +7,4 @@ _static
 *.pyc
 *.pyo
 gnrpy/.cache
+.vscode

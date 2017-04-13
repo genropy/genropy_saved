@@ -205,7 +205,6 @@ class GnrDaemon(object):
 
     def pyroProxy(self,url):
         proxy = Pyro4.Proxy(url)
-        print 'PROXING',OLD_HMAC_MODE,self.hmac_key
         if not OLD_HMAC_MODE:
             proxy._pyroHmacKey = self.hmac_key
         return proxy
