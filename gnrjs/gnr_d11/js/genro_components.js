@@ -1926,7 +1926,7 @@ dojo.declare("gnr.widgets.CodeEditor", gnr.widgets.gnrwdg, {
         var tree_kwargs = objectExtract(kw,'tree_*');
         sourceNode.attr.value = value;
         var gnrwdg = sourceNode.gnrwdg;
-        gnrwdg.rpcSourceBrowserGetter = objectPop(kw,'rpcSourceBrowser') || 'dev.rpcSourceBrowserGetter'//'dev.loadModuleTree';
+        gnrwdg.rpcSourceBrowserGetter = objectPop(kw,'rpcSourceBrowser') || 'dev.rpcSourceBrowserGetter';
         gnrwdg.rpcSourceCodeGetter = objectPop(kw,'rpcSourceCodeGetter') || 'dev.loadModuleElement';
         gnrwdg.rpcSourceCodeSaver = objectPop(kw,'rpcSourceCodeSaver') || 'dev.saveModuleElement';
 
