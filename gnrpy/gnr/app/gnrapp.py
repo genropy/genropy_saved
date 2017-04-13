@@ -950,9 +950,6 @@ class GnrApp(object):
             authmethods = self.config['authentication']
             if authmethods:
                 for node in self.config['authentication'].nodes:
-                    if authenticate and node.attr.get('service'):
-                        if self.site.getService(node.attr['service'])(user=user,password=password):
-                            authenticate = False #it has been authenticated by the service
                     authmode = node.label.replace('_auth', '')
                     avatar = getattr(self, 'auth_%s' % authmode)(node, user, password=password,
                                                                  authenticate=authenticate,
@@ -1018,7 +1015,16 @@ class GnrApp(object):
         attrs = dict(node.getAttr())
         pkg = attrs.get('pkg')
         if pkg:
-            handler = getattr(self.packages[pkg], attrs['method'])
+            pkg = self.packages[pkg]
+        if authenticate and attrs.get('service'):
+            authService = self.site.getService(node.attr['service'])
+            service_result = authService(user=user,password=password)
+            if service_result:
+                authenticate = False #it has been authenticated by the service
+                if hasattr(pkg,'onExternalUser'):
+                    pkg.onExternalUser(service_result)
+        if pkg:
+            handler = getattr(pkg, attrs['method'])
         else:
             handler = getattr(self, attrs['method'])
         if handler:

@@ -857,6 +857,7 @@ class TableBase(object):
         dest_db = self.db if not dest_instance else self.db.application.getAuxInstance(dest_instance).db 
         source_tbl = source_db.table(self.fullname)
         dest_tbl = dest_db.table(self.fullname)
+        kwargs.setdefault('bagFields',True)
         pkey = self.pkey
         source_rows = source_tbl.query(addPkeyColumn=False,excludeLogicalDeleted=False,
               excludeDraft=False,**kwargs).fetch()

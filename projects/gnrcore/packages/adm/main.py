@@ -14,10 +14,9 @@ class Package(GnrDboPackage):
 
     def config_db(self, pkg):
         pass
-
-    def authenticate(self, username, service=None,**kwargs):
+    
+    def authenticate(self, username,**kwargs):
         tblobj = self.db.table('adm.user')
-        
         def cb(cache=None,identifier=None,**kwargs):
             if identifier in cache:
                 return cache[identifier],True
@@ -56,6 +55,9 @@ class Package(GnrDboPackage):
     def onAuthenticated(self, avatar):
         pass
 
+    def onExternalUser(self,externalUser=None):
+        pass
+        
     def newUserUrl(self):
         return 'adm/new_user'
 
