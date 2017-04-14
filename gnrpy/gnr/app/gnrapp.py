@@ -1014,15 +1014,16 @@ class GnrApp(object):
         defaultTags = node.getAttr('defaultTags')
         attrs = dict(node.getAttr())
         pkg = attrs.get('pkg')
+        external_user = False
         if pkg:
             pkg = self.packages[pkg]
         if authenticate and attrs.get('service'):
             authService = self.site.getService(node.attr['service'])
-            service_result = authService(user=user,password=password)
-            if service_result:
+            external_user = authService(user=user,password=password)
+            if external_user:
                 authenticate = False #it has been authenticated by the service
-                if hasattr(pkg,'onExternalUser'):
-                    pkg.onExternalUser(service_result)
+                if external_user is not True and hasattr(pkg,'onExternalUser'):
+                    pkg.onExternalUser(external_user)
         if pkg:
             handler = getattr(pkg, attrs['method'])
         else:
@@ -1041,6 +1042,7 @@ class GnrApp(object):
                 tags = ','.join(list(set(tags)))
             return self.makeAvatar(user=user, user_name=user_name, user_id=user_id, tags=tags,
                                    login_pwd=password, authenticate=authenticate,
+                                   external_user=external_user,
                                    defaultTags=defaultTags, **result)
                                    
     def auth_sql(self, node, user, password=None, authenticate=False, **kwargs):

@@ -56,7 +56,7 @@ class Package(GnrDboPackage):
         pass
 
     def onExternalUser(self,externalUser=None):
-        pass
+        self.db.table('adm.user').syncExternalUser(externalUser)
         
     def newUserUrl(self):
         return 'adm/new_user'
