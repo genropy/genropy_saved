@@ -805,6 +805,9 @@ class GnrWsgiSite(object):
                             port = remote_db_attr.get('port')
                             dbattr['remote_host'] = host
                             dbattr['remote_port'] = port
+                            if remote_db_attr.get('implementation'):
+                                dbattr['remote_implementation'] = remote_db_attr['implementation']
+                            
                 self.db.stores_handler.add_store(storename,dbattr=dbattr)
         
 
