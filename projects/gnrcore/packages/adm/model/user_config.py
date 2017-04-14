@@ -147,14 +147,14 @@ class Table(object):
     def getInfoBag(self,pkg=None,tbl=None,user=None,user_group=None,_editMode=False):
         result = Bag()
         if tbl:
-            pkg = None
+            pkg = tbl.split('.')[0]
             tblobj =  self.db.table(tbl)
             cols_permission_base = Bag()
             allcols = tblobj.columns.keys() + tblobj.model.virtual_columns.keys()
             result['cols_permission'] = cols_permission_base
         if user:
             user_group = None
-        f = self.query(where="""($pkgid IS NULL OR $pkgid=COALESCE(:pkg,$calc_pkgid)) AND
+        f = self.query(where="""($pkgid IS NULL OR $pkgid=:pkg) AND
                                 ($tblid IS NULL OR $tblid=:tbl) AND
                                 ($user_group IS NULL OR $user_group=COALESCE(:user_group,$calc_user_group)) AND 
                                 ($username IS NULL OR $username=:user)
