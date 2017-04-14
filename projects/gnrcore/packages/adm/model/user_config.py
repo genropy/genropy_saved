@@ -154,9 +154,9 @@ class Table(object):
             result['cols_permission'] = cols_permission_base
         if user:
             user_group = None
-        f = self.query(where="""($pkgid IS NULL OR $pkgid=:pkg) AND
+        f = self.query(where="""($pkgid IS NULL OR $pkgid=COALESCE(:pkg,$calc_pkgid)) AND
                                 ($tblid IS NULL OR $tblid=:tbl) AND
-                                ($user_group IS NULL OR $user_group=:user_group) AND 
+                                ($user_group IS NULL OR $user_group=COALESCE(:user_group,$calc_user_group)) AND 
                                 ($username IS NULL OR $username=:user)
                               """,pkg=pkg,tbl=tbl,user_group=user_group,user=user,
                               order_by='$rank ASC',columns="""$data""").fetch()
