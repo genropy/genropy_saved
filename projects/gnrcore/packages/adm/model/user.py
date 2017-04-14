@@ -110,7 +110,8 @@ class Table(object):
                 self.update(user_record,old_record)
                 docommit = True
         else:
-            self.insert(externalUser)
+            user_record = dict(externalUser)
+            self.insert(user_record)
             docommit = True
         if not docommit:
             return
