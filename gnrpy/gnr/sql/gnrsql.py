@@ -359,7 +359,7 @@ class GnrSqlDb(GnrObject):
             storeattr = self.dbstores[storename]
             return dict(host=storeattr.get('host'),database=storeattr.get('database'),
                         user=storeattr.get('user'),password=storeattr.get('password'),
-                        port=storeattr.get('port'),implementation=storeattr.get('implementation'))
+                        port=storeattr.get('port'))
         else:
             return dict(host=self.host, database=self.dbname if not storename or storename=='_main_db' else storename, user=self.user, password=self.password, port=self.port)
     
@@ -967,13 +967,15 @@ class DbStoresHandler(object):
         :param storename: TODO
         :param check: TODO"""
         attr = dbattr or self.config.getAttr('%s_xml.db' % storename)
-        self.dbstores[storename] =  dict(database=attr.get('dbname', storename),
-                                        implementation=attr.get('implementation'),
+        storeattr = dict(database=attr.get('dbname', storename),
                                         host=attr.get('host', self.db.host), user=attr.get('user', self.db.user),
                                         password=attr.get('password', self.db.password),
                                         port=attr.get('port', self.db.port),
                                         remote_host=attr.get('remote_host'),
                                         remote_port=attr.get('remote_port'))
+        if attr.get('implementation'):
+            storeattr['implementation'] = attr.get('implementation')
+        self.dbstores[storename] = storeattr
         if check:
             self.dbstore_align(storename)
             
