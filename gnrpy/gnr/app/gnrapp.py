@@ -1021,6 +1021,10 @@ class GnrApp(object):
             authService = self.site.getService(node.attr['service'])
             external_user = authService(user=user,password=password)
             if external_user:
+                if authService.case == 'u':
+                    user = user.upper()
+                elif authService.case == 'l':
+                    user = user.lower()
                 authenticate = False #it has been authenticated by the service
                 if external_user is not True and hasattr(pkg,'onExternalUser'):
                     pkg.onExternalUser(external_user)
