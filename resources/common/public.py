@@ -432,8 +432,9 @@ class TableHandlerMain(BaseComponent):
                 th.view.top.bar.addrow.getNode('addButton').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
             if th['form.top.bar.form_add']:
                 th.form.top.bar.form_add.getNode('addButton').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
-            if th['form']: #and partition_kwargs:
-                th.form.dataController("SET gnr.partition_selector.disabled = pkey?true:false;",pkey='^#FORM.pkey')
+            if th['form'] and thwidget in ('stack','dialog'): #and partition_kwargs:
+                th.form.dataController("SET gnr.partition_selector.disabled = pkey?true:false;",
+                pkey='^#FORM.pkey')
         self.root_tablehandler = th
         vstore = th.view.store
         viewbar = th.view.top.bar
