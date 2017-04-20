@@ -159,7 +159,12 @@ class LoginComponent(BaseComponent):
                 }
                 if(doLogin){
                     if(!closable_login){
-                        genro.pageReload();
+                        var rootpage = avatar.getItem('avatar_rootpage');
+                        if(rootpage){
+                            genro.gotoURL(rootpage);
+                        }else{
+                            genro.pageReload();
+                        }
                     }
                 }
             }
