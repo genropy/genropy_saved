@@ -667,6 +667,7 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
         if (!query.caption) {
             findCallback([], request);
         } else {
+            
             if(this.switches){
                 var sn = this._parentSourceNode;
                 var foundmatch = false;
@@ -688,7 +689,7 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                         }
                         if(switchcb){
                             setTimeout(function(){
-                                if(sn.widget._focused){
+                                if(!sn.widget._focused){
                                     switchcb();
                                 }
                             },1);
