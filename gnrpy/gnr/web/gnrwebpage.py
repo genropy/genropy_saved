@@ -387,6 +387,7 @@ class GnrWebPage(GnrBaseWebPage):
             self._db = self.application.db
             self._db.clearCurrentEnv()
             self._db.updateEnv(storename=self.dbstore, workdate=self.workdate, locale=self.locale,
+                                maxdate=datetime.date.max,mindate=datetime.date.min,
                                user=self.user, userTags=self.userTags, pagename=self.pagename,
                                mainpackage=self.mainpackage)
             avatar = self.avatar
