@@ -1963,6 +1963,8 @@ class GnrWebPage(GnrBaseWebPage):
                color='#c90031')
         cell = tbl.tr().td()
         cell.div(float='right', padding='2px').button('Back', action='genro.pageBack()')
+        if hasattr(self.avatar,'avatar_rootpage'):
+            cell.div(float='right', padding='2px').button('Back', action='genro.goToURL(url)',url=self.avatar.avatar_rootpage)
 
     def forbiddenPage(self, root, **kwargs):
         """TODO
@@ -1976,9 +1978,14 @@ class GnrWebPage(GnrBaseWebPage):
         row = tbl.tr()
         row.td(content='Sorry. You are not allowed to use this page.', align="center", font_size='16pt',
                color='#c90031')
+        
         cell = tbl.tr().td()
-        cell.div(float='right', padding='2px').button('Back', action='genro.pageBack()')
-
+        
+        if hasattr(self.avatar,'avatar_rootpage'):
+            cell.div(float='right', padding='2px').button('Redirect', action='genro.gotoURL(url)',url=self.avatar.avatar_rootpage)
+            cell.dataController('genro.gotoURL(url)',url=self.avatar.avatar_rootpage,_onStart=2000)
+        else:
+            cell.div(float='right', padding='2px').button('Back', action='genro.pageBack()')
 
     def getStartRootenv(self):
         #cookie = self.get_cookie('%s_dying_%s_%s' %(self.siteName,self.packageId,self.pagename), 'simple')
