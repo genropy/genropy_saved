@@ -449,7 +449,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     reload: function(kw) {
         kw = kw || {};
-        this.load(objectUpdate({destPkey:this.getCurrentPkey()},kw));
+        var destPkey = this.getCurrentPkey();
+        if(destPkey == '*newrecord*'){
+            this.newrecord(this.last_default_kw);
+            return;
+        }
+        this.load(objectUpdate({destPkey:destPkey},kw));
     },
     
     goToRecord:function(pkey,ts){
@@ -2260,6 +2265,7 @@ dojo.declare("gnr.formstores.Base", null, {
         var form = this.form;
         var loader = this.handlers.load;
         var default_kwargs = objectPop(kw,'default_kwargs') || {}; 
+        form.last_default_kw = objectUpdate({},default_kw);
         if(default_kwargs){
             default_kwargs = form.sourceNode.evaluateOnNode(default_kwargs);
         }
