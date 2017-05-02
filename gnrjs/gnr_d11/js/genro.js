@@ -571,12 +571,13 @@ dojo.declare('gnr.GenroClient', null, {
         }
         genro.src.getMainSource(function(mainBagPage){
             if (mainBagPage  &&  mainBagPage.attr && mainBagPage.attr.redirect) {
-                var pageUrl = genro.absoluteUrl()
+                var pageUrl = genro.absoluteUrl();
+                
                 if (pageUrl.slice(0,genro.baseUrl.length-1)==genro.baseUrl.slice(0,genro.baseUrl.length-1))
                 {
                     pageUrl = pageUrl.slice(genro.baseUrl.length-1) || '/';
                 }
-                var url = genro.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':pageUrl});
+                var url = pageUrl && pageUrl!='/'?genro.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':pageUrl}):mainBagPage.attr.redirect;
                // genro.currentUrl=mainBagPage.attr.redirect
                 //var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
                 //this.dostart(mainBagPage)

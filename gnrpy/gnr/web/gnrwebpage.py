@@ -1937,6 +1937,10 @@ class GnrWebPage(GnrBaseWebPage):
             self.mixinComponent('login:LoginComponent',safeMode=True,only_callables=False)
             self.loginDialog(root, **kwargs)
         elif _auth == AUTH_FORBIDDEN:
+            if hasattr(self,'forbidden_redirect'):
+                redirect = self.forbidden_redirect()
+                if redirect:
+                    return (page,dict(redirect=redirect))
             root.clear()
             self.forbiddenPage(root, **kwargs)
         #if self.wsk:
@@ -1963,12 +1967,9 @@ class GnrWebPage(GnrBaseWebPage):
                color='#c90031')
         cell = tbl.tr().td()
         cell.div(float='right', padding='2px').button('Back', action='genro.pageBack()')
-        if hasattr(self.avatar,'avatar_rootpage'):
-            cell.div(float='right', padding='2px').button('Back', action='genro.goToURL(url)',url=self.avatar.avatar_rootpage)
 
     def forbiddenPage(self, root, **kwargs):
-        """TODO
-        
+        """
         :param root: the root of the page. For more information, check the
                      :ref:`webpages_main` section"""
         dlg = root.dialog(toggle="fade", toggleDuration=250, onCreated='widget.show();')
@@ -1978,14 +1979,8 @@ class GnrWebPage(GnrBaseWebPage):
         row = tbl.tr()
         row.td(content='Sorry. You are not allowed to use this page.', align="center", font_size='16pt',
                color='#c90031')
-        
         cell = tbl.tr().td()
-        
-        if hasattr(self.avatar,'avatar_rootpage'):
-            cell.div(float='right', padding='2px').button('Redirect', action='genro.gotoURL(url)',url=self.avatar.avatar_rootpage)
-            cell.dataController('genro.gotoURL(url)',url=self.avatar.avatar_rootpage,_onStart=2000)
-        else:
-            cell.div(float='right', padding='2px').button('Back', action='genro.pageBack()')
+        cell.div(float='right', padding='2px').button('Back', action='genro.pageBack()')
 
     def getStartRootenv(self):
         #cookie = self.get_cookie('%s_dying_%s_%s' %(self.siteName,self.packageId,self.pagename), 'simple')
