@@ -31,7 +31,8 @@ def checklist(name=None,pkg=None,code=None,subcode=None,**kwargs):
         def newFunc(tbl):
             description = func.func_doc
             pars = dict(checklist_dict)
-            pars['pkg'] = pars['pkg'] or tbl.packa
+            pars['pkg'] = pars['pkg'] or tbl.pkg.name
+            pars['name'] = pars['name'] or func.func_name.replace('_',' ').capitalize()
             return tbl.newrecord(description=description,**pars)
         newFunc.mixin_as = 'sysRecord_%s' % syscode
         newFunc.mandatory = True
