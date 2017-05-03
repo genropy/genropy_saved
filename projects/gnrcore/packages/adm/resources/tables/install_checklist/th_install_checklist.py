@@ -33,8 +33,11 @@ class ViewChecklist(BaseComponent):
 
     def th_sections_onpkg(self):
         result =[dict(code='_all_',caption='!!All')]
+        f = self.db.table('adm.install_checklist').query(columns='$pkg',addPkeyColumn=False,distinct=True).fetch()
+        f = [r['pkg'] for r in f]
         for pkg in self.db.application.packages.keys():
-            result.append(dict(code=pkg,caption=pkg,condition='$pkg=:cpkgid',condition_cpkgid=pkg))
+            if pkg in f:
+                result.append(dict(code=pkg,caption=pkg,condition='$pkg=:cpkgid',condition_cpkgid=pkg))
         return result
 
     def th_sections_todo(self):
