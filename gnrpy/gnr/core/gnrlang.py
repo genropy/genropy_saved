@@ -900,7 +900,7 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
         method.__mixin_path = __mixin_path
         k = instmethod(method, obj, obj.__class__)
         curr_prefix = prefix
-        name_as = name
+        name_as = getattr(method,'mixin_as',name)
         if mangling_kwargs and '_' in name:
             splitted_name=name.split('_',1)
             mangling = mangling_kwargs.get(splitted_name[0],None)
