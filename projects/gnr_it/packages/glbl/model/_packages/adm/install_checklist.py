@@ -4,6 +4,6 @@
 from gnrpkg.adm.decorators import checklist
 
 class Table(object):
-   @checklist(name='Import dati',pkg='glbl',code=2,subcode=5)
+   @checklist(name='Import dati')
    def verifica_caricamento_dati(self):
        """Verifica importazione dati: vai nelle preferenze di glbl"""

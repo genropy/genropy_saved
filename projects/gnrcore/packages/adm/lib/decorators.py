@@ -19,13 +19,11 @@
 #You should have received a copy of the GNU Lesser General Public
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+from os import sep
 
-
-def checklist(name=None,pkg=None,code=None,subcode=None,**kwargs):
-    pkg = pkg
+def checklist(name=None, pkg=None, code=None, subcode=None,**kwargs):
     code = '%03i' % (code or 0)
     subcode = '%02i' % (subcode or 0)
-    syscode = '_'.join([pkg, code, subcode])
     def decore(func):
         checklist_dict = dict(pkg=pkg, name=name, subcode=subcode, code=code)
         def newFunc(tbl):
@@ -34,6 +32,8 @@ def checklist(name=None,pkg=None,code=None,subcode=None,**kwargs):
             pars['pkg'] = pars['pkg'] or tbl.pkg.name
             pars['name'] = pars['name'] or func.func_name.replace('_',' ').capitalize()
             return tbl.newrecord(description=description,**pars)
+        modulepkg = func.func_code.co_filename.split('packages%s' %sep)[1].split(sep)[0]
+        syscode = '_'.join([pkg or modulepkg, code, subcode])
         newFunc.mixin_as = 'sysRecord_%s' % syscode
         newFunc.mandatory = True
         return newFunc
