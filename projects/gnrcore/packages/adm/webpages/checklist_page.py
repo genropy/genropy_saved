@@ -14,6 +14,7 @@ class GnrCustomWebPage(object):
     pageOptions={'liveUpdate':True,'userConfig':False}
 
     def main(self, root,**kwargs):
+        self.db.table('adm.install_checklist').createSysRecords()
         frame = root.rootBorderContainer(datapath='main',design='sidebar',title='!![it]Checklist viewer') 
         frame.contentPane(region='center').plainTableHandler(table='adm.install_checklist',
                                                             viewResource='ViewChecklist',
