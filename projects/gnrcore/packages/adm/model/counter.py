@@ -138,7 +138,7 @@ class Table(object):
                     err['cnt_date'] = rdate
                     err['prev_date'] = prev_date
                     errors.setItem('wrongOrder.%i' %i,None, **err)
-                prev_date = rdate
+                #prev_date = rdate
             if prevcnt and prevcnt==cnt:
                 if r[field].endswith('_'):
                     pass
@@ -156,9 +156,11 @@ class Table(object):
                 if date_field:
                     h['date_from'] = prev_date
                     h['date_to'] = rdate
-                i = cnt
                 holes.setItem(str(i),None, **h)
+                i = cnt
             prevcnt = cnt
+            if date_field:
+                prev_date = rdate
         errors=errors or None
         holes=holes or None
         record = dict(pkg=tblobj.pkg.name,tbl=tblobj.name,fld=field,
@@ -208,8 +210,8 @@ class Table(object):
         counter_pars = getattr(tblobj,'counter_%s' %field)(record=record)
         if not counter_pars or record.get(field) or (tblobj.isDraft(record) and not counter_pars.get('assignIfDraft')):
             return
-        if not 'unique' in tblobj.column(field).attributes:
-            print 'MISSING UNIQUE ATTRIBUTE IN FIELD %s IN TABLE %s' %(field,tblobj.fullname)
+        #if not 'unique' in tblobj.column(field).attributes:
+        #    print 'MISSING UNIQUE ATTRIBUTE IN FIELD %s IN TABLE %s' %(field,tblobj.fullname)
         record[field] = self.getSequence(tblobj=tblobj,field=field,record=record,update=True)
 
     def guessNextSequence(self,tblobj=None,field=None,record=None):
@@ -221,7 +223,7 @@ class Table(object):
         counter,counterInfo = self.getCounter(tblobj=tblobj,field=field,record=record,update=update)
         return self.formatSequence(tblobj=tblobj,field=field,record=record,counter=counter)
 
-    def formatSequence(self,tblobj=None,field=None,record=None,counter=None):
+    def formatSequence(self,tblobj=None,field=None,record=None, counter=None):
         counter_pars = getattr(tblobj,'counter_%s' %field)(record=record)
         output = counter_pars['format']
         code = counter_pars['code']
@@ -261,7 +263,7 @@ class Table(object):
         if holes and recycle:
             holes.sort('#a.cnt_from')
             for hole_key,cnt_from,cnt_to,date_from,date_to in holes.digest('#k,#a.cnt_from,#a.cnt_to,#a.date_from,#a.date_to'):
-                if date >= date_from and date<=date_to:
+                if (date_from is None or date >= date_from) and (date_to is None or date<=date_to):
                     counter = cnt_from
                     cnt_from += 1
                     if cnt_from>cnt_to:
@@ -289,6 +291,7 @@ class Table(object):
             counterInfo['codekey'] = counter_record['codekey']
         return counter,counterInfo
 
+
     def releaseCounter(self,tblobj=None,field=None,record=None):
         codekey = self.getCounterPkey(tblobj=tblobj,field=field,record=record)
         counter_pars = getattr(tblobj,'counter_%s' %field)(record=record)
@@ -306,27 +309,60 @@ class Table(object):
             if releasing_counter>counter_record['counter']:
                 pass
                 #raise self.exception('business_logic','Wrong counter releasing')
-            elif releasing_counter==counter_record['counter']:
-                counter_record['counter'] -= 1
-                previous = self.formatSequence(tblobj=tblobj,field=field,record=record,counter=counter_record['counter'])
-                counter_record['last_used'] = tblobj.readColumns(limit=1,where='$%s = :c' %field,c=previous,columns='$%s' %date_field)
             else:
                 holes = counter_record['holes'] or Bag()
                 holes.sort('#a.cnt_from')
                 counter_record['holes'] = holes
-                for hole_key,cnt_from,cnt_to in holes.digest('#k,#a.cnt_from,#a.cnt_to'):
-                    if releasing_counter == cnt_from - 1:
-                        holes.setAttr(hole_key,dict(cnt_from=releasing_counter,date_from=date))
-                        releasing_counter = None
+                i = 0
+                cnt_from = releasing_counter
+                cnt_to = releasing_counter
+                for hole_key,h_cnt_from,h_cnt_to in holes.digest('#k,#a.cnt_from,#a.cnt_to'):
+                    if cnt_from == h_cnt_from - 1:
+                        cnt_to = h_cnt_to
+                        holes.popNode(hole_key)
                         break
-                    elif releasing_counter == cnt_to + 1:
-                        holes.setAttr(hole_key,dict(cnt_to=releasing_counter,date_to=date))
-                        releasing_counter = None
+                    elif cnt_to == h_cnt_to + 1:
+                        cnt_from = h_cnt_from
+                        if i<len(holes) - 1:
+                            next_hole = holes.nodes[i+1]
+                            if next_hole.attr['cnt_from'] == cnt_to+1:
+                                cnt_to = next_hole.attr['cnt_to']
+                                holes.popNode(next_hole.label)
                         break
-                if releasing_counter is not None:
-                    holes.setItem(str(releasing_counter),None,cnt_from=releasing_counter,cnt_to=releasing_counter,date_from=date,date_to=date)
-    
-        
+                    i += 1
+                date_from, date_to = self.getCounterDates(tblobj, record=record, field=field, date_field=date_field,
+                                                          cnt_from=cnt_from,
+                                                          cnt_to=cnt_to, cnt_last=counter_record['counter'])
+                if date_to is None:
+                    holes.popNode(str(cnt_from))
+                    counter_record['counter'] = cnt_from -1
+                    counter_record['last_used'] = date_from
+                else:
+                    holes.setItem(str(cnt_from), None, cnt_from=cnt_from,
+                              cnt_to=cnt_to, date_from=date_from, date_to=date_to)
+
+                holes.sort('#a.cnt_from')
+
+
+    def getCounterDates(self, tblobj, record=None,field=None, date_field=None,cnt_from=None, cnt_to=None, cnt_last=None):
+        wlist = []
+        wkw = {}
+        if cnt_from>1:
+            wkw['prev_counter'] = self.formatSequence(tblobj=tblobj, field=field, record=record, counter=cnt_from-1)
+            wlist.append('$%(field)s =:prev_counter')
+
+        if cnt_to<cnt_last:
+            wkw['next_counter'] = self.formatSequence(tblobj=tblobj, field=field, record=record, counter=cnt_to+1)
+            wlist.append('$%(field)s =:next_counter')
+
+        if wkw:
+            f = tblobj.query(where=' OR '.join(wlist) %{'field':field},
+                           columns='$%s' % date_field,
+                             order_by='$%s' %field, **wkw).fetch()
+        d1 = f[0][date_field] if f and cnt_from > 1 else None
+        d2 = f[-1][date_field] if f and cnt_to < cnt_last else None
+        return d1,d2
+
     def getYmd(self, date, phyear=False):
         """Return a tuple (year, month, date) of strings from a date.
         
