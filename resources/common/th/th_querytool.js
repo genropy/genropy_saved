@@ -109,13 +109,17 @@ dojo.declare("gnr.QueryManager", null, {
         sourceNode.setRelativeData(path+'?value_caption', '');
     },
 
-    queryEditor:function(open){
+    queryEditor:function(queryEditor){
         var that = this;
-        if(!open){
-            var currentQuery = this.sourceNode.getRelativeData('.query.currentQuery');
+        var currentQuery = this.sourceNode.getRelativeData('.query.currentQuery');
+        if(!queryEditor){
             if(currentQuery=='__basequery__' || currentQuery=='__newquery__'){
                 this.sourceNode.setRelativeData('.query.queryAttributes.extended',false);
             }
+        }else{
+            this.sourceNode.setRelativeData('.query.queryAttributes.extended',true);
+        }
+        if(queryEditor!='full'){
             var palette = genro.wdgById(this.th_root+'_queryEditor_floating');
             if(palette){
                 palette.close();
@@ -131,7 +135,9 @@ dojo.declare("gnr.QueryManager", null, {
                                         datapath:datapath+'.query',
                                         height:'300px',width:'450px',
                                         palette_connect_close:function(){
-                                            that.sourceNode.setRelativeData('.query.queryEditor',false);
+                                            if(that.sourceNode.getRelativeData('.query.queryEditor')=='full'){
+                                                that.sourceNode.setRelativeData('.query.queryEditor',false);
+                                            }
                                         }});
         var frame = pane._('framePane',{'frameCode':'_innerframe_#',
                                         gradient_from:'#E5E5E5',gradient_to:'#EDEDED',gradient_deg:'-90'});
@@ -151,6 +157,9 @@ dojo.declare("gnr.QueryManager", null, {
 
 
         var editorRoot = frame._('div',{datapath:'.where',margin:'2px',nodeId:this.th_root+'_queryEditorRoot'});
+        if(currentQuery=='__querybysample__'){
+            this.onChangedQuery('__newquery__');
+        }
         node.unfreeze();
         this.buildQueryPane();
         this.checkFavorite();
@@ -198,7 +207,12 @@ dojo.declare("gnr.QueryManager", null, {
         if (currentQuery=='__newquery__'){
             sourceNode.setRelativeData('.query.queryAttributes',new gnr.GnrBag({extended:true,caption:_T('New Query')}));
             finalize(new gnr.GnrBag());
-            return
+            return;
+        }else if(currentQuery=='__querybysample__'){
+            sourceNode.setRelativeData('.query.queryAttributes',new gnr.GnrBag({extended:true,caption:_T('Query by sample')}));
+            finalize(new gnr.GnrBag());
+            sourceNode.setRelativeData('.query.queryEditor','sample');
+            return;
         }
         var queryBag = this.sourceNode.getRelativeData('.query.menu');
         var queryAttributes= queryBag.getNode(currentQuery).attr;
@@ -221,8 +235,10 @@ dojo.declare("gnr.QueryManager", null, {
     
     buildQueryPane: function() {
         var editorRoot = this._editorRoot();
-        editorRoot.popNode('root');
-        this._buildQueryGroup(editorRoot._('div','root'), this.sourceNode.getRelativeData('.query.where'), 0);
+        if(editorRoot){
+            editorRoot.popNode('root');
+            this._buildQueryGroup(editorRoot._('div','root'), this.sourceNode.getRelativeData('.query.where'), 0);
+        }
     },
     
     addDelFunc : function(mode, pos, e) {

@@ -688,7 +688,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                          selectmethod=None, expressions=None, sum_columns=None,
                          sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,hardQueryLimit=None,
                          savedQuery=None,savedView=None, externalChanges=None,prevSelectedDict=None,
-                         checkPermissions=None,**kwargs):
+                         checkPermissions=None,queryBySample=False,**kwargs):
         """TODO
         
         ``getSelection()`` method is decorated with the :meth:`public_method

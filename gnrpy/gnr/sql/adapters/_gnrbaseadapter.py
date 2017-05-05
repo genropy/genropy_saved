@@ -712,6 +712,8 @@ class GnrWhereTranslator(object):
             if isinstance(value, basestring) and value.startswith('?'):
                 value = sqlArgs.get(value[1:])
             jc = attr.get('jc', '').upper()
+            if not result:
+                jc = ''
             negate = attr.get('not') == 'not'
             if isinstance(value, Bag):
                 onecondition = ('\n' + '    ' * level).join(self.innerFromBag(tblobj, value, sqlArgs, level + 1))

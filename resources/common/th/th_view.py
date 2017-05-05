@@ -35,14 +35,16 @@ class TableHandlerView(BaseComponent):
         resourceConditionPars = self._th_hook('condition',mangler=frameCode,dflt=dict())()
         resourceCondition = resourceConditionPars.pop('condition',None)
         if resourceCondition:
-            condition = condition='( %s ) AND ( %s ) ' %(condition,resourceCondition) if condition else resourceCondition
+            condition = '( %s ) AND ( %s ) ' %(condition,resourceCondition) if condition else resourceCondition
             condition_kwargs.update(dictExtract(resourceConditionPars,'condition_'))      
-
+        
+        queryBySample = self._th_hook('queryBySample',mangler=frameCode)()
         view = pane.thFrameGrid(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
-                                 virtualStore=virtualStore,
+                                 virtualStore=virtualStore,bySample=queryBySample is not None,
                                  condition=condition,condition_kwargs=condition_kwargs,
                                  **kwargs)
-        
+        if virtualStore and queryBySample:
+            self._th_handleQueryBySample(view,table=table,pars=queryBySample)
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=frameCode,asDict=True)
             for k in sorted(hooks.keys()):
@@ -52,12 +54,62 @@ class TableHandlerView(BaseComponent):
             viewhook(view)
         return view
 
+    def _th_handleQueryBySample(self,view,table=None,pars=None):
+        fields = pars.pop('fields')
+        pars['dbtable'] = table
+        pars['datapath'] = '.queryBySample'
+        pars['border_spacing'] = '2px'
+        bar = view.top.slotToolbar('fb,*',childname='queryBySample')
+        bar.dataController("""
+            var where = new gnr.GnrBag();
+            var mainIdx = 0;
+            queryBySample.forEach(function(n){
+                var value = n.getValue();
+                if(!value){
+                    return;
+                }
+                if(value.indexOf(',')>=0){
+                    var subwhere = new gnr.GnrBag();
+                    value.split(',').forEach(function(chunk,idx){
+                        if(chunk){
+                            subwhere.setItem('c_'+idx,chunk.trim(),{column_dtype:n.attr.column_dtype,
+                                                                    op:'contains',jc:'or',column:n.attr.column});
+                        }
+                    })
+                    where.setItem('c_'+mainIdx,subwhere,{jc:'and'});
+                }else{
+                    where.setItem('c_'+mainIdx,value,{column_dtype:n.attr.column_dtype,op:'contains',jc:'and',column:n.attr.column})
+                }
+                mainIdx++;
+            });
+            SET .query.where = where;
+        """,queryBySample='^.queryBySample',queryEditor='=.query.queryEditor',
+                            _if='queryEditor=="sample"')
+        fb = bar.fb.formbuilder(**pars)
+        bar.dataController("""genro.dom.toggleVisible(bar,queryEditor=="sample");
+                            view.widget.resize();""", queryEditor='^.query.queryEditor',
+                            view=view, bar=bar,_onBuilt=True)
+        tblobj = self.db.table(table)
+        for i,fkw in enumerate(fields):
+            if isinstance(fkw,str):
+                field = fkw
+                fkw = {}
+            else:
+                field = fkw.pop('field')
+            fieldobj = tblobj.column(field)
+            permissions = fieldobj.getPermissions(**self.permissionPars)
+            if permissions.get('user_forbidden'):
+                continue
+            fldattr = fieldobj.attributes
+            fkw.setdefault('lbl',fldattr.get('name_short') or fldattr.get('name_long'))
+            fb.textbox(value='^.c_%s' %i,attr_column=field,attr_column_dtype=fldattr.get('dtype','T'),**fkw)
+
     @extract_kwargs(top=True,preview=True)
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
                        unlinkdict=None,searchOn=True,count=None,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,
-                       store_kwargs=None,parentForm=None,liveUpdate=None,**kwargs):
+                       store_kwargs=None,parentForm=None,liveUpdate=None,bySample=None,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         if condition:
@@ -108,7 +160,7 @@ class TableHandlerView(BaseComponent):
                                datapath = '.view',top_kwargs = top_kwargs,_class = 'frameGrid',
                                grid_kwargs = grid_kwargs,iconSize=16,_newGrid=True,**kwargs)  
         
-        self._th_menu_sources(frame)
+        self._th_menu_sources(frame,extendedQuery=extendedQuery,bySample=bySample)
         if configurable:
             frame.right.viewConfigurator(table,frameCode,configurable=configurable)   
         self._th_viewController(frame,table=table,default_totalRowCount=extendedQuery == '*')
@@ -351,7 +403,7 @@ class TableHandlerView(BaseComponent):
         pane.div(_class='iconbox menubox magnifier').menu(storepath='.query.menu',_class='smallmenu',modifiers='*',
                     action="""
                                 SET .query.currentQuery = $1.fullpath;
-                                if(!$1.pkey){
+                                if(!$1.pkey && $1.fullpath!="__querybysample__"){
                                     SET .query.queryEditor = false;
                                 }
                                 SET .query.menu.__queryeditor__?disabled=$1.selectmethod!=null;
@@ -363,6 +415,7 @@ class TableHandlerView(BaseComponent):
         pkeys = tblobj.findDuplicates()
         query = tblobj.query(where='$%s IN :pkd' %tblobj.pkey,pkd=pkeys,**kwargs)
         return query.selection(sortedBy=sortedBy, _aggregateRows=True) 
+
     @public_method
     @metadata(prefix='query',code='default_duplicate_finder_to_del',description='!!Find duplicates to delete')
     def th_default_find_duplicates_to_del(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
@@ -370,7 +423,7 @@ class TableHandlerView(BaseComponent):
         query = tblobj.query(where='$%s IN :pkd' %tblobj.pkey,pkd=pkeys,**kwargs)
         return query.selection(sortedBy=sortedBy, _aggregateRows=True) 
 
-    def _th_menu_sources(self,pane):
+    def _th_menu_sources(self,pane,extendedQuery=None,bySample=None):
         inattr = pane.getInheritedAttributes()
         th_root = inattr['th_root']
         table = inattr['table']
@@ -393,12 +446,12 @@ class TableHandlerView(BaseComponent):
             q.setItem(code,None,tip=pars.get('description'),selectmethod=v,**pars)
         pane.data('.query.pyqueries',q)
         pane.dataRemote('.query.menu',self.th_menuQueries,pyqueries='=.query.pyqueries',
-                        _resolved_pyqueries=q,
+                        _resolved_pyqueries=q,editor=extendedQuery,bySample=bySample,
                        # favoriteQueryPath='=.query.favoriteQueryPath',
                         table=table,th_root=th_root,caption='Queries',cacheTime=15,
                         _resolved=True)
-        pane.dataController("TH(th_root).querymanager.queryEditor(open);",
-                        th_root=th_root,open="^.query.queryEditor")
+        pane.dataController("TH(th_root).querymanager.queryEditor(queryEditor);",
+                        th_root=th_root,queryEditor="^.query.queryEditor")
         if 'adm' not in self.db.packages:
             return
         pane.dataRemote('.query.savedqueries',self.th_menuQueries,
@@ -600,6 +653,7 @@ class TableHandlerView(BaseComponent):
                                where='=.query.where',
                                queryMode='=.query.queryMode', 
                                sortedBy='=.grid.sorted',
+                               queryBySample='=.queryBySample',
                                pkeys='=.query.pkeys', _runQueryDo='^.runQueryDo',
                                _cleared='^.clearStore',
                                _onError="""return error;""", 
@@ -903,7 +957,7 @@ class THViewUtils(BaseComponent):
         
     
     @public_method
-    def th_menuQueries(self,table=None,th_root=None,pyqueries=None,editor=True,**kwargs):
+    def th_menuQueries(self,table=None,th_root=None,pyqueries=None,editor=True,bySample=False,**kwargs):
         querymenu = Bag()
         if editor:
             querymenu.setItem('__basequery__',None,caption='!!Plain Query',description='',
@@ -917,14 +971,11 @@ class THViewUtils(BaseComponent):
             for n in pyqueries:
                 querymenu.setItem(n.label,n.value,caption=n.attr.get('description'),_attributes=n.attr)
             querymenu.setItem('r_3',None,caption='-')
-
-
-
+        if bySample:
+            querymenu.setItem('__querybysample__',None,caption='!!Query by sample',extended=True)
         if editor:
             querymenu.setItem('__queryeditor__',None,caption='!!Query editor',action="""
-                                                                var currentQuery = GET .query.currentQuery;
-                                                                SET .query.queryAttributes.extended=true; 
-                                                                SET .query.queryEditor=true;""")
+                                                                SET .query.queryEditor='full'; """)
         else:
             querymenu.setItem('__newquery__',None,caption='!!New query',description='',
                                 extended=True)
