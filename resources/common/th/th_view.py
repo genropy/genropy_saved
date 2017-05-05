@@ -59,6 +59,7 @@ class TableHandlerView(BaseComponent):
         pars['dbtable'] = table
         pars['datapath'] = '.queryBySample'
         pars['border_spacing'] = '2px'
+        pars.setdefault('_class','th_querysampleform')
         bar = view.top.slotToolbar('fb,*',childname='queryBySample')
         bar.dataController("""
             var where = new gnr.GnrBag();
@@ -653,7 +654,6 @@ class TableHandlerView(BaseComponent):
                                where='=.query.where',
                                queryMode='=.query.queryMode', 
                                sortedBy='=.grid.sorted',
-                               queryBySample='=.queryBySample',
                                pkeys='=.query.pkeys', _runQueryDo='^.runQueryDo',
                                _cleared='^.clearStore',
                                _onError="""return error;""", 
