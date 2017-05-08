@@ -60,6 +60,7 @@ class TableHandlerView(BaseComponent):
         pars['datapath'] = '.queryBySample'
         pars['border_spacing'] = '2px'
         pars.setdefault('_class','th_querysampleform')
+        view.data('.query.bySampleIsDefault',pars.pop('isDefault',False))
         bar = view.top.slotToolbar('fb,*',childname='queryBySample')
         bar.dataController("""
             var where = new gnr.GnrBag();
@@ -77,7 +78,9 @@ class TableHandlerView(BaseComponent):
                                                                     op:'contains',jc:'or',column:n.attr.column});
                         }
                     })
-                    where.setItem('c_'+mainIdx,subwhere,{jc:'and'});
+                    if(subwhere.len()){
+                        where.setItem('c_'+mainIdx,subwhere,{jc:'and'});
+                    }
                 }else{
                     where.setItem('c_'+mainIdx,value,{column_dtype:n.attr.column_dtype,op:'contains',jc:'and',column:n.attr.column})
                 }
@@ -331,6 +334,8 @@ class TableHandlerView(BaseComponent):
             lbl_kwargs = lbl_kwargs or dictExtract(dict(m.__dict__),'lbl_',slice_prefix=False)
             depending_condition = getattr(m,'_if',False)
             depending_condition_kwargs = dictExtract(dict(m.__dict__),'_if_')
+            exclude_fields = getattr(m,'exclude_fields',None)
+
         elif sections in  tblobj.model.columns and (tblobj.column(sections).relatedTable() is not None or 
                                                 tblobj.column(sections).attributes.get('values')):
             sectionslist = self._th_section_from_type(tblobj,sections,condition=condition,condition_kwargs=condition_kwargs,
@@ -342,6 +347,7 @@ class TableHandlerView(BaseComponent):
             mandatory = None
             depending_condition = False
             depending_condition_kwargs = dict()
+            exclude_fields = None
         if not sectionslist:
             return
         sectionsBag = Bag()
@@ -377,14 +383,40 @@ class TableHandlerView(BaseComponent):
                                 storeid='#k',parentForm=False,
                                 validate_notnull=mandatory,
                                 popup=True,cols=1)
+        if exclude_fields:
+            pane.dataController("""
+            var cb = function(n,value){
+                return exclude_fields.split(',').indexOf(n.attr.column)>=0 && !isNullOrBlank(value);
+            }
+            var excluded = false;
+            if(_reason=='child'){
+                if(_triggerpars.kw.updvalue){
+                    excluded = cb(_node,_triggerpars.kw.value);
+                }
+            }else if(_node.label=='where'){
+                where.walk(function(n){
+                    excluded = cb(n,n.getValue());
+                    if(excluded){
+                        return true;
+                    }
+                });
+            }else{
+                genro.bp(true);
+            }
+            SET .excluded = excluded;
+            """,
+            exclude_fields=exclude_fields,where='^.#parent.#parent.query.where')
         parent.dataController("""var enabled = depending_condition?funcApply('return '+depending_condition,_kwargs):true;
-                                genro.dom.toggleVisible(__mb,enabled)
                                 SET .%s.enabled = enabled;
                                 FIRE .#parent.sections_changed;
                                 """ %sections,
-                                __mb=mb,ss=sections,datapath='.sections',
+                                ss=sections,datapath='.sections',
                                 depending_condition=depending_condition,_onBuilt=True,
                                         **depending_condition_kwargs)
+        pane.dataController("""
+            genro.dom.toggleVisible(__mb,enabled && !excluded);
+        """,__mb=mb,enabled='^.enabled',excluded='^.excluded',
+        _delay=1)
         pane.dataController("""
             genro.assert(currentSection,'missing current section for sections %s')
             var sectionNode = sectionbag.getNode(currentSection);
