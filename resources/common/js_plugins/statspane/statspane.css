@@ -1,0 +1,30 @@
+.stat_step_status_OK{
+    background: url(/_gnr/11/css/icons/base16/semaphore_green.png) no-repeat center center;
+    width: 14px;
+    height: 14px;
+}
+.stat_step_status_TC{
+    background: url(/_gnr/11/css/icons/base16/semaphore_yellow.png) no-repeat center center;
+    width: 14px;
+    height: 14px;
+}
+
+.stat_step_status_NO{
+    background: url(/_gnr/11/css/icons/base16/semaphore_gray.png) no-repeat center center;
+    width: 14px;
+    height: 14px;
+}
+
+.stat_step_status_ERR{
+    background: url(/_gnr/11/css/icons/base16/semaphore_red.png) no-repeat center center;
+    width: 14px;
+    height: 14px;
+}
+
+
+
+
+
+
+
+

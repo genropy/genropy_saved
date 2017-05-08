@@ -6,7 +6,6 @@
 
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag
-import re
 import os
 
 class TableHandlerCommon(BaseComponent):
@@ -45,7 +44,7 @@ class TableHandlerCommon(BaseComponent):
             default_kwargs[fkeyfield] = '%s.pkey' %_foreignKeyFormPath
             condition_kwargs['fkey'] = '=#FORM.pkey'
         if (relation_attr.get('onDelete')=='setnull') or (relation_attr.get('onDelete_sql')=='setnull'):
-                original_kwargs['store_unlinkdict'] = dict(one_name = relation_attr.get('one_rel_name',tblrel.name_plural),field=relation_attr['many_relation'].split('.')[-1])
+            original_kwargs['store_unlinkdict'] = dict(one_name = relation_attr.get('one_rel_name',tblrel.name_plural),field=relation_attr['many_relation'].split('.')[-1])
         for suffix,altrelation in relation_kwargs.items():
             alt_relation_attr = tblrel.model.relations.getAttr(altrelation, 'joiner')
             altcond,table,altfkey = self._th_relationExpand_one(tblrel,alt_relation_attr,condition=condition,condition_kwargs=condition_kwargs,suffix=suffix)
@@ -65,7 +64,7 @@ class TableHandlerCommon(BaseComponent):
     def _th_getResourceName(self,name=None,defaultModule=None,defaultClass=None):
         if not name:
             return '%s:%s' %(defaultModule,defaultClass)
-        if not ':' in name:
+        if ':' not in name:
             return '%s:%s' %(defaultModule,name)
         if name.startswith(':'):
             return '%s%s' %(defaultModule,name)
@@ -123,27 +122,9 @@ class TableHandlerCommon(BaseComponent):
         defaultModule = 'th_%s' %tablename
         resourceName = self._th_getResourceName(resourceName,defaultModule,defaultClass)
         return self.importTableResource(table,resourceName)
-        
             
     def _th_hook(self,method,mangler=None,asDict=False,dflt=None,defaultCb=None):
         if isinstance(mangler,Bag):
             inattr = mangler.getInheritedAttributes()
-            mangler = inattr.get('th_root') or inattr.get('frameCode')
-        if hasattr(self,'legacy_dict'):
-            method=self.legacy_dict.get(method,method)
-        if asDict:
-            prefix='%s_%s_'% (mangler,method)
-            return dict([(fname,getattr(self,fname)) for fname in dir(self) 
-                                     if fname.startswith(prefix) and fname != prefix])
-        if hasattr(self,'legacy_dict'):
-            return getattr(self,method)          
-        def emptyCb(*args,**kwargs):
-            return dflt
-        handler = getattr(self,'%s_%s' %(mangler.replace('.','_'),method),None)
-        if handler is None and defaultCb is False:
-            return None
-        return handler or defaultCb or emptyCb
-        
-
-
-
+            mangler = inattr.get('th_root') or inattr.get('frameCode') or inattr.get('nodeId')
+        return self.mangledHook(method,mangler=mangler,asDict=asDict,dflt=dflt,defaultCb=defaultCb)

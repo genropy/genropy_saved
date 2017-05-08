@@ -1,5 +1,5 @@
 dojo.declare("gnr.widgets.GoogleLoader", null, {
-    geocoder:{module_name:'maps',other_params: "sensor=false",language:navigator.language
+    geocoder:{module_name:'maps',other_params: "sensor=false",version:'3.26',language:navigator.language
     },
               
     constructor: function(application) {
@@ -8,7 +8,6 @@ dojo.declare("gnr.widgets.GoogleLoader", null, {
         var that=this;
         if (!window.google){
             this.ready = false;
-            var that=this;
             genro.dom.loadJs("https://www.google.com/jsapi",
                           function(){
                               that.ready=true;
@@ -54,7 +53,7 @@ dojo.declare("gnr.widgets.GoogleLoader", null, {
     setGeocoder:function(widget,cb){
         var obj=widget;
         if(this._mapkey){
-            this.geocoder.other_params+=('&key='+this._mapkey)
+            this.geocoder.other_params+=('&key='+this._mapkey);
         }
         this.runCommand(this.geocoder,function(){
             obj.geocoder = new google.maps.Geocoder();
@@ -230,8 +229,8 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
         sourceNode.watch('isVisible',function(){
             return genro.dom.isVisible(sourceNode);
         },function(){
-            that.refresh()
-        })
+            that.refresh();
+        });
     },
 
 
@@ -254,6 +253,284 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
         var oldtxt = this.doc.getSelection();
         var newtxt = startchunk+oldtxt+endchunk;
         this.doc.replaceSelection(newtxt);
+    }
+});
+
+
+dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
+    constructor: function(application) {
+        this._domtag = 'canvas';
+    },
+
+
+    creating: function(attributes, sourceNode) {
+        sourceNode.registerDynAttr('storepath');
+        var savedAttrs = objectExtract(attributes,'chartType,filter,datasets,captionField,options,data,scalesBag');
+        return savedAttrs;
+    },
+    
+
+    created:function(domNode, savedAttrs, sourceNode){
+        //var chartjs_root = document.createElement('canvas');
+        //domNode.appendChild(chartjs_root);
+        var data = savedAttrs.data;
+        var dataset = savedAttrs.dataset;
+        var filter = savedAttrs.filter;
+        var captionField = savedAttrs.captionField;
+        var options = savedAttrs.options || {};
+        var chartType = savedAttrs.chartType;
+        var scalesBag = savedAttrs.scalesBag;
+        var scalesOpt;
+        var that = this;
+        dojo.connect(sourceNode,'_onDeleting',function(){
+            //Chart.helpers.removeResizeListener(sourceNode.domNode);
+            //sourceNode.externalWidget.destroy();
+        });
+        if(scalesBag){
+            if(scalesBag){
+                scalesOpt = scalesBag.asDict(true,true);
+                objectPop(scalesOpt,'radiant'); //to implement
+                if(objectNotEmpty(scalesOpt)){
+                    options.scales = scalesOpt;
+                }else{
+                    scalesOpt = false;
+                }
+                
+            }
+        }
+        sourceNode.freeze();
+        var cb = function(){
+            sourceNode.unfreeze(true);
+            var chartjs = new Chart(domNode,{'type':chartType,options:options});
+            sourceNode.externalWidget = chartjs;
+            chartjs.sourceNode = sourceNode;
+            chartjs.gnr = that;
+            for (var prop in that) {
+                if (prop.indexOf('mixin_') === 0) {
+                    chartjs[prop.replace('mixin_', '')] = that[prop];
+                }
+            }
+            sourceNode.publish('chartReady');
+            if(sourceNode.attr.optionsBag){
+                var optionsBag = sourceNode.getAttributeFromDatasource('optionsBag');
+                if(optionsBag && optionsBag.getNodeByAttr('_userChanged')){
+                    optionsBag.walk(function(n){
+                        if(n.attr._userChanged){
+                            n.setValue(n._value);
+                        }
+                    });
+                }else{
+                    sourceNode.setAttributeInDatasource('optionsBag',new gnr.GnrBag(chartjs.options));
+                }
+                if(!scalesOpt){
+                    sourceNode.setAttributeInDatasource('scalesBag',new gnr.GnrBag(chartjs.options.scales));
+                }
+            }
+            chartjs.gnr_updateChart();
+        };
+        if(!window.Chart){
+            //var url = '/_rsrc/js_libs/Chart.min.js'; 
+            var url ='/_rsrc/js_libs/Chart.js';
+            genro.dom.loadJs(url,function(){
+                genro.setData('gnr.chartjs.defaults',new gnr.GnrBag(Chart.defaults));
+                cb();
+            });
+        }else{
+            setTimeout(cb,1);
+        }
+    },
+    autoColors:function(dataset){
+        var colorParNames = ['backgroundColor:0.7','borderColor:1',
+                            'pointBackgroundColor:1','pointBorderColor:1'];
+        var result = {};
+        colorParNames.forEach(function(n){
+            n = n.split(':'); 
+            if(dataset[n[0]]=='*'){
+                dataset[n[0]] = [];
+                result[n[0]] = n[1];
+            }
+        });
+        return result;
+    },
+
+    makeDataset:function(kw){
+        var field = objectPop(kw,'field');
+
+        var dataset = objectUpdate({data:[]},kw.pars);
+        var autoColorsDict = this.autoColors(dataset);
+        objectPop(dataset,'enabled');
+        var idx = 0;
+        var k;
+        var caption;
+        var isBagMode = kw.datamode=='bag';
+        kw.rows.walk(function(n){
+            if('pageIdx' in n.attr){return;}
+            var row = isBagMode?n.getValue('static').asDict() : n.attr;
+            var pkey = row._pkey || n.label;
+            if(kw.filterCb(pkey,row)){
+                var chart_row_pars = objectExtract(row,'chart_*');
+                caption = row[kw.captionField] || (dataset.label || field)+' '+idx;
+                if('labels' in kw){
+                    kw.labels.push(caption);
+                }
+                dataset.data.push(row[field]);
+                var autocol = chroma(stringToColour(caption));
+                for(k in autoColorsDict){
+                    dataset[k].push(chroma(autocol).alpha(autoColorsDict[k]).css());
+                }
+                for(k in chart_row_pars){
+                    if(isNullOrBlank(dataset[k])){
+                        dataset[k] = [];
+                    }
+                    if(dataset[k] instanceof Array){
+                        dataset[k].push(chart_row_pars[k]);
+                    }
+                    
+                }
+                idx++;
+            }
+            return '__continue__';
+        },'static',null,isBagMode);
+        return dataset;
+    },
+
+    mixin_gnr_updateChart:function(){
+        if(this.sourceNode.isFreezed()){
+            return;
+        }
+        var that = this;
+        this.sourceNode.delayedCall(function(){
+            var data = that.sourceNode.getAttributeFromDatasource('data'); 
+            if(!data){
+                var rows = that.sourceNode.getRelativeData(that.sourceNode.attr.storepath); 
+                var filter = that.sourceNode.getAttributeFromDatasource('filter'); 
+                var datasets = that.sourceNode.getAttributeFromDatasource('datasets'); 
+                var captionField = that.sourceNode.getAttributeFromDatasource('captionField');
+                var filterCb;
+                if(typeof(filter)=='string'){
+                    filter = filter.split(',');
+                }
+                if(typeof(filter)!='function'){
+                    filterCb = filter?function(pkey,row){return filter.length===0 ||filter.indexOf(pkey)>=0;}:function(){return true;};
+                }else{
+                    filterCb = filter;
+                }
+                var attrs,dslabel,dsfield;
+                var datamode = that.sourceNode.attr.datamode || 'attr';
+                data = {labels:[],datasets:[]};
+                var dskw = {'rows':rows,'datamode':datamode,
+                            'filterCb':filterCb,'labels':data.labels,
+                            'captionField':captionField};
+                if(datasets){
+                    datasets._nodes.forEach(function(n){
+                        var v = n.getValue();
+                        if(!(v.getNode('enabled')) || v.getItem('enabled')){
+                            dskw.pars = v.getItem('parameters').asDict(true,true);
+                            dskw.pars.type = v.getItem('chartType');
+                            dskw.field = v.getItem('field');
+                            data.datasets.push(that.gnr.makeDataset(dskw));
+                            objectPop(dskw,'labels');
+                        }
+                    });
+                }
+            }         
+            objectUpdate(that.data,data);
+            that.update();
+            that.resize();
+        },1,'updateChart');
+        
+    },
+    
+    mixin_gnr_storepath:function(value,kw, trigger_reason){  
+        this.gnr_updateChart();
+    },
+    
+    mixin_gnr_chartType:function(value,kw, trigger_reason){  
+        //this.config.type = this.sourceNode.getAttributeFromDatasource('chartType');
+        //this.gnr_updateChart();
+        if(this.sourceNode.isFreezed()){
+            return;
+        }
+        this.sourceNode.rebuild();
+        
+    },
+
+    mixin_gnr_datasets:function(value,kw, trigger_reason){ 
+        if(kw.node.label == 'xAxisID' || kw.node.label=='yAxisID'){
+            var axes = kw.node.label=='xAxisID'?'xAxes':'yAxes';
+            var axeslist = this.options.scales[axes];
+            if(!axeslist.some(function(n){return n.id==value;})){
+                this.sourceNode.publish('addAxis',{axes:axes,id:kw.value});
+                return;
+            }
+        }
+        this.gnr_updateChart();
+    },
+
+    mixin_gnr_filter:function(value,kw, trigger_reason){  
+        this.gnr_updateChart();
+    },
+
+    mixin_gnr_captionField:function(value,kw, trigger_reason){  
+        this.gnr_updateChart();
+    },
+    mixin_gnr_scalesBag:function(value,kw, trigger_reason){ 
+        var scalesBag = this.sourceNode.getAttributeFromDatasource('scalesBag');
+        if(kw.node._id == scalesBag.getParentNode()._id){
+            return;
+        }
+        this.gnr_updateOptionsObject(kw.node,this.options.scales,scalesBag);
+    },
+    mixin_gnr_optionsBag:function(value,kw, trigger_reason){ 
+        var optionsBag = this.sourceNode.getAttributeFromDatasource('optionsBag');
+        if(kw.node._id == optionsBag.getParentNode()._id){
+            return;
+        }
+        this.gnr_updateOptionsObject(kw.node,this.options,optionsBag);
+    },
+
+    mixin_gnr_updateOptionsObject:function(triggerNode,curr,optionsBagChunk){
+        var optpath = triggerNode.getFullpath(null,optionsBagChunk);
+        var currOptionBag = optionsBagChunk;
+        var node,val;
+        var optlist = optpath.split('.');
+        var lastLabel = optlist.pop();
+        var k;
+        optlist.forEach(function(chunk){
+            node = currOptionBag.getNode(chunk);
+            if(node.attr._autolist){
+                k = currOptionBag.index(chunk);
+                if(isNullOrBlank(curr[k])){
+                    curr[k] = {};
+                }
+                curr = curr[k];
+            }else{
+                if(!(chunk in curr)){
+                    curr[chunk] = {};
+                }
+                curr = curr[chunk];
+            }
+            currOptionBag = node.getValue();
+        });
+        var lastValue = currOptionBag.getItem(lastLabel);
+        lastValue = lastValue instanceof gnr.GnrBag?lastValue.asDict(true,true):lastValue;
+        if(curr instanceof Array){
+            var lastIdx = currOptionBag.index(lastLabel);
+            if(curr.length>lastIdx){
+                curr[lastIdx] = lastValue;
+            }else{
+                curr.push(lastValue);
+            }
+        }
+        if(curr[lastLabel]!=lastValue){
+            triggerNode.attr._userChanged = true;
+            curr[lastLabel] = lastValue;
+        }
+        if(this.sourceNode.isFreezed()){
+            return;
+        }
+        this.update();
+        this.resize();
     }
 });
 
@@ -297,14 +574,14 @@ dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
             dygraph.sourceNode = sourceNode;
             dygraph.gnr = that;
             for (var prop in that) {
-                if (prop.indexOf('mixin_') == 0) {
+                if (prop.indexOf('mixin_') === 0) {
                     dygraph[prop.replace('mixin_', '')] = that[prop];
                 }
             }
             genro.dom.setAutoSizer(sourceNode,domNode,function(w,h){
                  dygraph.resize(w,h);
             });
-        }
+        };
         if(!window.Dygraph){
             genro.dom.loadJs('/_rsrc/js_libs/dygraph-combined.js',cb);
         }else{
@@ -347,149 +624,11 @@ dojo.declare("gnr.widgets.dygraph", gnr.widgets.baseHtml, {
     },
 
     mixin_gnr_options:function(options,kw, trigger_reason){   
-        var options = this.sourceNode.getAttributeFromDatasource('options');      
+        options = this.sourceNode.getAttributeFromDatasource('options');      
         if(options instanceof gnr.GnrBag){
             options = options.asDict(true);
         }    
         this.updateOptions(options);
-    }
-
-
-});
-
-dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
-    constructor: function(application) {
-        this._domtag = 'div';
-    },
-    creating: function(attributes, sourceNode) {
-        if (sourceNode.attr.storepath) {
-            sourceNode.registerDynAttr('storepath');
-        }
-    },
-    created: function(newobj, savedAttrs, sourceNode) {
-        sourceNode.registerSubscription(sourceNode.attr.nodeId + '_render', this, function() {
-            this.render(newobj);
-        });
-
-    },
-    setStorepath:function(obj, value) {
-        obj.gnr.update(obj);
-    },
-    attachToDom:function(domNode, vis) {
-        var span = document.createElement('span');
-        var fc = domNode.firstElementChild;
-        if (fc) {
-            domNode.replaceChild(span, fc);
-        } else {
-            domNode.appendChild(span);
-        }
-        vis.$dom = span;
-        return span;
-    },
-    update:function(domNode) {
-        var sourceNode = domNode.sourceNode;
-        if ((sourceNode.vis) && (!sourceNode.visError)) {
-            sourceNode.vis.render();
-        } else {
-            this.render(domNode);
-        }
-
-    },
-    render:function(domNode) {
-        var sourceNode = domNode.sourceNode;
-        try {
-            this._doRender(domNode);
-            sourceNode.visError = null;
-        } catch(e) {
-            console.log('error in rendering protovis ' + sourceNode.attr.nodeId + ' : ' + e);
-            sourceNode.visError = e;
-        }
-
-    },
-    _doRender:function(domNode) {
-        var sourceNode = domNode.sourceNode;
-        if (sourceNode.attr.js) {
-            var vis = new pv.Panel();
-            var protovis = pv.parse(sourceNode.getAttributeFromDatasource('js'));
-            funcApply(protovis, objectUpdate({'vis':vis}, sourceNode.currentAttributes()), sourceNode);
-        }
-        else if (sourceNode.attr.storepath) {
-            var storepath = sourceNode.attr.storepath;
-            var visbag = sourceNode.getRelativeData(storepath).getItem('#0');
-            var vis;
-            _this = this;
-            sourceNode.protovisEnv = {};
-            visbag.forEach(function(n) {
-                vis = _this.bnode(sourceNode, n) || vis;
-            });
-        }
-        this.attachToDom(domNode, vis);
-        sourceNode.vis = vis;
-        vis.render();
-    },
-    storegetter:function(sourceNode, path) {
-        var p = path;
-        var s = sourceNode;
-        return function() {
-            //console.log('getting: ' + p)
-            return s.getRelativeData(p);
-        };
-    },
-    bnode:function(sourceNode, node, parent) {
-        var env = sourceNode.protovisEnv;
-        var storepath = sourceNode.attr.storepath;
-        var attr = objectUpdate({}, node.attr);
-        var tag = objectPop(attr, 'tag');
-        if (tag == 'env') {
-            console.log(node.getValue());
-            env[node.label] = eval(node.getValue());
-            return;
-        }
-        var obj = parent ? parent.add(pv[tag]) : new pv[tag]();
-        this._convertAttr(sourceNode, obj, attr);
-        var v = node.getValue();
-        _this = this;
-        if (v instanceof gnr.GnrBag) {
-            v.forEach(function(n) {
-                _this.bnode(sourceNode, n, obj);
-            });
-        }
-        return obj;
-    },
-    _convertAttr:function(sourceNode, obj, attr) {
-        var env = sourceNode.protovisEnv;
-        var storepath = sourceNode.attr.storepath;
-        for (var k in attr) {
-            var v = attr[k];
-            if (stringEndsWith(k, '_js')) {
-                k = k.slice(0, -3);
-                v = genro.evaluate(v);
-            }
-            else if (stringEndsWith(k, '_fn')) {
-                k = k.slice(0, -3);
-                v = genro.evaluate('function(){return ' + v + '}');
-            }
-            else if (k.indexOf('_fn_') > 0) {
-                k = k.split('_fn_');
-                var fn = 'function(' + k[1] + '){return (' + v + ')}';
-                v = genro.evaluate(fn);
-                k = k[0];
-            }
-
-            if ((typeof(v) == 'string') && (v[0] == '=')) {
-                path = v.slice(1);
-                if (path[0] == '.') {
-                    path = storepath + path;
-                }
-                v = this.storegetter(sourceNode, path);
-            }
-            if (k.indexOf('_') > 0) {
-                k = k.split('_');
-                obj[k[0]](k[1], v);
-            } else {
-                obj[k](v);
-            }
-        }
     }
 });
 
@@ -794,7 +933,7 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         var cb = function(){
             that.makeEditor(widget, savedAttrs, sourceNode);
             sourceNode.publish('editorCreated');
-        }
+        };
         if(!window.CKEDITOR){
             var suff = genro.newCkeditor? '_new':'';
             genro.dom.loadJs('/_rsrc/js_libs/ckeditor'+suff+'/ckeditor.js',function(){

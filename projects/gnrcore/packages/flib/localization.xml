@@ -1,54 +1,54 @@
 <?xml version="1.0" ?>
 <GenRoBag>
 	<menu ext="py" path="menu.py">
-		<en_categories base="Categories"/>
-		<en_item_uploader base="Item uploader"/>
-		<en_items base="Items"/>
+		<en_categories base="Categories" en="Categories" it="Categorie"/>
+		<en_item_uploader base="Item uploader" en="Item uploader" it="uploader Articolo"/>
+		<en_items base="Items" en="Items" it="Elementi"/>
 	</menu>
 
 	<model>
 		<category ext="py" path="model/category.py">
-			<en_category base="Category"/>
-				<en_categories base="Categories"/>
+			<en_category base="Category" en="Category" it="Categoria"/>
+				<en_categories base="Categories" en="Categories" it="Categorie"/>
 		</category>
 		<item ext="py" path="model/item.py">
-			<en_item base="Item"/>
-				<en_items base="Items"/>
+			<en_item base="Item" en="Item" it="Articolo"/>
+				<en_items base="Items" en="Items" it="Elementi"/>
 				<en_title base="Title" de="Titel" en="Title" fr="Titre" it="Titolo"/>
 				<en_description base="Description" en="Description" it="Descrizione"/>
-				<en_url base="Url"/>
-				<en_path base="Path"/>
-				<en_file_type base="File type"/>
-				<en_extension base="Extension"/>
+				<en_url base="Url" en="Url" it="url"/>
+				<en_path base="Path" en="Path" it="Il percorso"/>
+				<en_file_type base="File type" en="File type" it="Tipo di file"/>
+				<en_extension base="Extension" en="Extension" it="Estensione"/>
 				<en_metadata base="Metadata" de="Metadata" en="Metadata" fr="Métadonnées" it="Metadata"/>
-				<en_versions base="Versions"/>
-				<en_user_name base="User name"/>
+				<en_versions base="Versions" en="Versions" it="versioni"/>
+				<en_user_name base="User name" en="User name" it="Nome utente"/>
 		</item>
 		<item_category ext="py" path="model/item_category.py">
-			<en_item_category base="Item category"/>
+			<en_item_category base="Item category" en="Item category" it="categoria dell'oggetto"/>
 		</item_category>
 	</model>
 
 	<resources>
 		<flib ext="py" path="resources/flib.py">
 			<en_preview base="Preview" de="Vorschau" en="Preview" fr="Avant-première" it="Anteprima"/>
-				<en_file_picker base="File picker"/>
-				<en_categories base="Categories"/>
-				<en_upload_file base="Upload file"/>
-				<en_upload_files base="Upload files"/>
+				<en_file_picker base="File picker" en="File picker" it="selettore file"/>
+				<en_categories base="Categories" en="Categories" it="Categorie"/>
+				<en_upload_file base="Upload file" en="Upload file" it="Caricare un file"/>
+				<en_upload_files base="Upload files" en="Upload files" it="Caricare files"/>
 				<en_title base="Title" de="Titel" en="Title" fr="Titre" it="Titolo"/>
-				<en_descripton base="Descripton"/>
+				<en_descripton base="Descripton" en="Descripton" it="Descripton"/>
 		</flib>
 		<item_picker ext="py" path="resources/item_picker.py">
-			<en_file_picker base="File picker"/>
-				<en_categories base="Categories"/>
+			<en_file_picker base="File picker" en="File picker" it="selettore file"/>
+				<en_categories base="Categories" en="Categories" it="Categorie"/>
 				<en_title base="Title" de="Titel" en="Title" fr="Titre" it="Titolo"/>
 				<en_description base="Description" en="Description" it="Descrizione"/>
 				<en_thumb base="Thumb" de="Daumen" en="Thumb" fr="Pouce" it="Pollice"/>
-				<en_items base="Items"/>
+				<en_items base="Items" en="Items" it="Elementi"/>
 		</item_picker>
 		<preference ext="py" path="resources/preference.py">
-			<en_base_url base="Base url"/>
+			<en_base_url base="Base url" en="Base url" it="URL di base"/>
 		</preference>
 		<tables>
 			<category>
@@ -61,10 +61,10 @@
 				<th_item ext="py" path="resources/tables/item/th_item.py">
 					<en_title base="Title" de="Titel" en="Title" fr="Titre" it="Titolo"/>
 								<en_description base="Description" en="Description" it="Descrizione"/>
-								<en_url base="Url"/>
-								<en_path base="Path"/>
-								<en_file_type base="File type"/>
-								<en_extension base="Extension"/>
+								<en_url base="Url" en="Url" it="url"/>
+								<en_path base="Path" en="Path" it="Il percorso"/>
+								<en_file_type base="File type" en="File type" it="Tipo di file"/>
+								<en_extension base="Extension" en="Extension" it="Estensione"/>
 								<en_user base="User" de="Benutzer" en="User" fr="Utilisateur" it="Utente"/>
 								<en_thumb base="Thumb" de="Daumen" en="Thumb" fr="Pouce" it="Pollice"/>
 				</th_item>
@@ -74,11 +74,11 @@
 
 	<webpages>
 		<categories ext="py" path="webpages/categories.py">
-			<en_categories base="Categories"/>
+			<en_categories base="Categories" en="Categories" it="Categorie"/>
 		</categories>
 		<items ext="py" path="webpages/items.py">
-			<en_file_items base="File Items"/>
-				<en_inserted_on base="Inserted on"/>
+			<en_file_items base="File Items" en="File Items" it="Elementi di file"/>
+				<en_inserted_on base="Inserted on" en="Inserted on" it="inserito il"/>
 				<en_title base="Title" de="Titel" en="Title" fr="Titre" it="Titolo"/>
 				<en_description base="Description" en="Description" it="Descrizione"/>
 		</items>

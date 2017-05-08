@@ -35,7 +35,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
     
         
     inspectConnect:function(pane){
-        var pane = pane || genro.domById('mainWindow');
+        pane = pane || genro.domById('mainWindow');
         dojo.connect(pane,'onmousemove',function(e){
             if(e.altKey && e.shiftKey){
                 var sourceNode = genro.src.enclosingSourceNode(e.target);
@@ -67,7 +67,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
     openBagNodeEditorPalette:function(nodePath,kw){
         var root = genro.src.newRoot();
-        var name = kw.name || '_currentBagNodeEditor_'
+        var name = kw.name || '_currentBagNodeEditor_';
         genro.src.getNode()._('div', name);
 
         var node = genro.src.getNode(name).clearValue();
@@ -80,10 +80,32 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
 
 
+    openBagInspector:function(path,kw){
+        kw = kw || {};
+        var code = objectPop(kw,'code') || path.replace(/\./g, '_').replace(/@/g, '_');
+        var wdg = genro.wdgById(code+'_floating');
+        if(wdg){
+            wdg.show();
+            wdg.bringToTop();
+            return;
+        }
+        var root = genro.src.newRoot();
+        var name = kw.name || '_currentBagEditor_'+code;
+        genro.src.getNode()._('div', name);
+        var node = genro.src.getNode(name).clearValue();
+        node.freeze();
+        node._('paletteTree',{'paletteCode':code,title:objectPop(kw,'title') || 'Edit Bag '+path,
+                           storepath:path,searchOn:true,tree_inspect:'shift',tree_searchMode:'static',
+                           'tree_selectedLabelClass':'selectedTreeNode',
+                           editable:true,tree_labelAttribute:null,
+                           tree_hideValues:false,dockTo:'dummyDock:open'});
+        node.unfreeze();
+    },
+
     openBagEditorPalette:function(path,kw){
         kw = kw || {};
         var root = genro.src.newRoot();
-        var name = kw.name || '_currentPaletteBagEditor_'
+        var name = kw.name || '_currentPaletteBagEditor_';
         genro.src.getNode()._('div', name);
 
         var node = genro.src.getNode(name).clearValue();
@@ -92,7 +114,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
                                         title:kw.title || 'Bag editor',
                                         'path':path},kw));
         node.unfreeze();
-        
+        return;
     },
 
     siteLockedStatus:function(set){
@@ -119,6 +141,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
         dojo.publish("standardDebugger", {message: msg, type:level.toUpperCase(), duration:duration});
     },
     handleRpcHttpError:function(response, ioArgs) {
+        if(response.dojoType=='cancel'){
+            return;
+        }
         var xhr = ioArgs.xhr;
         if(response.dojoType=='cancel'){
             return;
@@ -206,7 +231,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
 
     formbuilder:function(node, col, tblattr) {
+        var defautlLblAttr = objectExtract(tblattr,'lbl_*');
         var tbl = node._('table', tblattr || {})._('tbody');
+
         tbl.col_max = col || 1;
         tbl.col_count = tbl.col_max + 1;
         tbl.addField = function(tag, kw) {
@@ -216,7 +243,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
             }
             var colspan = objectPop(kw,'colspan') || 1;
             colspan = colspan==1?colspan:colspan*2;
-            var lblpars = {innerHTML:objectPop(kw, 'lbl'),_class:'gnrfieldlabel'};
+            var lblpars = {innerHTML:objectPop(kw, 'lbl'),_class:'gnrfieldlabel',
+                        hidden:kw.hidden,text_align:'right'};
+            lblpars = objectUpdate(defautlLblAttr,lblpars);
             objectUpdate(lblpars, objectExtract(kw, 'lbl_*'));
             var tr = this.curr_tr;
             tr._('td', lblpars);
@@ -233,7 +262,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
 
     relationExplorer:function(table, title, rect) {
-        var rect = rect || {'top':'10px','right':'10px','height':'300px','width':'200px'};
+        rect = rect || {'top':'10px','right':'10px','height':'300px','width':'200px'};
         var code = table.replace('.', '_');
         genro.src.getNode()._('div', '_relationExplorer_' + code);
         var node = genro.src.getNode('_relationExplorer_' + code).clearValue();
@@ -249,20 +278,19 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
 
 
-    fieldsTreeConfigurator:function(table){
-        var kw = {height:'550px', width:'840px', title:'Fields tree configurator',src:'/sys/tableconf/'+table.replace('.','/'),closable:true};
-        kw.selfsubscribe_exit = function(kw){
-            console.log('refresh remoteResolver albero')
-        };
-        genro.dlg.iframeDialog('fieldsTreeConfigurator_'+table.replace('.','_'), kw)
-
+    tableUserConfiguration:function(table){
+        var onSavedCb=null;
+        genro.dlg.zoomPalette({height:'600px',width:'700px',table:'adm.tblinfo',pkey:table,
+                                      formResource:'FormFromTH',main_call:'main_form',
+                                      onSavedCb:onSavedCb,top:'30px',right:'40px'});
     },
     
     fieldsTree:function(pane,table,kw){
-        var kw = kw || {};
+        kw = kw || {};
         var path = kw.explorerPath || 'gnr.relation_explorers.' + table;
+        var checkPermissions = objectPop(kw,'checkPermissions');
         var dragCode = objectPop(kw,'dragCode') || 'gnrdbfld_'+table.replace('.', '_');
-        genro.setData(path,genro.rpc.remoteResolver('relationExplorer', {'table':table,'currRecordPath':objectPop(kw,'currRecordPath'),omit:'_'}));
+        genro.setData(path,genro.rpc.remoteResolver('relationExplorer', {'table':table,'currRecordPath':objectPop(kw,'currRecordPath'),omit:'_',item_type:'FTREE',checkPermissions:checkPermissions}));
         var treeattr = objectUpdate({storepath:path,margin:'4px'},kw);
         treeattr.labelAttribute = 'caption';
         treeattr._class = 'fieldsTree noIcon noExpando';
@@ -334,13 +362,13 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
 
     updateDebuggerStepBox:function(callcounter,data){
-        var debugger_box = dojo.byId('pdb_root')
+        var debugger_box = dojo.byId('pdb_root');
         var debuggerStepBox = dojo.byId('_debugger_step_'+callcounter);
         if(!debuggerStepBox){
             debuggerStepBox = document.createElement('div');
             debuggerStepBox.setAttribute('id','_debugger_step_'+callcounter);
             debuggerStepBox.setAttribute('class','pdb_debugger_step');
-            debugger_box.appendChild(debuggerStepBox)
+            debugger_box.appendChild(debuggerStepBox);
         }else{
             dojo.removeClass(debuggerStepBox,'pdb_running');
             debuggerStepBox.removeChild(debuggerStepBox.firstChild);
@@ -348,21 +376,21 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var container = document.createElement('div');
         var message = document.createElement('div');
         var footer = document.createElement('div');
-        footer.setAttribute('class','pdb_debugger_step_footer')
-        container.appendChild(message)
-        container.appendChild(footer)
-        debuggerStepBox.appendChild(container)
+        footer.setAttribute('class','pdb_debugger_step_footer');
+        container.appendChild(message);
+        container.appendChild(footer);
+        debuggerStepBox.appendChild(container);
         message.innerHTML = dataTemplate('<table><tbody><tr><td class="pdb_label">Rpc:</td><td>$methodname</td></tr><tr><td class="pdb_label">Module:</td><td>$filename</td><tr><td class="pdb_label">Function:</td><td>$functionName</td></tr><td class="pdb_label">Line:</td><td>$lineno</td></tr></tbody></table>',data);
         var link = document.createElement('div');
-        link.setAttribute('class','pdb_footer_button pdb_footer_button_right')
-        link.innerHTML = 'Debug'
-        link.setAttribute('onclick',dataTemplate("genro.dev.openDebugInIde('$pdb_id','$debugger_page_id');",data))
-        footer.appendChild(link)
+        link.setAttribute('class','pdb_footer_button pdb_footer_button_right');
+        link.innerHTML = 'Debug';
+        link.setAttribute('onclick',dataTemplate("genro.dev.openDebugInIde('$pdb_id','$debugger_page_id');",data));
+        footer.appendChild(link);
         link = document.createElement('div');
-        link.setAttribute('class','pdb_footer_button pdb_footer_button_left')
-        link.innerHTML = 'Continue'
-        link.setAttribute('onclick',dataTemplate("dojo.addClass(dojo.byId('_debugger_step_"+callcounter+"'),'pdb_running'); genro.dev.continueDebugInIde('$pdb_id','$debugger_page_id',"+callcounter+");",data))
-        footer.appendChild(link)
+        link.setAttribute('class','pdb_footer_button pdb_footer_button_left');
+        link.innerHTML = 'Continue';
+        link.setAttribute('onclick',dataTemplate("dojo.addClass(dojo.byId('_debugger_step_"+callcounter+"'),'pdb_running'); genro.dev.continueDebugInIde('$pdb_id','$debugger_page_id',"+callcounter+");",data));
+        footer.appendChild(link);
     },
 
     continueDebugInIde:function(pdb_id,debugger_page_id,callcounter){
@@ -384,7 +412,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
     addToDebugged:function(callcounter,data){
         var dbgpars = {debugger_page_id:data.debugger_page_id,pdb_id:data.pdb_id};
         genro.debugged_rpc['r_'+callcounter] = dbgpars;
-        genro.rpc.suspend_call(callcounter)
+        genro.rpc.suspend_call(callcounter);
     },
 
     removeFromDebugged:function(callcounter){
@@ -446,7 +474,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
                                        'fpath':'^gnr.palettes.cliSourceStore.tree.selectedPath'});
         pg._('paletteTree',{'paletteCode':'dbmodel',title:'Model',tree_searchMode:'static',
                             searchOn:true,tree_inspect:'shift',tree_labelAttribute:null,editable:true});
-        genro.setDataFromRemote('gnr.palettes.dbmodel.store', "app.dbStructure");
+        genro.setDataFromRemote('gnr.palettes.dbmodel.store', "app.dbStructure",{checkPermission:true});
         this.sqlDebugPalette(pg);
         this.devUtilsPalette(pg);
         node.unfreeze();
@@ -802,6 +830,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         else if (ele.attachEvent) ele.attachEvent('on' + opt['type'], func);
         else ele['on' + opt['type']] = func;
     },
+
     userObjectDialog:function(title,datapath,saveCb){
         var dlg = genro.dlg.quickDialog(title);
         var center = dlg.center;
@@ -817,11 +846,29 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var data = new gnr.GnrBag();
         saveattr.action = function(){
             saveCb(dlg);
-        }
+        };
         bottom._('button', saveattr);
         bottom._('button', {'float':'right',label:_T('Cancel'),action:dlg.close_action});
         dlg.show_action();
     },
+
+    userObjectMenuData:function(kw,extraRows){
+        if(extraRows){
+            kw._onResult = function(result){
+                var offset = result.len();
+                if(offset){
+                    result.setItem('r_'+offset,null,{caption:'-'});
+                }
+                offset+=1;
+                extraRows.forEach(function(n,i){
+                    result.setItem('r_'+(i+offset),null,n);
+                });
+            };
+        }
+        var resolver = genro.rpc.remoteResolver('_table.adm.userobject.userObjectMenu', kw);
+        return resolver;
+    },
+
 
     addError:function(error,error_type,show){
         var msg = "<div style='text-align:center;font-size:1em;font-weight:bold;'>"+error_type.toUpperCase()+" Error "+_F(new Date(),'short')+"</div>"+error;

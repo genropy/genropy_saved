@@ -375,25 +375,35 @@
     font-size: .9em;
 }
 
-.tundra._common_d11.theme_variant_green .dijitDialogTitleBar{
+.tundra._common_d11 .commonTitleBar {
+    background-color:#711B2A;
+    color: #ffffff;
+    text-align: center;
+    font-weight:normal;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.tundra._common_d11.theme_variant_green .dijitDialogTitleBar,.tundra._common_d11.theme_variant_green .commonTitleBar{
     background-color: #306227;
 }
 
-.tundra._common_d11.theme_variant_red .dijitDialogTitleBar{
+.tundra._common_d11.theme_variant_red .dijitDialogTitleBar, .tundra._common_d11.theme_variant_red .commonTitleBar{
     background-color:#E4E4E4;
 }
-.tundra._common_d11.theme_variant_blue .dijitDialogTitleBar{
+.tundra._common_d11.theme_variant_blue .dijitDialogTitleBar, .tundra._common_d11.theme_variant_blue .commonTitleBar{
     background-color:#1A415E;
 }
 
-
-.tundra._common_d11.theme_variant_orange .dijitDialogTitleBar{
+.tundra._common_d11.theme_variant_orange .dijitDialogTitleBar, .tundra._common_d11.theme_variant_orange .commonTitleBar{
     background-color: #FF5226;
 }
 
-.tundra._common_d11.theme_variant_yellow .dijitDialogTitleBar{
+.tundra._common_d11.theme_variant_yellow .dijitDialogTitleBar, .tundra._common_d11.theme_variant_yellow .commonTitleBar{
     background-color:#86770E;
 }
+
+
 
 /*._common_d11 .dijitDialogCloseIcon {
     display: none;
@@ -499,14 +509,13 @@
 }
 
 ._common_d11 .dijitTabChecked {
-    background: #f6f6f6;
-    border-bottom-color: #8a9ba5;
+    border-bottom-color: #efefef;
     color: #ccc;
 }
 
 ._common_d11 .dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked {
     background: #f6f6f6;
-    border-bottom-color: #f6f6f6;
+    border-bottom-color: transparent;
     color: #555;
 }
 
@@ -519,10 +528,30 @@
 
 ._common_d11 .dijitTabLabels-right-h .dijitTab {
 
-    border-bottom-right-radius: 2px;
+    /*border-bottom-right-radius: 2px;
     border-top-right-radius: 2px;
     border-bottom-left-radius: 0px;
-    border-top-left-radius: 0px;
+    border-top-left-radius: 0px;*/
+    margin-bottom: 1px;
+    border-width: 0;
+}
+
+._common_d11 .dijitTabLabels-right-h.dijitAlignRight,._common_d11 .dijitTabLabels-left-h.dijitAlignLeft{
+    background: #999;
+    padding-top: 15px;
+
+}
+._common_d11 .dijitTabLabels-left-h.dijitAlignLeft{
+    border-top:1px solid #ccc;
+    border-left:1px solid #ccc;
+    border-bottom:1px solid #ccc;
+    padding-right: 2px;
+}
+._common_d11 .dijitTabLabels-right-h.dijitAlignRight{
+    border-top:1px solid #ccc;
+    border-right:1px solid #ccc;
+    border-bottom:1px solid #ccc;  
+    padding-left: 2px;  
 }
 
 ._common_d11 .dijitTabLabels-right-h .dijitTabInnerDiv {
@@ -539,11 +568,19 @@
 
 ._common_d11 .dijitTabLabels-left-h .dijitTab {
 
-    border-bottom-right-radius: 0px;
+    /*border-bottom-right-radius: 0px;
     border-top-right-radius: 0px;
-    border-bottom-left-radius: 6px;
-    border-top-left-radius: 6px;
+    border-bottom-left-radius: 0px;
+    border-top-left-radius: 0px;*/
+    background-color: transparent;
 
+    text-align: right;
+    margin-bottom: 1px;
+    border-width: 0;
+    color:white;
+}
+._common_d11 .dijitTabLabels-left-h .dijitTab.dijitTabChecked {
+    color:RGBA(254, 255, 29, 1.00);
 }
 
 ._common_d11 .dijitTabLabels-left-h .dijitTabInnerDiv {

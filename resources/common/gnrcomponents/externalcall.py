@@ -26,7 +26,7 @@ from dateutil import parser as dtparser
 import datetime
 from decimal import Decimal
 from gnr.core.gnrdecorator import public_method
-from xmlrpclib import dumps as xmlrpcdumps,loads as xmlrpcloads, Marshaller
+from xmlrpclib import dumps as xmlrpcdumps,loads as xmlrpcloads, Marshaller, Fault
 
 def dump_decimal(self,value, write):
     write("<value><double>")
@@ -177,10 +177,8 @@ class XmlRpc(BaseComponent):
             return self.returnFault(1,faultString)
 
     def returnFault(self,faultCode=0,faultString=''):
-        methodResponse=Bag()
-        methodResponse['methodResponse.fault.value']=self.encodeValue(dict(faultCode=faultCode,faultString=faultString))
-        return methodResponse.toXml(omitRoot=True,pretty=True)
-    
+        return xmlrpcdumps(Fault(faultCode,faultString),encoding='UTF-8',methodresponse=True,allow_none=True)
+
     def isPublicMethod(self,name):
         h=getattr(self,name,None)
         if not h:

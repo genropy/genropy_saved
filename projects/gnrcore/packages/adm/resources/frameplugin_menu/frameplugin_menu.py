@@ -136,10 +136,15 @@ class MenuResolver(BagResolver):
             level = len(self.path.split('.'))
         for node in sitemenu[self.path]:
             allowed = True
-            nodetags = node.getAttr('tags')
-            filepath = node.getAttr('file')
+            nodeattr = node.attr
+            nodetags = nodeattr.get('tags')
+            filepath = nodeattr.get('file')
+            tableattr = self._page.db.table(nodeattr['table']).attributes if 'table' in nodeattr else None
             if nodetags:
                 allowed = self._page.application.checkResourcePermission(nodetags, userTags)
+            allowed = allowed and self._page.application.allowedByPreference(**nodeattr)
+            if tableattr:
+                allowed = allowed and self._page.application.allowedByPreference(**tableattr)
             if allowed and filepath:
                 allowed = self._page.checkPermission(filepath)
             if allowed:

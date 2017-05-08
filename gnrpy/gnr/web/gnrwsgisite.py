@@ -38,6 +38,8 @@ from gnr.web.services.gnrmail import WebMailHandler
 
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
+from gnr.web.gnrwsgisite_proxy.gnrcommandhandler import CommandHandler
+
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import SiteRegisterClient
 from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import WsgiWebSocketHandler
 import pdb
@@ -190,6 +192,7 @@ class GnrWsgiSite(object):
         self._currentMaintenances = {}
         abs_script_path = os.path.abspath(script_path)
         self.remote_db = ''
+        self._register = None
         if site_name and ':' in site_name:
             site_name,self.remote_db = site_name.split(':',1)
         if os.path.isfile(abs_script_path):
@@ -258,8 +261,9 @@ class GnrWsgiSite(object):
         self.print_handler = self.addService(PrintHandler, service_name='print')
         self.mail_handler = self.addService(WebMailHandler, service_name='mail')
         self.task_handler = self.addService(TaskHandler, service_name='task')
+        self.process_cmd = CommandHandler(self)
         self.services.addSiteServices()
-        self._register = None
+        
         self._remote_edit = options.remote_edit if options else None
         if counter == 0 and self.debug:
             self.onInited(clean=not noclean)
@@ -678,6 +682,7 @@ class GnrWsgiSite(object):
         self.external_host = self.config['wsgi?external_host'] or request.host_url
         # Url parsing start
         path_list = self.get_path_list(request.path_info)
+        self.process_cmd.getPending()
         expiredConnections = self.register.cleanup()
         if expiredConnections:
             self.connectionLog('close',expiredConnections)
@@ -1078,8 +1083,8 @@ class GnrWsgiSite(object):
         :param dflt: TODO
         :param username: TODO"""
         if self.db.package('adm'):
-            username = username or self.currentPage.user
-            pkg = pkg or self.currentPage.packageId
+            username = username or self.currentPage.user if self.currentPage else None
+            pkg = pkg or self.currentPage.packageId if self.currentPage else None
             return self.db.table('adm.user').getPreference(path=path, pkg=pkg, dflt=dflt, username=username)
             
     def setUserPreference(self, path, data, pkg=None, username=None):
@@ -1091,7 +1096,7 @@ class GnrWsgiSite(object):
         :param username: TODO"""
         if self.db.package('adm'):
             pkg = pkg or self.currentPage.packageId
-            username = username or self.currentPage.user
+            username = username or self.currentPage.user if self.currentPage else None
             self.db.table('adm.user').setPreference(path, data, pkg=pkg, username=username) 
 
     @property

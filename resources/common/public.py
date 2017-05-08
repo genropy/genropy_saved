@@ -199,8 +199,7 @@ class PublicSlots(BaseComponent):
     @struct_method
     def public_publicRoot_partition_selector(self,pane, **kwargs): 
         box = pane.div(margin_top='2px') 
-        if self.public_partitioned is True:
-            self.public_partitioned = self.tblobj.partitionParameters
+        self.public_partitioned = self.tblobj.partitionParameters if self.public_partitioned is True else self.public_partitioned
         kw = self.public_partitioned
         partition_field = kw['field']
         partition_path = kw['path']
@@ -209,7 +208,7 @@ class PublicSlots(BaseComponent):
         default_partition_value = self.rootenv[partition_path]
         fb = box.formbuilder(cols=1,border_spacing='0')
         if hasattr(related_tblobj,'partitionioning_pkeys'):
-            print 'deprecated way for partition: set allowed_%s during login onUserSelected instead of use partitionioning_pkeys' %partition_field
+            #to avoid this query use login onUserSelected instead of use partitionioning_pkeys
             allowedPartitionPkeys =  related_tblobj.partitionioning_pkeys()
             self.pageStore().setItem('rootenv.allowed_%s' %partition_field, allowedPartitionPkeys or [],dbenv=True)
             if not allowedPartitionPkeys and default_partition_value:
@@ -228,8 +227,8 @@ class PublicSlots(BaseComponent):
                             dbtable=related_tblobj.fullname,lbl=related_tblobj.name_long,
                             hasDownArrow=True,font_size='.8em',lbl_color='white',
                             color='#666',lbl_font_size='.8em',nodeId='pbl_partition_selector')
-        else:
-            fb.div('!!Partition not allowed',color='orange',font_size='.8em',font_weight='bold') 
+        #else:
+        #    fb.div('!!Partition not allowed',color='orange',font_size='.8em',font_weight='bold') 
         fb.dataController("""SET current.%s = currentValue || null;
                              """ %partition_field,
             currentValue='^current.current_partition_value',_onStart=True)
@@ -379,15 +378,23 @@ class TableHandlerMain(BaseComponent):
         else:
             root.attributes.update(_class=None,datapath=tablecode)
         extras = []
-        if hasattr(self,'stats_main') or hasattr(self,'hv_main'):
+        if hasattr(self,'stats_main') or hasattr(self,'hv_main') or th_options.get('statspane'):
             tc = root.stackContainer(selectedPage='^.view.selectedPage')
             root = tc.contentPane(title='!!Main View',pageName='th_main')
-            if hasattr(self,'stats_main'):
+            if hasattr(self,'stats_main') and not th_options.get('statspane'):
                 extras.append('statisticalHandler')
                 self.stats_main(tc,title='!!Statistical View')
             if hasattr(self,'hv_main'):
                 extras.append('hierarchicalHandler')
                 self.hv_main(tc)
+            if th_options.get('statspane'):
+                extras.append('statspane')
+                statsframe = tc.framePane(pageName='statspane')
+                bar = statsframe.top.slotToolbar('2,backbutton,*')
+                bar.backbutton.slotButton('!!Main view',action='SET .view.selectedPage="th_main";',iconClass='iconbox dismiss')
+                statsframe.center.contentPane(nodeId='pbl_statspane_container')
+
+
         self.th_mainUserSettings(kwargs=kwargs)
         thwidget = kwargs.pop('widget','stack')
         if thwidget=='inline':
@@ -397,6 +404,7 @@ class TableHandlerMain(BaseComponent):
             lockable = False
         kwargs.setdefault('preview_tpl',True)
         kwargs.setdefault('form_form_isRootForm',True)
+        kwargs.setdefault('view_store_onStart',not extendedQuery)
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,lockable=lockable,
                                                       extendedQuery=extendedQuery,**kwargs)
         root.dataController("""
@@ -416,16 +424,17 @@ class TableHandlerMain(BaseComponent):
             }
             """,subscribe_frameindex_external=True,
                             formNode=getattr(th,'form',False),viewNode=th.view)
-        if getattr(self,'public_partitioned',None):
+        if getattr(self,'public_partitioned',None) and not self.public_partitioned.get('children'):
             th.view.dataController("""FIRE .runQueryDo;""",subscribe_public_changed_partition=True,
                     storeServerTime='=.store?servertime',_if='storeServerTime')
             #partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
             if th['view.top.bar.addrow']:
-                th.view.top.bar.addrow.getNode('#0').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
+                th.view.top.bar.addrow.getNode('addButton').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
             if th['form.top.bar.form_add']:
-                th.form.top.bar.form_add.getNode('#0').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
-            if th['form']: #and partition_kwargs:
-                th.form.dataController("SET gnr.partition_selector.disabled = pkey?true:false;",pkey='^#FORM.pkey')
+                th.form.top.bar.form_add.getNode('addButton').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
+            if th['form'] and thwidget in ('stack','dialog'): #and partition_kwargs:
+                th.form.dataController("SET gnr.partition_selector.disabled = pkey?true:false;",
+                pkey='^#FORM.pkey')
         self.root_tablehandler = th
         vstore = th.view.store
         viewbar = th.view.top.bar
@@ -445,8 +454,6 @@ class TableHandlerMain(BaseComponent):
             viewbar.captionslot.publicRoot_captionslot()
 
         storeupd = dict(startLocked=lockable)
-        if not extendedQuery:
-            storeupd['_onStart'] = True
         vstore.attributes.update(storeupd)
         if len(extras)>0:
             viewbar.replaceSlots('resourceMails','resourceMails,5,%s' %','.join(extras))  
@@ -504,6 +511,17 @@ class TableHandlerMain(BaseComponent):
             self._th_parentFrameMessageSubscription(th.form)
         return th
 
+
+    @struct_method
+    def th_slotbar_statspane(self,pane,**kwargs):
+        pane.slotButton('!!Stats',iconClass='iconbox sum',action = """
+                    var root = genro.nodeById('pbl_statspane_container');
+                    if(!root.getValue().getItem('statsPane')){
+                        genro.nodeById('%(frameCode)s_grid').publish('pluginCommand',{plugin:'statspane',command:'openGridStats',statsRoot:root})
+                    }
+                    SET .selectedPage="statspane";
+        """ %kwargs)
+        
 
     @public_method
     def th_getUnifierWarningBag(self,table=None,sourcePkey=None,destPkey=None):
@@ -648,35 +666,4 @@ class TableHandlerMain(BaseComponent):
     @struct_method
     def public_publicRoot_tablelimiter(self,pane,title='',**kwargs): 
         pane.div()
-
-#OLD STUFF TO REMOVE
-class ThermoDialog(BaseComponent):
-    py_requires = 'foundation/thermo'
-    
-class UserObject(BaseComponent):
-    py_requires = 'foundation/userobject'
-    
-class IncludedView(BaseComponent):
-    py_requires = 'foundation/includedview'
-    
-class RecordHandler(BaseComponent):
-    py_requires = 'foundation/recorddialog'
-    
-class Tools(BaseComponent):
-    py_requires = 'foundation/tools'
-    
-class SelectionHandler(BaseComponent):
-    py_requires = 'gnrcomponents/selectionhandler'
-    
-class RecordLinker(BaseComponent):
-    py_requires = 'gnrcomponents/recordlinker'
-    
-class MultiSelect(BaseComponent):
-    py_requires = 'gnrcomponents/multiselect'
-    
-class DynamicEditor(BaseComponent):
-    py_requires = 'foundation/macrowidgets:DynamicEditor'
-    
-class RecordToHtmlFrame(BaseComponent):
-    py_requires = 'foundation/htmltoframe'
                                     

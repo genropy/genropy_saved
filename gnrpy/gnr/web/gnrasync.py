@@ -26,6 +26,7 @@ from datetime import datetime
 from copy import deepcopy
 from functools import wraps
 from concurrent.futures import ThreadPoolExecutor,Future
+from tornado.concurrent import Future as TornadoFuture
 import tornado.web
 from tornado import gen,locks
 import tornado.websocket as websocket
@@ -126,7 +127,7 @@ class DebugSession(GnrBaseHandler):
         page_id,pdb_id = debugkey.split(',')
         self.page_id = page_id
         self.pdb_id = pdb_id
-        if not debugkey in self.debug_queues:
+        if debugkey not in self.debug_queues:
             self.debug_queues[debugkey] = queues.Queue(maxsize=40)
         self.websocket_input_queue = self.debug_queues[debugkey]
         self.consume_websocket_output_queue()
@@ -258,11 +259,22 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
                 result = handler(_time_start=time.time(),**kwargs)
                 if isinstance(result,Future):
                     result = yield result
+                elif isinstance(result,TornadoFuture):
+                    result = yield result
+                    #result.add_done_callback(lambda f: self.tornado_future_result(f,result_token=result_token))
+                    #yield None
             if result_token:
                 result = Bag(dict(token=result_token,envelope=result)).toXml(unresolved=True)
             if result is not None:
                 self.write_message(result)
-           
+
+    #def tornado_future_result(self,f,result_token=None):
+    #    result = f.result()
+    #    print 'tornado_future_result',result,result_token,f.done(),f.exc_info()
+    #    result = Bag(dict(token=result_token,envelope=result)).toXml(unresolved=True)
+    #    self.write_message(result)
+
+
     def on_close(self):
       #  print "WebSocket on_close",self.page_id
         self.channels.pop(self.page_id,None)
@@ -288,27 +300,27 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
 
     def do_connected(self,page_id=None,**kwargs):
         self._page_id=page_id
-        if not page_id in self.channels:
+        if page_id not in self.channels:
             #print 'setting in channels',self.page_id
             self.channels[page_id]=self
         else:
             pass
              #print 'already in channels',self.page_id
-        if not page_id in self.pages:
-            print 'do_connected: missing page %s trying to register it again' % page_id
+        if page_id not in self.pages:
+            print 'do_connected: missing page %s register it again' % page_id
             self.server.registerPage(page_id=page_id)
         else:
             pass
             #print 'already in pages',self.page_id
 
-  #  def do_som_command(self,cmd=None,_time_start=None,**kwargs):
-  #      return self.server.som(cmd,page_id=self._page_id,**kwargs)
-  #
+    #def do_som_command(self,cmd=None,_time_start=None,**kwargs):
+    #    return self.server.som(cmd,page_id=self._page_id,**kwargs)
+    #
     def do_pdb_command(self, cmd=None, pdb_id=None,**kwargs):
         #self.debugger.put_data(data)
         print 'CMD',cmd
         debugkey = '%s,%s' %(self.page_id,pdb_id)
-        if not debugkey in self.debug_queues:
+        if debugkey not in self.debug_queues:
             self.debug_queues[debugkey] = queues.Queue(maxsize=40)
         data_queue = self.debug_queues[debugkey]
         data_queue.put(cmd)
@@ -605,11 +617,11 @@ class SharedStatus(SharedObject):
         page_item = page.page_item
         users = self.users
         page_id = page.page_id
-        if not page.user in users:
+        if page.user not in users:
             users[page.user] = Bag(dict(start_ts=page_item['start_ts'],user=page.user,connections=Bag()))
         userbag = users[page.user]
         connection_id = page.connection_id
-        if not connection_id in userbag['connections']:
+        if connection_id not in userbag['connections']:
             userbag['connections'][connection_id] = Bag(dict(start_ts=page_item['start_ts'],
                                                         user_ip=page_item['user_ip'],
                                                         user_agent=page_item['user_agent'],
@@ -681,7 +693,7 @@ class SharedObjectsManager(object):
 
         
     def getSharedObject(self,shared_id,expire=None,startData=None,read_tags=None,write_tags=None, factory=SharedObject,**kwargs):
-        if not shared_id in self.sharedObjects:
+        if shared_id not in self.sharedObjects:
             self.sharedObjects[shared_id] = factory(self,shared_id=shared_id,expire=expire,startData=startData,
                                                                 read_tags=read_tags,write_tags=write_tags,**kwargs)
             sharingkw=dict(kwargs)
@@ -722,6 +734,22 @@ class SharedObjectsManager(object):
 
     def do_loadSharedObject(self,shared_id=None,**kwargs):
         self.getSharedObject(shared_id).load()
+
+    def do_dispatch(self,shared_id=None,so_method=None,so_pars=None,**kwargs):
+        so = self.getSharedObject(shared_id)
+        pars = so_pars or dict()
+        result = getattr(so,so_method)(**pars)
+        return result
+    #    if isinstance(result,TornadoFuture):
+    #        result.add_done_callback(self.return_result)
+    #    else:
+    #        return result
+#
+    #def return_result(self,future_instance):
+    #    result = future_instance.result()
+#
+
+
                     
     def onShutdown(self):
         for so in self.sharedObjects.values():
@@ -796,13 +824,14 @@ class GnrBaseAsyncServer(object):
    
     def registerPage(self,page=None,page_id=None):
         if not page:
-            print 'Trying to retrieve page %s in gnrdaemon register'
+            #print 'Trying to retrieve page %s in gnrdaemon register' %page_id
             page = self.gnrsite.resource_loader.get_page_by_id(page_id)
             if not page:
-                print '     page %s not existing in gnrdaemon register'
+                print '     page %s not existing in gnrdaemon register' %page_id
                 return
             else:
-                print '     page %s restored succesfully from gnrdaemon register'
+                pass
+                #print '     page %s restored succesfully from gnrdaemon register' %page_id
         page.asyncServer = self
         page.sharedObjects = set()
         self.pages[page.page_id] = page

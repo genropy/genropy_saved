@@ -28,6 +28,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
 
     constructor: function(application) {
         this.application = application;
+        this.pendingHeaders = {};
         this.css3AttrNames = ['rounded','gradient','shadow','transform','transition','zoom','filter'];
         this.styleAttrNames = ['height', 'width','top','left', 'right', 'bottom', 'resize',
             'visibility','opacity', 'overflow', 'float', 'clear', 'display',
@@ -90,27 +91,33 @@ dojo.declare("gnr.GnrDomHandler", null, {
         document.getElementsByTagName("head")[0].appendChild(style);
         style.disabled = false; //to control why appending child style change disable attr
     },
-    loadCss: function(url, cssTitle, cb) {
+    loadCss: function(url, cssTitle, cb,avoidCache) {
+        if(avoidCache){
+            url = genro.addParamsToUrl(url,{nocache:timeStamp()});
+        }
         var e = document.createElement("link");
         e.href = url;
         e.type = "text/css";
         e.rel = "stylesheet";
         e.media = "screen";
         document.getElementsByTagName("head")[0].appendChild(e);
-        if (cb) e.onload = cb;
+        if (cb){ 
+            e.onload = cb;
+        }
     },
-    loadJs: function(url, cb) {
+    loadJs: function(url, cb,avoidCache) {
+        if(avoidCache){
+            url = genro.addParamsToUrl(url,{nocache:timeStamp()});
+        }
         var e = document.createElement("script");
         e.src = url;
         e.type = "text/javascript";
         document.getElementsByTagName("head")[0].appendChild(e);
-        
         if (cb) {
             e.onload = cb;
-            }
+        }
     },
-    loadExternal:function(urlList){
-        var urlList;
+    loadExternal:function(urlList,avoidCache){
         if (typeof(urlList)=='string'){
             if (urlList.indexOf(',')>-1){
                 urlList = urlList.split(',');
@@ -124,10 +131,10 @@ dojo.declare("gnr.GnrDomHandler", null, {
             var splitted_name = name.split('.');
             var file_ext =splitted_name[splitted_name.length-1].toLowerCase();
             if (file_ext=='js'){
-                this.loadJs(url);
+                this.loadJs(url,null,avoidCache);
             }
             else if (file_ext=='css'){
-                this.loadCss(url);
+                this.loadCss(url,null,null,avoidCache);
             }
         });
     },
@@ -138,20 +145,21 @@ dojo.declare("gnr.GnrDomHandler", null, {
         */
 
         if (typeof(headers)=='string'){
-            headers = headers.split(',')
+            headers = headers.split(',');
         }
-        var pendingHeaders = {};
         var firstHead = document.getElementsByTagName("head")[0];
         var waitCb = function(url){
-            objectPop(pendingHeaders,url);
-            if(!objectNotEmpty(pendingHeaders)){
+            objectPop(genro.dom.pendingHeaders,url);
+            if(!objectNotEmpty(genro.dom.pendingHeaders)){
                 cb();
             }
-        }
+        };
         headers.forEach(function(h){
             if(typeof(h)=='string'){
                 h = {url:h,htype:stringEndsWith(h,'.js')?'script':'link'};
             }
+            var original_h = objectUpdate({},h);
+            h = objectUpdate({},h);
             var htype = objectPop(h,'htype');
             var e = document.createElement(htype);
             var url = objectPop(h,'url');
@@ -169,11 +177,11 @@ dojo.declare("gnr.GnrDomHandler", null, {
             for (var k in h){
                 e[k] = h[k];
             }
-            pendingHeaders[url] = true;
+            genro.dom.pendingHeaders[url] = true;
             firstHead.appendChild(e);
             e.onload = function(){
-                waitCb(url)
-            }
+                waitCb(url);
+            };
         });
     },
 
@@ -508,7 +516,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         if(objectNotEmpty(valuedict)){
             var colordict=objectExtract(valuedict,'color_*');
-            colors=[];
+            var colors=[];
             for(var col in colordict){colors.push(col);}
             colors.sort();
             var color_from=valuedict['from'];
@@ -1428,7 +1436,16 @@ dojo.declare("gnr.GnrDomHandler", null, {
             parentId = rootNode.getStringId();
         }
         var default_kw = {'position':'absolute',top:'0',left:'0',right:'0','bottom':0,
-            z_index:399,background_color:'rgba(255,255,255,0.5)',id:parentId + '_hider'};
+            z_index:399,background_color:'rgba(255,255,255,0.5)',id:parentId + '_hider',
+            connect_ondblclick:function(evt){
+                if(evt.shiftKey){
+                    var sn =  evt.target.sourceNode;
+                    while(sn.label!='hiderNode'){
+                        sn = sn.getParentNode();
+                    }
+                    sn.getParentNode().getValue().popNode('hiderNode');
+                }
+            }};
         var kw = objectUpdate(default_kw, kw);
         var hider = rootNode._('div','hiderNode', kw).getParentNode();
         if(message){

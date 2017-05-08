@@ -97,8 +97,8 @@ class GnrSimplePage(GnrWebPage):
         self._shareds = dict()
         self._privates = defaultdict(dict)
         self.freezedSelections = dict()
-        self.dynamic_js_requires= {}
-        self.dynamic_css_requires= {}
+        self.envelope_js_requires= {}
+        self.envelope_css_requires= {}
 
     def sharedData(self,name,factory=dict):
         if not name in self._shareds:

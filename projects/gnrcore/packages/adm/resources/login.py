@@ -159,7 +159,12 @@ class LoginComponent(BaseComponent):
                 }
                 if(doLogin){
                     if(!closable_login){
-                        genro.pageReload();
+                        var rootpage = avatar.getItem('avatar_rootpage');
+                        if(rootpage){
+                            genro.gotoURL(rootpage);
+                        }else{
+                            genro.pageReload();
+                        }
                     }
                 }
             }
@@ -179,6 +184,7 @@ class LoginComponent(BaseComponent):
             return dict(error=login['error'])
         rootenv['user'] = self.avatar.user
         rootenv['user_id'] = self.avatar.user_id
+        rootenv['user_group_code'] = getattr(self.avatar,'group_code',None)
         rootenv['workdate'] = rootenv['workdate'] or self.workdate
         rootenv['login_date'] = date.today()
         rootenv['language'] = rootenv['language'] or self.language
@@ -214,7 +220,7 @@ class LoginComponent(BaseComponent):
         return result
 
     def loginboxPars(self):
-        return dict(width='320px',_class='index_loginbox',shadow='5px 5px 20px #555',rounded=10)
+        return dict(width='320px',_class='index_loginbox',shadow='5px 5px 20px #555')
 
     def login_lostPassword(self,pane,dlg_login):
         dlg = pane.dialog(_class='lightboxDialog')
@@ -287,25 +293,22 @@ class LoginComponent(BaseComponent):
         return dlg
         
         
-    def login_newUser(self,pane):
+    def login_newUser(self,pane,closable=False,**kwargs):
         dlg = pane.dialog(_class='lightboxDialog',
                             subscribe_openNewUser='this.widget.show(); genro.formById("newUser_form").newrecord();',
                             subscribe_closeNewUser='this.widget.hide();')
+
         kw = self.loginboxPars()
         kw['width'] = '400px'
         kw['height'] = '250px'
+        kw.update(kwargs)
         form = dlg.frameForm(frameCode='newUser',datapath='new_user',store='memory',**kw)
+        if closable:
+            dlg.div(_class='dlg_closebtn',connect_onclick="genro.publish('closeNewUser')")
         form.dataController("PUT creating_new_user = false;",_fired='^#FORM.controller.loaded')
         topbar = form.top.slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
         topbar.wtitle.div('!!New User')  
-        fb = form.record.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='6px',onEnter='SET creating_new_user = true;',
-                                width='100%',tdl_width='6em',fld_width='100%',row_height='3ex')
-        fb.textbox(value='^.firstname',lbl='!!First name',validate_notnull=True,validate_case='c',validate_len='2:')
-        fb.textbox(value='^.lastname',lbl='!!Last name',validate_notnull=True,validate_case='c',validate_len='2:')
-        fb.textbox(value='^.email',lbl='!!Email',validate_notnull=True)
-        fb.textbox(value='^.username',lbl='!!Username',validate_notnull=True,validate_nodup='adm.user.username',validate_len='4:')
-
-        fb.div(width='100%',position='relative',row_hidden=False).button('!!Send',action='SET creating_new_user = true;',position='absolute',right='-5px',top='8px')
+        self.login_newUser_form(form)
         form.dataRpc('dummy',self.login_createNewUser,data='=#FORM.record',
                     _do='^creating_new_user',_if='_do && this.form.isValid()',
                     _else='this.form.publish("message",{message:_error_message,messageType:"error"})',
@@ -318,10 +321,20 @@ class LoginComponent(BaseComponent):
                         PUT creating_new_user = false;
                     }
                     """,_lockScreen=True)
-        footer = form.bottom.slotBar('12,loginbtn,*',height='18px',width='100%',tdl_width='6em')
-        footer.loginbtn.div('!!Login',cursor='pointer',connect_onclick="genro.publish('closeNewUser');genro.publish('openLogin');",
+        if not closable:
+            footer = form.bottom.slotBar('12,loginbtn,*',height='18px',width='100%',tdl_width='6em')
+            footer.loginbtn.div('!!Login',cursor='pointer',connect_onclick="genro.publish('closeNewUser');genro.publish('openLogin');",
                             color='gray',font_size='12px',height='15px')
         return dlg
+
+    def login_newUser_form(self,form):
+        fb = form.record.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='6px',onEnter='SET creating_new_user = true;',
+                                width='100%',tdl_width='6em',fld_width='100%',row_height='3ex')
+        fb.textbox(value='^.firstname',lbl='!!First name',validate_notnull=True,validate_case='c',validate_len='2:')
+        fb.textbox(value='^.lastname',lbl='!!Last name',validate_notnull=True,validate_case='c',validate_len='2:')
+        fb.textbox(value='^.email',lbl='!!Email',validate_notnull=True)
+        fb.textbox(value='^.username',lbl='!!Username',validate_notnull=True,validate_nodup='adm.user.username',validate_len='4:')
+        fb.div(width='100%',position='relative',row_hidden=False).button('!!Send',action='SET creating_new_user = true;',position='absolute',right='-5px',top='8px')
 
     @public_method
     def login_createNewUser(self,data=None,**kwargs):

@@ -105,6 +105,12 @@
     padding-left: 0;
     padding-right: 4px;
 }
+
+/*
+.th_querysampleform .dijitInputField, .th_querysampleform .dijitTextBox{
+}
+*/
+
 .th_queryboxfield .dijitInputField, .th_queryboxfield .dijitTextBox{
     border: 0px;
     padding-top: 0 !important;

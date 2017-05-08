@@ -34,7 +34,7 @@ class GnrCustomWebPage(object):
                                 r.setItem('cell_0',null,{field:'base',width:'23em',name:'Base'});
                                 if(enabledLanguages){
                                     enabledLanguages.split(',').forEach(function(lang){
-                                            r.setItem('cell_'+lang,null,{field:lang,width:'23em',name:languages.getItem(lang),edit:{tag:'simpleTextArea'}});
+                                            r.setItem('cell_'+lang,null,{field:lang,width:'23em',name:languages.getItem(lang),edit:true});
                                         })
                                 }
                                 r.setItem('cell_path',null,{field:'path',width:'20em',name:'File',hidden:'^#FORM.filePathHidden',format_joiner:'<br/>'});
@@ -55,7 +55,7 @@ class GnrCustomWebPage(object):
     @public_method
     def loadLocalizationFile(self,path=None,currentLocalizationBlock=None,enabledLanguages=None,**kwargs):
         localizationpath = os.path.join(path,'localization.xml')
-        localization = Bag(localizationpath)
+        localization = Bag(localizationpath) if os.path.exists(localizationpath) else Bag()
         localization.setBackRef()
         enabledLanguages = enabledLanguages.split(',') if enabledLanguages else []
         griddata = Bag()

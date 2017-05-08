@@ -49,7 +49,7 @@ dijit.showTooltip = function(/*String*/ innerHTML, /*DomNode*/ aroundNode) {
 dojo.declare('gnr.GenroClient', null, {
 
     constructor: function(kwargs) {
-        //this.patchConsole();
+        this.patchConsole();
         kwargs = mapConvertFromText(kwargs);
         this.domRootName = kwargs.domRootName || 'mainWindow';
         this.page_id = kwargs.page_id;
@@ -81,6 +81,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.dojo = dojo;
         this.debugged_rpc = {};
         this.ext={};
+        this.watches = {};
         this.userInfoCb = [];
         this.formatter = gnrformatter;
         this.timeProfilers = [];
@@ -89,6 +90,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.profile_count = 4;
         this.lastPing = start_ts;
         this._debugPaths = {};
+        this._aliasDatapaths = {};
         this.sendAllEvents=true;
         this._lastMouseEvent = {};
         this._longClickDuration = 1500;
@@ -102,6 +104,9 @@ dojo.declare('gnr.GenroClient', null, {
         
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
     },
+    setAliasDatapath:function(alias,path){
+        this._aliasDatapaths[alias] = path;
+    },
 
     setDebugPath:function(path,kw){
         if(!kw.mode){
@@ -110,15 +115,33 @@ dojo.declare('gnr.GenroClient', null, {
             this._debugPaths[path] = kw;
         }
     },
+    patchConsole_debug:function(){
+        if(arguments[0].dojoType=='cancel'){
+            return;
+        }else{
+            console.zdebug(arguments);
+        }
+    },
+
+    patchConsole_warn:function(){
+        if(arguments[0].dojoType=='cancel'){
+            return;
+        }else{
+            console.zdebug(arguments);
+        }
+    },
 
     patchConsole:function(){
-        console.zlog = console.log;
-        console.log = function(){
-            if(!arguments[0]){
-                genro.bp(true)
-            }
-            console.zlog(arguments);
+        dojo.experimental = function(){
+            //removed console warn experimental dojox
         };
+        var patchers = objectExtract(this,'patchConsole_*',true);
+        for(var p in patchers){
+            if(p in console){
+                console['z'+p] = console[p];
+                console[p] = patchers[p];
+            }
+        }
     },
 
     genroInit:function() {
@@ -198,6 +221,7 @@ dojo.declare('gnr.GenroClient', null, {
             genropatches.parseNumbers();
             genropatches.dojoToJson();
             genropatches.sendAsBinary();
+            genropatches.places();
         }
         genropatches.decimalRound();
         this.clsdict = {domsource:gnr.GnrDomSource, bag:gnr.GnrBag};
@@ -232,6 +256,23 @@ dojo.declare('gnr.GenroClient', null, {
     assert:function(condition,msg,level){
         if(!condition){
             console[level || 'error'](msg);
+        }
+    },
+
+    pluginCommand:function(kw){
+        var plugin = objectPop(kw,'plugin');
+        var cb = function(){
+            genro[plugin][objectPop(kw,'command')](kw);
+        };
+        if(plugin in genro){
+            cb();
+        }else{
+            genro.dom.loadCss('/_rsrc/common/js_plugins/'+plugin+'/'+plugin+'.css',null,null,genro.isDeveloper);
+            genro.dom.loadJs('/_rsrc/common/js_plugins/'+plugin+'/'+plugin+'.js',function(){
+                genro[plugin] = genro[plugin] || objectPop(window,'genro_plugin_'+plugin);
+                genro.wdg.updateWidgetCatalog();
+                cb();
+            },genro.isDeveloper);
         }
     },
 
@@ -351,7 +392,6 @@ dojo.declare('gnr.GenroClient', null, {
         dojo.connect(window, 'onkeydown', cb);
         dojo.connect(window, 'onkeypress', cb);
         dojo.connect(window, 'ondblclick', cb);
-       // dojo.connect(window, 'oninput', cb);
         setInterval(function(){
             genro.timeProfilers.push(genro.currProfilers);
             if(genro.timeProfilers.length>genro.profile_count){
@@ -531,21 +571,26 @@ dojo.declare('gnr.GenroClient', null, {
         }
         genro.src.getMainSource(function(mainBagPage){
             if (mainBagPage  &&  mainBagPage.attr && mainBagPage.attr.redirect) {
-                var pageUrl = genro.absoluteUrl()
+                var pageUrl = genro.absoluteUrl();
+                
                 if (pageUrl.slice(0,genro.baseUrl.length-1)==genro.baseUrl.slice(0,genro.baseUrl.length-1))
                 {
                     pageUrl = pageUrl.slice(genro.baseUrl.length-1) || '/';
                 }
-                var url = genro.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':pageUrl});
+                var url = pageUrl && pageUrl!='/'?genro.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':pageUrl}):mainBagPage.attr.redirect;
                // genro.currentUrl=mainBagPage.attr.redirect
                 //var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
                 //this.dostart(mainBagPage)
                genro.gotoURL(url);
             }else{
-                genro.dostart(mainBagPage)
+                var cnt=0;
+                genro.watch('waitingRequires_main',function(){
+                    return !objectNotEmpty(genro.dom.pendingHeaders);
+                },function(){
+                    genro.dostart(mainBagPage);
+                },10);
             }
         });
-        
     },
         
     dostart: function(mainBagPage) {
@@ -706,6 +751,33 @@ dojo.declare('gnr.GenroClient', null, {
         }
     },
 
+    unwatch:function(watchId){
+        if (this.watches && this.watches[watchId]){
+            clearInterval(this.watches[watchId]);
+            delete this.watches[watchId];
+        }
+    },
+    
+    watch: function(watchId,conditionCb,action,delay){
+        delay=delay || 200;
+        if(this.watches && (watchId in this.watches)){
+            this.unwatch(watchId);
+        }
+        if (conditionCb()){
+            action();
+        }else{
+            this.watches=this.watches || {};
+            var that = this;
+            this.watches[watchId] = setInterval(
+                function(){
+                    if (conditionCb()){
+                        that.unwatch(watchId);
+                        action();
+                    }
+            },delay);
+        }
+    },
+
 
     windowMessageListener:function(){
         window.addEventListener("message", function(e){
@@ -806,7 +878,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     getServerLastTs:function(){
-        return asTypedTxt(new Date(genro._lastUserEventTs.getTime()+(genro.serverTimeDelta || 0)),'DH')
+        return asTypedTxt(new Date(genro._lastUserEventTs.getTime()+(genro.serverTimeDelta || 0)),'DH');
     },
 
     getServerLastRpc:function(){
@@ -1115,7 +1187,7 @@ dojo.declare('gnr.GenroClient', null, {
         }
         else if (typeof(v) == 'boolean' || f.dtype == 'B') {
             if(typeof(v)=='string'){
-                return v;
+                return (v[0]=='^' || v[0]=='=')?'&nbsp;':v;
             }
             var divcontent,divclass;
             var falsecontent = f['false'] || (f['falseclass'] ? '' : 'false');
@@ -1542,7 +1614,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     setData: function(path, value, attributes, doTrigger) {
         var path = genro.pathResolve(path);
-        genro._data.setItem(path, value, attributes, {'_doTrigger': doTrigger});
+        genro._data.setItem(path, value, attributes, {'doTrigger': doTrigger});
     },
 
     setDataFromRemote:function(path, method, params, attributes) {
@@ -2120,6 +2192,10 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     lockScreen:function(locking, reason, options) {
+        if(options===true){
+            options = {};
+        }
+        options = options || {};
         if (reason) {
             genro.lockingElements[reason] = reason;
         }
@@ -2127,7 +2203,12 @@ dojo.declare('gnr.GenroClient', null, {
             if (!reason) {
                 return;
             }
-            genro.nodeById('_gnrRoot').setHiderLayer(true,{message:'<div class="form_waiting"></div>',z_index:999998});
+            var message = '<div class="form_waiting"></div>';
+            if(options.thermo){
+                genro.setData('gnr.lockScreen.thermo',message);
+                message = options.thermo === true?'^gnr.lockScreen.thermo':options.thermo;
+            }
+            genro.nodeById('_gnrRoot').setHiderLayer(true,{message:message,z_index:999998});
         } else {
             if (reason) {
                 objectPop(genro.lockingElements, reason);

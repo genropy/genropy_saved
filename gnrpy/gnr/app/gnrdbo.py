@@ -115,19 +115,6 @@ class GnrDboPackage(object):
         :param path: a dotted name of the preference item
         :param value: the new value"""
         self.db.table('adm.preference').setPreference(path, value, pkg=self.name)
-        
-    def tableBroadcast(self,evt,autocommit=False,**kwargs):
-        changed = False
-        db = self.application.db
-        for tname,tblobj in db.packages[self.id].tables.items():
-            handler = getattr(tblobj.dbtable,evt,None)
-            if handler:
-                result = handler(**kwargs)
-                changed = changed or result
-        if changed and autocommit:
-            db.commit()
-        return changed
-
          
     @public_method
     def loadStartupData(self,basepath=None,empty_before=None):
@@ -181,7 +168,7 @@ class GnrDboPackage(object):
                 recordsToInsert.append(r)
             if recordsToInsert:
                 tblobj.insertMany(recordsToInsert)
-                db.commit()
+        db.commit()
         os.remove('%s.pik' %bagpath)
 
 
@@ -260,10 +247,10 @@ class TableBase(object):
             pkey = tbl.attributes.get('pkey')
             if not pkey:
                 tbl.attributes['pkey'] = 'id'
-            if group and group_name:
-                tbl.attributes['group_%s' % group] = group_name
-            else:
-                group = '_'
+        if group and group_name:
+            tbl.attributes['group_%s' % group] = group_name
+        else:
+            group = '_'
         tsType = 'DHZ' if self.db.application.config['db?use_timezone'] else 'DH'
         if ins:
             tbl.column('__ins_ts', dtype=tsType, name_long='!!Insert date', onInserting='setTSNow', group=group,_sysfield=True,indexed=True)
@@ -297,22 +284,29 @@ class TableBase(object):
             tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname),group='*')
             tbl.formulaColumn('hlevel',"""length($hierarchical_pkey)-length(replace($hierarchical_pkey,'/',''))+1""",group='*')
 
-            hfields = hierarchical.split(',')
-            for fld in hfields:
+            hfields = []
+            for fld in hierarchical.split(','):
                 if fld=='pkey':
                     tbl.column('hierarchical_pkey',unique=True,group=group,_sysfield=True) 
                     tbl.column('_parent_h_pkey',group=group,_sysfield=True)
+                    hfields.append(fld)
                 else:
+                    unique = False
+                    if ':' in fld:
+                        fld,mode = fld.split(':')
+                        unique = mode=='unique'
                     hcol = tbl.column(fld)
-                    fld_caption=hcol.attributes.get('name_long',fld).replace('!!','')                   
-                    tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption,group=group,_sysfield=True)
+                    fld_caption=hcol.attributes.get('name_long',fld).replace('!!','')  
+                    hfields.append(fld)
+                    tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption,group=group,_sysfield=True,
+                                unique=unique)
                     tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption,group=group,_sysfield=True)
-            tbl.attributes['hierarchical'] = hierarchical  
+            tbl.attributes['hierarchical'] = ','.join(hfields)
             if not counter:
                 tbl.attributes.setdefault('order_by','$hierarchical_%s' %hfields[0] )
             broadcast = tbl.attributes.get('broadcast')
             broadcast = broadcast.split(',') if broadcast else []
-            if not 'parent_id' in broadcast:
+            if 'parent_id' not in broadcast:
                 broadcast.append('parent_id')
             tbl.attributes['broadcast'] = ','.join(broadcast)
 
@@ -411,20 +405,16 @@ class TableBase(object):
         if filter(lambda r: r.startswith('__protected_by_'), self.model.virtual_columns.keys()) or self.attributes.get('protectionColumn'):
             return '__is_protected_row'
 
+
     def sql_formula___is_protected_row(self,attr):
         protections= []
         if self.attributes.get('protectionColumn'):
             pcol = self.attributes['protectionColumn']
             protections.append('( CASE WHEN $%s IS NULL THEN NULL ELSE TRUE END ) ' %pcol)
         for field in filter(lambda r: r.startswith('__protected_by_'), self.model.virtual_columns.keys()):
-            protections.append(' $%s  ' %field)
+            protections.append('( $%s IS TRUE ) ' %field)
         if protections:
-            arr = " %s  " %' , '.join(protections)
-            return """( CASE WHEN ( TRUE IN ( %s ) ) 
-                      THEN TRUE 
-                      WHEN ( FALSE IN ( %s ) ) 
-                      THEN FALSE 
-                      ELSE NULL END )""" %(arr,arr)
+            return "( %s )" %' OR '.join(protections)
         else:
             return " NULL "
 
@@ -568,20 +558,22 @@ class TableBase(object):
         if syscodes:
             f = self.query(where='$__syscode IN :codes',codes=syscodes).fetchAsDict('__syscode')
             for syscode in syscodes:
-                if not syscode in f:
+                if syscode not in f:
                     self.sysRecord(syscode)
                     commit = True
         if commit:
             self.db.commit()
 
     def sysRecord(self,syscode):
+        sysRecord_masterfield = self.attributes.get('sysRecord_masterfield') or self.pkey
+        
         def createCb(key):
             with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
                 record = getattr(self,'sysRecord_%s' %syscode)()
                 record['__syscode'] = key
-                pkey = record[self.pkey]
-                if pkey:
-                    oldrecord = self.query(where='$%s=:pk' %self.pkey,pk=pkey,
+                masterfield_value = record[sysRecord_masterfield]
+                if masterfield_value is not None:
+                    oldrecord = self.query(where='$%s=:mv' %sysRecord_masterfield,mv=masterfield_value,
                                                 addPkeyColumn=False).fetch()
                     if oldrecord:
                         oldrecord = oldrecord[0]
@@ -865,6 +857,7 @@ class TableBase(object):
         dest_db = self.db if not dest_instance else self.db.application.getAuxInstance(dest_instance).db 
         source_tbl = source_db.table(self.fullname)
         dest_tbl = dest_db.table(self.fullname)
+        kwargs.setdefault('bagFields',True)
         pkey = self.pkey
         source_rows = source_tbl.query(addPkeyColumn=False,excludeLogicalDeleted=False,
               excludeDraft=False,**kwargs).fetch()
@@ -1063,6 +1056,8 @@ class AttachmentTable(GnrDboTable):
                     mode='foreignkey', onDelete_sql='cascade',onDelete='cascade', relation_name='atc_attachments',
                     one_group='_',many_group='_',deferred=True)
         tbl.formulaColumn('fileurl',"'/_vol/' || $filepath",name_long='Fileurl')
+        if hasattr(self,'atc_types'):
+            tbl.column('atc_type',values=self.atc_types())
         self.onTableConfig(tbl)
 
     def onTableConfig(self,tbl):

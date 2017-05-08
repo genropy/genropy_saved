@@ -219,6 +219,7 @@ class DynamicForm(BaseComponent):
         else:
             th = self.df_fieldsBagGrid(center,mastertable=mastertable,**kwargs)
         bar = th.view.top.bar.replaceSlots('*,delrow','fbfields,showpreview,*,delrow')
+        bar.replaceSlots('addrow','addrow,duprow')
         bar.showpreview.checkbox(value='^#FORM.dynamicFormTester.showpreview',label='Preview')
         bc.dataController("bc.setRegionVisible('bottom',prev)",bc=bc.js_widget,prev='^#FORM.dynamicFormTester.showpreview')
         fb = bar.fbfields.formbuilder(cols=2, border_spacing='2px')
@@ -233,8 +234,9 @@ class DynamicForm(BaseComponent):
         view = bh.bagGrid(frameCode='V_%s' %rootcode,storepath='#FORM.record.df_fields',
                     childname='view',struct=self.df_fieldsBagStruct,
                                 grid_selfDragRows=True,
-                               datapath='.view',_class='frameGrid',
-                                grid_connect_moveRow='FIRE .changedBagFields;',                               
+                                datapath='.view',_class='frameGrid',
+                                grid_connect_moveRow='FIRE .changedBagFields;', 
+                                grid_canSort=False,                              
                                **kwargs)
         view.grid.dataController("this.form.save();",_fired='^.changedBagFields',_delay=1500)
         form = view.grid.linkedForm(frameCode='F_%s' %rootcode,

@@ -140,8 +140,8 @@ dojo.declare("gnr.FramedIndexManager", null, {
 
 
     framePageTop:function(fp,kw){
-        var bar = fp._('SlotBar',{slots:'multipageButtons,*',gradient_from:'#666',side:'top',toolbar:true,
-                                        gradient_to:'#444',_class:'iframeroot_bar',
+        var bar = fp._('SlotBar',{slots:'multipageButtons,*',side:'top',toolbar:true,
+                                        _class:'iframeroot_bar',
                                         closable:'close',closable_background:'white',
                                         closable_display:!kw.multipage?'none':null});
         var stackNodeId = kw.rootPageName+'_multipage';

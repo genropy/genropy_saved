@@ -29,23 +29,40 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         this._dojotag = 'Tree';
     },
 
-    onBuilding:function(sourceNode){
-        var popup = objectPop(sourceNode.attr,'popup');
-        if(!popup){
+
+    onBuilding_searchOn:function(sourceNode){
+        var searchOn = normalizeKwargs(sourceNode.attr,'searchOn');
+        if(!searchOn){
             return;
         }
-        var popup_kw = {tag:'menu',modifiers:'*',_class:'menupane',
-                       //connect_ondblclick:function(bagNode,treeNode){
-                       //    this.widget.onCancel();
-                       //}
-                    };
+        var boxkw = objectExtract(sourceNode.attr,'height,max_height,width,max_width,overflow,border');
         var treeattr = objectUpdate({},sourceNode.attr);
-        var extraPopupKw = objectExtract(sourceNode.attr,'popup_*');
-        var closeEvent = objectPop(extraPopupKw,'closeEvent');
+        sourceNode.attr = {tag:'div',_class:'searchtree_container',display:'inline-block',width:objectPop(boxkw,'width'),
+                            border:objectPop(boxkw,'border')};
+        searchCode = searchOn.searchCode || 'search_'+sourceNode.getStringId();
+        searchOn.nodeId = searchCode +'_searchbox';
+        searchOn.parentForm = false;
+        treeattr.searchCode = searchCode;
+        sourceNode._('div','t_searchbox',{_class:'tree_searchbox'},{doTrigger:false})._('div',{display:'inline-block',position:'absolute',right:'5px'},{doTrigger:false})._('SearchBox',searchOn,{doTrigger:false});
+        sourceNode._('div','t_scrollbox',boxkw,{doTrigger:false})._('tree',treeattr,{doTrigger:false});
+    },
+
+    onBuilding_popup:function(sourceNode){
+        var popup_kw = normalizeKwargs(sourceNode.attr,'popup');
+        if(!popup_kw){
+            return;
+        }
+        popup_kw = objectUpdate({tag:'menu',modifiers:'*',_class:'menupane'},popup_kw);
+        var treeattr = objectUpdate({},sourceNode.attr);
+        treeattr.max_height= treeattr.max_height || '300px';
+        treeattr.min_width= treeattr.min_width || '220px';
+        treeattr.searchOn = normalizeKwargs(treeattr,'searchOn');
+        var closeEvent = objectPop(popup_kw,'closeEvent');
         popup_kw.datapath = objectPop(treeattr,'datapath');
         popup_kw.connect_onOpen = function(evt){
-            var box = this.getValue().getItem('m_item.m_scrollbox.m_spacer');
-            if(!box.getNode('treemenu')){
+            var box = this.getValue().getItem('m_item.m_spacer');
+            var treeNode = box.getNodeByAttr('tag','tree',true);
+            if(!treeNode){
                 box._('tree','treemenu',
                         objectUpdate({openOnClick:true,
                             hideValues:true,autoCollapse:true, //excludeRoot:true,
@@ -60,18 +77,32 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                         that.widget.onCancel();
                     });
                 }
-
+                treeNode = box.getNodeByAttr('tag','tree',true);
             }
-            box.getNode('treemenu').widget.originalContextTarget = this.widget.originalContextTarget;
+            treeNode.widget.originalContextTarget = this.widget.originalContextTarget;
         };
         var box_kw = objectExtract(popup_kw,'max_height,min_width');
-        objectUpdate(popup_kw,extraPopupKw);
         sourceNode.attr = popup_kw;
-        box_kw.max_height= box_kw.max_height || '300px';
-        box_kw.min_width= box_kw.min_width || '220px';
-        box_kw.overflow='auto';
-        box_kw.connect_onclick = function(e){e.stopPropagation();e.preventDefault();};
-        sourceNode._('menuItem','m_item',{},{doTrigger:false})._('div','m_scrollbox',box_kw,{doTrigger:false})._('div','m_spacer',{padding_top:'4px', padding_bottom:'4px'},{doTrigger:false});
+        var connect_onclick = function(e){e.stopPropagation();e.preventDefault();};
+        var mi = sourceNode._('menuItem','m_item',{},{doTrigger:false});
+        var spacer_padding_top = '4px';
+        if(treeattr.searchOn){
+            spacer_padding_top = 0;
+        }
+        mi._('div','m_spacer',{padding_top:spacer_padding_top, padding_bottom:'4px',connect_onclick:connect_onclick},{doTrigger:false});
+        return true;
+    },
+
+    onBuilding:function(sourceNode){
+        if(this.onBuilding_popup(sourceNode)){
+            return;
+        }
+        if(sourceNode.attr.height || sourceNode.attr.max_height || sourceNode.attr.width || sourceNode.attr.max_width){
+            sourceNode.attr.overflow = 'auto';
+        }
+        if(this.onBuilding_searchOn(sourceNode)){
+            return;
+        }
     },
 
 
@@ -84,18 +115,24 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         var hideValues = objectPop(attributes, 'hideValues');
         var _identifier = objectPop(attributes, 'identifier') || '#id';
         var hasChildrenCb = objectPop(attributes, 'hasChildrenCb');
+        var nodeFilter = objectPop(attributes,'nodeFilter');
         if (hasChildrenCb){
-            hasChildrenCb = funcCreate(hasChildrenCb);
+            hasChildrenCb = funcCreate(hasChildrenCb,null,sourceNode);
         }
 
         if (labelCb) {
-            labelCb = funcCreate(labelCb);
+            labelCb = funcCreate(labelCb,null,sourceNode);
         }
+        if(nodeFilter){
+            nodeFilter = funcCreate(nodeFilter,null,sourceNode);
+        }
+
         var store = new gnr.GnrStoreBag({datapath:storepath,_identifier:_identifier,
             hideValues:hideValues,
             labelAttribute:labelAttribute,
             labelCb:labelCb,
             hasChildrenCb:hasChildrenCb,
+            nodeFilter:nodeFilter,
             sourceNode:sourceNode
             });
         var model = new dijit.tree.ForestStoreModel({store: store,childrenAttrs: ["#v"]});
@@ -123,6 +160,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         var labelClassGetter = funcCreate(attributes['getLabelClass'], 'node,opened');
 
         var selectedLabelClass = attributes['selectedLabelClass'];
+
         attributes.getLabelClass = function(node, opened) {
             if (node.attr) {
                 var labelClass = labelClassGetter.call(this, node, opened) || '';
@@ -264,12 +302,20 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                     }
                     this._filteringValue = v;
                     var vl = v.length;
-                    var delay = vl==1?4000:vl==2?2000:vl==3?500:150;
+                    var delay = vl==1?3000:vl==2?1000:vl==3?300:150;
                     var that = this;
                     sourceNode.delayedCall(function(){
                         that.applyFilter(search_kw);
                     },delay,'shortSeed_delay');
                 });
+                sourceNode.registerSubscription(searchId+'_stopSearch',widget,function(kw){
+                    if(objectNotEmpty(this._pending_deferred)){
+                        this.stopApplyFilter();
+                    }else{
+                        kw.finalize();
+                    }
+                });
+
             }
         }
     },
@@ -402,7 +448,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                         }
                     });
                 }else{
-                    var v = n.getValue();
+                    var v = n.getValue(mode=='static'?'static':null);
                     if(v instanceof gnr.GnrBag){
                         filterForEach(v,cb,mode);
                     }else{
@@ -704,6 +750,14 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             }, this);
         }*/
     },
+
+    mixin_setDynamicStorepath:function(newstorepath){
+        if(newstorepath!=this.sourceNode.attr.storepath){
+            this.sourceNode.attr.storepath = newstorepath;
+            this.sourceNode.rebuild();
+        }
+    },
+
     mixin_setStorepath:function(val, kw) {
         //genro.debug('trigger_store:'+kw.evt+' at '+kw.pathlist.join('.'));
         var storeAbsPath = this.sourceNode.absDatapath(this.sourceNode.attr.storepath);

@@ -8,7 +8,7 @@ class Table(object):
         tbl.column('code', name_long='!!Code', indexed='y') # a code unique for the same type / pkg / tbl
         tbl.column('objtype', name_long='!!Object Type', indexed='y')
         tbl.column('pkg', name_long='!!Package') # package code
-        tbl.column('tbl', name_long='!!Table') # full table name: package.table
+        tbl.column('tbl', name_long='!!Table').relation('tblinfo.tblid',relation_name='objects') # full table name: package.table
         tbl.column('userid', name_long='!!User ID', indexed='y')
         tbl.column('description', 'T', name_long='!!Description', indexed='y')
         tbl.column('notes', 'T', name_long='!!Notes')
@@ -20,6 +20,7 @@ class Table(object):
                 
     def listUserObject(self, objtype=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None, flags=None):
         onlyQuicklist = onlyQuicklist or False
+        
         def checkUserObj(r):
             condition = (not r['private']) or (r['userid'] == userid)
             if onlyQuicklist:
@@ -82,8 +83,9 @@ class Table(object):
         return result
             
     @public_method
-    def saveUserObject(self, table=None,objtype=None,data=None,metadata=None,**kwargs):
-        pkg,tbl = table.split('.')
+    def saveUserObject(self, table=None,objtype=None,data=None,metadata=None,pkg=None,**kwargs):
+        if table:
+            pkg,tbl = table.split('.')
         pkey = metadata['pkey'] or metadata['id']
         if not metadata or not (metadata['code'] or pkey):
             return

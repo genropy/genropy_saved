@@ -167,8 +167,8 @@ class GnrWebPage(GnrBaseWebPage):
                         or self.site.config['gui?css_icons'] or 'retina/gray'
         self.dojo_theme = request_kwargs.pop('dojo_theme', None) or getattr(self, 'dojo_theme', None)
         self.dojo_version = request_kwargs.pop('dojo_version', None) or getattr(self, 'dojo_version', None)
-        self.dynamic_js_requires= {}
-        self.dynamic_css_requires= {}
+        self.envelope_js_requires= {}
+        self.envelope_css_requires= {}
         self._avoid_module_cache = _avoid_module_cache
         self.debug_sql = boolean(request_kwargs.pop('debug_sql', None))
         debug_py = request_kwargs.pop('debug_py', None)
@@ -210,8 +210,6 @@ class GnrWebPage(GnrBaseWebPage):
             init_info = dict(request_kwargs=request_kwargs, request_args=request_args,
                           filepath=filepath, packageId=packageId, pluginId=pluginId,  basename=basename)
             self.page_item = self._register_new_page(kwargs=request_kwargs,class_info=class_info,init_info=init_info)
-
-
 
         self.isMobile = (self.connection.user_device.startswith('mobile')) or self.page_item['data']['pageArgs'].get('is_mobile')
         self.deviceScreenSize = self.connection.user_device.split(':')[1]
@@ -389,6 +387,7 @@ class GnrWebPage(GnrBaseWebPage):
             self._db = self.application.db
             self._db.clearCurrentEnv()
             self._db.updateEnv(storename=self.dbstore, workdate=self.workdate, locale=self.locale,
+                                maxdate=datetime.date.max,mindate=datetime.date.min,
                                user=self.user, userTags=self.userTags, pagename=self.pagename,
                                mainpackage=self.mainpackage)
             avatar = self.avatar
@@ -491,7 +490,7 @@ class GnrWebPage(GnrBaseWebPage):
         if _serverstore_changes:
             self.site.register.set_serverstore_changes(self.page_id, _serverstore_changes)
         auth = AUTH_OK
-        if not method in ('doLogin', 'onClosePage'):
+        if method not in ('doLogin', 'onClosePage'):
             auth = self._checkAuth(method=method, **parameters)
         try:
             result = self.rpc(method=method, _auth=auth, **parameters)
@@ -539,6 +538,20 @@ class GnrWebPage(GnrBaseWebPage):
     @property
     def defaultAuthTags(self):
         return self.package.attributes.get('auth_default','')
+
+    def mangledHook(self,method,mangler=None,asDict=False,dflt=None,defaultCb=None):
+        if asDict:
+            prefix='%s_%s_'% (mangler,method)
+            return dict([(fname,getattr(self,fname)) for fname in dir(self) 
+                                     if fname.startswith(prefix) and fname != prefix])    
+
+        def emptyCb(*args,**kwargs):
+            return dflt
+        handler = getattr(self,'%s_%s' %(mangler.replace('.','_'),method),None)
+        if handler is None and defaultCb is False:
+            return None
+        return handler or defaultCb or emptyCb
+        
         
     def mixinComponent(self, *path,**kwargs):
         """TODO
@@ -652,7 +665,7 @@ class GnrWebPage(GnrBaseWebPage):
         return data['compiled'] if data else missingMessage
         
     @public_method
-    def saveTemplate(self,template_address,data):
+    def saveTemplate(self,template_address,data,inMainResource=False):
         #pkg.table.field:pkey
         #pkg.table:resource_module
         #pkg.table:resource_module,custom
@@ -677,7 +690,7 @@ class GnrWebPage(GnrBaseWebPage):
             if ',' in resource_name:
                 resource_name = resource_name.split(',')[0]
                 custom = True
-            respath = self._packageResourcePath(table=resource_table,filepath=filepath,custom=custom)
+            respath = self._packageResourcePath(table=resource_table,filepath=filepath,custom=custom,inMainResource=inMainResource)
             data.toXml(respath,autocreate=True)
             return respath
         else:
@@ -981,12 +994,18 @@ class GnrWebPage(GnrBaseWebPage):
                        
         :param method: TODO"""
         handler = None
+        if ';' in method:
+            mixin_info, method = method.split(';')
+            __mixin_pkg, __mixin_path = mixin_info.split('|')
+            if __mixin_pkg=='*':
+                __mixin_pkg=None
+            __mixin_path_list = __mixin_path.split('/')
+            self.mixinComponent(*__mixin_path_list, pkg=__mixin_pkg)
         if '.' in method:
             proxy_object,submethod = self._getProxyObject(method)                 
         else:
             proxy_object = self
             submethod = method
-
         handler = getattr(proxy_object, submethod, None)
         if handler and getattr(handler, 'tags',None):
             if not self.application.checkResourcePermission(handler.tags, self.userTags):
@@ -1089,6 +1108,11 @@ class GnrWebPage(GnrBaseWebPage):
         """TODO"""
         pkg = kwargs.get('pkg', self.packageId)
         return self.site.pkg_page_url(pkg, *args)
+
+    def getUserTableConfig(self,table=None,**kwargs):
+        if not self.avatar or self.pageOptions.get('userConfig') is False:
+            return Bag()
+        return self.db.table(table).getUserConfiguration(user=self.user,user_group=self.avatar.group_code)
         
     def getDomainUrl(self, path='', **kwargs):
         """TODO
@@ -1396,6 +1420,10 @@ class GnrWebPage(GnrBaseWebPage):
         :param ext: TODO
         :param add_mtime: TODO
         :param pkg: the :ref:`package <packages>` object"""
+        if path and path.startswith('/'):
+            lpath = path.split('/')[1:]   
+            if self.site.getStatic(lpath[0][1:]):
+                path = self.site.getStatic(lpath[0][1:]).path(*lpath[1:])
         fpath = self.getResource(path, ext=ext,pkg=pkg)
         if not fpath:
             return
@@ -1410,7 +1438,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param pkg: the :ref:`package <packages>` object"""
         url = None 
         packageFolder = self.site.getPackageFolder(pkg) if pkg else self.package_folder
-        pkg = pkg or self.packageId
+        pkg = pkg or self.packageId  
         if fpath.startswith(self.site.site_path):
             uripath = fpath[len(self.site.site_path):].lstrip('/').split(os.path.sep)
             url = self.site.getStatic('site').url(*uripath)
@@ -1431,7 +1459,7 @@ class GnrWebPage(GnrBaseWebPage):
             url = '%s?mtime=%0.0f' % (url, mtime)
         return url
     
-    def _packageResourcePath(self,table=None,filepath=None,custom=False):
+    def _packageResourcePath(self,table=None,filepath=None,custom=False,inMainResource=None):
         page_pkg = self.package.name 
         table_pkg = None
         if table:
@@ -1443,7 +1471,7 @@ class GnrWebPage(GnrBaseWebPage):
         if custom:
             return os.path.join(self.site.site_path, '_custom', page_pkg, '_resources',respath)
         packageFolder = self.site.gnrapp.packages[self.package.name].packageFolder
-        if table_pkg and page_pkg != table_pkg:
+        if table_pkg and page_pkg != table_pkg and not inMainResource:
             respath = 'tables/_packages/%s/%s/%s' %(table_pkg,tblname,filepath)        
         return os.path.join(packageFolder,'resources',respath)
             
@@ -1757,6 +1785,10 @@ class GnrWebPage(GnrBaseWebPage):
             self.main_root(page, **kwargs)
             return (page, pageattr)
         page.data('gnr.windowTitle', self.windowTitle())
+        page.dataController("""genro.src.updatePageSource('_pageRoot')""",
+                        subscribe_gnrIde_rebuildPage=True,_delay=100)
+
+
         page.dataController("PUBLISH setWindowTitle=windowTitle;",windowTitle="^gnr.windowTitle",_onStart=True)
         page.dataRemote('server.pageStore',self.getPageStoreData,cacheTime=1)
         page.dataRemote('server.userStore',self.getUserStoreData,cacheTime=1)
@@ -1794,19 +1826,19 @@ class GnrWebPage(GnrBaseWebPage):
             page.dataRemote('gnr.app_preference', self.getAppPreference,_resolved=True)
             page.dataRemote('gnr.shortcuts.store', self.getShortcuts)
 
-          #page.dataController("""
-          #    var rotate_val = user_theme_filter_rotate || app_theme_filter_rotate || 0;
-          #    var invert_val = user_theme_filter_invert || app_theme_filter_invert || 0;
-          #    var kw = {'rotate':rotate_val,'invert':invert_val};
-          #    var styledict = {font_family:app_theme_font_family};
-          #    genro.dom.css3style_filter(null,kw,styledict);
-          #    dojo.style(dojo.body(),styledict);
-          #    """,app_theme_filter_rotate='^gnr.app_preference.sys.theme.body.filter_rotate',
-          #        user_theme_filter_rotate='^gnr.user_preference.sys.theme.body.filter_rotate',
-          #        app_theme_filter_invert='^gnr.app_preference.sys.theme.body.filter_invert',
-          #        user_theme_filter_invert='^gnr.user_preference.sys.theme.body.filter_invert',
-          #        app_theme_font_family='^gnr.app_preference.sys.theme.body.font_family',
-          #        _onStart=True)
+        #page.dataController("""
+        #    var rotate_val = user_theme_filter_rotate || app_theme_filter_rotate || 0;
+        #    var invert_val = user_theme_filter_invert || app_theme_filter_invert || 0;
+        #    var kw = {'rotate':rotate_val,'invert':invert_val};
+        #    var styledict = {font_family:app_theme_font_family};
+        #    genro.dom.css3style_filter(null,kw,styledict);
+        #    dojo.style(dojo.body(),styledict);
+        #    """,app_theme_filter_rotate='^gnr.app_preference.sys.theme.body.filter_rotate',
+        #        user_theme_filter_rotate='^gnr.user_preference.sys.theme.body.filter_rotate',
+        #        app_theme_filter_invert='^gnr.app_preference.sys.theme.body.filter_invert',
+        #        user_theme_filter_invert='^gnr.user_preference.sys.theme.body.filter_invert',
+        #        app_theme_font_family='^gnr.app_preference.sys.theme.body.font_family',
+        #        _onStart=True)
 
 
 
@@ -1895,14 +1927,6 @@ class GnrWebPage(GnrBaseWebPage):
                             auto_polling="^gnr.polling.auto_polling",
                             polling_enabled="^gnr.polling.polling_enabled",
                             _init=True)
-        if self.dynamic_css_requires:
-            for v in self.dynamic_css_requires.values():
-                if v:
-                    page.script('genro.dom.loadCss("%s")' %v)
-        if self.dynamic_js_requires:
-            for v in self.dynamic_js_requires.values():
-                if v:
-                    page.script('genro.dom.loadJs("%s")' %v)
         if self._pendingContext:
             self.site.register.setPendingContext(self.page_id,self._pendingContext,register_name='page')                        
         if not self.isGuest:
@@ -1913,6 +1937,10 @@ class GnrWebPage(GnrBaseWebPage):
             self.mixinComponent('login:LoginComponent',safeMode=True,only_callables=False)
             self.loginDialog(root, **kwargs)
         elif _auth == AUTH_FORBIDDEN:
+            if hasattr(self,'forbidden_redirect'):
+                redirect = self.forbidden_redirect()
+                if redirect:
+                    return (page,dict(redirect=redirect))
             root.clear()
             self.forbiddenPage(root, **kwargs)
         #if self.wsk:
@@ -1941,8 +1969,7 @@ class GnrWebPage(GnrBaseWebPage):
         cell.div(float='right', padding='2px').button('Back', action='genro.pageBack()')
 
     def forbiddenPage(self, root, **kwargs):
-        """TODO
-        
+        """
         :param root: the root of the page. For more information, check the
                      :ref:`webpages_main` section"""
         dlg = root.dialog(toggle="fade", toggleDuration=250, onCreated='widget.show();')
@@ -1954,7 +1981,6 @@ class GnrWebPage(GnrBaseWebPage):
                color='#c90031')
         cell = tbl.tr().td()
         cell.div(float='right', padding='2px').button('Back', action='genro.pageBack()')
-
 
     def getStartRootenv(self):
         #cookie = self.get_cookie('%s_dying_%s_%s' %(self.siteName,self.packageId,self.pagename), 'simple')
@@ -2061,11 +2087,11 @@ class GnrWebPage(GnrBaseWebPage):
         :param pageId: TODO. """
         self.pageStore(pageId).setItem(path, value)
             
-   #def rpc_setViewColumns(self, contextTable=None, gridId=None, relation_path=None, contextName=None,
-   #                       query_columns=None, **kwargs):
-   #    self.app.setContextJoinColumns(table=contextTable, contextName=contextName, reason=gridId,
-   #                                   path=relation_path, columns=query_columns)
-        
+    #def rpc_setViewColumns(self, contextTable=None, gridId=None, relation_path=None, contextName=None,
+    #                       query_columns=None, **kwargs):
+    #    self.app.setContextJoinColumns(table=contextTable, contextName=contextName, reason=gridId,
+    #                                   path=relation_path, columns=query_columns)
+         
     def rpc_getPrinters(self):
         """TODO"""
         print_handler = self.getService('print')
@@ -2116,9 +2142,27 @@ class GnrWebPage(GnrBaseWebPage):
             result = self.getService('fax').sendfax(receivers=fax,message=message)
         return result or True
 
-    @public_method    
-    def relationExplorer(self, table=None, currRecordPath=None,prevRelation='', prevCaption='',
-                             omit='',relationStack='', **kwargs):
+    @public_method
+    def relationExplorer(self,table=None,item_type=None,checkPermissions=None,**kwargs):
+        if checkPermissions is True:
+            checkPermissions = self.permissionPars
+        if item_type:
+            userConfig = self.getUserTableConfig(table=table)
+            item_code = userConfig[item_type.lower()]
+            if item_code is None:
+                return self.dbRelationExplorerFull(table,checkPermissions=checkPermissions,**kwargs)
+            elif item_code == '_RAW_':
+                return self.dbRelationExplorerFull(table,checkPermissions=checkPermissions)
+            elif item_code == '_NO_':
+                return Bag()
+            item = self.db.table('adm.tblinfo_item').getInfoItem(item_type=item_type,tbl=table,code=item_code)
+            if item:
+                return Bag(item['data'])['root']
+
+        return self.dbRelationExplorerFull(table,checkPermissions=checkPermissions,**kwargs)
+
+    def dbRelationExplorerFull(self, table=None, currRecordPath=None,prevRelation='', prevCaption='',
+                             omit='',relationStack='', checkPermissions=None,**kwargs):
         """TODO
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
@@ -2129,15 +2173,18 @@ class GnrWebPage(GnrBaseWebPage):
         :param omit: TODO"""
         if not table:
             return Bag()
+        cps = 'false' if not checkPermissions else 'true'
+        
         def buildLinkResolver(node, prevRelation, prevCaption,relationStack):
             nodeattr = node.getAttr()
-            if not 'name_long' in nodeattr:
+            if  'name_long' not in nodeattr:
                 raise Exception(nodeattr) # FIXME: use a specific exception class
             nodeattr['caption'] = nodeattr.pop('name_long')
             nodeattr.pop('tag',None)
             nodeattr['fullcaption'] = concat(prevCaption, self._(nodeattr['caption']), '/')
 
             if nodeattr.get('one_relation'):
+                #print node.label
                 innerCurrRecordPath = '%s.%s' %(node.label,currRecordPath) if currRecordPath else ''
                 nodeattr['_T'] = 'JS'
                 if nodeattr['mode'] == 'O':
@@ -2147,26 +2194,25 @@ class GnrWebPage(GnrBaseWebPage):
                     relpkg, reltbl, relfld = nodeattr['many_relation'].split('.')
                     relkey =  '%(one_relation)s/%(many_relation)s' %node.attr
                 relkey = str(hash(relkey) & 0xffffffff)
-                jsresolver = "genro.rpc.remoteResolver('relationExplorer',{table:%s, prevRelation:%s, prevCaption:%s, omit:%s,currRecordPath:%s,relationStack:%s})"
+                jsresolver = "genro.rpc.remoteResolver('relationExplorer',{table:%s, prevRelation:%s, prevCaption:%s, omit:%s,currRecordPath:%s,relationStack:%s,checkPermissions:%s})"
                 node.setValue(jsresolver % (
                 jsquote("%s.%s" % (relpkg, reltbl)), jsquote(concat(prevRelation, node.label)),
                 jsquote(nodeattr['fullcaption']), jsquote(omit),
-                jsquote(innerCurrRecordPath),jsquote(concat(relationStack,relkey,'|'))
+                jsquote(innerCurrRecordPath),jsquote(concat(relationStack,relkey,'|')),cps
                 ))
             elif 'subfields' in nodeattr and currRecordPath:
                 nodeattr['_T'] = 'JS'
-                jsresolver = "genro.rpc.remoteResolver('subfieldExplorer',{table:%s, field:%s,fieldvalue:%s,prevRelation:%s, prevCaption:%s, omit:%s},{cacheTime:1})"
+                jsresolver = "genro.rpc.remoteResolver('subfieldExplorer',{table:%s, field:%s,fieldvalue:%s,prevRelation:%s, prevCaption:%s, omit:%s,checkPermissions:%s},{cacheTime:1})"
                 node.setValue(jsresolver % (
                 jsquote("%(pkg)s.%(table)s" %nodeattr),
                 jsquote(nodeattr['subfields']),
                 jsquote("=%s.%s" %(currRecordPath,nodeattr['subfields'])),
                 jsquote(concat(prevRelation, node.label)),
-                jsquote(nodeattr['fullcaption']), jsquote(omit)))
-                
+                jsquote(nodeattr['fullcaption']), jsquote(omit),cps))
         result = self.db.relationExplorer(table=table,
                                           prevRelation=prevRelation,
                                           relationStack=relationStack,
-                                          omit=omit,
+                                          omit=omit,checkPermissions=checkPermissions,
                                           **kwargs)
         result.walk(buildLinkResolver, prevRelation=prevRelation, prevCaption=prevCaption,relationStack=relationStack)
         return result
@@ -2220,7 +2266,7 @@ class GnrWebPage(GnrBaseWebPage):
     def userDocumentUrl(self, *args, **kwargs):
         """TODO"""
         if kwargs:
-            return self.site.getStatic('user').kwargs_url(self.user, *args, **kwargs_url)
+            return self.site.getStatic('user').kwargs_url(self.user, *args, **kwargs)
         else:
             return self.site.getStatic('user').url(self.user, *args)
    
@@ -2257,6 +2303,9 @@ class GnrWebPage(GnrBaseWebPage):
                 f.write(data['content'])
         return dict(path=path)
 
+    @property
+    def permissionPars(self):
+        return dict(user=self.user,user_group=getattr(self.avatar,'group_code',None))
 
     def isLocalizer(self):
         """TODO"""
@@ -2271,25 +2320,25 @@ class GnrWebPage(GnrBaseWebPage):
             return False
         return tag in self.userTags.split(',')
         
-  # def addToContext_old(self, value=None, serverpath=None, clientpath=None):
-  #     """TODO
-  #     
-  #     :param value: TODO
-  #     :param serverpath: TODO
-  #     :param clientpath: TODO"""
-  #     self._pendingContextToCreate.append((value, serverpath, clientpath or serverpath))
-    
+    # def addToContext_old(self, value=None, serverpath=None, clientpath=None):
+    #     """TODO
+    #     
+    #     :param value: TODO
+    #     :param serverpath: TODO
+    #     :param clientpath: TODO"""
+    #     self._pendingContextToCreate.append((value, serverpath, clientpath or serverpath))
+      
     def addToContext(self,serverpath=None,value=None,attr=None):
         self._pendingContext.append((serverpath,value,dict(attr)))
         
         
-   #def _createContext_old(self, root, pendingContext):
-   #    with self.pageStore() as store:
-   #        for value, serverpath, clientpath in pendingContext:
-   #            store.setItem(serverpath, value)
-   #    for value, serverpath, clientpath in pendingContext:
-   #        root.child('data', __cls='bag', content=value, path=clientpath, _serverpath=serverpath)
-   #        
+    #def _createContext_old(self, root, pendingContext):
+    #    with self.pageStore() as store:
+    #        for value, serverpath, clientpath in pendingContext:
+    #            store.setItem(serverpath, value)
+    #    for value, serverpath, clientpath in pendingContext:
+    #        root.child('data', __cls='bag', content=value, path=clientpath, _serverpath=serverpath)
+    #        
     def setJoinCondition(self, ctxname, target_fld='*', from_fld='*', condition=None, one_one=None, applymethod=None,
                          **kwargs):
         """Define a join condition in a given context (*ctxname*).

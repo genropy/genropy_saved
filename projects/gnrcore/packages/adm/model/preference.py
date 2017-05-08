@@ -18,14 +18,24 @@ class Table(object):
         # and <your_package>.setPreference() to get and set preferences.
 
     def getPreference(self, path, pkg=None, dflt=None):
-        result = self.loadPreference()
+        result = self.db.application.cache.get(MAIN_PREFERENCE)
+        if result is None:
+            result = self.loadPreference()
+            self.db.application.cache[MAIN_PREFERENCE] = result
         # NOTE: due to the way bags work,
         #       'data.%(path)s' will be used if pkg is ''
         # 
-        result = result['data']
-        if result and path != '*':
-            result = result['%s.%s' % (pkg, path)]
-        return result or dflt
+        result = result['data'] or Bag()
+        if path=='*':
+            path = None
+            pkg = None
+        if pkg:
+            result = result[pkg] or Bag()
+        if not path:
+            return result
+        if path:
+            result = result[path]
+        return  dflt if result is None else result
 
     def envPreferences(self,username=None):
         preferences = self.getPreference('*') or dict()
@@ -64,3 +74,9 @@ class Table(object):
             self.insertOrUpdate(record)
             self.db.application.pkgBroadcast('onSavedPreferences',preferences=record['data'])
             self.db.commit()
+        site = getattr(self.db.application,'site',None)
+        if site:
+            site.process_cmd.clearApplicationCache(MAIN_PREFERENCE)
+
+
+

@@ -785,8 +785,9 @@ class Bag(GnrObject):
                 value = '****  error ****'
             if isinstance(value, Bag):
                 el_id = id(el)
-                outlist.append(("%s - (%s) %s: %s" %
-                                (str(idx), value.__class__.__name__, el.label, attr)))
+                bf = '(*)' if value.backref else ''
+                outlist.append(("%s - (%s) %s%s: %s" %
+                                (str(idx), value.__class__.__name__, el.label,bf, attr)))
                 if el_id in exploredNodes:
                     innerBagStr = 'visited at :%s' % exploredNodes[el_id]
                 else:
@@ -1879,6 +1880,8 @@ class Bag(GnrObject):
         
         if mode == 'xml':
             return self._fromXml(source, fromFile)
+        elif mode == 'xsd':
+            return self._fromXsd(source, fromFile)
         elif mode == 'pickle':
             return self._unpickle(source, fromFile)
         elif mode == 'direct':
@@ -1923,6 +1926,8 @@ class Bag(GnrObject):
                         return source, True, 'pickle'
                     elif fext in ['xml', 'html', 'xhtml', 'htm']:
                         return source, True, 'xml'
+                    elif fext=='xsd':
+                        return source,True,'xsd'
                     else:
                         f = file(source, mode='r')
                         sourcestart = f.read(30)
@@ -1940,6 +1945,8 @@ class Bag(GnrObject):
         contentType = info.gettype().lower()
         if 'xml' in contentType or 'html' in contentType:
             return urlobj.read(), False, 'xml' #it is an url of type xml
+        #elif 'xsd' in contentType:
+        #    return urlobj.read(), False, 'xsd' #it is an url of type xml
         return source, False, 'direct' #urlresolver
 
     def fromJson(self,json,listJoiner=None):
@@ -1987,6 +1994,21 @@ class Bag(GnrObject):
         from gnr.core.gnrbagxml import BagFromXml
 
         return BagFromXml().build(source, fromFile, catalog=catalog, bagcls=bagcls, empty=empty)
+
+    def _fromXsd(self, source, fromFile, catalog=None, bagcls=None, empty=None):
+        dirname = os.path.dirname(source)
+        result = self._fromXml(source, fromFile, catalog=catalog, bagcls=bagcls, empty=empty)
+        schema = result['schema']
+        if schema:
+            for n in schema:
+                if n.label == 'import':
+                    link = n.attr.get('schemaLocation')
+                    if link:
+                        if not link.startswith('http'):
+                            link = os.path.join(dirname,link)
+                            n.value = Bag(link)
+        return result
+
 
     def getIndex(self):
         """Return the Bag index with all the internal address"""
@@ -2819,8 +2841,11 @@ class DirectoryResolver(BagResolver):
         kwargs = dict(self.instanceKwargs)
         kwargs['path'] = path
         return XmlDocResolver(**kwargs)
-        
+
+    processor_xsd = processor_xml
+
     processor_html = processor_xml
+
         
     def processor_txt(self, path):
         """TODO

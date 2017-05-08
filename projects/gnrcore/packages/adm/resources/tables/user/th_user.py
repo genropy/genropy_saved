@@ -11,6 +11,7 @@ class View(BaseComponent):
         r = struct.view().rows()
         r.fieldcell('username',name='Username',width='10em')
         r.fieldcell('fullname',name='Fullname',width='20em')
+        r.fieldcell('group_code')
         r.fieldcell('email',name='Email',width='20em')
         r.fieldcell('@tags.@tag_id.code',name='Tags',width='100%')
         r.fieldcell('auth_tags',name='Old tags',width='15em')
@@ -21,6 +22,13 @@ class View(BaseComponent):
         
     def th_query(self):
         return dict(column='username',op='contains', val='')
+
+
+class ViewPicker(BaseComponent):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('username',name='Username',width='15em')
+        r.fieldcell('group_code',name='Group',width='10em')
 
 class Form(BaseComponent):
     def th_form(self, form):
@@ -33,5 +41,6 @@ class Form(BaseComponent):
         fb.textBox(value='^.md5pwd', lbl='Password', type='password',validate_notnull=True, validate_notnull_error='!!Required')
         fb.field('status', tag='filteringSelect', values='!!conf:Confirmed,wait:Waiting', 
                  validate_notnull=True, validate_notnull_error='!!Required')
+        fb.field('group_code')
         fb.field('email', lbl='!!Email')
 

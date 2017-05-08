@@ -100,7 +100,7 @@ dojo.declare("gnr.GnrStoreBag", null, {
         if (attribute == '#v') {
             var itemvalue = item.getValue(null,{_sourceNode:this.sourceNode});
             if (itemvalue instanceof gnr.GnrBag) {
-                return itemvalue.getNodes();
+                return itemvalue.getNodes(this.nodeFilter);
             }else if(this.isDictItem(itemvalue)){
                 return new gnr.GnrBag(itemvalue).getNodes()
             }
@@ -148,7 +148,7 @@ dojo.declare("gnr.GnrStoreBag", null, {
                         return null;
                     }
                     if (result instanceof gnr.GnrBag) {
-                        return (result.len() > 0);
+                        return (result.getNodes(this.nodeFilter).length > 0);
                     }
                     else if (this.hideValues) {
                         return null;
@@ -608,10 +608,12 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                 return;     
             }
             var parentSourceNode = this._parentSourceNode;
-           // if(parentSourceNode.widget && parentSourceNode.widget._lastValue==request.identity){
-           //     //lastValue equal to requested identitiy: the fetchItemByIdentity is skipped 9/6/2013 fporcari
-           //     return;
-           // }
+            if(parentSourceNode.widget && parentSourceNode.widget._lastValue==request.identity){
+                //lastValue equal to requested identitiy: the fetchItemByIdentity is skipped 9/6/2013 fporcari
+                //for avoiding useless rpc. Uncommented on 5/11/2016. (for remoteSelect tab after select in options)
+                return;
+            }
+
             var selectedAttrs = objectExtract(parentSourceNode.attr,'selected_*',true)
             if(!(('rowcaption' in parentSourceNode.attr) || parentSourceNode.attr._hdbselect || parentSourceNode.attr.condition || objectNotEmpty(selectedAttrs))){
                 var recordNodePath = parentSourceNode.attr.value;
@@ -665,6 +667,7 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
         if (!query.caption) {
             findCallback([], request);
         } else {
+            
             if(this.switches){
                 var sn = this._parentSourceNode;
                 var foundmatch = false;
@@ -685,7 +688,11 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                             foundmatch = m;
                         }
                         if(switchcb){
-                            setTimeout(switchcb,1);
+                            setTimeout(function(){
+                                if(!sn.widget._focused){
+                                    switchcb();
+                                }
+                            },1);
                             findCallback([], request);
                             return;
                         }

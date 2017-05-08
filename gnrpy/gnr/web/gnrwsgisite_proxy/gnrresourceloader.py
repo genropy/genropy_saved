@@ -476,11 +476,11 @@ class ResourceLoader(object):
         css_requires = getattr(component,'css_requires',[])
         js_requires = getattr(component,'js_requires',[])
         for css in css_requires:
-            if css and not css in page.dynamic_css_requires and not css in page.css_requires:
-                page.dynamic_css_requires[css] = page.getResourceUri(css,'css',add_mtime=True,pkg=pkg)
+            if css and css not in page.envelope_css_requires and css not in page.css_requires:
+                page.envelope_css_requires[css] = page.getResourceUri(css,'css',add_mtime=True,pkg=pkg)
         for js in js_requires:
-            if js and not js in page.dynamic_js_requires and not js in page.js_requires:
-                page.dynamic_js_requires[js] = page.getResourceUri(js,'js',add_mtime=True,pkg=pkg)
+            if js and js not in page.envelope_js_requires and js not in page.js_requires:
+                page.envelope_js_requires[js] = page.getResourceUri(js,'js',add_mtime=True,pkg=pkg)
         page.mixin(component,**kwargs)
         if not hasattr(page,'mixin_set'):
             page.mixin_set = set()
