@@ -347,6 +347,7 @@ class Table(object):
     def getCounterDates(self, tblobj, record=None,field=None, date_field=None,cnt_from=None, cnt_to=None, cnt_last=None):
         wlist = []
         wkw = {}
+        d1,d2 = None,None
         if cnt_from>1:
             wkw['prev_counter'] = self.formatSequence(tblobj=tblobj, field=field, record=record, counter=cnt_from-1)
             wlist.append('$%(field)s =:prev_counter')
@@ -359,8 +360,8 @@ class Table(object):
             f = tblobj.query(where=' OR '.join(wlist) %{'field':field},
                            columns='$%s' % date_field,
                              order_by='$%s' %field, **wkw).fetch()
-        d1 = f[0][date_field] if f and cnt_from > 1 else None
-        d2 = f[-1][date_field] if f and cnt_to < cnt_last else None
+            d1 = f[0][date_field] if f and cnt_from > 1 else None
+            d2 = f[-1][date_field] if f and cnt_to < cnt_last else None
         return d1,d2
 
     def getYmd(self, date, phyear=False):
