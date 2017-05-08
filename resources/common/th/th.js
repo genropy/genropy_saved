@@ -82,7 +82,7 @@ var th_sections_manager = {
         sections.forEach(function(n){
             sections_name = n.label;
             sectionsbag = n.getValue();
-            if(!sectionsbag.getItem('enabled')){
+            if(!sectionsbag.getItem('enabled') || sectionsbag.getItem('excluded')){
                 return;
             }
             current = sectionsbag.getItem('current');
@@ -105,7 +105,7 @@ var th_sections_manager = {
         var andlist = [];
         sections.forEach(function(n){
             var sectionsbag = n.getValue();
-            if(!sectionsbag.getItem('enabled')){
+            if(!sectionsbag.getItem('enabled') || sectionsbag.getItem('excluded')){
                 return;
             }
             var currents = sectionsbag.getItem('current').split(',');
@@ -141,7 +141,7 @@ var th_sections_manager = {
         var captions = [];
         sections.forEach(function(n){
             var sectionsbag = n.getValue();
-            if(!sectionsbag.getItem('enabled')){
+            if(!sectionsbag.getItem('enabled') || sectionsbag.getItem('excluded')){
                 return;
             }
             var current = sectionsbag.getItem('current');
