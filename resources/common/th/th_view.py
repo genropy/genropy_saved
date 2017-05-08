@@ -86,7 +86,8 @@ class TableHandlerView(BaseComponent):
             SET .query.where = where;
         """,queryBySample='^.queryBySample',queryEditor='=.query.queryEditor',
                             _if='queryEditor=="sample"')
-        fb = bar.fb.formbuilder(**pars)
+        fb = bar.fb.formbuilder(onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});',
+                                **pars)
         bar.dataController("""genro.dom.toggleVisible(bar,queryEditor=="sample");
                             view.widget.resize();""", queryEditor='^.query.queryEditor',
                             view=view, bar=bar,_onBuilt=True)
@@ -103,7 +104,7 @@ class TableHandlerView(BaseComponent):
                 continue
             fldattr = fieldobj.attributes
             fkw.setdefault('lbl',fldattr.get('name_short') or fldattr.get('name_long'))
-            fb.textbox(value='^.c_%s' %i,attr_column=field,attr_column_dtype=fldattr.get('dtype','T'),**fkw)
+            fb.child(fkw.pop('tag','textbox'),value='^.c_%s' %i,attr_column=field,attr_column_dtype=fldattr.get('dtype','T'),**fkw)
 
     @extract_kwargs(top=True,preview=True)
     @struct_method
