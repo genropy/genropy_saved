@@ -84,7 +84,7 @@ class TableHandlerView(BaseComponent):
                 mainIdx++;
             });
             SET .query.where = where;
-        """,queryBySample='^.queryBySample',queryEditor='=.query.queryEditor',
+        """,queryBySample='^.queryBySample',queryEditor='^.query.queryEditor',
                             _if='queryEditor=="sample"')
         fb = bar.fb.formbuilder(onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});',
                                 **pars)
