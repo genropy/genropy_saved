@@ -534,10 +534,11 @@ dojo.declare("gnr.QueryManager", null, {
     
     setFavoriteQuery:function(){
         var favoritePath = genro.getFromStorage("local", this.storeKey());
-        if(favoritePath && !this.sourceNode.getRelativeData('.query.menu').getNode(favoritePath)){
+        if(favoritePath && (!this.sourceNode.getRelativeData('.query.menu').getNode(favoritePath) || favoritePath=='__basequery__')){
             favoritePath = null;
-        };
-        favoritePath = favoritePath || '__basequery__';
+        }
+        var defaultQuery = this.sourceNode.getRelativeData('.query.bySampleIsDefault')?'__querybysample__':'__basequery__';
+        favoritePath = favoritePath || defaultQuery;
         this.sourceNode.setRelativeData('.query.currentQuery',favoritePath);
         this.setCurrentAsDefault();
     },
