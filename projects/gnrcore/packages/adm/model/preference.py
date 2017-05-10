@@ -21,7 +21,7 @@ class Table(object):
         result = self.db.application.cache.get(MAIN_PREFERENCE)
         if result is None:
             result = self.loadPreference()
-            self.db.application.cache[MAIN_PREFERENCE] = result
+        result = result.deepcopy()
         # NOTE: due to the way bags work,
         #       'data.%(path)s' will be used if pkg is ''
         # 
@@ -65,6 +65,7 @@ class Table(object):
         with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
             try:
                 record = self.record(pkey=pkey, for_update=for_update).output('bag')
+                self.db.application.cache[MAIN_PREFERENCE] = record
             except RecordNotExistingError:
                 record = self.newrecord(code=pkey, data=Bag())
         return record
