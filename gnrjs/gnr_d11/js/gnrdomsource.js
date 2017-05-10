@@ -1485,6 +1485,12 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var that = this;
         kwargs.sync = true;
         var currval;
+        if(remoteAttr._waitingMessage){
+            var waitingMessage = remoteAttr._waitingMessage===true?_T('Loading content'):remoteAttr._waitingMessage;
+            waitingMessage = '<div style="height:130px;opacity:.8;" class="waiting"></div>'+'<div style="font-size:13px">'+waitingMessage+'</div>'
+            this.setHiderLayer(true,{message:waitingMessage});
+            kwargs.sync = false;
+        }
         genro.rpc.remoteCall(method, kwargs, null, 'POST', null,
                             function(result) {
                                 //that.setValue(result);
@@ -1494,6 +1500,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                                     that.watch('checkPendingRequirs',function(){
                                         return !objectNotEmpty(genro.dom.pendingHeaders);
                                     },function(){
+                                        if(remoteAttr._waitingMessage){
+                                            that.setHiderLayer(false);
+                                        }
                                         that.replaceContent(result)
                                         if (_onRemote) {
                                             _onRemote();
