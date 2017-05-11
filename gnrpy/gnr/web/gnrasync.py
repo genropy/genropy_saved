@@ -819,6 +819,9 @@ class GnrBaseAsyncServer(object):
 
 
     def do_registerNewPage(self, page_id=None, page_info=None, class_info=None, init_info=None, mixin_set=None):
+        if not class_info:
+            #added because in some case missing class_info. We should wrap into a try
+            return
         page = self.gnrsite.resource_loader.instantiate_page(page_id=page_id,class_info=class_info, init_info=init_info, page_info=page_info)
         self.registerPage(page)
    
