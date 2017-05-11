@@ -1271,7 +1271,7 @@ class SqlTable(GnrObject):
                                              reltable=relatedTable.fullname)
                     elif onDelete in ('c', 'cascade'):
                         for row in sel:
-                            relatedTable.delete(relatedTable.record(row['pkey'], mode='bag'))
+                            relatedTable.delete(row)
                     elif onDelete in ('n','setnull'):
                         for row in sel:
                             rel_rec = dict(row)
