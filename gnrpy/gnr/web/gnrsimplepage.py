@@ -134,7 +134,7 @@ class GnrSimplePage(GnrWebPage):
         print 'FAKE UNFREEZING'
         return self.freezedSelections.get(name)
 
-    def freezeSelection(self,selection,selectionName):
+    def freezeSelection(self,selection,selectionName,**kwargs):
         print 'FAKE FREEZING'
         self.freezedSelections[selectionName] = selection
 
