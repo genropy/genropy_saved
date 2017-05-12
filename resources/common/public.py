@@ -216,14 +216,15 @@ class PublicSlots(BaseComponent):
         else:
             allowedPartitionPkeys = self.rootenv['allowed_%s' %partition_field]
         readOnly = False
-        if len(allowedPartitionPkeys) == 1:
-            readOnly = True 
-            default_partition_value = allowedPartitionPkeys[0]
         if allowedPartitionPkeys:
+            if len(allowedPartitionPkeys) == 1:
+                readOnly = True 
+                default_partition_value = allowedPartitionPkeys[0]
             fb.dbSelect(value='^current.current_partition_value',
-                            condition='$%s IN :env_allowed_%s' %(related_tblobj.pkey,partition_path),
+                            condition='$__allowed_for_partition IS TRUE',
                             ignorePartition=True,
-                            readOnly=readOnly,disabled='^gnr.partition_selector.disabled',
+                            readOnly=readOnly,
+                            disabled='^gnr.partition_selector.disabled',
                             dbtable=related_tblobj.fullname,lbl=related_tblobj.name_long,
                             hasDownArrow=True,font_size='.8em',lbl_color='white',
                             color='#666',lbl_font_size='.8em',nodeId='pbl_partition_selector')
