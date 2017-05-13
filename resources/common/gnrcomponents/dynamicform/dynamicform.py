@@ -395,6 +395,7 @@ class DynamicForm(BaseComponent):
             ncol,colswidth = df_tblobj.readColumns(columns='$df_fbcolumns,$df_colswidth',pkey=df_pkey)
             fields = global_fields[df_pkey]
             pane.dynamicFormPage(fields=fields,ncol=ncol,colswidth=colswidth or None,datapath=datapath,**kwargs)
+            
     @struct_method
     def df_dynamicFormPage(self,pane,fields=None,ncol=None,colswidth=None,datapath=None,**kwargs):
         fdict = dict()
