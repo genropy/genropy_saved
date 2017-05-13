@@ -322,6 +322,37 @@ class DynamicForm(BaseComponent):
                             _onRemote="""this.form.checkInvalidFields();""",
                                        **kwargs)
   
+    @struct_method
+    def df_addDynamicFields(self,pane,field=None,**kwargs):
+        column = self.db.model.column(field) if '.' in field else self.db.table(pane.getInheritedAttributes()['table']).column(field)
+        df_field = column.attributes['subfields']
+        df_column = column.table.column(df_field)
+        df_table = df_column.relatedTable()
+        pane.attributes['_workspace'] = True
+        pane.attributes.update(overflow='hidden')
+        pane.dataController("""
+            if(_reason!='container' || this.form.isNewRecord()){
+                PUT #FORM.record.%s = null;
+            }
+            FIRE #FORM.changed_df_type_%s;
+        """ %(field,field),df_pkey='^#FORM.record.%s' %df_field,_delay=1)
+        fbobj = pane.fbuilder
+        fbattrs = dict(fbobj.commonKwargs)
+        fbattrs.update(cols=fbobj.colmax, 
+                      lblclass=fbobj.lblclass, lblpos=fbobj.lblpos, lblalign=fbobj.lblalign, 
+                      fldalign=fbobj.fldalign,
+                      fieldclass=fbobj.fieldclass,
+                      lblvalign=fbobj.lblvalign, fldvalign=fbobj.fldvalign,
+                      byColumn=fbobj.byColumn,
+                      colswidth=fbobj.colswidth)
+        pane.remote(self.df_remoteDynamicGroup,df_table=df_table.fullname,
+                            _fired='^#FORM.changed_df_type_%s' %field,
+                            df_pkey='=#FORM.record.%s' %df_field,datapath='#FORM.record.%s' %field,
+                            df_is_new='==!this.getRelativeData("#FORM.record.%s")' %field,fbattrs=fbattrs,
+                            _onRemote="""
+                            this.form.checkInvalidFields();
+                            """,**kwargs)
+  
 
 
     def df_prepareGlobalVars(self,global_fields=None,df_groups=None):
@@ -385,10 +416,25 @@ class DynamicForm(BaseComponent):
     @struct_method
     def df_dynamicFormGroup(self,pane,fields=None,ncol=None,colswidth=None,setInAttributes=False,**kwargs):
         fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,keeplabel=True,colswidth=colswidth,width='100%',tdf_width='100%',lbl_white_space='nowrap')        
-        fb.addDynamicFields(fields=fields,setInAttributes=setInAttributes,**kwargs)
+        fb.makeDynamicFields(fields=fields,setInAttributes=setInAttributes,**kwargs)
+
+
+    @public_method
+    def df_remoteDynamicGroup(self,pane,df_table=None,df_pkey=None,datapath=None,fbattrs=None,**kwargs):
+        if not df_pkey:
+            pane.div()
+            return
+        pane.attributes.update(kwargs)
+        df_tblobj = self.db.table(df_table)
+        fields = df_tblobj.df_getFieldsRows(pkey=df_pkey)
+        for r in fields:
+            r.pop('page',None)
+        fbattrs = fbattrs or dict()
+        fb = pane.formbuilder(row_datapath=datapath,**fbattrs)        
+        fb.makeDynamicFields(fields=fields,**kwargs)
 
     @struct_method
-    def df_addDynamicFields(self,fb,fields=None,setInAttributes=None,**kwargs):
+    def df_makeDynamicFields(self,fb,fields=None,setInAttributes=None,**kwargs):
         dbstore_kwargs = dictExtract(kwargs,'dbstore_',pop=True)
         if not fields:
             return
@@ -440,7 +486,7 @@ class DynamicForm(BaseComponent):
                 c = wdg_attr.pop(dim, None)
                 if isinstance(c,int) or (c and c.isdigit()):
                     wdg_attr[dim] = '%spx' %c if c else None
-                else:
+                elif c is not None:
                     wdg_attr[dim] = c
             wdg_attr['colspan'] = wdg_attr.pop('colspan',1) or 1
         if tag.lower()=='simpletextarea':
