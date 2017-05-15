@@ -186,7 +186,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         box = pane.div(datapath='.#parent.hview',text_align='left',height='100%',childname='treebox')        
         formNode = pane.parentNode.attributeOwnerNode('formId')
         form = formNode.value
-        form.store.handler('load',default_parent_id='=#FORM/parent/#FORM.record.parent_id')
+        form.store.handler('load',default_parent_id='=#FORM.record.parent_id')
         table = formNode.attr['table']
         hviewTree = box.hviewTree(table=table,caption_field=caption_field,_class=_class or 'noIcon',excludeRoot=excludeRoot,**kwargs)
         form.htree = hviewTree
