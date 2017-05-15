@@ -986,7 +986,7 @@ class GnrWsgiSite(object):
                 self.error_smtp_kwargs = dict(error_smtp_kwargs)
                 self.error_smtp_kwargs['error_email_from'] = self.error_smtp_kwargs.pop('from_address')
                 err_kwargs.update(error_smtp_kwargs)
-            wsgiapp = ErrorMiddleware(wsgiapp, **err_kwargs)
+                wsgiapp = ErrorMiddleware(wsgiapp, **err_kwargs)
         if gzip:
             from paste.gzipper import middleware as gzipper_middleware
             wsgiapp = gzipper_middleware(wsgiapp)
