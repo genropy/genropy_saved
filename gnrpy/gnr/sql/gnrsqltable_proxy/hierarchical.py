@@ -151,6 +151,8 @@ class TableHandlerTreeResolver(BagResolver):
                                             dbstore=self.dbstore,condition=self.condition,related_kwargs=self.related_kwargs,
                                             _condition_id=self._condition_id,columns=self.columns,_isleaf=True)
                     child_count = len(related_children)
+                elif not self.related_kwargs.get('_allowEmptyFolders'):
+                    continue
             result.setItem(pkey,value,
                             **self.applyOnTreeNodeAttr(caption=caption,
                                     child_count=child_count,pkey=record.get(self.alt_pkey_field) if self.alt_pkey_field else (pkey or '_all_'),
