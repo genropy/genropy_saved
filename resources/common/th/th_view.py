@@ -400,8 +400,6 @@ class TableHandlerView(BaseComponent):
                         return true;
                     }
                 });
-            }else{
-                genro.bp(true);
             }
             SET .excluded = excluded;
             """,
@@ -416,7 +414,7 @@ class TableHandlerView(BaseComponent):
         pane.dataController("""
             genro.dom.toggleVisible(__mb,enabled && !excluded);
         """,__mb=mb,enabled='^.enabled',excluded='^.excluded',
-        _delay=1)
+        _onBuilt=True,_delay=1)
         pane.dataController("""
             genro.assert(currentSection,'missing current section for sections %s')
             var sectionNode = sectionbag.getNode(currentSection);
