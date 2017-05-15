@@ -4,9 +4,11 @@
 from datetime import datetime
 from multiprocessing import Process
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import GnrSiteRegisterServer
+from gnr.core.gnrlang import gnrImport
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrsys import expandpath
 from gnr.app.gnrconfig import gnrConfigPath
+from gnr.app.gnrdeploy import PathResolver
 import atexit
 import os
 import urllib
@@ -184,6 +186,23 @@ class GnrDaemon(object):
     def restart(self,**kwargs):
         self.stop(saveStatus=True)
 
+    def startServiceProcesses(self, sitename, sitedict=None):
+        p = PathResolver()
+        siteconfig = p.get_siteconfig(sitename)
+        services = siteconfig['services']
+        if not services:
+            return
+        for serv in services:
+            if serv.attr.get('daemon'):
+                pkg, pathlib = serv.attr['daemon'].split(':')
+                p = os.path.join(p.package_name_to_path(pkg), 'lib', '%s.py' % pathlib)
+                m = gnrImport(p)
+                serv.attr.update({'sitename': sitename})
+                proc = Process(name='service_daemon_%s_%s' %(sitename, serv.label), 
+                               target=getattr(m, 'run'), kwargs=serv.attr)
+                proc.daemon = True
+                proc.start()
+                sitedict[serv.label] = proc
     
     def addSiteRegister(self,sitename,storage_path=None,autorestore=False,heartbeat_options=None):
         if not sitename in self.siteregisters:
@@ -198,7 +217,10 @@ class GnrDaemon(object):
             if heartbeat_options:
                 hbprocess = Process(name='hb_%s' %sitename, target=createHeartBeat,kwargs=heartbeat_options)
                 hbprocess.start()
-            self.siteregisters_process[sitename] = dict(register = childprocess,heartbeat=hbprocess)
+            sitedict = dict(register = childprocess,heartbeat=hbprocess)
+            self.startServiceProcesses(sitename,sitedict=sitedict)
+            self.siteregisters_process[sitename] = sitedict
+            
 
         else:
             print 'ALREADY EXISTING ',sitename

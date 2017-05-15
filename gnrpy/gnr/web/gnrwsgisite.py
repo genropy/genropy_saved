@@ -262,6 +262,7 @@ class GnrWsgiSite(object):
         self.mail_handler = self.addService(WebMailHandler, service_name='mail')
         self.task_handler = self.addService(TaskHandler, service_name='task')
         self.process_cmd = CommandHandler(self)
+        self.register
         self.services.addSiteServices()
         
         self._remote_edit = options.remote_edit if options else None
