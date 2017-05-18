@@ -186,6 +186,18 @@ class GnrDaemon(object):
     def restart(self,**kwargs):
         self.stop(saveStatus=True)
 
+    def restartServiceDaemon(self,sitename=None,service_name=None):
+        print 'restartServiceDaemon',sitename,service_name
+        sitedict = self.siteregisters_process[sitename]
+        print 'sitedict',sitedict
+        if service_name in sitedict:
+            print('restarting daemon %s' %service_name)
+            proc = sitedict[service_name]
+            proc.terminate()
+            sitedict[service_name] = self.startServiceDaemon(sitename, service_name=service_name)
+            print('restarted daemon %s' %service_name)
+
+
     def startServiceProcesses(self, sitename, sitedict=None):
         p = PathResolver()
         siteconfig = p.get_siteconfig(sitename)
@@ -194,15 +206,24 @@ class GnrDaemon(object):
             return
         for serv in services:
             if serv.attr.get('daemon'):
-                pkg, pathlib = serv.attr['daemon'].split(':')
-                p = os.path.join(p.package_name_to_path(pkg), 'lib', '%s.py' % pathlib)
-                m = gnrImport(p)
-                serv.attr.update({'sitename': sitename})
-                proc = Process(name='service_daemon_%s_%s' %(sitename, serv.label), 
-                               target=getattr(m, 'run'), kwargs=serv.attr)
-                proc.daemon = True
-                proc.start()
-                sitedict[serv.label] = proc
+                sitedict[serv.label] = self.startServiceDaemon(sitename,serv.label)
+                print('sitedict',sitedict)
+
+    def startServiceDaemon(self,sitename, service_name=None):
+        p = PathResolver()
+        siteconfig = p.get_siteconfig(sitename)
+        services = siteconfig['services']
+        service_attr = services.getAttr(service_name)
+        pkg, pathlib = service_attr['daemon'].split(':')
+        p = os.path.join(p.package_name_to_path(pkg), 'lib', '%s.py' % pathlib)
+        m = gnrImport(p)
+        service_attr.update({'sitename': sitename})
+        proc = Process(name='service_daemon_%s_%s' %(sitename, service_name), 
+                        target=getattr(m, 'run'), kwargs=service_attr)
+        proc.daemon = True
+        proc.start()
+        return proc
+        
     
     def addSiteRegister(self,sitename,storage_path=None,autorestore=False,heartbeat_options=None):
         if not sitename in self.siteregisters:
@@ -260,6 +281,10 @@ class GnrDaemon(object):
             result = proxy.stop(saveStatus=saveStatus)
         self.onRegisterStop(sitename)
         return result
+
+    def siteregister_restartServiceDaemon(self,sitename=None,service_name=None):
+        print 'siteregister_restartServiceDaemon',sitename,service_name
+        self.restartServiceDaemon(sitename=sitename, service_name=service_name)
 
     def siteregister_restart(self,sitename=None,**kwargs):
         self.siteregister_stop(sitename,True)
