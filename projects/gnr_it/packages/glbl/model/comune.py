@@ -22,8 +22,8 @@ class Table(object):
         tbl.column('popolazione_residente','L',name_long='!![it]Popolazione residente (2010)',
                     format='#,###,###')
 
-
     @public_method
-    def pkeyFromCaption(self,caption=None, **kwargs):
-        return self.readColumns(where='$denominazione ILIKE :comune_denominazione',comune_denominazione=caption,columns='$id')
+    def pkeyFromCaption(self,caption=None,provincia=None, **kwargs):
+        return self.readColumns(where='$denominazione ILIKE :comune_denominazione AND $sigla_provincia=:pr',
+            comune_denominazione=caption,pr=provincia,columns='$id')
         
