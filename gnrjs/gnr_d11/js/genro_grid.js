@@ -3217,9 +3217,19 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
                 return;
             }
             if(cellkw.radioButton===true){
+                var oldcheckedpath; 
                 for (var i=0; i<storebag.len(); i++){
-                    cellsetter(i,fieldname,(i==idx) && !evt.shiftKey);
+                    oldcheckedpath = '#'+i+sep+fieldname;
+                    if(storebag.getItem(oldcheckedpath)){
+                        if(gridEditor){
+                            gridEditor.setCellValue(storebag.getNode(oldcheckedpath),fieldname,false);
+                        }else{
+                            storebag.setItem(oldcheckedpath,false,null,{lazySet:true});
+                        }
+                        break;
+                    }
                 }
+                cellsetter(idx,fieldname,true);
             }else{
                 for (var c in this.cellmap){
                     var s_cell = this.cellmap[c];

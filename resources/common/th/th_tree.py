@@ -158,7 +158,7 @@ class HTableTree(BaseComponent):
             }
             THTree.refreshTree(dbChanges,store,treeNode,excludeRoot);""",
                         table=table,store='=%s' %treeattr['storepath'],treeNode=tree,excludeRoot=excludeRoot) 
-        tree.dataController("""storebag.getNode("root").getValue('reload');""",
+        tree.dataController("""storebag._nodes.forEach(function(n){n.getValue('reload')});""",
                             storebag='=%s' %treeattr['storepath'],
                             treeNode=tree,subscribe_public_changed_partition=True)
 
