@@ -1304,9 +1304,9 @@ dojo.declare("gnr.GridEditor", null, {
     },
 
 
-    setCellValue:function(rowIdx,cellname,value,valueCaption){
+    setCellValue:function(rowIdxOrNode,cellname,value,valueCaption){
         var grid = this.grid;
-        var rowNode = grid.dataNodeByIndex(rowIdx);
+        var rowNode = typeof(rowIdxOrNode)=='number'? grid.dataNodeByIndex(rowIdxOrNode): rowIdxOrNode;
         var row = grid.rowFromBagNode(rowNode,true);
         var rowEditor = this.grid.getRowEditor({row:row});
         if (!rowEditor){
@@ -1339,12 +1339,12 @@ dojo.declare("gnr.GridEditor", null, {
             for(var selected in selectedKw){
                 var p = selectedKw[selected].split('.');
                 p = p[p.length-1];
-                this.setCellValue(rowIdx,p,kw[selected]);
+                this.setCellValue(rowNode,p,kw[selected]);
             }
         }if(valueCaption!=undefined) {
             newAttr[cell.field_getter] = valueCaption
         }
-        this.grid.collectionStore().updateRow(rowIdx,newAttr);
+        this.grid.collectionStore().updateRowNode(rowNode,newAttr);
     },
 
     updateCounterColumn:function(rowNode,k,counterField){

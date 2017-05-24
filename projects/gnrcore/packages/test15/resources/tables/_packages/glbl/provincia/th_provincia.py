@@ -69,3 +69,16 @@ class TestFormInlineComune(BaseComponent):
 
     def th_options(self):
         return dict(autoSave=True)
+
+
+class TestComunePiuBello(BaseComponent):
+    def th_form(self,form):
+        bc = form.center.borderContainer()
+        top = bc.contentPane(region='top',datapath='.record')
+        fb = top.formbuilder(cols=1,border_spacing='3px')
+        fb.field('sigla')
+        fb.field('nome')
+        bc.contentPane(region='center').inlineTableHandler(relation='@comuni',viewResource='TestComunePiuBello')
+
+    def th_options(self):
+        return dict(autoSave=True)

@@ -6,6 +6,13 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import metadata,public_method
 
+class TestComunePiuBello(BaseComponent):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('denominazione', width='20em',edit=True
+            )
+        r.checkboxcolumn(radioButton=True,checkedId='#FORM.comunePiuBello')
+
 
 class TestViewVotoRadio(BaseComponent):
     def th_struct(self,struct):
