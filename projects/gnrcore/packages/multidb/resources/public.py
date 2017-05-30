@@ -98,7 +98,7 @@ class TableHandlerMain(BaseComponent):
             gridattr = view.grid.attributes
             
             hiddencolumns = gridattr.pop('hiddencolumns',None)
-            hiddencolumns = '%s,$__multidb_subscribed' if hiddencolumns else '$__multidb_subscribed'
+            hiddencolumns = '%s,$__multidb_subscribed' %hiddencolumns if hiddencolumns else '$__multidb_subscribed'
             gridattr['hiddencolumns'] = hiddencolumns
             gridattr['rowCustomClassesCb']="""function(row){
                                                 return row['__multidb_subscribed']?'dimmed':'';
