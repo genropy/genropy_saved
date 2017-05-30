@@ -288,7 +288,7 @@ class HierarchicalHandler(object):
         if resolved:
             def cb(self,*args,**kwargs):
                 pass
-            b.walk(cb)
+            b.walk(cb,_mode='')
         return b
 
     def pathFromPkey(self,pkey=None,related_kwargs=None,dbstore=None):
