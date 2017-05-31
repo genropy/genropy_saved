@@ -19,7 +19,7 @@ class PluginOrganizer(BaseComponent):
                                   dialog_noModal=False,
                                   rowStatusColumn=False,
                                   condition='$plugin_assigment IS TRUE AND $done_ts IS NULL',
-                                  view_store_onStart=True,
+                                  view_store__onBuilt=True,
                                   configurable=False,
                                   _class='noheader orgn_action_grid')
 #
