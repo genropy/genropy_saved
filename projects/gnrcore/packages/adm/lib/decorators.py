@@ -35,7 +35,7 @@ def checklist(name=None, pkg=None, code=None, subcode=None,**kwargs):
             return tbl.newrecord(description=description,**pars)
        
         syscode = '_'.join([pkg or modulepkg, code, subcode])
-        newFunc.mixin_as = 'sysRecord_%s' % syscode
+        newFunc.instance_mixin_as = 'sysRecord_%s' % syscode
         newFunc.mandatory = True
         return newFunc
     return decore
