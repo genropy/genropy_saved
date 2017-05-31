@@ -162,15 +162,18 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                 if ('removeChild' in destination) {
                     destination.removeChild(widget);
                 }
-                widget.destroyRecursive();
+                this.widgetDestroyAndUnlink(widget);
+                //widget.destroyRecursive();
             } else if(destination._singleChild){
                 destination.destroyDescendants();
             }
             else {
+                this.widgetDestroyAndUnlink(widget);
+                //kw.node.widget = null;
+                //widget.destroyRecursive();
                 if (domNode.parentNode) {
                     domNode.parentNode.replaceChild(newNode, domNode);
                 }
-                widget.destroyRecursive();
             }
         } else {
             if (domNode.parentNode) {
@@ -181,7 +184,8 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             var widgets = dojo.query('[widgetId]', domNode);
             while (widgets.length > 0) {
                 widgets = widgets.map(dijit.byNode);
-                widgets[0].destroyRecursive();
+                this.widgetDestroyAndUnlink(widgets[0]);
+                //widgets[0].destroyRecursive();
                 widgets = dojo.query('[widgetId]', domNode);
             }
             // Array
@@ -201,6 +205,14 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         if (selectedIndex) {
             destination.setSelected(selectedIndex);
         }
+    },
+
+    widgetDestroyAndUnlink:function(widget){
+        var sourceNode = widget.sourceNode;
+        if(sourceNode){
+            delete sourceNode.widget;
+        }
+        widget.destroyRecursive();
     },
     
     _onDeletingContent:function(oldvalue){
@@ -234,7 +246,8 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                         this.deleteDomNodeContent(widget.domNode);
                     }
                 }
-                widget.destroyRecursive();
+                this.widgetDestroyAndUnlink(widget);
+                //widget.destroyRecursive();
             } else if(domNode) {
                 this.deleteDomNodeContent(domNode);
             }else if(deletingNode.externalWidget){
@@ -257,8 +270,9 @@ dojo.declare("gnr.GnrSrcHandler", null, {
     deleteDomNodeContent:function(domNode){
         var widgets = dojo.query('[widgetId]', domNode);
         widgets = widgets.map(dijit.byNode);     // Array
+        var that = this;
         dojo.forEach(widgets, function(widget) {
-            widget.destroyRecursive();
+            that.widgetDestroyAndUnlink(widget);
         });
         dojo._destroyElement(domNode);
     },
