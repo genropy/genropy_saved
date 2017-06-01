@@ -17,6 +17,20 @@ from gnr.core.gnrbag import Bag, DirectoryResolver
 from gnr.core.gnrlist import XlsReader,CsvReader
 from gnr.core.gnrstring import slugify
 
+EXPORT_PDF_TEMPLATE = """
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>%(title)s</title>
+<meta name="author" content="GenroPy">
+<style>%(style)s</style>
+</head>
+<body>
+    %(body)s
+</body>
+</html>
+"""
+
 class GnrWebUtils(GnrBaseProxy):
 
 
@@ -116,9 +130,6 @@ class GnrWebUtils(GnrBaseProxy):
         result = f.read()
         f.close()
         return result
-
-    def filename(self):
-        return self.filename
 
     def dirbag(self, path='', base='', include='', exclude=None, ext=''):
         if base == 'site':
@@ -293,3 +304,29 @@ class GnrWebUtils(GnrBaseProxy):
 
     def _importer_keycb(self,k):
         return slugify(str(k),sep='_')
+
+    @public_method
+    def exportPdfFromNodes(self,pages=None,name=None,
+                            style=None,
+                            orientation=None):
+        style = style or ''
+        name = name or self.page.getUuid()
+        pdf_list = []
+        print_handler = self.page.site.getService('print')
+        pl = [name]
+        pl.append('pdf')
+        pl.append('%s.pdf' %name)
+        outputFilePath = self.page.site.getStaticPath('page:exportPdfFromNodes',*pl,autocreate=-1)
+        for i,p in enumerate(pages):
+            hp = [name]
+            hp.append('html')
+            hp.append('page_%s.pdf' %i)
+            page_path = self.page.site.getStaticPath('page:exportPdfFromNodes',*hp,autocreate=-1)
+            print_handler.htmlToPdf(EXPORT_PDF_TEMPLATE %dict(title='%s %i' %(name,i) ,style=style, body=p),page_path, orientation=orientation)
+            pdf_list.append(page_path)
+        print_handler.getPrinterConnection('PDF').printPdf(pdf_list, 'export_%s' %name,
+                                       outputFilePath=os.path.splitext(outputFilePath)[0])
+        self.page.setInClientData(path='gnr.clientprint',
+                                  value=self.page.site.getStaticUrl('page:exportPdfFromNodes',*pl, nocache=True),
+                                  fired=True)
+        
