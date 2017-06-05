@@ -961,8 +961,29 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         genro.wdgById('_dlg_listChoice').show();
     },
 
+    uploaderDialog:function(title,method,kw){
+        var kw = kw || {};
+        var dlg_kw = objectUpdate({closable:true,autoSize:true,dialog_bottom:false},objectExtract(kw,'dlg_*'));
+        var dlg = genro.dlg.quickDialog(title,dlg_kw);
+        kw.label = _T(kw.label || 'Drop the file to import here');
+        kw.onUploadedMethod = method;
+        kw.onResult = function(handler){
+            var result = handler.currentTarget.responseText;
+            if(kw.onImport){
+                kw.onImport(result);
+            }
+            if(kw.resultPath){
+                genro.setData(kw.resultPath,result);
+            }
+            dlg.close_action();
+        };
+        dlg._('div',{padding:'10px'})._('dropUploader',(objectUpdate({progressBar:true,width:'300px'},kw)))
+        dlg.show_action();
+    },
+
     upload: function(title, method, resultPath, remotekw, label, cancel, send, fireOnSend) {
         /* first 3 params are mandatory */
+        //DEPRECATED
         label = label || 'Browse...';
         cancel = cancel || 'Cancel';
         send = send || 'Send';

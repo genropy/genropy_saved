@@ -24,11 +24,13 @@ PYRO_HOST = 'localhost'
 PYRO_PORT = 40004
 PYRO_HMAC_KEY = 'supersecretkey'
 
-def createSiteRegister(sitename=None,daemon_uri=None,host=None, socket=None, hmac_key=None,storage_path=None,debug=None,autorestore=False):
+def createSiteRegister(sitename=None,daemon_uri=None,host=None, socket=None,
+                         hmac_key=None,storage_path=None,debug=None,autorestore=False,
+                         port=None):
     print 'creating'
     server = GnrSiteRegisterServer(sitename=sitename,daemon_uri=daemon_uri,storage_path=storage_path,debug=debug)
     print 'starting'
-    server.start(host=host,socket=socket,hmac_key=hmac_key,port='*',autorestore=autorestore)
+    server.start(host=host,socket=socket,hmac_key=hmac_key,port=port or '*',autorestore=autorestore)
 
 def createHeartBeat(site_url=None,interval=None,**kwargs):
     server = GnrHeartBeat(site_url=site_url,interval=interval,**kwargs)
@@ -155,7 +157,7 @@ class GnrDaemon(object):
     def onRegisterStart(self,sitename,server_uri=None,register_uri=None):
         self.siteregisters[sitename]['server_uri'] = server_uri
         self.siteregisters[sitename]['register_uri'] = register_uri
-
+        self.siteregisters[sitename]['register_port'] = int(register_uri.split(':')[-1])
         print 'registered ',sitename,server_uri
 
     def onRegisterStop(self,sitename=None):
@@ -225,13 +227,17 @@ class GnrDaemon(object):
         return proc
         
     
-    def addSiteRegister(self,sitename,storage_path=None,autorestore=False,heartbeat_options=None):
+    def addSiteRegister(self,sitename,storage_path=None,autorestore=False,heartbeat_options=None,port=None):
         if not sitename in self.siteregisters:
             socket = os.path.join(self.sockets,'%s_daemon.sock' %sitename) if self.sockets else None
             process_kwargs = dict(sitename=sitename,daemon_uri=self.main_uri,host=self.host,socket=socket
-                                   ,hmac_key=self.hmac_key, storage_path=storage_path,autorestore=autorestore)
+                                   ,hmac_key=self.hmac_key, storage_path=storage_path,autorestore=autorestore,
+                                   port=port)
             childprocess = Process(name='sr_%s' %sitename, target=createSiteRegister,kwargs=process_kwargs)
-            self.siteregisters[sitename] = dict(sitename=sitename,server_uri=False,register_uri=False,start_ts=datetime.now())
+            self.siteregisters[sitename] = dict(sitename=sitename,server_uri=False,
+                                        register_uri=False,start_ts=datetime.now(),
+                                        storage_path=storage_path,heartbeat_options=heartbeat_options,
+                                        autorestore=autorestore)
             childprocess.daemon = True
             childprocess.start()
             hbprocess = None
@@ -254,7 +260,12 @@ class GnrDaemon(object):
 
 
     def siteRegisters(self,**kwargs):
-        return self.siteregisters.items()
+        sr = dict(self.siteregisters)
+        for k,v in sr.items():
+            register_process = self.siteregisters_process[k]['register']
+            v['pid'] = register_process.pid
+            v['is_alive'] = register_process.is_alive()
+        return sr.items()
 
     def siteRegisterProxy(self,sitename):
         return self.pyroProxy(self.siteregisters[sitename]['register_uri'])
@@ -277,17 +288,27 @@ class GnrDaemon(object):
                 self.siteregister_stop(k,saveStatus=saveStatus)
             return
         uri = self.siteregisters[sitename]['server_uri']
-        with self.pyroProxy(uri) as proxy:
-            result = proxy.stop(saveStatus=saveStatus)
+        try:
+            with self.pyroProxy(uri) as proxy:
+                result = proxy.stop(saveStatus=saveStatus)
+                print('after stop',result)
+        except Exception as e:
+            print str(e)
         self.onRegisterStop(sitename)
         return result
 
     def siteregister_restartServiceDaemon(self,sitename=None,service_name=None):
-        print 'siteregister_restartServiceDaemon',sitename,service_name
         self.restartServiceDaemon(sitename=sitename, service_name=service_name)
 
     def siteregister_restart(self,sitename=None,**kwargs):
+        pars = self.siteregisters[sitename]
+        port = pars['register_port']
         self.siteregister_stop(sitename,True)
+        self.addSiteRegister(sitename,storage_path=pars['storage_path'],
+                        heartbeat_options=pars['heartbeat_options'],
+                        autorestore=pars['autorestore'],port=port)
+
+
 
     def sshtunnel_port(self,ssh_host=None,ssh_port=None, ssh_user=None, ssh_password=None, forwarded_port=None,forwarded_host=None,**kwargs):
         return self.sshtunnel_get(ssh_host=ssh_host,ssh_port=ssh_port,ssh_password=ssh_password,forwarded_port=forwarded_port,forwarded_host=forwarded_host).local_port
