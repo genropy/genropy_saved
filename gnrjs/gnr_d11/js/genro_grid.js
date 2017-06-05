@@ -63,7 +63,7 @@ gnr.columnsFromStruct = function(struct, columns) {
     var nodes = struct.getNodes();
     for (var i = 0; i < nodes.length; i++) {
         var node = nodes[i];
-        var fld = node.attr.field;
+        var fld = node.attr.queryfield || node.attr.field;
         if(node.attr.template_columns){
             node.attr.template_columns.split(',').forEach(function(n){
                 arrayPushNoDup(columns,(n[0]=='$' || n[0]=='@')?n:'$'+n);
@@ -143,7 +143,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         this.structBag = genro.getData(this.sourceNode.attrDatapath('structpath')) || new gnr.GnrBag();
         this.cellmap = {};
         this.setStructure(this.gnr.structFromBag(this.sourceNode, this.structBag, this.cellmap));
-        this.onSetStructpath(this.structBag);
+        this.onSetStructpath(this.structBag,kw);
         this.sourceNode.publish('onSetStructpath');
     },
 
@@ -1550,11 +1550,16 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         //if(!('column' in drop_event.dragDropInfo)){ return }
         var colsBag = this.structBag.getItem('#0.#0');
         if(!kw){
-            var kw = {'width':'8em','name':col.fullcaption,
+            kw = {'width':'8em','name':col.fullcaption,
             'dtype':col.dtype, 'field':col.fieldpath,
             'tag':'cell'};
+            if(kw.field.length>63){
+                var hashname = 'relation_'+stringHash(kw.field)+'_'+kw.field.split('.').slice(-1);
+                kw.queryfield = kw.field +' AS '+hashname;
+                kw.field = hashname;
+            }
             objectUpdate(kw,objectExtract(col,'cell_*'));
-            kw['format_pattern'] = col['format'];
+            kw.format_pattern = col.format;
             objectUpdate(kw,objectExtract(col,'format_*',null,true));
         }
         
@@ -2609,15 +2614,19 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
     },
 
-    mixin_onSetStructpath: function(structBag) {
+    mixin_onSetStructpath: function(structBag,kw) {
         this.query_columns = this.gnr.getQueryColumns(this.sourceNode, structBag);
         if(this.sourceNode._useStore){
             this.setEditableColumns();
         }
         this.setChangeManager();
+        kw = kw || {};
         if(this.sourceNode._useStore){
             var store = this.collectionStore();
             if(store){
+                if(kw.changedAttributes && 
+                   kw.changedAttributes.width && 
+                   objectKeys(kw.changedAttributes).length==1){return;}
                 store.onChangedView();
             }
         }
