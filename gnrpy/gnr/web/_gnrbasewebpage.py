@@ -197,13 +197,13 @@ class GnrBaseWebPage(GnrObject):
             os.makedirs(folder)
         return os.path.join(folder, docname)
         
-    def freezeSelection(self, selection, name):
+    def freezeSelection(self, selection, name,**kwargs):
         """TODO
         
         :param selection: TODO
         :param name: TODO"""
         path = self.pageLocalDocument(name)
-        selection.freeze(path, autocreate=True)
+        selection.freeze(path, autocreate=True,**kwargs)
         return path
 
     def freezeSelectionUpdate(self,selection):

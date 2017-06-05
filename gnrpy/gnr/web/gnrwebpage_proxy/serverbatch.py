@@ -253,7 +253,7 @@ class GnrWebBatch(GnrBaseProxy):
         else:
             msg_desc = message or line_code
             cb_message = lambda item, k, m, **kwargs: '%s %i/%i' % (msg_desc, k, m)
-        if not line_code in self.line_codes:
+        if line_code not in self.line_codes:
             self.thermo_line_add(line_code, maximum=maximum)
         for k, item in enumerate(iterable):
             progress = k + 1

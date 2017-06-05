@@ -13,15 +13,17 @@ class Table(object):
         tbl.column('denominazione',name_long='!![it]Denominazione')
         tbl.column('denominazione_tedesca',name_long='!![it]Denominazione tedesca')
         tbl.column('capoluogo','B',name_long='!![it]Capoluogo')
-        tbl.column('zona_altimetrica','I',name_long='!![it]Zona altimetrica')
-        tbl.column('altitudine','I',name_long='!![it]Altitudine (m)')
+        tbl.column('zona_altimetrica','L',name_long='!![it]Zona altimetrica')
+        tbl.column('altitudine','L',name_long='!![it]Altitudine (m)')
         tbl.column('litoraneo',dtype='B',name_long='!![it]Comune litoraneo',name_short='Litoraneo')
         tbl.column('comune_montano',name_long='!![it]Comune montano')
-        tbl.column('csl','I',name_long='!![it]Codice sistema lavoro (2001)')
-        tbl.column('superficie','I',name_long='!![it]Superficie (kmq)')
-        tbl.column('popolazione_residente','I',name_long='!![it]Popolazione residente (2010)')
-
+        tbl.column('csl','L',name_long='!![it]Codice sistema lavoro (2001)')
+        tbl.column('superficie','L',name_long='!![it]Superficie (kmq)')
+        tbl.column('popolazione_residente','L',name_long='!![it]Popolazione residente (2010)',
+                    format='#,###,###')
 
     @public_method
-    def pkeyFromCaption(self,caption=None, **kwargs):
-        return self.readColumns(where='$denominazione ILIKE :comune_denominazione',comune_denominazione=caption,columns='$id')
+    def pkeyFromCaption(self,caption=None,provincia=None, **kwargs):
+        return self.readColumns(where='$denominazione ILIKE :comune_denominazione AND $sigla_provincia=:pr',
+            comune_denominazione=caption,pr=provincia,columns='$id')
+        

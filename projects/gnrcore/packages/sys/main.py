@@ -28,4 +28,6 @@ class Package(GnrDboPackage):
                     db.commit()
 
 class Table(GnrDboTable):
-    pass
+    def isInStartupData(self):
+        return False
+        

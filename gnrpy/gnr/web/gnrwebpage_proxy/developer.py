@@ -12,7 +12,6 @@ from time import time
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.core.gnrdecorator import public_method
-from gnr.core.gnrredbaron import GnrRedBaron
 
 class GnrWebDeveloper(GnrBaseProxy):
     def init(self, **kwargs):
@@ -129,10 +128,6 @@ class GnrWebDeveloper(GnrBaseProxy):
             for n in databag:
                 indexbag.setItem('records.%s.%s' %(movercode,n.label),None,pkey=n.attr['pkey'],caption=n.attr.get('caption')) 
         indexbag.toXml(indexpath,autocreate=True)
-        
-    @public_method
-    def loadModuleTree(self,module=None):
-        return GnrRedBaron(module)
 
     @public_method
     def loadModuleSource(self,module=None):

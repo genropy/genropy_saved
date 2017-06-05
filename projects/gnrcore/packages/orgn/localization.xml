@@ -11,10 +11,10 @@
 		<action_outcome ext="py" path="model/action_outcome.py">
 			<en_action_outcome base="Action outcome" en="Action outcome" it="esito Azione"/>
 				<en_outcomes base="Outcomes" en="Outcomes" it="risultati"/>
-				<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
+				<en_description base="Description" en="Description" it="Descrizione"/>
 				<en_action_type base="Action type" en="Action type" it="tipo di azione"/>
 				<en_outcome base="Outcome" en="Outcome" it="Risultato"/>
-				<en_deadline_days base="Deadline days" en="Deadline days" it="giorni Deadline"/>
+				<en_deadline_days base="Deadline days" en="Deadline days" it="G. prima/dopo"/>
 				<en_d_days base="D.Days" en="D.Days" it="D.Days"/>
 				<en_default_tag base="Default tag" en="Default tag" it="tag predefinito"/>
 				<en_priority base="Priority" en="Priority" it="Priorità"/>
@@ -25,7 +25,7 @@
 		<action_type ext="py" path="model/action_type.py">
 			<en_action_type base="Action type" en="Action type" it="tipo di azione"/>
 				<en_action_types base="Action types" en="Action types" it="tipi di azione"/>
-				<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
+				<en_description base="Description" en="Description" it="Descrizione"/>
 				<en_extended_description base="Extended description" en="Extended description" it="descrizione estesa"/>
 				<en_restrictions base="Restrictions" en="Restrictions" it="restrizioni"/>
 				<en_priority base="Priority" en="Priority" it="Priorità"/>
@@ -34,8 +34,8 @@
 				<en_high base="High" en="High" it="alto"/>
 				<en_default_tag base="Default tag" en="Default tag" it="tag predefinito"/>
 				<en_show_to_all_in_tag base="Show to all in Tag" en="Show to all in Tag" it="Mostra a tutti in Tag"/>
-				<en_deadline_days base="Deadline days" en="Deadline days" it="giorni Deadline"/>
-				<en_background base="Background" en="Background" it="sfondo"/>
+				<en_deadline_days base="Deadline days" en="Deadline days" it="G. prima/dopo"/>
+				<en_background base="Background" en="Background" it="Sfondo"/>
 				<en_text_color base="Text color" en="Text color" it="Colore del testo"/>
 				<en_text_template base="Text template" en="Text template" it="modello di testo"/>
 				<en_full_template base="Full template" en="Full template" it="modello completo"/>
@@ -43,7 +43,7 @@
 		<annotation ext="py" path="model/annotation.py">
 			<en_annotation base="Annotation" en="Annotation" it="Annotazione"/>
 				<en_action base="Action" en="Action" it="Azione"/>
-				<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
+				<en_description base="Description" en="Description" it="Descrizione"/>
 				<en_annotation_type base="Annotation type" en="Annotation type" it="tipo di annotazione"/>
 				<en_annotation_fields base="Annotation Fields" en="Annotation Fields" it="campi di annotazione"/>
 				<en_date base="Date" de="Datum" en="Date" fr="Date" it="Data"/>
@@ -69,7 +69,7 @@
 				<en_linked_fkey base="Linked fkey" en="Linked fkey" it="Fkey linked"/>
 				<en_delay_history base="Delay history" en="Delay history" it="la storia di ritardo"/>
 				<en_assigned_username base="Assigned username" en="Assigned username" it="username assegnato"/>
-				<en_background base="Background" en="Background" it="sfondo"/>
+				<en_background base="Background" en="Background" it="Sfondo"/>
 				<en_foreground base="Foreground" en="Foreground" it="Primo piano"/>
 				<en_calc_due_ts base="Calc.Due ts" en="Calc.Due ts" it="Calc.Due ts"/>
 				<en_calc_date_due base="Calc.Date due" en="Calc.Date due" it="Calc.Date causa"/>
@@ -81,14 +81,16 @@
 				<en_previous_action base="Previous Action" en="Previous Action" it="Azione Precedente"/>
 				<en_outcome base="Outcome" en="Outcome" it="Risultato"/>
 				<en_pivot_date base="Pivot date" en="Pivot date" it="data Pivot"/>
+				<en_new_annotation base="New annotation"/>
+				<en_new_action base="New action"/>
 		</annotation>
 		<annotation_type ext="py" path="model/annotation_type.py">
 			<en_annotation_type base="Annotation type" en="Annotation type" it="tipo di annotazione"/>
 				<en_annotation_types base="Annotation types" en="Annotation types" it="tipi di annotazione"/>
-				<en_code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
-				<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
+				<en_code base="Code" en="Code" it="Codice"/>
+				<en_description base="Description" en="Description" it="Descrizione"/>
 				<en_restrictions base="Restrictions" en="Restrictions" it="restrizioni"/>
-				<en_background base="Background" en="Background" it="sfondo"/>
+				<en_background base="Background" en="Background" it="Sfondo"/>
 				<en_text_color base="Text color" en="Text color" it="Colore del testo"/>
 				<en_reserved base="Reserved" de="Reserviert" en="Reserved" fr="Réservé" it="Riservato"/>
 		</annotation_type>
@@ -129,12 +131,14 @@
 				<annotation>
 				<th_annotation ext="py" path="resources/tables/annotation/th_annotation.py">
 					<en_datetime base="Datetime" en="Datetime" it="Appuntamento"/>
-								<en_autor base="Autor" en="Autor" it="autore"/>
+								<en_autor base="Autor" en="Autor" it="Autore"/>
 								<en_type base="Type" de="Art" en="Type" fr="Type" it="Tipo"/>
 								<en_date_due base="Date due" en="Date due" it="Data di scadenza"/>
 								<en_all base="All" de="Alle" en="All" fr="Tous" it="Tutto"/>
 								<en_last_upd_ base="Last upd." en="Last upd." it="Ultima upd."/>
 								<en_upd_user base="Upd.User" en="Upd.User" it="Upd.User"/>
+								<en_actions_and_annotations base="Actions and annotations"/>
+								<en_annotations base="Annotations" en="Annotations" it="annotazioni"/>
 								<en_actions base="Actions" de="Aktionen" en="Actions" fr="Actes" it="Azioni"/>
 								<en_more_info base="More info" en="More info" it="Ulteriori informazioni"/>
 								<en_confirm base="Confirm" de="Bestätigen" en="Confirm" fr="Confirmer" it="Ok"/>
@@ -153,7 +157,7 @@
 								<en_assigned_tag base="Assigned tag" en="Assigned tag" it="assegnato tag"/>
 								<en_assigned_to base="Assigned to" en="Assigned to" it="Assegnato a"/>
 								<en_confirm_action base="Confirm Action" en="Confirm Action" it="confermare Azione"/>
-								<en_cancelling_reason base="Cancelling reason" en="Cancelling reason" it="motivo Annullamento"/>
+								<en_cancelling_reason base="Cancelling reason" en="Cancelling reason" it="Annullato per"/>
 								<en_cancel_action base="Cancel Action" en="Cancel Action" it="Annulla azione"/>
 								<en_details base="Details" en="Details" it="Dettagli"/>
 								<en_delay_action base="Delay Action" en="Delay Action" it="Azione di ritardo"/>
@@ -162,7 +166,7 @@
 								<en_rescheduling_user base="Rescheduling user" en="Rescheduling user" it="utente Ripianificazione"/>
 								<en_reschedule_action base="Reschedule Action" en="Reschedule Action" it="riprogrammare Azione"/>
 								<en_action_action_type_id_description base="Action $@action_type_id.description" en="Action $@action_type_id.description" it="Azione $@action_type_id.description"/>
-								<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
+								<en_description base="Description" en="Description" it="Descrizione"/>
 				</th_annotation>
 			</annotation>
 				<annotation_type>

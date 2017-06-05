@@ -1,6 +1,28 @@
 
 
 var genropatches = {};
+genropatches.places = function(){
+    var placeOnScreenAroundElement = dijit.placeOnScreenAroundElement;
+    dijit.placeOnScreenAroundElement = function(
+        /* DomNode */       node,
+        /* DomNode */       aroundNode,
+        /* Object */        aroundCorners,
+        /* Function */      layoutNode){
+
+        var result = placeOnScreenAroundElement(node,aroundNode,aroundCorners,layoutNode);
+        var bodyWidth = dojo.body().clientWidth;
+        var coords = dojo.coords(node);
+        var delta = bodyWidth-(coords.l+coords.w+5);
+        if(delta<0){
+            node.style.left = parseInt(node.style.left)+delta+'px';
+            result.w = result.w + result.overflow;
+            result.overflow = null;
+        }
+        //console.log('result',result);
+        return result;
+    };
+
+};
 genropatches.forEachError = function(){
     var fe = dojo.forEach;
     dojo['forEach'] = function(arr,cb,scope){

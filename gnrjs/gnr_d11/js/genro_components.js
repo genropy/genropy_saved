@@ -18,7 +18,7 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
                 sourceNode.attr[k] = attributes[k];
             }else{
                 for(var c in catchersHandlers){
-                    if(k.indexOf(c+'_')==0){
+                    if(k.indexOf(c+'_')===0){
                         sourceNode.attr[k] = attributes[k];
                         sourceNode.gnrwdg.catchers[k] = 'catch_'+c;
                         break;
@@ -59,7 +59,7 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
             sc.forEach(function(n){
                 delete n.attr.tag;
                 subtag_items.setItem(n.label,children.popNode(n.label));
-            })
+            });
             subtag_items._subtag_handler = this.subtags[tag];
             result[tag] = subtag_items;
         }
@@ -146,7 +146,11 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
         kw['connect_onOpen'] = function(){
             var wdg = this.widget;
             if(modal){
-                genro.nodeById('_gnrRoot').setHiderLayer(true,{z_index:1000,opacity:'0.4'});
+                genro.nodeById('_gnrRoot').setHiderLayer(true,{z_index:1000,opacity:kw.hiderOpacity || 0,
+                                                connect_onclick:function(){
+                                                    genro.publish({topic:'close',nodeId:ddbId});
+                                                }
+                                                                });
             }
             setTimeout(function(){
                 wdg.resize();
@@ -176,6 +180,8 @@ dojo.declare("gnr.widgets.MenuDiv", gnr.widgets.gnrwdg, {
         var label = objectPop(kw,'label');
         var disabled = objectPop(kw,'disabled');
         var parentForm = objectPop(kw,'parentForm');
+        buttonkw.hidden = objectPop(kw,'hidden');
+
         var tip = objectPop(kw,'tip');
         iconClass = iconClass? 'iconbox ' +iconClass :null;
         var box_kw = objectUpdate({_class:'menuButtonDiv buttonDiv',disabled:disabled,tip:tip},buttonkw);
@@ -191,10 +197,201 @@ dojo.declare("gnr.widgets.MenuDiv", gnr.widgets.gnrwdg, {
             box._('div',{_class:iconClass});
         }
 
-        kw['_class'] = kw['_class'] || 'smallmenu';
-        kw['modifiers'] = kw['modifiers'] || '*';
+        kw._class = kw._class || 'smallmenu';
+        kw.modifiers = kw.modifiers || '*';
         return box._('menu',kw);
     }
+});
+
+dojo.declare("gnr.widgets.ColorTextBox", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw, children){
+        var chromapars = objectExtract(kw,'colors,steps,menupath,mode,extraLines');
+        var gnrwdg = sourceNode.gnrwdg;
+        kw._autoselect=true;
+        sourceNode.attr._workspace = true;
+        sourceNode.attr.mode = chromapars.mode;
+        sourceNode.attr.colors = chromapars.colors;
+        sourceNode.attr.steps = chromapars.steps;
+        gnrwdg.extraLines = chromapars.extraLines;
+        gnrwdg.menupath = chromapars.menupath || '#WORKSPACE.colormenu';
+        var value = kw.value;
+        if(!value){
+            console.error('Missing value in ColorTextBox');
+            return;
+        }
+        kw.background = '^#WORKSPACE.currentBackground';
+        kw.color = '^#WORKSPACE.currentForeground';
+        var tb = sourceNode._('textbox',kw);
+        gnrwdg.tbNode = tb.getParentNode();
+        tb._('comboMenu',{'storepath':gnrwdg.menupath,
+                          '_class':'menupane colormenu',
+                          'selected_color':value.replace('^','')
+                     });
+        tb._('dataController',{script:'sn.gnrwdg.setTextBoxColors();','v':kw.value,sn:sourceNode});
+        if(!window.chroma){
+            genro.dom.loadJs('/_rsrc/js_libs/chroma.min.js',function(){
+                gnrwdg.loadMenuData();
+                gnrwdg.setTextBoxColors();
+            });
+        }else{
+            gnrwdg.loadMenuData();
+            gnrwdg.setTextBoxColors();
+        }
+        return tb;
+    },
+
+    gnrwdg_setTextBoxColors:function(){
+        var tbNode = this.sourceNode.gnrwdg.tbNode;
+        this.sourceNode.setRelativeData('^#WORKSPACE.currentBackground',null);
+        this.sourceNode.setRelativeData('^#WORKSPACE.currentForeground',null);
+        var v = tbNode.getAttributeFromDatasource('value');
+
+        if(!v){
+            tbNode.setAttributeInDatasource('value',null);
+            return;
+        }
+        var c;
+        try{
+            c = chroma(v);
+        }catch(e){
+            return;
+        }
+        var mode = this.sourceNode.getAttributeFromDatasource('mode') || 'hex';
+        var csscolor = mode=='rgba'? c.css():c.hex();
+        if(csscolor!=v){
+            this.tbNode.widget.setValue(csscolor,true);
+        }
+        var foreground = chroma.contrast(csscolor,"white")>chroma.contrast(csscolor,"#444")?"white":"#444";
+        this.sourceNode.setRelativeData('^#WORKSPACE.currentBackground',csscolor);
+        this.sourceNode.setRelativeData('^#WORKSPACE.currentForeground',foreground);
+    },
+
+    gnrwdg_loadMenuData:function(){
+        var kw = this.sourceNode.currentAttributes();
+        var mode = kw.mode || 'hex';
+        var b = new gnr.GnrBag();
+        var colors = kw.colors || genro.getData('app_preference.sys.theme.palette_colors') || 'black,white,red,green,yellow,blue,purple';
+        var steps = kw.steps || genro.getData('app_preference.sys.theme.palette_steps') || 20;
+        var s = chroma.scale(colors.split(',')).colors(steps);
+        var foreground,caption,csscolor,colorcaption;
+        var rescontent;
+        var opSteps = [1.0,0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1];
+        var opacityCb = function(color,foregroundColor){
+            var result = new gnr.GnrBag();
+            opSteps.forEach(function(v,idx){
+                var hcolor = chroma(color).alpha(v);
+                var hf = v>=0.5?foregroundColor:"#444";
+                var hcsscolor = hcolor.css();
+                var hcaption = '<div style="width:5em;text-align:right;padding-right:5px;background:'+hcsscolor+';"><div style="display:inline-block;font-family:courier;color:'+hf+'">'+v*100+'%</div></div>';
+                result.setItem('r_'+idx,null,{caption:hcaption,color:hcsscolor,foregroundColor:hf});
+            });
+            return result;
+        };
+        var l = s.forEach(function(n,idx){
+            foreground = chroma.contrast(n,"white")>chroma.contrast(n,"#444")?"white":"#444";
+            csscolor = n;
+            rescontent = null;
+            if(mode=='rgba'){
+                csscolor = chroma(n).css();
+                var c = n;
+                var fc = foreground;
+                rescontent = new gnr.GnrBagCbResolver({method:function(){
+                    return opacityCb(c,fc);
+                }},true);
+            }
+            caption = '<div style="width:100%;text-align:left;padding-left:5px;background:'+csscolor+';"><div style="display:inline-block;font-family:courier;color:'+foreground+'">'+csscolor+'</div></div>';
+            b.setItem('r_'+idx,rescontent,{caption:caption,color:csscolor,foregroundColor:foreground});
+        });
+        if(this.extraLines){
+            b.setItem('r_'+b.len(),null,{caption:'-'});
+
+            this.extraLines.split(',').forEach(function(l,idx){
+                b.setItem('r_'+b.len(),null,{caption:l,color:l});
+            });
+        }
+        this.sourceNode.setRelativeData(this.menupath,b);
+    },
+    gnrwdg_setColors:function(){
+        this.loadMenuData();
+    },
+    gnrwdg_setSteps:function(){
+        this.loadMenuData();
+    },
+    gnrwdg_setMode:function(){
+        this.loadMenuData();
+    },
+    cell_onCreating:function(gridEditor,colname,colattr) {
+        console.log('cell_onCreating');
+
+        //colattr['onCreated'] = 'this.widget.focusNode.focus()';
+    },
+
+    cell_onDestroying:function(sourceNode,gridEditor,editingInfo){
+        console.log('cell_onDestroying');
+    }
+        
+
+});
+
+dojo.declare("gnr.widgets.ColorFiltering", gnr.widgets.gnrwdg, {
+
+    createContent:function(sourceNode, kw, children){
+        var value = kw.value;
+        var gnrwdg = sourceNode.gnrwdg;
+        sourceNode.attr._workspace = true;
+        if(!value){
+            console.error('Missing value in ColorTextBox');
+            return;
+        }
+        kw.callback = function(kw){
+            var _id = kw._id;
+            var _querystring = kw._querystring;
+            var colorsDict = chroma.colors;
+            var data = objectKeys(colorsDict).sort().map(function(n){
+                return {name:n,_pkey:colorsDict[n],color:'<div style="background:'+colorsDict[n]+';">&nbsp;&nbsp;<div>',caption:n};
+            });
+            var cbfilter = function(n){return true;};
+            if(_querystring){
+                _querystring = _querystring.slice(0,-1).toLowerCase();
+                cbfilter = function(n){return n.name.toLowerCase().indexOf(_querystring)>=0;};
+            }else if(_id){
+                cbfilter = function(n){return n._pkey==_id;};
+            }
+            data = data.filter(cbfilter);
+            return {headers:'name:Color,color:Sample',data:data};
+        };
+        kw.background = '^#WORKSPACE.currentBackground';
+        kw.color = '^#WORKSPACE.currentForeground';
+        kw.auxColumns='name,color';
+        kw.hasDownArrow =true;
+        kw.limit = 0;
+        var tb = sourceNode._('callbackSelect',kw);
+        gnrwdg.tbNode = tb.getParentNode();
+
+        tb._('dataController',{script:'sn.gnrwdg.setTextBoxColors(v);','v':kw.value,sn:sourceNode});
+        if(!window.chroma){
+            genro.dom.loadJs('/_rsrc/js_libs/chroma.min.js',function(){
+                gnrwdg.setTextBoxColors();
+            });
+        }else{
+            gnrwdg.setTextBoxColors();
+        }
+        return tb;
+    },
+
+    gnrwdg_setTextBoxColors:function(){
+        var tbNode = this.sourceNode.gnrwdg.tbNode;
+        var v = tbNode.getAttributeFromDatasource('value');
+        if(!v){
+            tbNode.setAttributeInDatasource('value',null);
+            return;
+        }
+        var foreground = chroma.contrast(v,"white")>chroma.contrast(v,"#444")?"white":"#444";
+        this.sourceNode.setRelativeData('^#WORKSPACE.currentBackground',v);
+        this.sourceNode.setRelativeData('^#WORKSPACE.currentForeground',foreground);
+    },
+
+
 });
 
 dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
@@ -373,7 +570,7 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
                     data.popNode(n.label);
                 }
             });
-            if(data.len()==0){
+            if(data.len()===0){
                 data.getParentNode().setValue(null);
             }else if(data.len()==1 || !data.getNodeByValue('mv_main',true)){
                 data.setItem('#0.mv_main',true);
@@ -707,7 +904,7 @@ dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
         var contentNode = children.getNode('center');
         genro.assert(contentNode,'missing contentNode:  attach to form.center a layout widget');
         if(contentNode.attr.tag=='autoslot'){
-            var contentNode = children.getNode('center.#0');
+            contentNode = children.getNode('center.#0');
             genro.assert(contentNode,'missing contentNode:  attach to form.center a layout widget');
         }
         contentNode.attr['_class'] =  (contentNode.attr['_class'] || '') + ' fh_content';
@@ -787,7 +984,7 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
     },
     createContent:function(sourceNode, kw,children) {
         kw['contentWidget'] = 'FramePane';
-        kw['center_overflow'] = 'hidden'
+        kw['center_overflow'] = 'hidden';
         var pane = sourceNode._('PalettePane',kw);
         if(kw.viewResource){
             return this.createContent_remoteTableHandler(pane,sourceNode,kw);
@@ -803,6 +1000,7 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
         return pane._('ContentPane','remoteTH',{
             overflow:'hidden',
             remote:'th_remoteTableHandler',
+            remote_py_requires:'th/th:TableHandler',
             remote_thkwargs:kw
         });
     },
@@ -841,10 +1039,15 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
 
 });
 
-dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
-    createContent:function(sourceNode, kw) {
+dojo.declare("gnr.widgets.TreeFrame", gnr.widgets.gnrwdg, {
+    getRoot:function(sourceNode,kw){
+        return sourceNode._('FramePane',kw);
+    },
+    subtags : {column:true},
+    createContent:function(sourceNode, kw,children,subTagItems) {
         
-        var frameCode = kw.frameCode = kw.paletteCode;
+        kw.frameCode = kw.frameCode || kw.paletteCode;
+        var frameCode = kw.frameCode;
         var editable = objectPop(kw, 'editable');
         var treeId = objectPop(kw, 'treeId') || frameCode + '_tree';
         var storepath = objectPop(kw, 'storepath') || '.store';
@@ -863,8 +1066,7 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
                         };
         objectUpdate(tree_kwargs, objectExtract(kw, 'tree_*'));
         var searchOn = objectPop(kw, 'searchOn');
-        kw['contentWidget'] = 'FramePane';
-        var pane = sourceNode._('PalettePane',kw);
+        var pane = this.getRoot(sourceNode,kw);
         if (searchOn) {
             pane._('SlotBar',{'side':'top',slots:'*,searchOn',searchOn:true,toolbar:true});
         }
@@ -880,8 +1082,23 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
             bottom._('BagNodeEditor', {nodeId:bagNodeEditorId,datapath:'.bagNodeEditor',origin:origin});
             pane = bc._('ContentPane',{'region':'center'});
         }
-        pane._('tree', tree_kwargs);
+        if(subTagItems['column'] && subTagItems['column'].len()){
+            var tg = pane._('treegrid',tree_kwargs);
+            subTagItems['column'].forEach(function(n){
+                tg._('column',null,n.attr);
+            });
+        }else{
+            pane._('tree', tree_kwargs);
+        }
+        
         return pane;
+    }
+});
+
+dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.TreeFrame, {
+    getRoot:function(sourceNode,kw){
+        kw['contentWidget'] = 'FramePane';
+        return sourceNode._('PalettePane',kw);
     }
 });
 
@@ -1008,8 +1225,8 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
                                         hidden:'^.methodlist?=!#v',
                                         parentForm:false});
         if (this.table){
-            fb.addField('checkbox',{value:'^.no_trigger',default_value:true,
-                                label:_T('No trigger'),parentForm:false});   
+            fb.addField('checkbox',{value:'^.sql_mode',
+                                label:_T('SQL Mode'),parentForm:false});   
         }
         var grid = frame._('ContentPane',{'side':'center',overflow:'hidden'})._('quickGrid',{value:'^.match',_class:'noselect'});
         grid.getParentNode().importer_gnrwdg = this;
@@ -1092,13 +1309,16 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
             })
         }
         var that = this;
+        genro.lockScreen(true,'import_data',{thermo:true});
         genro.serverCall(this.importMethod || 'utils.tableImporterRun',{table:this.table,file_path:'=.imported_file_path',
                                                     match_index:match_index,
                                                     import_method:'=.import_method',
                                                     no_trigger:'=.no_trigger',
+                                                    timeout:3600000,
                                                     _sourceNode:buttonNode},function(result){
                                                         genro.dlg.floatingMessage(that.rootNode,{message:_T('Import finished')});
                                                         that.resetImporter();
+                                                        genro.lockScreen(false,'import_data');
                                                     });
     }
 });
@@ -1374,38 +1594,76 @@ dojo.declare("gnr.widgets.PaletteBagNodeEditor", gnr.widgets.gnrwdg, {
 
 dojo.declare("gnr.widgets.PaletteBagEditor", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
-        kw.palette_width = kw.palette_width || '500px';
-        var gnrwdg = sourceNode.gnrwdg;
-
-        var pane = sourceNode._('PalettePane', kw);
-        var path = objectPop(kw,'path');
-        var multiValuePars = objectExtract(kw,'origin,exclude')
-        var bc = pane._('BorderContainer',{background:'#EEF2F4'});
-        var left = bc._('ContentPane',{region:'left',width:'200px',_class:'noheader buttons_grid no_over',
-                        splitter:true});
-        var g = left._('quickGrid',{value:'^'+path,datamode:'attr',
-                          selfDragRows:true,
-                          selfsubscribe_onSelectedRow:function(kw){
-                                if(kw.idx>=0){
-                                    var n = this.widget.collectionStore().itemByIdx(kw.idx);
-                                    //gnrwdg.mveNode.gnrwdg.setSource(nodePath+'?#node');
-                                    gnrwdg.mveNode.gnrwdg.setSource(path+'.'+n.label+'?#node');
-                                }
-                          },
-                           onCreated:function(){
-                                var w = this.widget;
-                                setTimeout(function(){
-                                    w.updateRowCount();
-                                },1);
-                           }}) //
-        g._('column',{field:'field',name:'Cells',width:'100%'});
-        multiValuePars.tools_position = 'BL';
-        var mve = bc._('ContentPane',{region:'center',margin:'2px',overflow:'hidden'})._('MultiValueEditor','mve',multiValuePars);
-        gnrwdg.mveNode = mve.getParentNode();
+        var palette_kw = objectExtract(kw,'paletteCode,dockTo,title');
+        objectUpdate(palette_kw,objectExtract(kw,'palette_*',null,true));
+        palette_kw.palette_width = kw.palette_width || '500px';
+        var pane = sourceNode._('PalettePane', palette_kw);
+        pane._('FlatBagEditor',kw);
         return pane;
     }
 });
 
+dojo.declare("gnr.widgets.FlatBagEditor", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw) {
+        var gnrwdg = sourceNode.gnrwdg;
+        var path = objectPop(kw,'path');
+        var toolskw = objectExtract(kw,'addrow,delrow');
+
+        var multiValuePars = objectExtract(kw,'origin,exclude');
+        var box_kw = objectUpdate({background:'#EEF2F4'},objectExtract(kw,'box_*'));
+        var bc = sourceNode._('BorderContainer',box_kw);
+        var grid_region = objectPop(kw,'grid_region','left');
+        var boxpars = {region:grid_region,_class:'noheader no_over',
+                        splitter:true};
+        if(grid_region=='left' || grid_region=='right'){
+            boxpars.width = '30%';
+        }else{
+            boxpars.height = '50%';
+        }
+        var left = bc._('ContentPane',boxpars);
+        var grid_attr = {value:'^'+path,datamode:'attr',
+            selfDragRows:true,
+            selfsubscribe_onSelectedRow:function(kw){
+                  if(kw.idx>=0){
+                      var n = this.widget.collectionStore().itemByIdx(kw.idx);
+                      //gnrwdg.mveNode.gnrwdg.setSource(nodePath+'?#node');
+                      gnrwdg.mveNode.gnrwdg.setSource(path+'.'+n.label+'?#node');
+                  }
+            },
+             onCreated:function(){
+                  var w = this.widget;
+                  setTimeout(function(){
+                      w.updateRowCount();
+                  },1);
+            }
+        };
+        objectUpdate(grid_attr,objectExtract(kw,'grid_*'));
+        var g = left._('quickGrid','nodeListGrid',grid_attr);
+        g._('column',{field:'field',name:'Cells',width:'100%'});
+        var t = [];
+        if(toolskw.delrow){
+            t.push('delrow');
+            if(toolskw.delrow===true){
+                objectPop(toolskw,'delrow')
+            }
+        }       
+        if(toolskw.addrow){
+            t.push('addrow');
+            if(toolskw.addrow===true){
+                objectPop(toolskw,'addrow')
+            }
+        }
+        if(t.length){
+            g._('tools',{tools:t.join(','),
+                    custom_tools:toolskw,
+                    position:'TR'});
+        }
+        multiValuePars.tools_position = 'BL';
+        var mve = bc._('ContentPane',{region:'center',margin:'2px',overflow:'hidden'})._('MultiValueEditor','mve',multiValuePars);
+        gnrwdg.mveNode = mve.getParentNode();
+        return bc;
+    }
+});
 
 dojo.declare("gnr.widgets.BagNodeEditor", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
@@ -1439,16 +1697,10 @@ dojo.declare("gnr.widgets.BagNodeEditor", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
     contentKwargs: function(sourceNode, attributes) {
         //var topic = attributes.nodeId+'_keyUp';
-        var delay = 'delay' in attributes ? objectPop(attributes, 'delay') : 100;
         attributes.onKeyUp = function(e) {
             var sourceNode = e.target.sourceNode;
-            if (sourceNode._onKeyUpCb) {
-                clearTimeout(sourceNode._onKeyUpCb);
-            }
-            var v = e.target.value;
-            sourceNode._onKeyUpCb = setTimeout(function() {
-                sourceNode.setRelativeData('.currentValue', v);
-            }, delay);
+            genro.dom.setClass(sourceNode.getParentNode(),'activeSearch',!isNullOrBlank(e.target.value));
+            sourceNode.setRelativeData('.currentValue', e.target.value);
         };
         return attributes;
     },
@@ -1468,17 +1720,35 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         var defaultLabel = objectPop(kw, 'searchLabel') || 'Search';
         databag.setItem('menu_dtypes', searchDtypes);
         databag.setItem('caption', defaultLabel);
+        databag.setItem('searchDelay',1000);
         this._prepareSearchBoxMenu(searchOn, databag);
+        databag.setItem('value', '');
         sourceNode.setRelativeData(null, databag);
         var searchbox = sourceNode._('table', {nodeId:nodeId})._('tbody')._('tr');
-        sourceNode._('dataController', {'script':'genro.publish(searchBoxId+"_changedValue",currentValue,field)',
-            'searchBoxId':nodeId,currentValue:'^.currentValue',field:'=.field',_userChanges:true});
+        var delay = objectPop(kw, 'delay') || objectPop(search_kw, 'delay') || 100;
+        var search_kw = objectPop(kw,'search_kw') || {};
+        sourceNode._('dataController', {'script':'genro.publish(searchBoxId+"_changedValue",currentValue,field,this.evaluateOnNode(search_kw));',
+            'searchBoxId':nodeId,currentValue:'^.currentValue',field:'=.field',
+            _userChanges:true,_delay:delay,search_kw:search_kw});
         var searchlbl = searchbox._('td');
-        searchlbl._('div', {'innerHTML':'^.caption',_class:'buttonIcon'});
+        searchlbl._('div', {'innerHTML':'^.caption',_class:'buttonIcon searchboxLabel'});
         searchlbl._('menu', {'modifiers':'*',_class:'smallmenu',storepath:'.menubag',
             selected_col:'.field',selected_caption:'.caption',action:'SET .value = null;SET .currentValue = null;'});
         
-        searchbox._('td')._('div',{_class:'searchInputBox'})._('input', {'value':'^.value',connect_onkeyup:kw.onKeyUp,parentForm:false,width:objectPop(kw,'width') || '6em'});
+        searchbox._('td')._('div',{_class:'searchInputBox',connect_onclick:function(e){
+            if(e.target.tagName.toLowerCase()!='input'){
+                var that = this;
+                var finalize = function(){
+                    that.setRelativeData('.value',null);
+                    that.setRelativeData('.currentValue',null);
+                    genro.dom.removeClass(that,'activeSearch');
+                };
+                genro.publish(nodeId+"_stopSearch",{inputSourceNode:this,finalize:finalize});
+               
+            }
+        }})._('input', {'value':'^.value',connect_onkeyup:kw.onKeyUp,
+                         parentForm:false,width:objectPop(kw,'width') || '6em',
+                        connect_focus:function(){this.domNode.select()}});
         sourceNode.registerSubscription(nodeId + '_updmenu', this, function(searchOn) {
             menubag = this._prepareSearchBoxMenu(searchOn, databag);
         });
@@ -1510,7 +1780,8 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
             databag.setItem('caption', defaultLabel);
         }
         databag.setItem('menubag', menubag);
-        databag.setItem('value', '');
+        //databag.setItem('value', '');
+        //databag.setItem('currentValue',null);
     }
 
 });
@@ -1655,7 +1926,7 @@ dojo.declare("gnr.widgets.CodeEditor", gnr.widgets.gnrwdg, {
         var tree_kwargs = objectExtract(kw,'tree_*');
         sourceNode.attr.value = value;
         var gnrwdg = sourceNode.gnrwdg;
-        gnrwdg.rpcSourceBrowserGetter = objectPop(kw,'rpcSourceBrowser') || 'dev.rpcSourceBrowserGetter'//'dev.loadModuleTree';
+        gnrwdg.rpcSourceBrowserGetter = objectPop(kw,'rpcSourceBrowser') || 'dev.rpcSourceBrowserGetter';
         gnrwdg.rpcSourceCodeGetter = objectPop(kw,'rpcSourceCodeGetter') || 'dev.loadModuleElement';
         gnrwdg.rpcSourceCodeSaver = objectPop(kw,'rpcSourceCodeSaver') || 'dev.saveModuleElement';
 
@@ -1748,10 +2019,12 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
             sourceNode.registerDynAttr('columns');
         }
         gnrwdg.columns_bag = this._getColumnsBag(sourceNode,columns,subTagItems['column']);
+        var searchColumn = gnrwdg.columns_bag.getNode('#0').attr.field;
         var defaultKw = {
             autoCollapse:true,
             hideValues:true,
             background:'white',
+            searchColumn:searchColumn,
             _class:'treegrid branchtree noIcon',
             connect__expandNode:function(){
                 gnrwdg.updateScroll();
@@ -2002,7 +2275,6 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
                                 var video = top.children[0];
                                 var subH = bcdn.clientHeight - top.clientHeight;
                                 if(subH<(minH-3)){
-                                    console.log('devo risizare top')
                                     var topH = (bcdn.clientHeight-minH);
                                     video.style.height = topH+'px';
                                     video.style.width = null;
@@ -2446,6 +2718,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var columns = objectPop(kw,'columns');
         sourceNode.attr.fields = objectPop(kw,'fields');
         gnrwdg.guessColumns = sourceNode.attr.fields;
+        gnrwdg.infoInCellAttributes = objectPop(kw,'infoInCellAttributes');
         if(!columns){ 
             columns = '^#WORKSPACE.columns';
             sourceNode.registerDynAttr('columns');
@@ -2488,7 +2761,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         kw.structpath = kw.structpath || '#WORKSPACE.struct';
         kw.controllerPath = '#WORKSPACE.controllers';
         kw.frameTarget = kw.frameTarget===false?false:true;
-        kw.selfsubscribe_addrow= kw.selfsubscribe_addrow || 'this.widget.addRows($1._counter,$1.evt)';
+        kw.selfsubscribe_addrow= kw.selfsubscribe_addrow || '$1 = $1 || {}; this.widget.addRows($1._askResult? [$1._askResult]:$1._counter,$1.evt);';
         kw.selfsubscribe_delrow= kw.selfsubscribe_delrow || 'this.widget.deleteSelectedRows();';
         kw.selfsubscribe_export= kw.selfsubscribe_export || function(kwargs){
             this.widget.serverAction({command:"export", opt:{rawData:true,
@@ -2542,6 +2815,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
                                                  localized_data:true,
                                                  ask:{title:'Export selection',skipOn:'Shift',
                                                  fields:[{name:'downloadAs',lbl:'Download as'},
+                                                          {name:'allRows',label:'All rows',wdg:'checkbox'},
                                                          {name:'export_mode',wdg:'filteringSelect',values:'xls:Excel,csv:CSV',lbl:'Mode'},
                                                          {name:'localized_data',wdg:'checkbox',label:'Localized data'}]
                                              }}
@@ -2585,6 +2859,8 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         }else{
             fields = fields.split(',');
         }
+        var infoInCellAttributes = this.infoInCellAttributes;
+        var columns_extra = this.columns_extra || {};
         rows.forEach(function(n){
             var r = store.rowFromItem(n);
             fields.forEach(function(field){
@@ -2592,12 +2868,15 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
                 if (!(field in types)){
                     types[field]=null
                     sizes[field]=0
+                    if(infoInCellAttributes){
+                        columns_extra[field] = n.getValue().getAttr(field);
+                    }
                 }
                 if(!isNullOrBlank(v)){
                     dtype=types[field]
                     if (!dtype) {
                         dtype=guessDtype(v)
-                        types[field]=dtype
+                        types[field]=dtype;
                     }   
                     w = 8 
                     if (dtype=='D'){w = 8}
@@ -2620,6 +2899,9 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
             if(!types[t]){types[t]='T'}
             sizes[t]=(2 +(sizes[t]|| 8)*.5)+'em'
         }
+        if(objectNotEmpty(columns_extra)){
+            this.columns_extra = columns_extra;
+        }
         return {types:types,sizes:sizes}
     },
     gnrwdg_setFields:function(fields){
@@ -2629,7 +2911,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     gnrwdg_getColumnsFromValue:function(value){
         var columns = new gnr.GnrBag();
         var columns_extra = this.columns_extra || {};
-        var fields= this.sourceNode.getAttributeFromDatasource('fields')
+        var fields= this.sourceNode.getAttributeFromDatasource('fields');
         var guess = this.guessDtypeAndWidth(value, fields);
         var kw;
         for (var label in guess.types){
@@ -2670,6 +2952,7 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
         var gnrwdg = sourceNode.gnrwdg;
         var selectedBranch = kw.selectedBranch || '#WORKSPACE.selectedBranch';
         var treekw = objectExtract(kw,'storepath,labelAttribute');
+        var barkw = objectExtract(kw,'addrow,delrow,addcol,searchOn,export');
         sourceNode.attr._workspace = true;
         objectUpdate(treekw,{hideValues:true,selectedLabelClass:'selectedTreeNode',_class:"branchtree noIcon",autoCollapse:true});
         objectUpdate(treekw,objectExtract(kw,'tree_*'));
@@ -2687,23 +2970,41 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
         gnrwdg.treeNode = tree.getParentNode();
         var frameCode = 'bagEditor_'+ genro.getCounter();
         var gridId = frameCode+'_grid';
-        var gridframe = bc._('framePane',{frameCode:frameCode,region:'center',target:gridId});
-        var barkw = objectExtract(kw,'addrow,delrow,addcol');
+        var gridframe = bc._('framePane',{frameCode:frameCode,region:'center',target:gridId,margin_left:'4px'});
         if(objectNotEmpty(barkw)){
-            var slots = '*,'+['delrow','addrow','addcol'].filter(function(n){return n in barkw}).join(',')+',5';
+            var slots = '*,'+['delrow','addrow','addcol','export','searchOn'].filter(function(n){return n in barkw}).join(',')+',5';
             var bar = gridframe._('SlotBar',{'side':'top',slots:slots,toolbar:true});
-            bar._('SlotButton','delrow',{label:_T('Delete row'),publish:'delrow',iconClass:'iconbox delete_row'});
-            bar._('SlotButton','addrow',{label:_T('Add row'),publish:'addrow',iconClass:'iconbox add_row'});
-            bar._('SlotButton','addcol',{label:_T('Add column'),publish:'addcol'});
-
+            if(barkw.delrow){
+                bar._('SlotButton','delrow',{label:_T('Delete row'),publish:'delrow',iconClass:'iconbox delete_row'});
+            }
+            if(barkw.addrow){
+                bar._('SlotButton','addrow',{label:_T('Add row'),publish:'addrow',iconClass:'iconbox add_row'});
+            }
+            if(barkw.addcol){
+                bar._('SlotButton','addcol',{label:_T('Add column'),publish:'addcol'});
+            }
+            if(barkw.export){
+                bar._('SlotButton','export',{iconClass:'iconbox export',
+                                                 opt_export_mode:'xls',
+                                                 opt_downloadAs:'',
+                                                 opt_localized_data:true,
+                                                 publish:'serverAction',command:'export',
+                                                 ask:{title:'Export selection',skipOn:'Shift',
+                                                 fields:[{name:'opt_downloadAs',lbl:'Download as'},
+                                                          {name:'opt_allRows',label:'All rows',wdg:'checkbox'},
+                                                         {name:'opt_export_mode',wdg:'filteringSelect',values:'xls:Excel,csv:CSV',lbl:'Mode'},
+                                                         {name:'opt_localized_data',wdg:'checkbox',label:'Localized data'}]
+                                             }
+                                         })
+            }
         }
         var gridkw = objectExtract(kw,'grid_*');
         gridkw.nodeId = gridId;
+        gridkw.frameCode = frameCode;
         gridkw.selfDragRows = true;
         gridkw.datapath = '#WORKSPACE.grid';
         var branchPath = kw.branchPath || '#WORKSPACE.branchBag';
-
-
+        gridkw.controllerPath = gridkw.datapath;
         gridkw.structpath = '#WORKSPACE.grid.struct';
         gridkw.store = frameCode;
         gridkw.selfsubscribe_delrow = function(){
@@ -2744,17 +3045,20 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
         struct.setItem('view_0.rows_0',header);
         var store = new gnr.GnrBag();
         var i = 0;
+        var f;
         header.setItem('cell_0',null,{field:'nodelabel',width:'12em',name:'Node Label'});
         if(rows && rows.len && rows.len()){
-            rows.forEach(function(n){
+            rows._nodes.forEach(function(n,idx){
                     var attr = objectUpdate({},n.attr);
                     for(var k in attr){
-                        if(!header.getNodeByAttr('field',k)){
-                            header.setItem('cell_'+genro.getCounter(),null,{field:k,width:'10em',name:k,dtype:guessDtype(attr[k]),edit:true});
+                        f = k.replace(/\W/g, '_');
+                        attr[f] = objectPop(attr,k);
+                        if(!header.getNodeByAttr('field',f)){
+                            header.setItem('cell_'+genro.getCounter(),null,{field:f,width:'10em',name:f,dtype:guessDtype(attr[f]),original_field:k,edit:true});
                         }
                     }
                     attr.nodelabel = n.label;
-                    store.setItem(n.label,new gnr.GnrBag(attr));
+                    store.setItem('r_'+idx,new gnr.GnrBag(attr));
                     i++;
                 },'static');
         }
@@ -3587,8 +3891,10 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             var mb = this.multibuttonSource;
             if (value && mb){
                 value = value.split(',');
+                var identifier = this.identifier;
                 mb.forEach(function(n){
-                    genro.dom.setClass(n,'multibutton_selected',value.indexOf(n.label)>=0);
+                    var code = n.attr[identifier] || n.attr['code'] || n.label;
+                    genro.dom.setClass(n,'multibutton_selected',value.indexOf(code)>=0);
                 });
             } 
         }
@@ -3648,8 +3954,10 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             },'static');
             if(!currentSelected && this.mandatory && this.multibuttonSource.len()){
                 var currentSelectedNode = this.multibuttonSource.getNode('#0');
-                currentSelectedNode.attr['_class'] +=' multibutton_selected';
-                currentSelected = currentSelectedNode.attr[this.identifier] || currentSelectedNode.attr['code'] || currentSelectedNode.label;
+                if(currentSelectedNode && !currentSelectedNode.attr.action){
+                    currentSelectedNode.attr['_class'] +=' multibutton_selected';
+                    currentSelected = currentSelectedNode.attr[this.identifier] || currentSelectedNode.attr['code'] || currentSelectedNode.label;
+                }
             }
             sourceNode.setRelativeData(sourceNode.attr.value,currentSelected);
 
@@ -3662,7 +3970,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         content_kw._class = objectPop(content_kw,'class');
         var captionKey = caption || this.caption;
         var codeKey = identifier || this.identifier;
-        var caption = objectPop(kw,captionKey);
+        var caption = kw[captionKey];
         var code = kw[codeKey] || n.label;
         var btn_class = code==currentSelected?'multibutton multibutton_selected':'multibutton';
         var customDelete = kw.deleteAction;
@@ -3680,7 +3988,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         kw._class = (kw._class || '') +' '+btn_class;
         content_kw.innerHTML = _F(caption,this.caption_format,this.caption_dtype);
         content_kw._class = (content_kw._class || '') + ' '+'multibutton_caption';
-        var btn = mb._('lightbutton',code,kw)
+        var btn = mb._('lightbutton',kw);
         btn._('div',content_kw);
         if(deleteAction){
             btn._('div',{_class:'multibutton_closer framecloserIcon'+(this.deleteSelectedOnly?' deleteSelectedOnly':''),
@@ -3874,6 +4182,143 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
+    objtype:null,
+    createContent:function(sourceNode,kw){
+        var gnrwdg = sourceNode.gnrwdg;
+        sourceNode.attr.nodeId = objectPop(kw,'nodeId');
+        if(objectPop(kw,'_workspace')!==false){
+            sourceNode.attr._workspace = true;
+        }
+        var userObjectPars = objectExtract(kw,'table,flags,objtype');
+        userObjectPars.objtype = userObjectPars.objtype || this.objtype;
+        gnrwdg.newcaption  = _T(objectPop(kw,'newcaption') || 'New '+userObjectPars.objtype);
+        gnrwdg.table = userObjectPars.table;
+        objectUpdate(userObjectPars,objectExtract(kw,'userobject_*'));
+        gnrwdg.userObjectPars = userObjectPars;
+        var bc = sourceNode._('BorderContainer',objectExtract(kw,'top,bottom,left,right,border,margin,height,width,rounded,region,side'));
+        if(kw.configurator){
+            gnrwdg.prepareConfiguratorFrame(bc,kw);
+        }
+        gnrwdg.prepareViewerFrame(bc,kw);
+        return bc;
+    },
+
+    gnrwdg_resetMenuData:function(){
+        var n = this.sourceNode.getRelativeData('#WORKSPACE').getNode('loadMenu');
+        n.getResolver().reset();
+    },
+
+    gnrwdg_setLoadMenuData:function(){
+        this.sourceNode.setRelativeData('#WORKSPACE.loadMenu',
+                                        genro.dev.userObjectMenuData(objectUpdate({},this.userObjectPars),
+                                                    [{pkey:'__newobj__',caption:this.newcaption}]));
+    },
+
+    gnrwdg_prepareViewerFrame:function(bc,kw){
+        //override
+        var frame = bc._('FramePane','viewer',{region:'center',frameCode:this.sourceNode.attr.nodeId+'_viewer'});
+        this.viewerFrame(frame);
+    },
+
+
+    gnrwdg_viewerFrame:function(frame,kw){
+        //override
+    },
+
+    gnrwdg_configuratorFrame:function(frame,kw){
+        //override
+    },
+
+    gnrwdg_prepareConfiguratorFrame:function(bc,kw){
+        var confkw = objectPop(kw,'configurator');
+        confkw = confkw===true?{region:'right',drawer:(kw.userObjectId && kw.userObjectId!='__newobj__')?'close':true,splitter:true,border_left:'1px solid #ccc',width:'320px'}:configurator;        
+        this.setLoadMenuData();
+        var frame = bc._('FramePane','configurator',objectUpdate(confkw,{frameCode:this.sourceNode.attr.nodeId+'_conf'}));
+        var bar = frame._('slotBar',{toolbar:true,side:'top',slots:'5,loadMenu,2,objTitle,*,saveBtn,deletebtn,5'});
+        var that = this;
+        bar._('div','objTitle',{innerHTML:'^#WORKSPACE.metadata.description?=(#v || "New")',font_weight:'bold',font_size:'.9em',color:'#666'});
+        bar._('slotButton','loadMenu',{iconClass:'iconbox folder',label:'Load',
+            menupath:'#WORKSPACE.loadMenu',action:function(item){
+                that.loadObject(item.pkey);
+        }});
+        bar._('slotButton','saveBtn',{iconClass:'iconbox save',label:'Save',
+                                        action:function(){
+                                            that.saveObject();
+                                        }});
+        bar._('slotButton','deletebtn',{'label':_T('Delete'),iconClass:'iconbox trash',
+                    action:function(){
+                        that.deleteCurrentObject();
+                    }});
+
+        this.configuratorFrame(frame,kw);
+    },
+
+
+    gnrwdg_userObjectData:function(){
+        //override
+        return new gnr.GnrBag();
+    },
+
+    gnrwdg_deleteCurrentObject:function() {
+        var metadata = this.sourceNode.getRelativeData('#WORKSPACE.metadata');
+        var pkey = metadata.getItem('pkey');
+        var that = this;
+        if(pkey){
+            genro.serverCall('_table.adm.userobject.deleteUserObject',{pkey:pkey},function(){
+                that.loadObject('__newobj__');
+                that.resetMenuData();
+            });
+        }else{
+             that.loadObject('__newobj__');
+        }
+    },
+
+    gnrwdg_saveObject:function() {
+        var datapath = this.sourceNode.absDatapath('#WORKSPACE.metadata');
+        var instanceCode = this.sourceNode.getRelativeData('#WORKSPACE.metadata.code');
+        var data = this.userObjectData();
+        var that = this;
+        saveCb = function(dlg) {
+            var metadata = genro.getData(datapath);
+            metadata.setItem('flags',that.userObjectPars.flags);
+            genro.serverCall('_table.adm.userobject.saveUserObject',
+                            {'objtype':that.userObjectPars.objtype,'metadata':metadata,
+                            'data':data,table:that.userObjectPars.table},
+                            function(result) {
+                                dlg.close_action();
+                                metadata.setItem('pkey',result.getValue());
+                                that.resetMenuData();
+                            });
+        };
+        genro.dev.userObjectDialog(instanceCode ? 'Save ' + this.userObjectPars.objtype +' '+instanceCode : 'Save '+this.newcaption,datapath,saveCb);
+    },
+
+    gnrwdg_loadObject:function(userObjectId,firstLoad){
+        this.onLoadingObject(userObjectId,firstLoad);
+        if(userObjectId=='__newobj__'){
+            this.sourceNode.setRelativeData('#WORKSPACE.metadata',null);
+            this.onLoadedObject(null,userObjectId,firstLoad);
+        }else{
+            var that = this;
+            genro.serverCall('_table.adm.userobject.loadUserObject', {pkey:userObjectId}, 
+            function(result){
+                that.sourceNode.setRelativeData('#WORKSPACE.metadata',new gnr.GnrBag(result.attr));
+                that.onLoadedObject(result,userObjectId,firstLoad);
+            });
+        }
+    },
+
+    gnrwdg_onLoadingObject:function(userObjectId,firstLoad){
+        //override
+    },
+
+    gnrwdg_onLoadedObject:function(result,userObjectId,firstLoad){
+        //override
+    },
+});
+
+
 
 dojo.declare("gnr.widgets.SharedObject", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw){
@@ -3883,6 +4328,7 @@ dojo.declare("gnr.widgets.SharedObject", gnr.widgets.gnrwdg, {
         sourceNode.gnrwdg.handleSubscriptions();
         return dc;
     },
+
     gnrwdg_handleSubscriptions:function(old_shared_id){
         var sharedKw = this.sourceNode.evaluateOnNode(this.sharedKw);
         var shared_id=objectPop(sharedKw,'shared_id');
@@ -3891,7 +4337,7 @@ dojo.declare("gnr.widgets.SharedObject", gnr.widgets.gnrwdg, {
             genro.som.unregisterSharedObject(old_shared_id);
         }
         if(shared_id && path){
-            genro.som.registerSharedObject(path,shared_id,sharedKw);
+            genro.som.registerSharedObject(this.sourceNode.absDatapath(path),shared_id,sharedKw);
         }
     }
 });
@@ -3946,6 +4392,9 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         gnrwdg.identifier = objectPop(kw,'identifier')
         gnrwdg.labelAttribute = objectPop(kw,'labelAttribute')
         gnrwdg._valuelabel = kw._valuelabel;
+        gnrwdg.remoteValuesRpc = objectPop(kw,'remoteValues');
+        gnrwdg.valuesCb = objectPop(kw,'valuesCb');
+        var onOpening;
         if(codeSeparator!==false){
             codeSeparator =  codeSeparator || ':'
         }
@@ -3956,14 +4405,12 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         }
         if(!values){
             var table = objectPop(originalKwargs,'table');
-            if(table){
+            if(table || gnrwdg.remoteValuesRpc){
                 var hierarchical = objectPop(kw,'hierarchical');
                 var condition_kw = objectExtract(originalKwargs,'condition_*',null,hierarchical);
                 var condition = objectPop(originalKwargs,'condition');
                 var dbstore = objectPop(originalKwargs,'dbstore');
-                
                 var query_kw = {};
-
                 objectUpdate(query_kw,condition_kw)
                 query_kw.table = table;
                 if(hierarchical){
@@ -3993,6 +4440,14 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
                 gnrwdg.query_kw = query_kw;
                 values = sourceNode.gnrwdg.getRemoteValuesFromQuery();
                 has_code = true;
+            }else if(gnrwdg.valuesCb){
+                popup = true;
+                has_code = true;
+                onOpening = function(){
+                    var v = funcApply(gnrwdg.valuesCb,null,sourceNode);
+                    gnrwdg.has_code = (codeSeparator && v)?v.indexOf(codeSeparator)>=0:false;
+                    gnrwdg.setValues(v);
+                }
             }
         }
         var rootNode = sourceNode;
@@ -4004,7 +4459,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             objectUpdate(tbkw,originalKwargs);
             tb = sourceNode._('textbox',tbkw);
             gnrwdg.textboxNode = tb.getParentNode(); 
-            rootNode = tb._('comboArrow')._('tooltipPane',{placingId:textBoxId})._('div',{padding:'5px',overflow:'auto',max_height:'300px',min_width:'200px'});
+            rootNode = tb._('comboArrow')._('tooltipPane',{placingId:textBoxId,onOpening:onOpening})._('div',{padding:'5px',overflow:'auto',max_height:'300px',min_width:'200px'});
         }else{
             table_kw['tooltip']=objectPop(kw,'tooltip');
         }
@@ -4171,8 +4626,11 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
     gnrwdg_getRemoteValuesFromQuery:function(){
         if(this.hierarchical){
             return genro.serverCall('_table.'+this.query_kw.table+'.getHierarchicalData',objectUpdate({_sourceNode:this.sourceNode},this.query_kw))
+        }else{
+            var rpc = this.remoteValuesRpc || 'app.getValuesString';
+            return genro.serverCall(rpc,objectUpdate({_sourceNode:this.sourceNode},this.query_kw));
         }
-        return genro.serverCall('app.getValuesString',objectUpdate({_sourceNode:this.sourceNode},this.query_kw));
+        
     },
 
     gnrwdg_alignCheckedValues:function(){
@@ -4643,8 +5101,13 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     
     slot_searchOn:function(pane,slotValue,slotKw,frameCode){
         var div = pane._('div'); //{'width':slotKw.width || '15em'}
-        var nodeId = objectPop(slotKw,'nodeId') || frameCode+'_searchbox';
-        div._('SearchBox', {searchOn:slotValue,nodeId:nodeId,datapath:'.searchbox',parentForm:false,'width':slotKw.width});
+        var searchId = objectPop(slotKw,'nodeId') || frameCode+'_searchbox';
+        var searchCode = objectPop(slotKw,'searchCode');
+        if(searchCode){
+            searchId = searchCode+'_searchbox';
+        }
+        div._('SearchBox', {searchOn:slotValue,nodeId:searchId,datapath:'.searchbox',parentForm:false,
+                            'width':objectPop(slotKw,'width'),search_kw:slotKw});
     },
     slot_stackButtons:function(pane,slotValue,slotKw,frameCode){
         var scNode = objectPop(slotKw,'stackNode');
@@ -4665,6 +5128,8 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     slot_fieldsTree:function(pane,slotValue,slotKw,frameCode){
         var table = objectPop(slotKw,'table');
         table = pane.getParentNode().currentFromDatasource(table);
+        var checkPermissions = objectPop(slotKw,'checkPermissions');
+
         var dragCode = objectPop(slotKw,'dragCode');
         var treeKw = objectExtract(slotKw,'tree_*') || {};
         treeKw.dragCode = dragCode;
@@ -4674,7 +5139,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         var explorerPath = objectPop(slotKw,'explorerPath');
 
         var slot = pane._('div',slotKw);
-        slot._('FieldsTree',objectUpdate({table:table,trash:true,currRecordPath:currRecordPath,explorerPath:explorerPath},treeKw));
+        slot._('FieldsTree',objectUpdate({table:table,trash:true,currRecordPath:currRecordPath,explorerPath:explorerPath,checkPermissions:checkPermissions},treeKw));
     },
     
     slot_count:function(pane,slotValue,slotKw,frameCode){
@@ -4724,6 +5189,9 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
         attributes.columns = attributes.columns || '==gnr.getGridColumns(this);';
         attributes.sum_columns = attributes.sum_columns || '==this.store.getSumColumns();';
         attributes.method = attributes.method || 'app.getSelection';
+        if (!('checkPermissions' in attributes)){
+            attributes.checkPermissions = true;
+        }
         if('chunkSize' in attributes && !('selectionName' in attributes)){
             attributes['selectionName'] = '*';
         }
@@ -5151,33 +5619,40 @@ dojo.declare("gnr.stores._Collection",null,{
     },
     
     compileFilter:function(grid,value,filterColumn,colType){
-        if(isNullOrBlank(value)){
-            return null;
-        }
+        var cbsearch;
         var cb;
-        if (colType in {'A':null,'T':null}) {
-            var regexp = new RegExp(value, 'i');
-            cb = function(rowdata, index, array) {
-                return regexp.test(grid.getRowText(index,' ',filterColumn.split('+'),true));
-            };
-        } else {
-            var toSearch = /^(\s*)([\<\>\=\!\#]+)(\s*)(.+)$/.exec(value);
-            if (toSearch) {
-                var val;
-                var op = toSearch[2];
-                if (op == '=') {op = '==';}
-                if ((op == '!') || (op == '#')) {op = '!=';}
-                if (colType in {'R':null,'L':null,'I':null,'N':null}) {
-                    val = dojo.number.parse(toSearch[4]);
-                } else if (colType == 'D') {
-                    val = dojo.date.locale.parse(toSearch[4], {formatLength: "short",selector:'date'});
-                } else if (colType == 'DH') {
-                    val = dojo.date.locale.parse(toSearch[4], {formatLength: "short"});
-                }                
-                cb = function(rowdata, index, array) {
-                    return genro.compare(op,rowdata[filterColumn],val);
+        if(!isNullOrBlank(value)){
+            if (colType in {'A':null,'T':null}) {
+                var regexp = new RegExp(value, 'i');
+                cbsearch = function(rowdata, index, array) {
+                    return regexp.test(grid.getRowText(index,' ',filterColumn.split('+'),true));
                 };
+            } else {
+                var toSearch = /^(\s*)([\<\>\=\!\#]+)(\s*)(.+)$/.exec(value);
+                if (toSearch) {
+                    var val;
+                    var op = toSearch[2];
+                    if (op == '=') {op = '==';}
+                    if ((op == '!') || (op == '#')) {op = '!=';}
+                    if (colType in {'R':null,'L':null,'I':null,'N':null}) {
+                        val = dojo.number.parse(toSearch[4]);
+                    } else if (colType == 'D') {
+                        val = dojo.date.locale.parse(toSearch[4], {formatLength: "short",selector:'date'});
+                    } else if (colType == 'DH') {
+                        val = dojo.date.locale.parse(toSearch[4], {formatLength: "short"});
+                    }                
+                    cbsearch = function(rowdata, index, array) {
+                        return genro.compare(op,rowdata[filterColumn],val);
+                    };
+                }
             }
+        }
+        if(grid.filterManager && grid.filterManager.hasActiveFilter()){
+            cb = function(rowdata, index, array){
+                return grid.filterManager.isInFilterSet(rowdata) && (cbsearch?cbsearch(rowdata, index, array):true);
+            };
+        }else{
+            cb = cbsearch;
         }
         return cb;
     },
@@ -5337,7 +5812,7 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
                 result[n.label] = v;
             })
         }
-        result[this.identifier] = result[this.identifier] || item.label;
+        result[this.identifier] = isNullOrBlank(result[this.identifier])? item.label:result[this.identifier];
 
         return result;
     },
@@ -5388,6 +5863,7 @@ dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
                 }
             }
         }
+        result[this.identifier] = isNullOrBlank(result[this.identifier])? item.label:result[this.identifier];
         return result;
     },
     updateRowNode:function(rowNode,updDict){
@@ -5915,7 +6391,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         var selection = result.getValue(); 
         var data = new gnr.GnrBag();
         var resultattr = result.attr;
-        data.setItem('P_0',result.getValue()); 
+        data.setItem('P_0',result.getValue(),{pageIdx:0}); 
         this.rowtotal = resultattr.rowcount;
         this.totalRowCount = resultattr.totalRowCount;
         this.selectionName = resultattr.selectionName;
@@ -6103,7 +6579,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
     },
     onChunkLoaded:function(result,pageIdx){
         var data = result.getValue();
-        this.getData().setItem('P_' + pageIdx, data,null,{'doTrigger':false});
+        this.getData().setItem('P_' + pageIdx, data,{pageIdx:pageIdx},{'doTrigger':false});
         objectPop(this.pendingPages,pageIdx);
         this.storeNode.publish('updateRows');
         this.pendingTimeout = {};
@@ -6133,7 +6609,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             sync?null:function(result){return that.onChunkLoaded(result,pageIdx);});
         if(sync){
             if(buffer){
-                buffer.setItem('P_' + pageIdx, result.getValue());
+                buffer.setItem('P_' + pageIdx, result.getValue(),{pageIdx:pageIdx});
             }else{
                 return this.onChunkLoaded(result,pageIdx);
             }

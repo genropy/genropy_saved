@@ -75,6 +75,9 @@ class PathResolver(object):
         
         :param site_name: TODO"""
         return self.entity_name_to_path(site_name, 'site')
+
+    def get_siteconfig(self,site_name):
+        return Bag(os.path.join(self.site_name_to_path(site_name),'siteconfig.xml'))
         
     def instance_name_to_path(self, instance_name):
         """TODO

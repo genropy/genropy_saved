@@ -24,25 +24,6 @@ class TestHandler(BaseComponent):
         pane = pane.div(width='900px')
         self.testHandler_loop(pane)
         
-   # def testHandler_headers(self, pane):
-   #     header = pane.div(width='900px', margin='5px')
-   #     header.div('Dojo version:',float='left',
-   #                 margin_top='7px',margin='3px')
-   #     pane.data('gnr.dojo_version','1.1')
-   #     mdiv = header.dropdownbutton(label='^gnr.dojo_version',float='left',margin_top='4px')
-   #     m = mdiv.menu(action='SET gnr. dojo_version=$1.label')
-   #     m.menuline('1.1')
-   #     m.menuline('1.5')
-   #     pane.data('gnr.dojo_theme', 'claro')
-   #     mdiv = header.dropdownbutton(label='^gnr.dojo_theme',float='right',
-   #                                  margin_right='10px',margin_top='4px',
-   #                                  padding_top='1px',padding_bottom='1px')
-   #     header.div('Dojo theme:',float='right',
-   #                 margin_top='7px',margin_right='3px')
-   #     m = mdiv.menu(action='SET gnr.dojo_theme=$1.label')
-   #     m.menuline('Claro')
-   #     m.menuline('Tundra')
-   #     m.menuline('Soria')
         
     def testHandler_loop(self, pane):
         def skip_test(test_name):

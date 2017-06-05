@@ -4,7 +4,7 @@
 		<_packages>
 			<glbl>
 				<regione ext="py" path="model/_packages/glbl/regione.py">
-					<en_prov_principali base="Prov principali" de="Prov Haupt" en="Prov main" fr="Prov principale" it="Prov principali"/>
+					<en_prov_principali base="Prov principali" de="Prov Haupt" en="Prov principali" fr="Prov principale" it="Prov principali"/>
 								<en_prov_principali_nuts_ base="Prov principali (nuts)" de="Prov principali (Nüsse)" en="Prov principali (nuts)" fr="Prov principali (noix)" it="Prov Principali (dadi)"/>
 				</regione>
 			</glbl>
@@ -18,8 +18,8 @@
 		</animal>
 		<nodetbl ext="py" path="model/nodetbl.py">
 			<en_node_tbl base="Node tbl" de="Node tbl" en="Node tbl" fr="Noeud tbl" it="Nodo tbl"/>
-				<en_partenza base="Partenza" de="Abfahrt" en="Departure" fr="Départ" it="Partenza"/>
-				<en_arrivo base="Arrivo" de="Ankunft" en="Arrival" fr="Arrivée" it="Arrivo"/>
+				<en_partenza base="Partenza" de="Abfahrt" en="Partenza" fr="Départ" it="Partenza"/>
+				<en_arrivo base="Arrivo" de="Ankunft" en="Arrivo" fr="Arrivée" it="Arrivo"/>
 		</nodetbl>
 		<recursive ext="py" path="model/recursive.py">
 			<en_description base="Description" en="Description" it="Descrizione"/>
@@ -36,10 +36,10 @@
 				<glbl>
 					<provincia>
 						<th_provincia ext="py" path="resources/tables/_packages/glbl/provincia/th_provincia.py">
-							<en_nord base="Nord" de="Norden" en="North" fr="Nord" it="A nord"/>
-												<en_centro base="Centro" de="Center" en="Center" fr="Centre" it="Centro"/>
-												<en_sud base="Sud" de="Süden" en="South" fr="Sud" it="Sud"/>
-												<en_isole base="Isole" de="Islands" en="Islands" fr="Îles" it="Isole"/>
+							<en_nord base="Nord" de="Norden" en="Nord" fr="Nord" it="A nord"/>
+												<en_centro base="Centro" de="Center" en="Centro" fr="Centre" it="Centro"/>
+												<en_sud base="Sud" de="Süden" en="Sud" fr="Sud" it="Sud"/>
+												<en_isole base="Isole" de="Islands" en="Isole" fr="Îles" it="Isole"/>
 						</th_provincia>
 					</provincia>
 				</glbl>
@@ -50,7 +50,7 @@
 	<webpages>
 		<components>
 			<advanced_form ext="py" path="webpages/components/advanced_form.py">
-				<en_terapia base="Terapia" de="Therapie" en="Therapy" fr="Thérapie" it="Terapia"/>
+				<en_terapia base="Terapia" de="Therapie" en="Terapia" fr="Thérapie" it="Terapia"/>
 			</advanced_form>
 				<drop_uploader ext="py" path="webpages/components/drop_uploader.py">
 				<en_description base="Description" en="Description" it="Descrizione"/>
@@ -77,7 +77,11 @@
 			</form>
 		</dojo>
 		<gnrwdg>
-			<formclientstore ext="py" path="webpages/gnrwdg/formclientstore.py">
+			<checkboxtext ext="py" path="webpages/gnrwdg/checkboxtext.py">
+				<it_fattura base="Fattura"/>
+						<it_cliente base="Cliente"/>
+			</checkboxtext>
+				<formclientstore ext="py" path="webpages/gnrwdg/formclientstore.py">
 				<en_required base="Required" de="Erforderlich" en="Required" fr="Requis" it="Richiesto"/>
 			</formclientstore>
 				<formdocumentstore ext="py" path="webpages/gnrwdg/formdocumentstore.py">
@@ -89,11 +93,14 @@
 				<en_required base="Required" de="Erforderlich" en="Required" fr="Requis" it="Richiesto"/>
 			</formhandler_baggrid>
 				<formhandler_selection ext="py" path="webpages/gnrwdg/formhandler_selection.py">
-				<en_regione base="Regione" de="Region" en="Region" fr="Région" it="Regione"/>
+				<en_regione base="Regione" de="Region" en="Regione" fr="Région" it="Regione"/>
 			</formhandler_selection>
 				<framepane ext="py" path="webpages/gnrwdg/framepane.py">
 				<en_save base="Save" de="Speichern" en="Save" fr="Sauvegarder" it="Salva"/>
 			</framepane>
+				<palette_importer ext="py" path="webpages/gnrwdg/palette_importer.py">
+				<en_table_from_csv_xls base="Table from csv/xls"/>
+			</palette_importer>
 		</gnrwdg>
 		<tools>
 			<newregisterexplorer ext="py" path="webpages/tools/newregisterexplorer.py">
@@ -105,8 +112,13 @@
 						<en_maintenance base="Maintenance" de="Wartung" en="Maintenance" fr="Entretien" it="Manutenzione"/>
 			</newregisterexplorer>
 				<serverpath ext="py" path="webpages/tools/serverpath.py">
-				<en_specialit_ base="Specialità" de="Spezialität" en="Specialty" fr="Spécialité" it="Specialità"/>
+				<en_specialit_ base="Specialità" de="Spezialität" en="Specialità" fr="Spécialité" it="Specialità"/>
 			</serverpath>
 		</tools>
+		<ws>
+			<debugger ext="py" path="webpages/ws/debugger.py">
+				<en_command base="Command" de="Befehl" en="Command" fr="Commandement" it="Comando"/>
+			</debugger>
+		</ws>
 	</webpages>
 </GenRoBag>

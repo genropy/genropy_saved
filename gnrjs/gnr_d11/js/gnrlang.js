@@ -208,7 +208,10 @@ function stringContains(s, v) {
     return (s.indexOf(v) >= 0);
 }
 
-function stringCapitalize(str) {
+function stringCapitalize(str,firstOnly) {
+    if (firstOnly){
+        return str[0].toUpperCase() + str.slice(1);
+    }
     return str.replace(/\w+/g, function(a) {
         //return a.charAt(0).toUpperCase() + a.substr(1).toLowerCase();
         return a.charAt(0).toUpperCase() + a.substr(1);
@@ -493,8 +496,27 @@ function isNullOrBlank(elem){
 
 function localType(dtype){
     return {'R':{places:2},'L':{places:0},'I':{places:0},'D':{date:'short'},'H':{time:'short'},'HZ':{time:'short'},'DH':{datetime:'short'},'DHZ':{datetime:'short'}}[dtype];
-};
-    
+}
+   
+function normalizeKwargs(kwargs,str){
+    if(!kwargs){
+        return;
+    }
+    var p = objectPop(kwargs,str);
+    var kw = objectExtract(kwargs,str+'_*');
+    if(!objectNotEmpty(kw)){
+        kw = null;
+    }
+    if(p===true || p===null){
+        return kw || (p?{}:null);
+    }
+    if(typeof(p) == 'object'){
+        kw = objectUpdate(kw || {},p);
+    }else{
+        kw._ = p;
+    }
+    return kw;
+}
 
 function objectExtract(obj, keys, dontpop,dontslice) {
     if(!obj){
@@ -592,6 +614,13 @@ function objectKeys(obj) {
     return keys;
 }
 
+function objectItems(obj) {
+    var keys = [];
+    for (var prop in obj) {
+        keys.push({key:prop,value:obj[prop]});
+    }
+    return keys;
+}
 
 function objectValues(obj) {
     var values = [];
@@ -621,6 +650,10 @@ function objectMap(obj,func){
     for(var k in obj){
         obj[k] = func(obj[k]);
     }
+}
+
+function copyJson(obj){
+    return JSON.parse(JSON.stringify(obj));
 }
 
 function objectUpdate(obj, source, removeNulls) {
@@ -756,7 +789,7 @@ function objectFromString(values,sep,mode){
         return {};
     }
     var ch = sep || (values.indexOf('\n')>=0?'\n':',');
-    var values = values.split(ch);
+    values = values.split(ch);
     var result = {};
     for (var i = 0; i < values.length; i++) {
         val = values[i];
@@ -932,11 +965,12 @@ function convertFromText(value, t, fromLocale) {
 var gnrformatter = {
     asText :function (value,valueAttr){
         var formatKw =  objectUpdate({},valueAttr);
+        var dtype = objectPop(formatKw,'dtype');
         var formattedValue;
-        if(value==null || value==undefined){
+        if((value===null || value===undefined) && dtype!='B'){
             return '';
         }
-        var dtype = objectPop(formatKw,'dtype') || guessDtype(value);
+        dtype = dtype|| guessDtype(value);
         
         var format = objectPop(formatKw,'format');
 
@@ -1230,6 +1264,12 @@ function guessDtype(value){
     if(value===null || value===undefined){
         return 'NN';
     }
+    if(isBag(value)){
+        return 'X'
+    }
+    if(value instanceof gnr.GnrBagNode){
+        return 'BAGNODE';
+    }
     var t = typeof(value);
     if(t=='string'){
         return 'T';
@@ -1250,9 +1290,6 @@ function guessDtype(value){
             return 'D';
         }
         return 'DH';
-    }
-    if(value instanceof gnr.GnrBag){
-        return 'X'
     }
     if(value instanceof Array){
         return 'AR';
@@ -1559,6 +1596,25 @@ function serialize(_obj) {
 }
 function stringHash(str){
     return str.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+};
+
+function stringToColour(str) {
+    if(!str){
+        return;
+    }
+    while(str.length<30){
+        str+=str;
+    }
+    var hash = 0;
+    for (var i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    var colour = '#';
+    for (var i = 0; i < 3; i++) {
+      var value = (hash >> (i * 8)) & 0xFF;
+      colour += ('00' + value.toString(16)).substr(-2);
+    }
+    return colour;
 };
 
 function parseURL(url) {

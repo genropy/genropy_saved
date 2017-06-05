@@ -471,9 +471,11 @@ class PaletteTemplateEditor(TemplateEditor):
 
         infobar.dataController("""
             var template_address;
-            genro.dlg.prompt('Save as resource',{lbl:'Tplname',action:function(result){
-                    template_address =  table+':'+result;
-                    genro.serverCall("te_saveTemplateAsResource",{table:table,template_address:template_address,data:data},null,null,'POST');
+            genro.dlg.prompt('Save as resource',{widget:[{lbl:'Tplname',value:'^.tplname'},{label:'Main Resource',wdg:'checkbox',lbl:'',value:'^.inMainResource'}],
+
+                                action:function(result){
+                    template_address =  table+':'+result.getItem('tplname');
+                    genro.serverCall("te_saveTemplateAsResource",{table:table,template_address:template_address,data:data,inMainResource:result.getItem('inMainResource')},null,null,'POST');
                 }})
         """,_fired='^.savetemplateAsResource',data='=.data',table=maintable)
 
@@ -505,12 +507,12 @@ class PaletteTemplateEditor(TemplateEditor):
         return result
 
     @public_method
-    def te_saveTemplateAsResource(self,table=None,template_address=None,data=None):
+    def te_saveTemplateAsResource(self,table=None,template_address=None,data=None,inMainResource=False):
         if data['metadata.email']:
             data['metadata.email_compiled'] = self.te_compileBagForm(table=table,sourcebag=data['metadata.email'],
                                                                     varsbag=data['varsbag'],parametersbag=data['parameters'])
         data['compiled'] = self.te_compileTemplate(table=table,datacontent=data['content'],varsbag=data['varsbag'],parametersbag=data['parameters'])['compiled']
-        self.saveTemplate(template_address=template_address,data=data)
+        self.saveTemplate(template_address=template_address,data=data,inMainResource=inMainResource)
 
     @public_method
     def te_saveTemplate(self,pkey=None,data=None,tplmode=None,table=None,metadata=None,**kwargs):

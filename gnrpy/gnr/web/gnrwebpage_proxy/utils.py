@@ -17,6 +17,20 @@ from gnr.core.gnrbag import Bag, DirectoryResolver
 from gnr.core.gnrlist import XlsReader,CsvReader
 from gnr.core.gnrstring import slugify
 
+EXPORT_PDF_TEMPLATE = """
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>%(title)s</title>
+<meta name="author" content="GenroPy">
+<style>%(style)s</style>
+</head>
+<body>
+    %(body)s
+</body>
+</html>
+"""
+
 class GnrWebUtils(GnrBaseProxy):
 
 
@@ -43,6 +57,35 @@ class GnrWebUtils(GnrBaseProxy):
             fromPage = '%s?%s' % (fromPage, urllib.urlencode(fromPageArgs))
             topath = '%s?%s' % (topath, urllib.urlencode({'fromPage': fromPage}))
         return topath
+
+    def quickThermo(self,iterator,path=None,maxidx=None,labelfield=None,
+                    labelcb=None,thermo_width=None,interval=None):
+        path = path or 'gnr.lockScreen.thermo'
+        lbl = ''
+        if isinstance(iterator,list):
+            maxidx = len(iterator)
+        interval = 1
+        if maxidx and maxidx >1000:
+            interval = maxidx/100
+        thermo = """<div class="quickthermo_box"> <div class="form_waiting"></div> </div>""" 
+
+        for idx,v in enumerate(iterator):
+            if labelfield:
+                if labelfield in v:
+                    lbl = v[labelfield]
+                else:
+                    lbl = '%s %s' %(labelfield,idx)
+            elif labelcb:
+                lbl = labelcb(v)
+            if idx % interval == 0:
+                themropars = dict(maxidx=maxidx,idx=idx,lbl=lbl or 'item %s' %idx,thermo_width=thermo_width or '12em')
+                if maxidx:
+                    thermo = r"""<div class="quickthermo_box"> <progress style="width:%(thermo_width)s" max="%(maxidx)s" value="%(idx)s"></progress> <div class="quickthermo_caption">%(idx)s/%(maxidx)s - %(lbl)s</div></div>""" %themropars
+                else:
+                    thermo = """<div class="quickthermo_box"> <div class="form_waiting"></div> <div class="quickthermo_caption">%(idx)s - %(lbl)s</div> </div>"""  %themropars
+                self.page.setInClientData(path,thermo,idx=idx,maxidx=maxidx,lbl=lbl)
+            yield v
+        self.page.setInClientData(path,thermo,idx=maxidx,maxidx=maxidx,lbl=lbl)
 
     def rootFolder(self, *args, **kwargs):
         """The mod_python root"""
@@ -87,9 +130,6 @@ class GnrWebUtils(GnrBaseProxy):
         result = f.read()
         f.close()
         return result
-
-    def filename(self):
-        return self.filename
 
     def dirbag(self, path='', base='', include='', exclude=None, ext=''):
         if base == 'site':
@@ -204,7 +244,7 @@ class GnrWebUtils(GnrBaseProxy):
                     legacy_match[colobj.attributes['legacy_name']] = colname
             result['methodlist'] = ','.join([k[9:] for k in dir(tblobj) if k.startswith('importer_')])
         for k,i in sorted(reader.index.items(),key=lambda tup:tup[1]):
-            columns.setItem(k,None,name=reader.headers[i],field=k,width='10em')
+            columns.setItem(k,None,name=k,field=k,width='10em')
             if k in table_col_list:
                 dest_field = k 
                 do_import = True
@@ -223,7 +263,7 @@ class GnrWebUtils(GnrBaseProxy):
 
 
     @public_method
-    def tableImporterRun(self,table=None,file_path=None,match_index=None,import_method=None,no_trigger=None,**kwargs):
+    def tableImporterRun(self,table=None,file_path=None,match_index=None,import_method=None,sql_mode=None,**kwargs):
         tblobj = self.page.db.table(table)
         docommit = False
         reader = self.getReader(file_path)
@@ -231,25 +271,30 @@ class GnrWebUtils(GnrBaseProxy):
             handler = getattr(tblobj,'importer_%s' %import_method)
             return handler(reader)
         elif match_index:
-            l = []
-            for row in reader():
+            rows_to_insert = []
+            tpkey = tblobj.pkey
+            for row in self.quickThermo(reader(),maxidx=reader.nrows if hasattr(reader,'nrows') else None,
+                        labelfield=tblobj.attributes.get('caption_field') or tblobj.name):
                 r = {v:row[k] for k,v in match_index.items() if v is not ''}
                 tblobj.recordCoerceTypes(r)
-                if not no_trigger:
+                if sql_mode:
+                    if r.get(tpkey):
+                        r[tpkey] = tblobj.newPkeyValue(r)
+                    rows_to_insert.append(r)
+                else:
                     tblobj.insert(r)
                     docommit = True
-                else:
-                    l.append(r)
-            if l:
-                tblobj.insertMany(l)
+            if rows_to_insert:
+                tblobj.insertMany(rows_to_insert)
                 docommit = True
             if docommit:
                 self.page.db.commit()
+
             return 'OK'
 
     def getReader(self,file_path):
         filename,ext = os.path.splitext(file_path)
-        if ext=='.xls':
+        if ext in ('.xls','.xlsx'):
             reader = XlsReader(file_path)
         else:
             reader = CsvReader(file_path)
@@ -259,3 +304,29 @@ class GnrWebUtils(GnrBaseProxy):
 
     def _importer_keycb(self,k):
         return slugify(str(k),sep='_')
+
+    @public_method
+    def exportPdfFromNodes(self,pages=None,name=None,
+                            style=None,
+                            orientation=None):
+        style = style or ''
+        name = name or self.page.getUuid()
+        pdf_list = []
+        print_handler = self.page.site.getService('print')
+        pl = [name]
+        pl.append('pdf')
+        pl.append('%s.pdf' %name)
+        outputFilePath = self.page.site.getStaticPath('page:exportPdfFromNodes',*pl,autocreate=-1)
+        for i,p in enumerate(pages):
+            hp = [name]
+            hp.append('html')
+            hp.append('page_%s.pdf' %i)
+            page_path = self.page.site.getStaticPath('page:exportPdfFromNodes',*hp,autocreate=-1)
+            print_handler.htmlToPdf(EXPORT_PDF_TEMPLATE %dict(title='%s %i' %(name,i) ,style=style, body=p),page_path, orientation=orientation)
+            pdf_list.append(page_path)
+        print_handler.getPrinterConnection('PDF').printPdf(pdf_list, 'export_%s' %name,
+                                       outputFilePath=os.path.splitext(outputFilePath)[0])
+        self.page.setInClientData(path='gnr.clientprint',
+                                  value=self.page.site.getStaticUrl('page:exportPdfFromNodes',*pl, nocache=True),
+                                  fired=True)
+        

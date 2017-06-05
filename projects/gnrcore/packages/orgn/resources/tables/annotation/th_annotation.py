@@ -224,10 +224,10 @@ class ActionOutcomeForm(BaseComponent):
         fb.dbSelect(value='^.next_action.assigned_tag',lbl='!!Assigned tag',
                 condition='$child_count = 0 AND $isreserved IS NOT TRUE',
                 validate_notnull='^.outcome_id',
-                dbtable='adm.htag',alternatePkey='code',hidden='^.outcome_id?=!#v',
+                dbtable='adm.htag',alternatePkey='hierarchical_code',hidden='^.outcome_id?=!#v',
                 colspan=2,hasDownArrow=True)
         fb.dbSelect(value='^.next_action.assigned_user_id',lbl='!!Assigned to',
-                    condition="$id IN :allowed_user_pkeys AND @tags.@tag_id.code=:atag",
+                    condition="$id IN :allowed_user_pkeys AND @tags.@tag_id.hierarchical_code=:atag",
                     condition_atag='=.next_action.assigned_tag',
                     condition_allowed_user_pkeys='=#FORM.record.$allowed_user_pkeys',
                     dbtable='adm.user',hidden='^.outcome_id?=!#v',hasDownArrow=True) #setting condition
@@ -256,10 +256,10 @@ class ActionOutcomeForm(BaseComponent):
         fb.dbSelect(value='^.rescheduling.assigned_tag',lbl='!!Rescheduling Tag',
                 condition='$child_count = 0 AND $isreserved IS NOT TRUE',
                 validate_notnull='^.exit_status?=#v=="action_rescheduled"',
-                dbtable='adm.htag',alternatePkey='code',width='7em')
+                dbtable='adm.htag',alternatePkey='hierarchical_code',width='7em')
 
         fb.dbSelect(value='^.rescheduling.assigned_user_id',lbl='!!Rescheduling user',
-                    condition="$id IN :allowed_user_pkeys AND @tags.@tag_id.code=:atag",
+                    condition="$id IN :allowed_user_pkeys AND @tags.@tag_id.hierarchical_code=:atag",
                     condition_atag='=.rescheduling.assigned_tag',
                     condition_allowed_user_pkeys='=#FORM.record.$allowed_user_pkeys',
                     dbtable='adm.user',width='7em') #setting condition
@@ -344,11 +344,11 @@ class Form(BaseComponent):
                     selected_default_tag='.assigned_tag',
                     hasDownArrow=True,editDisabled='=#FORM.controller.is_newrecord?=!#v',**action_type_kwargs))
             r.fieldcell('assigned_tag',edit=dict(condition='$child_count = 0 AND $isreserved IS NOT TRUE',tag='dbselect',
-                         dbtable='adm.htag',alternatePkey='code',validate_notnull=True,
+                         dbtable='adm.htag',alternatePkey='hierarchical_code',validate_notnull=True,
                          hasDownArrow=True),editLazy='=#ROW.assigned_tag',width='7em')
             r.fieldcell('assigned_user_id',
                          edit=dict(hasDownArrow=True,
-                                  condition="$id IN :allowed_user_pkeys AND @tags.@tag_id.code=:atag",
+                                  condition="$id IN :allowed_user_pkeys AND @tags.@tag_id.hierarchical_code=:atag",
                                   condition_atag='=#ROW.assigned_tag',
                                   condition_allowed_user_pkeys='=#FORM.record.$allowed_user_pkeys'),width='9em')
             r.fieldcell('priority',edit=dict(validate_notnull=True),width='6em')
@@ -387,10 +387,10 @@ class Form(BaseComponent):
                     unmodifiable=True,**action_type_kwargs)
         fb.field('assigned_tag',condition='$child_count = 0 AND $isreserved IS NOT TRUE',tag='dbselect',
                 validate_notnull='^.rec_type?=#v=="AC"',
-                dbtable='adm.htag',alternatePkey='code',
+                dbtable='adm.htag',alternatePkey='hierarchical_code',
                 hasDownArrow=True)
         fb.field('assigned_user_id',
-                    condition="$id IN :allowed_user_pkeys AND @tags.@tag_id.code=:atag",
+                    condition="$id IN :allowed_user_pkeys AND @tags.@tag_id.hierarchical_code=:atag",
                     condition_atag='=.assigned_tag',
                     condition_allowed_user_pkeys='=#FORM.record.$allowed_user_pkeys',
                     hasDownArrow=True)

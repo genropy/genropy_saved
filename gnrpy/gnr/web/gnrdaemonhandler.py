@@ -4,9 +4,11 @@
 from datetime import datetime
 from multiprocessing import Process
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import GnrSiteRegisterServer
+from gnr.core.gnrlang import gnrImport
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrsys import expandpath
 from gnr.app.gnrconfig import gnrConfigPath
+from gnr.app.gnrdeploy import PathResolver
 import atexit
 import os
 import urllib
@@ -184,6 +186,44 @@ class GnrDaemon(object):
     def restart(self,**kwargs):
         self.stop(saveStatus=True)
 
+    def restartServiceDaemon(self,sitename=None,service_name=None):
+        print 'restartServiceDaemon',sitename,service_name
+        sitedict = self.siteregisters_process[sitename]
+        print 'sitedict',sitedict
+        if service_name in sitedict:
+            print('restarting daemon %s' %service_name)
+            proc = sitedict[service_name]
+            proc.terminate()
+            sitedict[service_name] = self.startServiceDaemon(sitename, service_name=service_name)
+            print('restarted daemon %s' %service_name)
+
+
+    def startServiceProcesses(self, sitename, sitedict=None):
+        p = PathResolver()
+        siteconfig = p.get_siteconfig(sitename)
+        services = siteconfig['services']
+        if not services:
+            return
+        for serv in services:
+            if serv.attr.get('daemon'):
+                sitedict[serv.label] = self.startServiceDaemon(sitename,serv.label)
+                print('sitedict',sitedict)
+
+    def startServiceDaemon(self,sitename, service_name=None):
+        p = PathResolver()
+        siteconfig = p.get_siteconfig(sitename)
+        services = siteconfig['services']
+        service_attr = services.getAttr(service_name)
+        pkg, pathlib = service_attr['daemon'].split(':')
+        p = os.path.join(p.package_name_to_path(pkg), 'lib', '%s.py' % pathlib)
+        m = gnrImport(p)
+        service_attr.update({'sitename': sitename})
+        proc = Process(name='service_daemon_%s_%s' %(sitename, service_name), 
+                        target=getattr(m, 'run'), kwargs=service_attr)
+        proc.daemon = True
+        proc.start()
+        return proc
+        
     
     def addSiteRegister(self,sitename,storage_path=None,autorestore=False,heartbeat_options=None):
         if not sitename in self.siteregisters:
@@ -198,7 +238,10 @@ class GnrDaemon(object):
             if heartbeat_options:
                 hbprocess = Process(name='hb_%s' %sitename, target=createHeartBeat,kwargs=heartbeat_options)
                 hbprocess.start()
-            self.siteregisters_process[sitename] = dict(register = childprocess,heartbeat=hbprocess)
+            sitedict = dict(register = childprocess,heartbeat=hbprocess)
+            self.startServiceProcesses(sitename,sitedict=sitedict)
+            self.siteregisters_process[sitename] = sitedict
+            
 
         else:
             print 'ALREADY EXISTING ',sitename
@@ -238,6 +281,10 @@ class GnrDaemon(object):
             result = proxy.stop(saveStatus=saveStatus)
         self.onRegisterStop(sitename)
         return result
+
+    def siteregister_restartServiceDaemon(self,sitename=None,service_name=None):
+        print 'siteregister_restartServiceDaemon',sitename,service_name
+        self.restartServiceDaemon(sitename=sitename, service_name=service_name)
 
     def siteregister_restart(self,sitename=None,**kwargs):
         self.siteregister_stop(sitename,True)

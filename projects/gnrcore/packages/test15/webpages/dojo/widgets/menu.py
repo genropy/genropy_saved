@@ -95,6 +95,21 @@ class GnrCustomWebPage(object):
         pane.textbox(value='^.pippo')
         pane.dataRemote('.menudata', self.testcb,cacheTime=0,zzz='=.pippo')
 
+    def test_99_menucolor(self, pane):
+        pane.css('.colorMenuLine',"height:10px;width:50px")
+
+        pane.div(height='20px',width='20px',
+                    border='1px solid silver',background='^.color').menu(contentCb="""
+                    var result = new gnr.GnrBag();
+
+                    result.setItem('r_1',null,{code:'red',caption:'div class="colorMenuLine" style="background:red;">&nbsp;</div>'})
+                    result.setItem('r_2',null,{code:'green',caption:'div class="colorMenuLine" style="background:green;">&nbsp;</div>'})
+                    return result;
+                    """,
+                    action='SET .color=$1.code',modifiers='*',_class='smallmenu')
+
+
+
     @public_method
     def testcb(self,zzz=None):
         print 'mmmm'
@@ -106,7 +121,14 @@ class GnrCustomWebPage(object):
         menudata = self.menudata()
         menudata.setItem('r_6', None, code='PP', caption=str(datetime.datetime.now()))
         return menudata
-        
+
+    def menudataColors(self):
+        result = Bag()
+        result.setItem('r1', None, code='red', caption='<div class="colorMenuLine" style="background:red;">&nbsp;</div>')
+        result.setItem('r2', None, code='green', caption='<div class="colorMenuLine" style="background:green;">&nbsp;</div>')
+        result.setItem('r3', None, code='navy', caption='<div class="colorMenuLine" style="background:navy;">&nbsp;</div>')
+        return result
+
     def menudata(self):
         result = Bag()
         result.setItem('r1', None, code='CA', caption='California')

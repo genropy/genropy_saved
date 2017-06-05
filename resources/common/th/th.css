@@ -105,6 +105,15 @@
     padding-left: 0;
     padding-right: 4px;
 }
+
+.slotbar_cell .formbuilder.th_querysampleform{
+    margin-top: 2px;
+}
+
+/*.th_querysampleform .tag_textbox .dijitTextBox{
+}*/
+
+
 .th_queryboxfield .dijitInputField, .th_queryboxfield .dijitTextBox{
     border: 0px;
     padding-top: 0 !important;

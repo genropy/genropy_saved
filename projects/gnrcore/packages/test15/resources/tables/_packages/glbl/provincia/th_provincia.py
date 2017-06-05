@@ -6,6 +6,23 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import metadata
 
+
+class ViewTestGraph(BaseComponent):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('nome', width='20em')
+        r.fieldcell('sigla',width='3em')
+        r.fieldcell('numero_abitanti',width='8em')
+        r.fieldcell('tot_superficie',width='8em')
+        r.cell('densita',formula='numero_abitanti/tot_superficie',dtype='N')
+
+    def th_order(self):
+        return 'numero_abitanti:d'
+
+    def th_query(self):
+        return dict(column='nome',op='contains', val='')
+
+
 class ViewTestSections(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
@@ -39,3 +56,29 @@ class ViewTestSections(BaseComponent):
 
     def th_options(self):
         return dict(virtualStore=False)
+
+
+class TestFormInlineComune(BaseComponent):
+    def th_form(self,form):
+        bc = form.center.borderContainer()
+        top = bc.contentPane(region='top',datapath='.record')
+        fb = top.formbuilder(cols=1,border_spacing='3px')
+        fb.field('sigla')
+        fb.field('nome')
+        bc.contentPane(region='center').inlineTableHandler(relation='@comuni',viewResource='TestViewVotoRadio')
+
+    def th_options(self):
+        return dict(autoSave=True)
+
+
+class TestComunePiuBello(BaseComponent):
+    def th_form(self,form):
+        bc = form.center.borderContainer()
+        top = bc.contentPane(region='top',datapath='.record')
+        fb = top.formbuilder(cols=1,border_spacing='3px')
+        fb.field('sigla')
+        fb.field('nome')
+        bc.contentPane(region='center').inlineTableHandler(relation='@comuni',viewResource='TestComunePiuBello')
+
+    def th_options(self):
+        return dict(autoSave=True)

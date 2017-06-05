@@ -55,6 +55,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
 
     support_multiple_connections = False
     paramstyle = 'named'
+    allowAlterColumn=False
 
     def defaultMainSchema(self):
         return 'main'

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+    <wsgi debug='false' reload='true' port='8014' mainpackage='pfrc' heartbeat='t' root_static='_site/default_static'/>
+    <!--<memcache>
+        <local host='localhost' port='11211' />
+    </memcache>-->
+    <dojo version="11"/>
+    <gui css_theme='ludo' typekit='ffx8xbd' />
+    <debug_email error_email='saverio.porcari@softwell.it,giovanni.porcari@softwell.it' from_address='errors@printforce.com.au' smtp_server='localhost'/>
+ <volumes>
+        <docs path='data/docs'/>
+    </volumes>
+        <services>
+                <damsoap resource='damsoap' dam_server='production' wsdl_staging="http://s01.web1.printplanet.com.au/whitemedia/PropertySync/PropertySync.asmx" wsdl_production="http://p01.web1.printplanet.com.au/whitemedia/PropertySync/PropertySync.asmx">
+    </damsoap>
+                 <webpay resource="securepay" test_url="http://test.securepay.com.au/xmlapi/payment" 
+                url="https://api.securepay.com.au/xmlapi/payment" 
+                        merchant_id="PFA0004" password="5b43o7et" timeout="60" api_version="xml-4.2"/>
+        <sms resource='msg4u' username="SoftwellPtyLt003"  passwd="p8DDMP6T" sender="PRINTFORCE"/>
+            </services>
+</GenRoBag>

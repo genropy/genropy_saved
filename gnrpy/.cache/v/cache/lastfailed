@@ -1,0 +1,7 @@
+{
+  "tests/core/gnrdate_test.py::test_quarter": true, 
+  "tests/core/locale_test.py::TestLocalize::()::test_dateLocaleFormat": true, 
+  "tests/core/locale_test.py::TestLocalize::()::test_dateLocaleMedium": true, 
+  "tests/core/locale_test.py::TestLocalize::()::test_datetimeLocale": true, 
+  "tests/core/locale_test.py::TestLocalize::()::test_format_currency": true
+}

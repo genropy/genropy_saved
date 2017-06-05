@@ -12,9 +12,7 @@ from gnr.core.gnrbag import Bag
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull" #gnrcomponents/palette_manager"
     css_requires = 'public'
-    auto_polling = 0
-    user_polling = 0
-    
+
     def windowTitle(self):
         return 'Palette manager'
         

@@ -1,0 +1,16 @@
+.datasetParsContainer{
+    font-size: .9em;
+    background: transparent;
+}
+
+.datasetParsTitle{
+    padding-top: 2px;
+    padding-bottom: 1px;
+    padding-left: 3px;
+    background:RGBA(113, 27, 42, 1.00);
+    color:white;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+
+}
+
