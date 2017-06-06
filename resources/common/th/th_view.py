@@ -315,7 +315,8 @@ class TableHandlerView(BaseComponent):
     @extract_kwargs(condition=True,lbl=dict(slice_prefix=False))
     @struct_method
     def th_slotbar_sections(self,parent,sections=None,condition=None,condition_kwargs=None,
-                            all_begin=None,all_end=None,include_inherited=False,multiButton=None,lbl=None,lbl_kwargs=None,**kwargs):
+                            all_begin=None,all_end=None,multivalue=None,include_inherited=False,multiButton=None,
+                            lbl=None,lbl_kwargs=None,**kwargs):
         inattr = parent.getInheritedAttributes()    
         th_root = inattr['th_root']
         pane = parent.div(datapath='.sections.%s' %sections)
@@ -341,7 +342,7 @@ class TableHandlerView(BaseComponent):
             sectionslist = self._th_section_from_type(tblobj,sections,condition=condition,condition_kwargs=condition_kwargs,
                                                     all_begin=all_begin,all_end=all_end,include_inherited=include_inherited)
             dflt = None
-            multivalue = True
+            multivalue = True if multivalue is None else multivalue
             variable_struct = False
             isMain = False
             mandatory = None
@@ -371,7 +372,7 @@ class TableHandlerView(BaseComponent):
     
         else:
             mb = pane.formbuilder(cols=1,border_spacing='3px',**lbl_kwargs)
-            lbl = lbl or sections.capitalize()
+            lbl = lbl or sections.replace('_',' ').capitalize()
             if multivalue:
                 mb.checkBoxText(values='^.data',value='^.current',lbl=lbl,
                                 labelAttribute='caption',parentForm=False,
