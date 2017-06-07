@@ -11,6 +11,7 @@ from gnr.web.gnrwsgisite_proxy.gnrresourceloader import GnrMixinError
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrstring import boolean
 import os
 import gzip
 from StringIO import StringIO
@@ -50,16 +51,18 @@ class GnrCustomWebPage(object):
             }""",
                                 preference='^preference')
         tc = rootBC.tabContainer(region='center', datapath='preference', formId='preference',margin='2px')
-        for pkg in self.db.packages.values():
-            permmissioncb = getattr(self, 'permission_%s' % pkg.name, None)
+        for pkg in self.application.packages.values():
+            if pkg.disabled:
+                continue
+            permmissioncb = getattr(self, 'permission_%s' % pkg.id, None)
             auth = True
             if permmissioncb:
                 auth = self.application.checkResourcePermission(permmissioncb(), self.userTags)
-            panecb = getattr(self, 'prefpane_%s' % pkg.name, None)
+            panecb = getattr(self, 'prefpane_%s' % pkg.id, None)
             if panecb and auth:
-                panecb(tc, title=pkg.name_full, datapath='.%s' % pkg.name, nodeId=pkg.name,
-                        pkgId=pkg.name,_anchor=True,
-                       sqlContextRoot='preference.%s' % pkg.name)
+                panecb(tc, title=pkg.attributes.get('name_full'), datapath='.%s' % pkg.id, nodeId=pkg.id,
+                        pkgId=pkg.id,_anchor=True,
+                       sqlContextRoot='preference.%s' % pkg.id)
 
     def bottom(self, bottom):
         #bottom.a('!!Zoom',float='left',href='/adm/app_preference')

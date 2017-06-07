@@ -690,7 +690,6 @@ class DbPackageObj(DbModelObj):
             if sqlprefix is True:
                 sqlprefix = self.name
             return '%s_%s' % (sqlprefix, tblobj.name)
-
             
     def _get_sqlschema(self):
         return self.attributes.get('sqlschema', self.dbroot.main_schema)

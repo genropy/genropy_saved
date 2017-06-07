@@ -414,7 +414,8 @@ class GnrPackage(object):
         
         instanceMixin(self, self.pkgMixin)
         self.attributes.update(pkgattrs)
-        
+        self.disabled = boolean(self.attributes.get('disabled'))
+
     def initTableMixinDict(self):
         self.tableMixinDict = {}
         modelFolder = os.path.join(self.packageFolder, 'model')

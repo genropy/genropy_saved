@@ -28,11 +28,13 @@ class GnrCustomWebPage(object):
        #rootBC.dataController("""genro.bp();
        #                        //genro.publish({iframe:'*',topic:'changed_user_preference'},{preference:_node.label,});""",preference="^preference")
         tc = rootBC.tabContainer(region='center', datapath='preference', formId='preference')
-        for pkg in self.db.packages.values():
-            panecb = getattr(self, 'prefpane_%s' % pkg.name, None)
+        for pkg in self.application.packages.values():
+            if pkg.disabled:
+                continue
+            panecb = getattr(self, 'prefpane_%s' % pkg.id, None)
             if panecb:
-                panecb(tc, title=pkg.name_full, datapath='.%s' % pkg.name, nodeId=pkg.name,
-                        pkgId=pkg.name,
+                panecb(tc, title=pkg.attributes.get('name_full'), datapath='.%s' % pkg.id, nodeId=pkg.id,
+                        pkgId=pkg.id,
                         _anchor=True)
 
     def bottom(self, bottom):
