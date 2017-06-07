@@ -323,7 +323,7 @@ class DynamicForm(BaseComponent):
                                        **kwargs)
   
     @struct_method
-    def df_addDynamicFields(self,pane,field=None,**kwargs):
+    def df_appendDynamicFields(self,pane,field=None,**kwargs):
         column = self.db.model.column(field) if '.' in field else self.db.table(pane.getInheritedAttributes()['table']).column(field)
         df_field = column.attributes['subfields']
         df_column = column.table.column(df_field)
@@ -417,7 +417,7 @@ class DynamicForm(BaseComponent):
     @struct_method
     def df_dynamicFormGroup(self,pane,fields=None,ncol=None,colswidth=None,setInAttributes=False,**kwargs):
         fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,keeplabel=True,colswidth=colswidth,width='100%',tdf_width='100%',lbl_white_space='nowrap')        
-        fb.makeDynamicFields(fields=fields,setInAttributes=setInAttributes,**kwargs)
+        fb.addDynamicFields(fields=fields,setInAttributes=setInAttributes,**kwargs)
 
 
     @public_method
@@ -432,10 +432,10 @@ class DynamicForm(BaseComponent):
             r.pop('page',None)
         fbattrs = fbattrs or dict()
         fb = pane.formbuilder(row_datapath=datapath,**fbattrs)        
-        fb.makeDynamicFields(fields=fields,**kwargs)
+        fb.addDynamicFields(fields=fields,**kwargs)
 
     @struct_method
-    def df_makeDynamicFields(self,fb,fields=None,setInAttributes=None,**kwargs):
+    def df_addDynamicFields(self,fb,fields=None,setInAttributes=None,**kwargs):
         dbstore_kwargs = dictExtract(kwargs,'dbstore_',pop=True)
         if not fields:
             return
