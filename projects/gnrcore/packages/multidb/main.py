@@ -50,7 +50,7 @@ class Package(GnrDboPackage):
                 else:
                     rel_pkg, rel_tblname, rel_colname = colpath
                 rel_multidb = self.db.model.src.getNode('packages.%s.tables.%s' %(rel_pkg,rel_tblname)).attr.get('multidb')
-                if rel_multidb:
+                if rel_multidb and rel_multidb!='one':
                     multidb_fkeys.append(col.label)
         return ','.join(multidb_fkeys)
 
@@ -105,10 +105,10 @@ class Package(GnrDboPackage):
         errors = Bag()
         master_index = self.db.tablesMasterIndex()['_index_'] 
         for tbl in master_index.digest('#a.tbl'):
-            if tbllist and not tbl in tbllist:
+            if tbllist and tbl not in tbllist:
                 continue
             pkg,tblname = tbl.split('.')
-            if packages and not pkg in packages:
+            if packages and pkg not in packages:
                 continue
             tbl = self.db.table(tbl)
             multidb = tbl.multidb
@@ -212,26 +212,6 @@ class MultidbTable(object):
                 with self.db.tempEnv(storename=self.db.rootstore):
                     reltable.multidbSubscribe(pkey=checkKey,dbstore=storename)
 
-   #def checkLocalUnify(self,record=None,old_record=None):
-   #    if record.get(self.logicalDeletionField)\
-   #        and not old_record.get(self.logicalDeletionField)\
-   #        and record.get('__moved_related'):
-   #            moved_related = Bag(record['__moved_related'])
-   #            destPkey = moved_related['destPkey']
-   #            destRecord = self.query(where='$%s=:dp' %self.pkey, 
-   #                                      dp=destPkey).fetch()
-   #            with self.db.tempEnv(connectionName='system'):
-   #                if destRecord:
-   #                    destRecord = destRecord[0]
-   #                else:
-   #                    storename = self.db.currentEnv['storename']
-   #                    with self.db.tempEnv(storename=self.db.rootstore):
-   #                        self.multidbSubscribe(pkey=destPkey,dbstore=storename)                        
-   #                    f = self.query(where='$%s=:dp' %self.pkey, 
-   #                                          dp=destPkey).fetch()
-   #                    destRecord = f[0]
-   #                self.unifyRelatedRecords(sourceRecord=record,destRecord=destRecord,moved_relations=moved_related)
-
 
     def trigger_onInserting_multidb(self, record,old_record=None,**kwargs):
         if self.db.usingRootstore():
@@ -293,7 +273,7 @@ class MultidbTable(object):
             pkey = record[self.pkey]
             if self.multidb == '*' or record.get('__multidb_default_subscribed'):
                 raise GnrMultidbException(description='Multidb exception',msg="You cannot delete this record from a synced store")
-            elif self.multidb == 'parent':
+            elif self.multidb == 'parent' :
                 __protected_by_mainstore = record['__protected_by_mainstore'] if '__protected_by_mainstore' in record \
                                           else self.readColumns(pkey=record[self.pkey],columns='__protected_by_mainstore')
                 if __protected_by_mainstore:
@@ -555,7 +535,7 @@ class MultidbTable(object):
         if syscodes:
             f = self.query(where='$__syscode IN :codes',codes=syscodes).fetchAsDict('__syscode')
             for syscode in syscodes:
-                if not syscode in f:
+                if syscode not in f:
                     self.sysRecord(syscode)
                     commit = True
         if commit:
@@ -564,6 +544,7 @@ class MultidbTable(object):
     def sysRecord(self,syscode):
         if not self.db.usingRootstore():
             return
+
         def createCb(key):
             record = getattr(self,'sysRecord_%s' %syscode)()
             record['__syscode'] = key

@@ -100,7 +100,7 @@ dojo.declare("gnr.GnrStoreBag", null, {
         if (attribute == '#v') {
             var itemvalue = item.getValue(null,{_sourceNode:this.sourceNode});
             if (itemvalue instanceof gnr.GnrBag) {
-                return itemvalue.getNodes();
+                return itemvalue.getNodes(this.nodeFilter);
             }else if(this.isDictItem(itemvalue)){
                 return new gnr.GnrBag(itemvalue).getNodes()
             }
@@ -148,7 +148,7 @@ dojo.declare("gnr.GnrStoreBag", null, {
                         return null;
                     }
                     if (result instanceof gnr.GnrBag) {
-                        return (result.len() > 0);
+                        return (result.getNodes(this.nodeFilter).length > 0);
                     }
                     else if (this.hideValues) {
                         return null;
@@ -667,6 +667,7 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
         if (!query.caption) {
             findCallback([], request);
         } else {
+            
             if(this.switches){
                 var sn = this._parentSourceNode;
                 var foundmatch = false;
@@ -687,7 +688,11 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                             foundmatch = m;
                         }
                         if(switchcb){
-                            setTimeout(switchcb,1);
+                            setTimeout(function(){
+                                if(!sn.widget._focused){
+                                    switchcb();
+                                }
+                            },1);
                             findCallback([], request);
                             return;
                         }

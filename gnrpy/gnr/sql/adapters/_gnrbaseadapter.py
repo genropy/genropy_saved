@@ -62,6 +62,7 @@ class SqlDbAdapter(object):
     #         pass
     support_multiple_connections = True
     paramstyle = 'named'
+    allowAlterColumn=True
 
     def __init__(self, dbroot, **kwargs):
         self.dbroot = dbroot
@@ -462,7 +463,7 @@ class SqlDbAdapter(object):
         return statement
 
     def addUniqueConstraint(self, pkg, tbl, fld):
-        statement = 'ALTER TABLE %s.%s ADD CONSTRAINT un_%s_%s_%s UNIQUE (%s)' % (pkg, tbl, pkg, tbl, fld, fld)
+        statement = 'ALTER TABLE %s.%s ADD CONSTRAINT un_%s_%s_%s UNIQUE (%s)' % (pkg, tbl, pkg, tbl.strip('"'),pkg, fld, fld)
         return statement
 
     def createExtensionSql(self,extension):
@@ -711,6 +712,8 @@ class GnrWhereTranslator(object):
             if isinstance(value, basestring) and value.startswith('?'):
                 value = sqlArgs.get(value[1:])
             jc = attr.get('jc', '').upper()
+            if not result:
+                jc = ''
             negate = attr.get('not') == 'not'
             if isinstance(value, Bag):
                 onecondition = ('\n' + '    ' * level).join(self.innerFromBag(tblobj, value, sqlArgs, level + 1))

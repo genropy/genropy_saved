@@ -52,14 +52,14 @@ class Form(BaseComponent):
     def th_form(self, form):
         bc = form.center.borderContainer()
         fb = bc.contentPane(region='top',datapath='.record').div(margin_right='30px').formbuilder(cols=3, border_spacing='4px',
-                colswidth='auto',fld_width='100%')
+                colswidth='auto',fld_width='100%',fld_readOnly=True)
         fb.field('codekey',colspan=2)
         fb.field('code')
         fb.field('pkg')
         fb.field('tbl')
         fb.field('fld')
-        fb.field('counter')
-        fb.field('last_used')
+        fb.field('counter',readOnly=False)
+        fb.field('last_used',readOnly=False)
         fb.button('Align',fire='#FORM.alignCounter')
         center = bc.borderContainer(region='center',margin='2px')
         center.contentPane(region='top',height='50%').bagGrid(storepath='#FORM.record.holes',struct=self.holesStruct,
@@ -98,4 +98,5 @@ class Form(BaseComponent):
 
 
     def th_options(self):
-        return dict(dialog_height='400px', dialog_width='600px',readOnly=True)
+        return dict(dialog_height='400px', dialog_width='600px',
+                readOnly=not self.db.application.checkResourcePermission('superadmin', self.userTags))

@@ -20,6 +20,7 @@ class Table(object):
                 
     def listUserObject(self, objtype=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None, flags=None):
         onlyQuicklist = onlyQuicklist or False
+        
         def checkUserObj(r):
             condition = (not r['private']) or (r['userid'] == userid)
             if onlyQuicklist:
@@ -82,8 +83,9 @@ class Table(object):
         return result
             
     @public_method
-    def saveUserObject(self, table=None,objtype=None,data=None,metadata=None,**kwargs):
-        pkg,tbl = table.split('.')
+    def saveUserObject(self, table=None,objtype=None,data=None,metadata=None,pkg=None,**kwargs):
+        if table:
+            pkg,tbl = table.split('.')
         pkey = metadata['pkey'] or metadata['id']
         if not metadata or not (metadata['code'] or pkey):
             return

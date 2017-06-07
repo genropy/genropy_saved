@@ -33,12 +33,18 @@ class GnrCustomWebPage(object):
         top = bc.contentPane(region='top')
         fb = top.formbuilder(cols=6,border_spacing='3px')
         fb.filteringSelect(value='^.current_package',lbl='Package',values=','.join(self.application.packages.keys()))
-        fb.button('!!Build Startup Data',action="""genro.mainGenroWindow.genro.publish('open_batch');
+        fb.button('!!Build Startup Data',action="""
                                                     var that = this;
-                                                    genro.serverCall('_package.'+pkg+'.createStartupData',null,function(){
-                                                        that.fireEvent('.reloadPreview')
-                                                    });
-                                                    """,pkg='=.current_package')
+                                                    genro.dlg.ask('Creating startup data','You are going to rebuild startup data for pkg '+pkg+'. Are you sure?',null,
+                                                        {confirm:function(){
+                                                            genro.mainGenroWindow.genro.publish('open_batch');
+                                                            genro.serverCall('_package.'+pkg+'.createStartupData',null,function(){
+                                                                that.fireEvent('.reloadPreview')
+                                                            });
+                                                        }});
+                                                    
+                                                    
+                                                    """,pkg='=.current_package',tags='_DEV_')
         fb.button('!!Load Startup Data',action="""genro.mainGenroWindow.genro.publish('open_batch');
                                                     genro.serverCall('_package.'+pkg+'.loadStartupData',{empty_before:empty_before},function(){});
                                                     """ ,pkg='=.current_package',empty_before=True,

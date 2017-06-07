@@ -74,6 +74,7 @@ class GnrCustomWebPage(object):
             saveButton = not fixed_table
             semaphore = not fixed_table
             tblobj= self.db.table(table)
+            tblobj.createSysRecords()
             th = pane.inlineTableHandler(table=table,viewResource='LookupView',
                                     datapath='.mainth',autoSave=False,saveButton=saveButton,semaphore=semaphore,
                                     nodeId='mainth',configurable='*',
@@ -94,7 +95,8 @@ class GnrCustomWebPage(object):
     def getLookupTable(self,pkg=None):
         result = []
         for tbl in self.db.model.package(pkg).tables.values():
-            if tbl.attributes.get('lookup'):
+            tblattr = tbl.attributes
+            if tblattr.get('lookup') and self.db.application.allowedByPreference(**tblattr):
                 result.append(tbl)
         return result
 

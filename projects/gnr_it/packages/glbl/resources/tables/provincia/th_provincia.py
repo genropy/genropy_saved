@@ -4,6 +4,7 @@
 # Created by Francesco Porcari on 2011-03-31.
 # Copyright (c) 2011 Softwell. All rights reserved.
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.core.gnrdecorator import customizable
 
 class Form(BaseComponent):
 
@@ -34,8 +35,7 @@ class View(BaseComponent):
 
 
     def th_sections_zone(self):
-        return [dict(code='nord_est',caption='!![it]Nord Est',condition='@regione.zona=:zona',condition_zona='Nord-est'),
-                dict(code='nord_ovest',caption='!![it]Nord Ovest',condition='@regione.zona=:zona',condition_zona='Nord-ovest'),
+        return [dict(code='nord',caption='!![it]Nord',condition='@regione.zona=:zona',condition_zona='Nord'),
                 dict(code='centro',caption='!![it]Centro',condition='@regione.zona=:zona',condition_zona='Centro'),
                 dict(code='sud',caption='!![it]Sud',condition='@regione.zona=:zona',condition_zona='Sud'),
                 dict(code='isole',caption='!![it]Isole',condition='@regione.zona=:zona',condition_zona='Isole')
@@ -45,11 +45,9 @@ class View(BaseComponent):
         top.bar.replaceSlots('searchOn','searchOn,sections@zone')
 
     def th_options(self):
-        return dict() #virtualStore=False
+        return dict(virtualStore=False)
 
-   #def th_tags(self):
-   #    return 'pippero'
-   #    
+
 
 class ViewFromRegione(BaseComponent):    
     def th_struct(self,struct):

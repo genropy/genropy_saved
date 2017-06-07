@@ -269,7 +269,8 @@ class FormHandler(BaseComponent):
                         iconClass="iconbox delete_record",parentForm=parentForm,
                         disabled='==_newrecord||_protected',
                         _newrecord='^.controller.is_newrecord',
-                        _protected='^.controller.protect_delete',tip='==_protected?_msg_protect_delete:_msg_delete',
+                        _protected='^.controller.protect_delete',
+                        tip='==_protected?_msg_protect_delete:_msg_delete',
                         _msg_protect_delete='!!This record cannot be deleted',_msg_delete='!!Delete current record',
                         **kwargs)
 
@@ -294,12 +295,17 @@ class FormHandler(BaseComponent):
     @struct_method          
     def fh_slotbar_form_selectrecord(self,pane,table=None,pars=None,**kwargs):
         table = table or pane.getInheritedAttributes()['table']
-        pane.lightbutton(_class='iconbox magnifier',action='SET #FORM.controller.temp.selectorVisible=true;',
-                        hidden='^#FORM.controller.temp.selectorVisible')
-        box = pane.div(margin_top='2px',hidden='^#FORM.controller.temp.selectorVisible?=!#v')
-        dbselect_pars = dict(width='12em',_class='th_linker',rounded=8)
         pars = pars or dict()
+        alwaysVisible = pars.pop('alwaysVisible',False)
+        if not alwaysVisible:
+            pane.lightbutton(_class='iconbox magnifier',action='SET #FORM.controller.temp.selectorVisible=true;',
+                        hidden='^#FORM.controller.temp.selectorVisible')
+        box = pane.div(margin_top='2px',hidden=False if alwaysVisible else '^#FORM.controller.temp.selectorVisible?=!#v')
+        dbselect_pars = dict(width='12em',_class='th_linker',rounded=8,padding_left='8px')
         dbselect_pars.update(pars)
+        if alwaysVisible:
+            box = box.formbuilder(border_spacing=0)
+            dbselect_pars['lbl'] = '!!Search' if alwaysVisible is True else alwaysVisible
         box.dbselect(value="^#FORM.controller.temp.selector_pkey",dbtable=table,
                     parentForm=False,
                     #condition=':pkeys IS NULL OR ($pkey IN :pkeys)',
@@ -316,15 +322,23 @@ class FormHandler(BaseComponent):
     def fh_slotbar_form_add(self,pane,parentForm=True,defaults=None,**kwargs):
         menupath = None
         if defaults:
-            menubag = Bag()
-            for i,(caption,default_kw) in enumerate(defaults):
-                menubag.setItem('r_%i' %i,None,caption=caption,default_kw=default_kw)
-            pane.data('.addrow_menu_store',menubag)
+            menubag = None
             menupath = '.addrow_menu_store'
-            pane.slotButton('!!Add',action='this.form.newrecord($1.default_kw);',menupath=menupath,
+            if isinstance(defaults,Bag):
+                menubag = defaults
+            elif isinstance(defaults,basestring):
+                menupath = defaults
+            else:
+                menubag = Bag()
+                for i,(caption,default_kw) in enumerate(defaults):
+                    menubag.setItem('r_%i' %i,None,caption=caption,default_kw=default_kw)
+            if menubag:
+                pane.data('.addrow_menu_store',menubag)
+            menupath = '.addrow_menu_store'
+            pane.slotButton('!!Add',childname='addButton',action='this.form.newrecord($1.default_kw);',menupath=menupath,
                         iconClass="iconbox add_record",parentForm=parentForm,**kwargs)
         else:
-            pane.formButton('!!Add',topic='navigationEvent',command='add',
+            pane.formButton('!!Add',childname='addButton',topic='navigationEvent',command='add',
                         iconClass="iconbox add_record",parentForm=parentForm,**kwargs)
 
 

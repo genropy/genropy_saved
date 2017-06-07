@@ -441,7 +441,7 @@ class SqlTable(GnrObject):
                     record[k] = bool(v)
                 else:
                     if dtype and isinstance(v, basestring):
-                        if not dtype in ['T', 'A', 'C']:
+                        if dtype not in ['T', 'A', 'C']:
                             v = converter.fromText(record[k], dtype)
                     if 'rjust' in colattr:
                         v = v.rjust(int(colattr['size']), colattr['rjust'])
@@ -531,6 +531,7 @@ class SqlTable(GnrObject):
     def cachedRecord(self,pkey=None,virtual_columns=None,keyField=None,createCb=None):
         keyField = keyField or self.pkey
         ignoreMissing = createCb is not None
+
         def recordFromCache(cache=None,pkey=None,virtual_columns_set=None):
             cacheNode = cache.getNode(pkey)
             if cacheNode:
@@ -737,6 +738,27 @@ class SqlTable(GnrObject):
             l.append('%s:%s' %(r[self.pkey],r[caption_field].replace(',',' ').replace(':',' ')))
 
         return ','.join(l)
+    
+    def onArchivingRecord(self,record=None,archive_ts=None):
+        self.archiveRelatedRecords(record=record,archive_ts=archive_ts)            
+
+    def archiveRelatedRecords(self,record=None,archive_ts=None):
+        usingRootstore = self.db.usingRootstore()
+        for rel in self.relations_many:
+            if rel.getAttr('onDelete', 'raise').lower() == 'cascade':
+                mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')
+                opkg, otbl, ofld = rel.attr['one_relation'].split('.')
+                relatedTable = self.db.table(mtbl, pkg=mpkg)
+                if not usingRootstore and relatedTable.use_dbstores() is False:
+                    continue
+                if relatedTable.logicalDeletionField:
+                    updater = {relatedTable.logicalDeletionField:archive_ts}
+                    relatedTable.batchUpdate(updater, 
+                                            where='$%s = :pid' % mfld,
+                                            pid=record[ofld], 
+                                            excludeDraft=False,
+                                            excludeLogicalDeleted=False)
+  
 
     def duplicateRecord(self,recordOrKey=None, howmany=None,destination_store=None,**kwargs):
         duplicatedRecords=[]
@@ -871,7 +893,7 @@ class SqlTable(GnrObject):
         :param autocommit: boolan. If ``True``, perform the commit of the database (``self.db.commit()``)
         :param **kwargs: insert all the :ref:`query` parameters, like the :ref:`sql_where` parameter
         """
-        if not 'where' in kwargs:
+        if 'where' not in kwargs:
             if pkey:
                 _pkeys = [pkey]
             if not _pkeys:
@@ -940,7 +962,7 @@ class SqlTable(GnrObject):
             result.toXml(path,autocreate=True)
         return result
             
-    def fieldsChanged(self,fieldNames,record,old_record):
+    def fieldsChanged(self,fieldNames,record,old_record=None):
         if isinstance(fieldNames,basestring):
             fieldNames = fieldNames.split(',')
         for field in fieldNames:
@@ -1270,7 +1292,7 @@ class SqlTable(GnrObject):
                                              reltable=relatedTable.fullname)
                     elif onDelete in ('c', 'cascade'):
                         for row in sel:
-                            relatedTable.delete(relatedTable.record(row['pkey'], mode='bag'))
+                            relatedTable.delete(row)
                     elif onDelete in ('n','setnull'):
                         for row in sel:
                             rel_rec = dict(row)
@@ -1603,7 +1625,7 @@ class SqlTable(GnrObject):
         try:
             self.protect_update(record,record)
             return True
-        except EXCEPTIONS['protect_update'], e:
+        except EXCEPTIONS['protect_update']:
             return False
             
     def check_deletable(self, record):
@@ -1613,7 +1635,7 @@ class SqlTable(GnrObject):
         try:
             self.protect_delete(record)
             return True
-        except EXCEPTIONS['protect_delete'], e:
+        except EXCEPTIONS['protect_delete']:
             return False
             
     def columnsFromString(self, columns=None):
@@ -1952,6 +1974,18 @@ class SqlTable(GnrObject):
                                      **kwargs)
                                      
         def resultAppend(result, label, attributes, omit):
+            if not self.db.application.allowedByPreference(**attributes):
+                return
+            if 'one_relation' in attributes or 'many_relation' in attributes:
+                if not self.db.application.allowedByPreference(**self.db.model.column(attributes['one_relation']).table.attributes):
+                    return
+                if not self.db.application.allowedByPreference(**self.db.model.column(attributes['many_relation']).table.attributes):
+                    return
+            elif not attributes.get('virtual_column'):
+                reltable = self.column(label).relatedTable()
+                if reltable:
+                    if not self.db.application.allowedByPreference(**reltable.attributes):
+                        return
             gr = attributes.get('group') or ' '
             if '%' in gr:
                 subgroups = dictExtract(attributes,'subgroup_')
@@ -1994,8 +2028,9 @@ class SqlTable(GnrObject):
         result = Bag()
         for relnode in tblmodel.relations: # add columns relations
             attributes = convertAttributes(result, relnode, prevRelation, omit,relationStack)
-            if attributes and not attributes.get('user_forbidden'):
-                resultAppend(result, relnode.label, attributes, omit)
+            if attributes:
+                if not attributes.get('user_forbidden'):
+                    resultAppend(result, relnode.label, attributes, omit)
             
         for vcolname, vcol in tblmodel.virtual_columns.items():
             targetcol = self.column(vcolname)
@@ -2034,7 +2069,7 @@ class SqlTable(GnrObject):
                 if grplist and grplist[0] in grdict:
                     for j,kg in enumerate(grplist):
                         grplevel='.'.join(grplist[0:j+1])
-                        if not grplevel in newresult:
+                        if grplevel not in newresult:
                             newresult.setItem(grplevel, None, name_long=grdict.get(grplevel,grplevel.split('.')[-1]))
                     newresult.setItem('%s.%s' % ('.'.join(grplist), node.label), node.getValue(), node.getAttr())
 

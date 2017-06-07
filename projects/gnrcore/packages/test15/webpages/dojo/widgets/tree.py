@@ -46,6 +46,29 @@ class GnrCustomWebPage(object):
         tg.column('size',dtype='L',header='size',size=100,format='bytes')
 
 
-        
-
+    def test_3_tree_searchOn(self,pane):
+        pane.dataRemote('.tree',self.relationExplorer,table='glbl.provincia',omit='_*',
+                        z_resolved=True)
     
+        pane.div(height='400px').tree(storepath='.tree',_class="branchtree noIcon",hideValues=True,autoCollapse=True,
+                    height='200px',
+                    width='300px',
+                    border='1px solid #efefef',
+                    searchOn=True
+                    )
+        
+    def test_4_tree_popup(self,pane):
+        pane.dataRemote('.tree',self.relationExplorer,table='glbl.provincia',omit='_*',
+                        z_resolved=True)
+    
+        pane.div(height='20px',width='20px',
+                    background='green',margin='20px'
+                    ).tree(storepath='.tree',popup=dict(closeEvent='onClick'))
+
+    def test_5_tree_searchOn(self,pane):
+        pane.dataRemote('.tree',self.relationExplorer,table='glbl.provincia',omit='_*',
+                        z_resolved=True)
+        pane.div(height='20px',width='20px',
+                    background='green',margin='20px'
+                    ).tree(storepath='.tree',popup=True,searchOn=True)
+

@@ -264,8 +264,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             return;
         }
         var topic = 'form_'+this.formId+'_'+command;
-        var scope = scope || this;
-        var cb = cb || this[command];
+        scope = scope || this;
+        cb = cb || this[command];
         subscriberNode = subscriberNode || this.sourceNode;
         subscriberNode.registerSubscription(topic,scope,cb);
     },
@@ -448,12 +448,17 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         //this.updateInvalidField(sourceNode, sourceNode.attrDatapath('value'));
     },
     reload: function(kw) {
-        var kw = kw || {};
-        this.load(objectUpdate({destPkey:this.getCurrentPkey()},kw));
+        kw = kw || {};
+        var destPkey = this.getCurrentPkey();
+        if(destPkey == '*newrecord*'){
+            this.newrecord(this.last_default_kw);
+            return;
+        }
+        this.load(objectUpdate({destPkey:destPkey},kw));
     },
     
-    goToRecord:function(pkey){
-        if(pkey!=this.getCurrentPkey()){
+    goToRecord:function(pkey,ts){
+        if(pkey!=this.getCurrentPkey() || (ts && !isEqual(new Date(this.getDataNodeAttributes().lastTS),ts))){
             this.load({destPkey:pkey});
         }
     },
@@ -624,7 +629,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 onAnswer(command);
             }
         }else{
-            var that = this;
             if(command=='save'){
                 this.setCurrentPkey(kw.destPkey);
                 this.save();
@@ -982,10 +986,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                                     });
             return;
         }
-        var kw = kw || {};
+        kw = kw || {};
         var always;
         if (typeof(kw)=='object'){
-            always=kw.command;
+            always=kw.command || kw.always;
             if(kw.modifiers=='Shift'){
                 always = true;
             }
@@ -994,7 +998,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             kw = {};
         }
         if (!this.opStatus) {
-            var always = always || this.getControllerData('is_newrecord');
+            always = always || this.getControllerData('is_newrecord');
             var invalid = !this.isValid();
             if (invalid && !this.allowSaveInvalid) {
                 this.fireControllerData('save_failed','invalid');
@@ -2261,6 +2265,7 @@ dojo.declare("gnr.formstores.Base", null, {
         var form = this.form;
         var loader = this.handlers.load;
         var default_kwargs = objectPop(kw,'default_kwargs') || {}; 
+        form.last_default_kw = objectUpdate({},default_kw);
         if(default_kwargs){
             default_kwargs = form.sourceNode.evaluateOnNode(default_kwargs);
         }
@@ -2557,9 +2562,11 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
             form.sourceNode.setRelativeData(this.locationpath,sourceBag);
         }
         var formData = form.getFormData();
+        var oldsubbag,path;
         formData.walk(function(n){
             var v = n.getValue();
             var kw = {dtype:n.attr.dtype};
+            path = n.getFullpath('static',formData);
             if('_displayedValue' in n.attr){
                 kw._displayedValue = n.attr._displayedValue;
             }
@@ -2570,12 +2577,14 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
                 kw._valuelabel = n.attr._valuelabel;
             }
             if(v instanceof gnr.GnrBag){
-                return;
+                oldsubbag = sourceBag.getItem(path);
+                if(oldsubbag){
+                    sourceBag.pop(path);
+                }
+                sourceBag.setItem(path,v);
+                return '__continue__';
             }
-            if(form.isNewRecord() || ('_loadedValue' in n.attr)){
-                path = n.getFullpath('static',formData);
-                sourceBag.setItem(path,v,kw);
-            }
+            sourceBag.setItem(path,n.getValue(),{dtype:n.attr.dtype},{lazySet:true});
         });
         var result = {};//{savedPkey:loadedRecordNode.label,loadedRecordNode:loadedRecordNode};
         this.saved(result);
@@ -2697,7 +2706,7 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
         var currPkey = form.getCurrentPkey();
         var pkeyField = this.pkeyField || '_pkey';
         var newPkey = pkeyField?formData.getItem(pkeyField):null;
-        var data;
+        var data,olddata;
         var newrecord = currPkey=='*newrecord*';
         if(newrecord){
             data = new gnr.GnrBag();
@@ -2708,25 +2717,31 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
                     newPkey = 'r_'+(sourceBag?sourceBag.len():0);
                 }
                 data.setItem(pkeyField,newPkey);
+                formData.setItem(pkeyField,newPkey);
             }
+
             sourceBag.setItem(newPkey,data);
         }else{
             data = sourceBag.getItem(currPkey);
+
             if(currPkey != newPkey){
                 data.getParentNode().label = newPkey;
             }
         }
         form.setCurrentPkey(newPkey);
-        var path,v;
+        var path,v,oldsubbag;
         formData.walk(function(n){
             v = n.getValue();
+            path = n.getFullpath('static',formData);
             if(v instanceof gnr.GnrBag){
-                return;
+                oldsubbag = data.getItem(path);
+                if(oldsubbag){
+                    data.pop(path);
+                }
+                data.setItem(path,v)
+                return '__continue__';
             }
-            if(newrecord || '_loadedValue' in n.attr){
-                path = n.getFullpath('static',formData);
-                data.setItem(path,n.getValue(),{dtype:n.attr.dtype});
-            }
+            data.setItem(path,n.getValue(),{dtype:n.attr.dtype},{lazySet:true});
         });
         var result = {};//{savedPkey:loadedRecordNode.label,loadedRecordNode:loadedRecordNode};
         this.saved(result);

@@ -688,7 +688,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                          selectmethod=None, expressions=None, sum_columns=None,
                          sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,hardQueryLimit=None,
                          savedQuery=None,savedView=None, externalChanges=None,prevSelectedDict=None,
-                         checkPermissions=None,**kwargs):
+                         checkPermissions=None,queryBySample=False,**kwargs):
         """TODO
         
         ``getSelection()`` method is decorated with the :meth:`public_method
@@ -791,7 +791,7 @@ class GnrWebAppHandler(GnrBaseProxy):
 
             if selectionName:
                 selection.setKey('rowidx')
-                selectionPath = self.page.freezeSelection(selection, selectionName)
+                selectionPath = self.page.freezeSelection(selection, selectionName,freezePkeys=True)
                 self.page.userStore().setItem('current.table.%s.last_selection_path' % table.replace('.', '_'), selectionPath)
             resultAttributes.update(table=table, method='app.getSelection', selectionName=selectionName,
                                     row_count=row_count,
@@ -1074,7 +1074,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     @public_method
     def getFieldcellPars(self,field=None,table=None):
         tableobj = self.db.table(table)
-        cellpars = cellFromField(field,tableobj)
+        cellpars = cellFromField(field,tableobj,checkPermissions=self.page.permissionPars)
         cellpars['field'] = field
         return Bag(cellpars)
         
@@ -1341,8 +1341,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         if table_onLoading:
             table_onLoading(record, newrecord, loadingParameters, recInfo)
         table_onloading_handlers = [getattr(tblobj,k) for k in dir(tblobj) if k.startswith('onLoading_')]
-        for h in table_onloading_handlers:
-            h(record, newrecord, loadingParameters, recInfo)
+        
         onLoadingHandler = onLoadingHandler or  loadingParameters.pop('method', None)
         if onLoadingHandler:
             handler = self.page.getPublicMethod('rpc', onLoadingHandler)
@@ -1356,16 +1355,17 @@ class GnrWebAppHandler(GnrBaseProxy):
             handler = getattr(self.page, method, None)
             
 
-        if handler:
+        if handler or table_onloading_handlers:
             if default_kwargs and newrecord:
                 self.setRecordDefaults(record, default_kwargs)
-            handler(record, newrecord, loadingParameters, recInfo)
+            for h in table_onloading_handlers:
+                h(record, newrecord, loadingParameters, recInfo)
+            if handler:
+                handler(record, newrecord, loadingParameters, recInfo)
         elif newrecord and loadingParameters:
-
             for k in default_kwargs:
-                if not k in record:
+                if k not in record:
                     record[k]=None
-        
             self.setRecordDefaults(record, loadingParameters)
 
         if applymethod:
@@ -1492,7 +1492,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         querycolumns = tblobj.getQueryFields(columns, captioncolumns)
         showcolumns = gnrlist.merge(captioncolumns, tblobj.columnsFromString(auxColumns))
         resultcolumns = gnrlist.merge(showcolumns, captioncolumns, tblobj.columnsFromString(hiddenColumns))
-        if alternatePkey and not alternatePkey in resultcolumns:
+        if alternatePkey and alternatePkey not in resultcolumns:
             resultcolumns.append("$%s" % alternatePkey if not alternatePkey.startswith('$') else alternatePkey)
         selection = None
         identifier = 'pkey'
@@ -1693,8 +1693,12 @@ class GnrWebAppHandler(GnrBaseProxy):
         if not changesDict:
             return
         tblobj = self.db.table(table)
+        fields = changesDict.pop('_fields',None)
+        if not fields:
+            fields = [field]
         def cb(row):
-            row[field] = changesDict[row[tblobj.pkey]]
+            for f in fields:
+                row[f] = changesDict[row[tblobj.pkey]] if f==field else False
         tblobj.batchUpdate(cb,where='$%s IN :pkeys' %tblobj.pkey,pkeys=changesDict.keys())
         self.db.commit()
         

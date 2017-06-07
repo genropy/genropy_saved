@@ -32,7 +32,6 @@ class Table(object):
         record = dict(note=reason, usage_scope=usage_scope)
         record.update(kwargs)
         self.insert(record)
-        print record
         if commit:
             self.db.commit()
         return record['code']

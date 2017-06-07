@@ -140,8 +140,8 @@ dojo.declare("gnr.FramedIndexManager", null, {
 
 
     framePageTop:function(fp,kw){
-        var bar = fp._('SlotBar',{slots:'multipageButtons,*',gradient_from:'#666',side:'top',toolbar:true,
-                                        gradient_to:'#444',_class:'iframeroot_bar',
+        var bar = fp._('SlotBar',{slots:'multipageButtons,*',side:'top',toolbar:true,
+                                        _class:'iframeroot_bar',
                                         closable:'close',closable_background:'white',
                                         closable_display:!kw.multipage?'none':null});
         var stackNodeId = kw.rootPageName+'_multipage';
@@ -202,9 +202,8 @@ dojo.declare("gnr.FramedIndexManager", null, {
              genro.publish({extWin:'DOCUMENTATION',topic:'onSelectedFrame'});
         })
     },
-
     newBrowserWindowPage:function(kw){
-        this.makePageUrl(kw)
+        this.makePageUrl(kw);
         if(kw.rootPageName in genro.externalWindowsObjects){
             genro.externalWindowsObjects[kw.rootPageName].focus();
             return;
@@ -218,7 +217,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         w.resizeTo(externalWindowKw.width,externalWindowKw.height);
         var that = this;
         var url = kw.url;
-        var windowKey = kw.rootPageName
+        var windowKey = kw.rootPageName;
         this.subscribeExternalWindow(w,windowKey);
         var b = this.externalWindowsBag();
         b.setItem(windowKey, null,{caption:kw.label,url:url,windowKey:windowKey});

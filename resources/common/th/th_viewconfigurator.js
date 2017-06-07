@@ -37,12 +37,12 @@ var genro_plugin_grid_configurator = {
             if(flags){
                 if(flags.indexOf(flag)<0){
                     flags = flags.split(',');
-                    flags.push(flag)
+                    flags.push(flag);
                 }
             }else{
                 flags = flag;
             }
-            metadata.setItem('flags',flags)
+            metadata.setItem('flags',flags);
             genro.serverCall('_table.adm.userobject.saveUserObject',
                             {'objtype':'view','metadata':metadata,'data':gridSourceNode.widget.structBag,
                             table:gridSourceNode.attr.table},

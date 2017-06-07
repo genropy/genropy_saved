@@ -167,8 +167,8 @@ class GnrWebPage(GnrBaseWebPage):
                         or self.site.config['gui?css_icons'] or 'retina/gray'
         self.dojo_theme = request_kwargs.pop('dojo_theme', None) or getattr(self, 'dojo_theme', None)
         self.dojo_version = request_kwargs.pop('dojo_version', None) or getattr(self, 'dojo_version', None)
-        self.dynamic_js_requires= {}
-        self.dynamic_css_requires= {}
+        self.envelope_js_requires= {}
+        self.envelope_css_requires= {}
         self._avoid_module_cache = _avoid_module_cache
         self.debug_sql = boolean(request_kwargs.pop('debug_sql', None))
         debug_py = request_kwargs.pop('debug_py', None)
@@ -387,6 +387,7 @@ class GnrWebPage(GnrBaseWebPage):
             self._db = self.application.db
             self._db.clearCurrentEnv()
             self._db.updateEnv(storename=self.dbstore, workdate=self.workdate, locale=self.locale,
+                                maxdate=datetime.date.max,mindate=datetime.date.min,
                                user=self.user, userTags=self.userTags, pagename=self.pagename,
                                mainpackage=self.mainpackage)
             avatar = self.avatar
@@ -489,7 +490,7 @@ class GnrWebPage(GnrBaseWebPage):
         if _serverstore_changes:
             self.site.register.set_serverstore_changes(self.page_id, _serverstore_changes)
         auth = AUTH_OK
-        if not method in ('doLogin', 'onClosePage'):
+        if method not in ('doLogin', 'onClosePage'):
             auth = self._checkAuth(method=method, **parameters)
         try:
             result = self.rpc(method=method, _auth=auth, **parameters)
@@ -537,6 +538,20 @@ class GnrWebPage(GnrBaseWebPage):
     @property
     def defaultAuthTags(self):
         return self.package.attributes.get('auth_default','')
+
+    def mangledHook(self,method,mangler=None,asDict=False,dflt=None,defaultCb=None):
+        if asDict:
+            prefix='%s_%s_'% (mangler,method)
+            return dict([(fname,getattr(self,fname)) for fname in dir(self) 
+                                     if fname.startswith(prefix) and fname != prefix])    
+
+        def emptyCb(*args,**kwargs):
+            return dflt
+        handler = getattr(self,'%s_%s' %(mangler.replace('.','_'),method),None)
+        if handler is None and defaultCb is False:
+            return None
+        return handler or defaultCb or emptyCb
+        
         
     def mixinComponent(self, *path,**kwargs):
         """TODO
@@ -979,12 +994,18 @@ class GnrWebPage(GnrBaseWebPage):
                        
         :param method: TODO"""
         handler = None
+        if ';' in method:
+            mixin_info, method = method.split(';')
+            __mixin_pkg, __mixin_path = mixin_info.split('|')
+            if __mixin_pkg=='*':
+                __mixin_pkg=None
+            __mixin_path_list = __mixin_path.split('/')
+            self.mixinComponent(*__mixin_path_list, pkg=__mixin_pkg)
         if '.' in method:
             proxy_object,submethod = self._getProxyObject(method)                 
         else:
             proxy_object = self
             submethod = method
-
         handler = getattr(proxy_object, submethod, None)
         if handler and getattr(handler, 'tags',None):
             if not self.application.checkResourcePermission(handler.tags, self.userTags):
@@ -1399,6 +1420,10 @@ class GnrWebPage(GnrBaseWebPage):
         :param ext: TODO
         :param add_mtime: TODO
         :param pkg: the :ref:`package <packages>` object"""
+        if path and path.startswith('/'):
+            lpath = path.split('/')[1:]   
+            if self.site.getStatic(lpath[0][1:]):
+                path = self.site.getStatic(lpath[0][1:]).path(*lpath[1:])
         fpath = self.getResource(path, ext=ext,pkg=pkg)
         if not fpath:
             return
@@ -1413,7 +1438,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param pkg: the :ref:`package <packages>` object"""
         url = None 
         packageFolder = self.site.getPackageFolder(pkg) if pkg else self.package_folder
-        pkg = pkg or self.packageId
+        pkg = pkg or self.packageId  
         if fpath.startswith(self.site.site_path):
             uripath = fpath[len(self.site.site_path):].lstrip('/').split(os.path.sep)
             url = self.site.getStatic('site').url(*uripath)
@@ -1760,6 +1785,10 @@ class GnrWebPage(GnrBaseWebPage):
             self.main_root(page, **kwargs)
             return (page, pageattr)
         page.data('gnr.windowTitle', self.windowTitle())
+        page.dataController("""genro.src.updatePageSource('_pageRoot')""",
+                        subscribe_gnrIde_rebuildPage=True,_delay=100)
+
+
         page.dataController("PUBLISH setWindowTitle=windowTitle;",windowTitle="^gnr.windowTitle",_onStart=True)
         page.dataRemote('server.pageStore',self.getPageStoreData,cacheTime=1)
         page.dataRemote('server.userStore',self.getUserStoreData,cacheTime=1)
@@ -1797,25 +1826,25 @@ class GnrWebPage(GnrBaseWebPage):
             page.dataRemote('gnr.app_preference', self.getAppPreference,_resolved=True)
             page.dataRemote('gnr.shortcuts.store', self.getShortcuts)
 
-            page.dataController("""
-                var rotate_val = user_theme_filter_rotate || app_theme_filter_rotate || 0;
-                var invert_val = user_theme_filter_invert || app_theme_filter_invert || 0;
-                var kw = {'rotate':rotate_val,'invert':invert_val};
-                var styledict = {font_family:app_theme_font_family};
-                genro.dom.css3style_filter(null,kw,styledict);
-                dojo.style(dojo.body(),styledict);
-                """,app_theme_filter_rotate='^gnr.app_preference.sys.theme.body.filter_rotate',
-                    user_theme_filter_rotate='^gnr.user_preference.sys.theme.body.filter_rotate',
-                    app_theme_filter_invert='^gnr.app_preference.sys.theme.body.filter_invert',
-                    user_theme_filter_invert='^gnr.user_preference.sys.theme.body.filter_invert',
-                    app_theme_font_family='^gnr.app_preference.sys.theme.body.font_family',
-                    _onStart=True)
+        #page.dataController("""
+        #    var rotate_val = user_theme_filter_rotate || app_theme_filter_rotate || 0;
+        #    var invert_val = user_theme_filter_invert || app_theme_filter_invert || 0;
+        #    var kw = {'rotate':rotate_val,'invert':invert_val};
+        #    var styledict = {font_family:app_theme_font_family};
+        #    genro.dom.css3style_filter(null,kw,styledict);
+        #    dojo.style(dojo.body(),styledict);
+        #    """,app_theme_filter_rotate='^gnr.app_preference.sys.theme.body.filter_rotate',
+        #        user_theme_filter_rotate='^gnr.user_preference.sys.theme.body.filter_rotate',
+        #        app_theme_filter_invert='^gnr.app_preference.sys.theme.body.filter_invert',
+        #        user_theme_filter_invert='^gnr.user_preference.sys.theme.body.filter_invert',
+        #        app_theme_font_family='^gnr.app_preference.sys.theme.body.font_family',
+        #        _onStart=True)
 
 
 
         page.dataController('genro.dlg.serverMessage("gnr.servermsg");', _fired='^gnr.servermsg')
-        page.dataController("genro.dom.setClass(dojo.body(),'bordered_icons',bordered);",
-                    bordered="^gnr.user_preference.sys.theme.bordered_icons",_onStart=True)
+        #page.dataController("genro.dom.setClass(dojo.body(),'bordered_icons',bordered);",
+        #            bordered="^gnr.user_preference.sys.theme.bordered_icons",_onStart=True)
         
         #page.dataController("""genro.dom.setRootStyle(rs)""",rs="^gnr.user_preference.sys.theme.rootstyle",_if='rs')
         #da sistemare
@@ -1898,14 +1927,6 @@ class GnrWebPage(GnrBaseWebPage):
                             auto_polling="^gnr.polling.auto_polling",
                             polling_enabled="^gnr.polling.polling_enabled",
                             _init=True)
-        if self.dynamic_css_requires:
-            for v in self.dynamic_css_requires.values():
-                if v:
-                    page.script('genro.dom.loadCss("%s")' %v)
-        if self.dynamic_js_requires:
-            for v in self.dynamic_js_requires.values():
-                if v:
-                    page.script('genro.dom.loadJs("%s")' %v)
         if self._pendingContext:
             self.site.register.setPendingContext(self.page_id,self._pendingContext,register_name='page')                        
         if not self.isGuest:
@@ -1916,6 +1937,10 @@ class GnrWebPage(GnrBaseWebPage):
             self.mixinComponent('login:LoginComponent',safeMode=True,only_callables=False)
             self.loginDialog(root, **kwargs)
         elif _auth == AUTH_FORBIDDEN:
+            if hasattr(self,'forbidden_redirect'):
+                redirect = self.forbidden_redirect()
+                if redirect:
+                    return (page,dict(redirect=redirect))
             root.clear()
             self.forbiddenPage(root, **kwargs)
         #if self.wsk:
@@ -1944,8 +1969,7 @@ class GnrWebPage(GnrBaseWebPage):
         cell.div(float='right', padding='2px').button('Back', action='genro.pageBack()')
 
     def forbiddenPage(self, root, **kwargs):
-        """TODO
-        
+        """
         :param root: the root of the page. For more information, check the
                      :ref:`webpages_main` section"""
         dlg = root.dialog(toggle="fade", toggleDuration=250, onCreated='widget.show();')
@@ -1957,7 +1981,6 @@ class GnrWebPage(GnrBaseWebPage):
                color='#c90031')
         cell = tbl.tr().td()
         cell.div(float='right', padding='2px').button('Back', action='genro.pageBack()')
-
 
     def getStartRootenv(self):
         #cookie = self.get_cookie('%s_dying_%s_%s' %(self.siteName,self.packageId,self.pagename), 'simple')
@@ -2064,11 +2087,11 @@ class GnrWebPage(GnrBaseWebPage):
         :param pageId: TODO. """
         self.pageStore(pageId).setItem(path, value)
             
-   #def rpc_setViewColumns(self, contextTable=None, gridId=None, relation_path=None, contextName=None,
-   #                       query_columns=None, **kwargs):
-   #    self.app.setContextJoinColumns(table=contextTable, contextName=contextName, reason=gridId,
-   #                                   path=relation_path, columns=query_columns)
-        
+    #def rpc_setViewColumns(self, contextTable=None, gridId=None, relation_path=None, contextName=None,
+    #                       query_columns=None, **kwargs):
+    #    self.app.setContextJoinColumns(table=contextTable, contextName=contextName, reason=gridId,
+    #                                   path=relation_path, columns=query_columns)
+         
     def rpc_getPrinters(self):
         """TODO"""
         print_handler = self.getService('print')
@@ -2151,15 +2174,17 @@ class GnrWebPage(GnrBaseWebPage):
         if not table:
             return Bag()
         cps = 'false' if not checkPermissions else 'true'
+        
         def buildLinkResolver(node, prevRelation, prevCaption,relationStack):
             nodeattr = node.getAttr()
-            if not 'name_long' in nodeattr:
+            if  'name_long' not in nodeattr:
                 raise Exception(nodeattr) # FIXME: use a specific exception class
             nodeattr['caption'] = nodeattr.pop('name_long')
             nodeattr.pop('tag',None)
             nodeattr['fullcaption'] = concat(prevCaption, self._(nodeattr['caption']), '/')
 
             if nodeattr.get('one_relation'):
+                #print node.label
                 innerCurrRecordPath = '%s.%s' %(node.label,currRecordPath) if currRecordPath else ''
                 nodeattr['_T'] = 'JS'
                 if nodeattr['mode'] == 'O':
@@ -2241,7 +2266,7 @@ class GnrWebPage(GnrBaseWebPage):
     def userDocumentUrl(self, *args, **kwargs):
         """TODO"""
         if kwargs:
-            return self.site.getStatic('user').kwargs_url(self.user, *args, **kwargs_url)
+            return self.site.getStatic('user').kwargs_url(self.user, *args, **kwargs)
         else:
             return self.site.getStatic('user').url(self.user, *args)
    
@@ -2295,25 +2320,25 @@ class GnrWebPage(GnrBaseWebPage):
             return False
         return tag in self.userTags.split(',')
         
-  # def addToContext_old(self, value=None, serverpath=None, clientpath=None):
-  #     """TODO
-  #     
-  #     :param value: TODO
-  #     :param serverpath: TODO
-  #     :param clientpath: TODO"""
-  #     self._pendingContextToCreate.append((value, serverpath, clientpath or serverpath))
-    
+    # def addToContext_old(self, value=None, serverpath=None, clientpath=None):
+    #     """TODO
+    #     
+    #     :param value: TODO
+    #     :param serverpath: TODO
+    #     :param clientpath: TODO"""
+    #     self._pendingContextToCreate.append((value, serverpath, clientpath or serverpath))
+      
     def addToContext(self,serverpath=None,value=None,attr=None):
         self._pendingContext.append((serverpath,value,dict(attr)))
         
         
-   #def _createContext_old(self, root, pendingContext):
-   #    with self.pageStore() as store:
-   #        for value, serverpath, clientpath in pendingContext:
-   #            store.setItem(serverpath, value)
-   #    for value, serverpath, clientpath in pendingContext:
-   #        root.child('data', __cls='bag', content=value, path=clientpath, _serverpath=serverpath)
-   #        
+    #def _createContext_old(self, root, pendingContext):
+    #    with self.pageStore() as store:
+    #        for value, serverpath, clientpath in pendingContext:
+    #            store.setItem(serverpath, value)
+    #    for value, serverpath, clientpath in pendingContext:
+    #        root.child('data', __cls='bag', content=value, path=clientpath, _serverpath=serverpath)
+    #        
     def setJoinCondition(self, ctxname, target_fld='*', from_fld='*', condition=None, one_one=None, applymethod=None,
                          **kwargs):
         """Define a join condition in a given context (*ctxname*).

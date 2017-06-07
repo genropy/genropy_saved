@@ -51,6 +51,7 @@ dojo.declare("gnr.QueryManager", null, {
         var connect_onClick = "TH('"+this.th_root+"').querymanager.onChangedQueryColumn(this.widget.originalContextTarget.sourceNode,$1.attr,this.widget.originalContextTarget.sourceNode.attr.relpath);";
         node._('tree', {storepath:'gnr.qb.'+this.tablecode+'.fieldsmenu',
                         popup_id:this.relativeId('qb_fields_menu'),popup:true,
+                        popup_closeEvent:'onClick',
                         connect_onClick:connect_onClick});
 
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.op',id:this.relativeId('qb_op_menu')});
@@ -89,7 +90,6 @@ dojo.declare("gnr.QueryManager", null, {
         var label = label || 'c_0';
         var relpath = '.' + label;
         this.onChangedQueryColumnDo(contextNode,relpath,column_attr);
-        
     },
 
     onChangedQueryColumnDo:function(sourceNode,path,column_attr){
@@ -109,13 +109,17 @@ dojo.declare("gnr.QueryManager", null, {
         sourceNode.setRelativeData(path+'?value_caption', '');
     },
 
-    queryEditor:function(open){
+    queryEditor:function(queryEditor){
         var that = this;
-        if(!open){
-            var currentQuery = this.sourceNode.getRelativeData('.query.currentQuery');
+        var currentQuery = this.sourceNode.getRelativeData('.query.currentQuery');
+        if(!queryEditor){
             if(currentQuery=='__basequery__' || currentQuery=='__newquery__'){
                 this.sourceNode.setRelativeData('.query.queryAttributes.extended',false);
             }
+        }else{
+            this.sourceNode.setRelativeData('.query.queryAttributes.extended',true);
+        }
+        if(queryEditor!='full'){
             var palette = genro.wdgById(this.th_root+'_queryEditor_floating');
             if(palette){
                 palette.close();
@@ -131,19 +135,21 @@ dojo.declare("gnr.QueryManager", null, {
                                         datapath:datapath+'.query',
                                         height:'300px',width:'450px',
                                         palette_connect_close:function(){
-                                            that.sourceNode.setRelativeData('.query.queryEditor',false);
+                                            if(that.sourceNode.getRelativeData('.query.queryEditor')=='full'){
+                                                that.sourceNode.setRelativeData('.query.queryEditor',false);
+                                            }
                                         }});
         var frame = pane._('framePane',{'frameCode':'_innerframe_#',
                                         gradient_from:'#E5E5E5',gradient_to:'#EDEDED',gradient_deg:'-90'});
         var topbar = frame._('slotBar',{'slots':'queryname,*,favoritebtn,savebtn,deletebtn,10,runbtn',toolbar:true,'side':'top'});
         var qtitle = topbar._('div','queryname',{innerHTML:'^.queryAttributes.caption',
                                                  padding_right:'10px',padding_left:'2px',
-                                    color:'#555',font_weight:'bold',_class:'floatingPopup',cursor:'pointer'})
+                                    color:'#555',font_weight:'bold',_class:'floatingPopup',cursor:'pointer'});
         qtitle._('menu',{'_class':'smallmenu',storepath:'.savedqueries',modifiers:'*',action:'SET .currentQuery = $1.fullpath;'});
-        topbar._('slotButton','savebtn',{'label':_T('Save'),iconClass:'iconbox save',action:function(){that.saveQuery()}});
+        topbar._('slotButton','savebtn',{'label':_T('Save'),iconClass:'iconbox save',action:function(){that.saveQuery();}});
         topbar._('slotButton','deletebtn',{'label':_T('Delete'),iconClass:'iconbox trash',action:'FIRE .delete;',disabled:'^.queryAttributes.pkey?=!#v'});
         
-        topbar._('slotButton','favoritebtn',{'label':_T('Default Query'),action:function(){that.setCurrentAsDefault()},
+        topbar._('slotButton','favoritebtn',{'label':_T('Default Query'),action:function(){that.setCurrentAsDefault();},
                                iconClass:'th_favoriteIcon iconbox star'});
                                
         topbar._('slotButton','runbtn',{'label':_T('Run Query'),action:'FIRE .#parent.runQuery;',
@@ -151,20 +157,19 @@ dojo.declare("gnr.QueryManager", null, {
 
 
         var editorRoot = frame._('div',{datapath:'.where',margin:'2px',nodeId:this.th_root+'_queryEditorRoot'});
+        if(currentQuery=='__querybysample__'){
+            this.onChangedQuery('__newquery__');
+        }
         node.unfreeze();
         this.buildQueryPane();
         this.checkFavorite();
     },
 
-    _editorRoot:function(){
-        var n = genro.nodeById(this.th_root+'_queryEditorRoot');
-        return n? n.getValue():null;
-    },
 
     saveQuery:function(){
         var datapath =  this.sourceNode.absDatapath('.query.queryAttributes');
         var code = this.sourceNode.getRelativeData('.query.queryAttributes.code');
-        var data = this.sourceNode.getRelativeData('.query.where')
+        var data = this.sourceNode.getRelativeData('.query.where');
         var that = this;
         saveCb = function(dlg) {
             genro.serverCall('_table.adm.userobject.saveUserObject',
@@ -177,7 +182,11 @@ dojo.declare("gnr.QueryManager", null, {
         };
         genro.dev.userObjectDialog(code ? 'Save Query ' + code : 'Save New Query',datapath,saveCb);
     },
-    
+
+    _editorRoot:function(){
+        var n = genro.nodeById(this.th_root+'_queryEditorRoot');
+        return n? n.getValue():null;
+    },
     onChangedQuery: function(currentQuery){
         var sourceNode = this.sourceNode;
         var that = this;
@@ -198,7 +207,12 @@ dojo.declare("gnr.QueryManager", null, {
         if (currentQuery=='__newquery__'){
             sourceNode.setRelativeData('.query.queryAttributes',new gnr.GnrBag({extended:true,caption:_T('New Query')}));
             finalize(new gnr.GnrBag());
-            return
+            return;
+        }else if(currentQuery=='__querybysample__'){
+            sourceNode.setRelativeData('.query.queryAttributes',new gnr.GnrBag({extended:true,caption:_T('Query by sample')}));
+            finalize(new gnr.GnrBag());
+            sourceNode.setRelativeData('.query.queryEditor','sample');
+            return;
         }
         var queryBag = this.sourceNode.getRelativeData('.query.menu');
         var queryAttributes= queryBag.getNode(currentQuery).attr;
@@ -221,8 +235,10 @@ dojo.declare("gnr.QueryManager", null, {
     
     buildQueryPane: function() {
         var editorRoot = this._editorRoot();
-        editorRoot.popNode('root');
-        this._buildQueryGroup(editorRoot._('div','root'), this.sourceNode.getRelativeData('.query.where'), 0);
+        if(editorRoot){
+            editorRoot.popNode('root');
+            this._buildQueryGroup(editorRoot._('div','root'), this.sourceNode.getRelativeData('.query.where'), 0);
+        }
     },
     
     addDelFunc : function(mode, pos, e) {
@@ -486,7 +502,7 @@ dojo.declare("gnr.QueryManager", null, {
             }
         }else if(querybag.getItem("#0?column")){
             this.cleanQueryPane(querybag); 
-            var parslist = this.translateQueryPars();
+            parslist = this.translateQueryPars();
         }
         if (parslist.length>0){
             this.buildParsDialog(parslist);
@@ -518,10 +534,11 @@ dojo.declare("gnr.QueryManager", null, {
     
     setFavoriteQuery:function(){
         var favoritePath = genro.getFromStorage("local", this.storeKey());
-        if(favoritePath && !this.sourceNode.getRelativeData('.query.menu').getNode(favoritePath)){
+        if(favoritePath && (!this.sourceNode.getRelativeData('.query.menu').getNode(favoritePath) || favoritePath=='__basequery__')){
             favoritePath = null;
-        };
-        favoritePath = favoritePath || '__basequery__';
+        }
+        var defaultQuery = this.sourceNode.getRelativeData('.query.bySampleIsDefault')?'__querybysample__':'__basequery__';
+        favoritePath = favoritePath || defaultQuery;
         this.sourceNode.setRelativeData('.query.currentQuery',favoritePath);
         this.setCurrentAsDefault();
     },

@@ -77,7 +77,9 @@ class Form(BaseComponent):
         fb.field('default_priority',width='10em')
         fb.field('default_tag',condition='$child_count = 0 AND $isreserved IS NOT TRUE',
                 tag='dbselect',
-                dbtable='adm.htag',alternatePkey='code',hasDownArrow=True,
+                dbtable='adm.htag',
+                alternatePkey='hierarchical_code',
+                hasDownArrow=True,
                 validate_notnull=True)
 
         restrictions = self.db.table('orgn.annotation').getLinkedEntities()

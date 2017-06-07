@@ -151,6 +151,8 @@ class TableHandlerTreeResolver(BagResolver):
                                             dbstore=self.dbstore,condition=self.condition,related_kwargs=self.related_kwargs,
                                             _condition_id=self._condition_id,columns=self.columns,_isleaf=True)
                     child_count = len(related_children)
+                elif not self.related_kwargs.get('_allowEmptyFolders'):
+                    continue
             result.setItem(pkey,value,
                             **self.applyOnTreeNodeAttr(caption=caption,
                                     child_count=child_count,pkey=record.get(self.alt_pkey_field) if self.alt_pkey_field else (pkey or '_all_'),
@@ -196,6 +198,25 @@ class HierarchicalHandler(object):
     def __init__(self, tblobj):
         self.tblobj = tblobj
         self.db = self.tblobj.db
+
+
+    def hierarchicalSearch(self,seed=None,related_table=None,related_path=None,related_caption_field=None,**kwargs):
+        """return hierarchical paths for a given search seed"""
+        if related_table:
+            related_tblobj = self.db.table(related_table)
+            caption_field = related_caption_field or related_tblobj.attributes['caption_field']
+            f = related_tblobj.query(where="$%s ILIKE :seed" %caption_field,addPkeyColumn=False,
+                                seed='%%%s%%' %seed,columns="""@%s.hierarchical_pkey AS hrelpk""" %related_path,
+                                ).fetch()
+        else:
+            caption_field = self.tblobj.attributes.get('hierarchical_caption_field') or self.tblobj.attributes['caption_field']
+            f = self.tblobj.query(where="$%s ILIKE :seed" %caption_field,seed='%%%s%%' %seed,columns="""$hierarchical_pkey AS hrelpk""",
+                            addPkeyColumn=False).fetch()
+        result = set()
+        for r in f:
+            result = result.union(r['hrelpk'].split('/'))
+        return list(result)
+
 
 
     def trigger_before(self,record,old_record=None):
@@ -258,13 +279,16 @@ class HierarchicalHandler(object):
         caption = caption or self.tblobj.name_plural
         condition_kwargs = condition_kwargs or dict()
         condition_kwargs.update(dictExtract(kwargs,'condition_'))
+        related_kwargs = related_kwargs or {}
         v = TableHandlerTreeResolver(_page=self,table=self.tblobj.fullname,caption_field=caption_field,condition=condition,dbstore=dbstore,columns=columns,related_kwargs=related_kwargs,
                                                 condition_kwargs=condition_kwargs,root_id=root_id,parent_id=parent_id,alt_pkey_field=alt_pkey_field)
-        b.setItem('root',v,caption=caption,child_count=1,pkey='',treeIdentifier='_root_',table=self.tblobj.fullname)
+        b.setItem('root',v,caption=caption,child_count=1,pkey='',treeIdentifier='_root_',table=self.tblobj.fullname,
+                    search_method=self.tblobj.hierarchicalSearch,search_related_table=related_kwargs.get('table'),
+                    search_related_path=related_kwargs.get('path'),search_related_caption_field=related_kwargs.get('caption_field'))
         if resolved:
             def cb(self,*args,**kwargs):
                 pass
-            b.walk(cb)
+            b.walk(cb,_mode='')
         return b
 
     def pathFromPkey(self,pkey=None,related_kwargs=None,dbstore=None):

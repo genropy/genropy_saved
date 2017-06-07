@@ -39,6 +39,7 @@ from gnr.app.gnrdeploy import PathResolver
 from gnr.app.gnrconfig import MenuStruct
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrdecorator import extract_kwargs
 
 from gnr.core.gnrlang import  gnrImport, instanceMixin, GnrException
 from gnr.core.gnrstring import makeSet, toText, splitAndStrip, like, boolean
@@ -613,6 +614,7 @@ class GnrApp(object):
         self.packagesIdByPath = {}
         self.config = self.load_instance_config()
         self.instanceMenu = self.load_instance_menu()
+        self.cache = {}
 
         self.build_package_path()
         db_settings_path = os.path.join(self.instanceFolder, 'dbsettings.xml')
@@ -631,7 +633,7 @@ class GnrApp(object):
                 sshattr.update(remotedbattr)
                 sshattr['forwarded_port'] = sshattr.pop('port',None)
                 db_node.attr['port'] = self.gnrdaemon.sshtunnel_port(**sshattr)
-        if not 'menu' in self.config:
+        if 'menu' not in self.config:
             self.config['menu'] = Bag()
             #------ application instance customization-------
         self.customFolder = os.path.join(self.instanceFolder, 'custom')
@@ -656,6 +658,7 @@ class GnrApp(object):
         """TODO"""
         if not self.instanceFolder:
             return Bag()
+
         def normalizePackages(config):
             if config['packages']:
                 packages = Bag()
@@ -914,7 +917,7 @@ class GnrApp(object):
         if self.db.package('adm'):
             self.db.table('adm.preference').setPreference(path, data, pkg=pkg)
 
-    def getPreference(self, path, pkg, dflt=None):
+    def getPreference(self, path, pkg=None, dflt=None):
         if self.db.package('adm'):
             return self.db.table('adm.preference').getPreference(path, pkg=pkg, dflt=dflt)
     
@@ -947,9 +950,6 @@ class GnrApp(object):
             authmethods = self.config['authentication']
             if authmethods:
                 for node in self.config['authentication'].nodes:
-                    if authenticate and node.attr.get('service'):
-                        if self.site.getService(node.attr['service'])(user=user,password=password):
-                            authenticate = False #it has been authenticated by the service
                     authmode = node.label.replace('_auth', '')
                     avatar = getattr(self, 'auth_%s' % authmode)(node, user, password=password,
                                                                  authenticate=authenticate,
@@ -1014,8 +1014,22 @@ class GnrApp(object):
         defaultTags = node.getAttr('defaultTags')
         attrs = dict(node.getAttr())
         pkg = attrs.get('pkg')
+        external_user = False
         if pkg:
-            handler = getattr(self.packages[pkg], attrs['method'])
+            pkg = self.packages[pkg]
+        if authenticate and attrs.get('service'):
+            authService = self.site.getService(node.attr['service'])
+            external_user = authService(user=user,password=password)
+            if external_user:
+                if authService.case == 'u':
+                    user = user.upper()
+                elif authService.case == 'l':
+                    user = user.lower()
+                authenticate = False #it has been authenticated by the service
+                if external_user is not True and hasattr(pkg,'onExternalUser'):
+                    pkg.onExternalUser(external_user)
+        if pkg:
+            handler = getattr(pkg, attrs['method'])
         else:
             handler = getattr(self, attrs['method'])
         if handler:
@@ -1032,6 +1046,7 @@ class GnrApp(object):
                 tags = ','.join(list(set(tags)))
             return self.makeAvatar(user=user, user_name=user_name, user_id=user_id, tags=tags,
                                    login_pwd=password, authenticate=authenticate,
+                                   external_user=external_user,
                                    defaultTags=defaultTags, **result)
                                    
     def auth_sql(self, node, user, password=None, authenticate=False, **kwargs):
@@ -1180,6 +1195,20 @@ class GnrApp(object):
             if valid:
                 return True
         return False
+
+    @extract_kwargs(checkpref=True)
+    def allowedByPreference(self,checkpref=None,checkpref_kwargs=None,**kwargs):
+        if not checkpref:
+            return True
+        if isinstance(checkpref,dict):
+            checkpref = checkpref.get('')
+        preflist = splitAndStrip(checkpref, ' OR ')
+        allowed = []
+        prefdata = self.getPreference(checkpref_kwargs.get('path')) or Bag()
+        for pref in preflist:
+            allowed.append(filter(lambda n: not n, [prefdata[pr] for pr in splitAndStrip(pref, ' AND ')]))
+        return len(filter(lambda n: not n,allowed))>0
+
         
     def addResourceTags(self, resourceTags, newTags):
         """Add resource Tags
@@ -1192,7 +1221,7 @@ class GnrApp(object):
         if isinstance(newTags, basestring):
             newTags = newTags.split(',')
         for tag in newTags:
-            if not tag in resourceTags:
+            if tag not in resourceTags:
                 resourceTags.append(tag)
         return ','.join(resourceTags)
         
@@ -1286,15 +1315,19 @@ class GnrApp(object):
             print 'got externaldb',name
         return externaldb
 
-    def importFromLegacyDb(self,packages=None,legacy_db=None):
+    def importFromLegacyDb(self,packages=None,legacy_db=None,thermo_wrapper=None,thermo_wrapper_kwargs=None):
         if not packages:
             packages = self.packages.keys()
         else:
             packages = packages.split(',')
-        for table in self.db.tablesMasterIndex()['_index_'].digest('#a.tbl'):
+        tables = self.db.tablesMasterIndex()['_index_'].digest('#a.tbl')
+        if thermo_wrapper:
+            thermo_wrapper_kwargs = thermo_wrapper_kwargs or dict()
+            thermo_wrapper_kwargs['maxidx'] = len(tables)
+            tables = thermo_wrapper(tables,**thermo_wrapper_kwargs)
+        for table in tables:
             pkg,tablename = table.split('.')
             if pkg in packages:
-                print 'sto per importare',table
                 self.importTableFromLegacyDb(table,legacy_db=legacy_db)
         self.db.commit()
         self.db.closeConnection()
@@ -1321,7 +1354,6 @@ class GnrApp(object):
                     columns.append(" $%s AS %s " %(colummn_legacy_name,k))
             columns = ', '.join(columns)
         columns = columns or '*'
-        print 'table legacy_name',table_legacy_name
         oldtbl = None
         try:
             oldtbl = sourcedb.table(table_legacy_name)
@@ -1336,6 +1368,7 @@ class GnrApp(object):
         adaptLegacyRow =  getattr(destbl,'adaptLegacyRow',None)
         for r in f:
             r = dict(r)
+            destbl.recordCoerceTypes(r)
             if adaptLegacyRow:
                 adaptLegacyRow(r)
             rows.append(r)

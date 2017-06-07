@@ -46,7 +46,7 @@ class ConfTreeItemForm(BaseComponent):
     js_requires = 'adm_configurator'
     def th_form(self, form):
         bc = form.center.borderContainer()
-        left = bc.roundedGroupFrame(title='Source',region='left',width='200px')
+        left = bc.roundedGroupFrame(title='Source',region='left',width='250px',splitter=True)
         left.dataFormula('#FORM.currentTable','tblid',tblid='^#FORM.record.tblid')
         bc.dataRpc('#FORM.sourceTreeData', self.relationExplorer, 
                             table='^#FORM.currentTable', dosort=False)
@@ -76,19 +76,24 @@ class ConfTreeItemForm(BaseComponent):
         bar.add_group.slotButton('Add folder',action="""
             data =data || new gnr.GnrBag();
             caption = caption || 'Untitled Group';
-            var selnode = data.getNode(currentDestSelectedPath);
+            var selnode = data.getNode(currentDestSelectedPath || '#0');
+            if(!selnode){
+                selnode = data.getNode('root');
+            }
             if(selnode.attr.dtype){
                 selnode = selnode.getParentNode();
             }
             var v =  selnode.getValue();
-            var label ='n_'+v.len();
+            var label ='n_'+timeStamp();
             v.setItem(label,new gnr.GnrBag(),{caption:caption});
             """,data='=#FORM.record.data',bc=bc.js_widget,currentDestSelectedPath='=#FORM.currentDestSelectedPath',
-                ask=dict(title='Nuovo gruppo',fields=[dict(name='caption',lbl='Caption')]))
+                ask=dict(title='Folder name',fields=[dict(name='caption',lbl='Caption')]))
         tree = right.treeGrid(storepath='#FORM.record.data', 
                     headers=True,
+                    autoCollapse=False,
                     _class='fieldsTree',
                     hideValues=True,
+                    nodeId='infoItemTree_%(formId)s' %form.attributes,
                     onDrop_selfdrag_path="""ConfTreeEditor.selfDragDropTree(this,data,dropInfo);""",
                     onDrag='dragValues["selfdrag_path"]= dragValues["treenode"]["relpath"];',
                     dropTargetCb="""
@@ -103,7 +108,7 @@ class ConfTreeItemForm(BaseComponent):
                         }else{
                             var v = dropInfo.treeItem._value;
                             data.forEach(function(attr){
-                                    v.setItem('n_'+v.len(),null,objectUpdate({},attr));
+                                    v.setItem('n_'+timeStamp(),null,objectUpdate({},attr));
                                 })
                         }
                     """,
@@ -114,7 +119,7 @@ class ConfTreeItemForm(BaseComponent):
                     connect_ondblclick="""
                                     var item =  dijit.getEnclosingWidget($1.target).item
                                     var row = item.attr; 
-                                    genro.dlg.prompt("Add widget",
+                                    genro.dlg.prompt("Edit item",
                                     {dflt:new gnr.GnrBag(row),
                                     widget:[{value:'^.caption',lbl:'Caption'},
                                             {value:'^.fullcaption',lbl:'Full caption'}],
@@ -140,7 +145,6 @@ class ConfTreeItemForm(BaseComponent):
                         if (n.attr.checked && !n._value){result.push(n.attr);
                     }},'static');
                    dragValues['fsource']= result; 
-                   console.log('gruppo',dragValues['fsource'])
                """
 
     @public_method

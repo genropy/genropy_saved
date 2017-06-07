@@ -59,6 +59,7 @@ class TableHandler(BaseComponent):
                                                     default_kwargs=default_kwargs,original_kwargs=kwargs)
         tblobj = self.db.table(table)
         tblattr = tblobj.attributes
+
         readOnly = readOnly or tblattr.get('readOnly')
         tblconfig = self.getUserTableConfig(table=table)
         if tblconfig['tbl_permission'] == 'readonly':
@@ -119,14 +120,14 @@ class TableHandler(BaseComponent):
                     picker_base_condition = '$%(_fkey_name)s IS NULL' %condition_kwargs 
                 else:
                     picker_base_condition = '$%(_fkey_name)s IS NULL OR $%(_fkey_name)s!=:fkey' %condition_kwargs 
-                picker_custom_condition = view_kwargs.get('picker_condition')
+                picker_custom_condition = picker_kwargs.get('condition')
                 picker_kwargs['condition'] = picker_base_condition if not picker_custom_condition else '(%s) AND (%s)' %(picker_base_condition,picker_custom_condition)
+                for k,v in condition_kwargs.items():
+                    picker_kwargs['condition_%s' %k] = v
                 if delrow:
                     tblname = tblattr.get('name_plural') or tblattr.get('name_one') or tblobj.name
                     unlinkdict = dict(one_name=tblname.lower(),
                                     field=condition_kwargs['_fkey_name'])
-                for k,v in condition_kwargs.items():
-                    picker_kwargs['condition_%s' %k] = v
             picker_kwargs['relation_field'] = picker
 
         if addrowmenu:
@@ -212,7 +213,7 @@ class TableHandler(BaseComponent):
             wdg.view.top.bar.attributes.update(toolbar=False,_class='slotbar_toolbar pbl_roundedGroupLabel')
             if count is None:
                 wdg.view.top.bar.replaceSlots('count','')
-        if not self.th_checkPermission(wdg.view):
+        if not self.th_checkPermission(wdg.view) or not self.application.allowedByPreference(**tblattr):
             wdg.attributes['_notallowed'] = True
         return wdg
 
@@ -598,7 +599,7 @@ class MultiButtonForm(BaseComponent):
                 SET .selectedForm = formId;
                 var loadPkeyValue = row.getItem(pkeyColumn);
                 var relatedForm = genro.formById(formId);
-                relatedForm.goToRecord(loadPkeyValue);
+                relatedForm.goToRecord(loadPkeyValue,row.getItem('__mod_ts'));
                 """,row='^.row',switchdict=switchdict,
                 sw=switch,_if='row && row.getItem("_pkey")')
         else:

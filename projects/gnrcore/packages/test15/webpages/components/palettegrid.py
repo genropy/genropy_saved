@@ -10,7 +10,7 @@ from gnr.core.gnrbag import Bag
 
 "Palettes"
 class GnrCustomWebPage(object):
-    py_requires = "gnrcomponents/testhandler:TestHandlerFull,th/th:TableHandler" #gnrcomponents/palette_manager"
+    py_requires = "gnrcomponents/testhandler:TestHandlerFull" #gnrcomponents/palette_manager"
     auto_polling = 0
     user_polling = 0
     

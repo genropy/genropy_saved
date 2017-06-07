@@ -14,8 +14,8 @@ class Package(GnrDboPackage):
 
     def config_db(self, pkg):
         pass
-
-    def authenticate(self, username, service=None,**kwargs):
+    
+    def authenticate(self, username,**kwargs):
         tblobj = self.db.table('adm.user')
         def cb(cache=None,identifier=None,**kwargs):
             if identifier in cache:
@@ -32,6 +32,7 @@ class Package(GnrDboPackage):
                 kwargs['lastname'] = user_record['lastname']
                 kwargs['user_id'] = user_record['id']
                 kwargs['group_code'] = user_record['group_code']
+                kwargs['avatar_rootpage'] = user_record['avatar_rootpage']
                 kwargs['locale'] = user_record['locale'] or self.application.config('default?client_locale')
                 kwargs['user_name'] = '%s %s' % (user_record['firstname'], user_record['lastname'])
                 kwargs.update(dictExtract(user_record, 'avatar_'))
@@ -55,6 +56,9 @@ class Package(GnrDboPackage):
     def onAuthenticated(self, avatar):
         pass
 
+    def onExternalUser(self,externalUser=None):
+        self.db.table('adm.user').syncExternalUser(externalUser)
+        
     def newUserUrl(self):
         return 'adm/new_user'
 
@@ -73,3 +77,7 @@ class Package(GnrDboPackage):
 class Table(GnrDboTable):
     def use_dbstores(self,forced_dbstore=None,**kwargs):
         return forced_dbstore or False
+
+    def isInStartupData(self):
+        return False
+        

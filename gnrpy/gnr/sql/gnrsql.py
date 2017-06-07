@@ -527,7 +527,7 @@ class GnrSqlDb(GnrObject):
         deferredId = kwargs.pop('_deferredId',None)
         if not deferredId:
             deferredId = getUuid()
-        if not deferredId in deferreds:
+        if deferredId not in deferreds:
             deferreds.setItem(deferredId,(cb,args,kwargs))
 
     def systemDbEvent(self):

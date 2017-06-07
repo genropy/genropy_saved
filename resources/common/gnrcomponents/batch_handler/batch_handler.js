@@ -18,10 +18,11 @@ batch_monitor.on_datachange = function(kw) {
     }
     var callname = 'on_' + kw.reason;
     var node = kw.node;
+    var sourceNode;
     if (callname in batch_monitor) {
         var batch_id = node.attr.batch_id || node.label;
         if(!node.attr.userBatch){
-            var sourceNode = this.get_batch_sourceNode(batch_id);
+            sourceNode = this.get_batch_sourceNode(batch_id);
              if (sourceNode) {
                  this[callname].call(this, node, sourceNode);
              }
@@ -144,7 +145,7 @@ batch_monitor.btc_result = function(node, sourceNode) {
     }
     var resultNode = sourceNode.thermoSourceNode;
     var resultpane = resultNode.getParentBag();
-    resultNode.freeze()
+    resultNode.freeze();
 
     resultNode.clearValue();
     
@@ -170,6 +171,9 @@ batch_monitor.btc_result = function(node, sourceNode) {
     var resultAttr = resultHandlerNode.attr;
     var url =resultAttr.url;
     var url_print = resultAttr.url_print;
+    var link = resultAttr.link;
+    var link_title = resultAttr.link_title;
+
     var tbl = resultNode._('table',{'width':'100%',border_spacing:'0',border_collapse:'collapse',text_align:'center'})._('tbody');
     var c1 = tbl._('tr')._('td',{'colspan':2});
     var r2 = tbl._('tr');
@@ -183,7 +187,7 @@ batch_monitor.btc_result = function(node, sourceNode) {
         if(resultAttr.document_name){
             tbl._('tr')._('td',{'colspan':2})._('div', {innerHTML:resultAttr.document_name});
         }
-        if (url || url_print){
+        if (url || url_print || link){
             var rlink = tbl._('tr');
             if (url) {
                 var urlist = url.split('/');
@@ -193,6 +197,10 @@ batch_monitor.btc_result = function(node, sourceNode) {
             if(url_print){
                 var url_print_list = url_print.split('/');
                 rlink._('td',{_class:'bm_resulttd'})._('a',{href:url_print,display:'inline-block',_class:'bm_resultlink',download:url_print_list[url_print_list.length-1]})._('div')._('div', {_class:'iconbox print'});
+            }
+            if (link){
+                rlink._('td',{_class:'bm_resulttd'})._('a',{href:link,display:'inline-block',
+                            _class:'bm_resultlink',innerHTML:link_title});
             }
         }
         if (resultAttr.autoDestroy){

@@ -37,7 +37,12 @@ def cellFromField(field,tableobj,checkPermissions=None):
     kwargs = dict()
     fldobj = tableobj.column(field)
     fldattr = dict(fldobj.attributes or dict())
-    fldattr.update(fldobj.getPermissions(**checkPermissions))
+    if checkPermissions:
+        fldattr.update(fldobj.getPermissions(**checkPermissions))
+    if fldattr.get('checkpref'):
+        kwargs['checkpref'] = fldattr.get('checkpref')
+        kwargs.update(dictExtract(fldattr,'checkpref_'))
+
     if fldattr.get('user_forbidden'):
         kwargs['hidden'] = True
     if 'values' in fldattr:
@@ -45,6 +50,7 @@ def cellFromField(field,tableobj,checkPermissions=None):
         values = getattr(fldobj.table.dbtable, values ,lambda: values)()
         fldattr['values'] = values
         kwargs['values'] = fldattr['values']
+
     kwargs.update(dictExtract(fldattr,'cell_'))
     kwargs.setdefault('format_pattern',fldattr.get('format'))
     kwargs.update(dictExtract(fldattr,'format_',slice_prefix=False))
@@ -70,8 +76,12 @@ def cellFromField(field,tableobj,checkPermissions=None):
         columnjoiner = fldobj.relatedColumnJoiner()
         if columnjoiner:
             relatedTable = fldobj.relatedColumn().table
+            linktable_attr = relatedTable.attributes
+            if linktable_attr.get('checkpref'):
+                kwargs['checkpref'] = linktable_attr['checkpref']
+                kwargs.update(dictExtract(linktable_attr,'checkpref_'))
             kwargs['related_table'] = relatedTable.fullname
-            kwargs['related_table_lookup'] = relatedTable.attributes.get('lookup')
+            kwargs['related_table_lookup'] = linktable_attr.get('lookup')
             onerelfld = columnjoiner['one_relation'].split('.')[2]
             if(onerelfld != relatedTable.pkey):
                 kwargs['alternatePkey'] = onerelfld
@@ -228,7 +238,7 @@ class GnrDomSrc(GnrStructData):
         """Check if the :ref:`nodeid` is already existing or not
         
         :param nodeId: the :ref:`nodeid`"""
-        assert not nodeId in self.register_nodeId,'%s is duplicated' %nodeId
+        assert nodeId not in self.register_nodeId,'%s is duplicated' %nodeId
         self.page._register_nodeId[nodeId] = self
         
     @property
@@ -285,10 +295,12 @@ class GnrDomSrc(GnrStructData):
         :param childname: the :ref:`childname`
         :param childcontent: the html content
         :param envelope: TODO"""
-        if childname and childname.startswith('^') and not 'value' in kwargs:
+        if childname and childname.startswith('^') and 'value' not in kwargs:
             kwargs['value'] = childname
             childname = None
         if '_tags' in kwargs and not self.page.application.checkResourcePermission(kwargs['_tags'], self.page.userTags):
+            kwargs['__forbidden__'] = True
+        if not self.page.application.allowedByPreference(**kwargs):
             kwargs['__forbidden__'] = True
         if 'fld' in kwargs:
             fld_dict = self.getField(kwargs.pop('fld'))
@@ -298,12 +310,12 @@ class GnrDomSrc(GnrStructData):
             if tag == 'input':
                 tag = t
         if hasattr(self, 'fbuilder'):
-            if not tag in (
+            if tag not in (
             'tr', 'data', 'script', 'func', 'connect', 'dataFormula', 'dataScript', 'dataRpc', 'dataRemote',
             'dataRecord', 'dataSelection', 'dataController'):
                 if tag == 'br':
                     return self.fbuilder.br()
-                if not 'disabled' in kwargs:
+                if 'disabled' not in kwargs:
                     if hasattr(self, 'childrenDisabled'):
                         kwargs['disabled'] = self.childrenDisabled
                 return self.fbuilder.place(tag=tag, childname=childname, **kwargs)
@@ -372,6 +384,23 @@ class GnrDomSrc(GnrStructData):
         """TODO"""
         assert self.attributes['tag'] == 'FrameForm','only on FrameForm'
         return self.center.contentPane(datapath='.record')
+
+    def chartpane(self,**kwargs):
+        self.page.mixinComponent('js_plugins/chartjs/chartjs:ChartPane')
+        self.child('chartpane',**kwargs)
+
+    def palettechart(self,**kwargs):
+        self.page.mixinComponent('js_plugins/chartjs/chartjs:ChartPane')
+        self.child('palettechart',**kwargs)
+
+    def statspane(self,**kwargs):
+        self.page.mixinComponent('js_plugins/statspane/statspane:StatsPane')
+        self.child('statspane',**kwargs)
+
+    def palettestats(self,**kwargs):
+        self.page.mixinComponent('js_plugins/statspane/statspane:StatsPane')
+        self.child('palettestats',**kwargs)
+
 
     @extract_kwargs(store=True)
     def frameform(self, formId=None, frameCode=None, store=None,storeType=None, storeCode=None,
@@ -452,6 +481,9 @@ class GnrDomSrc(GnrStructData):
     def treegrid_column(self,field,**kwargs):
         return self.child('treegrid_column',field=field,**kwargs)  
 
+    def treeframe_column(self,field,**kwargs):
+        return self.child('treeframe_column',field=field,**kwargs)  
+
     def quickgrid_column(self,field,**kwargs):
         return self.child('quickgrid_column',field=field,**kwargs)  
 
@@ -474,6 +506,7 @@ class GnrDomSrc(GnrStructData):
         :param cb: TODO"""
         self.child('callBack',childcontent=cb,**kwargs)
         return self
+
 
     def iframe(self, childcontent=None, main=None, **kwargs):
         """Create an :ref:`iframe` and returns it
@@ -812,10 +845,19 @@ class GnrDomSrc(GnrStructData):
         dtype = result['dtype'] = fieldobj.dtype
         result['lbl'] = fieldobj.name_long
         result['size'] = 20
-        result.update(dict([(k, v) for k, v in fieldobj.attributes.items() if k.startswith('validate_')]))
+        fieldattr = fieldobj.attributes
+        if 'checkpref' in fieldattr:
+            result['checkpref'] = fieldattr['checkpref']
+            result.update(dictExtract(fieldattr,'checkpref_'))
+
+        result.update(dictExtract(fieldattr,'validate_'))
         relcol = fieldobj.relatedColumn()
         if relcol != None:
             lnktblobj = relcol.table
+            linktable_attr = lnktblobj.attributes
+            if linktable_attr.get('checkpref'):
+                result['checkpref'] = linktable_attr['checkpref']
+                result.update(dictExtract(linktable_attr,'checkpref_'))
             linktable = lnktblobj.fullname
             result['tag'] = 'DbSelect'
             result['dbtable'] = linktable
@@ -882,8 +924,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'dataFormula', 'dataScript', 'dataRpc', 'dataController', 'dataRemote',
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
-             'tinyMCE', 'protovis','codemirror','dygraph','MultiButton','PaletteGroup','DocumentFrame','DownloadButton','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','PaletteImporter','DropUploader','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
-             'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','GeoSearch','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
+             'tinyMCE', 'protovis','codemirror','dygraph','chartjs','MultiButton','PaletteGroup','DocumentFrame','DownloadButton','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','PaletteImporter','DropUploader','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
+             'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','TreeFrame','CheckBoxText','RadioButtonText','GeoSearch','ComboArrow','ComboMenu','ChartPane','PaletteChart','ColorTextBox','ColorFiltering', 'SearchBox', 'FormStore',
              'FramePane', 'FrameForm','BoxForm','QuickEditor','CodeEditor','TreeGrid','QuickGrid',"GridGallery","VideoPlayer",'MultiValueEditor','QuickTree','SharedObject','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
@@ -1745,6 +1787,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             size = int(size)
         else:
             size = 5
+        if fldattr.get('checkpref'):
+            result['checkpref'] = fldattr['checkpref']
+            result.update(dictExtract(fldattr,'checkpref_',slice_prefix=False))
         result.update(dictExtract(fldattr,'validate_',slice_prefix=False))
         result.update(dictExtract(fldattr,'wdg_'))
         if 'unmodifiable' in fldattr:
@@ -1752,9 +1797,13 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if 'protected' in fldattr:
             result['protected'] = fldattr['protected']
         relcol = fieldobj.relatedColumn()
-        if not relcol is None:
+        if relcol is not None:
             lnktblobj = relcol.table
-            isLookup = lnktblobj.attributes.get('lookup') or False
+            linktable_attr = lnktblobj.attributes
+            if linktable_attr.get('checkpref'):
+                result['checkpref'] = linktable_attr['checkpref']
+                result.update(dictExtract(linktable_attr,'checkpref_'))
+            isLookup = linktable_attr.get('lookup') or False
             joiner = fieldobj.relatedColumnJoiner()
             onerelfld = joiner['one_relation'].split('.')[2]
             if dtype in ('A', 'C'):
@@ -2071,9 +2120,12 @@ class GnrFormBuilder(object):
             dbfield = field.get('dbfield')
             if dbfield and excludeCols and dbfield.split('.')[-1] in excludeCols:
                 field.setdefault('hidden',True)
-            if 'hidden' in field and not 'lbl_hidden' in field:
+            if field.get('checkpref'):
+                lbl_kwargs['checkpref'] = field['checkpref']
+                lbl_kwargs.update(dictExtract(field,'checkpref_'))
+            if 'hidden' in field and 'lbl_hidden' not in field:
                 field['lbl_hidden'] = field['hidden']
-            if not '_valuelabel' in field and not lbl.startswith('=='):  #BECAUSE IT CANNOT CALCULATE ON THE FIELD SOURCENODE SCOPE
+            if '_valuelabel' not in field and not lbl.startswith('=='):  #BECAUSE IT CANNOT CALCULATE ON THE FIELD SOURCENODE SCOPE
                 field['_valuelabel'] = lbl
             if 'lbl_href' in field:
                 lblhref = field.pop('lbl_href')
@@ -2089,7 +2141,7 @@ class GnrFormBuilder(object):
                     lbl_kwargs[attr_name] = field.pop(k)
                 elif k.startswith('fld_'):
                     v = field.pop(k)
-                    if not attr_name in field:
+                    if attr_name not in field:
                         field[attr_name] = v
                 elif k.startswith('tdf_'):
                     td_field_attr[attr_name] = field.pop(k)
@@ -2242,8 +2294,8 @@ class GnrGridStruct(GnrStructData):
         :param headerClasses: TODO"""
         return self.child('rows', classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
         
-    def cell(self, field=None, name=None, width=None, dtype=None, classes=None, cellClasses=None, headerClasses=None,
-             **kwargs):
+    def cell(self, field=None, name=None, width=None, dtype=None, classes=None, cellClasses=None, 
+            headerClasses=None,**kwargs):
         """Return a :ref:`cell`
         
         :param field: TODO
@@ -2253,13 +2305,21 @@ class GnrGridStruct(GnrStructData):
         :param classes: TODO
         :param cellClasses: TODO
         :param headerClasses: TODO"""
+        if not self.page.application.allowedByPreference(**kwargs):
+            return 
+        if field and getattr(self,'tblobj',None):
+            kwargs.setdefault('calculated',self.tblobj.column(field) is None)
+
         return self.child('cell', childcontent='', field=field, name=name or field, width=width, dtype=dtype,
-                          classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
+                          classes=classes, cellClasses=cellClasses, headerClasses=headerClasses,**kwargs)
                           
     
     def checkboxcolumn(self,field='_checked',checkedId=None,radioButton=False,calculated=True,name=None,
                         checkedField=None,action=None,action_delay=None,remoteUpdate=False,**kwargs):
-        calculated = not remoteUpdate
+        if getattr(self,'tblobj',None):
+            calculated = self.tblobj.column(field) is None
+        else:
+            calculated = not remoteUpdate
         self.cell(field=field,checkBoxColumn=dict(checkedId=checkedId,radioButton=radioButton,checkedField=checkedField,action=action,
                                                   action_delay=action_delay,remoteUpdate=remoteUpdate),calculated=calculated,name=name,
                                                   **kwargs)

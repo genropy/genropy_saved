@@ -33,6 +33,9 @@ class GnrCustomWebPage(object):
         #r.cell('register_uri',width='20em',name='Register uri')
         #r.cell('server_uri',width='20em',name='Server uri')
         r.cell('start_ts',width='10em',name='Started',dtype='DH')
+        r.cell('pid',name='Pid',width='10em')
+        r.cell('register_port',name='Port',width='8em')
+        r.cell('is_alive',width='20px',name='Alive',dtype='B',semaphore=True)
         r.cell('active',width='20px',name='S',dtype='B',semaphore=True)
         r.cell('allowed_users',width='25em',name='Allowed users')
 
@@ -177,6 +180,7 @@ class GnrCustomWebPage(object):
                    struct=self.sitesStruct,_class='pbl_roundedGroup',
                     grid_autoSelect=True,
                    grid_selected_sitename='main.selected_sitename',
+                   grid_selected_is_alive='main.selected_site_is_alive',
                    margin='2px')
         frame.grid.bagStore(storepath='runningSites.store',storeType='AttributesBagRows',
                                 sortedBy='=.grid.sorted',
@@ -190,8 +194,21 @@ class GnrCustomWebPage(object):
                          SET current_site.data.loaded_connections = result.popNode("connections");
                          SET current_site.data.loaded_pages = result.popNode("pages");
                          """,_timing=3,
-            sysrpc=True,sitename='^main.sitename',_if='sitename')
-        frame.dataRpc('current_site.record',self.getSiteRecord,sitename='^main.sitename',_if='sitename')
+            _site_is_alive='=main.selected_site_is_alive',
+            sysrpc=True,sitename='^main.sitename',_if='sitename && _site_is_alive',
+            _else="""
+            SET current_site.data.loaded_users = new gnr.GnrBag();
+            SET current_site.data.loaded_connections = new gnr.GnrBag();
+            SET current_site.data.loaded_pages = new gnr.GnrBag();
+            
+            """,
+            _delay=1)
+        frame.dataRpc('current_site.record',self.getSiteRecord,sitename='^main.sitename',
+        _site_is_alive='=main.selected_site_is_alive',
+        _if='sitename && _site_is_alive',_delay=1,
+        _else="""if(sitename){
+            return new gnr.GnrBag({sitename:sitename,not_connected:true});
+        }""")
         frame.top.slotBar('2,vtitle,*',vtitle='Running sites',_class='pbl_roundedGroupLabel')
 
     def siteControlPane(self,frame):
@@ -213,7 +230,6 @@ class GnrCustomWebPage(object):
         #fb.button('load current',fire_load='runningSites.command')
         bar.restart_button.button('Restart current',fire_restart='runningSites.command')
         #fb.button('Restart All',fire_restart_all='runningSites.command',colspan=2)
-
         fb = frame.formbuilder(cols=2,border_spacing='3px',datapath='current_site.record',margin_top='5ex')
         fb.checkbox(value='^.maintenance',label='Maintenance',validate_onAccept="""if(userChange){
                                                                                                 if(!value){
@@ -333,9 +349,15 @@ class GnrCustomWebPage(object):
         for k, v in sites:
             v = dict(v)
             v['_pkey'] = v['sitename']
-            with self.site.register.pyroProxy(v['register_uri']) as proxy:
-                v['active'] = not proxy.isInMaintenance()
-                v['allowed_users'] = proxy.allowedUsers()
+            if v['is_alive']:
+                try:
+                    with self.site.register.pyroProxy(v['register_uri']) as proxy:
+                        v['active'] = not proxy.isInMaintenance()
+                        v['allowed_users'] = proxy.allowedUsers()
+                except Pyro4.errors.CommunicationError:
+                    v['active'] = False
+                    v['allowed_user'] = None
+                    v['error'] = 'Not connected'
             result.setItem(k,None,**v)
         return result
 

@@ -20,11 +20,6 @@ class Table(object):
         tbl.formulaColumn('calc_pkgid',"""CASE WHEN $pkgid IS NOT NULL THEN $pkgid
                                                WHEN $tblid IS NOT NULL THEN split_part($tblid,'.',1)
                                                ELSE NULL END""")
-        tbl.formulaColumn('calc_user_group',"""
-                CASE WHEN $user_group IS NOT NULL THEN $user_group
-                     WHEN $username IS NOT NULL THEN @username.group_code
-                     ELSE NULL END""")
-
         tbl.formulaColumn('rank',"""CAST(($tblid IS NOT NULL) AS int)*8+
                                     CAST(($pkgid IS NOT NULL) AS int)*2+
                                     CAST(($username IS NOT NULL) AS int)*4+
@@ -147,13 +142,13 @@ class Table(object):
     def getInfoBag(self,pkg=None,tbl=None,user=None,user_group=None,_editMode=False):
         result = Bag()
         if tbl:
-            pkg = None
+            pkg = tbl.split('.')[0]
             tblobj =  self.db.table(tbl)
             cols_permission_base = Bag()
             allcols = tblobj.columns.keys() + tblobj.model.virtual_columns.keys()
             result['cols_permission'] = cols_permission_base
-        if user:
-            user_group = None
+        if user and not user_group:
+            user_group = self.db.table('adm.user').readColumns(where='$username=:u',u=user,columns='$group_code')
         f = self.query(where="""($pkgid IS NULL OR $pkgid=:pkg) AND
                                 ($tblid IS NULL OR $tblid=:tbl) AND
                                 ($user_group IS NULL OR $user_group=:user_group) AND 

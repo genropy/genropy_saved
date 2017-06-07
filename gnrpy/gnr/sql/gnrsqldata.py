@@ -314,8 +314,9 @@ class SqlQueryCompiler(object):
             from_tbl = self.dbmodel.table(attrs['one_relation'])
             from_column = attrs['one_relation'].split('.')[-1]
             manyrelation = not attrs.get('one_one', False)
-        target_sqlschema = target_tbl.sqlschema
-        target_sqltable = target_tbl.sqlname
+        #target_sqlschema = target_tbl.sqlschema
+        #target_sqltable = target_tbl.sqlname
+        target_sqlfullname = target_tbl.sqlfullname
         target_sqlcolumn = target_tbl.sqlnamemapper[target_column]
         from_sqlcolumn = from_tbl.sqlnamemapper[from_column]
         
@@ -343,8 +344,8 @@ class SqlQueryCompiler(object):
         #        wherelist.append('( %s )' %condition)
         #    where = ' AND '.join(wherelist)
 
-        self.cpl.joins.append('LEFT JOIN %s.%s AS %s ON %s' %
-                              (target_sqlschema, target_sqltable, alias, cnd))
+        self.cpl.joins.append('LEFT JOIN %s AS %s ON %s' %
+                              (target_sqlfullname, alias, cnd))
         #raise str('LEFT JOIN %s.%s AS %s ON %s' % (target_sqlschema, target_sqltable, alias, cnd))
         
         # if a relation many is traversed the number of returned rows are more of the rows in the main table.
@@ -495,7 +496,7 @@ class SqlQueryCompiler(object):
         if not ignoreTableOrderBy and not aggregate:
             order_by = order_by or self.tblobj.attributes.get('order_by')
         self.init()
-        if not 'pkey' in self.cpl.relationDict:
+        if ('pkey' not in self.cpl.relationDict) and self.tblobj.pkey:
             self.cpl.relationDict['pkey'] = self.tblobj.pkey
             
         # normalize the columns string
@@ -659,7 +660,7 @@ class SqlQueryCompiler(object):
                              check the :ref:`relationdict` documentation section
         :param virtual_columns: TODO."""
         self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname, relationDict=relationDict)
-        if not 'pkey' in self.cpl.relationDict:
+        if not 'pkey' in self.cpl.relationDict and self.tblobj.pkey:
             self.cpl.relationDict['pkey'] = self.tblobj.pkey
         self.init(lazy=lazy, eager=eager)
         for fieldname, value, attrs in self.relations.digest('#k,#v,#a'):
@@ -922,9 +923,9 @@ class SqlQuery(object):
         rels = set(re.findall('\$(\w*)', test))
         params = set(re.findall('\:(\w*)', test))
         for r in rels:                             # for each $name in the query
-            if not r in params:                    # if name is also present as :name skip
+            if r not in params:                    # if name is also present as :name skip
                 if r in self.sqlparams:            # if name is present in kwargs
-                    if not r in self.relationDict: # if name is not yet defined in relationDict
+                    if r not in self.relationDict: # if name is not yet defined in relationDict
                         self.relationDict[r] = self.sqlparams.pop(r)
                         
         self.bagFields = bagFields or for_update
@@ -1422,7 +1423,7 @@ class SqlSelection(object):
                 with open(fpath) as f:
                     self._filtered_data = cPickle.load(f)
             
-    def freeze(self, fpath, autocreate=False):
+    def freeze(self, fpath, autocreate=False,freezePkeys=False):
         """TODO
         
         :param fpath: the freeze path
@@ -1438,7 +1439,8 @@ class SqlSelection(object):
         self._freezeme()
         self._freeze_data('w')
         self._freeze_filtered('w')
-        self._freeze_pkeys('w')
+        if freezePkeys:
+            self._freeze_pkeys('w')
 
     def freezeUpdate(self):
         """TODO"""

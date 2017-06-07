@@ -451,7 +451,7 @@ class BagToHtml(object):
                                                            lbl_class='caption').cell()
         curr_copy['doc_body'] = self.page_layout.row(height=0, lbl_height=4, lbl_class='caption').cell()
         if self.calcDocFooterHeight():
-            curr_copy['doc_footer'] = self.page_layout.row(height=self.doc_footer_height, lbl_height=4,
+            curr_copy['doc_footer'] = self.page_layout.row(height=self.calcDocFooterHeight(), lbl_height=4,
                                                            lbl_class='caption').cell()
             #if self.page_footer_height:
             #    curr_copy['page_footer'] = self.page_layout.row(height=self.page_footer_height,lbl_height=4,lbl_class='caption').cell()

@@ -22,8 +22,8 @@ class TableHandlerForm(BaseComponent):
         self._th_mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form') 
         options = self._th_hook('options',mangler=frameCode,dflt=dict())()
         options['readOnly'] = options.get('readOnly',readOnly)
-       #slots = '*,|,semaphore,|,formcommands,|,dismiss,5,locker,5'
-       #options['slots'] = options.get('slots',slots)
+        #slots = '*,|,semaphore,|,formcommands,|,dismiss,5,locker,5'
+        #options['slots'] = options.get('slots',slots)
         options.update(kwargs)
         linkTo = pane        
         if hasattr(pane,'view'):
@@ -58,16 +58,17 @@ class TableHandlerForm(BaseComponent):
         if fb:
             fb.pluggedFields()
 
-    @extract_kwargs(default=True,store=True,dialog=True,palette=True)
+    @extract_kwargs(default=True,store=True,dialog=True,palette=True,tree=dict(slice_prefix=False,pop=True))
     @struct_method
     def th_thFormHandler(self,pane,formId=None,table=None,formResource=None,startKey=None,formCb=None,datapath=None,
                         store_kwargs=None,default_kwargs=None,dialog_kwargs=None,palette_kwargs=None,dbstore=None,
-                        store='recordCluster',handlerType=None,**kwargs):
+                        store='recordCluster',handlerType=None,tree_kwargs=None,**kwargs):
         tableCode = table.replace('.','_')
         formId = formId or tableCode
         self._th_mixinResource(formId,table=table,resourceName=formResource,defaultClass='Form')
         resource_options = self._th_hook('options',mangler=formId,dflt=dict())()
         resource_options.update(kwargs)
+        resource_options.update(tree_kwargs)
         if not handlerType:
             if dialog_kwargs:
                 handlerType = 'dialog'
@@ -123,7 +124,7 @@ class TableHandlerForm(BaseComponent):
         showtoolbar = boolean(options.pop('showtoolbar',True))
         navigation = options.pop('navigation',None)
         hierarchical = options.pop('hierarchical',None)   
-        tree_kwargs = dictExtract(options,'tree_',pop=True)     
+        tree_kwargs = dictExtract(options,'tree_',pop=True) 
         readOnly = options.pop('readOnly',False)
         modal = options.pop('modal',False)
         autoSave = options.pop('autoSave',False)
@@ -220,7 +221,10 @@ class TableHandlerForm(BaseComponent):
                     leftkw['closable'] = 'open'      
             elif hierarchical=='closed':
                 leftkw['closable'] = 'close'
-            bar = form.left.slotBar('0,htreeSlot,0',width=tree_kwargs.pop('width','200px'),border_right='1px solid silver',**leftkw)
+            bar = form.left.slotBar('htreeSearchbar,htreeSlot,0',width=tree_kwargs.pop('width','200px'),border_right='1px solid silver',**leftkw)
+            searchCode = form.attributes['frameCode']
+            bar.htreeSearchbar.slotToolbar('2,searchOn,*',searchOn=True,searchOn_searchCode=searchCode)
+            tree_kwargs['searchCode'] = searchCode
             bar.htreeSlot.treeViewer(**tree_kwargs)
 
         for side in ('top','bottom','left','right'):

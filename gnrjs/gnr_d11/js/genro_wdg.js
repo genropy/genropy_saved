@@ -125,8 +125,6 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             tag = htmlspace[i];
             this.namespace[tag.toLowerCase()] = ['html',tag];
         }
-        ;
-
         this.widgetcatalog = {'CheckBox':'dijit.form.CheckBox',
             'RadioButton':'dijit.form.CheckBox',
             'ComboBox':'dijit.form.ComboBox',
@@ -204,6 +202,9 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'codemirror':'',
             'LightButton':''
         };
+        this.updateWidgetCatalog();
+    },
+    updateWidgetCatalog:function(){
         var tag;
         for (tag in this.widgetcatalog) {
             this.namespace[tag.toLowerCase()] = ['dojo',tag];
@@ -1303,9 +1304,9 @@ dojo.declare("gnr.GridEditor", null, {
     },
 
 
-    setCellValue:function(rowIdx,cellname,value,valueCaption){
+    setCellValue:function(rowIdxOrNode,cellname,value,valueCaption){
         var grid = this.grid;
-        var rowNode = grid.dataNodeByIndex(rowIdx);
+        var rowNode = typeof(rowIdxOrNode)=='number'? grid.dataNodeByIndex(rowIdxOrNode): rowIdxOrNode;
         var row = grid.rowFromBagNode(rowNode,true);
         var rowEditor = this.grid.getRowEditor({row:row});
         if (!rowEditor){
@@ -1314,7 +1315,7 @@ dojo.declare("gnr.GridEditor", null, {
         var cellmap = this.grid.cellmap;
         genro.assert(cellname in cellmap,'cell '+cellname,+' does not exist');
         var cell = cellmap[cellname];
-        if(cell.edit || cell.counter){
+        if(cell.edit || cell.counter || cell.isCheckBoxCell){
             var n = rowEditor.data.setItem(cellname,value);
             delete n.attr._validationError //trust the programmatical value
             this.updateStatus();
@@ -1338,12 +1339,12 @@ dojo.declare("gnr.GridEditor", null, {
             for(var selected in selectedKw){
                 var p = selectedKw[selected].split('.');
                 p = p[p.length-1];
-                this.setCellValue(rowIdx,p,kw[selected]);
+                this.setCellValue(rowNode,p,kw[selected]);
             }
         }if(valueCaption!=undefined) {
             newAttr[cell.field_getter] = valueCaption
         }
-        this.grid.collectionStore().updateRow(rowIdx,newAttr);
+        this.grid.collectionStore().updateRowNode(rowNode,newAttr);
     },
 
     updateCounterColumn:function(rowNode,k,counterField){
@@ -1419,7 +1420,7 @@ dojo.declare("gnr.GridEditor", null, {
                                                                    }})
             }else{
                 var rowpah = this.widgetRootNode.absDatapath('.' + rowLabel);
-                genro.dlg.quickTooltipPane({datapath:rowpah,fields:attr.fields,domNode:cellNode},
+                genro.dlg.quickTooltipPane({datapath:rowpah,fields:attr.fields,domNode:cellNode,modal:attr.modal},
                                             funcCreate(attr.contentCb,'pane,kw',grid.sourceNode),
                                             {rowDataNode:rowDataNode,grid:grid});
             }
@@ -1649,6 +1650,49 @@ dojo.declare("gnr.GridEditor", null, {
 
 });
 
+dojo.declare("gnr.GridFilterManager", null, {
+    constructor:function(grid){
+        this.grid = grid;
+    },
+    filterset:function(){
+        return this.grid.sourceNode.getRelativeData('.filterset');
+    },
+    isInFilterSet:function(row){
+        var gridNode = this.grid.sourceNode;
+        var cb_attr,cb;
+        return this.activeFilters().some(function(kw){
+            cb_attr = gridNode.evaluateOnNode(kw.cb_attr);
+            objectUpdate(cb_attr,row);
+            return funcApply("return "+kw.cb,cb_attr,gridNode);
+        });
+    },
+
+    activeFilters:function(){
+        var result = [];
+        var fn;
+        this.filterset().forEach(function(n){
+            var data = n.getValue().getItem('data');
+            var current = n.getValue().getItem('current');
+            if(!(current && data  && data.len())){
+                return;
+            }
+            current.split(',').forEach(function(f){
+                fn = data.getNode(f);
+                if(!fn){
+                    console.error('missing filter',n.label+'.'+f)
+                }
+                if(fn.attr.cb){
+                    result.push({cb:fn.attr.cb,cb_attr:objectExtract(fn.attr,'cb_*',true)})
+                }
+            });
+        });
+        return result;
+    },
+
+    hasActiveFilter:function(){
+        return this.activeFilters().length>0;
+    }
+});
 dojo.declare("gnr.GridChangeManager", null, {
     constructor:function(grid){
         this.grid = grid;
@@ -1667,6 +1711,12 @@ dojo.declare("gnr.GridChangeManager", null, {
             that.resolveCalculatedColumns();
             that.resolveTotalizeColumns();
             });
+        this.sourceNode.subscribe('onSetStructpath',function(){
+            this.delayedCall(function(){
+                that.resolveCalculatedColumns();
+            },1,'resolveCalculatedColumns')
+            
+        });
     },
     resolveCalculatedColumns:function(){
         var cellmap = this.grid.cellmap;
@@ -1688,9 +1738,11 @@ dojo.declare("gnr.GridChangeManager", null, {
     },
     recalculateOneFormula:function(key){
         var that = this;
-        this.grid.storebag().forEach(function(n){
+        var isBagMode = this.grid.datamode=='bag';
+        this.grid.storebag().walk(function(n){
+            if('pageIdx' in n.attr){return;}
             that.calculateFormula(key,n);
-        });
+        },'static',null,isBagMode);
     },
 
     addRemoteControllerColumn:function(field,kw){
@@ -1862,7 +1914,7 @@ dojo.declare("gnr.GridChangeManager", null, {
         if(kw.updvalue){
             var gridEditor = this.grid.gridEditor;
             var cell = this.grid.cellmap[kw.node.label];
-            if(kw.value!=kw.oldvalue && gridEditor && ((kw.node.label in gridEditor.columns) || (cell && cell.counter))){
+            if(kw.value!=kw.oldvalue && gridEditor && ((kw.node.label in gridEditor.columns) || (cell && (cell.counter || cell.isCheckBoxCell)))){
                 var attr = kw.node.attr;
                 if(!('_loadedValue' in attr)){
                     if(kw.oldvalue instanceof gnr.GnrBag){

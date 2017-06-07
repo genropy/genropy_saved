@@ -26,7 +26,7 @@ class HTableTree(BaseComponent):
         dbselect_nodeId = attr.get('nodeId') or str(id(dbselect))
         connectedMenu = connectedMenu or 'hmenu_%s' %dbselect_nodeId
         currentHMenu = self.workspace.setdefault('hmenu',{})
-        if not connectedMenu in currentHMenu:
+        if connectedMenu not in currentHMenu:
             tree_kwargs['openOnClick'] = not folderSelectable
             tree_kwargs['selected_pkey'] = kwargs.get('value').replace('^','')
             menupath = 'gnr.htablestores.%s_%s' %(attr['dbtable'],connectedMenu)
@@ -88,7 +88,12 @@ class HTableTree(BaseComponent):
         b = tblobj.getHierarchicalData(caption_field=caption_field,dbstore=dbstore,
                                                     related_kwargs=related_kwargs,
                                                     root_id=root_id,columns=columns,resolved=resolved)
-        d = pane.data(storepath,b,childname='store',caption=caption,table=table) 
+        d = pane.data(storepath,b,childname='store',caption=caption,table=table,
+                    search_method=self.db.table(table).hierarchicalSearch,
+                    search_related_table=related_kwargs.get('table'),
+                    search_related_path=related_kwargs.get('path'),
+                    search_related_caption_field=related_kwargs.get('caption_field')
+                    ) 
         return d
 
     @public_method    
@@ -116,10 +121,10 @@ class HTableTree(BaseComponent):
     @struct_method
     def ht_hTableTree(self,pane,storepath='.store',table=None,root_id=None,draggable=True,columns=None,
                         caption_field=None,condition=None,caption=None,dbstore=None,condition_kwargs=None,store_kwargs=True,related_kwargs=None,root_id_delay=None,
-                        moveTreeNode=True,excludeRoot=None,resolved=False,**kwargs):
+                        moveTreeNode=True,excludeRoot=None,resolved=False,searchCode=None,**kwargs):
         
         treeattr = dict(storepath=storepath,hideValues=True,draggable=draggable,identifier='treeIdentifier',
-                            labelAttribute='caption',selectedLabelClass='selectedTreeNode',dropTarget=True)
+                            labelAttribute='caption',selectedLabelClass='selectedTreeNode',searchCode=searchCode,dropTarget=True)
         treeattr.update(kwargs)
         if excludeRoot:
             treeattr['storepath'] = '%(storepath)s.root' %treeattr
@@ -153,7 +158,7 @@ class HTableTree(BaseComponent):
             }
             THTree.refreshTree(dbChanges,store,treeNode,excludeRoot);""",
                         table=table,store='=%s' %treeattr['storepath'],treeNode=tree,excludeRoot=excludeRoot) 
-        tree.dataController("""storebag.getNode("root").getValue('reload');""",
+        tree.dataController("""storebag._nodes.forEach(function(n){n.getValue('reload')});""",
                             storebag='=%s' %treeattr['storepath'],
                             treeNode=tree,subscribe_public_changed_partition=True)
 
@@ -181,7 +186,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         box = pane.div(datapath='.#parent.hview',text_align='left',height='100%',childname='treebox')        
         formNode = pane.parentNode.attributeOwnerNode('formId')
         form = formNode.value
-        form.store.handler('load',default_parent_id='=#FORM/parent/#FORM.record.parent_id')
+        form.store.handler('load',default_parent_id='=#FORM.record.parent_id')
         table = formNode.attr['table']
         hviewTree = box.hviewTree(table=table,caption_field=caption_field,_class=_class or 'noIcon',excludeRoot=excludeRoot,**kwargs)
         form.htree = hviewTree
@@ -219,7 +224,7 @@ class TableHandlerHierarchicalView(BaseComponent):
             bar = pane.slotToolbar('*,treePicker,2',height='20px')
         tree = pane.hTableTree(table=table,childname='htree',
                           onDrag="""var sn = dragInfo.sourceNode;
-                                      if(sn.form.isNewRecord() || sn.form.locked ){return false;}""", 
+                                      if(sn.widget._filteringValue || sn.form.isNewRecord() || sn.form.locked ){return false;}""", 
                           selected_pkey='.tree.pkey',
                           selected_hierarchical_pkey='.tree.hierarchical_pkey',                          
                           selectedPath='.tree.path',margin='2px',_class=_class,**kwargs)
@@ -346,7 +351,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         hiddencolumns = gridattr['hiddencolumns'].split(',') if gridattr.get('hiddencolumns') else []
         for k in relation_kwargs.keys():
             altrelname = k.split('_')[0] #altrelname must not contain '_'
-            if not altrelname in relation_kwargs:
+            if altrelname not in relation_kwargs:
                 relation_kwargs[altrelname] = dictExtract(relation_kwargs,altrelname+'_',pop=True)
         for k,v in fkey_name_alt.items():
             condlist.append(" $%s = :fkey " %v)

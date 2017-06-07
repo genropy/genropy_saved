@@ -141,7 +141,7 @@ class GnrCustomWebPage(object):
     def test_9_bagridformula(self,pane):
         def struct(struct):
             r = struct.view().rows()
-            r.cell('description',name='Description',width='15em',edit=True,hidden='^hidden_0')
+            r.cell('description',name='^first_header_name',width='15em',edit=True,hidden='^hidden_0')
 
             r.cell('number',name='Number',width='7em',dtype='L',hidden='^hidden_1',
                     edit=True,columnset='ent')
@@ -169,6 +169,11 @@ class GnrCustomWebPage(object):
         bc.contentPane(region='right',splitter=True,width='5px')
         bc.contentPane(region='bottom',splitter=True,height='50px')
         fb.numberTextBox(value='^vat_perc',lbl='Vat perc.',default_value=10,colspan='10')
+        fb.data('first_header_name','Variable head')
+        fb.textbox(value='^first_header_name',lbl='First header')
+        fb.textbox(value='^colsetname',lbl='Colset',default_value='Enterable')
+        fb.textbox(value='^colsetentbg',lbl='Colset bg',default_value='green')
+
         fb.br()
         for i in range(9):
             fb.checkbox(value='^hidden_%s' %i,label='last %s' %i)
@@ -179,10 +184,10 @@ class GnrCustomWebPage(object):
                                                     struct=struct,height='300px',fillDown=True,
                                                     grid_footer='Totals',
                                                     pbl_classes=True,margin='5px',
-                                                    columnset_ent='Enterable',
+                                                    columnset_ent='^colsetname',
                                                     columnset_disc='Discount',
                                                     columnset_tot='Totals',
-                                                    columnset_ent_background='green',
+                                                    columnset_ent_background='^colsetentbg',
                                                     columnset_tot_background='red'
                                                     )
 
@@ -232,4 +237,36 @@ class GnrCustomWebPage(object):
                         struct=self.gridstruct,height=height,
                         addrow='auto',delrow='auto')
             s-=1
+
+
+    def test_13_autorow_date(self,pane):
+        bc = pane.borderContainer(height='300px')
+        top = bc.contentPane(region='top')
+        fb = top.formbuilder(cols=1,border_spacing='3px')
+        fb.dateTextBox(value='^s_date_base',lbl='Start date')
+        fb.dataController("""
+            sd = sd || new Date();
+            var y = sd.getFullYear();
+            var m = sd.getMonth();
+            for (var i=1;i<32; i++){
+                d = new Date(y,m,i);
+                if(d.getMonth()!=m){
+                    d = null;  
+                }
+                genro.setData('s_date_'+i,d);
+            }
+
+            """, sd='^s_date_base',_init=True)
+
+        center = bc.contentPane(region='center')
+
+        def struct(struct):
+            r = struct.view().rows()
+            r.cell('name',description='Name',width='15em',edit=True)
+            for i in range(1,32):
+                r.cell('day_%02i' %i, name='^s_date_%i' %i,name_format='EEE d',
+                    hidden='^s_date_%i?=!#v' %i,dtype='N',edit=True)
+
+        center.bagGrid(storepath='.store',title='Date grid',struct=struct,datapath='.mygrid',
+                    addrow='auto',delrow='auto')
 
