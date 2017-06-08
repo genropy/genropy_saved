@@ -32,13 +32,29 @@ class ViewFromPackage(BaseComponent):
         r = struct.view().rows()
         r.fieldcell('tblid')
         r.fieldcell('description')
+        r.cell('record_count',calculated=True,width='6em',name='Count',dtype='L',format='#,###')
+
+    def th_top_custom(self,top):
+        bar = top.bar.replaceSlots('searchOn','5,count_tblrec,5,searchOn')
+        bar.count_tblrec.slotButton('Count records',fire='.count_records')
+        bar.dataRpc(None,self.countTblinfoRecords,pkgid='=#FORM.record.pkgid',_fired='^.count_records')
+
+    def th_view(self,view):
+        view.dataController("""
+            store.getNodeByAttr('tblid',tblid).updAttributes({record_count:count});
+        """,
+        subscribe_update_tblinfo_record_count=True,store='=.store',grid=view.grid.js_widget)
+    
+    @public_method
+    def countTblinfoRecords(self,pkgid=None):
+        f = self.db.table('adm.tblinfo').query(where='$pkgid=:pid',pid=pkgid).fetch()
+        for r in f:
+            tblid = r['tblid']
+            self.clientPublish('update_tblinfo_record_count',tblid=tblid,count=self.db.table(tblid).countRecords())
+
 
     def th_order(self):
         return 'tblid'
-
-
-    def th_options(self):
-        return dict(virtualStore=False)
 
 
 class Form(BaseComponent):
