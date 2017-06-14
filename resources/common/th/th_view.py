@@ -87,12 +87,12 @@ class TableHandlerView(BaseComponent):
                 mainIdx++;
             });
             SET .query.where = where;
-        """,queryBySample='^.queryBySample',queryEditor='^.query.queryEditor',
-                            _if='queryEditor=="sample"')
+        """,queryBySample='^.queryBySample',currentQuery='^.query.currentQuery',
+                            _if='currentQuery=="__querybysample__"')
         fb = bar.fb.formbuilder(onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});',
                                 **pars)
-        bar.dataController("""genro.dom.toggleVisible(bar,queryEditor=="sample");
-                            view.widget.resize();""", queryEditor='^.query.queryEditor',
+        bar.dataController("""genro.dom.toggleVisible(bar,currentQuery=="__querybysample__");
+                            view.widget.resize();""", currentQuery='^.query.currentQuery',
                             view=view, bar=bar,_onBuilt=True)
         tblobj = self.db.table(table)
         for i,fkw in enumerate(fields):
@@ -435,12 +435,17 @@ class TableHandlerView(BaseComponent):
     def th_slotbar_queryMenu(self,pane,**kwargs):
         pane.div(_class='iconbox menubox magnifier').menu(storepath='.query.menu',_class='smallmenu',modifiers='*',
                     action="""
-                                SET .query.currentQuery = $1.fullpath;
-                                if(!$1.pkey && $1.fullpath!="__querybysample__"){
-                                    SET .query.queryEditor = false;
-                                }
-                                SET .query.menu.__queryeditor__?disabled=$1.selectmethod!=null;
-                            """)
+                    if($1.fullpath=='__queryeditor__'){
+                        var currentQuery = GET .query.currentQuery;
+                        if(currentQuery=='__querybysample__'){
+                            SET .query.currentQuery = '__basequery__';
+                        }
+                        SET .query.queryEditor=true; 
+                        SET .query.queryAttributes.extended = true;
+                    }else{
+                        SET .query.currentQuery = $1.fullpath;
+                        SET .query.menu.__queryeditor__?disabled=$1.selectmethod!=null;
+                    }""")
 
     @public_method
     @metadata(prefix='query',code='default_duplicate_finder',description='!!Find all duplicates')
@@ -1006,8 +1011,7 @@ class THViewUtils(BaseComponent):
         if bySample:
             querymenu.setItem('__querybysample__',None,caption='!!Query by sample',extended=True)
         if editor:
-            querymenu.setItem('__queryeditor__',None,caption='!!Query editor',action="""
-                                                                SET .query.queryEditor='full'; """)
+            querymenu.setItem('__queryeditor__',None,caption='!!Query editor',extended=False)
         else:
             querymenu.setItem('__newquery__',None,caption='!!New query',description='',
                                 extended=True)
