@@ -57,7 +57,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         nodeId = nodeId || '_pageRoot';
         this.getMainSource(function(newpage){
             var newcontent = newpage._value.getNodeByAttr('nodeId',nodeId);
-            genro.nodeById(nodeId).replaceContent(newcontent.getValue());
+            genro.nodeById(nodeId).mergeRemoteContent(newcontent.getValue());
         });
     },
 

@@ -1968,7 +1968,7 @@ class GnrWebPage(GnrBaseWebPage):
         cell = tbl.tr().td()
         cell.div(float='right', padding='2px').button('Back', action='genro.pageBack()')
 
-    def forbiddenPage(self, root, **kwargs):
+    def forbiddenPage(self, root,msg=None, **kwargs):
         """
         :param root: the root of the page. For more information, check the
                      :ref:`webpages_main` section"""
@@ -1977,7 +1977,7 @@ class GnrWebPage(GnrBaseWebPage):
         #f.div(content='Forbidden Page', text_align="center", font_size='24pt')
         tbl = dlg.contentPane(_class='dojoDialogInner').table()
         row = tbl.tr()
-        row.td(content='Sorry. You are not allowed to use this page.', align="center", font_size='16pt',
+        row.td(content=msg or 'Sorry. You are not allowed to use this page.', align="center", font_size='16pt',
                color='#c90031')
         cell = tbl.tr().td()
         cell.div(float='right', padding='2px').button('Back', action='genro.pageBack()')

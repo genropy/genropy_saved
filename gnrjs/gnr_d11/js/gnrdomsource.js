@@ -1442,6 +1442,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
 
     },
+    
     updateRemoteContent:function(forceUpdate) {
         var _onRemote = false;
         var currentValue = this.getValue('static');
@@ -1493,28 +1494,26 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             kwargs.sync = false;
         }
         genro.rpc.remoteCall(method, kwargs, null, 'POST', null,
-                            function(result) {
-                                //that.setValue(result);
-                                if(result.error){
-                                    genro.dlg.alert('Error in remote '+result.error,'Error')
-                                }else{
-                                    that.mergeRemoteContent(result);
-                                }
-                                if (_onRemote) {
-                                    that.watch('checkPendingRequires',function(){
-                                        return !objectNotEmpty(genro.dom.pendingHeaders);
-                                    },function(){
-                                        if(remoteAttr._waitingMessage){
-                                            that.setHiderLayer(false);
-                                        }
-                                        that.replaceContent(result)
-                                        if (_onRemote) {
-                                            _onRemote();
-                                        }
-                                    });
-                                }
-                            });
+            function(result) {
+                //that.setValue(result);
+                if(result.error){
+                    genro.dlg.alert('Error in remote '+result.error,'Error')
+                }else{
+                    that.watch('checkPendingRequirs',function(){
+                        return !objectNotEmpty(genro.dom.pendingHeaders);
+                    },function(){
+                        if(remoteAttr._waitingMessage){
+                            that.setHiderLayer(false);
+                        }
+                        that.mergeRemoteContent(result)
+                        if (_onRemote) {
+                            _onRemote();
+                        }
+                    });
+                }
+            });
     },
+
     getValidationError: function() {
         if (this._validations) {
             return this._validations.error;
@@ -1658,6 +1657,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         child = content.setItem(path, source.getNodes()[0]);
         return child;
     },
+
     mergeRemoteContent:function(value){
         var mergetable = this.attr.tag=='tbody'
         var currval = this._value;
@@ -1680,10 +1680,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             dojo.forEach(value._nodes,function(n){
                 var node = value.popNode(n.label);
                 var label = mergetable?'remote_merged_'+node.label:node.label;
-                currval.setItem('remote_merged_'+node.label,node);
+                currval.setItem(label,node);
             });
         }
-        
     },
     
     _ : function(tag, name, attributes, extrakw) {
