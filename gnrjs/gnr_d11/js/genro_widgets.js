@@ -2801,7 +2801,7 @@ dojo.declare("gnr.widgets.Button", [gnr.widgets.baseDojo,gnr.widgets._ButtonLogi
         this._dojotag = 'Button';
     },
     creating:function(attributes, sourceNode) {
-        var buttoNodeAttr = 'height,width,padding';
+        var buttoNodeAttr = 'height,width,padding,background,background_color';
         var savedAttrs = objectExtract(attributes, 'fire_*');
         savedAttrs['_style'] = genro.dom.getStyleDict(objectExtract(attributes, buttoNodeAttr));
         savedAttrs['action'] = objectPop(attributes, 'action');
