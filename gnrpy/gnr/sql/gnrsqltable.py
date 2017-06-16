@@ -1285,7 +1285,8 @@ class SqlTable(GnrObject):
                 if not usingRootstore and relatedTable.use_dbstores() is False:
                     continue
                 sel = relatedTable.query(columns='*', where='$%s = :pid' % mfld,
-                                         pid=record[ofld], for_update=True,excludeDraft=False).fetch()
+                                         pid=record[ofld], for_update=True,excludeDraft=False,
+                                         excludeLogicalDeleted=False).fetch()
                 if sel:
                     if onDelete in ('r', 'raise'):
                         raise self.exception('delete', record=record, msg='!!Record referenced in table %(reltable)s',
