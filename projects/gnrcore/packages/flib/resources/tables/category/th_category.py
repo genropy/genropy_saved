@@ -5,23 +5,27 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 
 class View(BaseComponent):
+    def th_hiddencolumns(self):
+        return '_h_count'
     def th_struct(self,struct):
         r = struct.view().rows()
-        
-        r.fieldcell('code', name='!!Code')
-        r.fieldcell('description', name='!!Description')
+        r.fieldcell('hierarchical_child_code', name='!!Code')
+        r.fieldcell('hierarchical_description', name='!!Description')
         
     def th_order(self):
-        return 'description'
+        return '_h_count'
         
     def th_query(self):
-        return dict(column='description',op='contains',val='',runOnStart=True)
+        return dict(column='description',op='contains',val='')
         
 class Form(BaseComponent):
     def th_form(self, form):
-        pane = form.record
+        bc = form.center.borderContainer()
+        fb = bc.contentPane(region='top',datapath='.record').formbuilder()
+        fb.field('child_code')
+        fb.field('description')
+        bc.contentPane(region='center').plainTableHandler(relation='@items',pbl_classes=True,margin='2px')
 
-        fb = pane.formbuilder(cols=1, margin_left='2em',border_spacing='7px',
-                              margin_top='1em')
-        r.field('code', lbl='!!Code')
-        r.field('description', lbl='!!Description')
+
+    def th_options(self):
+        return dict(hierarchical=True)

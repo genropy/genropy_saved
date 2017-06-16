@@ -132,7 +132,10 @@ class HTableTree(BaseComponent):
                 treeattr['storepath'] = '%s.%s' %(treeattr['storepath'],root_id)
         tree = pane.tree(**treeattr)
         store_kwargs.update(condition_kwargs)
-        tree.htableViewStore(storepath=storepath,table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,related_kwargs=related_kwargs,dbstore=dbstore,resolved=resolved,**store_kwargs)
+        tree.htableViewStore(storepath=storepath,table=table,caption_field=caption_field,condition=condition,
+                            root_id=root_id,columns=columns,
+                            related_kwargs=related_kwargs,
+                            dbstore=dbstore,resolved=resolved,**store_kwargs)
         if moveTreeNode:
             treeattr = tree.attributes
             treeattr['onDrop_nodeattr']="""var into_pkey = dropInfo.treeItem.attr.pkey;

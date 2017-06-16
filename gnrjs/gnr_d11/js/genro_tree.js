@@ -354,7 +354,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         } else if (bagnode._value instanceof gnr.GnrBag) {
             bagnode._value.forEach(function(node) {
                 var checked = ('checked' in node.attr) ? (node.attr.checked || false) : -1;
-                ck = (ck == null) ? checked : (ck != checked) ? -1 : ck;
+                ck = (ck === null) ? checked : (ck != checked) ? -1 : ck;
             }, 'static');
         }
         return ck;

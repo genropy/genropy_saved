@@ -554,7 +554,7 @@ dojo.declare("gnr.GnrBag", null, {
         return  new this._nodeFactory(parentbag, label, value, _attr, _resolver);
     },
 
-    fillFrom: function(source) {
+    fillFrom: function(source,kw) {
         var sourceType = guessDtype(source);
         var dest = this;
         if (sourceType=='AR') {

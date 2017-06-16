@@ -84,8 +84,8 @@ class ImagesView(BaseComponent):
 class LoadedFilesView(ThumbsView):
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell("title", width='10em', zoom=True)
-        r.fieldcell("description", width='100%', zoom=True)
+        r.fieldcell("title", width='10em', edit=True)
+        r.fieldcell("description", width='100%', edit=True)
         r.cell("_thumb", width='5em', name='!!Thumb', calculated=True)
     
     def th_view(self,view):

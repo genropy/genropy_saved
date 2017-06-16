@@ -9,15 +9,16 @@ from gnr.core.gnrbag import Bag
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs
 class FlibBase(BaseComponent):
-    py_requires = 'th/th:TableHandler,gnrcomponents/htablehandler:HTableHandlerBase'
+    py_requires = 'th/th:TableHandler'
     css_requires = 'public'
     
     @struct_method
     def flib_flibSavedFilesGrid(self, pane, checked_categories=None, reloader=None, label=None,
                                 viewResource=None,preview=None,configurable=False):
         viewResource = viewResource or ':LoadedFilesView'
-        th = pane.plainTableHandler(table='flib.item',configurable=configurable,viewResource=viewResource,nodeId='flib_item_%s' %id(pane))
-        th.view.attributes.update(margin='2px',rounded=6,border='1px solid gray')
+        th = pane.inlineTableHandler(table='flib.item',configurable=configurable,pbl_classes=True,
+                        viewResource=viewResource,nodeId='flib_item_%s' %id(pane),margin='2px',autoSave=True,
+                        addrow=False,delrow=True)
         if checked_categories:
             storePars = {}
             storePars['where'] = '@categories.category_id IN :checked_categories'
@@ -28,7 +29,6 @@ class FlibBase(BaseComponent):
                                 checked_categories=checked_categories)
             storePars['startLocked'] = False
             th.view.store.attributes.update(storePars)
-            th.view.top.bar.replaceSlots('#','#,delrow')
         th.view.grid.attributes.update(hiddencolumns='$__ins_ts,$thumb_url,$url,$ext,$metadata')
         if preview:
             footer = th.view.bottom.slotBar('preview',closable='close',closable_tip='!!Preview',splitter=True)
@@ -61,20 +61,15 @@ class FlibPicker(FlibBase):
                             pickerId=pickerId, **{'subscribe_%s_open' % pickerId: True})
         bc = pane.borderContainer()
         left = bc.contentPane(region='left', splitter=True, width='150px', _class='pbl_roundedGroup', margin='2px')
-        left.data('.tree.store',
-                  self.ht_treeDataStore(table='flib.category', rootpath=rootpath, rootcaption='!!Categories',
-                                        rootcode='%'),
-                  rootpath=rootpath)
-        left.tree(storepath='.tree.store',
+        left.hTableTree(storepath='.tree.store',table='flib.category',
                   margin='10px', isTree=False, hideValues=True,
                   labelAttribute='caption',
                   selected_pkey='.tree.pkey', selectedPath='.tree.path',
                   selectedLabelClass='selectedTreeNode',
-                  selected_code='.tree.code',
+                  selected_hierarchical_pkey='.tree.hierarchical_pkey',
                   selected_caption='.tree.caption',
                   inspect='shift',
                   selected_child_count='.tree.child_count')
-
         bc.contentPane(region='center', margin='2px').flibSavedFilesGrid()
         
     @struct_method
@@ -94,38 +89,40 @@ class FlibPicker(FlibBase):
     def flib_flibPickerPane(self,pane,rootpath=None,limit_rec_type=None,preview=True,viewResource=None,treepane_kwargs=None,gridpane_kwargs=None):
         bc = pane.borderContainer()
         left = bc.contentPane(**treepane_kwargs)
-        left.data('.tree.store',
-                  self.ht_treeDataStore(table='flib.category', rootpath=rootpath, rootcaption='!!Categories',
-                                        rootcode='%'),
-                  rootpath=rootpath)
         pickerTreeId = 'flibPickerTree_%s' %id(left)
-        left.div(position='absolute',top='1px',left='1px',bottom='1px',right='1px',overflow='auto').tree(storepath='.tree.store',
-                  nodeId=pickerTreeId,
+        left.div(position='absolute',top='1px',left='1px',bottom='1px',right='1px',overflow='auto').hTableTree(storepath='.tree.store',
+                  nodeId=pickerTreeId,table='flib.category',
                   margin='10px', isTree=False, hideValues=True,
                   labelAttribute='caption',
                   selected_pkey='.tree.pkey', selectedPath='.tree.path',
                   selectedLabelClass='selectedTreeNode',
-                  selected_code='.tree.code',
+                  selected_hierarchical_pkey='.tree.hierarchical_pkey',
                   selected_caption='.tree.caption',
                   inspect='shift',
                   selected_child_count='.tree.child_count')
         th = bc.contentPane(**gridpane_kwargs).flibSavedFilesGrid(viewResource=viewResource,preview=preview)
-        th.view.store.attributes.update(dict(where="@categories.@category_id.code LIKE :cat_code || '%%'",
-                             cat_code='^#%s.tree.code' %pickerTreeId,
-                             order_by='$title', _if='cat_code', _else='null'))
+        th.view.store.attributes.update(dict(where="@categories.@category_id.hierarchical_pkey LIKE :cat_hierarchical_pkey || '/%%'",
+                             cat_hierarchical_pkey='^#%s.tree.hierarchical_pkey' %pickerTreeId,
+                             order_by='$title', _if='cat_hierarchical_pkey', _else='null'))
         return bc
         
 class FlibUploaderMain(BaseComponent):
-    py_requires = """public:Public,gnrcomponents/htablehandler:HTablePicker,
-                    gnrcomponents/drop_uploader,flib:FlibBase"""
+    py_requires = """public:Public,gnrcomponents/drop_uploader,flib:FlibBase"""
 
     def main(self, root, **kwargs):
         frame = root.rootBorderContainer(title='!!Upload file', datapath='main')
         left = frame.contentPane(region='left', width='150px', _class='pbl_roundedGroup', margin='2px', splitter=True)
-        left.div('!!Categories', _class='pbl_roundedGroupLabel')
-        self.htablePicker(left, nodeId='category_picker',
-                          table='flib.category', datapath='category_picker',
-                          output_pkeys='selected_categories', editMode='bc')
+        left.div('!!Categories', _class='pbl_roundedGroupLabel')  
+        left.hTableTree(storepath='.tree.store',table='flib.category',
+                  margin='10px', isTree=False, hideValues=True,
+                  labelAttribute='caption',nodeId='category_picker',
+                  selected_pkey='.tree.pkey', selectedPath='.tree.path',
+                  selectedLabelClass='selectedTreeNode',
+                  selected_hierarchical_pkey='.tree.hierarchical_pkey',
+                  selected_caption='.tree.caption',
+                  inspect='shift',resolved=True,
+                  checked_pkey='selected_categories',
+                  selected_child_count='.tree.child_count')
         frame.contentPane(region='right', margin='2px',
                             splitter=True,width='300px').flibSavedFilesGrid(checked_categories='^selected_categories')
         self.uploader_pane(frame.contentPane(region='center', margin='2px'))
@@ -142,7 +139,7 @@ class FlibUploaderMain(BaseComponent):
                           metacol_description=dict(name='!!Descripton', width='15em'),
                           process_thumb32=True,
                           external_categories='=selected_categories', preview=True,
-                          footer=footer,margin='2px',rounded=6,border='1px solid gray')
+                          footer=footer,margin='2px',pbl_classes=True)
 
 
     def process_thumb32(self):

@@ -6,9 +6,7 @@
 import hashlib
 
 class GnrCustomWebPage(object):
-    py_requires = """public:TableHandlerMain,
-                   foundation/macrowidgets:RichTextEditor,
-                    gnrcomponents/htablehandler:HTableHandlerBase"""
+    py_requires = """public:TableHandlerMain"""
     maintable = 'adm.user'
 
     def windowTitle(self):
