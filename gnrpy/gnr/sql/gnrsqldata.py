@@ -2170,7 +2170,11 @@ class SqlRecord(object):
                                                                                  self.compiled.get_sqltext(self.db),
                                                                                  params))
             else:
-                if self.ignoreDuplicate:
+                if self.dbtable.logicalDeletionField:
+                    data = filter(lambda r: r['%s0_%s' %(self.aliasPrefix,self.dbtable.logicalDeletionField)] is None,data)
+                if len(data) == 1:
+                    self._result = data[0]
+                elif self.ignoreDuplicate:
                     self._result = data[0]
                 else:
                     raise RecordDuplicateError(
