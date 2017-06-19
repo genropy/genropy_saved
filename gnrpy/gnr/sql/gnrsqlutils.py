@@ -122,11 +122,12 @@ class SqlModelChecker(object):
         self.db = db
         self.unaccent = False
         
-    def checkDb(self):
+    def checkDb(self,enableForeignKeys=None):
         """Return a list of instructions for the database building"""
         create_db = False
         self.changes = []
         self.bagChanges = Bag()
+        self.enableForeignKeys = enableForeignKeys is not False
         try:
             self.actual_schemata = self.db.adapter.listElements('schemata')
         except GnrNonExistingDbException, exc:
@@ -305,7 +306,7 @@ class SqlModelChecker(object):
                           :] #get all db foreignkey of the current table
         relations = [rel for rel in tbl.relations.digest('#a.joiner') if rel]
         for rel in relations:
-            if rel.get('foreignkey'): # link has foreignkey constraint
+            if self.enableForeignKeys and rel.get('foreignkey'): # link has foreignkey constraint
                 o_pkg_sql, o_tbl_sql, o_fld_sql, m_pkg_sql, m_tbl_sql, m_fld_sql = self._relationToSqlNames(rel)
                 on_up = self._onStatementToSql(rel.get('onUpdate_sql')) or 'NO ACTION'
                 on_del = self._onStatementToSql(rel.get('onDelete_sql')) or 'NO ACTION'

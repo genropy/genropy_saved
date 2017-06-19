@@ -255,6 +255,12 @@ class DbModel(object):
             self.applyModelChanges()
         return bool(self.modelChanges)
         
+    def enableForeignKeys(self, enable=True):
+        checker = SqlModelChecker(self.db)
+        self.modelChanges = checker.checkDb(enableForeignKeys=enable)
+        self.modelBagChanges = checker.bagChanges
+        self.applyModelChanges()
+
     @property
     def checker(self):
         return SqlModelChecker(self.db)
