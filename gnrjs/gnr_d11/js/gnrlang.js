@@ -1721,7 +1721,7 @@ function funcApply(fnc, parsobj, scope,argNames,argValues,showError) {
     argNames.push('_kwargs');
     argValues.push(parsobj);
     if(typeof(fnc)=='function'){
-        var signature = fnc.toString().match(/function +\(([\w \,]*)\)/)[1];
+        var signature = fnc.toString().match(/function *\(([\w \,]*)\)/)[1];
         var idx;
         if(signature){
             var argValuesCopy = copyArray(argValues);
