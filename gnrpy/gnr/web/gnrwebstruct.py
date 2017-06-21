@@ -797,7 +797,7 @@ class GnrDomSrc(GnrStructData):
                                       rowdatapath=rowdatapath,
                                       head_rows=head_rows, 
                                       excludeCols=excludeCols,
-                                      byColumn=byColumn,
+                                      byColumn=byColumn,colswidth=colswidth,
                                       commonKwargs=commonKwargs)
         
         inattr = self.getInheritedAttributes()
@@ -1906,7 +1906,7 @@ class GnrFormBuilder(object):
     def __init__(self, tbl, cols=None, dbtable=None, fieldclass=None,
                  lblclass='gnrfieldlabel', lblpos='L',byColumn=None, lblalign=None, fldalign=None,
                  lblvalign='top', fldvalign='top', rowdatapath=None, head_rows=None,
-                 excludeCols=None, commonKwargs=None):
+                 excludeCols=None, colswidth=None,commonKwargs=None):
         self.commonKwargs = commonKwargs or {}
         self.lblalign = lblalign or {'L': 'right', 'T': 'left'}[lblpos] # jbe?  why is this right and not left?
         self.fldalign = fldalign or {'L': 'left', 'T': 'center'}[lblpos]
@@ -1914,6 +1914,7 @@ class GnrFormBuilder(object):
         self.fldvalign = fldvalign
         self.lblclass = lblclass
         self.fieldclass = fieldclass
+        self.colswidth = colswidth
         self.colmax = cols
         self.lblpos = lblpos
         self.rowlast = -1

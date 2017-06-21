@@ -1689,7 +1689,37 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         domNode['_listener_'+code] = [cb,capture];
         domNode.addEventListener(evtname,cb,capture);
+    },
+
+    styleSheetExpandedList:function(styleSheet){
+        var result = [];
+        dojo.forEach(styleSheet.cssRules,function(cr){
+            if(cr instanceof CSSStyleRule){
+                result.push(cr.cssText);
+            }else if(cr instanceof CSSImportRule){
+                result = result.concat(genro.dom.styleSheetExpandedList(cr.styleSheet));
+            }
+        });
+        return result;
+    },
+
+    cssRulesToText:function(){
+        var result = [];
+        dojo.forEach(document.styleSheets,function(ss){
+            result = result.concat(genro.dom.styleSheetExpandedList(ss));
+        });
+        return result.join('\n');
+    },
+
+    exportNodeAsPdf:function(nodeIds,kw){
+        kw = kw || {}
+        kw.style = this.cssRulesToText();
+        var extrastyles= objectPop(kw,'extrastyles');
+        if(extrastyles){
+            kw.style += ('\n'+extrastyles);
+        }
+        nodeIds = typeof(nodeIds)=='string'? nodeIds.split(','):nodeIds;
+        kw.pages = nodeIds.map(function(n){return genro.dom.getDomNode(n).innerHTML;})
+        genro.serverCall('utils.exportPdfFromNodes',kw);
     }
-
-
 });

@@ -6081,7 +6081,15 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             }
             gnr.getGridColumns(this.storeNode);
             var newColumns = this.storeNode._currentColumns? this.storeNode._currentColumns.split(','):[];
-            if(newColumns.some(function(n){return !(n.trim().split(' ')[0].replace('$','').replace(/\./g, '_').replace(/@/g, '_') in dataColumns)})){
+            if(newColumns.some(function(n){
+                n = n.toLowerCase();
+                if(n.indexOf(' as ')>=0){
+                    n = n.split(' as ')[1]
+                }else{
+                    n = n.trim().split(' ')[0].replace('$','').replace(/\./g, '_').replace(/@/g, '_');
+                }
+                return !(n in dataColumns)
+            })){
                 this.loadData();
             } 
         }

@@ -255,6 +255,12 @@ class DbModel(object):
             self.applyModelChanges()
         return bool(self.modelChanges)
         
+    def enableForeignKeys(self, enable=True):
+        checker = SqlModelChecker(self.db)
+        self.modelChanges = checker.checkDb(enableForeignKeys=enable)
+        self.modelBagChanges = checker.bagChanges
+        self.applyModelChanges()
+
     @property
     def checker(self):
         return SqlModelChecker(self.db)
@@ -690,7 +696,6 @@ class DbPackageObj(DbModelObj):
             if sqlprefix is True:
                 sqlprefix = self.name
             return '%s_%s' % (sqlprefix, tblobj.name)
-
             
     def _get_sqlschema(self):
         return self.attributes.get('sqlschema', self.dbroot.main_schema)

@@ -78,7 +78,7 @@ class Form(BaseComponent):
         fb.field('default_tag',condition='$child_count = 0 AND $isreserved IS NOT TRUE',
                 tag='dbselect',
                 dbtable='adm.htag',
-                alternatePkey='$hierarchical_code',
+                alternatePkey='hierarchical_code',
                 hasDownArrow=True,
                 validate_notnull=True)
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
 def config(root,application=None):
-    root.webpage(u"!!Categories", filepath="/flib/categories")
-    root.webpage(u"!!Item uploader", filepath="/flib/item_uploader")
-    root.thpage(u"!!Items", table="flib.item")
+    flib = root.branch(u"!!Flib", tags="admin")
+
+    flib.thpage(u"!!Categories", table="flib.category")
+    flib.webpage(u"!!Uploader", filepath="/flib/item_uploader")
+    flib.thpage(u"!!Items", table="flib.item")

@@ -77,7 +77,7 @@ class DropUploaderBase(BaseComponent):
                                  grid_selfsubscribe_doupload='FIRE .doupload;',
                                  grid_selectedLabel='.selectedLabel',
                                  grid_dropTarget_grid='Files',
-                                 grid_dropTarget=True,grid_dropTypes='Files')
+                                 grid_dropTarget=True,grid_dropTypes='Files',pbl_classes=True)
         grid = frame.grid
         bar = frame.top.bar.replaceSlots('#','3,framelabel,*,delrow,doupload,3',delrow_disabled=False)
         bar.framelabel.div(label or '!!Uploader')
@@ -111,9 +111,9 @@ class DropUploaderBase(BaseComponent):
                 external_params = this.evaluateOnNode(external_params);
                 dojo.forEach(files,
                             function(f){
-                                var row = objectUpdate({_name:f.name,_size:f.size,_type:f.type,_file:f,_uploaderId:uploaderId},external_params);
                                 var label = (f.name+'_'+f.size+'_'+f.type).replace(/\W/g,'_');
                                 if(filebag.index(label)<0){
+                                    var row = objectUpdate({_name:f.name,_size:f.size,_type:f.type,_file:f,_uploaderId:uploaderId},external_params);
                                     var r = new gnr.GnrBag(row);
                                     filebag.setItem(label,r);
                                 }

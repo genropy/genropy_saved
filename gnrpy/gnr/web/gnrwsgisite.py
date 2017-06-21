@@ -262,6 +262,7 @@ class GnrWsgiSite(object):
         self.mail_handler = self.addService(WebMailHandler, service_name='mail')
         self.task_handler = self.addService(TaskHandler, service_name='task')
         self.process_cmd = CommandHandler(self)
+        self.register
         self.services.addSiteServices()
         
         self._remote_edit = options.remote_edit if options else None
@@ -986,7 +987,7 @@ class GnrWsgiSite(object):
                 self.error_smtp_kwargs = dict(error_smtp_kwargs)
                 self.error_smtp_kwargs['error_email_from'] = self.error_smtp_kwargs.pop('from_address')
                 err_kwargs.update(error_smtp_kwargs)
-            wsgiapp = ErrorMiddleware(wsgiapp, **err_kwargs)
+                wsgiapp = ErrorMiddleware(wsgiapp, **err_kwargs)
         if gzip:
             from paste.gzipper import middleware as gzipper_middleware
             wsgiapp = gzipper_middleware(wsgiapp)

@@ -25,14 +25,15 @@ def checklist(name=None, pkg=None, code=None, subcode=None,**kwargs):
     code = '%03i' % (code or 0)
     subcode = '%02i' % (subcode or 0)
     def decore(func):
-        checklist_dict = dict(pkg=pkg, name=name, subcode=subcode, code=code)
+        modulepkg = func.func_code.co_filename.split('packages%s' %sep)[1].split(sep)[0]
+        checklist_dict = dict(pkg=pkg or modulepkg, name=name, subcode=subcode, code=code)
         def newFunc(tbl):
             description = func.func_doc
             pars = dict(checklist_dict)
-            pars['pkg'] = pars['pkg'] or tbl.pkg.name
+            pars['pkg'] = pars['pkg']
             pars['name'] = pars['name'] or func.func_name.replace('_',' ').capitalize()
             return tbl.newrecord(description=description,**pars)
-        modulepkg = func.func_code.co_filename.split('packages%s' %sep)[1].split(sep)[0]
+       
         syscode = '_'.join([pkg or modulepkg, code, subcode])
         newFunc.instance_mixin_as = 'sysRecord_%s' % syscode
         newFunc.mandatory = True

@@ -4,16 +4,20 @@ from gnr.core.gnrstring import toText
 
 class XlsWriter(object):
     """TODO"""
-    def __init__(self, columns=None, coltypes=None, headers=None, filepath=None,
+    def __init__(self, columns=None, coltypes=None, headers=None, filepath=None,sheet_base_name=None,
                  font='Times New Roman', format_float='#,##0.00', format_int='#,##0', locale=None):
-        self.headers = headers
-        self.columns = columns
+       #self.headers = headers
+       #self.columns = columns
+        self.sheets = {}
         self.filepath = '%s.xls' % os.path.splitext(filepath)[0]
         self.workbook = xlwt.Workbook(encoding='latin-1')
-        self.sheet = self.workbook.add_sheet(os.path.basename(self.filepath)[:31])
-        self.coltypes = coltypes
+        if sheet_base_name is not False:
+            self.sheet_base_name = sheet_base_name or os.path.basename(self.filepath)[:31]
+            self.createSheet(self.sheet_base_name,headers=headers,columns=columns,coltypes=coltypes)
+        else:
+            self.sheet_base_name = False
+        #self.sheet = self.workbook.add_sheet(os.path.basename(self.filepath)[:31])
         self.locale = locale
-        
         self.float_style = xlwt.XFStyle()
         self.float_style.num_format_str = format_float
         self.int_style = xlwt.XFStyle()
@@ -24,16 +28,45 @@ class XlsWriter(object):
         
         self.hstyle = xlwt.XFStyle()
         self.hstyle.font = font0
+
+    @property
+    def sheet(self):
+        return self.sheets[self.sheet_base_name]['sheet']
         
-        self.sheet.panes_frozen = True
-        self.sheet.horz_split_pos = 1
-        self.colsizes = dict()
+    @property
+    def headers(self):
+        return self.sheets[self.sheet_base_name]['headers']
+
+    @property
+    def columns(self):
+        return self.sheets[self.sheet_base_name]['headers']
+
+    @property
+    def colsizes(self):
+        return self.sheets[self.sheet_base_name]['colsizes']
+
+    @property
+    def coltypes(self):
+        return self.sheets[self.sheet_base_name]['coltypes']
+
+    @property
+    def current_row(self):
+        return self.sheets[self.sheet_base_name]['current_row']
+
+
+    def createSheet(self,sheetname,headers=None,columns=None,coltypes=None,colsizes=None):
+        colsizes = colsizes or dict()
+        self.sheets[sheetname] = {'sheet': self.workbook.add_sheet(sheetname),
+                                   'headers':headers,'columns':columns,
+                                    'colsizes':colsizes,'coltypes':coltypes}
+        self.sheets[sheetname]['sheet'].panes_frozen = True
+        self.sheets[sheetname]['sheet'].horz_split_pos = 1
         
-    def __call__(self, data=None):
-        self.writeHeaders()
+    def __call__(self, data=None, sheet_name=None):
+        self.writeHeaders(sheet_name=sheet_name)
         for item in data:
             row = self.rowGetter(item)
-            self.writeRow(row)
+            self.writeRow(row,sheet_name=sheet_name)
         self.workbookSave()
         
     def rowGetter(self, item):
@@ -42,35 +75,46 @@ class XlsWriter(object):
         :param item: TODO"""
         return dict(item)
         
-    def writeHeaders(self):
+    def writeHeaders(self,sheet_name=None):
         """TODO"""
-        for c, header in enumerate(self.headers):
-            self.sheet.write(0, c, header, self.hstyle)
-            self.colsizes[c] = max(self.colsizes.get(c, 0), self.fitwidth(header))
-        self.current_row = 0
+        sheet_name = sheet_name or self.sheet_base_name
+        sheet = self.sheets[sheet_name]['sheet']
+        headers = self.sheets[sheet_name]['headers']
+        colsizes = self.sheets[sheet_name]['colsizes']
+        for c, header in enumerate(headers):
+            sheet.write(0, c, header, self.hstyle)
+            colsizes[c] = max(colsizes.get(c, 0), self.fitwidth(header))
+        self.sheets[sheet_name]['current_row'] = 0
         
     def workbookSave(self):
         """TODO"""
         self.workbook.save(self.filepath)
         
-    def writeRow(self, row):
+    def writeRow(self, row, sheet_name=None):
         """TODO
         
         :param row: TODO"""
-        self.current_row += 1
-        for c, col in enumerate(self.columns):
+        sheet_name = sheet_name or self.sheet_base_name
+        current_row = self.sheets[sheet_name]['current_row'] + 1
+        self.sheets[sheet_name]['current_row'] = current_row
+        sheet = self.sheets[sheet_name]['sheet']
+        columns = self.sheets[sheet_name]['columns']
+        coltypes = self.sheets[sheet_name]['coltypes']
+        colsizes = self.sheets[sheet_name]['colsizes']
+
+        for c, col in enumerate(columns):
             value = row.get(col)
             if isinstance(value, list):
                 value = ','.join([str(x != None and x or '') for x in value])
-            coltype = self.coltypes.get(col)
+            coltype = coltypes.get(col)
             if coltype in ('R', 'F', 'N'):
-                self.sheet.write(self.current_row, c, value, self.float_style)
+                sheet.write(current_row, c, value, self.float_style)
             elif coltype in ('L', 'I'):
-                self.sheet.write(self.current_row, c, value, self.int_style)
+                sheet.write(current_row, c, value, self.int_style)
             else:
                 value = toText(value, self.locale)
-                self.sheet.write(self.current_row, c, value)
-            self.colsizes[c] = max(self.colsizes.get(c, 0), self.fitwidth(value))
+                sheet.write(current_row, c, value)
+            colsizes[c] = max(colsizes.get(c, 0), self.fitwidth(value))
             
     def fitwidth(self, data, bold=False):
         """Try to autofit Arial 10

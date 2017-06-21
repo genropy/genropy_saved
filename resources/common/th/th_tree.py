@@ -132,7 +132,10 @@ class HTableTree(BaseComponent):
                 treeattr['storepath'] = '%s.%s' %(treeattr['storepath'],root_id)
         tree = pane.tree(**treeattr)
         store_kwargs.update(condition_kwargs)
-        tree.htableViewStore(storepath=storepath,table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,related_kwargs=related_kwargs,dbstore=dbstore,resolved=resolved,**store_kwargs)
+        tree.htableViewStore(storepath=storepath,table=table,caption_field=caption_field,condition=condition,
+                            root_id=root_id,columns=columns,
+                            related_kwargs=related_kwargs,
+                            dbstore=dbstore,resolved=resolved,**store_kwargs)
         if moveTreeNode:
             treeattr = tree.attributes
             treeattr['onDrop_nodeattr']="""var into_pkey = dropInfo.treeItem.attr.pkey;
@@ -186,7 +189,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         box = pane.div(datapath='.#parent.hview',text_align='left',height='100%',childname='treebox')        
         formNode = pane.parentNode.attributeOwnerNode('formId')
         form = formNode.value
-        form.store.handler('load',default_parent_id='=#FORM/parent/#FORM.record.parent_id')
+        form.store.handler('load',default_parent_id='=#FORM.record.parent_id')
         table = formNode.attr['table']
         hviewTree = box.hviewTree(table=table,caption_field=caption_field,_class=_class or 'noIcon',excludeRoot=excludeRoot,**kwargs)
         form.htree = hviewTree
@@ -218,25 +221,33 @@ class TableHandlerHierarchicalView(BaseComponent):
         return hviewTree
     
     @struct_method
-    def ht_hviewTree(self,box,table=None,picker=None,_class=None,**kwargs):  
+    def ht_hviewTree(self,box,table=None,_class=None,**kwargs): 
         pane = box.div(height='100%').div(position='absolute',top='2px',left='2px',right='2px',bottom='2px',overflow='auto')
-        if picker: 
-            bar = pane.slotToolbar('*,treePicker,2',height='20px')
         tree = pane.hTableTree(table=table,childname='htree',
                           onDrag="""var sn = dragInfo.sourceNode;
                                       if(sn.widget._filteringValue || sn.form.isNewRecord() || sn.form.locked ){return false;}""", 
                           selected_pkey='.tree.pkey',
                           selected_hierarchical_pkey='.tree.hierarchical_pkey',                          
                           selectedPath='.tree.path',margin='2px',_class=_class,**kwargs)
-        if picker:
-            picker_kwargs = dictExtract(kwargs,'picker_')
-            picker_table = self.db.table(table).column(picker).relatedTable().dbtable.fullname
-            paletteCode = 'picker_%s' %picker_table.replace('.','_')
-            picker_kwargs['paletteCode'] = paletteCode
-            bar.treePicker.palettePicker(table=picker_table,autoInsert=False,multiSelect=False,picker_kwargs=picker_kwargs,dockButton=dict(parentForm=False,iconClass='iconbox app'))
-            tree.attributes['onDrop_%s' %paletteCode] = "THTree.onPickerDrop(this,data,dropInfo,{type_field:'%s',maintable:'%s',typetable:'%s'});" %(picker,table,picker_table)
-
+            
         return tree
+    
+    def th_hviewTreePicker(self,tree,search_bar=None,picker=None,table=None,**kwargs):
+        picker_kwargs = dictExtract(kwargs,'picker_')
+        picker_table = self.db.table(table).column(picker).relatedTable().dbtable.fullname
+        paletteCode = 'picker_%s' %picker_table.replace('.','_')
+        picker_kwargs['paletteCode'] = paletteCode
+        search_bar.treePicker.palettePicker(table=picker_table,
+                                    autoInsert=False,
+                                    multiSelect=False,
+                                    picker_kwargs=picker_kwargs,
+                                    dockButton=dict(parentForm=False,iconClass='iconbox app'))
+        tree.attributes['onDrop_%s' %paletteCode] = """THTree.onPickerDrop(this,
+                                                        data,dropInfo,{type_field:'%s',
+                                                        maintable:'%s',typetable:'%s'});
+                                                        """ %(picker,table,picker_table)
+
+
 
     @public_method
     def ht_htreeCreateChildren(self,maintable=None,typetable=None,types=None,type_field=None,parent_id=None,how_many=None):

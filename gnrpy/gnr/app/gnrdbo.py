@@ -696,8 +696,10 @@ class TableBase(object):
             if hasattr(self,'protect_draft'):
                 record[self.draftField] = self.protect_draft(record)
         logicalDeletionField =self.logicalDeletionField
-        if old_record and old_record.get(logicalDeletionField) and not record.get(logicalDeletionField) and record.get('__moved_related'):
-            self.restoreUnifiedRecord(record)
+        if logicalDeletionField and old_record and self.fieldsChanged(logicalDeletionField,record,old_record):
+            self.onArchivingRecord(record,record[logicalDeletionField])
+            if not record.get(logicalDeletionField) and record.get('__moved_related'):
+                self.restoreUnifiedRecord(record)
 
     def df_getQuerableFields(self,field,group=None,caption_field=None,grouped=False,**kwargs):
         column = self.column(field)

@@ -87,7 +87,7 @@ dojo.declare("gnr.QueryManager", null, {
         }
     },
     onChangedQueryColumn: function(contextNode, column_attr, label) {
-        var label = label || 'c_0';
+        label = label || 'c_0';
         var relpath = '.' + label;
         this.onChangedQueryColumnDo(contextNode,relpath,column_attr);
     },
@@ -116,10 +116,6 @@ dojo.declare("gnr.QueryManager", null, {
             if(currentQuery=='__basequery__' || currentQuery=='__newquery__'){
                 this.sourceNode.setRelativeData('.query.queryAttributes.extended',false);
             }
-        }else{
-            this.sourceNode.setRelativeData('.query.queryAttributes.extended',true);
-        }
-        if(queryEditor!='full'){
             var palette = genro.wdgById(this.th_root+'_queryEditor_floating');
             if(palette){
                 palette.close();
@@ -135,7 +131,7 @@ dojo.declare("gnr.QueryManager", null, {
                                         datapath:datapath+'.query',
                                         height:'300px',width:'450px',
                                         palette_connect_close:function(){
-                                            if(that.sourceNode.getRelativeData('.query.queryEditor')=='full'){
+                                            if(that.sourceNode.getRelativeData('.query.queryEditor')){
                                                 that.sourceNode.setRelativeData('.query.queryEditor',false);
                                             }
                                         }});
@@ -204,18 +200,10 @@ dojo.declare("gnr.QueryManager", null, {
                 sourceNode.fireEvent('.runQuery'); //provvisorio
             }
         }
-        if (currentQuery=='__newquery__'){
-            sourceNode.setRelativeData('.query.queryAttributes',new gnr.GnrBag({extended:true,caption:_T('New Query')}));
-            finalize(new gnr.GnrBag());
-            return;
-        }else if(currentQuery=='__querybysample__'){
-            sourceNode.setRelativeData('.query.queryAttributes',new gnr.GnrBag({extended:true,caption:_T('Query by sample')}));
-            finalize(new gnr.GnrBag());
-            sourceNode.setRelativeData('.query.queryEditor','sample');
-            return;
-        }
+        
         var queryBag = this.sourceNode.getRelativeData('.query.menu');
-        var queryAttributes= queryBag.getNode(currentQuery).attr;
+        var queryNode =  queryBag.getNode(currentQuery);
+        var queryAttributes=queryNode? queryNode.attr:{extended:true,caption:_T('New Query')};
         //queryAttributes['id'] = queryAttributes['pkey']
         if(!('extended' in queryAttributes)){
             queryAttributes.extended = true;
@@ -224,15 +212,21 @@ dojo.declare("gnr.QueryManager", null, {
         if(currentQuery=='__basequery__'){
             finalize(this.sourceNode.getRelativeData('.baseQuery').deepCopy(),false);
         }
+        else if (currentQuery=='__newquery__'){
+            finalize(new gnr.GnrBag());
+        }else if(currentQuery=='__querybysample__'){
+            sourceNode.getRelativeData('.query.queryEditor',false);
+            finalize(new gnr.GnrBag());
+        }
         else if(queryAttributes.pkey){
             genro.serverCall('_table.adm.userobject.loadUserObject',{pkey:queryAttributes.pkey,table:this.maintable},function(result){
                 finalize(result._value.deepCopy(),!sourceNode.getRelativeData('.query.queryEditor'));
-            })
+            });
         }else if(queryAttributes.selectmethod){
             finalize(new gnr.GnrBag(),true);
         }
     },
-    
+
     buildQueryPane: function() {
         var editorRoot = this._editorRoot();
         if(editorRoot){

@@ -27,7 +27,8 @@ class Form(BaseComponent):
         fb.field('pkgid')
         fb.field('prj')
         tc = bc.tabContainer(region='center',margin='2px')
-        tc.contentPane(title='Tables').dialogTableHandler(relation='@tables')
+        tc.contentPane(title='Tables').dialogTableHandler(relation='@tables',viewResource='ViewFromPackage',
+                                                            nodeId='tblinfo_frompkg')
 
 
     def th_options(self):

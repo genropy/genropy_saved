@@ -1423,7 +1423,7 @@ class SqlSelection(object):
                 with open(fpath) as f:
                     self._filtered_data = cPickle.load(f)
             
-    def freeze(self, fpath, autocreate=False):
+    def freeze(self, fpath, autocreate=False,freezePkeys=False):
         """TODO
         
         :param fpath: the freeze path
@@ -1439,7 +1439,8 @@ class SqlSelection(object):
         self._freezeme()
         self._freeze_data('w')
         self._freeze_filtered('w')
-        self._freeze_pkeys('w')
+        if freezePkeys:
+            self._freeze_pkeys('w')
 
     def freezeUpdate(self):
         """TODO"""
@@ -2169,7 +2170,11 @@ class SqlRecord(object):
                                                                                  self.compiled.get_sqltext(self.db),
                                                                                  params))
             else:
-                if self.ignoreDuplicate:
+                if self.dbtable.logicalDeletionField:
+                    data = filter(lambda r: r['%s0_%s' %(self.aliasPrefix,self.dbtable.logicalDeletionField)] is None,data)
+                if len(data) == 1:
+                    self._result = data[0]
+                elif self.ignoreDuplicate:
                     self._result = data[0]
                 else:
                     raise RecordDuplicateError(

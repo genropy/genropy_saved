@@ -309,7 +309,7 @@ class BagNode(object):
             return self.parentbag.parentNode
     
     def attributeOwnerNode(self,attrname,**kwargs):
-        curr = self;
+        curr = self
         if not 'attrvalue' in kwargs:
             while curr and not (attrname in curr.attr):
                 curr = curr.parentNode
@@ -378,7 +378,6 @@ class BagNode(object):
         
         :param validator: the type of validation to set into the list of the node
         :param parameterString: the parameter for a single validation type"""
-        print x
         if self._validators is None:
             self._validators = BagValidationList(self)
         self._validators.add(validator, parameterString)
@@ -2167,14 +2166,14 @@ class Bag(GnrObject):
     def nodesByAttr(self,attr,_mode='static',**kwargs):
         if 'value' in kwargs:
             def f(node,r):
-                if node.getAttr(attr) == value:
+                if node.getAttr(attr) == kwargs['value']:
                     r.append(node)
         else:
             def f(node,r):
                 if attr in node.attr:
                     r.append(node)
         r = []
-        self.walk(f,r,_mode=_mode)
+        self.walk(f,r=r,_mode=_mode)
         return r   
         
     def findNodeByAttr(self, attr, value,_mode='static',**kwargs):
@@ -2367,7 +2366,7 @@ class BagValidationList(object):
         :param parameterString: values = 'upper' or 'lower' or 'capitalize'"""
         mode = parameterString
         if not isinstance(value, basestring):
-            raise BagValidationError('not a string value', value, 'The value is not a string')
+            raise BagValidationError('not a string value %s The value is not a string' %value)
         else:
             if mode.lower() == 'upper':
                 value = value.upper()
@@ -2385,7 +2384,7 @@ class BagValidationList(object):
         :param parameterString: TODO"""
         values = parameterString.split(',')
         if not value in values:
-            raise BagValidationError('NotInList', value, 'The value is non in list')
+            raise BagValidationError('NotInList %s The value is non in list' %value)
         else:
             return value
             
@@ -2404,7 +2403,7 @@ class BagValidationList(object):
         except:
             hostaddr = value
             self.validatorsdata['hostaddr'] = {'hostname': 'Unknown host'}
-            raise BagValidationError('Unknown host', value, 'The host is not valid')
+            raise BagValidationError('Unknown host %s The host is not valid' %value)
             
     def validate_length(self, value, oldvalue, parameterString):
         """Provides a validation for the length of a string value
@@ -2417,9 +2416,9 @@ class BagValidationList(object):
         max = minmax[1]
         n = len(value)
         if (not min is None) and n < min:
-            raise BagValidationError('Value too short', value, 'The length of value is too short')
+            raise BagValidationError('Value %s too shortThe length of value is too short' %value)
         if (not max is None) and n > max:
-            raise BagValidationError('Value too long', value, 'The length of value is too long')
+            raise BagValidationError('Value %s too long The length of value is too long' %value)
         return value
 
     def coerceFromText(self, value):
@@ -2614,8 +2613,8 @@ class BagResolver(object):
     def __iter__(self):
         return self().__iter__()
         
-    def __contains__(self):
-        return self().__contains__()
+    def __contains__(self,what):
+        return self().__contains__(what)
         
     def __len__(self):
         return len(self())
@@ -2654,6 +2653,7 @@ class VObjectBag(Bag):
         
     def _vparse(self,rows,current):
         counters={}
+        label,value = None,None
         while rows:
             r=rows.pop(0)
             if not ':' in r:
@@ -2996,7 +2996,7 @@ class BagResolverNew(object):
         for k, v in kwargs.items():
             if self.kwargs.get(k) != v:
                 reset = True
-                self.kwargs(k, v)
+                self.kwargs[k] =v
                 setattr(self, k, v)
         if reset:
             self.reset()
@@ -3063,8 +3063,8 @@ class BagResolverNew(object):
     def __iter__(self):
         return self().__iter__()
 
-    def __contains__(self):
-        return self().__contains__()
+    def __contains__(self,what):
+        return self().__contains__(what)
 
     def __len__(self):
         return len(self())

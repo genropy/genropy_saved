@@ -1442,6 +1442,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
 
     },
+    
     updateRemoteContent:function(forceUpdate) {
         var _onRemote = false;
         var currentValue = this.getValue('static');
@@ -1461,12 +1462,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     if (elseval && typeof(elseval)=='string'){
                         elseval=funcCreate(elseval).call(this)
                     }
-                    this.replaceContent(elseval)
+                    this.mergeRemoteContent(elseval)
                 }
                 return;
             }
         }
         var kwargs = {};
+        var mergeFb = objectPop(remoteAttr,'_merge');
         for (var attrname in remoteAttr) {
             var value = remoteAttr[attrname];
             if (value instanceof Date) {
@@ -1492,25 +1494,26 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             kwargs.sync = false;
         }
         genro.rpc.remoteCall(method, kwargs, null, 'POST', null,
-                            function(result) {
-                                //that.setValue(result);
-                                if(result.error){
-                                    genro.dlg.alert('Error in remote '+result.error,'Error')
-                                }else{
-                                    that.watch('checkPendingRequirs',function(){
-                                        return !objectNotEmpty(genro.dom.pendingHeaders);
-                                    },function(){
-                                        if(remoteAttr._waitingMessage){
-                                            that.setHiderLayer(false);
-                                        }
-                                        that.replaceContent(result)
-                                        if (_onRemote) {
-                                            _onRemote();
-                                        }
-                                    });
-                                }
-                            });
+            function(result) {
+                //that.setValue(result);
+                if(result.error){
+                    genro.dlg.alert('Error in remote '+result.error,'Error')
+                }else{
+                    that.watch('checkPendingRequirs',function(){
+                        return !objectNotEmpty(genro.dom.pendingHeaders);
+                    },function(){
+                        if(remoteAttr._waitingMessage){
+                            that.setHiderLayer(false);
+                        }
+                        that.mergeRemoteContent(result)
+                        if (_onRemote) {
+                            _onRemote();
+                        }
+                    });
+                }
+            });
     },
+
     getValidationError: function() {
         if (this._validations) {
             return this._validations.error;
@@ -1654,11 +1657,15 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         child = content.setItem(path, source.getNodes()[0]);
         return child;
     },
-    replaceContent:function(value){
+
+    mergeRemoteContent:function(value){
+        var mergetable = this.attr.tag=='tbody'
         var currval = this._value;
         if(currval instanceof gnr.GnrDomSource){
             dojo.forEach(currval._nodes,function(n){
-                currval.popNode(n.label);
+                if(!mergetable || stringStartsWith(n.label,'remote_merged_')){
+                    currval.popNode(n.label);
+                }
             });
         }else{
             currval = new gnr.GnrDomSource();
@@ -1666,12 +1673,19 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             currval.setBackRef(this, this._parentbag);
         }
         if(value){
-                dojo.forEach(value._nodes,function(n){
+            if(mergetable){
+                var valueNode = value.getNodeByAttr('tag','tbody');
+                if (!valueNode){
+                    return;
+                }
+                value = valueNode._value;
+            }
+            dojo.forEach(value._nodes,function(n){
                 var node = value.popNode(n.label);
-                currval.setItem(node.label,node);
+                var label = mergetable?'remote_merged_'+node.label:node.label;
+                currval.setItem(label,node);
             });
         }
-        
     },
     
     _ : function(tag, name, attributes, extrakw) {
@@ -1823,6 +1837,3 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
         return node===true?null:node;
     }
 });
-
-
-

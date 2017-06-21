@@ -1261,6 +1261,9 @@ var gnrformatter = {
 }
 
 function guessDtype(value){
+    if (value instanceof File){
+        return 'FILE';
+    }
     if(value===null || value===undefined){
         return 'NN';
     }

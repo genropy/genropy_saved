@@ -107,3 +107,19 @@ class GnrCustomWebPage(object):
         fb.dbSelect(value='^.regione',dbtable='glbl.regione',lbl='Regione')
         fb.dbSelect(value='^.provincia',dbtable='glbl.provincia',condition='$regione=:r',
                     condition_r='^.regione',lbl='Provincia',hasDownArrow=True,validate_notnull=True)
+
+    def test_6_testClasses(self,pane):
+        """dbselect with auxcol"""
+        pane.button('Rebuild fb',fire='.rebuild_fb')
+        fb = pane.formbuilder(cols=1, border_spacing='4px',_fired='^.rebuild_fb')
+        pane.css('.mydbselect','color:red;')
+        fb.button('Rebuild dbselect',fire='.rebuild_dbselect')
+
+        fb.button('Rebuild textbox',fire='.rebuild_textbox')
+
+        fb.checkbox(value='^.disabled',label='Disabled')
+        fb.dbSelect(dbtable='adm.user',value='^.user_id',lbl='User',
+                disabled='^.disabled',
+                    selected_username='.username',width='25em',
+                    hasDownArrow=True,cell__class='mydbselect',_fired='^.rebuild_dbselect')
+        fb.textbox(value='^.mytextbox',lbl='Mycontent',_fired='^.rebuild_textbox')

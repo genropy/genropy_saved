@@ -151,6 +151,8 @@ class TableHandlerTreeResolver(BagResolver):
                                             dbstore=self.dbstore,condition=self.condition,related_kwargs=self.related_kwargs,
                                             _condition_id=self._condition_id,columns=self.columns,_isleaf=True)
                     child_count = len(related_children)
+                elif not self.related_kwargs.get('_allowEmptyFolders'):
+                    continue
             result.setItem(pkey,value,
                             **self.applyOnTreeNodeAttr(caption=caption,
                                     child_count=child_count,pkey=record.get(self.alt_pkey_field) if self.alt_pkey_field else (pkey or '_all_'),
@@ -240,7 +242,7 @@ class HierarchicalHandler(object):
             last_counter = tblobj.readColumns(columns='$_row_count',where=where,
                                         order_by='$_row_count desc',limit=1,p_id=parent_id)
             record['_row_count'] = (last_counter or 0)+1
-        if old_record is None or (record['_row_count'] != old_record['_row_count']) or (record['_parent_h_count'] != old_record['_parent_h_count']):
+        if old_record is None or tblobj.fieldsChanged('_row_count,_parent_h_count',record,old_record):
             record['_h_count'] = '%s%s' %(record.get('_parent_h_count') or '',encode36(record['_row_count'],2))
         
 
@@ -286,7 +288,7 @@ class HierarchicalHandler(object):
         if resolved:
             def cb(self,*args,**kwargs):
                 pass
-            b.walk(cb)
+            b.walk(cb,_mode='')
         return b
 
     def pathFromPkey(self,pkey=None,related_kwargs=None,dbstore=None):

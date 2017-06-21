@@ -212,8 +212,7 @@ class TableHandlerForm(BaseComponent):
             options.setdefault('_class','th_form_toolbar')
             form.top.slotToolbar(slots,form_add_defaults=form_add if form_add and form_add is not True else None,**options)
         if hierarchical:
-            form.left.attributes.update(splitter=True)
-            leftkw = dict()
+            leftkw = dict(splitter=True)
             if hierarchical is True or hierarchical=='open':
                 form.store.attributes.setdefault('startKey','*norecord*')
                 form.attributes.update(form_deleted_destPkey='*norecord*')
@@ -221,11 +220,21 @@ class TableHandlerForm(BaseComponent):
                     leftkw['closable'] = 'open'      
             elif hierarchical=='closed':
                 leftkw['closable'] = 'close'
+            
+            
+
             bar = form.left.slotBar('htreeSearchbar,htreeSlot,0',width=tree_kwargs.pop('width','200px'),border_right='1px solid silver',**leftkw)
             searchCode = form.attributes['frameCode']
-            bar.htreeSearchbar.slotToolbar('2,searchOn,*',searchOn=True,searchOn_searchCode=searchCode)
+            treeslots = '2,searchOn,*'
+            hviewPicker = tree_kwargs.get('picker')
+            if hviewPicker:
+                treeslots = '2,searchOn,*,treePicker,2'
+            tree_searchbar = bar.htreeSearchbar.slotToolbar(treeslots,searchOn=True,searchOn_searchCode=searchCode)
             tree_kwargs['searchCode'] = searchCode
-            bar.htreeSlot.treeViewer(**tree_kwargs)
+            tree = bar.htreeSlot.treeViewer(**tree_kwargs)
+            if hviewPicker:
+                self.th_hviewTreePicker(tree,search_bar=tree_searchbar,table=table,**tree_kwargs)
+
 
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=mangler,asDict=True)

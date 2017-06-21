@@ -738,6 +738,27 @@ class SqlTable(GnrObject):
             l.append('%s:%s' %(r[self.pkey],r[caption_field].replace(',',' ').replace(':',' ')))
 
         return ','.join(l)
+    
+    def onArchivingRecord(self,record=None,archive_ts=None):
+        self.archiveRelatedRecords(record=record,archive_ts=archive_ts)            
+
+    def archiveRelatedRecords(self,record=None,archive_ts=None):
+        usingRootstore = self.db.usingRootstore()
+        for rel in self.relations_many:
+            if rel.getAttr('onDelete', 'raise').lower() == 'cascade':
+                mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')
+                opkg, otbl, ofld = rel.attr['one_relation'].split('.')
+                relatedTable = self.db.table(mtbl, pkg=mpkg)
+                if not usingRootstore and relatedTable.use_dbstores() is False:
+                    continue
+                if relatedTable.logicalDeletionField:
+                    updater = {relatedTable.logicalDeletionField:archive_ts}
+                    relatedTable.batchUpdate(updater, 
+                                            where='$%s = :pid' % mfld,
+                                            pid=record[ofld], 
+                                            excludeDraft=False,
+                                            excludeLogicalDeleted=False)
+  
 
     def duplicateRecord(self,recordOrKey=None, howmany=None,destination_store=None,**kwargs):
         duplicatedRecords=[]
@@ -941,7 +962,7 @@ class SqlTable(GnrObject):
             result.toXml(path,autocreate=True)
         return result
             
-    def fieldsChanged(self,fieldNames,record,old_record):
+    def fieldsChanged(self,fieldNames,record,old_record=None):
         if isinstance(fieldNames,basestring):
             fieldNames = fieldNames.split(',')
         for field in fieldNames:
@@ -1264,14 +1285,15 @@ class SqlTable(GnrObject):
                 if not usingRootstore and relatedTable.use_dbstores() is False:
                     continue
                 sel = relatedTable.query(columns='*', where='$%s = :pid' % mfld,
-                                         pid=record[ofld], for_update=True,excludeDraft=False).fetch()
+                                         pid=record[ofld], for_update=True,excludeDraft=False,
+                                         excludeLogicalDeleted=False).fetch()
                 if sel:
                     if onDelete in ('r', 'raise'):
                         raise self.exception('delete', record=record, msg='!!Record referenced in table %(reltable)s',
                                              reltable=relatedTable.fullname)
                     elif onDelete in ('c', 'cascade'):
                         for row in sel:
-                            relatedTable.delete(relatedTable.record(row['pkey'], mode='bag'))
+                            relatedTable.delete(row)
                     elif onDelete in ('n','setnull'):
                         for row in sel:
                             rel_rec = dict(row)

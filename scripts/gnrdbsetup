@@ -37,6 +37,12 @@ parser.add_option('-v', '--verbose',
                   action='store_true',
                   help="Verbose mode")
 
+parser.add_option('-r', '--rebuild_relations',
+                  dest='rebuild_relations',
+                  action='store_true',
+                  help="Rebuild relations")
+
+
 parser.add_option('-d', '--debug',
                 dest='debug',
                 action='store_true',
@@ -135,10 +141,14 @@ def get_app():
 
 
 def check_db(app):
-    changes = app.db.model.check()
     dbname = app.db.currentEnv.get('storename')
     dbname = dbname or 'Main'
     print 'DB %s:' % dbname
+    if options.rebuild_relations:
+        print('Removing all relations')
+        app.db.model.enableForeignKeys(enable=False) 
+        print('Removed')
+    changes = app.db.model.check()
     if changes:
         if options.verbose:
             print '*CHANGES:\n%s' % '\n'.join(app.db.model.modelChanges)
