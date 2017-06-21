@@ -1675,6 +1675,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if(value){
             if(mergetable){
                 var valueNode = value.getNodeByAttr('tag','tbody');
+                if (!valueNode){
+                    return;
+                }
                 value = valueNode._value;
             }
             dojo.forEach(value._nodes,function(n){
