@@ -24,7 +24,9 @@ class TableHandlerForm(BaseComponent):
         options['readOnly'] = options.get('readOnly',readOnly)
         #slots = '*,|,semaphore,|,formcommands,|,dismiss,5,locker,5'
         #options['slots'] = options.get('slots',slots)
+        
         options.update(kwargs)
+        options['store_startKey'] = options.get('store_startKey') or options.get('startKey')
         linkTo = pane        
         if hasattr(pane,'view'):
             grid =  pane.view.grid
