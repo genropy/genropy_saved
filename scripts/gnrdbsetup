@@ -42,6 +42,10 @@ parser.add_option('-r', '--rebuild_relations',
                   action='store_true',
                   help="Rebuild relations")
 
+parser.add_option('-x', '--remove_relations_only',
+                  dest='remove_relations_only',
+                  action='store_true',
+                  help="Remove relations")
 
 parser.add_option('-d', '--debug',
                 dest='debug',
@@ -144,10 +148,12 @@ def check_db(app):
     dbname = app.db.currentEnv.get('storename')
     dbname = dbname or 'Main'
     print 'DB %s:' % dbname
-    if options.rebuild_relations:
+    if options.rebuild_relations or options.remove_relations_only:
         print('Removing all relations')
         app.db.model.enableForeignKeys(enable=False) 
         print('Removed')
+    if options.remove_relations_only:
+        return
     changes = app.db.model.check()
     if changes:
         if options.verbose:
