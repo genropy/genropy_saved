@@ -2,7 +2,7 @@
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('item', pkey='id', name_long='!!Item', name_plural='!!Items')
+        tbl = pkg.table('item', pkey='id', name_long='!!Item', name_plural='!!Items',caption_field='title')
         self.sysFields(tbl)
         tbl.column('title', name_long='!!Title', indexed=True)
         tbl.column('description', name_long='!!Description')
