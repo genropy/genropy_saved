@@ -68,6 +68,10 @@ class RecordUpdater(object):
         if self.record.get(self.tblobj.pkey) is None:
             oldrecord = None
             if self.insertMissing:
+                self.record.update(self.tblobj.defaultValues())
+                for k,v in self.kwargs.items():
+                    if k in self.tblobj.columns and v is not None:
+                        self.record[k] = v
                 self.insertMode = True
             else:
                 self.record = None
