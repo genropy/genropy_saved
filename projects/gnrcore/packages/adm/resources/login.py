@@ -83,7 +83,7 @@ class LoginComponent(BaseComponent):
         valid_token = False
         if gnrtoken:
             valid_token = self.db.table('sys.external_token').check_token(gnrtoken)
-        self._packageLoginHook('rootenvForm',fb)
+        self.callPackageHooks('rootenvForm',fb)
         for fbnode in fb.getNodes()[start:]:
             if fbnode.attr['tag']=='tr':
                 fbnode.attr['hidden'] = '==!_avatar || _hide '
@@ -190,14 +190,6 @@ class LoginComponent(BaseComponent):
         self.connectionStore().setItem('defaultRootenv',rootenv) #no need to be locked because it's just one set
         return self.login_newWindow(rootenv=rootenv)
 
-    def _packageLoginHook(self,method,*args,**kwargs):
-        if hasattr(self,method):
-            getattr(self,method)(*args,**kwargs)
-        for pkgId in self.packages.keys():
-            handlername = '%s_%s' %(method,pkgId)
-            if hasattr(self,handlername):
-                getattr(self,handlername)(*args,**kwargs)
-
 
     @public_method
     def login_checkAvatar(self,password=None,user=None,serverTimeDelta=None,**kwargs):
@@ -216,7 +208,7 @@ class LoginComponent(BaseComponent):
             return result
         data = Bag()
         data['serverTimeDelta'] = serverTimeDelta
-        self._packageLoginHook('onUserSelected',avatar,data)
+        self.callPackageHooks('onUserSelected',avatar,data)
         canBeChanged = self.application.checkResourcePermission(self.pageAuthTags(method='workdate'),avatar.user_tags)
         result['rootenv'] = data
         default_workdate = self.clientDatetime(serverTimeDelta=serverTimeDelta).date()
