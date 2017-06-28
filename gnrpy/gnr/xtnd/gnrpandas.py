@@ -59,7 +59,6 @@ REPORT_HTML = """
 </html>
 """
 
-
 try:
     import cPickle as pickle
 except ImportError:
@@ -72,11 +71,12 @@ except:
     pd = False
     np = False
 
+AGGFUNCDICT = {'sum':np.sum,'mean':np.mean,'count':len,'min':np.min,'max':np.max}
 
 
 
 class GnrPandas(object):
-    AGGFUNCDICT = {'sum':np.sum,'mean':np.mean,'count':len,'min':np.min,'max':np.max}
+    AGGFUNCDICT = AGGFUNCDICT
 
     def __init__(self,path=None,language=None,stats_code=None,
                 report_folderpath=None,report_folderurl=None,
@@ -289,7 +289,7 @@ class GnrDataframe(object):
             values_list = values
             values = None
         aggfunc = [np.mean]
-        adict = self.parent.AGGFUNCDICT
+        adict = AGGFUNCDICT
         if funckeys:
             aggfunc = [adict[k] for k in funckeys]
         store = Bag()
@@ -415,7 +415,7 @@ class GnrDbDataframe(GnrDataframe):
                                         name_short=self.translate(v.get('name_short')),
                                         width=v.get('print_width'),format=v.get('format'),
                                         dtype= v.get('dataType'))
-
+                                        
                 decimalCols = [k for k,v in self.dbColAttrs.items() if v['dataType'] in ('N','R')]
                 dateCols = [k for k,v in self.dbColAttrs.items() if v['dataType'] == 'D']
 
