@@ -65,24 +65,26 @@ class TableHandlerView(BaseComponent):
         bar.dataController("""
             var where = new gnr.GnrBag();
             var mainIdx = 0;
+            var op;
             queryBySample.forEach(function(n){
                 var value = n.getValue();
                 if(!value){
                     return;
                 }
+                op = n.attr.op || 'contains';
                 if(value.indexOf(',')>=0){
                     var subwhere = new gnr.GnrBag();
                     value.split(',').forEach(function(chunk,idx){
                         if(chunk){
                             subwhere.setItem('c_'+idx,chunk.trim(),{column_dtype:n.attr.column_dtype,
-                                                                    op:'contains',jc:'or',column:n.attr.column});
+                                                                    op:op,jc:'or',column:n.attr.column});
                         }
                     })
                     if(subwhere.len()){
                         where.setItem('c_'+mainIdx,subwhere,{jc:'and'});
                     }
                 }else{
-                    where.setItem('c_'+mainIdx,value,{column_dtype:n.attr.column_dtype,op:'contains',jc:'and',column:n.attr.column})
+                    where.setItem('c_'+mainIdx,value,{column_dtype:n.attr.column_dtype,op:op,jc:'and',column:n.attr.column})
                 }
                 mainIdx++;
             });
@@ -107,7 +109,9 @@ class TableHandlerView(BaseComponent):
                 continue
             fldattr = fieldobj.attributes
             fkw.setdefault('lbl',fldattr.get('name_short') or fldattr.get('name_long'))
-            fb.child(fkw.pop('tag','textbox'),value='^.c_%s' %i,attr_column=field,attr_column_dtype=fldattr.get('dtype','T'),**fkw)
+            fb.child(fkw.pop('tag','textbox'),value='^.c_%s' %i,attr_column=field,attr_column_dtype=fldattr.get('dtype','T'),
+                        attr_op=fkw.pop('op',None),
+                        **fkw)
 
     @extract_kwargs(top=True,preview=True)
     @struct_method
@@ -686,6 +690,8 @@ class TableHandlerView(BaseComponent):
             _if = 'sectionbag.len()',
             _delay = 100)
 
+        store_kwargs.setdefault('weakLogicalDeleted',options.get('weakLogicalDeleted'))
+
         store = frame.grid.selectionStore(table=table,
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where',
@@ -715,6 +721,9 @@ class TableHandlerView(BaseComponent):
                                httpMethod='WSK' if self.extraFeatures['wsk_grid'] else None,
                                _onCalling="""
                                %s
+                               if(kwargs.fkey && this.form && this.form.isLogicalDeleted()){
+                                   kwargs.excludeLogicalDeleted = 'mark';
+                               }
                                if(_sections){
                                     th_sections_manager.onCalling(_sections,kwargs);
                                }

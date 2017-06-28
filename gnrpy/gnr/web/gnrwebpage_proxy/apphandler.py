@@ -688,7 +688,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                          selectmethod=None, expressions=None, sum_columns=None,
                          sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,hardQueryLimit=None,
                          savedQuery=None,savedView=None, externalChanges=None,prevSelectedDict=None,
-                         checkPermissions=None,queryBySample=False,**kwargs):
+                         checkPermissions=None,queryBySample=False,weakLogicalDeleted=False,**kwargs):
         """TODO
         
         ``getSelection()`` method is decorated with the :meth:`public_method
@@ -774,13 +774,18 @@ class GnrWebAppHandler(GnrBaseProxy):
             if fromSelection:
                 fromSelection = self.page.unfreezeSelection(tblobj, fromSelection)
                 pkeys = fromSelection.output('pkeylist')
-            selection = selecthandler(tblobj=tblobj, table=table, distinct=distinct, columns=columns, where=where,
+            selection_pars = dict(tblobj=tblobj, table=table, distinct=distinct, columns=columns, where=where,
                                       condition=condition,queryMode=queryMode,
                                       order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
                                       relationDict=relationDict, sqlparams=sqlparams,
                                       recordResolver=recordResolver, selectionName=selectionName, 
                                       pkeys=pkeys, sortedBy=sortedBy, excludeLogicalDeleted=excludeLogicalDeleted,
                                       excludeDraft=excludeDraft,checkPermissions=checkPermissions ,**kwargs)
+            selection = selecthandler(**selection_pars)
+            if not selection and weakLogicalDeleted and \
+                    excludeLogicalDeleted and excludeLogicalDeleted!='mark':
+                selection_pars['excludeLogicalDeleted'] = 'mark'
+                selection = selecthandler(**selection_pars)
             if external_queries:
                 self._externalQueries(selection=selection,external_queries=external_queries)
             if applymethod:
