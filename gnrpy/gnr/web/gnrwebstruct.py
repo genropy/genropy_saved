@@ -484,6 +484,9 @@ class GnrDomSrc(GnrStructData):
     def treeframe_column(self,field,**kwargs):
         return self.child('treeframe_column',field=field,**kwargs)  
 
+    def quickgrid(self,value,childname='grid',**kwargs):
+        return self.child('quickgrid',value=value,childname=childname,**kwargs)
+
     def quickgrid_column(self,field,**kwargs):
         return self.child('quickgrid_column',field=field,**kwargs)  
 
