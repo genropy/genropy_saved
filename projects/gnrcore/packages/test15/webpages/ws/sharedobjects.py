@@ -6,7 +6,7 @@
 
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
-from gnr.xtnd.gnrpandas import PandasSharedObject
+#from gnr.xtnd.gnrpandas import PandasSharedObject
 
 
         
