@@ -170,9 +170,10 @@ class FrameGrid(BaseComponent):
     def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,dynamicStorepath=None,structpath=None,
                     datamode=None,table=None,grid_kwargs=True,top_kwargs=None,iconSize=16,
                     footer_kwargs=None,columnset_kwargs=None,footer=None,columnset=None,fillDown=None,
-                    _newGrid=None,**kwargs):
+                    _newGrid=None,selectedPage=None,**kwargs):
         pane.attributes.update(overflow='hidden')
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
+        sc =frame.center.stackContainer(selectedPage=selectedPage)
         grid_kwargs.setdefault('fillDown', fillDown)
         grid_kwargs.update(footer_kwargs)
         grid_kwargs.update(columnset_kwargs)
@@ -193,6 +194,7 @@ class FrameGrid(BaseComponent):
                           dynamicStorepath=dynamicStorepath,
                           datapath='.grid',
                           struct=struct,table=table,
+                          pageName='grid',
                           **grid_kwargs)
         if top_kwargs:
             top_kwargs['slotbar_view'] = frame
