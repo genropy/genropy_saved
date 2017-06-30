@@ -111,7 +111,9 @@ class FlibUploaderMain(BaseComponent):
 
     def main(self, root, **kwargs):
         frame = root.rootBorderContainer(title='!!Upload file', datapath='main')
-        left = frame.contentPane(region='left', width='150px', _class='pbl_roundedGroup', margin='2px', splitter=True)
+        left = frame.contentPane(region='left', width='150px', overflow='auto',
+                                _class='pbl_roundedGroup',
+                                 margin='2px', splitter=True)
         left.div('!!Categories', _class='pbl_roundedGroupLabel')  
         left.hTableTree(storepath='.tree.store',table='flib.category',
                   margin='10px', isTree=False, hideValues=True,
