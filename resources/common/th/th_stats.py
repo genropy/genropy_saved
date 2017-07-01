@@ -20,18 +20,24 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrdecorator import extract_kwargs,public_method
-from gnr.core.gnrdict import dictExtract
-from gnr.xtnd.gnrpandas import pd,GnrDbDataframe
-
-
-
+from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
+
+try:
+    import pandas as pd
+    import numpy as np
+    from gnr.xtnd.gnrpandas import GnrDbDataframe
+except Exception:
+    pd = False
+    np = False
+    GnrDbDataframe = False
 
 class TableHandlerStats(BaseComponent):
     js_requires='th/th_stats'
     @struct_method
     def th_tableHandlerStats(self,pane,table=None,relation_field=None,relation_value=None):
+        if not pd:
+            pane.div('Missing Pandas')
         bc = pane.borderContainer(datapath='.stats_%s' %table.replace('.','_') if relation_value else None,
                                 _anchor=True)
         bc.dataController("""

@@ -27,11 +27,3 @@ class GnrCustomWebPage(object):
         fb.numbertextbox('^.age', lbl='Age')
 
 
-    def test_1_pandasSharedObject(self,pane):
-        pane.sharedObject('.so_test',shared_id='so_test6',factory=PandasSharedObject,
-                        nodeId='so_panda',autoSave=True,autoLoad=True)
-
-        pane.pdCommandsGrid('test_3',height='300px',width='800px',storepath='#so_panda.so_test.commands')
-
-    
-
