@@ -35,7 +35,12 @@ except Exception:
 class TableHandlerStats(BaseComponent):
     js_requires='th/th_stats'
     @struct_method
-    def th_tableHandlerStats(self,pane,table=None,relation_field=None,relation_value=None):
+    def th_tableHandlerStats(self,pane,table=None,
+                            relation_field=None,
+                            relation_value=None,
+                            default_rows=None,
+                            default_values=None,
+                            default_columns=None):
         if not pd:
             pane.div('Missing Pandas')
         bc = pane.borderContainer(datapath='.stats_%s' %table.replace('.','_') if relation_value else None,
@@ -83,13 +88,14 @@ class TableHandlerStats(BaseComponent):
                     """)
 
         left = bc.tabContainer(region='left',width='230px',margin='2px',drawer=True,splitter=True)
-        self._ths_configPivotTree(left.framePane(title='!!Pivot'),table=table,relation_field=relation_field)
+        self._ths_configPivotTree(left.framePane(title='!!Pivot'),table=table,
+                                        relation_field=relation_field,
+                                        default_rows=default_rows,default_values=default_values,
+                                        default_columns=default_columns)
         if not relation_value:
             #part of grid
             self._ths_mainFilter(left.contentPane(title='!!Main'),relation_field=relation_field)      
         self._ths_filters(left.contentPane(title='!!Filters'),table=table,relation_field=relation_field)
-
-
         self._ths_center(bc.framePane(region='center'))
 
 
@@ -195,12 +201,15 @@ class TableHandlerStats(BaseComponent):
                     freezed_pkeys=self.freezedPkeys(self.db.table(table),selectionName))
         return df.getInfo()
         
-    def ths_configPivotTreeData(self,table,relation_field=None):
+    def ths_configPivotTreeData(self,table,relation_field=None,
+                                default_columns=None,
+                                default_rows=None,
+                                default_values=None):
         df = GnrDbDataframe('current_df_%s' %table.replace('.','_'),self.db)
         return df.configPivotTree(self.db.table(table),
-                                default_values=None,
-                                default_rows=None,
-                                default_columns=None)
+                                default_values=default_values,
+                                default_rows=default_rows,
+                                default_columns=default_columns)
 
     @public_method
     def ths_getPivotTable(self,df=None,table=None,relation_field=None,relation_value=None,
@@ -242,8 +251,14 @@ class TableHandlerStats(BaseComponent):
             result['xls_url'] = self.db.application.site.getStaticUrl('page:xls_stats','%s.xls' %filename)
         return result   
 
-    def _ths_configPivotTree(self,frame,table=None,relation_field=None):
-        frame.data('.stats.conf',self.ths_configPivotTreeData(table,relation_field=relation_field))
+    def _ths_configPivotTree(self,frame,table=None,relation_field=None,
+                            default_columns=None,
+                            default_rows=None,
+                            default_values=None):
+        frame.data('.stats.conf',self.ths_configPivotTreeData(table,relation_field=relation_field,
+                                                    default_columns=default_columns,
+                                                    default_rows=default_rows,
+                                                    default_values=default_values))
         frame.center.contentPane(overflow='auto'
                         ).tree(storepath='.stats.conf',margin='5px',
                                  _class="branchtree noIcon",

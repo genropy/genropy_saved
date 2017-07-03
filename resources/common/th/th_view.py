@@ -232,7 +232,7 @@ class TableHandlerView(BaseComponent):
             handler = page_hooks[k]
             wdg = getattr(handler,'widget','contentPane')
             childname = k.replace('%s_page_' %frameCode,'')
-            title = getattr(handler,'__doc__',childname.capitalize())
+            title = handler.__doc__ or childname.capitalize()
             menu.setItem(childname,None,caption=title,pageName=childname)
             handler(view.child(wdg,childname=childname,pageName=childname,title=title))
         view.data('.viewPages',menu)
