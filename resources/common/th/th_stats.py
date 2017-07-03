@@ -80,7 +80,7 @@ class TableHandlerStats(BaseComponent):
                     outmode='^.stats.run_pivot_do',
                     _onResult="""
                         result = result || new gnr.GnrBag();
-                        //SET .pivot_grid = result.popNode('pivot_grid')
+                        SET .stats.pivot_grid = result.popNode('pivot_grid')
                         SET .stats.pivot_html = result.getItem('pivot_html')
                         if(result.getItem('xls_url')){
                             genro.download(result.getItem('xls_url'));
@@ -144,7 +144,7 @@ class TableHandlerStats(BaseComponent):
         sc = frame.center.stackContainer()
         iframe = self._ths_framehtml(sc.contentPane(title='Html'))
         #tc = center.tabContainer()
-       # grid = tc.contentPane(title='Griglia').quickGrid('^.pivot_grid')
+        grid = sc.contentPane(title='!!Grid').quickGrid('^.stats.pivot_grid')
         #grid.tools('export')
         bar = frame.top.slotToolbar('2,stackButtons,*,printStats,exportStats,5')
         bar.printStats.slotButton('!!Print',action="genro.dom.iFramePrint(_iframe)",iconClass='iconbox print',
