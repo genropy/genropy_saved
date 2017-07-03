@@ -98,9 +98,6 @@ class TableHandlerStats(BaseComponent):
         self._ths_filters(left.contentPane(title='!!Filters'),table=table,relation_field=relation_field)
         self._ths_center(bc.framePane(region='center'))
 
-
-
-
     def _ths_mainFilter(self,pane,relation_field=None):
         inattr = pane.getInheritedAttributes()
         table = inattr.get('table')
@@ -178,7 +175,7 @@ class TableHandlerStats(BaseComponent):
 
     def ths_getDataframe(self,table,filters=None,mainfilter=None,
                                 relation_field=None,relation_value=None,
-                                maintable=None,selectionName=None,**kwargs):
+                                maintable=None,selectionName=None,columns=None,**kwargs):
         df = GnrDbDataframe('current_df_%s' %table.replace('.','_'),self.db)
         where = []
         where_kwargs = {}
@@ -193,7 +190,7 @@ class TableHandlerStats(BaseComponent):
                 pkeys = [relation_value]
             where.append(' $%s IN :filters_%s' %(relation_field,relation_field))
             where_kwargs['filters_%s' %relation_field] = pkeys
-        df.query(table,where=' AND '.join(where),**where_kwargs)
+        df.query(table,where=' AND '.join(where),columns=columns,**where_kwargs)
         return df
         
     @public_method
@@ -222,10 +219,15 @@ class TableHandlerStats(BaseComponent):
         stats_tableobj = self.db.table(table)
         main_tableobj = self.db.table(table).column(relation_field).relatedColumn().table
         if not df:
+            stat_values = stat_values or Bag()
+            stat_columns = stat_columns or Bag()
+            stat_rows = stat_rows or Bag()
+            columns = stat_values.digest('#a.field') + stat_columns.digest('#a.field') + stat_rows.digest('#a.field')
             df = self.ths_getDataframe(table,filters=filters,mainfilter=mainfilter,
                                         relation_field=relation_field,
                                         relation_value=relation_value,
                                         maintable=main_tableobj.fullname,
+                                        columns=','.join(set(columns)),
                                         selectionName=selectionName)
             if not df:
                 return
@@ -263,7 +265,7 @@ class TableHandlerStats(BaseComponent):
                                                     default_values=default_values))
         frame.center.contentPane(overflow='auto'
                         ).tree(storepath='.stats.conf',margin='5px',
-                                 _class="branchtree noIcon",
+                                 _class="branchtree noIcon stattree",openOnClick=True,
                                 labelAttribute='caption',hideValues=True,
                                 draggable=True,dragClass='draggedItem',
                                 dropTarget=True,

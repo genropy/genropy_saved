@@ -532,5 +532,21 @@
 }
 
 
+ 
+.branchtree.stattree .dijitTreeExpando.dijitTreeExpandoOpened{
+    width: 12px;
+    background: url(/_gnr/11/css/icons/base10/tinyOpenBranch_white.png) no-repeat center center;
+}
+.branchtree.stattree .dijitTreeExpando.dijitTreeExpandoClosed{
+    width: 12px;
+    background: url(/_gnr/11/css/icons/base10/tinyCloseBranch_white.png) no-repeat center center;
+}
 
+.stattree .statfolder {
+    background:RGBA(22, 79, 134, 1.00);
+    border-radius: 4px;
+    color: white;
+    display: block;
+    padding-top: 3px;
+}
 
