@@ -293,7 +293,10 @@ class GnrDataframe(object):
         if funckeys:
             aggfunc = [adict[k] for k in funckeys]
         store = Bag()
-        pt = self.filteredDataframe(filters).pivot_table(index=index or None,
+        df = self.filteredDataframe(filters)
+        if df.empty:
+            return df,store
+        pt = df.pivot_table(index=index or None,
                                         values=values_list or None, 
                                         columns=columns or None,aggfunc=aggfunc,fill_value=0,margins=margins)
         if out_html:

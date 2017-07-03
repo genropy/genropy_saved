@@ -128,6 +128,8 @@ class TableHandlerStats(BaseComponent):
             label = n.label
             title = n.attr.get('title') or tblobj.column(label).attributes.get('name_long') or label
             titlepane = pane.titlePane(title=title,margin='2px')
+            defaults = n.attr.get('defaults')
+            pane.data('.stats.filters.%s' %label,defaults)
             if isinstance(v,basestring):
                 titlepane.checkBoxText(value='^.%s' %label,
                                         values='^#ANCHOR.stats.source_filters.%s' %label,
@@ -220,7 +222,7 @@ class TableHandlerStats(BaseComponent):
         stats_tableobj = self.db.table(table)
         main_tableobj = self.db.table(table).column(relation_field).relatedColumn().table
         if not df:
-            df = self.ths_getDataframe(table,filters=filters,mainfilter=None,
+            df = self.ths_getDataframe(table,filters=filters,mainfilter=mainfilter,
                                         relation_field=relation_field,
                                         relation_value=relation_value,
                                         maintable=main_tableobj.fullname,
