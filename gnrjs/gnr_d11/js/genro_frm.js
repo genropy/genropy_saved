@@ -132,7 +132,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             return;
         }
         kw = kw || {};
-        console.log('aaa',kw)
         this.save(kw.forced);
     },
     lazySave:function(savedCb){
@@ -1602,9 +1601,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         return ((this.formErrors.len()) == 0 && (this.getInvalidFields().len() == 0) && (this.getInvalidDojo().len()==0)) && this.registeredGridsStatus()!='error';
     },
 
-    registeredGridsStatus:function(){
+    registeredGridsStatus:function(storeInForm){
         var status = null;
         for(var k in this.gridEditors){
+            if(storeInForm && !this.gridEditors[k].storeInForm){
+                continue;
+            }
             var gridstatus=objectValues(this.gridEditors[k].status);
             if(gridstatus.indexOf('error')>=0){
                 return 'error';
@@ -1622,7 +1624,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         //this.contentSourceNode.setHiderLayer(false,{});
         var changes = this.getChangesLogger();
         var changed = (changes.len() > 0 || this.registeredGridsStatus()=='changed');
-        this.record_changed = changes.len() > 0;
+        this.record_changed = changes.len() > 0 || this.registeredGridsStatus(true);
         this.changed = changed;
         this.setControllerData('record_changed',this.record_changed);
         this.setControllerData('changed',changed);
@@ -2678,8 +2680,7 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
             envelope.setItem('record',data,{_newrecord:true,lastTS:null,caption:kw.newrecord_caption});
             
         }else{
-            var sourceBag = form.sourceNode.getRelativeData(this.locationpath);
-            var dataNode = sourceBag.getNode(currPkey);
+            var dataNode = this.parentStore.rowBagNodeByIdentifier(currPkey);
             genro.assert(dataNode,'Missing data for currentPath',currPkey);
             var kw = objectExtract(dataNode.attr,'lastTS,caption,_protect_delete,_protect_write,_pkey',true);
             var recordLoaded = new gnr.GnrBag();
@@ -2719,11 +2720,9 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
                 data.setItem(pkeyField,newPkey);
                 formData.setItem(pkeyField,newPkey);
             }
-
-            sourceBag.setItem(newPkey,data);
+            sourceBag.setItem(flattenString(newPkey,['.',' ']),data);
         }else{
             data = sourceBag.getItem(currPkey);
-
             if(currPkey != newPkey){
                 data.getParentNode().label = newPkey;
             }
