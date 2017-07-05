@@ -227,7 +227,7 @@ class TableHandlerView(BaseComponent):
     def _th_handle_page_hooks(self,view,page_hooks):
         frameCode = view.attributes['frameCode']
         menu = Bag()
-        menu.setItem('grid',None,caption='!!Grid',pageName='grid')
+        menu.setItem('grid',None,caption='!!Records',pageName='grid')
         for k in sorted(page_hooks.keys()):
             handler = page_hooks[k]
             wdg = getattr(handler,'widget','contentPane')
@@ -391,7 +391,7 @@ class TableHandlerView(BaseComponent):
                                 disabled='^.#parent.#parent.grid.loadingData',**kwargs)
     
         else:
-            mb = pane.formbuilder(cols=1,border_spacing='3px',**lbl_kwargs)
+            mb = pane.formbuilder(cols=1,border_spacing='0',**lbl_kwargs)
             lbl = lbl or sections.replace('_',' ').capitalize()
             if multivalue:
                 mb.checkBoxText(values='^.data',value='^.current',lbl=lbl,
@@ -607,7 +607,7 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_slotbar_pageHooksSelector(self,pane,**kwargs):
-        pane.menudiv(storepath='.viewPages',iconClass='iconbox book',action='SET .viewPage = $1.pageName;')
+        pane.multiButton(items='^.viewPages',value='^.viewPage',identifier='pageName')
       
     @struct_method
     def th_gridPane(self, frame,table=None,th_pkey=None,

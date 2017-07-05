@@ -43,15 +43,15 @@ class TableHandlerStats(BaseComponent):
                             default_columns=None):
         if not pd:
             pane.div('Missing Pandas')
-        bc = pane.borderContainer(datapath='.stats_%s' %table.replace('.','_') if relation_value else None,
+        bc = pane.borderContainer(datapath='.statsroot_%s' %table.replace('.','_'),
                                 _anchor=True)
         bc.dataController("""
-            this.watch('totalizzatore_visibile',function(){
+            this.watch('stat_visible',function(){
                 return genro.dom.isVisible(bcNode);
             },function(){
                 bcNode.fireEvent('.stats.run_pivot',true);
             });
-        """,store='^.store',
+        """,store=None if relation_value else '^.#parent.store',
             relation_value=relation_value,
             filters='^.stats.filters',
             stat_rows='^.stats.conf.rows',
@@ -64,7 +64,7 @@ class TableHandlerStats(BaseComponent):
                     relation_field=relation_field,
                     relation_value=relation_value.replace('^','=') if relation_value else None,
                     mainfilter = '=.stats.filters.%s' %relation_field,
-                    selectionName='=.store?selectionName',
+                    selectionName=None if relation_value else '=.#parent.store?selectionName',
                     filters='=.stats.filters',
                     stat_rows='=.stats.conf.rows',
                     stat_values='=.stats.conf.values',
