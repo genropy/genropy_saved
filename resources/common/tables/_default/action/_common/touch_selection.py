@@ -27,7 +27,7 @@ class Main(BaseResourceAction):
             wrapper_kw = dict(line_code='touch',message = 'Record',tblobj=tblobj)
         tblobj.touchRecords(_pkeys=pkeys,_wrapper=wrapper,_wrapperKwargs=wrapper_kw,
                             method=self.batch_parameters.get('touchmethod'),
-                            bagFields=self.batch_parameters.get('bagFields'))
+                            bagFields=self.batch_parameters.get('bagFields'),)
         self.db.commit()
 
 

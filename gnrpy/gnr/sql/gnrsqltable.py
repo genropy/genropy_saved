@@ -1130,7 +1130,9 @@ class SqlTable(GnrObject):
     def notifyDbUpdate(self,record):
         self.db.notifyDbUpdate(self,record)
             
-    def touchRecords(self,_pkeys=None,_wrapper=None,_wrapperKwargs=None,_notifyOnly=False,pkey=None,method=None, columns=None,**kwargs):
+    def touchRecords(self,_pkeys=None,_wrapper=None,_wrapperKwargs=None,
+                    _notifyOnly=False,pkey=None,
+                    order_by=None,method=None, columns=None,**kwargs):
         """TODO
         
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section"""
@@ -1154,11 +1156,16 @@ class SqlTable(GnrObject):
             columns = columns or getattr(handler,'columns',None)
             for_update = getattr(handler,'for_update',False)
             doUpdate = getattr(handler,'doUpdate',False)
+            order_by = getattr(handler,'order_by',None)
+
             for_update = doUpdate or for_update
             if doUpdate:
                 onUpdating = handler
                 handler = self.update
-        sel = self.query(addPkeyColumn=False, for_update=for_update,columns=columns or '*', **kwargs).fetch()
+        sel = self.query(addPkeyColumn=False, 
+                        for_update=for_update,
+                        columns=columns or '*', 
+                        order_by=order_by,**kwargs).fetch()
         if _wrapper:
             _wrapperKwargs = _wrapperKwargs or dict()
             sel = _wrapper(sel, **(_wrapperKwargs or dict()))
