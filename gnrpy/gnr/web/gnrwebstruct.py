@@ -2111,6 +2111,8 @@ class GnrFormBuilder(object):
         lblalign, fldalign = self.lblalign, self.fldalign
         lblvalign, fldvalign = self.lblvalign, self.fldvalign
         lbl_kwargs = {}
+        if self.colswidth=='auto':
+            lbl_kwargs.setdefault('margin_left','5px')
         lblhref = None
         if field is not None:
             f = dict(self.commonKwargs)

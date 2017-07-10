@@ -234,7 +234,9 @@ class TableHandlerStats(BaseComponent):
         valuesbag = Bag()
         if stat_values:
             for k in stat_values.keys():
-                fieldname,agg = k.split('_')
+                fl = k.split('_')
+                agg = fl[-1]
+                fieldname = '_'.join(fl[0:-1])
                 vb = valuesbag[fieldname]
                 if vb:
                     vb['aggregators'] = '%s,%s' %(vb['aggregators'],agg)
