@@ -73,7 +73,10 @@ class TableHandlerView(BaseComponent):
                     return;
                 }
                 op = n.attr.op || 'contains';
-                if(value.indexOf(',')>=0){
+                if(typeof(value)!='string'){
+                    op = n.attr.op  || 'equal';
+                }
+                if(typeof(value)=='string' && value.indexOf(',')>=0){
                     var subwhere = new gnr.GnrBag();
                     value.split(',').forEach(function(chunk,idx){
                         if(chunk){
