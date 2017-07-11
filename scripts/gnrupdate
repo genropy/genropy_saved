@@ -85,11 +85,14 @@ class UwsgiUpdater(object):
             print "Site %s start" % name
 
     def restart_vassal(self,name):
-        vassal_path = os.path.join(self.vassals_path,'%s.ini' %name)
-        if os.path.exists(vassal_path):
-            with open(vassal_path, 'a'):
-                os.utime(vassal_path,None)
-            print "Vassal %s restarted" % name
+        self.stop_vassal(name)
+        self.start_vassal(name)
+
+        #vassal_path = os.path.join(self.vassals_path,'%s.ini' %name)
+        #if os.path.exists(vassal_path):
+        #    with open(vassal_path, 'a'):
+        #        os.utime(vassal_path,None)
+        #    print "Vassal %s restarted" % name
 
     def check_db(self,app):
         changes = app.db.model.check()
@@ -115,6 +118,7 @@ if __name__ == '__main__':
                   dest='touchonly',
                   action='store_true',
                   help="Touch all vassals")  
+
 
     (options, args) = parser.parse_args()
 
