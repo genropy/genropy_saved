@@ -446,11 +446,20 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         filler.style.height = delta+'px';
         var totalWidth = dojo.query('table',this.viewsHeaderNode)[0].clientWidth;
         var tdlist = [];
-        dojo.query('th',this.viewsHeaderNode).forEach(function(n){
+        var colinfo = this.getColumnInfo();
+        var cellinfo;
+        dojo.query('th',this.viewsHeaderNode).forEach(function(n,idx){
             if(!n.clientWidth){
                 return; 
             }
-            return tdlist.push('<td style="width:'+n.clientWidth+'px;"></td>');
+            var style = "width:"+n.clientWidth+"px;";
+            if(colinfo){
+                cellinfo = colinfo.getAttr('#'+idx);
+                if(cellinfo.cell && cellinfo.cell.cellStyles){
+                    style+=cellinfo.cell.cellStyles;
+                }
+            }
+            return tdlist.push('<td style="'+style+'"></td>');
         });
         filler.innerHTML = '<table class="grid_filler" style="width:'+totalWidth+'px;"><tbody><tr>'+tdlist.join('')+'</tr></tbody></table>';
     },
@@ -793,6 +802,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 if(this.sourceNode.attr.fillDown){
                     this.drawFiller();
                 }
+            });
+
+            dojo.connect(sourceNode.getParentNode().getParentNode().widget,'resize',function(){
+                sourceNode._columnsetAndFootersInitialized = false;
             });
             if(sourceNode.attr.fillDown){
                 dojo.connect(widget,'updateRowCount',function(){

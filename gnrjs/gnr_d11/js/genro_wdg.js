@@ -866,7 +866,7 @@ dojo.declare("gnr.GridEditor", null, {
         if (this.invalidCell(cell, inRowIndex)) {
             cell.customClasses.push('invalidCell');
         }
-        if(this.grid.sourceNode.form && renderedRow._newrecord){
+        if(renderedRow._newrecord && this.grid.sourceNode.form && !this.grid.sourceNode.form.store.autoSave){
             cell.customClasses.push('newRowCell');
         }
     },
@@ -1933,8 +1933,10 @@ dojo.declare("gnr.GridChangeManager", null, {
                 }
             }
             if(kw.reason!='remoteController' && kw.node.label in this.remoteControllerColumns){
+                var that = this;
                 genro.callAfter(function(){
                     gridEditor.callRemoteController(kw.node.getParentNode(),kw.node.label,kw.oldvalue);
+                    that.resolveTotalizeColumns();
                 },1)
             }
         }
@@ -1943,6 +1945,7 @@ dojo.declare("gnr.GridChangeManager", null, {
         if(kw.reason=='remoteController'){
             return;
         }
+        genro.bp(true);
         var storeNode = this.grid.storebag().getParentNode();
         var parent_lv = kw.node.parentshipLevel(storeNode);
         var gridEditor = this.grid.gridEditor;
