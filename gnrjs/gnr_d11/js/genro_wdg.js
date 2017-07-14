@@ -1348,9 +1348,7 @@ dojo.declare("gnr.GridEditor", null, {
         }if(valueCaption!=undefined) {
             newAttr[cell.field_getter] = valueCaption
         }
-        if(this.grid.datamode!='bag'){
-            this.grid.collectionStore().updateRowNode(rowNode,newAttr);
-        }
+        this.grid.collectionStore().updateRowNode(rowNode,newAttr);
     },
 
     updateCounterColumn:function(rowNode,k,counterField){
