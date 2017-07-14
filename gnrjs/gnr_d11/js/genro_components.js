@@ -5818,7 +5818,6 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
     },
 
     updateRowNode:function(rowNode,updDict){
-        console.log('updateRowNode',updDict);
         var rowData = rowNode.getValue();
         var idx = this.getData().index(rowNode.label);
         for(var k in updDict){
@@ -5827,7 +5826,7 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
                 //put the missing node
                 rowData.setItem(k,null,null,{doTrigger:false});
             }
-            rowData.setItem(k,updDict[k],null,{doTrigger:{editedRowIndex:idx,lazySet:true}});
+            rowData.setItem(k,updDict[k],null,{doTrigger:{editedRowIndex:idx},lazySet:true});
         }
     },
 
