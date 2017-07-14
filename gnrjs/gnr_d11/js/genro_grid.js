@@ -3713,7 +3713,11 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     },
 
     mixin_masterEditColumn:function(){
-        var colnodes = this.getColumnInfo().getNodes()
+        if (this.sourceNode.attr.masterColumn){
+            return this.sourceNode.attr.masterColumn;
+        }
+        var colinfo = this.getColumnInfo();
+        var colnodes = colinfo.getNodes()
         var item,n;
         for(var i=0; i<colnodes.length; i++){
             item = colnodes[i].attr;
