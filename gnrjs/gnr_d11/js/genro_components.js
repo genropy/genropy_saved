@@ -5818,15 +5818,16 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
     },
 
     updateRowNode:function(rowNode,updDict){
+        console.log('updateRowNode',updDict);
         var rowData = rowNode.getValue();
         var idx = this.getData().index(rowNode.label);
         for(var k in updDict){
-            var n = rowData.getNode('static');
+            var n = rowData.getNode(k,'static');
             if(!n){
                 //put the missing node
                 rowData.setItem(k,null,null,{doTrigger:false});
             }
-            rowData.setItem(k,updDict[k],null,{doTrigger:{editedRowIndex:idx}});
+            rowData.setItem(k,updDict[k],null,{doTrigger:{editedRowIndex:idx,lazySet:true}});
         }
     },
 
