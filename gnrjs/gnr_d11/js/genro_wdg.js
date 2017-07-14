@@ -1720,8 +1720,8 @@ dojo.declare("gnr.GridChangeManager", null, {
         this.sourceNode.subscribe('onSetStructpath',function(){
             this.delayedCall(function(){
                 that.resolveCalculatedColumns();
+                that.resolveTotalizeColumns();
             },1,'resolveCalculatedColumns')
-            
         });
     },
     resolveCalculatedColumns:function(){
@@ -1877,10 +1877,18 @@ dojo.declare("gnr.GridChangeManager", null, {
         var k;
         var rowNode;
         var idx;
+        var sourceNode = this.sourceNode;
+        var that = this;
         if(kw.updvalue && kw.value instanceof gnr.GnrBag ){
             var storeNode = this.grid.storebag().getParentNode();
             var parent_lv = kw.node.parentshipLevel(storeNode);
             if(parent_lv<2){
+                if(kw.reason=='remoteController'){
+                    sourceNode.delayedCall(function(){
+                        that.resolveCalculatedColumns();
+                        that.resolveTotalizeColumns();
+                    },1,'resolveCalculatedColumns')
+                }
                 return;
             }
         }
@@ -1933,9 +1941,9 @@ dojo.declare("gnr.GridChangeManager", null, {
                 }
             }
             if(kw.reason!='remoteController' && kw.node.label in this.remoteControllerColumns){
-                var that = this;
                 genro.callAfter(function(){
                     gridEditor.callRemoteController(kw.node.getParentNode(),kw.node.label,kw.oldvalue);
+                    that.resolveCalculatedColumns();
                     that.resolveTotalizeColumns();
                 },1)
             }
@@ -1945,7 +1953,6 @@ dojo.declare("gnr.GridChangeManager", null, {
         if(kw.reason=='remoteController'){
             return;
         }
-        genro.bp(true);
         var storeNode = this.grid.storebag().getParentNode();
         var parent_lv = kw.node.parentshipLevel(storeNode);
         var gridEditor = this.grid.gridEditor;

@@ -134,23 +134,24 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         kw = kw || {};
         this.save(kw.forced);
     },
-    lazySave:function(savedCb){
+    lazySave:function(savedCb,kw){
         savedCb = savedCb?funcCreate(savedCb,{},this):false;
         if(this.canBeSaved()){
-            var d = this.save({onSaved:'lazyReload',waitingStatus:false});
+            var d = this.save(objectUpdate({onSaved:'lazyReload',waitingStatus:false},kw));
             this.getFormData().walk(function(n){
                 delete n.attr._loadedValue;
             },'static');
             if(savedCb){
                 d.addCallback(savedCb);
             }
+            return d;
         }else if(savedCb){
             savedCb.call(this);
         }
     },
 
     onStartForm:function(kw){
-        var kw = kw || {};
+        kw = kw || {};
         this.formDomNode = this.sourceNode.getDomNode();
         this.formContentDomNode = this.contentSourceNode.getDomNode();
         if(this.store){
@@ -1019,7 +1020,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     do_save:function(kw){
-        if(this.isDisabled()){
+        if(!kw.forced && this.isDisabled()){
             this.publish('message',{message:_T('Cannot save. Blocked Form'),sound:'$error',messageType:'warning'});
         }
         var destPkey = kw.destPkey;
@@ -1601,6 +1602,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         return ((this.formErrors.len()) == 0 && (this.getInvalidFields().len() == 0) && (this.getInvalidDojo().len()==0)) && this.registeredGridsStatus()!='error';
     },
 
+    setProtectWrite:function(set){
+        set = set===undefined?true:set;
+        var recAttr = this.getDataNodeAttributes();
+        recAttr._protect_write = set;
+        this.updateStatus();
+    },
     registeredGridsStatus:function(storeInForm){
         var status = null;
         for(var k in this.gridEditors){
@@ -2699,11 +2706,20 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
     
     save_memory:function(kw){
         //COLLECTION
-        var saveKw = objectUpdate({},kw);
-        var destPkey = objectPop(saveKw,'destPkey');
         var form = this.form;
+        var saveKw = form.sourceNode.evaluateOnNode(this.handlers.save.kw);
+        saveKw = objectUpdate(saveKw,kw);
+        var destPkey = objectPop(saveKw,'destPkey');
         var sourceBag = form.sourceNode.getRelativeData(this.locationpath);
         var formData = form.getFormData();
+        var onSaving = objectPop(saveKw,'onSaving');
+        if(onSaving){
+            var dosave = funcApply(onSaving,{data:formData},this);
+            if(dosave===false){
+                this.form.setOpStatus(null);
+                return;
+            }
+        }
         var currPkey = form.getCurrentPkey();
         var pkeyField = this.pkeyField || '_pkey';
         var newPkey = pkeyField?formData.getItem(pkeyField):null;

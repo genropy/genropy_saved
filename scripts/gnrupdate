@@ -54,7 +54,7 @@ class UwsgiUpdater(object):
                 print 'APPLYING CHANGES TO DATABASE...'
                 app.db.model.applyModelChanges()
                 print 'CHANGES APPLIED TO DATABASE'
-            app.db.model.checker.addExtesions()
+            #app.db.model.checker.addExtesions()
             print '\t done'
         self.restart_vassal('gnrdaemon')
         for s in instances:
