@@ -422,7 +422,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
                             {confirm:function(){ 
                                 iframe.sourceNode._genro._checkedUnload = true;
                                 finalizeCb();
-                            }})
+                            }});
             }else{
                 finalizeCb()
             }

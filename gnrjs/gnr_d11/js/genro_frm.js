@@ -120,9 +120,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     doAutoSave:function(){
         var that = this;
         if(this.canBeSaved() && !this.isNewRecord()){
-             genro.callAfter(function(){
-                that.lazySave();
-             },this.autoSave,this.sourceNode,'autoSaveForm_'+this.formId);
+            genro.callAfter(function(){
+               that.lazySave();
+            },this.autoSave,this.sourceNode,'autoSaveForm_'+this.formId);
         }
     },
 
@@ -166,7 +166,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             });
             if(this.store.autoSave){
                 this.autoSave = this.store.autoSave===true?2000:this.store.autoSave;
-                dojo.connect(this,'updateStatus',this.doAutoSave)
+                dojo.connect(this,'updateStatus',this.doAutoSave);
             }
             var startKey = kw.startKey || this.store.startKey || this.getCurrentPkey();
             if(startKey){
