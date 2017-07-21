@@ -79,12 +79,13 @@ class GnrWebUtils(GnrBaseProxy):
             elif labelcb:
                 lbl = labelcb(v)
             if idx % interval == 0:
-                themropars = dict(maxidx=maxidx,idx=idx,lbl=lbl or 'item %s' %idx,thermo_width=thermo_width or '12em')
+                themropars = dict(maxidx=maxidx,idx=idx,lbl=lbl or 'item %s' %idx,thermo_width=thermo_width or '12em',
+                                title=title)
                 if maxidx:
-                    thermo = r"""<div class="quickthermo_box"> <progress style="width:%(thermo_width)s" max="%(maxidx)s" value="%(idx)s"></progress> <div class="quickthermo_caption">%(idx)s/%(maxidx)s - %(lbl)s</div></div>""" %themropars
+                    thermo = r"""<div class="quickthermo_box"> %(title)s <progress style="width:%(thermo_width)s" max="%(maxidx)s" value="%(idx)s"></progress> <div class="quickthermo_caption">%(idx)s/%(maxidx)s - %(lbl)s</div></div>""" %themropars
                 else:
-                    thermo = """<div class="quickthermo_box"> <div class="form_waiting"></div> <div class="quickthermo_caption">%(idx)s - %(lbl)s</div> </div>"""  %themropars
-                self.page.setInClientData(path,'%s%s' %(title,thermo),idx=idx,maxidx=maxidx,lbl=lbl)
+                    thermo = """<div class="quickthermo_box"> %(title)s <div class="form_waiting"></div> <div class="quickthermo_caption">%(idx)s - %(lbl)s</div> </div>"""  %themropars
+                self.page.setInClientData(path,thermo,idx=idx,maxidx=maxidx,lbl=lbl)
             yield v
         self.page.setInClientData(path,thermo,idx=maxidx,maxidx=maxidx,lbl=lbl)
 

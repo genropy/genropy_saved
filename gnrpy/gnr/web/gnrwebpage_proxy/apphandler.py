@@ -1196,7 +1196,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             labelfield = tblobj.name
             if caption_field and (caption_field in rows[0]):
                 labelfield = caption_field
-            deltitle = 'Unlinking...' if unlinkfield else 'Deleting...'
+            deltitle = 'Unlink records' if unlinkfield else 'Delete records'
             for r in self.page.utils.quickThermo(rows,maxidx=len(rows),labelfield=labelfield,title=deltitle):
                 if unlinkfield:
                     record = dict(r)
