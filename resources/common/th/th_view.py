@@ -529,7 +529,7 @@ class TableHandlerView(BaseComponent):
                    _onResult='FIRE .query.currentQuery="__newquery__";FIRE .query.refreshMenues;')
 
         #SOURCE MENUVIEWS
-        pane.dataController("""if(_triggerpars.kw.updvalue && _triggerpars.kw.oldvalue!=_triggerpars.kw.value){
+        pane.dataController("""if(_triggerpars.kw.evt=='ins' || _triggerpars.kw.updvalue && _triggerpars.kw.oldvalue!=_triggerpars.kw.value){
             genro.grid_configurator.loadView(gridId, (currentView || favoriteView),th_root);
         }""",currentView="^.grid.currViewPath",favoriteView='^.grid.favoriteViewPath',
                             _delay=1,gridId=gridId,th_root=th_root)
