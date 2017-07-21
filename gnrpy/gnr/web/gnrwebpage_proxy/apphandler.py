@@ -1190,7 +1190,14 @@ class GnrWebAppHandler(GnrBaseProxy):
             rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,excludeLogicalDeleted=False,
                                 for_update=True,addPkeyColumn=False,excludeDraft=False).fetch()
             now = datetime.now()
-            for r in rows:
+            caption_field = tblobj.attributes.get('caption_field')
+            if not rows:
+                return
+            labelfield = tblobj.name
+            if caption_field and (caption_field in rows[0]):
+                labelfield = caption_field
+            deltitle = 'Unlinking...' if unlinkfield else 'Deleting...'
+            for r in self.page.utils.quickThermo(rows,maxidx=len(rows),labelfield=labelfield,title=deltitle):
                 if unlinkfield:
                     record = dict(r)
                     record[unlinkfield] = None

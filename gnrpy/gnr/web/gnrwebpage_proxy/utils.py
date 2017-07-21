@@ -59,7 +59,7 @@ class GnrWebUtils(GnrBaseProxy):
         return topath
 
     def quickThermo(self,iterator,path=None,maxidx=None,labelfield=None,
-                    labelcb=None,thermo_width=None,interval=None):
+                    labelcb=None,thermo_width=None,interval=None,title=None):
         path = path or 'gnr.lockScreen.thermo'
         lbl = ''
         if isinstance(iterator,list):
@@ -67,8 +67,9 @@ class GnrWebUtils(GnrBaseProxy):
         interval = 1
         if maxidx and maxidx >1000:
             interval = maxidx/100
+        
         thermo = """<div class="quickthermo_box"> <div class="form_waiting"></div> </div>""" 
-
+        title = """<div class="quickthermo_title">%s</div>""" %title if title else ""
         for idx,v in enumerate(iterator):
             if labelfield:
                 if labelfield in v:
@@ -83,7 +84,7 @@ class GnrWebUtils(GnrBaseProxy):
                     thermo = r"""<div class="quickthermo_box"> <progress style="width:%(thermo_width)s" max="%(maxidx)s" value="%(idx)s"></progress> <div class="quickthermo_caption">%(idx)s/%(maxidx)s - %(lbl)s</div></div>""" %themropars
                 else:
                     thermo = """<div class="quickthermo_box"> <div class="form_waiting"></div> <div class="quickthermo_caption">%(idx)s - %(lbl)s</div> </div>"""  %themropars
-                self.page.setInClientData(path,thermo,idx=idx,maxidx=maxidx,lbl=lbl)
+                self.page.setInClientData(path,'%s%s' %(title,thermo),idx=idx,maxidx=maxidx,lbl=lbl)
             yield v
         self.page.setInClientData(path,thermo,idx=maxidx,maxidx=maxidx,lbl=lbl)
 

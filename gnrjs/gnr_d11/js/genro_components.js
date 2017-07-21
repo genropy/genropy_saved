@@ -6322,9 +6322,12 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     deleteRows:function(pkeys,protectPkeys){
         var that = this;
         var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
+        var lockreason = this.storeNode.attr.nodeId+'_'+'deletingDbRows';
+        genro.lockScreen(true,lockreason,{thermo:true});
         genro.serverCall('app.deleteDbRows',{pkeys:pkeys,table:this.storeNode.attr.table,
                                              unlinkfield:unlinkfield,protectPkeys:protectPkeys,
-                                            _sourceNode:this.storeNode},function(result){
+                                            _sourceNode:this.storeNode,timeout:0},function(result){
+            genro.lockScreen(false,lockreason,'deletingDbRows');
             that.onDeletedRows(result);
         },null,'POST');
     },
