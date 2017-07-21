@@ -99,9 +99,7 @@ class TableHandlerView(BaseComponent):
                                 **pars)
         bar.dataController("""genro.dom.toggleVisible(bar,currentQuery=="__querybysample__");
                             view.widget.resize();""", currentQuery='^.query.currentQuery',
-                            bySampleIsDefault='=.query.bySampleIsDefault',
                             view=view, bar=bar,_onBuilt=True)
-
         tblobj = self.db.table(table)
         for i,fkw in enumerate(fields):
             if isinstance(fkw,str):
@@ -529,10 +527,11 @@ class TableHandlerView(BaseComponent):
                    _onResult='FIRE .query.currentQuery="__newquery__";FIRE .query.refreshMenues;')
 
         #SOURCE MENUVIEWS
-        pane.dataController("""if(_triggerpars.kw.evt=='ins' || _triggerpars.kw.updvalue && _triggerpars.kw.oldvalue!=_triggerpars.kw.value){
-            genro.grid_configurator.loadView(gridId, (currentView || favoriteView),th_root);
-        }""",currentView="^.grid.currViewPath",favoriteView='^.grid.favoriteViewPath',
-                            _delay=1,gridId=gridId,th_root=th_root)
+        pane.dataController("""genro.grid_configurator.loadView(gridId, (currentView || favoriteView),th_root);
+                                """,
+                            currentView="^.grid.currViewPath",
+                            favoriteView='^.grid.favoriteViewPath',
+                            gridId=gridId,th_root=th_root)
         q = Bag()
         pyviews = self._th_hook('struct',mangler=th_root,asDict=True)
         for k,v in pyviews.items():
