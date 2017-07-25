@@ -60,7 +60,7 @@ class Form(BaseComponent):
         fb.field('fld')
         fb.field('counter',readOnly=False)
         fb.field('last_used',readOnly=False)
-        fb.button('Align',fire='#FORM.alignCounter')
+        fb.button('Align',fire='#FORM.alignCounter',readOnly=False)
         center = bc.borderContainer(region='center',margin='2px')
         center.contentPane(region='top',height='50%').bagGrid(storepath='#FORM.record.holes',struct=self.holesStruct,
                         pbl_classes=True,title='Holes', margin='2px',addrow=False,delrow=False)
@@ -99,4 +99,5 @@ class Form(BaseComponent):
 
     def th_options(self):
         return dict(dialog_height='400px', dialog_width='600px',
-                readOnly=not self.db.application.checkResourcePermission('superadmin', self.userTags))
+                readOnly=not self.db.application.checkResourcePermission('superadmin', self.userTags)
+                )

@@ -1117,6 +1117,7 @@ class SqlTable(GnrObject):
         sel = q.fetch()
         for r in sel:
             self.delete(r)
+        return sel
             # if not self.trigger_onDeleting:
             #  sql delete where
 

@@ -1717,8 +1717,10 @@ dojo.declare("gnr.GridChangeManager", null, {
             });
         this.sourceNode.subscribe('onSetStructpath',function(){
             this.delayedCall(function(){
-                that.resolveCalculatedColumns();
-                that.resolveTotalizeColumns();
+                if(that.data){
+                    that.resolveCalculatedColumns();
+                    that.resolveTotalizeColumns();
+                }
             },1,'resolveCalculatedColumns')
         });
     },

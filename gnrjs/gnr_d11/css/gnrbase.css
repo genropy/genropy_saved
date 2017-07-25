@@ -2406,6 +2406,14 @@ div.dojoxDock {
     border:1px solid #ccc;
     box-shadow: 2px 2px 3px #666;
 }
+.quickthermo_title{
+    font-variant: normal;
+    font-size: 18px;
+    color:#555;
+    text-align: center;
+}
+
+
 .quickthermo_caption{
     font-variant: normal;
     font-size: 18px;
