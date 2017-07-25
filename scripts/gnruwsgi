@@ -62,7 +62,10 @@ http-timeout = 2400
 pidfile = %(pidfile_path)s
 %(websockets)s
 """
-
+    if os.environ.has_key('VIRTUAL_ENV'):
+        vassal_template = """%s
+virtualenv = %s
+        """ %(vassal_template,os.environ.get('VIRTUAL_ENV'))
     def __init__(self, site_name, options=None, verbose=None):
         self.site_name = site_name
         self.site_handler = getSiteHandler(site_name)
@@ -122,10 +125,13 @@ pidfile = %(pidfile_path)s
         pars['stats_port'] = int(opt.stats_port or pars['port']+1000)
         pars['offload_threads'] = int(opt.offload_threads or pars['processes'])
         pars['pidfile_path'] = self.pidfile_path
+        venvpath = os.environ.get('VIRTUAL_ENV','')
+        if venvpath:
+            venvpath = '%s/bin/' %venvpath
         if boolean(opt.websockets):
             pars['websockets'] = """http-websockets = true
 route = ^/websocket httpdumb:%s
-attach-daemon = gnrasync %s""" % (self.websocket_socket_path, self.site_name)
+attach-daemon = %sgnrasync %s""" % (self.websocket_socket_path, venvpath,self.site_name)
         else:
             pars['websockets'] = ''
         ini_content = self.vassal_template%pars

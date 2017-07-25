@@ -144,14 +144,14 @@ var THTreeRelatedTableHandler = {
                     alt_relations_result.push(alt_relations[k]['_class'] || '_altrelation_'+k)
                 }
             }
-            if(alt_relations_result){
+            if(alt_relations_result.length){
                 return alt_relations_result.join(' ');
             }
         }
         if(r.many_hpkey==curr_hfkey){
             if(r.one_hpkey){
                 r['_alias_row'] = true;
-                return '_alias_row';
+                return '_alias_row'; 
             }else{
                 return;
             }

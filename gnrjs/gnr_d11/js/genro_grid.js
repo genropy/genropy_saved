@@ -426,7 +426,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     mixin_drawFiller:function(){
         var sb = this.views.views[0].scrollboxNode;
         if(this.sourceNode._footersNode){
-            sb.style.height =sb.clientHeight+18+'px';
+            sb.style.height = this.sourceNode.getParentNode().widget.domNode.clientHeight - this.viewsHeaderNode.clientHeight+1 +'px';
+            //sb.style.height =sb.clientHeight+18+'px';
         }
         var delta = sb.clientHeight - sb.firstElementChild.clientHeight;
         var filler = dojo.query('.fillernode',sb)[0];
@@ -445,11 +446,20 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         filler.style.height = delta+'px';
         var totalWidth = dojo.query('table',this.viewsHeaderNode)[0].clientWidth;
         var tdlist = [];
-        dojo.query('th',this.viewsHeaderNode).forEach(function(n){
+        var colinfo = this.getColumnInfo();
+        var cellinfo;
+        dojo.query('th',this.viewsHeaderNode).forEach(function(n,idx){
             if(!n.clientWidth){
                 return; 
             }
-            return tdlist.push('<td style="width:'+n.clientWidth+'px;"></td>');
+            var style = "width:"+n.clientWidth+"px;";
+            if(colinfo){
+                cellinfo = colinfo.getAttr('#'+idx);
+                if(cellinfo.cell && cellinfo.cell.cellStyles){
+                    style+=cellinfo.cell.cellStyles;
+                }
+            }
+            return tdlist.push('<td style="'+style+'"></td>');
         });
         filler.innerHTML = '<table class="grid_filler" style="width:'+totalWidth+'px;"><tbody><tr>'+tdlist.join('')+'</tr></tbody></table>';
     },
@@ -587,12 +597,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         attributes.rowsPerPage = attributes.rowsPerPage || 10;
         attributes.rowCount = attributes.rowCount || 0;
         attributes.fastScroll = attributes.fastScroll || false;
+        
         sourceNode.dropModes = objectExtract(sourceNode.attr, 'dropTarget_*', true);
         objectExtract(attributes, 'group_*');
         if (!sourceNode.dropTarget && objectNotEmpty(sourceNode.dropModes)) {
             sourceNode.dropTarget = true;
         }
-        var attributesToKeep = '_class,autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure,'; //continue
+        var attributesToKeep = '_class,pageName,autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure,'; //continue
         var styleDict=genro.dom.getStyleDict(attributes);
         if (styleDict.width=='auto'){
             delete styleDict.width;
@@ -791,6 +802,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 if(this.sourceNode.attr.fillDown){
                     this.drawFiller();
                 }
+            });
+
+            dojo.connect(sourceNode.getParentNode().getParentNode().widget,'resize',function(){
+                sourceNode._columnsetAndFootersInitialized = false;
             });
             if(sourceNode.attr.fillDown){
                 dojo.connect(widget,'updateRowCount',function(){
@@ -3698,7 +3713,11 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     },
 
     mixin_masterEditColumn:function(){
-        var colnodes = this.getColumnInfo().getNodes()
+        if (this.sourceNode.attr.masterColumn){
+            return this.sourceNode.attr.masterColumn;
+        }
+        var colinfo = this.getColumnInfo();
+        var colnodes = colinfo.getNodes()
         var item,n;
         for(var i=0; i<colnodes.length; i++){
             item = colnodes[i].attr;

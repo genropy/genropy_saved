@@ -443,34 +443,35 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         dlg_kw = objectUpdate({_showParent:true,width:'280px',datapath:prompt_datapath,background:'white',autoSize:true},dlg_kw);
         var dlg = genro.dlg.quickDialog(title,dlg_kw);
         var mandatory = objectPop(kw,'mandatory');
-        var bar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',action:function(){
-                                                    var error_message;
-                                                    if(this.attr.command=='confirm'){
-                                                        var v = genro.getData(promptvalue_path);
-                                                        if(mandatory && isNullOrBlank(v)){
-                                                            return;
-                                                        }
-                                                        error_message = funcApply(confirmCb,{value:genro.getData(promptvalue_path)},(sourceNode||this));
-                                                        if(!error_message){
-                                                            genro.setData(promptvalue_path,null,null,false);
-                                                        }
-                                                    }else if(this.attr.command == 'cancel' && cancelCb){
-                                                        error_message = funcApply(cancelCb,{},(sourceNode||this));
-                                                    }
-                                                    if(error_message){
-                                                        genro.dlg.floatingMessage(dlg.center.getParentNode(),{message:error_message,messageType:'error'})
-                                                    }
-                                                    else{
-                                                        dlg.close_action();
-                                                        genro.dlg.prompt_counter--;
-                                                        if(!genro.dlg.prompt_counter){
-                                                            setTimeout(function(){
-                                                                genro._data.popNode('gnr.promptDlg');
-                                                            },genro.dlg._quickDialogDestroyTimeout+1);
-                                                        }
-                                                    }
-                                                   
-                                                }});
+        var actionCb = function(command){
+                        var error_message;
+                        command = command || this.attr.command;
+                        if(command=='confirm'){
+                            var v = genro.getData(promptvalue_path);
+                            if(mandatory && isNullOrBlank(v)){
+                                return;
+                            }
+                            error_message = funcApply(confirmCb,{value:genro.getData(promptvalue_path)},(sourceNode||this));
+                            if(!error_message){
+                                genro.setData(promptvalue_path,null,null,false);
+                            }
+                        }else if(command == 'cancel' && cancelCb){
+                            error_message = funcApply(cancelCb,{},(sourceNode||this));
+                        }
+                        if(error_message){
+                            genro.dlg.floatingMessage(dlg.center.getParentNode(),{message:error_message,messageType:'error'})
+                        }
+                        else{
+                            dlg.close_action();
+                            genro.dlg.prompt_counter--;
+                            if(!genro.dlg.prompt_counter){
+                                setTimeout(function(){
+                                    genro._data.popNode('gnr.promptDlg');
+                                },genro.dlg._quickDialogDestroyTimeout+1);
+                            }
+                        }
+                    };
+        var bar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',action:actionCb});
         bar._('button','cancel',{'label':'Cancel',command:'cancel'});
         var confirmbtnKW = {'label':'Confirm',command:'confirm'};
         if(mandatory){
@@ -504,10 +505,14 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                 box._('div',{innerHTML:msg,color:'#666',margin_bottom:'10px',_class:'selectable'});
             }
             if(typeof(wdg)=='string'){
-                fb = genro.dev.formbuilder(box,1,{border_spacing:'1px',width:'100%',fld_width:'100%'});
+                fb = genro.dev.formbuilder(box,1,{border_spacing:'1px',onEnter:function(){
+                    actionCb('confirm');
+                },width:'100%',fld_width:'100%'});
                 fb.addField(wdg,objectUpdate({value:'^.promptvalue',lbl:kw.lbl,lbl_color:'#666',lbl_text_align:'right'},objectExtract(kw,'wdg_*')));
             }else{
-                fb = genro.dev.formbuilder(box,1,{border_spacing:'4px',width:'100%',fld_width:'100%',datapath:'.promptvalue'});
+                fb = genro.dev.formbuilder(box,1,{border_spacing:'4px',width:'100%',onEnter:function(){
+                    actionCb('confirm');
+                },fld_width:'100%',datapath:'.promptvalue'});
                 wdg.forEach(function(n){
                     n = objectUpdate({},n);
                     var w = objectPop(n,'wdg','textbox');
@@ -515,9 +520,18 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                 });
             }
         }
-        dlg.show_action();
-
+        dlg.show_action(function(){
+            //genro.bp(true);
+            setTimeout(function(){
+                var inputNodes = dojo.query('input',dlg.getParentNode().widget.domNode) || [];
+                if(inputNodes.length){
+                    inputNodes[0].focus();
+                }
+            },500);
+            //console.log('dlg',dojo.query(dlg.getParentNode().domNode,'input'));
+        });
     },
+
     paletteMap:function(kw) {
         kw = kw || {};
         kw.paletteCode = kw.paletteCode || 'mapViewer';
@@ -634,12 +648,15 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             },genro.dlg._quickDialogDestroyTimeout);
             
         };
-        dlg.show_action = function() {
+        dlg.show_action = function(onShowCb) {
             var node = this.getParentNode().getParentNode();
             node.unfreeze();
             var wdg = this.getParentNode().widget;
             genro.callAfter(function(){
                 wdg.show();
+                if(onShowCb){
+                    onShowCb();
+                }
             },1);
         };
         return dlg;

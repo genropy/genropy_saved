@@ -59,7 +59,6 @@ REPORT_HTML = """
 </html>
 """
 
-
 try:
     import cPickle as pickle
 except ImportError:
@@ -72,11 +71,12 @@ except:
     pd = False
     np = False
 
+AGGFUNCDICT = {'sum':np.sum,'mean':np.mean,'count':len,'min':np.min,'max':np.max}
 
 
 
 class GnrPandas(object):
-    AGGFUNCDICT = {'sum':np.sum,'mean':np.mean,'count':len,'min':np.min,'max':np.max}
+    AGGFUNCDICT = AGGFUNCDICT
 
     def __init__(self,path=None,language=None,stats_code=None,
                 report_folderpath=None,report_folderurl=None,
@@ -289,11 +289,14 @@ class GnrDataframe(object):
             values_list = values
             values = None
         aggfunc = [np.mean]
-        adict = self.parent.AGGFUNCDICT
+        adict = AGGFUNCDICT
         if funckeys:
             aggfunc = [adict[k] for k in funckeys]
         store = Bag()
-        pt = self.filteredDataframe(filters).pivot_table(index=index or None,
+        df = self.filteredDataframe(filters)
+        if df.empty:
+            return df,store
+        pt = df.pivot_table(index=index or None,
                                         values=values_list or None, 
                                         columns=columns or None,aggfunc=aggfunc,fill_value=0,margins=margins)
         if out_html:
@@ -310,8 +313,10 @@ class GnrDataframe(object):
             else:
                 rec[pt.index.names[0]] = str(index_vals)
             for c in sel_vals.index:
+
                 if isinstance(c,tuple):
-                    ckey = '_'.join([str(z) for z in c]).replace('-','_').replace('.','_')
+                    
+                    ckey = '_'.join([str(z) for z in c]).replace('-','_').replace('.','_').replace(' ','_').replace('__','_')
                     if not multiagg:
                         rec.setItem(ckey,float(sel_vals[c]),dtype='R',format='###,###.00',name='<br/>'.join(ckey.split('_')))
                     else:
@@ -415,7 +420,7 @@ class GnrDbDataframe(GnrDataframe):
                                         name_short=self.translate(v.get('name_short')),
                                         width=v.get('print_width'),format=v.get('format'),
                                         dtype= v.get('dataType'))
-
+                                        
                 decimalCols = [k for k,v in self.dbColAttrs.items() if v['dataType'] in ('N','R')]
                 dateCols = [k for k,v in self.dbColAttrs.items() if v['dataType'] == 'D']
 
@@ -440,4 +445,45 @@ class GnrDbDataframe(GnrDataframe):
         return ','.join(columns) 
 
 
-        
+    def fieldsSourceBag(self,tblobj):
+        result = Bag()
+        for col in self.defaultColumns(tblobj).split(','):
+            column = tblobj.column(col)
+            attr = column.attributes
+            stats = attr.get('stats')
+            dtype = attr.get('dtype')
+            caption = attr.get('name_long')
+            label = col.replace('$','').replace('.','_').replace('@','_')
+            if dtype in ('N','L','I','R'):
+                if stats in (None,True):
+                    result.setItem('%s_sum' %label,None,caption=caption,
+                                field=col,stat_type='numeric',
+                                agg='sum')
+                else:
+                    for agg in stats.split(','):
+                        result.setItem('%s_%s' %(label,agg),None,caption='%s(%s)' %(caption,agg),
+                                field=col,stat_type='numeric',
+                                agg=agg)
+            else:
+                result.setItem(label,None,caption=caption,
+                                field=col,stat_type='index')
+        return result
+
+    def configPivotTree(self,tblobj,default_values=None,default_columns=None,default_rows=None):
+        result = Bag()
+        fields = self.fieldsSourceBag(tblobj)
+        def extract_defaults(deflist=None):
+            res = Bag()
+            if not deflist:
+                return res
+            for f in deflist:
+                n = fields.popNode(f)
+                res.setItem(n.label,None,_attributes=n.attr)
+            return res
+        result.setItem('fields',fields,caption='!!Fields')
+        result.setItem('rows',extract_defaults(default_rows),caption='!!Rows')
+        result.setItem('columns',extract_defaults(default_columns),caption='!!Columns')
+        result.setItem('values',extract_defaults(default_values),caption='!!Values')
+
+        return result
+

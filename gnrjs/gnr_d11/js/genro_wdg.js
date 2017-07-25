@@ -866,7 +866,7 @@ dojo.declare("gnr.GridEditor", null, {
         if (this.invalidCell(cell, inRowIndex)) {
             cell.customClasses.push('invalidCell');
         }
-        if(this.grid.sourceNode.form && renderedRow._newrecord){
+        if(renderedRow._newrecord && this.grid.sourceNode.form && !this.grid.sourceNode.form.store.autoSave){
             cell.customClasses.push('newRowCell');
         }
     },
@@ -1190,7 +1190,11 @@ dojo.declare("gnr.GridEditor", null, {
     },
     addNewRows_one:function(row){
         var grid = this.grid;
-        var newnode = grid.addBagRow('#id', '*', grid.newBagRow(row));
+        var label = '#id';
+        if(grid.rowIdentity(row)){
+            label = flattenString(grid.rowIdentity(row),['.',' '])
+        }
+        var newnode = grid.addBagRow(label, '*', grid.newBagRow(row));
         this.newRowEditor(newnode);
     },
 
@@ -1259,7 +1263,7 @@ dojo.declare("gnr.GridEditor", null, {
         var result = genro.serverCall(this.remoteRowController,kw);
         this.updateRowFromRemote(rowId,result);
         this.updateStatus()
-        var editingWidgetNode = this.widgetRootNode._value.getNode('cellWidget');
+        var editingWidgetNode = this.widgetRootNode._value?this.widgetRootNode._value.getNode('cellWidget'):null;
         if(editingWidgetNode){
             var widget = editingWidgetNode.widget || editingWidgetNode.externalWidget;
             if(widget._focused){
@@ -1713,9 +1717,11 @@ dojo.declare("gnr.GridChangeManager", null, {
             });
         this.sourceNode.subscribe('onSetStructpath',function(){
             this.delayedCall(function(){
-                that.resolveCalculatedColumns();
+                if(that.data){
+                    that.resolveCalculatedColumns();
+                    that.resolveTotalizeColumns();
+                }
             },1,'resolveCalculatedColumns')
-            
         });
     },
     resolveCalculatedColumns:function(){
@@ -1871,10 +1877,18 @@ dojo.declare("gnr.GridChangeManager", null, {
         var k;
         var rowNode;
         var idx;
+        var sourceNode = this.sourceNode;
+        var that = this;
         if(kw.updvalue && kw.value instanceof gnr.GnrBag ){
             var storeNode = this.grid.storebag().getParentNode();
             var parent_lv = kw.node.parentshipLevel(storeNode);
             if(parent_lv<2){
+                if(kw.reason=='remoteController'){
+                    sourceNode.delayedCall(function(){
+                        that.resolveCalculatedColumns();
+                        that.resolveTotalizeColumns();
+                    },1,'resolveCalculatedColumns')
+                }
                 return;
             }
         }
@@ -1929,6 +1943,8 @@ dojo.declare("gnr.GridChangeManager", null, {
             if(kw.reason!='remoteController' && kw.node.label in this.remoteControllerColumns){
                 genro.callAfter(function(){
                     gridEditor.callRemoteController(kw.node.getParentNode(),kw.node.label,kw.oldvalue);
+                    that.resolveCalculatedColumns();
+                    that.resolveTotalizeColumns();
                 },1)
             }
         }

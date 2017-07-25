@@ -42,6 +42,7 @@ class TableHandlerView(BaseComponent):
         view = pane.thFrameGrid(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
                                  virtualStore=virtualStore,bySample=queryBySample is not None,
                                  condition=condition,condition_kwargs=condition_kwargs,
+                                 selectedPage='^.viewPage',
                                  **kwargs)
         if virtualStore and queryBySample:
             self._th_handleQueryBySample(view,table=table,pars=queryBySample)
@@ -65,24 +66,29 @@ class TableHandlerView(BaseComponent):
         bar.dataController("""
             var where = new gnr.GnrBag();
             var mainIdx = 0;
+            var op;
             queryBySample.forEach(function(n){
                 var value = n.getValue();
                 if(!value){
                     return;
                 }
-                if(value.indexOf(',')>=0){
+                op = n.attr.op || 'contains';
+                if(typeof(value)!='string'){
+                    op = n.attr.op  || 'equal';
+                }
+                if(typeof(value)=='string' && value.indexOf(',')>=0){
                     var subwhere = new gnr.GnrBag();
                     value.split(',').forEach(function(chunk,idx){
                         if(chunk){
                             subwhere.setItem('c_'+idx,chunk.trim(),{column_dtype:n.attr.column_dtype,
-                                                                    op:'contains',jc:'or',column:n.attr.column});
+                                                                    op:op,jc:'or',column:n.attr.column});
                         }
                     })
                     if(subwhere.len()){
                         where.setItem('c_'+mainIdx,subwhere,{jc:'and'});
                     }
                 }else{
-                    where.setItem('c_'+mainIdx,value,{column_dtype:n.attr.column_dtype,op:'contains',jc:'and',column:n.attr.column})
+                    where.setItem('c_'+mainIdx,value,{column_dtype:n.attr.column_dtype,op:op,jc:'and',column:n.attr.column})
                 }
                 mainIdx++;
             });
@@ -107,7 +113,9 @@ class TableHandlerView(BaseComponent):
                 continue
             fldattr = fieldobj.attributes
             fkw.setdefault('lbl',fldattr.get('name_short') or fldattr.get('name_long'))
-            fb.child(fkw.pop('tag','textbox'),value='^.c_%s' %i,attr_column=field,attr_column_dtype=fldattr.get('dtype','T'),**fkw)
+            fb.child(fkw.pop('tag','textbox'),value='^.c_%s' %i,attr_column=field,attr_column_dtype=fldattr.get('dtype','T'),
+                        attr_op=fkw.pop('op',None),
+                        **fkw)
 
     @extract_kwargs(top=True,preview=True)
     @struct_method
@@ -117,9 +125,11 @@ class TableHandlerView(BaseComponent):
                        store_kwargs=None,parentForm=None,liveUpdate=None,bySample=None,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
+        page_hooks = self._th_hook('page',mangler=frameCode,asDict=True)
         if condition:
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
+        pageHooksSelector = 'pageHooksSelector' if page_hooks else False
         if extendedQuery:
             virtualStore = True
             if 'adm' in self.db.packages and not self.isMobile:
@@ -127,21 +137,21 @@ class TableHandlerView(BaseComponent):
             else:
                 templateManager = False
             if extendedQuery == '*':
-                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','importer','resourcePrints','resourceMails','resourceActions','5',templateManager,'chartjs','*']
+                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','importer','resourcePrints','resourceMails','resourceActions','5',templateManager,'chartjs','10',pageHooksSelector,'*']
                 if self.isMobile:
-                    base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','menuUserSets','*']
+                    base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','menuUserSets','10',pageHooksSelector,'*']
 
             elif extendedQuery is True:
-                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','chartjs','*','count','5']
+                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','chartjs','10',pageHooksSelector,'*','count','5']
             else:
                 base_slots = extendedQuery.split(',')
         elif not virtualStore:
             if root_tablehandler:
-                base_slots = ['5','searchOn','5','count','viewsMenu','*','export','5','chartjs','5','resourcePrints','resourceMails','resourceActions','10']
+                base_slots = ['5','searchOn','5','count','viewsMenu','5','menuUserSets','*','export','5','chartjs','10',pageHooksSelector,'5','resourcePrints','resourceMails','resourceActions','10']
                 if searchOn is False:
                     base_slots.remove('searchOn')
             else:
-                base_slots = ['5','vtitle','count','*'] if count is not False else ['5','vtitle','*']
+                base_slots = ['5','vtitle','count','10',pageHooksSelector,'*'] if count is not False else ['5','vtitle','10',pageHooksSelector,'*','5']
                 if searchOn:
                     base_slots.append('searchOn')
 
@@ -164,7 +174,7 @@ class TableHandlerView(BaseComponent):
                                struct = self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
                                datapath = '.view',top_kwargs = top_kwargs,_class = 'frameGrid',
                                grid_kwargs = grid_kwargs,iconSize=16,_newGrid=True,**kwargs)  
-        
+        self._th_handle_page_hooks(frame,page_hooks)
         self._th_menu_sources(frame,extendedQuery=extendedQuery,bySample=bySample)
         if configurable:
             frame.right.viewConfigurator(table,frameCode,configurable=configurable)   
@@ -216,6 +226,19 @@ class TableHandlerView(BaseComponent):
         b.rowchild(label='-')
         b.rowchild(label='!!User Configuration',action='genro.dev.tableUserConfiguration($2.attr.table);')
         grid.data('.contextMenu',b)
+
+    def _th_handle_page_hooks(self,view,page_hooks):
+        frameCode = view.attributes['frameCode']
+        menu = Bag()
+        menu.setItem('grid',None,caption='!!Records',pageName='grid')
+        for k in sorted(page_hooks.keys()):
+            handler = page_hooks[k]
+            wdg = getattr(handler,'widget','contentPane')
+            childname = k.replace('%s_page_' %frameCode,'')
+            title = handler.__doc__ or childname.capitalize()
+            menu.setItem(childname,None,caption=title,pageName=childname)
+            handler(view.child(wdg,childname=childname,pageName=childname,title=title))
+        view.data('.viewPages',menu)
 
     @struct_method
     def th_viewLeftDrawer(self,pane,table,th_root):
@@ -371,7 +394,7 @@ class TableHandlerView(BaseComponent):
                                 disabled='^.#parent.#parent.grid.loadingData',**kwargs)
     
         else:
-            mb = pane.formbuilder(cols=1,border_spacing='3px',**lbl_kwargs)
+            mb = pane.formbuilder(cols=1,border_spacing='0',**lbl_kwargs)
             lbl = lbl or sections.replace('_',' ').capitalize()
             if multivalue:
                 mb.checkBoxText(values='^.data',value='^.current',lbl=lbl,
@@ -585,6 +608,9 @@ class TableHandlerView(BaseComponent):
         paletteCode = '%(thlist_root)s_template_manager' %inattr
         pane.paletteTemplateEditor(maintable=table,paletteCode=paletteCode,dockButton_iconClass='iconbox document')
 
+    @struct_method
+    def th_slotbar_pageHooksSelector(self,pane,**kwargs):
+        pane.multiButton(items='^.viewPages',value='^.viewPage',identifier='pageName')
       
     @struct_method
     def th_gridPane(self, frame,table=None,th_pkey=None,
@@ -686,6 +712,8 @@ class TableHandlerView(BaseComponent):
             _if = 'sectionbag.len()',
             _delay = 100)
 
+        store_kwargs.setdefault('weakLogicalDeleted',options.get('weakLogicalDeleted'))
+
         store = frame.grid.selectionStore(table=table,
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where',
@@ -715,6 +743,9 @@ class TableHandlerView(BaseComponent):
                                httpMethod='WSK' if self.extraFeatures['wsk_grid'] else None,
                                _onCalling="""
                                %s
+                               if(kwargs.fkey && this.form && this.form.isLogicalDeleted()){
+                                   kwargs.excludeLogicalDeleted = 'mark';
+                               }
                                if(_sections){
                                     th_sections_manager.onCalling(_sections,kwargs);
                                }

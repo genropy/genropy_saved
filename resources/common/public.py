@@ -221,7 +221,7 @@ class PublicSlots(BaseComponent):
                 readOnly = True 
                 default_partition_value = allowedPartitionPkeys[0]
             fb.dbSelect(value='^current.current_partition_value',
-                            condition='$__allowed_for_partition IS TRUE',
+                            condition='$%s IN :env_allowed_%s' %(related_tblobj.pkey,partition_field),
                             ignorePartition=True,
                             readOnly=readOnly,
                             disabled='^gnr.partition_selector.disabled',

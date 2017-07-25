@@ -484,6 +484,9 @@ class GnrDomSrc(GnrStructData):
     def treeframe_column(self,field,**kwargs):
         return self.child('treeframe_column',field=field,**kwargs)  
 
+    def quickgrid(self,value,childname='grid',**kwargs):
+        return self.child('quickgrid',value=value,childname=childname,**kwargs)
+
     def quickgrid_column(self,field,**kwargs):
         return self.child('quickgrid_column',field=field,**kwargs)  
 
@@ -2108,6 +2111,8 @@ class GnrFormBuilder(object):
         lblalign, fldalign = self.lblalign, self.fldalign
         lblvalign, fldvalign = self.lblvalign, self.fldvalign
         lbl_kwargs = {}
+        if self.colswidth=='auto':
+            lbl_kwargs.setdefault('margin_left','5px')
         lblhref = None
         if field is not None:
             f = dict(self.commonKwargs)

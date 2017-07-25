@@ -5821,12 +5821,12 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
         var rowData = rowNode.getValue();
         var idx = this.getData().index(rowNode.label);
         for(var k in updDict){
-            var n = rowData.getNode('static');
+            var n = rowData.getNode(k,'static');
             if(!n){
                 //put the missing node
                 rowData.setItem(k,null,null,{doTrigger:false});
             }
-            rowData.setItem(k,updDict[k],null,{doTrigger:{editedRowIndex:idx}});
+            rowData.setItem(k,updDict[k],null,{doTrigger:{editedRowIndex:idx},lazySet:true});
         }
     },
 
@@ -6322,9 +6322,12 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     deleteRows:function(pkeys,protectPkeys){
         var that = this;
         var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
+        var lockreason = this.storeNode.attr.nodeId+'_'+'deletingDbRows';
+        genro.lockScreen(true,lockreason,{thermo:true});
         genro.serverCall('app.deleteDbRows',{pkeys:pkeys,table:this.storeNode.attr.table,
                                              unlinkfield:unlinkfield,protectPkeys:protectPkeys,
-                                            _sourceNode:this.storeNode},function(result){
+                                            _sourceNode:this.storeNode,timeout:0},function(result){
+            genro.lockScreen(false,lockreason,'deletingDbRows');
             that.onDeletedRows(result);
         },null,'POST');
     },

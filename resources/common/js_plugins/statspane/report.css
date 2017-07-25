@@ -4,6 +4,7 @@
 }
 .reportbody a{}
 
+
 .report_title{
     text-align: center;
 }
@@ -11,6 +12,11 @@
     padding: 10px;
     font-style: italic;
 }
+
+.report_content .dataframe tbody tr:nth-child(even) {
+    background-color:RGBA(17, 78, 136, 0.09);
+}
+
 
 .report_content .dataframe{
     border-collapse: collapse;

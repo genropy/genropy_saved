@@ -2406,6 +2406,14 @@ div.dojoxDock {
     border:1px solid #ccc;
     box-shadow: 2px 2px 3px #666;
 }
+.quickthermo_title{
+    font-variant: normal;
+    font-size: 18px;
+    color:#555;
+    text-align: center;
+}
+
+
 .quickthermo_caption{
     font-variant: normal;
     font-size: 18px;
@@ -5413,8 +5421,12 @@ div[disabled='true'], div[disabled='disabled']{
 .gr_footer.gr_scrollbox{
     overflow: auto;
     border-top:1px solid #DDDDDD;
-    background: RGBA(255, 227, 60, .2);
+    background: whitesmoke;    
 }
+.gr_footer.gr_scrollbox .gr_itemcontainer{
+    background: rgba(255, 227, 60, .2);
+}
+    
 
 .gr_columnset{
 }
@@ -5447,3 +5459,30 @@ div[disabled='true'], div[disabled='disabled']{
     -webkit-filter:none;
     -moz-filter:none;
 }
+
+.theme_variant_green .theme_background{
+    background-color: #306227;
+    color: white;
+}
+
+.theme_background, .theme_variant_red .theme_background{
+    background-color: #711B2A;
+    color:white;
+}
+
+.theme_variant_blue .theme_background{
+    background-color: #1A415E;
+    color:white;
+}
+
+.theme_variant_orange .theme_background{
+    background-color:#FF5226;
+    color: white;
+}
+
+.theme_variant_yellow .theme_background{
+    background-color:#86770E;
+    color:#666;
+
+}
+

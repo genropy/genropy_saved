@@ -31,6 +31,7 @@ dojo.require("dojox.validate.web");
 dojo.require("dojo.number");
 dojo.require("dojo.cookie");
 dojo.require("dojo.fx");
+
 dijit.showTooltip = function(/*String*/ innerHTML, /*DomNode*/ aroundNode) {
     // summary:
     //  Display tooltip w/specified contents to right specified node
@@ -44,6 +45,12 @@ dijit.showTooltip = function(/*String*/ innerHTML, /*DomNode*/ aroundNode) {
     }
     return dijit._masterTT.show(tooltip_text, aroundNode);
 };
+window.onfocus = function(){
+    window._IS_WINDOW_FOCUSED = true;
+};
+window.onblur = function(){
+    window._IS_WINDOW_FOCUSED = false;
+}
 
 /* ----------- Class gnr.GenroClient ----------------*/
 dojo.declare('gnr.GenroClient', null, {
