@@ -17,13 +17,13 @@ class THPicker(BaseComponent):
     def pk_palettePicker(self,pane,grid=None,table=None,relation_field=None,paletteCode=None,
                          viewResource=None,searchOn=True,multiSelect=True,structure_field=None,
                          title=None,autoInsert=None,dockButton=None,picker_kwargs=None,
-                         height=None,width=None,checkbox=False,defaults=None,**kwargs):
+                         height=None,width=None,checkbox=False,defaults=None,condition=None,**kwargs):
         dockButton = dockButton or dict(parentForm=True,iconClass='iconbox app')
         picker_kwargs = picker_kwargs or dict()
         checkbox = checkbox or picker_kwargs.get('checkbox',False)
         one = picker_kwargs.get('one',False)
         picker_kwargs.setdefault('uniqueRow',True)
-        condition=picker_kwargs.pop('condition',None)
+        condition= condition or picker_kwargs.pop('condition',None)
         many = relation_field or picker_kwargs.get('relation_field',None)
         table = table or picker_kwargs.get('table',None)
         height = height or picker_kwargs.get('height','600px')
@@ -180,8 +180,9 @@ class THPicker(BaseComponent):
                                         """,sourcegrid=paletteth.view.grid.js_widget,
                                         pickerset='=.grid.sets.pickerset',
                                         destgrid=grid,paletteCode=paletteCode)
+
         if condition:
-            paletteth.view.store.attributes.update(where=condition,**condition_kwargs)
+            paletteth.view.store.attributes.update(condition=condition,**condition_kwargs)
         if not condition_kwargs:
             paletteth.view.store.attributes.update(_onStart=True)
         if grid and uniqueRow:
