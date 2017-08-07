@@ -1941,11 +1941,11 @@ dojo.declare("gnr.GridChangeManager", null, {
                 }
             }
             if(kw.reason!='remoteController' && kw.node.label in this.remoteControllerColumns){
-                genro.callAfter(function(){
+                this.grid.sourceNode.delayedCall(function(){
                     gridEditor.callRemoteController(kw.node.getParentNode(),kw.node.label,kw.oldvalue);
                     that.resolveCalculatedColumns();
                     that.resolveTotalizeColumns();
-                },1)
+                },1,'afterRemoteController')
             }
         }
     },
