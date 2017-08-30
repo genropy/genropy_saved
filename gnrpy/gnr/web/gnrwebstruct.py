@@ -37,6 +37,7 @@ def cellFromField(field,tableobj,checkPermissions=None):
     kwargs = dict()
     fldobj = tableobj.column(field)
     fldattr = dict(fldobj.attributes or dict())
+    
     if checkPermissions:
         fldattr.update(fldobj.getPermissions(**checkPermissions))
     if fldattr.get('checkpref'):
@@ -53,6 +54,7 @@ def cellFromField(field,tableobj,checkPermissions=None):
 
     kwargs.update(dictExtract(fldattr,'cell_'))
     kwargs.setdefault('format_pattern',fldattr.get('format'))
+    kwargs.setdefault('format',fldattr.get('format'))
     kwargs.update(dictExtract(fldattr,'format_',slice_prefix=False))
     if getattr(fldobj,'sql_formula',None) and fldobj.sql_formula.startswith('@') and '.(' in fldobj.sql_formula:
         kwargs['_subtable'] = True

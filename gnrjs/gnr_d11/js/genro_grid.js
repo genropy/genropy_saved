@@ -1280,8 +1280,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
             opt['cellPars'] = {rowIndex:inRowIndex};
             //var zoomPage = opt['zoomPage'];
-            if (typeof(v) == 'number' && v < 0) {
-                this.customClasses.push('negative_number');
+            if (typeof(v) == 'number') {
+                if(v < 0){
+                    this.customClasses.push('negative_number');
+                }
+                if(this.emptyZero && v===0){
+                    v = null;
+                }
             }
             if (this.grid.gridEditor) {
                 this.grid.gridEditor.onFormatCell(this,inRowIndex,renderedRow);
