@@ -1118,12 +1118,14 @@ class GnrApp(object):
         :param login_pwd: the password inserted from user for authentication
         :param pwd: the password
         :param user: the username"""
+        if not login_pwd:
+            return False
         if not pwd:
             if not user:
                 return False
             pwd = self.getAvatar(user, login_pwd, authenticate=False).pwd
         
-        if login_pwd and ':' in login_pwd:
+        if ':' in login_pwd:
             u, p = login_pwd.split(':')
             avt = self.getAvatar(u, p, True)
             if avt and 'passpartout' in avt.user_tags:
