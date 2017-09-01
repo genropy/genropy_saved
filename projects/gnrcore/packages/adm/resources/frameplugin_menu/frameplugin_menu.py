@@ -139,6 +139,7 @@ class MenuResolver(BagResolver):
             nodeattr = node.attr
             nodetags = nodeattr.get('tags')
             filepath = nodeattr.get('file')
+            checkenv = nodeattr.get('checkenv')
             tableattr = self._page.db.table(nodeattr['table']).attributes if 'table' in nodeattr else None
             if nodetags:
                 allowed = self._page.application.checkResourcePermission(nodetags, userTags)
@@ -147,6 +148,8 @@ class MenuResolver(BagResolver):
                 allowed = allowed and self._page.application.allowedByPreference(**tableattr)
             if allowed and filepath:
                 allowed = self._page.checkPermission(filepath)
+            if checkenv:
+                allowed = allowed and self._page.rootenv[checkenv]
             if allowed:
                 value=node.getValue()
                 if node.resolver:
