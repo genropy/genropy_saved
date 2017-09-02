@@ -140,13 +140,16 @@ class GnrDboPackage(object):
         rev_tables.reverse()
         if empty_before:
             for t in rev_tables:
-                db.table('%s.%s' %(self.name,t)).empty()
+                if t in self.tables:
+                    db.table('%s.%s' %(self.name,t)).empty()
         all_pref = self.db.table('adm.preference').loadPreference()
         all_pref[self.name] = s['preferences']
         self.db.table('adm.preference').savePreference(all_pref)
         db.commit()
         tw = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
         for tablename in tw:
+            if tablename not in self.tables:
+                continue
             tblobj = db.table('%s.%s' %(self.name,tablename))
             currentRecords = tblobj.query().fetchAsDict('pkey')
             records = s[tablename]
