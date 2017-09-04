@@ -839,15 +839,16 @@ class GnrWebAppHandler(GnrBaseProxy):
         if wherebag:
             resultAttributes['whereAsPlainText'] = self.db.whereTranslator.toHtml(tblobj,wherebag)
         resultAttributes['hardQueryLimitOver'] = hardQueryLimit and resultAttributes['totalrows'] == hardQueryLimit
-        with self.page.pageStore() as store:
-            slaveSelections = store.getItem('slaveSelections.%s' %selectionName)
-            if slaveSelections:
-                for page_id,grids in slaveSelections.items():
-                    if self.page.site.register.exists(page_id,register_name='page'):
-                        for nodeId in grids.keys():
-                            self.page.clientPublish('%s_refreshLinkedSelection' %nodeId,value=True,page_id=page_id)
-                    else:
-                        slaveSelections.popNode(page_id)
+        if self.page.pageStore().getItem('slaveSelections.%s' %selectionName):
+            with self.page.pageStore() as store:
+                slaveSelections = store.getItem('slaveSelections.%s' %selectionName)
+                if slaveSelections:
+                    for page_id,grids in slaveSelections.items():
+                        if self.page.site.register.exists(page_id,register_name='page'):
+                            for nodeId in grids.keys():
+                                self.page.clientPublish('%s_refreshLinkedSelection' %nodeId,value=True,page_id=page_id)
+                        else:
+                            slaveSelections.popNode(page_id)
         return (result, resultAttributes)
 
     def _getSelection_columns(self, tblobj, columns, expressions=None):

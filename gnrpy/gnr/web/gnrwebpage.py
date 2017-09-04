@@ -746,7 +746,7 @@ class GnrWebPage(GnrBaseWebPage):
             loginPars.update(avatar.extra_kwargs)
             try:
                 self.btc.cleanUserBatches(self.user)
-            except self.siter.register.locked_exception:
+            except self.site.register.locked_exception:
                 pass
         else:
             login['message'] = 'invalid login'
