@@ -329,10 +329,9 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                                     },centerOn:'_pageRoot'})._('div', {_class:'dlg_ask','action':action});
         dlg._('div', {'content':msg,'_class':'selectable dlg_ask_msg',width:kw.width});
         //var buttonBox = dlg._('div', {'_class':'dlg_ask_btnBox'});
-
-        for (var btn in buttons) {
+        objectKeys(buttons).sort().reverse().forEach(function(btn){
             dlg._('button', {'_class':'dlg_ask_btn','label':buttons[btn],'actCode':btn,'act':actions[btn]});
-        }
+        });
         node.unfreeze();
         genro.wdgById(alertCode).show();
     },

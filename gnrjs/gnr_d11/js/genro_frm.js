@@ -1023,6 +1023,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     do_save:function(kw){
         if(!kw.forced && this.isDisabled()){
             this.publish('message',{message:_T('Cannot save. Blocked Form'),sound:'$error',messageType:'warning'});
+            return;
         }
         var destPkey = kw.destPkey;
         this.setOpStatus('saving');
