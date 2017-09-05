@@ -29,7 +29,7 @@ class Form(BaseComponent):
             
     def th_form(self, form):
         pane = form.record
-        fb = pane.formbuilder(cols=1, border_spacing='4px')
+        fb = pane.div(margin='10px').formbuilder(cols=1, border_spacing='4px')
         fb.field('code')
         fb.field('usage_scope', lbl='Scope',values=self.db.table('adm.authorization').getUsageScopes(),
                     tag='filteringSelect',validate_notnull=True)
