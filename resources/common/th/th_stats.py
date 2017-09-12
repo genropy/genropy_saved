@@ -104,7 +104,8 @@ class TableHandlerStats(BaseComponent):
         tblobj = self.db.table(table)
         def struct(struct):
             r = struct.view().rows()
-            r.cell(relation_field.replace('.','_').replace('@','_'), userSets=True, name=' ')
+            if relation_field:
+                r.cell(relation_field.replace('.','_').replace('@','_'), userSets=True, name=' ')
             r.fieldcell(tblobj.attributes.get('caption_field'),
                         width='100%',
                         name=tblobj.attributes['name_long'])
@@ -188,8 +189,9 @@ class TableHandlerStats(BaseComponent):
                 pkeys = self.freezedPkeys(self.db.table(table),selectionName)
             else:
                 pkeys = [relation_value]
-            where.append(' $%s IN :filters_%s' %(relation_field,relation_field))
-            where_kwargs['filters_%s' %relation_field] = pkeys
+            if relation_field:
+                where.append(' $%s IN :filters_%s' %(relation_field,relation_field))
+                where_kwargs['filters_%s' %relation_field] = pkeys
         df.query(table,where=' AND '.join(where),columns=columns,**where_kwargs)
         return df
         
@@ -217,7 +219,7 @@ class TableHandlerStats(BaseComponent):
                         stat_values=None,outmode=None,
                         filename=None,**kwargs):
         stats_tableobj = self.db.table(table)
-        main_tableobj = self.db.table(table).column(relation_field).relatedColumn().table
+        main_tableobj = stats_tableobj.column(relation_field).relatedColumn().table if relation_field else stats_tableobj
         if not df:
             stat_values = stat_values or Bag()
             stat_columns = stat_columns or Bag()
