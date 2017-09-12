@@ -115,7 +115,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     canBeSaved:function(kw){
         kw = kw || {};
-        return !this.opStatus && (this.record_changed || kw.always) && (this.isValid() || this.allowSaveInvalid);
+        return !this.opStatus && (this.record_changed || kw.always) && (this.isValid() || this.allowSaveInvalid) && this.status!='noItem';
     },
 
     doAutoSave:function(){
