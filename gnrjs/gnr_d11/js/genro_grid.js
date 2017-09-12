@@ -1453,6 +1453,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }else if(cell.inv_semaphore){
                 formats['falseclass'] = 'greenLight';
                 formats['trueclass'] = 'redLight';
+            }else if(cell.highlight_semaphore){
+                formats['falseclass'] = ' ';
+                formats['trueclass'] = 'yellowLight';
             }
             cell._formats = formats;
             cell.formatter = this.structFromBag_cellFormatter(sourceNode,cell,formats, cellClassCB);
