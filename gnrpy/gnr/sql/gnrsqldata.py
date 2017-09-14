@@ -238,7 +238,7 @@ class SqlQueryCompiler(object):
                 sql_formula = THISFINDER.sub(expandThis,sql_formula)
                 sql_formula_var = dictExtract(attr,'var_')
                 if sql_formula_var:
-                    prefix = str(id(sql_formula_var))
+                    prefix = str(id(fldalias))
                     currentEnv = self.db.currentEnv
                     for k,v in sql_formula_var.items():
                         newk = '%s_%s' %(prefix,k)
