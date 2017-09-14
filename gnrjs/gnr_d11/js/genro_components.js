@@ -1121,6 +1121,8 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         gnrwdg.matchColumns = objectPop(kw,'matchColumns');
         gnrwdg.importButtonKw = objectExtract(kw,'importButton_*');
         gnrwdg.importMethod = objectPop(kw,'rpcmethod');
+        var errorCb = objectPop(kw,'errorCb');
+        gnrwdg.errorCb = errorCb? funcCreate(errorCb,'error',sourceNode):null;
         gnrwdg.batchParameters = objectExtract(kw,'batch_*');
         gnrwdg.uploaderId = sourceNode.attr.nodeId +'_uploader';
         var palette = sourceNode._('PalettePane',kw);
@@ -1186,9 +1188,21 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         gnrwdg.gridNode = qg.getParentNode();
         var bcnode = bc.getParentNode();
         gnrwdg.rootNode = bcnode;
+
         sourceNode.subscribe('onResult',function(kw){
+            if(kw instanceof gnr.GnrBag){
+                kw = {
+                    error:kw.pop('error'),
+                    message:kw.pop('message'),
+                    closeImporter:kw.pop('closeImporter')
+                }
+            }
             if(kw.error){
-                genro.dlg.floatingMessage(bcnode,{message:kw.error,messageType:'error'})
+                if (gnrwdg.errorCb){
+                    gnrwdg.errorCb(kw.error);
+                }else{
+                    genro.dlg.floatingMessage(bcnode,{message:kw.error,messageType:'error'});
+                }
             }
             else{
                 this.gnrwdg.resetImporter();
