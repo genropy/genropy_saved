@@ -286,8 +286,12 @@ class TableHandlerView(BaseComponent):
             return
         inattr = pane.getInheritedAttributes()
         table = inattr['table']
+        importerStructure = self.db.table(table).importerStructure()
+        matchColumns= '*' if importerStructure else None,
         pane.PaletteImporter(table=table,paletteCode='%(th_root)s_importer' %inattr,
-                            match_values=','.join(self.db.table(table).model.columns.keys()),
+                            #import_method=externalFileImporter,
+                            matchColumns=matchColumns,
+                            match_values= ','.join(self.db.table(table).model.columns.keys()) if not matchColumns else None,
                             dockButton_iconClass='iconbox inbox',title='!!Importer')
 
 
