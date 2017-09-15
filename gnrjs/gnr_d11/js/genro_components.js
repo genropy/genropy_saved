@@ -1274,6 +1274,11 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_onImportCheck:function(data){
+        var errors = data.getItem('errors');
+        if(errors){
+            genro.dlg.floatingMessage(this.rootNode,{message:errors,messageType:'error'});
+            return;
+        }
         var columns = data.getItem('columns');
         var match_data = data.getItem('match_data');
         var warning = false;
