@@ -50,7 +50,7 @@ class ExtDbExplorer(BaseComponent):
                         }
                         if (n.attr.checked && n.attr.tag=='column'){
                             var table_data = new gnr.GnrBag();
-                            columns.setItem(n.attr.table_fullname+'.'+name,null,n.attr)
+                            columns.setItem(n.attr.table_fullname+'.'+n.attr.name,null,n.attr)
                         }
                     });
                     kwargs['data'] = columns

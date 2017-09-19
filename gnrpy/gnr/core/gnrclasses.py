@@ -273,7 +273,7 @@ class GnrClassCatalog(object):
         """
         from gnr.core.gnrbag import Bag
         
-        self.addClass(cls=unicode, key='T', aliases=['TEXT', 'P', 'A'], altcls=[basestring, str], empty='')
+        self.addClass(cls=unicode, key='T', aliases=['TEXT', 'P', 'A','text'], altcls=[basestring, str], empty='')
         #self.addSerializer("asText", unicode, lambda txt: txt)
         
         self.addClass(cls=float, key='R', aliases=['REAL', 'FLOAT', 'F'], align='R', empty=0.0)
