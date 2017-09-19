@@ -2007,13 +2007,14 @@ function getRandomColor() {
     return color;
 }
 
-function flattenString(str,forbidden){
+function flattenString(str,forbidden,replacer){
+    replacer = replacer || '_';
     var forbidden = forbidden || ['.'];
     var result = str;
     var pattern;
     forbidden.forEach(function(c){
         pattern = new RegExp("\\"+c,'g');
-        result = result.replace(pattern,'_')
+        result = result.replace(pattern,replacer);
     });
     return result;
 }
