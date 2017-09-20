@@ -271,34 +271,53 @@ class GnrWebUtils(GnrBaseProxy):
         importerStructure = tblobj.importerStructure() or dict()
         reader = self.getReader(file_path)
         if importerStructure:
-            mainsheet = importerStructure.get('mainsheet')
-            if mainsheet:
-                reader.setMainSheet(mainsheet)
-            match_index = tblobj.importerMatchIndex(reader)
-
+            sheets = importerStructure.get('sheets')
+            if not sheets:
+                sheets = [dict(sheet=importerStructure.get('mainsheet'),struct=importerStructure)]
+            results = []
+            for sheet in sheets:
+                reader.setMainSheet(sheet['sheet'])
+                struct = sheet['struct']
+                match_index = tblobj.importerMatchIndex(reader,struct=struct)
+                res = self.defaultMatchImporterXls(tblobj=tblobj,reader=reader,
+                                                match_index=match_index,
+                                                sql_mode=sql_mode,constants=struct.get('constants'),
+                                                mandatories=struct.get('mandatories'))
+                results.append(res)
+                errors = filter(lambda r: r!='OK', results)
+                if errors:
+                    return 'ER'
         elif import_method:
             handler = getattr(tblobj,'importer_%s' %import_method)
             return handler(reader)
-        docommit = False
+        
         if match_index:
-            rows = self.adaptedRecords(tblobj=tblobj,reader=reader,match_index=match_index,sql_mode=sql_mode)
-            if sql_mode:
-                rows_to_insert = list(rows)
-                if rows_to_insert:
-                    tblobj.insertMany(rows_to_insert)
-                    docommit=True
-            else:
-                for r in rows:
-                    tblobj.importerInsertRow(r)
-                    docommit=True
-            if docommit:
-                self.page.db.commit()
-            return 'OK'
+            return self.defaultMatchImporterXls(tblobj=tblobj,reader=reader,
+                                                    match_index=match_index,
+                                                    sql_mode=sql_mode)
+
+    def defaultMatchImporterXls(self,tblobj=None,reader=None,match_index=None,sql_mode=None,constants=None,mandatories=None):
+        rows = self.adaptedRecords(tblobj=tblobj,reader=reader,match_index=match_index,sql_mode=sql_mode,constants=None)
+        docommit = False
+        if sql_mode:
+            rows_to_insert = list(rows)
+            if rows_to_insert:
+                tblobj.insertMany(rows_to_insert)
+                docommit=True
+        else:
+            for r in rows:
+                tblobj.importerInsertRow(r)
+                docommit=True
+        if docommit:
+            self.page.db.commit()
+        return 'OK'
     
-    def adaptedRecords(self,tblobj=None,reader=None,match_index=None,sql_mode=None):
+    def adaptedRecords(self,tblobj=None,reader=None,match_index=None,sql_mode=None,constants=None):
         for row in self.quickThermo(reader(),maxidx=reader.nrows if hasattr(reader,'nrows') else None,
                         labelfield=tblobj.attributes.get('caption_field') or tblobj.name):
-            r =  {v:row[k] for k,v in match_index.items() if v is not ''}
+            r = constants or {}
+            f =  {v:row[k] for k,v in match_index.items() if v is not ''}
+            r.update(f)
             tblobj.recordCoerceTypes(r)
             if sql_mode:
                 tpkey = tblobj.pkey

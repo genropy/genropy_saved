@@ -594,15 +594,15 @@ class TableBase(object):
         "override"
         pass
 
-    def importerMatchIndex(self,reader):
-        importerStructure = self.importerStructure() or dict()
+    def importerMatchIndex(self,reader,struct=None):
+        importerStructure = struct or self.importerStructure() or dict()
         checkfields = importerStructure.get('fields')
         if not checkfields:
             return
         headers = set(reader.headers)
         convertdict = {}
         for k,v in checkfields.items():
-            intersection =  headers.intersection(set(v.split(',')))
+            intersection =  headers.intersection(set(v.lower().replace(' ','_').replace('.','_').split(',')))
             if intersection:
                 convertdict[list(intersection)[0]] = k
         return convertdict

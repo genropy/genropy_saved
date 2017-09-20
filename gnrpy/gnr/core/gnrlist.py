@@ -268,7 +268,7 @@ class XlsReader(object):
 
     def setMainSheet(self,sheetname):
         if isinstance(sheetname,int):
-            sheetname = self.book.sheet_by_index(sheet_base_index).name
+            sheetname = self.book.sheet_by_index(sheetname).name
         self.sheet_base_name = sheetname
 
     def addSheet(self,sheetname):
