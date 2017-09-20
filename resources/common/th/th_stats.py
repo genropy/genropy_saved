@@ -20,7 +20,8 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrdecorator import public_method,extract_kwargs
+from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrbag import Bag
 
 try:
@@ -34,24 +35,28 @@ except Exception:
 
 class TableHandlerStats(BaseComponent):
     js_requires='th/th_stats'
+    @extract_kwargs(condition=dict(slice_prefix=False))
     @struct_method
     def th_tableHandlerStats(self,pane,table=None,
                             relation_field=None,
                             relation_value=None,
                             default_rows=None,
                             default_values=None,
-                            default_columns=None):
+                            default_columns=None,
+                            condition=None,
+                            condition_kwargs=None,**kwargs):
         if not pd:
             pane.div('Missing Pandas')
         bc = pane.borderContainer(datapath='.statsroot_%s' %table.replace('.','_'),
                                 _anchor=True)
+        indipendentQuery = relation_value or condition
         bc.dataController("""
             this.watch('stat_visible',function(){
                 return genro.dom.isVisible(bcNode);
             },function(){
                 bcNode.fireEvent('.stats.run_pivot',true);
             });
-        """,store=None if relation_value else '^.#parent.store',
+        """,store=None if indipendentQuery else '^.#parent.store',
             relation_value=relation_value,
             filters='^.stats.filters',
             stat_rows='^.stats.conf.rows',
@@ -64,7 +69,8 @@ class TableHandlerStats(BaseComponent):
                     relation_field=relation_field,
                     relation_value=relation_value.replace('^','=') if relation_value else None,
                     mainfilter = '=.stats.filters.%s' %relation_field,
-                    selectionName=None if relation_value else '=.#parent.store?selectionName',
+                    selectionName=None if indipendentQuery else '=.#parent.store?selectionName',
+                    condition=condition,
                     filters='=.stats.filters',
                     stat_rows='=.stats.conf.rows',
                     stat_values='=.stats.conf.values',
@@ -85,17 +91,17 @@ class TableHandlerStats(BaseComponent):
                         if(result.getItem('xls_url')){
                             genro.download(result.getItem('xls_url'));
                         }
-                    """)
+                    """,**condition_kwargs)
 
         left = bc.tabContainer(region='left',width='230px',margin='2px',drawer=True,splitter=True)
         self._ths_configPivotTree(left.framePane(title='!!Pivot'),table=table,
                                         relation_field=relation_field,
                                         default_rows=default_rows,default_values=default_values,
                                         default_columns=default_columns)
-        if not relation_value:
+        if not indipendentQuery:
             #part of grid
             self._ths_mainFilter(left.contentPane(title='!!Main'),relation_field=relation_field)      
-        self._ths_filters(left.contentPane(title='!!Filters'),table=table,relation_field=relation_field)
+        self._ths_filters(left.contentPane(title='!!Filters'),table=table)
         self._ths_center(bc.framePane(region='center'))
 
     def _ths_mainFilter(self,pane,relation_field=None):
@@ -115,7 +121,7 @@ class TableHandlerStats(BaseComponent):
                         grid_userSets='#ANCHOR.stats.filters',
                         struct=struct)
 
-    def _ths_filters(self,pane,table=None,relation_field=None):
+    def _ths_filters(self,pane,table=None):
         tblobj = self.db.table(table)
         if not hasattr(tblobj,'stats_filters'):
             return
@@ -176,14 +182,18 @@ class TableHandlerStats(BaseComponent):
 
     def ths_getDataframe(self,table,filters=None,mainfilter=None,
                                 relation_field=None,relation_value=None,
-                                maintable=None,selectionName=None,columns=None,**kwargs):
+                                maintable=None,selectionName=None,columns=None,condition=None,condition_kwargs=None,**kwargs):
         df = GnrDbDataframe('current_df_%s' %table.replace('.','_'),self.db)
         where = []
         where_kwargs = {}
-        for fkey,pkeys in filters.items():
-            if pkeys:
-                where.append(' $%s IN :filters_%s' %(fkey,fkey))
-                where_kwargs['filters_%s' %fkey] = pkeys.split(',')
+        if condition:
+            where.append(condition)
+            where_kwargs.update(condition_kwargs)
+        if filters:
+            for fkey,pkeys in filters.items():
+                if pkeys:
+                    where.append(' $%s IN :filters_%s' %(fkey,fkey))
+                    where_kwargs['filters_%s' %fkey] = pkeys.split(',')
         if not mainfilter:
             if selectionName:
                 pkeys = self.freezedPkeys(self.db.table(table),selectionName)
@@ -217,7 +227,8 @@ class TableHandlerStats(BaseComponent):
                         filters=None,mainfilter=None,selectionName=None,
                         stat_rows=None,stat_columns=None,
                         stat_values=None,outmode=None,
-                        filename=None,**kwargs):
+                        filename=None,condition=None,**kwargs):
+        condition_kwargs= dictExtract(kwargs,'condition_')
         stats_tableobj = self.db.table(table)
         main_tableobj = stats_tableobj.column(relation_field).relatedColumn().table if relation_field else stats_tableobj
         if not df:
@@ -230,7 +241,9 @@ class TableHandlerStats(BaseComponent):
                                         relation_value=relation_value,
                                         maintable=main_tableobj.fullname,
                                         columns=','.join(set(columns)),
-                                        selectionName=selectionName)
+                                        selectionName=selectionName,
+                                        condition=condition,
+                                        condition_kwargs=condition_kwargs)
             if not df:
                 return
         valuesbag = Bag()
