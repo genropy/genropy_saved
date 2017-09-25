@@ -41,12 +41,24 @@ class UwsgiUpdater(object):
         site_config.update(base_site_config)
         return site_config
 
-    def update(self):
-        instances = [os.path.splitext(l)[0] for l in os.listdir(self.vassals_path) if l not in ('gnrdaemon.ini','pg.ini')]
+    def getInstances(self):
+        result = []
+        for filename in os.listdir(self.vassals_path):
+            instance, extension = os.path.splitext(filename)
+            if instance.lower() in ('gnrdaemon', 'pg') or extension.lower() not in ('.ini', '.off'):
+                continue
+            result.append(instance)
+        return result
+
+    def update(self, skip_dbsetup=False):
+        #instances = [os.path.splitext(l)[0] for l in os.listdir(self.vassals_path) if l not in ('gnrdaemon.ini','pg.ini')]
+        instances = self.getInstances()
         for s in instances:
             print 'Instance ',s
             self.stop_vassal(s)
             print '\t server stopped'
+            if skip_dbsetup:
+                continue
             app = GnrApp(s)
             print '\t running dbsetup'
             changes = self.check_db(app)
@@ -54,6 +66,7 @@ class UwsgiUpdater(object):
                 print 'APPLYING CHANGES TO DATABASE...'
                 app.db.model.applyModelChanges()
                 print 'CHANGES APPLIED TO DATABASE'
+            app.db.closeConnection()
             #app.db.model.checker.addExtesions()
             print '\t done'
         self.restart_vassal('gnrdaemon')
@@ -63,8 +76,8 @@ class UwsgiUpdater(object):
         print 'Update ok'
 
     def touchonly(self):
-        instances = [os.path.splitext(l)[0] for l in os.listdir(self.vassals_path) if l not in ('gnrdaemon.ini','pg.ini')]
-        for s in instances:
+        #instances = [os.path.splitext(l)[0] for l in os.listdir(self.vassals_path) if l not in ('gnrdaemon.ini','pg.ini')]
+        for s in self.getInstances():
             print 'Instance ',s
             self.restart_vassal(s)
             print 'restarted',s
@@ -117,13 +130,24 @@ if __name__ == '__main__':
     parser.add_option('--touchonly',
                   dest='touchonly',
                   action='store_true',
-                  help="Touch all vassals")  
-
+                  help="Touch all vassals, doesn't restart daemon, skips dbsetup")
+    parser.add_option('--nodbsetup',
+                  dest='skip_dbsetup',
+                  action='store_true',
+                  help="Touch all vassals and gnrdaemon, skips dbsetup")
 
     (options, args) = parser.parse_args()
 
     updater = UwsgiUpdater()
-    if options.touchonly:
+    if options.skip_dbsetup and options.touchonly:
+        print 'Cannot use both --touchonly and --nodbsetup'
+    elif options.skip_dbsetup:
+        updater.update(skip_dbsetup=True)
+    elif options.touchonly:
+        updater.touchonly()
+    else:
+        updater.update()
+if options.touchonly:
         updater.touchonly()
     else:
         updater.update()
