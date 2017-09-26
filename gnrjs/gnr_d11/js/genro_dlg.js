@@ -500,18 +500,17 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             kwbox.width=dlg_kw.width;
             var box = dlg.center._('div',kwbox);
             var fb;
+            var onEnter = kw.onEnter || function(){
+                actionCb('confirm');
+            };
             if(msg){
                 box._('div',{innerHTML:msg,color:'#666',margin_bottom:'10px',_class:'selectable'});
             }
             if(typeof(wdg)=='string'){
-                fb = genro.dev.formbuilder(box,1,{border_spacing:'1px',onEnter:function(){
-                    actionCb('confirm');
-                },width:'100%',fld_width:'100%'});
+                fb = genro.dev.formbuilder(box,1,{border_spacing:'1px',onEnter:onEnter,width:'100%',fld_width:'100%'});
                 fb.addField(wdg,objectUpdate({value:'^.promptvalue',lbl:kw.lbl,lbl_color:'#666',lbl_text_align:'right'},objectExtract(kw,'wdg_*')));
             }else{
-                fb = genro.dev.formbuilder(box,1,{border_spacing:'4px',width:'100%',onEnter:function(){
-                    actionCb('confirm');
-                },fld_width:'100%',datapath:'.promptvalue'});
+                fb = genro.dev.formbuilder(box,1,{border_spacing:'4px',width:'100%',onEnter:onEnter,fld_width:'100%',datapath:'.promptvalue'});
                 wdg.forEach(function(n){
                     n = objectUpdate({},n);
                     var w = objectPop(n,'wdg','textbox');
