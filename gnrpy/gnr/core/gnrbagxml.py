@@ -262,17 +262,17 @@ class BagToXml(object):
             value = ''
             if isinstance(node._value, Bag):
                 value = self.bagToXmlBlock(node._value,namespaces=current_namespaces)
-            return self.buildTag(node.label, value, nodeattr, '', xmlMode=True,namespaces=namespaces)
+            return self.buildTag(node.label, value, nodeattr, '', xmlMode=True,namespaces=current_namespaces)
 
         nodeValue = node.getValue()
         if isinstance(nodeValue, Bag) and nodeValue: #<---Add the second condition in order to type the empty bag.
             result = self.buildTag(node.label,
                                    self.bagToXmlBlock(nodeValue,namespaces=current_namespaces), 
-                                   nodeattr, '', xmlMode=True,localize=False,namespaces=namespaces)
+                                   nodeattr, '', xmlMode=True,localize=False,namespaces=current_namespaces)
 
 
         elif isinstance(nodeValue, BagAsXml):
-            result = self.buildTag(node.label, nodeValue, nodeattr, '', xmlMode=True,namespaces=namespaces)
+            result = self.buildTag(node.label, nodeValue, nodeattr, '', xmlMode=True,namespaces=current_namespaces)
 
         #elif ((isinstance(nodeValue, list) or isinstance(nodeValue, dict))):
         #    nodeValue = gnrstring.toJson(nodeValue)
