@@ -214,6 +214,9 @@ class Table(object):
         #if not 'unique' in tblobj.column(field).attributes:
         #    print 'MISSING UNIQUE ATTRIBUTE IN FIELD %s IN TABLE %s' %(field,tblobj.fullname)
         record[field] = self.getSequence(tblobj=tblobj,field=field,record=record,update=True)
+        if counter_pars.get('onAssigned'):
+            counter_pars['onAssigned'](record=record,field=field)
+        
 
     def guessNextSequence(self,tblobj=None,field=None,record=None):
         counter,counterInfo = self.getCounter(tblobj=tblobj,field=field,record=record,update=False)
@@ -343,6 +346,8 @@ class Table(object):
                               cnt_to=cnt_to, date_from=date_from, date_to=date_to)
 
                 holes.sort('#a.cnt_from')
+        if counter_pars.get('onReleased'):
+            counter_pars['onReleased'](record=record,field=field)
 
 
     def getCounterDates(self, tblobj, record=None,field=None, date_field=None,cnt_from=None, cnt_to=None, cnt_last=None):

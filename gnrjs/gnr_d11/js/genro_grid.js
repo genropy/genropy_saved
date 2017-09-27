@@ -1280,8 +1280,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
             opt['cellPars'] = {rowIndex:inRowIndex};
             //var zoomPage = opt['zoomPage'];
-            if (typeof(v) == 'number' && v < 0) {
-                this.customClasses.push('negative_number');
+            if (typeof(v) == 'number') {
+                if(v < 0){
+                    this.customClasses.push('negative_number');
+                }
+                if(this.emptyZero && v===0){
+                    v = null;
+                }
             }
             if (this.grid.gridEditor) {
                 this.grid.gridEditor.onFormatCell(this,inRowIndex,renderedRow);
@@ -1448,6 +1453,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }else if(cell.inv_semaphore){
                 formats['falseclass'] = 'greenLight';
                 formats['trueclass'] = 'redLight';
+            }else if(cell.highlight_semaphore){
+                formats['falseclass'] = ' ';
+                formats['trueclass'] = 'yellowLight';
             }
             cell._formats = formats;
             cell.formatter = this.structFromBag_cellFormatter(sourceNode,cell,formats, cellClassCB);

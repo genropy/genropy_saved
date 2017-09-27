@@ -389,7 +389,7 @@ class MailHandler(GnrBaseService):
                 cb(*cb_args, **cb_kwargs)
             
         else:
-            thread_params = dict(call=self._sendmail, call_args=sendmail_args, cb=cb, cb_args=None, cb_kwargs=None)
+            thread_params = dict(call=self._sendmail, call_args=sendmail_args, cb=cb, cb_args=cb_args, cb_kwargs=cb_kwargs)
             thread.start_new_thread(self._send_with_cb,(),thread_params)
 
 

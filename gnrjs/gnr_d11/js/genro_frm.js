@@ -113,8 +113,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     getParentForm:function(){
         return this.sourceNode.getParentNode().getFormHandler();
     },
-    canBeSaved:function(){
-        return !this.opStatus && this.record_changed && (this.isValid() || this.allowSaveInvalid);
+    canBeSaved:function(kw){
+        kw = kw || {};
+        return !this.opStatus && (this.record_changed || kw.always) && (this.isValid() || this.allowSaveInvalid) && this.status!='noItem';
     },
 
     doAutoSave:function(){
@@ -134,9 +135,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         kw = kw || {};
         this.save(kw.forced);
     },
-    lazySave:function(savedCb,kw){
+    lazySave:function(savedCb,kw,errorCb){
         savedCb = savedCb?funcCreate(savedCb,{},this):false;
-        if(this.canBeSaved()){
+        if(this.canBeSaved(kw)){
             var d = this.save(objectUpdate({onSaved:'lazyReload',waitingStatus:false},kw));
             this.getFormData().walk(function(n){
                 delete n.attr._loadedValue;
@@ -145,6 +146,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 d.addCallback(savedCb);
             }
             return d;
+        }else if(errorCb){
+            errorCb.call(this);
         }else if(savedCb){
             savedCb.call(this);
         }
@@ -591,8 +594,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     
     do_deleteItem:function(kw){
-        kw = {}
+        kw = kw || {};
         kw.pkey = kw.pkey || this.getCurrentPkey();
+        this.setOpStatus('deleting');
         var r = this.store.deleteItem(kw.pkey,kw);
         if(kw.onDeleted){
             var onDeleted = funcCreate(kw.onDeleted,'result',this);
@@ -1022,6 +1026,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     do_save:function(kw){
         if(!kw.forced && this.isDisabled()){
             this.publish('message',{message:_T('Cannot save. Blocked Form'),sound:'$error',messageType:'warning'});
+            return;
         }
         var destPkey = kw.destPkey;
         this.setOpStatus('saving');

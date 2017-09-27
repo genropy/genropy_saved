@@ -839,15 +839,16 @@ class GnrWebAppHandler(GnrBaseProxy):
         if wherebag:
             resultAttributes['whereAsPlainText'] = self.db.whereTranslator.toHtml(tblobj,wherebag)
         resultAttributes['hardQueryLimitOver'] = hardQueryLimit and resultAttributes['totalrows'] == hardQueryLimit
-        with self.page.pageStore() as store:
-            slaveSelections = store.getItem('slaveSelections.%s' %selectionName)
-            if slaveSelections:
-                for page_id,grids in slaveSelections.items():
-                    if self.page.site.register.exists(page_id,register_name='page'):
-                        for nodeId in grids.keys():
-                            self.page.clientPublish('%s_refreshLinkedSelection' %nodeId,value=True,page_id=page_id)
-                    else:
-                        slaveSelections.popNode(page_id)
+        if self.page.pageStore().getItem('slaveSelections.%s' %selectionName):
+            with self.page.pageStore() as store:
+                slaveSelections = store.getItem('slaveSelections.%s' %selectionName)
+                if slaveSelections:
+                    for page_id,grids in slaveSelections.items():
+                        if self.page.site.register.exists(page_id,register_name='page'):
+                            for nodeId in grids.keys():
+                                self.page.clientPublish('%s_refreshLinkedSelection' %nodeId,value=True,page_id=page_id)
+                        else:
+                            slaveSelections.popNode(page_id)
         return (result, resultAttributes)
 
     def _getSelection_columns(self, tblobj, columns, expressions=None):
@@ -1533,21 +1534,22 @@ class GnrWebAppHandler(GnrBaseProxy):
             order_list = []
             preferred = tblobj.attributes.get('preferred') if preferred is None else preferred
             if preferred:
-                order_list.append('%s desc' %preferred)
+                order_list.append('( %s ) desc' %preferred)
                 resultcolumns.append("""(CASE WHEN %s IS NOT TRUE THEN 'not_preferred_row' ELSE '' END) AS _customclasses_preferred""" %preferred)
             #order_by = order_by or tblobj.attributes.get('order_by') or tblobj.attributes.get('caption_field')
             order_by = order_by or tblobj.attributes.get('order_by') or showcolumns[0]
             order_list.append(order_by if order_by[0] in ('$','@') else '$%s' %order_by)
             order_by = ', '.join(order_list)
+            cond = '(%s) AND (%s)' %(condition,weakCondition) if isinstance(weakCondition,basestring) else condition
             selection = selectHandler(tblobj=tblobj, querycolumns=querycolumns, querystring=querystring,
-                                      resultcolumns=resultcolumns, condition=condition, exclude=exclude,
+                                      resultcolumns=resultcolumns, condition=cond, exclude=exclude,
                                       limit=limit, order_by=order_by,
                                       identifier=identifier, ignoreCase=ignoreCase,excludeDraft=excludeDraft, **kwargs)
             if not selection and weakCondition:
                 resultClass = 'relaxedCondition'
                 selection = selectHandler(tblobj=tblobj, querycolumns=querycolumns, querystring=querystring,
                                           resultcolumns=resultcolumns, exclude=exclude,
-                                          limit=limit, order_by=order_by,
+                                          limit=limit, order_by=order_by,condition= None if weakCondition is True else condition,
                                           identifier=identifier, ignoreCase=ignoreCase,excludeDraft=excludeDraft, **kwargs)
 
         resultAttrs = {}

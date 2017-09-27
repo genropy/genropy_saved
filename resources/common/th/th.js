@@ -88,13 +88,13 @@ var th_sections_manager = {
             current = sectionsbag.getItem('current');
             variable_struct = sectionsbag.getItem('variable_struct');
             if(variable_struct){
-                structToSet = sectionsbag.getNode('data.'+current).attr.struct;
+                structToSet = sectionsbag.getNode('data.'+current).attr.struct || '__baseView__';
             }
             current.split(',').forEach(function(curr){
                 dojo.addClass(viewDomNode,'sections_' + sections_name+'_' + curr);
             });
         });
-        if(variable_struct){
+        if(structToSet){
             viewNode.setRelativeData('.grid.currViewPath',structToSet || '__baseView__');
         }
     },

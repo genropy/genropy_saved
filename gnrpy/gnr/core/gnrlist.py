@@ -250,7 +250,7 @@ def readXLS(doc):
         
 class XlsReader(object):
     """Read an XLS file"""
-    def __init__(self, docname):
+    def __init__(self, docname,mainsheet=None,**kwargs):
         import xlrd
         import os.path
         self.XL_CELL_DATE = xlrd.XL_CELL_DATE
@@ -260,40 +260,85 @@ class XlsReader(object):
         self.basename, self.ext = os.path.splitext(os.path.basename(docname))
         self.ext = self.ext.replace('.', '')
         self.book = xlrd.open_workbook(filename=self.docname)
-        self.sheet = self.book.sheet_by_index(0)
-        self.linegen = self.sheetlines()
-        firstline = self.linegen.next()
-        headers = [slugify(firstline[c],sep='_') for c in range(self.sheet.ncols)]
-        self.colindex = dict([(i,True)for i,h in enumerate(headers) if h])
-        self.headers = [h for h in headers if h]
-        self.index = dict()
-        for i,k in enumerate(self.headers):
-            if k in self.index:
-                raise GnrException('Duplicated columns in source xls')
-            self.index[k] = i
-        self.ncols = len(headers)
-        self.nrows = self.sheet.nrows - 1
+        self.sheets = {}
+        for sheetname in self.book.sheet_names():
+            self.addSheet(sheetname)
+        mainsheet = mainsheet or self.book.sheet_names()[0]
+        self.setMainSheet(mainsheet)
+
+    def setMainSheet(self,sheetname):
+        if isinstance(sheetname,int):
+            sheetname = self.book.sheet_by_index(sheetname).name
+        self.sheet_base_name = sheetname
+
+    def addSheet(self,sheetname):
+        sheet = self.book.sheet_by_name(sheetname)
+        linegen = self._sheetlines(sheet)
+        firstline = linegen.next()
+        headers = [slugify(firstline[c],sep='_') for c in range(sheet.ncols)]
+        colindex = dict([(i,True)for i,h in enumerate(headers) if h])
+        headers = [h for h in headers if h]
+        index = dict()
+        errors = None
+        for i,k in enumerate(headers):
+            if k in index:
+                errors = 'duplicated column %s' %k
+            else:
+                index[k] = i
+        self.sheets[sheetname] = {'sheet': sheet,
+                                   'headers':headers,
+                                   'colindex':colindex,
+                                   'index':index,
+                                    'ncols':len(headers),
+                                    'nrows':sheet.nrows - 1,
+                                    'errors':errors,
+                                    'linegen':linegen}
 
 
-    def sheetlines(self):
-        for lineno in range(self.sheet.nrows):
-            line = self.sheet.row_values(lineno)
+    @property
+    def sheet(self):
+        return self.sheets[self.sheet_base_name]['sheet']
+
+    @property
+    def headers(self):
+        return self.sheets[self.sheet_base_name]['headers']
+
+    @property
+    def colindex(self):
+        return self.sheets[self.sheet_base_name]['colindex']
+
+    @property
+    def index(self):
+        return self.sheets[self.sheet_base_name]['index']
+
+    @property
+    def ncols(self):
+        return self.sheets[self.sheet_base_name]['ncols']
+
+    @property
+    def nrows(self):
+        return self.sheets[self.sheet_base_name]['nrows']
+
+    def __call__(self,sheetname=None):
+        s = self.sheets[sheetname or self.sheet_base_name]
+        for line in s['linegen']:
+            #row = [self.sheet.cell_value(r, c) for c in range(self.ncols)]
+            yield GnrNamedList(s['index'], [c for i,c in enumerate(line) if i in s['colindex']])
+            
+    def _sheetlines(self,sheet):
+        for lineno in range(sheet.nrows):
+            line = sheet.row_values(lineno)
             if filter(lambda elem: elem,line):
-                row_types = self.sheet.row_types(lineno)
+                row_types = sheet.row_types(lineno)
                 for i,c in enumerate(line):
                     if row_types[i] == self.XL_CELL_DATE:
-                        line[i] = datetime.datetime(*self.xldate_as_tuple(c,self.sheet.book.datemode))
+                        line[i] = datetime.datetime(*self.xldate_as_tuple(c,sheet.book.datemode))
                 yield line 
-        
-    def __call__(self):
-        for line in self.linegen:
-            #row = [self.sheet.cell_value(r, c) for c in range(self.ncols)]
-            yield GnrNamedList(self.index, [c for i,c in enumerate(line) if i in self.colindex])
-            
+
 
 class CsvReader(object):
     """Read an csv file"""
-    def __init__(self, docname):
+    def __init__(self, docname,**kwargs):
         import os.path
         self.docname = docname
         self.dirname = os.path.dirname(docname)

@@ -208,28 +208,28 @@ class GnrWebUtils(GnrBaseProxy):
             x, y, blur, color = shadow.split(',')
             result.append('-moz-box-shadow:%spx %spx %spx %s;' % (x, y, blur, color))
             result.append('-webkit-box-shadow:%spx %spx %spx %s;' % (x, y, blur, color))
-            #if gradient:
-            #
-            #
-            # background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(16,96,192,0.75)), to(rgba(96,192,255,0.9)));
-            #    background-image:-moz-linear-gradient(top,bottom,from(rgba(16,96,192,0.75)), to(rgba(96,192,255,0.9)));
-            #    result.append('background-image:-moz-linear-gradient(top,bottom,from(rgba(16,96,192,0.75)), to(rgba(96,192,255,0.9)));')
-            #    result.append('-webkit-box-shadow:%spx %spx %spx %s;'%(x,y,blur,color))
-            #    # -moz-linear-gradient( [<point> || <angle>,]? <stop>, <stop> [, <stop>]* )
-            # -moz-radial-gradient( [<position> || <angle>,]? [<shape> || <size>,]? <stop>, <stop>[, <stop>]* )
-            #
-            # -moz-linear-gradient (%(begin)s, %(from)s, %(to)s);
-            # -webkit-gradient (%(mode)s, %(begin)s, %(end)s, from(%(from)s), to(%(to)s));
-            #
+
         return '%s\n%s' % ('\n'.join(result), style)
 
-
     @public_method
-    def tableImporterCheck(self,table=None,file_path=None,limit=None,**kwargs):
+    def tableImporterCheck(self,table=None,file_path=None,limit=None,importerStructure=None,checkCb=None,**kwargs):
         result = Bag()
-
         result['imported_file_path'] = file_path
+        if table:
+            importerStructure = importerStructure or self.page.db.table(table).importerStructure()
+            checkCb = checkCb or self.page.db.table(table).importerCheck
         reader = self.getReader(file_path)
+        importerStructure = importerStructure or dict()
+        mainsheet = importerStructure.get('mainsheet')
+        if not mainsheet and importerStructure.get('sheets'):
+            mainsheet = importerStructure.get('sheets')[0]['sheet']
+        if checkCb:
+            errormessage = checkCb(reader)
+            if errormessage:
+                result['errors'] = errormessage
+                return result.toXml()
+        if mainsheet:
+            reader.setMainSheet(mainsheet)
         columns = Bag()
         rows = Bag()
         match_data = Bag()
@@ -268,39 +268,71 @@ class GnrWebUtils(GnrBaseProxy):
     def tableImporterRun(self,table=None,file_path=None,match_index=None,import_method=None,sql_mode=None,**kwargs):
         tblobj = self.page.db.table(table)
         docommit = False
+        importerStructure = tblobj.importerStructure() or dict()
         reader = self.getReader(file_path)
-        if import_method:
+        if importerStructure:
+            sheets = importerStructure.get('sheets')
+            if not sheets:
+                sheets = [dict(sheet=importerStructure.get('mainsheet'),struct=importerStructure)]
+            results = []
+            for sheet in sheets:
+                reader.setMainSheet(sheet['sheet'])
+                struct = sheet['struct']
+                match_index = tblobj.importerMatchIndex(reader,struct=struct)
+                res = self.defaultMatchImporterXls(tblobj=tblobj,reader=reader,
+                                                match_index=match_index,
+                                                sql_mode=sql_mode,constants=struct.get('constants'),
+                                                mandatories=struct.get('mandatories'))
+                results.append(res)
+                errors = filter(lambda r: r!='OK', results)
+                if errors:
+                    return 'ER'
+        elif import_method:
             handler = getattr(tblobj,'importer_%s' %import_method)
             return handler(reader)
-        elif match_index:
-            rows_to_insert = []
-            tpkey = tblobj.pkey
-            for row in self.quickThermo(reader(),maxidx=reader.nrows if hasattr(reader,'nrows') else None,
-                        labelfield=tblobj.attributes.get('caption_field') or tblobj.name):
-                r = {v:row[k] for k,v in match_index.items() if v is not ''}
-                tblobj.recordCoerceTypes(r)
-                if sql_mode:
-                    if r.get(tpkey):
-                        r[tpkey] = tblobj.newPkeyValue(r)
-                    rows_to_insert.append(r)
-                else:
-                    tblobj.insert(r)
-                    docommit = True
+        
+        if match_index:
+            return self.defaultMatchImporterXls(tblobj=tblobj,reader=reader,
+                                                    match_index=match_index,
+                                                    sql_mode=sql_mode)
+
+    def defaultMatchImporterXls(self,tblobj=None,reader=None,match_index=None,sql_mode=None,constants=None,mandatories=None):
+        rows = self.adaptedRecords(tblobj=tblobj,reader=reader,match_index=match_index,sql_mode=sql_mode,constants=None)
+        docommit = False
+        if sql_mode:
+            rows_to_insert = list(rows)
             if rows_to_insert:
                 tblobj.insertMany(rows_to_insert)
-                docommit = True
-            if docommit:
-                self.page.db.commit()
+                docommit=True
+        else:
+            for r in rows:
+                tblobj.importerInsertRow(r)
+                docommit=True
+        if docommit:
+            self.page.db.commit()
+        return 'OK'
+    
+    def adaptedRecords(self,tblobj=None,reader=None,match_index=None,sql_mode=None,constants=None):
+        for row in self.quickThermo(reader(),maxidx=reader.nrows if hasattr(reader,'nrows') else None,
+                        labelfield=tblobj.attributes.get('caption_field') or tblobj.name):
+            r = constants or {}
+            f =  {v:row[k] for k,v in match_index.items() if v is not ''}
+            r.update(f)
+            tblobj.recordCoerceTypes(r)
+            if sql_mode:
+                tpkey = tblobj.pkey
+                if not r.get(tpkey):
+                    r[tpkey] = tblobj.newPkeyValue(r)
+            yield r
+            
 
-            return 'OK'
-
-    def getReader(self,file_path):
+    def getReader(self,file_path,**kwargs):
         filename,ext = os.path.splitext(file_path)
         if ext in ('.xls','.xlsx'):
-            reader = XlsReader(file_path)
+            reader = XlsReader(file_path,**kwargs)
         else:
-            reader = CsvReader(file_path)
-        reader.index = {self._importer_keycb(k):v for k,v in reader.index.items()}
+            reader = CsvReader(file_path,**kwargs)
+            reader.index = {self._importer_keycb(k):v for k,v in reader.index.items()}
         return reader
 
 

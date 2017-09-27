@@ -1666,7 +1666,11 @@ dojo.declare("gnr.GridFilterManager", null, {
         var cb_attr,cb;
         return this.activeFilters().some(function(kw){
             cb_attr = gridNode.evaluateOnNode(kw.cb_attr);
+           
             objectUpdate(cb_attr,row);
+            for (var k in gridNode.widget.cellmap){
+                cb_attr[k] = cb_attr[k] || null;
+            }
             return funcApply("return "+kw.cb,cb_attr,gridNode);
         });
     },
@@ -1941,11 +1945,11 @@ dojo.declare("gnr.GridChangeManager", null, {
                 }
             }
             if(kw.reason!='remoteController' && kw.node.label in this.remoteControllerColumns){
-                genro.callAfter(function(){
+                this.grid.sourceNode.delayedCall(function(){
                     gridEditor.callRemoteController(kw.node.getParentNode(),kw.node.label,kw.oldvalue);
                     that.resolveCalculatedColumns();
                     that.resolveTotalizeColumns();
-                },1)
+                },1,'afterRemoteController')
             }
         }
     },

@@ -140,13 +140,16 @@ class GnrDboPackage(object):
         rev_tables.reverse()
         if empty_before:
             for t in rev_tables:
-                db.table('%s.%s' %(self.name,t)).empty()
+                if t in self.tables:
+                    db.table('%s.%s' %(self.name,t)).empty()
         all_pref = self.db.table('adm.preference').loadPreference()
         all_pref[self.name] = s['preferences']
         self.db.table('adm.preference').savePreference(all_pref)
         db.commit()
         tw = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
         for tablename in tw:
+            if tablename not in self.tables:
+                continue
             tblobj = db.table('%s.%s' %(self.name,tablename))
             currentRecords = tblobj.query().fetchAsDict('pkey')
             records = s[tablename]
@@ -586,6 +589,42 @@ class TableBase(object):
                 self.db.commit()
             return record
         return self.cachedRecord(syscode,keyField='__syscode',createCb=createCb)
+
+    def importerStructure(self):
+        "override"
+        pass
+
+    def importerMatchIndex(self,reader,struct=None):
+        importerStructure = struct or self.importerStructure() or dict()
+        checkfields = importerStructure.get('fields')
+        if not checkfields:
+            return
+        headers = set(reader.headers)
+        convertdict = {}
+        for k,v in checkfields.items():
+            intersection =  headers.intersection(set(v.lower().replace(' ','_').replace('.','_').split(',')))
+            if intersection:
+                convertdict[list(intersection)[0]] = k
+        return convertdict
+
+    def importerCheck(self,reader):
+        importerStructure = self.importerStructure() or dict()
+        checkfields = importerStructure.get('fields')
+        mandatories = importerStructure.get('mandatories')
+        if not mandatories:
+            return
+        match_index = self.importerMatchIndex(reader)
+        errors = []
+        matched_cols =  match_index.values()
+        for k in mandatories.split(','):
+            if k not in matched_cols:
+                errors.append(k)
+        if errors:
+            return 'Missing %s' %','.join(errors)
+    
+    def importerInsertRow(self,row):
+        self.insert(row)
+
 
     @public_method
     def pathFromPkey(self,pkey=None,dbstore=None):
