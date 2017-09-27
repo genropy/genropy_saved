@@ -39,6 +39,7 @@ class BagToHtml(object):
     doc_footer_height = 0 # e.g. 15
     grid_header_height = 0 # e.g. 6.2
     grid_footer_height = 0
+    grid_body_adjustment = 0
     grid_col_headers = None
     grid_col_widths = [0, 0, 0]
     grid_row_height = 5
@@ -360,7 +361,7 @@ class BagToHtml(object):
                     rowheight = self.calcRowHeight()
                     availableSpace = self.grid_height - self.copyValue('grid_body_used') -\
                                      self.calcGridHeaderHeight() - self.calcGridFooterHeight()
-                    if rowheight > availableSpace:
+                    if rowheight > (availableSpace -self.grid_body_adjustment):
                         self._newPage()
                     if not self.rowData:
                         continue
