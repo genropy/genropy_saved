@@ -3,6 +3,7 @@ import re
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
 from datetime import datetime
+BASE = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 
 class Table(object):
     def config_db(self, pkg):
@@ -227,12 +228,29 @@ class Table(object):
         counter,counterInfo = self.getCounter(tblobj=tblobj,field=field,record=record,update=update)
         return self.formatSequence(tblobj=tblobj,field=field,record=record,counter=counter)
 
+    def convertCustomBase(self,counter,base):
+        result = []
+        b = len(base)
+        while counter !=0:
+            r = counter % b
+            counter = counter  / b
+            result.append(base[r])
+        result.reverse()
+        return ''.join(result)
+
     def formatSequence(self,tblobj=None,field=None,record=None, counter=None):
         counter_pars = getattr(tblobj,'counter_%s' %field)(record=record)
+        base = counter_pars.get('base')
+        if base:
+            if base and isinstance(base,int):
+                base = BASE[0:base]
+            counter = self.convertCustomBase(counter,base)
+        else:
+            counter = str(counter)
         output = counter_pars['format']
         code = counter_pars['code']
         x = '$N%s' % output.split('$N')[1]
-        output = output.replace(x, str(counter).zfill(len(x) - 1))
+        output = output.replace(x, counter.zfill(len(x) - 1))
         output = output.replace('$K', code)        
         date_field = counter_pars.get('date_field')
         date = record[date_field] if date_field else None
