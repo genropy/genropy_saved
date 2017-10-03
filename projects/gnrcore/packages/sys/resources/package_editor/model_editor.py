@@ -11,6 +11,7 @@ from gnr.core.gnrstring import boolean
 from gnr.core.gnrbag import Bag
 from collections import OrderedDict
 from datetime import datetime
+from gnr.core.gnrstring import flatten
 import os
 
 SYSFIELDS_DEFAULT = OrderedDict([('id',True), ('ins',True), ('upd',True), 
@@ -91,10 +92,11 @@ class Table(object):
                 arguments['counter'] = counter     
         return arguments
 
-    def _columnPythonCode(self,col,relation=None):
+    def _columnPythonCode(self,c,relation=None):
         attributes = Bag()
-        col = col.deepcopy()
-        name = col.pop('name')
+        col = c.deepcopy()
+        name = flatten(col.pop('name')).strip('_')
+        print 'name',name,'original_name',c['name']
         dtype = col.pop('dtype')
         size = col.pop('size')
         name_long = col.pop('name_long')
