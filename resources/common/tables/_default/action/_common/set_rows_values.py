@@ -41,9 +41,12 @@ class Main(BaseResourceAction):
         for k,v in tblobj.columns.items():
             attr = v.attributes
             if not (attr.get('_sysfield') or attr.get('dtype') == 'X'):
+                kw = {}
+                if attr.get('dtype')=='DH':
+                    kw['tag'] = 'dateTextBox'
                 fb.field(k,validate_notnull=False,html_label=True,zoom=False,lbl_fieldname=k,
                             validate_onAccept='SET .%s?forced_null=false;' %k,
-                            lbl_color='^.%s?forced_null?=#v?"red":null' %k)
+                            lbl_color='^.%s?forced_null?=#v?"red":null' %k,**kw)
         box.div(border_top='1px solid silver',padding='3px',text_align='right').checkbox(value='^.do_triggers',label='Do triggers',_tags='_DEV_')
 
 
