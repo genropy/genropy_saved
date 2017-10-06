@@ -37,3 +37,7 @@ class GnrCustomWebPage(object):
         fb.data('.txtval_2','test')
         fb.data('.number',0)
         fb.numberTextBox('^.number',lbl='Number',format='#.00') #_autoselect=True
+
+    def test_2_dotcomma(self, pane):
+        fb = pane.formbuilder(cols=2,datapath='.data')
+        fb.numberTextBox('^.number',lbl='Number',format='#,###.00') #_autoselect=True

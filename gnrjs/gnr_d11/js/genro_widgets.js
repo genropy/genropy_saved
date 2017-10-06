@@ -3286,6 +3286,17 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
             attributes.constraints['type'] = objectPop(attributes['ftype']);
         }
     },
+
+    created: function(widget, savedAttrs, sourceNode) {
+        if (dojo.number._parseInfo().decimal==','){
+            dojo.connect(widget,'onkeyup',function(evt){
+                if(evt.key=='.'){
+                    widget.textbox.value = widget.textbox.value.replace('.',',');
+                }
+            });
+        }
+    },
+
     onSettingValueInData: function(sourceNode, value,valueAttr) {
         if (value === "") {
             value = null;
@@ -3305,14 +3316,12 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
         if(isNaN(result)){
             result = this.parse(displayedValue,  this.sourceNode._parseDict)
         }
-        //console.log('displayedValue',displayedValue,'result',result);
         return result;
     },
     patch_isValid: function(/*Boolean*/ isFocused){
         if(isFocused){
             return true;
         }
-        //console.log('aaa',this.textbox.value,'bbb',this.sourceNode._parseDict,'ccc',this)
         return this.validator(this.textbox.value, this.sourceNode._parseDict) || this.validator(this.textbox.value, this.constraints);
     },
 
