@@ -4203,6 +4203,8 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
 
 dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
     objtype:null,
+    default_configurator_pars:null,
+    newcaption:null,
     createContent:function(sourceNode,kw){
         var gnrwdg = sourceNode.gnrwdg;
         sourceNode.attr.nodeId = objectPop(kw,'nodeId');
@@ -4211,11 +4213,15 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
         }
         var userObjectPars = objectExtract(kw,'table,flags,objtype');
         userObjectPars.objtype = userObjectPars.objtype || this.objtype;
-        gnrwdg.newcaption  = _T(objectPop(kw,'newcaption') || 'New '+userObjectPars.objtype);
+        gnrwdg.newcaption  = _T(objectPop(kw,'newcaption') || this.newcaption ||  'New '+userObjectPars.objtype);
         gnrwdg.table = userObjectPars.table;
         objectUpdate(userObjectPars,objectExtract(kw,'userobject_*'));
         gnrwdg.userObjectPars = userObjectPars;
-        var bc = sourceNode._('BorderContainer',objectExtract(kw,'top,bottom,left,right,border,margin,height,width,rounded,region,side'));
+        
+        var bc = sourceNode._('BorderContainer','rootbc',objectExtract(kw,'top,bottom,left,right,border,margin,height,width,rounded,region,side'));
+        kw.userObjectId = gnrwdg.getFavorite() || kw.userObjectId;  
+        gnrwdg.startUserObjectIdOrCode = kw.userObjectId;
+        kw.configurator = kw.configurator===false?false:(kw.configurator|| this.default_configurator_pars);
         if(kw.configurator){
             gnrwdg.prepareConfiguratorFrame(bc,kw);
         }
@@ -4251,12 +4257,21 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
 
     gnrwdg_prepareConfiguratorFrame:function(bc,kw){
         var confkw = objectPop(kw,'configurator');
-        confkw = confkw===true?{region:'right',drawer:(kw.userObjectId && kw.userObjectId!='__newobj__')?'close':true,splitter:true,border_left:'1px solid #ccc',width:'320px'}:configurator;        
+        confkw = confkw===true?{region:'right',splitter:true,border_left:'1px solid #ccc',width:'320px'}:confkw;  
+        if(!('drawer' in confkw)){
+            confkw.drawer = (kw.userObjectId && kw.userObjectId!='__newobj__')?'close':true;
+        }
+              
         this.setLoadMenuData();
         var frame = bc._('FramePane','configurator',objectUpdate(confkw,{frameCode:this.sourceNode.attr.nodeId+'_conf'}));
-        var bar = frame._('slotBar',{toolbar:true,side:'top',slots:'5,loadMenu,2,objTitle,*,saveBtn,deletebtn,5'});
+        var bar = frame._('slotBar',{toolbar:true,side:'top',slots:'5,loadMenu,2,objTitle,*,favoritebtn,saveBtn,deletebtn,5'});
         var that = this;
         bar._('div','objTitle',{innerHTML:'^#WORKSPACE.metadata.description?=(#v || "New")',font_weight:'bold',font_size:'.9em',color:'#666'});
+        
+        bar._('slotButton','favoritebtn',{'label':_T('Default'),
+                                                    action:function(){that.setCurrentAsFavorite();},
+                                                    iconClass:'highlightable iconbox star'});
+        
         bar._('slotButton','loadMenu',{iconClass:'iconbox folder',label:'Load',
             menupath:'#WORKSPACE.loadMenu',action:function(item){
                 that.loadObject(item.pkey);
@@ -4271,6 +4286,28 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
                     }});
 
         this.configuratorFrame(frame,kw);
+    },
+
+    gnrwdg_setCurrentAsFavorite:function(){
+        var metadata = this.sourceNode.getRelativeData('#WORKSPACE.metadata');
+        var pkey = metadata.getItem('pkey');
+        genro.setInStorage("local", this.storageKey(), pkey);
+        this.checkFavorite();
+    },
+
+    gnrwdg_getFavorite:function(){
+        return  genro.getFromStorage("local", this.storageKey());
+    },
+
+    gnrwdg_checkFavorite:function(){
+        var metadata = this.sourceNode.getRelativeData('#WORKSPACE.metadata') || new gnr.GnrBag();
+        var pkey = metadata.getItem('pkey');
+        var currfavorite = this.getFavorite();
+        genro.dom.setClass(this.sourceNode.getValue().getNode('rootbc'),'highlighted',currfavorite==pkey);
+    },
+
+    gnrwdg_storageKey:function(){
+        return this.userObjectPars.objtype + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
     },
 
 
@@ -4298,12 +4335,12 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
         var instanceCode = this.sourceNode.getRelativeData('#WORKSPACE.metadata.code');
         var data = this.userObjectData();
         var that = this;
-        saveCb = function(dlg) {
+        saveCb = function(dlg,event,counter,modifiers) {
             var metadata = genro.getData(datapath);
             metadata.setItem('flags',that.userObjectPars.flags);
             genro.serverCall('_table.adm.userobject.saveUserObject',
                             {'objtype':that.userObjectPars.objtype,'metadata':metadata,
-                            'data':data,table:that.userObjectPars.table},
+                            'data':data,table:that.userObjectPars.table,asResource:modifiers=='Shift'},
                             function(result) {
                                 dlg.close_action();
                                 metadata.setItem('pkey',result.getValue());
@@ -4320,10 +4357,14 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
             this.onLoadedObject(null,userObjectId,firstLoad);
         }else{
             var that = this;
-            genro.serverCall('_table.adm.userobject.loadUserObject', {pkey:userObjectId}, 
+            genro.serverCall('_table.adm.userobject.loadUserObject', {userObjectIdOrCode:userObjectId,
+                                                                    objtype:this.userObjectPars.objtype,
+                                                                    tbl:this.userObjectPars.table,
+                                                                    flags:this.userObjectPars.flags}, 
             function(result){
                 that.sourceNode.setRelativeData('#WORKSPACE.metadata',new gnr.GnrBag(result.attr));
                 that.onLoadedObject(result,userObjectId,firstLoad);
+                that.checkFavorite();
             });
         }
     },

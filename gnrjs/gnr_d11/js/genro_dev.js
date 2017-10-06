@@ -844,8 +844,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var bottom = dlg.bottom._('div');
         var saveattr = {'float':'right',label:_T('Save')};
         var data = new gnr.GnrBag();
-        saveattr.action = function(){
-            saveCb(dlg);
+        
+        saveattr.action = function(evt,counter,modifiers){
+            saveCb(dlg,evt,counter,modifiers);
         };
         bottom._('button', saveattr);
         bottom._('button', {'float':'right',label:_T('Cancel'),action:dlg.close_action});

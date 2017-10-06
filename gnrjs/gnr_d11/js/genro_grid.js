@@ -572,6 +572,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 }else{
                     sourceNode.attr.storepath = storeNode.absDatapath(storeNode.attr.storepath);//storeNode.absDatapath(storeNode.attr.path);
                     sourceNode._useStore=true;
+                    if(storeNode.store && storeNode.store._linkedGrids){
+                        genro.src.onBuiltCall(function(){
+                            storeNode.store._linkedGrids.push(sourceNode.widget);
+                        },1);
+                    }
                 }
             }
         }

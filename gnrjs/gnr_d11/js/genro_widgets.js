@@ -2713,10 +2713,13 @@ dojo.declare("gnr.widgets._ButtonLogic",null, {
     _clickHandlerDo:function(sourceNode,e,inattr,count) {
         var modifier = eventToString(e);
         var action = inattr.action;
+        var modifiers = genro.dom.getEventModifiers(e);
+        var argnames = ['event','_counter','modifiers'];
+        var argvalues = [e,count,modifiers];
         if (action) {
             var action_attributes = sourceNode.currentAttributes();
             var ask_params = sourceNode._ask_params;
-            var modifiers = genro.dom.getEventModifiers(e);
+            
             var skipOn,askOn,doAsk,_if;
             if(ask_params){
                 skipOn = ask_params.skipOn;
@@ -2744,12 +2747,12 @@ dojo.declare("gnr.widgets._ButtonLogic",null, {
                         objectUpdate(action_attributes,result);
                         action_attributes._askResult = result;
                     }
-                    funcApply(action, objectUpdate(action_attributes, {event:e,_counter:count}), sourceNode);
+                    funcApply(action, objectUpdate(action_attributes, {}), sourceNode,argnames,argvalues);
                 }
 
                 genro.dlg.prompt(objectPop(promptkw,'title','Parameters'),promptkw);
             }else{
-                funcApply(action, objectUpdate(action_attributes, {event:e,_counter:count}), sourceNode);
+                funcApply(action, objectUpdate(action_attributes, {}), sourceNode,argnames,argvalues);
             }
             return;
         }

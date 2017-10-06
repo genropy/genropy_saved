@@ -5365,8 +5365,6 @@ div[disabled='true'], div[disabled='disabled']{
     background-size: contain;
 }
 
-
-
 .gr_table td{
     height: 14px;
     padding-top: 2px;
@@ -5467,6 +5465,10 @@ div[disabled='true'], div[disabled='disabled']{
     filter: none;
     -webkit-filter:none;
     -moz-filter:none;
+}
+
+.highlighted .highlightable.iconbox {
+    background-color:lightyellow;
 }
 
 .theme_variant_green .theme_background{
