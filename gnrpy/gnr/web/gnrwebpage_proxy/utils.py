@@ -221,14 +221,14 @@ class GnrWebUtils(GnrBaseProxy):
         reader = self.getReader(file_path)
         importerStructure = importerStructure or dict()
         mainsheet = importerStructure.get('mainsheet')
-        if not mainsheet and importerStructure.get('sheets'):
+        if mainsheet is None and importerStructure.get('sheets'):
             mainsheet = importerStructure.get('sheets')[0]['sheet']
         if checkCb:
             errormessage = checkCb(reader)
             if errormessage:
                 result['errors'] = errormessage
                 return result.toXml()
-        if mainsheet:
+        if mainsheet is not None:
             reader.setMainSheet(mainsheet)
         columns = Bag()
         rows = Bag()
@@ -276,7 +276,8 @@ class GnrWebUtils(GnrBaseProxy):
                 sheets = [dict(sheet=importerStructure.get('mainsheet'),struct=importerStructure)]
             results = []
             for sheet in sheets:
-                reader.setMainSheet(sheet['sheet'])
+                if sheet.get('sheet') is not None:
+                    reader.setMainSheet(sheet['sheet'])
                 struct = sheet['struct']
                 match_index = tblobj.importerMatchIndex(reader,struct=struct)
                 res = self.defaultMatchImporterXls(tblobj=tblobj,reader=reader,

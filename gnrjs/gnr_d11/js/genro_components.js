@@ -1247,7 +1247,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         var onclick = "this.getParentNode().importer_gnrwdg.onCheckedMatch(this,kw);"
         var editdestpars = true;
         if(this.match_values){
-            editdestpars = {tag:'filteringSelect',values:this.match_values};
+            editdestpars = {tag:'combobox',values:this.match_values};
         }
         grid._('column',{name:'Source Column',field:'source_field',width:'10em',
                 cellStyles:'background:#666;color:whitesmoke;text-align:right; border-left:0px;border-bottom:1px solid whitesmoke;'})
@@ -1322,8 +1322,8 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         if (match && match.len()){
             match_index = {};
             match.values().forEach(function(v){
-                if(v && v.getItem('do_import') && v.getItem('dest_field')){
-                    match_index[v.getItem('source_field')] = v.getItem('dest_field');
+                if(v && v.getItem('do_import')){
+                    match_index[v.getItem('source_field')] = v.getItem('dest_field') || v.getItem('source_field');
                 }
             })
         }
