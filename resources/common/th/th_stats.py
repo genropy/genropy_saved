@@ -57,7 +57,7 @@ class TableHandlerStats(BaseComponent):
         bc.child('_tableHandlerStatsLayout',region='center',
                             table=table,nodeId=nodeId,
                             relation_field=relation_field,
-                            relation_value=relation_value,
+                            relation_value=relation_value.replace('^','') if relation_value else None,
                             default_rows=default_rows,
                             default_values=default_values,
                             default_columns=default_columns,
