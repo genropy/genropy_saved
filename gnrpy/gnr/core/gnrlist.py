@@ -345,7 +345,7 @@ class CsvReader(object):
         self.basename, self.ext = os.path.splitext(os.path.basename(docname))
         self.ext = self.ext.replace('.', '')
         self.filecsv = open(docname,'rU')
-        self.rows = csv.reader(self.filecsv,dialect='excel-tab')
+        self.rows = csv.reader(self.filecsv)
         self.headers = self.rows.next()
         self.index = dict([(k, i) for i, k in enumerate(self.headers)])
         self.ncols = len(self.headers)
