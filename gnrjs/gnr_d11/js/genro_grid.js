@@ -2946,6 +2946,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     },
     mixin_addBagRow: function(label, pos, newnode, event, nodupField) {
         var label = label || 'r_' + newnode._id;
+        this.resetFilter();
         var storebag = this.storebag();
         if (nodupField) {
             var nodupValue;
