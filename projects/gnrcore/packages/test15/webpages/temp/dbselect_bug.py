@@ -28,9 +28,11 @@ class GnrCustomWebPage(object):
         """dbselect with auxcol"""
         fb = pane.formbuilder(cols=1, border_spacing='4px')
         fb.dbSelect(dbtable='adm.user',value='^.user_id',lbl='User',
-
+                    auxColumns='$email',
                     selected_username='.username',width='25em',
                     hasDownArrow=True)
+        fb.textbox(value='^.foo',lbl='Foo')
+        fb.textbox(value='^.bar',lbl='bar')
 
         fb.dbCombobox(dbtable='adm.user',value='^.username',lbl='Combo',
                     selected_username='.username',width='25em',

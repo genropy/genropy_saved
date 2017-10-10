@@ -3902,6 +3902,15 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
                 if(popupDeltaOverflow>0){
                     popup.style.left = (parseInt(popup.style.left)-popupDeltaOverflow)+'px';
                 }
+                var that = this;
+                setTimeout(function(){
+                    that._popupWidget.highlightFirstOption();
+                },1)
+                
+            });
+        }else{
+            dojo.connect(widget,'_openResultList',function(){
+                widget._popupWidget.highlightFirstOption();
             });
         }
         this.connectForUpdate(widget, sourceNode);
@@ -3922,8 +3931,6 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
                     widget._downArrowMenu = true;
                 }
             });
-            
-            
         }
         //dojo.connect(widget, '_doSelect', widget,'_onDoSelect');                 
     },
