@@ -298,7 +298,7 @@ class GnrWebUtils(GnrBaseProxy):
                                                     sql_mode=sql_mode)
 
     def defaultMatchImporterXls(self,tblobj=None,reader=None,match_index=None,sql_mode=None,constants=None,mandatories=None):
-        rows = self.adaptedRecords(tblobj=tblobj,reader=reader,match_index=match_index,sql_mode=sql_mode,constants=None)
+        rows = self.adaptedRecords(tblobj=tblobj,reader=reader,match_index=match_index,sql_mode=sql_mode,constants=constants)
         docommit = False
         if sql_mode:
             rows_to_insert = list(rows)
