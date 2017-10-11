@@ -338,14 +338,14 @@ class XlsReader(object):
 
 class CsvReader(object):
     """Read an csv file"""
-    def __init__(self, docname,**kwargs):
+    def __init__(self, docname,dialect=None,**kwargs):
         import os.path
         self.docname = docname
         self.dirname = os.path.dirname(docname)
         self.basename, self.ext = os.path.splitext(os.path.basename(docname))
         self.ext = self.ext.replace('.', '')
         self.filecsv = open(docname,'rU')
-        self.rows = csv.reader(self.filecsv)
+        self.rows = csv.reader(self.filecsv,dialect=dialect)
         self.headers = self.rows.next()
         self.index = dict([(k, i) for i, k in enumerate(self.headers)])
         self.ncols = len(self.headers)

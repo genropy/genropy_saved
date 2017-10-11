@@ -361,7 +361,7 @@ class SqlDbAdapter(object):
         tblobj = dbtable.model
         pkeyColumn = tblobj.pkey
         for record in records:
-            if not record.get(pkeyColumn):
+            if record.get(pkeyColumn) is None:
                 record[pkeyColumn] = dbtable.newPkeyValue(record)
         sql_flds = []
         columns = []

@@ -1127,7 +1127,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         gnrwdg.uploaderId = sourceNode.attr.nodeId +'_uploader';
         var palette = sourceNode._('PalettePane',kw);
         var bc = palette._('BorderContainer',{_lazyBuild:true});
-        var slots = '2,prevtitle,*,limit,5';
+        var slots = '2,prevtitle,importselector,*,limit,5';
         var limit = objectPop(kw,'previewLimit') || 20;
         var dropMessage = objectPop(kw,'dropMessage') || '!!Drop import file here';
         if(!gnrwdg.matchColumns){
@@ -1136,8 +1136,8 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         var frame = bc._('FramePane',{frameCode:frameCode,region:'center',
                                      _class:'pbl_roundedGroup',margin:'2px'});
         var bar = frame._('SlotBar',{'side':'top',slots:slots,searchOn:true,_class:'pbl_roundedGroupLabel'});
-        bar._('div','prevtitle',{innerHTML:"==_current_title || 'Import xls or cvs'",_current_title:'^.current_title',color:'#666'});
-        
+        bar._('div','prevtitle',{innerHTML:"==_current_title || 'Import'",_current_title:'^.current_title',color:'#666'});
+        bar._('filteringSelect','importselector',{value:'^.filetype',width:'4em',values:'excel,csv,tab',margin_top:'2px'});
         bar._('div','limit',{innerHTML:_T('The lines in preview are limited to')+' '+limit,font_style:'italic',font_size:'.8em'});
 
         var dropAreaKw = {};
@@ -1148,6 +1148,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         };
         dropAreaKw.rpc_limit = limit;
         dropAreaKw.rpc_table = table;
+        dropAreaKw.rpc_filetype = '=.filetype';
         objectUpdate(dropAreaKw,objectExtract(kw,'drop_*',false,true));
         dropAreaKw.onResult = function(result){
                                 if(result.currentTarget.responseText){
@@ -1332,6 +1333,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         genro.serverCall(this.importMethod || 'utils.tableImporterRun',{table:this.table,file_path:'=.imported_file_path',
                                                     match_index:match_index,
                                                     import_method:'=.import_method',
+                                                    filetype:'=.filetype',
                                                     no_trigger:'=.no_trigger',
                                                     timeout:3600000,
                                                     _sourceNode:buttonNode},function(result){

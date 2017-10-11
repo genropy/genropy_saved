@@ -53,13 +53,8 @@ class AppLocalizer(object):
     def __init__(self, application=None):
         self.application = application
         self.genroroot = getGenroRoot()
-        try: 
-            from goslate import Goslate
-            self.translator = Goslate()
-            self.languages = self.translator.get_languages()
-        except:
-            self.translator = False
-            self.languages = dict(en='English',it='Italian')
+        self._translator = None
+        self._languages = None
         roots = [os.path.join(self.genroroot,n) for n in ('gnrpy/gnr','gnrjs','resources/common','resources/mobile')]
         self.slots = [dict(roots=roots,destFolder=self.genroroot,code='core',protected=True,language='en')]
         for p in self.application.packages.values():
@@ -69,6 +64,22 @@ class AppLocalizer(object):
         #    self.slots.append(dict(roots=[self.application.customFolder],destFolder=self.application.customFolder,
         #                                code='customization',protected=False))
         self.buildLocalizationDict()
+
+    @property
+    def translator(self):
+        if not self._translator:
+            if self.application.site:
+                self._translator = self.application.site.getService('translation')
+            else:
+                self._translator = False
+                self._languages = dict(en='English',it='Italian')
+        return self._translator
+
+    @property
+    def languages(self):
+        if not self._languages:
+            self._languages = self.translator.languages
+        return self._languages
 
     def buildLocalizationDict(self):
         self.updatableLocBags = dict(all=[],unprotected=[])
@@ -141,7 +152,7 @@ class AppLocalizer(object):
                     locdict[lang] = base_to_translate
                     continue
                 if not locdict.get(lang):
-                    translated = self.translator.translate(base_to_translate,lang)
+                    translated = self.translator.translate(base_to_translate,'%s-%s' %(baselang,lang))
                     for k,v in safedict.items():
                         translated = translated.replace(k,v)
                     locdict[lang] = translated
