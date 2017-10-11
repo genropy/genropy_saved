@@ -212,23 +212,23 @@ class GnrWebUtils(GnrBaseProxy):
         return '%s\n%s' % ('\n'.join(result), style)
 
     @public_method
-    def tableImporterCheck(self,table=None,file_path=None,limit=None,importerStructure=None,checkCb=None,**kwargs):
+    def tableImporterCheck(self,table=None,file_path=None,limit=None,importerStructure=None,checkCb=None,filetype=None,**kwargs):
         result = Bag()
         result['imported_file_path'] = file_path
         if table:
             importerStructure = importerStructure or self.page.db.table(table).importerStructure()
             checkCb = checkCb or self.page.db.table(table).importerCheck
-        reader = self.getReader(file_path)
+        reader = self.getReader(file_path,filetype=filetype)
         importerStructure = importerStructure or dict()
         mainsheet = importerStructure.get('mainsheet')
-        if not mainsheet and importerStructure.get('sheets'):
+        if mainsheet is None and importerStructure.get('sheets'):
             mainsheet = importerStructure.get('sheets')[0]['sheet']
         if checkCb:
             errormessage = checkCb(reader)
             if errormessage:
                 result['errors'] = errormessage
                 return result.toXml()
-        if mainsheet:
+        if mainsheet is not None:
             reader.setMainSheet(mainsheet)
         columns = Bag()
         rows = Bag()
@@ -265,18 +265,19 @@ class GnrWebUtils(GnrBaseProxy):
 
 
     @public_method
-    def tableImporterRun(self,table=None,file_path=None,match_index=None,import_method=None,sql_mode=None,**kwargs):
+    def tableImporterRun(self,table=None,file_path=None,match_index=None,import_method=None,sql_mode=None,filetype=None,**kwargs):
         tblobj = self.page.db.table(table)
         docommit = False
         importerStructure = tblobj.importerStructure() or dict()
-        reader = self.getReader(file_path)
+        reader = self.getReader(file_path,filetype=filetype)
         if importerStructure:
             sheets = importerStructure.get('sheets')
             if not sheets:
                 sheets = [dict(sheet=importerStructure.get('mainsheet'),struct=importerStructure)]
             results = []
             for sheet in sheets:
-                reader.setMainSheet(sheet['sheet'])
+                if sheet.get('sheet') is not None:
+                    reader.setMainSheet(sheet['sheet'])
                 struct = sheet['struct']
                 match_index = tblobj.importerMatchIndex(reader,struct=struct)
                 res = self.defaultMatchImporterXls(tblobj=tblobj,reader=reader,
@@ -297,7 +298,7 @@ class GnrWebUtils(GnrBaseProxy):
                                                     sql_mode=sql_mode)
 
     def defaultMatchImporterXls(self,tblobj=None,reader=None,match_index=None,sql_mode=None,constants=None,mandatories=None):
-        rows = self.adaptedRecords(tblobj=tblobj,reader=reader,match_index=match_index,sql_mode=sql_mode,constants=None)
+        rows = self.adaptedRecords(tblobj=tblobj,reader=reader,match_index=match_index,sql_mode=sql_mode,constants=constants)
         docommit = False
         if sql_mode:
             rows_to_insert = list(rows)
@@ -326,12 +327,15 @@ class GnrWebUtils(GnrBaseProxy):
             yield r
             
 
-    def getReader(self,file_path,**kwargs):
+    def getReader(self,file_path,filetype=None,**kwargs):
         filename,ext = os.path.splitext(file_path)
-        if ext in ('.xls','.xlsx'):
+        if filetype=='excel' or not filetype and ext in ('.xls','.xlsx'):
             reader = XlsReader(file_path,**kwargs)
         else:
-            reader = CsvReader(file_path,**kwargs)
+            dialect = None
+            if filetype=='tab':
+                dialect = 'excel-tab'
+            reader = CsvReader(file_path,dialect=dialect,**kwargs)
             reader.index = {self._importer_keycb(k):v for k,v in reader.index.items()}
         return reader
 

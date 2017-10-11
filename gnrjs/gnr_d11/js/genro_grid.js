@@ -572,6 +572,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 }else{
                     sourceNode.attr.storepath = storeNode.absDatapath(storeNode.attr.storepath);//storeNode.absDatapath(storeNode.attr.path);
                     sourceNode._useStore=true;
+                    if(storeNode.store && storeNode.store._linkedGrids){
+                        genro.src.onBuiltCall(function(){
+                            storeNode.store._linkedGrids.push(sourceNode.widget);
+                        },1);
+                    }
                 }
             }
         }
@@ -2941,6 +2946,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     },
     mixin_addBagRow: function(label, pos, newnode, event, nodupField) {
         var label = label || 'r_' + newnode._id;
+        this.resetFilter();
         var storebag = this.storebag();
         if (nodupField) {
             var nodupValue;

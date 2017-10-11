@@ -1127,7 +1127,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         gnrwdg.uploaderId = sourceNode.attr.nodeId +'_uploader';
         var palette = sourceNode._('PalettePane',kw);
         var bc = palette._('BorderContainer',{_lazyBuild:true});
-        var slots = '2,prevtitle,*,limit,5';
+        var slots = '2,prevtitle,importselector,*,limit,5';
         var limit = objectPop(kw,'previewLimit') || 20;
         var dropMessage = objectPop(kw,'dropMessage') || '!!Drop import file here';
         if(!gnrwdg.matchColumns){
@@ -1136,8 +1136,8 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         var frame = bc._('FramePane',{frameCode:frameCode,region:'center',
                                      _class:'pbl_roundedGroup',margin:'2px'});
         var bar = frame._('SlotBar',{'side':'top',slots:slots,searchOn:true,_class:'pbl_roundedGroupLabel'});
-        bar._('div','prevtitle',{innerHTML:"==_current_title || 'Import xls or cvs'",_current_title:'^.current_title',color:'#666'});
-        
+        bar._('div','prevtitle',{innerHTML:"==_current_title || 'Import'",_current_title:'^.current_title',color:'#666'});
+        bar._('filteringSelect','importselector',{value:'^.filetype',width:'4em',values:'excel,csv,tab',margin_top:'2px'});
         bar._('div','limit',{innerHTML:_T('The lines in preview are limited to')+' '+limit,font_style:'italic',font_size:'.8em'});
 
         var dropAreaKw = {};
@@ -1148,6 +1148,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         };
         dropAreaKw.rpc_limit = limit;
         dropAreaKw.rpc_table = table;
+        dropAreaKw.rpc_filetype = '=.filetype';
         objectUpdate(dropAreaKw,objectExtract(kw,'drop_*',false,true));
         dropAreaKw.onResult = function(result){
                                 if(result.currentTarget.responseText){
@@ -1247,7 +1248,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         var onclick = "this.getParentNode().importer_gnrwdg.onCheckedMatch(this,kw);"
         var editdestpars = true;
         if(this.match_values){
-            editdestpars = {tag:'filteringSelect',values:this.match_values};
+            editdestpars = {tag:'combobox',values:this.match_values};
         }
         grid._('column',{name:'Source Column',field:'source_field',width:'10em',
                 cellStyles:'background:#666;color:whitesmoke;text-align:right; border-left:0px;border-bottom:1px solid whitesmoke;'})
@@ -1322,8 +1323,8 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         if (match && match.len()){
             match_index = {};
             match.values().forEach(function(v){
-                if(v && v.getItem('do_import') && v.getItem('dest_field')){
-                    match_index[v.getItem('source_field')] = v.getItem('dest_field');
+                if(v && v.getItem('do_import')){
+                    match_index[v.getItem('source_field')] = v.getItem('dest_field') || v.getItem('source_field');
                 }
             })
         }
@@ -1332,6 +1333,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         genro.serverCall(this.importMethod || 'utils.tableImporterRun',{table:this.table,file_path:'=.imported_file_path',
                                                     match_index:match_index,
                                                     import_method:'=.import_method',
+                                                    filetype:'=.filetype',
                                                     no_trigger:'=.no_trigger',
                                                     timeout:3600000,
                                                     _sourceNode:buttonNode},function(result){
@@ -4203,6 +4205,8 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
 
 dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
     objtype:null,
+    default_configurator_pars:null,
+    newcaption:null,
     createContent:function(sourceNode,kw){
         var gnrwdg = sourceNode.gnrwdg;
         sourceNode.attr.nodeId = objectPop(kw,'nodeId');
@@ -4211,11 +4215,15 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
         }
         var userObjectPars = objectExtract(kw,'table,flags,objtype');
         userObjectPars.objtype = userObjectPars.objtype || this.objtype;
-        gnrwdg.newcaption  = _T(objectPop(kw,'newcaption') || 'New '+userObjectPars.objtype);
+        gnrwdg.newcaption  = _T(objectPop(kw,'newcaption') || this.newcaption ||  'New '+userObjectPars.objtype);
         gnrwdg.table = userObjectPars.table;
         objectUpdate(userObjectPars,objectExtract(kw,'userobject_*'));
         gnrwdg.userObjectPars = userObjectPars;
-        var bc = sourceNode._('BorderContainer',objectExtract(kw,'top,bottom,left,right,border,margin,height,width,rounded,region,side'));
+        
+        var bc = sourceNode._('BorderContainer','rootbc',objectExtract(kw,'top,bottom,left,right,border,margin,height,width,rounded,region,side'));
+        kw.userObjectId = gnrwdg.getFavorite() || kw.userObjectId;  
+        gnrwdg.startUserObjectIdOrCode = kw.userObjectId;
+        kw.configurator = kw.configurator===false?false:(kw.configurator|| this.default_configurator_pars);
         if(kw.configurator){
             gnrwdg.prepareConfiguratorFrame(bc,kw);
         }
@@ -4251,12 +4259,21 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
 
     gnrwdg_prepareConfiguratorFrame:function(bc,kw){
         var confkw = objectPop(kw,'configurator');
-        confkw = confkw===true?{region:'right',drawer:(kw.userObjectId && kw.userObjectId!='__newobj__')?'close':true,splitter:true,border_left:'1px solid #ccc',width:'320px'}:configurator;        
+        confkw = confkw===true?{region:'right',splitter:true,border_left:'1px solid #ccc',width:'320px'}:confkw;  
+        if(!('drawer' in confkw)){
+            confkw.drawer = (kw.userObjectId && kw.userObjectId!='__newobj__')?'close':true;
+        }
+              
         this.setLoadMenuData();
         var frame = bc._('FramePane','configurator',objectUpdate(confkw,{frameCode:this.sourceNode.attr.nodeId+'_conf'}));
-        var bar = frame._('slotBar',{toolbar:true,side:'top',slots:'5,loadMenu,2,objTitle,*,saveBtn,deletebtn,5'});
+        var bar = frame._('slotBar',{toolbar:true,side:'top',slots:'5,loadMenu,2,objTitle,*,favoritebtn,saveBtn,deletebtn,5'});
         var that = this;
         bar._('div','objTitle',{innerHTML:'^#WORKSPACE.metadata.description?=(#v || "New")',font_weight:'bold',font_size:'.9em',color:'#666'});
+        
+        bar._('slotButton','favoritebtn',{'label':_T('Default'),
+                                                    action:function(){that.setCurrentAsFavorite();},
+                                                    iconClass:'highlightable iconbox star'});
+        
         bar._('slotButton','loadMenu',{iconClass:'iconbox folder',label:'Load',
             menupath:'#WORKSPACE.loadMenu',action:function(item){
                 that.loadObject(item.pkey);
@@ -4271,6 +4288,28 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
                     }});
 
         this.configuratorFrame(frame,kw);
+    },
+
+    gnrwdg_setCurrentAsFavorite:function(){
+        var metadata = this.sourceNode.getRelativeData('#WORKSPACE.metadata');
+        var pkey = metadata.getItem('pkey');
+        genro.setInStorage("local", this.storageKey(), pkey);
+        this.checkFavorite();
+    },
+
+    gnrwdg_getFavorite:function(){
+        return  genro.getFromStorage("local", this.storageKey());
+    },
+
+    gnrwdg_checkFavorite:function(){
+        var metadata = this.sourceNode.getRelativeData('#WORKSPACE.metadata') || new gnr.GnrBag();
+        var pkey = metadata.getItem('pkey');
+        var currfavorite = this.getFavorite();
+        genro.dom.setClass(this.sourceNode.getValue().getNode('rootbc'),'highlighted',currfavorite==pkey);
+    },
+
+    gnrwdg_storageKey:function(){
+        return this.userObjectPars.objtype + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
     },
 
 
@@ -4298,12 +4337,12 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
         var instanceCode = this.sourceNode.getRelativeData('#WORKSPACE.metadata.code');
         var data = this.userObjectData();
         var that = this;
-        saveCb = function(dlg) {
+        saveCb = function(dlg,event,counter,modifiers) {
             var metadata = genro.getData(datapath);
             metadata.setItem('flags',that.userObjectPars.flags);
             genro.serverCall('_table.adm.userobject.saveUserObject',
                             {'objtype':that.userObjectPars.objtype,'metadata':metadata,
-                            'data':data,table:that.userObjectPars.table},
+                            'data':data,table:that.userObjectPars.table,asResource:modifiers=='Shift'},
                             function(result) {
                                 dlg.close_action();
                                 metadata.setItem('pkey',result.getValue());
@@ -4320,10 +4359,14 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
             this.onLoadedObject(null,userObjectId,firstLoad);
         }else{
             var that = this;
-            genro.serverCall('_table.adm.userobject.loadUserObject', {pkey:userObjectId}, 
+            genro.serverCall('_table.adm.userobject.loadUserObject', {userObjectIdOrCode:userObjectId,
+                                                                    objtype:this.userObjectPars.objtype,
+                                                                    tbl:this.userObjectPars.table,
+                                                                    flags:this.userObjectPars.flags}, 
             function(result){
                 that.sourceNode.setRelativeData('#WORKSPACE.metadata',new gnr.GnrBag(result.attr));
                 that.onLoadedObject(result,userObjectId,firstLoad);
+                that.checkFavorite();
             });
         }
     },

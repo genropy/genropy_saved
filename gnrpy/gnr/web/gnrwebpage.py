@@ -690,7 +690,7 @@ class GnrWebPage(GnrBaseWebPage):
             if ',' in resource_name:
                 resource_name = resource_name.split(',')[0]
                 custom = True
-            respath = self._packageResourcePath(table=resource_table,filepath=filepath,custom=custom,inMainResource=inMainResource)
+            respath = self.packageResourcePath(table=resource_table,filepath=filepath,custom=custom,inMainResource=inMainResource)
             data.toXml(respath,autocreate=True)
             return respath
         else:
@@ -1464,7 +1464,7 @@ class GnrWebPage(GnrBaseWebPage):
             url = '%s?mtime=%0.0f' % (url, mtime)
         return url
     
-    def _packageResourcePath(self,table=None,filepath=None,custom=False,inMainResource=None):
+    def packageResourcePath(self,table=None,filepath=None,custom=False,inMainResource=None):
         page_pkg = self.package.name 
         table_pkg = None
         if table:

@@ -436,6 +436,8 @@ class SqlTable(GnrObject):
         converter = self.db.typeConverter
         for k in record.keys():
             if not k.startswith('@'):
+                if self.column(k) is None:
+                    continue
                 colattr = self.column(k).attributes
                 dtype = self.column(k).dtype
                 v = record[k]

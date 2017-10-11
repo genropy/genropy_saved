@@ -22,6 +22,8 @@ class Main(GnrBaseService):
         if not YandexTranslate:
             raise GnrException('Missing YandexTranslate. hint: pip install yandex.translate')
         self.translator = YandexTranslate(self.api_key)
+        self.languages =  dict([(k,k) for k in self.translator.langs])
+
 
     def translate(self,what=None, to_language=None,from_language=None,format=None):
         if not what:

@@ -95,8 +95,7 @@ class Table(object):
     def _columnPythonCode(self,c,relation=None):
         attributes = Bag()
         col = c.deepcopy()
-        name = flatten(col.pop('name')).strip('_')
-        print 'name',name,'original_name',c['name']
+        name = flatten(col.pop('name'))
         dtype = col.pop('dtype')
         size = col.pop('size')
         name_long = col.pop('name_long')

@@ -1,4 +1,5 @@
 # encoding: utf-8
+import os
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
 class Table(object):
@@ -42,16 +43,34 @@ class Table(object):
                          where=where, order_by='$code',
                          val_objtype=objtype, val_tbl=tbl,_flags=_flags).selection()
         sel.filter(checkUserObj)
-        return sel.output('records')
+        result = sel.output('records')
+        page = self.db.currentPage
+        if page:
+            folderpath = page.packageResourcePath(table=tbl,filepath='userobjects/%s' %objtype)
+            if folderpath and os.path.exists(folderpath):
+                for fname in os.listdir(folderpath):
+                    record,path = page.getTableResourceContent(table=tbl,path='userobjects/%s/%s' %(objtype,os.path.splitext(fname)[0]),ext=['xml'])
+                    result.append(Bag(record))
+        return result
 
     #PUBLIC METHODS 
     
     @public_method
-    def loadUserObject(self, id=None, objtype=None, **kwargs):
+    def loadUserObject(self, id=None, objtype=None,pkg=None,tbl=None,flags=None,userObjectIdOrCode=None,
+                        **kwargs):
         if id:
             record = self.record(id, mode='record', ignoreMissing=True)
+        elif userObjectIdOrCode:
+            record = self.record(where='$id=:userObjectIdOrCode OR ($code=:userObjectIdOrCode AND $tbl=:tbl AND $objtype=:objtype)',
+                                userObjectIdOrCode=userObjectIdOrCode, tbl=tbl,flags=flags,
+                                     objtype=objtype,ignoreMissing=True,mode='record')
+            if not record['id'] and self.db.currentPage:
+                #missing in table userobject
+                page = self.db.currentPage
+                record,path = page.getTableResourceContent(table=tbl,path='userobjects/%s/%s' %(objtype,userObjectIdOrCode),ext=['xml'])
+                record = Bag(record)
         else:
-            record = self.record(objtype=objtype, mode='record', ignoreMissing=True, **kwargs)
+            record = self.record(objtype=objtype, mode='record', ignoreMissing=True,pkg=pkg,tbl=tbl,flags=flags, **kwargs)
         if not record:
             return None,None
         data = record.pop('data')
@@ -83,18 +102,26 @@ class Table(object):
         return result
             
     @public_method
-    def saveUserObject(self, table=None,objtype=None,data=None,metadata=None,pkg=None,**kwargs):
+    def saveUserObject(self, table=None,objtype=None,data=None,metadata=None,pkg=None,asResource=False,**kwargs):
         if table:
             pkg,tbl = table.split('.')
         pkey = metadata['pkey'] or metadata['id']
         if not metadata or not (metadata['code'] or pkey):
             return
+        
         record = dict(data=data,objtype=objtype,
                     pkg=pkg,tbl=table,userid=self.db.currentPage.user,id=pkey,
                     code= metadata['code'],description=metadata['description'],private=metadata['private'] or False,
                     notes=metadata['notes'],flags=metadata['flags'])
-        self.insertOrUpdate(record)
-        self.db.commit()
+        if asResource:
+            record['id'] = metadata['code']
+            page = self.db.currentPage
+            resbag = Bag(record)
+            respath = page.packageResourcePath(table=table,filepath='userobjects/%(objtype)s/%(code)s.xml' %record)
+            resbag.toXml(respath,autocreate=True)
+        else:
+            self.insertOrUpdate(record)
+            self.db.commit()
         return record['id'],record    
 
     def importOld(self):

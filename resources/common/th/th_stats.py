@@ -44,11 +44,29 @@ class TableHandlerStats(BaseComponent):
                             default_values=None,
                             default_columns=None,
                             condition=None,
-                            condition_kwargs=None,**kwargs):
+                            condition_kwargs=None,
+                            nodeId=None,
+                            statIdentifier=None,**kwargs):
         if not pd:
             pane.div('Missing Pandas')
-        bc = pane.borderContainer(datapath='.statsroot_%s' %table.replace('.','_'),
-                                _anchor=True)
+        nodeId = nodeId or 'th_stats_%s' %table.replace('.','_')
+        bc = pane.borderContainer(datapath='.%s' %nodeId,_anchor=True,**kwargs)
+        inattr = pane.getInheritedAttributes()
+        relatedTable = inattr.get('table')
+        relatedTableHandlerFrameCode = inattr.get('frameCode')
+        bc.child('_tableHandlerStatsLayout',region='center',
+                            table=table,nodeId=nodeId,
+                            relation_field=relation_field,
+                            relation_value=relation_value.replace('^','') if relation_value else None,
+                            default_rows=default_rows,
+                            default_values=default_values,
+                            default_columns=default_columns,
+                            condition=condition,
+                            relatedTable=relatedTable,
+                            relatedTableHandlerFrameCode=relatedTableHandlerFrameCode,
+                            condition_kwargs=condition_kwargs,
+                            userObjectId=statIdentifier,**kwargs)
+        
         indipendentQuery = relation_value or condition
         bc.dataController("""
             this.watch('stat_visible',function(){
@@ -93,20 +111,43 @@ class TableHandlerStats(BaseComponent):
                         }
                     """,**condition_kwargs)
 
-        left = bc.tabContainer(region='left',width='230px',margin='2px',drawer=True,splitter=True)
-        self._ths_configPivotTree(left.framePane(title='!!Pivot'),table=table,
-                                        relation_field=relation_field,
-                                        default_rows=default_rows,default_values=default_values,
-                                        default_columns=default_columns)
+        
+    @public_method
+    def _ths_configurator(self,pane,table=None,relation_field=None,
+                                relation_value=None,condition=None,
+                                relatedTableHandlerFrameCode=None,
+                                relatedTable=None,**kwargs):
+        tc = pane.tabContainer(region='left',width='230px',margin='2px',drawer=True,splitter=True)
+        self._ths_configPivotTree(tc.framePane(title='!!Pivot'))
+        indipendentQuery = relation_value or condition
         if not indipendentQuery:
             #part of grid
-            self._ths_mainFilter(left.contentPane(title='!!Main'),relation_field=relation_field)      
-        self._ths_filters(left.contentPane(title='!!Filters'),table=table)
-        self._ths_center(bc.framePane(region='center'))
+            self._ths_mainFilter(tc.contentPane(title='!!Main'),
+                                relatedTableHandlerFrameCode=relatedTableHandlerFrameCode,
+                                table=relatedTable or table,relation_field=relation_field) 
+        self._ths_filters(tc.contentPane(title='!!Filters'),table=table)
 
-    def _ths_mainFilter(self,pane,relation_field=None):
-        inattr = pane.getInheritedAttributes()
-        table = inattr.get('table')
+    @public_method
+    def _ths_viewer(self,pane,table=None,relation_field=None,default_columns=None,default_rows=None,default_values=None,**kwargs):
+        
+        frame = pane.framePane()
+        frame.data('.stats.conf',self.ths_configPivotTreeData(table,relation_field=relation_field,
+                                                    default_columns=default_columns,
+                                                    default_rows=default_rows,
+                                                    default_values=default_values))
+
+        sc = frame.center.stackContainer()
+        iframe = self._ths_framehtml(sc.contentPane(title='Html'))
+        #tc = center.tabContainer()
+        grid = sc.contentPane(title='!!Grid').quickGrid('^.stats.pivot_grid')
+        #grid.tools('export')
+        bar = frame.top.slotToolbar('2,stackButtons,*,printStats,exportStats,5')
+        bar.printStats.slotButton('!!Print',action="genro.dom.iFramePrint(_iframe)",iconClass='iconbox print',
+                                _iframe=iframe.js_domNode)
+        bar.exportStats.slotButton('!!Export',iconClass='iconbox export',fire_xls='.stats.run_pivot_do')
+
+
+    def _ths_mainFilter(self,pane,table=None,relatedTableHandlerFrameCode=None,relation_field=None):
         tblobj = self.db.table(table)
         def struct(struct):
             r = struct.view().rows()
@@ -116,8 +157,9 @@ class TableHandlerStats(BaseComponent):
                         width='100%',
                         name=tblobj.attributes['name_long'])
         pane.frameGrid(datapath='.stats.mainfilter',table=table,
-                        grid_store='%s_grid' %inattr['frameCode'],
+                        grid_store='%s_grid' %relatedTableHandlerFrameCode,
                         _newGrid=True,
+                        frameCode='pippo',
                         grid_userSets='#ANCHOR.stats.filters',
                         struct=struct)
 
@@ -145,17 +187,6 @@ class TableHandlerStats(BaseComponent):
                         labelAttribute='caption',hideValues=True,
                         margin='2px')
 
-
-    def _ths_center(self,frame):
-        sc = frame.center.stackContainer()
-        iframe = self._ths_framehtml(sc.contentPane(title='Html'))
-        #tc = center.tabContainer()
-        grid = sc.contentPane(title='!!Grid').quickGrid('^.stats.pivot_grid')
-        #grid.tools('export')
-        bar = frame.top.slotToolbar('2,stackButtons,*,printStats,exportStats,5')
-        bar.printStats.slotButton('!!Print',action="genro.dom.iFramePrint(_iframe)",iconClass='iconbox print',
-                                _iframe=iframe.js_domNode)
-        bar.exportStats.slotButton('!!Export',iconClass='iconbox export',fire_xls='.stats.run_pivot_do')
 
     def _ths_framehtml(self,pane,**kwargs):
         iframe = pane.div(_class='scroll-wrapper').htmliframe(height='100%',width='100%',border=0)
@@ -272,14 +303,7 @@ class TableHandlerStats(BaseComponent):
             result['xls_url'] = self.db.application.site.getStaticUrl('page:xls_stats','%s.xls' %filename)
         return result   
 
-    def _ths_configPivotTree(self,frame,table=None,relation_field=None,
-                            default_columns=None,
-                            default_rows=None,
-                            default_values=None):
-        frame.data('.stats.conf',self.ths_configPivotTreeData(table,relation_field=relation_field,
-                                                    default_columns=default_columns,
-                                                    default_rows=default_rows,
-                                                    default_values=default_values))
+    def _ths_configPivotTree(self,frame):
         frame.center.contentPane(overflow='auto'
                         ).tree(storepath='.stats.conf',margin='5px',
                                  _class="branchtree noIcon stattree",openOnClick=True,

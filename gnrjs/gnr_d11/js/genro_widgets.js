@@ -2713,10 +2713,13 @@ dojo.declare("gnr.widgets._ButtonLogic",null, {
     _clickHandlerDo:function(sourceNode,e,inattr,count) {
         var modifier = eventToString(e);
         var action = inattr.action;
+        var modifiers = genro.dom.getEventModifiers(e);
+        var argnames = ['event','_counter','modifiers'];
+        var argvalues = [e,count,modifiers];
         if (action) {
             var action_attributes = sourceNode.currentAttributes();
             var ask_params = sourceNode._ask_params;
-            var modifiers = genro.dom.getEventModifiers(e);
+            
             var skipOn,askOn,doAsk,_if;
             if(ask_params){
                 skipOn = ask_params.skipOn;
@@ -2744,12 +2747,12 @@ dojo.declare("gnr.widgets._ButtonLogic",null, {
                         objectUpdate(action_attributes,result);
                         action_attributes._askResult = result;
                     }
-                    funcApply(action, objectUpdate(action_attributes, {event:e,_counter:count}), sourceNode);
+                    funcApply(action, objectUpdate(action_attributes, {}), sourceNode,argnames,argvalues);
                 }
 
                 genro.dlg.prompt(objectPop(promptkw,'title','Parameters'),promptkw);
             }else{
-                funcApply(action, objectUpdate(action_attributes, {event:e,_counter:count}), sourceNode);
+                funcApply(action, objectUpdate(action_attributes, {}), sourceNode,argnames,argvalues);
             }
             return;
         }
@@ -3283,6 +3286,17 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
             attributes.constraints['type'] = objectPop(attributes['ftype']);
         }
     },
+
+    created: function(widget, savedAttrs, sourceNode) {
+        if (dojo.number._parseInfo().decimal==','){
+            dojo.connect(widget,'onkeyup',function(evt){
+                if(evt.key=='.'){
+                    widget.textbox.value = widget.textbox.value.replace('.',',');
+                }
+            });
+        }
+    },
+
     onSettingValueInData: function(sourceNode, value,valueAttr) {
         if (value === "") {
             value = null;
@@ -3302,14 +3316,12 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
         if(isNaN(result)){
             result = this.parse(displayedValue,  this.sourceNode._parseDict)
         }
-        //console.log('displayedValue',displayedValue,'result',result);
         return result;
     },
     patch_isValid: function(/*Boolean*/ isFocused){
         if(isFocused){
             return true;
         }
-        //console.log('aaa',this.textbox.value,'bbb',this.sourceNode._parseDict,'ccc',this)
         return this.validator(this.textbox.value, this.sourceNode._parseDict) || this.validator(this.textbox.value, this.constraints);
     },
 
@@ -3890,6 +3902,15 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
                 if(popupDeltaOverflow>0){
                     popup.style.left = (parseInt(popup.style.left)-popupDeltaOverflow)+'px';
                 }
+                var that = this;
+                setTimeout(function(){
+                    that._popupWidget.highlightFirstOption();
+                },1)
+                
+            });
+        }else{
+            dojo.connect(widget,'_openResultList',function(){
+                widget._popupWidget.highlightFirstOption();
             });
         }
         this.connectForUpdate(widget, sourceNode);
@@ -3910,8 +3931,6 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
                     widget._downArrowMenu = true;
                 }
             });
-            
-            
         }
         //dojo.connect(widget, '_doSelect', widget,'_onDoSelect');                 
     },

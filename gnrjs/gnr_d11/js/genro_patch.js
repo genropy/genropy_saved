@@ -439,6 +439,7 @@ genropatches.comboBox = function() {
             }
             //  dijit.scrollIntoView(this._highlighted_option);
         },
+        
 
         handleKey:function(evt) {
             switch (evt.keyCode) {
@@ -505,9 +506,15 @@ genropatches.comboBox = function() {
                     // prevent accepting the value if either Next or Previous
                     // are selected
                     var highlighted;
+                    if(! this._isShowingNow){
+                        evt.preventDefault();
+                        dojo.stopEvent(evt);
+                        break;
+                    }
                     if( this._isShowingNow && 
                         (highlighted = pw.getHighlightedOption())
                     ){
+                        
                         // only stop event on prev/next
                         if(highlighted == pw.nextButton){
                             this._nextSearch(1);

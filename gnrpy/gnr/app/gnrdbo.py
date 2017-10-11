@@ -487,7 +487,7 @@ class TableBase(object):
             return self.hierarchicalHandler.getHierarchicalData(caption_field=caption_field,condition=condition,
                                                 condition_kwargs=condition_kwargs,caption=caption,dbstore=dbstore,columns=columns,
                                                 related_kwargs=related_kwargs,resolved=resolved,**kwargs)
-        if related_kwargs['table']:
+        if related_kwargs.get('table') or kwargs.get('related_table'):
             return self.getHierarchicalDataBag(caption_field=caption_field,condition=condition,
                                                 condition_kwargs=condition_kwargs,caption=caption,dbstore=dbstore,columns=columns,
                                                 related_kwargs=related_kwargs,resolved=resolved,**kwargs)

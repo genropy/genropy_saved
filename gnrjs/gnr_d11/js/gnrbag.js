@@ -633,10 +633,11 @@ dojo.declare("gnr.GnrBag", null, {
      * @id getItem
      */
     asHtmlTable:function(kw,mode){
-        var kw = kw || {};
+        kw = kw || {};
+        var datamode = kw.datamode || 'bag';
         var headers = kw.headers;
         var h ='';
-        var hheadcel = this.getItem('#0');
+        var hheadcel = datamode=='bag'?this.getItem('#0'):new gnr.GnrBag(this.getAttr('#0'));
         if(headers && hheadcel){
             if(headers===true){
                 headers = '';
@@ -652,7 +653,7 @@ dojo.declare("gnr.GnrBag", null, {
             });
             h+='</thead>';
         }
-        var rows =''
+        var rows ='';
         var r,b,v,vnode,cell_kw,format,cells,dtype,style;
         if(kw.cells===true){
             cells = hheadcel.keys();
@@ -664,7 +665,11 @@ dojo.declare("gnr.GnrBag", null, {
 
         this.forEach(function(n){
             r ='';
-            b = n._value;
+            if(datamode=='bag'){
+                b = n._value;
+            }else{
+                b = new gnr.GnrBag(n.attr);
+            }
             dojo.forEach(cells,function(cell){
                 var align = 'left';
                 vnode = b.getNode(cell);
@@ -699,7 +704,7 @@ dojo.declare("gnr.GnrBag", null, {
             });
             rows+='<tr>'+r+'</tr>';
         },'static');
-        return '<table class="formattedBagTable">'+h+'<tbody>'+rows+'</tbody></table>';
+        return '<table class="selectable formattedBagTable">'+h+'<tbody>'+rows+'</tbody></table>';
     },
     
     asNestedTable:function(kw,mode){
