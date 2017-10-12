@@ -23,3 +23,16 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder(cols=2)
         tooltip = fb.textbox(value='^.val', lbl='Choose Value',position='relative').comboArrow().tooltipPane()
         tooltip.div('Ciao come va?',height='100px',width='200px')
+
+    
+    def test_2_tooltipTextArea(self,pane):
+        """tooltipPane"""
+        fb = pane.formbuilder(cols=2)
+        tooltip = fb.textbox(value='^.val', lbl='Choose Value',position='relative').comboArrow().tooltipPane()
+        tooltip.simpleTextArea(value='^.val',height='100px',width='200px')
+
+
+    def test_3_tooltipTextArea(self,pane):
+        """tooltipPane"""
+        fb = pane.formbuilder(cols=2)
+        tooltip = fb.multilineTextbox(value='^.test', lbl='Multiline content')

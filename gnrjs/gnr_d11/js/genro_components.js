@@ -4433,6 +4433,25 @@ dojo.declare("gnr.widgets.ComboMenu", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.MultiLineTextbox", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode,kw,childSourceNode){
+        var tb = sourceNode._('textbox',kw);
+        var tbNode = tb.getParentNode();
+        var valuepath = tbNode.absDatapath(kw.value);
+        tb._('comboArrow',{connect_onclick:function(){
+            var curval = tbNode.widget.getValue();
+            var dflt = curval?curval.replace(/\,/g,'\n'):null
+            genro.dlg.prompt(_T('Multiline value'),{
+                widget:'simpleTextArea',wdg_height:'200px',wdg_margin_right:'10px',
+                action:function(value){
+                    tbNode.setRelativeData(valuepath,value.replace(/\n/g,','));
+                },dflt:dflt,onEnter:null});
+        }});
+        return tb;
+    }
+});
+
+
 
 dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
     checker : 'checkbox',
