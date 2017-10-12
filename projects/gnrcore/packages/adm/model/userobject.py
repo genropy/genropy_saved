@@ -61,10 +61,13 @@ class Table(object):
             record = self.record(id, mode='record', ignoreMissing=True)
 
         elif userObjectIdOrCode:
+            tbl = kwargs.get('tbl')
+            pkg = kwargs.get('pkg')
+            flags = kwargs.get('flags')
             record = self.record(where='$id=:userObjectIdOrCode OR ($code=:userObjectIdOrCode AND $tbl=:tbl AND $objtype=:objtype)',
                                 userObjectIdOrCode=userObjectIdOrCode,
                                      objtype=objtype,ignoreMissing=True,
-                                     mode='record',tbl=kwargs.get('tbl'))
+                                     mode='record',tbl=tbl)
             if not record['id'] and self.db.currentPage:
                 #missing in table userobject
                 page = self.db.currentPage
