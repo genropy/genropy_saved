@@ -74,7 +74,8 @@ class Table(object):
                 record,path = page.getTableResourceContent(table=tbl,path='userobjects/%s/%s' %(objtype,userObjectIdOrCode),ext=['xml'])
                 record = Bag(record)
         else:
-            record = self.record(objtype=objtype, mode='record', ignoreMissing=True,pkg=pkg,tbl=tbl,flags=flags, **kwargs)
+            record = self.record(objtype=objtype, mode='record', 
+                                 ignoreMissing=True,**kwargs)
         if not record:
             return None,None
         data = record.pop('data')
