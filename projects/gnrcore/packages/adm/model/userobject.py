@@ -56,14 +56,15 @@ class Table(object):
     #PUBLIC METHODS 
     
     @public_method
-    def loadUserObject(self, id=None, objtype=None,pkg=None,tbl=None,flags=None,userObjectIdOrCode=None,
-                        **kwargs):
+    def loadUserObject(self, id=None, objtype=None,userObjectIdOrCode=None,**kwargs):
         if id:
             record = self.record(id, mode='record', ignoreMissing=True)
+
         elif userObjectIdOrCode:
             record = self.record(where='$id=:userObjectIdOrCode OR ($code=:userObjectIdOrCode AND $tbl=:tbl AND $objtype=:objtype)',
-                                userObjectIdOrCode=userObjectIdOrCode, tbl=tbl,flags=flags,
-                                     objtype=objtype,ignoreMissing=True,mode='record')
+                                userObjectIdOrCode=userObjectIdOrCode,
+                                     objtype=objtype,ignoreMissing=True,
+                                     mode='record',tbl=kwargs.get('tbl'))
             if not record['id'] and self.db.currentPage:
                 #missing in table userobject
                 page = self.db.currentPage
