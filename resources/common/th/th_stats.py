@@ -123,10 +123,8 @@ class TableHandlerStats(BaseComponent):
         if not indipendentQuery:
             tblobj = self.db.table(table)
             caption_field = tblobj.attributes.get('caption_field')
-            if not caption_field:
-                return
-            #part of grid
-            self._ths_mainFilter(tc.contentPane(title='!!Main'),
+            if caption_field:
+                self._ths_mainFilter(tc.contentPane(title='!!Main'),
                                 relatedTableHandlerFrameCode=relatedTableHandlerFrameCode,
                                 table=relatedTable or table,relation_field=relation_field) 
         self._ths_filters(tc.contentPane(title='!!Filters'),table=table)
