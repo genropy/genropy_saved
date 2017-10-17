@@ -500,7 +500,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             kwbox.width=dlg_kw.width;
             var box = dlg.center._('div',kwbox);
             var fb;
-            var onEnter = kw.onEnter || function(){
+            var onEnter ='onEnter' in kw? kw.onEnter:function(){
                 actionCb('confirm');
             };
             if(msg){

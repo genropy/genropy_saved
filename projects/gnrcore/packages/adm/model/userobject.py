@@ -56,21 +56,26 @@ class Table(object):
     #PUBLIC METHODS 
     
     @public_method
-    def loadUserObject(self, id=None, objtype=None,pkg=None,tbl=None,flags=None,userObjectIdOrCode=None,
-                        **kwargs):
+    def loadUserObject(self, id=None, objtype=None,userObjectIdOrCode=None,**kwargs):
         if id:
             record = self.record(id, mode='record', ignoreMissing=True)
+
         elif userObjectIdOrCode:
+            tbl = kwargs.get('tbl')
+            pkg = kwargs.get('pkg')
+            flags = kwargs.get('flags')
             record = self.record(where='$id=:userObjectIdOrCode OR ($code=:userObjectIdOrCode AND $tbl=:tbl AND $objtype=:objtype)',
-                                userObjectIdOrCode=userObjectIdOrCode, tbl=tbl,flags=flags,
-                                     objtype=objtype,ignoreMissing=True,mode='record')
+                                userObjectIdOrCode=userObjectIdOrCode,
+                                     objtype=objtype,ignoreMissing=True,
+                                     mode='record',tbl=tbl)
             if not record['id'] and self.db.currentPage:
                 #missing in table userobject
                 page = self.db.currentPage
                 record,path = page.getTableResourceContent(table=tbl,path='userobjects/%s/%s' %(objtype,userObjectIdOrCode),ext=['xml'])
                 record = Bag(record)
         else:
-            record = self.record(objtype=objtype, mode='record', ignoreMissing=True,pkg=pkg,tbl=tbl,flags=flags, **kwargs)
+            record = self.record(objtype=objtype, mode='record', 
+                                 ignoreMissing=True,**kwargs)
         if not record:
             return None,None
         data = record.pop('data')

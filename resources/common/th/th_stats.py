@@ -121,8 +121,10 @@ class TableHandlerStats(BaseComponent):
         self._ths_configPivotTree(tc.framePane(title='!!Pivot'))
         indipendentQuery = relation_value or condition
         if not indipendentQuery:
-            #part of grid
-            self._ths_mainFilter(tc.contentPane(title='!!Main'),
+            tblobj = self.db.table(table)
+            caption_field = tblobj.attributes.get('caption_field')
+            if caption_field:
+                self._ths_mainFilter(tc.contentPane(title='!!Main'),
                                 relatedTableHandlerFrameCode=relatedTableHandlerFrameCode,
                                 table=relatedTable or table,relation_field=relation_field) 
         self._ths_filters(tc.contentPane(title='!!Filters'),table=table)
@@ -149,11 +151,12 @@ class TableHandlerStats(BaseComponent):
 
     def _ths_mainFilter(self,pane,table=None,relatedTableHandlerFrameCode=None,relation_field=None):
         tblobj = self.db.table(table)
+        caption_field = tblobj.attributes.get('caption_field')
         def struct(struct):
             r = struct.view().rows()
             if relation_field:
                 r.cell(relation_field.replace('.','_').replace('@','_'), userSets=True, name=' ')
-            r.fieldcell(tblobj.attributes.get('caption_field'),
+            r.fieldcell(caption_field,
                         width='100%',
                         name=tblobj.attributes['name_long'])
         pane.frameGrid(datapath='.stats.mainfilter',table=table,

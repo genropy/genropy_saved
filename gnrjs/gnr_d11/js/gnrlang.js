@@ -1718,6 +1718,12 @@ function funcApply(fnc, parsobj, scope,argNames,argValues,showError) {
         argNames.push(attr);
         argValues.push(parsobj[attr]);
     }
+    argNames.forEach(function(arg,idx){
+        if(!(arg in parsobj)){
+            parsobj[arg] = argValues[idx];
+        }
+    });
+    
     argNames.push('_kwargs');
     argValues.push(parsobj);
     if(typeof(fnc)=='function'){

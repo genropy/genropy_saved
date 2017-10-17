@@ -554,17 +554,17 @@ genropatches.comboBox = function() {
                     }
                     break;
 
-                case dk.SPACE:
-                    this._prev_key_backspace = false;
-                    this._prev_key_esc = false;
-                    if(this._isShowingNow && pw.getHighlightedOption()){
-                        dojo.stopEvent(evt);
-                        this._selectOption();
-                        this._hideResultList();
-                    }else{
-                        doSearch = true;
-                    }
-                    break;
+                //case dk.SPACE:
+                //    this._prev_key_backspace = false;
+                //    this._prev_key_esc = false;
+                //    if(this._isShowingNow && pw.getHighlightedOption()){
+                //        dojo.stopEvent(evt);
+                //        this._selectOption();
+                //        this._hideResultList();
+                //    }else{
+                //        doSearch = true;
+                //    }
+                //    break;
 
                 case dk.ESCAPE:
                     this._prev_key_backspace = false;
