@@ -650,7 +650,8 @@ class SqlTable(GnrObject):
                 tblobj = self.db.table(n.attr['tblname'])
                 updater = dict()
                 updater[n.attr['fkey']] = record['id']
-                tblobj.batchUpdate(updater,_pkeys=n.value.split(','))
+                if n.value:
+                    tblobj.batchUpdate(updater,_pkeys=n.value.split(','))
         record['__moved_related'] = None
 
     def _onUnifying(self,destRecord=None,sourceRecord=None,moved_relations=None,relations=None):

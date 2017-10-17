@@ -236,14 +236,19 @@ class TableHandlerStats(BaseComponent):
             if relation_field:
                 where.append(' $%s IN :filters_%s' %(relation_field,relation_field))
                 where_kwargs['filters_%s' %relation_field] = pkeys
+            else:
+                where.append(' $%s IN :filters_main ' % self.db.table(table).pkey)
+                where_kwargs['filters_main'] = pkeys
+
         df.query(table,where=' AND '.join(where),columns=columns,**where_kwargs)
         return df
         
     @public_method
     def ths_getInfo(self,table=None,related_field=None,selectionName=None):
         df = GnrDbDataframe('info_df_%s' %table.replace('.','_'),self.db)
+        fk = self.freezedPkeys(self.db.table(table),selectionName)
         df.query(table,where='$%s IN :freezed_pkeys' %related_field,
-                    freezed_pkeys=self.freezedPkeys(self.db.table(table),selectionName))
+                    freezed_pkeys=fk)
         return df.getInfo()
         
     def ths_configPivotTreeData(self,table,relation_field=None,

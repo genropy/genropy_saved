@@ -101,7 +101,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
 
         var tblname = this.getControllerData('table?name_long');
-        var pref = tblname?tblname+' record':'Record'
+        var pref = tblname?tblname+' record':'Record';
         this.msg_saved = pref +' saved ';
         this.msg_deleted = pref +' deleted';
         this.table_name = tblname || formId;
@@ -160,7 +160,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(this.store){
             var that = this;
             this.store.init(this);            
-            var that = this;
             dojo.connect(this.formContentDomNode,'onclick',function(e){
                 var wdg = dijit.getEnclosingWidget(e.target);
                 if(wdg && wdg.sourceNode && wdg.sourceNode.form && wdg.isFocusable && !wdg.isFocusable() && wdg.sourceNode && (wdg.sourceNode.form != genro.activeForm)){
@@ -178,8 +177,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this.sourceNode.getAttributeFromDatasource(startKey);
 
             if(startKey){
-                var that = this;
-                this.sourceNode.watch('pageStarted',function(){return genro._pageStarted},function(){
+                this.sourceNode.watch('pageStarted',function(){return genro._pageStarted;},function(){
                     that.load({destPkey:startKey});
                 });
             }
