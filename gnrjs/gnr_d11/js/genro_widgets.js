@@ -748,9 +748,6 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     initContentHtml:function(domnode,src){
         var parsedSrc = parseURL(src);
         var loadingpath;
-        if(parsedSrc.host!=window.location.host){
-            return true;
-        }
         if(parsedSrc.file && parsedSrc.file.split('.')[1] && this._default_ext.indexOf(parsedSrc.file.split('.')[1].toLowerCase())<0){
             loadingpath = document.location.protocol + '//' + document.location.host +'/_gnr/11/css/icons/download_file.png';
             domnode.contentWindow.document.body.innerHTML = '<a href="'+src+'"><div style="height:100%;width:100%;background:#F6F6F6 url('+loadingpath+') no-repeat center center;"></div></a>'; 
