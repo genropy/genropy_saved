@@ -2642,6 +2642,34 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
     },
 
+    mixin_setScaleY(v){
+        this._setScale(v,scalecb = function(domNode){
+            domNode.style.transform = "scaleY("+v+")";   //Math.min(zoom_x,zoom_y);
+            domNode.style.transformOrigin = '0';
+        });
+    },
+
+    mixin_setScaleX(v){
+        this._setScale(v,scalecb = function(domNode){
+            domNode.style.transform = "scaleX("+v+")";   //Math.min(zoom_x,zoom_y);
+            domNode.style.transformOrigin = '0';
+        });
+    },
+
+    mixin__setScale(v,scalecb){
+        var centerNode = this.widget.domNode;
+        if(this.sourceNode._footersNode || this.sourceNode._columnsetsNode){
+            if(this.sourceNode._columnsetsNode){
+                scalecb(this.sourceNode._columnsetsNode.widget.domNode);
+            }
+            if(this.sourceNode._footersNode){
+                scalecb(this.sourceNode._footersNode.widget.domNode);
+            }
+            centerNode = this.getParentNode().widget.domNode;
+        }
+        scalecb(centerNode);
+    },
+
     mixin_onSetStructpath: function(structBag,kw) {
         this.query_columns = this.gnr.getQueryColumns(this.sourceNode, structBag);
         if(this.sourceNode._useStore){
