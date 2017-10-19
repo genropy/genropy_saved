@@ -748,6 +748,9 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     initContentHtml:function(domnode,src){
         var parsedSrc = parseURL(src);
         var loadingpath;
+        if(parsedSrc.host!=window.location.host){
+            return true;
+        }
         if(parsedSrc.file && parsedSrc.file.split('.')[1] && this._default_ext.indexOf(parsedSrc.file.split('.')[1].toLowerCase())<0){
             loadingpath = document.location.protocol + '//' + document.location.host +'/_gnr/11/css/icons/download_file.png';
             domnode.contentWindow.document.body.innerHTML = '<a href="'+src+'"><div style="height:100%;width:100%;background:#F6F6F6 url('+loadingpath+') no-repeat center center;"></div></a>'; 
@@ -3155,26 +3158,32 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
     },
 
     creating: function(attributes, sourceNode) {
-        
         attributes.constraints = objectExtract(attributes, 'formatLength,datePattern,fullYear,min,max,strict,locale');
-        attributes.constraints.selector='date';
         if ('popup' in attributes && (objectPop(attributes, 'popup') == false)) {
             attributes.popupClass = null;
         }
-    },
-    created: function(widget, savedAttrs, sourceNode) {
-        if(sourceNode.attr.noIcon){
-            return
+        if(this.dojo__selector=='datetime'){
+            attributes.popup = false;
+            sourceNode.attr.noIcon = true;
+            if(objectPop(attributes,'seconds')){
+                attributes.constraints.timePattern ='HH:mm:ss';
+            }
         }
-        var focusNode;
-        var curNode = sourceNode;
-        genro.dom.addClass(widget.focusNode,'comboArrowTextbox')
-        var box= sourceNode._('div',{cursor:'pointer', width:'20px',tabindex:-1,
-                                position:'absolute',top:0,bottom:0,right:0,connect_onclick:function(){
-                                    widget._open();
-                                }});
-        box._('div',{_class:'dateTextBoxCal',position:'absolute',top:0,bottom:0,left:0,right:0,tabindex:-1});
-        this.connectFocus(widget, savedAttrs, sourceNode);
+    },
+
+    created: function(widget, savedAttrs, sourceNode) {
+        if(!sourceNode.attr.noIcon){
+            var focusNode;
+            var curNode = sourceNode;
+            genro.dom.addClass(widget.focusNode,'comboArrowTextbox')
+            var box= sourceNode._('div',{cursor:'pointer', width:'20px',tabindex:-1,
+                                    position:'absolute',top:0,bottom:0,right:0,connect_onclick:function(){
+                                        widget._open();
+                                    }});
+            box._('div',{_class:'dateTextBoxCal',position:'absolute',top:0,bottom:0,left:0,right:0,tabindex:-1});
+            this.connectFocus(widget, savedAttrs, sourceNode);
+        }
+        
     },
 
     patch_parse:function(value,constraints){
@@ -3182,15 +3191,32 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
             var r,d1,d2,y;
             var info = dojo.date.locale._parseInfo(constraints);
             var tokens = info.tokens;
-            var match = value.match(/^(\d{2})(\d{2})(\d{2}|\d{4})$/);
-            var doSetValue = true;
-            if(!match){
-                doSetValue = false;
-                var re = new RegExp("^" + info.regexp + "$");
-                match = re.exec(value);
-            }
+            var datesplit = value.split(' ');
+            var match = datesplit[0].match(/^(\d{2})(\d{2})(\d{2}|\d{4})$/);
             if(match){
-                var d,m,y;
+                datesplit[0] = match[1]+'/'+match[2]+'/'+match[3];
+            }
+            if(constraints.selector=='datetime'){
+                var timestr = datesplit[1];
+                var timematch =timestr.match(/^(\d{2})(\d{2})?(\d{2})?$/);
+                if (!timematch){
+                    timematch =timestr.match(/^(\d{2}):(\d{2})(?::(\d{2}))?$/);
+                }
+                if(!timematch){
+                    timematch = ['00:00:00','00','00','00'];
+                }
+                var tl = [timematch[1],timematch[2]];
+                if(constraints.timePattern =='HH:mm:ss'){
+                    tl.push(timematch[3] || '00');
+                }
+                datesplit[1] = tl.join(':');
+            }
+            value = datesplit.join(' ');
+            doSetValue = false;
+            var re = new RegExp("^" + info.regexp + "$");
+            match = re.exec(value);
+            if(match){
+                var d,m,y,hours,minutes,seconds;
                 if(tokens[0][0]=='d'){
                     d = match[1];
                     m = match[2];
@@ -3201,6 +3227,15 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
                 d = parseInt(d);
                 m = parseInt(m)-1;
                 y = parseInt(match[3]);
+                if(constraints.selector=='datetime'){
+                    hours = parseInt(match[4] || '0');
+                    minutes = parseInt(match[5] || '0');
+                    seconds = parseInt(match[6] || '0');
+                }else{
+                    hours = 0;
+                    minutes = 0;
+                    seconds =0;
+                }
                 if(y<100){
                     var pivotYear ='pivotYear' in this.sourceNode.attr?this.sourceNode.attr.pivotYear:20;
                     var year = '' + new Date().getFullYear();
@@ -3208,7 +3243,7 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
                     var cutoff = Math.min(Number(year.substring(2, 4)) + pivotYear, 99);
                     var y = (y < cutoff) ? century + y : century - 100 + y;
                 }
-                r = new Date(y,m,d);  
+                r = new Date(y,m,d,hours,minutes,seconds);  
                 if(doSetValue){
                     var that = this;
                     setTimeout(function(){
@@ -3236,6 +3271,14 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
         return dojo.date.locale.parse(value, constraints) || undefined; 
     }
 });
+
+dojo.declare("gnr.widgets.DatetimeTextBox", gnr.widgets.DateTextBox, {
+    dojo__selector:'datetime'
+    //attributes_mixin__selector:'datetime'
+});    
+
+
+
 
 dojo.declare("gnr.widgets.TimeTextBox", gnr.widgets._BaseTextBox, {
     onChanged:function(widget, value) {

@@ -905,7 +905,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
               'select', 'small', 'span', 'strong', 'style', 'sub', 'sup', 'table', 'tbody', 'td',
               'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'tt', 'ul', 'audio', 'video', 'var', 'embed','canvas']
               
-    dijitNS = ['CheckBox', 'RadioButton', 'ComboBox', 'CurrencyTextBox', 'DateTextBox',
+    dijitNS = ['CheckBox', 'RadioButton', 'ComboBox', 'CurrencyTextBox', 'DateTextBox','DatetimeTextBox',
                'InlineEditBox', 'NumberSpinner', 'NumberTextBox', 'HorizontalSlider', 'VerticalSlider', 'Textarea',
                'TextBox', 'TimeTextBox',
                'ValidationTextBox', 'AccordionContainer', 'AccordionPane', 'ContentPane', 'LayoutContainer',
@@ -1896,6 +1896,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         elif dtype == 'H':
             result['tag'] = 'timeTextBox'
             result['_guess_width'] = '7em'
+        elif dtype == 'DH':
+            result['tag'] = 'datetimeTextBox'
+            result['_guess_width'] = '9em'
         elif dtype =='X':
             result['tag'] = 'tree'         
         else:
