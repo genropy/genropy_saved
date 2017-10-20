@@ -138,3 +138,14 @@ class GnrCustomWebPage(object):
         result.setItem('r5', None, code='AL', caption='Alabama')
         return result
         
+    def test_101_menuEdit(self, pane):
+        ddm = pane.div(height='50px', width='50px', background='lime')
+        m = ddm.menu(modifiers='*', _class='menupane')
+        m.menuItem(label='Line 1')
+        box = m.menuItem().div(max_height='350px',min_width='300px',overflow='auto')
+        box.horizontalSlider(value='^.scaleX',width='8em',intermediateChanges=True)
+        box.verticalSlider(value='^.scaleY',height='8em',intermediateChanges=True)
+        m.menuItem(label='Line last')
+
+        pane.div('^.scaleX')
+        pane.div('^.scaleY')

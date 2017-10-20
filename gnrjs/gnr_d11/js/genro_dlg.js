@@ -229,9 +229,14 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             }
             genro.src.getNode('_dlg_lightbox').clearValue();
         }});
-        dlg._('div',{_class:'dlg_closebtn',connect_onclick:'genro.wdgById("_dlg_lightbox").hide()',top:'-20px',right:'-20px'});
+        var closecb = function(){
+            if(genro.wdgById("_dlg_lightbox")){
+                genro.wdgById("_dlg_lightbox").hide();
+            }
+        };
+        dlg._('div',{_class:'dlg_closebtn',connect_onclick:closecb,top:'-20px',right:'-20px'});
         if(typeof(kwOrCb)=='function'){
-            kwOrCb(dlg);
+            kwOrCb(dlg,closecb);
         }else{
             dlg._(objectPop(kwOrCb,'tag'),kwOrCb);
         }

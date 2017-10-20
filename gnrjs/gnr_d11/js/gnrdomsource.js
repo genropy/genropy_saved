@@ -67,7 +67,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             return  this.domNode;
         }
         if (this.widget) {
-            return  this.widget.containerNode || this.widget.domNode;
+            return  this.widget.focusNode || this.widget.containerNode || this.widget.domNode;
         }
 
     },
@@ -869,6 +869,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         if (this._timing){
             clearInterval(this._timing);
+        }
+        if(this._shortcuts){
+            this._shortcuts.forEach(function(kw){
+                console.log('remove shortcut',kw);
+                var args = kw.args;
+                kw.element.removeEventListener(args[0],args[1],args[2]);
+            });
         }
         if(this.watches){
             for(var w in this.watches){

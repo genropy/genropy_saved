@@ -560,6 +560,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.deleteConfirmDlg(kw);
     },
     
+    
     deleteConfirmDlg:function(kw){
          var dlg = genro.dlg.quickDialog('Alert',{_showParent:true,width:'280px'});
          dlg.center._('div',{innerHTML:this.msg_confirm_delete, text_align:'center',_class:'alertBodyMessage'});
@@ -606,6 +607,39 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     
+    recordSearchBox:function(kw){
+        var datapath = this.sourceNode.absDatapath()+'.temp.jump';
+        var that = this;
+        var table = this.getControllerData('table');
+        var cdata = this.getControllerData();
+        var tableattr = this.getControllerData().getAttr('table');
+        var searchattr = objectExtract(tableattr,'search_*',true)
+        if(that._jumperOpen){
+            return;
+        }
+        that._jumperOpen = true;
+        genro.dlg.lightboxDialog(function(dlg,closecb){
+            var box = dlg._('div',{padding:'5px',font_size:'1.2em'});
+            var onEnter = function(){
+                var pkey = genro.getData(datapath+'.pkey');
+                if(pkey){
+                    that.goToRecord(pkey);
+                }
+                delete that._jumperOpen;
+                closecb();
+            }
+            fb = genro.dev.formbuilder(box,1,{border_spacing:'1px',
+                        onEnter:onEnter,width:'100%',fld_width:'100%'});
+            fb.addField('dbselect',objectUpdate({value:'^'+datapath+'.pkey',dbtable:table,padding:'3px',
+                        validate_onAccept:function(value,userChange){
+                            if(userChange){
+                                onEnter();
+                            }
+                        },
+                         padding_left:'5px',padding_right:'5px',rounded:6,
+                            width:'30em',lbl:that.table_name+': '},searchattr));
+        });
+    },
     pendingChangesAnswer:function(kw){
         var command = objectPop(kw,'command');
         var onAnswer = objectPop(kw,'onAnswer');

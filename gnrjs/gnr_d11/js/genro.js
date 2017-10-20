@@ -665,7 +665,6 @@ dojo.declare('gnr.GenroClient', null, {
                 }
             }
         });
-        genro.setDefaultShortcut();
         dojo.subscribe("setWindowTitle",function(title){genro.dom.windowTitle(title);});
         genro.setData('gnr.debugger.debug_sql',this.debug_sql);
         //genro.setData('gnr.debugger.debug_py',this.debug_py);
@@ -821,7 +820,6 @@ dojo.declare('gnr.GenroClient', null, {
             genro.publish('shortcut_print', e);
         });
     },
-
 
     tooltipHelpModifier:function(value){
         if(value){

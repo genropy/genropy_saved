@@ -1109,10 +1109,7 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         }
         return result;
     },
-
-    mixin_mainDomNode: function() {
-        return this.inputNode || this.textInputNode || this.domNode;
-    },
+    
     connectChangeEvent:function(widget) {
         if ('onChange' in widget) {
             dojo.connect(widget, 'onChange', dojo.hitch(this, function(val) {
@@ -1357,7 +1354,7 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                                 var zIndex = widget.sourceNode.attr.z_index || (zindex + ds.length*2);
                                 dojo.style(this._underlay.domNode, 'zIndex', zIndex);
                                 dojo.style(this.domNode, 'zIndex', zIndex + 1);
-                                 if (parentDialog) {
+                                if (parentDialog) {
                                     dojo.forEach(parentDialog._modalconnects, dojo.disconnect);
                                     parentDialog._modalconnects = [];
                                     if (sourceNode.attr.stacked){
@@ -1377,8 +1374,8 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                                 ds.pop(); 
                                 var parentDialog = ds.length>0?ds[ds.length-1]:null;
                                 if (parentDialog) {
-                                     parentDialog._modalconnects.push(dojo.connect(window, "onscroll", parentDialog, "layout"));
-                                     parentDialog._modalconnects.push(dojo.connect(dojo.doc.documentElement, "onkeypress", parentDialog, "_onKey"));
+                                    parentDialog._modalconnects.push(dojo.connect(window, "onscroll", parentDialog, "layout"));
+                                    parentDialog._modalconnects.push(dojo.connect(dojo.doc.documentElement, "onkeypress", parentDialog, "_onKey"));
                                 }                   
                             }
                             if(this._windowConnectionResize){
@@ -2803,9 +2800,11 @@ dojo.declare("gnr.widgets.Button", [gnr.widgets.baseDojo,gnr.widgets._ButtonLogi
         this._domtag = 'div';
         this._dojotag = 'Button';
     },
+    
     creating:function(attributes, sourceNode) {
         var buttoNodeAttr = 'height,width,padding,background,background_color';
         var savedAttrs = objectExtract(attributes, 'fire_*');
+        savedAttrs.shortcut = objectPop(attributes,'_shortcut');        
         savedAttrs['_style'] = genro.dom.getStyleDict(objectExtract(attributes, buttoNodeAttr));
         savedAttrs['action'] = objectPop(attributes, 'action');
         savedAttrs['fire'] = objectPop(attributes, 'fire');
@@ -2834,6 +2833,23 @@ dojo.declare("gnr.widgets.Button", [gnr.widgets.baseDojo,gnr.widgets._ButtonLogi
         }
         if(savedAttrs.ask_params){
             sourceNode._ask_params = savedAttrs.ask_params;
+        }
+        if(savedAttrs.shortcut){
+            genro.dev.shortcut(savedAttrs.shortcut, function(e) {
+                var domNode = sourceNode.getDomNode();
+                if(!genro.dom.isVisible(domNode) || !genro.dom.isActiveLayer(domNode)){
+                    return;
+                }
+                if(sourceNode.widget && sourceNode.widget.disabled){
+                    return;
+                }
+                if(sourceNode.attr._shortcut_activeForm){
+                    if(genro.activeForm && sourceNode.form!=genro.activeForm){
+                        return;
+                    }
+                }
+                that.clickHandler(sourceNode,e);
+            },null,sourceNode);
         }
     },
     mixin_setIconClass:function(iconClass){

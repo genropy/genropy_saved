@@ -22,6 +22,7 @@ var th_unifyrecord = function(kw){
     });
 };
 
+
 var th_view_batch_caller = function(kw){
     var grid = genro.wdgById(kw.gridId);
     var store = grid.collectionStore();

@@ -510,6 +510,11 @@ class TableHandlerMain(BaseComponent):
             """
         if hasattr(th,'form'):
             self._th_parentFrameMessageSubscription(th.form)
+            
+            root.dataController("""
+                    genro.dev.shortcut("@jump_record:alt+j", function() {
+                        frm.recordSearchBox();
+                    });""",frm=th.form.js_form,_onBuilt=True)
         return th
 
 
