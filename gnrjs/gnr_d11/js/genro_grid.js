@@ -705,15 +705,15 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 widget.setDraggable_row(draggable_row, widget.views.views[0]);
             }
         }
-        sourceNode.subscribe('longMouseDown',function(kw){
-            var targetNode = kw.event.target;
-            genro.dlg.quickTooltipPane({datapath:this.absDatapath(),
-                fields:[{'tag':'horizontalSlider',width:'10em',minimum:0.3,
-                            maximum:1,intermediateChanges:true,value:sourceNode.attr.scaleX,lbl:'Scale X'},{
-                                'tag':'horizontalSlider',width:'10em',minimum:0.3,
-                                maximum:1,intermediateChanges:true,value:sourceNode.attr.scaleY,lbl:'Scale Y'
-                            }],domNode:targetNode,modal:false});
-        });
+       //sourceNode.subscribe('longMouseDown',function(kw){
+       //    var targetNode = kw.event.target;
+       //    genro.dlg.quickTooltipPane({datapath:this.absDatapath(),
+       //        fields:[{'tag':'horizontalSlider',width:'10em',minimum:0.3,
+       //                    maximum:1,intermediateChanges:true,value:sourceNode.attr.scaleX,lbl:'Scale X'},{
+       //                        'tag':'horizontalSlider',width:'10em',minimum:0.3,
+       //                        maximum:1,intermediateChanges:true,value:sourceNode.attr.scaleY,lbl:'Scale Y'
+       //                    }],domNode:targetNode,modal:false});
+       //});
         if (sourceNode.attr.openFormEvent) {
             dojo.connect(widget, sourceNode.attr.openFormEvent, widget, 'openLinkedForm');
         }
