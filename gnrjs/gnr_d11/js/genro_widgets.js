@@ -4397,6 +4397,10 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
         }else{
              var uploadAttr=objectExtract(attr,'upload_*');
              var cropAttr=objectExtract(attr,'cr_*',true);
+
+             
+            //gnrwdg.fakeinputNode = fakeinput.getParentNode();
+
              if(objectNotEmpty(uploadAttr)){
                  attr.dropTarget=true;
                  attr.dropTypes='Files,text/plain';
@@ -4436,6 +4440,7 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
                         genro.dlg.alert("Missing info to upload the image",'Warning');
                         return false;
                     }
+
                     genro.rpc.uploadMultipart_oneFile(data,null,{uploadPath:sourceNode.currentFromDatasource(uploadAttr.folder),
                                   filename:filename,
                                   onResult:function(result){
@@ -4444,6 +4449,15 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
                                       sourceNode.setRelativeData(src,that.decodeUrl(sourceNode,url).formattedUrl);
                                    }});
                  }
+                 fakeinput = sourceNode._('input','fakeinput',{hidden:true,type:'file',
+                 connect_onchange:function(evt){
+                    cbOnDropData({evt:evt},evt.target.files[0]);
+                     this.domNode.value = null;
+                 }
+                });
+                attr.connect_ondblclick = function(){
+                    this.getValue().getNode('fakeinput').domNode.click();
+                };
                  attr.onDrop_dataUrl = function(dropInfo,data){
                     cbOnDropData(dropInfo,data)
                  }
