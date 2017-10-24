@@ -3206,10 +3206,13 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
             var tokens = info.tokens;
             var datesplit = value.split(' ');
             var match = datesplit[0].match(/^(\d{2})(\d{2})(\d{2}|\d{4})$/);
+            var doSetValue = false;
             if(match){
                 datesplit[0] = match[1]+'/'+match[2]+'/'+match[3];
+                doSetValue = true;
             }
             if(constraints.selector=='datetime'){
+                doSetValue = true;
                 var timestr = datesplit[1];
                 var timematch =timestr.match(/^(\d{2})(\d{2})?(\d{2})?$/);
                 if (!timematch){
@@ -3225,7 +3228,6 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
                 datesplit[1] = tl.join(':');
             }
             value = datesplit.join(' ');
-            doSetValue = false;
             var re = new RegExp("^" + info.regexp + "$");
             match = re.exec(value);
             if(match){
@@ -3257,6 +3259,7 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
                     var y = (y < cutoff) ? century + y : century - 100 + y;
                 }
                 r = new Date(y,m,d,hours,minutes,seconds);  
+                
                 if(doSetValue){
                     var that = this;
                     setTimeout(function(){
