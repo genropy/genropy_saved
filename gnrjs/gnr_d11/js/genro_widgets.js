@@ -4445,15 +4445,15 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
                                   filename:filename,
                                   onResult:function(result){
                                       var url = this.responseText;
-                                      
                                       sourceNode.setRelativeData(src,that.decodeUrl(sourceNode,url).formattedUrl);
                                    }});
                  }
-                 fakeinput = sourceNode._('input','fakeinput',{hidden:true,type:'file',
-                 connect_onchange:function(evt){
-                    cbOnDropData({evt:evt},evt.target.files[0]);
-                     this.domNode.value = null;
-                 }
+                sourceNode._('input','fakeinput',{hidden:true,type:'file',
+                connect_onchange:function(evt){
+                    cbOnDropData({
+                        evt:evt},evt.target.files[0]);
+                        this.domNode.value = null;
+                    }
                 });
                 attr.connect_ondblclick = function(){
                     this.getValue().getNode('fakeinput').domNode.click();
