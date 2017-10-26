@@ -271,7 +271,7 @@ class DbModel(object):
             self.db.adapter.createDb()
             self.modelChanges.pop(0)
         for change in self.modelChanges:
-            self.db.execute(change)
+            self.db.execute(change,_adaptArguments=False)
         self.db.commit()
         
     def _doMixin(self, path, obj):

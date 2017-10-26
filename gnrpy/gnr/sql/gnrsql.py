@@ -363,7 +363,8 @@ class GnrSqlDb(GnrObject):
         else:
             return dict(host=self.host, database=self.dbname if not storename or storename=='_main_db' else storename, user=self.user, password=self.password, port=self.port)
     
-    def execute(self, sql, sqlargs=None, cursor=None, cursorname=None, autocommit=False, dbtable=None,storename=None):
+    def execute(self, sql, sqlargs=None, cursor=None, cursorname=None, 
+                autocommit=False, dbtable=None,storename=None,_adaptArguments=True):
         """Execute the sql statement using given kwargs. Return the sql cursor
         
         :param sql: the sql statement
@@ -387,7 +388,8 @@ class GnrSqlDb(GnrObject):
         if dbtable and self.table(dbtable).use_dbstores(**sqlargs) is False:
             storename = self.rootstore
         with self.tempEnv(storename=storename):
-            sql, sqlargs = self.adapter.prepareSqlText(sql, sqlargs)
+            if _adaptArguments:
+                sql, sqlargs = self.adapter.prepareSqlText(sql, sqlargs)
             #gnrlogger.info('Executing:%s - with kwargs:%s \n\n',sql,unicode(kwargs))
             #print 'sql:\n',sql
             try:
