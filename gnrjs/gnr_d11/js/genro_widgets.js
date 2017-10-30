@@ -3094,6 +3094,11 @@ dojo.declare("gnr.widgets._BaseTextBox", gnr.widgets.baseDojo, {
     },
 
     created: function(widget, savedAttrs, sourceNode) {
+        this._baseTextBox_created(widget,savedAttrs,sourceNode);
+
+    },
+
+    _baseTextBox_created:function(widget, savedAttrs, sourceNode){
         if(genro.isMobile){
             widget.focusNode.setAttribute('autocapitalize','none');
             widget.focusNode.setAttribute('autocomplete','off');
@@ -3349,6 +3354,7 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
     },
 
     created: function(widget, savedAttrs, sourceNode) {
+        this._baseTextBox_created(widget, savedAttrs, sourceNode);
         if (dojo.number._parseInfo().decimal==','){
             dojo.connect(widget,'onkeyup',function(evt){
                 if(evt.key=='.'){
