@@ -144,7 +144,7 @@ class BagToHtml(object):
 
     def fillLetterheadSourceData(self,node,**kwargs):
         if node.label=='html':
-            node.value = templateReplace(node.value,self.letterhead_sourcedata)
+            node.value = templateReplace(node.value,self.letterhead_sourcedata or self.record)
         
     def prepareTemplates(self):
         """Set the correct value of every measure of the page: height, width, header, footer, margins"""
@@ -152,7 +152,6 @@ class BagToHtml(object):
         if not self.htmlTemplate:
             self.htmlTemplate = self.templateLoader(letterhead_id=self.letterhead_id,name=self.templates)
             if self.htmlTemplate:
-                self.letterhead_sourcedata = self.letterhead_sourcedata or self.record
                 self.htmlTemplate.walk(self.fillLetterheadSourceData)
                 top_layer =  self.htmlTemplate['#%i' %(len(self.htmlTemplate)-1)]
         d = self.__dict__
