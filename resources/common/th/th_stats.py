@@ -53,7 +53,7 @@ class TableHandlerStats(BaseComponent):
         bc = pane.borderContainer(datapath='.%s' %nodeId,_anchor=True,**kwargs)
         inattr = pane.getInheritedAttributes()
         relatedTable = inattr.get('table')
-        relatedTableHandlerFrameCode = inattr.get('frameCode')
+        relatedTableHandlerFrameCode = inattr.get('frameCode') if not relation_value else None
         bc.child('_tableHandlerStatsLayout',region='center',
                             table=table,nodeId=nodeId,
                             relation_field=relation_field,
@@ -69,30 +69,29 @@ class TableHandlerStats(BaseComponent):
         
         indipendentQuery = relation_value or condition
         bc.dataController("""
-            this.watch('stat_visible',function(){
-                return genro.dom.isVisible(bcNode);
-            },function(){
-                if(autorun){
-                    bcNode.fireEvent('.stats.run_pivot',true);
-                }
-            });
+           if(autorun){
+               console.log('changed',_triggerpars,_reason);
+               var that = this;
+               genro.callAfter(function(){
+                   that.fireEvent('.stats.run_pivot_do',true);
+               },2000,this,'stast_run');
+           }
         """,relation_value=relation_value,
             filters='^.stats.filters',
             stat_rows='^.stats.conf.rows',
             stat_values='^.stats.conf.values',
             stat_columns='^.stats.conf.columns',
-            autorun='^.stats.autorun',
-            _delay=1000,
+            autorun='=.stats.autorun',
+            #_delay=2000,
             bcNode=bc)
-        bc.dataController("FIRE .stats.run_pivot_do",_fired='^.stats.run_pivot',
-                        _runQuery='^.#parent.runQueryDo')
+        if not indipendentQuery:
+            bc.dataController("FIRE .stats.run_pivot_do",_runQuery='^.#parent.runQueryDo')
         bc.dataRpc(None,self.ths_getPivotTable,
                     table=table,
                     relatedTable=relatedTable,
                     relation_field=relation_field,
                     relation_value=relation_value.replace('^','=') if relation_value else None,
-                    mainfilter = '=.stats.filters.%s' %relation_field,
-                    selectionName=None if indipendentQuery else '=.#parent.store?selectionName',
+                    mainfilter = '=.stats.filters.%s' %relation_field if relatedTable and not relation_value else None,
                     condition=condition,
                     filters='=.stats.filters',
                     stat_rows='=.stats.conf.rows',
@@ -101,6 +100,9 @@ class TableHandlerStats(BaseComponent):
                     relatedTableHandlerFrameCode=relatedTableHandlerFrameCode,
                     _lockScreen=True,
                     _onCalling="""
+                        if(!genro.dom.isVisible(_bcNode)){
+                            return false;
+                        }
                         if(relatedTableHandlerFrameCode){
                             var selectionAttributes = genro.wdgById(relatedTableHandlerFrameCode+'_grid').collectionStore().storeNode.currentAttributes()
                             objectExtract(selectionAttributes,'table,columns,checkPermissions');
@@ -120,7 +122,7 @@ class TableHandlerStats(BaseComponent):
                         if(result.getItem('xls_url')){
                             genro.download(result.getItem('xls_url'));
                         }
-                    """,**condition_kwargs)
+                    """,_bcNode=bc,**condition_kwargs)
 
         
     @public_method
@@ -130,18 +132,18 @@ class TableHandlerStats(BaseComponent):
                                 relatedTable=None,**kwargs):
         tc = pane.tabContainer(region='left',width='230px',margin='2px',drawer=True,splitter=True)
         self._ths_configPivotTree(tc.framePane(title='!!Pivot'))
-        indipendentQuery = relation_value or condition
-        if not indipendentQuery:
-            tblobj = self.db.table(table)
+        if relatedTable:
+            tblobj = self.db.table(relatedTable)
             caption_field = tblobj.attributes.get('caption_field')
-            if caption_field and relatedTable:
+            if caption_field and relatedTable and not relation_value:
                 self._ths_mainFilter(tc.contentPane(title='!!Main'),
                                 relatedTableHandlerFrameCode=relatedTableHandlerFrameCode,
                                 table=relatedTable,relation_field=relation_field) 
         self._ths_filters(tc.contentPane(title='!!Filters'),table=table)
 
     @public_method
-    def _ths_viewer(self,pane,table=None,relation_field=None,default_columns=None,default_rows=None,default_values=None,**kwargs):
+    def _ths_viewer(self,pane,table=None,relation_field=None,default_columns=None,
+                    default_rows=None,default_values=None,relation_value=None,**kwargs):
         
         frame = pane.framePane()
         frame.data('.stats.conf',self.ths_configPivotTreeData(table,relation_field=relation_field,
@@ -155,7 +157,12 @@ class TableHandlerStats(BaseComponent):
         grid = sc.contentPane(title='!!Grid').quickGrid('^.stats.pivot_grid')
         #grid.tools('export')
         bar = frame.top.slotToolbar('2,stackButtons,*,autorun,10,printStats,exportStats,5')
-        bar.autorun.checkbox(value='^.stats.autorun',label='!!Autorun')
+        bar.autorun.checkbox(value='^.stats.autorun',label='!!Autorun',
+                            validate_onAccept="""
+                                if(value){
+                                    FIRE .stats.run_pivot;
+                                }
+                            """,default_value=True if relation_value else False)
         bar.printStats.slotButton('!!Print',action="genro.dom.iFramePrint(_iframe)",iconClass='iconbox print',
                                 _iframe=iframe.js_domNode)
         bar.exportStats.slotButton('!!Export',iconClass='iconbox export',fire_xls='.stats.run_pivot_do')
@@ -174,7 +181,6 @@ class TableHandlerStats(BaseComponent):
         pane.frameGrid(datapath='.stats.mainfilter',table=table,
                         grid_store='%s_grid' %relatedTableHandlerFrameCode,
                         _newGrid=True,
-                        frameCode='pippo',
                         grid_userSets='#ANCHOR.stats.filters',
                         struct=struct)
 
@@ -232,33 +238,29 @@ class TableHandlerStats(BaseComponent):
                                 where=None,**kwargs):
         df = GnrDbDataframe('current_df_%s' %table.replace('.','_'),self.db)
         related_pkeys = None
-        if isinstance(where,Bag):
-            if relatedTable:
+        if mainfilter:
+            where = None
+        elif isinstance(where,Bag):
+            if relatedTable and relation_field:
                 relatedTableObj = self.db.table(relatedTable)
                 where, kwargs = self.app._decodeWhereBag(relatedTableObj, where, kwargs)
-                related_pkeys = [r['pkey'] for r in relatedTableObj.query(where=where, **kwargs).fetch()]
-                where = None
+                kwargs['filters_%s' %relation_field] =  [r['pkey'] for r in relatedTableObj.query(where=where, **kwargs).fetch()]
+                where = ' $%s IN :filters_%s' %(relation_field,relation_field)
+            else:
+                where, kwargs = self.app._decodeWhereBag(self.db.table(table), where, kwargs)
+        elif relation_value:
+            where = ' $%s IN :filters_%s' %(relation_field,relation_field)
+            kwargs['filters_%s' %relation_field] = [relation_value]
         where = [where] if where else []
         where_kwargs = kwargs
         if condition:
             where.append(condition)
             where_kwargs.update(condition_kwargs)
         if filters:
-            for fkey,pkeys in filters.items():
-                if pkeys:
+            for fkey,filter_pkeys in filters.items():
+                if filter_pkeys:
                     where.append(' $%s IN :filters_%s' %(fkey,fkey))
-                    where_kwargs['filters_%s' %fkey] = pkeys.split(',')
-        if not (where or mainfilter):
-            if related_pkeys:
-                pkeys = related_pkeys
-            else:
-                pkeys = [relation_value]
-            if relation_field:
-                where.append(' $%s IN :filters_%s' %(relation_field,relation_field))
-                where_kwargs['filters_%s' %relation_field] = pkeys
-            else:
-                where.append(' $%s IN :filters_main ' % self.db.table(table).pkey)
-                where_kwargs['filters_main'] = pkeys
+                    where_kwargs['filters_%s' %fkey] = filter_pkeys.split(',')
         df.query(table,where=' AND '.join(where),columns=columns,**where_kwargs)
         return df
         
