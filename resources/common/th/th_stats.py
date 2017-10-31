@@ -72,18 +72,23 @@ class TableHandlerStats(BaseComponent):
             this.watch('stat_visible',function(){
                 return genro.dom.isVisible(bcNode);
             },function(){
-                bcNode.fireEvent('.stats.run_pivot',true);
+                if(autorun){
+                    bcNode.fireEvent('.stats.run_pivot',true);
+                }
             });
-        """,store=None if indipendentQuery else '^.#parent.store',
-            relation_value=relation_value,
+        """,relation_value=relation_value,
             filters='^.stats.filters',
             stat_rows='^.stats.conf.rows',
             stat_values='^.stats.conf.values',
             stat_columns='^.stats.conf.columns',
+            autorun='^.stats.autorun',
+            _delay=1000,
             bcNode=bc)
-        bc.dataController("FIRE .stats.run_pivot_do",_delay=1000,_fired='^.stats.run_pivot')
+        bc.dataController("FIRE .stats.run_pivot_do",_fired='^.stats.run_pivot',
+                        _runQuery='^.#parent.runQueryDo')
         bc.dataRpc(None,self.ths_getPivotTable,
                     table=table,
+                    relatedTable=relatedTable,
                     relation_field=relation_field,
                     relation_value=relation_value.replace('^','=') if relation_value else None,
                     mainfilter = '=.stats.filters.%s' %relation_field,
@@ -93,8 +98,14 @@ class TableHandlerStats(BaseComponent):
                     stat_rows='=.stats.conf.rows',
                     stat_values='=.stats.conf.values',
                     stat_columns='=.stats.conf.columns',
+                    relatedTableHandlerFrameCode=relatedTableHandlerFrameCode,
                     _lockScreen=True,
                     _onCalling="""
+                        if(relatedTableHandlerFrameCode){
+                            var selectionAttributes = genro.wdgById(relatedTableHandlerFrameCode+'_grid').collectionStore().storeNode.currentAttributes()
+                            objectExtract(selectionAttributes,'table,columns,checkPermissions');
+                            objectUpdate(kwargs,selectionAttributes);
+                        }
                         SET .stats.pivot_html = "";
                         if (!(stat_values && stat_values.len() && stat_rows && stat_rows.len())){
                             return false;
@@ -123,10 +134,10 @@ class TableHandlerStats(BaseComponent):
         if not indipendentQuery:
             tblobj = self.db.table(table)
             caption_field = tblobj.attributes.get('caption_field')
-            if caption_field:
+            if caption_field and relatedTable:
                 self._ths_mainFilter(tc.contentPane(title='!!Main'),
                                 relatedTableHandlerFrameCode=relatedTableHandlerFrameCode,
-                                table=relatedTable or table,relation_field=relation_field) 
+                                table=relatedTable,relation_field=relation_field) 
         self._ths_filters(tc.contentPane(title='!!Filters'),table=table)
 
     @public_method
@@ -143,7 +154,8 @@ class TableHandlerStats(BaseComponent):
         #tc = center.tabContainer()
         grid = sc.contentPane(title='!!Grid').quickGrid('^.stats.pivot_grid')
         #grid.tools('export')
-        bar = frame.top.slotToolbar('2,stackButtons,*,printStats,exportStats,5')
+        bar = frame.top.slotToolbar('2,stackButtons,*,autorun,10,printStats,exportStats,5')
+        bar.autorun.checkbox(value='^.stats.autorun',label='!!Autorun')
         bar.printStats.slotButton('!!Print',action="genro.dom.iFramePrint(_iframe)",iconClass='iconbox print',
                                 _iframe=iframe.js_domNode)
         bar.exportStats.slotButton('!!Export',iconClass='iconbox export',fire_xls='.stats.run_pivot_do')
@@ -214,12 +226,20 @@ class TableHandlerStats(BaseComponent):
                     htmlcontent='^.stats.pivot_html')
         return iframe       
 
-    def ths_getDataframe(self,table,filters=None,mainfilter=None,
+    def ths_getDataframe(self,table,filters=None,mainfilter=None,relatedTable=None,
                                 relation_field=None,relation_value=None,
-                                maintable=None,selectionName=None,columns=None,condition=None,condition_kwargs=None,**kwargs):
+                                maintable=None,columns=None,condition=None,condition_kwargs=None,
+                                where=None,**kwargs):
         df = GnrDbDataframe('current_df_%s' %table.replace('.','_'),self.db)
-        where = []
-        where_kwargs = {}
+        related_pkeys = None
+        if isinstance(where,Bag):
+            if relatedTable:
+                relatedTableObj = self.db.table(relatedTable)
+                where, kwargs = self.app._decodeWhereBag(relatedTableObj, where, kwargs)
+                related_pkeys = [r['pkey'] for r in relatedTableObj.query(where=where, **kwargs).fetch()]
+                where = None
+        where = [where] if where else []
+        where_kwargs = kwargs
         if condition:
             where.append(condition)
             where_kwargs.update(condition_kwargs)
@@ -228,9 +248,9 @@ class TableHandlerStats(BaseComponent):
                 if pkeys:
                     where.append(' $%s IN :filters_%s' %(fkey,fkey))
                     where_kwargs['filters_%s' %fkey] = pkeys.split(',')
-        if not mainfilter:
-            if selectionName:
-                pkeys = self.freezedPkeys(self.db.table(table),selectionName)
+        if not (where or mainfilter):
+            if related_pkeys:
+                pkeys = related_pkeys
             else:
                 pkeys = [relation_value]
             if relation_field:
@@ -239,23 +259,16 @@ class TableHandlerStats(BaseComponent):
             else:
                 where.append(' $%s IN :filters_main ' % self.db.table(table).pkey)
                 where_kwargs['filters_main'] = pkeys
-
         df.query(table,where=' AND '.join(where),columns=columns,**where_kwargs)
         return df
         
-    @public_method
-    def ths_getInfo(self,table=None,related_field=None,selectionName=None):
-        df = GnrDbDataframe('info_df_%s' %table.replace('.','_'),self.db)
-        fk = self.freezedPkeys(self.db.table(table),selectionName)
-        df.query(table,where='$%s IN :freezed_pkeys' %related_field,
-                    freezed_pkeys=fk)
-        return df.getInfo()
         
     def ths_configPivotTreeData(self,table,relation_field=None,
                                 default_columns=None,
                                 default_rows=None,
                                 default_values=None):
         df = GnrDbDataframe('current_df_%s' %table.replace('.','_'),self.db)
+        
         return df.configPivotTree(self.db.table(table),
                                 default_values=default_values,
                                 default_rows=default_rows,
@@ -263,10 +276,11 @@ class TableHandlerStats(BaseComponent):
 
     @public_method
     def ths_getPivotTable(self,df=None,table=None,relation_field=None,relation_value=None,
-                        filters=None,mainfilter=None,selectionName=None,
+                        filters=None,mainfilter=None,
                         stat_rows=None,stat_columns=None,
                         stat_values=None,outmode=None,
-                        filename=None,condition=None,**kwargs):
+                        filename=None,condition=None,where=None,
+                        **kwargs):
         condition_kwargs= dictExtract(kwargs,'condition_')
         stats_tableobj = self.db.table(table)
         main_tableobj = stats_tableobj.column(relation_field).relatedColumn().table if relation_field else stats_tableobj
@@ -280,9 +294,10 @@ class TableHandlerStats(BaseComponent):
                                         relation_value=relation_value,
                                         maintable=main_tableobj.fullname,
                                         columns=','.join(set(columns)),
-                                        selectionName=selectionName,
                                         condition=condition,
-                                        condition_kwargs=condition_kwargs)
+                                        where=where,
+                                        condition_kwargs=condition_kwargs,
+                                        **kwargs)
             if not df:
                 return
         valuesbag = Bag()

@@ -4364,9 +4364,11 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
                                                                     tbl:this.userObjectPars.table,
                                                                     flags:this.userObjectPars.flags}, 
             function(result){
-                that.sourceNode.setRelativeData('#WORKSPACE.metadata',new gnr.GnrBag(result.attr));
-                that.onLoadedObject(result,userObjectId,firstLoad);
-                that.checkFavorite();
+                if (result){
+                    that.sourceNode.setRelativeData('#WORKSPACE.metadata',new gnr.GnrBag(result.attr));
+                    that.onLoadedObject(result,userObjectId,firstLoad);
+                    that.checkFavorite();
+                }
             });
         }
     },
@@ -5459,9 +5461,13 @@ dojo.declare("gnr.stores._Collection",null,{
         }
         return result;
     },
+
+
+
     onLoading:function(){
 
     },
+
     onLoaded:function(result){
         this.storeNode.setRelativeData(this.storepath,result,null,null,'loadData');
         return result;

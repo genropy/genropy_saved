@@ -484,6 +484,5 @@ class GnrDbDataframe(GnrDataframe):
         result.setItem('rows',extract_defaults(default_rows),caption='!!Rows')
         result.setItem('columns',extract_defaults(default_columns),caption='!!Columns')
         result.setItem('values',extract_defaults(default_values),caption='!!Values')
-
         return result
 
