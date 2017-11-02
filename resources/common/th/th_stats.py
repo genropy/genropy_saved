@@ -70,7 +70,6 @@ class TableHandlerStats(BaseComponent):
         indipendentQuery = relation_value or condition
         bc.dataController("""
            if(autorun){
-               console.log('changed',_triggerpars,_reason);
                var that = this;
                genro.callAfter(function(){
                    that.fireEvent('.stats.run_pivot_do',true);
@@ -129,7 +128,7 @@ class TableHandlerStats(BaseComponent):
     def _ths_configurator(self,pane,table=None,relation_field=None,
                                 relation_value=None,condition=None,
                                 relatedTableHandlerFrameCode=None,
-                                relatedTable=None,**kwargs):
+                                relatedTable=None,source_filters=None,**kwargs):
         tc = pane.tabContainer(region='left',width='230px',margin='2px',drawer=True,splitter=True)
         self._ths_configPivotTree(tc.framePane(title='!!Pivot'))
         if relatedTable:
@@ -139,7 +138,7 @@ class TableHandlerStats(BaseComponent):
                 self._ths_mainFilter(tc.contentPane(title='!!Main'),
                                 relatedTableHandlerFrameCode=relatedTableHandlerFrameCode,
                                 table=relatedTable,relation_field=relation_field) 
-        self._ths_filters(tc.contentPane(title='!!Filters'),table=table)
+        self._ths_filters(tc.contentPane(title='!!Filters'),table=table,source_filters=source_filters)
 
     @public_method
     def _ths_viewer(self,pane,table=None,relation_field=None,default_columns=None,
@@ -150,6 +149,7 @@ class TableHandlerStats(BaseComponent):
                                                     default_columns=default_columns,
                                                     default_rows=default_rows,
                                                     default_values=default_values))
+        self._ths_fill_filtersData(pane,table)
 
         sc = frame.center.stackContainer()
         iframe = self._ths_framehtml(sc.contentPane(title='Html'))
@@ -178,25 +178,23 @@ class TableHandlerStats(BaseComponent):
             r.fieldcell(caption_field,
                         width='100%',
                         name=tblobj.attributes['name_long'])
+        pane.dataFormula("#ANCHOR.stats.filters.%s" %relation_field, 'mainfilterPkeys',
+                        mainfilterPkeys='^#ANCHOR.stats._checked_mainfilter.%s' %relation_field)
         pane.frameGrid(datapath='.stats.mainfilter',table=table,
                         grid_store='%s_grid' %relatedTableHandlerFrameCode,
                         _newGrid=True,
-                        grid_userSets='#ANCHOR.stats.filters',
+                        grid_userSets='#ANCHOR.stats._checked_mainfilter',
                         struct=struct)
 
-    def _ths_filters(self,pane,table=None):
+    def _ths_filters(self,pane,table=None,source_filters=None):
         tblobj = self.db.table(table)
-        if not hasattr(tblobj,'stats_filters'):
+        if not source_filters:
             return
-        filtersbag = tblobj.stats_filters()
-        pane.data('.stats.source_filters',filtersbag)
-        for n in filtersbag:
+        for n in source_filters:
             v = n.value
             label = n.label
             title = n.attr.get('title') or tblobj.column(label).attributes.get('name_long') or label
             titlepane = pane.titlePane(title=title,margin='2px')
-            defaults = n.attr.get('defaults')
-            pane.data('.stats.filters.%s' %label,defaults)
             if isinstance(v,basestring):
                 titlepane.checkBoxText(value='^.%s' %label,
                                         values='^#ANCHOR.stats.source_filters.%s' %label,
@@ -208,6 +206,17 @@ class TableHandlerStats(BaseComponent):
                         labelAttribute='caption',hideValues=True,
                         margin='2px')
 
+    def _ths_fill_filtersData(self,pane,table):
+        tblobj = self.db.table(table)
+        if not hasattr(tblobj,'stats_filters'):
+            return
+        filtersbag = tblobj.stats_filters()
+        pane.data('.stats.source_filters',filtersbag)
+        for n in filtersbag:
+            v = n.value
+            label = n.label
+            defaults = n.attr.get('defaults')
+            pane.data('.stats.filters.%s' %label,defaults)
 
     def _ths_framehtml(self,pane,**kwargs):
         iframe = pane.div(_class='scroll-wrapper').htmliframe(height='100%',width='100%',border=0)
@@ -336,7 +345,11 @@ class TableHandlerStats(BaseComponent):
                                 draggable=True,dragClass='draggedItem',
                                 dropTarget=True,
                                 nodeId='conf_stats_%s' %id(frame),
-                                getLabelClass="""if (!node.attr.field){return "statfolder"}
+                                getLabelClass="""
+                                if(node.attr.fieldsgroup){
+                                    return 'stat_fieldsgroup';
+                                }
+                                if (!node.attr.field){return "statfolder"}
                                         return node.attr.stat_type;""",
                                dropTargetCb="""
                                     if(!dropInfo.selfdrop){

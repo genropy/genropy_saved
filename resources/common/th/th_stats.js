@@ -27,7 +27,7 @@ dojo.declare("gnr.widgets._tableHandlerStatsLayout", gnr.widgets.UserObjectLayou
     objtype:'pnd_simple',
     newcaption:'New',
     default_configurator_pars:{region:'left',splitter:true,
-                                border_right:'1px solid #ccc',width:'230px'},
+                                border_right:'1px solid #ccc',width:'230px',drawer:'close'},
 
     contentKwargs: function(sourceNode, attributes) {
         var mainpars = objectExtract(attributes,'relation_field,relation_value,default_rows,relatedTable,relatedTableHandlerFrameCode,default_values,default_columns,condition,condition_kwargs');        
@@ -60,7 +60,7 @@ dojo.declare("gnr.widgets._tableHandlerStatsLayout", gnr.widgets.UserObjectLayou
                     remote_userObjectId:userObjectId,
                     remote_py_requires:'th/th_stats:TableHandlerStats',
                     remote__onRemote:function(){
-                        gnrwdg.sourceNode.fireEvent('.built_viewer',true);
+                        //gnrwdg.sourceNode.fireEvent('.built_viewer',true);
                         if(userObjectId){
                             gnrwdg.loadObject(userObjectId,true);
                         }
@@ -76,7 +76,7 @@ dojo.declare("gnr.widgets._tableHandlerStatsLayout", gnr.widgets.UserObjectLayou
                               remote_relation_value:this.relation_value,
                               remote_table:this.table,
                               remote_condition:this.condition,
-                              remote__built_viewer:'^.built_viewer',
+                              remote_source_filters:'=.stats.source_filters',
                               remote_relatedTableHandlerFrameCode:this.relatedTableHandlerFrameCode,
                               remote_py_requires:'th/th_stats:TableHandlerStats'};
         //cpkw.remote_query_pars = normalizeKwargs(kw,'condition');
