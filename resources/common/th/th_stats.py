@@ -322,9 +322,10 @@ class TableHandlerStats(BaseComponent):
                     vb['aggregators'] = '%s,%s' %(vb['aggregators'],agg)
                 else:
                     valuesbag[fieldname] = Bag(dict(aggregators=agg))
-        pivotdf,bagresult = df.pivotTableGrid(index=stat_rows.keys() if stat_rows else None,
+
+        pivotdf,bagresult = df.pivotTableGrid(index=stat_rows if stat_rows else None,
                                             values=valuesbag if valuesbag else None,
-                                            columns=stat_columns.keys() if stat_columns else None)
+                                            columns=stat_columns if stat_columns else None)
         result = Bag()
         result['pivot_html'] = pivotdf.to_html()
         result['pivot_grid'] = bagresult
@@ -350,12 +351,16 @@ class TableHandlerStats(BaseComponent):
                                     return 'stat_fieldsgroup';
                                 }
                                 if (!node.attr.field){return "statfolder"}
-                                        return node.attr.stat_type;""",
+                                return node.attr.stat_type;""",
                                dropTargetCb="""
                                     if(!dropInfo.selfdrop){
                                         return false;
                                     }
                                     return true;
                                 """,
-                                onDrag='dragValues["selfdrag_path"]= dragValues["treenode"]["relpath"];',
+                                onDrag="""
+                                        if(!treeItem.attr.field){
+                                            return false;
+                                          }
+                                          dragValues["selfdrag_path"]= dragValues["treenode"]["relpath"];""",
                                 onDrop_selfdrag_path="th_stats_js.confTreeOnDrop(this,dropInfo,data)")

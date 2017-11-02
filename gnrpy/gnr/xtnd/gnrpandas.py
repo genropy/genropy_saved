@@ -274,11 +274,34 @@ class GnrDataframe(object):
     def pivotTableGrid(self,index=None,values=None,columns=None,filters=None,out_xls=None,out_html=None,margins=None):
         funckeys = set()
         values_list =[]
+        index_list = []
+        cols_list = []
         aggfunc = None
+        df = self.filteredDataframe(filters)
+        store = Bag()
+        if df.empty:
+            return df,store
+
+        def nodecb(node,vlist):
+            node_attr = node.attr
+            field = node_attr.get('field')
+            if field and node_attr.get('fn'):
+                fn = node_attr['fn'].split('.')
+                s = df[field.replace('$','').replace('.','_').replace('@','_')]
+                for subfn in fn:
+                    s = getattr(s,subfn)
+                df[node.label] = s
+            vlist.append(node.label)
         if isinstance(index,Bag):
-            index = index.keys()
+            for index_node in index:
+                nodecb(index_node,index_list)
+        else:
+            index_list = index
         if isinstance(columns,Bag):
-            columns = columns.keys()
+            for col_node in columns:
+                nodecb(col_node,cols_list)
+        else:
+            cols_list = columns
         if isinstance(values,Bag):
             values_list = []
             for k,v in values.items():
@@ -292,13 +315,9 @@ class GnrDataframe(object):
         adict = AGGFUNCDICT
         if funckeys:
             aggfunc = [adict[k] for k in funckeys]
-        store = Bag()
-        df = self.filteredDataframe(filters)
-        if df.empty:
-            return df,store
-        pt = df.pivot_table(index=index or None,
-                                        values=values_list or None, 
-                                        columns=columns or None,aggfunc=aggfunc,fill_value=0,margins=margins)
+        pt = df.pivot_table(index=index_list or None,
+                            values=values_list or None, 
+                            columns=cols_list or None,aggfunc=aggfunc,fill_value=0,margins=margins)
         if out_html:
             self.parent.addReportHtml(pt,out_html)
         values = values or Bag()
@@ -382,6 +401,7 @@ class GnrDbDataframe(GnrDataframe):
     def __init__(self,dfname,db=None,**kwargs):
         super(GnrDbDataframe, self).__init__(dfname,**kwargs)
         self.db = db
+        self.dbcolumns  = None
 
     def translate(self,txt=None):
         return self.db.application.localizer.translate(txt,language=self.language)
@@ -444,26 +464,45 @@ class GnrDbDataframe(GnrDataframe):
         columns = columns or tblobj.columns.keys()
         return ','.join(columns) 
 
+    
 
     def fieldsSourceBag(self,tblobj):
         result = Bag()
-        for col in self.defaultColumns(tblobj).split(','):
+        for col in self.dbcolumns:
             column = tblobj.column(col)
             attr = column.attributes
-            stats = attr.get('stats')
+            stats = attr.get('stats',True)
             dtype = attr.get('dtype')
             caption = attr.get('name_long')
             label = col.replace('$','').replace('.','_').replace('@','_')
             if dtype in ('N','L','I','R'):
-                if stats in (None,True):
+                if stats is True:
                     result.setItem('%s_sum' %label,None,caption=caption,
                                 field=col,stat_type='numeric',
                                 agg='sum')
                 else:
+                    if stats=='*':
+                        stats = 'mean,sum,min,max'
                     for agg in stats.split(','):
                         result.setItem('%s_%s' %(label,agg),None,caption='%s(%s)' %(caption,agg),
                                 field=col,stat_type='numeric',
                                 agg=agg)
+            elif dtype in ('DH','D'):
+                if stats is True:
+                    result.setItem(label,None,caption=caption,
+                                field=col,stat_type='index')
+                else:
+                    if stats=='*':
+                        stats = 'day,month,year,quarter,week,weekday'
+                        if dtype=='DH':
+                            stats = '%s,hour' %stats
+                    typefolder = Bag()
+                    result.setItem('_fg_%s' %label,typefolder,caption=caption,fieldsgroup=True)
+                    typefolder.setItem(label,None,caption=caption,field=col,stat_type='index')
+                    for fn in stats.split(','):
+                        typefolder.setItem('%s_%s' %(label,fn),None,caption='%s (%s)' %(caption,fn),
+                                field=col,stat_type='index',fn='dt.%s' %fn)
+                
             else:
                 result.setItem(label,None,caption=caption,
                                 field=col,stat_type='index')
@@ -471,6 +510,7 @@ class GnrDbDataframe(GnrDataframe):
 
     def configPivotTree(self,tblobj,default_values=None,default_columns=None,default_rows=None):
         result = Bag()
+        self.dbcolumns = self.dbcolumns or self.defaultColumns(tblobj).split(',')
         fields = self.fieldsSourceBag(tblobj)
         def extract_defaults(deflist=None):
             res = Bag()
