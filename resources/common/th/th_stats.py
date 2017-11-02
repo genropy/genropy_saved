@@ -129,8 +129,10 @@ class TableHandlerStats(BaseComponent):
                                 relation_value=None,condition=None,
                                 relatedTableHandlerFrameCode=None,
                                 relatedTable=None,source_filters=None,**kwargs):
-        tc = pane.tabContainer(region='left',width='230px',margin='2px',drawer=True,splitter=True)
-        self._ths_configPivotTree(tc.framePane(title='!!Pivot'))
+        tc = pane.tabContainer(region='left',width='250px',margin='2px',drawer=True,splitter=True)
+        self._ths_configPivotGrids(tc.borderContainer(title='!!Pivot'))
+        self._ths_configFields(tc.borderContainer(title='!!Fields'))
+
         if relatedTable:
             tblobj = self.db.table(relatedTable)
             caption_field = tblobj.attributes.get('caption_field')
@@ -299,7 +301,7 @@ class TableHandlerStats(BaseComponent):
             stat_values = stat_values or Bag()
             stat_columns = stat_columns or Bag()
             stat_rows = stat_rows or Bag()
-            columns = stat_values.digest('#a.field') + stat_columns.digest('#a.field') + stat_rows.digest('#a.field')
+            columns = stat_values.digest('#v.field') + stat_columns.digest('#v.field') + stat_rows.digest('#v.field')
             df = self.ths_getDataframe(table,filters=filters,mainfilter=mainfilter,
                                         relation_field=relation_field,
                                         relation_value=relation_value,
@@ -310,21 +312,9 @@ class TableHandlerStats(BaseComponent):
                                         condition_kwargs=condition_kwargs,
                                         **kwargs)
             if not df:
-                return
-        valuesbag = Bag()
-        if stat_values:
-            for k in stat_values.keys():
-                fl = k.split('_')
-                agg = fl[-1]
-                fieldname = '_'.join(fl[0:-1])
-                vb = valuesbag[fieldname]
-                if vb:
-                    vb['aggregators'] = '%s,%s' %(vb['aggregators'],agg)
-                else:
-                    valuesbag[fieldname] = Bag(dict(aggregators=agg))
-
+                return        
         pivotdf,bagresult = df.pivotTableGrid(index=stat_rows if stat_rows else None,
-                                            values=valuesbag if valuesbag else None,
+                                            values=stat_values if stat_values else None,
                                             columns=stat_columns if stat_columns else None)
         result = Bag()
         result['pivot_html'] = pivotdf.to_html()
@@ -338,29 +328,79 @@ class TableHandlerStats(BaseComponent):
             result['xls_url'] = self.db.application.site.getStaticUrl('page:xls_stats','%s.xls' %filename)
         return result   
 
-    def _ths_configPivotTree(self,frame):
-        frame.center.contentPane(overflow='auto'
-                        ).tree(storepath='.stats.conf',margin='5px',
-                                 _class="branchtree noIcon stattree",openOnClick=True,
-                                labelAttribute='caption',hideValues=True,
-                                draggable=True,dragClass='draggedItem',
-                                dropTarget=True,
-                                nodeId='conf_stats_%s' %id(frame),
-                                getLabelClass="""
-                                if(node.attr.fieldsgroup){
-                                    return 'stat_fieldsgroup';
-                                }
-                                if (!node.attr.field){return "statfolder"}
-                                return node.attr.stat_type;""",
-                               dropTargetCb="""
-                                    if(!dropInfo.selfdrop){
-                                        return false;
-                                    }
-                                    return true;
-                                """,
-                                onDrag="""
-                                        if(!treeItem.attr.field){
-                                            return false;
-                                          }
-                                          dragValues["selfdrag_path"]= dragValues["treenode"]["relpath"];""",
-                                onDrop_selfdrag_path="th_stats_js.confTreeOnDrop(this,dropInfo,data)")
+    
+    def _ths_branchgrid(self,parent,branch,addrow=False,delrow=True,**kwargs):
+        frameCode = 'V_th_conf_%s' %branch
+
+        def struct(struct):
+            r = struct.view().rows()
+            r.cell('caption',width='100%',name='!!Field')
+            #r.cell('stat_type',width='4em')
+            if branch=='values':
+                r.cell('aggregators',edit=dict(tag='checkboxtext',values='sum,mean,min,max,count',cols=1),
+                                        width='15em',name='Aggregate')
+
+
+        frame = parent.bagGrid(frameCode=frameCode,title=branch.title(),
+                                datapath='#ANCHOR.stats.%s' %frameCode,
+                                struct=struct,storepath='#ANCHOR.stats.conf.%s' %branch,
+                                pbl_classes=True if branch=='values' else '*',
+                                grid_rowCustomClassesCb="""function(row){
+                                                            return 'ths_'+row.stat_type;
+                                                        }
+                                                    """,
+                                grid_selfDragRows=True,
+                                addrow=addrow,delrow=delrow,
+                                margin='2px',**kwargs)
+        if branch!='fields':
+            menupath = '#ANCHOR.stats.controller.%s_menu' %(branch if branch=='values' else 'index')
+            frame.top.bar.replaceSlots('delrow','delrow,addrow',
+                                addrow_defaults=menupath)
+            frame.grid.attributes.update(
+                selfsubscribe_addrow="""
+                var storebag = this.widget.storebag();
+                var newrow = new gnr.GnrBag(p_0.opt);
+                newrow.setItem('caption',newrow.pop('label'));
+                var fullpath = newrow.pop('fullpath');
+                storebag.setItem(fullpath,newrow);
+                """
+            )
+
+        return frame
+
+    def _ths_configFields(self,bc):
+        frame = self._ths_branchgrid(bc,'fields',region='center')
+        bc.dataController("""
+        var index_menu = new gnr.GnrBag();
+        var values_menu = new gnr.GnrBag();
+        fields.getNodes().forEach(function(n){
+            if(n.attr.stat_type=='numeric'){
+                if(!values.getNode(n.label)){
+                    values_menu.setItem(n.label,null,n.getValue().asDict());
+                }
+            }else{
+                if(!(rows.getNode(n.label) || columns.getNode(n.label))){
+                    index_menu.setItem(n.label,null,n.getValue().asDict());
+                }
+            }
+        });
+        SET .stats.controller.index_menu = index_menu;
+        SET .stats.controller.values_menu = values_menu;
+        """,fields='^.stats.conf.fields',
+            rows='^.stats.conf.rows',
+            columns='^.stats.conf.columns',
+            values='^.stats.conf.values',
+            _if='fields',_onBuilt=True,_delay=10)
+        form = frame.grid.linkedForm(frameCode='th_conf_fields',
+                                 datapath='.form',loadEvent='onRowDblClick',
+                                 dialog_height='530px',dialog_width='680px',
+                                 dialog_title='^.form.ftitle',handlerType='dialog',
+                                 childname='form',attachTo=bc,store='memory',
+                                 store_pkeyField='code')
+        fb = form.record.formbuilder()
+        fb.textbox(value='^.caption',lbl='Caption')
+
+    def _ths_configPivotGrids(self,bc):
+        self._ths_branchgrid(bc,'rows',region='top',height='33%')
+        self._ths_branchgrid(bc,'values',region='bottom',height='33%')
+        self._ths_branchgrid(bc,'columns',region='center')

@@ -4050,7 +4050,13 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             this.gridEditor.deleteSelectedRows(pkeys,protectPkeys);
             this.sourceNode.publish('onDeletedRows');
         }else{
-            this.collectionStore().deleteAsk(pkeys,protectPkeys);
+            var store = this.collectionStore();
+            if (store.askToDelete){
+                store.deleteAsk(pkeys,protectPkeys);
+            }else{
+                store.deleteRows(pkeys,protectPkeys);
+            }
+            
         }
     },
 

@@ -552,3 +552,9 @@
     width: 14px;
     background: url(/_gnr/11/css/icons/base10/tinyCloseBranch.png) no-repeat center center;
 }
+
+
+
+._common_d11 .ths_numeric .dojoxGrid-cell, ._common_d11 .ths_numeric.dojoxGrid-cell{
+    color:darkslateblue;
+}

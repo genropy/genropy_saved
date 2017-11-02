@@ -4367,8 +4367,13 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
                 if (result){
                     that.sourceNode.setRelativeData('#WORKSPACE.metadata',new gnr.GnrBag(result.attr));
                     that.onLoadedObject(result,userObjectId,firstLoad);
-                    that.checkFavorite();
+                }else{
+                    var currfavorite = that.getFavorite();
+                    if(currfavorite==userObjectId){
+                        genro.setInStorage("local", that.storageKey(), null);
+                    }
                 }
+                that.checkFavorite();
             });
         }
     },
@@ -5981,6 +5986,7 @@ dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
 });
 
 dojo.declare("gnr.stores.RpcBase",gnr.stores.AttributesBagRows,{
+    askToDelete:true,
     loadData:function(){
         var that = this;
         if(!this.hasVisibleClients()){
@@ -6030,6 +6036,7 @@ dojo.declare("gnr.stores.RpcBase",gnr.stores.AttributesBagRows,{
 
 
 dojo.declare("gnr.stores.FileSystem",gnr.stores.RpcBase,{
+    askToDelete:true,
     deleteRows:function(files,protectPkeys){
         var that = this;
         var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
@@ -6042,6 +6049,7 @@ dojo.declare("gnr.stores.FileSystem",gnr.stores.RpcBase,{
 
 
 dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
+    askToDelete:true,
     constructor:function(){
         var liveUpdate = this.storeNode.attr.liveUpdate || 'LOCAL';
         var liveUpdateExcludeReason = this.storeNode.getAttributeFromDatasource('liveUpdateExcludeReason');
@@ -6452,6 +6460,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
 
 
 dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
+    askToDelete:true,
     constructor:function(){
         this.pendingPages = {};
         this.lastIdx =0;

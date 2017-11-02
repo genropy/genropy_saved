@@ -27,7 +27,7 @@ dojo.declare("gnr.widgets._tableHandlerStatsLayout", gnr.widgets.UserObjectLayou
     objtype:'pnd_simple',
     newcaption:'New',
     default_configurator_pars:{region:'left',splitter:true,
-                                border_right:'1px solid #ccc',width:'230px',drawer:'close'},
+                                border_right:'1px solid #ccc',width:'230px'},
 
     contentKwargs: function(sourceNode, attributes) {
         var mainpars = objectExtract(attributes,'relation_field,relation_value,default_rows,relatedTable,relatedTableHandlerFrameCode,default_values,default_columns,condition,condition_kwargs');        
