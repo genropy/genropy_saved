@@ -9,7 +9,7 @@ from gnr.core.gnrbag import Bag
 from datetime import datetime
 from gnr.core.gnrstring import toText
 from gnr.core.gnrdecorator import timer_call
-from collections import defaultdict
+from collections import defaultdict,OrderedDict
 from gnr.core.gnrstring import splitAndStrip
 
 REPORT_INDEX_HTML = """
@@ -303,7 +303,7 @@ class GnrDataframe(object):
         else:
             cols_list = columns
         if isinstance(values,Bag):
-            values_dict = {}
+            values_dict = OrderedDict()
             values_list = []
             for k,v in values.items():
                 values_list.append(k)
@@ -469,7 +469,6 @@ class GnrDbDataframe(GnrDataframe):
                 result.setItem(label,Bag(dict(caption=caption or label,
                                 field=col,stat_type='index',dtype=dtype,
                                 pkey=label)))
-        result.sort('stat_type')
         return result
 
     def configPivotTree(self,tblobj,default_values=None,default_columns=None,default_rows=None):
