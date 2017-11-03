@@ -374,7 +374,7 @@ class TableHandlerStats(BaseComponent):
         var index_menu = new gnr.GnrBag();
         var values_menu = new gnr.GnrBag();
         fields.getNodes().forEach(function(n){
-            if(n.attr.stat_type=='numeric'){
+            if(n.getValue().getItem('stat_type')=='numeric'){
                 if(!values.getNode(n.label)){
                     values_menu.setItem(n.label,null,n.getValue().asDict());
                 }
@@ -396,7 +396,17 @@ class TableHandlerStats(BaseComponent):
                                  dialog_height='530px',dialog_width='680px',
                                  dialog_title='^.form.ftitle',handlerType='dialog',
                                  childname='form',attachTo=bc,store='memory',
-                                 store_pkeyField='code')
+                                 store_pkeyField='pkey')
+       #stfield_type = Bag()
+
+       #stfield_type.setItem('formula',None,caption='New formula')
+       #stfield_type.setItem('calc_on_field',None,caption='Calculated from field')
+
+       #frame.top.bar.replaceSlots('delrow','delrow,addrow',addrow_defaults=stfield_type)
+        self.ths_fieldsform(form)
+
+    def ths_fieldsform(self,form):
+
         fb = form.record.formbuilder()
         fb.textbox(value='^.caption',lbl='Caption')
 
