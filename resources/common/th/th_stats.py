@@ -96,6 +96,7 @@ class TableHandlerStats(BaseComponent):
                     stat_rows='=.stats.conf.rows',
                     stat_values='=.stats.conf.values',
                     stat_columns='=.stats.conf.columns',
+                    stat_fields='=.stats.conf.fields',
                     relatedTableHandlerFrameCode=relatedTableHandlerFrameCode,
                     _lockScreen=True,
                     _onCalling="""
@@ -291,7 +292,7 @@ class TableHandlerStats(BaseComponent):
     def ths_getPivotTable(self,df=None,table=None,relation_field=None,relation_value=None,
                         filters=None,mainfilter=None,
                         stat_rows=None,stat_columns=None,
-                        stat_values=None,outmode=None,
+                        stat_values=None,stat_fields=None,outmode=None,
                         filename=None,condition=None,where=None,
                         **kwargs):
         condition_kwargs= dictExtract(kwargs,'condition_')
@@ -301,7 +302,7 @@ class TableHandlerStats(BaseComponent):
             stat_values = stat_values or Bag()
             stat_columns = stat_columns or Bag()
             stat_rows = stat_rows or Bag()
-            columns = stat_values.digest('#v.field') + stat_columns.digest('#v.field') + stat_rows.digest('#v.field')
+            columns = [f for f in stat_fields.digest('#v.field') if f]
             df = self.ths_getDataframe(table,filters=filters,mainfilter=mainfilter,
                                         relation_field=relation_field,
                                         relation_value=relation_value,
@@ -311,8 +312,22 @@ class TableHandlerStats(BaseComponent):
                                         where=where,
                                         condition_kwargs=condition_kwargs,
                                         **kwargs)
+            pddf = df.dataframe
+            for fv in stat_fields.values():
+                if not fv['st_mode']:
+                    continue
+                if fv['st_mode'] == 'from_field':
+                    if fv['from_dtype'] in ('D','DH'):
+                        ff_dt = pddf[fv['from_field']].dt
+                        if fv['extract']:
+                            pddf[fv['pkey']] = getattr(ff_dt,fv['extract'])
+                        elif fv['to_period']:
+                            pddf[fv['pkey']] = ff_dt.to_period(fv['to_period'])
+                elif fv['st_mode'] == 'formula':
+                    pddf.eval('%(pkey)s = %(raw_formula)s' %fv,inplace=True) 
             if not df:
-                return        
+                return    
+            
         pivotdf,bagresult = df.pivotTableGrid(index=stat_rows if stat_rows else None,
                                             values=stat_values if stat_values else None,
                                             columns=stat_columns if stat_columns else None)
@@ -392,23 +407,77 @@ class TableHandlerStats(BaseComponent):
             values='^.stats.conf.values',
             _if='fields',_onBuilt=True,_delay=10)
         form = frame.grid.linkedForm(frameCode='th_conf_fields',
-                                 datapath='.form',loadEvent='onRowDblClick',
-                                 dialog_height='530px',dialog_width='680px',
-                                 dialog_title='^.form.ftitle',handlerType='dialog',
+                                 datapath='#ANCHOR.st_form',loadEvent='onRowDblClick',
+                                 dialog_height='250px',dialog_width='350px',
+                                 dialog_title='Edit Field',handlerType='dialog',
                                  childname='form',attachTo=bc,store='memory',
                                  store_pkeyField='pkey')
-       #stfield_type = Bag()
+        stfield_type = Bag()
 
-       #stfield_type.setItem('formula',None,caption='New formula')
-       #stfield_type.setItem('calc_on_field',None,caption='Calculated from field')
+        stfield_type.setItem('from_field',None,caption='From field',default_kw = dict(st_mode='from_field'))
+        stfield_type.setItem('formula',None,caption='New formula',default_kw = dict(st_mode='formula'))
+        stfield_type.setItem('from_model',None,caption='From model',default_kw = dict(st_mode='from_model'))
 
-       #frame.top.bar.replaceSlots('delrow','delrow,addrow',addrow_defaults=stfield_type)
+        frame.top.bar.replaceSlots('delrow','delrow,addrow',addrow_defaults=stfield_type)
         self.ths_fieldsform(form)
 
     def ths_fieldsform(self,form):
+        form.top.slotToolbar('2,navigation,*')
+        bc = form.center.borderContainer()
+        top = bc.contentPane(region='top',datapath='.record',border_bottom='1px solid silver')
+        fb = top.formbuilder(margin_top='10px',margin_left='10px',lbl_width='7em')
+        fb.textbox(value='^.pkey',lbl='!!Name',validate_notnull=True,unmodifiable=True)
+        fb.textbox(value='^.caption',lbl='!!Caption',validate_notnull=True)
+        fb.filteringSelect(value='^.dtype',lbl='!!Dtype',validate_notnull=True,unmodifiable=True,
+                    values='T,N,L,D,DH,H',
+                    validate_onAccept="""
+                        SET .stat_type = value=='N' || value=='L'? 'numeric':'index';
+                    """)
 
-        fb = form.record.formbuilder()
-        fb.textbox(value='^.caption',lbl='Caption')
+        sc = bc.stackContainer(selectedPage='^.record.st_mode?=#v || "realfield"',region='center')
+        sc.contentPane(pageName='realfield')
+        self.ths_fieldsform_from_field(sc.contentPane(pageName='from_field'))
+        self.ths_fieldsform_formula(sc.contentPane(pageName='formula'))
+        self.ths_fieldsform_from_model(sc.contentPane(pageName='from_model'))
+        bar = form.bottom.slotBar('*,cancel,savebtn',margin_bottom='2px',_class='slotbar_dialog_footer')
+        bar.cancel.button('!!Cancel',action='this.form.abort();')
+        bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})')
+        
+    def ths_fieldsform_from_field(self,pane):
+        fb = pane.formbuilder(datapath='.record',margin='10px',lbl_width='7em')
+        fb.callbackSelect(value='^.from_field',callback="""function(kw){
+                var _id = kw._id;
+                var _querystring = kw._querystring;
+                var data = this.sourceNode.getRelativeData('#ANCHOR.stats.conf.fields').getNodes().map(function(n){
+                    var r = n.getValue().asDict();
+                    r._pkey = r.pkey;
+                    return r;
+                });
+                
+                var cbfilter = function(n){return true};
+                if(_querystring){
+                    _querystring = _querystring.slice(0,-1).toLowerCase();
+                    cbfilter = function(n){return n.caption.toLowerCase().indexOf(_querystring)>=0;};
+                }else if(_id){
+                    cbfilter = function(n){return n._pkey==_id;}
+                }
+                data = data.filter(cbfilter);
+                return {headers:'caption:Field,dtype:Dtype',data:data}
+            }""",auxColumns='dtype',selected_dtype='.from_dtype',
+            selected_field='.field',
+           hasDownArrow=True,lbl='!!From Field')
+        fb.comboBox(value='^.extract',hidden='^.from_dtype?=(#v!="D" && #v!="DH")',
+                        lbl='Extract',values='year,month,quarter')
+        fb.textbox(value='^.to_period',hidden='^.from_dtype?=(#v!="D" && #v!="DH")',
+                        lbl='To period',disabled='^.extract')
+
+    def ths_fieldsform_formula(self,pane):
+        fb = pane.formbuilder(datapath='.record',margin='10px',lbl_width='7em')
+        fb.simpleTextArea(value='^.raw_formula',lbl='Formula',width='15em',height='7ex')
+
+    def ths_fieldsform_from_model(self,pane):
+        pass
+
 
     def _ths_configPivotGrids(self,bc):
         self._ths_branchgrid(bc,'rows',region='top',height='33%')
