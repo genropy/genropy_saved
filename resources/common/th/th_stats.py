@@ -105,8 +105,15 @@ class TableHandlerStats(BaseComponent):
                         }
                         if(relatedTableHandlerFrameCode){
                             var selectionAttributes = genro.wdgById(relatedTableHandlerFrameCode+'_grid').collectionStore().storeNode.currentAttributes()
-                            objectExtract(selectionAttributes,'table,columns,checkPermissions');
+                            var storeKw = objectExtract(selectionAttributes,'table,columns,checkPermissions,_sections');
+
+
                             objectUpdate(kwargs,selectionAttributes);
+                            if(storeKw._sections){
+                                th_sections_manager.onCalling(storeKw._sections,kwargs);
+                            }
+                            
+
                         }
                         SET .stats.pivot_html = "";
                         if (!(stat_values && stat_values.len() && stat_rows && stat_rows.len())){
