@@ -615,7 +615,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                 var v = n.getValue(walkmode);
                 if(propagate && (v instanceof gnr.GnrBag )&& (v.len()>0)){
                     return;
-                }else if(n.attr.checked===true || n.attr.checked=='disabled:on'){
+                }else if(n.attr.checked===true){
                     for(var k in checked_attr){
                         var av = n.attr[k];
                         if(result[k].indexOf(av)<0){

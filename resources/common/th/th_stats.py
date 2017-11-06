@@ -447,27 +447,26 @@ class TableHandlerStats(BaseComponent):
                     getIconClass="""if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}
                                      else {return opened?'dijitFolderOpened':'dijitFolderClosed'}""")
         frame.dataController(""" 
-                                
-                                
                             dlg.show();
-                            var checkedPaths= [];
+                            var loadedCheckedPaths= [];
                             var v;
                             fields.getNodes().forEach(function(n){
                                     v = n.getValue();
                                     if(v.getItem('field')){
-                                        checkedPaths.push(v.getItem('field').replace('$',''));
+                                        loadedCheckedPaths.push(v.getItem('field').replace('$',''));
                                     }
                                 });
                                 data.walk(function(n){
                                     if(!n.attr.fieldpath){
                                         return;
                                     }
-                                    if (checkedPaths.indexOf(n.attr.fieldpath.replace('$',''))>=0){
-                                        console.log(n.attr.fieldpath);
+                                    if (loadedCheckedPaths.indexOf(n.attr.fieldpath.replace('$',''))>=0){
                                         n.updAttributes({checked:'disabled:on'});
+                                    }else{
+                                        n.updAttributes({checked:false});
                                     }
                                 },'static');
-                                tree.updateCheckedAttr();
+                                SET .loadedCheckedPaths = loadedCheckedPaths;
                             """,
                             _fired='^#ANCHOR.stats.addFieldsFromModelDlg',
                             dlg=dlg.js_widget,
@@ -482,7 +481,7 @@ class TableHandlerStats(BaseComponent):
         bar.dataController("""
         var checkedRows = new gnr.GnrBag();
         var n,key,f;
-        checkedPaths.split(',').forEach(function(path){
+        var cb = function(path,_class){
             n = data.getNode(path);
             f = n.attr.fieldpath;
             if(!f){
@@ -492,10 +491,21 @@ class TableHandlerStats(BaseComponent):
             checkedRows.setItem(key,new gnr.GnrBag({field:f[0]=='@'?f:'$'+f,
                                                     pkey:key,
                                                     caption:n.attr.fullcaption,
-                                                    dtype:n.attr.dtype}));
-        });
+                                                    dtype:n.attr.dtype}),{_customClasses:_class});
+        }
+        if(checkedPaths){
+            checkedPaths.split(',').forEach(function(path){
+                cb(path);
+            });
+        }
+        if(loadedCheckedPaths){
+            loadedCheckedPaths.forEach(function(path){
+                cb(path,'dimmed');
+            });
+        }
+
         SET .checkedRows = checkedRows;
-        """,checkedPaths='^.checkedPaths',data='=.tree')
+        """,checkedPaths='^.checkedPaths',loadedCheckedPaths='^.loadedCheckedPaths',data='=.tree')
 
         g = center.contentPane(region='center').quickGrid(value='^.checkedRows')
         #g.column('field',width='100%',name='Field')
@@ -505,7 +515,7 @@ class TableHandlerStats(BaseComponent):
         bar.dataController("""
         checkedRows.getNodes().forEach(function(n){
             if(!fields.getNode(n.label)){
-                fields.setItem(n.label,n.getValue(),n.attr);
+                fields.setItem(n.label,n.getValue());
             }
         });
         """,fields='=#ANCHOR.stats.conf.fields',checkedRows='=.checkedRows',_fired='^.addFields')
