@@ -452,15 +452,15 @@ class TableHandlerStats(BaseComponent):
                             var v;
                             fields.getNodes().forEach(function(n){
                                     v = n.getValue();
-                                    if(v.getItem('field')){
-                                        loadedCheckedPaths.push(v.getItem('field').replace('$',''));
+                                    if(v.getItem('field') && v.getItem('treepath')){
+                                        loadedCheckedPaths.push(v.getItem('treepath'));
                                     }
                                 });
                                 data.walk(function(n){
                                     if(!n.attr.fieldpath){
                                         return;
                                     }
-                                    if (loadedCheckedPaths.indexOf(n.attr.fieldpath.replace('$',''))>=0){
+                                    if (loadedCheckedPaths.indexOf(n.getFullpath(null,data))>=0){
                                         n.updAttributes({checked:'disabled:on'});
                                     }else{
                                         n.updAttributes({checked:false});
@@ -490,6 +490,7 @@ class TableHandlerStats(BaseComponent):
             key =  flattenString(f,['.','@']);
             checkedRows.setItem(key,new gnr.GnrBag({field:f[0]=='@'?f:'$'+f,
                                                     pkey:key,
+                                                    treepath:n.getFullpath(null,data),
                                                     caption:n.attr.fullcaption,
                                                     dtype:n.attr.dtype}),{_customClasses:_class});
         }
