@@ -190,7 +190,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         if(has_footer || has_columnset){
             var gridattr = objectUpdate({},sourceNode.attr);
             var _columnsetsNode,_footersNode;
-            sourceNode.attr = {tag:'BorderContainer'};
+            var containerAttr = objectExtract(gridattr,'region,pageName,title,margin,height,width');
+            containerAttr.tag = 'BorderContainer';
+            sourceNode.attr = containerAttr;
             sourceNode.label = 'grid_wrapper';
             sourceNode.setValue(new gnr.GnrDomSource(),false);
             if(has_columnset){
