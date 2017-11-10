@@ -9,7 +9,7 @@ from gnr.core.gnrbag import Bag
 from datetime import datetime
 from gnr.core.gnrstring import toText
 from gnr.core.gnrdecorator import timer_call
-from collections import defaultdict
+from collections import defaultdict,OrderedDict
 from gnr.core.gnrstring import splitAndStrip
 
 REPORT_INDEX_HTML = """
@@ -274,37 +274,55 @@ class GnrDataframe(object):
     def pivotTableGrid(self,index=None,values=None,columns=None,filters=None,out_xls=None,out_html=None,margins=None):
         funckeys = set()
         values_list =[]
-        aggfunc = None
+        index_list = []
+        cols_list = []
+        df = self.filteredDataframe(filters)
+        store = Bag()
+        if df.empty:
+            return df,store
+        adict = AGGFUNCDICT
+
+        def nodecb(node,vlist):
+            node_attr = node.attr
+            field = node_attr.get('field')
+            if field and node_attr.get('fn'):
+                fn = node_attr['fn'].split('.')
+                s = df[field.replace('$','').replace('.','_').replace('@','_')]
+                for subfn in fn:
+                    s = getattr(s,subfn)
+                df[node.label] = s
+            vlist.append(node.label)
         if isinstance(index,Bag):
-            index = index.keys()
+            for index_node in index:
+                nodecb(index_node,index_list)
+        else:
+            index_list = index
         if isinstance(columns,Bag):
-            columns = columns.keys()
+            for col_node in columns:
+                nodecb(col_node,cols_list)
+        else:
+            cols_list = columns
         if isinstance(values,Bag):
+            values_dict = OrderedDict()
             values_list = []
             for k,v in values.items():
                 values_list.append(k)
-                aggregators = v['aggregators'] or 'mean'
-                funckeys = funckeys.union(aggregators.split(','))
+                aggregators = v['aggregators']
+                if not aggregators:
+                    continue
+                if k not in values_dict:
+                    values_dict[k] = [adict[aggkey] for aggkey in aggregators.split(',')]
         else:
             values_list = values
             values = None
-        aggfunc = [np.mean]
-        adict = AGGFUNCDICT
-        if funckeys:
-            aggfunc = [adict[k] for k in funckeys]
-        store = Bag()
-        df = self.filteredDataframe(filters)
-        if df.empty:
-            return df,store
-        pt = df.pivot_table(index=index or None,
-                                        values=values_list or None, 
-                                        columns=columns or None,aggfunc=aggfunc,fill_value=0,margins=margins)
+        pt = df.pivot_table(index=index_list or None,
+                            values=values_list or None, 
+                            columns=cols_list or None,aggfunc= values_dict or [np.sum],
+                            fill_value=0,margins=margins)
         if out_html:
             self.parent.addReportHtml(pt,out_html)
         values = values or Bag()
         k = 0
-        multiagg = aggfunc and len(aggfunc)>1
-
         for index_vals,sel_vals in pt.iterrows():
             rec = Bag()
             if isinstance(index_vals,tuple):
@@ -313,22 +331,9 @@ class GnrDataframe(object):
             else:
                 rec[pt.index.names[0]] = str(index_vals)
             for c in sel_vals.index:
-
                 if isinstance(c,tuple):
-                    
                     ckey = '_'.join([str(z) for z in c]).replace('-','_').replace('.','_').replace(' ','_').replace('__','_')
-                    if not multiagg:
-                        rec.setItem(ckey,float(sel_vals[c]),dtype='R',format='###,###.00',name='<br/>'.join(ckey.split('_')))
-                    else:
-                        available_aggr = values[c[1]]['aggregators'] or 'mean'
-                        available_aggr = [adict[aggname].__name__ for aggname in available_aggr.split(',')]
-                        if c[0] in available_aggr:
-                            dtype = 'R'
-                            format = '###,###.00'
-                            if c[0]=='len':
-                                format = '###,###'
-                                dtype = 'L'
-                            rec.setItem(ckey,float(sel_vals[c]),dtype=dtype,format=format,name='<br/>'.join(ckey.split('_')))
+                    rec.setItem(ckey,float(sel_vals[c]),dtype='R',format='###,###.00',name='<br/>'.join(ckey.split('_')))
                 else:
                     rec.setItem(c,float(sel_vals[c]),dtype='R',format='###,###.00',name='<br/>'.join(c.split('_')))
             store.setItem('r_%s' %k,rec)
@@ -382,6 +387,7 @@ class GnrDbDataframe(GnrDataframe):
     def __init__(self,dfname,db=None,**kwargs):
         super(GnrDbDataframe, self).__init__(dfname,**kwargs)
         self.db = db
+        self.dbcolumns  = None
 
     def translate(self,txt=None):
         return self.db.application.localizer.translate(txt,language=self.language)
@@ -444,46 +450,55 @@ class GnrDbDataframe(GnrDataframe):
         columns = columns or tblobj.columns.keys()
         return ','.join(columns) 
 
+    
 
     def fieldsSourceBag(self,tblobj):
         result = Bag()
-        for col in self.defaultColumns(tblobj).split(','):
+        for col in self.dbcolumns:
             column = tblobj.column(col)
             attr = column.attributes
-            stats = attr.get('stats')
+            stats = attr.get('stats',True)
             dtype = attr.get('dtype')
             caption = attr.get('name_long')
             label = col.replace('$','').replace('.','_').replace('@','_')
             if dtype in ('N','L','I','R'):
-                if stats in (None,True):
-                    result.setItem('%s_sum' %label,None,caption=caption,
-                                field=col,stat_type='numeric',
-                                agg='sum')
-                else:
-                    for agg in stats.split(','):
-                        result.setItem('%s_%s' %(label,agg),None,caption='%s(%s)' %(caption,agg),
-                                field=col,stat_type='numeric',
-                                agg=agg)
+                result.setItem(label,Bag(dict(caption=caption or label,dtype=dtype,
+                                field=col,stat_type='numeric',agg='sum' if stats is True else stats,
+                                pkey=label)))
             else:
-                result.setItem(label,None,caption=caption,
-                                field=col,stat_type='index')
+                result.setItem(label,Bag(dict(caption=caption or label,
+                                field=col,stat_type='index',dtype=dtype,
+                                pkey=label)))
         return result
 
     def configPivotTree(self,tblobj,default_values=None,default_columns=None,default_rows=None):
         result = Bag()
+        self.dbcolumns = self.dbcolumns or self.defaultColumns(tblobj).split(',')
         fields = self.fieldsSourceBag(tblobj)
-        def extract_defaults(deflist=None):
+        def extract_defaults(deflist=None,numeric=None):
             res = Bag()
             if not deflist:
                 return res
             for f in deflist:
-                n = fields.popNode(f)
-                res.setItem(n.label,None,_attributes=n.attr)
+                aggr = None
+                if numeric:
+                    f = f.split('_')
+                    field = '_'.join(f[0:-1])
+                    n = fields.getNode(field)
+                    aggr = f[-1]
+                else:
+                    n = fields.getNode(f)
+                v = res.getItem(n.label)
+                if not v:
+                    v = Bag(n.value)
+                    res.setItem(n.label,v)
+                if aggr:
+                    v['aggregators'] = v['aggregators'] or ''
+                    v['aggregators'] = '%s,%s' %(v['aggregators'],aggr) if v['aggregators'] else aggr
             return res
         result.setItem('fields',fields,caption='!!Fields')
         result.setItem('rows',extract_defaults(default_rows),caption='!!Rows')
         result.setItem('columns',extract_defaults(default_columns),caption='!!Columns')
-        result.setItem('values',extract_defaults(default_values),caption='!!Values')
-
+        result.setItem('values',extract_defaults(default_values,numeric=True),caption='!!Values')
         return result
 

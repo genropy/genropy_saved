@@ -60,6 +60,7 @@ dojo.declare("gnr.widgets._tableHandlerStatsLayout", gnr.widgets.UserObjectLayou
                     remote_userObjectId:userObjectId,
                     remote_py_requires:'th/th_stats:TableHandlerStats',
                     remote__onRemote:function(){
+                        //gnrwdg.sourceNode.fireEvent('.built_viewer',true);
                         if(userObjectId){
                             gnrwdg.loadObject(userObjectId,true);
                         }
@@ -69,13 +70,13 @@ dojo.declare("gnr.widgets._tableHandlerStatsLayout", gnr.widgets.UserObjectLayou
     },
 
     gnrwdg_configuratorFrame:function(frame,kw){
-
         var cpkw = {side:'center',overflow:'hidden',remote:'_ths_configurator',
                               remote_relatedTable:this.relatedTable,
                               remote_relation_field:this.relation_field,
                               remote_relation_value:this.relation_value,
                               remote_table:this.table,
                               remote_condition:this.condition,
+                              remote_source_filters:'=.stats.source_filters',
                               remote_relatedTableHandlerFrameCode:this.relatedTableHandlerFrameCode,
                               remote_py_requires:'th/th_stats:TableHandlerStats'};
         //cpkw.remote_query_pars = normalizeKwargs(kw,'condition');

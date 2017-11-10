@@ -1470,7 +1470,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
     },
     
     isVisible:function(what){
-        var what = this.getDomNode(what);
+        what = this.getDomNode(what);
         if (what){
             var cs = dojo.getComputedStyle(what);
             if (!cs || cs.display=='none' || cs.visibility=='hidden'){
@@ -1482,6 +1482,11 @@ dojo.declare("gnr.GnrDomHandler", null, {
             return this.isWindowVisible();
         }
         return false;
+    },
+
+    isActiveLayer:function(what){
+        var sourceNode = this.getSourceNode(this.getDomNode(what));
+        return genro.dialogStack.length===0 || sourceNode.isChildOf(genro.dialogStack.slice(-1)[0].sourceNode);
     },
 
     setAutoSizer:function(sourceNode,domNode,cb,timing){

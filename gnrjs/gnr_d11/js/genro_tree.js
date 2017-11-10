@@ -611,31 +611,31 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                  result[k] = [];
              }
 
-             store.walk(function(n){
-                 var v = n.getValue(walkmode);
-                 if(propagate && (v instanceof gnr.GnrBag )&& (v.len()>0)){
-                     return;
-                 }else if(n.attr.checked===true){
-                     for(var k in checked_attr){
-                         var av = n.attr[k];
-                         if(result[k].indexOf(av)<0){
-                             result[k].push(av)
-                         }
-                         if(checkedPaths){
-                             p = n.getFullpath('static',store);
-                             if(cp.indexOf(p)<0){
-                                 cp.push(p);
-                             }
-                         }
-                     }
-                 }
-             },walkmode);
-             for(var k in checked_attr){
-                 this.sourceNode.setRelativeData(checked_attr[k],result[k].join(checked_attr_joiners[k] || ','),null,null,this);
-             }
-             if(checkedPaths){
-                 this.sourceNode.setRelativeData(checkedPaths,cp.join(checkedPaths_joiner || ','),null,null,this);
-             }
+            store.walk(function(n){
+                var v = n.getValue(walkmode);
+                if(propagate && (v instanceof gnr.GnrBag )&& (v.len()>0)){
+                    return;
+                }else if(n.attr.checked===true){
+                    for(var k in checked_attr){
+                        var av = n.attr[k];
+                        if(result[k].indexOf(av)<0){
+                            result[k].push(av)
+                        }
+                    }
+                    if(checkedPaths){
+                        p = n.getFullpath('static',store);
+                        if(cp.indexOf(p)<0){
+                            cp.push(p);
+                        }
+                    }
+                }
+            },walkmode);
+            for(var k in checked_attr){
+                this.sourceNode.setRelativeData(checked_attr[k],result[k].join(checked_attr_joiners[k] || ','),null,null,this);
+            }
+            if(checkedPaths){
+                this.sourceNode.setRelativeData(checkedPaths,cp.join(checkedPaths_joiner || ','),null,null,this);
+            }
              
          }
 

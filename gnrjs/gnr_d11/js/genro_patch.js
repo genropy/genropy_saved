@@ -1369,7 +1369,10 @@ genropatches.decimalRound = function() {
   // Decimal round
   if (!Math.round10) {
     Math.round10 = function(value, exp) {
-      return decimalAdjust('round', value, exp);
+        if(exp===undefined){
+            exp = -2;
+        }
+        return decimalAdjust('round', value, exp);
     };
   }
   // Decimal floor

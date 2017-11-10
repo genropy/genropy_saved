@@ -252,15 +252,19 @@ class FormHandler(BaseComponent):
     @struct_method          
     def fh_slotbar_form_dismiss(self,pane,caption=None,iconClass="iconbox dismiss" ,**kwargs):
         pane.formButton('!!Dismiss',iconClass=iconClass,
+                    _shortcut='@dismiss:alt+up',_shortcut_activeForm=True,
                     topic='navigationEvent',command='dismiss',**kwargs)
     
     @struct_method          
     def fh_slotbar_form_save(self,pane,always=False,**kwargs):
-        pane.formButton('!!Save',topic='save',iconClass="iconbox save",parentForm=True,command=always)
+        pane.formButton('!!Save',topic='save',iconClass="iconbox save",
+                        _shortcut='@save:f1',_shortcut_activeForm=True,
+                        parentForm=True,command=always)
 
     @struct_method          
     def fh_slotbar_form_revert(self,pane,**kwargs):
         pane.formButton('!!Revert',topic='reload',iconClass="iconbox revert", parentForm=True,
+                        _shortcut='@reload:f9',_shortcut_activeForm=True,
                        disabled='^.controller.changed?=!#v')
     
     @struct_method          
@@ -350,19 +354,30 @@ class FormHandler(BaseComponent):
     @struct_method          
     def fh_slotbar_form_first(self,pane,**kwargs):
         pane.formButton('!!First',iconClass="iconbox first",
+                    _shortcut='@first_record:shift+alt+left',_shortcut_activeForm=True,
                     topic='navigationEvent',command='first',
                     formsubscribe_navigationStatus="this.setDisabled($1.first || false);")
     
     @struct_method          
+    def fh_slotbar_form_last(self,pane,**kwargs):
+        pane.formButton('!!Last',iconClass="iconbox last",
+                     _shortcut='@last_record:shift+alt+right',_shortcut_activeForm=True,
+                    topic='navigationEvent',command='last',
+                    formsubscribe_navigationStatus="this.setDisabled($1.last || false);")
+
+
+    @struct_method          
     def fh_slotbar_form_prev(self,pane,**kwargs):
         pane.formButton('!!Prev',iconClass="iconbox previous",
                     topic='navigationEvent',command='prev',
+                    _shortcut='@prev_record:alt+left',_shortcut_activeForm=True,
                     formsubscribe_navigationStatus="this.setDisabled($1.first || false);")
     
     @struct_method          
     def fh_slotbar_form_next(self,pane,**kwargs):
         pane.formButton('!!Next',iconClass="iconbox next",
                     topic='navigationEvent',command='next',
+                    _shortcut='@next_record:alt+right',_shortcut_activeForm=True,
                     formsubscribe_navigationStatus="this.setDisabled($1.last || false);")
 
     @struct_method          
@@ -382,11 +397,6 @@ class FormHandler(BaseComponent):
                         logical_del_ts='^#FORM.record.%s' %logicalDeletionField)
 
             
-    @struct_method          
-    def fh_slotbar_form_last(self,pane,**kwargs):
-        pane.formButton('!!Last',iconClass="iconbox last",
-                    topic='navigationEvent',command='last',
-                    formsubscribe_navigationStatus="this.setDisabled($1.last || false);")
 
     @struct_method           
     def fh_formButton(self,pane,label=None,iconClass=None,topic=None,command=True,**kwargs):

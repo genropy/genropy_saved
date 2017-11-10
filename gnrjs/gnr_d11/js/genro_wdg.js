@@ -465,9 +465,12 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             }
         }
         var attrmixins = objectExtract(handler, 'attributes_mixin_*', true);
+        var dojoAttributes = objectExtract(handler, 'dojo_*',true);
+        
         var validations = objectExtract(attributes, 'validate_*');
         var extracted = objectExtract(attributes, '_*', {'_type':null, '_identifier':null}); // strip all attributes used only for triggering rebuild or as input for ==function
         objectUpdate(attributes, attrmixins);
+        objectUpdate(attributes,dojoAttributes);
         var newobj = handler.createDojoWidget(wdgFactory,attributes,domnode,sourceNode);
         if (kw.readonly) {
             var field = dojo.byId(newobj.id);
@@ -907,7 +910,7 @@ dojo.declare("gnr.GridEditor", null, {
         }
         if(!('tag' in colattr)){
             var dt = colattr['dtype'];
-            var widgets = {'L':'NumberTextBox','I':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'};
+            var widgets = {'L':'NumberTextBox','I':'NumberTextBox','D':'DateTextbox','DH':'DatetimeTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'};
             colattr['tag'] = widgets[dt] || 'Textbox';
             if('related_table' in colattr){
                 colattr['tag'] = 'dbselect';

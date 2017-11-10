@@ -39,11 +39,12 @@ VIRTUAL_COLUMNS_CACHETIME = timedelta(0,300)
 
 def bagItemFormula(bagcolumn=None,itempath=None,dtype=None):
     itempath = itempath.replace('.','/')
-    sql_formula = """ (xpath('/GenRoBag/%s/text()', CAST(%s as XML) ) )[1] """ %(itempath,bagcolumn)
+    sql_formula = """ CAST( (xpath('/GenRoBag/%s/text()', CAST(%s as XML) ) )[1]  AS text)""" %(itempath,bagcolumn)
     dtype = dtype or 'T'
     typeconverter = {'T':'text','A':'text','C':'text','P':'text', 'N': 'numeric','B': 'boolean',
                  'D': 'date', 'H': 'time without time zone','L': 'bigint', 'R': 'real'}
-    return """CAST ( ( %s ) AS %s) """ %(sql_formula,typeconverter[dtype])
+    desttype = typeconverter[dtype]
+    return """CAST ( ( %s ) AS %s) """ %(sql_formula,desttype) if desttype!='text' else sql_formula
 
 class NotExistingTableError(Exception):
     pass
@@ -271,7 +272,7 @@ class DbModel(object):
             self.db.adapter.createDb()
             self.modelChanges.pop(0)
         for change in self.modelChanges:
-            self.db.execute(change)
+            self.db.execute(change,_adaptArguments=False)
         self.db.commit()
         
     def _doMixin(self, path, obj):

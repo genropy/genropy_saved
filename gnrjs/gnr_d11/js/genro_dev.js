@@ -668,7 +668,14 @@ dojo.declare("gnr.GnrDevHandler", null, {
         }
     },
 
-    shortcut: function(shortcut, callback, opt) {
+    shortcut: function(shortcut, callback, opt,sourceNode) {
+        if(shortcut[0]=='@'){
+            shortcut = shortcut.slice(1).split(':');
+            shortcut = genro.getData('gnr.user_preference.sys.shortcuts.'+shortcut[0]) || shortcut[1];
+            if(!shortcut){
+                return;
+            }
+        }
         var default_options = {
             'type':'keydown',
             'propagate':false,
@@ -826,7 +833,15 @@ dojo.declare("gnr.GnrDevHandler", null, {
         };
 
         //Attach the function with the event    
-        if (ele.addEventListener) ele.addEventListener(opt['type'], func, false);
+        if (ele.addEventListener){
+            ele.addEventListener(opt['type'], func, false);
+            if(sourceNode){
+                if(!sourceNode._shortcuts){
+                    sourceNode._shortcuts = [];
+                }
+                sourceNode._shortcuts.push({args:[opt['type'], func, false],element:ele});
+            }
+        }
         else if (ele.attachEvent) ele.attachEvent('on' + opt['type'], func);
         else ele['on' + opt['type']] = func;
     },

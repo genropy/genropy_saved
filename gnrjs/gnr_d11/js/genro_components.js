@@ -4364,8 +4364,15 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
                                                                     tbl:this.userObjectPars.table,
                                                                     flags:this.userObjectPars.flags}, 
             function(result){
-                that.sourceNode.setRelativeData('#WORKSPACE.metadata',new gnr.GnrBag(result.attr));
-                that.onLoadedObject(result,userObjectId,firstLoad);
+                if (result){
+                    that.sourceNode.setRelativeData('#WORKSPACE.metadata',new gnr.GnrBag(result.attr));
+                    that.onLoadedObject(result,userObjectId,firstLoad);
+                }else{
+                    var currfavorite = that.getFavorite();
+                    if(currfavorite==userObjectId){
+                        genro.setInStorage("local", that.storageKey(), null);
+                    }
+                }
                 that.checkFavorite();
             });
         }
@@ -5459,9 +5466,13 @@ dojo.declare("gnr.stores._Collection",null,{
         }
         return result;
     },
+
+
+
     onLoading:function(){
 
     },
+
     onLoaded:function(result){
         this.storeNode.setRelativeData(this.storepath,result,null,null,'loadData');
         return result;
@@ -5975,6 +5986,7 @@ dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
 });
 
 dojo.declare("gnr.stores.RpcBase",gnr.stores.AttributesBagRows,{
+    askToDelete:true,
     loadData:function(){
         var that = this;
         if(!this.hasVisibleClients()){
@@ -6024,6 +6036,7 @@ dojo.declare("gnr.stores.RpcBase",gnr.stores.AttributesBagRows,{
 
 
 dojo.declare("gnr.stores.FileSystem",gnr.stores.RpcBase,{
+    askToDelete:true,
     deleteRows:function(files,protectPkeys){
         var that = this;
         var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
@@ -6036,6 +6049,7 @@ dojo.declare("gnr.stores.FileSystem",gnr.stores.RpcBase,{
 
 
 dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
+    askToDelete:true,
     constructor:function(){
         var liveUpdate = this.storeNode.attr.liveUpdate || 'LOCAL';
         var liveUpdateExcludeReason = this.storeNode.getAttributeFromDatasource('liveUpdateExcludeReason');
@@ -6446,6 +6460,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
 
 
 dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
+    askToDelete:true,
     constructor:function(){
         this.pendingPages = {};
         this.lastIdx =0;

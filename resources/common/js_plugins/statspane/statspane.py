@@ -412,18 +412,12 @@ class StatsPane(BaseComponent):
         footer = frame.bottom.slotToolbar('5,*,clear_res,5,run,10')
         footer.clear_res.slotButton('Clear',action="""FIRE #ANCHOR.clearCommandStatus;""")
         footer.run.slotButton('Run',action='FIRE #ANCHOR.runCommands;')
-
-
-
        
         basecommands,dfcommands = StatsCommandForms.commandmenubags()
         #frame.data('.basecommands',basecommands)
         frame.data('.dfcommands',dfcommands)
 
-        frame.dataController("""
-                                SET .menucommands = dfcommands;
-                                """,
-                        _onBuilt=True,dfcommands='=.dfcommands',
+        frame.dataController("""SET .menucommands = dfcommands;""",_onBuilt=True,dfcommands='=.dfcommands',
                         table=table)
 
 

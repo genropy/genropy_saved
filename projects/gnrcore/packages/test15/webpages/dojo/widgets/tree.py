@@ -30,7 +30,7 @@ class GnrCustomWebPage(object):
         pane.data('.root.genropy',resolver())
         pane.tree(storepath='.root',hideValues=True,autoCollapse=True,
                       checkChildren=True,checkedPaths='.checked',checkedPaths_joiner='\n',
-                      checked_abs_path='.checked_abspath:\n',
+                      #checked_abs_path='.checked_abspath:\n',
                       labelAttribute='nodecaption')
 
     def test_2_treegrid(self,pane):

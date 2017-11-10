@@ -85,8 +85,8 @@ class PublicBase(BaseComponent):
                             **kwargs)
 
     @struct_method
-    def public_roundedGroup(self, container, title=None,frame=False,top=None,bottom=None,left=None,right=None,**kwargs):
-        pane = container.contentPane(**kwargs)
+    def public_roundedGroup(self, container, title=None,frame=False,top=None,bottom=None,left=None,right=None,overflow='hidden',**kwargs):
+        pane = container.contentPane(overflow=overflow,**kwargs)
         rb = pane.div(_class='pbl_roundedBlock',top=top,bottom=bottom,left=left,right=right)
         if title:
             rb.div(title,_class='pbl_roundedGroupLabel')
@@ -510,6 +510,11 @@ class TableHandlerMain(BaseComponent):
             """
         if hasattr(th,'form'):
             self._th_parentFrameMessageSubscription(th.form)
+            
+            root.dataController("""
+                    genro.dev.shortcut("@jump_record:alt+j", function() {
+                        frm.recordSearchBox();
+                    });""",frm=th.form.js_form,_onBuilt=True)
         return th
 
 
