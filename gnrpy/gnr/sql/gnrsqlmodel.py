@@ -1268,6 +1268,19 @@ class DbBaseColumnObj(DbModelObj):
 
     def getPermissions(self,**kwargs):
         return self.table.getColPermissions(self.name,**kwargs)
+
+    def doInit(self):
+        if not self.attributes.get('dtype'):
+            if self.attributes.get('size'):
+                self.attributes['dtype'] = 'A'
+            else:
+                self.attributes['dtype'] = 'T'
+        attributes_mixin_handler = getattr(self.pkg, 'custom_type_%s' % self.attributes['dtype'], None)
+        if attributes_mixin_handler:
+            attributes_mixin = dict(attributes_mixin_handler())
+            self.attributes['dtype'] = attributes_mixin.pop('dtype')
+            attributes_mixin.update(self.attributes)
+            self.attributes = attributes_mixin
         
         
 class DbColumnObj(DbBaseColumnObj):
@@ -1281,17 +1294,7 @@ class DbColumnObj(DbBaseColumnObj):
 
     def doInit(self):
         """TODO"""
-        if not self.attributes.get('dtype'):
-            if self.attributes.get('size'):
-                self.attributes['dtype'] = 'A'
-            else:
-                self.attributes['dtype'] = 'T'
-        attributes_mixin_handler = getattr(self.pkg, 'custom_type_%s' % self.attributes['dtype'], None)
-        if attributes_mixin_handler:
-            attributes_mixin = dict(attributes_mixin_handler())
-            self.attributes['dtype'] = attributes_mixin.pop('dtype')
-            attributes_mixin.update(self.attributes)
-            self.attributes = attributes_mixin
+        super(DbColumnObj, self).doInit()
         self.table.sqlnamemapper[self.name] = self.adapted_sqlname
         column_relation = self.structnode.value['relation']
         if column_relation is not None:
@@ -1333,7 +1336,7 @@ class DbColumnObj(DbBaseColumnObj):
             
 class DbVirtualColumnObj(DbBaseColumnObj):
     sqlclass = 'virtual_column'
-        
+    
     def _get_relation_path(self):
         """property. Returns the :ref:`relation_path`"""
         return self.attributes.get('relation_path')
