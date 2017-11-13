@@ -75,8 +75,8 @@ class Package(GnrDboPackage):
 
 
 class Table(GnrDboTable):
-    def use_dbstores(self,forced_dbstore=None,**kwargs):
-        return forced_dbstore or False
+    def use_dbstores(self,forced_dbstore=None, env_forced_dbstore=None,**kwargs):
+        return forced_dbstore or env_forced_dbstore or False
 
     def isInStartupData(self):
         return False
