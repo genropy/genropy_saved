@@ -563,8 +563,8 @@ class TableHandlerView(BaseComponent):
         b.menu(storepath='.structMenuBag',_class='smallmenu',modifiers='*',selected_fullpath='.currViewPath')
 
     @struct_method
-    def th_slotbar_resourcePrints(self,pane,flags=None,from_resource=None,**kwargs):
-        pane.div(_class='iconbox menubox print').menu(modifiers='*',storepath='.resources.print.menu',_class='smallmenu',
+    def th_slotbar_resourcePrints(self,pane,flags=None,from_resource=None,hidden=None,**kwargs):
+        pane.div(_class='iconbox menubox print',hidden=hidden).menu(modifiers='*',storepath='.resources.print.menu',_class='smallmenu',
                     action="""FIRE .th_batch_run = {resource:$1.resource,template_id:$1.template_id,res_type:'print'};""")
 
     @public_method
