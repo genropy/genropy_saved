@@ -491,6 +491,9 @@ class GnrWsgiSite(object):
             site_config = Bag(site_config_path)
         return site_config
 
+    def external_site_config(self,sitename):
+        return PathResolver().get_siteconfig(sitename)
+
     @property
     def custom_config(self):
         if not getattr(self,'_custom_config',None):
