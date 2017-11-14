@@ -3819,6 +3819,7 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
 });
 
 dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
+    _autoselectFirstOption:false,
     creating: function(attributes, sourceNode) {
         var savedAttrs = {};
         attributes.httpMethod = attributes.httpMethod || genro.extraFeatures.wsk_dbselect?'WSK':null;
@@ -3971,13 +3972,17 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
                 }
                 var that = this;
                 setTimeout(function(){
-                    that._popupWidget.highlightFirstOption();
-                },1)
+                    if(that.gnr._autoselectFirstOption){
+                        that._popupWidget.highlightFirstOption();
+                    }
+                },1);
                 
             });
         }else{
-            dojo.connect(widget,'_openResultList',function(){
-                widget._popupWidget.highlightFirstOption();
+            dojo.connect(widget,'_openResultList',function(){                
+                if(widget.gnr._autoselectFirstOption){
+                    widget._popupWidget.highlightFirstOption();
+                }
             });
         }
         this.connectForUpdate(widget, sourceNode);
@@ -4147,6 +4152,7 @@ dojo.declare("gnr.widgets.ComboBox", gnr.widgets.BaseCombo, {
 
 dojo.declare("gnr.widgets.BaseSelect", null, {
     _validatingWidget:true,
+    _autoselectFirstOption:true,
 
     constructor: function(application) {
         this._domtag = 'div';
@@ -4161,6 +4167,7 @@ dojo.declare("gnr.widgets.BaseSelect", null, {
             sourceNode.attr.validate_select_error = 'Not existing value';
         }
     },
+    
 
     versionpatch_11__setBlurValue : function(){
             // if the user clicks away from the textbox OR tabs away, set the
