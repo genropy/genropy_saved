@@ -66,7 +66,7 @@ def tracebackBag(limit=None):
                 if isinstance(v,GnrStructData):
                     v = '*STRUCTURE*'
                 elif isinstance(v,Bag):
-                    v = v.deepcopy()
+                    v = '*BAG*'
                 loc[k] = v
             except Exception:
                 loc[k] = '*UNSERIALIZABLE* %s' %v.__class__
