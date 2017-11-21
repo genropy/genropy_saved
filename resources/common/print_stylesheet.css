@@ -1,3 +1,7 @@
 .document_draft{
     background:url(images/draft.png) center center no-repeat fixed;
 }
+
+.document_draft_hidden .document_draft{
+    display: none;
+}
