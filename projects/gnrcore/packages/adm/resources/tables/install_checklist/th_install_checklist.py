@@ -22,14 +22,17 @@ class View(BaseComponent):
         return dict(column='name', op='contains', val='')
 
 class ViewChecklist(BaseComponent):
-
+    def th_hiddencolumns(self):
+        return '$__syscode,$name,$description,$annotations,$doc_url,$pkg'
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('__syscode',name='!!Code')
-        r.fieldcell('name',width='15em')
-        r.fieldcell('description',width='30em')
-        r.fieldcell('annotations',width='30em')
         r.checkboxcolumn(field='checked',remoteUpdate=True,name='Done',width='5em')
+        r.cell('tpl',rowTemplate="""<div style="font-weight:bold">$pkg: $name</div>
+                                    <div style="font-size:.9em;">$description</div>
+                                    <div style="font-size:.9em;color:red;">$annotations</div>""",
+                                    width='30em',cellClasses='tplcell',
+                                    #edit=dict(fields=[dict(field='annotations',tag='simpleTextArea',height='40px')]),
+                                    calculated=True)
 
     def th_sections_onpkg(self):
         result =[dict(code='_all_',caption='!!All')]
@@ -49,7 +52,7 @@ class ViewChecklist(BaseComponent):
         top.bar.replaceSlots('vtitle','sections@onpkg,10,sections@todo')
 
     def th_order(self):
-        return '__sysrecord'
+        return '__syscode'
 
 
 class Form(BaseComponent):
