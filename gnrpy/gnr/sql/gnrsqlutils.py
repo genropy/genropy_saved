@@ -103,7 +103,10 @@ class ModelExtractor(object):
             one_field = one_cols[0]
             
             fld = root['packages.%s.tables.%s.columns.%s' % (many_schema, many_table, many_field)]
-            fld.relation('%s.%s.%s' % (one_schema, one_table, one_field))
+            if not fld:
+                print 'missing field %s in table %s.%s' %(many_field,many_schema,many_table)
+            else:
+                fld.relation('%s.%s.%s' % (one_schema, one_table, one_field))
             
     def buildViews(self):
         """TODO"""
