@@ -606,8 +606,7 @@
     padding: 0px;
     border: 1px solid silver;
     font-size: inherit;
-    -webkit-box-shadow:3px 3px 5px #adadad !important;
-    -webkit-box-shadow:3px 3px 5px #adadad !important;
+    box-shadow:3px 3px 5px #adadad !important;
     background-color:#f6f6f6;
 }
 
@@ -955,8 +954,7 @@
 .buttons_grid .dojoxGrid-row-selected .cellContent{
     background:#888;
     color: #fff;
-	-moz-box-shadow: inset 1px 1px 2px #222;
-    -webkit-box-shadow:inset 1px 1px 2px #222;
+	box-shadow: inset 1px 1px 2px #222;
 }
 
 
@@ -1018,8 +1016,7 @@
     border-bottom-left-radius: 4px;
 }
 .multibutton_selected.multibutton, .multibutton:active{
-    -moz-box-shadow: none;
-    -webkit-box-shadow:none;
+    box-shadow: none;
 }
 .multibutton{
     background-image: none;
@@ -1094,8 +1091,7 @@
     /*background-image: -webkit-gradient(linear, 0% 0%, 0% 90%,  from(rgba(182, 182, 182, 0.75)),to(rgba(239, 239, 239, 0.9)));
     background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75),rgba(239, 239, 239, 0.9));*/
     background:#888;
-    -moz-box-shadow: inset 1px 1px 2px #222;
-    -webkit-box-shadow:inset 1px 1px 2px #222;
+    box-shadow: inset 1px 1px 2px #222;
     border-color: silver;
 }
 .tundra .dijitDisabled.dijitTextBoxReadOnly,
