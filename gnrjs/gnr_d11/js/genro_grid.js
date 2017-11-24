@@ -3173,10 +3173,10 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         };
         var struct = this.structBag.getItem('#0.#0');
         var cellmap = this.cellmap;
-        var formulaColumns = {};
         var cm = this.changeManager;
         if(cm){
             cm.resetCellpars();
+            cm.formulaColumns = {};
         }
         for(var k in cellmap){
             var cell = cellmap[k];
