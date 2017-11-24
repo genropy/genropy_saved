@@ -1897,7 +1897,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             result['tag'] = 'timeTextBox'
             result['_guess_width'] = '7em'
         elif dtype == 'DH':
-            result['tag'] = 'datetimeTextBox'
+            result['tag'] = result.get('tag') or 'div'
             result['_guess_width'] = '9em'
         elif dtype =='X':
             result['tag'] = 'tree'         
