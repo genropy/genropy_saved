@@ -7,7 +7,7 @@
 from gnr.web.gnrwebpage import BaseComponent
 from redbaron import RedBaron
 from gnr.core.gnrdecorator import public_method
-from gnr.core.gnrstring import boolean,flatten,isOnlyAscii
+from gnr.core.gnrstring import boolean,flatten
 from gnr.core.gnrbag import Bag
 from collections import OrderedDict
 from datetime import datetime
@@ -31,10 +31,7 @@ class TableModuleWriter(BaseComponent):
             if v in ('',None):
                 continue
             if isinstance(v,basestring):
-                if isOnlyAscii(v):
-                    v = ("'%s'" if not "'" in v else '"%s"') %v
-                else:
-                    v = ("u'%s'" if not "'" in v else 'u"%s"') %v
+                v = ("'%s'" if not "'" in v else '"%s"') %v
             elif isinstance(v, Bag):
                 v = "dict(%s)" %self.bagToArgString(v,prefix='')
             atlst.append("%s=%s" %(k,v))
@@ -146,9 +143,9 @@ class Table(object):
                 v = True
             if isinstance(v,basestring):
                 if "'" in v:
-                    v = '"%s"' %v if isOnlyAscii(v) else 'u"%s"'
+                    v = '"%s"' %v
                 else:
-                    v = "'%s'" %v if isOnlyAscii(v) else "u'%s'"
+                    v = "'%s'" %v
             atlst.append("%s=%s" %(k,v))
         return """relation('%s',%s)"""  %(relpath,', '.join(atlst))
 
