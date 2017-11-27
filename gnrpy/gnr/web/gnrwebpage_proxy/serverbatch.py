@@ -109,7 +109,9 @@ class GnrWebBatch(GnrBaseProxy):
         self.last_ts = self.start_ts
         self.cancellable = True
         self.userBatch = userBatch
-        self.delay = delay
+        self.delay = delay       
+        if self.is_headless:
+            self.delay = 100000
         with self.page.userStore() as store:
             store.drop_datachanges(self.batch_path)
             newbatch = Bag(dict(title=title, start_ts=self.start_ts, lines=thermo_lines, note=note,
@@ -119,22 +121,30 @@ class GnrWebBatch(GnrBaseProxy):
             store.set_datachange(self.batch_path, newbatch, reason='btc_create')
         return batch_id
 
+    @property
+    def is_headless(self):
+        return  not self.page.page_id or getattr(self.page,'is_heartbeat',False)
+    
     #@debug_call
     def batch_complete(self, result=None, result_attr=None):
+        if self.is_headless:
+            return
         result_doc = self._result_write(result=result, result_attr=result_attr)
         with self.page.userStore() as store:
             store.set_datachange('%s.end' % self.batch_path, True, reason='btc_end')
             store.set_datachange(self.batch_path, result_doc, reason='btc_result_doc')
 
     def batch_error(self, error=None, error_attr=None):
-        error_doc = self._result_write(error=error, error_attr=error_attr)
-        if not self.page.page_id or getattr(self.page,'is_heartbeat',False):
+        if self.is_headless:
             return
+        error_doc = self._result_write(error=error, error_attr=error_attr)
         with self.page.userStore() as store:
             store.set_datachange('%s.error' % self.batch_path, True, reason='btc_error')
             store.set_datachange(self.batch_path, error_doc, reason='btc_error_doc')
 
     def batch_aborted(self):
+        if self.is_headless:
+            return
         with self.page.userStore() as store:
             store.drop_datachanges(self.batch_path)
             store.set_datachange(self.batch_path, None, reason='btc_aborted')
