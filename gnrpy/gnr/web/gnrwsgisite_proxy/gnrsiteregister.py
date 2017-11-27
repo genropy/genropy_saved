@@ -25,6 +25,7 @@ import thread
 import Pyro4
 import os
 import re
+import sys
 from datetime import datetime
 from collections import defaultdict
 from gnr.core.gnrbag import Bag,BagResolver
@@ -60,9 +61,9 @@ PYRO_HOST = 'localhost'
 PYRO_PORT = 40004
 PYRO_HMAC_KEY = 'supersecretkey'
 PYRO_MULTIPLEX = True
-LOCK_MAX_RETRY = 100
-LOCK_EXPIRY_SECONDS = 30
-RETRY_DELAY = 0.01
+LOCK_MAX_RETRY = 50
+LOCK_EXPIRY_SECONDS = 10
+RETRY_DELAY = 0.2
 
 def remotebag_wrapper(func):
     def decore(self,*args,**kwargs):
@@ -1200,7 +1201,9 @@ class ServerStore(object):
             time.sleep(self.retry_delay)
             k += 1
             if k>self.max_retry:
-                print '************UNABLE TO LOCK STORE : %s ITEM %s ***************' % (self.register_name, self.register_item_id)
+                print >> sys.stderr, (
+                    "-- [%i-%i-%i %i:%i:%i] -- UNABLE TO LOCK STORE : %s  ITEM %s " % (time.localtime()[:6]+(self.register_name,self.register_item_id)))
+
                 raise GnrDaemonLocked()
         self.success_locking_time = time.time()
         return self
