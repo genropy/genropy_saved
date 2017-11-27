@@ -16,13 +16,18 @@ class Table(object):
         tbl.column('weekday',name_long='!!Weekday',values='0:[!!Sun],1:[!!Mon],2:[!!Tue],3:[!!Wed],4:[!!Thu],5:[!!Fri],6:[!!Sat]')
         tbl.column('hour',name_long='!!Hour',values=','.join([str(x) for x in range(24)]))
         tbl.column('minute',name_long='!!Minute',values=','.join([str(x) for x in range(60)]))
+        tbl.column('frequency', dtype='L', name_long='!!Freq.(minutes)')
         tbl.column('parameters',dtype='X',name_long='!!Parameters') # date
-        tbl.column('last_execution','DH',name_long='!!Last Execution')
+        tbl.column('last_execution_ts','DH',name_long='!!Last Execution')
+        tbl.column('last_error_ts','DH',name_long='!!Last Error')
+        tbl.column('last_error_info','X',name_long='!!Last Error Info')
+        tbl.column('run_asap','B',name_long='!!Run ASAP')
         tbl.column('log_result', 'B', name_long='!!Log Result')
         tbl.column('user_id',size='22',group='_',name_long='User id').relation('adm.user.id', mode='foreignkey', onDelete='raise')
         tbl.column('date_start','D',name_long='!!Start Date')
         tbl.column('date_end','D',name_long='!!End Date')
         tbl.column('stopped','B',name_long='!!Stopped')
+
 
 
     def isTaskScheduledNow(self,task,timestamp):
@@ -45,7 +50,13 @@ class Table(object):
                     if limits and single>=limits[0] and single<=limits[1]:
                         outlist.append(single)
             return outlist
-                    
+
+        if task['run_asap']:
+            return True
+        if task['frequency']:
+            last_execution_ts = task['last_execution_ts']
+            return last_execution_ts is None or (timestamp-last_execution_ts).seconds/60.>=task['frequency']
+
         month=expandIntervals(task['month'],limits=(1,12))
         if month and timestamp.month not in month:
             return False
