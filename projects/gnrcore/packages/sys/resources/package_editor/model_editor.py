@@ -7,11 +7,10 @@
 from gnr.web.gnrwebpage import BaseComponent
 from redbaron import RedBaron
 from gnr.core.gnrdecorator import public_method
-from gnr.core.gnrstring import boolean
+from gnr.core.gnrstring import boolean,flatten
 from gnr.core.gnrbag import Bag
 from collections import OrderedDict
 from datetime import datetime
-from gnr.core.gnrstring import flatten
 import os
 
 SYSFIELDS_DEFAULT = OrderedDict([('id',True), ('ins',True), ('upd',True), 

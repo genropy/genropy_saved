@@ -759,6 +759,8 @@ def baseDecode(s, base='/16'):
 def decode36(s):
     return baseDecode(s,'/36')
 
+def isOnlyAscii(s):
+    return re.match('^[\x00-\x7F]+$', s) is not None
 
 def fromIsoDate(datestring):
     """TODO

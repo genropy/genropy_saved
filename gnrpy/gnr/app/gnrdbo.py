@@ -550,20 +550,32 @@ class TableBase(object):
         return result
 
 
-    def createSysRecords(self):
+    def createSysRecords(self,do_update=False):
         syscodes = []
+        currentPage = self.db.currentPage
+        do_update = do_update
+        if currentPage and currentPage._call_kwargs.get('_refresh_sysrecord') and currentPage.isDeveloper():
+            do_update = True
         for m in dir(self):
             if m.startswith('sysRecord_') and m!='sysRecord_':
                 method = getattr(self,m)
                 if getattr(method,'mandatory',False):
                     syscodes.append(m[10:])
-        commit = False
+        commit = do_update
         if syscodes:
-            f = self.query(where='$__syscode IN :codes',codes=syscodes).fetchAsDict('__syscode')
+            f = self.query(where='$__syscode IN :codes',codes=syscodes,for_update=do_update).fetchAsDict('__syscode')
             for syscode in syscodes:
                 if syscode not in f:
                     self.sysRecord(syscode)
                     commit = True
+                elif do_update:
+                    updated_version = getattr(self,'sysRecord_%s' %syscode)()
+                    rec = f[syscode]
+                    oldrecord = dict(rec)
+                    for k,v in updated_version.items():
+                        rec[k] = v
+                    rec['__syscode'] = syscode
+                    self.update(rec,oldrecord)
         if commit:
             self.db.commit()
 

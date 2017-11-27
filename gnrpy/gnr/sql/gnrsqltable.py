@@ -582,12 +582,13 @@ class SqlTable(GnrObject):
         currentPage = self.db.currentPage
         cacheKey = '%s.%s' %(topic,self.fullname)
         if currentPage:
-            with currentPage.pageStore() as store:
-                if store:
-                    localcache = store.getItem(cacheKey)
-                localcache = localcache or Bag()
-                data,in_cache = cb(cache=localcache,**kwargs)
-                if store and not in_cache:
+            store = currentPage.pageStore()
+            if store:
+                localcache = store.getItem(cacheKey)
+            localcache = localcache or Bag()
+            data,in_cache = cb(cache=localcache,**kwargs)
+            if store and not in_cache:
+                with currentPage.pageStore() as store:
                     store.setItem(cacheKey,localcache,_caching_table=self.fullname)
         else:
             localcache = self.db.currentEnv.setdefault(cacheKey,Bag())

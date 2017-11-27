@@ -21,12 +21,12 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 from os import sep
 
-def checklist(name=None, pkg=None, code=None, subcode=None,**kwargs):
+def checklist(name=None, pkg=None, code=None, subcode=None,doc_url=None,**kwargs):
     code = '%03i' % (code or 0)
     subcode = '%02i' % (subcode or 0)
     def decore(func):
         modulepkg = func.func_code.co_filename.split('packages%s' %sep)[1].split(sep)[0]
-        checklist_dict = dict(pkg=pkg or modulepkg, name=name, subcode=subcode, code=code)
+        checklist_dict = dict(pkg=pkg or modulepkg, name=name, subcode=subcode, code=code, doc_url=doc_url)
         def newFunc(tbl):
             description = func.func_doc
             pars = dict(checklist_dict)

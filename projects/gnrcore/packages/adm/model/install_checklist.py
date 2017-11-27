@@ -15,6 +15,7 @@ class Table(object):
         tbl.column('check_ts', dtype = 'DH' , name_long = '!!Check ts')
         tbl.column('check_user',size = ':30', name_long = '!!Check user')
         tbl.column('annotations', name_long = '!!Annotations')
+        tbl.column('doc_url', name_long='!!Documentation url', name_short='!!Url')
         
     def trigger_onUpdating(self,record,old_record):
         if record['checked']:
