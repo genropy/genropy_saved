@@ -1207,7 +1207,7 @@ class GnrWsgiSite(object):
     def heartbeat_options(self):
         heartbeat = boolean(self.config['wsgi?heartbeat'])
         if heartbeat:
-            site_url = self.config['wsgi?external_host'] or (self.currentRequest and self.currentRequest.host_url)
+            site_url = self.config['wsgi?heartbeat_host'] or self.config['wsgi?external_host'] or (self.currentRequest and self.currentRequest.host_url)
             if site_url:
                 return dict(interval=60,site_url=site_url)
 
