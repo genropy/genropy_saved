@@ -9,20 +9,20 @@ class Table(object):
         tbl =  pkg.table('task', rowcaption='$task_name',caption_field='$task_name', pkey='id',name_long='!!Task',name_plural='!!Tasks')
         self.sysFields(tbl)
         tbl.column('table_name',name_long='!!Table')
-        tbl.column('task_name',name_long='!!Task name') # char(4)
+        tbl.column('task_name',name_long='!!Task name',name_short='!!Name') # char(4)
         tbl.column('command',name_long='!!Command')
         tbl.column('month',name_long='!!Month',values='1:[!!Jan],2:[!!Feb],3:[!!Mar],4:[!!Apr],5:[!!May],6:[!!Jun],7:[!!Jul],8:[!!Aug],9:[!!Sep],10:[!!Oct],11:[!!Nov],12:[!!Dec]')
         tbl.column('day',name_long='!!Day',values=','.join([str(x+1) for x in range(31)]))
         tbl.column('weekday',name_long='!!Weekday',values='0:[!!Sun],1:[!!Mon],2:[!!Tue],3:[!!Wed],4:[!!Thu],5:[!!Fri],6:[!!Sat]')
         tbl.column('hour',name_long='!!Hour',values=','.join([str(x) for x in range(24)]))
         tbl.column('minute',name_long='!!Minute',values=','.join([str(x) for x in range(60)]))
-        tbl.column('frequency', dtype='L', name_long='!!Freq.(minutes)')
+        tbl.column('frequency', dtype='L', name_long='!!Freq.(min)')
         tbl.column('parameters',dtype='X',name_long='!!Parameters') # date
         tbl.column('last_execution_ts','DH',name_long='!!Last Execution')
         tbl.column('last_error_ts','DH',name_long='!!Last Error')
         tbl.column('last_error_info','X',name_long='!!Last Error Info')
         tbl.column('run_asap','B',name_long='!!Run ASAP')
-        tbl.column('log_result', 'B', name_long='!!Log Result')
+        tbl.column('log_result', 'B', name_long='!!Log Task')
         tbl.column('user_id',size='22',group='_',name_long='User id').relation('adm.user.id', mode='foreignkey', onDelete='raise')
         tbl.column('date_start','D',name_long='!!Start Date')
         tbl.column('date_end','D',name_long='!!End Date')
@@ -83,7 +83,7 @@ class Table(object):
                 if self.isTaskScheduledNow(task,timestamp):
                     tasks_to_run.append(task)
             except:
-                pass
+                print 'build error record here interval Syntax error'
                 # build error record here interval Syntax error
         return tasks_to_run
         
@@ -97,6 +97,10 @@ class Table(object):
             return task_class(page=page,resource_table=page.db.table(table))
     
     def runTask(self, task, page=None, timestamp=None):
+        log_record = Bag()
+        start_time = datetime.now()
+        log_record['start_time'] = start_time
+        log_record['task_id'] =task['id']
         taskObj = self.loadTask(table=task['table_name'], command=task['command'], page=page)
         if not taskObj:
             return
@@ -112,18 +116,31 @@ class Table(object):
                 result=Bag(result=tmp_result)
         except Exception, e:
             self.db.table('sys.error').writeException(description='Error in task %s %s :%s' %(task['table_name'],task['command'],str(e)))
-            raise
             result = Bag(error=unicode(e))
             log_result = True
         if log_result:
-            with self.db.tempEnv(connectionName='system'):
-                self.db.table('sys.task_result').insert(dict(task_id=task['id'],result=result, result_time=timestamp))
-                self.db.commit()
+            log_record['end_time'] = datetime.now()
+            log_record['result'] = result
+            self.db.table('sys.task_result').insert(log_record)
         
     def runScheduled(self, page=None):
         tasks = self.findTasks()
+        now =  datetime.now()
         for task in tasks:
-            self.runTask(task, page=page)
+            with self.recordToUpdate(task['id']) as task_rec:
+                if not self.isTaskScheduledNow(task_rec,now):
+                    continue
+                try:
+                    self.runTask(task_rec, page=page)
+                    task_rec['last_execution_ts'] = now
+                    task_rec['last_error_ts'] = None
+                    task_rec['last_error_info'] = None
+                except Exception, e:
+                    task_rec['last_error_ts'] = now
+                    result = Bag(error=unicode(e))
+                    task_rec['last_error_info'] = result
+                task_rec['run_asap'] = False
+            self.db.commit()
                 
     
 if __name__=='__main__':
