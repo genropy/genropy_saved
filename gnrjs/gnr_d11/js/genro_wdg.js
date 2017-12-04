@@ -1429,7 +1429,7 @@ dojo.declare("gnr.GridEditor", null, {
                 var rowpah = this.widgetRootNode.absDatapath('.' + rowLabel);
                 genro.dlg.quickTooltipPane({datapath:rowpah,fields:attr.fields,domNode:cellNode,modal:attr.modal},
                                             funcCreate(attr.contentCb,'pane,kw',grid.sourceNode),
-                                            {rowDataNode:rowDataNode,grid:grid});
+                                            {rowDataNode:rowDataNode,grid:grid,cell:cell});
             }
             return
         }
