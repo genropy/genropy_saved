@@ -1496,7 +1496,7 @@ class SqlTable(GnrObject):
             joiner = self.attributes.get('pkey_columns_joiner') or '_'
             return joiner.join([str(record.get(col)) for col in self.attributes.get('pkey_columns').split(',') if record.get(col) is not None])
         elif record.get('__syscode'):
-            size =  pkeycol.size
+            size =  pkeycol.getAttr('size')
             if size and ':' not in size:
                 return record['__syscode'].ljust(int(size),'_')
             else:
