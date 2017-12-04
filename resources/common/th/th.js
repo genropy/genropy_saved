@@ -263,9 +263,12 @@ dojo.declare("gnr.LinkerManager", null, {
     setCurrentPkey:function(pkey){
         var currkey = this.sourceNode.getRelativeData(this.fieldpath);
         var dbselect = this.sourceNode.getChild('selector').widget;
-        genro.publish('changeInTable',{pkey:pkey,table:this.table})
+        genro.publish('changeInTable',{pkey:pkey,table:this.table});
+        dbselect._lastValue = null;
         dbselect.setValue(pkey,true);
     },    
+
+    
     openrecord:function(pkey){
         if(this.form.locked){
             return;
