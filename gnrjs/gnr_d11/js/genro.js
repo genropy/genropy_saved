@@ -105,6 +105,7 @@ dojo.declare('gnr.GenroClient', null, {
         this._lastChildUserEventTs = start_ts;
         this._lastGlobalUserEventTs = start_ts;
         this._lastRpc = start_ts;
+        this.setBrowserIdentifier();
         for (var i = 0; i < this.profile_count; i++) {
             this.timeProfilers.push({nc:0,st:0,sqlt:0,sqlc:0});  
         }
@@ -113,6 +114,15 @@ dojo.declare('gnr.GenroClient', null, {
     },
     setAliasDatapath:function(alias,path){
         this._aliasDatapaths[alias] = path;
+    },
+
+    setBrowserIdentifier:function(){
+        var browserIdentifier = this.getFromStorage('local','browserIdentifier');
+        if(!browserIdentifier){
+            browserIdentifier = this.page_id;
+            this.setInStorage('local','browserIdentifier',browserIdentifier);
+        }
+        this.browserIdentifier = browserIdentifier;
     },
 
     setDebugPath:function(path,kw){
