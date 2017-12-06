@@ -27,9 +27,11 @@ class Main(BaseResourceBatch):
         dumpfolderpath = self.page.site.getStaticPath(self.dumpfolder,'backups',autocreate=-1)
         self.max_copies = self.page.getPreference(path='backups.max_copies',pkg='adm') or 10
         self.ts_start = datetime.datetime.now()
-        self.dump_name = self.batch_parameters['name'] or '%04i_%02i_%02i_%02i_%02i' %(self.ts_start.year,self.ts_start.month,
+        self.dump_name = self.batch_parameters['name'] or '%s_%04i%02i%02i_%02i%02i' %(self.db.dbname,self.ts_start.year,self.ts_start.month,
                                                                                 self.ts_start.day,self.ts_start.hour,self.ts_start.minute)
         self.folderpath = os.path.join(dumpfolderpath,self.dump_name)
+
+        #self.folderurl = self.page.site.getStaticUrl(self.dumpfolder,'backups',self.dump_name)
         os.makedirs(self.folderpath)
         self.filelist = []
         self.dump_rec = dict(name=self.dump_name,start_ts=self.ts_start)
@@ -65,12 +67,21 @@ class Main(BaseResourceBatch):
         self.dump_rec.update(end_ts=datetime.datetime.now())
         self.tblobj.update(self.dump_rec,old_record=oldrec)
         self.db.commit()
+        if len(self.filelist)==1 and self.db.implementation=='postgres':
+            filepath = self.filelist[0] #/.../pippo/mainstore.pgd --> /.../pippo.pgd
+            destname = '%s.pdg' %self.dump_name
+            destpath = self.page.site.getStaticPath(self.dumpfolder,'backups',destname)
+            shutil.move(filepath, destpath)
+            shutil.rmtree(self.folderpath)
+            self.result_url = self.page.site.getStaticUrl(self.dumpfolder,'backups',destname)
+            return
         self.zipPath='%s.zip' %self.folderpath
         self.page.site.zipFiles(file_list=self.filelist, zipPath=self.zipPath)
         shutil.rmtree(self.folderpath)
+        self.result_url = self.page.site.getStaticUrl(self.dumpfolder,'backups','%s.zip' %self.dump_name)
 
     def result_handler(self):
-        resultAttr = dict(url=self.page.site.getStaticUrl(self.dumpfolder,'backups','%s.zip' %self.dump_name))
+        resultAttr = dict(url=self.result_url)
         return 'Dump complete', resultAttr
 
     def table_script_parameters_pane(self, pane, **kwargs):

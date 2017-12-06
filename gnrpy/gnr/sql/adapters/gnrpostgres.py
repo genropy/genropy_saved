@@ -193,8 +193,8 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                 'host':self.dbroot.host,
                 'port':self.dbroot.port}
         extras = extras or []
-        args = ['pg_dump', dbname, '-U', self.dbroot.user, '-f', filename]+extras
-        #args = ['pg_dump','--dbname=postgresql://%(user)s:%(password)s@%(host)s:%(port)s/%(dbname)s' %pars, '-f', filename]+extras
+        #args = ['pg_dump', dbname, '-U', self.dbroot.user, '-f', filename]+extras
+        args = ['pg_dump','--dbname=postgresql://%(user)s:%(password)s@%(host)s:%(port)s/%(dbname)s' %pars,'-Fc', '-f', filename]+extras
         return call(args)
         
     def restore(self, filename,dbname=None):
