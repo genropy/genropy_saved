@@ -190,8 +190,8 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         pars = {'dbname':dbname,
                 'user':self.dbroot.user,
                 'password':self.dbroot.password,
-                'host':self.dbroot.host,
-                'port':self.dbroot.port}
+                'host':self.dbroot.host or 'localhost',
+                'port':self.dbroot.port or '5432'}
         extras = extras or []
         #args = ['pg_dump', dbname, '-U', self.dbroot.user, '-f', filename]+extras
         args = ['pg_dump','--dbname=postgresql://%(user)s:%(password)s@%(host)s:%(port)s/%(dbname)s' %pars,'-Fc', '-f', filename]+extras
