@@ -68,12 +68,13 @@ class GnrModuleFinder(object):
     """TODO"""
     
     path_list=[]
-    app_list=[]
+    app_list=set()
     instance_lib = None
     def __init__(self, path_entry, app):
         self.path_entry = path_entry
         self.app = app
-        self.app_list.append(app)
+        if app not in self.app_list:
+            self.app_list.add(app)
         if self.instance_lib is None:
             self.instance_lib = os.path.join(app.instanceFolder, 'lib')
         if not path_entry==self.instance_lib and not path_entry in self.path_list:
