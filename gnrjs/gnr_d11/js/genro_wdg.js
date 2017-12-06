@@ -664,7 +664,11 @@ dojo.declare("gnr.RowEditor", null, {
         var data = this.data;
         var n,err,v;
         for(var k in cellmap){
-            var editpars = cellmap[k].edit;
+            var cell = cellmap[k];
+            var editpars = cell.edit;
+            if(this.grid.sourceNode.currentFromDatasource(cell.editDisabled)){
+                continue;
+            }
             if(editpars && editpars!==true){
                 editpars = this.grid.sourceNode.evaluateOnNode(editpars);
                 if('validate_notnull' in editpars){
