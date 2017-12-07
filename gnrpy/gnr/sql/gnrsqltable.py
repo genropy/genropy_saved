@@ -1295,7 +1295,8 @@ class SqlTable(GnrObject):
         :param record: a dictionary, bag or pkey (string)"""
         usingRootstore = self.db.usingRootstore()
         for rel in self.relations_many:
-            onDelete = rel.getAttr('onDelete', 'raise').lower()
+            defaultOnDelete = 'raise' if rel.getAttr('mode')=='foreignkey' else 'ignore'
+            onDelete = rel.getAttr('onDelete', defaultOnDelete).lower()
             if onDelete and not (onDelete in ('i', 'ignore')):
                 mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')
                 opkg, otbl, ofld = rel.attr['one_relation'].split('.')
