@@ -18,8 +18,7 @@ class BaseResourceBatch(object):
     batch_delay = 0.5
     batch_note = None
     batch_steps = None #'foo,bar'
-    batch_log_enabled = False
-
+    batch_dblog = False
     dialog_height = '200px'
     dialog_width = '300px'
     virtual_columns = None
