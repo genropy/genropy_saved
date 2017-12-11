@@ -195,6 +195,12 @@ class GnrWebBatch(GnrBaseProxy):
         result_doc.toXml(self.result_doc_path, autocreate=True)
         return result_doc
 
+    def log_write(self,logtxt):
+        logfilepath = self.page.site.getStaticPath('site:batch_log','%s.log' %self.batch_id[-22:],autocreate=-1)
+        with open(logfilepath,'a') as logfile:
+            logtxt = logtxt or ''
+            logfile.write('\n%s' %logtxt)
+
     def result_load(self, batch_id):
         self.batch_id = batch_id
         result_doc = Bag(self.result_doc_path)

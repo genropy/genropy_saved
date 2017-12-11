@@ -32,7 +32,7 @@ class BaseResourceBatch(object):
             self.maintable = self.tblobj.fullname
         self.btc = self.page.btc
         self.results = Bag()
-        self.batch_logbag = Bag()
+        self.batch_debug = Bag()
         self.batch_logtbl = self.db.table('sys.batch_log')
         self.batch_log_id = self.page.getUuid()
         self.records = dict()
@@ -47,15 +47,15 @@ class BaseResourceBatch(object):
         parameters = kwargs.get('parameters',dict())
         self.batch_parameters = parameters.asDict(True) if isinstance(parameters, Bag) else parameters or {}
         self.batch_note = batch_note or self.batch_parameters.get('batch_note')
-        if self.batch_log_enabled:
+        if self.batch_dblog:
             self.batch_logrecord = self.batch_logtbl.newrecord(id=self.batch_log_id,
                                 title=self.batch_title,tbl=self.tblobj.fullname,
-                                notes=self.batch_note)
+                                start_ts=datetime.now(),notes=self.batch_note)
         try:
             self.run()
             result, result_attr = self.result_handler()
             self.btc.batch_complete(result=result, result_attr=result_attr)
-            self.batch_log_write('Batch complete',Bag(dict(result_attr)))
+            self.batch_log_write('Batch complete')
             #self.page.setInClientData('')
         except self.btc.exception_stopped:
             self.btc.batch_aborted()
@@ -71,14 +71,19 @@ class BaseResourceBatch(object):
                     print e
                     raise
         finally:
-            if self.batch_log_enabled:
+            if self.batch_dblog:
                 with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
-                    self.batch_logrecord['logbag'] =  self.batch_logbag
+                    self.batch_logrecord['logbag'] =  self.batch_debug
+                    self.batch_logrecord['end_ts'] = datetime.now()
                     self.batch_logtbl.insert(self.batch_logrecord)
                     self.db.commit()
 
-    def batch_log_write(self,caption,value=None):
-        self.batch_logbag.setItem('r_%04i' %len(self.batch_logbag),value,caption=caption,ts=datetime.now())
+    def batch_debug_write(self,caption,value=None):
+        self.batch_debug.setItem('r_%04i' %len(self.batch_debug),value,caption=caption,ts=datetime.now())
+
+    def batch_log_write(self,logtxt):
+        print 'batch_log_write',logtxt
+        self.btc.log_write(logtxt)
 
     def _pre_process(self):
         self.pre_process()

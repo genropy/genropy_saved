@@ -12,6 +12,7 @@ class View(BaseComponent):
         r.fieldcell('page_id')
         r.fieldcell('start_ts')
         r.fieldcell('end_ts')
+        r.fieldcell('logfile_url',format='download')
         r.fieldcell('notes')
 
     def th_order(self):

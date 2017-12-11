@@ -16,4 +16,5 @@ class Table(object):
         tbl.column('logbag', dtype='X', name_long='!!Log')
         tbl.column('tbl', name_long='!!Table')
         tbl.formulaColumn('log_caption',"$tbl || $title")
+        tbl.formulaColumn('logfile_url',"'/_site/batch_log/'||$id||'.log'",name_long='Log url')
 
