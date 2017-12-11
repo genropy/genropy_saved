@@ -82,7 +82,6 @@ class BaseResourceBatch(object):
         self.batch_debug.setItem('r_%04i' %len(self.batch_debug),value,caption=caption,ts=datetime.now())
 
     def batch_log_write(self,logtxt):
-        print 'batch_log_write',logtxt
         self.btc.log_write(logtxt)
 
     def _pre_process(self):
