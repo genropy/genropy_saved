@@ -8,7 +8,7 @@ class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('title')
+        r.fieldcell('batch_title')
         r.fieldcell('page_id')
         r.fieldcell('start_ts')
         r.fieldcell('end_ts')
@@ -16,10 +16,10 @@ class View(BaseComponent):
         r.fieldcell('notes')
 
     def th_order(self):
-        return 'title'
+        return 'batch_title'
 
     def th_query(self):
-        return dict(column='title', op='contains', val='')
+        return dict(column='batch_title', op='contains', val='')
 
 
 
@@ -29,7 +29,7 @@ class Form(BaseComponent):
         bc = form.center.borderContainer(datapath='.record')
         pane = bc.contentPane(region='top')
         fb = pane.formbuilder(cols=2, border_spacing='4px')
-        fb.field('title')
+        fb.field('batch_title')
         fb.field('page_id')
         fb.field('start_ts')
         fb.field('end_ts')

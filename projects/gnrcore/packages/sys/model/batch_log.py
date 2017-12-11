@@ -6,7 +6,8 @@ class Table(object):
         tbl=pkg.table('batch_log', pkey='id', name_long='!!Batch log', 
                         name_plural='!!Batch logs',caption_field='log_caption')
         self.sysFields(tbl)
-        tbl.column('title', name_long='!!Batch title')
+        tbl.column('batch_title', name_long='!!Batch title')
+        
         tbl.column('page_id',size='22', group='_', name_long='!!Page'
                     ).relation('adm.served_page.page_id', relation_name='batches', 
                                 onDelete='raise') #no foreignkey
