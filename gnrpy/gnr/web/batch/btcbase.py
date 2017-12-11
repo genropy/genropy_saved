@@ -54,7 +54,6 @@ class BaseResourceBatch(object):
             self.run()
             result, result_attr = self.result_handler()
             self.btc.batch_complete(result=result, result_attr=result_attr)
-            self.batch_log_write('Batch complete')
             #self.page.setInClientData('')
         except self.btc.exception_stopped:
             self.btc.batch_aborted()
