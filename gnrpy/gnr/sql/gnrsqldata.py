@@ -27,8 +27,9 @@ import re
 import cPickle
 import itertools
 import hashlib
+from collections import OrderedDict
 from xml.sax import saxutils
-from gnr.core.gnrdict import GnrDict,dictExtract
+from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrlang import deprecated, uniquify
 import tempfile
 from gnr.core.gnrdate import decodeDatePeriod
@@ -1024,12 +1025,12 @@ class SqlQuery(object):
         record you get from the query
         
         :param key: the key you give (if ``None``, it takes the pkey). 
-        :param ordered: boolean. if ``True``, return the fetch using a :class:`GnrDict <gnr.core.gnrdict.GnrDict>`,
+        :param ordered: boolean. if ``True``, return the fetch using a :class:`OrderedDict`,
                         otherwise (``False``) return the fetch using a normal dict."""
         fetch = self.fetch()
         key = key or self.dbtable.pkey
         if ordered:
-            factory = GnrDict
+            factory = OrderedDict
         else:
             factory = dict
         return factory([(r[key], r) for r in fetch])
@@ -1042,7 +1043,7 @@ class SqlQuery(object):
         key = key or self.dbtable.pkey
         return Bag(sorted([(r[key], None, dict(r)) for r in fetch]))
         
-    def fetchGrouped(self, key=None, asBag=False):
+    def fetchGrouped(self, key=None, asBag=False,ordered=False):
         """Return the :meth:`~gnr.sql.gnrsqldata.SqlQuery.fetch` method as a dict of the given key
         
         :param key: the key you give (if ``None``, it takes the pkey). 
@@ -1052,6 +1053,8 @@ class SqlQuery(object):
         key = key or self.dbtable.pkey
         if asBag:
             result = Bag()
+        elif ordered:
+            result = OrderedDict()
         else:
             result = {}
         for r in fetch:
