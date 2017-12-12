@@ -34,6 +34,11 @@ ISO_MATCH = re.compile(r'\d{4}\W\d{1,2}\W\d{1,2}')
 class GnrMixinError(Exception):
     pass
 
+
+class GnrMixinNotFound(Exception):
+    pass
+
+    
 class GnrClassCatalog(object):
     """TODO"""
     __standard = None
