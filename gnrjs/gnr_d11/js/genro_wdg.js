@@ -663,6 +663,7 @@ dojo.declare("gnr.RowEditor", null, {
         var cellmap = this.grid.cellmap;
         var data = this.data;
         var n,err,v;
+        this.grid.currRenderedRowIndex = this.grid.storebag().index(this.rowLabel);
         for(var k in cellmap){
             var cell = cellmap[k];
             var editpars = cell.edit;
