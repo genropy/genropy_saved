@@ -32,11 +32,20 @@ class Main(GnrBaseService):
 
     def __call__(self,host=None,username=None,password=None,private_key=None,port=None):
         port = port or self.port
-        return pysftp.Connection(host or self.host,
-                                username=username or self.username,
-                                password=password or self.password,
-                                private_key=private_key or self.private_key,
-                                port = int(port) if port else None)
+        username = username=username or self.username
+        password = password or self.password
+        private_key = private_key or self.private_key
+        port = int(port) if port else None
+        pars = {}
+        if username:
+            pars['username'] = username
+        if password:
+            pars['password'] = password
+        if private_key:
+            pars['private_key'] = private_key
+        if port:
+            pars['port'] = port
+        return pysftp.Connection(host or self.host,**pars)
 
     def sftpResolver(self,path=None,**kwargs):
         return SftpDirectoryResolver(path,_page=self.parent.currentPage,
