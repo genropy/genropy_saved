@@ -2384,7 +2384,11 @@ div.dojoxDock {
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, rgba(170, 190, 201, 0.2), to(#FFFFFF));*/
 }
 
-.tundra .dijitDialogPaneContent{
+.tundra._common_d11 .dijitDialogPaneContent{
+    overflow: hidden !important;
+}
+
+.tundra._common_d11 .dijitDialog.dijitContentPane{
     overflow: hidden;
 }
 
