@@ -20,7 +20,7 @@ except:
 
 
 class Main(GnrBaseService):
-    def __init__(self, parent=None,host=None,username=None,password=None,private_key=None):
+    def __init__(self, parent=None,host=None,username=None,password=None,private_key=None,port=None):
         self.parent = parent
         if not pysftp:
             raise GnrException('Missing pysftp. hint: pip install pysftp')
@@ -28,12 +28,15 @@ class Main(GnrBaseService):
         self.username = username
         self.password = password
         self.private_key = private_key
+        self.port = port
 
-    def __call__(self,host=None,username=None,password=None,private_key=None):
+    def __call__(self,host=None,username=None,password=None,private_key=None,port=None):
+        port = port or self.port
         return pysftp.Connection(host or self.host,
                                 username=username or self.username,
                                 password=password or self.password,
-                                private_key=private_key or self.private_key)
+                                private_key=private_key or self.private_key,
+                                port = int(port) if port else None)
 
     def sftpResolver(self,path=None,**kwargs):
         return SftpDirectoryResolver(path,_page=self.parent.currentPage,
