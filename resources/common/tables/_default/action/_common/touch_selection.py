@@ -14,7 +14,7 @@ class Main(BaseResourceAction):
     batch_prefix = 'tch'
     batch_title = 'Touch Selection'
     batch_cancellable = False
-    batch_delay = 0.5
+    batch_delay = 3
     batch_immediate = True
     
     def do(self):
