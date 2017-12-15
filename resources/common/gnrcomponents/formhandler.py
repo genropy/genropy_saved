@@ -231,10 +231,8 @@ class FormHandler(BaseComponent):
     @struct_method               
     def fh_slotbar_form_semaphore(self,pane,**kwargs):
         s = pane.div(_class='fh_semaphore',connect_onclick="""
-            if(genro.dom.getEventModifiers($1)=='Shift'){
-                if(this.form.status=='readOnly'){
-                    this.form.reload({ignoreReadOnly:true})
-                }
+            if(this.form.status=='readOnly'){
+                this.form.forceIgnoreReadOnly($1);
             }
             """)
         s.tooltip(callback="return this.form.getSemaphoreStatus()",modifiers='Shift')

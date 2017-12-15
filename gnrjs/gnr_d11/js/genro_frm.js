@@ -448,6 +448,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
         //this.updateInvalidField(sourceNode, sourceNode.attrDatapath('value'));
     },
+
+    forceIgnoreReadOnly:function(evt){
+        if(genro.dom.getEventModifiers(evt)=='Shift'){
+            this.reload({ignoreReadOnly:true});
+        }
+    },
+    
     reload: function(kw) {
         kw = kw || {};
         var destPkey = this.getCurrentPkey();
