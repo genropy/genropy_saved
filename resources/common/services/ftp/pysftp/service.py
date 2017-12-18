@@ -47,6 +47,50 @@ class Main(GnrBaseService):
             pars['port'] = port
         return pysftp.Connection(host or self.host,**pars)
 
+    def downloadFilesIntoFolder(self,sourcefiles=None,destfolder=None,
+                                callback=None,preserve_mtime=None,thermo_wrapper=None,**kwargs):
+        if isinstance(sourcefiles,basestring):
+            sourcefiles = sourcefiles.split(',')
+        if thermo_wrapper:
+            sourcefiles = thermo_wrapper(thermo_wrapper)
+        if callback is None:
+            def cb(curr,total):
+                print 'dl %i/%i' %(curr,total)
+            callback = cb
+        with self(**kwargs) as sftp:
+            for filepath in sourcefiles:
+                basename = os.path.basename(filepath)
+                getkw = {}
+                if callback:
+                    getkw['callback'] = callback
+                if preserve_mtime:
+                    getkw['preserve_mtime'] = preserve_mtime
+                sftp.get(filepath,os.path.join(destfolder,basename),**getkw)
+
+    def uploadFilesIntoFolder(self,sourcefiles=None,destfolder=None,
+                                callback=None,preserve_mtime=None,
+                                thermo_wrapper=None,confirm=None,**kwargs):
+        if isinstance(sourcefiles,basestring):
+            sourcefiles = sourcefiles.split(',')
+        if thermo_wrapper:
+            sourcefiles = thermo_wrapper(thermo_wrapper)
+        if callback is None:
+            def cb(curr,total):
+                print 'up %i/%i' %(curr,total)
+            callback = cb
+        with self(**kwargs) as sftp:
+            for filepath in sourcefiles:
+                basename = os.path.basename(filepath)
+                putkw = {}
+                if callback:
+                    putkw['callback'] = callback
+                if preserve_mtime:
+                    putkw['preserve_mtime'] = preserve_mtime
+                if confirm:
+                    putkw['confirm'] = confirm
+                print 'sftp put',filepath,'in',os.path.join(destfolder,basename)
+                sftp.put(filepath,os.path.join(destfolder,basename),**putkw)
+
     def sftpResolver(self,path=None,**kwargs):
         return SftpDirectoryResolver(path,_page=self.parent.currentPage,
                                         ftpservice=self.service_name,
