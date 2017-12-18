@@ -2041,18 +2041,21 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         }
         gnrwdg.columns_bag = this._getColumnsBag(sourceNode,columns,subTagItems['column']);
         var searchColumn = gnrwdg.columns_bag.getNode('#0').attr.field;
+        var checked_attr = objectExtract(kw,'checked_*',true);
+        var hasCheckbox = objectNotEmpty(checked_attr) || kw.onChecked;
         var defaultKw = {
             autoCollapse:true,
             hideValues:true,
             background:'white',
             searchColumn:searchColumn,
-            _class:'treegrid branchtree noIcon',
+            _class:hasCheckbox?'treegrid branchtree' :'treegrid branchtree noIcon',
             connect__expandNode:function(){
                 gnrwdg.updateScroll();
             },
             labelCb:function(){return gnrwdg.labelCb(this)}
         };
-        var box = sourceNode._('div',objectUpdate({_class:'treeGridLayout '+(objectPop(kw,'_class') || ''),
+        var boxclass = hasCheckbox?'treegridcheckbox treeGridLayout ':'treeGridLayout ';
+        var box = sourceNode._('div',objectUpdate({_class:boxclass+(objectPop(kw,'_class') || ''),
             onCreated:function(){
             var that = this;
             this.watch('setWidth',function(){

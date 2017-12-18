@@ -6,7 +6,7 @@
 
 
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/graphiframe/graphiframe:GraphIframe"
+    py_requires="gnrcomponents/testhandler:TestHandlerFull"
     
     def windowTitle(self):
         return 'fieldstree'
@@ -23,6 +23,7 @@ class GnrCustomWebPage(object):
         tree = center.treeGrid(storepath='.tree.currentData', 
                     #onDrag=self.onDrag(),
                     draggable=True,
+                    checked_fieldpath='.zzz',
                     dragClass='draggedItem',headers=True)
         tree.column('fieldpath',header='Field',size=400) 
         tree.column('dtype',size=60,header='Dtype')

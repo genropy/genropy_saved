@@ -4666,6 +4666,31 @@ div[disabled='true'], div[disabled='disabled']{
     display: inline-block;
 }
 
+
+/*.treerow.treerow_header*/
+
+.treegridcheckbox .treegrid .dijitTreeLabel{
+    left:22px;
+}
+.treegridcheckbox .treerow_header{
+    margin-left: 22px;
+}
+
+.tundra .treegridcheckbox .treegrid .dijitTreeIcon{
+    margin-left: -16px;
+}
+
+/*
+
+.treegrid.treegridcheckbox .dijitTreeContent{
+    left: 10px;
+}
+
+
+.treegrid.treegridcheckbox .iconNode{
+
+}*/
+
 /*treegrid*/
 
 .branchtree .branchtree_selected.dijitTreeLabel{
