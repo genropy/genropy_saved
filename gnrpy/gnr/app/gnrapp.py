@@ -952,7 +952,8 @@ class GnrApp(object):
             authmethods = self.config['authentication']
             if authmethods:
                 for node in self.config['authentication'].nodes:
-                    authmode = node.label.replace('_auth', '')
+                    nodeattr = node.attr
+                    authmode = nodeattr.get('mode') or node.label.replace('_auth', '')
                     avatar = getattr(self, 'auth_%s' % authmode)(node, user, password=password,
                                                                  authenticate=authenticate,
                                                                  **kwargs)

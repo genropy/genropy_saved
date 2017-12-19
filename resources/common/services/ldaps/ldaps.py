@@ -51,7 +51,7 @@ class Main(GnrBaseService):
         self.searchUser = searchUser
         self.searchPassword = searchPassword
         self.user_kwargs = user_kwargs
-        self.userAttr = [str(x) for x in userAttr.split(',')]
+        self.userAttr = [str(x) for x in userAttr.split(',')] if userAttr else []
         self.case = case
         self.searchFilter = '(&(objectClass=person) (sAMAccountName=*) (objectClass=user))'
 
