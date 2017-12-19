@@ -117,6 +117,23 @@ class TableHandlerView(BaseComponent):
                         attr_op=fkw.pop('op',None),
                         **fkw)
 
+    def th_batchAssignEnabled(self,tblobj):
+        result = False
+        for colobj in tblobj.columns.values():
+            attr = colobj.attributes
+            batch_assign = attr.get('batch_assign')
+            if not batch_assign:
+                continue
+            auth = 'user'
+            kw = {}
+            if batch_assign is not True:
+                kw.update(batch_assign)
+            if not self.application.checkResourcePermission(kw.pop('tags',None),self.userTags):
+                continue
+            result = 'batchAssign'
+            break
+        return result
+
     @extract_kwargs(top=True,preview=True)
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
@@ -130,6 +147,8 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         pageHooksSelector = 'pageHooksSelector' if page_hooks else False
+        batchAssign =  self.th_batchAssignEnabled(self.db.table(table))
+
         if extendedQuery:
             virtualStore = True
             if 'adm' in self.db.packages and not self.isMobile:
@@ -137,7 +156,7 @@ class TableHandlerView(BaseComponent):
             else:
                 templateManager = False
             if extendedQuery == '*':
-                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','importer','resourcePrints','resourceMails','resourceActions','5',templateManager,'chartjs','10',pageHooksSelector,'*']
+                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','importer','resourcePrints','resourceMails','resourceActions',batchAssign,'5',templateManager,'chartjs','10',pageHooksSelector,'*']
                 if self.isMobile:
                     base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','menuUserSets','10',pageHooksSelector,'*']
 
@@ -610,6 +629,13 @@ class TableHandlerView(BaseComponent):
         table = inattr['table']
         paletteCode = '%(thlist_root)s_template_manager' %inattr
         pane.paletteTemplateEditor(maintable=table,paletteCode=paletteCode,dockButton_iconClass='iconbox document')
+
+
+    @struct_method
+    def th_slotbar_batchAssign(self,pane,**kwargs):
+        pane.slotButton('!!Batch Assign',iconClass='iconbox paint',
+                        action="""FIRE .th_batch_run = {resource:'_common/assign_values',res_type:'action'};""")
+
 
     @struct_method
     def th_slotbar_pageHooksSelector(self,pane,**kwargs):
