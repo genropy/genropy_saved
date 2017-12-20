@@ -156,7 +156,7 @@ class SftpDirectoryResolver(DirectoryResolver):
                     atime = datetime.fromtimestamp(stat.st_atime)
                     #ctime = datetime.fromtimestamp(stat.st_ctime)
                     size = stat.st_size
-                except OSError:
+                except OSError,IOError:
                     mtime = None   
                     #ctime = None  
                     atime = None                   
