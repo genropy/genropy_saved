@@ -19,14 +19,14 @@ class Main(BaseResourceAction):
     
     def do(self):
         values = self.batch_parameters.get('values')
-        do_triggers = self.batch_parameters.get('do_triggers')
+        do_trigger = self.batch_parameters.get('do_trigger')
         def updater(row):
             for k,v,forced_null,replace in values.digest('#k,#v,#a.force_null,#a.replace'):
                 if forced_null:
                     row[k] = None
                 elif v is not None and (row[k] is None or replace):
                     row[k] = v
-        self.batchUpdate(updater,_raw_update=not do_triggers,message='setting_values')
+        self.batchUpdate(updater,_raw_update=not do_trigger,message='setting_values')
         self.db.commit()
 
 
@@ -49,7 +49,9 @@ class Main(BaseResourceAction):
             do_trigger = kw.pop('do_trigger',False) or do_trigger
             fb.field(k,validate_notnull=False,html_label=True,zoom=False,lbl_fieldname=k,
                         validate_onAccept='SET .%s?forced_null=false;' %k, **kw)
-            fb.checkbox(value='^.%s?force_null' %k,label='!!Set NULL',validate_onAccept="SET .%s=null" %k)
+            fb.checkbox(value='^.%s?force_null' %k,label='!!Set NULL',validate_onAccept="""if(userChange && value){
+                SET .%s = null;
+            }""" %k)
             fb.checkbox(value='^.%s?replace' %k,label='!!Replace')
         box.data('.do_trigger',do_trigger)
 
