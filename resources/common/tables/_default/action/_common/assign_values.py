@@ -49,7 +49,7 @@ class Main(BaseResourceAction):
             do_trigger = kw.pop('do_trigger',False) or do_trigger
             fb.field(k,validate_notnull=False,html_label=True,zoom=False,lbl_fieldname=k,
                         validate_onAccept='SET .%s?forced_null=false;' %k, **kw)
-            fb.checkbox(value='^.%s?force_null' %k,label='!!Set NULL')
+            fb.checkbox(value='^.%s?force_null' %k,label='!!Set NULL',validate_onAccept="SET .%s=null" %k)
             fb.checkbox(value='^.%s?replace' %k,label='!!Replace')
         box.data('.do_trigger',do_trigger)
 
