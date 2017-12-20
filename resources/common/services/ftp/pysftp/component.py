@@ -14,16 +14,16 @@ class SftpClient(BaseComponent):
 
     @struct_method
     def sftp_sftpClientLayout(self,pane,ftpname=None,
-                            datapath='.sftpclient',destdir=None,**kwargs):
+                            datapath='.sftpclient',destdir=None,remotedir=None,**kwargs):
         bc = pane.borderContainer(datapath=datapath,_anchor=True,**kwargs)
         self.sftp_remoteTree(bc.roundedGroupFrame(region='left',title='!!Remote',
                             datapath='.remote',width='50%',
-                            splitter=True),ftpname=ftpname)
+                            splitter=True),ftpname=ftpname,remotedir=remotedir)
         self.sftp_localTree(bc.roundedGroupFrame(region='center',title='!!Local',
                             datapath='.local'),ftpname=ftpname,destdir=destdir)
 
-    def sftp_remoteTree(self,frame,ftpname=None):
-        resolver = self.getService(ftpname).sftpResolver()
+    def sftp_remoteTree(self,frame,ftpname=None,remotedir=None):
+        resolver = self.getService(ftpname).sftpResolver(remotedir or '/')
         frame.data('.tree',resolver())
         self.sftp_fileTree(frame,nodeId='%s_src' %ftpname,topic='%s_upload' %ftpname)
         frame.dataRpc(None,self.sftp_uploadFiles,ftp=ftpname,
