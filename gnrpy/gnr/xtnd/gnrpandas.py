@@ -318,7 +318,7 @@ class GnrDataframe(object):
         pt = df.pivot_table(index=index_list or None,
                             values=values_list or None, 
                             columns=cols_list or None,aggfunc= values_dict or [np.sum],
-                            fill_value=0,margins=margins,dropna=False)
+                            fill_value=0,margins=margins)
         if out_html:
             self.parent.addReportHtml(pt,out_html)
         values = values or Bag()
@@ -417,6 +417,7 @@ class GnrDbDataframe(GnrDataframe):
             thermocursor = self.thermocb(cursor,maxidx=cursor.rowcount,labelfield='record')
         decimalCols = []
         dateCols = []
+        textCols = []
         for r in thermocursor:
             c = dict(r)
             if not hasattr(self,'dbColAttrs'):
@@ -426,9 +427,16 @@ class GnrDbDataframe(GnrDataframe):
                                         name_short=self.translate(v.get('name_short')),
                                         width=v.get('print_width'),format=v.get('format'),
                                         dtype= v.get('dataType'))
-                                        
-                decimalCols = [k for k,v in self.dbColAttrs.items() if v['dataType'] in ('N','R')]
-                dateCols = [k for k,v in self.dbColAttrs.items() if v['dataType'] == 'D']
+                
+                for k,v in self.dbColAttrs.items():
+                    dtype = v['dataType']
+                    if dtype in ('N','R'):
+                        decimalCols.append(k)
+                    elif dtype == 'D':
+                        dateCols.append(k)
+                    elif dtype in ('A','T','C','X','P'):
+                        textCols.append(k)
+          
 
             for col in decimalCols:
                 v = c[col]
@@ -438,6 +446,10 @@ class GnrDbDataframe(GnrDataframe):
                 v = c[col]
                 if v is not None:
                     c[col] = datetime(v.year,v.month,v.day)
+            for col in textCols:
+                v = c[col]
+                if v is None:
+                    c[col] = '[NULL]'
             yield c
 
 
