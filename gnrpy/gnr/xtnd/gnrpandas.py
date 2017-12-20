@@ -318,7 +318,7 @@ class GnrDataframe(object):
         pt = df.pivot_table(index=index_list or None,
                             values=values_list or None, 
                             columns=cols_list or None,aggfunc= values_dict or [np.sum],
-                            fill_value=0,margins=margins)
+                            fill_value=0,margins=margins,dropna=False)
         if out_html:
             self.parent.addReportHtml(pt,out_html)
         values = values or Bag()

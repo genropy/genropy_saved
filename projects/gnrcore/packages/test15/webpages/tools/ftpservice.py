@@ -91,8 +91,8 @@ class GnrCustomWebPage(object):
     @public_method
     def ftplist(self):
         with self.getService('ftp_genropy')() as sftp:
-            for attr in sftp.listdir_attr():
-                b = Bag()
+            with sftp.cd('vassals'):
+                print sftp.listdir()
             return '<br/>'.join(sftp.listdir())
 
 

@@ -88,7 +88,6 @@ class Main(GnrBaseService):
                     putkw['preserve_mtime'] = preserve_mtime
                 if confirm:
                     putkw['confirm'] = confirm
-                print 'sftp put',filepath,'in',os.path.join(destfolder,basename)
                 sftp.put(filepath,os.path.join(destfolder,basename),**putkw)
 
     def sftpResolver(self,path=None,**kwargs):
