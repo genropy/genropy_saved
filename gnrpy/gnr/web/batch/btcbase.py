@@ -116,9 +116,7 @@ class BaseResourceBatch(object):
             steps = self.btc.thermo_wrapper(steps, 'btc_steps', message=self.get_step_caption,keep=True)
         for step in steps:
             step_handler = getattr(self, 'step_%s' % step)
-            self.batch_log_write('Before step %s' %step)
             step_handler()
-            self.batch_log_write('After step %s' %step)
             for line_code in self.btc.line_codes[offset:]:
                 self.btc.thermo_line_del(line_code)
 
