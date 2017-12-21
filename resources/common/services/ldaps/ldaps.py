@@ -119,6 +119,7 @@ class Main(GnrBaseService):
             self.ldapClient = ldap.initialize(self.ldapServer)
 
             self.ldapClient.set_option(ldap.OPT_REFERRALS, 0)
+            print 'before simplebind',user
             self.ldapClient.simple_bind_s(user, password)
             print 'simplebind done'
         except ldap.INVALID_CREDENTIALS:
