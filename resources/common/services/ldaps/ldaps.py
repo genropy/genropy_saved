@@ -182,7 +182,7 @@ class Main(GnrBaseService):
 
         page_size = 50
         ldap.set_option(ldap.OPT_REFERRALS, 0)
-        dap.set_option(
+        ldap.set_option(
 					ldap.OPT_NETWORK_TIMEOUT,
 					self.loginTimeout)
         req_ctrl = SimplePagedResultsControl(True, size=page_size, cookie='')
