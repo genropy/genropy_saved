@@ -95,13 +95,12 @@ class Main(GnrBaseService):
                                 If mode = 'Search' is simply returned True for the verified user. 
                                 Failure occurs, returns false for any mode.
         """
-        sep = None
+
         if '\\' in user:
             self.domain, user = user.split('\\')
-            sep = '\\'
         elif '@' in user:
             user, self.domain = user.split('@')
-            sep = '@'
+
         if not user:
             return False
         
@@ -128,8 +127,12 @@ class Main(GnrBaseService):
             return 'AD server not awailable'
         try:
             if mode == 'Login':
+                if '\\' in user:
+                    username = user.split('\\')[1]
+                elif '@' in user:
+                    username = user.split('@')[0]
                 user_attribute = self.ldapClient.search_s(self.baseDN, ldap.SCOPE_SUBTREE, '(%s=%s)' % (self.userIdField,
-                                                          user.split(sep)[1] if sep else user), self.userAttr)[0][1]
+                                                          username), self.userAttr)[0][1]
                 for k, v in user_attribute.items():
                     user_attribute[k] = v[0] if isinstance(v, list) else v
             elif mode == 'Search':
