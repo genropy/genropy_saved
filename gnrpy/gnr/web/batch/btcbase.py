@@ -48,7 +48,7 @@ class BaseResourceBatch(object):
         self.batch_note = batch_note or self.batch_parameters.get('batch_note')
         if self.batch_dblog:
             self.batch_logrecord = self.batch_logtbl.newrecord(id=self.batch_log_id,
-                                title=self.batch_title,tbl=self.tblobj.fullname,
+                                batch_title=self.batch_title,tbl=self.tblobj.fullname,
                                 start_ts=datetime.now(),notes=self.batch_note)
         try:
             self.run()
