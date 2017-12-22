@@ -138,8 +138,8 @@ class TableHandlerStats(BaseComponent):
                                 relatedTableHandlerFrameCode=None,
                                 relatedTable=None,source_filters=None,**kwargs):
         tc = pane.tabContainer(region='left',width='250px',margin='2px',drawer=True,splitter=True)
-        self._ths_configPivotGrids(tc.borderContainer(title='!!Pivot'))
-        self._ths_configFields(tc.borderContainer(title='!!Fields'),table=table)
+        self._ths_configPivotGrids(tc.framePane(title='!!Pivot'),table=table)
+        #self._ths_configFields(tc.borderContainer(title='!!Fields'),table=table)
         if relatedTable:
             tblobj = self.db.table(relatedTable)
             caption_field = tblobj.attributes.get('caption_field')
@@ -310,7 +310,14 @@ class TableHandlerStats(BaseComponent):
             stat_values = stat_values or Bag()
             stat_columns = stat_columns or Bag()
             stat_rows = stat_rows or Bag()
-            columns = [f for f in stat_fields.digest('#v.field') if f]
+            columns = []
+            for f,asname in stat_fields.digest('#v.field,#v.name'):
+                if not f:
+                    continue
+                f = '$%s' %f if not f.startswith('@') else f
+                if asname:
+                    f = '%s AS %s' %(f,asname)
+                columns.append(f)
             df = self.ths_getDataframe(table,filters=filters,mainfilter=mainfilter,
                                         relation_field=relation_field,
                                         relation_value=relation_value,
@@ -388,154 +395,14 @@ class TableHandlerStats(BaseComponent):
 
         return frame
 
-    def _ths_configFields(self,bc,table=None):
-        frame = self._ths_branchgrid(bc,'fields',region='center')
-        self._ths_addFieldsFromModel(bc,table=table)
-
-
-        bc.dataController("""
-        var index_menu = new gnr.GnrBag();
-        var values_menu = new gnr.GnrBag();
-        fields.getNodes().forEach(function(n){
-            var dtype = n.getValue().getItem('dtype');
-            if(dtype=='N' || dtype=='L' || dtype=='I'){
-                if(!values.getNode(n.label)){
-                    values_menu.setItem(n.label,null,n.getValue().asDict());
-                }
-            }else{
-                if(!(rows.getNode(n.label) || columns.getNode(n.label))){
-                    index_menu.setItem(n.label,null,n.getValue().asDict());
-                }
-            }
-        });
-        SET .stats.controller.index_menu = index_menu;
-        SET .stats.controller.values_menu = values_menu;
-        """,fields='^.stats.conf.fields',
-            rows='^.stats.conf.rows',
-            columns='^.stats.conf.columns',
-            values='^.stats.conf.values',
-            _if='fields',_onBuilt=True,_delay=10)
-        form = frame.grid.linkedForm(frameCode='th_conf_fields',
-                                 datapath='#ANCHOR.st_form',loadEvent='onRowDblClick',
-                                 dialog_height='250px',dialog_width='350px',
-                                 dialog_title='Edit Field',handlerType='dialog',
-                                 childname='form',attachTo=bc,store='memory',
-                                 store_pkeyField='pkey')
-
-        gridattr = frame.grid.attributes
-        gridattr['selfsubscribe_addrow'] = """if(p_0.opt.from_model){
-            FIRE #ANCHOR.stats.addFieldsFromModelDlg;
-            return;
-        }
-        %(selfsubscribe_addrow)s""" %gridattr
-        stfield_type = Bag()
-        stfield_type.setItem('from_model',None,caption='Add fields',from_model=True)
-        stfield_type.setItem('from_field',None,caption='From field',default_kw = dict(st_mode='from_field'))
-        stfield_type.setItem('formula',None,caption='New formula',default_kw = dict(st_mode='formula'))
-        frame.top.bar.replaceSlots('delrow','delrow,addrow',addrow_defaults=stfield_type)
-        self.ths_fieldsform(form)
-
-
-    def _ths_addFieldsFromModel(self,pane,table=None):
-        dlg = pane.dialog(title='!!Add fields')
-        frame = dlg.framePane(datapath='#ANCHOR.stats.tablefields',height='500px',width='550px')
-        center = frame.center.borderContainer(overflow='auto')
-        center.dataRemote('.tree', self.relationExplorer, table=table, item_type='FTREE',omit='_*')
-        tree = center.contentPane(region='left',width='50%',overflow='auto').tree(storepath='.tree', persist=False,
-                    inspect='shift', #labelAttribute='label',
-                    _class='fieldsTree',
-                    hideValues=True,
-                    margin='6px',
-                    checkedPaths='.checkedPaths',
-                    checkChildren=True,
-                    getLabelClass="""if (!node.attr.fieldpath && node.attr.table){return "tableTreeNode"}
-                                        else if(node.attr.relation_path){return "aliasColumnTreeNode"}
-                                        else if(node.attr.sql_formula){return "formulaColumnTreeNode"}""",
-                    getIconClass="""if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}
-                                     else {return opened?'dijitFolderOpened':'dijitFolderClosed'}""")
-        frame.dataController(""" 
-                            dlg.show();
-                            var loadedCheckedPaths= [];
-                            var v;
-                            fields.getNodes().forEach(function(n){
-                                    v = n.getValue();
-                                    if(v.getItem('field') && v.getItem('treepath')){
-                                        loadedCheckedPaths.push(v.getItem('treepath'));
-                                    }
-                                });
-                                data.walk(function(n){
-                                    if(!n.attr.fieldpath){
-                                        return;
-                                    }
-                                    if (loadedCheckedPaths.indexOf(n.getFullpath(null,data))>=0){
-                                        n.updAttributes({checked:'disabled:on'});
-                                    }else{
-                                        n.updAttributes({checked:false});
-                                    }
-                                },'static');
-                                SET .loadedCheckedPaths = loadedCheckedPaths;
-                            """,
-                            _fired='^#ANCHOR.stats.addFieldsFromModelDlg',
-                            dlg=dlg.js_widget,
-                            fields='=#ANCHOR.stats.conf.fields',
-                            data='=.tree',tree=tree.js_widget)
-        bar = frame.bottom.slotBar('*,cancel,confirm',margin_bottom='2px',_class='slotbar_dialog_footer')
-        bar.cancel.button('!!Cancel',action='dlg.hide();',dlg=dlg.js_widget)
-        bar.confirm.button('!!Confirm',action="""
-                                FIRE .addFields;
-                                dlg.hide();
-                                """,dlg=dlg.js_widget)
-        bar.dataController("""
-        var checkedRows = new gnr.GnrBag();
-        var n,key,f;
-        var cb = function(path,_class){
-            n = data.getNode(path);
-            f = n.attr.fieldpath;
-            if(!f){
-                return;
-            }
-            key =  flattenString(f,['.','@']);
-            checkedRows.setItem(key,new gnr.GnrBag({field:f[0]=='@'?f:'$'+f,
-                                                    pkey:key,
-                                                    treepath:n.getFullpath(null,data),
-                                                    caption:n.attr.fullcaption,
-                                                    dtype:n.attr.dtype}),{_customClasses:_class});
-        }
-        if(checkedPaths){
-            checkedPaths.split(',').forEach(function(path){
-                cb(path);
-            });
-        }
-        if(loadedCheckedPaths){
-            loadedCheckedPaths.forEach(function(path){
-                cb(path,'dimmed');
-            });
-        }
-
-        SET .checkedRows = checkedRows;
-        """,checkedPaths='^.checkedPaths',loadedCheckedPaths='^.loadedCheckedPaths',data='=.tree')
-
-        g = center.contentPane(region='center').quickGrid(value='^.checkedRows')
-        #g.column('field',width='100%',name='Field')
-        g.column('caption',width='100%',name='Field')
-        g.column('dtype',width='5em',name='Dtype')
-
-        bar.dataController("""
-        checkedRows.getNodes().forEach(function(n){
-            if(!fields.getNode(n.label)){
-                fields.setItem(n.label,n.getValue());
-            }
-        });
-        """,fields='=#ANCHOR.stats.conf.fields',checkedRows='=.checkedRows',_fired='^.addFields')
-
-
-        
     def ths_fieldsform(self,form):
         form.top.slotToolbar('2,navigation,*')
         bc = form.center.borderContainer()
         top = bc.contentPane(region='top',datapath='.record',border_bottom='1px solid silver')
         fb = top.formbuilder(margin_top='10px',margin_left='10px',lbl_width='7em')
-        fb.textbox(value='^.pkey',lbl='!!Name',validate_notnull=True)
+        fb.textbox(value='^.name',lbl='!!Name',validate_notnull=True,validate_regex='![^A-Za-z0-9_]')
+        fb.dataFormula(".pkey",'name',st_mode='^.record.st_mode',_if='st_mode!="realfield"',
+                        newrecord='#FORM.controller.is_newrecord',name='^.name')
         fb.textbox(value='^.caption',lbl='!!Caption',validate_notnull=True)
         fb.filteringSelect(value='^.dtype',lbl='!!Dtype',validate_notnull=True,unmodifiable=True,
                     values='T,N,L,D,DH,H')
@@ -584,7 +451,101 @@ class TableHandlerStats(BaseComponent):
         pass
 
 
-    def _ths_configPivotGrids(self,bc):
+    def _ths_configPivotGrids(self,frame,table=None):
+        bar = frame.top.slotToolbar('*,editFields,5')
+        bc = frame.center.borderContainer()
+        bc.dataController("""
+        var index_menu = new gnr.GnrBag();
+        var values_menu = new gnr.GnrBag();
+        fields.getNodes().forEach(function(n){
+            var dtype = n.getValue().getItem('dtype');
+            if(dtype=='N' || dtype=='L' || dtype=='I'){
+                if(!values.getNode(n.label)){
+                    values_menu.setItem(n.label,null,n.getValue().asDict());
+                }
+            }else{
+                if(!(rows.getNode(n.label) || columns.getNode(n.label))){
+                    index_menu.setItem(n.label,null,n.getValue().asDict());
+                }
+            }
+        });
+        SET .stats.controller.index_menu = index_menu;
+        SET .stats.controller.values_menu = values_menu;
+        """,fields='^.stats.conf.fields',
+            rows='^.stats.conf.rows',
+            columns='^.stats.conf.columns',
+            values='^.stats.conf.values',
+            _if='fields',_onBuilt=True,_delay=10)
+        bar.editFields.slotButton('Fields',action='dlg.show();',
+                                    dlg=self._ths_confFieldsDialog(bc,table=table).js_widget)
+        
         self._ths_branchgrid(bc,'rows',region='top',height='33%')
         self._ths_branchgrid(bc,'values',region='bottom',height='33%')
         self._ths_branchgrid(bc,'columns',region='center')
+
+    def _ths_confFieldsDialog(self,parent,table=None):
+        dlg = parent.dialog(title='!!Edit fields',windowRatio=.8,closable=True,noModal=True)
+        bc = dlg.borderContainer()
+        frame = bc.bagGrid(frameCode='V_th_conf_fields',datapath='#ANCHOR.st_grid',title='!!Fields',
+                                storepath='=#ANCHOR.stats.conf.fields',
+                                struct=self._ths_varsgrid_struct,
+                                parentForm=False,
+                                addrow= not table,
+                                splitter=True,region='center')
+        frame.left.slotBar('5,fieldsTree,*',
+                        fieldsTree_table=table,
+                        fieldsTree_dragCode='fieldvars',
+                        border_right='1px solid silver',
+                        closable=True,width='150px',fieldsTree_height='100%',splitter=True)
+        grid = frame.grid
+        grid.data('.table',table)
+        grid.dragAndDrop(dropCodes='fieldvars')
+        grid.dataController("""var caption = data.fullcaption;
+                                var field = data.fieldpath;
+                                var pkey = field.replace(/\W/g,'_');
+                                var dtype = data.dtype;
+                                var store = grid.storebag();
+                                store.setItem(pkey,new gnr.GnrBag({'field':field,
+                                                            dtype:dtype,
+                                                            caption:caption,
+                                                            pkey:pkey,
+                                                            name:pkey,
+                                                            st_mode:'realfield',
+                                                            virtual_column:data.virtual_column,
+                                                            required_columns:data.required_columns}),
+                                             {pkey:pkey});""",
+                                data="^.dropped_fieldvars",grid=grid.js_widget)    
+
+        stfield_type = Bag()
+        stfield_type.setItem('from_field',None,caption='From field',default_kw = dict(st_mode='from_field'))
+        stfield_type.setItem('formula',None,caption='New formula',default_kw = dict(st_mode='formula'))
+        frame.top.bar.replaceSlots('delrow','delrow,addrow',addrow_defaults=stfield_type)
+
+        form = frame.grid.linkedForm(frameCode='F_th_conf_fields',
+                                 datapath='#ANCHOR.st_form',loadEvent='onRowDblClick',
+                                 dialog_height='250px',dialog_width='350px',
+                                 dialog_title='Edit Field',handlerType='dialog',
+                                 childname='form',attachTo=bc,store='memory',
+                                 store_pkeyField='pkey')
+
+        self.ths_fieldsform(form)
+        return dlg
+
+
+    def _ths_varsgrid_struct(self,struct):
+        r = struct.view().rows()
+        r.cell('name', name='Name', width='15em')
+        r.cell('field', name='Value', width='100%',
+                _customGetter="""function(row){
+                    if (row.st_mode=="realfield"){
+                        return row.field
+                    }
+                    return row.st_mode=="from_field"?("From field:"+row.from_field):row.raw_formula;
+                }""")
+        
+        r.cell('caption', name='Caption', width='15em')
+        r.cell('dtype', name='Dtype', width='5em')
+        #r.cell('format', name='Format', width='10em')
+        #r.cell('mask', name='Mask', width='20em',edit=True)
+   
+
