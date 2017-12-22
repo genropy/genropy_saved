@@ -395,62 +395,6 @@ class TableHandlerStats(BaseComponent):
 
         return frame
 
-    def ths_fieldsform(self,form):
-        form.top.slotToolbar('2,navigation,*')
-        bc = form.center.borderContainer()
-        top = bc.contentPane(region='top',datapath='.record',border_bottom='1px solid silver')
-        fb = top.formbuilder(margin_top='10px',margin_left='10px',lbl_width='7em')
-        fb.textbox(value='^.name',lbl='!!Name',validate_notnull=True,validate_regex='![^A-Za-z0-9_]')
-        fb.dataFormula(".pkey",'name',st_mode='^.record.st_mode',_if='st_mode!="realfield"',
-                        newrecord='#FORM.controller.is_newrecord',name='^.name')
-        fb.textbox(value='^.caption',lbl='!!Caption',validate_notnull=True)
-        fb.filteringSelect(value='^.dtype',lbl='!!Dtype',validate_notnull=True,unmodifiable=True,
-                    values='T,N,L,D,DH,H')
-
-        sc = bc.stackContainer(selectedPage='^.record.st_mode?=#v || "realfield"',region='center')
-        sc.contentPane(pageName='realfield')
-        self.ths_fieldsform_from_field(sc.contentPane(pageName='from_field'))
-        self.ths_fieldsform_formula(sc.contentPane(pageName='formula'))
-        bar = form.bottom.slotBar('*,cancel,savebtn',margin_bottom='2px',_class='slotbar_dialog_footer')
-        bar.cancel.button('!!Cancel',action='this.form.abort();')
-        bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})')
-        
-    def ths_fieldsform_from_field(self,pane):
-        fb = pane.formbuilder(datapath='.record',margin='10px',lbl_width='7em')
-        fb.callbackSelect(value='^.from_field',callback="""function(kw){
-                var _id = kw._id;
-                var _querystring = kw._querystring;
-                var data = this.sourceNode.getRelativeData('#ANCHOR.stats.conf.fields').getNodes().map(function(n){
-                    var r = n.getValue().asDict();
-                    r._pkey = r.pkey;
-                    return r;
-                });
-                
-                var cbfilter = function(n){return true};
-                if(_querystring){
-                    _querystring = _querystring.slice(0,-1).toLowerCase();
-                    cbfilter = function(n){return n.caption.toLowerCase().indexOf(_querystring)>=0;};
-                }else if(_id){
-                    cbfilter = function(n){return n._pkey==_id;}
-                }
-                data = data.filter(cbfilter);
-                return {headers:'caption:Field,dtype:Dtype',data:data}
-            }""",auxColumns='dtype',selected_dtype='.from_dtype',
-            selected_field='.field',
-           hasDownArrow=True,lbl='!!From Field')
-        fb.comboBox(value='^.extract',hidden='^.from_dtype?=(#v!="D" && #v!="DH")',
-                        lbl='Extract',values='year,month,quarter')
-        fb.textbox(value='^.to_period',hidden='^.from_dtype?=(#v!="D" && #v!="DH")',
-                        lbl='To period',disabled='^.extract')
-
-    def ths_fieldsform_formula(self,pane):
-        fb = pane.formbuilder(datapath='.record',margin='10px',lbl_width='7em')
-        fb.simpleTextArea(value='^.raw_formula',lbl='Formula',width='15em',height='7ex')
-
-    def ths_fieldsform_from_model(self,pane):
-        pass
-
-
     def _ths_configPivotGrids(self,frame,table=None):
         bar = frame.top.slotToolbar('*,editFields,5')
         bc = frame.center.borderContainer()
@@ -459,15 +403,13 @@ class TableHandlerStats(BaseComponent):
         var values_menu = new gnr.GnrBag();
         fields.getNodes().forEach(function(n){
             var dtype = n.getValue().getItem('dtype');
-            if(dtype=='N' || dtype=='L' || dtype=='I'){
-                if(!values.getNode(n.label)){
-                    values_menu.setItem(n.label,null,n.getValue().asDict());
-                }
-            }else{
-                if(!(rows.getNode(n.label) || columns.getNode(n.label))){
-                    index_menu.setItem(n.label,null,n.getValue().asDict());
-                }
+            if(rows.getNode(n.label) || columns.getNode(n.label) || values.getNode(n.label)){
+                return;
             }
+            if(dtype=='N' || dtype=='L' || dtype=='I'){
+                values_menu.setItem(n.label,null,n.getValue().asDict());
+            }
+            index_menu.setItem(n.label,null,n.getValue().asDict());
         });
         SET .stats.controller.index_menu = index_menu;
         SET .stats.controller.values_menu = values_menu;
@@ -489,9 +431,9 @@ class TableHandlerStats(BaseComponent):
         frame = bc.bagGrid(frameCode='V_th_conf_fields',datapath='#ANCHOR.st_grid',title='!!Fields',
                                 storepath='=#ANCHOR.stats.conf.fields',
                                 struct=self._ths_varsgrid_struct,
-                                parentForm=False,
-                                addrow= not table,
-                                splitter=True,region='center')
+                                parentForm=False,grid_masterColumn='name',
+                                addrow='auto',delrow='auto',
+                                region='center')
         frame.left.slotBar('5,fieldsTree,*',
                         fieldsTree_table=table,
                         fieldsTree_dragCode='fieldvars',
@@ -504,47 +446,32 @@ class TableHandlerStats(BaseComponent):
                                 var field = data.fieldpath;
                                 var pkey = field.replace(/\W/g,'_');
                                 var dtype = data.dtype;
-                                var store = grid.storebag();
-                                store.setItem(pkey,new gnr.GnrBag({'field':field,
+                                grid.gridEditor.addNewRows([{'field':field,
                                                             dtype:dtype,
                                                             caption:caption,
                                                             pkey:pkey,
                                                             name:pkey,
                                                             st_mode:'realfield',
                                                             virtual_column:data.virtual_column,
-                                                            required_columns:data.required_columns}),
-                                             {pkey:pkey});""",
-                                data="^.dropped_fieldvars",grid=grid.js_widget)    
-
-        stfield_type = Bag()
-        stfield_type.setItem('from_field',None,caption='From field',default_kw = dict(st_mode='from_field'))
-        stfield_type.setItem('formula',None,caption='New formula',default_kw = dict(st_mode='formula'))
-        frame.top.bar.replaceSlots('delrow','delrow,addrow',addrow_defaults=stfield_type)
-
-        form = frame.grid.linkedForm(frameCode='F_th_conf_fields',
-                                 datapath='#ANCHOR.st_form',loadEvent='onRowDblClick',
-                                 dialog_height='250px',dialog_width='350px',
-                                 dialog_title='Edit Field',handlerType='dialog',
-                                 childname='form',attachTo=bc,store='memory',
-                                 store_pkeyField='pkey')
-
-        self.ths_fieldsform(form)
+                                                            required_columns:data.required_columns}]);
+                                                            """,
+                                data="^.dropped_fieldvars",grid=grid.js_widget) 
         return dlg
 
 
     def _ths_varsgrid_struct(self,struct):
         r = struct.view().rows()
-        r.cell('name', name='Name', width='15em')
-        r.cell('field', name='Value', width='100%',
+        r.cell('name', name='Name', width='15em',edit=True)
+        r.cell('_value', name='Value', width='100%',
                 _customGetter="""function(row){
                     if (row.st_mode=="realfield"){
                         return row.field
                     }
                     return row.st_mode=="from_field"?("From field:"+row.from_field):row.raw_formula;
-                }""")
+                }""",edit=True,editDisabled='=#ROW.st_mode?=#v=="realfield"')
         
-        r.cell('caption', name='Caption', width='15em')
-        r.cell('dtype', name='Dtype', width='5em')
+        r.cell('caption', name='Caption', width='15em',edit=dict())
+        r.cell('dtype', name='Dtype', width='5em',edit=True)
         #r.cell('format', name='Format', width='10em')
         #r.cell('mask', name='Mask', width='20em',edit=True)
    
