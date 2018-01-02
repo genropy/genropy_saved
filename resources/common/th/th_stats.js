@@ -20,6 +20,51 @@ var th_stats_js = {
         }
         var dragNode = b.popNode(data);
         destBag.setItem(dragNode.label,dragNode,null,kw);
+    },
+
+    dtSubmenu:function(field){
+        var result = new gnr.GnrBag();
+        var extract = new gnr.GnrBag();
+        var quantize = new gnr.GnrBag();
+        ['year','month','quarter','weekday','weekday_name'].forEach(function(extractor){
+            extract.setItem(extractor,null,{
+                caption:stringCapitalize(extractor.replace('_',' ')),
+                formula:field+'.dt.'+extractor
+            });
+        });
+
+        ['M:Month end frequency','SM:Semi-month end frequency'].forEach(function(freq){
+            var f = freq.split(':');
+            quantize.setItem(f[0],null,{
+                caption:f[1],
+                formula:field+".dt.to_period('"+f[0]+"')"
+            });
+        });
+        result.setItem('extract',extract,{caption:'Extract'});
+        result.setItem('quantize',quantize,{caption:'Quantize'});
+        return result;
+    },
+
+    getFormulaShortcuts:function(sourceNode,exclude){
+        var result = new gnr.GnrBag();
+        var that = this;
+        sourceNode.getRelativeData('#ANCHOR.stats.conf.fields').getNodes().forEach(function(n){
+            var v = n.getValue();
+            var name = v.getItem('name');
+            if(!name || name==exclude){
+                return;
+            }
+            var dtype = v.getItem('dtype') || 'T';
+            if(dtype=='D' || dtype=='DH'){
+                result.setItem('r_'+result.len(),that.dtSubmenu(name),{caption:name}); 
+            }else{
+                result.setItem('r_'+result.len(),null,{caption:name,formula:name}); 
+            }
+        });
+        if (result.len()){
+            return result;
+        }
+        return null;
     }
 };
 

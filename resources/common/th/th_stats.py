@@ -138,8 +138,8 @@ class TableHandlerStats(BaseComponent):
                                 relatedTableHandlerFrameCode=None,
                                 relatedTable=None,source_filters=None,**kwargs):
         tc = pane.tabContainer(region='left',width='250px',margin='2px',drawer=True,splitter=True)
-        self._ths_configPivotGrids(tc.borderContainer(title='!!Pivot'))
-        self._ths_configFields(tc.borderContainer(title='!!Fields'),table=table)
+        self._ths_configPivotGrids(tc.framePane(title='!!Pivot'),table=table)
+        #self._ths_configFields(tc.borderContainer(title='!!Fields'),table=table)
         if relatedTable:
             tblobj = self.db.table(relatedTable)
             caption_field = tblobj.attributes.get('caption_field')
@@ -310,7 +310,14 @@ class TableHandlerStats(BaseComponent):
             stat_values = stat_values or Bag()
             stat_columns = stat_columns or Bag()
             stat_rows = stat_rows or Bag()
-            columns = [f for f in stat_fields.digest('#v.field') if f]
+            columns = []
+            for f,asname in stat_fields.digest('#v.field,#v.name'):
+                if not f:
+                    continue
+                f = '$%s' %f if not f.startswith('@') else f
+                if asname:
+                    f = '%s AS %s' %(f,asname)
+                columns.append(f)
             df = self.ths_getDataframe(table,filters=filters,mainfilter=mainfilter,
                                         relation_field=relation_field,
                                         relation_value=relation_value,
@@ -324,20 +331,12 @@ class TableHandlerStats(BaseComponent):
             if not len(pddf):
                 return
             for fv in stat_fields.values():
-                if not fv['st_mode']:
+                if not fv['calculated']:
                     continue
-                if fv['st_mode'] == 'from_field':
-                    if fv['from_dtype'] in ('D','DH'):
-                        ff_dt = pddf[fv['from_field']].dt
-                        if fv['extract']:
-                            pddf[fv['pkey']] = getattr(ff_dt,fv['extract'])
-                        elif fv['to_period']:
-                            pddf[fv['pkey']] = ff_dt.to_period(fv['to_period'])
-                elif fv['st_mode'] == 'formula':
-                    pddf.eval('%(pkey)s = %(raw_formula)s' %fv,inplace=True) 
+                if fv['value']:
+                    pddf.eval('%(name)s = %(value)s' %fv,inplace=True) 
             if not df:
                 return    
-            
         pivotdf,bagresult = df.pivotTableGrid(index=stat_rows if stat_rows else None,
                                             values=stat_values if stat_values else None,
                                             columns=stat_columns if stat_columns else None)
@@ -381,32 +380,29 @@ class TableHandlerStats(BaseComponent):
                 var storebag = this.widget.storebag();
                 var newrow = new gnr.GnrBag(p_0.opt);
                 newrow.setItem('caption',newrow.pop('label'));
-                var fullpath = newrow.pop('fullpath');
-                storebag.setItem(fullpath,newrow);
+                newrow.pop('fullpath');
+                storebag.setItem(newrow.getItem('name'),newrow);
                 """
             )
 
         return frame
 
-    def _ths_configFields(self,bc,table=None):
-        frame = self._ths_branchgrid(bc,'fields',region='center')
-        self._ths_addFieldsFromModel(bc,table=table)
-
-
+    def _ths_configPivotGrids(self,frame,table=None):
+        bar = frame.top.slotToolbar('*,editFields,5')
+        bc = frame.center.borderContainer()
         bc.dataController("""
         var index_menu = new gnr.GnrBag();
         var values_menu = new gnr.GnrBag();
         fields.getNodes().forEach(function(n){
             var dtype = n.getValue().getItem('dtype');
-            if(dtype=='N' || dtype=='L' || dtype=='I'){
-                if(!values.getNode(n.label)){
-                    values_menu.setItem(n.label,null,n.getValue().asDict());
-                }
-            }else{
-                if(!(rows.getNode(n.label) || columns.getNode(n.label))){
-                    index_menu.setItem(n.label,null,n.getValue().asDict());
-                }
+            var nattr = n.getValue().asDict();
+            if(rows.getNode(n.label) || columns.getNode(n.label) || values.getNode(n.label)){
+                return;
             }
+            if(dtype=='N' || dtype=='L' || dtype=='I'){
+                values_menu.setItem(n.label,null,nattr);
+            }
+            index_menu.setItem(n.label,null,nattr);
         });
         SET .stats.controller.index_menu = index_menu;
         SET .stats.controller.values_menu = values_menu;
@@ -415,176 +411,100 @@ class TableHandlerStats(BaseComponent):
             columns='^.stats.conf.columns',
             values='^.stats.conf.values',
             _if='fields',_onBuilt=True,_delay=10)
-        form = frame.grid.linkedForm(frameCode='th_conf_fields',
-                                 datapath='#ANCHOR.st_form',loadEvent='onRowDblClick',
-                                 dialog_height='250px',dialog_width='350px',
-                                 dialog_title='Edit Field',handlerType='dialog',
-                                 childname='form',attachTo=bc,store='memory',
-                                 store_pkeyField='pkey')
-
-        gridattr = frame.grid.attributes
-        gridattr['selfsubscribe_addrow'] = """if(p_0.opt.from_model){
-            FIRE #ANCHOR.stats.addFieldsFromModelDlg;
-            return;
-        }
-        %(selfsubscribe_addrow)s""" %gridattr
-        stfield_type = Bag()
-        stfield_type.setItem('from_model',None,caption='Add fields',from_model=True)
-        stfield_type.setItem('from_field',None,caption='From field',default_kw = dict(st_mode='from_field'))
-        stfield_type.setItem('formula',None,caption='New formula',default_kw = dict(st_mode='formula'))
-        frame.top.bar.replaceSlots('delrow','delrow,addrow',addrow_defaults=stfield_type)
-        self.ths_fieldsform(form)
-
-
-    def _ths_addFieldsFromModel(self,pane,table=None):
-        dlg = pane.dialog(title='!!Add fields')
-        frame = dlg.framePane(datapath='#ANCHOR.stats.tablefields',height='500px',width='550px')
-        center = frame.center.borderContainer(overflow='auto')
-        center.dataRemote('.tree', self.relationExplorer, table=table, item_type='FTREE',omit='_*')
-        tree = center.contentPane(region='left',width='50%',overflow='auto').tree(storepath='.tree', persist=False,
-                    inspect='shift', #labelAttribute='label',
-                    _class='fieldsTree',
-                    hideValues=True,
-                    margin='6px',
-                    checkedPaths='.checkedPaths',
-                    checkChildren=True,
-                    getLabelClass="""if (!node.attr.fieldpath && node.attr.table){return "tableTreeNode"}
-                                        else if(node.attr.relation_path){return "aliasColumnTreeNode"}
-                                        else if(node.attr.sql_formula){return "formulaColumnTreeNode"}""",
-                    getIconClass="""if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}
-                                     else {return opened?'dijitFolderOpened':'dijitFolderClosed'}""")
-        frame.dataController(""" 
-                            dlg.show();
-                            var loadedCheckedPaths= [];
-                            var v;
-                            fields.getNodes().forEach(function(n){
-                                    v = n.getValue();
-                                    if(v.getItem('field') && v.getItem('treepath')){
-                                        loadedCheckedPaths.push(v.getItem('treepath'));
-                                    }
-                                });
-                                data.walk(function(n){
-                                    if(!n.attr.fieldpath){
-                                        return;
-                                    }
-                                    if (loadedCheckedPaths.indexOf(n.getFullpath(null,data))>=0){
-                                        n.updAttributes({checked:'disabled:on'});
-                                    }else{
-                                        n.updAttributes({checked:false});
-                                    }
-                                },'static');
-                                SET .loadedCheckedPaths = loadedCheckedPaths;
-                            """,
-                            _fired='^#ANCHOR.stats.addFieldsFromModelDlg',
-                            dlg=dlg.js_widget,
-                            fields='=#ANCHOR.stats.conf.fields',
-                            data='=.tree',tree=tree.js_widget)
-        bar = frame.bottom.slotBar('*,cancel,confirm',margin_bottom='2px',_class='slotbar_dialog_footer')
-        bar.cancel.button('!!Cancel',action='dlg.hide();',dlg=dlg.js_widget)
-        bar.confirm.button('!!Confirm',action="""
-                                FIRE .addFields;
-                                dlg.hide();
-                                """,dlg=dlg.js_widget)
-        bar.dataController("""
-        var checkedRows = new gnr.GnrBag();
-        var n,key,f;
-        var cb = function(path,_class){
-            n = data.getNode(path);
-            f = n.attr.fieldpath;
-            if(!f){
-                return;
-            }
-            key =  flattenString(f,['.','@']);
-            checkedRows.setItem(key,new gnr.GnrBag({field:f[0]=='@'?f:'$'+f,
-                                                    pkey:key,
-                                                    treepath:n.getFullpath(null,data),
-                                                    caption:n.attr.fullcaption,
-                                                    dtype:n.attr.dtype}),{_customClasses:_class});
-        }
-        if(checkedPaths){
-            checkedPaths.split(',').forEach(function(path){
-                cb(path);
-            });
-        }
-        if(loadedCheckedPaths){
-            loadedCheckedPaths.forEach(function(path){
-                cb(path,'dimmed');
-            });
-        }
-
-        SET .checkedRows = checkedRows;
-        """,checkedPaths='^.checkedPaths',loadedCheckedPaths='^.loadedCheckedPaths',data='=.tree')
-
-        g = center.contentPane(region='center').quickGrid(value='^.checkedRows')
-        #g.column('field',width='100%',name='Field')
-        g.column('caption',width='100%',name='Field')
-        g.column('dtype',width='5em',name='Dtype')
-
-        bar.dataController("""
-        checkedRows.getNodes().forEach(function(n){
-            if(!fields.getNode(n.label)){
-                fields.setItem(n.label,n.getValue());
-            }
-        });
-        """,fields='=#ANCHOR.stats.conf.fields',checkedRows='=.checkedRows',_fired='^.addFields')
-
-
+        bar.editFields.slotButton('Fields',action='dlg.show();',
+                                    dlg=self._ths_confFieldsDialog(bc,table=table).js_widget)
         
-    def ths_fieldsform(self,form):
-        form.top.slotToolbar('2,navigation,*')
-        bc = form.center.borderContainer()
-        top = bc.contentPane(region='top',datapath='.record',border_bottom='1px solid silver')
-        fb = top.formbuilder(margin_top='10px',margin_left='10px',lbl_width='7em')
-        fb.textbox(value='^.pkey',lbl='!!Name',validate_notnull=True)
-        fb.textbox(value='^.caption',lbl='!!Caption',validate_notnull=True)
-        fb.filteringSelect(value='^.dtype',lbl='!!Dtype',validate_notnull=True,unmodifiable=True,
-                    values='T,N,L,D,DH,H')
-
-        sc = bc.stackContainer(selectedPage='^.record.st_mode?=#v || "realfield"',region='center')
-        sc.contentPane(pageName='realfield')
-        self.ths_fieldsform_from_field(sc.contentPane(pageName='from_field'))
-        self.ths_fieldsform_formula(sc.contentPane(pageName='formula'))
-        bar = form.bottom.slotBar('*,cancel,savebtn',margin_bottom='2px',_class='slotbar_dialog_footer')
-        bar.cancel.button('!!Cancel',action='this.form.abort();')
-        bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})')
-        
-    def ths_fieldsform_from_field(self,pane):
-        fb = pane.formbuilder(datapath='.record',margin='10px',lbl_width='7em')
-        fb.callbackSelect(value='^.from_field',callback="""function(kw){
-                var _id = kw._id;
-                var _querystring = kw._querystring;
-                var data = this.sourceNode.getRelativeData('#ANCHOR.stats.conf.fields').getNodes().map(function(n){
-                    var r = n.getValue().asDict();
-                    r._pkey = r.pkey;
-                    return r;
-                });
-                
-                var cbfilter = function(n){return true};
-                if(_querystring){
-                    _querystring = _querystring.slice(0,-1).toLowerCase();
-                    cbfilter = function(n){return n.caption.toLowerCase().indexOf(_querystring)>=0;};
-                }else if(_id){
-                    cbfilter = function(n){return n._pkey==_id;}
-                }
-                data = data.filter(cbfilter);
-                return {headers:'caption:Field,dtype:Dtype',data:data}
-            }""",auxColumns='dtype',selected_dtype='.from_dtype',
-            selected_field='.field',
-           hasDownArrow=True,lbl='!!From Field')
-        fb.comboBox(value='^.extract',hidden='^.from_dtype?=(#v!="D" && #v!="DH")',
-                        lbl='Extract',values='year,month,quarter')
-        fb.textbox(value='^.to_period',hidden='^.from_dtype?=(#v!="D" && #v!="DH")',
-                        lbl='To period',disabled='^.extract')
-
-    def ths_fieldsform_formula(self,pane):
-        fb = pane.formbuilder(datapath='.record',margin='10px',lbl_width='7em')
-        fb.simpleTextArea(value='^.raw_formula',lbl='Formula',width='15em',height='7ex')
-
-    def ths_fieldsform_from_model(self,pane):
-        pass
-
-
-    def _ths_configPivotGrids(self,bc):
         self._ths_branchgrid(bc,'rows',region='top',height='33%')
         self._ths_branchgrid(bc,'values',region='bottom',height='33%')
         self._ths_branchgrid(bc,'columns',region='center')
+
+    def _ths_confFieldsDialog(self,parent,table=None):
+        dlg = parent.dialog(title='!!Edit fields',windowRatio=.8,closable=True,noModal=True)
+        bc = dlg.borderContainer()
+        frame = bc.bagGrid(frameCode='V_th_conf_fields_#',datapath='#ANCHOR.st_grid',title='!!Fields',
+                                storepath='=#ANCHOR.stats.conf.fields',
+                                struct=self._ths_varsgrid_struct,
+                                parentForm=False,grid_masterColumn='name',
+                                addrow=True,delrow=True,
+                                default_calculated=True,
+                                grid_gridplugins=False,
+                                region='center')
+        frame.left.slotBar('5,fieldsTree,*',
+                        fieldsTree_table=table,
+                        fieldsTree_dragCode='fieldvars',
+                        border_right='1px solid silver',
+                        closable=True,width='150px',fieldsTree_height='100%',splitter=True)
+        grid = frame.grid
+
+        grid.dataController("""
+        var r = grid.rowByIndex(rowIndex);
+        SET .currformula.shortcuts = th_stats_js.getFormulaShortcuts(this,r.name);
+        SET .currformula.title = 'Edit '+r.name;
+        SET .currformula.value = r.value;
+        SET .currformula.rowIndex = rowIndex;
+        dlgformula.widget.show();
+        """,grid=grid.js_widget,
+                        rowIndex='^.editFormulaCell',
+                        dlgformula=self.ths_formulaEditor(grid))
+        grid.data('.table',table)
+        grid.dragAndDrop(dropCodes='fieldvars')
+        grid.dataController("""var caption = data.fullcaption;
+                                var field = data.fieldpath;
+                                var pkey = field.replace(/\W/g,'_');
+                                var dtype = data.dtype;
+                                grid.gridEditor.addNewRows([{'field':field,
+                                                            value:field,
+                                                            dtype:dtype,
+                                                            caption:caption,
+                                                            pkey:pkey,
+                                                            name:pkey,
+                                                            calculated:false,
+                                                            virtual_column:data.virtual_column,
+                                                            required_columns:data.required_columns}]);
+                                                            """,
+                                data="^.dropped_fieldvars",grid=grid.js_widget) 
+        return dlg
+
+    def ths_formulaEditor(self,grid):
+        dlg = grid.dialog(title='^.currformula.title')
+        frame = dlg.framePane(height='300px',width='400px')
+        ta = frame.center.simpleTextArea(value='^.currformula.value')
+        ta.menu(storepath='.currformula.shortcuts',_class='smallMenu',
+                action="genro.dom.setTextInSelection($2,$1.formula);")
+        bar = frame.bottom.slotBar('*,cancel,10,confirm,2',margin_bottom='2px',_class='slotbar_dialog_footer')
+        bar.cancel.slotButton('Cancel',action="dlg.hide()",dlg=dlg.js_widget)
+        bar.confirm.slotButton('Confirm',action="""
+                                                grid.gridEditor.setCellValue(rowIndex,'value',formula);
+                                                var guessDtype = 'T';
+                                                if(formula.match(/[\+\-\*\\/]/im)){
+                                                    guessDtype = 'N';
+                                                }
+                                                grid.gridEditor.setCellValue(rowIndex,'dtype',guessDtype);
+                                                dlg.hide();
+                                                    """,
+                                        dlg=dlg.js_widget,
+                                        grid=grid.js_widget,
+                                        rowIndex='=.currformula.rowIndex',
+                                        formula='=.currformula.value')
+        return dlg
+
+
+
+    def _ths_varsgrid_struct(self,struct):
+        r = struct.view().rows()
+        r.cell('name', name='Name', width='15em',edit=dict(validate_notnull=True))
+        r.cell('calculated',dtype='B',width='2em',name=' ',format_trueclass='iconbox arrow_left',format_falseclass=' ')
+        
+        r.cell('value', name='Value', width='100%',
+                            edit=True,
+                            editOnOpening="""
+                            this.grid.sourceNode.fireEvent('.editFormulaCell',rowIndex);
+                            """,
+                            editDisabled='=#ROW.calculated?=!#v')
+        r.cell('caption', name='Caption', width='15em',edit=True)
+        r.cell('dtype', name='Dtype', width='4em',edit=dict(tag='filteringSelect',values='T,N,L,D,DH,H'))
+
+        #r.cell('format', name='Format', width='10em')
+        #r.cell('mask', name='Mask', width='20em',edit=True)
+   
+
