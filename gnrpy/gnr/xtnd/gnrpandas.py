@@ -309,7 +309,7 @@ class GnrDataframe(object):
                 values_list.append(k)
                 aggregators = v['aggregators']
                 if not aggregators:
-                    continue
+                    values_dict[k] = adict['sum']
                 if k not in values_dict:
                     values_dict[k] = [adict[aggkey] for aggkey in aggregators.split(',')] if ',' in aggregators else adict[aggregators]
         else:
