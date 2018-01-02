@@ -80,6 +80,7 @@ class TableHandlerStats(BaseComponent):
             stat_rows='^.stats.conf.rows',
             stat_values='^.stats.conf.values',
             stat_columns='^.stats.conf.columns',
+            tat_columns='^.stats.conf.margins',
             autorun='=.stats.autorun',
             #_delay=2000,
             bcNode=bc)
@@ -97,8 +98,9 @@ class TableHandlerStats(BaseComponent):
                     stat_values='=.stats.conf.values',
                     stat_columns='=.stats.conf.columns',
                     stat_fields='=.stats.conf.fields',
+                    stat_margins='=.stats.conf.margins',
                     relatedTableHandlerFrameCode=relatedTableHandlerFrameCode,
-                    _lockScreen=True,
+                    _lockScreen=dict(thermo=True),
                     _onCalling="""
                         if(!genro.dom.isVisible(_bcNode)){
                             return false;
@@ -167,13 +169,16 @@ class TableHandlerStats(BaseComponent):
         #tc = center.tabContainer()
         grid = sc.contentPane(title='!!Grid').quickGrid('^.stats.pivot_grid')
         #grid.tools('export')
-        bar = frame.top.slotToolbar('2,stackButtons,*,autorun,10,printStats,exportStats,5')
+        bar = frame.top.slotToolbar('2,stackButtons,*,margins,20,autorun,10,printStats,exportStats,5')
         bar.autorun.checkbox(value='^.stats.autorun',label='!!Autorun',
                             validate_onAccept="""
                                 if(value){
                                     FIRE .stats.run_pivot;
                                 }
                             """,default_value=True if relation_value else False)
+
+        bar.margins.checkbox(value='^.stats.conf.margins',label='!!Margins')
+
         bar.printStats.slotButton('!!Print',action="genro.dom.iFramePrint(_iframe)",iconClass='iconbox print',
                                 _iframe=iframe.js_domNode)
         bar.exportStats.slotButton('!!Export',iconClass='iconbox export',fire_xls='.stats.run_pivot_do')
@@ -256,7 +261,7 @@ class TableHandlerStats(BaseComponent):
                                 relation_field=None,relation_value=None,
                                 maintable=None,columns=None,condition=None,condition_kwargs=None,
                                 where=None,**kwargs):
-        df = GnrDbDataframe('current_df_%s' %table.replace('.','_'),self.db)
+        df = GnrDbDataframe('current_df_%s' %table.replace('.','_'),self.db,thermocb=self.utils.quickThermo)
         related_pkeys = None
         if mainfilter:
             where = None
@@ -300,7 +305,7 @@ class TableHandlerStats(BaseComponent):
     def ths_getPivotTable(self,df=None,table=None,relation_field=None,relation_value=None,
                         filters=None,mainfilter=None,
                         stat_rows=None,stat_columns=None,
-                        stat_values=None,stat_fields=None,outmode=None,
+                        stat_values=None,stat_fields=None,stat_margins=None,outmode=None,
                         filename=None,condition=None,where=None,
                         **kwargs):
         condition_kwargs= dictExtract(kwargs,'condition_')
@@ -339,7 +344,8 @@ class TableHandlerStats(BaseComponent):
                 return    
         pivotdf,bagresult = df.pivotTableGrid(index=stat_rows if stat_rows else None,
                                             values=stat_values if stat_values else None,
-                                            columns=stat_columns if stat_columns else None)
+                                            columns=stat_columns if stat_columns else None,
+                                            margins=stat_margins)
         result = Bag()
         result['pivot_html'] = pivotdf.to_html()
         result['pivot_grid'] = bagresult

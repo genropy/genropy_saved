@@ -311,7 +311,7 @@ class GnrDataframe(object):
                 if not aggregators:
                     continue
                 if k not in values_dict:
-                    values_dict[k] = [adict[aggkey] for aggkey in aggregators.split(',')]
+                    values_dict[k] = [adict[aggkey] for aggkey in aggregators.split(',')] if ',' in aggregators else adict[aggregators]
         else:
             values_list = values
             values = None
