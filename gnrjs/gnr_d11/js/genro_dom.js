@@ -1363,7 +1363,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var v =  fn.value;
         var fistchunk = v.slice(0,ss);
         var secondchunk = v.slice(se);
-        fn.value = fistchunk+valueToPaste+secondchunk;
+        sourceNode.widget.setValue(fistchunk+valueToPaste+secondchunk,true);
     },
     isDisabled:function(domNode,inherited){
         var isDisabled = domNode.getAttribute('disabled');

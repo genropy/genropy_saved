@@ -331,20 +331,12 @@ class TableHandlerStats(BaseComponent):
             if not len(pddf):
                 return
             for fv in stat_fields.values():
-                if not fv['st_mode']:
+                if not fv['calculated']:
                     continue
-                if fv['st_mode'] == 'from_field':
-                    if fv['from_dtype'] in ('D','DH'):
-                        ff_dt = pddf[fv['from_field']].dt
-                        if fv['extract']:
-                            pddf[fv['pkey']] = getattr(ff_dt,fv['extract'])
-                        elif fv['to_period']:
-                            pddf[fv['pkey']] = ff_dt.to_period(fv['to_period'])
-                elif fv['st_mode'] == 'formula':
-                    pddf.eval('%(pkey)s = %(raw_formula)s' %fv,inplace=True) 
+                if fv['value']:
+                    pddf.eval('%(name)s = %(value)s' %fv,inplace=True) 
             if not df:
                 return    
-            
         pivotdf,bagresult = df.pivotTableGrid(index=stat_rows if stat_rows else None,
                                             values=stat_values if stat_values else None,
                                             columns=stat_columns if stat_columns else None)
@@ -388,8 +380,8 @@ class TableHandlerStats(BaseComponent):
                 var storebag = this.widget.storebag();
                 var newrow = new gnr.GnrBag(p_0.opt);
                 newrow.setItem('caption',newrow.pop('label'));
-                var fullpath = newrow.pop('fullpath');
-                storebag.setItem(fullpath,newrow);
+                newrow.pop('fullpath');
+                storebag.setItem(newrow.getItem('name'),newrow);
                 """
             )
 
@@ -403,13 +395,14 @@ class TableHandlerStats(BaseComponent):
         var values_menu = new gnr.GnrBag();
         fields.getNodes().forEach(function(n){
             var dtype = n.getValue().getItem('dtype');
+            var nattr = n.getValue().asDict();
             if(rows.getNode(n.label) || columns.getNode(n.label) || values.getNode(n.label)){
                 return;
             }
             if(dtype=='N' || dtype=='L' || dtype=='I'){
-                values_menu.setItem(n.label,null,n.getValue().asDict());
+                values_menu.setItem(n.label,null,nattr);
             }
-            index_menu.setItem(n.label,null,n.getValue().asDict());
+            index_menu.setItem(n.label,null,nattr);
         });
         SET .stats.controller.index_menu = index_menu;
         SET .stats.controller.values_menu = values_menu;
@@ -428,11 +421,13 @@ class TableHandlerStats(BaseComponent):
     def _ths_confFieldsDialog(self,parent,table=None):
         dlg = parent.dialog(title='!!Edit fields',windowRatio=.8,closable=True,noModal=True)
         bc = dlg.borderContainer()
-        frame = bc.bagGrid(frameCode='V_th_conf_fields',datapath='#ANCHOR.st_grid',title='!!Fields',
+        frame = bc.bagGrid(frameCode='V_th_conf_fields_#',datapath='#ANCHOR.st_grid',title='!!Fields',
                                 storepath='=#ANCHOR.stats.conf.fields',
                                 struct=self._ths_varsgrid_struct,
                                 parentForm=False,grid_masterColumn='name',
-                                addrow='auto',delrow='auto',
+                                addrow=True,delrow=True,
+                                default_calculated=True,
+                                grid_gridplugins=False,
                                 region='center')
         frame.left.slotBar('5,fieldsTree,*',
                         fieldsTree_table=table,
@@ -440,6 +435,17 @@ class TableHandlerStats(BaseComponent):
                         border_right='1px solid silver',
                         closable=True,width='150px',fieldsTree_height='100%',splitter=True)
         grid = frame.grid
+
+        grid.dataController("""
+        var r = grid.rowByIndex(rowIndex);
+        SET .currformula.shortcuts = th_stats_js.getFormulaShortcuts(this,r.name);
+        SET .currformula.title = 'Edit '+r.name;
+        SET .currformula.value = r.value;
+        SET .currformula.rowIndex = rowIndex;
+        dlgformula.widget.show();
+        """,grid=grid.js_widget,
+                        rowIndex='^.editFormulaCell',
+                        dlgformula=self.ths_formulaEditor(grid))
         grid.data('.table',table)
         grid.dragAndDrop(dropCodes='fieldvars')
         grid.dataController("""var caption = data.fullcaption;
@@ -447,31 +453,57 @@ class TableHandlerStats(BaseComponent):
                                 var pkey = field.replace(/\W/g,'_');
                                 var dtype = data.dtype;
                                 grid.gridEditor.addNewRows([{'field':field,
+                                                            value:field,
                                                             dtype:dtype,
                                                             caption:caption,
                                                             pkey:pkey,
                                                             name:pkey,
-                                                            st_mode:'realfield',
+                                                            calculated:false,
                                                             virtual_column:data.virtual_column,
                                                             required_columns:data.required_columns}]);
                                                             """,
                                 data="^.dropped_fieldvars",grid=grid.js_widget) 
         return dlg
 
+    def ths_formulaEditor(self,grid):
+        dlg = grid.dialog(title='^.currformula.title')
+        frame = dlg.framePane(height='300px',width='400px')
+        ta = frame.center.simpleTextArea(value='^.currformula.value')
+        ta.menu(storepath='.currformula.shortcuts',_class='smallMenu',
+                action="genro.dom.setTextInSelection($2,$1.formula);")
+        bar = frame.bottom.slotBar('*,cancel,10,confirm,2',margin_bottom='2px',_class='slotbar_dialog_footer')
+        bar.cancel.slotButton('Cancel',action="dlg.hide()",dlg=dlg.js_widget)
+        bar.confirm.slotButton('Confirm',action="""
+                                                grid.gridEditor.setCellValue(rowIndex,'value',formula);
+                                                var guessDtype = 'T';
+                                                if(formula.match(/[\+\-\*\\/]/im)){
+                                                    guessDtype = 'N';
+                                                }
+                                                grid.gridEditor.setCellValue(rowIndex,'dtype',guessDtype);
+                                                dlg.hide();
+                                                    """,
+                                        dlg=dlg.js_widget,
+                                        grid=grid.js_widget,
+                                        rowIndex='=.currformula.rowIndex',
+                                        formula='=.currformula.value')
+        return dlg
+
+
 
     def _ths_varsgrid_struct(self,struct):
         r = struct.view().rows()
-        r.cell('name', name='Name', width='15em',edit=True)
-        r.cell('_value', name='Value', width='100%',
-                _customGetter="""function(row){
-                    if (row.st_mode=="realfield"){
-                        return row.field
-                    }
-                    return row.st_mode=="from_field"?("From field:"+row.from_field):row.raw_formula;
-                }""",edit=True,editDisabled='=#ROW.st_mode?=#v=="realfield"')
+        r.cell('name', name='Name', width='15em',edit=dict(validate_notnull=True))
+        r.cell('calculated',dtype='B',width='2em',name=' ',format_trueclass='iconbox arrow_left',format_falseclass=' ')
         
-        r.cell('caption', name='Caption', width='15em',edit=dict())
-        r.cell('dtype', name='Dtype', width='5em',edit=True)
+        r.cell('value', name='Value', width='100%',
+                            edit=True,
+                            editOnOpening="""
+                            this.grid.sourceNode.fireEvent('.editFormulaCell',rowIndex);
+                            """,
+                            editDisabled='=#ROW.calculated?=!#v')
+        r.cell('caption', name='Caption', width='15em',edit=True)
+        r.cell('dtype', name='Dtype', width='4em',edit=dict(tag='filteringSelect',values='T,N,L,D,DH,H'))
+
         #r.cell('format', name='Format', width='10em')
         #r.cell('mask', name='Mask', width='20em',edit=True)
    

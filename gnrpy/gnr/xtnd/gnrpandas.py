@@ -449,7 +449,7 @@ class GnrDbDataframe(GnrDataframe):
             for col in textCols:
                 v = c[col]
                 if v is None:
-                    c[col] = '[NULL]'
+                    c[col] = ''
             yield c
 
 
