@@ -164,6 +164,38 @@ class BaseProxy(object):
 class BaseWebtool(object):
     """TODO"""
     pass
+
+
+class BaseDashboardItem(object):
+    item_name=''
+
+    def __init__(self, page=None, resource_table=None, **kwargs):
+        self.page = page
+        self.db = page.db
+        self.tblobj = resource_table
+
+    def __call__(self,pane,editMode=None,**kwargs):
+        bc = pane.borderContainer(region='center')
+        bc.contentPane(region='top',height='12px',background='#666'
+                        ).div(self.item_name,color='white',font_size='.8em',font_weight='bold',text_align='center',
+                              connectedMenu='dashboardItemsMenu')
+        sc = bc.stackContainer(region='center')
+        pane = sc.contentPane()
+        #pane.lightbutton(_class='iconbox gear',position='absolute',top='2px',right='2px',
+        #                action="sc.switchPage(1)",sc=sc.js_widget)
+        self.content(pane,**kwargs)
+        bc = sc.borderContainer()
+        self.configuration(bc.contentPane(region='center',datapath='.conf'),**kwargs)
+
+        bottom = bc.contentPane(region='bottom',_class='slotbar_dialog_footer')
+        bottom.button('!!Ok',top='2px',right='2px',action="sc.switchPage(0)",sc=sc.js_widget)
+
+    def content(self,pane,**kwargs):
+        pass
+
+    def configuration(self,pane,**kwargs):
+        pass
+        
         
 
 class TableScriptToHtml(BagToHtml):

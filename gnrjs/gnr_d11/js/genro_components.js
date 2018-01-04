@@ -4160,6 +4160,9 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             var btn = sourceNode._('div',childSourceNode.getStringId(),btn_kw,{_position:stackbag.len()-stackNode._n_children});
             var title = childSourceNode.attr.title;
             var iconTitle = childSourceNode.attr.iconTitle;
+            if(title && title[0]=='^'){
+                title = '^'+childSourceNode.absDatapath(title);
+            }
             if(iconTitle){
                 multibutton_kw.innerHTML = '&nbsp;'
                 multibutton_kw._class= 'multibutton_caption '+iconTitle

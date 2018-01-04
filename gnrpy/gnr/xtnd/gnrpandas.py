@@ -271,7 +271,8 @@ class GnrDataframe(object):
             result.setItem(cname,row)
         return result
 
-    def pivotTableGrid(self,index=None,values=None,columns=None,filters=None,out_xls=None,out_html=None,margins=None):
+    def pivotTableGrid(self,index=None,values=None,columns=None,filters=None,
+                        out_xls=None,out_html=None,margins=None):
         funckeys = set()
         values_list =[]
         index_list = []
