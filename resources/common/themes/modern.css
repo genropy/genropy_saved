@@ -511,10 +511,11 @@
 ._common_d11 .dijitTabChecked {
     border-bottom-color: #efefef;
     color: #ccc;
+    background-color: white;
 }
 
 ._common_d11 .dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked {
-    background: #f6f6f6;
+    background:white;
     border-bottom-color: transparent;
     color: #555;
 }

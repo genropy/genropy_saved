@@ -272,7 +272,6 @@ class TableHandlerView(BaseComponent):
         bar = pane.slotBar('confBar,fieldsTree,*',width='160px',closable='close',
                             fieldsTree_table=table,
                             fieldsTree_checkPermissions=True,
-                            fieldsTree_tree_searchCode='%s_fieldsTreeConfigurator' %th_root,
                             fieldsTree_height='100%',splitter=True,border_left='1px solid silver')
         confBar = bar.confBar.slotToolbar('viewsMenu,currviewCaption,*,defView,saveView,deleteView',background='whitesmoke')
         confBar.currviewCaption.div('^.grid.currViewAttrs.caption',font_size='.9em',color='#666',line_height='16px')
@@ -748,6 +747,7 @@ class TableHandlerView(BaseComponent):
                                where='=.query.where',
                                queryMode='=.query.queryMode', 
                                sortedBy='=.grid.sorted',
+                               customOrderBy='=.query.customOrderBy',
                                pkeys='=.query.pkeys', _runQueryDo='^.runQueryDo',
                                _cleared='^.clearStore',
                                _onError="""return error;""", 

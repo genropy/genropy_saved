@@ -21,6 +21,9 @@
 
 from gnr.web.gnrbaseclasses import BaseDashboardItem
 
+caption = 'Fakeitem'
+description = 'Dashboard Fakeitem'
+
 class Main(BaseDashboardItem):
     item_name = 'Dummy item'
     def content(self,pane,**kwargs):

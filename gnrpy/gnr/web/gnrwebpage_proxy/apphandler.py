@@ -688,7 +688,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                          selectmethod=None, expressions=None, sum_columns=None,
                          sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,hardQueryLimit=None,
                          savedQuery=None,savedView=None, externalChanges=None,prevSelectedDict=None,
-                         checkPermissions=None,queryBySample=False,weakLogicalDeleted=False,**kwargs):
+                         checkPermissions=None,queryBySample=False,weakLogicalDeleted=False,
+                         customOrderBy=None,**kwargs):
         """TODO
         
         ``getSelection()`` method is decorated with the :meth:`public_method
@@ -774,6 +775,15 @@ class GnrWebAppHandler(GnrBaseProxy):
             if fromSelection:
                 fromSelection = self.page.unfreezeSelection(tblobj, fromSelection)
                 pkeys = fromSelection.output('pkeylist')
+            
+            if customOrderBy:
+                order_by = []
+                for fieldpath,sorting in customOrderBy.digest('#v.fieldpath,#v.sorting'):
+                    fieldpath = '$%s' %fieldpath if not fieldpath.startswith('@') else fieldpath
+                    sorting = 'asc' if sorting else 'desc'
+                    order_by.append('%s %s' %(fieldpath,sorting))
+                order_by = ', '.join(order_by)
+                sortedBy = None
             selection_pars = dict(tblobj=tblobj, table=table, distinct=distinct, columns=columns, where=where,
                                       condition=condition,queryMode=queryMode,
                                       order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
