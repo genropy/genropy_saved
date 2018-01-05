@@ -139,11 +139,21 @@ dojo.declare("gnr.QueryManager", null, {
 
         var frame = pane._('framePane',{'frameCode':'_innerframe_#',
                                         center_widget:'tabContainer'});
-        var topbar = frame._('slotBar',{'slots':'queryname,*,favoritebtn,savebtn,deletebtn,10,runbtn',toolbar:true,'side':'top'});
+        var topbar = frame._('slotBar',{'slots':'queryname,*,smenu,2,currviewCaption,20,favoritebtn,savebtn,deletebtn,10,runbtn',toolbar:true,'side':'top'});
         var qtitle = topbar._('div','queryname',{innerHTML:'^.queryAttributes.caption',
                                                  padding_right:'10px',padding_left:'2px',
                                     color:'#555',font_weight:'bold',_class:'floatingPopup',cursor:'pointer'});
         qtitle._('menu',{'_class':'smallmenu',storepath:'.savedqueries',modifiers:'*',action:'SET .currentQuery = $1.fullpath;'});
+        
+        
+           
+        topbar._('menudiv','smenu',{storepath:'.#parent.grid.structMenuBag',
+                            'selected_fullpath':'.#parent.grid.currViewPath',
+                            iconClass:'iconbox list'});
+        topbar._('div','currviewCaption',{innerHTML:'^.#parent.grid.currViewAttrs.caption',font_size:'.9em',color:'#666',line_height:'16px'});
+        
+        
+        
         topbar._('slotButton','savebtn',{'label':_T('Save'),iconClass:'iconbox save',action:function(){that.saveQuery();}});
         topbar._('slotButton','deletebtn',{'label':_T('Delete'),iconClass:'iconbox trash',action:'FIRE .delete;',disabled:'^.queryAttributes.pkey?=!#v'});
         
