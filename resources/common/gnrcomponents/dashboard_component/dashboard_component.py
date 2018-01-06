@@ -83,25 +83,28 @@ class DashboardGallery(BaseComponent):
         if edit:
             parent.dataController("""genro.dashboards.clearRoot();""",
             formsubscribe_onLoading=True)
-            parent.dataController("genro.dashboards.dashboardItemsMenu();",_onStart=True)
-            frame.data('.dashboardItemsMenu',self.dashboardItemsMenu())
+
+            
         
         bar = frame.top.slotToolbar('5,stackButtons,*')
         if edit:
-            bar.replaceSlots('#','#,edittitle,10,delbtn,addbtn,dupbtn,5')
+            bar.replaceSlots('#','#,edittitle,10,paletteDashboardItems,10,delbtn,addbtn,dupbtn,5')
             bar.edittitle.div(_class='iconbox tag',tip='!!Change title')
             #.tooltipPane(
             #).div(padding='10px').formbuilder(cols=1,border_spacing='3px')
             bar.addbtn.slotButton(iconClass='iconbox add_row',publish='addpage')
             bar.delbtn.slotButton(iconClass='iconbox delete_row',publish='delpage')
             bar.dupbtn.slotButton(iconClass='iconbox copy',publish='duppage')
+            palette = bar.paletteDashboardItems.paletteTree(paletteCode='dashboardItems',title='Dashboard items',dockButton=True)
+            palette.data('.store',self.dashboardItemsMenu(),childname='store')
 
     @public_method
     def dashboardItemsMenu(self,**kwargs):
         result = Bag()
         for pkgId,pkgObj in self.packages.items():
             for tblid,tblobj in pkgObj.tables.items():
-                data = self.utils.tableScriptResourceMenu(table=tblobj.fullname,res_type='dashboard')
+                data = self.utils.tableScriptResourceMenu(table=tblobj.fullname,res_type='dashboard',
+                                                            module_parameters=['item_parameters'])
                 if data:
                     packagebag = result[pkgId] 
                     if not packagebag:

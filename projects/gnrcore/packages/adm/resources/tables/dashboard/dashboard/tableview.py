@@ -21,19 +21,31 @@
 
 from gnr.web.gnrbaseclasses import BaseDashboardItem
 
-caption = 'Dashboard count'
-description = 'Dashboard count records'
-item_parameters = [dict(value='^.table',lbl='Table')]
+caption = 'Table view'
+description = 'Table view'
 
 class Main(BaseDashboardItem):
-    item_name = 'Dashboard count'
-    def content(self,pane,table=None,**kwargs):
-        count = self.db.table(table).query().count()
-        pane.div(count,color='^.conf.color',
-                   font_size='^.conf.size',**kwargs)
+    """Scegli table e query per visualizzare il risultato"""
+    item_name = 'Table view'
+
+    def content(self,pane,workpath=None,table=None,queryName=None,**kwargs):
+        self.page.mixinComponent('th/th:TableHandler')
+
+        bc = pane.borderContainer(datapath=workpath)
+        
+ 
+        bc.contentPane(region='center'
+                ).selectionViewer(table=table,queryName=queryName,
+                                    store__onBuilt=True)
+
+ 
 
     def configuration(self,pane,**kwargs):
         fb = pane.formbuilder()
-        fb.textbox(value='^.color',lbl='Color')
+        fb.textbox(value='^.limit',lbl='Limit')
         fb.textbox(value='^.size',lbl='Size')
-
+    
+    def item_parameters(self,pane):
+        fb = pane.formbuilder()
+        fb.textbox(value='^.table',lbl='Table')
+        fb.textbox(value='^.queryName',lbl='Query name')

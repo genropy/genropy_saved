@@ -624,7 +624,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             wherelist.append(condition)
         where = ' AND '.join(wherelist)
         kwargs.pop('columns',None)
-        if bool(tblobj.query(where=where,_pkeys=inserted+updated,limit=1,**kwargs).fetch()):
+        kwargs['limit'] = 1
+        if bool(tblobj.query(where=where,_pkeys=inserted+updated,**kwargs).fetch()):
             return True #update required: insert or update not in selection but satisfying query
 
         return False
@@ -741,6 +742,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         formats = {}
         if hardQueryLimit is not None:
             limit = hardQueryLimit
+        
         wherebag = where if isinstance(where,Bag) else None
         resultAttributes = {}
         if checkPermissions is True:
@@ -764,9 +766,17 @@ class GnrWebAppHandler(GnrBaseProxy):
         if newSelection:
             debug = 'fromDb'
             if savedQuery:            
-                where = tblobj.pkg.loadUserObject(code=savedQuery, objtype='query', tbl=tblobj.fullname)[0]
+                userobject_tbl = self.db.table('adm.userobject')
+                where = userobject_tbl.loadUserObject(code=savedQuery, 
+                                objtype='query', tbl=tblobj.fullname)[0]
+                if where['where']:
+                    limit = where['queryLimit']
+                    savedView = savedView or where['currViewPath']
+                    customOrderBy = customOrderBy or where['customOrderBy']
+                    where = where['where']
             if savedView:
-                columns = tblobj.pkg.loadUserObject(code=savedView, objtype='view', tbl=tblobj.fullname)[0]
+                userobject_tbl = self.db.table('adm.userobject')
+                columns = userobject_tbl.loadUserObject(code=savedView, objtype='view', tbl=tblobj.fullname)[0]
             if selectmethod:
                 selecthandler = self.page.getPublicMethod('rpc', selectmethod)
             else:
@@ -1032,6 +1042,8 @@ class GnrWebAppHandler(GnrBaseProxy):
 
         for node in viewbag:
             fld = node.getAttr('field')
+            if node.getAttr('formula'):
+                continue
             if fld:
                 if not (fld[0] in ('$', '@')):
                     fld = '$' + fld

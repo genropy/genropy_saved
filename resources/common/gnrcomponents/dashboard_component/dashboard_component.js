@@ -67,7 +67,6 @@ genro_plugin_dashboards = {
 
     rebuild:function(){
         var pages = genro.getData(this.storepath); 
-        console.log('rebuilding pages');
         var that = this;
         this.clearRoot();
         this.root.setRelativeData('.selectedDashboard',null);
@@ -96,23 +95,55 @@ genro_plugin_dashboards = {
             var subbc = bc._('BorderContainer',region,{region:region, splitter:(region != 'center')  && that.edit,
             //_class:'hideSplitter',
             regions:'^.regions',datapath:'.layout.'+region});
-            that.dashboard_subRegions(subbc, design);
+            that.dashboard_subRegions(subbc, design,region);
         });
+
         this.root.unfreeze();
 
     },
-    dashboard_subRegions:function(bc,design){
+    dashboard_subRegions:function(bc,design,region){
         var that = this;
         this.subregions[design].forEach(function(subregion){
-            bc._('borderContainer',subregion,{region:subregion, _class:'itemRegion', 
+            var pane = bc._('contentPane',subregion,{region:subregion, _class:'itemRegion', 
                                         datapath:'.'+subregion,
                                         splitter:(subregion != 'center') && that.edit,
                                         overflow:'hidden',
+                                        dropTarget:true,
+                                        dropCodes:'dashboardItems',
+                                        onDrop_dashboardItems:function(p1,p2,kw){
+                                            var sourceNode = this;
+                                            if(kw.data.item_parameters){
+                                                genro.dlg.prompt(_T('Parameters ')+kw.data.caption,
+                                                        {widget:kw.data.item_parameters,
+                                                        action:function(result){
+                                                            that.assignDashboardItem(sourceNode,kw,result);
+                                                        }});
+                                                return;
+                                            }
+                                            that.assignDashboardItem(sourceNode,kw);
+                                        },
                                         remote:'di_buildRemoteItem',
                                         remote_py_requires:'gnrcomponents/dashboard_component/dashboard_component:DashboardItem',
-                                        remote_table:'=.table?=!#v?"adm.dashboard":#v',
-                                        remote_itemName:'^.itemName?=!#v?"fakeitem":#v',
-                                        remote_editMode:that.edit});
+                                        remote_table:'^.table',
+                                        remote_itemName:'^.itemName',
+                                        remote__if:'table&&itemName',
+                                        remote_editMode:that.edit,
+                                        remote_itemPars:'=.itemPars',
+                                        remote_workpath:'dashboards.'+region+'.'+subregion,
+                                        remote__waitingMessage:'Loading...',
+                                        remote__onRemote:function(){
+                                            //console.log('bbb',region,subregion,this);
+                                        }});
+           //pane._('div',{position:'absolute',border:'2px dotted silver',rounded:6,
+           //                top:'2px',bottom:'2px',left:'2px',right:'2px',
+           //                hidden:'^.itemName'});
         });
+    },
+    assignDashboardItem:function(sourceNode,kw,itemParameters){
+        if(itemParameters){
+            sourceNode.setRelativeData('.itemPars',itemParameters.deepCopy());
+        }
+        sourceNode.setRelativeData('.table',kw.data.table);
+        sourceNode.setRelativeData('.itemName',kw.data.resource);
     }
 };

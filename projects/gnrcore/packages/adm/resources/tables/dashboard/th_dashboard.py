@@ -32,23 +32,6 @@ class Form(BaseComponent):
                             storepath='#FORM.record.data',edit=True,
                             region='center')
 
-    def dashboardEditor(self,bc):
-        left = bc.contentPane(region='left',width='400px')
-        left.bagGrid(storepath='#FORM.record.data',struct=self.editorStruct,
-                    datapath='#FORM.dashboardEditor',
-                    default_layout='==dashboardEditor.defaultLayout()',
-                    default_design='headline',default_title='new dashboard')
-                    
-        center = bc.borderContainer(region='center')
-        bc.dataController("""
-            if(_triggerpars.kw.evt=='ins' || _triggerpars.kw.evt=='del'){
-                dashboardEditor.build(root,this.absDatapath('#FORM.record.data'));
-            }
-            setTimeout(function(){
-                root.widget.resize();
-            },100)
-        """,data='^#FORM.record.data',
-        widget='=#FORM.record.widget',_if='data',root=center)
 
 
     def editorStruct(self,struct):

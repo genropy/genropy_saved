@@ -764,6 +764,7 @@ class TableHandlerView(BaseComponent):
                                unlinkdict=unlinkdict,
                                userSets='.sets',_if=_if,_else=_else,
                                _sections='=.sections',
+                               limit='=.query.limit',
                                hardQueryLimit='=.hardQueryLimit',
                               # sum_columns='=.sum_columns',
                                _onStart=_onStart,

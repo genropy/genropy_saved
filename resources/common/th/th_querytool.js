@@ -139,7 +139,9 @@ dojo.declare("gnr.QueryManager", null, {
 
         var frame = pane._('framePane',{'frameCode':'_innerframe_#',
                                         center_widget:'tabContainer'});
-        var topbar = frame._('slotBar',{'slots':'queryname,*,smenu,2,currviewCaption,20,favoritebtn,savebtn,deletebtn,10,runbtn',toolbar:true,'side':'top'});
+        var topbar = frame._('slotBar',{'slots':'queryname,10,limlabel,limiter,*,smenu,2,currviewCaption,20,favoritebtn,savebtn,deletebtn,10,runbtn',toolbar:true,'side':'top'});
+        topbar._('div','limlabel',{innerHTML:_T('Limit'),font_size:'.8em',color:'#666'});
+        topbar._('numberTextBox','limiter',{value:'^.limit',font_size:'.8em',width:'5em'});
         var qtitle = topbar._('div','queryname',{innerHTML:'^.queryAttributes.caption',
                                                  padding_right:'10px',padding_left:'2px',
                                     color:'#555',font_weight:'bold',_class:'floatingPopup',cursor:'pointer'});
@@ -208,11 +210,13 @@ dojo.declare("gnr.QueryManager", null, {
         var where = this.sourceNode.getRelativeData('.query.where');
         var customOrderBy = this.sourceNode.getRelativeData('.query.customOrderBy');
         var currViewPath = this.sourceNode.getRelativeData('.grid.currViewPath');
+        var queryLimit = this.sourceNode.getRelativeData('.query.limit');
         var data = new gnr.GnrBag();
         data.setItem('where',where.deepCopy());
         if(customOrderBy){
             data.setItem('customOrderBy',customOrderBy.deepCopy());
         }
+        data.setItem('queryLimit',queryLimit);
         data.setItem('currViewPath',currViewPath);
         var that = this;
         saveCb = function(dlg) {
@@ -237,11 +241,13 @@ dojo.declare("gnr.QueryManager", null, {
         var finalize = function(data,run){
             var customOrderBy;
             var currViewPath;
+            var customLimit;
             if(data.getItem('where')){
                 where = data.pop('where');
                 customOrderBy = data.pop('customOrderBy');
                 customView = data.pop('customView');
-                currViewPath = data.getItem('currViewPath');
+                currViewPath = data.pop('currViewPath');
+                customLimit = data.pop('queryLimit');
             }else{
                 where = data;
             }
@@ -251,6 +257,7 @@ dojo.declare("gnr.QueryManager", null, {
             }
             sourceNode.setRelativeData('.query.where',where);
             sourceNode.setRelativeData('.query.customOrderBy',customOrderBy);
+            sourceNode.setRelativeData('.query.limit',customLimit);
             if(currViewPath && currViewPath!='__baseview__'){
                 sourceNode.setRelativeData('.grid.currViewPath',currViewPath);
             }

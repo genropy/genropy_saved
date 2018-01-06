@@ -5,9 +5,10 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """bordercontainer"""
+from gnr.core.gnrdecorator import public_method
 
 class GnrCustomWebPage(object):
-    py_requires = "gnrcomponents/testhandler:TestHandlerBase"
+    py_requires = "gnrcomponents/testhandler:TestHandlerBase,th/th:TableHandler,gnrcomponents/dashboard_component/dashboard_component:DashboardItem"
 
     
     
@@ -80,3 +81,23 @@ class GnrCustomWebPage(object):
 
 
 
+
+    def test_8_remoteLayout(self,pane):
+        bc = pane.borderContainer(height='400px',width='800px')
+        left = bc.contentPane(region='left',width='200px',background='lime')
+        top = bc.contentPane(region='top')
+        fb = top.formbuilder()
+        fb.button('Build',fire='.build')
+        bc.contentPane(region='center').dashboardItem(table='adm.dashboard',
+                            itemName='tableview')
+    @public_method
+    def remoteLayout(self,pane,dobuild=None):
+        if not dobuild:
+            pane.div('ciao')
+            return
+        sc = pane.stackContainer()
+
+        sc.contentPane(title='Ciao')
+        sc.contentPane(title='Bao').plainTableHandler(table='adm.user')
+        
+        pane.dataController("sc.switchPage(1)",_onBuilt=100,sc=sc.js_widget)

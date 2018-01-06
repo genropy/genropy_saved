@@ -174,7 +174,7 @@ class BaseDashboardItem(object):
         self.db = page.db
         self.tblobj = resource_table
 
-    def __call__(self,pane,editMode=None,**kwargs):
+    def __call__(self,pane,editMode=None,workpath=None,itemPars=None,**kwargs):
         bc = pane.borderContainer(region='center')
         bc.contentPane(region='top',height='12px',background='#666'
                         ).div(self.item_name,color='white',font_size='.8em',font_weight='bold',text_align='center',
@@ -183,7 +183,9 @@ class BaseDashboardItem(object):
         pane = sc.contentPane()
         #pane.lightbutton(_class='iconbox gear',position='absolute',top='2px',right='2px',
         #                action="sc.switchPage(1)",sc=sc.js_widget)
-        self.content(pane,**kwargs)
+        if itemPars:
+            kwargs.update(itemPars.asDict(ascii=True))
+        self.content(pane,workpath=workpath,**kwargs)
         bc = sc.borderContainer()
         self.configuration(bc.contentPane(region='center',datapath='.conf'),**kwargs)
 

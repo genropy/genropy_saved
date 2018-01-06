@@ -370,7 +370,7 @@ class GnrWebUtils(GnrBaseProxy):
                                   fired=True)
         
 
-    def tableScriptResourceMenu(self, table=None, res_type=None):
+    def tableScriptResourceMenu(self, table=None, res_type=None,module_parameters=None):
         #pkg,tblname = table.split('.')
         page = self.page
         tblobj = page.db.table(table)
@@ -383,7 +383,8 @@ class GnrWebUtils(GnrBaseProxy):
         resources.update(resources_pkg)
         resources.update(resources_custom)
         forbiddenNodes = []
-        
+        module_parameters = module_parameters or []
+
         def cb(node, _pathlist=None):
             has_parameters = False
             if node.attr['file_ext'] == 'py':
@@ -394,18 +395,22 @@ class GnrWebUtils(GnrBaseProxy):
                     if node.label == '_doc':
                         forbiddenNodes.append('.'.join(_pathlist))
                     return
-                caption = getattr(resmodule, 'caption', node.label)
-                description = getattr(resmodule, 'description', '')
-                description = getattr(resmodule, 'needSelection', True)
+                #needSelection = getattr(resmodule, 'needSelection', True)
+                module_kwargs = dict(caption=getattr(resmodule, 'caption', node.label),
+                                    description = getattr(resmodule, 'description', ''))
+                for mpar in module_parameters:
+                    module_kwargs[mpar] = getattr(resmodule,mpar,None)
+
                 if  node.label == '_doc':
-                    result.setAttr('.'.join(_pathlist), dict(caption=caption, description=description, tags=tags,
+                    result.setAttr('.'.join(_pathlist), dict(caption=module_kwargs['caption'], description=module_kwargs['description'], tags=tags,
                                                              has_parameters=has_parameters))
                 else:
                     mainclass = getattr(resmodule, 'Main', None)
                     assert mainclass, 'Main class is mandatory in tablescript resource'
                     has_parameters = hasattr(mainclass, 'parameters_pane')
-                    result.setItem('.'.join(_pathlist + [node.label]), None, caption=caption, description=description,
-                                   resource=node.attr['rel_path'][:-3], has_parameters=has_parameters)
+                    result.setItem('.'.join(_pathlist + [node.label]), None,
+                                   resource=node.attr['rel_path'][:-3], has_parameters=has_parameters,
+                                   table=table,**module_kwargs)
         pl=[]     
         resources.walk(cb,_pathlist=pl)
         if '_common' in result:
