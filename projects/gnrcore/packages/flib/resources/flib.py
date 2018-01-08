@@ -101,7 +101,7 @@ class FlibPicker(FlibBase):
                   inspect='shift',
                   selected_child_count='.tree.child_count')
         th = bc.contentPane(**gridpane_kwargs).flibSavedFilesGrid(viewResource=viewResource,preview=preview)
-        th.view.store.attributes.update(dict(where="@categories.@category_id.hierarchical_pkey LIKE :cat_hierarchical_pkey || '/%%'",
+        th.view.store.attributes.update(dict(where="@categories.@category_id.hierarchical_pkey =:cat_hierarchical_pkey",
                              cat_hierarchical_pkey='^#%s.tree.hierarchical_pkey' %pickerTreeId,
                              order_by='$title', _if='cat_hierarchical_pkey', _else='null'))
         return bc
