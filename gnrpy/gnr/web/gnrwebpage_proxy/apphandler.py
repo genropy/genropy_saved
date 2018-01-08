@@ -690,7 +690,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                          sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,hardQueryLimit=None,
                          savedQuery=None,savedView=None, externalChanges=None,prevSelectedDict=None,
                          checkPermissions=None,queryBySample=False,weakLogicalDeleted=False,
-                         customOrderBy=None,**kwargs):
+                         customOrderBy=None,queryExtraPars=None,**kwargs):
         """TODO
         
         ``getSelection()`` method is decorated with the :meth:`public_method
@@ -740,9 +740,10 @@ class GnrWebAppHandler(GnrBaseProxy):
         row_count = int(row_count)
         newSelection = True
         formats = {}
+        if queryExtraPars:
+            kwargs.update(queryExtraPars.asDict(ascii=True))
         if hardQueryLimit is not None:
             limit = hardQueryLimit
-        
         wherebag = where if isinstance(where,Bag) else None
         resultAttributes = {}
         if checkPermissions is True:

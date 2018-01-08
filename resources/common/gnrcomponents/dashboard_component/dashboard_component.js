@@ -112,15 +112,16 @@ genro_plugin_dashboards = {
                                         dropCodes:'dashboardItems',
                                         onDrop_dashboardItems:function(p1,p2,kw){
                                             var sourceNode = this;
+                                            var item_parameters = [{value:'^._item_title',lbl:_T('Title')}]
                                             if(kw.data.item_parameters){
-                                                genro.dlg.prompt(_T('Parameters ')+kw.data.caption,
-                                                        {widget:kw.data.item_parameters,
-                                                        action:function(result){
-                                                            that.assignDashboardItem(sourceNode,kw,result);
-                                                        }});
-                                                return;
+                                                item_parameters = item_parameters.concat(kw.data.item_parameters);
+                                                
                                             }
-                                            that.assignDashboardItem(sourceNode,kw);
+                                            genro.dlg.prompt(_T('Parameters ')+kw.data.caption,
+                                                        {widget:item_parameters,
+                                                        action:function(result){
+                                                            that.assignDashboardItem(sourceNode,kw,result);}
+                                            });
                                         },
                                         remote:'di_buildRemoteItem',
                                         remote_py_requires:'gnrcomponents/dashboard_component/dashboard_component:DashboardItem',

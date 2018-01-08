@@ -210,12 +210,13 @@ class FrameGrid(BaseComponent):
                                             tbl=table)
         customOrderBy = None
         limit = None
+        queryPars = None
         if where['where']:
             limit = where['queryLimit']
             viewName = viewName or where['currViewPath']
             customOrderBy = where['customOrderBy']
+            queryPars = where.pop('queryPars')
             where = where['where']
-
         if viewName:
             userobject_tbl = self.db.table('adm.userobject')
             struct = userobject_tbl.loadUserObject(code=viewName, objtype='view', 
@@ -224,12 +225,14 @@ class FrameGrid(BaseComponent):
         frame = pane.frameGrid(struct=struct,_newGrid=True,**kwargs)
         frame.data('.query.limit',limit)
         frame.data('.query.where',where)
+        frame.queryPars = queryPars
         frame.data('.query.customOrderBy',customOrderBy)
 
         frame.top.slotBar('*,vtitle,*',vtitle=metadata['description'])
         frame.grid.selectionStore(table=table,childname='store',where='=.query.where',
                                 customOrderBy='=.query.customOrderBy',
                                 limit='=.query.limit',**store_kwargs)
+        return frame
 
 
     @extract_kwargs(default=True,store=True)

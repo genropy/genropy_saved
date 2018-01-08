@@ -23,6 +23,8 @@ from gnr.web.gnrbaseclasses import BaseDashboardItem
 
 caption = 'Table view'
 description = 'Table view'
+item_parameters = [dict(value='^.table',lbl='Table'),
+                  dict(value='^.queryName',lbl='Query name')]
 
 class Main(BaseDashboardItem):
     """Scegli table e query per visualizzare il risultato"""
@@ -32,20 +34,23 @@ class Main(BaseDashboardItem):
         self.page.mixinComponent('th/th:TableHandler')
 
         bc = pane.borderContainer(datapath=workpath)
-        
- 
-        bc.contentPane(region='center'
-                ).selectionViewer(table=table,queryName=queryName,
+        selectionViewer = bc.contentPane(region='center'
+                ).selectionViewer(table=table,queryName=queryName,datapath='.viewer',
+                                    store__parschanged='^%s.configuration_changed' %workpath,
                                     store__onBuilt=True)
+        self.queryPars = selectionViewer.queryPars
 
  
 
-    def configuration(self,pane,**kwargs):
-        fb = pane.formbuilder()
-        fb.textbox(value='^.limit',lbl='Limit')
-        fb.textbox(value='^.size',lbl='Size')
-    
-    def item_parameters(self,pane):
-        fb = pane.formbuilder()
-        fb.textbox(value='^.table',lbl='Table')
-        fb.textbox(value='^.queryName',lbl='Query name')
+    def configuration(self,pane,table=None,queryName=None,workpath=None,**kwargs):
+        if not self.queryPars:
+            return
+        fb = pane.formbuilder(dbtable=table,datapath='%s.viewer.query.where' %workpath)
+        for pars in self.queryPars.digest('#a'):
+            field = pars['field']
+            rc = self.db.table(table).column(field).relatedColumn()
+            if pars['op'] == 'equal' and rc is not None:
+                fb.dbSelect(field,value='^.%s' %pars['relpath'],lbl=pars['lbl'],
+                            dbtable=rc.table.fullname)
+            else:
+                fb.textbox(value='^.%s' %pars['relpath'],lbl=pars['lbl'])

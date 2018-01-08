@@ -1455,7 +1455,7 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
             genro.dlg.floatingMessage(this.containerNode,{messageType:'error',message:'You cannot add this key'})
             return;
         }
-        grid.addRows([{'attribute_key':key}],null,null,function(firstRow){
+        grid.addRows([{'attribute_key':key,'attribute_value':value}],null,null,function(firstRow){
             var valueNode = firstRow._value.getNode('attribute_value');
             valueNode.attr.wdg_dtype = dtype || 'T';
             if(!isNullOrBlank(value)){

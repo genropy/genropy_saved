@@ -139,23 +139,11 @@ dojo.declare("gnr.QueryManager", null, {
 
         var frame = pane._('framePane',{'frameCode':'_innerframe_#',
                                         center_widget:'tabContainer'});
-        var topbar = frame._('slotBar',{'slots':'queryname,10,limlabel,limiter,*,smenu,2,currviewCaption,20,favoritebtn,savebtn,deletebtn,10,runbtn',toolbar:true,'side':'top'});
-        topbar._('div','limlabel',{innerHTML:_T('Limit'),font_size:'.8em',color:'#666'});
-        topbar._('numberTextBox','limiter',{value:'^.limit',font_size:'.8em',width:'5em'});
-        var qtitle = topbar._('div','queryname',{innerHTML:'^.queryAttributes.caption',
-                                                 padding_right:'10px',padding_left:'2px',
-                                    color:'#555',font_weight:'bold',_class:'floatingPopup',cursor:'pointer'});
+        var topbar = frame._('slotBar',{'slots':'queryname,*,favoritebtn,5,savebtn,deletebtn,10,runbtn',toolbar:true,'side':'top'});
+
+        var qtitle = topbar._('div','queryname',{innerHTML:'^.queryAttributes.caption',padding_right:'10px',padding_left:'2px',
+                            color:'#555',font_weight:'bold',_class:'floatingPopup',cursor:'pointer'});
         qtitle._('menu',{'_class':'smallmenu',storepath:'.savedqueries',modifiers:'*',action:'SET .currentQuery = $1.fullpath;'});
-        
-        
-           
-        topbar._('menudiv','smenu',{storepath:'.#parent.grid.structMenuBag',
-                            'selected_fullpath':'.#parent.grid.currViewPath',
-                            iconClass:'iconbox list'});
-        topbar._('div','currviewCaption',{innerHTML:'^.#parent.grid.currViewAttrs.caption',font_size:'.9em',color:'#666',line_height:'16px'});
-        
-        
-        
         topbar._('slotButton','savebtn',{'label':_T('Save'),iconClass:'iconbox save',action:function(){that.saveQuery();}});
         topbar._('slotButton','deletebtn',{'label':_T('Delete'),iconClass:'iconbox trash',action:'FIRE .delete;',disabled:'^.queryAttributes.pkey?=!#v'});
         
@@ -170,10 +158,41 @@ dojo.declare("gnr.QueryManager", null, {
         if(currentQuery=='__querybysample__'){
             this.onChangedQuery('__newquery__');
         }
-        this.orderByGrid(frame._('framePane',{frameCode:'_ordergridconf_#',title:_T('Order by')}));
+        this.queryExtra(frame._('borderContainer',{title:_T('Query Extra')}));
+
         node.unfreeze();
         this.buildQueryPane();
         this.checkFavorite();
+    },
+
+    queryExtra:function(bc){
+        var top = bc._('BorderContainer',{region:'top',height:'50%'});
+        var topleft = top._('contentPane',{region:'left',width:'50%',_class:'pbl_roundedGroup',margin:'2px'});
+
+        var fb = genro.dev.formbuilder(topleft, 1, {border_spacing:'6px'});
+
+        fb.addField('numberTextBox',{lbl:_T('Limit'),value:'^.limit', width:'5em'});
+        fb.addField('dbselect',{lbl:_T('Saved view'),tag:'dbselect',
+                        hasDownArrow:true,value:'^.#parent.grid.currViewPath',
+                        dbtable:'adm.userobject',width:'15em',alternatePkey:'code',
+                        rowcaption:'$description',
+                        condition:'$tbl=:tbl AND $objtype=:obj',condition_tbl:this.maintable,
+                            condition_obj:'view'});
+        
+        var topright = top._('borderContainer',{region:'center',_class:'pbl_roundedGroup',margin:'2px'});
+        topright._('contentPane',{region:'top',_class:'pbl_roundedGroupLabel',height:'20px'})._('div',{'innerHTML':'Extra query pars'});
+        topright._('contentPane',{region:'center'})._('MultiValueEditor',{value:'^.extraPars'});
+        this.orderByGrid(bc._('FramePane',{frameCode:'_customOrderBy_#',_class:'pbl_roundedGroup',
+                                region:'bottom',height:'50%',margin:'2px'}));
+        //var frame = bc._('FramePane',{frameCode:'_otherParams_#',region:'center'});
+        //var topbar = frame._('slotBar',{'slots':'2,vtitle,*,smenu,currviewCaption,10,limlabel,limiter,2',toolbar:true,'side':'bottom'});
+        //topbar._('div','vtitle',{innerHTML:'Order by',color:'#666',font_weight:'bold',font_size:'.8em'})
+        //topbar._('menudiv','smenu',{storepath:'.#parent.grid.structMenuBag','selected_fullpath':'.#parent.grid.currViewPath',iconClass:'iconbox list'});
+        //topbar._('div','currviewCaption',{innerHTML:'^.#parent.grid.currViewAttrs.caption',font_size:'.9em',color:'#666',line_height:'16px'});
+        //topbar._('div','limlabel',{innerHTML:_T('Limit'),font_size:'.8em',color:'#666'});
+        //topbar._('numberTextBox','limiter',{value:'^.limit',font_size:'.8em',width:'5em'});
+        //frame._('MultiValueEditor',{value:'^.extraPars'});
+
     },
 
     orderByGrid:function(frame){
@@ -183,9 +202,10 @@ dojo.declare("gnr.QueryManager", null, {
                             'fieldsTree_height':'100%','splitter':true,
                             'border_left':'1px solid silver',
                             'side':'right'});
+        frame._('slotBar',{slots:'2,vtitle,*',_class:'pbl_roundedGroupLabel',vtitle:_T('Order by'),side:'top'});
         var dropCode = 'gnrdbfld_'+this.tablecode;
         var gridkw = {value:'^.customOrderBy',selfDragRows:true,_class:'noheader noselect',
-                     dropTarget_grid:dropCode,border:'1px solid silver',margin:'2px',rounded:4};
+                     dropTarget_grid:dropCode};
 
         gridkw['onDrop_'+dropCode] = function(p1,p2,kw){
             this.widget.addBagRow('#id', '*', this.widget.newBagRow({'fieldpath':kw.data.fieldpath,sorting:true}));
@@ -203,6 +223,10 @@ dojo.declare("gnr.QueryManager", null, {
                     format_buttonclass:'iconbox qb_del'});
     },
 
+    viewAndExtra:function(frame){
+        
+    },
+
 
     saveQuery:function(){
         var datapath =  this.sourceNode.absDatapath('.query.queryAttributes');
@@ -211,7 +235,22 @@ dojo.declare("gnr.QueryManager", null, {
         var customOrderBy = this.sourceNode.getRelativeData('.query.customOrderBy');
         var currViewPath = this.sourceNode.getRelativeData('.grid.currViewPath');
         var queryLimit = this.sourceNode.getRelativeData('.query.limit');
+        var extraPars = this.sourceNode.getRelativeData('.query.extraPars');
+        var queryPars = new gnr.GnrBag();
+        this.translateQueryPars().forEach(function(pardict){
+            queryPars.setItem('p_'+queryPars.len(),null,{
+                lbl:pardict.value_caption.slice(1),
+                field:pardict.column,
+                relpath:pardict.relpath,
+                op:pardict.op
+            });
+        });
+
         var data = new gnr.GnrBag();
+        if(queryPars.len()){
+            data.setItem('queryPars',queryPars);
+        }
+        data.setItem('extraPars',extraPars);
         data.setItem('where',where.deepCopy());
         if(customOrderBy){
             data.setItem('customOrderBy',customOrderBy.deepCopy());

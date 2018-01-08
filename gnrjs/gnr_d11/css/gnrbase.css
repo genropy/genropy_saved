@@ -5394,6 +5394,12 @@ div[disabled='true'], div[disabled='disabled']{
     background-size: contain;
 }
 
+
+.menu_white_svg{
+    background: url(icons/svg/menu_white.svg) center center no-repeat;
+    background-size: contain;
+}
+
 .gr_table td{
     height: 14px;
     padding-top: 2px;
