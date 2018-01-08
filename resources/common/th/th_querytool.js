@@ -184,15 +184,6 @@ dojo.declare("gnr.QueryManager", null, {
         topright._('contentPane',{region:'center'})._('MultiValueEditor',{value:'^.extraPars'});
         this.orderByGrid(bc._('FramePane',{frameCode:'_customOrderBy_#',_class:'pbl_roundedGroup',
                                 region:'bottom',height:'50%',margin:'2px'}));
-        //var frame = bc._('FramePane',{frameCode:'_otherParams_#',region:'center'});
-        //var topbar = frame._('slotBar',{'slots':'2,vtitle,*,smenu,currviewCaption,10,limlabel,limiter,2',toolbar:true,'side':'bottom'});
-        //topbar._('div','vtitle',{innerHTML:'Order by',color:'#666',font_weight:'bold',font_size:'.8em'})
-        //topbar._('menudiv','smenu',{storepath:'.#parent.grid.structMenuBag','selected_fullpath':'.#parent.grid.currViewPath',iconClass:'iconbox list'});
-        //topbar._('div','currviewCaption',{innerHTML:'^.#parent.grid.currViewAttrs.caption',font_size:'.9em',color:'#666',line_height:'16px'});
-        //topbar._('div','limlabel',{innerHTML:_T('Limit'),font_size:'.8em',color:'#666'});
-        //topbar._('numberTextBox','limiter',{value:'^.limit',font_size:'.8em',width:'5em'});
-        //frame._('MultiValueEditor',{value:'^.extraPars'});
-
     },
 
     orderByGrid:function(frame){
@@ -671,7 +662,7 @@ dojo.declare("gnr.QueryManager", null, {
         var tr, attrs;
         for (var i = 0; i < parslist.length; i++) {
             attrs = parslist[i];
-            var lbl = attrs['value_caption'].slice(1);
+            var lbl = attrs.value_caption.slice(1);
             var dflt;
             if(lbl.indexOf('|')){
                 var l = lbl.split('|');
@@ -679,9 +670,9 @@ dojo.declare("gnr.QueryManager", null, {
                 dflt = l[1] ;
             }
             if(dflt){
-                sourceNode.setRelativeData(this.wherepath+'.'+attrs['relpath'],dflt);
+                sourceNode.setRelativeData(this.wherepath+'.'+attrs.relpath,dflt);
             }
-            queryform.addField('textbox',{lbl:lbl,value:'^.' + attrs['relpath'], width:'12em',tabindex:i})
+            queryform.addField('textbox',{lbl:lbl,value:'^.' + attrs.relpath, width:'12em'});
         }
         bottom._('button', 'cancel',{label:'Cancel',baseClass:'bottom_btn',action:cancel});
         bottom._('button', 'confirm',{label:'Confirm',baseClass:'bottom_btn',action:confirm});

@@ -53,7 +53,7 @@ class TableHandlerStats(BaseComponent):
         bc = pane.borderContainer(datapath='.%s' %nodeId,_anchor=True,**kwargs)
         inattr = pane.getInheritedAttributes()
         relatedTable = inattr.get('table')
-        relatedTableHandlerFrameCode = inattr.get('frameCode') if not relation_value else None
+        relatedTableHandlerFrameCode = inattr.get('frameCode') if not (relation_value or condition) else None
         bc.child('_tableHandlerStatsLayout',region='center',
                             table=table,nodeId=nodeId,
                             relation_field=relation_field,
@@ -99,6 +99,7 @@ class TableHandlerStats(BaseComponent):
                     stat_columns='=.stats.conf.columns',
                     stat_fields='=.stats.conf.fields',
                     stat_margins='=.stats.conf.margins',
+                    stat_report_query='=.stats.report_query',
                     relatedTableHandlerFrameCode=relatedTableHandlerFrameCode,
                     _lockScreen=dict(thermo=True),
                     _onCalling="""
@@ -141,6 +142,7 @@ class TableHandlerStats(BaseComponent):
                                 relatedTable=None,source_filters=None,**kwargs):
         tc = pane.tabContainer(region='left',width='250px',margin='2px',drawer=True,splitter=True)
         self._ths_configPivotGrids(tc.framePane(title='!!Pivot'),table=table)
+
         #self._ths_configFields(tc.borderContainer(title='!!Fields'),table=table)
         if relatedTable:
             tblobj = self.db.table(relatedTable)
@@ -149,7 +151,11 @@ class TableHandlerStats(BaseComponent):
                 self._ths_mainFilter(tc.contentPane(title='!!Main'),
                                 relatedTableHandlerFrameCode=relatedTableHandlerFrameCode,
                                 table=relatedTable,relation_field=relation_field) 
-        self._ths_filters(tc.contentPane(title='!!Filters'),table=table,source_filters=source_filters)
+        if source_filters:
+            self._ths_filters(tc.contentPane(title='!!Filters'),table=table,source_filters=source_filters)
+        
+        self._ths_reportParameters(tc.framePane(title='!!Report parameters'),table=table,relatedTableHandlerFrameCode=relatedTableHandlerFrameCode)
+
         #pane.dataController("""tc.switchPage(fields && fields.len()?0:1);""",
         #                    tc=tc.js_widget,fields='=#ANCHOR.stats.conf.fields',_onBuilt=True)
 
@@ -392,6 +398,26 @@ class TableHandlerStats(BaseComponent):
             )
 
         return frame
+
+    def _ths_reportParameters(self,frame,table=None,relatedTableHandlerFrameCode=None):
+        fb = frame.formbuilder()
+        fb.dbSelect(value='^#ANCHOR.stats.conf.report_query',
+                    lbl='Query',dbtable='adm.userobject',
+                    condition='$objtype=:obj AND $tbl=:tbl',
+                    rowcaption='$caption_userobject',
+                    alternatePkey='code',
+                    condition_obj='query',condition_tbl=table,hasDownArrow=True,
+                    width='10em')
+
+        fb.dataController("""
+        if(relatedTableHandlerFrameCode){
+            genro.getFrameNode(relatedTableHandlerFrameCode).setRelativeData('.query.currentQuery',report_query);
+        }else{
+
+        }
+        
+        """,relatedTableHandlerFrameCode=relatedTableHandlerFrameCode,
+            report_query='^#ANCHOR.stats.conf.report_query',_if="report_query")
 
     def _ths_configPivotGrids(self,frame,table=None):
         bar = frame.top.slotToolbar('*,editFields,5')
