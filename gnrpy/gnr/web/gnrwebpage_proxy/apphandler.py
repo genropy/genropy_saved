@@ -742,7 +742,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         formats = {}
         if queryExtraPars:
             kwargs.update(queryExtraPars.asDict(ascii=True))
-        if hardQueryLimit is not None:
+        if limit is None and hardQueryLimit is not None:
             limit = hardQueryLimit
         wherebag = where if isinstance(where,Bag) else None
         resultAttributes = {}
@@ -793,7 +793,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                     fieldpath = '$%s' %fieldpath if not fieldpath.startswith('@') else fieldpath
                     sorting = 'asc' if sorting else 'desc'
                     order_by.append('%s %s' %(fieldpath,sorting))
-                order_by = ', '.join(order_by)
+                order_by = ' , '.join(order_by)
                 sortedBy = None
             selection_pars = dict(tblobj=tblobj, table=table, distinct=distinct, columns=columns, where=where,
                                       condition=condition,queryMode=queryMode,
