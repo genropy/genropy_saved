@@ -216,6 +216,7 @@ class FrameGrid(BaseComponent):
             viewName = viewName or where['currViewPath']
             customOrderBy = where['customOrderBy']
             queryPars = where.pop('queryPars')
+            extraPars = where.pop('extraPars')
             where = where['where']
         if viewName:
             userobject_tbl = self.db.table('adm.userobject')
@@ -225,6 +226,7 @@ class FrameGrid(BaseComponent):
         frame = pane.frameGrid(struct=struct,_newGrid=True,**kwargs)
         frame.data('.query.limit',limit)
         frame.data('.query.where',where)
+        frame.data('.query.extraPars',extraPars)
         frame.queryPars = queryPars
         frame.data('.query.customOrderBy',customOrderBy)
 

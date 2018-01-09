@@ -99,7 +99,6 @@ class TableHandlerStats(BaseComponent):
                     stat_columns='=.stats.conf.columns',
                     stat_fields='=.stats.conf.fields',
                     stat_margins='=.stats.conf.margins',
-                    stat_report_query='=.stats.report_query',
                     relatedTableHandlerFrameCode=relatedTableHandlerFrameCode,
                     _lockScreen=dict(thermo=True),
                     _onCalling="""
@@ -133,7 +132,6 @@ class TableHandlerStats(BaseComponent):
                             genro.download(result.getItem('xls_url'));
                         }
                     """,_bcNode=bc,**condition_kwargs)
-
         
     @public_method
     def _ths_configurator(self,pane,table=None,relation_field=None,
@@ -266,7 +264,11 @@ class TableHandlerStats(BaseComponent):
     def ths_getDataframe(self,table,filters=None,mainfilter=None,relatedTable=None,
                                 relation_field=None,relation_value=None,
                                 maintable=None,columns=None,condition=None,condition_kwargs=None,
-                                where=None,**kwargs):
+                                where=None,
+                                limit=None,
+                                extraPars=None,
+                                customOrderBy=None,
+                                **kwargs):
         df = GnrDbDataframe('current_df_%s' %table.replace('.','_'),self.db,thermocb=self.utils.quickThermo)
         related_pkeys = None
         if mainfilter:
@@ -278,7 +280,19 @@ class TableHandlerStats(BaseComponent):
                 kwargs['filters_%s' %relation_field] =  [r['pkey'] for r in relatedTableObj.query(where=where, **kwargs).fetch()]
                 where = ' $%s IN :filters_%s' %(relation_field,relation_field)
             else:
+                if extraPars:
+                    kwargs.update(extraPars.asDict(ascii=True))
                 where, kwargs = self.app._decodeWhereBag(self.db.table(table), where, kwargs)
+                if limit:
+                    kwargs['limit'] = limit
+                if customOrderBy:
+                    order_by = []
+                    for fieldpath,sorting in customOrderBy.digest('#v.fieldpath,#v.sorting'):
+                        fieldpath = '$%s' %fieldpath if not fieldpath.startswith('@') else fieldpath
+                        sorting = 'asc' if sorting else 'desc'
+                        order_by.append('%s %s' %(fieldpath,sorting))
+                    kwargs['order_by'] = ', '.join(order_by)
+
         elif relation_value:
             where = ' $%s IN :filters_%s' %(relation_field,relation_field)
             kwargs['filters_%s' %relation_field] = [relation_value]
@@ -404,7 +418,7 @@ class TableHandlerStats(BaseComponent):
         fb.dbSelect(value='^#ANCHOR.stats.conf.report_query',
                     lbl='Query',dbtable='adm.userobject',
                     condition='$objtype=:obj AND $tbl=:tbl',
-                    rowcaption='$caption_userobject',
+                    rowcaption='$description',
                     alternatePkey='code',
                     condition_obj='query',condition_tbl=table,hasDownArrow=True,
                     width='10em')
@@ -540,3 +554,70 @@ class TableHandlerStats(BaseComponent):
         #r.cell('mask', name='Mask', width='20em',edit=True)
    
 
+class PivotTableViewer(BaseComponent):
+    py_requires = 'th/th_stats:TableHandlerStats'
+    @struct_method
+    def ptv_pivotTableViewer(self,parent,table=None,statIdentifier=None,
+                        condition=None,outmode=None,datapath=None,region=None,title=None,nodeId=None,**kwargs):
+        bc = parent.borderContainer(datapath=datapath,region=region,title=title,nodeId=nodeId)
+        userobject_tbl = self.db.table('adm.userobject')
+        data,metadata = userobject_tbl.loadUserObject(code=statIdentifier, 
+                                            objtype='pnd_simple',
+                                            tbl=table)
+        if not condition and data['report_query']:
+            where,where_metadata = userobject_tbl.loadUserObject(code=data['report_query'], 
+                                            objtype='query',
+                                            tbl=table)
+            customOrderBy = None
+            limit = None
+            queryPars = None
+            if where['where']:
+                limit = where['queryLimit']
+                customOrderBy = where['customOrderBy']
+                queryPars = where.pop('queryPars')
+                bc._queryPars = queryPars
+                extraPars = where.pop('extraPars')
+                where = where.pop('where')
+                bc.data('.query.where',where)
+                bc.data('.query.queryPars',queryPars)
+                bc.data('.query.customOrderBy',customOrderBy)
+                bc.data('.query.extraPars',extraPars)
+                bc.data('.query.limit',limit)
+            bc.queryPars = queryPars
+
+        bc.data('.stats.conf',data)
+      
+        bc.dataRpc(None,self.ths_getPivotTable,
+                    table=table,
+                    condition=condition,
+                    where='=.query.where',
+                    queryPars='=.query.queryPars',
+                    limit='=.query.limit',
+                    extraPars='=.query.extraPars',
+                    customOrderBy='=.query.customOrderBy',
+
+                    stat_rows='=.stats.conf.rows',
+
+                    stat_values='=.stats.conf.values',
+                    stat_columns='=.stats.conf.columns',
+                    stat_fields='=.stats.conf.fields',
+                    stat_margins='=.stats.conf.margins',
+                    _lockScreen=dict(thermo=True),
+                    _onCalling="""
+                        SET .stats.pivot_html = "";
+                        if (!(stat_values && stat_values.len() && stat_rows && stat_rows.len())){
+                            return false;
+                        }
+                    """,
+                    _if='',
+                    outmode=outmode,
+                    _onResult="""
+                        result = result || new gnr.GnrBag();
+                        SET .stats.pivot_grid = result.popNode('pivot_grid')
+                        SET .stats.pivot_html = result.getItem('pivot_html')
+                        if(result.getItem('xls_url')){
+                            genro.download(result.getItem('xls_url'));
+                        }
+                    """,**kwargs)
+        iframe = self._ths_framehtml(bc.contentPane(region='center'))
+        return bc
