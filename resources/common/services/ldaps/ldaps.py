@@ -34,6 +34,7 @@ class Main(GnrBaseService):
                 searchUser='user_for_serach'                # User to use for search in ldap server.
                 searchPassword='password_for_search'        # Password for user used for search in ldap server.
                 case='l'                                    # define if user is upper o lower case.
+                getUserInfo='t/f'                           # default = y. 
             />
         </services>
 
@@ -42,7 +43,7 @@ class Main(GnrBaseService):
     @extract_kwargs(user=True)
     def __init__(self, parent=None, urlServer=None, baseDN=None, userIdField='uid', defaultDomain=None,
                 loginTimeout=None,userDomainTemplate=None, userAttr=None,
-                 searchUser=None, searchPassword=None, case=None, testMode=False,user_kwargs=None):
+                 searchUser=None, searchPassword=None, case=None, testMode=False,user_kwargs=None,getUserInfo='t'):
 
         self.ldapClient = None
         self.parent = parent
@@ -59,6 +60,7 @@ class Main(GnrBaseService):
         self.searchFilter = '(&(objectClass=person) (sAMAccountName=*) (objectClass=user))'
         self.loginTimeout = int(loginTimeout or 5)
         self.testMode = boolean(testMode)
+        self.getUserInfo = boolean(getUserInfo)
         if not self.ldapServer or not self.userIdField:
             raise ldap.SERVER_DOWN
 
@@ -116,35 +118,34 @@ class Main(GnrBaseService):
         if not 'ldap://' in self.ldapServer:
             self.ldapServer = 'ldap://%s' % self.ldapServer
         try:
-            print 'initialize client',self.ldapServer
             self.ldapClient = ldap.initialize(self.ldapServer)
-            print 'set_option,OPT_REFERRALS'
             self.ldapClient.set_option(ldap.OPT_REFERRALS, 0)
-            print 'before simple_bind_s',user,password
             self.ldapClient.simple_bind_s(user, password)
-            print 'simplebind done'
         except ldap.INVALID_CREDENTIALS:
             self.ldapClient.unbind()
             return False
         except ldap.SERVER_DOWN:
             return 'AD server not awailable'
-        try:
-            if mode == 'Login':
-                if '\\' in user:
-                    username = user.split('\\')[1]
-                elif '@' in user:
-                    username = user.split('@')[0]
-                user_attribute = self.ldapClient.search_s(self.baseDN, ldap.SCOPE_SUBTREE, '(%s=%s)' % (self.userIdField,
-                                                          username), self.userAttr)[0][1]
-                for k, v in user_attribute.items():
-                    user_attribute[k] = v[0] if isinstance(v, list) else v
-            elif mode == 'Search':
-                user_attribute = True
-            else:
-                raise ldap.INVALID_SYNTAX
+        if self.getUserInfo:
+            try:
+                if mode == 'Login':
+                    if '\\' in user:
+                        username = user.split('\\')[1]
+                    elif '@' in user:
+                        username = user.split('@')[0]
+                    user_attribute = self.ldapClient.search_s(self.baseDN, ldap.SCOPE_SUBTREE, '(%s=%s)' % (self.userIdField,
+                                                            username), self.userAttr)[0][1]
+                    for k, v in user_attribute.items():
+                        user_attribute[k] = v[0] if isinstance(v, list) else v
+                elif mode == 'Search':
+                    user_attribute = True
+                else:
+                    raise ldap.INVALID_SYNTAX
 
-        except ldap.LDAPError, e:
-            print e
+            except ldap.LDAPError, e:
+                print e
+        else:
+            user_attribute = dict(username=username)
 
         return user_attribute
 
