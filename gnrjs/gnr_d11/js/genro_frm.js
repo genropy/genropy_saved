@@ -1985,18 +1985,21 @@ dojo.declare("gnr.GnrValidator", null, {
             return {'value':param};
         }
     },
-    validate_case: function(param, value) {
+    validate_case: function(param, value,sourceNode) {
         if (value) {
             var original = value;
             param = param.toLowerCase();
+            var oldvalue = sourceNode.getAttributeFromDatasource('value') || '';
             if (param == 'upper' || param == 'u') {
                 value = value.toUpperCase();
             } else if (param == 'lower' || param == 'l') {
                 value = value.toLowerCase();
-            } else if (param == 'capitalize' || param == 'c') {
-                value = stringCapitalize(value.toLowerCase());
-            } else if (param == 'title' || param == 't') {
-                value = value[0].toUpperCase() + value.slice(1);
+            }else if(oldvalue.toLowerCase()!=value.toLowerCase()){
+                if ((param == 'title' || param == 't'))  {
+                    value = stringCapitalize(value.toLowerCase());
+                } else if (param == 'capitalize' || param == 'c') {
+                    value = value[0].toUpperCase() + value.slice(1);
+                }
             }
             if (original != value) {
                 return {'value':value};
