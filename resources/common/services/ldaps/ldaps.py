@@ -145,7 +145,7 @@ class Main(GnrBaseService):
             except ldap.LDAPError, e:
                 print e
         else:
-            user_attribute = dict(username=username)
+            user_attribute = dict(username=user)
 
         return user_attribute
 
