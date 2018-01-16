@@ -61,6 +61,8 @@ class Main(GnrBaseService):
         self.loginTimeout = int(loginTimeout or 5)
         self.testMode = boolean(testMode)
         self.getUserInfo = boolean(getUserInfo)
+        if not self.getUserInfo:
+            self.user_kwargs = dict(username='username')
         if not self.ldapServer or not self.userIdField:
             raise ldap.SERVER_DOWN
 
@@ -125,27 +127,27 @@ class Main(GnrBaseService):
             self.ldapClient.unbind()
             return False
         except ldap.SERVER_DOWN:
-            return 'AD server not awailable'
-        if self.getUserInfo:
-            try:
-                if mode == 'Login':
-                    if '\\' in user:
-                        username = user.split('\\')[1]
-                    elif '@' in user:
-                        username = user.split('@')[0]
+            return 'AD server not available'
+
+        if mode == 'Login':
+            if '\\' in user:
+                username = user.split('\\')[1]
+            elif '@' in user:
+                username = user.split('@')[0]
+            if self.getUserInfo:
+                try:
                     user_attribute = self.ldapClient.search_s(self.baseDN, ldap.SCOPE_SUBTREE, '(%s=%s)' % (self.userIdField,
                                                             username), self.userAttr)[0][1]
                     for k, v in user_attribute.items():
                         user_attribute[k] = v[0] if isinstance(v, list) else v
-                elif mode == 'Search':
-                    user_attribute = True
-                else:
-                    raise ldap.INVALID_SYNTAX
-
-            except ldap.LDAPError, e:
-                print e
+                except ldap.LDAPError, e:
+                    print e
+            else:
+                user_attribute = dict(username=username)
+        elif mode == 'Search':
+            user_attribute = True
         else:
-            user_attribute = dict(username=user)
+            raise ldap.INVALID_SYNTAX
 
         return user_attribute
 
