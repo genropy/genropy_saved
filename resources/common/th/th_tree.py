@@ -18,7 +18,7 @@ class HTableTree(BaseComponent):
         dbselect = pane.dbselect(**kwargs)
         attr = dbselect.attributes
         dbselect_condition = attr.get('condition')
-        dbselect_condition_kwargs = dictExtract(attr,'condition_')
+        dbselect_condition_kwargs = dictExtract(attr,'condition_',slice_prefix=False)
         if not folderSelectable:
             attr['condition'] = '$child_count=0' if not dbselect_condition else ' ( %s ) AND $child_count=0' %dbselect_condition
         attr['hasDownArrow'] = True
@@ -40,12 +40,11 @@ class HTableTree(BaseComponent):
     @struct_method
     def ht_treemenu(self,pane,storepath=None,table=None,condition=None,condition_kwargs=None,cacheTime=None,
                     caption_field=None,dbstore=None,modifiers=None,max_height=None,min_width=None,menuId=None,**kwargs):
-
         pane.dataRemote(storepath,self.db.table(table).getHierarchicalData,
                         condition=condition,
-                        condition_kwargs=condition_kwargs,
                         table=table,
-                        cacheTime=cacheTime or -1,caption_field=caption_field,dbstore=dbstore)
+                        cacheTime=cacheTime or -1,caption_field=caption_field,dbstore=dbstore,
+                        **condition_kwargs)
         menu = pane.menu(modifiers=modifiers,_class='menupane',connectToParent=False,id=menuId,connect_onOpeningPopup="""
                 var dbselect =  dijit.getEnclosingWidget(this.widget.originalContextTarget);
                 var dbselectNode =  dijit.getEnclosingWidget(this.widget.originalContextTarget).sourceNode;

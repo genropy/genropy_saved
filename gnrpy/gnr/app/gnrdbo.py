@@ -477,19 +477,17 @@ class TableBase(object):
         self.hierarchicalHandler.trigger_after(record,old_record=old_record)
 
     @public_method
-    def getHierarchicalData(self,caption_field=None,condition=None,
-                            condition_kwargs=None,caption=None,
+    def getHierarchicalData(self,caption_field=None,condition=None,caption=None,
                             dbstore=None,columns=None,related_kwargs=None,
                             resolved=False,**kwargs):
-        condition_kwargs = condition_kwargs or dict()
         related_kwargs = related_kwargs or dict()
         if hasattr(self,'hierarchicalHandler'):
             return self.hierarchicalHandler.getHierarchicalData(caption_field=caption_field,condition=condition,
-                                                condition_kwargs=condition_kwargs,caption=caption,dbstore=dbstore,columns=columns,
+                                                caption=caption,dbstore=dbstore,columns=columns,
                                                 related_kwargs=related_kwargs,resolved=resolved,**kwargs)
         if related_kwargs.get('table') or kwargs.get('related_table'):
             return self.getHierarchicalDataBag(caption_field=caption_field,condition=condition,
-                                                condition_kwargs=condition_kwargs,caption=caption,dbstore=dbstore,columns=columns,
+                                                caption=caption,dbstore=dbstore,columns=columns,
                                                 related_kwargs=related_kwargs,resolved=resolved,**kwargs)
 
     @public_method
