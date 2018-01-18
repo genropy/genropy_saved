@@ -428,6 +428,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     },
 
     mixin_drawFiller:function(){
+        if (!this.views.views[0]){
+            return;
+        }
         var sb = this.views.views[0].scrollboxNode;
         if(this.sourceNode._footersNode){
             sb.style.height = this.sourceNode.getParentNode().widget.domNode.clientHeight - this.viewsHeaderNode.clientHeight+1 +'px';
