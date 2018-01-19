@@ -142,7 +142,7 @@ class AttachManager(BaseComponent):
         design = design or 'sidebar'
         d = dict(sidebar=dict(region='left',width='400px'),headline=dict(region='top',height='300px'))
         th = bc.contentPane(splitter=True,**d[design]).inlineTableHandler(relation='@atc_attachments',
-                                        viewResource='gnrcomponents/attachmanager/attachmanager:AttachManagerView',
+                                        viewResource=viewResource or 'gnrcomponents/attachmanager/attachmanager:AttachManagerView',
                                         hider=True,autoSave=True,statusColumn=True,
                                         addrow=False,pbl_classes=pbl_classes,
                                         autoSelect=True,
