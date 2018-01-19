@@ -171,7 +171,10 @@ class TableHandlerStats(BaseComponent):
         sc = frame.center.stackContainer()
         iframe = self._ths_framehtml(sc.contentPane(title='Html'))
         #tc = center.tabContainer()
-        grid = sc.contentPane(title='!!Grid').quickGrid('^.stats.pivot_grid')
+        gridframe = sc.framePane(frameCode='pivot_grid_#',title='!!Grid')
+        gridId = '%s_grid' %gridframe.attributes['frameCode']
+        gridframe.top.slotToolbar('*,searchOn,2',searchOn_searchCode=gridId)
+        grid = gridframe.quickGrid('^.stats.pivot_grid',nodeId=gridId)
         #grid.tools('export')
         bar = frame.top.slotToolbar('2,stackButtons,*,margins,20,autorun,10,printStats,exportStats,5')
         bar.autorun.checkbox(value='^.stats.autorun',label='!!Autorun',
