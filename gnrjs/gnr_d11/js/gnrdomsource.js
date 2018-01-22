@@ -1001,7 +1001,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     registerSubscription:function(topic,scope,handler,reason){
         var stringId = this.getStringId();
-        var reason = reason || topic;
+        reason = reason || topic;
         var subDict=genro.src._subscribedNodes[stringId];
         if(!subDict){
             subDict = {};
