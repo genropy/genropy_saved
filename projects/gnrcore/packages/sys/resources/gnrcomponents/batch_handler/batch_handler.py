@@ -19,9 +19,10 @@ class TableScriptRunner(BaseComponent):
             return
         if not self.application.checkResourcePermission(batch_dict.get('plan_tag','admin'),self.userTags):
             return
+        
         hasOptions = hasattr(self, 'table_script_option_pane')
         hasParameters = hasattr(self, 'table_script_parameters_pane')
-        pane.data('gnr.dialog_scheduler.pars',Bag(dict(resource_path=batch_dict.get('resource_path'),table=batch_dict.get('table'))))
+        pane.data('gnr.dialog_scheduler.pars',Bag(dict(resource_path=batch_dict.get('resource_path'),table=batch_dict.get('table') or self.tblobj.name)))
         if hasOptions:
             return self._scheduler_footer(pane.optionsDialog.footerNode.bar,batch_dict=batch_dict,extra_parameters=extra_parameters)
         if hasParameters:
