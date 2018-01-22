@@ -1015,6 +1015,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     unregisterSubscription:function(reason){
         var stringId = this.getStringId();
         var subDict=genro.src._subscribedNodes[stringId];
+        if(!subDict){
+            return;
+        }
         if(reason in subDict){
             var l = objectPop(subDict,reason);
             if(l){
