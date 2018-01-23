@@ -66,6 +66,7 @@ except ImportError:
 
 try:
     import pandas as pd 
+    pd.options.display.float_format = '{:,.2f}'.format
     import numpy as np
 except:
     pd = False
@@ -428,7 +429,6 @@ class GnrDbDataframe(GnrDataframe):
                                         name_short=self.translate(v.get('name_short')),
                                         width=v.get('print_width'),format=v.get('format'),
                                         dtype= v.get('dataType'))
-                
                 for k,v in self.dbColAttrs.items():
                     dtype = v['dataType']
                     if dtype in ('N','R'):
@@ -437,8 +437,6 @@ class GnrDbDataframe(GnrDataframe):
                         dateCols.append(k)
                     elif dtype in ('A','T','C','X','P'):
                         textCols.append(k)
-          
-
             for col in decimalCols:
                 v = c[col]
                 if v is not None:
