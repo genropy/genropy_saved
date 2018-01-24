@@ -442,11 +442,12 @@ dojo.declare('gnr.TimesheetViewerController',null,{
             var n_channels = this.channels.length;
             var dataVal = dataNode.getValue();
             var cellcol;
-            var cellwidth = Math.floor((cell.domNode.clientWidth-5)/n_channels);
+            var that = this;
+            var cellwidth = Math.floor((parseInt(cell.attributes()['width'])-5)/n_channels);
             this.channels.forEach(function(channel,idx){
                 cellcol = cell._('div',{position:'absolute',top:'2px',bottom:'2px',
                                         left:(2+idx*cellwidth)+'px',width:cellwidth+'px'});
-                this.slotFiller(cellcol,date,dataVal.getNode(channel));
+                that.slotFiller(cellcol,date,dataVal.getNode(channel));
             });
         }else{
             this.slotFiller(cell,date,dataNode);

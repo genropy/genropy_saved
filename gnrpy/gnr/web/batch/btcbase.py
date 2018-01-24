@@ -76,8 +76,8 @@ class BaseResourceBatch(object):
                     self.batch_logtbl.insert(self.batch_logrecord)
                     self.db.commit()
 
-    def batch_debug_write(self,caption,value=None):
-        self.batch_debug.setItem('r_%04i' %len(self.batch_debug),value,caption=caption,ts=datetime.now())
+    def batch_debug_write(self,caption,value=None,**kwargs):
+        self.batch_debug.setItem('r_%04i' %len(self.batch_debug),value,caption=caption,ts=datetime.now(),**kwargs)
 
     def batch_log_write(self,logtxt):
         self.btc.log_write(logtxt)

@@ -10,6 +10,7 @@ class Table(object):
     def config_db(self, pkg):
         tbl =  pkg.table('message', rowcaption='subject', pkey='id', name_long='!!Message', name_plural='!!Messages')
         self.sysFields(tbl)
+        tbl.column('in_out', size='1', name_long='!!Message type', name_short='!!I/O',values='I:Input,O:Output')
         tbl.column('to_address',name_long='!!To',_sendback=True)
         tbl.column('from_address',name_long='!!From',_sendback=True)
 
@@ -25,6 +26,12 @@ class Table(object):
         tbl.column('user_id',size='22',name_long='!!User id').relation('adm.user.id', mode='foreignkey', relation_name='messages')
         tbl.column('account_id',size='22',name_long='!!Account id').relation('email.account.id', mode='foreignkey', relation_name='messages')
         tbl.column('mailbox_id',size='22',name_long='!!Mailbox id').relation('email.mailbox.id', mode='foreignkey', relation_name='messages')
+        tbl.column('message_tipe',size=':10', group='_', name_long='!!Type'
+                    ).relation('message_type.code', relation_name='messages', 
+                                mode='foreignkey', onDelete='raise')
+        tbl.column('notes', name_long='!!Notes')
+
+        tbl.column('sending_attempt','X', name_long='!!Sending attempt')
         tbl.column('email_bag',dtype='X',name_long='!!Email bag')
 
     def trigger_onInserting(self, record_data):

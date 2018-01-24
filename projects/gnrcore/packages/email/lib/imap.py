@@ -182,7 +182,7 @@ class ImapReceiver(object):
 
         
     def createMessageRecord(self, emailid):
-        new_mail = dict(account_id=self.account_id)
+        new_mail = dict(account_id=self.account_id,msg_type='I')
         new_mail['id'] = getUuid()
         new_mail['uid'] = emailid
         resp, data = self.imap.uid('fetch',emailid, "(RFC822)")
