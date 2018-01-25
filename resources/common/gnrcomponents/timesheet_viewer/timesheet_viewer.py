@@ -13,7 +13,7 @@ class TimesheetViewer(BaseComponent):
     @struct_method
     def ts_timesheetViewer(self,parent,value=None,date_start=None,date_end=None,
                             selected_date=None,
-                            work_start=None,work_end=None,slotFiller=None,
+                            work_start=None,work_end=None,slotFiller=None,slot_duration=None,
                             viewerMode=None,**kwargs):
         if viewerMode is None:
             viewerMode = 'stack'
@@ -32,7 +32,8 @@ class TimesheetViewer(BaseComponent):
                                                                                  date_end:date_end,
                                                                                  work_start:work_start,
                                                                                  work_end:work_end,
-                                                                                 slotFiller:slotFiller});
+                                                                                 slotFiller:slotFiller,
+                                                                                 slot_duration:slot_duration});
                             }
                             frame.viewerController.setData(data)
                             frame.viewerController.showMonthly();
@@ -40,7 +41,7 @@ class TimesheetViewer(BaseComponent):
                            selected_date = selected_date,
                            date_start=date_start,
                            date_end = date_end,slotFiller=slotFiller,
-                           work_end=work_end,work_start=work_start,
+                           work_end=work_end,work_start=work_start,slot_duration=slot_duration,
                            data=value,frame=frame)
         #root.dataController("FIRE reloadslots;",doctor_id='^current.doctor_id',_delay=100)
         #root.onDbChanges("""if(window.slotsviewer){
@@ -83,7 +84,7 @@ class TimesheetViewer(BaseComponent):
         monthpage = sc.framePane(title='!!Calendar',pageName='calendarViewer')
         monthpage.top.slotToolbar('5,parentStackButtons,*,stackButtons,5',stackButtons_stackNodeId=monthpage_nodeId)
         monthpage.center.borderContainer()
-        monthpage.stackContainer(nodeId=monthpage_nodeId,selectedPage='^.selectedMonth',region='center')
+        monthpage.stackContainer(nodeId=monthpage_nodeId,selectedPage='^.selectedMonth',region='center',_class='viewcalendar')
         daypage = sc.framePane(title='!!Selected date',pageName='dayViewer')
         daybar = daypage.top.slotToolbar('5,parentStackButtons,*,prev,dbox,next,5,today_btn,20,refresh,10')
         daybar.prev.slotButton('Prev',iconClass='iconbox previous',
@@ -97,7 +98,7 @@ class TimesheetViewer(BaseComponent):
         daybar.today_btn.slotButton('Today',action='_frame.viewerController.selectCalendarDate(wd);',wd=self.workdate,
                                     _frame=frame)
         daybar.refresh.slotButton('!!Refesh',iconClass='iconbox arrow_circle_right',action='FIRE #ANCHOR.refresh;')
-        daypage.center.contentPane(nodeId=daypage_nodeId)
+        daypage.center.contentPane(nodeId=daypage_nodeId,_class='dayview')
         return frame
 
 

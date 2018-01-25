@@ -4,13 +4,20 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         
         this.date_start = kw.date_start;
         this.date_end = kw.date_end;
-        this.time_start = kw.time_start ||0;
-        this.time_end = kw.time_end || 24;
+        this.work_start = kw.work_start ||0;
+        this.work_end = kw.work_end || 24;
+        this.day_duration = (this.work_end-this.work_start)*60;
         this.frameCode = kw.frameCode;
         this.rounded=4;
         this.changedDays = {};
+        this.channel_width=20;
         this.sourceNode = sourceNode;
         this.slotFiller = objectPop(kw,'slotFiller');
+        this.slot_duration = kw.slot_duration;
+
+
+        this.max_slots = (this.work_end*60 - this.work_start*60)/this.slot_duration;
+
         if (this.slotFiller){
             if(this['slotFiller_'+this.slotFiller]){
                 this.slotFiller = this['slotFiller_'+this.slotFiller];
@@ -42,9 +49,7 @@ dojo.declare('gnr.TimesheetViewerController',null,{
     },
 
 
-    setSizes:function(){
-        this.scale_y = (24*0.8)/(this.work_end-this.work_start);
-        
+    setSizes:function(){        
         this.minutes_start = 0;
         this.tot_h = this.work_end-this.work_start; //24;
         this.m_hy_top = 20;
@@ -54,8 +59,6 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         this.m_dy = Math.floor((calDomNode.clientHeight-this.m_header_h-2)/6);
         this.m_dx = Math.floor((calDomNode.clientWidth-10)/7);
         this.m_sy = (this.m_dy-this.m_hy_top-this.m_hy_bottom)/(this.tot_h*60);
-        this.cal_sourceNode().setRelativeData('.scale_y',this.scale_y) ;
-
     },
 
     showMonthly:function(){
@@ -100,11 +103,14 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         monthtitle = genro.format(date,{selector:'date',datePattern:'MMMM'});
         monthPane = sc.getNode(monthtitle);
         this.createMonthContent(monthPane.getValue(),date);
+        var selectedDate = this.sourceNode.getRelativeData('.selectedDate');
+        var that = this;
+        setTimeout(function(){
+            that.checkDay(that.getDayCell(selectedDate).getParentNode());
+        },1);
     },
 
-
     monthlyLayout:function(sourceNode,data){
-
         var monthPane,currmonth,dayPane,date;
         //var tc = sourceNode._('StackContainer',{position:'absolute',top:'2px',bottom:'2px',right:'2px',left:'2px',tabPosition:'left-h'});
         var that = this;
@@ -144,7 +150,7 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         pane = pane._('div','monthcontent',{width:7*this.m_dx+'px',height:5*this.m_dy+'px',position:'relative',margin:'2px'});
         var week_rel_number;
         var pastDate;
-        headers=[]
+        var headers=[];
         var that = this;
         for (var i=0; i < 7; i++) {
             top = (i==0)?0:this.m_header_h+ (i-1)*this.m_dy
@@ -181,8 +187,8 @@ dojo.declare('gnr.TimesheetViewerController',null,{
                                         ,_day:date.getDate(),_month:date.getMonth(),_year:date.getFullYear()},
                                     );
                         daypane._('div',{innerHTML:date.getDate(),'position':'absolute',top:'5px',right:'5px',font_size:'10px'});
-                        date = new Date(date.getFullYear(),date.getMonth(),date.getDate()+1);
                         that.fillDay(daypane,date);
+                        date = new Date(date.getFullYear(),date.getMonth(),date.getDate()+1);
                     }
                 }else{
                     return pane;
@@ -206,68 +212,6 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         }
         
 
-    },
-
-    fillFullDay_draw:function(sourceNode,date){
-        console.log('fillFullDay_draw',sourceNode,date);
-        return;
-        var node = this.getDateDataNode(date);
-        var slots = node?node.attr.slots:[];
-        sourceNode.freeze().clearValue();
-        var that = this;
-        var kw,slots;
-        var n_locations = 0;
-        var locations = {};
-        var location_names = [];
-        this.location_columns = false;
-        var h_height = this.location_columns?45:25;
-        var header = sourceNode._('div',{background:'white',position:'absolute',top:'0',left:'0',right:'0',height:_px(h_height),background:'gray',color:'white',_class:'header_wd'});
-        header._('div',{'innerHTML':genro.formatter.asText(date,{format:'full'}),text_align:'center',font_size:'11pt',color:'white',margin_top:'3px'});
-        if(this.location_columns){
-            dojo.forEach(slots,function(slot){
-                if(!(slot.location_id in locations)){
-                    locations[slot.location_id] = n_locations;
-                    location_names.push(slot.location_name);
-                    n_locations++;
-                }
-            }); 
-            var header_loc = header._('table',{width:'100%',border_collapse:'collapse',border:0,margin_left:'40px',margin_top:'3px'})._('tbody')._('tr');
-            var w = (500-10-10*(n_locations-1+2))/n_locations;
-            location_names.forEach(function(n){
-                header_loc._('td')._('div',{innerHTML:n,text_align:'center',background:'gray',color:'white',rounded:that.rounded,width:w+'px',_class:'header_wd'})
-            })
-        }
-
-        var container = sourceNode._('div','slotContainer',{background:'whitesmoke',
-                                        position:'absolute',top:_px(h_height),left:'0',right:'0',bottom:'0',overflow:'auto'})
-        var action = function(sn,editActivity){
-                            var hh = sn.attr._hh;
-                            if(!hh){
-                                return;
-                            }
-                            var st = that.toStrTime(hh.split(':'))+'::H';
-                            var d = sn.getRelativeData('.selectedDate');
-                            if(editActivity){
-                                genro.publish('edit_activity',{event_id:false, evt_date:d, s_time:st,activity_location:null,location_id:null});
-                            }else{
-                                genro.publish('edit_event',{event_id:false, evt_date:d, s_time:st,location_id:null,referrer_id:null});
-                            }
-                        }
-        var box = container._('div','slotBox',{position:'absolute',top:'10px',left:'40px',right:0,bottom:0,
-                                    dropTypes:'eventSlot',
-                                    connect_ondblclick:function(e){
-                                        action(e.target.sourceNode,e.shiftKey);
-                                    }})
-        box._('tooltip',{modifiers:'Shift',validclass:'eventSlot',
-                        recordTemplate:{table:'base.event',pkeyCb:function(){
-                            return this._slot.event_id;
-                        }}});
-        var tbox = container._('div',{position:'absolute',top:'4px',left:'0',width:'40px',bottom:0});
-        this.prepareTimeGrid(box,tbox,slots);  
-        dojo.forEach(slots,function(slot){
-            that.fillSlotDetail(box,slot,that.location_columns?locations[slot.location_id]:0,that.location_columns?n_locations:1,date);
-        });
-        sourceNode.unfreeze();
     },
 
     commonDropTargetCb:function(dropInfo,data){
@@ -399,8 +343,8 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         this.fillDay();
     },
 
-    prepareTimeGrid:function(cell,tbox,slots){
-        var hh_y = 30*this.scale_y;
+    prepareTimeGrid:function(cell,tbox,minute_height){
+        var hh_y = 30*minute_height;
         for (var i = this.work_start; i< this.work_end; i++) {
             //var c = i%2==0?i/2+':00':'';
             tbox._('div',{height:_px(hh_y)})._('div',{innerHTML:i+':00',text_align:'right',padding_right:'3px',color:'#666'})
@@ -408,6 +352,7 @@ dojo.declare('gnr.TimesheetViewerController',null,{
             tbox._('div',{height:_px(hh_y)})._('div',{innerHTML:'',text_align:'right',padding_right:'3px',color:'#666'})
             cell._('div',{height:_px(hh_y-1),border_top:'1px dotted silver',_hh:i+':30',dropTargetCb:this.commonDropTargetCb,onDrop_eventSlot:this.freeSpaceOnDrop});
         };
+        return (((this.work_end-this.work_start)*60)-2)*minute_height;
     },
 
     checkDay:function(cell){
@@ -433,11 +378,122 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         this.fillFullDay(date);
     },
 
+
+    fillFullDay_draw:function(sourceNode,date){
+        
+        var dataNode = this.data.getNode(_F(date,{pattern:'yyyy_MM_dd'},'D'));
+        if(!dataNode){
+            return;
+        }
+
+        var minute_height = 1;
+        sourceNode.freeze().clearValue();
+        var header_container = sourceNode._('div',{background:'gray',position:'absolute',top:'0',left:'0',right:'0',height:'20px'});
+        var header = header_container._('div',{background:'gray',color:'white',_class:'header_wd',position:'absolute',top:'0',left:'0',right:'0',bottom:'0',left:'40px'})
+        var container = sourceNode._('div','slotContainer',{background:'whitesmoke',
+                                        position:'absolute',top:'20px',left:'0',right:'0',bottom:'0',overflow:'auto'});
+        var tbox = container._('div',{position:'absolute',top:'-6px',left:'0',width:'40px',bottom:0,z_index:20});
+        var that = this;
+        var action = function(sn,editActivity){
+                            var hh = sn.attr._hh;
+                            console.log(sn.attr);
+                            if(sn.attr._cal_attr){
+                                that.sourceNode.publish('edit_calendar',sn.attr._cal_attr);
+                            }else if(sn.attr._slot_attr){
+                                that.sourceNode.publish('edit_slot',sn.attr._slot_attr);
+                            }
+                        }
+        
+        var box = container._('div','slotBox',{position:'absolute',top:'0',left:'40px',right:0,bottom:0,
+                                    dropTypes:'eventSlot',
+                                    connect_ondblclick:function(e){
+                                        action(e.target.sourceNode,e.shiftKey);
+                                    }});
+        var timegrid_height = this.prepareTimeGrid(box,tbox,minute_height);
+        var channelbox;
+        if(this.channels){
+            var n_channels = this.channels.length;
+            var dataVal = dataNode.getValue();
+            var cellcol;
+            var that = this;
+            var cellwidth = 150; //Math.floor((document.body.clientWidth-200)/n_channels);
+            this.channels.forEach(function(channel,idx){
+                var channelNode = dataVal.getNode(channel);
+                header._('div',{position:'absolute',top:'0',bottom:'0',_class:'timesheet_channel_header channel_'+idx,
+                        left:(2+idx*cellwidth)+'px',width:cellwidth+'px'})._('div',{innerHTML:channel});
+                cellcol = box._('div',{position:'absolute',top:'0',height:timegrid_height+'px',_class:'timesheet_channel channel_'+idx,
+                                        left:(2+idx*cellwidth)+'px',width:cellwidth+'px'});
+                that.slotFiller(cellcol.getParentNode(),date,channelNode,minute_height,true);
+            });
+        }else{
+            this.slotFiller(box,date,dataNode,minute_height,true);
+        }
+        sourceNode.unfreeze();
+        return;
+
+        //var that = this;
+        //var kw,slots;
+        //var n_locations = 0;
+        //var locations = {};
+        //var location_names = [];
+        //this.location_columns = false;
+        //var h_height = this.location_columns?45:25;
+        //var header = sourceNode._('div',{background:'white',position:'absolute',top:'0',left:'0',right:'0',height:_px(h_height),background:'gray',color:'white',_class:'header_wd'});
+        //header._('div',{'innerHTML':genro.formatter.asText(date,{format:'full'}),text_align:'center',font_size:'11pt',color:'white',margin_top:'3px'});
+        //if(this.location_columns){
+        //    dojo.forEach(slots,function(slot){
+        //        if(!(slot.location_id in locations)){
+        //            locations[slot.location_id] = n_locations;
+        //            location_names.push(slot.location_name);
+        //            n_locations++;
+        //        }
+        //    }); 
+        //    var header_loc = header._('table',{width:'100%',border_collapse:'collapse',border:0,margin_left:'40px',margin_top:'3px'})._('tbody')._('tr');
+        //    var w = (500-10-10*(n_locations-1+2))/n_locations;
+        //    location_names.forEach(function(n){
+        //        header_loc._('td')._('div',{innerHTML:n,text_align:'center',background:'gray',color:'white',rounded:that.rounded,width:w+'px',_class:'header_wd'})
+        //    })
+        //}
+//
+        //var container = sourceNode._('div','slotContainer',{background:'whitesmoke',
+        //                                position:'absolute',top:_px(h_height),left:'0',right:'0',bottom:'0',overflow:'auto'})
+        //var action = function(sn,editActivity){
+        //                    var hh = sn.attr._hh;
+        //                    if(!hh){
+        //                        return;
+        //                    }
+        //                    var st = that.toStrTime(hh.split(':'))+'::H';
+        //                    var d = sn.getRelativeData('.selectedDate');
+        //                    if(editActivity){
+        //                        genro.publish('edit_activity',{event_id:false, evt_date:d, s_time:st,activity_location:null,location_id:null});
+        //                    }else{
+        //                        genro.publish('edit_event',{event_id:false, evt_date:d, s_time:st,location_id:null,referrer_id:null});
+        //                    }
+        //                }
+        //var box = container._('div','slotBox',{position:'absolute',top:'10px',left:'40px',right:0,bottom:0,
+        //                            dropTypes:'eventSlot',
+        //                            connect_ondblclick:function(e){
+        //                                action(e.target.sourceNode,e.shiftKey);
+        //                            }})
+        //box._('tooltip',{modifiers:'Shift',validclass:'eventSlot',
+        //                recordTemplate:{table:'base.event',pkeyCb:function(){
+        //                    return this._slot.event_id;
+        //                }}});
+        //var tbox = container._('div',{position:'absolute',top:'4px',left:'0',width:'40px',bottom:0});
+        //this.prepareTimeGrid(box,tbox,slots);  
+        //dojo.forEach(slots,function(slot){
+        //    that.fillSlotDetail(box,slot,that.location_columns?locations[slot.location_id]:0,that.location_columns?n_locations:1,date);
+        //});
+        //sourceNode.unfreeze();
+    },
+
     fillDay:function(cell,date){
         var dataNode = this.data.getNode(_F(date,{pattern:'yyyy_MM_dd'},'D'));
         if(!dataNode){
             return;
         }
+        var minute_height = parseInt(cell.getParentNode().attr.height)/this.day_duration;
+
         if(this.channels){
             var n_channels = this.channels.length;
             var dataVal = dataNode.getValue();
@@ -445,36 +501,57 @@ dojo.declare('gnr.TimesheetViewerController',null,{
             var that = this;
             var cellwidth = Math.floor((parseInt(cell.attributes()['width'])-5)/n_channels);
             this.channels.forEach(function(channel,idx){
-                cellcol = cell._('div',{position:'absolute',top:'2px',bottom:'2px',
+                cellcol = cell._('div',{position:'absolute',top:'2px',bottom:'2px',_class:'timesheet_channel channel_'+idx,
                                         left:(2+idx*cellwidth)+'px',width:cellwidth+'px'});
-                that.slotFiller(cellcol,date,dataVal.getNode(channel));
+                that.slotFiller(cellcol.getParentNode(),date,dataVal.getNode(channel),minute_height);
             });
         }else{
-            this.slotFiller(cell,date,dataNode);
+            this.slotFiller(cell,date,dataNode,minute_height);
         }
-       //var storeNode = this.data.getNodeByAttr();
-       //var cellAttr = cell.getParentNode().attr;
-       //var that = this;
-       //var locations = {};
-       //var n_locations = 0;
-
-       //dojo.forEach(slots,function(slot){
-       //    if(!(slot.location_id in locations)){
-       //        locations[slot.location_id] = n_locations;
-       //        n_locations++;
-       //    }
-       //});        
-       //dojo.forEach(slots,function(slot){
-       //    that.fillSlot(cell,slot,locations[slot.location_id],n_locations);
-       //});
     },
 
-    slotFiller_default:function(cellNode,date,dataNode){
+    slotFiller_default:function(cellNode,date,dataNode,minute_height,dayview){
 
     },
+    minutesFromStartWork:function(t){
+        return t.getMinutes()+t.getHours()*60-this.work_start*60;
+    },
 
-    slotFiller_timetable:function(cellNode,date,dataNode){
+    timeCoords:function(t0,t1,minute_height){
+        var result = {};
+        var start = this.minutesFromStartWork(t0); 
+        var end = this.minutesFromStartWork(t1); 
+        result.top =  Math.floor(start*minute_height)+'px';
+        result.height =  Math.floor((end-start)*minute_height)+'px';
+        return result;
+    },
 
+
+    slotFiller_timetable:function(cellNode,date,dataNode,minute_height,dayview){
+        //console.log('cellNode',);
+        var tc;
+        tc = this.timeCoords(dataNode.attr.time_start,dataNode.attr.time_end,minute_height);
+        cellNode._('div',{top:tc.top,height:tc.height,position:'absolute',
+                            left:'5px',
+                            _cal_attr:objectUpdate({},dataNode.attr),
+                            _class:'channel_slot channel_free'});
+        var busy = dataNode.getValue();
+        if(busy && busy.len()){
+            var that = this;
+            busy.forEach(function(n){
+                tc = that.timeCoords(n.attr.time_start,n.attr.time_end,minute_height);
+                var content = cellNode._('div',{top:tc.top,height:tc.height,position:'absolute',
+                                                left:'5px',_class:'channel_slot channel_busy',
+                                                background_color:n.attr.background_color,
+                                                color:n.attr.color,
+                                                _slot_attr:objectUpdate({},n.attr)});
+                if(dayview){
+                    var kw = objectUpdate({},n.attr);
+                    var template = objectPop(kw,'template');
+                    content._('div',{innerHTML:dataTemplate(template,kw)});
+                }
+            });
+        }
     },
 
     

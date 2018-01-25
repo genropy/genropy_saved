@@ -131,3 +131,38 @@ slot_caption{
 .monthly_slot:hover .slotArrows,.slotArrows:hover{
     visibility: visible;
 }
+.channel_slot{
+    width: 20px;
+    z-index: 20;
+}
+.dayview .channel_slot{
+    width:136px;
+}
+
+.channel_free{
+    background:#999;
+}
+
+.dayview .channel_free{
+    background:transparent;
+}
+.channel_busy{
+    border-bottom:1px solid #999; 
+}
+
+.dayview .channel_busy{
+    border-bottom:1px solid white;
+    border-top:1px solid white;
+    line-height: 20px;
+    color:white;
+    text-align: center;
+}
+.dayview .timesheet_channel{
+    border-right: 1px solid RGBA(22, 0, 94, 0.20);
+}
+
+.timesheet_channel_header{
+    color:white;
+    text-align: center;
+    font-size:14px;
+}
