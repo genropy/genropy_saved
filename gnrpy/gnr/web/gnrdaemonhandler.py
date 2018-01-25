@@ -2,7 +2,8 @@
 # encoding: utf-8
 # 
 from datetime import datetime
-from multiprocessing import Process
+import logging
+from multiprocessing import Process, log_to_stderr
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import GnrSiteRegisterServer
 from gnr.core.gnrlang import gnrImport
 from gnr.core.gnrbag import Bag
@@ -54,14 +55,17 @@ def getFullOptions(options=None):
     return env_options
 
 class GnrHeartBeat(object):
-    def __init__(self,site_url=None,interval=None,**kwargs):
+    def __init__(self,site_url=None,interval=None,loglevel=None,**kwargs):
         self.interval = interval
         self.site_url = site_url
         self.url = "%s/sys/heartbeat"%self.site_url
+        self.logger = log_to_stderr()
+        self.logger.setLevel(loglevel or logging.DEBUG)
 
     def start(self):
         while True:
             try:
+                self.logger.info("Calling {}".format(self.url))
                 response = urllib.urlopen(self.url)
                 response_code = response.getcode() 
                 if response_code!=200:
@@ -70,9 +74,12 @@ class GnrHeartBeat(object):
                     time.sleep(self.interval)
             except IOError:
                 self.retry('IOError')
+            except Exception, e:
+                self.logger.error(str(e))
 
-    def retry(self,reason):                
-        print '%s -> will retry in %i seconds' %(reason,3*self.interval)
+
+    def retry(self,reason):
+        self.logger.warn('%s -> will retry in %i seconds' %(reason,3*self.interval))
         time.sleep(3*self.interval)
 
 
@@ -104,6 +111,8 @@ class GnrDaemon(object):
         self.siteregisters= dict()
         self.siteregisters_process = dict()
         self.sshtunnel_index = dict()
+        self.logger = log_to_stderr()
+        
 
     def start(self,use_environment=False,**kwargs):
         if use_environment:
@@ -114,7 +123,9 @@ class GnrDaemon(object):
     def do_start(self, host=None, port=None, socket=None, hmac_key=None,
                       debug=False,compression=False,timeout=None,
                       multiplex=False,polltimeout=None,use_environment=False, size_limit=None,
-                      sockets=None):
+                      sockets=None, loglevel=None):
+        self.loglevel = loglevel or logging.ERROR
+        self.logger.setLevel(self.loglevel)
         self.pyroConfig(host=host,port=port, socket=socket, hmac_key=hmac_key,debug=debug,
                         compression=compression,timeout=timeout,
                         multiplex=multiplex,polltimeout=polltimeout, size_limit=size_limit,
@@ -127,7 +138,8 @@ class GnrDaemon(object):
         if not OLD_HMAC_MODE:
             self.daemon._pyroHmacKey = self.hmac_key
         self.main_uri = self.daemon.register(self,'GnrDaemon')
-        print "uri=",self.main_uri
+        self.logger.info("uri={}".format(self.main_uri))
+#        print "uri=",self.main_uri
         self.running = True
         atexit.register(self.stop)
         self.daemon.requestLoop(lambda : self.running)
@@ -185,7 +197,7 @@ class GnrDaemon(object):
             t.stop()
         self.running = False
 
-    def restart(self,**kwargs):
+    def restart(self, sitename=None, **kwargs):
         self.stop(saveStatus=True)
 
     def restartServiceDaemon(self,sitename=None,service_name=None):
@@ -242,6 +254,7 @@ class GnrDaemon(object):
             childprocess.start()
             hbprocess = None
             if heartbeat_options:
+                heartbeat_options['loglevel'] = self.loglevel
                 hbprocess = Process(name='hb_%s' %sitename, target=createHeartBeat,kwargs=heartbeat_options)
                 hbprocess.start()
             sitedict = dict(register = childprocess,heartbeat=hbprocess)
