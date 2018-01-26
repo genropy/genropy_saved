@@ -141,7 +141,7 @@ class Table(object):
     def newMessageFromUserTemplate(self,record_id=None,letterhead_id=None,
                             template_id=None,table=None,template_code=None,
                             attachments=None,to_address=None, **kwargs):
-        self.newMessage(**self.db.application.site.getService('mail').mailParsFromUserTemplate(record_id=None,letterhead_id=None,
+        return self.newMessage(**self.db.application.site.getService('mail').mailParsFromUserTemplate(record_id=None,letterhead_id=None,
                             template_id=None,table=None,template_code=None,
                             attachments=None,to_address=None, **kwargs))
     
