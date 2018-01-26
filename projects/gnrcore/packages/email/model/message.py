@@ -1,7 +1,11 @@
 # encoding: utf-8
 from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrbag import Bag
+from gnr.core.gnrstring import templateReplace
 import re
+import os
 import email
+
 
 EMAIL_PATTERN = re.compile('([\w\-\.]+@(\w[\w\-]+\.)+[\w\-]+)')
 
@@ -9,7 +13,7 @@ class Table(object):
 
     def config_db(self, pkg):
         tbl =  pkg.table('message', rowcaption='subject', pkey='id', name_long='!!Message', name_plural='!!Messages')
-        self.sysFields(tbl)
+        self.sysFields(tbl,draftField=True)
         tbl.column('in_out', size='1', name_long='!!Message type', name_short='!!I/O',values='I:Input,O:Output')
         tbl.column('to_address',name_long='!!To',_sendback=True)
         tbl.column('from_address',name_long='!!From',_sendback=True)
@@ -30,9 +34,11 @@ class Table(object):
                     ).relation('message_type.code', relation_name='messages', 
                                 mode='foreignkey', onDelete='raise')
         tbl.column('notes', name_long='!!Notes')
+        tbl.column('message_date', dtype='D', name_long='!!Date')
 
         tbl.column('sending_attempt','X', name_long='!!Sending attempt')
         tbl.column('email_bag',dtype='X',name_long='!!Email bag')
+        tbl.column('extra_headers',dtype='X',name_long='!!Extra headers')
 
     def trigger_onInserting(self, record_data):
         self.explodeAddressRelations(record_data)
@@ -112,3 +118,56 @@ class Table(object):
     def spamChecker(self,msgrec):
         return
     
+    @public_method
+    def newMessage(self, account_id=None,to_address=None,from_address=None,
+                  subject=None, body=None, cc_address=None, 
+                  reply_to=None, bcc_address=None, attachments=None,
+                 message_id=None,message_date=None,
+                 html=False,doCommit=False,moveAttachment=False,**kwargs):
+        message_date=message_date or self.db.workdate
+        extra_headers = Bag(dict(message_id=message_id,message_date=message_date))
+        message_to_dispatch = self.newrecord(in_out='O',
+                            account_id=account_id,
+                            to_address=to_address,
+                            from_address=from_address,
+                            subject=subject,message_date=message_date,
+                            body=body,cc_address=cc_address,
+                            reply_to=reply_to,bcc_address=bcc_address,
+                            message_id=message_id,
+                            extra_headers=extra_headers,
+                            html=html)
+        message_atc = self.db.table('email.message_atc')
+        self.insert(message_to_dispatch)
+        if attachments:
+            for r in attachments:
+                origin_filepath = r
+                mimetype = None
+                if isinstance(r,tuple):
+                    origin_filepath,mimetype = r
+                message_atc.addAttachment(maintable_id=message_to_dispatch['id'],
+                                        origin_filepath=r,
+                                        mimetype=mimetype,
+                                        destFolder=self.folderPath(message_to_dispatch,True),
+                                        moveFile=moveAttachment)
+        if doCommit:
+            self.db.commit()
+        return message_to_dispatch
+
+
+    
+    def atc_getAttachmentPath(self,pkey):
+        return self.folderPath(self.recordAs(pkey),relative=True)
+
+
+    def folderPath(self,message_record=None,relative=None):
+        message_date = message_record['message_date'] or self.db.workdate
+        year = str(message_date.year)
+        month = '%02i' %message_date.month
+        attachment_root= self.pkg.attributes.get('attachment_root') or 'mail'
+        if relative:
+            return os.path.join(attachment_root,message_record['account_id'],year,month,message_record['id'])
+        else:
+            return self.db.application.site.getStaticPath('vol:%s' %attachment_root,
+                                                        message_record['account_id'], 
+                                                        year,month,message_record['id'],
+                                                        autocreate=True)
