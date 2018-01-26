@@ -54,6 +54,8 @@ class Table(object):
         self.deleteAddressRelations(record_data)
         
     def extractAddresses(self,addresses):
+        if not addresses:
+            return []
         outaddress = dict()
         for match in EMAIL_PATTERN.findall(addresses):
             outaddress[match[0].lower()] = True
@@ -142,11 +144,10 @@ class Table(object):
     def newMessageFromUserTemplate(self,record_id=None,letterhead_id=None,
                             template_id=None,table=None,template_code=None,
                             attachments=None,to_address=None, **kwargs):
-        return self.newMessage(**self.db.application.site.getService('mail').mailParsFromUserTemplate(record_id=None,letterhead_id=None,
-                            template_id=None,table=None,template_code=None,
-                            attachments=None,to_address=None, **kwargs))
+        return self.newMessage(**self.db.application.site.getService('mail').mailParsFromUserTemplate(record_id=record_id,letterhead_id=letterhead_id,
+                            template_id=template_id,table=table,template_code=template_code,
+                            attachments=attachments,to_address=to_address, **kwargs))
     
-
 
     @public_method
     def sendMessage(self,pkey=None):
@@ -167,20 +168,19 @@ class Table(object):
                                 cc_address=message['cc_address'], bcc_address=bcc_address,
                                 from_address=message['from_address'] or mp['smtp_from_address'],
                                 attachments=attachments, 
-                                account=mp['account'],
                                 smtp_host=mp['smtp_host'], port=mp['port'], user=mp['user'], password=mp['password'],
-                                ssl=mp['ssl'], tls=mp['tls'], html=mp['html'], async=False)
+                                ssl=mp['ssl'], tls=mp['tls'], html=message['html'], async=False)
                 message['send_date'] = datetime.now()
             except Exception as e:
                 sending_attempt = message['sending_attempt'] = message['sending_attempt'] or Bag()
                 ts = datetime.now()
                 sending_attempt.setItem('r_%i' %len(sending_attempt),None,ts=ts,error=str(e))
+                message['sending_attempt'] = sending_attempt
         self.db.commit()
         
     
     def atc_getAttachmentPath(self,pkey):
         return self.folderPath(self.recordAs(pkey),relative=True)
-
 
     def folderPath(self,message_record=None,relative=None):
         message_date = message_record['message_date'] or self.db.workdate

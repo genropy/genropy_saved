@@ -1156,13 +1156,13 @@ class AttachmentTable(GnrDboTable):
         mimetype = mimetype or mimetypes.guess_type(origin_filepath)[0]
         site = self.db.application.site
         filename =  os.path.basename(origin_filepath)
-        destfilepath = site.getStaticPath('vol:%s' %destFolder,filename)
+        destfilepath = site.getStaticPath('vol:%s' %destFolder,filename,autocreate=-1)
         fname,ext = os.path.splitext(destfilepath)
         counter = 0
         while os.path.isfile(destfilepath):
             filename = '%s_%i%s'%(filename,counter,ext)
             counter += 1
-            destfilepath = site.getStaticPath('vol:%s' %destFolder,filename)
+            destfilepath = site.getStaticPath('vol:%s' %destFolder,filename,autocreate=-1)
         if moveFile:
             os.rename(origin_filepath,destfilepath)
         else:

@@ -42,8 +42,8 @@ class ViewSmall(BaseComponent):
 class Form(BaseComponent):
 
     def th_form(self, form):
-        tc = form.center.tabContainer()
-        bc = tc.borderContainer(title='In')
+        tc = form.center.tabContainer(margin='2px')
+        bc = tc.borderContainer(title='Input')
         top = bc.contentPane(region='top',height='50%', datapath='.record')
         bottom = bc.contentPane(region='center')
         fb = top.formbuilder(cols=2,border_spacing='4px')
@@ -62,9 +62,12 @@ class Form(BaseComponent):
         fb.dataRpc('dummy', self.db.table('email.message').receive_imap, subscribe_check_email=True, account='=.id')
         #self.account_messages(bottom)
 
-        bottom.inlineTableHandler(relation='@account_users',viewResource=':ViewFromAccount',picker='user_id',title='!!Users')
+        bottom.inlineTableHandler(relation='@account_users',
+                                viewResource=':ViewFromAccount',
+                                picker='user_id',title='!!Users',
+                                pbl_classes=True,margin='2px')
         
-        out = tc.contentPane(title='Out',datapath='.record')
+        out = tc.contentPane(title='Output',datapath='.record')
         fb = out.div(padding='10px').formbuilder(cols=2,border_spacing='4px')
         fb.field('smtp_host')
         fb.field('smtp_from_address')

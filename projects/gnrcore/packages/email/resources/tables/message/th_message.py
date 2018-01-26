@@ -9,25 +9,25 @@ class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('to_address',width='7em')
-        r.fieldcell('from_address',width='7em')
-        r.fieldcell('cc_address',width='7em')
-        r.fieldcell('bcc_address',width='7em')
+        r.fieldcell('subject',width='30em')
+
+        r.fieldcell('to_address',width='18em')
+        r.fieldcell('from_address',width='18em')
+        r.fieldcell('cc_address',width='18em')
+        r.fieldcell('bcc_address',width='18em')
         r.fieldcell('uid',width='7em')
-       # r.fieldcell('body',width='7em')
-        r.fieldcell('body_plain',width='7em')
-        r.fieldcell('html',width='7em')
-        r.fieldcell('subject',width='7em')
         r.fieldcell('send_date',width='7em')
         r.fieldcell('sent',width='7em')
-        r.fieldcell('user_id',width='35em')
-        r.fieldcell('account_id',width='35em')
+        #r.fieldcell('user_id',width='35em')
+        r.fieldcell('account_id',width='12em')
 
 
     def th_queryBySample(self):
         return dict(fields=[dict(field='send_date',lbl='!!Send date',width='7em'),
                             dict(field='subject', lbl='!!Subject'),
-                            dict(field='to_address', lbl='To address')],cols=5,isDefault=True)
+                            dict(field='body_plain',lbl='!!Content'),
+                            dict(field='to_address', lbl='To address'),
+                            dict(field='from_address', lbl='From address')],cols=5,isDefault=True)
 
     def th_order(self):
         return '__ins_ts'

@@ -4,14 +4,14 @@ from gnr.web.batch.btcaction import BaseResourceAction
 from gnr.core.gnrbag import Bag
 
 
-caption = '!!Send email'
+caption = '!!Send emails'
 tags = 'admin'
-description='!!Send email'
+description='!!Send emails'
 
 
 class Main(BaseResourceAction):
     batch_prefix = 'SM'
-    batch_title = '!!Send email'
+    batch_title = '!!Send emails'
     batch_immediate = True
     
     def do(self):

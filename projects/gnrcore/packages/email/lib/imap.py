@@ -73,10 +73,10 @@ class ImapReceiver(object):
         self.db.commit()
     
     def fillHeaders(self, mail, new_mail,encoding):
-        new_mail['from_address'] = unicode(mail['From'])
-        new_mail['to_address'] = unicode(mail['To'])
-        new_mail['cc_address'] = unicode(mail['Cc'])
-        new_mail['bcc_address'] = unicode(mail['Bcc'])
+        new_mail['from_address'] = unicode(mail['From']) if mail['From'] else None
+        new_mail['to_address'] = unicode(mail['To']) if mail['To'] else None
+        new_mail['cc_address'] = unicode(mail['Cc']) if mail['Cc'] else None
+        new_mail['bcc_address'] = unicode(mail['Bcc']) if mail['Bcc'] else None
         new_mail['subject'] = self.smartConverter(mail['Subject'],encoding)
         date = mail['Date']
         if date:
@@ -182,7 +182,7 @@ class ImapReceiver(object):
 
         
     def createMessageRecord(self, emailid):
-        new_mail = dict(account_id=self.account_id,msg_type='I')
+        new_mail = dict(account_id=self.account_id,in_out='I')
         new_mail['id'] = getUuid()
         new_mail['uid'] = emailid
         resp, data = self.imap.uid('fetch',emailid, "(RFC822)")

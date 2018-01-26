@@ -42,9 +42,9 @@ class WebMailHandler(MailHandler):
     def sendUserTemplateMail(self,record_id=None,letterhead_id=None,
                             template_id=None,table=None,template_code=None,
                             attachments=None,to_address=None, **kwargs):
-        self.sendmail(**self.mailParsFromUserTemplate(record_id=None,letterhead_id=None,
-                            template_id=None,table=None,template_code=None,
-                            attachments=None,to_address=None, **kwargs))
+        self.sendmail(**self.mailParsFromUserTemplate(record_id=record_id,letterhead_id=letterhead_id,
+                            template_id=template_id,table=table,template_code=template_code,
+                            attachments=attachments,to_address=to_address, **kwargs))
     
     def mailParsFromUserTemplate(self,record_id=None,letterhead_id=None,
                             template_id=None,table=None,template_code=None,
