@@ -106,7 +106,7 @@ class Table(object):
     def newMessage(self, account_id=None,to_address=None,from_address=None,
                   subject=None, body=None, cc_address=None, 
                   reply_to=None, bcc_address=None, attachments=None,
-                 message_id=None,message_date=None,
+                 message_id=None,message_date=None,message_tipe=None,
                  html=False,doCommit=False,moveAttachment=False,**kwargs):
         message_date=message_date or self.db.workdate
         extra_headers = Bag(dict(message_id=message_id,message_date=message_date))
@@ -120,6 +120,7 @@ class Table(object):
                             reply_to=reply_to,bcc_address=bcc_address,
                             message_id=message_id,
                             extra_headers=extra_headers,
+                            message_tipe=message_tipe,
                             html=html)
         message_atc = self.db.table('email.message_atc')
         self.insert(message_to_dispatch)
