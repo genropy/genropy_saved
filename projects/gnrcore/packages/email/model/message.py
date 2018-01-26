@@ -138,6 +138,15 @@ class Table(object):
             self.db.commit()
         return message_to_dispatch
 
+    def newMessageFromUserTemplate(self,record_id=None,letterhead_id=None,
+                            template_id=None,table=None,template_code=None,
+                            attachments=None,to_address=None, **kwargs):
+        self.newMessage(**self.db.application.site.getService('mail').mailParsFromUserTemplate(record_id=None,letterhead_id=None,
+                            template_id=None,table=None,template_code=None,
+                            attachments=None,to_address=None, **kwargs))
+    
+
+
     @public_method
     def sendMessage(self,pkey=None):
         site = self.db.application.site

@@ -39,7 +39,16 @@ class WebMailHandler(MailHandler):
             return self.parent.db.table('email.account').getSmtpAccountPref(mp['email_account_id'])
         return mp
 
-    def sendUserTemplateMail(self,record_id=None,letterhead_id=None,template_id=None,table=None,template_code=None,attachments=None,to_address=None, **kwargs):
+    def sendUserTemplateMail(self,record_id=None,letterhead_id=None,
+                            template_id=None,table=None,template_code=None,
+                            attachments=None,to_address=None, **kwargs):
+        self.sendmail(**self.mailParsFromUserTemplate(record_id=None,letterhead_id=None,
+                            template_id=None,table=None,template_code=None,
+                            attachments=None,to_address=None, **kwargs))
+    
+    def mailParsFromUserTemplate(self,record_id=None,letterhead_id=None,
+                            template_id=None,table=None,template_code=None,
+                            attachments=None,to_address=None, **kwargs):
         if template_id:
             tpl,table = self.parent.db.table('adm.userobject').readColumns(pkey=template_id,columns='$data,$tbl',bagFields=True)
         elif template_code and table:
@@ -60,7 +69,6 @@ class WebMailHandler(MailHandler):
         attachments = attachments or templateReplace(email_compiled.getItem('attachments',''),htmlbuilder.record)
         if attachments and isinstance(attachments,basestring):
             attachments = attachments.replace('\n',',').split(',')
-
         assert to_address,'Missing email address'
         cc_address = set(cc_address.split(',') if cc_address else [])
         bcc_address = set(bcc_address.split(',') if bcc_address else [])
@@ -78,6 +86,7 @@ class WebMailHandler(MailHandler):
         bcc_address = ','.join(bcc_address)
         to_address = ','.join(filtered_to_address)
         kwargs.setdefault('html',True)
-        self.sendmail(to_address=to_address,subject=subject,cc_address=cc_address, bcc_address=bcc_address,
-                      from_address=from_address, body=html_text,attachments=attachments,**kwargs)
-    
+        kwargs.update(to_address=to_address,subject=subject,cc_address=cc_address, bcc_address=bcc_address,
+                      from_address=from_address, body=html_text,attachments=attachments)
+        
+        return kwargs
