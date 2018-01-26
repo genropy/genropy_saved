@@ -1,11 +1,9 @@
 # encoding: utf-8
-from gnr.app.gnrdbo import AttachmentTable
 
-class Table(AttachmentTable):
+class Table(object):
 
     def config_db(self, pkg):
         tbl =  pkg.table('attachment', rowcaption='title', pkey='id', name_long='!!Attachment', name_plural='!!Attachments')
-        self.attachment_config_db(tbl)
         self.sysFields(tbl)
         #tbl.column('title',name_long='!!Title')
         tbl.column('filename',name_long='!!Filename')
