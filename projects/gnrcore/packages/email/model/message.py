@@ -122,7 +122,7 @@ class Table(object):
                             reply_to=reply_to,bcc_address=bcc_address,
                             message_id=message_id,
                             extra_headers=extra_headers,
-                            message_tipe=message_tipe,
+                            message_type=message_type,
                             html=html)
         message_atc = self.db.table('email.message_atc')
         self.insert(message_to_dispatch)
