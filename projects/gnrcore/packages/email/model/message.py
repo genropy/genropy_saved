@@ -5,6 +5,7 @@ from gnr.core.gnrstring import templateReplace
 import re
 import os
 import email
+from datetime import datetime
 
 
 EMAIL_PATTERN = re.compile('([\w\-\.]+@(\w[\w\-]+\.)+[\w\-]+)')
@@ -93,27 +94,9 @@ class Table(object):
         imap_checker.receive()
         #check_imap(page=page, account=account, remote_mailbox=remote_mailbox, local_mailbox=local_mailbox)
 
-    def sendmail(self, datasource=None, to_address=None, cc_address=None, bcc_address=None, subject=None,
-                              from_address=None, body=None, attachments=None, account=None,
-                              html=False, charset='utf-8', **kwargs):
-        # 
-        def get_templated(field):
-            value = datasource.getItem('_meta_.%s' % field)
-            if not value:
-                value = datasource.getItem(field)
-            if value:
-                return templateReplace(value, datasource)
-        if datasource:
-            get_templated = get_templated
-        else:
-            get_templated = lambda x:None
-        to_address = to_address or get_templated('to_address')
-        cc_address = cc_address or get_templated('cc_address')
-        bcc_address = bcc_address or get_templated('bcc_address')
-        #from_address = from_address or get_templated('from_address')
-        subject = subject or get_templated('subject')
-        body = body or get_templated('body')
-        body = templateReplace(body, datasource) if datasource else body
+
+
+
 
     def spamChecker(self,msgrec):
         return
@@ -126,6 +109,7 @@ class Table(object):
                  html=False,doCommit=False,moveAttachment=False,**kwargs):
         message_date=message_date or self.db.workdate
         extra_headers = Bag(dict(message_id=message_id,message_date=message_date))
+        account_id = account_id or self.db.application.getPreference('mail', pkg='adm')['email_account_id']
         message_to_dispatch = self.newrecord(in_out='O',
                             account_id=account_id,
                             to_address=to_address,
@@ -153,7 +137,35 @@ class Table(object):
             self.db.commit()
         return message_to_dispatch
 
-
+    @public_method
+    def sendMessage(self,pkey=None):
+        site = self.db.application.site
+        mail_handler = site.getService('mail')
+        with self.recordToUpdate(pkey) as message:
+            extra_headers = Bag(message['extra_headers'])
+            account_id = message['account_id']
+            mp = self.db.table('email.account').getSmtpAccountPref(account_id)
+            bcc_address = message['bcc_address']
+            attachments = self.db.table('email.message_atc').query(where='$maintable_id=:mid',mid=message['id']).fetch()
+            attachments = [site.getStaticPath('vol:%s' %r['filepath']) for r in attachments]
+            if mp['system_bcc']:
+                bcc_address = '%s,%s' %(bcc_address,mp['system_bcc']) if mp else mp['system_bcc']
+            try:
+                mail_handler.sendmail(to_address=message['to_address'],
+                                body=message['body'], subject=message['subject'],
+                                cc_address=message['cc_address'], bcc_address=bcc_address,
+                                from_address=message['from_address'] or mp['smtp_from_address'],
+                                attachments=attachments, 
+                                account=mp['account'],
+                                smtp_host=mp['smtp_host'], port=mp['port'], user=mp['user'], password=mp['password'],
+                                ssl=mp['ssl'], tls=mp['tls'], html=mp['html'], async=False)
+                message['send_date'] = datetime.now()
+            except Exception as e:
+                sending_attempt = message['sending_attempt'] = message['sending_attempt'] or Bag()
+                ts = datetime.now()
+                sending_attempt.setItem('r_%i' %len(sending_attempt),None,ts=ts,error=str(e))
+        self.db.commit()
+        
     
     def atc_getAttachmentPath(self,pkey):
         return self.folderPath(self.recordAs(pkey),relative=True)
