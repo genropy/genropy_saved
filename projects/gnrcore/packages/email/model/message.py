@@ -32,7 +32,7 @@ class Table(object):
         tbl.column('user_id',size='22',name_long='!!User id').relation('adm.user.id', mode='foreignkey', relation_name='messages')
         tbl.column('account_id',size='22',name_long='!!Account id').relation('email.account.id', mode='foreignkey', relation_name='messages')
         tbl.column('mailbox_id',size='22',name_long='!!Mailbox id').relation('email.mailbox.id', mode='foreignkey', relation_name='messages')
-        tbl.column('message_tipe',size=':10', group='_', name_long='!!Type'
+        tbl.column('message_type',size=':10', group='_', name_long='!!Type'
                     ).relation('message_type.code', relation_name='messages', 
                                 mode='foreignkey', onDelete='raise')
         tbl.column('notes', name_long='!!Notes')
@@ -108,7 +108,7 @@ class Table(object):
     def newMessage(self, account_id=None,to_address=None,from_address=None,
                   subject=None, body=None, cc_address=None, 
                   reply_to=None, bcc_address=None, attachments=None,
-                 message_id=None,message_date=None,message_tipe=None,
+                 message_id=None,message_date=None,message_type=None,
                  html=False,doCommit=False,moveAttachment=False,**kwargs):
         message_date=message_date or self.db.workdate
         extra_headers = Bag(dict(message_id=message_id,message_date=message_date))

@@ -39,7 +39,7 @@ class View(BaseComponent):
         return dict(partitioned=True)
 
     def th_top_message_type(self,top):
-        top.slotToolbar('5,sections@in_out,*',childname='upper',_position='<bar')
+        top.slotToolbar('5,sections@in_out,*,sections@message_tipe,5',childname='upper',_position='<bar')
 
 
 class ViewFromMailbox(View):
