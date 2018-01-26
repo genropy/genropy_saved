@@ -13,7 +13,8 @@ EMAIL_PATTERN = re.compile('([\w\-\.]+@(\w[\w\-]+\.)+[\w\-]+)')
 class Table(object):
 
     def config_db(self, pkg):
-        tbl =  pkg.table('message', rowcaption='subject', pkey='id', name_long='!!Message', name_plural='!!Messages')
+        tbl =  pkg.table('message', rowcaption='subject', pkey='id',
+                     name_long='!!Message', name_plural='!!Messages',partition_account_id='account_id')
         self.sysFields(tbl,draftField=True)
         tbl.column('in_out', size='1', name_long='!!Message type', name_short='!!I/O',values='I:Input,O:Output')
         tbl.column('to_address',name_long='!!To',_sendback=True)

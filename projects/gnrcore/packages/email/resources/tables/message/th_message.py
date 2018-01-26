@@ -23,11 +23,23 @@ class View(BaseComponent):
         r.fieldcell('user_id',width='35em')
         r.fieldcell('account_id',width='35em')
 
+
+    def th_queryBySample(self):
+        return dict(fields=[dict(field='send_date',lbl='!!Send date',width='7em'),
+                            dict(field='subject', lbl='!!Subject'),
+                            dict(field='to_address', lbl='To address')],cols=5,isDefault=True)
+
     def th_order(self):
-        return 'to_address'
+        return '__ins_ts'
 
     def th_query(self):
-        return dict(column='to_address',op='contains', val='',runOnStart=False)
+        return dict(column='subject',op='contains', val='',runOnStart=False)
+    
+    def th_options(self):
+        return dict(partitioned=True)
+
+    def th_top_message_type(self,top):
+        top.slotToolbar('5,sections@in_out,*',childname='upper',_position='<bar')
 
 
 class ViewFromMailbox(View):
