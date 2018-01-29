@@ -164,6 +164,42 @@ class BaseProxy(object):
 class BaseWebtool(object):
     """TODO"""
     pass
+
+
+class BaseDashboardItem(object):
+    item_name=''
+
+    def __init__(self, page=None, resource_table=None, **kwargs):
+        self.page = page
+        self.db = page.db
+        self.tblobj = resource_table
+
+    def __call__(self,pane,editMode=None,workpath=None,itemPars=None,**kwargs):
+        title = itemPars.pop('_item_title') or self.item_name
+        bc = pane.borderContainer(region='center')
+        top = bc.contentPane(region='top',height='14px',background='#666')
+        sc = bc.stackContainer(region='center')
+        top.div(title,color='white',font_size='.8em',
+                             font_weight='bold',text_align='center')
+        top.lightbutton(_class='menu_white_svg',height='12px',width='12px',
+                        position='absolute',top='1px',right='4px',
+                        action='sc.switchPage(1);',sc=sc.js_widget)
+        kwargs.update(itemPars.asDict(ascii=True))
+        pane = sc.contentPane()
+        self.content(pane,workpath=workpath,**kwargs)
+        bc = sc.borderContainer()
+        self.configuration(bc.contentPane(region='center',datapath='.conf'),workpath=workpath,**kwargs)
+        bottom = bc.contentPane(region='bottom',_class='slotbar_dialog_footer')
+        bottom.button('!!Ok',top='2px',right='2px',action="""sc.switchPage(0);
+                                                            FIRE %s.configuration_changed;
+                                                        """ %workpath,sc=sc.js_widget)
+
+    def content(self,pane,**kwargs):
+        pass
+
+    def configuration(self,pane,**kwargs):
+        pass
+        
         
 
 class TableScriptToHtml(BagToHtml):

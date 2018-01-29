@@ -87,6 +87,7 @@ class ServiceHandlerManager(object):
     def add(self, service_handler_factory, service_name=None, **kwargs):
         service_name = service_name or self.service_name(service_handler_factory)
         service_handler = service_handler_factory(self.site, **kwargs)
+        service_handler.service_name = service_name
         self.services.setItem(service_name, service_handler, **kwargs)
         return service_handler
 

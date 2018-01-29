@@ -50,6 +50,7 @@ from gnr.web.gnrwebstruct import GnrGridStruct
 from gnr.core.gnrlang import getUuid,gnrImport, GnrException,tracebackBag
 from gnr.core.gnrbag import Bag, BagResolver
 from gnr.core.gnrdecorator import public_method,deprecated
+from gnr.core.gnrclasses import GnrMixinNotFound
 from gnr.web.gnrbaseclasses import BaseComponent # DO NOT REMOVE, old code relies on BaseComponent being defined in this file
 from gnr.app.gnrlocalization import GnrLocString
 from base64 import b64decode
@@ -561,7 +562,7 @@ class GnrWebPage(GnrBaseWebPage):
         if safeMode:
             try:
                 self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
-            except Exception:
+            except GnrMixinNotFound:
                 pass
         else:
             self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)

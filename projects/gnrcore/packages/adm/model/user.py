@@ -68,7 +68,7 @@ class Table(object):
         self.passwordTrigger(record)
 
     def passwordTrigger(self, record):
-        if 'md5pwd' in record:
+        if record.get('md5pwd'):
             password = record['md5pwd']
             if len(password) < 32 and record['status']=='conf':
                 record['md5pwd'] = self.db.application.changePassword(None, None, password, userid=record['username'])

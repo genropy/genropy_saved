@@ -1455,7 +1455,7 @@ dojo.declare("gnr.widgets.MultiValueEditor", gnr.widgets.gnrwdg, {
             genro.dlg.floatingMessage(this.containerNode,{messageType:'error',message:'You cannot add this key'})
             return;
         }
-        grid.addRows([{'attribute_key':key}],null,null,function(firstRow){
+        grid.addRows([{'attribute_key':key,'attribute_value':value}],null,null,function(firstRow){
             var valueNode = firstRow._value.getNode('attribute_value');
             valueNode.attr.wdg_dtype = dtype || 'T';
             if(!isNullOrBlank(value)){
@@ -2041,18 +2041,21 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         }
         gnrwdg.columns_bag = this._getColumnsBag(sourceNode,columns,subTagItems['column']);
         var searchColumn = gnrwdg.columns_bag.getNode('#0').attr.field;
+        var checked_attr = objectExtract(kw,'checked_*',true);
+        var hasCheckbox = objectNotEmpty(checked_attr) || kw.onChecked;
         var defaultKw = {
             autoCollapse:true,
             hideValues:true,
             background:'white',
             searchColumn:searchColumn,
-            _class:'treegrid branchtree noIcon',
+            _class:hasCheckbox?'treegrid branchtree' :'treegrid branchtree noIcon',
             connect__expandNode:function(){
                 gnrwdg.updateScroll();
             },
             labelCb:function(){return gnrwdg.labelCb(this)}
         };
-        var box = sourceNode._('div',objectUpdate({_class:'treeGridLayout '+(objectPop(kw,'_class') || ''),
+        var boxclass = hasCheckbox?'treegridcheckbox treeGridLayout ':'treeGridLayout ';
+        var box = sourceNode._('div',objectUpdate({_class:boxclass+(objectPop(kw,'_class') || ''),
             onCreated:function(){
             var that = this;
             this.watch('setWidth',function(){
@@ -4157,6 +4160,9 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             var btn = sourceNode._('div',childSourceNode.getStringId(),btn_kw,{_position:stackbag.len()-stackNode._n_children});
             var title = childSourceNode.attr.title;
             var iconTitle = childSourceNode.attr.iconTitle;
+            if(title && title[0]=='^'){
+                title = '^'+childSourceNode.absDatapath(title);
+            }
             if(iconTitle){
                 multibutton_kw.innerHTML = '&nbsp;'
                 multibutton_kw._class= 'multibutton_caption '+iconTitle
@@ -5164,8 +5170,10 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
                         k++;
                     });
                 }
+                slotKw = objectUpdate({},slotNode.attr);
+            }else{
+                slotKw = {};
             }
-            slotKw = objectUpdate({},slotNode.attr);
             objectExtract(slotKw,'tag,_childname')
             slotKw = objectUpdate(slotKw,objectExtract(kw,slot+'_*'));
             if(slotKw.height){

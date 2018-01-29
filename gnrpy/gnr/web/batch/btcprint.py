@@ -66,7 +66,9 @@ class BaseResourcePrint(BaseResourceBatch):
     def print_record(self, record=None, thermo=None, storagekey=None,idx=None):
         result = self.do_print_record(record=record)
         self.onRecordExit(record)
-        if result:
+        if not result:
+            return
+        if self.onRecordPrinted(record=record,filepath=result) is not False:
             self.storeResult(storagekey, result, record, filepath=getattr(self.htmlMaker,'filepath',result))
 
     def do_print_record(self,record=None,idx=None,thermo=None):
@@ -87,6 +89,9 @@ class BaseResourcePrint(BaseResourceBatch):
         
         :param record: the result records of the executed batch"""
         pass
+    
+    def onRecordPrinted(self,record=None,filepath=None):
+        return
         
     def do(self):
         self.print_selection()

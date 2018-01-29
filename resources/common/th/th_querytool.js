@@ -135,12 +135,14 @@ dojo.declare("gnr.QueryManager", null, {
                                                 that.sourceNode.setRelativeData('.query.queryEditor',false);
                                             }
                                         }});
+
+
         var frame = pane._('framePane',{'frameCode':'_innerframe_#',
-                                        gradient_from:'#E5E5E5',gradient_to:'#EDEDED',gradient_deg:'-90'});
-        var topbar = frame._('slotBar',{'slots':'queryname,*,favoritebtn,savebtn,deletebtn,10,runbtn',toolbar:true,'side':'top'});
-        var qtitle = topbar._('div','queryname',{innerHTML:'^.queryAttributes.caption',
-                                                 padding_right:'10px',padding_left:'2px',
-                                    color:'#555',font_weight:'bold',_class:'floatingPopup',cursor:'pointer'});
+                                        center_widget:'tabContainer'});
+        var topbar = frame._('slotBar',{'slots':'queryname,*,favoritebtn,5,savebtn,deletebtn,10,runbtn',toolbar:true,'side':'top'});
+
+        var qtitle = topbar._('div','queryname',{innerHTML:'^.queryAttributes.caption',padding_right:'10px',padding_left:'2px',
+                            color:'#555',font_weight:'bold',_class:'floatingPopup',cursor:'pointer'});
         qtitle._('menu',{'_class':'smallmenu',storepath:'.savedqueries',modifiers:'*',action:'SET .currentQuery = $1.fullpath;'});
         topbar._('slotButton','savebtn',{'label':_T('Save'),iconClass:'iconbox save',action:function(){that.saveQuery();}});
         topbar._('slotButton','deletebtn',{'label':_T('Delete'),iconClass:'iconbox trash',action:'FIRE .delete;',disabled:'^.queryAttributes.pkey?=!#v'});
@@ -152,20 +154,100 @@ dojo.declare("gnr.QueryManager", null, {
                                iconClass:'iconbox run'});
 
 
-        var editorRoot = frame._('div',{datapath:'.where',margin:'2px',nodeId:this.th_root+'_queryEditorRoot'});
+        var editorRoot = frame._('contentPane',{title:_T('Query')})._('div',{datapath:'.where',margin:'2px',nodeId:this.th_root+'_queryEditorRoot'});
         if(currentQuery=='__querybysample__'){
             this.onChangedQuery('__newquery__');
         }
+        this.queryExtra(frame._('borderContainer',{title:_T('Query Extra')}));
+
         node.unfreeze();
         this.buildQueryPane();
         this.checkFavorite();
+    },
+
+    queryExtra:function(bc){
+        var top = bc._('BorderContainer',{region:'top',height:'50%'});
+        var topleft = top._('contentPane',{region:'left',width:'50%',_class:'pbl_roundedGroup',margin:'2px'});
+
+        var fb = genro.dev.formbuilder(topleft, 1, {border_spacing:'6px'});
+
+        fb.addField('numberTextBox',{lbl:_T('Limit'),value:'^.limit', width:'5em'});
+        fb.addField('dbselect',{lbl:_T('Saved view'),tag:'dbselect',
+                        hasDownArrow:true,value:'^.#parent.grid.currViewPath',
+                        dbtable:'adm.userobject',width:'15em',alternatePkey:'code',
+                        rowcaption:'$description',
+                        condition:'$tbl=:tbl AND $objtype=:obj',condition_tbl:this.maintable,
+                            condition_obj:'view'});
+        
+        var topright = top._('borderContainer',{region:'center',_class:'pbl_roundedGroup',margin:'2px'});
+        topright._('contentPane',{region:'top',_class:'pbl_roundedGroupLabel',height:'20px'})._('div',{'innerHTML':'Extra query pars'});
+        topright._('contentPane',{region:'center'})._('MultiValueEditor',{value:'^.extraPars'});
+        this.orderByGrid(bc._('FramePane',{frameCode:'_customOrderBy_#',_class:'pbl_roundedGroup',
+                                region:'bottom',height:'50%',margin:'2px'}));
+    },
+
+    orderByGrid:function(frame){
+        frame._('slotBar', {slots:'*,fieldsTree,*',width:'160px',
+                            'fieldsTree_table':this.maintable,
+                            'fieldsTree_checkPermissions':true,
+                            'fieldsTree_height':'100%','splitter':true,
+                            'border_left':'1px solid silver',
+                            'side':'right'});
+        frame._('slotBar',{slots:'2,vtitle,*',_class:'pbl_roundedGroupLabel',vtitle:_T('Order by'),side:'top'});
+        var dropCode = 'gnrdbfld_'+this.tablecode;
+        var gridkw = {value:'^.customOrderBy',selfDragRows:true,_class:'noheader noselect',
+                     dropTarget_grid:dropCode};
+
+        gridkw['onDrop_'+dropCode] = function(p1,p2,kw){
+            this.widget.addBagRow('#id', '*', this.widget.newBagRow({'fieldpath':kw.data.fieldpath,sorting:true}));
+        };
+        var g = frame._('quickGrid',gridkw);
+        
+
+        g._('column',{field:'fieldpath',edit:{},width:'100%'});
+        g._('column',{field:'sorting',dtype:'B',format_trueclass:'iconbox arrow_up',format_falseclass:"iconbox arrow_down",
+                    format_onclick:'var r = this.widget.storebag().getItem("#"+$1.rowIndex);r.setItem("sorting",!r.getItem("sorting"));',
+                    width:'3em'});
+        g._('column',{field:'delrow',width:'3em',
+                    format_isbutton:true,
+                    format_onclick:'this.widget.storebag().popNode("#"+$1.rowIndex);',
+                    format_buttonclass:'iconbox qb_del'});
+    },
+
+    viewAndExtra:function(frame){
+        
     },
 
 
     saveQuery:function(){
         var datapath =  this.sourceNode.absDatapath('.query.queryAttributes');
         var code = this.sourceNode.getRelativeData('.query.queryAttributes.code');
-        var data = this.sourceNode.getRelativeData('.query.where');
+        var where = this.sourceNode.getRelativeData('.query.where');
+        var customOrderBy = this.sourceNode.getRelativeData('.query.customOrderBy');
+        var currViewPath = this.sourceNode.getRelativeData('.grid.currViewPath');
+        var queryLimit = this.sourceNode.getRelativeData('.query.limit');
+        var extraPars = this.sourceNode.getRelativeData('.query.extraPars');
+        var queryPars = new gnr.GnrBag();
+        this.translateQueryPars().forEach(function(pardict){
+            queryPars.setItem('p_'+queryPars.len(),null,{
+                lbl:pardict.value_caption.slice(1),
+                field:pardict.column,
+                relpath:pardict.relpath,
+                op:pardict.op
+            });
+        });
+
+        var data = new gnr.GnrBag();
+        if(queryPars.len()){
+            data.setItem('queryPars',queryPars);
+        }
+        data.setItem('extraPars',extraPars);
+        data.setItem('where',where.deepCopy());
+        if(customOrderBy){
+            data.setItem('customOrderBy',customOrderBy.deepCopy());
+        }
+        data.setItem('queryLimit',queryLimit);
+        data.setItem('currViewPath',currViewPath);
         var that = this;
         saveCb = function(dlg) {
             genro.serverCall('_table.adm.userobject.saveUserObject',
@@ -186,12 +268,29 @@ dojo.declare("gnr.QueryManager", null, {
     onChangedQuery: function(currentQuery){
         var sourceNode = this.sourceNode;
         var that = this;
-        var finalize = function(where,run){
+        var finalize = function(data,run){
+            var customOrderBy;
+            var currViewPath;
+            var customLimit;
+            if(data.getItem('where')){
+                where = data.pop('where');
+                customOrderBy = data.pop('customOrderBy');
+                customView = data.pop('customView');
+                currViewPath = data.pop('currViewPath');
+                customLimit = data.pop('queryLimit');
+            }else{
+                where = data;
+            }
             var editorRoot = that._editorRoot();
             if(editorRoot){
                 editorRoot.popNode('root');
             }
             sourceNode.setRelativeData('.query.where',where);
+            sourceNode.setRelativeData('.query.customOrderBy',customOrderBy);
+            sourceNode.setRelativeData('.query.limit',customLimit);
+            if(currViewPath && currViewPath!='__baseview__'){
+                sourceNode.setRelativeData('.grid.currViewPath',currViewPath);
+            }
             if(editorRoot){
                 that.buildQueryPane();
             }
@@ -563,7 +662,7 @@ dojo.declare("gnr.QueryManager", null, {
         var tr, attrs;
         for (var i = 0; i < parslist.length; i++) {
             attrs = parslist[i];
-            var lbl = attrs['value_caption'].slice(1);
+            var lbl = attrs.value_caption.slice(1);
             var dflt;
             if(lbl.indexOf('|')){
                 var l = lbl.split('|');
@@ -571,9 +670,9 @@ dojo.declare("gnr.QueryManager", null, {
                 dflt = l[1] ;
             }
             if(dflt){
-                sourceNode.setRelativeData(this.wherepath+'.'+attrs['relpath'],dflt);
+                sourceNode.setRelativeData(this.wherepath+'.'+attrs.relpath,dflt);
             }
-            queryform.addField('textbox',{lbl:lbl,value:'^.' + attrs['relpath'], width:'12em',tabindex:i})
+            queryform.addField('textbox',{lbl:lbl,value:'^.' + attrs.relpath, width:'12em'});
         }
         bottom._('button', 'cancel',{label:'Cancel',baseClass:'bottom_btn',action:cancel});
         bottom._('button', 'confirm',{label:'Confirm',baseClass:'bottom_btn',action:confirm});

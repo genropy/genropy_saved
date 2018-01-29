@@ -33,8 +33,9 @@ class TableScriptRunner(BaseComponent):
         bar.scbtn.slotButton('!!Schedule',action='genro.wdgById("task_common_scheduler_dialog").show(); FIRE gnr.dialog_scheduler.dlg_show;')
     
     def scheduler_dialog(self,pane,extra_parameters=None,resource_path=None,table=None,**kwargs):
-        dialog = pane.dialog(title='Scheduler',datapath='gnr.dialog_scheduler',closable=True,nodeId='task_common_scheduler_dialog')
-        frame = dialog.framePane(height='550px',width='680px')
+        dialog = pane.dialog(title='Scheduler',datapath='gnr.dialog_scheduler',
+                            windowRatio=.9,closable=True,nodeId='task_common_scheduler_dialog')
+        frame = dialog.framePane()
         frame.center.contentPane().remote(self._commonTaskTableHandler)
         
     @public_method

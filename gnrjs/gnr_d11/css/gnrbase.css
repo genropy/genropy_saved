@@ -2384,7 +2384,11 @@ div.dojoxDock {
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, rgba(170, 190, 201, 0.2), to(#FFFFFF));*/
 }
 
-.tundra .dijitDialogPaneContent{
+.tundra._common_d11 .dijitDialogPaneContent{
+    overflow: hidden !important;
+}
+
+.tundra._common_d11 .dijitDialog.dijitContentPane{
     overflow: hidden;
 }
 
@@ -4662,6 +4666,31 @@ div[disabled='true'], div[disabled='disabled']{
     display: inline-block;
 }
 
+
+/*.treerow.treerow_header*/
+
+.treegridcheckbox .treegrid .dijitTreeLabel{
+    left:22px;
+}
+.treegridcheckbox .treerow_header{
+    margin-left: 22px;
+}
+
+.tundra .treegridcheckbox .treegrid .dijitTreeIcon{
+    margin-left: -16px;
+}
+
+/*
+
+.treegrid.treegridcheckbox .dijitTreeContent{
+    left: 10px;
+}
+
+
+.treegrid.treegridcheckbox .iconNode{
+
+}*/
+
 /*treegrid*/
 
 .branchtree .branchtree_selected.dijitTreeLabel{
@@ -5362,6 +5391,12 @@ div[disabled='true'], div[disabled='disabled']{
 
 .showcase_dark .showcase_zoom{
     background: url(icons/svg/zoom_white.svg) center center no-repeat;
+    background-size: contain;
+}
+
+
+.menu_white_svg{
+    background: url(icons/svg/menu_white.svg) center center no-repeat;
     background-size: contain;
 }
 

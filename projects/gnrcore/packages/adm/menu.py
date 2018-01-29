@@ -7,6 +7,7 @@ def config(root,application=None):
     administration.thpage(u"!!Group", table="adm.group")
     administration.thpage(u"!!Letterheads", table="adm.htmltemplate")
     administration.thpage(u"!!Notifications", table="adm.notification")
+    administration.thpage(u"!!Dashboards", table="adm.dashboard")
     administration.thpage(u"!!Connections", table="adm.connection",tags='_DEV_')
     administration.thpage(u"!!Served pages", table="adm.served_page",tags='_DEV_')
     administration.thpage(u"!!Menu Manager", table="adm.menu",tags='_DEV_')

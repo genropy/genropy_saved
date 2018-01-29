@@ -66,6 +66,7 @@ except ImportError:
 
 try:
     import pandas as pd 
+    pd.options.display.float_format = '{:,.2f}'.format
     import numpy as np
 except:
     pd = False
@@ -271,7 +272,8 @@ class GnrDataframe(object):
             result.setItem(cname,row)
         return result
 
-    def pivotTableGrid(self,index=None,values=None,columns=None,filters=None,out_xls=None,out_html=None,margins=None):
+    def pivotTableGrid(self,index=None,values=None,columns=None,filters=None,
+                        out_xls=None,out_html=None,margins=None):
         funckeys = set()
         values_list =[]
         index_list = []
@@ -309,9 +311,9 @@ class GnrDataframe(object):
                 values_list.append(k)
                 aggregators = v['aggregators']
                 if not aggregators:
-                    continue
+                    values_dict[k] = adict['sum']
                 if k not in values_dict:
-                    values_dict[k] = [adict[aggkey] for aggkey in aggregators.split(',')]
+                    values_dict[k] = [adict[aggkey] for aggkey in aggregators.split(',')] if ',' in aggregators else adict[aggregators]
         else:
             values_list = values
             values = None
@@ -417,6 +419,7 @@ class GnrDbDataframe(GnrDataframe):
             thermocursor = self.thermocb(cursor,maxidx=cursor.rowcount,labelfield='record')
         decimalCols = []
         dateCols = []
+        textCols = []
         for r in thermocursor:
             c = dict(r)
             if not hasattr(self,'dbColAttrs'):
@@ -426,10 +429,14 @@ class GnrDbDataframe(GnrDataframe):
                                         name_short=self.translate(v.get('name_short')),
                                         width=v.get('print_width'),format=v.get('format'),
                                         dtype= v.get('dataType'))
-                                        
-                decimalCols = [k for k,v in self.dbColAttrs.items() if v['dataType'] in ('N','R')]
-                dateCols = [k for k,v in self.dbColAttrs.items() if v['dataType'] == 'D']
-
+                for k,v in self.dbColAttrs.items():
+                    dtype = v['dataType']
+                    if dtype in ('N','R'):
+                        decimalCols.append(k)
+                    elif dtype == 'D':
+                        dateCols.append(k)
+                    elif dtype in ('A','T','C','X','P'):
+                        textCols.append(k)
             for col in decimalCols:
                 v = c[col]
                 if v is not None:
@@ -438,6 +445,10 @@ class GnrDbDataframe(GnrDataframe):
                 v = c[col]
                 if v is not None:
                     c[col] = datetime(v.year,v.month,v.day)
+            for col in textCols:
+                v = c[col]
+                if v is None:
+                    c[col] = ''
             yield c
 
 

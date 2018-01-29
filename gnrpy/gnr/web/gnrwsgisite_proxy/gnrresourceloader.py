@@ -20,7 +20,7 @@ from gnr.web.gnrwebpage import GnrWebPage
 from gnr.web._gnrbasewebpage import GnrWebServerError
 from gnr.web.gnrbaseclasses import BaseResource
 from gnr.web.gnrbaseclasses import BaseWebtool
-from gnr.core.gnrclasses import GnrMixinError
+from gnr.core.gnrclasses import GnrMixinError,GnrMixinNotFound
 from gnr.core.gnrlang import uniquify
 
 
@@ -393,7 +393,7 @@ class ResourceLoader(object):
             for modPath in modPathList:
                 classMixin(kls, '%s:%s' % (modPath, clsName), only_callables=False, site=self)
         else:
-            raise GnrMixinError('Cannot import component %s' % modName)
+            raise GnrMixinNotFound('Not found component %s' % modName)
             
     def py_requires_iterator(self, source_class, target_class):
         """TODO

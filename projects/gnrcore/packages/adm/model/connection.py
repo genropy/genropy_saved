@@ -66,9 +66,12 @@ class Table(object):
     def openConnection(self):
         page = self.db.application.site.currentPage
         avatar = page.avatar
-
-        new_connection_record = dict(id=page.connection_id, username=page.user,
-                                     userid=avatar.user_id if avatar.user_id!=avatar.user else None,
+        userid = avatar.user_id if avatar.user_id!=avatar.user else None
+        username = None
+        if userid:
+            username = avatar.user
+        new_connection_record = dict(id=page.connection_id, 
+                                    username=username,userid=userid,
                                     start_ts=datetime.now(),
                                      ip=page.request.remote_addr,
                                      user_agent=page.request.get_header('User-Agent'))

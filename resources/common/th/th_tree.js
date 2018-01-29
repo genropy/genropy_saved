@@ -1,14 +1,14 @@
 var THTree = {
     refreshTree:function(dbChanges,store,treeNode,rootIdentifier){
         treeNode.widget.saveExpanded();
-        var selectedNode = treeNode.widget.currentSelectedNode
+        var selectedNode = treeNode.widget.currentSelectedNode;
         var selectedIdentifier = selectedNode? selectedNode.item.attr.treeIdentifier:'';       
         var refreshDict = {};
         var n;
         var that = this;
         var table = store.getParentNode().attr.table;
         var dbevent;
-        var rootIdentifier = rootIdentifier || '_root_';
+        rootIdentifier = rootIdentifier || '_root_';
         dojo.forEach(dbChanges,function(c){
             dbevent = c.dbevent;
             if(dbevent=='D'){

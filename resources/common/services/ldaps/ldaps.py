@@ -7,6 +7,7 @@
 #    pip install python-ldap
 #
 
+from gnr.core.gnrstring import boolean
 from gnr.core.gnrbaseservice import GnrBaseService
 from gnr.core.gnrdecorator import extract_kwargs
 from ldap.controls import SimplePagedResultsControl
@@ -33,14 +34,16 @@ class Main(GnrBaseService):
                 searchUser='user_for_serach'                # User to use for search in ldap server.
                 searchPassword='password_for_search'        # Password for user used for search in ldap server.
                 case='l'                                    # define if user is upper o lower case.
+                getUserInfo='t/f'                           # default = y. 
             />
         </services>
 
     """
 
     @extract_kwargs(user=True)
-    def __init__(self, parent=None, urlServer=None, baseDN=None, userIdField='uid', defaultDomain=None, userAttr=None,
-                 searchUser=None, searchPassword=None, case=None, user_kwargs=None):
+    def __init__(self, parent=None, urlServer=None, baseDN=None, userIdField='uid', defaultDomain=None,
+                loginTimeout=None,userDomainTemplate=None, userAttr=None,
+                 searchUser=None, searchPassword=None, case=None, testMode=False,user_kwargs=None,getUserInfo='t'):
 
         self.ldapClient = None
         self.parent = parent
@@ -48,13 +51,18 @@ class Main(GnrBaseService):
         self.baseDN = baseDN
         self.userIdField = userIdField
         self.domain = defaultDomain
+        self.userDomainTemplate = userDomainTemplate or '%(domain)s\\%(user)s'
         self.searchUser = searchUser
         self.searchPassword = searchPassword
         self.user_kwargs = user_kwargs
-        self.userAttr = [str(x) for x in userAttr.split(',')]
+        self.userAttr = [str(x) for x in userAttr.split(',')] if userAttr else []
         self.case = case
         self.searchFilter = '(&(objectClass=person) (sAMAccountName=*) (objectClass=user))'
-
+        self.loginTimeout = int(loginTimeout or 5)
+        self.testMode = boolean(testMode)
+        self.getUserInfo = boolean(getUserInfo)
+        if not self.getUserInfo:
+            self.user_kwargs = dict(username='username')
         if not self.ldapServer or not self.userIdField:
             raise ldap.SERVER_DOWN
 
@@ -68,11 +76,11 @@ class Main(GnrBaseService):
                                  LDAP server.
         """
         ldap_user = self.doLogin(user=user, password=password)
+        if self.testMode:
+            return ldap_user
         self.ldapClient.unbind()
-
         if not ldap_user:
             return False
-
         # make a response with genropy user data and ldap user data.
         externalUser = dict()
         for k, v in self.user_kwargs.items():
@@ -99,42 +107,47 @@ class Main(GnrBaseService):
 
         if not user:
             return False
-
+        
+        if self.testMode:
+            return dict(username =user)
         if self.domain:
-            user = '%s\\%s' %(self.domain, user)
+            user = self.userDomainTemplate %dict(domain=self.domain, user=user)
         if self.case == 'l':
             user = user.lower()
         elif self.case == 'u':
             user = user.upper()
-
+        
         if not 'ldap://' in self.ldapServer:
             self.ldapServer = 'ldap://%s' % self.ldapServer
-
         try:
-
             self.ldapClient = ldap.initialize(self.ldapServer)
-
             self.ldapClient.set_option(ldap.OPT_REFERRALS, 0)
             self.ldapClient.simple_bind_s(user, password)
         except ldap.INVALID_CREDENTIALS:
             self.ldapClient.unbind()
             return False
         except ldap.SERVER_DOWN:
-            return 'AD server not awailable'
+            return 'AD server not available'
 
-        try:
-            if mode == 'Login':
-                user_attribute = self.ldapClient.search_s(self.baseDN, ldap.SCOPE_SUBTREE, '(%s=%s)' % (self.userIdField,
-                                                          user.split('\\')[1]), self.userAttr)[0][1]
-                for k, v in user_attribute.items():
-                    user_attribute[k] = v[0] if isinstance(v, list) else v
-            elif mode == 'Search':
-                user_attribute = True
+        if mode == 'Login':
+            if '\\' in user:
+                username = user.split('\\')[1]
+            elif '@' in user:
+                username = user.split('@')[0]
+            if self.getUserInfo:
+                try:
+                    user_attribute = self.ldapClient.search_s(self.baseDN, ldap.SCOPE_SUBTREE, '(%s=%s)' % (self.userIdField,
+                                                            username), self.userAttr)[0][1]
+                    for k, v in user_attribute.items():
+                        user_attribute[k] = v[0] if isinstance(v, list) else v
+                except ldap.LDAPError, e:
+                    print e
             else:
-                raise ldap.INVALID_SYNTAX
-
-        except ldap.LDAPError, e:
-            print e
+                user_attribute = dict(username=username)
+        elif mode == 'Search':
+            user_attribute = True
+        else:
+            raise ldap.INVALID_SYNTAX
 
         return user_attribute
 
@@ -175,6 +188,9 @@ class Main(GnrBaseService):
 
         page_size = 50
         ldap.set_option(ldap.OPT_REFERRALS, 0)
+        ldap.set_option(
+					ldap.OPT_NETWORK_TIMEOUT,
+					self.loginTimeout)
         req_ctrl = SimplePagedResultsControl(True, size=page_size, cookie='')
 
         ldap_user = self.doLogin(user=self.searchUser, password=self.searchPassword, mode='Search')

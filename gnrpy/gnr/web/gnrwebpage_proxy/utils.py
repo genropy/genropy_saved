@@ -16,6 +16,7 @@ from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag, DirectoryResolver
 from gnr.core.gnrlist import XlsReader,CsvReader
 from gnr.core.gnrstring import slugify
+from gnr.core.gnrlang import gnrImport, objectExtract
 
 EXPORT_PDF_TEMPLATE = """
 <html lang="en">
@@ -368,3 +369,55 @@ class GnrWebUtils(GnrBaseProxy):
                                   value=self.page.site.getStaticUrl('page:exportPdfFromNodes',*pl, nocache=True),
                                   fired=True)
         
+
+    def tableScriptResourceMenu(self, table=None, res_type=None,module_parameters=None):
+        #pkg,tblname = table.split('.')
+        page = self.page
+        tblobj = page.db.table(table)
+        pkg = tblobj.pkg.name
+        tblname = tblobj.name
+        result = Bag()
+        resources = page.site.resource_loader.resourcesAtPath(page=page,pkg=None,path='tables/_default/%s' % res_type)
+        resources_pkg = page.site.resource_loader.resourcesAtPath(page=page,pkg=pkg, path='tables/%s/%s' % (tblname, res_type))
+        resources_custom = page.site.resource_loader.resourcesAtPath(page=page,pkg=page.package.name, path='tables/_packages/%s/%s/%s' % (pkg,tblname, res_type))
+        resources.update(resources_pkg)
+        resources.update(resources_custom)
+        forbiddenNodes = []
+        module_parameters = module_parameters or []
+
+        def cb(node, _pathlist=None):
+            has_parameters = False
+            if node.attr['file_ext'] == 'py':
+                resmodule = gnrImport(node.attr['abs_path'])
+
+                tags = getattr(resmodule, 'tags', '')
+                if tags and not page.application.checkResourcePermission(tags, page.userTags):
+                    if node.label == '_doc':
+                        forbiddenNodes.append('.'.join(_pathlist))
+                    return
+                #needSelection = getattr(resmodule, 'needSelection', True)
+                module_kwargs = dict(caption=getattr(resmodule, 'caption', node.label),
+                                    description = getattr(resmodule, 'description', ''))
+                for mpar in module_parameters:
+                    module_kwargs[mpar] = getattr(resmodule,mpar,None)
+
+                if  node.label == '_doc':
+                    result.setAttr('.'.join(_pathlist), dict(caption=module_kwargs['caption'], description=module_kwargs['description'], tags=tags,
+                                                             has_parameters=has_parameters))
+                else:
+                    mainclass = getattr(resmodule, 'Main', None)
+                    assert mainclass, 'Main class is mandatory in tablescript resource'
+                    has_parameters = hasattr(mainclass, 'parameters_pane')
+                    result.setItem('.'.join(_pathlist + [node.label]), None,
+                                   resource=node.attr['rel_path'][:-3], has_parameters=has_parameters,
+                                   table=table,**module_kwargs)
+        pl=[]     
+        resources.walk(cb,_pathlist=pl)
+        if '_common' in result:
+            n = result.popNode('_common')
+            if len(result):
+                result.setItem('r_zz',None,caption='-')
+            result.setItem(n.label,n.value,n.attr)
+        for forbidden in forbiddenNodes:
+            result.pop(forbidden)
+        return result

@@ -21,8 +21,20 @@ class Main(GnrBaseService):
         self.api_key = api_key
         if not YandexTranslate:
             raise GnrException('Missing YandexTranslate. hint: pip install yandex.translate')
-        self.translator = YandexTranslate(self.api_key)
-        self.languages =  dict([(k,k) for k in self.translator.langs])
+        
+
+    @property
+    def translator(self):
+        if not hasattr(self,'_translator'):
+            self._translator = YandexTranslate(self.api_key)
+        return self._translator
+
+    @property
+    def languages(self):
+        if not hasattr(self,'_languages'):
+            self._languages =  dict([(k,k) for k in self.translator.langs])
+        return self._languages
+
 
 
     def translate(self,what=None, to_language=None,from_language=None,format=None):

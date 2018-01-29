@@ -1001,7 +1001,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     registerSubscription:function(topic,scope,handler,reason){
         var stringId = this.getStringId();
-        var reason = reason || topic;
+        reason = reason || topic;
         var subDict=genro.src._subscribedNodes[stringId];
         if(!subDict){
             subDict = {};
@@ -1015,6 +1015,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     unregisterSubscription:function(reason){
         var stringId = this.getStringId();
         var subDict=genro.src._subscribedNodes[stringId];
+        if(!subDict){
+            return;
+        }
         if(reason in subDict){
             var l = objectPop(subDict,reason);
             if(l){

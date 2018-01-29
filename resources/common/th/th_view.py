@@ -117,6 +117,23 @@ class TableHandlerView(BaseComponent):
                         attr_op=fkw.pop('op',None),
                         **fkw)
 
+    def th_batchAssignEnabled(self,tblobj):
+        result = False
+        for colobj in tblobj.columns.values():
+            attr = colobj.attributes
+            batch_assign = attr.get('batch_assign')
+            if not batch_assign:
+                continue
+            auth = 'user'
+            kw = {}
+            if batch_assign is not True:
+                kw.update(batch_assign)
+            if not self.application.checkResourcePermission(kw.pop('tags',None),self.userTags):
+                continue
+            result = 'batchAssign'
+            break
+        return result
+
     @extract_kwargs(top=True,preview=True)
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
@@ -130,6 +147,8 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         pageHooksSelector = 'pageHooksSelector' if page_hooks else False
+        batchAssign =  self.th_batchAssignEnabled(self.db.table(table))
+
         if extendedQuery:
             virtualStore = True
             if 'adm' in self.db.packages and not self.isMobile:
@@ -137,7 +156,7 @@ class TableHandlerView(BaseComponent):
             else:
                 templateManager = False
             if extendedQuery == '*':
-                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','importer','resourcePrints','resourceMails','resourceActions','5',templateManager,'chartjs','10',pageHooksSelector,'*']
+                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','importer','resourcePrints','resourceMails','resourceActions',batchAssign,'5',templateManager,'chartjs','10',pageHooksSelector,'*']
                 if self.isMobile:
                     base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','menuUserSets','10',pageHooksSelector,'*']
 
@@ -253,7 +272,6 @@ class TableHandlerView(BaseComponent):
         bar = pane.slotBar('confBar,fieldsTree,*',width='160px',closable='close',
                             fieldsTree_table=table,
                             fieldsTree_checkPermissions=True,
-                            fieldsTree_tree_searchCode='%s_fieldsTreeConfigurator' %th_root,
                             fieldsTree_height='100%',splitter=True,border_left='1px solid silver')
         confBar = bar.confBar.slotToolbar('viewsMenu,currviewCaption,*,defView,saveView,deleteView',background='whitesmoke')
         confBar.currviewCaption.div('^.grid.currViewAttrs.caption',font_size='.9em',color='#666',line_height='16px')
@@ -611,6 +629,13 @@ class TableHandlerView(BaseComponent):
         paletteCode = '%(thlist_root)s_template_manager' %inattr
         pane.paletteTemplateEditor(maintable=table,paletteCode=paletteCode,dockButton_iconClass='iconbox document')
 
+
+    @struct_method
+    def th_slotbar_batchAssign(self,pane,**kwargs):
+        pane.slotButton('!!Batch Assign',iconClass='iconbox paint',
+                        action="""FIRE .th_batch_run = {resource:'_common/assign_values',res_type:'action'};""")
+
+
     @struct_method
     def th_slotbar_pageHooksSelector(self,pane,**kwargs):
         pane.multiButton(items='^.viewPages',value='^.viewPage',identifier='pageName')
@@ -722,6 +747,7 @@ class TableHandlerView(BaseComponent):
                                where='=.query.where',
                                queryMode='=.query.queryMode', 
                                sortedBy='=.grid.sorted',
+                               customOrderBy='=.query.customOrderBy',
                                pkeys='=.query.pkeys', _runQueryDo='^.runQueryDo',
                                _cleared='^.clearStore',
                                _onError="""return error;""", 
@@ -738,6 +764,8 @@ class TableHandlerView(BaseComponent):
                                unlinkdict=unlinkdict,
                                userSets='.sets',_if=_if,_else=_else,
                                _sections='=.sections',
+                               limit='=.query.limit',
+                               queryExtraPars='=.query.extraPars',
                                hardQueryLimit='=.hardQueryLimit',
                               # sum_columns='=.sum_columns',
                                _onStart=_onStart,

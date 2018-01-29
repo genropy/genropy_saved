@@ -53,6 +53,9 @@ def getOptions():
     parser.add_argument('-l', '--size_limit', type=int,
                       help="Size limit")
 
+    parser.add_argument('-L', '--loglevel', type=int,
+                       help="Log level")
+
 
     arguments= parser.parse_args()
     return arguments.__dict__
@@ -65,14 +68,14 @@ if __name__=="__main__":
         server = GnrDaemon()
         server.start(use_environment=True,**options)
     else:
-        p = GnrDaemonProxy(host=options.get('host'),port=options.get('port'),socket=options.get('socket'),hmac_key=options.get('hmac_key'),compression=options.get('compression'))
+        p = GnrDaemonProxy(use_environment=True, host=options.get('host'),port=options.get('port'),socket=options.get('socket'),hmac_key=options.get('hmac_key'),compression=options.get('compression'))
         proxy = p.proxy()
         if command=='stop':
             print 'savestatus',options.get('savestatus')
             result = proxy.stop(saveStatus=options.get('savestatus'))   
             print result
         elif command =='restart':
-            result = proxy.restart('*')
+            result = proxy.restart(sitename='*')
         elif command in ('stopping','starting'):
             result = getattr(proxy,command)()
             print result

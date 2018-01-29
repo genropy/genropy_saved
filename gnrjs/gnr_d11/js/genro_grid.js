@@ -428,6 +428,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     },
 
     mixin_drawFiller:function(){
+        if (!this.views.views[0]){
+            return;
+        }
         var sb = this.views.views[0].scrollboxNode;
         if(this.sourceNode._footersNode){
             sb.style.height = this.sourceNode.getParentNode().widget.domNode.clientHeight - this.viewsHeaderNode.clientHeight+1 +'px';
@@ -688,7 +691,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             widget.gridEditor = new gnr.GridEditor(widget);
         }
         var menuNode = gridContent.getNodeByAttr('tag', 'menu',true);
-        if(!menuNode){
+        if(!menuNode && sourceNode.attr.gridplugins!==false){
             sourceNode.setRelativeData('.contextMenu',this.pluginContextMenuBag(sourceNode));
             sourceNode._('menu','contextMenu',{storepath:'.contextMenu',_class:'smallmenu'},{doTrigger:false});
             gridContent = sourceNode.getValue();
@@ -3175,8 +3178,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         var cellmap = this.cellmap;
         var cm = this.changeManager;
         if(cm){
-            cm.resetCellpars();
-            cm.formulaColumns = {};
+            cm.initialize();
         }
         for(var k in cellmap){
             var cell = cellmap[k];

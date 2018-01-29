@@ -624,7 +624,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             wherelist.append(condition)
         where = ' AND '.join(wherelist)
         kwargs.pop('columns',None)
-        if bool(tblobj.query(where=where,_pkeys=inserted+updated,limit=1,**kwargs).fetch()):
+        kwargs['limit'] = 1
+        if bool(tblobj.query(where=where,_pkeys=inserted+updated,**kwargs).fetch()):
             return True #update required: insert or update not in selection but satisfying query
 
         return False
@@ -688,7 +689,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                          selectmethod=None, expressions=None, sum_columns=None,
                          sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,hardQueryLimit=None,
                          savedQuery=None,savedView=None, externalChanges=None,prevSelectedDict=None,
-                         checkPermissions=None,queryBySample=False,weakLogicalDeleted=False,**kwargs):
+                         checkPermissions=None,queryBySample=False,weakLogicalDeleted=False,
+                         customOrderBy=None,queryExtraPars=None,**kwargs):
         """TODO
         
         ``getSelection()`` method is decorated with the :meth:`public_method
@@ -738,7 +740,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         row_count = int(row_count)
         newSelection = True
         formats = {}
-        if hardQueryLimit is not None:
+        if queryExtraPars:
+            kwargs.update(queryExtraPars.asDict(ascii=True))
+        if limit is None and hardQueryLimit is not None:
             limit = hardQueryLimit
         wherebag = where if isinstance(where,Bag) else None
         resultAttributes = {}
@@ -763,9 +767,17 @@ class GnrWebAppHandler(GnrBaseProxy):
         if newSelection:
             debug = 'fromDb'
             if savedQuery:            
-                where = tblobj.pkg.loadUserObject(code=savedQuery, objtype='query', tbl=tblobj.fullname)[0]
+                userobject_tbl = self.db.table('adm.userobject')
+                where = userobject_tbl.loadUserObject(code=savedQuery, 
+                                objtype='query', tbl=tblobj.fullname)[0]
+                if where['where']:
+                    limit = where['queryLimit']
+                    savedView = savedView or where['currViewPath']
+                    customOrderBy = customOrderBy or where['customOrderBy']
+                    where = where['where']
             if savedView:
-                columns = tblobj.pkg.loadUserObject(code=savedView, objtype='view', tbl=tblobj.fullname)[0]
+                userobject_tbl = self.db.table('adm.userobject')
+                columns = userobject_tbl.loadUserObject(code=savedView, objtype='view', tbl=tblobj.fullname)[0]
             if selectmethod:
                 selecthandler = self.page.getPublicMethod('rpc', selectmethod)
             else:
@@ -774,6 +786,15 @@ class GnrWebAppHandler(GnrBaseProxy):
             if fromSelection:
                 fromSelection = self.page.unfreezeSelection(tblobj, fromSelection)
                 pkeys = fromSelection.output('pkeylist')
+            
+            if customOrderBy:
+                order_by = []
+                for fieldpath,sorting in customOrderBy.digest('#v.fieldpath,#v.sorting'):
+                    fieldpath = '$%s' %fieldpath if not fieldpath.startswith('@') else fieldpath
+                    sorting = 'asc' if sorting else 'desc'
+                    order_by.append('%s %s' %(fieldpath,sorting))
+                order_by = ' , '.join(order_by)
+                sortedBy = None
             selection_pars = dict(tblobj=tblobj, table=table, distinct=distinct, columns=columns, where=where,
                                       condition=condition,queryMode=queryMode,
                                       order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
@@ -1022,6 +1043,8 @@ class GnrWebAppHandler(GnrBaseProxy):
 
         for node in viewbag:
             fld = node.getAttr('field')
+            if node.getAttr('formula'):
+                continue
             if fld:
                 if not (fld[0] in ('$', '@')):
                     fld = '$' + fld

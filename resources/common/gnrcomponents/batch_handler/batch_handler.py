@@ -209,48 +209,8 @@ class TableScriptHandler(BaseComponent):
     @public_method
     def table_script_resource_tree_data(self, table=None, res_type=None):
         #pkg,tblname = table.split('.')
-        tblobj = self.db.table(table)
-        pkg = tblobj.pkg.name
-        tblname = tblobj.name
-        result = Bag()
-        resources = self.site.resource_loader.resourcesAtPath(page=self,pkg=None,path='tables/_default/%s' % res_type)
-        resources_pkg = self.site.resource_loader.resourcesAtPath(page=self,pkg=pkg, path='tables/%s/%s' % (tblname, res_type))
-        resources_custom = self.site.resource_loader.resourcesAtPath(page=self,pkg=self.package.name, path='tables/_packages/%s/%s/%s' % (pkg,tblname, res_type))
-        resources.update(resources_pkg)
-        resources.update(resources_custom)
-        forbiddenNodes = []
-        
-        def cb(node, _pathlist=None):
-            has_parameters = False
-            if node.attr['file_ext'] == 'py':
-                resmodule = gnrImport(node.attr['abs_path'])
-                tags = getattr(resmodule, 'tags', '')
-                if tags and not self.application.checkResourcePermission(tags, self.userTags):
-                    if node.label == '_doc':
-                        forbiddenNodes.append('.'.join(_pathlist))
-                    return
-                caption = getattr(resmodule, 'caption', node.label)
-                description = getattr(resmodule, 'description', '')
-                description = getattr(resmodule, 'needSelection', True)
-                if  node.label == '_doc':
-                    result.setAttr('.'.join(_pathlist), dict(caption=caption, description=description, tags=tags,
-                                                             has_parameters=has_parameters))
-                else:
-                    mainclass = getattr(resmodule, 'Main', None)
-                    assert mainclass, 'Main class is mandatory in tablescript resource'
-                    has_parameters = hasattr(mainclass, 'parameters_pane')
-                    result.setItem('.'.join(_pathlist + [node.label]), None, caption=caption, description=description,
-                                   resource=node.attr['rel_path'][:-3], has_parameters=has_parameters)
-        pl=[]     
-        resources.walk(cb,_pathlist=pl)
-        if '_common' in result:
-            n = result.popNode('_common')
-            if len(result):
-                result.setItem('r_zz',None,caption='-')
-            result.setItem(n.label,n.value,n.attr)
-        for forbidden in forbiddenNodes:
-            result.pop(forbidden)
-        return result
+        return self.utils.tableScriptResourceMenu(table=table,res_type=res_type)
+
 
 
 class TableScriptRunner(TableScriptHandler):

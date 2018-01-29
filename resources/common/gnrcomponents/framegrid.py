@@ -201,6 +201,42 @@ class FrameGrid(BaseComponent):
             frame.top.slotToolbar(**top_kwargs)
         return frame
 
+    @extract_kwargs(store=True)
+    @struct_method
+    def fgr_selectionViewer(self,pane,table=None,queryName=None,viewName=None,store_kwargs=None,**kwargs):
+        userobject_tbl = self.db.table('adm.userobject')
+        where,metadata = userobject_tbl.loadUserObject(code=queryName, 
+                                            objtype='query',
+                                            tbl=table)
+        customOrderBy = None
+        limit = None
+        queryPars = None
+        if where['where']:
+            limit = where['queryLimit']
+            viewName = viewName or where['currViewPath']
+            customOrderBy = where['customOrderBy']
+            queryPars = where.pop('queryPars')
+            extraPars = where.pop('extraPars')
+            where = where['where']
+        if viewName:
+            userobject_tbl = self.db.table('adm.userobject')
+            struct = userobject_tbl.loadUserObject(code=viewName, objtype='view', 
+                                                    tbl=table)[0]
+
+        frame = pane.frameGrid(struct=struct,_newGrid=True,**kwargs)
+        frame.data('.query.limit',limit)
+        frame.data('.query.where',where)
+        frame.data('.query.extraPars',extraPars)
+        frame.queryPars = queryPars
+        frame.data('.query.customOrderBy',customOrderBy)
+
+        frame.top.slotBar('*,vtitle,*',vtitle=metadata['description'])
+        frame.grid.selectionStore(table=table,childname='store',where='=.query.where',
+                                customOrderBy='=.query.customOrderBy',
+                                limit='=.query.limit',**store_kwargs)
+        return frame
+
+
     @extract_kwargs(default=True,store=True)
     @struct_method
     def fgr_bagGrid(self,pane,storepath=None,dynamicStorepath=None,

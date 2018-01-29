@@ -1,0 +1,168 @@
+
+.dayEmpty{
+    background:#fafafa;
+    -moz-border-radius:8px;
+    -webkit-border-radius:8px;
+    box-shadow: 1px 1px 2px #ddd inset;
+    -webkit-box-shadow: 1px 1px 2px #ddd inset;
+    border:1px solid silver;
+}
+.pastDay.dayEmpty{
+    opacity: .4;
+}
+
+.checkedDay.dayEmpty{
+    background: rgb(255, 255, 232);
+    box-shadow:1px 2px 2px #666 inset
+}
+
+.monthly_slot{
+    border-radius:2px;
+}
+
+.monthly_slot_free{
+    background:#D2FFDD;
+}
+.monthly_slot_event{
+    background:#C3DFFF;
+}
+.busyslot{
+    background: rgb(190, 41, 41);
+    color:whitesmoke;
+}
+.activityslot{
+    background: blue;
+    color:whitesmoke;
+}
+.slotDetail.cancelledslot .evt_info{
+    text-decoration: line-through;
+}
+.freeslot{
+    background:rgba(210,230,210,.5);
+    color:#888;
+}
+.slotDetail{
+    position: absolute;
+    top:1px;
+    bottom:1px;
+    left:0;
+    right:23px;
+    border-radius: 6px;
+    corsor:move;
+}
+.quickEntryButton{
+    position: absolute;
+    top:15px;
+    right: 3px;
+    left: 3px;
+    text-align: center;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 5px;
+    padding-right: 5px;
+    color:#666;
+    text-decoration: underline;
+    font-size: 13pt;
+    display: none;
+    cursor: pointer;
+}
+
+.selectedSlot .quickEntryButton{
+    display: block;
+}
+
+.selectedSlot .slotDetail{
+    box-shadow: 3px 3px 4px #666;
+    border: 1px solid #ddd;
+    transform:translate(-2px,-3px);
+    -ms-transform:translate(-2px,-3px); /* IE 9 */
+    -moz-transform:translate(-2px,-3px); /* Firefox */
+    -webkit-transform:translate(-2px,-3px); /* Safari and Chrome */
+    -o-transform:translate(-2px,-3px); /* Opera */
+}
+
+.out_of_rules .slotDetail{
+    border:1px dashed white;
+}
+.slot_caption{
+    padding-top: 2px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+.slot_caption .loc_info{
+    font-style: italic;
+    font-size:.8em;
+    float: right;
+    margin-top: 2px;
+}
+.slot_caption .evt_info{
+    font-size:.9em;
+    float: left;
+    margin-top: 2px;
+}
+
+.slot_caption .act_info{
+    font-size:.9em;
+    text-align: center;
+}
+.invalidEvt{
+    color:red;
+    font-size: bold;
+}
+
+.warningEvt{
+    color:orange;
+    font-size: bold;
+}
+.eventSlot{
+    z-index: 2;
+}
+
+slot_caption{
+    z-index: 1;
+}
+
+.slotArrows{
+    visibility: hidden;
+    background-color: lightyellow;
+    border-radius: 4px;
+}
+
+.monthly_slot:hover .slotArrows,.slotArrows:hover{
+    visibility: visible;
+}
+.channel_slot{
+    width: 20px;
+    z-index: 20;
+}
+.dayview .channel_slot{
+    width:136px;
+}
+
+.channel_free{
+    background:#999;
+}
+
+.dayview .channel_free{
+    background:transparent;
+}
+.channel_busy{
+    border-bottom:1px solid #999; 
+}
+
+.dayview .channel_busy{
+    border-bottom:1px solid white;
+    border-top:1px solid white;
+    line-height: 20px;
+    color:white;
+    text-align: center;
+}
+.dayview .timesheet_channel{
+    border-right: 1px solid RGBA(22, 0, 94, 0.20);
+}
+
+.timesheet_channel_header{
+    color:white;
+    text-align: center;
+    font-size:14px;
+}

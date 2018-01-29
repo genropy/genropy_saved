@@ -7,6 +7,7 @@
 #Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.core.gnrbag import Bag
+from datetime import datetime
 
 class BaseResourceBatch(object):
     """Base resource class to create a :ref:`batch`"""
@@ -17,6 +18,7 @@ class BaseResourceBatch(object):
     batch_delay = 0.5
     batch_note = None
     batch_steps = None #'foo,bar'
+    batch_dblog = False
     dialog_height = '200px'
     dialog_width = '300px'
     virtual_columns = None
@@ -29,6 +31,9 @@ class BaseResourceBatch(object):
             self.maintable = self.tblobj.fullname
         self.btc = self.page.btc
         self.results = Bag()
+        self.batch_debug = Bag()
+        self.batch_logtbl = self.db.table('sys.batch_log')
+        self.batch_log_id = self.page.getUuid()
         self.records = dict()
         self.result_info = dict()
         self._pkeys = None
@@ -36,10 +41,15 @@ class BaseResourceBatch(object):
         self.batch_parameters = dict()
         #self.mail_preference = self.page.site.getService('mail').getDefaultMailAccount()
 
+
     def __call__(self, batch_note=None, **kwargs):
         parameters = kwargs.get('parameters',dict())
         self.batch_parameters = parameters.asDict(True) if isinstance(parameters, Bag) else parameters or {}
         self.batch_note = batch_note or self.batch_parameters.get('batch_note')
+        if self.batch_dblog:
+            self.batch_logrecord = self.batch_logtbl.newrecord(id=self.batch_log_id,
+                                batch_title=self.batch_title,tbl=self.tblobj.fullname,
+                                start_ts=datetime.now(),notes=self.batch_note)
         try:
             self.run()
             result, result_attr = self.result_handler()
@@ -47,15 +57,30 @@ class BaseResourceBatch(object):
             #self.page.setInClientData('')
         except self.btc.exception_stopped:
             self.btc.batch_aborted()
+            self.batch_log_write('Batch Aborted')
         except Exception, e:
             if self.page.isDeveloper():
                 raise
             else:
                 try:
                     self.btc.batch_error(error=str(e))
+                    self.batch_log_write('Error in batch %s' %str(e))
                 except Exception, e:
                     print e
                     raise
+        finally:
+            if self.batch_dblog:
+                with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
+                    self.batch_logrecord['logbag'] =  self.batch_debug
+                    self.batch_logrecord['end_ts'] = datetime.now()
+                    self.batch_logtbl.insert(self.batch_logrecord)
+                    self.db.commit()
+
+    def batch_debug_write(self,caption,value=None,**kwargs):
+        self.batch_debug.setItem('r_%04i' %len(self.batch_debug),value,caption=caption,ts=datetime.now(),**kwargs)
+
+    def batch_log_write(self,logtxt):
+        self.btc.log_write(logtxt)
 
     def _pre_process(self):
         self.pre_process()
@@ -73,7 +98,7 @@ class BaseResourceBatch(object):
 
     def run(self):
         """Run the :ref:`batch`"""
-        self.btc.batch_create(batch_id='%s_%s' % (self.batch_prefix, self.page.getUuid()),
+        self.btc.batch_create(batch_id='%s_%s' % (self.batch_prefix, self.batch_log_id),
                               title=self.batch_title,
                               cancellable=self.batch_cancellable,
                               delay=self.batch_delay,

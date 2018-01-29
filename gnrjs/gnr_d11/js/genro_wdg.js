@@ -663,8 +663,13 @@ dojo.declare("gnr.RowEditor", null, {
         var cellmap = this.grid.cellmap;
         var data = this.data;
         var n,err,v;
+        this.grid.currRenderedRowIndex = this.grid.storebag().index(this.rowLabel);
         for(var k in cellmap){
-            var editpars = cellmap[k].edit;
+            var cell = cellmap[k];
+            var editpars = cell.edit;
+            if(this.grid.sourceNode.currentFromDatasource(cell.editDisabled)){
+                continue;
+            }
             if(editpars && editpars!==true){
                 editpars = this.grid.sourceNode.evaluateOnNode(editpars);
                 if('validate_notnull' in editpars){
@@ -1429,7 +1434,7 @@ dojo.declare("gnr.GridEditor", null, {
                 var rowpah = this.widgetRootNode.absDatapath('.' + rowLabel);
                 genro.dlg.quickTooltipPane({datapath:rowpah,fields:attr.fields,domNode:cellNode,modal:attr.modal},
                                             funcCreate(attr.contentCb,'pane,kw',grid.sourceNode),
-                                            {rowDataNode:rowDataNode,grid:grid});
+                                            {rowDataNode:rowDataNode,grid:grid,cell:cell});
             }
             return
         }
@@ -1707,12 +1712,8 @@ dojo.declare("gnr.GridFilterManager", null, {
 dojo.declare("gnr.GridChangeManager", null, {
     constructor:function(grid){
         this.grid = grid;
-        this.formulaColumns = {};
-        this.totalizeColumns = {};
-        this.triggeredColumns = {};
-        this.remoteControllerColumns = {};
-        this.cellpars = {};
         this.sourceNode = grid.sourceNode;
+        this.initialize();
         var that = this;
         this.sourceNode.subscribe('onNewDatastore',function(){
             that.data = that.grid.storebag();
@@ -1731,6 +1732,15 @@ dojo.declare("gnr.GridChangeManager", null, {
             },1,'resolveCalculatedColumns')
         });
     },
+    initialize:function(){
+        this.formulaColumns = {};
+        this.totalizeColumns = {};
+        this.triggeredColumns = {};
+        this.remoteControllerColumns = {};
+        this.sourceNode.unregisterSubscription('cellpars');
+        this.cellpars = {};
+    },
+    
     resolveCalculatedColumns:function(){
         var cellmap = this.grid.cellmap;
         for(var k in this.formulaColumns){
@@ -1747,8 +1757,11 @@ dojo.declare("gnr.GridChangeManager", null, {
     },
 
     updateTotalizer:function(k){
-        this.sourceNode.setRelativeData(this.grid.cellmap[k].totalize,this.data.sum(this.grid.datamode=='bag'?k:'#a.'+k));
+        var totvalue = this.data.sum(this.grid.datamode=='bag'?k:'#a.'+k);
+        this.sourceNode.setRelativeData(this.grid.cellmap[k].totalize,totvalue);
+        this.sourceNode.publish('onUpdateTotalize',{'column':k,'value':totvalue});
     },
+
     recalculateOneFormula:function(key){
         var that = this;
         var isBagMode = this.grid.datamode=='bag';
@@ -1824,11 +1837,7 @@ dojo.declare("gnr.GridChangeManager", null, {
         this.grid.collectionStore().updateRowNode(rowNode,values);
         //rowNode.setAttribute(formulaKey,result,true);
     },
-    resetCellpars:function(){
-        this.sourceNode.unregisterSubscription('cellpars');
-        this.cellpars = {};
-    },
-
+ 
 
     registerParameters:function(){
         if(objectNotEmpty(this.cellpars)){

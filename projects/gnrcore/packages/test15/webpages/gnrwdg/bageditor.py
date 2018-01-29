@@ -99,17 +99,18 @@ class GnrCustomWebPage(object):
 
 
     def test_3_multiValueEditor(self,pane):
-        box = pane.div(padding='10px',border='1px solid black')
-        dati = Bag(dict(name_long='Artisti',multidb=True))
-        pane.data('.dati',dati)
-        box.div('^.dati_formattati')
-        box.dataController("""
-            var dati_formattati = dati.getFormattedValue();
-            SET .dati_formattati = dati_formattati;
-            """,dati='^.dati',_onStart=True)
+        #box = pane.div(padding='10px',border='1px solid black')
+        #dati = Bag(dict(name_long='Artisti',multidb=True))
+        #pane.data('.dati',dati)
+        #box.div('^.dati_formattati')
+        #box.dataController("""
+        #    var dati_formattati = dati.getFormattedValue();
+        #    SET .dati_formattati = dati_formattati;
+        #    """,dati='^.dati',_onStart=True)
 
+        bc = pane.borderContainer(height='300px')
 
-        pane.multiValueEditor(value='^.dati')
+        bc.contentPane(region='center').multiValueEditor(value='^.dati')
 
     def test_4_multiValueEditor(self,pane):
         pane.multiValueEditor(value=dict(nome='Gianni',eta=33,indirizzo='via del pero 12'))

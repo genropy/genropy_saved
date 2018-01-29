@@ -30,7 +30,8 @@ class Form(BaseComponent):
         
     @public_method
     def childrenTH(self,pane,parent_id=None,**kwargs):
-        pane.dialogTableHandler(relation='@_children',nodeId='%s_children' %id(pane),condition_built='^#FORM.controller.loaded')
+        pane.dialogTableHandler(relation='@_children',nodeId='%s_children' %id(pane),
+        condition_built='^#FORM.controller.loaded')
         
     def th_options(self):
         return dict(dialog_height='300px',dialog_width='600px',dialog_stacked=True)

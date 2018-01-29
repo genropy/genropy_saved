@@ -22,8 +22,8 @@
     border-collapse: collapse;
     border:1px solid #ddd;
     color:#444;
-    font-family: courier;  
-    font-size: 10px;  
+    font-family: "Arial Narrow";  
+    font-size: 12px;  
 }
 .report_content .dataframe tbody th{
     font-weight: normal;

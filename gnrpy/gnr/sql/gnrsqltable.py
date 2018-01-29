@@ -1204,10 +1204,10 @@ class SqlTable(GnrObject):
             record = {self.pkey: record}
         return self.db.adapter.existsRecord(self, record)
     
-    def checkDuplicate(self,**kwargs):
+    def checkDuplicate(self,excludeDraft=None,**kwargs):
         """TODO"""
         where = ' AND '.join(['$%s=:%s' % (k, k) for k in kwargs.keys()])
-        return self.query(where=where,**kwargs).count()>0
+        return self.query(where=where,excludeDraft=excludeDraft,**kwargs).count()>0
     
     def insertOrUpdate(self, record):
         """Insert a single record if it doesn't exist, else update it
@@ -1295,7 +1295,8 @@ class SqlTable(GnrObject):
         :param record: a dictionary, bag or pkey (string)"""
         usingRootstore = self.db.usingRootstore()
         for rel in self.relations_many:
-            onDelete = rel.getAttr('onDelete', 'raise').lower()
+            defaultOnDelete = 'raise' if rel.getAttr('mode')=='foreignkey' else 'ignore'
+            onDelete = rel.getAttr('onDelete', defaultOnDelete).lower()
             if onDelete and not (onDelete in ('i', 'ignore')):
                 mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')
                 opkg, otbl, ofld = rel.attr['one_relation'].split('.')
@@ -1487,12 +1488,21 @@ class SqlTable(GnrObject):
 
     def pkeyValue(self,record=None):
         pkey = self.model.pkey
-        if self.model.column(pkey).dtype in ('L', 'I', 'R'):
+        pkeycol = self.model.column(pkey)
+        if pkeycol.dtype in ('L', 'I', 'R'):
             lastid = self.query(columns='max($%s)' % pkey, group_by='*').fetch()[0]
             return (lastid[0] or 0) + 1
+        elif not record:
+            return getUuid()
         elif self.attributes.get('pkey_columns'):
             joiner = self.attributes.get('pkey_columns_joiner') or '_'
             return joiner.join([str(record.get(col)) for col in self.attributes.get('pkey_columns').split(',') if record.get(col) is not None])
+        elif record.get('__syscode'):
+            size =  pkeycol.getAttr('size')
+            if size and ':' not in size:
+                return record['__syscode'].ljust(int(size),'_')
+            else:
+                return record['__syscode']
         else:
             return getUuid()
             

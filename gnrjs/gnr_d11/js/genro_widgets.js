@@ -1142,6 +1142,9 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         delete this.sourceNode._shortcutsDict;
         var shortcutsDict = {};
         var shortcutKeys = [];
+        if (!shortcuts){
+            return;
+        }
         if(shortcuts===true){
             shortcuts = genro.getData('gnr.shortcuts.store');
             if(!shortcuts || shortcuts.len()==0){

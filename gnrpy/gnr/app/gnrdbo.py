@@ -4,12 +4,17 @@
 import datetime
 import warnings as warnings_module
 import os
+import shutil
 import pytz
+import mimetypes
+
 from gnr.core.gnrlang import boolean
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip,templateReplace,fromJson,slugify
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.core.gnrdict import dictExtract
+
+mimetypes.init() # Required for python 2.6 (fixes a multithread bug)
 
 class GnrDboPackage(object):
     """Base class for packages"""
@@ -477,19 +482,17 @@ class TableBase(object):
         self.hierarchicalHandler.trigger_after(record,old_record=old_record)
 
     @public_method
-    def getHierarchicalData(self,caption_field=None,condition=None,
-                            condition_kwargs=None,caption=None,
+    def getHierarchicalData(self,caption_field=None,condition=None,caption=None,
                             dbstore=None,columns=None,related_kwargs=None,
                             resolved=False,**kwargs):
-        condition_kwargs = condition_kwargs or dict()
         related_kwargs = related_kwargs or dict()
         if hasattr(self,'hierarchicalHandler'):
             return self.hierarchicalHandler.getHierarchicalData(caption_field=caption_field,condition=condition,
-                                                condition_kwargs=condition_kwargs,caption=caption,dbstore=dbstore,columns=columns,
+                                                caption=caption,dbstore=dbstore,columns=columns,
                                                 related_kwargs=related_kwargs,resolved=resolved,**kwargs)
         if related_kwargs.get('table') or kwargs.get('related_table'):
             return self.getHierarchicalDataBag(caption_field=caption_field,condition=condition,
-                                                condition_kwargs=condition_kwargs,caption=caption,dbstore=dbstore,columns=columns,
+                                                caption=caption,dbstore=dbstore,columns=columns,
                                                 related_kwargs=related_kwargs,resolved=resolved,**kwargs)
 
     @public_method
@@ -1147,6 +1150,30 @@ class AttachmentTable(GnrDboTable):
                         maintable_id=attachment['maintable_id'])
                 self.insert(pdf_record)
                 return pdf_record
+
+    def addAttachment(self,maintable_id=None,origin_filepath=None,destFolder=None,
+                            description=None,mimetype=None,moveFile=False):
+        mimetype = mimetype or mimetypes.guess_type(origin_filepath)[0]
+        site = self.db.application.site
+        filename =  os.path.basename(origin_filepath)
+        destfilepath = site.getStaticPath('vol:%s' %destFolder,filename,autocreate=-1)
+        fname,ext = os.path.splitext(destfilepath)
+        counter = 0
+        while os.path.isfile(destfilepath):
+            filename = '%s_%i%s'%(filename,counter,ext)
+            counter += 1
+            destfilepath = site.getStaticPath('vol:%s' %destFolder,filename,autocreate=-1)
+        if moveFile:
+            os.rename(origin_filepath,destfilepath)
+        else:
+            shutil.copyfile(origin_filepath,destfilepath)
+        record = dict(maintable_id=maintable_id,
+                        mimetype=mimetype,
+                        description=description or filename,
+                        filepath=os.path.join(destFolder,filename))
+        self.insert(record)
+        return record
+
 
     def trigger_convertDocFile(self,record,**kwargs):
         p,ext = os.path.splitext(record['filepath'])
