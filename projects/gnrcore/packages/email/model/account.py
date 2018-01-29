@@ -60,3 +60,9 @@ class Table(object):
         if mboxtbl.query(where='$account_id=:account_id',account_id=record_data['id']).count()==0:
             for i,mbox in enumerate(self.standardMailboxes()):
                 mboxtbl.createMbox(mbox,record_data['id'],order=i+1)
+
+
+    def partitionioning_pkeys(self):
+        where='@account_users.user_id=:env_staff_id OR @account_users.id IS NULL'
+        return [r['pkey'] for r in self.query(where=where,excludeLogicalDeleted=False).fetch()]
+    
