@@ -123,7 +123,7 @@ class Table(object):
                             message_id=message_id,
                             extra_headers=extra_headers,
                             message_type=message_type,
-                            html=html)
+                            html=html,**kwargs)
         message_atc = self.db.table('email.message_atc')
         self.insert(message_to_dispatch)
         if attachments:
