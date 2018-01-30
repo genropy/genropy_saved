@@ -60,7 +60,11 @@ class WebMailHandler(MailHandler):
         compiled = tpl['compiled']
         email_compiled = metadata['email_compiled']
         htmlbuilder = TableTemplateToHtml(table=self.parent.db.table(table))
-        html_text = htmlbuilder(record=record_id,template=compiled,letterhead_id=letterhead_id or metadata['default_letterhead'])
+        letterhead_id = letterhead_id or metadata['default_letterhead']
+        if letterhead_id:
+            html_text = htmlbuilder(record=record_id,template=compiled,letterhead_id=letterhead_id)
+        else:
+            html_text = htmlbuilder.contentFromTemplate(record=record_id,template=compiled)
         to_address = to_address or templateReplace(email_compiled.getItem('to_address',''),htmlbuilder.record)
         subject = templateReplace(email_compiled.getItem('subject',''),htmlbuilder.record)
         cc_address = templateReplace(email_compiled.getItem('cc_address',''),htmlbuilder.record)
