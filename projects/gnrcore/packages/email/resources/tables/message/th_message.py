@@ -137,6 +137,10 @@ class Form(BaseComponent):
         fb.field('user_id')
         fb.field('account_id')
 
+        fb.field('__is_draft', lbl='Draft')
+
+        
+
         tc = bc.tabContainer(region='center',margin='2px')
         tc.contentPane(title='Body').simpleTextArea(value='^.record.body',editor=True)
         sc = tc.stackContainer(title='Attachments')
@@ -144,6 +148,7 @@ class Form(BaseComponent):
         sc.attachmentGrid(pbl_classes=True)
         tc.dataController("sc.switchPage(in_out=='O'?1:0)",sc=sc.js_widget,in_out='^#FORM.record.in_out')
         tc.contentPane(title='Body plain').simpleTextArea(value='^.record.body_plain',height='100%')
+        tc.contentPane(title='Errors', region='center',overflow='hidden').quickGrid('^#FORM.record.sending_attempt')
 
 class FormFromDashboard(Form):
 
