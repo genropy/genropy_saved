@@ -130,6 +130,8 @@ class MenuResolver(BagResolver):
     def load(self):
         sitemenu = self._page.application.siteMenu
         userTags = self._page.userTags
+        dbstore = self._page.dbstore
+
         result = Bag()
         level = 0
         if self.path:
@@ -140,7 +142,10 @@ class MenuResolver(BagResolver):
             nodetags = nodeattr.get('tags')
             filepath = nodeattr.get('file')
             checkenv = nodeattr.get('checkenv')
+            multidb = nodeattr.get('multidb')
             tableattr = self._page.db.table(nodeattr['table']).attributes if 'table' in nodeattr else None
+            if (multidb=='slave' and not dbstore) or (multidb and dbstore):
+                allowed = False
             if nodetags:
                 allowed = self._page.application.checkResourcePermission(nodetags, userTags)
             allowed = allowed and self._page.application.allowedByPreference(**nodeattr)
