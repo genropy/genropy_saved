@@ -55,8 +55,8 @@ class THPicker(BaseComponent):
                             width=width,height=height)
             frame = palette.framePane(frameCode=paletteCode)
             frame.top.slotToolbar('*,searchOn,5')
-
-            
+            tree_kwargs = dictExtract(picker_kwargs,'tree_',pop=True)
+            tree_kwargs.update(condition_kwargs)
             frame.center.contentPane(overflow='auto').div(margin='10px').hTableTree(table=table,draggableFolders=picker_kwargs.pop('draggableFolders',None),
                             dragTags=paletteCode,caption_field=picker_kwargs.get('caption_field'),
                             onDrag="""function(dragValues, dragInfo, treeItem) {
@@ -66,7 +66,7 @@ class THPicker(BaseComponent):
                                                 dragValues['text/plain'] = treeItem.attr.caption;
                                                 dragValues['%s'] = treeItem.attr;
                                             }""" %paletteCode,
-                            condition=condition,checkbox=checkbox,**condition_kwargs)
+                            condition=condition,checkbox=checkbox,**tree_kwargs)
         else:
             palette = pane.paletteGridPicker(grid=grid,table=table,relation_field=many,
                                             paletteCode=paletteCode,viewResource=viewResource,
