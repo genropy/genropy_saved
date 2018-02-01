@@ -59,6 +59,7 @@ class THPicker(BaseComponent):
             tree_kwargs.update(condition_kwargs)
             frame.center.contentPane(overflow='auto').div(margin='10px').hTableTree(table=table,draggableFolders=picker_kwargs.pop('draggableFolders',None),
                             dragTags=paletteCode,caption_field=picker_kwargs.get('caption_field'),
+                            moveTreeNode=False,
                             onDrag="""function(dragValues, dragInfo, treeItem) {
                                                 if (treeItem.attr.child_count && treeItem.attr.child_count > 0 && !draggableFolders) {
                                                     return false;
