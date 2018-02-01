@@ -200,10 +200,11 @@ class Server(object):
 
 server = Server(len(sys.argv) and sys.argv[-1])
 
-@timer(3)
-def code_monitor_reload(sig):
-    if server.code_monitor and server.code_monitor.check_changed():
-        uwsgi.reload()
+if uwsgi.worker_id() == 0:
+    @timer(3)
+    def code_monitor_reload(sig):
+        if server.code_monitor and server.code_monitor.check_changed():
+            uwsgi.reload()
 
 def application(environ,start_response):
     return server(environ,start_response)
