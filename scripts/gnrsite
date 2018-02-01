@@ -26,7 +26,8 @@ wsgi_options = dict(
         threads=8,
         offload_threads=None,
         stats_port=None,
-        websockets=False
+        websockets=False,
+        max_requests = 10000
         )
 
 
@@ -35,6 +36,7 @@ class UwsgiConfigurator(object):
     default_port = 8080
     default_processes = 1
     default_threads = 8
+    default_max_requests = 10000
     vassal_template = """[uwsgi]
 plugins = python,router_http
 %(port_or_domain)s
@@ -46,6 +48,7 @@ no-orphans = true
 enable-threads = true
 lazy-apps = true
 shared-pyimport = gnr.web.serveruwsgi
+max-requests = %(max_requests)i
 ;stats = 127.0.0.1:%(stats_port)i
 worker-reload-mercy = 1
 disable-logging = true
@@ -136,6 +139,7 @@ logto = %(logto)s
         pars['wsgi_file'] = self.site_script
         pars['site_name'] = self.site_name
         pars['processes'] = int(opt.processes or self.default_processes)
+        pars['max_requests'] = int(opt.max_requests or self.default_max_requests)
         pars['threads'] = int(opt.threads or self.default_threads)
         pars['stats_port'] = int(opt.stats_port or port+1000)
         pars['offload_threads'] = int(opt.offload_threads or pars['processes'])
@@ -233,6 +237,11 @@ if __name__ == '__main__':
     parser.add_option('--server', dest='server',
                         action='store_true',
                         help="Starts the global server (uwsgi emperor)")
+    parser.add_option('-m', '--max_requests',
+                      dest='max_requests',
+                      help="Set the maximum requests per process (Default: 10000)")
+
+
 
     (options, args) = parser.parse_args()
 
