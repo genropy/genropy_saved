@@ -15,8 +15,7 @@ from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
-    py_requires="""public:Public,
-                   gnrcomponents/framegrid:FrameGrid"""
+    py_requires="""public:Public,startupdata_manager/startupdata_manager:StartupDataManager"""
     pageOptions={'openMenu':False,'enableZoom':False}
     auth_main = 'admin'
 
@@ -24,8 +23,12 @@ class GnrCustomWebPage(object):
         return '!!Startup data'
 
     def main(self, root, **kwargs):
-        bc = root.rootBorderContainer(title='Startup data',datapath='main',design='sidebar')
-        self.packageData(bc,region='center')
+        bc = root.rootBorderContainer(title='Startup data manager',datapath='main',design='sidebar')
+        tc = bc.tabContainer(region='center',margin='2px')
+        tc.startupDataSaver(title='Startup Datasets',datapath='.saver')
+        tc.startupDataDbTemplates(title='Db templates',datapath='.dbtemplates')
+
+        #self.packageData(bc,region='center')
     
 
     def packageData(self,pane,pkg=None,**kwargs):
@@ -33,8 +36,7 @@ class GnrCustomWebPage(object):
         top = bc.contentPane(region='top')
         fb = top.formbuilder(cols=6,border_spacing='3px')
         fb.filteringSelect(value='^.current_package',lbl='Package',values=','.join(self.application.packages.keys()))
-        fb.button('!!Build Startup Data',action="""
-                                                    var that = this;
+        fb.button('!!Build Startup Data',action="""var that = this;
                                                     genro.dlg.ask('Creating startup data','You are going to rebuild startup data for pkg '+pkg+'. Are you sure?',null,
                                                         {confirm:function(){
                                                             genro.mainGenroWindow.genro.publish('open_batch');
@@ -42,8 +44,6 @@ class GnrCustomWebPage(object):
                                                                 that.fireEvent('.reloadPreview')
                                                             });
                                                         }});
-                                                    
-                                                    
                                                     """,pkg='=.current_package',tags='_DEV_')
         fb.button('!!Load Startup Data',action="""genro.mainGenroWindow.genro.publish('open_batch');
                                                     genro.serverCall('_package.'+pkg+'.loadStartupData',{empty_before:empty_before},function(){});

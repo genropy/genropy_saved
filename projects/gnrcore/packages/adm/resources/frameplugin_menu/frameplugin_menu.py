@@ -144,7 +144,7 @@ class MenuResolver(BagResolver):
             checkenv = nodeattr.get('checkenv')
             multidb = nodeattr.get('multidb')
             tableattr = self._page.db.table(nodeattr['table']).attributes if 'table' in nodeattr else None
-            if (multidb=='slave' and not dbstore) or (multidb and dbstore):
+            if (multidb=='slave' and not dbstore) or (multidb=='master' and dbstore):
                 allowed = False
             if nodetags:
                 allowed = self._page.application.checkResourcePermission(nodetags, userTags)

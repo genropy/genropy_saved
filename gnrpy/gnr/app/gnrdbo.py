@@ -211,7 +211,6 @@ class GnrDboPackage(object):
                 queryPars = dict(addPkeyColumn=False,bagFields=True)
                 if qp_handler:
                     queryPars.update(qp_handler())
-                    print 'queryPars',tblobj.dbtable.fullname,queryPars,
                 f = tblobj.dbtable.query(**queryPars).fetch()
             s[tname] = f
         s['preferences'] = self.db.table('adm.preference').loadPreference()[self.name]
@@ -223,6 +222,8 @@ class GnrDboPackage(object):
             with gzip.open(zipPath, 'wb') as f_out:
                 f_out.writelines(sfile)
         os.remove('%s.pik' %bagpath)
+        if os.path.isdir(bagpath):
+            os.removedirs(bagpath)
         
 class TableBase(object):
     """TODO"""
