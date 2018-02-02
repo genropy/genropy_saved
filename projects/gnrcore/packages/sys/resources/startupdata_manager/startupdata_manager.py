@@ -107,12 +107,12 @@ class _StartupDataSaver(BaseComponent):
         basepath = None
         if not replace_default_startup:
             basepath = self.sd_getStartupDataFolder('datasets')
-            buildname = buildname or 'from_%s' %current_storename if current_storename else 'ds_%i' %len(os.listdir(basepath))
-            basepath = os.path.join(basepath,buildname)
-            if not os.path.isdir(basepath):
-                os.makedirs(basepath)
+            buildname = buildname or ('from_%s' %current_storename if current_storename else 'ds_%i' %len(os.listdir(basepath)))
+            folderpath = os.path.join(basepath,buildname)
+            if not os.path.isdir(folderpath):
+                os.makedirs(folderpath)
         with self.db.tempEnv(storename=current_storename or self.db.rootstore):
-            self.db.package(current_package).createStartupData(basepath)
+            self.db.package(current_package).createStartupData(os.path.join(folderpath,current_package))
 
 
 class _StartupDataDbTemplates(BaseComponent):
@@ -171,6 +171,8 @@ class _StartupDataDbTemplates(BaseComponent):
         sroot = self.sd_getStartupDataFolder('datasets')
         if os.path.exists(sroot):
             for folder in os.listdir(sroot):
+                if not os.path.isdir(os.path.join(sroot,folder)):
+                    continue
                 result.setItem(folder,DirectoryResolver(os.path.join(sroot,folder)),caption=folder)
         return result
         
