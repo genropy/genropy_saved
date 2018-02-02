@@ -874,7 +874,7 @@ dojo.declare("gnr.GridEditor", null, {
         if (this.invalidCell(cell, inRowIndex)) {
             cell.customClasses.push('invalidCell');
         }
-        if(renderedRow._newrecord && this.grid.sourceNode.form && !this.grid.sourceNode.form.store.autoSave){
+        if(renderedRow._newrecord && this.grid.sourceNode.form && this.grid.sourceNode.form.store && !this.grid.sourceNode.form.store.autoSave){
             cell.customClasses.push('newRowCell');
         }
     },
