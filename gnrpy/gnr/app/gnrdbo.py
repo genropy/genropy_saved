@@ -156,6 +156,8 @@ class GnrDboPackage(object):
             if tablename not in self.tables:
                 continue
             tblobj = db.table('%s.%s' %(self.name,tablename))
+            if tblobj.attributes.get('multidb')=='*' and not self.db.usingRootstore():
+                continue
             currentRecords = tblobj.query().fetchAsDict('pkey')
             records = s[tablename]
             if not records:

@@ -17,27 +17,38 @@ class Table(object):
 
         # and <your_package>.setPreference() to get and set preferences.
 
-    def getPreference(self, path, pkg=None, dflt=None):
+
+    def getMainStorePreference(self):
         result = self.db.application.cache.get(MAIN_PREFERENCE)
         if result is None:
-            result = self.loadPreference()
+            result = self.loadPreference()['data']
             self.db.application.cache[MAIN_PREFERENCE] = result
-        result = result.deepcopy()
-        # NOTE: due to the way bags work,
-        #       'data.%(path)s' will be used if pkg is ''
-        # 
-        result = result['data'] or Bag()
+        return result.deepcopy()
+    
+    def getStorePreferences(self):
+        storename = self.db.currentEnv.get('storename')
+        pref_cache_key = '_storepref_%s' %storename
+        preference = self.db.application.cache.get(pref_cache_key)
+        if preference is None:
+            preference = self.getMainStorePreference()
+            store_preference =  self.db.package('multidb').getStorePreference()
+            preference.update(store_preference)
+            self.db.application.cache[pref_cache_key] = preference
+        return preference.deepcopy()
+
+    def getPreference(self, path, pkg=None, dflt=None):
+        prefdata = self.getStorePreferences() if not self.db.usingRootstore() else self.getMainStorePreference()
         if path=='*':
             path = None
             pkg = None
         if pkg:
-            result = result[pkg] or Bag()
+            prefdata = prefdata[pkg] or Bag()
         if not path:
-            return result
+            return prefdata
         if path:
-            result = result[path]
-        return  dflt if result is None else result
-
+            prefdata = prefdata[path]
+        return  dflt if prefdata is None else prefdata    
+  
     def envPreferences(self,username=None):
         preferences = self.getPreference('*') or dict()
         if username:
@@ -54,7 +65,6 @@ class Table(object):
                 if pkgpref.getNode(k):
                     pkgpref.setAttr(k,dbenv=v)
         return preferences.filter(lambda n: n.attr.get('dbenv')) if preferences else None
-
 
 
     def setPreference(self, path, value, pkg='',_attributes=None,**kwargs):

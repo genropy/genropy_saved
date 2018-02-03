@@ -22,6 +22,11 @@ class Package(GnrDboPackage):
     def copyTableToStore(self):
         pass
 
+    def getStorePreference(self):
+        storename = self.db.currentEnv.get('storename')
+        store_record = self.db.table(self.attributes['storetable']).record(dbstore=storename).output('record')
+        return store_record['preferences'] or Bag()
+
     def onApplicationInited(self):
         self.mixinMultidbMethods()
 
