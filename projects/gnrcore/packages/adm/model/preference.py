@@ -66,11 +66,11 @@ class Table(object):
                     pkgpref.setAttr(k,dbenv=v)
         return preferences.filter(lambda n: n.attr.get('dbenv')) if preferences else None
 
-
     def setPreference(self, path, value, pkg='',_attributes=None,**kwargs):
-        record = self.loadPreference(for_update=True)
-        record.setItem('data.%s.%s' % (pkg, path), value,_attributes=_attributes,**kwargs)
-        self.savePreference(record)
+        with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
+            with self.recordToUpdate(MAIN_PREFERENCE) as record:
+                record.setItem('data.%s.%s' % (pkg, path), value,_attributes=_attributes,**kwargs)
+            self.db.commit()
 
     def loadPreference(self, pkey=MAIN_PREFERENCE, for_update=False):
         with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
@@ -80,14 +80,12 @@ class Table(object):
                 record = self.newrecord(code=pkey, data=Bag())
         return record
 
-    def savePreference(self, record):
-        with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
-            self.insertOrUpdate(record)
+    def trigger_onUpdated(self,record=None,old_record=None):
+        if self.fieldsChanged('data',record,old_record):
             self.db.application.pkgBroadcast('onSavedPreferences',preferences=record['data'])
-            self.db.commit()
-        site = getattr(self.db.application,'site',None)
-        if site:
-            site.process_cmd.clearApplicationCache(MAIN_PREFERENCE)
-
-
-
+            site = getattr(self.db.application,'site',None)
+            if site:
+                site.process_cmd.clearApplicationCache(MAIN_PREFERENCE)
+                if site.currentPage:
+                    site.currentPage.setInClientData('gnr.serverEvent.refreshNode', value='gnr.app_preference', filters='*',
+                             fired=True, public=True)
