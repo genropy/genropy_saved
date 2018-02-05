@@ -638,8 +638,11 @@ class TableBase(object):
         if errors:
             return 'Missing %s' %','.join(errors)
     
-    def importerInsertRow(self,row):
-        self.insert(row)
+    def importerInsertRow(self,row,import_mode=None):
+        if import_mode=='insert_or_update':
+            self.insertOrUpdate(row)
+        else:
+            self.insert(row)
 
 
     @public_method
