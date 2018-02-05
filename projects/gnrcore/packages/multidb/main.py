@@ -27,6 +27,13 @@ class Package(GnrDboPackage):
         store_record = self.db.table(self.attributes['storetable']).record(dbstore=storename).output('record')
         return store_record['preferences'] or Bag()
 
+    def setStorePreference(self,pkg=None,value=None):
+        storename = self.db.currentEnv.get('storename')
+        with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
+            with self.db.table(self.attributes['storetable']).recordToUpdate(dbstore=storename) as rec:
+                rec['preferences'][pkg] = value
+            self.db.commit()
+
     def onApplicationInited(self):
         self.mixinMultidbMethods()
 

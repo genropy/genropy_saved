@@ -32,7 +32,9 @@ class Table(object):
         if preference is None:
             preference = self.getMainStorePreference()
             store_preference =  self.db.package('multidb').getStorePreference()
-            preference.update(store_preference)
+            for pkgid,pkgobj in self.db.application.packages.items():
+                if pkgobj.attributes.get('multidb_pref'):
+                    preference[pkgid] = store_preference[pkgid] or Bag()
             self.db.application.cache[pref_cache_key] = preference
         return preference.deepcopy()
 
@@ -66,10 +68,20 @@ class Table(object):
                     pkgpref.setAttr(k,dbenv=v)
         return preferences.filter(lambda n: n.attr.get('dbenv')) if preferences else None
 
-    def setPreference(self, path, value, pkg='',_attributes=None,**kwargs):
+    def initPkgPref(self,pkg=None,pkgpref=None):
+        print 'pkg',pkg,'pkgpref',pkgpref
+        if self.db.usingRootstore() or not self.db.application.packages[pkg].attributes.get('multidb_pref'):
+            self.setPreference(pkg=pkg,value=pkgpref) 
+        else:
+            self.db.package('multidb').setStorePreference(pkg=pkg,value=pkgpref)
+
+    def setPreference(self, path=None, value=None, pkg='',_attributes=None,**kwargs):
         with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
             with self.recordToUpdate(MAIN_PREFERENCE) as record:
-                record.setItem('data.%s.%s' % (pkg, path), value,_attributes=_attributes,**kwargs)
+                l = ['data','pkg']
+                if path:
+                    l.append(path)
+                record.setItem('.'.join(l), value,_attributes=_attributes,**kwargs)
             self.db.commit()
 
     def loadPreference(self, pkey=MAIN_PREFERENCE, for_update=False):

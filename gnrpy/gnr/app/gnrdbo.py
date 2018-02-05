@@ -147,9 +147,7 @@ class GnrDboPackage(object):
             for t in rev_tables:
                 if t in self.tables:
                     db.table('%s.%s' %(self.name,t)).empty()
-        all_pref = self.db.table('adm.preference').loadPreference()
-        all_pref[self.name] = s['preferences']
-        self.db.table('adm.preference').savePreference(all_pref)
+        self.db.table('adm.preference').initPkgPref(self.name,s['preferences'])
         db.commit()
         tw = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
         for tablename in tw:
@@ -215,7 +213,7 @@ class GnrDboPackage(object):
                     queryPars.update(qp_handler())
                 f = tblobj.dbtable.query(**queryPars).fetch()
             s[tname] = f
-        s['preferences'] = self.db.table('adm.preference').loadPreference()[self.name]
+        s['preferences'] = self.db.table('adm.preference').loadPreference()['data'][self.name]
         s.makePicklable()
         s.pickle('%s.pik' %bagpath)
         import gzip
