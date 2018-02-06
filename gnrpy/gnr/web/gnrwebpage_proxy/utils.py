@@ -241,11 +241,21 @@ class GnrWebUtils(GnrBaseProxy):
         legacy_match = dict()
         if table:
             tblobj = self.page.db.table(table)
+            sql_count = tblobj.query(ignorePartition=True,excludeDraft=False, excludeLogicalDeleted=False).count()
+            result['sql_count'] = sql_count
             for colname,colobj in tblobj.model.columns.items():
                 table_col_list.append(colname)
                 if colobj.attributes.get('legacy_name'):
                     legacy_match[colobj.attributes['legacy_name']] = colname
+            import_modes = []
+            if sql_count:
+                import_modes.append('replace:Replace (remove %i records)' %sql_count)
+            import_modes.append('insert_only:Insert only')
+            import_modes.append('insert_or_update:Insert or update')
+            result['import_modes'] = ','.join(import_modes)
+            result['import_mode'] = 'insert_only'
             result['methodlist'] = ','.join([k[9:] for k in dir(tblobj) if k.startswith('importer_')])
+
         for k,i in sorted(reader.index.items(),key=lambda tup:tup[1]):
             columns.setItem(k,None,name=k,field=k,width='10em')
             if k in table_col_list:
@@ -266,7 +276,8 @@ class GnrWebUtils(GnrBaseProxy):
 
 
     @public_method
-    def tableImporterRun(self,table=None,file_path=None,match_index=None,import_method=None,sql_mode=None,filetype=None,**kwargs):
+    def tableImporterRun(self,table=None,file_path=None,match_index=None,import_mode=None,
+                                import_method=None,sql_mode=None,filetype=None,**kwargs):
         tblobj = self.page.db.table(table)
         docommit = False
         importerStructure = tblobj.importerStructure() or dict()
@@ -283,6 +294,7 @@ class GnrWebUtils(GnrBaseProxy):
                 match_index = tblobj.importerMatchIndex(reader,struct=struct)
                 res = self.defaultMatchImporterXls(tblobj=tblobj,reader=reader,
                                                 match_index=match_index,
+                                                import_mode=import_mode,
                                                 sql_mode=sql_mode,constants=struct.get('constants'),
                                                 mandatories=struct.get('mandatories'))
                 results.append(res)
@@ -296,11 +308,14 @@ class GnrWebUtils(GnrBaseProxy):
         if match_index:
             return self.defaultMatchImporterXls(tblobj=tblobj,reader=reader,
                                                     match_index=match_index,
+                                                    import_mode=import_mode,
                                                     sql_mode=sql_mode)
 
-    def defaultMatchImporterXls(self,tblobj=None,reader=None,match_index=None,sql_mode=None,constants=None,mandatories=None):
+    def defaultMatchImporterXls(self,tblobj=None,reader=None,match_index=None,sql_mode=None,constants=None,mandatories=None, import_mode=None):
         rows = self.adaptedRecords(tblobj=tblobj,reader=reader,match_index=match_index,sql_mode=sql_mode,constants=constants)
         docommit = False
+        if import_mode=='replace':
+            tblobj.empty()
         if sql_mode:
             rows_to_insert = list(rows)
             if rows_to_insert:
@@ -308,7 +323,7 @@ class GnrWebUtils(GnrBaseProxy):
                 docommit=True
         else:
             for r in rows:
-                tblobj.importerInsertRow(r)
+                tblobj.importerInsertRow(r,import_mode=import_mode)
                 docommit=True
         if docommit:
             self.page.db.commit()

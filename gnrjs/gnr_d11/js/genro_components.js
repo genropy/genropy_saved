@@ -1230,7 +1230,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         bar._('div','matchtitle',{innerHTML:'Match columns'});
         bar = frame._('slotBar',{slots:'2,fbbottom,*',side:'bottom',_class:'slotbar_dialog_footer'});
 
-        var fb = genro.dev.formbuilder(bar._('div','fbbottom'),2,{border_spacing:'1px'});
+        var fb = genro.dev.formbuilder(bar._('div','fbbottom'),3,{border_spacing:'1px'});
         fb.addField('filteringSelect',{value:'^.import_method',width:'7em',
                                         lbl_text_align:'right',
                                         lbl_class:'gnrfieldlabel',
@@ -1239,6 +1239,15 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
                                         lbl_hidden:'^.methodlist?=!#v',
                                         hidden:'^.methodlist?=!#v',
                                         parentForm:false});
+        fb.addField('filteringSelect',{value:'^.import_mode',width:'7em',
+                    lbl_text_align:'right',
+                    lbl_class:'gnrfieldlabel',
+                    lbl:_T('Mode'),
+                    lbl_hidden:'^.import_modes?=!#v',
+                    hidden:'^.import_modes?=!#v',
+                    values:'^.import_modes',
+                    parentForm:false});
+
         if (this.table){
             fb.addField('checkbox',{value:'^.sql_mode',
                                 label:_T('SQL Mode'),parentForm:false});   
@@ -1266,6 +1275,8 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         var uploaderNode = genro.nodeById(this.uploaderId);
         uploaderNode.setRelativeData('.current_title',null);
         uploaderNode.setRelativeData('.methodlist','');
+        uploaderNode.setRelativeData('.import_modes','');
+        uploaderNode.setRelativeData('.import_mode','');
         uploaderNode.setRelativeData('.importing_data',null);
         uploaderNode.setRelativeData('.file_columns',null);
         uploaderNode.setRelativeData('.match',null);
@@ -1295,6 +1306,9 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         this.gridNode.gnrwdg.guessColumns = false;
         var uploaderNode = genro.nodeById(this.uploaderId);
         uploaderNode.setRelativeData('.methodlist',data.getItem('methodlist'));
+        uploaderNode.setRelativeData('.import_modes',data.getItem('import_modes'));
+        uploaderNode.setRelativeData('.import_mode',data.getItem('import_mode'));
+
         uploaderNode.setRelativeData('.importing_data',data.getItem('rows'));
         uploaderNode.setRelativeData('.file_columns',columns);
         uploaderNode.setRelativeData('.match',match_data);
@@ -1333,6 +1347,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         genro.serverCall(this.importMethod || 'utils.tableImporterRun',{table:this.table,file_path:'=.imported_file_path',
                                                     match_index:match_index,
                                                     import_method:'=.import_method',
+                                                    import_mode:'=.import_mode',
                                                     filetype:'=.filetype',
                                                     no_trigger:'=.no_trigger',
                                                     timeout:3600000,

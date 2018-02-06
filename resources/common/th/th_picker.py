@@ -16,13 +16,14 @@ class THPicker(BaseComponent):
     @struct_method
     def pk_palettePicker(self,pane,grid=None,table=None,relation_field=None,paletteCode=None,
                          viewResource=None,searchOn=True,multiSelect=True,structure_field=None,
-                         title=None,autoInsert=None,dockButton=None,picker_kwargs=None,
+                         title=None,autoInsert=None,dockButton=None,nodup=None,picker_kwargs=None,
                          height=None,width=None,checkbox=False,defaults=None,condition=None,**kwargs):
         dockButton = dockButton or dict(parentForm=True,iconClass='iconbox app')
         picker_kwargs = picker_kwargs or dict()
         checkbox = checkbox or picker_kwargs.get('checkbox',False)
         one = picker_kwargs.get('one',False)
         picker_kwargs.setdefault('uniqueRow',True)
+        nodup = nodup or picker_kwargs.get('nodup')
         condition= condition or picker_kwargs.pop('condition',None)
         many = relation_field or picker_kwargs.get('relation_field',None)
         table = table or picker_kwargs.get('table',None)
@@ -88,10 +89,10 @@ class THPicker(BaseComponent):
                     formtblobj = self.db.table(formNode.attr.get('table'))
                     oneJoiner = formtblobj.model.getJoiner(maintable)
                     one = oneJoiner.get('many_relation').split('.')[-1]
-                controller = "THPicker.onDropElement(this,data,mainpkey,rpcmethod,treepicker,tbl,one,many,grid,defaults)" if autoInsert is True else autoInsert
+                controller = "THPicker.onDropElement(this,data,mainpkey,rpcmethod,treepicker,tbl,one,many,grid,defaults,nodup)" if autoInsert is True else autoInsert
                 grid.dataController(controller,data='^.dropped_%s' %paletteCode,
                     droppedInfo='=.droppedInfo_%s' %paletteCode,
-                    mainpkey='=#FORM.pkey' if formNode else None,
+                    mainpkey='=#FORM.pkey' if formNode else None,nodup=nodup,
                         rpcmethod=method,treepicker=treepicker,tbl=maintable,
                         one=one,many=many,grid=grid.js_widget,defaults=defaults)  
         return palette
