@@ -587,7 +587,10 @@ class TableBase(object):
         sysRecord_masterfield = self.attributes.get('sysRecord_masterfield') or self.pkey
         
         def createCb(key):
-            with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
+            tempenvkw = dict(connectionName='system')
+            if  self.attributes.get('multidb')=='*':
+                tempenvkw['storename']=self.db.rootstore
+            with self.db.tempEnv(**tempenvkw):
                 record = getattr(self,'sysRecord_%s' %syscode)()
                 record['__syscode'] = key
                 masterfield_value = record[sysRecord_masterfield]
