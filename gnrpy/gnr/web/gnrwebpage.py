@@ -381,16 +381,20 @@ class GnrWebPage(GnrBaseWebPage):
     @property
     def modulePath(self):
         return  '%s.py' %os.path.splitext(sys.modules[self.__module__].__file__)[0]
+
+     
         
     @property 
     def db(self):
         if not getattr(self, '_db',None):
             self._db = self.application.db
             self._db.clearCurrentEnv()
+            expirebag = self.globalStore().getItem('tables_user_conf_expire_ts')
+
             self._db.updateEnv(storename=self.dbstore, workdate=self.workdate, locale=self.locale,
                                 maxdate=datetime.date.max,mindate=datetime.date.min,
                                user=self.user, userTags=self.userTags, pagename=self.pagename,
-                               mainpackage=self.mainpackage)
+                               mainpackage=self.mainpackage,_user_conf_expirebag=expirebag)
             avatar = self.avatar
             if avatar:
                 self._db.updateEnv(_excludeNoneValues=True,**self.avatar.extra_kwargs)
@@ -1200,6 +1204,9 @@ class GnrWebPage(GnrBaseWebPage):
         :param triggered: boolean. TODO"""
         page_id = page_id or self.sourcepage_id or self.page_id
         return self.site.register.pageStore(page_id, triggered=triggered)
+
+    def globalStore(self,triggered=True):
+        return self.site.register.globalStore(triggered=triggered)
         
     def connectionStore(self, connection_id=None, triggered=True):
         """TODO

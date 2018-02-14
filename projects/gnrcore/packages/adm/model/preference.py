@@ -2,6 +2,7 @@
 from __future__ import with_statement
 from gnr.core.gnrbag import Bag
 from gnr.sql.gnrsql_exceptions import RecordNotExistingError
+from datetime import datetime
 
 MAIN_PREFERENCE = '_mainpref_'
 
@@ -18,10 +19,10 @@ class Table(object):
         # and <your_package>.setPreference() to get and set preferences.
 
     def getPreference(self, path, pkg=None, dflt=None):
-        result = self.db.application.cache.get(MAIN_PREFERENCE)
+        result = self.db.application.cache.getItem(MAIN_PREFERENCE)
         if result is None:
             result = self.loadPreference()
-            self.db.application.cache[MAIN_PREFERENCE] = result
+            self.db.application.cache.setItem(MAIN_PREFERENCE,result)
         result = result.deepcopy()
         # NOTE: due to the way bags work,
         #       'data.%(path)s' will be used if pkg is ''
@@ -56,7 +57,6 @@ class Table(object):
         return preferences.filter(lambda n: n.attr.get('dbenv')) if preferences else None
 
 
-
     def setPreference(self, path, value, pkg='',_attributes=None,**kwargs):
         record = self.loadPreference(for_update=True)
         record.setItem('data.%s.%s' % (pkg, path), value,_attributes=_attributes,**kwargs)
@@ -75,9 +75,6 @@ class Table(object):
             self.insertOrUpdate(record)
             self.db.application.pkgBroadcast('onSavedPreferences',preferences=record['data'])
             self.db.commit()
-        site = getattr(self.db.application,'site',None)
-        if site:
-            site.process_cmd.clearApplicationCache(MAIN_PREFERENCE)
-
+        self.db.application.cache.updatedItem(MAIN_PREFERENCE)
 
 

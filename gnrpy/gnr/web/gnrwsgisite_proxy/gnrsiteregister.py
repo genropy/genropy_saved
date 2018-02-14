@@ -359,6 +359,24 @@ class BaseRegister(BaseRemoteObject):
         self.locked_items = pickle.load(storagefile)
 
 
+class GlobalRegister(BaseRegister):
+    """docstring for GlobalRegister"""
+
+    def __init__(self,*args,**kwargs):
+        super(GlobalRegister, self).__init__(*args,**kwargs)
+        self.create('*')
+
+    def create(self,identifier=None):
+        register_item = dict(
+                start_ts=datetime.now(),
+                register_item_id=identifier,
+                register_name='global')
+        self.addRegisterItem(register_item)
+        return register_item
+        
+    def drop(self,identifier):
+        self.drop_item(identifier)
+
 
 class UserRegister(BaseRegister):
     """docstring for UserRegister"""
@@ -581,6 +599,7 @@ class PageRegister(BaseRegister):
 class SiteRegister(BaseRemoteObject):
     def __init__(self,server,sitename=None,storage_path=None):
         self.server = server
+        self.global_register = GlobalRegister(self)
         self.page_register = PageRegister(self)
         self.connection_register = ConnectionRegister(self)
         self.user_register = UserRegister(self)
@@ -593,6 +612,7 @@ class SiteRegister(BaseRemoteObject):
         self.maintenance = False
         self.allowed_users = None
         self.interproces_commands = dict()
+
 
 
     def checkCachedTables(self,table):
@@ -1063,6 +1083,9 @@ class SiteRegisterClient(object):
 
     def pageStore(self, page_id, triggered=False):
         return self.make_store('page',page_id, triggered=triggered)
+
+    def globalStore(self,triggered=False):
+        return self.make_store('global','*', triggered=triggered)
 
     def make_store(self, register_name,register_item_id, triggered=None):
         return ServerStore(self, register_name,register_item_id=register_item_id, triggered=triggered)
