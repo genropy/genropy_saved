@@ -20,23 +20,25 @@ class Table(object):
 
 
     def getMainStorePreference(self):
-        result = self.db.application.cache.get(MAIN_PREFERENCE)
+        result = self.db.application.cache.getItem(MAIN_PREFERENCE)
         if result is None:
             result = self.loadPreference()['data']
-            self.db.application.cache[MAIN_PREFERENCE] = result
+            self.db.application.cache.setItem(MAIN_PREFERENCE, result)
         return result.deepcopy()
     
     def getStorePreferences(self):
         storename = self.db.currentEnv.get('storename')
         pref_cache_key = '_storepref_%s' %storename
-        preference = self.db.application.cache.get(pref_cache_key)
+        preference = None
+        if not self.db.application.cache.expiredItem(MAIN_PREFERENCE):
+            preference = self.db.application.cache.getItem(pref_cache_key)
         if preference is None:
             preference = self.getMainStorePreference()
             store_preference =  self.db.package('multidb').getStorePreference()
             for pkgid,pkgobj in self.db.application.packages.items():
                 if pkgobj.attributes.get('multidb_pref'):
                     preference[pkgid] = store_preference[pkgid] or Bag()
-            self.db.application.cache[pref_cache_key] = preference
+            self.db.application.cache.setItem(pref_cache_key,preference)
         return preference.deepcopy()
 
     def getPreference(self, path, pkg=None, dflt=None):
@@ -70,7 +72,6 @@ class Table(object):
         return preferences.filter(lambda n: n.attr.get('dbenv')) if preferences else None
 
     def initPkgPref(self,pkg=None,pkgpref=None):
-        print 'pkg',pkg,'pkgpref',pkgpref
         if self.db.usingRootstore() or not self.db.application.packages[pkg].attributes.get('multidb_pref'):
             self.setPreference(pkg=pkg,value=pkgpref) 
         else:
@@ -96,9 +97,8 @@ class Table(object):
     def trigger_onUpdated(self,record=None,old_record=None):
         if self.fieldsChanged('data',record,old_record):
             self.db.application.pkgBroadcast('onSavedPreferences',preferences=record['data'])
+            self.db.application.cache.updatedItem(MAIN_PREFERENCE)
             site = getattr(self.db.application,'site',None)
-            if site:
-                site.process_cmd.clearApplicationCache(MAIN_PREFERENCE)
-                if site.currentPage:
-                    site.currentPage.setInClientData('gnr.serverEvent.refreshNode', value='gnr.app_preference', filters='*',
+            if site and site.currentPage:
+                site.currentPage.setInClientData('gnr.serverEvent.refreshNode', value='gnr.app_preference', filters='*',
                              fired=True, public=True)

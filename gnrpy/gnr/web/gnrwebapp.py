@@ -27,7 +27,13 @@ class WebApplicationCache(object):
     def updatedItem(self,key):
         with self.site.register.globalStore() as gs:
             gs.setItem('CACHE_TS.%s' %key,datetime.now())
-
+    
+    def expiredItem(self,key):
+        item,ts = self.cache.get(key,(None,None))
+        if item is None:
+            return True
+        last_cache_ts = self.site.register.globalStore().getItem('CACHE_TS.%s' %key)
+        return last_cache_ts and ts<last_cache_ts
 
 class GnrWsgiWebApp(GnrApp):
     def __init__(self, *args, **kwargs):
