@@ -189,9 +189,13 @@ dojo.declare("gnr.GnrMobileHandler", null, {
         		this._lastY = e.pageY;
         	}else{
         		new this.mover(this.node, e, this);
-        	}
-        	dojo.stopEvent(e);
+            }
+            if(e.type!='touchstart'){
+                dojo.stopEvent(e);
+            }
         };
+
+        
         dojo.require("dojo.dnd.Mover");
         var pr=dojo.dnd.Mover.prototype
     	pr._constructor= function(node, e, host){
