@@ -3,7 +3,7 @@
 # 
 from datetime import datetime
 import logging
-from multiprocessing import Process, log_to_stderr
+from multiprocessing import Process, log_to_stderr, Pool, Queue, cpu_count
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import GnrSiteRegisterServer
 from gnr.core.gnrlang import gnrImport
 from gnr.core.gnrbag import Bag
@@ -14,8 +14,8 @@ import atexit
 import os
 import urllib
 import time
-
 import Pyro4
+
 if hasattr(Pyro4.config, 'METADATA'):
     Pyro4.config.METADATA = False
 if hasattr(Pyro4.config, 'REQUIRE_EXPOSE'):
@@ -27,9 +27,10 @@ PYRO_HMAC_KEY = 'supersecretkey'
 
 def createSiteRegister(sitename=None,daemon_uri=None,host=None, socket=None,
                          hmac_key=None,storage_path=None,debug=None,autorestore=False,
-                         port=None):
+                         port=None, batch_queue=None):
     print 'creating'
-    server = GnrSiteRegisterServer(sitename=sitename,daemon_uri=daemon_uri,storage_path=storage_path,debug=debug)
+    server = GnrSiteRegisterServer(sitename=sitename,daemon_uri=daemon_uri,
+        storage_path=storage_path,debug=debug,batch_queue=batch_queue)
     print 'starting'
     server.start(host=host,socket=socket,hmac_key=hmac_key,port=port or '*',autorestore=autorestore)
 
@@ -211,6 +212,53 @@ class GnrDaemon(object):
             sitedict[service_name] = self.startServiceDaemon(sitename, service_name=service_name)
             print('restarted daemon %s' %service_name)
 
+    @staticmethod
+    def batchWorker(sitename, queue):
+        from gnr.web.gnrwsgisite import GnrWsgiSite
+        run = True
+        site = None
+        print 'starting process batch for: ', sitename
+        while run:
+            try:
+                print 'wait for'
+                item = queue.get()
+                print 'got ', item
+                if not item:
+                    run = False
+                    continue
+                print item
+                page_id,kwargs = item
+                print page_id
+                site = site or GnrWsgiSite(sitename)
+                page = site.resource_loader.get_page_by_id(page_id)
+                page.table_script_run(**kwargs)
+            except:
+                raise
+                pass # dovrei fare qualcosa
+
+
+    def startBatchPool(self, sitename):
+        from gnr.core.gnrstring import boolean
+        p = PathResolver()
+        siteconfig = p.get_siteconfig(sitename)
+        batch_pars = siteconfig.getAttr('daemon_batch')
+        if not batch_pars or boolean(batch_pars.get('disabled')):
+            self.batch_queue = self.batch_pool = None
+            return
+        self.batch_queue = Queue()
+        self.batch_pool = []
+        processes = batch_pars.get('processes', 'auto')
+        if processes=='auto':
+            processes = cpu_count() * 2
+        else:
+            processes = int(processes)
+        for i in range(processes):
+            p = Process(name='btc_%s_%i' %(sitename, i+1), 
+                        target=self.batchWorker, args=(sitename,self.batch_queue))
+            p.daemon = True
+            p.start()
+            self.batch_pool.append(p)
+
 
     def startServiceProcesses(self, sitename, sitedict=None):
         p = PathResolver()
@@ -242,9 +290,10 @@ class GnrDaemon(object):
     def addSiteRegister(self,sitename,storage_path=None,autorestore=False,heartbeat_options=None,port=None):
         if not sitename in self.siteregisters:
             socket = os.path.join(self.sockets,'%s_daemon.sock' %sitename) if self.sockets else None
+            self.startBatchPool(sitename)
             process_kwargs = dict(sitename=sitename,daemon_uri=self.main_uri,host=self.host,socket=socket
                                    ,hmac_key=self.hmac_key, storage_path=storage_path,autorestore=autorestore,
-                                   port=port)
+                                   port=port, batch_queue=self.batch_queue)
             childprocess = Process(name='sr_%s' %sitename, target=createSiteRegister,kwargs=process_kwargs)
             self.siteregisters[sitename] = dict(sitename=sitename,server_uri=False,
                                         register_uri=False,start_ts=datetime.now(),
@@ -256,6 +305,7 @@ class GnrDaemon(object):
             if heartbeat_options:
                 heartbeat_options['loglevel'] = self.loglevel
                 hbprocess = Process(name='hb_%s' %sitename, target=createHeartBeat,kwargs=heartbeat_options)
+                hbprocess.daemon = True
                 hbprocess.start()
             sitedict = dict(register = childprocess,heartbeat=hbprocess)
             self.startServiceProcesses(sitename,sitedict=sitedict)
@@ -297,7 +347,7 @@ class GnrDaemon(object):
     def siteregister_stop(self,sitename=None,saveStatus=False,**kwargs):
         result = None
         if sitename=='*':
-            for k in self.siteregisters:
+            for k in self.siteregisters.keys():
                 self.siteregister_stop(k,saveStatus=saveStatus)
             return
         uri = self.siteregisters[sitename]['server_uri']

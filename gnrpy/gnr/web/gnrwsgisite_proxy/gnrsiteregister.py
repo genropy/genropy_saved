@@ -597,7 +597,7 @@ class PageRegister(BaseRegister):
                 self.set_datachange(page_id,path=path,value=value,reason=reason, attributes=attributes, fired=fired)
 
 class SiteRegister(BaseRemoteObject):
-    def __init__(self,server,sitename=None,storage_path=None):
+    def __init__(self,server,sitename=None,storage_path=None, batch_queue=None):
         self.server = server
         self.global_register = GlobalRegister(self)
         self.page_register = PageRegister(self)
@@ -612,8 +612,11 @@ class SiteRegister(BaseRemoteObject):
         self.maintenance = False
         self.allowed_users = None
         self.interproces_commands = dict()
+        self.batch_queue = batch_queue
 
-
+    def table_script_put(self, page_id=None, batch_kwargs=None):
+        if self.batch_queue:
+            self.batch_queue.put((page_id, batch_kwargs))
 
     def checkCachedTables(self,table):
         for register in (self.page_register,self.connection_register,self.user_register):
@@ -1141,12 +1144,14 @@ class SiteRegisterClient(object):
 ##############################################################################
 
 class GnrSiteRegisterServer(object):
-    def __init__(self,sitename=None,daemon_uri=None,storage_path=None,debug=None):
+    def __init__(self,sitename=None,daemon_uri=None,storage_path=None,
+            debug=None, batch_queue=None):
         self.sitename = sitename
         self.gnr_daemon_uri = daemon_uri
         self.debug = debug
         self.storage_path = storage_path
         self._running = False
+        self.batch_queue = batch_queue
     
     def running(self):
         return self._running
@@ -1189,7 +1194,8 @@ class GnrSiteRegisterServer(object):
         self.daemon = Pyro4.Daemon(**pyrokw)
         if not OLD_HMAC_MODE:
             self.daemon._pyroHmacKey = hmac_key
-        self.siteregister = SiteRegister(self,sitename=self.sitename,storage_path=self.storage_path)
+        self.siteregister = SiteRegister(self,sitename=self.sitename,
+            storage_path=self.storage_path, batch_queue=self.batch_queue)
         autorestore = autorestore and os.path.exists(self.storage_path)
         self.main_uri = self.daemon.register(self,'SiteRegisterServer')
         print 'autorestore',autorestore,os.path.exists(self.storage_path)
