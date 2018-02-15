@@ -2,6 +2,7 @@
 from __future__ import with_statement
 from gnr.core.gnrbag import Bag
 from gnr.sql.gnrsql_exceptions import RecordNotExistingError
+from datetime import datetime
 
 MAIN_PREFERENCE = '_mainpref_'
 

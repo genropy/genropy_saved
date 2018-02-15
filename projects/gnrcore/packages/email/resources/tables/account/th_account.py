@@ -84,5 +84,8 @@ class Form(BaseComponent):
                                    dialog_height='600px',
                                    dialog_width='800px',
                                    dialog_title='Message')
+    
+    def th_options(self):
+        return dict(duplicate=True)
 
 

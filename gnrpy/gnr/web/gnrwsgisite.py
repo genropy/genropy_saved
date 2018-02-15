@@ -38,7 +38,6 @@ from gnr.web.services.gnrmail import WebMailHandler
 
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
-from gnr.web.gnrwsgisite_proxy.gnrcommandhandler import CommandHandler
 
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import SiteRegisterClient
 from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import WsgiWebSocketHandler
@@ -51,7 +50,6 @@ try:
 except:
     UWSGIMODE = False
 mimetypes.init()
-site_cache = {}
 
 OP_TO_LOG = {'x': 'y'}
 
@@ -261,7 +259,6 @@ class GnrWsgiSite(object):
         self.print_handler = self.addService(PrintHandler, service_name='print')
         self.mail_handler = self.addService(WebMailHandler, service_name='mail')
         self.task_handler = self.addService(TaskHandler, service_name='task')
-        self.process_cmd = CommandHandler(self)
         self.register
         self.services.addSiteServices()
         
@@ -686,7 +683,6 @@ class GnrWsgiSite(object):
         self.external_host = self.config['wsgi?external_host'] or request.host_url
         # Url parsing start
         path_list = self.get_path_list(request.path_info)
-        self.process_cmd.getPending()
         expiredConnections = self.register.cleanup()
         if expiredConnections:
             self.connectionLog('close',expiredConnections)

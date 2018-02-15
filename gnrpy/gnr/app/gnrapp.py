@@ -64,6 +64,21 @@ class NullLoader(object):
         if fullname in sys.modules:
             return sys.modules[fullname]
 
+class ApplicationCache(object):
+    def __init__(self,application=None):
+        self.application = application
+        self.cache = {}
+    
+    def getItem(self,key):
+        return self.cache.get(key,None)
+    
+    def setItem(self,key,value):
+        self.cache[key] = value
+
+    def updatedItem(self,key):
+        self.cache.pop(key,None)
+
+
 class GnrModuleFinder(object):
     """TODO"""
     
@@ -616,11 +631,9 @@ class GnrApp(object):
         self.packagesIdByPath = {}
         self.config = self.load_instance_config()
         self.instanceMenu = self.load_instance_menu()
-        self.cache = {}
-
+        self.cache = ApplicationCache(self)
         self.build_package_path()
         db_settings_path = os.path.join(self.instanceFolder, 'dbsettings.xml')
-
         if os.path.isfile(db_settings_path):
             db_credential = Bag(db_settings_path)
             self.config.update(db_credential)
@@ -647,7 +660,7 @@ class GnrApp(object):
             self.webPageCustom = getattr(self.main_module, 'WebPage', None)
         self.init(forTesting=forTesting,restorepath=restorepath)
         self.creationTime = time.time()
-        
+
     def get_modulefinder(self, path_entry):
         """TODO"""
         return GnrModuleFinder(path_entry,self)

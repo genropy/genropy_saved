@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from datetime import datetime
 from gnr.core.gnrdecorator import metadata,public_method
 from gnr.core.gnrbag import Bag
 
@@ -95,7 +96,20 @@ class Table(object):
     def emptyTableUserConfigCache(self,record=None):
         site = getattr(self.db.application,'site',None)
         if site:
-            site.process_cmd.clearTableUserConfig(pkg=record['pkgid'],table=record['tblid'])
+            with site.register.globalStore() as gs:
+                expirebag = gs.getItem('tables_user_conf_expire_ts')
+                if not expirebag:
+                    expirebag = Bag()
+                if record['tblid']:
+                    key = record['tblid']
+                elif record['pkgid']:
+                    key = '%s.*' %record['pkgid']
+                    expirebag[key] = Bag()
+                else:
+                    key = '*'
+                    expirebag = Bag()
+                expirebag[key] = datetime.now()
+                gs.setItem('tables_user_conf_expire_ts',expirebag)
 
     def trigger_onInserting(self,record):
         self.trigger_common(record)

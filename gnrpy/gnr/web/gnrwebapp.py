@@ -1,9 +1,33 @@
 import os
+from datetime import datetime
 
 from gnr.core.gnrbag import Bag,DirectoryResolver
 from gnr.app.gnrapp import GnrApp
 #from gnr.core.gnrlang import gnrImport
 from gnr.core.gnrlang import getUuid
+
+class WebApplicationCache(object):
+    def __init__(self,application=None):
+        self.application = application
+        self.site = application.site
+        self.cache = {}
+
+    def getItem(self,key):
+        item,ts = self.cache.get(key,(None,None))
+        if item is not None:
+            last_cache_ts = self.site.register.globalStore().getItem('CACHE_TS.%s' %key)
+            if last_cache_ts and ts<last_cache_ts:
+                item = None 
+        return item
+
+    def setItem(self,key,value):
+        now = datetime.now()
+        self.cache[key] = (value,now)
+
+    def updatedItem(self,key):
+        with self.site.register.globalStore() as gs:
+            gs.setItem('CACHE_TS.%s' %key,datetime.now())
+
 
 class GnrWsgiWebApp(GnrApp):
     def __init__(self, *args, **kwargs):
@@ -14,6 +38,7 @@ class GnrWsgiWebApp(GnrApp):
             self.site = None
         self._siteMenuDict = dict()
         super(GnrWsgiWebApp, self).__init__(*args, **kwargs)
+        self.cache = WebApplicationCache(self)
 
     def notifyDbUpdate(self,tblobj,recordOrPkey=None,**kwargs):
         if isinstance(recordOrPkey,list):
@@ -211,3 +236,5 @@ class GnrWsgiWebApp(GnrApp):
     @property
     def locale(self):
         return self.site.locale
+
+
