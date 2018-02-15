@@ -3615,7 +3615,9 @@ dojo.declare("gnr.widgets.DropUploader", gnr.widgets.gnrwdg, {
             }else{
                 gnrwdg.fakeinputNode.domNode.click();
             }
-            
+        }
+        if(genro.isMobile){
+            dropAreaKw.selfsubscribe_doubletap = objectPop(dropAreaKw,'connect_ondblclick');
         }
         dropAreaKw.innerHTML = dropAreaKw.innerHTML || label || '&nbsp;';
         var maxsize = objectPop(kw,'maxsize');
@@ -3694,7 +3696,8 @@ dojo.declare("gnr.widgets.DropUploader", gnr.widgets.gnrwdg, {
         dropAreaKw.onDrop = onFiles;
         containerKw._class =containerKw._class ||  'dropUploaderBox' ;
         var container = sourceNode._('div',containerKw);
-        var fakeinput = container._('input',{hidden:true,type:'file',
+        var fakeinput = container._('input',{hidden:true,
+            type:'file',
                 connect_onchange:function(evt){
                     onFiles({evt:evt},evt.target.files);
                     this.domNode.value = null;
