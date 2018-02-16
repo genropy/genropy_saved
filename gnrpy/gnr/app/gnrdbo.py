@@ -147,8 +147,7 @@ class GnrDboPackage(object):
             for t in rev_tables:
                 if t in self.tables:
                     db.table('%s.%s' %(self.name,t)).empty()
-        self.db.table('adm.preference').initPkgPref(self.name,s['preferences'])
-        db.commit()
+        
         tw = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
         for tablename in tw:
             if tablename not in self.tables:
@@ -177,6 +176,10 @@ class GnrDboPackage(object):
             if recordsToInsert:
                 tblobj.insertMany(recordsToInsert)
         db.commit()
+
+        self.db.table('adm.preference').initPkgPref(self.name,s['preferences'])
+        db.commit()
+        
         os.remove('%s.pik' %bagpath)
 
 
