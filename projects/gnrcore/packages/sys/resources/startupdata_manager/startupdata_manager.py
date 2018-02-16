@@ -268,7 +268,7 @@ class StartupDataManager(BaseComponent):
         folderpath = self.sd_getStartupDataFolder('dbtemplates')
         for i, f in enumerate(os.listdir(folderpath)):
             filename, ext = os.path.splitext(f)
-            if ext == '.xml' or ext == '.zip':
+            if ext == '.zip':
                 result.setItem('r_%i' % i, None, caption=filename,
                                filepath=os.path.join(folderpath, f),
                                fileurl=self.site.getStaticUrl(startup_data_root, 'dbtemplates', f))
@@ -282,10 +282,7 @@ class StartupDataManager(BaseComponent):
             myzip = ZipFile(filepath, 'r')
             myzip.extractall(extractpath)
         prefrecord = self.db.table('adm.preference').loadPreference()
-        if prefrecord['__ins_ts']:
-            #already inited
-            return 
-        else:
+        if not prefrecord['__ins_ts']:
             self.db.table('adm.preference').insert(prefrecord)
             self.db.commit()
         for f in os.listdir(extractpath):
