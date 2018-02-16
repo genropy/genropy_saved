@@ -147,7 +147,7 @@ class MenuResolver(BagResolver):
             if (multidb=='slave' and not dbstore) or (multidb=='master' and dbstore):
                 allowed = False
             if nodetags:
-                allowed = self._page.application.checkResourcePermission(nodetags, userTags)
+                allowed = allowed and self._page.application.checkResourcePermission(nodetags, userTags)
             allowed = allowed and self._page.application.allowedByPreference(**nodeattr)
             if tableattr:
                 allowed = allowed and self._page.application.allowedByPreference(**tableattr)
