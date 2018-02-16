@@ -38,6 +38,17 @@ dojo.declare("gnr.GnrMobileHandler", null, {
     initialize:function() {
         dojo.addClass(document.body,'touchDevice');
         dojo.addClass(document.body,'bodySize_'+genro.deviceScreenSize);
+
+        this.lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            var now = (new Date()).getTime();
+            if (now - genro.mobile.lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            genro.mobile.lastTouchEnd = now;
+        }, false);
+
+        
         this.startHammer(document.body);
         document.body.onorientationchange = function(e) {
             genro.setData('touch.orientation', window.orientation);
