@@ -144,7 +144,7 @@ class _StartupDataDbTemplates(BaseComponent):
                       _fired='^.reload_current_dbtemplates')
 
         frame.dataRpc(None, self.sd_loadDbTemplate,
-                      subscribe_sd_loadDbTemplate=True)
+                      subscribe_sd_loadDbTemplate=True,_lockScreen=True)
         bottom = frame.bottom.slotToolbar('*,bottomUploader,*')
         bottom.bottomUploader.dropUploader(label='Upload',
                                            uploadPath=self.sd_startupdata_root(
@@ -281,8 +281,16 @@ class StartupDataManager(BaseComponent):
             from zipfile import ZipFile
             myzip = ZipFile(filepath, 'r')
             myzip.extractall(extractpath)
+        prefrecord = self.db.table('adm.preference').loadPreference()
+        if prefrecord['__ins_ts']:
+            #already inited
+            return 
+        else:
+            self.db.table('adm.preference').insert(prefrecord)
+            self.db.commit()
         for f in os.listdir(extractpath):
-            if f in self.db.packages:
-                self.db.package(f).loadStartupData(
-                    os.path.join(extractpath, f))
+            pkg,ext = os.path.splitext(f)
+            if pkg in self.db.packages:
+                self.db.package(pkg).loadStartupData(
+                    os.path.join(extractpath, pkg))
         shutil.rmtree(extractpath)

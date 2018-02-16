@@ -147,15 +147,14 @@ class GnrDboPackage(object):
             for t in rev_tables:
                 if t in self.tables:
                     db.table('%s.%s' %(self.name,t)).empty()
-        all_pref = self.db.table('adm.preference').loadPreference()
-        all_pref[self.name] = s['preferences']
-        self.db.table('adm.preference').savePreference(all_pref)
-        db.commit()
+        
         tw = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
         for tablename in tw:
             if tablename not in self.tables:
                 continue
             tblobj = db.table('%s.%s' %(self.name,tablename))
+            if tblobj.attributes.get('multidb')=='*' and not self.db.usingRootstore():
+                continue
             currentRecords = tblobj.query().fetchAsDict('pkey')
             records = s[tablename]
             if not records:
@@ -177,6 +176,10 @@ class GnrDboPackage(object):
             if recordsToInsert:
                 tblobj.insertMany(recordsToInsert)
         db.commit()
+
+        self.db.table('adm.preference').initPkgPref(self.name,s['preferences'])
+        db.commit()
+        
         os.remove('%s.pik' %bagpath)
 
 
@@ -213,7 +216,7 @@ class GnrDboPackage(object):
                     queryPars.update(qp_handler())
                 f = tblobj.dbtable.query(**queryPars).fetch()
             s[tname] = f
-        s['preferences'] = self.db.table('adm.preference').loadPreference()[self.name]
+        s['preferences'] = self.db.table('adm.preference').loadPreference()['data'][self.name]
         s.makePicklable()
         s.pickle('%s.pik' %bagpath)
         import gzip
@@ -587,7 +590,10 @@ class TableBase(object):
         sysRecord_masterfield = self.attributes.get('sysRecord_masterfield') or self.pkey
         
         def createCb(key):
-            with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
+            tempenvkw = dict(connectionName='system')
+            if  self.attributes.get('multidb')=='*':
+                tempenvkw['storename']=self.db.rootstore
+            with self.db.tempEnv(**tempenvkw):
                 record = getattr(self,'sysRecord_%s' %syscode)()
                 record['__syscode'] = key
                 masterfield_value = record[sysRecord_masterfield]
