@@ -1338,8 +1338,12 @@ class GnrWsgiSite(object):
         
         zipresult = open(zipPath, 'wb')
         zip_archive = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED,allowZip64=True)
-        for fname in file_list:
-            zip_archive.write(fname, os.path.basename(fname))
+        for fpath in file_list:
+            if isinstance(fpath,tuple):
+                fpath,newname = fpath
+            else:
+                newname = os.path.basename(fpath)
+            zip_archive.write(fpath, newname)
         zip_archive.close()
         zipresult.close()
 
