@@ -4473,7 +4473,8 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
                         this.domNode.value = null;
                     }
                 });
-                attr.connect_ondblclick = function(){
+                var uploadhandler_key = genro.isMobile? 'selfsubscribe_doubletap':'connect_ondblclick';
+                attr[uploadhandler_key] = function(){
                     this.getValue().getNode('fakeinput').domNode.click();
                 };
                  attr.onDrop_dataUrl = function(dropInfo,data){

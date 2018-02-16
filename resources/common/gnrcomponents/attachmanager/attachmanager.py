@@ -97,9 +97,11 @@ class Form(BaseComponent):
                             cw.document.body.style.zoom = GET #FORM.currentPreviewZoom;""")
         da = sc.contentPane().div(position='absolute',top='10px',left='10px',right='10px',bottom='10px',
             text_align='center',border='3px dotted #999',rounded=8)
+        upload_message = '!!Drag here or double click to upload' if not self.isMobile else "!!Double click to upload"
+        
 
-        da.table(height='100%',width='100%').tr().td().div('!!Drop Area',width='100%',
-                                                            font_size='30px',color='#999')
+        center_cell = da.table(height='100%',width='100%').tr().td()
+        center_cell.div(upload_message,width='100%',font_size='30px',color='#999',hidden='^#FORM.controller.locked')
         fattr = form.attributes
         da.dropUploader(position='absolute',top=0,bottom=0,left=0,right=0,z_index=10,
                         _class='attachmentDropUploader',
@@ -306,12 +308,12 @@ class AttachManager(BaseComponent):
         fb.textbox(value='^.form.record.description',lbl='!!Description')
         frame.dataController("""
             if(frm.getParentForm().isNewRecord()){
-                frame.setHiderLayer(true);
+                frame.setHiderLayer(true,{message:newrecordmessage,background_color:'white'});
             }else{
                 frame.setHiderLayer(false);
                 frm.newrecord();
             }
-            """,store='^.store',_delay=100,
+            """,store='^.store',_delay=100,newrecordmessage="!!Save record before upload attachments",
             _if='!store || store.len()==0',frm=frame.form.js_form,frame=frame)
         frame.dataController("frm.lazySave()",frm=frame.form.js_form,_fired='^.saveDescription')
         frame.onDbChanges(action="""

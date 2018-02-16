@@ -3598,7 +3598,8 @@ dojo.declare("gnr.widgets.DropUploader", gnr.widgets.gnrwdg, {
         var containerKw = objectExtract(kw,'position,top,left,right,bottom,height,width,border,rounded,_class,style')
 
         gnrwdg.pendingHandlers = [];
-        dropAreaKw.connect_ondblclick = function(){
+        var uploadhandler_key = genro.isMobile? 'selfsubscribe_doubletap':'connect_ondblclick'
+        dropAreaKw[uploadhandler_key] = function(){
             if(gnrwdg.pendingHandlers.length){
                 genro.dlg.ask(_T("Abort upload"),
                  _T("Are you sure?"),null,{
@@ -3615,7 +3616,6 @@ dojo.declare("gnr.widgets.DropUploader", gnr.widgets.gnrwdg, {
             }else{
                 gnrwdg.fakeinputNode.domNode.click();
             }
-            
         }
         dropAreaKw.innerHTML = dropAreaKw.innerHTML || label || '&nbsp;';
         var maxsize = objectPop(kw,'maxsize');
@@ -3694,7 +3694,8 @@ dojo.declare("gnr.widgets.DropUploader", gnr.widgets.gnrwdg, {
         dropAreaKw.onDrop = onFiles;
         containerKw._class =containerKw._class ||  'dropUploaderBox' ;
         var container = sourceNode._('div',containerKw);
-        var fakeinput = container._('input',{hidden:true,type:'file',
+        var fakeinput = container._('input',{hidden:true,
+            type:'file',
                 connect_onchange:function(evt){
                     onFiles({evt:evt},evt.target.files);
                     this.domNode.value = null;
