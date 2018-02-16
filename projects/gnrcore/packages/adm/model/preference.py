@@ -21,7 +21,7 @@ class Table(object):
 
     def getMainStorePreference(self):
         result = self.db.application.cache.getItem(MAIN_PREFERENCE)
-        if result is None:
+        if not result:
             result = self.loadPreference()['data']
             self.db.application.cache.setItem(MAIN_PREFERENCE, result)
         return result.deepcopy()
@@ -32,7 +32,7 @@ class Table(object):
         preference = None
         if not self.db.application.cache.expiredItem(MAIN_PREFERENCE):
             preference = self.db.application.cache.getItem(pref_cache_key)
-        if preference is None:
+        if not preference:
             preference = self.getMainStorePreference()
             store_preference =  self.db.package('multidb').getStorePreference()
             for pkgid,pkgobj in self.db.application.packages.items():
@@ -80,7 +80,7 @@ class Table(object):
     def setPreference(self, path=None, value=None, pkg='',_attributes=None,**kwargs):
         with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
             with self.recordToUpdate(MAIN_PREFERENCE) as record:
-                l = ['data','pkg']
+                l = ['data',pkg]
                 if path:
                     l.append(path)
                 record.setItem('.'.join(l), value,_attributes=_attributes,**kwargs)
