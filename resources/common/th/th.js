@@ -163,7 +163,12 @@ var th_sections_manager = {
 dojo.declare("gnr.widgets.ThIframe", gnr.widgets.gnrwdg, {
     thiframe: function(parent,kw){
         var table = objectPop(kw,'table');
+        var dbstore = objectPop(kw,'dbstore');
+
         var url = objectPop(kw,'url') || '/sys/thpage/'+table.replace('.','/');
+        if(dbstore){
+            url = '/'+dbstore+url;
+        }
         var urlPars = {'th_public':false,'th_from_package':genro.getData('gnr.package')};
         url = genro.addParamsToUrl(url,urlPars);
         var pkey = objectPop(kw,'pkey');
@@ -188,7 +193,7 @@ dojo.declare("gnr.widgets.ThIframeDialog", gnr.widgets.ThIframe, {
         kw.onStarted = function(){
             var wdg = dialog.getParentNode().widget;
             this._genro._rootForm.subscribe('onChangedTitle',function(kw){
-                wdg.setTitle(kw.title)
+                wdg.setTitle(kw.title);
             });
             if(onStarted){
                 onStarted.call(this);
@@ -206,7 +211,7 @@ dojo.declare("gnr.widgets.ThIframePalette",gnr.widgets.ThIframe, {
         objectUpdate(paletteAttrs,objectExtract(kw,'palette_*'));
         paletteAttrs = objectUpdate({overflow:'hidden',_lazyBuild:true},paletteAttrs);
         var palette = sourceNode._('palette',paletteAttrs);
-        this.thiframe(palette,kw)
+        this.thiframe(palette,kw);
         return palette;
     }
 });
@@ -221,6 +226,7 @@ dojo.declare("gnr.LinkerManager", null, {
         this.fieldpath = '#FORM.record.'+this.field;
         this.resolverpath = '#FORM.record.@'+this.field;
         this.table = sourceNode.attr.table;
+        this.forbidden_dbstore = sourceNode.attr.forbidden_dbstore;
         this.fakeFormId = sourceNode.attr._formId || 'LK_'+this.table.replace('.','_');
         this.embedded = sourceNode.attr._embedded;
         this.dialog_kwargs = sourceNode.attr._dialog_kwargs;
@@ -282,7 +288,11 @@ dojo.declare("gnr.LinkerManager", null, {
             var destPkey = pkey;
             var iframeDialogKw = {title:'',table:this.table,main:'main_form',
                                  main_th_linker:true,height:'300px',width:'400px',main_th_formId:this.fakeFormId,
-                                 onStarted:function(){that.onIframeStarted(this,destPkey,default_kw)}};
+                                 onStarted:function(){that.onIframeStarted(this,destPkey,default_kw);}};
+            var dbstore = genro.getData('gnr.dbstore');
+            if(dbstore && !this.forbidden_dbstore){
+                iframeDialogKw.dbstore = dbstore;
+            }
             if(this.formResource){
                 iframeDialogKw.main_th_formResource=this.formResource;
             }

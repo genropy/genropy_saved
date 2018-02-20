@@ -740,6 +740,7 @@ class ThLinker(BaseComponent):
                 _customclasscol = """(CASE WHEN @%s.%s IS NOT NUll THEN 'linked_row' ELSE '' END) AS _customclasses_existing""" %(manyrelfld,tblobj.pkey)
                 hiddenColumns = _customclasscol if not hiddenColumns else '%s,%s' %hiddenColumns
         linkerpath = '#FORM.linker_%s' %field
+        forbudden_dbstore = self.dbstore and (related_tblobj.attributes.get('multidb') or related_tblobj.dbtable.use_dbstores() is False)
         linker = pane.div(_class='th_linker',childname='linker',datapath=linkerpath,
                          rounded=8,tip='!!Select %s' %self._(related_tblobj.name_long),
                          onCreated='this.linkerManager = new gnr.LinkerManager(this);',
@@ -747,6 +748,7 @@ class ThLinker(BaseComponent):
                          selfsubscribe_disable='this.linkerManager.closeLinker();',
                          selfsubscribe_newrecord='this.linkerManager.newrecord();',
                          selfsubscribe_loadrecord='this.linkerManager.loadrecord();',
+                         _forbudden_dbstore = forbudden_dbstore,
                          table=related_table,_field=field,_embedded=embedded,
                          _formUrl=formUrl,_formResource=formResource,
                          _dialog_kwargs=dialog_kwargs,_default_kwargs=default_kwargs)
@@ -754,8 +756,8 @@ class ThLinker(BaseComponent):
             openIfEmpty = True
         if (formResource or formUrl) and addEnabled is not False:
             add = linker.div(_class='th_linkerAdd',tip=related_tblobj.dbtable.newRecordCaption(),childname='addbutton',
-                        connect_onclick="this.getParentNode().publish('newrecord')")
-            if addEnabled:
+                        connect_onclick="this.getParentNode().publish('newrecord')",hidden=forbudden_dbstore)
+            if addEnabled and not forbudden_dbstore:
                 pane.dataController("genro.dom.toggleVisible(add,addEnabled);",addEnabled=addEnabled,add=add)
             linker.attributes.update(_embedded=False)
             embedded = False
@@ -770,8 +772,7 @@ class ThLinker(BaseComponent):
         linker.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',
                     connect_onBlur='this.getParentNode().publish("disable");',
                     _class='th_linkerField',background='white',auxColumns=auxColumns,hiddenColumns=hiddenColumns,
-                    lbl=False,
-                    **kwargs)
+                    lbl=False,**kwargs)
         return linker
         
     @extract_kwargs(template=True)
@@ -779,12 +780,12 @@ class ThLinker(BaseComponent):
     def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,
                     formUrl=None,newRecordOnly=None,openIfEmpty=None,
                     _class='pbl_roundedGroup',label=None,template_kwargs=None,
-                    margin=None,editEnabled=True,clientTemplate=False,center_class=None,**kwargs):
+                    margin=None,editEnabled=True,clientTemplate=False,center_class=None,table=None,**kwargs):
         frameCode= frameCode or 'linker_%s' %field.replace('.','_')
         if pane.attributes.get('tag') == 'ContentPane':
             pane.attributes['overflow'] = 'hidden'
         frame = pane.framePane(frameCode=frameCode,_class=_class,margin=margin)
-        linkerBar = frame.top.linkerBar(field=field,formResource=formResource,formUrl=formUrl,newRecordOnly=newRecordOnly,openIfEmpty=openIfEmpty,label=label,**kwargs)
+        linkerBar = frame.top.linkerBar(field=field,formResource=formResource,formUrl=formUrl,newRecordOnly=newRecordOnly,openIfEmpty=openIfEmpty,label=label,table=table,**kwargs)
         linker = linkerBar.linker
         currpkey = '^#FORM.record.%s' %field
         center_class = center_class or 'linkerCenter'
@@ -798,11 +799,13 @@ class ThLinker(BaseComponent):
                                       record_id='^.%s' %field,
                                       visible=currpkey,margin='4px',
                                       **template_kwargs)
+        related_tblobj = self.db.table(linker.attributes.get('table'))
+        forbudden_dbstore = self.dbstore and (related_tblobj.attributes.get('multidb') or related_tblobj.use_dbstores() is False)
         if editEnabled and formResource or formUrl:
             footer = frame.bottom.slotBar('*,linker_edit',height='20px')
             footer.linker_edit.slotButton('Edit',baseClass='no_background',iconClass='iconbox pencil',
                                             action='linker.publish("loadrecord");',linker=linker,
-                                            visible=currpkey,parentForm=True)
+                                            visible=currpkey,parentForm=True,hidden=forbudden_dbstore)
         return frame
 
     @struct_method          
