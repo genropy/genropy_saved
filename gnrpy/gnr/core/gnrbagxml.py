@@ -56,54 +56,23 @@ class BagFromXml(object):
         :param catalog: TODO
         :param bagcls: TODO
         :param empty: TODO"""
-        if not bagcls: bagcls = Bag
-        done = False
-        testmode = False
+        if not bagcls: 
+            bagcls = Bag
         nerror = 0
         if isinstance(source, unicode):
             source = source.encode('utf8')
-        while not done:
-            try:
-                result = self.do_build(source, fromFile, catalog=catalog, bagcls=bagcls, empty=empty, testmode=testmode)
-                done = True
-            except sax.SAXParseException:
-                import sys
-
-                l = sys.exc_info()
-                if l[1].args[0] == 'not well-formed (invalid token)':
-                    nerror = nerror + 1
-                    linepos, colpos = (l[1]._locator.getLineNumber() - 1, l[1]._locator.getColumnNumber())
-                    #print "xml error %i at line %i, col %i: trying to recover..." % (nerror, linepos, colpos)
-                    if fromFile:
-                        f = open(source, 'r')
-                        source = f.read()
-                        f.close()
-                        fromFile = False
-                    source = source.splitlines(True)
-                    errline = source[linepos]
-                    source[linepos] = errline[:colpos] + errline[colpos + 1:]
-                    source = ''.join(source)
-                    testmode = True
-                else:
-                    raise
-                    #raise _BagXmlException(source, l[1].args[0])
-        if testmode:
-            result = self.do_build(source, fromFile, catalog=catalog, bagcls=bagcls, empty=empty)
+        result = self.do_build(source, fromFile, catalog=catalog, bagcls=bagcls, empty=empty)
         return result
 
-    def do_build(self, source, fromFile, catalog=None, bagcls=Bag, empty=None, testmode=False):
+    def do_build(self, source, fromFile, catalog=None, bagcls=Bag, empty=None):
         """TODO
         
         :param source: TODO
         :param fromFile: TODO
         :param catalog: TODO
         :param bagcls: TODO
-        :param empty: TODO
-        :param testmode: TODO"""
-        if not testmode:
-            bagImport = _SaxImporter()
-        else:
-            bagImport = sax.handler.ContentHandler()
+        :param empty: TODO"""
+        bagImport = _SaxImporter()
         if not catalog:
             catalog = gnrclasses.GnrClassCatalog()
         bagImport.catalog = catalog
@@ -121,11 +90,12 @@ class BagFromXml(object):
             source = "<?xml version='1.0' encoding='UTF-8'?>%s" % source.encode('UTF-8')
         source = re.sub("&(?!([a-zA-Z][a-zA-Z0-9]*|#\d+);)", "&amp;", source)
         sax.parseString(source, bagImport)
-        if not testmode:
-            result = bagImport.bags[0][0]
-            if bagImport.format == 'GenRoBag': result = result['GenRoBag']
-            if result == None: result = []
-            return result
+        result = bagImport.bags[0][0]
+        if bagImport.format == 'GenRoBag': 
+            result = result['GenRoBag']
+        if result == None: 
+            result = []
+        return result
 
 class _SaxImporterError(sax.handler.ErrorHandler):
     def error(self, error):

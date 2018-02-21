@@ -55,7 +55,6 @@ def test_filter():
     assert not gnrstring.filter(txt, 'my*', '', '*')
     assert gnrstring.filter(txt, '$beauti$', '$cwp$', '$')
     assert gnrstring.filter(txt, include='*my*', wildcard='*')
-    print not gnrstring.filter(txt, exclude='%princess')
 
 def test_regexDelete():
     """docstring for test_regexDelete"""
@@ -76,7 +75,8 @@ def test_asDict():
 
 def test_stringDict():
     """docstring for test_stringDict"""
-    assert gnrstring.stringDict({'height': 22, 'width': 33}) == 'width=33,height=22'
+    d = {'height': '22', 'width': '33'}
+    assert gnrstring.asDict(gnrstring.stringDict(d)) == d
 
 def test_updateString():
     """docstring for test_updateString"""
@@ -120,6 +120,3 @@ def test_fromIsoDate():
     """docstring for test_fromIsoDate"""
     assert isinstance(gnrstring.fromIsoDate('1983/01/29'), datetime.date)
 
-def test_toJson():
-    res = gnrstring.toJson([{'a': 2}, {'b': 3, 'c': 6}, {'z': 9}])
-    assert res == '[{"a": 2}, {"c": 6, "b": 3}, {"z": 9}]'

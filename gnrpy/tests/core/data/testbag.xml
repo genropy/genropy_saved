@@ -3,10 +3,11 @@
 	<name>John</name>
 	<surname>Doe</surname>
 	<birthday _T="D">1974-11-23</birthday>
+	<weight _T="L">90</weight>
 	<phone>
-		<office _T="L">555450210</office>
-		<home _T="L" private="True::B">555345670</home>
-		<mobile _T="L" sim="vadophone" fbplayer="gattuso">555230450</mobile>
-		<mobile _T="L" sim="tom">444230450</mobile>
+		<office>555450210</office>
+		<home private="True::B">555345670</home>
+		<mobile sim="vadophone" fbplayer="gattuso">555230450</mobile>
+		<mobile sim="tom">444230450</mobile>
 	</phone>
 </GenRoBag>
