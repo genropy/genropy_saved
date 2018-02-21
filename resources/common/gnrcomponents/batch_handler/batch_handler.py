@@ -274,7 +274,7 @@ class TableScriptRunner(TableScriptHandler):
                                        SET .extra_parameters = extra_parameters.len()==0?null: extra_parameters;
                                        FIRE .build_pars_dialog;
                                     """, subscribe_table_script_run=True)
-        batch_pars = self.site.config.getAttr('daemon_batch')
+        batch_pars = self.site.config.getAttr('batch_processes')
         if batch_pars and not boolean(batch_pars.get('disabled')):
             table_script_run = self.table_script_daemon_run
         else:

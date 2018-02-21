@@ -241,7 +241,7 @@ class GnrDaemon(object):
         from gnr.core.gnrstring import boolean
         p = PathResolver()
         siteconfig = p.get_siteconfig(sitename)
-        batch_pars = siteconfig.getAttr('daemon_batch')
+        batch_pars = siteconfig.getAttr('batch_processes')
         if not batch_pars or boolean(batch_pars.get('disabled')):
             self.batch_queue = self.batch_pool = None
             return
