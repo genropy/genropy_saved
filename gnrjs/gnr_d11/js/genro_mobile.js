@@ -38,6 +38,17 @@ dojo.declare("gnr.GnrMobileHandler", null, {
     initialize:function() {
         dojo.addClass(document.body,'touchDevice');
         dojo.addClass(document.body,'bodySize_'+genro.deviceScreenSize);
+
+        this.lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            var now = (new Date()).getTime();
+            if (now - genro.mobile.lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            genro.mobile.lastTouchEnd = now;
+        }, false);
+
+        
         this.startHammer(document.body);
         document.body.onorientationchange = function(e) {
             genro.setData('touch.orientation', window.orientation);
@@ -189,9 +200,13 @@ dojo.declare("gnr.GnrMobileHandler", null, {
         		this._lastY = e.pageY;
         	}else{
         		new this.mover(this.node, e, this);
-        	}
-        	dojo.stopEvent(e);
+            }
+            if(e.type!='touchstart'){
+                dojo.stopEvent(e);
+            }
         };
+
+        
         dojo.require("dojo.dnd.Mover");
         var pr=dojo.dnd.Mover.prototype
     	pr._constructor= function(node, e, host){

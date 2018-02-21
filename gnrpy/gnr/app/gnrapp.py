@@ -78,6 +78,9 @@ class ApplicationCache(object):
     def updatedItem(self,key):
         self.cache.pop(key,None)
 
+    def expiredItem(self,key):
+        return key not in self.cache
+
 
 class GnrModuleFinder(object):
     """TODO"""

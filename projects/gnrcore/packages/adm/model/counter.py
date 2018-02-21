@@ -412,5 +412,8 @@ class Table(object):
             result[fldval.replace('.','_')] = Bag(dict(fldval=fldval,cnt=cnt))
         return result
 
+    def use_dbstores(self,forced_dbstore=None, env_forced_dbstore=None,**kwargs):
+        return True
+
 
 
