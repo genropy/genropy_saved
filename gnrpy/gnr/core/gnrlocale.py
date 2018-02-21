@@ -1,5 +1,9 @@
 # -*- coding: UTF-8 -*-
 
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from past.builtins import basestring
 import datetime
 
 from decimal import Decimal
@@ -25,7 +29,7 @@ def localize(obj, format=None, currency=None, locale=None):
     if handler:
         return handler(obj, locale, format=format, currency=currency)
     else:
-        return unicode(obj)
+        return str(obj)
 
 def formatHandler(obj):
     if isinstance(obj,basestring) and '::' in obj:
@@ -52,7 +56,7 @@ def localize_number(obj, locale, format=None, currency=None):
             else:
                 format = '%s;%s' % (flist[0], flist[1])
         if currency:
-            print currency
+            print(currency)
             return numbers.format_currency(obj, currency=currency, format=format, locale=locale)
         else:
             return numbers.format_decimal(obj, format=format, locale=locale)
@@ -247,8 +251,8 @@ def getMonthNames(locale=None):
     
     :param locale: the current locale (e.g: en, en_us, it)"""
     locale = (locale or DEFAULT_LOCALE).replace('-', '_')
-    d = dict([(v.lower(), k) for k, v in dates.get_month_names(width='wide', locale=locale).items()])
-    d.update([(v.lower(), k) for k, v in dates.get_month_names(width='abbreviated', locale=locale).items()])
+    d = dict([(v.lower(), k) for k, v in list(dates.get_month_names(width='wide', locale=locale).items())])
+    d.update([(v.lower(), k) for k, v in list(dates.get_month_names(width='abbreviated', locale=locale).items())])
     d.update(dict([('m%s' %k,k) for k in range(1,13)]))
     return d
     
@@ -257,8 +261,8 @@ def getDayNames(locale=None):
     
     :param locale: the current locale (e.g: en, en_us, it)"""
     locale = (locale or DEFAULT_LOCALE).replace('-', '_')
-    d = dict([(v.lower(), k) for k, v in dates.get_day_names(width='wide', locale=locale).items()])
-    d.update([(v.lower(), k) for k, v in dates.get_day_names(width='abbreviated', locale=locale).items()])
+    d = dict([(v.lower(), k) for k, v in list(dates.get_day_names(width='wide', locale=locale).items())])
+    d.update([(v.lower(), k) for k, v in list(dates.get_day_names(width='abbreviated', locale=locale).items())])
     return d
     
 def getQuarterNames(locale=None):
@@ -266,8 +270,8 @@ def getQuarterNames(locale=None):
     
     :param locale: the current locale (e.g: en, en_us, it)"""
     locale = (locale or DEFAULT_LOCALE).replace('-', '_')
-    d = dict([(v.lower(), k) for k, v in dates.get_quarter_names(width='wide', locale=locale).items()])
-    d.update([(v.lower(), k) for k, v in dates.get_quarter_names(width='abbreviated', locale=locale).items()])
+    d = dict([(v.lower(), k) for k, v in list(dates.get_quarter_names(width='wide', locale=locale).items())])
+    d.update([(v.lower(), k) for k, v in list(dates.get_quarter_names(width='abbreviated', locale=locale).items())])
     return d
 
 def _localeKey(self,locale):
@@ -303,7 +307,7 @@ def getKeywords(sourcedict,keyword, locale=None):
     return result
     
 TYPES_LOCALIZERS_DICT = {int: localize_number,
-                         long: localize_number,
+                         int: localize_number,
                          float: localize_number,
                          datetime.date: localize_date,
                          datetime.datetime: localize_datetime,
@@ -314,7 +318,7 @@ TYPES_LOCALIZERS_DICT = {int: localize_number,
 }
 
 TYPES_LOCALPARSERS_DICT = {int: parselocal_number,
-                           long: parselocal_number,
+                           int: parselocal_number,
                            float: parselocal_float,
                            datetime.date: parselocal_date,
                            datetime.datetime: parselocal_datetime,

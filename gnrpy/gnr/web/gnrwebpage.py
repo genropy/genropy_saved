@@ -523,6 +523,7 @@ class GnrWebPage(GnrBaseWebPage):
                     result = '%s <br/> Check Exception Id: %s' %(result,exception_record['id'])
         result_handler = getattr(self.rpc, 'result_%s' % mode.lower())
         return_result = result_handler(result)
+        print 'aaa',return_result
         return return_result
         
     def _checkAuth(self, method=None, **parameters):

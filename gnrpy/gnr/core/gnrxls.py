@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 import xlwt
 import os
 from gnr.core.gnrstring import toText

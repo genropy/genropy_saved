@@ -24,6 +24,10 @@
 """
 Some useful operations on lists.
 """
+from past.builtins import cmp
+from builtins import range
+from past.builtins import basestring
+from builtins import object
 from gnr.core.gnrlang import GnrException
 from gnr.core.gnrdecorator import deprecated
 from gnr.core.gnrstring import slugify
@@ -40,7 +44,7 @@ def findByAttr(l, **kwargs):
     
     :param l: the list"""
     result = list(l)
-    for k, v in kwargs.items():
+    for k, v in list(kwargs.items()):
         result = [x for x in result if getattr(x, k, None) == v]
     return result
     
@@ -274,7 +278,7 @@ class XlsReader(object):
     def addSheet(self,sheetname):
         sheet = self.book.sheet_by_name(sheetname)
         linegen = self._sheetlines(sheet)
-        firstline = linegen.next()
+        firstline = next(linegen)
         headers = [slugify(firstline[c],sep='_') for c in range(sheet.ncols)]
         colindex = dict([(i,True)for i,h in enumerate(headers) if h])
         headers = [h for h in headers if h]
@@ -328,7 +332,7 @@ class XlsReader(object):
     def _sheetlines(self,sheet):
         for lineno in range(sheet.nrows):
             line = sheet.row_values(lineno)
-            if filter(lambda elem: elem,line):
+            if [elem for elem in line if elem]:
                 row_types = sheet.row_types(lineno)
                 for i,c in enumerate(line):
                     if row_types[i] == self.XL_CELL_DATE:
@@ -346,7 +350,7 @@ class CsvReader(object):
         self.ext = self.ext.replace('.', '')
         self.filecsv = open(docname,'rU')
         self.rows = csv.reader(self.filecsv,dialect=dialect)
-        self.headers = self.rows.next()
+        self.headers = next(self.rows)
         self.index = dict([(k, i) for i, k in enumerate(self.headers)])
         self.ncols = len(self.headers)
 
@@ -412,10 +416,10 @@ class GnrNamedList(list):
                 list.__setitem__(self, x, v)
                 
     def __str__(self):
-        return '[%s]' % ','.join(['%s=%s' % (k, v) for k, v in self.items()])
+        return '[%s]' % ','.join(['%s=%s' % (k, v) for k, v in list(self.items())])
         
     def __repr__(self):
-        return '[%s]' % ','.join(['%s=%s' % (k, v) for k, v in self.items()])
+        return '[%s]' % ','.join(['%s=%s' % (k, v) for k, v in list(self.items())])
         
     def get(self, x, default=None):
         """Same of ``get`` method's dict
@@ -432,11 +436,11 @@ class GnrNamedList(list):
         ``False`` otherwise
         
         :param x: the key to test"""
-        return self._index.has_key(x)
+        return x in self._index
         
     def items(self):
         """Same of ``items`` method's dict"""
-        items = self._index.items()
+        items = list(self._index.items())
         result = [None] * len(items)
         for k, v in items:
             result[v] = (k, self[v])
@@ -444,14 +448,14 @@ class GnrNamedList(list):
         
     def iteritems(self):
         """Same of ``iteritems`` method's dict"""
-        items = self._index.items()
+        items = list(self._index.items())
         result = [None] * len(items)
         for k, v in items:
             yield (k, self[v])
             
     def keys(self):
         """Same of ``keys`` method's dict"""
-        items = self._index.items()
+        items = list(self._index.items())
         result = [None] * len(items)
         for k, v in items:
             result[v] = k
@@ -476,7 +480,7 @@ class GnrNamedList(list):
         
         :param d: the dict to update
         """
-        for k, v in d.items():
+        for k, v in list(d.items()):
             self[k] = v
             
     def values(self):
@@ -491,7 +495,7 @@ class GnrNamedList(list):
         if columns:
             return [(k, self[k]) for k in columns]
         else:
-            return self.items()
+            return list(self.items())
             
     def extractValues(self, columns):
         """It is a utility method of the sql :meth:`fetch() <gnr.sql.gnrsqldata.SqlQuery.fetch()>`
@@ -501,4 +505,4 @@ class GnrNamedList(list):
         if columns:
             return [self[k] for k in columns]
         else:
-            return self.values()     
+            return list(self.values())     

@@ -20,6 +20,12 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 import re, os
 import datetime
 
@@ -32,7 +38,7 @@ from decimal import Decimal
 from gnr.core import gnrstring
 from gnr.core import gnrclasses
 import time
-import StringIO
+import io
 
 REGEX_XML_ILLEGAL = re.compile(r'<|>|&')
 ZERO_TIME=datetime.time(0,0)
@@ -59,7 +65,7 @@ class BagFromXml(object):
         if not bagcls: 
             bagcls = Bag
         nerror = 0
-        if isinstance(source, unicode):
+        if isinstance(source, str):
             source = source.encode('utf8')
         result = self.do_build(source, fromFile, catalog=catalog, bagcls=bagcls, empty=empty)
         return result
@@ -84,7 +90,7 @@ class BagFromXml(object):
             source = infile.read()
             infile.close()
                 
-        if isinstance(source, unicode):
+        if isinstance(source, str):
             if source.startswith('<?xml'):
                 source = source[source.index('?>'):]
             source = "<?xml version='1.0' encoding='UTF-8'?>%s" % source.encode('UTF-8')
@@ -126,7 +132,7 @@ class _SaxImporter(sax.handler.ContentHandler):
         return value
 
     def startElement(self, tagLabel, attributes):
-        attributes = dict([(str(k), self.catalog.fromTypedText(saxutils.unescape(v))) for k, v in attributes.items()])
+        attributes = dict([(str(k), self.catalog.fromTypedText(saxutils.unescape(v))) for k, v in list(attributes.items())])
         if  len(self.bags) == 1:
             if tagLabel.lower() == 'genrobag': self.format = 'GenRoBag'
             else: self.format = 'xml'
@@ -220,7 +226,7 @@ class BagToXml(object):
         
         :param node: the :meth:`BagNode <gnr.core.gnrbag.BagNode>`"""
         nodeattr = dict(node.attr)
-        local_namespaces = [k[6:] for k in nodeattr.keys() if k.startswith('xmlns:')]
+        local_namespaces = [k[6:] for k in list(nodeattr.keys()) if k.startswith('xmlns:')]
         current_namespaces = namespaces+local_namespaces
         #filter(lambda k: k.startswith('xmlns:'), nodeattr.keys())
 
@@ -336,7 +342,9 @@ class BagToXml(object):
             result = result + self.bagToXmlBlock(bag,namespaces=[])
         else:
             result = result + self.buildTag('GenRoBag', self.bagToXmlBlock(bag,namespaces=[]), xmlMode=True, localize=False)
-        result = unicode(result).encode(encoding, 'replace')
+        #result = str(result).encode(encoding, 'replace')
+        #result = unicode(result).encode(encoding, 'replace')
+
         if pretty:
             from xml.dom.minidom import parseString
             result = parseString(result)
@@ -378,10 +386,10 @@ class BagToXml(object):
                         value = float(value)
                     value, t = self.catalog.asTextAndType(value, translate_cb=self.translate_cb if localize else None)
                 if isinstance(value, BagAsXml):
-                    print x
+                    print(x)
                 try:
-                    value = unicode(value)
-                except Exception, e:
+                    value = str(value)
+                except Exception as e:
                     raise e
                     #raise '%s: %s' % (str(tagName), value)
         if attributes:
@@ -391,24 +399,24 @@ class BagToXml(object):
             if tagName == '__flatten__':
                 return value
             if self.omitUnknownTypes:
-                attributes = dict([(k, v) for k, v in attributes.items()
+                attributes = dict([(k, v) for k, v in list(attributes.items())
                                     if isinstance(v,basestring) or 
-                                                ( type(v) in (int, float, long,
+                                                ( type(v) in (int, float, int,
                                                   datetime.date, datetime.time, datetime.datetime,
                                                   bool, type(None), list, tuple, dict, Decimal) ) or (callable(v) and 
                                             (hasattr(v,'is_rpc') or hasattr(v,'__safe__') or
                                             (hasattr(v,'__name__') and v.__name__.startswith('rpc_')))
                                             )])
             else:
-                attributes = dict([(k, v) for k, v in attributes.items()])
+                attributes = dict([(k, v) for k, v in list(attributes.items())])
             if self.typeattrs:
                 attributes = ' '.join(['%s=%s' % (
                 lbl, saxutils.quoteattr(self.catalog.asTypedText(val, translate_cb=self.translate_cb,jsmode=True))) for lbl, val in
-                                       attributes.items()])
+                                       list(attributes.items())])
             else:
                 attributes = ' '.join(
                         ['%s=%s' % (lbl, saxutils.quoteattr(self.catalog.asText(val, translate_cb=self.translate_cb)))
-                         for lbl, val in attributes.items() if val is not False])
+                         for lbl, val in list(attributes.items()) if val is not False])
 
         originalTag = tagName
         if not tagName:
@@ -428,9 +436,9 @@ class BagToXml(object):
             result = '%s _T="%s"' % (result, t)
         if attributes: result = "%s %s" % (result, attributes)
         if isinstance(value, BagAsXml):
-            print x
+            print(x)
         if not xmlMode:
-            if not isinstance(value, unicode): value = unicode(value, 'UTF-8')
+            if not isinstance(value, str): value = str(value, 'UTF-8')
             #if REGEX_XML_ILLEGAL.search(value): value='<![CDATA[%s]]>' % value
             #else: value = saxutils.escape((value))
             
@@ -477,7 +485,7 @@ class XmlOutputBag(object):
                 output=open(filepath,'w')
     
             else:
-                output = StringIO.StringIO()
+                output = io.StringIO()
         self.output = output
 
     def __enter__(self):

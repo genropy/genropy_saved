@@ -20,6 +20,7 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from __future__ import print_function
 import warnings
 from gnr.core.gnrdict import dictExtract
 from time import time
@@ -29,7 +30,7 @@ def metadata(**kwargs):
     """TODO"""
     def decore(func):
         prefix = kwargs.pop('prefix',None)
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             setattr(func, '%s_%s' %(prefix,k) if prefix else k, v)
         return func
         
@@ -43,7 +44,7 @@ def public_method(*args,**metadata):
         def decore(func):
             prefix = metadata.pop('prefix',None)
             func.is_rpc = True
-            for k, v in metadata.items():
+            for k, v in list(metadata.items()):
                 setattr(func, '%s_%s' %(prefix,k) if prefix else k, v)
             return func
         return decore
@@ -60,7 +61,7 @@ def websocket_method(*args,**metadata):
         def decore(func):
             prefix = metadata.pop('prefix',None)
             func.is_rpc = True
-            for k, v in metadata.items():
+            for k, v in list(metadata.items()):
                 setattr(func, '%s_%s' %(prefix,k) if prefix else k, v)
             return func
         return decore
@@ -77,14 +78,14 @@ def timer_call(time_list=[], print_time=True):
             res = func(*arg, **kw)
             t2 = time()
             if print_time:
-                print '-' * 80
-                print '%s took %0.3f ms' % (func.func_name, (t2 - t1) * 1000.0)
-                print 10 * ' ' + 28 * '-' + 'args' + 28 * '-' + 10 * ' '
-                print arg
-                print 10 * ' ' + 27 * '-' + 'kwargs' + 27 * '-' + 10 * ' '
-                print kw or (hasattr(arg[0], 'kwargs') and arg[0].kwargs)
-                print '-' * 80
-            time_list.append((func.func_name, (t2 - t1) * 1000.0))
+                print('-' * 80)
+                print('%s took %0.3f ms' % (func.__name__, (t2 - t1) * 1000.0))
+                print(10 * ' ' + 28 * '-' + 'args' + 28 * '-' + 10 * ' ')
+                print(arg)
+                print(10 * ' ' + 27 * '-' + 'kwargs' + 27 * '-' + 10 * ' ')
+                print(kw or (hasattr(arg[0], 'kwargs') and arg[0].kwargs))
+                print('-' * 80)
+            time_list.append((func.__name__, (t2 - t1) * 1000.0))
             return res
             
         return wrapper
@@ -97,7 +98,7 @@ def time_cost():
             t1 = time()
             res = func(*arg, **kw)
             t2 = time()
-            print '%s took %0.3f ms' % (func.func_name, (t2 - t1) * 1000.0) 
+            print('%s took %0.3f ms' % (func.__name__, (t2 - t1) * 1000.0)) 
             return res
         return wrapper
     return decore
@@ -161,7 +162,7 @@ def extract_kwargs(_adapter=None,_dictkwargs=None,**extract_kwargs):
                 adapter=getattr(self,_adapter)
                 if adapter:
                     adapter(kwargs)
-            for extract_key,extract_value in extract_kwargs.items():
+            for extract_key,extract_value in list(extract_kwargs.items()):
                 grp_key='%s_kwargs' %extract_key
                 curr=kwargs.pop(grp_key,dict())
                 dfltExtract=dict(slice_prefix=True,pop=False,is_list=False)
@@ -197,12 +198,12 @@ def customizable(func):
     return newFunc
 
 def oncalling(func):
-    setattr(func,'mixin_as','%s_oncalling_#' %(func.func_name))
+    setattr(func,'mixin_as','%s_oncalling_#' %(func.__name__))
     return func
 
 
 def oncalled(func):
-    setattr(func,'mixin_as','%s_oncalled_#' %(func.func_name))
+    setattr(func,'mixin_as','%s_oncalled_#' %(func.__name__))
     return func
     
 def deprecated(message=None):

@@ -21,6 +21,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 
+from builtins import str
 from decimal import Decimal,ROUND_HALF_UP
 
 def decimalRound(value=None,places=2,rounding=None):

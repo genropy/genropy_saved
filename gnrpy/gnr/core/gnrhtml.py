@@ -6,6 +6,9 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
+from __future__ import division
+from past.utils import old_div
+from builtins import object
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrstructures import GnrStructData
@@ -58,7 +61,7 @@ class GnrHtmlSrc(GnrStructData):
             return GnrHtmlElem(self, '%s' % (self.genroNameSpace[func_namelower]))
             
         else:
-            raise AttributeError, func_name
+            raise AttributeError(func_name)
             
     def style(self, style='', **kwargs):
         """Creates a ``<style>`` tag"""
@@ -477,7 +480,7 @@ class GnrHtmlBuilder(object):
                 except:
                     pass
                 style_dict[name] = value
-        attr['style'] = ''.join(['%s:%s;' % (k, v) for k, v in style_dict.items()])
+        attr['style'] = ''.join(['%s:%s;' % (k, v) for k, v in list(style_dict.items())])
             
     def styleMaker(self, attr):
         """TODO
@@ -486,10 +489,10 @@ class GnrHtmlBuilder(object):
         style = attr.pop('style', '')
         style = style.replace('\n', '')
         style_dict = dict([(splitAndStrip(x, ':')) for x in style.split(';') if ':' in x])
-        for oneattr in attr.keys():
+        for oneattr in list(attr.keys()):
             if oneattr in self.styleAttrNames or ('_' in oneattr and oneattr.split('_')[0] in self.styleAttrNames):
                 style_dict[oneattr.replace('_', '-')] = attr.pop(oneattr)
-        attr['style'] = ''.join(['%s:%s;' % (k, v) for k, v in style_dict.items()])
+        attr['style'] = ''.join(['%s:%s;' % (k, v) for k, v in list(style_dict.items())])
             
     def finalize(self, src):
         """TODO
@@ -531,18 +534,18 @@ class GnrHtmlBuilder(object):
                      
         if layout.elastic_rows:
             if layout.height:
-                height = (layout.height - sum(
-                        [(row.height) for row in layout.values() if row.height]) - layout.border_width * (
-                len(layout) - 1)) / len(layout.elastic_rows)
+                height = old_div((layout.height - sum(
+                        [(row.height) for row in list(layout.values()) if row.height]) - layout.border_width * (
+                len(layout) - 1)), len(layout.elastic_rows))
                 for row in layout.elastic_rows:
                     row.height = height
             else:
                 raise GnrHtmlSrcError('No total height with elastic rows')
                 ## Possibile ricerca in profondità
 
-        if layout.values():
-            layout.height = sum([row.height for row in layout.values()]) + layout.border_width * (len(layout) - 1)
-            layout.values()[-1].row_border = False
+        if list(layout.values()):
+            layout.height = sum([row.height for row in list(layout.values())]) + layout.border_width * (len(layout) - 1)
+            list(layout.values())[-1].row_border = False
 
         attr['top'] = layout.top
         attr['left'] = layout.left
@@ -565,15 +568,15 @@ class GnrHtmlBuilder(object):
         :param row: TODO"""
         if row.elastic_cells:
             if layout.width:
-                elastic_width = (layout.width - sum(
-                        [cell.width for cell in row.values() if cell.width]) - layout.border_width * (
-                len(row) - 1)) / len(row.elastic_cells)
+                elastic_width = old_div((layout.width - sum(
+                        [cell.width for cell in list(row.values()) if cell.width]) - layout.border_width * (
+                len(row) - 1)), len(row.elastic_cells))
                 for cell in row.elastic_cells:
                     cell.width = elastic_width
             else:
                 raise GnrHtmlSrcError('No total width with elastic cells')
                 ## Possibile ricerca in profondità
-        cells = row.values()
+        cells = list(row.values())
         if cells:
             cells[-1].cell_border = False
         attr['height'] = row.height
@@ -659,7 +662,7 @@ def test0(pane):
     layout.style(".uuu{color:red;}")
     layout.style(".mmm{font-family:courier;}")
     layout.script("aaaaaaaaaaa")
-    x = d / 3.
+    x = old_div(d, 3.)
     r = layout.row(_class='uuu')
     r.cell('foo', lbl='name', _class='myclass')
     r.cell('bar', width=x, lbl='weight')
@@ -675,7 +678,7 @@ def test0(pane):
     layout = subtable.layout(name='inner', um='mm', border_width=1, top=0, left=0, right=0, bottom=0,
                              border_color='green',
                              lbl_height=4, lbl_class='z1', content_class='content')
-    x = x / 2.
+    x = old_div(x, 2.)
     r = layout.row()
     r.cell('foo')
     r.cell('bar', width=x)

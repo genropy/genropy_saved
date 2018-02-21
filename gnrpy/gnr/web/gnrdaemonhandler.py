@@ -95,6 +95,8 @@ class GnrDaemonProxy(object):
             Pyro4.config.HMAC_KEY = self.hmac_key
         Pyro4.config.SERIALIZER = options.get('serializer','pickle')
         Pyro4.config.COMPRESSION = options.get('compression',True)
+        Pyro4.config.ITER_STREAMING = False
+
 
         if options.get('socket'):
             self.uri='PYRO:GnrDaemon@./u:%s' % options.get('socket')

@@ -51,7 +51,9 @@ UID         Unique Identifier   Specifies a value that represents a persistent, 
 VERSION     Version Version of the vCard Specification
 KEY         Public Key  The public encryption key associated with the vCard object
 """
+from __future__ import print_function
 
+from builtins import object
 from gnr.core.gnrbag import Bag
 import os.path
 import sys
@@ -61,7 +63,7 @@ VALID_VCARD_TAGS = ['n','fn','nickname','photo','bday','adr','label','tel','emai
               'mailer','tz','geo','title','role','logo','agent','org','note',
               'rev','sound','url','uid','version','key']
 
-class VCard:
+class VCard(object):
     def __init__(self, card=None,**kwargs):
         self.j=vobject.vCard()
 
@@ -102,13 +104,13 @@ class VCard:
 
     def setTag(self,tag,data):
         if data:
-            print tag, data
+            print(tag, data)
             assert tag in VALID_VCARD_TAGS, 'ERROR: %s is not a valid tag' %tag
             if tag in ['n','adr']:
                 getattr(self, '%s%s' %('_tag_',tag))(tag,data)
             else:
                 count = 0
-                for k2, v2 in data.items():
+                for k2, v2 in list(data.items()):
                     if v2:
                         path = '#%i' %count
                         count=count+1
@@ -125,9 +127,9 @@ class VCard:
 
 
     def fillFrom(self,card):
-        print 'card_bag'
-        print card
-        for tag,v in card.items():
+        print('card_bag')
+        print(card)
+        for tag,v in list(card.items()):
             if tag=='n':
                 self.setTag(tag,v)
             elif tag=='adr':
@@ -158,6 +160,6 @@ if __name__ == '__main__':
     
 
     c = VCard(x)
-    print dir(c)
-    print c.doserialize()
+    print(dir(c))
+    print(c.doserialize())
     #c.doprettyprint()

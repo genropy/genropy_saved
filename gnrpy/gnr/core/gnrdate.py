@@ -20,6 +20,13 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from __future__ import division
+from past.builtins import cmp
+from builtins import str
+from builtins import map
+from past.builtins import basestring
+from builtins import object
+from past.utils import old_div
 import re
 import logging
 import datetime
@@ -180,26 +187,26 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
                 dateStart = addToMonth(datestr, workdate)
             if isEndPeriod:
                 dateEnd = monthEnd(date=dateStart)
-        elif anyWordIn(quarters.keys(), datestr): # quarter
+        elif anyWordIn(list(quarters.keys()), datestr): # quarter
             qt, year = splitAndStrip(datestr, sep=' ', n=1, fixed=2)
             year = yearDecode(year)
             qt = quarters[qt]
             dateStart = (year, qt * 3 - 2)
             if isEndPeriod:
                 dateEnd = (year, qt * 3)
-        elif anyWordIn(def_quarters.keys(), datestr): # quarter
+        elif anyWordIn(list(def_quarters.keys()), datestr): # quarter
             qt, year = splitAndStrip(datestr, sep=' ', n=1, fixed=2)
             year = yearDecode(year)
             qt = def_quarters[datestr]
             dateStart = (year, qt * 3 - 2)
             if isEndPeriod:
                 dateEnd = (year, qt * 3)
-        elif anyWordIn(months.keys(), datestr):                                 # month name
+        elif anyWordIn(list(months.keys()), datestr):                                 # month name
             month, year = splitAndStrip(datestr, sep=' ', n=1, fixed=2)
             year = yearDecode(year)
             month = months[month]
             dateStart = (year, month)
-        elif anyWordIn(def_months.keys(), datestr):                                 # month name
+        elif anyWordIn(list(def_months.keys()), datestr):                                 # month name
             month, year = splitAndStrip(datestr, sep=' ', n=1, fixed=2)
             year = yearDecode(year)
             month = def_months[month]
@@ -426,11 +433,11 @@ def toTime(t):
         return t
     elif isinstance(t, basestring):
         try:
-            return datetime.time(*map(int, t.split(':')))
+            return datetime.time(*list(map(int, t.split(':'))))
         except ValueError:
-            raise ValueError, "toTime(%s) unrecognized string format" % repr(t)
+            raise ValueError("toTime(%s) unrecognized string format" % repr(t))
     else:
-        raise ValueError, "toTime(%s) accepts only times, datetimes or strings" % repr(t)
+        raise ValueError("toTime(%s) accepts only times, datetimes or strings" % repr(t))
 
 def toDate(date_or_datetime):
     """Convert a date or datetime to a date. Return it
@@ -441,7 +448,7 @@ def toDate(date_or_datetime):
     elif isinstance(date_or_datetime, datetime.date):
         return date_or_datetime
     else:
-        raise ValueError, "toDate(%s) accepts only dates or datetimes" % repr(date_or_datetime)
+        raise ValueError("toDate(%s) accepts only dates or datetimes" % repr(date_or_datetime))
 
 def dateRange(dstart, dstop):
     """Return an iterator over a range of dates.
@@ -485,7 +492,7 @@ def minutes_to_time(mins):
     
     >>> minutes_to_time(480)
     datetime.time(8, 0)"""
-    hours = mins / 60
+    hours = old_div(mins, 60)
     mins = mins % 60
     return datetime.time(hours, mins)
 
@@ -551,7 +558,7 @@ class TimeInterval(object):
             elif not start:
                 start = minutes_to_time(time_to_minutes(toTime(stop)) - minutes)
             else:
-                raise ValueError, "TimeInterval() constructor: please specify either 'start' or 'stop' when specifying 'minutes'"
+                raise ValueError("TimeInterval() constructor: please specify either 'start' or 'stop' when specifying 'minutes'")
         if not stop:
             if isinstance(start, TimeInterval):
                 other = start
@@ -564,8 +571,8 @@ class TimeInterval(object):
         self.start = toTime(start)
         self.stop = toTime(stop)
         if self.start >= self.stop:
-            raise ValueError, "TimeInterval(start=%s,stop=%s): start must be earlier than stop" % (
-            repr(start), repr(stop))
+            raise ValueError("TimeInterval(start=%s,stop=%s): start must be earlier than stop" % (
+            repr(start), repr(stop)))
 
     def __str__(self):
         return "%d:%02d-%d:%02d" % (self.start.hour, self.start.minute, self.stop.hour, self.stop.minute)
@@ -688,7 +695,7 @@ class TimeInterval(object):
     @minutes.setter
     def minutes(self, value):
         mins = self.start.hour * 60 + self.start.minute + value
-        hours = mins / 60
+        hours = old_div(mins, 60)
         mins = mins % 60
         self.stop = datetime.time(hours, mins)
 

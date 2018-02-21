@@ -1,3 +1,8 @@
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 from gnr.core.gnrlang import  GnrException
 
 try:
@@ -16,7 +21,7 @@ try:
 
     warnings.filterwarnings(category=DeprecationWarning, module='pyPdf', action='ignore')
     from pyPdf import PdfFileWriter, PdfFileReader
-    from cStringIO import StringIO
+    from io import StringIO
 
     HAS_PYPDF = True
 except ImportError:
@@ -196,7 +201,7 @@ class PrintHandler(object):
         args = ['wkhtmltopdf']
         pdf_kwargs.pop('page_height', None)
         pdf_kwargs.pop('page_width', None)
-        for k,v in pdf_kwargs.items():
+        for k,v in list(pdf_kwargs.items()):
             if v is not False and v is not None and v!='':
                 args.append('--%s' %k.replace('_','-'))
                 if v is not True:
@@ -250,11 +255,11 @@ class PrintHandler(object):
         printersBag = Bag()
         if self.hasCups:
             cups_connection = cups.Connection()
-            for printer_name, printer in cups_connection.getPrinters().items():
+            for printer_name, printer in list(cups_connection.getPrinters().items()):
                 printer.update(dict(name=printer_name))
                 printersBag.setItem('%s.%s' % (printer['printer-location'], printer_name.replace(':','_')), None, printer)
         else:
-            print 'pyCups is not installed'
+            print('pyCups is not installed')
         return printersBag
         
     def getPrinterAttributes(self, printer_name):

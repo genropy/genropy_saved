@@ -20,17 +20,22 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import chr
+from builtins import str
+from past.builtins import basestring
 import smtplib
 from email.mime.text import MIMEText
 from email.MIMEMultipart import MIMEMultipart
 from email.mime.image import MIMEImage
 from email.mime.application import MIMEApplication
 from email.utils import formatdate
-import re, htmlentitydefs
+import re, html.entities
 import mimetypes
 from gnr.core.gnrbaseservice import GnrBaseService
 from gnr.core.gnrstring import templateReplace
-import thread
+import _thread
 import os
 import datetime
 import time
@@ -52,15 +57,15 @@ def clean_and_unescape(text):
             # character reference
             try:
                 if text[:3] == "&#x":
-                    return unichr(int(text[3:-1], 16))
+                    return chr(int(text[3:-1], 16))
                 else:
-                    return unichr(int(text[2:-1]))
+                    return chr(int(text[2:-1]))
             except ValueError:
                 pass
         else:
             # named entity
             try:
-                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+                text = chr(html.entities.name2codepoint[text[1:-1]])
             except KeyError:
                 pass
         return text # leave as it is written
@@ -390,7 +395,7 @@ class MailHandler(GnrBaseService):
             
         else:
             thread_params = dict(call=self._sendmail, call_args=sendmail_args, cb=cb, cb_args=cb_args, cb_kwargs=cb_kwargs)
-            thread.start_new_thread(self._send_with_cb,(),thread_params)
+            _thread.start_new_thread(self._send_with_cb,(),thread_params)
 
 
     def _send_with_cb(self, call=None, call_args=None, call_kwargs=None, cb=None, cb_args=None, cb_kwargs=None):

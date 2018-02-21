@@ -20,10 +20,21 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from __future__ import division
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import filter
+from builtins import chr
+from builtins import str
+from builtins import range
+from past.builtins import basestring
+from past.utils import old_div
+from builtins import object
 import re
-import cPickle
+import pickle
 import zipfile
-import StringIO
+import io
 import logging
 import datetime
 
@@ -90,7 +101,7 @@ try:
                             template = templateNode.value
                             joiner = templateNode.getAttr('joiner','')
                             result = []
-                            for v in value.values():
+                            for v in list(value.values()):
                                 result.append(templateReplace(template,v, locale=self.locale, 
                                                 formats=self.formats,masks=self.masks,editcols=self.editcols,dtypes=self.dtypes, noneIsBlank=self.noneIsBlank))
                             return joiner.join(result)
@@ -122,7 +133,7 @@ try:
             dtype = self.dtypes.get(as_name)
             if dtype =='P' and self.urlformatter:
                 value = self.urlformatter(value)
-            if (isinstance(value,basestring) or isinstance(value,unicode)) and dtype:
+            if (isinstance(value,basestring) or isinstance(value,str)) and dtype:
                 value = '%s::%s' %(value,dtype)
             if mask and '#' in mask:
                 caption = self.localizer.translate(caption) if self.localizer else caption.replace('!!','')
@@ -151,7 +162,7 @@ try:
                     template = templateNode.value
                     joiner = templateNode.getAttr('joiner','')
                     result = []
-                    for k,v in value.items():
+                    for k,v in list(value.items()):
                         result.append(templateReplace(template,v, locale=self.locale))
                     value = joiner.join(result)
             return value
@@ -523,7 +534,7 @@ def stringDict(myDict, itemSep=',', argSep='=',isSorted=False):
     >>> stringDict({'height':22,'width':33})
      'width=33,height=22'
     """
-    keys = myDict.keys()
+    keys = list(myDict.keys())
     if isSorted:
         keys = keys.sort()
     return itemSep.join([argSep.join((str(k), str(myDict[k]))) for k in keys])
@@ -611,7 +622,7 @@ def countOf(myString, srcString):
     >>> countOf(a,b)
     3
     """
-    return (len(myString) - len(myString.replace(srcString, ''))) / len(srcString)
+    return old_div((len(myString) - len(myString.replace(srcString, ''))), len(srcString))
     
 def split(path, sep='.'):
     """Return a list splitting a path string at any occurrency of separation character.
@@ -735,7 +746,7 @@ def baseEncode(number, base='/16', nChars=None):
     result = []
     while (number >= 1):
         result.insert(0, base[int(math.fmod(number, b))])
-        number = math.floor(number / b)
+        number = math.floor(old_div(number, b))
         
     if (len(result) > nChars): result = []
     elif (len(result) < nChars):
@@ -797,7 +808,7 @@ def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=Non
         #what?
     if obj in (None,''): return u''
     if not (locale or format):
-        result = unicode(obj)
+        result = str(obj)
     else:
         result = localize(obj, locale=locale, format=format, currency=currency)
         
@@ -817,7 +828,7 @@ def guessLen(dtype, locale=None, format=None, mask=None, encoding=None):
                    'DH': datetime.datetime.now(),
                    'I': 1234, 'L': 48205294, 'R': 34567.67, 'serial': 123445566}
     result = 10
-    if dtype in typeSamples.keys():
+    if dtype in list(typeSamples.keys()):
         result = len(toText(typeSamples[dtype], format=format, mask=mask))
     return result
     
@@ -843,7 +854,7 @@ def pickleObject(obj, zipfilename=None):
         
     :param obj: The given object
     :param zipfilename: TODO"""
-    objstr = cPickle.dumps(obj)
+    objstr = pickle.dumps(obj)
     if zipfilename:
         objstr = zipString(objstr, zipfilename)
     return objstr
@@ -855,14 +866,14 @@ def unpickleObject(objstr, zipfilename=None):
     :param zipfilename: TODO"""
     if zipfilename:
         objstr = unzipString(objstr, zipfilename)
-    return cPickle.loads(objstr)
+    return pickle.loads(objstr)
     
 def zipString(mystring, filename):
     """Return a zip compressed version of the *mystring* string
         
     :param mystring: The given string
     :param filename: name of the zipped file"""
-    zipresult = StringIO.StringIO()
+    zipresult = io.StringIO()
     zip = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED)
     zip.writestr(filename, mystring)
     zip.close()
@@ -875,7 +886,7 @@ def unzipString(mystring, filename):
         
     :param mystring: the compressed string to decompress
     :param filename: the name of the unzipped file"""
-    zipresult = StringIO.StringIO(mystring)
+    zipresult = io.StringIO(mystring)
     zip = zipfile.ZipFile(zipresult, mode='r', compression=zipfile.ZIP_DEFLATED)
     result = zip.read(filename)
     zip.close()
@@ -920,9 +931,9 @@ def slugify(value,sep='-'):
         
     :param value: TODO"""
     import unicodedata
-    value = unicode(value)
+    value = str(value)
     value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
-    value = unicode(re.sub('[^\w\s-]', '', value).strip().lower())
+    value = str(re.sub('[^\w\s-]', '', value).strip().lower())
     return re.sub('[-\s]+', sep, value)
     
 def fromJson(obj):
@@ -951,7 +962,7 @@ def jsquote(str_or_unicode):
     'pippo'"""
     if isinstance(str_or_unicode, str):
         return repr(str_or_unicode)
-    elif isinstance(str_or_unicode, unicode):
+    elif isinstance(str_or_unicode, str):
         return repr(str_or_unicode.encode('utf-8'))
 
         
@@ -959,7 +970,7 @@ if __name__ == '__main__':
     incl = '%.py,%.css'
     excl = '_%,.%'
     lst = ['pippo.py', 'piero.txt', '_gino.py', '.ugo.css', 'mario.css', 'sergio.py']
-    result = [x for x in lst if filter(x, include=incl, exclude=excl)]
-    print toJson([1, 2, 4])
-    print result
+    result = [x for x in lst if list(filter(x, include=incl, exclude=excl))]
+    print(toJson([1, 2, 4]))
+    print(result)
     
