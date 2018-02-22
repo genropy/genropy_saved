@@ -34,16 +34,15 @@ class Table(object):
             preference = self.db.application.cache.getItem(pref_cache_key)
         if not preference:
             preference = self.getMainStorePreference()
-            self.db.package('multidb'):
-                store_preference =  self.db.package('multidb').getStorePreference()
-                for pkgid,pkgobj in self.db.application.packages.items():
-                    if pkgobj.attributes.get('multidb_pref'):
-                        preference[pkgid] = store_preference[pkgid] or Bag()
+            store_preference =  self.db.package('multidb').getStorePreference()
+            for pkgid,pkgobj in self.db.application.packages.items():
+                if pkgobj.attributes.get('multidb_pref'):
+                    preference[pkgid] = store_preference[pkgid] or Bag()
             self.db.application.cache.setItem(pref_cache_key,preference)
         return preference.deepcopy()
 
     def getPreference(self, path, pkg=None, dflt=None):
-        prefdata = self.getStorePreferences() if not self.db.usingRootstore() else self.getMainStorePreference()
+        prefdata = self.getStorePreferences() if self.db.package('multidb') and not self.db.usingRootstore() else self.getMainStorePreference()
         if path=='*':
             path = None
             pkg = None
