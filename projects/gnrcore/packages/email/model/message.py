@@ -143,10 +143,14 @@ class Table(object):
 
     def newMessageFromUserTemplate(self,record_id=None,letterhead_id=None,
                             template_id=None,table=None,template_code=None,
-                            attachments=None,to_address=None, **kwargs):
-        return self.newMessage(**self.db.application.site.getService('mail').mailParsFromUserTemplate(record_id=record_id,letterhead_id=letterhead_id,
+                            attachments=None,to_address=None, subject=None,
+                            cc_address=None,bcc_address=None,from_address=None, account_id=None, **kwargs):
+        mail_handler=self.db.application.site.getService('mail')
+
+        return self.newMessage(**mail_handler.mailParsFromUserTemplate(record_id=record_id,letterhead_id=letterhead_id,
                             template_id=template_id,table=table,template_code=template_code,
-                            attachments=attachments,to_address=to_address, **kwargs))
+                            attachments=attachments,to_address=to_address, subject=subject,
+                            cc_address=cc_address,bcc_address=bcc_address,from_address=from_address, account_id=account_id, **kwargs))
     
 
     @public_method
