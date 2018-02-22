@@ -34,10 +34,11 @@ class Table(object):
             preference = self.db.application.cache.getItem(pref_cache_key)
         if not preference:
             preference = self.getMainStorePreference()
-            store_preference =  self.db.package('multidb').getStorePreference()
-            for pkgid,pkgobj in self.db.application.packages.items():
-                if pkgobj.attributes.get('multidb_pref'):
-                    preference[pkgid] = store_preference[pkgid] or Bag()
+            self.db.package('multidb'):
+                store_preference =  self.db.package('multidb').getStorePreference()
+                for pkgid,pkgobj in self.db.application.packages.items():
+                    if pkgobj.attributes.get('multidb_pref'):
+                        preference[pkgid] = store_preference[pkgid] or Bag()
             self.db.application.cache.setItem(pref_cache_key,preference)
         return preference.deepcopy()
 
