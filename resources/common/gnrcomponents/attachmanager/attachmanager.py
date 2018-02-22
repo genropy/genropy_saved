@@ -139,7 +139,7 @@ class AttachManager(BaseComponent):
 
     @struct_method
     def at_attachmentGrid(self,pane,title=None,searchOn=False,pbl_classes=True,datapath='.attachments',
-                            screenshot=False,viewResource=None,design=None,**kwargs):
+                            screenshot=False,viewResource=None,design=None,maintable_id=None,uploaderButton=False,**kwargs):
         bc = pane.borderContainer(design)
         design = design or 'sidebar'
         d = dict(sidebar=dict(region='left',width='400px'),headline=dict(region='top',height='300px'))
@@ -155,7 +155,15 @@ class AttachManager(BaseComponent):
                                         _uploader_onUploadingMethod=self.onUploadingAttachment)
         if screenshot:
             th.view.top.bar.replaceSlots('delrow','delrow,screenshot,5')
-            
+        if uploaderButton:
+            th.view.bottom.dropUploader(
+                            label='<div class="atc_galleryDropArea"><div>Drop document here</div><div>or double click</div></div>',
+                            height='40px',
+                            onUploadingMethod=self.onUploadingAttachment,
+                            rpc_maintable_id= maintable_id.replace('^','=') if maintable_id else '=#FORM.pkey',
+                            rpc_attachment_table= th.view.grid.attributes['table'],
+                            _class='importerPaletteDropUploaderBox',
+                            cursor='pointer',nodeId='%(nodeId)s_uploader' %th.attributes)
 
         readerpane = bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid silver',overflow='hidden')
         readerpane.dataController('SET .reader_url=fileurl',fileurl='^.view.grid.selectedId?fileurl')
