@@ -41,15 +41,18 @@ class WebMailHandler(MailHandler):
 
     def sendUserTemplateMail(self,record_id=None,letterhead_id=None,
                             template_id=None,table=None,template_code=None,
-                            attachments=None,to_address=None, **kwargs):
+                            attachments=None,to_address=None, subject=None,
+                            cc_address=None,bcc_address=None,from_address=None, account_id=None, **kwargs):
+
         self.sendmail(**self.mailParsFromUserTemplate(record_id=record_id,letterhead_id=letterhead_id,
                             template_id=template_id,table=table,template_code=template_code,
-                            attachments=attachments,to_address=to_address, **kwargs))
+                            attachments=attachments,to_address=to_address,subject=subject,
+                            cc_address=cc_address,bcc_address=bcc_address,from_address=from_address, account_id=account_id, **kwargs))
     
     def mailParsFromUserTemplate(self,record_id=None,letterhead_id=None,
                             template_id=None,table=None,template_code=None,
                             attachments=None,to_address=None,subject=None,
-                            cc_address=None,bcc_address=None,from_address=None,**kwargs):
+                            cc_address=None,bcc_address=None,from_address=None, account_id=None, **kwargs):
         if template_id:
             tpl,table = self.parent.db.table('adm.userobject').readColumns(pkey=template_id,columns='$data,$tbl',bagFields=True)
         elif template_code and table:
@@ -72,7 +75,7 @@ class WebMailHandler(MailHandler):
         bcc_address = bcc_address or templateReplace(email_compiled.getItem('bcc_address',''),htmlbuilder.record)
         from_address =from_address or templateReplace(email_compiled.getItem('from_address',''),htmlbuilder.record)
         if not from_address:
-            account_id = kwargs.get('account_id') or templateReplace(email_compiled.getItem('to_address',''),htmlbuilder.record)
+            account_id = account_id or templateReplace(email_compiled.getItem('account_id',''),htmlbuilder.record)
             if account_id:
                 mp = self.parent.db.table('email.account').getSmtpAccountPref(account_id)
             else:
