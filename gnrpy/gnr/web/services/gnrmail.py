@@ -48,7 +48,8 @@ class WebMailHandler(MailHandler):
     
     def mailParsFromUserTemplate(self,record_id=None,letterhead_id=None,
                             template_id=None,table=None,template_code=None,
-                            attachments=None,to_address=None, **kwargs):
+                            attachments=None,to_address=None,subject=None,
+                            cc_address=None,bcc_address=None,from_address=None,**kwargs):
         if template_id:
             tpl,table = self.parent.db.table('adm.userobject').readColumns(pkey=template_id,columns='$data,$tbl',bagFields=True)
         elif template_code and table:
@@ -66,10 +67,17 @@ class WebMailHandler(MailHandler):
         else:
             html_text = htmlbuilder.contentFromTemplate(record=record_id,template=compiled)
         to_address = to_address or templateReplace(email_compiled.getItem('to_address',''),htmlbuilder.record)
-        subject = templateReplace(email_compiled.getItem('subject',''),htmlbuilder.record)
-        cc_address = templateReplace(email_compiled.getItem('cc_address',''),htmlbuilder.record)
-        bcc_address = templateReplace(email_compiled.getItem('bcc_address',''),htmlbuilder.record)
-        from_address = templateReplace(email_compiled.getItem('from_address',''),htmlbuilder.record)
+        subject = subject or templateReplace(email_compiled.getItem('subject',''),htmlbuilder.record)
+        cc_address = cc_address or templateReplace(email_compiled.getItem('cc_address',''),htmlbuilder.record)
+        bcc_address = bcc_address or templateReplace(email_compiled.getItem('bcc_address',''),htmlbuilder.record)
+        from_address =from_address or templateReplace(email_compiled.getItem('from_address',''),htmlbuilder.record)
+        if not from_address:
+            account_id = kwargs.get('account_id') or templateReplace(email_compiled.getItem('to_address',''),htmlbuilder.record)
+            if account_id:
+                mp = self.parent.db.table('email.account').getSmtpAccountPref(account_id)
+            else:
+                mp = self.getDefaultMailAccount()
+            from_address = mp['from_address']
         attachments = attachments or templateReplace(email_compiled.getItem('attachments',''),htmlbuilder.record)
         if attachments and isinstance(attachments,basestring):
             attachments = attachments.replace('\n',',').split(',')

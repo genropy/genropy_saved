@@ -166,7 +166,7 @@ class Table(object):
                 mail_handler.sendmail(to_address=message['to_address'],
                                 body=message['body'], subject=message['subject'],
                                 cc_address=message['cc_address'], bcc_address=bcc_address,
-                                from_address=message['from_address'] or mp['smtp_from_address'],
+                                from_address=message['from_address'] or mp['from_address'],
                                 attachments=attachments, 
                                 smtp_host=mp['smtp_host'], port=mp['port'], user=mp['user'], password=mp['password'],
                                 ssl=mp['ssl'], tls=mp['tls'], html=message['html'], async=False)
