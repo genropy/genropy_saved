@@ -279,7 +279,6 @@ class TableScriptRunner(TableScriptHandler):
             table_script_run = self.table_script_daemon_run
         else:
             table_script_run = self.table_script_run
-        print batch_pars, table_script_run.__name__
         plugin_main.dataRpc('dummy', table_script_run,
                             _fired='^.run',
                             _onCalling='=.onCalling',
