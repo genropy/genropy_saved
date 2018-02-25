@@ -19,9 +19,6 @@ class TimesheetViewer(BaseComponent):
             viewerMode = 'stack'
         selected_date = selected_date or self.workdate
         frame = self.ts_stackCalendarViewer(parent,selected_date=selected_date,**kwargs)
-
-
-
         parent.dataController("""
                             date_start = date_start || selected_date;
                             date_end = date_end || addDaysToDate(date_start,90);
@@ -47,6 +44,7 @@ class TimesheetViewer(BaseComponent):
         #root.onDbChanges("""if(window.slotsviewer){
         #        window.slotsviewer.onEventChange(dbChanges);
         #    }""", table='base.event')
+        return frame
                                                                             
 
 
