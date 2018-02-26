@@ -126,8 +126,8 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
                                         this.widget._openDropDown(kw.domNode);
                                     }
                                 },
-                                selfsubscribe_close:function(){
-                                    if(!onClosing || onClosing(kw.evt,kw.domNode.sourceNode,this._value.getNode('ttd'),kw)!==false){
+                                selfsubscribe_close:function(kw){
+                                    if(!onClosing || onClosing(kw.evt,kw.evt.target.sourceNode,this._value.getNode('ttd'),kw)!==false){
                                         this.widget._closeDropDown();
                                     }
                                 }};
@@ -147,8 +147,8 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
             var wdg = this.widget;
             if(modal){
                 genro.nodeById('_gnrRoot').setHiderLayer(true,{z_index:1000,opacity:kw.hiderOpacity || 0,
-                                                connect_onclick:function(){
-                                                    genro.publish({topic:'close',nodeId:ddbId});
+                                                connect_onclick:function(evt){
+                                                    genro.publish({topic:'close',nodeId:ddbId},{evt:evt});
                                                 }
                                                                 });
             }
