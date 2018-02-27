@@ -148,10 +148,6 @@ slot_caption{
     border-radius: 4px;
 }
 
-.channel_busy{
-    border-bottom:1px solid #999; 
-}
-
 .dayview .channel_busy{
     line-height: 11px;
     color:white;
@@ -165,4 +161,10 @@ slot_caption{
     color:white;
     text-align: center;
     font-size:14px;
+}
+
+.tw_monthday{
+    color:#444;
+    font-size: 12px;
+    font-weight: bold;
 }

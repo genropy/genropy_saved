@@ -15,7 +15,6 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         this.slotFiller = objectPop(kw,'slotFiller');
         this.slot_duration = kw.slot_duration;
 
-
         this.max_slots = (this.work_end*60 - this.work_start*60)/this.slot_duration;
 
         if (this.slotFiller){
@@ -38,6 +37,20 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         var dataAttr = data.getParentNode().attr;
         this.data = data;
         this.channels = dataAttr.channels;
+        this.colors = dataAttr.colors;
+        
+        if(this.colors){
+            var bc = genro.getFrameNode(this.frameCode);
+            var bottom = genro.getFrameNode(this.frameCode,'bottom').getValue();
+            bottom.popNode('captions');
+            var box = bottom._('div','captions',{position:'absolute',top:'2px',bottom:'2px',right:'50px'});
+            var colors = this.colors;
+            var fb = genro.dev.formbuilder(box,this.channels.length,{border_spacing:'5px'});
+
+            this.channels.forEach(function(channel){
+                fb.addField('div',{height:'20px',width:'20px',background:colors[channel],lbl:channel,lbl_padding_left:'50px'});
+            });
+        }
     },
 
     cal_sourceNode:function(){
@@ -65,11 +78,18 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         this.setSizes();
         var cal_sourceNode = this.cal_sourceNode();
         cal_sourceNode.freeze().clearValue();
+        var currmonth = cal_sourceNode.getRelativeData('.selectedMonth');
+        cal_sourceNode.setRelativeData('.selectedMonth',null);
         this.monthlyLayout(cal_sourceNode,this.data);
         cal_sourceNode.unfreeze();
         var that = this;
+        this.month_redraw = {};
         setTimeout(function(){
-            that.selectCalendarDate(that.sourceNode.getRelativeData('.selectedDate'));
+            var date = that.sourceNode.getRelativeData('.selectedDate');
+            cal_sourceNode.setRelativeData('.selectedMonth',currmonth);
+            if(date){
+                that.selectCalendarDate(date);
+            }
         },1);
     },
 
@@ -152,8 +172,9 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         var pastDate;
         var headers=[];
         var that = this;
+        var offset = 10;
         for (var i=0; i < 7; i++) {
-            top = (i==0)?0:this.m_header_h+ (i-1)*this.m_dy
+            top = (i==0)?0:this.m_header_h+ (i-1)*this.m_dy;
             for (var k=0; k < 7; k++) {
                 left = k*this.m_dx
                 if(i==0){
@@ -186,8 +207,9 @@ dojo.declare('gnr.TimesheetViewerController',null,{
                                         }
                                         ,_day:date.getDate(),_month:date.getMonth(),_year:date.getFullYear()},
                                     );
-                        daypane._('div',{innerHTML:date.getDate(),'position':'absolute',top:'5px',right:'5px',font_size:'10px'});
-                        that.fillDay(daypane,date);
+                        daypane._('div',{innerHTML:date.getDate(),'position':'absolute',top:'3px',right:'3px',font_size:'12px',_class:'tw_monthday'});
+                        var colpane = daypane._('div',{position:'absolute',top:offset+'px',bottom:'0',height:this.m_dy-4-offset+'px',left:'0px',width:this.m_dx-4+'px'});
+                        that.fillDay(colpane,date);
                         date = new Date(date.getFullYear(),date.getMonth(),date.getDate()+1);
                     }
                 }else{
@@ -524,8 +546,8 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         var result = {};
         var start = this.minutesFromStartWork(t0); 
         var end = this.minutesFromStartWork(t1); 
-        result.top =  Math.floor(start*minute_height)+'px';
-        result.height =  Math.floor((end-start)*minute_height)+'px';
+        result.top =  start*minute_height+'px';
+        result.height =  (end-start)*minute_height+'px';
         return result;
     },
 

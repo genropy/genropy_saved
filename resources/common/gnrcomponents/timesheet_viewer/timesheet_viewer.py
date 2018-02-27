@@ -32,14 +32,23 @@ class TimesheetViewer(BaseComponent):
                                                                                  slotFiller:slotFiller,
                                                                                  slot_duration:slot_duration});
                             }
-                            frame.viewerController.setData(data)
+                            frame.viewerController.setData(data);
                             frame.viewerController.showMonthly();
+                            frame.setRelativeData('.lastRebuilt',new Date());
                            """,
                            selected_date = selected_date,
                            date_start=date_start,
                            date_end = date_end,slotFiller=slotFiller,
                            work_end=work_end,work_start=work_start,slot_duration=slot_duration,
                            data=value,frame=frame)
+
+        frame.dataController("""if(viewerPage=='calendarViewer' && lastRebuilt){
+            SET .lastRebuilt = null;
+            frame.viewerController.refresh();
+        }
+        
+        """,viewerPage='^.viewerPage',lastRebuilt='=.lastRebuilt',frame=frame)
+
         #root.dataController("FIRE reloadslots;",doctor_id='^current.doctor_id',_delay=100)
         #root.onDbChanges("""if(window.slotsviewer){
         #        window.slotsviewer.onEventChange(dbChanges);
@@ -55,7 +64,7 @@ class TimesheetViewer(BaseComponent):
         daypage_nodeId = '%s_day_viewer' %frameCode
         monthpage_nodeId = '%s_month_viewer' %frameCode
 
-        kwargs['subscribe_%s_selected' %monthpage_nodeId] = """
+        kwargs['subscribe_%s_selected' %monthpage_nodeId] = """            
             if($1.selected && this.viewerController){
                 var redrawDict = this.viewerController.month_redraw || {};
                 var redrawDate = objectPop(redrawDict,$1.page);
@@ -77,12 +86,13 @@ class TimesheetViewer(BaseComponent):
                                 **kwargs)
 
         selected_date = selected_date or self.workdate
-        sc = frame.center.stackContainer(selectedPage='^.viewerPage')
-        
+        sc = frame.center.stackContainer(selectedPage='^.viewerPage')        
         monthpage = sc.framePane(title='!!Calendar',pageName='calendarViewer')
         monthpage.top.slotToolbar('5,parentStackButtons,*,stackButtons,5',stackButtons_stackNodeId=monthpage_nodeId)
-        monthpage.center.borderContainer()
-        monthpage.stackContainer(nodeId=monthpage_nodeId,selectedPage='^.selectedMonth',region='center',_class='viewcalendar')
+        bc = monthpage.center.borderContainer()
+        bc.stackContainer(nodeId=monthpage_nodeId,selectedPage='^.selectedMonth',region='center',_class='viewcalendar')
+        bc.contentPane(region='bottom',height='50px')
+
         daypage = sc.framePane(title='!!Selected date',pageName='dayViewer')
         daybar = daypage.top.slotToolbar('5,parentStackButtons,*,prev,dbox,next,5,today_btn,20,refresh,10')
         daybar.prev.slotButton('Prev',iconClass='iconbox previous',
