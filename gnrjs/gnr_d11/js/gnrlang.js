@@ -1630,6 +1630,8 @@ function parseURL(url) {
         host: a.hostname,
         port: a.port,
         query: a.search,
+        origin:a.origin,
+        pathname:a.pathname,
         params: (function(){
             var ret = {},
                 seg = a.search.replace(/^\?/,'').split('&'),
@@ -1648,6 +1650,13 @@ function parseURL(url) {
         segments: a.pathname.replace(/^\//,'').split('/')
     };
 }
+
+function serializeURL(parsedUrl){
+    var result = parsedUrl.origin+parsedUrl.pathname || '';
+    return genro.addParamsToUrl(result,parsedUrl.params);
+};
+
+
 function funcCreate(fnc, pars, scope,showError) {
     if (fnc) {
         var pars = pars || '';
