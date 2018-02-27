@@ -584,7 +584,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     _default_ext : 'py,png,jpg,jpeg,gif,html,pdf',
 
     creating:function(attributes, sourceNode) {
-        sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted,documentClasses');
+        sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted,documentClasses,externalSite');
         objectExtract(attributes,'rpc_*')
         objectUpdate(sourceNode.savedAttrs,objectExtract(sourceNode.attr,'rpc_*',false,true))
 
@@ -704,7 +704,9 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         var main_kwargs = objectExtract(attributes,'main_*') || {};
         var src_kwargs = objectExtract(attributes,'src_*') || {};
         objectUpdate(src_kwargs,main_kwargs);
-        src_kwargs['_calling_page_id'] = genro.page_id;
+        if(!sourceNode.savedAttrs.externalSite){
+            src_kwargs['_calling_page_id'] = genro.page_id;
+        }
         if (attributes._if && !sourceNode.getAttributeFromDatasource('_if')) {
             var v = '';
         } else if (sourceNode.condition_function && !sourceNode.condition_function(sourceNode.condition_value)) {

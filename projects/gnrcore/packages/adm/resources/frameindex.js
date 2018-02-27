@@ -102,7 +102,10 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var rootPageName = kw.rootPageName;
         var url = kw.url;
         var iframePageName,pane_kw;
-        var iframeattr = {'height':'100%','width':'100%','border':0,src:url};
+        var iframeattr = {'height':'100%','width':'100%','border':0,src:url};   
+        if(kw.externalSite){
+            iframeattr.externalSite = kw.externalSite;
+        }
         if(kw.subtab){
             iframePageName = rootPageName;
             pane_kw = {_lazyBuild:true,overflow:'hidden',title:kw.title,pageName:rootPageName};
@@ -195,6 +198,9 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var that = this;
         this.stackSourceNode.watch('pageReady',function(){
             var iframe = that.getCurrentIframe(rootPageName);
+            if(iframe && iframe.sourceNode.attr.externalSite){
+                return true;
+            }
             if(iframe && iframe.contentWindow && iframe.contentWindow.genro && iframe.contentWindow.genro._pageStarted){
                 return true
             }
@@ -301,7 +307,11 @@ dojo.declare("gnr.FramedIndexManager", null, {
         if(!('multipage' in kw )&& kw.table){
             kw.multipage = true;
         }
+        if(kw.externalSite){
+            kw.url = kw.externalSite+kw.url;
+        }
         kw.rootPageName = kw.pageName || kw.url.replace(/\W/g,'_');
+
     },
     
     closeRootFramPage:function(frameName,title,evt){
@@ -313,7 +323,10 @@ dojo.declare("gnr.FramedIndexManager", null, {
             finalizeCb();
         }
         var iframes = dojo.query('iframe',this.stackSourceNode.getValue().getNode(frameName).getWidget().domNode);
-        if(iframes.some(function(n){return n.contentWindow.genro.checkBeforeUnload();})){
+        if(iframes.some(function(n){
+            if(n.sourceNode.attr.externalSite){return false;}
+            return n.contentWindow.genro.checkBeforeUnload();
+        })){
             genro.dlg.ask(_T('Closing ')+title,_T("There is a pending operation in this tab"),{confirm:_T('Close anyway'),cancel:_T('Cancel')},
                             {confirm:function(){ finalizeCb();}})
         }else{

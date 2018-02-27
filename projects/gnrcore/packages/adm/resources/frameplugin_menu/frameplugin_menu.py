@@ -139,6 +139,9 @@ class MenuResolver(BagResolver):
         for node in sitemenu[self.path]:
             allowed = True
             nodeattr = node.attr
+            externalSite = node.attr.get('externalSite')
+            if externalSite:
+                externalSite = self._page.site.config['externalSites'].getAttr(externalSite)['url']
             nodetags = nodeattr.get('tags')
             filepath = nodeattr.get('file')
             checkenv = nodeattr.get('checkenv')
@@ -184,6 +187,7 @@ class MenuResolver(BagResolver):
                     if 'workInProgress' in attributes:
                         labelClass+=' workInProgress'
                 customLabelClass = attributes.get('customLabelClass', '')
+                attributes['externalSite'] = externalSite
                 attributes['labelClass'] = 'menu_shape %s %s' % (labelClass, customLabelClass)
                 result.setItem(node.label, value, attributes)
         return result
