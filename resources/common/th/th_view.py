@@ -296,7 +296,7 @@ class TableHandlerView(BaseComponent):
 
 
     @struct_method
-    def th_slotbar_importer(self,pane,**kwargs):
+    def th_slotbar_importer(self,pane,frameCode=None,importer=None,**kwargs):
         options = self._th_hook('options',mangler=pane)() or dict()
         tags = options.get('uploadTags') or '_DEV_,superadmin'
         if not self.application.checkResourcePermission(tags, self.userTags):
@@ -309,7 +309,7 @@ class TableHandlerView(BaseComponent):
         pane.PaletteImporter(table=table,paletteCode='%(th_root)s_importer' %inattr,
                             matchColumns=matchColumns,
                             match_values= ','.join(self.db.table(table).model.columns.keys()) if not matchColumns else None,
-                            dockButton_iconClass='iconbox inbox',title='!!Importer')
+                            dockButton_iconClass='iconbox inbox',title='!!Importer',**kwargs)
 
 
     @struct_method

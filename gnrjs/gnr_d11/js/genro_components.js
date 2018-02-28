@@ -1125,6 +1125,8 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         gnrwdg.errorCb = errorCb? funcCreate(errorCb,'error',sourceNode):null;
         gnrwdg.batchParameters = objectExtract(kw,'batch_*');
         gnrwdg.uploaderId = sourceNode.attr.nodeId +'_uploader';
+        gnrwdg.constant_kwargs = objectExtract(kw,'constant_*',false,true);
+        gnrwdg.sql_mode = objectPop(kw,'sql_mode');
         var palette = sourceNode._('PalettePane',kw);
         var bc = palette._('BorderContainer',{_lazyBuild:true});
         var slots = '2,prevtitle,importselector,*,limit,5';
@@ -1248,7 +1250,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
                     values:'^.import_modes',
                     parentForm:false});
 
-        if (this.table){
+        if (this.table && !this.sql_mode){
             fb.addField('checkbox',{value:'^.sql_mode',
                                 label:_T('SQL Mode'),parentForm:false});   
         }
@@ -1344,18 +1346,23 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         }
         var that = this;
         genro.lockScreen(true,'import_data',{thermo:true});
-        genro.serverCall(this.importMethod || 'utils.tableImporterRun',{table:this.table,file_path:'=.imported_file_path',
-                                                    match_index:match_index,
-                                                    import_method:'=.import_method',
-                                                    import_mode:'=.import_mode',
-                                                    filetype:'=.filetype',
-                                                    no_trigger:'=.no_trigger',
-                                                    timeout:3600000,
-                                                    _sourceNode:buttonNode},function(result){
-                                                        genro.dlg.floatingMessage(that.rootNode,{message:_T('Import finished')});
-                                                        that.resetImporter();
-                                                        genro.lockScreen(false,'import_data');
-                                                    });
+        var importerKw = {table:this.table,file_path:'=.imported_file_path',
+            match_index:match_index,
+            import_method:'=.import_method',
+            import_mode:'=.import_mode',
+            filetype:'=.filetype',
+            sql_mode:this.sql_mode || '=.sql_mode',
+            timeout:3600000,
+            _sourceNode:buttonNode};
+        if(this.constant_kwargs){
+            objectUpdate(importerKw,this.constant_kwargs);
+        }
+
+        genro.serverCall(this.importMethod || 'utils.tableImporterRun',importerKw,function(result){
+            genro.dlg.floatingMessage(that.rootNode,{message:_T('Import finished')});
+            that.resetImporter();
+            genro.lockScreen(false,'import_data');
+        });
     }
 });
 

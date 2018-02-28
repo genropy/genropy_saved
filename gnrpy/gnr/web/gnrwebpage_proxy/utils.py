@@ -12,7 +12,7 @@ import urllib
 import StringIO
 import datetime
 import zipfile
-from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.core.gnrbag import Bag, DirectoryResolver
 from gnr.core.gnrlist import XlsReader,CsvReader
 from gnr.core.gnrstring import slugify
@@ -274,10 +274,10 @@ class GnrWebUtils(GnrBaseProxy):
             rows.setItem('r_%i' %i,Bag(dict(r)))
         return result.toXml()
 
-
     @public_method
+    @extract_kwargs(constant=True)
     def tableImporterRun(self,table=None,file_path=None,match_index=None,import_mode=None,
-                                import_method=None,sql_mode=None,filetype=None,**kwargs):
+                        import_method=None,sql_mode=None,filetype=None,constant_kwargs=None,**kwargs):
         tblobj = self.page.db.table(table)
         docommit = False
         importerStructure = tblobj.importerStructure() or dict()
@@ -292,10 +292,12 @@ class GnrWebUtils(GnrBaseProxy):
                     reader.setMainSheet(sheet['sheet'])
                 struct = sheet['struct']
                 match_index = tblobj.importerMatchIndex(reader,struct=struct)
+                constants = constant_kwargs 
+                constants.update(struct.get('constants') or dict())
                 res = self.defaultMatchImporterXls(tblobj=tblobj,reader=reader,
                                                 match_index=match_index,
                                                 import_mode=import_mode,
-                                                sql_mode=sql_mode,constants=struct.get('constants'),
+                                                sql_mode=sql_mode,constants=constants,
                                                 mandatories=struct.get('mandatories'))
                 results.append(res)
                 errors = filter(lambda r: r!='OK', results)
@@ -309,7 +311,8 @@ class GnrWebUtils(GnrBaseProxy):
             return self.defaultMatchImporterXls(tblobj=tblobj,reader=reader,
                                                     match_index=match_index,
                                                     import_mode=import_mode,
-                                                    sql_mode=sql_mode)
+                                                    sql_mode=sql_mode,
+                                                    constants=constant_kwargs)
 
     def defaultMatchImporterXls(self,tblobj=None,reader=None,match_index=None,sql_mode=None,constants=None,mandatories=None, import_mode=None):
         rows = self.adaptedRecords(tblobj=tblobj,reader=reader,match_index=match_index,sql_mode=sql_mode,constants=constants)
@@ -332,7 +335,7 @@ class GnrWebUtils(GnrBaseProxy):
     def adaptedRecords(self,tblobj=None,reader=None,match_index=None,sql_mode=None,constants=None):
         for row in self.quickThermo(reader(),maxidx=reader.nrows if hasattr(reader,'nrows') else None,
                         labelfield=tblobj.attributes.get('caption_field') or tblobj.name):
-            r = constants or {}
+            r = dict(constants) if constants else dict()
             f =  {v:row[k] for k,v in match_index.items() if v is not ''}
             r.update(f)
             tblobj.recordCoerceTypes(r)
