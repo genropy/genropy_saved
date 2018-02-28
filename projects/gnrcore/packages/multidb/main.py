@@ -557,23 +557,12 @@ class MultidbTable(object):
 
     def sysRecord(self,syscode):
         if not self.db.usingRootstore():
-            return
+            with self.db.tempEnv(storename=self.db.rootstore):
+                return self.sysRecord(syscode)
 
         def createCb(key):
-            record = getattr(self,'sysRecord_%s' %syscode)()
-            record['__syscode'] = key
-            pkey = record[self.pkey]
-            if pkey:
-                oldrecord = self.query(where='$%s=:pk' %self.pkey,pk=pkey,
-                                            addPkeyColumn=False).fetch()
-                if oldrecord:
-                    oldrecord = oldrecord[0]
-                    record = dict(oldrecord)
-                    record['__syscode'] = syscode
-                    self.update(record,oldrecord)
-                    return record
-            if self.multidb=='*':
-                record['__multidb_subscribed'] = True
-            self.insert(record)
-            return record
+            extra_fields = dict()
+            if not self.multidb=='*':
+                extra_fields['__multidb_default_subscribed'] = True
+            return self._sysRecordCreateCb(key,**extra_fields)
         return self.cachedRecord(syscode,keyField='__syscode',createCb=createCb)

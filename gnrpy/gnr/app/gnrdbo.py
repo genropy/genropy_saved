@@ -587,30 +587,28 @@ class TableBase(object):
             self.db.commit()
 
     def sysRecord(self,syscode):
+        return self.cachedRecord(syscode,keyField='__syscode',createCb=self._sysRecordCreateCb)
+
+    def _sysRecordCreateCb(self,syscode,**extra_fields):
         sysRecord_masterfield = self.attributes.get('sysRecord_masterfield') or self.pkey
-        
-        def createCb(key):
-            tempenvkw = dict(connectionName='system')
-            if  self.attributes.get('multidb')=='*':
-                tempenvkw['storename']=self.db.rootstore
-            with self.db.tempEnv(**tempenvkw):
-                record = getattr(self,'sysRecord_%s' %syscode)()
-                record['__syscode'] = key
-                masterfield_value = record[sysRecord_masterfield]
-                if masterfield_value is not None:
-                    oldrecord = self.query(where='$%s=:mv' %sysRecord_masterfield,mv=masterfield_value,
-                                                addPkeyColumn=False).fetch()
-                    if oldrecord:
-                        oldrecord = oldrecord[0]
-                        record = dict(oldrecord)
-                        record['__syscode'] = syscode
-                        self.update(record,oldrecord)
-                        self.db.commit()
-                        return record
-                self.insert(record)
-                self.db.commit()
-            return record
-        return self.cachedRecord(syscode,keyField='__syscode',createCb=createCb)
+        with self.db.tempEnv(connectionName='system'):
+            record = getattr(self,'sysRecord_%s' %syscode)()
+            record['__syscode'] = syscode
+            masterfield_value = record[sysRecord_masterfield]
+            if masterfield_value is not None:
+                oldrecord = self.query(where='$%s=:mv' %sysRecord_masterfield,mv=masterfield_value,
+                                            addPkeyColumn=False).fetch()
+                if oldrecord:
+                    oldrecord = oldrecord[0]
+                    record = dict(oldrecord)
+                    record['__syscode'] = syscode
+                    self.update(record,oldrecord)
+                    self.db.commit()
+                    return record
+            record.update(extra_fields)
+            self.insert(record)
+            self.db.commit()
+        return record
 
     def importerStructure(self):
         "override"
