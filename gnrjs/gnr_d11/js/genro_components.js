@@ -4110,7 +4110,7 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         if((!controllerNodes) || sn._isBuilding){
             return;
         }
-        var paneId = child.sourceNode.getStringId();
+        var paneId = this.getPaneId(child.sourceNode);
         setTimeout(function(){
             dojo.forEach(controllerNodes,function(c){
                 c._value.popNode(paneId);
@@ -4124,7 +4124,7 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         if((!controllerNodes) || sn._isBuilding){
             return;
         }
-        var paneId = child.sourceNode.getStringId();
+        var paneId = this.getPaneId(child.sourceNode);
         dojo.forEach(controllerNodes,function(c){
             genro.dom.setClass(c._value.getNode(paneId),'hidden',value)
         })
@@ -4135,7 +4135,7 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             return;
         }
         var sn = widget.sourceNode;
-        var paneId = child.sourceNode.getStringId();
+        var paneId = this.getPaneId(child.sourceNode);
         var controllerNodes = widget.sourceNode._stackButtonsNodes;
         if((!controllerNodes) || sn._isBuilding){
             return;
@@ -4161,6 +4161,9 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             }
         });
     },
+    getPaneId:function(childSourceNode){
+        return childSourceNode.attr.pageName || childSourceNode.attr.nodeId || childSourceNode.getStringId();
+    },
     makeTabButton:function(sourceNode,childSourceNode,stackNode){
         var widget = childSourceNode.getWidget();
         var childSourceNode = widget.sourceNode;
@@ -4173,7 +4176,7 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             var childattr = childSourceNode.attr;
             var multibutton_kw = objectExtract(childattr,'stackbutton_*');
             var btn_kw = {_class:btn_class,_childSourceNode:childSourceNode};
-            var btn = sourceNode._('div',childSourceNode.getStringId(),btn_kw,{_position:stackbag.len()-stackNode._n_children});
+            var btn = sourceNode._('div',this.getPaneId(childSourceNode),btn_kw,{_position:stackbag.len()-stackNode._n_children});
             var title = childSourceNode.attr.title;
             var iconTitle = childSourceNode.attr.iconTitle;
             if(title && title[0]=='^'){
