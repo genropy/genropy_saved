@@ -44,6 +44,8 @@ import re
 import thread
 import locale
 
+MAIN_CONNECTION_NAME = '_main_connection'
+
 __version__ = '1.0b'
 gnrlogger = logging.getLogger(__name__)
 
@@ -319,29 +321,38 @@ class GnrSqlDb(GnrObject):
             return self.dbname
     
     def usingRootstore(self):
-        currentStore = self.currentEnv.get('storename')
-        return  (currentStore is None) or (currentStore == self.rootstore)
+        return  self.currentStorename == self.rootstore
+
+    def usingMainConnection(self):
+        return  self.currentConnectionName== MAIN_CONNECTION_NAME
+
+    @property
+    def currentStorename(self):
+        return self.currentEnv.get('storename') or self.rootstore
+    
+    @property
+    def currentConnectionName(self):
+        return self.currentEnv.get('connectionName') or MAIN_CONNECTION_NAME
+    
 
     def connectionKey(self,storename=None):
         storename = storename or self.currentEnv.get('storename') or self.rootstore
-        return '%s_%s' % (storename, self.currentEnv.get('connectionName') or '_main_connection')
+        return  '_'.join((storename or self.currentStorename,self.currentConnectionName))
             
     def _get_store_connection(self, storename):
         thread_ident = thread.get_ident()
         thread_connections = self._connections.setdefault(thread_ident, {})
-        connectionKey = self.connectionKey(storename=storename)
-        connection = thread_connections.get(connectionKey)
+        connectionTuple = (storename or self.currentStorename,self.currentConnectionName)
+        connection = thread_connections.get(connectionTuple)
         if not connection:
             connection = self.adapter.connect(storename)
-            thread_connections[connectionKey] = connection
+            thread_connections[connectionTuple] = connection
         return connection
     
     def _get_connection(self):
         """property .connection
-        
         If there's not connection open and return connection to database"""
-        storename = self.currentEnv.get('storename') or self.rootstore
-        
+        storename = self.currentStorename
         if storename=='*' or ',' in storename:
             if storename=='*':
                 storenames = self.dbstores.keys()
@@ -509,8 +520,18 @@ class GnrSqlDb(GnrObject):
     def commit(self):
         """Commit a transaction"""
         self.onCommitting()
-        for conn in self._connections.get(thread.get_ident(), {}).values():
-            conn.commit()
+        thread_connections = self._connections.get(thread.get_ident(), {})
+        currentConnectionName = self.currentConnectionName
+        currentStorename = self.currentStorename
+        if self.usingMainConnection and self.usingRootstore :
+            for c,conn in thread_connections.items():
+                storename,connectionName = c
+                if connectionName == currentConnectionName:
+                    conn.commit()
+        else:
+            conn = thread_connections.get((currentStorename,currentConnectionName))
+            if conn:
+                conn.commit()
         self.onDbCommitted()
 
     def onCommitting(self):
@@ -639,45 +660,45 @@ class GnrSqlDb(GnrObject):
                     blocking.setdefault(k,set()).add(tblname)
 
 
-    def tablesMasterIndex_new(self):
-        packages = self.packages.keys()
-        toImport = []
-        for pkg in packages:
-            pkgobj = self.package(pkg)
-            toImport.extend(pkgobj.tables.values())
-        imported = set()
-        deferred = dict()
-        blocking = dict()
-        result = Bag()
-        while toImport:
-            tbl = toImport.pop(0)
-            tblname = tbl.fullname
-            print 'table',tblname
-            depset = set(tbl.dependencies)
-            if depset.issubset(imported):  
-                imported.add(tblname)
-                result.setItem(tblname,None)
-                result.setItem('_index_.%s' %tbl.fullname.replace('.','/'),None,tbl=tblname)
-                blocked_tables = blocking.pop(tblname,None)
-                if blocked_tables:
-                    for k in blocked_tables:
-                        deferred[k].remove(tblname)
-                        if not deferred[k]:
-                            deferred.pop(k)
-                            #toImport.append(self.table(k).model)
-                    
-            else:
-                deltatbl = depset - imported
-                if (tblname in deferred) and (deltatbl == deferred[tblname]):
-                    print 'cycling',tblname
-                else:
-                    deferred[tblname] = deltatbl
-                    for k in deferred[tblname]:
-                        blocking.setdefault(k,set()).add(tblname)
-                    toImport.append(tbl)
+   #def tablesMasterIndex_new(self):
+   #    packages = self.packages.keys()
+   #    toImport = []
+   #    for pkg in packages:
+   #        pkgobj = self.package(pkg)
+   #        toImport.extend(pkgobj.tables.values())
+   #    imported = set()
+   #    deferred = dict()
+   #    blocking = dict()
+   #    result = Bag()
+   #    while toImport:
+   #        tbl = toImport.pop(0)
+   #        tblname = tbl.fullname
+   #        print 'table',tblname
+   #        depset = set(tbl.dependencies)
+   #        if depset.issubset(imported):  
+   #            imported.add(tblname)
+   #            result.setItem(tblname,None)
+   #            result.setItem('_index_.%s' %tbl.fullname.replace('.','/'),None,tbl=tblname)
+   #            blocked_tables = blocking.pop(tblname,None)
+   #            if blocked_tables:
+   #                for k in blocked_tables:
+   #                    deferred[k].remove(tblname)
+   #                    if not deferred[k]:
+   #                        deferred.pop(k)
+   #                        #toImport.append(self.table(k).model)
+   #                
+   #        else:
+   #            deltatbl = depset - imported
+   #            if (tblname in deferred) and (deltatbl == deferred[tblname]):
+   #                print 'cycling',tblname
+   #            else:
+   #                deferred[tblname] = deltatbl
+   #                for k in deferred[tblname]:
+   #                    blocking.setdefault(k,set()).add(tblname)
+   #                toImport.append(tbl)
 
-        print x
-        return result
+   #    print x
+   #    return result
 
     def tableTreeBag(self, packages=None, omit=None, tabletype=None):
         """TODO
