@@ -456,7 +456,7 @@ class SqlTable(GnrObject):
                 if (v is None) or (v == null) or v=='':
                     record[k] = None
                 elif dtype in ['T', 'A', 'C'] and not isinstance(v, basestring):
-                    record[k] = str(v)
+                    record[k] = str(v if not isinstance(v,float) else int(v))
                 elif dtype == 'B' and not isinstance(v, basestring):
                     record[k] = bool(v)
                 else:

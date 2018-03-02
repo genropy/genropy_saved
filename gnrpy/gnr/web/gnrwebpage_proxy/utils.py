@@ -39,6 +39,7 @@ class GnrWebUtils(GnrBaseProxy):
         self.directory = self.page.site.site_path
         self.filename = self.page.filename
         self.canonical_filename = self.page.canonical_filename
+        self.default_thermo_path = 'gnr.lockScreen.thermo'
 
     def siteFolder(self, *args, **kwargs):
         """The http static root"""
@@ -61,7 +62,7 @@ class GnrWebUtils(GnrBaseProxy):
 
     def quickThermo(self,iterator,path=None,maxidx=None,labelfield=None,
                     labelcb=None,thermo_width=None,interval=None,title=None):
-        path = path or 'gnr.lockScreen.thermo'
+        path = path or self.default_thermo_path
         lbl = ''
         if isinstance(iterator,list):
             maxidx = len(iterator)
@@ -89,6 +90,14 @@ class GnrWebUtils(GnrBaseProxy):
                 self.page.setInClientData(path,thermo,idx=idx,maxidx=maxidx,lbl=lbl)
             yield v
         self.page.setInClientData(path,thermo,idx=maxidx,maxidx=maxidx,lbl=lbl)
+    
+    def thermoMessage(self,title=None,message=None):
+        thermo = """<div class="quickthermo_box"> %(title)s 
+                        <div class="form_waiting"></div> 
+                        <div class="quickthermo_caption">%(message)s</div> 
+                    </div>"""  %dict(title=title,message=message)
+        self.page.setInClientData(self.default_thermo_path,thermo)
+
 
     def rootFolder(self, *args, **kwargs):
         """The mod_python root"""
