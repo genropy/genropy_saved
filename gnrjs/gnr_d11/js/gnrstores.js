@@ -667,7 +667,6 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
         if (!query.caption) {
             findCallback([], request);
         } else {
-            
             if(this.switches){
                 var sn = this._parentSourceNode;
                 var foundmatch = false;
@@ -688,11 +687,12 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                             foundmatch = m;
                         }
                         if(switchcb){
-                            setTimeout(function(){
-                                //if(!sn.widget._focused){
+                            sn.widget.focusNode.blur();
+                            sn.delayedCall(function(){
+                                if(!sn.widget || !sn.widget._focused){
                                     switchcb();
-                                //}
-                            },1);
+                                }
+                            },1,'switch_'+sw);
                             findCallback([], request);
                             return;
                         }
