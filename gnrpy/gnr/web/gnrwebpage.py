@@ -893,6 +893,9 @@ class GnrWebPage(GnrBaseWebPage):
     def getUuid(self):
         """TODO"""
         return getUuid()
+    
+    def getForcedHeaders(self):
+        return {}
         
     def addHtmlHeader(self, tag, innerHtml='',attributes=None, **kwargs):
         """TODO

@@ -768,6 +768,7 @@ class GnrWsgiSite(object):
             response = self.setResultInResponse(result, response, info_GnrTime=time() - t,info_GnrSqlTime=page.sql_time,info_GnrSqlCount=page.sql_count,
                                                                 info_GnrXMLTime=getattr(page,'xml_deltatime',None),info_GnrXMLSize=getattr(page,'xml_size',None),
                                                                 info_GnrSiteMaintenance=self.currentMaintenance,
+                                                                forced_headers=page.getForcedHeaders(),
                                                                 mimetype=getattr(page,'forced_mimetype',None))
             
             return response(environ, start_response)
@@ -809,12 +810,15 @@ class GnrWsgiSite(object):
         
 
     @extract_kwargs(info=True)
-    def setResultInResponse(self, result, response,info_kwargs=None,**kwargs):
+    def setResultInResponse(self, result, response,info_kwargs=None,forced_headers=None,**kwargs):
         """TODO
         
         :param result: TODO
         :param response: TODO
         :param totaltime: TODO"""
+        if forced_headers:
+            for k,v in forced_headers.items():
+                response.headers[k] = str(v)
         for k,v in info_kwargs.items():
             if v is not None:
                 response.headers['X-%s' %k] = str(v)
