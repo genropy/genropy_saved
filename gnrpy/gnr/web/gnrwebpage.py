@@ -894,12 +894,14 @@ class GnrWebPage(GnrBaseWebPage):
         """TODO"""
         return getUuid()
         
-    def addHtmlHeader(self, tag, innerHtml='', **kwargs):
+    def addHtmlHeader(self, tag, innerHtml='',attributes=None, **kwargs):
         """TODO
         
         :param tag: TODO
         :param innerHtml: TODO"""
-        attrString = ' '.join(['%s="%s"' % (k, str(v)) for k, v in kwargs.items()])
+        attributes = attributes or dict()
+        attributes.update(kwargs)
+        attrString = ' '.join(['%s="%s"' % (k, str(v)) for k, v in attributes.items()])
         self._htmlHeaders.append('<%s %s>%s</%s>' % (tag, attrString, innerHtml, tag))
         
     def htmlHeaders(self):
