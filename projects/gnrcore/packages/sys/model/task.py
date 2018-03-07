@@ -140,7 +140,8 @@ class Table(object):
                     result = Bag(error=unicode(e))
                     task_rec['last_error_info'] = result
                 task_rec['run_asap'] = False
-            self.db.commit()
+            with self.db.tempEnv(connectionName='system'):
+                self.db.commit()
                 
     
 if __name__=='__main__':
