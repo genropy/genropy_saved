@@ -585,8 +585,8 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
 
     creating:function(attributes, sourceNode) {
         sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted,documentClasses,externalSite');
-        objectExtract(attributes,'rpc_*')
-        objectUpdate(sourceNode.savedAttrs,objectExtract(sourceNode.attr,'rpc_*',false,true))
+        objectExtract(attributes,'rpc_*');
+        objectUpdate(sourceNode.savedAttrs,objectExtract(sourceNode.attr,'rpc_*',false,true));
 
         var condFunc = objectPop(attributes, 'condition_function');
         var condValue = objectPop(attributes, 'condition_value');
@@ -729,6 +729,11 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             }
             src_kwargs = sourceNode.evaluateOnNode(src_kwargs);
             v = genro.addParamsToUrl(v,src_kwargs);   
+            var parsedSrc = parseURL(v);
+            var jsPdfViewer = isNullOrBlank(sourceNode.attr.jsPdfViewer)? genro.getData('gnr.app_preference.sys.jsPdfViewer'):sourceNode.attr.jsPdfViewer;
+            if(parsedSrc.file && stringEndsWith(parsedSrc.file,'.pdf') && (genro.isMobile || jsPdfViewer) ){
+                v = '/_rsrc/js_libs/pdfjs/web/viewer.html?file='+v;
+            }
             var doset = this.initContentHtml(domnode,v);
             if (doset){
                 sourceNode.currentSetTimeout = setTimeout(function(d, url) {
