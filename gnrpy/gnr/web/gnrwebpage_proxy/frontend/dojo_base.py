@@ -34,7 +34,10 @@ class GnrBaseDojoFrontend(GnrBaseFrontend):
        #        self.dojo_release= False
         else:
             dojofolder = 'dojo'
-        dojolib = self.dojo_static_handler.url(self.dojo_version, dojofolder, 'dojo', 'dojo.js')
+        localroot = None
+        if self.page.connection.electron_static:
+            localroot ='file://%s/app/lib/static/' %self.page.connection.electron_static
+        dojolib = self.dojo_static_handler.url(self.dojo_version, dojofolder, 'dojo', 'dojo.js',_localroot=localroot)
         self.dojofolder = dojofolder
         self.dojolib = dojolib
         self.djConfig = "parseOnLoad: false, isDebug: %s, locale: '%s' ,noFirebugLite:true" % (

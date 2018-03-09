@@ -24,7 +24,7 @@ USER_AGENT_SNIFF = (('Chrome', 'Chrome'),
 DEVICE_AGENT_SNIFF = (('iPad','mobile:tablet'),('iPhone','mobile:phone'),('Android','mobile:phone'),('WindowsPhone','mobile:phone'))
 
 class GnrWebConnection(GnrBaseProxy):
-    def init(self, connection_id=None, user=None, **kwargs):
+    def init(self, connection_id=None, user=None, electron_static=None,**kwargs):
         page = self.page
         self.user_agent = page.user_agent or ''
         self.browser_name = self.sniffUserAgent()
@@ -33,6 +33,7 @@ class GnrWebConnection(GnrBaseProxy):
         self.connection_name = '%s_%s' % (self.ip.replace('.', '_'), self.browser_name)
         self.secret = page.site.config['secret'] or self.page.siteName
         self.cookie_name = self.page.siteName
+        self.electron_static = electron_static
         self.connection_id = None
         self.user = None
         self.user_tags = None
@@ -77,6 +78,7 @@ class GnrWebConnection(GnrBaseProxy):
                 self.user_id = connection_item['user_id']
                 self.user_name = connection_item['user_name']
                 self.avatar_extra = connection_item.get('avatar_extra')
+                self.electron_static = connection_item.get('electron_static')
                 self.connection_item = connection_item
 
     @property

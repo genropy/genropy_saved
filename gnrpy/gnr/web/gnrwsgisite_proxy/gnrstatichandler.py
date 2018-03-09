@@ -149,6 +149,8 @@ class DojoStaticHandler(StaticHandler):
     prefix = 'dojo'
 
     def url(self, version, *args, **kwargs):
+        if kwargs.get('_localroot'):
+            return '%s_dojo/%s/%s' % (kwargs.get('_localroot'), version, '/'.join(args))
         return '%s_dojo/%s/%s' % (self.home_uri, version, '/'.join(args))
 
     def path(self, version, *args, **kwargs):
@@ -241,7 +243,10 @@ class GnrStaticHandler(StaticHandler):
         return expandpath(os.path.join(self.site.gnr_path[version], *args))
 
     def url(self, version, *args, **kwargs):
-        return '%s_gnr/%s/%s' % (self.home_uri, version, '/'.join(args))
+        if kwargs.get('_localroot'):
+            return '%s_gnr/%s/%s' % (kwargs.get('_localroot'), version, '/'.join(args))
+        else:
+            return '%s_gnr/%s/%s' % (self.home_uri, version, '/'.join(args))
 
 class ConnectionStaticHandler(StaticHandler):
     prefix = 'conn'

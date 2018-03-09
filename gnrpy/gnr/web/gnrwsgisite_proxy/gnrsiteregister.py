@@ -400,7 +400,8 @@ class UserRegister(BaseRegister):
 class ConnectionRegister(BaseRegister):
     """docstring for ConnectionRegister"""
     def create(self, connection_id, connection_name=None,user=None,user_id=None,
-                            user_name=None,user_tags=None,user_ip=None,user_agent=None,browser_name=None):
+                            user_name=None,user_tags=None,user_ip=None,user_agent=None,browser_name=None,
+                            electron_static=None):
         register_item = dict(
                 register_item_id=connection_id,
                 start_ts=datetime.now(),
@@ -411,6 +412,7 @@ class ConnectionRegister(BaseRegister):
                 user_tags = user_tags,
                 user_ip=user_ip,
                 user_agent=user_agent,
+                electron_static=electron_static,
                 browser_name=browser_name,
                 register_name='connection')
 
@@ -631,12 +633,14 @@ class SiteRegister(BaseRemoteObject):
         self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
 
     def new_connection(self,connection_id,connection_name=None,user=None,user_id=None,
-                            user_name=None,user_tags=None,user_ip=None,user_agent=None,browser_name=None,avatar_extra=None):
+                            user_name=None,user_tags=None,user_ip=None,user_agent=None,browser_name=None,avatar_extra=None,
+                            electron_static=None):
         assert not self.connection_register.exists(connection_id), 'SITEREGISTER ERROR: connection_id %s already registered' % connection_id
         if not self.user_register.exists(user):
             self.new_user( user, user_id=user_id,user_name=user_name,user_tags=user_tags,avatar_extra=avatar_extra)
         connection_item = self.connection_register.create(connection_id, connection_name=connection_name,user=user,user_id=user_id,
-                            user_name=user_name,user_tags=user_tags,user_ip=user_ip,user_agent=user_agent,browser_name=browser_name)
+                            user_name=user_name,user_tags=user_tags,user_ip=user_ip,user_agent=user_agent,browser_name=browser_name,
+                            electron_static=electron_static)
 
         return connection_item
 
@@ -1046,7 +1050,8 @@ class SiteRegisterClient(object):
     def new_connection(self, connection_id, connection):
         register_item = self.siteregister.new_connection(connection_id,connection_name = connection.connection_name,user=connection.user,
                                                     user_id=connection.user_id,user_tags=connection.user_tags,user_ip=connection.ip,browser_name=connection.browser_name,
-                                                    user_agent=connection.user_agent,avatar_extra=connection.avatar_extra)
+                                                    user_agent=connection.user_agent,avatar_extra=connection.avatar_extra,
+                                                    electron_static=connection.electron_static)
         self.add_data_to_register_item(register_item)
         return register_item
 

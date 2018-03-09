@@ -269,6 +269,7 @@ class GnrWebPage(GnrBaseWebPage):
 
     def _register_new_page(self,page_id=None,kwargs=None,class_info=None,init_info=None):
         if not self.connection.connection_id:
+            self.connection.electron_static = self._call_kwargs.get('_electron_static')
             self.connection.create()
         self.page_id = page_id or getUuid()
         page_info = dict([(k,getattr(self,k,None)) for k in ATTRIBUTES_SIMPLEWEBPAGE])
@@ -1077,6 +1078,9 @@ class GnrWebPage(GnrBaseWebPage):
             kwargs['isMobile'] = True
         kwargs['deviceScreenSize'] = self.deviceScreenSize
         kwargs['extraFeatures'] = dict(self.extraFeatures)
+        localroot = None
+        if self.connection.electron_static:
+            localroot ='file://%s/app/lib/static/' %self.connection.electron_static
         if getattr(self,'_avoid_module_cache',None):
             kwargs['_avoid_module_cache'] = True
         arg_dict['startArgs'] = toJson(dict([(k,self.catalog.asTypedText(v)) for k,v in kwargs.items()]))
@@ -1085,7 +1089,9 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['gnrModulePath'] = gnrModulePath
         gnrimports = self.frontend.gnrjs_frontend()
         #if _nodebug is False and _clocomp is False and (self.site.debug or self.isDeveloper()):
-        if _nodebug is False and _clocomp is False and (self.isDeveloper()):
+        if localroot:
+            arg_dict['genroJsImport'] = [gnr_static_handler.url(self.gnrjsversion, 'js', '%s.js' % f, _localroot=localroot) for f in gnrimports]
+        elif _nodebug is False and _clocomp is False and (self.isDeveloper()):
             arg_dict['genroJsImport'] = [self.mtimeurl(self.gnrjsversion, 'js', '%s.js' % f) for f in gnrimports]
         elif _clocomp or self.site.config['closure_compiler']:
             jsfiles = [gnr_static_handler.path(self.gnrjsversion, 'js', '%s.js' % f) for f in gnrimports]
