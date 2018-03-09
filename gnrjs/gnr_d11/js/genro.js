@@ -2111,19 +2111,28 @@ dojo.declare('gnr.GenroClient', null, {
                 params = parlist.join(',');
             }
         }
+        url = genro.dom.detectPdfViewer(url);
         var newwindow = window.open(url, name, params);
         if (window.focus) {
-            newwindow.focus();
+            try {
+                newwindow.focus();
+            } catch (error) {
+                console.warn('newindow blocked focus');
+            }
+            
         }
         return newwindow
 
     },
     openBrowserTab:function(url){
+        url = genro.dom.detectPdfViewer(url);
         window.open(url)
     },
     
     childBrowserTab:function(url,parent_page_id){
-        window.open(genro.addParamsToUrl(url,{_parent_page_id:(parent_page_id || genro.page_id)}))
+        url = genro.addParamsToUrl(url,{_parent_page_id:(parent_page_id || genro.page_id)});
+        url = genro.dom.detectPdfViewer(url);
+        window.open(url);
     },
     
 

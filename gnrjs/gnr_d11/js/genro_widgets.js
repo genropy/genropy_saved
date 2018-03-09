@@ -729,11 +729,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             }
             src_kwargs = sourceNode.evaluateOnNode(src_kwargs);
             v = genro.addParamsToUrl(v,src_kwargs);   
-            var parsedSrc = parseURL(v);
-            var jsPdfViewer = isNullOrBlank(sourceNode.attr.jsPdfViewer)? genro.getData('gnr.app_preference.sys.jsPdfViewer'):sourceNode.attr.jsPdfViewer;
-            if(parsedSrc.file && stringEndsWith(parsedSrc.file,'.pdf') && (genro.isMobile || jsPdfViewer) ){
-                v = '/_rsrc/js_libs/pdfjs/web/viewer.html?file='+v;
-            }
+            v = genro.dom.detectPdfViewer(v,sourceNode.attr.jsPdfViewer);
             var doset = this.initContentHtml(domnode,v);
             if (doset){
                 sourceNode.currentSetTimeout = setTimeout(function(d, url) {

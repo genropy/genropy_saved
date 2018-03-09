@@ -1726,5 +1726,14 @@ dojo.declare("gnr.GnrDomHandler", null, {
         nodeIds = typeof(nodeIds)=='string'? nodeIds.split(','):nodeIds;
         kw.pages = nodeIds.map(function(n){return genro.dom.getDomNode(n).innerHTML;})
         genro.serverCall('utils.exportPdfFromNodes',kw);
+    },
+    
+    detectPdfViewer:function(src,jsPdfViewer){
+        var parsedSrc = parseURL(src);
+        var jsPdfViewer = isNullOrBlank(jsPdfViewer)? genro.getData('gnr.app_preference.sys.jsPdfViewer'):jsPdfViewer;
+        if(parsedSrc.file && stringEndsWith(parsedSrc.file,'.pdf') && (genro.isMobile || jsPdfViewer) ){
+            src = '/_rsrc/js_libs/pdfjs/web/viewer.html?file='+src;
+        }
+        return src;
     }
 });
