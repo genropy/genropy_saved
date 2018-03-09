@@ -8,7 +8,7 @@ import os
 from gnr.core.gnrbag import Bag
 from datetime import datetime
 from gnr.core.gnrstring import toText
-from gnr.core.gnrdecorator import timer_call
+#from gnr.core.gnrdecorator import timer_call
 from collections import defaultdict,OrderedDict
 from gnr.core.gnrstring import splitAndStrip
 
@@ -149,7 +149,6 @@ class GnrPandas(object):
         self.dataframes[dfname] = gnrdf
         return gnrdf.getInfo()
 
-    @timer_call()
     def save(self,path=None):
         path = path or self.defaultpath
         if not os.path.exists(path):
@@ -162,7 +161,6 @@ class GnrPandas(object):
                 gnrdf.to_pickle(path)
             pickle.dump(pf,storagefile)
 
-    @timer_call()
     def load(self,path=None):
         path = path or self.defaultpath
         with open(os.path.join(path,'meta.pik'), 'rb') as storagefile:
@@ -395,7 +393,6 @@ class GnrDbDataframe(GnrDataframe):
         return self.db.application.localizer.translate(txt,language=self.language)
         
 
-    @timer_call()
     def query(self,tablename=None,columns=None,where=None,**kwargs):
         tblobj = self.db.table(tablename)
         self.gnrquery = tblobj.query(where=where,columns=columns or self.defaultColumns(tblobj),
