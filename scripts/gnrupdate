@@ -7,6 +7,7 @@ from gnr.core.gnrbag import Bag
 from gnr.app.gnrapp import GnrApp
 from gnr.app.gnrconfig import gnrConfigPath, getGnrConfig
 from optparse import OptionParser
+from time import sleep
 
 import os
 
@@ -58,6 +59,7 @@ class UwsgiUpdater(object):
             self.stop_vassal(s)
             print '\t server stopped'
             if skip_dbsetup:
+                sleep(.3)
                 continue
             app = GnrApp(s)
             print '\t running dbsetup'
@@ -66,6 +68,8 @@ class UwsgiUpdater(object):
                 print 'APPLYING CHANGES TO DATABASE...'
                 app.db.model.applyModelChanges()
                 print 'CHANGES APPLIED TO DATABASE'
+            else:
+                sleep(.3)
             app.db.closeConnection()
             #app.db.model.checker.addExtesions()
             print '\t done'
@@ -99,6 +103,7 @@ class UwsgiUpdater(object):
 
     def restart_vassal(self,name):
         self.stop_vassal(name)
+        sleep(.3)
         self.start_vassal(name)
 
         #vassal_path = os.path.join(self.vassals_path,'%s.ini' %name)
