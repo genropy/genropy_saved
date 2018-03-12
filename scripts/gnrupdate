@@ -102,9 +102,12 @@ class UwsgiUpdater(object):
             print "Site %s start" % name
 
     def restart_vassal(self,name):
-        self.stop_vassal(name)
-        sleep(.3)
-        self.start_vassal(name)
+        with open(name,'rw') as f:
+            filecontent = f.read()
+            f.write(filecontent)
+        #self.stop_vassal(name)
+        #sleep(.3)
+        #self.start_vassal(name)
 
         #vassal_path = os.path.join(self.vassals_path,'%s.ini' %name)
         #if os.path.exists(vassal_path):
