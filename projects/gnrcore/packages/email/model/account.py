@@ -30,6 +30,8 @@ class Table(object):
         tbl.column('system_bcc',name_long='!!System bcc')
 
         tbl.column('schedulable',dtype='B',name_long='!!Schedulable',name_short='Sched')
+        tbl.column('save_output_message', dtype='B', name_long='!!Save output message')
+        tbl.column('debug_address', name_long='!!Debug address')
     
     def getSmtpAccountPref(self,account=None,account_name=None):
         if account:
@@ -45,6 +47,7 @@ class Table(object):
         mp['ssl'] = account['smtp_ssl']
         mp['tls'] = account['smtp_tls']
         mp['system_bcc'] = account['system_bcc']
+        mp['system_debug_address'] = account['debug_address']
         return mp
         
     def standardMailboxes(self):
@@ -63,6 +66,6 @@ class Table(object):
 
 
     def partitionioning_pkeys(self):
-        where='@account_users.user_id=:env_staff_id OR @account_users.id IS NULL'
+        where='@account_users.user_id=:env_user_id OR @account_users.id IS NULL'
         return [r['pkey'] for r in self.query(where=where,excludeLogicalDeleted=False).fetch()]
     

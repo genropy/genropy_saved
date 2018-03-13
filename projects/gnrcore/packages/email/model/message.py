@@ -125,18 +125,19 @@ class Table(object):
                             message_type=message_type,
                             html=html,**kwargs)
         message_atc = self.db.table('email.message_atc')
-        self.insert(message_to_dispatch)
-        if attachments:
-            for r in attachments:
-                origin_filepath = r
-                mimetype = None
-                if isinstance(r,tuple):
-                    origin_filepath,mimetype = r
-                message_atc.addAttachment(maintable_id=message_to_dispatch['id'],
-                                        origin_filepath=r,
-                                        mimetype=mimetype,
-                                        destFolder=self.folderPath(message_to_dispatch,True),
-                                        moveFile=moveAttachment)
+        with self.db.tempEnv(autoCommit=True):
+            self.insert(message_to_dispatch)
+            if attachments:
+                for r in attachments:
+                    origin_filepath = r
+                    mimetype = None
+                    if isinstance(r,tuple):
+                        origin_filepath,mimetype = r
+                    message_atc.addAttachment(maintable_id=message_to_dispatch['id'],
+                                            origin_filepath=r,
+                                            mimetype=mimetype,
+                                            destFolder=self.folderPath(message_to_dispatch,True),
+                                            moveFile=moveAttachment)
         if doCommit:
             self.db.commit()
         return message_to_dispatch
@@ -161,13 +162,14 @@ class Table(object):
             extra_headers = Bag(message['extra_headers'])
             account_id = message['account_id']
             mp = self.db.table('email.account').getSmtpAccountPref(account_id)
+            debug_address = mp.pop('system_debug_address')
             bcc_address = message['bcc_address']
             attachments = self.db.table('email.message_atc').query(where='$maintable_id=:mid',mid=message['id']).fetch()
             attachments = [site.getStaticPath('vol:%s' %r['filepath']) for r in attachments]
             if mp['system_bcc']:
                 bcc_address = '%s,%s' %(bcc_address,mp['system_bcc']) if mp else mp['system_bcc']
             try:
-                mail_handler.sendmail(to_address=message['to_address'],
+                mail_handler.sendmail(to_address=debug_address or message['to_address'],
                                 body=message['body'], subject=message['subject'],
                                 cc_address=message['cc_address'], bcc_address=bcc_address,
                                 from_address=message['from_address'] or mp['from_address'],

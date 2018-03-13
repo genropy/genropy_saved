@@ -12,6 +12,9 @@ class Package(GnrDboPackage):
         
     def loginUrl(self):
         return 'email/login'
+
+    def services(self):
+        return [dict(service_name='mail',resource='emailservice')]
         
 class Table(GnrDboTable):
     pass

@@ -35,8 +35,6 @@ class WebMailHandler(MailHandler):
             mp = self.parent.getPreference('mail', pkg='adm')
         if not mp['smtp_host'] and not mp['email_account_id']:
             mp = self.parent.db.application.config.getNode('mail').attr
-        if mp.get('email_account_id'):
-            return self.parent.db.table('email.account').getSmtpAccountPref(mp['email_account_id'])
         return mp
 
     def sendUserTemplateMail(self,record_id=None,letterhead_id=None,
