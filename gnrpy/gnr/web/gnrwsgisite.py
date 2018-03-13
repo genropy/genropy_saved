@@ -256,9 +256,9 @@ class GnrWsgiSite(object):
         self.page_factory_lock = RLock()
         self.webtools = self.resource_loader.find_webtools()
         self.services = ServiceHandlerManager(self)
-        self.print_handler = self.addService(PrintHandler, service_name='print',defined_by='site')
-        self.mail_handler = self.addService(WebMailHandler, service_name='mail',defined_by='site')
-        self.task_handler = self.addService(TaskHandler, service_name='task',defined_by='site')
+        self.print_handler = self.addService(PrintHandler, service_name='print')
+        self.mail_handler = self.addService(WebMailHandler, service_name='mail')
+        self.task_handler = self.addService(TaskHandler, service_name='task')
         self.register
         self.services.addSiteServices()
         
@@ -312,12 +312,12 @@ class GnrWsgiSite(object):
                     for k,v in attr.items():
                         self.extraFeatures['%s_%s' %(n.label,k)] = v
 
-    def addService(self, service_handler, service_name=None, defined_by=None,**kwargs):
+    def addService(self, service_handler, service_name=None,**kwargs):
         """TODO
         
         :param service_handler: TODO
         :param service_name: TODO"""
-        return self.services.add(service_handler, service_name=service_name,defined_by=defined_by, **kwargs)
+        return self.services.add(service_handler, service_name=service_name, **kwargs)
         
     def getService(self, service_name):
         """TODO
