@@ -919,12 +919,16 @@ class GnrApp(object):
         By default, it will call the :meth:`onApplicationInited()
         <gnr.app.gnrapp.GnrPackage.onApplicationInited>` method of each package"""
         self.pkgBroadcast('onApplicationInited')
-    
+
+
+
     def pkgBroadcast(self,method,*args,**kwargs):
-        for pkg in self.packages.values():
+        result = []
+        for pkgId,pkg in self.packages.items():
             handler = getattr(pkg,method,None)
             if handler:
-                handler(*args,**kwargs)
+                result.append((pkgId,handler(*args,**kwargs)))
+        return result
 
     @property
     def locale(self):
