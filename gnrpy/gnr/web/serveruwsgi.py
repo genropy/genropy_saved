@@ -133,7 +133,7 @@ class Server(object):
                                     options=self.options)
         with self.gnr_site.register.globalStore() as gs:
             gs.setItem('RESTART_TS',datetime.now())
-        atexit.register(self.gnr_site.on_site_stop)
+        #atexit.register(self.gnr_site.on_site_stop)
 
     @property
     def code_monitor(self):
