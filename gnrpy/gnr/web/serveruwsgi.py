@@ -10,6 +10,7 @@ from gnr.core.gnrsys import expandpath, listdirs
 from gnr.app.gnrconfig import gnrConfigPath, getSiteHandler, getGnrConfig
 from gnr.core.gnrstring import boolean
 from ConfigParser import ConfigParser, NoSectionError
+from datetime import datetime
 fnull = open(os.devnull, 'w')
 MAXFD = 1024
 
@@ -130,6 +131,10 @@ class Server(object):
                                     _gnrconfig=self.gnr_config,
                                     counter=self.options.get('counter'), noclean=self.options.get('noclean'),
                                     options=self.options)
+        with self.gnr_site.register.globalStore() as gs:
+            gs.setItem('RESTART_TS',datetime.now())
+        atexit.register(self.gnr_site.on_site_stop)
+
     @property
     def code_monitor(self):
         if not hasattr(self, '_code_monitor'):

@@ -1599,6 +1599,10 @@ dojo.declare("gnr.GridEditor", null, {
         if (!(cell.field in this.columns)){return false;}
         if ((cell.classes || '').indexOf('hiddenColumn')>=0){return false}
         this.grid.currRenderedRowIndex = row;
+        var rowdict = this.grid.rowByIndex(row);
+        if(rowdict._is_readonly_row){
+            return false;
+        }
         if(this.grid.sourceNode.currentFromDatasource(cell.editDisabled)){
             return false;
         }else if(clicked){
