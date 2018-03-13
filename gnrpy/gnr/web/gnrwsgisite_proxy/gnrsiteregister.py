@@ -244,7 +244,10 @@ class BaseRegister(BaseRemoteObject):
         self.itemsTS[register_item_id] = datetime.now()
 
     def get_item_data(self,register_item_id):
-        return self.itemsData.get(register_item_id)
+        data = self.itemsData.get(register_item_id)
+        if data is None:
+            data = Bag()
+        return data
 
     def get_item(self,register_item_id,include_data=False):
         item = self.registerItems.get(register_item_id)
