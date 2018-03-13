@@ -39,6 +39,8 @@ class ServiceHandlerManager(object):
     def addSiteServices(self):
         services = []
         for pkg, s in self.site.gnrapp.pkgBroadcast('services'):
+            for r in s:
+                r['defined_by'] = pkg
             services.extend(s)
         for service in self.site.config['services'] or []:
             kw = dict(service.attr)
@@ -63,12 +65,14 @@ class ServiceHandlerManager(object):
                 log.exception("Could not import %s"%module)
                 log.exception(str(import_error))
 
-    def add(self, service_handler_factory, service_name=None, **kwargs):
+    def add(self, service_handler_factory, service_name=None, defined_by=None,**kwargs):
         service_name = service_name or self.service_name(service_handler_factory)
         service_handler = service_handler_factory(self.site, **kwargs)
         service_handler.service_name = service_name
         service_handler._replaced_service = self.services.getItem(service_name)
         self.services.setItem(service_name, service_handler, **kwargs)
+        if defined_by:
+            self.services.setItem('%s_%s' %(defined_by,service_name), service_handler, **kwargs)
         return service_handler
 
     def get(self, service_name):

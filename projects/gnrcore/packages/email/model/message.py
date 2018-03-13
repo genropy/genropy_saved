@@ -175,7 +175,8 @@ class Table(object):
                                 from_address=message['from_address'] or mp['from_address'],
                                 attachments=attachments, 
                                 smtp_host=mp['smtp_host'], port=mp['port'], user=mp['user'], password=mp['password'],
-                                ssl=mp['ssl'], tls=mp['tls'], html=message['html'], async=False)
+                                ssl=mp['ssl'], tls=mp['tls'], html=message['html'], async=False,
+                                scheduler=False)
                 message['send_date'] = datetime.now()
             except Exception as e:
                 sending_attempt = message['sending_attempt'] = message['sending_attempt'] or Bag()
