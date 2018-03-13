@@ -820,6 +820,10 @@ class GnrWebPage(GnrBaseWebPage):
         return self.site.getService(service_type)
         
     def _onEnd(self):
+        try:
+            self.db.autoCommit()
+        except self.db.exceptions['missedCommit'] as e:
+            self.log(str(e))
         self._publish_event('onEnd')
         self.onEnd()
         

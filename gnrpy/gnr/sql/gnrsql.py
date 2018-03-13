@@ -83,6 +83,15 @@ class GnrSqlExecException(GnrSqlException):
     code = 'GNRSQL-002'
     description = '!!Genro SQL execution exception'
     
+class GnrMissedCommitException(GnrException):
+    """Standard Gnr Sql Base Exception
+    
+    * **code**: GNRSQL-001
+    * **description**: Genro SQL Base Exception
+    """
+    code = 'GNRSQL-099'
+    description = '!!Genro Missed commit exception'
+
 class GnrSqlDb(GnrObject):
     """This is the main class of the gnrsql module.
     
@@ -130,6 +139,11 @@ class GnrSqlDb(GnrObject):
         self.started = False
         self._currentEnv = {}
         self.stores_handler = DbStoresHandler(self)
+        self.exceptions = {
+            'base':GnrSqlException,
+            'exec':GnrSqlExecException,
+            'missedCommit':GnrMissedCommitException
+        }
 
     #-----------------------Configure and Startup-----------------------------
 
@@ -437,7 +451,7 @@ class GnrSqlDb(GnrObject):
 
     def notifyDbEvent(self,tblobj,**kwargs):
         pass
-        
+
     @in_triggerstack
     def insert(self, tblobj, record, **kwargs):
         """Insert a record in a :ref:`table`
@@ -560,6 +574,14 @@ class GnrSqlDb(GnrObject):
     def dbevents(self):
         return self.currentEnv.get('dbevents_%s' %self.connectionKey())
 
+    def autoCommit(self):
+        if not self.dbevents:
+            return
+        if all([all(map(lambda v: v.get('autoCommit'),t)) for t in self.dbevents.values()]):
+            self.commit()
+        else:
+            raise GnrMissedCommitException('Db events not committed')
+            
     def onDbCommitted(self):
         """TODO"""
         pass

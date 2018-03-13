@@ -65,7 +65,7 @@ class GnrWsgiWebApp(GnrApp):
         for record in records:
             self.notifyDbEvent(tblobj, record, 'U')
 
-    def notifyDbEvent(self, tblobj, record, event, old_record=None):
+    def notifyDbEvent(self, tblobj, record, event, old_record=None,**kwargs):
         """TODO
         
         :param tblobj: the :ref:`database table <table>` object
@@ -90,12 +90,13 @@ class GnrWsgiWebApp(GnrApp):
                         oldvalue = old_record.get(field)
                         if newvalue!=oldvalue:
                             r['old_%s' %field] = self.catalog.asTypedText(old_record.get(field))
+            r['autoCommit'] = self.db.currentEnv.get('autoCommit')
             dbevents.setdefault(tblobj.fullname,[]).append(r)
         audit_mode = tblobj.attributes.get('audit')
         if audit_mode:
             self.db.table('adm.audit').audit(tblobj,event,audit_mode=audit_mode,record=record, old_record=old_record)
                 
-   
+
     def onDbCommitted(self):
         super(GnrWsgiWebApp, self).onDbCommitted()
         dbeventKey = 'dbevents_%s' %self.db.connectionKey()
