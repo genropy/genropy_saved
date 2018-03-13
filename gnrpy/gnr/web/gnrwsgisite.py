@@ -422,9 +422,14 @@ class GnrWsgiSite(object):
 
     def on_reloader_restart(self):
         """TODO"""
-        pass
+        self.register.on_reloader_restart()
         #self.shared_data.dump()
         
+    def on_site_stop(self):
+        """TODO"""
+        self.register.on_site_stop()
+    
+
     def initializePackages(self):
         """TODO"""
         self.gnrapp.pkgBroadcast('onSiteInited')
