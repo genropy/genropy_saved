@@ -293,6 +293,8 @@ class BaseRegister(BaseRemoteObject):
 
     def update_item(self,register_item_id,upddict=None):
         register_item = self.get_item(register_item_id)
+        if not register_item:
+            return
         register_item.update(upddict)
         return register_item
 
@@ -326,6 +328,8 @@ class BaseRegister(BaseRemoteObject):
 
     def drop_datachanges(self,register_item_id, path):
         register_item = self.get_item(register_item_id)
+        if not register_item:
+            return
         datachanges = register_item['datachanges']
         datachanges[:] = [dc for dc in datachanges if not dc.path.startswith(path)]
 
@@ -616,9 +620,20 @@ class SiteRegister(BaseRemoteObject):
         self.interproces_commands = dict()
         self.batch_queue = batch_queue
 
+    def on_reloader_restart(self):
+        if self.server.gnr_daemon_uri:
+            with Pyro4.Proxy(self.server.gnr_daemon_uri) as proxy:
+                if not OLD_HMAC_MODE:
+                    proxy._pyroHmacKey = self.server.hmac_key
+                proxy.on_reloader_restart(sitename=self.sitename)
+
+    def on_site_stop(self):
+        print 'site stopped'
+
     def table_script_put(self, page_id=None, batch_kwargs=None):
         if self.batch_queue:
-            self.batch_queue.put((page_id, batch_kwargs))
+            batch_item = dict(page_id=page_id, batch_kwargs=batch_kwargs)
+            self.batch_queue.put(dict(type='batch', value=batch_item))
 
     def checkCachedTables(self,table):
         for register in (self.page_register,self.connection_register,self.user_register):
@@ -1184,7 +1199,7 @@ class GnrSiteRegisterServer(object):
             if port != '*':
                 pyrokw['port'] = int(port or PYRO_PORT)
         Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
-        hmac_key=str(hmac_key or PYRO_HMAC_KEY)
+        self.hmac_key= hmac_key =str(hmac_key or PYRO_HMAC_KEY)
         multiplex = multiplex or PYRO_MULTIPLEX
         if OLD_HMAC_MODE:
             Pyro4.config.HMAC_KEY = hmac_key

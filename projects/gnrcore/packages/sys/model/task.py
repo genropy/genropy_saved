@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 from datetime import datetime
+from dateutil import rrule
 from gnr.core.gnrbag import Bag
 
 class Table(object):
@@ -22,16 +23,56 @@ class Table(object):
         tbl.column('last_error_ts','DH',name_long='!!Last Error')
         tbl.column('last_error_info','X',name_long='!!Last Error Info')
         tbl.column('run_asap','B',name_long='!!Run ASAP')
+        tbl.column('concurrent','B',name_long='!!Concurrent') # Allows concurrent execution of the same task
         tbl.column('log_result', 'B', name_long='!!Log Task')
         tbl.column('user_id',size='22',group='_',name_long='User id').relation('adm.user.id', mode='foreignkey', onDelete='raise')
         tbl.column('date_start','D',name_long='!!Start Date')
         tbl.column('date_end','D',name_long='!!End Date')
         tbl.column('stopped','B',name_long='!!Stopped')
+        tbl.formulaColumn('last_execution_ts',
+            select=dict(table='sys.task_result',
+            columns='MAX($start_time)', where='$task_id = #THIS.id'),
+            name_long='!!Last Execution')
+        
+    def trigger_onInserted(self, record):
+        self.resetTaskCache()
 
+    def trigger_onDeleted(self, record, **kwargs):
+        self.resetTaskCache()
 
+    def trigger_onUpdated(self, record, old_record=None, **kwargs):
+        self.resetTaskCache()
+
+    def resetTaskCache(self):
+        print 'rendo invalida cache'
+        with self.db.application.site.register.globalStore() as gs:
+            gs.setItem('TASK_TS',datetime.now())
 
     def isTaskScheduledNow(self,task,timestamp):
-        def expandIntervals(string_interval,limits=None):
+        if task['run_asap']:
+            return True
+        if task['frequency']:
+            last_execution_ts = task['last_execution_ts']
+            return last_execution_ts is None or (timestamp-last_execution_ts).seconds/60.>=task['frequency']
+        expandIntervals = self.expandIntervals
+        month=expandIntervals(task['month'],limits=(1,12))
+        if month and timestamp.month not in month:
+            return False
+        day=expandIntervals(task['day'],limits=(1,31))
+        if day and timestamp.day not in day:
+            return False
+        weekday=expandIntervals(task['weekday'],limits=(0,6))
+        if weekday and timestamp.weekday() not in weekday:
+            return False
+        hour=expandIntervals(task['hour'],limits=(0,23))
+        if hour and timestamp.hour not in hour:
+            return False
+        minute=expandIntervals(task['minute'],limits=(0,59))
+        if minute and timestamp.minute not in minute:
+            return False
+        return True
+
+    def expandIntervals(self, string_interval,limits=None):
             inlist=string_interval and string_interval.strip().split(',') or []
             inlist = inlist or []
             outlist=[]
@@ -51,28 +92,63 @@ class Table(object):
                         outlist.append(single)
             return outlist
 
-        if task['run_asap']:
-            return True
-        if task['frequency']:
-            last_execution_ts = task['last_execution_ts']
-            return last_execution_ts is None or (timestamp-last_execution_ts).seconds/60.>=task['frequency']
+    def expandTaskPeriods(self, task):
+        return dict(
+            month=self.expandIntervals(task['month'],limits=(1,12)),
+            day=self.expandIntervals(task['day'],limits=(1,31)),
+            weekday=self.expandIntervals(task['weekday'],limits=(0,6)),
+            hour=self.expandIntervals(task['hour'],limits=(0,23)),
+            minute=self.expandIntervals(task['minute'],limits=(0,59))
+        )
 
-        month=expandIntervals(task['month'],limits=(1,12))
-        if month and timestamp.month not in month:
-            return False
-        day=expandIntervals(task['day'],limits=(1,31))
-        if day and timestamp.day not in day:
-            return False
-        weekday=expandIntervals(task['weekday'],limits=(0,6))
-        if weekday and timestamp.weekday() not in weekday:
-            return False
-        hour=expandIntervals(task['hour'],limits=(0,23))
-        if hour and timestamp.hour not in hour:
-            return False
-        minute=expandIntervals(task['minute'],limits=(0,59))
-        if minute and timestamp.minute not in minute:
-            return False
+    def checkInterval(self, ts, periods):
+        for k, v in periods.items():
+            time_element = getattr(ts,k)
+            if callable(time_element):
+                time_element = time_element()
+            if v and time_element not in v:
+                return False
         return True
+
+    def taskExecutions(self, task, timespan=None):
+        result = []
+        timestamps = rrule.rrule(rrule.MINUTELY,count=timespan,dtstart=datetime.now())
+        periods = self.expandTaskPeriods(task)
+        last_execution_ts = task['last_execution_ts']
+        frequency = task['frequency']
+        run_asap = task['run_asap']
+        for ts in timestamps:
+            do_run = False
+            if run_asap:
+                do_run = True
+            elif frequency:
+                if last_execution_ts is None or (ts-last_execution_ts).seconds/60.>=frequency:
+                    do_run = True
+            elif self.checkInterval(ts, periods):
+                do_run = True
+            if do_run:
+                run_asap = False
+                last_execution_ts = ts
+                task_execution = dict(execution_ts=ts,
+                    command = task['command'],
+                    parameters=task['parameters'],
+                    task=task)
+                result.append(task_execution)
+        return result
+
+    def getNextExecutions(self, timespan=60):
+        result = []
+        now = datetime.now()
+        def cb(task):
+            result.extend(self.taskExecutions(dict(task),timespan=timespan))
+            if task['run_asap']:
+                task['run_asap'] = False
+            else:
+                return False
+        self.batchUpdate(updater=cb,columns='*,$last_execution_ts', where='$stopped IS NOT TRUE', )
+        self.db.commit()
+        return sorted(result, key=lambda t:t.get('execution_ts'))
+
 
     def findTasks(self, timestamp=None):
         timestamp = timestamp or datetime.now()
@@ -86,7 +162,7 @@ class Table(object):
                 print 'build error record here interval Syntax error'
                 # build error record here interval Syntax error
         return tasks_to_run
-        
+
     def loadTask(self, table=None, page=None, command=None):
         pkg,tablename = table.split('.')
         command = command or 'task_%s:Main' %tablename
@@ -95,7 +171,7 @@ class Table(object):
         task_class = page.importTableResource(table,command)
         if task_class:
             return task_class(page=page,resource_table=page.db.table(table))
-    
+
     def runTask(self, task, page=None, timestamp=None):
         log_record = Bag()
         start_time = datetime.now()
@@ -106,7 +182,8 @@ class Table(object):
             return
         try:
             taskparameters = task['parameters']
-            tmp_result = taskObj(parameters=Bag(taskparameters)) or ''
+            tmp_result = taskObj(parameters=Bag(taskparameters))
+            tmp_result = tmp_result or ''
             log_result = task['log_result']
             if isinstance(tmp_result, Bag):
                 result = tmp_result
@@ -122,13 +199,14 @@ class Table(object):
             log_record['end_time'] = datetime.now()
             log_record['result'] = result
             self.db.table('sys.task_result').insert(log_record)
-        
+
     def runScheduled(self, page=None):
         tasks = self.findTasks()
         now =  datetime.now()
         for task in tasks:
             with self.recordToUpdate(task['id']) as task_rec:
-                if not self.isTaskScheduledNow(task_rec,now):
+                scheduledNow = self.isTaskScheduledNow(task_rec,now)
+                if not scheduledNow:
                     continue
                 try:
                     self.runTask(task_rec, page=page)

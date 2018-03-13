@@ -130,15 +130,15 @@ class GnrSimplePage(GnrWebPage):
 
 
     #overriden methods
-    def unfreezeSelection(self, dbtable=None, name=None, page_id=None):
+    def _unfreezeSelection(self, dbtable=None, name=None, page_id=None):
         print 'FAKE UNFREEZING'
         return self.freezedSelections.get(name)
 
-    def freezeSelection(self,selection,selectionName,**kwargs):
+    def _freezeSelection(self,selection,selectionName,**kwargs):
         print 'FAKE FREEZING'
         self.freezedSelections[selectionName] = selection
 
-    def freezeSelectionUpdate(self,selection):
+    def _freezeSelectionUpdate(self,selection):
         print 'FAKE FREEZING UPDATE'
 
 

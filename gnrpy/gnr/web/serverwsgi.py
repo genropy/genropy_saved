@@ -14,7 +14,7 @@ import re
 import errno
 import time
 import glob
-
+from datetime import datetime
 try:
     import subprocess
 except ImportError:
@@ -615,7 +615,8 @@ class Server(object):
                 return self.restart_with_reloader()
         first_run = int(getattr(self.options, 'counter', 0) or 0) == 0
         if self.options.bonjour and first_run:
-            self.set_bonjour()
+            pass
+            #self.set_bonjour()
        #if True or first_run:
        #    self.handle_tunnel(first_run=first_run)
         if self.cmd:
@@ -665,7 +666,10 @@ class Server(object):
                                     _gnrconfig=self.gnr_config,
                                     counter=getattr(self.options, 'counter', None), noclean=self.options.noclean,
                                     options=self.options)
+            with gnrServer.register.globalStore() as gs:
+                gs.setItem('RESTART_TS',datetime.now())
             GnrReloaderMonitor.add_reloader_callback(gnrServer.on_reloader_restart)
+            atexit.register(gnrServer.on_site_stop)
             if HAS_WAITRESS:
                 server = create_server(gnrServer, host=self.options.host, port=self.options.port)
                 print '[Waitress] serving on %s:%s'%(self.options.host,str(self.options.port))
@@ -826,7 +830,7 @@ class Server(object):
                         os.kill(proc.pid, signal.SIGTERM)
                     except (OSError, IOError):
                         pass
-            stop_bonjour()
+            #stop_bonjour()
             if reloader:
             # Reloader always exits with code 3; but if we are
             # a monitor, any exit code will restart
