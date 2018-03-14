@@ -29,7 +29,7 @@ class GnrCustomWebPage(object):
         <head>
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
             <script>
-                    window.location = '%s';
+                    window.open('%s');
             </script>
             </head>
             <body>
