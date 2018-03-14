@@ -21,7 +21,9 @@ USER_AGENT_SNIFF = (('Chrome', 'Chrome'),
                     ('Firefox', 'Firefox'),
                     ('Opera', 'Opera'),
                     ('MSIE', 'InternetExplorer'))
-DEVICE_AGENT_SNIFF = (('iPad','mobile:tablet'),('iPhone','mobile:phone'),('Android','mobile:phone'),('WindowsPhone','mobile:phone'))
+DEVICE_AGENT_SNIFF = (('iPad','mobile:tablet'),('iPhone','mobile:phone'),
+                    ('Android','mobile:phone'),('WindowsPhone','mobile:phone'),
+                    ('Mac','mac:desktop'),('Win','windows:desktop'),('Linux','linux:desktop'))
 
 class GnrWebConnection(GnrBaseProxy):
     def init(self, connection_id=None, user=None, electron_static=None,**kwargs):
