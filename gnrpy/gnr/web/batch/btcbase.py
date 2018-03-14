@@ -91,6 +91,11 @@ class BaseResourceBatch(object):
         
     def _post_process(self):
         self.post_process()
+        try:
+            self.db.autoCommit()
+        except self.db.exceptions['missedCommit'] as e:
+            self.page.log(str(e))
+
 
     def post_process(self):
         """Hook method after the batch execution"""
