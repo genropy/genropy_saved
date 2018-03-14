@@ -95,7 +95,7 @@ class GnrRemoteProcess(object):
 
     def _makeSite(self):
         from gnr.web.gnrwsgisite import GnrWsgiSite
-        self._site =  GnrWsgiSite(self.sitename)
+        self._site =  GnrWsgiSite(self.sitename,noclean=True)
         self._site_ts = datetime.now()
 
     @property
@@ -162,8 +162,12 @@ class GnrWorker(GnrRemoteProcess):
                 handler = getattr(self, 'run_%s'%item_type,None)
                 if handler:
                     handler(item_value)
-            except:
-                pass
+            except Exception as e:
+                import sys
+                import traceback
+                el = sys.exc_info()
+                tb_text = traceback.format_exc()
+                self.logger.error(tb_text)
 
 class GnrCron(GnrRemoteProcess):
     def __init__(self,sitename=None,interval=None,loglevel=None, batch_queue=None, timespan=None,**kwargs):

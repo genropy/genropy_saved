@@ -674,6 +674,14 @@ class GnrWsgiSite(object):
         else:
             return self.serve_htmlPage('html_pages/maintenance.html', environ, start_response)
         
+    @property
+    def external_host(self):
+        if not hasattr(self, '_external_host'):
+            self._external_host = self.config['wsgi?external_host'] 
+            if not self._external_host:
+                print 'Please set the external_host in the <wsgi> tag in siteconfig'
+                self._external_host = self.currentRequest.host_url
+        return self._external_host
 
     def _dispatcher(self, environ, start_response):
         """Main :ref:`wsgi` dispatcher, calls serve_staticfile for static files and
@@ -685,7 +693,6 @@ class GnrWsgiSite(object):
         t = time()
         request = self.currentRequest
         response = Response()
-        self.external_host = self.config['wsgi?external_host'] or request.host_url
         # Url parsing start
         path_list = self.get_path_list(request.path_info)
         expiredConnections = self.register.cleanup()
@@ -1364,13 +1371,16 @@ class GnrWsgiSite(object):
         #path = os.path.join(self.homeUrl(), path)
         if path == '': 
             path = self.home_uri
-        cr = self.currentRequest
-        path = cr.relative_url(path)
+        path = '{}/{}'.format(self.external_host, path)
         if serveAsLocalhost:
-            path = path.replace(cr.host.replace(':%s'%cr.host_port,''),'localhost')
+            protocol, _, domain = self.external_host.rpartition('://')
+            host, _, port = domain.partition(':')
+            #cr = self.currentRequest
+            print '*** serveAsLocalhost used for %s'%path
+            path = path.replace(host,'localhost')
+            print '*** serveAsLocalhost changed in %s' %path
         if params:
             path = '%s?%s' % (path, params)
-
         if _link:
             return '<a href="%s" target="_blank">%s</a>' %(path,_link if _link is not True else '')
         return path
