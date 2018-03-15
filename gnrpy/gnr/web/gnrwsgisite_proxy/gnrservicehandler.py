@@ -51,18 +51,24 @@ class ServiceHandlerManager(object):
         for kw in services:
             resource = kw.pop('resource',None) or kw['service_name']
             service_type = kw.pop('service_type',None) or kw['service_name']
-            resmodule,resclass = resource.split(':') if ':' in resource else resource,'Main'
-            modules = self.site.resource_loader.getResourceList(self.site.resources_dirs, 'services/%s/%s.py' %(service_type,resmodule))
-            assert modules,'Missing module %s for service %s '  %(resmodule,service_type)    
-            module = modules[0]
-            try:
-                module = gnrImport(module)
-                service_class = getattr(module,resclass)
-                self.add(service_class,**kw)
-            except ImportError, import_error:
-                log.exception("Could not import %s"%module)
-                log.exception(str(import_error))
+            service_handler_factory = self.importServiceClass(service_type=service_type,resource=resource)
+            if service_handler_factory:
+                self.add(service_handler_factory,**kw)
 
+    def importServiceClass(self,service_type=None,resource=None):
+        resmodule,resclass = resource.split(':') if ':' in resource else resource,'Main'
+        modules = self.site.resource_loader.getResourceList(self.site.resources_dirs, 'services/%s/%s.py' %(service_type,resmodule))
+        assert modules,'Missing module %s for service %s '  %(resmodule,service_type)    
+        module = modules[0]
+        try:
+            module = gnrImport(module)
+            service_class = getattr(module,resclass)
+            #self.add(service_class,**kw)
+            return service_class
+        except ImportError, import_error:
+            log.exception("Could not import %s"%module)
+            log.exception(str(import_error))
+        
     def add(self, service_handler_factory, service_name=None, **kwargs):
         service_name = service_name or self.service_name(service_handler_factory)
         service_handler = service_handler_factory(self.site, **kwargs)
@@ -71,4 +77,9 @@ class ServiceHandlerManager(object):
         return service_handler
 
     def get(self, service_name):
-        return self.services[service_name]
+        service = self.services[service_name]
+        if service is None:
+            service_handler_factory = self.importServiceClass(service_type=service_name,resource=service_name)
+            if service_handler_factory:
+                service = self.add(service_handler_factory,service_name=service_name)
+        return service
