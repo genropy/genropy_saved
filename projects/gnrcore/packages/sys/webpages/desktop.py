@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 # --------------------------- GnrWebPage Standard header ---------------------------
+import os
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import NetBag
 
@@ -20,7 +21,9 @@ class GnrCustomWebPage(object):
         result = NetBag(service_url,'make_electron' , name=name, platform=platform,app_url=url)
         dlurl = 'http://services.genropy.net%s' %result()['result']
         self.forced_mimetype='text/html'
-        return self.plain_redirect(dlurl)
+        folderpath = self.site.getStaticPath('site:applications',platform,autocreate=True)
+        destfilepath = self.site.getService('download')(dlurl,folderpath)
+        return self.plain_redirect(self.site.getStaticUrl('site:applications',platform,os.path.basename(destfilepath)))
         #self.setInClientData('gnr.downloadurl',dlurl)
 
     def plain_redirect(self,url):
@@ -29,6 +32,7 @@ class GnrCustomWebPage(object):
         <head>
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
             <script>
+
                     window.open('%s');
             </script>
             </head>
