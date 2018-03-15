@@ -676,12 +676,13 @@ class GnrWsgiSite(object):
         
     @property
     def external_host(self):
-        if not hasattr(self, '_external_host'):
-            self._external_host = self.config['wsgi?external_host'] 
-            if not self._external_host:
-                print 'Please set the external_host in the <wsgi> tag in siteconfig'
-                self._external_host = self.currentRequest.host_url
-        return self._external_host
+        return self.currentPage.external_host if self.currentPage else self.configurationItem('wsgi?external_host',mandatory=True) 
+
+    def configurationItem(self,path,mandatory=False):
+        result = self.config[path] 
+        if mandatory and result is None:
+            print 'Missing mandatory configuration item: %s' %path
+        return result
 
     def _dispatcher(self, environ, start_response):
         """Main :ref:`wsgi` dispatcher, calls serve_staticfile for static files and
@@ -1371,14 +1372,12 @@ class GnrWsgiSite(object):
         #path = os.path.join(self.homeUrl(), path)
         if path == '': 
             path = self.home_uri
-        path = '{}/{}'.format(self.external_host, path)
+        f =  '{}{}' if path.startswith('/') else '{}/{}'
+        path = f.format(self.external_host,path)
         if serveAsLocalhost:
             protocol, _, domain = self.external_host.rpartition('://')
             host, _, port = domain.partition(':')
-            #cr = self.currentRequest
-            print '*** serveAsLocalhost used for %s'%path
             path = path.replace(host,'localhost')
-            print '*** serveAsLocalhost changed in %s' %path
         if params:
             path = '%s?%s' % (path, params)
         if _link:

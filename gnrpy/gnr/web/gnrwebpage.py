@@ -1146,6 +1146,10 @@ class GnrWebPage(GnrBaseWebPage):
             path = '%s?%s' % (path, params)
         return path
         
+    @property
+    def external_host(self):
+        return self.request.host_url if self.request else self.site.configurationItem('wsgi?external_host',mandatory=True) 
+
     def externalUrl(self, path, **kwargs):
         """TODO
         
@@ -1347,8 +1351,7 @@ class GnrWebPage(GnrBaseWebPage):
         self._siteName = siteName
 
     siteName = property(_get_siteName, _set_siteName)
-        
-        
+
     def checkPermission(self, pagepath, relative=True):
         """TODO
         
@@ -1437,6 +1440,7 @@ class GnrWebPage(GnrBaseWebPage):
 
         :param css_requires: the :ref:`"css_requires" webpage variable <css_requires>`"""
         pass
+
 
     def getResourceUri(self, path, ext=None, add_mtime=False, pkg=None):
         """TODO
