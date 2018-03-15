@@ -58,7 +58,8 @@ class ServiceHandlerManager(object):
     def importServiceClass(self,service_type=None,resource=None):
         resmodule,resclass = resource.split(':') if ':' in resource else resource,'Main'
         modules = self.site.resource_loader.getResourceList(self.site.resources_dirs, 'services/%s/%s.py' %(service_type,resmodule))
-        assert modules,'Missing module %s for service %s '  %(resmodule,service_type)    
+        if not modules:
+            return
         module = modules[0]
         try:
             module = gnrImport(module)
