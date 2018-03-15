@@ -1127,7 +1127,7 @@ class GnrApp(object):
             tags = ','.join(makeSet(defaultTags, tags or ''))
         if authenticate:
             valid = self.validatePassword(login_pwd, pwd)
-            if valid and allowed_ip and not self.checkAllowedIp(allowed_ip):
+            if valid and not self.checkAllowedIp(allowed_ip):
                 raise GnrRestrictedAccessException('Not allowed access')
         else:
             valid = True

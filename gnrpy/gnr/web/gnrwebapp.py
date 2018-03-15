@@ -165,7 +165,10 @@ class GnrWsgiWebApp(GnrApp):
 
 
     def checkAllowedIp(self,allowed_ip):
-        "override"
+        if allowed_ip is None:
+            return True
+        if isinstance(allowed_ip,bool):
+            return allowed_ip
         currentPage = self.site.currentPage
         iplist = currentPage.connection.ip.split('.')
         for ip in allowed_ip.split(','):

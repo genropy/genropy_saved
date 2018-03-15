@@ -36,13 +36,9 @@ class Package(GnrDboPackage):
                 kwargs['locale'] = user_record['locale'] or self.application.config('default?client_locale')
                 kwargs['user_name'] = '%s %s' % (user_record['firstname'], user_record['lastname'])
                 kwargs.update(dictExtract(user_record, 'avatar_'))
-                access_groups = self.db.table('adm.user_access_group').query(where='$user_id=:uid',uid=user_record['id'],
-                                                            columns='@access_group_code.allowed_ip AS allowed_ip').fetch()
-                allowed_ip = set([])
-                for ag in access_groups:
-                    allowed_ip = allowed_ip.union(set(ag['allowed_ip'].split(',') if ag['allowed_ip'] else []))
-                if allowed_ip:
-                    kwargs['allowed_ip'] = ','.join(allowed_ip)
+                allowed_ip = self.db.table('adm.user_access_group').allowedUser(user_record['id'])
+                if allowed_ip is not None:
+                    kwargs['allowed_ip'] = allowed_ip
                 cache[identifier] = kwargs
             return kwargs,False
         authkwargs = tblobj.tableCachedData('user_authenticate',cb,identifier=username)
