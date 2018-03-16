@@ -44,7 +44,6 @@ class Table(object):
         self.resetTaskCache()
 
     def resetTaskCache(self):
-        print 'rendo invalida cache'
         with self.db.application.site.register.globalStore() as gs:
             gs.setItem('TASK_TS',datetime.now())
 
