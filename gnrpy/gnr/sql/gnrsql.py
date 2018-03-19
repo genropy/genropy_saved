@@ -470,6 +470,7 @@ class GnrSqlDb(GnrObject):
             if hasattr(tblobj,'protect_draft'):
                 record[tblobj.draftField] = tblobj.protect_draft(record)
         self.adapter.insert(tblobj, record,**kwargs)
+        tblobj.updateTotalizers(record,old_record=None)
         tblobj._doFieldTriggers('onInserted', record)
         tblobj.trigger_onInserted(record)
         tblobj._doExternalPkgTriggers('onInserted', record)
@@ -480,12 +481,15 @@ class GnrSqlDb(GnrObject):
 
     def raw_insert(self, tblobj, record, **kwargs):
         self.adapter.insert(tblobj, record,**kwargs)
+        tblobj.updateTotalizers(record,_raw=True,**kwargs)
 
     def raw_update(self, tblobj, record,old_record=None, **kwargs):
         self.adapter.update(tblobj, record,**kwargs)
+        tblobj.updateTotalizers(record,old_record=old_record,_raw=True,**kwargs)
 
     def raw_delete(self, tblobj, record, **kwargs):
         self.adapter.delete(tblobj, record,**kwargs)
+        tblobj.updateTotalizers(record=None,old_record=record,_raw=True,**kwargs)
 
     @in_triggerstack
     def update(self, tblobj, record, old_record=None, pkey=None, **kwargs):
@@ -505,6 +509,8 @@ class GnrSqlDb(GnrObject):
         tblobj.trigger_assignCounters(record=record,old_record=old_record)
         self.adapter.update(tblobj, record, pkey=pkey,**kwargs)
         tblobj.updateRelated(record,old_record=old_record)
+        tblobj.updateTotalizers(record,old_record=old_record)
+
         tblobj._doFieldTriggers('onUpdated', record, old_record=old_record)
         tblobj.trigger_onUpdated(record, old_record=old_record)
         tblobj._doExternalPkgTriggers('onUpdated', record, old_record=old_record)
@@ -526,6 +532,7 @@ class GnrSqlDb(GnrObject):
         tblobj._doExternalPkgTriggers('onDeleting', record)
         tblobj.deleteRelated(record)
         self.adapter.delete(tblobj, record,**kwargs)
+        tblobj.updateTotalizers(None,old_record=record)
         tblobj._doFieldTriggers('onDeleted', record)
         tblobj.trigger_onDeleted(record)
         tblobj._doExternalPkgTriggers('onDeleted', record)

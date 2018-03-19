@@ -8,6 +8,8 @@ import shutil
 import pytz
 import mimetypes
 
+from collections import defaultdict
+
 from gnr.core.gnrlang import boolean
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip,templateReplace,fromJson,slugify
@@ -385,6 +387,8 @@ class TableBase(object):
                                    END ) """,
                                 dtype='B',var_systag=tbl.attributes.get('syscodeTag') or 'superadmin',_sysfield=True,
                                 group=group)
+        self.sysFields_extra(tbl,_sysfield=True,group=group)
+        
 
     def _sysFields_defaults(self,user_ins=None,user_upd=None):
         default_user_ins = self.db.application.config['sysfield?user_ins']
@@ -410,8 +414,10 @@ class TableBase(object):
     def sysFields_counter(self,tbl,fldname,counter=None,group=None,name_long='!!Counter'):
         tbl.column(fldname, dtype='L', name_long=name_long, onInserting='setRowCounter',counter=True,
                             _counter_fkey=counter,group=group,_sysfield=True)
-
-        
+    
+    def sysFields_extra(self,tbl,**kwargs):
+        for m in [k for k in dir(self) if k.startswith('sysFields_extra_') and not k[-1]=='_']:
+            getattr(self,m)(tbl,**kwargs)
 
     def getProtectionColumn(self):
         if filter(lambda r: r.startswith('__protected_by_'), self.model.virtual_columns.keys()) or self.attributes.get('protectionColumn'):
@@ -974,9 +980,6 @@ class TableBase(object):
     ################## COUNTER SEQUENCE TRIGGER RELATED TO adm.counter ############################################
 
     def counterColumns(self):
-        adm_counter = self.db.package('adm').attributes.get('counter')
-        if adm_counter is not None and boolean(adm_counter) is False:
-            return []
         return [k[8:] for k in dir(self) if k.startswith('counter_') and not k[-1]=='_']
 
     def getCounterPars(self,field,record=None):
@@ -1082,6 +1085,7 @@ class GnrDboTable(TableBase):
             valuesset = set([r['pkey'] for r in f])
             currentEnv[p] = valuesset
         return valuesset
+
 
         
 class HostedTable(GnrDboTable):
@@ -1196,6 +1200,117 @@ class AttachmentTable(GnrDboTable):
                 os.remove(fpath)
         except Exception:
             return
+
+class TotalizeTable(GnrDboTable):
+    def totalize_exclude(self,record=None,old_record=None):
+        return 
+    
+    def sysFields_extra_totalize(self,tbl,**kwargs):
+        tbl.column('_refcount',dtype='L',name_long='!!Ref.Count',totalize_value=1,**kwargs)
+
+    def tt_totalize_pars(self):
+        tot_keys = {}
+        tot_fields = {}
+        for colname,colobj in self.columns.items():
+            attr =  colobj.attributes
+            for attr_key,dest in (('totalize_key',tot_keys),('totalize_value',tot_fields)):
+                if not attr_key in attr:
+                    continue
+                attr_val = attr[attr_key]
+                result = {}
+                if attr_val == '*':
+                    result['cb'] = getattr(self,'%s_%s' %(attr_key,colname))
+                elif attr_val is True:
+                    result['field'] = colname
+                elif isinstance(attr_val,basestring):
+                    result['field'] = attr_val
+                else:
+                    result['const'] = attr_val
+                dest[colname] = result
+
+        return tot_keys,tot_fields
+
+    def tt_record(self,record,tot_keys):
+        result = {}
+        for k,pars in tot_keys.items():
+            result[k] = self.tt_getvalue(record,pars)
+        return result
+
+    def tt_getvalue(self,record,pars):
+        if 'cb' in pars:
+            return pars['cb'](record)
+        if 'field' in pars:
+            return record[pars['field']]
+        return pars['const']
+
+    def tt_totalize(self,record=None,old_record=None,local_records=None):
+        tot_keys,tot_fields = self.tt_totalize_pars()
+        tot_record_new = self.tt_record(record,tot_keys) if record else None
+        tot_record_old = self.tt_record(old_record,tot_keys) if old_record else None
+        handler = self.tt_totalize_memory if local_records is not None else self.tt_totalize_record
+        if tot_record_new == tot_record_old:
+            handler(record=record,old_record=old_record,
+                    tot_fields=tot_fields,
+                    tot_record=tot_record_new,local_records=local_records)
+            return
+        if record is not None:
+            handler(record=record,old_record=None,
+                    tot_fields=tot_fields,
+                    tot_record=tot_record_new,local_records=local_records)
+        if old_record is not None:
+            handler(record=None,old_record=old_record,
+                    tot_fields=tot_fields,
+                    tot_record=tot_record_old,local_records=local_records)
+
+    def tt_totalize_record(self,record=None,old_record=None,
+                                        tot_fields=None,
+                                        tot_record=None,**kwargs):
+        addFromCurrent = record is not None and self.totalize_exclude(record) is not True
+        subtractFromOld = old_record is not None and self.totalize_exclude(old_record) is not True
+        with self.recordToUpdate(insertMissing=True,**tot_record) as tot:
+            for totalizer_field,pars in tot_fields.items():
+                if addFromCurrent:
+                    value = self.tt_getvalue(record,pars) 
+                    tot[totalizer_field] = (tot[totalizer_field] or value.__class__(0)) + value
+                if subtractFromOld:
+                    value = self.tt_getvalue(old_record,pars)
+                    tot[totalizer_field] = (tot[totalizer_field] or value.__class__(0)) - value
+            if tot['_refcount']<=0:
+                tot[self.pkey] = False
+
+    def tt_totalize_memory(self,record=None,old_record=None,
+                                        tot_fields=None,
+                                        tot_record=None,
+                                        local_records=None):
+        keyprim = ','.join(['%s_%s' %(k,tot_record[k]) for k in sorted(tot_record.keys())])
+        tot = local_records[keyprim]
+        if not tot:
+            tot.update(tot_record)
+            tot[self.pkey] = self.newPkeyValue(tot)
+        for totalizer_field,pars in tot_fields.items():
+            value = self.tt_getvalue(record,pars) 
+            tot[totalizer_field] = (tot.get(totalizer_field) or value.__class__(0)) + value
+
+    def tt_realign_block(self,records):
+        local_records = defaultdict(dict)
+        for r in records:
+            self.tt_totalize(record=r,local_records=local_records)
+        self.insertMany(local_records.values())
+
+
+    def tt_realign(self,empty=False):
+        if empty:
+            self.emptyTable()
+            self.db.commit()
+        maintable = self.db.table(self.attributes['totalize_maintable'])
+        maincolumn = self.attributes['totalize_maincolumn']
+        blocks = maintable.query(columns='$%s' %maincolumn,distinct=True).fetch()
+        for b in blocks:
+            f = maintable.query(columns='*',addPkeyColumn=False,where='$%s=:bval' %maincolumn,
+                                bval=b[maincolumn]).fetch()
+            self.tt_realign_block(f)
+            self.db.commit()
+                    
 
 class Table_sync_event(TableBase):
     def config_db(self, pkg):

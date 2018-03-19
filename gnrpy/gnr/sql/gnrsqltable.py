@@ -2121,6 +2121,13 @@ class SqlTable(GnrObject):
 
     def setQueryCondition(self,condition_name,condition):
         self.db.currentEnv['env_%s_condition_%s' %(self.fullname.replace('.','_'),condition_name)] = condition
-                    
+    
+    def updateTotalizers(self,record=None,old_record=None,_raw=None,_ignore_totalizer=None,**kwargs):
+        if _raw and _ignore_totalizer:
+            return
+        totalizers = dictExtract(self.attributes,'totalizer_')
+        for tbl in totalizers.values():
+            self.db.table(tbl).tt_totalize(record=record,old_record=old_record)
+            
 if __name__ == '__main__':
     pass
