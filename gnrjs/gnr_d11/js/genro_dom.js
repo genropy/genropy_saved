@@ -1731,7 +1731,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
     detectPdfViewer:function(src,jsPdfViewer){
         var parsedSrc = parseURL(src);
         var jsPdfViewer = isNullOrBlank(jsPdfViewer)? genro.getData('gnr.app_preference.sys.jsPdfViewer'):jsPdfViewer;
-        if(parsedSrc.file && stringEndsWith(parsedSrc.file,'.pdf') && (genro.isMobile || jsPdfViewer) ){
+        if(parsedSrc.file && stringEndsWith(parsedSrc.file,'.pdf') && (genro.isMobile || jsPdfViewer || window.electron) ){
             src = '/_rsrc/js_libs/pdfjs/web/viewer.html?file='+encodeURIComponent(src);
         }
         return src;
