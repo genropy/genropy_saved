@@ -1243,13 +1243,21 @@ class TotalizeTable(GnrDboTable):
             return record[pars['field']]
         return pars['const']
 
+    def _tt_has_changes(self,record=None,old_record=None,tot_fields=None):
+        for totalizer_field,pars in tot_fields.items():
+            if self.tt_getvalue(record,pars) != self.tt_getvalue(old_record,pars):
+                return True
+        return False
+            
+
     def tt_totalize(self,record=None,old_record=None,local_records=None):
         tot_keys,tot_fields = self.tt_totalize_pars()
         tot_record_new = self.tt_record(record,tot_keys) if record else None
         tot_record_old = self.tt_record(old_record,tot_keys) if old_record else None
         handler = self.tt_totalize_memory if local_records is not None else self.tt_totalize_record
         if tot_record_new == tot_record_old:
-            handler(record=record,old_record=old_record,
+            if self._tt_has_changes(record=record,old_record=old_record,tot_fields=tot_fields):
+                handler(record=record,old_record=old_record,
                     tot_fields=tot_fields,
                     tot_record=tot_record_new,local_records=local_records)
             return
@@ -1265,16 +1273,16 @@ class TotalizeTable(GnrDboTable):
     def tt_totalize_record(self,record=None,old_record=None,
                                         tot_fields=None,
                                         tot_record=None,**kwargs):
-        addFromCurrent = record is not None and self.totalize_exclude(record) is not True
-        subtractFromOld = old_record is not None and self.totalize_exclude(old_record) is not True
+        addFromCurrent = (record is not None) and (self.totalize_exclude(record) is not True)
+        subtractFromOld = (old_record is not None) and (self.totalize_exclude(old_record) is not True)
         with self.recordToUpdate(insertMissing=True,**tot_record) as tot:
             for totalizer_field,pars in tot_fields.items():
                 if addFromCurrent:
                     value = self.tt_getvalue(record,pars) 
                     tot[totalizer_field] = (tot[totalizer_field] or value.__class__(0)) + value
                 if subtractFromOld:
-                    value = self.tt_getvalue(old_record,pars)
-                    tot[totalizer_field] = (tot[totalizer_field] or value.__class__(0)) - value
+                    old_value = self.tt_getvalue(old_record,pars)
+                    tot[totalizer_field] = (tot[totalizer_field] or old_value.__class__(0)) - old_value
             if tot['_refcount']<=0:
                 tot[self.pkey] = False
 
@@ -1300,7 +1308,7 @@ class TotalizeTable(GnrDboTable):
 
     def tt_realign(self,empty=False):
         if empty:
-            self.emptyTable()
+            self.empty()
             self.db.commit()
         maintable = self.db.table(self.attributes['totalize_maintable'])
         maincolumn = self.attributes['totalize_maincolumn']

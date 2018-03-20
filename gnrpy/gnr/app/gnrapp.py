@@ -269,7 +269,7 @@ class GnrSqlAppDb(GnrSqlDb):
         :param old_record: the old record to be updated
         :param pkey: the record :ref:`primary key <pkey>`"""
         self.checkTransactionWritable(tblobj)
-        GnrSqlDb.raw_update(self, tblobj, record, pkey=pkey,**kwargs)
+        GnrSqlDb.raw_update(self, tblobj, record,old_record=old_record, pkey=pkey,**kwargs)
         if self.systemDbEvent():
             return
         old_record = record or dict(record)
