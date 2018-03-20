@@ -781,6 +781,13 @@ dojo.declare("gnr.GridEditor", null, {
         }
         this.remoteRowController = sourceNode.attr.remoteRowController;
         this.remoteRowController_default = sourceNode.attr.remoteRowController_default;
+        if(this.remoteRowController_default){
+            var caller_kw = {'script':"this.getParentNode().widget.gridEditor.callRemoteControllerBatch('*')",'_delay':500,
+                            '_userChanges':true};
+            objectUpdate(caller_kw,this.remoteRowController_default);
+            sourceNode._('dataController','remoteRowController_default_caller',caller_kw);
+        }
+        
         this.status = {};
         this.columns = {};
         this.formId = sourceNode.getInheritedAttributes()['formId'];
@@ -1237,7 +1244,8 @@ dojo.declare("gnr.GridEditor", null, {
         result.forEach(function(n){
             that.updateRowFromRemote(n.label,n.getValue());
         },'static');
-        this.updateStatus()
+        this.updateStatus();
+        this.grid.sourceNode.publish('remoteRowControllerDone',{result:result})
         return result
     },
 

@@ -72,3 +72,8 @@ class GnrCustomWebPage(object):
         fb.filteringSelect(lbl='Filtering',value='^.filtering',values='pippo:Pippo,pluto:Pluto,paperino:Paperino')
         fb.div('^.filtering?_displayedValue')
 
+
+    def test_9_numberTextBox_longdecimal(self, pane):
+        fb=pane.formbuilder(cols=1)
+        fb.numberTextBox(value='^.longdec',lbl='Long decimal',format='#,###.000000')
+        fb.div('^.longdec')
