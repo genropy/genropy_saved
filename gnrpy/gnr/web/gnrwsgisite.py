@@ -676,7 +676,7 @@ class GnrWsgiSite(object):
         
     @property
     def external_host(self):
-        return self.currentPage.external_host if self.currentPage else self.configurationItem('wsgi?external_host',mandatory=True) 
+        return self.currentPage.external_host if (self.currentPage and hasattr(self.currentPage,'request')) else self.configurationItem('wsgi?external_host',mandatory=True) 
 
     def configurationItem(self,path,mandatory=False):
         result = self.config[path] 
