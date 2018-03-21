@@ -1579,7 +1579,8 @@ class GnrWebPage(GnrBaseWebPage):
             result = f.read()
         return result,path
 
-    def getTableResourceContent(self,table=None,path=None,value=None,ext=None):
+    @public_method
+    def getTableResourceContent(self,table=None,path=None,value=None,ext=None,contentOnly=None):
         """TODO
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
@@ -1592,7 +1593,7 @@ class GnrWebPage(GnrBaseWebPage):
         resourceContent,respath = self._getResourceContent(resource='tables/_packages/%s/%s/%s' %(pkg,table,path),pkg=self.package.name,ext=ext)
         if not resourceContent:
             resourceContent,respath = self._getResourceContent(resource='tables/%s/%s' %(table,path),pkg=pkg,ext=ext)
-        return resourceContent,respath
+        return resourceContent if contentOnly else (resourceContent,respath)
         
     def setTableResourceContent(self,table=None,path=None,value=None,ext=None):
         """TODO

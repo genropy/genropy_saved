@@ -227,7 +227,7 @@ class FrameIndex(BaseComponent):
         sb.devlink.a(href=formula,_iframes='=iframes',_selectedFrame='^selectedFrame').div(_class="iconbox flash",tip='!!Open the page outside frame',_tags='_DEV_')
         sb.manageDocumentation.slotButton("!!Open documentation",iconClass='iconbox icnBottomDocumentation',
                             action='genro.framedIndexManager.openDocForCurrentIframe();')
-        sb.appdownload.a(href='/sys/desktop/makeapp',target='_blank').div(_class="iconbox inbox",tip='!!Download desktop app')
+        self.electronAppDownload(sb)
         sb.openGnrIDE.div().slotButton("!!Open Genro IDE",iconClass='iconbox laptop',
                             action='genro.framedIndexManager.openGnrIDE();',_tags='_DEV_')
 
@@ -241,9 +241,16 @@ class FrameIndex(BaseComponent):
                                                         height:'300px', width:'400px',palette_transition:null,
                                                         palette_nodeId:'userpreference'});""",url='adm/user_preference',
                             subscribe_user_preference=True,pane=userPref,preftitle='!!User preference')
-
-
         sb.debugping.div(_class='ping_semaphore')
+    
+    def electronAppDownload(self,bar):
+        electron_pars = self.site.config.getAttr('electron') or {}
+        name = electron_pars.get('name') or self.site.site_name
+        platform = {'windows':('windows','.exe'),'linux':('linux','.deb'),'mac':('osx','.app')}.get(self.connection.user_device.split(':')[0])
+        bar.appdownload.slotButton('!!Download desktop app',iconClass="iconbox inbox",
+                                action='genro.download(appurl,{_lazydoc:"service:download_app"})',
+                                appurl=self.site.getStaticUrl('site:application',
+                                                             platform[0],'%s%s' %(name,platform[1])))
                             
     def prepareCenter(self,bc):
         sc = bc.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack',region='center',

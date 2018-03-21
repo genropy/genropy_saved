@@ -18,7 +18,7 @@ import locale
 
 from time import time
 from collections import defaultdict
-from gnr.core.gnrlang import deprecated,GnrException,tracebackBag
+from gnr.core.gnrlang import deprecated,GnrException,GnrDebugException,tracebackBag
 from gnr.core.gnrdecorator import public_method
 from gnr.app.gnrconfig import getGnrConfig
 from threading import RLock
@@ -742,7 +742,10 @@ class GnrWsgiSite(object):
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='STATIC')
             try:
                 return self.statics.static_dispatcher(path_list, environ, start_response, **request_kwargs)
+            except GnrDebugException,exc:
+                raise
             except Exception, exc:
+                print xxxx
                 return self.not_found_exception(environ,start_response)
         else:
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='RESOURCE')

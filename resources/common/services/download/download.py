@@ -14,19 +14,23 @@ class Main(GnrBaseService):
     def __init__(self,parent,**kwargs):
         self.parent = parent
 
-    def __call__(self,url,destinationFolder=None,file_name=None):
-        #url = "http://download.thinkbroadband.com/10MB.zip"
-        file_name = file_name or url.split('/')[-1]
+    def __call__(self,url,destinationFolder=None,filename=None,filepath=None):
         u = urllib2.urlopen(url)
-        destinationFolder = destinationFolder or 'site:download'
-        if ':' in destinationFolder:
-            filepath = self.parent.getStaticPath(destinationFolder,file_name,autocreate=-1)
+        if filepath:
+            destinationFolder,filename = os.path.split(filepath)
         else:
-            filepath = os.path.join(destinationFolder,file_name)
+            filename = filename or url.split('/')[-1]
+            destinationFolder = destinationFolder or 'site:download'
+            if ':' in destinationFolder:
+                filepath = self.parent.getStaticPath(destinationFolder,filename)
+            else:
+                filepath = os.path.join(destinationFolder,filename)
+        if not os.path.isdir(destinationFolder):
+            os.makedirs(destinationFolder)
         with open(os.path.join(filepath), 'wb') as f:
             meta = u.info()
             file_size = int(meta.getheaders("Content-Length")[0])
-            print "Downloading: %s Bytes: %s" % (file_name, file_size)
+            print "Downloading: %s Bytes: %s" % (filename, file_size)
             file_size_dl = 0
             block_sz = 8192
             while True:

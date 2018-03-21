@@ -23,6 +23,7 @@ class GnrCustomWebPage(object):
         self.forced_mimetype='text/html'
         folderpath = self.site.getStaticPath('site:applications',platform,autocreate=True)
         destfilepath = self.site.getService('download')(dlurl,folderpath)
+        
         return self.plain_redirect(self.site.getStaticUrl('site:applications',platform,os.path.basename(destfilepath)))
         #self.setInClientData('gnr.downloadurl',dlurl)
 

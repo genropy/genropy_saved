@@ -344,7 +344,9 @@ class GnrException(Exception):
                 if isinstance(v, basestring) and v.startswith('!!'):
                     msgargs[k] = self.localize(msgargs[k])
         return msg % msgargs % msgargs # msgargs is use 2 times as we could have msgargs nested(max 1 level)
-        
+
+class GnrDebugException(GnrException):
+    pass
 class NotImplementedException(GnrException):
     pass
         
