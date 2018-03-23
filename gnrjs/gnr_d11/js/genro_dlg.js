@@ -451,6 +451,15 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                         var error_message;
                         command = command || this.attr.command;
                         if(command=='confirm'){
+                            var validDojo = true;
+                            dlg.center.walk(function(n){
+                                if(n.widget && n.widget.isValid && n.widget.isValid()===false){
+                                    validDojo = false;
+                                }
+                            });
+                            if(!validDojo){
+                                return;
+                            }
                             var v = genro.getData(promptvalue_path);
                             if(mandatory && isNullOrBlank(v)){
                                 return;
@@ -463,7 +472,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                             error_message = funcApply(cancelCb,{},(sourceNode||this));
                         }
                         if(error_message){
-                            genro.dlg.floatingMessage(dlg.center.getParentNode(),{message:error_message,messageType:'error'})
+                            genro.dlg.floatingMessage(dlg.center.getParentNode(),{message:error_message,messageType:'error'});
                         }
                         else{
                             dlg.close_action();
