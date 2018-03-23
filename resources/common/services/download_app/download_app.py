@@ -22,7 +22,7 @@ class Main(GnrBaseService):
         electron_pars = self.parent.config.getAttr('electron') or {}
         name = electron_pars.get('name') or self.parent.site_name
         url = self.parent.external_host
-        result = NetBag(service_url,'make_electron' , name=name, platform=platform,app_url=url)
+        result = NetBag(service_url,'make_electron' , name=name, platform=platform,app_url=url,recreate=True)
         dlurl = 'http://services.genropy.net%s' %result()['result']
         self.parent.getService('download')(dlurl,filepath=fullpath)
 
