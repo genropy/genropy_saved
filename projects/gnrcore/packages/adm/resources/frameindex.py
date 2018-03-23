@@ -246,11 +246,11 @@ class FrameIndex(BaseComponent):
     def electronAppDownload(self,bar):
         electron_pars = self.site.config.getAttr('electron') or {}
         name = electron_pars.get('name') or self.site.site_name
-        platform = {'windows':('windows','.exe'),'linux':('linux','.deb'),'mac':('osx','.app')}.get(self.connection.user_device.split(':')[0])
+        platform = {'windows':('windows',''),'linux':('linux',''),'mac':('osx','.app')}.get(self.connection.user_device.split(':')[0])
         bar.appdownload.slotButton('!!Download desktop app',iconClass="iconbox inbox",
                                 action='genro.download(appurl,{_lazydoc:"service:download_app"})',
                                 appurl=self.site.getStaticUrl('site:application',
-                                                             platform[0],'%s%s' %(name,platform[1])))
+                                                             platform[0],'%s%s.zip' %(name,platform[1])))
                             
     def prepareCenter(self,bc):
         sc = bc.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack',region='center',
