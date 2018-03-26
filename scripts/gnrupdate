@@ -24,7 +24,6 @@ class BaseUpdater(object):
         self.gnr_config = getGnrConfig()
         self.gnr_path = gnrConfigPath()
         self.socket_path = os.path.join(self.gnr_path, 'sockets')
-        self.home_path = os.environ.get('HOME', '')
         self.instances = self.getInstances()
         self.keepStatus = keep
         self.daemonProxy = GnrDaemonProxy(use_environment=True)
@@ -119,8 +118,9 @@ class ApacheUpdater(BaseUpdater):
 class UwsgiUpdater(BaseUpdater):
     def __init__(self,**kwargs):
         self.gnr_vassal_options = dict()
-        if self.home_path.startswith('/containers'):
-            default_vassals_path = os.path.join(self.home_path, 'vassals')
+        home_path = os.environ.get('HOME', '')
+        if home_path.startswith('/containers'):
+            default_vassals_path = os.path.join(home_path, 'vassals')
         else:
             default_vassals_path = os.path.join(self.gnr_path, 'uwsgi', 'vassals')
         self.vassals_path = self.gnr_config['gnr.environment_xml.vassals?path'] or default_vassals_path
