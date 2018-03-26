@@ -58,7 +58,7 @@ class BaseUpdater(object):
     
     def web_maintenance(self,status=None):
         with self.daemonProxy.proxy() as p:
-            registers = p.siteregisters.keys()
+            registers = p.siteRegisters()
             for sitename in self.instances:
                 if sitename in registers:
                     p.setSiteInMaintenance(sitename,status=status)
