@@ -118,7 +118,6 @@ class ApacheUpdater(BaseUpdater):
 
 class UwsgiUpdater(BaseUpdater):
     def __init__(self,**kwargs):
-        super(UwsgiUpdater,self).__init__(**kwargs)
         self.gnr_vassal_options = dict()
         if self.home_path.startswith('/containers'):
             default_vassals_path = os.path.join(self.home_path, 'vassals')
@@ -129,7 +128,7 @@ class UwsgiUpdater(BaseUpdater):
         for dir_path in (self.socket_path, self.vassals_path):
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
-
+        super(UwsgiUpdater,self).__init__(**kwargs)
 
     def getInstances(self):
         result = []
