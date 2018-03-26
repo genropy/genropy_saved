@@ -210,7 +210,10 @@ def main(instances,options):
         updater = ApacheUpdater(**kw)
     elif options.uwsgi:
         updater = UwsgiUpdater(**kw)
-    updater.update()
+    if options.stop:
+        updater.web_stop()
+    else:
+        updater.update()
 
 
 if __name__ == '__main__':
@@ -220,6 +223,10 @@ if __name__ == '__main__':
     """
 
     parser = OptionParser(usage)
+    parser.add_option('--stop',
+                  dest='stop',
+                  action='store_true',
+                  help="Stop web")
     parser.add_option('--nodbsetup',
                   dest='skip_dbsetup',
                   action='store_true',
@@ -243,7 +250,8 @@ if __name__ == '__main__':
     parser.add_option('--uwsgi',
                   dest='uwsgi',
                   action='store_true',
-                  help="Uwsgi")      
+                  help="Uwsgi")  
+
     (options, args) = parser.parse_args()
     instances = args[0] if args else None
     main(instances,options)
