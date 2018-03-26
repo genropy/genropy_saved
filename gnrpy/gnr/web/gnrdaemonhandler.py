@@ -533,6 +533,8 @@ class GnrDaemon(object):
             sitelist = sitename
         result = {}
         for k in sitelist:
+            if not k in self.siteregisters:
+                continue
             sitepars = self.siteregisters[k]
             try:
                 with self.pyroProxy(sitepars['server_uri']) as proxy:
