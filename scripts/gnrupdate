@@ -14,7 +14,7 @@ from time import sleep
 
 
 
-APACHE_SITES ='/etc/apache2/sites-enabled/cusl.conf '
+APACHE_SITES ='/etc/apache2/sites-enabled'
 
 UWSGIVASSALFINDER = re.compile('(?:^pyargv *= *)(\w+)$',re.I |re.M)
 APACHECONFFINDER = re.compile('(?:WSGIScriptAlias[ /\w]*sites/)(\w*)(?:/root\.py)$',re.I |re.M)
