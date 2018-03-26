@@ -20,11 +20,13 @@ UWSGIVASSALFINDER = re.compile('(?:^pyargv *= *)(\w+)$',re.I |re.M)
 APACHECONFFINDER = re.compile('(?:WSGIScriptAlias[ /\w]*sites/)(\w*)(?:/root\.py)$',re.I |re.M)
 
 class BaseUpdater(object):
-    def __init__(self,instances=None,daemonRestart=None):
+    def __init__(self,instances=None,daemonRestart=None,skip_dbsetup=False,upgrade=None):
         self.instances = self.getInstances()
         self.daemonRestart = daemonRestart
         self.daemonProxy = GnrDaemonProxy(use_environment=True)
         self.stoppedStatus = None
+        self.skip_dbsetup = skip_dbsetup
+        self.upgrade = upgrade
         if instances:
             self.instances = [inst for inst in instances.split(',') if inst in self.instances]
         #self.vassals_path = os.path.join(self.gnr_path, 'uwsgi', 'vassals')
@@ -33,11 +35,11 @@ class BaseUpdater(object):
         if not isinstance(cb,list):
             cb = [cb]
         for instance in self.instances:
-            print 'Instance ',instance
             for callback in cb:
+                print callback.__name__,'Instance ',instance
                 callback(instance,**kwargs)
 
-    def dbsetup(self,instance=False,upgrade=None):
+    def dbsetup(self,instance=False):
         app = GnrApp(instance)
         print '\t running dbsetup'
         changes = self.check_db(app)
@@ -45,8 +47,9 @@ class BaseUpdater(object):
             print 'APPLYING CHANGES TO DATABASE...'
             app.db.model.applyModelChanges()
             print 'CHANGES APPLIED TO DATABASE'
-        if upgrade:
-            app.upgrade()
+        if self.upgrade:
+            print 'RUN UPGRADE'
+            app.db.table('sys.upgrade').runUpgrades()
         app.db.closeConnection()
 
     def gnrdaemon_restart(self):
@@ -59,33 +62,27 @@ class BaseUpdater(object):
                 p.setSiteInMaintenance(sitename,status=status)
 
     def gnrdaemon_stop(self):
-        if not self.daemonRestart:
-            return
         with self.daemonProxy.proxy() as p:
             self.stoppedStatus = p.siteregister_stop(self.instances,saveStatus=self.daemonRestart=='keep')
 
     def gnrdaemon_start(self):
-        if not self.daemonRestart:
-            return
         with self.daemonProxy.proxy() as p:
             p.siteregister_start(self.stoppedStatus)
 
-    def update(self, skip_dbsetup=False,upgrade=None):
+    def update(self):
         #instances = [os.path.splitext(l)[0] for l in os.listdir(self.vassals_path) if l not in ('gnrdaemon.ini','pg.ini')]
         self.web_maintenance(True)
         self.web_stop()
-        self.gnrdaemon_stop()
-        self.instanceBroadcast(self.dbsetup,upgrade=upgrade)
-        self.gnrdaemon_start()
-        self.web_start()
-        self.web_maintenance(False)
-        print 'Update ok'
-
-    def restartAll(self):
-        #instances = [os.path.splitext(l)[0] for l in os.listdir(self.vassals_path) if l not in ('gnrdaemon.ini','pg.ini')]
-        self.web_maintenance(True)
-        self.web_stop()
-        self.gnrdaemon_restart()
+        if self.daemonRestart=='keep':
+            self.gnrdaemon_restart()
+            self.web_maintenance(True)
+        elif self.daemonRestart=='clean':
+            self.gnrdaemon_stop()
+        if not self.skip_dbsetup:
+            self.instanceBroadcast(self.dbsetup)
+        if self.daemonRestart=='clean':
+            self.gnrdaemon_start()
+            self.web_maintenance(True)
         self.web_start()
         self.web_maintenance(False)
         print 'Update ok'
@@ -194,127 +191,12 @@ class UwsgiUpdater(BaseUpdater):
             print 'STRUCTURE OK'
         return changes
 
-
-class OldUwsgiUpdater(object):
-    def __init__(self):
-        self.gnr_config = getGnrConfig()
-        self.gnr_path = gnrConfigPath()
-        self.gnr_vassal_options = dict()
-        self.socket_path = os.path.join(self.gnr_path, 'sockets')
-        home_path = os.environ.get('HOME', '')
-        if home_path.startswith('/containers'):
-            default_vassals_path = os.path.join(home_path, 'vassals')
-        else:
-            default_vassals_path = os.path.join(self.gnr_path, 'uwsgi', 'vassals')
-        self.vassals_path = self.gnr_config['gnr.environment_xml.vassals?path'] or default_vassals_path
-        #self.vassals_path = os.path.join(self.gnr_path, 'uwsgi', 'vassals')
-        self.create_dirs()
-
-    def create_dirs(self):
-        for dir_path in (self.socket_path, self.vassals_path):
-            if not os.path.exists(dir_path):
-                os.makedirs(dir_path)
-
-    def get_config(self):
-        site_config_path = os.path.join(self.site_path, 'siteconfig.xml')
-        base_site_config = Bag(site_config_path)
-        site_config = self.gnr_config['gnr.siteconfig.default_xml'] or Bag()
-        template = self.site_template
-        if template:
-            site_config.update(self.gnr_config['gnr.siteconfig.%s_xml' % template] or Bag())
-        site_config.update(base_site_config)
-        return site_config
-
-    def getInstances(self):
-        result = []
-        for filename in os.listdir(self.vassals_path):
-            instance, extension = os.path.splitext(filename)
-            if instance.lower() in ('gnrdaemon', 'pg') or extension.lower() not in ('.ini', '.off'):
-                continue
-            result.append(instance)
-        return result
-
-    def update(self, skip_dbsetup=False,**kwargs):
-        #instances = [os.path.splitext(l)[0] for l in os.listdir(self.vassals_path) if l not in ('gnrdaemon.ini','pg.ini')]
-        instances = self.getInstances()
-        for s in instances:
-            print 'Instance ',s
-            self.stop_vassal(s)
-            print '\t server stopped'
-            if skip_dbsetup:
-                sleep(.3)
-                continue
-            app = GnrApp(s)
-            print '\t running dbsetup'
-            changes = self.check_db(app)
-            if changes:
-                print 'APPLYING CHANGES TO DATABASE...'
-                app.db.model.applyModelChanges()
-                print 'CHANGES APPLIED TO DATABASE'
-            else:
-                sleep(.3)
-            app.db.closeConnection()
-            #app.db.model.checker.addExtesions()
-            print '\t done'
-        self.restart_vassal('gnrdaemon')
-        for s in instances:
-            print 'starting', s
-            self.start_vassal(s)
-        print 'Update ok'
-
-    def touchonly(self):
-        #instances = [os.path.splitext(l)[0] for l in os.listdir(self.vassals_path) if l not in ('gnrdaemon.ini','pg.ini')]
-        for s in self.getInstances():
-            print 'Instance ',s
-            self.restart_vassal(s)
-            print 'restarted',s
-        print 'touch ok'
-
-    def stop_vassal(self,name):
-        vassal_start_path = os.path.join(self.vassals_path,'%s.ini' %name)
-        vassal_off_path = os.path.join(self.vassals_path, '%s.off' %name)
-        if os.path.exists(vassal_start_path):
-            os.rename(vassal_start_path, vassal_off_path)
-            print "Site %s stopped" % name
-
-    def start_vassal(self,name):
-        vassal_start_path = os.path.join(self.vassals_path,'%s.ini' %name)
-        vassal_off_path = os.path.join(self.vassals_path, '%s.off' %name)
-        if os.path.exists(vassal_off_path):
-            os.rename(vassal_off_path, vassal_start_path)
-            print "Site %s start" % name
-
-    def restart_vassal(self,name):
-        with open(name,'rw') as f:
-            filecontent = f.read()
-            f.write(filecontent)
-        #self.stop_vassal(name)
-        #sleep(.3)
-        #self.start_vassal(name)
-
-        #vassal_path = os.path.join(self.vassals_path,'%s.ini' %name)
-        #if os.path.exists(vassal_path):
-        #    with open(vassal_path, 'a'):
-        #        os.utime(vassal_path,None)
-        #    print "Vassal %s restarted" % name
-
-    def check_db(self,app):
-        changes = app.db.model.check()
-        dbname = app.db.currentEnv.get('storename')
-        dbname = dbname or 'Main'
-        print 'DB %s:' % dbname
-        if changes:
-            print 'STUCTURE NEEDS CHANGES'
-        else:
-            print 'STRUCTURE OK'
-        return changes
-
 def main(instances,options):
-    if not(options.oldmode or options.apache or options.uwsgi):
+    if not(options.apache or options.uwsgi):
         print 'select an option'
         return
         
-    if options.skip_dbsetup and options.touchonly:
+    if options.skip_dbsetup:
         print 'Cannot use both --touchonly and --nodbsetup'
         return 
     daemonRestart = False
@@ -322,18 +204,13 @@ def main(instances,options):
         daemonRestart = 'keep'
     if options.daemon_clean:
         daemonRestart = 'clean'
+    kw = dict(instances=instances,daemonRestart= daemonRestart,
+                skip_dbsetup=options.skip_dbsetup,upgrade=options.data_upgrade)
     if options.apache:
-        updater = ApacheUpdater(instances=instances,daemonRestart= daemonRestart)
+        updater = ApacheUpdater(**kw)
     elif options.uwsgi:
-        updater = UwsgiUpdater(instances=instances,daemonRestart= daemonRestart)
-    else:
-        updater = OldUwsgiUpdater()
-
-    if options.touchonly:
-        updater.touchonly()
-    else:
-        updater.update(skip_dbsetup=options.skip_dbsetup,
-                        upgrade=options.data_upgrade)
+        updater = UwsgiUpdater(**kw)
+    updater.update()
 
 
 if __name__ == '__main__':
@@ -343,10 +220,6 @@ if __name__ == '__main__':
     """
 
     parser = OptionParser(usage)
-    parser.add_option('--touchonly',
-                  dest='touchonly',
-                  action='store_true',
-                  help="Touch all vassals, doesn't restart daemon, skips dbsetup")
     parser.add_option('--nodbsetup',
                   dest='skip_dbsetup',
                   action='store_true',
@@ -370,11 +243,7 @@ if __name__ == '__main__':
     parser.add_option('--uwsgi',
                   dest='uwsgi',
                   action='store_true',
-                  help="Uwsgi")
-    parser.add_option('--oldmode',
-                  dest='oldmode',
-                  action='store_true',
-                  help="Oldmode")           
+                  help="Uwsgi")      
     (options, args) = parser.parse_args()
     instances = args[0] if args else None
     main(instances,options)

@@ -1,5 +1,6 @@
 # encoding: utf-8
 import os 
+from gnr.core.gnrlang import gnrImport
 
 class Table(object):
     def config_db(self,pkg):
@@ -13,17 +14,38 @@ class Table(object):
 
     def upgradePath(self,codekey):
         pkg,filename = codekey.split('|')
-        upgrade_file = self.application.site.getStaticPath('pkg:%s' %pkg,'lib','upgrades','%s.py' %filename)
+        return os.path.join(self.db.application.packages[pkg].packageFolder,'lib','upgrades','%s.py' %filename)
+        
 
     def runUpgrades(self):
         alreadyRun= self.query(where='$error IS NULL').fetchAsDict('codekey')
-        for pkg in self.db.application.packages.keys():
-            upgradefolder = self.application.site.getStaticPath('pkg:%s' %pkg,'lib','upgrades')
+        for pkg,pkgobj in self.db.application.packages.items():
+            upgradefolder = os.path.join(pkgobj.packageFolder,'lib','upgrades') 
             if not os.path.isdir(upgradefolder):
                 continue
-            for filename in os.listdir(upgradefolder):
-                upgradekey = '%s|%s' %(pkg,filename)
-                if upgradekey in alreadyRun:
+            for f in sorted(os.listdir(upgradefolder)):
+                filename,ext = os.path.splitext(f)
+                if ext!='.py':
                     continue
-                with self.recordToUpdate(upgradekey,insertMissing=True) as upgraderecord:
-                    pass
+                upgradekey = '%s|%s' %(pkg,filename)
+                if upgradekey not in alreadyRun:
+                    print 'upgrade',upgradekey
+                    self.runUpgrade(upgradekey)
+    
+    def runUpgrade(self,codekey):
+        pkg,filename = codekey.split('|')
+        filepath = self.upgradePath(codekey)
+        error = None
+        try:
+            m = gnrImport(filepath)
+            error = m.main(self.db)
+        except Exception as e:
+            self.db.rollback()
+            error = str(e)
+        with self.recordToUpdate(codekey,insertMissing=True) as r:
+            r['error'] = error
+            r['pkg'] = pkg
+            r['filename'] = filename
+        if error:
+            print 'ERROR',codekey,error
+        self.db.commit()
