@@ -202,10 +202,6 @@ def main(instances,options):
     if not(options.apache or options.uwsgi):
         print 'select an option'
         return
-        
-    if options.skip_dbsetup:
-        print 'Cannot use both --touchonly and --nodbsetup'
-        return 
     daemonRestart = False
     if options.daemon_keep:
         daemonRestart = 'keep'
