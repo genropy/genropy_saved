@@ -61,7 +61,10 @@ class BaseUpdater(object):
             registers = p.siteRegisters()
             for sitename in self.instances:
                 if sitename in registers:
+                    print 'setting in maintenance',sitename,status
                     p.setSiteInMaintenance(sitename,status=status)
+                else:
+                    print 'registers',registers
 
     def gnrdaemon_stop(self):
         with self.daemonProxy.proxy() as p:
@@ -106,11 +109,13 @@ class ApacheUpdater(BaseUpdater):
 
     def web_stop(self):
         #sudo apache2ctl stop
+        print 'stop apache'
         Popen(['sudo apache2ctl stop'], shell=True)
 
 
     def web_start(self):
         #sudo apache2ctl start
+        print 'start apache'
         Popen(['sudo apache2ctl start'], shell=True)
 
     def getInstances(self):
