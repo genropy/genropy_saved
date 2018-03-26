@@ -121,8 +121,8 @@ class UwsgiUpdater(BaseUpdater):
     def getInstances(self):
         result = []
         for filename in os.listdir(self.vassals_path):
-            filename, extension = os.path.splitext(filename)
-            if filename.lower() in ('gnrdaemon', 'pg') or extension.lower() not in ('.ini', '.off'):
+            basename, extension = os.path.splitext(filename)
+            if basename.lower() in ('gnrdaemon', 'pg') or extension.lower() not in ('.ini', '.off'):
                 continue
             with open(os.path.join(self.vassals_path,filename),'r') as f:
                 txt = f.read()
