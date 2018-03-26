@@ -529,6 +529,8 @@ class GnrDaemon(object):
             sitelist = self.siteregisters.keys()
         elif isinstance(sitename,basestring):
             sitelist = sitename.split(',')
+        else:
+            sitelist = sitename
         result = {}
         for k in sitelist:
             sitepars = self.siteregisters[k]
