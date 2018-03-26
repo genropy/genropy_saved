@@ -127,7 +127,10 @@ class UwsgiUpdater(BaseUpdater):
             with open(os.path.join(self.vassals_path,filename),'r') as f:
                 txt = f.read()
                 q = UWSGIVASSALFINDER.search(txt)
-                result.append(q.group(1))
+                if q:
+                    result.append(q.group(1))
+                else:
+                    print filename,txt
         return list(set(result))
 
     def web_stop(self):
