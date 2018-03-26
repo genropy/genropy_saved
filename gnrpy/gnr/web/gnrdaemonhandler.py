@@ -525,31 +525,34 @@ class GnrDaemon(object):
             return proxy.setMaintenance(status,allowed_users=allowed_users)
 
     def siteregister_stop(self,sitename=None,saveStatus=False,**kwargs):
-        result = None
-        if sitename=='*':
-            for k in self.siteregisters.keys():
-                self.siteregister_stop(k,saveStatus=saveStatus)
-            return
-        uri = self.siteregisters[sitename]['server_uri']
-        try:
-            with self.pyroProxy(uri) as proxy:
-                result = proxy.stop(saveStatus=saveStatus)
-                print('after stop',result)
-        except Exception as e:
-            print str(e)
-        self.onRegisterStop(sitename)
+        if sitename == '*':
+            sitelist = self.siteregisters.keys()
+        elif isinstance(sitename,basestring):
+            sitelist = sitename.split(',')
+        result = {}
+        for k in sitelist:
+            sitepars = self.siteregisters[k]
+            try:
+                with self.pyroProxy(sitepars['server_uri']) as proxy:
+                    proxy.stop(saveStatus=saveStatus)
+            except Exception as e:
+                print str(e)
+            self.onRegisterStop(k)
+            result[k] = sitepars
         return result
+
+    def siteregister_start(self,stopStatus):
+        for sitename,pars in stopStatus.items():
+            self.addSiteRegister(sitename,storage_path=pars['storage_path'],
+                        heartbeat_options=pars['heartbeat_options'],
+                        autorestore=pars['autorestore'],
+                        port=pars['register_port'])
 
     def siteregister_restartServiceDaemon(self,sitename=None,service_name=None):
         self.restartServiceDaemon(sitename=sitename, service_name=service_name)
 
     def siteregister_restart(self,sitename=None,**kwargs):
-        pars = self.siteregisters[sitename]
-        port = pars['register_port']
-        self.siteregister_stop(sitename,True)
-        self.addSiteRegister(sitename,storage_path=pars['storage_path'],
-                        heartbeat_options=pars['heartbeat_options'],
-                        autorestore=pars['autorestore'],port=port)
+        self.siteregister_start(self.siteregister_stop(sitename,True))
 
 
 
