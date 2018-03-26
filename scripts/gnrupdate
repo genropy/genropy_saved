@@ -94,8 +94,8 @@ class BaseUpdater(object):
         print 'Update ok'
 
 class ApacheUpdater(BaseUpdater):
-    def __init__(self):
-        super(ApacheUpdater,self).__init__()
+    def __init__(self,**kwargs):
+        super(ApacheUpdater,self).__init__(**kwargs)
 
     def web_stop(self):
         #sudo apache2ctl stop
@@ -117,8 +117,8 @@ class ApacheUpdater(BaseUpdater):
 
 
 class UwsgiUpdater(BaseUpdater):
-    def __init__(self):
-        super(UwsgiUpdater,self).__init__()
+    def __init__(self,**kwargs):
+        super(UwsgiUpdater,self).__init__(**kwargs)
         self.gnr_vassal_options = dict()
         if self.home_path.startswith('/containers'):
             default_vassals_path = os.path.join(self.home_path, 'vassals')
