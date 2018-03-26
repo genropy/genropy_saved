@@ -20,9 +20,9 @@ UWSGIVASSALFINDER = re.compile('(?:^pyargv *= *)(\w+)$',re.I |re.M)
 APACHECONFFINDER = re.compile('(?:WSGIScriptAlias[ /\w]*sites/)(\w*)(?:/root\.py)$',re.I |re.M)
 
 class BaseUpdater(object):
-    def __init__(self,instances=None,keep=None):
+    def __init__(self,instances=None,daemonRestart=None):
         self.instances = self.getInstances()
-        self.keepStatus = keep
+        self.daemonRestart = daemonRestart
         self.daemonProxy = GnrDaemonProxy(use_environment=True)
         self.stoppedStatus = None
         if instances:
@@ -49,32 +49,45 @@ class BaseUpdater(object):
             app.upgrade()
         app.db.closeConnection()
 
-    def gnrdaemon_restart(self,keep=None):
-        self.gnrdaemon_stop(keep=keep)
-        sleep(.5)
+    def gnrdaemon_restart(self):
+        self.gnrdaemon_stop()
         self.gnrdaemon_start()
     
-    def gnrdaemon_stop(self,keep=None):
+    def web_maintenance(self,status=None):
         with self.daemonProxy.proxy() as p:
-            self.stoppedStatus = p.siteregister_stop(self.instances,saveStatus=self.keepStatus)
+            for sitename in self.instances:
+                p.setSiteInMaintenance(sitename,status=status)
+
+    def gnrdaemon_stop(self):
+        if not self.daemonRestart:
+            return
+        with self.daemonProxy.proxy() as p:
+            self.stoppedStatus = p.siteregister_stop(self.instances,saveStatus=self.daemonRestart=='keep')
 
     def gnrdaemon_start(self):
+        if not self.daemonRestart:
+            return
         with self.daemonProxy.proxy() as p:
             p.siteregister_start(self.stoppedStatus)
 
-    def update(self, skip_dbsetup=False,upgrade=None,keep=None):
+    def update(self, skip_dbsetup=False,upgrade=None):
         #instances = [os.path.splitext(l)[0] for l in os.listdir(self.vassals_path) if l not in ('gnrdaemon.ini','pg.ini')]
+        self.web_maintenance(True)
         self.web_stop()
-        self.gnrdaemon_stop(keep=keep)
+        self.gnrdaemon_stop()
         self.instanceBroadcast(self.dbsetup,upgrade=upgrade)
+        self.gnrdaemon_start()
         self.web_start()
+        self.web_maintenance(False)
         print 'Update ok'
 
-    def restartAll(self, keep=False):
+    def restartAll(self):
         #instances = [os.path.splitext(l)[0] for l in os.listdir(self.vassals_path) if l not in ('gnrdaemon.ini','pg.ini')]
+        self.web_maintenance(True)
         self.web_stop()
-        self.gnrdaemon_restart(keep=keep)
+        self.gnrdaemon_restart()
         self.web_start()
+        self.web_maintenance(False)
         print 'Update ok'
 
 class ApacheUpdater(BaseUpdater):
@@ -138,22 +151,6 @@ class UwsgiUpdater(BaseUpdater):
 
     def web_start(self):
         self.instanceBroadcast(self.start_vassal)
-
-    def update(self, skip_dbsetup=False,upgrade=None,keep=None):
-        #instances = [os.path.splitext(l)[0] for l in os.listdir(self.vassals_path) if l not in ('gnrdaemon.ini','pg.ini')]
-        self.web_stop()
-        self.instanceBroadcast(self.dbsetup,upgrade=upgrade)
-        self.gnrdaemon_restart(keep=keep)
-        self.web_start()
-        print 'Update ok'
-
-
-    def restartAll(self, keep=False):
-        #instances = [os.path.splitext(l)[0] for l in os.listdir(self.vassals_path) if l not in ('gnrdaemon.ini','pg.ini')]
-        self.web_stop()
-        self.gnrdaemon_restart(keep=keep)
-        self.web_start()
-        print 'Update ok'
 
     def touchonly(self):
         #instances = [os.path.splitext(l)[0] for l in os.listdir(self.vassals_path) if l not in ('gnrdaemon.ini','pg.ini')]
@@ -320,10 +317,15 @@ def main(instances,options):
     if options.skip_dbsetup and options.touchonly:
         print 'Cannot use both --touchonly and --nodbsetup'
         return 
+    daemonRestart = False
+    if options.daemon_keep:
+        daemonRestart = 'keep'
+    if options.daemon_clean:
+        daemonRestart = 'clean'
     if options.apache:
-        updater = ApacheUpdater(instances=instances)
+        updater = ApacheUpdater(instances=instances,daemonRestart= daemonRestart)
     elif options.uwsgi:
-        updater = UwsgiUpdater(instances=instances)
+        updater = UwsgiUpdater(instances=instances,daemonRestart= daemonRestart)
     else:
         updater = OldUwsgiUpdater()
 
@@ -331,8 +333,7 @@ def main(instances,options):
         updater.touchonly()
     else:
         updater.update(skip_dbsetup=options.skip_dbsetup,
-                        upgrade=options.data_upgrade,
-                        keep=options.keep)
+                        upgrade=options.data_upgrade)
 
 
 if __name__ == '__main__':
@@ -354,10 +355,14 @@ if __name__ == '__main__':
                   dest='data_upgrade',
                   action='store_true',
                   help="Run upgrade scripts")
-    parser.add_option('--keep',
-                  dest='keep',
+    parser.add_option('--daemon_keep',
+                  dest='daemon_keep',
                   action='store_true',
-                  help="Save gnrdaemon connections")
+                  help="Restart gnrdaemon saving status")
+    parser.add_option('--daemon_clean',
+                  dest='daemon_clean',
+                  action='store_true',
+                  help="Restart gnrdaemon clean status")
     parser.add_option('--apache',
                   dest='apache',
                   action='store_true',
