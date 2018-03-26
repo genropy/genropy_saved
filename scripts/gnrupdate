@@ -108,7 +108,8 @@ class ApacheUpdater(BaseUpdater):
             with open(os.path.join(APACHE_SITES,filename),'r') as f:
                 txt = f.read()
                 q = APACHECONFFINDER.search(txt)
-                result.append(q.group(1))
+                if q:
+                    result.append(q.group(1))
         return list(set(result))
 
 
