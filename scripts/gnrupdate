@@ -21,28 +21,13 @@ APACHECONFFINDER = re.compile(r'(?:WSGIScriptAlias[ /\w]*sites/)(\w*)(?:/root\.p
 
 class BaseUpdater(object):
     def __init__(self,instances=None,keep=None):
-        self.gnr_config = getGnrConfig()
-        self.gnr_path = gnrConfigPath()
-        self.socket_path = os.path.join(self.gnr_path, 'sockets')
         self.instances = self.getInstances()
         self.keepStatus = keep
         self.daemonProxy = GnrDaemonProxy(use_environment=True)
         self.stoppedStatus = None
         if instances:
             self.instances = [inst for inst in instances.split(',') if inst in self.instances]
-        if not self.instances:
-            raise
         #self.vassals_path = os.path.join(self.gnr_path, 'uwsgi', 'vassals')
-
-    def get_config(self):
-        site_config_path = os.path.join(self.site_path, 'siteconfig.xml')
-        base_site_config = Bag(site_config_path)
-        site_config = self.gnr_config['gnr.siteconfig.default_xml'] or Bag()
-        template = self.site_template
-        if template:
-            site_config.update(self.gnr_config['gnr.siteconfig.%s_xml' % template] or Bag())
-        site_config.update(base_site_config)
-        return site_config
 
     def instanceBroadcast(self,cb,**kwargs):
         if not isinstance(cb,list):
@@ -65,11 +50,11 @@ class BaseUpdater(object):
         app.db.closeConnection()
 
     def gnrdaemon_restart(self,keep=None):
-        self.gnrdaemon_stop()
+        self.gnrdaemon_stop(keep=keep)
         sleep(.5)
         self.gnrdaemon_start()
     
-    def gnrdaemon_stop(self):
+    def gnrdaemon_stop(self,keep=None):
         with self.daemonProxy.proxy() as p:
             self.stoppedStatus = p.siteregister_stop(self.instances,saveStatus=self.keepStatus)
 
@@ -98,12 +83,12 @@ class ApacheUpdater(BaseUpdater):
 
     def web_stop(self):
         #sudo apache2ctl stop
-        Popen(['sudo apache2ctl stop'], stdin=pass_pipe.stdout, shell=True)
+        Popen(['sudo apache2ctl stop'], shell=True)
 
 
     def web_start(self):
         #sudo apache2ctl start
-        Popen(['sudo apache2ctl start'], stdin=pass_pipe.stdout, shell=True)
+        Popen(['sudo apache2ctl start'], shell=True)
 
     def getInstances(self):
         result = []
@@ -118,6 +103,9 @@ class ApacheUpdater(BaseUpdater):
 class UwsgiUpdater(BaseUpdater):
     def __init__(self,**kwargs):
         self.gnr_vassal_options = dict()
+        self.gnr_config = getGnrConfig()
+        self.gnr_path = gnrConfigPath()
+        self.socket_path = os.path.join(self.gnr_path, 'sockets')
         home_path = os.environ.get('HOME', '')
         if home_path.startswith('/containers'):
             default_vassals_path = os.path.join(home_path, 'vassals')
