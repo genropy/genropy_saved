@@ -71,6 +71,17 @@ class BaseUpdater(object):
         with self.daemonProxy.proxy() as p:
             p.siteregister_start(self.stoppedStatus)
 
+    def check_db(self,app):
+        changes = app.db.model.check()
+        dbname = app.db.currentEnv.get('storename')
+        dbname = dbname or 'Main'
+        print 'DB %s:' % dbname
+        if changes:
+            print 'STUCTURE NEEDS CHANGES'
+        else:
+            print 'STRUCTURE OK'
+        return changes
+
     def update(self):
         #instances = [os.path.splitext(l)[0] for l in os.listdir(self.vassals_path) if l not in ('gnrdaemon.ini','pg.ini')]
         self.web_maintenance(True)
@@ -152,10 +163,6 @@ class UwsgiUpdater(BaseUpdater):
     def web_start(self):
         self.instanceBroadcast(self.start_vassal)
 
-    def touchonly(self):
-        #instances = [os.path.splitext(l)[0] for l in os.listdir(self.vassals_path) if l not in ('gnrdaemon.ini','pg.ini')]
-        self.instanceBroadcast(self.restart_vassal)
-
     def stop_vassal(self,name):
         vassal_start_path = os.path.join(self.vassals_path,'%s.ini' %name)
         vassal_off_path = os.path.join(self.vassals_path, '%s.off' %name)
@@ -183,16 +190,6 @@ class UwsgiUpdater(BaseUpdater):
                 os.utime(vassal_path,None)
             print "Vassal %s restarted" % name
 
-    def check_db(self,app):
-        changes = app.db.model.check()
-        dbname = app.db.currentEnv.get('storename')
-        dbname = dbname or 'Main'
-        print 'DB %s:' % dbname
-        if changes:
-            print 'STUCTURE NEEDS CHANGES'
-        else:
-            print 'STRUCTURE OK'
-        return changes
 
 def main(instances,options):
     if not(options.apache or options.uwsgi):
