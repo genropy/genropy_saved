@@ -59,7 +59,8 @@ class BaseUpdater(object):
     def web_maintenance(self,status=None):
         with self.daemonProxy.proxy() as p:
             for sitename in self.instances:
-                p.setSiteInMaintenance(sitename,status=status)
+                if sitename in p.siteregisters:
+                    p.setSiteInMaintenance(sitename,status=status)
 
     def gnrdaemon_stop(self):
         with self.daemonProxy.proxy() as p:
