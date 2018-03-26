@@ -331,7 +331,7 @@ def main(instances,options):
         updater.touchonly()
     else:
         updater.update(skip_dbsetup=options.skip_dbsetup,
-                        upgrade=options.upgrade,
+                        upgrade=options.data_upgrade,
                         keep=options.keep)
 
 
