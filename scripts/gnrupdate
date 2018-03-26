@@ -66,7 +66,7 @@ class BaseUpdater(object):
                     print 'setting in maintenance',sitename,status
                     p.setSiteInMaintenance(sitename,status=status)
                 else:
-                    print 'registers',registers
+                    print 'not found in register',sitename
 
     def gnrdaemon_stop(self):
         with self.daemonProxy.proxy() as p:
