@@ -41,16 +41,25 @@ class BaseUpdater(object):
 
     def dbsetup(self,instance=False):
         app = GnrApp(instance)
-        print '\t running dbsetup'
-        changes = self.check_db(app)
-        if changes:
-            print 'APPLYING CHANGES TO DATABASE...'
-            app.db.model.applyModelChanges()
-            print 'CHANGES APPLIED TO DATABASE'
-        if self.upgrade:
-            print 'RUN UPGRADE'
-            app.db.table('sys.upgrade').runUpgrades()
-        app.db.closeConnection()
+        db = app.db
+        dbstores =[None]
+        if db.dbstores:
+            dbstores.extend(db.dbstores.keys())
+        for storename in dbstores:
+            self.dbsetup_one(db,storename=storename)
+
+    def dbsetup_one(self,db,storename=None):
+        print '\t running dbsetup ',storename or ''
+        with db.tempEnv(storename=storename):
+            changes = self.check_db(db)
+            if changes:
+                print 'APPLYING CHANGES TO DATABASE...'
+                db.model.applyModelChanges()
+                print 'CHANGES APPLIED TO DATABASE'
+            if self.upgrade:
+                print 'RUN UPGRADE'
+                db.table('sys.upgrade').runUpgrades()
+            db.closeConnection()
 
     def gnrdaemon_restart(self):
         self.gnrdaemon_stop()
@@ -76,9 +85,9 @@ class BaseUpdater(object):
         with self.daemonProxy.proxy() as p:
             p.siteregister_start(self.stoppedStatus)
 
-    def check_db(self,app):
-        changes = app.db.model.check()
-        dbname = app.db.currentEnv.get('storename')
+    def check_db(self,db):
+        changes = db.model.check()
+        dbname = db.currentEnv.get('storename')
         dbname = dbname or 'Main'
         print 'DB %s:' % dbname
         if changes:

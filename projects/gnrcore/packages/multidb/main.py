@@ -510,8 +510,6 @@ class MultidbTable(object):
                     subscribedStores = subscribedStores.intersection(parentSubscribedStores)
             return list(subscribedStores) if do_sync else []
     
-    def allowedStores(self):
-        return self.db.dbstores.keys()
 
     def multidbSubscribe(self,pkey,dbstore=None):
         self.db.table('multidb.subscription').addSubscription(table=self.fullname,pkey=pkey,dbstore=dbstore)

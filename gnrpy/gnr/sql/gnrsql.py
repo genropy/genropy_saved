@@ -199,22 +199,29 @@ class GnrSqlDb(GnrObject):
             if f.startswith('.'):
                 continue
             dbname = os.path.splitext(f)[0]
-            stores[dbname] = f
+            stores[dbname] = os.path.join(extractpath,f)
+        dbstoreconfig = Bag(stores.pop('_dbstores'))
         mainfilepath = stores.pop('mainstore',None)
+        for s in self.stores_handler.dbstores.keys():
+            self.stores_handler.drop_store(s)
         if mainfilepath:
             self._autoRestore_one(dbname=self.dbname,filepath=mainfilepath,sqltextCb=sqltextCb,onRestored=onRestored)
-        for auxdbname,filepath in stores.items:
-            dbname = '%s_%s' %(self.dbname,auxdbname)
+        for storename,filepath in stores.items():
+            conf = dbstoreconfig.getItem(storename)
+            dbattr = conf.getAttr('db')
+            dbname = dbattr.pop('dbname')
             self._autoRestore_one(dbname=dbname,filepath=filepath,sqltextCb=sqltextCb,onRestored=onRestored)
-            if not auxdbname in self.dbstores:
-                self.stores_handler.add_dbstore_config(auxdbname,dbname=dbname,save=False)
+            self.stores_handler.add_dbstore_config(storename,dbname=dbname,save=False,**dbattr)
         self.stores_handler.save_config()
         if destroyFolder:
             shutil.rmtree(extractpath)
 
     def _autoRestore_one(self,dbname=None,filepath=None,**kwargs):
+        print 'drop',dbname
         self.dropDb(dbname)
+        print 'create',dbname
         self.createDb(dbname)
+        print 'restore',dbname,filepath
         self.restore(filepath,dbname=dbname,**kwargs)
 
 
