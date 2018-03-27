@@ -194,22 +194,28 @@ class GnrSqlDb(GnrObject):
             myzip =  ZipFile(path, 'r')
             myzip.extractall(extractpath)
             destroyFolder = True
-        mainstorefile = os.path.join(extractpath,'mainstore')
-
-        for s in self.stores_handler.dbstores.keys():
-            self.stores_handler.drop_store(s)
-        self.dropDb(self.dbname)
-        self.createDb(self.dbname)
-        self.restore(mainstorefile,sqltextCb=sqltextCb,onRestored=onRestored)
-        auxstoresfiles = [f for f in os.listdir(extractpath) if not f.startswith('.') and f!='mainstore']
-        for f in auxstoresfiles:
-            dbname= '%s_%s' %(self.dbname,f)
-            self.createDb(dbname)
-            self.restore(os.path.join(extractpath,f),dbname=dbname,sqltextCb=sqltextCb,onRestored=onRestored)
-            self.stores_handler.add_dbstore_config(f,dbname=dbname,save=False)
+        stores = {}
+        for f in os.listdir(extractpath):
+            if f.startswith('.'):
+                continue
+            dbname = os.path.splitext(f)[0]
+            stores[dbname] = f
+        mainfilepath = stores.pop('mainstore',None)
+        if mainfilepath:
+            self._autoRestore_one(dbname=self.dbname,filepath=mainfilepath,sqltextCb=sqltextCb,onRestored=onRestored)
+        for auxdbname,filepath in stores.items:
+            dbname = '%s_%s' %(self.dbname,auxdbname)
+            self._autoRestore_one(dbname=dbname,filepath=filepath,sqltextCb=sqltextCb,onRestored=onRestored)
+            if not auxdbname in self.dbstores:
+                self.stores_handler.add_dbstore_config(auxdbname,dbname=dbname,save=False)
         self.stores_handler.save_config()
         if destroyFolder:
             shutil.rmtree(extractpath)
+
+    def _autoRestore_one(self,dbname=None,filepath=None,**kwargs):
+        self.dropDb(dbname)
+        self.createDb(dbname)
+        self.restore(filepath,dbname=dbname,**kwargs)
 
 
     def packageSrc(self, name):
@@ -843,7 +849,7 @@ class GnrSqlDb(GnrObject):
         
         :param filename: the path on which the database will be dumped"""
         extras = extras or []
-        self.adapter.dump(filename,dbname=dbname,extras=extras)
+        return self.adapter.dump(filename,dbname=dbname,extras=extras)
         
     def restore(self, filename,dbname=None,sqltextCb=None,onRestored=None):
         """Restore db to a given path
