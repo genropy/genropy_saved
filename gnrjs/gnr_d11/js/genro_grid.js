@@ -472,6 +472,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     },
 
     mixin_setDraggable_row:function(draggable, view) {
+        if(genro.isMobile){
+            return;
+        }
         view = view || this.views.views[0];
         draggable = draggable === false ? false : true;
         var builder = view.content;
@@ -1533,6 +1536,17 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                             },{_position:0});
                         }
                     }
+                    if(genro.isMobile && sourceNode.attr.draggable_row){
+                        if(!rowBag.getNode('drag_handle')){
+                            rowBag.setItem('drag_handle',null,{
+                                field:'_drag_handle',name:' ',width:'23px',
+                                calculated:true,_customGetter:function(){
+                                    return '<div class="menu_white_svg" style="background-color:#888; height:22px;border-radius:4px;" draggable="true">&nbsp;</div>';
+                                }
+                            },{_position:0});
+                        }
+                    }
+
                     var that = this;
                     rowBag.forEach(function(n){
                         cell = that.structFromBag_cell(sourceNode,n);
@@ -1810,6 +1824,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     fillDragInfo:function(dragInfo) {
         var widget = dragInfo.widget;
         var event = dragInfo.event;
+        if(event.cell && event.cell.field=='_drag_handle'){
+            event.cellIndex=-1;
+        }
         if ((event.cellIndex >= 0) && (event.rowIndex == -1)) {
             dragInfo.dragmode = 'column';
             dragInfo.outline = widget.columnNodelist(event.cellIndex, true);

@@ -693,7 +693,7 @@ class TableHandlerView(BaseComponent):
         rowsPerPage = self._th_hook('rowsPerPage',dflt=25,mangler=frame)()
         gridattr.update(rowsPerPage=rowsPerPage,
                         dropTypes=None,dropTarget=True,
-                        draggable_row=True,
+                        
                         hiddencolumns=self._th_hook('hiddencolumns',mangler=th_root)(),
                         dragClass='draggedItem',
                         selfsubscribe_runbtn="""
@@ -706,6 +706,7 @@ class TableHandlerView(BaseComponent):
                             }else{
                             FIRE .#parent.runQuery;
                         }""")
+        gridattr.setdefault('draggable_row',not self.isMobile)
         gridattr.setdefault('userSets','.sets')
 
         if virtualStore:
