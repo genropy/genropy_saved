@@ -196,7 +196,7 @@ class TableHandlerView(BaseComponent):
         self._th_handle_page_hooks(frame,page_hooks)
         self._th_menu_sources(frame,extendedQuery=extendedQuery,bySample=bySample)
         if configurable:
-            frame.right.viewConfigurator(table,frameCode,configurable=configurable)   
+            frame.grid.viewConfigurator(table,configurable=configurable)   
         self._th_viewController(frame,table=table,default_totalRowCount=extendedQuery == '*')
         store_kwargs = store_kwargs or dict()
         store_kwargs['parentForm'] = parentForm
@@ -268,32 +268,8 @@ class TableHandlerView(BaseComponent):
         sc.contentPane(background='red')
 
     @struct_method
-    def th_viewConfigurator(self,pane,table,th_root,configurable=None):
-        bar = pane.slotBar('confBar,fieldsTree,*',width='160px',closable='close',
-                            fieldsTree_table=table,
-                            fieldsTree_checkPermissions=True,
-                            fieldsTree_height='100%',splitter=True,border_left='1px solid silver')
-        confBar = bar.confBar.slotToolbar('viewsMenu,currviewCaption,*,defView,saveView,deleteView',background='whitesmoke')
-        confBar.currviewCaption.div('^.grid.currViewAttrs.caption',font_size='.9em',color='#666',line_height='16px')
-
-        gridId = '%s_grid' %th_root
-        confBar.defView.slotButton('!!Favorite View',iconClass='th_favoriteIcon iconbox star',
-                                        action='genro.grid_configurator.setCurrentAsDefault(gridId);',gridId=gridId)
-        confBar.saveView.slotButton('!!Save View',iconClass='iconbox save',
-                                        action='genro.grid_configurator.saveGridView(gridId);',gridId=gridId)
-        confBar.deleteView.slotButton('!!Delete View',iconClass='iconbox trash',
-                                    action='genro.grid_configurator.deleteGridView(gridId);',
-                                    gridId=gridId,disabled='^.grid.currViewAttrs.pkey?=!#v')
-        if table==getattr(self,'maintable',None) or configurable=='*':
-            bar.replaceSlots('#','#,footerBar')
-            footer = bar.footerBar.formbuilder(cols=1,border_spacing='3px 5px',font_size='.8em',fld_color='#555',fld_font_weight='bold')
-            footer.numberSpinner(value='^.hardQueryLimit',lbl='!!Limit',width='6em',smallDelta=1000)
-            
-
-    @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
         pane.div('^.title' ,_class='frameGridTitle')
-
 
     @struct_method
     def th_slotbar_importer(self,pane,frameCode=None,importer=None,**kwargs):
@@ -548,11 +524,11 @@ class TableHandlerView(BaseComponent):
                    _onResult='FIRE .query.currentQuery="__newquery__";FIRE .query.refreshMenues;')
 
         #SOURCE MENUVIEWS
-        pane.dataController("""genro.grid_configurator.loadView(gridId, (currentView || favoriteView),th_root);
+        pane.dataController("""genro.grid_configurator.loadView(gridId, (currentView || favoriteView));
                                 """,
                             currentView="^.grid.currViewPath",
                             favoriteView='^.grid.favoriteViewPath',
-                            gridId=gridId,th_root=th_root)
+                            gridId=gridId)
         q = Bag()
         pyviews = self._th_hook('struct',mangler=th_root,asDict=True)
         for k,v in pyviews.items():
@@ -574,11 +550,6 @@ class TableHandlerView(BaseComponent):
         #SOURCE MENUACTIONS
         pane.dataRemote('.resources.action.menu',self.table_script_resource_tree_data,
                         res_type='action', table=table,cacheTime=5)
-
-    @struct_method
-    def th_slotbar_viewsMenu(self,pane,**kwargs):
-        b = pane.div(_class='iconbox list',datapath='.grid')
-        b.menu(storepath='.structMenuBag',_class='smallmenu',modifiers='*',selected_fullpath='.currViewPath')
 
     @struct_method
     def th_slotbar_resourcePrints(self,pane,flags=None,from_resource=None,hidden=None,**kwargs):
