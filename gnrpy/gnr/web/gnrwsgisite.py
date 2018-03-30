@@ -745,7 +745,6 @@ class GnrWsgiSite(object):
             except GnrDebugException,exc:
                 raise
             except Exception, exc:
-                print xxxx
                 return self.not_found_exception(environ,start_response)
         else:
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='RESOURCE')
