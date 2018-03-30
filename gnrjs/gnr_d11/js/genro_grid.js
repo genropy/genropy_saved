@@ -971,12 +971,16 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var caption,cellattr,cell_cap,cell_field,fltList,colList,col;
         var cellmap = widget.cellmap;
         var cellobj;
+        var fld;
         cellsbag.forEach(function(n){
             cellattr = n.attr;
             
             cell_cap = cellattr.name || cellattr.field;
-            //cell_field = n.attr.field;
-            cellobj = cellmap[n.attr.field.replace(/\W/g, '_')];
+            cell_field = n.attr.field.replace(/\W/g, '_');
+            if(n.attr.group_aggr){
+                cell_field += '_'+ n.attr.group_aggr;
+            }
+            cellobj = cellmap[cell_field];
             if(cellobj.classes && cellobj.classes.indexOf('hiddenColumn')>=0){
                 return;
             }
@@ -1410,6 +1414,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 cell.rowTemplate = sourceNode.currentFromDatasource(cell.rowTemplate);
             }
             cell.field = cell.field.replace(/\W/g, '_');
+            if(cell.group_aggr){
+                cell.field += '_'+cell.group_aggr;
+            }
             cell.field_getter = cell.caption_field? cell.caption_field.replace(/\W/g, '_'):cell.field ;
             if(cell.caption_field || cell.values){
                 dtype = 'T';

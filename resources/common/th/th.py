@@ -30,7 +30,7 @@ class TableHandler(BaseComponent):
     css_requires= 'th/th'
 
     py_requires="""th/th_view:TableHandlerView,th/th_tree:TableHandlerHierarchicalView,
-                    th/th_stats:TableHandlerStats,
+                    th/th_stats:TableHandlerStats,th/th_groupth:TableHandlerGroupBy,
                   th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker,
                   th/th:MultiButtonForm
                   """
