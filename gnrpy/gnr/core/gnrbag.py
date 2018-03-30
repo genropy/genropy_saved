@@ -315,7 +315,7 @@ class BagNode(object):
                 curr = curr.parentNode
         else:
             attrvalue = kwargs['attrvalue']
-            while curr and curr.attr[attrname]!=attrvalue:
+            while curr and curr.attr.get(attrname)!=attrvalue:
                 curr = curr.parentNode
         return curr
         
