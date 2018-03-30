@@ -49,11 +49,12 @@ class TableHandlerStats(BaseComponent):
                             statIdentifier=None,**kwargs):
         if not pd:
             pane.div('Missing Pandas')
-        nodeId = nodeId or 'th_stats_%s' %table.replace('.','_')
-        bc = pane.borderContainer(datapath='.%s' %nodeId,_anchor=True,**kwargs)
         inattr = pane.getInheritedAttributes()
         relatedTable = inattr.get('table')
         relatedTableHandlerFrameCode = inattr.get('frameCode') if not (relation_value or condition) else None
+        table = table or relatedTable
+        nodeId = nodeId or 'th_stats_%s' %table.replace('.','_')
+        bc = pane.borderContainer(datapath='.%s' %nodeId,_anchor=True,**kwargs)
         bc.child('_tableHandlerStatsLayout',region='center',
                             table=table,nodeId=nodeId,
                             relation_field=relation_field,
@@ -108,21 +109,16 @@ class TableHandlerStats(BaseComponent):
                         if(relatedTableHandlerFrameCode){
                             var selectionAttributes = genro.wdgById(relatedTableHandlerFrameCode+'_grid').collectionStore().storeNode.currentAttributes()
                             var storeKw = objectExtract(selectionAttributes,'table,columns,checkPermissions,_sections');
-
-
                             objectUpdate(kwargs,selectionAttributes);
                             if(storeKw._sections){
                                 th_sections_manager.onCalling(storeKw._sections,kwargs);
                             }
-                            
-
                         }
                         SET .stats.pivot_html = "";
                         if (!(stat_values && stat_values.len() && stat_rows && stat_rows.len())){
                             return false;
                         }
                     """,
-                    _if='',
                     outmode='^.stats.run_pivot_do',
                     _onResult="""
                         result = result || new gnr.GnrBag();
@@ -135,10 +131,10 @@ class TableHandlerStats(BaseComponent):
         
     @public_method
     def _ths_configurator(self,pane,table=None,relation_field=None,
-                                relation_value=None,condition=None,
+                                relation_value=None,
                                 relatedTableHandlerFrameCode=None,
                                 relatedTable=None,source_filters=None,**kwargs):
-        tc = pane.tabContainer(region='left',width='250px',margin='2px',drawer=True,splitter=True)
+        tc = pane.tabContainer()
         self._ths_configPivotGrids(tc.framePane(title='!!Pivot'),table=table)
 
         #self._ths_configFields(tc.borderContainer(title='!!Fields'),table=table)
