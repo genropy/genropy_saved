@@ -26,10 +26,13 @@ from gnr.core.gnrbag import Bag
 
 
 class TableHandlerGroupBy(BaseComponent):
+    js_requires = 'th/th_groupth'
     @extract_kwargs(condition=True)
     @struct_method
-    def th_groupByTableHandler(self,pane,frameCode=None,title=None,table=None,linkedTo=None,struct=None,where=None,viewResource=None,
-                                condition=None,condition_kwargs=None,datapath=None,**kwargs):
+    def th_groupByTableHandler(self,pane,frameCode=None,title=None,table=None,linkedTo=None,
+                                struct=None,where=None,viewResource=None,
+                                condition=None,condition_kwargs=None,datapath=None,
+                                treeRoot=None,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = table or inattr.get('table')
         frameCode = frameCode or 'thg_%s' %table.replace('.','_')
@@ -44,7 +47,8 @@ class TableHandlerGroupBy(BaseComponent):
                 raise self.exception('generic',msg='Missing linked tableHandler in groupByTableHandler')
             if not struct:
                 struct = self._th_hook('groupedStruct',mangler=linkedTo)
-        frame = pane.frameGrid(frameCode=frameCode,grid_onDroppedColumn="""
+        sc = pane.stackContainer(datapath=datapath,_class='group_by_th',selectedPage='^.group_mode',**kwargs)
+        frame = sc.frameGrid(frameCode=frameCode,grid_onDroppedColumn="""
                                     if('RNLIF'.indexOf(data.dtype)<0){
                                         return;
                                     }else if (!data.group_aggr){
@@ -52,13 +56,23 @@ class TableHandlerGroupBy(BaseComponent):
                                     }
                                     """,
                                     grid_configurable=True,
-                                struct=struct,_newGrid=True,
-                                grid_title='!!Grid',
-                                _class='group_by_th',
-                                datapath=datapath,**kwargs)
-        bar = frame.top.slotToolbar('5,vtitle,*,searchOn,viewsMenu,export,10,stackButtons,5')
-        bar.vtitle.div(title or '!!Grouped view',color='#444',font_weight='bold')
-        self._thg_treeview(frame.contentPane(title='Tree'))
+                                grid_connect_onSetStructpath="""
+                                            this.publish('changedStruct',{structBag:$1,kw:$2});
+                                            """,
+                                pageName='grid',
+                                struct=struct,_newGrid=True,title='!!Grid')
+        bar = frame.top.slotToolbar('5,vtitle,*,searchOn,viewsMenu,export,counterCol,10,parentStackButtons,5')
+        title = title or '!!Grouped view'
+        bar.vtitle.div(title,color='#444',font_weight='bold')
+        bar.counterCol.div().checkbox(value='^.grid.showCounterCol',label='!!Counter column',label_color='#444')
+        frame.grid.dataController("""
+        if(showCounterCol){
+            structrow.setItem('_grp_count',null,{field:'_grp_count',name:'Cnt',width:'5em',group_aggr:'sum',dtype:'L'});
+        }else{
+            structrow.popNode('_grp_count');
+        }
+        """,structrow='=.struct.#0.#0',showCounterCol='^.showCounterCol',_if='structrow')
+        self._thg_treeview(sc.framePane(title='Tree',pageName='tree'),title=title,grid=frame.grid,treeRoot=treeRoot)
         
         if linkedNode:
             linkedNode.value.dataController("""
@@ -76,7 +90,7 @@ class TableHandlerGroupBy(BaseComponent):
                         table=table,th_root=frameCode,favoriteViewPath='=.grid.favoriteViewPath',
                         cacheTime=30)
         frame.grid.viewConfigurator(table,queryLimit=False)
-        frame.grid.selectionStore(table=table,where=where,selectmethod=self.th_selectgroupby,
+        frame.grid.selectionStore(table=table,where=where,selectmethod=self._thg_selectgroupby,
                                 childname='store',struct='=.grid.struct',
                                 _linkedTo=linkedTo,
                                 _onCalling="""
@@ -91,19 +105,38 @@ class TableHandlerGroupBy(BaseComponent):
                                 }
                                 objectUpdate(kwargs,runKwargs);
                                 """,
-                                _excludeList="""columns,currentFilter,customOrderBy,hardQueryLimit,limit,liveUpdate,method,nodeId,selectionName,
+                                _excludeList="""columns,sortedBy,currentFilter,customOrderBy,hardQueryLimit,limit,liveUpdate,method,nodeId,selectionName,
                             selectmethod,sqlContextName,sum_columns,table,timeout,totalRowCount,userSets,_sections,
                             _onCalling,_onResult""",
                                 condition=condition,**condition_kwargs)
-    def _thg_treeview(self,pane,**kwargs):
-        pass
+
+
+    def _thg_treeview(self,frame,title=None, grid=None,treeRoot=None,**kwargs):
+        bar = frame.top.slotToolbar('5,vtitle,*,searchOn,10,parentStackButtons,5')
+        title = title or '!!Grouped view'
+        bar.vtitle.div(title,color='#444',font_weight='bold')
+        pane = frame.center.contentPane()
+        frame.dataController("""
+        genro.groupth.buildGroupTree(pane,structBag);
+        """,_delay=100,pane=pane,storepath='.treestore',
+        **{'subscribe_%s_changedStruct' %grid.attributes['nodeId']:True})
         
-    
+        frame.dataController("""
+            SET .treestore = genro.groupth.groupTreeData(gridstore,grid.structBag,treeRoot);
+        """,gridstore='^.store',treeRoot=treeRoot,
+        grid=grid.js_widget)
+        frame.dataController("""
+        grid.collectionStore().loadInvisible = (group_mode=='tree' && genro.dom.isVisible(pane))
+        """,group_mode='^.group_mode',grid=grid.js_widget,pane=pane)
+
+        
     @public_method
-    def th_selectgroupby(self,struct=None,**kwargs):
+    def _thg_selectgroupby(self,struct=None,**kwargs):
         columns_list = list()
         group_list = list()
         for v in struct['#0.#0'].digest('#a'):
+            if v['field'] =='_grp_count':
+                continue
             col = v['field']
             if not col.startswith('@'):
                 col = '$%s' %col
@@ -120,6 +153,8 @@ class TableHandlerGroupBy(BaseComponent):
                     group_list.append(caption_field)
                     columns_list.append(caption_field)
             columns_list.append(col)
+        columns_list.append('count(*) AS _grp_count_sum')
         kwargs['columns'] = ','.join(columns_list)
         kwargs['group_by'] = ','.join(group_list)
+        kwargs['order_by'] = kwargs['group_by']
         return self.app._default_getSelection(**kwargs)

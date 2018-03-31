@@ -169,6 +169,7 @@ class FrameGridSlots(BaseComponent):
 
     @struct_method
     def fg_viewConfigurator(self,grid,table=None,queryLimit=None,configurable=None):
+        grid.attributes['configurable'] = True
         right = grid.parent.parent.borderContainer(region='right',width='160px',drawer='close',
                                         splitter=True,border_left='1px solid silver')
 
@@ -189,7 +190,7 @@ class FrameGridSlots(BaseComponent):
                                                 fld_color='#555',fld_font_weight='bold')
             footer.numberSpinner(value='^.hardQueryLimit',lbl='!!Limit',width='6em',smallDelta=1000)
 
-        right.contentPane(region='center').fieldsTree(table=table,checkPermissions=True)
+        right.contentPane(region='center').fieldsTree(table=table,checkPermissions=True,trash=True)
    
 
             

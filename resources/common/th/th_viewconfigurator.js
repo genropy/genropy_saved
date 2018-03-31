@@ -57,7 +57,6 @@ var genro_plugin_grid_configurator = {
     
 
     addGridConfigurator:function(sourceNode){
-
         sourceNode.attr.selfDragColumns = 'trashable';
         var table = sourceNode.attr.table;
         if(!table && sourceNode.attr.storepath){
