@@ -2,6 +2,9 @@ genro_plugin_groupth = {
     buildGroupTree:function(pane,structBag){
         pane.getValue().popNode('treeroot');
         var root = pane._('div','treeroot').getParentNode();
+        if(!(structBag && structBag.getItem('#0.#0'))){
+            return;
+        }
         root.freeze();
         var tr = root._('treeGrid',{storepath:'.treestore',headers:true});
         var struct_row = structBag.getItem('#0.#0');
@@ -19,6 +22,9 @@ genro_plugin_groupth = {
     },
 
     groupTreeData:function(gridstore,structBag,rootName){
+        if(!(structBag && structBag.getItem('#0.#0'))){
+            return;
+        }
         var result = new gnr.GnrBag();
         var treeData;
         if(rootName){

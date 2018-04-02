@@ -35,6 +35,7 @@ class TableHandlerGroupBy(BaseComponent):
                                 treeRoot=None,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = table or inattr.get('table')
+        tblobj = self.db.table(table)
         frameCode = frameCode or 'thg_%s' %table.replace('.','_')
         datapath = datapath or '.%s' %frameCode
         linkedNode = None

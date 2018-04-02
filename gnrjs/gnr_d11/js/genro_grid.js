@@ -967,7 +967,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var auto = [];
         values.push(null);
         var struct = widget.structbag();
-        var cellsbag = struct?struct.getItem('#0.#0'): new gnr.GnrBag();
+        var cellsbag = struct && struct.getItem('#0.#0')?struct.getItem('#0.#0'): new gnr.GnrBag();
         var caption,cellattr,cell_cap,cell_field,fltList,colList,col;
         var cellmap = widget.cellmap;
         var cellobj;
@@ -2710,6 +2710,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     },
 
     mixin_onSetStructpath: function(structBag,kw) {
+
         this.query_columns = this.gnr.getQueryColumns(this.sourceNode, structBag);
         if(this.sourceNode._useStore){
             this.setEditableColumns();

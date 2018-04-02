@@ -35,6 +35,10 @@ except Exception:
 
 class TableHandlerStats(BaseComponent):
     js_requires='th/th_stats'
+
+    def ths_pandas_available(self):
+        return GnrDbDataframe is not False
+
     @extract_kwargs(condition=dict(slice_prefix=False))
     @struct_method
     def th_tableHandlerStats(self,pane,table=None,
@@ -620,3 +624,4 @@ class PivotTableViewer(BaseComponent):
                     """,**kwargs)
         iframe = self._ths_framehtml(bc.contentPane(region='center'))
         return bc
+
