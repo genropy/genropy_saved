@@ -101,22 +101,21 @@ class Table(object):
 
     
     def syncExternalUser(self,externalUser):
-        docommit = False
-        user_record = self.record(username=externalUser['username'],ignoreMissing=True,for_update=True).output('dict')
-        if user_record.get('id'):
-            if self.fieldsChanged('firstname,lastname,email',externalUser,user_record):
-                old_record = dict(user_record)
-                user_record.update(externalUser)
-                self.update(user_record,old_record)
-                docommit = True
-        else:
-            user_record = dict(externalUser)
-            self.insert(user_record)
-            docommit = True
-        if not docommit:
-            return
         with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
-            self.db.commit()
+            docommit = False
+            user_record = self.record(username=externalUser['username'],ignoreMissing=True,for_update=True).output('dict')
+            if user_record.get('id'):
+                if self.fieldsChanged('firstname,lastname,email',externalUser,user_record):
+                    old_record = dict(user_record)
+                    user_record.update(externalUser)
+                    self.update(user_record,old_record)
+                    docommit = True
+            else:
+                user_record = dict(externalUser)
+                self.insert(user_record)
+                docommit = True
+            if docommit:
+                self.db.commit()
 
         
         
