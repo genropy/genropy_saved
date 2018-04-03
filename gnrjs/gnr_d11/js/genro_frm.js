@@ -2175,7 +2175,7 @@ dojo.declare("gnr.formstores.Base", null, {
             defaultCb = funcCreate(objectPop(handler,'defaultCb'),'kw');
             that.handlers[action]= {'kw':objectUpdate(actionKw,handler),'method':method,'callbacks':callbacks,'rpcmethod':rpcmethod,defaultCb:defaultCb};
         });
-        for (k in kw){
+        for (var k in kw){
             this[k] = kw[k];
         }
         if(!this.onSaved){

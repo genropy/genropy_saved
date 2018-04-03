@@ -256,7 +256,7 @@ class TableHandlerView(BaseComponent):
     def _th_handle_page_hooks(self,view,page_hooks):
         frameCode = view.attributes['frameCode']
         menu = Bag()
-        menu.setItem('grid',None,caption='!!Records',pageName='grid')
+        menu.setItem('mainView',None,caption='!!Records',pageName='mainView')
         for k in sorted(page_hooks.keys()):
             handler = page_hooks[k]
             wdg = getattr(handler,'widget','contentPane')
@@ -273,7 +273,7 @@ class TableHandlerView(BaseComponent):
                                                     background='#444',height='22px',
                                                     rounded_top=4)
         bar.s_title.div('^.selectedTitle',color='white')
-        bar.closbtn.slotButton(iconClass='close_svg',action='SET .#parent.viewPage="grid"')
+        bar.closbtn.slotButton(iconClass='close_svg',action='SET .#parent.viewPage="mainView"')
 
         
         sc = bc.stackContainer(selectedPage='^.selectedPage',selfsubscribe_selected="""
@@ -743,21 +743,24 @@ class TableHandlerView(BaseComponent):
             }
             """,
             th_root=th_root,
+            
             lastQueryTime = '=.store?servertime',
             sectionbag = '=.sections',
             _fired = '^.sections_changed',
             _if = 'sectionbag.len()',
             _delay = 100)
-
+        frame.dataController("""
+            this.fireEvent('.runQueryDo_'+viewPage,true);
+        """,_runQueryDo='^.runQueryDo',viewPage='=.viewPage')
         store_kwargs.setdefault('weakLogicalDeleted',options.get('weakLogicalDeleted'))
-
         store = frame.grid.selectionStore(table=table,
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where',
                                queryMode='=.query.queryMode', 
                                sortedBy='=.grid.sorted',
                                customOrderBy='=.query.customOrderBy',
-                               pkeys='=.query.pkeys', _runQueryDo='^.runQueryDo',
+                               pkeys='=.query.pkeys', 
+                               _runQueryDo='^.runQueryDo_mainView',
                                _cleared='^.clearStore',
                                _onError="""return error;""", 
                                selectionName=selectionName, recordResolver=False, condition=condition,

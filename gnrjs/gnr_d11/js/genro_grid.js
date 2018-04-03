@@ -49,6 +49,7 @@ gnr.getGridColumns = function(storeNode) {
     },'static');
     var result = objectKeys(columns).join(',');
     if(storeNodeId){
+        storeNode._previousColumns = storeNode._currentColumns;
         storeNode._currentColumns=result;
     }
     return result;
@@ -64,6 +65,9 @@ gnr.columnsFromStruct = function(struct, columns) {
     for (var i = 0; i < nodes.length; i++) {
         var node = nodes[i];
         var fld = node.attr.queryfield || node.attr.field;
+        if(node.attr.group_aggr){
+            fld = fld+'_'+node.attr.group_aggr;
+        }
         if(node.attr.template_columns){
             node.attr.template_columns.split(',').forEach(function(n){
                 arrayPushNoDup(columns,(n[0]=='$' || n[0]=='@')?n:'$'+n);
@@ -1509,7 +1513,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 delete view.tag;
                 rows = [];
                 rowsnodes = viewnode.getValue().getNodes();
-                for (k = 0; k < rowsnodes.length; k++) {
+                for (var k = 0; k < rowsnodes.length; k++) {
 
                     rowBag = rowsnodes[k].getValue();
 
@@ -1598,7 +1602,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     mixin_moveColumn:function(col, toPos) {
         if (toPos != col) {
             var colsBag = this.structBag.getItem('#0.#0');
-            var nodeToMove = colsBag.popNode('#' + col);
+            var nodeToMove = colsBag.popNode('#' + col,false);
             colsBag.setItem(nodeToMove.label, null, nodeToMove.attr, {'_position':toPos});
         }
 
@@ -2710,7 +2714,6 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     },
 
     mixin_onSetStructpath: function(structBag,kw) {
-
         this.query_columns = this.gnr.getQueryColumns(this.sourceNode, structBag);
         if(this.sourceNode._useStore){
             this.setEditableColumns();

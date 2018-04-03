@@ -6204,6 +6204,22 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         return this.runQuery(cb,runKwargs);
     },
 
+    cleanColumns:function(cols){
+        var result = {};
+        if(!cols){
+            return;
+        }
+        cols.split(',').forEach(function(n){
+            n = n.toLowerCase();
+            if(n.indexOf(' as ')>=0){
+                n = n.split(' as ')[1]
+            }else{
+                n = n.trim().split(' ')[0].replace('$','').replace(/\./g, '_').replace(/@/g, '_');
+            }
+            result[n] = true;
+        });
+        return result;
+    },
 
     onChangedView:function(){
         var data = this.getData();
@@ -6216,21 +6232,30 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
                 k++;
             }while(k<=n && ('_newrecord' in dataColumns))
             if('_newrecord' in dataColumns){
+                // do not reload data if there are new rows
                 return;
             }
             gnr.getGridColumns(this.storeNode);
-            var newColumns = this.storeNode._currentColumns? this.storeNode._currentColumns.split(','):[];
-            if(newColumns.some(function(n){
-                n = n.toLowerCase();
-                if(n.indexOf(' as ')>=0){
-                    n = n.split(' as ')[1]
+            var newColumns = this.cleanColumns(this.storeNode._currentColumns);
+            var previousColumns = this.cleanColumns(this.storeNode._previousColumns);
+            var addedColumns = [];            
+            for(var k in newColumns){
+                if(k in previousColumns){
+                    objectPop(previousColumns,k);
                 }else{
-                    n = n.trim().split(' ')[0].replace('$','').replace(/\./g, '_').replace(/@/g, '_');
+                    addedColumns.push(k);
                 }
-                return !(n in dataColumns)
-            })){
+            }
+            if(addedColumns.length>0){
                 this.loadData();
-            } 
+            }else if(this.storeNode.attr.groupByStore && objectNotEmpty(previousColumns)){
+                for(var k in previousColumns){
+                    if(!['_avg','_sum','_min','_max'].some(function(aggr){return k.endsWith(aggr);})){
+                        this.loadData();
+                        return;
+                    }
+                }
+            }
         }
     },
 

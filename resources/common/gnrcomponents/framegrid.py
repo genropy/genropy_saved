@@ -220,7 +220,7 @@ class FrameGrid(BaseComponent):
         grid_kwargs['selfsubscribe_archive'] = grid_kwargs.get('selfsubscribe_archive','this.widget.archiveSelectedRows();')
         #grid_kwargs['selfsubscribe_setSortedBy'] = """this.setRelativeData(this.attr.sortedBy,$1);"""
         grid_kwargs.setdefault('selectedId','.selectedId')
-        envelope_bc = frame.borderContainer(childname='grid_envelope',pageName='grid',
+        envelope_bc = frame.borderContainer(childname='grid_envelope',pageName='mainView',
                                             title=grid_kwargs.pop('title','!!Grid'))
         grid = envelope_bc.contentPane(region='center').includedView(autoWidth=False,
                           storepath=storepath,datamode=datamode,

@@ -27,6 +27,8 @@ from gnr.core.gnrbag import Bag
 
 class TableHandlerGroupBy(BaseComponent):
     js_requires = 'th/th_groupth'
+
+    
     @extract_kwargs(condition=True)
     @struct_method
     def th_groupByTableHandler(self,pane,frameCode=None,title=None,table=None,linkedTo=None,
@@ -47,8 +49,10 @@ class TableHandlerGroupBy(BaseComponent):
             if not linkedNode:
                 raise self.exception('generic',msg='Missing linked tableHandler in groupByTableHandler')
             if not struct:
-                struct = self._th_hook('groupedStruct',mangler=linkedTo)
-        sc = pane.stackContainer(datapath=datapath,_class='group_by_th',selectedPage='^.group_mode',**kwargs)
+                struct = self._th_hook('groupedStruct',mangler=linkedTo,defaultCb=self._thg_defaultstruct)
+                pane.data('%s.grid.showCounterCol' %datapath,True)
+            
+        sc = pane.stackContainer(datapath=datapath,_class='group_by_th',selectedPage='^.group_mode',**kwargs)  
         frame = sc.frameGrid(frameCode=frameCode,grid_onDroppedColumn="""
                                     if('RNLIF'.indexOf(data.dtype)<0){
                                         return;
@@ -93,6 +97,7 @@ class TableHandlerGroupBy(BaseComponent):
         frame.grid.viewConfigurator(table,queryLimit=False)
         frame.grid.selectionStore(table=table,where=where,selectmethod=self._thg_selectgroupby,
                                 childname='store',struct='=.grid.struct',
+                                groupByStore=True,
                                 _linkedTo=linkedTo,
                                 _onCalling="""
                                 if(!_linkedTo){
@@ -106,10 +111,13 @@ class TableHandlerGroupBy(BaseComponent):
                                 }
                                 objectUpdate(kwargs,runKwargs);
                                 """,
-                                _excludeList="""columns,sortedBy,currentFilter,customOrderBy,hardQueryLimit,limit,liveUpdate,method,nodeId,selectionName,
+                                _excludeList="""columns,sortedBy,currentFilter,customOrderBy,row_count,hardQueryLimit,limit,liveUpdate,method,nodeId,selectionName,
                             selectmethod,sqlContextName,sum_columns,table,timeout,totalRowCount,userSets,_sections,
                             _onCalling,_onResult""",
                                 condition=condition,**condition_kwargs)
+    def _thg_defaultstruct(self,struct):
+        r=struct.view().rows()
+        r.cell('_grp_count',name='Cnt',width='5em',group_aggr='sum',dtype='L')
 
 
     def _thg_treeview(self,frame,title=None, grid=None,treeRoot=None,**kwargs):
@@ -119,13 +127,14 @@ class TableHandlerGroupBy(BaseComponent):
         pane = frame.center.contentPane()
         frame.dataController("""
         genro.groupth.buildGroupTree(pane,structBag);
-        """,_delay=100,pane=pane,storepath='.treestore',
+        FIRE .refresh_tree_data;
+        """,_delay=500,pane=pane,storepath='.treestore',
         **{'subscribe_%s_changedStruct' %grid.attributes['nodeId']:True})
         
         frame.dataController("""
             SET .treestore = genro.groupth.groupTreeData(gridstore,grid.structBag,treeRoot);
-        """,gridstore='^.store',treeRoot=treeRoot,
-        grid=grid.js_widget)
+        """,gridstore='^.store',_fired='^.refresh_tree_data',treeRoot=treeRoot,
+        grid=grid.js_widget,_delay=1)
         frame.dataController("""
         grid.collectionStore().loadInvisible = (group_mode=='tree' && genro.dom.isVisible(pane))
         """,group_mode='^.group_mode',grid=grid.js_widget,pane=pane)
@@ -155,6 +164,8 @@ class TableHandlerGroupBy(BaseComponent):
                     columns_list.append(caption_field)
             columns_list.append(col)
         columns_list.append('count(*) AS _grp_count_sum')
+        if not group_list:
+            return False
         kwargs['columns'] = ','.join(columns_list)
         kwargs['group_by'] = ','.join(group_list)
         kwargs['order_by'] = kwargs['group_by']
