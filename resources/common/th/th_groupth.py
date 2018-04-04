@@ -38,11 +38,11 @@ class TableHandlerGroupBy(BaseComponent):
         inattr = pane.getInheritedAttributes()
         table = table or inattr.get('table')
         tblobj = self.db.table(table)
-        frameCode = frameCode or 'thg_%s' %table.replace('.','_')
         datapath = datapath or '.%s' %frameCode
         linkedNode = None
         if not (where or condition or condition_kwargs):
             linkedTo = linkedTo or inattr.get('frameCode')
+            frameCode = frameCode or '%s_groupedView' %linkedTo 
             if not linkedTo:
                 raise self.exception('generic',msg='Missing condition or where in groupByTableHandler')
             linkedNode = self.pageSource().findNodeByAttr('frameCode',linkedTo)
@@ -51,7 +51,7 @@ class TableHandlerGroupBy(BaseComponent):
             if not struct:
                 struct = self._th_hook('groupedStruct',mangler=linkedTo,defaultCb=self._thg_defaultstruct)
                 pane.data('%s.grid.showCounterCol' %datapath,True)
-            
+        frameCode = frameCode or 'thg_%s' %table.replace('.','_')
         sc = pane.stackContainer(datapath=datapath,_class='group_by_th',selectedPage='^.group_mode',**kwargs)  
         frame = sc.frameGrid(frameCode=frameCode,grid_onDroppedColumn="""
                                     if('RNLIF'.indexOf(data.dtype)<0){
@@ -94,7 +94,7 @@ class TableHandlerGroupBy(BaseComponent):
         frame.dataRemote('.grid.structMenuBag',self.th_menuViews,currentView="=.grid.currViewPath",
                         table=table,th_root=frameCode,favoriteViewPath='=.grid.favoriteViewPath',
                         cacheTime=30)
-        frame.grid.viewConfigurator(table,queryLimit=False)
+        frame.viewConfigurator(table,queryLimit=False)
         frame.grid.selectionStore(table=table,where=where,selectmethod=self._thg_selectgroupby,
                                 childname='store',struct='=.grid.struct',
                                 groupByStore=True,
