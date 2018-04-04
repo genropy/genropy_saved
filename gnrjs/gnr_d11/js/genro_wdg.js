@@ -501,11 +501,6 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         this.doMixin(newobj, handler, tag, sourceNode);
         return newobj;
     },
-   //wdgIsSelect: function(sourceNode) {
-   //    if (sourceNode) { // tooltip and others are widgets w/o sourcenode
-   //        return (sourceNode.attr.tag.toLowerCase() in {'dbselect':null,'filteringselect':null});
-   //    }
-   //},
     setIsValidMethod:function(obj) {
         if (obj.isValid) {
             obj.isValid = function(isFocused) {
@@ -1575,7 +1570,7 @@ dojo.declare("gnr.GridEditor", null, {
         var editWidgetNode = this.widgetRootNode._value.getNode('cellWidget');
         var that = this;
         editWidgetNode.watch('waiting_rpc',function(){
-            return !editWidgetNode._waiting_rpc;
+            return !(editWidgetNode._waiting_rpc || editWidgetNode._exitValidation);
         },function(){
             var h = editWidgetNode.widget || editWidgetNode.gnrwdg || editWidgetNode.domNode;
             h.gnr.cell_onDestroying(editWidgetNode,that,editingInfo);

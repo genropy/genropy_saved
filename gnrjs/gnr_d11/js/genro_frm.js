@@ -1952,7 +1952,11 @@ dojo.declare("gnr.GnrValidator", null, {
             }
         }
         if (func) {
-            genro.callAfter(dojo.hitch(sourceNode, func, result['value'], result, validations, sourceNode.editedRowIndex, userChange), 1);
+            sourceNode._exitValidation = true;
+            genro.callAfter(function(){
+                func.call(sourceNode,result['value'], result, validations, sourceNode.editedRowIndex, userChange);
+                delete sourceNode._exitValidation;
+            }, 1);
         }
     },
     validate_notnull: function(param, value) {

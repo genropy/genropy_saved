@@ -3944,12 +3944,15 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
         if (!item.attr.caption) {
             return;
         }
+        if(priorityChange && !this.item){
+            this.item = item;
+        }
         if (this.sourceNode.editedRowIndex!=null && priorityChange) {
             this._updateSelect(item);
-            if (priorityChange) {
+            //if (priorityChange) {
                 //this.cellNext = 'RIGHT';
                 //this.onBlur();
-            }
+            //}
         }
         else {
             if (priorityChange) {
