@@ -57,7 +57,7 @@ class TableHandlerStats(BaseComponent):
         relatedTable = inattr.get('table')
         relatedTableHandlerFrameCode = inattr.get('frameCode') if not (relation_value or condition) else None
         table = table or relatedTable
-        nodeId = nodeId or 'th_stats_%s' %table.replace('.','_')
+        nodeId = nodeId or '%s_pivotHandler' %relatedTableHandlerFrameCode if relatedTableHandlerFrameCode else 'th_stats_%s' %table.replace('.','_')
         bc = pane.borderContainer(datapath='.%s' %nodeId,_anchor=True,**kwargs)
         bc.child('_tableHandlerStatsLayout',region='center',
                             table=table,nodeId=nodeId,
