@@ -40,7 +40,10 @@ class GnrCustomWebPage(object):
         fb.dropUploader(label='Drop the file to import here',width='300px',onUploadedMethod=self.testUpl,
                         onResult="console.log('finito',evt)",progressBar=True)
 
-        #fb.fileInputBlind(value='^.fileInputBlind',lbl='Import file')
+
+    def test_3_fileinput(self,pane):
+        fb = pane.formbuilder()
+        fb.fileInputBlind(value='^.fileInputBlind',lbl='Import file')
 
     @public_method
     def testUpl(*args,**kwargs):

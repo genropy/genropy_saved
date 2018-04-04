@@ -129,16 +129,16 @@ class GnrSimplePage(GnrWebPage):
             self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
 
 
-    #overriden methods
-    def unfreezeSelection(self, dbtable=None, name=None, page_id=None):
-        print 'FAKE UNFREEZING'
-        return self.freezedSelections.get(name)
+   ##overriden methods
+   #def _unfreezeSelection(self, dbtable=None, name=None, page_id=None):
+   #    print 'FAKE UNFREEZING'
+   #    return self.freezedSelections.get(name)
 
-    def freezeSelection(self,selection,selectionName,**kwargs):
-        print 'FAKE FREEZING'
-        self.freezedSelections[selectionName] = selection
+   #def _freezeSelection(self,selection,selectionName,**kwargs):
+   #    print 'FAKE FREEZING'
+   #    self.freezedSelections[selectionName] = selection
 
-    def freezeSelectionUpdate(self,selection):
-        print 'FAKE FREEZING UPDATE'
+   #def _freezeSelectionUpdate(self,selection):
+   #    print 'FAKE FREEZING UPDATE'
 
 

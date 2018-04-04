@@ -1,6 +1,6 @@
 var THPicker = {
 
-    onDropElement:function(sourceNode,data,mainpkey,rpcmethod,treepicker,tbl,one,many,grid,defaults){
+    onDropElement:function(sourceNode,data,mainpkey,rpcmethod,treepicker,tbl,one,many,grid,defaults,nodup){
         var kw = {dropPkey:mainpkey,tbl:tbl,one:one,many:many};
         var cbdef = function(destrow,sourcerow,d){
             var l = d.split(':');
@@ -31,6 +31,13 @@ var THPicker = {
             kw.dragPkeys = pkeys;
             kw.dragDefaults = dragDefaults;
         }
+        if(grid && nodup){
+            var exclude_values = grid.getColumnValues(many);
+            kw.dragPkeys = kw.dragPkeys.filter(function(fkey){
+                return exclude_values.indexOf(fkey)<0;
+            });
+        }
+
         kw['_sourceNode'] = sourceNode;
         if(grid.gridEditor && grid.gridEditor.editorPars){
             var rows = [];

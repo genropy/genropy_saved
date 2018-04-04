@@ -24,10 +24,12 @@ class Form(BaseComponent):
     py_requires="gnrcomponents/dashboard_component/dashboard_component:DashboardGallery"
     def th_form(self, form):
         bc = form.center.borderContainer()
-        fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=3, border_spacing='4px')
-        fb.field('pkgid')
-        fb.field('code')
-        fb.field('description')        
+        fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=2, border_spacing='4px')
+        fb.field('pkgid',validate_notnull=True,
+                    tag='filteringSelect',
+                    values=','.join(self.db.application.packages.keys()))
+        fb.field('code',validate_notnull=True)
+        fb.field('description',colspan=2,width='100%')        
         bc.dashboardViewer(datapath='#FORM.dashboardEditor',
                             storepath='#FORM.record.data',edit=True,
                             region='center')

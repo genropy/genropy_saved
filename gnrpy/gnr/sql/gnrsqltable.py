@@ -214,7 +214,7 @@ class SqlTable(GnrObject):
         self.fullname = tblobj.fullname
         self.name_long = tblobj.name_long
         self.name_plural = tblobj.name_plural
-        self.user_config = {}
+        self._user_config = {}
         self._lock = threading.RLock()
         if tblobj.attributes.get('hierarchical'):
             self.hierarchicalHandler = HierarchicalHandler(self)
@@ -300,8 +300,19 @@ class SqlTable(GnrObject):
             result['table'] = col.relatedColumn().table.fullname
         return result
 
-    def clearUserConfiguration(self):
-        self.user_config = {}
+    @property
+    def user_config(self):
+        uc = self._user_config
+        if not uc:
+            self._user_config = {'ts':datetime.now(),'config':{}}
+        else:
+            expirebag = self.db.currentEnv.get('_user_conf_expirebag')
+            if expirebag:
+                exp_ts = expirebag[self.fullname] or expirebag['%s.*' %self.pkg.name] or expirebag['*']
+                if exp_ts and exp_ts> uc['ts']:
+                    self._user_config = {'ts':datetime.now(),'config':{}}
+        return self._user_config['config']
+        
 
     def getUserConfiguration(self,user_group=None,user=None):
         user_config = self.user_config.get((user_group,user))
@@ -445,7 +456,7 @@ class SqlTable(GnrObject):
                 if (v is None) or (v == null) or v=='':
                     record[k] = None
                 elif dtype in ['T', 'A', 'C'] and not isinstance(v, basestring):
-                    record[k] = str(v)
+                    record[k] = str(v if not isinstance(v,float) else int(v))
                 elif dtype == 'B' and not isinstance(v, basestring):
                     record[k] = bool(v)
                 else:
@@ -2110,6 +2121,13 @@ class SqlTable(GnrObject):
 
     def setQueryCondition(self,condition_name,condition):
         self.db.currentEnv['env_%s_condition_%s' %(self.fullname.replace('.','_'),condition_name)] = condition
-                    
+    
+    def updateTotalizers(self,record=None,old_record=None,_raw=None,_ignore_totalizer=None,**kwargs):
+        if _raw and _ignore_totalizer:
+            return
+        totalizers = dictExtract(self.attributes,'totalizer_')
+        for tbl in totalizers.values():
+            self.db.table(tbl).tt_totalize(record=record,old_record=old_record)
+            
 if __name__ == '__main__':
     pass

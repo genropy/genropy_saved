@@ -18,7 +18,7 @@ import locale
 
 from time import time
 from collections import defaultdict
-from gnr.core.gnrlang import deprecated,GnrException,tracebackBag
+from gnr.core.gnrlang import deprecated,GnrException,GnrDebugException,tracebackBag
 from gnr.core.gnrdecorator import public_method
 from gnr.app.gnrconfig import getGnrConfig
 from threading import RLock
@@ -38,7 +38,6 @@ from gnr.web.services.gnrmail import WebMailHandler
 
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
-from gnr.web.gnrwsgisite_proxy.gnrcommandhandler import CommandHandler
 
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import SiteRegisterClient
 from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import WsgiWebSocketHandler
@@ -51,7 +50,6 @@ try:
 except:
     UWSGIMODE = False
 mimetypes.init()
-site_cache = {}
 
 OP_TO_LOG = {'x': 'y'}
 
@@ -261,7 +259,6 @@ class GnrWsgiSite(object):
         self.print_handler = self.addService(PrintHandler, service_name='print')
         self.mail_handler = self.addService(WebMailHandler, service_name='mail')
         self.task_handler = self.addService(TaskHandler, service_name='task')
-        self.process_cmd = CommandHandler(self)
         self.register
         self.services.addSiteServices()
         
@@ -315,7 +312,7 @@ class GnrWsgiSite(object):
                     for k,v in attr.items():
                         self.extraFeatures['%s_%s' %(n.label,k)] = v
 
-    def addService(self, service_handler, service_name=None, **kwargs):
+    def addService(self, service_handler, service_name=None,**kwargs):
         """TODO
         
         :param service_handler: TODO
@@ -425,9 +422,14 @@ class GnrWsgiSite(object):
 
     def on_reloader_restart(self):
         """TODO"""
-        pass
+        self.register.on_reloader_restart()
         #self.shared_data.dump()
         
+    def on_site_stop(self):
+        """TODO"""
+        self.register.on_site_stop()
+    
+
     def initializePackages(self):
         """TODO"""
         self.gnrapp.pkgBroadcast('onSiteInited')
@@ -672,6 +674,15 @@ class GnrWsgiSite(object):
         else:
             return self.serve_htmlPage('html_pages/maintenance.html', environ, start_response)
         
+    @property
+    def external_host(self):
+        return self.currentPage.external_host if (self.currentPage and hasattr(self.currentPage,'request')) else self.configurationItem('wsgi?external_host',mandatory=True) 
+
+    def configurationItem(self,path,mandatory=False):
+        result = self.config[path] 
+        if mandatory and result is None:
+            print 'Missing mandatory configuration item: %s' %path
+        return result
 
     def _dispatcher(self, environ, start_response):
         """Main :ref:`wsgi` dispatcher, calls serve_staticfile for static files and
@@ -683,10 +694,8 @@ class GnrWsgiSite(object):
         t = time()
         request = self.currentRequest
         response = Response()
-        self.external_host = self.config['wsgi?external_host'] or request.host_url
         # Url parsing start
         path_list = self.get_path_list(request.path_info)
-        self.process_cmd.getPending()
         expiredConnections = self.register.cleanup()
         if expiredConnections:
             self.connectionLog('close',expiredConnections)
@@ -733,6 +742,8 @@ class GnrWsgiSite(object):
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='STATIC')
             try:
                 return self.statics.static_dispatcher(path_list, environ, start_response, **request_kwargs)
+            except GnrDebugException,exc:
+                raise
             except Exception, exc:
                 return self.not_found_exception(environ,start_response)
         else:
@@ -772,6 +783,7 @@ class GnrWsgiSite(object):
             response = self.setResultInResponse(result, response, info_GnrTime=time() - t,info_GnrSqlTime=page.sql_time,info_GnrSqlCount=page.sql_count,
                                                                 info_GnrXMLTime=getattr(page,'xml_deltatime',None),info_GnrXMLSize=getattr(page,'xml_size',None),
                                                                 info_GnrSiteMaintenance=self.currentMaintenance,
+                                                                forced_headers=page.getForcedHeaders(),
                                                                 mimetype=getattr(page,'forced_mimetype',None))
             
             return response(environ, start_response)
@@ -813,12 +825,15 @@ class GnrWsgiSite(object):
         
 
     @extract_kwargs(info=True)
-    def setResultInResponse(self, result, response,info_kwargs=None,**kwargs):
+    def setResultInResponse(self, result, response,info_kwargs=None,forced_headers=None,**kwargs):
         """TODO
         
         :param result: TODO
         :param response: TODO
         :param totaltime: TODO"""
+        if forced_headers:
+            for k,v in forced_headers.items():
+                response.headers[k] = str(v)
         for k,v in info_kwargs.items():
             if v is not None:
                 response.headers['X-%s' %k] = str(v)
@@ -1342,8 +1357,12 @@ class GnrWsgiSite(object):
         
         zipresult = open(zipPath, 'wb')
         zip_archive = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED,allowZip64=True)
-        for fname in file_list:
-            zip_archive.write(fname, os.path.basename(fname))
+        for fpath in file_list:
+            if isinstance(fpath,tuple):
+                fpath,newname = fpath
+            else:
+                newname = os.path.basename(fpath)
+            zip_archive.write(fpath, newname)
         zip_archive.close()
         zipresult.close()
 
@@ -1355,13 +1374,14 @@ class GnrWsgiSite(object):
         #path = os.path.join(self.homeUrl(), path)
         if path == '': 
             path = self.home_uri
-        cr = self.currentRequest
-        path = cr.relative_url(path)
+        f =  '{}{}' if path.startswith('/') else '{}/{}'
+        path = f.format(self.external_host,path)
         if serveAsLocalhost:
-            path = path.replace(cr.host.replace(':%s'%cr.host_port,''),'localhost')
+            protocol, _, domain = self.external_host.rpartition('://')
+            host, _, port = domain.partition(':')
+            path = path.replace(host,'localhost')
         if params:
             path = '%s?%s' % (path, params)
-
         if _link:
             return '<a href="%s" target="_blank">%s</a>' %(path,_link if _link is not True else '')
         return path

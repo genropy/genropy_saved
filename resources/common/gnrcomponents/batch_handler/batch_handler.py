@@ -8,6 +8,7 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method,customizable
 from gnr.core.gnrlang import gnrImport, objectExtract
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrstring import boolean
 
 class BatchMonitor(BaseComponent):
     js_requires = 'gnrcomponents/batch_handler/batch_handler'
@@ -188,6 +189,11 @@ class TableScriptHandler(BaseComponent):
             hasParameters=hasParameters,hasOptions=hasOptions)
 
     @public_method
+    def table_script_daemon_run(self, **kwargs):
+        self.site.register.table_script_put(page_id=self.page_id, batch_kwargs=kwargs)
+        
+
+    @public_method
     def table_script_run(self, table=None, resource=None, res_type=None, selectionName=None, selectedPkeys=None,selectionFilterCb=None,
                              sortBy=None,
                              selectedRowidx=None,
@@ -268,8 +274,12 @@ class TableScriptRunner(TableScriptHandler):
                                        SET .extra_parameters = extra_parameters.len()==0?null: extra_parameters;
                                        FIRE .build_pars_dialog;
                                     """, subscribe_table_script_run=True)
-
-        plugin_main.dataRpc('dummy', self.table_script_run,
+        batch_pars = self.site.config.getAttr('batch_processes')
+        if batch_pars and not boolean(batch_pars.get('disabled')):
+            table_script_run = self.table_script_daemon_run
+        else:
+            table_script_run = self.table_script_run
+        plugin_main.dataRpc('dummy', table_script_run,
                             _fired='^.run',
                             _onCalling='=.onCalling',
                             _onResult="""

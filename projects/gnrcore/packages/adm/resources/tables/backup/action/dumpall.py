@@ -25,12 +25,15 @@ class Main(BaseResourceBatch):
     def pre_process(self):
         self.dumpfolder = self.page.getPreference(path='backups.backup_folder',pkg='adm') or 'site:maintenance'
         dumpfolderpath = self.page.site.getStaticPath(self.dumpfolder,'backups',autocreate=-1)
+        
         self.max_copies = self.page.getPreference(path='backups.max_copies',pkg='adm') or 10
         self.ts_start = datetime.datetime.now()
         self.dump_name = self.batch_parameters['name'] or '%s_%04i%02i%02i_%02i%02i' %(self.db.dbname,self.ts_start.year,self.ts_start.month,
                                                                                 self.ts_start.day,self.ts_start.hour,self.ts_start.minute)
         self.folderpath = os.path.join(dumpfolderpath,self.dump_name)
-
+        
+        if os.path.exists(self.folderpath):
+            shutil.rmtree(self.folderpath)
         #self.folderurl = self.page.site.getStaticUrl(self.dumpfolder,'backups',self.dump_name)
         os.makedirs(self.folderpath)
         self.filelist = []
@@ -40,17 +43,24 @@ class Main(BaseResourceBatch):
 
     def step_dumpmain(self):
         """Dump main db"""
-        fname = os.path.join(self.folderpath,'mainstore')
-        self.filelist.append(fname)
-        self.db.dump(fname,extras=self.getExcluded())
+        self.filelist.append(self.db.dump(os.path.join(self.folderpath,'mainstore'),extras=self.getExcluded()))
+        
 
     def step_dumpaux(self):
         """Dump aux db"""
-        for s in self.btc.thermo_wrapper(self.db.stores_handler.dbstores.keys(),line_code='dbl',message=lambda item, k, m, **kwargs: 'Dumping %s' %item):
+        checkedDbstores = self.batch_parameters.get('checkedDbstores')
+        checkedDbstores = checkedDbstores.split(',') if checkedDbstores else self.db.stores_handler.dbstores.keys()
+        dbstoreconf = Bag()
+        dbstorefolder = os.path.join(self.db.application.instanceFolder, 'dbstores')
+        for s in self.btc.thermo_wrapper(checkedDbstores,line_code='dbl',message=lambda item, k, m, **kwargs: 'Dumping %s' %item):
             with self.db.tempEnv(storename=s):
-                fname = os.path.join(self.folderpath,s)
-                self.filelist.append(fname)
-                self.db.dump(fname,dbname=self.db.stores_handler.dbstores[s]['database'],extras=self.getExcluded())
+                self.filelist.append(self.db.dump(os.path.join(self.folderpath,s),
+                                    dbname=self.db.stores_handler.dbstores[s]['database'],
+                                    extras=self.getExcluded()))
+                dbstoreconf[s] = Bag(os.path.join(dbstorefolder,'%s.xml' %s))
+        confpath = os.path.join(self.folderpath,'_dbstores.xml')
+        dbstoreconf.toXml(confpath)
+        self.filelist.append(confpath)
 
     def getExcluded(self):
         checked = self.batch_parameters['dumppackages'].split(',')
@@ -85,7 +95,16 @@ class Main(BaseResourceBatch):
         return 'Dump complete', resultAttr
 
     def table_script_parameters_pane(self, pane, **kwargs):
-        fb = pane.div(padding='10px').formbuilder(cols=1,border_spacing='3px')
+        dbstores = self.db.dbstores
+        if dbstores:
+            bc = pane.borderContainer(height='500px',width='700px')
+            pane = bc.contentPane(region='top')
+            tc = bc.tabContainer(region='center')
+            pkgpane = tc.contentPane(title='Packages')
+            storespane = tc.contentPane(title='Stores',_workspace=True)
+        else:
+            pkgpane = pane
+        fb = pane.div(padding='10px').formbuilder(cols=1,border_spacing='3px',nodeId='dump_pars')
         fb.textbox(value='^.name',lbl='!!Backup name')
         values = []
         defaultchecked = []
@@ -94,7 +113,24 @@ class Main(BaseResourceBatch):
                 defaultchecked.append(k)
             values.append('%s:%s,/' %(k,v.attributes.get('name_long',k)))
         fb.data('.dumppackages',','.join(defaultchecked))
+        fb = pkgpane.div(padding='10px').formbuilder(cols=1,border_spacing='3px')
         fb.checkBoxText(value='^.dumppackages',values=','.join(values))
+        def _dbstorestruct(struct):
+            r=struct.view().rows()
+            r.checkboxcolumn(checkedId='#dump_pars.checkedDbstores',checkedField='dbstore',name='C.')
+            r.cell('dbstore',name='Db Store',width='30em')
+        if dbstores:
+            self.mixinComponent('gnrcomponents/framegrid:FrameGrid')
+            dbstorebag = Bag()
+            for s in dbstores:
+                dbstorebag.setItem(s,None,dbstore=s,_checked=False)
+            fg = storespane.bagGrid(frameCode='dbstoregrid',struct=_dbstorestruct,
+                            datapath='#WORKSPACE.dbstores',storepath='#WORKSPACE.store',datamode='attr')
+            fg.data('#WORKSPACE._loadedstore',dbstorebag)
+            fg.dataFormula('#WORKSPACE.store','loadedstore',loadedstore='=#WORKSPACE._loadedstore',_onBuilt=True)
+            fg.top.bar.replaceSlots('#','*,searchOn,5')
+
+    
 
 
 

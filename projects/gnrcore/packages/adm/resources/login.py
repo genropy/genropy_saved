@@ -93,8 +93,10 @@ class LoginComponent(BaseComponent):
             pane.dataController("""
                             var href = window.location.href;
                             if(window.location.search){
-                                href = href.replace(window.location.search,'');
-                                window.history.replaceState({},document.title,href);
+                                var urlParsed = parseURL(window.location.href);
+                                objectPop(urlParsed.params,'gnrtoken');                                
+                                window.history.replaceState({},document.title,serializeURL(urlParsed));
+
                             }
                             if(new_password){
                                 if(valid_token){

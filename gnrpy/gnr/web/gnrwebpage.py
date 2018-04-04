@@ -269,6 +269,7 @@ class GnrWebPage(GnrBaseWebPage):
 
     def _register_new_page(self,page_id=None,kwargs=None,class_info=None,init_info=None):
         if not self.connection.connection_id:
+            self.connection.electron_static = self._call_kwargs.get('_electron_static')
             self.connection.create()
         self.page_id = page_id or getUuid()
         page_info = dict([(k,getattr(self,k,None)) for k in ATTRIBUTES_SIMPLEWEBPAGE])
@@ -381,16 +382,20 @@ class GnrWebPage(GnrBaseWebPage):
     @property
     def modulePath(self):
         return  '%s.py' %os.path.splitext(sys.modules[self.__module__].__file__)[0]
+
+     
         
     @property 
     def db(self):
         if not getattr(self, '_db',None):
             self._db = self.application.db
             self._db.clearCurrentEnv()
+            expirebag = self.globalStore().getItem('tables_user_conf_expire_ts')
+
             self._db.updateEnv(storename=self.dbstore, workdate=self.workdate, locale=self.locale,
                                 maxdate=datetime.date.max,mindate=datetime.date.min,
                                user=self.user, userTags=self.userTags, pagename=self.pagename,
-                               mainpackage=self.mainpackage)
+                               mainpackage=self.mainpackage,_user_conf_expirebag=expirebag)
             avatar = self.avatar
             if avatar:
                 self._db.updateEnv(_excludeNoneValues=True,**self.avatar.extra_kwargs)
@@ -889,13 +894,18 @@ class GnrWebPage(GnrBaseWebPage):
     def getUuid(self):
         """TODO"""
         return getUuid()
+    
+    def getForcedHeaders(self):
+        return {}
         
-    def addHtmlHeader(self, tag, innerHtml='', **kwargs):
+    def addHtmlHeader(self, tag, innerHtml='',attributes=None, **kwargs):
         """TODO
         
         :param tag: TODO
         :param innerHtml: TODO"""
-        attrString = ' '.join(['%s="%s"' % (k, str(v)) for k, v in kwargs.items()])
+        attributes = attributes or dict()
+        attributes.update(kwargs)
+        attrString = ' '.join(['%s="%s"' % (k, str(v)) for k, v in attributes.items()])
         self._htmlHeaders.append('<%s %s>%s</%s>' % (tag, attrString, innerHtml, tag))
         
     def htmlHeaders(self):
@@ -1068,6 +1078,9 @@ class GnrWebPage(GnrBaseWebPage):
             kwargs['isMobile'] = True
         kwargs['deviceScreenSize'] = self.deviceScreenSize
         kwargs['extraFeatures'] = dict(self.extraFeatures)
+        localroot = None
+        if self.connection.electron_static:
+            localroot ='file://%s/app/lib/static/' %self.connection.electron_static
         if getattr(self,'_avoid_module_cache',None):
             kwargs['_avoid_module_cache'] = True
         arg_dict['startArgs'] = toJson(dict([(k,self.catalog.asTypedText(v)) for k,v in kwargs.items()]))
@@ -1076,7 +1089,9 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['gnrModulePath'] = gnrModulePath
         gnrimports = self.frontend.gnrjs_frontend()
         #if _nodebug is False and _clocomp is False and (self.site.debug or self.isDeveloper()):
-        if _nodebug is False and _clocomp is False and (self.isDeveloper()):
+        if localroot:
+            arg_dict['genroJsImport'] = [gnr_static_handler.url(self.gnrjsversion, 'js', '%s.js' % f, _localroot=localroot) for f in gnrimports]
+        elif _nodebug is False and _clocomp is False and (self.isDeveloper()):
             arg_dict['genroJsImport'] = [self.mtimeurl(self.gnrjsversion, 'js', '%s.js' % f) for f in gnrimports]
         elif _clocomp or self.site.config['closure_compiler']:
             jsfiles = [gnr_static_handler.path(self.gnrjsversion, 'js', '%s.js' % f) for f in gnrimports]
@@ -1091,6 +1106,7 @@ class GnrWebPage(GnrBaseWebPage):
                                    if x]
         if self.isMobile:
             arg_dict['js_requires'].append(self.site.getStaticUrl('rsrc:js_libs','hammer.min.js'))
+            arg_dict['js_requires'].append(self.site.getStaticUrl('rsrc:js_libs','DragDropTouch.js'))
         css_path, css_media_path = self.get_css_path()
         arg_dict['css_requires'] = css_path
         arg_dict['css_media_requires'] = css_media_path
@@ -1130,6 +1146,10 @@ class GnrWebPage(GnrBaseWebPage):
             path = '%s?%s' % (path, params)
         return path
         
+    @property
+    def external_host(self):
+        return self.request.host_url if hasattr(self, 'request') else self.site.configurationItem('wsgi?external_host',mandatory=True) 
+
     def externalUrl(self, path, **kwargs):
         """TODO
         
@@ -1200,6 +1220,9 @@ class GnrWebPage(GnrBaseWebPage):
         :param triggered: boolean. TODO"""
         page_id = page_id or self.sourcepage_id or self.page_id
         return self.site.register.pageStore(page_id, triggered=triggered)
+
+    def globalStore(self,triggered=True):
+        return self.site.register.globalStore(triggered=triggered)
         
     def connectionStore(self, connection_id=None, triggered=True):
         """TODO
@@ -1328,8 +1351,7 @@ class GnrWebPage(GnrBaseWebPage):
         self._siteName = siteName
 
     siteName = property(_get_siteName, _set_siteName)
-        
-        
+
     def checkPermission(self, pagepath, relative=True):
         """TODO
         
@@ -1418,6 +1440,7 @@ class GnrWebPage(GnrBaseWebPage):
 
         :param css_requires: the :ref:`"css_requires" webpage variable <css_requires>`"""
         pass
+
 
     def getResourceUri(self, path, ext=None, add_mtime=False, pkg=None):
         """TODO
@@ -1556,7 +1579,8 @@ class GnrWebPage(GnrBaseWebPage):
             result = f.read()
         return result,path
 
-    def getTableResourceContent(self,table=None,path=None,value=None,ext=None):
+    @public_method
+    def getTableResourceContent(self,table=None,path=None,value=None,ext=None,contentOnly=None):
         """TODO
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
@@ -1569,7 +1593,7 @@ class GnrWebPage(GnrBaseWebPage):
         resourceContent,respath = self._getResourceContent(resource='tables/_packages/%s/%s/%s' %(pkg,table,path),pkg=self.package.name,ext=ext)
         if not resourceContent:
             resourceContent,respath = self._getResourceContent(resource='tables/%s/%s' %(table,path),pkg=pkg,ext=ext)
-        return resourceContent,respath
+        return resourceContent if contentOnly else (resourceContent,respath)
         
     def setTableResourceContent(self,table=None,path=None,value=None,ext=None):
         """TODO

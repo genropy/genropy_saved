@@ -1,9 +1,39 @@
 import os
+from datetime import datetime
 
 from gnr.core.gnrbag import Bag,DirectoryResolver
 from gnr.app.gnrapp import GnrApp
 #from gnr.core.gnrlang import gnrImport
 from gnr.core.gnrlang import getUuid
+
+class WebApplicationCache(object):
+    def __init__(self,application=None):
+        self.application = application
+        self.site = application.site
+        self.cache = {}
+
+    def getItem(self,key):
+        item,ts = self.cache.get(key,(None,None))
+        if item is not None:
+            last_cache_ts = self.site.register.globalStore().getItem('CACHE_TS.%s' %key)
+            if last_cache_ts and ts<last_cache_ts:
+                item = None 
+        return item
+
+    def setItem(self,key,value):
+        now = datetime.now()
+        self.cache[key] = (value,now)
+
+    def updatedItem(self,key):
+        with self.site.register.globalStore() as gs:
+            gs.setItem('CACHE_TS.%s' %key,datetime.now())
+    
+    def expiredItem(self,key):
+        item,ts = self.cache.get(key,(None,None))
+        if item is None:
+            return True
+        last_cache_ts = self.site.register.globalStore().getItem('CACHE_TS.%s' %key)
+        return last_cache_ts and ts<last_cache_ts
 
 class GnrWsgiWebApp(GnrApp):
     def __init__(self, *args, **kwargs):
@@ -14,6 +44,7 @@ class GnrWsgiWebApp(GnrApp):
             self.site = None
         self._siteMenuDict = dict()
         super(GnrWsgiWebApp, self).__init__(*args, **kwargs)
+        self.cache = WebApplicationCache(self)
 
     def notifyDbUpdate(self,tblobj,recordOrPkey=None,**kwargs):
         if isinstance(recordOrPkey,list):
@@ -34,7 +65,7 @@ class GnrWsgiWebApp(GnrApp):
         for record in records:
             self.notifyDbEvent(tblobj, record, 'U')
 
-    def notifyDbEvent(self, tblobj, record, event, old_record=None):
+    def notifyDbEvent(self, tblobj, record, event, old_record=None,**kwargs):
         """TODO
         
         :param tblobj: the :ref:`database table <table>` object
@@ -59,12 +90,13 @@ class GnrWsgiWebApp(GnrApp):
                         oldvalue = old_record.get(field)
                         if newvalue!=oldvalue:
                             r['old_%s' %field] = self.catalog.asTypedText(old_record.get(field))
+            r['autoCommit'] = self.db.currentEnv.get('autoCommit')
             dbevents.setdefault(tblobj.fullname,[]).append(r)
         audit_mode = tblobj.attributes.get('audit')
         if audit_mode:
             self.db.table('adm.audit').audit(tblobj,event,audit_mode=audit_mode,record=record, old_record=old_record)
                 
-   
+
     def onDbCommitted(self):
         super(GnrWsgiWebApp, self).onDbCommitted()
         dbeventKey = 'dbevents_%s' %self.db.connectionKey()
@@ -133,7 +165,10 @@ class GnrWsgiWebApp(GnrApp):
 
 
     def checkAllowedIp(self,allowed_ip):
-        "override"
+        if allowed_ip is None:
+            return True
+        if isinstance(allowed_ip,bool):
+            return allowed_ip
         currentPage = self.site.currentPage
         iplist = currentPage.connection.ip.split('.')
         for ip in allowed_ip.split(','):
@@ -211,3 +246,5 @@ class GnrWsgiWebApp(GnrApp):
     @property
     def locale(self):
         return self.site.locale
+
+

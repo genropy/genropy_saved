@@ -501,11 +501,6 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         this.doMixin(newobj, handler, tag, sourceNode);
         return newobj;
     },
-   //wdgIsSelect: function(sourceNode) {
-   //    if (sourceNode) { // tooltip and others are widgets w/o sourcenode
-   //        return (sourceNode.attr.tag.toLowerCase() in {'dbselect':null,'filteringselect':null});
-   //    }
-   //},
     setIsValidMethod:function(obj) {
         if (obj.isValid) {
             obj.isValid = function(isFocused) {
@@ -781,6 +776,13 @@ dojo.declare("gnr.GridEditor", null, {
         }
         this.remoteRowController = sourceNode.attr.remoteRowController;
         this.remoteRowController_default = sourceNode.attr.remoteRowController_default;
+        if(this.remoteRowController_default){
+            var caller_kw = {'script':"this.getParentNode().widget.gridEditor.callRemoteControllerBatch('*')",'_delay':500,
+                            '_userChanges':true};
+            objectUpdate(caller_kw,this.remoteRowController_default);
+            sourceNode._('dataController','remoteRowController_default_caller',caller_kw);
+        }
+        
         this.status = {};
         this.columns = {};
         this.formId = sourceNode.getInheritedAttributes()['formId'];
@@ -1237,7 +1239,8 @@ dojo.declare("gnr.GridEditor", null, {
         result.forEach(function(n){
             that.updateRowFromRemote(n.label,n.getValue());
         },'static');
-        this.updateStatus()
+        this.updateStatus();
+        this.grid.sourceNode.publish('remoteRowControllerDone',{result:result})
         return result
     },
 
@@ -1567,7 +1570,7 @@ dojo.declare("gnr.GridEditor", null, {
         var editWidgetNode = this.widgetRootNode._value.getNode('cellWidget');
         var that = this;
         editWidgetNode.watch('waiting_rpc',function(){
-            return !editWidgetNode._waiting_rpc;
+            return !(editWidgetNode._waiting_rpc || editWidgetNode._exitValidation);
         },function(){
             var h = editWidgetNode.widget || editWidgetNode.gnrwdg || editWidgetNode.domNode;
             h.gnr.cell_onDestroying(editWidgetNode,that,editingInfo);
@@ -1599,6 +1602,10 @@ dojo.declare("gnr.GridEditor", null, {
         if (!(cell.field in this.columns)){return false;}
         if ((cell.classes || '').indexOf('hiddenColumn')>=0){return false}
         this.grid.currRenderedRowIndex = row;
+        var rowdict = this.grid.rowByIndex(row);
+        if(rowdict._is_readonly_row){
+            return false;
+        }
         if(this.grid.sourceNode.currentFromDatasource(cell.editDisabled)){
             return false;
         }else if(clicked){

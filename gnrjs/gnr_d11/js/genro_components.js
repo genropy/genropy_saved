@@ -126,8 +126,8 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
                                         this.widget._openDropDown(kw.domNode);
                                     }
                                 },
-                                selfsubscribe_close:function(){
-                                    if(!onClosing || onClosing(kw.evt,kw.domNode.sourceNode,this._value.getNode('ttd'),kw)!==false){
+                                selfsubscribe_close:function(kw){
+                                    if(!onClosing || onClosing(kw.evt,kw.evt.target.sourceNode,this._value.getNode('ttd'),kw)!==false){
                                         this.widget._closeDropDown();
                                     }
                                 }};
@@ -147,8 +147,8 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
             var wdg = this.widget;
             if(modal){
                 genro.nodeById('_gnrRoot').setHiderLayer(true,{z_index:1000,opacity:kw.hiderOpacity || 0,
-                                                connect_onclick:function(){
-                                                    genro.publish({topic:'close',nodeId:ddbId});
+                                                connect_onclick:function(evt){
+                                                    genro.publish({topic:'close',nodeId:ddbId},{evt:evt});
                                                 }
                                                                 });
             }
@@ -1125,6 +1125,8 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         gnrwdg.errorCb = errorCb? funcCreate(errorCb,'error',sourceNode):null;
         gnrwdg.batchParameters = objectExtract(kw,'batch_*');
         gnrwdg.uploaderId = sourceNode.attr.nodeId +'_uploader';
+        gnrwdg.constant_kwargs = objectExtract(kw,'constant_*',false,true);
+        gnrwdg.sql_mode = objectPop(kw,'sql_mode');
         var palette = sourceNode._('PalettePane',kw);
         var bc = palette._('BorderContainer',{_lazyBuild:true});
         var slots = '2,prevtitle,importselector,*,limit,5';
@@ -1230,7 +1232,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         bar._('div','matchtitle',{innerHTML:'Match columns'});
         bar = frame._('slotBar',{slots:'2,fbbottom,*',side:'bottom',_class:'slotbar_dialog_footer'});
 
-        var fb = genro.dev.formbuilder(bar._('div','fbbottom'),2,{border_spacing:'1px'});
+        var fb = genro.dev.formbuilder(bar._('div','fbbottom'),3,{border_spacing:'1px'});
         fb.addField('filteringSelect',{value:'^.import_method',width:'7em',
                                         lbl_text_align:'right',
                                         lbl_class:'gnrfieldlabel',
@@ -1239,7 +1241,16 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
                                         lbl_hidden:'^.methodlist?=!#v',
                                         hidden:'^.methodlist?=!#v',
                                         parentForm:false});
-        if (this.table){
+        fb.addField('filteringSelect',{value:'^.import_mode',width:'7em',
+                    lbl_text_align:'right',
+                    lbl_class:'gnrfieldlabel',
+                    lbl:_T('Mode'),
+                    lbl_hidden:'^.import_modes?=!#v',
+                    hidden:'^.import_modes?=!#v',
+                    values:'^.import_modes',
+                    parentForm:false});
+
+        if (this.table && !this.sql_mode){
             fb.addField('checkbox',{value:'^.sql_mode',
                                 label:_T('SQL Mode'),parentForm:false});   
         }
@@ -1266,6 +1277,8 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         var uploaderNode = genro.nodeById(this.uploaderId);
         uploaderNode.setRelativeData('.current_title',null);
         uploaderNode.setRelativeData('.methodlist','');
+        uploaderNode.setRelativeData('.import_modes','');
+        uploaderNode.setRelativeData('.import_mode','');
         uploaderNode.setRelativeData('.importing_data',null);
         uploaderNode.setRelativeData('.file_columns',null);
         uploaderNode.setRelativeData('.match',null);
@@ -1295,6 +1308,9 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         this.gridNode.gnrwdg.guessColumns = false;
         var uploaderNode = genro.nodeById(this.uploaderId);
         uploaderNode.setRelativeData('.methodlist',data.getItem('methodlist'));
+        uploaderNode.setRelativeData('.import_modes',data.getItem('import_modes'));
+        uploaderNode.setRelativeData('.import_mode',data.getItem('import_mode'));
+
         uploaderNode.setRelativeData('.importing_data',data.getItem('rows'));
         uploaderNode.setRelativeData('.file_columns',columns);
         uploaderNode.setRelativeData('.match',match_data);
@@ -1330,17 +1346,23 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         }
         var that = this;
         genro.lockScreen(true,'import_data',{thermo:true});
-        genro.serverCall(this.importMethod || 'utils.tableImporterRun',{table:this.table,file_path:'=.imported_file_path',
-                                                    match_index:match_index,
-                                                    import_method:'=.import_method',
-                                                    filetype:'=.filetype',
-                                                    no_trigger:'=.no_trigger',
-                                                    timeout:3600000,
-                                                    _sourceNode:buttonNode},function(result){
-                                                        genro.dlg.floatingMessage(that.rootNode,{message:_T('Import finished')});
-                                                        that.resetImporter();
-                                                        genro.lockScreen(false,'import_data');
-                                                    });
+        var importerKw = {table:this.table,file_path:'=.imported_file_path',
+            match_index:match_index,
+            import_method:'=.import_method',
+            import_mode:'=.import_mode',
+            filetype:'=.filetype',
+            sql_mode:this.sql_mode || '=.sql_mode',
+            timeout:3600000,
+            _sourceNode:buttonNode};
+        if(this.constant_kwargs){
+            objectUpdate(importerKw,this.constant_kwargs);
+        }
+
+        genro.serverCall(this.importMethod || 'utils.tableImporterRun',importerKw,function(result){
+            genro.dlg.floatingMessage(that.rootNode,{message:_T('Import finished')});
+            that.resetImporter();
+            genro.lockScreen(false,'import_data');
+        });
     }
 });
 
@@ -3583,7 +3605,8 @@ dojo.declare("gnr.widgets.DropUploader", gnr.widgets.gnrwdg, {
         var containerKw = objectExtract(kw,'position,top,left,right,bottom,height,width,border,rounded,_class,style')
 
         gnrwdg.pendingHandlers = [];
-        dropAreaKw.connect_ondblclick = function(){
+        var uploadhandler_key = genro.isMobile? 'selfsubscribe_doubletap':'connect_ondblclick'
+        dropAreaKw[uploadhandler_key] = function(){
             if(gnrwdg.pendingHandlers.length){
                 genro.dlg.ask(_T("Abort upload"),
                  _T("Are you sure?"),null,{
@@ -3600,7 +3623,6 @@ dojo.declare("gnr.widgets.DropUploader", gnr.widgets.gnrwdg, {
             }else{
                 gnrwdg.fakeinputNode.domNode.click();
             }
-            
         }
         dropAreaKw.innerHTML = dropAreaKw.innerHTML || label || '&nbsp;';
         var maxsize = objectPop(kw,'maxsize');
@@ -3679,7 +3701,8 @@ dojo.declare("gnr.widgets.DropUploader", gnr.widgets.gnrwdg, {
         dropAreaKw.onDrop = onFiles;
         containerKw._class =containerKw._class ||  'dropUploaderBox' ;
         var container = sourceNode._('div',containerKw);
-        var fakeinput = container._('input',{hidden:true,type:'file',
+        var fakeinput = container._('input',{hidden:true,
+            type:'file',
                 connect_onchange:function(evt){
                     onFiles({evt:evt},evt.target.files);
                     this.domNode.value = null;
@@ -4094,7 +4117,7 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         if((!controllerNodes) || sn._isBuilding){
             return;
         }
-        var paneId = child.sourceNode.getStringId();
+        var paneId = this.getPaneId(child.sourceNode);
         setTimeout(function(){
             dojo.forEach(controllerNodes,function(c){
                 c._value.popNode(paneId);
@@ -4108,7 +4131,7 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         if((!controllerNodes) || sn._isBuilding){
             return;
         }
-        var paneId = child.sourceNode.getStringId();
+        var paneId = this.getPaneId(child.sourceNode);
         dojo.forEach(controllerNodes,function(c){
             genro.dom.setClass(c._value.getNode(paneId),'hidden',value)
         })
@@ -4119,7 +4142,7 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             return;
         }
         var sn = widget.sourceNode;
-        var paneId = child.sourceNode.getStringId();
+        var paneId = this.getPaneId(child.sourceNode);
         var controllerNodes = widget.sourceNode._stackButtonsNodes;
         if((!controllerNodes) || sn._isBuilding){
             return;
@@ -4145,6 +4168,9 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             }
         });
     },
+    getPaneId:function(childSourceNode){
+        return childSourceNode.attr.pageName || childSourceNode.attr.nodeId || childSourceNode.getStringId();
+    },
     makeTabButton:function(sourceNode,childSourceNode,stackNode){
         var widget = childSourceNode.getWidget();
         var childSourceNode = widget.sourceNode;
@@ -4157,7 +4183,7 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             var childattr = childSourceNode.attr;
             var multibutton_kw = objectExtract(childattr,'stackbutton_*');
             var btn_kw = {_class:btn_class,_childSourceNode:childSourceNode};
-            var btn = sourceNode._('div',childSourceNode.getStringId(),btn_kw,{_position:stackbag.len()-stackNode._n_children});
+            var btn = sourceNode._('div',this.getPaneId(childSourceNode),btn_kw,{_position:stackbag.len()-stackNode._n_children});
             var title = childSourceNode.attr.title;
             var iconTitle = childSourceNode.attr.iconTitle;
             if(title && title[0]=='^'){

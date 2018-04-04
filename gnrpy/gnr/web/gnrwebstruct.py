@@ -523,8 +523,21 @@ class GnrDomSrc(GnrStructData):
             kwargs['height'] = '100%'
             kwargs['width'] = '100%'
             kwargs['border'] = 0
-        return self.htmlChild('iframe', childcontent=childcontent, main=main, **kwargs)
+        parent = self
+        if self.page.isMobile:
+            parent = parent.div(_class='scroll-wrapper')
+        return parent.htmlChild('iframe', childcontent=childcontent, main=main, **kwargs)
     
+    def htmliframe(self,**kwargs):
+        """Create an :ref:`iframe` and returns it
+        
+        :param childcontent: the html content
+        :param main: TODO"""
+        parent = self
+        if self.page.isMobile:
+            parent = parent.div(_class='scroll-wrapper')
+        return parent.child('htmliframe', **kwargs)
+
     def htmlform(self,childcontent=None,**kwargs):
         return self.htmlChild('form', childcontent=childcontent, **kwargs)
 

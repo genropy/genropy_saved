@@ -584,9 +584,9 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     _default_ext : 'py,png,jpg,jpeg,gif,html,pdf',
 
     creating:function(attributes, sourceNode) {
-        sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted,documentClasses');
-        objectExtract(attributes,'rpc_*')
-        objectUpdate(sourceNode.savedAttrs,objectExtract(sourceNode.attr,'rpc_*',false,true))
+        sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted,documentClasses,externalSite');
+        objectExtract(attributes,'rpc_*');
+        objectUpdate(sourceNode.savedAttrs,objectExtract(sourceNode.attr,'rpc_*',false,true));
 
         var condFunc = objectPop(attributes, 'condition_function');
         var condValue = objectPop(attributes, 'condition_value');
@@ -704,7 +704,9 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         var main_kwargs = objectExtract(attributes,'main_*') || {};
         var src_kwargs = objectExtract(attributes,'src_*') || {};
         objectUpdate(src_kwargs,main_kwargs);
-        src_kwargs['_calling_page_id'] = genro.page_id;
+        if(!sourceNode.savedAttrs.externalSite){
+            src_kwargs['_calling_page_id'] = genro.page_id;
+        }
         if (attributes._if && !sourceNode.getAttributeFromDatasource('_if')) {
             var v = '';
         } else if (sourceNode.condition_function && !sourceNode.condition_function(sourceNode.condition_value)) {
@@ -727,6 +729,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             }
             src_kwargs = sourceNode.evaluateOnNode(src_kwargs);
             v = genro.addParamsToUrl(v,src_kwargs);   
+            v = genro.dom.detectPdfViewer(v,sourceNode.attr.jsPdfViewer);
             var doset = this.initContentHtml(domnode,v);
             if (doset){
                 sourceNode.currentSetTimeout = setTimeout(function(d, url) {
@@ -3941,12 +3944,15 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
         if (!item.attr.caption) {
             return;
         }
+        if(priorityChange && !this.item){
+            this.item = item;
+        }
         if (this.sourceNode.editedRowIndex!=null && priorityChange) {
             this._updateSelect(item);
-            if (priorityChange) {
+            //if (priorityChange) {
                 //this.cellNext = 'RIGHT';
                 //this.onBlur();
-            }
+            //}
         }
         else {
             if (priorityChange) {
@@ -4473,7 +4479,8 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
                         this.domNode.value = null;
                     }
                 });
-                attr.connect_ondblclick = function(){
+                var uploadhandler_key = genro.isMobile? 'selfsubscribe_doubletap':'connect_ondblclick';
+                attr[uploadhandler_key] = function(){
                     this.getValue().getNode('fakeinput').domNode.click();
                 };
                  attr.onDrop_dataUrl = function(dropInfo,data){

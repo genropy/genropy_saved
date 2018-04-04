@@ -409,7 +409,8 @@ class TableHandlerHierarchicalView(BaseComponent):
             """,dropTarget=True,**{'onDrop_%s' %dragCode:"""
                 genro.serverCall("ht_removeAliasRows",{aliastable:"%s",dragtable:'%s',fkeys:data.alias_pkeys});
             """ %(relation_table,dragTable)})
-        gridattr.update(onDrag="""  if(!dragValues.gridrow){return;}
+        gridattr.update(draggable_row=True,
+                        onDrag="""  if(!dragValues.gridrow){return;}
                                     var sourceNode = dragInfo.sourceNode;
                                     var curr_hfkey = sourceNode._curr_hfkey;
                                     var alt_relations = objectUpdate({},sourceNode.attr._th_alt_relations);

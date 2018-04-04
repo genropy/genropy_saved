@@ -2,6 +2,7 @@
 from __future__ import with_statement
 from gnr.core.gnrbag import Bag
 from gnr.sql.gnrsql_exceptions import RecordNotExistingError
+from datetime import datetime
 
 MAIN_PREFERENCE = '_mainpref_'
 
@@ -17,27 +18,42 @@ class Table(object):
 
         # and <your_package>.setPreference() to get and set preferences.
 
+
+    def getMainStorePreference(self):
+        result = self.db.application.cache.getItem(MAIN_PREFERENCE)
+        if not result:
+            result = self.loadPreference()['data']
+            self.db.application.cache.setItem(MAIN_PREFERENCE, result)
+        return result.deepcopy()
+    
+    def getStorePreferences(self):
+        storename = self.db.currentEnv.get('storename')
+        pref_cache_key = '_storepref_%s' %storename
+        preference = None
+        if not self.db.application.cache.expiredItem(MAIN_PREFERENCE):
+            preference = self.db.application.cache.getItem(pref_cache_key)
+        if not preference:
+            preference = self.getMainStorePreference()
+            store_preference =  self.db.package('multidb').getStorePreference()
+            for pkgid,pkgobj in self.db.application.packages.items():
+                if pkgobj.attributes.get('multidb_pref'):
+                    preference[pkgid] = store_preference[pkgid] or Bag()
+            self.db.application.cache.setItem(pref_cache_key,preference)
+        return preference.deepcopy()
+
     def getPreference(self, path, pkg=None, dflt=None):
-        result = self.db.application.cache.get(MAIN_PREFERENCE)
-        if result is None:
-            result = self.loadPreference()
-            self.db.application.cache[MAIN_PREFERENCE] = result
-        result = result.deepcopy()
-        # NOTE: due to the way bags work,
-        #       'data.%(path)s' will be used if pkg is ''
-        # 
-        result = result['data'] or Bag()
+        prefdata = self.getStorePreferences() if self.db.package('multidb') and not self.db.usingRootstore() else self.getMainStorePreference()
         if path=='*':
             path = None
             pkg = None
         if pkg:
-            result = result[pkg] or Bag()
+            prefdata = prefdata[pkg] or Bag()
         if not path:
-            return result
+            return prefdata
         if path:
-            result = result[path]
-        return  dflt if result is None else result
-
+            prefdata = prefdata[path]
+        return  dflt if prefdata is None else prefdata    
+  
     def envPreferences(self,username=None):
         preferences = self.getPreference('*') or dict()
         if username:
@@ -55,12 +71,20 @@ class Table(object):
                     pkgpref.setAttr(k,dbenv=v)
         return preferences.filter(lambda n: n.attr.get('dbenv')) if preferences else None
 
+    def initPkgPref(self,pkg=None,pkgpref=None):
+        if self.db.usingRootstore() or not self.db.application.packages[pkg].attributes.get('multidb_pref'):
+            self.setPreference(pkg=pkg,value=pkgpref) 
+        else:
+            self.db.package('multidb').setStorePreference(pkg=pkg,value=pkgpref)
 
-
-    def setPreference(self, path, value, pkg='',_attributes=None,**kwargs):
-        record = self.loadPreference(for_update=True)
-        record.setItem('data.%s.%s' % (pkg, path), value,_attributes=_attributes,**kwargs)
-        self.savePreference(record)
+    def setPreference(self, path=None, value=None, pkg='',_attributes=None,**kwargs):
+        with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
+            with self.recordToUpdate(MAIN_PREFERENCE) as record:
+                l = ['data',pkg]
+                if path:
+                    l.append(path)
+                record.setItem('.'.join(l), value,_attributes=_attributes,**kwargs)
+            self.db.commit()
 
     def loadPreference(self, pkey=MAIN_PREFERENCE, for_update=False):
         with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
@@ -70,14 +94,11 @@ class Table(object):
                 record = self.newrecord(code=pkey, data=Bag())
         return record
 
-    def savePreference(self, record):
-        with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
-            self.insertOrUpdate(record)
+    def trigger_onUpdated(self,record=None,old_record=None):
+        if self.fieldsChanged('data',record,old_record):
             self.db.application.pkgBroadcast('onSavedPreferences',preferences=record['data'])
-            self.db.commit()
-        site = getattr(self.db.application,'site',None)
-        if site:
-            site.process_cmd.clearApplicationCache(MAIN_PREFERENCE)
-
-
-
+            self.db.application.cache.updatedItem(MAIN_PREFERENCE)
+            site = getattr(self.db.application,'site',None)
+            if site and site.currentPage:
+                site.currentPage.setInClientData('gnr.serverEvent.refreshNode', value='gnr.app_preference', filters='*',
+                             fired=True, public=True)

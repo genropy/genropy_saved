@@ -140,20 +140,16 @@ slot_caption{
 }
 
 .channel_free{
-    background:#999;
+    border-radius: 4px;
+    background: #C3DFFF;
 }
 
 .dayview .channel_free{
-    background:transparent;
-}
-.channel_busy{
-    border-bottom:1px solid #999; 
+    border-radius: 4px;
 }
 
 .dayview .channel_busy{
-    border-bottom:1px solid white;
-    border-top:1px solid white;
-    line-height: 20px;
+    line-height: 11px;
     color:white;
     text-align: center;
 }
@@ -165,4 +161,10 @@ slot_caption{
     color:white;
     text-align: center;
     font-size:14px;
+}
+
+.tw_monthday{
+    color:#444;
+    font-size: 12px;
+    font-weight: bold;
 }

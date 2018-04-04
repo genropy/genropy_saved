@@ -83,6 +83,15 @@ class GnrSqlExecException(GnrSqlException):
     code = 'GNRSQL-002'
     description = '!!Genro SQL execution exception'
     
+class GnrMissedCommitException(GnrException):
+    """Standard Gnr Sql Base Exception
+    
+    * **code**: GNRSQL-001
+    * **description**: Genro SQL Base Exception
+    """
+    code = 'GNRSQL-099'
+    description = '!!Genro Missed commit exception'
+
 class GnrSqlDb(GnrObject):
     """This is the main class of the gnrsql module.
     
@@ -130,6 +139,11 @@ class GnrSqlDb(GnrObject):
         self.started = False
         self._currentEnv = {}
         self.stores_handler = DbStoresHandler(self)
+        self.exceptions = {
+            'base':GnrSqlException,
+            'exec':GnrSqlExecException,
+            'missedCommit':GnrMissedCommitException
+        }
 
     #-----------------------Configure and Startup-----------------------------
 
@@ -180,22 +194,35 @@ class GnrSqlDb(GnrObject):
             myzip =  ZipFile(path, 'r')
             myzip.extractall(extractpath)
             destroyFolder = True
-        mainstorefile = os.path.join(extractpath,'mainstore')
-
+        stores = {}
+        for f in os.listdir(extractpath):
+            if f.startswith('.'):
+                continue
+            dbname = os.path.splitext(f)[0]
+            stores[dbname] = os.path.join(extractpath,f)
+        dbstoreconfig = Bag(stores.pop('_dbstores'))
+        mainfilepath = stores.pop('mainstore',None)
         for s in self.stores_handler.dbstores.keys():
             self.stores_handler.drop_store(s)
-        self.dropDb(self.dbname)
-        self.createDb(self.dbname)
-        self.restore(mainstorefile,sqltextCb=sqltextCb,onRestored=onRestored)
-        auxstoresfiles = [f for f in os.listdir(extractpath) if not f.startswith('.') and f!='mainstore']
-        for f in auxstoresfiles:
-            dbname= '%s_%s' %(self.dbname,f)
-            self.createDb(dbname)
-            self.restore(os.path.join(extractpath,f),dbname=dbname,sqltextCb=sqltextCb,onRestored=onRestored)
-            self.stores_handler.add_dbstore_config(f,dbname=dbname,save=False)
+        if mainfilepath:
+            self._autoRestore_one(dbname=self.dbname,filepath=mainfilepath,sqltextCb=sqltextCb,onRestored=onRestored)
+        for storename,filepath in stores.items():
+            conf = dbstoreconfig.getItem(storename)
+            dbattr = conf.getAttr('db')
+            dbname = dbattr.pop('dbname')
+            self._autoRestore_one(dbname=dbname,filepath=filepath,sqltextCb=sqltextCb,onRestored=onRestored)
+            self.stores_handler.add_dbstore_config(storename,dbname=dbname,save=False,**dbattr)
         self.stores_handler.save_config()
         if destroyFolder:
             shutil.rmtree(extractpath)
+
+    def _autoRestore_one(self,dbname=None,filepath=None,**kwargs):
+        print 'drop',dbname
+        self.dropDb(dbname)
+        print 'create',dbname
+        self.createDb(dbname)
+        print 'restore',dbname,filepath
+        self.restore(filepath,dbname=dbname,**kwargs)
 
 
     def packageSrc(self, name):
@@ -437,7 +464,7 @@ class GnrSqlDb(GnrObject):
 
     def notifyDbEvent(self,tblobj,**kwargs):
         pass
-        
+
     @in_triggerstack
     def insert(self, tblobj, record, **kwargs):
         """Insert a record in a :ref:`table`
@@ -456,6 +483,7 @@ class GnrSqlDb(GnrObject):
             if hasattr(tblobj,'protect_draft'):
                 record[tblobj.draftField] = tblobj.protect_draft(record)
         self.adapter.insert(tblobj, record,**kwargs)
+        tblobj.updateTotalizers(record,old_record=None)
         tblobj._doFieldTriggers('onInserted', record)
         tblobj.trigger_onInserted(record)
         tblobj._doExternalPkgTriggers('onInserted', record)
@@ -466,12 +494,15 @@ class GnrSqlDb(GnrObject):
 
     def raw_insert(self, tblobj, record, **kwargs):
         self.adapter.insert(tblobj, record,**kwargs)
+        tblobj.updateTotalizers(record,_raw=True,**kwargs)
 
     def raw_update(self, tblobj, record,old_record=None, **kwargs):
         self.adapter.update(tblobj, record,**kwargs)
+        tblobj.updateTotalizers(record,old_record=old_record,_raw=True,**kwargs)
 
     def raw_delete(self, tblobj, record, **kwargs):
         self.adapter.delete(tblobj, record,**kwargs)
+        tblobj.updateTotalizers(record=None,old_record=record,_raw=True,**kwargs)
 
     @in_triggerstack
     def update(self, tblobj, record, old_record=None, pkey=None, **kwargs):
@@ -491,6 +522,8 @@ class GnrSqlDb(GnrObject):
         tblobj.trigger_assignCounters(record=record,old_record=old_record)
         self.adapter.update(tblobj, record, pkey=pkey,**kwargs)
         tblobj.updateRelated(record,old_record=old_record)
+        tblobj.updateTotalizers(record,old_record=old_record)
+
         tblobj._doFieldTriggers('onUpdated', record, old_record=old_record)
         tblobj.trigger_onUpdated(record, old_record=old_record)
         tblobj._doExternalPkgTriggers('onUpdated', record, old_record=old_record)
@@ -512,6 +545,7 @@ class GnrSqlDb(GnrObject):
         tblobj._doExternalPkgTriggers('onDeleting', record)
         tblobj.deleteRelated(record)
         self.adapter.delete(tblobj, record,**kwargs)
+        tblobj.updateTotalizers(None,old_record=record)
         tblobj._doFieldTriggers('onDeleted', record)
         tblobj.trigger_onDeleted(record)
         tblobj._doExternalPkgTriggers('onDeleted', record)
@@ -560,6 +594,14 @@ class GnrSqlDb(GnrObject):
     def dbevents(self):
         return self.currentEnv.get('dbevents_%s' %self.connectionKey())
 
+    def autoCommit(self):
+        if not self.dbevents:
+            return
+        if all([all(map(lambda v: v.get('autoCommit'),t)) for t in self.dbevents.values()]):
+            self.commit()
+        else:
+            raise GnrMissedCommitException('Db events not committed')
+            
     def onDbCommitted(self):
         """TODO"""
         pass
@@ -814,7 +856,7 @@ class GnrSqlDb(GnrObject):
         
         :param filename: the path on which the database will be dumped"""
         extras = extras or []
-        self.adapter.dump(filename,dbname=dbname,extras=extras)
+        return self.adapter.dump(filename,dbname=dbname,extras=extras)
         
     def restore(self, filename,dbname=None,sqltextCb=None,onRestored=None):
         """Restore db to a given path

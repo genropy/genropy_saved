@@ -24,3 +24,8 @@ class GnrCustomWebPage(object):
         
         bc.dataController('SET .url = base_path+"/"+rel_path',rel_path='^.rel_path',base_path=self.site.getStaticUrl('site:data/attatchment'),_if='rel_path')
         bc.contentPane(region='center').embed(src='/_site/data/attatchment/fatt.pdf',height='100%',width='100%')
+
+    def test_3_embed(self,pane):
+        """First test description"""
+        bc = pane.borderContainer(height='800px')        
+        bc.contentPane(region='center',overflow='hidden').embed(src='/_vol/fatt_prodotto/GM_JeuO5OVGQNnbXtmXs0A/00_bigino_tablehandler.pdf',height='100%',width='100%',_class='boxwrapper')

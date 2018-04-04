@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 from gnr.core.gnrbag import Bag
 from gnr.core import gnrstring
+from gnr.core.gnrlang import GnrDebugException
 import inspect
 import os
 import sys
@@ -77,8 +78,11 @@ class StaticHandler(object):
     def absolute_url(self, external=True, *args):
         pass
 
-    def build_lazydoc(self,lazydoc,ext=None):
+    def build_lazydoc(self,lazydoc,fullpath=None):
+        ext = os.path.splitext(fullpath)[1]
         ext = ext.replace('.','') if ext else None 
+        if lazydoc.startswith('service:'):
+            return  self.site.getService(lazydoc.split(':')[1])(fullpath=fullpath) is not False
         table,pkey,method = gnrstring.splitAndStrip(lazydoc,sep=',',fixed=3)
         dflt_method = 'create_cached_document_%s' %ext if ext else 'create_cached_document'
         m = getattr(self.site.db.table(table),(method or dflt_method),None)
@@ -100,7 +104,7 @@ class StaticHandler(object):
             fullpath = os.path.normpath(os.path.join(self.site_path, fullpath))
         existing_doc = os.path.exists(fullpath)
         if not existing_doc and '_lazydoc' in kwargs:
-            existing_doc = self.build_lazydoc(kwargs['_lazydoc'],ext=os.path.splitext(fullpath)[-1])
+            existing_doc = self.build_lazydoc(kwargs['_lazydoc'],fullpath=fullpath)
         if not existing_doc:
             if kwargs.get('_lazydoc'):
                 headers = []
@@ -149,6 +153,8 @@ class DojoStaticHandler(StaticHandler):
     prefix = 'dojo'
 
     def url(self, version, *args, **kwargs):
+        if kwargs.get('_localroot'):
+            return '%s_dojo/%s/%s' % (kwargs.get('_localroot'), version, '/'.join(args))
         return '%s_dojo/%s/%s' % (self.home_uri, version, '/'.join(args))
 
     def path(self, version, *args, **kwargs):
@@ -241,7 +247,10 @@ class GnrStaticHandler(StaticHandler):
         return expandpath(os.path.join(self.site.gnr_path[version], *args))
 
     def url(self, version, *args, **kwargs):
-        return '%s_gnr/%s/%s' % (self.home_uri, version, '/'.join(args))
+        if kwargs.get('_localroot'):
+            return '%s_gnr/%s/%s' % (kwargs.get('_localroot'), version, '/'.join(args))
+        else:
+            return '%s_gnr/%s/%s' % (self.home_uri, version, '/'.join(args))
 
 class ConnectionStaticHandler(StaticHandler):
     prefix = 'conn'

@@ -56,8 +56,8 @@ class AppPref(object):
 
 
         dev = tc.contentPane(title='Developer')
-        dev.button('Flush memcached',action='genro.serverCall("_resetMemcached");',_tags='admin')
-
+        fb = dev.formbuilder()
+        fb.checkbox(value='^.jsPdfViewer',label='Extended pdf viewer')
         self.site_config_override(tc.contentPane(title='!!Site config',datapath='.site_config'))
 
         pane = tc.contentPane(title='Tables Configuration')

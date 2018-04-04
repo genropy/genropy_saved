@@ -12,7 +12,7 @@ import urllib
 import StringIO
 import datetime
 import zipfile
-from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.core.gnrbag import Bag, DirectoryResolver
 from gnr.core.gnrlist import XlsReader,CsvReader
 from gnr.core.gnrstring import slugify
@@ -39,6 +39,7 @@ class GnrWebUtils(GnrBaseProxy):
         self.directory = self.page.site.site_path
         self.filename = self.page.filename
         self.canonical_filename = self.page.canonical_filename
+        self.default_thermo_path = 'gnr.lockScreen.thermo'
 
     def siteFolder(self, *args, **kwargs):
         """The http static root"""
@@ -61,7 +62,7 @@ class GnrWebUtils(GnrBaseProxy):
 
     def quickThermo(self,iterator,path=None,maxidx=None,labelfield=None,
                     labelcb=None,thermo_width=None,interval=None,title=None):
-        path = path or 'gnr.lockScreen.thermo'
+        path = path or self.default_thermo_path
         lbl = ''
         if isinstance(iterator,list):
             maxidx = len(iterator)
@@ -89,6 +90,14 @@ class GnrWebUtils(GnrBaseProxy):
                 self.page.setInClientData(path,thermo,idx=idx,maxidx=maxidx,lbl=lbl)
             yield v
         self.page.setInClientData(path,thermo,idx=maxidx,maxidx=maxidx,lbl=lbl)
+    
+    def thermoMessage(self,title=None,message=None):
+        thermo = """<div class="quickthermo_box"> %(title)s 
+                        <div class="form_waiting"></div> 
+                        <div class="quickthermo_caption">%(message)s</div> 
+                    </div>"""  %dict(title=title,message=message)
+        self.page.setInClientData(self.default_thermo_path,thermo)
+
 
     def rootFolder(self, *args, **kwargs):
         """The mod_python root"""
@@ -241,11 +250,21 @@ class GnrWebUtils(GnrBaseProxy):
         legacy_match = dict()
         if table:
             tblobj = self.page.db.table(table)
+            sql_count = tblobj.query(ignorePartition=True,excludeDraft=False, excludeLogicalDeleted=False).count()
+            result['sql_count'] = sql_count
             for colname,colobj in tblobj.model.columns.items():
                 table_col_list.append(colname)
                 if colobj.attributes.get('legacy_name'):
                     legacy_match[colobj.attributes['legacy_name']] = colname
+            import_modes = []
+            if sql_count:
+                import_modes.append('replace:Replace (remove %i records)' %sql_count)
+            import_modes.append('insert_only:Insert only')
+            import_modes.append('insert_or_update:Insert or update')
+            result['import_modes'] = ','.join(import_modes)
+            result['import_mode'] = 'insert_only'
             result['methodlist'] = ','.join([k[9:] for k in dir(tblobj) if k.startswith('importer_')])
+
         for k,i in sorted(reader.index.items(),key=lambda tup:tup[1]):
             columns.setItem(k,None,name=k,field=k,width='10em')
             if k in table_col_list:
@@ -264,9 +283,10 @@ class GnrWebUtils(GnrBaseProxy):
             rows.setItem('r_%i' %i,Bag(dict(r)))
         return result.toXml()
 
-
     @public_method
-    def tableImporterRun(self,table=None,file_path=None,match_index=None,import_method=None,sql_mode=None,filetype=None,**kwargs):
+    @extract_kwargs(constant=True)
+    def tableImporterRun(self,table=None,file_path=None,match_index=None,import_mode=None,
+                        import_method=None,sql_mode=None,filetype=None,constant_kwargs=None,**kwargs):
         tblobj = self.page.db.table(table)
         docommit = False
         importerStructure = tblobj.importerStructure() or dict()
@@ -281,9 +301,12 @@ class GnrWebUtils(GnrBaseProxy):
                     reader.setMainSheet(sheet['sheet'])
                 struct = sheet['struct']
                 match_index = tblobj.importerMatchIndex(reader,struct=struct)
+                constants = constant_kwargs 
+                constants.update(struct.get('constants') or dict())
                 res = self.defaultMatchImporterXls(tblobj=tblobj,reader=reader,
                                                 match_index=match_index,
-                                                sql_mode=sql_mode,constants=struct.get('constants'),
+                                                import_mode=import_mode,
+                                                sql_mode=sql_mode,constants=constants,
                                                 mandatories=struct.get('mandatories'))
                 results.append(res)
                 errors = filter(lambda r: r!='OK', results)
@@ -296,11 +319,15 @@ class GnrWebUtils(GnrBaseProxy):
         if match_index:
             return self.defaultMatchImporterXls(tblobj=tblobj,reader=reader,
                                                     match_index=match_index,
-                                                    sql_mode=sql_mode)
+                                                    import_mode=import_mode,
+                                                    sql_mode=sql_mode,
+                                                    constants=constant_kwargs)
 
-    def defaultMatchImporterXls(self,tblobj=None,reader=None,match_index=None,sql_mode=None,constants=None,mandatories=None):
+    def defaultMatchImporterXls(self,tblobj=None,reader=None,match_index=None,sql_mode=None,constants=None,mandatories=None, import_mode=None):
         rows = self.adaptedRecords(tblobj=tblobj,reader=reader,match_index=match_index,sql_mode=sql_mode,constants=constants)
         docommit = False
+        if import_mode=='replace':
+            tblobj.empty()
         if sql_mode:
             rows_to_insert = list(rows)
             if rows_to_insert:
@@ -308,7 +335,7 @@ class GnrWebUtils(GnrBaseProxy):
                 docommit=True
         else:
             for r in rows:
-                tblobj.importerInsertRow(r)
+                tblobj.importerInsertRow(r,import_mode=import_mode)
                 docommit=True
         if docommit:
             self.page.db.commit()
@@ -317,7 +344,7 @@ class GnrWebUtils(GnrBaseProxy):
     def adaptedRecords(self,tblobj=None,reader=None,match_index=None,sql_mode=None,constants=None):
         for row in self.quickThermo(reader(),maxidx=reader.nrows if hasattr(reader,'nrows') else None,
                         labelfield=tblobj.attributes.get('caption_field') or tblobj.name):
-            r = constants or {}
+            r = dict(constants) if constants else dict()
             f =  {v:row[k] for k,v in match_index.items() if v is not ''}
             r.update(f)
             tblobj.recordCoerceTypes(r)

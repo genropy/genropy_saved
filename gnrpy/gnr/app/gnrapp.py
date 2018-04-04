@@ -64,6 +64,24 @@ class NullLoader(object):
         if fullname in sys.modules:
             return sys.modules[fullname]
 
+class ApplicationCache(object):
+    def __init__(self,application=None):
+        self.application = application
+        self.cache = {}
+    
+    def getItem(self,key):
+        return self.cache.get(key,None)
+    
+    def setItem(self,key,value):
+        self.cache[key] = value
+
+    def updatedItem(self,key):
+        self.cache.pop(key,None)
+
+    def expiredItem(self,key):
+        return key not in self.cache
+
+
 class GnrModuleFinder(object):
     """TODO"""
     
@@ -251,7 +269,7 @@ class GnrSqlAppDb(GnrSqlDb):
         :param old_record: the old record to be updated
         :param pkey: the record :ref:`primary key <pkey>`"""
         self.checkTransactionWritable(tblobj)
-        GnrSqlDb.raw_update(self, tblobj, record, pkey=pkey,**kwargs)
+        GnrSqlDb.raw_update(self, tblobj, record,old_record=old_record, pkey=pkey,**kwargs)
         if self.systemDbEvent():
             return
         old_record = record or dict(record)
@@ -616,11 +634,9 @@ class GnrApp(object):
         self.packagesIdByPath = {}
         self.config = self.load_instance_config()
         self.instanceMenu = self.load_instance_menu()
-        self.cache = {}
-
+        self.cache = ApplicationCache(self)
         self.build_package_path()
         db_settings_path = os.path.join(self.instanceFolder, 'dbsettings.xml')
-
         if os.path.isfile(db_settings_path):
             db_credential = Bag(db_settings_path)
             self.config.update(db_credential)
@@ -647,7 +663,7 @@ class GnrApp(object):
             self.webPageCustom = getattr(self.main_module, 'WebPage', None)
         self.init(forTesting=forTesting,restorepath=restorepath)
         self.creationTime = time.time()
-        
+
     def get_modulefinder(self, path_entry):
         """TODO"""
         return GnrModuleFinder(path_entry,self)
@@ -903,12 +919,16 @@ class GnrApp(object):
         By default, it will call the :meth:`onApplicationInited()
         <gnr.app.gnrapp.GnrPackage.onApplicationInited>` method of each package"""
         self.pkgBroadcast('onApplicationInited')
-    
+
+
+
     def pkgBroadcast(self,method,*args,**kwargs):
-        for pkg in self.packages.values():
+        result = []
+        for pkgId,pkg in self.packages.items():
             handler = getattr(pkg,method,None)
             if handler:
-                handler(*args,**kwargs)
+                result.append((pkgId,handler(*args,**kwargs)))
+        return result
 
     @property
     def locale(self):
@@ -1107,7 +1127,7 @@ class GnrApp(object):
             tags = ','.join(makeSet(defaultTags, tags or ''))
         if authenticate:
             valid = self.validatePassword(login_pwd, pwd)
-            if valid and allowed_ip and not self.checkAllowedIp(allowed_ip):
+            if valid and not self.checkAllowedIp(allowed_ip):
                 raise GnrRestrictedAccessException('Not allowed access')
         else:
             valid = True

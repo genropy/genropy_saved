@@ -22,6 +22,20 @@ class Package(GnrDboPackage):
     def copyTableToStore(self):
         pass
 
+    def getStorePreference(self):
+        if not self.attributes.get('storetable'):
+            return Bag()
+        storename = self.db.currentEnv.get('storename')
+        store_record = self.db.table(self.attributes['storetable']).record(dbstore=storename).output('record')
+        return store_record['preferences'] or Bag()
+
+    def setStorePreference(self,pkg=None,value=None):
+        storename = self.db.currentEnv.get('storename')
+        with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
+            with self.db.table(self.attributes['storetable']).recordToUpdate(dbstore=storename) as rec:
+                rec['preferences'][pkg] = value
+            self.db.commit()
+
     def onApplicationInited(self):
         self.mixinMultidbMethods()
 
@@ -495,6 +509,7 @@ class MultidbTable(object):
                     parentSubscribedStores = set(relatedTable.getSubscribedStores(parentRecord))
                     subscribedStores = subscribedStores.intersection(parentSubscribedStores)
             return list(subscribedStores) if do_sync else []
+    
 
     def multidbSubscribe(self,pkey,dbstore=None):
         self.db.table('multidb.subscription').addSubscription(table=self.fullname,pkey=pkey,dbstore=dbstore)
@@ -543,23 +558,12 @@ class MultidbTable(object):
 
     def sysRecord(self,syscode):
         if not self.db.usingRootstore():
-            return
+            with self.db.tempEnv(storename=self.db.rootstore):
+                return self.sysRecord(syscode)
 
         def createCb(key):
-            record = getattr(self,'sysRecord_%s' %syscode)()
-            record['__syscode'] = key
-            pkey = record[self.pkey]
-            if pkey:
-                oldrecord = self.query(where='$%s=:pk' %self.pkey,pk=pkey,
-                                            addPkeyColumn=False).fetch()
-                if oldrecord:
-                    oldrecord = oldrecord[0]
-                    record = dict(oldrecord)
-                    record['__syscode'] = syscode
-                    self.update(record,oldrecord)
-                    return record
-            if self.multidb=='*':
-                record['__multidb_subscribed'] = True
-            self.insert(record)
-            return record
+            extra_fields = dict()
+            if not self.multidb=='*':
+                extra_fields['__multidb_default_subscribed'] = True
+            return self._sysRecordCreateCb(key,**extra_fields)
         return self.cachedRecord(syscode,keyField='__syscode',createCb=createCb)

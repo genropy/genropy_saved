@@ -244,7 +244,10 @@ class BaseRegister(BaseRemoteObject):
         self.itemsTS[register_item_id] = datetime.now()
 
     def get_item_data(self,register_item_id):
-        return self.itemsData.get(register_item_id)
+        data = self.itemsData.get(register_item_id)
+        if data is None:
+            data = Bag()
+        return data
 
     def get_item(self,register_item_id,include_data=False):
         item = self.registerItems.get(register_item_id)
@@ -293,6 +296,8 @@ class BaseRegister(BaseRemoteObject):
 
     def update_item(self,register_item_id,upddict=None):
         register_item = self.get_item(register_item_id)
+        if not register_item:
+            return
         register_item.update(upddict)
         return register_item
 
@@ -326,6 +331,8 @@ class BaseRegister(BaseRemoteObject):
 
     def drop_datachanges(self,register_item_id, path):
         register_item = self.get_item(register_item_id)
+        if not register_item:
+            return
         datachanges = register_item['datachanges']
         datachanges[:] = [dc for dc in datachanges if not dc.path.startswith(path)]
 
@@ -359,6 +366,24 @@ class BaseRegister(BaseRemoteObject):
         self.locked_items = pickle.load(storagefile)
 
 
+class GlobalRegister(BaseRegister):
+    """docstring for GlobalRegister"""
+
+    def __init__(self,*args,**kwargs):
+        super(GlobalRegister, self).__init__(*args,**kwargs)
+        self.create('*')
+
+    def create(self,identifier=None):
+        register_item = dict(
+                start_ts=datetime.now(),
+                register_item_id=identifier,
+                register_name='global')
+        self.addRegisterItem(register_item)
+        return register_item
+        
+    def drop(self,identifier):
+        self.drop_item(identifier)
+
 
 class UserRegister(BaseRegister):
     """docstring for UserRegister"""
@@ -382,7 +407,8 @@ class UserRegister(BaseRegister):
 class ConnectionRegister(BaseRegister):
     """docstring for ConnectionRegister"""
     def create(self, connection_id, connection_name=None,user=None,user_id=None,
-                            user_name=None,user_tags=None,user_ip=None,user_agent=None,browser_name=None):
+                            user_name=None,user_tags=None,user_ip=None,user_agent=None,browser_name=None,
+                            electron_static=None):
         register_item = dict(
                 register_item_id=connection_id,
                 start_ts=datetime.now(),
@@ -393,6 +419,7 @@ class ConnectionRegister(BaseRegister):
                 user_tags = user_tags,
                 user_ip=user_ip,
                 user_agent=user_agent,
+                electron_static=electron_static,
                 browser_name=browser_name,
                 register_name='connection')
 
@@ -579,8 +606,9 @@ class PageRegister(BaseRegister):
                 self.set_datachange(page_id,path=path,value=value,reason=reason, attributes=attributes, fired=fired)
 
 class SiteRegister(BaseRemoteObject):
-    def __init__(self,server,sitename=None,storage_path=None):
+    def __init__(self,server,sitename=None,storage_path=None, batch_queue=None):
         self.server = server
+        self.global_register = GlobalRegister(self)
         self.page_register = PageRegister(self)
         self.connection_register = ConnectionRegister(self)
         self.user_register = UserRegister(self)
@@ -593,7 +621,22 @@ class SiteRegister(BaseRemoteObject):
         self.maintenance = False
         self.allowed_users = None
         self.interproces_commands = dict()
+        self.batch_queue = batch_queue
 
+    def on_reloader_restart(self):
+        if self.server.gnr_daemon_uri:
+            with Pyro4.Proxy(self.server.gnr_daemon_uri) as proxy:
+                if not OLD_HMAC_MODE:
+                    proxy._pyroHmacKey = self.server.hmac_key
+                proxy.on_reloader_restart(sitename=self.sitename)
+
+    def on_site_stop(self):
+        print 'site stopped'
+
+    def table_script_put(self, page_id=None, batch_kwargs=None):
+        if self.batch_queue:
+            batch_item = dict(page_id=page_id, batch_kwargs=batch_kwargs)
+            self.batch_queue.put(dict(type='batch', value=batch_item))
 
     def checkCachedTables(self,table):
         for register in (self.page_register,self.connection_register,self.user_register):
@@ -608,12 +651,14 @@ class SiteRegister(BaseRemoteObject):
         self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
 
     def new_connection(self,connection_id,connection_name=None,user=None,user_id=None,
-                            user_name=None,user_tags=None,user_ip=None,user_agent=None,browser_name=None,avatar_extra=None):
+                            user_name=None,user_tags=None,user_ip=None,user_agent=None,browser_name=None,avatar_extra=None,
+                            electron_static=None):
         assert not self.connection_register.exists(connection_id), 'SITEREGISTER ERROR: connection_id %s already registered' % connection_id
         if not self.user_register.exists(user):
             self.new_user( user, user_id=user_id,user_name=user_name,user_tags=user_tags,avatar_extra=avatar_extra)
         connection_item = self.connection_register.create(connection_id, connection_name=connection_name,user=user,user_id=user_id,
-                            user_name=user_name,user_tags=user_tags,user_ip=user_ip,user_agent=user_agent,browser_name=browser_name)
+                            user_name=user_name,user_tags=user_tags,user_ip=user_ip,user_agent=user_agent,browser_name=browser_name,
+                            electron_static=electron_static)
 
         return connection_item
 
@@ -1023,7 +1068,8 @@ class SiteRegisterClient(object):
     def new_connection(self, connection_id, connection):
         register_item = self.siteregister.new_connection(connection_id,connection_name = connection.connection_name,user=connection.user,
                                                     user_id=connection.user_id,user_tags=connection.user_tags,user_ip=connection.ip,browser_name=connection.browser_name,
-                                                    user_agent=connection.user_agent,avatar_extra=connection.avatar_extra)
+                                                    user_agent=connection.user_agent,avatar_extra=connection.avatar_extra,
+                                                    electron_static=connection.electron_static)
         self.add_data_to_register_item(register_item)
         return register_item
 
@@ -1063,6 +1109,9 @@ class SiteRegisterClient(object):
 
     def pageStore(self, page_id, triggered=False):
         return self.make_store('page',page_id, triggered=triggered)
+
+    def globalStore(self,triggered=False):
+        return self.make_store('global','*', triggered=triggered)
 
     def make_store(self, register_name,register_item_id, triggered=None):
         return ServerStore(self, register_name,register_item_id=register_item_id, triggered=triggered)
@@ -1118,12 +1167,14 @@ class SiteRegisterClient(object):
 ##############################################################################
 
 class GnrSiteRegisterServer(object):
-    def __init__(self,sitename=None,daemon_uri=None,storage_path=None,debug=None):
+    def __init__(self,sitename=None,daemon_uri=None,storage_path=None,
+            debug=None, batch_queue=None):
         self.sitename = sitename
         self.gnr_daemon_uri = daemon_uri
         self.debug = debug
         self.storage_path = storage_path
         self._running = False
+        self.batch_queue = batch_queue
     
     def running(self):
         return self._running
@@ -1151,7 +1202,7 @@ class GnrSiteRegisterServer(object):
             if port != '*':
                 pyrokw['port'] = int(port or PYRO_PORT)
         Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
-        hmac_key=str(hmac_key or PYRO_HMAC_KEY)
+        self.hmac_key= hmac_key =str(hmac_key or PYRO_HMAC_KEY)
         multiplex = multiplex or PYRO_MULTIPLEX
         if OLD_HMAC_MODE:
             Pyro4.config.HMAC_KEY = hmac_key
@@ -1166,7 +1217,8 @@ class GnrSiteRegisterServer(object):
         self.daemon = Pyro4.Daemon(**pyrokw)
         if not OLD_HMAC_MODE:
             self.daemon._pyroHmacKey = hmac_key
-        self.siteregister = SiteRegister(self,sitename=self.sitename,storage_path=self.storage_path)
+        self.siteregister = SiteRegister(self,sitename=self.sitename,
+            storage_path=self.storage_path, batch_queue=self.batch_queue)
         autorestore = autorestore and os.path.exists(self.storage_path)
         self.main_uri = self.daemon.register(self,'SiteRegisterServer')
         print 'autorestore',autorestore,os.path.exists(self.storage_path)

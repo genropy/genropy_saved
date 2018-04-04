@@ -40,7 +40,6 @@ class BaseResourceMail(BaseResourceBatch):
                 self.db.commit()
 
         except Exception:
-            print 'failure in email',to_address
             with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
                 self.db.table('adm.sent_email').insert(dict(code=mail_code,tbl=tbl,mail_address=to_address,sent_ts=None,_record_id=_record_id))
                 self.db.commit()

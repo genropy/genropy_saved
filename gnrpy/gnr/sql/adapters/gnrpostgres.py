@@ -193,9 +193,12 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                 'host':self.dbroot.host or 'localhost',
                 'port':self.dbroot.port or '5432'}
         extras = extras or []
+        if not filename.endswith('.pgd'):
+            filename = '%s.pgd' %filename
         #args = ['pg_dump', dbname, '-U', self.dbroot.user, '-f', filename]+extras
         args = ['pg_dump','--dbname=postgresql://%(user)s:%(password)s@%(host)s:%(port)s/%(dbname)s' %pars,'-Fc', '-f', filename]+extras
-        return call(args)
+        callresult = call(args)
+        return filename
         
     def restore(self, filename,dbname=None):
         """-- IMPLEMENT THIS --
@@ -204,7 +207,10 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         :param filename: db name"""
         from subprocess import call
         dbname = dbname or self.dbroot.dbname
-        return call(['psql', "dbname=%s user=%s password=%s" % (dbname, self.dbroot.user, self.dbroot.password), '-f', filename])
+        if filename.endswith('.pgd'):
+            call(['pg_restore',filename,'--dbname',dbname])
+        else:
+            return call(['psql', "dbname=%s user=%s password=%s" % (dbname, self.dbroot.user, self.dbroot.password), '-f', filename])
         
     def createTableAs(self, sqltable, query, sqlparams):
         self.dbroot.execute("CREATE TABLE %s WITH OIDS AS %s;" % (sqltable, query), sqlparams)
