@@ -747,6 +747,10 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
             palette_kwargs['nodeId'] = paletteCode + '_floating';
             palette_kwargs['title'] = palette_kwargs['title'] || 'Palette ' + paletteCode;
             objectUpdate(palette_kwargs, objectExtract(kw, 'palette_*'));
+            palette_kwargs['subscribe_'+paletteCode+'_show'] = function(){
+                this.widget.show();
+                this.widget.bringToTop();
+            };
             palette_kwargs.selfsubscribe_showing = function() {
                 genro.publish('palette_' + paletteCode + '_showing');
             };
@@ -4292,16 +4296,22 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
     gnrwdg_prepareConfiguratorFrame:function(bc,kw){
         var confkw = objectPop(kw,'configurator');
         confkw = confkw===true?{region:'right',splitter:true,border_left:'1px solid #ccc',width:'320px'}:confkw;  
-        if(!('drawer' in confkw)){
-            confkw.drawer = (kw.userObjectId && kw.userObjectId!='__newobj__')?'close':true;
-        }
-              
+        var confroot = bc;
         this.setLoadMenuData();
-        var frame = bc._('FramePane','configurator',objectUpdate(confkw,{frameCode:this.sourceNode.attr.nodeId+'_conf'}));
+        var frame;
+        if(confkw.palette){
+            confkw.paletteCode = this.sourceNode.attr.nodeId+'_conf_palette';
+            this.conf_paletteCode = confkw.paletteCode;
+            frame = bc._('PalettePane','configurator',confkw)._('framePane',{frameCode:this.sourceNode.attr.nodeId+'_conf'});
+        }else{
+            if(!('drawer' in confkw)){
+                confkw.drawer = (kw.userObjectId && kw.userObjectId!='__newobj__')?'close':true;
+            } 
+            frame = bc._('FramePane','configurator',objectUpdate(confkw,{frameCode:this.sourceNode.attr.nodeId+'_conf'}));
+        }
         var bar = frame._('slotBar',{toolbar:true,side:'top',slots:'5,loadMenu,2,objTitle,*,favoritebtn,saveBtn,deletebtn,5'});
         var that = this;
         bar._('div','objTitle',{innerHTML:'^#WORKSPACE.metadata.description?=(#v || "New")',font_weight:'bold',font_size:'.9em',color:'#666'});
-        
         bar._('slotButton','favoritebtn',{'label':_T('Default'),
                                                     action:function(){that.setCurrentAsFavorite();},
                                                     iconClass:'highlightable iconbox star'});
@@ -6162,21 +6172,21 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         return sum_columns.join(',');
     },
 
-    loadData:function(){
+    loadData:function(runKwargs){
         var that = this;
         this.pendingLoading = true;
         if(!(this.hasVisibleClients() || this.loadInvisible)){
             this.storeNode.watch('hasVisibleClients',function(){
                 return that.hasVisibleClients();
             },function(){
-                that.loadingDataDo();
+                that.loadingDataDo(runKwargs);
             });
             return;
         }
-        this.loadingDataDo();
+        this.loadingDataDo(runKwargs);
     },
 
-    loadingDataDo:function(){
+    loadingDataDo:function(runKwargs){
         var that = this;
         this.loadingData = true;
         this.gridBroadcast(function(grid){
@@ -6191,9 +6201,25 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             });
         };
         this.onLoading();
-        return this.runQuery(cb);
+        return this.runQuery(cb,runKwargs);
     },
 
+    cleanColumns:function(cols){
+        var result = {};
+        if(!cols){
+            return;
+        }
+        cols.split(',').forEach(function(n){
+            n = n.toLowerCase();
+            if(n.indexOf(' as ')>=0){
+                n = n.split(' as ')[1]
+            }else{
+                n = n.trim().split(' ')[0].replace('$','').replace(/\./g, '_').replace(/@/g, '_');
+            }
+            result[n] = true;
+        });
+        return result;
+    },
 
     onChangedView:function(){
         var data = this.getData();
@@ -6206,21 +6232,30 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
                 k++;
             }while(k<=n && ('_newrecord' in dataColumns))
             if('_newrecord' in dataColumns){
+                // do not reload data if there are new rows
                 return;
             }
             gnr.getGridColumns(this.storeNode);
-            var newColumns = this.storeNode._currentColumns? this.storeNode._currentColumns.split(','):[];
-            if(newColumns.some(function(n){
-                n = n.toLowerCase();
-                if(n.indexOf(' as ')>=0){
-                    n = n.split(' as ')[1]
+            var newColumns = this.cleanColumns(this.storeNode._currentColumns);
+            var previousColumns = this.cleanColumns(this.storeNode._previousColumns);
+            var addedColumns = [];            
+            for(var k in newColumns){
+                if(k in previousColumns){
+                    objectPop(previousColumns,k);
                 }else{
-                    n = n.trim().split(' ')[0].replace('$','').replace(/\./g, '_').replace(/@/g, '_');
+                    addedColumns.push(k);
                 }
-                return !(n in dataColumns)
-            })){
+            }
+            if(addedColumns.length>0){
                 this.loadData();
-            } 
+            }else if(this.storeNode.attr.groupByStore && objectNotEmpty(previousColumns)){
+                for(var k in previousColumns){
+                    if(!['_avg','_sum','_min','_max'].some(function(aggr){return k.endsWith(aggr);})){
+                        this.loadData();
+                        return;
+                    }
+                }
+            }
         }
     },
 

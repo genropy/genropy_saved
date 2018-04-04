@@ -120,7 +120,6 @@ dojo.declare("gnr.widgets._tableHandlerStatsLayout", gnr.widgets.UserObjectLayou
                               remote_relation_field:this.relation_field,
                               remote_relation_value:this.relation_value,
                               remote_table:this.table,
-                              remote_condition:this.condition,
                               remote_source_filters:'=.stats.source_filters',
                               remote_relatedTableHandlerFrameCode:this.relatedTableHandlerFrameCode,
                               remote_py_requires:'th/th_stats:TableHandlerStats'};

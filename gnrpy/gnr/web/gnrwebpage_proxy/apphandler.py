@@ -803,6 +803,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                                       pkeys=pkeys, sortedBy=sortedBy, excludeLogicalDeleted=excludeLogicalDeleted,
                                       excludeDraft=excludeDraft,checkPermissions=checkPermissions ,**kwargs)
             selection = selecthandler(**selection_pars)
+            if selection is False:
+                return Bag()
             if not selection and weakLogicalDeleted and \
                     excludeLogicalDeleted and excludeLogicalDeleted!='mark':
                 selection_pars['excludeLogicalDeleted'] = 'mark'

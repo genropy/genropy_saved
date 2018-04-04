@@ -57,7 +57,6 @@ var genro_plugin_grid_configurator = {
     
 
     addGridConfigurator:function(sourceNode){
-
         sourceNode.attr.selfDragColumns = 'trashable';
         var table = sourceNode.attr.table;
         if(!table && sourceNode.attr.storepath){
@@ -75,6 +74,9 @@ var genro_plugin_grid_configurator = {
                         fieldcellattr = fieldcellattr.asDict();
                     }
                 }
+                if(sourceNode.attr.onDroppedColumn){
+                    funcApply(sourceNode.attr.onDroppedColumn,{data:data, column:dropInfo.column,fieldcellattr:fieldcellattr},grid);
+                }
                 grid.addColumn(data, dropInfo.column,fieldcellattr);
             };
             sourceNode.attr.dropTarget_column = sourceNode.attr.dropTarget_column ? sourceNode.attr.dropTarget_column + ',' + 'gnrdbfld_' + tablecode : 'gnrdbfld_' + tablecode;
@@ -83,7 +85,7 @@ var genro_plugin_grid_configurator = {
         sourceNode._gridConfiguratorBuilt=true;
     },
     
-    loadView:function(gridId,currPath,frameCode){
+    loadView:function(gridId,currPath){
         var gridSourceNode = genro.nodeById(gridId);
         currPath = currPath || gridSourceNode.getRelativeData('.favoriteViewPath') || '__baseview__';
         var resource_structs = gridSourceNode.getRelativeData('.resource_structs');

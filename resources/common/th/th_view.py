@@ -42,7 +42,7 @@ class TableHandlerView(BaseComponent):
         view = pane.thFrameGrid(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
                                  virtualStore=virtualStore,bySample=queryBySample is not None,
                                  condition=condition,condition_kwargs=condition_kwargs,
-                                 selectedPage='^.viewPage',
+                                 selectedPage='^.viewPage',resourceOptions=options,
                                  **kwargs)
         if virtualStore and queryBySample:
             self._th_handleQueryBySample(view,table=table,pars=queryBySample)
@@ -139,7 +139,7 @@ class TableHandlerView(BaseComponent):
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
                        unlinkdict=None,searchOn=True,count=None,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,
-                       store_kwargs=None,parentForm=None,liveUpdate=None,bySample=None,**kwargs):
+                       store_kwargs=None,parentForm=None,liveUpdate=None,bySample=None,resourceOptions=None,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         page_hooks = self._th_hook('page',mangler=frameCode,asDict=True)
@@ -148,6 +148,10 @@ class TableHandlerView(BaseComponent):
         top_kwargs=top_kwargs or dict()
         pageHooksSelector = 'pageHooksSelector' if page_hooks else False
         batchAssign =  self.th_batchAssignEnabled(self.db.table(table))
+        statsEnabled = resourceOptions.get('stats')
+        if statsEnabled is None:
+            statsEnabled = True if extendedQuery else False
+        statsSlot = 'stats' if statsEnabled else False
 
         if extendedQuery:
             virtualStore = True
@@ -156,21 +160,21 @@ class TableHandlerView(BaseComponent):
             else:
                 templateManager = False
             if extendedQuery == '*':
-                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','importer','resourcePrints','resourceMails','resourceActions',batchAssign,'5',templateManager,'chartjs','10',pageHooksSelector,'*']
+                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','importer','resourcePrints','resourceMails','resourceActions',batchAssign,'5',templateManager,'stats','chartjs','10',pageHooksSelector,'*']
                 if self.isMobile:
-                    base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','menuUserSets','10',pageHooksSelector,'*']
+                    base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','menuUserSets',statsSlot,'10',pageHooksSelector,'*']
 
             elif extendedQuery is True:
-                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','chartjs','10',pageHooksSelector,'*','count','5']
+                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5',statsSlot,'chartjs','10',pageHooksSelector,'*','count','5']
             else:
                 base_slots = extendedQuery.split(',')
         elif not virtualStore:
             if root_tablehandler:
-                base_slots = ['5','searchOn','5','count','viewsMenu','5','menuUserSets','*','export','5','chartjs','10',pageHooksSelector,'5','resourcePrints','resourceMails','resourceActions','10']
+                base_slots = ['5','searchOn','5','count','viewsMenu','5','menuUserSets','*','export','5',statsSlot,'chartjs','10',pageHooksSelector,'5','resourcePrints','resourceMails','resourceActions','10']
                 if searchOn is False:
                     base_slots.remove('searchOn')
             else:
-                base_slots = ['5','vtitle','count','10',pageHooksSelector,'*'] if count is not False else ['5','vtitle','10',pageHooksSelector,'*','5']
+                base_slots = ['5','vtitle','count','10',statsSlot,pageHooksSelector,'*'] if count is not False else ['5','vtitle','10',statsSlot,pageHooksSelector,'*','5']
                 if searchOn:
                     base_slots.append('searchOn')
 
@@ -193,10 +197,13 @@ class TableHandlerView(BaseComponent):
                                struct = self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
                                datapath = '.view',top_kwargs = top_kwargs,_class = 'frameGrid',
                                grid_kwargs = grid_kwargs,iconSize=16,_newGrid=True,**kwargs)  
+        if statsEnabled:
+            self._th_handle_stats_pages(frame)
         self._th_handle_page_hooks(frame,page_hooks)
+
         self._th_menu_sources(frame,extendedQuery=extendedQuery,bySample=bySample)
         if configurable:
-            frame.right.viewConfigurator(table,frameCode,configurable=configurable)   
+            frame.grid.viewConfigurator(table,configurable=configurable)   
         self._th_viewController(frame,table=table,default_totalRowCount=extendedQuery == '*')
         store_kwargs = store_kwargs or dict()
         store_kwargs['parentForm'] = parentForm
@@ -249,7 +256,7 @@ class TableHandlerView(BaseComponent):
     def _th_handle_page_hooks(self,view,page_hooks):
         frameCode = view.attributes['frameCode']
         menu = Bag()
-        menu.setItem('grid',None,caption='!!Records',pageName='grid')
+        menu.setItem('mainView',None,caption='!!Records',pageName='mainView')
         for k in sorted(page_hooks.keys()):
             handler = page_hooks[k]
             wdg = getattr(handler,'widget','contentPane')
@@ -258,6 +265,29 @@ class TableHandlerView(BaseComponent):
             menu.setItem(childname,None,caption=title,pageName=childname)
             handler(view.child(wdg,childname=childname,pageName=childname,title=title))
         view.data('.viewPages',menu)
+
+    def _th_handle_stats_pages(self,view):
+        bc = view.borderContainer(title='!!Stats tools',pageName='statsTools',childname='statsTools',
+                                    margin='5px',rounded=4,border='1px solid silver',datapath='.statsTools')
+        bar = bc.contentPane(region='top').slotToolbar('20,*,s_title,*,closbtn,2',
+                                                    background='#444',height='22px',
+                                                    rounded_top=4)
+        bar.s_title.div('^.selectedTitle',color='white')
+        bar.closbtn.slotButton(iconClass='close_svg',action='SET .#parent.viewPage="mainView"')
+
+        
+        sc = bc.stackContainer(selectedPage='^.selectedPage',selfsubscribe_selected="""
+        if($1.selected){
+            this.setRelativeData('.selectedTitle',this.widget.gnrPageDict[p_0.page].title);
+        }
+        """,region='center')
+        sc.contentPane(title='!!Group by',pageName='groupby').groupByTableHandler()
+        if self.ths_pandas_available():
+            sc.contentPane(title='!!Pivot table',pageName='pandas').tableHandlerStats()
+        
+
+
+
 
     @struct_method
     def th_viewLeftDrawer(self,pane,table,th_root):
@@ -268,32 +298,8 @@ class TableHandlerView(BaseComponent):
         sc.contentPane(background='red')
 
     @struct_method
-    def th_viewConfigurator(self,pane,table,th_root,configurable=None):
-        bar = pane.slotBar('confBar,fieldsTree,*',width='160px',closable='close',
-                            fieldsTree_table=table,
-                            fieldsTree_checkPermissions=True,
-                            fieldsTree_height='100%',splitter=True,border_left='1px solid silver')
-        confBar = bar.confBar.slotToolbar('viewsMenu,currviewCaption,*,defView,saveView,deleteView',background='whitesmoke')
-        confBar.currviewCaption.div('^.grid.currViewAttrs.caption',font_size='.9em',color='#666',line_height='16px')
-
-        gridId = '%s_grid' %th_root
-        confBar.defView.slotButton('!!Favorite View',iconClass='th_favoriteIcon iconbox star',
-                                        action='genro.grid_configurator.setCurrentAsDefault(gridId);',gridId=gridId)
-        confBar.saveView.slotButton('!!Save View',iconClass='iconbox save',
-                                        action='genro.grid_configurator.saveGridView(gridId);',gridId=gridId)
-        confBar.deleteView.slotButton('!!Delete View',iconClass='iconbox trash',
-                                    action='genro.grid_configurator.deleteGridView(gridId);',
-                                    gridId=gridId,disabled='^.grid.currViewAttrs.pkey?=!#v')
-        if table==getattr(self,'maintable',None) or configurable=='*':
-            bar.replaceSlots('#','#,footerBar')
-            footer = bar.footerBar.formbuilder(cols=1,border_spacing='3px 5px',font_size='.8em',fld_color='#555',fld_font_weight='bold')
-            footer.numberSpinner(value='^.hardQueryLimit',lbl='!!Limit',width='6em',smallDelta=1000)
-            
-
-    @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
         pane.div('^.title' ,_class='frameGridTitle')
-
 
     @struct_method
     def th_slotbar_importer(self,pane,frameCode=None,importer=None,**kwargs):
@@ -476,6 +482,13 @@ class TableHandlerView(BaseComponent):
  
 
     @struct_method
+    def th_slotbar_stats(self,pane,**kwargs):
+        menu = pane.menudiv(iconClass='iconbox sum')
+        menu.menuline(label='!!Group by',action='SET .statsTools.selectedPage = "groupby"; SET .viewPage= "statsTools"; ')
+        if self.ths_pandas_available():
+            menu.menuline(label='!!Pivot table',action='SET .statsTools.selectedPage = "pandas"; SET .viewPage= "statsTools";')
+
+    @struct_method
     def th_slotbar_queryMenu(self,pane,**kwargs):
         pane.div(_class='iconbox menubox magnifier').menu(storepath='.query.menu',_class='smallmenu',modifiers='*',
                     action="""
@@ -548,11 +561,11 @@ class TableHandlerView(BaseComponent):
                    _onResult='FIRE .query.currentQuery="__newquery__";FIRE .query.refreshMenues;')
 
         #SOURCE MENUVIEWS
-        pane.dataController("""genro.grid_configurator.loadView(gridId, (currentView || favoriteView),th_root);
+        pane.dataController("""genro.grid_configurator.loadView(gridId, (currentView || favoriteView));
                                 """,
                             currentView="^.grid.currViewPath",
                             favoriteView='^.grid.favoriteViewPath',
-                            gridId=gridId,th_root=th_root)
+                            gridId=gridId)
         q = Bag()
         pyviews = self._th_hook('struct',mangler=th_root,asDict=True)
         for k,v in pyviews.items():
@@ -574,11 +587,6 @@ class TableHandlerView(BaseComponent):
         #SOURCE MENUACTIONS
         pane.dataRemote('.resources.action.menu',self.table_script_resource_tree_data,
                         res_type='action', table=table,cacheTime=5)
-
-    @struct_method
-    def th_slotbar_viewsMenu(self,pane,**kwargs):
-        b = pane.div(_class='iconbox list',datapath='.grid')
-        b.menu(storepath='.structMenuBag',_class='smallmenu',modifiers='*',selected_fullpath='.currViewPath')
 
     @struct_method
     def th_slotbar_resourcePrints(self,pane,flags=None,from_resource=None,hidden=None,**kwargs):
@@ -735,21 +743,24 @@ class TableHandlerView(BaseComponent):
             }
             """,
             th_root=th_root,
+            
             lastQueryTime = '=.store?servertime',
             sectionbag = '=.sections',
             _fired = '^.sections_changed',
             _if = 'sectionbag.len()',
             _delay = 100)
-
+        frame.dataController("""
+            this.fireEvent('.runQueryDo_'+viewPage,true);
+        """,_runQueryDo='^.runQueryDo',viewPage='=.viewPage')
         store_kwargs.setdefault('weakLogicalDeleted',options.get('weakLogicalDeleted'))
-
         store = frame.grid.selectionStore(table=table,
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where',
                                queryMode='=.query.queryMode', 
                                sortedBy='=.grid.sorted',
                                customOrderBy='=.query.customOrderBy',
-                               pkeys='=.query.pkeys', _runQueryDo='^.runQueryDo',
+                               pkeys='=.query.pkeys', 
+                               _runQueryDo='^.runQueryDo_mainView',
                                _cleared='^.clearStore',
                                _onError="""return error;""", 
                                selectionName=selectionName, recordResolver=False, condition=condition,

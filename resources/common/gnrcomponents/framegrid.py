@@ -162,7 +162,39 @@ class FrameGridSlots(BaseComponent):
                                 validate_notnull=mandatory,
                                 popup=True,cols=1)
 
-          
+    @struct_method
+    def fg_slotbar_viewsMenu(self,pane,iconClass=None,**kwargs):
+        b = pane.div(_class= iconClass or 'iconbox list',datapath='.grid')
+        b.menu(storepath='.structMenuBag',_class='smallmenu',modifiers='*',selected_fullpath='.currViewPath')
+
+    @struct_method
+    def fg_viewConfigurator(self,grid,table=None,queryLimit=None,configurable=None):
+        grid.attributes['configurable'] = True
+        right = grid.parent.parent.borderContainer(region='right',width='160px',drawer='close',
+                                        splitter=True,border_left='1px solid silver')
+
+        confBar = right.contentPane(region='top')
+        confBar = confBar.slotToolbar('viewsMenu,currviewCaption,*,defView,saveView,deleteView',background='whitesmoke',height='20px')
+        confBar.currviewCaption.div('^.grid.currViewAttrs.caption',font_size='.9em',color='#666',line_height='16px')
+
+        gridId = grid.attributes.get('nodeId')
+        confBar.defView.slotButton('!!Favorite View',iconClass='th_favoriteIcon iconbox star',
+                                        action='genro.grid_configurator.setCurrentAsDefault(gridId);',gridId=gridId)
+        confBar.saveView.slotButton('!!Save View',iconClass='iconbox save',
+                                        action='genro.grid_configurator.saveGridView(gridId);',gridId=gridId)
+        confBar.deleteView.slotButton('!!Delete View',iconClass='iconbox trash',
+                                    action='genro.grid_configurator.deleteGridView(gridId);',
+                                    gridId=gridId,disabled='^.grid.currViewAttrs.pkey?=!#v')
+        if queryLimit is not False and (table==getattr(self,'maintable',None) or configurable=='*'):
+            footer = right.contentPane(region='bottom',height='25px',border_top='1px solid silver',overflow='hidden').formbuilder(cols=1,font_size='.8em',
+                                                fld_color='#555',fld_font_weight='bold')
+            footer.numberSpinner(value='^.hardQueryLimit',lbl='!!Limit',width='6em',smallDelta=1000)
+
+        right.contentPane(region='center').fieldsTree(table=table,checkPermissions=True,trash=True)
+   
+
+            
+
 class FrameGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGridSlots'
     @extract_kwargs(top=True,grid=True,columnset=dict(slice_prefix=False,pop=True),footer=dict(slice_prefix=False,pop=True))
@@ -173,7 +205,7 @@ class FrameGrid(BaseComponent):
                     _newGrid=None,selectedPage=None,**kwargs):
         pane.attributes.update(overflow='hidden')
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
-        sc =frame.center.stackContainer(selectedPage=selectedPage)
+        frame.center.stackContainer(selectedPage=selectedPage)
         grid_kwargs.setdefault('fillDown', fillDown)
         grid_kwargs.update(footer_kwargs)
         grid_kwargs.update(columnset_kwargs)
@@ -186,16 +218,18 @@ class FrameGrid(BaseComponent):
         grid_kwargs['selfsubscribe_duprow'] = grid_kwargs.get('selfsubscribe_duprow','this.widget.addRows($1._counter,$1.evt,true);')
         grid_kwargs['selfsubscribe_delrow'] = grid_kwargs.get('selfsubscribe_delrow','this.widget.deleteSelectedRows();')
         grid_kwargs['selfsubscribe_archive'] = grid_kwargs.get('selfsubscribe_archive','this.widget.archiveSelectedRows();')
-
         #grid_kwargs['selfsubscribe_setSortedBy'] = """this.setRelativeData(this.attr.sortedBy,$1);"""
         grid_kwargs.setdefault('selectedId','.selectedId')
-        frame.includedView(autoWidth=False,
+        envelope_bc = frame.borderContainer(childname='grid_envelope',pageName='mainView',
+                                            title=grid_kwargs.pop('title','!!Grid'))
+        grid = envelope_bc.contentPane(region='center').includedView(autoWidth=False,
                           storepath=storepath,datamode=datamode,
                           dynamicStorepath=dynamicStorepath,
                           datapath='.grid',
                           struct=struct,table=table,
-                          pageName='grid',
+                          parentFrame=frame.attributes.get('frameCode'), #considering autocalc frameCode
                           **grid_kwargs)
+        frame.grid = grid
         if top_kwargs:
             top_kwargs['slotbar_view'] = frame
             frame.top.slotToolbar(**top_kwargs)

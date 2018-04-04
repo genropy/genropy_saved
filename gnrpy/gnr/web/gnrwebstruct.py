@@ -1044,6 +1044,15 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """
         self.selectionStore(storeCode=storeCode,table=table, storepath=storepath,columns=columns,**kwargs)
         
+    def _storeParentFrame(self):
+        attr = self.attributes
+        if attr.get('frameCode'):
+            parentFramePaneNode = self.parentNode.attributeOwnerNode('tag',attrvalue='FramePane')
+            parent = parentFramePaneNode.value 
+        else:
+            parent = self.parent
+        return parent
+
     def selectionStore(self,table=None,storeCode=None,storepath=None,columns=None,handler=None,**kwargs):
         """TODO
         
@@ -1069,11 +1078,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if parentTag =='includedview' or  parentTag =='newincludedview':
             attr['table'] = table
             storepath = storepath or attr.get('storepath') or '.store'
-            
             storeCode = storeCode or attr.get('nodeId') or  attr.get('frameCode') 
             attr['store'] = storeCode
-            parent = self.parent
-              
+            parent = self._storeParentFrame()
         if parentTag == 'palettegrid':            
             storeCode=storeCode or attr.get('paletteCode')
             attr['store'] = storeCode
@@ -1083,6 +1090,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return parent.child('SelectionStore',storepath=storepath, table=table, nodeId=nodeId,columns=columns,handler=handler,**kwargs)
         #ds = parent.dataSelection(storepath, table, nodeId=nodeId,columns=columns,**kwargs)
         #ds.addCallback('this.publish("loaded",{itemcount:result.attr.rowCount}')
+
     
 
     def bagStore(self,table=None,storeCode=None,storepath=None,columns=None,_identifier=None,**kwargs):
@@ -1113,7 +1121,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             attr['tag'] = 'newincludedview'
             if _identifier:
                 attr['identifier'] = _identifier
-            parent = self.parent
+            parent = self._storeParentFrame()
+
         if parentTag == 'palettegrid':            
             storeCode=storeCode or attr.get('paletteCode')
             attr['store'] = storeCode
@@ -1138,7 +1147,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             storeCode = storeCode or attr.get('nodeId') or  attr.get('frameCode') 
             attr['store'] = storeCode
             attr['tag'] = 'newincludedview'
-            parent = self.parent
+            parent = self._storeParentFrame()
         if parentTag == 'palettegrid':            
             storeCode=storeCode or attr.get('paletteCode')
             attr['store'] = storeCode
@@ -1162,7 +1171,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             storeCode = storeCode or attr.get('nodeId') or  attr.get('frameCode') 
             attr['store'] = storeCode
             attr['tag'] = 'newincludedview'
-            parent = self.parent
+            parent = self._storeParentFrame()
         if parentTag == 'palettegrid':            
             storeCode=storeCode or attr.get('paletteCode')
             attr['store'] = storeCode

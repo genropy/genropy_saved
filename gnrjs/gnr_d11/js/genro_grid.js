@@ -49,6 +49,7 @@ gnr.getGridColumns = function(storeNode) {
     },'static');
     var result = objectKeys(columns).join(',');
     if(storeNodeId){
+        storeNode._previousColumns = storeNode._currentColumns;
         storeNode._currentColumns=result;
     }
     return result;
@@ -64,6 +65,9 @@ gnr.columnsFromStruct = function(struct, columns) {
     for (var i = 0; i < nodes.length; i++) {
         var node = nodes[i];
         var fld = node.attr.queryfield || node.attr.field;
+        if(node.attr.group_aggr){
+            fld = fld+'_'+node.attr.group_aggr;
+        }
         if(node.attr.template_columns){
             node.attr.template_columns.split(',').forEach(function(n){
                 arrayPushNoDup(columns,(n[0]=='$' || n[0]=='@')?n:'$'+n);
@@ -967,16 +971,20 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var auto = [];
         values.push(null);
         var struct = widget.structbag();
-        var cellsbag = struct?struct.getItem('#0.#0'): new gnr.GnrBag();
+        var cellsbag = struct && struct.getItem('#0.#0')?struct.getItem('#0.#0'): new gnr.GnrBag();
         var caption,cellattr,cell_cap,cell_field,fltList,colList,col;
         var cellmap = widget.cellmap;
         var cellobj;
+        var fld;
         cellsbag.forEach(function(n){
             cellattr = n.attr;
             
             cell_cap = cellattr.name || cellattr.field;
-            //cell_field = n.attr.field;
-            cellobj = cellmap[n.attr.field.replace(/\W/g, '_')];
+            cell_field = n.attr.field.replace(/\W/g, '_');
+            if(n.attr.group_aggr){
+                cell_field += '_'+ n.attr.group_aggr;
+            }
+            cellobj = cellmap[cell_field];
             if(cellobj.classes && cellobj.classes.indexOf('hiddenColumn')>=0){
                 return;
             }
@@ -1410,6 +1418,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 cell.rowTemplate = sourceNode.currentFromDatasource(cell.rowTemplate);
             }
             cell.field = cell.field.replace(/\W/g, '_');
+            if(cell.group_aggr){
+                cell.field += '_'+cell.group_aggr;
+            }
             cell.field_getter = cell.caption_field? cell.caption_field.replace(/\W/g, '_'):cell.field ;
             if(cell.caption_field || cell.values){
                 dtype = 'T';
@@ -1502,7 +1513,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 delete view.tag;
                 rows = [];
                 rowsnodes = viewnode.getValue().getNodes();
-                for (k = 0; k < rowsnodes.length; k++) {
+                for (var k = 0; k < rowsnodes.length; k++) {
 
                     rowBag = rowsnodes[k].getValue();
 
@@ -1591,7 +1602,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     mixin_moveColumn:function(col, toPos) {
         if (toPos != col) {
             var colsBag = this.structBag.getItem('#0.#0');
-            var nodeToMove = colsBag.popNode('#' + col);
+            var nodeToMove = colsBag.popNode('#' + col,false);
             colsBag.setItem(nodeToMove.label, null, nodeToMove.attr, {'_position':toPos});
         }
 
