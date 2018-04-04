@@ -8,11 +8,11 @@ genro_plugin_groupth = {
         root.freeze();
         var tr = root._('treeGrid',{storepath:'.treestore',autoCollapse:false,headers:true});
         var struct_row = structBag.getItem('#0.#0');
-        tr._('treegrid_column',{field:'description',header:''});
+        tr._('treegrid_column',{field:'description',header:'',size:400});
         var fld;
         
         struct_row.forEach(function(n){
-            if(n.attr.group_aggr || n.attr.group_nobreak){
+            if(n.attr.group_aggr && 'NLIRF'.indexOf(n.attr.dtype)>=0  || n.attr.group_nobreak){
                 fld = n.attr.field.replace(/\W/g, '_')+(n.attr.group_aggr?'_'+n.attr.group_aggr:'');
                 tr._('treegrid_column',{field:fld,dtype:n.attr.dtype,
                                         size:120,header:n.attr.name,format:n.attr.format});
@@ -35,16 +35,20 @@ genro_plugin_groupth = {
         }
         var row,kl,description,treepath;
         var group_by_cols = [];
+        var f;
         structBag.getItem('#0.#0').forEach(function(n){
-            if(!(n.attr.group_aggr || n.attr.group_nobreak)){
-                group_by_cols.push(n.attr.field);
+            if(!(n.attr.group_aggr && 'NLIRF'.indexOf(n.attr.dtype)>=0 || n.attr.group_nobreak)){
+                f = n.attr.field.replace(/\W/g, '_');
+                if(n.attr.group_aggr){
+                    f += '_'+n.attr.group_aggr.replace(/\W/g, '_').toLowerCase();
+                }
+                group_by_cols.push(f);
             }
         });
         gridstore.forEach(function(n){
             kl = [];
             row = objectUpdate({},n.attr);
             group_by_cols.forEach(function(k){
-                k = k.replace(/\W/g, '_');
                 description = objectPop(row,k) || '-';
                 kl.push(flattenString(description,['.']));
                 treepath = kl.join('.');

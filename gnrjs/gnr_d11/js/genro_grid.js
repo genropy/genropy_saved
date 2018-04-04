@@ -66,7 +66,7 @@ gnr.columnsFromStruct = function(struct, columns) {
         var node = nodes[i];
         var fld = node.attr.queryfield || node.attr.field;
         if(node.attr.group_aggr){
-            fld = fld+'_'+node.attr.group_aggr;
+            fld = fld+'_'+node.attr.group_aggr.toLowerCase().replace(/\W/g, '_');
         }
         if(node.attr.template_columns){
             node.attr.template_columns.split(',').forEach(function(n){
@@ -533,25 +533,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
     },
 
-    updateColumnsGroups:function(sourceNode){
-        var columnGroups = objectExtract(sourceNode.attr,'group_*',true);
-        if(objectNotEmpty(columnGroups)){
-            columnGroups = sourceNode.evaluateOnNode(columnGroups);
-            var result = new gnr.GnrBag();
-            for (var k in columnGroups) {
-                var gl = k.split('_');
-                var groupname = gl[0];
-                var n = result.getNode(groupname,null,true);
-                var kl = gl.slice(1).join('_');
-                n.attr[kl] = columnGroups[k];
-            }
-            sourceNode.columnGroups = result;
-        }else{
-            delete sourceNode.columnGroups;
-        }
-
-    },
-
     selfDragRowsPrepare:function(sourceNode) {
         gnr.convertFuncAttribute(sourceNode, 'selfDragRows', 'info');
         gnr.convertFuncAttribute(sourceNode, 'onSelfDropRows', 'rows,dropInfo');
@@ -617,7 +598,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         attributes.rowCount = attributes.rowCount || 0;
         attributes.fastScroll = attributes.fastScroll || false;
         sourceNode.dropModes = objectExtract(sourceNode.attr, 'dropTarget_*', true);
-        objectExtract(attributes, 'group_*');
         if (!sourceNode.dropTarget && objectNotEmpty(sourceNode.dropModes)) {
             sourceNode.dropTarget = true;
         }
@@ -753,9 +733,14 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             genro.pluginCommand(kw);
         });
         sourceNode.subscribe('updatedSelectedRow',function(){
-            var selectedIndex = widget.selection.selectedIndex;
-            widget.sourceNode.setAttributeInDatasource('selectedId', widget.rowIdByIndex(selectedIndex), null, widget.rowByIndex(selectedIndex), true);
+            var selectedIndex = this.widget.selection.selectedIndex;
+            this.widget.sourceNode.setAttributeInDatasource('selectedId', this.widget.rowIdByIndex(selectedIndex), 
+                                                                null, this.widget.rowByIndex(selectedIndex), true);
         });
+        sourceNode.subscribe('configuratorPalette',function(){
+            this.widget.configuratorPalette();
+        });
+
 
         if(sourceNode.getRelativeData('.filterset')){
             widget.filterManager = new gnr.GridFilterManager(widget);
@@ -864,6 +849,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             this.changedFocus(false); 
             this.sourceNode.publish('onBlur',{});
         });
+        dojo.connect(widget,'onCellClick',function(evt){
+            this.sourceNode.publish('onCellClick',{evt:evt,cellNode:evt.cellNode});
+        });
         if(sourceNode.attr.autoInsert){
             dojo.connect(widget,'setStorepath',function(val,kw){
                 if(kw.evt=='upd' && kw.reason!='autoRow' && kw.node.label==widget.masterEditColumn()){
@@ -878,7 +866,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     },
 
     cm_plugin_configurator:function(sourceNode,menu){
-        menu.setItem('#id',null,{caption:_T('Configure view'),action:"$2.widget.configureStructure();"});
+        menu.setItem('#id',null,{caption:_T('Configure grid'),action:"$2.widget.configuratorPalette();"});
     },
 
     cm_plugin_export_xls:function(sourceNode,menu){
@@ -982,7 +970,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             cell_cap = cellattr.name || cellattr.field;
             cell_field = n.attr.field.replace(/\W/g, '_');
             if(n.attr.group_aggr){
-                cell_field += '_'+ n.attr.group_aggr;
+                cell_field += '_'+ n.attr.group_aggr.toLowerCase().replace(/\W/g, '_');
             }
             cellobj = cellmap[cell_field];
             if(cellobj.classes && cellobj.classes.indexOf('hiddenColumn')>=0){
@@ -1419,7 +1407,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             cell.field = cell.field.replace(/\W/g, '_');
             if(cell.group_aggr){
-                cell.field += '_'+cell.group_aggr;
+                cell.field += '_'+cell.group_aggr.toLowerCase().replace(/\W/g, '_');
+                if(cell.dtype=='D' || cell.dtype=='DH'){
+                    dtype = 'T';
+                }
             }
             cell.field_getter = cell.caption_field? cell.caption_field.replace(/\W/g, '_'):cell.field ;
             if(cell.caption_field || cell.values){
@@ -1474,7 +1465,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if(_customGetter){
                 cell._customGetter = funcCreate(_customGetter);
             }
-            if(cell.dtype=='B'){
+            if(dtype=='B'){
                 formats['trueclass']= formats['trueclass'] || "checkboxOn";
                 formats['falseclass']= formats['falseclass'] || "checkboxOff";
             }
@@ -3678,27 +3669,102 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         }
     },
 
-    mixin_configureStructure:function(title){
-        var path = this.sourceNode.absDatapath(this.sourceNode.attr.structpath+'.#0.#0');
+
+    mixin_configuratorPalette:function(){
+        var gridId = this.sourceNode.attr.nodeId || this.sourceNode.getStringId();
+        var groupCode = '_currentPaletteGridConfigurator_'+gridId;
+        var root = genro.src.newRoot();
+        genro.src.getNode()._('div', groupCode);
+        var node = genro.src.getNode(groupCode).clearValue();
+        node.freeze();
+        var paletteGroup = node._('PaletteGroup',{title:'Grid configurator '+gridId,
+                                                groupCode:groupCode,
+                                                height:'400px',width:'600px','dockTo':false});
+        this._selectedColumnConfiguratorPalette(paletteGroup,groupCode);
+
+        this._structureConfiguratorPalette(paletteGroup,groupCode);
+
+        node.unfreeze();
+    },
+
+    mixin__selectedColumnConfiguratorPalette(parent,groupCode){
+        var gridId = (this.sourceNode.attr.nodeId || this.sourceNode.getStringId());
+        var kw = {title:'Column editor',paletteCode:groupCode+'_column_detail'};
+        var grid = this;
+        var stack_kw = {};
+        stack_kw['subscribe_'+gridId+'_onCellClick'] = function(click_kw){
+            var colspath = grid.sourceNode.absDatapath(grid.sourceNode.attr.structpath+'.#0.#0');
+            var cell = grid.getCell(click_kw.cellNode.cellIndex);
+            var cellData = new gnr.GnrBag(genro.getDataNode(colspath+'.'+cell._nodelabel).attr);
+            this.setRelativeData('.record',cellData);
+            cellData.subscribe('rowLogger',{'upd':function(triggerkw){
+                var node = genro.getDataNode(colspath+'.'+cell._nodelabel);
+                var updkw = {};
+                updkw[triggerkw.node.label] = triggerkw.value;
+                node.updAttributes(updkw);
+            }});
+            this.widget.switchPage(1);
+        };
+        var pane = parent._('PalettePane',kw);
+        var sc = pane._('stackContainer',stack_kw);
+        sc._('contentPane')._('div',{innerHTML:'No cell selected'})
+        var bc = sc._('borderContainer',{datapath:'.record'});
+        var fb;
+
+        fb = genro.dev.formbuilder(bc._('ContentPane',{region:'top'}),1,{border_spacing:'1px',margin:'5px'});
+        fb.addField('textbox',{value:'^.name',width:'15em',lbl:'Title'});
+
+
+        var tc = bc._('TabContainer',{margin:'2px',region:'center'});
+
+        fb = genro.dev.formbuilder(tc._('ContentPane',{title:'Main'}),1,{border_spacing:'1px',margin:'5px'});
+        fb.addField('combobox',{value:'^.format',width:'15em',lbl:'Format',values:'short,long,full'});
+        if(grid.collectionStore().storeNode.attr.groupByStore){
+            fb.addField('combobox',{value:'^.group_aggr',width:'15em',
+                        hidden:'^.dtype?="NLIRF".indexOf(#v)<0',
+                        lbl:'Aggregator',values:'sum,avg,min,max'}); 
+            fb.addField('checkbox',{value:'^.group_nobreak',
+                                    hidden:'^.dtype?="NLIRF".indexOf(#v)>=0',
+                                    label:_T('Group no break')})
+            fb.addField('combobox',{value:'^.group_aggr',values:'MM,YYYY,YYYY-MM,Day',
+                                    hidden:'^.dtype?="DDH".indexOf(#v)<0',
+                                    lbl:_T('Date as')})
+        }
+
+        fb = genro.dev.formbuilder(tc._('ContentPane',{title:'Style'}),1,{border_spacing:'1px',margin:'5px'});
+        fb.addField('colorTextBox',{value:'^.background',width:'15em',lbl:'Background',mode:'rgba'});
+        fb.addField('colorTextBox',{value:'^.color',width:'15em',lbl:'Foreground'});
+        fb.addField('textbox',{value:'^.width',width:'15em',lbl:'Width'});
+
+        //fb = genro.dev.formbuilder(tc._('ContentPane',{title:'Ranges'}),3,{border_spacing:'1px'});
+
+
+    },
+
+    mixin__structureConfiguratorPalette(parent,groupCode){
+        var colspath = this.sourceNode.absDatapath(this.sourceNode.attr.structpath+'.#0.#0');
         var that = this;
         var addrow = {content_class:'iconbox add_row',dtype:'N',calculated:true,
-                     ask:{title:_T('New Column'),
-                          fields:[{name:'field',lbl:'Field',validate_notnull:true},
-                                  {name:'name',lbl:'Name'},
-                                  {name:'dtype',lbl:'Dtype',values:'N:Numeric,T:Text,D:Date',wdg:'Combobox'},
-                                  {name:'formula',lbl:'Formula'},
-                                  {name:'calculated',label:'Calculated',wdg:'checkbox'}]}
-                    };
-        genro.dev.openBagEditorPalette(path,{title:title || 'Edit view '+this.sourceNode.attr.nodeId,
-                                            addrow:addrow,delrow:true,
-                                            grid_nodeId:this.sourceNode.attr.nodeId+'_viewEditor',
-                                            grid_addCheckBoxColumn:{field:'hidden',trueclass:'checkboxOff',falseclass:'checkboxOn'},
-                                            grid_onCreated:function(widget){
-                                                dojo.connect(that,'onSetStructpath',function(){
-                                                    widget.updateRowCount();
-                                                });
-                                            },
-                                           exclude:'dtype,field,tag,related_table,related_table_lookup,related_column,relating_column,rowcaption,caption_field'});
+                        ask:{title:_T('New Column'),
+                            fields:[{name:'field',lbl:'Field',validate_notnull:true},
+                                    {name:'name',lbl:'Name'},
+                                    {name:'dtype',lbl:'Dtype',values:'N:Numeric,T:Text,D:Date',wdg:'Combobox'},
+                                    {name:'formula',lbl:'Formula'},
+                                    {name:'calculated',label:'Calculated',wdg:'checkbox'}]}
+        };
+        var kw = {title: 'Structure',
+        'paletteCode':groupCode+'_struct_editor',
+        addrow:addrow,delrow:true,
+        grid_nodeId:this.sourceNode.attr.nodeId+'_viewEditor',
+        grid_addCheckBoxColumn:{field:'hidden',trueclass:'checkboxOff',falseclass:'checkboxOn'},
+        grid_onCreated:function(widget){
+            dojo.connect(that,'onSetStructpath',function(){
+                widget.updateRowCount();
+            });
+        },
+        'path':colspath,
+        exclude:'dtype,field,tag,related_table,related_table_lookup,related_column,relating_column,rowcaption,caption_field'};
+        parent._('PaletteBagEditor',kw);
     },
 
     mixin_setDynamicStorepath:function(newstorepath){

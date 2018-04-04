@@ -396,6 +396,7 @@ class GnrWebPage(GnrBaseWebPage):
                                 maxdate=datetime.date.max,mindate=datetime.date.min,
                                user=self.user, userTags=self.userTags, pagename=self.pagename,
                                mainpackage=self.mainpackage,_user_conf_expirebag=expirebag)
+            self._db.setLocale()
             avatar = self.avatar
             if avatar:
                 self._db.updateEnv(_excludeNoneValues=True,**self.avatar.extra_kwargs)

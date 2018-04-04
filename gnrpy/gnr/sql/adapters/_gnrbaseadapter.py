@@ -264,6 +264,9 @@ class SqlDbAdapter(object):
         result = """'<a %s >%s</a>'""" % (' '.join(['%s="%s"' %(k,v) for k,v in kw.items()]), link_txt)
         return result
 
+    def setLocale(self,locale):
+        pass
+        
     def ageAtDate(self, dateColumn, dateArg=None, timeUnit='day'):
         """Returns the sql clause to obtain the age of a dateColum measured as difference from the dateArg or the workdate
            And expressed with given timeUnit.

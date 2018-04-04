@@ -201,20 +201,10 @@ class FrameGridTools(BaseComponent):
 
     @struct_method
     def fg_advancedTools(self,view,table=None):
-        bar = view.grid_envelope.contentPane(region='top',hidden=True).slotToolbar('2,chartjs,tblconf,*',
-                                                                                    chartjs_gridId=view.grid.attributes['nodeId'])
-        pane = bar.tblconf.palettePane(paletteCode='%(frameCode)s_tblconf' %view.attributes, title='!!Grid configuration',
-                            dockButton_iconClass='iconbox spanner')
-        grid = view.grid
         view.grid_envelope.attributes['subscribe_%(frameCode)s_grid_advancedTools' %view.attributes] = "this.widget.setRegionVisible('top','toggle')"
-        frame = pane.framePane()
-        bar = frame.top.slotToolbar('*,stackButtons,*')
-        sc = frame.center.stackContainer()
-        sc.contentPane(title='Table')
-        tc = sc.tabContainer(title='Column',margin='2px')
-        tc.contentPane(title='Col')
-        tc.contentPane(title='Style')
-        tc.contentPane(title='Ranges')
+        bar = view.grid_envelope.contentPane(region='top',hidden=True).slotToolbar('2,gridconf,*,chartjs,2',
+                                                                                    chartjs_gridId=view.grid.attributes['nodeId'])
+        pane = bar.gridconf.slotButton('!!Open Configurator',action="_grid.publish('configuratorPalette');",_grid=view.grid)
             
 
 class FrameGrid(BaseComponent):

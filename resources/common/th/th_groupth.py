@@ -38,7 +38,6 @@ class TableHandlerGroupBy(BaseComponent):
         inattr = pane.getInheritedAttributes()
         table = table or inattr.get('table')
         tblobj = self.db.table(table)
-        datapath = datapath or '.%s' %frameCode
         linkedNode = None
         if not (where or condition or condition_kwargs):
             linkedTo = linkedTo or inattr.get('frameCode')
@@ -50,8 +49,8 @@ class TableHandlerGroupBy(BaseComponent):
                 raise self.exception('generic',msg='Missing linked tableHandler in groupByTableHandler')
             if not struct:
                 struct = self._th_hook('groupedStruct',mangler=linkedTo,defaultCb=self._thg_defaultstruct)
-                pane.data('%s.grid.showCounterCol' %datapath,True)
         frameCode = frameCode or 'thg_%s' %table.replace('.','_')
+        datapath = datapath or '.%s' %frameCode
         sc = pane.stackContainer(datapath=datapath,_class='group_by_th',selectedPage='^.group_mode',**kwargs)  
         frame = sc.frameGrid(frameCode=frameCode,grid_onDroppedColumn="""
                                     if('RNLIF'.indexOf(data.dtype)<0){
@@ -60,13 +59,13 @@ class TableHandlerGroupBy(BaseComponent):
                                         data.cell_group_aggr = 'sum';
                                     }
                                     """,
-                                    grid_configurable=True,
                                 grid_connect_onSetStructpath="""
                                             this.publish('changedStruct',{structBag:$1,kw:$2});
                                             """,
                                 pageName='grid',
                                 struct=struct,_newGrid=True,title='!!Grid')
-        bar = frame.top.slotToolbar('5,vtitle,*,searchOn,viewsMenu,export,counterCol,10,parentStackButtons,5')
+        frame.data('.grid.showCounterCol',True)
+        bar = frame.top.slotToolbar('5,vtitle,*,searchOn,viewsMenu,advancedTools,export,counterCol,10,parentStackButtons,5')
         title = title or '!!Grouped view'
         bar.vtitle.div(title,color='#444',font_weight='bold')
         bar.counterCol.div().checkbox(value='^.grid.showCounterCol',label='!!Counter column',label_color='#444')
@@ -144,6 +143,9 @@ class TableHandlerGroupBy(BaseComponent):
     def _thg_selectgroupby(self,struct=None,**kwargs):
         columns_list = list()
         group_list = list()
+        def asName(field,group_aggr):
+            return '%s_%s' %(field.replace('.','_').replace('@','_').replace('-','_'),
+                    group_aggr.replace('.','_').replace('@','_').replace('-','_').replace(' ','_').lower())
         for v in struct['#0.#0'].digest('#a'):
             if v['field'] =='_grp_count':
                 continue
@@ -151,17 +153,26 @@ class TableHandlerGroupBy(BaseComponent):
             if not col.startswith('@'):
                 col = '$%s' %col
             dtype = v.get('dtype')
-            if dtype in ('N','L','I','F','R') and v.get('group_aggr') is not False:
-                group_aggr =  v.get('group_aggr') or 'sum'
-                col = '%s(%s) AS %s' %(group_aggr,col, '%s_%s' %(v['field'].replace('.','_'),group_aggr))
+            group_aggr =  v.get('group_aggr')
+            
+            if dtype in ('N','L','I','F','R') and group_aggr is not False:
+                group_aggr =  group_aggr or 'sum'
+                col = '%s(%s) AS %s' %(group_aggr,col, asName(v['field'],group_aggr))
             else:
-                group_list.append(col)
-                caption_field = v.get('caption_field')
-                if caption_field:
-                    if not caption_field.startswith('@'):
-                        caption_field = '$%s' %caption_field
-                    group_list.append(caption_field)
-                    columns_list.append(caption_field)
+                if group_aggr:
+                    if dtype in ('D','DH'):
+                        col =  "to_char(%s,'%s')" %(col,group_aggr)
+                        group_list.append(col)
+                        col = '%s AS %s' %(col, asName(v['field'],group_aggr))
+                    #if dtype in ('T','C','A'):
+                else:
+                    group_list.append(col)
+                    caption_field = v.get('caption_field')
+                    if caption_field:
+                        if not caption_field.startswith('@'):
+                            caption_field = '$%s' %caption_field
+                        group_list.append(caption_field)
+                        columns_list.append(caption_field)
             columns_list.append(col)
         columns_list.append('count(*) AS _grp_count_sum')
         if not group_list:

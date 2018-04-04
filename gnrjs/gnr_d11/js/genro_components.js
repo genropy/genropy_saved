@@ -1641,7 +1641,7 @@ dojo.declare("gnr.widgets.PaletteBagNodeEditor", gnr.widgets.gnrwdg, {
 
 dojo.declare("gnr.widgets.PaletteBagEditor", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
-        var palette_kw = objectExtract(kw,'paletteCode,dockTo,title');
+        var palette_kw = objectExtract(kw,'paletteCode,groupCode,dockTo,title');
         objectUpdate(palette_kw,objectExtract(kw,'palette_*',null,true));
         palette_kw.palette_width = kw.palette_width || '500px';
         var pane = sourceNode._('PalettePane', palette_kw);

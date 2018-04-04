@@ -634,6 +634,10 @@ class GnrSqlDb(GnrObject):
     def vacuum(self):
         """TODO"""
         self.adapter.vacuum()
+    
+    def setLocale(self):
+        if self.currentEnv.get('locale'):
+            self.adapter.setLocale(self.currentEnv['locale'])
 
     #------------------ PUBLIC METHODS--------------------------
         
