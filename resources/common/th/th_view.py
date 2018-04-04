@@ -160,17 +160,17 @@ class TableHandlerView(BaseComponent):
             else:
                 templateManager = False
             if extendedQuery == '*':
-                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','importer','resourcePrints','resourceMails','resourceActions',batchAssign,'5',templateManager,'stats','chartjs','10',pageHooksSelector,'*']
+                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','importer','resourcePrints','resourceMails','resourceActions',batchAssign,'5',templateManager,'stats','advancedTools','10',pageHooksSelector,'*']
                 if self.isMobile:
                     base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','menuUserSets',statsSlot,'10',pageHooksSelector,'*']
 
             elif extendedQuery is True:
-                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5',statsSlot,'chartjs','10',pageHooksSelector,'*','count','5']
+                base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5',statsSlot,'advancedTools','10',pageHooksSelector,'*','count','5']
             else:
                 base_slots = extendedQuery.split(',')
         elif not virtualStore:
             if root_tablehandler:
-                base_slots = ['5','searchOn','5','count','viewsMenu','5','menuUserSets','*','export','5',statsSlot,'chartjs','10',pageHooksSelector,'5','resourcePrints','resourceMails','resourceActions','10']
+                base_slots = ['5','searchOn','5','count','viewsMenu','5','menuUserSets','*','export','5',statsSlot,'advancedTools','10',pageHooksSelector,'5','resourcePrints','resourceMails','resourceActions','10']
                 if searchOn is False:
                     base_slots.remove('searchOn')
             else:
@@ -187,7 +187,6 @@ class TableHandlerView(BaseComponent):
             top_kwargs['slots']= base_slots
         #top_kwargs['height'] = top_kwargs.get('height','20px')
         top_kwargs['_class'] = 'th_view_toolbar'
-        grid_kwargs['configurable'] = configurable
         grid_kwargs.setdefault('gridplugins', 'configurator,chartjs,stats' if virtualStore else 'configurator,chartjs')
         grid_kwargs['item_name_singular'] = self.db.table(table).name_long
         grid_kwargs['item_name_plural'] = self.db.table(table).name_plural or grid_kwargs['item_name']
@@ -196,14 +195,12 @@ class TableHandlerView(BaseComponent):
         frame = pane.frameGrid(frameCode=frameCode,childname='view',table=table,
                                struct = self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
                                datapath = '.view',top_kwargs = top_kwargs,_class = 'frameGrid',
-                               grid_kwargs = grid_kwargs,iconSize=16,_newGrid=True,**kwargs)  
+                               grid_kwargs = grid_kwargs,iconSize=16,_newGrid=True,advancedTools=True,
+                               configurable=configurable,**kwargs)  
         if statsEnabled:
             self._th_handle_stats_pages(frame)
         self._th_handle_page_hooks(frame,page_hooks)
-
         self._th_menu_sources(frame,extendedQuery=extendedQuery,bySample=bySample)
-        if configurable:
-            frame.grid.viewConfigurator(table,configurable=configurable)   
         self._th_viewController(frame,table=table,default_totalRowCount=extendedQuery == '*')
         store_kwargs = store_kwargs or dict()
         store_kwargs['parentForm'] = parentForm

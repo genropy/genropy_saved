@@ -10,7 +10,7 @@ from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrbag import Bag
 
-class FrameGridSlots(BaseComponent):
+class FrameGridTools(BaseComponent):
 
     @struct_method
     def fgr_slotbar_export(self,pane,_class='iconbox export',mode='xls',enable=None,rawData=True,parameters=None,**kwargs):
@@ -57,6 +57,12 @@ class FrameGridSlots(BaseComponent):
     def fgr_slotbar_duprow(self,pane,_class='iconbox copy',disabled='^.disabledButton',enable=None,delay=300,defaults=None,**kwargs):
         kwargs.setdefault('visible',enable)
         return pane.slotButton(label='!!Duplicate',publish='duprow',iconClass=_class,disabled=disabled,
+                                _delay=delay,**kwargs)
+
+    @struct_method
+    def fgr_slotbar_advancedTools(self,pane,_class='iconbox spanner',disabled=None,enable=None,delay=300,defaults=None,**kwargs):
+        kwargs.setdefault('visible',enable)
+        return pane.slotButton(label='!!Advanced tools',publish='advancedTools',iconClass=_class,disabled=disabled,
                                 _delay=delay,**kwargs)
 
     @struct_method
@@ -168,9 +174,10 @@ class FrameGridSlots(BaseComponent):
         b.menu(storepath='.structMenuBag',_class='smallmenu',modifiers='*',selected_fullpath='.currViewPath')
 
     @struct_method
-    def fg_viewConfigurator(self,grid,table=None,queryLimit=None,configurable=None):
+    def fg_viewConfigurator(self,view,table=None,queryLimit=None,region=None,configurable=None):
+        grid = view.grid
         grid.attributes['configurable'] = True
-        right = grid.parent.parent.borderContainer(region='right',width='160px',drawer='close',
+        right = view.grid_envelope.borderContainer(region=region or 'right',width='160px',drawer='close',
                                         splitter=True,border_left='1px solid silver')
 
         confBar = right.contentPane(region='top')
@@ -191,18 +198,33 @@ class FrameGridSlots(BaseComponent):
             footer.numberSpinner(value='^.hardQueryLimit',lbl='!!Limit',width='6em',smallDelta=1000)
 
         right.contentPane(region='center').fieldsTree(table=table,checkPermissions=True,trash=True)
-   
 
+    @struct_method
+    def fg_advancedTools(self,view,table=None):
+        bar = view.grid_envelope.contentPane(region='top',hidden=True).slotToolbar('2,chartjs,tblconf,*',
+                                                                                    chartjs_gridId=view.grid.attributes['nodeId'])
+        pane = bar.tblconf.palettePane(paletteCode='%(frameCode)s_tblconf' %view.attributes, title='!!Grid configuration',
+                            dockButton_iconClass='iconbox spanner')
+        grid = view.grid
+        view.grid_envelope.attributes['subscribe_%(frameCode)s_grid_advancedTools' %view.attributes] = "this.widget.setRegionVisible('top','toggle')"
+        frame = pane.framePane()
+        bar = frame.top.slotToolbar('*,stackButtons,*')
+        sc = frame.center.stackContainer()
+        sc.contentPane(title='Table')
+        tc = sc.tabContainer(title='Column',margin='2px')
+        tc.contentPane(title='Col')
+        tc.contentPane(title='Style')
+        tc.contentPane(title='Ranges')
             
 
 class FrameGrid(BaseComponent):
-    py_requires='gnrcomponents/framegrid:FrameGridSlots'
+    py_requires='gnrcomponents/framegrid:FrameGridTools'
     @extract_kwargs(top=True,grid=True,columnset=dict(slice_prefix=False,pop=True),footer=dict(slice_prefix=False,pop=True))
     @struct_method
     def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,dynamicStorepath=None,structpath=None,
                     datamode=None,table=None,grid_kwargs=True,top_kwargs=None,iconSize=16,
                     footer_kwargs=None,columnset_kwargs=None,footer=None,columnset=None,fillDown=None,
-                    _newGrid=None,selectedPage=None,**kwargs):
+                    _newGrid=None,selectedPage=None,configurable=None,advancedTools=True,**kwargs):
         pane.attributes.update(overflow='hidden')
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
         frame.center.stackContainer(selectedPage=selectedPage)
@@ -233,7 +255,13 @@ class FrameGrid(BaseComponent):
         if top_kwargs:
             top_kwargs['slotbar_view'] = frame
             frame.top.slotToolbar(**top_kwargs)
+        if advancedTools:
+            frame.advancedTools()
+        if table and configurable:
+            frame.viewConfigurator(table=table,configurable=configurable)   
         return frame
+
+
 
     @extract_kwargs(store=True)
     @struct_method

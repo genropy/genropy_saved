@@ -10,10 +10,14 @@ from gnr.core.gnrbag import Bag
 
 class ChartManager(BaseComponent):
     @struct_method
-    def crt_slotbar_chartjs(self,pane,_class='iconbox chart_bar',mode='bar',
+    def crt_slotbar_chartjs(self,pane,_class='iconbox chart_bar',mode='bar',gridId=None,
                             enable=None,rawData=True,parameters=None,**kwargs):
-        gridattr = pane.frame.grid.attributes
-        gridId = gridattr['nodeId']
+        if gridId:
+            gridNode = self.pageSource().nodeById(gridId)
+            gridattr = gridNode.attr
+        else:
+            gridattr = pane.frame.grid.attributes
+            gridId = gridattr['nodeId']
         storepath = '#%s.chartsMenu' %gridId
         pane.slotButton(iconClass=_class,menupath=storepath,label='!!Charts',
                     action="genro.publish({topic:'openChart',nodeId:'%(nodeId)s'},$1);" %gridattr)
