@@ -4191,7 +4191,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
                 nodes = this.getSelectedNodes();
             }
             nodes.forEach(function(n,idx){
-                if(!filtered.length == 0 && filtered.indexOf(idx)>=0){
+                if(filtered.length == 0 || filtered.indexOf(idx)>=0){
                     result.setItem(n.label,n);
                 }
             });
