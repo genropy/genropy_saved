@@ -81,6 +81,8 @@ class BaseResourceExport(BaseResourceBatch):
                     if cell.getAttr('hidden') is True:
                         continue
                     col = self.db.colToAs(cell.getAttr('caption_field') or cell.getAttr('field'))
+                    if cell.getAttr('group_aggr'):
+                        col = '%s_%s' %(col,cell.getAttr('group_aggr'))
                     self.columns.append(col)
                     self.headers.append(cell.getAttr('name'))
                     self.coltypes[col] = cell.getAttr('dtype')

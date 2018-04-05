@@ -1797,7 +1797,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
                          parentForm:false,width:objectPop(kw,'width') || '6em',
                         connect_focus:function(){this.domNode.select()}});
         sourceNode.registerSubscription(nodeId + '_updmenu', this, function(searchOn) {
-            menubag = this._prepareSearchBoxMenu(searchOn, databag);
+            menubag = this._prepareSearchBoxMenu(searchOn, sourceNode.getRelativeData());
         });
         return searchbox;
     },

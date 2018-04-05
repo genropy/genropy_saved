@@ -518,8 +518,12 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
                         if((c.dtype || 'T') in types && !(c.field in s)){
                             var f = c.field_getter || c.field;
                             f = f.replace(/\W/g, '_');
+                            if(c.group_aggr){
+                                f+='_'+c.group_aggr.toLowerCase().replace(/\W/g, '_');
+                            }
                             c.code = f;
                             s[f] = true;
+                            
                             result.push(c);
                         }
                     });
