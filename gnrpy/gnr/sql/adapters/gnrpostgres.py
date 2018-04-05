@@ -225,11 +225,12 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         self.dbroot.connection.set_isolation_level(ISOLATION_LEVEL_READ_COMMITTED)
     
     def setLocale(self,locale):
-        if not locale:
-            return
-        if len(locale)==2:
-            locale = '%s_%s' %(locale.lower(),locale.upper())
-        self.dbroot.execute("SET lc_time = '%s' " %locale.replace('-','_'))
+        pass
+        #if not locale:
+        #    return
+        #if len(locale)==2:
+        #    locale = '%s_%s' %(locale.lower(),locale.upper())
+        #self.dbroot.execute("SET lc_time = '%s' " %locale.replace('-','_'))
         
     def listen(self, msg, timeout=10, onNotify=None, onTimeout=None):
         """Listen for message 'msg' on the current connection using the Postgres LISTEN - NOTIFY method.
