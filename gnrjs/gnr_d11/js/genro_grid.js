@@ -4184,7 +4184,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         var result = new gnr.GnrBag();
         var nodes;
         if (rawData===true){
-            var filtered = this.collectionStore()._filtered;
+            var filtered = this.collectionStore()._filtered || [];
             if(nodes=='all'){
                 nodes = this.collectionStore().getData().getNodes();
             }else if(nodes=='selected'){
