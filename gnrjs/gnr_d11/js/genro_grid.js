@@ -4179,17 +4179,22 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         return this.collectionStore().resetFilter();
     },
     
-    mixin_currentData:function(nodes, rawData){
+    mixin_currentData:function(nodes, rawData,filtered){
         var nodes = nodes || (this.getSelectedRowidx().length<1?'all':'selected');
         var result = new gnr.GnrBag();
         var nodes;
         if (rawData===true){
+            var filtered = this.collectionStore()._filtered;
             if(nodes=='all'){
                 nodes = this.collectionStore().getData().getNodes();
             }else if(nodes=='selected'){
                 nodes = this.getSelectedNodes();
             }
-            dojo.forEach(nodes,function(n){result.setItem(n.label,n);});
+            nodes.forEach(function(n,idx){
+                if(!filtered.length == 0 && filtered.indexOf(idx)>=0){
+                    result.setItem(n.label,n);
+                }
+            });
         }else{
             var col_fields = this.structbag().getItem('#0.#0').digest('#a.field,#a.hidden');
             var col_names = [];
@@ -4210,12 +4215,10 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
                     curr_row += 1;
                 }
             }
-
-
         }
-        
         return result;
     },
+
     mixin_serverAction:function(kw){
         var options = objectPop(kw,'opt');
         var allRows = objectPop(kw,'allRows');
@@ -4230,7 +4233,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             kwargs['selectionName'] = this.collectionStore().selectionName;
             kwargs['selectedRowidx'] = allRows?[]:this.getSelectedRowidx();
         }else{
-            kwargs['data'] = this.currentData(allRows?'all':null , useRawData);
+            kwargs['data'] = this.currentData(allRows?'all':null , useRawData,true);
         }
         kwargs['table'] =this.sourceNode.attr.table;
         kwargs['datamode'] = useRawData?this.datamode:'attr';
