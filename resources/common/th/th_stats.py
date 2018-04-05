@@ -90,7 +90,8 @@ class TableHandlerStats(BaseComponent):
             #_delay=2000,
             bcNode=bc)
         if not indipendentQuery:
-            bc.dataController("FIRE .stats.run_pivot_do",_runQuery='^.#parent.runQueryDo')
+            linkedNode = self.pageSource().findNodeByAttr('frameCode', relatedTableHandlerFrameCode)
+            linkedNode.value.dataController("bc.fireEvent('.stats.run_pivot_do',true);",_runQuery='^.runQueryDo',bc=bc)
         bc.dataRpc(None,self.ths_getPivotTable,
                     table=table,
                     relatedTable=relatedTable,
