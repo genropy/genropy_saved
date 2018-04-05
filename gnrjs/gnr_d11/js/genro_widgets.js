@@ -4806,6 +4806,7 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
         }
         var gnr = this;
         var marker_type = objectPop(kw,'marker_type') || 'default';
+        var onClick = objectPop(kw, 'onClick')
         this.onPositionCall(sourceNode,marker,function(position){
             if (position){
                 kw.position=position;
@@ -4814,7 +4815,10 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
                 if(kw.color){
                     objectUpdate(kw,gnr._markerColorKwargs(kw.color))
                 }
-                sourceNode.markers[marker_name] = new gnr.markers_types[marker_type](kw);                
+                sourceNode.markers[marker_name] = new gnr.markers_types[marker_type](kw);
+                if (onClick){
+                    sourceNode.markers[marker_name].addListener('click', function(e){onClick(marker_name, e)});
+                }               
             }
         });
         if(sourceNode.attr.autoFit){
