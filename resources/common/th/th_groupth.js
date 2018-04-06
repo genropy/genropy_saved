@@ -8,7 +8,7 @@ genro_plugin_groupth = {
         root.freeze();
         var tr = root._('treeGrid',{storepath:'.treestore',autoCollapse:false,headers:true,_class:'groupby_tree'});
         var struct_row = structBag.getItem('#0.#0');
-        tr._('treegrid_column',{field:'description',header:'',size:400});
+        tr._('treegrid_column',{field:'description',header:''});
         var fld;
         
         struct_row.forEach(function(n){

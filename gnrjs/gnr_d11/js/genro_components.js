@@ -2124,6 +2124,12 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
 
     gnrwdg_refresh:function(){
         var that = this;
+        this.mainCellSize = parseInt(this.columns_bag.getAttr('#0').size);
+        if(!this.mainCellSize){
+            var otherSize = 0;
+            this.columns_bag.getNodes().slice(1).forEach(n=>otherSize+=parseInt(n.attr.size));
+            this.mainCellSize = Math.max((this.centerNode.domNode.clientWidth-70-otherSize),200);
+        }
         this.treeNode.widget.updateLabels();
         this.footersHeadersHandler('header');
         this.footersHeadersHandler('footer');
@@ -2178,9 +2184,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         var columns_bag = this.columns_bag;
         var mainCell = columns_bag.getAttr('#0');
         mainCell = this.sourceNode.evaluateOnNode(mainCell);
-        var maxwidth = this.width;
-        mainCell.size = parseInt(mainCell.size  || 150);
-        
+        var maxwidth = this.width;        
         var currx = 0;
         var cell;
         var l = [];
@@ -2189,8 +2193,8 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         var sn = this.sourceNode;
         var colkeys = this.columns_bag.keys().slice(1);
         var tplpars = {};
-        var mainCellSize = mainCell.size+21;//tree margin
-        var colswidth = maxwidth-mainCell.size-35;//border
+        var mainCellSize = this.mainCellSize+21;//tree margin
+        var colswidth = maxwidth-this.mainCellSize-35;//border
         var customKw,cellstyle,objStyle,conten,sizet;
         colkeys.forEach(function(key){
             n = columns_bag.getNode(key);
@@ -2250,8 +2254,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         var columns_bag = this.columns_bag;
         var mainCell = columns_bag.getAttr('#0');
         var maxwidth = this.width-35;
-        mainCell.size = parseInt(mainCell.size  || 150);
-        var colswidth = maxwidth-mainCell.size ;
+        var colswidth = maxwidth-this.mainCellSize ;
         var currx = 0;
         var cell;
         var l = [];
@@ -2283,7 +2286,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         var rowwidth = maxwidth-level*k;
         var objStyle=objectUpdate(objectFromStyle(mainCell._style),
         sn.evaluateOnNode(genro.dom.getStyleDict(objectUpdate({},mainCell), [ 'width'])))
-        objStyle['width']=(mainCell.size-level*k)+'px';
+        objStyle['width']=(this.mainCellSize-level*k)+'px';
         objStyle['overflow'] = 'hidden';
         var cellstyle=objectAsStyle(objStyle)
         this.cellsWidth = currx;
