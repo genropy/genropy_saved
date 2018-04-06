@@ -275,7 +275,11 @@ class TableHandlerView(BaseComponent):
         
         sc = bc.stackContainer(selectedPage='^.selectedPage',selfsubscribe_selected="""
         if($1.selected){
-            this.setRelativeData('.selectedTitle',this.widget.gnrPageDict[p_0.page].title);
+            var that = this;
+            var pageTitle = this.widget.gnrPageDict[p_0.page].title;
+            setTimeout(function(){
+                that.setRelativeData('.selectedTitle',pageTitle);
+            },1);         
         }
         """,region='center')
         sc.contentPane(title='!!Group by',pageName='groupby').groupByTableHandler()

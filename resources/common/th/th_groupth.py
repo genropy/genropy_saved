@@ -63,10 +63,9 @@ class TableHandlerGroupBy(BaseComponent):
                                             this.publish('changedStruct',{structBag:$1,kw:$2});
                                             """,
                                 pageName='grid',
-                                struct=struct,_newGrid=True,title='!!Grid')
+                                struct=struct,_newGrid=True,title='!!Grid View')
         frame.data('.grid.showCounterCol',True)
-        bar = frame.top.slotToolbar('5,vtitle,*,searchOn,viewsMenu,advancedTools,export,counterCol,10,parentStackButtons,5')
-        title = title or '!!Grouped view'
+        bar = frame.top.slotToolbar('5,parentStackButtons,vtitle,counterCol,*,searchOn,viewsMenu,advancedTools,export,5')
         bar.vtitle.div(title,color='#444',font_weight='bold')
         bar.counterCol.div().checkbox(value='^.grid.showCounterCol',label='!!Counter column',label_color='#444')
         frame.grid.dataController("""
@@ -76,7 +75,7 @@ class TableHandlerGroupBy(BaseComponent):
             structrow.popNode('_grp_count');
         }
         """,structrow='=.struct.#0.#0',showCounterCol='^.showCounterCol',_if='structrow')
-        self._thg_treeview(sc.framePane(title='Tree',pageName='tree'),title=title,grid=frame.grid,treeRoot=treeRoot)
+        self._thg_treeview(sc.framePane(title='Tree View',pageName='tree'),title=title,grid=frame.grid,treeRoot=treeRoot)
         
         if linkedNode:
             linkedNode.value.dataController("""
@@ -120,10 +119,9 @@ class TableHandlerGroupBy(BaseComponent):
 
 
     def _thg_treeview(self,frame,title=None, grid=None,treeRoot=None,**kwargs):
-        bar = frame.top.slotToolbar('5,vtitle,*,addTreeRoot,searchOn,10,parentStackButtons,5')
-        title = title or '!!Grouped view'
+        bar = frame.top.slotToolbar('5,parentStackButtons,vtitle,addTreeRoot,*,searchOn,5')
         bar.vtitle.div(title,color='#444',font_weight='bold')
-        fb = bar.addTreeRoot.formbuilder(cols=1,border_spacing='2px',color='#666')
+        fb = bar.addTreeRoot.div(_class='iconbox tag').tooltipPane().formbuilder(cols=1,border_spacing='2px',color='#666')
         fb.textbox(value='^.treeRootName',lbl='!!Root',width='7em')
         bar.data('.treeRootName',treeRoot)
         pane = frame.center.contentPane()
