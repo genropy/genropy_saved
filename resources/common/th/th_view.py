@@ -191,7 +191,8 @@ class TableHandlerView(BaseComponent):
         grid_kwargs['item_name_singular'] = self.db.table(table).name_long
         grid_kwargs['item_name_plural'] = self.db.table(table).name_plural or grid_kwargs['item_name']
         grid_kwargs.setdefault('loadingHider',loadingHider)
-        grid_kwargs.setdefault('selfsubscribe_loadingData',"this.setRelativeData('.loadingData',$1.loading);if(this.attr.loadingHider!==false){this.setHiderLayer($1.loading,{message:''});}")
+
+        grid_kwargs.setdefault('selfsubscribe_loadingData',"this.setRelativeData('.loadingData',$1.loading);if(this.attr.loadingHider!==false){this.setHiderLayer($1.loading,{message:'%s'});}" %self._th_waitingElement())
         frame = pane.frameGrid(frameCode=frameCode,childname='view',table=table,
                                struct = self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
                                datapath = '.view',top_kwargs = top_kwargs,_class = 'frameGrid',
@@ -236,6 +237,9 @@ class TableHandlerView(BaseComponent):
                     return genro.serverCall('renderTemplate',{record_id:pkey,table:table,tplname:tpl,missingMessage:'Preview not available'},null,null,'POST');
                 """,modifiers='Ctrl',validclass='dojoxGrid-cell,cellContent')
         return frame
+    
+    def _th_waitingElement(self):
+        return """<div style="height:130px;opacity:.8; width:200px;" class="waiting">&nbsp;</div>"""
 
     def _th_view_contextMenu(self,grid):
         b = Bag()

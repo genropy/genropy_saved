@@ -92,6 +92,8 @@ class TableHandlerGroupBy(BaseComponent):
         self._thg_structMenuData(frame,table=table,linkedTo=linkedTo)
        
         frame.viewConfigurator(table,queryLimit=False)
+        frame.grid.attributes.setdefault('selfsubscribe_loadingData',"this.setRelativeData('.loadingData',$1.loading);if(this.attr.loadingHider!==false){this.setHiderLayer($1.loading,{message:'%s'});}" %self._th_waitingElement())
+
         frame.grid.selectionStore(table=table,where=where,selectmethod=self._thg_selectgroupby,
                                 childname='store',struct='=.grid.struct',
                                 groupByStore=True,
