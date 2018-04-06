@@ -6,7 +6,7 @@ genro_plugin_groupth = {
             return;
         }
         root.freeze();
-        var tr = root._('treeGrid',{storepath:'.treestore',autoCollapse:false,headers:true});
+        var tr = root._('treeGrid',{storepath:'.treestore',autoCollapse:false,headers:true,_class:'groupby_tree'});
         var struct_row = structBag.getItem('#0.#0');
         tr._('treegrid_column',{field:'description',header:'',size:400});
         var fld;

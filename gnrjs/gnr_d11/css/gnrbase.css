@@ -4557,7 +4557,7 @@ div[disabled='true'], div[disabled='disabled']{
     bottom:0;
     right:0;
     left:0;
-    color:#444;
+    color:#666;
     overflow: hidden;
 }
 .treeGridHeader{
@@ -4565,6 +4565,7 @@ div[disabled='true'], div[disabled='disabled']{
     top:0;
     left:0;
     right:0;
+    height: 18px;
 }
 .treeGridFooter{
     position:absolute;
@@ -4589,22 +4590,24 @@ div[disabled='true'], div[disabled='disabled']{
 
 .treeGridLayout .treecell{
     display: inline-block;
-    border-bottom: 1px solid #efefef;
-    border-left: 1px solid #efefef;
+    border-bottom: 1px solid #ddd;
+    border-left: 1px solid #ddd;
 }
 
 
 
 .treeGridLayout .treecell:last-child{
-    border-right:1px solid #efefef;
+    border-right:1px solid #ddd;
 }
 .treeGridLayout .treegrid .maincell.treecell{
+    border-left: 1px solid transparent;
 }
+
 
 .treeGridLayout .treeGridHeader .treecell{
     display: inline-block;
-    border-bottom: 0px solid black;
-    border-left: 1px solid #efefef;
+    border-bottom: 0px;
+    border-left: 1px solid #ddd;
     background: #204174;
     color:#efefef;
     line-height: 18px;
@@ -4614,15 +4617,16 @@ div[disabled='true'], div[disabled='disabled']{
 .treeGridLayout .treeGridFooter .treecell{
     display: inline-block;
     border-bottom: 0px solid black;
-    border-left: 1px solid #efefef;
+    border-left: 1px solid #ddd;
     background: #F8CF00;
     color:#204174;
     line-height: 18px;
     white-space: nowrap;
 }
 
+
 .treeGridLayout .treeGridHeader .treecell:last-child{
-    border-right:1px solid #efefef;
+    border-right:1px solid #ddd;
 }
 
 .treeCellContent{
@@ -4665,6 +4669,45 @@ div[disabled='true'], div[disabled='disabled']{
 .treeerow_viewport{
     display: inline-block;
 }
+
+.groupby_tree .dijitTreeContainer .treecell  {
+    color:#444;
+    font-style: italic;
+}
+.groupby_tree .treerow_folder .treecell  {
+    color:#444;
+    font-style: normal;
+}
+.groupby_tree .treerow_folder.treerow_level_0 .treecell  {
+    background-color: rgba(255, 253, 123, 0.20);
+    color:#444;
+}
+.groupby_tree .treerow_folder.treerow_level_1 .treecell  {
+    /*background-color: rgba(255, 253, 123, 0.20);*/
+    color:navy;
+}
+.groupby_tree .treerow_folder.treerow_level_2 .treecell  {
+    /*background-color: rgba(255, 253, 123, 0.20);*/
+    color:darkgreen;
+}
+.groupby_tree .treerow_folder.treerow_level_3 .treecell  {
+    /*background-color: rgba(255, 253, 123, 0.20);*/
+    color:darkgreen;
+}
+
+.groupby_tree .treerow_folder.treerow_level_4 .treecell  {
+    /*background-color: rgba(255, 253, 123, 0.20);*/
+    color:darkgreen;
+}
+
+
+.groupby_tree.treeGridLayout .treeGridHeader .treecell{
+    background: none;
+    color: #555;
+    border-bottom: 1px solid #ddd;
+    background: rgb(246, 246, 246);
+}
+
 
 
 /*.treerow.treerow_header*/

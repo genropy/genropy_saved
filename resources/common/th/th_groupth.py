@@ -120,23 +120,29 @@ class TableHandlerGroupBy(BaseComponent):
 
 
     def _thg_treeview(self,frame,title=None, grid=None,treeRoot=None,**kwargs):
-        bar = frame.top.slotToolbar('5,vtitle,*,searchOn,10,parentStackButtons,5')
+        bar = frame.top.slotToolbar('5,vtitle,*,addTreeRoot,searchOn,10,parentStackButtons,5')
         title = title or '!!Grouped view'
         bar.vtitle.div(title,color='#444',font_weight='bold')
+        fb = bar.addTreeRoot.formbuilder(cols=1,border_spacing='2px',color='#666')
+        fb.textbox(value='^.treeRootName',lbl='!!Root',width='7em')
+        bar.data('.treeRootName',treeRoot)
         pane = frame.center.contentPane()
         frame.dataController("""
-        genro.groupth.buildGroupTree(pane,structBag);
+        genro.groupth.buildGroupTree(pane,struct);
         FIRE .refresh_tree_data;
         """,_delay=500,pane=pane,storepath='.treestore',
+        _fired='^.rebuild_tree',
+        struct='=.grid.struct',
         **{'subscribe_%s_changedStruct' %grid.attributes['nodeId']:True})
         
         frame.dataController("""
-            SET .treestore = genro.groupth.groupTreeData(gridstore,grid.structBag,treeRoot);
-        """,gridstore='^.store',_fired='^.refresh_tree_data',treeRoot=treeRoot,
-        grid=grid.js_widget,_delay=1)
+
+            SET .treestore = genro.groupth.groupTreeData(gridstore,struct,treeRoot);
+        """,gridstore='^.store',_fired='^.refresh_tree_data',treeRoot='^.treeRootName',
+        struct='=.grid.struct', _delay=1)
         frame.dataController("""
-        grid.collectionStore().loadInvisible = (group_mode=='tree' && genro.dom.isVisible(pane))
-        """,group_mode='^.group_mode',grid=grid.js_widget,pane=pane)
+        grid.collectionStore().loadInvisible = (group_mode=='tree' && genro.dom.isVisible(pane));
+        """,group_mode='^.group_mode',grid=grid.js_widget,pane=pane,_delay=1)
 
         
     @public_method

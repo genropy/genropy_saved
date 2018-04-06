@@ -872,7 +872,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         if(this._shortcuts){
             this._shortcuts.forEach(function(kw){
-                console.log('remove shortcut',kw);
                 var args = kw.args;
                 kw.element.removeEventListener(args[0],args[1],args[2]);
             });

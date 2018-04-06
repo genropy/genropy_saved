@@ -312,12 +312,12 @@ dojo.declare("gnr.GnrStoreBag", null, {
             if (this.labelAttribute) {
                 return item.attr[this.labelAttribute] || item.label;
             } else if (this.labelCb) {
-                return this.labelCb.call(item);
+                return this.labelCb.call(item,this);
             }
             return item.label;
         } else if (typeof(item) == 'object') {
             if (this.labelCb) {
-                return this.labelCb.call(item);
+                return this.labelCb.call(item,this);
             } else {
                 return item.label;
             }

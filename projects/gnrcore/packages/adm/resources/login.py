@@ -89,6 +89,7 @@ class LoginComponent(BaseComponent):
                 fbnode.attr['hidden'] = '==!_avatar || _hide '
                 fbnode.attr['_avatar'] = '^gnr.avatar.user'
                 fbnode.attr['_hide'] = '%s?hidden' %fbnode.value['#1.#0?value']
+                
         if gnrtoken or not self.closable_login:
             pane.dataController("""
                             var href = window.location.href;
