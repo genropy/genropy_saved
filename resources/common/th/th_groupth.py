@@ -51,8 +51,10 @@ class TableHandlerGroupBy(BaseComponent):
                 struct = self._th_hook('groupedStruct',mangler=linkedTo,defaultCb=self._thg_defaultstruct)
         frameCode = frameCode or 'thg_%s' %table.replace('.','_')
         datapath = datapath or '.%s' %frameCode
-        sc = pane.stackContainer(datapath=datapath,_class='group_by_th',selectedPage='^.group_mode',**kwargs)  
-        frame = sc.frameGrid(frameCode=frameCode,grid_onDroppedColumn="""
+        sc = pane.stackContainer(datapath=datapath,_class='group_by_th',selectedPage='^.group_mode',_anchor=True,
+                                nodeId='%s_mainstack' %frameCode,**kwargs)  
+        gridstack = sc.stackContainer(pageName='grid',title='!!Grid View')
+        frame = gridstack.frameGrid(frameCode=frameCode,grid_onDroppedColumn="""
                                     if('RNLIF'.indexOf(data.dtype)<0){
                                         return;
                                     }else if (!data.group_aggr){
@@ -60,13 +62,13 @@ class TableHandlerGroupBy(BaseComponent):
                                     }
                                     """,
                                 grid_connect_onSetStructpath="""
-                                            this.publish('changedStruct',{structBag:$1,kw:$2});
-                                            """,
-                                pageName='grid',
-                                struct=struct,_newGrid=True,title='!!Grid View')
+                                    this.publish('changedStruct',{structBag:$1,kw:$2});
+                                """,struct=struct,_newGrid=True,pageName='flatview',title='!!Flat')
+
         frame.data('.grid.showCounterCol',True)
-        bar = frame.top.slotToolbar('5,parentStackButtons,vtitle,counterCol,*,searchOn,viewsMenu,advancedTools,export,5')
-        bar.vtitle.div(title,color='#444',font_weight='bold')
+        bar = frame.top.slotToolbar('5,ctitle,stackButtons,counterCol,*,searchOn,viewsMenu,advancedTools,export,parentStackButtons,5',
+                                    stackButtons_stackNodeId='%s_mainstack' %frameCode)
+        bar.ctitle.div(title,color='#444',font_weight='bold')
         bar.counterCol.div().checkbox(value='^.grid.showCounterCol',label='!!Counter column',label_color='#444')
         frame.grid.dataController("""
         if(showCounterCol){
@@ -75,8 +77,16 @@ class TableHandlerGroupBy(BaseComponent):
             structrow.popNode('_grp_count');
         }
         """,structrow='=.struct.#0.#0',showCounterCol='^.showCounterCol',_if='structrow')
-        self._thg_treeview(sc.framePane(title='Tree View',pageName='tree'),title=title,grid=frame.grid,treeRoot=treeRoot)
         
+        self._thg_stackedView(gridstack,title=title,grid=frame.grid,frameCode=frameCode)
+
+        self._thg_treeview(sc,title=title,grid=frame.grid,treeRoot=treeRoot)
+        
+
+        frame.dataController("""
+            grid.collectionStore().loadInvisible = (group_mode=='pivot' || group_mode=='tree') && genro.dom.isVisible(sc);
+        """,group_mode='^.group_mode',grid=frame.grid.js_widget,sc=sc,_delay=1)
+
         if linkedNode:
             linkedNode.value.dataController("""
             groupbygrid.collectionStore().loadData();""",
@@ -133,29 +143,45 @@ class TableHandlerGroupBy(BaseComponent):
 
 
 
-    def _thg_treeview(self,frame,title=None, grid=None,treeRoot=None,**kwargs):
-        bar = frame.top.slotToolbar('5,parentStackButtons,vtitle,addTreeRoot,*,searchOn,5')
-        bar.vtitle.div(title,color='#444',font_weight='bold')
+    def _thg_stackedView(self,parentStack,title=None, grid=None,frameCode=None,**kwargs):
+        frame = parentStack.bagGrid(frameCode='%s_stacked' %frameCode,title='!!Stacked',pageName='stacked',
+                                    datapath='.stacked',
+                                    storepath='.store',addrow=False,delrow=False,
+                                    datamode='attr')
+        bar = frame.top.bar.replaceSlots('#','5,ctitle,stackButtons,*,searchOn,export,parentStackButtons,5',stackButtons_stackNodeId='%s_mainstack' %frameCode)
+        bar.ctitle.div(title,color='#444',font_weight='bold')
+        frame.dataController("""
+            var r = genro.groupth.getPivotGrid(mainstore,mainstruct);
+            SET .store = r.store;
+            SET .grid.struct = r.struct;
+        """,mainstore='^#ANCHOR.store',
+            mainstruct='=#ANCHOR.grid.struct',
+            **{'subscribe_%s_changedStruct' %grid.attributes['nodeId']:True})
+
+
+
+    def _thg_treeview(self,parentStack,title=None, grid=None,treeRoot=None,**kwargs):
+        frame = parentStack.framePane(title='Tree View',pageName='tree')
+        bar = frame.top.slotToolbar('5,ctitle,parentStackButtons,addTreeRoot,*,searchOn,5')
+        bar.ctitle.div(title,color='#444',font_weight='bold')
         fb = bar.addTreeRoot.div(_class='iconbox tag').tooltipPane().formbuilder(cols=1,border_spacing='2px',color='#666')
         fb.textbox(value='^.treeRootName',lbl='!!Root',width='7em')
         bar.data('.treeRootName',treeRoot)
         pane = frame.center.contentPane()
         frame.dataController("""
-        genro.groupth.buildGroupTree(pane,struct);
-        FIRE .refresh_tree_data;
-        """,_delay=500,pane=pane,storepath='.treestore',
-        _fired='^.rebuild_tree',
-        struct='=.grid.struct',
-        **{'subscribe_%s_changedStruct' %grid.attributes['nodeId']:True})
-        
+            genro.groupth.buildGroupTree(pane,struct);
+            FIRE .refresh_tree_data;
+            """,
+            pane=pane,
+            storepath='.treestore',
+            struct='=.grid.struct',
+            **{'subscribe_%s_changedStruct' %grid.attributes['nodeId']:True})
         frame.dataController("""
-
             SET .treestore = genro.groupth.groupTreeData(gridstore,struct,treeRoot);
         """,gridstore='^.store',_fired='^.refresh_tree_data',treeRoot='^.treeRootName',
-        struct='=.grid.struct', _delay=1)
-        frame.dataController("""
-        grid.collectionStore().loadInvisible = (group_mode=='tree' && genro.dom.isVisible(pane));
-        """,group_mode='^.group_mode',grid=grid.js_widget,pane=pane,_delay=1)
+            struct='=.grid.struct')
+
+
 
         
     @public_method

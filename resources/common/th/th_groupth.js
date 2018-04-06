@@ -95,5 +95,83 @@ genro_plugin_groupth = {
                 }
             }
         });
+    },
+
+    getPivotGrid:function(sourceStore,sourceStruct){
+        if(!(sourceStore && sourceStruct)){
+            return {};
+        }
+        var resultStore = new gnr.GnrBag();
+        var resultStruct = new gnr.GnrBag();
+        var resultStructRow = new gnr.GnrBag();
+        resultStruct.setItem('views_0.rows_0',resultStructRow);
+
+        var struct_row = sourceStruct.getItem('#0.#0');
+        var grpcol = [];
+        var valuecols = [];
+        var nobreak = [];
+        var fld;
+        var attr;
+        struct_row.forEach(function(n){
+            attr = objectUpdate({},n.attr);
+            attr.col_getter = attr.field.replace(/\W/g, '_');
+            if (attr.group_aggr){
+                attr.col_getter+='_'+attr.group_aggr.replace(/\W/g, '_').toLowerCase();
+            }
+            if(attr.group_aggr && 'NLIRF'.indexOf(attr.dtype)>=0 ){                
+                valuecols.push(attr);
+            }else if (attr.group_nobreak){
+                nobreak.push(attr);
+            }else{
+                grpcol.push(attr);
+            }
+        });
+        var lastGrpcol = grpcol.pop();
+        var lastGrpcolField = lastGrpcol.col_getter;
+        var colset = Array.from(new Set(sourceStore.columns('#a.'+lastGrpcolField)[0])).sort();
+        var colsetDict = {};
+        
+        grpcol.concat(nobreak).forEach(function(attr,idx){
+            resultStructRow.setItem('cell_'+resultStructRow.len(),null,objectUpdate({},attr));
+        });
+        colset.forEach(function(f,colsetidx){
+            colsetDict[f]=colsetidx;
+            valuecols.forEach(function(attr){
+                attr = objectUpdate({},attr);
+                attr.field = attr.field+'_'+colsetidx;
+                attr.name = f+'<br/>'+attr.name;
+                attr.columnset = 'grp_'+colsetidx;
+                resultStructRow.setItem('cell_'+resultStructRow.len(),null,attr);
+            });
+        });
+        var colname,row,keylist,cskey,key,nodeToUpdate;
+        sourceStore.getNodes().forEach(function(n,idx){
+            row = {};
+            keylist = [];
+            attr = n.attr;
+            cskey = colsetDict[attr[lastGrpcolField]];
+            grpcol.forEach(function(f){
+                colname = f.col_getter;
+                keylist.push(attr[colname]);
+                row[colname] = attr[colname];
+            });
+            nobreak.forEach(function(f){
+                colname = f.col_getter;
+                row[colname] = attr[colname];
+            });
+            valuecols.forEach(function(f){
+                colname = f.field.replace(/\W/g, '_');
+                row[colname+'_'+cskey+'_'+f.group_aggr.replace(/\W/g, '_').toLowerCase()] = attr[f.col_getter];
+            });
+            key = keylist.join('_');
+            nodeToUpdate = resultStore.getNode(key);
+            if(!nodeToUpdate){
+                resultStore.setItem(key,null,row);
+            }else{
+                nodeToUpdate.updAttributes(row);
+            }
+        });
+        return {'struct':resultStruct,'store':resultStore};
     }
+
 };

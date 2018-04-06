@@ -1469,9 +1469,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 if ('_else' in remoteAttr){
                     var elseval=remoteAttr._else;
                     if (elseval && typeof(elseval)=='string'){
-                        elseval=funcCreate(elseval).call(this)
+                        elseval=funcCreate(elseval).call(this);
                     }
-                    this.mergeRemoteContent(elseval)
+                    this.mergeRemoteContent(elseval);
                 }
                 return;
             }
@@ -1584,7 +1584,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     
     watch: function(watchId,conditionCb,action,delay){
-        var delay=delay || 200;
+        delay=delay || 200;
         if(this.watches && (watchId in this.watches)){
             this.unwatch(watchId);
         }
