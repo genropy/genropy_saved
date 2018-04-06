@@ -95,7 +95,7 @@ class LoginComponent(BaseComponent):
                             var href = window.location.href;
                             if(window.location.search){
                                 var urlParsed = parseURL(window.location.href);
-                                objectPop(urlParsed.params,'gnrtoken');                                
+                                objectExtract(urlParsed.params,'gnrtoken,new_window,custom_index');        
                                 window.history.replaceState({},document.title,serializeURL(urlParsed));
 
                             }
