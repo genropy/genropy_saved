@@ -89,9 +89,8 @@ class TableHandlerGroupBy(BaseComponent):
                             currentView="^.grid.currViewPath",
                             favoriteView='^.grid.favoriteViewPath',
                             gridId=gridId)
-        frame.dataRemote('.grid.structMenuBag',self.th_menuViews,currentView="=.grid.currViewPath",
-                        table=table,th_root=frameCode,favoriteViewPath='=.grid.favoriteViewPath',
-                        cacheTime=30)
+        self._thg_structMenuData(frame,table=table,linkedTo=linkedTo)
+       
         frame.viewConfigurator(table,queryLimit=False)
         frame.grid.selectionStore(table=table,where=where,selectmethod=self._thg_selectgroupby,
                                 childname='store',struct='=.grid.struct',
@@ -116,6 +115,20 @@ class TableHandlerGroupBy(BaseComponent):
     def _thg_defaultstruct(self,struct):
         r=struct.view().rows()
         r.cell('_grp_count',name='Cnt',width='5em',group_aggr='sum',dtype='L')
+
+    
+    def _thg_structMenuData(self,frame,table=None,linkedTo=None):
+        q = Bag()
+        if linkedTo:
+            pyviews = self._th_hook('groupedStruct',mangler=linkedTo,asDict=True)
+            for k,v in pyviews.items():
+                prefix,name=k.split('_groupedStruct_')
+                q.setItem(name,self._prepareGridStruct(v,table=table),caption=v.__doc__)
+            frame.data('.grid.resource_structs',q)
+        frame.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),currentView="=.grid.currViewPath",
+                        table=table,th_root=frame.attributes['frameCode'],
+                        favoriteViewPath='=.grid.favoriteViewPath',cacheTime=30)
+
 
 
     def _thg_treeview(self,frame,title=None, grid=None,treeRoot=None,**kwargs):
