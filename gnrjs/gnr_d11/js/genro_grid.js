@@ -146,15 +146,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     mixin_setStructpath:function(val, kw) {
         this.structBag = genro.getData(this.sourceNode.attrDatapath('structpath')) || new gnr.GnrBag();
         this.cellmap = {};
-        var cellsChanged = true;
-        if(kw.pathlist && kw.pathlist.indexOf('_columnset_')){
-            cellsChanged = false;
-        }
-        if(cellsChanged){
-            this.setStructure(this.gnr.structFromBag(this.sourceNode, this.structBag, this.cellmap));
-            this.onSetStructpath(this.structBag,kw);
-            this.sourceNode.publish('onSetStructpath');
-        }
+        this.setStructure(this.gnr.structFromBag(this.sourceNode, this.structBag, this.cellmap));
+        this.onSetStructpath(this.structBag,kw);
+        this.sourceNode.publish('onSetStructpath');
     },
 
     mixin_getColumnInfo:function(cell){
