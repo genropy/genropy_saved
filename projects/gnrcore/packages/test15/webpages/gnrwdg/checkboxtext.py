@@ -94,8 +94,8 @@ class GnrCustomWebPage(object):
    
     def test_13_localization(self,pane):
         pane.checkBoxText(values="fatt:[!![it]Fattura],cli:[!![it]Cliente]",value='^.cbt',popup=True)
-        pane.filteringSelect(values="fatt:!![it]Fattura,cli:!![it]Cliente",value='^.flt')
-        pane.multiButton(values="fatt:!![it]Fattura,cli:!![it]Cliente",value='^.mb')
+        pane.filteringSelect(values="fatt:[!![it]Fattura],cli:[!![it]Cliente]",value='^.flt')
+        pane.multiButton(values="fatt:[!![it]Fattura],cli:[!![it]Cliente]",value='^.mb')
 
     def test_14_mode_valuesCb(self,pane):
         """First test description"""

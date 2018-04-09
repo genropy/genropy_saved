@@ -146,9 +146,15 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     mixin_setStructpath:function(val, kw) {
         this.structBag = genro.getData(this.sourceNode.attrDatapath('structpath')) || new gnr.GnrBag();
         this.cellmap = {};
-        this.setStructure(this.gnr.structFromBag(this.sourceNode, this.structBag, this.cellmap));
-        this.onSetStructpath(this.structBag,kw);
-        this.sourceNode.publish('onSetStructpath');
+        var cellsChanged = true;
+        if(kw.pathlist && kw.pathlist.indexOf('_columnset_')){
+            cellsChanged = false;
+        }
+        if(cellsChanged){
+            this.setStructure(this.gnr.structFromBag(this.sourceNode, this.structBag, this.cellmap));
+            this.onSetStructpath(this.structBag,kw);
+            this.sourceNode.publish('onSetStructpath');
+        }
     },
 
     mixin_getColumnInfo:function(cell){
@@ -1348,10 +1354,17 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
     },
     
-    structFromBag_cell:function(sourceNode,cellNode){
+    structFromBag_cell:function(sourceNode,cellNode,columnsets){
         var rowattrs = objectUpdate({}, cellNode.getParentNode().attr);
         rowattrs = objectExtract(rowattrs, 'classes,headerClasses,cellClasses');
+
         var cell = objectUpdate({field:cellNode.label}, rowattrs);
+        var columnset = cellNode.attr.columnset;
+        if(columnset){
+            var columnsetAttrs = columnsets.getAttr(columnset) || {};
+            objectUpdate(cell,objectExtract(columnsetAttrs,'cells_*',true));
+        }
+
         cell = objectUpdate(cell, cellNode.attr);
         var dtype = cell.dtype;
         var cell_name = _F(sourceNode.currentFromDatasource(cell.name),cell.name_format);
@@ -1495,11 +1508,15 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         if (struct) {
             sourceNode._serverTotalizeColumns = {};
             var bagnodes = struct.getNodes();
+            var columnsets = struct.getItem('info.columnsets') || new gnr.GnrBag();
             var formats, dtype, editor;
             var view, viewnode, rows, rowsnodes, i, k, j, cellsnodes, row, cell, rowattrs, rowBag;
             var editorPars = sourceNode.attr.gridEditorPars;
             for (var i = 0; i < bagnodes.length; i++) {
                 viewnode = bagnodes[i];
+                if(viewnode.label=='info'){
+                    continue;
+                }
                 view = objectUpdate({}, viewnode.attr);
                 delete view.tag;
                 rows = [];
@@ -1551,7 +1568,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
                     var that = this;
                     rowBag.forEach(function(n){
-                        cell = that.structFromBag_cell(sourceNode,n);
+                        cell = that.structFromBag_cell(sourceNode,n,columnsets);
                         row.push(cell);
                         cellmap[cell.field] = cell;
                     },'static');
@@ -3680,11 +3697,42 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         var paletteGroup = node._('PaletteGroup',{title:'Grid configurator '+gridId,
                                                 groupCode:groupCode,
                                                 height:'400px',width:'600px','dockTo':false});
+                                      
+        this._gridConfiguratorPalette(paletteGroup,groupCode);
+
         this._selectedColumnConfiguratorPalette(paletteGroup,groupCode);
 
         this._structureConfiguratorPalette(paletteGroup,groupCode);
 
         node.unfreeze();
+    },
+
+    mixin__gridConfiguratorPalette(parent,groupCode){
+        var gridId = (this.sourceNode.attr.nodeId || this.sourceNode.getStringId());
+        var kw = {title:_T('Grid editor'),paletteCode:groupCode+'_grid_overall'};        
+        var pane = parent._('PalettePane',kw);
+        var tc = pane._('tabContainer',{margin:'2px'});
+        var colsetpane = tc._('contentPane',{title:'Columnset'});
+        var structpath = this.sourceNode.absDatapath(this.sourceNode.attr.structpath);
+        var grid = colsetpane._('quickGrid',{value:'^'+structpath+'._columnset_'});
+        var colorpicker = {tag:'colorTextBox',mode:'rgba'};
+        grid._('column',{name:_T('Code'),field:'code',width:'5em'});
+        grid._('column',{name:_T('Description'),field:'description',edit:true,width:'12em'});
+        grid._('column',{name:_T('Background'),field:'background',edit:colorpicker,width:'12em'});
+        grid._('column',{name:_T('Foreground'),field:'color',edit:colorpicker,width:'12em'});
+        grid._('column',{name:_T('Columns background'),field:'cols_background',edit:colorpicker,width:'12em'});
+        grid._('tools',{tools:'delrow,addrow',position:'BR'});
+        
+            //var t = grid._('tools',objectUpdate({tools:tools,
+            //                              custom_tools:{addrow:{content_class:'iconbox add_row',ask:{title:'New Line',
+            //                                    fields:[{name:'attribute_key',lbl:'Key',validate_notnull:true},
+            //                                            {name:'dtype',lbl:'Datatype',
+            //                                            values:'T:Text,B:Boolean,L:Integer,N:Decimal,D:Date,H:Time',
+            //                                            wdg:'filteringSelect',default_value:'T'},
+            //                                            {name:'attribute_value',lbl:'Value'}]
+            //                                    }
+            //                        }
+            //}},tools_kw))
     },
 
     mixin__selectedColumnConfiguratorPalette(parent,groupCode){
@@ -3719,12 +3767,15 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
 
         fb = genro.dev.formbuilder(tc._('ContentPane',{title:'Main'}),1,{border_spacing:'1px',margin:'5px'});
         fb.addField('combobox',{value:'^.format',width:'15em',lbl:'Format',values:'short,long,full'});
+        fb.addField('textbox',{value:'^.columnset',width:'15em',lbl:'Columnset'});
+
         if(grid.collectionStore().storeNode.attr.groupByStore){
             fb.addField('combobox',{value:'^.group_aggr',width:'15em',
                         hidden:'^.dtype?="NLIRF".indexOf(#v)<0',
                         lbl:'Aggregator',values:'sum,avg,min,max'}); 
             fb.addField('checkbox',{value:'^.group_nobreak',
                                     hidden:'^.dtype?="NLIRF".indexOf(#v)>=0',
+                                    label_hidden :'^.dtype?="NLIRF".indexOf(#v)>=0',
                                     label:_T('Group no break')})
             fb.addField('combobox',{value:'^.group_aggr',values:'MM,YYYY,YYYY-MM,Day',
                                     hidden:'^.dtype?="DDH".indexOf(#v)<0',
@@ -3752,7 +3803,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
                                     {name:'formula',lbl:'Formula'},
                                     {name:'calculated',label:'Calculated',wdg:'checkbox'}]}
         };
-        var kw = {title: 'Structure',
+        var kw = {title: _T('Advanced configuration'),
         'paletteCode':groupCode+'_struct_editor',
         addrow:addrow,delrow:true,
         grid_nodeId:this.sourceNode.attr.nodeId+'_viewEditor',

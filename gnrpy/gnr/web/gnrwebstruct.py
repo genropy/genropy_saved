@@ -2316,6 +2316,12 @@ class GnrGridStruct(GnrStructData):
         self.tableobj = tableobj
         return self.child('view', **kwargs)
         
+    def info(self, **kwargs):        
+        return self.child('info',childname='info', **kwargs)
+
+    def columnsets(self, **kwargs):        
+        return self.child('columnsets',childname='columnsets', **kwargs)
+
     def rows(self, classes=None, cellClasses=None, headerClasses=None, **kwargs):
         """TODO
         
@@ -2324,6 +2330,18 @@ class GnrGridStruct(GnrStructData):
         :param headerClasses: TODO"""
         return self.child('rows', classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
         
+    def columnset(self,code=None,name=None,**kwargs):
+        columnsets = self
+        if self.attributes['tag']=='rows':
+            structroot = columnsets.parent.parent
+            columnsets = structroot.getItem('info.columnsets')
+            if not columnsets:
+                info = structroot.getItem('info')
+                if not info:
+                    info = structroot.info()
+                columnsets = info.columnsets()
+        return columnsets.child('columnset',code=code, name=name, childname=code,**kwargs)
+
     def cell(self, field=None, name=None, width=None, dtype=None, classes=None, cellClasses=None, 
             headerClasses=None,**kwargs):
         """Return a :ref:`cell`
@@ -2339,8 +2357,12 @@ class GnrGridStruct(GnrStructData):
             return 
         if field and getattr(self,'tblobj',None):
             kwargs.setdefault('calculated',self.tblobj.column(field) is None)
-
-        return self.child('cell', childcontent='', field=field, name=name or field, width=width, dtype=dtype,
+        row = self
+        parentAttributes = self.attributes
+        if  parentAttributes['tag'] == 'columnset':
+            row = self.parent.parent.parent.getItem('view_0.rows_0')
+            kwargs['columnset'] = parentAttributes['code']
+        return row.child('cell', childcontent='', field=field, name=name or field, width=width, dtype=dtype,
                           classes=classes, cellClasses=cellClasses, headerClasses=headerClasses,**kwargs)
                           
     

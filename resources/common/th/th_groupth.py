@@ -51,9 +51,9 @@ class TableHandlerGroupBy(BaseComponent):
                 struct = self._th_hook('groupedStruct',mangler=linkedTo,defaultCb=self._thg_defaultstruct)
         frameCode = frameCode or 'thg_%s' %table.replace('.','_')
         datapath = datapath or '.%s' %frameCode
-        sc = pane.stackContainer(datapath=datapath,_class='group_by_th',selectedPage='^.group_mode',_anchor=True,
+        sc = pane.stackContainer(datapath=datapath,_class='group_by_th',selectedPage='^.output',_anchor=True,
                                 nodeId='%s_mainstack' %frameCode,**kwargs)  
-        gridstack = sc.stackContainer(pageName='grid',title='!!Grid View')
+        gridstack = sc.stackContainer(pageName='grid',title='!!Grid View',selectedPage='^.groupMode')
         frame = gridstack.frameGrid(frameCode=frameCode,grid_onDroppedColumn="""
                                     if('RNLIF'.indexOf(data.dtype)<0){
                                         return;
@@ -66,7 +66,7 @@ class TableHandlerGroupBy(BaseComponent):
                                 """,struct=struct,_newGrid=True,pageName='flatview',title='!!Flat')
 
         frame.data('.grid.showCounterCol',True)
-        bar = frame.top.slotToolbar('5,ctitle,stackButtons,counterCol,*,searchOn,viewsMenu,advancedTools,export,parentStackButtons,5',
+        bar = frame.top.slotToolbar('5,ctitle,stackButtons,10,groupByModeSelector,counterCol,*,searchOn,viewsMenu,advancedTools,export,5',
                                     stackButtons_stackNodeId='%s_mainstack' %frameCode)
         bar.ctitle.div(title,color='#444',font_weight='bold')
         bar.counterCol.div().checkbox(value='^.grid.showCounterCol',label='!!Counter column',label_color='#444')
@@ -84,8 +84,9 @@ class TableHandlerGroupBy(BaseComponent):
         
 
         frame.dataController("""
-            grid.collectionStore().loadInvisible = (group_mode=='pivot' || group_mode=='tree') && genro.dom.isVisible(sc);
-        """,group_mode='^.group_mode',grid=frame.grid.js_widget,sc=sc,_delay=1)
+            grid.collectionStore().loadInvisible = genro.dom.isVisible(sc);
+        """,output='^.output',groupMode='^.groupMode',
+            grid=frame.grid.js_widget,sc=sc,_delay=1)
 
         if linkedNode:
             linkedNode.value.dataController("""
@@ -124,9 +125,15 @@ class TableHandlerGroupBy(BaseComponent):
                             selectmethod,sqlContextName,sum_columns,table,timeout,totalRowCount,userSets,_sections,
                             _onCalling,_onResult""",
                                 condition=condition,**condition_kwargs)
+
+
     def _thg_defaultstruct(self,struct):
         r=struct.view().rows()
         r.cell('_grp_count',name='Cnt',width='5em',group_aggr='sum',dtype='L')
+
+    @struct_method
+    def thg_slotbar_groupByModeSelector(self,pane,**kwargs):
+        pane.multiButton(value='^#ANCHOR.groupMode',values='flatview:[!![en]Flat],stackedview:[!![en]Stacked]')
 
     
     def _thg_structMenuData(self,frame,table=None,linkedTo=None):
@@ -144,11 +151,11 @@ class TableHandlerGroupBy(BaseComponent):
 
 
     def _thg_stackedView(self,parentStack,title=None, grid=None,frameCode=None,**kwargs):
-        frame = parentStack.bagGrid(frameCode='%s_stacked' %frameCode,title='!!Stacked',pageName='stacked',
+        frame = parentStack.bagGrid(frameCode='%s_stacked' %frameCode,title='!!Stacked',pageName='stackedview',
                                     datapath='.stacked',
                                     storepath='.store',addrow=False,delrow=False,
                                     datamode='attr')
-        bar = frame.top.bar.replaceSlots('#','5,ctitle,stackButtons,*,searchOn,export,parentStackButtons,5',stackButtons_stackNodeId='%s_mainstack' %frameCode)
+        bar = frame.top.bar.replaceSlots('#','5,ctitle,stackButtons,10,groupByModeSelector,*,searchOn,export,5',stackButtons_stackNodeId='%s_mainstack' %frameCode)
         bar.ctitle.div(title,color='#444',font_weight='bold')
         frame.dataController("""
             var r = genro.groupth.getPivotGrid(mainstore,mainstruct);
@@ -159,27 +166,39 @@ class TableHandlerGroupBy(BaseComponent):
             **{'subscribe_%s_changedStruct' %grid.attributes['nodeId']:True})
 
 
-
     def _thg_treeview(self,parentStack,title=None, grid=None,treeRoot=None,**kwargs):
         frame = parentStack.framePane(title='Tree View',pageName='tree')
-        bar = frame.top.slotToolbar('5,ctitle,parentStackButtons,addTreeRoot,*,searchOn,5')
+        bar = frame.top.slotToolbar('5,ctitle,parentStackButtons,10,groupByModeSelector,addTreeRoot,*,searchOn,5')
         bar.ctitle.div(title,color='#444',font_weight='bold')
         fb = bar.addTreeRoot.div(_class='iconbox tag').tooltipPane().formbuilder(cols=1,border_spacing='2px',color='#666')
         fb.textbox(value='^.treeRootName',lbl='!!Root',width='7em')
         bar.data('.treeRootName',treeRoot)
         pane = frame.center.contentPane()
         frame.dataController("""
-            genro.groupth.buildGroupTree(pane,struct);
+            genro.groupth.buildGroupTree(pane,groupMode=='stackedview'?stackedStruct:struct);
             FIRE .refresh_tree_data;
             """,
             pane=pane,
             storepath='.treestore',
             struct='=.grid.struct',
+            stackedStruct = '=.stacked.grid.struct',
+            groupMode='^.groupMode',
             **{'subscribe_%s_changedStruct' %grid.attributes['nodeId']:True})
         frame.dataController("""
-            SET .treestore = genro.groupth.groupTreeData(gridstore,struct,treeRoot);
-        """,gridstore='^.store',_fired='^.refresh_tree_data',treeRoot='^.treeRootName',
-            struct='=.grid.struct')
+            var basestruct = struct;
+            var basestore = gridstore;
+            if(groupMode=='stackedview'){
+                basestruct = stackedStruct;
+                basestore = stackedStore;
+            }
+
+            SET .treestore = genro.groupth.groupTreeData(basestore,basestruct,treeRoot);
+        """,gridstore='^.store',
+            _fired='^.refresh_tree_data',treeRoot='^.treeRootName',
+            struct='=.grid.struct',
+            stackedStruct = '=.stacked.grid.struct',
+            stackedStore ='=.stacked.store',
+            groupMode='^.groupMode')
 
 
 
