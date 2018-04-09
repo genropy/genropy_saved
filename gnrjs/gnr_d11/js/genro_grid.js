@@ -144,6 +144,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     },
     
     mixin_setStructpath:function(val, kw) {
+        console.log('setStructpath triggerpars',kw);
         kw = kw || {};
         this.structBag = genro.getData(this.sourceNode.attrDatapath('structpath')) || new gnr.GnrBag();
         this.cellmap = {};
@@ -246,6 +247,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var headerList = dojo.query('th',this.viewsHeaderNode);
         var totalWidth = dojo.query('table',this.viewsHeaderNode)[0].clientWidth;
         var cb = function(container){
+            if(!container){
+                return;
+            }
             container.updAttributes({width:(totalWidth+2+'px')});
             var tr = container.getValue().getItem('#0.#0.#0');
             var idx = 0;
@@ -378,7 +382,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var sn = this.sourceNode;
             var columnset_groups =  {};
             columnsets.forEach(function(n){
-                columnset_groups[n.label] = sn.evaluateOnNode(n.attr);
+                columnset_groups[n.label] =  objectUpdate({},n.attr);
                 columnset_groups[n.label].value = objectPop(columnset_groups[n.label],'name');
             });
             var columnsetRow = new gnr.GnrBag();
@@ -401,6 +405,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             });
             this.sourceNode._columnsets = new gnr.GnrBag();
             this.sourceNode._columnsets.setItem('columnset_auto',columnsetRow);
+        }else{
+            this.sourceNode._columnsets = new gnr.GnrBag();
+            this.sourceNode._columnsets.setItem('columnset_auto',new gnr.GnrBag());
+
         }
     },
 

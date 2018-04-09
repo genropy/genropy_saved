@@ -283,7 +283,7 @@ class GnrCustomWebPage(object):
             r.cell('total',name='Total',width='7em',dtype='N',formula='number*price',
                     totalize='.sum_total',format='###,###,###.00')
 
-            cs_disc = r.columnset('disc',name='^discountName',background='green')
+            cs_disc = r.columnset('disc',name='^.discountName',background='^.discountBG')
 
             cs_disc.cell('discount',name='Disc.%',width='7em',dtype='N',edit=True)
             cs_disc.cell('discount_val',name='Discount',width='7em',dtype='N',formula='total*discount/100',
@@ -303,7 +303,14 @@ class GnrCustomWebPage(object):
 
     
         bc = pane.borderContainer(height='400px',width='800px')
-        bc.data('discountName','Discount')
+        fb = bc.contentPane(region='top').formbuilder()
+        fb.textbox(value='^.mygrid.grid.discountName',lbl='Name')
+        bc.data('.mygrid.grid.discountName','Discount')
+        fb.textbox(value='^.mygrid.grid.discountBG',lbl='Background')
+        bc.data('.mygrid.grid.discountBG','green')
+        fb.textbox(value='^.mygrid.grid.struct.info.columnsets.disc?cells_background',lbl='Cells BG')
+        bc.data('.mygrid.grid.struct.info.columnsets.disc?cells_background','')
+
 
         frame = bc.contentPane(region='center').bagGrid(frameCode='structinfo',datapath='.mygrid',
                                                     struct=struct,height='300px',

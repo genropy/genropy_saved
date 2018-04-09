@@ -240,7 +240,7 @@ class FrameGrid(BaseComponent):
                           datapath='.grid',
                           struct=struct,table=table,
                           parentFrame=frame.attributes.get('frameCode'), #considering autocalc frameCode
-                          _extendedLayout=False,
+                          _extendedLayout=True,
                           **grid_kwargs)
         frame.grid = grid
         if top_kwargs:
