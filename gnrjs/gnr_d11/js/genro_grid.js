@@ -144,7 +144,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     },
     
     mixin_setStructpath:function(val, kw) {
-        console.log('setStructpath triggerpars',kw);
         kw = kw || {};
         this.structBag = genro.getData(this.sourceNode.attrDatapath('structpath')) || new gnr.GnrBag();
         this.cellmap = {};
@@ -852,7 +851,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
         });
         dojo.connect(sourceNode.widget,'setCellWidth',function(inIndex, inUnitWidth){
-            this.structBag.getNodeByAttr('field',this.getCell(inIndex).original_field).updAttributes({width:inUnitWidth},false);
+            this.structBag.getNodeByAttr('field',this.getCell(inIndex).original_field).updAttributes({width:inUnitWidth});
         });
         dojo.connect(widget,'onFocus',function(){
             this.changedFocus(true); 
@@ -2738,9 +2737,6 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if(this.sourceNode._useStore){
             var store = this.collectionStore();
             if(store){
-                if(kw.changedAttributes && 
-                   kw.changedAttributes.width && 
-                   objectKeys(kw.changedAttributes).length==1){return;}
                 store.onChangedView();
             }
         }
