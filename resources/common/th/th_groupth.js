@@ -107,6 +107,7 @@ genro_plugin_groupth = {
         resultStruct.setItem('views_0.rows_0',resultStructRow);
 
         var struct_row = sourceStruct.getItem('#0.#0');
+        
         var grpcol = [];
         var valuecols = [];
         var nobreak = [];
@@ -126,11 +127,11 @@ genro_plugin_groupth = {
                 grpcol.push(attr);
             }
         });
+        var columnsets = new gnr.GnrBag();
         var lastGrpcol = grpcol.pop();
         var lastGrpcolField = lastGrpcol.col_getter;
         var colset = Array.from(new Set(sourceStore.columns('#a.'+lastGrpcolField)[0])).sort();
         var colsetDict = {};
-        
         grpcol.concat(nobreak).forEach(function(attr,idx){
             resultStructRow.setItem('cell_'+resultStructRow.len(),null,objectUpdate({},attr));
         });
@@ -139,8 +140,11 @@ genro_plugin_groupth = {
             valuecols.forEach(function(attr){
                 attr = objectUpdate({},attr);
                 attr.field = attr.field+'_'+colsetidx;
-                attr.name = f+'<br/>'+attr.name;
+                //attr.name = f+'<br/>'+attr.name;
                 attr.columnset = 'grp_'+colsetidx;
+                if(!columnsets.getNode(attr.columnset)){
+                    columnsets.setItem(attr.columnset,null,{code:'grp_'+colsetidx,name:f});
+                }
                 resultStructRow.setItem('cell_'+resultStructRow.len(),null,attr);
             });
         });
@@ -171,6 +175,7 @@ genro_plugin_groupth = {
                 nodeToUpdate.updAttributes(row);
             }
         });
+        resultStruct.setItem('info.columnsets',columnsets);
         return {'struct':resultStruct,'store':resultStore};
     }
 

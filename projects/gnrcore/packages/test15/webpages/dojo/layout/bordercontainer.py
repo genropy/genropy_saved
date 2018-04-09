@@ -80,6 +80,11 @@ class GnrCustomWebPage(object):
         frame.div('Pippo',font_size='30px')
 
 
+    def test_10_bordercontainer_filled(self,pane):
+        bc = pane.borderContainer(height='400px',border='1px solid silver')
+        bc.contentPane(region='top',background='red').div(height='^.pippo')
+        bc.contentPane(region='center').textbox(value='^.pippo')
+
 
 
     def test_8_remoteLayout(self,pane):
@@ -101,3 +106,5 @@ class GnrCustomWebPage(object):
         sc.contentPane(title='Bao').plainTableHandler(table='adm.user')
         
         pane.dataController("sc.switchPage(1)",_onBuilt=100,sc=sc.js_widget)
+
+    

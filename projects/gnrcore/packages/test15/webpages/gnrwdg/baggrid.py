@@ -273,13 +273,15 @@ class GnrCustomWebPage(object):
 
         def struct(struct):
             r = struct.view().rows()
-
             r.cell('description',name='Description',width='15em',edit=True)
+            
             cs_ent = r.columnset('ent',name='Enterable',background='red',color='white',
                                 cells_background='RGBA(194, 37, 49, 0.05)',
                                 cells_width='7em',cells_edit=True)
-            cs_ent.cell('number',name='Number',width='7em',dtype='L')
-            cs_ent.cell('price',name='Price',width='7em',dtype='N')
+
+            cs_ent.cell('number',name='Number',dtype='L')
+            cs_ent.cell('price',name='Price',dtype='N')
+
             r.cell('total',name='Total',width='7em',dtype='N',formula='number*price',
                     totalize='.sum_total',format='###,###,###.00')
 
