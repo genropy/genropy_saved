@@ -3717,7 +3717,6 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         var colorpicker = {tag:'textbox'};
         grid._('column',{name:_T('Code'),field:'code',width:'5em'});
         grid._('column',{name:_T('Name'),field:'name',edit:true,width:'12em'});
-        grid._('column',{name:_T('Name'),field:'name',edit:true,width:'12em'});
 
         grid._('column',{name:_T('Background'),field:'background',edit:colorpicker,width:'12em'});
         grid._('column',{name:_T('Foreground'),field:'color',edit:colorpicker,width:'12em'});
