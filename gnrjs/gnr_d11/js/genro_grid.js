@@ -144,6 +144,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     },
     
     mixin_setStructpath:function(val, kw) {
+        kw = kw || {};
         this.structBag = genro.getData(this.sourceNode.attrDatapath('structpath')) || new gnr.GnrBag();
         this.cellmap = {};
         this.setStructure(this.gnr.structFromBag(this.sourceNode, this.structBag, this.cellmap));
@@ -178,20 +179,34 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         if(sourceNode._wrapperNode){
             return;
         }
-        var content = sourceNode._value;
-        var footers = new gnr.GnrBag();
-        var node;
-        content.digest('#k,#a.tag').forEach(function(n){
-            if(n[1]=='footer'){
-                node = content.popNode(n[0]);
-                footers.addItem(node.label,node._value,node.attr);
+        var extendedLayout = objectPop(sourceNode.attr,'_extendedLayout');
+
+        if(extendedLayout){
+            var content = sourceNode._value;
+            var footers = new gnr.GnrBag();
+            var node;
+            content.digest('#k,#a.tag').forEach(function(n){
+                if(n[1]=='footer'){
+                    node = content.popNode(n[0]);
+                    footers.addItem(node.label,node._value,node.attr);
+                }
+            });
+            var structInfo = sourceNode.getRelativeData(sourceNode.absDatapath(sourceNode.attr.structpath)+'.info') || new gnr.GnrBag();
+            var columnsets = structInfo.getItem('columnsets');
+            var autoFooter = objectPop(sourceNode.attr,'footer');
+            var autoColumnset = objectExtract(sourceNode.attr,'columnset_*');
+            if(objectNotEmpty(autoColumnset) && !columnsets){
+                columnsets = new gnr.GnrBag();
+                console.log('columnset_ syntax is deprecated. Define your columnsets inside the struct',autoColumnset);
+                for(var k in autoColumnset){
+                    var cl = k.split('_');
+                    var cn = columnsets.getNode(cl[0],null,true);
+                    cn.attr[cl[1] || 'name'] = autoColumnset[k];
+                }
+                sourceNode.setRelativeData(sourceNode.absDatapath(sourceNode.attr.structpath)+'.info.columnsets',columnsets,null,false);
             }
-        });
-        var autoFooter = objectPop(sourceNode.attr,'footer');
-        var autoColumnset = objectExtract(sourceNode.attr,'columnset_*');
-        var has_footer = autoFooter || footers.len()>0;
-        var has_columnset = objectNotEmpty(autoColumnset);
-        if(has_footer || has_columnset){
+            var has_footer = true;//autoFooter || footers.len()>0;
+            var has_columnset = true; //objectNotEmpty(autoColumnset);
             var gridattr = objectUpdate({},sourceNode.attr);
             var _columnsetsNode,_footersNode;
             var containerAttr = objectExtract(gridattr,'region,pageName,title,margin,height,width');
@@ -218,14 +233,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             gridNode._footersNode = _footersNode;
             gridNode._footers = footers;
             gridNode._autoFooter = autoFooter;
-            gridNode._autoColumnset = autoColumnset;
-            for (var k in autoColumnset){
-                var av = autoColumnset[k];
-                if(typeof(av)=='string' && av[0]=='^'){
-                    gridNode.attr['columnset_'+k] = av;
-
-                }
-            }
             gridNode._wrapperNode = sourceNode;
 
         }
@@ -342,7 +349,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
     mixin_columnsetsAndFooters_autodata:function(){
         var autoFooter = this.sourceNode._autoFooter;
-        var autoColumnset = this.sourceNode._autoColumnset;
+        var columnsets = this.structBag.getItem('info.columnsets');
         var colinfo = this.getColumnInfo();
         if(autoFooter){
             var autoRow = new gnr.GnrBag();
@@ -366,15 +373,14 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             });
             this.sourceNode._footers.setItem('footer_auto',autoRow,row_kw,{_position:0});
         }
-        if(autoColumnset){
-            autoColumnset = this.sourceNode.evaluateOnNode(autoColumnset);
+
+        if(columnsets){
+            var sn = this.sourceNode;
             var columnset_groups =  {};
-            for(var k in autoColumnset){
-                var cl = k.split('_');
-                var attr = columnset_groups[cl[0]] || {};
-                attr[cl[1] || 'value'] = autoColumnset[k];
-                columnset_groups[cl[0]] = attr;
-            }
+            columnsets.forEach(function(n){
+                columnset_groups[n.label] = sn.evaluateOnNode(n.attr);
+                columnset_groups[n.label].value = objectPop(columnset_groups[n.label],'name');
+            });
             var columnsetRow = new gnr.GnrBag();
             colinfo.forEach(function(n){
                 var cell = n.attr.cell;
@@ -387,7 +393,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                         columnset_kw.colspan = 1;
                     }else{
                         columnset_kw.colspan += 1;
-
                     }
                     columnset_kw.last_idx = idx;
                     var cnode = columnsetRow.getNode(columnset_kw.field,null,true);

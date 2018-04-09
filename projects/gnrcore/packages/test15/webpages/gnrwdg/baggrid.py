@@ -162,12 +162,6 @@ class GnrCustomWebPage(object):
             r.cell('gross',name='Gross',width='7em',dtype='N',formula='net_price+vat',
                     totalize='.sum_gross',format='###,###,###.00',columnset='tot',hidden='^hidden_8')
 
-            
-            cs = struct.info().columnsets()
-            cs.columnset('ent',name='Discount',background='red',color='white',cells_background='RGBA(194, 37, 49, 0.05)')
-            cs.columnset('ent',name='Discount',background='red',color='white',cells_background='RGBA(194, 37, 49, 0.05)')
-
-
         bc = pane.borderContainer(height='400px',width='800px')
         top = bc.contentPane(region='top',height='80px')
         fb = top.formbuilder(cols=10,border_spacing='3px')
@@ -289,14 +283,14 @@ class GnrCustomWebPage(object):
             r.cell('total',name='Total',width='7em',dtype='N',formula='number*price',
                     totalize='.sum_total',format='###,###,###.00')
 
-            cs_disc = r.columnset('disc',name='Discount',background='green')
+            cs_disc = r.columnset('disc',name='^discountName',background='green')
 
             cs_disc.cell('discount',name='Disc.%',width='7em',dtype='N',edit=True)
             cs_disc.cell('discount_val',name='Discount',width='7em',dtype='N',formula='total*discount/100',
                     totalize='.sum_discount')
 
             cs_tot = r.columnset('tot',name='Totals',background='RGBA(255, 253, 123, 1.00)',
-                        cells_background='RGBA(255, 253, 123, 0.10)')
+                        cells_background='RGBA(255, 253, 123, 0.10)',color='#666')
 
             cs_tot.cell('net_price',name='F.Price',width='7em',dtype='N',
                         formula='total-discount_val',totalize='.sum_net_price',
@@ -308,8 +302,10 @@ class GnrCustomWebPage(object):
                     totalize='.sum_gross',format='###,###,###.00',columnset='tot')
 
     
-
         bc = pane.borderContainer(height='400px',width='800px')
+        bc.data('discountName','Discount')
+
         frame = bc.contentPane(region='center').bagGrid(frameCode='structinfo',datapath='.mygrid',
                                                     struct=struct,height='300px',
+                                                    grid_configurable=True,
                                                     pbl_classes=True,margin='5px')
