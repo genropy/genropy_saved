@@ -1735,5 +1735,31 @@ dojo.declare("gnr.GnrDomHandler", null, {
             src = '/_rsrc/js_libs/pdfjs/web/viewer.html?file='+encodeURIComponent(src);
         }
         return src;
+    },
+    styleFields:function(parent,kw){
+        var whitelist = kw.whitelist || [];
+        var blacklist = kw.blacklist || [];
+        var fb = genro.dev.formbuilder(parent, 1, {border_spacing:'6px'});
+        var stylefield = function(tag,pars){
+            var f = objectPop(pars,'field');
+            if(blacklist.indexOf(f)>=0){
+                return;
+            }
+            if(whitelist.length==0 || whitelist.indexOf(f)>=0){
+                pars.value ='^.'+f;
+                fb.addField(tag,pars);
+            }
+        }
+        stylefield('textbox',{lbl:_T('Height'),field:'height'});
+        stylefield('textbox',{lbl:_T('Width'),field:'width'});
+        stylefield('textbox',{lbl:_T('Border'),field:'border'});
+        stylefield('colorTextBox', {lbl:_T("Background"),field:'background',width:'10em',mode:'rgba'});
+        stylefield('colorTextBox', {lbl:_T("Color"),field:'color',width:'10em'});
+        stylefield('textbox',{lbl:_T('Font size'),field:'font_size'});
+        stylefield('filteringSelect',{lbl:_T('Font style'),field:'font_style',values:'italic,underline'});
+        stylefield('filteringSelect',{lbl:_T('Font weight'),field:'font_weight',values:'bold,bolder'});
+        stylefield('textbox',{lbl:_T('Font variant'),field:'font_variant'});
+        stylefield('textbox',{lbl:_T('Font family'),field:'font_family'});
+
     }
 });

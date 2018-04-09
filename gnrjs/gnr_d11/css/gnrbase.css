@@ -5520,6 +5520,10 @@ div[disabled='true'], div[disabled='disabled']{
 ._common_d11.tundra .gr_wrap_footers .dojoxGrid-scrollbox{
     overflow-x:hidden !important;
 }
+.gr_noFooter .gr_footer.gr_scrollbox .gr_itemcontainer{
+    background: transparent;
+}
+
 
 .grid_filler{
     height: 100%;

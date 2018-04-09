@@ -218,7 +218,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var bottom = sourceNode._('ContentPane','footers',{region:'bottom',datapath:gridattr.datapath},{'doTrigger':false});
             _footersNode = bottom.getParentNode();
             bottom._('div','scrollbox',{_class:'gr_footer gr_scrollbox'},{'doTrigger':false});
-            sourceNode.attr._class = 'gr_wrap_footers';
             gridattr.fillDown = gridattr.fillDown===false?false: true;
             var center = sourceNode._('ContentPane','gridpane',{region:'center'},{'doTrigger':false});
             var gridNode = center.setItem('grid',content,gridattr,{'doTrigger':false});
@@ -260,11 +259,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             cb(this.sourceNode._columnsetsNode.getValue().getNode('scrollbox.itemcontainer'));
         }
         if(this.sourceNode._footersNode){
-            var show = true;
+            var showFooter = true;
             if(this.sourceNode._footers.len()==1 && this.sourceNode._footers.getItem('#0').len()==0){
-                show = false;
+                showFooter = false;
             }
-            this.sourceNode._wrapperNode.widget.setRegionVisible('bottom',show || showColumnset);
+            genro.dom.setClass(this.sourceNode._footersNode,'gr_noFooter',!showFooter);
+            this.sourceNode._wrapperNode.widget.setRegionVisible('bottom',showFooter || showColumnset);
+            genro.dom.setClass(this.sourceNode._wrapperNode,'gr_wrap_footers',showFooter || showColumnset);
             cb(this.sourceNode._footersNode.getValue().getNode('scrollbox.itemcontainer'));
         }
     },
@@ -3698,6 +3699,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
 
         node.unfreeze();
     },
+    
 
     mixin__gridConfiguratorPalette(parent,groupCode){
         var gridId = (this.sourceNode.attr.nodeId || this.sourceNode.getStringId());
@@ -3714,23 +3716,28 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             this.widget.storebag().setItem(rowDefaults['code'],new gnr.GnrBag(rowDefaults));
         }
         var grid = colsetpane._('quickGrid',grid_pars);
-        var colorpicker = {tag:'textbox'};
         grid._('column',{name:_T('Code'),field:'code',width:'5em'});
         grid._('column',{name:_T('Name'),field:'name',edit:true,width:'12em'});
-
-        grid._('column',{name:_T('Background'),field:'background',edit:colorpicker,width:'12em'});
-        grid._('column',{name:_T('Foreground'),field:'color',edit:colorpicker,width:'12em'});
-        
-        grid._('column',{name:_T('Cells background'),field:'cells_background',edit:colorpicker,width:'12em'});
+        grid._('column',{name:_T('Styles'),field:'styles_columnset',width:'15em',
+            _customGetter:function(row){
+                return row.styles_columnset?row.styles_columnset.getFormattedValue():'-';
+            },
+            edit:{modal:true,contentCb:function(pane,kw){
+                genro.dom.styleFields(pane._('div',{datapath:'.styles_columnset'}),{blacklist:['height','width']});
+            }}});
+        grid._('column',{name:_T('Cell styles'),width:'15em',field:'styles_cells',
+                _customGetter:function(row){
+                return row.styles_cells?row.styles_cells.getFormattedValue():'-';
+            },
+            edit:{modal:true,contentCb:function(pane,kw){
+                    genro.dom.styleFields(pane._('div',{datapath:'.styles_cells'}),{blacklist:['height','border']});
+                }}}); 
 
  
         var t = grid._('tools',{tools:'delrow,addrow',
         custom_tools:{addrow:{content_class:'iconbox add_row',ask:{title:_T('New columnset'),
               fields:[{name:'columnset',lbl:'Code',validate_notnull:true},
                       {name:'name',lbl:'Name'},
-                      {name:'background',lbl:'Background'},
-                      {name:'color',lbl:'Foreground'},
-                      {name:'cells_background',lbl:'Cells background'}
                   ]
               }}},position:'BR'});
  
@@ -3751,10 +3758,20 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
                     var evt = _triggerpars.kw.evt;
                     if(evt=='upd'){
                         var rowNode = _triggerpars.kw.node.getParentNode();
-                        var destNode = destbag.getNode(rowNode.label);
                         var updDict = {};
-                        updDict[_triggerpars.kw.node.label] = _triggerpars.kw.value;
-                        destNode.updAttributes(updDict,'_columnsetsEditor');
+                        var updValue = _triggerpars.kw.node.getValue();
+                        if(rowNode.label.startsWith('styles_')){
+                            rowNode.getValue().forEach(function(n){
+                                var prefix = rowNode.label=='styles_cells'?'cells_':'';
+                                if(n.getValue()!==null){
+                                    updDict[prefix+n.label] = n.getValue();
+                                }
+                            });
+                            rowNode = rowNode.getParentNode();
+                        }else{
+                            updDict[_triggerpars.kw.node.label] = updValue;
+                        }
+                        destbag.getNode(rowNode.label).updAttributes(updDict,'_columnsetsEditor');
                     }else if(evt=='ins'){
                         var ds = destbag || new gnr.GnrBag(); 
                         ds.setItem(_triggerpars.kw.node.label,null,_triggerpars.kw.node.getValue().asDict(),{doTrigger:'_columnsetsEditor'});
