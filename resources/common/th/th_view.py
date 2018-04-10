@@ -208,7 +208,7 @@ class TableHandlerView(BaseComponent):
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title,
                         liveUpdate=liveUpdate,store_kwargs=store_kwargs)
-        self._th_view_contextMenu(frame.grid)
+        self._th_view_confMenues(frame,statsEnabled)
         if virtualStore:    
             self._extTableRecords(frame)
         frame.dataController("""if(!firedkw.res_type){return;}
@@ -241,7 +241,7 @@ class TableHandlerView(BaseComponent):
     def _th_waitingElement(self):
         return """<div style="height:130px;opacity:.8; width:200px;" class="waiting">&nbsp;</div>"""
 
-    def _th_view_contextMenu(self,grid):
+    def _th_view_confMenues(self,frame,statsEnabled):
         b = Bag()
         b.rowchild(label='!!Reload',action="$2.widget.reload();")
         b.rowchild(label='-')
@@ -252,7 +252,26 @@ class TableHandlerView(BaseComponent):
                             checked='^.#parent.tableRecordCount')
         b.rowchild(label='-')
         b.rowchild(label='!!User Configuration',action='genro.dev.tableUserConfiguration($2.attr.table);')
-        grid.data('.contextMenu',b)
+        frame.grid.data('.contextMenu',b)
+
+        b = Bag()
+        b.rowchild(label='!!Show Archived Records',checked='^.#parent.showLogicalDeleted',
+                                action="""SET .#parent.showLogicalDeleted= !GET .#parent.showLogicalDeleted;
+                                         FIRE .runQueryDo;""")
+        b.rowchild(label='!!Totals count',action='SET .#parent.tableRecordCount= !GET .#parent.tableRecordCount;',
+                            checked='^.#parent.tableRecordCount')
+        b.rowchild(label='-')
+        b.rowchild(label='!!User Configuration',action='genro.dev.tableUserConfiguration("%s");' %frame.grid.attributes['table'])
+        b.rowchild(label='-')
+        if statsEnabled:
+            b.rowchild(label='!!Group by',action='SET .statsTools.selectedPage = "groupby"; SET .viewPage= "statsTools";')
+            if self.ths_pandas_available():
+                b.rowchild(label='!!Pivot table',action='SET .statsTools.selectedPage = "pandas"; SET .viewPage= "statsTools";')
+        #b.rowchild(label='-')
+        #b.rowchild(label='!!Chart',
+        #        action="""genro.nodeById().publish('pluginCommand',{plugin:'chartjs',command:'openGridChart',pkey:$1.pkey,caption:$1.caption});""")
+
+        frame.data('.advancedTools',b)
 
     def _th_handle_page_hooks(self,view,page_hooks):
         frameCode = view.attributes['frameCode']
@@ -488,10 +507,9 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_slotbar_stats(self,pane,**kwargs):
-        menu = pane.menudiv(iconClass='iconbox sum')
-        menu.menuline(label='!!Group by',action='SET .statsTools.selectedPage = "groupby"; SET .viewPage= "statsTools"; ')
-        if self.ths_pandas_available():
-            menu.menuline(label='!!Pivot table',action='SET .statsTools.selectedPage = "pandas"; SET .viewPage= "statsTools";')
+        pane.slotButton(label='Group By',iconClass='iconbox sum',
+                        action='SET .statsTools.selectedPage = "groupby"; SET .viewPage= "statsTools";')
+
 
     @struct_method
     def th_slotbar_queryMenu(self,pane,**kwargs):
@@ -595,7 +613,7 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_slotbar_resourcePrints(self,pane,flags=None,from_resource=None,hidden=None,**kwargs):
-        pane.div(_class='iconbox menubox print',hidden=hidden).menu(modifiers='*',storepath='.resources.print.menu',_class='smallmenu',
+        pane.menudiv(iconClass='iconbox menubox print',hidden=hidden,storepath='.resources.print.menu',
                     action="""FIRE .th_batch_run = {resource:$1.resource,template_id:$1.template_id,res_type:'print'};""")
 
     @public_method
@@ -604,12 +622,12 @@ class TableHandlerView(BaseComponent):
         
     @struct_method
     def th_slotbar_resourceActions(self,pane,**kwargs):
-        pane.div(_class='iconbox gear').menu(modifiers='*',storepath='.resources.action.menu',action="""
+        pane.menudiv(iconClass='iconbox gear',storepath='.resources.action.menu',action="""
                             FIRE .th_batch_run = {resource:$1.resource,res_type:"action"};
                             """,_class='smallmenu')
     @struct_method
     def th_slotbar_resourceMails(self,pane,from_resource=None,flags=None,**kwargs):
-        pane.div(_class='iconbox mail').menu(modifiers='*',storepath='.resources.mail.menu',
+        pane.menudiv(iconClass='iconbox mail',storepath='.resources.mail.menu',
                         action="""FIRE .th_batch_run = {resource:$1.resource,template_id:$1.template_id,res_type:'mail'};""")
 
     @public_method
@@ -905,8 +923,7 @@ class TableHandlerView(BaseComponent):
                                 """,
                         _onStart=True,th_root = inattr['th_root'],table = inattr['table'])
 
-        pane.div(_class='iconbox heart',tip='!!User sets').menu(storepath='.usersets.menu',
-                                                                _class='smallmenu',modifiers='*')
+        pane.menudiv(iconClass='iconbox heart',tip='!!User sets',storepath='.usersets.menu')
        
     @struct_method
     def th_slotbar_fastQueryBox(self, pane,**kwargs):
@@ -1063,7 +1080,6 @@ class THViewUtils(BaseComponent):
             if gridId:
                 node.attr['gridId'] = gridId
             if node.attr['code'] == currentView:
-                print 'curr',node.attr['code']
                 node.attr['checked'] = True
             elif node.attr['code'] == favPath:
                 node.attr['favorite'] = True

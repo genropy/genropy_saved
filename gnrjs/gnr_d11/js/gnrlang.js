@@ -1718,8 +1718,8 @@ function highlightLinks(text) {
         text = text.replace(k,safedict[k]);
     }
     return text;
-
 }
+
 function funcApply(fnc, parsobj, scope,argNames,argValues,showError) {
     var parsobj = parsobj || {};
     var argNames = argNames || [];

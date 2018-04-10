@@ -1760,6 +1760,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         stylefield('filteringSelect',{lbl:_T('Font weight'),field:'font_weight',values:'bold,bolder'});
         stylefield('textbox',{lbl:_T('Font variant'),field:'font_variant'});
         stylefield('textbox',{lbl:_T('Font family'),field:'font_family'});
+    },
+    editableStyles:['height','width','border','background','color','font_size','font_style','font_weight','font_variant','font_family']
 
-    }
 });

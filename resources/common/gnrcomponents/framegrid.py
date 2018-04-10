@@ -60,10 +60,8 @@ class FrameGridTools(BaseComponent):
                                 _delay=delay,**kwargs)
 
     @struct_method
-    def fgr_slotbar_advancedTools(self,pane,_class='iconbox spanner',disabled=None,enable=None,delay=300,defaults=None,**kwargs):
-        kwargs.setdefault('visible',enable)
-        return pane.slotButton(label='!!Advanced tools',publish='advancedTools',iconClass=_class,disabled=disabled,
-                                _delay=delay,**kwargs)
+    def fgr_slotbar_advancedTools(self,pane,_class='iconbox menu_gray_svg',**kwargs):
+        return pane.menudiv(tip='!!Advanced tools',iconClass=_class,storepath='.advancedTools',**kwargs)
 
     @struct_method
     def fgr_slotbar_delrow(self,pane,_class='iconbox delete_row',enable=None,disabled='^.disabledButton',**kwargs):
@@ -169,9 +167,13 @@ class FrameGridTools(BaseComponent):
                                 popup=True,cols=1)
 
     @struct_method
+    def fg_slotbar_configuratorPalette(self,pane,iconClass='iconbox spanner',**kwargs):
+        pane.slotButton('!!Open Configurator',iconClass=iconClass,publish='configuratorPalette')
+
+
+    @struct_method
     def fg_slotbar_viewsMenu(self,pane,iconClass=None,**kwargs):
-        b = pane.div(_class= iconClass or 'iconbox list',datapath='.grid')
-        b.menu(storepath='.structMenuBag',_class='smallmenu',modifiers='*',selected_fullpath='.currViewPath')
+        pane.menudiv(iconClass= iconClass or 'iconbox list',datapath='.grid',storepath='.structMenuBag',selected_fullpath='.currViewPath')
 
     @struct_method
     def fg_viewConfigurator(self,view,table=None,queryLimit=None,region=None,configurable=None):
@@ -198,13 +200,6 @@ class FrameGridTools(BaseComponent):
             footer.numberSpinner(value='^.hardQueryLimit',lbl='!!Limit',width='6em',smallDelta=1000)
 
         right.contentPane(region='center').fieldsTree(table=table,checkPermissions=True,trash=True)
-
-    @struct_method
-    def fg_advancedTools(self,view,table=None):
-        view.grid_envelope.attributes['subscribe_%(frameCode)s_grid_advancedTools' %view.attributes] = "this.widget.setRegionVisible('top','toggle')"
-        bar = view.grid_envelope.contentPane(region='top',hidden=True).slotToolbar('2,gridconf,*,chartjs,2',
-                                                                                    chartjs_gridId=view.grid.attributes['nodeId'])
-        pane = bar.gridconf.slotButton('!!Open Configurator',action="_grid.publish('configuratorPalette');",_grid=view.grid)
             
 
 class FrameGrid(BaseComponent):
@@ -214,7 +209,7 @@ class FrameGrid(BaseComponent):
     def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,dynamicStorepath=None,structpath=None,
                     datamode=None,table=None,grid_kwargs=True,top_kwargs=None,iconSize=16,
                     footer_kwargs=None,columnset_kwargs=None,footer=None,columnset=None,fillDown=None,
-                    _newGrid=None,selectedPage=None,configurable=None,advancedTools=True,**kwargs):
+                    _newGrid=None,selectedPage=None,configurable=None,**kwargs):
         pane.attributes.update(overflow='hidden')
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
         frame.center.stackContainer(selectedPage=selectedPage)
@@ -246,8 +241,6 @@ class FrameGrid(BaseComponent):
         if top_kwargs:
             top_kwargs['slotbar_view'] = frame
             frame.top.slotToolbar(**top_kwargs)
-        if advancedTools:
-            frame.advancedTools()
         if table and configurable:
             frame.viewConfigurator(table=table,configurable=configurable)   
         return frame

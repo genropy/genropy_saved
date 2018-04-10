@@ -259,7 +259,9 @@ dojo.declare("gnr.widgets.ColorTextBox", gnr.widgets.gnrwdg, {
         var mode = this.sourceNode.getAttributeFromDatasource('mode') || 'hex';
         var csscolor = mode=='rgba'? c.css():c.hex();
         if(csscolor!=v){
-            this.tbNode.widget.setValue(csscolor,true);
+            if(this.tbNode.widget){
+                this.tbNode.widget.setValue(csscolor,true);
+            }
         }
         var foreground = chroma.contrast(csscolor,"white")>chroma.contrast(csscolor,"#444")?"white":"#444";
         this.sourceNode.setRelativeData('^#WORKSPACE.currentBackground',csscolor);
@@ -1657,10 +1659,11 @@ dojo.declare("gnr.widgets.FlatBagEditor", gnr.widgets.gnrwdg, {
         var toolskw = objectExtract(kw,'addrow,delrow');
 
         var multiValuePars = objectExtract(kw,'origin,exclude');
-        var box_kw = objectUpdate({background:'#EEF2F4'},objectExtract(kw,'box_*'));
+        var box_kw = objectUpdate({},objectExtract(kw,'box_*'));
         var bc = sourceNode._('BorderContainer',box_kw);
         var grid_region = objectPop(kw,'grid_region','left');
         var boxpars = {region:grid_region,_class:'noheader no_over',
+                        margin:'2px',border:'1px solid #efefef',
                         splitter:true};
         if(grid_region=='left' || grid_region=='right'){
             boxpars.width = '30%';
@@ -1702,11 +1705,12 @@ dojo.declare("gnr.widgets.FlatBagEditor", gnr.widgets.gnrwdg, {
         }
         if(t.length){
             g._('tools',{tools:t.join(','),
-                    custom_tools:toolskw,
-                    position:'TR'});
+                    custom_tools:toolskw,title:_T('Rows')});
         }
-        multiValuePars.tools_position = 'BL';
-        var mve = bc._('ContentPane',{region:'center',margin:'2px',overflow:'hidden'})._('MultiValueEditor','mve',multiValuePars);
+        //multiValuePars.tools_position = 'BL';
+        multiValuePars.tools_title = _T('Attributes');
+        var mve = bc._('ContentPane',{region:'center',margin:'2px',overflow:'hidden'
+                                        })._('MultiValueEditor','mve',multiValuePars);
         gnrwdg.mveNode = mve.getParentNode();
         return bc;
     }

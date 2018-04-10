@@ -62,7 +62,7 @@ class TableHandlerGroupBy(BaseComponent):
                                 """,struct=struct,_newGrid=True,pageName='flatview',title='!!Flat')
 
         frame.data('.grid.showCounterCol',True)
-        bar = frame.top.slotToolbar('5,ctitle,stackButtons,10,groupByModeSelector,counterCol,*,searchOn,viewsMenu,advancedTools,export,5',
+        bar = frame.top.slotToolbar('5,ctitle,stackButtons,10,groupByModeSelector,counterCol,*,searchOn,viewsMenu,configuratorPalette,chartjs,export,5',
                                     stackButtons_stackNodeId='%s_mainstack' %frameCode)
         bar.ctitle.div(title,color='#444',font_weight='bold')
         bar.counterCol.div().checkbox(value='^.grid.showCounterCol',label='!!Counter column',label_color='#444')

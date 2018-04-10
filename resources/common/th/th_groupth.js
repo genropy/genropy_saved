@@ -194,33 +194,18 @@ genro_plugin_groupth = {
             genro.publish('floating_message',{messageType:'warning',message:_T('This kind of relation is not allowed in group by totalization')});
             return;
         }
-        var numeric = 'RNLIF'.indexOf(data.dtype)>=0;
-        var dateTime = 'DDH'.indexOf(data.dtype)>=0;
+        var dtype = data.dtype;
         var values;
+        var that = this;
         var dflt = new gnr.GnrBag(data);
-        if(numeric){
+        if('RNLIF'.indexOf(dtype)>=0){
             dflt.setItem('group_mode','sum');
         }
         var promptkw = {dflt:dflt};
         promptkw.widget = function(pane){
             var fb =  genro.dev.formbuilder(pane,1,{border_spacing:'3px',margin:'5px'});
             fb.addField('textbox',{value:'^.fullcaption',lbl:'Caption'});
-            if(numeric){
-                fb.addField('filteringSelect',{value:'^.cell_group_aggr',
-                            values:'sum:Sum,avg:Average,min:Min,max:Max,break:Break,nobreak:No break',
-                            lbl:_T('Aggregator')});
-            }else if(dateTime){
-                values = genro.commonDatasets.datetimes_chunk.join(',');
-                var tb = fb.addField('textbox',{lbl:_T('Date aggregator'),value:'^.cell_group_aggr'});
-                tb._('ComboMenu',{values:values,action:function(kw,ctx){
-                    var cv = this.attr.attachTo.widget.getValue();
-                    this.attr.attachTo.widget.setValue(cv?cv+'-'+kw.fullpath:kw.fullpath,true);
-                }});
-                fb.addField('checkbox',{value:'^.cell_group_nobreak',label:_T('No break')});
-            }else{
-                fb.addField('checkbox',{value:'^.cell_group_nobreak',label:_T('No break')});
-            }
-            
+            that.groupByParsFields(fb,dtype,'cell_');
         };
         promptkw.action = function(result){
             result = result.asDict();
@@ -233,6 +218,28 @@ genro_plugin_groupth = {
         genro.dlg.prompt(_T('Add column'),promptkw);
         
     },
+
+    groupByParsFields:function(fb,dtype,prefix){
+        prefix = prefix || '';
+        prefix = '^.'+prefix;
+        var numeric = 'RNLIF'.indexOf(dtype)>=0;
+        var dateTime = 'DDH'.indexOf(dtype)>=0;
+        if(numeric){
+            fb.addField('filteringSelect',{value:prefix+'group_aggr',
+                        values:'sum:Sum,avg:Average,min:Min,max:Max,break:Break,nobreak:No break',
+                        lbl:_T('Aggregator')});
+        }else if(dateTime){
+            values = genro.commonDatasets.datetimes_chunk.join(',');
+            var tb = fb.addField('textbox',{lbl:_T('Date aggregator'),value:prefix+'group_aggr'});
+            tb._('ComboMenu',{values:values,action:function(kw,ctx){
+                var cv = this.attr.attachTo.widget.getValue();
+                this.attr.attachTo.widget.setValue(cv?cv+'-'+kw.fullpath:kw.fullpath,true);
+            }});
+            fb.addField('checkbox',{value:prefix+'group_nobreak',label:_T('No break')});
+        }else{
+            fb.addField('checkbox',{value:prefix+'group_nobreak',label:_T('No break')});
+        }
+    }
 
 
 };

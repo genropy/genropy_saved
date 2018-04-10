@@ -1703,10 +1703,13 @@ div.dojoxDock {
     padding-right: 15px;
     cursor: pointer;
 }
-.menuButtonDiv{
-    padding-right: 10px;
+/*.menuButtonDiv{
+    padding-right: 9px;
     background: transparent url(icons/base12/smallpopup.gif) no-repeat right 4px;
 }
+*/
+
+
 
 .iframereload{
     background: url(icons/base10/iframereload.gif) no-repeat center center;
@@ -5450,6 +5453,11 @@ div[disabled='true'], div[disabled='disabled']{
 
 .menu_white_svg{
     background: url(icons/svg/menu_white.svg) center center no-repeat;
+    background-size: contain;
+}
+
+.menu_gray_svg{
+    background: url(icons/svg/menu_gray.svg) center center no-repeat;
     background-size: contain;
 }
 
