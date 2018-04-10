@@ -263,8 +263,19 @@ class TableScriptToHtml(BagToHtml):
         self.pdfpath = pdfpath or self.getPdfPath('%s.pdf' % docname, autocreate=-1)
         pdf_kw = dict([(k[10:],getattr(self,k)) for k in dir(self) if k.startswith('htmltopdf_')])
         pdf_kw.update(pdf_kwargs)
-        self.print_handler.htmlToPdf(filepath or self.filepath, self.pdfpath, orientation=self.orientation(), page_height=self.page_height, 
+        filepath = filepath or self.filepath
+        if not isinstance(filepath,[]):
+            self.print_handler.htmlToPdf(filepath or self.filepath, self.pdfpath, orientation=self.orientation(), page_height=self.page_height, 
                                         page_width=self.page_width,pdf_kwargs=pdf_kw)
+            return
+        pdfToJoin = []
+        for fp in filepath:
+            curPdfPath = os.path.splitext(fp)[0]+'.pdf'
+            pdfToJoin.append(curPdfPath)
+            self.print_handler.htmlToPdf(fp, curPdfPath, orientation=self.orientation(), page_height=self.page_height, 
+                                        page_width=self.page_width,pdf_kwargs=pdf_kw)  
+        self.print_handler.joinPdf(pdfToJoin,self.pdfpath)  
+
 
     def get_css_requires(self):
         """TODO"""

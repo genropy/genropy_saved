@@ -47,7 +47,8 @@ class BagToHtml(object):
     copy_extra_height = 0
     starting_page_number = 0
     body_attributes = None
-    
+    splittedPages = 0
+
     def __init__(self, locale='en', encoding='utf-8', templates=None, templateLoader=None, **kwargs):
         self.locale = locale
         self.encoding = encoding
@@ -128,15 +129,18 @@ class BagToHtml(object):
         self.htmlTemplate = None
         self.prepareTemplates()
         self.page_debug = page_debug or self.page_debug
+        self.newBuilder()
+        result = self.createHtml(filepath=self.filepath,body_attributes=self.body_attributes)
+        return result
+
+    def newBuilder(self):
         self.builder = GnrHtmlBuilder(page_width=self.page_width, page_height=self.page_height,
                                       page_margin_top=self.page_margin_top, page_margin_bottom=self.page_margin_bottom,
                                       page_margin_left=self.page_margin_left, page_margin_right=self.page_margin_right,
                                       page_debug=self.page_debug, print_button=self.print_button,
                                       htmlTemplate=self.htmlTemplate, css_requires=self.get_css_requires(),
                                       showTemplateContent=self.showTemplateContent,parent=self)
-        result = self.createHtml(filepath=self.filepath,body_attributes=self.body_attributes)
-        return result
-        
+
     def get_css_requires(self):
         """Get the :ref:`"css_requires" webpage variable <css_requires>` in its string format
         and return it as a list"""
@@ -185,8 +189,11 @@ class BagToHtml(object):
         #filepath = filepath or self.filepath
         self.initializeBuilder(body_attributes=body_attributes)
         self.main()
-        self.builder.toHtml(filepath=filepath)
-        return self.builder.html
+        if not self.splittedPages:
+            self.builder.toHtml(filepath=filepath)
+            return self.builder.html
+        else:
+            print 'xxxxxx'
         
     def showTemplate(self, value):
         """TODO
@@ -471,6 +478,7 @@ class BagToHtml(object):
         self._docBody(self.copyValue('doc_body'))
         
     def _closePage(self, lastPage=None):
+        print 'closing',self.current_page_number,lastPage
         if lastPage:
             self.lastPage = True
         self.fillBodyGrid()
@@ -484,7 +492,15 @@ class BagToHtml(object):
             self.docFooter(self.copyValue('doc_footer'), lastPage=lastPage)
             #if self.page_footer_height:
             #    self.pageFooter(self.copyValue('page_footer'),lastPage=lastPage)
-            
+        if self.splittedPages:
+            currPage = self.current_page_number +1
+            if lastPage or currPage % self.splittedPages == 0:
+                self.pages_folder = os.path.splitext(self.filepath)[0]
+                self.builder.toHtml(filepath=os.path.join(self.pages_folder,'pages_%04i'%currPage))
+                self.newBuilder()
+                self.initializeBuilder(body_attributes=self.body_attributes)
+
+
     def _docBody(self, body):
         header_height = self.calcGridHeaderHeight()
         grid = self.gridLayout(body)
