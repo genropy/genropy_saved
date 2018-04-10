@@ -238,14 +238,16 @@ class TableScriptToHtml(BagToHtml):
             record = self.tblobj.recordAs(record, virtual_columns=self.virtual_columns)
         self.serveAsLocalhost = serveAsLocalhost or pdf
         html_folder = self.getHtmlPath(autocreate=True)
-        html = super(TableScriptToHtml, self).__call__(record=record, folder=html_folder, **kwargs)
+        result = super(TableScriptToHtml, self).__call__(record=record, folder=html_folder, **kwargs)
         
-        if not html:
+        if not result:
             return False
         if not pdf:
-            return html
-        
-        self.writePdf(docname=self.getDocName())
+            return result
+        if not isinstance(result, list):
+            self.writePdf(docname=self.getDocName())
+        else:
+            self.writePdf(filepath=result,docname=self.getDocName())
         if downloadAs:
             with open(self.pdfpath, 'rb') as f:
                 result = f.read()
@@ -263,8 +265,22 @@ class TableScriptToHtml(BagToHtml):
         self.pdfpath = pdfpath or self.getPdfPath('%s.pdf' % docname, autocreate=-1)
         pdf_kw = dict([(k[10:],getattr(self,k)) for k in dir(self) if k.startswith('htmltopdf_')])
         pdf_kw.update(pdf_kwargs)
-        self.print_handler.htmlToPdf(filepath or self.filepath, self.pdfpath, orientation=self.orientation(), page_height=self.page_height, 
+        filepath = filepath or self.filepath
+        if not isinstance(filepath,list):
+            self.print_handler.htmlToPdf(filepath or self.filepath, self.pdfpath, orientation=self.orientation(), page_height=self.page_height, 
                                         page_width=self.page_width,pdf_kwargs=pdf_kw)
+            return
+        pdfToJoin = []
+        for fp in filepath:
+            curPdfPath = os.path.splitext(fp)[0]+'.pdf'
+            pdfToJoin.append(curPdfPath)
+            self.print_handler.htmlToPdf(fp, curPdfPath, orientation=self.orientation(), page_height=self.page_height, 
+                                        page_width=self.page_width,pdf_kwargs=pdf_kw)
+            os.remove(fp)
+        self.print_handler.joinPdf(pdfToJoin,self.pdfpath)
+        for pdf in pdfToJoin:
+            os.remove(pdf)
+
 
     def get_css_requires(self):
         """TODO"""
