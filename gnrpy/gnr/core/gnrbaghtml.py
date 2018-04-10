@@ -196,7 +196,6 @@ class BagToHtml(object):
         else:
             pages = [os.path.join(self.pages_folder,p) for p in sorted(os.listdir(self.pages_folder))]
             self.builder = None
-            print pages
             return pages
         
     def showTemplate(self, value):
@@ -482,7 +481,6 @@ class BagToHtml(object):
         self._docBody(self.copyValue('doc_body'))
         
     def _closePage(self, lastPage=None):
-        print 'closing',self.current_page_number,lastPage
         if lastPage:
             self.lastPage = True
         self.fillBodyGrid()
@@ -499,7 +497,8 @@ class BagToHtml(object):
         if self.splittedPages:
             currPage = self.current_page_number +1
             if lastPage or currPage % self.splittedPages == 0:
-                self.builder.toHtml(filepath=os.path.join(self.pages_folder,'pages_%04i'%currPage))
+                pages_path = os.path.join(self.pages_folder,'pages_%04i.html'%currPage)
+                self.builder.toHtml(filepath=pages_path)
                 self.newBuilder()
                 self.initializeBuilder(body_attributes=self.body_attributes)
 
