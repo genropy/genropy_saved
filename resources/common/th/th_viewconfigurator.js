@@ -75,9 +75,12 @@ var genro_plugin_grid_configurator = {
                     }
                 }
                 if(sourceNode.attr.onDroppedColumn){
-                    funcApply(sourceNode.attr.onDroppedColumn,{data:data, column:dropInfo.column,fieldcellattr:fieldcellattr},grid);
+                    var treeNode = genro.src.nodeBySourceNodeId(dropInfo.dragSourceInfo._id);
+                    funcApply(sourceNode.attr.onDroppedColumn,{data:data, column:dropInfo.column,fieldcellattr:fieldcellattr,treeNode:treeNode},grid);
+                }else{
+                    grid.addColumn(data, dropInfo.column,fieldcellattr);
                 }
-                grid.addColumn(data, dropInfo.column,fieldcellattr);
+                
             };
             sourceNode.attr.dropTarget_column = sourceNode.attr.dropTarget_column ? sourceNode.attr.dropTarget_column + ',' + 'gnrdbfld_' + tablecode : 'gnrdbfld_' + tablecode;
             sourceNode.dropModes.column = sourceNode.attr.dropTarget_column;

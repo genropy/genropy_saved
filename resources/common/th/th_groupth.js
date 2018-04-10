@@ -13,8 +13,9 @@ genro_plugin_groupth = {
         
         struct_row.forEach(function(n){
             if(n.attr.group_aggr && 'NLIRF'.indexOf(n.attr.dtype)>=0  || n.attr.group_nobreak){
-                fld = n.attr.field.replace(/\W/g, '_')+(n.attr.group_aggr?'_'+n.attr.group_aggr:'');
-                tr._('treegrid_column',{field:fld,dtype:n.attr.dtype,
+                fld = n.attr.field.replace(/\W/g, '_');
+                fld += (n.attr.group_aggr?'_'+n.attr.group_aggr.replace(/\W/g, '_').toLowerCase():'');
+                tr._('treegrid_column',{field:fld,dtype:(n.attr.group_aggr && n.attr.group_nobreak)?'T':n.attr.dtype,
                                         size:120,header:n.attr.tree_name || n.attr.name,format:n.attr.format});
             }
         });
@@ -50,6 +51,9 @@ genro_plugin_groupth = {
             row = objectUpdate({},n.attr);
             group_by_cols.forEach(function(k){
                 description = objectPop(row,k) || '-';
+                if(typeof(description)!='string'){
+                    description = _F(description);
+                }
                 kl.push(flattenString(description,['.']));
                 treepath = kl.join('.');
                 if(!treedata.getNode(treepath)){
@@ -129,6 +133,9 @@ genro_plugin_groupth = {
         });
         var columnsets = new gnr.GnrBag();
         var lastGrpcol = grpcol.pop();
+        if(!lastGrpcol){
+            return {'struct':resultStruct,'store':resultStore};
+        }
         var lastGrpcolField = lastGrpcol.col_getter;
         var colset = Array.from(new Set(sourceStore.columns('#a.'+lastGrpcolField)[0])).sort();
         var colsetDict = {};
@@ -177,6 +184,55 @@ genro_plugin_groupth = {
         });
         resultStruct.setItem('info.columnsets',columnsets);
         return {'struct':resultStruct,'store':resultStore};
-    }
+    },
+    addColumnCb:function(grid,kw){
+        var treeNode = kw.treeNode;
+        var data = kw.data;
+        var column = kw.column;
+        var fieldcellattr = kw.fieldcellattr;
+        if(treeNode.getRelativeData(treeNode.attr.storepath).getNode(data.fieldpath).attributeOwnerNode('mode','M')){
+            genro.publish('floating_message',{messageType:'warning',message:_T('This kind of relation is not allowed in group by totalization')});
+            return;
+        }
+        var numeric = 'RNLIF'.indexOf(data.dtype)>=0;
+        var dateTime = 'DDH'.indexOf(data.dtype)>=0;
+        var values;
+        var dflt = new gnr.GnrBag(data);
+        if(numeric){
+            dflt.setItem('group_mode','sum');
+        }
+        var promptkw = {dflt:dflt};
+        promptkw.widget = function(pane){
+            var fb =  genro.dev.formbuilder(pane,1,{border_spacing:'3px',margin:'5px'});
+            fb.addField('textbox',{value:'^.fullcaption',lbl:'Caption'});
+            if(numeric){
+                fb.addField('filteringSelect',{value:'^.cell_group_aggr',
+                            values:'sum:Sum,avg:Average,min:Min,max:Max,break:Break,nobreak:No break',
+                            lbl:_T('Aggregator')});
+            }else if(dateTime){
+                values = genro.commonDatasets.datetimes_chunk.join(',');
+                var tb = fb.addField('textbox',{lbl:_T('Date aggregator'),value:'^.cell_group_aggr'});
+                tb._('ComboMenu',{values:values,action:function(kw,ctx){
+                    var cv = this.attr.attachTo.widget.getValue();
+                    this.attr.attachTo.widget.setValue(cv?cv+'-'+kw.fullpath:kw.fullpath,true);
+                }});
+                fb.addField('checkbox',{value:'^.cell_group_nobreak',label:_T('No break')});
+            }else{
+                fb.addField('checkbox',{value:'^.cell_group_nobreak',label:_T('No break')});
+            }
+            
+        };
+        promptkw.action = function(result){
+            result = result.asDict();
+            if(result.cell_group_aggr=='break' || result.cell_group_aggr=='nobreak'){
+                result.group_nobreak = result.cell_group_aggr=='nobreak';
+                result.cell_group_aggr = false;
+            }
+            grid.addColumn(result, column,fieldcellattr);
+        };
+        genro.dlg.prompt(_T('Add column'),promptkw);
+        
+    },
+
 
 };

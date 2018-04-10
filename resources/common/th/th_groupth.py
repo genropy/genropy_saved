@@ -26,7 +26,7 @@ from gnr.core.gnrbag import Bag
 
 
 class TableHandlerGroupBy(BaseComponent):
-    js_requires = 'th/th_groupth'
+    js_requires = 'gnrdatasets,th/th_groupth'
 
     
     @extract_kwargs(condition=True)
@@ -55,11 +55,7 @@ class TableHandlerGroupBy(BaseComponent):
                                 nodeId='%s_mainstack' %frameCode,**kwargs)  
         gridstack = sc.stackContainer(pageName='grid',title='!!Grid View',selectedPage='^.groupMode')
         frame = gridstack.frameGrid(frameCode=frameCode,grid_onDroppedColumn="""
-                                    if('RNLIF'.indexOf(data.dtype)<0){
-                                        return;
-                                    }else if (!data.group_aggr){
-                                        data.cell_group_aggr = 'sum';
-                                    }
+                                    genro.groupth.addColumnCb(this,{data:data, column:column,fieldcellattr:fieldcellattr,treeNode:treeNode});
                                     """,
                                 grid_connect_onSetStructpath="""
                                     this.publish('changedStruct',{structBag:$1,kw:$2});
@@ -163,6 +159,7 @@ class TableHandlerGroupBy(BaseComponent):
             SET .grid.struct = r.struct;
         """,mainstore='^#ANCHOR.store',
             mainstruct='=#ANCHOR.grid.struct',
+            _delay=1,
             **{'subscribe_%s_changedStruct' %grid.attributes['nodeId']:True})
 
 
@@ -194,6 +191,7 @@ class TableHandlerGroupBy(BaseComponent):
 
             SET .treestore = genro.groupth.groupTreeData(basestore,basestruct,treeRoot);
         """,gridstore='^.store',
+            _delay=1,
             _fired='^.refresh_tree_data',treeRoot='^.treeRootName',
             struct='=.grid.struct',
             stackedStruct = '=.stacked.grid.struct',
