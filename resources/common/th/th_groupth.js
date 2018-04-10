@@ -15,7 +15,7 @@ genro_plugin_groupth = {
             if(n.attr.group_aggr && 'NLIRF'.indexOf(n.attr.dtype)>=0  || n.attr.group_nobreak){
                 fld = n.attr.field.replace(/\W/g, '_')+(n.attr.group_aggr?'_'+n.attr.group_aggr:'');
                 tr._('treegrid_column',{field:fld,dtype:n.attr.dtype,
-                                        size:120,header:n.attr.name,format:n.attr.format});
+                                        size:120,header:n.attr.tree_name || n.attr.name,format:n.attr.format});
             }
         });
         root.unfreeze();
@@ -140,7 +140,7 @@ genro_plugin_groupth = {
             valuecols.forEach(function(attr){
                 attr = objectUpdate({},attr);
                 attr.field = attr.field+'_'+colsetidx;
-                //attr.name = f+'<br/>'+attr.name;
+                attr.tree_name = f+'<br/>'+attr.name;
                 attr.columnset = 'grp_'+colsetidx;
                 if(!columnsets.getNode(attr.columnset)){
                     columnsets.setItem(attr.columnset,null,{code:'grp_'+colsetidx,name:f});

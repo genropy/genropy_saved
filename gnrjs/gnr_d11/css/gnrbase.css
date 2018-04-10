@@ -4565,7 +4565,6 @@ div[disabled='true'], div[disabled='disabled']{
     top:0;
     left:0;
     right:0;
-    height: 18px;
 }
 .treeGridFooter{
     position:absolute;
@@ -4610,9 +4609,9 @@ div[disabled='true'], div[disabled='disabled']{
     border-left: 1px solid #ddd;
     background: #204174;
     color:#efefef;
-    line-height: 18px;
     white-space: nowrap;
     text-align: center;
+    padding-top:1px;
 }
 .treeGridLayout .treeGridFooter .treecell{
     display: inline-block;
@@ -4620,7 +4619,7 @@ div[disabled='true'], div[disabled='disabled']{
     border-left: 1px solid #ddd;
     background: #F8CF00;
     color:#204174;
-    line-height: 18px;
+    padding-top:1px;
     white-space: nowrap;
 }
 
