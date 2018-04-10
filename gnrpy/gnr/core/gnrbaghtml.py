@@ -124,7 +124,8 @@ class BagToHtml(object):
         self.print_button = kwargs.pop('print_button', self.print_button)
         if self.onRecordLoaded() is False:
             return False
-
+        if self.splittedPages:
+            self.pages_folder = os.path.splitext(self.filepath)[0]
         self.showTemplate(hideTemplate is not True)
         self.htmlTemplate = None
         self.prepareTemplates()
@@ -193,7 +194,10 @@ class BagToHtml(object):
             self.builder.toHtml(filepath=filepath)
             return self.builder.html
         else:
-            print 'xxxxxx'
+            pages = [os.path.join(self.pages_folder,p) for p in sorted(os.listdir(self.pages_folder))]
+            self.builder = None
+            print pages
+            return pages
         
     def showTemplate(self, value):
         """TODO
@@ -495,7 +499,6 @@ class BagToHtml(object):
         if self.splittedPages:
             currPage = self.current_page_number +1
             if lastPage or currPage % self.splittedPages == 0:
-                self.pages_folder = os.path.splitext(self.filepath)[0]
                 self.builder.toHtml(filepath=os.path.join(self.pages_folder,'pages_%04i'%currPage))
                 self.newBuilder()
                 self.initializeBuilder(body_attributes=self.body_attributes)

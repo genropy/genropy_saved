@@ -238,14 +238,16 @@ class TableScriptToHtml(BagToHtml):
             record = self.tblobj.recordAs(record, virtual_columns=self.virtual_columns)
         self.serveAsLocalhost = serveAsLocalhost or pdf
         html_folder = self.getHtmlPath(autocreate=True)
-        html = super(TableScriptToHtml, self).__call__(record=record, folder=html_folder, **kwargs)
+        result = super(TableScriptToHtml, self).__call__(record=record, folder=html_folder, **kwargs)
         
-        if not html:
+        if not result:
             return False
         if not pdf:
-            return html
-        
-        self.writePdf(docname=self.getDocName())
+            return result
+        if isinstance(result, list):
+            self.writePdf(docname=self.getDocName())
+        else:
+            self.writePdf(filepath=result,docname=self.getDocName())
         if downloadAs:
             with open(self.pdfpath, 'rb') as f:
                 result = f.read()
@@ -264,7 +266,8 @@ class TableScriptToHtml(BagToHtml):
         pdf_kw = dict([(k[10:],getattr(self,k)) for k in dir(self) if k.startswith('htmltopdf_')])
         pdf_kw.update(pdf_kwargs)
         filepath = filepath or self.filepath
-        if not isinstance(filepath,[]):
+        print filepath
+        if not isinstance(filepath,list):
             self.print_handler.htmlToPdf(filepath or self.filepath, self.pdfpath, orientation=self.orientation(), page_height=self.page_height, 
                                         page_width=self.page_width,pdf_kwargs=pdf_kw)
             return
@@ -272,6 +275,7 @@ class TableScriptToHtml(BagToHtml):
         for fp in filepath:
             curPdfPath = os.path.splitext(fp)[0]+'.pdf'
             pdfToJoin.append(curPdfPath)
+            print curPdfPath
             self.print_handler.htmlToPdf(fp, curPdfPath, orientation=self.orientation(), page_height=self.page_height, 
                                         page_width=self.page_width,pdf_kwargs=pdf_kw)  
         self.print_handler.joinPdf(pdfToJoin,self.pdfpath)  
