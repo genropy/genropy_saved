@@ -2858,6 +2858,14 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     toolsGridRoot:function(sourceNode,kw,tools_kw){
         var tools = objectPop(tools_kw,'tools');
         tools_kw = tools_kw || {};
+        var tools_bar_class,container_class;
+        if(tools_kw.title){
+            tools_bar_class = 'slotbar_toolbar_standard';
+            tools_kw.position = 'TR';
+        }
+        var bckw = {height: objectPop(kw,'height'),
+            width: objectPop(kw,'width'),_class:'quickgrid_container'}
+        
         objectUpdate(tools_kw,objectExtract(kw,'tools_*'));
         var custom_tools = objectPop(tools_kw,'custom_tools');
         var default_tools={ 'addrow': {content_class:'iconbox add_row',_delay:500},
@@ -2880,12 +2888,16 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         tools=tools==true? 'addrow,delrow' : tools;
         var tools_position = objectPop(tools_kw,'position') || 'TR';
         var tool_region=(tools_position[0]=='T') ? 'top':'bottom';
-        var bckw = {height: objectPop(kw,'height'),
-                    width: objectPop(kw,'width'),
-                   _class:'quickgrid_container'}
+
         var centerkw = {region:'center',border:objectPop(kw,'border'),overflow:'hidden'};
         var bc = sourceNode._('borderContainer',bckw);
-        var tpane = bc._('contentPane',{region:tool_region,height:'22px',overflow:'hidden',datapath:'#WORKSPACE.tools'}) 
+        
+        var tpane = bc._('contentPane',{region:tool_region,height:'22px',overflow:'hidden',datapath:'#WORKSPACE.tools',
+                                        _class:tools_bar_class});
+        if(tools_kw.title){
+            tpane._('div',{innerHTML:tools_kw.title,position:'absolute',left:'5px',top:'3px',
+                        font_weight:'bold',font_size:'.9em',color:'#444'});
+        }
         var posdict = {'TR':{right:'0',_class:'quickgrid_toolsbox_top quickgrid_toolsbox'},
                        'TL':{left:'0',_class:'quickgrid_toolsbox_top quickgrid_toolsbox'},
                         'BR':{right:'0',_class:'quickgrid_toolsbox_bottom quickgrid_toolsbox'},

@@ -4046,6 +4046,16 @@ p {
     border:1px solid silver;
     height: 19px;
 }
+
+.slotbar_toolbar_standard .quickgrid_toolsbox.quickgrid_toolsbox_top{
+    border-color: transparent;
+    top:-1px;
+}
+
+.pbl_roundedGroupLabel .quickgrid_toolsbox{
+    border-color: transparent;
+}
+
 .quickgrid_toolsbox:hover{
     border:1px solid silver;
 }
