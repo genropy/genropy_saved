@@ -4,7 +4,7 @@ from gnr.core.gnrstring import toText
 
 class XlsWriter(object):
     """TODO"""
-    def __init__(self, columns=None, coltypes=None, headers=None, filepath=None,sheet_base_name=None,
+    def __init__(self, columns=None, coltypes=None, headers=None, groups=None, filepath=None,sheet_base_name=None,
                  font='Times New Roman', format_float='#,##0.00', format_int='#,##0', locale=None):
        #self.headers = headers
        #self.columns = columns
@@ -13,7 +13,8 @@ class XlsWriter(object):
         self.workbook = xlwt.Workbook(encoding='latin-1')
         if sheet_base_name is not False:
             self.sheet_base_name = sheet_base_name or os.path.basename(self.filepath)[:31]
-            self.createSheet(self.sheet_base_name,headers=headers,columns=columns,coltypes=coltypes)
+            self.createSheet(self.sheet_base_name,headers=headers,columns=columns,
+                coltypes=coltypes, groups=groups)
         else:
             self.sheet_base_name = False
         #self.sheet = self.workbook.add_sheet(os.path.basename(self.filepath)[:31])
@@ -39,7 +40,7 @@ class XlsWriter(object):
 
     @property
     def columns(self):
-        return self.sheets[self.sheet_base_name]['headers']
+        return self.sheets[self.sheet_base_name]['columns']
 
     @property
     def colsizes(self):
@@ -53,14 +54,19 @@ class XlsWriter(object):
     def current_row(self):
         return self.sheets[self.sheet_base_name]['current_row']
 
+    @property
+    def groups(self):
+        return self.sheets[self.sheet_base_name]['groups']
 
-    def createSheet(self,sheetname,headers=None,columns=None,coltypes=None,colsizes=None):
+    def createSheet(self,sheetname,headers=None,columns=None,coltypes=None,colsizes=None,
+            groups=None):
         colsizes = colsizes or dict()
         self.sheets[sheetname] = {'sheet': self.workbook.add_sheet(sheetname),
                                    'headers':headers,'columns':columns,
-                                    'colsizes':colsizes,'coltypes':coltypes}
+                                    'colsizes':colsizes,'coltypes':coltypes,
+                                    'groups':groups}
         self.sheets[sheetname]['sheet'].panes_frozen = True
-        self.sheets[sheetname]['sheet'].horz_split_pos = 1
+        self.sheets[sheetname]['sheet'].horz_split_pos = 1 if not groups else 2
         
     def __call__(self, data=None, sheet_name=None):
         self.writeHeaders(sheet_name=sheet_name)
@@ -81,10 +87,22 @@ class XlsWriter(object):
         sheet = self.sheets[sheet_name]['sheet']
         headers = self.sheets[sheet_name]['headers']
         colsizes = self.sheets[sheet_name]['colsizes']
+        groups = self.sheets[sheet_name]['groups']
+        current_row = 0
+        if groups:
+            group_style = xlwt.easyxf('align: wrap on, vert centre, horiz center')
+            current_col = 0
+            for g in groups:
+                name = g.get('name')
+                start = g.get('start')
+                end = g.get('end')
+                sheet.write_merge(current_row, current_row,
+                    start, end, name, group_style)
+            current_row +=1
         for c, header in enumerate(headers):
-            sheet.write(0, c, header, self.hstyle)
+            sheet.write(current_row, c, header, self.hstyle)
             colsizes[c] = max(colsizes.get(c, 0), self.fitwidth(header))
-        self.sheets[sheet_name]['current_row'] = 0
+        self.sheets[sheet_name]['current_row'] = current_row
         
     def workbookSave(self):
         """TODO"""

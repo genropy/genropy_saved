@@ -53,6 +53,7 @@ class BaseResourceExport(BaseResourceBatch):
         self.columns = []
         self.headers = []
         self.coltypes = {}
+        self.groups = []
         self.data = None
 
     def gridcall(self, data=None, struct=None, export_mode=None, datamode=None,selectedRowidx=None,filename=None,
@@ -75,9 +76,18 @@ class BaseResourceExport(BaseResourceBatch):
                 yield r.getValue()
 
     def prepareFromStruct(self, struct=None):
+        info = struct.pop('info')
+        columnsets = {}
+        if info:
+            columnsets[None]=''
+            for columnset in info['columnsets']:
+                columnsets[columnset.getAttr('code')]=columnset.getAttr('name')
+            print columnsets
         for view in struct.values():
             for row in view.values():
-                for cell in row:
+                curr_columnset = dict(start=0, name='')
+                curr_column = 0
+                for curr_column,cell in enumerate(row):
                     if cell.getAttr('hidden') is True:
                         continue
                     col = self.db.colToAs(cell.getAttr('caption_field') or cell.getAttr('field'))
@@ -86,7 +96,19 @@ class BaseResourceExport(BaseResourceBatch):
                     self.columns.append(col)
                     self.headers.append(cell.getAttr('name'))
                     self.coltypes[col] = cell.getAttr('dtype')
-                    
+                    columnset = cell.getAttr('columnset')
+                    columnset_name = columnsets.get(columnset)
+                    print columnset_name
+                    if columnset_name!=curr_columnset.get('name'):
+                        print '+'
+                        curr_columnset['end']=curr_column-1
+                        if curr_columnset.get('name'):
+                            self.groups.append(curr_columnset)
+                        curr_columnset = dict(start=curr_column, name=columnset_name)
+                curr_columnset['end']=curr_column-1
+                if curr_columnset.get('name'):
+                    self.groups.append(curr_columnset)
+        
     def getFileName(self):
         return 'export'
 
@@ -108,7 +130,8 @@ class BaseResourceExport(BaseResourceBatch):
             else:
                 self.prepareFromStruct(struct)
         writerPars = dict(columns=self.columns, coltypes=self.coltypes, headers=self.headers,
-                          filepath=self.filepath, locale= self.locale if self.localized_data else None)
+                        filepath=self.filepath, groups=self.groups,
+                        locale= self.locale if self.localized_data else None)
         if self.export_mode == 'xls':
             self.writer = XlsWriter(**writerPars)
         elif self.export_mode == 'csv':
