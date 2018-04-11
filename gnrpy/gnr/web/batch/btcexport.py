@@ -9,6 +9,7 @@
 from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrxls import XlsWriter
 from gnr.core.gnrstring import toText
+import re
 
 class CsvWriter(object):
     """docstring for CsVWriter"""
@@ -92,7 +93,7 @@ class BaseResourceExport(BaseResourceBatch):
                         continue
                     col = self.db.colToAs(cell.getAttr('caption_field') or cell.getAttr('field'))
                     if cell.getAttr('group_aggr'):
-                        col = '%s_%s' %(col,cell.getAttr('group_aggr'))
+                        col = '%s_%s' %(col,re.sub("\\W", "_",cell.getAttr('group_aggr').lower()))
                     self.columns.append(col)
                     self.headers.append(cell.getAttr('name'))
                     self.coltypes[col] = cell.getAttr('dtype')
