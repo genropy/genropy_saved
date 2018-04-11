@@ -250,8 +250,9 @@ class TableHandlerView(BaseComponent):
                                            $2.widget.reload();""")
         b.rowchild(label='!!Totals count',action='SET .#parent.tableRecordCount= !GET .#parent.tableRecordCount;',
                             checked='^.#parent.tableRecordCount')
-        b.rowchild(label='-')
+        
         if self.application.checkResourcePermission('superadmin', self.userTags):
+            b.rowchild(label='-')
             b.rowchild(label='!!User Configuration',action='genro.dev.tableUserConfiguration($2.attr.table);')
         frame.grid.data('.contextMenu',b)
 
@@ -261,8 +262,9 @@ class TableHandlerView(BaseComponent):
                                          FIRE .runQueryDo;""")
         b.rowchild(label='!!Totals count',action='SET .#parent.tableRecordCount= !GET .#parent.tableRecordCount;',
                             checked='^.#parent.tableRecordCount')
-        b.rowchild(label='-')
+        
         if self.application.checkResourcePermission('superadmin', self.userTags):
+            b.rowchild(label='-')
             b.rowchild(label='!!User Configuration',action='genro.dev.tableUserConfiguration("%s");' %frame.grid.attributes['table'])
         b.rowchild(label='!!Configure grid',action="genro.nodeById('%s').publish('configuratorPalette');" %frame.grid.attributes['nodeId'])
         b.rowchild(label='-')

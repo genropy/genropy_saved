@@ -11,7 +11,6 @@ genro_plugin_dashboards = {
             node.clearValue();
             node.freeze();
             var menupath = this.root.absDatapath('.dashboardItemsMenu');
-            console.log('calling dashboardItemsMenu',menupath);
             node._('menu', {modifiers:'*',_class:'smallmenu',storepath:menupath,
                                             id:'dashboardItemsMenu',
                                            action:'$2.setRelativeData(".table",$1.fullpath.split(".").slice(0,2).join("."));$2.setRelativeData(".itemName",$1.resource)'});
@@ -112,7 +111,7 @@ genro_plugin_dashboards = {
                                         dropCodes:'dashboardItems',
                                         onDrop_dashboardItems:function(p1,p2,kw){
                                             var sourceNode = this;
-                                            var item_parameters = [{value:'^._item_title',lbl:_T('Title')}]
+                                            var item_parameters = [{value:'^._item_title',lbl:_T('Title')}];
                                             if(kw.data.item_parameters){
                                                 item_parameters = item_parameters.concat(kw.data.item_parameters);
                                                 

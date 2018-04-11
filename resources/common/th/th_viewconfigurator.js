@@ -178,9 +178,9 @@ var genro_plugin_grid_configurator = {
     },
 
     _columnsetsGrid:function(tc,gridNode){
-        var pane = tc._('contentPane',{title:'Columnsets',margin:'2px'});
+        var pane = tc._('contentPane',{title:'Columnsets',datapath:'.colseteditor',margin:'2px'});
         var structpath = gridNode.absDatapath(gridNode.attr.structpath);
-        var grid_pars = {value:'^.columnsets_edit'};
+        var grid_pars = {value:'^.columnsets_edit',nodeId:(gridNode.attr.nodeId || gridNode._id)+'_columnsetsGrid'};
         grid_pars.selfsubscribe_addrow = function(addkw){
             var rowDefaults = objectUpdate({},addkw._askResult);
             rowDefaults.code = objectPop(rowDefaults,'columnset');
@@ -252,9 +252,10 @@ var genro_plugin_grid_configurator = {
 
 
     _cellsEditorGrid:function(tc,gridNode){
-        var pane = tc._('contentPane',{title:_T('Columns'),margin:'2px'});
+        var pane = tc._('contentPane',{title:_T('Columns'),margin:'2px',datapath:'.cellseditor'});
         var structpath = gridNode.absDatapath(gridNode.attr.structpath);
-        var grid_pars = {value:'^.cells_edit'};
+
+        var grid_pars = {value:'^.cells_edit',nodeId:(gridNode.attr.nodeId || gridNode._id)+'_cellsEditorGrid'};
         grid_pars.selfDragRows = true;
         grid_pars.selfsubscribe_addrow = function(addkw){
             var rowDefaults = objectUpdate({},addkw._askResult);
@@ -307,7 +308,7 @@ var genro_plugin_grid_configurator = {
               }}}});
         var dc = pane._('dataController',{script:'this._cellsEditor(editbag,destbag,_triggerpars)',
                                             editbag:'^.cells_edit',
-                                            destbag:'^'+structpath+'.view_0.rows_0'});
+                                            destbag:'^'+structpath+'.view_0.rows_0',_onBuilt:true});
         var that = this;
         dc.getParentNode()._cellsEditor = function(editbag,destbag,_triggerpars){
             that._cellsEditorConverter(editbag,destbag,_triggerpars,'.view_0.rows_0','cellsEditor');
@@ -326,7 +327,7 @@ var genro_plugin_grid_configurator = {
                                     {name:'calculated',label:'Calculated',wdg:'checkbox'}]}
         };
         var kw = {addrow:addrow,delrow:true,
-            grid_nodeId:(gridNode.attr.nodeId || gridNode._id)+'_viewEditor',
+            grid_nodeId:(gridNode.attr.nodeId || gridNode._id)+'_advancedEditor',
             grid_addCheckBoxColumn:{field:'hidden',trueclass:'checkboxOff',falseclass:'checkboxOn'},
             grid_onCreated:function(widget){
                 dojo.connect(grid,'onSetStructpath',function(){
@@ -334,7 +335,7 @@ var genro_plugin_grid_configurator = {
                 });
             },'path':colspath,
             exclude:'dtype,field,tag,related_table,related_table_lookup,related_column,relating_column,rowcaption,caption_field'};
-        tc._('contentPane',{title:_T('Advanced configuration'),overflow:'hidden'})._('FlatBagEditor',kw);
+        tc._('contentPane',{title:_T('Advanced configuration'),overflow:'hidden',datapath:'.advanced'})._('FlatBagEditor',kw);
     },
 
 
@@ -347,9 +348,6 @@ var genro_plugin_grid_configurator = {
     },
 
     _cellsEditorConverter:function(editbag,destbag,_triggerpars,relpath,reason){
-        if(_triggerpars.kw.reason==reason){
-            return;
-        }
         var rebuildEditBag = function(destbag,editbag){
             destbag.forEach(function(n){
                 var r = objectUpdate({},n.attr);
@@ -361,6 +359,18 @@ var genro_plugin_grid_configurator = {
                 editbag.setItem(n.label,r,{_pkey:n.label},{doTrigger:reason});
             });
         };
+        if(!_triggerpars.kw){
+            //rebuildpalette
+            if(editbag){
+                editbag.clear();
+                rebuildEditBag(destbag,editbag);
+            }
+            return;
+        }
+        if(_triggerpars.kw.reason==reason){
+            return;
+        }
+   
         if(_triggerpars.kw.pathlist.indexOf('cells_edit')>=0){
             if(destbag && destbag.len() && _triggerpars.kw.reason=='loadData'){
                 rebuildEditBag(destbag,editbag);
