@@ -863,7 +863,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 }
             });
         }
-        
         setTimeout(function(){widget.updateRowCount('*');},1);
     },
 
@@ -1897,7 +1896,6 @@ dojo.declare("gnr.widgets.VirtualGrid", gnr.widgets.DojoGrid, {
             return grid.currRenderedRow[this.field];
         };
         attributes.canSort = function(info) {
-            console.log(info);
             return true;
         };
         return savedAttrs
@@ -1925,6 +1923,7 @@ dojo.declare("gnr.widgets.VirtualGrid", gnr.widgets.DojoGrid, {
         this.storebag.getValue().setItem('P_' + pageIdx, data);
         return data;
     },
+
     patch_sort: function() {
         var sortInfo = this.sortInfo;
         var order;
