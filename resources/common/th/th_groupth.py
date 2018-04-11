@@ -141,7 +141,7 @@ class TableHandlerGroupBy(BaseComponent):
                 q.setItem(name,self._prepareGridStruct(v,table=table),caption=v.__doc__)
             frame.data('.grid.resource_structs',q)
         frame.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),currentView="=.grid.currViewPath",
-                        table=table,th_root=frame.attributes['frameCode'],
+                        table=table,th_root=frame.attributes['frameCode'],objtype='grpview',
                         favoriteViewPath='=.grid.favoriteViewPath',cacheTime=30)
 
 

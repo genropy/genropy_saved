@@ -28,6 +28,11 @@ var genro_plugin_grid_configurator = {
         var gridSourceNode = genro.nodeById(gridId);
         var selectedViewCode = gridSourceNode.getRelativeData('.currViewAttrs.code');
         var datapath =  gridSourceNode.absDatapath('.currViewAttrs');
+        var objtype = 'view';
+        var collectionStore = gridSourceNode.widget.collectionStore();
+        if(collectionStore.storeNode.attr.groupByStore){
+            objtype = 'grpview';
+        }
         var that = this;
         saveCb = function(dlg) {
             var pagename = genro.getData('gnr.pagename');
@@ -42,9 +47,10 @@ var genro_plugin_grid_configurator = {
             }else{
                 flags = flag;
             }
+
             metadata.setItem('flags',flags);
             genro.serverCall('_table.adm.userobject.saveUserObject',
-                            {'objtype':'view','metadata':metadata,'data':gridSourceNode.widget.structBag,
+                            {'objtype':objtype,'metadata':metadata,'data':gridSourceNode.widget.structBag,
                             table:gridSourceNode.attr.table},
                             function(result) {
                                 dlg.close_action();
@@ -120,9 +126,9 @@ var genro_plugin_grid_configurator = {
         this.checkFavorite(gridId);
         if(viewAttr.pkey){
             var pkey = viewAttr.pkey;
-            genro.serverCall('_table.adm.userobject.loadUserObject', {pkey:pkey}, function(result){finalize(result.getValue())});
+            genro.serverCall('_table.adm.userobject.loadUserObject', {pkey:pkey}, function(result){finalize(result.getValue());});
         }else{
-            finalize(gridSourceNode.getRelativeData('.resource_structs.'+currPath).deepCopy())
+            finalize(gridSourceNode.getRelativeData('.resource_structs.'+currPath).deepCopy());
         }
     },
     refreshMenu:function(gridId){
@@ -148,26 +154,31 @@ var genro_plugin_grid_configurator = {
 
     configuratorPalette:function(gridId){
         var gridNode = genro.nodeById(gridId) || genro.nodeBySourceNodeId(gridId);
-        var groupCode = '_currentPaletteGridConfigurator_'+gridId;
+        var paletteCode = '_currentPaletteGridConfigurator_'+gridId;
         var root = genro.src.newRoot();
-        genro.src.getNode()._('div', groupCode);
-        var node = genro.src.getNode(groupCode).clearValue();
+        genro.src.getNode()._('div', paletteCode);
+        var node = genro.src.getNode(paletteCode).clearValue();
         node.freeze();
-        var paletteGroup = node._('PaletteGroup',{title:'Grid configurator '+gridId,
-                                                groupCode:groupCode,
-                                                height:'400px',width:'600px','dockTo':false});
+        var title = gridNode.attr.item_name_plural?' '+gridNode.attr.item_name_plural:'';
+        var pane = node._('PalettePane',{title:'Grid configurator'+title,
+                                                paletteCode:paletteCode,
+                                                height:'500px',width:'800px','dockTo':false});
 
-
-        var pane = paletteGroup._('PalettePane',{title:_T('Grid Config'),paletteCode:groupCode+'_grid_overall'});
-        var tc = pane._('tabContainer',{margin:'2px'});
-        this._cellsEditorGrid(tc,gridNode);
-        this._columnsetsGrid(tc,gridNode);
-        this._structureConfiguratorPalette(paletteGroup,gridNode,groupCode);
+        var frame = pane._('framePane',{frameCode:paletteCode+'_panels',center_widget:'stackContainer'});
+        var bar = frame._('slotBar',{slots:'2,stackButtons,*,saveConfiguration,2',toolbar:true,side:'top'});
+        var that = this;
+        bar._('slotButton','saveConfiguration',{iconClass:'iconbox save',
+                                                action:function(){
+                                                    that.saveGridView(gridId);
+                                                }});
+        this._cellsEditorGrid(frame,gridNode);
+        this._columnsetsGrid(frame,gridNode);
+        this._structureConfigurator(frame,gridNode);
         node.unfreeze();
     },
 
     _columnsetsGrid:function(tc,gridNode){
-        var pane = tc._('contentPane',{title:'Columnsets'});
+        var pane = tc._('contentPane',{title:'Columnsets',margin:'2px'});
         var structpath = gridNode.absDatapath(gridNode.attr.structpath);
         var grid_pars = {value:'^.columnsets_edit'};
         grid_pars.selfsubscribe_addrow = function(addkw){
@@ -241,9 +252,10 @@ var genro_plugin_grid_configurator = {
 
 
     _cellsEditorGrid:function(tc,gridNode){
-        var pane = tc._('contentPane',{title:_T('Columns')});
+        var pane = tc._('contentPane',{title:_T('Columns'),margin:'2px'});
         var structpath = gridNode.absDatapath(gridNode.attr.structpath);
         var grid_pars = {value:'^.cells_edit'};
+        grid_pars.selfDragRows = true;
         grid_pars.selfsubscribe_addrow = function(addkw){
             var rowDefaults = objectUpdate({},addkw._askResult);
             rowDefaults.calculated = true;
@@ -302,7 +314,7 @@ var genro_plugin_grid_configurator = {
         };
     },
 
-    _structureConfiguratorPalette:function(parent,gridNode,groupCode){
+    _structureConfigurator:function(tc,gridNode){
         var colspath = gridNode.absDatapath(gridNode.attr.structpath+'.#0.#0');
         var grid = gridNode.widget;
         var addrow = {content_class:'iconbox add_row',dtype:'N',calculated:true,
@@ -313,19 +325,16 @@ var genro_plugin_grid_configurator = {
                                     {name:'formula',lbl:'Formula'},
                                     {name:'calculated',label:'Calculated',wdg:'checkbox'}]}
         };
-        var kw = {title: _T('Advanced configuration'),
-        'paletteCode':groupCode+'_struct_editor',
-        addrow:addrow,delrow:true,
-        grid_nodeId:(gridNode.attr.nodeId || gridNode._id)+'_viewEditor',
-        grid_addCheckBoxColumn:{field:'hidden',trueclass:'checkboxOff',falseclass:'checkboxOn'},
-        grid_onCreated:function(widget){
-            dojo.connect(grid,'onSetStructpath',function(){
-                widget.updateRowCount();
-            });
-        },
-        'path':colspath,
-        exclude:'dtype,field,tag,related_table,related_table_lookup,related_column,relating_column,rowcaption,caption_field'};
-        parent._('PaletteBagEditor',kw);
+        var kw = {addrow:addrow,delrow:true,
+            grid_nodeId:(gridNode.attr.nodeId || gridNode._id)+'_viewEditor',
+            grid_addCheckBoxColumn:{field:'hidden',trueclass:'checkboxOff',falseclass:'checkboxOn'},
+            grid_onCreated:function(widget){
+                dojo.connect(grid,'onSetStructpath',function(){
+                    widget.updateRowCount();
+                });
+            },'path':colspath,
+            exclude:'dtype,field,tag,related_table,related_table_lookup,related_column,relating_column,rowcaption,caption_field'};
+        tc._('contentPane',{title:_T('Advanced configuration'),overflow:'hidden'})._('FlatBagEditor',kw);
     },
 
 
@@ -378,7 +387,8 @@ var genro_plugin_grid_configurator = {
                     destbag.getNode(rowNode.label).updAttributes(updDict,reason);
                 }else if(evt=='ins'){
                     var ds = destbag || new gnr.GnrBag(); 
-                    ds.setItem(_triggerpars.kw.node.label,null,_triggerpars.kw.node.getValue().asDict(),{doTrigger:reason});
+                    ds.setItem(_triggerpars.kw.node.label,null,_triggerpars.kw.node.getValue().asDict(),{doTrigger:reason,
+                                                _position:_triggerpars.kw.ind});
                     if(!destbag){
                         genro.setData(structpath+relpath,ds,null,{doTrigger:reason});
                     }

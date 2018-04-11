@@ -262,6 +262,7 @@ class TableHandlerView(BaseComponent):
                             checked='^.#parent.tableRecordCount')
         b.rowchild(label='-')
         b.rowchild(label='!!User Configuration',action='genro.dev.tableUserConfiguration("%s");' %frame.grid.attributes['table'])
+        b.rowchild(label='!!Configure grid',action="genro.nodeById('%s').publish('configuratorPalette');" %frame.grid.attributes['nodeId'])
         b.rowchild(label='-')
         if statsEnabled:
             b.rowchild(label='!!Group by',action='SET .statsTools.selectedPage = "groupby"; SET .viewPage= "statsTools";')
@@ -1058,15 +1059,16 @@ class THViewUtils(BaseComponent):
         return menu
 
     @public_method
-    def th_menuViews(self,table=None,th_root=None,pyviews=None,favoriteViewPath=None,currentView=None,**kwargs):
+    def th_menuViews(self,table=None,th_root=None,pyviews=None,objtype=None,favoriteViewPath=None,currentView=None,**kwargs):
         result = Bag()
+        objtype = objtype or 'view'
         currentView = currentView or favoriteViewPath or '__baseview__'
         gridId = '%s_grid' %th_root
         result.setItem('__baseview__', None,caption='Base View',gridId=gridId,checked = currentView=='__baseview__')
         if pyviews:
             for k,caption in pyviews:
                 result.setItem(k.replace('_','.'),None,description=caption,caption=caption,viewkey=k,gridId=gridId)
-        userobjects = self.db.table('adm.userobject').userObjectMenu(objtype='view',flags='%s_%s' % (self.pagename, gridId),table=table)
+        userobjects = self.db.table('adm.userobject').userObjectMenu(objtype=objtype,flags='%s_%s' % (self.pagename, gridId),table=table)
         if self.pagename.startswith('thpage'):
             #compatibility old saved views
             userobjects.update(self.db.table('adm.userobject').userObjectMenu(objtype='view',flags='thpage_%s' % gridId,table=table))
@@ -1086,7 +1088,6 @@ class THViewUtils(BaseComponent):
             
         else:
             node.attr['favorite'] = None
-        
     
     @public_method
     def th_menuQueries(self,table=None,th_root=None,pyqueries=None,editor=True,bySample=False,**kwargs):
