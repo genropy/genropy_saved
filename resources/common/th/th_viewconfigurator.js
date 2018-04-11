@@ -155,6 +155,11 @@ var genro_plugin_grid_configurator = {
     configuratorPalette:function(gridId){
         var gridNode = genro.nodeById(gridId) || genro.nodeBySourceNodeId(gridId);
         var paletteCode = '_currentPaletteGridConfigurator_'+gridId;
+        var paletteWdg = genro.wdgById(paletteCode+'_floating');
+        if(paletteWdg){
+            paletteWdg.show();
+            return;
+        }
         var root = genro.src.newRoot();
         genro.src.getNode()._('div', paletteCode);
         var node = genro.src.getNode(paletteCode).clearValue();
@@ -162,7 +167,7 @@ var genro_plugin_grid_configurator = {
         var title = gridNode.attr.item_name_plural?' '+gridNode.attr.item_name_plural:'';
         var pane = node._('PalettePane',{title:'Grid configurator'+title,
                                                 paletteCode:paletteCode,
-                                                height:'500px',width:'800px','dockTo':false});
+                                                height:'500px',width:'800px','dockTo':'dummyDock:open'});
 
         var frame = pane._('framePane',{frameCode:paletteCode+'_panels',center_widget:'stackContainer'});
         var bar = frame._('slotBar',{slots:'2,stackButtons,*,saveConfiguration,2',toolbar:true,side:'top'});
@@ -308,7 +313,7 @@ var genro_plugin_grid_configurator = {
               }}}});
         var dc = pane._('dataController',{script:'this._cellsEditor(editbag,destbag,_triggerpars)',
                                             editbag:'^.cells_edit',
-                                            destbag:'^'+structpath+'.view_0.rows_0',_onBuilt:true});
+                                            destbag:'^'+structpath+'.view_0.rows_0'});
         var that = this;
         dc.getParentNode()._cellsEditor = function(editbag,destbag,_triggerpars){
             that._cellsEditorConverter(editbag,destbag,_triggerpars,'.view_0.rows_0','cellsEditor');
@@ -348,6 +353,9 @@ var genro_plugin_grid_configurator = {
     },
 
     _cellsEditorConverter:function(editbag,destbag,_triggerpars,relpath,reason){
+        if(_triggerpars.kw.reason==reason){
+            return;
+        }
         var rebuildEditBag = function(destbag,editbag){
             destbag.forEach(function(n){
                 var r = objectUpdate({},n.attr);
@@ -359,18 +367,6 @@ var genro_plugin_grid_configurator = {
                 editbag.setItem(n.label,r,{_pkey:n.label},{doTrigger:reason});
             });
         };
-        if(!_triggerpars.kw){
-            //rebuildpalette
-            if(editbag){
-                editbag.clear();
-                rebuildEditBag(destbag,editbag);
-            }
-            return;
-        }
-        if(_triggerpars.kw.reason==reason){
-            return;
-        }
-   
         if(_triggerpars.kw.pathlist.indexOf('cells_edit')>=0){
             if(destbag && destbag.len() && _triggerpars.kw.reason=='loadData'){
                 rebuildEditBag(destbag,editbag);
