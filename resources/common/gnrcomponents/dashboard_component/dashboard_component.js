@@ -86,13 +86,13 @@ genro_plugin_dashboards = {
         var that = this;
         var pageData = pageNode.getValue();
         var design = pageData.getItem('design') || 'headline';
-        var bc = this.root._('BorderContainer',pageNode.label,{regions:'^.layout.regions',
+        var bc = this.root._('BorderContainer',pageNode.label,{regions:'^.layout.regions',_class:'hideSplitter',
                                                             datapath:this.storepath+'.'+pageNode.label,
-                                                            pageName:pageNode.label,//_class:'tinySplitter',
+                                                            pageName:pageNode.label,
                                                             design:design,title:'^.title'});
         this.regions[design].forEach(function(region){
             var subbc = bc._('BorderContainer',region,{region:region, splitter:(region != 'center')  && that.edit,
-            //_class:'hideSplitter',
+            _class:'hideSplitter',
             regions:'^.regions',datapath:'.layout.'+region});
             that.dashboard_subRegions(subbc, design,region);
         });

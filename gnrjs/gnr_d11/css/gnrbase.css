@@ -758,10 +758,16 @@ label.ghostlabel span {
 }
 
 
-.hideSplitter >.dijitSplitter {
+.hideSplitter >.dijitSplitter.dijitSplitterV {
     background: transparent;
     width:4px;
 }
+
+.hideSplitter >.dijitSplitter.dijitSplitterH {
+    background: transparent;
+    height:4px;
+}
+
 .hideSplitter>.dijitSplitter:hover{
     background:silver;
     opacity:.5;

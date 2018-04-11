@@ -70,7 +70,7 @@ class DashboardGallery(BaseComponent):
         
         parent.dataController("""
             if(_triggerpars.kw.evt=='ins'){
-                genro.dashboards.buildDashboard(_triggerpars.kw.node);
+                genro.dashboards.rebuild();
             }else if(_triggerpars.kw.evt=='del'){
                 genro.dashboards.root.getValue().popNode(_triggerpars.kw.node.label);
             }else if(_reason=='container'){
@@ -90,8 +90,6 @@ class DashboardGallery(BaseComponent):
         if edit:
             bar.replaceSlots('#','#,edittitle,10,paletteDashboardItems,10,delbtn,addbtn,dupbtn,5')
             bar.edittitle.div(_class='iconbox tag',tip='!!Change title')
-            #.tooltipPane(
-            #).div(padding='10px').formbuilder(cols=1,border_spacing='3px')
             bar.addbtn.slotButton(iconClass='iconbox add_row',publish='addpage')
             bar.delbtn.slotButton(iconClass='iconbox delete_row',publish='delpage')
             bar.dupbtn.slotButton(iconClass='iconbox copy',publish='duppage')

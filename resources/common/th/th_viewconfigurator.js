@@ -77,7 +77,7 @@ var genro_plugin_grid_configurator = {
                 if(dropInfo.event.shiftKey){
                     fieldcellattr = genro.serverCall('app.getFieldcellPars',{field:data.fieldpath,table:data.maintable});
                     if(fieldcellattr){
-                        fieldcellattr = fieldcellattr.asDict();
+                        fieldcellattr = fieldcellattr.asDict(null,true);
                     }
                 }
                 if(sourceNode.attr.onDroppedColumn){
@@ -241,7 +241,7 @@ var genro_plugin_grid_configurator = {
                         destbag.getNode(rowNode.label).updAttributes(updDict,'_columnsetsEditor');
                     }else if(evt=='ins'){
                         var ds = destbag || new gnr.GnrBag(); 
-                        ds.setItem(_triggerpars.kw.node.label,null,_triggerpars.kw.node.getValue().asDict(),{doTrigger:'_columnsetsEditor'});
+                        ds.setItem(_triggerpars.kw.node.label,null,_triggerpars.kw.node.getValue().asDict('flat',true),{doTrigger:'_columnsetsEditor'});
                         if(!destbag){
                             genro.setData(structpath+'.info.columnsets',ds,null,{doTrigger:'_columnsetsEditor'});
                         }
@@ -393,12 +393,12 @@ var genro_plugin_grid_configurator = {
                     destbag.getNode(rowNode.label).updAttributes(updDict,reason);
                 }else if(evt=='ins'){
                     var ds = destbag || new gnr.GnrBag(); 
-                    ds.setItem(_triggerpars.kw.node.label,null,_triggerpars.kw.node.getValue().asDict(),{doTrigger:reason,
+                    ds.setItem(_triggerpars.kw.node.label,null,_triggerpars.kw.node.getValue().asDict('flat',true),{doTrigger:reason,
                                                 _position:_triggerpars.kw.ind});
                     if(!destbag){
                         genro.setData(structpath+relpath,ds,null,{doTrigger:reason});
                     }
-                }else{
+                }else if (evt=='del'){
                     destbag.popNode(_triggerpars.kw.node.label,reason);
                 }
             }

@@ -1650,7 +1650,13 @@ dojo.declare("gnr.GnrBag", null, {
                 
             }
             if(recursive && (value instanceof gnr.GnrBag)){
-                value = value.asDict(recursive,excludeNullValues);
+                if(recursive=='flat'){
+                    objectUpdate(result,value.asDict(recursive,excludeNullValues));
+                    continue;
+                }else{
+                    value = value.asDict(recursive,excludeNullValues);
+                }
+                
             }
             if(isArray){
                 result.push(value);

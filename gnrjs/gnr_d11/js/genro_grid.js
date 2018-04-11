@@ -1619,7 +1619,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     mixin_moveRow:function(row, toPos) {
         if (toPos!=null && toPos>=0 && toPos!= row) {
             var storebag = this.storebag();
-            storebag.moveNode(row, toPos);
+            storebag.moveNode(row, toPos,'movingRows');
         }
 
     },
