@@ -21,34 +21,34 @@
 
 from gnr.web.gnrbaseclasses import BaseDashboardItem
 
-caption = 'Table view'
-description = 'Table view'
-item_parameters = [dict(value='^.table',lbl='Table',tag='dbselect',dbtable='adm.tblinfo',hasDownArrow=True),
+caption = 'Groupby view'
+description = 'Groupby view'
+item_parameters = [dict(value='^.table',lbl='Table',tag='dbselect',dbtable='adm.tblinfo',validate_notnull=True,hasDownArrow=True),
                    dict(value='^.query_id',lbl='Query',dbtable='adm.userobject',tag='dbselect',
                         condition='$tbl=:seltbl AND $objtype=:t',condition_t='query',condition_seltbl='=.table',objtype='query',hasDownArrow=True),
-                    dict(value='^.view_id',lbl='View',dbtable='adm.userobject',tag='dbselect',
-                        condition='$tbl=:seltbl AND $objtype=:t',condition_t='view',condition_seltbl='=.table',objtype='query',hasDownArrow=True)]
+                    dict(value='^.view_id',lbl='View',dbtable='adm.userobject',tag='dbselect',validate_notnull=True,
+                        condition='$tbl=:seltbl AND $objtype=:t',condition_t='grpview',condition_seltbl='=.table',objtype='query',hasDownArrow=True)]
 
 class Main(BaseDashboardItem):
     """Scegli table e query per visualizzare il risultato"""
-    item_name = 'Table view'
+    item_name = 'Grouped view'
 
     def content(self,pane,workpath=None,table=None,query_id=None,view_id=None,**kwargs):
         self.page.mixinComponent('th/th:TableHandler')
-
         bc = pane.borderContainer(datapath=workpath)
-        selectionViewer = bc.contentPane(region='center'
-                ).selectionViewer(table=table,query_id=query_id,view_id=view_id,datapath='.viewer',
-                                    store__parschanged='^%s.configuration_changed' %workpath,
+        groupByViewer = bc.contentPane(region='center',_class='hideInnerToolbars',
+                ).groupByViewer(table=table,query_id=query_id,view_id=view_id,datapath='.groupby',
+                                    configurable=False,
+                                    store__parschanged='^%s.configuration_changed' %workpath if workpath else '^.configuration_changed',
                                     store__onBuilt=True)
-        self.queryPars = selectionViewer.queryPars
+        self.queryPars = groupByViewer.queryPars
 
  
 
     def configuration(self,pane,table=None,queryName=None,workpath=None,**kwargs):
         if not self.queryPars:
             return
-        fb = pane.formbuilder(dbtable=table,datapath='%s.viewer.query.where' %workpath)
+        fb = pane.formbuilder(dbtable=table,datapath='%s.groupby.query.where' %workpath)
         for pars in self.queryPars.digest('#a'):
             field = pars['field']
             rc = self.db.table(table).column(field).relatedColumn()

@@ -29,12 +29,12 @@ class TableHandlerGroupBy(BaseComponent):
     js_requires = 'gnrdatasets,th/th_groupth'
 
     
-    @extract_kwargs(condition=True)
+    @extract_kwargs(condition=True,store=True)
     @struct_method
     def th_groupByTableHandler(self,pane,frameCode=None,title=None,table=None,linkedTo=None,
                                 struct=None,where=None,viewResource=None,
-                                condition=None,condition_kwargs=None,datapath=None,
-                                treeRoot=None,**kwargs):
+                                condition=None,condition_kwargs=None,store_kwargs=None,datapath=None,
+                                treeRoot=None,configurable=True,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = table or inattr.get('table')
         tblobj = self.db.table(table)
@@ -97,10 +97,12 @@ class TableHandlerGroupBy(BaseComponent):
                             favoriteView='^.grid.favoriteViewPath',
                             gridId=gridId)
         self._thg_structMenuData(frame,table=table,linkedTo=linkedTo)
-       
-        frame.viewConfigurator(table,queryLimit=False)
+        if configurable:
+            frame.viewConfigurator(table,queryLimit=False)
+        else:
+            frame.grid.attributes['gridplugins'] = False
         frame.grid.attributes.setdefault('selfsubscribe_loadingData',"this.setRelativeData('.loadingData',$1.loading);if(this.attr.loadingHider!==false){this.setHiderLayer($1.loading,{message:'%s'});}" %self._th_waitingElement())
-
+        store_kwargs.update(condition_kwargs)
         frame.grid.selectionStore(table=table,where=where,selectmethod=self._thg_selectgroupby,
                                 childname='store',struct='=.grid.struct',
                                 groupByStore=True,
@@ -120,7 +122,8 @@ class TableHandlerGroupBy(BaseComponent):
                                 _excludeList="""columns,sortedBy,currentFilter,customOrderBy,row_count,hardQueryLimit,limit,liveUpdate,method,nodeId,selectionName,
                             selectmethod,sqlContextName,sum_columns,table,timeout,totalRowCount,userSets,_sections,
                             _onCalling,_onResult""",
-                                condition=condition,**condition_kwargs)
+                                condition=condition,**store_kwargs)
+        return frame
 
 
     def _thg_defaultstruct(self,struct):
@@ -243,3 +246,37 @@ class TableHandlerGroupBy(BaseComponent):
         kwargs['group_by'] = ','.join(group_list)
         kwargs['order_by'] = kwargs['group_by']
         return self.app._default_getSelection(**kwargs)
+
+
+    @struct_method
+    def fgr_groupByViewer(self,pane,table=None,queryName=None,viewName=None,query_id=None,view_id=None,**kwargs):
+        userobject_tbl = self.db.table('adm.userobject')
+        where,metadata = userobject_tbl.loadUserObject(code=queryName, id=query_id,
+                                            objtype='query',
+                                            tbl=table)
+        customOrderBy = None
+        limit = None
+        queryPars = None
+        where = where or Bag()
+        if where['where']:
+            limit = where['queryLimit']
+            viewName = viewName or where['currViewPath']
+            customOrderBy = where['customOrderBy']
+            queryPars = where.pop('queryPars')
+            extraPars = where.pop('extraPars')
+            where = where['where']
+        if viewName or view_id:
+            userobject_tbl = self.db.table('adm.userobject')
+            struct = userobject_tbl.loadUserObject(code=viewName, objtype='view', 
+                                                    id=view_id,
+                                                    tbl=table)[0]
+
+        frame = pane.groupByTableHandler(table=table,struct=struct,where='=.query.where',
+                                        store_limit='=.query.limit',
+                                        store_customOrderBy='=.query.customOrderBy',
+                                        store_extraPars='=.query.extraPars',**kwargs)
+        frame.data('.query.limit',limit)
+        frame.data('.query.where',where)
+        frame.queryPars = queryPars
+        frame.data('.query.customOrderBy',customOrderBy)
+        return frame

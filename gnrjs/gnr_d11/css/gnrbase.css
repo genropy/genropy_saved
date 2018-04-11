@@ -3068,6 +3068,9 @@ body *{
     box-shadow: 0px 0px 1px #488fd7;
 }
 
+.tundra .hideInnerToolbars .slotbar_toolbar{
+    display: none;
+}
 
 .slotbar_toolbar .gnrfieldlabel {
     /*vertical-align: middle;*/

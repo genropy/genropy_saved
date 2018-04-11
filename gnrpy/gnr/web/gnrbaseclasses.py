@@ -174,9 +174,12 @@ class BaseDashboardItem(object):
         self.db = page.db
         self.tblobj = resource_table
 
-    def __call__(self,pane,editMode=None,workpath=None,itemPars=None,**kwargs):
-        title = itemPars.pop('_item_title') or self.item_name
-        bc = pane.borderContainer(region='center')
+    @extract_kwargs(itempar=True)
+    def __call__(self,pane,editMode=None,workpath=None,itemPars=None,itempar_kwargs=None,**kwargs):
+        itemPars = itemPars or Bag()
+
+        title = itemPars.pop('_item_title') or self.item_name or itempar_kwargs.pop('title',None)
+        bc = pane.borderContainer()
         top = bc.contentPane(region='top',height='14px',background='#666')
         sc = bc.stackContainer(region='center')
         top.div(title,color='white',font_size='.8em',
@@ -184,6 +187,7 @@ class BaseDashboardItem(object):
         top.lightbutton(_class='menu_white_svg',height='12px',width='12px',
                         position='absolute',top='1px',right='4px',
                         action='sc.switchPage(1);',sc=sc.js_widget)
+        kwargs.update(itempar_kwargs)
         kwargs.update(itemPars.asDict(ascii=True))
         pane = sc.contentPane()
         self.content(pane,workpath=workpath,**kwargs)

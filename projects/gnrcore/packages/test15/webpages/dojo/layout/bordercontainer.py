@@ -93,8 +93,8 @@ class GnrCustomWebPage(object):
         top = bc.contentPane(region='top')
         fb = top.formbuilder()
         fb.button('Build',fire='.build')
-        bc.contentPane(region='center').dashboardItem(table='adm.dashboard',
-                            itemName='tableview')
+        bc.contentPane(region='center').remote(self.remoteLayout,_fired='^.build')
+  
     @public_method
     def remoteLayout(self,pane,dobuild=None):
         if not dobuild:
