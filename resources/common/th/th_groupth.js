@@ -199,7 +199,7 @@ genro_plugin_groupth = {
         var that = this;
         var dflt = new gnr.GnrBag(data);
         if('RNLIF'.indexOf(dtype)>=0){
-            dflt.setItem('group_mode','sum');
+            dflt.setItem('cell_group_aggr','sum');
         }
         var promptkw = {dflt:dflt};
         promptkw.widget = function(pane){

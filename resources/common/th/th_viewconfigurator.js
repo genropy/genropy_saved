@@ -305,7 +305,7 @@ var genro_plugin_grid_configurator = {
             });
         }
         var t = grid._('tools',{tools:'delrow,addrow',title:_T('Cells'),
-        custom_tools:{addrow:{content_class:'iconbox add_row',ask:{title:_T('New columnset'),
+        custom_tools:{addrow:{content_class:'iconbox add_row',ask:{title:_T('New formula cell'),
               fields:[{name:'field',lbl:'Field',validate_notnull:true},
                       {name:'name',lbl:'Name'},
                       {name:'dtype',lbl:'Type',wdg:'filteringSelect',values:'N:Decimal,L:Integer,T:Text,B:Boolean,D:Date'}
