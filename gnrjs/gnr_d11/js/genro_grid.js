@@ -1641,7 +1641,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             objectUpdate(kw,objectExtract(col,'format_*',null,true));
         }
         
-        colsBag.setItem('cellx_' + genro.getCounter(), null, kw, {'_position':toPos + 1});
+        colsBag.setItem('cellx_' + genro.time36Id(), null, kw, {'_position':toPos + 1});
     },
     onDragStart:function(dragInfo) {
         var dragmode = dragInfo.dragmode;

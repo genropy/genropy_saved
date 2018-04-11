@@ -265,7 +265,7 @@ var genro_plugin_grid_configurator = {
         grid_pars.selfsubscribe_addrow = function(addkw){
             var rowDefaults = objectUpdate({},addkw._askResult);
             rowDefaults.calculated = true;
-            this.widget.storebag().setItem('cellx_'+genro.getCounter(),new gnr.GnrBag(rowDefaults));
+            this.widget.storebag().setItem('cellx_'+genro.time36Id(),new gnr.GnrBag(rowDefaults));
         };
         var grid = pane._('quickGrid',grid_pars);
         var fldgetter = function(attr){

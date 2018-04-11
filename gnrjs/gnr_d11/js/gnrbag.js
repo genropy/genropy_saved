@@ -46,7 +46,7 @@ dojo.declare("gnr.GnrBagNode", null, {
 
     constructor: function(parentbag, label, value, _attr, _resolver) {
         this._id = this._counter[0] += 1;
-        this.label = (label == '#id') ? this.getStringId() : label;
+        this.label = (label == '#id') ? genro.time36Id() : label;
         this.locked = false;
         this._value = null;
         this.setResolver(_resolver);

@@ -1324,6 +1324,10 @@ dojo.declare('gnr.GenroClient', null, {
         return this[what];
     },
 
+    time36Id:function(){
+        return new Date().getTime().toString(36);
+    },
+
     
     bagToTable:function(kwargs/*path,columns,key*/) {
         /*

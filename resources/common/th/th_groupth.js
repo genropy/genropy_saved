@@ -190,7 +190,8 @@ genro_plugin_groupth = {
         var data = kw.data;
         var column = kw.column;
         var fieldcellattr = kw.fieldcellattr;
-        if(treeNode.getRelativeData(treeNode.attr.storepath).getNode(data.fieldpath).attributeOwnerNode('mode','M')){
+        var n = treeNode.getRelativeData(treeNode.attr.storepath).getNode(data.fieldpath);
+        if(n && n.attributeOwnerNode('mode','M')){
             genro.publish('floating_message',{messageType:'warning',message:_T('This kind of relation is not allowed in group by totalization')});
             return;
         }
