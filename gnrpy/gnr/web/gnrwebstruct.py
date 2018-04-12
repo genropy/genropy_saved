@@ -37,6 +37,11 @@ def cellFromField(field,tableobj,checkPermissions=None):
     kwargs = dict()
     fldobj = tableobj.column(field)
     fldattr = dict(fldobj.attributes or dict())
+    if (fldattr.get('cell_edit') or fldattr.get('edit'))\
+         and fldobj.table.fullname!=fldobj.fullname:
+        fldattr.pop('cell_edit',None)
+        fldattr.pop('edit',None)
+        
     
     if checkPermissions:
         fldattr.update(fldobj.getPermissions(**checkPermissions))
