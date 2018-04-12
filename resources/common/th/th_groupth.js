@@ -174,7 +174,7 @@ genro_plugin_groupth = {
                 colname = f.field.replace(/\W/g, '_');
                 row[colname+'_'+cskey+'_'+f.group_aggr.replace(/\W/g, '_').toLowerCase()] = attr[f.col_getter];
             });
-            key = keylist.join('_');
+            key = keylist.join('_').replace(/\W/g, '_');
             nodeToUpdate = resultStore.getNode(key);
             if(!nodeToUpdate){
                 resultStore.setItem(key,null,row);
