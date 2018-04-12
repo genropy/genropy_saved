@@ -219,7 +219,7 @@ class LoginComponent(BaseComponent):
         return result
 
     def loginboxPars(self):
-        return dict(width='320px',_class='index_loginbox',shadow='5px 5px 20px #555')
+        return dict(width='320px',_class='index_loginbox')
 
     def login_lostPassword(self,pane,dlg_login):
         dlg = pane.dialog(_class='lightboxDialog')
