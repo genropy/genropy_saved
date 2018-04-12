@@ -1,10 +1,110 @@
 
 .itemRegion{
     border:1px solid silver;
-    margin: 2px;
+    margin: 1px;
     border-radius: 3px;
 }
 
 
+.dhthumb{
+    border-top:1px solid silver;
+    padding:3px;   
+}
+.dhthumb_headline{
+    padding-top: 5px;
+    width: 210px;
+    margin: auto;
+    padding-right: 12px;
+    padding-left: 12px;
+
+}
+.dhthumb_sidebar{
+    padding-top:4px;
+    width: 175px;
+    margin: auto;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.dhthumb_col{
+    margin-left:2px;
+    display: inline-block;
+    width:56px;
+    height: 140px;
+}
+
+.dhthumb_col:hover .dhthumb_cellcontainer{
+}
+.dhthumb_col .dhthumb_cellcontainer{
+}
+
+.dhthumb_col .dhthumb_cell{
+    width:56px;
+    height:32px;
+    margin-top:2px;
+    background: #ddd;
+    position: relative;
+}
 
 
+.dhthumb_headline .dhthumb_row{
+}
+
+.dhthumb_headline .dhthumb_row:hover{
+}
+
+.dhthumb_headline .dhthumb_closer{
+    background: silver;
+    width: 30px;
+    height: 30px;
+    margin-top:2px;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    float:left;
+    position: relative;
+}
+
+.dhthumb_sidebar .dhthumb_closer{
+    background: silver;
+    width: 56px;
+    height: 24px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    position: relative;
+}
+
+.dhthumb_headline .dhthumb_row:hover .dhthumb_closer,.dhthumb_sidebar .dhthumb_col:hover .dhthumb_closer{
+    visibility: visible;
+}
+
+.dhthumb_headline .dhthumb_checkbox_closer{
+    position: absolute;
+    top:7px;
+    right:3px;
+}
+.dhthumb_sidebar .dhthumb_checkbox_closer{
+    position: absolute;
+    top:3px;
+    left:20px;
+}
+
+.dhthumb_row .dhthumb_cellcontainer{
+    display: inline-block;
+    height:34px;
+    width:180px;
+    position: relative;
+}
+
+
+.dhthumb_row .dhthumb_cell{
+    width:56px;
+    height:30px;
+    float: left;    
+    margin:2px;
+    background:#ddd;
+    position: relative;
+}
+
+.dhthumb_hiddenregion .dhthumb_cell{
+    visibility: hidden;
+}

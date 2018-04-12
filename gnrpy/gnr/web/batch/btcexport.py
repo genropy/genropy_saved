@@ -101,7 +101,6 @@ class BaseResourceExport(BaseResourceBatch):
                     columnset_name = columnsets.get(columnset)
                     print columnset_name
                     if columnset_name!=curr_columnset.get('name'):
-                        print '+'
                         curr_columnset['end']=curr_column-1
                         if curr_columnset.get('name'):
                             self.groups.append(curr_columnset)

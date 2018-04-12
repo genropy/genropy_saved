@@ -80,7 +80,17 @@ class DashboardGallery(BaseComponent):
                 genro.dashboards.rebuild();
             }
         """,data='^%s' %storepath)
+        
         if edit:
+            #parent.dataController("""
+            #        console.log('selectedDashboard',selectedDashboard);
+            #        var wdg = sc.getValue().getNode(selectedDashboard).widget;
+            #        console.log('wdg',wdg);
+            #        wdg._layoutChildren();
+            #        """,
+            #    sc=sc,
+            #    selectedDashboard='^#FORM.dashboardEditor.selectedDashboard')
+
             parent.dataController("""genro.dashboards.clearRoot();""",
             formsubscribe_onLoading=True)
 
@@ -89,12 +99,17 @@ class DashboardGallery(BaseComponent):
         bar = frame.top.slotToolbar('5,stackButtons,*')
         if edit:
             bar.replaceSlots('#','#,edittitle,10,paletteDashboardItems,10,delbtn,addbtn,dupbtn,5')
-            bar.edittitle.div(_class='iconbox tag',tip='!!Change title')
+            self.di_dashboardConfPalette(bar.edittitle.div(_class='iconbox gear',tip='!!Config'))
             bar.addbtn.slotButton(iconClass='iconbox add_row',publish='addpage')
             bar.delbtn.slotButton(iconClass='iconbox delete_row',publish='delpage')
             bar.dupbtn.slotButton(iconClass='iconbox copy',publish='duppage')
             palette = bar.paletteDashboardItems.paletteTree(paletteCode='dashboardItems',title='Dashboard items',dockButton=True)
             palette.data('.store',self.dashboardItemsMenu(),childname='store')
+    
+    def di_dashboardConfPalette(self,parent):
+        tp = parent.tooltipPane(modal=True,
+            onOpening="""genro.dashboards.configurationPane(dialogNode);""")
+
 
     @public_method
     def dashboardItemsMenu(self,**kwargs):

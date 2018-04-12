@@ -1832,6 +1832,8 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
             dojo.connect(widget, 'removeChild', dojo.hitch(this, 'onRemoveChild', widget));
         }
     },
+
+    
     afterStartup:function(widget) {
         var sourceNode = widget.sourceNode;
         if (dojo_version != '1.7') {
@@ -1846,18 +1848,20 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
             }
         }
         if (sourceNode.attr.regions) {
-            var regions = sourceNode.getRelativeData(sourceNode.attr.regions);
-            if (!regions) {
-                regions = new gnr.GnrBag();
-                sourceNode.setRelativeData(sourceNode.attr.regions, regions);
-            }
-            var regions = regions.getNodes();
-            for (var i = 0; i < regions.length; i++) {
-                widget.setRegions(null, {'node':regions[i]});
-            }
-            ;
+            widget.sourceNode.watch('untillIsVisible',function(){
+                return widget.domNode?genro.dom.isVisible(widget.domNode):false;
+            },function(){
+                var regions = sourceNode.getRelativeData(sourceNode.attr.regions);
+                if (!regions) {
+                    regions = new gnr.GnrBag();
+                    sourceNode.setRelativeData(sourceNode.attr.regions, regions);
+                }
+                var regions = regions.getNodes();
+                for (var i = 0; i < regions.length; i++) {
+                    widget.setRegions(null, {'node':regions[i]});
+                }
+            });
         }
-
     },
     
     onRemoveChild:function(widget,child){

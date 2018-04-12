@@ -11,4 +11,4 @@ class Table(object):
         tbl.column('description', size=':40', name_long='!!Description')
         tbl.column('widget', size=':30', name_long='!!Widget',default='tabContainer',
                     values='tabContainer:Tabs,stackContainer:Buttons')  
-        tbl.column('data', dtype='X', name_long='!!Data')
+        tbl.column('data', dtype='X', name_long='!!Data',_sendback=True)
