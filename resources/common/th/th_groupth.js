@@ -267,6 +267,7 @@ genro_plugin_groupth = {
         var kw = {};
         kw.userObjectIdOrCode = userObjectIdOrCode;
         kw.metadataPath = '.dashboardMeta';
+        kw.tbl = sourceNode.attr.table;
         kw.onLoading = function(dataIndex,resultValue,resultAttr){
             dataIndex.setItem('where','.where');
         };
