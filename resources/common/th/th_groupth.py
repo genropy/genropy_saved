@@ -51,9 +51,18 @@ class TableHandlerGroupBy(BaseComponent):
                 struct = self._th_hook('groupedStruct',mangler=linkedTo,defaultCb=self._thg_defaultstruct)
         frameCode = frameCode or 'thg_%s' %table.replace('.','_')
         datapath = datapath or '.%s' %frameCode
+        rootNodeId = '%s_mainstack' %frameCode
         sc = pane.stackContainer(datapath=datapath,_class='group_by_th',selectedPage='^.output',_anchor=True,
-                                nodeId='%s_mainstack' %frameCode,**kwargs)  
+                                nodeId=rootNodeId,
+                                _linkedTo = linkedTo,table=table,
+                                selfsubscribe_saveDashboard="genro.groupth.saveAsDashboard(this);",
+                                selfsubscribe_loadDashboard="genro.groupth.loadDashboard(this,$1.pkey)",
+                                _dashboardRoot=True,**kwargs)  
         gridstack = sc.stackContainer(pageName='grid',title='!!Grid View',selectedPage='^.groupMode')
+
+
+
+        #gridstack.dataFormula('.currentTitle','',defaultTitle='!!Group by')
         frame = gridstack.frameGrid(frameCode=frameCode,grid_onDroppedColumn="""
                                     genro.groupth.addColumnCb(this,{data:data, column:column,fieldcellattr:fieldcellattr,treeNode:treeNode});
                                     """,
@@ -62,7 +71,13 @@ class TableHandlerGroupBy(BaseComponent):
                                 """,struct=struct,_newGrid=True,pageName='flatview',title='!!Flat')
 
         frame.data('.grid.showCounterCol',True)
-        bar = frame.top.slotToolbar('5,ctitle,stackButtons,10,groupByModeSelector,counterCol,*,searchOn,viewsMenu,configuratorPalette,chartjs,export,5',
+        frame.dataFormula('.currentTitle',"currentView?basetitle + ': '+currentView:basetitle",
+                                basetitle='!!Gruop by',
+                                currentView='^.grid.currViewAttrs.description')
+        frame.dataRemote('.advancedOptions',self.thg_advancedOptions,cacheTime=5,table=table,
+                            rootNodeId=rootNodeId,_fired='^.refreshAdvancedOptionsdMenu')
+        bar = frame.top.slotToolbar('5,ctitle,stackButtons,10,groupByModeSelector,counterCol,*,searchOn,viewsMenu,configuratorPalette,chartjs,export,advancedOptions,5',
+                                    advancedOptions_linkedTo=linkedTo,
                                     stackButtons_stackNodeId='%s_mainstack' %frameCode)
         bar.ctitle.div(title,color='#444',font_weight='bold')
         bar.counterCol.div().checkbox(value='^.grid.showCounterCol',label='!!Counter column',label_color='#444')
@@ -74,9 +89,9 @@ class TableHandlerGroupBy(BaseComponent):
         }
         """,structrow='=.struct.#0.#0',showCounterCol='^.showCounterCol',_if='structrow')
         
-        self._thg_stackedView(gridstack,title=title,grid=frame.grid,frameCode=frameCode)
+        self._thg_stackedView(gridstack,title=title,grid=frame.grid,frameCode=frameCode,linkedTo=linkedTo)
 
-        self._thg_treeview(sc,title=title,grid=frame.grid,treeRoot=treeRoot)
+        self._thg_treeview(sc,title=title,grid=frame.grid,treeRoot=treeRoot,linkedTo=linkedTo)
         
 
         frame.dataController("""
@@ -103,6 +118,7 @@ class TableHandlerGroupBy(BaseComponent):
             frame.grid.attributes['gridplugins'] = False
         frame.grid.attributes.setdefault('selfsubscribe_loadingData',"this.setRelativeData('.loadingData',$1.loading);if(this.attr.loadingHider!==false){this.setHiderLayer($1.loading,{message:'%s'});}" %self._th_waitingElement())
         store_kwargs.update(condition_kwargs)
+        store_kwargs['_forcedReload'] = '^.reloadMain'
         frame.grid.selectionStore(table=table,where=where,selectmethod=self._thg_selectgroupby,
                                 childname='store',struct='=.grid.struct',
                                 groupByStore=True,
@@ -149,12 +165,13 @@ class TableHandlerGroupBy(BaseComponent):
 
 
 
-    def _thg_stackedView(self,parentStack,title=None, grid=None,frameCode=None,**kwargs):
+    def _thg_stackedView(self,parentStack,title=None, grid=None,frameCode=None,linkedTo=None,**kwargs):
         frame = parentStack.bagGrid(frameCode='%s_stacked' %frameCode,title='!!Stacked',pageName='stackedview',
                                     datapath='.stacked',
                                     storepath='.store',addrow=False,delrow=False,
                                     datamode='attr')
-        bar = frame.top.bar.replaceSlots('#','5,ctitle,stackButtons,10,groupByModeSelector,*,searchOn,export,5',stackButtons_stackNodeId='%s_mainstack' %frameCode)
+        bar = frame.top.bar.replaceSlots('#','5,ctitle,stackButtons,10,groupByModeSelector,*,searchOn,export,5,advancedOptions',
+                                        stackButtons_stackNodeId='%s_mainstack' %frameCode,advancedOptions_linkedTo=linkedTo)
         bar.ctitle.div(title,color='#444',font_weight='bold')
         frame.dataController("""
             var r = genro.groupth.getPivotGrid(mainstore,mainstruct);
@@ -166,9 +183,10 @@ class TableHandlerGroupBy(BaseComponent):
             **{'subscribe_%s_changedStruct' %grid.attributes['nodeId']:True})
 
 
-    def _thg_treeview(self,parentStack,title=None, grid=None,treeRoot=None,**kwargs):
+    def _thg_treeview(self,parentStack,title=None, grid=None,treeRoot=None,linkedTo=None,**kwargs):
         frame = parentStack.framePane(title='Tree View',pageName='tree')
-        bar = frame.top.slotToolbar('5,ctitle,parentStackButtons,10,groupByModeSelector,addTreeRoot,*,searchOn,5')
+        bar = frame.top.slotToolbar('5,ctitle,parentStackButtons,10,groupByModeSelector,addTreeRoot,*,searchOn,advancedOptions,5',
+                                    advancedOptions_linkedTo=linkedTo)
         bar.ctitle.div(title,color='#444',font_weight='bold')
         fb = bar.addTreeRoot.div(_class='iconbox tag').tooltipPane().formbuilder(cols=1,border_spacing='2px',color='#666')
         fb.textbox(value='^.treeRootName',lbl='!!Root',width='7em')
@@ -247,9 +265,31 @@ class TableHandlerGroupBy(BaseComponent):
         kwargs['order_by'] = kwargs['group_by']
         return self.app._default_getSelection(**kwargs)
 
+    @struct_method
+    def thg_slotbar_advancedOptions(self,pane,linkedTo=None,**kwargs):
+        if not linkedTo:
+            return pane.div()
+        menu = pane.menudiv(tip='!!Advanced tools',
+                            iconClass='iconbox menu_gray_svg',
+                            storepath='#ANCHOR.advancedOptions',**kwargs)
+    
+    @public_method
+    def thg_advancedOptions(self,currentDashboard=None,rootNodeId=None,table=None,**kwargs):
+        result = Bag()
+        result.rowchild(label='!!Save dashboard',
+                        action="""this.attributeOwnerNode('_dashboardRoot').publish('saveDashboard');""")
+        objtype = 'dashboard'
+        flags='groupth|%s' %rootNodeId
+        userobjects = self.db.table('adm.userobject').userObjectMenu(objtype=objtype,flags=flags,table=table)
+        if len(userobjects)>0:
+            loadAction = """this.attributeOwnerNode('_dashboardRoot').publish('loadDashboard',{pkey:$1.pkey});"""
+            loadmenu = Bag()
+            loadmenu.update(userobjects)
+            result.setItem('r_%s' %len(result),loadmenu,label='!!Load dashboard',action=loadAction)
+        return result
 
     @struct_method
-    def fgr_groupByViewer(self,pane,table=None,queryName=None,viewName=None,query_id=None,view_id=None,**kwargs):
+    def thg_groupByViewer(self,pane,table=None,queryName=None,viewName=None,query_id=None,view_id=None,**kwargs):
         userobject_tbl = self.db.table('adm.userobject')
         where,metadata = userobject_tbl.loadUserObject(code=queryName, id=query_id,
                                             objtype='query',

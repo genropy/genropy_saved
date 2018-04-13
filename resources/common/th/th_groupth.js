@@ -240,7 +240,40 @@ genro_plugin_groupth = {
         }else{
             fb.addField('checkbox',{value:prefix+'group_nobreak',label:_T('No break')});
         }
-    }
+    },
 
+  
+    saveAsDashboard:function(sourceNode){
+        var kw = {};
+        var th = TH(sourceNode.attr._linkedTo);
+        kw.dataIndex = {
+            where:th.querymanager.sourceNode.absDatapath('.query.where'),
+            groupByStruct:'.grid.struct',
+            groupMode:'.groupMode',
+            output:'.output'
+        };
+        kw.objtype = 'dashboard';
+        kw.metadataPath = '.dashboardMeta';
+        kw.table = sourceNode.attr.table;
+        kw.title = _T('Save dashboard');
+        kw.defaultMetadata = {flags:'groupth|'+sourceNode.attr.nodeId};
+        var onSaved =function(result){
+            sourceNode.setRelativeData('.dashboardMeta',new gnr.GnrBag(result.attr));
+            sourceNode.fireEvent('.refreshAdvancedOptionsdMenu',true);
+        };
+        genro.dev.userObjectSave(sourceNode,kw,onSaved);
+    },
+    loadDashboard:function(sourceNode,pkey,doReload){
+        var kw = {};
+        kw.pkey = pkey;
+        kw.metadataPath = '.dashboardMeta';
+        genro.dev.userObjectLoad(sourceNode,kw,function(){
+            if(sourceNode.attr._linkedTo){
+                TH(sourceNode.attr._linkedTo).querymanager.sourceNode.fireEvent('.runQuery',true);
+            }else{
+                sourceNode.fireEvent('.reloadMain',true);
+            }
+        });
+    }
 
 };

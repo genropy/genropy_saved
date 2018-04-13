@@ -846,6 +846,54 @@ dojo.declare("gnr.GnrDevHandler", null, {
         else ele['on' + opt['type']] = func;
     },
 
+    userObjectSave:function(sourceNode,kw,onSaved){
+        var datapath = sourceNode.absDatapath(kw.metadataPath);
+        var saveCb = function(dlg,evt,counter,modifiers){
+            var data = new gnr.GnrBag();
+            if(kw.dataIndex){
+                for(var key in kw.dataIndex){
+                    data.setItem(key,sourceNode.getRelativeData(kw.dataIndex[key]));
+                }
+                data.setItem('__index__',new gnr.GnrBag(kw.dataIndex));
+            }else if(kw.dataSetter){
+                funcApply(kw.dataSetter,{data:data},sourceNode);
+            }
+            var metadata = new gnr.GnrBag(kw.defaultMetadata);
+            metadata.update(genro.getData(datapath));
+            genro.serverCall('_table.adm.userobject.saveUserObject',
+                {'objtype':kw.objtype,'table':kw.table,flags:kw.flags,
+                'data':data,metadata:metadata},
+                function(result) {
+                    dlg.close_action();
+                    if(kw.loadPath){
+                        sourceNode.setRelativeData(kw.loadPath, result.attr.code);
+                    }
+                    if(onSaved){
+                        funcApply(onSaved,{result:result},sourceNode);
+                    }
+                });
+        };
+        this.userObjectDialog(objectPop(kw,'title'),datapath,saveCb);
+    },
+
+    userObjectLoad:function(sourceNode,kw,onLoaded){
+        var metadataPath = objectPop(kw,'metadataPath');
+
+        genro.serverCall('_table.adm.userobject.loadUserObject',kw,function(result){
+            var resultValue = result._value.deepCopy();
+            sourceNode.setRelativeData(metadataPath,new gnr.GnrBag(result.attr));
+            var dataIndex = resultValue.pop('__index__');
+            if(dataIndex){
+                dataIndex.forEach(function(n){
+                    sourceNode.setRelativeData(n.getValue(),resultValue.getItem(n.label));
+                });
+            }
+            if(onLoaded){
+                funcApply(onLoaded,{resultValue:resultValue,resultAttr:result.attr},sourceNode);
+            }
+        });
+    },
+
     userObjectDialog:function(title,datapath,saveCb){
         var dlg = genro.dlg.quickDialog(title);
         var center = dlg.center;

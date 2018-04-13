@@ -5327,6 +5327,18 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
                                     domNode.innerHTML=null;if(customOnEnd){customOnEnd();}}});
         };
         pane._('span',mbKw);
+    },
+    slot_dashboardSaver:function(pane,slotValue,slotKw,frameCode){
+        var kw = {title:_T('Save as dashboard item'),
+            iconClass:'iconbox case',
+            action:function(evt){
+                var dashboardRoot =this.attributeOwnerNode('_dashboardRoot');
+                if(dashboardRoot){
+                    dashboardRoot.publish('saveDashboard');
+                }
+            }
+        };
+        pane._('slotButton',objectUpdate(kw,slotKw));
     }
 });
 

@@ -293,26 +293,22 @@ class TableHandlerView(BaseComponent):
 
     def _th_handle_stats_pages(self,view):
         bc = view.borderContainer(title='!!Stats tools',pageName='statsTools',childname='statsTools',
-                                    margin='5px',rounded=4,border='1px solid silver',datapath='.statsTools')
+                                    margin='5px',rounded=4,border='1px solid silver',
+                                    datapath='.statsTools')
         bar = bc.contentPane(region='top').slotToolbar('20,*,s_title,*,closbtn,2',
                                                     background='#444',height='22px',
                                                     rounded_top=4)
-        bar.s_title.div('^.selectedTitle',color='white')
+        bar.s_title.div('^.currentTitle',color='white')
+        bar.dataFormula('.currentTitle','selectedPage=="groupby"?groupByTitle:pandasTitle',selectedPage='^.selectedPage',
+                        groupByTitle='^.groupby.currentTitle',
+                        pandasTitle='^.pandas.currentTitle',_delay=1)
         bar.closbtn.slotButton(iconClass='close_svg',action='SET .#parent.viewPage="mainView"')
 
         
-        sc = bc.stackContainer(selectedPage='^.selectedPage',selfsubscribe_selected="""
-        if($1.selected){
-            var that = this;
-            var pageTitle = this.widget.gnrPageDict[p_0.page].title;
-            setTimeout(function(){
-                that.setRelativeData('.selectedTitle',pageTitle);
-            },1);         
-        }
-        """,region='center')
-        sc.contentPane(title='!!Group by',pageName='groupby').groupByTableHandler()
+        sc = bc.stackContainer(selectedPage='^.selectedPage',region='center')
+        sc.contentPane(title='!!Group by',pageName='groupby').groupByTableHandler(datapath='.groupby')
         if self.ths_pandas_available():
-            sc.contentPane(title='!!Pivot table',pageName='pandas').tableHandlerStats()
+            sc.contentPane(title='!!Pivot table',pageName='pandas').tableHandlerStats(datapath='.pandas')
         
 
 

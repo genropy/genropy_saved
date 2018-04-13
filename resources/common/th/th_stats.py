@@ -50,6 +50,7 @@ class TableHandlerStats(BaseComponent):
                             condition=None,
                             condition_kwargs=None,
                             nodeId=None,
+                            datapath=None,
                             statIdentifier=None,**kwargs):
         if not pd:
             pane.div('Missing Pandas')
@@ -58,7 +59,9 @@ class TableHandlerStats(BaseComponent):
         relatedTableHandlerFrameCode = inattr.get('frameCode') if not (relation_value or condition) else None
         table = table or relatedTable
         nodeId = nodeId or '%s_pivotHandler' %relatedTableHandlerFrameCode if relatedTableHandlerFrameCode else 'th_stats_%s' %table.replace('.','_')
-        bc = pane.borderContainer(datapath='.%s' %nodeId,_anchor=True,**kwargs)
+        bc = pane.borderContainer(datapath=datapath or '.%s' %nodeId,_anchor=True,**kwargs)
+        bc.data('.currentTitle','Pandas Pivot Table')
+
         bc.child('_tableHandlerStatsLayout',region='center',
                             table=table,nodeId=nodeId,
                             relation_field=relation_field,

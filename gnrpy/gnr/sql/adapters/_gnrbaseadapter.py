@@ -733,7 +733,7 @@ class GnrWhereTranslator(object):
                 dtype = colobj.dtype
 
                 if value is None and attr.get('value_caption'):
-                    value = sqlArgs.pop(attr['value_caption'])
+                    value = sqlArgs.pop(attr['value_caption'],'')
                 onecondition = self.prepareCondition(column, op, value, dtype, sqlArgs,tblobj=tblobj)
 
             if onecondition:
