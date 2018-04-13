@@ -252,7 +252,7 @@ genro_plugin_groupth = {
             groupMode:'.groupMode',
             output:'.output'
         };
-        kw.objtype = 'dashboard';
+        kw.objtype = 'dash_groupby';
         kw.metadataPath = '.dashboardMeta';
         kw.table = sourceNode.attr.table;
         kw.title = _T('Save dashboard');
@@ -263,17 +263,22 @@ genro_plugin_groupth = {
         };
         genro.dev.userObjectSave(sourceNode,kw,onSaved);
     },
-    loadDashboard:function(sourceNode,pkey,doReload){
+    loadDashboard:function(sourceNode,userObjectIdOrCode,doReload){
         var kw = {};
-        kw.pkey = pkey;
+        kw.userObjectIdOrCode = userObjectIdOrCode;
         kw.metadataPath = '.dashboardMeta';
-        genro.dev.userObjectLoad(sourceNode,kw,function(){
+        kw.onLoading = function(dataIndex,resultValue,resultAttr){
+            dataIndex.setItem('where','.where');
+        };
+        kw.onLoaded = function(dataIndex,resultValue,resultAttr){
             if(sourceNode.attr._linkedTo){
                 TH(sourceNode.attr._linkedTo).querymanager.sourceNode.fireEvent('.runQuery',true);
             }else{
                 sourceNode.fireEvent('.reloadMain',true);
             }
-        });
+        };
+
+        genro.dev.userObjectLoad(sourceNode,kw);
     }
 
 };

@@ -876,20 +876,30 @@ dojo.declare("gnr.GnrDevHandler", null, {
         this.userObjectDialog(objectPop(kw,'title'),datapath,saveCb);
     },
 
-    userObjectLoad:function(sourceNode,kw,onLoaded){
+    userObjectLoad:function(sourceNode,kw){
         var metadataPath = objectPop(kw,'metadataPath');
+        var onLoaded = objectPop(kw,'onLoaded');
+        var onLoading = objectPop(kw,'onLoading');
 
         genro.serverCall('_table.adm.userobject.loadUserObject',kw,function(result){
             var resultValue = result._value.deepCopy();
-            sourceNode.setRelativeData(metadataPath,new gnr.GnrBag(result.attr));
+            var resultAttr = objectUpdate({},result.attr);
             var dataIndex = resultValue.pop('__index__');
+            if(onLoading){
+                funcApply(onLoading,null,sourceNode,
+                        ['dataIndex','resoultValue','resoultAttr'],
+                        [dataIndex,resultValue,resultAttr]);
+            }
+            sourceNode.setRelativeData(metadataPath,new gnr.GnrBag(resultAttr));
             if(dataIndex){
                 dataIndex.forEach(function(n){
                     sourceNode.setRelativeData(n.getValue(),resultValue.getItem(n.label));
                 });
             }
             if(onLoaded){
-                funcApply(onLoaded,{resultValue:resultValue,resultAttr:result.attr},sourceNode);
+                funcApply(onLoaded,null,
+                        sourceNode,['dataIndex','resoultValue','resoultAttr'],
+                        [dataIndex,resultValue,resultAttr]);
             }
         });
     },

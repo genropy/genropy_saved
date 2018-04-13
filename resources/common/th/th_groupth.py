@@ -34,12 +34,12 @@ class TableHandlerGroupBy(BaseComponent):
     def th_groupByTableHandler(self,pane,frameCode=None,title=None,table=None,linkedTo=None,
                                 struct=None,where=None,viewResource=None,
                                 condition=None,condition_kwargs=None,store_kwargs=None,datapath=None,
-                                treeRoot=None,configurable=True,**kwargs):
+                                treeRoot=None,configurable=True,dashboardIdentifier=None,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = table or inattr.get('table')
         tblobj = self.db.table(table)
         linkedNode = None
-        if not (where or condition or condition_kwargs):
+        if not (dashboardIdentifier or where or condition or condition_kwargs):
             linkedTo = linkedTo or inattr.get('frameCode')
             frameCode = frameCode or '%s_groupedView' %linkedTo 
             if not linkedTo:
@@ -68,7 +68,11 @@ class TableHandlerGroupBy(BaseComponent):
                                     """,
                                 grid_connect_onSetStructpath="""
                                     this.publish('changedStruct',{structBag:$1,kw:$2});
-                                """,struct=struct,_newGrid=True,pageName='flatview',title='!!Flat')
+                                """,struct=struct or self._thg_defaultstruct,_newGrid=True,pageName='flatview',title='!!Flat')
+        if dashboardIdentifier:
+            frame.dataController("root.publish('loadDashboard',{pkey:dashboardIdentifier});",root=sc,
+                                dashboardIdentifier=dashboardIdentifier,_onBuilt=True)
+
 
         frame.data('.grid.showCounterCol',True)
         frame.dataFormula('.currentTitle',"currentView?basetitle + ': '+currentView:basetitle",
@@ -278,7 +282,7 @@ class TableHandlerGroupBy(BaseComponent):
         result = Bag()
         result.rowchild(label='!!Save dashboard',
                         action="""this.attributeOwnerNode('_dashboardRoot').publish('saveDashboard');""")
-        objtype = 'dashboard'
+        objtype = 'dash_groupby'
         flags='groupth|%s' %rootNodeId
         userobjects = self.db.table('adm.userobject').userObjectMenu(objtype=objtype,flags=flags,table=table)
         if len(userobjects)>0:
