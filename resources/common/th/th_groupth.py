@@ -71,7 +71,7 @@ class TableHandlerGroupBy(BaseComponent):
                                 """,struct=struct or self._thg_defaultstruct,_newGrid=True,pageName='flatview',title='!!Flat')
         if dashboardIdentifier:
             frame.dataController("root.publish('loadDashboard',{pkey:dashboardIdentifier});",root=sc,
-                                dashboardIdentifier=dashboardIdentifier,_onBuilt=True)
+                                dashboardIdentifier=dashboardIdentifier,_onBuilt=1)
 
 
         frame.data('.grid.showCounterCol',True)
@@ -179,8 +179,11 @@ class TableHandlerGroupBy(BaseComponent):
         bar.ctitle.div(title,color='#444',font_weight='bold')
         frame.dataController("""
             var r = genro.groupth.getPivotGrid(mainstore,mainstruct);
-            SET .store = r.store;
+            if(!r){
+                return;
+            }
             SET .grid.struct = r.struct;
+            SET .store = r.store;
         """,mainstore='^#ANCHOR.store',
             mainstruct='=#ANCHOR.grid.struct',
             _delay=1,

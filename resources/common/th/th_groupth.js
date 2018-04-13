@@ -102,8 +102,8 @@ genro_plugin_groupth = {
     },
 
     getPivotGrid:function(sourceStore,sourceStruct){
-        if(!(sourceStore && sourceStruct)){
-            return {};
+        if(!(sourceStore && sourceStore.len() && sourceStruct)){
+            return false;
         }
         var resultStore = new gnr.GnrBag();
         var resultStruct = new gnr.GnrBag();

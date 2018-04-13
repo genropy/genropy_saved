@@ -38,6 +38,7 @@ class Main(BaseDashboardItem):
         center = bc.contentPane(region='center',_class='hideInnerToolbars')
         frameCode = 'statgroup_%s_%s' %(table.replace('.','_'),self.page.getUuid())
         center.groupByTableHandler(table=table,frameCode=frameCode,
+                                    configurable=False,
                                     dashboardIdentifier=userobject_id,
                                     **kwargs)
 

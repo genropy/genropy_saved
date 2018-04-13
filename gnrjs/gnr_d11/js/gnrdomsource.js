@@ -833,7 +833,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     _buildChildren: function(destination) {
         if (this.attr.remote) {
             var that = this;
-            this.watch('isVisibile',function(){return genro.dom.isVisible(that);},function(){that.updateRemoteContent();});
+            this.watch('isVisibile',function(){return genro.dom.isVisible(that);},function(){
+                setTimeout(function(){
+                    that.updateRemoteContent();
+                },1);
+            });
         }
         var content = this.getValue('static');
         if (content instanceof gnr.GnrDomSource) {
@@ -1506,7 +1510,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             function(result) {
                 //that.setValue(result);
                 if(result.error){
-                    genro.dlg.alert('Error in remote '+result.error,'Error')
+                    genro.dlg.alert('Error in remote '+result.error,'Error');
                 }else{
                     that.watch('checkPendingRequirs',function(){
                         return !objectNotEmpty(genro.dom.pendingHeaders);
@@ -1514,7 +1518,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         if(remoteAttr._waitingMessage){
                             that.setHiderLayer(false);
                         }
-                        that.mergeRemoteContent(result)
+                        that.mergeRemoteContent(result);
                         if (_onRemote) {
                             _onRemote();
                         }
