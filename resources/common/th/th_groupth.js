@@ -243,8 +243,8 @@ genro_plugin_groupth = {
     },
 
   
-    saveAsDashboard:function(sourceNode){
-        var kw = {};
+    saveAsDashboard:function(sourceNode,kw){
+        kw = kw || {};
         var th = TH(sourceNode.attr._linkedTo);
         kw.dataIndex = {
             where:th.querymanager.sourceNode.absDatapath('.query.where'),
@@ -263,11 +263,12 @@ genro_plugin_groupth = {
         };
         genro.dev.userObjectSave(sourceNode,kw,onSaved);
     },
-    loadDashboard:function(sourceNode,userObjectIdOrCode,doReload){
-        var kw = {};
-        kw.userObjectIdOrCode = userObjectIdOrCode;
+
+    loadDashboard:function(sourceNode,kw){
+        kw.userObjectIdOrCode = objectPop(kw,'pkey');
         kw.metadataPath = '.dashboardMeta';
         kw.tbl = sourceNode.attr.table;
+        kw.objtype = 'dash_groupby';
         kw.onLoading = function(dataIndex,resultValue,resultAttr){
             dataIndex.setItem('where','.where');
         };

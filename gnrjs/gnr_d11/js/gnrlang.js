@@ -763,8 +763,12 @@ function objectAsXmlAttributes(obj, sep) {
 function objectAsStyle(obj) {
     var sep = sep || ' ';
     var result = [];
+    var val;
     for (var prop in obj) {
-        result.push(prop + ":" + obj[prop] + ';');
+        val = obj[prop];
+        if(!isNullOrBlank(val)){
+            result.push(prop + ":" + obj[prop] + ';');
+        }
     }
     return result.join(' ');
 }

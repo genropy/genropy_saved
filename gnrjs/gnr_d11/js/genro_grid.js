@@ -841,7 +841,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
         });
         dojo.connect(sourceNode.widget,'setCellWidth',function(inIndex, inUnitWidth){
-            this.structBag.getNodeByAttr('field',this.getCell(inIndex).original_field).updAttributes({width:inUnitWidth});
+            this.structBag.getItem('view_0.rows_0').getNode('#'+inIndex).updAttributes({width:inUnitWidth});
+            //this.structBag.getNodeByAttr('field',this.getCell(inIndex).original_field).updAttributes({width:inUnitWidth});
         });
         dojo.connect(widget,'onFocus',function(){
             this.changedFocus(true); 

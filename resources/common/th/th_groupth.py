@@ -55,8 +55,8 @@ class TableHandlerGroupBy(BaseComponent):
         sc = pane.stackContainer(datapath=datapath,_class='group_by_th',selectedPage='^.output',_anchor=True,
                                 nodeId=rootNodeId,
                                 _linkedTo = linkedTo,table=table,
-                                selfsubscribe_saveDashboard="genro.groupth.saveAsDashboard(this);",
-                                selfsubscribe_loadDashboard="genro.groupth.loadDashboard(this,$1.pkey)",
+                                selfsubscribe_saveDashboard="genro.groupth.saveAsDashboard(this,$1);",
+                                selfsubscribe_loadDashboard="genro.groupth.loadDashboard(this,$1)",
                                 _dashboardRoot=True,**kwargs)  
         gridstack = sc.stackContainer(pageName='grid',title='!!Grid View',selectedPage='^.groupMode')
 
@@ -285,6 +285,8 @@ class TableHandlerGroupBy(BaseComponent):
         result = Bag()
         result.rowchild(label='!!Save dashboard',
                         action="""this.attributeOwnerNode('_dashboardRoot').publish('saveDashboard');""")
+        result.rowchild(label='!!Save dashboard as',
+                        action="""this.attributeOwnerNode('_dashboardRoot').publish('saveDashboard',{saveAs:true});""")
         objtype = 'dash_groupby'
         flags='groupth|%s' %rootNodeId
         userobjects = self.db.table('adm.userobject').userObjectMenu(objtype=objtype,flags=flags,table=table)

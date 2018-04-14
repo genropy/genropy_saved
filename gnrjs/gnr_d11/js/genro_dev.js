@@ -848,6 +848,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
     userObjectSave:function(sourceNode,kw,onSaved){
         var datapath = sourceNode.absDatapath(kw.metadataPath);
+        var saveAs = objectPop(kw,'saveAs');
+        var currentMetadata = genro.getData(datapath);
+        var userObjectIsLoaded = currentMetadata && currentMetadata.getItem('pkey');
         var saveCb = function(dlg,evt,counter,modifiers){
             var data = new gnr.GnrBag();
             if(kw.dataIndex){
@@ -860,19 +863,32 @@ dojo.declare("gnr.GnrDevHandler", null, {
             }
             var metadata = new gnr.GnrBag(kw.defaultMetadata);
             metadata.update(genro.getData(datapath));
-            genro.serverCall('_table.adm.userobject.saveUserObject',
+            if(saveAs){
+                metadata.popNode('pkey');
+                metadata.popNode('id');
+            }
+            return genro.serverCall('_table.adm.userobject.saveUserObject',
                 {'objtype':kw.objtype,'table':kw.table,flags:kw.flags,
                 'data':data,metadata:metadata},
                 function(result) {
-                    dlg.close_action();
+                    if(dlg){
+                        dlg.close_action();
+                    }else{
+                        var objname = result.attr.description || result.attr.code;
+                        genro.publish('floating_message',{message:_T('Saved object '+objname)});
+                    }
                     if(kw.loadPath){
                         sourceNode.setRelativeData(kw.loadPath, result.attr.code);
                     }
                     if(onSaved){
                         funcApply(onSaved,{result:result},sourceNode);
                     }
+                    return result;
                 });
         };
+        if(userObjectIsLoaded && !saveAs){
+            return saveCb();
+        }
         this.userObjectDialog(objectPop(kw,'title'),datapath,saveCb);
     },
 
