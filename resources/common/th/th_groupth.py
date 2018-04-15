@@ -59,16 +59,16 @@ class TableHandlerGroupBy(BaseComponent):
                                 selfsubscribe_loadDashboard="genro.groupth.loadDashboard(this,$1)",
                                 _dashboardRoot=True,**kwargs)  
         gridstack = sc.stackContainer(pageName='grid',title='!!Grid View',selectedPage='^.groupMode')
-
-
+        
 
         #gridstack.dataFormula('.currentTitle','',defaultTitle='!!Group by')
         frame = gridstack.frameGrid(frameCode=frameCode,grid_onDroppedColumn="""
                                     genro.groupth.addColumnCb(this,{data:data, column:column,fieldcellattr:fieldcellattr,treeNode:treeNode});
                                     """,
-                                grid_connect_onSetStructpath="""
-                                    this.publish('changedStruct',{structBag:$1,kw:$2});
-                                """,struct=struct or self._thg_defaultstruct,_newGrid=True,pageName='flatview',title='!!Flat')
+                                struct=struct or self._thg_defaultstruct,_newGrid=True,pageName='flatview',title='!!Flat')
+        
+        frame.dataFormula('.changets.flatview','new Date();',store='^.store',struct='^.grid.struct',
+                            _delay=1)
         if dashboardIdentifier:
             frame.dataController("root.publish('loadDashboard',{pkey:dashboardIdentifier});",root=sc,
                                 dashboardIdentifier=dashboardIdentifier,_onBuilt=1)
@@ -178,16 +178,20 @@ class TableHandlerGroupBy(BaseComponent):
                                         stackButtons_stackNodeId='%s_mainstack' %frameCode,advancedOptions_linkedTo=linkedTo)
         bar.ctitle.div(title,color='#444',font_weight='bold')
         frame.dataController("""
-            var r = genro.groupth.getPivotGrid(mainstore,mainstruct);
+            if(groupMode!='stackedview'){
+                return;    
+            }
+            var r = genro.groupth.getPivotGrid(flatStore,flatStruct);
             if(!r){
                 return;
             }
             SET .grid.struct = r.struct;
             SET .store = r.store;
-        """,mainstore='^#ANCHOR.store',
-            mainstruct='=#ANCHOR.grid.struct',
-            _delay=1,
-            **{'subscribe_%s_changedStruct' %grid.attributes['nodeId']:True})
+            SET #ANCHOR.changets.stackedview = changets_flatview;
+        """,flatStore='=#ANCHOR.store',
+            flatStruct='=#ANCHOR.grid.struct',
+            groupMode='^#ANCHOR.groupMode',
+            changets_flatview ='^#ANCHOR.changets.flatview')
 
 
     def _thg_treeview(self,parentStack,title=None, grid=None,treeRoot=None,linkedTo=None,**kwargs):
@@ -200,34 +204,38 @@ class TableHandlerGroupBy(BaseComponent):
         bar.data('.treeRootName',treeRoot)
         pane = frame.center.contentPane()
         frame.dataController("""
-            genro.groupth.buildGroupTree(pane,groupMode=='stackedview'?stackedStruct:struct);
-            FIRE .refresh_tree_data;
+            var nodeLabel = _node.label;
+            var v = _node.getValue();
+            var lastTs = v instanceof Date?v:null;
+            if(output!='tree' || (lastTs && nodeLabel!=groupMode) ){
+                return;
+            }
+            lastTs = groupMode=='stackedview'?changets_stackedview:changets_flatview;
+            if(changets_tree!=lastTs){
+                var struct = flatStruct;
+                var store = flatStore;
+                if(groupMode=='stackedview'){
+                    struct = stackedStruct;
+                    store = stackedStore;
+                }
+                if(nodeLabel!='treeRootName'){
+                    genro.groupth.buildGroupTree(pane,struct);
+                }
+                SET .treestore = genro.groupth.groupTreeData(store,struct,treeRoot);
+            }
             """,
             pane=pane,
             storepath='.treestore',
-            struct='=.grid.struct',
-            stackedStruct = '=.stacked.grid.struct',
-            groupMode='^.groupMode',
-            **{'subscribe_%s_changedStruct' %grid.attributes['nodeId']:True})
-        frame.dataController("""
-            var basestruct = struct;
-            var basestore = gridstore;
-            if(groupMode=='stackedview'){
-                basestruct = stackedStruct;
-                basestore = stackedStore;
-            }
-
-            SET .treestore = genro.groupth.groupTreeData(basestore,basestruct,treeRoot);
-        """,gridstore='^.store',
-            _delay=1,
-            _fired='^.refresh_tree_data',treeRoot='^.treeRootName',
-            struct='=.grid.struct',
+            flatStruct='=.grid.struct',
+            flatStore='=.store',
             stackedStruct = '=.stacked.grid.struct',
             stackedStore ='=.stacked.store',
-            groupMode='^.groupMode')
-
-
-
+            changets_tree='=.changets.tree',
+            changets_flatview ='^.changets.flatview',
+            changets_stackedview = '^.changets.stackedview',
+            groupMode='^.groupMode',
+            output='^.output',
+            treeRoot='^.treeRootName')
         
     @public_method
     def _thg_selectgroupby(self,struct=None,**kwargs):
@@ -237,7 +245,7 @@ class TableHandlerGroupBy(BaseComponent):
             return '%s_%s' %(field.replace('.','_').replace('@','_').replace('-','_'),
                     group_aggr.replace('.','_').replace('@','_').replace('-','_').replace(' ','_').lower())
         for v in struct['#0.#0'].digest('#a'):
-            if v['field'] =='_grp_count':
+            if v['field'] =='_grp_count' or v.get('calculated'):
                 continue
             col = v['field']
             if not col.startswith('@'):
