@@ -13,7 +13,6 @@ class Table(object):
         tbl.column('widget', size=':30', name_long='!!Widget',default='tabContainer',
                     values='tabContainer:Tabs,stackContainer:Buttons')  
         tbl.column('data', dtype='X', name_long='!!Data',_sendback=True)
-        tbl.column('items', dtype='X', name_long='!!Items',_sendback=True)
 
     def defaultValues(self):
         data = Bag()
