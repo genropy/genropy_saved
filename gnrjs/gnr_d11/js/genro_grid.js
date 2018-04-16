@@ -3241,9 +3241,12 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             }
             if(cell.totalize){
                 var snode = genro.nodeById(this.sourceNode.attr.store+'_store');
-                if(snode.attr.table && !this.gridEditor){
+                var virtualStore = snode.attr.selectionName && snode.attr.row_count;
+                var selectionStore = snode.attr.method == 'app.getSelection';
+                if(selectionStore && !cell.formula && !this.gridEditor){
                     this.sourceNode._serverTotalizeColumns[cell.field] = cell.totalize; //server totals
-                }else{
+                }
+                if(!virtualStore){
                     getChangeManager().addTotalizer(cellmap[k].field,objectUpdate({},cellmap[k]));
                 }
             }else if (this.changeManager){

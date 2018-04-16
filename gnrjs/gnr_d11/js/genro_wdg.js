@@ -1766,6 +1766,13 @@ dojo.declare("gnr.GridChangeManager", null, {
     },
 
     updateTotalizer:function(k){
+        var storebag = this.grid.storebag();
+        var storeattr = storebag.getParentNode().attr;
+        var _serverTotalizeColumns = this.grid.sourceNode._serverTotalizeColumns || {};
+        if((k in _serverTotalizeColumns) && !isNullOrBlank(storeattr['sum_'+k])){
+            //already set from server values
+            return;
+        }
         var totvalue = this.grid.storebag().sum(this.grid.datamode=='bag'?k:'#a.'+k);
         this.sourceNode.setRelativeData(this.grid.cellmap[k].totalize,totvalue);
         this.sourceNode.publish('onUpdateTotalize',{'column':k,'value':totvalue});
