@@ -80,7 +80,8 @@ class TableHandlerGroupBy(BaseComponent):
                                 currentView='^.grid.currViewAttrs.description')
         frame.dataRemote('.advancedOptions',self.thg_advancedOptions,cacheTime=5,table=table,
                             rootNodeId=rootNodeId,_fired='^.refreshAdvancedOptionsdMenu')
-        bar = frame.top.slotToolbar('5,ctitle,stackButtons,10,groupByModeSelector,counterCol,*,searchOn,viewsMenu,configuratorPalette,chartjs,export,advancedOptions,5',
+        configuratorSlot = 'configuratorPalette' if configurable else '2'
+        bar = frame.top.slotToolbar('5,ctitle,stackButtons,10,groupByModeSelector,counterCol,*,searchOn,viewsMenu,%s,chartjs,export,advancedOptions,5' %configuratorSlot,
                                     advancedOptions_linkedTo=linkedTo,
                                     stackButtons_stackNodeId='%s_mainstack' %frameCode)
         bar.ctitle.div(title,color='#444',font_weight='bold')

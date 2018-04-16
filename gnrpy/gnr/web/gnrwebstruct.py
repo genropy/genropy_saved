@@ -1417,7 +1417,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             return self.includedview_legacy(*args,**kwargs)
             
     def includedview_inframe(self, frameCode=None, struct=None, columns=None, storepath=None, structpath=None,
-                             datapath=None, nodeId=None, configurable=True, _newGrid=False, childname=None, **kwargs):
+                             datapath=None, nodeId=None, configurable=None, _newGrid=False, childname=None, **kwargs):
         """TODO
         
         :param frameCode: TODO
@@ -1453,7 +1453,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         frameattributes['target'] = nodeId
         iv =self.child(wdg,frameCode=frameCode, datapath=datapath,structpath=structpath, nodeId=nodeId,
                      childname=childname,
-                     relativeWorkspace=relativeWorkspace,configurable=configurable,storepath=storepath,**kwargs)
+                     relativeWorkspace=relativeWorkspace,configurable=configurable,
+                     storepath=storepath,**kwargs)
         if struct or columns or not structpath:
             iv.gridStruct(struct=struct,columns=columns)
         return iv

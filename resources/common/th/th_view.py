@@ -208,7 +208,8 @@ class TableHandlerView(BaseComponent):
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title,
                         liveUpdate=liveUpdate,store_kwargs=store_kwargs)
-        self._th_view_confMenues(frame,statsEnabled)
+        if configurable:
+            self._th_view_confMenues(frame,statsEnabled=None,configurable=configurable)
         if virtualStore:    
             self._extTableRecords(frame)
         frame.dataController("""if(!firedkw.res_type){return;}
@@ -241,7 +242,7 @@ class TableHandlerView(BaseComponent):
     def _th_waitingElement(self):
         return """<div style="height:130px;opacity:.8; width:200px;" class="waiting">&nbsp;</div>"""
 
-    def _th_view_confMenues(self,frame,statsEnabled):
+    def _th_view_confMenues(self,frame,statsEnabled=None,configurable=None):
         b = Bag()
         b.rowchild(label='!!Reload',action="$2.widget.reload();")
         b.rowchild(label='-')

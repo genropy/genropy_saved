@@ -897,7 +897,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var gridplugins = sourceNode.attr.gridplugins;
         if(!gridplugins){
             gridplugins = 'chartjs,export_xls';
-            if(genro.grid_configurator){
+            if(sourceNode.attr.configurable && genro.grid_configurator){
                 gridplugins = 'configurator,'+gridplugins;
             }
         }
@@ -3689,7 +3689,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     },
 
     mixin_configuratorPalette:function(){
-        if(genro.grid_configurator){
+        if(this.sourceNode.attr.configurable && genro.grid_configurator){
             genro.grid_configurator.configuratorPalette(this.sourceNode.attr.nodeId || this.sourceNode._id);
         }
     },

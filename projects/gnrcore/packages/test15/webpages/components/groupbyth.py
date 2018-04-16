@@ -16,5 +16,5 @@ class GnrCustomWebPage(object):
 
 
     def test_0_dashboard(self, pane):
-        pane.groupByTableHandler(table='fatt.fattura',height='400px',width='1000px',
-                                dashboardIdentifier='per_zona')
+        pane.groupByTableHandler(table='fatt.fattura',height='400px',width='600px',
+                                dashboardIdentifier='per_zona',configurable=False)

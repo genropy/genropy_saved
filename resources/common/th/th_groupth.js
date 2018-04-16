@@ -114,7 +114,7 @@ genro_plugin_groupth = {
         var resultStore = new gnr.GnrBag();
         var resultStruct = new gnr.GnrBag();
         var resultStructRow = new gnr.GnrBag();
-        resultStruct.setItem('views_0.rows_0',resultStructRow);
+        resultStruct.setItem('view_0.rows_0',resultStructRow);
 
         var struct_row = sourceStruct.getItem('#0.#0');
         

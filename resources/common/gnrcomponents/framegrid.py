@@ -243,6 +243,7 @@ class FrameGrid(BaseComponent):
             frame.top.slotToolbar(**top_kwargs)
         if table and configurable:
             frame.viewConfigurator(table=table,configurable=configurable)   
+
         return frame
 
     @extract_kwargs(default=True,store=True)
