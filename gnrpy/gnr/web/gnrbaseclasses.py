@@ -168,6 +168,8 @@ class BaseWebtool(object):
 
 class BaseDashboardItem(object):
     item_name=''
+    run_onbuilt = 1
+    run_timer = None
 
     def __init__(self, page=None, resource_table=None, **kwargs):
         self.page = page
@@ -179,7 +181,8 @@ class BaseDashboardItem(object):
                 itemspath=None,itemIdentifier=None,title=None,**kwargs):
         parameters = parameters or Bag()
         title = title or itempar_kwargs.pop('title',None) or self.item_name
-        bc = pane.borderContainer(datapath='%s.%s' %(itemspath,itemIdentifier) if itemspath and itemIdentifier else None)
+        storepath = '%s.%s' %(itemspath,itemIdentifier) if itemspath and itemIdentifier else None
+        bc = pane.borderContainer(datapath=storepath)
         top = bc.contentPane(region='top',height='14px',background='#666')
         sc = bc.stackContainer(region='center')
         top.div(title,color='white',font_size='.8em',
@@ -196,13 +199,22 @@ class BaseDashboardItem(object):
         if not workpath:
             workpath = 'dashboards.%s' %id(sc)
     
-        self.content(pane,workpath=workpath,**kwargs)
+        self.content(pane,workpath=workpath,storepath=storepath,**kwargs)
         bc = sc.borderContainer()
-        self.configuration(bc.contentPane(region='center',datapath='.conf'),workpath=workpath,**kwargs)
+        bc.dataController("FIRE .runItem;",
+                        _onBuilt=self.run_onbuilt,
+                        datapath=workpath,_timing='=.runTimer')
+        bc.dataController("""if(runRequired){
+            SET .runRequired = false;
+            FIRE .runItem;
+        }""",
+        changedConfig='^.configuration_changed',runRequired='=.runRequired',datapath=workpath)
+        self.configuration(bc.contentPane(region='center',datapath='.conf'),workpath=workpath,storepath=storepath,**kwargs)
         bottom = bc.contentPane(region='bottom',_class='slotbar_dialog_footer')
         bottom.button('!!Ok',top='2px',right='2px',action="""sc.switchPage(0);
                                                             FIRE %s.configuration_changed;
                                                         """ %(workpath or ''),sc=sc.js_widget)
+        
 
     def content(self,pane,**kwargs):
         pass

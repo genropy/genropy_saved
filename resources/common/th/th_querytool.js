@@ -284,11 +284,13 @@ dojo.declare("gnr.QueryManager", null, {
         var extraPars = this.sourceNode.getRelativeData('.query.extraPars');
         var queryPars = new gnr.GnrBag();
         this.translateQueryPars().forEach(function(pardict){
-            queryPars.setItem('p_'+queryPars.len(),null,{
-                lbl:pardict.value_caption.slice(1),
+            queryPars.setItem(pardict.parcode,null,{
+                lbl:pardict.lbl,
                 field:pardict.column,
                 relpath:pardict.relpath,
-                op:pardict.op
+                op:pardict.op,
+                dflt:pardict.dflt,
+                parcode:pardict.parcode
             });
         });
 
@@ -627,9 +629,14 @@ dojo.declare("gnr.QueryManager", null, {
         var cb = function(node, parslist, idx) {
             if (node.attr.value_caption) {
                 if(node.attr.value_caption[0]=='?'){
-                     var relpath = node.getFullpath('static', currwhere);
-                     var result = objectUpdate({}, node.attr);
-                     result['relpath'] = relpath;
+                    var relpath = node.getFullpath('static', currwhere);
+                    var result = objectUpdate({}, node.attr);
+                    var value_caption = node.attr.value_caption.slice(1);
+                    var vl = value_caption.split('|');
+                    result.lbl = vl[0];
+                    result.dflt = vl[1];
+                    result.relpath = relpath;
+                    result.parcode = flattenString(result.lbl,['.',' ']);
                     parslist.push(result);
                 }else if(node.attr.value_caption && node.attr.value_caption.indexOf('set:')==0){
                     return;

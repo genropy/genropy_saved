@@ -313,58 +313,6 @@ class FrameGrid(BaseComponent):
             result.setItem(r.label,handler(row=r.value,row_attr=r.attr,**kwargs))
         return result
 
-
-    @extract_kwargs(store=True)
-    @struct_method
-    def fgr_selectionViewer(self,pane,table=None,queryName=None,viewName=None,query_id=None,
-                            view_id=None,struct=None,store_kwargs=None,**kwargs):
-        userobject_tbl = self.db.table('adm.userobject')
-        where = None
-        viewName = None
-        customOrderBy = None
-        queryPars = None
-        extraPars = None
-        limit = None
-        struct = None
-        tblobj = self.db.table(table)
-        metadata = Bag()
-        def defaultstruct(struct):
-            r = struct.view().rows()
-            r.fieldcell(tblobj.attributes['caption_field'], name=tblobj.name_long, width='100%')
-
-        if queryName or query_id:
-            where,metadata = userobject_tbl.loadUserObject(code=queryName, id=query_id,
-                                                objtype='query',
-                                                tbl=table)
-            customOrderBy = None
-            limit = None
-            queryPars = None
-            if where['where']:
-                limit = where['queryLimit']
-                viewName = viewName or where['currViewPath']
-                customOrderBy = where['customOrderBy']
-                queryPars = where.pop('queryPars')
-                extraPars = where.pop('extraPars')
-                where = where['where']
-        if viewName or view_id:
-            userobject_tbl = self.db.table('adm.userobject')
-            struct = userobject_tbl.loadUserObject(code=viewName, objtype='view', 
-                                                    id=view_id,
-                                                    tbl=table)[0]
-        if struct is None:
-            struct = defaultstruct    
-        frame = pane.frameGrid(struct=struct,_newGrid=True,**kwargs)
-        frame.data('.query.limit',limit)
-        frame.data('.query.where',where)
-        frame.data('.query.extraPars',extraPars)
-        frame.queryPars = queryPars
-        frame.data('.query.customOrderBy',customOrderBy)
-        frame.top.slotBar('*,vtitle,*',vtitle=metadata['description'])
-        frame.grid.selectionStore(table=table,childname='store',where='=.query.where',
-                                customOrderBy='=.query.customOrderBy',
-                                limit='=.query.limit',**store_kwargs)
-        return frame
-
 class TemplateGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGrid,gnrcomponents/tpleditor:ChunkEditor'
     @struct_method

@@ -1893,7 +1893,7 @@ class GnrWebPage(GnrBaseWebPage):
         page.dataController("""
                 genro.playUrl(url);
             """,url='^gnr.playUrl')
-        page.dataRpc('dummy',self.quickCommunication,subscribe_quick_comunication=True,
+        page.dataRpc(None,self.quickCommunication,subscribe_quick_comunication=True,
                     _onResult='genro.publish("quick_comunication_sent",{info:result});')
 
         page.dataController("genro.openWindow(url,filename);",url='^gnr.clientprint',filename='!!Print')
