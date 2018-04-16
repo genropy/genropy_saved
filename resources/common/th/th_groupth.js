@@ -12,7 +12,7 @@ genro_plugin_groupth = {
         var fld;
         
         struct_row.forEach(function(n){
-            if(n.attr.group_aggr && 'NLIRF'.indexOf(n.attr.dtype)>=0  || n.attr.group_nobreak){
+            if(n.attr.group_aggr && 'NLIRF'.indexOf(n.attr.dtype)>=0  || n.attr.group_nobreak || n.attr.calculated){
                 fld = n.attr.field.replace(/\W/g, '_');
                 fld += (n.attr.group_aggr?'_'+n.attr.group_aggr.replace(/\W/g, '_').toLowerCase():'');
                 tr._('treegrid_column',{field:fld,dtype:(n.attr.group_aggr && n.attr.group_nobreak)?'T':n.attr.dtype,
@@ -37,13 +37,16 @@ genro_plugin_groupth = {
         var row,kl,description,treepath;
         var group_by_cols = [];
         var f;
+        var formulalist = [];
         structBag.getItem('#0.#0').forEach(function(n){
-            if(!(n.attr.group_aggr && 'NLIRF'.indexOf(n.attr.dtype)>=0 || n.attr.group_nobreak)){
+            if(!(n.attr.group_aggr && 'NLIRF'.indexOf(n.attr.dtype)>=0 || n.attr.group_nobreak || n.attr.formula) ){
                 f = n.attr.field.replace(/\W/g, '_');
                 if(n.attr.group_aggr){
                     f += '_'+n.attr.group_aggr.replace(/\W/g, '_').toLowerCase();
                 }
                 group_by_cols.push(f);
+            }else if(n.attr.formula){
+                formulalist.push([n.attr.field,n.attr.formula]);
             }
         });
         gridstore.forEach(function(n){
@@ -62,18 +65,18 @@ genro_plugin_groupth = {
             });
             objectUpdate(treedata.getAttr(kl),row);
         });
-        this.updateTreeTotals(result);
+        this.updateTreeTotals(result,formulalist);
         return result;
     },
 
-    updateTreeTotals:function(treeData){
+    updateTreeTotals:function(treeData,formulalist){
         var that = this;
         treeData.forEach(function(n){
-            that.updateBranchTotals(n);
+            that.updateBranchTotals(n,formulalist);
         });
     },
     
-    updateBranchTotals:function(branchDataNode){
+    updateBranchTotals:function(branchDataNode,formulalist){
         var currAttr = branchDataNode.attr;
         var k;
         var that = this;
@@ -83,7 +86,7 @@ genro_plugin_groupth = {
         }
         branchdata.forEach(function(n){
             if(n.getValue()){
-                that.updateBranchTotals(n);
+                that.updateBranchTotals(n,formulalist);
             }
             for(k in n.attr){
                 if(k.endsWith('_sum')){
@@ -98,6 +101,9 @@ genro_plugin_groupth = {
                     currAttr[k] = Math.max(k in currAttr? currAttr[k]:n.attr[k],n.attr[k]);
                 }
             }
+            formulalist.forEach(function(felem){
+                currAttr[felem[0]] = funcApply("return "+felem[1],currAttr);
+            });
         });
     },
 
@@ -123,7 +129,7 @@ genro_plugin_groupth = {
             if (attr.group_aggr){
                 attr.col_getter+='_'+attr.group_aggr.replace(/\W/g, '_').toLowerCase();
             }
-            if(attr.group_aggr && 'NLIRF'.indexOf(attr.dtype)>=0 ){                
+            if((attr.group_aggr || attr.formula) && 'NLIRF'.indexOf(attr.dtype)>=0 ){    
                 valuecols.push(attr);
             }else if (attr.group_nobreak){
                 nobreak.push(attr);
@@ -139,23 +145,42 @@ genro_plugin_groupth = {
         var lastGrpcolField = lastGrpcol.col_getter;
         var colset = Array.from(new Set(sourceStore.columns('#a.'+lastGrpcolField)[0])).sort();
         var colsetDict = {};
+        var emptyrow = {};
+        var formuladict,formulalist,newname,k,structNode;
+
         grpcol.concat(nobreak).forEach(function(attr,idx){
             resultStructRow.setItem('cell_'+resultStructRow.len(),null,objectUpdate({},attr));
         });
         colset.forEach(function(f,colsetidx){
             colsetDict[f]=colsetidx;
+            formuladict = {};
+            formulalist = [];
             valuecols.forEach(function(attr){
                 attr = objectUpdate({},attr);
+                newname = attr.field+'_'+colsetidx;
+                if(attr.group_aggr){
+                    newname+= '_'+attr.group_aggr.replace(/\W/g, '_').toLowerCase();
+                }
+                emptyrow[newname] = null;
+                formuladict[attr.col_getter] = newname;
                 attr.field = attr.field+'_'+colsetidx;
                 attr.tree_name = f+'<br/>'+attr.name;
                 attr.columnset = 'grp_'+colsetidx;
                 if(!columnsets.getNode(attr.columnset)){
                     columnsets.setItem(attr.columnset,null,{code:'grp_'+colsetidx,name:f});
                 }
-                resultStructRow.setItem('cell_'+resultStructRow.len(),null,attr);
+                structNode = resultStructRow.setItem('cell_'+resultStructRow.len(),null,attr);
+                if(attr.formula){
+                    formulalist.push(structNode.attr);
+                }
+            });
+            formulalist.forEach(function(f){
+                for(k in formuladict){
+                    f.formula = f.formula.replace(new RegExp(k,'g'),formuladict[k]);
+                }
             });
         });
-        var colname,row,keylist,cskey,key,nodeToUpdate;
+        var colname,row,keylist,cskey,key,nodeToUpdate,newkey;
         sourceStore.getNodes().forEach(function(n,idx){
             row = {};
             keylist = [];
@@ -172,12 +197,17 @@ genro_plugin_groupth = {
             });
             valuecols.forEach(function(f){
                 colname = f.field.replace(/\W/g, '_');
-                row[colname+'_'+cskey+'_'+f.group_aggr.replace(/\W/g, '_').toLowerCase()] = attr[f.col_getter];
+                newkey = colname+'_'+cskey;
+                if(f.group_aggr){
+                    newkey+='_'+f.group_aggr.replace(/\W/g, '_').toLowerCase();
+                }
+                row[newkey] = attr[f.col_getter];
             });
+
             key = keylist.join('_').replace(/\W/g, '_');
             nodeToUpdate = resultStore.getNode(key);
             if(!nodeToUpdate){
-                resultStore.setItem(key,null,row);
+                resultStore.setItem(key,null,objectUpdate(emptyrow,row));
             }else{
                 nodeToUpdate.updAttributes(row);
             }
