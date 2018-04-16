@@ -175,11 +175,11 @@ class BaseDashboardItem(object):
         self.tblobj = resource_table
 
     @extract_kwargs(itempar=True)
-    def __call__(self,pane,editMode=None,workpath=None,itemPars=None,itempar_kwargs=None,**kwargs):
-        itemPars = itemPars or Bag()
-
-        title = itemPars.pop('_item_title') or self.item_name or itempar_kwargs.pop('title',None)
-        bc = pane.borderContainer()
+    def __call__(self,pane,editMode=None,workpath=None,parameters=None,itempar_kwargs=None,
+                itemspath=None,itemIdentifier=None,title=None,**kwargs):
+        parameters = parameters or Bag()
+        title = title or itempar_kwargs.pop('title',None) or self.item_name
+        bc = pane.borderContainer(datapath='%s.%s' %(itemspath,itemIdentifier) if itemspath and itemIdentifier else None)
         top = bc.contentPane(region='top',height='14px',background='#666')
         sc = bc.stackContainer(region='center')
         top.div(title,color='white',font_size='.8em',
@@ -188,15 +188,21 @@ class BaseDashboardItem(object):
                         position='absolute',top='1px',right='4px',
                         action='sc.switchPage(1);',sc=sc.js_widget)
         kwargs.update(itempar_kwargs)
-        kwargs.update(itemPars.asDict(ascii=True))
+        kwargs.update(parameters.asDict(ascii=True))
         pane = sc.contentPane()
+        itemIdentifier = itemIdentifier or id(sc)
+        if not workpath  and (itemspath and itemIdentifier):
+            workpath = '#ANCHOR.dashboards.%s' %itemIdentifier
+        if not workpath:
+            workpath = 'dashboards.%s' %id(sc)
+    
         self.content(pane,workpath=workpath,**kwargs)
         bc = sc.borderContainer()
         self.configuration(bc.contentPane(region='center',datapath='.conf'),workpath=workpath,**kwargs)
         bottom = bc.contentPane(region='bottom',_class='slotbar_dialog_footer')
         bottom.button('!!Ok',top='2px',right='2px',action="""sc.switchPage(0);
                                                             FIRE %s.configuration_changed;
-                                                        """ %workpath,sc=sc.js_widget)
+                                                        """ %(workpath or ''),sc=sc.js_widget)
 
     def content(self,pane,**kwargs):
         pass

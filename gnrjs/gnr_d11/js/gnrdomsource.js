@@ -1489,7 +1489,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 var node = genro._data.getNode(abspath);
                 value = asTypedTxt(value, node.attr.dtype);
             }
-            ;
             if (attrname.indexOf('_') != 0) {
                 kwargs[attrname] = value;
             } else if (attrname == '_onRemote') {
