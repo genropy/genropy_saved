@@ -264,7 +264,7 @@ genro_plugin_groupth = {
             var tb = fb.addField('textbox',{lbl:_T('Date aggregator'),value:prefix+'group_aggr'});
             tb._('ComboMenu',{values:values,action:function(kw,ctx){
                 var cv = this.attr.attachTo.widget.getValue();
-                this.attr.attachTo.widget.setValue(cv?cv+'-'+kw.fullpath:kw.fullpath,true);
+                this.attr.attachTo.widget.setValue(cv?cv+'-'+kw.fullpath:kw.fullpath,false);
             }});
             fb.addField('checkbox',{value:prefix+'group_nobreak',label:_T('No break')});
         }else{
