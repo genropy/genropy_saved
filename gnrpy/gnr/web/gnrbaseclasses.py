@@ -194,7 +194,8 @@ class BaseDashboardItem(object):
         top.div('^.current_title',text_align='center',datapath=workpath,padding_top='3px')
         bc.dataFormula('%s.current_title' %workpath,"dataTemplate(tpl,itemaData)",tpl=self.title_template,
                         itemaData='^%s' %storepath,_onBuilt=True)
-        top.lightbutton(_class='close_svg',height='16px',
+        if editMode:
+            top.lightbutton(_class='close_svg',height='16px',
                         width='16px',top='1px',position='absolute',
                         left='4px',cursor='pointer',
                         action='SET .itemIdentifier=null;')
