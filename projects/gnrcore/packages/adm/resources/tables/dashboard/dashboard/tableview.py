@@ -32,7 +32,7 @@ item_parameters = [dict(value='^.table',lbl='Table',tag='dbselect',dbtable='adm.
                         condition='$tbl=:seltbl AND $objtype=:t',condition_t='view',condition_seltbl='=.table',objtype='query',hasDownArrow=True)]
 
 class Main(BaseDashboardItem):
-    item_name = 'Table view'
+    title_template = '$title $whereParsFormatted'
 
     def content(self,pane,workpath=None,table=None,query_id=None,view_id=None,storepath=None,**kwargs):
         self.page.mixinComponent('th/th:TableHandler')
@@ -51,6 +51,9 @@ class Main(BaseDashboardItem):
             queryPars='=.query.queryPars',
             where='=.query.where',
             _fired='^%s.runItem' %workpath)
+            
+        pane.dataFormula('.whereParsFormatted',"wherePars?wherePars.getFormattedValue({joiner:' - '}):'-'",
+                    wherePars='^.conf.wherePars')
         
 
 

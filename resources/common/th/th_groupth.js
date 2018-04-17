@@ -283,7 +283,7 @@ genro_plugin_groupth = {
             groupByStruct:'.grid.struct',
             groupMode:'.groupMode',
             output:'.output',
-            queryItems:'.queryPars'
+            queryPars:'.queryPars'
         };
         kw.objtype = 'dash_groupby';
         kw.metadataPath = '.dashboardMeta';

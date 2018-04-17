@@ -31,41 +31,60 @@ item_parameters = [dict(value='^.table',lbl='Table',tag='dbselect',dbtable='adm.
 class Main(BaseDashboardItem):
     """Choose table and saved stat"""
     item_name = 'Stats Grouped'
+    title_template = '$title $whereParsFormatted'
 
     def content(self,pane,workpath=None,table=None,userobject_id=None,storepath=None,itemRecord=None,**kwargs):
         self.page.mixinComponent('th/th:TableHandler')
         bc = pane.borderContainer()
         center = bc.contentPane(region='center',_class='hideInnerToolbars')
         frameCode = 'statgroup_%s_%s' %(table.replace('.','_'),self.page.getUuid())
+        data,metadata = self.page.db.table('adm.userobject').loadUserObject(id=userobject_id)
         gh = center.groupByTableHandler(table=table,frameCode=frameCode,
                                     configurable=False,
                                     struct=data['groupByStruct'],
-                                    where='=.where',
-                                    store__fired='^.runItem',
+                                    where='=.query.where',
+                                    store__fired='^.runStore',
                                     datapath=workpath)
-        data,metadata = self.page.db.table('adm.userobject').loadUserObject(id=userobject_id)
+        gh.dataController("""
+            if(queryPars){
+                queryPars.forEach(function(n){
+                    where.setItem(n.attr.relpath,wherePars.getItem(n.label));
+                });
+            }
+            FIRE .runStore;
+        """,wherePars='=%s.conf.wherePars' %storepath,
+            queryPars='=.query.queryPars',
+            where='=.query.where',
+            _fired='^%s.runItem' %workpath)
+        bc.dataFormula('.whereParsFormatted',"wherePars?wherePars.getFormattedValue({joiner:' - '}):'-'",
+                    wherePars='^.conf.wherePars')
+        
+
+
         self.queryPars = data['queryPars']
-        gh.data('.where',data['where'])
+        gh.data('.query.where',data['where'])
+        gh.data('.query.queryPars',data['queryPars'])
+
         center.dataController("""
-            viewMode = viewMode || defaultGroupMode+'_'+defaultGroupMode;
+            viewMode = viewMode || defaultGroupMode+'_'+defaultOutput;
             gh.publish('viewMode',viewMode);
         """,viewMode='^.conf.viewMode',gh=gh,
         defaultOutput= data['output'],
         defaultGroupMode = data['groupMode'],
         _fired='^%s.runItem' %workpath)
 
+
     def configuration(self,pane,table=None,userobject_id=None,workpath=None,itemRecord=None,**kwargs):
-        groupbypane = pane
-        if  self.queryPars:
-            querypane = pane.titlePane('!!Grouping parameters')
-        fb = pane.formbuilder()
+        bc = pane.borderContainer()
+        fb = bc.contentPane(region='top').div(padding='10px').formbuilder()
         fb.filteringSelect(value='^.viewMode',lbl='Mode',
                             values='flatview_grid:Flat grid,stackedview_grid:Stacked view,flatview_tree:Tree,stackedview_tree:Stacked tree')
         
         if not self.queryPars:
+            center = bc.contentPane(region='center')
             return
-        querypane = pane.titlePane('!!Query parameters')
-        fb = querypane.formbuilder(dbtable=table,datapath='.wherePars',
+        center = bc.roundedGroup(title='!!Query parameters',region='center')
+        fb = center.div(padding='8px').formbuilder(dbtable=table,datapath='.wherePars',
                             fld_validate_onAccept="SET %s.runRequired =true;" %workpath)
         for code,pars in self.queryPars.digest('#k,#a'):
             field = pars['field']

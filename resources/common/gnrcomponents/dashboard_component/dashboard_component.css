@@ -108,3 +108,9 @@
 .dhthumb_hiddenregion .dhthumb_cell{
     visibility: hidden;
 }
+
+.dashboard_item_top{
+    cursor: move;
+    background: RGBA(136, 141, 143, 1.00);
+    color:white;
+}

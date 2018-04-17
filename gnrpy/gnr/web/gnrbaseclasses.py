@@ -170,6 +170,7 @@ class BaseDashboardItem(object):
     item_name=''
     run_onbuilt = 1
     run_timer = None
+    title_template = '$title'
 
     def __init__(self, page=None, resource_table=None, **kwargs):
         self.page = page
@@ -179,26 +180,43 @@ class BaseDashboardItem(object):
     @extract_kwargs(itempar=True)
     def __call__(self,pane,editMode=None,workpath=None,parameters=None,itempar_kwargs=None,
                 itemspath=None,workspaces=None,itemIdentifier=None,title=None,**kwargs):
+        if not workpath:
+            workpath = '%s.%s' %(workspaces,itemIdentifier)
         parameters = parameters or Bag()
         title = title or itempar_kwargs.pop('title',None) or self.item_name
         storepath = '%s.%s' %(itemspath,itemIdentifier) if itemspath and itemIdentifier else None
-        bc = pane.borderContainer(datapath=storepath)
-        top = bc.contentPane(region='top',height='14px',background='#666')
-        sc = bc.stackContainer(region='center')
-        top.div(title,color='white',font_size='.8em',
-                             font_weight='bold',text_align='center')
-        top.lightbutton(_class='menu_white_svg',height='12px',width='12px',
-                        position='absolute',top='1px',right='4px',
-                        action='sc.switchPage(1);',sc=sc.js_widget)
+        bc = pane.borderContainer()
+        top = bc.contentPane(region='top',min_height='20px').div(height='20px',_class='dashboard_item_top',
+                                               onDrag="""
+                                               dragValues['itemIdentifier'] = '%s';
+                                               """ %itemIdentifier,draggable=itemIdentifier is not None)
+        sc = bc.stackContainer(region='center',datapath=storepath,selectedPage='^%s._dashboardPageSelected' %workpath)
+        top.div('^.current_title',text_align='center',datapath=workpath,padding_top='3px')
+        bc.dataFormula('%s.current_title' %workpath,"dataTemplate(tpl,itemaData)",tpl=self.title_template,
+                        itemaData='^%s' %storepath,_onBuilt=True)
+        top.lightbutton(_class='close_svg',height='16px',
+                        width='16px',top='1px',position='absolute',
+                        left='4px',cursor='pointer',
+                        action='SET .itemIdentifier=null;')
+        top.lightbutton(_class='menu_white_svg',height='16px',width='16px',
+                        position='absolute',top='1px',right='4px',cursor='pointer',
+                        action="""
+                        if(_dashboardPageSelected=='conf'){
+                            SET ._dashboardPageSelected = 'content';
+                            FIRE .configuration_changed;
+                        }else{
+                            SET ._dashboardPageSelected = 'conf';
+                        }                        
+                        """ ,datapath=workpath,
+                        _dashboardPageSelected='=._dashboardPageSelected')
         kwargs.update(itempar_kwargs)
         kwargs.update(parameters.asDict(ascii=True))
-        pane = sc.contentPane()
+        pane = sc.contentPane(pageName='content')
         itemIdentifier = itemIdentifier or id(sc)
         workspaces = workspaces or 'dashboards'
-        if not workpath:
-            workpath = '%s.%s' %(workspaces,itemIdentifier)
+        
         self.content(pane,workpath=workpath,storepath=storepath,**kwargs)
-        bc = sc.borderContainer()
+        bc = sc.borderContainer(pageName='conf')
         bc.dataController("""FIRE .runItem;""",
                         _onBuilt=self.run_onbuilt,
                         datapath=workpath,_timing='=.runTimer')
@@ -208,10 +226,10 @@ class BaseDashboardItem(object):
         }""",
         changedConfig='^.configuration_changed',runRequired='=.runRequired',datapath=workpath)
         self.configuration(bc.contentPane(region='center',datapath='.conf'),workpath=workpath,storepath=storepath,**kwargs)
-        bottom = bc.contentPane(region='bottom',_class='slotbar_dialog_footer')
-        bottom.button('!!Ok',top='2px',right='2px',action="""sc.switchPage(0);
-                                                            FIRE %s.configuration_changed;
-                                                        """ %(workpath or ''),sc=sc.js_widget)
+       #bottom = bc.contentPane(region='bottom',_class='slotbar_dialog_footer')
+       #bottom.button('!!Ok',top='2px',right='2px',action="""sc.switchPage(0);
+       #                                                    FIRE %s.configuration_changed;
+       #                                                """ %(workpath or ''),sc=sc.js_widget)
         
 
     def content(self,pane,**kwargs):

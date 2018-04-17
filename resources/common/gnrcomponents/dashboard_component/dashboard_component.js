@@ -206,7 +206,14 @@ genro_plugin_dashboards = {
                                         splitter:(subregion != 'center') && that.edit,
                                         overflow:'hidden',
                                         dropTarget:true,
-                                        dropCodes:'dashboardItems',
+                                        dropCodes:'dashboardItems,itemIdentifier',
+                                        onDrop_itemIdentifier:function(p1,p2,kw){
+                                            this.setRelativeData('.itemIdentifier',kw.data);
+                                            var draggedSn = genro.dom._lastDragInfo.sourceNode;
+                                            setTimeout(function(){
+                                                draggedSn.setRelativeData('.itemIdentifier',null);
+                                            },1);
+                                        },
                                         onDrop_dashboardItems:function(p1,p2,kw){
                                             var sourceNode = this;
                                             var item_parameters = [{value:'^._item_title',lbl:_T('Title')}];
@@ -227,7 +234,7 @@ genro_plugin_dashboards = {
                                         remote_itemIdentifier:'^.itemIdentifier',
                                         remote_itemRecord:itemRecordGetter,
                                         remote__if:'itemIdentifier',
-                                        remote__else:"this.getValue().popNode('#0')",
+                                        remote__else:"this.getValue().popNode('remoteItem');",
                                         remote_editMode:that.edit,
                                         remote_workspaces:that.workspaces,
                                         remote_itemspath:that.itemspath, //'dashboards.'+region+'.'+subregion,
