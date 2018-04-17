@@ -38,7 +38,7 @@ class DashboardItem(BaseComponent):
         table = table or itemRecord['table']
         resource = itemName or itemRecord['resource']
         itemClass = self.loadTableScript(table=table,respath='dashboard/%s' %resource)
-        itemClass(pane,title=itemRecord['title'],parameters=itemRecord['parameters'],**kwargs)
+        itemClass(pane,title=itemRecord['title'],parameters=itemRecord['parameters'],itemRecord=itemRecord,**kwargs)
 
 class DashboardGallery(BaseComponent):
     css_requires='gnrcomponents/dashboard_component/dashboard_component'
@@ -85,6 +85,7 @@ class DashboardGallery(BaseComponent):
                                 var storepath = this.absDatapath('%s');
                                 genro.dashboards.dashboardspath = storepath+'.dashboards';
                                 genro.dashboards.itemspath = storepath+'.items';
+                                genro.dashboards.workspaces = this.absDatapath('.dashboards');
 
                                 """ %storepath)
         

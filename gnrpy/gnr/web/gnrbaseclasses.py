@@ -178,7 +178,7 @@ class BaseDashboardItem(object):
 
     @extract_kwargs(itempar=True)
     def __call__(self,pane,editMode=None,workpath=None,parameters=None,itempar_kwargs=None,
-                itemspath=None,itemIdentifier=None,title=None,**kwargs):
+                itemspath=None,workspaces=None,itemIdentifier=None,title=None,**kwargs):
         parameters = parameters or Bag()
         title = title or itempar_kwargs.pop('title',None) or self.item_name
         storepath = '%s.%s' %(itemspath,itemIdentifier) if itemspath and itemIdentifier else None
@@ -194,14 +194,12 @@ class BaseDashboardItem(object):
         kwargs.update(parameters.asDict(ascii=True))
         pane = sc.contentPane()
         itemIdentifier = itemIdentifier or id(sc)
-        if not workpath  and (itemspath and itemIdentifier):
-            workpath = '#ANCHOR.dashboards.%s' %itemIdentifier
+        workspaces = workspaces or 'dashboards'
         if not workpath:
-            workpath = 'dashboards.%s' %id(sc)
-    
+            workpath = '%s.%s' %(workspaces,itemIdentifier)
         self.content(pane,workpath=workpath,storepath=storepath,**kwargs)
         bc = sc.borderContainer()
-        bc.dataController("FIRE .runItem;",
+        bc.dataController("""FIRE .runItem;""",
                         _onBuilt=self.run_onbuilt,
                         datapath=workpath,_timing='=.runTimer')
         bc.dataController("""if(runRequired){

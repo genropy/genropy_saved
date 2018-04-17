@@ -51,10 +51,15 @@ class TableHandlerGroupBy(BaseComponent):
                 struct = self._th_hook('groupedStruct',mangler=linkedTo,defaultCb=self._thg_defaultstruct)
         frameCode = frameCode or 'thg_%s' %table.replace('.','_')
         datapath = datapath or '.%s' %frameCode
-        rootNodeId = '%s_mainstack' %frameCode
+        rootNodeId = frameCode
         sc = pane.stackContainer(datapath=datapath,_class='group_by_th',selectedPage='^.output',_anchor=True,
                                 nodeId=rootNodeId,
                                 _linkedTo = linkedTo,table=table,
+                                selfsubscribe_viewMode="""
+                                    var viewMode = $1.split('_');
+                                    SET .groupMode = viewMode[0];
+                                    SET .output = viewMode[1];
+                                """,
                                 selfsubscribe_saveDashboard="genro.groupth.saveAsDashboard(this,$1);",
                                 selfsubscribe_loadDashboard="genro.groupth.loadDashboard(this,$1)",
                                 _dashboardRoot=True,**kwargs)  
@@ -83,7 +88,7 @@ class TableHandlerGroupBy(BaseComponent):
         configuratorSlot = 'configuratorPalette' if configurable else '2'
         bar = frame.top.slotToolbar('5,ctitle,stackButtons,10,groupByModeSelector,counterCol,*,searchOn,viewsMenu,%s,chartjs,export,advancedOptions,5' %configuratorSlot,
                                     advancedOptions_linkedTo=linkedTo,
-                                    stackButtons_stackNodeId='%s_mainstack' %frameCode)
+                                    stackButtons_stackNodeId=frameCode)
         bar.ctitle.div(title,color='#444',font_weight='bold')
         bar.counterCol.div().checkbox(value='^.grid.showCounterCol',label='!!Counter column',label_color='#444')
         frame.grid.dataController("""
@@ -144,7 +149,7 @@ class TableHandlerGroupBy(BaseComponent):
                             selectmethod,sqlContextName,sum_columns,table,timeout,totalRowCount,userSets,_sections,
                             _onCalling,_onResult""",
                                 condition=condition,**store_kwargs)
-        return frame
+        return sc
 
 
     def _thg_defaultstruct(self,struct):
@@ -176,7 +181,7 @@ class TableHandlerGroupBy(BaseComponent):
                                     storepath='.store',addrow=False,delrow=False,
                                     datamode='attr')
         bar = frame.top.bar.replaceSlots('#','5,ctitle,stackButtons,10,groupByModeSelector,*,searchOn,export,5,advancedOptions',
-                                        stackButtons_stackNodeId='%s_mainstack' %frameCode,advancedOptions_linkedTo=linkedTo)
+                                        stackButtons_stackNodeId=frameCode,advancedOptions_linkedTo=linkedTo)
         bar.ctitle.div(title,color='#444',font_weight='bold')
         frame.dataController("""
             if(groupMode!='stackedview'){
@@ -193,6 +198,7 @@ class TableHandlerGroupBy(BaseComponent):
             flatStruct='=#ANCHOR.grid.struct',
             groupMode='^#ANCHOR.groupMode',
             changets_flatview ='^#ANCHOR.changets.flatview')
+        return frame
 
 
     def _thg_treeview(self,parentStack,title=None, grid=None,treeRoot=None,linkedTo=None,**kwargs):
@@ -237,6 +243,7 @@ class TableHandlerGroupBy(BaseComponent):
             groupMode='^.groupMode',
             output='^.output',
             treeRoot='^.treeRootName')
+        return frame
         
     @public_method
     def _thg_selectgroupby(self,struct=None,**kwargs):
@@ -305,36 +312,3 @@ class TableHandlerGroupBy(BaseComponent):
             loadmenu.update(userobjects)
             result.setItem('r_%s' %len(result),loadmenu,label='!!Load dashboard',action=loadAction)
         return result
-
-    @struct_method
-    def thg_groupByViewer(self,pane,table=None,queryName=None,viewName=None,query_id=None,view_id=None,**kwargs):
-        userobject_tbl = self.db.table('adm.userobject')
-        where,metadata = userobject_tbl.loadUserObject(code=queryName, id=query_id,
-                                            objtype='query',
-                                            tbl=table)
-        customOrderBy = None
-        limit = None
-        queryPars = None
-        where = where or Bag()
-        if where['where']:
-            limit = where['queryLimit']
-            viewName = viewName or where['currViewPath']
-            customOrderBy = where['customOrderBy']
-            queryPars = where.pop('queryPars')
-            extraPars = where.pop('extraPars')
-            where = where['where']
-        if viewName or view_id:
-            userobject_tbl = self.db.table('adm.userobject')
-            struct = userobject_tbl.loadUserObject(code=viewName, objtype='view', 
-                                                    id=view_id,
-                                                    tbl=table)[0]
-
-        frame = pane.groupByTableHandler(table=table,struct=struct,where='=.query.where',
-                                        store_limit='=.query.limit',
-                                        store_customOrderBy='=.query.customOrderBy',
-                                        store_extraPars='=.query.extraPars',**kwargs)
-        frame.data('.query.limit',limit)
-        frame.data('.query.where',where)
-        frame.queryPars = queryPars
-        frame.data('.query.customOrderBy',customOrderBy)
-        return frame

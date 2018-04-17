@@ -26,7 +26,7 @@ description = 'Dashboard count records'
 item_parameters = [dict(value='^.table',lbl='Table')]
 
 class Main(BaseDashboardItem):
-    item_name = 'Dashboard count'
+    item_title = 'Record count table $table colore $conf.color'
     def content(self,pane,table=None,**kwargs):
         count = self.db.table(table).query().count()
         pane.div(count,color='^.conf.color',

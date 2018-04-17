@@ -29,21 +29,32 @@ item_parameters = [dict(value='^.table',lbl='Table',tag='dbselect',dbtable='adm.
                         condition_seltbl='=.table',hasDownArrow=True)]
 
 class Main(BaseDashboardItem):
-    """Chose table and saved stat"""
+    """Choose table and saved stat"""
     item_name = 'Stats Grouped'
 
-    def content(self,pane,workpath=None,table=None,userobject_id=None,**kwargs):
+    def content(self,pane,workpath=None,table=None,userobject_id=None,storepath=None,itemRecord=None,**kwargs):
         self.page.mixinComponent('th/th:TableHandler')
-        bc = pane.borderContainer(datapath=workpath)
+        bc = pane.borderContainer()
         center = bc.contentPane(region='center',_class='hideInnerToolbars')
         frameCode = 'statgroup_%s_%s' %(table.replace('.','_'),self.page.getUuid())
-        center.groupByTableHandler(table=table,frameCode=frameCode,
+        data,metadata = self.page.db.table('adm.userobject').loadUserObject(id=userobject_id)
+        gh = center.groupByTableHandler(table=table,frameCode=frameCode,
                                     configurable=False,
-                                    dashboardIdentifier=userobject_id,
-                                    **kwargs)
+                                    struct=data['groupByStruct'],
+                                    where='=.where',
+                                    store__fired='^.runItem',
+                                    datapath=workpath)
+        gh.data('.where',data['where'])
+        center.dataController("""
+            viewMode = viewMode || defaultGroupMode+'_'+defaultGroupMode;
+            gh.publish('viewMode',viewMode);
+        """,viewMode='^.conf.viewMode',gh=gh,
+        defaultOutput= data['output'],
+        defaultGroupMode = data['groupMode'],
+        _fired='^%s.runItem' %workpath)
 
- 
-
-    def configuration(self,pane,table=None,queryName=None,workpath=None,**kwargs):
-        return
+    def configuration(self,pane,table=None,userobject_id=None,workpath=None,itemRecord=None,**kwargs):
+        fb = pane.formbuilder()
+        fb.filteringSelect(value='^.viewMode',lbl='Mode',
+                            values='flatview_grid:Flat grid,stackedview_grid:Stacked view,flatview_tree:Tree,stackedview_tree:Stacked tree')
         

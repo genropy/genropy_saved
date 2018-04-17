@@ -23,7 +23,7 @@ genro_plugin_groupth = {
     },
 
     groupTreeData:function(gridstore,structBag,rootName){
-        if(!(structBag && structBag.getItem('#0.#0'))){
+        if(!(gridstore && structBag && structBag.getItem('#0.#0'))){
             return;
         }
         var result = new gnr.GnrBag();

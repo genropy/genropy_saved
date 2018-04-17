@@ -173,6 +173,7 @@ genro_plugin_dashboards = {
         container.getNodes().forEach(function(n){
             container.popNode(n.label);
         });
+        this.root.setRelativeData(this.workspaces,null);
     },
 
     buildDashboard:function(pageNode){
@@ -228,6 +229,7 @@ genro_plugin_dashboards = {
                                         remote__if:'itemIdentifier',
                                         remote__else:"this.getValue().popNode('#0')",
                                         remote_editMode:that.edit,
+                                        remote_workspaces:that.workspaces,
                                         remote_itemspath:that.itemspath, //'dashboards.'+region+'.'+subregion,
                                         remote__waitingMessage:'Loading...',
                                         remote__onRemote:function(){
