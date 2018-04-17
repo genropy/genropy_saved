@@ -850,7 +850,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var datapath = sourceNode.absDatapath(kw.metadataPath);
         var saveAs = objectPop(kw,'saveAs');
         var currentMetadata = genro.getData(datapath);
-        var userObjectIsLoaded = currentMetadata && currentMetadata.getItem('pkey');
+        var userObjectIsLoaded = currentMetadata && currentMetadata.getItem('id');
         var saveCb = function(dlg,evt,counter,modifiers){
             var data = new gnr.GnrBag();
             if(kw.dataIndex){
@@ -883,6 +883,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
                     if(onSaved){
                         funcApply(onSaved,{result:result},sourceNode);
                     }
+                    genro.setData(datapath,new gnr.GnrBag(result.attr));
                     return result;
                 });
         };

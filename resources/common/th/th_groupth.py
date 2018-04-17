@@ -154,7 +154,7 @@ class TableHandlerGroupBy(BaseComponent):
 
     def _thg_defaultstruct(self,struct):
         r=struct.view().rows()
-        r.cell('_grp_count',name='Cnt',width='5em',group_aggr='sum',dtype='L')
+        r.cell('_grp_count',name='Cnt',width='5em',group_aggr='sum',dtype='L',childname='_grp_count')
 
     @struct_method
     def thg_slotbar_groupByModeSelector(self,pane,**kwargs):

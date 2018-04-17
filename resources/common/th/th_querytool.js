@@ -273,15 +273,7 @@ dojo.declare("gnr.QueryManager", null, {
         
     },
 
-
-    saveQuery:function(){
-        var datapath =  this.sourceNode.absDatapath('.query.queryAttributes');
-        var code = this.sourceNode.getRelativeData('.query.queryAttributes.code');
-        var where = this.sourceNode.getRelativeData('.query.where');
-        var customOrderBy = this.sourceNode.getRelativeData('.query.customOrderBy');
-        var currViewPath = this.sourceNode.getRelativeData('.grid.currViewPath');
-        var queryLimit = this.sourceNode.getRelativeData('.query.limit');
-        var extraPars = this.sourceNode.getRelativeData('.query.extraPars');
+    queryParsBag:function(){
         var queryPars = new gnr.GnrBag();
         this.translateQueryPars().forEach(function(pardict){
             queryPars.setItem(pardict.parcode,null,{
@@ -293,7 +285,19 @@ dojo.declare("gnr.QueryManager", null, {
                 parcode:pardict.parcode
             });
         });
+        return queryPars;
+    },
 
+
+    saveQuery:function(){
+        var datapath =  this.sourceNode.absDatapath('.query.queryAttributes');
+        var code = this.sourceNode.getRelativeData('.query.queryAttributes.code');
+        var where = this.sourceNode.getRelativeData('.query.where');
+        var customOrderBy = this.sourceNode.getRelativeData('.query.customOrderBy');
+        var currViewPath = this.sourceNode.getRelativeData('.grid.currViewPath');
+        var queryLimit = this.sourceNode.getRelativeData('.query.limit');
+        var extraPars = this.sourceNode.getRelativeData('.query.extraPars');
+        var queryPars = this.queryParsBag();
         var data = new gnr.GnrBag();
         if(queryPars.len()){
             data.setItem('queryPars',queryPars);

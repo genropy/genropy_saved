@@ -37,13 +37,14 @@ class Main(BaseDashboardItem):
         bc = pane.borderContainer()
         center = bc.contentPane(region='center',_class='hideInnerToolbars')
         frameCode = 'statgroup_%s_%s' %(table.replace('.','_'),self.page.getUuid())
-        data,metadata = self.page.db.table('adm.userobject').loadUserObject(id=userobject_id)
         gh = center.groupByTableHandler(table=table,frameCode=frameCode,
                                     configurable=False,
                                     struct=data['groupByStruct'],
                                     where='=.where',
                                     store__fired='^.runItem',
                                     datapath=workpath)
+        data,metadata = self.page.db.table('adm.userobject').loadUserObject(id=userobject_id)
+        self.queryPars = data['queryPars']
         gh.data('.where',data['where'])
         center.dataController("""
             viewMode = viewMode || defaultGroupMode+'_'+defaultGroupMode;
@@ -54,7 +55,27 @@ class Main(BaseDashboardItem):
         _fired='^%s.runItem' %workpath)
 
     def configuration(self,pane,table=None,userobject_id=None,workpath=None,itemRecord=None,**kwargs):
+        groupbypane = pane
+        if  self.queryPars:
+            querypane = pane.titlePane('!!Grouping parameters')
         fb = pane.formbuilder()
         fb.filteringSelect(value='^.viewMode',lbl='Mode',
                             values='flatview_grid:Flat grid,stackedview_grid:Stacked view,flatview_tree:Tree,stackedview_tree:Stacked tree')
         
+        if not self.queryPars:
+            return
+        querypane = pane.titlePane('!!Query parameters')
+        fb = querypane.formbuilder(dbtable=table,datapath='.wherePars',
+                            fld_validate_onAccept="SET %s.runRequired =true;" %workpath)
+        for code,pars in self.queryPars.digest('#k,#a'):
+            field = pars['field']
+            rc = self.db.table(table).column(field).relatedColumn()
+            wherepath = pars['relpath']
+            if pars['op'] == 'equal' and rc is not None:
+                fb.dbSelect(field,value='^.%s' %code,lbl=pars['lbl'],
+                            default_value=pars['dflt'],
+                            dbtable=rc.table.fullname)
+            else:
+                fb.textbox(value='^.%s' %code,
+                            default_value=pars['dflt'],
+                            lbl=pars['lbl'])

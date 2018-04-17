@@ -264,7 +264,7 @@ genro_plugin_groupth = {
             var tb = fb.addField('textbox',{lbl:_T('Date aggregator'),value:prefix+'group_aggr'});
             tb._('ComboMenu',{values:values,action:function(kw,ctx){
                 var cv = this.attr.attachTo.widget.getValue();
-                this.attr.attachTo.widget.setValue(cv?cv+'-'+kw.fullpath:kw.fullpath,false);
+                this.attr.attachTo.widget.setValue(cv?cv+'-'+kw.fullpath:kw.fullpath,true);
             }});
             fb.addField('checkbox',{value:prefix+'group_nobreak',label:_T('No break')});
         }else{
@@ -276,11 +276,14 @@ genro_plugin_groupth = {
     saveAsDashboard:function(sourceNode,kw){
         kw = kw || {};
         var th = TH(sourceNode.attr._linkedTo);
+        var queryParsBag = th.querymanager.queryParsBag();
+        sourceNode.setRelativeData('.queryPars',queryParsBag);
         kw.dataIndex = {
             where:th.querymanager.sourceNode.absDatapath('.query.where'),
             groupByStruct:'.grid.struct',
             groupMode:'.groupMode',
-            output:'.output'
+            output:'.output',
+            queryItems:'.queryPars'
         };
         kw.objtype = 'dash_groupby';
         kw.metadataPath = '.dashboardMeta';
@@ -300,7 +303,9 @@ genro_plugin_groupth = {
         kw.tbl = sourceNode.attr.table;
         kw.objtype = 'dash_groupby';
         kw.onLoading = function(dataIndex,resultValue,resultAttr){
-            dataIndex.setItem('where','.where');
+            if(!sourceNode.attr._linkedTo){
+                dataIndex.setItem('where','.where');
+            }
         };
         kw.onLoaded = function(dataIndex,resultValue,resultAttr){
             if(sourceNode.attr._linkedTo){
