@@ -32,7 +32,7 @@ genro_plugin_dashboards = {
         genro.dlg.prompt("New dashboard",
                         {dflt:new gnr.GnrBag({design:'headline',title:'new dashboard'}),
                                     widget:[{value:'^.title',lbl:_T('Title')},
-                                            {value:'^.design',lbl:_T('Design'),tag:'filteringSelect',values:'headline,sidebar',readOnly:true}],
+                                            {value:'^.design',lbl:_T('Design'),tag:'filteringSelect',values:'headline,sidebar'}],
                                     action:function(res){
                                         res.setItem('layout',that.defaultLayout(res.getItem('design')));
                                         var pages = genro.getData(that.dashboardspath); 
@@ -68,7 +68,7 @@ genro_plugin_dashboards = {
                             //that.rebuild();
                             //that.root.setRelativeData('.selectedDashboard',selectedDashboard);
                         },
-                        values:'headline,sidebar'});
+                        values:'headline,sidebar',disabled:true});
         var kw = {_class:'dhthumb'};
         var center = root._('div',kw);
         center._('div',{innerHTML:_T('Region visibility'),text_align:'center',color:'silver',
