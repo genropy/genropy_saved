@@ -39,13 +39,13 @@ class Main(BaseDashboardItem):
         center = bc.contentPane(region='center',_class='hideInnerToolbars')
         frameCode = 'statgroup_%s_%s' %(table.replace('.','_'),self.page.getUuid())
         data,metadata = self.page.db.table('adm.userobject').loadUserObject(id=userobject_id)
-        gh = center.groupByTableHandler(table=table,frameCode=frameCode,
+        frame = center.groupByTableHandler(table=table,frameCode=frameCode,
                                     configurable=False,
                                     struct=data['groupByStruct'],
                                     where='=.query.where',
                                     store__fired='^.runStore',
                                     datapath=workpath)
-        gh.dataController("""
+        frame.dataController("""
             if(queryPars){
                 queryPars.forEach(function(n){
                     where.setItem(n.attr.relpath,wherePars.getItem(n.label));
@@ -62,14 +62,14 @@ class Main(BaseDashboardItem):
 
 
         self.queryPars = data['queryPars']
-        gh.data('.query.where',data['where'])
-        gh.data('.query.queryPars',data['queryPars'])
+        frame.data('.query.where',data['where'])
+        frame.data('.query.queryPars',data['queryPars'])
 
         center.dataController("""
             viewMode = viewMode || defaultGroupMode+'_'+defaultOutput;
-            gh.publish('viewMode',viewMode);
-        """,viewMode='^.conf.viewMode',gh=gh,
-        defaultOutput= data['output'],
+            genro.nodeById(frameCode).publish('viewMode',viewMode);
+        """,viewMode='^.conf.viewMode',
+        defaultOutput= data['output'],frameCode=frameCode,
         defaultGroupMode = data['groupMode'],
         _fired='^%s.runItem' %workpath)
 

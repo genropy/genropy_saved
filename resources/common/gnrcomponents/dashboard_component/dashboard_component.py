@@ -123,11 +123,11 @@ class DashboardGallery(BaseComponent):
         
         bar = frame.top.slotToolbar('5,stackButtons,*')
         if edit:
-            bar.replaceSlots('#','#,edittitle,10,paletteDashboardItems,10,delbtn,addbtn,dupbtn,5')
+            bar.replaceSlots('#','#,edittitle,10,paletteDashboardItems,10,delbtn,addbtn,5')
             self.di_dashboardConfPalette(bar.edittitle.div(_class='iconbox gear',tip='!!Config'))
-            bar.addbtn.slotButton(iconClass='iconbox add_row',publish='addpage')
-            bar.delbtn.slotButton(iconClass='iconbox delete_row',publish='delpage')
-            bar.dupbtn.slotButton(iconClass='iconbox copy',publish='duppage')
+            bar.addbtn.slotButton(iconClass='iconbox add_row',publish='addpage',parentForm=True)
+            bar.delbtn.slotButton(iconClass='iconbox delete_row',publish='delpage',parentForm=True)
+            #bar.dupbtn.slotButton(iconClass='iconbox copy',publish='duppage')
             palette = bar.paletteDashboardItems.paletteTree(paletteCode='dashboardItems',title='Dashboard items',dockButton=True)
             palette.data('.store',self.dashboardItemsMenu(),childname='store')
     

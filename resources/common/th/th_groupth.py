@@ -149,7 +149,7 @@ class TableHandlerGroupBy(BaseComponent):
                             selectmethod,sqlContextName,sum_columns,table,timeout,totalRowCount,userSets,_sections,
                             _onCalling,_onResult""",
                                 condition=condition,**store_kwargs)
-        return sc
+        return frame
 
 
     def _thg_defaultstruct(self,struct):

@@ -28,7 +28,7 @@ class Form(BaseComponent):
         fb.field('pkgid',validate_notnull=True,
                     tag='filteringSelect',
                     values=','.join(self.db.application.packages.keys()))
-        fb.field('code',validate_notnull=True)
+        fb.field('code',validate_notnull=True,unmodifiable=True)
         fb.field('description',colspan=2,width='100%')   
         tc = bc.tabContainer(region='center',margin='2px')
         tc.dashboardViewer(title='Dashboards',datapath='#FORM.dashboardEditor',
@@ -46,5 +46,5 @@ class Form(BaseComponent):
         values='headline,sidebar'),width='10em',name='Design')
 
     def th_options(self):
-        return dict(dialog_height='400px', dialog_width='600px')
+        return dict(dialog_height='400px', dialog_width='600px',autoSave=True)
 

@@ -22,16 +22,23 @@ genro_plugin_dashboards = {
 
     addPage:function(){
         var that = this;
+        var saveCb = function(label){
+            that.root.form.save({
+                onReload:function(){
+                    that.root.setRelativeData('#ANCHOR.selectedDashboard',label);
+                }
+            });
+        }; 
         genro.dlg.prompt("New dashboard",
                         {dflt:new gnr.GnrBag({design:'headline',title:'new dashboard'}),
                                     widget:[{value:'^.title',lbl:_T('Title')},
-                                            {value:'^.design',lbl:_T('Design'),tag:'filteringSelect',values:'headline,sidebar'}],
+                                            {value:'^.design',lbl:_T('Design'),tag:'filteringSelect',values:'headline,sidebar',readOnly:true}],
                                     action:function(res){
                                         res.setItem('layout',that.defaultLayout(res.getItem('design')));
                                         var pages = genro.getData(that.dashboardspath); 
                                         var label = 'r_'+pages.len();
                                         pages.setItem(label,res);
-                                        that.root.setRelativeData('.selectedDashboard',label);
+                                        saveCb(label);
                                     }});
     },
 
