@@ -185,7 +185,7 @@ class TableHandlerGroupBy(BaseComponent):
                                         stackButtons_stackNodeId=frameCode,advancedOptions_linkedTo=linkedTo)
         bar.ctitle.div(title,color='#444',font_weight='bold')
         frame.dataController("""
-            if(groupMode!='stackedview'){
+            if(groupMode!='stackedview' && !linkedChart){
                 return;    
             }
             var r = genro.groupth.getPivotGrid(flatStore,flatStruct);
@@ -198,6 +198,7 @@ class TableHandlerGroupBy(BaseComponent):
         """,flatStore='=#ANCHOR.store',
             flatStruct='=#ANCHOR.grid.struct',
             groupMode='^#ANCHOR.groupMode',
+            linkedChart='^.grid.linkedChart',
             changets_flatview ='^#ANCHOR.changets.flatview')
         return frame
 

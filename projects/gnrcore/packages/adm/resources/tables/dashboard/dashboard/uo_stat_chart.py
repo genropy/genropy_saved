@@ -28,22 +28,32 @@ description = 'Group by chart'
 
 
 class Main(BaseDashboardItem):
+    title_template = '$chart_title'
 
-    def content(self,pane,linkedGrid=None,editMode=None,itemIdentifier=None,itemRecord=None,**kwargs):
+
+    def content(self,pane,linkedGrid=None,editMode=None,itemIdentifier=None,itemRecord=None,linkedtitlepath=None,**kwargs):
         root = pane.contentPane(_workspace=True,_workspace_path='.chart_parameters',childname='chartroot',parentForm=False)
         pane.dataController("""
         pane.getValue().popNode('chartNode');
         genro.pluginCommand({plugin:'chartjs'});
         this.watch('waitingGrid',function(){
-            return genro.wdgById(connectedTo);
+            return genro.chartjs && genro.wdgById(connectedTo);
         },function(){
+            var gridnode = genro.nodeById(connectedTo);
             pane._('chartPane','chartNode',{connectedTo:connectedTo,_workspace:false,
-                                configurator:{palette:itemIdentifier+'_parameters',userObject:false}});
+                                configurator:{palette:itemIdentifier+'_parameters',
+                                userObject:false}});
+            gridnode.setRelativeData('.linkedChart',true);
         });
         
         """,connectedTo='=.parameters.linkedGrid',_onBuilt=True,pane=root,itemIdentifier=itemIdentifier)
+        pane.dataFormula('.chart_title',"""(caption_template || title).replace('#',linkedTitle);""",
+                        linkedTitle='^%s' %linkedtitlepath,
+                        caption_template='^.conf.caption_template',title='^.title',_onBuilt=True)
+        
         #pane.chartPane(connectedTo='=.parameters.linkedGrid',configurator=True)
 
     def configuration(self,pane,linkedStore=None,**kwargs):
-        pass
+        fb = pane.formbuilder()
+        fb.textbox(value='^.caption_template',lbl='!!Caption')
 

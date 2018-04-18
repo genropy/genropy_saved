@@ -231,6 +231,7 @@ genro_plugin_groupth = {
         var dflt = new gnr.GnrBag(data);
         if('RNLIF'.indexOf(dtype)>=0){
             dflt.setItem('cell_group_aggr','sum');
+            dflt.setItem('cell_totalize',true);
         }
         var promptkw = {dflt:dflt};
         promptkw.widget = function(pane){
@@ -258,7 +259,8 @@ genro_plugin_groupth = {
         if(numeric){
             fb.addField('filteringSelect',{value:prefix+'group_aggr',
                         values:'sum:Sum,avg:Average,min:Min,max:Max,break:Break,nobreak:No break',
-                        lbl:_T('Aggregator')});
+                        lbl:_T('Aggregator'),validate_onAccept:"this.setRelativeData('.cell_totalize',value=='sum')"});
+            fb.addField('checkbox',{value:'^.cell_totalize',label:'Totalize'});
         }else if(dateTime){
             values = genro.commonDatasets.datetimes_chunk.join(',');
             var tb = fb.addField('textbox',{lbl:_T('Date aggregator'),value:prefix+'group_aggr'});

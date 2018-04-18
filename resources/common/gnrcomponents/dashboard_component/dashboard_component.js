@@ -225,11 +225,9 @@ genro_plugin_dashboards = {
                                             var sourceNode = this;
                                             var item_parameters = [{value:'^._item_title',lbl:_T('Title')}];
                                             var fixedParameters = objectPop(kw.data,'fixedParameters');
-                                            if(!fixedParameters && kw.data.item_parameters){
+                                            if(!fixedParameters){
                                                 item_parameters = item_parameters.concat(kw.data.item_parameters);
-                                                
-                                            }
-                                            genro.dlg.prompt(_T('Parameters ')+kw.data.caption,
+                                                genro.dlg.prompt(_T('Parameters ')+kw.data.caption,
                                                         {widget:item_parameters,
                                                         action:function(result){
                                                             if(fixedParameters){
@@ -238,7 +236,12 @@ genro_plugin_dashboards = {
                                                             var itemIdentifier = that.registerDashboardItem(sourceNode,kw,result);
                                                             that.assignDashboardItem(sourceNode,itemIdentifier);
                                                         }
-                                            });
+                                                });
+                                            }else{
+                                                var itemIdentifier = that.registerDashboardItem(sourceNode,kw,new gnr.GnrBag(fixedParameters));
+                                                that.assignDashboardItem(sourceNode,itemIdentifier);
+                                            }
+                                            
                                         },
                                         remote:'di_buildRemoteItem',
                                         remote_py_requires:'gnrcomponents/dashboard_component/dashboard_component:DashboardItem',
@@ -264,7 +267,8 @@ genro_plugin_dashboards = {
         itemRecord.setItem('id',genro.time36Id());
         itemRecord.setItem('table',kw.data.table);
         itemRecord.setItem('resource',kw.data.resource);
-        itemRecord.setItem('title',itemPars.pop('_item_title'));
+        var title = itemPars.getItem('title') || itemPars.pop('_item_title');
+        itemRecord.setItem('title',title);
         itemRecord.setItem('parameters',itemPars);
         var items = genro.getData(this.itemspath);
         return items.setItem(itemRecord.getItem('id'),itemRecord).label;
