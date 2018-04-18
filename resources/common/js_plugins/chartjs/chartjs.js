@@ -509,7 +509,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         return this.sourceNode.getRelativeData(this.sourceNode.attr.storepath);
     },
 
-    gnrwdg__fgetter:function(types){
+    gnrwdg__fgetter:function(types,captions){
         var result = [];
         var s = {};
         if(this.connectedWidgetId){
@@ -526,6 +526,9 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
                         }
                         if(c.columnset && colsets.getNode(c.columnset)){
                             c.name = colsets.getNode(c.columnset).attr.name+' '+c.name;
+                        }
+                        if(captions && c.group_aggr && 'LNRIF'.indexOf(c.dtype)>=0){
+                            return;
                         }
                         if((c.dtype || 'T') in types && !(c.field in s)){
                             var f = c.field_getter || c.field;
@@ -579,7 +582,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_captionGetter:function(kw){
-        var g = this._fgetter({'D':true,'T':true,'A':true,'C':true,'L':true,'I':true});
+        var g = this._fgetter({'D':true,'T':true,'A':true,'C':true,'L':true,'I':true},true);
         var data = [];
         if(this.defaultCaptionField && !g.length){
             data.push({_pkey:this.defaultCaptionField,caption:this.defaultCaptionField});
