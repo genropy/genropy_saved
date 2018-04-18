@@ -46,5 +46,5 @@ class Form(BaseComponent):
         values='headline,sidebar'),width='10em',name='Design')
 
     def th_options(self):
-        return dict(dialog_height='400px', dialog_width='600px',autoSave=True)
+        return dict(dialog_height='400px', dialog_width='600px')
 

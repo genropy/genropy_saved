@@ -135,13 +135,18 @@ class GnrCustomWebPage(object):
     def test_9_chartPane(self,pane):
         bc = pane.borderContainer(height='800px',_anchor=True)
         bc.data('.testData',self.getTestData())
+        fb = bc.contentPane(region='top').formbuilder()
+        fb.button('Configurations',action="PUBLISH myconfigurator_open")
+        #pane = fb.palettePane(title='Params',paletteCode='params',dockButton=True)
         bc.chartPane(value='^.testData',
                     region='center',
                     captionField='nome',
                     datasetFields="peso,altezza",
                     chartType='bar',
-                    configurator=True,
+                    _workspace_path='aux.myconfigurations',
+                    configurator=dict(palette='myconfigurator',userObject=False),
                     datamode='bag')
+        
 
 
     def test_3_chartPane(self,pane):

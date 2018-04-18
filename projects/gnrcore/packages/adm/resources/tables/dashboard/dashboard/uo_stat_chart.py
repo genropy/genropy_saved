@@ -23,12 +23,9 @@ from gnr.web.gnrbaseclasses import BaseDashboardItem
 from gnr.core.gnrbag import Bag
 
 
-caption = 'Linked chart'
-description = 'Linked chart'
-item_parameters = [dict(value='^.linkedGrid',lbl='Linked store',
-                        tag='callbackSelect',callback="""function(kw){
-                            return genro.dashboards.availableChartGrid(kw);
-                        }""",hasDownArrow=True)]
+caption = 'Group by chart'
+description = 'Group by chart'
+
 
 class Main(BaseDashboardItem):
 

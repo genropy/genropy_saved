@@ -389,6 +389,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         sourceNode.attr.nodeId = 'cp_' +chartNodeId;
         if(objectPop(kw,'_workspace')!==false){
             sourceNode.attr._workspace = true;
+            sourceNode.attr._workspace_path = objectPop(kw,'_workspace_path');
         }
         gnrwdg.defaultDatasetFields = objectPop(kw,'datasetFields');
         gnrwdg.defaultChartType = objectPop(kw,'chartType','bar');
@@ -422,6 +423,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         sourceNode.registerDynAttr('datasetFields');
 
         var rootbc = sourceNode._('borderContainer',rootKw);
+        //var useUserObject = kw.configurator && kw.configurator.userObject!==false;
         if(kw.configurator){
             gnrwdg.configuratorFrame(rootbc,kw);
         }
@@ -474,9 +476,15 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_setDefaults:function(){
-        this.sourceNode.setRelativeData('#WORKSPACE.chartType',this.defaultChartType);
-        this.sourceNode.setRelativeData('#WORKSPACE.captionField',this.defaultCaptionField);
-        this.sourceNode.setRelativeData('#WORKSPACE.datasetFields',this.defaultDatasetFields,{_displayedValue:this.defaultDatasetFields});
+        if(!this.sourceNode.getRelativeData('#WORKSPACE.chartType')){
+            this.sourceNode.setRelativeData('#WORKSPACE.chartType',this.defaultChartType);
+        }
+        if(!this.sourceNode.getRelativeData('#WORKSPACE.captionField')){
+            this.sourceNode.setRelativeData('#WORKSPACE.captionField',this.defaultCaptionField);
+        }
+        if(!this.sourceNode.getRelativeData('#WORKSPACE.datasetFields')){
+            this.sourceNode.setRelativeData('#WORKSPACE.datasetFields',this.defaultDatasetFields,{_displayedValue:this.defaultDatasetFields});
+        }
     },
 
     gnrwdg_setStorepath:function(){
@@ -508,13 +516,17 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
             var widgetNode = genro.nodeById(this.connectedWidgetId);
             if(widgetNode.attr.structpath){
                 var structbag = widgetNode.getRelativeData(widgetNode.attr.structpath);
+                
                 if(structbag){
-                    structbag.getItem('#0.#0').forEach(function(n){
+                    var colsets =  structbag.getItem('info.columnsets') || new gnr.GnrBag();
+                    structbag.getItem('view_0.rows_0').forEach(function(n){
                         var c = objectUpdate({},n.attr);
                         if(c.name){
                             c.name = c.name.replace(/<br\/>/g,' ');
                         }
-                        
+                        if(c.columnset && colsets.getNode(c.columnset)){
+                            c.name = colsets.getNode(c.columnset).attr.name+' '+c.name;
+                        }
                         if((c.dtype || 'T') in types && !(c.field in s)){
                             var f = c.field_getter || c.field;
                             f = f.replace(/\W/g, '_');
@@ -567,7 +579,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_captionGetter:function(kw){
-        var g = this._fgetter({'T':true,'A':true,'C':true,'L':true,'I':true});
+        var g = this._fgetter({'D':true,'T':true,'A':true,'C':true,'L':true,'I':true});
         var data = [];
         if(this.defaultCaptionField && !g.length){
             data.push({_pkey:this.defaultCaptionField,caption:this.defaultCaptionField});
@@ -647,27 +659,49 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
     },
     gnrwdg_configuratorFrame:function(parentBc,kw){
         var confkw = objectPop(kw,'configurator');
-        confkw = confkw===true?{region:'right',drawer:(kw.userObjectId || this.defaultDatasetFields)?'close':true,splitter:true,border_left:'1px solid #ccc',width:'320px'}:configurator;        
-        this.setLoadMenuData();
-
-        var confframe = parentBc._('FramePane',objectUpdate(confkw,{frameCode:this.chartNodeId+'_options'}));
-        var bar = confframe._('slotBar',{toolbar:true,side:'top',slots:'5,loadMenu,2,chartTitle,*,fulloptions,refresh,saveBtn,5'});
+        confkw = confkw===true?{region:'right',drawer:(kw.userObjectId || this.defaultDatasetFields)?'close':true,splitter:true,border_left:'1px solid #ccc',width:'320px'}:confkw;       
+        var userObject = objectPop(confkw,'userObject');
+        var parent = parentBc;
+        if(confkw.palette){
+            var paletteCode = confkw.palette;
+            var paletteKw = {paletteCode:paletteCode,dockTo:'dummyDock'};
+            paletteKw['subscribe_'+paletteCode+'_open'] = function(){
+                genro.wdgById(paletteCode+'_floating').show();
+            };
+            parent = parentBc._('palettePane',paletteKw);
+        }
+        var confframe = parent._('FramePane',objectUpdate(confkw,{frameCode:this.chartNodeId+'_options'}));
         var that = this;
-        bar._('div','chartTitle',{innerHTML:'^#WORKSPACE.metadata.description?=(#v || "New Chart")',font_weight:'bold',font_size:'.9em',color:'#666'});
-        bar._('slotButton','fulloptions',{label:'Full Options',iconClass:'iconbox gear',action:function(){
-            genro.dev.openBagInspector(this.absDatapath('#WORKSPACE.options'),{title:'Full Options'});
-        }});
-        bar._('slotButton','refresh',{label:'Refresh',iconClass:'iconbox reload',action:function(){
-            genro.nodeById(that.chartNodeId).publish('refresh');
-        }});
-        bar._('slotButton','loadMenu',{iconClass:'iconbox folder',label:'Load',
-            menupath:'#WORKSPACE.loadMenu',action:function(item){
-                that.loadChart(item.pkey);
+        var bar;
+        if(userObject!==false){
+            this.setLoadMenuData();
+            bar = confframe._('slotBar',{toolbar:true,side:'top',slots:'5,loadMenu,2,chartTitle,*,fulloptions,refresh,saveBtn,5'});
+    
+            bar._('div','chartTitle',{innerHTML:'^#WORKSPACE.metadata.description?=(#v || "New Chart")',font_weight:'bold',font_size:'.9em',color:'#666'});
+            bar._('slotButton','fulloptions',{label:'Full Options',iconClass:'iconbox gear',action:function(){
+                genro.dev.openBagInspector(this.absDatapath('#WORKSPACE.options'),{title:'Full Options'});
             }});
-        bar._('slotButton','saveBtn',{iconClass:'iconbox save',label:'Save',
-                                        action:function(){
-                                            that.saveChart();
-                                        }});
+            bar._('slotButton','refresh',{label:'Refresh',iconClass:'iconbox reload',action:function(){
+                genro.nodeById(that.chartNodeId).publish('refresh');
+            }});
+            bar._('slotButton','loadMenu',{iconClass:'iconbox folder',label:'Load',
+                menupath:'#WORKSPACE.loadMenu',action:function(item){
+                    that.loadChart(item.pkey);
+                }});
+            bar._('slotButton','saveBtn',{iconClass:'iconbox save',label:'Save',
+                                            action:function(){
+                                                that.saveChart();
+                                            }});
+                                            
+        }else{
+            bar = confframe._('slotBar',{toolbar:true,side:'top',slots:',2,*,fulloptions,refresh,5'});    
+            bar._('slotButton','fulloptions',{label:'Full Options',iconClass:'iconbox gear',action:function(){
+                genro.dev.openBagInspector(this.absDatapath('#WORKSPACE.options'),{title:'Full Options'});
+            }});
+            bar._('slotButton','refresh',{label:'Refresh',iconClass:'iconbox reload',action:function(){
+                genro.nodeById(that.chartNodeId).publish('refresh');
+            }});
+        }
         var bc = confframe._('BorderContainer',{side:'center'});
 
         var fb = genro.dev.formbuilder(bc._('ContentPane',{region:'top'})._('div',{margin_right:'10px'}),1,{border_spacing:'3px',margin_top:'10px',width:'100%'});

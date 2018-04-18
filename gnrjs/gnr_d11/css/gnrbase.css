@@ -5470,6 +5470,11 @@ div[disabled='true'], div[disabled='disabled']{
     background-size: contain;
 }
 
+.line_chart_white_svg{
+    background: url(icons/svg/line_chart_white.svg) center center no-repeat;
+    background-size: contain;
+}
+
 .gr_table td{
     height: 14px;
     padding-top: 2px;

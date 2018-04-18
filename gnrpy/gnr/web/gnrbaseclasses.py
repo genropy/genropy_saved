@@ -171,6 +171,7 @@ class BaseDashboardItem(object):
     run_onbuilt = 1
     run_timer = None
     title_template = '$title'
+    linked_item = None
 
     def __init__(self, page=None, resource_table=None, **kwargs):
         self.page = page
@@ -194,29 +195,53 @@ class BaseDashboardItem(object):
         top.div('^.current_title',text_align='center',datapath=workpath,padding_top='3px')
         bc.dataFormula('%s.current_title' %workpath,"dataTemplate(tpl,itemaData)",tpl=self.title_template,
                         itemaData='^%s' %storepath,_onBuilt=True)
+        itemIdentifier = itemIdentifier or id(sc)
+
         if editMode:
             top.lightbutton(_class='close_svg',height='16px',
                         width='16px',top='1px',position='absolute',
                         left='4px',cursor='pointer',
-                        action='SET .itemIdentifier=null;')
+                        action="""var curtitle = this.getRelativeData('%s.current_title');
+                                    var that = this;
+                                    genro.dlg.ask(_T('Closing item ')+curtitle,
+                                            _T('You are going to remove a item '+curtitle),
+                                            {confirm:_T('Confirm'),cancel:_T('Cancel')},
+                                            {confirm:function(){
+                                                that.setRelativeData('.itemIdentifier',null);
+                                            }, cancel:function(){}});
+                                    """ %workpath)
+            
         top.lightbutton(_class='menu_white_svg',height='16px',width='16px',
                         position='absolute',top='1px',right='4px',cursor='pointer',
                         action="""
-                        if(_dashboardPageSelected=='conf'){
-                            SET ._dashboardPageSelected = 'content';
-                            FIRE .configuration_changed;
+                        if(event.shiftKey){
+                            console.log('publish',itemIdentifier+'_parameters_open')
+                            genro.publish(itemIdentifier+'_parameters_open');
                         }else{
-                            SET ._dashboardPageSelected = 'conf';
-                        }                        
+                            if(_dashboardPageSelected=='conf'){
+                                SET ._dashboardPageSelected = 'content';
+                                FIRE .configuration_changed;
+                            }else{
+                                SET ._dashboardPageSelected = 'conf';
+                            } 
+                        }
                         """ ,datapath=workpath,
+                        itemIdentifier=itemIdentifier,
                         _dashboardPageSelected='=._dashboardPageSelected')
+        if editMode and self.linked_item:
+            
+            box = top.div(position='absolute',top='1px',right='40px',height='16px',width='20px')
+            box.div(draggable=True,cursor='move',display='inline-block',
+                            workpath=workpath,storepath=storepath,
+                            height='15px',width='15px',**self.linked_item)
+
+
         kwargs.update(itempar_kwargs)
         kwargs.update(parameters.asDict(ascii=True))
         pane = sc.contentPane(pageName='content')
-        itemIdentifier = itemIdentifier or id(sc)
         workspaces = workspaces or 'dashboards'
         
-        self.content(pane,workpath=workpath,storepath=storepath,**kwargs)
+        self.content(pane,workpath=workpath,storepath=storepath,itemIdentifier=itemIdentifier,**kwargs)
         bc = sc.borderContainer(pageName='conf')
         bc.dataController("""FIRE .runItem;""",
                         _onBuilt=self.run_onbuilt,

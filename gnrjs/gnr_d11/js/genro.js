@@ -278,8 +278,11 @@ dojo.declare('gnr.GenroClient', null, {
 
     pluginCommand:function(kw){
         var plugin = objectPop(kw,'plugin');
+        var command = objectPop(kw,'command');
         var cb = function(){
-            genro[plugin][objectPop(kw,'command')](kw);
+            if(command){
+                genro[plugin][command](kw);
+            }
         };
         if(plugin in genro){
             cb();

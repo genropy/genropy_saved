@@ -224,13 +224,17 @@ genro_plugin_dashboards = {
                                         onDrop_dashboardItems:function(p1,p2,kw){
                                             var sourceNode = this;
                                             var item_parameters = [{value:'^._item_title',lbl:_T('Title')}];
-                                            if(kw.data.item_parameters){
+                                            var fixedParameters = objectPop(kw.data,'fixedParameters');
+                                            if(!fixedParameters && kw.data.item_parameters){
                                                 item_parameters = item_parameters.concat(kw.data.item_parameters);
                                                 
                                             }
                                             genro.dlg.prompt(_T('Parameters ')+kw.data.caption,
                                                         {widget:item_parameters,
                                                         action:function(result){
+                                                            if(fixedParameters){
+                                                                result.update(fixedParameters);
+                                                            }
                                                             var itemIdentifier = that.registerDashboardItem(sourceNode,kw,result);
                                                             that.assignDashboardItem(sourceNode,itemIdentifier);
                                                         }

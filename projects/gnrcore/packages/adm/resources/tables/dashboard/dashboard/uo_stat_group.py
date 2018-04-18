@@ -32,12 +32,23 @@ class Main(BaseDashboardItem):
     """Choose table and saved stat"""
     item_name = 'Stats Grouped'
     title_template = '$title $whereParsFormatted'
+    linked_item = dict(_class='line_chart_white_svg',
 
-    def content(self,pane,workpath=None,table=None,userobject_id=None,storepath=None,itemRecord=None,**kwargs):
+                    tip='!!Drag on an empty tile to make a chart',
+                    onDrag="""
+                    var linkedGrid = genro.getData(dragInfo.sourceNode.attr.workpath+'.currentLinkableGrid');
+                    console.log('linkedGrid',linkedGrid);
+
+                    dragValues.dashboardItems = {fixedParameters:{'linkedGrid':linkedGrid},
+                                                    resource:'uo_stat_chart',table:'adm.dashboard',
+                                                    caption:_T('Linked chart')};
+                    """)
+
+    def content(self,pane,workpath=None,table=None,userobject_id=None,storepath=None,itemRecord=None,itemIdentifier=None,**kwargs):
         self.page.mixinComponent('th/th:TableHandler')
         bc = pane.borderContainer()
         center = bc.contentPane(region='center',_class='hideInnerToolbars')
-        frameCode = itemRecord['id']
+        frameCode = itemIdentifier
         data,metadata = self.page.db.table('adm.userobject').loadUserObject(id=userobject_id)
         frame = center.groupByTableHandler(table=table,frameCode=frameCode,
                                     configurable=False,
@@ -59,19 +70,8 @@ class Main(BaseDashboardItem):
         bc.dataFormula('.whereParsFormatted',"wherePars?wherePars.getFormattedValue({joiner:' - '}):'-'",
                     wherePars='^.conf.wherePars')
 
-        bc.dataController("""
-        if(output=='tree'){
-            SET .chart_gridId=false;
-        }else if(groupMode=='stacked'){
-            SET .chart_gridId=frameCode+'_stacked_grid';
-        }else{
-            SET .chart_gridId=frameCode+'_grid';;
-        }
-        """,
-            output='^.output',groupMode='^.groupMode',frameCode=frameCode,
-            datapath=workpath)
-        
-
+        bc.dataFormula('.currentLinkableGrid','itemIdentifier+(groupMode=="stackedview"?"_stacked_grid":"_grid");',datapath=workpath,
+                            groupMode='^.groupMode',itemIdentifier=itemIdentifier)
 
         self.queryPars = data['queryPars']
         frame.data('.query.where',data['where'])

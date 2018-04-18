@@ -70,6 +70,7 @@ class TableHandlerGroupBy(BaseComponent):
         frame = gridstack.frameGrid(frameCode=frameCode,grid_onDroppedColumn="""
                                     genro.groupth.addColumnCb(this,{data:data, column:column,fieldcellattr:fieldcellattr,treeNode:treeNode});
                                     """,
+                                    datamode='attr',
                                 struct=struct or self._thg_defaultstruct,_newGrid=True,pageName='flatview',title='!!Flat')
         
         frame.dataFormula('.changets.flatview','new Date();',store='^.store',struct='^.grid.struct',
