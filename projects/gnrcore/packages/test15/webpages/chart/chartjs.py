@@ -138,10 +138,10 @@ class GnrCustomWebPage(object):
         bc.chartPane(value='^.testData',
                     region='center',
                     captionField='nome',
-                    configurator=True,
-                    datamode='bag',
                     datasetFields="peso,altezza",
-                    chartType='bar')
+                    chartType='bar',
+                    configurator=True,
+                    datamode='bag')
 
 
     def test_3_chartPane(self,pane):

@@ -37,7 +37,7 @@ class Main(BaseDashboardItem):
         self.page.mixinComponent('th/th:TableHandler')
         bc = pane.borderContainer()
         center = bc.contentPane(region='center',_class='hideInnerToolbars')
-        frameCode = 'statgroup_%s_%s' %(table.replace('.','_'),self.page.getUuid())
+        frameCode = itemRecord['id']
         data,metadata = self.page.db.table('adm.userobject').loadUserObject(id=userobject_id)
         frame = center.groupByTableHandler(table=table,frameCode=frameCode,
                                     configurable=False,
@@ -58,6 +58,18 @@ class Main(BaseDashboardItem):
             _fired='^%s.runItem' %workpath)
         bc.dataFormula('.whereParsFormatted',"wherePars?wherePars.getFormattedValue({joiner:' - '}):'-'",
                     wherePars='^.conf.wherePars')
+
+        bc.dataController("""
+        if(output=='tree'){
+            SET .chart_gridId=false;
+        }else if(groupMode=='stacked'){
+            SET .chart_gridId=frameCode+'_stacked_grid';
+        }else{
+            SET .chart_gridId=frameCode+'_grid';;
+        }
+        """,
+            output='^.output',groupMode='^.groupMode',frameCode=frameCode,
+            datapath=workpath)
         
 
 

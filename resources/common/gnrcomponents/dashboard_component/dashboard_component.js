@@ -276,5 +276,27 @@ genro_plugin_dashboards = {
     },
     assignDashboardItem:function(sourceNode,identifier){
         sourceNode.setRelativeData('.itemIdentifier',identifier);
+    },
+
+    availableChartGrid:function(kw){
+        var _id = kw._id;
+        var _querystring = kw._querystring;
+        var data = this.root.getRelativeData(this.workspaces).getNodes().map(function(n){
+            var v = n.getValue();
+            if(v.getItem('chart_gridId')){
+                return {caption:v.getItem('current_title'),_pkey:v.getItem('chart_gridId')};
+            }else{
+                return false;
+            }
+        }).filter(n => n);
+        var cbfilter = function(n){return true;};
+        if(_querystring){
+            _querystring = _querystring.slice(0,-1).toLowerCase();
+            cbfilter = function(n){return n.caption.toLowerCase().indexOf(_querystring)>=0;};
+        }else if(_id){
+            cbfilter = function(n){return n._pkey==_id;};
+        }
+        data = data.filter(cbfilter);
+        return {headers:'title:Title',data:data};
     }
 };
