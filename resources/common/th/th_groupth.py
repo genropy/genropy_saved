@@ -100,9 +100,10 @@ class TableHandlerGroupBy(BaseComponent):
         }
         """,structrow='=.struct.#0.#0',showCounterCol='^.showCounterCol',_if='structrow')
         
-        self._thg_stackedView(gridstack,title=title,grid=frame.grid,frameCode=frameCode,linkedTo=linkedTo)
+        
+        frame.stackedView = self._thg_stackedView(gridstack,title=title,grid=frame.grid,frameCode=frameCode,linkedTo=linkedTo)
 
-        self._thg_treeview(sc,title=title,grid=frame.grid,treeRoot=treeRoot,linkedTo=linkedTo)
+        frame.treeView = self._thg_treeview(sc,title=title,grid=frame.grid,treeRoot=treeRoot,linkedTo=linkedTo)
         
 
         frame.dataController("""
@@ -198,7 +199,7 @@ class TableHandlerGroupBy(BaseComponent):
         """,flatStore='=#ANCHOR.store',
             flatStruct='=#ANCHOR.grid.struct',
             groupMode='^#ANCHOR.groupMode',
-            linkedChart='^.grid.linkedChart',
+            linkedChart='=.grid.linkedChart',
             changets_flatview ='^#ANCHOR.changets.flatview')
         return frame
 

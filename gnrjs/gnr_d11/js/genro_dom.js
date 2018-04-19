@@ -978,12 +978,14 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var dropInfo = this.getDragDropInfo(event);
 
         if (!dropInfo) {
+            console.log('missing dropInfo',event.target);
             return;
         }
         event.stopPropagation();
         event.preventDefault();
         var sourceNode = dropInfo.sourceNode;
         var dataTransfer = event.dataTransfer;
+
         var canBeDropped = this.canBeDropped(dataTransfer, sourceNode);
         dataTransfer.effectAllowed = canBeDropped ? 'move' : 'none';
         dataTransfer.dropEffect = canBeDropped ? 'move' : 'none';
@@ -1144,15 +1146,16 @@ dojo.declare("gnr.GnrDomHandler", null, {
     },
     
     onDragStart:function(event) {
-       if(event.target && event.target.tagName && event.target.tagName.toLowerCase()=='img' ){
-           if(dojo.isFF){
-               //var imgurl = event.dataTransfer.getData('text/plain').replace('http://127.0.0.1:','http://localhost:')
-               //var html = event.dataTransfer.getData('text/html');
-               //console.log(imgurl,html,'trasporto immagini')
-               event.dataTransfer.setData('text/html',null)
-           }
-           return;
-       }
+        genro.dom.addClass(dojo.body(),'draggingElement');
+        if(event.target && event.target.tagName && event.target.tagName.toLowerCase()=='img' ){
+            if(dojo.isFF){
+                //var imgurl = event.dataTransfer.getData('text/plain').replace('http://127.0.0.1:','http://localhost:')
+                //var html = event.dataTransfer.getData('text/html');
+                //console.log(imgurl,html,'trasporto immagini')
+                event.dataTransfer.setData('text/html',null)
+            }
+            return;
+        }
         event.stopPropagation();
         if (event.target.draggable === false) {
             event.preventDefault();
@@ -1274,6 +1277,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
     },
     onDragEnd:function(event) {
         genro.dom.outlineShape(null);
+        genro.dom.removeClass(dojo.body(),'draggingElement');
     },
     getEventModifiers:function(e) {
         var m = [];

@@ -55,6 +55,10 @@ class Main(BaseDashboardItem):
                                     where='=.query.where',
                                     store__fired='^.runStore',
                                     datapath=workpath)
+
+        frame.grid.attributes['configurable'] = True #no full configurator but allow selfdragging cols
+        frame.stackedView.grid.attributes['configurable'] = True #no full configurator but allow selfdragging cols
+
         frame.dataController("""
             if(queryPars){
                 queryPars.forEach(function(n){
@@ -73,7 +77,7 @@ class Main(BaseDashboardItem):
                             groupMode='^.groupMode',itemIdentifier=itemIdentifier)
 
         self.queryPars = data['queryPars']
-        frame.data('.always',True);
+        frame.data('.always',True)
         frame.data('.query.where',data['where'])
         frame.data('.query.queryPars',data['queryPars'])
 

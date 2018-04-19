@@ -387,6 +387,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         var chartNodeId = objectPop(kw,'nodeId') || this.autoChartNodeId(gnrwdg.connectedWidgetId);
         gnrwdg.chartNodeId = chartNodeId;
         sourceNode.attr.nodeId = 'cp_' +chartNodeId;
+        sourceNode._registerNodeId();
         if(objectPop(kw,'_workspace')!==false){
             sourceNode.attr._workspace = true;
             sourceNode.attr._workspace_path = objectPop(kw,'_workspace_path');
@@ -582,6 +583,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_captionGetter:function(kw){
+        kw = kw || {};
         var g = this._fgetter({'D':true,'T':true,'A':true,'C':true,'L':true,'I':true},true);
         var data = [];
         if(this.defaultCaptionField && !g.length){
@@ -597,6 +599,22 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
             }
         });
         return {data:data};
+    },
+    gnrwdg_addDataset:function(kw){
+        var sourceNode = this.sourceNode;
+        var fields = sourceNode.getAttributeFromDatasource('datasetFields');
+        var fieldsCaption = sourceNode.getRelativeData('#WORKSPACE.datasetFields?_displayedValue');
+        fields = fields?fields.split(','):[];
+        if(fields.indexOf(kw.field)<0){
+            fields.push(kw.field);
+            fieldsCaption = fieldsCaption?fieldsCaption.split(','):[];
+            fieldsCaption.push(kw.caption);
+            fieldsCaption = fieldsCaption.join(',');
+            fields = fields.join(',');
+            console.log('fieldsCaption',fieldsCaption,kw);
+
+        }
+        sourceNode.setRelativeData('#WORKSPACE.datasetFields',fields,{_displayedValue:fieldsCaption});
     },
 
     gnrwdg_setDatasetFields:function(){

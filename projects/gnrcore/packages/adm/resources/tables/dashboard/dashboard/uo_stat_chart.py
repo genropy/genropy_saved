@@ -31,22 +31,34 @@ class Main(BaseDashboardItem):
     title_template = '$chart_title'
 
 
-    def content(self,pane,linkedGrid=None,editMode=None,itemIdentifier=None,itemRecord=None,linkedItem=None,workspaces=None,**kwargs):
-        root = pane.contentPane(_workspace=True,_workspace_path='.chart_parameters',childname='chartroot',parentForm=False)
+    def content(self,pane,linkedGrid=None,editMode=None,itemIdentifier=None,itemRecord=None,linkedItem=None,workpath=None,workspaces=None,**kwargs):
+        bc = pane.borderContainer(_workspace=True,_workspace_path='.chart_parameters')
+        root = bc.contentPane(childname='chartroot',parentForm=False,region='center')
+        bc.div(position='absolute',childname='dropArea',_class='chartDrop',dropCodes='gridcolumn',dropTarget=True,
+                                    dropTypes='gridcolumn',
+                                    onDrop_gridcolumn="""
+                                    var cell = genro.wdgById(data.gridId).getCell(data.column);
+                                    var cellcap = cell.tree_name? cell.tree_name.replace('<br/>',' '):cell.original_name;
+                                    genro.nodeById('cp_%s').gnrwdg.addDataset({field:cell.field,
+                                                                                caption:cellcap});
+                                    """ %itemIdentifier)
         pane.dataController("""
         pane.getValue().popNode('chartNode');
         genro.pluginCommand({plugin:'chartjs'});
+        var that = this;
         this.watch('waitingGrid',function(){
             return genro.chartjs && genro.wdgById(connectedTo);
         },function(){
             var gridnode = genro.nodeById(connectedTo);
-            pane._('chartPane','chartNode',{connectedTo:connectedTo,_workspace:false,
-                                configurator:{palette:itemIdentifier+'_parameters',
+            var cp = pane._('chartPane','chartNode',{connectedTo:connectedTo,nodeId:itemIdentifier,
+                                _workspace:false,configurator:{palette:itemIdentifier+'_parameters',
                                 userObject:false}});
             gridnode.setRelativeData('.linkedChart',true);
         });
-        
-        """,connectedTo='=.parameters.linkedGrid',_onBuilt=True,pane=root,itemIdentifier=itemIdentifier)
+        """,connectedTo='=.parameters.linkedGrid',_onBuilt=True,pane=root,itemIdentifier=itemIdentifier,workpath=workpath)
+        pane.dataController("""
+            genro.nodeById(itemIdentifier).externalWidget.gnr_updateChart();
+        """,_fired='^.configuration_changed',datapath=workpath,itemIdentifier=itemIdentifier,_delay=20)
         pane.dataFormula('.chart_title',"""(caption_template || title).replace('#',linkedTitle);""",
                         linkedTitle='^%s.%s.current_title' %(workspaces,linkedItem),
                         caption_template='^.conf.caption_template',title='^.title',
@@ -54,7 +66,20 @@ class Main(BaseDashboardItem):
         
         #pane.chartPane(connectedTo='=.parameters.linkedGrid',configurator=True)
 
-    def configuration(self,pane,linkedStore=None,**kwargs):
+    def configuration(self,pane,linkedStore=None,workpath=None,storepath=None,itemIdentifier=None,**kwargs):
         fb = pane.formbuilder()
         fb.textbox(value='^.caption_template',lbl='!!Caption')
 
+        chartconf = '%s.chart_parameters' %storepath
+        fb.filteringSelect(value='^.chartType',lbl='!!Chart type',
+                    values='bar,line,pie,doughnut',datapath=chartconf)
+        fb.checkbox(value='^.options.maintainAspectRatio',label='!!Aspect ratio',datapath=chartconf)
+        fb.callbackSelect(value='^.captionField',lbl='!!Chart caption',datapath=chartconf,
+                            callback="""
+                            function(kw){
+                                var cp = genro.nodeById('cp_%s');
+                                var currentValue = this.sourceNode.getRelativeData('.captionField');
+                                var currentCaption = this.sourceNode.getRelativeData('.captionField?_displayedValue');
+                                return (cp && cp.gnrwdg)? cp.gnrwdg.captionGetter(kw):{data:[{_pkey:currentValue,caption:currentCaption}]} 
+                            }
+                            """ %itemIdentifier,hasDownArrow=True)

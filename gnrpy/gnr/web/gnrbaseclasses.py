@@ -256,7 +256,8 @@ class BaseDashboardItem(object):
             FIRE .runItem;
         }""",
         changedConfig='^.configuration_changed',runRequired='=.runRequired',datapath=workpath)
-        self.configuration(bc.contentPane(region='center',datapath='.conf'),workpath=workpath,storepath=storepath,workspaces=workspaces,**kwargs)
+        self.configuration(bc.contentPane(region='center',datapath='.conf'),workpath=workpath,storepath=storepath,
+                                        workspaces=workspaces,itemIdentifier=itemIdentifier,**kwargs)
        #bottom = bc.contentPane(region='bottom',_class='slotbar_dialog_footer')
        #bottom.button('!!Ok',top='2px',right='2px',action="""sc.switchPage(0);
        #                                                    FIRE %s.configuration_changed;
