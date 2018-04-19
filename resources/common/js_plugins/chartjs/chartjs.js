@@ -762,7 +762,6 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
     gnrwdg_datasetForm:function(pane,kw){
         var sn = pane.getParentNode();
         var chartType = sn.getRelativeData('.chartType') || this.sourceNode.getRelativeData('#WORKSPACE.chartType');
-        var field = sn.getRelativeData('.field');
         var pagesCb = genro.chartjs['_dataset_'+chartType];
         var pages;
         if(pagesCb){
@@ -772,7 +771,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         }
         var dtypeWidgets = {'T':'TextBox','B':'Checkbox','L':'NumberTextBox','N':'NumberTextBox'};
         var bc = pane._('BorderContainer',{height:'300px',width:'330px',_class:'datasetParsContainer'});
-        var top = bc._('ContentPane',{region:'top',_class:'dojoxFloatingPaneTitle'})._('div',{innerHTML:'Dataset '+field});
+        var top = bc._('ContentPane',{region:'top',_class:'dojoxFloatingPaneTitle'})._('div',{innerHTML:'Dataset '+sn.getRelativeData('.field')});
         var tc = bc._('tabContainer',{region:'center',margin:'2px'});
         var field,dtype,lbl,editkw;
         pages.forEach(function(pageKw){

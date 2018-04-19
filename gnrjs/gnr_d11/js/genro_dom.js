@@ -978,7 +978,6 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var dropInfo = this.getDragDropInfo(event);
 
         if (!dropInfo) {
-            console.log('missing dropInfo',event.target);
             return;
         }
         event.stopPropagation();

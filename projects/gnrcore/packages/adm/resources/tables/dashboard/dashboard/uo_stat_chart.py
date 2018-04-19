@@ -36,6 +36,12 @@ class Main(BaseDashboardItem):
         root = bc.contentPane(childname='chartroot',parentForm=False,region='center')
         bc.div(position='absolute',childname='dropArea',_class='chartDrop',dropCodes='gridcolumn',dropTarget=True,
                                     dropTypes='gridcolumn',
+                                    dropTargetCb="""
+                                    if(dropInfo.sourceNodeId!='%s'){
+                                        return false;
+                                    }
+                                    return dropInfo;                                    
+                                    """ %linkedGrid,
                                     onDrop_gridcolumn="""
                                     var cell = genro.wdgById(data.gridId).getCell(data.column);
                                     var cellcap = cell.tree_name? cell.tree_name.replace('<br/>',' '):cell.original_name;
