@@ -106,8 +106,8 @@ class TableHandlerGroupBy(BaseComponent):
         
 
         frame.dataController("""
-            grid.collectionStore().loadInvisible = genro.dom.isVisible(sc);
-        """,output='^.output',groupMode='^.groupMode',
+            grid.collectionStore().loadInvisible = always || genro.dom.isVisible(sc);
+        """,output='^.output',groupMode='^.groupMode',always='=.always',
             grid=frame.grid.js_widget,sc=sc,_delay=1)
 
         if linkedNode:

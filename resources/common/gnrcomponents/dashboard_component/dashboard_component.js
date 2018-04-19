@@ -249,11 +249,16 @@ genro_plugin_dashboards = {
                                         dropTarget:true,
                                         dropCodes:'dashboardItems,itemIdentifier',
                                         onDrop_itemIdentifier:function(p1,p2,kw){
-                                            this.setRelativeData('.itemIdentifier',kw.data);
-                                            var draggedSn = genro.dom._lastDragInfo.sourceNode;
-                                            setTimeout(function(){
-                                                draggedSn.setRelativeData('.itemIdentifier',null);
-                                            },1);
+                                            if(kw.dropInfo.event.shiftKey){
+                                                this.setRelativeData('.itemIdentifier',that.duplicateItem(kw.data));
+                                            }else{
+                                                this.setRelativeData('.itemIdentifier',kw.data);
+                                                var draggedSn = genro.dom._lastDragInfo.sourceNode;
+                                                setTimeout(function(){
+                                                    draggedSn.setRelativeData('.itemIdentifier',null);
+                                                },1);
+                                            }
+                                            
                                         },
                                         onDrop_dashboardItems:function(p1,p2,kw){
                                             var sourceNode = this;
@@ -306,16 +311,17 @@ genro_plugin_dashboards = {
         itemRecord.setItem('parameters',itemPars);
         var items = genro.getData(this.itemspath);
         return items.setItem(itemRecord.getItem('id'),itemRecord).label;
-
-       //sourceNode.setRelativeData('.itemIdentifier',itemRecord.identifier);
-       //
-
-       //if(itemParameters){
-       //    sourceNode.setRelativeData('.itemPars',itemParameters.deepCopy());
-       //}
-       //sourceNode.setRelativeData('.table',kw.data.table);
-       //sourceNode.setRelativeData('.itemName',kw.data.resource);
     },
+
+    duplicateItem:function(identifier){
+        var items = genro.getData(this.itemspath);    
+        var itemRecord = items.getItem(identifier).deepCopy();
+        itemRecord.setItem('id',genro.time36Id());
+        itemRecord.setItem('title',itemRecord.getItem('title')+'[copy]');
+        return items.setItem(itemRecord.getItem('id'),itemRecord).label;
+
+    },
+
     assignDashboardItem:function(sourceNode,identifier){
         sourceNode.setRelativeData('.itemIdentifier',identifier);
     },

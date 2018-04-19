@@ -73,6 +73,7 @@ class Main(BaseDashboardItem):
                             groupMode='^.groupMode',itemIdentifier=itemIdentifier)
 
         self.queryPars = data['queryPars']
+        frame.data('.always',True);
         frame.data('.query.where',data['where'])
         frame.data('.query.queryPars',data['queryPars'])
 

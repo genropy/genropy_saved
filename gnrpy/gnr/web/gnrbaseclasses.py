@@ -192,7 +192,12 @@ class BaseDashboardItem(object):
                                                dragValues['itemIdentifier'] = '%s';
                                                """ %itemIdentifier,draggable=itemIdentifier is not None)
         sc = bc.stackContainer(region='center',datapath=storepath,selectedPage='^%s._dashboardPageSelected' %workpath)
-        top.div('^.current_title',text_align='center',datapath=workpath,padding_top='3px')
+        top.div('^.current_title',text_align='center',datapath=workpath,padding_top='3px',
+                connect_ondblclick="""
+                var store = genro.getData('%s');
+                var dflt = store.getItem('title');
+                genro.dlg.prompt(_T('Change title'),{lbl:_T('Title'),dflt:dflt,action:function(newtitle){store.setItem('title',newtitle);}});
+                """ %storepath)
         bc.dataFormula('%s.current_title' %workpath,"dataTemplate(tpl,itemaData)",tpl=self.title_template,
                         itemaData='^%s' %storepath,_onBuilt=True)
         itemIdentifier = itemIdentifier or id(sc)
