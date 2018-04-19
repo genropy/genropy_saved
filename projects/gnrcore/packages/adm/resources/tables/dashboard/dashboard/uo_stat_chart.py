@@ -46,13 +46,32 @@ class Main(BaseDashboardItem):
         pane.getValue().popNode('chartNode');
         genro.pluginCommand({plugin:'chartjs'});
         var that = this;
+
+        var onClick = function(event,elements){
+            if(!event.shiftKey){
+                return;
+            }
+            var cp = genro.nodeById('cp_'+itemIdentifier);
+            var chart = genro.nodeById(itemIdentifier).externalWidget;
+            var elem = chart.getElementAtEvent(event);
+            if(!elem){
+                return;
+            }
+            var datasetIndex = elem[0]._datasetIndex;
+            var rowDataNode = genro.getDataNode(cp.absDatapath('#WORKSPACE.datasets.#'+datasetIndex));
+            var rowpath = cp.absDatapath('#WORKSPACE.datasets.'+rowDataNode.label);
+            genro.dlg.quickTooltipPane({datapath:rowpath,domNode:event.target,modal:true},
+                                            function(pane,kw){cp.gnrwdg.datasetForm(pane,kw)},{rowDataNode:rowDataNode});
+
+        };
+
         this.watch('waitingGrid',function(){
             return genro.chartjs && genro.wdgById(connectedTo);
         },function(){
             var gridnode = genro.nodeById(connectedTo);
             var cp = pane._('chartPane','chartNode',{connectedTo:connectedTo,nodeId:itemIdentifier,
-                                _workspace:false,configurator:{palette:itemIdentifier+'_parameters',
-                                userObject:false}});
+                                _workspace:false,configurator:{palette:itemIdentifier+'_parameters',userObject:false},
+                                filterpath:workpath+'.linkedRows',onClick:onClick});
             gridnode.setRelativeData('.linkedChart',true);
         });
         """,connectedTo='=.parameters.linkedGrid',_onBuilt=True,pane=root,itemIdentifier=itemIdentifier,workpath=workpath)

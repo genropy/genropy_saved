@@ -395,6 +395,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         gnrwdg.defaultDatasetFields = objectPop(kw,'datasetFields');
         gnrwdg.defaultChartType = objectPop(kw,'chartType','bar');
         gnrwdg.defaultCaptionField = objectPop(kw,'captionField');
+        gnrwdg.filterpath = objectPop(kw,'filterpath') || '#WORKSPACE.filter';
         sourceNode.attr.datasetFields = '^#WORKSPACE.datasetFields';
         if(gnrwdg.connectedWidgetId){
             var sn = genro.nodeById(gnrwdg.connectedWidgetId);
@@ -405,7 +406,8 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
                 });
             }else{
                 sn.subscribe('onSelectedRow',function(kw){
-                    sourceNode.setRelativeData('#WORKSPACE.filter',kw.selectedPkeys);
+                    console.log('gnrwdg.filterpath',gnrwdg.filterpath);
+                    sourceNode.setRelativeData(gnrwdg.filterpath,kw.selectedPkeys);
                 });
             }
             gnrwdg.storepath = sn.absDatapath(sn.attr.storepath);
@@ -651,7 +653,8 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         bc._('ContentPane',{region:'center'})._('chartjs',{
             nodeId:this.chartNodeId,
             storepath:this.storepath,
-            filter:kw.filter || '^#WORKSPACE.filter',
+            filter:kw.filter || '^'+this.filterpath,
+            onClick:kw.onClick,
             captionField:'^#WORKSPACE.captionField',
             datasets:'^#WORKSPACE.datasets',            
             optionsBag:'^#WORKSPACE.options',
@@ -756,50 +759,57 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         this.optionsTab(tc._('BorderContainer',{title:'Options'}));
     },
 
+    gnrwdg_datasetForm:function(pane,kw){
+        var sn = pane.getParentNode();
+        var chartType = sn.getRelativeData('.chartType') || this.sourceNode.getRelativeData('#WORKSPACE.chartType');
+        var field = sn.getRelativeData('.field');
+        var pagesCb = genro.chartjs['_dataset_'+chartType];
+        var pages;
+        if(pagesCb){
+            pages = pagesCb();
+        }else{
+            pages = genro.chartjs._dataset__base();
+        }
+        var dtypeWidgets = {'T':'TextBox','B':'Checkbox','L':'NumberTextBox','N':'NumberTextBox'};
+        var bc = pane._('BorderContainer',{height:'300px',width:'330px',_class:'datasetParsContainer'});
+        var top = bc._('ContentPane',{region:'top',_class:'dojoxFloatingPaneTitle'})._('div',{innerHTML:'Dataset '+field});
+        var tc = bc._('tabContainer',{region:'center',margin:'2px'});
+        var field,dtype,lbl,editkw;
+        pages.forEach(function(pageKw){
+            var pane = tc._('ContentPane',{title:pageKw.title});
+            var fb = genro.dev.formbuilder(pane,1,{border_spacing:'3px',datapath:'.parameters',margin:'3px',margin_top:'10px'});
+            pageKw.fields.forEach(function(fkw){
+                dtype = fkw.dtype;
+                editkw = objectUpdate({},fkw.edit || {});
+                editkw.width = editkw.width || (dtype=='N' || dtype=='L') ?'7em':'12em';
+                editkw.value = '^.'+fkw.field;
+                if(fkw.values){
+                    editkw.tag =editkw.tag || 'filteringSelect';
+                    editkw.values = fkw.values;
+                }
+                editkw.lbl = fkw.lbl;
+                if(dtype=='B'){
+                    editkw.label = objectPop(editkw,'lbl');
+                }else{
+                    editkw.lbl_text_align = 'right';
+                }
+                fb.addField(objectPop(editkw,'tag') || dtypeWidgets[dtype], editkw);
+            });
+        });
+    },
+
     gnrwdg_datasetsTab:function(pane){
         var grid = pane._('quickGrid',{value:'^'+this.sourceNode.absDatapath('#WORKSPACE.datasets'),
                                     selfDragRows:true,canSort:false,
                                     addCheckBoxColumn:{field:'enabled'}});
         var that = this;
-        var dtypeWidgets = {'T':'TextBox','B':'Checkbox','L':'NumberTextBox','N':'NumberTextBox'};
+        
         grid._('column',{'field':'parameters',name:'Parameters',width:'100%',
                         _customGetter:function(row){
                             return row.parameters?row.parameters.getFormattedValue():'No Parameters';
                         },
                         edit:{modal:true,contentCb:function(pane,kw){
-                            var chartType = kw.rowDataNode.getValue().getItem('chartType') || that.sourceNode.getRelativeData('#WORKSPACE.chartType');
-                            var pagesCb = genro.chartjs['_dataset_'+chartType];
-                            var pages;
-                            if(pagesCb){
-                                pages = pagesCb();
-                            }else{
-                                pages = genro.chartjs._dataset__base();
-                            }
-                            var bc = pane._('BorderContainer',{height:'300px',width:'330px',_class:'datasetParsContainer'});
-                            var top = bc._('ContentPane',{region:'top',_class:'dojoxFloatingPaneTitle'})._('div',{innerHTML:'Dataset '+kw.rowDataNode.label});
-                            var tc = bc._('tabContainer',{region:'center',margin:'2px'});
-                            var field,dtype,lbl,editkw;
-                            pages.forEach(function(pageKw){
-                                var pane = tc._('ContentPane',{title:pageKw.title});
-                                var fb = genro.dev.formbuilder(pane,1,{border_spacing:'3px',datapath:'.parameters',margin:'3px',margin_top:'10px'});
-                                pageKw.fields.forEach(function(fkw){
-                                    dtype = fkw.dtype;
-                                    editkw = objectUpdate({},fkw.edit || {});
-                                    editkw.width = editkw.width || (dtype=='N' || dtype=='L') ?'7em':'12em';
-                                    editkw.value = '^.'+fkw.field;
-                                    if(fkw.values){
-                                        editkw.tag =editkw.tag || 'filteringSelect';
-                                        editkw.values = fkw.values;
-                                    }
-                                    editkw.lbl = fkw.lbl;
-                                    if(dtype=='B'){
-                                        editkw.label = objectPop(editkw,'lbl');
-                                    }else{
-                                        editkw.lbl_text_align = 'right';
-                                    }
-                                    fb.addField(objectPop(editkw,'tag') || dtypeWidgets[dtype], editkw);
-                                });
-                            });
+                            that.datasetForm(pane,kw);
                         }}});
         grid._('column',{field:'chartType',name:'Type',edit:{tag:'filteringSelect',values:'bar,line,bubble'}});
     },

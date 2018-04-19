@@ -265,7 +265,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
 
     creating: function(attributes, sourceNode) {
         sourceNode.registerDynAttr('storepath');
-        var savedAttrs = objectExtract(attributes,'chartType,filter,datasets,captionField,options,data,scalesBag');
+        var savedAttrs = objectExtract(attributes,'chartType,filter,datasets,captionField,options,data,scalesBag,onClick');
         return savedAttrs;
     },
     
@@ -278,6 +278,9 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         var filter = savedAttrs.filter;
         var captionField = savedAttrs.captionField;
         var options = savedAttrs.options || {maintainAspectRatio:false};
+        if(savedAttrs.onClick){
+            options.onClick = funcCreate(savedAttrs.onClick,'event,elements',sourceNode);
+        }
         var chartType = savedAttrs.chartType;
         var scalesBag = savedAttrs.scalesBag;
         var scalesOpt;
@@ -301,6 +304,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         sourceNode.freeze();
         var cb = function(){
             sourceNode.unfreeze(true);
+            console.log('options',options);
             var chartjs = new Chart(domNode,{'type':chartType,options:options});
             sourceNode.externalWidget = chartjs;
             chartjs.sourceNode = sourceNode;
