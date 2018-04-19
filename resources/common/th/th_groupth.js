@@ -316,8 +316,17 @@ genro_plugin_groupth = {
                 sourceNode.fireEvent('.reloadMain',true);
             }
         };
-
         genro.dev.userObjectLoad(sourceNode,kw);
+    },
+
+    deleteCurrentDashboard:function(sourceNode,kw){
+        var pkey = sourceNode.getRelativeData('.dashboardMeta.id');
+        if(!pkey){
+            return;
+        }
+        genro.serverCall('_table.adm.userobject.deleteUserObject',{pkey:pkey},function(){
+            sourceNode.setRelativeData('.dashboardMeta',new gnr.GnrBag());
+        });
     }
 
 };

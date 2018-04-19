@@ -62,6 +62,8 @@ class TableHandlerGroupBy(BaseComponent):
                                 """,
                                 selfsubscribe_saveDashboard="genro.groupth.saveAsDashboard(this,$1);",
                                 selfsubscribe_loadDashboard="genro.groupth.loadDashboard(this,$1)",
+                                selfsubscribe_deleteCurrentDashboard="genro.groupth.deleteCurrentDashboard(this,$1)",
+
                                 _dashboardRoot=True,**kwargs)  
         gridstack = sc.stackContainer(pageName='grid',title='!!Grid View',selectedPage='^.groupMode')
         
@@ -81,9 +83,10 @@ class TableHandlerGroupBy(BaseComponent):
 
 
         frame.data('.grid.showCounterCol',True)
-        frame.dataFormula('.currentTitle',"currentView?basetitle + ': '+currentView:basetitle",
+        frame.dataFormula('.currentTitle',"basetitle+' '+(loadedDashboard || currentView || '')",
                                 basetitle='!!Gruop by',
-                                currentView='^.grid.currViewAttrs.description')
+                                currentView='^.grid.currViewAttrs.description',
+                                loadedDashboard='^.dashboardMeta.description')
         frame.dataRemote('.advancedOptions',self.thg_advancedOptions,cacheTime=5,table=table,
                             rootNodeId=rootNodeId,_fired='^.refreshAdvancedOptionsdMenu')
         configuratorSlot = 'configuratorPalette' if configurable else '2'
@@ -306,6 +309,8 @@ class TableHandlerGroupBy(BaseComponent):
                         action="""this.attributeOwnerNode('_dashboardRoot').publish('saveDashboard');""")
         result.rowchild(label='!!Save dashboard as',
                         action="""this.attributeOwnerNode('_dashboardRoot').publish('saveDashboard',{saveAs:true});""")
+        result.rowchild(label='!!Delete current dashboard',
+                        action="""this.attributeOwnerNode('_dashboardRoot').publish('deleteCurrentDashboard');""")
         objtype = 'dash_groupby'
         flags='groupth|%s' %rootNodeId
         userobjects = self.db.table('adm.userobject').userObjectMenu(objtype=objtype,flags=flags,table=table)
