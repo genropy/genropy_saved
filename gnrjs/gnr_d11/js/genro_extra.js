@@ -277,7 +277,7 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         var dataset = savedAttrs.dataset;
         var filter = savedAttrs.filter;
         var captionField = savedAttrs.captionField;
-        var options = savedAttrs.options || {};
+        var options = savedAttrs.options || {maintainAspectRatio:false};
         var chartType = savedAttrs.chartType;
         var scalesBag = savedAttrs.scalesBag;
         var scalesOpt;
