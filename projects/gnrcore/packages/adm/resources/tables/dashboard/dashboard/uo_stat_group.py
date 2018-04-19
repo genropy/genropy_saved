@@ -37,9 +37,8 @@ class Main(BaseDashboardItem):
                     tip='!!Drag on an empty tile to make a chart',
                     onDrag="""
                     var linkedGrid = genro.getData(dragInfo.sourceNode.attr.workpath+'.currentLinkableGrid');
-                    var linkedtitlepath = dragInfo.sourceNode.absDatapath(dragInfo.sourceNode.attr.workpath+'.current_title');
-
-                    dragValues.dashboardItems = {fixedParameters:{'linkedGrid':linkedGrid,title:'Chart #',linkedtitlepath:linkedtitlepath},
+                    var linkedItem = dragInfo.sourceNode.getRelativeData('.itemIdentifier');
+                    dragValues.dashboardItems = {fixedParameters:{'linkedGrid':linkedGrid,title:'Chart #',linkedItem:linkedItem},
                                                     resource:'uo_stat_chart',table:'adm.dashboard',
                                                     caption:_T('Linked chart')};
                     """)

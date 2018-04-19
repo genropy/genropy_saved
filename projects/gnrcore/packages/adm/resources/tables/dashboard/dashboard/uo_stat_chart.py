@@ -31,7 +31,7 @@ class Main(BaseDashboardItem):
     title_template = '$chart_title'
 
 
-    def content(self,pane,linkedGrid=None,editMode=None,itemIdentifier=None,itemRecord=None,linkedtitlepath=None,**kwargs):
+    def content(self,pane,linkedGrid=None,editMode=None,itemIdentifier=None,itemRecord=None,linkedItem=None,workspaces=None,**kwargs):
         root = pane.contentPane(_workspace=True,_workspace_path='.chart_parameters',childname='chartroot',parentForm=False)
         pane.dataController("""
         pane.getValue().popNode('chartNode');
@@ -48,8 +48,9 @@ class Main(BaseDashboardItem):
         
         """,connectedTo='=.parameters.linkedGrid',_onBuilt=True,pane=root,itemIdentifier=itemIdentifier)
         pane.dataFormula('.chart_title',"""(caption_template || title).replace('#',linkedTitle);""",
-                        linkedTitle='^%s' %linkedtitlepath,
-                        caption_template='^.conf.caption_template',title='^.title',_onBuilt=True)
+                        linkedTitle='^%s.%s.current_title' %(workspaces,linkedItem),
+                        caption_template='^.conf.caption_template',title='^.title',
+                        _onBuilt=True)
         
         #pane.chartPane(connectedTo='=.parameters.linkedGrid',configurator=True)
 

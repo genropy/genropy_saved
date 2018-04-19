@@ -207,7 +207,7 @@ class BaseDashboardItem(object):
                                             _T('You are going to remove a item '+curtitle),
                                             {confirm:_T('Confirm'),cancel:_T('Cancel')},
                                             {confirm:function(){
-                                                that.setRelativeData('.itemIdentifier',null);
+                                                genro.dashboards.emptyTile(that);
                                             }, cancel:function(){}});
                                     """ %workpath)
             
@@ -241,7 +241,7 @@ class BaseDashboardItem(object):
         pane = sc.contentPane(pageName='content')
         workspaces = workspaces or 'dashboards'
         
-        self.content(pane,workpath=workpath,storepath=storepath,itemIdentifier=itemIdentifier,**kwargs)
+        self.content(pane,workpath=workpath,storepath=storepath,itemIdentifier=itemIdentifier,workspaces=workspaces,**kwargs)
         bc = sc.borderContainer(pageName='conf')
         bc.dataController("""FIRE .runItem;""",
                         _onBuilt=self.run_onbuilt,
@@ -251,7 +251,7 @@ class BaseDashboardItem(object):
             FIRE .runItem;
         }""",
         changedConfig='^.configuration_changed',runRequired='=.runRequired',datapath=workpath)
-        self.configuration(bc.contentPane(region='center',datapath='.conf'),workpath=workpath,storepath=storepath,**kwargs)
+        self.configuration(bc.contentPane(region='center',datapath='.conf'),workpath=workpath,storepath=storepath,workspaces=workspaces,**kwargs)
        #bottom = bc.contentPane(region='bottom',_class='slotbar_dialog_footer')
        #bottom.button('!!Ok',top='2px',right='2px',action="""sc.switchPage(0);
        #                                                    FIRE %s.configuration_changed;

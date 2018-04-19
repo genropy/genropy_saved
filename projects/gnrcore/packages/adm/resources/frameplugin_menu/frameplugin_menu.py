@@ -147,6 +147,12 @@ class MenuResolver(BagResolver):
             checkenv = nodeattr.get('checkenv')
             multidb = nodeattr.get('multidb')
             tableattr = self._page.db.table(nodeattr['table']).attributes if 'table' in nodeattr else None
+            dashboard = nodeattr.get('dashboard')
+            if nodeattr.get('dashboard'):
+                dashboards = self._getDashboards(pkg=nodeattr['dashboard'])
+                if not dashboards:
+                    continue
+                node.value = dashboards
             if (multidb=='slave' and not dbstore) or (multidb=='master' and dbstore):
                 allowed = False
             if nodetags:
@@ -191,4 +197,10 @@ class MenuResolver(BagResolver):
                 attributes['labelClass'] = 'menu_shape %s %s' % (labelClass, customLabelClass)
                 result.setItem(node.label, value, attributes)
         return result
-            
+
+    def _getDashboards(self,pkg=None):
+        result = Bag()
+        f = self._page.db.table('adm.dashboard').query(where='$pkg=:pk' if pkg is not True else None).fetch()
+        for i,r in enumerate(f):
+            result.setItem('dash_%s' %i,None,file='/adm/dashboards/%(pkgid)s/%(code)s' %r,label=r['description'])
+        return result

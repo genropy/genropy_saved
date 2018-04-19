@@ -175,6 +175,40 @@ genro_plugin_dashboards = {
             that.buildDashboard(n);
         });
     },
+
+    cleanUnusedItems:function(){
+        var items = genro.getData(this.itemspath);
+        if(!items){
+            return;
+        }
+        var itemsMap = this.itemsMap();
+        items.getNodes().forEach(function(n){
+            if(!(n.label in itemsMap)){
+                items.popNode(n.label);
+            }
+        });
+    },
+
+    itemsMap:function(){
+        var itemsMap = {};
+        var pages = genro.getData(this.dashboardspath); 
+        var identifier;
+        pages.walk(function(n){
+            if (n.getValue() instanceof gnr.GnrBag && n.getValue().getItem('itemIdentifier')){
+                identifier = n.getValue().getItem('itemIdentifier');
+                itemsMap[identifier] = itemsMap[identifier] || [];
+                itemsMap[identifier].push(n.getFullpath(null,pages));
+            }
+        });
+        return itemsMap;
+
+    },
+    
+    emptyTile:function(sourceNode){
+        sourceNode.setRelativeData('.itemIdentifier',null);
+        this.cleanUnusedItems();
+    },
+
     clearRoot:function(){
         var container = this.root.getValue();
         container.getNodes().forEach(function(n){
