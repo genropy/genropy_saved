@@ -647,7 +647,7 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                 this.cached_values[request.identity] = {'result':result,'ts':new Date()};
                 //if (result) {
                     if(!result){
-                        console.log('no result',request);
+                        //console.log('no result',request);
                     }
                     dojo.hitch(scope, request.onItem)(result);
                 //}
