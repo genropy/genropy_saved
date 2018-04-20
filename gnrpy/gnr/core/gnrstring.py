@@ -120,7 +120,7 @@ try:
             format = self.formats.get(as_name) or format
             mask = self.masks.get(as_name) or mask
             dtype = self.dtypes.get(as_name)
-            if dtype =='P' and self.urlformatter:
+            if dtype =='P' and value and self.urlformatter:
                 value = self.urlformatter(value)
             if (isinstance(value,basestring) or isinstance(value,unicode)) and dtype:
                 value = '%s::%s' %(value,dtype)
