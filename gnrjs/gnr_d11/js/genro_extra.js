@@ -304,7 +304,6 @@ dojo.declare("gnr.widgets.chartjs", gnr.widgets.baseHtml, {
         sourceNode.freeze();
         var cb = function(){
             sourceNode.unfreeze(true);
-            console.log('options',options);
             var chartjs = new Chart(domNode,{'type':chartType,options:options});
             sourceNode.externalWidget = chartjs;
             chartjs.sourceNode = sourceNode;
