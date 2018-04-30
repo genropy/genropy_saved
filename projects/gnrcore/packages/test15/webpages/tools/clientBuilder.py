@@ -17,7 +17,6 @@ class GnrCustomWebPage(object):
                                   config_lineNumbers=True,height='100%')
         right = center.contentPane(region='center',datapath='.center')
         frame.dataController("""
-                                right._('plainTableHandler',{'table':'glbl.provincia',py_requires:'th/th:TableHandler',datapath:'pippo'});
-          
-                                
+                            jssource = jssource || "console.log('missing')"
+                            funcApply(jssource,{root:right._('div','root')},this);
                             """,_fired='^.run',jssource='=.jssource',right=right)
