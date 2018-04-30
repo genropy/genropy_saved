@@ -49,6 +49,8 @@ class TableHandlerGroupBy(BaseComponent):
                 raise self.exception('generic',msg='Missing linked tableHandler in groupByTableHandler')
             if not struct:
                 struct = self._th_hook('groupedStruct',mangler=linkedTo,defaultCb=self._thg_defaultstruct)
+        if not linkedNode:
+            self.subscribeTable(table,True,subscribeMode=True)
         frameCode = frameCode or 'thg_%s' %table.replace('.','_')
         datapath = datapath or '.%s' %frameCode
         rootNodeId = frameCode
@@ -136,7 +138,7 @@ class TableHandlerGroupBy(BaseComponent):
         store_kwargs['_forcedReload'] = '^.reloadMain'
         frame.grid.selectionStore(table=table,where=where,selectmethod=self._thg_selectgroupby,
                                 childname='store',struct='=.grid.struct',
-                                groupByStore=True,
+                                groupByStore=True,liveUpdate=True if not linkedTo else 'NO',
                                 _linkedTo=linkedTo,
                                 _onCalling="""
                                 if(!_linkedTo){

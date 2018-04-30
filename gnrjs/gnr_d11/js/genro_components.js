@@ -6185,7 +6185,12 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
                     var changelist = that.pendingChanges;
                     that.pendingChanges = [];
                     if(changelist.length>0){
-                        that.onExternalChange(changelist);    
+                        if(that.storeNode.attr.groupByStore){
+                            //avoid checking in groupby
+                            that.loadData();
+                        }else{
+                            that.onExternalChange(changelist);    
+                        }
                     }
                 });
             });};
