@@ -21,8 +21,6 @@ class GnrCustomWebPage(object):
         form = root.frameForm(frameCode='app_preferences',store_startKey='_mainpref_',datapath='main',store=True,**kwargs)
         self.controllers(form)
         self.app_preference_bottom_bar(form.bottom)
-        self.tblobj.loadPreference()
-
         root.dataController("""
             var tkw = _triggerpars.kw;
             if(tkw.reason && tkw.reason.attr && tkw.reason.attr.livePreference){

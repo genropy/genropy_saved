@@ -68,7 +68,10 @@ class Package(GnrDboPackage):
         touchRecords = self.db.table('adm.htag').touchRecords(where='$hierarchical_code IS NULL')
         if touchRecords:
             self.db.commit()
-
+    
+    def onApplicationInited(self):
+        #init preference if missing
+        self.db.table('adm.preference').loadPreference()
 
 class Table(GnrDboTable):
     def use_dbstores(self,forced_dbstore=None, env_forced_dbstore=None,**kwargs):

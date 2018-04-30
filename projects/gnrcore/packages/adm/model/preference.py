@@ -92,6 +92,8 @@ class Table(object):
                 record = self.record(pkey=pkey, for_update=for_update).output('bag')
             except RecordNotExistingError:
                 record = self.newrecord(code=pkey, data=Bag())
+                self.insert(record)
+                self.db.commit()
         return record
 
     def trigger_onUpdated(self,record=None,old_record=None):
