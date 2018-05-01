@@ -199,7 +199,7 @@ class FrameGridTools(BaseComponent):
                                                 fld_color='#555',fld_font_weight='bold')
             footer.numberSpinner(value='^.hardQueryLimit',lbl='!!Limit',width='6em',smallDelta=1000)
 
-        right.contentPane(region='center').fieldsTree(table=table,checkPermissions=True,trash=True)
+        right.contentPane(region='center').fieldsTree(table=table,checkPermissions=True,searchCode=False,trash=True)
             
 
 class FrameGrid(BaseComponent):
