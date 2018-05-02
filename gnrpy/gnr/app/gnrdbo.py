@@ -166,9 +166,6 @@ class GnrDboPackage(object):
             hasSysCode = tblobj.column('__syscode') is not None
             if hasSysCode:
                 currentSysCodes = [r['__syscode'] for r in currentRecords.values() if r['__syscode']]
-                if len(currentSysCodes) == len(currentRecords):
-                    tblobj.empty()
-                currentSysCodes = []
             for r in records:
                 if r[pkeyField] in currentRecords:
                     continue
