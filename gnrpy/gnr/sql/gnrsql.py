@@ -1055,10 +1055,7 @@ class DbStoresHandler(object):
         config = self.drop_dbstore_config(storename)
         if not config:
             return
-        try:
-            self.db.dropDb(config['db?dbname'])
-        except Exception:
-            print Exception
+        self.db.dropDb(config['db?dbname'])
         self.save_config()
         
         
