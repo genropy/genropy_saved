@@ -207,7 +207,7 @@ genro_plugin_groupth = {
             key = keylist.join('_').replace(/\W/g, '_');
             nodeToUpdate = resultStore.getNode(key);
             if(!nodeToUpdate){
-                resultStore.setItem(key,null,objectUpdate(emptyrow,row));
+                resultStore.setItem(key,null,objectUpdate(objectUpdate({},emptyrow),row));
             }else{
                 nodeToUpdate.updAttributes(row);
             }
