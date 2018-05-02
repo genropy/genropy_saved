@@ -293,6 +293,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
     mixin__columnsetsAndFooters_row:function(pane,dataNode,colinfo,totCols,autoTitle){
         var data = dataNode.getValue();
+        if(!data || data.len()===0){
+            return;
+        }
         var rowattr = objectUpdate({},dataNode.attr);
         objectPop(rowattr,'tag');
         rowattr._class = 'columnsets_footers_row';
