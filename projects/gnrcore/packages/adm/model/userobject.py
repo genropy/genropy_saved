@@ -43,7 +43,7 @@ class Table(object):
                          where=where, order_by='$code',
                          val_objtype=objtype, val_tbl=tbl,_flags=_flags).selection()
         sel.filter(checkUserObj)
-        result = sel.output('records')
+        result = sel.output('dictlist')
         page = self.db.currentPage
         if page:
             folderpath = page.packageResourcePath(table=tbl,filepath='userobjects/%s' %objtype)
@@ -97,8 +97,8 @@ class Table(object):
         i = 0
         if len(userobjects)>0:
             for r in userobjects:
-                r.pop('data')
-                r['pkey'] = r.pop('id')
+                r.pop('data',None)
+                r['pkey'] = r.pop('id',None)
                 r['caption'] = r['description'] or r['code']
                 r['draggable'] = True
                 r['onDrag'] = """dragValues['dbrecords'] = {table:'adm.userobject',pkeys:['%(pkey)s'],objtype:'%(objtype)s',reftable:"%(tbl)s"}""" %r

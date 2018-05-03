@@ -531,15 +531,14 @@ class TableHandlerView(BaseComponent):
                         _resolved_pyqueries=q,editor=extendedQuery,bySample=bySample,
                        # favoriteQueryPath='=.query.favoriteQueryPath',
                         table=table,th_root=th_root,caption='Queries',cacheTime=15,
-                        _resolved=True)
+                        _resolved=extendedQuery)
         pane.dataController("TH(th_root).querymanager.queryEditor(queryEditor);",
                         th_root=th_root,queryEditor="^.query.queryEditor")
         if 'adm' not in self.db.packages:
             return
         pane.dataRemote('.query.savedqueries',self.th_menuQueries,
                         #favoriteQueryPath='=.query.favoriteQueryPath',
-                        table=table,th_root=th_root,cacheTime=5,editor=False,
-                        _resolved=True)
+                        table=table,th_root=th_root,cacheTime=5,editor=False)
         
         pane.dataRemote('.query.helper.in.savedsets',self.th_menuSets,
                         objtype='list_in',table=table,cacheTime=5)
