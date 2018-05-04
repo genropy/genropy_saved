@@ -207,20 +207,32 @@ var genro_plugin_grid_configurator = {
                                             editbag:'^.columnsets_edit',
                                             destbag:'^'+structpath+'.info.columnsets'});
         dc.getParentNode()._columnsetsEditor = function(editbag,destbag,_triggerpars){
+            var rebuildEditBag = function(editbag){
+                var destbag = genro.getData(structpath+'.info.columnsets');
+                editbag.getNodes().forEach(function(n){
+                    editbag.popNode(n.label,'_columnsetsEditor');
+                });
+                if(!destbag){
+                    destbag = new gnr.GnrBag();
+                    genro.setData(structpath+'.info.columnsets',destbag);
+                    return;
+                }
+                destbag.forEach(function(n){
+                    var r = objectUpdate({},n.attr);
+                    var currStyles = objectExtract(r,genro.dom.editableStyles.join(','));
+                    var currCellStyles = objectExtract(objectExtract(r,'cells_*'),genro.dom.editableStyles.join(','));
+                    r = new gnr.GnrBag(r);
+                    r.setItem('styles_columnset',new gnr.GnrBag(currStyles));
+                    r.setItem('styles_cells',new gnr.GnrBag(currCellStyles));
+                    editbag.setItem(n.label,r,{_pkey:n.label},{doTrigger:'_columnsetsEditor'});
+                });
+            };
             if(_triggerpars.kw.reason=='_columnsetsEditor'){
                 return;
             }
             if(_triggerpars.kw.pathlist.indexOf('columnsets_edit')>=0){
                 if(destbag && destbag.len() && _triggerpars.kw.reason=='loadData'){
-                    destbag.forEach(function(n){
-                        var r = objectUpdate({},n.attr);
-                        var currStyles = objectExtract(r,genro.dom.editableStyles.join(','));
-                        var currCellStyles = objectExtract(objectExtract(r,'cells_*'),genro.dom.editableStyles.join(','));
-                        r = new gnr.GnrBag(r);
-                        r.setItem('styles_columnset',new gnr.GnrBag(currStyles));
-                        r.setItem('styles_cells',new gnr.GnrBag(currCellStyles));
-                        editbag.setItem(n.label,r,{_pkey:n.label},{doTrigger:'_columnsetsEditor'});
-                    });
+                    rebuildEditBag(editbag);
                 }else if(_triggerpars.trigger_reason=='child'){
                     var evt = _triggerpars.kw.evt;
                     if(evt=='upd'){
@@ -250,7 +262,7 @@ var genro_plugin_grid_configurator = {
                     }
                 }
             }else{
-                //todo
+                rebuildEditBag(editbag);
             }
         };
     },
@@ -357,6 +369,7 @@ var genro_plugin_grid_configurator = {
             return;
         }
         var rebuildEditBag = function(destbag,editbag){
+            editbag.clear();
             destbag.forEach(function(n){
                 var r = objectUpdate({},n.attr);
                 var currStyles = objectExtract(r,genro.dom.editableStyles.join(','));
@@ -403,7 +416,6 @@ var genro_plugin_grid_configurator = {
                 }
             }
         }else{
-            editbag.clear();
             rebuildEditBag(destbag,editbag);
         }
     }
