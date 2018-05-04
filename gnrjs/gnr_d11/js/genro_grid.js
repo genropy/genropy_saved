@@ -197,7 +197,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var autoColumnset = objectExtract(sourceNode.attr,'columnset_*');
             if(objectNotEmpty(autoColumnset) && !columnsets){
                 columnsets = new gnr.GnrBag();
-                console.log('columnset_ syntax is deprecated. Define your columnsets inside the struct',autoColumnset);
+                //console.log('columnset_ syntax is deprecated. Define your columnsets inside the struct',autoColumnset);
                 for(var k in autoColumnset){
                     var cl = k.split('_');
                     var cn = columnsets.getNode(cl[0],null,true);
