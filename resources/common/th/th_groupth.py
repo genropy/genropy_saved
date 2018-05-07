@@ -294,7 +294,7 @@ class TableHandlerGroupBy(BaseComponent):
         kwargs['columns'] = ','.join(columns_list)
         kwargs['group_by'] = ','.join(group_list)
         kwargs['order_by'] = kwargs['group_by']
-        return self.app._default_getSelection(**kwargs)
+        return self.app._default_getSelection(_aggregateRows=False,**kwargs)
 
     @struct_method
     def thg_slotbar_advancedOptions(self,pane,linkedTo=None,**kwargs):

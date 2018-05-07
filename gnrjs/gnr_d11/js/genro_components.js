@@ -1137,6 +1137,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         var bc = palette._('BorderContainer',{_lazyBuild:true});
         var slots = '2,prevtitle,importselector,*,limit,5';
         var limit = objectPop(kw,'previewLimit') || 20;
+        var filetype = objectPop(kw,'filetype');
         var dropMessage = objectPop(kw,'dropMessage') || '!!Drop import file here';
         if(!gnrwdg.matchColumns){
             gnrwdg.matchGrid(bc);
@@ -1145,7 +1146,11 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
                                      _class:'pbl_roundedGroup',margin:'2px'});
         var bar = frame._('SlotBar',{'side':'top',slots:slots,searchOn:true,_class:'pbl_roundedGroupLabel'});
         bar._('div','prevtitle',{innerHTML:"==_current_title || 'Import'",_current_title:'^.current_title',color:'#666'});
-        bar._('filteringSelect','importselector',{value:'^.filetype',width:'4em',values:'excel,csv,tab',margin_top:'2px'});
+        if(!filetype){
+            bar._('filteringSelect','importselector',{value:'^.filetype',width:'4em',values:'excel,csv,tab',margin_top:'2px'});
+        }else{
+            bar._('div','importseletor')
+        }
         bar._('div','limit',{innerHTML:_T('The lines in preview are limited to')+' '+limit,font_style:'italic',font_size:'.8em'});
 
         var dropAreaKw = {};
@@ -1156,7 +1161,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         };
         dropAreaKw.rpc_limit = limit;
         dropAreaKw.rpc_table = table;
-        dropAreaKw.rpc_filetype = '=.filetype';
+        dropAreaKw.rpc_filetype = filetype|| '=.filetype';
         objectUpdate(dropAreaKw,objectExtract(kw,'drop_*',false,true));
         dropAreaKw.onResult = function(result){
                                 if(result.currentTarget.responseText){
