@@ -250,7 +250,7 @@ def readXLS(doc):
         
 class XlsReader(object):
     """Read an XLS file"""
-    def __init__(self, docname,mainsheet=None,**kwargs):
+    def __init__(self, docname,mainsheet=None,filterEmptyRows=None,**kwargs):
         import xlrd
         import os.path
         self.XL_CELL_DATE = xlrd.XL_CELL_DATE
@@ -260,7 +260,9 @@ class XlsReader(object):
         self.basename, self.ext = os.path.splitext(os.path.basename(docname))
         self.ext = self.ext.replace('.', '')
         self.book = xlrd.open_workbook(filename=self.docname)
+        self.filterEmptyRows = True if filterEmptyRows is None else filterEmptyRows
         self.sheets = {}
+
         for sheetname in self.book.sheet_names():
             self.addSheet(sheetname)
         mainsheet = mainsheet or self.book.sheet_names()[0]
@@ -334,6 +336,8 @@ class XlsReader(object):
                     if row_types[i] == self.XL_CELL_DATE:
                         line[i] = datetime.datetime(*self.xldate_as_tuple(c,sheet.book.datemode))
                 yield line 
+            elif not self.filterEmptyRows:
+                yield []
 
 
 class CsvReader(object):

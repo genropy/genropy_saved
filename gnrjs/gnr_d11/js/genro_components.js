@@ -1154,6 +1154,9 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         bar._('div','limit',{innerHTML:_T('The lines in preview are limited to')+' '+limit,font_style:'italic',font_size:'.8em'});
 
         var dropAreaKw = {};
+        if(kw.importerStructure){
+            dropAreaKw.rpc_importerStructure = objectPop(kw,'importerStructure');
+        }
         dropAreaKw.nodeId = frameCode+'_uploader';
         dropAreaKw.onUploadingCb = function(dropInfo,data){
             var uploaderNode = genro.nodeById(gnrwdg.uploaderId);
