@@ -617,7 +617,7 @@ class GnrWsgiSite(object):
     
     @property
     def dummyPage(self):
-        request = Request.blank('/sys/headless')
+        request = Request.blank(self.externalUrl('/sys/headless'))
         response = Response()
         page = self.resource_loader(['sys', 'headless'], request, response)
         page.locale = self.server_locale
@@ -677,7 +677,7 @@ class GnrWsgiSite(object):
     @property
     def external_host(self):
         return self.currentPage.external_host if (self.currentPage and hasattr(self.currentPage,'request')) else self.configurationItem('wsgi?external_host',mandatory=True) 
-
+        
     def configurationItem(self,path,mandatory=False):
         result = self.config[path] 
         if mandatory and result is None:

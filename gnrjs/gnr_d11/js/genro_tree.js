@@ -276,7 +276,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                 }
             });
         }
-        var searchCode = sourceNode.attr.searchCode || (sourceNode.getInheritedAttributes().frameCode || nodeId);
+        var searchCode = sourceNode.attr.searchCode===false?false: sourceNode.attr.searchCode || (sourceNode.getInheritedAttributes().frameCode || nodeId);
         if(searchCode){
             var searchId = searchCode+'_searchbox';
             var searchBoxNode = genro.nodeById(searchId);

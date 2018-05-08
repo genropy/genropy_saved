@@ -387,12 +387,15 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         var chartNodeId = objectPop(kw,'nodeId') || this.autoChartNodeId(gnrwdg.connectedWidgetId);
         gnrwdg.chartNodeId = chartNodeId;
         sourceNode.attr.nodeId = 'cp_' +chartNodeId;
+        sourceNode._registerNodeId();
         if(objectPop(kw,'_workspace')!==false){
             sourceNode.attr._workspace = true;
+            sourceNode.attr._workspace_path = objectPop(kw,'_workspace_path');
         }
         gnrwdg.defaultDatasetFields = objectPop(kw,'datasetFields');
         gnrwdg.defaultChartType = objectPop(kw,'chartType','bar');
         gnrwdg.defaultCaptionField = objectPop(kw,'captionField');
+        gnrwdg.filterpath = objectPop(kw,'filterpath') || '#WORKSPACE.filter';
         sourceNode.attr.datasetFields = '^#WORKSPACE.datasetFields';
         if(gnrwdg.connectedWidgetId){
             var sn = genro.nodeById(gnrwdg.connectedWidgetId);
@@ -403,7 +406,8 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
                 });
             }else{
                 sn.subscribe('onSelectedRow',function(kw){
-                    sourceNode.setRelativeData('#WORKSPACE.filter',kw.selectedPkeys);
+                    console.log('gnrwdg.filterpath',gnrwdg.filterpath);
+                    sourceNode.setRelativeData(gnrwdg.filterpath,kw.selectedPkeys);
                 });
             }
             gnrwdg.storepath = sn.absDatapath(sn.attr.storepath);
@@ -422,6 +426,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         sourceNode.registerDynAttr('datasetFields');
 
         var rootbc = sourceNode._('borderContainer',rootKw);
+        //var useUserObject = kw.configurator && kw.configurator.userObject!==false;
         if(kw.configurator){
             gnrwdg.configuratorFrame(rootbc,kw);
         }
@@ -474,9 +479,15 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_setDefaults:function(){
-        this.sourceNode.setRelativeData('#WORKSPACE.chartType',this.defaultChartType);
-        this.sourceNode.setRelativeData('#WORKSPACE.captionField',this.defaultCaptionField);
-        this.sourceNode.setRelativeData('#WORKSPACE.datasetFields',this.defaultDatasetFields,{_displayedValue:this.defaultDatasetFields});
+        if(!this.sourceNode.getRelativeData('#WORKSPACE.chartType')){
+            this.sourceNode.setRelativeData('#WORKSPACE.chartType',this.defaultChartType);
+        }
+        if(!this.sourceNode.getRelativeData('#WORKSPACE.captionField')){
+            this.sourceNode.setRelativeData('#WORKSPACE.captionField',this.defaultCaptionField);
+        }
+        if(!this.sourceNode.getRelativeData('#WORKSPACE.datasetFields')){
+            this.sourceNode.setRelativeData('#WORKSPACE.datasetFields',this.defaultDatasetFields,{_displayedValue:this.defaultDatasetFields});
+        }
     },
 
     gnrwdg_setStorepath:function(){
@@ -501,25 +512,36 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         return this.sourceNode.getRelativeData(this.sourceNode.attr.storepath);
     },
 
-    gnrwdg__fgetter:function(types){
+    gnrwdg__fgetter:function(types,captions){
         var result = [];
         var s = {};
         if(this.connectedWidgetId){
             var widgetNode = genro.nodeById(this.connectedWidgetId);
             if(widgetNode.attr.structpath){
                 var structbag = widgetNode.getRelativeData(widgetNode.attr.structpath);
+                
                 if(structbag){
-                    structbag.getItem('#0.#0').forEach(function(n){
+                    var colsets =  structbag.getItem('info.columnsets') || new gnr.GnrBag();
+                    structbag.getItem('view_0.rows_0').forEach(function(n){
                         var c = objectUpdate({},n.attr);
                         if(c.name){
                             c.name = c.name.replace(/<br\/>/g,' ');
                         }
-                        
+                        if(c.columnset && colsets.getNode(c.columnset)){
+                            c.name = colsets.getNode(c.columnset).attr.name+' '+c.name;
+                        }
+                        if(captions && c.group_aggr && 'LNRIF'.indexOf(c.dtype)>=0){
+                            return;
+                        }
                         if((c.dtype || 'T') in types && !(c.field in s)){
                             var f = c.field_getter || c.field;
                             f = f.replace(/\W/g, '_');
+                            if(c.group_aggr){
+                                f+='_'+c.group_aggr.toLowerCase().replace(/\W/g, '_');
+                            }
                             c.code = f;
                             s[f] = true;
+                            
                             result.push(c);
                         }
                     });
@@ -563,7 +585,8 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_captionGetter:function(kw){
-        var g = this._fgetter({'T':true,'A':true,'C':true,'L':true,'I':true});
+        kw = kw || {};
+        var g = this._fgetter({'D':true,'T':true,'A':true,'C':true,'L':true,'I':true},true);
         var data = [];
         if(this.defaultCaptionField && !g.length){
             data.push({_pkey:this.defaultCaptionField,caption:this.defaultCaptionField});
@@ -578,6 +601,22 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
             }
         });
         return {data:data};
+    },
+    gnrwdg_addDataset:function(kw){
+        var sourceNode = this.sourceNode;
+        var fields = sourceNode.getAttributeFromDatasource('datasetFields');
+        var fieldsCaption = sourceNode.getRelativeData('#WORKSPACE.datasetFields?_displayedValue');
+        fields = fields?fields.split(','):[];
+        if(fields.indexOf(kw.field)<0){
+            fields.push(kw.field);
+            fieldsCaption = fieldsCaption?fieldsCaption.split(','):[];
+            fieldsCaption.push(kw.caption);
+            fieldsCaption = fieldsCaption.join(',');
+            fields = fields.join(',');
+            console.log('fieldsCaption',fieldsCaption,kw);
+
+        }
+        sourceNode.setRelativeData('#WORKSPACE.datasetFields',fields,{_displayedValue:fieldsCaption});
     },
 
     gnrwdg_setDatasetFields:function(){
@@ -614,7 +653,8 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         bc._('ContentPane',{region:'center'})._('chartjs',{
             nodeId:this.chartNodeId,
             storepath:this.storepath,
-            filter:kw.filter || '^#WORKSPACE.filter',
+            filter:kw.filter || '^'+this.filterpath,
+            onClick:kw.onClick,
             captionField:'^#WORKSPACE.captionField',
             datasets:'^#WORKSPACE.datasets',            
             optionsBag:'^#WORKSPACE.options',
@@ -643,27 +683,49 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
     },
     gnrwdg_configuratorFrame:function(parentBc,kw){
         var confkw = objectPop(kw,'configurator');
-        confkw = confkw===true?{region:'right',drawer:(kw.userObjectId || this.defaultDatasetFields)?'close':true,splitter:true,border_left:'1px solid #ccc',width:'320px'}:configurator;        
-        this.setLoadMenuData();
-
-        var confframe = parentBc._('FramePane',objectUpdate(confkw,{frameCode:this.chartNodeId+'_options'}));
-        var bar = confframe._('slotBar',{toolbar:true,side:'top',slots:'5,loadMenu,2,chartTitle,*,fulloptions,refresh,saveBtn,5'});
+        confkw = confkw===true?{region:'right',drawer:(kw.userObjectId || this.defaultDatasetFields)?'close':true,splitter:true,border_left:'1px solid #ccc',width:'320px'}:confkw;       
+        var userObject = objectPop(confkw,'userObject');
+        var parent = parentBc;
+        if(confkw.palette){
+            var paletteCode = confkw.palette;
+            var paletteKw = {paletteCode:paletteCode,dockTo:'dummyDock'};
+            paletteKw['subscribe_'+paletteCode+'_open'] = function(){
+                genro.wdgById(paletteCode+'_floating').show();
+            };
+            parent = parentBc._('palettePane',paletteKw);
+        }
+        var confframe = parent._('FramePane',objectUpdate(confkw,{frameCode:this.chartNodeId+'_options'}));
         var that = this;
-        bar._('div','chartTitle',{innerHTML:'^#WORKSPACE.metadata.description?=(#v || "New Chart")',font_weight:'bold',font_size:'.9em',color:'#666'});
-        bar._('slotButton','fulloptions',{label:'Full Options',iconClass:'iconbox gear',action:function(){
-            genro.dev.openBagInspector(this.absDatapath('#WORKSPACE.options'),{title:'Full Options'});
-        }});
-        bar._('slotButton','refresh',{label:'Refresh',iconClass:'iconbox reload',action:function(){
-            genro.nodeById(that.chartNodeId).publish('refresh');
-        }});
-        bar._('slotButton','loadMenu',{iconClass:'iconbox folder',label:'Load',
-            menupath:'#WORKSPACE.loadMenu',action:function(item){
-                that.loadChart(item.pkey);
+        var bar;
+        if(userObject!==false){
+            this.setLoadMenuData();
+            bar = confframe._('slotBar',{toolbar:true,side:'top',slots:'5,loadMenu,2,chartTitle,*,fulloptions,refresh,saveBtn,5'});
+    
+            bar._('div','chartTitle',{innerHTML:'^#WORKSPACE.metadata.description?=(#v || "New Chart")',font_weight:'bold',font_size:'.9em',color:'#666'});
+            bar._('slotButton','fulloptions',{label:'Full Options',iconClass:'iconbox gear',action:function(){
+                genro.dev.openBagInspector(this.absDatapath('#WORKSPACE.options'),{title:'Full Options'});
             }});
-        bar._('slotButton','saveBtn',{iconClass:'iconbox save',label:'Save',
-                                        action:function(){
-                                            that.saveChart();
-                                        }});
+            bar._('slotButton','refresh',{label:'Refresh',iconClass:'iconbox reload',action:function(){
+                genro.nodeById(that.chartNodeId).publish('refresh');
+            }});
+            bar._('slotButton','loadMenu',{iconClass:'iconbox folder',label:'Load',
+                menupath:'#WORKSPACE.loadMenu',action:function(item){
+                    that.loadChart(item.pkey);
+                }});
+            bar._('slotButton','saveBtn',{iconClass:'iconbox save',label:'Save',
+                                            action:function(){
+                                                that.saveChart();
+                                            }});
+                                            
+        }else{
+            bar = confframe._('slotBar',{toolbar:true,side:'top',slots:',2,*,fulloptions,refresh,5'});    
+            bar._('slotButton','fulloptions',{label:'Full Options',iconClass:'iconbox gear',action:function(){
+                genro.dev.openBagInspector(this.absDatapath('#WORKSPACE.options'),{title:'Full Options'});
+            }});
+            bar._('slotButton','refresh',{label:'Refresh',iconClass:'iconbox reload',action:function(){
+                genro.nodeById(that.chartNodeId).publish('refresh');
+            }});
+        }
         var bc = confframe._('BorderContainer',{side:'center'});
 
         var fb = genro.dev.formbuilder(bc._('ContentPane',{region:'top'})._('div',{margin_right:'10px'}),1,{border_spacing:'3px',margin_top:'10px',width:'100%'});
@@ -697,50 +759,56 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
         this.optionsTab(tc._('BorderContainer',{title:'Options'}));
     },
 
+    gnrwdg_datasetForm:function(pane,kw){
+        var sn = pane.getParentNode();
+        var chartType = sn.getRelativeData('.chartType') || this.sourceNode.getRelativeData('#WORKSPACE.chartType');
+        var pagesCb = genro.chartjs['_dataset_'+chartType];
+        var pages;
+        if(pagesCb){
+            pages = pagesCb();
+        }else{
+            pages = genro.chartjs._dataset__base();
+        }
+        var dtypeWidgets = {'T':'TextBox','B':'Checkbox','L':'NumberTextBox','N':'NumberTextBox'};
+        var bc = pane._('BorderContainer',{height:'300px',width:'330px',_class:'datasetParsContainer'});
+        var top = bc._('ContentPane',{region:'top',_class:'dojoxFloatingPaneTitle'})._('div',{innerHTML:'Dataset '+sn.getRelativeData('.field')});
+        var tc = bc._('tabContainer',{region:'center',margin:'2px'});
+        var field,dtype,lbl,editkw;
+        pages.forEach(function(pageKw){
+            var pane = tc._('ContentPane',{title:pageKw.title});
+            var fb = genro.dev.formbuilder(pane,1,{border_spacing:'3px',datapath:'.parameters',margin:'3px',margin_top:'10px'});
+            pageKw.fields.forEach(function(fkw){
+                dtype = fkw.dtype;
+                editkw = objectUpdate({},fkw.edit || {});
+                editkw.width = editkw.width || (dtype=='N' || dtype=='L') ?'7em':'12em';
+                editkw.value = '^.'+fkw.field;
+                if(fkw.values){
+                    editkw.tag =editkw.tag || 'filteringSelect';
+                    editkw.values = fkw.values;
+                }
+                editkw.lbl = fkw.lbl;
+                if(dtype=='B'){
+                    editkw.label = objectPop(editkw,'lbl');
+                }else{
+                    editkw.lbl_text_align = 'right';
+                }
+                fb.addField(objectPop(editkw,'tag') || dtypeWidgets[dtype], editkw);
+            });
+        });
+    },
+
     gnrwdg_datasetsTab:function(pane){
         var grid = pane._('quickGrid',{value:'^'+this.sourceNode.absDatapath('#WORKSPACE.datasets'),
                                     selfDragRows:true,canSort:false,
                                     addCheckBoxColumn:{field:'enabled'}});
         var that = this;
-        var dtypeWidgets = {'T':'TextBox','B':'Checkbox','L':'NumberTextBox','N':'NumberTextBox'};
+        
         grid._('column',{'field':'parameters',name:'Parameters',width:'100%',
                         _customGetter:function(row){
                             return row.parameters?row.parameters.getFormattedValue():'No Parameters';
                         },
                         edit:{modal:true,contentCb:function(pane,kw){
-                            var chartType = kw.rowDataNode.getValue().getItem('chartType') || that.sourceNode.getRelativeData('#WORKSPACE.chartType');
-                            var pagesCb = genro.chartjs['_dataset_'+chartType];
-                            var pages;
-                            if(pagesCb){
-                                pages = pagesCb();
-                            }else{
-                                pages = genro.chartjs._dataset__base();
-                            }
-                            var bc = pane._('BorderContainer',{height:'300px',width:'330px',_class:'datasetParsContainer'});
-                            var top = bc._('ContentPane',{region:'top',_class:'dojoxFloatingPaneTitle'})._('div',{innerHTML:'Dataset '+kw.rowDataNode.label});
-                            var tc = bc._('tabContainer',{region:'center',margin:'2px'});
-                            var field,dtype,lbl,editkw;
-                            pages.forEach(function(pageKw){
-                                var pane = tc._('ContentPane',{title:pageKw.title});
-                                var fb = genro.dev.formbuilder(pane,1,{border_spacing:'3px',datapath:'.parameters',margin:'3px',margin_top:'10px'});
-                                pageKw.fields.forEach(function(fkw){
-                                    dtype = fkw.dtype;
-                                    editkw = objectUpdate({},fkw.edit || {});
-                                    editkw.width = editkw.width || (dtype=='N' || dtype=='L') ?'7em':'12em';
-                                    editkw.value = '^.'+fkw.field;
-                                    if(fkw.values){
-                                        editkw.tag =editkw.tag || 'filteringSelect';
-                                        editkw.values = fkw.values;
-                                    }
-                                    editkw.lbl = fkw.lbl;
-                                    if(dtype=='B'){
-                                        editkw.label = objectPop(editkw,'lbl');
-                                    }else{
-                                        editkw.lbl_text_align = 'right';
-                                    }
-                                    fb.addField(objectPop(editkw,'tag') || dtypeWidgets[dtype], editkw);
-                                });
-                            });
+                            that.datasetForm(pane,kw);
                         }}});
         grid._('column',{field:'chartType',name:'Type',edit:{tag:'filteringSelect',values:'bar,line,bubble'}});
     },

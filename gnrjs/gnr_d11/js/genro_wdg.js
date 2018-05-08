@@ -1434,8 +1434,8 @@ dojo.declare("gnr.GridEditor", null, {
                                                                         }
                                                                    }})
             }else{
-                var rowpah = this.widgetRootNode.absDatapath('.' + rowLabel);
-                genro.dlg.quickTooltipPane({datapath:rowpah,fields:attr.fields,domNode:cellNode,modal:attr.modal},
+                var rowpath = this.widgetRootNode.absDatapath('.' + rowLabel);
+                genro.dlg.quickTooltipPane({datapath:rowpath,fields:attr.fields,domNode:cellNode,modal:attr.modal},
                                             funcCreate(attr.contentCb,'pane,kw',grid.sourceNode),
                                             {rowDataNode:rowDataNode,grid:grid,cell:cell});
             }
@@ -1716,6 +1716,8 @@ dojo.declare("gnr.GridFilterManager", null, {
         return this.activeFilters().length>0;
     }
 });
+
+
 dojo.declare("gnr.GridChangeManager", null, {
     constructor:function(grid){
         this.grid = grid;
@@ -1723,8 +1725,7 @@ dojo.declare("gnr.GridChangeManager", null, {
         this.initialize();
         var that = this;
         this.sourceNode.subscribe('onNewDatastore',function(){
-            that.data = that.grid.storebag();
-            that.data.subscribe('rowLogger',{'upd':dojo.hitch(that, "triggerUPD"),
+            that.grid.storebag().subscribe('rowLogger',{'upd':dojo.hitch(that, "triggerUPD"),
                                                'ins':dojo.hitch(that, "triggerINS"),
                                                'del':dojo.hitch(that, "triggerDEL")});
             that.resolveCalculatedColumns();
@@ -1732,13 +1733,14 @@ dojo.declare("gnr.GridChangeManager", null, {
             });
         this.sourceNode.subscribe('onSetStructpath',function(){
             this.delayedCall(function(){
-                if(that.data){
+                if(that.grid.storebag()){
                     that.resolveCalculatedColumns();
                     that.resolveTotalizeColumns();
                 }
             },1,'resolveCalculatedColumns')
         });
     },
+
     initialize:function(){
         this.formulaColumns = {};
         this.totalizeColumns = {};
@@ -1764,7 +1766,14 @@ dojo.declare("gnr.GridChangeManager", null, {
     },
 
     updateTotalizer:function(k){
-        var totvalue = this.data.sum(this.grid.datamode=='bag'?k:'#a.'+k);
+        var storebag = this.grid.storebag();
+        var storeattr = storebag.getParentNode().attr;
+        var _serverTotalizeColumns = this.grid.sourceNode._serverTotalizeColumns || {};
+        if((k in _serverTotalizeColumns) && !isNullOrBlank(storeattr['sum_'+k])){
+            //already set from server values
+            return;
+        }
+        var totvalue = this.grid.storebag().sum(this.grid.datamode=='bag'?k:'#a.'+k);
         this.sourceNode.setRelativeData(this.grid.cellmap[k].totalize,totvalue);
         this.sourceNode.publish('onUpdateTotalize',{'column':k,'value':totvalue});
     },

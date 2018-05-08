@@ -89,6 +89,7 @@ class LoginComponent(BaseComponent):
                 fbnode.attr['hidden'] = '==!_avatar || _hide '
                 fbnode.attr['_avatar'] = '^gnr.avatar.user'
                 fbnode.attr['_hide'] = '%s?hidden' %fbnode.value['#1.#0?value']
+                
         if gnrtoken or not self.closable_login:
             pane.dataController("""
                             var href = window.location.href;
@@ -218,7 +219,7 @@ class LoginComponent(BaseComponent):
         return result
 
     def loginboxPars(self):
-        return dict(width='320px',_class='index_loginbox',shadow='5px 5px 20px #555')
+        return dict(width='320px',_class='index_loginbox')
 
     def login_lostPassword(self,pane,dlg_login):
         dlg = pane.dialog(_class='lightboxDialog')

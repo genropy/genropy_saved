@@ -846,6 +846,81 @@ dojo.declare("gnr.GnrDevHandler", null, {
         else ele['on' + opt['type']] = func;
     },
 
+    userObjectSave:function(sourceNode,kw,onSaved){
+        var datapath = sourceNode.absDatapath(kw.metadataPath);
+        var saveAs = objectPop(kw,'saveAs');
+        var currentMetadata = genro.getData(datapath);
+        var userObjectIsLoaded = currentMetadata && currentMetadata.getItem('id');
+        var saveCb = function(dlg,evt,counter,modifiers){
+            var data = new gnr.GnrBag();
+            if(kw.dataIndex){
+                for(var key in kw.dataIndex){
+                    data.setItem(key,sourceNode.getRelativeData(kw.dataIndex[key]));
+                }
+                data.setItem('__index__',new gnr.GnrBag(kw.dataIndex));
+            }else if(kw.dataSetter){
+                funcApply(kw.dataSetter,{data:data},sourceNode);
+            }
+            var metadata = new gnr.GnrBag(kw.defaultMetadata);
+            metadata.update(genro.getData(datapath));
+            if(saveAs){
+                metadata.popNode('pkey');
+                metadata.popNode('id');
+            }
+            return genro.serverCall('_table.adm.userobject.saveUserObject',
+                {'objtype':kw.objtype,'table':kw.table,flags:kw.flags,
+                'data':data,metadata:metadata},
+                function(result) {
+                    if(dlg){
+                        dlg.close_action();
+                    }else{
+                        var objname = result.attr.description || result.attr.code;
+                        genro.publish('floating_message',{message:_T('Saved object '+objname)});
+                    }
+                    if(kw.loadPath){
+                        sourceNode.setRelativeData(kw.loadPath, result.attr.code);
+                    }
+                    if(onSaved){
+                        funcApply(onSaved,{result:result},sourceNode);
+                    }
+                    genro.setData(datapath,new gnr.GnrBag(result.attr));
+                    return result;
+                });
+        };
+        if(userObjectIsLoaded && !saveAs){
+            return saveCb();
+        }
+        this.userObjectDialog(objectPop(kw,'title'),datapath,saveCb);
+    },
+
+    userObjectLoad:function(sourceNode,kw){
+        var metadataPath = objectPop(kw,'metadataPath');
+        var onLoaded = objectPop(kw,'onLoaded');
+        var onLoading = objectPop(kw,'onLoading');
+
+        genro.serverCall('_table.adm.userobject.loadUserObject',kw,function(result){
+            var resultValue = result._value.deepCopy();
+            var resultAttr = objectUpdate({},result.attr);
+            var dataIndex = resultValue.pop('__index__');
+            if(onLoading){
+                funcApply(onLoading,null,sourceNode,
+                        ['dataIndex','resoultValue','resoultAttr'],
+                        [dataIndex,resultValue,resultAttr]);
+            }
+            sourceNode.setRelativeData(metadataPath,new gnr.GnrBag(resultAttr));
+            if(dataIndex){
+                dataIndex.forEach(function(n){
+                    sourceNode.setRelativeData(n.getValue(),resultValue.getItem(n.label));
+                });
+            }
+            if(onLoaded){
+                funcApply(onLoaded,null,
+                        sourceNode,['dataIndex','resoultValue','resoultAttr'],
+                        [dataIndex,resultValue,resultAttr]);
+            }
+        });
+    },
+
     userObjectDialog:function(title,datapath,saveCb){
         var dlg = genro.dlg.quickDialog(title);
         var center = dlg.center;

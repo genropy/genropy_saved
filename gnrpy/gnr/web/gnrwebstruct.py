@@ -37,6 +37,11 @@ def cellFromField(field,tableobj,checkPermissions=None):
     kwargs = dict()
     fldobj = tableobj.column(field)
     fldattr = dict(fldobj.attributes or dict())
+    if (fldattr.get('cell_edit') or fldattr.get('edit'))\
+         and fldobj.table.fullname!=fldobj.fullname:
+        fldattr.pop('cell_edit',None)
+        fldattr.pop('edit',None)
+        
     
     if checkPermissions:
         fldattr.update(fldobj.getPermissions(**checkPermissions))
@@ -1044,6 +1049,15 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """
         self.selectionStore(storeCode=storeCode,table=table, storepath=storepath,columns=columns,**kwargs)
         
+    def _storeParentFrame(self):
+        attr = self.attributes
+        if attr.get('frameCode'):
+            parentFramePaneNode = self.parentNode.attributeOwnerNode('tag',attrvalue='FramePane')
+            parent = parentFramePaneNode.value 
+        else:
+            parent = self.parent
+        return parent
+
     def selectionStore(self,table=None,storeCode=None,storepath=None,columns=None,handler=None,**kwargs):
         """TODO
         
@@ -1069,11 +1083,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if parentTag =='includedview' or  parentTag =='newincludedview':
             attr['table'] = table
             storepath = storepath or attr.get('storepath') or '.store'
-            
             storeCode = storeCode or attr.get('nodeId') or  attr.get('frameCode') 
             attr['store'] = storeCode
-            parent = self.parent
-              
+            parent = self._storeParentFrame()
         if parentTag == 'palettegrid':            
             storeCode=storeCode or attr.get('paletteCode')
             attr['store'] = storeCode
@@ -1083,6 +1095,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return parent.child('SelectionStore',storepath=storepath, table=table, nodeId=nodeId,columns=columns,handler=handler,**kwargs)
         #ds = parent.dataSelection(storepath, table, nodeId=nodeId,columns=columns,**kwargs)
         #ds.addCallback('this.publish("loaded",{itemcount:result.attr.rowCount}')
+
     
 
     def bagStore(self,table=None,storeCode=None,storepath=None,columns=None,_identifier=None,**kwargs):
@@ -1113,7 +1126,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             attr['tag'] = 'newincludedview'
             if _identifier:
                 attr['identifier'] = _identifier
-            parent = self.parent
+            parent = self._storeParentFrame()
+
         if parentTag == 'palettegrid':            
             storeCode=storeCode or attr.get('paletteCode')
             attr['store'] = storeCode
@@ -1138,7 +1152,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             storeCode = storeCode or attr.get('nodeId') or  attr.get('frameCode') 
             attr['store'] = storeCode
             attr['tag'] = 'newincludedview'
-            parent = self.parent
+            parent = self._storeParentFrame()
         if parentTag == 'palettegrid':            
             storeCode=storeCode or attr.get('paletteCode')
             attr['store'] = storeCode
@@ -1162,7 +1176,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             storeCode = storeCode or attr.get('nodeId') or  attr.get('frameCode') 
             attr['store'] = storeCode
             attr['tag'] = 'newincludedview'
-            parent = self.parent
+            parent = self._storeParentFrame()
         if parentTag == 'palettegrid':            
             storeCode=storeCode or attr.get('paletteCode')
             attr['store'] = storeCode
@@ -1403,7 +1417,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             return self.includedview_legacy(*args,**kwargs)
             
     def includedview_inframe(self, frameCode=None, struct=None, columns=None, storepath=None, structpath=None,
-                             datapath=None, nodeId=None, configurable=True, _newGrid=False, childname=None, **kwargs):
+                             datapath=None, nodeId=None, configurable=None, _newGrid=False, childname=None, **kwargs):
         """TODO
         
         :param frameCode: TODO
@@ -1439,7 +1453,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         frameattributes['target'] = nodeId
         iv =self.child(wdg,frameCode=frameCode, datapath=datapath,structpath=structpath, nodeId=nodeId,
                      childname=childname,
-                     relativeWorkspace=relativeWorkspace,configurable=configurable,storepath=storepath,**kwargs)
+                     relativeWorkspace=relativeWorkspace,configurable=configurable,
+                     storepath=storepath,**kwargs)
         if struct or columns or not structpath:
             iv.gridStruct(struct=struct,columns=columns)
         return iv
@@ -2307,6 +2322,12 @@ class GnrGridStruct(GnrStructData):
         self.tableobj = tableobj
         return self.child('view', **kwargs)
         
+    def info(self, **kwargs):        
+        return self.child('info',childname='info', **kwargs)
+
+    def columnsets(self, **kwargs):        
+        return self.child('columnsets',childname='columnsets', **kwargs)
+
     def rows(self, classes=None, cellClasses=None, headerClasses=None, **kwargs):
         """TODO
         
@@ -2315,6 +2336,18 @@ class GnrGridStruct(GnrStructData):
         :param headerClasses: TODO"""
         return self.child('rows', classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
         
+    def columnset(self,code=None,name=None,**kwargs):
+        columnsets = self
+        if self.attributes['tag']=='rows':
+            structroot = columnsets.parent.parent
+            columnsets = structroot.getItem('info.columnsets')
+            if not columnsets:
+                info = structroot.getItem('info')
+                if not info:
+                    info = structroot.info()
+                columnsets = info.columnsets()
+        return columnsets.child('columnset',code=code, name=name, childname=code,**kwargs)
+
     def cell(self, field=None, name=None, width=None, dtype=None, classes=None, cellClasses=None, 
             headerClasses=None,**kwargs):
         """Return a :ref:`cell`
@@ -2330,8 +2363,12 @@ class GnrGridStruct(GnrStructData):
             return 
         if field and getattr(self,'tblobj',None):
             kwargs.setdefault('calculated',self.tblobj.column(field) is None)
-
-        return self.child('cell', childcontent='', field=field, name=name or field, width=width, dtype=dtype,
+        row = self
+        parentAttributes = self.attributes
+        if  parentAttributes['tag'] == 'columnset':
+            row = self.parent.parent.parent.getItem('view_0.rows_0')
+            kwargs['columnset'] = parentAttributes['code']
+        return row.child('cell', childcontent='', field=field, name=name or field, width=width, dtype=dtype,
                           classes=classes, cellClasses=cellClasses, headerClasses=headerClasses,**kwargs)
                           
     

@@ -28,11 +28,13 @@ class Form(BaseComponent):
         fb.field('pkgid',validate_notnull=True,
                     tag='filteringSelect',
                     values=','.join(self.db.application.packages.keys()))
-        fb.field('code',validate_notnull=True)
-        fb.field('description',colspan=2,width='100%')        
-        bc.dashboardViewer(datapath='#FORM.dashboardEditor',
-                            storepath='#FORM.record.data',edit=True,
-                            region='center')
+        fb.field('code',validate_notnull=True,unmodifiable=True)
+        fb.field('description',colspan=2,width='100%')   
+        tc = bc.tabContainer(region='center',margin='2px')
+        tc.dashboardViewer(title='Dashboards',datapath='#FORM.dashboardEditor',
+                            storepath='#FORM.record.data',edit=True)
+        tc.itemsViewer(title='Items',storepath='#FORM.record.data.items',datapath='#FORM.dashboardItems') 
+
 
 
 

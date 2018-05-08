@@ -396,6 +396,7 @@ class GnrWebPage(GnrBaseWebPage):
                                 maxdate=datetime.date.max,mindate=datetime.date.min,
                                user=self.user, userTags=self.userTags, pagename=self.pagename,
                                mainpackage=self.mainpackage,_user_conf_expirebag=expirebag)
+            self._db.setLocale()
             avatar = self.avatar
             if avatar:
                 self._db.updateEnv(_excludeNoneValues=True,**self.avatar.extra_kwargs)
@@ -1892,7 +1893,7 @@ class GnrWebPage(GnrBaseWebPage):
         page.dataController("""
                 genro.playUrl(url);
             """,url='^gnr.playUrl')
-        page.dataRpc('dummy',self.quickCommunication,subscribe_quick_comunication=True,
+        page.dataRpc(None,self.quickCommunication,subscribe_quick_comunication=True,
                     _onResult='genro.publish("quick_comunication_sent",{info:result});')
 
         page.dataController("genro.openWindow(url,filename);",url='^gnr.clientprint',filename='!!Print')

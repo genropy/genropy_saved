@@ -212,6 +212,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         if(sourceNode){
             delete sourceNode.widget;
         }
+        widget.domNode = widget.domNode || {};
         widget.destroyRecursive();
     },
     

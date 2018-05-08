@@ -601,6 +601,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if(nodeId=='WORKSPACE'){
             var node=this.attributeOwnerNode('_workspace');
             genro.assert(node,'with WORKSPACE path you need an ancestor node with attribute _workspace');
+            if(node.attr._workspace_path){
+                return node.absDatapath(node.attr._workspace_path)+'.'+relpath;
+            }
             var wsname = node.attr._workspace===true?(node.attr.nodeId || (node.attr.tag+'_'+node.getPathId())):node.attr._workspace;
             return 'gnr.workspace.'+wsname+'.'+relpath;
         }
@@ -833,7 +836,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     _buildChildren: function(destination) {
         if (this.attr.remote) {
             var that = this;
-            this.watch('isVisibile',function(){return genro.dom.isVisible(that);},function(){that.updateRemoteContent();});
+            this.watch('isVisibile',function(){return genro.dom.isVisible(that);},function(){
+                setTimeout(function(){
+                    that.updateRemoteContent();
+                },1);
+            });
         }
         var content = this.getValue('static');
         if (content instanceof gnr.GnrDomSource) {
@@ -872,7 +879,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         if(this._shortcuts){
             this._shortcuts.forEach(function(kw){
-                console.log('remove shortcut',kw);
                 var args = kw.args;
                 kw.element.removeEventListener(args[0],args[1],args[2]);
             });
@@ -1470,9 +1476,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 if ('_else' in remoteAttr){
                     var elseval=remoteAttr._else;
                     if (elseval && typeof(elseval)=='string'){
-                        elseval=funcCreate(elseval).call(this)
+                        elseval=funcCreate(elseval).call(this);
                     }
-                    this.mergeRemoteContent(elseval)
+                    this.mergeRemoteContent(elseval);
                 }
                 return;
             }
@@ -1486,7 +1492,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 var node = genro._data.getNode(abspath);
                 value = asTypedTxt(value, node.attr.dtype);
             }
-            ;
             if (attrname.indexOf('_') != 0) {
                 kwargs[attrname] = value;
             } else if (attrname == '_onRemote') {
@@ -1507,7 +1512,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             function(result) {
                 //that.setValue(result);
                 if(result.error){
-                    genro.dlg.alert('Error in remote '+result.error,'Error')
+                    genro.dlg.alert('Error in remote '+result.error,'Error');
                 }else{
                     that.watch('checkPendingRequirs',function(){
                         return !objectNotEmpty(genro.dom.pendingHeaders);
@@ -1515,7 +1520,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         if(remoteAttr._waitingMessage){
                             that.setHiderLayer(false);
                         }
-                        that.mergeRemoteContent(result)
+                        that.mergeRemoteContent(result);
                         if (_onRemote) {
                             _onRemote();
                         }
@@ -1585,7 +1590,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     
     watch: function(watchId,conditionCb,action,delay){
-        var delay=delay || 200;
+        delay=delay || 200;
         if(this.watches && (watchId in this.watches)){
             this.unwatch(watchId);
         }

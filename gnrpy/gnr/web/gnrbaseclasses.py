@@ -168,31 +168,101 @@ class BaseWebtool(object):
 
 class BaseDashboardItem(object):
     item_name=''
+    run_onbuilt = 1
+    run_timer = None
+    title_template = '$title'
+    linked_item = None
 
     def __init__(self, page=None, resource_table=None, **kwargs):
         self.page = page
         self.db = page.db
         self.tblobj = resource_table
 
-    def __call__(self,pane,editMode=None,workpath=None,itemPars=None,**kwargs):
-        title = itemPars.pop('_item_title') or self.item_name
-        bc = pane.borderContainer(region='center')
-        top = bc.contentPane(region='top',height='14px',background='#666')
-        sc = bc.stackContainer(region='center')
-        top.div(title,color='white',font_size='.8em',
-                             font_weight='bold',text_align='center')
-        top.lightbutton(_class='menu_white_svg',height='12px',width='12px',
-                        position='absolute',top='1px',right='4px',
-                        action='sc.switchPage(1);',sc=sc.js_widget)
-        kwargs.update(itemPars.asDict(ascii=True))
-        pane = sc.contentPane()
-        self.content(pane,workpath=workpath,**kwargs)
-        bc = sc.borderContainer()
-        self.configuration(bc.contentPane(region='center',datapath='.conf'),workpath=workpath,**kwargs)
-        bottom = bc.contentPane(region='bottom',_class='slotbar_dialog_footer')
-        bottom.button('!!Ok',top='2px',right='2px',action="""sc.switchPage(0);
-                                                            FIRE %s.configuration_changed;
-                                                        """ %workpath,sc=sc.js_widget)
+    @extract_kwargs(itempar=True)
+    def __call__(self,pane,editMode=None,workpath=None,parameters=None,itempar_kwargs=None,
+                itemspath=None,workspaces=None,itemIdentifier=None,title=None,**kwargs):
+        if not workpath:
+            workpath = '%s.%s' %(workspaces,itemIdentifier)
+        parameters = parameters or Bag()
+        title = title or itempar_kwargs.pop('title',None) or self.item_name
+        storepath = '%s.%s' %(itemspath,itemIdentifier) if itemspath and itemIdentifier else None
+        bc = pane.borderContainer()
+        top = bc.contentPane(region='top',min_height='20px').div(height='20px',_class='dashboard_item_top',
+                                               onDrag="""
+                                               dragValues['itemIdentifier'] = '%s';
+                                               """ %itemIdentifier,draggable=itemIdentifier is not None)
+        sc = bc.stackContainer(region='center',datapath=storepath,selectedPage='^%s._dashboardPageSelected' %workpath)
+        top.div('^.current_title',text_align='center',datapath=workpath,padding_top='3px',
+                connect_ondblclick="""
+                var store = genro.getData('%s');
+                var dflt = store.getItem('title');
+                genro.dlg.prompt(_T('Change title'),{lbl:_T('Title'),dflt:dflt,action:function(newtitle){store.setItem('title',newtitle);}});
+                """ %storepath)
+        bc.dataFormula('%s.current_title' %workpath,"dataTemplate(tpl,itemaData)",tpl=self.title_template,
+                        itemaData='^%s' %storepath,_onBuilt=True)
+        itemIdentifier = itemIdentifier or id(sc)
+
+        if editMode:
+            top.lightbutton(_class='close_svg',height='16px',
+                        width='16px',top='1px',position='absolute',
+                        left='4px',cursor='pointer',
+                        action="""var curtitle = this.getRelativeData('%s.current_title');
+                                    var that = this;
+                                    genro.dlg.ask(_T('Closing item ')+curtitle,
+                                            _T('You are going to remove a item '+curtitle),
+                                            {confirm:_T('Confirm'),cancel:_T('Cancel')},
+                                            {confirm:function(){
+                                                genro.dashboards.emptyTile(that);
+                                            }, cancel:function(){}});
+                                    """ %workpath)
+            
+        top.lightbutton(_class='menu_white_svg',height='16px',width='16px',
+                        position='absolute',top='1px',right='4px',cursor='pointer',
+                        action="""
+                        if(event.shiftKey){
+                            console.log('publish',itemIdentifier+'_parameters_open')
+                            genro.publish(itemIdentifier+'_parameters_open');
+                        }else{
+                            if(_dashboardPageSelected=='conf'){
+                                SET ._dashboardPageSelected = 'content';
+                                FIRE .configuration_changed;
+                            }else{
+                                SET ._dashboardPageSelected = 'conf';
+                            } 
+                        }
+                        """ ,datapath=workpath,
+                        itemIdentifier=itemIdentifier,
+                        _dashboardPageSelected='=._dashboardPageSelected')
+        if editMode and self.linked_item:
+            
+            box = top.div(position='absolute',top='1px',right='40px',height='16px',width='20px')
+            box.div(draggable=True,cursor='move',display='inline-block',
+                            workpath=workpath,storepath=storepath,
+                            height='15px',width='15px',**self.linked_item)
+
+
+        kwargs.update(itempar_kwargs)
+        kwargs.update(parameters.asDict(ascii=True))
+        pane = sc.contentPane(pageName='content')
+        workspaces = workspaces or 'dashboards'
+        
+        self.content(pane,workpath=workpath,storepath=storepath,itemIdentifier=itemIdentifier,workspaces=workspaces,**kwargs)
+        bc = sc.borderContainer(pageName='conf')
+        bc.dataController("""FIRE .runItem;""",
+                        _onBuilt=self.run_onbuilt,
+                        datapath=workpath,_timing='=.runTimer')
+        bc.dataController("""if(runRequired){
+            SET .runRequired = false;
+            FIRE .runItem;
+        }""",
+        changedConfig='^.configuration_changed',runRequired='=.runRequired',datapath=workpath)
+        self.configuration(bc.contentPane(region='center',datapath='.conf'),workpath=workpath,storepath=storepath,
+                                        workspaces=workspaces,itemIdentifier=itemIdentifier,**kwargs)
+       #bottom = bc.contentPane(region='bottom',_class='slotbar_dialog_footer')
+       #bottom.button('!!Ok',top='2px',right='2px',action="""sc.switchPage(0);
+       #                                                    FIRE %s.configuration_changed;
+       #                                                """ %(workpath or ''),sc=sc.js_widget)
+        
 
     def content(self,pane,**kwargs):
         pass
@@ -238,14 +308,16 @@ class TableScriptToHtml(BagToHtml):
             record = self.tblobj.recordAs(record, virtual_columns=self.virtual_columns)
         self.serveAsLocalhost = serveAsLocalhost or pdf
         html_folder = self.getHtmlPath(autocreate=True)
-        html = super(TableScriptToHtml, self).__call__(record=record, folder=html_folder, **kwargs)
+        result = super(TableScriptToHtml, self).__call__(record=record, folder=html_folder, **kwargs)
         
-        if not html:
+        if not result:
             return False
         if not pdf:
-            return html
-        
-        self.writePdf(docname=self.getDocName())
+            return result
+        if not isinstance(result, list):
+            self.writePdf(docname=self.getDocName())
+        else:
+            self.writePdf(filepath=result,docname=self.getDocName())
         if downloadAs:
             with open(self.pdfpath, 'rb') as f:
                 result = f.read()
@@ -263,8 +335,22 @@ class TableScriptToHtml(BagToHtml):
         self.pdfpath = pdfpath or self.getPdfPath('%s.pdf' % docname, autocreate=-1)
         pdf_kw = dict([(k[10:],getattr(self,k)) for k in dir(self) if k.startswith('htmltopdf_')])
         pdf_kw.update(pdf_kwargs)
-        self.print_handler.htmlToPdf(filepath or self.filepath, self.pdfpath, orientation=self.orientation(), page_height=self.page_height, 
+        filepath = filepath or self.filepath
+        if not isinstance(filepath,list):
+            self.print_handler.htmlToPdf(filepath or self.filepath, self.pdfpath, orientation=self.orientation(), page_height=self.page_height, 
                                         page_width=self.page_width,pdf_kwargs=pdf_kw)
+            return
+        pdfToJoin = []
+        for fp in filepath:
+            curPdfPath = os.path.splitext(fp)[0]+'.pdf'
+            pdfToJoin.append(curPdfPath)
+            self.print_handler.htmlToPdf(fp, curPdfPath, orientation=self.orientation(), page_height=self.page_height, 
+                                        page_width=self.page_width,pdf_kwargs=pdf_kw)
+            os.remove(fp)
+        self.print_handler.joinPdf(pdfToJoin,self.pdfpath)
+        for pdf in pdfToJoin:
+            os.remove(pdf)
+
 
     def get_css_requires(self):
         """TODO"""

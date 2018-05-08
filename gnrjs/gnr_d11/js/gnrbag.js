@@ -46,7 +46,7 @@ dojo.declare("gnr.GnrBagNode", null, {
 
     constructor: function(parentbag, label, value, _attr, _resolver) {
         this._id = this._counter[0] += 1;
-        this.label = (label == '#id') ? this.getStringId() : label;
+        this.label = (label == '#id') ? genro.time36Id() : label;
         this.locked = false;
         this._value = null;
         this.setResolver(_resolver);
@@ -1650,7 +1650,13 @@ dojo.declare("gnr.GnrBag", null, {
                 
             }
             if(recursive && (value instanceof gnr.GnrBag)){
-                value = value.asDict(recursive,excludeNullValues);
+                if(recursive=='flat'){
+                    objectUpdate(result,value.asDict(recursive,excludeNullValues));
+                    continue;
+                }else{
+                    value = value.asDict(recursive,excludeNullValues);
+                }
+                
             }
             if(isArray){
                 result.push(value);

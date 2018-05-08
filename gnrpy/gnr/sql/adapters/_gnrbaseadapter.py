@@ -264,6 +264,9 @@ class SqlDbAdapter(object):
         result = """'<a %s >%s</a>'""" % (' '.join(['%s="%s"' %(k,v) for k,v in kw.items()]), link_txt)
         return result
 
+    def setLocale(self,locale):
+        pass
+        
     def ageAtDate(self, dateColumn, dateArg=None, timeUnit='day'):
         """Returns the sql clause to obtain the age of a dateColum measured as difference from the dateArg or the workdate
            And expressed with given timeUnit.
@@ -730,7 +733,7 @@ class GnrWhereTranslator(object):
                 dtype = colobj.dtype
 
                 if value is None and attr.get('value_caption'):
-                    value = sqlArgs.pop(attr['value_caption'])
+                    value = sqlArgs.pop(attr['value_caption'],'')
                 onecondition = self.prepareCondition(column, op, value, dtype, sqlArgs,tblobj=tblobj)
 
             if onecondition:

@@ -1008,25 +1008,11 @@ genropatches.borderContainer = function() {
 
                 dojo.forEach(this.getChildren(), function(child) {
                     if (child.resize && (!changedRegion || child.region in resizeList)) {
-                        //              console.log(this.id, ": resizing child id=" + child.id + " (region=" + child.region + "), style before resize is " +
-                        //                                   "{ t: " + child.domNode.style.top +
-                        //                                  ", b: " + child.domNode.style.bottom +
-                        //                                  ", l: " + child.domNode.style.left +
-                        //                                   ", r: " + child.domNode.style.right +
-                        //                                   ", w: " + child.domNode.style.width +
-                        //                                   ", h: " + child.domNode.style.height +
-                        //                                  "}"
-                        //                      );
-                        child.resize();
-                        //              console.log(this.id, ": after resize of child id=" + child.id + " (region=" + child.region + ") " +
-                        //                                   "{ t: " + child.domNode.style.top +
-                        //                                  ", b: " + child.domNode.style.bottom +
-                        //                                  ", l: " + child.domNode.style.left +
-                        //                                   ", r: " + child.domNode.style.right +
-                        //                                   ", w: " + child.domNode.style.width +
-                        //                                   ", h: " + child.domNode.style.height +
-                        //                                  "}"
-                        //                      );
+                        try {
+                            child.resize();
+                        } catch (error) {
+                            return;
+                        }
                     }
                 }, this);
             }

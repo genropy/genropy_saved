@@ -803,6 +803,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                                       pkeys=pkeys, sortedBy=sortedBy, excludeLogicalDeleted=excludeLogicalDeleted,
                                       excludeDraft=excludeDraft,checkPermissions=checkPermissions ,**kwargs)
             selection = selecthandler(**selection_pars)
+            if selection is False:
+                return Bag()
             if not selection and weakLogicalDeleted and \
                     excludeLogicalDeleted and excludeLogicalDeleted!='mark':
                 selection_pars['excludeLogicalDeleted'] = 'mark'
@@ -971,7 +973,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                               relationDict=None, sqlparams=None,recordResolver=None, selectionName=None,
                                pkeys=None, queryMode=None,
                               sortedBy=None, sqlContextName=None,
-                              excludeLogicalDeleted=True,excludeDraft=True,**kwargs):
+                              excludeLogicalDeleted=True,excludeDraft=True,_aggregateRows=True,**kwargs):
         sqlContextBag = None
         if sqlContextName:
             sqlContextBag = self._getSqlContextConditions(sqlContextName)
@@ -1012,7 +1014,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                              excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft, **kwargs)
         if sqlContextName:
             self._joinConditionsFromContext(query, sqlContextName)
-        selection = query.selection(sortedBy=sortedBy, _aggregateRows=True)
+        selection = query.selection(sortedBy=sortedBy, _aggregateRows=_aggregateRows)
         #if sqlContextBag:
         #    THIS BLOCK SHOULD ALLOW US TO HAVE AN APPLYMETHOD INSIDE SQLCONTEXT.
         #    IT DOES NOT WORK BUT WE THINK IT'S USELESS

@@ -22,6 +22,7 @@ class BaseResourceBatch(object):
     dialog_height = '200px'
     dialog_width = '300px'
     virtual_columns = None
+    batch_local_cache = True
 
     def __init__(self, page=None, resource_table=None):
         self.page = page
@@ -51,9 +52,10 @@ class BaseResourceBatch(object):
                                 batch_title=self.batch_title,tbl=self.tblobj.fullname,
                                 start_ts=datetime.now(),notes=self.batch_note)
         try:
-            self.run()
-            result, result_attr = self.result_handler()
-            self.btc.batch_complete(result=result, result_attr=result_attr)
+            with self.db.tempEnv(cacheInPage=self.batch_local_cache):
+                self.run()
+                result, result_attr = self.result_handler()
+                self.btc.batch_complete(result=result, result_attr=result_attr)
             #self.page.setInClientData('')
         except self.btc.exception_stopped:
             self.btc.batch_aborted()

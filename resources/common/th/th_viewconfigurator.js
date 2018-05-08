@@ -28,6 +28,11 @@ var genro_plugin_grid_configurator = {
         var gridSourceNode = genro.nodeById(gridId);
         var selectedViewCode = gridSourceNode.getRelativeData('.currViewAttrs.code');
         var datapath =  gridSourceNode.absDatapath('.currViewAttrs');
+        var objtype = 'view';
+        var collectionStore = gridSourceNode.widget.collectionStore();
+        if(collectionStore.storeNode.attr.groupByStore){
+            objtype = 'grpview';
+        }
         var that = this;
         saveCb = function(dlg) {
             var pagename = genro.getData('gnr.pagename');
@@ -42,9 +47,10 @@ var genro_plugin_grid_configurator = {
             }else{
                 flags = flag;
             }
+
             metadata.setItem('flags',flags);
             genro.serverCall('_table.adm.userobject.saveUserObject',
-                            {'objtype':'view','metadata':metadata,'data':gridSourceNode.widget.structBag,
+                            {'objtype':objtype,'metadata':metadata,'data':gridSourceNode.widget.structBag,
                             table:gridSourceNode.attr.table},
                             function(result) {
                                 dlg.close_action();
@@ -57,7 +63,6 @@ var genro_plugin_grid_configurator = {
     
 
     addGridConfigurator:function(sourceNode){
-
         sourceNode.attr.selfDragColumns = 'trashable';
         var table = sourceNode.attr.table;
         if(!table && sourceNode.attr.storepath){
@@ -72,10 +77,16 @@ var genro_plugin_grid_configurator = {
                 if(dropInfo.event.shiftKey){
                     fieldcellattr = genro.serverCall('app.getFieldcellPars',{field:data.fieldpath,table:data.maintable});
                     if(fieldcellattr){
-                        fieldcellattr = fieldcellattr.asDict();
+                        fieldcellattr = fieldcellattr.asDict(null,true);
                     }
                 }
-                grid.addColumn(data, dropInfo.column,fieldcellattr);
+                if(sourceNode.attr.onDroppedColumn){
+                    var treeNode = genro.src.nodeBySourceNodeId(dropInfo.dragSourceInfo._id);
+                    funcApply(sourceNode.attr.onDroppedColumn,{data:data, column:dropInfo.column,fieldcellattr:fieldcellattr,treeNode:treeNode},grid);
+                }else{
+                    grid.addColumn(data, dropInfo.column,fieldcellattr);
+                }
+                
             };
             sourceNode.attr.dropTarget_column = sourceNode.attr.dropTarget_column ? sourceNode.attr.dropTarget_column + ',' + 'gnrdbfld_' + tablecode : 'gnrdbfld_' + tablecode;
             sourceNode.dropModes.column = sourceNode.attr.dropTarget_column;
@@ -83,7 +94,7 @@ var genro_plugin_grid_configurator = {
         sourceNode._gridConfiguratorBuilt=true;
     },
     
-    loadView:function(gridId,currPath,frameCode){
+    loadView:function(gridId,currPath){
         var gridSourceNode = genro.nodeById(gridId);
         currPath = currPath || gridSourceNode.getRelativeData('.favoriteViewPath') || '__baseview__';
         var resource_structs = gridSourceNode.getRelativeData('.resource_structs');
@@ -115,9 +126,9 @@ var genro_plugin_grid_configurator = {
         this.checkFavorite(gridId);
         if(viewAttr.pkey){
             var pkey = viewAttr.pkey;
-            genro.serverCall('_table.adm.userobject.loadUserObject', {pkey:pkey}, function(result){finalize(result.getValue())});
+            genro.serverCall('_table.adm.userobject.loadUserObject', {pkey:pkey}, function(result){finalize(result.getValue());});
         }else{
-            finalize(gridSourceNode.getRelativeData('.resource_structs.'+currPath).deepCopy())
+            finalize(gridSourceNode.getRelativeData('.resource_structs.'+currPath).deepCopy());
         }
     },
     refreshMenu:function(gridId){
@@ -139,7 +150,276 @@ var genro_plugin_grid_configurator = {
         gridSourceNode.setRelativeData('.favoriteViewPath',currfavorite);
         //this.refreshMenu(gridId);
         genro.dom.setClass(frame,'th_isFavoriteView',currfavorite==currPath);
+    },
+
+    configuratorPalette:function(gridId){
+        var gridNode = genro.nodeById(gridId) || genro.nodeBySourceNodeId(gridId);
+        var paletteCode = '_currentPaletteGridConfigurator_'+gridId;
+        var paletteWdg = genro.wdgById(paletteCode+'_floating');
+        if(paletteWdg){
+            paletteWdg.show();
+            return;
+        }
+        var root = genro.src.newRoot();
+        genro.src.getNode()._('div', paletteCode);
+        var node = genro.src.getNode(paletteCode).clearValue();
+        node.freeze();
+        var title = gridNode.attr.item_name_plural?' '+gridNode.attr.item_name_plural:'';
+        var pane = node._('PalettePane',{title:'Grid configurator'+title,
+                                                paletteCode:paletteCode,
+                                                height:'500px',width:'800px','dockTo':'dummyDock:open'});
+
+        var frame = pane._('framePane',{frameCode:paletteCode+'_panels',center_widget:'stackContainer'});
+        var bar = frame._('slotBar',{slots:'2,stackButtons,*,saveConfiguration,2',toolbar:true,side:'top'});
+        var that = this;
+        bar._('slotButton','saveConfiguration',{iconClass:'iconbox save',
+                                                action:function(){
+                                                    that.saveGridView(gridId);
+                                                }});
+        this._cellsEditorGrid(frame,gridNode);
+        this._columnsetsGrid(frame,gridNode);
+        this._structureConfigurator(frame,gridNode);
+        node.unfreeze();
+    },
+
+    _columnsetsGrid:function(tc,gridNode){
+        var pane = tc._('contentPane',{title:'Columnsets',datapath:'.colseteditor',margin:'2px'});
+        var structpath = gridNode.absDatapath(gridNode.attr.structpath);
+        var grid_pars = {value:'^.columnsets_edit',nodeId:(gridNode.attr.nodeId || gridNode._id)+'_columnsetsGrid'};
+        grid_pars.selfsubscribe_addrow = function(addkw){
+            var rowDefaults = objectUpdate({},addkw._askResult);
+            rowDefaults.code = objectPop(rowDefaults,'columnset');
+            this.widget.storebag().setItem(rowDefaults.code,new gnr.GnrBag(rowDefaults));
+        }
+        var grid = pane._('quickGrid',grid_pars);
+        grid._('column',{name:_T('Code'),field:'code',width:'5em'});
+        grid._('column',{name:_T('Name'),field:'name',edit:true,width:'12em'});
+        this._subBagCell(grid,'styles_columnset','Styles',genro.dom.styleFields,{blacklist:['height','width']});
+        this._subBagCell(grid,'styles_cells','Cell styles',genro.dom.styleFields,{blacklist:['height','border']});
+ 
+        var t = grid._('tools',{tools:'delrow,addrow',title:_T('Columnsets'),
+        custom_tools:{addrow:{content_class:'iconbox add_row',ask:{title:_T('New columnset'),
+              fields:[{name:'columnset',lbl:'Code',validate_notnull:true},
+                      {name:'name',lbl:'Name'},
+                  ]
+              }}}});
+        var dc = pane._('dataController',{script:'this._columnsetsEditor(editbag,destbag,_triggerpars)',
+                                            editbag:'^.columnsets_edit',
+                                            destbag:'^'+structpath+'.info.columnsets'});
+        dc.getParentNode()._columnsetsEditor = function(editbag,destbag,_triggerpars){
+            var rebuildEditBag = function(editbag){
+                var destbag = genro.getData(structpath+'.info.columnsets');
+                editbag.getNodes().forEach(function(n){
+                    editbag.popNode(n.label,'_columnsetsEditor');
+                });
+                if(!destbag){
+                    destbag = new gnr.GnrBag();
+                    genro.setData(structpath+'.info.columnsets',destbag);
+                    return;
+                }
+                destbag.forEach(function(n){
+                    var r = objectUpdate({},n.attr);
+                    var currStyles = objectExtract(r,genro.dom.editableStyles.join(','));
+                    var currCellStyles = objectExtract(objectExtract(r,'cells_*'),genro.dom.editableStyles.join(','));
+                    r = new gnr.GnrBag(r);
+                    r.setItem('styles_columnset',new gnr.GnrBag(currStyles));
+                    r.setItem('styles_cells',new gnr.GnrBag(currCellStyles));
+                    editbag.setItem(n.label,r,{_pkey:n.label},{doTrigger:'_columnsetsEditor'});
+                });
+            };
+            if(_triggerpars.kw.reason=='_columnsetsEditor'){
+                return;
+            }
+            if(_triggerpars.kw.pathlist.indexOf('columnsets_edit')>=0){
+                if(destbag && destbag.len() && _triggerpars.kw.reason=='loadData'){
+                    rebuildEditBag(editbag);
+                }else if(_triggerpars.trigger_reason=='child'){
+                    var evt = _triggerpars.kw.evt;
+                    if(evt=='upd'){
+                        var rowNode = _triggerpars.kw.node.getParentNode();
+                        var updDict = {};
+                        var updValue = _triggerpars.kw.node.getValue();
+                        if(rowNode.label.startsWith('styles_')){
+                            rowNode.getValue().forEach(function(n){
+                                var prefix = rowNode.label=='styles_cells'?'cells_':'';
+                                if(n.getValue()!==null){
+                                    updDict[prefix+n.label] = n.getValue();
+                                }
+                            });
+                            rowNode = rowNode.getParentNode();
+                        }else{
+                            updDict[_triggerpars.kw.node.label] = updValue;
+                        }
+                        destbag.getNode(rowNode.label).updAttributes(updDict,'_columnsetsEditor');
+                    }else if(evt=='ins'){
+                        var ds = destbag || new gnr.GnrBag(); 
+                        ds.setItem(_triggerpars.kw.node.label,null,_triggerpars.kw.node.getValue().asDict('flat',true),{doTrigger:'_columnsetsEditor'});
+                        if(!destbag){
+                            genro.setData(structpath+'.info.columnsets',ds,null,{doTrigger:'_columnsetsEditor'});
+                        }
+                    }else{
+                        destbag.popNode(_triggerpars.kw.node.label,'_columnsetsEditor');
+                    }
+                }
+            }else{
+                rebuildEditBag(editbag);
+            }
+        };
+    },
+
+
+    _cellsEditorGrid:function(tc,gridNode){
+        var pane = tc._('contentPane',{title:_T('Columns'),margin:'2px',datapath:'.cellseditor'});
+        var structpath = gridNode.absDatapath(gridNode.attr.structpath);
+
+        var grid_pars = {value:'^.cells_edit',nodeId:(gridNode.attr.nodeId || gridNode._id)+'_cellsEditorGrid'};
+        grid_pars.selfDragRows = true;
+        grid_pars.selfsubscribe_addrow = function(addkw){
+            var rowDefaults = objectUpdate({},addkw._askResult);
+            rowDefaults.calculated = true;
+            this.widget.storebag().setItem('cellx_'+genro.time36Id(),new gnr.GnrBag(rowDefaults));
+        };
+        var grid = pane._('quickGrid',grid_pars);
+        var fldgetter = function(attr){
+            attr = attr[0];
+            var result = attr.field.replace(/\W/g, '_');
+            if(attr.group_aggr){
+                result+= '_'+attr.group_aggr.replace(/\W/g, '_').toLowerCase();
+            }
+            return result;
+        };
+        var formulaPane = function(pane){
+            var fb = genro.dev.formbuilder(pane,1,{border_spacing:'1px',margin:'5px'});
+            var values = genro.getData(structpath+'.view_0.rows_0').digest('#a');
+            values = values.map(fldgetter).join(',');
+            var tb = fb.addField('textbox',{lbl:_T('Formula'),value:'^.formula',width:'40em'});
+            tb._('ComboMenu',{values:values,action:function(kw,ctx){
+                var cv = this.attr.attachTo.widget.getValue();
+                this.attr.attachTo.widget.setValue(cv?cv+' '+kw.fullpath:kw.fullpath);
+            }});
+        }
+        grid._('column',{name:_T('Field'),field:'field',width:'12em'});
+        grid._('column',{name:_T('Type'),field:'dtype',width:'5em'});
+        grid._('column',{name:_T('Name'),field:'name',edit:true,width:'12em'});
+        grid._('column',{name:_T('Formula'),field:'formula',editDisabled:'=#ROW.calculated?=!#v',
+                                edit:{modal:true,contentCb:function(pane){formulaPane(pane);}},width:'12em'});
+        grid._('column',{name:_T('Columnset'),field:'columnset',edit:{tag:'ComboBox',
+                                            values:'='+structpath+'.info.columnsets'+'?=#v?#v.keys().join(","):null'},
+                                            width:'8em'});
+        grid._('column',{name:'T',field:'totalize',dtype:'B',edit:true,
+                        editDisabled:'=#ROW.dtype?="NRFLI".indexOf(#v)<0',width:'4em'});
+        grid._('column',{name:_T('Format'),field:'format',edit:true,width:'8em'});
+        this._subBagCell(grid,'styles_cells','Cell styles',genro.dom.styleFields,{blacklist:['height','border']});
+        if(gridNode.widget.collectionStore().storeNode.attr.groupByStore){
+            this._subBagCell(grid,'group_pars','Grouping Pars',function(pane){
+                genro.groupth.groupByParsFields(genro.dev.formbuilder(pane,1,{border_spacing:'1px',margin:'5px'}),
+                                            pane.getParentNode().getRelativeData('.#parent.dtype'));
+            });
+        }
+        var t = grid._('tools',{tools:'delrow,addrow',title:_T('Cells'),
+        custom_tools:{addrow:{content_class:'iconbox add_row',ask:{title:_T('New formula cell'),
+              fields:[{name:'field',lbl:'Field',validate_notnull:true},
+                      {name:'name',lbl:'Name'},
+                      {name:'dtype',lbl:'Type',wdg:'filteringSelect',values:'N:Decimal,L:Integer,T:Text,B:Boolean,D:Date'}
+                  ]
+              }}}});
+        var dc = pane._('dataController',{script:'this._cellsEditor(editbag,destbag,_triggerpars)',
+                                            editbag:'^.cells_edit',
+                                            destbag:'^'+structpath+'.view_0.rows_0'});
+        var that = this;
+        dc.getParentNode()._cellsEditor = function(editbag,destbag,_triggerpars){
+            that._cellsEditorConverter(editbag,destbag,_triggerpars,'.view_0.rows_0','cellsEditor');
+        };
+    },
+
+    _structureConfigurator:function(tc,gridNode){
+        var colspath = gridNode.absDatapath(gridNode.attr.structpath+'.#0.#0');
+        var grid = gridNode.widget;
+        var addrow = {content_class:'iconbox add_row',dtype:'N',calculated:true,
+                        ask:{title:_T('New Column'),
+                            fields:[{name:'field',lbl:'Field',validate_notnull:true},
+                                    {name:'name',lbl:'Name'},
+                                    {name:'dtype',lbl:'Dtype',values:'N:Numeric,T:Text,D:Date',wdg:'Combobox'},
+                                    {name:'formula',lbl:'Formula'},
+                                    {name:'calculated',label:'Calculated',wdg:'checkbox'}]}
+        };
+        var kw = {addrow:addrow,delrow:true,
+            grid_nodeId:(gridNode.attr.nodeId || gridNode._id)+'_advancedEditor',
+            grid_addCheckBoxColumn:{field:'hidden',trueclass:'checkboxOff',falseclass:'checkboxOn'},
+            grid_onCreated:function(widget){
+                dojo.connect(grid,'onSetStructpath',function(){
+                    widget.updateRowCount();
+                });
+            },'path':colspath,
+            exclude:'dtype,field,tag,related_table,related_table_lookup,related_column,relating_column,rowcaption,caption_field'};
+        tc._('contentPane',{title:_T('Advanced configuration'),overflow:'hidden',datapath:'.advanced'})._('FlatBagEditor',kw);
+    },
+
+
+    _subBagCell:function(grid,field,name,cb,cpars){
+        var result = {};
+        grid._('column',{name:_T(name),width:'15em',field:field,
+                _customGetter:function(row){return row[field]?row[field].getFormattedValue():'-';},
+                edit:{modal:true,contentCb:function(pane,kw){
+                    cb(pane._('div',{datapath:'.'+field}),cpars);}}}); 
+    },
+
+    _cellsEditorConverter:function(editbag,destbag,_triggerpars,relpath,reason){
+        if(_triggerpars.kw.reason==reason){
+            return;
+        }
+        var rebuildEditBag = function(destbag,editbag){
+            editbag.clear();
+            destbag.forEach(function(n){
+                var r = objectUpdate({},n.attr);
+                var currStyles = objectExtract(r,genro.dom.editableStyles.join(','));
+                var group_pars = objectExtract(r,'group_*',null,true);
+                r = new gnr.GnrBag(r);
+                r.setItem('styles_cells',new gnr.GnrBag(currStyles));
+                r.setItem('group_pars',new gnr.GnrBag(group_pars));
+                editbag.setItem(n.label,r,{_pkey:n.label},{doTrigger:reason});
+            });
+        };
+        if(_triggerpars.kw.pathlist.indexOf('cells_edit')>=0){
+            if(destbag && destbag.len() && _triggerpars.kw.reason=='loadData'){
+                rebuildEditBag(destbag,editbag);
+            }else if(_triggerpars.trigger_reason=='child'){
+                var evt = _triggerpars.kw.evt;
+                if(evt=='upd'){
+                    var rowNode = _triggerpars.kw.node.getParentNode();
+                    var updDict = {};
+                    var updValue = _triggerpars.kw.node.getValue();
+                    if(['styles_cells','group_pars'].indexOf(rowNode.label)>=0){
+                        rowNode.getValue().forEach(function(n){
+                            updDict[n.label] = n.getValue();
+                        });
+                        if(updDict.group_aggr=='nobreak' || updDict.group_aggr=='break'){
+                            if(updDict.group_aggr=='nobreak'){
+                                updDict.group_nobreak = true;
+                            }
+                            updDict.group_aggr = false;
+                        }
+                        rowNode = rowNode.getParentNode();
+                    }else{
+                        updDict[_triggerpars.kw.node.label] = updValue;
+                    }
+                    destbag.getNode(rowNode.label).updAttributes(updDict,reason);
+                }else if(evt=='ins'){
+                    var ds = destbag || new gnr.GnrBag(); 
+                    ds.setItem(_triggerpars.kw.node.label,null,_triggerpars.kw.node.getValue().asDict('flat',true),{doTrigger:reason,
+                                                _position:_triggerpars.kw.ind});
+                    if(!destbag){
+                        genro.setData(structpath+relpath,ds,null,{doTrigger:reason});
+                    }
+                }else if (evt=='del'){
+                    destbag.popNode(_triggerpars.kw.node.label,reason);
+                }
+            }
+        }else{
+            rebuildEditBag(destbag,editbag);
+        }
     }
+
 };
     
     

@@ -758,10 +758,16 @@ label.ghostlabel span {
 }
 
 
-.hideSplitter >.dijitSplitter {
+.hideSplitter >.dijitSplitter.dijitSplitterV {
     background: transparent;
     width:4px;
 }
+
+.hideSplitter >.dijitSplitter.dijitSplitterH {
+    background: transparent;
+    height:4px;
+}
+
 .hideSplitter>.dijitSplitter:hover{
     background:silver;
     opacity:.5;
@@ -1703,10 +1709,13 @@ div.dojoxDock {
     padding-right: 15px;
     cursor: pointer;
 }
-.menuButtonDiv{
-    padding-right: 10px;
+/*.menuButtonDiv{
+    padding-right: 9px;
     background: transparent url(icons/base12/smallpopup.gif) no-repeat right 4px;
 }
+*/
+
+
 
 .iframereload{
     background: url(icons/base10/iframereload.gif) no-repeat center center;
@@ -3065,6 +3074,9 @@ body *{
     box-shadow: 0px 0px 1px #488fd7;
 }
 
+.tundra .hideInnerToolbars .slotbar_toolbar{
+    display: none;
+}
 
 .slotbar_toolbar .gnrfieldlabel {
     /*vertical-align: middle;*/
@@ -4046,6 +4058,16 @@ p {
     border:1px solid silver;
     height: 19px;
 }
+
+.slotbar_toolbar_standard .quickgrid_toolsbox.quickgrid_toolsbox_top{
+    border-color: transparent;
+    top:-1px;
+}
+
+.pbl_roundedGroupLabel .quickgrid_toolsbox{
+    border-color: transparent;
+}
+
 .quickgrid_toolsbox:hover{
     border:1px solid silver;
 }
@@ -4557,7 +4579,7 @@ div[disabled='true'], div[disabled='disabled']{
     bottom:0;
     right:0;
     left:0;
-    color:#444;
+    color:#666;
     overflow: hidden;
 }
 .treeGridHeader{
@@ -4589,40 +4611,43 @@ div[disabled='true'], div[disabled='disabled']{
 
 .treeGridLayout .treecell{
     display: inline-block;
-    border-bottom: 1px solid #efefef;
-    border-left: 1px solid #efefef;
+    border-bottom: 1px solid #ddd;
+    border-left: 1px solid #ddd;
 }
 
 
 
 .treeGridLayout .treecell:last-child{
-    border-right:1px solid #efefef;
+    border-right:1px solid #ddd;
 }
 .treeGridLayout .treegrid .maincell.treecell{
+    border-left: 1px solid transparent;
 }
+
 
 .treeGridLayout .treeGridHeader .treecell{
     display: inline-block;
-    border-bottom: 0px solid black;
-    border-left: 1px solid #efefef;
+    border-bottom: 0px;
+    border-left: 1px solid #ddd;
     background: #204174;
     color:#efefef;
-    line-height: 18px;
     white-space: nowrap;
     text-align: center;
+    padding-top:1px;
 }
 .treeGridLayout .treeGridFooter .treecell{
     display: inline-block;
     border-bottom: 0px solid black;
-    border-left: 1px solid #efefef;
+    border-left: 1px solid #ddd;
     background: #F8CF00;
     color:#204174;
-    line-height: 18px;
+    padding-top:1px;
     white-space: nowrap;
 }
 
+
 .treeGridLayout .treeGridHeader .treecell:last-child{
-    border-right:1px solid #efefef;
+    border-right:1px solid #ddd;
 }
 
 .treeCellContent{
@@ -4665,6 +4690,45 @@ div[disabled='true'], div[disabled='disabled']{
 .treeerow_viewport{
     display: inline-block;
 }
+
+.groupby_tree .dijitTreeContainer .treecell  {
+    color:#444;
+    font-style: italic;
+}
+.groupby_tree .treerow_folder .treecell  {
+    color:#444;
+    font-style: normal;
+}
+.groupby_tree .treerow_folder.treerow_level_0 .treecell  {
+    background-color: rgba(255, 253, 123, 0.20);
+    color:#444;
+}
+.groupby_tree .treerow_folder.treerow_level_1 .treecell  {
+    /*background-color: rgba(255, 253, 123, 0.20);*/
+    color:navy;
+}
+.groupby_tree .treerow_folder.treerow_level_2 .treecell  {
+    /*background-color: rgba(255, 253, 123, 0.20);*/
+    color:darkgreen;
+}
+.groupby_tree .treerow_folder.treerow_level_3 .treecell  {
+    /*background-color: rgba(255, 253, 123, 0.20);*/
+    color:darkgreen;
+}
+
+.groupby_tree .treerow_folder.treerow_level_4 .treecell  {
+    /*background-color: rgba(255, 253, 123, 0.20);*/
+    color:darkgreen;
+}
+
+
+.groupby_tree.treeGridLayout .treeGridHeader .treecell{
+    background: none;
+    color: #555;
+    border-bottom: 1px solid #ddd;
+    background: rgb(246, 246, 246);
+}
+
 
 
 /*.treerow.treerow_header*/
@@ -5401,6 +5465,16 @@ div[disabled='true'], div[disabled='disabled']{
     background-size: contain;
 }
 
+.menu_gray_svg{
+    background: url(icons/svg/menu_gray.svg) center center no-repeat;
+    background-size: contain;
+}
+
+.line_chart_white_svg{
+    background: url(icons/svg/line_chart_white.svg) center center no-repeat;
+    background-size: contain;
+}
+
 .gr_table td{
     height: 14px;
     padding-top: 2px;
@@ -5477,6 +5551,10 @@ div[disabled='true'], div[disabled='disabled']{
 ._common_d11.tundra .gr_wrap_footers .dojoxGrid-scrollbox{
     overflow-x:hidden !important;
 }
+.gr_noFooter .gr_footer.gr_scrollbox .gr_itemcontainer{
+    background: transparent;
+}
+
 
 .grid_filler{
     height: 100%;

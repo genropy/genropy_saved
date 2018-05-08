@@ -1832,6 +1832,8 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
             dojo.connect(widget, 'removeChild', dojo.hitch(this, 'onRemoveChild', widget));
         }
     },
+
+    
     afterStartup:function(widget) {
         var sourceNode = widget.sourceNode;
         if (dojo_version != '1.7') {
@@ -1846,18 +1848,20 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
             }
         }
         if (sourceNode.attr.regions) {
-            var regions = sourceNode.getRelativeData(sourceNode.attr.regions);
-            if (!regions) {
-                regions = new gnr.GnrBag();
-                sourceNode.setRelativeData(sourceNode.attr.regions, regions);
-            }
-            var regions = regions.getNodes();
-            for (var i = 0; i < regions.length; i++) {
-                widget.setRegions(null, {'node':regions[i]});
-            }
-            ;
+            widget.sourceNode.watch('untillIsVisible',function(){
+                return widget.domNode?genro.dom.isVisible(widget.domNode):false;
+            },function(){
+                var regions = sourceNode.getRelativeData(sourceNode.attr.regions);
+                if (!regions) {
+                    regions = new gnr.GnrBag();
+                    sourceNode.setRelativeData(sourceNode.attr.regions, regions);
+                }
+                var regions = regions.getNodes();
+                for (var i = 0; i < regions.length; i++) {
+                    widget.setRegions(null, {'node':regions[i]});
+                }
+            });
         }
-
     },
     
     onRemoveChild:function(widget,child){
@@ -4806,6 +4810,7 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
         }
         var gnr = this;
         var marker_type = objectPop(kw,'marker_type') || 'default';
+        var onClick = objectPop(kw, 'onClick')
         this.onPositionCall(sourceNode,marker,function(position){
             if (position){
                 kw.position=position;
@@ -4814,7 +4819,10 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
                 if(kw.color){
                     objectUpdate(kw,gnr._markerColorKwargs(kw.color))
                 }
-                sourceNode.markers[marker_name] = new gnr.markers_types[marker_type](kw);                
+                sourceNode.markers[marker_name] = new gnr.markers_types[marker_type](kw);
+                if (onClick){
+                    sourceNode.markers[marker_name].addListener('click', function(e){onClick(marker_name, e)});
+                }               
             }
         });
         if(sourceNode.attr.autoFit){

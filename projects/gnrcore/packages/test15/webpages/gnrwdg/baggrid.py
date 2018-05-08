@@ -162,7 +162,6 @@ class GnrCustomWebPage(object):
             r.cell('gross',name='Gross',width='7em',dtype='N',formula='net_price+vat',
                     totalize='.sum_gross',format='###,###,###.00',columnset='tot',hidden='^hidden_8')
 
-
         bc = pane.borderContainer(height='400px',width='800px')
         top = bc.contentPane(region='top',height='80px')
         fb = top.formbuilder(cols=10,border_spacing='3px')
@@ -270,3 +269,52 @@ class GnrCustomWebPage(object):
         center.bagGrid(storepath='.store',title='Date grid',struct=struct,datapath='.mygrid',
                     addrow='auto',delrow='auto')
 
+    def test_20_structinfo(self,pane):
+
+        def struct(struct):
+            r = struct.view().rows()
+            r.cell('description',name='Description',width='15em',edit=True)
+            
+            cs_ent = r.columnset('ent',name='Enterable',background='red',color='white',
+                                cells_background='RGBA(194, 37, 49, 0.05)',
+                                cells_width='7em',cells_edit=True)
+
+            cs_ent.cell('number',name='Number',dtype='L')
+            cs_ent.cell('price',name='Price',dtype='N')
+
+            r.cell('total',name='Total',width='7em',dtype='N',formula='number*price',
+                    totalize='.sum_total',format='###,###,###.00')
+
+            cs_disc = r.columnset('disc',name='^.discountName',background='^.discountBG')
+
+            cs_disc.cell('discount',name='Disc.%',width='7em',dtype='N',edit=True)
+            cs_disc.cell('discount_val',name='Discount',width='7em',dtype='N',formula='total*discount/100',
+                    totalize='.sum_discount')
+
+            cs_tot = r.columnset('tot',name='Totals',background='RGBA(255, 253, 123, 1.00)',
+                        cells_background='RGBA(255, 253, 123, 0.10)',color='#666')
+
+            cs_tot.cell('net_price',name='F.Price',width='7em',dtype='N',
+                        formula='total-discount_val',totalize='.sum_net_price',
+                        columnset='tot')
+            cs_tot.cell('vat',name='Vat',width='7em',dtype='N',
+                    formula='net_price+net_price*vat_p/100',formula_vat_p='^vat_perc',
+                    totalize='.sum_vat',format='###,###,###.00',columnset='tot')
+            cs_tot.cell('gross',name='Gross',width='7em',dtype='N',formula='net_price+vat',
+                    totalize='.sum_gross',format='###,###,###.00',columnset='tot')
+
+    
+        bc = pane.borderContainer(height='400px',width='800px')
+        fb = bc.contentPane(region='top').formbuilder()
+        fb.textbox(value='^.mygrid.grid.discountName',lbl='Name')
+        bc.data('.mygrid.grid.discountName','Discount')
+        fb.textbox(value='^.mygrid.grid.discountBG',lbl='Background')
+        bc.data('.mygrid.grid.discountBG','green')
+        fb.textbox(value='^.mygrid.grid.struct.info.columnsets.disc?cells_background',lbl='Cells BG')
+        bc.data('.mygrid.grid.struct.info.columnsets.disc?cells_background','')
+
+
+        frame = bc.contentPane(region='center').bagGrid(frameCode='structinfo',datapath='.mygrid',
+                                                    struct=struct,height='300px',
+                                                    grid_configurable=True,
+                                                    pbl_classes=True,margin='5px')

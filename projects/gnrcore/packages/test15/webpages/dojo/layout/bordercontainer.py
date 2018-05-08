@@ -46,10 +46,11 @@ class GnrCustomWebPage(object):
         bc.contentPane(region='center', background='yellow')
 
     def test_5_opener(self,pane):
-        bc = pane.borderContainer(height='500px',margin='10px',border='1px solid silver',nodeId='xxxx')
-        bc.contentPane(region='bottom',height='60px',background='wheat',drawer='close',splitter=True,border_top='1px solid silver')
-        bc.contentPane(region='top',height='60px',background='wheat',drawer=True,splitter=True,border_top='1px solid silver')
-        bc.contentPane(region='left',width='100px',background='lightgray',drawer=True,splitter=True,border_right='1px solid silver')
+        bc = pane.borderContainer(height='500px',margin='10px',border='1px solid silver',nodeId='xxxx',
+                                connect_onclick='console.log("clicked border",$1,$1.target)')
+       #bc.contentPane(region='bottom',height='60px',background='wheat',drawer='close',splitter=True,border_top='1px solid silver')
+       #bc.contentPane(region='top',height='60px',background='wheat',drawer=True,splitter=True,border_top='1px solid silver')
+       #bc.contentPane(region='left',width='100px',background='lightgray',drawer=True,splitter=True,border_right='1px solid silver')
         bc.contentPane(region='right',width='100px',background='lightgray',drawer='close',splitter=True,
                         border_left='1px solid silver',drawer_background='red')
         bc.contentPane(region='center')
@@ -80,6 +81,11 @@ class GnrCustomWebPage(object):
         frame.div('Pippo',font_size='30px')
 
 
+    def test_10_bordercontainer_filled(self,pane):
+        bc = pane.borderContainer(height='400px',border='1px solid silver')
+        bc.contentPane(region='top',background='red').div(height='^.pippo')
+        bc.contentPane(region='center').textbox(value='^.pippo')
+
 
 
     def test_8_remoteLayout(self,pane):
@@ -88,8 +94,8 @@ class GnrCustomWebPage(object):
         top = bc.contentPane(region='top')
         fb = top.formbuilder()
         fb.button('Build',fire='.build')
-        bc.contentPane(region='center').dashboardItem(table='adm.dashboard',
-                            itemName='tableview')
+        bc.contentPane(region='center').remote(self.remoteLayout,_fired='^.build')
+  
     @public_method
     def remoteLayout(self,pane,dobuild=None):
         if not dobuild:
@@ -101,3 +107,5 @@ class GnrCustomWebPage(object):
         sc.contentPane(title='Bao').plainTableHandler(table='adm.user')
         
         pane.dataController("sc.switchPage(1)",_onBuilt=100,sc=sc.js_widget)
+
+    

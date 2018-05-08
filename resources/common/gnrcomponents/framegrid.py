@@ -10,7 +10,7 @@ from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrbag import Bag
 
-class FrameGridSlots(BaseComponent):
+class FrameGridTools(BaseComponent):
 
     @struct_method
     def fgr_slotbar_export(self,pane,_class='iconbox export',mode='xls',enable=None,rawData=True,parameters=None,**kwargs):
@@ -58,6 +58,10 @@ class FrameGridSlots(BaseComponent):
         kwargs.setdefault('visible',enable)
         return pane.slotButton(label='!!Duplicate',publish='duprow',iconClass=_class,disabled=disabled,
                                 _delay=delay,**kwargs)
+
+    @struct_method
+    def fgr_slotbar_advancedTools(self,pane,_class='iconbox menu_gray_svg',**kwargs):
+        return pane.menudiv(tip='!!Advanced tools',iconClass=_class,storepath='.advancedTools',**kwargs)
 
     @struct_method
     def fgr_slotbar_delrow(self,pane,_class='iconbox delete_row',enable=None,disabled='^.disabledButton',**kwargs):
@@ -162,18 +166,53 @@ class FrameGridSlots(BaseComponent):
                                 validate_notnull=mandatory,
                                 popup=True,cols=1)
 
-          
+    @struct_method
+    def fg_slotbar_configuratorPalette(self,pane,iconClass='iconbox spanner',**kwargs):
+        pane.slotButton('!!Open Configurator',iconClass=iconClass,publish='configuratorPalette')
+
+
+    @struct_method
+    def fg_slotbar_viewsMenu(self,pane,iconClass=None,**kwargs):
+        pane.menudiv(iconClass= iconClass or 'iconbox list',datapath='.grid',storepath='.structMenuBag',selected_fullpath='.currViewPath')
+
+    @struct_method
+    def fg_viewConfigurator(self,view,table=None,queryLimit=None,region=None,configurable=None):
+        grid = view.grid
+        grid.attributes['configurable'] = True
+        right = view.grid_envelope.borderContainer(region=region or 'right',width='160px',drawer='close',
+                                        splitter=True,border_left='1px solid silver')
+
+        confBar = right.contentPane(region='top')
+        confBar = confBar.slotToolbar('viewsMenu,currviewCaption,*,defView,saveView,deleteView',background='whitesmoke',height='20px')
+        confBar.currviewCaption.div('^.grid.currViewAttrs.caption',font_size='.9em',color='#666',line_height='16px')
+
+        gridId = grid.attributes.get('nodeId')
+        confBar.defView.slotButton('!!Favorite View',iconClass='th_favoriteIcon iconbox star',
+                                        action='genro.grid_configurator.setCurrentAsDefault(gridId);',gridId=gridId)
+        confBar.saveView.slotButton('!!Save View',iconClass='iconbox save',
+                                        action='genro.grid_configurator.saveGridView(gridId);',gridId=gridId)
+        confBar.deleteView.slotButton('!!Delete View',iconClass='iconbox trash',
+                                    action='genro.grid_configurator.deleteGridView(gridId);',
+                                    gridId=gridId,disabled='^.grid.currViewAttrs.pkey?=!#v')
+        if queryLimit is not False and (table==getattr(self,'maintable',None) or configurable=='*'):
+            footer = right.contentPane(region='bottom',height='25px',border_top='1px solid silver',overflow='hidden').formbuilder(cols=1,font_size='.8em',
+                                                fld_color='#555',fld_font_weight='bold')
+            footer.numberSpinner(value='^.hardQueryLimit',lbl='!!Limit',width='6em',smallDelta=1000)
+
+        right.contentPane(region='center').fieldsTree(table=table,checkPermissions=True,searchCode=False,trash=True)
+            
+
 class FrameGrid(BaseComponent):
-    py_requires='gnrcomponents/framegrid:FrameGridSlots'
+    py_requires='gnrcomponents/framegrid:FrameGridTools'
     @extract_kwargs(top=True,grid=True,columnset=dict(slice_prefix=False,pop=True),footer=dict(slice_prefix=False,pop=True))
     @struct_method
     def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,dynamicStorepath=None,structpath=None,
                     datamode=None,table=None,grid_kwargs=True,top_kwargs=None,iconSize=16,
                     footer_kwargs=None,columnset_kwargs=None,footer=None,columnset=None,fillDown=None,
-                    _newGrid=None,selectedPage=None,**kwargs):
+                    _newGrid=None,selectedPage=None,configurable=None,**kwargs):
         pane.attributes.update(overflow='hidden')
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
-        sc =frame.center.stackContainer(selectedPage=selectedPage)
+        frame.center.stackContainer(selectedPage=selectedPage)
         grid_kwargs.setdefault('fillDown', fillDown)
         grid_kwargs.update(footer_kwargs)
         grid_kwargs.update(columnset_kwargs)
@@ -186,56 +225,26 @@ class FrameGrid(BaseComponent):
         grid_kwargs['selfsubscribe_duprow'] = grid_kwargs.get('selfsubscribe_duprow','this.widget.addRows($1._counter,$1.evt,true);')
         grid_kwargs['selfsubscribe_delrow'] = grid_kwargs.get('selfsubscribe_delrow','this.widget.deleteSelectedRows();')
         grid_kwargs['selfsubscribe_archive'] = grid_kwargs.get('selfsubscribe_archive','this.widget.archiveSelectedRows();')
-
         #grid_kwargs['selfsubscribe_setSortedBy'] = """this.setRelativeData(this.attr.sortedBy,$1);"""
         grid_kwargs.setdefault('selectedId','.selectedId')
-        frame.includedView(autoWidth=False,
+        envelope_bc = frame.borderContainer(childname='grid_envelope',pageName='mainView',
+                                            title=grid_kwargs.pop('title','!!Grid'))
+        grid = envelope_bc.contentPane(region='center').includedView(autoWidth=False,
                           storepath=storepath,datamode=datamode,
                           dynamicStorepath=dynamicStorepath,
                           datapath='.grid',
                           struct=struct,table=table,
-                          pageName='grid',
+                          parentFrame=frame.attributes.get('frameCode'), #considering autocalc frameCode
+                          _extendedLayout=True,
                           **grid_kwargs)
+        frame.grid = grid
         if top_kwargs:
             top_kwargs['slotbar_view'] = frame
             frame.top.slotToolbar(**top_kwargs)
+        if table and configurable:
+            frame.viewConfigurator(table=table,configurable=configurable)   
+
         return frame
-
-    @extract_kwargs(store=True)
-    @struct_method
-    def fgr_selectionViewer(self,pane,table=None,queryName=None,viewName=None,store_kwargs=None,**kwargs):
-        userobject_tbl = self.db.table('adm.userobject')
-        where,metadata = userobject_tbl.loadUserObject(code=queryName, 
-                                            objtype='query',
-                                            tbl=table)
-        customOrderBy = None
-        limit = None
-        queryPars = None
-        if where['where']:
-            limit = where['queryLimit']
-            viewName = viewName or where['currViewPath']
-            customOrderBy = where['customOrderBy']
-            queryPars = where.pop('queryPars')
-            extraPars = where.pop('extraPars')
-            where = where['where']
-        if viewName:
-            userobject_tbl = self.db.table('adm.userobject')
-            struct = userobject_tbl.loadUserObject(code=viewName, objtype='view', 
-                                                    tbl=table)[0]
-
-        frame = pane.frameGrid(struct=struct,_newGrid=True,**kwargs)
-        frame.data('.query.limit',limit)
-        frame.data('.query.where',where)
-        frame.data('.query.extraPars',extraPars)
-        frame.queryPars = queryPars
-        frame.data('.query.customOrderBy',customOrderBy)
-
-        frame.top.slotBar('*,vtitle,*',vtitle=metadata['description'])
-        frame.grid.selectionStore(table=table,childname='store',where='=.query.where',
-                                customOrderBy='=.query.customOrderBy',
-                                limit='=.query.limit',**store_kwargs)
-        return frame
-
 
     @extract_kwargs(default=True,store=True)
     @struct_method
@@ -304,9 +313,6 @@ class FrameGrid(BaseComponent):
             result.setItem(r.label,handler(row=r.value,row_attr=r.attr,**kwargs))
         return result
 
-
-
-
 class TemplateGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGrid,gnrcomponents/tpleditor:ChunkEditor'
     @struct_method
@@ -330,5 +336,8 @@ class TemplateGrid(BaseComponent):
                             editable=True,hidden=True,
                             **{'subscribe_%s_editRowTemplate' %frame.grid.attributes['nodeId']:"this.publish('openTemplatePalette');"})
         return frame
+
+
+
 
         
