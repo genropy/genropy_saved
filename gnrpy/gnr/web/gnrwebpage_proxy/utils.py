@@ -14,7 +14,7 @@ import datetime
 import zipfile
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.core.gnrbag import Bag, DirectoryResolver
-from gnr.core.gnrlist import XlsReader,CsvReader
+from gnr.core.gnrlist import getReader
 from gnr.core.gnrstring import slugify
 from gnr.core.gnrlang import gnrImport, objectExtract
 
@@ -228,7 +228,7 @@ class GnrWebUtils(GnrBaseProxy):
         if table:
             importerStructure = importerStructure or self.page.db.table(table).importerStructure()
             checkCb = checkCb or self.page.db.table(table).importerCheck
-        reader = self.getReader(file_path,filetype=filetype)
+        reader = getReader(file_path,filetype=filetype)
         importerStructure = importerStructure or dict()
         mainsheet = importerStructure.get('mainsheet')
         if mainsheet is None and importerStructure.get('sheets'):
@@ -290,7 +290,7 @@ class GnrWebUtils(GnrBaseProxy):
         tblobj = self.page.db.table(table)
         docommit = False
         importerStructure = tblobj.importerStructure() or dict()
-        reader = self.getReader(file_path,filetype=filetype)
+        reader = getReader(file_path,filetype=filetype)
         if importerStructure:
             sheets = importerStructure.get('sheets')
             if not sheets:
@@ -356,20 +356,7 @@ class GnrWebUtils(GnrBaseProxy):
             
 
     def getReader(self,file_path,filetype=None,**kwargs):
-        filename,ext = os.path.splitext(file_path)
-        if filetype=='excel' or not filetype and ext in ('.xls','.xlsx'):
-            reader = XlsReader(file_path,**kwargs)
-        else:
-            dialect = None
-            if filetype=='tab':
-                dialect = 'excel-tab'
-            reader = CsvReader(file_path,dialect=dialect,**kwargs)
-            reader.index = {self._importer_keycb(k):v for k,v in reader.index.items()}
-        return reader
-
-
-    def _importer_keycb(self,k):
-        return slugify(str(k),sep='_')
+        return getReader(file_path=file_path,filetype=filetype,**kwargs)
 
     @public_method
     def exportPdfFromNodes(self,pages=None,name=None,

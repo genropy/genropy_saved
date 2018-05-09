@@ -250,7 +250,7 @@ def readXLS(doc):
         
 class XlsReader(object):
     """Read an XLS file"""
-    def __init__(self, docname,mainsheet=None,filterEmptyRows=None,**kwargs):
+    def __init__(self, docname,mainsheet=None,compressEmptyRows=None,allEmptyRows=None,**kwargs):
         import xlrd
         import os.path
         self.XL_CELL_DATE = xlrd.XL_CELL_DATE
@@ -260,7 +260,8 @@ class XlsReader(object):
         self.basename, self.ext = os.path.splitext(os.path.basename(docname))
         self.ext = self.ext.replace('.', '')
         self.book = xlrd.open_workbook(filename=self.docname)
-        self.filterEmptyRows = True if filterEmptyRows is None else filterEmptyRows
+        self.compressEmptyRows = compressEmptyRows
+        self.allEmptyRows = allEmptyRows
         self.sheets = {}
 
         for sheetname in self.book.sheet_names():
@@ -328,6 +329,7 @@ class XlsReader(object):
             yield GnrNamedList(s['index'], [c for i,c in enumerate(line) if i in s['colindex']])
             
     def _sheetlines(self,sheet):
+        last_line_empty = False
         for lineno in range(sheet.nrows):
             line = sheet.row_values(lineno)
             if filter(lambda elem: elem,line):
@@ -335,9 +337,17 @@ class XlsReader(object):
                 for i,c in enumerate(line):
                     if row_types[i] == self.XL_CELL_DATE:
                         line[i] = datetime.datetime(*self.xldate_as_tuple(c,sheet.book.datemode))
+                    if line[i]=='':
+                        line[i] = None
+                last_line_empty = False
                 yield line 
-            elif not self.filterEmptyRows:
+            elif self.allEmptyRows:
                 yield []
+            elif self.compressEmptyRows:
+                if not last_line_empty:
+                    last_line_empty = True
+                    print 'b yield empty row'
+                    yield []
 
 
 class CsvReader(object):
@@ -506,3 +516,17 @@ class GnrNamedList(list):
             return [self[k] for k in columns]
         else:
             return self.values()     
+
+
+def getReader(file_path,filetype=None,**kwargs):
+    import os.path
+    filename,ext = os.path.splitext(file_path)
+    if filetype=='excel' or not filetype and ext in ('.xls','.xlsx'):
+        reader = XlsReader(file_path,**kwargs)
+    else:
+        dialect = None
+        if filetype=='tab':
+            dialect = 'excel-tab'
+        reader = CsvReader(file_path,dialect=dialect,**kwargs)
+        reader.index = {slugify(k):v for k,v in reader.index.items()}
+    return reader
