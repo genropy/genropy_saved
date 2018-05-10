@@ -32,6 +32,11 @@ parser.add_option('-c', '--check',
                   action='store_true',
                   help="Check only, don't apply changes")
 
+parser.add_option('-u', '--upgrade',
+                  dest='upgrade',
+                  action='store_true',
+                  help="Execute upgrade")
+
 parser.add_option('-v', '--verbose',
                   dest='verbose',
                   action='store_true',
@@ -188,4 +193,6 @@ if __name__ == '__main__':
                 app.db.model.applyModelChanges()
                 print 'CHANGES APPLIED TO DATABASE'
             app.db.model.checker.addExtesions()
+        if options.upgrade:
+            app.db.table('sys.upgrade').runUpgrades()
         app.db.closeConnection()

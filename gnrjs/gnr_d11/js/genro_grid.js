@@ -212,10 +212,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             sourceNode.attr = containerAttr;
             sourceNode.label = 'grid_wrapper';
             sourceNode.setValue(new gnr.GnrDomSource(),false);
-            var top = sourceNode._('ContentPane','columnsets',{region:'top',datapath:gridattr.datapath},{'doTrigger':false});
+            var top = sourceNode._('ContentPane','columnsets',{region:'top',datapath:gridattr.datapath,hidden:true},{'doTrigger':false});
             _columnsetsNode = top.getParentNode();
             top._('div','scrollbox',{_class:'gr_columnset gr_scrollbox'},{'doTrigger':false});
-            var bottom = sourceNode._('ContentPane','footers',{region:'bottom',datapath:gridattr.datapath},{'doTrigger':false});
+            var bottom = sourceNode._('ContentPane','footers',{region:'bottom',datapath:gridattr.datapath,hidden:true},{'doTrigger':false});
             _footersNode = bottom.getParentNode();
             bottom._('div','scrollbox',{_class:'gr_footer gr_scrollbox'},{'doTrigger':false});
             gridattr.fillDown = gridattr.fillDown===false?false: true;
