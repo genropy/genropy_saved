@@ -925,7 +925,7 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
                 chartNode.unfreeze();
             },1);
         }else{
-            genro.serverCall('_table.adm.userobject.loadUserObject', {pkey:userObjectId}, 
+            genro.serverCall('_table.adm.userobject.loadUserObject', {userObjectIdOrCode:userObjectId}, 
             function(result){
                 chartNode.freeze();
                 chartNode.setRelativeData('#WORKSPACE.metadata',new gnr.GnrBag(result.attr));
