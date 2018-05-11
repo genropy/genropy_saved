@@ -894,7 +894,11 @@ class TableHandlerView(BaseComponent):
         btn = pane.slotButton('!!Only highlighted',action="""
             var highlighted = genro.wdgById(th_root_code+'_grid').getSelectedPkeys();
             if(highlighted){
-                this.setRelativeData('.query.pkeys',highlighted.join(','));
+                if(event.shiftKey){
+                    TH(th_root_code).querymanager.pkeySetToQuery(highlighted.join(','));
+                }else{
+                    this.setRelativeData('.query.pkeys',highlighted.join(','));
+                }
                 this.fireEvent('.runQuery');
             }
             """,th_root_code=inattr['th_root'],iconClass='iconbox bulb_off')

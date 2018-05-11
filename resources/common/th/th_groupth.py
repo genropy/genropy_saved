@@ -39,7 +39,7 @@ class TableHandlerGroupBy(BaseComponent):
         table = table or inattr.get('table')
         tblobj = self.db.table(table)
         linkedNode = None
-        if not (dashboardIdentifier or where or condition or condition_kwargs):
+        if not (dashboardIdentifier or where):
             linkedTo = linkedTo or inattr.get('frameCode')
             frameCode = frameCode or '%s_groupedView' %linkedTo 
             if not linkedTo:
@@ -49,6 +49,7 @@ class TableHandlerGroupBy(BaseComponent):
                 raise self.exception('generic',msg='Missing linked tableHandler in groupByTableHandler')
             if not struct:
                 struct = self._th_hook('groupedStruct',mangler=linkedTo,defaultCb=self._thg_defaultstruct)
+                
         if not linkedNode:
             self.subscribeTable(table,True,subscribeMode=True)
         frameCode = frameCode or 'thg_%s' %table.replace('.','_')
@@ -151,6 +152,9 @@ class TableHandlerGroupBy(BaseComponent):
                                     th_sections_manager.onCalling(storeKw._sections,runKwargs);
                                 }
                                 objectUpdate(kwargs,runKwargs);
+                                if(condition){
+                                    kwargs.condition = kwargs.condition? kwargs.condition +' AND '+condition:condition;
+                                }
                                 """,
                                 _excludeList="""columns,sortedBy,currentFilter,customOrderBy,row_count,hardQueryLimit,limit,liveUpdate,method,nodeId,selectionName,
                             selectmethod,sqlContextName,sum_columns,table,timeout,totalRowCount,userSets,_sections,
