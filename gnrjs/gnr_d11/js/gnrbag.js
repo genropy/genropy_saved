@@ -182,7 +182,7 @@ dojo.declare("gnr.GnrBagNode", null, {
         }else{
             v = this.attr._formattedValue || this.attr._displayedValue || v;
         }
-        return (v || !kw.omitEmpty)?((this.attr._valuelabel || this.attr.name_long || stringCapitalize(this.label)) +': ' +v):''; 
+        return (!isNullOrBlank(v) || !kw.omitEmpty)?((this.attr._valuelabel || this.attr.name_long || stringCapitalize(this.label)) +': ' +v):''; 
     },
 
     getValue: function(mode/*str*/, optkwargs) {
