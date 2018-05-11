@@ -200,6 +200,7 @@ class TableHandlerView(BaseComponent):
                                configurable=configurable,**kwargs)  
         if statsEnabled:
             self._th_handle_stats_pages(frame)
+            frame.linkedGroupByAnalyzer()
         self._th_handle_page_hooks(frame,page_hooks)
         self._th_menu_sources(frame,extendedQuery=extendedQuery,bySample=bySample)
         self._th_viewController(frame,table=table,default_totalRowCount=extendedQuery == '*')
@@ -1051,6 +1052,32 @@ class TableHandlerView(BaseComponent):
                         'column_caption': self.app._relPathToCaption(table, column),
                         'value_caption':val})
         return result
+
+    @struct_method
+    def thgp_linkedGroupByAnalyzer(self,view,**kwargs):
+        linkedTo=view.attributes.get('frameCode')
+        table = view.grid.attributes.get('table')
+        frameCode = '%s_gp_analyzer' %linkedTo
+        pane = view.grid_envelope.contentPane(region='bottom',height='300px',drawer='close',margin='2px',splitter=True,
+                                             border='1px solid silver')
+        view.dataController("""
+            var analyzerNode = genro.nodeById(analyzerId);
+            analyzerNode.setRelativeData('.analyzed_pkeys',null);
+            var selectedPkeys = grid.getSelectedPkeys();
+            analyzerNode.setRelativeData('.analyzer_condition',false,null,false,false);
+            if(selectedPkeys && selectedPkeys.length){
+                analyzerNode.setRelativeData('.analyzed_pkeys',selectedPkeys);
+                analyzerNode.setRelativeData('.analyzer_condition', '$'+pkeyField+' IN :analyzed_pkeys');
+            }else{
+                analyzerNode.setRelativeData('.analyzer_condition',null);
+            }
+        """,grid=view.grid.js_widget,
+            pkeyField='=.table?pkey',selectedId='^.grid.selectedId',analyzerId=frameCode)
+        pane.groupByTableHandler(frameCode=frameCode,linkedTo=linkedTo,
+                                    table=table,datapath='.analyzerPane',
+                                    condition='^.analyzer_condition',
+                                    condition_analyzed_pkeys='=.analyzed_pkeys')
+        
 
 class THViewUtils(BaseComponent):
     js_requires='th/th_querytool,th/th_viewconfigurator'

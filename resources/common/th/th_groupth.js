@@ -260,6 +260,10 @@ genro_plugin_groupth = {
                         values:'sum:Sum,avg:Average,min:Min,max:Max,break:Break,nobreak:No break',
                         lbl:_T('Aggregator'),validate_onAccept:"this.setRelativeData('.cell_totalize',value=='sum')"});
             fb.addField('checkbox',{value:'^.cell_totalize',label:'Totalize'});
+            fb.addField('checkbox',{value:'^.not_zero',label:'Not zero'});
+            fb.addField('numberTextBox',{value:'^.min_value',lbl:'Min value',width:'5em',default_value:null});
+            fb.addField('numberTextBox',{value:'^.max_value',lbl:'Max value',width:'5em',default_value:null});
+
         }else if(dateTime){
             values = genro.commonDatasets.datetimes_chunk.join(',');
             var tb = fb.addField('textbox',{lbl:_T('Date aggregator'),value:prefix+'group_aggr'});
