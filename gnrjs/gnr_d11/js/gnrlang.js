@@ -457,14 +457,17 @@ function objectKeyByIdx(obj, idx) {
     }
 }
 function isEqual(a,b){
+    if((a===null || a===undefined) && (b===null || b===undefined)){
+        return true;
+    }
     if(a instanceof gnr.GnrBag && b instanceof gnr.GnrBag){
         return a.isEqual(b);
     }
     if(a instanceof Array && b instanceof Array){
         return a.length == b.length && !a.some(function(elem,idx){return !isEqual(elem,b[idx])});
     }
-    var a = a instanceof Date ? a.valueOf() : a;
-    var b = b instanceof Date ? b.valueOf() : b;
+    a = a instanceof Date ? a.valueOf() : a;
+    b = b instanceof Date ? b.valueOf() : b;
     return objectIsEqual(a,b);
 };
 
