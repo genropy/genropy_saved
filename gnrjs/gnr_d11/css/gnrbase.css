@@ -5553,6 +5553,7 @@ div[disabled='true'], div[disabled='disabled']{
 }
 .gr_noFooter .gr_footer.gr_scrollbox .gr_itemcontainer{
     background: transparent;
+    height: 16px;
 }
 
 
