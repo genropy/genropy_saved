@@ -376,7 +376,7 @@ class TableBase(object):
             tbl.column('__release', dtype='L', name_long='Sys Version', group=group,_sysfield=True)
             
         if filter(lambda r: r!='sysRecord_' and r.startswith('sysRecord_'), dir(self)):
-            tbl.column('__syscode',size=':16',unique=True,indexed=True,
+            tbl.column('__syscode',size=':20',unique=True,indexed=True,
                 _sysfield=True,group=group,name_long='!!Internal code')
             tbl.formulaColumn('__protected_by_syscode',
                                 """ ( CASE WHEN $__syscode IS NULL THEN NULL 
