@@ -21,6 +21,7 @@ class GnrCustomWebPage(object):
     def test_2_numberTextBox(self, pane):
         """NumberTextBox"""
         fb=pane.formbuilder(cols=1)
+        #fb.data('.number_1',3)
         fb.numberTextBox(lbl='No constraints',value='^.number_1')
         fb.CurrencyTextBox(value='^.number_1',format_pattern='##0.00000',lbl='Currency')
         fb.div('^.number_1',format='##0.00000',mask='Masked value:%s')

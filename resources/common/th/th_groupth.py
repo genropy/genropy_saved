@@ -282,11 +282,11 @@ class TableHandlerGroupBy(BaseComponent):
 
                 if v.get('not_zero'):
                     having_chunk.append('(%s != 0)' %grouped_col)
-                if v.get('min_value'):
+                if v.get('min_value') is not None:
                     parname = '%s_min_value' %col_asname
                     kwargs[parname] = v['min_value']
                     having_chunk.append('%s>=:%s' %(grouped_col,parname))
-                if v.get('max_value'):
+                if v.get('max_value') is not None:
                     parname = '%s_max_value' %col_asname
                     kwargs[parname] = v['max_value']
                     having_chunk.append('%s<=:%s' %(grouped_col,parname))
