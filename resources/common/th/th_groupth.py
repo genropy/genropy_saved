@@ -158,7 +158,7 @@ class TableHandlerGroupBy(BaseComponent):
                                 """,
                                 _excludeList="""columns,sortedBy,currentFilter,customOrderBy,row_count,hardQueryLimit,limit,liveUpdate,method,nodeId,selectionName,
                             selectmethod,sqlContextName,sum_columns,table,timeout,totalRowCount,userSets,_sections,
-                            _onCalling,_onResult,applymethod,sum_columns""",
+                            _onCalling,_onResult,applymethod,sum_columns,prevSelectedDict""",
                                 condition=condition,**store_kwargs)
         return frame
 

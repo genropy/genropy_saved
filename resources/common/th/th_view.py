@@ -1062,21 +1062,21 @@ class TableHandlerView(BaseComponent):
                                              border='1px solid silver')
         view.dataController("""
             var analyzerNode = genro.nodeById(analyzerId);
-            analyzerNode.setRelativeData('.analyzed_pkeys',null);
-            var selectedPkeys = grid.getSelectedPkeys();
-            analyzerNode.setRelativeData('.analyzer_condition',false,null,false,false);
-            if(selectedPkeys && selectedPkeys.length){
-                analyzerNode.setRelativeData('.analyzed_pkeys',selectedPkeys);
+            if(currentSelectedPkeys && currentSelectedPkeys.length){
                 analyzerNode.setRelativeData('.analyzer_condition', '$'+pkeyField+' IN :analyzed_pkeys');
+                analyzerNode.setRelativeData('.analyzed_pkeys',currentSelectedPkeys);
             }else{
+                analyzerNode.setRelativeData('.analyzed_pkeys',null);
                 analyzerNode.setRelativeData('.analyzer_condition',null);
             }
-        """,grid=view.grid.js_widget,
-            pkeyField='=.table?pkey',selectedId='^.grid.selectedId',analyzerId=frameCode)
+        """,pkeyField='=.table?pkey',
+            currentSelectedPkeys='^.grid.currentSelectedPkeys',
+            analyzerId=frameCode,_delay=500)
+
         pane.groupByTableHandler(frameCode=frameCode,linkedTo=linkedTo,
                                     table=table,datapath='.analyzerPane',
-                                    condition='^.analyzer_condition',
-                                    condition_analyzed_pkeys='=.analyzed_pkeys')
+                                    condition='=.analyzer_condition',
+                                    condition_analyzed_pkeys='^.analyzed_pkeys')
         
 
 class THViewUtils(BaseComponent):
