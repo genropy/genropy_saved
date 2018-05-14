@@ -329,6 +329,8 @@ class GnrSqlAppDb(GnrSqlDb):
             ftable = fckw.get('table',maintable)
             if ftable == table:
                 r = f()
+                if isinstance(r,dict):
+                    r = [r]
                 if isinstance(r,list):
                     for c in r:
                         kw = dict(fckw)

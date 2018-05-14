@@ -1066,8 +1066,8 @@ class TableHandlerView(BaseComponent):
                 analyzerNode.setRelativeData('.analyzer_condition', '$'+pkeyField+' IN :analyzed_pkeys');
                 analyzerNode.setRelativeData('.analyzed_pkeys',currentSelectedPkeys);
             }else{
-                analyzerNode.setRelativeData('.analyzed_pkeys',null);
                 analyzerNode.setRelativeData('.analyzer_condition',null);
+                analyzerNode.setRelativeData('.analyzed_pkeys',null);
             }
         """,pkeyField='=.table?pkey',
             currentSelectedPkeys='^.grid.currentSelectedPkeys',
