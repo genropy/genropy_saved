@@ -42,10 +42,8 @@ class TableHandlerGroupBy(BaseComponent):
         if not (dashboardIdentifier or where):
             linkedTo = linkedTo or inattr.get('frameCode')
             frameCode = frameCode or '%s_groupedView' %linkedTo 
-            if not linkedTo:
-                raise self.exception('generic',msg='Missing condition or where in groupByTableHandler')
             linkedNode = self.pageSource().findNodeByAttr('frameCode',linkedTo)
-            if not linkedNode:
+            if not linkedNode and condition:
                 raise self.exception('generic',msg='Missing linked tableHandler in groupByTableHandler')
             if not struct:
                 struct = self._th_hook('groupedStruct',mangler=linkedTo,defaultCb=self._thg_defaultstruct)
