@@ -480,7 +480,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var style = "width:"+n.clientWidth+"px;";
             if(colinfo){
                 cellinfo = colinfo.getAttr('#'+idx);
-                if(cellinfo.cell && cellinfo.cell.cellStyles){
+                if(cellinfo && cellinfo.cell && cellinfo.cell.cellStyles){
                     style+=cellinfo.cell.cellStyles;
                 }
             }
