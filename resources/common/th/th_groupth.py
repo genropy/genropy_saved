@@ -45,12 +45,11 @@ class TableHandlerGroupBy(BaseComponent):
         if linkedTo:
             frameCode = frameCode or '%s_groupedView' %linkedTo 
             linkedNode = self.pageSource().findNodeByAttr('frameCode',linkedTo)
-            if not (linkedNode and condition):
+            if linkedNode is None and not condition:
                 raise self.exception('generic',msg='Missing linked tableHandler in groupByTableHandler')
             if not struct:
                 struct = self._th_hook('groupedStruct',mangler=linkedTo,defaultCb=self._thg_defaultstruct)
-                
-        if not linkedNode:
+        if linkedNode is None:
             self.subscribeTable(table,True,subscribeMode=True)
         frameCode = frameCode or 'thg_%s' %table.replace('.','_')
         datapath = datapath or '.%s' %frameCode
