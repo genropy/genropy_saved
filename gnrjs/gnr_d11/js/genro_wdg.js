@@ -952,10 +952,11 @@ dojo.declare("gnr.GridEditor", null, {
             return 'editorEnabled' in gridSourceNode.attr? this.grid.editorEnabled:true;
         }
     },
-    onEditCell:function(start,rowIdx) {
+    onEditCell:function(start,rowIdx,cellIdx) {
         var grid = this.grid;
         grid.gnrediting = start;
         genro.dom.setClass(grid.sourceNode,'editingGrid',start);
+        grid.sourceNode.publish('onEditCell',{editing:start,rowIdx:rowIdx,cellIdx:cellIdx});
         grid.updateRowStyles(rowIdx)
         grid.currentEditedRow =  start?rowIdx:null;
         dojo.setSelectable(grid.domNode, grid.gnrediting);
@@ -1547,7 +1548,7 @@ dojo.declare("gnr.GridEditor", null, {
             wdgtag = {'L':'NumberTextBox','I':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'}[dt] || 'Textbox';
             attr.tag = wdgtag;
         }
-        this.onEditCell(true,row);
+        this.onEditCell(true,row,col);
         var editWidgetNode = this.widgetRootNode._(wdgtag,'cellWidget', attr).getParentNode();
         editWidgetNode.setCellValue = function(cellname,value,valueCaption){
             gridEditor.setCellValue(this.editedRowIndex,cellname,value,valueCaption);
@@ -1576,7 +1577,7 @@ dojo.declare("gnr.GridEditor", null, {
             h.gnr.cell_onDestroying(editWidgetNode,that,editingInfo);
             editWidgetNode._destroy();
             editingInfo.cellNode.innerHTML = contentText;
-            that.onEditCell(false);
+            that.onEditCell(false,editingInfo.row,editingInfo.col);
             if(editingInfo.editedRowId){
                 var rowEditor = that.grid.getRowEditor({rowId:editingInfo.editedRowId});
                 if(rowEditor){
