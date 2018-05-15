@@ -39,11 +39,13 @@ class TableHandlerGroupBy(BaseComponent):
         table = table or inattr.get('table')
         tblobj = self.db.table(table)
         linkedNode = None
-        if not (dashboardIdentifier or where):
+        if not (dashboardIdentifier or where or condition):
             linkedTo = linkedTo or inattr.get('frameCode')
+        
+        if linkedTo:
             frameCode = frameCode or '%s_groupedView' %linkedTo 
             linkedNode = self.pageSource().findNodeByAttr('frameCode',linkedTo)
-            if not linkedNode and condition:
+            if not (linkedNode and condition):
                 raise self.exception('generic',msg='Missing linked tableHandler in groupByTableHandler')
             if not struct:
                 struct = self._th_hook('groupedStruct',mangler=linkedTo,defaultCb=self._thg_defaultstruct)
