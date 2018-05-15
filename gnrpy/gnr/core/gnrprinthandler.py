@@ -174,11 +174,14 @@ class PrintHandler(object):
             os.remove(srcPath)
             return
         pdf_pref = self.parent.getPreference('.pdf_render',pkg='sys') if self.parent else None
+        keep_html = False
         if pdf_pref:
             pdf_pref = pdf_pref.asDict(ascii=True)
+            keep_html = pdf_pref.pop('keep_html', False)
             pdf_kwargs = pdf_kwargs or dict()
             pdf_pref.update(pdf_kwargs)
             pdf_kwargs = pdf_pref
+
         pdf_kwargs['orientation'] = orientation or 'Portrait'
         
         if page_height:
@@ -206,8 +209,15 @@ class PrintHandler(object):
             destPath = os.path.join(destPath, '%s.pdf' % baseName)
         args.append(srcPath)
         args.append(destPath)
-        #import shutil
-        #shutil.copy(srcPath, '/Users/ale/last.html')
+        if keep_html:
+            import shutil
+            from datetime import datetime, date
+            now = datetime.now()
+            baseName = os.path.splitext(os.path.basename(destPath))[0]
+            debugName = "%s_%02i_%02i_%02i.html"%(baseName, now.hour,now.minute,now.second)
+            htmlfilepath = self.parent.getStaticPath('site:print_debug',
+                date.today().isoformat(), debugName ,autocreate=-1)
+            shutil.copy(srcPath, htmlfilepath)
         result = call(args)
 
        #if sys.platform.startswith('linux'):

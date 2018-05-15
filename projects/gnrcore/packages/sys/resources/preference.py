@@ -53,8 +53,8 @@ class AppPref(object):
         fb.textbox(value='^.margin_bottom',lbl='Margin bottom')
         fb.textbox(value='^.margin_left',lbl='Margin left')
         fb.textbox(value='^.margin_right',lbl='Margin right')
-
-
+        fb.checkbox(value='^.keep_html',label='Keep HTML (for debug)')
+        
         dev = tc.contentPane(title='Developer')
         fb = dev.formbuilder()
         fb.checkbox(value='^.jsPdfViewer',label='Extended pdf viewer')
