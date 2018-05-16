@@ -1100,7 +1100,7 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
     },
     validatemixin_validationsOnChange: function(sourceNode, value, validateOnly) {
         var result = genro.vld.validate(sourceNode, value, true, validateOnly);
-        if (result['modified']) {
+        if (result['modified'] && !validateOnly) {
             sourceNode._modifying = true;
             sourceNode.widget.setValue(result['value']);
             sourceNode._modifying = false;
