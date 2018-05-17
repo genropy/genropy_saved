@@ -61,7 +61,7 @@ class TableScriptHandler(BaseComponent):
     @public_method
     def table_script_parameters(self, pane, table=None, res_type=None, resource='', title=None, 
                             extra_parameters=None,selectedRowidx=None,selectionName=None,
-                            selectedPkeys=None,selectionFilterCb=None,sortBy=None,**kwargs):
+                            selectedPkeys=None,selectionCount=None,selectionFilterCb=None,sortBy=None,**kwargs):
         if not resource:
             return
         resource = resource.replace('.py', '')
@@ -77,7 +77,7 @@ class TableScriptHandler(BaseComponent):
         elif selectionName:
             res_obj.defineSelection(selectionName=selectionName, selectedRowidx=selectedRowidx,
                                     selectionFilterCb=selectionFilterCb, sortBy=sortBy)
-            count = len(res_obj.get_selection_pkeys() or [])
+            count = len(selectedRowidx) or selectionCount
         self.current_batch = res_obj
         self.mixin(res_obj, methods='table_script_*,rpc_table_script_*')
         batch_dict = objectExtract(res_obj, 'batch_')
@@ -251,6 +251,7 @@ class TableScriptRunner(TableScriptHandler):
                                        SET .res_type= objectPop(params,'res_type');
                                        SET .table =  objectPop(params,'table');
                                        SET .resource =  objectPop(params,'resource');
+                                       SET .selectionCount = objectPop(params,'selectionCount');
                                        SET .selectionName =  objectPop(params,'selectionName');
                                        SET .publishOnResult = objectPop(params,'publishOnResult');
                                        SET .selectionFilterCb =  objectPop(params,'selectionFilterCb'); 
@@ -291,6 +292,7 @@ class TableScriptRunner(TableScriptHandler):
                             res_type='=.res_type',
                             table='=.table',
                             gridId='=.gridId',
+                            selectionCount='=.selectionCount',
                             _publishOnResult='=.publishOnResult',
                             selectionName='=.selectionName',
                             printerOptions='==this.getRelativeData("gnr.server_print.printers."+resource);',
@@ -306,6 +308,7 @@ class TableScriptRunner(TableScriptHandler):
                                  res_type='=.res_type',
                                  title='=.title',
                                  table='=.table',
+                                 selectionCount='=.selectionCount',
                                  selectionName='=.selectionName',
                                  selectedRowidx="=.selectedRowidx",
                                  selectedPkeys='=.selectedPkeys',

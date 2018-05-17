@@ -40,6 +40,7 @@ var th_view_batch_caller = function(kw){
     }else{
         kw['selectedRowidx'] = grid.getSelectedRowidx();
     }
+    kw.selectionCount = store.len(true);
     genro.publish("table_script_run",kw);
 }
 
