@@ -51,14 +51,34 @@ class TableHandlerForm(BaseComponent):
         else:
             self._th_hook('form',mangler=frameCode)(form)
             
-        pluggedFieldHandler = self._th_hook('pluggedFields',mangler=frameCode,defaultCb=self.th_defaultPluggedFieldHandler) 
+        pluggedFieldHandler = self._th_hook('pluggedFields',mangler=frameCode,
+                                            defaultCb=self.th_defaultPluggedFieldHandler)
         pluggedFieldHandler(form)
         return form
     
     def th_defaultPluggedFieldHandler(self,form):
-        fb = form.getMainFormBuilder()
-        if fb:
-            fb.pluggedFields()
+        table = form.attributes.get('table')
+        pluggedCols = self._th_getPluggedCols(table)
+        mainfb = form.getMainFormBuilder()
+        for f,pluggedBy,pluggedKwargs in pluggedCols:
+            fb = None
+            kwargs = dict() if pluggedKwargs is True else pluggedKwargs
+            if pluggedBy:
+                handler = getattr(self.page.db.table(pluggedBy),'onPlugToForm',None)
+                if handler:
+                    kwargs = handler(f)
+            if kwargs is False:
+                continue
+            fbname = kwargs.pop('fbname',None)
+            if fbname:
+                fb = form.getFormBuilder(fbname,table=table)
+            fb = fb or mainfb
+            fb.field(f,**kwargs)
+
+    def _th_getPluggedCols(self,table):
+        collist = self.db.table(table).model['columns']
+        return [(col,collist[col].attributes.get('_pluggedBy'),collist[col].attributes['plugToForm']) for col in collist if collist[col].attributes.get('plugToForm')]
+
 
     @extract_kwargs(default=True,store=True,dialog=True,palette=True,tree=dict(slice_prefix=False,pop=True))
     @struct_method
