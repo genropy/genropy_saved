@@ -35,16 +35,15 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         if(!searchOn){
             return;
         }
-        var boxkw = objectExtract(sourceNode.attr,'height,max_height,width,max_width,overflow,border');
+        var boxkw = objectExtract(sourceNode.attr,'height,max_height,width,max_width,overflow,border,top,bottom,left,right,position');
         var treeattr = objectUpdate({},sourceNode.attr);
-        sourceNode.attr = {tag:'div',_class:'searchtree_container',display:'inline-block',width:objectPop(boxkw,'width'),
-                            border:objectPop(boxkw,'border')};
-        searchCode = searchOn.searchCode || 'search_'+sourceNode.getStringId();
+        sourceNode.attr = objectUpdate(boxkw,{tag:'div',_class:'searchtree_container'});
+        var searchCode = searchOn.searchCode || 'search_'+sourceNode.getStringId();
         searchOn.nodeId = searchCode +'_searchbox';
         searchOn.parentForm = false;
         treeattr.searchCode = searchCode;
-        sourceNode._('div','t_searchbox',{_class:'tree_searchbox'},{doTrigger:false})._('div',{display:'inline-block',position:'absolute',right:'5px'},{doTrigger:false})._('SearchBox',searchOn,{doTrigger:false});
-        sourceNode._('div','t_scrollbox',boxkw,{doTrigger:false})._('tree',treeattr,{doTrigger:false});
+        sourceNode._('div','t_searchbox',{_class:'tree_searchbox'},{doTrigger:false})._('div',{display:'inline-block',position:'absolute',right:'8px'},{doTrigger:false})._('SearchBox',searchOn,{doTrigger:false});
+        sourceNode._('div','t_scrollbox',{_class:'tree_scrollbox'},{doTrigger:false})._('tree',treeattr,{doTrigger:false});
     },
 
     onBuilding_popup:function(sourceNode){

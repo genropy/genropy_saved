@@ -4951,7 +4951,8 @@ dojo.declare("gnr.widgets.FieldsTree", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var table = objectPop(kw,'table');
         var trash = objectPop(kw,'trash');
-        var box = sourceNode._('div',{_class:'fieldsTreeBox',_lazyBuild:true});
+        var box_kw = objectExtract(kw,'box_*');
+        var box = sourceNode._('div',objectUpdate({_class:'fieldsTreeBox',_lazyBuild:true},box_kw));
         var explorerPath = objectPop(kw,'explorerPath');
         if(explorerPath){
             kw.explorerPath = sourceNode.absDatapath(explorerPath);
