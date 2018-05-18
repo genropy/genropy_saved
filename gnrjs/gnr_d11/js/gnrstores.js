@@ -638,6 +638,9 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
             var finalize = dojo.hitch(this, function(r) {
                 var result;
                 var scope = request.scope ? request.scope : dojo.global;
+                if(r.attr.errors){
+                    this._parentSourceNode.setValidationError({error:r.attr.errors});
+                }
                 result = r.getValue();
                 if (result instanceof gnr.GnrBag) {
                     result = result.getNode('#0');
@@ -655,9 +658,9 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
             var result = this.rootDataNode().getValue('', {_id:id});
 
            if (result instanceof dojo.Deferred) {
-               result.addCallback(finalize);
+                result.addCallback(finalize);
            }else{
-            return finalize(result)
+                return finalize(result);
             }
         }
     },
