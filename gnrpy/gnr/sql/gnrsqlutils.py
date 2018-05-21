@@ -236,8 +236,12 @@ class SqlModelChecker(object):
                         self.unaccent = True
                     new_size = col.attributes.get('size')
                     new_unique = col.attributes.get('unique')
+                    new_notnull = col.attributes.get('notnull')
                     old_dtype = dbcolumns[col.sqlname]['dtype']
                     old_size = dbcolumns[col.sqlname].get('size')
+                    old_notnull = dbcolumns[col.sqlname].get('notnull')
+                    if tblattr['pkey']==col.sqlname:
+                        new_notnull = old_notnull
                     old_unique = self.unique_constraints['%s.%s.%s'%(tbl.sqlschema,tbl.sqlname,col.sqlname)]
                     if not self.unique_constraints and col.sqlname in columnsindexes:
                         if tblattr['pkey']==col.sqlname:
@@ -253,16 +257,18 @@ class SqlModelChecker(object):
                         new_size = '%s:%s' % (t1 or '0', t2)
                     if new_size and new_dtype == 'N' and not ',' in new_size:
                         new_size = '%s,0' % new_size
-                    elif new_dtype in ('X', 'Z', 'P') and old_dtype == 'T':
+                    if new_dtype in ('X', 'Z', 'P') and old_dtype == 'T':
                         pass
                     elif new_dtype in ('L','I') and old_dtype in ('L','I') and not self.db.adapter.allowAlterColumn:
                         pass
-                    elif new_dtype != old_dtype or new_size != old_size or bool(old_unique)!=bool(new_unique):
+                    elif new_dtype != old_dtype or new_size != old_size or bool(old_unique)!=bool(new_unique) or bool(old_notnull)!=bool(new_notnull):
                         if (new_dtype != old_dtype or new_size != old_size):
-                            change = self._alterColumnType(col, new_dtype, new_size)
+                            change = self._alterColumnType(col, new_dtype, new_size=new_size)
                             self.changes.append(change)
                         if bool(old_unique)!=bool(new_unique):
                             self.changes.append(self._alterUnique(col,new_unique,old_unique))
+                        if bool(old_notnull)!=bool(new_notnull):
+                            self.changes.append(self._alterNotNull(col,new_notnull, old_notnull))
                         #sql.extend(self.checkColumn(colnode, dbcolumns[self.sqlName(colnode)]))
                 else:
                     change = self._buildColumn(col)
@@ -439,7 +445,7 @@ class SqlModelChecker(object):
         sqlType = self.db.adapter.columnSqlType(new_dtype, new_size)
         usedColumn = col.table.dbtable.query(where='%s IS NOT NULL' %col.sqlname).count()>0
         if usedColumn or (col.dtype in ('T','A','C')) and (new_dtype in ('T','A','C')):
-            return 'ALTER TABLE %s ALTER COLUMN %s TYPE %s USING %s::%s' % (col.table.sqlfullname, col.sqlname, sqlType,col.sqlname,sqlType)
+            return 'ALTER TABLE %s ALTER COLUMN %s TYPE %s  USING %s::%s' % (col.table.sqlfullname, col.sqlname, sqlType,col.sqlname,sqlType)
         else:
             return '; '.join(['ALTER TABLE %s DROP COLUMN %s' % (col.table.sqlfullname, col.sqlname) ,self._buildColumn(col)])
         
@@ -450,6 +456,10 @@ class SqlModelChecker(object):
         if new_unique:
             alter_unique+=' ADD CONSTRAINT un_%s_%s UNIQUE(%s)'%(col.table.sqlfullname.replace('"','').replace('.','_'), col.sqlname,col.sqlname)
         return 'ALTER TABLE %s %s' % (col.table.sqlfullname, alter_unique)
+        
+    def _alterNotNull(self, col, new_notnull=None, old_notnull=None):
+        set_dropnotnull = 'SET' if new_notnull else 'DROP'
+        return 'ALTER TABLE %s ALTER COLUMN %s %s NOT NULL'%(col.table.sqlfullname, col.sqlname, set_dropnotnull)
         
     def _buildForeignKey(self, o_pkg, o_tbl, o_fld, m_pkg, m_tbl, m_fld, on_up, on_del, init_deferred):
         """Prepare the sql statement for adding the new constraint to the given table and return it"""
