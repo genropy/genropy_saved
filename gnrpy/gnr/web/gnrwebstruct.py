@@ -808,12 +808,13 @@ class GnrDomSrc(GnrStructData):
         :param rowdatapath: TODO
         :param head_rows: TODO
         :param \*\*kwargs: for the complete list of the ``**kwargs``, check the :ref:`fb_kwargs` section"""
+
+        dbtable = table or kwargs.get('dbtable') or self.getInheritedAttributes().get('table') or self.page.maintable
         if kwargs.get('fbname'):
-            kwargs['fbname'] = kwargs['fbname'] if not table else '%s:%s' %(table,kwargs['fbname'])
+            kwargs['fbname'] = kwargs['fbname'] if not dbtable else '%s:%s' %(dbtable,kwargs['fbname'])
         commonPrefix = ('lbl_', 'fld_', 'row_', 'tdf_', 'tdl_')
         commonKwargs = dict([(k, kwargs.pop(k)) for k in kwargs.keys() if len(k) > 4 and k[0:4] in commonPrefix])
         tbl = self.child('table', _class='%s %s' % (tblclass, _class), **kwargs).child('tbody')
-        dbtable = table or kwargs.get('dbtable') or self.getInheritedAttributes().get('table') or self.page.maintable
         formNode = self.parentNode.attributeOwnerNode('formId') if self.parentNode else None
         excludeCols = kwargs.pop('excludeCols',None)
         if formNode:
