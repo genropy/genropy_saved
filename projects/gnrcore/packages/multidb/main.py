@@ -535,8 +535,6 @@ class MultidbTable(object):
                     result[k] = (v,store_record[k])
         return result
 
-
-
     def createSysRecords(self):
         if not self.db.usingRootstore():
             return

@@ -25,10 +25,14 @@ class AppPref(object):
     def prefpane_adm(self, parent, **kwargs):
         tc = parent.tabContainer(**kwargs)
         self._adm_general(tc.borderContainer(title='!!General', datapath='.general'))
-        self._pr_instance_data(tc.contentPane(title='!!Instance data', datapath='.instance_data'))
-        self._pr_mail(tc.contentPane(title='!!Mail options', datapath='.mail'))
-        self._pr_backups(tc.contentPane(title='!!Backups', datapath='.backups'))
+        self._adm_instance_data(tc.contentPane(title='!!Instance data', datapath='.instance_data'))
+        self._adm_mail(tc.contentPane(title='!!Mail options', datapath='.mail'))
+        self._adm_backups(tc.contentPane(title='!!Backups', datapath='.backups'))
+        self._adm_dev(tc.contentPane(title='!!Developers', datapath='.dev'))
 
+    def _adm_dev(self,pane):
+        fb = pane.formbuilder(cols=1,border_spacing='3px')
+        fb.checkbox(value='^.connection_log_enabled',label='Connection log enabled')
 
     def _adm_general(self, bc):
         top = bc.contentPane(region='top')
@@ -63,12 +67,12 @@ class AppPref(object):
 
 
 
-    def _pr_backups(self, pane):
+    def _adm_backups(self, pane):
         fb = pane.div(padding='5px').formbuilder(cols=1, border_spacing='3px')
         fb.textbox(value='^.backup_folder',lbl='Folder path')
         fb.numberTextBox(value='^.max_copies',lbl='Max copies')
 
-    def _pr_mail(self, pane):
+    def _adm_mail(self, pane):
         fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px', width='100%', fld_width='100%',
                                                     tdl_width='10em')
         if 'email' in self.db.packages:
@@ -86,7 +90,7 @@ class AppPref(object):
         fb.textbox(value='^.system_bcc', lbl='System bcc',disabled='^.email_account_id')
 
 
-    def _pr_instance_data(self, pane):
+    def _adm_instance_data(self, pane):
         fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px', width='100%', fld_width='100%',
                                                 tdl_width='10em')
         fb.textbox(value='^.owner_name', lbl='!!Owner name')
