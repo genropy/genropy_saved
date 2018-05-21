@@ -41,7 +41,7 @@ from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import extract_kwargs
 
-from gnr.core.gnrlang import  gnrImport, instanceMixin, GnrException
+from gnr.core.gnrlang import  objectExtract,gnrImport, instanceMixin, GnrException
 from gnr.core.gnrstring import makeSet, toText, splitAndStrip, like, boolean
 from gnr.core.gnrsys import expandpath
 from gnr.sql.gnrsql import GnrSqlDb
@@ -586,13 +586,28 @@ class GnrPackage(object):
     def envPreferences(self):
         "key:preference path, value:path inside dbenv"
         return {}        
+    
+    def onDbSetup(self):
+        self.tableBroadcast('onDbSetup,onDbSetup_*')
+
+    def onDbUpgrade(self):
+        self.tableBroadcast('onDbUpgrade,onDbUpgrade_*')
 
     def tableBroadcast(self,evt,autocommit=False,**kwargs):
+        for evt in evt.split(','):
+            self._tableBroadcast(evt,**kwargs)
+    
+    def _tableBroadcast(self,evt,autocommit=False,**kwargs):
         changed = False
         db = self.application.db
         for tname,tblobj in db.packages[self.id].tables.items():
+            if evt.endswith('*'):
+                handlers = objectExtract(tblobj.dbtable,evt[:-1]).values()
+            else:
+                handlers = [getattr(tblobj.dbtable,evt,None)]
+
             handler = getattr(tblobj.dbtable,evt,None)
-            if handler:
+            for handler in filter(None,handlers):
                 result = handler(**kwargs)
                 changed = changed or result
         if changed and autocommit:
@@ -925,10 +940,17 @@ class GnrApp(object):
 
 
     def pkgBroadcast(self,method,*args,**kwargs):
+        for method in method.split(','):
+            self._pkgBroadcast(method,*args,**kwargs)
+    
+    def _pkgBroadcast(self,method,*args,**kwargs):
         result = []
         for pkgId,pkg in self.packages.items():
-            handler = getattr(pkg,method,None)
-            if handler:
+            if method.endswith('*'):
+                handlers = objectExtract(self,method[:-1]).values()
+            else:
+                handlers = [getattr(pkg,method,None)]
+            for handler in filter(None,handlers):
                 result.append((pkgId,handler(*args,**kwargs)))
         return result
 

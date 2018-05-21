@@ -389,6 +389,7 @@ class TableHandlerView(BaseComponent):
             s.append(dict(code='c_all_end',caption='!!All' if all_end is True else all_end))
         return s
 
+
     @extract_kwargs(condition=True,lbl=dict(slice_prefix=False))
     @struct_method
     def th_slotbar_sections(self,parent,sections=None,condition=None,condition_kwargs=None,
@@ -506,6 +507,16 @@ class TableHandlerView(BaseComponent):
             currentSection='^.current',sectionbag='=.data',
             _delay=1,
             th_root=th_root)
+
+    def th_distinctSections(self,table,field=None,allPosition=True,**kwargs):
+        allsection = [dict(code='all',caption='!!All')]
+        sections = []
+        f = self.db.table(table).query(columns='$%s' %field,addPkeyColumn=True,distinct=True,**kwargs).fetch()
+        for i,r in enumerate(f):
+            sections.append(dict(code='c_%i' %i,caption=r[field],condition="$%s=:v" %field,condition_v=r[field]))
+        if allPosition:
+            return allsection+sections if allPosition!='last' else sections+allsection
+        return sections
  
 
     @struct_method

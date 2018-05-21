@@ -559,13 +559,11 @@ class TableBase(object):
                                         fkey=fkey,**condition_kwargs).fetch()
         return result
 
+    def onDbUpgrade_createSysRecords(self):
+        self.createSysRecords()
 
     def createSysRecords(self,do_update=False):
         syscodes = []
-        currentPage = self.db.currentPage
-        do_update = do_update
-        if currentPage and currentPage._call_kwargs.get('_refresh_sysrecord') and currentPage.isDeveloper():
-            do_update = True
         for m in dir(self):
             if m.startswith('sysRecord_') and m!='sysRecord_':
                 method = getattr(self,m)
