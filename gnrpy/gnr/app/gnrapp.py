@@ -594,8 +594,10 @@ class GnrPackage(object):
         self.tableBroadcast('onDbUpgrade,onDbUpgrade_*')
 
     def tableBroadcast(self,evt,autocommit=False,**kwargs):
+        changed = False
         for evt in evt.split(','):
-            self._tableBroadcast(evt,**kwargs)
+            changed = changed or self._tableBroadcast(evt,**kwargs)
+        return changed
     
     def _tableBroadcast(self,evt,autocommit=False,**kwargs):
         changed = False
@@ -940,8 +942,10 @@ class GnrApp(object):
 
 
     def pkgBroadcast(self,method,*args,**kwargs):
+        result = []
         for method in method.split(','):
-            self._pkgBroadcast(method,*args,**kwargs)
+            result+=self._pkgBroadcast(method,*args,**kwargs)
+        return result
     
     def _pkgBroadcast(self,method,*args,**kwargs):
         result = []
