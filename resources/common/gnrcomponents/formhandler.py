@@ -406,9 +406,8 @@ class FormHandler(BaseComponent):
     def fh_slotbar_form_locker(self,pane,**kwargs):
         pane.slotButton('!!Locker',iconClass='iconbox lock',showLabel=False,
                     action='this.form.publish("setLocked","toggle");',
-                    disabled='==_pw||(_changed && !this.form.isDisabled())',
-                    _pw='^#FORM.record?_protect_write',
-                    _changed='^#FORM.controller.changed',
+                    #disabled='==_pw||(_changed && !this.form.isDisabled())',
+                    #_changed='^#FORM.controller.changed',
                     formsubscribe_onLockChange="""var locked= $1.locked;
                                                   this.widget.setIconClass(locked?'iconbox lock':'iconbox unlock');""",
                     **kwargs)

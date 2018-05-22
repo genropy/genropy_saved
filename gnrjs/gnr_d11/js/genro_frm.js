@@ -113,9 +113,17 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     getParentForm:function(){
         return this.sourceNode.getParentNode().getFormHandler();
     },
+    
     canBeSaved:function(kw){
         kw = kw || {};
         return !this.opStatus && (this.record_changed || kw.always) && (this.isValid() || this.allowSaveInvalid) && this.status!='noItem';
+    },
+
+    saveDisabled:function(){
+        if(this.disabledStatus()=='unlocked_readOnly'){
+            return this.getChangesLogger().getNodes().some(n => !n.attr.allowed);
+        }
+        return this.isDisabled();
     },
 
     doAutoSave:function(){
@@ -128,7 +136,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     shortcut_save:function(kw){
-        if(this.isDisabled()){
+        if(this.saveDisabled()){
             this.publish('message',{message:_T('Cannot save. Blocked Form'),sound:'$error',messageType:'warning'});
             return;
         }
@@ -273,20 +281,42 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     applyDisabledStatus:function(){
         var form_disabled = this.isDisabled();
-        this.publish('onDisabledChange',{disabled:form_disabled})
-        genro.dom.setClass(this.sourceNode,'lockedContainer',form_disabled)
+        var disabled_status = this.disabledStatus();
+        this.publish('onDisabledChange',{disabled:form_disabled,reason:disabled_status});
+        genro.dom.setClass(this.sourceNode,'lockedContainer',form_disabled);
         var node,disabled;
         for (var k in this._register){
             node = this._register[k];
-            disabled=form_disabled 
-            if(disabled==false){
+            if(disabled_status=='unlocked_readOnly'){
+                if(node.attr.tag.toLowerCase() in this.autoRegisterTags){
+                    disabled = this._protectedDataNode(genro.getDataNode(node.absDatapath(node.attr.value)));
+                }else{
+                    disabled = false;
+                }
+            }else{
+                disabled = form_disabled;
+            }
+            if(disabled===false){
                 disabled = 'disabled' in node.attr?node.getAttributeFromDatasource('disabled'):false;
                 if(disabled==false && 'unmodifiable' in node.attr){
                     disabled = !this.isNewRecord();
                 }
             }
-            node.setDisabled(disabled)
+            node.setDisabled(disabled);
         }
+    },
+
+    _protectedDataNode:function(dataNode){
+        var recAttr = this.getDataNodeAttributes();
+        var protect_write = recAttr._protect_write;
+        if(protect_write===true){
+            return true;
+        }
+        if('protected_by' in dataNode.attr){
+            return dataNode.attr.protected_by;
+        }
+        var protected_by_kwargs = objectExtract(dataNode.attr,'protected_by_*',true);
+        return !protect_write.split(',').some(fld => protected_by_kwargs[fld]===false);
     },
 
     resetKeepable:function(){
@@ -299,7 +329,16 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     isDisabled:function(){
-        return this.locked || this.status=='readOnly' || this.status=='noItem';
+        return this.locked || this.status=='readOnly' || this.status== 'noItem';
+    },
+
+    disabledStatus:function(){
+        var result = [];
+        result.push(this.locked?'locked':'unlocked');
+        if(this.status=='readOnly' || this.status=='noItem'){
+            result.push(this.status);
+        }
+        return result.join('_') || false;
     },
     
     setLocked:function(value){
@@ -1063,7 +1102,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     do_save:function(kw){
-        if(!kw.forced && this.isDisabled()){
+        if(!kw.forced && this.saveDisabled()){
             this.publish('message',{message:_T('Cannot save. Blocked Form'),sound:'$error',messageType:'warning'});
             return;
         }
@@ -1432,8 +1471,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         if (kw.reason == 'resolver' || kw.node.getFullpath().indexOf('$') > 0 || kw.node.attr.virtual_column) {
             var invalidFields = this.getInvalidFields();
-            var invalidDojo = this.getInvalidDojo()
-            var ck = this.getChangeKey(kw.node)
+            var invalidDojo = this.getInvalidDojo();
+            var ck = this.getChangeKey(kw.node);
             if(invalidFields && invalidFields.len()){
                 invalidFields._nodes.forEach(function(n){
                     if(n.label.indexOf(ck)==0){
@@ -1442,6 +1481,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 })
             }
             return;
+        }
+        var allowed = !this.isDisabled();
+        if(this.disabledStatus()=='unlocked_readOnly'){
+            allowed = !this._protectedDataNode(kw.node);
         }
         if( kw.value==kw.oldvalue  || (isNullOrBlank(kw.value) && isNullOrBlank(kw.oldvalue))){
             if(kw.updattr && kw.changedAttr){
@@ -1458,7 +1501,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                         n.attr.to = newvalue;
                     }
                 }else{
-                    changes.setItem(changekey,null,{_valuelabel:kw.reason.getElementLabel?kw.reason.getElementLabel():cattr,from:oldvalue,to:newvalue});
+                    changes.setItem(changekey,null,{_valuelabel:kw.reason.getElementLabel?kw.reason.getElementLabel():cattr,from:oldvalue,to:newvalue,allowed:allowed});
                 }
                 this.updateStatus();
             }
@@ -1483,7 +1526,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 }
                 if (changed!==false) {
                     changes.setItem(changekey, null,{_valuelabel:kw.reason.getElementLabel?kw.reason.getElementLabel():kw.node.label,
-                                                    from:kw.node.attr._loadedValue,to:kw.value});
+                                                    from:kw.node.attr._loadedValue,to:kw.value,allowed:allowed});
                 } else {
                     changes.pop(changekey);
                 }
