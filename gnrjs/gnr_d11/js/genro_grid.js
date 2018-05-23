@@ -212,10 +212,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             sourceNode.attr = containerAttr;
             sourceNode.label = 'grid_wrapper';
             sourceNode.setValue(new gnr.GnrDomSource(),false);
-            var top = sourceNode._('ContentPane','columnsets',{region:'top',datapath:gridattr.datapath},{'doTrigger':false});
+            var top = sourceNode._('ContentPane','columnsets',{region:'top',datapath:gridattr.datapath,hidden:true},{'doTrigger':false});
             _columnsetsNode = top.getParentNode();
             top._('div','scrollbox',{_class:'gr_columnset gr_scrollbox'},{'doTrigger':false});
-            var bottom = sourceNode._('ContentPane','footers',{region:'bottom',datapath:gridattr.datapath},{'doTrigger':false});
+            var bottom = sourceNode._('ContentPane','footers',{region:'bottom',datapath:gridattr.datapath,hidden:true},{'doTrigger':false});
             _footersNode = bottom.getParentNode();
             bottom._('div','scrollbox',{_class:'gr_footer gr_scrollbox'},{'doTrigger':false});
             gridattr.fillDown = gridattr.fillDown===false?false: true;
@@ -480,7 +480,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var style = "width:"+n.clientWidth+"px;";
             if(colinfo){
                 cellinfo = colinfo.getAttr('#'+idx);
-                if(cellinfo.cell && cellinfo.cell.cellStyles){
+                if(cellinfo && cellinfo.cell && cellinfo.cell.cellStyles){
                     style+=cellinfo.cell.cellStyles;
                 }
             }
@@ -653,13 +653,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
     creating_structure: function(attributes, sourceNode) {
         var structBag = sourceNode.getRelativeData(sourceNode.attr.structpath);
-        if (structBag) {
-            if (genro.grid_configurator && 'configurable' in sourceNode.attr) {
-                 sourceNode.setRelativeData('.resource_structs.__baseview__',structBag.deepCopy(),{caption:_T('Base View')});
-            }
-        
+        if (structBag && genro.grid_configurator) {
+            sourceNode.setRelativeData('.resource_structs.__baseview__',structBag.deepCopy(),{caption:_T('Base View')});
         }
-       
         attributes.structBag = structBag; 
         sourceNode.registerDynAttr('structpath');
         attributes.cellmap = {};
@@ -1125,6 +1121,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             this.sourceNode.setAttributeInDatasource('selectedId', selectedId, null, row, true);
         }
+        this.sourceNode.setRelativeData('.currentSelectedPkeys',selectedPkeys);
         this.sourceNode.publish('onSelectedRow',{'idx':idx,'selectedId':idx>=0?this.rowIdentity(this.rowByIndex(idx)):null,
                                                 'grid':this,'selectedPkeys':selectedPkeys});
     },

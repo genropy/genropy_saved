@@ -506,7 +506,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
             kw.destPkey = kw.destPkey || this.store.getDefaultDestPkey(); 
             var destPkey = kw.destPkey;
-            if(typeof(destPkey)=='string'){
+            if(typeof(destPkey)=='string' && destPkey.indexOf('*|')>=0){
                 var pkeyChoices = destPkey.split('|');
                 var chosedPkey;
                 while (!chosedPkey && pkeyChoices.length){

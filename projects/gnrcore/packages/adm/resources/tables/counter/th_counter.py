@@ -42,7 +42,7 @@ class View(BaseComponent):
 
 
     def th_top_upperslotbar(self,top):
-        top.slotToolbar('5,sections@pkgsel,*,sections@errors,5',childname='upper',_position='<bar',gradient_from='#999',gradient_to='#666')
+        top.slotToolbar('5,sections@pkgsel,*,sections@errors,5',childname='upper',_position='<bar')
 
     def th_options(self):
         return dict(addrow=False)

@@ -273,6 +273,21 @@ dojo.declare("gnr.QueryManager", null, {
         
     },
 
+
+    pkeySetToQuery:function(pkeys){
+        if(!pkeys){
+            return;
+        }
+        this.sourceNode.setRelativeData('.query.currentQuery','__basequery__');
+
+        var where = new gnr.GnrBag();
+        var pkeyfield = this.sourceNode.getRelativeData('.table?pkey');
+        where.setItem('c_'+0,pkeys,{column_dtype:'A',op:'in',op_caption:'in',jc:'and',not:'yes',not_caption:'&nbsp;',
+                                        value_caption:pkeys,
+                                        column:pkeyfield,column_caption:pkeyfield});
+        this.sourceNode.setRelativeData('.query.where',where);
+    },
+
     queryParsBag:function(){
         var queryPars = new gnr.GnrBag();
         this.translateQueryPars().forEach(function(pardict){

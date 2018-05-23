@@ -74,7 +74,6 @@ class GnrCustomWebPage(object):
             saveButton = not fixed_table
             semaphore = not fixed_table
             tblobj= self.db.table(table)
-            tblobj.createSysRecords()
             th = pane.inlineTableHandler(table=table,viewResource='LookupView',
                                     datapath='.mainth',autoSave=False,saveButton=saveButton,semaphore=semaphore,
                                     nodeId='mainth',configurable='*',

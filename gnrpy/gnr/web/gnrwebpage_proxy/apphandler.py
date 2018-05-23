@@ -1535,19 +1535,30 @@ class GnrWebAppHandler(GnrBaseProxy):
         selection = None
         identifier = 'pkey'
         rows = []
+        resultAttrs = {}
+        errors = []
         if _id:
+            fullwhere = None
             if alternatePkey:
                 where = '$%s = :id' % alternatePkey
             else:
                 where = '$%s = :id' % identifier
-            if condition:
-                where =  '( %s ) AND ( %s ) ' % (where, condition)
+
+            
+            fullwhere =  '( %s ) AND ( %s ) ' % (where, condition) if condition else where
             whereargs = {}
             whereargs.update(kwargs)
             selection = tblobj.query(columns=','.join(resultcolumns),
+                                     where=fullwhere, excludeLogicalDeleted=False,
+                                     excludeDraft=excludeDraft,
+                                     limit=1, id=_id,**kwargs).selection()
+            if condition and not selection:
+                selection = tblobj.query(columns=','.join(resultcolumns),
                                      where=where, excludeLogicalDeleted=False,
                                      excludeDraft=excludeDraft,
                                      limit=1, id=_id,**kwargs).selection()
+                errors.append('current value does not fit condition')
+            
         elif querystring:
             querystring = querystring.strip('*')
             if querystring.isdigit():
@@ -1577,7 +1588,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                                           limit=limit, order_by=order_by,condition= None if weakCondition is True else condition,
                                           identifier=identifier, ignoreCase=ignoreCase,excludeDraft=excludeDraft, **kwargs)
 
-        resultAttrs = {}
+        
         if selection:
             showcols = [tblobj.colToAs(c.lstrip('$')) for c in showcolumns]
 
@@ -1590,6 +1601,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                 result.setItem('null_row', None, caption='', _pkey=None)
         resultAttrs['resultClass'] = resultClass
         resultAttrs['dbselect_time'] = time.time() - t0
+        if errors:
+            resultAttrs['errors'] = ','.join(errors)
         return (result, resultAttrs)
     
     @public_method

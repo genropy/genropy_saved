@@ -5,7 +5,8 @@ from datetime import datetime
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('connection', pkey='id', name_long='!!Connection',
-                        name_plural='!!Connections', broadcast='old')
+                        name_plural='!!Connections', 
+                        checkpref='adm.dev.connection_log_enabled')
         tbl.column('id', size='22', name_long='!!Connection id')
         tbl.column('userid', size='22', name_long='!!Userid').relation('user.id')
         tbl.column('username', size=':32', name_long='!!Username')

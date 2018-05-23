@@ -251,7 +251,6 @@ class GnrWsgiSite(object):
         self.wsgiapp = self.build_wsgiapp(options=options)
         self.db = self.gnrapp.db
         self.dbstores = self.db.dbstores
-        self.connectionLogEnabled = self.db.package('adm') and boolean(self.config['options?connectionLog'])
         self.resource_loader = ResourceLoader(self)
         self.page_factory_lock = RLock()
         self.webtools = self.resource_loader.find_webtools()
@@ -293,6 +292,16 @@ class GnrWsgiSite(object):
     def getSubscribedTables(self,tables):
         if self._register:
             return self.register.filter_subscribed_tables(tables,register_name='page')
+
+    @property
+    def connectionLogEnabled(self):
+        if not hasattr(self,'_connectionLogEnabled'):
+            if not self.db.package('adm'):
+                self._connectionLogEnabled = False
+            else:
+                self._connectionLogEnabled = self.getPreference('dev.connection_log_enabled',pkg='adm')
+        return self._connectionLogEnabled
+
 
     @property
     def remote_edit(self):

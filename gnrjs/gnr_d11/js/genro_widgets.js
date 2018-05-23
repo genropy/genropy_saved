@@ -1100,7 +1100,7 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
     },
     validatemixin_validationsOnChange: function(sourceNode, value, validateOnly) {
         var result = genro.vld.validate(sourceNode, value, true, validateOnly);
-        if (result['modified']) {
+        if (result['modified'] && !validateOnly) {
             sourceNode._modifying = true;
             sourceNode.widget.setValue(result['value']);
             sourceNode._modifying = false;
@@ -3372,16 +3372,17 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
                 }
             });
         }
+        widget.setValue(sourceNode.getRelativeData(sourceNode.attr.value)); //avoid set 0 as null value by dojo widget
     },
 
     onSettingValueInData: function(sourceNode, value,valueAttr) {
-        if (value === "") {
+        if (isNullOrBlank(value)) {
             value = null;
         }
         return value;
     },
     patch_format:function(v,c){
-        if(v==null){
+        if(isNullOrBlank(v)){
             return '';
         }else{
             return this.format_replaced(v,c);
@@ -3401,7 +3402,6 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
         }
         return this.validator(this.textbox.value, this.sourceNode._parseDict) || this.validator(this.textbox.value, this.constraints);
     },
-
 
 });
 dojo.declare("gnr.widgets.CurrencyTextBox", gnr.widgets.NumberTextBox, {

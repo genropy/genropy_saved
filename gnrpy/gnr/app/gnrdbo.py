@@ -376,7 +376,7 @@ class TableBase(object):
             tbl.column('__release', dtype='L', name_long='Sys Version', group=group,_sysfield=True)
             
         if filter(lambda r: r!='sysRecord_' and r.startswith('sysRecord_'), dir(self)):
-            tbl.column('__syscode',size=':16',unique=True,indexed=True,
+            tbl.column('__syscode',size=':20',unique=True,indexed=True,
                 _sysfield=True,group=group,name_long='!!Internal code')
             tbl.formulaColumn('__protected_by_syscode',
                                 """ ( CASE WHEN $__syscode IS NULL THEN NULL 
@@ -559,13 +559,11 @@ class TableBase(object):
                                         fkey=fkey,**condition_kwargs).fetch()
         return result
 
+    def onDbUpgrade_createSysRecords(self):
+        self.createSysRecords()
 
     def createSysRecords(self,do_update=False):
         syscodes = []
-        currentPage = self.db.currentPage
-        do_update = do_update
-        if currentPage and currentPage._call_kwargs.get('_refresh_sysrecord') and currentPage.isDeveloper():
-            do_update = True
         for m in dir(self):
             if m.startswith('sysRecord_') and m!='sysRecord_':
                 method = getattr(self,m)

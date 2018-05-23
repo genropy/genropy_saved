@@ -39,17 +39,17 @@ class TableHandlerGroupBy(BaseComponent):
         table = table or inattr.get('table')
         tblobj = self.db.table(table)
         linkedNode = None
-        if not (dashboardIdentifier or where or condition or condition_kwargs):
+        if not (dashboardIdentifier or where or condition):
             linkedTo = linkedTo or inattr.get('frameCode')
+        
+        if linkedTo:
             frameCode = frameCode or '%s_groupedView' %linkedTo 
-            if not linkedTo:
-                raise self.exception('generic',msg='Missing condition or where in groupByTableHandler')
             linkedNode = self.pageSource().findNodeByAttr('frameCode',linkedTo)
-            if not linkedNode:
+            if linkedNode is None and not condition:
                 raise self.exception('generic',msg='Missing linked tableHandler in groupByTableHandler')
             if not struct:
                 struct = self._th_hook('groupedStruct',mangler=linkedTo,defaultCb=self._thg_defaultstruct)
-        if not linkedNode:
+        if linkedNode is None:
             self.subscribeTable(table,True,subscribeMode=True)
         frameCode = frameCode or 'thg_%s' %table.replace('.','_')
         datapath = datapath or '.%s' %frameCode
@@ -151,10 +151,13 @@ class TableHandlerGroupBy(BaseComponent):
                                     th_sections_manager.onCalling(storeKw._sections,runKwargs);
                                 }
                                 objectUpdate(kwargs,runKwargs);
+                                if(condition){
+                                    kwargs.condition = kwargs.condition? kwargs.condition +' AND '+condition:condition;
+                                }
                                 """,
                                 _excludeList="""columns,sortedBy,currentFilter,customOrderBy,row_count,hardQueryLimit,limit,liveUpdate,method,nodeId,selectionName,
                             selectmethod,sqlContextName,sum_columns,table,timeout,totalRowCount,userSets,_sections,
-                            _onCalling,_onResult,applymethod,sum_columns""",
+                            _onCalling,_onResult,applymethod,sum_columns,prevSelectedDict""",
                                 condition=condition,**store_kwargs)
         return frame
 
@@ -257,6 +260,7 @@ class TableHandlerGroupBy(BaseComponent):
     def _thg_selectgroupby(self,struct=None,**kwargs):
         columns_list = list()
         group_list = list()
+        having_list = list()
         def asName(field,group_aggr):
             return '%s_%s' %(field.replace('.','_').replace('@','_').replace('-','_'),
                     group_aggr.replace('.','_').replace('@','_').replace('-','_').replace(' ','_').lower())
@@ -267,11 +271,26 @@ class TableHandlerGroupBy(BaseComponent):
             if not col.startswith('@'):
                 col = '$%s' %col
             dtype = v.get('dtype')
-            group_aggr =  v.get('group_aggr')
-            
+            group_aggr =  v.get('group_aggr') 
             if dtype in ('N','L','I','F','R') and group_aggr is not False:
                 group_aggr =  group_aggr or 'sum'
-                col = '%s(%s) AS %s' %(group_aggr,col, asName(v['field'],group_aggr))
+                col_asname = asName(v['field'],group_aggr)
+                grouped_col = '%s(%s)' %(group_aggr,col)
+                col = '%s AS %s' %(grouped_col,col_asname)
+                having_chunk = list()
+
+                if v.get('not_zero'):
+                    having_chunk.append('(%s != 0)' %grouped_col)
+                if v.get('min_value') is not None:
+                    parname = '%s_min_value' %col_asname
+                    kwargs[parname] = v['min_value']
+                    having_chunk.append('%s>=:%s' %(grouped_col,parname))
+                if v.get('max_value') is not None:
+                    parname = '%s_max_value' %col_asname
+                    kwargs[parname] = v['max_value']
+                    having_chunk.append('%s<=:%s' %(grouped_col,parname))
+                if len(having_chunk):
+                    having_list.append(' AND '.join(having_chunk))
             else:
                 if group_aggr:
                     if dtype in ('D','DH'):
@@ -294,6 +313,8 @@ class TableHandlerGroupBy(BaseComponent):
         kwargs['columns'] = ','.join(columns_list)
         kwargs['group_by'] = ','.join(group_list)
         kwargs['order_by'] = kwargs['group_by']
+        if having_list:
+            kwargs['having'] = ' OR '.join(having_list)
         return self.app._default_getSelection(_aggregateRows=False,**kwargs)
 
     @struct_method

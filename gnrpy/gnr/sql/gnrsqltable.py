@@ -1500,6 +1500,30 @@ class SqlTable(GnrObject):
         #override
         return
 
+    def guessPkey(self,identifier):
+        if identifier is None:
+            return
+        def cb(cache=None,identifier=None,**kwargs):
+            if identifier in cache:
+                return cache[identifier],True
+            codeField = None
+            result = None
+            if ':' in identifier:
+                wherelist = []
+                wherekwargs = dict()
+                for cond in identifier.split(','):
+                    codeField,codeVal = cond.split(':')
+                    wherelist.append('$%s=:v_%s' %(codeField,codeField))
+                    wherekwargs['v_%s' %codeField] = codeVal
+                result = self.readColumns(columns='$id',where=' AND '.join(wherelist),**wherekwargs)
+            elif hasattr(self,'sysRecord_%s' %identifier):
+                result = self.sysRecord(identifier)[self.pkey]
+            elif self.pkey != 'id' or not codeField:
+                result = identifier
+            cache[identifier] = result
+            return result,False
+        return self.tableCachedData('guessedPkey',cb,identifier=identifier)
+
 
     def newPkeyValue(self,record=None):
         """Get a new unique id to use as :ref:`primary key <pkey>`

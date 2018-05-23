@@ -495,9 +495,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if (delay) {
             setTimeout(dojo.hitch(this, 'setRelativeData', path, value, attributes, fired, reason,null,_kwargs), delay);
         } else {
-            var reason = reason == null ? true : reason;
+            reason = reason == null ? true : reason;
             var oldpath = path;
-            var path = this.absDatapath(path);
+            path = this.absDatapath(path);
             if (fired) {
                 genro._firingNode = this;
                 genro._data.fireItem(path, value, attributes, {'doTrigger':reason});

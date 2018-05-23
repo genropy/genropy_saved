@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
 from gnr.web.gnrbaseclasses import BaseComponent
@@ -11,7 +10,7 @@ class View(BaseComponent):
         r.fieldcell('code',width='10em')
         r.fieldcell('objtype',width='10em')
         r.fieldcell('pkg',width='6em')
-        r.fieldcell('tbl',width='10em')
+        r.fieldcell('tbl',width='20em')
         r.fieldcell('userid',width='6em')
         r.fieldcell('description',width='6em')
         r.fieldcell('notes',width='6em')
@@ -22,9 +21,18 @@ class View(BaseComponent):
     def th_order(self):
         return 'code'
 
-    def th_query(self):
-        return dict(column='objtype', op='contains', val='')
+    def th_options(self):
+        return dict(virtualStore=False,addrow=False)
 
+    
+    def th_top_custom(self,top):
+        top.slotToolbar('2,sections@packages,*,sections@types',childname='upper',_position='<bar')
+
+    def th_sections_packages(self):
+        return self.th_distinctSections(table='adm.userobject',field='pkg')
+
+    def th_sections_types(self):
+        return self.th_distinctSections(table='adm.userobject',field='objtype')
 
 class Form(BaseComponent):
     def th_form(self, form):

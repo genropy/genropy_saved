@@ -200,6 +200,7 @@ class TableHandlerView(BaseComponent):
                                configurable=configurable,**kwargs)  
         if statsEnabled:
             self._th_handle_stats_pages(frame)
+            frame.linkedGroupByAnalyzer()
         self._th_handle_page_hooks(frame,page_hooks)
         self._th_menu_sources(frame,extendedQuery=extendedQuery,bySample=bySample)
         self._th_viewController(frame,table=table,default_totalRowCount=extendedQuery == '*')
@@ -388,6 +389,7 @@ class TableHandlerView(BaseComponent):
             s.append(dict(code='c_all_end',caption='!!All' if all_end is True else all_end))
         return s
 
+
     @extract_kwargs(condition=True,lbl=dict(slice_prefix=False))
     @struct_method
     def th_slotbar_sections(self,parent,sections=None,condition=None,condition_kwargs=None,
@@ -505,6 +507,16 @@ class TableHandlerView(BaseComponent):
             currentSection='^.current',sectionbag='=.data',
             _delay=1,
             th_root=th_root)
+
+    def th_distinctSections(self,table,field=None,allPosition=True,**kwargs):
+        allsection = [dict(code='all',caption='!!All')]
+        sections = []
+        f = self.db.table(table).query(columns='$%s' %field,addPkeyColumn=True,distinct=True,**kwargs).fetch()
+        for i,r in enumerate(f):
+            sections.append(dict(code='c_%i' %i,caption=r[field],condition="$%s=:v" %field,condition_v=r[field]))
+        if allPosition:
+            return allsection+sections if allPosition!='last' else sections+allsection
+        return sections
  
 
     @struct_method
@@ -894,7 +906,11 @@ class TableHandlerView(BaseComponent):
         btn = pane.slotButton('!!Only highlighted',action="""
             var highlighted = genro.wdgById(th_root_code+'_grid').getSelectedPkeys();
             if(highlighted){
-                this.setRelativeData('.query.pkeys',highlighted.join(','));
+                if(event.shiftKey){
+                    TH(th_root_code).querymanager.pkeySetToQuery(highlighted.join(','));
+                }else{
+                    this.setRelativeData('.query.pkeys',highlighted.join(','));
+                }
                 this.fireEvent('.runQuery');
             }
             """,th_root_code=inattr['th_root'],iconClass='iconbox bulb_off')
@@ -1047,6 +1063,32 @@ class TableHandlerView(BaseComponent):
                         'column_caption': self.app._relPathToCaption(table, column),
                         'value_caption':val})
         return result
+
+    @struct_method
+    def thgp_linkedGroupByAnalyzer(self,view,**kwargs):
+        linkedTo=view.attributes.get('frameCode')
+        table = view.grid.attributes.get('table')
+        frameCode = '%s_gp_analyzer' %linkedTo
+        pane = view.grid_envelope.contentPane(region='bottom',height='300px',drawer='close',margin='2px',splitter=True,
+                                             border='1px solid silver')
+        view.dataController("""
+            var analyzerNode = genro.nodeById(analyzerId);
+            if(currentSelectedPkeys && currentSelectedPkeys.length){
+                analyzerNode.setRelativeData('.analyzer_condition', '$'+pkeyField+' IN :analyzed_pkeys');
+                analyzerNode.setRelativeData('.analyzed_pkeys',currentSelectedPkeys);
+            }else{
+                analyzerNode.setRelativeData('.analyzer_condition',null);
+                analyzerNode.setRelativeData('.analyzed_pkeys',null);
+            }
+        """,pkeyField='=.table?pkey',
+            currentSelectedPkeys='^.grid.currentSelectedPkeys',
+            analyzerId=frameCode,_delay=500)
+
+        pane.groupByTableHandler(frameCode=frameCode,linkedTo=linkedTo,
+                                    table=table,datapath='.analyzerPane',
+                                    condition='=.analyzer_condition',
+                                    condition_analyzed_pkeys='^.analyzed_pkeys')
+        
 
 class THViewUtils(BaseComponent):
     js_requires='th/th_querytool,th/th_viewconfigurator'

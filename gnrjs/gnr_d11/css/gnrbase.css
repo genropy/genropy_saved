@@ -1622,14 +1622,29 @@ table.formbuilder {
     height: 12px;
 }
 
+.searchtree_container{
+    position: relative;
+    display:'inline-block';
+}
 .tree_searchbox{
     height: 21px;
     background-color: #444;
-    position: relative;
+    position: absolute;
+    top:0;
+    left:0;
+    right:0;
 }
-
+.tree_scrollbox{
+    position: absolute;
+    top:21px;
+    left:0;
+    right:0;
+    bottom:0;
+    overflow:auto;
+}
 .tree_searchbox .searchboxLabel{
     color:white;
+    margin-top: 2px;
 }
 
 .smallmenu .dijitMenuItem {
