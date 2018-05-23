@@ -30,6 +30,11 @@ class TableHandlerCommon(BaseComponent):
             default_kwargs = dict()
         tblrel = self.db.table(maintable)
         relation_attr = tblrel.model.relations.getAttr(relation, 'joiner')
+        if relation_attr.get('inheritLock') is not None and 'inheritLock' not in original_kwargs:
+            original_kwargs['inheritLock'] = relation_attr['inheritLock']
+        if relation_attr.get('inheritProtect') is not None and 'inheritProtect' not in original_kwargs:
+            original_kwargs['inheritProtect'] = relation_attr['inheritProtect']
+
         relationKey = relation_attr['one_relation'].split('.')[2]
         condition_kwargs['_loader'] = '^#FORM.controller.loaded'
         condition_kwargs['_if'] = 'fkey && fkey!="*newrecord*" && fkey!="*norecord*"'

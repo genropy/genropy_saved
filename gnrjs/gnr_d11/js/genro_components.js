@@ -5473,6 +5473,8 @@ dojo.declare("gnr.stores._Collection",null,{
         this.storepath = this.storeNode.absDatapath(this.storeNode.attr.storepath);
         var startData = this.storeNode.getRelativeData(this.storepath,true);
         this.locked = null;
+        this.inherithLock = false;
+        this.inheritProtect = false;
         var deleteRows = objectPop(kw,'deleteRows');
         if (deleteRows){
             this.deleteRows = funcCreate(deleteRows,'pkeys,protectPkeys',this);
@@ -5487,13 +5489,17 @@ dojo.declare("gnr.stores._Collection",null,{
                 that.setLocked(v);
             });
             var parentForm = that.storeNode.attr.parentForm===false? false:that.storeNode.getFormHandler();
+            if(parentForm){
+                that.inherithLock = 'inherithLock' in that.storeNode.attr?  that.storeNode.attr.inherithLock:true;
+                that.inheritProtect = 'inheritProtect' in that.storeNode.attr?  that.storeNode.attr.inheritProtect:true;
+            }
             if(parentForm===false){
                 startLocked = false;
                 this.locked=false;
             }
-            else if(parentForm){
+            else if(that.inherithLock && parentForm){
                 that.storeNode.registerSubscription('form_'+parentForm.formId+'_onDisabledChange',that,function(kwargs){
-                    this.setLocked(kwargs.disabled);
+                    this.setLocked(kwargs.locked);
                 });
             }
             dojo.subscribe('onPageStart',function(){
@@ -5590,7 +5596,7 @@ dojo.declare("gnr.stores._Collection",null,{
         }
         this.locked = value;
         var parentForm = this.storeNode.getFormHandler();
-        var parentProtect = parentForm?parentForm.isProtectWrite():false;
+        var parentProtect = (parentForm && this.inheritProtect)?parentForm.isProtectWrite():false;
         this.storeNode.setRelativeData('.locked',value);
         this.storeNode.setRelativeData('.disabledButton',value || parentProtect);
         this.storeNode.publish('onLockChange',{'locked':this.locked});

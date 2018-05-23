@@ -282,17 +282,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     applyDisabledStatus:function(){
         var form_disabled = this.isDisabled();
         var disabled_status = this.disabledStatus();
-        this.publish('onDisabledChange',{disabled:form_disabled,reason:disabled_status});
+        this.publish('onDisabledChange',{disabled:form_disabled,locked:this.locked});
         genro.dom.setClass(this.sourceNode,'lockedContainer',form_disabled);
         var node,disabled;
         for (var k in this._register){
             node = this._register[k];
-            if(disabled_status=='unlocked_readOnly'){
-                if(node.attr.tag.toLowerCase() in this.autoRegisterTags){
-                    disabled = this._protectedDataNode(genro.getDataNode(node.absDatapath(node.attr.value)));
-                }else{
-                    disabled = false;
-                }
+            if(disabled_status=='unlocked_readOnly' && node.attr.tag.toLowerCase() in this.autoRegisterTags){
+                disabled = this._protectedNode(genro.getDataNode(node.absDatapath(node.attr.value)) || node);
             }else{
                 disabled = form_disabled;
             }
@@ -306,16 +302,16 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
 
-    _protectedDataNode:function(dataNode){
+    _protectedNode:function(node){
         var recAttr = this.getDataNodeAttributes();
         var protect_write = recAttr._protect_write;
         if(protect_write===true){
             return true;
         }
-        if('protected_by' in dataNode.attr){
-            return dataNode.attr.protected_by;
+        if('protected_by' in node.attr){
+            return node.attr.protected_by;
         }
-        var protected_by_kwargs = objectExtract(dataNode.attr,'protected_by_*',true);
+        var protected_by_kwargs = objectExtract(node.attr,'protected_by_*',true);
         return !protect_write.split(',').some(fld => protected_by_kwargs[fld]===false);
     },
 
@@ -1295,10 +1291,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var parentForm = this.getParentForm();
         var recAttr = this.getDataNodeAttributes();
         var protect_write = recAttr._protect_write;
-        if (parentForm && this.parentLock=='auto'){
+        if (parentForm && this.inheritProtect!==false){
             protect_write = protect_write || parentForm.isProtectWrite();
         }
-        return protect_write || this.readOnly || false;
+        return (protect_write?true:false) || this.readOnly || false;
     },
     
     isLogicalDeleted:function(){
@@ -1484,7 +1480,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         var allowed = !this.isDisabled();
         if(this.disabledStatus()=='unlocked_readOnly'){
-            allowed = !this._protectedDataNode(kw.node);
+            allowed = !this._protectedNode(kw.node);
         }
         if( kw.value==kw.oldvalue  || (isNullOrBlank(kw.value) && isNullOrBlank(kw.oldvalue))){
             if(kw.updattr && kw.changedAttr){

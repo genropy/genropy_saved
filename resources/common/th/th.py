@@ -58,6 +58,12 @@ class TableHandler(BaseComponent):
                                                     condition_kwargs=condition_kwargs,
                                                     relation_kwargs=relation_kwargs,
                                                     default_kwargs=default_kwargs,original_kwargs=kwargs)
+        if 'inheritLock' in kwargs:
+            view_kwargs['store_inheritLock'] = kwargs['inheritLock']
+            form_kwargs['form_inheritLock'] = kwargs.pop('inheritLock')
+        if 'inheritProtect' in kwargs:
+            view_kwargs['store_inheritProtect'] = kwargs['inheritProtect']
+            form_kwargs['form_inheritProtect'] = kwargs.pop('inheritProtect')
         tblobj = self.db.table(table)
         tblattr = tblobj.attributes
 

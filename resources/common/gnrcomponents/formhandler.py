@@ -257,7 +257,7 @@ class FormHandler(BaseComponent):
     def fh_slotbar_form_save(self,pane,always=False,**kwargs):
         pane.formButton('!!Save',topic='save',iconClass="iconbox save",
                         _shortcut='@save:f1',_shortcut_activeForm=True,
-                        parentForm=True,command=always)
+                        command=always,disabled='^#FORM.controller.locked')
 
     @struct_method          
     def fh_slotbar_form_revert(self,pane,**kwargs):
@@ -321,8 +321,9 @@ class FormHandler(BaseComponent):
                                         }""",**dbselect_pars)
     
     @struct_method          
-    def fh_slotbar_form_add(self,pane,parentForm=True,defaults=None,**kwargs):
+    def fh_slotbar_form_add(self,pane,parentForm=None,disabled=None,defaults=None,**kwargs):
         menupath = None
+        disabled = disabled or '^#FORM.controller.locked'
         if defaults:
             menubag = None
             menupath = '.addrow_menu_store'
@@ -338,9 +339,11 @@ class FormHandler(BaseComponent):
                 pane.data('.addrow_menu_store',menubag)
             menupath = '.addrow_menu_store'
             pane.slotButton('!!Add',childname='addButton',action='this.form.newrecord($1.default_kw);',menupath=menupath,
+                        disabled=disabled,
                         iconClass="iconbox add_record",parentForm=parentForm,**kwargs)
         else:
             pane.formButton('!!Add',childname='addButton',topic='navigationEvent',command='add',
+                        disabled=disabled,
                         iconClass="iconbox add_record",parentForm=parentForm,**kwargs)
 
 
