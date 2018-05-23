@@ -56,7 +56,7 @@ class BaseUpdater(object):
                 print 'APPLYING CHANGES TO DATABASE...'
                 db.model.applyModelChanges()
                 print 'CHANGES APPLIED TO DATABASE'
-                app.pkgBroadcast('onDbSetup,onDbSetup_*')
+                db.application.pkgBroadcast('onDbSetup,onDbSetup_*')
             if self.upgrade:
                 print 'RUN UPGRADE'
                 db.application.pkgBroadcast('onDbUpgrade,onDbUpgrade_*')
