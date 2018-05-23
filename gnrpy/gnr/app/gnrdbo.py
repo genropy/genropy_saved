@@ -382,7 +382,7 @@ class TableBase(object):
                                 """ ( CASE WHEN $__syscode IS NULL THEN NULL 
                                    ELSE NOT (',' || :env_userTags || ',' LIKE '%%,'|| :systag || ',%%')
                                    END ) """,
-                                dtype='B',var_systag=tbl.attributes.get('syscodeTag') or 'zzzsuperadmin',_sysfield=True,
+                                dtype='B',var_systag=tbl.attributes.get('syscodeTag') or 'superadmin',_sysfield=True,
                                 group=group)
         self.sysFields_extra(tbl,_sysfield=True,group=group)
         
