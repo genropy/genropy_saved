@@ -425,21 +425,23 @@ class TableBase(object):
         protections= []
         if self.attributes.get('protectionColumn'):
             pcol = self.attributes['protectionColumn']
-            protections.append('( CASE WHEN $%s IS NULL THEN NULL ELSE TRUE END ) ' %pcol)
+            protections.append("( CASE WHEN $%s IS NULL THEN NULL ELSE '%s' END ) " %(pcol,pcol))
         for field in filter(lambda r: r.startswith('__protected_by_'), self.model.virtual_columns.keys()):
-            protections.append('( $%s IS TRUE ) ' %field)
+            protections.append("""( CASE WHEN $%s IS TRUE THEN '%s' ELSE NULL END )  """ %(field,field[15:]))
         if protections:
-            return "( %s )" %' OR '.join(protections)
+            return "array_to_string(ARRAY[%s],',')"   %','.join(protections)
         else:
             return " NULL "
 
     def _isReadOnly(self,record):
+        readOnly = False
         if self.attributes.get('readOnly'):
-            return True
-        if record.get('__is_protected_row'):
-            return True
-        if record.get('__protection_tag'):
-            return not (record['__protection_tag'] in self.db.currentEnv['userTags'].split(','))
+            readOnly = True
+        elif record.get('__is_protected_row'):
+            readOnly = record.get('__is_protected_row')
+        elif record.get('__protection_tag'):
+            readOnly = not (record['__protection_tag'] in self.db.currentEnv['userTags'].split(','))
+        return readOnly
 
     def formulaColumn_allowedForPartition(self):
 

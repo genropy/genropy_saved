@@ -12,7 +12,8 @@ class Table(object):
         #self.htableFields(tbl)
         #tbl.column('parent_code').relation('htag.code',onDelete='cascade')
 
-        tbl.column('code',name_long='!!Code',validate_notnull=True,validate_nodup=True)
+        tbl.column('code',name_long='!!Code',validate_notnull=True,validate_nodup=True,
+                    unmodifable=True)
         tbl.column('description',name_long='!!Description',validate_notnull=True)
         tbl.column('isreserved', 'B', name_long='!!Reserved')
         tbl.column('note',name_long='!!Notes')
