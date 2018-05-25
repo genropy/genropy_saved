@@ -397,7 +397,7 @@ dojo.declare("gnr.QueryManager", null, {
             genro.serverCall('_table.adm.userobject.loadUserObject',{pkey:queryAttributes.pkey,table:this.maintable},function(result){
                 finalize(result._value.deepCopy(),!sourceNode.getRelativeData('.query.queryEditor'));
             });
-        }else if(queryAttributes.selectmethod){
+        }else if(queryAttributes.filteringPkeys){
             finalize(new gnr.GnrBag(),true);
         }
     },
@@ -667,10 +667,10 @@ dojo.declare("gnr.QueryManager", null, {
         currwhere.walk(cb, 'static', parslist);
         return parslist;
     },
-    onQueryCalling:function(querybag,selectmethod){
+    onQueryCalling:function(querybag,filteringPkeys){
         var parslist=[];
         var sourceNode = this.sourceNode;
-        if(selectmethod){
+        if(filteringPkeys){
             var currAttrs = this.sourceNode.getRelativeData('.query.queryAttributes').asDict();
             var params = objectExtract(currAttrs,'parameter_*');
             var dflt = objectExtract(currAttrs,'default_*');

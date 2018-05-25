@@ -538,7 +538,7 @@ class TableHandlerView(BaseComponent):
                         SET .query.queryAttributes.extended = true;
                     }else{
                         SET .query.currentQuery = $1.fullpath;
-                        SET .query.menu.__queryeditor__?disabled=$1.selectmethod!=null;
+                        SET .query.menu.__queryeditor__?disabled=$1.filteringPkeys!=null;
                     }""")
 
     @public_method
@@ -575,7 +575,7 @@ class TableHandlerView(BaseComponent):
         for k,v in pyqueries.items():
             pars = dictExtract(dict(v.__dict__),'query_')
             code = pars.get('code')
-            q.setItem(code,None,tip=pars.get('description'),selectmethod=v,**pars)
+            q.setItem(code,None,tip=pars.get('description'),filteringPkeys=v,**pars)
         pane.data('.query.pyqueries',q)
         pane.dataRemote('.query.menu',self.th_menuQueries,pyqueries='=.query.pyqueries',
                         _resolved_pyqueries=q,editor=extendedQuery,bySample=bySample,
@@ -762,8 +762,8 @@ class TableHandlerView(BaseComponent):
             selectionName = None
         if liveUpdate!='NO':
             self.subscribeTable(table,True,subscribeMode=liveUpdate)
-        selectmethod = self._th_hook('selectmethod',mangler=frame,defaultCb=False)
-        
+        selectmethod = store_kwargs.pop('selectmethod',None) or self._th_hook('selectmethod',mangler=frame,defaultCb=False)
+        filteringPkeys = store_kwargs.pop('filteringPkeys',None) or self._th_hook('filteringPkeys',mangler=frame,defaultCb=False)
         store_kwargs.update(condPars)
         _if = store_kwargs.pop('_if',None) or store_kwargs.pop('if',None)
         _onStart = store_kwargs.pop('_onStart',None) or store_kwargs.pop('onStart',None)
@@ -807,7 +807,9 @@ class TableHandlerView(BaseComponent):
                                excludeLogicalDeleted='=.excludeLogicalDeleted',
                                excludeDraft='=.excludeDraft',
                                applymethod=store_kwargs.pop('applymethod',None) or self._th_hook('applymethod',dflt=None,mangler=frame),
-                               timeout=180000, selectmethod= selectmethod or '=.query.queryAttributes.selectmethod',
+                               timeout=180000, 
+                               selectmethod= selectmethod,
+                               filteringPkeys=filteringPkeys or '=.query.queryAttributes.filteringPkeys',
                                currentFilter = '=.query.currentFilter',
                                prevSelectedDict = '=.query.prevSelectedDict',
                                unlinkdict=unlinkdict,
@@ -970,10 +972,10 @@ class TableHandlerView(BaseComponent):
                         branch=options.get('branch'),
                         table=table,omit='_*')
         pane.data('gnr.qb.sqlop',self.getSqlOperators())   
-        pane.dataController("""var th=TH(th_root).querymanager.onQueryCalling(querybag,selectmethod);
+        pane.dataController("""var th=TH(th_root).querymanager.onQueryCalling(querybag,filteringPkeys);
                               """,th_root=th_root,_fired="^.runQuery",
                            querybag='=.query.where',
-                           selectmethod='=.query.queryAttributes.selectmethod')
+                           filteringPkeys='=.query.queryAttributes.filteringPkeys')
         pane.dataFormula('.currentQueryCountAsString', 'msg.replace("_rec_",cnt)',
                            cnt='^.currentQueryCount', _if='cnt', _else='',
                            msg='!!Current query will return _rec_ items')
