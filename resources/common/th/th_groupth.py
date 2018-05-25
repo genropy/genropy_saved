@@ -86,7 +86,7 @@ class TableHandlerGroupBy(BaseComponent):
 
         frame.data('.grid.showCounterCol',True)
         frame.dataFormula('.currentTitle',"basetitle+' '+(loadedDashboard || currentView || '')",
-                                basetitle='!!Gruop by',
+                                basetitle='!!Group by',
                                 currentView='^.grid.currViewAttrs.description',
                                 loadedDashboard='^.dashboardMeta.description')
         frame.dataRemote('.advancedOptions',self.thg_advancedOptions,cacheTime=5,table=table,
