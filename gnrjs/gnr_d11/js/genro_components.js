@@ -1201,7 +1201,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
                                             }
                                     },disabled:'^.imported_file_path?=!#v'},gnrwdg.importButtonKw)
         footerbar._('slotButton','importButton',importButtonKw);
-        var qg = frame._('ContentPane',{'side':'center',overflow:'hidden'})._('quickGrid', {value:'^.importing_data'});
+        var qg = frame._('borderContainer',{'side':'center'})._('quickGrid', {value:'^.importing_data',region:'center'});
         gnrwdg.gridNode = qg.getParentNode();
         var bcnode = bc.getParentNode();
         gnrwdg.rootNode = bcnode;
@@ -1268,7 +1268,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
             fb.addField('checkbox',{value:'^.sql_mode',
                                 label:_T('SQL Mode'),parentForm:false});   
         }
-        var grid = frame._('ContentPane',{'side':'center',overflow:'hidden'})._('quickGrid',{value:'^.match',_class:'noselect'});
+        var grid = frame._('BorderContainer',{'side':'center',overflow:'hidden'})._('quickGrid',{value:'^.match',_class:'noselect',region:'center'});
         grid.getParentNode().importer_gnrwdg = this;
         var onclick = "this.getParentNode().importer_gnrwdg.onCheckedMatch(this,kw);"
         var editdestpars = true;
@@ -5027,57 +5027,13 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         return attributes;
     },
     
-    addClosableHandle:function(sourceNode,kw){
-        var pane = sourceNode.getParentNode();
-        var bc = pane.widget.parentBorderContainer;
-        var side = kw.side;
-        var orientation = kw.orientation;
-        if(bc._splitters[side]){
-            genro.dom.setClass(bc._splitters[side],'tinySplitter',true);
-        }
-        var togglecb = function(){
-            var toClose = !dojo.hasClass(pane.widget.domNode,'closedSide');
-            genro.dom.setClass(pane,'closedSide','toggle');
-            if(bc._splitters[side]){
-                genro.dom.setClass(bc._splitters[side],'hiddenSplitter','toggle');
-            }
-            if(toClose){
-                pane.__currDimension = pane.widget.domNode.style.width;
-                dojo.style(pane.widget.domNode,orientation=='vertical'?'width':'height',null);
-            }else if(pane.__currDimension){
-                dojo.style(pane.widget.domNode,orientation=='vertical'?'width':'height',pane.__currDimension);
-            }
-            bc._layoutChildren(side);
-            bc.layout();
-        }
-        genro.dom.setClass(pane,'closableSide_'+orientation,true);
-        var closablePars = objectExtract(kw,'closable_*');
-        var iconClass = objectPop(closablePars,'iconClass');
-        if('top' in closablePars){
-            closablePars['margin_top'] = closablePars['margin_top'] || 0;
-        }
-        if('left' in closablePars){
-            closablePars['margin_left'] = closablePars['margin_left'] || 0;
-        }
-
-        var splitter = objectPop(closablePars,'splitter');
-        if(kw.closable=='close'){
-            togglecb()
-        }
-        var _class = 'slotbarOpener'+' slotbarOpener_'+orientation+' slotbarOpener_'+side;
-        var label = objectPop(closablePars,'label');
-        var opener = sourceNode._('div',objectUpdate({_class:_class,connect_onclick:togglecb},closablePars));
-        if(label){
-            opener._('div',{'innerHTML':label,_class:'slotbarOpener_label_'+orientation});
-        }
-        if(iconClass){
-            opener._('div',{_class:iconClass});
-        }
-    },
     
     createContent:function(sourceNode, kw,children) {
         if(kw.closable){
-            this.addClosableHandle(sourceNode,kw)
+            var pane = sourceNode.getParentNode();
+            var bc = pane.widget.parentBorderContainer;
+            console.log('slotbar addClosableHandle');
+            bc.gnr.addClosableHandle(bc,pane,kw)
         }
         var slots = objectPop(kw,'slots');
         var orientation = objectPop(kw,'orientation');

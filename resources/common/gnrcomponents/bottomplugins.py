@@ -16,7 +16,7 @@ class BottomPlugins(BaseComponent):
         if self.documentation or self.tickets:
             rootbc = _gnrRoot.value
             bottom = rootbc.contentPane(region='bottom',height='30%',
-                                    splitter=True,drawer='close',
+                                    splitter=True,closable='close',
                                     border_top='1px solid gray',
                                     overflow='hidden',
                                     background='white')

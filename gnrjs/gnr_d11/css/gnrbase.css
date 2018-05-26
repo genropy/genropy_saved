@@ -3173,7 +3173,7 @@ body *{
 	font-weight: bold;
 	font-family: helvetica;
 	position: absolute;
-	z-index: 10;
+	z-index: 20;
 	background: #555;
 	opacity: .2;
 	cursor: pointer;

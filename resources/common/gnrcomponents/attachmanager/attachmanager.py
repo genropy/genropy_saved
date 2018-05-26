@@ -233,7 +233,7 @@ class AttachManager(BaseComponent):
             thkwargs['table'] = table
             thkwargs['condition'] = "$maintable_id=:maintable_id"
             thkwargs['condition_maintable_id'] = maintable_id
-        th = bc.contentPane(splitter=True,childname='atcgrid',border_right='1px solid silver',drawer=True,**d[mode]).plainTableHandler(
+        th = bc.contentPane(splitter=True,childname='atcgrid',border_right='1px solid silver',closable=True,**d[mode]).plainTableHandler(
                                         viewResource= viewResource or 'gnrcomponents/attachmanager/attachmanager:AttachGalleryView',
                                         hider=True,addrow=False,delrow=False,_class='noheader atc_gallerygrid',
                                         nodeId=nodeId or 'thattachments_#',
