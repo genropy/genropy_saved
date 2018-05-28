@@ -30,7 +30,7 @@ description = 'Group by chart'
 class Main(BaseDashboardItem):
     title_template = '$chart_title'
 
-    def content(self,pane,linkedGrid=None,editMode=None,itemIdentifier=None,itemRecord=None,linkedItem=None,workpath=None,workspaces=None,**kwargs):
+    def content(self,pane,linkedGrid=None,linkedItem=None,**kwargs):
         bc = pane.borderContainer(_workspace=True,_workspace_path='.chart_parameters')
         root = bc.contentPane(childname='chartroot',parentForm=False,region='center')
         bc.div(position='absolute',childname='dropArea',_class='chartDrop',dropCodes='gridcolumn',dropTarget=True,
@@ -46,7 +46,7 @@ class Main(BaseDashboardItem):
                                     var cellcap = cell.tree_name? cell.tree_name.replace('<br/>',' '):cell.original_name;
                                     genro.nodeById('cp_%s').gnrwdg.addDataset({field:cell.field,
                                                                                 caption:cellcap});
-                                    """ %itemIdentifier)
+                                    """ %self.itemIdentifier)
         pane.dataController("""
         pane.getValue().popNode('chartNode');
         genro.pluginCommand({plugin:'chartjs'});
@@ -79,22 +79,22 @@ class Main(BaseDashboardItem):
                                 filterpath:workpath+'.linkedRows',onClick:onClick});
             gridnode.setRelativeData('.linkedChart',true);
         });
-        """,connectedTo='=.parameters.linkedGrid',_onBuilt=True,pane=root,itemIdentifier=itemIdentifier,workpath=workpath)
+        """,connectedTo='=.parameters.linkedGrid',_onBuilt=True,pane=root,itemIdentifier=self.itemIdentifier,workpath=self.workpath)
         pane.dataController("""
             genro.nodeById(itemIdentifier).externalWidget.gnr_updateChart();
-        """,_fired='^.configuration_changed',datapath=workpath,itemIdentifier=itemIdentifier,_delay=20)
+        """,_fired='^.configuration_changed',datapath=self.workpath,itemIdentifier=self.itemIdentifier,_delay=20)
         pane.dataFormula('.chart_title',"""(caption_template || title).replace('#',linkedTitle);""",
-                        linkedTitle='^%s.%s.current_title' %(workspaces,linkedItem),
+                        linkedTitle='^%s.%s.current_title' %(self.workspaces,linkedItem),
                         caption_template='^.conf.caption_template',title='^.title',
                         _onBuilt=True)
         
         #pane.chartPane(connectedTo='=.parameters.linkedGrid',configurator=True)
 
-    def configuration(self,pane,linkedStore=None,workpath=None,storepath=None,itemIdentifier=None,**kwargs):
+    def configuration(self,pane,linkedStore=None,**kwargs):
         fb = pane.formbuilder()
         fb.textbox(value='^.caption_template',lbl='!!Caption')
 
-        chartconf = '%s.chart_parameters' %storepath
+        chartconf = '%s.chart_parameters' %self.storepath
         fb.filteringSelect(value='^.chartType',lbl='!!Chart type',
                     values='bar,line,pie,doughnut',datapath=chartconf)
         fb.checkbox(value='^.options.maintainAspectRatio',label='!!Aspect ratio',datapath=chartconf)
@@ -106,4 +106,4 @@ class Main(BaseDashboardItem):
                                 var currentCaption = this.sourceNode.getRelativeData('.captionField?_displayedValue');
                                 return (cp && cp.gnrwdg)? cp.gnrwdg.captionGetter(kw):{data:[{_pkey:currentValue,caption:currentCaption}]} 
                             }
-                            """ %itemIdentifier,hasDownArrow=True)
+                            """ %self.itemIdentifier,hasDownArrow=True)

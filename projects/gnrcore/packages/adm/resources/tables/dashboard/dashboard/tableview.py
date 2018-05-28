@@ -34,9 +34,9 @@ item_parameters = [dict(value='^.table',lbl='Table',tag='dbselect',dbtable='adm.
 class Main(BaseDashboardItem):
     title_template = '$title $whereParsFormatted'
 
-    def content(self,pane,workpath=None,table=None,query_id=None,view_id=None,storepath=None,**kwargs):
+    def content(self,pane,table=None,query_id=None,view_id=None,**kwargs):
         self.page.mixinComponent('th/th:TableHandler')
-        bc = pane.borderContainer(datapath=workpath)
+        bc = pane.borderContainer(datapath=self.workpath)
         center = bc.contentPane(region='center')
         selectionViewer = self._selectionViewer(center,table=table,query_id=query_id,view_id=view_id,datapath='.viewer')
         self.queryPars = selectionViewer.queryPars
@@ -47,21 +47,21 @@ class Main(BaseDashboardItem):
                 });
             }
             grid.collectionStore().loadData();
-        """,wherePars='=%s.conf.wherePars' %storepath,grid=selectionViewer.grid.js_widget,
+        """,wherePars='=%s.conf.wherePars' %self.storepath,grid=selectionViewer.grid.js_widget,
             queryPars='=.query.queryPars',
             where='=.query.where',
-            _fired='^%s.runItem' %workpath)
+            _fired='^%s.runItem' %self.workpath)
             
         pane.dataFormula('.whereParsFormatted',"wherePars?wherePars.getFormattedValue({joiner:' - '}):'-'",
                     wherePars='^.conf.wherePars')
         
 
 
-    def configuration(self,pane,table=None,queryName=None,workpath=None,**kwargs):
+    def configuration(self,pane,table=None,queryName=None,**kwargs):
         if not self.queryPars:
             return
         fb = pane.formbuilder(dbtable=table,datapath='.wherePars',
-                            fld_validate_onAccept="SET %s.runRequired =true;" %workpath)
+                            fld_validate_onAccept="SET %s.runRequired =true;" %self.workpath)
         for code,pars in self.queryPars.digest('#k,#a'):
             field = pars['field']
             rc = self.db.table(table).column(field).relatedColumn()

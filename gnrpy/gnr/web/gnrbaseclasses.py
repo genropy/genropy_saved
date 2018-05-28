@@ -178,30 +178,57 @@ class BaseDashboardItem(object):
         self.db = page.db
         self.tblobj = resource_table
 
+
     @extract_kwargs(itempar=True)
     def __call__(self,pane,editMode=None,workpath=None,parameters=None,itempar_kwargs=None,
                 itemspath=None,workspaces=None,itemIdentifier=None,title=None,**kwargs):
-        itemIdentifier = itemIdentifier or 'di_%s' %id(pane)
+        self.itemIdentifier = itemIdentifier or 'di_%s' %id(pane)
+        self.workspaces = workspaces or 'dashboards'
         if not workpath:
-            workpath = '%s.%s' %(workspaces or 'gnr.workspace',itemIdentifier)
-        parameters = parameters or Bag()
-        title = title or itempar_kwargs.pop('title',None) or self.item_name
-        storepath = '%s.%s' %(itemspath,itemIdentifier) if itemspath and itemIdentifier else ''
+            workpath = '%s.%s' %(workspaces,self.itemIdentifier)
+        self.editMode = editMode
+        self.workpath = workpath
+        self.parameters = parameters or Bag()
+        self.itemspath = itemspath
+        self.title = title or itempar_kwargs.pop('title',None) or self.item_name
+        self.storepath = '%s.%s' %(itemspath,self.itemIdentifier) if itemspath and self.itemIdentifier else ''
         bc = pane.borderContainer()
-        top = bc.contentPane(region='top',min_height='20px').div(height='20px',_class='dashboard_item_top',
-                                               onDrag="""
-                                               dragValues['itemIdentifier'] = '%s';
-                                               """ %itemIdentifier,draggable=itemIdentifier is not None)
-        sc = bc.stackContainer(region='center',datapath=storepath,selectedPage='^%s._dashboardPageSelected' %workpath)
-        top.div('^.current_title',text_align='center',datapath=workpath,padding_top='3px',
+        self.itembar(bc.contentPane(region='top',min_height='20px'))
+        sc = bc.stackContainer(region='center',datapath=self.storepath,selectedPage='^%s._dashboardPageSelected' %workpath)
+        self.item_centerstack = sc
+        kwargs.update(itempar_kwargs)
+        kwargs.update(parameters.asDict(ascii=True))
+        pane = sc.contentPane(pageName='content',childname='content')
+        self.content(pane,**kwargs)
+        bc = sc.borderContainer(pageName='conf')
+        bc.dataController("""FIRE .runItem;""",
+                        _onBuilt=self.run_onbuilt,
+                        datapath=workpath,_timing='=.runTimer')
+        bc.dataController("""if(runRequired){
+            SET .runRequired = false;
+            FIRE .runItem;
+        }""",
+        changedConfig='^.configuration_changed',runRequired='=.runRequired',datapath=self.workpath)
+        self.configuration(bc.contentPane(region='center',datapath='.conf',childname='config'),**kwargs)
+       #bottom = bc.contentPane(region='bottom',_class='slotbar_dialog_footer')
+       #bottom.button('!!Ok',top='2px',right='2px',action="""sc.switchPage(0);
+       #                                                    FIRE %s.configuration_changed;
+       #                                                """ %(workpath or ''),sc=sc.js_widget)
+        
+
+    def itembar(self,pane):
+        top = pane.div(height='20px',_class='dashboard_item_top',onDrag="""dragValues['itemIdentifier'] = '%s';
+                                               """ %self.itemIdentifier,draggable=self.itemIdentifier is not None)
+        self.item_topbar = top
+        top.div('^.current_title',text_align='center',datapath=self.workpath,padding_top='3px',
                 connect_ondblclick="""
                 var store = genro.getData('%s');
                 var dflt = store.getItem('title');
                 genro.dlg.prompt(_T('Change title'),{lbl:_T('Title'),dflt:dflt,action:function(newtitle){store.setItem('title',newtitle);}});
-                """ %storepath)
-        bc.dataFormula('%s.current_title' %workpath,"dataTemplate(tpl,itemaData)",tpl=self.title_template,
-                        itemaData='^%s' %storepath,_onBuilt=True)
-        if editMode:
+                """ %self.storepath)
+        top.dataFormula('%s.current_title' %self.workpath,"dataTemplate(tpl,itemaData)",tpl=self.title_template,
+                        itemaData='^%s' %self.storepath,_onBuilt=True)
+        if self.editMode:
             top.lightbutton(_class='close_svg',height='16px',
                         width='16px',top='1px',position='absolute',
                         left='4px',cursor='pointer',
@@ -213,7 +240,7 @@ class BaseDashboardItem(object):
                                             {confirm:function(){
                                                 genro.dashboards.emptyTile(that);
                                             }, cancel:function(){}});
-                                    """ %workpath)
+                                    """ %self.workpath)
             
         top.lightbutton(_class='menu_white_svg',height='16px',width='16px',
                         position='absolute',top='1px',right='4px',cursor='pointer',
@@ -229,39 +256,16 @@ class BaseDashboardItem(object):
                                 SET ._dashboardPageSelected = 'conf';
                             } 
                         }
-                        """ ,datapath=workpath,
-                        itemIdentifier=itemIdentifier,
+                        """ ,datapath=self.workpath,
+                        itemIdentifier=self.itemIdentifier,
                         _dashboardPageSelected='=._dashboardPageSelected')
-        if editMode and self.linked_item:
-            
+        if self.editMode and self.linked_item:
             box = top.div(position='absolute',top='1px',right='40px',height='16px',width='20px')
             box.div(draggable=True,cursor='move',display='inline-block',
-                            workpath=workpath,storepath=storepath,
+                            workpath=self.workpath,storepath=self.storepath,
                             height='15px',width='15px',**self.linked_item)
 
 
-        kwargs.update(itempar_kwargs)
-        kwargs.update(parameters.asDict(ascii=True))
-        pane = sc.contentPane(pageName='content')
-        workspaces = workspaces or 'dashboards'
-        
-        self.content(pane,workpath=workpath,storepath=storepath,itemIdentifier=itemIdentifier,workspaces=workspaces,**kwargs)
-        bc = sc.borderContainer(pageName='conf')
-        bc.dataController("""FIRE .runItem;""",
-                        _onBuilt=self.run_onbuilt,
-                        datapath=workpath,_timing='=.runTimer')
-        bc.dataController("""if(runRequired){
-            SET .runRequired = false;
-            FIRE .runItem;
-        }""",
-        changedConfig='^.configuration_changed',runRequired='=.runRequired',datapath=workpath)
-        self.configuration(bc.contentPane(region='center',datapath='.conf'),workpath=workpath,storepath=storepath,
-                                        workspaces=workspaces,itemIdentifier=itemIdentifier,**kwargs)
-       #bottom = bc.contentPane(region='bottom',_class='slotbar_dialog_footer')
-       #bottom.button('!!Ok',top='2px',right='2px',action="""sc.switchPage(0);
-       #                                                    FIRE %s.configuration_changed;
-       #                                                """ %(workpath or ''),sc=sc.js_widget)
-        
 
     def content(self,pane,**kwargs):
         pass

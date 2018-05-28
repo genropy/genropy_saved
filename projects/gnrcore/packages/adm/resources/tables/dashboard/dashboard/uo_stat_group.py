@@ -43,18 +43,18 @@ class Main(BaseDashboardItem):
                                                     caption:_T('Linked chart')};
                     """)
 
-    def content(self,pane,workpath=None,table=None,userobject_id=None,storepath=None,itemRecord=None,itemIdentifier=None,**kwargs):
+    def content(self,pane,table=None,userobject_id=None,**kwargs):
         self.page.mixinComponent('th/th:TableHandler')
         bc = pane.borderContainer()
         center = bc.contentPane(region='center',_class='hideInnerToolbars')
-        frameCode = itemIdentifier
+        frameCode = self.itemIdentifier
         data,metadata = self.page.db.table('adm.userobject').loadUserObject(id=userobject_id)
         frame = center.groupByTableHandler(table=table,frameCode=frameCode,
                                     configurable=False,
                                     struct=data['groupByStruct'],
                                     where='=.query.where',
                                     store__fired='^.runStore',
-                                    datapath=workpath)
+                                    datapath=self.workpath)
 
         frame.grid.attributes['configurable'] = True #no full configurator but allow selfdragging cols
         frame.stackedView.grid.attributes['configurable'] = True #no full configurator but allow selfdragging cols
@@ -66,15 +66,15 @@ class Main(BaseDashboardItem):
                 });
             }
             FIRE .runStore;
-        """,wherePars='=%s.conf.wherePars' %storepath,
+        """,wherePars='=%s.conf.wherePars' %self.storepath,
             queryPars='=.query.queryPars',
             where='=.query.where',
-            _fired='^%s.runItem' %workpath)
+            _fired='^%s.runItem' %self.workpath)
         bc.dataFormula('.whereParsFormatted',"wherePars?wherePars.getFormattedValue({joiner:' - '}):'-'",
                     wherePars='^.conf.wherePars')
 
-        bc.dataFormula('.currentLinkableGrid','itemIdentifier+(groupMode=="stackedview"?"_stacked_grid":"_grid");',datapath=workpath,
-                            groupMode='^.groupMode',itemIdentifier=itemIdentifier)
+        bc.dataFormula('.currentLinkableGrid','itemIdentifier+(groupMode=="stackedview"?"_stacked_grid":"_grid");',datapath=self.workpath,
+                            groupMode='^.groupMode',itemIdentifier=self.itemIdentifier)
 
         self.queryPars = data['queryPars']
         frame.data('.always',True)
@@ -87,10 +87,10 @@ class Main(BaseDashboardItem):
         """,viewMode='^.conf.viewMode',
         defaultOutput= data['output'],frameCode=frameCode,
         defaultGroupMode = data['groupMode'],
-        _fired='^%s.runItem' %workpath)
+        _fired='^%s.runItem' %self.workpath)
 
 
-    def configuration(self,pane,table=None,userobject_id=None,workpath=None,itemRecord=None,**kwargs):
+    def configuration(self,pane,table=None,userobject_id=None,**kwargs):
         bc = pane.borderContainer()
         fb = bc.contentPane(region='top').div(padding='10px').formbuilder()
         fb.filteringSelect(value='^.viewMode',lbl='Mode',
@@ -101,7 +101,7 @@ class Main(BaseDashboardItem):
             return
         center = bc.roundedGroup(title='!!Query parameters',region='center')
         fb = center.div(padding='8px').formbuilder(dbtable=table,datapath='.wherePars',
-                            fld_validate_onAccept="SET %s.runRequired =true;" %workpath)
+                            fld_validate_onAccept="SET %s.runRequired =true;" %self.workpath)
         for code,pars in self.queryPars.digest('#k,#a'):
             field = pars['field']
             rc = self.db.table(table).column(field).relatedColumn()
