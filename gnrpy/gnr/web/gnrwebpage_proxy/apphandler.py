@@ -906,9 +906,9 @@ class GnrWebAppHandler(GnrBaseProxy):
             expr_dict = getattr(self.page, 'expr_%s' % expressions)()
             expr_dict = dict([(k, '%s AS %s' % (v, k)) for k, v in expr_dict.items()])
             columns = templateReplace(columns, expr_dict, safeMode=True)
-        protectionColumn = tblobj.getProtectionColumn()
-        if protectionColumn:
-            columns = '%s,$%s AS _is_readonly_row' %(columns,protectionColumn)
+        hasProtectionColumns = tblobj.hasProtectionColumns()
+        if hasProtectionColumns:
+            columns = '%s,$__is_protected_row AS _is_readonly_row' %columns
 
         return columns,external_queries
     
@@ -1364,10 +1364,10 @@ class GnrWebAppHandler(GnrBaseProxy):
         if lock:
             kwargs['for_update'] = True
         captioncolumns = tblobj.rowcaptionDecode()[0]
-        protectionColumn = tblobj.getProtectionColumn()
+        hasProtectionColumns = tblobj.hasProtectionColumns()
 
-        if captioncolumns or protectionColumn:
-            columns_to_add = (captioncolumns or [])+([protectionColumn] if protectionColumn else [])
+        if captioncolumns or hasProtectionColumns:
+            columns_to_add = (captioncolumns or [])+(['__protected_reasons','__is_protected_row'] if hasProtectionColumns else [])
             columns_to_add = [c.replace('$','') for c in columns_to_add]
             virtual_columns = virtual_columns.split(',') if virtual_columns else []
             vlist = tblobj.model.virtual_columns.items()

@@ -370,7 +370,8 @@ class TableBase(object):
             tbl.formulaColumn('__is_invalid', ' ( %s ) '  %' OR '.join(r), dtype='B',aggregator='OR')
         if df:
             self.sysFields_df(tbl)
-        tbl.formulaColumn('__is_protected_row',sql_formula=True,group=group,name_long='!!Row Protected',_sysfield=True)
+        tbl.formulaColumn('__protecting_reasons',sql_formula=True,group=group,name_long='!!Protecting reasons',_sysfield=True)
+        tbl.formulaColumn('__is_protected_row',"$__protecting_reasons!=''",group=group,name_long='!!Row Protected',_sysfield=True)
 
         if filter(lambda r: r!='_release_' and r.startswith('_release_'), dir(self)):
             tbl.column('__release', dtype='L', name_long='Sys Version', group=group,_sysfield=True)
@@ -416,12 +417,13 @@ class TableBase(object):
         for m in [k for k in dir(self) if k.startswith('sysFields_extra_') and not k[-1]=='_']:
             getattr(self,m)(tbl,**kwargs)
 
-    def getProtectionColumn(self):
+    def hasProtectionColumns(self):
+        result = False
         if filter(lambda r: r.startswith('__protected_by_'), self.model.virtual_columns.keys()) or self.attributes.get('protectionColumn'):
-            return '__is_protected_row'
+            result = True
+        return result
 
-
-    def sql_formula___is_protected_row(self,attr):
+    def sql_formula___protecting_reasons(self,attr):
         protections= []
         if self.attributes.get('protectionColumn'):
             pcol = self.attributes['protectionColumn']
@@ -437,8 +439,8 @@ class TableBase(object):
         readOnly = False
         if self.attributes.get('readOnly'):
             readOnly = True
-        elif record.get('__is_protected_row'):
-            readOnly = record.get('__is_protected_row')
+        elif record.get('__protecting_reasons'):
+            readOnly = record.get('__protecting_reasons')
         elif record.get('__protection_tag'):
             readOnly = not (record['__protection_tag'] in self.db.currentEnv['userTags'].split(','))
         return readOnly

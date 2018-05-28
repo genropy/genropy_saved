@@ -1496,9 +1496,9 @@ class SqlTable(GnrObject):
             if callable(trgFunc):
                 trgFunc(record, **kwargs)
 
-    def getProtectionColumn(self):
+    def hasProtectionColumns(self):
         #override
-        return
+        return False
 
     def guessPkey(self,identifier):
         if identifier is None:
