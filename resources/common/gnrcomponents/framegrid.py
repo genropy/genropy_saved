@@ -179,7 +179,7 @@ class FrameGridTools(BaseComponent):
     def fg_viewConfigurator(self,view,table=None,queryLimit=None,region=None,configurable=None):
         grid = view.grid
         grid.attributes['configurable'] = True
-        right = view.grid_envelope.borderContainer(region=region or 'right',width='160px',drawer='close',
+        right = view.grid_envelope.borderContainer(region=region or 'right',width='160px',closable='close',
                                         splitter=True,border_left='1px solid silver')
 
         confBar = right.contentPane(region='top')

@@ -683,7 +683,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     @public_method      
     def getSelection(self, table='', distinct=False, columns='', where='', condition=None,
                          order_by=None, limit=None, offset=None, group_by=None, having=None,
-                         relationDict=None, sqlparams=None, row_start='0', row_count='0',
+                         relationDict=None, sqlparams=None, row_start='0', row_count='0',filteringPkeys=None,
                          recordResolver=True, selectionName='',queryMode=None, structure=False, numberedRows=True,
                          pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
                          selectmethod=None, expressions=None, sum_columns=None,
@@ -801,10 +801,13 @@ class GnrWebAppHandler(GnrBaseProxy):
                                       relationDict=relationDict, sqlparams=sqlparams,
                                       recordResolver=recordResolver, selectionName=selectionName, 
                                       pkeys=pkeys, sortedBy=sortedBy, excludeLogicalDeleted=excludeLogicalDeleted,
-                                      excludeDraft=excludeDraft,checkPermissions=checkPermissions ,**kwargs)
+                                      excludeDraft=excludeDraft,checkPermissions=checkPermissions ,filteringPkeys=filteringPkeys,**kwargs)
             selection = selecthandler(**selection_pars)
             if selection is False:
                 return Bag()
+            elif selectmethod and isinstance(selection,list):
+                self._default_getSelection()
+
             if not selection and weakLogicalDeleted and \
                     excludeLogicalDeleted and excludeLogicalDeleted!='mark':
                 selection_pars['excludeLogicalDeleted'] = 'mark'
@@ -903,9 +906,9 @@ class GnrWebAppHandler(GnrBaseProxy):
             expr_dict = getattr(self.page, 'expr_%s' % expressions)()
             expr_dict = dict([(k, '%s AS %s' % (v, k)) for k, v in expr_dict.items()])
             columns = templateReplace(columns, expr_dict, safeMode=True)
-        protectionColumn = tblobj.getProtectionColumn()
-        if protectionColumn:
-            columns = '%s,$%s AS _is_readonly_row' %(columns,protectionColumn)
+        hasProtectionColumns = tblobj.hasProtectionColumns()
+        if hasProtectionColumns:
+            columns = '%s,$__is_protected_row AS _is_readonly_row' %columns
 
         return columns,external_queries
     
@@ -971,9 +974,10 @@ class GnrWebAppHandler(GnrBaseProxy):
     def _default_getSelection(self, tblobj=None, table=None, distinct=None, columns=None, where=None, condition=None,
                               order_by=None, limit=None, offset=None, group_by=None, having=None,
                               relationDict=None, sqlparams=None,recordResolver=None, selectionName=None,
-                               pkeys=None, queryMode=None,
+                               pkeys=None,filteringPkeys=None, queryMode=None,
                               sortedBy=None, sqlContextName=None,
-                              excludeLogicalDeleted=True,excludeDraft=True,_aggregateRows=True,**kwargs):
+                              excludeLogicalDeleted=True,excludeDraft=True,_aggregateRows=True,
+                              **kwargs):
         sqlContextBag = None
         if sqlContextName:
             sqlContextBag = self._getSqlContextConditions(sqlContextName)
@@ -1007,7 +1011,33 @@ class GnrWebAppHandler(GnrBaseProxy):
             elif queryMode == 'I':
                 where =' ( %s ) AND ( %s ) ' % (where, queryModeCondition)
             elif queryMode == 'D':
-                where =' ( %s ) AND NOT ( %s ) ' % (queryModeCondition,where)   
+                where =' ( %s ) AND NOT ( %s ) ' % (queryModeCondition,where)  
+        if filteringPkeys:
+            if isinstance(filteringPkeys,basestring):
+                filteringWhere = None
+                if ',' in filteringPkeys:
+                    filteringPkeys = filteringPkeys.split(',')
+                else:
+                    handler = self.page.getPublicMethod('rpc',filteringPkeys)
+                    if handler:
+                        filteringPkeys = handler(tblobj=tblobj, 
+                                                where=where,relationDict=relationDict, 
+                                                sqlparams=sqlparams,limit=limit,**kwargs)
+                        if filteringPkeys and not isinstance(filteringPkeys,list):
+                            filteringPkeys = filteringPkeys.output('pkeylist')
+                    else:
+                        filteringPkeys = [filteringPkeys]
+                if len(filteringPkeys)==0:
+                    filteringWhere = 't0.%s IS NULL' % tblobj.pkey
+                elif len(filteringPkeys)==1:
+                    filteringWhere = 't0.%s =:_filteringPkey' % tblobj.pkey
+                    kwargs['_filteringPkey'] = filteringPkeys[0]
+                else:
+                    filteringWhere = 't0.%s in :_filteringPkeys' % tblobj.pkey
+                    kwargs['_filteringPkeys'] = filteringPkeys
+                if filteringWhere:
+                    where = filteringWhere if not where else ' ( %s ) AND ( %s ) ' %(filteringWhere, where)
+                
         query = tblobj.query(columns=columns, distinct=distinct, where=where,
                              order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
                              relationDict=relationDict, sqlparams=sqlparams, locale=self.page.locale,
@@ -1334,10 +1364,10 @@ class GnrWebAppHandler(GnrBaseProxy):
         if lock:
             kwargs['for_update'] = True
         captioncolumns = tblobj.rowcaptionDecode()[0]
-        protectionColumn = tblobj.getProtectionColumn()
+        hasProtectionColumns = tblobj.hasProtectionColumns()
 
-        if captioncolumns or protectionColumn:
-            columns_to_add = (captioncolumns or [])+([protectionColumn] if protectionColumn else [])
+        if captioncolumns or hasProtectionColumns:
+            columns_to_add = (captioncolumns or [])+(['__protected_reasons','__is_protected_row'] if hasProtectionColumns else [])
             columns_to_add = [c.replace('$','') for c in columns_to_add]
             virtual_columns = virtual_columns.split(',') if virtual_columns else []
             vlist = tblobj.model.virtual_columns.items()

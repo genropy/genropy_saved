@@ -109,7 +109,7 @@ class RstDocumentationHandler(BaseComponent):
     @struct_method
     def rst_rstHelpDrawer(self,parent,drawer='close',region='right',width='300px',margin='2px',**kwargs):
         tc = parent.tabContainer(overflow='hidden',
-                       drawer='close',
+                       closable='close',
                        splitter=True,datapath='#FORM',region='right',width=width,**kwargs)
         self.rst_snippetTab(tc.contentPane(title='Snippet',overflow='hidden'),path=self.getResource('rst_snippets.xml'))
         self.rst_imageTab(tc.contentPane(title='Images',overflow='hidden'))
@@ -336,13 +336,13 @@ class DocumentationViewer(BaseComponent):
         pane = bc.contentPane(region='right',width='50%',splitter=True,
                                   overflow='hidden',
                                   border_left='1px solid #3A4D65',
-                                  drawer=True,
-                                    drawer_top='20px',
-                                    drawer_background='transparent',
-                                    drawer_onclick='SET .localIframeUrl = null',
-                                  drawer_label='<div class="delete iconbox">&nbsp</div>',
-                       drawer_width='20px',drawer_left='8px',drawer_height='21px',
-                       drawer_border='0px',)
+                                  closable=True,
+                                    closable_top='20px',
+                                    closable_background='transparent',
+                                    closable_onclick='SET .localIframeUrl = null',
+                                  closable_label='<div class="delete iconbox">&nbsp</div>',
+                       closable_width='20px',closable_left='8px',closable_height='21px',
+                       closable_border='0px',)
         bc.dataController("bc.setRegionVisible('right',localIframeUrl!=null)",
                 bc=bc.js_widget,localIframeUrl='^.localIframeUrl',_onBuilt=True)
         pane.dataRecord('.record',table,pkey='^.pkey',

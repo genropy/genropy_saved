@@ -137,8 +137,13 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         //OVERRIDE
     },
 
-    _onBuilding:function(sourceNode){
+    _onBuilding:function(sourceNode){        
+        if(sourceNode.getParentNode() && sourceNode.getParentNode().widget && sourceNode.getParentNode().widget.gnr.onChildBuilding){
+            return sourceNode.getParentNode().widget.gnr.onChildBuilding(sourceNode.getParentNode(),sourceNode);
+        }
+
         var lbl = objectPop(sourceNode.attr,'lbl');
+
         if(lbl){
             var inherited_attr = sourceNode.getInheritedAttributes();
             var lbl_attr = objectExtract(inherited_attr,'lbl_*');
@@ -147,10 +152,10 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             var tag = objectPop(attr,'tag');
             var moveable = objectPop(attr,'moveable');
             if (moveable){
-                wrp_attr.moveable=moveable
+                wrp_attr.moveable=moveable;
                 objectUpdate(wrp_attr, objectExtract(attr,'top,left,position'));
                 lbl_attr.id='handle_'+sourceNode.getStringId()
-                wrp_attr.moveable_handle=lbl_attr.id
+                wrp_attr.moveable_handle=lbl_attr.id;
             }
             var children = sourceNode.getValue();
             sourceNode._value = null;
@@ -356,7 +361,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         }
         var detachable = sourceNode.getAttributeFromDatasource('detachable');
         if(detachable){
-            var domNode = newobj.domNode || newobj;
+            domNode = newobj.domNode || newobj;
             dojo.connect(domNode,'onmousemove',function(e){
                 if(e.shiftKey){
                     dojo.addClass(domNode,'detachable');
@@ -454,6 +459,9 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         }
         if(sourceNode.attr.keepable){
             this.setKeepable(sourceNode);
+        }
+        if(sourceNode.getParentNode() && sourceNode.getParentNode().widget && sourceNode.getParentNode().widget.gnr.onChildCreated){
+            sourceNode.getParentNode().widget.gnr.onChildCreated(sourceNode.getParentNode(),sourceNode);
         }
     },
 
@@ -1833,7 +1841,95 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
         }
     },
 
-    
+
+
+    addClosableHandle:function(bc,pane,kw){
+        var side = pane.attr.region;
+        var orientation = ['left','right'].indexOf(side)>=0?'vertical':'horizontal';
+        if(bc._splitters[side]){
+            genro.dom.setClass(bc._splitters[side],'tinySplitter',true);
+        }
+        var togglecb = function(){
+            var toClose = !dojo.hasClass(pane.widget.domNode,'closedSide');
+            genro.dom.setClass(pane,'closedSide','toggle');
+            if(bc._splitters[side]){
+                genro.dom.setClass(bc._splitters[side],'hiddenSplitter','toggle');
+            }
+            if(toClose){
+                if(orientation=='vertical'){
+                    pane.__currDimension = pane.widget.domNode.style.width;
+                    dojo.style(pane.widget.domNode,'width',null);
+                }else{
+                    pane.__currDimension = pane.widget.domNode.style.height;
+                    dojo.style(pane.widget.domNode,'height',null);
+                }
+            }else if(pane.__currDimension){
+                dojo.style(pane.widget.domNode,orientation=='vertical'?'width':'height',pane.__currDimension);
+            }
+            bc._layoutChildren(side);
+            bc.layout();
+        }
+        genro.dom.setClass(pane,'closableSide_'+orientation,true);
+        var closablePars = objectExtract(kw,'closable_*');
+        var iconClass = objectPop(closablePars,'iconClass');
+        if('top' in closablePars){
+            closablePars['margin_top'] = closablePars['margin_top'] || 0;
+        }
+        if('left' in closablePars){
+            closablePars['margin_left'] = closablePars['margin_left'] || 0;
+        }
+
+        var splitter = objectPop(closablePars,'splitter');
+        if(kw.closable=='close'){
+            togglecb()
+        }
+        var _class = 'slotbarOpener'+' slotbarOpener_'+orientation+' slotbarOpener_'+side;
+        var label = objectPop(closablePars,'label');
+        var opener = pane._('div',objectUpdate({_class:_class,connect_onclick:togglecb},closablePars));
+        if(label){
+            opener._('div',{'innerHTML':label,_class:'slotbarOpener_label_'+orientation});
+        }
+        if(iconClass){
+            opener._('div',{_class:iconClass});
+        }
+    },
+
+    onChildCreated:function(sourceNode,childSourceNode){
+        if(childSourceNode.attr.closable){
+            var closable_kw = objectExtract(childSourceNode.attr,'closable_*',true,true) //normalizeKwargs(childSourceNode.attr,'closable');
+            closable_kw.closable = childSourceNode.attr.closable;
+            this.addClosableHandle(sourceNode.widget,childSourceNode,closable_kw);
+        }
+    },
+
+    onChildBuilding:function(sourceNode,childSourceNode){
+        if(childSourceNode.attr.tag.toLowerCase() == 'bordercontainer' || !childSourceNode.attr.closable){
+            return;
+        }
+        var wrapperNode = childSourceNode;
+        var parentContent = sourceNode.getValue();
+        var childLabel = childSourceNode.label;
+        var wrapperAttr = childSourceNode.attr;
+        var childContent = childSourceNode.getValue();
+        childSourceNode.setValue(new gnr.GnrDomSource(),false);
+        var childTag = objectPop(wrapperAttr,'tag');
+        var childAttr = objectUpdate({},wrapperAttr);
+        objectExtract(wrapperAttr,'margin,background,style,_class')
+        objectExtract(childAttr,'height,width,border,left,right,top,bottom')
+        objectExtract(childAttr,'margin_*');
+        objectExtract(childAttr,'border_*');
+
+        objectPop(childAttr,'closable');
+        objectExtract(childAttr,'closable_*');
+        wrapperAttr.tag ='borderContainer';
+        wrapperNode.attr._class = 'closableWrapper'
+        wrapperNode.label = 'wrapper_'+childAttr.region;
+        childAttr.region='center';
+        childAttr.content = childContent;
+        var src = wrapperNode._(childTag,childLabel,childAttr,{doTrigger:false});
+        src.getParentNode().setValue(childContent,false);
+    },
+
     afterStartup:function(widget) {
         var sourceNode = widget.sourceNode;
         if (dojo_version != '1.7') {

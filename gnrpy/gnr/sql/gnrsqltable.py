@@ -1496,9 +1496,9 @@ class SqlTable(GnrObject):
             if callable(trgFunc):
                 trgFunc(record, **kwargs)
 
-    def getProtectionColumn(self):
+    def hasProtectionColumns(self):
         #override
-        return
+        return False
 
     def guessPkey(self,identifier):
         if identifier is None:
@@ -1680,7 +1680,7 @@ class SqlTable(GnrObject):
 
 
     def _islocked_delete(self,record):
-        return self._isReadOnly(record) or self.islocked_delete(record)
+        return (self._isReadOnly(record) is not False) or self.islocked_delete(record)
 
     def islocked_delete(self,record):
         #OVERRIDE THIS

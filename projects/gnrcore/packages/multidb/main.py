@@ -80,7 +80,7 @@ class Package(GnrDboPackage):
                     if multidb_fkeys:
                         multidb_onLocalWrite=tblNode.attr.get('multidb_onLocalWrite') or 'merge'
                         tblNode.attr.update(multidb='parent',multidb_onLocalWrite=multidb_onLocalWrite,multidb_fkeys=multidb_fkeys)
-                        tbl.column('__protected_by_mainstore',dtype='B',group='zz')
+                        tbl.column('__protected_by_mainstore',dtype='B',group='zz',protectedFields=True)
 
 
     def multidb_configure(self,tbl,multidb):

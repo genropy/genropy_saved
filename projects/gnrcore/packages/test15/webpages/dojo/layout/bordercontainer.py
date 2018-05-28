@@ -46,14 +46,52 @@ class GnrCustomWebPage(object):
         bc.contentPane(region='center', background='yellow')
 
     def test_5_opener(self,pane):
-        bc = pane.borderContainer(height='500px',margin='10px',border='1px solid silver',nodeId='xxxx',
-                                connect_onclick='console.log("clicked border",$1,$1.target)')
-       #bc.contentPane(region='bottom',height='60px',background='wheat',drawer='close',splitter=True,border_top='1px solid silver')
-       #bc.contentPane(region='top',height='60px',background='wheat',drawer=True,splitter=True,border_top='1px solid silver')
-       #bc.contentPane(region='left',width='100px',background='lightgray',drawer=True,splitter=True,border_right='1px solid silver')
-        bc.contentPane(region='right',width='100px',background='lightgray',drawer='close',splitter=True,
-                        border_left='1px solid silver',drawer_background='red')
+        bc = pane.borderContainer(height='500px',margin='10px',border='1px solid silver',_class='tinySplitter')
+       #bc.contentPane(region='bottom',height='60px',background='wheat',closable='close',splitter=True,border_top='1px solid silver')
+       #bc.contentPane(region='top',height='60px',background='wheat',closable=True,splitter=True,border_top='1px solid silver')
+       #bc.contentPane(region='left',width='100px',background='lightgray',closable=True,splitter=True,border_right='1px solid silver')
+        #right = bc.contentPane(region='right',width='100px',background='lightgray',closable='close',splitter=True,
+        #                border_left='1px solid silver',closable_background='red')
+        left = bc.tabContainer(region='bottom',height='200px',closable='close',splitter=True,
+                            closable_background='green',margin='2px',border_top='1px solid silver')
+        left.contentPane(title='Pippo')
+        left.contentPane(title='Paperino')
+
+      #right.button('foo')
+      #right.button('bar')
+
         bc.contentPane(region='center')
+
+    def test_15_regions(self,pane):
+        """Design: headline"""
+        frame = pane.framePane(height='200px',width='300px',shadow='3px 3px 5px gray',
+                               border='1px solid #bbb',margin='10px',design='sidebar')     
+        sidebar = frame.right.slotBar(slots='*,mytree,*',width='60px',border_left='1px solid gray',closable='close',splitter=True)
+        sidebar.mytree.div('aaa<br/>bbb')
+        
+
+    def test_16_regions(self,pane):
+        """Design: headline"""
+        frame = pane.framePane(height='200px',width='300px',shadow='3px 3px 5px gray',
+                               border='1px solid #bbb',margin='10px',design='sidebar')
+        top = frame.top.slotToolbar(slots='30,foo,*,bar,30',height='20px',closable='close',closable_backround='blue')
+        bottom = frame.bottom.slotBar(slots='btoh,*,|,bt2,30',height='30px',closable='close',border_top='1px solid gray')
+        bottom.btoh.slotButton(label='Ok',action='alert("Hello!")')
+        bottom.bt2.slotButton(label='ciao ciao',action='alert("Hello again!")')
+        
+        
+        left = frame.left
+        sidebar = left.slotBar(slots='*,mytree,*',border_right='1px solid gray',closable='close',
+                    closable_background='darkblue',closable_transition='2s',splitter=True)
+        sidebar.mytree.button('Pippo')        
+        sidebar = frame.right.slotBar(slots='*,mytree,*',width='60px',border_left='1px solid gray',closable='close',splitter=True)
+       
+        sidebar.mytree.div('aaa<br/>bbb')
+        frame.textbox(value='^.placeholder',placeholder='puzza',margin='20px')
+        frame.textbox(value='^.aaa',placeholder='^.placeholder',margin='20px')
+        frame.input(value='^.ccc',placeholder='^.aaa',margin='20px')
+
+
 
     def test_6_regions(self,pane):
         bc = pane.borderContainer(height='600px')
@@ -109,3 +147,9 @@ class GnrCustomWebPage(object):
         pane.dataController("sc.switchPage(1)",_onBuilt=100,sc=sc.js_widget)
 
     
+    def test_99_region(self,pane):
+        bc = pane.borderContainer(height='400px',width='700px')
+        bc.contentPane(region='right',width='40',background='red',closable='close')
+        bc.closablePane(region='right',width='40',background='red',closable='close')
+
+        bc.contentPane(region='center',background='pink').div()

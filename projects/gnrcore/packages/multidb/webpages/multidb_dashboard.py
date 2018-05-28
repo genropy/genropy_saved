@@ -52,7 +52,7 @@ class GnrCustomWebPage(object):
 
         left = bc.roundedGroupFrame(title='Main store',region='left',width='50%')
         leftbc = left.center.borderContainer()
-        self.troublesTree(leftbc.framePane(region='bottom',height='200px',drawer='close',
+        self.troublesTree(leftbc.framePane(region='bottom',height='200px',closable='close',
                                             border_top='1px solid silver',splitter=True))
         center = bc.roundedGroupFrame(title='Current dbstore',region='center',margin='2px')
         centerbc = center.center.borderContainer()
@@ -89,7 +89,7 @@ class GnrCustomWebPage(object):
                                 nodeId='syncStore',
                                 #th_configurable=False,
                                 _fired='^main.load_th')
-        bottom = centerbc.contentPane(region='bottom',height='200px',drawer='close',border_top='1px solid silver')
+        bottom = centerbc.contentPane(region='bottom',height='200px',closable='close',border_top='1px solid silver')
         bottom.div('^main.selectedrow.differences',margin='5px',
                     border='2px solid silver',rounded=6,padding='10px')
         bottom.div('^main.selectedrow.linked_records',margin='5px',

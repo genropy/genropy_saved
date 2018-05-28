@@ -82,7 +82,7 @@ dojo.declare("gnr.widgets._tableHandlerStatsLayout", gnr.widgets.UserObjectLayou
         if(!('configurator' in attributes)){
             attributes.configurator = this.default_configurator_pars;
             if(attributes.userObjectId){
-                attributes.configurator.drawer='close';
+                attributes.configurator.closable='close';
             }
         }
         return attributes;

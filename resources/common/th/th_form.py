@@ -64,7 +64,7 @@ class TableHandlerForm(BaseComponent):
             fb = None
             kwargs = dict() if pluggedKwargs is True else pluggedKwargs
             if pluggedBy:
-                handler = getattr(self.page.db.table(pluggedBy),'onPlugToForm',None)
+                handler = getattr(self.db.table(pluggedBy),'onPlugToForm',None)
                 if handler:
                     kwargs = handler(f)
             if kwargs is False:

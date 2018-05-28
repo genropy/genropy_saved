@@ -38,6 +38,7 @@ class DashboardItem(BaseComponent):
         table = table or itemRecord['table']
         resource = itemName or itemRecord['resource']
         itemClass = self.loadTableScript(table=table,respath='dashboard/%s' %resource)
+        itemRecord = itemRecord or Bag()
         itemClass(pane.contentPane(childname='remoteItem'),title=itemRecord['title'],parameters=itemRecord['parameters'],itemRecord=itemRecord,**kwargs)
 
 class DashboardGallery(BaseComponent):
