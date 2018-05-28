@@ -181,11 +181,12 @@ class BaseDashboardItem(object):
     @extract_kwargs(itempar=True)
     def __call__(self,pane,editMode=None,workpath=None,parameters=None,itempar_kwargs=None,
                 itemspath=None,workspaces=None,itemIdentifier=None,title=None,**kwargs):
+        itemIdentifier = itemIdentifier or 'di_%s' %id(pane)
         if not workpath:
-            workpath = '%s.%s' %(workspaces,itemIdentifier)
+            workpath = '%s.%s' %(workspaces or 'gnr.workspace',itemIdentifier)
         parameters = parameters or Bag()
         title = title or itempar_kwargs.pop('title',None) or self.item_name
-        storepath = '%s.%s' %(itemspath,itemIdentifier) if itemspath and itemIdentifier else None
+        storepath = '%s.%s' %(itemspath,itemIdentifier) if itemspath and itemIdentifier else ''
         bc = pane.borderContainer()
         top = bc.contentPane(region='top',min_height='20px').div(height='20px',_class='dashboard_item_top',
                                                onDrag="""
@@ -200,8 +201,6 @@ class BaseDashboardItem(object):
                 """ %storepath)
         bc.dataFormula('%s.current_title' %workpath,"dataTemplate(tpl,itemaData)",tpl=self.title_template,
                         itemaData='^%s' %storepath,_onBuilt=True)
-        itemIdentifier = itemIdentifier or id(sc)
-
         if editMode:
             top.lightbutton(_class='close_svg',height='16px',
                         width='16px',top='1px',position='absolute',
