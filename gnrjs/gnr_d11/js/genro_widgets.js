@@ -1903,7 +1903,7 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
     },
 
     onChildBuilding:function(sourceNode,childSourceNode){
-        if(childSourceNode.attr.tag.toLowerCase() == 'bordercontainer' || !childSourceNode.attr.closable){
+        if(!childSourceNode.attr.region || childSourceNode.attr.tag.toLowerCase() == 'bordercontainer' || !childSourceNode.attr.closable){
             return;
         }
         var wrapperNode = childSourceNode;
