@@ -297,7 +297,7 @@ genro_plugin_groupth = {
         kw.defaultMetadata = {flags:'groupth|'+sourceNode.attr.nodeId};
         var onSaved =function(result){
             sourceNode.setRelativeData('.dashboardMeta',new gnr.GnrBag(result.attr));
-            sourceNode.fireEvent('.refreshAdvancedOptionsdMenu',true);
+            sourceNode.fireEvent('.refreshDashboardsMenu',true);
         };
         genro.dev.userObjectSave(sourceNode,kw,onSaved);
     },
