@@ -1,11 +1,10 @@
 <?xml version="1.0" ?>
 <GenRoBag>
-	<instance template="ukepars"/>
-
+    <db implementation="sqlite" filename="data/develop"/>
 	<packages>
 		<gnrcore_sys pkgcode="gnrcore:sys"/>
 		<gnrcore_adm pkgcode="gnrcore:adm"/>
-		<gnrcore_uke pkgcode="gnrcore:uke"/>
+		<gnrcore_uke pkgcode="gnrcore:test15"/>
 		<docu/>
 	</packages>
 
