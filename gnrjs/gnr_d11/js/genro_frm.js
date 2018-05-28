@@ -311,8 +311,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if('protected_by' in node.attr){
             return node.attr.protected_by;
         }
+        var protect_write_reasons =protect_write?protect_write.split(','):[];
         var protected_by_kwargs = objectExtract(node.attr,'protected_by_*',true);
-        return !protect_write.split(',').some(fld => protected_by_kwargs[fld]===false);
+        return !protect_write_reasons.some(fld => protected_by_kwargs[fld]===false);
     },
 
     resetKeepable:function(){
