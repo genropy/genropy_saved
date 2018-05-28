@@ -283,7 +283,7 @@ genro_plugin_dashboards = {
                                             
                                         },
                                         remote:'di_buildRemoteItem',
-                                        remote_py_requires:'gnrcomponents/dashboard_component/dashboard_component:DashboardItem',
+                                        remote_py_requires:'dashboard_component/dashboard_component:DashboardItem',
                                         remote_itemIdentifier:'^.itemIdentifier',
                                         remote_itemRecord:itemRecordGetter,
                                         remote__if:'itemIdentifier',

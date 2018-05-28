@@ -318,7 +318,7 @@ class TableHandlerGroupBy(BaseComponent):
 
     @struct_method
     def thg_slotbar_dashboardsMenu(self,pane,linkedTo=None,**kwargs):
-        if not linkedTo and self.db.package('biz'):
+        if not (linkedTo and self.db.package('biz')):
             return pane.div()
         menu = pane.menudiv(tip='!!Advanced tools',
                             iconClass='iconbox menu_gray_svg',

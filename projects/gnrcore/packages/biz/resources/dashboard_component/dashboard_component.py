@@ -26,8 +26,8 @@ from gnr.core.gnrbag import Bag
 
 
 class DashboardItem(BaseComponent):
-    css_requires='gnrcomponents/dashboard_component/dashboard_component'
-    js_requires='gnrcomponents/dashboard_component/dashboard_component,chroma.min.js'
+    css_requires='dashboard_component/dashboard_component'
+    js_requires='dashboard_component/dashboard_component,chroma.min.js'
 
     @struct_method
     def di_dashboardItem(self,parent,table=None,itemName=None,**kwargs):
@@ -42,7 +42,7 @@ class DashboardItem(BaseComponent):
         itemClass(pane.contentPane(childname='remoteItem'),title=itemRecord['title'],parameters=itemRecord['parameters'],itemRecord=itemRecord,**kwargs)
 
 class DashboardGallery(BaseComponent):
-    py_requires='gnrcomponents/dashboard_component/dashboard_component:DashboardItem'
+    py_requires='dashboard_component/dashboard_component:DashboardItem'
 
     @struct_method
     def di_dashboardGallery(self,parent,pkg=None,code=None,datapath=None,**kwargs):
