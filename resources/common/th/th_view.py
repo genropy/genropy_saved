@@ -1072,7 +1072,7 @@ class TableHandlerView(BaseComponent):
         table = view.grid.attributes.get('table')
         frameCode = '%s_gp_analyzer' %linkedTo
         pane = view.grid_envelope.contentPane(region='bottom',height='300px',closable='close',margin='2px',splitter=True,
-                                             border='1px solid silver')
+                                             border_top='1px solid #efefef')
         view.dataController("""
             var analyzerNode = genro.nodeById(analyzerId);
             if(currentSelectedPkeys && currentSelectedPkeys.length){
