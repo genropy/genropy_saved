@@ -19,17 +19,12 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 
-from gnr.web.gnrbaseclasses import BaseDashboardItem
+from gnrpkg.biz.dashboard import BaseDashboardItem
 from gnr.core.gnrbag import Bag
 
 
 caption = 'Table view'
 description = 'Table view'
-item_parameters = [dict(value='^.table',lbl='Table',tag='dbselect',dbtable='adm.tblinfo',hasDownArrow=True),
-                   dict(value='^.query_id',lbl='Query',dbtable='adm.userobject',tag='dbselect',
-                        condition='$tbl=:seltbl AND $objtype=:t',condition_t='query',condition_seltbl='=.table',objtype='query',hasDownArrow=True),
-                    dict(value='^.view_id',lbl='View',dbtable='adm.userobject',tag='dbselect',
-                        condition='$tbl=:seltbl AND $objtype=:t',condition_t='view',condition_seltbl='=.table',objtype='query',hasDownArrow=True)]
 
 class Main(BaseDashboardItem):
     title_template = '$title $whereParsFormatted'

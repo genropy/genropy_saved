@@ -32,7 +32,12 @@ class Table(object):
         where = []
         _flags = None
         if objtype:
-            where.append('$objtype = :val_objtype')
+            if ',' in objtype:
+                objtype = objtype.split(',')
+            if isinstance(objtype,list):
+                where.append('$objtype IN :val_objtype')
+            else:
+                where.append('$objtype = :val_objtype')
         if tbl:
             where.append('$tbl = :val_tbl')
         if flags:

@@ -19,12 +19,10 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 
-from gnr.web.gnrbaseclasses import BaseDashboardItem
+from gnrpkg.biz.dashboard import BaseDashboardItem
 
 caption = 'Stat view'
 description = 'Stat view'
-item_parameters = [dict(value='^.table',lbl='Table'),
-                  dict(value='^.statName',lbl='Stat name')]
 
 class Main(BaseDashboardItem):
     """Scegli table e query per visualizzare il risultato"""

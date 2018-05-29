@@ -262,10 +262,12 @@ genro_plugin_dashboards = {
                                         },
                                         onDrop_dashboardItems:function(p1,p2,kw){
                                             var sourceNode = this;
-                                            var item_parameters = [{value:'^._item_title',lbl:_T('Title')}];
+                                            var item_parameters = [{value:'^._item_title',lbl:_T('Title'),default_value:kw.data.caption}];
                                             var fixedParameters = objectPop(kw.data,'fixedParameters');
                                             if(!fixedParameters){
-                                                item_parameters = item_parameters.concat(kw.data.item_parameters);
+                                                if(kw.data.item_parameters && kw.data.item_parameters.length){
+                                                    item_parameters = item_parameters.concat(kw.data.item_parameters);
+                                                }
                                                 genro.dlg.prompt(_T('Parameters ')+kw.data.caption,
                                                         {widget:item_parameters,
                                                         action:function(result){
@@ -304,8 +306,15 @@ genro_plugin_dashboards = {
         var itemRecord = new gnr.GnrBag();
         var itemPars = itemParameters.deepCopy();
         itemRecord.setItem('id',genro.time36Id());
-        itemRecord.setItem('table',kw.data.table);
-        itemRecord.setItem('resource',kw.data.resource);
+        if(kw.data.objtype){
+            table = kw.data.tbl;
+            itemRecord.setItem('resource',kw.data.objtype);
+            itemPars.setItem('userobject_id',kw.data.pkey);
+            itemPars.setItem('table',kw.data.tbl);
+        }else{
+            itemRecord.setItem('table',kw.data.tbl);
+            itemRecord.setItem('resource',kw.data.resource);
+        }
         var title = itemPars.getItem('title') || itemPars.pop('_item_title');
         itemRecord.setItem('title',title);
         itemRecord.setItem('parameters',itemPars);

@@ -19,14 +19,10 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 
-from gnr.web.gnrbaseclasses import BaseDashboardItem
+from gnrpkg.biz.dashboard import BaseDashboardItem
 
 caption = 'Stats Grouped'
 description = 'Stats Grouped'
-item_parameters = [dict(value='^.table',lbl='Table',tag='dbselect',dbtable='adm.tblinfo',validate_notnull=True,hasDownArrow=True),
-                    dict(value='^.userobject_id',lbl='Stat',dbtable='adm.userobject',tag='dbselect',validate_notnull=True,
-                        condition='$tbl=:seltbl AND $objtype=:t',condition_t='dash_groupby',
-                        condition_seltbl='=.table',hasDownArrow=True)]
 
 class Main(BaseDashboardItem):
     """Choose table and saved stat"""
@@ -39,7 +35,7 @@ class Main(BaseDashboardItem):
                     var linkedGrid = genro.getData(dragInfo.sourceNode.attr.workpath+'.currentLinkableGrid');
                     var linkedItem = dragInfo.sourceNode.getRelativeData('.itemIdentifier');
                     dragValues.dashboardItems = {fixedParameters:{'linkedGrid':linkedGrid,title:'Chart #',linkedItem:linkedItem},
-                                                    resource:'uo_stat_chart',table:'adm.dashboard',
+                                                    resource:'_groupby_chart',
                                                     caption:_T('Linked chart')};
                     """)
 

@@ -8,4 +8,7 @@ def main(db):
         FROM adm.adm_dashboard
         WHERE dashboard_key IS NOT NULL) ;
     """
-    db.execute(sql)
+    try:
+        db.execute(sql)
+    except Exception as e:
+        print 'no dashboard legacy table'
