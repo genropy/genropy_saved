@@ -529,7 +529,8 @@ class Server(object):
             noclean=self.options.noclean, options=self.options)
         if self.options.tornado:
             from gnr.web.gnrasync import GnrAsyncServer
-            print '[Tornado] serving on %s:%s'%(self.options.host,str(self.options.port))
+            host = '127.0.0.1' if self.options.host == '0.0.0.0' else self.options.host
+            print '[Tornado] serving on http://%s:%s'%(host,str(self.options.port))
             server=GnrAsyncServer(port=self.options.port,instance=site_name,
                 web=True, autoreload=self.options.reload, site_options=site_options)
             server.start()

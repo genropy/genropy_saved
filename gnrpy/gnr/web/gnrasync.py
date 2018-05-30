@@ -930,11 +930,14 @@ class GnrAsyncServer(GnrBaseAsyncServer):
         self.addHandler(r"/wsproxy", GnrWsProxyHandler)
         if self.web:
             import tornado.wsgi
+            from tornado_wsgi import WSGIHandler
             wsgi_gnrsite=GnrWsgiSite(self.instance_name, tornado=True, **self.site_options)
             with wsgi_gnrsite.register.globalStore() as gs:
                 gs.setItem('RESTART_TS',datetime.now())
-            wsgi_app = tornado.wsgi.WSGIContainer(wsgi_gnrsite)
-            self.addHandler(r".*",tornado.web.FallbackHandler, dict(fallback=wsgi_app))
+                
+            #wsgi_app = tornado.wsgi.WSGIContainer(wsgi_gnrsite)
+            #self.addHandler(r".*",tornado.web.FallbackHandler, dict(fallback=wsgi_app))
+            self.addHandler(r".*",WSGIHandler, {'wsgi_application': wsgi_gnrsite})
     
     
 if __name__ == '__main__':
