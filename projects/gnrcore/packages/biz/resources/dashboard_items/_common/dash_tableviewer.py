@@ -29,11 +29,14 @@ description = 'Table view'
 class Main(BaseDashboardItem):
     title_template = '$title $whereParsFormatted'
 
-    def content(self,pane,table=None,query_id=None,view_id=None,**kwargs):
+    def content(self,pane,table=None,userobject_id=None,**kwargs):
         self.page.mixinComponent('th/th:TableHandler')
         bc = pane.borderContainer(datapath=self.workpath)
         center = bc.contentPane(region='center')
-        selectionViewer = self._selectionViewer(center,table=table,query_id=query_id,view_id=view_id,datapath='.viewer')
+        
+        selectionViewer = self._selectionViewer(center,table=table,
+                                            userobject_id=userobject_id,
+                                            datapath='.viewer')
         self.queryPars = selectionViewer.queryPars
         selectionViewer.dataController("""
             if(queryPars){
@@ -70,8 +73,7 @@ class Main(BaseDashboardItem):
                             default_value=pars['dflt'],
                             lbl=pars['lbl'])
 
-    def _selectionViewer(self,pane,table=None,query_id=None,
-                            view_id=None,fired=None,**kwargs):
+    def _selectionViewer(self,pane,table=None,userobject_id=None,fired=None,**kwargs):
         userobject_tbl = self.page.db.table('adm.userobject')
         where = None
         customOrderBy = None
@@ -82,31 +84,21 @@ class Main(BaseDashboardItem):
         tblobj = self.page.db.table(table)
         viewName = None
         metadata = Bag()
-        def defaultstruct(struct):
-            r = struct.view().rows()
-            r.fieldcell(tblobj.attributes['caption_field'], name=tblobj.name_long, width='100%')
 
-        if query_id:
-            where,metadata = userobject_tbl.loadUserObject( id=query_id,
-                                                objtype='query',
-                                                tbl=table)
-            customOrderBy = None
-            limit = None
-            queryPars = None
-            if where['where']:
-                limit = where['queryLimit']
-                viewName = where['currViewPath']
-                customOrderBy = where['customOrderBy']
-                queryPars = where.pop('queryPars')
-                extraPars = where.pop('extraPars')
-                where = where['where']
-        if view_id or viewName:
-            userobject_tbl = self.db.table('adm.userobject')
-            struct = userobject_tbl.loadUserObject(code=viewName, objtype='view', 
-                                                    id=view_id,
-                                                    tbl=table)[0]
-        if struct is None:
-            struct = defaultstruct    
+        data,metadata = userobject_tbl.loadUserObject( id=userobject_id,
+                                            objtype='query',
+                                            tbl=table)
+        customOrderBy = None
+        limit = None
+        queryPars = None
+        limit = data['limit']
+        viewName = data['currViewPath']
+        customOrderBy = data['customOrderBy']
+        queryPars = data.pop('queryPars')
+        extraPars = data.pop('extraPars')
+        where = data['where']
+        struct = data['struct']
+
         frame = pane.frameGrid(struct=struct,_newGrid=True,**kwargs)
         frame.data('.query.limit',limit)
         frame.data('.query.where',where)

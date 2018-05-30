@@ -151,7 +151,7 @@ class DashboardGallery(BaseComponent):
     @public_method
     def dashboardItemsMenu(self,**kwargs):
         result = Bag()
-        objtypes = ['dash_groupby','dash_tableview','dash_pandas']
+        objtypes = ['dash_groupby','dash_tableviewer','dash_pandas']
         for pkgId,pkgObj in self.packages.items():
             for tblid,tblobj in pkgObj.tables.items():
                 userobjects = self.db.table('adm.userobject').userObjectMenu(objtype=objtypes,table=tblobj.fullname)
