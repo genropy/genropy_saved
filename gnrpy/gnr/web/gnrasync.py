@@ -785,7 +785,8 @@ class DelayedCall(object):
         
         
 class GnrBaseAsyncServer(object):
-    def __init__(self, port=None, instance=None, ssl_crt=None, ssl_key=None):
+    def __init__(self, port=None, instance=None, ssl_crt=None, ssl_key=None, web=None, autoreload=None,
+        site_options=None):
         self.port=port
         self.handlers=[]
         self.executors=dict()
@@ -801,6 +802,9 @@ class GnrBaseAsyncServer(object):
         self.ssl_crt = ssl_crt
         self.wsk = AsyncWebSocketHandler(self)
         self.som = SharedObjectsManager(self)
+        self.web = web
+        self.site_options = site_options or dict()
+        self.autoreload = autoreload
         self.interval = 1000
         self.io_loop =tornado.ioloop.IOLoop.instance()
         #sched = tornado.ioloop.PeriodicCallback(self.scheduler,self.interval)
@@ -862,14 +866,17 @@ class GnrBaseAsyncServer(object):
         return self.som.getSharedObject('__error_status__',expire=-1,startData=dict(users=Bag()),
                                                             read_tags='_DEV_,superadmin',
                                                             write_tags='__SYSTEM__',factory=SharedLogger)
-    def addHandler(self,path,factory):
-        self.handlers.append((path,factory))
+    def addHandler(self,path,factory,options=None):
+        if options:
+            self.handlers.append((path,factory,options))
+        else:
+            self.handlers.append((path,factory))
         
     def addExecutor(self,name,executor):
         self.executors[name]=executor
         
     def start(self):
-        self.tornadoApp=tornado.web.Application(self.handlers)
+        self.tornadoApp=tornado.web.Application(self.handlers, autoreload=self.autoreload)
         self.tornadoApp.server=self
         if self.ssl_crt and self.ssl_key:
             import ssl
@@ -881,11 +888,11 @@ class GnrBaseAsyncServer(object):
         if self.port:
             server.listen(int(self.port))
             #self.tornadoApp.listen(int(self.port))
-        else:
-            socket_path = os.path.join(gnrConfigPath(), 'sockets', '%s.tornado'%self.instance_name)
-            main_socket = bind_unix_socket(socket_path)
+        
+        socket_path = os.path.join(gnrConfigPath(), 'sockets', '%s.tornado'%self.instance_name)
+        main_socket = bind_unix_socket(socket_path)
             #server = HTTPServer(self.tornadoApp)
-            server.add_socket(main_socket)
+        server.add_socket(main_socket)
         debug_socket_path = os.path.join(gnrConfigPath(), 'sockets', '%s_debug.tornado'%self.instance_name)
         debug_socket = bind_unix_socket(debug_socket_path)
         debug_server = GnrDebugServer(self.io_loop)
@@ -921,6 +928,13 @@ class GnrAsyncServer(GnrBaseAsyncServer):
         self.addExecutor('threadpool',ThreadPoolExecutor(max_workers=20))
         self.addHandler(r"/websocket", GnrWebSocketHandler)
         self.addHandler(r"/wsproxy", GnrWsProxyHandler)
+        if self.web:
+            import tornado.wsgi
+            wsgi_gnrsite=GnrWsgiSite(self.instance_name, tornado=True, **self.site_options)
+            with wsgi_gnrsite.register.globalStore() as gs:
+                gs.setItem('RESTART_TS',datetime.now())
+            wsgi_app = tornado.wsgi.WSGIContainer(wsgi_gnrsite)
+            self.addHandler(r".*",tornado.web.FallbackHandler, dict(fallback=wsgi_app))
     
     
 if __name__ == '__main__':
