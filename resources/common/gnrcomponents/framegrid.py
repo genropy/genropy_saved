@@ -212,7 +212,7 @@ class FrameGrid(BaseComponent):
     @extract_kwargs(top=True,grid=True,columnset=dict(slice_prefix=False,pop=True),footer=dict(slice_prefix=False,pop=True))
     @struct_method
     def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,dynamicStorepath=None,structpath=None,
-                    datamode=None,table=None,grid_kwargs=True,top_kwargs=None,iconSize=16,
+                    datamode=None,table=None,viewResource=None,grid_kwargs=True,top_kwargs=None,iconSize=16,
                     footer_kwargs=None,columnset_kwargs=None,footer=None,columnset=None,fillDown=None,
                     _newGrid=None,selectedPage=None,configurable=None,**kwargs):
         pane.attributes.update(overflow='hidden')
@@ -259,7 +259,8 @@ class FrameGrid(BaseComponent):
                     addrow=True,delrow=True,export=None,slots=None,
                     autoToolbar=True,semaphore=None,
                     datamode=None,
-                    store_kwargs=True,parentForm=None,**kwargs):
+                    store_kwargs=True,parentForm=None,
+                    table=None,viewResource=None,struct=None,**kwargs):
         if pbl_classes:
             _custclass = kwargs.get('_class','')
             kwargs['_class'] = 'pbl_roundedGroup %s' %_custclass
@@ -278,10 +279,13 @@ class FrameGrid(BaseComponent):
         if delrow=='auto':
             delrow = False
             kwargs['grid_autoDelete'] = True
+        if table and viewResource and not struct:
+            view = self.site.getDummyPage(table=table,resources=viewResource) 
+            struct = view.th_struct
         frame = pane.frameGrid(_newGrid=True,datamode= datamode,
                                 dynamicStorepath=dynamicStorepath,
-                                title=title,
-                                **kwargs)
+                                title=title,table=table,
+                                struct=struct,**kwargs)
         if autoToolbar:
             default_slots = []
             title = title or ''

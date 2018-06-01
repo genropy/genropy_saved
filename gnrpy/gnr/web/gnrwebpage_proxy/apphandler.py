@@ -1409,7 +1409,6 @@ class GnrWebAppHandler(GnrBaseProxy):
         if table_onLoading:
             table_onLoading(record, newrecord, loadingParameters, recInfo)
         table_onloading_handlers = [getattr(tblobj,k) for k in dir(tblobj) if k.startswith('onLoading_')]
-        
         onLoadingHandler = onLoadingHandler or  loadingParameters.pop('method', None)
         if onLoadingHandler:
             handler = self.page.getPublicMethod('rpc', onLoadingHandler)
