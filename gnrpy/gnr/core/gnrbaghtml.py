@@ -41,7 +41,9 @@ class BagToHtml(object):
     grid_footer_height = 0
     grid_body_adjustment = 0
     grid_col_headers = None
-    grid_col_widths = [0, 0, 0]
+    grid_col_headers_height = 4
+    grid_col_widths = []
+    grid_columns = []
     grid_row_height = 5
     copies_per_page = 1
     copy_extra_height = 0
@@ -58,14 +60,22 @@ class BagToHtml(object):
             self.templates = templates
         if templateLoader:
             self.templateLoader = templateLoader
-        if not hasattr(self, 'grid_columns') and self.grid_col_headers:
-            grid_col_headers = self.grid_col_headers.split(',')
-            self.grid_columns = [ dict(name=h, mm_width=self.grid_col_widths[i]) for i,h in enumerate(grid_col_headers)]   
-            
-    def customizeGridColumns(self, customizations):
-        print x
-
     
+    def adaptGridColumns(self):
+        if not self.grid_columns:
+            headers = self.grid_col_headers or []
+            if ':' in headers:
+                headers, headers_height = self.grid_col_headers.split(':')
+                self.grid_col_headers_height = int(headers_height)
+            grid_col_headers = headers.split(',')
+            for i,mm_width in enumerate(self.grid_col_widths):
+                name = grid_col_headers[i]
+                header_style = None
+                if name=='|':
+                    name = ''
+                    header_style = 'border-top:0mm;border-bottom:0mm;'
+                self.grid_columns.append(dict(mm_width=mm_width,name=name,header_style=header_style))
+     
     def init(self, *args, **kwargs):
         """A ``init`` hook method"""
         pass
@@ -351,6 +361,7 @@ class BagToHtml(object):
         self.doc_height = self.copyHeight() #- self.page_header_height - self.page_footer_height
         self.grid_height = self.doc_height - self.calcDocHeaderHeight() - self.calcDocFooterHeight()
         self.grid_body_height = float(self.grid_height or 0) - float(self.grid_header_height or 0) - float(self.grid_footer_height or 0)
+        self.adaptGridColumns()
         for copy in range(self.copies_per_page):
             self.copies.append(dict(grid_body_used=self.grid_height, currPage=-1))
             
@@ -435,24 +446,24 @@ class BagToHtml(object):
         :param format: the format of the cell (e.g: use ``HH:mm``)
         :param mask: TODO
         :param currency: TODO"""
-        curr_col_attrs=self.grid_columns[self.currColumn]
-        if not curr_col_attrs.get('hidden'):
-            
-            if field:
-                if callable(field):
-                    value = field()
-                else:
-                    value = self.rowField(field, default=default, locale=locale, format=format,
-                                        mask=mask, currency=currency)
-            if value is not None:
-                #if self.lastPage:
-                #    print 'last page'
-                #    print self.currColumn
-                #    print self.grid_col_widths[self.currColumn]
-                value = self.toText(value, locale, format, mask, self.encoding)
-                self.currRow.cell(value, width=curr_col_attrs['mm_width'], overflow='hidden',
-                                white_space=white_space, **kwargs)
+        curr_attr = self.grid_columns[self.currColumn]
         self.currColumn = self.currColumn + 1
+        if curr_attr['hidden']:
+            return
+        if field:
+            if callable(field):
+                value = field()
+            else:
+                value = self.rowField(field, default=default, locale=locale, format=format,
+                                      mask=mask, currency=currency)
+        if value is not None:
+            #if self.lastPage:
+            #    print 'last page'
+            #    print self.currColumn
+            #    print self.grid_col_widths[self.currColumn]
+            value = self.toText(value, locale, format, mask, self.encoding)
+            self.currRow.cell(value, width=curr_attr['mm_width'],overflow='hidden',
+                              white_space=white_space, **kwargs)
         return value
 
     def _createPage(self):
@@ -527,21 +538,14 @@ class BagToHtml(object):
         :param grid: the :ref:`print_layout_grid`"""
         print 'gridLayout must be overridden'
         
+ 
     def gridHeader(self, row):
         """It can be overridden
         
         :param row: the grid row"""
-        lbl_height = 4
-        headers = self.grid_col_headers
-        if ':' in headers:
-            headers, lbl_height = headers.split(':')
-            lbl_height = int(lbl_height)
-        for k, lbl in enumerate(self.grid_col_headers.split(',')):
-            style = None
-            if lbl == '|':
-                lbl = ''
-                style = 'border-top:0mm;border-bottom:0mm;'
-            row.cell(lbl=lbl, lbl_height=lbl_height, width=self.grid_col_widths[k], style=style)
+        lbl_height = self.grid_col_headers_height
+        for pars in self.grid_columns:
+            row.cell(lbl=pars.get('name',''), lbl_height=lbl_height, width=pars.get('mm_width'), style=pars.get('header_style'))
             
     def gridFooter(self, row):
         """It can be overridden
@@ -552,8 +556,8 @@ class BagToHtml(object):
     def fillBodyGrid(self):
         """TODO"""
         row = self.copyValue('body_grid').row()
-        for w in self.grid_col_widths:
-            row.cell(width=w)
+        for w in self.grid_columns:
+            row.cell(width=w.get('mm_width'))
             
     def copyValue(self, valuename):
         """TODO
