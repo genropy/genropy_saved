@@ -1869,7 +1869,11 @@ class SqlSelection(object):
                 label = pkey
             else:
                 label = 'r_%i' % j
-            result.setItem(label, Bag(row), _pkey=pkey)
+            content = Bag(row)
+            for k,v in content.items():
+                if self.dbtable.column(k) is not None and self.dbtable.column(k).attributes.get('dtype')=='X':
+                    content[k] = Bag(content[k])
+            result.setItem(label,content , _pkey=pkey)
         return result
         
     def out_selection(self, outsource, recordResolver=False, caption=False):
