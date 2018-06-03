@@ -58,7 +58,14 @@ class BagToHtml(object):
             self.templates = templates
         if templateLoader:
             self.templateLoader = templateLoader
+        if not hasattr(self, 'grid_columns') and self.grid_col_headers:
+            grid_col_headers = self.grid_col_headers.split(',')
+            self.grid_columns = [ dict(name=h, mm_width=self.grid_col_widths[i]) for i,h in enumerate(grid_col_headers)]   
             
+    def customizeGridColumns(self, customizations):
+        print x
+
+    
     def init(self, *args, **kwargs):
         """A ``init`` hook method"""
         pass
@@ -428,21 +435,23 @@ class BagToHtml(object):
         :param format: the format of the cell (e.g: use ``HH:mm``)
         :param mask: TODO
         :param currency: TODO"""
-        
-        if field:
-            if callable(field):
-                value = field()
-            else:
-                value = self.rowField(field, default=default, locale=locale, format=format,
-                                      mask=mask, currency=currency)
-        if value is not None:
-            #if self.lastPage:
-            #    print 'last page'
-            #    print self.currColumn
-            #    print self.grid_col_widths[self.currColumn]
-            value = self.toText(value, locale, format, mask, self.encoding)
-            self.currRow.cell(value, width=self.grid_col_widths[self.currColumn], overflow='hidden',
-                              white_space=white_space, **kwargs)
+        curr_col_attrs=self.grid_columns[self.currColumn]
+        if not curr_col_attrs.get('hidden'):
+            
+            if field:
+                if callable(field):
+                    value = field()
+                else:
+                    value = self.rowField(field, default=default, locale=locale, format=format,
+                                        mask=mask, currency=currency)
+            if value is not None:
+                #if self.lastPage:
+                #    print 'last page'
+                #    print self.currColumn
+                #    print self.grid_col_widths[self.currColumn]
+                value = self.toText(value, locale, format, mask, self.encoding)
+                self.currRow.cell(value, width=curr_col_attrs['mm_width'], overflow='hidden',
+                                white_space=white_space, **kwargs)
         self.currColumn = self.currColumn + 1
         return value
 
