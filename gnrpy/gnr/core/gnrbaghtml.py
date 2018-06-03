@@ -448,7 +448,7 @@ class BagToHtml(object):
         :param currency: TODO"""
         curr_attr = self.grid_columns[self.currColumn]
         self.currColumn = self.currColumn + 1
-        if curr_attr['hidden']:
+        if curr_attr.get('hidden'):
             return
         if field:
             if callable(field):
