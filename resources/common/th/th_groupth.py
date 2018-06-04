@@ -314,6 +314,7 @@ class TableHandlerGroupBy(BaseComponent):
         kwargs['order_by'] = kwargs['group_by']
         if having_list:
             kwargs['having'] = ' OR '.join(having_list)
+        kwargs['hardQueryLimit'] = False
         return self.app._default_getSelection(_aggregateRows=False,**kwargs)
 
     @struct_method
