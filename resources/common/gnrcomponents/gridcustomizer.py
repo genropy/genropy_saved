@@ -28,6 +28,7 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrdict import dictExtract
 DEFAULT_MD_MODE = 'STD'
 
+    
 
 class GridCustomizer(BaseComponent):
     py_requires = 'gnrcomponents/framegrid:FrameGrid'
@@ -68,7 +69,7 @@ class GridCustomizer(BaseComponent):
     def gc_gridCustomizerEditor(self,parent,gridField=None,printField=None,
                             gridResource=None,gridTable=None,md_mode=None,datapath=None,**kwargs):
         tc = parent.tabContainer(datapath=datapath or '.gridCustomizer',**kwargs)
-        structures = self._gc_gridCustomizerStructures(table=gridTable,resource=gridResource)
+        structures = self.gc_customizerStructures(table=gridTable,resource=gridResource)
         tc.data('.base_structures',structures)
         tc.dataController("""
         var current_cells = base_structures.getItem(md_mode+'.view_0.rows_0');
@@ -78,7 +79,7 @@ class GridCustomizer(BaseComponent):
             if(n.attr.hidden){
                 return;
             }
-            v = objectExtract(n.attr,'field,name,width,format,style,mm_width',true);
+            v = objectExtract(n.attr,'caption_field,field,name,width,format,style,mm_width',true);
             v.enabled = true;
             default_rows.setItem(n.attr.field.replace(/\W/g, '_'),new gnr.GnrBag(v))
         });
@@ -115,30 +116,13 @@ class GridCustomizer(BaseComponent):
                                         margin='2px',
                                         title='!!Print output')
 
-    def _gc_gridCustomizerStructures(self,table=None,resource=None):
-        tblobj = self.db.table(table)
-        view = self.site.getDummyPage(resources=resource,table=table)
-        fullstruct = self.newGridStruct(maintable=table)
-        view.struct(fullstruct)
-        result = Bag()
-        modes = dictExtract(tblobj.attributes,'md_mode_') or {DEFAULT_MD_MODE:'STANDARD'}
-        for mode in modes.keys():
-            mode_struct = fullstruct.deepcopy()
-            result[mode] = mode_struct
-            cells = mode_struct['view_0.rows_0']
-            for c in cells.nodes:
-                colobj = tblobj.column(c.attr['field'])
-                if colobj is not None and colobj.attributes.get('md_mode') and colobj.attributes.get('md_mode')!=mode:
-                    cells.popNode(c.label)
-        return result
-    
     @struct_method
     def gc_gridCustomizer(self,grid,resource=None,md_mode=None,struct_customizer=None):
         table = grid.attributes['table']
         tblobj = self.db.table(table)
         controller = grid.dataController(datapath='.md_customizer')
         md_mode = md_mode or DEFAULT_MD_MODE
-        md_structures = self._gc_gridCustomizerStructures(table=table,resource=resource)
+        md_structures = self.gc_customizerStructures(table=table,resource=resource)
         md_fkeys = tblobj.md_fkeys()
         controller.data('.md_fkeys',Bag(md_fkeys))
         controller.data('.md_structures',md_structures)
@@ -170,4 +154,44 @@ class GridCustomizer(BaseComponent):
                                   struct_customizer=struct_customizer,
                                     default_md_mode=DEFAULT_MD_MODE,_delay=1)
 
+    def gc_customizerStructures(self,table=None,resource=None):
+        tblobj = self.db.table(table)
+        view = self.site.virtualPage(table=table,table_resources=resource)
+        fullstruct = self.newGridStruct(maintable=table)
+        view.th_struct(fullstruct)
+        result = Bag()
+        modes = dictExtract(tblobj.attributes,'md_mode_') or {DEFAULT_MD_MODE:'STANDARD'}
+        for mode in modes.keys():
+            mode_struct = fullstruct.deepcopy()
+            result[mode] = mode_struct
+            cells = mode_struct['view_0.rows_0']
+            for c in cells.nodes:
+                colobj = tblobj.column(c.attr['field'])
+                if colobj is not None and colobj.attributes.get('md_mode') and colobj.attributes.get('md_mode')!=mode:
+                    cells.popNode(c.label)
+        return result
 
+    def customizePrint(self,printInstance,md_mode=None,customizerBag=None,table=None):
+        grid_columns = printInstance.grid_columns
+        table = table or printInstance.rows_table or printInstance.tblobj.fullname
+        tblobj = self.db.table(table)
+        filtered_grid_columns = []
+        if customizerBag:
+            colsdict = dict([(d['field'],dict(d)) for d in grid_columns])
+            for v in customizerBag.values():
+                d = colsdict.get(v['field']) or {}
+                custattr = dict(field=v['field'],name=v['name'],mm_width=v['mm_width'],format=v['format'],style=v['style'])
+                d.update(custattr)
+                if not v['enabled']:
+                    d['hidden'] = True
+                filtered_grid_columns.append(d)
+        else:
+            for d in grid_columns:
+                d = dict(d)
+                if md_mode:
+                    colobj = tblobj.column(d['field'])
+                    if colobj is not None and colobj.attributes.get('md_mode') and  colobj.attributes['md_mode'] !=md_mode:
+                        continue
+                filtered_grid_columns.append(d)
+        printInstance.grid_columns = filtered_grid_columns
+        return filtered_grid_columns

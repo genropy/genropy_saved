@@ -280,7 +280,7 @@ class FrameGrid(BaseComponent):
             delrow = False
             kwargs['grid_autoDelete'] = True
         if table and viewResource and not struct:
-            view = self.site.getDummyPage(table=table,resources=viewResource) 
+            view = self.site.virtualPage(table=table,table_resources=viewResource) 
             struct = view.th_struct
         frame = pane.frameGrid(_newGrid=True,datamode= datamode,
                                 dynamicStorepath=dynamicStorepath,
