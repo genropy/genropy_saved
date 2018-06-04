@@ -268,7 +268,40 @@ class TableScriptToHtml(BagToHtml):
         else:
             caption = '%i/%i' % (progress, maximum)
         return caption
+    
+    def gridColumnsFromResource(self,viewResource=None,table=None):
+        table = table or self.rows_table or self.tblobj.fullname
+        tblobj = self.db.table(table)
+        view = self.site.virtualPage(table=table,table_resources=viewResource)
+        structbag = view.newGridStruct(maintable=table)
+        view.th_struct(structbag)
+        self.grid_columns = []
+        cells = structbag['view_0.rows_0'].nodes
+        columns = []
+        for n in cells:
+            attr = n.attr
+            field =  attr.get('field')
+            field_getter = attr.get('caption_field') or field
+            sqlcolumn = None
+            if field_getter.startswith('@'):
+                original_field = field_getter
+                field_getter = field_getter.replace('.','_').replace('@','_')
+                sqlcolumn = '%s AS %s' %(original_field,field_getter)
+            else:
+                columnobj = tblobj.column(field_getter)
+                if columnobj is not None:
+                    sqlcolumn = '$%s' %field_getter
+            pars = dict(field=field,name=attr.get('name'),field_getter=field_getter,
+                        mm_width=attr.get('mm_width'),format=attr.get('format'),
+                        style=attr.get('style'),sqlcolumn=sqlcolumn,dtype=attr.get('dtype'))
+            self.grid_columns.append(pars)
+        return self.grid_columns
         
+    @property
+    def grid_sqlcolumns(self):
+        return ','.join([d['sqlcolumn'] for d in self.grid_columns if d.get('sqlcolumn')])
+
+                
     def getHtmlPath(self, *args, **kwargs):
         """TODO"""
         return self.site.getStaticPath(self.html_folder, *args, **kwargs)

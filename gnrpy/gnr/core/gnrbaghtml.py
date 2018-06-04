@@ -43,6 +43,7 @@ class BagToHtml(object):
     grid_col_headers = None
     grid_col_headers_height = 4
     grid_col_widths = []
+    grid_style_cell = None
     grid_columns = []
     grid_row_height = 5
     copies_per_page = 1
@@ -75,7 +76,7 @@ class BagToHtml(object):
                     name = ''
                     header_style = 'border-top:0mm;border-bottom:0mm;'
                 self.grid_columns.append(dict(mm_width=mm_width,name=name,header_style=header_style))
-     
+
     def init(self, *args, **kwargs):
         """A ``init`` hook method"""
         pass
@@ -340,7 +341,7 @@ class BagToHtml(object):
     @property
     def current_page_number(self):
         return self.copies[self.copy]['currPage']
-
+    
     def copyHeight(self):
         """TODO"""
         return (self.page_height - self.page_margin_top - self.page_margin_bottom -\
@@ -433,9 +434,35 @@ class BagToHtml(object):
         #else:
         #    data = self.currRowDataNode.value
         return self.field(path, root=self.rowData, **kwargs)
+
+
+    def getCellStyle(self,style):
+        stylelist = style.split(';') if style else []
+        return ';'.join(self.grid_style_cell_list+stylelist)
+    
+    @property
+    def grid_style_cell_list(self):
+        if not hasattr(self,'_grid_style_cell_list'):
+            self._grid_style_cell_list = self.grid_style_cell.split(';') if self.grid_style_cell else []
+        return self._grid_style_cell_list 
+
+    def fillRow(self):
+        for col in self.grid_columns:
+            col = dict(col)
+            if not col.get('align_class'):
+                col['align_class'] = 'aligned_right' if col.get('dtype') in ['N','L','R','F'] else 'aligned_left'
+            field = col.pop('field',None)
+            field_getter = col.pop('field_getter',None)
+            width = col.pop('mm_width')
+            self.rowCell(field=field_getter or field, default=col.pop('default',None), 
+                format=col.pop('format',None), mask=col.pop('mask',None), 
+                currency=col.pop('currency',None),style=self.getCellStyle(col.pop('style',None)),
+                hidden=col.pop('hidden',None),**col)
+
         
     def rowCell(self, field=None, value=None, default=None, locale=None,
-                format=None, mask=None, currency=None,white_space='nowrap', **kwargs):
+                format=None, mask=None, currency=None,white_space='nowrap',align_class=None,
+                content_class=None, **kwargs):
                 
         """Allow to get data from record. You can use it in the :meth:`prepareRow` method
         
@@ -462,8 +489,10 @@ class BagToHtml(object):
             #    print self.currColumn
             #    print self.grid_col_widths[self.currColumn]
             value = self.toText(value, locale, format, mask, self.encoding)
+            if align_class:
+                content_class = '%s %s' %(content_class,align_class) if align_class else align_class
             self.currRow.cell(value, width=curr_attr['mm_width'],overflow='hidden',
-                              white_space=white_space, **kwargs)
+                              white_space=white_space,content_class=content_class, **kwargs)
         return value
 
     def _createPage(self):
@@ -545,7 +574,9 @@ class BagToHtml(object):
         :param row: the grid row"""
         lbl_height = self.grid_col_headers_height
         for pars in self.grid_columns:
-            row.cell(lbl=pars.get('name',''), lbl_height=lbl_height, width=pars.get('mm_width'), style=pars.get('header_style'))
+            if pars.get('hidden'):
+                continue
+            row.cell(lbl=self.toText(pars.get('name','')), lbl_height=lbl_height, width=pars.get('mm_width'), style=pars.get('header_style'))
             
     def gridFooter(self, row):
         """It can be overridden
@@ -557,6 +588,8 @@ class BagToHtml(object):
         """TODO"""
         row = self.copyValue('body_grid').row()
         for w in self.grid_columns:
+            if w.get('hidden'):
+                continue
             row.cell(width=w.get('mm_width'))
             
     def copyValue(self, valuename):
