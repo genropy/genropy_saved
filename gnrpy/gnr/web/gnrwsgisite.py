@@ -626,17 +626,20 @@ class GnrWsgiSite(object):
     
     @property
     def dummyPage(self):
-        return self.getDummyPage()
-    
-    def getDummyPage(self,resources=None, table=None):
         request = Request.blank(self.externalUrl('/sys/headless'))
         response = Response()
         page = self.resource_loader(['sys', 'headless'], request, response)
         page.locale = self.server_locale
-        for path in resources.split(','):
-            if table:
+        return page
+    
+    def virtualPage(self, table=None,table_resources=None,py_requires=None):
+        page = self.dummyPage
+        if table and table_resources:
+            for path in table_resources.split(','):
                 page.mixinTableResource(table=table,path=path)
-            else:
+        
+        if py_requires:
+            for path in py_requires.split(','):
                 page.mixinComponent(path)
         return page
     
