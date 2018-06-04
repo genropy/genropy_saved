@@ -1368,6 +1368,35 @@ class GnrWsgiSite(object):
             os.remove(txtname)
         return result
 
+    def uploadFile(self,file_handle=None,dataUrl=None,filename=None,uploadPath=None):
+        if file_handle is not None:
+            f = file_handle.file
+            content = f.read()
+            original_filename = os.path.basename(file_handle.filename)
+            original_ext = os.path.splitext(original_filename)[1]
+            filename = filename or original_filename
+        elif dataUrl:
+            import base64
+            dataUrlPattern = re.compile('data:(.*);base64,(.*)$')
+            g= dataUrlPattern.match(dataUrl)#.group(2)
+            mimetype,base64Content = g.groups()
+            original_ext = mimetypes.guess_extension(mimetype)
+            content = base64.b64decode(base64Content)
+        else:
+            return None,None
+        file_ext = os.path.splitext(filename)[1]
+        if not file_ext:
+            filename = '%s%s' %(filename,original_ext)
+            file_ext = original_ext
+        file_path = self.getStaticPath(uploadPath, filename,autocreate=-1)
+        file_url = self.getStaticUrl(uploadPath, filename)
+        dirname = os.path.dirname(file_path)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        with file(file_path, 'wb') as outfile:
+            outfile.write(content)
+        return file_path,file_url
+
     def zipFiles(self, file_list=None, zipPath=None):
         """Allow to zip one or more files
         
