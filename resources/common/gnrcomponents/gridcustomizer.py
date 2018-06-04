@@ -72,6 +72,9 @@ class GridCustomizer(BaseComponent):
         structures = self.gc_customizerStructures(table=gridTable,resource=gridResource)
         tc.data('.base_structures',structures)
         tc.dataController("""
+        if(this.form.isNewRecord()){
+            return;
+        }
         var current_cells = base_structures.getItem(md_mode+'.view_0.rows_0');
         var default_rows = new gnr.GnrBag();
         var v;
