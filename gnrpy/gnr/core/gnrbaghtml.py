@@ -42,9 +42,9 @@ class BagToHtml(object):
     grid_body_adjustment = 0
     grid_col_headers = None
     grid_col_headers_height = 4
-    grid_col_widths = []
+    grid_col_widths = None
     grid_style_cell = None
-    grid_columns = []
+    grid_columns =  None
     grid_row_height = 5
     copies_per_page = 1
     copy_extra_height = 0
@@ -64,6 +64,7 @@ class BagToHtml(object):
     
     def adaptGridColumns(self):
         if not self.grid_columns:
+            self.grid_columns = []
             headers = self.grid_col_headers or []
             if ':' in headers:
                 headers, headers_height = self.grid_col_headers.split(':')
