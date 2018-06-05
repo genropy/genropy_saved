@@ -147,15 +147,24 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         kw = kw || {};
         this.structBag = genro.getData(this.sourceNode.attrDatapath('structpath')) || new gnr.GnrBag();
         this.cellmap = {};
-        this.setStructure(this.gnr.structFromBag(this.sourceNode, this.structBag, this.cellmap));
-        this.onSetStructpath(this.structBag,kw);
-        this.sourceNode.publish('onSetStructpath');
+        try {
+            this.setStructure(this.gnr.structFromBag(this.sourceNode, this.structBag, this.cellmap));
+            this.onSetStructpath(this.structBag,kw);
+            this.sourceNode.publish('onSetStructpath');
+        } catch (error) {
+            console.error('error in structure',error);
+        }
+        
     },
 
     mixin_getColumnInfo:function(cell){
-        var headerList = dojo.query('th',this.viewsHeaderNode);
-        var structureList = this.views.views[0].structure.rows[0];
         var result = new gnr.GnrBag();
+        if(!this.views.views[0]){
+            return result; // empty structure
+        }
+        var headerList = dojo.query('th',this.viewsHeaderNode);
+
+        var structureList = this.views.views[0].structure.rows[0];
         var hiddenBetween = 0;
         var headerNode,isHidden,rel_index;
         structureList.forEach(function(n){
@@ -237,7 +246,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     mixin_columnsetsAndFooters_size:function(){
         
         var headerList = dojo.query('th',this.viewsHeaderNode);
-        var totalWidth = dojo.query('table',this.viewsHeaderNode)[0].clientWidth;
+        var headerTable = dojo.query('table',this.viewsHeaderNode)[0];
+        var totalWidth =headerTable? headerTable.clientWidth:0;
         var cb = function(container){
             if(!container){
                 return;
