@@ -63,13 +63,17 @@ class BagToHtml(object):
             self.templateLoader = templateLoader
     
     def adaptGridColumns(self):
-        if not self.grid_columns:
+        self.grid_columns = self.grid_columns or [] 
+        if self.grid_col_widths:
             self.grid_columns = []
-            headers = self.grid_col_headers or []
+            headers = self.grid_col_headers or ''
             if ':' in headers:
                 headers, headers_height = self.grid_col_headers.split(':')
                 self.grid_col_headers_height = int(headers_height)
-            grid_col_headers = headers.split(',')
+            grid_col_headers = headers.split(',') if headers else []
+            len_headers_fill = len(self.grid_col_widths) - len(grid_col_headers)
+            if len_headers_fill>0:
+                grid_col_headers += (['']*len_headers_fill)
             for i,mm_width in enumerate(self.grid_col_widths):
                 name = grid_col_headers[i]
                 header_style = None
@@ -305,6 +309,7 @@ class BagToHtml(object):
         
     def main(self):
         """It can be overridden"""
+        self.adaptGridColumns()
         if self.htmlContent:
             page = self.getNewPage()
             page.div("%s::HTML" % self.htmlContent)
@@ -363,7 +368,6 @@ class BagToHtml(object):
         self.doc_height = self.copyHeight() #- self.page_header_height - self.page_footer_height
         self.grid_height = self.doc_height - self.calcDocHeaderHeight() - self.calcDocFooterHeight()
         self.grid_body_height = float(self.grid_height or 0) - float(self.grid_header_height or 0) - float(self.grid_footer_height or 0)
-        self.adaptGridColumns()
         for copy in range(self.copies_per_page):
             self.copies.append(dict(grid_body_used=self.grid_height, currPage=-1))
             

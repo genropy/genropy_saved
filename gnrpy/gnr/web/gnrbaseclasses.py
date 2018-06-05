@@ -271,12 +271,16 @@ class TableScriptToHtml(BagToHtml):
     
     def gridColumnsFromResource(self,viewResource=None,table=None):
         table = table or self.rows_table or self.tblobj.fullname
-        tblobj = self.db.table(table)
         view = self.site.virtualPage(table=table,table_resources=viewResource)
         structbag = view.newGridStruct(maintable=table)
         view.th_struct(structbag)
+        self.gridColumnsFromStruct(struct=structbag,table=table)
+        return self.grid_columns
+    
+    def gridColumnsFromStruct(self,struct=None,table=None):
         self.grid_columns = []
-        cells = structbag['view_0.rows_0'].nodes
+        tblobj = self.db.table(table)
+        cells = struct['view_0.rows_0'].nodes
         columns = []
         for n in cells:
             attr = n.attr
@@ -295,8 +299,7 @@ class TableScriptToHtml(BagToHtml):
                         mm_width=attr.get('mm_width'),format=attr.get('format'),
                         style=attr.get('style'),sqlcolumn=sqlcolumn,dtype=attr.get('dtype'))
             self.grid_columns.append(pars)
-        return self.grid_columns
-        
+
     @property
     def grid_sqlcolumns(self):
         return ','.join([d['sqlcolumn'] for d in self.grid_columns if d.get('sqlcolumn')])
