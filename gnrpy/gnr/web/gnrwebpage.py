@@ -558,7 +558,18 @@ class GnrWebPage(GnrBaseWebPage):
         if handler is None and defaultCb is False:
             return None
         return handler or defaultCb or emptyCb
+    
+    def mixinTableResource(self, table, path,**kwargs):
+        """TODO
         
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
+        :param path: the table resource path"""
+        pkg,table = table.split('.')
+        self.mixinComponent('tables/%s/%s' %(table,path),**kwargs)
+        self.mixinComponent('tables/_packages/%s/%s/%s' %(pkg,table,path),safeMode=True,**kwargs)
+
         
     def mixinComponent(self, *path,**kwargs):
         """TODO
@@ -1673,11 +1684,12 @@ class GnrWebPage(GnrBaseWebPage):
         return self.site.getUserPreference(path, pkg=pkg, dflt=dflt, username=username)
         
     @public_method
-    def getAppPreference(self, path='*',**kwargs):
+    def getAppPreference(self,pkg=None,**kwargs):
         """TODO
         
         :param path: TODO"""
-        return self.getPreference(path)
+        path = kwargs.get('path') or kwargs.get('prefpath') or '*'
+        return self.getPreference(path,pkg=pkg)
 
     @public_method
     def setUserPreference(self, path, data, pkg='', username=''):

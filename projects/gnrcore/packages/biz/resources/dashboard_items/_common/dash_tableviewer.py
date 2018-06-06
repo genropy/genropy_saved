@@ -19,26 +19,24 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 
-from gnr.web.gnrbaseclasses import BaseDashboardItem
+from gnrpkg.biz.dashboard import BaseDashboardItem
 from gnr.core.gnrbag import Bag
 
 
 caption = 'Table view'
 description = 'Table view'
-item_parameters = [dict(value='^.table',lbl='Table',tag='dbselect',dbtable='adm.tblinfo',hasDownArrow=True),
-                   dict(value='^.query_id',lbl='Query',dbtable='adm.userobject',tag='dbselect',
-                        condition='$tbl=:seltbl AND $objtype=:t',condition_t='query',condition_seltbl='=.table',objtype='query',hasDownArrow=True),
-                    dict(value='^.view_id',lbl='View',dbtable='adm.userobject',tag='dbselect',
-                        condition='$tbl=:seltbl AND $objtype=:t',condition_t='view',condition_seltbl='=.table',objtype='query',hasDownArrow=True)]
 
 class Main(BaseDashboardItem):
     title_template = '$title $whereParsFormatted'
 
-    def content(self,pane,workpath=None,table=None,query_id=None,view_id=None,storepath=None,**kwargs):
+    def content(self,pane,table=None,userobject_id=None,**kwargs):
         self.page.mixinComponent('th/th:TableHandler')
-        bc = pane.borderContainer(datapath=workpath)
+        bc = pane.borderContainer(datapath=self.workpath)
         center = bc.contentPane(region='center')
-        selectionViewer = self._selectionViewer(center,table=table,query_id=query_id,view_id=view_id,datapath='.viewer')
+        
+        selectionViewer = self._selectionViewer(center,table=table,
+                                            userobject_id=userobject_id,
+                                            datapath='.viewer')
         self.queryPars = selectionViewer.queryPars
         selectionViewer.dataController("""
             if(queryPars){
@@ -47,21 +45,21 @@ class Main(BaseDashboardItem):
                 });
             }
             grid.collectionStore().loadData();
-        """,wherePars='=%s.conf.wherePars' %storepath,grid=selectionViewer.grid.js_widget,
+        """,wherePars='=%s.conf.wherePars' %self.storepath,grid=selectionViewer.grid.js_widget,
             queryPars='=.query.queryPars',
             where='=.query.where',
-            _fired='^%s.runItem' %workpath)
+            _fired='^%s.runItem' %self.workpath)
             
         pane.dataFormula('.whereParsFormatted',"wherePars?wherePars.getFormattedValue({joiner:' - '}):'-'",
                     wherePars='^.conf.wherePars')
         
 
 
-    def configuration(self,pane,table=None,queryName=None,workpath=None,**kwargs):
+    def configuration(self,pane,table=None,queryName=None,**kwargs):
         if not self.queryPars:
             return
         fb = pane.formbuilder(dbtable=table,datapath='.wherePars',
-                            fld_validate_onAccept="SET %s.runRequired =true;" %workpath)
+                            fld_validate_onAccept="SET %s.runRequired =true;" %self.workpath)
         for code,pars in self.queryPars.digest('#k,#a'):
             field = pars['field']
             rc = self.db.table(table).column(field).relatedColumn()
@@ -75,8 +73,7 @@ class Main(BaseDashboardItem):
                             default_value=pars['dflt'],
                             lbl=pars['lbl'])
 
-    def _selectionViewer(self,pane,table=None,query_id=None,
-                            view_id=None,fired=None,**kwargs):
+    def _selectionViewer(self,pane,table=None,userobject_id=None,fired=None,**kwargs):
         userobject_tbl = self.page.db.table('adm.userobject')
         where = None
         customOrderBy = None
@@ -87,31 +84,21 @@ class Main(BaseDashboardItem):
         tblobj = self.page.db.table(table)
         viewName = None
         metadata = Bag()
-        def defaultstruct(struct):
-            r = struct.view().rows()
-            r.fieldcell(tblobj.attributes['caption_field'], name=tblobj.name_long, width='100%')
 
-        if query_id:
-            where,metadata = userobject_tbl.loadUserObject( id=query_id,
-                                                objtype='query',
-                                                tbl=table)
-            customOrderBy = None
-            limit = None
-            queryPars = None
-            if where['where']:
-                limit = where['queryLimit']
-                viewName = where['currViewPath']
-                customOrderBy = where['customOrderBy']
-                queryPars = where.pop('queryPars')
-                extraPars = where.pop('extraPars')
-                where = where['where']
-        if view_id or viewName:
-            userobject_tbl = self.db.table('adm.userobject')
-            struct = userobject_tbl.loadUserObject(code=viewName, objtype='view', 
-                                                    id=view_id,
-                                                    tbl=table)[0]
-        if struct is None:
-            struct = defaultstruct    
+        data,metadata = userobject_tbl.loadUserObject( id=userobject_id,
+                                            objtype='query',
+                                            tbl=table)
+        customOrderBy = None
+        limit = None
+        queryPars = None
+        limit = data['limit']
+        viewName = data['currViewPath']
+        customOrderBy = data['customOrderBy']
+        queryPars = data.pop('queryPars')
+        extraPars = data.pop('extraPars')
+        where = data['where']
+        struct = data['struct']
+
         frame = pane.frameGrid(struct=struct,_newGrid=True,**kwargs)
         frame.data('.query.limit',limit)
         frame.data('.query.where',where)

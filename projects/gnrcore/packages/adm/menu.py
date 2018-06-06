@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # encoding: utf-8
 def config(root,application=None):
     administration = root.branch(u"!!Administration", tags="admin")
@@ -13,7 +12,6 @@ def config(root,application=None):
     utility.thpage(u"!!Letterheads", table="adm.htmltemplate")
     utility.thpage(u"!!Notifications", table="adm.notification")
     utility.thpage(u"!!Authorizations", table="adm.authorization")
-    utility.thpage(u"!!Dashboards", table="adm.dashboard")
     utility.thpage(u"!!Days", table="adm.day")
     utility.thpage(u"!!Userobjects", table="adm.userobject")
     utility.thpage(u"!!Counters", table="adm.counter",tags='_DEV_,superadmin')

@@ -28,7 +28,6 @@ from gnr.core.gnrbag import Bag
 class TableHandlerGroupBy(BaseComponent):
     js_requires = 'gnrdatasets,th/th_groupth'
 
-    
     @extract_kwargs(condition=True,store=True)
     @struct_method
     def th_groupByTableHandler(self,pane,frameCode=None,title=None,table=None,linkedTo=None,
@@ -89,11 +88,11 @@ class TableHandlerGroupBy(BaseComponent):
                                 basetitle='!!Group by',
                                 currentView='^.grid.currViewAttrs.description',
                                 loadedDashboard='^.dashboardMeta.description')
-        frame.dataRemote('.advancedOptions',self.thg_advancedOptions,cacheTime=5,table=table,
-                            rootNodeId=rootNodeId,_fired='^.refreshAdvancedOptionsdMenu')
+        frame.dataRemote('.dashboardsMenu',self.thg_dashboardsMenu,cacheTime=5,table=table,
+                            rootNodeId=rootNodeId,_fired='^.refreshDashboardsMenu')
         configuratorSlot = 'configuratorPalette' if configurable else '2'
-        bar = frame.top.slotToolbar('5,ctitle,stackButtons,10,groupByModeSelector,counterCol,*,searchOn,viewsMenu,%s,chartjs,export,advancedOptions,5' %configuratorSlot,
-                                    advancedOptions_linkedTo=linkedTo,
+        bar = frame.top.slotToolbar('5,ctitle,stackButtons,10,groupByModeSelector,counterCol,*,searchOn,viewsMenu,%s,chartjs,export,dashboardsMenu,5' %configuratorSlot,
+                                    dashboardsMenu_linkedTo=linkedTo,
                                     stackButtons_stackNodeId=frameCode)
         bar.ctitle.div(title,color='#444',font_weight='bold')
         bar.counterCol.div().checkbox(value='^.grid.showCounterCol',label='!!Counter column',label_color='#444')
@@ -190,8 +189,8 @@ class TableHandlerGroupBy(BaseComponent):
                                     datapath='.stacked',
                                     storepath='.store',addrow=False,delrow=False,
                                     datamode='attr')
-        bar = frame.top.bar.replaceSlots('#','5,ctitle,stackButtons,10,groupByModeSelector,*,searchOn,export,5,advancedOptions',
-                                        stackButtons_stackNodeId=frameCode,advancedOptions_linkedTo=linkedTo)
+        bar = frame.top.bar.replaceSlots('#','5,ctitle,stackButtons,10,groupByModeSelector,*,searchOn,export,5,dashboardsMenu',
+                                        stackButtons_stackNodeId=frameCode,dashboardsMenu_linkedTo=linkedTo)
         bar.ctitle.div(title,color='#444',font_weight='bold')
         frame.dataController("""
             if(groupMode!='stackedview' && !linkedChart){
@@ -214,8 +213,8 @@ class TableHandlerGroupBy(BaseComponent):
 
     def _thg_treeview(self,parentStack,title=None, grid=None,treeRoot=None,linkedTo=None,**kwargs):
         frame = parentStack.framePane(title='Tree View',pageName='tree')
-        bar = frame.top.slotToolbar('5,ctitle,parentStackButtons,10,groupByModeSelector,addTreeRoot,*,searchOn,advancedOptions,5',
-                                    advancedOptions_linkedTo=linkedTo)
+        bar = frame.top.slotToolbar('5,ctitle,parentStackButtons,10,groupByModeSelector,addTreeRoot,*,searchOn,dashboardsMenu,5',
+                                    dashboardsMenu_linkedTo=linkedTo)
         bar.ctitle.div(title,color='#444',font_weight='bold')
         fb = bar.addTreeRoot.div(_class='iconbox tag').tooltipPane().formbuilder(cols=1,border_spacing='2px',color='#666')
         fb.textbox(value='^.treeRootName',lbl='!!Root',width='7em')
@@ -315,18 +314,19 @@ class TableHandlerGroupBy(BaseComponent):
         kwargs['order_by'] = kwargs['group_by']
         if having_list:
             kwargs['having'] = ' OR '.join(having_list)
+        kwargs['hardQueryLimit'] = False
         return self.app._default_getSelection(_aggregateRows=False,**kwargs)
 
     @struct_method
-    def thg_slotbar_advancedOptions(self,pane,linkedTo=None,**kwargs):
-        if not linkedTo:
+    def thg_slotbar_dashboardsMenu(self,pane,linkedTo=None,**kwargs):
+        if not (linkedTo and self.db.package('biz')):
             return pane.div()
         menu = pane.menudiv(tip='!!Advanced tools',
                             iconClass='iconbox menu_gray_svg',
-                            storepath='#ANCHOR.advancedOptions',**kwargs)
+                            storepath='#ANCHOR.dashboardsMenu',**kwargs)
     
     @public_method
-    def thg_advancedOptions(self,currentDashboard=None,rootNodeId=None,table=None,**kwargs):
+    def thg_dashboardsMenu(self,currentDashboard=None,rootNodeId=None,table=None,**kwargs):
         result = Bag()
         result.rowchild(label='!!Save dashboard',
                         action="""this.attributeOwnerNode('_dashboardRoot').publish('saveDashboard');""")

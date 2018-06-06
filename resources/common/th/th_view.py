@@ -42,6 +42,11 @@ class TableHandlerView(BaseComponent):
         view = pane.thFrameGrid(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
                                  virtualStore=virtualStore,bySample=queryBySample is not None,
                                  condition=condition,condition_kwargs=condition_kwargs,
+                                 _dashboardRoot=True,
+                                 selfsubscribe_saveDashboard="th_dash_tableviewer.saveAsDashboard(this,$1);",
+                                 selfsubscribe_loadDashboard="th_dash_tableviewer.loadDashboard(this,$1)",
+                                 selfsubscribe_deleteCurrentDashboard="th_dash_tableviewer.deleteCurrentDashboard(this,$1)",
+
                                  selectedPage='^.viewPage',resourceOptions=options,
                                  **kwargs)
         if virtualStore and queryBySample:
@@ -245,6 +250,9 @@ class TableHandlerView(BaseComponent):
 
     def _th_view_confMenues(self,frame,statsEnabled=None,configurable=None):
         b = Bag()
+        nodeId = frame.grid.attributes['nodeId']
+        table = frame.grid.attributes['table']
+
         b.rowchild(label='!!Reload',action="$2.widget.reload();")
         b.rowchild(label='-')
         b.rowchild(label='!!Show Archived Records',checked='^.#parent.showLogicalDeleted',
@@ -257,28 +265,47 @@ class TableHandlerView(BaseComponent):
             b.rowchild(label='-')
             b.rowchild(label='!!User Configuration',action='genro.dev.tableUserConfiguration($2.attr.table);')
         frame.grid.data('.contextMenu',b)
+        
+        frame.dataRemote('.advancedTools',self._th_advancedToolsMenu,cacheTime=5,table=table,
+                            rootNodeId=nodeId,_fired='^.refreshAdvancedToolsMenu',statsEnabled=statsEnabled)
 
+
+    @public_method
+    def _th_advancedToolsMenu(self,statsEnabled=None,table=None,rootNodeId=None,**kwargs):
         b = Bag()
         b.rowchild(label='!!Show Archived Records',checked='^.#parent.showLogicalDeleted',
                                 action="""SET .#parent.showLogicalDeleted= !GET .#parent.showLogicalDeleted;
                                          FIRE .runQueryDo;""")
         b.rowchild(label='!!Totals count',action='SET .#parent.tableRecordCount= !GET .#parent.tableRecordCount;',
                             checked='^.#parent.tableRecordCount')
-        
         if self.application.checkResourcePermission('superadmin', self.userTags):
             b.rowchild(label='-')
-            b.rowchild(label='!!User Configuration',action='genro.dev.tableUserConfiguration("%s");' %frame.grid.attributes['table'])
-        b.rowchild(label='!!Configure grid',action="genro.nodeById('%s').publish('configuratorPalette');" %frame.grid.attributes['nodeId'])
+            b.rowchild(label='!!User Configuration',action='genro.dev.tableUserConfiguration("%s");' %table)
+        b.rowchild(label='!!Configure grid',action="genro.nodeById('%s').publish('configuratorPalette');" %rootNodeId)
         b.rowchild(label='-')
         if statsEnabled:
             b.rowchild(label='!!Group by',action='SET .statsTools.selectedPage = "groupby"; SET .viewPage= "statsTools";')
             if self.ths_pandas_available():
                 b.rowchild(label='!!Pivot table',action='SET .statsTools.selectedPage = "pandas"; SET .viewPage= "statsTools";')
-        #b.rowchild(label='-')
-        #b.rowchild(label='!!Chart',
-        #        action="""genro.nodeById().publish('pluginCommand',{plugin:'chartjs',command:'openGridChart',pkey:$1.pkey,caption:$1.caption});""")
-
-        frame.data('.advancedTools',b)
+        if self.db.package('biz'):
+            self._th_addDashboardCommands(b,rootNodeId,table)
+        return b
+    
+    def _th_addDashboardCommands(self,b,nodeId,table):
+        b.rowchild(label='!!Save dashboard',
+                            action="""this.attributeOwnerNode('_dashboardRoot').publish('saveDashboard');""")
+        b.rowchild(label='!!Save dashboard as',
+                        action="""this.attributeOwnerNode('_dashboardRoot').publish('saveDashboard',{saveAs:true});""")
+        b.rowchild(label='!!Delete current dashboard',
+                        action="""this.attributeOwnerNode('_dashboardRoot').publish('deleteCurrentDashboard');""")
+        objtype = 'dash_tableviewer'
+        flags='grid|%s' %nodeId
+        userobjects = self.db.table('adm.userobject').userObjectMenu(objtype=objtype,flags=flags,table=table)
+        if len(userobjects)>0:
+            loadAction = """this.attributeOwnerNode('_dashboardRoot').publish('loadDashboard',{pkey:$1.pkey});"""
+            loadmenu = Bag()
+            loadmenu.update(userobjects)
+            b.setItem('r_%s' %len(b),loadmenu,label='!!Load dashboard',action=loadAction)
 
     def _th_handle_page_hooks(self,view,page_hooks):
         frameCode = view.attributes['frameCode']
@@ -513,7 +540,8 @@ class TableHandlerView(BaseComponent):
         sections = []
         f = self.db.table(table).query(columns='$%s' %field,addPkeyColumn=True,distinct=True,**kwargs).fetch()
         for i,r in enumerate(f):
-            sections.append(dict(code='c_%i' %i,caption=r[field],condition="$%s=:v" %field,condition_v=r[field]))
+            if r[field]:
+                sections.append(dict(code='c_%i' %i,caption=r[field],condition="$%s=:v" %field,condition_v=r[field]))
         if allPosition:
             return allsection+sections if allPosition!='last' else sections+allsection
         return sections

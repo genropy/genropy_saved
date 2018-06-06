@@ -52,4 +52,11 @@ class AppPrefHandler(BaseComponent):
             if panecb and auth:
                 panecb(tc, title=pkg.attributes.get('name_full'), datapath='.%s' % pkg.id, nodeId=pkg.id,
                         pkgId=pkg.id,_anchor=True,sqlContextRoot='%s.%s' % (datapath,pkg.id))
+        if context_dbstore:
+            tc.dataRpc(None,self.ph_updatePrefCache,formsubscribe_onSaved=True,prefdbstore=context_dbstore)
+    
+    @public_method
+    def ph_updatePrefCache(self,prefdbstore=None,**kwargs):
+        self.db.application.cache.updatedItem( '_storepref_%s' %prefdbstore)
+    
         

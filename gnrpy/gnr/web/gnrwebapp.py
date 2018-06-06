@@ -15,8 +15,8 @@ class WebApplicationCache(object):
     def getItem(self,key):
         item,ts = self.cache.get(key,(None,None))
         if item is not None:
-            last_cache_ts = self.site.register.globalStore().getItem('CACHE_TS.%s' %key)
-            if last_cache_ts and ts<last_cache_ts:
+            last_change_ts = self.site.register.globalStore().getItem('CACHE_TS.%s' %key)
+            if last_change_ts and ts<last_change_ts:
                 item = None 
         return item
 

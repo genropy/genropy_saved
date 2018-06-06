@@ -19,31 +19,29 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 
-from gnr.web.gnrbaseclasses import BaseDashboardItem
+from gnrpkg.biz.dashboard import BaseDashboardItem
 
 caption = 'Stat view'
 description = 'Stat view'
-item_parameters = [dict(value='^.table',lbl='Table'),
-                  dict(value='^.statName',lbl='Stat name')]
 
 class Main(BaseDashboardItem):
     """Scegli table e query per visualizzare il risultato"""
     item_name = 'Stat view'
 
-    def content(self,pane,workpath=None,table=None,statName=None,**kwargs):
+    def content(self,pane,table=None,statName=None,**kwargs):
         self.page.mixinComponent('th/th_stats:PivotTableViewer')
-        bc = pane.borderContainer(datapath=workpath)
+        bc = pane.borderContainer(datapath=self.workpath)
         userobject_tbl = self.db.table('adm.userobject')
         viewer = bc.contentPane(region='center').pivotTableViewer(table=table,
                                                                 statIdentifier=statName,
-                                                                _parschanged='^%s.configuration_changed' %workpath,
+                                                                _parschanged='^%s.configuration_changed' %self.workpath,
                                                                 datapath='.viewer')
         self.queryPars = viewer.queryPars
 
-    def configuration(self,pane,table=None,queryName=None,workpath=None,**kwargs):
+    def configuration(self,pane,table=None,queryName=None,**kwargs):
         if not self.queryPars:
             return
-        fb = pane.formbuilder(dbtable=table,datapath='%s.viewer.query.where' %workpath)
+        fb = pane.formbuilder(dbtable=table,datapath='%s.viewer.query.where' %self.workpath)
         for pars in self.queryPars.digest('#a'):
             field = pars['field']
             rc = self.db.table(table).column(field).relatedColumn()

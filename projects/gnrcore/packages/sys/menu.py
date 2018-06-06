@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # encoding: utf-8
 def config(root,application=None):
     system = root.branch(u"!!System", tags="sysadmin,_DEV_,superadmin")

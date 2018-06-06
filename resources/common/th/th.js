@@ -5,6 +5,7 @@ var TH = function(th_root){
     }
     return genro.ext.th_instances[th_root];
 };
+
 var th_unifyrecord = function(kw){
     genro.serverCall('th_getUnifierWarningBag',kw,function(messagebag){
         messagebag.setBackRef();
@@ -68,7 +69,56 @@ var th_usersettings = function(th){
 
 
 
-    dlg.show_action()
+    dlg.show_action();
+};
+
+var th_dash_tableviewer = {
+  
+    saveAsDashboard:function(sourceNode,kw){
+        kw = kw || {};
+        var th = TH(sourceNode.attr.th_root);
+        var queryParsBag = th.querymanager.queryParsBag();
+        sourceNode.setRelativeData('.queryPars',queryParsBag);
+        var gridNode = genro.nodeById(sourceNode.attr.frameCode+'_grid');
+        kw.dataIndex = {
+            where:'.query.where',
+            struct:'.grid.struct',
+            customOrderBy:'.query.customOrderBy',
+            limit:'.query.limit',
+            queryPars:'.queryPars'
+        };
+        kw.objtype = 'dash_tableviewer';
+        kw.metadataPath = '.dashboardMeta';
+        kw.table = gridNode.attr.table;
+        kw.title = _T('Save dashboard');
+        kw.defaultMetadata = {flags:'grid|'+gridNode.attr.nodeId};
+        var onSaved =function(result){
+            sourceNode.setRelativeData('.dashboardMeta',new gnr.GnrBag(result.attr));
+            sourceNode.fireEvent('.refreshAdvancedToolsMenu',true);
+        };
+        genro.dev.userObjectSave(sourceNode,kw,onSaved);
+    },
+
+    loadDashboard:function(sourceNode,kw){
+        kw.userObjectIdOrCode = objectPop(kw,'pkey');
+        kw.metadataPath = '.dashboardMeta';
+        kw.tbl = sourceNode.attr.table;
+        kw.objtype = 'dash_tableviewer';
+        kw.onLoaded = function(dataIndex,resultValue,resultAttr){
+            sourceNode.fireEvent('.runQuery',true);
+        };
+        genro.dev.userObjectLoad(sourceNode,kw);
+    },
+
+    deleteCurrentDashboard:function(sourceNode,kw){
+        var pkey = sourceNode.getRelativeData('.dashboardMeta.id');
+        if(!pkey){
+            return;
+        }
+        genro.serverCall('_table.adm.userobject.deleteUserObject',{pkey:pkey},function(){
+            sourceNode.setRelativeData('.dashboardMeta',new gnr.GnrBag());
+        });
+    }
 };
 
 

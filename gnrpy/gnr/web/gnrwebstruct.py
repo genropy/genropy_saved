@@ -1128,7 +1128,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         #storepath = storepath or attr.get('storepath') or '.grid.store'
 
         if parentTag =='includedview' or  parentTag =='newincludedview':
-            attr['table'] = table
+            attr['table'] = attr.get('table') or table
             storepath = storepath or attr.get('storepath') or '.store'
             storeCode = storeCode or attr.get('nodeId') or  attr.get('frameCode') 
             attr['store'] = storeCode

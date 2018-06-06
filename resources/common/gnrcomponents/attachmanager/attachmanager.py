@@ -93,8 +93,11 @@ class Form(BaseComponent):
         iframe = bc.contentPane(region='center',overflow='hidden').iframe(src='^.fileurl',_virtual_column='fileurl',height='100%',
                                                 width='100%',border='0px',documentClasses=True,
                         connect_onload="""
-                            var cw = this.domNode.contentWindow;
-                            cw.document.body.style.zoom = GET #FORM.currentPreviewZoom;""")
+                            if(this.domNode.getAttribute('src') && this.domNode.getAttribute('src').indexOf('.pdf')<0){
+                                var cw = this.domNode.contentWindow;
+                                cw.document.body.style.zoom = GET #FORM.currentPreviewZoom;
+                            }
+                            """)
         da = sc.contentPane().div(position='absolute',top='10px',left='10px',right='10px',bottom='10px',
             text_align='center',border='3px dotted #999',rounded=8)
         upload_message = '!!Drag here or double click to upload' if not self.isMobile else "!!Double click to upload"
@@ -110,7 +113,9 @@ class Form(BaseComponent):
                         rpc_attachment_table=fattr.get('table'),
                         nodeId='%(frameCode)s_uploader' %fattr)
         form.dataController("sc.switchPage(newrecord?1:0)",newrecord='^#FORM.controller.is_newrecord',sc=sc.js_widget)
-        form.dataController("iframe.contentWindow.document.body.style.zoom = currentPreviewZoom;",iframe=iframe.js_domNode,currentPreviewZoom='^#FORM.currentPreviewZoom')
+        form.dataController(""" if(iframe.getAttribute('src') && iframe.getAttribute('src').indexOf('.pdf')<0){
+            iframe.contentWindow.document.body.style.zoom = currentPreviewZoom;
+        }""",iframe=iframe.js_domNode,currentPreviewZoom='^#FORM.currentPreviewZoom')
 
     def th_options(self):
         return dict(showtoolbar=False,showfooter=False)
@@ -250,8 +255,11 @@ class AttachManager(BaseComponent):
         readerpane = bc.contentPane(region='center',childname='atcviewer',overflow='hidden')
         iframe = readerpane.iframe(src='^.reader_url',height='100%',width='100%',border=0,documentClasses=True,
                         connect_onload="""
-                            var cw = this.domNode.contentWindow;
-                            cw.document.body.style.zoom = GET .currentPreviewZoom;""")
+                            if(this.domNode.getAttribute('src') && this.domNode.getAttribute('src').indexOf('.pdf')<0){
+                                var cw = this.domNode.contentWindow;
+                                cw.document.body.style.zoom = GET .currentPreviewZoom;
+                            }
+                            """)
         readerpane.dataController('SET .reader_url=fileurl',fileurl='^.th.view.grid.selectedId?fileurl')
         bar = frame.top.slotToolbar('2,vtitle,*,previewZoom,delrowbtn',vtitle=title or '!!Attachments')
         bar.previewZoom.horizontalSlider(value='^.currentPreviewZoom', minimum=0, maximum=1,
@@ -277,7 +285,11 @@ class AttachManager(BaseComponent):
                                 totalrows='^.store?totalrows',
                                 table=th.view.grid.attributes['table'],
                                 maintable_id=maintable_id.replace('^','=') if maintable_id else '=#FORM.pkey')
-        readerpane.dataController("iframe.contentWindow.document.body.style.zoom = currentPreviewZoom;",iframe=iframe.js_domNode,
+        readerpane.dataController("""
+                                    if(iframe.getAttribute('src') && iframe.getAttribute('src').indexOf('.pdf')<0){
+                                        iframe.contentWindow.document.body.style.zoom = currentPreviewZoom;
+                                    }
+                                    """,iframe=iframe.js_domNode,
                         currentPreviewZoom='^.currentPreviewZoom')
 
         return frame

@@ -164,111 +164,6 @@ class BaseProxy(object):
 class BaseWebtool(object):
     """TODO"""
     pass
-
-
-class BaseDashboardItem(object):
-    item_name=''
-    run_onbuilt = 1
-    run_timer = None
-    title_template = '$title'
-    linked_item = None
-
-    def __init__(self, page=None, resource_table=None, **kwargs):
-        self.page = page
-        self.db = page.db
-        self.tblobj = resource_table
-
-    @extract_kwargs(itempar=True)
-    def __call__(self,pane,editMode=None,workpath=None,parameters=None,itempar_kwargs=None,
-                itemspath=None,workspaces=None,itemIdentifier=None,title=None,**kwargs):
-        itemIdentifier = itemIdentifier or 'di_%s' %id(pane)
-        if not workpath:
-            workpath = '%s.%s' %(workspaces or 'gnr.workspace',itemIdentifier)
-        parameters = parameters or Bag()
-        title = title or itempar_kwargs.pop('title',None) or self.item_name
-        storepath = '%s.%s' %(itemspath,itemIdentifier) if itemspath and itemIdentifier else ''
-        bc = pane.borderContainer()
-        top = bc.contentPane(region='top',min_height='20px').div(height='20px',_class='dashboard_item_top',
-                                               onDrag="""
-                                               dragValues['itemIdentifier'] = '%s';
-                                               """ %itemIdentifier,draggable=itemIdentifier is not None)
-        sc = bc.stackContainer(region='center',datapath=storepath,selectedPage='^%s._dashboardPageSelected' %workpath)
-        top.div('^.current_title',text_align='center',datapath=workpath,padding_top='3px',
-                connect_ondblclick="""
-                var store = genro.getData('%s');
-                var dflt = store.getItem('title');
-                genro.dlg.prompt(_T('Change title'),{lbl:_T('Title'),dflt:dflt,action:function(newtitle){store.setItem('title',newtitle);}});
-                """ %storepath)
-        bc.dataFormula('%s.current_title' %workpath,"dataTemplate(tpl,itemaData)",tpl=self.title_template,
-                        itemaData='^%s' %storepath,_onBuilt=True)
-        if editMode:
-            top.lightbutton(_class='close_svg',height='16px',
-                        width='16px',top='1px',position='absolute',
-                        left='4px',cursor='pointer',
-                        action="""var curtitle = this.getRelativeData('%s.current_title');
-                                    var that = this;
-                                    genro.dlg.ask(_T('Closing item ')+curtitle,
-                                            _T('You are going to remove a item '+curtitle),
-                                            {confirm:_T('Confirm'),cancel:_T('Cancel')},
-                                            {confirm:function(){
-                                                genro.dashboards.emptyTile(that);
-                                            }, cancel:function(){}});
-                                    """ %workpath)
-            
-        top.lightbutton(_class='menu_white_svg',height='16px',width='16px',
-                        position='absolute',top='1px',right='4px',cursor='pointer',
-                        action="""
-                        if(event.shiftKey){
-                            console.log('publish',itemIdentifier+'_parameters_open')
-                            genro.publish(itemIdentifier+'_parameters_open');
-                        }else{
-                            if(_dashboardPageSelected=='conf'){
-                                SET ._dashboardPageSelected = 'content';
-                                FIRE .configuration_changed;
-                            }else{
-                                SET ._dashboardPageSelected = 'conf';
-                            } 
-                        }
-                        """ ,datapath=workpath,
-                        itemIdentifier=itemIdentifier,
-                        _dashboardPageSelected='=._dashboardPageSelected')
-        if editMode and self.linked_item:
-            
-            box = top.div(position='absolute',top='1px',right='40px',height='16px',width='20px')
-            box.div(draggable=True,cursor='move',display='inline-block',
-                            workpath=workpath,storepath=storepath,
-                            height='15px',width='15px',**self.linked_item)
-
-
-        kwargs.update(itempar_kwargs)
-        kwargs.update(parameters.asDict(ascii=True))
-        pane = sc.contentPane(pageName='content')
-        workspaces = workspaces or 'dashboards'
-        
-        self.content(pane,workpath=workpath,storepath=storepath,itemIdentifier=itemIdentifier,workspaces=workspaces,**kwargs)
-        bc = sc.borderContainer(pageName='conf')
-        bc.dataController("""FIRE .runItem;""",
-                        _onBuilt=self.run_onbuilt,
-                        datapath=workpath,_timing='=.runTimer')
-        bc.dataController("""if(runRequired){
-            SET .runRequired = false;
-            FIRE .runItem;
-        }""",
-        changedConfig='^.configuration_changed',runRequired='=.runRequired',datapath=workpath)
-        self.configuration(bc.contentPane(region='center',datapath='.conf'),workpath=workpath,storepath=storepath,
-                                        workspaces=workspaces,itemIdentifier=itemIdentifier,**kwargs)
-       #bottom = bc.contentPane(region='bottom',_class='slotbar_dialog_footer')
-       #bottom.button('!!Ok',top='2px',right='2px',action="""sc.switchPage(0);
-       #                                                    FIRE %s.configuration_changed;
-       #                                                """ %(workpath or ''),sc=sc.js_widget)
-        
-
-    def content(self,pane,**kwargs):
-        pass
-
-    def configuration(self,pane,**kwargs):
-        pass
-        
         
 
 class TableScriptToHtml(BagToHtml):
@@ -373,7 +268,43 @@ class TableScriptToHtml(BagToHtml):
         else:
             caption = '%i/%i' % (progress, maximum)
         return caption
-        
+    
+    def gridColumnsFromResource(self,viewResource=None,table=None):
+        table = table or self.rows_table or self.tblobj.fullname
+        view = self.site.virtualPage(table=table,table_resources=viewResource)
+        structbag = view.newGridStruct(maintable=table)
+        view.th_struct(structbag)
+        self.gridColumnsFromStruct(struct=structbag,table=table)
+        return self.grid_columns
+    
+    def gridColumnsFromStruct(self,struct=None,table=None):
+        self.grid_columns = []
+        tblobj = self.db.table(table)
+        cells = struct['view_0.rows_0'].nodes
+        columns = []
+        for n in cells:
+            attr = n.attr
+            field =  attr.get('field')
+            field_getter = attr.get('caption_field') or field
+            sqlcolumn = None
+            if field_getter.startswith('@'):
+                original_field = field_getter
+                field_getter = field_getter.replace('.','_').replace('@','_')
+                sqlcolumn = '%s AS %s' %(original_field,field_getter)
+            else:
+                columnobj = tblobj.column(field_getter)
+                if columnobj is not None:
+                    sqlcolumn = '$%s' %field_getter
+            pars = dict(field=field,name=attr.get('name'),field_getter=field_getter,
+                        mm_width=attr.get('mm_width'),format=attr.get('format'),
+                        style=attr.get('style'),sqlcolumn=sqlcolumn,dtype=attr.get('dtype'))
+            self.grid_columns.append(pars)
+
+    @property
+    def grid_sqlcolumns(self):
+        return ','.join([d['sqlcolumn'] for d in self.grid_columns if d.get('sqlcolumn')])
+
+                
     def getHtmlPath(self, *args, **kwargs):
         """TODO"""
         return self.site.getStaticPath(self.html_folder, *args, **kwargs)

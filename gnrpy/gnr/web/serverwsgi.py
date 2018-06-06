@@ -50,7 +50,8 @@ wsgi_options = dict(
         source_instance=None,
         remote_edit=None,
         remotesshdb=None,
-        gzip=None
+        gzip=None,
+        tornado=None
         )
 
 DNS_SD_PID = None
@@ -297,14 +298,6 @@ class Server(object):
     parser.add_option('-H', '--host',
                       dest='host',
                       help="Sets server listening address (Default: 0.0.0.0)")
-    parser.add_option('--monitor-restart',
-                      dest='monitor_restart',
-                      action='store_true',
-                      help="Auto-restart server if it dies")
-    parser.add_option('--status',
-                      action='store_true',
-                      dest='show_status',
-                      help="Show the status of the (presumably daemonized) server")
     parser.add_option('--restore',
                       dest='restore',
                       help="Restore from path")
@@ -320,30 +313,10 @@ class Server(object):
                       dest='gzip',
                       action='store_true',
                       help="Enable gzip compressions")
-
-
-   #parser.add_option('--remotesshdb',
-   #                  dest='remotesshdb',
-   #                  help="""Allow remote db connections over ssh tunnels.
-   #                  use connection string in the form: ssh_user@ssh_host:ssh_port/db_user:db_password@db_host:db_port
-   #                  if db part in the connection string is omitted the defaults from instanceconfig are used.
-   #                  ssh_port is defaulted to 22 if omitted""")
-
-    if hasattr(os, 'setuid'):
-    # I don't think these are available on Windows
-        parser.add_option('--user',
-                          dest='set_user',
-                          metavar="USERNAME",
-                          help="Set the user (usually only possible when run as root)")
-        parser.add_option('--group',
-                          dest='set_group',
-                          metavar="GROUP",
-                          help="Set the group (usually only possible when run as root)")
-
-    parser.add_option('--stop-daemon',
-                      dest='stop_daemon',
+    parser.add_option('-t','--tornado',
+                      dest='tornado',
                       action='store_true',
-                      help='Stop a daemonized server (given a PID file, or default paster.pid file)')
+                      help="Serve using tornado")
 
     parser.add_option('--verbose',
                       dest='verbose',
@@ -507,96 +480,8 @@ class Server(object):
         return instance_config
 
 
-    def set_user(self):
-        if not hasattr(self.options, 'set_user'):
-        # Windows case:
-            self.options.set_user = self.options.set_group = None
-            # @@: Is this the right stage to set the user at?
-            self.change_user_group(
-                    self.options.set_user, self.options.set_group)
-            if (len(self.args) > 1
-                and self.args[1] in self.possible_subcommands):
-                self.cmd = self.args[1]
-                self.restvars = self.args[2:]
-            else:
-                self.cmd = None
-                self.restvars = self.args[1:]
-        else:
-            if (self.args
-                and self.args[0] in self.possible_subcommands):
-                self.cmd = self.args[0]
-                self.restvars = self.args[1:]
-            else:
-                self.cmd = None
-                self.restvars = self.args[:]
-
-    def set_bonjour(self):
-        start_bonjour(host=self.options.host, port=self.options.port, server_name=self.site_name,
-                      server_description=self.server_description, home_uri=self.siteconfig['wsgi?home_uri'] or '/')
-
-    def setup_tunnel(self,conn_dict=None,first_run=None):
-        db_port = start_tunnel(first_run=first_run,**conn_dict)
-        return dict(port=db_port, host='localhost', user=conn_dict['db_user'], password=conn_dict['db_password'])
-
-
-    def check_cmd(self):
-        if self.cmd not in (None, 'start', 'stop', 'restart', 'status'):
-            raise ServerException(
-                    'Error: must give start|stop|restart (not %s)' % self.cmd)
-
-        if self.cmd == 'status' or self.options.show_status:
-            return self.show_status()
-
-        if self.cmd == 'restart' or self.cmd == 'stop':
-            result = self.stop_daemon()
-            if result:
-                if self.cmd == 'restart':
-                    print "Could not stop daemon; aborting"
-                else:
-                    print "Could not stop daemon"
-                return result
-            if self.cmd == 'stop':
-                return result
-
-    def check_logfile(self):
-        if getattr(self.options, 'daemon', False):
-            if not self.options.log_file:
-                self.options.log_file = 'genro.log'
-        if self.options.log_file:
-            try:
-                writeable_log_file = open(self.options.log_file, 'a')
-            except IOError, ioe:
-                msg = 'Error: Unable to write to log file: %s' % ioe
-                raise ServerException(msg)
-            writeable_log_file.close()
-
-    def check_pidfile(self):
-        if getattr(self.options, 'daemon', False):
-            if not self.options.pid_file:
-                self.options.pid_file = 'genro.pid'
-        if self.options.pid_file:
-            try:
-                writeable_pid_file = open(self.options.pid_file, 'a')
-            except IOError, ioe:
-                msg = 'Error: Unable to write to pid file: %s' % ioe
-                raise ServerException(msg)
-            writeable_pid_file.close()
-
-    def set_pid_and_log(self):
-        if self.options.pid_file:
-            self.record_pid(self.options.pid_file)
-
-        if self.options.log_file:
-            stdout_log = LazyWriter(self.options.log_file, 'a')
-            sys.stdout = stdout_log
-            sys.stderr = stdout_log
-            logging.basicConfig(stream=stdout_log)
-
     def run(self):
-        if self.options.stop_daemon:
-            return self.stop_daemon()
-        self.set_user()
-        if not (
+        if not (self.options.tornado or
         self.options.reload == 'false' or self.options.reload == 'False' or self.options.reload == False or self.options.reload == None):
             if os.environ.get(self._reloader_environ_key):
                 if self.isVerbose(1):
@@ -614,29 +499,7 @@ class Server(object):
             else:
                 return self.restart_with_reloader()
         first_run = int(getattr(self.options, 'counter', 0) or 0) == 0
-        if self.options.bonjour and first_run:
-            pass
-            #self.set_bonjour()
-       #if True or first_run:
-       #    self.handle_tunnel(first_run=first_run)
-        if self.cmd:
-            return self.check_cmd()
-        self.check_logfile()
-        self.check_pidfile()
-        if getattr(self.options, 'daemon', False):
-            try:
-                self.daemonize()
-            except DaemonizeException, ex:
-                if self.isVerbose():
-                    print str(ex)
-                return
-
-        if (self.options.monitor_restart
-            and not os.environ.get(self._monitor_environ_key)):
-            return self.restart_with_monitor()
-
-        self.set_pid_and_log()
-
+        
         if self.isVerbose():
             if hasattr(os, 'getpid'):
                 msg = 'Starting server in PID %i.' % os.getpid()
@@ -660,30 +523,38 @@ class Server(object):
 #
 
     def serve(self):
-        try:
-            site_name='%s:%s' %(self.site_name,self.remote_db) if self.remote_db else self.site_name
-            gnrServer = GnrWsgiSite(self.site_script, site_name=site_name, _config=self.siteconfig,
-                                    _gnrconfig=self.gnr_config,
-                                    counter=getattr(self.options, 'counter', None), noclean=self.options.noclean,
-                                    options=self.options)
-            with gnrServer.register.globalStore() as gs:
-                gs.setItem('RESTART_TS',datetime.now())
-            GnrReloaderMonitor.add_reloader_callback(gnrServer.on_reloader_restart)
-            atexit.register(gnrServer.on_site_stop)
-            if HAS_WAITRESS:
-                server = create_server(gnrServer, host=self.options.host, port=self.options.port)
-                print '[Waitress] serving on %s:%s'%(self.options.host,str(self.options.port))
-                server.run()
-            else:
-                httpserver.serve(gnrServer, host=self.options.host, port=self.options.port)
-        except (SystemExit, KeyboardInterrupt), e:
-            if self.isVerbose(1):
-                raise
-            if str(e):
-                msg = ' ' + str(e)
-            else:
-                msg = ''
-            print 'Exiting%s (-v to see traceback)' % msg
+        site_name='%s:%s' %(self.site_name,self.remote_db) if self.remote_db else self.site_name
+        site_options= dict(_config=self.siteconfig,_gnrconfig=self.gnr_config,
+            counter=getattr(self.options, 'counter', None), 
+            noclean=self.options.noclean, options=self.options)
+        if self.options.tornado:
+            from gnr.web.gnrasync import GnrAsyncServer
+            host = '127.0.0.1' if self.options.host == '0.0.0.0' else self.options.host
+            print '[Tornado] serving on http://%s:%s'%(host,str(self.options.port))
+            server=GnrAsyncServer(port=self.options.port,instance=site_name,
+                web=True, autoreload=self.options.reload, site_options=site_options)
+            server.start()
+        else:
+            try:
+                gnrServer = GnrWsgiSite(self.site_script, site_name=site_name, **site_options)
+                with gnrServer.register.globalStore() as gs:
+                    gs.setItem('RESTART_TS',datetime.now())
+                GnrReloaderMonitor.add_reloader_callback(gnrServer.on_reloader_restart)
+                atexit.register(gnrServer.on_site_stop)
+                if HAS_WAITRESS:
+                    server = create_server(gnrServer, host=self.options.host, port=self.options.port)
+                    print '[Waitress] serving on %s:%s'%(self.options.host,str(self.options.port))
+                    server.run()
+                else:
+                    httpserver.serve(gnrServer, host=self.options.host, port=self.options.port)
+            except (SystemExit, KeyboardInterrupt), e:
+                if self.isVerbose(1):
+                    raise
+                if str(e):
+                    msg = ' ' + str(e)
+                else:
+                    msg = ''
+                print 'Exiting%s (-v to see traceback)' % msg
 
 
     def daemonize(self):

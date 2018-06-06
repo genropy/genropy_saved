@@ -22,12 +22,14 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method,extract_kwargs
+from gnr.core.gnrlang import gnrImport
 from gnr.core.gnrbag import Bag
+import os
 
 
 class DashboardItem(BaseComponent):
-    css_requires='gnrcomponents/dashboard_component/dashboard_component'
-    js_requires='gnrcomponents/dashboard_component/dashboard_component,chroma.min.js'
+    css_requires='dashboard_component/dashboard_component'
+    js_requires='dashboard_component/dashboard_component,chroma.min.js'
 
     @struct_method
     def di_dashboardItem(self,parent,table=None,itemName=None,**kwargs):
@@ -37,12 +39,24 @@ class DashboardItem(BaseComponent):
     def di_buildRemoteItem(self,pane=None,table=None,itemName=None,itemRecord=None,**kwargs):
         table = table or itemRecord['table']
         resource = itemName or itemRecord['resource']
-        itemClass = self.loadTableScript(table=table,respath='dashboard/%s' %resource)
+        if table:
+            itemInstance = self.loadTableScript(table=table,respath='dashboard/%s' %resource)
+        else:
+            resources = self.site.resource_loader.resourcesAtPath(page=self,path=os.path.join('dashboard_items'))
+            resNode = resources.getNode(resource)
+            if not resNode:
+                resNode = resources.getItem('_common').getNode(resource)
+            if not resNode:
+                raise self.exceptions('missing_resource')
+
+            resource_module = gnrImport(resNode.attr['abs_path'], avoidDup=True)
+            itemClass = getattr(resource_module, 'Main', None)
+            itemInstance = itemClass(page=self)
         itemRecord = itemRecord or Bag()
-        itemClass(pane.contentPane(childname='remoteItem'),title=itemRecord['title'],parameters=itemRecord['parameters'],itemRecord=itemRecord,**kwargs)
+        itemInstance(pane.contentPane(childname='remoteItem'),title=itemRecord['title'],parameters=itemRecord['parameters'],itemRecord=itemRecord,**kwargs)
 
 class DashboardGallery(BaseComponent):
-    py_requires='gnrcomponents/dashboard_component/dashboard_component:DashboardItem'
+    py_requires='dashboard_component/dashboard_component:DashboardItem'
 
     @struct_method
     def di_dashboardGallery(self,parent,pkg=None,code=None,datapath=None,**kwargs):
@@ -137,16 +151,21 @@ class DashboardGallery(BaseComponent):
     @public_method
     def dashboardItemsMenu(self,**kwargs):
         result = Bag()
+        objtypes = ['dash_groupby','dash_tableviewer','dash_pandas']
         for pkgId,pkgObj in self.packages.items():
             for tblid,tblobj in pkgObj.tables.items():
+                userobjects = self.db.table('adm.userobject').userObjectMenu(objtype=objtypes,table=tblobj.fullname)
                 data = self.utils.tableScriptResourceMenu(table=tblobj.fullname,res_type='dashboard',
                                                             module_parameters=['item_parameters'])
-                if data:
+                if userobjects or data:
+                    b = Bag()
+                    b.update(data)
+                    b.update(userobjects)
                     packagebag = result[pkgId] 
                     if not packagebag:
                         packagebag = Bag()
                         result.setItem(pkgId,packagebag,label=pkgId)
-                    packagebag.setItem(tblid,data,label=tblid)
+                    packagebag.setItem(tblid,b,label=tblid)
         #result.rowchild(label='!!Paperino',action="genro.bp(true)")
         #result.rowchild(label='!!Pippo',action="genro.bp(true)")
         return result

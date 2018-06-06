@@ -5032,7 +5032,6 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         if(kw.closable){
             var pane = sourceNode.getParentNode();
             var bc = pane.widget.parentBorderContainer;
-            console.log('slotbar addClosableHandle');
             bc.gnr.addClosableHandle(bc,pane,kw)
         }
         var slots = objectPop(kw,'slots');

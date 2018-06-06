@@ -21,7 +21,7 @@ class View(BaseComponent):
 
 
 class Form(BaseComponent):
-    py_requires="gnrcomponents/dashboard_component/dashboard_component:DashboardGallery"
+    py_requires="dashboard_component/dashboard_component:DashboardGallery"
     def th_form(self, form):
         bc = form.center.borderContainer()
         fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=2, border_spacing='4px')
