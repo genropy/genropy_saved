@@ -2578,6 +2578,10 @@ class BagResolver(object):
     def _htraverse(self, *args, **kwargs):
         return self()._htraverse(*args, **kwargs)
         
+    def getNode(self,k):
+        """same method of the dict :meth:`items()`"""
+        return self().getNode(k)
+
     def keys(self):
         """same method of the dict :meth:`keys()`"""
         return self().keys()
