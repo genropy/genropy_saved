@@ -167,15 +167,19 @@ dojo.declare("gnr.QueryManager", null, {
     queryEditor:function(queryEditor){
         var that = this;
         var currentQuery = this.sourceNode.getRelativeData('.query.currentQuery');
+        var palette = genro.wdgById(this.th_root+'_queryEditor_floating');
         if(!queryEditor){
             if(currentQuery=='__basequery__' || currentQuery=='__newquery__'){
                 this.sourceNode.setRelativeData('.query.queryAttributes.extended',false);
             }
-            var palette = genro.wdgById(this.th_root+'_queryEditor_floating');
             if(palette){
-                palette.close();
+                palette.hide();
             }
             return;
+        }
+        if(palette){
+            palette.show();
+            return
         }
         var datapath = this.sourceNode.absDatapath();
         genro.src.getNode()._('div', '_advancedquery_');
@@ -213,11 +217,41 @@ dojo.declare("gnr.QueryManager", null, {
         if(currentQuery=='__querybysample__'){
             this.onChangedQuery('__newquery__');
         }
+        this.joinConditions(frame._('contentPane',{title:_T('Join conditions'),margin:'2px'}));
+
         this.queryExtra(frame._('borderContainer',{title:_T('Query Extra')}));
 
         node.unfreeze();
         this.buildQueryPane();
         this.checkFavorite();
+    },
+    joinConditions:function(pane){
+        var g = pane._('quickGrid',{value:'^.joinConditions',
+                                        addCheckBoxColumn:{field:'one_one',position:'>',name:'One'}
+                                    });
+        var t = g._('tools',{tools:'delrow,addrow',title:_T('Join conditions')});
+
+        g._('column',{field:'relation',edit:true,width:'20em',name:'Relation'});
+        
+        var condition_cell = {field:'condition',width:'100%',name:'Condition'};
+        condition_cell._customGetter = function(row){
+                        return row.condition?row.condition.getFormattedValue():'-';
+                    };
+        condition_cell.edit = {modal:true,mode:'dialog'};
+        var that = this;
+        condition_cell.edit.contentCb = function(pane,kw){
+            var sn = pane.getParentNode();
+            var condbag = sn.getRelativeData();
+            if(!condbag){
+                condbag = new gnr.GnrBag();
+                condbag.setItem('c_0', null, 
+                                {op:null,column:null,
+                                 op_caption:null,
+                                 column_caption:null});
+            }
+            that._buildQueryGroup(pane._('div','root',{height:'300px',width:'600px',overflow:'auto'}),condbag, 0);
+        };
+        g._('column',condition_cell);
     },
 
     queryExtra:function(bc){
@@ -312,6 +346,8 @@ dojo.declare("gnr.QueryManager", null, {
         var currViewPath = this.sourceNode.getRelativeData('.grid.currViewPath');
         var queryLimit = this.sourceNode.getRelativeData('.query.limit');
         var extraPars = this.sourceNode.getRelativeData('.query.extraPars');
+        var joinConditions = this.sourceNode.getRelativeData('.query.joinConditions');
+
         var queryPars = this.queryParsBag();
         var data = new gnr.GnrBag();
         if(queryPars.len()){
@@ -321,6 +357,9 @@ dojo.declare("gnr.QueryManager", null, {
         data.setItem('where',where.deepCopy());
         if(customOrderBy){
             data.setItem('customOrderBy',customOrderBy.deepCopy());
+        }
+        if(joinConditions){
+            data.setItem('joinConditions',joinConditions);
         }
         data.setItem('queryLimit',queryLimit);
         data.setItem('currViewPath',currViewPath);
@@ -348,9 +387,11 @@ dojo.declare("gnr.QueryManager", null, {
             var customOrderBy;
             var currViewPath;
             var customLimit;
+            var joinConditions;
             if(data.getItem('where')){
                 where = data.pop('where');
                 customOrderBy = data.pop('customOrderBy');
+                joinConditions = data.pop('joinConditions');
                 customView = data.pop('customView');
                 currViewPath = data.pop('currViewPath');
                 customLimit = data.pop('queryLimit');
@@ -363,6 +404,7 @@ dojo.declare("gnr.QueryManager", null, {
             }
             sourceNode.setRelativeData('.query.where',where);
             sourceNode.setRelativeData('.query.customOrderBy',customOrderBy);
+            sourceNode.setRelativeData('.query.joinConditions',joinConditions);
             sourceNode.setRelativeData('.query.limit',customLimit);
             if(currViewPath && currViewPath!='__baseview__'){
                 sourceNode.setRelativeData('.grid.currViewPath',currViewPath);

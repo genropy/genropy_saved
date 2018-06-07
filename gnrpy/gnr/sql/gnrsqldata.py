@@ -366,7 +366,7 @@ class SqlQueryCompiler(object):
         joinExtra = self.joinConditions.get(relation or '%s_%s' % (target_fld.replace('.', '_'), from_fld.replace('.', '_')))
         if joinExtra:
             extracnd = joinExtra['condition'].replace('$tbl', alias)
-            params = joinExtra.get('params')
+            params = joinExtra.get('params') or dict()
             self.sqlparams.update(params)
             #raise str(self.sqlparams)
             one_one = joinExtra.get('one_one')
