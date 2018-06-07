@@ -818,7 +818,7 @@ class GnrWhereTranslator(object):
 
     def op_startswithchars(self, column, value, dtype, sqlArgs,tblobj):
         "!!Starts with Chars"
-        return self.unaccentTpl(tblobj,column,'LIKE')  % (column, self.storeArgs('%s%%' % value, dtype, sqlArgs))
+        return self.unaccentTpl(tblobj,column,'LIKE',mask=":%s||'%%%%'")  % (column, self.storeArgs(value, dtype, sqlArgs))
 
     def op_equal(self, column, value, dtype, sqlArgs,tblobj):
         "!!Equal to"
@@ -826,16 +826,16 @@ class GnrWhereTranslator(object):
 
     def op_startswith(self, column, value, dtype, sqlArgs,tblobj):
         "!!Starts with"
-        return self.unaccentTpl(tblobj,column,'ILIKE')  % (column, self.storeArgs('%s%%' % value, dtype, sqlArgs))
+        return self.unaccentTpl(tblobj,column,'ILIKE',mask=":%s|| '%%%%'")  % (column, self.storeArgs(value, dtype, sqlArgs))
 
     def op_wordstart(self, column, value, dtype, sqlArgs,tblobj):
         "!!Word start"
         value = value.replace('(', '\(').replace(')', '\)').replace('[', '\[').replace(']', '\]')
-        return self.unaccentTpl(tblobj,column,'~*')  % (column, self.storeArgs('(^|\\W)%s' % value, dtype, sqlArgs))
+        return self.unaccentTpl(tblobj,column,'~*',mask="'(^|\\W)'||:%s")  % (column, self.storeArgs(value, dtype, sqlArgs))
 
     def op_contains(self, column, value, dtype, sqlArgs,tblobj):
         "!!Contains"
-        return self.unaccentTpl(tblobj,column,'ILIKE') % (column, self.storeArgs('%%%s%%' % value, dtype, sqlArgs))
+        return self.unaccentTpl(tblobj,column,'ILIKE',mask="'%%%%' || :%s || '%%%%'")  % (column, self.storeArgs(value, dtype, sqlArgs))
 
     def op_greater(self, column, value, dtype, sqlArgs,tblobj):
         "!!Greater than"
@@ -895,8 +895,15 @@ class GnrWhereTranslator(object):
    #    whereList = re.compile(pattern).split(whereTxt)
    #    condList = [cond for cond in whereList if cond not in ('AND', 'OR')]
 
-    def unaccentTpl(self,tblobj,column,token):
-        return ' '.join(['%s',token,':%s'])
+    def unaccentTpl(self,tblobj,column,token,mask=None):
+        if not mask:
+            mask = ':%s'
+        if tblobj.column(column) is not None and tblobj.column(column).attributes.get('unaccent'):
+            return  ' '.join([self.unaccent('%s'),token,self.unaccent(mask)])
+        return ' '.join(['%s',token,mask])
+
+    def unaccent(self,v):
+        return v
 
     def whereFromDict(self, table, whereDict, customColumns=None):
         result = []

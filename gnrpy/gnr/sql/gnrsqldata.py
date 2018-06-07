@@ -332,6 +332,7 @@ class SqlQueryCompiler(object):
             from_fld, target_fld = self._tablesFromRelation(joiner)
             extracnd, one_one = self.getJoinCondition(target_fld, from_fld, alias,relation=relNode.label)
             if extracnd:
+                extracnd = self.embedFieldPars(extracnd)
                 extracnd = self.updateFieldDict(extracnd)
                 cnd = '(%s AND %s)' % (cnd, extracnd)
                 if one_one:
@@ -437,6 +438,13 @@ class SqlQueryCompiler(object):
         else:
             return ['$%s' % k for k, dtype in self.relations.digest('#k,#a.dtype') if
                     k.startswith(flt) and not k.startswith('@') and (dtype != 'X' or bagFields)]
+    
+    def embedFieldPars(self,sql):
+        for k,v in self.sqlparams.items():
+            if isinstance(v,basestring):
+                if v.startswith('@') or v.startswith('$'):
+                    sql = re.sub(':%s(\W|$)' % k, v, sql)
+        return sql
                     
     def compiledQuery(self, columns='', where='', order_by='',
                       distinct='', limit='', offset='',
@@ -522,6 +530,7 @@ class SqlQueryCompiler(object):
         wherelist.append(self.tblobj.dbtable.getPartitionCondition(ignorePartition=ignorePartition))
         where = ' AND '.join([w for w in wherelist if w])
         columns = self.updateFieldDict(columns)
+        where = self.embedFieldPars(where)
         where = self.updateFieldDict(where or '')
         order_by = self.updateFieldDict(order_by or '')
         group_by = self.updateFieldDict(group_by or '')
