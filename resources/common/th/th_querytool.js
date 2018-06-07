@@ -588,8 +588,13 @@ dojo.declare("gnr.QueryManager", null, {
                 id:'_op_' + node.getStringId(),_fired:'^' + relpath + '?column_dtype',_qb:this});
             var valtd = tr._('td')._('div', {_class:'qb_value'});
 
-            var input_attrs = {value:'^' + relpath + '?value_caption', width:'10em',relpath:relpath,
+            var input_attrs = {value:'^' + relpath + '?value_caption', width:'12em',relpath:relpath,
                 _autoselect:true,_class:'st_conditionValue',validate_onAccept:curr_th+'.querymanager.checkQueryLineValue(this,value);'};
+            input_attrs.dropTarget = true;
+            input_attrs['onDrop_gnrdbfld_'+this.maintable.replace('.','_')] = function(dropInfo,data){
+                this.widget.setValue(data.fieldpath.startsWith('@')?data.fieldpath:'$'+data.fieldpath,true);
+            };
+
             input_attrs.position = 'relative';
             that = this;
             input_attrs.connect_onclick = function(){
