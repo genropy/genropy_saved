@@ -179,17 +179,17 @@ dojo.declare("gnr.QueryManager", null, {
         }
         if(palette){
             palette.show();
-            return
+            return;
         }
         var datapath = this.sourceNode.absDatapath();
         genro.src.getNode()._('div', '_advancedquery_');
         var node = genro.src.getNode('_advancedquery_').clearValue();
         node.freeze();
         var pane = node._('palettePane',{paletteCode:this.th_root+'_queryEditor',
-                                        'title':'Query Tool',dockTo:false,
+                                        'title':'Query Tool',dockTo:'dummyDock:open',
                                         datapath:datapath+'.query',
                                         height:'300px',width:'450px',
-                                        palette_connect_close:function(){
+                                        selfsubscribe_hiding:function(){
                                             if(that.sourceNode.getRelativeData('.query.queryEditor')){
                                                 that.sourceNode.setRelativeData('.query.queryEditor',false);
                                             }
