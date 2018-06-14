@@ -80,7 +80,11 @@ class ServiceHandlerManager(object):
     def get(self, service_name):
         service = self.services[service_name]
         if service is None:
-            service_handler_factory = self.importServiceClass(service_type=service_name,resource=service_name)
+            if ':' in service_name:
+                service_name, resource = service_name.split(':')
+            else:
+                resource = service_name
+            service_handler_factory = self.importServiceClass(service_type=service_name,resource=resource)
             if service_handler_factory:
                 service = self.add(service_handler_factory,service_name=service_name)
         return service
