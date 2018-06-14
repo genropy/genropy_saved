@@ -845,6 +845,7 @@ class TableHandlerView(BaseComponent):
                                _sections='=.sections',
                                limit='=.query.limit',
                                queryExtraPars='=.query.extraPars',
+                               joinConditions='=.query.joinConditions',
                                hardQueryLimit='=.hardQueryLimit',
                               # sum_columns='=.sum_columns',
                                _onStart=_onStart,

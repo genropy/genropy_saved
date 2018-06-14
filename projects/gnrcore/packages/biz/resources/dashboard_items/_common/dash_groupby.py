@@ -45,10 +45,12 @@ class Main(BaseDashboardItem):
         center = bc.contentPane(region='center',_class='hideInnerToolbars')
         frameCode = self.itemIdentifier
         data,metadata = self.page.db.table('adm.userobject').loadUserObject(id=userobject_id)
+
         frame = center.groupByTableHandler(table=table,frameCode=frameCode,
                                     configurable=False,
                                     struct=data['groupByStruct'],
                                     where='=.query.where',
+                                    joinConditions='=.query.joinConditions',
                                     store__fired='^.runStore',
                                     datapath=self.workpath)
 
@@ -76,6 +78,7 @@ class Main(BaseDashboardItem):
         frame.data('.always',True)
         frame.data('.query.where',data['where'])
         frame.data('.query.queryPars',data['queryPars'])
+        frame.data('.query.joinConditions',data['joinConditions'])
 
         center.dataController("""
             viewMode = viewMode || defaultGroupMode+'_'+defaultOutput;

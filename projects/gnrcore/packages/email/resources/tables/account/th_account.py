@@ -20,7 +20,7 @@ class View(BaseComponent):
         r.fieldcell('username',width='80em')
         r.fieldcell('password',width='80em')
         r.fieldcell('last_uid',width='7em')
-        return struct
+        r.fieldcell('schedulable',width='7em')
 
     def th_order(self):
         return 'account_name'
@@ -58,6 +58,7 @@ class Form(BaseComponent):
         fb.field('username')
         fb.field('password')
         fb.field('last_uid')
+        fb.field('schedulable')
         fb.button('check email', action='PUBLISH check_email')
         fb.dataRpc('dummy', self.db.table('email.message').receive_imap, subscribe_check_email=True, account='=.id')
         #self.account_messages(bottom)

@@ -288,7 +288,8 @@ genro_plugin_groupth = {
             groupByStruct:'.grid.struct',
             groupMode:'.groupMode',
             output:'.output',
-            queryPars:'.queryPars'
+            queryPars:'.queryPars',
+            joinConditions:th.querymanager.sourceNode.absDatapath('.query.joinConditions')
         };
         kw.objtype = 'dash_groupby';
         kw.metadataPath = '.dashboardMeta';

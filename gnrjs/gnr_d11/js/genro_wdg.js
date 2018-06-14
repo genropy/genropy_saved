@@ -1425,7 +1425,9 @@ dojo.declare("gnr.GridEditor", null, {
             }
             if(attr.mode=='dialog'){
                 var that = this;
+                var currdata = rowDataNode.getValue().getItem(attr.field);
                 genro.dlg.prompt(attr.original_name || attr.field,{widget:attr.contentCb || attr.fields,
+                                                                  dflt:currdata?currdata.deepCopy():null,
                                                                    mandatory:attr.validate_notnull,
                                                                    action:function(result){
                                                                         if(attr.rowTemplate){

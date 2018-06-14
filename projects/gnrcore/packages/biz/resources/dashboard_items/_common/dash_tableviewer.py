@@ -75,16 +75,7 @@ class Main(BaseDashboardItem):
 
     def _selectionViewer(self,pane,table=None,userobject_id=None,fired=None,**kwargs):
         userobject_tbl = self.page.db.table('adm.userobject')
-        where = None
-        customOrderBy = None
-        queryPars = None
-        extraPars = None
-        limit = None
-        struct = None
         tblobj = self.page.db.table(table)
-        viewName = None
-        metadata = Bag()
-
         data,metadata = userobject_tbl.loadUserObject( id=userobject_id,
                                             objtype='query',
                                             tbl=table)
@@ -94,21 +85,23 @@ class Main(BaseDashboardItem):
         limit = data['limit']
         viewName = data['currViewPath']
         customOrderBy = data['customOrderBy']
+        joinConditions = data['joinConditions']
         queryPars = data.pop('queryPars')
         extraPars = data.pop('extraPars')
         where = data['where']
         struct = data['struct']
-
         frame = pane.frameGrid(struct=struct,_newGrid=True,**kwargs)
         frame.data('.query.limit',limit)
         frame.data('.query.where',where)
         frame.data('.query.extraPars',extraPars)
         frame.data('.query.queryPars',queryPars)
         frame.data('.query.customOrderBy',customOrderBy)
+        frame.data('.query.joinConditions',joinConditions)
         frame.top.slotBar('*,vtitle,*',vtitle=metadata['description'])
         frame.queryPars = queryPars
         frame.grid.selectionStore(table=table,childname='store',where='=.query.where',
                                 customOrderBy='=.query.customOrderBy',
+                                joinConditions='=.query.joinConditions',
                                 limit='=.query.limit',
                                 _fired='^.run')
         return frame
