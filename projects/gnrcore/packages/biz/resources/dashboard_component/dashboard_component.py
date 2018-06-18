@@ -42,15 +42,7 @@ class DashboardItem(BaseComponent):
         if table:
             itemInstance = self.loadTableScript(table=table,respath='dashboard/%s' %resource)
         else:
-            resources = self.site.resource_loader.resourcesAtPath(page=self,path=os.path.join('dashboard_items'))
-            resNode = resources.getNode(resource)
-            if not resNode:
-                resNode = resources.getItem('_common').getNode(resource)
-            if not resNode:
-                raise self.exception('missing_resource')
-            resource_module = gnrImport(resNode.attr['abs_path'], avoidDup=True)
-            itemClass = getattr(resource_module, 'Main', None)
-            itemInstance = itemClass(page=self)
+            itemInstance = self.loadTableScript(table='biz.dashboard',respath='standard_items/%s' %resource)
         if  itemInstance.py_requires:
             for req in itemInstance.py_requires.split(','):
                 self.mixinComponent(req)
@@ -64,7 +56,7 @@ class DashboardGallery(BaseComponent):
     def di_dashboardGallery(self,parent,pkg=None,code=None,datapath=None,**kwargs):
         datapath =datapath or 'dashboard_%s_%s' %(pkg,code)
         bc = parent.borderContainer(_anchor=True,datapath=datapath,**kwargs)
-        bc.dataRecord('.dashboard_record','adm.dashboard',pkgid=pkg,code=code,_onBuilt=True)
+        bc.dataRecord('.dashboard_record','biz.dashboard',pkgid=pkg,code=code,_onBuilt=True)
         bc.dashboardViewer(storepath='.dashboard_record.data',region='center')
 
     @struct_method
