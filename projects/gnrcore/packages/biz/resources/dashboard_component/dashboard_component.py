@@ -33,7 +33,7 @@ class DashboardItem(BaseComponent):
 
     @struct_method
     def di_dashboardItem(self,parent,table=None,itemName=None,**kwargs):
-        parent.remote(self.di_buildRemoteItem,table=table,itemName=itemName,**kwargs)
+        parent.remote(self.di_buildRemoteItem,table=table,itemName=itemName,_waitingMessage=True,**kwargs)
     
     @public_method
     def di_buildRemoteItem(self,pane=None,table=None,itemName=None,itemRecord=None,**kwargs):
@@ -47,11 +47,13 @@ class DashboardItem(BaseComponent):
             if not resNode:
                 resNode = resources.getItem('_common').getNode(resource)
             if not resNode:
-                raise self.exceptions('missing_resource')
-
+                raise self.exception('missing_resource')
             resource_module = gnrImport(resNode.attr['abs_path'], avoidDup=True)
             itemClass = getattr(resource_module, 'Main', None)
             itemInstance = itemClass(page=self)
+        if  itemInstance.py_requires:
+            for req in itemInstance.py_requires.split(','):
+                self.mixinComponent(req)
         itemRecord = itemRecord or Bag()
         itemInstance(pane.contentPane(childname='remoteItem'),title=itemRecord['title'],parameters=itemRecord['parameters'],itemRecord=itemRecord,**kwargs)
 

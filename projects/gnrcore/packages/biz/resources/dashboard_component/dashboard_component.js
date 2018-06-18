@@ -312,7 +312,7 @@ genro_plugin_dashboards = {
             itemPars.setItem('userobject_id',kw.data.pkey);
             itemPars.setItem('table',kw.data.tbl);
         }else{
-            itemRecord.setItem('table',kw.data.tbl);
+            itemRecord.setItem('table',kw.data.table);
             itemRecord.setItem('resource',kw.data.resource);
         }
         var title = itemPars.getItem('title') || itemPars.pop('_item_title');

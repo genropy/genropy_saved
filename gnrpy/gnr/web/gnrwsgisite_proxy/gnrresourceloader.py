@@ -526,6 +526,7 @@ class ResourceLoader(object):
             basePath = modPathList.pop(0)
             resource_module = gnrImport(basePath, avoidDup=True)
             resource_class = getattr(resource_module, class_name, None)
+            resource_class._gnrPublicName = '_tblscript.%s.%s.%s.%s' %(pkgname,tablename,respath,class_name)
             for modPath in modPathList:
                 resource_module = gnrImport(modPath, avoidDup=True)
                 resource_class =cloneClass('CustomResource', resource_class)

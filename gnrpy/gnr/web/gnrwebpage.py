@@ -951,6 +951,9 @@ class GnrWebPage(GnrBaseWebPage):
             sep='.'
             table_name,sep,submethod = submethod.rpartition(sep)
             proxy_object = self.db.table(table_name)
+        elif proxy_name == '_tblscript':
+            table_pkg,table_name,table_respath,class_name,submethod = submethod.split('.')
+            proxy_object = self.loadTableScript(table='.'.join((table_pkg,table_name)),respath=table_respath,class_name=class_name)
         else:
             proxy_object = getattr(self, proxy_name, None)
         if not proxy_object:

@@ -35,6 +35,9 @@ class BaseDashboardItem(object):
     run_timer = None
     title_template = '$title'
     linked_item = None
+    py_requires = None
+    css_requires = None
+    js_requires = None
 
     def __init__(self, page=None, resource_table=None, **kwargs):
         self.page = page
@@ -51,6 +54,7 @@ class BaseDashboardItem(object):
             workpath = '%s.%s' %(workspaces,self.itemIdentifier)
         self.editMode = editMode
         self.workpath = workpath
+        self.itemRunner = '^%s.runItem' %self.workpath
         self.parameters = parameters or Bag()
         self.itemspath = itemspath
         self.title = title or itempar_kwargs.pop('title',None) or self.item_name
@@ -60,7 +64,7 @@ class BaseDashboardItem(object):
         sc = bc.stackContainer(region='center',datapath=self.storepath,selectedPage='^%s._dashboardPageSelected' %workpath)
         self.item_centerstack = sc
         kwargs.update(itempar_kwargs)
-        kwargs.update(parameters.asDict(ascii=True))
+        kwargs.update(self.parameters.asDict(ascii=True))
         pane = sc.contentPane(pageName='content',childname='content')
         self.content(pane,**kwargs)
         bc = sc.borderContainer(pageName='conf')
@@ -129,11 +133,12 @@ class BaseDashboardItem(object):
                             height='15px',width='15px',**self.linked_item)
 
 
-
     def content(self,pane,**kwargs):
         pass
 
     def configuration(self,pane,**kwargs):
         pass
         
+    def __getattr__(self, fname): 
+        return getattr(self,fname) if fname in self.__dict__ else getattr(self.page,fname)
         
