@@ -5487,7 +5487,7 @@ dojo.declare("gnr.stores._Collection",null,{
 
     clear:function(){
         this.storeNode.setRelativeData(this.storepath,
-                                        new gnr.GnrBagNode(null, '', new gnr.GnrBag(), {}),
+                                        new gnr.GnrBagNode(null, '', new gnr.GnrBag(), {servertime:0}),
                                         null,null,'loadData');
     },
 
