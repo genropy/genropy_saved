@@ -1690,6 +1690,18 @@ dojo.declare("gnr.GnrBag", null, {
         this.setItem(path, value, attributes, {'doTrigger':reason == null ? true : reason,fired:true});
         this.setItem(path, null, attributes, {'doTrigger':false});
     },
+
+    rowchild:function(tag,kw){
+        var label;
+        if(tag.startsWith('#')){
+            label = kw[tag.slice(1)];
+        }else{
+            label = tag+'_'+genro.time36Id();
+        }
+        genro.assert(label,'Missing label in this node');
+        this.setItem(label,null,kw);
+    },
+
     setItem: function(path, value, _attributes, kwargs) {
         if (!kwargs) {
             var kwargs = {};
