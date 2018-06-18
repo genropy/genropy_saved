@@ -1328,9 +1328,14 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     time36Id:function(){
-        return new Date().getTime().toString(36);
+        var t = new Date().getTime();
+        if(this.last_time36Id!=t){
+            this.last_time36Id = t;
+            this.last_time36Id_cnt = 0;
+        }
+        this.last_time36Id_cnt +=1;
+        return ((this.last_time36Id*1000)+this.last_time36Id_cnt).toString(36);
     },
-
     
     bagToTable:function(kwargs/*path,columns,key*/) {
         /*

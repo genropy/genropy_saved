@@ -1379,7 +1379,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         hasProtectionColumns = tblobj.hasProtectionColumns()
 
         if captioncolumns or hasProtectionColumns:
-            columns_to_add = (captioncolumns or [])+(['__protected_reasons','__is_protected_row'] if hasProtectionColumns else [])
+            columns_to_add = (captioncolumns or [])+(['__protecting_reasons','__is_protected_row'] if hasProtectionColumns else [])
             columns_to_add = [c.replace('$','') for c in columns_to_add]
             virtual_columns = virtual_columns.split(',') if virtual_columns else []
             vlist = tblobj.model.virtual_columns.items()
