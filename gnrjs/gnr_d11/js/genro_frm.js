@@ -378,6 +378,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(this._register[sourceNode._id]){
             delete this._register[sourceNode._id];
         }
+        if(sourceNode.widget && sourceNode.widget.gridEditor){
+            objectPop(this.gridEditors,sourceNode.attr.nodeId);
+        }
     },
     
     getSemaphoreStatus:function(){

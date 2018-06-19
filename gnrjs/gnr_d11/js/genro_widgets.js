@@ -1885,12 +1885,12 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
         }
         var _class = 'slotbarOpener'+' slotbarOpener_'+orientation+' slotbarOpener_'+side;
         var label = objectPop(closablePars,'label');
-        var opener = pane._('div',objectUpdate({_class:_class,connect_onclick:togglecb},closablePars));
+        var opener = pane._('div',objectUpdate({_class:_class,connect_onclick:togglecb},closablePars),{doTrigger:false});
         if(label){
-            opener._('div',{'innerHTML':label,_class:'slotbarOpener_label_'+orientation});
+            opener._('div',{'innerHTML':label,_class:'slotbarOpener_label_'+orientation},{doTrigger:false});
         }
         if(iconClass){
-            opener._('div',{_class:iconClass});
+            opener._('div',{_class:iconClass},{doTrigger:false});
         }
     },
 
