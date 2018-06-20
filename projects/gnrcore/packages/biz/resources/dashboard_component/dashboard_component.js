@@ -51,6 +51,26 @@ genro_plugin_dashboards = {
     dupPage:function(){
 
     },
+    channelsPane:function(parent){
+        var src = parent.getValue();
+        src.popNode('root');
+        var currentChannels = this.root.getRelativeData(this.channelspath);
+        var root = src._('div','root',{datapath:this.channelsdata,margin_top:'4px'});
+        var fb = genro.dev.formbuilder(root._('div',{margin:'8px'}),1,{border_spacing:'4px'});
+        var kw,defaultWdg;
+        currentChannels.forEach(function(n){
+            kw = n.getValue().asDict();
+            defaultWdg = 'textbox';
+            if(kw.dbtable){
+                defaultWdg = 'dbselect';
+            }else if(kw.dtype=='N' || kw.dtype=='L'){
+                defaultWdg = 'numberTextBox';
+            }else if(kw.dtype=='D'){
+                defaultWdg = 'dateTextBox';
+            }
+            fb.addField(objectPop(kw,'wdg') || defaultWdg,{value:'^.'+kw.topic,lbl:kw.topic});
+        });
+    },
     configurationPane:function(parent){
         var src = parent.getValue();
         src.popNode('root');
@@ -293,6 +313,7 @@ genro_plugin_dashboards = {
                                         remote_editMode:that.edit,
                                         remote_workspaces:that.workspaces,
                                         remote_itemspath:that.itemspath, //'dashboards.'+region+'.'+subregion,
+                                        remote_channelspath:that.channelspath,
                                         remote__waitingMessage:'Loading...',
                                         remote__onRemote:function(){
                                             //console.log('bbb',region,subregion,this);

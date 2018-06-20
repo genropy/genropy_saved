@@ -60,16 +60,22 @@ class Main(BaseDashboardItem):
         frame.dataController("""
             if(queryPars){
                 queryPars.forEach(function(n){
-                    where.setItem(n.attr.relpath,wherePars.getItem(n.label));
+                    where.setItem(n.attr.relpath,conf.getItem('wherepars_'+n.label));
                 });
             }
             FIRE .runStore;
-        """,wherePars='=%s.conf.wherePars' %self.storepath,
+        """,conf='=%s.conf' %self.storepath,
             queryPars='=.query.queryPars',
             where='=.query.where',
             _fired='^%s.runItem' %self.workpath)
-        bc.dataFormula('.whereParsFormatted',"wherePars?wherePars.getFormattedValue({joiner:' - '}):'-'",
-                    wherePars='^.conf.wherePars')
+        bc.dataController("""var wherePars = new gnr.GnrBag();
+                        conf.forEach(function(n){
+                            if(n.label.startsWith('wherepars_')){
+                                wherePars.setItem(n.label.slice(10),n.getValue(),n.attr);
+                            }
+                        });
+                        SET .whereParsFormatted = wherePars.getFormattedValue({joiner:' - '});""",
+                    conf='^.conf')
 
         bc.dataFormula('.currentLinkableGrid','itemIdentifier+(groupMode=="stackedview"?"_stacked_grid":"_grid");',datapath=self.workpath,
                             groupMode='^.groupMode',itemIdentifier=self.itemIdentifier)
@@ -98,18 +104,17 @@ class Main(BaseDashboardItem):
         if not self.queryPars:
             center = bc.contentPane(region='center')
             return
-        center = bc.roundedGroup(title='!!Query parameters',region='center')
-        fb = center.div(padding='8px').formbuilder(dbtable=table,datapath='.wherePars',
+        fb = pane.formbuilder(dbtable=table,
                             fld_validate_onAccept="SET %s.runRequired =true;" %self.workpath)
         for code,pars in self.queryPars.digest('#k,#a'):
             field = pars['field']
             rc = self.db.table(table).column(field).relatedColumn()
             wherepath = pars['relpath']
             if pars['op'] == 'equal' and rc is not None:
-                fb.dbSelect(field,value='^.%s' %code,lbl=pars['lbl'],
+                fb.dbSelect(field,value='^.wherepars_%s' %code,lbl=pars['lbl'],
                             default_value=pars['dflt'],
                             dbtable=rc.table.fullname)
             else:
-                fb.textbox(value='^.%s' %code,
+                fb.textbox(value='^.wherepars_%s' %code,
                             default_value=pars['dflt'],
                             lbl=pars['lbl'])

@@ -41,12 +41,17 @@ class Main(BaseDashboardItem):
     def configuration(self,pane,table=None,queryName=None,**kwargs):
         if not self.queryPars:
             return
-        fb = pane.formbuilder(dbtable=table,datapath='%s.viewer.query.where' %self.workpath)
-        for pars in self.queryPars.digest('#a'):
+        fb = pane.formbuilder(dbtable=table,
+                            fld_validate_onAccept="SET %s.runRequired =true;" %self.workpath)
+        for code,pars in self.queryPars.digest('#k,#a'):
             field = pars['field']
             rc = self.db.table(table).column(field).relatedColumn()
+            wherepath = pars['relpath']
             if pars['op'] == 'equal' and rc is not None:
-                fb.dbSelect(field,value='^.%s' %pars['relpath'],lbl=pars['lbl'],
+                fb.dbSelect(field,value='^.wherepars_%s' %code,lbl=pars['lbl'],
+                            default_value=pars['dflt'],
                             dbtable=rc.table.fullname)
             else:
-                fb.textbox(value='^.%s' %pars['relpath'],lbl=pars['lbl'])
+                fb.textbox(value='^.wherepars_%s' %code,
+                            default_value=pars['dflt'],
+                            lbl=pars['lbl'])

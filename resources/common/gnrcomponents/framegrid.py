@@ -226,7 +226,7 @@ class FrameGrid(BaseComponent):
         grid_kwargs.setdefault('_newGrid',_newGrid)
         grid_kwargs.setdefault('structpath',structpath)
         grid_kwargs.setdefault('sortedBy','^.sorted')
-        grid_kwargs['selfsubscribe_addrow'] = grid_kwargs.get('selfsubscribe_addrow','this.widget.addRows($1._counter,$1.evt);')
+        grid_kwargs['selfsubscribe_addrow'] = grid_kwargs.get('selfsubscribe_addrow','this.widget.addRows((($1.opt && $1.opt.default_kw)? [$1.opt.default_kw]: $1._counter),$1.evt);')
         grid_kwargs['selfsubscribe_duprow'] = grid_kwargs.get('selfsubscribe_duprow','this.widget.addRows($1._counter,$1.evt,true);')
         grid_kwargs['selfsubscribe_delrow'] = grid_kwargs.get('selfsubscribe_delrow','this.widget.deleteSelectedRows();')
         grid_kwargs['selfsubscribe_archive'] = grid_kwargs.get('selfsubscribe_archive','this.widget.archiveSelectedRows();')

@@ -41,11 +41,11 @@ class Main(BaseDashboardItem):
         selectionViewer.dataController("""
             if(queryPars){
                 queryPars.forEach(function(n){
-                    where.setItem(n.attr.relpath,wherePars.getItem(n.label));
+                    where.setItem(n.attr.relpath,conf.getItem('wherepars_'+n.label));
                 });
             }
             grid.collectionStore().loadData();
-        """,wherePars='=%s.conf.wherePars' %self.storepath,grid=selectionViewer.grid.js_widget,
+        """,conf='=%s.conf' %self.storepath,grid=selectionViewer.grid.js_widget,
             queryPars='=.query.queryPars',
             where='=.query.where',
             _fired='^%s.runItem' %self.workpath)
@@ -58,18 +58,18 @@ class Main(BaseDashboardItem):
     def configuration(self,pane,table=None,queryName=None,**kwargs):
         if not self.queryPars:
             return
-        fb = pane.formbuilder(dbtable=table,datapath='.wherePars',
+        fb = pane.formbuilder(dbtable=table,
                             fld_validate_onAccept="SET %s.runRequired =true;" %self.workpath)
         for code,pars in self.queryPars.digest('#k,#a'):
             field = pars['field']
             rc = self.db.table(table).column(field).relatedColumn()
             wherepath = pars['relpath']
             if pars['op'] == 'equal' and rc is not None:
-                fb.dbSelect(field,value='^.%s' %code,lbl=pars['lbl'],
+                fb.dbSelect(field,value='^.wherepars_%s' %code,lbl=pars['lbl'],
                             default_value=pars['dflt'],
                             dbtable=rc.table.fullname)
             else:
-                fb.textbox(value='^.%s' %code,
+                fb.textbox(value='^.wherepars_%s' %code,
                             default_value=pars['dflt'],
                             lbl=pars['lbl'])
 

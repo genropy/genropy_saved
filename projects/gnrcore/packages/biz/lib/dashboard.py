@@ -44,10 +44,9 @@ class BaseDashboardItem(object):
         self.db = page.db
         self.tblobj = resource_table
 
-
     @extract_kwargs(itempar=True)
     def __call__(self,pane,editMode=None,workpath=None,parameters=None,itempar_kwargs=None,
-                itemspath=None,workspaces=None,itemIdentifier=None,title=None,**kwargs):
+                itemspath=None,workspaces=None,channelspath=None,itemIdentifier=None,title=None,**kwargs):
         self.itemIdentifier = itemIdentifier or 'di_%s' %id(pane)
         self.workspaces = workspaces or 'dashboards'
         if not workpath:
@@ -57,6 +56,7 @@ class BaseDashboardItem(object):
         self.itemRunner = '^%s.runItem' %self.workpath
         self.parameters = parameters or Bag()
         self.itemspath = itemspath
+        self.channelspath = channelspath
         self.title = title or itempar_kwargs.pop('title',None) or self.item_name
         self.storepath = '%s.%s' %(itemspath,self.itemIdentifier) if itemspath and self.itemIdentifier else ''
         bc = pane.borderContainer()
@@ -76,12 +76,14 @@ class BaseDashboardItem(object):
             FIRE .runItem;
         }""",
         changedConfig='^.configuration_changed',runRequired='=.runRequired',datapath=self.workpath)
-        self.configuration(bc.contentPane(region='center',datapath='.conf',childname='config'),**kwargs)
-       #bottom = bc.contentPane(region='bottom',_class='slotbar_dialog_footer')
-       #bottom.button('!!Ok',top='2px',right='2px',action="""sc.switchPage(0);
-       #                                                    FIRE %s.configuration_changed;
-       #                                                """ %(workpath or ''),sc=sc.js_widget)
-        
+        confpane = None
+        if self.editMode:
+            conftc = bc.tabContainer(margin='2px',datapath='.conf',childname='config',region='center')
+            self.configuration(conftc.contentPane(title='!!Configurations'),**kwargs)
+            self.configurationSubscriber(conftc.contentPane(title='!!Subscriptions'))
+        else:
+            self.configuration(bc.contentPane(region='center',datapath='.conf',childname='config'),**kwargs)
+
 
     def itembar(self,pane):
         top = pane.div(height='20px',_class='dashboard_item_top',onDrag="""dragValues['itemIdentifier'] = '%s';
@@ -138,7 +140,50 @@ class BaseDashboardItem(object):
 
     def configuration(self,pane,**kwargs):
         pass
-        
+    
+    def configurationSubscriber(self,pane):
+        frame = pane.bagGrid(storepath='%s.conf_subscriber' %self.storepath,
+                        datapath='%s.configurationSubscriber' %self.workpath,
+                        struct=self.configurationSubscriberStruct,
+                        addrow=False,
+                        margin='2px',border='1px solid silver')
+        frame.dataController("""
+            var cb = function(){
+                var conf = genro.getData(confpath);
+                var result = new gnr.GnrBag();
+                conf.forEach(function(n){
+                    if(!n._value){
+                        result.setItem(n.label,null,{caption:n.attr.lbl || n.label,default_kw:{varpath:n.label}});
+                    }
+                });
+                return result;
+            };
+            SET .currentParametersMenu = new gnr.GnrBagCbResolver({method:cb});
+        """,_onBuilt=True,confpath='%s.conf' %self.storepath,subspath='%s.conf_subscriber' %self.storepath)
+        frame.dataController("""
+        if(!channels){
+            channels = new gnr.GnrBag();
+            this.setRelativeData(channelspath,channels);
+        }
+        subscribers.values().forEach(function(v){
+            var topic = v.getItem('topic');
+            if(!channels.getNode(topic)){
+                channels.setItem(topic,new gnr.GnrBag({topic:topic}));
+            }
+        });
+        """,channelspath=self.channelspath,
+            channels='=%s' %self.channelspath,
+            subscribers='^%s.conf_subscriber' %self.storepath,
+            _delay=100)
+        bar = frame.top.bar.replaceSlots('delrow','delrow,addrow',addrow_defaults='.currentParametersMenu')
+    
+    def configurationSubscriberStruct(self,struct):
+        r=struct.view().rows()
+        r.cell('varpath',name='!!Parameter',width='20em')
+        r.cell('topic',name='!!Topic',width='20em',
+                            edit=dict(tag='comboBox',
+                                        values='=%s?=#v.keys().join(",")' %self.channelspath))
+
     def __getattr__(self, fname): 
         return getattr(self,fname) if fname in self.__dict__ else getattr(self.page,fname)
         

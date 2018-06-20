@@ -34,7 +34,7 @@ class DashboardItem(BaseComponent):
     @struct_method
     def di_dashboardItem(self,parent,table=None,itemName=None,**kwargs):
         parent.remote(self.di_buildRemoteItem,table=table,itemName=itemName,_waitingMessage=True,**kwargs)
-    
+
     @public_method
     def di_buildRemoteItem(self,pane=None,table=None,itemName=None,itemRecord=None,**kwargs):
         table = table or itemRecord['table']
@@ -75,6 +75,20 @@ class DashboardGallery(BaseComponent):
         r.cell('conf',name='Configuration',width='20em',
                 _customGetter="""function(row){return row['conf']?row['conf'].getFormattedValue():'-';}""")
 
+
+    @struct_method
+    def di_channelsViewer(self,parent,storepath=None,datapath=None,**kwargs):
+        parent.bagGrid(storepath=storepath,datapath=datapath,
+                        struct=self._di_channelsStruct,addrow=False,**kwargs)
+
+    def _di_channelsStruct(self,struct):
+        r=struct.view().rows()
+        r.cell('topic',name='Topic',width='8em')
+        r.cell('dtype',name='DType',width='10em',values='T:Text,D:Date,B:Boolean,N:Numeric,L:Integer',edit=True)
+        r.cell('wdg',name='Widget',width='20em',edit=True)
+        r.cell('dbtable',name='Dbtable',width='20em',edit=True)
+        r.cell('condition',name='Condition',width='20em',edit=True)
+
     @struct_method
     def di_dashboardViewer(self,parent,storepath=None,edit=False,**kwargs):
         frame = parent.framePane(**kwargs)
@@ -91,6 +105,8 @@ class DashboardGallery(BaseComponent):
                                 var storepath = this.absDatapath('%s');
                                 genro.dashboards.dashboardspath = storepath+'.dashboards';
                                 genro.dashboards.itemspath = storepath+'.items';
+                                genro.dashboards.channelspath = storepath+'.channels';
+                                genro.dashboards.channelsdata = storepath+'.channels_data';
                                 genro.dashboards.workspaces = this.absDatapath('.dashboards');
 
                                 """ %storepath)
@@ -111,6 +127,23 @@ class DashboardGallery(BaseComponent):
                 console.error('error in dashboard store controller',error);
             }
         """,data='^%s.dashboards' %storepath)
+
+        parent.dataController("""
+            var subscriptions,config;
+            items.values().forEach(function(item){
+                config = item.getItem('conf');
+                subscriptions = item.getItem('conf_subscriber');
+                if(!subscriptions){
+                    return;
+                }
+                subscriptions.values().forEach(function(sub){
+                    if(sub.getItem('topic') in _subscription_kwargs){
+                        config.setItem(sub.getItem('varpath'),_subscription_kwargs[sub.getItem('topic')]);
+                    }
+                });   
+            });
+        """,items='=%s.items' %storepath,
+        subscribe_dashboardItemConfig=True)
         
         if edit:
             #parent.dataController("""
@@ -125,19 +158,26 @@ class DashboardGallery(BaseComponent):
             parent.dataController("""genro.dashboards.clearRoot();""",
             formsubscribe_onLoading=True)
 
-            
-        
-        bar = frame.top.slotToolbar('5,stackButtons,*')
+        bar = frame.top.slotToolbar('5,stackButtons,*,channelsTooltip,5')
         if edit:
-            bar.replaceSlots('#','#,edittitle,10,paletteDashboardItems,10,delbtn,addbtn,5')
-            self.di_dashboardConfPalette(bar.edittitle.div(_class='iconbox gear',tip='!!Config'))
+            bar.replaceSlots('#','#,confTooltip,10,paletteDashboardItems,10,delbtn,addbtn,5')
+            self.di_dashboardConfTooltip(bar.confTooltip.div(_class='iconbox gear',tip='!!Config'))
             bar.addbtn.slotButton(iconClass='iconbox add_row',publish='addpage',parentForm=True)
             bar.delbtn.slotButton(iconClass='iconbox delete_row',publish='delpage',parentForm=True)
             #bar.dupbtn.slotButton(iconClass='iconbox copy',publish='duppage')
             palette = bar.paletteDashboardItems.paletteTree(paletteCode='dashboardItems',title='Dashboard items',dockButton=True)
             palette.data('.store',self.dashboardItemsMenu(),childname='store')
-    
-    def di_dashboardConfPalette(self,parent):
+        self.di_channelsTooltip(bar.channelsTooltip.div(_class='iconbox menu_gray_svg',parentForm=False))
+        parent.dataController("""
+        genro.publish('dashboardItemConfig',channelsdata.asDict());
+        """,channelsdata='^%s.channels_data' %storepath,_if='channelsdata')
+
+    def di_channelsTooltip(self,parent):
+        tp = parent.tooltipPane(modal=True,
+            onOpening="""genro.dashboards.channelsPane(dialogNode);""")
+
+
+    def di_dashboardConfTooltip(self,parent):
         tp = parent.tooltipPane(modal=True,
             onOpening="""genro.dashboards.configurationPane(dialogNode);""")
 

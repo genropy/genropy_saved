@@ -33,7 +33,9 @@ class Form(BaseComponent):
         tc = bc.tabContainer(region='center',margin='2px')
         tc.dashboardViewer(title='Dashboards',datapath='#FORM.dashboardEditor',
                             storepath='#FORM.record.data',edit=True)
-        tc.itemsViewer(title='Items',storepath='#FORM.record.data.items',datapath='#FORM.dashboardItems') 
+        bc = tc.borderContainer(title='Configurations')
+        bc.channelsViewer(region='center',storepath='#FORM.record.data.channels',datapath='#FORM.dashboardChannels')
+        bc.itemsViewer(region='bottom',height='400px',storepath='#FORM.record.data.items',datapath='#FORM.dashboardItems') 
 
 
 
