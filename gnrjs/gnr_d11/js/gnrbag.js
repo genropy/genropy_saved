@@ -862,7 +862,7 @@ dojo.declare("gnr.GnrBag", null, {
     sum: function(path) {
         var result = 0;
         var n;
-        var path = path || '#v';
+        path = path || '#v';
         if (path) {
             var l = this.digest(path);
             for (var i = 0; i < l.length; i++) {

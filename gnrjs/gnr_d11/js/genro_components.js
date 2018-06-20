@@ -5652,14 +5652,24 @@ dojo.declare("gnr.stores._Collection",null,{
     
     onCounterChanges:function(counterField,changes){},
     
-    getData:function(){
+    getData:function(filtered){
         var result = this.storeNode.getRelativeData(this.storepath);
         if(!result){
             result = new gnr.GnrBag();
             this.storeNode.setRelativeData(this.storepath,result,null,null,'loadData');
         }
-        return result;
+        if(!(filtered && this._filtered)){
+            return result;
+        }
+        var filteredResult = new gnr.GnrBag();
+        var fn;
+        this._filtered.forEach(function(nodeIdx){
+            fn = result.getNode('#'+nodeIdx);
+            filteredResult.setItem(fn.label,fn._value instanceof gnr.GnrBag?fn._value.deepCopy():fn._value,objectUpdate({},fn.attr));
+        });
+        return filteredResult;
     },
+
     
     getItems:function(){
         return this.getData()._nodes;
@@ -5757,6 +5767,9 @@ dojo.declare("gnr.stores._Collection",null,{
     },
     resetFilter: function() {
         return this._filtered = null;
+    },
+    isFiltered:function(){
+        return this._filtered !==null;
     },
     
     compileFilter:function(grid,value,filterColumn,colType){

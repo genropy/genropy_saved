@@ -2235,6 +2235,7 @@ dojo.declare('gnr.GenroClient', null, {
         if (reason) {
             genro.lockingElements[reason] = reason;
         }
+        var sourceNode = genro.nodeById(options.nodeId || '_gnrRoot');
         if (locking) {
             if (!reason) {
                 return;
@@ -2244,7 +2245,7 @@ dojo.declare('gnr.GenroClient', null, {
                 genro.setData('gnr.lockScreen.thermo',message);
                 message = options.thermo === true?'^gnr.lockScreen.thermo':options.thermo;
             }
-            genro.nodeById('_gnrRoot').setHiderLayer(true,{message:message,z_index:999998});
+            sourceNode.setHiderLayer(true,{message:message,z_index:999998});
         } else {
             if (reason) {
                 objectPop(genro.lockingElements, reason);
@@ -2252,7 +2253,7 @@ dojo.declare('gnr.GenroClient', null, {
                 genro.lockingElements = {};
             }
             if (!objectNotEmpty(genro.lockingElements)) {
-                genro.nodeById('_gnrRoot').setHiderLayer(false);
+                sourceNode.setHiderLayer(false);
             }
         }
     }

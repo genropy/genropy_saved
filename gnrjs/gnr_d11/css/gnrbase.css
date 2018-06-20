@@ -5558,7 +5558,8 @@ div[disabled='true'], div[disabled='disabled']{
 .gr_footer.gr_scrollbox .gr_itemcontainer{
     background: rgba(255, 227, 60, .2);
 }
-    
+
+
 
 .gr_columnset{
 }
@@ -5569,6 +5570,10 @@ div[disabled='true'], div[disabled='disabled']{
 .gr_noFooter .gr_footer.gr_scrollbox .gr_itemcontainer{
     background: transparent;
     min-height: 16px;
+}
+
+.gridFilterActive .gr_footer.gr_scrollbox .gr_itemcontainer{
+    background: rgba(221, 150, 90, 0.20);
 }
 
 
