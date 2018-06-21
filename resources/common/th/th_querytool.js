@@ -104,10 +104,17 @@ dojo.declare("gnr.QueryManager", null, {
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.jc',id:this.relativeId('qb_jc_menu')});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.not',id:this.relativeId('qb_not_menu')});
         var connect_onClick = "TH('"+this.th_root+"').querymanager.onChangedQueryColumn(this.widget.originalContextTarget.sourceNode,$1.attr,this.widget.originalContextTarget.sourceNode.attr.relpath);";
+        var querymanager = this;
         node._('tree', {storepath:'gnr.qb.'+this.tablecode+'.fieldsmenu',
                         popup_id:this.relativeId('qb_fields_menu'),popup:true,
                         popup_closeEvent:'onClick',
-                        connect_onClick:connect_onClick});
+                        connect__updateSelect:function(item,node){
+                            if(item.attr.dtype=='RM'){
+                                return;
+                            }
+                            var originalContextNode = this.widget.originalContextTarget.sourceNode;
+                            querymanager.onChangedQueryColumn(originalContextNode,item.attr,originalContextNode.attr.relpath);
+                        }});
 
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.op',id:this.relativeId('qb_op_menu')});
         var opmenu_types = ['alpha','alpha_phonetic','date','number','other','boolean','unselected_column'];
@@ -148,12 +155,27 @@ dojo.declare("gnr.QueryManager", null, {
     },
 
     onChangedQueryColumnDo:function(sourceNode,path,column_attr){
-        sourceNode.setRelativeData(path + '?column_caption', column_attr.fullcaption);
-        sourceNode.setRelativeData(path + '?column', column_attr.fieldpath);
+        var column = column_attr.fieldpath;
+        var fullcaption = column_attr.fullcaption;
+        var dtype = column_attr.dtype;
+        if(column_attr.fkey){
+            dtype = column_attr.fkey.dtype;
+            var fc = fullcaption.split('/');
+            var fl = column.split('.');
+            var fkeyfield = fl[fl.length-1].slice(1);
+            fl[fl.length-1] = fkeyfield;
+            fc[fc.length-1] = fkeyfield;
+            fullcaption = fc.join('/');
+            column = fl.join('.');
+        }
+        sourceNode.setRelativeData(path + '?column_caption', fullcaption);
+        sourceNode.setRelativeData(path + '?column', column);
         var currentDtype = sourceNode.getRelativeData(path + '?column_dtype');
-        if (currentDtype != column_attr.dtype) {
-            sourceNode.setRelativeData(path + '?column_dtype', column_attr.query_dtype || column_attr.dtype);
-            var default_op = genro._('gnr.qb.sqlop.op_spec.' + this.getDtypeGroup(column_attr.dtype) + '.#0');
+        
+
+        if (currentDtype != dtype) {
+            sourceNode.setRelativeData(path + '?column_dtype', column_attr.query_dtype || dtype);
+            var default_op = genro._('gnr.qb.sqlop.op_spec.' + this.getDtypeGroup(dtype) + '.#0');
             if (default_op) {
                 sourceNode.setRelativeData(path + '?op', default_op);
                 sourceNode.setRelativeData(path + '?op_caption',

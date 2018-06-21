@@ -2096,6 +2096,9 @@ class SqlTable(GnrObject):
                 else:
                     attributes['group'] = attributes.get('one_group')
                     attributes['dtype'] = 'RO'
+                    fkeyattr = dict(relnode.attr)
+                    fkeyattr.pop('joiner')
+                    attributes['fkey'] = fkeyattr
                     relkey = '%(many_relation)s/%(one_relation)s' %attributes
                 relkey = str(hash(relkey) & 0xffffffff)
                 if relkey in relationStack.split('|'):
