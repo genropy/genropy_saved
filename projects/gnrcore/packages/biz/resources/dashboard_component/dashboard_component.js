@@ -19,6 +19,24 @@ dojo.declare("gnr.DashboardManager", null, {
         this.workspaces = sourceNode.absDatapath('.dashboards');
     },
 
+    pageTrigger:function(kw,reason){
+        try {
+            if(kw.evt=='ins'){
+                this.rebuild();
+            }else if(kw.evt=='del'){
+                this.sourceNode.getValue().popNode(kw.node.label);
+            }else if(reason=='container'){
+                this.rebuild();
+            }else if (reason=='child'){
+            }else{
+                this.rebuild();
+            }
+        } catch (error) {
+            console.error('error in dashboard store controller',error);
+        }
+    },
+
+
     dashboardItemsMenu:function(){
         if(this.edit){
             genro.src.getNode()._('div', '_dhmenues');

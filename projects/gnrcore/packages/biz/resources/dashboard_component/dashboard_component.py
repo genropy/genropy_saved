@@ -108,21 +108,7 @@ class DashboardGallery(BaseComponent):
                                 """)
         
         parent.dataController("""
-            var dashboard = sc._dashboardManager;
-            try {
-                if(_triggerpars.kw.evt=='ins'){
-                    dashboard.rebuild();
-                }else if(_triggerpars.kw.evt=='del'){
-                    dashboard.root.getValue().popNode(_triggerpars.kw.node.label);
-                }else if(_reason=='container'){
-                    dashboard.rebuild();
-                }else if (_reason=='child'){
-                }else{
-                    dashboard.rebuild();
-                }
-            } catch (error) {
-                console.error('error in dashboard store controller',error);
-            }
+            sc._dashboardManager.pageTrigger(_triggerpars.kw,_reason);
         """,data='^%s.dashboards' %storepath,sc=sc)
 
         parent.dataController("""
@@ -154,7 +140,7 @@ class DashboardGallery(BaseComponent):
                                 dashboardNodeId=dashboardNodeId)
         parent.dataController("""
         genro.publish('dashboardItemConfig',channelsdata.asDict());
-        """,channelsdata='^%s.channels_data' %storepath,_if='channelsdata')
+        """,channelsdata='^%s.channels_data' %storepath,_if='channelsdata',_userChanges=True)
 
     def di_channelsTooltip(self,parent,dashboardNodeId=None):
         tp = parent.tooltipPane(modal=True,
