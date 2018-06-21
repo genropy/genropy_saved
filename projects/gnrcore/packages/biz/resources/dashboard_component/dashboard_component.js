@@ -22,7 +22,7 @@ dojo.declare("gnr.DashboardManager", null, {
     pageTrigger:function(kw,reason){
         try {
             if(kw.evt=='ins'){
-                this.rebuild();
+                //this.rebuild();
             }else if(kw.evt=='del'){
                 this.sourceNode.getValue().popNode(kw.node.label);
             }else if(reason=='container'){
