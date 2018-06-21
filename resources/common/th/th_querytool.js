@@ -103,12 +103,11 @@ dojo.declare("gnr.QueryManager", null, {
                                        action:'$2.setRelativeData(".#parent.queryMode",$1.fullpath,{caption:$1.caption})'});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.jc',id:this.relativeId('qb_jc_menu')});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.not',id:this.relativeId('qb_not_menu')});
-        var connect_onClick = "TH('"+this.th_root+"').querymanager.onChangedQueryColumn(this.widget.originalContextTarget.sourceNode,$1.attr,this.widget.originalContextTarget.sourceNode.attr.relpath);";
         var querymanager = this;
         node._('tree', {storepath:'gnr.qb.'+this.tablecode+'.fieldsmenu',
                         popup_id:this.relativeId('qb_fields_menu'),popup:true,
                         popup_closeEvent:'onClick',
-                        connect__updateSelect:function(item,node){
+                        connect__updateSelect:function(item,node,evt){
                             if(item.attr.dtype=='RM'){
                                 return;
                             }
