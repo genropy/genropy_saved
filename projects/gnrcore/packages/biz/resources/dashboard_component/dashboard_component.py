@@ -92,41 +92,38 @@ class DashboardGallery(BaseComponent):
     @struct_method
     def di_dashboardViewer(self,parent,storepath=None,edit=False,**kwargs):
         frame = parent.framePane(**kwargs)
+        dashboardNodeId = '%(frameCode)s_dashboard' %frame.attributes
         sc = frame.center.stackContainer(selectedPage='^.selectedDashboard',frameTarget=True,margin='2px',
-                                        selfsubscribe_addpage="genro.dashboards.addPage()",
-                                selfsubscribe_delpage="genro.dashboards.delPage()",
-                                selfsubscribe_duppage="genro.dashboards.dupPage()",
-                                _editMode = edit,_anchor=True,
+                                        selfsubscribe_addpage="this._dashboardManager.addPage()",
+                                selfsubscribe_delpage="this._dashboardManager.delPage()",
+                                selfsubscribe_duppage="this._dashboardManager.dupPage()",
+                                nodeId=dashboardNodeId,
+                                _editMode = edit,_storepath=storepath,_anchor=True,
+                                formsubscribe_onLoading = 'this._dashboardManager.clearRoot();' if edit else None,
                                 onCreated="""if(!genro.dashboards){
                                     genro.dashboards = objectPop(window,'genro_plugin_dashboards');
                                 }
-                                genro.dashboards.root = this;
-                                genro.dashboards.edit = this.attr._editMode;
-                                var storepath = this.absDatapath('%s');
-                                genro.dashboards.dashboardspath = storepath+'.dashboards';
-                                genro.dashboards.itemspath = storepath+'.items';
-                                genro.dashboards.channelspath = storepath+'.channels';
-                                genro.dashboards.channelsdata = storepath+'.channels_data';
-                                genro.dashboards.workspaces = this.absDatapath('.dashboards');
-
-                                """ %storepath)
+                                this._dashboardManager = new gnr.DashboardManager(this);
+                                genro.dashboards[this.attr.nodeId] = this._dashboardManager;
+                                """)
         
         parent.dataController("""
+            var dashboard = sc._dashboardManager;
             try {
                 if(_triggerpars.kw.evt=='ins'){
-                    genro.dashboards.rebuild();
+                    dashboard.rebuild();
                 }else if(_triggerpars.kw.evt=='del'){
-                    genro.dashboards.root.getValue().popNode(_triggerpars.kw.node.label);
+                    dashboard.root.getValue().popNode(_triggerpars.kw.node.label);
                 }else if(_reason=='container'){
-                    genro.dashboards.rebuild();
+                    dashboard.rebuild();
                 }else if (_reason=='child'){
                 }else{
-                    genro.dashboards.rebuild();
+                    dashboard.rebuild();
                 }
             } catch (error) {
                 console.error('error in dashboard store controller',error);
             }
-        """,data='^%s.dashboards' %storepath)
+        """,data='^%s.dashboards' %storepath,sc=sc)
 
         parent.dataController("""
             var subscriptions,config;
@@ -144,42 +141,29 @@ class DashboardGallery(BaseComponent):
             });
         """,items='=%s.items' %storepath,
         subscribe_dashboardItemConfig=True)
-        
-        if edit:
-            #parent.dataController("""
-            #        console.log('selectedDashboard',selectedDashboard);
-            #        var wdg = sc.getValue().getNode(selectedDashboard).widget;
-            #        console.log('wdg',wdg);
-            #        wdg._layoutChildren();
-            #        """,
-            #    sc=sc,
-            #    selectedDashboard='^#FORM.dashboardEditor.selectedDashboard')
-
-            parent.dataController("""genro.dashboards.clearRoot();""",
-            formsubscribe_onLoading=True)
-
         bar = frame.top.slotToolbar('5,stackButtons,*,channelsTooltip,5')
         if edit:
             bar.replaceSlots('#','#,confTooltip,10,paletteDashboardItems,10,delbtn,addbtn,5')
-            self.di_dashboardConfTooltip(bar.confTooltip.div(_class='iconbox gear',tip='!!Config'))
+            self.di_dashboardConfTooltip(bar.confTooltip.div(_class='iconbox gear',tip='!!Config'),dashboardNodeId=dashboardNodeId)
             bar.addbtn.slotButton(iconClass='iconbox add_row',publish='addpage',parentForm=True)
             bar.delbtn.slotButton(iconClass='iconbox delete_row',publish='delpage',parentForm=True)
             #bar.dupbtn.slotButton(iconClass='iconbox copy',publish='duppage')
             palette = bar.paletteDashboardItems.paletteTree(paletteCode='dashboardItems',title='Dashboard items',dockButton=True)
             palette.data('.store',self.dashboardItemsMenu(),childname='store')
-        self.di_channelsTooltip(bar.channelsTooltip.div(_class='iconbox menu_gray_svg',parentForm=False))
+        self.di_channelsTooltip(bar.channelsTooltip.div(_class='iconbox menu_gray_svg',parentForm=False),
+                                dashboardNodeId=dashboardNodeId)
         parent.dataController("""
         genro.publish('dashboardItemConfig',channelsdata.asDict());
         """,channelsdata='^%s.channels_data' %storepath,_if='channelsdata')
 
-    def di_channelsTooltip(self,parent):
+    def di_channelsTooltip(self,parent,dashboardNodeId=None):
         tp = parent.tooltipPane(modal=True,
-            onOpening="""genro.dashboards.channelsPane(dialogNode);""")
+            onOpening="""genro.dashboards['%s'].channelsPane(dialogNode);""" %dashboardNodeId)
 
 
-    def di_dashboardConfTooltip(self,parent):
+    def di_dashboardConfTooltip(self,parent,dashboardNodeId=None):
         tp = parent.tooltipPane(modal=True,
-            onOpening="""genro.dashboards.configurationPane(dialogNode);""")
+            onOpening="""genro.dashboards['%s'].configurationPane(dialogNode);""" %dashboardNodeId)
 
 
     @public_method

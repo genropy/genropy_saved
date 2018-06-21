@@ -46,9 +46,10 @@ class BaseDashboardItem(object):
 
     @extract_kwargs(itempar=True)
     def __call__(self,pane,editMode=None,workpath=None,parameters=None,itempar_kwargs=None,
-                itemspath=None,workspaces=None,channelspath=None,itemIdentifier=None,title=None,**kwargs):
+                itemspath=None,workspaces=None,channelspath=None,itemIdentifier=None,dashboardIdentifier=None,title=None,**kwargs):
         self.itemIdentifier = itemIdentifier or 'di_%s' %id(pane)
-        self.workspaces = workspaces or 'dashboards'
+        self.dashboardIdentifier = dashboardIdentifier
+        self.workspaces = workspaces or '#%s.dashboards' %dashboardIdentifier if dashboardIdentifier else 'dashboardItems'
         if not workpath:
             workpath = '%s.%s' %(workspaces,self.itemIdentifier)
         self.editMode = editMode
@@ -101,21 +102,20 @@ class BaseDashboardItem(object):
             top.lightbutton(_class='close_svg',height='16px',
                         width='16px',top='1px',position='absolute',
                         left='4px',cursor='pointer',
-                        action="""var curtitle = this.getRelativeData('%s.current_title');
+                        action="""var curtitle = this.getRelativeData(wp+'.current_title');
                                     var that = this;
                                     genro.dlg.ask(_T('Closing item ')+curtitle,
                                             _T('You are going to remove a item '+curtitle),
                                             {confirm:_T('Confirm'),cancel:_T('Cancel')},
                                             {confirm:function(){
-                                                genro.dashboards.emptyTile(that);
+                                                genro.dashboards[dashboardIdentifier].emptyTile(that);
                                             }, cancel:function(){}});
-                                    """ %self.workpath)
+                                    """,wp=self.workpath,dashboardIdentifier=self.dashboardIdentifier)
             
         top.lightbutton(_class='menu_white_svg',height='16px',width='16px',
                         position='absolute',top='1px',right='4px',cursor='pointer',
                         action="""
                         if(event.shiftKey){
-                            console.log('publish',itemIdentifier+'_parameters_open')
                             genro.publish(itemIdentifier+'_parameters_open');
                         }else{
                             if(_dashboardPageSelected=='conf'){
