@@ -53,14 +53,16 @@ class DashboardGallery(BaseComponent):
     py_requires='dashboard_component/dashboard_component:DashboardItem'
 
     @struct_method
-    def di_dashboardGallery(self,parent,pkg=None,code=None,datapath=None,**kwargs):
-        datapath =datapath or 'dashboard_%s_%s' %(pkg,code)
+    def di_dashboardGallery(self,parent,pkg=None,code=None,datapath=None,nodeId=None,**kwargs):
+        nodeId =nodeId or '%s_%s' %(pkg,code)
+        datapath = datapath or nodeId
         bc = parent.borderContainer(_anchor=True,datapath=datapath,**kwargs)
         bc.dataRecord('.dashboard_record','biz.dashboard',applymethod=self.di_applyGalleryConfigurations,
                         pkgid=pkg,code=code,_onBuilt=True,_if='pkgid && code')
-        bc.dashboardViewer(storepath='.dashboard_record.data',region='center')
         bc.dataRpc(None,self.di_saveGalleryConfigurations,dashboard_key='=.dashboard_record.dashboard_key',
                             dashboard_data='^.dashboard_record.data',_delay=500,_if='_reason=="child"')
+        bc.dashboardViewer(storepath='.dashboard_record.data',region='center',nodeId=nodeId)
+        return bc
 
     @public_method
     def di_applyGalleryConfigurations(self,record,**kwargs):
@@ -109,9 +111,10 @@ class DashboardGallery(BaseComponent):
         r.cell('condition',name='Condition',width='20em',edit=True)
 
     @struct_method
-    def di_dashboardViewer(self,parent,storepath=None,edit=False,**kwargs):
-        frame = parent.framePane(**kwargs)
-        dashboardNodeId = '%(frameCode)s_dashboard' %frame.attributes
+    def di_dashboardViewer(self,parent,storepath=None,edit=False,nodeId=None,**kwargs):
+        frameCode = '%s_frame' %nodeId if nodeId else None
+        frame = parent.framePane(frameCode=frameCode,**kwargs)
+        dashboardNodeId = nodeId or '%(frameCode)s_dashboard' %frame.attributes
         sc = frame.center.stackContainer(selectedPage='^.selectedDashboard',frameTarget=True,margin='2px',
                                         selfsubscribe_addpage="this._dashboardManager.addPage()",
                                 selfsubscribe_delpage="this._dashboardManager.delPage()",
