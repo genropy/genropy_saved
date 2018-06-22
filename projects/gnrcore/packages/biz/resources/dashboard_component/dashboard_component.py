@@ -59,22 +59,23 @@ class DashboardGallery(BaseComponent):
         bc.dataRecord('.dashboard_record','biz.dashboard',applymethod=self.di_applyGalleryConfigurations,
                         pkgid=pkg,code=code,_onBuilt=True,_if='pkgid && code')
         bc.dashboardViewer(storepath='.dashboard_record.data',region='center')
-        bc.dataRpc(None,self.di_saveGalleryConfigurations,dashboard_key='=.dashboard_record.data.dashboard_key',
-                            data='^.dashboard_record.data',_delay=500,_userChanges=True)
+        bc.dataRpc(None,self.di_saveGalleryConfigurations,dashboard_key='=.dashboard_record.dashboard_key',
+                            dashboard_data='^.dashboard_record.data',_delay=500,_if='_reason=="child"')
 
     @public_method
     def di_applyGalleryConfigurations(self,record,**kwargs):
         userconfig = self.db.table('biz.dashboard_config').record(dashboard_key=record['dashboard_key'],username=self.user,
-                                                                    ignoreMissing=True)
+                                                                    ignoreMissing=True).output('record')
         if not userconfig['data']:
             return
         record['data'].update(userconfig['data']) 
     
     @public_method
-    def di_saveGalleryConfigurations(self,dashboard_key=None,dashboard_data=None):
+    def di_saveGalleryConfigurations(self,dashboard_key=None,dashboard_data=None,**kwargs):
         tblobj = self.db.table('biz.dashboard_config')
         with tblobj.recordToUpdate(username=self.user,dashboard_key=dashboard_key,insertMissing=True) as rec:
             rec['data'] = dashboard_data
+        self.db.commit()
 
 
     @struct_method
@@ -144,7 +145,6 @@ class DashboardGallery(BaseComponent):
         if(_reason!='child'){
             return;
         }
-        console.log(channelsdata.asDict())
         genro.dashboards[dashboardNodeId].sourceNode.publish('updatedChannels',channelsdata.asDict());
         """,channelsdata='^%s.channels_data' %storepath,_if='channelsdata',dashboardNodeId=dashboardNodeId)
     def di_channelsTooltip(self,parent,dashboardNodeId=None):
