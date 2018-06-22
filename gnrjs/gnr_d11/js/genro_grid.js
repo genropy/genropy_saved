@@ -1643,6 +1643,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             kw = {'width':'8em','name':col.fullcaption,
             'dtype':col.dtype, 'field':col.fieldpath,
             'tag':'cell'};
+            if (col._owner_package){
+                kw._owner_package = col._owner_package;
+            }
             if(kw.field.length>63){
                 var hashname = 'relation_'+stringHash(kw.field)+'_'+kw.field.split('.').slice(-1);
                 kw.queryfield = kw.field +' AS '+hashname;

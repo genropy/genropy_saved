@@ -17,12 +17,24 @@ class View(BaseComponent):
         r.fieldcell('authtags',width='6em')
         r.fieldcell('private',width='6em')
         r.fieldcell('flags',width='6em')
-        
+        r.fieldcell('is_resource',width='6em')
+        if self.isDeveloper():
+            r.cell('save_as_resource',calculated=True,format_buttonclass='gear iconbox',
+                        format_isbutton=True,
+                        format_onclick="""PUBLISH save_uo_as_resource;""")
+
     def th_order(self):
         return 'code'
 
     def th_options(self):
         return dict(virtualStore=False,addrow=False)
+
+    def th_view(self,view):
+        view.dataRpc(None,self.db.table('adm.userobject').saveAsResource,
+                        subscribe_save_uo_as_resource=True,
+                        pkeys='=.grid.currentSelectedPkeys',_if='pkeys',
+                        _lockScreen=True)
+
 
     
     def th_top_custom(self,top):

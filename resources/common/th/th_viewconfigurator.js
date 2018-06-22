@@ -84,6 +84,7 @@ var genro_plugin_grid_configurator = {
                     var treeNode = genro.src.nodeBySourceNodeId(dropInfo.dragSourceInfo._id);
                     funcApply(sourceNode.attr.onDroppedColumn,{data:data, column:dropInfo.column,fieldcellattr:fieldcellattr,treeNode:treeNode},grid);
                 }else{
+                    console.log('fieldcellattr',fieldcellattr);
                     grid.addColumn(data, dropInfo.column,fieldcellattr);
                 }
                 

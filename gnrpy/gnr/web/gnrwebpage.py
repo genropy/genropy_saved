@@ -708,7 +708,8 @@ class GnrWebPage(GnrBaseWebPage):
             if ',' in resource_name:
                 resource_name = resource_name.split(',')[0]
                 custom = True
-            respath = self.packageResourcePath(table=resource_table,filepath=filepath,custom=custom,inMainResource=inMainResource)
+            respath = self.packageResourcePath(table=resource_table,filepath=filepath,custom=custom,
+                                                forcedPackage=self.package.name if not inMainResource else None)
             data.toXml(respath,autocreate=True)
             return respath
         else:
@@ -1503,7 +1504,7 @@ class GnrWebPage(GnrBaseWebPage):
             url = '%s?mtime=%0.0f' % (url, mtime)
         return url
     
-    def packageResourcePath(self,table=None,filepath=None,custom=False,inMainResource=None):
+    def packageResourcePath(self,table=None,filepath=None,custom=False,forcedPackage=None):
         page_pkg = self.package.name 
         table_pkg = None
         if table:
@@ -1511,11 +1512,11 @@ class GnrWebPage(GnrBaseWebPage):
             respath = 'tables/%s/%s' %(tblname,filepath)
         else:
             respath = filepath
-
         if custom:
             return os.path.join(self.site.site_path, '_custom', page_pkg, '_resources',respath)
         packageFolder = self.site.gnrapp.packages[self.package.name].packageFolder
-        if table_pkg and page_pkg != table_pkg and not inMainResource:
+        if forcedPackage and forcedPackage!=table_pkg:
+            packageFolder = self.site.gnrapp.packages[table_pkg or self.package.name].packageFolder
             respath = 'tables/_packages/%s/%s/%s' %(table_pkg,tblname,filepath)        
         return os.path.join(packageFolder,'resources',respath)
             

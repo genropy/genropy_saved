@@ -4413,7 +4413,7 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
             metadata.setItem('flags',that.userObjectPars.flags);
             genro.serverCall('_table.adm.userobject.saveUserObject',
                             {'objtype':that.userObjectPars.objtype,'metadata':metadata,
-                            'data':data,table:that.userObjectPars.table,asResource:modifiers=='Shift'},
+                            'data':data,table:that.userObjectPars.table},
                             function(result) {
                                 dlg.close_action();
                                 metadata.setItem('pkey',result.getValue());
