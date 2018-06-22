@@ -56,8 +56,26 @@ class DashboardGallery(BaseComponent):
     def di_dashboardGallery(self,parent,pkg=None,code=None,datapath=None,**kwargs):
         datapath =datapath or 'dashboard_%s_%s' %(pkg,code)
         bc = parent.borderContainer(_anchor=True,datapath=datapath,**kwargs)
-        bc.dataRecord('.dashboard_record','biz.dashboard',pkgid=pkg,code=code,_onBuilt=True)
+        bc.dataRecord('.dashboard_record','biz.dashboard',applymethod=self.di_applyGalleryConfigurations,
+                        pkgid=pkg,code=code,_onBuilt=True,_if='pkgid && code')
         bc.dashboardViewer(storepath='.dashboard_record.data',region='center')
+        bc.dataRpc(None,self.di_saveGalleryConfigurations,dashboard_key='=.dashboard_record.data.dashboard_key',
+                            data='^.dashboard_record.data',_delay=500,_userChanges=True)
+
+    @public_method
+    def di_applyGalleryConfigurations(self,record,**kwargs):
+        userconfig = self.db.table('biz.dashboard_config').record(dashboard_key=record['dashboard_key'],username=self.user,
+                                                                    ignoreMissing=True)
+        if not userconfig['data']:
+            return
+        record['data'].update(userconfig['data']) 
+    
+    @public_method
+    def di_saveGalleryConfigurations(self,dashboard_key=None,dashboard_data=None):
+        tblobj = self.db.table('biz.dashboard_config')
+        with tblobj.recordToUpdate(username=self.user,dashboard_key=dashboard_key,insertMissing=True) as rec:
+            rec['data'] = dashboard_data
+
 
     @struct_method
     def di_itemsViewer(self,parent,storepath=None,datapath=None,**kwargs):
@@ -97,6 +115,7 @@ class DashboardGallery(BaseComponent):
                                         selfsubscribe_addpage="this._dashboardManager.addPage()",
                                 selfsubscribe_delpage="this._dashboardManager.delPage()",
                                 selfsubscribe_duppage="this._dashboardManager.dupPage()",
+                                selfsubscribe_updatedChannels="""this._dashboardManager.updatedChannels($1)""",
                                 nodeId=dashboardNodeId,
                                 _editMode = edit,_storepath=storepath,_anchor=True,
                                 formsubscribe_onLoading = 'this._dashboardManager.clearRoot();' if edit else None,
@@ -110,23 +129,6 @@ class DashboardGallery(BaseComponent):
         parent.dataController("""
             sc._dashboardManager.pageTrigger(_triggerpars.kw,_reason);
         """,data='^%s.dashboards' %storepath,sc=sc)
-
-        parent.dataController("""
-            var subscriptions,config;
-            items.values().forEach(function(item){
-                config = item.getItem('conf');
-                subscriptions = item.getItem('conf_subscriber');
-                if(!subscriptions){
-                    return;
-                }
-                subscriptions.values().forEach(function(sub){
-                    if(sub.getItem('topic') in _subscription_kwargs){
-                        config.setItem(sub.getItem('varpath'),_subscription_kwargs[sub.getItem('topic')]);
-                    }
-                });   
-            });
-        """,items='=%s.items' %storepath,
-        subscribe_dashboardItemConfig=True)
         bar = frame.top.slotToolbar('5,stackButtons,*,channelsTooltip,5')
         if edit:
             bar.replaceSlots('#','#,confTooltip,10,paletteDashboardItems,10,delbtn,addbtn,5')
@@ -139,9 +141,12 @@ class DashboardGallery(BaseComponent):
         self.di_channelsTooltip(bar.channelsTooltip.div(_class='iconbox menu_gray_svg',parentForm=False),
                                 dashboardNodeId=dashboardNodeId)
         parent.dataController("""
-        genro.publish('dashboardItemConfig',channelsdata.asDict());
-        """,channelsdata='^%s.channels_data' %storepath,_if='channelsdata',_userChanges=True)
-
+        if(_reason!='child'){
+            return;
+        }
+        console.log(channelsdata.asDict())
+        genro.dashboards[dashboardNodeId].sourceNode.publish('updatedChannels',channelsdata.asDict());
+        """,channelsdata='^%s.channels_data' %storepath,_if='channelsdata',dashboardNodeId=dashboardNodeId)
     def di_channelsTooltip(self,parent,dashboardNodeId=None):
         tp = parent.tooltipPane(modal=True,
             onOpening="""genro.dashboards['%s'].channelsPane(dialogNode);""" %dashboardNodeId)
