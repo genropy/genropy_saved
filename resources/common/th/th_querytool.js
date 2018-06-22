@@ -181,9 +181,7 @@ dojo.declare("gnr.QueryManager", null, {
                         genro.getDataNode('gnr.qb.sqlop.op.' + default_op).attr.caption);
             }
         }
-        if(column_attr._owner_package){
-            sourceNode.setRelativeData(path + '?_owner_package', column_attr._owner_package);
-        }
+        sourceNode.setRelativeData(path + '?_owner_package', column_attr._owner_package);
         sourceNode.setRelativeData(path, '');
         sourceNode.setRelativeData(path+'?value_caption', '');
     },

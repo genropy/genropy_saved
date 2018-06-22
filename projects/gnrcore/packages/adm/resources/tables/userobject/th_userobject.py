@@ -5,6 +5,9 @@ from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 
 class View(BaseComponent):
+    def th_hiddencolumns(self):
+        return '$__mod_ts'
+
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('code',width='10em')
@@ -12,12 +15,11 @@ class View(BaseComponent):
         r.fieldcell('pkg',width='6em')
         r.fieldcell('tbl',width='20em')
         r.fieldcell('userid',width='6em')
-        r.fieldcell('description',width='6em')
-        r.fieldcell('notes',width='6em')
+        r.fieldcell('description',width='20em')
         r.fieldcell('authtags',width='6em')
         r.fieldcell('private',width='6em')
         r.fieldcell('flags',width='6em')
-        r.fieldcell('is_resource',width='6em')
+        r.fieldcell('resource_status',width='20em')
         if self.isDeveloper():
             r.cell('save_as_resource',calculated=True,format_buttonclass='gear iconbox',
                         format_isbutton=True,

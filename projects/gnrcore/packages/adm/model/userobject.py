@@ -1,6 +1,6 @@
 # encoding: utf-8
 import os
-from gnr.core.gnrbag import Bag
+from gnr.core.gnrbag import Bag,DirectoryResolver
 from gnr.core.gnrdecorator import public_method
 class Table(object):
     def config_db(self, pkg):
@@ -20,15 +20,40 @@ class Table(object):
         tbl.column('quicklist', 'B', name_long='!!Quicklist')
         tbl.column('flags', 'T', name_long='!!Flags')
         tbl.column('required_pkg', name_long='!!Required pkg')
-        tbl.pyColumn('is_resource',name_long='!!Is resource',dtype='B')
+        tbl.pyColumn('resource_status',name_long='!!Resources')
 
     
-    def pyColumn_is_resource(self,record=None,**kwargs):
-        return
-       #page = self.db.currentPage
-       #respath = page.packageResourcePath(table=record['tbl'],filepath='userobjects/%(objtype)s/%(code)s.xml' %record,
-       #                                    inMainResource=True)
-       #return os.path.exists(respath)
+    def pyColumn_resource_status(self,record=None,**kwargs):
+        l = self.resourceStatus(record)
+        if not l:
+            return ''
+        l = l+['db %s' %self.db.currentPage.toText(record['__mod_ts'])]
+        return '<br/>'.join(l)
+
+    def resourceStatus(self,record):
+        resources = []
+        pkg = record['pkg']
+        packages = self.db.application.packages
+        if not (record['tbl'] and packages[pkg]):
+            return resources
+        tbl = record['tbl'].split('.')[1]
+        objtype = record['objtype']
+        filename = '%s.xml' %(record['code'].lower().replace('.','_'))
+        pkgkeys = packages.keys()
+        page = self.db.currentPage
+        respath = os.path.join(packages[pkg].packageFolder,'resources','tables',tbl,'userobjects',objtype,filename)
+        
+        if os.path.exists(respath):
+            mainres = Bag(respath)
+            resources.append('%s %s' %(pkg,page.toText(mainres['__mod_ts'])))
+        for pkgid in pkgkeys[pkgkeys.index(pkg)+1:]:
+            if not packages[pkgid]:
+                continue
+            cust_resfilepath = os.path.join(packages[pkgid].packageFolder,'resources','tables','_packages',pkg,tbl,'userobjects',objtype,filename)
+            if os.path.exists(cust_resfilepath):
+                cust_res = Bag(cust_resfilepath)
+                resources.append('%s %s' %(pkgid, page.toText(cust_res['__mod_ts'])))
+        return resources
 
     def trigger_onUpdating(self,record=None,old_record=None):
         self.updateRequiredPkg(record)
@@ -44,14 +69,35 @@ class Table(object):
                 required_pkg.add(n.attr.get('_owner_package'))
         data.walk(cb)
         r = []
-        if required_pkg:
-            record['required_pkg'] = ','.join([pkg for pkg in self.db.application.packages.keys() if pkg in required_pkg])
+        record['required_pkg'] = ','.join([pkg for pkg in self.db.application.packages.keys() if pkg in required_pkg]) if required_pkg else None
     
 
 ##################################
+
+    def onDbUpgrade_checkres(self):
+        print 'checking res'
+        self.insertFromResources()
+
+    def insertFromResources(self):
+        def cbattr(nodeattr):
+            return not (nodeattr['file_ext'] !='directory' and not '/userobjects/' in nodeattr['abs_path'])
+        def cbwalk(node,**kwargs):
+            if node.attr['file_ext'] !='directory':
+                record = Bag(node.attr['abs_path'])
+                if not self.checkDuplicate(tbl=record['tbl'],objtype=record['objtype'],code=record['code']):
+                    print 'inserting',record['code'],record['__ins_ts'],record['__mod_ts']
+                    record['id'] = self.newPkeyValue()
+                    self.raw_insert(record)
+        for pkgid,pkgobj in self.db.application.packages.items():
+            table_resource_folder = os.path.join(pkgobj.packageFolder,'resources','tables') 
+            d = DirectoryResolver(table_resource_folder,include='*.xml',callback=cbattr,processors=dict(xml=False))
+            d().walk(cbwalk,_mode='deep')
+    
+                
+
+
     def listUserObject(self, objtype=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None, flags=None):
         onlyQuicklist = onlyQuicklist or False
-        
         def checkUserObj(r):
             condition = (not r['private']) or (r['userid'] == userid)
             if onlyQuicklist:
@@ -78,18 +124,7 @@ class Table(object):
                          where=where, order_by='$code',
                          val_objtype=objtype, val_tbl=tbl,_flags=_flags).selection()
         sel.filter(checkUserObj)
-        result = sel.output('dictlist')
-        page = self.db.currentPage
-        if page:
-            main_folderpath = page.packageResourcePath(table=tbl,filepath='userobjects/%s' %objtype)
-            custom_folderpath = page.packageResourcePath(table=tbl,filepath='userobjects/%s' %objtype,forcedPackage=page.package.name)
-            for folderpath in (custom_folderpath,main_folderpath):
-                if folderpath and os.path.exists(folderpath):
-                    for fname in os.listdir(folderpath):
-                        record,path = page.getTableResourceContent(table=tbl,path='userobjects/%s/%s' %(objtype,os.path.splitext(fname)[0]),ext=['xml'])
-                        result.append(Bag(record))
-                    break
-        return result
+        return sel.output('dictlist')
 
     #PUBLIC METHODS 
     
@@ -166,9 +201,11 @@ class Table(object):
             record = self.record(pkey=pkey).output('record')
             record.pop('id')
             required_pkg = record['required_pkg']
-            respath = page.packageResourcePath(table=record['tbl'],filepath='userobjects/%(objtype)s/%(code)s.xml' %record,
+            filepath=os.path.join('userobjects',record['objtype'],record['code'].lower().replace('.','_'))
+            respath = page.packageResourcePath(table=record['tbl'],filepath=filepath,
                                                 forcedPackage=required_pkg.split(',')[-1] if required_pkg else None)
-            record.toXml(respath,autocreate=True)
+            record.toXml('%s.xml' %respath,autocreate=True)
+            self.notifyDbUpdate(pkey)
 
                 
         

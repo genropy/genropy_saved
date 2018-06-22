@@ -1505,7 +1505,6 @@ class GnrWebPage(GnrBaseWebPage):
         return url
     
     def packageResourcePath(self,table=None,filepath=None,custom=False,forcedPackage=None):
-        page_pkg = self.package.name 
         table_pkg = None
         if table:
             table_pkg,tblname = table.split('.')
@@ -1513,10 +1512,10 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             respath = filepath
         if custom:
-            return os.path.join(self.site.site_path, '_custom', page_pkg, '_resources',respath)
-        packageFolder = self.site.gnrapp.packages[self.package.name].packageFolder
+            return os.path.join(self.site.site_path, '_custom', self.package.name, '_resources',respath)
+        packageFolder = self.site.gnrapp.packages[table_pkg].packageFolder
         if forcedPackage and forcedPackage!=table_pkg:
-            packageFolder = self.site.gnrapp.packages[table_pkg or self.package.name].packageFolder
+            packageFolder = self.site.gnrapp.packages[forcedPackage].packageFolder
             respath = 'tables/_packages/%s/%s/%s' %(table_pkg,tblname,filepath)        
         return os.path.join(packageFolder,'resources',respath)
             
