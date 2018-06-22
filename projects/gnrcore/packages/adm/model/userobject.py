@@ -81,8 +81,8 @@ class Table(object):
         result = sel.output('dictlist')
         page = self.db.currentPage
         if page:
-            main_folderpath = page.packageResourcePath(table=tbl,filepath='userobjects/%s' %objtype,inMainResource=True)
-            custom_folderpath = page.packageResourcePath(table=tbl,filepath='userobjects/%s' %objtype)
+            main_folderpath = page.packageResourcePath(table=tbl,filepath='userobjects/%s' %objtype)
+            custom_folderpath = page.packageResourcePath(table=tbl,filepath='userobjects/%s' %objtype,forcedPackage=page.package.name)
             for folderpath in (custom_folderpath,main_folderpath):
                 if folderpath and os.path.exists(folderpath):
                     for fname in os.listdir(folderpath):
