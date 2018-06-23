@@ -387,6 +387,8 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         var sourceNode = genro.src.enclosingSourceNode(e.target);
         var func = funcCreate(code, 'kw,e', sourceNode);
         func(kw, e);
+        dojo.stopEvent(e);
+
     },
     checkSubscribedNodes:function(){
         var subscribedNodes = this._subscribedNodes;

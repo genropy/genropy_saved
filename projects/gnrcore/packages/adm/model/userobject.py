@@ -1,5 +1,6 @@
 # encoding: utf-8
 import os
+import hashlib
 from gnr.core.gnrbag import Bag,DirectoryResolver
 from gnr.core.gnrdecorator import public_method
 class Table(object):
@@ -20,20 +21,21 @@ class Table(object):
         tbl.column('quicklist', 'B', name_long='!!Quicklist')
         tbl.column('flags', 'T', name_long='!!Flags')
         tbl.column('required_pkg', name_long='!!Required pkg')
-        tbl.pyColumn('resource_status',name_long='!!Resources')
+        tbl.pyColumn('resource_status',name_long='!!Resources',required_columns='$data')
 
     
     def pyColumn_resource_status(self,record=None,**kwargs):
         l = self.resourceStatus(record)
         if not l:
             return ''
-        l = l+['db %s' %self.db.currentPage.toText(record['__mod_ts'])]
         return '<br/>'.join(l)
 
     def resourceStatus(self,record):
         resources = []
         pkg = record['pkg']
         packages = self.db.application.packages
+        current_data = record['data']
+        record['data'] = None
         if not (record['tbl'] and packages[pkg]):
             return resources
         tbl = record['tbl'].split('.')[1]
@@ -42,17 +44,22 @@ class Table(object):
         pkgkeys = packages.keys()
         page = self.db.currentPage
         respath = os.path.join(packages[pkg].packageFolder,'resources','tables',tbl,'userobjects',objtype,filename)
-        
         if os.path.exists(respath):
             mainres = Bag(respath)
-            resources.append('%s %s' %(pkg,page.toText(mainres['__mod_ts'])))
+            color = 'darkgreen'
+            if mainres['data'].toXml()!= current_data:
+                color = 'red'
+            resources.append('<span style="color:%s;">%s %s</span>' %(color,pkg,page.toText(mainres['__mod_ts'])))
         for pkgid in pkgkeys[pkgkeys.index(pkg)+1:]:
             if not packages[pkgid]:
                 continue
             cust_resfilepath = os.path.join(packages[pkgid].packageFolder,'resources','tables','_packages',pkg,tbl,'userobjects',objtype,filename)
             if os.path.exists(cust_resfilepath):
+                color = 'darkgreen'
                 cust_res = Bag(cust_resfilepath)
-                resources.append('%s %s' %(pkgid, page.toText(cust_res['__mod_ts'])))
+                if cust_res['data'].toXml()!= current_data:
+                    color = 'red'
+                resources.append('<span style="color:%s;">%s %s</span>' %(color,pkgid, page.toText(cust_res['__mod_ts'])))
         return resources
 
     def trigger_onUpdating(self,record=None,old_record=None):
@@ -74,27 +81,38 @@ class Table(object):
 
 ##################################
 
-    def onDbUpgrade_checkres(self):
-        print 'checking res'
-        self.insertFromResources()
+    def onDbUpgrade_checkUserObjects(self):
+        self.checkUserObjects()
 
-    def insertFromResources(self):
+    def uo_identifier(self,record):
+        return '%s%s%s' %(record['tbl'] or record['pkg'], record['objtype'],record['code'])
+        
+    def checkUserObjects(self):
+        current_userobjects = self.query().fetchAsDict('identifier')
+        current_packages = self.db.packages
         def cbattr(nodeattr):
             return not (nodeattr['file_ext'] !='directory' and not '/userobjects/' in nodeattr['abs_path'])
         def cbwalk(node,**kwargs):
             if node.attr['file_ext'] !='directory':
                 record = Bag(node.attr['abs_path'])
-                if not self.checkDuplicate(tbl=record['tbl'],objtype=record['objtype'],code=record['code']):
+                identifier = self.uo_identifier(record)
+                if  identifier not in current_userobjects:
                     print 'inserting',record['code'],record['__ins_ts'],record['__mod_ts']
                     record['id'] = self.newPkeyValue()
                     self.raw_insert(record)
+                current_userobjects.pop(identifier)
         for pkgid,pkgobj in self.db.application.packages.items():
             table_resource_folder = os.path.join(pkgobj.packageFolder,'resources','tables') 
             d = DirectoryResolver(table_resource_folder,include='*.xml',callback=cbattr,processors=dict(xml=False))
             d().walk(cbwalk,_mode='deep')
-    
-                
-
+        for identifier,record in current_userobjects.items():
+            if not record['pkg']:
+                continue
+            if record['pkg'] not in current_packages:
+                self.raw_delete(record)
+            if record['tbl'] and record['tbl'].split('.')[1] not in current_packages[record['pkg']].tables:
+                print 'deleting uo no longer existing tbl'
+                self.raw_delete(record)
 
     def listUserObject(self, objtype=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None, flags=None):
         onlyQuicklist = onlyQuicklist or False
@@ -197,6 +215,7 @@ class Table(object):
     @public_method
     def saveAsResource(self,pkeys=None):
         page = self.db.currentPage
+        print 'pkeys',pkeys
         for pkey in pkeys:
             record = self.record(pkey=pkey).output('record')
             record.pop('id')
@@ -205,7 +224,7 @@ class Table(object):
             respath = page.packageResourcePath(table=record['tbl'],filepath=filepath,
                                                 forcedPackage=required_pkg.split(',')[-1] if required_pkg else None)
             record.toXml('%s.xml' %respath,autocreate=True)
-            self.notifyDbUpdate(pkey)
+
 
                 
         
