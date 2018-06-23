@@ -2797,10 +2797,12 @@ class DirectoryResolver(BagResolver):
                 ext = ext[1:]
             if addIt:
                 label = self.makeLabel(fname, ext)
-                handler = getattr(self, 'processor_%s' % extensions.get(ext.lower(), None), None)
-                if not handler:
-                    processors = self.processors or {}
-                    handler = processors.get(ext.lower(), self.processor_default)
+                processors = self.processors or {}
+                processname = extensions.get(ext.lower(), None)
+                handler = processors.get(processname)
+                if handler is not False:
+                    handler = handler or getattr(self, 'processor_%s' % extensions.get(ext.lower(), 'None'), None)
+                handler = handler or self.processor_default
                 try:
                     stat = os.stat(fullpath)
                     mtime = datetime.fromtimestamp(stat.st_mtime)
@@ -2819,8 +2821,10 @@ class DirectoryResolver(BagResolver):
                                abs_path=fullpath, mtime=mtime, atime=atime, ctime=ctime, nodecaption=nodecaption,
                                caption=caption,size=size)
                 if self.callback:
-                    self.callback(nodeattr=nodeattr)
-                result.setItem(label, handler(fullpath),**nodeattr)
+                    cbres = self.callback(nodeattr=nodeattr)
+                    if cbres is False:
+                        continue
+                result.setItem(label, handler(fullpath) ,**nodeattr)
         return result
         
     def makeLabel(self, name, ext):

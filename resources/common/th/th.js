@@ -161,6 +161,7 @@ var th_sections_manager = {
                 return;
             }
             var currents = sectionsbag.getItem('current').split(',');
+            var sectionsName = n.label;
             var orlist = [];
             var conditions = sectionsbag.getItem('data');
             currents.forEach(function(current){
@@ -169,7 +170,7 @@ var th_sections_manager = {
                 if(cond){
                     var condpars = objectExtract(cn.attr,'condition_*',true);
                     for(var k in condpars){
-                        var newcondkey = k+'_'+cn.attr.code;
+                        var newcondkey = k+'_'+sectionsName+'_'+cn.attr.code;
                         kwargs[newcondkey] = condpars[k];
                         cond = cond.replace(new RegExp('([^\w.$_])('+k+')\\b','g'),'$1'+newcondkey);
                     }

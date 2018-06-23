@@ -1853,7 +1853,6 @@ class SqlTable(GnrObject):
                 self.insert(record)
 
     def dependenciesTree(self,records=None,history=None,ascmode=False):
-        print 'dependencies from',self.fullname
         history = history or dict()
         for rel in self.relations_one:
             mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')

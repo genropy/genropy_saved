@@ -84,14 +84,47 @@ dojo.declare("gnr.DashboardManager", null, {
     dupPage:function(){
 
     },
+    updatedChannels:function(channelskw){
+        var subscriptions,config;
+        var items = genro.getData(this.itemspath);
+        var workspaces = this.workspaces;
+        var sn = this.sourceNode;
+        var itemRun,item;
+        items.forEach(function(itemNode){
+            item = itemNode.getValue();
+            config = item.getItem('conf');
+            subscriptions = item.getItem('conf_subscriber');
+            itemRun=false;
+            if(!subscriptions){
+                return;
+            }
+            subscriptions.values().forEach(function(sub){
+                if(sub.getItem('topic') in channelskw){
+                    var oldval = config.getItem(sub.getItem('varpath'));
+                    var newval = channelskw[sub.getItem('topic')];
+                    if(!isEqual(oldval,newval)){
+                        config.setItem(sub.getItem('varpath'),newval);
+                        itemRun = true;
+                    }
+                }
+            }); 
+            if(itemRun){
+                sn.fireEvent(workspaces+'.'+itemNode.label+'.runItem',true);
+            }  
+        });
+    },
+
     channelsPane:function(parent){
         var src = parent.getValue();
         src.popNode('root');
         var currentChannels = this.sourceNode.getRelativeData(this.channelspath);
+        var channelsData = this.sourceNode.getRelativeData(this.channelsdata);
+        var currChannels = {};
         var root = src._('div','root',{datapath:this.channelsdata,margin_top:'4px'});
         var fb = genro.dev.formbuilder(root._('div',{margin:'8px'}),1,{border_spacing:'4px'});
         var kw,defaultWdg;
         currentChannels.forEach(function(n){
+            currChannels[n.label] = true;
             kw = n.getValue().asDict();
             defaultWdg = 'textbox';
             if(kw.dbtable){
@@ -102,6 +135,11 @@ dojo.declare("gnr.DashboardManager", null, {
                 defaultWdg = 'dateTextBox';
             }
             fb.addField(objectPop(kw,'wdg') || defaultWdg,{value:'^.'+kw.topic,lbl:kw.topic});
+        });
+        channelsData.getNodes().forEach(function(n){
+            if(!(n.label in currChannels)){
+                channelsData.popNode(n.label,false);
+            }
         });
     },
     configurationPane:function(parent){

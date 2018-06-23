@@ -5,6 +5,9 @@ from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 
 class View(BaseComponent):
+    def th_hiddencolumns(self):
+        return '$data'
+
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('code',width='10em')
@@ -12,17 +15,32 @@ class View(BaseComponent):
         r.fieldcell('pkg',width='6em')
         r.fieldcell('tbl',width='20em')
         r.fieldcell('userid',width='6em')
-        r.fieldcell('description',width='6em')
-        r.fieldcell('notes',width='6em')
+        r.fieldcell('description',width='20em')
         r.fieldcell('authtags',width='6em')
         r.fieldcell('private',width='6em')
         r.fieldcell('flags',width='6em')
-        
+        r.fieldcell('required_pkg',width='10em')
+        r.fieldcell('__mod_ts',name='Local modTS',width='10em')
+        r.fieldcell('resource_status',width='20em')
+
+        if self.isDeveloper():
+            r.cell('save_as_resource',calculated=True,format_buttonclass='buttonInGrid',
+                        format_isbutton='!!Make resource',
+                        format_onclick="""PUBLISH save_uo_as_resource = {pkeys:this.widget.getSelectedPkeys().length? this.widget.getSelectedPkeys():[this.widget.rowByIndex($1.rowIndex)['_pkey']]};""",
+                        name=' ',width='10em')
+
     def th_order(self):
         return 'code'
 
     def th_options(self):
         return dict(virtualStore=False,addrow=False)
+
+    def th_view(self,view):
+        view.dataRpc(None,self.db.table('adm.userobject').saveAsResource,
+                        subscribe_save_uo_as_resource=True,
+                       _if='pkeys',_onResult='FIRE .runQueryDo;',
+                        _lockScreen=True)
+
 
     
     def th_top_custom(self,top):

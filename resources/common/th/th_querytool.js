@@ -181,6 +181,7 @@ dojo.declare("gnr.QueryManager", null, {
                         genro.getDataNode('gnr.qb.sqlop.op.' + default_op).attr.caption);
             }
         }
+        sourceNode.setRelativeData(path + '?_owner_package', column_attr._owner_package);
         sourceNode.setRelativeData(path, '');
         sourceNode.setRelativeData(path+'?value_caption', '');
     },
@@ -457,9 +458,11 @@ dojo.declare("gnr.QueryManager", null, {
             finalize(new gnr.GnrBag());
         }
         else if(queryAttributes.pkey){
-            genro.serverCall('_table.adm.userobject.loadUserObject',{pkey:queryAttributes.pkey,table:this.maintable},function(result){
-                finalize(result._value.deepCopy(),!sourceNode.getRelativeData('.query.queryEditor'));
-            });
+            genro.serverCall('_table.adm.userobject.loadUserObject',{userObjectIdOrCode:queryAttributes.pkey,
+                                                                     tbl:this.maintable,objtype:queryAttributes.objtype},
+                                                                    function(result){
+                                                                        finalize(result._value.deepCopy(),!sourceNode.getRelativeData('.query.queryEditor'));
+                                                                    });
         }else if(queryAttributes.filteringPkeys){
             finalize(new gnr.GnrBag(),true);
         }
