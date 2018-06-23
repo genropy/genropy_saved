@@ -1,8 +1,41 @@
 genro_plugin_dashboards = {
+  
+};
 
+
+dojo.declare("gnr.DashboardManager", null, {
     regions : {headline:['top', 'bottom', 'center'], sidebar:['left', 'right', 'center']},
-
     subregions : {sidebar:['top', 'bottom', 'center'], headline:['left', 'right', 'center']},
+    
+    constructor:function(sourceNode,storepath){
+        this.sourceNode = sourceNode;
+        this.identifier = sourceNode.attr.nodeId;
+        this.edit = sourceNode.attr._editMode;
+        this.storepath = sourceNode.absDatapath(sourceNode.attr._storepath);
+        this.dashboardspath = this.storepath+'.dashboards';
+        this.itemspath = this.storepath+'.items';
+        this.channelspath = this.storepath+'.channels';
+        this.channelsdata = this.storepath+'.channels_data';
+        this.workspaces = sourceNode.absDatapath('.dashboards');
+    },
+
+    pageTrigger:function(kw,reason){
+        try {
+            if(kw.evt=='ins'){
+                //this.rebuild();
+            }else if(kw.evt=='del'){
+                this.sourceNode.getValue().popNode(kw.node.label);
+            }else if(reason=='container'){
+                this.rebuild();
+            }else if (reason=='child'){
+            }else{
+                this.rebuild();
+            }
+        } catch (error) {
+            console.error('error in dashboard store controller',error);
+        }
+    },
+
 
     dashboardItemsMenu:function(){
         if(this.edit){
@@ -10,7 +43,7 @@ genro_plugin_dashboards = {
             var node = genro.src.getNode('_dhmenues');
             node.clearValue();
             node.freeze();
-            var menupath = this.root.absDatapath('.dashboardItemsMenu');
+            var menupath = this.sourceNode.absDatapath('.dashboardItemsMenu');
             node._('menu', {modifiers:'*',_class:'smallmenu',dashboardspath:menupath,
                                             id:'dashboardItemsMenu',
                                            action:'$2.setRelativeData(".table",$1.fullpath.split(".").slice(0,2).join("."));$2.setRelativeData(".itemName",$1.resource)'});
@@ -23,9 +56,9 @@ genro_plugin_dashboards = {
     addPage:function(){
         var that = this;
         var saveCb = function(label){
-            that.root.form.save({
+            that.sourceNode.form.save({
                 onReload:function(){
-                    that.root.setRelativeData('#ANCHOR.selectedDashboard',label);
+                    that.sourceNode.setRelativeData('#ANCHOR.selectedDashboard',label);
                 }
             });
         }; 
@@ -43,7 +76,7 @@ genro_plugin_dashboards = {
     },
 
     delPage:function(){
-        var selectedDashboard = this.root.getRelativeData('.selectedDashboard');
+        var selectedDashboard = this.sourceNode.getRelativeData('.selectedDashboard');
         var pages = genro.getData(this.dashboardspath); 
         pages.popNode(selectedDashboard);
     },
@@ -51,12 +84,32 @@ genro_plugin_dashboards = {
     dupPage:function(){
 
     },
+    channelsPane:function(parent){
+        var src = parent.getValue();
+        src.popNode('root');
+        var currentChannels = this.sourceNode.getRelativeData(this.channelspath);
+        var root = src._('div','root',{datapath:this.channelsdata,margin_top:'4px'});
+        var fb = genro.dev.formbuilder(root._('div',{margin:'8px'}),1,{border_spacing:'4px'});
+        var kw,defaultWdg;
+        currentChannels.forEach(function(n){
+            kw = n.getValue().asDict();
+            defaultWdg = 'textbox';
+            if(kw.dbtable){
+                defaultWdg = 'dbselect';
+            }else if(kw.dtype=='N' || kw.dtype=='L'){
+                defaultWdg = 'numberTextBox';
+            }else if(kw.dtype=='D'){
+                defaultWdg = 'dateTextBox';
+            }
+            fb.addField(objectPop(kw,'wdg') || defaultWdg,{value:'^.'+kw.topic,lbl:kw.topic});
+        });
+    },
     configurationPane:function(parent){
         var src = parent.getValue();
         src.popNode('root');
-        var selectedDashboard = this.root.getRelativeData('.selectedDashboard');
+        var selectedDashboard = this.sourceNode.getRelativeData('.selectedDashboard');
         if(!selectedDashboard){
-            selectedDashboard = this.root.getValue().getNode('#0').label;
+            selectedDashboard = this.sourceNode.getValue().getNode('#0').label;
         }
         var currentDatapath = this.dashboardspath+'.'+selectedDashboard;
         var root = src._('div','root',{datapath:currentDatapath,margin_top:'4px'});
@@ -66,15 +119,14 @@ genro_plugin_dashboards = {
         fb.addField('filteringSelect',{value:'^.design',lbl:_T('Region'),
                         validate_onAccept:function(){
                             //that.rebuild();
-                            //that.root.setRelativeData('.selectedDashboard',selectedDashboard);
                         },
                         values:'headline,sidebar',disabled:true});
         var kw = {_class:'dhthumb'};
         var center = root._('div',kw);
         center._('div',{innerHTML:_T('Region visibility'),text_align:'center',color:'silver',
                         font_weight:'bold'});
-        root._('dataController',{script:"genro.dashboards['thumbEditor_'+design](center)",
-                                center:center,design:'^.design',_onBuilt:true});
+        root._('dataController',{script:"genro.dashboards[dashboardIdentifier]['thumbEditor_'+design](center)",
+                                center:center,design:'^.design',dashboardIdentifier:this.identifier,_onBuilt:true});
     },
 
     thumbEditor_sidebar:function(box){
@@ -170,7 +222,7 @@ genro_plugin_dashboards = {
         var pages = genro.getData(this.dashboardspath); 
         var that = this;
         this.clearRoot();
-        this.root.setRelativeData('.selectedDashboard',null);
+        this.sourceNode.setRelativeData('.selectedDashboard',null);
         pages.forEach(function(n){
             that.buildDashboard(n);
         });
@@ -210,20 +262,20 @@ genro_plugin_dashboards = {
     },
 
     clearRoot:function(){
-        var container = this.root.getValue();
+        var container = this.sourceNode.getValue();
         container.getNodes().forEach(function(n){
             container.popNode(n.label);
         });
-        this.root.setRelativeData(this.workspaces,null);
+        this.sourceNode.setRelativeData(this.workspaces,null);
     },
 
     buildDashboard:function(pageNode){
-        this.root.freeze();
-        this.root.getValue().popNode(pageNode.label);
+        this.sourceNode.freeze();
+        this.sourceNode.getValue().popNode(pageNode.label);
         var that = this;
         var pageData = pageNode.getValue();
         var design = pageData.getItem('design') || 'headline';
-        var bc = this.root._('BorderContainer',pageNode.label,{regions:'^.layout.regions',_class:'hideSplitter',
+        var bc = this.sourceNode._('BorderContainer',pageNode.label,{regions:'^.layout.regions',_class:'hideSplitter',
                                                             datapath:this.dashboardspath+'.'+pageNode.label,
                                                             pageName:pageNode.label,
                                                             design:design,title:'^.title'
@@ -235,7 +287,7 @@ genro_plugin_dashboards = {
             that.dashboard_subRegions(subbc, design,region);
         });
 
-        this.root.unfreeze();
+        this.sourceNode.unfreeze();
 
     },
     dashboard_subRegions:function(bc,design,region){
@@ -287,12 +339,14 @@ genro_plugin_dashboards = {
                                         remote:'di_buildRemoteItem',
                                         remote_py_requires:'dashboard_component/dashboard_component:DashboardItem',
                                         remote_itemIdentifier:'^.itemIdentifier',
+                                        remote_dashboardIdentifier:that.identifier,
                                         remote_itemRecord:itemRecordGetter,
                                         remote__if:'itemIdentifier',
                                         remote__else:"this.getValue().popNode('remoteItem');",
                                         remote_editMode:that.edit,
                                         remote_workspaces:that.workspaces,
                                         remote_itemspath:that.itemspath, //'dashboards.'+region+'.'+subregion,
+                                        remote_channelspath:that.channelspath,
                                         remote__waitingMessage:'Loading...',
                                         remote__onRemote:function(){
                                             //console.log('bbb',region,subregion,this);
@@ -338,7 +392,7 @@ genro_plugin_dashboards = {
     availableChartGrid:function(kw){
         var _id = kw._id;
         var _querystring = kw._querystring;
-        var data = this.root.getRelativeData(this.workspaces).getNodes().map(function(n){
+        var data = this.sourceNode.getRelativeData(this.workspaces).getNodes().map(function(n){
             var v = n.getValue();
             if(v.getItem('chart_gridId')){
                 return {caption:v.getItem('current_title'),_pkey:v.getItem('chart_gridId')};
@@ -356,4 +410,4 @@ genro_plugin_dashboards = {
         data = data.filter(cbfilter);
         return {headers:'title:Title',data:data};
     }
-};
+});

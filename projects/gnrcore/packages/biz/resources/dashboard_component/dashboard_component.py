@@ -34,7 +34,7 @@ class DashboardItem(BaseComponent):
     @struct_method
     def di_dashboardItem(self,parent,table=None,itemName=None,**kwargs):
         parent.remote(self.di_buildRemoteItem,table=table,itemName=itemName,_waitingMessage=True,**kwargs)
-    
+
     @public_method
     def di_buildRemoteItem(self,pane=None,table=None,itemName=None,itemRecord=None,**kwargs):
         table = table or itemRecord['table']
@@ -75,71 +75,81 @@ class DashboardGallery(BaseComponent):
         r.cell('conf',name='Configuration',width='20em',
                 _customGetter="""function(row){return row['conf']?row['conf'].getFormattedValue():'-';}""")
 
+
+    @struct_method
+    def di_channelsViewer(self,parent,storepath=None,datapath=None,**kwargs):
+        parent.bagGrid(storepath=storepath,datapath=datapath,
+                        struct=self._di_channelsStruct,addrow=False,**kwargs)
+
+    def _di_channelsStruct(self,struct):
+        r=struct.view().rows()
+        r.cell('topic',name='Topic',width='8em')
+        r.cell('dtype',name='DType',width='10em',values='T:Text,D:Date,B:Boolean,N:Numeric,L:Integer',edit=True)
+        r.cell('wdg',name='Widget',width='20em',edit=True)
+        r.cell('dbtable',name='Dbtable',width='20em',edit=True)
+        r.cell('condition',name='Condition',width='20em',edit=True)
+
     @struct_method
     def di_dashboardViewer(self,parent,storepath=None,edit=False,**kwargs):
         frame = parent.framePane(**kwargs)
+        dashboardNodeId = '%(frameCode)s_dashboard' %frame.attributes
         sc = frame.center.stackContainer(selectedPage='^.selectedDashboard',frameTarget=True,margin='2px',
-                                        selfsubscribe_addpage="genro.dashboards.addPage()",
-                                selfsubscribe_delpage="genro.dashboards.delPage()",
-                                selfsubscribe_duppage="genro.dashboards.dupPage()",
-                                _editMode = edit,_anchor=True,
+                                        selfsubscribe_addpage="this._dashboardManager.addPage()",
+                                selfsubscribe_delpage="this._dashboardManager.delPage()",
+                                selfsubscribe_duppage="this._dashboardManager.dupPage()",
+                                nodeId=dashboardNodeId,
+                                _editMode = edit,_storepath=storepath,_anchor=True,
+                                formsubscribe_onLoading = 'this._dashboardManager.clearRoot();' if edit else None,
                                 onCreated="""if(!genro.dashboards){
                                     genro.dashboards = objectPop(window,'genro_plugin_dashboards');
                                 }
-                                genro.dashboards.root = this;
-                                genro.dashboards.edit = this.attr._editMode;
-                                var storepath = this.absDatapath('%s');
-                                genro.dashboards.dashboardspath = storepath+'.dashboards';
-                                genro.dashboards.itemspath = storepath+'.items';
-                                genro.dashboards.workspaces = this.absDatapath('.dashboards');
-
-                                """ %storepath)
+                                this._dashboardManager = new gnr.DashboardManager(this);
+                                genro.dashboards[this.attr.nodeId] = this._dashboardManager;
+                                """)
         
         parent.dataController("""
-            try {
-                if(_triggerpars.kw.evt=='ins'){
-                    genro.dashboards.rebuild();
-                }else if(_triggerpars.kw.evt=='del'){
-                    genro.dashboards.root.getValue().popNode(_triggerpars.kw.node.label);
-                }else if(_reason=='container'){
-                    genro.dashboards.rebuild();
-                }else if (_reason=='child'){
-                }else{
-                    genro.dashboards.rebuild();
+            sc._dashboardManager.pageTrigger(_triggerpars.kw,_reason);
+        """,data='^%s.dashboards' %storepath,sc=sc)
+
+        parent.dataController("""
+            var subscriptions,config;
+            items.values().forEach(function(item){
+                config = item.getItem('conf');
+                subscriptions = item.getItem('conf_subscriber');
+                if(!subscriptions){
+                    return;
                 }
-            } catch (error) {
-                console.error('error in dashboard store controller',error);
-            }
-        """,data='^%s.dashboards' %storepath)
-        
+                subscriptions.values().forEach(function(sub){
+                    if(sub.getItem('topic') in _subscription_kwargs){
+                        config.setItem(sub.getItem('varpath'),_subscription_kwargs[sub.getItem('topic')]);
+                    }
+                });   
+            });
+        """,items='=%s.items' %storepath,
+        subscribe_dashboardItemConfig=True)
+        bar = frame.top.slotToolbar('5,stackButtons,*,channelsTooltip,5')
         if edit:
-            #parent.dataController("""
-            #        console.log('selectedDashboard',selectedDashboard);
-            #        var wdg = sc.getValue().getNode(selectedDashboard).widget;
-            #        console.log('wdg',wdg);
-            #        wdg._layoutChildren();
-            #        """,
-            #    sc=sc,
-            #    selectedDashboard='^#FORM.dashboardEditor.selectedDashboard')
-
-            parent.dataController("""genro.dashboards.clearRoot();""",
-            formsubscribe_onLoading=True)
-
-            
-        
-        bar = frame.top.slotToolbar('5,stackButtons,*')
-        if edit:
-            bar.replaceSlots('#','#,edittitle,10,paletteDashboardItems,10,delbtn,addbtn,5')
-            self.di_dashboardConfPalette(bar.edittitle.div(_class='iconbox gear',tip='!!Config'))
+            bar.replaceSlots('#','#,confTooltip,10,paletteDashboardItems,10,delbtn,addbtn,5')
+            self.di_dashboardConfTooltip(bar.confTooltip.div(_class='iconbox gear',tip='!!Config'),dashboardNodeId=dashboardNodeId)
             bar.addbtn.slotButton(iconClass='iconbox add_row',publish='addpage',parentForm=True)
             bar.delbtn.slotButton(iconClass='iconbox delete_row',publish='delpage',parentForm=True)
             #bar.dupbtn.slotButton(iconClass='iconbox copy',publish='duppage')
             palette = bar.paletteDashboardItems.paletteTree(paletteCode='dashboardItems',title='Dashboard items',dockButton=True)
             palette.data('.store',self.dashboardItemsMenu(),childname='store')
-    
-    def di_dashboardConfPalette(self,parent):
+        self.di_channelsTooltip(bar.channelsTooltip.div(_class='iconbox menu_gray_svg',parentForm=False),
+                                dashboardNodeId=dashboardNodeId)
+        parent.dataController("""
+        genro.publish('dashboardItemConfig',channelsdata.asDict());
+        """,channelsdata='^%s.channels_data' %storepath,_if='channelsdata',_userChanges=True)
+
+    def di_channelsTooltip(self,parent,dashboardNodeId=None):
         tp = parent.tooltipPane(modal=True,
-            onOpening="""genro.dashboards.configurationPane(dialogNode);""")
+            onOpening="""genro.dashboards['%s'].channelsPane(dialogNode);""" %dashboardNodeId)
+
+
+    def di_dashboardConfTooltip(self,parent,dashboardNodeId=None):
+        tp = parent.tooltipPane(modal=True,
+            onOpening="""genro.dashboards['%s'].configurationPane(dialogNode);""" %dashboardNodeId)
 
 
     @public_method
