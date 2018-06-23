@@ -100,11 +100,10 @@ class Main(BaseDashboardItem):
         fb = bc.contentPane(region='top').div(padding='10px').formbuilder()
         fb.filteringSelect(value='^.viewMode',lbl='Mode',
                             values='flatview_grid:Flat grid,stackedview_grid:Stacked view,flatview_tree:Tree,stackedview_tree:Stacked tree')
-        
+        center = bc.contentPane(region='center')
         if not self.queryPars:
-            center = bc.contentPane(region='center')
             return
-        fb = pane.formbuilder(dbtable=table,
+        fb = center.formbuilder(dbtable=table,
                             fld_validate_onAccept="SET %s.runRequired =true;" %self.workpath)
         for code,pars in self.queryPars.digest('#k,#a'):
             field = pars['field']

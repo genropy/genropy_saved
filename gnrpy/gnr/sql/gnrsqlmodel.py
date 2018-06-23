@@ -72,6 +72,11 @@ class DbModel(object):
         * load all relations from Db structure
         """
         
+        def _on_ins_column(n,pkg_id):
+            tag = n.attr.get('tag')
+            if tag and 'column' in tag:
+                n.attr['_owner_package'] = pkg_id
+
         def _doObjMixinConfig(objmix, pkgsrc):
             if hasattr(objmix, 'config_db'):
                 objmix.config_db(pkgsrc)
@@ -79,7 +84,10 @@ class DbModel(object):
                 for pkg_id in self.db.application.packages.keys():
                     config_from_pkg = getattr(objmix,'config_db_%s'%pkg_id,None)
                     if config_from_pkg:
+                        pkgsrc.subscribe('customize_%s' %pkg_id,insert=lambda node=None,**kwargs: _on_ins_column(node,pkg_id))
                         config_from_pkg(pkgsrc)
+                        pkgsrc.unsubscribe('customize_%s' %pkg_id)
+
             if hasattr(objmix, 'config_db_custom'):
                 objmix.config_db_custom(pkgsrc)
                 

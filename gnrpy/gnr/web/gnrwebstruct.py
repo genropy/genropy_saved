@@ -37,6 +37,7 @@ def cellFromField(field,tableobj,checkPermissions=None):
     kwargs = dict()
     fldobj = tableobj.column(field)
     fldattr = dict(fldobj.attributes or dict())
+        
     if (fldattr.get('cell_edit') or fldattr.get('edit'))\
          and fldobj.table.fullname!=fldobj.fullname:
         fldattr.pop('cell_edit',None)
@@ -68,6 +69,9 @@ def cellFromField(field,tableobj,checkPermissions=None):
     kwargs['width'] = '%iem' % int(fldobj.print_width*.6) if fldobj.print_width else None
     if fldattr.get('caption_field'):
         kwargs['caption_field'] = fldattr['caption_field']
+    if fldattr.get('_owner_package'):
+        kwargs['_owner_package'] = fldattr['_owner_package']
+
     relfldlst = tableobj.fullRelationPath(field).split('.')
     validations = dictExtract(fldobj.attributes,'validate_',slice_prefix=False)
     if fldattr.get('user_readonly'):

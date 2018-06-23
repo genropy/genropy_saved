@@ -53,11 +53,32 @@ class DashboardGallery(BaseComponent):
     py_requires='dashboard_component/dashboard_component:DashboardItem'
 
     @struct_method
-    def di_dashboardGallery(self,parent,pkg=None,code=None,datapath=None,**kwargs):
-        datapath =datapath or 'dashboard_%s_%s' %(pkg,code)
+    def di_dashboardGallery(self,parent,pkg=None,code=None,datapath=None,nodeId=None,**kwargs):
+        nodeId =nodeId or '%s_%s' %(pkg,code)
+        datapath = datapath or nodeId
         bc = parent.borderContainer(_anchor=True,datapath=datapath,**kwargs)
-        bc.dataRecord('.dashboard_record','biz.dashboard',pkgid=pkg,code=code,_onBuilt=True)
-        bc.dashboardViewer(storepath='.dashboard_record.data',region='center')
+        bc.dataRecord('.dashboard_record','biz.dashboard',applymethod=self.di_applyGalleryConfigurations,
+                        pkgid=pkg,code=code,_onBuilt=True,_if='pkgid && code')
+        bc.dataRpc(None,self.di_saveGalleryConfigurations,dashboard_key='=.dashboard_record.dashboard_key',
+                            dashboard_data='^.dashboard_record.data',_delay=500,_if='_reason=="child"')
+        bc.dashboardViewer(storepath='.dashboard_record.data',region='center',nodeId=nodeId)
+        return bc
+
+    @public_method
+    def di_applyGalleryConfigurations(self,record,**kwargs):
+        userconfig = self.db.table('biz.dashboard_config').record(dashboard_key=record['dashboard_key'],username=self.user,
+                                                                    ignoreMissing=True).output('record')
+        if not userconfig['data']:
+            return
+        record['data'].update(userconfig['data']) 
+    
+    @public_method
+    def di_saveGalleryConfigurations(self,dashboard_key=None,dashboard_data=None,**kwargs):
+        tblobj = self.db.table('biz.dashboard_config')
+        with tblobj.recordToUpdate(username=self.user,dashboard_key=dashboard_key,insertMissing=True) as rec:
+            rec['data'] = dashboard_data
+        self.db.commit()
+
 
     @struct_method
     def di_itemsViewer(self,parent,storepath=None,datapath=None,**kwargs):
@@ -90,13 +111,15 @@ class DashboardGallery(BaseComponent):
         r.cell('condition',name='Condition',width='20em',edit=True)
 
     @struct_method
-    def di_dashboardViewer(self,parent,storepath=None,edit=False,**kwargs):
-        frame = parent.framePane(**kwargs)
-        dashboardNodeId = '%(frameCode)s_dashboard' %frame.attributes
+    def di_dashboardViewer(self,parent,storepath=None,edit=False,nodeId=None,**kwargs):
+        frameCode = '%s_frame' %nodeId if nodeId else None
+        frame = parent.framePane(frameCode=frameCode,**kwargs)
+        dashboardNodeId = nodeId or '%(frameCode)s_dashboard' %frame.attributes
         sc = frame.center.stackContainer(selectedPage='^.selectedDashboard',frameTarget=True,margin='2px',
                                         selfsubscribe_addpage="this._dashboardManager.addPage()",
                                 selfsubscribe_delpage="this._dashboardManager.delPage()",
                                 selfsubscribe_duppage="this._dashboardManager.dupPage()",
+                                selfsubscribe_updatedChannels="""this._dashboardManager.updatedChannels($1)""",
                                 nodeId=dashboardNodeId,
                                 _editMode = edit,_storepath=storepath,_anchor=True,
                                 formsubscribe_onLoading = 'this._dashboardManager.clearRoot();' if edit else None,
@@ -110,23 +133,6 @@ class DashboardGallery(BaseComponent):
         parent.dataController("""
             sc._dashboardManager.pageTrigger(_triggerpars.kw,_reason);
         """,data='^%s.dashboards' %storepath,sc=sc)
-
-        parent.dataController("""
-            var subscriptions,config;
-            items.values().forEach(function(item){
-                config = item.getItem('conf');
-                subscriptions = item.getItem('conf_subscriber');
-                if(!subscriptions){
-                    return;
-                }
-                subscriptions.values().forEach(function(sub){
-                    if(sub.getItem('topic') in _subscription_kwargs){
-                        config.setItem(sub.getItem('varpath'),_subscription_kwargs[sub.getItem('topic')]);
-                    }
-                });   
-            });
-        """,items='=%s.items' %storepath,
-        subscribe_dashboardItemConfig=True)
         bar = frame.top.slotToolbar('5,stackButtons,*,channelsTooltip,5')
         if edit:
             bar.replaceSlots('#','#,confTooltip,10,paletteDashboardItems,10,delbtn,addbtn,5')
@@ -139,9 +145,11 @@ class DashboardGallery(BaseComponent):
         self.di_channelsTooltip(bar.channelsTooltip.div(_class='iconbox menu_gray_svg',parentForm=False),
                                 dashboardNodeId=dashboardNodeId)
         parent.dataController("""
-        genro.publish('dashboardItemConfig',channelsdata.asDict());
-        """,channelsdata='^%s.channels_data' %storepath,_if='channelsdata',_userChanges=True)
-
+        if(_reason!='child'){
+            return;
+        }
+        genro.dashboards[dashboardNodeId].sourceNode.publish('updatedChannels',channelsdata.asDict());
+        """,channelsdata='^%s.channels_data' %storepath,_if='channelsdata',dashboardNodeId=dashboardNodeId)
     def di_channelsTooltip(self,parent,dashboardNodeId=None):
         tp = parent.tooltipPane(modal=True,
             onOpening="""genro.dashboards['%s'].channelsPane(dialogNode);""" %dashboardNodeId)

@@ -49,6 +49,6 @@ class GnrCustomWebPage(object):
         else:
             frame.data('main.selected_pkg',pkg)
             frame.data('main.selected_code',code)
-        frame.dashboardGallery(datapath='.gallery',pkg='^main.selected_pkg',code='^main.selected_code')
+        frame.dashboardGallery(nodeId='gallery',datapath='.gallery',pkg='^main.selected_pkg',code='^main.selected_code')
 
         

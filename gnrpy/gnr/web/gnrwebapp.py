@@ -47,6 +47,7 @@ class GnrWsgiWebApp(GnrApp):
         self.cache = WebApplicationCache(self)
 
     def notifyDbUpdate(self,tblobj,recordOrPkey=None,**kwargs):
+        print 'notifyDbUpdate',recordOrPkey
         if isinstance(recordOrPkey,list):
             records = recordOrPkey
         elif not recordOrPkey and kwargs:
@@ -63,6 +64,7 @@ class GnrWsgiWebApp(GnrApp):
             else:
                 records = [recordOrPkey]
         for record in records:
+            print 'notify dbevent',record
             self.notifyDbEvent(tblobj, record, 'U')
 
     def notifyDbEvent(self, tblobj, record, event, old_record=None,**kwargs):
@@ -91,6 +93,7 @@ class GnrWsgiWebApp(GnrApp):
                         if newvalue!=oldvalue:
                             r['old_%s' %field] = self.catalog.asTypedText(old_record.get(field))
             r['autoCommit'] = self.db.currentEnv.get('autoCommit')
+            print 'append in dbevent',r
             dbevents.setdefault(tblobj.fullname,[]).append(r)
         audit_mode = tblobj.attributes.get('audit')
         if audit_mode:
