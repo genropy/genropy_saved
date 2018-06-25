@@ -342,7 +342,6 @@ class TableHandlerView(BaseComponent):
         
 
     def _th_biz_dashboardOnView(self,view):
-        return
         if not self.db.package('biz'):
             return
         self.mixinComponent('dashboard_component/dashboard_component:DashboardGallery')
@@ -355,7 +354,7 @@ class TableHandlerView(BaseComponent):
         pkg,tbl = table.split('.')
         dashboardGalleryId = '%s_dashboardGallery' %linkedTo
         pane.dataController("""var kw = {};
-                            kw[table+'.'+tablepkey] = selectedPkeys;
+                            kw[table.replace('.','_')+'_pkey'] = selectedPkeys;
                             genro.nodeById(dashboardGalleryId).publish('updatedChannels',kw)""",
                             selectedPkeys='^.grid.currentSelectedPkeys',
                             dashboardGalleryId=dashboardGalleryId,table=table,tablepkey=self.db.table(table).pkey)
