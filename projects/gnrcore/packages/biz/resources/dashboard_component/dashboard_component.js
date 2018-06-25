@@ -16,6 +16,7 @@ dojo.declare("gnr.DashboardManager", null, {
         this.itemspath = this.storepath+'.items';
         this.channelspath = this.storepath+'.channels';
         this.channelsdata = this.storepath+'.channels_data';
+        this.externalChannels = sourceNode.attr._externalChannels || [];
         this.workspaces = sourceNode.absDatapath('.dashboards');
     },
 
@@ -85,6 +86,9 @@ dojo.declare("gnr.DashboardManager", null, {
 
     },
     updatedChannels:function(channelskw){
+        if(!genro.dom.isVisible(this.sourceNode)){
+            return;
+        }
         var subscriptions,config;
         var items = genro.getData(this.itemspath);
         var workspaces = this.workspaces;
@@ -123,8 +127,12 @@ dojo.declare("gnr.DashboardManager", null, {
         var root = src._('div','root',{datapath:this.channelsdata,margin_top:'4px'});
         var fb = genro.dev.formbuilder(root._('div',{margin:'8px'}),1,{border_spacing:'4px'});
         var kw,defaultWdg;
+        var externalChannels = this.externalChannels;
         currentChannels.forEach(function(n){
             currChannels[n.label] = true;
+            if(externalChannels.indexOf(n.label)>=0){
+                return;
+            }
             kw = n.getValue().asDict();
             defaultWdg = 'textbox';
             if(kw.dbtable){
@@ -134,13 +142,15 @@ dojo.declare("gnr.DashboardManager", null, {
             }else if(kw.dtype=='D'){
                 defaultWdg = 'dateTextBox';
             }
-            fb.addField(objectPop(kw,'wdg') || defaultWdg,{value:'^.'+kw.topic,lbl:kw.topic});
+            fb.addField(objectPop(kw,'wdg') || defaultWdg,{value:'^.'+kw.topic,lbl:kw.topic,dbtable:kw.dbtable});
         });
-        channelsData.getNodes().forEach(function(n){
-            if(!(n.label in currChannels)){
-                channelsData.popNode(n.label,false);
-            }
-        });
+        if(channelsData){
+            channelsData.getNodes().forEach(function(n){
+                if(!(n.label in currChannels)){
+                    channelsData.popNode(n.label,false);
+                }
+            });
+        }
     },
     configurationPane:function(parent){
         var src = parent.getValue();
@@ -261,9 +271,11 @@ dojo.declare("gnr.DashboardManager", null, {
         var that = this;
         this.clearRoot();
         this.sourceNode.setRelativeData('.selectedDashboard',null);
-        pages.forEach(function(n){
-            that.buildDashboard(n);
-        });
+        if(pages){
+            pages.forEach(function(n){
+                that.buildDashboard(n);
+            });
+        }
     },
 
     cleanUnusedItems:function(){

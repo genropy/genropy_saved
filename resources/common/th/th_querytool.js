@@ -166,6 +166,7 @@ dojo.declare("gnr.QueryManager", null, {
             fc[fc.length-1] = fkeyfield;
             fullcaption = fc.join('/');
             column = fl.join('.');
+            sourceNode.setRelativeData(path + '?column_relationTo', column_attr.one_relation);
         }
         sourceNode.setRelativeData(path + '?column_caption', fullcaption);
         sourceNode.setRelativeData(path + '?column', column);

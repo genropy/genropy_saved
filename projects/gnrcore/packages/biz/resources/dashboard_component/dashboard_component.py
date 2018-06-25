@@ -62,7 +62,7 @@ class DashboardGallery(BaseComponent):
                         pkgid=pkg,code=code,_onBuilt=True,_if='pkgid && code')
         bc.dataRpc(None,self.di_saveGalleryConfigurations,dashboard_key='=.dashboard_record.dashboard_key',
                             dashboard_data='^.dashboard_record.data',_delay=500,_if='_reason=="child"')
-        frame = bc.dashboardViewer(storepath='.dashboard_record.data',region='center',nodeId=nodeId)
+        frame = bc.dashboardViewer(storepath='.dashboard_record.data',region='center',nodeId=nodeId,channel_kwargs=channel_kwargs)
         if self.isDeveloper():
             bar = frame.top.bar.replaceSlots('#','#,editrec,5')  
             bar.editrec.slotButton('!!Edit',action="""
@@ -77,7 +77,7 @@ class DashboardGallery(BaseComponent):
                                                         """,
                                     iconClass='iconbox pencil',pkg=pkg,code=code,
                                     dashboard_key='=.dashboard_record.dashboard_key')
-        bc.dataController("""genro.nodeById(dashboardNodeId).publish('updatedChannels',_kwargs)""",
+        parent.dataController("""genro.nodeById(dashboardNodeId).publish('updatedChannels',_kwargs)""",
                             dashboardNodeId=nodeId,_delay=100,
                             **channel_kwargs)
         return bc
@@ -126,7 +126,7 @@ class DashboardGallery(BaseComponent):
         r.cell('condition',name='Condition',width='20em',edit=True)
 
     @struct_method
-    def di_dashboardViewer(self,parent,storepath=None,edit=False,nodeId=None,**kwargs):
+    def di_dashboardViewer(self,parent,storepath=None,edit=False,nodeId=None,channel_kwargs=None,**kwargs):
         frameCode = '%s_frame' %nodeId if nodeId else None
         frame = parent.framePane(frameCode=frameCode,**kwargs)
         dashboardNodeId = nodeId or '%(frameCode)s_dashboard' %frame.attributes
@@ -137,6 +137,7 @@ class DashboardGallery(BaseComponent):
                                 selfsubscribe_updatedChannels="""this._dashboardManager.updatedChannels($1)""",
                                 nodeId=dashboardNodeId,
                                 _editMode = edit,_storepath=storepath,_anchor=True,
+                                _externalChannels = channel_kwargs.keys(),
                                 formsubscribe_onLoading = 'this._dashboardManager.clearRoot();' if edit else None,
                                 onCreated="""if(!genro.dashboards){
                                     genro.dashboards = objectPop(window,'genro_plugin_dashboards');
@@ -157,6 +158,7 @@ class DashboardGallery(BaseComponent):
             #bar.dupbtn.slotButton(iconClass='iconbox copy',publish='duppage')
             palette = bar.paletteDashboardItems.paletteTree(paletteCode='dashboardItems',title='Dashboard items',dockButton=True)
             palette.data('.store',self.dashboardItemsMenu(),childname='store')
+        
         self.di_channelsTooltip(bar.channelsTooltip.div(_class='iconbox menu_gray_svg',parentForm=False),
                                 dashboardNodeId=dashboardNodeId)
         parent.dataController("""

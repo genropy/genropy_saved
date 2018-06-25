@@ -108,18 +108,18 @@ class Main(BaseDashboardItem):
         fb = center.formbuilder(dbtable=table,
                             fld_validate_onAccept="SET %s.runRequired =true;" %self.workpath)
         for code,pars in self.queryPars.digest('#k,#a'):
+            autoTopic = False
             if code.endswith('*'):
                 code = code[0:-1]
-                fb.data('.wherepars_%s' %code,None,autoTopic=code)
-                continue
+                autoTopic = True
             field = pars['field']
             rc = self.db.table(table).column(field).relatedColumn()
             wherepath = pars['relpath']
             if pars['op'] == 'equal' and rc is not None:
-                fb.dbSelect(field,value='^.wherepars_%s' %code,lbl=pars['lbl'],
-                            default_value=pars['dflt'],
-                            dbtable=rc.table.fullname)
+                wdg = fb.dbSelect(field,value='^.wherepars_%s' %code,lbl=pars['lbl'],
+                                    #attr_wdg='dbselect',attr_dbtable=rc.table.fullname,
+                                    dbtable=rc.table.fullname,hidden=autoTopic)
             else:
-                fb.textbox(value='^.wherepars_%s' %code,
-                            default_value=pars['dflt'],
-                            lbl=pars['lbl'])
+                wdg = fb.textbox(value='^.wherepars_%s' %code,lbl=pars['lbl'],hidden=autoTopic)
+            fb.data('.wherepars_%s' %code,pars['dflt'],wdg_tag=wdg.attributes['tag'],
+                    wdg_dbtable=wdg.attributes.get('dbtable'),autoTopic=autoTopic)

@@ -148,18 +148,21 @@ class BaseDashboardItem(object):
                         addrow=False,
                         margin='2px',border='1px solid silver')
         frame.dataController("""
-            var conf = genro.getData(confpath);
             var conf_subscribers = genro.getData(subspath) || new gnr.GnrBag();
-            conf.getNodes().forEach(function(n){
+            genro.getData(confpath).getNodes().forEach(function(n){
                 if(n.attr.autoTopic){
-                    conf_subscribers.setItem(n.attr.autoTopic,new gnr.GnrBag({topic:n.attr.autoTopic,varpath:n.label}));
+                    conf_subscribers.setItem(n.attr.autoTopic,new gnr.GnrBag({topic:n.attr.autoTopic,varpath:n.label,
+                                                                            wdg:n.attr.wdg_tag,
+                                                                            dbtable:n.attr.wdg_dbtable}));
                 }
             })
             var cb = function(){
                 var result = new gnr.GnrBag();
-                conf.forEach(function(n){
-                    if(!n._value){
-                        result.setItem(n.label,null,{caption:n.attr.lbl || n.label,default_kw:{varpath:n.label}});
+                genro.getData(confpath).forEach(function(confNode){
+                    if(!confNode._value){
+                        result.setItem(confNode.label,null,{caption:confNode.attr.lbl || confNode.label,default_kw:{varpath:confNode.label,
+                                                                                                wdg:confNode.attr.wdg_tag,
+                                                                                                dbtable:confNode.attr.wdg_dbtable}});
                     }
                 });
                 return result;
@@ -176,7 +179,7 @@ class BaseDashboardItem(object):
         subscribers.values().forEach(function(v){
             var topic = v.getItem('topic');
             if(!channels.getNode(topic)){
-                channels.setItem(topic,new gnr.GnrBag({topic:topic}));
+                channels.setItem(topic,new gnr.GnrBag({topic:topic,wdg:v.getItem('wdg'),dbtable:v.getItem('dbtable')}));
             }
         });
         """,channelspath=self.channelspath,
