@@ -1733,8 +1733,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                        * **rowcaption**: the textual representation of a record in a user query.
                          For more information, check the :ref:`rowcaption` section
         """
-        newkwargs = self._fieldDecode(field, **kwargs)
-        kwargs.pop('lbl',None) #inside _fielddecode routine
+        newkwargs = self.prepareFieldAttributes(field, **kwargs)
+        kwargs.pop('lbl',None)
         newkwargs.update(kwargs)
         tag = newkwargs.pop('tag')
         handler = getattr(self,tag)
@@ -1743,7 +1743,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def placeFields(self, fieldlist=None, **kwargs):
         """TODO"""
         for field in fieldlist.split(','):
-            kwargs = self._fieldDecode(field)
+            kwargs = self.prepareFieldAttributes(field)
             tag = kwargs.pop('tag')
             self.child(tag, **kwargs)
         return self
@@ -1759,7 +1759,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             else:
                 pane.radioButton(label, group=group)
 
-    def _fieldDecode(self, fld, **kwargs):
+    def prepareFieldAttributes(self, fld, **kwargs):
         parentfb = self.parentfb
         tblobj = None
         if '.' in fld and not fld.startswith('@'):
