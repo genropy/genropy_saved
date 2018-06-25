@@ -56,32 +56,9 @@ class Main(BaseDashboardItem):
 
         frame.grid.attributes['configurable'] = True #no full configurator but allow selfdragging cols
         frame.stackedView.grid.attributes['configurable'] = True #no full configurator but allow selfdragging cols
-
-        frame.dataController("""
-            if(queryPars){
-                queryPars.forEach(function(n){
-                    var label = n.label.endsWith('*')?n.label.slice(0,n.label.length-1):n.label;
-                    where.setItem(n.attr.relpath,conf.getItem('wherepars_'+label));
-                });
-            }
-            FIRE .runStore;
-        """,conf='=%s.conf' %self.storepath,
-            queryPars='=.query.queryPars',
-            where='=.query.where',
-            _fired='^%s.runItem' %self.workpath)
-        bc.dataController("""var wherePars = new gnr.GnrBag();
-                        var subspath = conf_subscriber?conf_subscriber.values().map(v => v.getItem('varpath')):[]
-                        conf.forEach(function(n){
-                            if(n.label.startsWith('wherepars_') && subspath.indexOf(n.label)<0){
-                                wherePars.setItem(n.label.slice(10),n.getValue(),n.attr);
-                            }
-                        });
-                        SET .whereParsFormatted = wherePars.getFormattedValue({joiner:' - '});""",
-                    conf='^.conf',conf_subscriber='=.conf_subscriber',_delay=1)
-
+        self.content_handleQueryPars(frame)
         bc.dataFormula('.currentLinkableGrid','itemIdentifier+(groupMode=="stackedview"?"_stacked_grid":"_grid");',datapath=self.workpath,
                             groupMode='^.groupMode',itemIdentifier=self.itemIdentifier)
-
         self.queryPars = data['queryPars']
         frame.data('.always',True)
         frame.data('.query.where',data['where'])
@@ -105,21 +82,4 @@ class Main(BaseDashboardItem):
         center = bc.contentPane(region='center')
         if not self.queryPars:
             return
-        fb = center.formbuilder(dbtable=table,
-                            fld_validate_onAccept="SET %s.runRequired =true;" %self.workpath)
-        for code,pars in self.queryPars.digest('#k,#a'):
-            autoTopic = False
-            if code.endswith('*'):
-                code = code[0:-1]
-                autoTopic = True
-            field = pars['field']
-            rc = self.db.table(table).column(field).relatedColumn()
-            wherepath = pars['relpath']
-            if pars['op'] == 'equal' and rc is not None:
-                wdg = fb.dbSelect(field,value='^.wherepars_%s' %code,lbl=pars['lbl'],
-                                    #attr_wdg='dbselect',attr_dbtable=rc.table.fullname,
-                                    dbtable=rc.table.fullname,hidden=autoTopic)
-            else:
-                wdg = fb.textbox(value='^.wherepars_%s' %code,lbl=pars['lbl'],hidden=autoTopic)
-            fb.data('.wherepars_%s' %code,pars['dflt'],wdg_tag=wdg.attributes['tag'],
-                    wdg_dbtable=wdg.attributes.get('dbtable'),autoTopic=autoTopic)
+        self.configuration_handleQueryPars(center,table)

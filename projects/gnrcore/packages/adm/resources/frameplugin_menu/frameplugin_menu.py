@@ -204,6 +204,8 @@ class MenuResolver(BagResolver):
         result = Bag()
         f = self._page.db.table('biz.dashboard').query(where='$pkgid=:pk' if pkg is not True else None).fetch()
         for i,r in enumerate(f):
+            if r['private']:
+                continue
             label = 'dash_%s' %i
-            result.setItem(label,None,file='/biz/dashboards/%(pkgid)s/%(code)s' %r,label=r['description'] or label)
+            result.setItem(label,None,file='/biz/dashboards/%(pkgid)s/%(code)s' %r,label=r['description'] or r['code'])
         return result

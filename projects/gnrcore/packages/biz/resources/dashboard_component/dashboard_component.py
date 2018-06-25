@@ -56,7 +56,7 @@ class DashboardGallery(BaseComponent):
     @struct_method
     def di_dashboardGallery(self,parent,pkg=None,code=None,datapath=None,nodeId=None,channel_kwargs=None,**kwargs):
         nodeId =nodeId or '%s_%s' %(pkg,code)
-        datapath = datapath or nodeId
+        datapath = datapath or '.%s' %nodeId
         bc = parent.borderContainer(_anchor=True,datapath=datapath,**kwargs)
         bc.dataRecord('.dashboard_record','biz.dashboard',applymethod=self.di_applyGalleryConfigurations,
                         pkgid=pkg,code=code,_onBuilt=True,_if='pkgid && code')
@@ -69,7 +69,7 @@ class DashboardGallery(BaseComponent):
                                     var onSavedCb=function(){
                                         console.log('onsaved',arguments);
                                     };
-                                    var openKw = {default_pkgid:pkg,default_code:code};
+                                    var openKw = {default_pkgid:pkg,default_code:code,default_private:true};
                                     genro.dlg.zoomPalette({height:'700px',width:'800px',table:'biz.dashboard',
                                                             pkey:dashboard_key || '*newrecord*',
                                                             formResource:'FormIncluded',main_call:'main_form',
@@ -128,12 +128,14 @@ class DashboardGallery(BaseComponent):
     @struct_method
     def di_dashboardViewer(self,parent,storepath=None,edit=False,nodeId=None,channel_kwargs=None,**kwargs):
         frameCode = '%s_frame' %nodeId if nodeId else None
+        channel_kwargs = channel_kwargs or dict()
         frame = parent.framePane(frameCode=frameCode,**kwargs)
         dashboardNodeId = nodeId or '%(frameCode)s_dashboard' %frame.attributes
         sc = frame.center.stackContainer(selectedPage='^.selectedDashboard',frameTarget=True,margin='2px',
                                         selfsubscribe_addpage="this._dashboardManager.addPage()",
                                 selfsubscribe_delpage="this._dashboardManager.delPage()",
                                 selfsubscribe_duppage="this._dashboardManager.dupPage()",
+                                selfsubscribe_channelsEdit = "this._dashboardManager.channelsEdit();",
                                 selfsubscribe_updatedChannels="""this._dashboardManager.updatedChannels($1)""",
                                 nodeId=dashboardNodeId,
                                 _editMode = edit,_storepath=storepath,_anchor=True,
@@ -142,6 +144,9 @@ class DashboardGallery(BaseComponent):
                                 onCreated="""if(!genro.dashboards){
                                     genro.dashboards = objectPop(window,'genro_plugin_dashboards');
                                 }
+                                if(this._dashboardManager){
+                                    return;
+                                }
                                 this._dashboardManager = new gnr.DashboardManager(this);
                                 genro.dashboards[this.attr.nodeId] = this._dashboardManager;
                                 """)
@@ -149,7 +154,7 @@ class DashboardGallery(BaseComponent):
         parent.dataController("""
             sc._dashboardManager.pageTrigger(_triggerpars.kw,_reason);
         """,data='^%s.dashboards' %storepath,sc=sc)
-        bar = frame.top.slotToolbar('5,stackButtons,*,channelsTooltip,5')
+        bar = frame.top.slotToolbar('5,stackButtons,*,channelsEdit,5')
         if edit:
             bar.replaceSlots('#','#,confTooltip,10,paletteDashboardItems,10,delbtn,addbtn,5')
             self.di_dashboardConfTooltip(bar.confTooltip.div(_class='iconbox gear',tip='!!Config'),dashboardNodeId=dashboardNodeId)
@@ -159,19 +164,17 @@ class DashboardGallery(BaseComponent):
             palette = bar.paletteDashboardItems.paletteTree(paletteCode='dashboardItems',title='Dashboard items',dockButton=True)
             palette.data('.store',self.dashboardItemsMenu(),childname='store')
         
-        self.di_channelsTooltip(bar.channelsTooltip.div(_class='iconbox menu_gray_svg',parentForm=False),
-                                dashboardNodeId=dashboardNodeId)
+        bar.channelsEdit.slotButton('!!Channels',publish='channelsEdit',disabled='^.channels?=#v?#v.len()==0:true',
+                                    datapath=storepath,parentForm=False)
         parent.dataController("""
         if(_reason!='child'){
             return;
         }
         genro.dashboards[dashboardNodeId].sourceNode.publish('updatedChannels',channelsdata.asDict());
-        """,channelsdata='^%s.channels_data' %storepath,_if='channelsdata',dashboardNodeId=dashboardNodeId)
+        """,datapath=storepath,channelsdata='^.channels_data',_if='channelsdata',dashboardNodeId=dashboardNodeId)
         return frame
 
-    def di_channelsTooltip(self,parent,dashboardNodeId=None):
-        tp = parent.tooltipPane(modal=True,
-            onOpening="""genro.dashboards['%s'].channelsPane(dialogNode);""" %dashboardNodeId)
+
 
     def di_dashboardConfTooltip(self,parent,dashboardNodeId=None):
         tp = parent.tooltipPane(modal=True,
