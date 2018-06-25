@@ -803,16 +803,16 @@ class TableHandlerView(BaseComponent):
         frame.dataController("""
             th_sections_manager.updateSectionsStatus(sectionbag,genro.getFrameNode(th_root));
             var loadingData = GET .grid.loadingData;
-            if(lastQueryTime!==null && !loadingData){
+            var storeNode = grid.collectionStore().storeNode
+            if(storeNode._lastRpcTs && !loadingData){
                 FIRE .runQueryDo;
             }
             """,
             th_root=th_root,
-            
             lastQueryTime = '=.store?servertime',
             sectionbag = '=.sections',
             _fired = '^.sections_changed',
-            _if = 'sectionbag.len()',
+            _if = 'sectionbag.len()',grid=frame.grid.js_widget,
             _delay = 100)
         frame.dataController("""
             this.fireEvent('.runQueryDo_'+viewPage,true);
