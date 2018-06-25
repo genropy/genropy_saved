@@ -205,8 +205,7 @@ class TableHandlerView(BaseComponent):
                                configurable=configurable,**kwargs)  
         if statsEnabled:
             self._th_handle_stats_pages(frame)
-            self._th_biz_dashboardOnView(frame)
-            #frame.linkedGroupByAnalyzer()
+            frame.viewLinkedDashboard()
         self._th_handle_page_hooks(frame,page_hooks)
         self._th_menu_sources(frame,extendedQuery=extendedQuery,bySample=bySample)
         self._th_viewController(frame,table=table,default_totalRowCount=extendedQuery == '*')
@@ -340,26 +339,6 @@ class TableHandlerView(BaseComponent):
         if self.ths_pandas_available():
             sc.contentPane(title='!!Pivot table',pageName='pandas').tableHandlerStats(datapath='.pandas')
         
-
-    def _th_biz_dashboardOnView(self,view):
-        if not self.db.package('biz'):
-            return
-        self.mixinComponent('dashboard_component/dashboard_component:DashboardGallery')
-        linkedTo=view.attributes.get('frameCode')
-        table = view.grid.attributes.get('table')
-        #frameCode = '%s_biz_analyzer' %linkedTo
-        pane = view.grid_envelope.contentPane(region='bottom',height='300px',
-                                                closable='close',margin='2px',splitter=True,
-                                                border_top='1px solid #efefef')
-        pkg,tbl = table.split('.')
-        dashboardGalleryId = '%s_dashboardGallery' %linkedTo
-        pane.dataController("""var kw = {};
-                            kw[table.replace('.','_')+'_pkey'] = selectedPkeys;
-                            genro.nodeById(dashboardGalleryId).publish('updatedChannels',kw)""",
-                            selectedPkeys='^.grid.currentSelectedPkeys',
-                            dashboardGalleryId=dashboardGalleryId,table=table,tablepkey=self.db.table(table).pkey)
-        pane.dashboardGallery(pkg=pkg,code=linkedTo,nodeId=dashboardGalleryId)
-
 
     @struct_method
     def th_viewLeftDrawer(self,pane,table,th_root):

@@ -304,9 +304,6 @@ dojo.declare("gnr.DashboardManager", null, {
                 that.buildDashboard(n);
             });
         }
-        if(!this.edit && this.sourceNode.form){
-            this.registerFormSubscriptions();
-        }
     },
 
     registerFormSubscriptions:function(){
