@@ -41,7 +41,6 @@ class View(BaseComponent):
                        _if='pkeys',_onResult='FIRE .runQueryDo;',
                         _lockScreen=True)
 
-
     
     def th_top_custom(self,top):
         top.slotToolbar('2,sections@packages,*,sections@types',childname='upper',_position='<bar')

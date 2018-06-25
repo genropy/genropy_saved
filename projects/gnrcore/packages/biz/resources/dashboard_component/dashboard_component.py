@@ -52,8 +52,9 @@ class DashboardItem(BaseComponent):
 class DashboardGallery(BaseComponent):
     py_requires='dashboard_component/dashboard_component:DashboardItem'
 
+    @extract_kwargs(channel=True)
     @struct_method
-    def di_dashboardGallery(self,parent,pkg=None,code=None,datapath=None,nodeId=None,**kwargs):
+    def di_dashboardGallery(self,parent,pkg=None,code=None,datapath=None,nodeId=None,channel_kwargs=None,**kwargs):
         nodeId =nodeId or '%s_%s' %(pkg,code)
         datapath = datapath or nodeId
         bc = parent.borderContainer(_anchor=True,datapath=datapath,**kwargs)
@@ -61,7 +62,24 @@ class DashboardGallery(BaseComponent):
                         pkgid=pkg,code=code,_onBuilt=True,_if='pkgid && code')
         bc.dataRpc(None,self.di_saveGalleryConfigurations,dashboard_key='=.dashboard_record.dashboard_key',
                             dashboard_data='^.dashboard_record.data',_delay=500,_if='_reason=="child"')
-        bc.dashboardViewer(storepath='.dashboard_record.data',region='center',nodeId=nodeId)
+        frame = bc.dashboardViewer(storepath='.dashboard_record.data',region='center',nodeId=nodeId)
+        if self.isDeveloper():
+            bar = frame.top.bar.replaceSlots('#','#,editrec,5')  
+            bar.editrec.slotButton('!!Edit',action="""
+                                    var onSavedCb=function(){
+                                        console.log('onsaved',arguments);
+                                    };
+                                    var openKw = {default_pkgid:pkg,default_code:code};
+                                    genro.dlg.zoomPalette({height:'700px',width:'800px',table:'biz.dashboard',
+                                                            pkey:dashboard_key || '*newrecord*',
+                                                            formResource:'FormIncluded',main_call:'main_form',
+                                                            onSavedCb:onSavedCb,palette_top:'355px',palette_right:'405px'},openKw);
+                                                        """,
+                                    iconClass='iconbox pencil',pkg=pkg,code=code,
+                                    dashboard_key='=.dashboard_record.dashboard_key')
+        bc.dataController("""genro.nodeById(dashboardNodeId).publish('updatedChannels',_kwargs)""",
+                            dashboardNodeId=nodeId,_delay=100,
+                            **channel_kwargs)
         return bc
 
     @public_method
@@ -79,7 +97,6 @@ class DashboardGallery(BaseComponent):
             rec['data'] = dashboard_data
         self.db.commit()
 
-
     @struct_method
     def di_itemsViewer(self,parent,storepath=None,datapath=None,**kwargs):
         parent.bagGrid(storepath=storepath,datapath=datapath,struct=self._di_itemsStruct,**kwargs)
@@ -92,10 +109,8 @@ class DashboardGallery(BaseComponent):
         r.cell('title',name='Title',width='12em')
         r.cell('parameters',name='Parameters',width='20em',
                 _customGetter="""function(row){return row['parameters']?row['parameters'].getFormattedValue():'-';}""")
-
         r.cell('conf',name='Configuration',width='20em',
                 _customGetter="""function(row){return row['conf']?row['conf'].getFormattedValue():'-';}""")
-
 
     @struct_method
     def di_channelsViewer(self,parent,storepath=None,datapath=None,**kwargs):
@@ -150,15 +165,15 @@ class DashboardGallery(BaseComponent):
         }
         genro.dashboards[dashboardNodeId].sourceNode.publish('updatedChannels',channelsdata.asDict());
         """,channelsdata='^%s.channels_data' %storepath,_if='channelsdata',dashboardNodeId=dashboardNodeId)
+        return frame
+
     def di_channelsTooltip(self,parent,dashboardNodeId=None):
         tp = parent.tooltipPane(modal=True,
             onOpening="""genro.dashboards['%s'].channelsPane(dialogNode);""" %dashboardNodeId)
 
-
     def di_dashboardConfTooltip(self,parent,dashboardNodeId=None):
         tp = parent.tooltipPane(modal=True,
             onOpening="""genro.dashboards['%s'].configurationPane(dialogNode);""" %dashboardNodeId)
-
 
     @public_method
     def dashboardItemsMenu(self,**kwargs):
