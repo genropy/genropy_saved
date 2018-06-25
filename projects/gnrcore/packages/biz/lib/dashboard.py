@@ -148,8 +148,14 @@ class BaseDashboardItem(object):
                         addrow=False,
                         margin='2px',border='1px solid silver')
         frame.dataController("""
+            var conf = genro.getData(confpath);
+            var conf_subscribers = genro.getData(subspath) || new gnr.GnrBag();
+            conf.getNodes().forEach(function(n){
+                if(n.attr.autoTopic){
+                    conf_subscribers.setItem(n.attr.autoTopic,new gnr.GnrBag({topic:n.attr.autoTopic,varpath:n.label}));
+                }
+            })
             var cb = function(){
-                var conf = genro.getData(confpath);
                 var result = new gnr.GnrBag();
                 conf.forEach(function(n){
                     if(!n._value){
@@ -158,8 +164,10 @@ class BaseDashboardItem(object):
                 });
                 return result;
             };
+            genro.setData(subspath,conf_subscribers);
             SET .currentParametersMenu = new gnr.GnrBagCbResolver({method:cb});
-        """,_onBuilt=True,confpath='%s.conf' %self.storepath,subspath='%s.conf_subscriber' %self.storepath)
+        """,_onBuilt=True,confpath='%s.conf' %self.storepath,
+            subspath='%s.conf_subscriber' %self.storepath)
         frame.dataController("""
         if(!channels){
             channels = new gnr.GnrBag();

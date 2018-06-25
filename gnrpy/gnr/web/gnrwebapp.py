@@ -93,7 +93,6 @@ class GnrWsgiWebApp(GnrApp):
                         if newvalue!=oldvalue:
                             r['old_%s' %field] = self.catalog.asTypedText(old_record.get(field))
             r['autoCommit'] = self.db.currentEnv.get('autoCommit')
-            print 'append in dbevent',r
             dbevents.setdefault(tblobj.fullname,[]).append(r)
         audit_mode = tblobj.attributes.get('audit')
         if audit_mode:

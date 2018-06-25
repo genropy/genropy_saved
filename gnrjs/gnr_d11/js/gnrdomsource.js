@@ -391,6 +391,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         this._lastDeferred = deferred;
                         var that = this;
                         deferred.addCallback(function(result){
+                            that._lastRpcTs = new Date();
                             delete that._deferredRegister[deferred.id];
                             return result;
                         });
