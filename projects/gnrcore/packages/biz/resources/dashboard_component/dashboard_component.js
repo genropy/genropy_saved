@@ -92,10 +92,13 @@ dojo.declare("gnr.DashboardManager", null, {
     },
 
     updatedChannels:function(channelskw){
-        var subscriptions,config;
         var items = genro.getData(this.itemspath);
+        if(!items){
+            return;
+        }
+        var subscriptions,config;
         var workspaces = this.workspaces;
-        var storepath = this.storepath;
+        var itemspath = this.itemspath;
         var sn = this.sourceNode;
         var itemRun,item;
         items.forEach(function(itemNode){
@@ -111,7 +114,7 @@ dojo.declare("gnr.DashboardManager", null, {
                 var aliasTopic =  sub.getItem('aliasTopic');
                 var newval;
                 var updating = false;
-                var confpath = (sub.getItem('autoTopic')?workspaces:storepath)+'.'+itemNode.label+'.conf.'+sub.getItem('varpath');
+                var confpath = (sub.getItem('autoTopic')?workspaces:itemspath)+'.'+itemNode.label+'.conf.'+sub.getItem('varpath');
                 if (topic in channelskw){
                     newval = channelskw[topic];
                     updating = true;
