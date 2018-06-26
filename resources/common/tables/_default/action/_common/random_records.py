@@ -40,8 +40,12 @@ class Main(BaseResourceAction):
             if condition_field and not r[condition_field]:
                 continue
             col_obj = self.tblobj.columns[field]
+            
             if 'table' in field_pars:
-                r[field] = random.choice(field_pars['pkeys'])
+                if field_pars['pkeys']:
+                    r[field] = random.choice(field_pars['pkeys'])
+                else:
+                    r[field] = None
                 cluster = field_pars['cluster']
                 if cluster:
                     for cl_field, cl_bag in cluster.items():
@@ -106,8 +110,11 @@ class Main(BaseResourceAction):
     def getValue_T(self, field_pars, i):
         value= field_pars['value']
         if value:
-            if '#' in value:
-                value = value.replace('#', str(i+1))
+            if '#N' in value:
+                value = value.replace('#N', str(i+1))
+            prefix = self.batch_parameters['batch']['batch_prefix']
+            if '#P' in value and prefix:
+                value = value.replace('#P', prefix)
         return value
 
     def table_script_parameters_pane(self, pane, table=None,**kwargs):
