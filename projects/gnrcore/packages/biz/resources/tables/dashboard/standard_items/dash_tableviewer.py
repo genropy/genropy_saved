@@ -63,7 +63,7 @@ class Main(BaseDashboardItem):
         extraPars = data.pop('extraPars')
         where = data['where']
         struct = data['struct']
-        frame = pane.frameGrid(struct=struct,_newGrid=True,**kwargs)
+        frame = pane.frameGrid(struct=struct,_newGrid=True,frameCode=self.itemIdentifier,**kwargs)
         frame.data('.query.limit',limit)
         frame.data('.query.where',where)
         frame.data('.query.extraPars',extraPars)
@@ -101,3 +101,9 @@ class Main(BaseDashboardItem):
 
 
         return ''.join(result)
+
+    def itemActionsSlot(self,pane):
+        pane.lightbutton(_class='excel_white_svg',
+                        action="genro.nodeById(itemIdentifier+'_grid').publish('serverAction',{command:'export',opt:{export_mode:'xls',localized_data:true}})",
+                        itemIdentifier=self.itemIdentifier,height='16px',width='16px',
+                        cursor='pointer')

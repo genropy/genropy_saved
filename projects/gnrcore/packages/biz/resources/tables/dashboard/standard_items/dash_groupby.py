@@ -113,4 +113,4 @@ class Main(BaseDashboardItem):
                         action="genro.nodeById(itemIdentifier+(groupMode=='stackedview'?'_stacked_grid':'_grid')).publish('serverAction',{command:'export',opt:{export_mode:'xls',localized_data:true}})",
                         groupMode='=%s.groupMode' %self.workpath,
                         itemIdentifier=self.itemIdentifier,height='16px',width='16px',
-                        cursor='pointer',datapath=self.storepath)
+                        cursor='pointer')
