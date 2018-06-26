@@ -246,7 +246,8 @@ class BaseDashboardItem(object):
             fb.data('.wherepars_%s' %code,pars['dflt'],wdg_tag=wdg.attributes['tag'],
                     wdg_dbtable=wdg.attributes.get('dbtable'),autoTopic=autoTopic,aliasTopic=aliasTopic)
             
-
+    def getDashboardItemInfo(self,**kwargs):
+        return
 
     def __getattr__(self, fname): 
         return getattr(self,fname) if fname in self.__dict__ else getattr(self.page,fname)

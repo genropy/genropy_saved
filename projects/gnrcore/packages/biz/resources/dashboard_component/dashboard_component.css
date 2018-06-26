@@ -131,3 +131,55 @@
     right:0;
     height:auto;
 }
+
+
+.di_folder{
+    font-variant: small-caps;
+}
+
+.di_folder.selectedTreeNode{
+    font-weight: normal !important;
+}
+
+.di_pkg{
+    background: #555;
+    color: white;
+    display: inline-block;
+    border-radius: 2px;
+    width:80%;
+    padding-left: 10px !important;
+    padding-top: 2px;
+    padding-bottom: 1px;
+}
+.di_block{
+    margin:2px;
+    border:1px solid silver;
+    border-radius: 4px;
+    color:#666;
+}
+
+.di_pr_caption{
+    text-align: center;
+    font-weight: bold;
+    color:#666;
+}
+.di_pr_subcaption{
+    font-style: italic;
+    color:gray;
+    margin-top: 10px;
+}
+.di_info{
+    margin:10px;
+    font-size: .9em;
+    color:#666;
+}
+.di_preview{
+    height: 100px;
+    width:200px;
+    border:1px solid silver;
+    margin: 2px;
+}
+
+.di_content{
+    margin:3px;
+}

@@ -653,10 +653,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             dojo.stopEvent(e);
             return;
         }
-        var nodeWidget = dijit.getEnclosingWidget(e.target);
-       //if (nodeWidget.htmlLabel && (!dojo.hasClass(e.target, 'dijitTreeExpando'))) {
-       //    return;
-       //}
+        nodeWidget = dijit.getEnclosingWidget(e.target);
         if (nodeWidget == nodeWidget.tree.rootNode) {
             return;
         }

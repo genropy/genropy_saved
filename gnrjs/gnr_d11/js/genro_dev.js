@@ -851,6 +851,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var saveAs = objectPop(kw,'saveAs');
         var currentMetadata = genro.getData(datapath);
         var userObjectIsLoaded = currentMetadata && currentMetadata.getItem('id');
+        var preview = objectPop(kw,'preview');
         var saveCb = function(dlg,evt,counter,modifiers){
             var data = new gnr.GnrBag();
             if(kw.dataIndex){
@@ -863,10 +864,6 @@ dojo.declare("gnr.GnrDevHandler", null, {
             }
             var metadata = new gnr.GnrBag(kw.defaultMetadata);
             metadata.update(genro.getData(datapath));
-            if(saveAs){
-                metadata.popNode('pkey');
-                metadata.popNode('id');
-            }
             return genro.serverCall('_table.adm.userobject.saveUserObject',
                 {'objtype':kw.objtype,'table':kw.table,flags:kw.flags,
                 'data':data,metadata:metadata},
@@ -890,7 +887,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         if(userObjectIsLoaded && !saveAs){
             return saveCb();
         }
-        this.userObjectDialog(objectPop(kw,'title'),datapath,saveCb);
+        this.userObjectDialog(objectPop(kw,'title'),datapath,saveCb,preview);
     },
 
     userObjectLoad:function(sourceNode,kw){
@@ -921,7 +918,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         });
     },
 
-    userObjectDialog:function(title,datapath,saveCb){
+    userObjectDialog:function(title,datapath,saveCb,preview){
         var dlg = genro.dlg.quickDialog(title);
         var center = dlg.center;
         var box = center._('div', {datapath:datapath,padding:'20px'});
@@ -931,6 +928,18 @@ dojo.declare("gnr.GnrDevHandler", null, {
         fb.addField('textbox', {lbl:_T("Name"),value:'^.description',width:'100%',colspan:2});
         fb.addField('textbox', {lbl:_T("Authorization"),value:'^.authtags',width:'100%',colspan:2});
         fb.addField('simpleTextArea', {lbl:_T("Notes"),value:'^.notes',width:'100%',height:'5ex',colspan:2,lbl_vertical_align:'top'});
+        if(preview){
+            fb.addField('button',{action:function(){
+                var that = this;
+                dlg.getParentNode().widget.hide(); 
+                genro.dev.takePicture(function(data){
+                    dlg.getParentNode().widget.show(); 
+                    that.setRelativeData('.preview',data);
+                });
+            },label:_T('Screenshot')});
+            fb.addField('br',{});
+            fb.addField('img',{src:'^.preview',height:'50px',width:'200px',boder:'1px solid silver'});
+        }
         var bottom = dlg.bottom._('div');
         var saveattr = {'float':'right',label:_T('Save')};
         var data = new gnr.GnrBag();

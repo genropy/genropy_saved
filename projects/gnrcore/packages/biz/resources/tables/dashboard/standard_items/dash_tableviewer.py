@@ -49,11 +49,9 @@ class Main(BaseDashboardItem):
         self.configuration_handleQueryPars(pane,table)
 
     def _selectionViewer(self,pane,table=None,userobject_id=None,fired=None,**kwargs):
-        userobject_tbl = self.page.db.table('adm.userobject')
         tblobj = self.page.db.table(table)
-        data,metadata = userobject_tbl.loadUserObject( id=userobject_id,
-                                            objtype='query',
-                                            tbl=table)
+        userobject_tbl = self.page.db.table('adm.userobject')
+        data,metadata = userobject_tbl.loadUserObject(id=userobject_id,tbl=table)
         customOrderBy = None
         limit = None
         queryPars = None
@@ -80,3 +78,26 @@ class Main(BaseDashboardItem):
                                 limit='=.query.limit',
                                 _fired='^.run')
         return frame
+
+    
+    def getDashboardItemInfo(self,table=None,userObjectData=None,**kwargs):
+        result = []
+        where = userObjectData['where']
+        struct = userObjectData['struct']
+        if struct:
+            z = [self.localize(n.attr.get('name')) for n in struct['view_0.rows_0'].nodes if not n.attr.get('hidden')]
+            result.append('<div class="di_pr_subcaption" >Fields</div><div class="di_content">%s</div>' %','.join(z))
+        if where:
+            result.append('<div class="di_pr_subcaption">Where</div><div class="di_content">%s</div>' %self.db.whereTranslator.toHtml(self.db.table(table),where))
+        configurations = []
+        queryPars = userObjectData['queryPars']
+        if queryPars:
+            for code,pars in queryPars.digest('#k,#a'):
+                autoTopic = False
+                if not code.endswith('*'):
+                    configurations.append(code)
+        if configurations:
+            result.append('<div class="di_pr_subcaption">Config</div><div class="di_content">%s</div>' %'<br/>'.join(configurations))
+
+
+        return ''.join(result)

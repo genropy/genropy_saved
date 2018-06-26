@@ -295,6 +295,7 @@ genro_plugin_groupth = {
         kw.metadataPath = '.dashboardMeta';
         kw.table = sourceNode.attr.table;
         kw.title = _T('Save dashboard');
+        kw.preview = true;
         kw.defaultMetadata = {flags:'groupth|'+sourceNode.attr.nodeId};
         var onSaved =function(result){
             sourceNode.setRelativeData('.dashboardMeta',new gnr.GnrBag(result.attr));

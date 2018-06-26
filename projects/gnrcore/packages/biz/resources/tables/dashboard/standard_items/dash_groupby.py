@@ -83,3 +83,26 @@ class Main(BaseDashboardItem):
         if not self.queryPars:
             return
         self.configuration_handleQueryPars(center,table)
+
+
+    def getDashboardItemInfo(self,table=None,userObjectData=None,**kwargs):
+        result = []
+        where = userObjectData['where']
+        struct = userObjectData['groupByStruct']
+        if struct:
+            z = [self.localize(n.attr.get('name')) for n in struct['view_0.rows_0'].nodes if not n.attr.get('hidden')]
+            result.append('<div class="di_pr_subcaption" >Fields</div><div class="di_content">%s</div>' %','.join(z))
+        if where:
+            result.append('<div class="di_pr_subcaption">Where</div><div class="di_content">%s</div>' %self.db.whereTranslator.toHtml(self.db.table(table),where))
+        
+        queryPars = userObjectData['queryPars']
+        configurations = []
+        configurations.append('Mode')
+        if queryPars:
+            for code,pars in queryPars.digest('#k,#a'):
+                autoTopic = False
+                if not code.endswith('*'):
+                    configurations.append(code)
+        result.append('<div class="di_pr_subcaption">Config</div><div class="di_content">%s</div>' %'<br/>'.join(configurations))
+
+        return ''.join(result)

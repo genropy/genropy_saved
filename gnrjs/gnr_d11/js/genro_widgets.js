@@ -4718,6 +4718,9 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
         if(!url){
             return {};
         }
+        if(url.startsWith('data:')){
+            return {src:url};
+        }
         var parsedUrl = parseURL(url);
         var p = parsedUrl.params;
         if (!p._pc){
@@ -4759,6 +4762,10 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
     setSrc:function(domnode,v){
         //qui il valore non credo che abbia i valori di croppatura
         var sourceNode = domnode.sourceNode;
+        if(v && v.startsWith('data:')){
+            domnode.setAttribute('src',v);
+            return;
+        }
         var kwimg=this.decodeUrl(sourceNode,v);
         var src=objectPop(kwimg,'src');
         if(src){

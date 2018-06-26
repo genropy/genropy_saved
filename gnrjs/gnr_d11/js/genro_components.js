@@ -1058,6 +1058,7 @@ dojo.declare("gnr.widgets.TreeFrame", gnr.widgets.gnrwdg, {
         var treeId = objectPop(kw, 'treeId') || frameCode + '_tree';
         var storepath = objectPop(kw, 'storepath') || '.store';
         var draggableFolders = objectPop(kw,'draggableFolders');
+        var infoPanel = normalizeKwargs(kw,'infoPanel');
         var default_onDrag =  function(dragValues, dragInfo, treeItem) {
             if (treeItem.attr.child_count && treeItem.attr.child_count > 0 && !draggableFolders) {
                 return false;
@@ -1073,6 +1074,7 @@ dojo.declare("gnr.widgets.TreeFrame", gnr.widgets.gnrwdg, {
         objectUpdate(tree_kwargs, objectExtract(kw, 'tree_*'));
         var searchOn = objectPop(kw, 'searchOn');
         var pane = this.getRoot(sourceNode,kw);
+        var bc;
         if (searchOn) {
             pane._('SlotBar',{'side':'top',slots:'*,searchOn',searchOn:true,toolbar:true});
         }
@@ -1082,10 +1084,19 @@ dojo.declare("gnr.widgets.TreeFrame", gnr.widgets.gnrwdg, {
             tree_kwargs.selfsubscribe_onSelected = function(kw){                
                 genro.publish(bagNodeEditorId+'_currentPath',kw.item.getFullpath(null,origin!='*S'?genro._data:null))
             }
-            var bc = pane._('BorderContainer',{'side':'center'});
+            bc = pane._('BorderContainer',{'side':'center'});
             var bottom = bc._('ContentPane', {'region':'bottom',height:'30%',
                 splitter:true,overflow:'hidden'});
             bottom._('BagNodeEditor', {nodeId:bagNodeEditorId,datapath:'.bagNodeEditor',origin:origin});
+            pane = bc._('ContentPane',{'region':'center'});
+        }else if(infoPanel){
+            bc = pane._('BorderContainer',{'side':'center'});
+            infoPanel.region = infoPanel.region || 'right';
+            if(['left','right'].indexOf(infoPanel.region)>=0){
+                infoPanel.width = infoPanel.width || '300px';
+            }
+            infoPanel.remote = objectPop(infoPanel,'_');
+            bc._('ContentPane',infoPanel);
             pane = bc._('ContentPane',{'region':'center'});
         }
         if(subTagItems['column'] && subTagItems['column'].len()){
