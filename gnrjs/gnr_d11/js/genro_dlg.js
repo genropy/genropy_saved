@@ -197,26 +197,74 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         if(!dlgNode){
             var root = genro.src.getNode()._('div', '_dlg_iframe');
             var parentRatio = objectPop(kw,'parentRatio');
-            var windowRatio = objectPop(kw,'windowRatio')
+            var windowRatio = objectPop(kw,'windowRatio');
             var dlg = root._('dialog',{title:kw.title,closable:kw.closable,nodeId:dialogId,parentRatio:parentRatio,windowRatio:windowRatio});
             var iframekw = {src:kw.src,border:0,height:'100%',width:'100%',nodeId:iframeId};
+            objectUpdate(iframekw,objectExtract(kw,'iframe_*'));
             iframekw.selfsubscribe_close = "this.dialog.hide();";
+            var onIframeStarted = objectPop(kw,'onIframeStarted');
+            if(onIframeStarted){
+                iframekw.onStarted = function(){
+                    onIframeStarted(this,genro.wdgById(dialogId));
+                    if(kw.openKw){
+                        var that = this;
+                        setTimeout(function(){
+                            that.domNode.gnr.postMessage(that,kw.openKw);
+                        },1);
+                    }
+                };
+            }
             objectUpdate(iframekw,objectExtract(kw,'selfsubscribe_*',true,true));
+            var iframe;
             if(!(parentRatio || windowRatio)){
-                var iframe = dlg._('div',{height:kw.height,width:kw.width,overflow:'hidden'})._('iframe','iframe',iframekw);
+                iframe = dlg._('div',{height:kw.height,width:kw.width,overflow:'hidden'})._('iframe','iframe',iframekw);
             }else{
-                var iframe = dlg._('borderContainer')._('ContentPane',{'region':'center',overflow:'hidden'})._('iframe','iframe',iframekw);
+                iframe = dlg._('borderContainer')._('ContentPane',{'region':'center',overflow:'hidden'})._('iframe','iframe',iframekw);
             }
             
             dlgNode = dlg.getParentNode();
             dlgNode._iframeNode = iframe.getParentNode();
             dlgNode._iframeNode.dialog = dlgNode.widget;
+            dlgNode.widget.show();
             //create dlg and iframe
+        }else{
+            dlgNode.widget.show();
+            if(kw.openKw){
+                dlgNode._iframeNode.domNode.gnr.postMessage(dlgNode._iframeNode,kw.openKw);
+            }
         }
-        dlgNode.widget.show();
-        if(kw.openKw){
-            dlgNode._iframeNode.domNode.gnr.postMessage(dlgNode._iframeNode,kw.openKw);
+        
+        return dlgNode;
+    },
+
+    thIframeDialog:function(kw,openKw){
+        kw.src = this._prepareThIframeUrl(kw); 
+        if(kw.pkey){
+            openKw.pkey = kw.pkey;
+            openKw.topic = 'main_form_open';
+            kw.main_call = 'main_form';
         }
+        var iframeId = kw.nodeId || 'th_'+kw.table.replace('.','_')+(kw.formResource || '')+(kw.main_call  || '');
+        openKw = openKw || {};
+        var onSavedCb = objectPop(kw,'onSavedCb');
+        kw.closable = kw.closable===false?false:true;
+        kw.openKw = openKw;
+        kw.onIframeStarted = function(iframeNode,wdg){
+            if(iframeNode._genro._rootForm){
+                if(kw.main_call=='main_form'){
+                    iframeNode._genro._rootForm.subscribe('onDismissed',function(){wdg.hide();});
+                }
+                iframeNode._genro._rootForm.subscribe('onChangedTitle',function(kw){wdg.setTitle(kw.title);});
+            }else if(kw.lookup){
+                iframeNode._genro.nodeById('lookup_root').subscribe('lookup_cancel',function(){wdg.hide();});
+            }
+            if(onSavedCb){
+                iframeNode._genro._rootForm.subscribe('onSaved',function(kw){
+                    onSavedCb(kw);
+                });
+            }
+        };
+        this.iframeDialog(iframeId,kw);
     },
 
     lightboxDialog:function(kwOrCb,onClosedCb){        
@@ -918,6 +966,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         }
         return this.thIframePalette(kw,openKw);
     },
+
+
 
     quickPalette:function(paletteCode,kw,content){
         var kw = kw || {};

@@ -16,6 +16,7 @@ dojo.declare("gnr.DashboardManager", null, {
         this.itemspath = this.storepath+'.items';
         this.channelspath = this.storepath+'.channels';
         this.channelsdata = this.storepath+'.channels_data';
+        this.externalChannels = sourceNode.attr._externalChannels || [];
         this.workspaces = sourceNode.absDatapath('.dashboards');
     },
 
@@ -84,10 +85,20 @@ dojo.declare("gnr.DashboardManager", null, {
     dupPage:function(){
 
     },
+
+    galleryChannelsDataUpdated:function(){
+        var channelsData = this.sourceNode.getRelativeData(this.channelsdata);
+        this.sourceNode.publish('updatedChannels',channelsData.asDict());
+    },
+
     updatedChannels:function(channelskw){
-        var subscriptions,config;
         var items = genro.getData(this.itemspath);
+        if(!items){
+            return;
+        }
+        var subscriptions,config;
         var workspaces = this.workspaces;
+        var itemspath = this.itemspath;
         var sn = this.sourceNode;
         var itemRun,item;
         items.forEach(function(itemNode){
@@ -99,11 +110,22 @@ dojo.declare("gnr.DashboardManager", null, {
                 return;
             }
             subscriptions.values().forEach(function(sub){
-                if(sub.getItem('topic') in channelskw){
-                    var oldval = config.getItem(sub.getItem('varpath'));
-                    var newval = channelskw[sub.getItem('topic')];
+                var topic = sub.getItem('topic');
+                var aliasTopic =  sub.getItem('aliasTopic');
+                var newval;
+                var updating = false;
+                var confpath = (sub.getItem('autoTopic')?workspaces:itemspath)+'.'+itemNode.label+'.conf.'+sub.getItem('varpath');
+                if (topic in channelskw){
+                    newval = channelskw[topic];
+                    updating = true;
+                }else if(aliasTopic && (aliasTopic in channelskw)){
+                    newval = channelskw[aliasTopic];
+                    updating = true;
+                }
+                if(updating){
+                    var oldval = genro.getData(confpath);
                     if(!isEqual(oldval,newval)){
-                        config.setItem(sub.getItem('varpath'),newval);
+                        genro.setData(confpath,newval);
                         itemRun = true;
                     }
                 }
@@ -114,18 +136,42 @@ dojo.declare("gnr.DashboardManager", null, {
         });
     },
 
-    channelsPane:function(parent){
-        var src = parent.getValue();
-        src.popNode('root');
+    channelsEdit:function(){
+        var channelspath = this.channelsdata;
+        var channelsData = this.sourceNode.getRelativeData(this.channelsdata) || new gnr.GnrBag();
         var currentChannels = this.sourceNode.getRelativeData(this.channelspath);
-        var channelsData = this.sourceNode.getRelativeData(this.channelsdata);
-        var currChannels = {};
-        var root = src._('div','root',{datapath:this.channelsdata,margin_top:'4px'});
+        channelsData.getNodes().forEach(function(n){
+            if(!currentChannels.getNode(n.label)){
+                channelsData.popNode(n.label,false);
+            }
+        });
+        var kw = {};
+        var that = this;
+        kw.widget = function(parent){
+            that.channelsPane(parent,currentChannels);
+        };
+        kw.dflt = channelsData.deepCopy();
+        kw.action = function(result){
+            genro.setData(channelspath,result);
+            that.galleryChannelsDataUpdated();
+        };
+        genro.dlg.prompt(_T('Dashboard channels'),kw);
+    },
+
+    channelsPane:function(parent){
+        var currentChannels = this.sourceNode.getRelativeData(this.channelspath);
+        var root = parent._('div','root',{margin_top:'4px'});
         var fb = genro.dev.formbuilder(root._('div',{margin:'8px'}),1,{border_spacing:'4px'});
         var kw,defaultWdg;
+        var externalChannels = this.externalChannels;
         currentChannels.forEach(function(n){
-            currChannels[n.label] = true;
+            if(externalChannels.indexOf(n.label)>=0){
+                return;
+            }
             kw = n.getValue().asDict();
+            if(kw.wdg===false){
+                return;
+            }
             defaultWdg = 'textbox';
             if(kw.dbtable){
                 defaultWdg = 'dbselect';
@@ -134,12 +180,7 @@ dojo.declare("gnr.DashboardManager", null, {
             }else if(kw.dtype=='D'){
                 defaultWdg = 'dateTextBox';
             }
-            fb.addField(objectPop(kw,'wdg') || defaultWdg,{value:'^.'+kw.topic,lbl:kw.topic});
-        });
-        channelsData.getNodes().forEach(function(n){
-            if(!(n.label in currChannels)){
-                channelsData.popNode(n.label,false);
-            }
+            fb.addField(objectPop(kw,'wdg') || defaultWdg,{value:'^.'+kw.topic,lbl:kw.topic,dbtable:kw.dbtable});
         });
     },
     configurationPane:function(parent){
@@ -261,8 +302,23 @@ dojo.declare("gnr.DashboardManager", null, {
         var that = this;
         this.clearRoot();
         this.sourceNode.setRelativeData('.selectedDashboard',null);
-        pages.forEach(function(n){
-            that.buildDashboard(n);
+        if(pages){
+            pages.forEach(function(n){
+                that.buildDashboard(n);
+            });
+        }
+    },
+
+    registerFormSubscriptions:function(){
+        var that = this;
+        var tbl = this.sourceNode.form.getControllerData('table');
+        if(!tbl){
+            return;
+        }
+        this.sourceNode.registerSubscription('form_'+this.sourceNode.form.formId+'_onLoaded',function(subkw){
+            var topickw = {};
+            topickw[tbl.replace('.','_')+'_pkey'] = subkw.pkey;
+            that.sourceNode.publish('updatedChannels',topickw);
         });
     },
 

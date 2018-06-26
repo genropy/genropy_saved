@@ -504,6 +504,7 @@ class ResourceLoader(object):
             table = application.db.table(table)
         if not table:
             tablename = '_default'
+            pkgname = '_default'
             modName = os.path.join('tables', tablename, *(respath.split('/')))
         else:
             tablename = table.name

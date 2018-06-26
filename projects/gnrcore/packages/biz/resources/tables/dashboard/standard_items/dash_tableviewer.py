@@ -38,47 +38,20 @@ class Main(BaseDashboardItem):
                                             userobject_id=userobject_id,
                                             datapath='.viewer')
         self.queryPars = selectionViewer.queryPars
-        selectionViewer.dataController("""
-            if(queryPars){
-                queryPars.forEach(function(n){
-                    where.setItem(n.attr.relpath,conf.getItem('wherepars_'+n.label));
-                });
-            }
-            grid.collectionStore().loadData();
-        """,conf='=%s.conf' %self.storepath,grid=selectionViewer.grid.js_widget,
-            queryPars='=.query.queryPars',
-            where='=.query.where',
-            _fired='^%s.runItem' %self.workpath)
-            
+        self.content_handleQueryPars(selectionViewer)
         pane.dataFormula('.whereParsFormatted',"wherePars?wherePars.getFormattedValue({joiner:' - '}):'-'",
                     wherePars='^.conf.wherePars')
-        
 
 
     def configuration(self,pane,table=None,queryName=None,**kwargs):
         if not self.queryPars:
             return
-        fb = pane.formbuilder(dbtable=table,
-                            fld_validate_onAccept="SET %s.runRequired =true;" %self.workpath)
-        for code,pars in self.queryPars.digest('#k,#a'):
-            field = pars['field']
-            rc = self.db.table(table).column(field).relatedColumn()
-            wherepath = pars['relpath']
-            if pars['op'] == 'equal' and rc is not None:
-                fb.dbSelect(field,value='^.wherepars_%s' %code,lbl=pars['lbl'],
-                            default_value=pars['dflt'],
-                            dbtable=rc.table.fullname)
-            else:
-                fb.textbox(value='^.wherepars_%s' %code,
-                            default_value=pars['dflt'],
-                            lbl=pars['lbl'])
+        self.configuration_handleQueryPars(pane,table)
 
     def _selectionViewer(self,pane,table=None,userobject_id=None,fired=None,**kwargs):
-        userobject_tbl = self.page.db.table('adm.userobject')
         tblobj = self.page.db.table(table)
-        data,metadata = userobject_tbl.loadUserObject( id=userobject_id,
-                                            objtype='query',
-                                            tbl=table)
+        userobject_tbl = self.page.db.table('adm.userobject')
+        data,metadata = userobject_tbl.loadUserObject(id=userobject_id,tbl=table)
         customOrderBy = None
         limit = None
         queryPars = None
@@ -90,7 +63,7 @@ class Main(BaseDashboardItem):
         extraPars = data.pop('extraPars')
         where = data['where']
         struct = data['struct']
-        frame = pane.frameGrid(struct=struct,_newGrid=True,**kwargs)
+        frame = pane.frameGrid(struct=struct,_newGrid=True,frameCode=self.itemIdentifier,**kwargs)
         frame.data('.query.limit',limit)
         frame.data('.query.where',where)
         frame.data('.query.extraPars',extraPars)
@@ -105,3 +78,32 @@ class Main(BaseDashboardItem):
                                 limit='=.query.limit',
                                 _fired='^.run')
         return frame
+
+    
+    def getDashboardItemInfo(self,table=None,userObjectData=None,**kwargs):
+        result = []
+        where = userObjectData['where']
+        struct = userObjectData['struct']
+        if struct:
+            z = [self.localize(n.attr.get('name')) for n in struct['view_0.rows_0'].nodes if not n.attr.get('hidden')]
+            result.append('<div class="di_pr_subcaption" >Fields</div><div class="di_content">%s</div>' %','.join(z))
+        if where:
+            result.append('<div class="di_pr_subcaption">Where</div><div class="di_content">%s</div>' %self.db.whereTranslator.toHtml(self.db.table(table),where))
+        configurations = []
+        queryPars = userObjectData['queryPars']
+        if queryPars:
+            for code,pars in queryPars.digest('#k,#a'):
+                autoTopic = False
+                if not code.endswith('*'):
+                    configurations.append(code)
+        if configurations:
+            result.append('<div class="di_pr_subcaption">Config</div><div class="di_content">%s</div>' %'<br/>'.join(configurations))
+
+
+        return ''.join(result)
+
+    def itemActionsSlot(self,pane):
+        pane.lightbutton(_class='excel_white_svg',
+                        action="genro.nodeById(itemIdentifier+'_grid').publish('serverAction',{command:'export',opt:{export_mode:'xls',localized_data:true}})",
+                        itemIdentifier=self.itemIdentifier,height='16px',width='16px',
+                        cursor='pointer')

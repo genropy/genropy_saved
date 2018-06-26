@@ -25,6 +25,7 @@ from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.core.gnrlang import gnrImport
 from gnr.core.gnrbag import Bag
 import os
+import sys
 
 
 class DashboardItem(BaseComponent):
@@ -56,28 +57,30 @@ class DashboardGallery(BaseComponent):
     @struct_method
     def di_dashboardGallery(self,parent,pkg=None,code=None,datapath=None,nodeId=None,channel_kwargs=None,**kwargs):
         nodeId =nodeId or '%s_%s' %(pkg,code)
-        datapath = datapath or nodeId
+        datapath = datapath or '.%s' %nodeId
         bc = parent.borderContainer(_anchor=True,datapath=datapath,**kwargs)
         bc.dataRecord('.dashboard_record','biz.dashboard',applymethod=self.di_applyGalleryConfigurations,
-                        pkgid=pkg,code=code,_onBuilt=True,_if='pkgid && code')
+                        pkgid=pkg,code=code,_onBuilt=True,_if='pkgid && code',_fired='^.refresh')
         bc.dataRpc(None,self.di_saveGalleryConfigurations,dashboard_key='=.dashboard_record.dashboard_key',
                             dashboard_data='^.dashboard_record.data',_delay=500,_if='_reason=="child"')
-        frame = bc.dashboardViewer(storepath='.dashboard_record.data',region='center',nodeId=nodeId)
+        frame = bc.dashboardViewer(storepath='.dashboard_record.data',region='center',nodeId=nodeId,channel_kwargs=channel_kwargs)
         if self.isDeveloper():
             bar = frame.top.bar.replaceSlots('#','#,editrec,5')  
             bar.editrec.slotButton('!!Edit',action="""
+                                    var that = this;
                                     var onSavedCb=function(){
-                                        console.log('onsaved',arguments);
+                                        console.log('refreshing');
+                                        that.fireEvent('.refresh',true);
                                     };
-                                    var openKw = {default_pkgid:pkg,default_code:code};
-                                    genro.dlg.zoomPalette({height:'700px',width:'800px',table:'biz.dashboard',
+                                    var openKw = {default_pkgid:pkg,default_code:code,default_private:true};
+                                    genro.dlg.thIframeDialog({windowRatio:.9,table:'biz.dashboard',title:'Edit dashboard',
                                                             pkey:dashboard_key || '*newrecord*',
                                                             formResource:'FormIncluded',main_call:'main_form',
-                                                            onSavedCb:onSavedCb,palette_top:'355px',palette_right:'405px'},openKw);
+                                                            onSavedCb:onSavedCb},openKw);
                                                         """,
                                     iconClass='iconbox pencil',pkg=pkg,code=code,
                                     dashboard_key='=.dashboard_record.dashboard_key')
-        bc.dataController("""genro.nodeById(dashboardNodeId).publish('updatedChannels',_kwargs)""",
+        parent.dataController("""genro.nodeById(dashboardNodeId).publish('updatedChannels',_kwargs)""",
                             dashboardNodeId=nodeId,_delay=100,
                             **channel_kwargs)
         return bc
@@ -126,20 +129,26 @@ class DashboardGallery(BaseComponent):
         r.cell('condition',name='Condition',width='20em',edit=True)
 
     @struct_method
-    def di_dashboardViewer(self,parent,storepath=None,edit=False,nodeId=None,**kwargs):
+    def di_dashboardViewer(self,parent,storepath=None,edit=False,nodeId=None,channel_kwargs=None,**kwargs):
         frameCode = '%s_frame' %nodeId if nodeId else None
+        channel_kwargs = channel_kwargs or dict()
         frame = parent.framePane(frameCode=frameCode,**kwargs)
         dashboardNodeId = nodeId or '%(frameCode)s_dashboard' %frame.attributes
         sc = frame.center.stackContainer(selectedPage='^.selectedDashboard',frameTarget=True,margin='2px',
                                         selfsubscribe_addpage="this._dashboardManager.addPage()",
                                 selfsubscribe_delpage="this._dashboardManager.delPage()",
                                 selfsubscribe_duppage="this._dashboardManager.dupPage()",
+                                selfsubscribe_channelsEdit = "this._dashboardManager.channelsEdit();",
                                 selfsubscribe_updatedChannels="""this._dashboardManager.updatedChannels($1)""",
                                 nodeId=dashboardNodeId,
                                 _editMode = edit,_storepath=storepath,_anchor=True,
+                                _externalChannels = channel_kwargs.keys(),
                                 formsubscribe_onLoading = 'this._dashboardManager.clearRoot();' if edit else None,
                                 onCreated="""if(!genro.dashboards){
                                     genro.dashboards = objectPop(window,'genro_plugin_dashboards');
+                                }
+                                if(this._dashboardManager){
+                                    return;
                                 }
                                 this._dashboardManager = new gnr.DashboardManager(this);
                                 genro.dashboards[this.attr.nodeId] = this._dashboardManager;
@@ -148,32 +157,103 @@ class DashboardGallery(BaseComponent):
         parent.dataController("""
             sc._dashboardManager.pageTrigger(_triggerpars.kw,_reason);
         """,data='^%s.dashboards' %storepath,sc=sc)
-        bar = frame.top.slotToolbar('5,stackButtons,*,channelsTooltip,5')
+        bar = frame.top.slotToolbar('5,stackButtons,*,channelsEdit,5')
         if edit:
             bar.replaceSlots('#','#,confTooltip,10,paletteDashboardItems,10,delbtn,addbtn,5')
             self.di_dashboardConfTooltip(bar.confTooltip.div(_class='iconbox gear',tip='!!Config'),dashboardNodeId=dashboardNodeId)
             bar.addbtn.slotButton(iconClass='iconbox add_row',publish='addpage',parentForm=True)
             bar.delbtn.slotButton(iconClass='iconbox delete_row',publish='delpage',parentForm=True)
             #bar.dupbtn.slotButton(iconClass='iconbox copy',publish='duppage')
-            palette = bar.paletteDashboardItems.paletteTree(paletteCode='dashboardItems',title='Dashboard items',dockButton=True)
-            palette.data('.store',self.dashboardItemsMenu(),childname='store')
-        self.di_channelsTooltip(bar.channelsTooltip.div(_class='iconbox menu_gray_svg',parentForm=False),
-                                dashboardNodeId=dashboardNodeId)
+            self.di_itemPalette(bar.paletteDashboardItems)
+        
+        bar.channelsEdit.slotButton('!!Channels',publish='channelsEdit',disabled='^.channels?=#v?#v.len()==0:true',
+                                    datapath=storepath,parentForm=False)
         parent.dataController("""
         if(_reason!='child'){
             return;
         }
         genro.dashboards[dashboardNodeId].sourceNode.publish('updatedChannels',channelsdata.asDict());
-        """,channelsdata='^%s.channels_data' %storepath,_if='channelsdata',dashboardNodeId=dashboardNodeId)
+        """,datapath=storepath,channelsdata='^.channels_data',_if='channelsdata',dashboardNodeId=dashboardNodeId)
         return frame
 
-    def di_channelsTooltip(self,parent,dashboardNodeId=None):
-        tp = parent.tooltipPane(modal=True,
-            onOpening="""genro.dashboards['%s'].channelsPane(dialogNode);""" %dashboardNodeId)
+    def di_itemPalette(self,pane):
+        palette = pane.paletteTree(paletteCode='dashboardItems',title='Dashboard items',
+                                    infoPanel=self.di_itemPrevew,
+                                    searchOn=True,
+                                    infoPanel_width='50%',
+                                    infoPanel_border_left='1px solid #efefef',
+                                    width='700px',
+                                    tree_openOnClick=True,
+                                    tree_selectedLabelClass='selectedTreeNode',
+                                    tree__class=' branchtree noIcon',
+                                    tree_getLabelClass="return node.attr.itemClass ",
+                                    dockButton=True)
+        
+        palette.onDbChanges(action="""
+        if(dbChanges.some(c => c.objtype.startsWith('dash_'))){
+            console.log('refreshing');
+            FIRE .di_menu_refresh;
+        }
+        """,table='adm.userobject')
+        store = palette.dataRpc('.store',self.dashboardItemsMenu,childname='store',
+                                _fired='^.di_menu_refresh',_onBuilt=True)
 
     def di_dashboardConfTooltip(self,parent,dashboardNodeId=None):
         tp = parent.tooltipPane(modal=True,
             onOpening="""genro.dashboards['%s'].configurationPane(dialogNode);""" %dashboardNodeId)
+
+    @public_method
+    def di_itemPrevew(self,pane,**kwargs):
+        pane.dataController("""
+        if(!(item.attr.pkey || item.attr.resource)){
+            return;
+        }       
+        var mode,key; 
+        if(item.attr.pkey){
+            key = item.attr.pkey;
+            mode = 'userobject'
+        }else{
+            key = item.attr.table+'|'+item.attr.resource;
+            mode = 'resource';
+        }
+        SET .item_mode = mode;
+        SET .item_key = key;
+        """,subscribe_dashboardItems_tree_onSelected=True)
+        pane.dataRpc('.preview_data',self.di_getUserObjectData,
+                    item_key='^.item_key',
+                    item_mode='=.item_mode',_delay=500)
+        pane.div(template="""${<div class='di_pr_caption'>$caption</div>}
+                        ${<div class='di_pr_subcaption'>$dashboard_type</div>}
+                        ${<div class='di_block'>$notes</div>}
+                        <div class='di_info'>$itemInfo</div>
+                        """,datasource='^.preview_data')
+        box = pane.div(position='absolute',bottom='4px',left='4px',right='4px',height='200px',overflow='hidden')
+        box.img(src='^.preview_data.preview',height='100%',hidden='^.preview_data.preview?=!#v')
+
+    @public_method
+    def di_getUserObjectData(self,item_key=None,item_mode=None):
+        result = Bag()
+        if item_mode=='userobject':
+            data,metadata = self.db.table('adm.userobject').loadUserObject(id=item_key)
+            result['caption'] = metadata['description'] or metadata['code'].split('.')[-1].title()
+            result['preview'] = metadata['preview']
+            result['notes'] = metadata['notes']
+            objtype = metadata['objtype']
+            result['dashboard_type'] = objtype.split('_')[1].title()
+            itemInstance = self.loadTableScript(table='biz.dashboard',respath='standard_items/%s' %objtype)
+            m = sys.modules[itemInstance.__module__]
+            item_parameters = getattr(m,'item_parameters',None)
+            result['itemInfo'] = itemInstance.getDashboardItemInfo(table=metadata['tbl'],userObjectData=data,item_parameters=item_parameters)
+        else:
+            table,resource = item_key.split('|')
+            itemInstance = self.loadTableScript(table=table,respath='dashboard/%s' %resource)
+            m = sys.modules[itemInstance.__module__]
+            caption = getattr(m,'caption',None)
+            description = getattr(m,'description',None)
+            result['caption'] = caption or description
+            result['dashboard_type'] = 'Custom resource'
+            result['itemInfo'] = itemInstance.getDashboardItemInfo(item_parameters = getattr(m,'item_parameters',None))
+        return result
 
     @public_method
     def dashboardItemsMenu(self,**kwargs):
@@ -191,8 +271,6 @@ class DashboardGallery(BaseComponent):
                     packagebag = result[pkgId] 
                     if not packagebag:
                         packagebag = Bag()
-                        result.setItem(pkgId,packagebag,label=pkgId)
-                    packagebag.setItem(tblid,b,label=tblid)
-        #result.rowchild(label='!!Paperino',action="genro.bp(true)")
-        #result.rowchild(label='!!Pippo',action="genro.bp(true)")
+                        result.setItem(pkgId,packagebag,caption=pkgObj.attributes.get('name_long') or pkgId,itemClass='di_folder di_pkg')
+                    packagebag.setItem(tblid,b,caption=tblobj.name_long or tblid,itemClass='di_folder di_tbl')
         return result

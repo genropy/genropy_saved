@@ -242,7 +242,13 @@ function dataTemplate(str, data, path, showAlways,kw) {
     var formats = kw.formats || {};
     var dtypes = kw.dtypes || {};
     var editcols = kw.editcols || {};
-
+    var auxattr = {};
+    var scopeSourceNode = null;
+    var regexpr = /\$(\#?\@?[a-zA-Z0-9_]+)(\.@?[a-zA-Z0-9_]+)*(\?[a-zA-Z0-9_]+)?(\^[a-zA-Z0-9_]+)?/g;
+    var result;
+    var is_empty = true;
+    var has_field = false;
+    
     if(str instanceof gnr.GnrBag){
          templates=str;
          var mainNode =templates.getNode('main');
@@ -253,6 +259,18 @@ function dataTemplate(str, data, path, showAlways,kw) {
          df_templates = mainNode.attr.df_templates || df_templates;
          dtypes = mainNode.attr.dtypes || dtypes;
 
+    }
+    
+    if (data && typeof(data) == 'string') {
+        data = genro._data.getItem(data);
+    }
+    else if (data instanceof gnr.GnrDomSourceNode) {
+        auxattr = data.currentAttributes();
+        scopeSourceNode = data;
+        data = genro._data.getItem(data.absDatapath(path));
+    }
+    if (!data && !showAlways) {
+        return '';
     }
     if(str.indexOf('${')>=0){
         str = str.replace(/\${(([^}]|\n)*)}/g,function(s0,content){
@@ -267,23 +285,7 @@ function dataTemplate(str, data, path, showAlways,kw) {
             return isNullOrBlank(k)? '':content;
         });
     }
-    var auxattr = {};
-    var regexpr = /\$(\#?\@?[a-zA-Z0-9_]+)(\.@?[a-zA-Z0-9_]+)*(\?[a-zA-Z0-9_]+)?(\^[a-zA-Z0-9_]+)?/g;
-    var result;
-    var is_empty = true;
-    var has_field = false;
-    var scopeSourceNode = null;
-    if (!data && !showAlways) {
-        return '';
-    }
-    else if (typeof(data) == 'string') {
-        data = genro._data.getItem(data);
-    }
-    else if (data instanceof gnr.GnrDomSourceNode) {
-        auxattr = data.currentAttributes();
-        scopeSourceNode = data;
-        data = genro._data.getItem(data.absDatapath(path));
-    }
+ 
     if (data instanceof gnr.GnrBag) {
         if (!data && !showAlways) {
             return '';
@@ -507,7 +509,7 @@ function normalizeKwargs(kwargs,str){
     }
     var p = objectPop(kwargs,str);
     var kw = objectExtract(kwargs,str+'_*');
-    if(!objectNotEmpty(kw)){
+    if(!p && !objectNotEmpty(kw)){
         kw = null;
     }
     if(p===true || p===null){

@@ -45,7 +45,7 @@ class Main(BaseDashboardItem):
         center = bc.contentPane(region='center',_class='hideInnerToolbars')
         frameCode = self.itemIdentifier
         data,metadata = self.page.db.table('adm.userobject').loadUserObject(id=userobject_id)
-
+        
         frame = center.groupByTableHandler(table=table,frameCode=frameCode,
                                     configurable=False,
                                     struct=data['groupByStruct'],
@@ -56,32 +56,9 @@ class Main(BaseDashboardItem):
 
         frame.grid.attributes['configurable'] = True #no full configurator but allow selfdragging cols
         frame.stackedView.grid.attributes['configurable'] = True #no full configurator but allow selfdragging cols
-
-        frame.dataController("""
-            if(queryPars){
-                queryPars.forEach(function(n){
-                    var label = n.label.endsWith('*')?n.label.slice(0,n.label.length-1):n.label;
-                    where.setItem(n.attr.relpath,conf.getItem('wherepars_'+label));
-                });
-            }
-            FIRE .runStore;
-        """,conf='=%s.conf' %self.storepath,
-            queryPars='=.query.queryPars',
-            where='=.query.where',
-            _fired='^%s.runItem' %self.workpath)
-        bc.dataController("""var wherePars = new gnr.GnrBag();
-                        var subspath = conf_subscriber?conf_subscriber.values().map(v => v.getItem('varpath')):[]
-                        conf.forEach(function(n){
-                            if(n.label.startsWith('wherepars_') && subspath.indexOf(n.label)<0){
-                                wherePars.setItem(n.label.slice(10),n.getValue(),n.attr);
-                            }
-                        });
-                        SET .whereParsFormatted = wherePars.getFormattedValue({joiner:' - '});""",
-                    conf='^.conf',conf_subscriber='=.conf_subscriber',_delay=1)
-
+        self.content_handleQueryPars(frame)
         bc.dataFormula('.currentLinkableGrid','itemIdentifier+(groupMode=="stackedview"?"_stacked_grid":"_grid");',datapath=self.workpath,
                             groupMode='^.groupMode',itemIdentifier=self.itemIdentifier)
-
         self.queryPars = data['queryPars']
         frame.data('.always',True)
         frame.data('.query.where',data['where'])
@@ -105,21 +82,35 @@ class Main(BaseDashboardItem):
         center = bc.contentPane(region='center')
         if not self.queryPars:
             return
-        fb = center.formbuilder(dbtable=table,
-                            fld_validate_onAccept="SET %s.runRequired =true;" %self.workpath)
-        for code,pars in self.queryPars.digest('#k,#a'):
-            if code.endswith('*'):
-                code = code[0:-1]
-                fb.data('.wherepars_%s' %code,None,autoTopic=code)
-                continue
-            field = pars['field']
-            rc = self.db.table(table).column(field).relatedColumn()
-            wherepath = pars['relpath']
-            if pars['op'] == 'equal' and rc is not None:
-                fb.dbSelect(field,value='^.wherepars_%s' %code,lbl=pars['lbl'],
-                            default_value=pars['dflt'],
-                            dbtable=rc.table.fullname)
-            else:
-                fb.textbox(value='^.wherepars_%s' %code,
-                            default_value=pars['dflt'],
-                            lbl=pars['lbl'])
+        self.configuration_handleQueryPars(center,table)
+
+
+    def getDashboardItemInfo(self,table=None,userObjectData=None,**kwargs):
+        result = []
+        where = userObjectData['where']
+        struct = userObjectData['groupByStruct']
+        if struct:
+            z = [self.localize(n.attr.get('name')) for n in struct['view_0.rows_0'].nodes if not n.attr.get('hidden')]
+            result.append('<div class="di_pr_subcaption" >Fields</div><div class="di_content">%s</div>' %','.join(z))
+        if where:
+            result.append('<div class="di_pr_subcaption">Where</div><div class="di_content">%s</div>' %self.db.whereTranslator.toHtml(self.db.table(table),where))
+        
+        queryPars = userObjectData['queryPars']
+        configurations = []
+        configurations.append('Mode')
+        if queryPars:
+            for code,pars in queryPars.digest('#k,#a'):
+                autoTopic = False
+                if not code.endswith('*'):
+                    configurations.append(code)
+        result.append('<div class="di_pr_subcaption">Config</div><div class="di_content">%s</div>' %'<br/>'.join(configurations))
+
+        return ''.join(result)
+
+    
+    def itemActionsSlot(self,pane):
+        pane.lightbutton(_class='excel_white_svg',
+                        action="genro.nodeById(itemIdentifier+(groupMode=='stackedview'?'_stacked_grid':'_grid')).publish('serverAction',{command:'export',opt:{export_mode:'xls',localized_data:true}})",
+                        groupMode='=%s.groupMode' %self.workpath,
+                        itemIdentifier=self.itemIdentifier,height='16px',width='16px',
+                        cursor='pointer')

@@ -60,3 +60,6 @@ class FormIncluded(Form):
         bc = tc.borderContainer(title='Configurations')
         bc.channelsViewer(region='center',storepath='#FORM.record.data.channels',datapath='#FORM.dashboardChannels')
         bc.itemsViewer(region='bottom',height='400px',storepath='#FORM.record.data.items',datapath='#FORM.dashboardItems') 
+    
+    def th_options(self):
+        return dict(modal=True)

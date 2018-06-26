@@ -205,7 +205,7 @@ class TableHandlerView(BaseComponent):
                                configurable=configurable,**kwargs)  
         if statsEnabled:
             self._th_handle_stats_pages(frame)
-            frame.linkedGroupByAnalyzer()
+            frame.viewLinkedDashboard()
         self._th_handle_page_hooks(frame,page_hooks)
         self._th_menu_sources(frame,extendedQuery=extendedQuery,bySample=bySample)
         self._th_viewController(frame,table=table,default_totalRowCount=extendedQuery == '*')
@@ -339,9 +339,6 @@ class TableHandlerView(BaseComponent):
         if self.ths_pandas_available():
             sc.contentPane(title='!!Pivot table',pageName='pandas').tableHandlerStats(datapath='.pandas')
         
-
-
-
 
     @struct_method
     def th_viewLeftDrawer(self,pane,table,th_root):
@@ -1094,32 +1091,6 @@ class TableHandlerView(BaseComponent):
                         'column_caption': self.app._relPathToCaption(table, column),
                         'value_caption':val})
         return result
-
-    @struct_method
-    def thgp_linkedGroupByAnalyzer(self,view,**kwargs):
-        linkedTo=view.attributes.get('frameCode')
-        table = view.grid.attributes.get('table')
-        frameCode = '%s_gp_analyzer' %linkedTo
-        pane = view.grid_envelope.contentPane(region='bottom',height='300px',closable='close',margin='2px',splitter=True,
-                                             border_top='1px solid #efefef')
-        view.dataController("""
-            var analyzerNode = genro.nodeById(analyzerId);
-            if(currentSelectedPkeys && currentSelectedPkeys.length){
-                analyzerNode.setRelativeData('.analyzer_condition', '$'+pkeyField+' IN :analyzed_pkeys');
-                analyzerNode.setRelativeData('.analyzed_pkeys',currentSelectedPkeys);
-            }else{
-                analyzerNode.setRelativeData('.analyzer_condition',null);
-                analyzerNode.setRelativeData('.analyzed_pkeys',null);
-            }
-        """,pkeyField='=.table?pkey',
-            currentSelectedPkeys='^.grid.currentSelectedPkeys',
-            analyzerId=frameCode,_delay=500)
-
-        pane.groupByTableHandler(frameCode=frameCode,linkedTo=linkedTo,
-                                    table=table,datapath='.analyzerPane',
-                                    condition='=.analyzer_condition',
-                                    condition_analyzed_pkeys='^.analyzed_pkeys')
-        
 
 class THViewUtils(BaseComponent):
     js_requires='th/th_querytool,th/th_viewconfigurator'

@@ -47,7 +47,6 @@ class GnrWsgiWebApp(GnrApp):
         self.cache = WebApplicationCache(self)
 
     def notifyDbUpdate(self,tblobj,recordOrPkey=None,**kwargs):
-        print 'notifyDbUpdate',recordOrPkey
         if isinstance(recordOrPkey,list):
             records = recordOrPkey
         elif not recordOrPkey and kwargs:

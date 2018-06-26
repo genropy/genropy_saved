@@ -5,7 +5,7 @@ from gnr.core.gnrbag import Bag,DirectoryResolver
 from gnr.core.gnrdecorator import public_method
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('userobject', pkey='id', name_long='!!User Object',name_plural='!!User Objects',rowcaption='$code,$objtype')
+        tbl = pkg.table('userobject', pkey='id', name_long='!!User Object',name_plural='!!User Objects',rowcaption='$code,$objtype',broadcast='objtype')
         self.sysFields(tbl, id=True, ins=True, upd=True)
         tbl.column('identifier',size=':120',indexed=True,sql_value="COALESCE(:tbl,:pkg,'')||:objtype||:code",unique=True)
         tbl.column('code', name_long='!!Code', indexed='y') # a code unique for the same type / pkg / tbl
@@ -21,6 +21,7 @@ class Table(object):
         tbl.column('quicklist', 'B', name_long='!!Quicklist')
         tbl.column('flags', 'T', name_long='!!Flags')
         tbl.column('required_pkg', name_long='!!Required pkg')
+        tbl.column('preview',name_long='!![it]Preview')
         tbl.pyColumn('resource_status',name_long='!!Resources',required_columns='$data')
 
     
@@ -177,7 +178,7 @@ class Table(object):
     
     @public_method
     def deleteUserObject(self, pkey):
-        self.delete({'id': pkey})
+        self.delete(pkey)
         self.db.commit()
 
     @public_method
@@ -190,7 +191,7 @@ class Table(object):
             for r in userobjects:
                 r.pop('data',None)
                 r['pkey'] = r.pop('id',None) or r.pop('code')
-                r['caption'] = r['description'] or r['code']
+                r['caption'] = r['description'] or r['code'].title()
                 r['draggable'] = True
                 r['onDrag'] = """dragValues['dbrecords'] = {table:'adm.userobject',pkeys:['%(pkey)s'],objtype:'%(objtype)s',reftable:"%(tbl)s"}""" %r
                 result.setItem(r['code'] or 'r_%i' % i, None, **dict(r))
@@ -207,7 +208,7 @@ class Table(object):
         record = dict(data=data,objtype=objtype,
                     pkg=pkg,tbl=table,userid=self.db.currentPage.user,id=pkey,
                     code= metadata['code'],description=metadata['description'],private=metadata['private'] or False,
-                    notes=metadata['notes'],flags=metadata['flags'])
+                    notes=metadata['notes'],flags=metadata['flags'],preview=metadata['preview'])
         self.insertOrUpdate(record)
         self.db.commit()
         return record['id'],record    
@@ -215,7 +216,6 @@ class Table(object):
     @public_method
     def saveAsResource(self,pkeys=None):
         page = self.db.currentPage
-        print 'pkeys',pkeys
         for pkey in pkeys:
             record = self.record(pkey=pkey).output('record')
             record.pop('id')

@@ -1759,6 +1759,7 @@ div.dojoxDock {
 
 
 
+
 ._common_d11 .dojoxFloatingPaneContent {
     overflow:hidden !important;
 }
@@ -5439,6 +5440,7 @@ div[disabled='true'], div[disabled='disabled']{
     background-size: contain;
 }
 
+
 .showcase_light .showcase_next{
     background: url(icons/svg/right_arrow.svg) center center no-repeat;
     background-size: contain;
@@ -5480,6 +5482,7 @@ div[disabled='true'], div[disabled='disabled']{
     background-size: contain;
 }
 
+
 .menu_gray_svg{
     background: url(icons/svg/menu_gray.svg) center center no-repeat;
     background-size: contain;
@@ -5487,6 +5490,10 @@ div[disabled='true'], div[disabled='disabled']{
 
 .line_chart_white_svg{
     background: url(icons/svg/line_chart_white.svg) center center no-repeat;
+    background-size: contain;
+}
+.excel_white_svg{
+    background: url(icons/svg/excel_white.svg) center center no-repeat;
     background-size: contain;
 }
 

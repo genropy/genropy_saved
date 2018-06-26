@@ -32,7 +32,7 @@ class TableHandler(BaseComponent):
     py_requires="""th/th_view:TableHandlerView,th/th_tree:TableHandlerHierarchicalView,
                     th/th_stats:TableHandlerStats,th/th_groupth:TableHandlerGroupBy,
                   th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker,
-                  th/th:MultiButtonForm
+                  th/th:MultiButtonForm,th/th:THBusinessIntelligence
                   """
     
     @extract_kwargs(condition=True,grid=True,view=True,picker=True,export=True,addrowmenu=True,hider=True,preview=True,relation=True)
@@ -504,6 +504,20 @@ class TableHandler(BaseComponent):
     def th_saveUserSetting(self,data=None,thkey=None):
         self.db.table('adm.user').setPreference(data=data,path='thpref.%s' %thkey,pkg='sys',username=self.user)
 
+
+    @public_method
+    def th_remoteTableHandler(self,pane,thkwargs=None,**kwargs):
+        thkwargs.update(kwargs)
+        thwidget=thkwargs.pop('thwidget','plain')
+        if thwidget == 'form':
+            thkwargs.setdefault('startKey','*newrecord*')
+            thkwargs.setdefault('modal',True)
+            #fix lock 
+            pane.thFormHandler(**thkwargs)
+        else:
+            thkwargs.setdefault('view_store__onBuilt',True)
+            getattr(pane,'%sTableHandler' %thwidget)(**thkwargs)
+
 class MultiButtonForm(BaseComponent):
     @extract_kwargs(condition=True,store=True,multibutton=True,default=True,formhandler=True,form=True)
     @struct_method
@@ -831,15 +845,45 @@ class ThLinker(BaseComponent):
     def th_thIframePalette(self,pane,**kwargs):
         return pane.child('ThIframePalette',**kwargs)
 
-    @public_method
-    def th_remoteTableHandler(self,pane,thkwargs=None,**kwargs):
-        thkwargs.update(kwargs)
-        thwidget=thkwargs.pop('thwidget','plain')
-        if thwidget == 'form':
-            thkwargs.setdefault('startKey','*newrecord*')
-            thkwargs.setdefault('modal',True)
-            #fix lock 
-            pane.thFormHandler(**thkwargs)
-        else:
-            thkwargs.setdefault('view_store__onBuilt',True)
-            getattr(pane,'%sTableHandler' %thwidget)(**thkwargs)
+class THBusinessIntelligence(BaseComponent):
+    
+    @struct_method
+    def th_viewLinkedDashboard(self,view,nodeId=None,**kwargs):
+        if not self.db.package('biz'):
+            return
+        self.mixinComponent('dashboard_component/dashboard_component:DashboardGallery')
+        linkedTo=view.attributes.get('frameCode')
+        table = view.grid.attributes.get('table')
+        #frameCode = '%s_biz_analyzer' %linkedTo
+        kwargs.setdefault('region','bottom')
+        kwargs.setdefault('height','40%')
+        kwargs.setdefault('closable','close')
+        kwargs.setdefault('margin','2px')
+        kwargs.setdefault('splitter',True)
+        kwargs.setdefault('border_top','1px solid #efefef')
+        parent = view.grid_envelope
+        pkg,tbl = table.split('.')
+        dashboardGalleryId = nodeId or '%s_dashboardGallery' %linkedTo
+        parent.dataController("""var kw = {};
+                            kw[table.replace('.','_')+'_pkey'] = selectedPkeys;
+                            genro.nodeById(dashboardGalleryId).publish('updatedChannels',kw)""",
+                            selectedPkeys='^.grid.currentSelectedPkeys',
+                            dashboardGalleryId=dashboardGalleryId,table=table,tablepkey=self.db.table(table).pkey)
+        parent.dashboardGallery(pkg=pkg,code=linkedTo,nodeId=dashboardGalleryId,**kwargs)
+
+    @struct_method
+    def th_formLinkedDashboard(self,parent,code=None,nodeId=None,**kwargs):
+        if not self.db.package('biz'):
+            return
+        self.mixinComponent('dashboard_component/dashboard_component:DashboardGallery')
+        inattr = parent.getInheritedAttributes()
+        formId = inattr['formId']
+        table = inattr['table']
+        pkg,tbl = table.split('.')
+        dashboardGalleryId = nodeId or  '%s_dashboardGallery' %formId
+        parent.dataController("""var kw = {};
+                            kw[table.replace('.','_')+'_pkey'] = pkey;
+                            genro.nodeById(dashboardGalleryId).publish('updatedChannels',kw)""",
+                            pkey='^#FORM.controller.loaded',
+                            dashboardGalleryId=dashboardGalleryId,table=table,tablepkey=self.db.table(table).pkey)
+        parent.dashboardGallery(pkg=pkg,code=code or formId,nodeId=dashboardGalleryId,**kwargs)
