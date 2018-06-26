@@ -45,7 +45,7 @@ class Main(BaseDashboardItem):
         center = bc.contentPane(region='center',_class='hideInnerToolbars')
         frameCode = self.itemIdentifier
         data,metadata = self.page.db.table('adm.userobject').loadUserObject(id=userobject_id)
-
+        
         frame = center.groupByTableHandler(table=table,frameCode=frameCode,
                                     configurable=False,
                                     struct=data['groupByStruct'],
@@ -106,3 +106,11 @@ class Main(BaseDashboardItem):
         result.append('<div class="di_pr_subcaption">Config</div><div class="di_content">%s</div>' %'<br/>'.join(configurations))
 
         return ''.join(result)
+
+    
+    def itemActionsSlot(self,pane):
+        pane.lightbutton(_class='excel_white_svg',
+                        action="genro.nodeById(itemIdentifier+(groupMode=='stackedview'?'_stacked_grid':'_grid')).publish('serverAction',{command:'export',opt:{export_mode:'xls',localized_data:true}})",
+                        groupMode='=%s.groupMode' %self.workpath,
+                        itemIdentifier=self.itemIdentifier,height='16px',width='16px',
+                        cursor='pointer',datapath=self.storepath)

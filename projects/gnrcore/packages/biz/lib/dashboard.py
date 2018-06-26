@@ -129,11 +129,15 @@ class BaseDashboardItem(object):
                         itemIdentifier=self.itemIdentifier,
                         _dashboardPageSelected='=._dashboardPageSelected')
         if self.editMode and self.linked_item:
-            box = top.div(position='absolute',top='1px',right='40px',height='16px',width='20px')
+            box = top.div(position='absolute',top='1px',right='30px',height='16px',width='20px')
             box.div(draggable=True,cursor='move',display='inline-block',
                             workpath=self.workpath,storepath=self.storepath,
                             height='15px',width='15px',**self.linked_item)
+        self.itemActionsSlot(top.div(position='absolute',top='1px',right='60px',height='16px',width='20px'))
 
+
+    def itemActionsSlot(self,pane):
+        pass
 
     def content(self,pane,**kwargs):
         pass
@@ -248,6 +252,9 @@ class BaseDashboardItem(object):
             
     def getDashboardItemInfo(self,**kwargs):
         return
+
+
+
 
     def __getattr__(self, fname): 
         return getattr(self,fname) if fname in self.__dict__ else getattr(self.page,fname)
