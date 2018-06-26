@@ -227,7 +227,7 @@ class DashboardGallery(BaseComponent):
                         ${<div class='di_block'>$notes</div>}
                         <div class='di_info'>$itemInfo</div>
                         """,datasource='^.preview_data')
-        box = pane.div(position='absolute',bottom=0,left=0,right=0,height='200px',overflow='hidden')
+        box = pane.div(position='absolute',bottom='4px',left='4px',right='4px',height='200px',overflow='hidden')
         box.img(src='^.preview_data.preview',height='100%',hidden='^.preview_data.preview?=!#v')
 
     @public_method
