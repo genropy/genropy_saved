@@ -101,9 +101,23 @@ class Main(BaseDashboardItem):
 
 
         return ''.join(result)
-
+    
     def itemActionsSlot(self,pane):
         pane.lightbutton(_class='excel_white_svg',
-                        action="genro.nodeById(itemIdentifier+'_grid').publish('serverAction',{command:'export',opt:{export_mode:'xls',localized_data:true}})",
+                        action="""
+                        var opt = objectExtract(_kwargs,'opt_*');
+                        var kw = {command:'export',opt:opt};
+                        var gridId = 'temIdentifier+'_grid';
+                        genro.nodeById(gridId).publish('serverAction',kw)""",
+                        groupMode='=.groupMode' ,datapath=self.workpath,
                         itemIdentifier=self.itemIdentifier,height='16px',width='16px',
+                        opt_export_mode='xls',
+                        opt_downloadAs='=.current_title?=#v?flattenString(#v,[".",":","/",";"," "]).toLowerCase():""',
+                        opt_rawData=True, 
+                        opt_localized_data=True,
+                        ask=dict(title='Export selection',skipOn='Shift',
+                                fields=[dict(name='opt_downloadAs',lbl='Download as'),
+                                        dict(name='opt_export_mode',wdg='filteringSelect',values='xls:Excel,csv:CSV',lbl='Mode'),
+                                        dict(name='opt_allRows',label='All rows',wdg='checkbox'),
+                                        dict(name='opt_localized_data',wdg='checkbox',label='Localized data')]),
                         cursor='pointer')

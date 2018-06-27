@@ -165,7 +165,8 @@
 }
 .di_pr_subcaption{
     font-style: italic;
-    color:gray;
+    text-align: center;
+    color:#666;
     margin-top: 10px;
 }
 .di_info{
