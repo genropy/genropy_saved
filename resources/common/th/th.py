@@ -883,7 +883,8 @@ class THBusinessIntelligence(BaseComponent):
         dashboardGalleryId = nodeId or  '%s_dashboardGallery' %formId
         parent.dataController("""var kw = {};
                             kw[table.replace('.','_')+'_pkey'] = pkey;
-                            genro.nodeById(dashboardGalleryId).publish('updatedChannels',kw)""",
+                            genro.nodeById(dashboardGalleryId).publish('updatedChannels',kw)
+                            """,
                             pkey='^#FORM.controller.loaded',
                             dashboardGalleryId=dashboardGalleryId,table=table,tablepkey=self.db.table(table).pkey)
         parent.dashboardGallery(pkg=pkg,code=code or formId,nodeId=dashboardGalleryId,**kwargs)

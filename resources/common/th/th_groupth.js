@@ -316,7 +316,19 @@ genro_plugin_groupth = {
         };
         kw.onLoaded = function(dataIndex,resultValue,resultAttr){
             if(sourceNode.attr._linkedTo){
-                TH(sourceNode.attr._linkedTo).querymanager.sourceNode.fireEvent('.runQuery',true);
+                var qm = TH(sourceNode.attr._linkedTo).querymanager;
+                var qsn = qm.sourceNode;
+                
+
+                var where = resultValue.getItem('where');
+                if(where && where.len()){
+                    qsn.setRelativeData('.query.currentQuery','__queryeditor__');
+                    qsn.setRelativeData('.query.queryAttributes.extended',true);
+                    qsn.setRelativeData('.query.queryEditor',true);
+                    qm.buildQueryPane();
+                }
+                qsn.fireEvent('.runQuery',true);
+
             }else{
                 sourceNode.fireEvent('.reloadMain',true);
             }

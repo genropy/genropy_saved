@@ -167,12 +167,12 @@ dojo.declare("gnr.QueryManager", null, {
             fullcaption = fc.join('/');
             column = fl.join('.');
             sourceNode.setRelativeData(path + '?column_relationTo', column_attr.one_relation);
+        }else{
+            sourceNode.setRelativeData(path + '?column_relationTo', null);
         }
         sourceNode.setRelativeData(path + '?column_caption', fullcaption);
         sourceNode.setRelativeData(path + '?column', column);
         var currentDtype = sourceNode.getRelativeData(path + '?column_dtype');
-        
-
         if (currentDtype != dtype) {
             sourceNode.setRelativeData(path + '?column_dtype', column_attr.query_dtype || dtype);
             var default_op = genro._('gnr.qb.sqlop.op_spec.' + this.getDtypeGroup(dtype) + '.#0');
@@ -814,7 +814,7 @@ dojo.declare("gnr.QueryManager", null, {
 
         var center = dlg.center._('div',{padding:'10px'});
         var bottom = dlg.bottom._('slotBar',{'slots':'cancel,*,confirm'});
-        var queryform = genro.dev.formbuilder(center,1,{border_spacing:'8px',onEnter:confirm,margin_top:'10px'})
+        var queryform = genro.dev.formbuilder(center,1,{border_spacing:'3px',onEnter:confirm,margin_top:'6px'});
         var tr, attrs;
         for (var i = 0; i < parslist.length; i++) {
             attrs = parslist[i];
@@ -828,7 +828,13 @@ dojo.declare("gnr.QueryManager", null, {
             if(dflt){
                 sourceNode.setRelativeData(this.wherepath+'.'+attrs.relpath,dflt);
             }
-            queryform.addField('textbox',{lbl:lbl,value:'^.' + attrs.relpath, width:'12em'});
+            if(attrs.column_relationTo){
+                var ro = attrs.column_relationTo.split('.');
+                queryform.addField('dbselect',{lbl:lbl,value:'^.' + attrs.relpath, width:'12em',dbtable:ro[0]+'.'+ro[1]});
+            }else{
+                queryform.addField('textbox',{lbl:lbl,value:'^.' + attrs.relpath, width:'12em'});
+            }
+            
         }
         bottom._('button', 'cancel',{label:'Cancel',baseClass:'bottom_btn',action:cancel});
         bottom._('button', 'confirm',{label:'Confirm',baseClass:'bottom_btn',action:confirm});
