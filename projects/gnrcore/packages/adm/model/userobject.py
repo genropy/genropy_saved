@@ -97,11 +97,11 @@ class Table(object):
             if node.attr['file_ext'] !='directory':
                 record = Bag(node.attr['abs_path'])
                 identifier = self.uo_identifier(record)
-                if  identifier not in current_userobjects:
-                    print 'inserting',record['code'],record['__ins_ts'],record['__mod_ts']
+                if  not self.checkDuplicate(code=record['code'],pkg=record['pkg'],tbl=record['tbl'],objtype=record['objtype']):
+                    print 'userobject in resource adding',identifier
                     record['id'] = self.newPkeyValue()
                     self.raw_insert(record)
-                current_userobjects.pop(identifier)
+                current_userobjects.pop(identifier,None)
         for pkgid,pkgobj in self.db.application.packages.items():
             table_resource_folder = os.path.join(pkgobj.packageFolder,'resources','tables') 
             d = DirectoryResolver(table_resource_folder,include='*.xml',callback=cbattr,processors=dict(xml=False))
