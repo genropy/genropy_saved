@@ -46,7 +46,9 @@ class BaseDashboardItem(object):
 
     @extract_kwargs(itempar=True)
     def __call__(self,pane,editMode=None,workpath=None,parameters=None,itempar_kwargs=None,
-                itemspath=None,workspaces=None,channelspath=None,itemIdentifier=None,dashboardIdentifier=None,title=None,**kwargs):
+                itemspath=None,workspaces=None,channelspath=None,
+                itemIdentifier=None,dashboardIdentifier=None,title=None,itemRecord=None,**kwargs):
+        self.itemRecord = itemRecord or Bag()
         self.itemIdentifier = itemIdentifier or 'di_%s' %id(pane)
         self.dashboardIdentifier = dashboardIdentifier
         self.workspaces = workspaces or '#%s.dashboards' %dashboardIdentifier if dashboardIdentifier else 'dashboardItems'
@@ -155,7 +157,7 @@ class BaseDashboardItem(object):
             var conf_subscribers = genro.getData(subspath) || new gnr.GnrBag();
             genro.getData(confpath).getNodes().forEach(function(n){
                 if(n.attr.autoTopic){
-                    conf_subscribers.setItem(n.attr.autoTopic,new gnr.GnrBag({topic:n.attr.autoTopic,varpath:n.label,
+                    conf_subscribers.setItem(n.label,new gnr.GnrBag({topic:n.attr.autoTopic,varpath:n.label,
                                                                             wdg:n.attr.wdg_tag,
                                                                             dbtable:n.attr.wdg_dbtable,
                                                                             autoTopic:true,
@@ -231,24 +233,33 @@ class BaseDashboardItem(object):
     def configuration_handleQueryPars(self,center,table):
         fb = center.formbuilder(dbtable=table,
                             fld_validate_onAccept="SET %s.runRequired =true;" %self.workpath)
+        wherepars = set()
         for code,pars in self.queryPars.digest('#k,#a'):
             autoTopic = False
             aliasTopic = None
             if code.endswith('*'):
                 code = code[0:-1]
                 autoTopic = code
+            hidden = '^%s.conf_subscriber?=#v?#v.getNode("wherepars_%s"):false' %(self.storepath,code)
             field = pars['field']
             rc = self.db.table(table).column(field).relatedColumn()
             wherepath = pars['relpath']
             if pars['op'] == 'equal' and rc is not None:
                 wdg = fb.dbSelect(field,value='^.wherepars_%s' %code,lbl=pars['lbl'],
                                     #attr_wdg='dbselect',attr_dbtable=rc.table.fullname,
-                                    dbtable=rc.table.fullname,hidden=autoTopic)
+                                    dbtable=rc.table.fullname,hidden=hidden)
                 aliasTopic = '%s_pkey' %rc.table.fullname.replace('.','_')
             else:
-                wdg = fb.textbox(value='^.wherepars_%s' %code,lbl=pars['lbl'],hidden=autoTopic)
+                wdg = fb.textbox(value='^.wherepars_%s' %code,lbl=pars['lbl'],hidden=hidden)
+            wherepars.add('wherepars_%s' %code)
             fb.data('.wherepars_%s' %code,pars['dflt'],wdg_tag=wdg.attributes['tag'],
                     wdg_dbtable=wdg.attributes.get('dbtable'),autoTopic=autoTopic,aliasTopic=aliasTopic)
+        center.dataController("""
+        var currconf = this.getRelativeData();
+        console.log('check_conf',currconf.keys(),wherepars)
+        """,wherepars=list(wherepars),_onBuilt=True)
+
+        
             
     def getDashboardItemInfo(self,**kwargs):
         return
