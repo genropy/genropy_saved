@@ -26,7 +26,41 @@ class Main(BaseResourceAction):
     
     def do(self):
         how_many = self.batch_parameters['batch']['how_many']
-        related = Bag()
+        self.completeRelFieldsPars(how_many)
+        for i in range(how_many):
+            r = dict()
+            min_date=None
+            self.fillRandomRecord(r, i)
+            self.tblobj.insert(r)
+        self.db.commit()
+
+    def fillRandomRecord(self, r, i):
+        for field,field_pars in self.batch_parameters['fields'].items():
+            condition_field= field_pars['_if']
+            if condition_field and not r[condition_field]:
+                continue
+            col_obj = self.tblobj.columns[field]
+            
+            if 'table' in field_pars:
+                if field_pars['pkeys']:
+                    r[field] = random.choice(field_pars['pkeys'])
+                else:
+                    r[field] = None
+                cluster = field_pars['cluster']
+                if cluster:
+                    for cl_field, cl_bag in cluster.items():
+                        cl_records=cl_bag['recordsDict'][r[cl_bag['group_key']]]
+                        if cl_records:
+                            cl_rec = random.choice(cl_records)
+                            r[cl_field] = cl_rec['pkey']
+                    
+            elif 'copy_from' in field_pars:
+                r[field] = r[field_pars['copy_from']]
+            else:
+                handler = getattr(self, 'getValue_%s' % field_pars['dtype'], self.getValue_T)
+                r[field] = handler(field_pars, i)
+
+    def completeRelFieldsPars(self, how_many):
         for field,field_pars in self.batch_parameters['fields'].items():
             if field_pars['dtype'] in ('D','DH'):
                 dtstart=field_pars['min_value'] or self.db.workdate
@@ -54,33 +88,6 @@ class Main(BaseResourceAction):
                                              parent_pkeys=field_pars['pkeys'])
                     field_pars['cluster.%s'% c['field']] = Bag(dict(group_key=group_key, recordsDict=q.fetchGrouped(key=group_key)))
                     
-        for i in range(how_many):
-            r = dict()
-            min_date=None
-            for field,field_pars in self.batch_parameters['fields'].items():
-                condition_field= field_pars['_if']
-                if condition_field and not r[condition_field]:
-                    continue
-
-                col_obj = self.tblobj.columns[field]
-                if 'table' in field_pars:
-                    r[field] = random.choice(field_pars['pkeys'])
-                    cluster = field_pars['cluster']
-                    if cluster:
-                        for cl_field, cl_bag in cluster.items():
-                            cl_records=cl_bag['recordsDict'][r[cl_bag['group_key']]]
-                            if cl_records:
-                                cl_rec = random.choice(cl_records)
-                                r[cl_field] = cl_rec['pkey']
-                        
-                elif 'copy_from' in field_pars:
-                    r[field] = r[field_pars['copy_from']]
-                else:
-                    handler = getattr(self, 'getValue_%s' % field_pars['dtype'], self.getValue_T)
-                    r[field] = handler(field_pars, i)
-            #self.tblobj.newrecord(r)
-            self.tblobj.insert(r)
-        self.db.commit()
 
     def getValue_L(self, field_pars, i):
         return random.randint(field_pars['min_value'] or 0, field_pars['max_value'] or 100)
@@ -103,38 +110,18 @@ class Main(BaseResourceAction):
     def getValue_T(self, field_pars, i):
         value= field_pars['value']
         if value:
-            if '#' in value:
-                value = value.replace('#', str(i+1))
+            if '#N' in value:
+                value = value.replace('#N', str(i+1))
+            prefix = self.batch_parameters['batch']['batch_prefix']
+            if '#P' in value and prefix:
+                value = value.replace('#P', prefix)
         return value
-
-
-        
-
-
-                    #cluster_tbl = self.db.table('%s.%s' % (rel_attrs['pkg'],rel_attrs['table']))
-        
-        #for  field,field_pars in self.batch_parameters['fields'].items():
-        #    if field_pars['related']:
-        #        print xxx
-        #        rel_attrs = self.tblobj.relations.getAttr(field)
-        #        related_tbl = self.db.table('%s.%s' % (rel_attrs['pkg'],rel_attrs['table']))
-        #        where='%s IN :rel_pkeys' % field_pars['related']
-        #        #where='$cliente_id IN :clienti_pkeys'
-        #        related_tbl.query(columns=related_tbl.pkey, where=where, **where_pars)
-
-        #prepara liste pkeys delle table in relazione
-        #valori stringa scelta multipla
-
-        #values = self.batch_parameters.get('values')
-
-    def randomRecord(self):
-        return dict()
-
 
     def table_script_parameters_pane(self, pane, table=None,**kwargs):
         tblobj = self.db.table(table)
-        fb = pane.div(border_bottom='1px solid silver',padding='3px').formbuilder(datapath='.batch', cols=1, border_spacing='2px')
+        fb = pane.div(border_bottom='1px solid silver',padding='3px').formbuilder(datapath='.batch', cols=2, border_spacing='2px')
         fb.numberTextBox('^.how_many', lbl='How many', width='5em', validate_notnull=True, default_value=1)
+        fb.textbox('^.batch_prefix', lbl='Batch prefix', width='5em')
         box_campi = pane.div(max_height='600px',overflow='auto')
         fb = box_campi.div(margin_right='15px').formbuilder(margin='5px',cols=2,
                             border_spacing='3px',
@@ -184,8 +171,7 @@ class Main(BaseResourceAction):
                 kw.pop('period_to',None)
                 fb.child(value='^.%s.max_value'%k,
                                   lbl='%s max' % lbl,
-                                  default_value=rv.pop('max_value',None), **kw)
-                
+                                  default_value=rv.pop('max_value',None), **kw)     
             else:
                 kw['colspan']=2
                 kw.update(rv)
