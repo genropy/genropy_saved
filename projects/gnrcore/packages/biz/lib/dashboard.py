@@ -256,7 +256,12 @@ class BaseDashboardItem(object):
                     wdg_dbtable=wdg.attributes.get('dbtable'),autoTopic=autoTopic,aliasTopic=aliasTopic)
         center.dataController("""
         var currconf = this.getRelativeData();
-        console.log('check_conf',currconf.keys(),wherepars)
+        currconf.keys().forEach(function(k){
+            if(k.startsWith('wherepars_') && wherepars.indexOf(k)<0){
+                console.log('removing oldpar',k);
+                currconf.popNode(k);
+            }
+        });
         """,wherepars=list(wherepars),_onBuilt=True)
 
         
