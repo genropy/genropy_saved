@@ -75,7 +75,6 @@ dojo.declare('gnr.GenroClient', null, {
         this.serverTime =objectPop(kwargs.startArgs,'servertime');
         var start_ts = new Date();
         this.serverTimeDelta = this.serverTime - start_ts;
-        this.lockingElements = {};
         this.debugRpc = false;
         this.polling_enabled = false;
         this.auto_polling = -1;
@@ -1641,7 +1640,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     setData: function(path, value, attributes, doTrigger) {
         var path = genro.pathResolve(path);
-        genro._data.setItem(path, value, attributes, {'doTrigger': doTrigger});
+        genro._data.setItem(path, value, attributes, {'doTrigger': doTrigger,lazySet:true});
     },
 
     setDataFromRemote:function(path, method, params, attributes) {
@@ -2232,14 +2231,12 @@ dojo.declare('gnr.GenroClient', null, {
             options = {};
         }
         options = options || {};
-        if (reason) {
-            genro.lockingElements[reason] = reason;
-        }
+        
         var sourceNode = genro.nodeById(options.nodeId || '_gnrRoot');
+        reason = reason || sourceNode.getStringId();
+        sourceNode._lockingElements = sourceNode._lockingElements || {};
+        sourceNode._lockingElements[reason] = reason;
         if (locking) {
-            if (!reason) {
-                return;
-            }
             var message = '<div class="form_waiting"></div>';
             if(options.thermo){
                 genro.setData('gnr.lockScreen.thermo',message);
@@ -2247,12 +2244,11 @@ dojo.declare('gnr.GenroClient', null, {
             }
             sourceNode.setHiderLayer(true,{message:message,z_index:999998});
         } else {
-            if (reason) {
-                objectPop(genro.lockingElements, reason);
-            } else {
-                genro.lockingElements = {};
+            objectPop(sourceNode._lockingElements, reason);
+            if(!objectNotEmpty(sourceNode._lockingElements)){
+                delete sourceNode._lockingElements;
             }
-            if (!objectNotEmpty(genro.lockingElements)) {
+            if (!sourceNode._lockingElements) {
                 sourceNode.setHiderLayer(false);
             }
         }
