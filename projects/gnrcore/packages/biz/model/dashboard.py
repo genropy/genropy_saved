@@ -20,3 +20,7 @@ class Table(object):
         data['dashboards'] = Bag()
         data['items'] = Bag()
         return dict(data=data)
+
+    def trigger_onUpdating(self,record=None,old_record=None):
+        if self.fieldsChanged('data',record,old_record):
+            self.db.table('biz.dashboard_config').deleteSelection(where='$dashboard_key=:dk',dk=record['dashboard_key'])

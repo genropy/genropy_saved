@@ -100,6 +100,7 @@ dojo.declare("gnr.DashboardManager", null, {
         var workspaces = this.workspaces;
         var itemspath = this.itemspath;
         var sn = this.sourceNode;
+        var channelsdata = this.channelsdata;
         var itemRun,item;
         items.forEach(function(itemNode){
             item = itemNode.getValue();
@@ -126,6 +127,7 @@ dojo.declare("gnr.DashboardManager", null, {
                     var oldval = genro.getData(confpath);
                     if(!isEqual(oldval,newval)){
                         genro.setData(confpath,newval);
+                        genro.setData(channelsdata+'.'+topic,newval);
                         itemRun = true;
                     }
                 }

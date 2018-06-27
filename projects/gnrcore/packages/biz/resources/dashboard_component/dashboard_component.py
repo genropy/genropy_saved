@@ -69,7 +69,6 @@ class DashboardGallery(BaseComponent):
             bar.editrec.slotButton('!!Edit',action="""
                                     var that = this;
                                     var onSavedCb=function(){
-                                        console.log('refreshing');
                                         that.fireEvent('.refresh',true);
                                     };
                                     var openKw = {default_pkgid:pkg,default_code:code,default_private:true};
@@ -191,7 +190,6 @@ class DashboardGallery(BaseComponent):
         
         palette.onDbChanges(action="""
         if(dbChanges.some(c => c.objtype.startsWith('dash_'))){
-            console.log('refreshing');
             FIRE .di_menu_refresh;
         }
         """,table='adm.userobject')

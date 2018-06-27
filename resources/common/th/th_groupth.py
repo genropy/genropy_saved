@@ -198,6 +198,7 @@ class TableHandlerGroupBy(BaseComponent):
             }
             var r = genro.groupth.getPivotGrid(flatStore,flatStruct);
             if(!r){
+                SET .store = new gnr.GnrBag();
                 return;
             }
             SET .grid.struct = r.struct;
