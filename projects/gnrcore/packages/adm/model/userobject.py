@@ -98,7 +98,6 @@ class Table(object):
                 record = Bag(node.attr['abs_path'])
                 identifier = self.uo_identifier(record)
                 if  not self.checkDuplicate(code=record['code'],pkg=record['pkg'],tbl=record['tbl'],objtype=record['objtype']):
-                    print 'userobject in resource adding',identifier
                     record['id'] = self.newPkeyValue()
                     self.raw_insert(record)
                 current_userobjects.pop(identifier,None)

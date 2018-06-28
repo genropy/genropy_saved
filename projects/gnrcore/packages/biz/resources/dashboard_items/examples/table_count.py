@@ -21,13 +21,22 @@
 
 from gnrpkg.biz.dashboard import BaseDashboardItem
 
-caption = 'Color publisher'
-description = 'Color publisher'
+caption = 'Dashboard count'
+description = 'Dashboard count records'
+objtype = 'dash_example_tablecounter'
+item_parameters = [dict(value='^.table',lbl='Table')]
+
 
 class Main(BaseDashboardItem):
-    title_template = '$title'
+    title_template = '$title $table color $conf.color'
 
     def content(self,pane,table=None,**kwargs):
+        count = self.db.table(table).query().count()
+        pane.div(count,color='^.conf.color',
+                   font_size='^.conf.size',**kwargs)
+
+    def configuration(self,pane,**kwargs):
         fb = pane.formbuilder()
-        fb.colorTextBox(value='^.conf.color')
-        fb.dataController("genro.publish('dashboardItemConfig',{change_color:curr_color});",curr_color='^.conf.color')
+        fb.textbox(value='^.color',lbl='Color')
+        fb.textbox(value='^.size',lbl='Size')
+

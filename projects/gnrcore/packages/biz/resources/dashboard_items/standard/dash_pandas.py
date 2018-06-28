@@ -23,6 +23,7 @@ from gnrpkg.biz.dashboard import BaseDashboardItem
 
 caption = 'Stat view'
 description = 'Stat view'
+objtype = 'dash_pandas'
 
 class Main(BaseDashboardItem):
     """Scegli table e query per visualizzare il risultato"""

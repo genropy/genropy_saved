@@ -23,7 +23,8 @@ from gnrpkg.biz.dashboard import BaseDashboardItem
 
 caption = 'Stats Grouped'
 description = 'Stats Grouped'
-
+objtype = 'dash_groupby'
+ 
 class Main(BaseDashboardItem):
     """Choose table and saved stat"""
     item_name = 'Stats Grouped'

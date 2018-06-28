@@ -25,6 +25,7 @@ from gnr.core.gnrbag import Bag
 
 caption = 'Table view'
 description = 'Table view'
+objtype = 'dash_tableviewer'
 
 class Main(BaseDashboardItem):
     title_template = '$title $whereParsFormatted'

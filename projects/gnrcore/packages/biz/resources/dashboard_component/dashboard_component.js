@@ -18,6 +18,7 @@ dojo.declare("gnr.DashboardManager", null, {
         this.channelsdata = this.storepath+'.channels_data';
         this.externalChannels = sourceNode.attr._externalChannels || [];
         this.workspaces = sourceNode.absDatapath('.dashboards');
+        this.objtypes = sourceNode.getRelativeData('gnr.dashboardItemResorces?objtypes');
     },
 
     pageTrigger:function(kw,reason){
@@ -441,6 +442,7 @@ dojo.declare("gnr.DashboardManager", null, {
                                         remote__else:"this.getValue().popNode('remoteItem');",
                                         remote_editMode:that.edit,
                                         remote_workspaces:that.workspaces,
+                                        remote_objtypes:that.objtypes,
                                         remote_itemspath:that.itemspath, //'dashboards.'+region+'.'+subregion,
                                         remote_channelspath:that.channelspath,
                                         remote__waitingMessage:'Loading...',

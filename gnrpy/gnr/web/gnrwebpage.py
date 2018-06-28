@@ -955,6 +955,9 @@ class GnrWebPage(GnrBaseWebPage):
         elif proxy_name == '_tblscript':
             table_pkg,table_name,table_respath,class_name,submethod = submethod.split('.')
             proxy_object = self.loadTableScript(table='.'.join((table_pkg,table_name)),respath=table_respath,class_name=class_name)
+        elif proxy_name == '_resourcescript':
+            pkg_name,respath,class_name,submethod = submethod.split('.')
+            proxy_object = self.loadResourceScript(respath,class_name=class_name,pkg=pkg_name)
         else:
             proxy_object = getattr(self, proxy_name, None)
         if not proxy_object:
@@ -1533,6 +1536,15 @@ class GnrWebPage(GnrBaseWebPage):
             return result[0]
             
     getResourcePath = getResource
+
+    def loadResourceScript(self,path,pkg=None,class_name=None,importAs=None):
+        if pkg=='*':
+            pkg = None
+        class_name = class_name or 'Main'
+        cl = self.importResource(path,classname=class_name,pkg=pkg,importAs=importAs)
+        cl._gnrPublicName = '_resourcescript.%s.%s.%s' %(pkg or '*',path,class_name)
+        return cl(page=self)
+        
             
     def importResource(self, path, classname=None, pkg=None,importAs=None):
         """TODO

@@ -39,10 +39,10 @@ class BaseDashboardItem(object):
     css_requires = None
     js_requires = None
 
-    def __init__(self, page=None, resource_table=None, **kwargs):
+    def __init__(self, page=None, tblobj=None, **kwargs):
         self.page = page
         self.db = page.db
-        self.tblobj = resource_table
+        self.tblobj = tblobj
 
     @extract_kwargs(itempar=True)
     def __call__(self,pane,editMode=None,workpath=None,parameters=None,itempar_kwargs=None,

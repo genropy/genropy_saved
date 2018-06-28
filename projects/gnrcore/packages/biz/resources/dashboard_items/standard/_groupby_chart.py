@@ -93,7 +93,6 @@ class Main(BaseDashboardItem):
     def configuration(self,pane,linkedStore=None,**kwargs):
         fb = pane.formbuilder()
         fb.textbox(value='^.caption_template',lbl='!!Caption')
-
         chartconf = '%s.chart_parameters' %self.storepath
         fb.filteringSelect(value='^.chartType',lbl='!!Chart type',
                     values='bar,line,pie,doughnut',datapath=chartconf)
