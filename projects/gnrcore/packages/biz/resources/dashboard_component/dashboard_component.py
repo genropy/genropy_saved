@@ -67,8 +67,9 @@ class DashboardItem(BaseComponent):
             di_folder = os.path.join(pkgobj.packageFolder,'resources','dashboard_items') 
             d = DirectoryResolver(di_folder,include='*.py',exclude='_*')
             content = d()
-            content.walk(cb,_mode='deep')
-            result.setItem(pkgid,content,caption=pkgobj.attributes.get('name_long') or pkgid)
+            if content:
+                content.walk(cb,_mode='deep')
+                result.setItem(pkgid,content,caption=pkgobj.attributes.get('name_long') or pkgid)
         return result,typedict
 
 class DashboardGallery(BaseComponent):
@@ -216,6 +217,7 @@ class DashboardGallery(BaseComponent):
                                     storepath='gnr.dashboardItemResorces',
                                     tree_selectedLabelClass='selectedTreeNode',
                                     tree__class=' branchtree noIcon',
+                                    tree_openOnClick=True
                                     #tree_getLabelClass="return node.attr.itemClass "
                                     )
     
@@ -248,11 +250,11 @@ class DashboardGallery(BaseComponent):
     @public_method
     def di_itemPrevew(self,pane,**kwargs):
         pane.dataController("""
-        if(!(item.attr.pkey || item.attr.resource)){
+        if(!(item.attr.pkey)){
             return;
         }       
-        SET .userobject_id = item.attr.pke;
-        """,subscribe_dashboardItems_tree_onSelected=True)
+        SET .userobject_id = item.attr.pkey;
+        """,subscribe_dashboardUserObjectItems_tree_onSelected=True)
         pane.dataRpc('.preview_data',self.di_getUserObjectData,
                     userobject_id='^.userobject_id',objtypes='=gnr.dashboardItemResorces?objtypes',
                     _delay=500)
