@@ -39,10 +39,9 @@ class BaseDashboardItem(object):
     css_requires = None
     js_requires = None
 
-    def __init__(self, page=None, tblobj=None, **kwargs):
+    def __init__(self, page=None, **kwargs):
         self.page = page
         self.db = page.db
-        self.tblobj = tblobj
 
     @extract_kwargs(itempar=True)
     def __call__(self,pane,editMode=None,workpath=None,parameters=None,itempar_kwargs=None,
@@ -268,9 +267,11 @@ class BaseDashboardItem(object):
             
     def getDashboardItemInfo(self,**kwargs):
         return
+        
 
-
-
+    def di_getmodule_attr(self,attr):
+        m = sys.modules[self.__module__]
+        return getattr(m,attr,None)
 
     def __getattr__(self, fname): 
         return getattr(self,fname) if fname in self.__dict__ else getattr(self.page,fname)

@@ -20,6 +20,7 @@
 
 
 from gnrpkg.biz.dashboard import BaseDashboardItem
+from gnr.core.gnrdecorator import public_method
 
 caption = 'Stats Grouped'
 description = 'Stats Grouped'
@@ -128,3 +129,16 @@ class Main(BaseDashboardItem):
                                         dict(name='opt_allRows',label='All rows',wdg='checkbox'),
                                         dict(name='opt_localized_data',wdg='checkbox',label='Localized data')]),
                         cursor='pointer')
+
+    @public_method
+    def di_userObjectEditor(self,pane,valuepath=None,table=None,**kwargs):
+        tblobj = self.db.table(table)
+        def struct(struct):
+            r = struct.view().rows()
+            r.fieldcell(tblobj.attributes.get('caption_field') or tblobj.pkey, name=tblobj.name_long, width='100%')
+        th = pane.plainTableHandler(table=table,viewResource='_viewUOEdit',view_structCb=struct,
+                                    virtualStore=True,extendedQuery=True)
+        th.view.dataController("""SET .statsTools.selectedPage='groupby';
+                                  SET .viewPage = 'statsTools';
+                                  """,_onStart=True)
+        

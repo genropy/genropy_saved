@@ -507,5 +507,32 @@ dojo.declare("gnr.DashboardManager", null, {
         }
         data = data.filter(cbfilter);
         return {headers:'title:Title',data:data};
+    },
+
+
+    newDashUserObject:function(kw){
+        var that = this;
+        kw = objectUpdate({},kw);
+        if(!kw.table){
+            genro.dlg.prompt(_T('Select table'),{
+                widget:[{value:'^.pkg',lbl:_T('Package'),tag:'packageSelect'},
+                        {value:'^.tbl',lbl:_T('Table'),tag:'tableSelect',validate_notnull:true,pkg:'=.pkg'}],
+                action:function(res){
+                    kw.table = res.getItem('tbl');
+                    that.newDashUserObjectDo(kw);
+                }
+            },this.sourceNode);
+        }else{
+            this.newDashUserObjectDo(kw);
+        }
+    },
+
+    newDashUserObjectDo:function(kw){
+        if(kw.di_userObjectEditor){
+            genro.publish('editUserObjectDashboardItem',kw);
+        }else if(kw.table){
+            //genro.dev.userObjectSave();
+        }
+        
     }
 });

@@ -1542,7 +1542,6 @@ class GnrWebPage(GnrBaseWebPage):
             pkg = None
         class_name = class_name or 'Main'
         cl = self.importResource(path,classname=class_name,pkg=pkg,importAs=importAs)
-        cl._gnrPublicName = '_resourcescript.%s.%s.%s' %(pkg or '*',path,class_name)
         return cl(page=self)
         
             
@@ -1560,6 +1559,7 @@ class GnrWebPage(GnrBaseWebPage):
             if classname:
                 cl = getattr(m,classname,None)
                 if cl:
+                    cl._gnrPublicName = '_resourcescript.%s.%s.%s' %(pkg or '*',path,classname)
                     return cl
                 raise GnrMissingResourceException('Missing resource %(classname)s in %(resource_path)s',resource_path=path,classname=classname)
             return m

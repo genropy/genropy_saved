@@ -955,7 +955,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                
     #gnrNS=['menu','menuBar','menuItem','Tree','Select','DbSelect','Combobox','Data',
     #'Css','Script','Func','BagFilteringTable','DbTableFilter','TreeCheck']
-    gnrNS = ['DbSelect','CallBackSelect','RemoteSelect', 'DbComboBox', 'DbView', 'DbForm', 'DbQuery', 'DbField',
+    gnrNS = ['DbSelect','CallBackSelect','RemoteSelect','PackageSelect','TableSelect', 'DbComboBox', 'DbView', 'DbForm', 'DbQuery', 'DbField',
              'dataFormula', 'dataScript', 'dataRpc', 'dataController', 'dataRemote',
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 

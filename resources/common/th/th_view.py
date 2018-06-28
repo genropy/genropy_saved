@@ -205,7 +205,8 @@ class TableHandlerView(BaseComponent):
                                configurable=configurable,**kwargs)  
         if statsEnabled:
             self._th_handle_stats_pages(frame)
-            frame.viewLinkedDashboard()
+            if extendedQuery == '*':
+                frame.viewLinkedDashboard()
         self._th_handle_page_hooks(frame,page_hooks)
         self._th_menu_sources(frame,extendedQuery=extendedQuery,bySample=bySample)
         self._th_viewController(frame,table=table,default_totalRowCount=extendedQuery == '*')
@@ -731,7 +732,7 @@ class TableHandlerView(BaseComponent):
         if th_pkey:
             querybase = dict(column=self.db.table(table).pkey,op='equal',val=th_pkey,runOnStart=True)
         else:
-            querybase = self._th_hook('query',mangler=th_root)() or dict()
+            querybase = self._th_hook('query',mangler=th_root)() or dict(column=self.db.table(table).pkey,op='equal',val='')
         queryBag = self._prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
         options = self._th_hook('options',mangler=th_root)() or dict()
@@ -967,7 +968,7 @@ class TableHandlerView(BaseComponent):
                                 SET .usersets.menu = new gnr.GnrBagCbResolver({method:cb});
 
                                 """,
-                        _onStart=True,th_root = inattr['th_root'],table = inattr['table'])
+                        _onBuilt=1,th_root = inattr['th_root'],table = inattr['table'])
 
         pane.menudiv(iconClass='iconbox heart',tip='!!User sets',storepath='.usersets.menu')
        
@@ -979,19 +980,8 @@ class TableHandlerView(BaseComponent):
         tablecode = table.replace('.','_')
         pane.dataController(
                """var th = TH(th_root);
-                  
-                  th.querymanager = th.querymanager || new gnr.QueryManager(th,this,table);
-               """ 
+                  th.querymanager = th.querymanager || new gnr.QueryManager(th,this,table);""" 
                , _init=True, _onBuilt=True, table=table,th_root = th_root)
-    
-        pane.dataController("""
-                   var qm = TH(th_root).querymanager;
-                   qm.createMenuesQueryEditor();
-                   dijit.byId(qm.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryColumn')));
-                   dijit.byId(qm.relativeId('qb_not_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryNot')));
-                   dijit.byId(qm.relativeId('qb_queryModes_menu')).bindDomNode(genro.domById(qm.relativeId('searchMenu_a')));
-                   qm.setFavoriteQuery();
-        """,_onStart=True,th_root=th_root)   
         fmenupath = 'gnr.qb.%s.fieldsmenu' %tablecode
         options = self._th_hook('options',mangler=pane)() or dict()
         pane.dataRemote(fmenupath,self.relationExplorer,item_type='QTREE',
