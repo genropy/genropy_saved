@@ -142,11 +142,9 @@ class Main(BaseDashboardItem):
             view.setRelativeData('.dashboardMeta.code','__'+genro.time36Id());
             view.setRelativeData('.dashboardMeta.objtype',objtype);
             view.setRelativeData('.dashboardMeta.tbl',table);
-            view.publish('saveDashboard',{onSaved:function(result){
-                genro.publish({topic:'editUserObjectDashboardConfirmed',parent:true},result.attr.id);
-            }});
-        }else{
-            genro.publish({topic:'editUserObjectDashboardConfirmed',parent:true},pkey);
         }
+        view.publish('saveDashboard',{onSaved:function(result){
+            genro.publish({topic:'editUserObjectDashboardConfirmed',parent:true},result.attr.id);
+        }});
         """,view=th.view,subscribe_userObjectEditorConfirm=True,table=table,objtype=objtype,
         datapath='.dashboardMeta',pkey='=.id')

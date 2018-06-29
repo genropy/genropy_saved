@@ -401,6 +401,7 @@ dojo.declare("gnr.DashboardManager", null, {
                                         splitter:(subregion != 'center') && that.edit,
                                         overflow:'hidden',
                                         dropTarget:true,
+                                        tileNode:true,
                                         dropCodes:'dashboardItems,itemIdentifier',
                                         onDrop_itemIdentifier:function(p1,p2,kw){
                                             if(kw.dropInfo.event.shiftKey){

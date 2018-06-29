@@ -48,7 +48,9 @@ class DashboardItem(BaseComponent):
             for req in itemInstance.py_requires.split(','):
                 self.mixinComponent(req)
         itemRecord = itemRecord or Bag()
-        itemInstance(pane.contentPane(childname='remoteItem'),title=itemRecord['title'],parameters=itemRecord['parameters'],itemRecord=itemRecord,**kwargs)
+        itemInstance(pane.contentPane(childname='remoteItem'),title=itemRecord['title'],
+                                    parameters=itemRecord['parameters'],
+                                    itemRecord=itemRecord,**kwargs)
 
     def di_itemResourceData(self):
         result = Bag()    
@@ -328,7 +330,7 @@ class DashboardGallery(BaseComponent):
                                # noModal=True,
                                parentForm=False,
                                 subscribe_editUserObjectDashboardItem="""
-                                    this.widget.setTitle($1.objtype+' table'+$1.tbl);
+                                    this.widget.setTitle($1.objtype+' table '+$1.tbl);
                                     this.widget.show();
                                     SET .editing_dash = new gnr.GnrBag($1);
                                     SET .editing_dash.build_ts = new Date();
@@ -339,16 +341,18 @@ class DashboardGallery(BaseComponent):
                                     var editing_dash = GET .editing_dash;
                                     PUT .editing_dash = new gnr.GnrBag();
                                     editing_dash = editing_dash.asDict();
-                                    var tileNode = genro.src.nodeBySourceNodeId(objectPop(editing_dash,'tileSourceNodeId'));
-                                    editing_dash.pkey = $1;
-                                    genro.dashboards['%s'].onDashboardDrop(tileNode,editing_dash);
+                                    if(!editing_dash.pkey){
+                                        var tileNode = genro.src.nodeBySourceNodeId(objectPop(editing_dash,'tileSourceNodeId'));
+                                        editing_dash.pkey = $1;
+                                        genro.dashboards['%s'].onDashboardDrop(tileNode,editing_dash);
+                                    }
                                 """ %dashboardNodeId,
                                 nodeId='%s_uo_edit_dlg' %dashboardNodeId)
         frame = dlg.framePane(frameCode='%s_uo_editor' %dashboardNodeId)
         iframe =frame.center.contentPane(datapath='.editing_dash').iframe(main=self.di_remoteUserObjectEditDispatcher,
                             main_methodname='=.di_userObjectEditor',
                             main_table='=.tbl',
-                            main_userobject_id='=.userobject_id',
+                            main_userobject_id='=.pkey',
                             main_buildTs='^.build_ts')
         bar = frame.bottom.slotBar('*,cancel,confirm,2',_class='slotbar_dialog_footer')
         bar.cancel.slotButton('!!Cancel',action='dlg.hide()',dlg=dlg.js_widget)

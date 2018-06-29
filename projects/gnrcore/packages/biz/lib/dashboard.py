@@ -83,9 +83,15 @@ class BaseDashboardItem(object):
             conftc = bc.tabContainer(margin='2px',datapath='.conf',childname='config',region='center')
             self.configuration(conftc.contentPane(title='!!Configurations'),**kwargs)
             self.configurationSubscriber(conftc.contentPane(title='!!Subscriptions'))
+            if hasattr(self,'di_userObjectEditor'):
+                self._dh_editUserObjectButton(bc)
         else:
             self.configuration(bc.contentPane(region='center',datapath='.conf',childname='config'),**kwargs)
-
+        pane.onDbChanges(action="""
+        if(dbChanges.some(c => c.pkey==userobject_id)){
+            this.attributeOwnerNode('tileNode').updateRemoteContent(true);
+        }
+        """,table='adm.userobject',userobject_id='=.parameters.userobject_id')
 
     def itembar(self,pane):
         top = pane.div(height='20px',_class='dashboard_item_top',onDrag="""dragValues['itemIdentifier'] = '%s';
@@ -135,6 +141,18 @@ class BaseDashboardItem(object):
                             workpath=self.workpath,storepath=self.storepath,
                             height='15px',width='15px',**self.linked_item)
         self.itemActionsSlot(top.div(position='absolute',top='1px',right='60px',height='16px',width='20px'))
+
+    def _dh_editUserObjectButton(self,bc):
+        bar = bc.contentPane(region='bottom').slotToolbar('*,editUserObject,5')
+        bar.editUserObject.slotButton('!!Edit dashboard',
+                                    action = """genro.publish('editUserObjectDashboardItem',{pkey:userobject_id,tbl:table,
+                                                                            objtype:objtype,
+                                                                          di_userObjectEditor:di_userObjectEditor});""",
+                                    userobject_id='=.parameters.userobject_id',
+                                    table='=.parameters.table',objtype=self.itemRecord['resource'],
+                                    dashboardIdentifier=self.dashboardIdentifier,
+                                    di_userObjectEditor=self.di_userObjectEditor,
+                                    hidden='^.parameters.userobject_id?=!#v')
 
 
     def itemActionsSlot(self,pane):
