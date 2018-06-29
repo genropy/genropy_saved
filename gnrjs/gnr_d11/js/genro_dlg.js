@@ -207,10 +207,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                 iframekw.onStarted = function(){
                     onIframeStarted(this,genro.wdgById(dialogId));
                     if(kw.openKw){
-                        var that = this;
-                        setTimeout(function(){
-                            that.domNode.gnr.postMessage(that,kw.openKw);
-                        },1);
+                        this.domNode.gnr.postMessage(this,kw.openKw);
                     }
                 };
             }
@@ -221,7 +218,6 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             }else{
                 iframe = dlg._('borderContainer')._('ContentPane',{'region':'center',overflow:'hidden'})._('iframe','iframe',iframekw);
             }
-            
             dlgNode = dlg.getParentNode();
             dlgNode._iframeNode = iframe.getParentNode();
             dlgNode._iframeNode.dialog = dlgNode.widget;

@@ -22,7 +22,7 @@ class Table(object):
         tbl.column('flags', 'T', name_long='!!Flags')
         tbl.column('required_pkg', name_long='!!Required pkg')
         tbl.column('preview',name_long='!![it]Preview')
-        tbl.formulaColumn('system_userobject',"$code LIKE :scode",var_scode='__%%',dtype='B')
+        tbl.formulaColumn('system_userobject',"$code LIKE :scode",var_scode='\_\_%%',dtype='B')
         tbl.pyColumn('resource_status',name_long='!!Resources',required_columns='$data')
 
     

@@ -42,7 +42,7 @@ class View(BaseComponent):
                         _lockScreen=True)
     
     def th_condition(self):
-        return dict(condition="$system_userobject")
+        return dict(condition="$system_userobject IS NOT TRUE")
 
     
     def th_top_custom(self,top):

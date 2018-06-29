@@ -634,12 +634,18 @@ class TableHandlerMain(BaseComponent):
         return form
 
     def _th_parentFrameMessageSubscription(self,form):
-        form.dataController("""if(_subscription_kwargs.pkey){
-                                    if(pkey=='*newrecord*'){
-                                    this.form.newrecord(objectExtract(_subscription_kwargs,'default_*'))
-                                    }else{
-                                        this.form.load({destPkey:pkey,discardChange:true});
-                                    }
+        form.dataController("""
+                                if(_subscription_kwargs.pkey){
+                                    var form = this.form;
+                                    this.watch('formReady',function(){
+                                        return !form.opStatus;
+                                    },function(){
+                                        if(pkey=='*newrecord*'){
+                                            form.newrecord(objectExtract(_subscription_kwargs,'default_*'))
+                                        }else{
+                                            form.load({destPkey:pkey,discardChange:true});
+                                        }
+                                    });
                                }
                                """,subscribe_main_form_open=True)
 
