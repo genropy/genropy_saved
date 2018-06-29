@@ -154,7 +154,8 @@ class BaseDashboardItem(object):
                         margin='2px',border='1px solid silver')
         frame.dataController("""
             var conf_subscribers = genro.getData(subspath) || new gnr.GnrBag();
-            genro.getData(confpath).getNodes().forEach(function(n){
+            var conf = genro.getData(confpath) || new gnr.GnrBag();
+            conf.getNodes().forEach(function(n){
                 if(n.attr.autoTopic){
                     conf_subscribers.setItem(n.label,new gnr.GnrBag({topic:n.attr.autoTopic,varpath:n.label,
                                                                             wdg:n.attr.wdg_tag,

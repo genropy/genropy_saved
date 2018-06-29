@@ -78,7 +78,7 @@ class Main(BaseDashboardItem):
                                 customOrderBy='=.query.customOrderBy',
                                 joinConditions='=.query.joinConditions',
                                 limit='=.query.limit',
-                                _fired='^.run')
+                                _fired='^%s.runItem' %self.workpath)
         return frame
 
     

@@ -409,7 +409,7 @@ dojo.declare("gnr.DashboardManager", null, {
                                             }
                                             
                                         },
-                                        onDrop_dashboardItems:function(p1,p2,kw){
+                                        onDrop_dashboardUserObjectItems:function(p1,p2,kw){
                                             var sourceNode = this;
                                             var item_parameters = [{value:'^._item_title',lbl:_T('Title'),default_value:kw.data.caption}];
                                             var fixedParameters = objectPop(kw.data,'fixedParameters');

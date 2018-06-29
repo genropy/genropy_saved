@@ -220,6 +220,7 @@ class DashboardGallery(BaseComponent):
     def di_userObjectMakerDlg(self,pane,dashboardNodeId=None):
         dlg = pane.dialog(title='!!Edit dashboard item',windowRatio=0.9,datapath='.editing_dash',
                                # noModal=True,
+                               parentForm=False,
                                 subscribe_editUserObjectDashboardItem="""
                                     this.widget.setTitle($1.objtype+' table'+$1.table);
                                     //genro.wdgById('dasboardTools_floating').hide();
@@ -241,8 +242,7 @@ class DashboardGallery(BaseComponent):
                             main_userobject_id='=.userobject_id',
                             main_buildTs='^.build_ts')
         bar = frame.bottom.slotBar('*,cancel,confirm,2',_class='slotbar_dialog_footer')
-        bar.cancel.slotButton('!!Cancel',action='dlg.hide()',dlg=dlg.js_widget)
-        bar.confirm.slotButton('!!Confirm',action='dlg.hide()',dlg=dlg.js_widget)
+        bar.cancel.slotButton('!!Close',action='dlg.hide()',dlg=dlg.js_widget)
     
     @public_method
     def di_remoteUserObjectEditDispatcher(self,root,methodname=None,**kwargs):
