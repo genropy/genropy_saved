@@ -51,6 +51,7 @@ class ServiceHandlerManager(object):
         for kw in services:
             resource = kw.pop('resource',None) or kw['service_name']
             service_type = kw.pop('service_type',None) or kw['service_name']
+            print 'Adding Service %s %s' % (resource, service_type)
             service_handler_factory = self.importServiceClass(service_type=service_type,resource=resource)
             if service_handler_factory:
                 self.add(service_handler_factory,**kw)
