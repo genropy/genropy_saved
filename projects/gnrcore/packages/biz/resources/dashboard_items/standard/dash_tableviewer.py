@@ -125,10 +125,28 @@ class Main(BaseDashboardItem):
                         cursor='pointer')
 
     @public_method
-    def di_userObjectEditor(self,pane,valuepath=None,table=None,**kwargs):
+    def di_userObjectEditor(self,pane,valuepath=None,table=None,userobject_id=None,**kwargs):
         tblobj = self.db.table(table)
         def struct(struct):
             r = struct.view().rows()
-            r.fieldcell(tblobj.attributes.get('caption_field') or tblobj.pkey, name=tblobj.name_long, width='100%')
+            r.fieldcell(tblobj.attributes.get('caption_field') or tblobj.pkey, name=tblobj.name_long, width='20em')
         th = pane.plainTableHandler(table=table,viewResource='_viewUOEdit',view_structCb=struct,
                                     virtualStore=True,extendedQuery=True)
+
+        view = th.view
+        view.dataController("view.publish('loadDashboard',{pkey:userobject_id})",_onStart=True,
+                                    view=view,userobject_id=userobject_id,
+                                    _if='userobject_id')
+        view.dataController("""
+        if(!pkey){
+            view.setRelativeData('.dashboardMeta.code','__'+genro.time36Id());
+            view.setRelativeData('.dashboardMeta.objtype',objtype);
+            view.setRelativeData('.dashboardMeta.tbl',table);
+            view.publish('saveDashboard',{onSaved:function(result){
+                genro.publish({topic:'editUserObjectDashboardConfirmed',parent:true},result.attr.id);
+            }});
+        }else{
+            genro.publish({topic:'editUserObjectDashboardConfirmed',parent:true},pkey);
+        }
+        """,view=th.view,subscribe_userObjectEditorConfirm=True,table=table,objtype=objtype,
+        datapath='.dashboardMeta',pkey='=.id')

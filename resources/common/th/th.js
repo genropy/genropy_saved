@@ -92,10 +92,13 @@ var th_dash_tableviewer = {
         kw.table = gridNode.attr.table;
         kw.title = _T('Save dashboard');
         kw.defaultMetadata = {flags:'grid|'+gridNode.attr.nodeId};
-        var onSaved =function(result){
-            sourceNode.setRelativeData('.dashboardMeta',new gnr.GnrBag(result.attr));
-            sourceNode.fireEvent('.refreshAdvancedToolsMenu',true);
-        };
+        var onSaved = objectPop(kw,'onSaved');
+        if(!onSaved){
+            onSaved =function(result){
+                sourceNode.setRelativeData('.dashboardMeta',new gnr.GnrBag(result.attr));
+                sourceNode.fireEvent('.refreshAdvancedToolsMenu',true);
+            };
+        }
         genro.dev.userObjectSave(sourceNode,kw,onSaved);
     },
 

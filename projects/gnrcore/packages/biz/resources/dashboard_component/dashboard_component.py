@@ -204,6 +204,7 @@ class DashboardGallery(BaseComponent):
             bar.delbtn.slotButton(iconClass='iconbox delete_row',publish='delpage',parentForm=True)
             #bar.dupbtn.slotButton(iconClass='iconbox copy',publish='duppage')
             self.di_dashboardItemPalettes(bar.dashboardItemPalettes,dashboardNodeId=dashboardNodeId)
+            parent.dataRpc(None,self.di_checkUserObjectToDel, subscribe_di_checkUserObjectToDel=True)
         
         bar.channelsEdit.slotButton('!!Channels',publish='channelsEdit',disabled='^.channels?=#v?#v.len()==0:true',
                                     datapath=storepath,parentForm=False)
@@ -215,45 +216,17 @@ class DashboardGallery(BaseComponent):
         """,datapath=storepath,channelsdata='^.channels_data',_if='channelsdata',dashboardNodeId=dashboardNodeId)
         return frame
 
+    @public_method
+    def di_checkUserObjectToDel(self,pkeys=None):
+        self.db.table('adm.userobject').deleteSelection(where='$id IN :pk AND $system_userobject IS TRUE',pk=pkeys)
+        self.db.commit()
+
+
     def di_dashboardItemPalettes(self,pane,dashboardNodeId=None):
         pg = pane.paletteGroup(groupCode='dasboardTools',width='700px',title='!!Dashboard Tools',dockButton=True)
         self.di_userObjectsTree(pg,dashboardNodeId=dashboardNodeId)
         self.di_itemClassesTree(pg,dashboardNodeId=dashboardNodeId)
         self.di_userObjectMakerDlg(pane,dashboardNodeId=dashboardNodeId)
-    
-    def di_userObjectMakerDlg(self,pane,dashboardNodeId=None):
-        dlg = pane.dialog(title='!!Edit dashboard item',windowRatio=0.9,datapath='.editing_dash',
-                               # noModal=True,
-                               parentForm=False,
-                                subscribe_editUserObjectDashboardItem="""
-                                    this.widget.setTitle($1.objtype+' table'+$1.table);
-                                    //genro.wdgById('dasboardTools_floating').hide();
-                                    this.widget.show();
-                                    PUT .edit_data = new gnr.GnrBag();
-                                    SET .userobject_id = $1.userobject_id; 
-                                    SET .table = $1.table;
-                                    SET .di_userObjectEditor = $1.di_userObjectEditor;
-                                    SET .build_ts = new Date();
-                                    """,
-                                #connect_hide="""
-                                #genro.wdgById('dasboardTools_floating').show();
-                                #""",
-                                nodeId='%s_uo_edit_dlg' %dashboardNodeId)
-        frame = dlg.framePane(frameCode='%s_uo_editor' %dashboardNodeId)
-        center =frame.center.contentPane().iframe(main=self.di_remoteUserObjectEditDispatcher,
-                            main_methodname='=.di_userObjectEditor',
-                            main_table='=.table',
-                            main_userobject_id='=.userobject_id',
-                            main_buildTs='^.build_ts')
-        bar = frame.bottom.slotBar('*,cancel,confirm,2',_class='slotbar_dialog_footer')
-        bar.cancel.slotButton('!!Close',action='dlg.hide()',dlg=dlg.js_widget)
-    
-    @public_method
-    def di_remoteUserObjectEditDispatcher(self,root,methodname=None,**kwargs):
-        rootattr = root.attributes
-        rootattr['datapath'] = 'main'
-        rootattr['overflow'] = 'hidden'
-        self.getPublicMethod('rpc',methodname)(root,**kwargs)
 
     
     def di_itemClassesTree(self,pg,dashboardNodeId=None):
@@ -347,3 +320,44 @@ class DashboardGallery(BaseComponent):
                         result.setItem(pkgId,packagebag,caption=pkgObj.attributes.get('name_long') or pkgId,itemClass='di_folder di_pkg')
                     packagebag.setItem(tblid,b,caption=tblobj.name_long or tblid,itemClass='di_folder di_tbl')
         return result
+
+
+    
+    def di_userObjectMakerDlg(self,pane,dashboardNodeId=None):
+        dlg = pane.dialog(title='!!Edit dashboard item',windowRatio=0.9,
+                               # noModal=True,
+                               parentForm=False,
+                                subscribe_editUserObjectDashboardItem="""
+                                    this.widget.setTitle($1.objtype+' table'+$1.tbl);
+                                    this.widget.show();
+                                    SET .editing_dash = new gnr.GnrBag($1);
+                                    SET .editing_dash.build_ts = new Date();
+                                    """,
+
+                                subscribe_editUserObjectDashboardConfirmed="""
+                                    this.widget.hide()
+                                    var editing_dash = GET .editing_dash;
+                                    PUT .editing_dash = new gnr.GnrBag();
+                                    editing_dash = editing_dash.asDict();
+                                    var tileNode = genro.src.nodeBySourceNodeId(objectPop(editing_dash,'tileSourceNodeId'));
+                                    editing_dash.pkey = $1;
+                                    genro.dashboards['%s'].onDashboardDrop(tileNode,editing_dash);
+                                """ %dashboardNodeId,
+                                nodeId='%s_uo_edit_dlg' %dashboardNodeId)
+        frame = dlg.framePane(frameCode='%s_uo_editor' %dashboardNodeId)
+        iframe =frame.center.contentPane(datapath='.editing_dash').iframe(main=self.di_remoteUserObjectEditDispatcher,
+                            main_methodname='=.di_userObjectEditor',
+                            main_table='=.tbl',
+                            main_userobject_id='=.userobject_id',
+                            main_buildTs='^.build_ts')
+        bar = frame.bottom.slotBar('*,cancel,confirm,2',_class='slotbar_dialog_footer')
+        bar.cancel.slotButton('!!Cancel',action='dlg.hide()',dlg=dlg.js_widget)
+        bar.confirm.slotButton('!!Confirm',action="""iframe._genro.publish('userObjectEditorConfirm');""",
+                                    iframe=iframe)
+
+    @public_method
+    def di_remoteUserObjectEditDispatcher(self,root,methodname=None,**kwargs):
+        rootattr = root.attributes
+        rootattr['datapath'] = 'main'
+        rootattr['overflow'] = 'hidden'
+        self.getPublicMethod('rpc',methodname)(root,**kwargs)

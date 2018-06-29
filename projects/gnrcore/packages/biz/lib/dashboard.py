@@ -258,7 +258,6 @@ class BaseDashboardItem(object):
         var currconf = this.getRelativeData();
         currconf.keys().forEach(function(k){
             if(k.startsWith('wherepars_') && wherepars.indexOf(k)<0){
-                console.log('removing oldpar',k);
                 currconf.popNode(k);
             }
         });

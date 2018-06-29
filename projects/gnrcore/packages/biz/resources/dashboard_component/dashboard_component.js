@@ -331,11 +331,16 @@ dojo.declare("gnr.DashboardManager", null, {
             return;
         }
         var itemsMap = this.itemsMap();
+        var userObjectToCheck = [];
         items.getNodes().forEach(function(n){
             if(!(n.label in itemsMap)){
-                items.popNode(n.label);
+                var deletedItemNode = items.popNode(n.label);
+                userObjectToCheck.push(deletedItemNode.getValue().getItem('parameters.userobject_id'));
             }
         });
+        if(userObjectToCheck.length){
+            genro.publish('di_checkUserObjectToDel',{pkeys:userObjectToCheck});
+        }
     },
 
     itemsMap:function(){
@@ -410,13 +415,13 @@ dojo.declare("gnr.DashboardManager", null, {
                                             
                                         },
                                         onDrop_dashboardUserObjectItems:function(p1,p2,kw){
-                                            that.onDashboardDrop(this,kw);
+                                            that.onDashboardDrop(this,kw.data);
                                         },
                                         onDrop_dashboardItemBuilder:function(p1,p2,kw){
                                             if(kw.data.di_userObjectEditor){
                                                 that.newDashUserObject(this,kw.data);
                                             }else{
-                                                that.onDashboardDrop(this,kw);
+                                                that.onDashboardDrop(this,kw.data);
                                             }
                                         },
                                         remote:'di_buildRemoteItem',
@@ -442,14 +447,14 @@ dojo.declare("gnr.DashboardManager", null, {
     },
 
     onDashboardDrop:function(sourceNode,kw){
-        var item_parameters = [{value:'^._item_title',lbl:_T('Title'),default_value:kw.data.caption}];
-        var fixedParameters = objectPop(kw.data,'fixedParameters');
+        var item_parameters = [{value:'^._item_title',lbl:_T('Title'),default_value:kw.caption}];
+        var fixedParameters = objectPop(kw,'fixedParameters');
         var that = this;
         if(!fixedParameters){
-            if(kw.data.item_parameters && kw.data.item_parameters.length){
-                item_parameters = item_parameters.concat(kw.data.item_parameters);
+            if(kw.item_parameters && kw.item_parameters.length){
+                item_parameters = item_parameters.concat(kw.item_parameters);
             }
-            genro.dlg.prompt(_T('Parameters ')+kw.data.caption,
+            genro.dlg.prompt(_T('Parameters ')+kw.caption,
                     {widget:item_parameters,
                     action:function(result){
                         if(fixedParameters){
@@ -469,11 +474,10 @@ dojo.declare("gnr.DashboardManager", null, {
         var itemRecord = new gnr.GnrBag();
         var itemPars = itemParameters.deepCopy();
         itemRecord.setItem('id',genro.time36Id());
-        table = kw.data.tbl;
-        itemRecord.setItem('resource',kw.data.objtype);
-        itemPars.setItem('userobject_id',kw.data.pkey);
+        itemRecord.setItem('resource',kw.objtype);
+        itemPars.setItem('userobject_id',kw.pkey);
         if(!itemPars.getItem('table')){
-            itemPars.setItem('table',kw.data.tbl);
+            itemPars.setItem('table',kw.tbl);
         }
         var title = itemPars.getItem('title') || itemPars.pop('_item_title');
         itemRecord.setItem('title',title);
@@ -495,52 +499,21 @@ dojo.declare("gnr.DashboardManager", null, {
         sourceNode.setRelativeData('.itemIdentifier',identifier);
     },
 
-    availableChartGrid:function(kw){
-        var _id = kw._id;
-        var _querystring = kw._querystring;
-        var data = this.sourceNode.getRelativeData(this.workspaces).getNodes().map(function(n){
-            var v = n.getValue();
-            if(v.getItem('chart_gridId')){
-                return {caption:v.getItem('current_title'),_pkey:v.getItem('chart_gridId')};
-            }else{
-                return false;
-            }
-        }).filter(n => n);
-        var cbfilter = function(n){return true;};
-        if(_querystring){
-            _querystring = _querystring.slice(0,-1).toLowerCase();
-            cbfilter = function(n){return n.caption.toLowerCase().indexOf(_querystring)>=0;};
-        }else if(_id){
-            cbfilter = function(n){return n._pkey==_id;};
-        }
-        data = data.filter(cbfilter);
-        return {headers:'title:Title',data:data};
-    },
-
-
-    newDashUserObject:function(kw){
+    newDashUserObject:function(tileSourceNode,kw){
         var that = this;
         kw = objectUpdate({},kw);
+        kw.tileSourceNodeId = tileSourceNode._id;
         if(!kw.table){
             genro.dlg.prompt(_T('Select table'),{
                 widget:[{value:'^.pkg',lbl:_T('Package'),tag:'packageSelect'},
                         {value:'^.tbl',lbl:_T('Table'),tag:'tableSelect',validate_notnull:true,pkg:'=.pkg'}],
                 action:function(res){
-                    kw.table = res.getItem('tbl');
-                    that.newDashUserObjectDo(kw);
+                    kw.tbl = res.getItem('tbl');
+                    genro.publish('editUserObjectDashboardItem',kw);
                 }
             },this.sourceNode);
         }else{
-            this.newDashUserObjectDo(kw);
-        }
-    },
-
-    newDashUserObjectDo:function(kw){
-        if(kw.di_userObjectEditor){
             genro.publish('editUserObjectDashboardItem',kw);
-        }else if(kw.table){
-            genro.dev.userObjectSave();
         }
-        
     }
 });
