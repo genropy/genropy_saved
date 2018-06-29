@@ -112,7 +112,7 @@ class Table(object):
             if record['pkg'] not in current_packages:
                 self.raw_delete(record)
             if record['tbl'] and record['tbl'].split('.')[1] not in current_packages[record['pkg']].tables:
-                print 'deleting uo no longer existing tbl'
+                print 'deleting uo no longer existing tbl',record['tbl'],record['code']
                 self.raw_delete(record)
 
     def listUserObject(self, objtype=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None, flags=None):

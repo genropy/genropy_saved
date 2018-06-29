@@ -260,9 +260,15 @@ class BaseDashboardItem(object):
                 autoTopic = code
             hidden = '^%s.conf_subscriber?=#v?#v.getNode("wherepars_%s"):false' %(self.storepath,code)
             field = pars['field']
-            rc = self.db.table(table).column(field).relatedColumn()
+            tblobj = self.db.table(table)
+            rc = tblobj.column(field).relatedColumn()
             wherepath = pars['relpath']
-            if pars['op'] == 'equal' and rc is not None:
+            if field==tblobj.pkey:
+                wdg = fb.dbSelect(field,value='^.wherepars_%s' %code,lbl=pars['lbl'],
+                                    #attr_wdg='dbselect',attr_dbtable=rc.table.fullname,
+                                    dbtable=table,hidden=hidden)
+                aliasTopic = '%s_pkey' %table.replace('.','_')
+            elif pars['op'] == 'equal' and rc is not None:
                 wdg = fb.dbSelect(field,value='^.wherepars_%s' %code,lbl=pars['lbl'],
                                     #attr_wdg='dbselect',attr_dbtable=rc.table.fullname,
                                     dbtable=rc.table.fullname,hidden=hidden)

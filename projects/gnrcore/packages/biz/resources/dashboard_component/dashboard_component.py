@@ -70,14 +70,14 @@ class DashboardItem(BaseComponent):
                 kw = dict(objtype=objtype,caption=caption,description=description,resource=resource,
                             pkg=pkg,table=table)
                 typedict[objtype] = kw
-                node.attr.update(kw)           
+                node.attr.update(kw)     
                 if item_parameters:
                     node.attr['item_parameters'] = item_parameters
                 if di_userObjectEditor:
                     node.attr['di_userObjectEditor'] = di_userObjectEditor
         for pkgid,pkgobj in self.db.application.packages.items():
             di_folder = os.path.join(pkgobj.packageFolder,'resources','dashboard_items') 
-            d = DirectoryResolver(di_folder,include='*.py',exclude='_*')
+            d = DirectoryResolver(di_folder,include='*.py')
             content = Bag(d())
             content.walk(cb,_mode='deep',pkg=pkgid)
             if content:

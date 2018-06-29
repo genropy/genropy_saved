@@ -150,11 +150,10 @@ class Main(BaseDashboardItem):
             gth.setRelativeData('.dashboardMeta.code','__'+genro.time36Id());
             gth.setRelativeData('.dashboardMeta.objtype',objtype);
             gth.setRelativeData('.dashboardMeta.tbl',table);
-            gth.publish('saveDashboard',{onSaved:function(result){
-                genro.publish({topic:'editUserObjectDashboardConfirmed',parent:true},result.attr.id);
-            }});
-        }else{
-            genro.publish({topic:'editUserObjectDashboardConfirmed',parent:true},pkey);
+            
         }
+        gth.publish('saveDashboard',{onSaved:function(result){
+            genro.publish({topic:'editUserObjectDashboardConfirmed',parent:true},result.attr.id);
+        }});
         """,gth=gth,subscribe_userObjectEditorConfirm=True,table=table,objtype=objtype,
         datapath='.dashboardMeta',pkey='=.id')
