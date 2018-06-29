@@ -22,6 +22,7 @@ class Table(object):
         tbl.column('flags', 'T', name_long='!!Flags')
         tbl.column('required_pkg', name_long='!!Required pkg')
         tbl.column('preview',name_long='!![it]Preview')
+        tbl.formulaColumn('system_userobject',"$code LIKE :scode",var_scode='__%%',dtype='B')
         tbl.pyColumn('resource_status',name_long='!!Resources',required_columns='$data')
 
     
@@ -98,7 +99,6 @@ class Table(object):
                 record = Bag(node.attr['abs_path'])
                 identifier = self.uo_identifier(record)
                 if  not self.checkDuplicate(code=record['code'],pkg=record['pkg'],tbl=record['tbl'],objtype=record['objtype']):
-                    print 'userobject in resource adding',identifier
                     record['id'] = self.newPkeyValue()
                     self.raw_insert(record)
                 current_userobjects.pop(identifier,None)
@@ -118,6 +118,8 @@ class Table(object):
     def listUserObject(self, objtype=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None, flags=None):
         onlyQuicklist = onlyQuicklist or False
         def checkUserObj(r):
+            if r['code'].startswith('__'):
+                return False
             condition = (not r['private']) or (r['userid'] == userid)
             if onlyQuicklist:
                 condition = condition and r['quicklist']

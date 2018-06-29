@@ -18,6 +18,7 @@ dojo.declare("gnr.DashboardManager", null, {
         this.channelsdata = this.storepath+'.channels_data';
         this.externalChannels = sourceNode.attr._externalChannels || [];
         this.workspaces = sourceNode.absDatapath('.dashboards');
+        this.objtypes = sourceNode.getRelativeData('gnr.dashboardItemResorces?objtypes');
     },
 
     pageTrigger:function(kw,reason){
@@ -330,11 +331,16 @@ dojo.declare("gnr.DashboardManager", null, {
             return;
         }
         var itemsMap = this.itemsMap();
+        var userObjectToCheck = [];
         items.getNodes().forEach(function(n){
             if(!(n.label in itemsMap)){
-                items.popNode(n.label);
+                var deletedItemNode = items.popNode(n.label);
+                userObjectToCheck.push(deletedItemNode.getValue().getItem('parameters.userobject_id'));
             }
         });
+        if(userObjectToCheck.length){
+            genro.publish('di_checkUserObjectToDel',{pkeys:userObjectToCheck});
+        }
     },
 
     itemsMap:function(){
@@ -395,6 +401,7 @@ dojo.declare("gnr.DashboardManager", null, {
                                         splitter:(subregion != 'center') && that.edit,
                                         overflow:'hidden',
                                         dropTarget:true,
+                                        tileNode:true,
                                         dropCodes:'dashboardItems,itemIdentifier',
                                         onDrop_itemIdentifier:function(p1,p2,kw){
                                             if(kw.dropInfo.event.shiftKey){
@@ -408,29 +415,15 @@ dojo.declare("gnr.DashboardManager", null, {
                                             }
                                             
                                         },
-                                        onDrop_dashboardItems:function(p1,p2,kw){
-                                            var sourceNode = this;
-                                            var item_parameters = [{value:'^._item_title',lbl:_T('Title'),default_value:kw.data.caption}];
-                                            var fixedParameters = objectPop(kw.data,'fixedParameters');
-                                            if(!fixedParameters){
-                                                if(kw.data.item_parameters && kw.data.item_parameters.length){
-                                                    item_parameters = item_parameters.concat(kw.data.item_parameters);
-                                                }
-                                                genro.dlg.prompt(_T('Parameters ')+kw.data.caption,
-                                                        {widget:item_parameters,
-                                                        action:function(result){
-                                                            if(fixedParameters){
-                                                                result.update(fixedParameters);
-                                                            }
-                                                            var itemIdentifier = that.registerDashboardItem(sourceNode,kw,result);
-                                                            that.assignDashboardItem(sourceNode,itemIdentifier);
-                                                        }
-                                                });
+                                        onDrop_dashboardUserObjectItems:function(p1,p2,kw){
+                                            that.onDashboardDrop(this,kw.data);
+                                        },
+                                        onDrop_dashboardItemBuilder:function(p1,p2,kw){
+                                            if(kw.data.di_userObjectEditor){
+                                                that.newDashUserObject(this,kw.data);
                                             }else{
-                                                var itemIdentifier = that.registerDashboardItem(sourceNode,kw,new gnr.GnrBag(fixedParameters));
-                                                that.assignDashboardItem(sourceNode,itemIdentifier);
+                                                that.onDashboardDrop(this,kw.data);
                                             }
-                                            
                                         },
                                         remote:'di_buildRemoteItem',
                                         remote_py_requires:'dashboard_component/dashboard_component:DashboardItem',
@@ -441,6 +434,7 @@ dojo.declare("gnr.DashboardManager", null, {
                                         remote__else:"this.getValue().popNode('remoteItem');",
                                         remote_editMode:that.edit,
                                         remote_workspaces:that.workspaces,
+                                        remote_objtypes:that.objtypes,
                                         remote_itemspath:that.itemspath, //'dashboards.'+region+'.'+subregion,
                                         remote_channelspath:that.channelspath,
                                         remote__waitingMessage:'Loading...',
@@ -452,18 +446,39 @@ dojo.declare("gnr.DashboardManager", null, {
            //                hidden:'^.itemName'});
         });
     },
+
+    onDashboardDrop:function(sourceNode,kw){
+        var item_parameters = [{value:'^._item_title',lbl:_T('Title'),default_value:kw.caption}];
+        var fixedParameters = objectPop(kw,'fixedParameters');
+        var that = this;
+        if(!fixedParameters){
+            if(kw.item_parameters && kw.item_parameters.length){
+                item_parameters = item_parameters.concat(kw.item_parameters);
+            }
+            genro.dlg.prompt(_T('Parameters ')+kw.caption,
+                    {widget:item_parameters,
+                    action:function(result){
+                        if(fixedParameters){
+                            result.update(fixedParameters);
+                        }
+                        var itemIdentifier = that.registerDashboardItem(sourceNode,kw,result);
+                        that.assignDashboardItem(sourceNode,itemIdentifier);
+                    }
+            });
+        }else{
+            var itemIdentifier = that.registerDashboardItem(sourceNode,kw,new gnr.GnrBag(fixedParameters));
+            that.assignDashboardItem(sourceNode,itemIdentifier);
+        }                                  
+    },
+
     registerDashboardItem:function(sourceNode,kw,itemParameters){
         var itemRecord = new gnr.GnrBag();
         var itemPars = itemParameters.deepCopy();
         itemRecord.setItem('id',genro.time36Id());
-        if(kw.data.objtype){
-            table = kw.data.tbl;
-            itemRecord.setItem('resource',kw.data.objtype);
-            itemPars.setItem('userobject_id',kw.data.pkey);
-            itemPars.setItem('table',kw.data.tbl);
-        }else{
-            itemRecord.setItem('table',kw.data.table);
-            itemRecord.setItem('resource',kw.data.resource);
+        itemRecord.setItem('resource',kw.objtype);
+        itemPars.setItem('userobject_id',kw.pkey);
+        if(!itemPars.getItem('table')){
+            itemPars.setItem('table',kw.tbl);
         }
         var title = itemPars.getItem('title') || itemPars.pop('_item_title');
         itemRecord.setItem('title',title);
@@ -485,25 +500,21 @@ dojo.declare("gnr.DashboardManager", null, {
         sourceNode.setRelativeData('.itemIdentifier',identifier);
     },
 
-    availableChartGrid:function(kw){
-        var _id = kw._id;
-        var _querystring = kw._querystring;
-        var data = this.sourceNode.getRelativeData(this.workspaces).getNodes().map(function(n){
-            var v = n.getValue();
-            if(v.getItem('chart_gridId')){
-                return {caption:v.getItem('current_title'),_pkey:v.getItem('chart_gridId')};
-            }else{
-                return false;
-            }
-        }).filter(n => n);
-        var cbfilter = function(n){return true;};
-        if(_querystring){
-            _querystring = _querystring.slice(0,-1).toLowerCase();
-            cbfilter = function(n){return n.caption.toLowerCase().indexOf(_querystring)>=0;};
-        }else if(_id){
-            cbfilter = function(n){return n._pkey==_id;};
+    newDashUserObject:function(tileSourceNode,kw){
+        var that = this;
+        kw = objectUpdate({},kw);
+        kw.tileSourceNodeId = tileSourceNode._id;
+        if(!kw.table){
+            genro.dlg.prompt(_T('Select table'),{
+                widget:[{value:'^.pkg',lbl:_T('Package'),tag:'packageSelect'},
+                        {value:'^.tbl',lbl:_T('Table'),tag:'tableSelect',validate_notnull:true,pkg:'=.pkg'}],
+                action:function(res){
+                    kw.tbl = res.getItem('tbl');
+                    genro.publish('editUserObjectDashboardItem',kw);
+                }
+            },this.sourceNode);
+        }else{
+            genro.publish('editUserObjectDashboardItem',kw);
         }
-        data = data.filter(cbfilter);
-        return {headers:'title:Title',data:data};
     }
 });

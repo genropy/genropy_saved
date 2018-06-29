@@ -39,10 +39,9 @@ class BaseDashboardItem(object):
     css_requires = None
     js_requires = None
 
-    def __init__(self, page=None, resource_table=None, **kwargs):
+    def __init__(self, page=None, **kwargs):
         self.page = page
         self.db = page.db
-        self.tblobj = resource_table
 
     @extract_kwargs(itempar=True)
     def __call__(self,pane,editMode=None,workpath=None,parameters=None,itempar_kwargs=None,
@@ -84,9 +83,15 @@ class BaseDashboardItem(object):
             conftc = bc.tabContainer(margin='2px',datapath='.conf',childname='config',region='center')
             self.configuration(conftc.contentPane(title='!!Configurations'),**kwargs)
             self.configurationSubscriber(conftc.contentPane(title='!!Subscriptions'))
+            if hasattr(self,'di_userObjectEditor'):
+                self._dh_editUserObjectButton(bc)
         else:
             self.configuration(bc.contentPane(region='center',datapath='.conf',childname='config'),**kwargs)
-
+        pane.onDbChanges(action="""
+        if(dbChanges.some(c => c.pkey==userobject_id)){
+            this.attributeOwnerNode('tileNode').updateRemoteContent(true);
+        }
+        """,table='adm.userobject',userobject_id='=.parameters.userobject_id')
 
     def itembar(self,pane):
         top = pane.div(height='20px',_class='dashboard_item_top',onDrag="""dragValues['itemIdentifier'] = '%s';
@@ -137,6 +142,18 @@ class BaseDashboardItem(object):
                             height='15px',width='15px',**self.linked_item)
         self.itemActionsSlot(top.div(position='absolute',top='1px',right='60px',height='16px',width='20px'))
 
+    def _dh_editUserObjectButton(self,bc):
+        bar = bc.contentPane(region='bottom').slotToolbar('*,editUserObject,5')
+        bar.editUserObject.slotButton('!!Edit dashboard',
+                                    action = """genro.publish('editUserObjectDashboardItem',{pkey:userobject_id,tbl:table,
+                                                                            objtype:objtype,
+                                                                          di_userObjectEditor:di_userObjectEditor});""",
+                                    userobject_id='=.parameters.userobject_id',
+                                    table='=.parameters.table',objtype=self.itemRecord['resource'],
+                                    dashboardIdentifier=self.dashboardIdentifier,
+                                    di_userObjectEditor=self.di_userObjectEditor,
+                                    hidden='^.parameters.userobject_id?=!#v')
+
 
     def itemActionsSlot(self,pane):
         pass
@@ -155,7 +172,8 @@ class BaseDashboardItem(object):
                         margin='2px',border='1px solid silver')
         frame.dataController("""
             var conf_subscribers = genro.getData(subspath) || new gnr.GnrBag();
-            genro.getData(confpath).getNodes().forEach(function(n){
+            var conf = genro.getData(confpath) || new gnr.GnrBag();
+            conf.getNodes().forEach(function(n){
                 if(n.attr.autoTopic){
                     conf_subscribers.setItem(n.label,new gnr.GnrBag({topic:n.attr.autoTopic,varpath:n.label,
                                                                             wdg:n.attr.wdg_tag,
@@ -258,7 +276,6 @@ class BaseDashboardItem(object):
         var currconf = this.getRelativeData();
         currconf.keys().forEach(function(k){
             if(k.startsWith('wherepars_') && wherepars.indexOf(k)<0){
-                console.log('removing oldpar',k);
                 currconf.popNode(k);
             }
         });
@@ -268,9 +285,11 @@ class BaseDashboardItem(object):
             
     def getDashboardItemInfo(self,**kwargs):
         return
+        
 
-
-
+    def di_getmodule_attr(self,attr):
+        m = sys.modules[self.__module__]
+        return getattr(m,attr,None)
 
     def __getattr__(self, fname): 
         return getattr(self,fname) if fname in self.__dict__ else getattr(self.page,fname)

@@ -67,7 +67,14 @@ dojo.declare("gnr.QueryManager", null, {
             'D':'date','DH':'date','DHZ':'date','I':'number',
             'L':'number','N':'number','R':'number','B':'boolean','TAG':'tagged'};
         this.helper_op_dict = {'in':'in','tagged':'tagged'};
-        
+        var qm = this;
+        this.sourceNode.delayedCall(function(){
+            qm.createMenuesQueryEditor();
+            dijit.byId(qm.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryColumn')));
+            dijit.byId(qm.relativeId('qb_not_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryNot')));
+            dijit.byId(qm.relativeId('qb_queryModes_menu')).bindDomNode(genro.domById(qm.relativeId('searchMenu_a')));
+            qm.setFavoriteQuery();
+        });
         
         //genro.setDataFromRemote('gnr.qb.'+this.tablecode+'.fieldsmenu', "relationExplorer", {table:maintable, omit:'_*'});
         //genro.setDataFromRemote('gnr.qb.'+this.tablecode+'.fieldsmenu_tree', "relationExplorer", {table:maintable, omit:'_*'});

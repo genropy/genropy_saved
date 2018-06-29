@@ -23,7 +23,7 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.core.gnrlang import gnrImport
-from gnr.core.gnrbag import Bag
+from gnr.core.gnrbag import Bag,DirectoryResolver
 import os
 import sys
 
@@ -37,18 +37,52 @@ class DashboardItem(BaseComponent):
         parent.remote(self.di_buildRemoteItem,table=table,itemName=itemName,_waitingMessage=True,**kwargs)
 
     @public_method
-    def di_buildRemoteItem(self,pane=None,table=None,itemName=None,itemRecord=None,**kwargs):
+    def di_buildRemoteItem(self,pane=None,table=None,itemName=None,itemRecord=None,objtypes=None,**kwargs):
         table = table or itemRecord['table']
+        if not objtypes:
+            itemResources,objtypes = self.di_itemResourceData()
         resource = itemName or itemRecord['resource']
-        if table:
-            itemInstance = self.loadTableScript(table=table,respath='dashboard/%s' %resource)
-        else:
-            itemInstance = self.loadTableScript(table='biz.dashboard',respath='standard_items/%s' %resource)
+        objkw = objtypes[resource]
+        itemInstance = self.loadResourceScript(objkw['resource'],pkg=objkw['pkg'])
         if  itemInstance.py_requires:
             for req in itemInstance.py_requires.split(','):
                 self.mixinComponent(req)
         itemRecord = itemRecord or Bag()
-        itemInstance(pane.contentPane(childname='remoteItem'),title=itemRecord['title'],parameters=itemRecord['parameters'],itemRecord=itemRecord,**kwargs)
+        itemInstance(pane.contentPane(childname='remoteItem'),title=itemRecord['title'],
+                                    parameters=itemRecord['parameters'],
+                                    itemRecord=itemRecord,**kwargs)
+
+    def di_itemResourceData(self):
+        result = Bag()    
+        typedict = {}
+        def cb(node,pkg=None,**kwargs):
+            if node.attr.get('file_ext') == 'py':
+                resource = os.path.join('dashboard_items',os.path.splitext(node.attr['rel_path'])[0])
+                resclass = self.importResource(resource,pkg=pkg,classname='Main')
+                resmodule = sys.modules[resclass.__module__]
+                objtype = getattr(resmodule,'objtype',None) or node.attr['file_name']
+                caption = getattr(resmodule,'caption',None)
+                description = getattr(resmodule,'description',None)
+                table = getattr(resmodule,'table',None)
+                item_parameters = getattr(resmodule,'item_parameters',None)
+
+                di_userObjectEditor = getattr(resclass,'di_userObjectEditor',None)
+                kw = dict(objtype=objtype,caption=caption,description=description,resource=resource,
+                            pkg=pkg,table=table)
+                typedict[objtype] = kw
+                node.attr.update(kw)           
+                if item_parameters:
+                    node.attr['item_parameters'] = item_parameters
+                if di_userObjectEditor:
+                    node.attr['di_userObjectEditor'] = di_userObjectEditor
+        for pkgid,pkgobj in self.db.application.packages.items():
+            di_folder = os.path.join(pkgobj.packageFolder,'resources','dashboard_items') 
+            d = DirectoryResolver(di_folder,include='*.py',exclude='_*')
+            content = Bag(d())
+            content.walk(cb,_mode='deep',pkg=pkgid)
+            if content:
+                result.setItem(pkgid,content,caption=pkgobj.attributes.get('name_long') or pkgid)
+        return result,typedict
 
 class DashboardGallery(BaseComponent):
     py_requires='dashboard_component/dashboard_component:DashboardItem'
@@ -126,6 +160,13 @@ class DashboardGallery(BaseComponent):
         r.cell('wdg',name='Widget',width='20em',edit=True)
         r.cell('dbtable',name='Dbtable',width='20em',edit=True)
         r.cell('condition',name='Condition',width='20em',edit=True)
+    
+    def di_setItemResourcesData(self):
+        if not hasattr(self,'_di_itemResources'):
+            itemResources,objtypes = self.di_itemResourceData()
+            self._di_itemResources = itemResources
+            self._di_objtypes = objtypes
+            self.pageSource().data('gnr.dashboardItemResorces',itemResources,objtypes=objtypes)
 
     @struct_method
     def di_dashboardViewer(self,parent,storepath=None,edit=False,nodeId=None,channel_kwargs=None,**kwargs):
@@ -133,6 +174,7 @@ class DashboardGallery(BaseComponent):
         channel_kwargs = channel_kwargs or dict()
         frame = parent.framePane(frameCode=frameCode,**kwargs)
         dashboardNodeId = nodeId or '%(frameCode)s_dashboard' %frame.attributes
+        self.di_setItemResourcesData()     
         sc = frame.center.stackContainer(selectedPage='^.selectedDashboard',frameTarget=True,margin='2px',
                                         selfsubscribe_addpage="this._dashboardManager.addPage()",
                                 selfsubscribe_delpage="this._dashboardManager.delPage()",
@@ -158,12 +200,13 @@ class DashboardGallery(BaseComponent):
         """,data='^%s.dashboards' %storepath,sc=sc)
         bar = frame.top.slotToolbar('5,stackButtons,*,channelsEdit,5')
         if edit:
-            bar.replaceSlots('#','#,confTooltip,10,paletteDashboardItems,10,delbtn,addbtn,5')
+            bar.replaceSlots('#','#,confTooltip,10,dashboardItemPalettes,10,delbtn,addbtn,5')
             self.di_dashboardConfTooltip(bar.confTooltip.div(_class='iconbox gear',tip='!!Config'),dashboardNodeId=dashboardNodeId)
             bar.addbtn.slotButton(iconClass='iconbox add_row',publish='addpage',parentForm=True)
             bar.delbtn.slotButton(iconClass='iconbox delete_row',publish='delpage',parentForm=True)
             #bar.dupbtn.slotButton(iconClass='iconbox copy',publish='duppage')
-            self.di_itemPalette(bar.paletteDashboardItems)
+            self.di_dashboardItemPalettes(bar.dashboardItemPalettes,dashboardNodeId=dashboardNodeId)
+            parent.dataRpc(None,self.di_checkUserObjectToDel, subscribe_di_checkUserObjectToDel=True)
         
         bar.channelsEdit.slotButton('!!Channels',publish='channelsEdit',disabled='^.channels?=#v?#v.len()==0:true',
                                     datapath=storepath,parentForm=False)
@@ -175,13 +218,43 @@ class DashboardGallery(BaseComponent):
         """,datapath=storepath,channelsdata='^.channels_data',_if='channelsdata',dashboardNodeId=dashboardNodeId)
         return frame
 
-    def di_itemPalette(self,pane):
-        palette = pane.paletteTree(paletteCode='dashboardItems',title='Dashboard items',
+    @public_method
+    def di_checkUserObjectToDel(self,pkeys=None):
+        self.db.table('adm.userobject').deleteSelection(where='$id IN :pk AND $system_userobject IS TRUE',pk=pkeys)
+        self.db.commit()
+
+
+    def di_dashboardItemPalettes(self,pane,dashboardNodeId=None):
+        pg = pane.paletteGroup(groupCode='dasboardTools',width='700px',title='!!Dashboard Tools',dockButton=True)
+        self.di_userObjectsTree(pg,dashboardNodeId=dashboardNodeId)
+        self.di_itemClassesTree(pg,dashboardNodeId=dashboardNodeId)
+        self.di_userObjectMakerDlg(pane,dashboardNodeId=dashboardNodeId)
+
+    
+    def di_itemClassesTree(self,pg,dashboardNodeId=None):
+        palette = pg.paletteTree(paletteCode='dashboardItemBuilder',title='!!Item Builder',
+                                    searchOn=True,
+                                    storepath='gnr.dashboardItemResorces',
+                                    tree_selectedLabelClass='selectedTreeNode',
+                                    tree__class=' branchtree noIcon',
+                                    tree_openOnClick=True,
+                                    #tree_getLabelClass="return node.attr.itemClass "
+                                    tree_connect_ondblclick="""
+                                        function(evt){
+                                                    var n = dijit.getEnclosingWidget(evt.target);
+                                                    console.log(n.item.attr)
+                                                    var kw = n.item.attr;
+                                                    if(kw.objtype){
+                                                        genro.dashboards['%s'].newDashUserObject(kw);
+                                                    }
+                                                }""" %dashboardNodeId)
+
+    def di_userObjectsTree(self,pg,dashboardNodeId=None):
+        palette = pg.paletteTree(paletteCode='dashboardUserObjectItems',title='!!Available Items',
                                     infoPanel=self.di_itemPrevew,
                                     searchOn=True,
                                     infoPanel_width='50%',
                                     infoPanel_border_left='1px solid #efefef',
-                                    width='700px',
                                     tree_openOnClick=True,
                                     tree_selectedLabelClass='selectedTreeNode',
                                     tree__class=' branchtree noIcon',
@@ -189,11 +262,12 @@ class DashboardGallery(BaseComponent):
                                     dockButton=True)
         
         palette.onDbChanges(action="""
-        if(dbChanges.some(c => c.objtype.startsWith('dash_'))){
+        if(dbChanges.some(c => c.objtype in objtypes)){
             FIRE .di_menu_refresh;
         }
-        """,table='adm.userobject')
-        store = palette.dataRpc('.store',self.dashboardItemsMenu,childname='store',
+        """,table='adm.userobject',objtypes='=gnr.dashboardItemResorces?objtypes')
+        store = palette.dataRpc('.store',self.di_userObjectItems,childname='store',
+                                objtypes='=gnr.dashboardItemResorces?objtypes',
                                 _fired='^.di_menu_refresh',_onBuilt=True)
 
     def di_dashboardConfTooltip(self,parent,dashboardNodeId=None):
@@ -203,23 +277,14 @@ class DashboardGallery(BaseComponent):
     @public_method
     def di_itemPrevew(self,pane,**kwargs):
         pane.dataController("""
-        if(!(item.attr.pkey || item.attr.resource)){
+        if(!(item.attr.pkey)){
             return;
         }       
-        var mode,key; 
-        if(item.attr.pkey){
-            key = item.attr.pkey;
-            mode = 'userobject'
-        }else{
-            key = item.attr.table+'|'+item.attr.resource;
-            mode = 'resource';
-        }
-        SET .item_mode = mode;
-        SET .item_key = key;
-        """,subscribe_dashboardItems_tree_onSelected=True)
+        SET .userobject_id = item.attr.pkey;
+        """,subscribe_dashboardUserObjectItems_tree_onSelected=True)
         pane.dataRpc('.preview_data',self.di_getUserObjectData,
-                    item_key='^.item_key',
-                    item_mode='=.item_mode',_delay=500)
+                    userobject_id='^.userobject_id',objtypes='=gnr.dashboardItemResorces?objtypes',
+                    _delay=500)
         pane.div(template="""${<div class='di_pr_caption'>$caption</div>}
                         ${<div class='di_pr_subcaption'>$dashboard_type</div>}
                         ${<div class='di_block'>$notes</div>}
@@ -229,42 +294,27 @@ class DashboardGallery(BaseComponent):
         box.img(src='^.preview_data.preview',height='100%',hidden='^.preview_data.preview?=!#v')
 
     @public_method
-    def di_getUserObjectData(self,item_key=None,item_mode=None):
+    def di_getUserObjectData(self,userobject_id=None,objtypes=None):
         result = Bag()
-        if item_mode=='userobject':
-            data,metadata = self.db.table('adm.userobject').loadUserObject(id=item_key)
-            result['caption'] = metadata['description'] or metadata['code'].split('.')[-1].title()
-            result['preview'] = metadata['preview']
-            result['notes'] = metadata['notes']
-            objtype = metadata['objtype']
-            result['dashboard_type'] = objtype.split('_')[1].title()
-            itemInstance = self.loadTableScript(table='biz.dashboard',respath='standard_items/%s' %objtype)
-            m = sys.modules[itemInstance.__module__]
-            item_parameters = getattr(m,'item_parameters',None)
-            result['itemInfo'] = itemInstance.getDashboardItemInfo(table=metadata['tbl'],userObjectData=data,item_parameters=item_parameters)
-        else:
-            table,resource = item_key.split('|')
-            itemInstance = self.loadTableScript(table=table,respath='dashboard/%s' %resource)
-            m = sys.modules[itemInstance.__module__]
-            caption = getattr(m,'caption',None)
-            description = getattr(m,'description',None)
-            result['caption'] = caption or description
-            result['dashboard_type'] = 'Custom resource'
-            result['itemInfo'] = itemInstance.getDashboardItemInfo(item_parameters = getattr(m,'item_parameters',None))
+        data,metadata = self.db.table('adm.userobject').loadUserObject(id=userobject_id)
+        result['caption'] = metadata['description'] or metadata['code'].split('.')[-1].title()
+        result['preview'] = metadata['preview']
+        result['notes'] = metadata['notes']
+        objtype = metadata['objtype']
+        result['dashboard_type'] = objtype.split('_')[1].title()
+        objkw = objtypes[objtype]
+        itemInstance = self.loadResourceScript(objkw['resource'],pkg=objkw['pkg'])
+        result['itemInfo'] = itemInstance.getDashboardItemInfo(table=metadata['tbl'],userObjectData=data)
         return result
 
     @public_method
-    def dashboardItemsMenu(self,**kwargs):
+    def di_userObjectItems(self,objtypes=None,**kwargs):
         result = Bag()
-        objtypes = ['dash_groupby','dash_tableviewer','dash_pandas']
         for pkgId,pkgObj in self.packages.items():
             for tblid,tblobj in pkgObj.tables.items():
-                userobjects = self.db.table('adm.userobject').userObjectMenu(objtype=objtypes,table=tblobj.fullname)
-                data = self.utils.tableScriptResourceMenu(table=tblobj.fullname,res_type='dashboard',
-                                                            module_parameters=['item_parameters'])
-                if userobjects or data:
+                userobjects = self.db.table('adm.userobject').userObjectMenu(objtype=objtypes.keys(),table=tblobj.fullname)
+                if userobjects:
                     b = Bag()
-                    b.update(data)
                     b.update(userobjects)
                     packagebag = result[pkgId] 
                     if not packagebag:
@@ -272,3 +322,46 @@ class DashboardGallery(BaseComponent):
                         result.setItem(pkgId,packagebag,caption=pkgObj.attributes.get('name_long') or pkgId,itemClass='di_folder di_pkg')
                     packagebag.setItem(tblid,b,caption=tblobj.name_long or tblid,itemClass='di_folder di_tbl')
         return result
+
+
+    
+    def di_userObjectMakerDlg(self,pane,dashboardNodeId=None):
+        dlg = pane.dialog(title='!!Edit dashboard item',windowRatio=0.9,
+                               # noModal=True,
+                               parentForm=False,
+                                subscribe_editUserObjectDashboardItem="""
+                                    this.widget.setTitle($1.objtype+' table '+$1.tbl);
+                                    this.widget.show();
+                                    SET .editing_dash = new gnr.GnrBag($1);
+                                    SET .editing_dash.build_ts = new Date();
+                                    """,
+
+                                subscribe_editUserObjectDashboardConfirmed="""
+                                    this.widget.hide()
+                                    var editing_dash = GET .editing_dash;
+                                    PUT .editing_dash = new gnr.GnrBag();
+                                    editing_dash = editing_dash.asDict();
+                                    if(!editing_dash.pkey){
+                                        var tileNode = genro.src.nodeBySourceNodeId(objectPop(editing_dash,'tileSourceNodeId'));
+                                        editing_dash.pkey = $1;
+                                        genro.dashboards['%s'].onDashboardDrop(tileNode,editing_dash);
+                                    }
+                                """ %dashboardNodeId,
+                                nodeId='%s_uo_edit_dlg' %dashboardNodeId)
+        frame = dlg.framePane(frameCode='%s_uo_editor' %dashboardNodeId)
+        iframe =frame.center.contentPane(datapath='.editing_dash').iframe(main=self.di_remoteUserObjectEditDispatcher,
+                            main_methodname='=.di_userObjectEditor',
+                            main_table='=.tbl',
+                            main_userobject_id='=.pkey',
+                            main_buildTs='^.build_ts')
+        bar = frame.bottom.slotBar('*,cancel,confirm,2',_class='slotbar_dialog_footer')
+        bar.cancel.slotButton('!!Cancel',action='dlg.hide()',dlg=dlg.js_widget)
+        bar.confirm.slotButton('!!Confirm',action="""iframe._genro.publish('userObjectEditorConfirm');""",
+                                    iframe=iframe)
+
+    @public_method
+    def di_remoteUserObjectEditDispatcher(self,root,methodname=None,**kwargs):
+        rootattr = root.attributes
+        rootattr['datapath'] = 'main'
+        rootattr['overflow'] = 'hidden'
+        self.getPublicMethod('rpc',methodname)(root,**kwargs)

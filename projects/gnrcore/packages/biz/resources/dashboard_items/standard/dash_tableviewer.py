@@ -21,10 +21,12 @@
 
 from gnrpkg.biz.dashboard import BaseDashboardItem
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrdecorator import public_method
 
 
 caption = 'Table view'
 description = 'Table view'
+objtype = 'dash_tableviewer'
 
 class Main(BaseDashboardItem):
     title_template = '$title $whereParsFormatted'
@@ -76,7 +78,7 @@ class Main(BaseDashboardItem):
                                 customOrderBy='=.query.customOrderBy',
                                 joinConditions='=.query.joinConditions',
                                 limit='=.query.limit',
-                                _fired='^.run')
+                                _fired='^%s.runItem' %self.workpath)
         return frame
 
     
@@ -121,3 +123,28 @@ class Main(BaseDashboardItem):
                                         dict(name='opt_allRows',label='All rows',wdg='checkbox'),
                                         dict(name='opt_localized_data',wdg='checkbox',label='Localized data')]),
                         cursor='pointer')
+
+    @public_method
+    def di_userObjectEditor(self,pane,valuepath=None,table=None,userobject_id=None,**kwargs):
+        tblobj = self.db.table(table)
+        def struct(struct):
+            r = struct.view().rows()
+            r.fieldcell(tblobj.attributes.get('caption_field') or tblobj.pkey, name=tblobj.name_long, width='20em')
+        th = pane.plainTableHandler(table=table,viewResource='_viewUOEdit',view_structCb=struct,
+                                    virtualStore=True,extendedQuery=True)
+
+        view = th.view
+        view.dataController("view.publish('loadDashboard',{pkey:userobject_id})",_onStart=True,
+                                    view=view,userobject_id=userobject_id,
+                                    _if='userobject_id')
+        view.dataController("""
+        if(!pkey){
+            view.setRelativeData('.dashboardMeta.code','__'+genro.time36Id());
+            view.setRelativeData('.dashboardMeta.objtype',objtype);
+            view.setRelativeData('.dashboardMeta.tbl',table);
+        }
+        view.publish('saveDashboard',{onSaved:function(result){
+            genro.publish({topic:'editUserObjectDashboardConfirmed',parent:true},result.attr.id);
+        }});
+        """,view=th.view,subscribe_userObjectEditorConfirm=True,table=table,objtype=objtype,
+        datapath='.dashboardMeta',pkey='=.id')

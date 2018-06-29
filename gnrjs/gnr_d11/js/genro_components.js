@@ -4513,6 +4513,65 @@ dojo.declare("gnr.widgets.ComboArrow", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.PackageSelect", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode,kw,childSourceNode){
+        kw.hasDownArrow = true;
+        
+        kw.onCreating = function(attributes){
+            var that = this;
+            genro.serverCall('app.dbStructure',{path:''},function(result){
+                that._cbstore = result.getNodes().map(function(n){return {_pkey:n.label,pkg:n.label,caption:n.label,name:n.attr.caption};});
+            });
+        };
+
+        kw.callback = function(cbkw){
+            var _id = cbkw._id;
+            var _querystring = cbkw._querystring;
+            var cbfilter = function(n){return true};
+            if(_querystring){
+                _querystring = _querystring.slice(0,-1).toLowerCase();
+                cbfilter = function(n){return n.name.toLowerCase().indexOf(_querystring)>=0 || n.pkg.indexOf(_querystring)>=0;};
+            }else if(_id){
+                cbfilter = function(n){return n._pkey==_id;}
+            }
+            return {headers:'pkg:Pkgid,name:Name',data:this.sourceNode._cbstore.filter(cbfilter)}
+        };
+        
+        return sourceNode._('CallbackSelect',kw);
+    }
+});
+
+
+dojo.declare("gnr.widgets.TableSelect", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode,kw,childSourceNode){
+        kw.hasDownArrow = true;
+        kw.pkg = kw.pkg.replace('^','=')
+        kw.onCreating = function(attributes){
+            var that = this;
+            genro.serverCall('app.dbStructure',{path:''},function(result){
+                that._cbstore = result;
+            });
+        };
+        kw.callback = function(cbkw){
+            var currentPkg = this.sourceNode.getAttributeFromDatasource('pkg');
+            var tblmapcb = function(n){
+                return {_pkey:currentPkg+'.'+n.label,tbl:n.label,name:n.attr.caption,caption:n.label,pkeyField:n.attr.pkey};
+            };
+            var data = currentPkg?this.sourceNode._cbstore.getItem(currentPkg+'.tables').getNodes().map(tblmapcb):[];
+            var _id = cbkw._id;
+            var _querystring = cbkw._querystring;
+            var cbfilter = function(n){return true};
+            if(_querystring){
+                _querystring = _querystring.slice(0,-1).toLowerCase();
+                cbfilter = function(n){return n.name.toLowerCase().indexOf(_querystring)>=0 || n.tbl.indexOf(_querystring)>=0;};
+            }else if(_id){
+                cbfilter = function(n){return n._pkey==_id;}
+            }
+            return {headers:'tbl:Table,name:Name,pkeyField:Pkey',data:data.filter(cbfilter)}
+        };
+        return sourceNode._('CallbackSelect',kw);
+    }
+});
 
 dojo.declare("gnr.widgets.ComboMenu", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw,childSourceNode){
