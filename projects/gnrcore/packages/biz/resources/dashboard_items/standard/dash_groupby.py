@@ -20,10 +20,12 @@
 
 
 from gnrpkg.biz.dashboard import BaseDashboardItem
+from gnr.core.gnrdecorator import public_method
 
 caption = 'Stats Grouped'
 description = 'Stats Grouped'
-
+objtype = 'dash_groupby'
+ 
 class Main(BaseDashboardItem):
     """Choose table and saved stat"""
     item_name = 'Stats Grouped'
@@ -127,3 +129,32 @@ class Main(BaseDashboardItem):
                                         dict(name='opt_allRows',label='All rows',wdg='checkbox'),
                                         dict(name='opt_localized_data',wdg='checkbox',label='Localized data')]),
                         cursor='pointer')
+
+    @public_method
+    def di_userObjectEditor(self,pane,table=None,userobject_id=None,**kwargs):
+        tblobj = self.db.table(table)
+        def struct(struct):
+            r = struct.view().rows()
+            r.fieldcell(tblobj.attributes.get('caption_field') or tblobj.pkey, name=tblobj.name_long, width='20em')
+        th = pane.plainTableHandler(table=table,viewResource='_viewUOEdit',view_structCb=struct,
+                                    virtualStore=True,extendedQuery=True)
+        th.view.dataController("""SET .statsTools.selectedPage='groupby';
+                                  SET .viewPage = 'statsTools';
+                                  """,_onStart=True)
+        gth = self.pageSource('%s_groupedView' % th.view.attributes['frameCode']).value
+        gth.dataController("gth.publish('loadDashboard',{pkey:userobject_id})",_onStart=True,
+                                    gth=gth,userobject_id=userobject_id,
+                                    _if='userobject_id')
+        gth.dataController("""
+        if(!pkey){
+            gth.setRelativeData('.dashboardMeta.code','__'+genro.time36Id());
+            gth.setRelativeData('.dashboardMeta.objtype',objtype);
+            gth.setRelativeData('.dashboardMeta.tbl',table);
+            gth.publish('saveDashboard',{onSaved:function(result){
+                genro.publish({topic:'editUserObjectDashboardConfirmed',parent:true},result.attr.id);
+            }});
+        }else{
+            genro.publish({topic:'editUserObjectDashboardConfirmed',parent:true},pkey);
+        }
+        """,gth=gth,subscribe_userObjectEditorConfirm=True,table=table,objtype=objtype,
+        datapath='.dashboardMeta',pkey='=.id')

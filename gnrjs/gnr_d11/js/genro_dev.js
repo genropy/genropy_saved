@@ -850,7 +850,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var datapath = sourceNode.absDatapath(kw.metadataPath);
         var saveAs = objectPop(kw,'saveAs');
         var currentMetadata = genro.getData(datapath);
-        var userObjectIsLoaded = currentMetadata && currentMetadata.getItem('id');
+        var userObjectIsLoaded = currentMetadata && currentMetadata.getItem('code');
         var preview = objectPop(kw,'preview');
         var saveCb = function(dlg,evt,counter,modifiers){
             var data = new gnr.GnrBag();

@@ -40,6 +40,9 @@ class View(BaseComponent):
                         subscribe_save_uo_as_resource=True,
                        _if='pkeys',_onResult='FIRE .runQueryDo;',
                         _lockScreen=True)
+    
+    def th_condition(self):
+        return dict(condition="$system_userobject")
 
     
     def th_top_custom(self,top):

@@ -123,3 +123,12 @@ class GnrCustomWebPage(object):
                     selected_username='.username',width='25em',
                     hasDownArrow=True,cell__class='mydbselect',_fired='^.rebuild_dbselect')
         fb.textbox(value='^.mytextbox',lbl='Mycontent',_fired='^.rebuild_textbox')
+
+
+    def test_7_packageSelect(self,pane):
+        fb = pane.formbuilder(cols=1, border_spacing='4px')
+        fb.packageSelect(value='^.pkg',lbl='Pkg')
+        fb.tableSelect(value='^.tbl',lbl='Table',pkg='=.pkg',auxColumns='tbl')
+
+       #fb.dbSelect(value='^.provincia',dbtable='glbl.provincia',condition='$regione=:r',
+       #            condition_r='^.regione',lbl='Provincia',hasDownArrow=True,validate_notnull=True)

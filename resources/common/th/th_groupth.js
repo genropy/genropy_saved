@@ -297,11 +297,14 @@ genro_plugin_groupth = {
         kw.title = _T('Save dashboard');
         kw.preview = true;
         kw.defaultMetadata = {flags:'groupth|'+sourceNode.attr.nodeId};
-        var onSaved =function(result){
-            sourceNode.setRelativeData('.dashboardMeta',new gnr.GnrBag(result.attr));
-            sourceNode.fireEvent('.refreshDashboardsMenu',true);
-        };
-        genro.dev.userObjectSave(sourceNode,kw,onSaved);
+        var onSaved = objectPop(kw,'onSaved');
+        if(!onSaved){
+            onSaved =function(result){
+                sourceNode.setRelativeData('.dashboardMeta',new gnr.GnrBag(result.attr));
+                sourceNode.fireEvent('.refreshDashboardsMenu',true);
+            };
+        }
+        return genro.dev.userObjectSave(sourceNode,kw,onSaved);
     },
 
     loadDashboard:function(sourceNode,kw){
@@ -333,7 +336,7 @@ genro_plugin_groupth = {
                 sourceNode.fireEvent('.reloadMain',true);
             }
         };
-        genro.dev.userObjectLoad(sourceNode,kw);
+        return genro.dev.userObjectLoad(sourceNode,kw);
     },
 
     deleteCurrentDashboard:function(sourceNode,kw){
