@@ -62,12 +62,16 @@ class DashboardItem(BaseComponent):
                 caption = getattr(resmodule,'caption',None)
                 description = getattr(resmodule,'description',None)
                 table = getattr(resmodule,'table',None)
+                item_parameters = getattr(resmodule,'item_parameters',None)
+
                 di_userObjectEditor = getattr(resclass,'di_userObjectEditor',None)
                 kw = dict(objtype=objtype,caption=caption,description=description,resource=resource,
                             pkg=pkg,table=table)
                 typedict[objtype] = kw
-                node.attr.update(kw)            
-                if di_userObjectEditor: 
+                node.attr.update(kw)           
+                if item_parameters:
+                    node.attr['item_parameters'] = item_parameters
+                if di_userObjectEditor:
                     node.attr['di_userObjectEditor'] = di_userObjectEditor
         for pkgid,pkgobj in self.db.application.packages.items():
             di_folder = os.path.join(pkgobj.packageFolder,'resources','dashboard_items') 

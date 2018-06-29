@@ -410,28 +410,14 @@ dojo.declare("gnr.DashboardManager", null, {
                                             
                                         },
                                         onDrop_dashboardUserObjectItems:function(p1,p2,kw){
-                                            var sourceNode = this;
-                                            var item_parameters = [{value:'^._item_title',lbl:_T('Title'),default_value:kw.data.caption}];
-                                            var fixedParameters = objectPop(kw.data,'fixedParameters');
-                                            if(!fixedParameters){
-                                                if(kw.data.item_parameters && kw.data.item_parameters.length){
-                                                    item_parameters = item_parameters.concat(kw.data.item_parameters);
-                                                }
-                                                genro.dlg.prompt(_T('Parameters ')+kw.data.caption,
-                                                        {widget:item_parameters,
-                                                        action:function(result){
-                                                            if(fixedParameters){
-                                                                result.update(fixedParameters);
-                                                            }
-                                                            var itemIdentifier = that.registerDashboardItem(sourceNode,kw,result);
-                                                            that.assignDashboardItem(sourceNode,itemIdentifier);
-                                                        }
-                                                });
+                                            that.onDashboardDrop(this,kw);
+                                        },
+                                        onDrop_dashboardItemBuilder:function(p1,p2,kw){
+                                            if(kw.data.di_userObjectEditor){
+                                                that.newDashUserObject(this,kw.data);
                                             }else{
-                                                var itemIdentifier = that.registerDashboardItem(sourceNode,kw,new gnr.GnrBag(fixedParameters));
-                                                that.assignDashboardItem(sourceNode,itemIdentifier);
+                                                that.onDashboardDrop(this,kw);
                                             }
-                                            
                                         },
                                         remote:'di_buildRemoteItem',
                                         remote_py_requires:'dashboard_component/dashboard_component:DashboardItem',
@@ -454,18 +440,40 @@ dojo.declare("gnr.DashboardManager", null, {
            //                hidden:'^.itemName'});
         });
     },
+
+    onDashboardDrop:function(sourceNode,kw){
+        var item_parameters = [{value:'^._item_title',lbl:_T('Title'),default_value:kw.data.caption}];
+        var fixedParameters = objectPop(kw.data,'fixedParameters');
+        var that = this;
+        if(!fixedParameters){
+            if(kw.data.item_parameters && kw.data.item_parameters.length){
+                item_parameters = item_parameters.concat(kw.data.item_parameters);
+            }
+            genro.dlg.prompt(_T('Parameters ')+kw.data.caption,
+                    {widget:item_parameters,
+                    action:function(result){
+                        if(fixedParameters){
+                            result.update(fixedParameters);
+                        }
+                        var itemIdentifier = that.registerDashboardItem(sourceNode,kw,result);
+                        that.assignDashboardItem(sourceNode,itemIdentifier);
+                    }
+            });
+        }else{
+            var itemIdentifier = that.registerDashboardItem(sourceNode,kw,new gnr.GnrBag(fixedParameters));
+            that.assignDashboardItem(sourceNode,itemIdentifier);
+        }                                  
+    },
+
     registerDashboardItem:function(sourceNode,kw,itemParameters){
         var itemRecord = new gnr.GnrBag();
         var itemPars = itemParameters.deepCopy();
         itemRecord.setItem('id',genro.time36Id());
-        if(kw.data.objtype){
-            table = kw.data.tbl;
-            itemRecord.setItem('resource',kw.data.objtype);
-            itemPars.setItem('userobject_id',kw.data.pkey);
+        table = kw.data.tbl;
+        itemRecord.setItem('resource',kw.data.objtype);
+        itemPars.setItem('userobject_id',kw.data.pkey);
+        if(!itemPars.getItem('table')){
             itemPars.setItem('table',kw.data.tbl);
-        }else{
-            itemRecord.setItem('table',kw.data.table);
-            itemRecord.setItem('resource',kw.data.resource);
         }
         var title = itemPars.getItem('title') || itemPars.pop('_item_title');
         itemRecord.setItem('title',title);
@@ -531,7 +539,7 @@ dojo.declare("gnr.DashboardManager", null, {
         if(kw.di_userObjectEditor){
             genro.publish('editUserObjectDashboardItem',kw);
         }else if(kw.table){
-            //genro.dev.userObjectSave();
+            genro.dev.userObjectSave();
         }
         
     }

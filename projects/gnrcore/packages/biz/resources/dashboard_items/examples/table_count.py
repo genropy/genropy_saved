@@ -24,7 +24,8 @@ from gnrpkg.biz.dashboard import BaseDashboardItem
 caption = 'Dashboard count'
 description = 'Dashboard count records'
 objtype = 'dash_example_tablecounter'
-item_parameters = [dict(value='^.table',lbl='Table')]
+item_parameters = [{'value':'^.pkg','lbl':'Package','tag':'packageSelect'},
+                    {'value':'^.table','lbl':'Table','tag':'tableSelect','validate_notnull':True,'pkg':'=.pkg'}]
 
 
 class Main(BaseDashboardItem):
