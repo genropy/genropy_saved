@@ -152,6 +152,7 @@ class ThResourceMaker(object):
             else:
                 size = 7
             columns.append((column.name,size))
+        print 'COLUMNS:',columns
         with open(path,'w') as out_file:
             self.writeHeaders(out_file)
             self.writeImports(out_file)
