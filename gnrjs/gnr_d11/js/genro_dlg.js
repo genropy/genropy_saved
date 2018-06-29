@@ -235,8 +235,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
 
     thIframeDialog:function(kw,openKw){
         kw.src = this._prepareThIframeUrl(kw); 
-        if(kw.pkey){
-            openKw.pkey = kw.pkey;
+        if(openKw.pkey){
             openKw.topic = 'main_form_open';
             kw.main_call = 'main_form';
         }

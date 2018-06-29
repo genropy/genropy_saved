@@ -105,9 +105,8 @@ class DashboardGallery(BaseComponent):
                                     var onSavedCb=function(){
                                         that.fireEvent('.refresh',true);
                                     };
-                                    var openKw = {default_pkgid:pkg,default_code:code,default_private:true};
+                                    var openKw = {default_pkgid:pkg,default_code:code,default_private:true,pkey:dashboard_key || '*newrecord*'};
                                     genro.dlg.thIframeDialog({windowRatio:.9,table:'biz.dashboard',title:'Edit dashboard',
-                                                            pkey:dashboard_key || '*newrecord*',
                                                             formResource:'FormIncluded',main_call:'main_form',
                                                             onSavedCb:onSavedCb},openKw);
                                                         """,
