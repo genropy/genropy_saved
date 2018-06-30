@@ -83,15 +83,13 @@ class Table(object):
 
 ##################################
 
-    def onDbUpgrade_checkUserObjects(self):
-        self.checkUserObjects()
+    def onDbUpgrade_checkResourceUserObject(self):
+        self.checkResourceUserObject()
 
     def uo_identifier(self,record):
         return '%s%s%s' %(record['tbl'] or record['pkg'], record['objtype'],record['code'])
         
-    def checkUserObjects(self):
-        current_userobjects = self.query().fetchAsDict('identifier')
-        current_packages = self.db.packages
+    def checkResourceUserObject(self):
         def cbattr(nodeattr):
             return not (nodeattr['file_ext'] !='directory' and not '/userobjects/' in nodeattr['abs_path'])
         def cbwalk(node,**kwargs):
@@ -99,21 +97,15 @@ class Table(object):
                 record = Bag(node.attr['abs_path'])
                 identifier = self.uo_identifier(record)
                 if  not self.checkDuplicate(code=record['code'],pkg=record['pkg'],tbl=record['tbl'],objtype=record['objtype']):
-                    record['id'] = self.newPkeyValue()
-                    self.raw_insert(record)
-                current_userobjects.pop(identifier,None)
+                    if record['tbl'] and not self.db.table(record['tbl']):
+                        print 'missing table',record['tbl']
+                        return
+                    print 'inserting userobject %(code)s %(tbl)s %(pkg)s from resource' %record
+                    self.insert(record)
         for pkgid,pkgobj in self.db.application.packages.items():
             table_resource_folder = os.path.join(pkgobj.packageFolder,'resources','tables') 
             d = DirectoryResolver(table_resource_folder,include='*.xml',callback=cbattr,processors=dict(xml=False))
             d().walk(cbwalk,_mode='deep')
-        for identifier,record in current_userobjects.items():
-            if not record['pkg']:
-                continue
-            if record['pkg'] not in current_packages:
-                self.raw_delete(record)
-            if record['tbl'] and record['tbl'].split('.')[1] not in current_packages[record['pkg']].tables:
-                print 'deleting uo no longer existing tbl',record['tbl'],record['code']
-                self.raw_delete(record)
 
     def listUserObject(self, objtype=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None, flags=None):
         onlyQuicklist = onlyQuicklist or False
