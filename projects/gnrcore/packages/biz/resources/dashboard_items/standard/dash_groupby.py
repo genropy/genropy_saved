@@ -130,23 +130,33 @@ class Main(BaseDashboardItem):
                                         dict(name='opt_localized_data',wdg='checkbox',label='Localized data')]),
                         cursor='pointer')
 
+
     @public_method
     def di_userObjectEditor(self,pane,table=None,userobject_id=None,**kwargs):
-        tblobj = self.db.table(table)
-        def struct(struct):
-            r = struct.view().rows()
-            r.fieldcell(tblobj.attributes.get('caption_field') or tblobj.pkey, name=tblobj.name_long, width='20em')
-        pane.css('.dash_groupby')
-        th = pane.plainTableHandler(table=table,viewResource='_viewUOEdit',view_structCb=struct,
-                                    virtualStore=True,extendedQuery=True,_class='dash_groupby')
-        th.view.dataController("""SET .statsTools.selectedPage='groupby';
-                                  SET .viewPage = 'statsTools';
-                                  """,_onStart=True)
-        gth = self.pageSource('%s_groupedView' % th.view.attributes['frameCode']).value
-        gth.dataController("gth.publish('loadDashboard',{pkey:userobject_id})",_onStart=True,
-                                    gth=gth,userobject_id=userobject_id,
+        bc = pane.borderContainer()
+        frame = bc.contentPane(region='center').groupByTableHandler(table=table,frameCode='th_groupby_maker',
+                                    configurable=True,
+                                    where='=.query.where',
+                                    joinConditions='=.query.joinConditions',
+                                    store__fired='^.runQueryDo',
+                                    datapath='main')
+        bar = frame.top.bar.replaceSlots('#','5,ctitle,stackButtons,10,groupByModeSelector,counterCol,*,runGroupBy,configuratorPalette,10,searchOn,count,10,export,5')
+        bar.runGroupBy.slotButton(iconClass='iconbox run',
+                                    action="TH('th_groupby_maker_query').querymanager.onQueryCalling(querybag);",
+                                    querybag='=main.query.where') 
+        frame.data('.always',True)
+        bottom = bc.tabContainer(region='top',height='200px',closable=True,margin='2px')
+        bottom.contentPane(title='!!Where').contentPane(datapath='main',query_table=table,
+                        onCreated="this.querymanager = new gnr.FakeTableHandler(this);",
+                        nodeId='%s_query' %frame.attributes['frameCode'],margin='2px')   
+        bottom.contentPane(title='!!Join conditions')
+        bottom.contentPane(title='!!Order by')
+
+        frame.dataController("genro.nodeById('th_groupby_maker').publish('loadDashboard',{pkey:userobject_id})",_onStart=True,
+                                    userobject_id=userobject_id,
                                     _if='userobject_id')
-        gth.dataController("""
+        frame.dataController("""
+        var gth = genro.nodeById('th_groupby_maker');
         if(!pkey){
             gth.setRelativeData('.dashboardMeta.code','__'+genro.time36Id());
             gth.setRelativeData('.dashboardMeta.objtype',objtype);
@@ -156,5 +166,34 @@ class Main(BaseDashboardItem):
         gth.publish('saveDashboard',{onSaved:function(result){
             genro.publish({topic:'editUserObjectDashboardConfirmed',parent:true},result.attr.id);
         }});
-        """,gth=gth,subscribe_userObjectEditorConfirm=True,table=table,objtype=objtype,
+        """,subscribe_userObjectEditorConfirm=True,table=table,objtype=objtype,
         datapath='.dashboardMeta',pkey='=.id')
+
+   #@public_method
+   #def di_userObjectEditor_old(self,pane,table=None,userobject_id=None,**kwargs):
+   #    tblobj = self.db.table(table)
+   #    def struct(struct):
+   #        r = struct.view().rows()
+   #        r.fieldcell(tblobj.attributes.get('caption_field') or tblobj.pkey, name=tblobj.name_long, width='20em')
+   #    
+   #    th = pane.plainTableHandler(table=table,viewResource='_viewUOEdit',view_structCb=struct,
+   #                                virtualStore=True,extendedQuery=True)
+   #    th.view.dataController("""SET .statsTools.selectedPage='groupby';
+   #                              SET .viewPage = 'statsTools';
+   #                              """,_onStart=True)
+   #    gth = self.pageSource('%s_groupedView' % th.view.attributes['frameCode']).value
+   #    gth.dataController("gth.publish('loadDashboard',{pkey:userobject_id})",_onStart=True,
+   #                                gth=gth,userobject_id=userobject_id,
+   #                                _if='userobject_id')
+   #    gth.dataController("""
+   #    if(!pkey){
+   #        gth.setRelativeData('.dashboardMeta.code','__'+genro.time36Id());
+   #        gth.setRelativeData('.dashboardMeta.objtype',objtype);
+   #        gth.setRelativeData('.dashboardMeta.tbl',table);
+   #        
+   #    }
+   #    gth.publish('saveDashboard',{onSaved:function(result){
+   #        genro.publish({topic:'editUserObjectDashboardConfirmed',parent:true},result.attr.id);
+   #    }});
+   #    """,gth=gth,subscribe_userObjectEditorConfirm=True,table=table,objtype=objtype,
+   #    datapath='.dashboardMeta',pkey='=.id')

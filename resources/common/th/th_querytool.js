@@ -4,7 +4,7 @@ dojo.declare("gnr.FakeTableHandler",null,{
         this.sourceNode = sourceNode;
         this.th_root = sourceNode.attr.nodeId || sourceNode.getStringId();
         var faketh = TH(this.th_root);
-        faketh.querymanager = new gnr.QueryManager(this,sourceNode,this.table);
+        faketh.querymanager = new gnr.QueryManager(this,sourceNode,this.table,true);
         faketh.querymanager._editorRoot = function(){
             sourceNode._value.popNode('where');
             return sourceNode._('div','where',{datapath:'.query.where'});
@@ -49,12 +49,11 @@ dojo.declare("gnr.FakeTableHandler",null,{
             this.sourceNode.setRelativeData('.query.where',querybag);
         }
         TH(this.th_root).querymanager.buildQueryPane();
-    },
-
+    }
 });
 
 dojo.declare("gnr.QueryManager", null, {
-    constructor: function(th,sourceNode, maintable) {
+    constructor: function(th,sourceNode, maintable,faketh) {
         this.th = th;
         this.sourceNode = sourceNode;
         this.maintable = maintable;
@@ -68,6 +67,9 @@ dojo.declare("gnr.QueryManager", null, {
             'L':'number','N':'number','R':'number','B':'boolean','TAG':'tagged'};
         this.helper_op_dict = {'in':'in','tagged':'tagged'};
         var qm = this;
+        if(faketh){
+            return;
+        }
         this.sourceNode.delayedCall(function(){
             qm.createMenuesQueryEditor();
             dijit.byId(qm.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryColumn')));
