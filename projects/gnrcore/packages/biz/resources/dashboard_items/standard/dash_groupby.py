@@ -136,8 +136,9 @@ class Main(BaseDashboardItem):
         def struct(struct):
             r = struct.view().rows()
             r.fieldcell(tblobj.attributes.get('caption_field') or tblobj.pkey, name=tblobj.name_long, width='20em')
+        pane.css('.dash_groupby')
         th = pane.plainTableHandler(table=table,viewResource='_viewUOEdit',view_structCb=struct,
-                                    virtualStore=True,extendedQuery=True)
+                                    virtualStore=True,extendedQuery=True,_class='dash_groupby')
         th.view.dataController("""SET .statsTools.selectedPage='groupby';
                                   SET .viewPage = 'statsTools';
                                   """,_onStart=True)

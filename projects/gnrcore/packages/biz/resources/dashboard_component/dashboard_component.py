@@ -196,16 +196,40 @@ class DashboardGallery(BaseComponent):
         
         parent.dataController("""
             sc._dashboardManager.pageTrigger(_triggerpars.kw,_reason);
-        """,data='^%s.dashboards' %storepath,sc=sc)
-        bar = frame.top.slotToolbar('5,stackButtons,*,channelsEdit,5')
+            var dashboard_pages = [];
+            if(data && data.len()){
+                data.forEach(function(n){
+                    dashboard_pages.push(n.label+':'+n.getValue().getItem('title'));
+                });
+                SET #%s.dashboard_pages = dashboard_pages.join(',');
+            }else{
+                SET #%s.dashboard_pages = '';
+            }
+        """ %(dashboardNodeId,dashboardNodeId),data='^%s.dashboards' %storepath,sc=sc)
+        bar = frame.top.slotToolbar('5,mbpages,*,channelsEdit,5')
+        mb = bar.mbpages.multiButton(value='^.selectedDashboard',values='^.dashboard_pages')
         if edit:
-            bar.replaceSlots('#','#,confTooltip,10,dashboardItemPalettes,10,delbtn,addbtn,5')
-            self.di_dashboardConfTooltip(bar.confTooltip.div(_class='iconbox gear',tip='!!Config'),dashboardNodeId=dashboardNodeId)
-            bar.addbtn.slotButton(iconClass='iconbox add_row',publish='addpage',parentForm=True)
-            bar.delbtn.slotButton(iconClass='iconbox delete_row',publish='delpage',parentForm=True)
+            bar.replaceSlots('#','#,confTooltip,10,dashboardItemPalettes,5')
+            self.di_dashboardConfTooltip(bar.confTooltip.div(_class='iconbox gear',tip='!!Config',hidden='^.selectedDashboard?=!#v'),dashboardNodeId=dashboardNodeId)
+            
+            mb.attributes['deleteAction'] = """if(!this.form.isDisabled()){
+                genro.dashboards['%s'].delPage();
+            }""" %dashboardNodeId
+            mb.attributes['deleteSelectedOnly'] = True
+            mb.item(code='add_page',caption='+',
+                                    action='genro.dashboards[dashboardNodeId].addPage();',
+                                    dashboardNodeId=dashboardNodeId,
+                parentForm=True,deleteAction=False)
+
+            #bar.delbtn.slotButton(iconClass='iconbox delete_row',publish='delpage',parentForm=True)
             #bar.dupbtn.slotButton(iconClass='iconbox copy',publish='duppage')
             self.di_dashboardItemPalettes(bar.dashboardItemPalettes,dashboardNodeId=dashboardNodeId)
             parent.dataRpc(None,self.di_checkUserObjectToDel, subscribe_di_checkUserObjectToDel=True)
+            parent.dataController("""if(pkey=='*newrecord*'){
+                setTimeout(function(){
+                    genro.dashboards[dashboardNodeId].addPage();
+                },500);
+            }""",pkey='^#FORM.controller.loaded',dashboardNodeId=dashboardNodeId)
         
         bar.channelsEdit.slotButton('!!Channels',publish='channelsEdit',disabled='^.channels?=#v?#v.len()==0:true',
                                     datapath=storepath,parentForm=False)
@@ -224,7 +248,8 @@ class DashboardGallery(BaseComponent):
 
 
     def di_dashboardItemPalettes(self,pane,dashboardNodeId=None):
-        pg = pane.paletteGroup(groupCode='dasboardTools',width='700px',title='!!Dashboard Tools',dockButton=True)
+        pg = pane.paletteGroup(groupCode='dasboardTools',width='700px',title='!!Dashboard Tools',
+                                dockButton=dict(hidden='^.selectedDashboard?=!#v', iconClass='iconbox app'))
         self.di_userObjectsTree(pg,dashboardNodeId=dashboardNodeId)
         self.di_itemClassesTree(pg,dashboardNodeId=dashboardNodeId)
         self.di_userObjectMakerDlg(pane,dashboardNodeId=dashboardNodeId)
@@ -271,7 +296,7 @@ class DashboardGallery(BaseComponent):
 
     def di_dashboardConfTooltip(self,parent,dashboardNodeId=None):
         tp = parent.tooltipPane(modal=True,
-            onOpening="""genro.dashboards['%s'].configurationPane(dialogNode);""" %dashboardNodeId)
+            onOpening="""return genro.dashboards['%s'].configurationPane(dialogNode);""" %dashboardNodeId)
 
     @public_method
     def di_itemPrevew(self,pane,**kwargs):
@@ -355,7 +380,7 @@ class DashboardGallery(BaseComponent):
                             main_buildTs='^.build_ts')
         bar = frame.bottom.slotBar('*,cancel,confirm,2',_class='slotbar_dialog_footer')
         bar.cancel.slotButton('!!Cancel',action='dlg.hide()',dlg=dlg.js_widget)
-        bar.confirm.slotButton('!!Confirm',action="""iframe._genro.publish('userObjectEditorConfirm');""",
+        bar.confirm.slotButton('!!Save',action="""iframe._genro.publish('userObjectEditorConfirm');""",
                                     iframe=iframe)
 
     @public_method

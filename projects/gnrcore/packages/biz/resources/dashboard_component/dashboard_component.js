@@ -25,11 +25,14 @@ dojo.declare("gnr.DashboardManager", null, {
         try {
             if(kw.evt=='ins'){
                 //this.rebuild();
+                this.buildDashboard(kw.node,true);
+                this.sourceNode.setRelativeData('.selectedDashboard',kw.node.label);
             }else if(kw.evt=='del'){
                 this.sourceNode.getValue().popNode(kw.node.label);
             }else if(reason=='container'){
                 this.rebuild();
             }else if (reason=='child'){
+                
             }else{
                 this.rebuild();
             }
@@ -64,16 +67,21 @@ dojo.declare("gnr.DashboardManager", null, {
                 }
             });
         }; 
-        genro.dlg.prompt("New dashboard",
-                        {dflt:new gnr.GnrBag({design:'headline',title:'new dashboard'}),
-                                    widget:[{value:'^.title',lbl:_T('Title')},
-                                            {value:'^.design',lbl:_T('Design'),tag:'filteringSelect',values:'headline,sidebar'}],
+        var dflt = new gnr.GnrBag({design:'headline',title:_T('New page')});
+        dflt.setItem('layout',this.defaultLayout('headline'));
+        genro.dlg.prompt("New Page",
+                        {dflt:dflt,
+                                    widget:function(pane){
+                                        that.configurationPane(pane,true);
+                                    },
                                     action:function(res){
-                                        res.setItem('layout',that.defaultLayout(res.getItem('design')));
+                                        //res.setItem('layout',that.defaultLayout(res.getItem('design')));
                                         var pages = genro.getData(that.dashboardspath); 
                                         var label = 'r_'+pages.len();
-                                        pages.setItem(label,res);
-                                        saveCb(label);
+                                        pages.setItem(label,res.deepCopy(),null,{doTrigger:'newpage'});
+                                        if(that.sourceNode.form.isNewRecord()){
+                                            saveCb(label);
+                                        }
                                     }});
     },
 
@@ -186,35 +194,48 @@ dojo.declare("gnr.DashboardManager", null, {
             fb.addField(objectPop(kw,'wdg') || defaultWdg,{value:'^.'+kw.topic,lbl:kw.topic,dbtable:kw.dbtable});
         });
     },
-    configurationPane:function(parent){
-        var src = parent.getValue();
-        src.popNode('root');
-        var selectedDashboard = this.sourceNode.getRelativeData('.selectedDashboard');
-        if(!selectedDashboard){
-            selectedDashboard = this.sourceNode.getValue().getNode('#0').label;
+    configurationPane:function(parent,addMode){
+        var src,currentDatapath;
+        if(addMode){
+            src = parent;
+        }else{
+            src = parent.getValue();
+            src.popNode('root');
+            var selectedDashboard = this.sourceNode.getRelativeData('.selectedDashboard');
+            if(!selectedDashboard && this.sourceNode.getValue().getNode('#0')){
+                selectedDashboard = this.sourceNode.getValue().getNode('#0').label;
+            }
+            if(!selectedDashboard){
+                return false;
+            }
+            currentDatapath =this.dashboardspath+'.'+selectedDashboard;
         }
-        var currentDatapath = this.dashboardspath+'.'+selectedDashboard;
         var root = src._('div','root',{datapath:currentDatapath,margin_top:'4px'});
         var fb = genro.dev.formbuilder(root._('div',{margin:'8px'}),1,{border_spacing:'4px'});
         fb.addField('textbox',{value:'^.title',lbl:_T('Title')});
         var that = this;
-        fb.addField('filteringSelect',{value:'^.design',lbl:_T('Region'),
-                        validate_onAccept:function(){
-                            //that.rebuild();
+        if(addMode){
+            fb.addField('filteringSelect',{value:'^.design',lbl:_T('Region'),
+                        validate_onAccept:function(value){
+                            this.setRelativeData('.layout',that.defaultLayout(value));
                         },
-                        values:'headline,sidebar',disabled:true});
+                        values:'headline:Rows,sidebar:Columns',validate_notnull:true});
+        }
         var kw = {_class:'dhthumb'};
         var center = root._('div',kw);
         center._('div',{innerHTML:_T('Region visibility'),text_align:'center',color:'silver',
                         font_weight:'bold'});
-        root._('dataController',{script:"genro.dashboards[dashboardIdentifier]['thumbEditor_'+design](center)",
+        root._('dataController',{script:"genro.dashboards[dashboardIdentifier]['thumbEditor_'+design](center,_triggerpars && _triggerpars.kw?_triggerpars.kw.node.label=='design':null)",
                                 center:center,design:'^.design',dashboardIdentifier:this.identifier,_onBuilt:true});
     },
 
-    thumbEditor_sidebar:function(box){
+    thumbEditor_sidebar:function(box,onChangedDesign){
         box.popNode('thumbroot');
         var root  = box._('div','thumbroot',{_class:'dhthumb_sidebar'}).getParentNode();
-        root.freeze();
+        if(!onChangedDesign){
+            root.freeze();
+        }
+        
         var regions = ['left','center','right'];
         var subregions = ['top','center','bottom'];
         var r,closernode,cc,cell,regionshow;
@@ -238,12 +259,17 @@ dojo.declare("gnr.DashboardManager", null, {
                 }
             });
         });
-        root.unfreeze(true);
+        if(!onChangedDesign){
+            root.unfreeze(true);
+        }
+        
     },
-    thumbEditor_headline:function(box){
+    thumbEditor_headline:function(box,onChangedDesign){
         box.popNode('thumbroot');
         var root  = box._('div','thumbroot',{_class:'dhthumb_headline'}).getParentNode();
-        root.freeze();
+        if(!onChangedDesign){
+            root.freeze();
+        }
         var regions = ['top','center','bottom'];
         var subregions = ['left','center','right'];
         var r,closernode,cc,cell,regionshow;
@@ -268,7 +294,9 @@ dojo.declare("gnr.DashboardManager", null, {
                 }
             });
         });
-        root.unfreeze(true);
+        if(!onChangedDesign){
+            root.unfreeze(true);
+        }
     },
 
 
@@ -305,10 +333,14 @@ dojo.declare("gnr.DashboardManager", null, {
         var that = this;
         this.clearRoot();
         this.sourceNode.setRelativeData('.selectedDashboard',null);
-        if(pages){
+        if(pages && pages.len()){
             pages.forEach(function(n){
                 that.buildDashboard(n);
             });
+            var firstLabel = pages.getNode('#0').label;
+            setTimeout(function(){
+                that.sourceNode.setRelativeData('.selectedDashboard', firstLabel);
+            },1);
         }
     },
 
@@ -371,9 +403,12 @@ dojo.declare("gnr.DashboardManager", null, {
         this.sourceNode.setRelativeData(this.workspaces,null);
     },
 
-    buildDashboard:function(pageNode){
-        this.sourceNode.freeze();
-        this.sourceNode.getValue().popNode(pageNode.label);
+    buildDashboard:function(pageNode,ins){
+        if(!ins){
+            this.sourceNode.freeze();
+            this.sourceNode.getValue().popNode(pageNode.label);
+        }
+        
         var that = this;
         var pageData = pageNode.getValue();
         var design = pageData.getItem('design') || 'headline';
@@ -388,9 +423,9 @@ dojo.declare("gnr.DashboardManager", null, {
             regions:'^.regions',datapath:'.layout.'+region});
             that.dashboard_subRegions(subbc, design,region);
         });
-
-        this.sourceNode.unfreeze();
-
+        if(!ins){
+            this.sourceNode.unfreeze();
+        }
     },
     dashboard_subRegions:function(bc,design,region){
         var that = this;
