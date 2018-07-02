@@ -32,7 +32,7 @@ class FormHandler(BaseComponent):
     @struct_method
     def formhandler_linkedForm(self,pane,frameCode=None,formRoot=None,store=True,table=None,
                         formId=None,dialog_kwargs=None,palette_kwargs=None,attachTo=None,
-                        iframe=False,default_kwargs=None,tree_kwargs=None,
+                        iframe=False,remote=False,default_kwargs=None,tree_kwargs=None,
                         loadEvent=None,link_kwargs=None,**kwargs):
         if loadEvent:
             link_kwargs['event'] = loadEvent
@@ -49,11 +49,16 @@ class FormHandler(BaseComponent):
             kwargs['store_parentStore'] = pane.attributes['store']
         if iframe:
             src=None if iframe is True else iframe
-            return formRoot.formInIframe(table=table,formId=formId,default_kwargs=default_kwargs,src=src,**kwargs)
+            return formRoot.formInIframe(table=table,formId=formId,default_kwargs=default_kwargs,src=src,**kwargs),kwargs
+        elif remote:
+            remotekw = dict(frameCode=frameCode,formId=formId,table=table,store=store)
+            remotekw.update(kwargs)
+            return formRoot,remotekw
+
         form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=table,store=store,**kwargs)
         attachTo.form = form
         form.store.handler('load',default_kwargs=default_kwargs)
-        return form
+        return form,kwargs
     
     
     @extract_kwargs(palette=True,dialog=True)
@@ -158,17 +163,33 @@ class FormHandler(BaseComponent):
                                                     this.publish('editrow',newrecord_kw);
                                                 }"""
         gridattr['selfsubscribe_editrow'] = """
-                                    var pref = 'form_'+this.attr._linkedFormId;
-                                    if($1.pkey=='*newrecord*'){
-                                        var kw = {destPkey:$1.pkey};
-                                        if($1.default_kw){
-                                            kw.default_kw = $1.default_kw;
+                                    var linkedFormId = this.attr._linkedFormId;
+                                    var pref = 'form_'+linkedFormId;
+                                    var pkey = $1.pkey;
+                                    var default_kw = $1.default_kw;
+                                    var finalize = function(){
+                                        if(pkey=='*newrecord*'){
+                                            var kw = {destPkey:pkey};
+                                            if(default_kw){
+                                                kw.default_kw = default_kw;
+                                            }
+                                            genro.publish(pref+'_load',kw);
+                                        }else{
+                                            genro.publish(pref+'_goToRecord',pkey || '*norecord*');
                                         }
-                                        genro.publish(pref+'_load',kw);
-                                    }else{
-
-                                        genro.publish(pref+'_goToRecord',$1.pkey || '*norecord*');
                                     }
+                                    if(!genro.formById(linkedFormId)){
+                                        var remWrapper = genro.nodeById('remote_wrapper_'+linkedFormId);
+                                        remWrapper.updateRemoteContent();
+                                        
+                                        this.watch('linkedFormReady',function(){
+                                            return genro.formById(linkedFormId) && genro.formById(linkedFormId).formContentDomNode;
+                                        },function(){
+                                            finalize();
+                                        });
+                                        return;
+                                    }
+                                    finalize();
                                     """
         gridattr['selfsubscribe_viewlocker'] = 'this.widget.collectionStore().setLocked("toggle");'
         gridsubscribers['onExternalChanged']= """

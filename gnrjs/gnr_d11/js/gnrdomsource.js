@@ -906,7 +906,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var formsubscription = objectExtract(attributes, 'formsubscribe_*');
         
         var attrname;
-        var ind = ind || 0;
+        ind = ind || 0;
         var newobj = genro.wdg.create(tag, destination, attributes, ind, this);
         for (var selfsubscribe in selfsubscription){
             this.subscribe(selfsubscribe,selfsubscription[selfsubscribe]);
@@ -1502,6 +1502,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var method = this.attr.remote;
         var that = this;
         kwargs.sync = true;
+        kwargs._inheritedAttributes = this.getInheritedAttributes();
         var currval;
         if(remoteAttr._waitingMessage){
             var waitingMessage = remoteAttr._waitingMessage===true?_T('Loading content'):remoteAttr._waitingMessage;

@@ -229,17 +229,18 @@ class GnrDomSrc(GnrStructData):
         """TODO"""
         return self.js_sourceNode('f')
     
-    def makeRoot(cls, page, source=None):
+    def makeRoot(cls, page, source=None,rootAttributes=None):
         """Build the root through the :meth:`makeRoot()
         <gnr.core.gnrstructures.GnrStructData.makeRoot>` method and return it
         
         :param cls: the structure class
         :param page: the webpage instance
         :param source: the filepath of the xml file"""
-        root = GnrStructData.makeRoot(source=source, protocls=cls)
+        root = GnrStructData.makeRoot(source=source, protocls=cls,rootAttributes=rootAttributes)
         root._page = page
         return root
     makeRoot = classmethod(makeRoot)
+
 
     def _get_page(self):
         return self.root._page

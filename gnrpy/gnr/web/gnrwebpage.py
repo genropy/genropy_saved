@@ -1207,9 +1207,9 @@ class GnrWebPage(GnrBaseWebPage):
         
     domSrcFactory = property(_get_domSrcFactory)
         
-    def newSourceRoot(self):
+    def newSourceRoot(self,rootAttributes=None):
         """TODO"""
-        return self.domSrcFactory.makeRoot(self)
+        return self.domSrcFactory.makeRoot(self,rootAttributes=rootAttributes)
         
     def newGridStruct(self, maintable=None):
         """It creates a :class:`GnrGridStruct <gnr.web.gnrwebstruct.GnrGridStruct>` class that
@@ -2111,7 +2111,7 @@ class GnrWebPage(GnrBaseWebPage):
         return result
     
     @public_method                                 
-    def remoteBuilder(self, handler=None,tag=None, py_requires=None,**kwargs):
+    def remoteBuilder(self, handler=None,tag=None, py_requires=None,_inheritedAttributes=None,**kwargs):
         """TODO
         
         :param handler: TODO"""
@@ -2124,7 +2124,7 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             handler = self.getPublicMethod('remote', handler)
         if handler:
-            pane = self.newSourceRoot()
+            pane = self.newSourceRoot(_inheritedAttributes)
             self._root = pane
             for k, v in kwargs.items():
                 if k.endswith('_path'):

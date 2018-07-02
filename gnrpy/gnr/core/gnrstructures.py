@@ -43,15 +43,17 @@ class GnrStructData(Bag):
                         already_inserted_child_tag='You have already inserted %(maxval)s %(tag)s',
                         missing_mandatory_children='Missing mandatory children: %(mandatory_children)s')
 
-    def makeRoot(cls, source=None, protocls=None):
+    def makeRoot(cls, source=None, protocls=None,rootAttributes=None):
         """Build the root instance for the given class and return it
         
         :param source: the filepath of the xml file
         :param protocls: the structure class"""
-        if protocls:
-            instance = protocls()
-        else:
-            instance = cls() #create an instance of cls
+        instcls = protocls or cls
+        instance = instcls()
+        if rootAttributes:
+            instance.setItem('root_wrapper',instcls(),**rootAttributes)
+            instance.setBackRef()
+            instance = instance.getItem('root_wrapper')
         if source: #load from xml file
             instance.load(source)
         instance.setBackRef()
@@ -69,7 +71,7 @@ class GnrStructData(Bag):
         if isinstance(checker,basestring):
             checker = lambda v:v==checker
         if self._parentNode:
-            if attrname in self._parentNode.attr and checker(self._parentNode.attr[attrname])  :
+            if attrname in self._parentNode.attr and checker(self._parentNode.attr[attrname]):
                 return self._parentNode
             return self._parent.backwardNodebyAttr(attrname)
         
@@ -89,7 +91,7 @@ class GnrStructData(Bag):
     _ = property(_get_joiner)
         
     def _get_root(self):
-        if self.parent == None:
+        if self.parent == None or self.parentNode.label =='root_wrapper':
             return self
         else:
             return self.parent.root

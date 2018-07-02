@@ -6,7 +6,7 @@
 
 from gnr.web.gnrwebstruct import struct_method
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrdecorator import extract_kwargs
+from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import boolean
 from gnr.core.gnrdict import dictExtract
@@ -32,25 +32,44 @@ class TableHandlerForm(BaseComponent):
             grid =  pane.view.grid
             linkTo = grid
         #context_dbstore = pane.getInheritedAttributes().get('context_dbstore')
-        form = linkTo.linkedForm(frameCode=frameCode,
+        remoteForm = options.pop('remote',False) or self.getPreference('experimental.remoteForm',pkg='sys')
+        form,frmkwargs = linkTo.linkedForm(frameCode=frameCode,
                                  th_root=frameCode,
                                  datapath='.form',
                                  childname='form',
                                  table=table,
                                  formResource=formResource,
                                  iframe=formInIframe,
+                                 remote=remoteForm,
                                  #context_dbstore=context_dbstore,
                                  **options) 
         self._th_setDocumentation(table=table,resource = formResource or 'Form',doc=options.get('doc'),
                                     custdoc=options.get('custdoc'))
         if formInIframe:
             return form
-        self._th_applyOnForm(form,options=options,mangler=frameCode)   
+        elif remoteForm:
+            return self.th_prepareRemoteForm(form,**frmkwargs)
+        return self.th_finalizeForm(form,table=table,options=options,frameCode=frameCode)
+    
+    def th_prepareRemoteForm(self,pane,formId=None,**kwargs):
+        kw = dict()
+        kw['nodeId'] = 'remote_wrapper_%s' %formId
+        pane.contentPane(**kw).remote(self._th_remoteFormDispatcher,remoteFormId=formId,**kwargs)
+
+    @public_method
+    def _th_remoteFormDispatcher(self,formRoot,remoteFormId=None,**kwargs):
+        form = formRoot.frameForm(formId=remoteFormId,**kwargs)
+        formRoot.form = form
+        form.store.handler('load',default_kwargs=kwargs.get('default_kwargs'))
+        self._th_mixinResource(kwargs.get('frameCode'),table=kwargs.get('table'),resourceName=kwargs.get('formResource'),defaultClass='Form') 
+        return self.th_finalizeForm(form,table=kwargs.get('table'),options=kwargs,frameCode=kwargs.get('frameCode'))
+    
+    def th_finalizeForm(self,form,table=None,options=None,frameCode=None):
+        self._th_applyOnForm(form,options=options,mangler=frameCode)  
         if table == self.maintable and hasattr(self,'th_form'):
             self.th_form(form)
         else:
             self._th_hook('form',mangler=frameCode)(form)
-            
         pluggedFieldHandler = self._th_hook('pluggedFields',mangler=frameCode,
                                             defaultCb=self.th_defaultPluggedFieldHandler)
         pluggedFieldHandler(form)
