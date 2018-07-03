@@ -32,7 +32,7 @@ class FormHandler(BaseComponent):
     @struct_method
     def formhandler_linkedForm(self,pane,frameCode=None,formRoot=None,store=True,table=None,
                         formId=None,dialog_kwargs=None,palette_kwargs=None,attachTo=None,
-                        iframe=False,remote=False,default_kwargs=None,tree_kwargs=None,
+                        iframe=False,remoteForm=None,remotePars=None,default_kwargs=None,tree_kwargs=None,
                         loadEvent=None,link_kwargs=None,**kwargs):
         if loadEvent:
             link_kwargs['event'] = loadEvent
@@ -49,16 +49,15 @@ class FormHandler(BaseComponent):
             kwargs['store_parentStore'] = pane.attributes['store']
         if iframe:
             src=None if iframe is True else iframe
-            return formRoot.formInIframe(table=table,formId=formId,default_kwargs=default_kwargs,src=src,**kwargs),kwargs
-        elif remote:
-            remotekw = dict(frameCode=frameCode,formId=formId,table=table,store=store)
-            remotekw.update(kwargs)
-            return formRoot,remotekw
-
+            return formRoot.formInIframe(table=table,formId=formId,default_kwargs=default_kwargs,src=src,**kwargs)
+        elif remoteForm:
+            remotePars.update(frameCode=frameCode,formId=formId,table=table,store=store)
+            remotePars.update(kwargs)
+            return formRoot
         form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=table,store=store,**kwargs)
         attachTo.form = form
         form.store.handler('load',default_kwargs=default_kwargs)
-        return form,kwargs
+        return form
     
     
     @extract_kwargs(palette=True,dialog=True)

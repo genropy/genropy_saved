@@ -32,15 +32,17 @@ class TableHandlerForm(BaseComponent):
             grid =  pane.view.grid
             linkTo = grid
         #context_dbstore = pane.getInheritedAttributes().get('context_dbstore')
-        remoteForm = options.pop('remote',False) or self.getPreference('experimental.remoteForm',pkg='sys')
-        form,frmkwargs = linkTo.linkedForm(frameCode=frameCode,
+        remoteForm = options.pop('remote',None) or self.getPreference('experimental.remoteForm',pkg='sys')
+        remotePars = dict()
+        form = linkTo.linkedForm(frameCode=frameCode,
                                  th_root=frameCode,
                                  datapath='.form',
                                  childname='form',
                                  table=table,
                                  formResource=formResource,
                                  iframe=formInIframe,
-                                 remote=remoteForm,
+                                 remoteForm=remoteForm,
+                                 remotePars=remotePars,
                                  #context_dbstore=context_dbstore,
                                  **options) 
         self._th_setDocumentation(table=table,resource = formResource or 'Form',doc=options.get('doc'),
@@ -48,7 +50,7 @@ class TableHandlerForm(BaseComponent):
         if formInIframe:
             return form
         elif remoteForm:
-            return self.th_prepareRemoteForm(form,**frmkwargs)
+            return self.th_prepareRemoteForm(form,**remotePars)
         return self.th_finalizeForm(form,table=table,options=options,frameCode=frameCode)
     
     def th_prepareRemoteForm(self,pane,formId=None,**kwargs):
