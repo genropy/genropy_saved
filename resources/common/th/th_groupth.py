@@ -129,7 +129,7 @@ class TableHandlerGroupBy(BaseComponent):
                             gridId=gridId)
         self._thg_structMenuData(frame,table=table,linkedTo=linkedTo)
         if configurable:
-            frame.viewConfigurator(table,queryLimit=False)
+            frame.viewConfigurator(table,queryLimit=False,toolbar=False)
         else:
             frame.grid.attributes['gridplugins'] = False
         frame.grid.attributes.setdefault('selfsubscribe_loadingData',"this.setRelativeData('.loadingData',$1.loading);if(this.attr.loadingHider!==false){this.setHiderLayer($1.loading,{message:'%s'});}" %self._th_waitingElement())

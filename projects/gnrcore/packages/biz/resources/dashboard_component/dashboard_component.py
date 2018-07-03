@@ -65,12 +65,11 @@ class DashboardItem(BaseComponent):
                 description = getattr(resmodule,'description',None)
                 table = getattr(resmodule,'table',None)
                 item_parameters = getattr(resmodule,'item_parameters',None)
-
                 di_userObjectEditor = getattr(resclass,'di_userObjectEditor',None)
                 kw = dict(objtype=objtype,caption=caption,description=description,resource=resource,
                             pkg=pkg,table=table)
                 typedict[objtype] = kw
-                node.attr.update(kw)     
+                node.attr.update(kw)
                 if item_parameters:
                     node.attr['item_parameters'] = item_parameters
                 if di_userObjectEditor:
@@ -89,7 +88,8 @@ class DashboardGallery(BaseComponent):
 
     @extract_kwargs(channel=True)
     @struct_method
-    def di_dashboardGallery(self,parent,pkg=None,code=None,datapath=None,nodeId=None,channel_kwargs=None,**kwargs):
+    def di_dashboardGallery(self,parent,pkg=None,code=None,datapath=None,nodeId=None,channel_kwargs=None,
+                            from_table=None,from_pkey=None,**kwargs):
         nodeId =nodeId or '%s_%s' %(pkg,code)
         datapath = datapath or '.%s' %nodeId
         bc = parent.borderContainer(_anchor=True,datapath=datapath,**kwargs)
@@ -105,12 +105,14 @@ class DashboardGallery(BaseComponent):
                                     var onSavedCb=function(){
                                         that.fireEvent('.refresh',true);
                                     };
-                                    var openKw = {default_pkgid:pkg,default_code:code,default_private:true,pkey:dashboard_key || '*newrecord*'};
+                                    var openKw = {default_pkgid:pkg,default_code:code,default_private:true,pkey:dashboard_key || '*newrecord*',
+                                                from_table:from_table || null,from_pkey:from_pkey || null};
                                     genro.dlg.thIframeDialog({windowRatio:.9,table:'biz.dashboard',title:'Edit dashboard',
-                                                            formResource:'FormIncluded',main_call:'main_form',
+                                                            formResource:'FormIncluded',main_call:'main_form',fixedTitle:true,
                                                             onSavedCb:onSavedCb},openKw);
                                                         """,
                                     iconClass='iconbox pencil',pkg=pkg,code=code,
+                                    from_table=from_table or False,from_pkey=from_pkey or False,
                                     dashboard_key='=.dashboard_record.dashboard_key')
         parent.dataController("""genro.nodeById(dashboardNodeId).publish('updatedChannels',_kwargs)""",
                             dashboardNodeId=nodeId,_delay=100,

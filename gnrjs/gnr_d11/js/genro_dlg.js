@@ -244,12 +244,15 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var onSavedCb = objectPop(kw,'onSavedCb');
         kw.closable = kw.closable===false?false:true;
         kw.openKw = openKw;
+        var fixedTitle = objectPop(kw,'fixedTitle');
         kw.onIframeStarted = function(iframeNode,wdg){
             if(iframeNode._genro._rootForm){
                 if(kw.main_call=='main_form'){
                     iframeNode._genro._rootForm.subscribe('onDismissed',function(){wdg.hide();});
                 }
-                iframeNode._genro._rootForm.subscribe('onChangedTitle',function(kw){wdg.setTitle(kw.title);});
+                if(!fixedTitle){
+                    iframeNode._genro._rootForm.subscribe('onChangedTitle',function(kw){wdg.setTitle(kw.title);});
+                }
             }else if(kw.lookup){
                 iframeNode._genro.nodeById('lookup_root').subscribe('lookup_cancel',function(){wdg.hide();});
             }
@@ -595,7 +598,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             var node = objectPop(kw,'sourceNode');
             if(!node){
                 genro.src.getNode()._('div', '_map_palette');
-                var node = genro.src.getNode('_map_palette').clearValue();     
+                node = genro.src.getNode('_map_palette').clearValue();     
             }
             node.freeze();
             kw.dockTo = kw.dockTo || 'dummyDock:open';

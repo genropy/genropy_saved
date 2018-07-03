@@ -176,24 +176,23 @@ class FrameGridTools(BaseComponent):
         pane.menudiv(iconClass= iconClass or 'iconbox list',datapath='.grid',storepath='.structMenuBag',selected_fullpath='.currViewPath')
 
     @struct_method
-    def fg_viewConfigurator(self,view,table=None,queryLimit=None,region=None,configurable=None):
+    def fg_viewConfigurator(self,view,table=None,queryLimit=None,region=None,configurable=None,toolbar=True):
         grid = view.grid
         grid.attributes['configurable'] = True
         right = view.grid_envelope.borderContainer(region=region or 'right',width='160px',closable='close',
                                         splitter=True,border_left='1px solid silver')
-
-        confBar = right.contentPane(region='top')
-        confBar = confBar.slotToolbar('viewsMenu,currviewCaption,*,defView,saveView,deleteView',background='whitesmoke',height='20px')
-        confBar.currviewCaption.div('^.grid.currViewAttrs.caption',font_size='.9em',color='#666',line_height='16px')
-
         gridId = grid.attributes.get('nodeId')
-        confBar.defView.slotButton('!!Favorite View',iconClass='th_favoriteIcon iconbox star',
-                                        action='genro.grid_configurator.setCurrentAsDefault(gridId);',gridId=gridId)
-        confBar.saveView.slotButton('!!Save View',iconClass='iconbox save',
-                                        action='genro.grid_configurator.saveGridView(gridId);',gridId=gridId)
-        confBar.deleteView.slotButton('!!Delete View',iconClass='iconbox trash',
-                                    action='genro.grid_configurator.deleteGridView(gridId);',
-                                    gridId=gridId,disabled='^.grid.currViewAttrs.pkey?=!#v')
+        if toolbar:
+            confBar = right.contentPane(region='top')
+            confBar = confBar.slotToolbar('viewsMenu,currviewCaption,*,defView,saveView,deleteView',background='whitesmoke',height='20px')
+            confBar.currviewCaption.div('^.grid.currViewAttrs.caption',font_size='.9em',color='#666',line_height='16px')
+            confBar.defView.slotButton('!!Favorite View',iconClass='th_favoriteIcon iconbox star',
+                                            action='genro.grid_configurator.setCurrentAsDefault(gridId);',gridId=gridId)
+            confBar.saveView.slotButton('!!Save View',iconClass='iconbox save',
+                                            action='genro.grid_configurator.saveGridView(gridId);',gridId=gridId)
+            confBar.deleteView.slotButton('!!Delete View',iconClass='iconbox trash',
+                                        action='genro.grid_configurator.deleteGridView(gridId);',
+                                        gridId=gridId,disabled='^.grid.currViewAttrs.pkey?=!#v')
         if queryLimit is not False and (table==getattr(self,'maintable',None) or configurable=='*'):
             footer = right.contentPane(region='bottom',height='25px',border_top='1px solid silver',overflow='hidden').formbuilder(cols=1,font_size='.8em',
                                                 fld_color='#555',fld_font_weight='bold')

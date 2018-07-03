@@ -48,6 +48,12 @@ class Form(BaseComponent):
 class FormIncluded(Form):
     def th_form(self, form):
         bc = form.center.borderContainer()
+        bc.dataController("""
+        genro.bp(true);
+        SET #FORM.from_table = _subscription_kwargs.from_table;
+        SET #FORM.from_pkey = _subscription_kwargs.from_pkey;
+
+        """,subscribe_main_form_open=True)
         tc = bc.tabContainer(region='center',margin='2px')
         tc.dashboardViewer(title='Dashboards',datapath='#FORM.dashboardEditor',
                             storepath='#FORM.record.data',edit=True)

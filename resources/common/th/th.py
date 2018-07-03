@@ -869,7 +869,7 @@ class THBusinessIntelligence(BaseComponent):
                             genro.nodeById(dashboardGalleryId).publish('updatedChannels',kw)""",
                             selectedPkeys='^.grid.currentSelectedPkeys',
                             dashboardGalleryId=dashboardGalleryId,table=table,tablepkey=self.db.table(table).pkey)
-        parent.dashboardGallery(pkg=pkg,code=linkedTo,nodeId=dashboardGalleryId,**kwargs)
+        parent.dashboardGallery(pkg=pkg,code=linkedTo,nodeId=dashboardGalleryId,from_table=table,**kwargs)
 
     @struct_method
     def th_formLinkedDashboard(self,parent,code=None,nodeId=None,**kwargs):
@@ -887,4 +887,5 @@ class THBusinessIntelligence(BaseComponent):
                             """,
                             pkey='^#FORM.controller.loaded',
                             dashboardGalleryId=dashboardGalleryId,table=table,tablepkey=self.db.table(table).pkey)
-        parent.dashboardGallery(pkg=pkg,code=code or formId,nodeId=dashboardGalleryId,**kwargs)
+        parent.dashboardGallery(pkg=pkg,code=code or formId,nodeId=dashboardGalleryId,from_table=inattr['table'],
+                                from_pkey='=#FORM.pkey',**kwargs)
