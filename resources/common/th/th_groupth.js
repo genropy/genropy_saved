@@ -280,7 +280,7 @@ genro_plugin_groupth = {
   
     saveAsDashboard:function(sourceNode,kw){
         kw = kw || {};
-        var th = TH(sourceNode.attr._linkedT || sourceNode.attr.nodeId+'_query');
+        var th = TH(sourceNode.attr._linkedTo || sourceNode.attr.nodeId+'_query');
         var queryParsBag = th.querymanager.queryParsBag();
         sourceNode.setRelativeData('.queryPars',queryParsBag);
         kw.dataIndex = {

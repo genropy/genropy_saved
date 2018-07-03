@@ -36,8 +36,8 @@ class Main(BaseDashboardItem):
                     onDrag="""
                     var linkedGrid = genro.getData(dragInfo.sourceNode.attr.workpath+'.currentLinkableGrid');
                     var linkedItem = dragInfo.sourceNode.getRelativeData('.itemIdentifier');
-                    dragValues.dashboardItems = {fixedParameters:{'linkedGrid':linkedGrid,title:'Chart #',linkedItem:linkedItem},
-                                                    resource:'_groupby_chart',
+                    dragValues.dashboardUserObjectItems = {fixedParameters:{'linkedGrid':linkedGrid,title:'Chart #',linkedItem:linkedItem},
+                                                    objtype:'_groupby_chart',
                                                     caption:_T('Linked chart')};
                     """)
 
