@@ -49,8 +49,10 @@ class DashboardItem(BaseComponent):
                 self.mixinComponent(req)
         itemRecord = itemRecord or Bag()
         itemInstance(pane.contentPane(childname='remoteItem'),title=itemRecord['title'],
-                                    parameters=itemRecord['parameters'],
-                                    itemRecord=itemRecord,**kwargs)
+                                parameters=itemRecord['parameters'],
+                                itemRecord=itemRecord,**kwargs)
+
+        
 
     def di_itemResourceData(self):
         result = Bag()    
@@ -379,7 +381,9 @@ class DashboardGallery(BaseComponent):
                             main_methodname='=.di_userObjectEditor',
                             main_table='=.tbl',
                             main_userobject_id='=.pkey',
-                            main_buildTs='^.build_ts')
+                            main_buildTs='^.build_ts',
+                            main_from_table='=#FORM.from_table',
+                            main_from_pkey='=#FORM.from_pkey')
         bar = frame.bottom.slotBar('*,cancel,confirm,2',_class='slotbar_dialog_footer')
         bar.cancel.slotButton('!!Cancel',action='dlg.hide()',dlg=dlg.js_widget)
         bar.confirm.slotButton('!!Save',action="""iframe._genro.publish('userObjectEditorConfirm');""",

@@ -67,31 +67,34 @@ class BaseDashboardItem(object):
         self.item_centerstack = sc
         kwargs.update(itempar_kwargs)
         kwargs.update(self.parameters.asDict(ascii=True))
-        pane = sc.contentPane(pageName='content',childname='content')
-        self.content(pane,**kwargs)
-        bc = sc.borderContainer(pageName='conf')
-        bc.dataController("""FIRE .runItem;""",
-                        _onBuilt=self.run_onbuilt,
-                        datapath=workpath,_timing='=.runTimer')
-        bc.dataController("""if(runRequired){
-            SET .runRequired = false;
-            FIRE .runItem;
-        }""",
-        changedConfig='^.configuration_changed',runRequired='=.runRequired',datapath=self.workpath)
-        confpane = None
-        if self.editMode:
-            conftc = bc.tabContainer(margin='2px',datapath='.conf',childname='config',region='center')
-            self.configuration(conftc.contentPane(title='!!Configurations'),**kwargs)
-            self.configurationSubscriber(conftc.contentPane(title='!!Subscriptions'))
-            if hasattr(self,'di_userObjectEditor'):
-                self._dh_editUserObjectButton(bc)
-        else:
-            self.configuration(bc.contentPane(region='center',datapath='.conf',childname='config'),**kwargs)
-        pane.onDbChanges(action="""
-        if(dbChanges.some(c => c.pkey==userobject_id)){
-            this.attributeOwnerNode('tileNode').updateRemoteContent(true);
-        }
-        """,table='adm.userobject',userobject_id='=.parameters.userobject_id')
+        try:
+            pane = sc.contentPane(pageName='content',childname='content')
+            self.content(pane,**kwargs)
+            bc = sc.borderContainer(pageName='conf')
+            bc.dataController("""FIRE .runItem;""",
+                            _onBuilt=self.run_onbuilt,
+                            datapath=workpath,_timing='=.runTimer')
+            bc.dataController("""if(runRequired){
+                SET .runRequired = false;
+                FIRE .runItem;
+            }""",
+            changedConfig='^.configuration_changed',runRequired='=.runRequired',datapath=self.workpath)
+            confpane = None
+            if self.editMode:
+                conftc = bc.tabContainer(margin='2px',datapath='.conf',childname='config',region='center')
+                self.configuration(conftc.contentPane(title='!!Configurations'),**kwargs)
+                self.configurationSubscriber(conftc.contentPane(title='!!Subscriptions'))
+                if hasattr(self,'di_userObjectEditor'):
+                    self._dh_editUserObjectButton(bc)
+            else:
+                self.configuration(bc.contentPane(region='center',datapath='.conf',childname='config'),**kwargs)
+            pane.onDbChanges(action="""
+            if(dbChanges.some(c => c.pkey==userobject_id)){
+                this.attributeOwnerNode('tileNode').updateRemoteContent(true);
+            }
+            """,table='adm.userobject',userobject_id='=.parameters.userobject_id')
+        except Exception as e:
+            sc.contentPane(pageName='content',childname='content').div('Error in item %s' %str(e))
 
     def itembar(self,pane):
         top = pane.div(height='20px',_class='dashboard_item_top',onDrag="""dragValues['itemIdentifier'] = '%s';
