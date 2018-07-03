@@ -121,15 +121,11 @@ dojo.declare("gnr.DashboardManager", null, {
             }
             subscriptions.values().forEach(function(sub){
                 var topic = sub.getItem('topic');
-                var aliasTopic =  sub.getItem('aliasTopic');
                 var newval;
                 var updating = false;
                 var confpath = (sub.getItem('autoTopic')?workspaces:itemspath)+'.'+itemNode.label+'.conf.'+sub.getItem('varpath');
                 if (topic in channelskw){
                     newval = channelskw[topic];
-                    updating = true;
-                }else if(aliasTopic && (aliasTopic in channelskw)){
-                    newval = channelskw[aliasTopic];
                     updating = true;
                 }
                 if(updating){

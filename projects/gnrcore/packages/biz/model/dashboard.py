@@ -6,9 +6,9 @@ class Table(object):
         tbl=pkg.table('dashboard', pkey='dashboard_key', name_long='!!Dashboard', 
                     name_plural='!!Dashboards',caption_field='dashboard_key',pkey_columns='pkgid,code')
         self.sysFields(tbl,id=False)
-        tbl.column('dashboard_key', size=':60', name_long='!!Dashboard key',notnull=True)
+        tbl.column('dashboard_key', size=':100', name_long='!!Dashboard key',notnull=True)
         tbl.column('pkgid', size=':15', name_long='!!Package',validate_notnull=True)
-        tbl.column('code', size=':30', name_short='!!Code',validate_notnull=True)
+        tbl.column('code', size=':50', name_short='!!Code',validate_notnull=True)
         tbl.column('description', size=':40', name_long='!!Description')
         tbl.column('widget', size=':30', name_long='!!Widget',default='tabContainer',
                     values='tabContainer:Tabs,stackContainer:Buttons')  

@@ -145,13 +145,12 @@ class Main(BaseDashboardItem):
                                     _shortcut='@run:enter',
                                     querybag='=main.query.where') 
         frame.data('.always',True)
-        bottom = bc.tabContainer(region='top',height='200px',closable=True,margin='2px')
-        bottom.contentPane(title='!!Where').contentPane(datapath='main',query_table=table,
+        top = bc.tabContainer(region='top',height='200px',closable=True,margin='2px')
+        top.contentPane(title='!!Where').contentPane(datapath='main',query_table=table,
                         onCreated="this.querymanager = new gnr.FakeTableHandler(this);",
                         nodeId='%s_query' %frame.attributes['frameCode'],margin='2px')   
-        bottom.contentPane(title='!!Join conditions')
-        bottom.contentPane(title='!!Order by')
-
+        top.contentPane(title='!!Join conditions')
+        top.contentPane(title='!!Order by')
         frame.dataController("genro.nodeById('th_groupby_maker').publish('loadDashboard',{pkey:userobject_id})",_onStart=True,
                                     userobject_id=userobject_id,
                                     _if='userobject_id')
@@ -172,10 +171,12 @@ class Main(BaseDashboardItem):
             fieldpath = None
             if table != from_table:
                 relpars = self.th_searchRelationPath(table=from_table,destTable=table)
-                if relpars['relpathlist']:
+                if len(relpars['relpathlist'])==1:
                     fieldpath = relpars['relpathlist'][0]
             else:
                 fieldpath = self.db.table(table).pkey
-
-            queryBag = self.th_prepareQueryBag(dict(column=fieldpath.replace('$',''),op='equal',val='?%s*' %from_table.split('.')[1]),table=table)
+            if fieldpath:
+                queryBag = self.th_prepareQueryBag(dict(column=fieldpath.replace('$',''),op='equal',val='?%s' %from_table.split('.')[1]),table=table)
+            else:
+                queryBag = self.th_prepareQueryBag(dict(column=self.db.table(table).pkey,op='equal',val=''),table=table)
             frame.data('main.query.where',queryBag)

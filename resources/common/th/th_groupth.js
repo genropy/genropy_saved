@@ -312,17 +312,10 @@ genro_plugin_groupth = {
         kw.metadataPath = '.dashboardMeta';
         kw.tbl = sourceNode.attr.table;
         kw.objtype = 'dash_groupby';
-        kw.onLoading = function(dataIndex,resultValue,resultAttr){
-            if(!sourceNode.attr._linkedTo){
-                dataIndex.setItem('where','.where');
-            }
-        };
         kw.onLoaded = function(dataIndex,resultValue,resultAttr){
             if(sourceNode.attr._linkedTo){
                 var qm = TH(sourceNode.attr._linkedTo).querymanager;
                 var qsn = qm.sourceNode;
-                
-
                 var where = resultValue.getItem('where');
                 if(where && where.len()){
                     qsn.setRelativeData('.query.currentQuery','__queryeditor__');

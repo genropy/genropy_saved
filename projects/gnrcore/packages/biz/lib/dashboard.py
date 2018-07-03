@@ -177,12 +177,12 @@ class BaseDashboardItem(object):
             var conf_subscribers = genro.getData(subspath) || new gnr.GnrBag();
             var conf = genro.getData(confpath) || new gnr.GnrBag();
             conf.getNodes().forEach(function(n){
-                if(n.attr.autoTopic){
-                    conf_subscribers.setItem(n.label,new gnr.GnrBag({topic:n.attr.autoTopic,varpath:n.label,
+                var autoTopic = n.attr.autoTopic || n.attr.aliasTopic;
+                if(autoTopic){
+                    conf_subscribers.setItem(n.label,new gnr.GnrBag({topic:autoTopic,varpath:n.label,
                                                                             wdg:n.attr.wdg_tag,
                                                                             dbtable:n.attr.wdg_dbtable,
-                                                                            autoTopic:true,
-                                                                            aliasTopic:n.attr.aliasTopic}));
+                                                                            autoTopic:true}));
                 }
             })
             var cb = function(){
@@ -266,13 +266,15 @@ class BaseDashboardItem(object):
             tblobj = self.db.table(table)
             rc = tblobj.column(field).relatedColumn()
             wherepath = pars['relpath']
-            if field==tblobj.pkey:
-                wdg = fb.dbSelect(field,value='^.wherepars_%s' %code,lbl=pars['lbl'],
+            colobj = tblobj.column(field)
+            tblcol = colobj.table
+            if colobj.name==tblcol.pkey:
+                wdg = fb.dbSelect(value='^.wherepars_%s' %code,lbl=pars['lbl'],
                                     #attr_wdg='dbselect',attr_dbtable=rc.table.fullname,
                                     dbtable=table,hidden=hidden)
-                aliasTopic = '%s_pkey' %table.replace('.','_')
+                aliasTopic = '%s_pkey' %tblcol.fullname.replace('.','_')
             elif pars['op'] == 'equal' and rc is not None:
-                wdg = fb.dbSelect(field,value='^.wherepars_%s' %code,lbl=pars['lbl'],
+                wdg = fb.dbSelect(value='^.wherepars_%s' %code,lbl=pars['lbl'],
                                     #attr_wdg='dbselect',attr_dbtable=rc.table.fullname,
                                     dbtable=rc.table.fullname,hidden=hidden)
                 aliasTopic = '%s_pkey' %rc.table.fullname.replace('.','_')

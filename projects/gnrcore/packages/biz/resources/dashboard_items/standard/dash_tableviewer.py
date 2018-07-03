@@ -134,7 +134,7 @@ class Main(BaseDashboardItem):
                                     virtualStore=True,extendedQuery=True)
 
         view = th.view
-        view.dataController("view.publish('loadDashboard',{pkey:userobject_id})",_onStart=True,
+        view.dataController("view.publish('loadDashboard',{pkey:userobject_id})",_onBuilt=True,
                                     view=view,userobject_id=userobject_id,
                                     _if='userobject_id')
         view.dataController("""
@@ -153,9 +153,12 @@ class Main(BaseDashboardItem):
             fieldpath = None
             if table != from_table:
                 relpars = self.th_searchRelationPath(table=from_table,destTable=table)
-                if relpars['relpathlist']:
+                if len(relpars['relpathlist'])==1:
                     fieldpath = relpars['relpathlist'][0]
             else:
                 fieldpath = self.db.table(table).pkey
-            queryBag = self.th_prepareQueryBag(dict(column=fieldpath.replace('$',''),op='equal',val='?%s*' %from_table.split('.')[1]),table=table)
-            view.data('.query.where',queryBag)
+            if fieldpath:
+                queryBag = self.th_prepareQueryBag(dict(column=fieldpath.replace('$',''),op='equal',val='?%s' %from_table.split('.')[1]),table=table)
+            else:
+                queryBag = self.th_prepareQueryBag(dict(column=self.db.table(table).pkey,op='equal',val=''),table=table)
+            view.data('main.query.where',queryBag)
