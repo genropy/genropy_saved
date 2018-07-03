@@ -11,7 +11,8 @@ WORKDIR /home/genropy/gnrpy
 RUN paver develop
 RUN python initgenropy.py
 
-RUN apt-get install -y supervisor
+RUN apt-get install -y supervisor nginx
+RUN pip install gunicorn gevent tornado
 RUN mkdir -p /var/log/supervisor
 
 ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
