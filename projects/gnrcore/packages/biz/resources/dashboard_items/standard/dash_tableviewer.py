@@ -125,7 +125,7 @@ class Main(BaseDashboardItem):
                         cursor='pointer')
 
     @public_method
-    def di_userObjectEditor(self,pane,valuepath=None,table=None,userobject_id=None,**kwargs):
+    def di_userObjectEditor(self,pane,valuepath=None,table=None,userobject_id=None,from_table=None,**kwargs):
         tblobj = self.db.table(table)
         def struct(struct):
             r = struct.view().rows()
@@ -148,3 +148,14 @@ class Main(BaseDashboardItem):
         }});
         """,view=th.view,subscribe_userObjectEditorConfirm=True,table=table,objtype=objtype,
         datapath='.dashboardMeta',pkey='=.id')
+
+        if not userobject_id and from_table:
+            fieldpath = None
+            if table != from_table:
+                relpars = self.th_searchRelationPath(table=from_table,destTable=table)
+                if relpars['relpathlist']:
+                    fieldpath = relpars['relpathlist'][0]
+            else:
+                fieldpath = self.db.table(table).pkey
+            queryBag = self.th_prepareQueryBag(dict(column=fieldpath.replace('$',''),op='equal',val='?%s*' %from_table.split('.')[1]),table=table)
+            view.data('.query.where',queryBag)
