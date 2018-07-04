@@ -587,11 +587,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
             return;
         }
-        if(kw.destPkey=='*newrecord*' && this.defaultPrompt){
+        var defaultPrompt = 'defaultPrompt' in kw? kw.defaultPrompt:this.defaultPrompt;
+        if(kw.destPkey=='*newrecord*' && defaultPrompt){
             var that = this;
             kw.default_kw = kw.default_kw || {};
-            genro.dlg.prompt(this.defaultPrompt.title || _T('Fill parameters'),{
-                widget:this.defaultPrompt.fields,
+            genro.dlg.prompt(defaultPrompt.title || _T('Fill parameters'),{
+                widget:defaultPrompt.fields,
                 action:function(result){
                     objectUpdate(kw.default_kw,result.asDict());
                     that.doload_store.call(that,kw);
