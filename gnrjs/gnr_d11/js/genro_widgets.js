@@ -200,6 +200,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         savedAttrs['dropTargetCb_extra'] = objectExtract(attributes,'dropTargetCb_*');
         savedAttrs.connectedMenu = objectPop(attributes, 'connectedMenu');
         savedAttrs.onEnter = objectPop(attributes, 'onEnter');
+        savedAttrs._watchOnVisible = objectPop(attributes,'_watchOnVisible');
         objectUpdate(savedAttrs, this.creating(attributes, sourceNode));
         var formId = objectPop(attributes, 'formId');
         if (attributes._for) {
@@ -275,6 +276,13 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             sourceNode.attr_kw = objectExtract(sourceNode.attr,'attr_*',true);
         }
         this.created(newobj, savedAttrs, sourceNode);
+        if(savedAttrs._watchOnVisible){
+            sourceNode.watch('_watchOnVisible',function(){
+                return genro.dom.isVisible(sourceNode);
+            },function(){
+                sourceNode.publish('isVisible');
+            });
+        }
         if(this.formattedValueHandler){
             this.formattedValueHandler(newobj, savedAttrs, sourceNode);
         }

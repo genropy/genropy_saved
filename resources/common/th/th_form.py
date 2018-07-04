@@ -32,7 +32,9 @@ class TableHandlerForm(BaseComponent):
             grid =  pane.view.grid
             linkTo = grid
         #context_dbstore = pane.getInheritedAttributes().get('context_dbstore')
-        remoteForm = options.pop('remote',None) or self.getPreference('experimental.remoteForm',pkg='sys')
+        remoteForm = options.pop('remote',None) or (self.getPreference('experimental.remoteForm',pkg='sys'))
+        if formInIframe:
+            remoteForm = False
         remotePars = dict()
         form = linkTo.linkedForm(frameCode=frameCode,
                                  th_root=frameCode,
@@ -59,12 +61,17 @@ class TableHandlerForm(BaseComponent):
         pane.contentPane(**kw).remote(self._th_remoteFormDispatcher,remoteFormId=formId,**kwargs)
 
     @public_method
-    def _th_remoteFormDispatcher(self,formRoot,remoteFormId=None,**kwargs):
-        form = formRoot.frameForm(formId=remoteFormId,**kwargs)
+    def _th_remoteFormDispatcher(self,formRoot,remoteFormId=None,
+                                    frameCode=None,th_root=None,datapath=None,childname=None,table=None,
+                                 formResource=None,iframe=None,remoteForm=None,remotePars=None,**kwargs):
+        form = formRoot.frameForm(formId=remoteFormId,frameCode=frameCode,
+                                 th_root=th_root,datapath=datapath,childname=childname,
+                                 table=table,formResource=formResource,
+                                 iframe=iframe,**kwargs)
         formRoot.form = form
         form.store.handler('load',default_kwargs=kwargs.get('default_kwargs'))
-        self._th_mixinResource(kwargs.get('frameCode'),table=kwargs.get('table'),resourceName=kwargs.get('formResource'),defaultClass='Form') 
-        return self.th_finalizeForm(form,table=kwargs.get('table'),options=kwargs,frameCode=kwargs.get('frameCode'))
+        self._th_mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form') 
+        return self.th_finalizeForm(form,table=table,options=kwargs,frameCode=frameCode)
     
     def th_finalizeForm(self,form,table=None,options=None,frameCode=None):
         self._th_applyOnForm(form,options=options,mangler=frameCode)  
@@ -264,9 +271,6 @@ class TableHandlerForm(BaseComponent):
                     leftkw['closable'] = 'open'      
             elif hierarchical=='closed':
                 leftkw['closable'] = 'close'
-            
-            
-
             bar = form.left.slotBar('htreeSearchbar,htreeSlot,0',width=tree_kwargs.pop('width','200px'),border_right='1px solid silver',**leftkw)
             searchCode = form.attributes['frameCode']
             treeslots = '2,searchOn,*'

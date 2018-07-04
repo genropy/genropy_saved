@@ -44,7 +44,7 @@ class FormHandler(BaseComponent):
                                     palette_kwargs=palette_kwargs,attachTo=attachTo,form_kwargs=kwargs)
         parentTag = pane.attributes['tag'].lower()
         if parentTag=='includedview' or parentTag=='newincludedview':
-            self.__linkToParentGrid(pane,formId=formId,iframe=iframe,link_kwargs=link_kwargs)
+            self.__linkToParentGrid(pane,formId=formId,iframe=iframe,link_kwargs=link_kwargs,remoteForm=remoteForm)
             kwargs['store_storeType'] = 'Collection'
             kwargs['store_parentStore'] = pane.attributes['store']
         if iframe:
@@ -107,9 +107,10 @@ class FormHandler(BaseComponent):
             formRoot = attachTo.palette(**palette_kwargs)
         return formRoot
 
-    def __linkToParentGrid(self,grid,formId=None,iframe=None,link_kwargs=None):
+    def __linkToParentGrid(self,grid,formId=None,iframe=None,link_kwargs=None,remoteForm=None):
         gridattr = grid.attributes
         gridattr['_linkedFormId']=formId
+        gridattr['_watchOnVisible'] = True
         gridsubscribers = dict()
         if link_kwargs.get('event'):
             if self.isMobile:
@@ -179,12 +180,15 @@ class FormHandler(BaseComponent):
                                     }
                                     if(!genro.formById(linkedFormId)){
                                         var remWrapper = genro.nodeById('remote_wrapper_'+linkedFormId);
-                                        remWrapper.updateRemoteContent();
-                                        
-                                        this.watch('linkedFormReady',function(){
-                                            return genro.formById(linkedFormId) && genro.formById(linkedFormId).formContentDomNode;
-                                        },function(){
-                                            finalize();
+                                        var that = this;
+                                        genro.lockScreen(true,'buildingRemoteForm',{message:'<div style="height:130px;opacity:.8;" class="waiting"></div>'});
+                                        remWrapper.updateRemoteContent(true,true).addCallback(function(){
+                                            that.watch('linkedFormReady',function(){
+                                                return genro.formById(linkedFormId) && genro.formById(linkedFormId).formContentDomNode;
+                                            },function(){
+                                                genro.lockScreen(false,'buildingRemoteForm');
+                                                finalize();
+                                            });
                                         });
                                         return;
                                     }
@@ -213,6 +217,16 @@ class FormHandler(BaseComponent):
                                                                 }
                                                             }
                                                               """
+        if remoteForm=='delayed':
+            gridattr['selfsubscribe_isVisible'] = """
+                var linkedFormId = this.attr._linkedFormId;
+                var remWrapper = genro.nodeById('remote_wrapper_'+linkedFormId);
+                if(!genro.formById(linkedFormId) && remWrapper){
+                    setTimeout(function(){
+                        remWrapper.updateRemoteContent(true,true);
+                    },1);
+                }
+            """
         subpref = 'subscribe_%(nodeId)s' %gridattr
         for k,v in gridsubscribers.items():
             gridattr['%s_%s' %(subpref,k)] = v

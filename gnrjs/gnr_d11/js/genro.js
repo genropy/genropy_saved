@@ -2241,6 +2241,8 @@ dojo.declare('gnr.GenroClient', null, {
             if(options.thermo){
                 genro.setData('gnr.lockScreen.thermo',message);
                 message = options.thermo === true?'^gnr.lockScreen.thermo':options.thermo;
+            }else if(options.message){
+                message = options.message;
             }
             sourceNode.setHiderLayer(true,{message:message,z_index:999998});
         } else {

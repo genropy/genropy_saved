@@ -861,7 +861,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
     },
     _registerNodeId: function(nodeId) {
-        var nodeId = this.attr.nodeId || nodeId;
+        nodeId = this.attr.nodeId || nodeId;
         if (nodeId) {
             var reg_node = genro.src._index[nodeId];
             if(reg_node){
@@ -1460,13 +1460,19 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
 
     },
     
-    updateRemoteContent:function(forceUpdate) {
+    updateRemoteContent:function(forceUpdate,async) {
+
         var _onRemote = false;
         var currentValue = this.getValue('static');
         if (currentValue && currentValue.len() > 0 && !forceUpdate) {
             return;
         }
+        if(this._remotebuilding){
+            return;
+        }
+        this._remotebuilding = true;
         var remoteAttr = this.evaluateOnNode(objectExtract(this.attr,'remote_*',true));
+        async = objectPop(remoteAttr,'_async',async);
         if(this._lastRemoteAttr && this.attr._cachedRemote && objectIsEqual(this._lastRemoteAttr,remoteAttr)){
             return;
         }
@@ -1501,7 +1507,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         var method = this.attr.remote;
         var that = this;
-        kwargs.sync = true;
+        
+        kwargs.sync = !async;
         kwargs._inheritedAttributes = this.getInheritedAttributes();
         var currval;
         if(remoteAttr._waitingMessage){
@@ -1510,7 +1517,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this.setHiderLayer(true,{message:waitingMessage});
             kwargs.sync = false;
         }
-        genro.rpc.remoteCall(method, kwargs, null, 'POST', null,
+        return genro.rpc.remoteCall(method, kwargs, null, 'POST', null,
             function(result) {
                 //that.setValue(result);
                 if(result.error){
@@ -1522,12 +1529,17 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         if(remoteAttr._waitingMessage){
                             that.setHiderLayer(false);
                         }
+                        var t0 = new Date();
+                        //console.log('before building dom');
                         that.mergeRemoteContent(result);
+                        //console.log('after building dom stuck time',new Date()-t0);
                         if (_onRemote) {
                             _onRemote();
                         }
                     });
                 }
+                delete this._remotebuilding;
+                return result;
             });
     },
 
@@ -1676,7 +1688,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
 
     mergeRemoteContent:function(value){
-        var mergetable = this.attr.tag=='tbody'
+        var mergetable = this.attr.tag=='tbody';
         var currval = this._value;
         if(currval instanceof gnr.GnrDomSource){
             dojo.forEach(currval._nodes,function(n){
