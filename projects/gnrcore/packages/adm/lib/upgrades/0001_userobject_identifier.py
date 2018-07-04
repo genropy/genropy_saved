@@ -12,7 +12,6 @@ def main(db):
             tblobj.delete(r)
         tbl = (r['tbl'] or r['pkg'] or '')
         identifier = (tbl,r['objtype'],r['code'])
-        
         if identifier in addedidentifier:
             r['code'] = '%s_%i' %(r['code'],i)
             identifier = (tbl,r['objtype'],r['code'])

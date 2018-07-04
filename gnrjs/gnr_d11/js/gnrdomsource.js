@@ -1468,7 +1468,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             return;
         }
         if(this._remotebuilding){
-            return;
+          return;
         }
         this._remotebuilding = true;
         var remoteAttr = this.evaluateOnNode(objectExtract(this.attr,'remote_*',true));
@@ -1538,7 +1538,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         }
                     });
                 }
-                delete this._remotebuilding;
+                delete that._remotebuilding;
                 return result;
             });
     },
