@@ -514,6 +514,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(this.opStatus=='loading'){
             return;
         }
+
         var that = this;
         if(objectNotEmpty(this.childForms)){
             var onAnswer = function(command){if(command=='cancel'){return;}
@@ -584,6 +585,18 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }else{
                 this.openPendingChangesDlg(kw);
             }
+            return;
+        }
+        if(kw.destPkey=='*newrecord*' && this.defaultPrompt){
+            var that = this;
+            kw.default_kw = kw.default_kw || {};
+            genro.dlg.prompt(this.defaultPrompt.title || _T('Fill parameters'),{
+                widget:this.defaultPrompt.fields,
+                action:function(result){
+                    objectUpdate(kw.default_kw,result.asDict());
+                    that.doload_store.call(that,kw);
+                }
+            });
             return;
         }
         this.doload_store(kw);
@@ -2203,7 +2216,7 @@ dojo.declare("gnr.formstores.Base", null, {
         var base_handler_type = objectPop(kw,'handler');
         this.base_handler_type = base_handler_type;
         var handlerKw = objectExtract(kw,'handler_*');
-        var handler,handler_type,method,actionKw,callbacks,defaultCb,defaultPrompt;
+        var handler,handler_type,method,actionKw,callbacks,defaultCb;
         var that = this;
         var rpcmethod;
         dojo.forEach(['save','load','del'],function(action){
@@ -2219,9 +2232,8 @@ dojo.declare("gnr.formstores.Base", null, {
             }
             callbacks = objectPop(handler,'callbacks');
             rpcmethod = objectPop(handler,'rpcmethod');
-            defaultPrompt = objectPop(handler,'defaultPrompt');
             defaultCb = funcCreate(objectPop(handler,'defaultCb'),'kw');
-            that.handlers[action]= {'kw':objectUpdate(actionKw,handler),'method':method,'callbacks':callbacks,'rpcmethod':rpcmethod,defaultCb:defaultCb,defaultPrompt:defaultPrompt};
+            that.handlers[action]= {'kw':objectUpdate(actionKw,handler),'method':method,'callbacks':callbacks,'rpcmethod':rpcmethod,defaultCb:defaultCb};
         });
         for (var k in kw){
             this[k] = kw[k];
@@ -2551,18 +2563,6 @@ dojo.declare("gnr.formstores.Base", null, {
         return this.handlers.save.method.call(this,kw);
     },
     load:function(loadkw){
-        if(loadkw.destPkey=='*newrecord*' && this.handlers.load.defaultPrompt){
-            var that = this;
-            loadkw.default_kw = loadkw.default_kw || {};
-            genro.dlg.prompt(this.handlers.load.defaultPrompt.title || _T('Fill parameters'),{
-                widget:this.handlers.load.defaultPrompt.fields,
-                action:function(result){
-                    objectUpdate(loadkw.default_kw,result.asDict());
-                    that.handlers.load.method.call(that,loadkw);
-                }
-            });
-            return;
-        }
         return this.handlers.load.method.call(this,loadkw);
     },
     deleteItem:function(pkey,kw){
