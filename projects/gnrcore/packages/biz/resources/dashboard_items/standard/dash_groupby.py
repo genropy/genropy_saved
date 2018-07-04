@@ -145,12 +145,31 @@ class Main(BaseDashboardItem):
                                     _shortcut='@run:enter',
                                     querybag='=main.query.where') 
         frame.data('.always',True)
-        top = bc.tabContainer(region='top',height='200px',closable=True,margin='2px')
+        top = bc.tabContainer(region='top',height='200px',closable=True,margin='2px',splitter=True)
         top.contentPane(title='!!Where').contentPane(datapath='main',query_table=table,
                         onCreated="this.querymanager = new gnr.FakeTableHandler(this);",
                         nodeId='%s_query' %frame.attributes['frameCode'],margin='2px')   
-        top.contentPane(title='!!Join conditions')
-        top.contentPane(title='!!Order by')
+        top.contentPane(title='!!Join conditions',_lazyBuild=True,
+                        onCreated="""
+                        var that = this;
+                        this.watch('waitingFakeTH',function(){
+                            return TH('th_groupby_maker_query');
+                        },function(){
+                            that.freeze();
+                            TH('th_groupby_maker_query').querymanager.joinConditions(that);
+                            that.unfreeze(true);
+                        })
+                        """)
+       #top.contentPane(title='!!Order by',_lazyBuild=True,onCreated="""
+       #                var that = this;
+       #                this.watch('waitingFakeTH',function(){
+       #                    return TH('th_groupby_maker_query');
+       #                },function(){
+       #                    that.freeze();
+       #                    TH('th_groupby_maker_query').querymanager.queryExtra(that);
+       #                    that.unfreeze(true);
+       #                })
+       #                """)
         frame.dataController("genro.nodeById('th_groupby_maker').publish('loadDashboard',{pkey:userobject_id})",_onStart=True,
                                     userobject_id=userobject_id,
                                     _if='userobject_id')

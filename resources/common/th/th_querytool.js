@@ -251,7 +251,7 @@ dojo.declare("gnr.QueryManager", null, {
         }
         this.joinConditions(frame._('contentPane',{title:_T('Join conditions'),margin:'2px'}));
 
-        this.queryExtra(frame._('borderContainer',{title:_T('Query Extra')}));
+        this.queryExtra(frame._('contentPane',{title:_T('Query Extra')}));
 
         node.unfreeze();
         this.buildQueryPane();
@@ -286,7 +286,8 @@ dojo.declare("gnr.QueryManager", null, {
         g._('column',condition_cell);
     },
 
-    queryExtra:function(bc){
+    queryExtra:function(parent){
+        var bc = parent._('BorderContainer');
         var top = bc._('BorderContainer',{region:'top',height:'50%'});
         var topleft = top._('contentPane',{region:'left',width:'50%',_class:'pbl_roundedGroup',margin:'2px'});
 
