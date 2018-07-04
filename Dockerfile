@@ -16,7 +16,7 @@ RUN apt-get install -y supervisor nginx
 RUN pip install --upgrade setuptools
 RUN pip install --upgrade pip
 RUN easy_install pip
-RUN pip install gunicorn gevent 
+RUN pip install gunicorn gevent
 RUN pip install 'Tornado>=4.0.0,<5.0.0'
 RUN mkdir -p /var/log/supervisor
 
