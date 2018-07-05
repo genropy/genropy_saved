@@ -246,7 +246,6 @@ class _StartupDataDbTemplates(BaseComponent):
         startup_data_root = self.sd_startupdata_root()
         dlurl = self.site.getStaticUrl(
             startup_data_root, 'dbtemplates', '%s.zip' % template_name, nocache=True)
-        self.setInClientData(path='gnr.downloadurl', value=dlurl, fired=True)
 
 
 class StartupDataManager(BaseComponent):
