@@ -250,9 +250,7 @@ dojo.declare("gnr.QueryManager", null, {
             this.onChangedQuery('__newquery__');
         }
         this.joinConditions(frame._('contentPane',{title:_T('Join conditions'),margin:'2px'}));
-
         this.queryExtra(frame._('contentPane',{title:_T('Query Extra')}));
-
         node.unfreeze();
         this.buildQueryPane();
         this.checkFavorite();
@@ -289,21 +287,20 @@ dojo.declare("gnr.QueryManager", null, {
     queryExtra:function(parent){
         var bc = parent._('BorderContainer');
         var top = bc._('BorderContainer',{region:'top',height:'50%'});
-        var topleft = top._('contentPane',{region:'left',width:'50%',_class:'pbl_roundedGroup',margin:'2px'});
+        var topleft = top._('contentPane',{region:'center',_class:'pbl_roundedGroup',margin:'2px'});
 
         var fb = genro.dev.formbuilder(topleft, 1, {border_spacing:'6px'});
 
         fb.addField('numberTextBox',{lbl:_T('Limit'),value:'^.limit', width:'5em'});
         fb.addField('dbselect',{lbl:_T('Saved view'),tag:'dbselect',
-                        hasDownArrow:true,value:'^.#parent.grid.currViewPath',
-                        dbtable:'adm.userobject',width:'15em',alternatePkey:'code',
-                        rowcaption:'$description',
-                        condition:'$tbl=:tbl AND $objtype=:obj',condition_tbl:this.maintable,
-                            condition_obj:'view'});
-        
-        var topright = top._('borderContainer',{region:'center',_class:'pbl_roundedGroup',margin:'2px'});
-        topright._('contentPane',{region:'top',_class:'pbl_roundedGroupLabel',height:'20px'})._('div',{'innerHTML':'Extra query pars'});
-        topright._('contentPane',{region:'center'})._('MultiValueEditor',{value:'^.extraPars'});
+                    hasDownArrow:true,value:'^.#parent.grid.currViewPath',
+                    dbtable:'adm.userobject',width:'15em',alternatePkey:'code',
+                    rowcaption:'$description',
+                    condition:'$tbl=:tbl AND $objtype=:obj',condition_tbl:this.maintable,
+                        condition_obj:'view'});
+        //var topright = top._('borderContainer',{region:'right',_class:'pbl_roundedGroup',margin:'2px',width:'50%'});
+        //topright._('contentPane',{region:'top',_class:'pbl_roundedGroupLabel',height:'20px'})._('div',{'innerHTML':'Extra query pars'});
+        //topright._('contentPane',{region:'center'})._('MultiValueEditor',{value:'^.extraPars'});
         this.orderByGrid(bc._('FramePane',{frameCode:'_customOrderBy_#',_class:'pbl_roundedGroup',
                                 region:'bottom',height:'50%',margin:'2px'}));
     },
@@ -318,14 +315,16 @@ dojo.declare("gnr.QueryManager", null, {
         frame._('slotBar',{slots:'2,vtitle,*',_class:'pbl_roundedGroupLabel',vtitle:_T('Order by'),side:'top'});
         var dropCode = 'gnrdbfld_'+this.tablecode;
         var gridkw = {value:'^.customOrderBy',selfDragRows:true,_class:'noheader noselect',
-                     dropTarget_grid:dropCode};
+                     dropTarget_grid:dropCode+',gridcolumn'};
 
         gridkw['onDrop_'+dropCode] = function(p1,p2,kw){
             this.widget.addBagRow('#id', '*', this.widget.newBagRow({'fieldpath':kw.data.fieldpath,sorting:true}));
         };
+        gridkw.onDrop_gridcolumn = function(p1,p2,kw){
+            this.widget.addBagRow('#id', '*', this.widget.newBagRow({'fieldpath':kw.data.field,'field':kw.data.original_field,
+                                                                    group_aggr:kw.data.group_aggr,sorting:true}));
+        };
         var g = frame._('quickGrid',gridkw);
-        
-
         g._('column',{field:'fieldpath',edit:{},width:'100%'});
         g._('column',{field:'sorting',dtype:'B',format_trueclass:'iconbox arrow_up',format_falseclass:"iconbox arrow_down",
                     format_onclick:'var r = this.widget.storebag().getItem("#"+$1.rowIndex);r.setItem("sorting",!r.getItem("sorting"));',

@@ -1756,8 +1756,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 }
                 textcol = textcol + convertToText(v)[1] + '\n';
             }
-            ;
-            value['gridcolumn'] = {'column':dragInfo.column,'columndata':columndata,'gridId':widget.sourceNode.attr.nodeId};
+            value.gridcolumn = {'column':dragInfo.column,'columndata':columndata,'gridId':widget.sourceNode.attr.nodeId,
+                                    'field':field,'original_field':event.cell.original_field,'group_aggr':event.cell.group_aggr};
             value['text/plain'] = textcol;
             var selfDragColumns = dragInfo.sourceNode.attr.selfDragColumns;
             if (typeof(selfDragColumns) == 'function') {

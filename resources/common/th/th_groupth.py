@@ -257,10 +257,19 @@ class TableHandlerGroupBy(BaseComponent):
         return frame
         
     @public_method
-    def _thg_selectgroupby(self,struct=None,**kwargs):
+    def _thg_selectgroupby(self,struct=None,groupLimit=None,groupOrderBy=None,**kwargs):
         columns_list = list()
         group_list = list()
         having_list = list()
+        custom_order_by = list()
+        if groupOrderBy:
+            for v in groupOrderBy.values():
+                field = v['field']
+                if not field.startswith('@'):
+                    field = '$%s' %field
+                field = field if not v['group_aggr'] else '%s(%s)' %(v['group_aggr'],field)
+                custom_order_by.append('%s %s' %(field,('asc' if v['sorting'] else 'desc')))
+            custom_order_by = ' ,'.join(custom_order_by)
         def asName(field,group_aggr):
             return '%s_%s' %(field.replace('.','_').replace('@','_').replace('-','_'),
                     group_aggr.replace('.','_').replace('@','_').replace('-','_').replace(' ','_').lower())
@@ -312,10 +321,12 @@ class TableHandlerGroupBy(BaseComponent):
             return False
         kwargs['columns'] = ','.join(columns_list)
         kwargs['group_by'] = ','.join(group_list)
-        kwargs['order_by'] = kwargs['group_by']
+        kwargs['order_by'] = custom_order_by or kwargs['group_by']
         if having_list:
             kwargs['having'] = ' OR '.join(having_list)
         kwargs['hardQueryLimit'] = False
+        if groupLimit:
+            kwargs['limit'] = groupLimit
         return self.app._default_getSelection(_aggregateRows=False,**kwargs)
 
     @struct_method

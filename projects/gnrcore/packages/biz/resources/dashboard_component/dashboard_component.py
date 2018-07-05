@@ -252,7 +252,7 @@ class DashboardGallery(BaseComponent):
 
 
     def di_dashboardItemPalettes(self,pane,dashboardNodeId=None):
-        pg = pane.paletteGroup(groupCode='dasboardTools',width='700px',title='!!Dashboard Tools',
+        pg = pane.paletteGroup(groupCode='dasboardTools',width='700px',title='!!Item picker',
                                 dockButton=dict(hidden='^.selectedDashboard?=!#v', iconClass='iconbox app'))
         self.di_userObjectsTree(pg,dashboardNodeId=dashboardNodeId)
         self.di_itemClassesTree(pg,dashboardNodeId=dashboardNodeId)
@@ -260,7 +260,7 @@ class DashboardGallery(BaseComponent):
 
     
     def di_itemClassesTree(self,pg,dashboardNodeId=None):
-        palette = pg.paletteTree(paletteCode='dashboardItemBuilder',title='!!Item Builder',
+        palette = pg.paletteTree(paletteCode='dashboardItemBuilder',title='!!Models',
                                     searchOn=True,
                                     storepath='gnr.dashboardItemResorces',
                                     tree_selectedLabelClass='selectedTreeNode',
@@ -278,7 +278,7 @@ class DashboardGallery(BaseComponent):
                                                 }""" %dashboardNodeId)
 
     def di_userObjectsTree(self,pg,dashboardNodeId=None):
-        palette = pg.paletteTree(paletteCode='dashboardUserObjectItems',title='!!Available Items',
+        palette = pg.paletteTree(paletteCode='dashboardUserObjectItems',title='!!Saved Items',
                                     infoPanel=self.di_itemPrevew,
                                     searchOn=True,
                                     infoPanel_width='50%',

@@ -285,11 +285,13 @@ genro_plugin_groupth = {
         sourceNode.setRelativeData('.queryPars',queryParsBag);
         kw.dataIndex = {
             where:th.querymanager.sourceNode.absDatapath('.query.where'),
+            groupLimit:th.querymanager.sourceNode.absDatapath('.query.limit'),
+            groupOrderBy:th.querymanager.sourceNode.absDatapath('.query.customOrderBy'),
+            joinConditions:th.querymanager.sourceNode.absDatapath('.query.joinConditions'),
             groupByStruct:'.grid.struct',
             groupMode:'.groupMode',
             output:'.output',
             queryPars:'.queryPars',
-            joinConditions:th.querymanager.sourceNode.absDatapath('.query.joinConditions')
         };
         kw.objtype = 'dash_groupby';
         kw.metadataPath = '.dashboardMeta';

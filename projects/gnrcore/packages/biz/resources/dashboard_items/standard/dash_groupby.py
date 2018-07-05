@@ -51,7 +51,9 @@ class Main(BaseDashboardItem):
                                     configurable=False,
                                     struct=data['groupByStruct'],
                                     where='=.query.where',
-                                    joinConditions='=.query.joinConditions',
+                                    store_joinConditions='=.query.joinConditions',
+                                    store_groupLimit ='=.query.limit',
+                                    store_groupOrderBy ='=.query.customOrderBy',
                                     store__fired='^.runStore',
                                     datapath=self.workpath)
 
@@ -63,6 +65,8 @@ class Main(BaseDashboardItem):
         self.queryPars = data['queryPars']
         frame.data('.always',True)
         frame.data('.query.where',data['where'])
+        frame.data('.query.limit',data['groupLimit'])
+        frame.data('.query.customOrderBy',data['groupOrderBy'])
         frame.data('.query.queryPars',data['queryPars'])
         frame.data('.query.joinConditions',data['joinConditions'])
 
@@ -136,7 +140,9 @@ class Main(BaseDashboardItem):
         frame = bc.contentPane(region='center').groupByTableHandler(table=table,frameCode='th_groupby_maker',
                                     configurable=True,
                                     where='=.query.where',
-                                    joinConditions='=.query.joinConditions',
+                                    store_joinConditions='=.query.joinConditions',
+                                    store_groupLimit ='=.query.limit',
+                                    store_groupOrderBy ='=.query.customOrderBy',
                                     store__fired='^.runQueryDo',
                                     datapath='main')
         bar = frame.top.bar.replaceSlots('#','5,ctitle,stackButtons,10,groupByModeSelector,counterCol,*,runGroupBy,configuratorPalette,10,searchOn,count,10,export,5')
@@ -146,10 +152,8 @@ class Main(BaseDashboardItem):
                                     querybag='=main.query.where') 
         frame.data('.always',True)
         top = bc.tabContainer(region='top',height='200px',closable=True,margin='2px',splitter=True)
-        top.contentPane(title='!!Where').contentPane(datapath='main',query_table=table,
-                        onCreated="this.querymanager = new gnr.FakeTableHandler(this);",
-                        nodeId='%s_query' %frame.attributes['frameCode'],margin='2px')   
-        top.contentPane(title='!!Join conditions',_lazyBuild=True,
+        self._wherePaneConfig(top.borderContainer(title='!!Where'),table=table,frame=frame)
+        top.contentPane(title='!!Join conditions',datapath='.query',_lazyBuild=True,
                         onCreated="""
                         var that = this;
                         this.watch('waitingFakeTH',function(){
@@ -160,16 +164,6 @@ class Main(BaseDashboardItem):
                             that.unfreeze(true);
                         })
                         """)
-       #top.contentPane(title='!!Order by',_lazyBuild=True,onCreated="""
-       #                var that = this;
-       #                this.watch('waitingFakeTH',function(){
-       #                    return TH('th_groupby_maker_query');
-       #                },function(){
-       #                    that.freeze();
-       #                    TH('th_groupby_maker_query').querymanager.queryExtra(that);
-       #                    that.unfreeze(true);
-       #                })
-       #                """)
         frame.dataController("genro.nodeById('th_groupby_maker').publish('loadDashboard',{pkey:userobject_id})",_onStart=True,
                                     userobject_id=userobject_id,
                                     _if='userobject_id')
@@ -199,3 +193,24 @@ class Main(BaseDashboardItem):
             else:
                 queryBag = self.th_prepareQueryBag(dict(column=self.db.table(table).pkey,op='equal',val=''),table=table)
             frame.data('main.query.where',queryBag)
+    
+    def _wherePaneConfig(self,bc,table=None,frame=None):
+        bc.contentPane(datapath='main',query_table=table,
+                        onCreated="this.querymanager = new gnr.FakeTableHandler(this);",
+                        nodeId='%s_query' %frame.attributes['frameCode'],margin='2px',region='center')   
+        fb = bc.contentPane(region='bottom',datapath='.query').formbuilder()
+        right = bc.roundedGroupFrame(region='right',width='50%',datapath='.query',title='!!Order by and limit')
+        right.bottom.formbuilder().numberTextBox('^.limit',lbl='Limit',width='5em')
+        grid = right.quickGrid(value='^.customOrderBy',
+                                dropTarget_grid='gridcolumn',
+                                 onDrop_gridcolumn="""
+                                 function(p1,p2,kw){
+                                     this.widget.addBagRow('#id', '*', this.widget.newBagRow({'fieldpath':kw.data.field,'field':kw.data.original_field,
+                                                                    group_aggr:kw.data.group_aggr,sorting:true}));
+                                 }
+                                 """)
+        grid.column('field',name='!!Column',width='30em')
+        grid.column('group_aggr',name='!!Aggr',width='5em')
+        grid.column('sorting',name='!!Aggr',dtype='B',format_trueclass='iconbox arrow_up',format_falseclass="iconbox arrow_down",
+                    format_onclick="""var r = this.widget.storebag().getItem("#"+$1.rowIndex);
+                                      r.setItem("sorting",!r.getItem("sorting"));""",width='3em')
