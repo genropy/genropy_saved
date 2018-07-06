@@ -1387,13 +1387,14 @@ class GnrApp(object):
 
     def importTableFromLegacyDb(self,tbl,legacy_db=None):
         destbl = self.db.table(tbl)
-        if destbl.query().count():
-            print 'do not import again',tbl
-            return
         legacy_db = legacy_db or destbl.attributes.get('legacy_db')
         if not legacy_db:
             return
-
+        if destbl.query().count():
+            print 'do not import again',tbl
+            return
+        
+   
         sourcedb = self.getLegacyDb(legacy_db)
         table_legacy_name =  destbl.attributes.get('legacy_name')
         columns = None
