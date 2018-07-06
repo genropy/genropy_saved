@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <GenRoBag>
-	<wsgi debug="true" mainpackage="dash"/>
+	<wsgi debug="true" mainpackage="sys"/>
 
 	<dojo version="11"/>
 </GenRoBag>
