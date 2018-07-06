@@ -95,6 +95,8 @@ class Table(object):
         def cbwalk(node,**kwargs):
             if node.attr['file_ext'] !='directory':
                 record = Bag(node.attr['abs_path'])
+                record.pop('pkey')
+                record.pop('id')
                 identifier = self.uo_identifier(record)
                 if  not self.checkDuplicate(code=record['code'],pkg=record['pkg'],tbl=record['tbl'],objtype=record['objtype']):
                     if record['tbl'] and not self.db.table(record['tbl']):
