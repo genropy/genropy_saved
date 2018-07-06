@@ -178,8 +178,8 @@ class FormHandler(BaseComponent):
                                             genro.publish(pref+'_goToRecord',pkey || '*norecord*');
                                         }
                                     }
-                                    if(!genro.formById(linkedFormId)){
-                                        var remWrapper = genro.nodeById('remote_wrapper_'+linkedFormId);
+                                    var remWrapper = genro.nodeById('remote_wrapper_'+linkedFormId);
+                                    if(remWrapper && !genro.formById(linkedFormId)){
                                         var that = this;
                                         genro.lockScreen(true,'buildingRemoteForm',{message:'<div style="height:130px;opacity:.8;" class="waiting"></div>'});
                                         remWrapper.updateRemoteContent(true,true).addCallback(function(){
