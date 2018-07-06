@@ -1158,7 +1158,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         var bar = frame._('SlotBar',{'side':'top',slots:slots,searchOn:true,_class:'pbl_roundedGroupLabel'});
         bar._('div','prevtitle',{innerHTML:"==_current_title || 'Import'",_current_title:'^.current_title',color:'#666'});
         if(!filetype){
-            bar._('filteringSelect','importselector',{value:'^.filetype',width:'4em',values:'excel,csv,tab',margin_top:'2px'});
+            bar._('filteringSelect','importselector',{value:'^.filetype',width:'4em',values:'excel,csv,tab,xml',margin_top:'2px'});
         }else{
             bar._('div','importseletor')
         }
@@ -1176,6 +1176,9 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         dropAreaKw.rpc_limit = limit;
         dropAreaKw.rpc_table = table;
         dropAreaKw.rpc_filetype = filetype|| '=.filetype';
+        dropAreaKw.rpc_collection_path = '=.collection_path';
+        dropAreaKw.rpc_row_tag= '=.row_tag';
+
         objectUpdate(dropAreaKw,objectExtract(kw,'drop_*',false,true));
         dropAreaKw.onResult = function(result){
                                 if(result.currentTarget.responseText){
