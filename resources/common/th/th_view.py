@@ -732,7 +732,8 @@ class TableHandlerView(BaseComponent):
         if th_pkey:
             querybase = dict(column=self.db.table(table).pkey,op='equal',val=th_pkey,runOnStart=True)
         else:
-            querybase = self._th_hook('query',mangler=th_root)() or dict(column=self.db.table(table).pkey,op='equal',val='')
+            
+            querybase = self._th_hook('query',mangler=th_root)() or dict(column=(tblobj.attributes.get('caption_field') or tblobj).pkey,op='contains',val='')
         queryBag = self.th_prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
         options = self._th_hook('options',mangler=th_root)() or dict()
