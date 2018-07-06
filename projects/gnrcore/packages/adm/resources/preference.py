@@ -95,7 +95,10 @@ class AppPref(object):
                                                 tdl_width='10em')
         fb.textbox(value='^.owner_name', lbl='!!Owner name')
         fb.textbox(value='^.logo_url', lbl='Logo url')
-        fb.img(url='^.logo_url')
+        pane.div(margin='10px',margin_left='20px').img(src='^.logo_url',height='200px',
+                        placeholder=self.getResourceUri('images/missing_photo.png'),
+                        upload_folder='site:img/logo',edit=True,
+                        upload_filename='clientlogo')
 
 
 class UserPref(object):

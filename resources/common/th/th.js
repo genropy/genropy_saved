@@ -240,10 +240,10 @@ dojo.declare("gnr.widgets.ThIframe", gnr.widgets.gnrwdg, {
 
 dojo.declare("gnr.widgets.ThIframeDialog", gnr.widgets.ThIframe, {
     createContent:function(sourceNode, kw) {
-        var dialogAttrs = objectExtract(kw,'title,height,width');
+        var dialogAttrs = objectExtract(kw,'title,height,width,parentRatio,windowRatio');
         dialogAttrs.closable=true;
         dialogAttrs = objectUpdate({overflow:'hidden',_lazyBuild:true},dialogAttrs);
-        var dialog = sourceNode._('dialog',objectUpdate(objectExtract(dialogAttrs,'title,closable'),objectExtract(kw,'dialog_*')));
+        var dialog = sourceNode._('dialog',objectUpdate(objectExtract(dialogAttrs,'title,closable,windowRatio,parentRatio'),objectExtract(kw,'dialog_*')));
         var onStarted = objectPop(kw,'onStarted');
         kw.onStarted = function(){
             var wdg = dialog.getParentNode().widget;
@@ -254,7 +254,7 @@ dojo.declare("gnr.widgets.ThIframeDialog", gnr.widgets.ThIframe, {
                 onStarted.call(this);
             }
         }
-        this.thiframe(dialog._('div',dialogAttrs),kw);
+        this.thiframe(dialog._('borderContainer',dialogAttrs)._('contentPane',{region:'center',overflow:'hidden'}),kw);
         return dialog;
     }
 });
@@ -354,7 +354,11 @@ dojo.declare("gnr.LinkerManager", null, {
             if(this.formUrl){
                 iframeDialogKw.url = this.formUrl;
             }
+            if(this.dialog_kwargs.parentRatio || this.dialog_kwargs.windowRatio){
+                objectExtract(iframeDialogKw,'height,width');
+            }
             objectUpdate(iframeDialogKw,this.dialog_kwargs);
+            console.log('iframeDialogKw',iframeDialogKw);
             var thdialog = genro.src.create('thIframeDialog',iframeDialogKw,this.sourceNode.getStringId());
             this.thdialog = thdialog.getParentNode().getWidget();
             this.thdialog.show();
