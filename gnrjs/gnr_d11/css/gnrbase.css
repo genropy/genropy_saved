@@ -5639,3 +5639,8 @@ div[disabled='true'], div[disabled='disabled']{
 
 }
 
+
+.clientlogo{
+    background: transparent url(/_site/img/logo/clientlogo.png) no-repeat center center;
+    background-size: contain;    
+}

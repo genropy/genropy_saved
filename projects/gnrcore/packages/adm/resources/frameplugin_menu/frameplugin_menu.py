@@ -32,10 +32,12 @@ class MenuIframes(BaseComponent):
     css_requires='frameplugin_menu/frameplugin_menu'
 
     def mainLeft_iframemenu_plugin(self, tc):
-        pane = tc.framePane(title="Menu", pageName='menu_plugin')
-        pane.top.slotToolbar('2,searchOn,*',searchOn=True)
-        pane.bottom.slotToolbar('5,newWindow,*')
-        self.menu_iframemenuPane(pane.div(position='absolute', top='2px', left='0', right='2px', bottom='2px', overflow='auto'))
+        frame = tc.framePane(title="Menu", pageName='menu_plugin')
+        frame.top.slotToolbar('2,searchOn,*',searchOn=True)
+        frame.bottom.slotToolbar('5,newWindow,*')
+        bc = frame.center.borderContainer()
+        tbl = bc.contentPane(region='bottom').div(height='40px',margin='5px',_class='clientlogo')
+        self.menu_iframemenuPane(bc.contentPane(region='center').div(position='absolute', top='2px', left='0', right='2px', bottom='2px', overflow='auto'))
 
     def btn_iframemenu_plugin(self,pane,**kwargs):
         pane.pluginButton('iframemenu_plugin',caption='!!Menu',
