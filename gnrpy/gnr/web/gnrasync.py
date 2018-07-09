@@ -888,12 +888,14 @@ class GnrBaseAsyncServer(object):
         if self.port:
             server.listen(int(self.port))
             #self.tornadoApp.listen(int(self.port))
-        
-        socket_path = os.path.join(gnrConfigPath(), 'sockets', '%s.tornado'%self.instance_name)
+        sockets_dir = os.path.join(gnrConfigPath(), 'sockets')
+        if not os.path.exists(sockets_dir):
+            os.mkdir(sockets_dir)
+        socket_path = os.path.join(sockets_dir, '%s.tornado'%self.instance_name)
         main_socket = bind_unix_socket(socket_path)
             #server = HTTPServer(self.tornadoApp)
         server.add_socket(main_socket)
-        debug_socket_path = os.path.join(gnrConfigPath(), 'sockets', '%s_debug.tornado'%self.instance_name)
+        debug_socket_path = os.path.join(sockets_dir, '%s_debug.tornado'%self.instance_name)
         debug_socket = bind_unix_socket(debug_socket_path)
         debug_server = GnrDebugServer(self.io_loop)
         #debug_server.listen(8888)
