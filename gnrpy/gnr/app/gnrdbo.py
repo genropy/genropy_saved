@@ -1166,7 +1166,7 @@ class AttachmentTable(GnrDboTable):
                             description=None,mimetype=None,moveFile=False):
         mimetype = mimetype or mimetypes.guess_type(origin_filepath)[0]
         site = self.db.application.site
-        filename =  os.path.basename(origin_filepath).replace('.','_')
+        filename =  os.path.basename(origin_filepath)
         if not destFolder:
             maintable = self.fullname[0:-4]
             destFolder = os.path.join(maintable.replace('.','_'),maintable_id)
