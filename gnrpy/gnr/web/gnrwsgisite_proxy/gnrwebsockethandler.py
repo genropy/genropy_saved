@@ -72,7 +72,10 @@ class AsyncWebSocketHandler(WebSocketHandler):
 class WsgiWebSocketHandler(WebSocketHandler):
     def __init__(self,site):
         self.site = site
-        self.socket_path= os.path.join(gnrConfigPath(), 'sockets', '%s.tornado'% site.site_name)
+        sockets_dir = os.path.join(gnrConfigPath(), 'sockets')
+        if not os.path.exists(sockets_dir):
+            os.mkdir(sockets_dir)
+        self.socket_path= os.path.join(sockets_dir, '%s.tornado'% site.site_name)
         self.proxyurl='/wsproxy'
     
     @property
