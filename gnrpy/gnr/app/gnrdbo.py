@@ -1180,6 +1180,10 @@ class AttachmentTable(GnrDboTable):
             filename = '%s_%i%s'%(filename,counter,ext)
             counter += 1
             destfilepath = site.getStaticPath('vol:%s' %destFolder,filename,autocreate=-1)
+        if '.' in fname:
+            fname = fname.replace('.','_')
+            destfilepath = '%s%s' %(fname,ext)
+            filename = os.path.basename(destfilepath)
         if moveFile:
             os.rename(origin_filepath,destfilepath)
         else:
