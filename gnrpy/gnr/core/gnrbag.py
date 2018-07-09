@@ -717,6 +717,8 @@ class Bag(GnrObject):
             pathlist = [x for x in pathlist if x]
             if not pathlist:
                 return curr, ''
+        else:
+            pathlist = list(pathlist)
         label = pathlist.pop(0)
         while label == '#^' and pathlist:
             curr = curr.parent

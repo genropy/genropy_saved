@@ -385,7 +385,7 @@ class TableHandler(BaseComponent):
     @struct_method
     def th_inlineTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,viewResource=None,
                             readOnly=False,hider=False,saveMethod=None,autoSave=False,statusColumn=None,
-                            default_kwargs=None,semaphore=None,saveButton=None,configurable=False,height=None,width=None,**kwargs):
+                            default_kwargs=None,defaultPrompt=None,semaphore=None,saveButton=None,configurable=False,height=None,width=None,**kwargs):
         """ JBE We must document the parameters here please  """
         kwargs['tag'] = 'ContentPane'
         saveMethod = saveMethod or 'app.saveEditedRows'
@@ -405,6 +405,7 @@ class TableHandler(BaseComponent):
         options = self._th_hook('options',mangler=wdg.view)() or dict()
         wdg.view.store.attributes.update(recordResolver=False)
         wdg.view.grid.attributes.update(remoteRowController=remoteRowController,
+                                        defaultPrompt = defaultPrompt or options.get('defaultPrompt'),
                                         gridEditorPars=dict(saveMethod=saveMethod,
                                                         default_kwargs=default_kwargs,
                                                         autoSave=autoSave or options.get('autoSave'),

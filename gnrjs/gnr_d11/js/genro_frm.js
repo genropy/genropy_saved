@@ -595,7 +595,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 widget:defaultPrompt.fields,
                 action:function(result){
                     objectUpdate(kw.default_kw,result.asDict());
-                    that.doload_store.call(that,kw);
+                    that.doload_store(kw);
                 }
             });
             return;
