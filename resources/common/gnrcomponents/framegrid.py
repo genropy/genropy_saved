@@ -34,7 +34,8 @@ class FrameGridTools(BaseComponent):
                                 **kwargs) 
        
     @struct_method
-    def fgr_slotbar_addrow(self,pane,_class='iconbox add_row',disabled='^.disabledButton',enable=None,delay=300,defaults=None,**kwargs):
+    def fgr_slotbar_addrow(self,pane,_class='iconbox add_row',disabled='^.disabledButton',enable=None,delay=300,
+                                    defaults=None,**kwargs):
         kwargs.setdefault('visible',enable)
         menupath = None
         if defaults:

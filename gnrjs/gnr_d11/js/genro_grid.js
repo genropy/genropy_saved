@@ -3626,6 +3626,25 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
     },
 
     mixin_addRows:function(counterOrSource,evt,duplicate,onEditNode){
+        if(this.sourceNode.attr.defaultPrompt){
+            var defaultPrompt = this.sourceNode.attr.defaultPrompt;
+            if(typeof(counterOrSource)=='number'){
+                counterOrSource = {};
+            }
+            var that = this;
+            genro.dlg.prompt(defaultPrompt.title || _T('Fill parameters'),{
+                widget:defaultPrompt.fields,
+                action:function(result){
+                    objectUpdate(counterOrSource,result.asDict());
+                    that.addRowsDo([counterOrSource],evt,duplicate,onEditNode);
+                }
+            });
+            return;
+        }
+        this.addRowsDo(counterOrSource,evt,duplicate,onEditNode);
+    },
+
+    mixin_addRowsDo(counterOrSource,evt,duplicate,onEditNode){
         var addrow_kwargs = this.sourceNode.evaluateOnNode(objectExtract(this.sourceNode.attr,'addrow_*',true));
         var source = [];
         counterOrSource = counterOrSource || 1;
