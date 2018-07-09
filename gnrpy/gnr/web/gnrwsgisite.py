@@ -1045,7 +1045,9 @@ class GnrWsgiSite(object):
         if restorepath:
             if restorepath == 'auto':
                 restorepath = self.getStaticPath('site:maintenance','restore',autocreate=True)
-            restorefiles = [j for j in os.listdir(restorepath) if not j.startswith('.')]
+                restorefiles = [j for j in os.listdir(restorepath) if not j.startswith('.')]
+            else:
+                restorefiles = [restorepath]
             if restorefiles:
                 restorepath = os.path.join(restorepath,restorefiles[0])
             else:
