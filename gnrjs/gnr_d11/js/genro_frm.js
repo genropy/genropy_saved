@@ -591,11 +591,17 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(kw.destPkey=='*newrecord*' && defaultPrompt){
             var that = this;
             kw.default_kw = kw.default_kw || {};
-            genro.dlg.prompt(defaultPrompt.title || _T('Fill parameters'),{
+            genro.dlg.prompt( _T(defaultPrompt.title || 'Fill parameters'),{
                 widget:defaultPrompt.fields,
                 action:function(result){
                     objectUpdate(kw.default_kw,result.asDict());
-                    that.doload_store(kw);
+                    if(defaultPrompt.doSave && that.store.table){
+                        genro.serverCall('app.insertRecord',{table:that.store.table,record:objectExtract(that.store.prepareDefaults('*newrecord*',kw.default_kw),'default_*')},function(resultPkey){
+                            that.doload_store({destPkey:resultPkey});
+                        });
+                    }else{
+                        that.doload_store(kw);
+                    }
                 }
             });
             return;
@@ -2282,7 +2288,7 @@ dojo.declare("gnr.formstores.Base", null, {
         kw = form.sourceNode.evaluateOnNode(kw);
         var envelope = new gnr.GnrBag();
         var path = currPkey;
-        this._load_prepareDefaults(null,default_kw,kw);
+        this.prepareDefaults(null,default_kw,kw);
         this.handlers.load.rpcmethod = loader.rpcmethod  || 'getSiteDocument';
         var deferred = genro.rpc.remoteCall(loader.rpcmethod ,
                                        objectUpdate({'path':path},kw),null,'POST',null,maincb);
@@ -2378,9 +2384,10 @@ dojo.declare("gnr.formstores.Base", null, {
 
 
 
-    _load_prepareDefaults:function(pkey,default_kw,kw){
+    prepareDefaults:function(pkey,default_kw,kw){
         var form = this.form;
         var loader = this.handlers.load;
+        kw = kw || objectUpdate({},loader.kw);
         var default_kwargs = objectPop(kw,'default_kwargs') || {}; 
         form.last_default_kw = objectUpdate({},default_kw);
         if(default_kwargs){
@@ -2398,6 +2405,8 @@ dojo.declare("gnr.formstores.Base", null, {
                 kw['default_'+k] = default_kwargs[k]
             }
         }
+
+        return kw;
     },
     duplicateRecord:function(srcPkey, howmany){
         var form=this.form;
@@ -2442,7 +2451,7 @@ dojo.declare("gnr.formstores.Base", null, {
         var kw = loader.kw || {};
         var maincb = kw._onResult? funcCreate(kw._onResult,'result',form.sourceNode):function(){};
         kw = form.sourceNode.evaluateOnNode(kw);
-        this._load_prepareDefaults(currPkey,default_kw,kw);
+        this.prepareDefaults(currPkey,default_kw,kw);
         loader.rpcmethod = loader.rpcmethod || 'loadRecordCluster';
         kw.sqlContextName = ('sqlContextName' in kw)?kw.sqlContextName:form.formId;
         var virtual_columns = objectPop(kw,'virtual_columns');
@@ -2647,8 +2656,7 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
         var sourceBag = form.sourceNode.getRelativeData(this.locationpath);
         kw._newrecord = (destPkey=='*newrecord*' || sourceBag==null || sourceBag.len()===0) ;
         if(kw._newrecord){
-            this._load_prepareDefaults(null,default_kw,kw);
-            default_kw = objectExtract(kw,'default_*');
+            default_kw = objectExtract(this.prepareDefaults(null,default_kw),'default_*');
             for(var k in default_kw){
                 recordLoaded.setItem(k,objectPop(default_kw,k));
             }
@@ -2790,7 +2798,7 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
         var envelope = new gnr.GnrBag();
         if(currPkey=='*newrecord*'){
             data = new gnr.GnrBag();
-            this._load_prepareDefaults(currPkey,default_kw,kw);
+            this.prepareDefaults(currPkey,default_kw,kw);
             data.update(objectExtract(kw,'default_*'));
             envelope.setItem('record',data,{_newrecord:true,lastTS:null,caption:kw.newrecord_caption});
             

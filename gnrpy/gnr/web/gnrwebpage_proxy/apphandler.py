@@ -1314,6 +1314,13 @@ class GnrWebAppHandler(GnrBaseProxy):
             return ('archive_error', {'msg': e.message})
 
     @public_method
+    def insertRecord(self,table=None,record=None,**kwargs):
+        tblobj = self.db.table(table)
+        tblobj.insert(record)
+        self.db.commit()
+        return record[tblobj.pkey]
+
+    @public_method
     def duplicateRecord(self,pkey=None,table=None,**kwargs):
         tblobj = self.db.table(table)
         record = tblobj.duplicateRecord(pkey,**kwargs)

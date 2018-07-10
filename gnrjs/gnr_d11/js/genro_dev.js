@@ -243,7 +243,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
             }
             var colspan = objectPop(kw,'colspan') || 1;
             colspan = colspan==1?colspan:colspan*2;
-            var lblpars = {innerHTML:objectPop(kw, 'lbl'),_class:'gnrfieldlabel',
+            var lbl = objectPop(kw, 'lbl');
+            var lblpars = {innerHTML:lbl?_T(lbl):null,_class:'gnrfieldlabel',
                         hidden:kw.hidden,text_align:'right'};
             lblpars = objectUpdate(defautlLblAttr,lblpars);
             objectUpdate(lblpars, objectExtract(kw, 'lbl_*'));
