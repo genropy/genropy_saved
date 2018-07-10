@@ -10,7 +10,7 @@ ADD . /home/genropy
 WORKDIR /home/genropy/gnrpy
 RUN paver develop
 RUN python initgenropy.py
-
+WORKDIR /home
 RUN apt-get update
 RUN apt-get install -y supervisor nginx
 RUN pip install --upgrade setuptools
