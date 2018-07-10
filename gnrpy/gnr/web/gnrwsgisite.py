@@ -222,7 +222,7 @@ class GnrWsgiSite(object):
 
         self.default_page = self.config['wsgi?default_page']
         self.root_static = self.config['wsgi?root_static']
-        self.websockets= boolean(self.config['wsgi?websockets']) and (UWSGIMODE or tornado)
+        self.websockets= boolean(self.config['wsgi?websockets'])
         self.allConnectionsFolder = os.path.join(self.site_path, 'data', '_connections')
         self.allUsersFolder = os.path.join(self.site_path, 'data', '_users')
         
