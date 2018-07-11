@@ -1023,20 +1023,24 @@ class SqlQuery(object):
         return [r[pkeyfield] for r in fetch]
 
         
-    def fetchAsDict(self, key=None, ordered=False):
+    def fetchAsDict(self, key=None, ordered=False, pkey_only=False):
         """Return the :meth:`~gnr.sql.gnrsqldata.SqlQuery.fetch` method as a dict with as key
         the parameter key you gave (or the pkey if you don't specify any key) and as value the
         record you get from the query
         
         :param key: the key you give (if ``None``, it takes the pkey). 
         :param ordered: boolean. if ``True``, return the fetch using a :class:`OrderedDict`,
-                        otherwise (``False``) return the fetch using a normal dict."""
+                        otherwise (``False``) return the fetch using a normal dict.
+        :pkey_only: boolean  if ``True``, the values of the dict are the pkeys and not the record"""
+        
         fetch = self.fetch()
         key = key or self.dbtable.pkey
         if ordered:
             factory = OrderedDict
         else:
             factory = dict
+        if pkey_only:
+            return factory([(r[key], r[self.dbtable.pkey]) for r in fetch])
         return factory([(r[key], r) for r in fetch])
         
     def fetchAsBag(self, key=None):
