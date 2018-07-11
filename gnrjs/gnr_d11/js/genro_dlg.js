@@ -932,6 +932,11 @@ dojo.declare("gnr.GnrDlgHandler", null, {
 
     _prepareThIframeUrl:function(kw){
         var prefix = kw.lookup? '/sys/lookuptables/':'/sys/thpage/';
+        var dbstore = genro.getData('gnr.dbstore');
+        if(dbstore){
+            prefix = '/'+dbstore+'/'+prefix;
+        }
+
         var zoomUrl = kw.zoomUrl || prefix+kw.table.replace('.','/');
         var urlKw = objectExtract(kw,'url_*');
         urlKw.th_public = objectPop(kw,'public') || false;
@@ -953,6 +958,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         objectUpdate(urlKw,objectExtract(kw,'current_*',false,true));
         urlKw['th_from_package'] = kw.th_from_package || genro.getData("gnr.package");
         urlKw['_parent_page_id'] = objectPop(urlKw,'forced_parent_page_id') || genro.page_id;
+        
         return genro.addParamsToUrl(zoomUrl,urlKw); 
     },
 
