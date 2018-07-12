@@ -30,7 +30,7 @@ Verdana, Geneva, sans-serif
 
 class AppPref(object):
     def prefpane_sys(self, tc, **kwargs):
-        tc = tc.tabContainer(**kwargs)
+        tc = tc.tabContainer(margin='2px',**kwargs)
         stylepane = tc.contentPane(title='Styling')
         fb = stylepane.formbuilder(cols=1, border_spacing='4px',datapath='.theme')
         fb.filteringSelect(value='^.theme_variant',values='blue,red,green,yellow,orange,',lbl='Theme variant')
@@ -80,18 +80,12 @@ class AppPref(object):
 
 class UserPref(object):
     def prefpane_sys(self, tc, **kwargs):
-        tc = tc.tabContainer(**kwargs)
-        self.pref_tablehandler(tc.contentPane(title='Tablehandler', datapath='.tablehandler'))
-
+        tc = tc.tabContainer(margin='2px',**kwargs)
         self.pref_cache(tc.contentPane(title='Caching', datapath='.cache'))
         self.pref_sound(tc.contentPane(title='Sounds', datapath='.sounds'))
         self.pref_shortcuts(tc.contentPane(title='Shortcuts', datapath='.shortcuts'))
-
         self.pref_theme(tc.contentPane(title='Theme', datapath='.theme'))
 
-    def pref_tablehandler(self,pane):
-        fb = pane.formbuilder(cols=1, border_spacing='4px')
-        fb.checkbox(value='^.new_query',label='New fast query')
 
 
     def pref_theme(self, pane):

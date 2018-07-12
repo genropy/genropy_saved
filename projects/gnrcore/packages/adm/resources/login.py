@@ -251,6 +251,9 @@ class LoginComponent(BaseComponent):
     def login_newPassword(self,pane,gnrtoken=None,dlg_login=None):
         dlg = pane.dialog(_class='lightboxDialog',subscribe_closeNewPwd='this.widget.hide();',subscribe_openNewPwd='this.widget.show();')
         box = dlg.div(**self.loginboxPars())
+        if not gnrtoken:
+            #change password by a logged user
+            dlg.div(_class='dlg_closebtn',connect_onclick="genro.publish('closeNewPwd');")
         topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
         topbar.wtitle.div('!!New Password')  
         fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE set_new_password;',
@@ -263,8 +266,8 @@ class LoginComponent(BaseComponent):
         fb.div(width='100%',position='relative',row_hidden=False).button('!!Send',action='FIRE set_new_password',position='absolute',right='-5px',top='8px')
         fb.dataRpc('dummy',self.login_changePassword,_fired='^set_new_password',
                     password='=.password',password_confirm='=.password_confirm',
-                    _if='password==password_confirm',
-                    _else="genro.dlg.floatingMessage(sn,{message:'Passwords must be equal',messageType:'error',yRatio:.95})",
+                    _if='password==password_confirm',_box=box,
+                    _else="genro.dlg.floatingMessage(_box,{message:'Passwords must be equal',messageType:'error',yRatio:.95})",
                     gnrtoken=gnrtoken,_onResult='genro.publish("closeNewPwd");genro.publish("openLogin")')
         return dlg
 
@@ -416,14 +419,16 @@ class LoginComponent(BaseComponent):
 
     @public_method
     def login_changePassword(self,password=None,gnrtoken=None,**kwargs):
-        if not gnrtoken:
-            return
-        method,args,kwargs,user_id = self.db.table('sys.external_token').use_token(gnrtoken)
-        if not kwargs:
-            return
-        if kwargs.get('userid'):
-            self.db.table('adm.user').batchUpdate(dict(status='conf',md5pwd=password),_pkeys=kwargs['userid'])
-        self.db.commit()
+        if gnrtoken:
+            method,args,kwargs,user_id = self.db.table('sys.external_token').use_token(gnrtoken)
+            if not kwargs:
+                return
+            userid = kwargs.get('userid')
+        else:
+            userid = self.avatar.user_id
+        if userid:
+            self.db.table('adm.user').batchUpdate(dict(status='conf',md5pwd=password),_pkeys=userid)
+            self.db.commit()
 
 
     @struct_method

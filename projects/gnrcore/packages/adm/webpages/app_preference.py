@@ -7,8 +7,6 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 
-
-
 class GnrCustomWebPage(object):
     maintable = 'adm.preference'
     py_requires = """public:Public,prefhandler/prefhandler:AppPrefHandler"""
@@ -18,15 +16,16 @@ class GnrCustomWebPage(object):
 
     def main(self, root, **kwargs):
         """APPLICATION PREFERENCE BUILDER"""
-        form = root.frameForm(frameCode='app_preferences',store_startKey='_mainpref_',datapath='main',store=True,**kwargs)
+        form = root.frameForm(frameCode='app_preferences',store_startKey='_mainpref_',
+                                table=self.maintable,datapath='main',store=True,**kwargs)
         self.controllers(form)
         self.app_preference_bottom_bar(form.bottom)
-        root.dataController("""
+        form.dataController("""
             var tkw = _triggerpars.kw;
             if(tkw.reason && tkw.reason.attr && tkw.reason.attr.livePreference){
-                genro.publish({topic:'externalSetData',
-                iframe:'*',parent:true},{path:'gnr.app_preference.'+tkw.pathlist.slice(2).join('.'),value:tkw.value});
-            }""",preference='^preference')
+                genro.mainGenroWindow.genro.publish({topic:'externalSetData',
+                iframe:'*'},{path:'gnr.app_preference.'+tkw.pathlist.slice(2).join('.'),value:tkw.value});
+            }""",preference='^#FORM.record.data')
         form.center.appPreferencesTabs(datapath='#FORM.record.data',margin='2px')
 
     def app_preference_bottom_bar(self, bottom):
@@ -37,7 +36,6 @@ class GnrCustomWebPage(object):
         bar.cancel.slotButton('!!Cancel', action='this.form.abort()')
 
     def controllers(self, form):
-
         form.dataController('window.parent.genro.wdgById("mainpreference").close();',
                                 formsubscribe_onDismissed=True)
 
