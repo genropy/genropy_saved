@@ -64,10 +64,14 @@ class PathResolver(object):
             projects = [expandpath(path) for path in self.gnr_config['gnr.environment_xml'].digest('projects:#a.path')
                         if os.path.isdir(expandpath(path))]
             for project_path in projects:
-                for path in glob.glob(os.path.join(project_path, '*/%s' % entity)):
-                    entity_path = os.path.join(path, entity_name)
-                    if os.path.isdir(entity_path):
-                        return expandpath(entity_path)
+                folders = glob.glob(os.path.join(project_path, '*',entity,entity_name))
+                if folders:
+                    return expandpath(folders[0])
+                elif entity_type=='site':
+                    folders = glob.glob(os.path.join(project_path, '*','instances',entity_name,'site'))
+                    if folders:
+                        return expandpath(folders[0])
+                        
         raise EntityNotFoundException('Error: %s %s not found' % (entity_type, entity_name))
         
     def site_name_to_path(self, site_name):

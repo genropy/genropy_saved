@@ -640,11 +640,18 @@ class GnrApp(object):
         self.gnr_config = getGnrConfig(set_environment=True)
         self.debug=debug
         self.remote_db = None
+        self.instanceFolder = ''
+        self.project_packages_path = None
         if instanceFolder:
             if '@' in instanceFolder:
                 instanceFolder,self.remote_db  = instanceFolder.split('@',1)
-            instanceFolder = self.instance_name_to_path(instanceFolder)
-        self.instanceFolder = instanceFolder or ''
+            self.instanceFolder = self.instance_name_to_path(instanceFolder)
+            project_packages_path = os.path.normpath(os.path.join(self.instanceFolder, '..', '..', 'packages'))
+            if os.path.isdir(project_packages_path):
+                self.project_packages_path = project_packages_path
+            if os.path.exists(os.path.join(self.instanceFolder,'config','instanceconfig.xml')):
+                self.instanceFolder = os.path.join(self.instanceFolder,'config')
+
         sys.path.append(os.path.join(self.instanceFolder, 'lib'))
         sys.path_hooks.append(self.get_modulefinder)
         self.pluginFolder = os.path.normpath(os.path.join(self.instanceFolder, 'plugin'))
@@ -886,9 +893,8 @@ class GnrApp(object):
         """Build the path of the :ref:`package <packages>`"""
         self.package_path = {}
         path_list = []
-        project_packages_path = os.path.normpath(os.path.join(self.instanceFolder, '..', '..', 'packages'))
-        if os.path.isdir(project_packages_path):
-            path_list.append(project_packages_path)
+        if self.project_packages_path:
+            path_list.append(self.project_packages_path)
         if 'packages' in self.gnr_config['gnr.environment_xml']:
             path_list.extend(
                     [expandpath(path) for path in self.gnr_config['gnr.environment_xml'].digest('packages:#a.path') if

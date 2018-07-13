@@ -191,13 +191,14 @@ class GnrWsgiSite(object):
         abs_script_path = os.path.abspath(script_path)
         self.remote_db = ''
         self._register = None
-        if site_name and ':' in site_name:
-            site_name,self.remote_db = site_name.split(':',1)
         if os.path.isfile(abs_script_path):
-            self.site_path = os.path.dirname(abs_script_path)
+            self.site_name = os.path.basename(os.path.dirname(abs_script_path))
         else:
-            self.site_path = PathResolver().site_name_to_path(script_path)
-        self.site_name = site_name or os.path.basename(self.site_path)
+            site_name = site_name or script_path
+            if site_name and ':' in site_name:
+                site_name,self.remote_db = site_name.split(':',1)
+            self.site_name = site_name
+        self.site_path = PathResolver().site_name_to_path(self.site_name)
         site_parent=(os.path.dirname(self.site_path))
         if site_parent.endswith('sites'):
             self.project_name = os.path.basename(os.path.dirname(site_parent))
@@ -273,6 +274,17 @@ class GnrWsgiSite(object):
         self.cleanup_interval = int(cleanup.get('interval') or 120)
         self.page_max_age = int(cleanup.get('page_max_age') or 120)
         self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
+
+    def siteConfigPath(self):
+        siteConfigPath = os.path.join(self.site_path,'siteconfig.xml')
+        if os.path.exists(siteConfigPath):
+            return siteConfigPath
+        siteConfigPath = os.path.join(self.getInstanceFolder(),'config','siteconfig.xml')
+        if os.path.exists(siteConfigPath):
+            return siteConfigPath
+
+    def getInstanceFolder(self):
+        return PathResolver().instance_name_to_path(self.site_name)
 
     @property
     def wsk(self):
@@ -480,7 +492,7 @@ class GnrWsgiSite(object):
                 
     def load_site_config(self):
         """TODO"""
-        site_config_path = os.path.join(self.site_path, 'siteconfig.xml')
+        site_config_path = self.siteConfigPath()
         site_config = self.gnr_config['gnr.siteconfig.default_xml']
         path_list = []
         if 'projects' in self.gnr_config['gnr.environment_xml']:
@@ -1035,7 +1047,7 @@ class GnrWsgiSite(object):
         """Builds the GnrApp associated with this site"""
         instance_path = os.path.join(self.site_path, 'instance')
         if not os.path.isdir(instance_path):
-            instance_path = os.path.join(self.site_path, '..', '..', 'instances', self.site_name)
+            instance_path = self.getInstanceFolder()
         if not os.path.isdir(instance_path):
             instance_path = self.config['instance?path'] or self.config['instances.#0?path']
         self.instance_path = instance_path
