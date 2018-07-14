@@ -490,32 +490,12 @@ class GnrWsgiSite(object):
             elif lib.startswith('gnr_'):
                 self.gnr_path[lib[4:]] = path
                 
-    def load_site_config(self):
+    def load_site_config(self,external_site=None):
         """TODO"""
-        site_config_path = self.siteConfigPath()
-        site_config = self.gnr_config['gnr.siteconfig.default_xml']
-        path_list = []
-        if 'projects' in self.gnr_config['gnr.environment_xml']:
-            projects = [(expandpath(path), site_template) for path, site_template in
-                        self.gnr_config['gnr.environment_xml.projects'].digest('#a.path,#a.site_template') if
-                        os.path.isdir(expandpath(path))]
-            for project_path, site_template in projects:
-                sites = glob.glob(os.path.join(project_path, '*/sites'))
-                path_list.extend([(site_path, site_template) for site_path in sites])
-            for path, site_template in path_list:
-                if path == os.path.dirname(self.site_path):
-                    if site_config:
-                        site_config.update(self.gnr_config['gnr.siteconfig.%s_xml' % site_template] or Bag())
-                    else:
-                        site_config = self.gnr_config['gnr.siteconfig.%s_xml' % site_template]
-        if site_config:
-            site_config.update(Bag(site_config_path))
-        else:
-            site_config = Bag(site_config_path)
-        return site_config
+        return PathResolver().get_siteconfig(external_site or self.site_name)
 
     def external_site_config(self,sitename):
-        return PathResolver().get_siteconfig(sitename)
+        return self.load_site_config(external_site=sitename)
 
     @property
     def custom_config(self):

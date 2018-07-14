@@ -81,8 +81,38 @@ class PathResolver(object):
         return self.entity_name_to_path(site_name, 'site')
 
     def get_siteconfig(self,site_name):
-        return Bag(os.path.join(self.site_name_to_path(site_name),'siteconfig.xml'))
-        
+        site_config = self.gnr_config['gnr.siteconfig.default_xml']
+        site_config_path = self.site_name_to_config_path(site_name)
+        path_list = []
+        if 'projects' in self.gnr_config['gnr.environment_xml']:
+            projects = [(expandpath(path), site_template) for path, site_template in
+                        self.gnr_config['gnr.environment_xml.projects'].digest('#a.path,#a.site_template') if
+                        os.path.isdir(expandpath(path))]
+            for project_path, site_template in projects:
+                sites = glob.glob(os.path.join(project_path, '*/sites'))
+                path_list.extend([(site_path, site_template) for site_path in sites])
+            for path, site_template in path_list:
+                if path == site_name:
+                    if site_config:
+                        site_config.update(self.gnr_config['gnr.siteconfig.%s_xml' % site_template] or Bag())
+                    else:
+                        site_config = self.gnr_config['gnr.siteconfig.%s_xml' % site_template]
+        if site_config:
+            site_config.update(Bag(site_config_path))
+        else:
+            site_config = Bag(site_config_path)
+        return site_config
+
+
+    def site_name_to_config_path(self,site_name):
+        site_path = self.site_name_to_path(site_name)
+        site_config_path = os.path.join(site_path,'siteconfig.xml')
+        if os.path.exists(site_config_path):
+            return site_config_path
+        site_config_path = os.path.join(self.instance_name_to_path(site_name),'config','siteconfig.xml')
+        if os.path.exists(site_config_path):
+            return site_config_path
+
     def instance_name_to_path(self, instance_name):
         """TODO
         
