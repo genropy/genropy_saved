@@ -4216,7 +4216,8 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         });
     },
     getPaneId:function(childSourceNode){
-        return flattenString(childSourceNode.attr.pageName) || childSourceNode.attr.nodeId || childSourceNode.getStringId();
+        var result = childSourceNode.attr.pageName || childSourceNode.attr.nodeId || childSourceNode.getStringId();
+        return flattenString(result);
     },
     makeTabButton:function(sourceNode,childSourceNode,stackNode){
         var widget = childSourceNode.getWidget();
