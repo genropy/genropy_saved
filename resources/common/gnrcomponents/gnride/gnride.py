@@ -31,7 +31,10 @@ class GnrIde(BaseComponent):
         bc = parent.borderContainer(nodeId=ideId,_activeIDE=True,
                                     selfsubscribe_openModuleToEditorStack="this._gnrIdeHandler.openModuleToEditorStack($1);",
                                     selfsubscribe_debugCommand="this._gnrIdeHandler.sendCommand($1.cmd,$1.pdb_id);",
-                                    onCreated="""this._gnrIdeHandler = new gnr.GnrIde(this)""",**kwargs)
+                                    onCreated="""this._gnrIdeHandler = new gnr.GnrIde(this)""",
+                                    _gi_buildEditorTab=self.gi_buildEditorTab,
+                                    _gi_makeEditorStack=self.gi_makeEditorStack,
+                                    debugEnabled=debugEnabled,**kwargs)
 
         self.gi_drawerPane(bc.framePane(frameCode='%s_drawer' %ideId,region='left',width='250px',splitter=True,drawer=True,background='rgba(230, 230, 230, 1)'),
                                         sourceFolders=sourceFolders,ideId=ideId)
@@ -40,8 +43,7 @@ class GnrIde(BaseComponent):
         bar = center.top.slotToolbar('5,stackButtons,*,addIdeBtn,5')
         bar.addIdeBtn.slotButton('Add ide',action='genro.nodeById(ideId)._gnrIdeHandler.newIde({ide_page:"ide_"+genro.getCounter(),isDebugger:true})')
         sc = center.center.stackContainer(selectedPage='^.#parent.ide_page',
-                                            datapath='.instances',nodeId='%s_stack' %ideId,
-                                            debugEnabled=debugEnabled)
+                                            datapath='.instances',nodeId='%s_stack' %ideId)
         self.gi_makeEditorStack(sc.contentPane(pageName='mainEditor',title='Main Editor',overflow='hidden',datapath='.mainEditor'),'mainEditor')
         #bc.dataController('gnride.setBreakpoint(_subscription_kwargs)',subscribe_setBreakpoint=True)
         if debugEnabled:
@@ -109,6 +111,7 @@ class GnrIde(BaseComponent):
         result = Bag()
         for f in sourceFolders.split(','):
             folderName = os.path.basename(f)
+            f = self.site.getStaticPath(f)                
             result.setItem(folderName,DirectoryResolver(f,**DIRECTORY_RESOLVER_DEFAULT_PARS),caption=folderName)
         return result
 
@@ -187,16 +190,17 @@ class GnrIde(BaseComponent):
                         subscribe_sourceCodeUpdate=True,
                         sourceCode='=.source',_if='sourceCode && _source_changed',
                         _source_changed='=.changed_editor',_preview_iframe=preview_iframe,
-                        _onResult="""if(result=='OK'){
-                                    SET .source_oldvalue = kwargs.sourceCode;
-                                    if(kwargs._preview_iframe && kwargs._preview_iframe.domNode){
-                                        genro.dom.windowMessage(kwargs._preview_iframe.domNode.contentWindow,
-                                                                {topic:'gnrIde_rebuildPage'});
+                        _onResult="""if(result.saveOk){
+                                        SET .source_oldvalue = kwargs.sourceCode;
+                                       //if(kwargs._preview_iframe && kwargs._preview_iframe.domNode){
+                                       //    genro.dom.windowMessage(kwargs._preview_iframe.domNode.contentWindow,
+                                       //                            {topic:'gnrIde_rebuildPage'});
+                                        //}
                                     }
                                     else{
                                         FIRE .error = result;
                                     }
-                                }""")
+                                """)
 
         cm = cmroot.codemirror(value='^.source',
                                 nodeId='%s_cm' %frameCode,
@@ -219,6 +223,21 @@ class GnrIde(BaseComponent):
             }
    
             """,breakpoints='^.breakpoints',cm=cm,_fired='^.editorCompleted')
+        frame.dataController("""
+            var cm = cmNode.externalWidget;
+            var lineno = error.lineno-1;
+            var offset = error.offset-1;
+            var ch_start = error.offset>1?error.offset-1:error.offset;
+            var ch_end = error.offset;
+            cm.scrollIntoView({line:lineno,ch:ch_start});
+            var tm = cm.doc.markText({line:lineno,ch:ch_start},{line:lineno, ch:ch_end},
+                            {clearOnEnter:true,className:'source_viewer_error'});
+            genro.dlg.floatingMessage(cmNode.getParentNode(),{messageType:'error',
+                        message:dataTemplate('Save error: $error. Line $lineno pos $offset',error),onClosedCb:function(){
+                    tm.clear();
+                }})
+
+            """,error='^.error',cmNode=cm)
 
     def __readsource(self,docPath):
         if not os.path.exists(docPath):
@@ -231,22 +250,42 @@ class GnrIde(BaseComponent):
         sourceCode=str(sourceCode)
         if not self.source_viewer_edit_allowed():
             raise Exception('Not Allowed to write source code')
+        fileExt = (os.path.splitext(docPath)[1] or '.')[1:]
+        if fileExt:
+            error = getattr(self,'checkFile_%s' %fileExt ,None)(sourceCode,docPath,save_as=save_as)
+            if error:
+                return error
+        if save_as:
+            save_as = save_as.strip().replace(' ','_')
+            if fileExt and not save_as.endswith('.%s' %fileExt):
+                save_as = '%s.%s' %(save_as,fileExt)
+            filepath = os.path.join(os.path.dirname(docPath),save_as)
+        else:
+            filepath = docPath
+        self.__writesource(sourceCode,filepath)
+        return dict(saveOk=True,newpath=filepath)
+
+
+    def checkFile_py(self,sourceCode,docPath,save_as=None):
         try:
             compile('%s\n'%sourceCode, 'dummy', 'exec')
             if not save_as:
                 sys.modules.pop(os.path.splitext(docPath)[0].replace(os.path.sep, '_').replace('.', '_'),None)
-                self.__writesource(sourceCode,docPath)
-                return 'OK'
-            else:
-                save_as = save_as.strip().replace(' ','_')
-                if not save_as.endswith('.py'):
-                    save_as = '%s.py' %save_as
-                filepath = os.path.join(os.path.dirname(docPath),save_as)
-                self.__writesource(sourceCode,filepath)
-                return dict(newpath=filepath)
-
         except SyntaxError,e:
             return dict(lineno=e.lineno,msg=e.msg,offset=e.offset)
+        
+
+
+    def checkFile_xml(self,sourceCode,docPath,save_as=None):
+        try:
+            Bag(sourceCode)
+        except Exception,e:
+            return dict(lineno=e.getLineNumber(),msg=e.getMessage(),offset=e.getColumnNumber())
+
+
+
+
+
 
     def __writesource(self,sourceCode,docPath):
         if self.source_viewer_edit_allowed():

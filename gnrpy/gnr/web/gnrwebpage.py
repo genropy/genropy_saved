@@ -1004,6 +1004,8 @@ class GnrWebPage(GnrBaseWebPage):
             userTags = self.userTags or self.basicAuthenticationTags()
             if not self.application.checkResourcePermission(handler.tags, userTags):
                 raise self.exception(GnrUserNotAllowed,method=method)
+        if not handler:
+            self.clientPublish('floating_message',message='missing public method %s' %method,messageType='error')
         return handler
 
     def basicAuthenticationTags(self):
