@@ -162,8 +162,8 @@ def getGnrConfig(config_path=None, set_environment=False):
     return gnr_config
 
 def gnrConfigPath(force_return=False):
-    if os.environ.has_key('GENRO_GNR'):
-        config_path = expandpath(os.environ['GENRO_GNR'])
+    if os.environ.has_key('GENRO_GNRFOLDER'):
+        config_path = expandpath(os.environ['GENRO_GNRFOLDER'])
         if os.path.isdir(config_path):
             return config_path
     if os.environ.has_key('VIRTUAL_ENV'):
