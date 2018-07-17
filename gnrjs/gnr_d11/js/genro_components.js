@@ -1253,11 +1253,14 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
 
     gnrwdg_matchGrid:function(bc){
         var gnrwdg = this;
-        var frame = bc._('FramePane',{frameCode:this.uploaderId+'_matchframe',
+        var frame = bc._('FramePane',{frameCode:this.uploaderId+'_matchframe',_anchor:true,
                                         region:'left',_class:'pbl_roundedGroup',margin:'2px',
                                         drawer:'close',width:'320px',splitter:true})
         bar = frame._('slotBar',{slots:'2,matchtitle,*',side:'top',_class:'pbl_roundedGroupLabel'});
         bar._('div','matchtitle',{innerHTML:'Match columns'});
+       //bar._('div','lbl_action',{innerHTML:'Action'});
+       //bar._('filteringSelect','action_filter',{values:'insert,update',
+       //                        value:'^.import_action',width:'6em',default_value:'insert'})
         bar = frame._('slotBar',{slots:'2,fbbottom,*',side:'bottom',_class:'slotbar_dialog_footer'});
 
         var fb = genro.dev.formbuilder(bar._('div','fbbottom'),3,{border_spacing:'1px'});
@@ -1287,8 +1290,13 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         var onclick = "this.getParentNode().importer_gnrwdg.onCheckedMatch(this,kw);"
         var editdestpars = true;
         if(this.match_values){
-            editdestpars = {tag:'combobox',values:this.match_values};
+            editdestpars = {tag:'combobox',values:this.match_values,validate_onAccept:"if(value){this.setRelativeData('.do_import',true)}"};
         }
+        grid._('column',{name:'Key',field:'is_key',width:'2em',dtype:'B',
+                        hidden:'^#ANCHOR.import_mode?=#v!="update_only"',
+                        checkBoxColumn:{radioButton:true},
+                        cellStyles:'border-bottom:1px solid lightgray;background:white;'})
+
         grid._('column',{name:'Source Column',field:'source_field',width:'10em',
                 cellStyles:'background:#666;color:whitesmoke;text-align:right; border-left:0px;border-bottom:1px solid whitesmoke;'})
         grid._('column',{name:'Dest.Column',field:'dest_field',cellStyles:'border-bottom:1px solid lightgray;background:white;',edit:editdestpars,width:'10em'})
@@ -1338,7 +1346,6 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         uploaderNode.setRelativeData('.methodlist',data.getItem('methodlist'));
         uploaderNode.setRelativeData('.import_modes',data.getItem('import_modes'));
         uploaderNode.setRelativeData('.import_mode',data.getItem('import_mode'));
-
         uploaderNode.setRelativeData('.importing_data',data.getItem('rows'));
         uploaderNode.setRelativeData('.file_columns',columns);
         uploaderNode.setRelativeData('.match',match_data);
@@ -1369,6 +1376,9 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
             match.values().forEach(function(v){
                 if(v && v.getItem('do_import')){
                     match_index[v.getItem('source_field')] = v.getItem('dest_field') || v.getItem('source_field');
+                    if(v.getItem('is_key')){
+                        match_index._updater_keyfield = v.getItem('dest_field');
+                    }
                 }
             })
         }
@@ -1387,7 +1397,12 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         }
 
         genro.serverCall(this.importMethod || 'utils.tableImporterRun',importerKw,function(result){
+            
             genro.dlg.floatingMessage(that.rootNode,{message:_T('Import finished')});
+            if(result && result.warnings){
+                genro.dlg.floatingMessage(that.rootNode,{message:result.warnings});
+
+            }
             that.resetImporter();
             genro.lockScreen(false,'import_data');
         });
