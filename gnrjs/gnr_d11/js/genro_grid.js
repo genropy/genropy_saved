@@ -3367,7 +3367,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
                     oldcheckedpath = '#'+i+sep+fieldname;
                     if(storebag.getItem(oldcheckedpath)){
                         if(gridEditor){
-                            gridEditor.setCellValue(storebag.getNode(oldcheckedpath),fieldname,false);
+                            gridEditor.setCellValue(i,fieldname,false);
                         }else{
                             storebag.setItem(oldcheckedpath,false,null,{lazySet:true});
                         }
