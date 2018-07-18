@@ -357,18 +357,16 @@ class TableHandlerView(BaseComponent):
     def th_slotbar_importer(self,pane,frameCode=None,importer=None,**kwargs):
         options = self._th_hook('options',mangler=pane)() or dict()
         tags = options.get('uploadTags') or '_DEV_,superadmin'
-        if not self.application.checkResourcePermission(tags, self.userTags):
-            pane.div()
-            return
         inattr = pane.getInheritedAttributes()
         table = inattr['table']
         importerStructure = self.db.table(table).importerStructure()
         matchColumns= '*' if importerStructure else None
         pane.PaletteImporter(table=table,paletteCode='%(th_root)s_importer' %inattr,
                             matchColumns=matchColumns,
+                            _tags=tags,
+                            _tablePermissions=dict(table=table,permissions='ins,upd,import'),
                             match_values= ','.join(self.db.table(table).model.columns.keys()) if not matchColumns else None,
                             dockButton_iconClass='iconbox inbox',title='!!Importer',**kwargs)
-
 
     @struct_method
     def th_slotbar_sum(self,pane,label=None,format=None,width=None,**kwargs):

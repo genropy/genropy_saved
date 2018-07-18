@@ -1157,6 +1157,22 @@ class GnrWebPage(GnrBaseWebPage):
             return Bag()
         return self.db.table(table).getUserConfiguration(user=self.user,user_group=self.avatar.group_code)
         
+
+    def checkTablePermission(self,table=None,permissions=None):
+        if not permissions:
+            return True
+        tableconf = self.getUserTableConfig(table=table)
+        tbl_forbidden = tableconf['tbl_forbidden']
+        tbl_permission = tableconf['tbl_permission']
+        checkset = set()
+        if tbl_forbidden:
+            checkset = checkset.union(tbl_forbidden.split(','))
+        if tbl_permission:
+            checkset = checkset.union(tbl_permission.split(','))
+        permissions = set(permissions.split(',') if isinstance(permissions,basestring) else permissions)
+        forbidden = checkset.intersection(permissions)
+        return not forbidden
+
     def getDomainUrl(self, path='', **kwargs):
         """TODO
         

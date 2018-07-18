@@ -252,6 +252,11 @@ class FormHandler(BaseComponent):
         kwargs['_default_kwargs'] = default_kwargs
         return formRoot.contentPane(overflow='hidden',onCreated='this.iframeFormManager = new gnr.IframeFormManager(this);',**kwargs)
 
+    def fh_tableForbidden(self,pane,what):
+        table = pane.getInheritedAttributes().get('table')
+        if table and not self.checkTablePermission(table,what):
+            pane.div('&nbsp;')
+            return True
 
     @struct_method
     def fh_slotbar_form_navigation(self,pane,**kwargs):
@@ -289,6 +294,8 @@ class FormHandler(BaseComponent):
     
     @struct_method          
     def fh_slotbar_form_save(self,pane,always=False,**kwargs):
+        if self.fh_tableForbidden(pane,'upd'):
+            return
         pane.formButton('!!Save',topic='save',iconClass="iconbox save",
                         _shortcut='@save:f1',_shortcut_activeForm=True,
                         command=always,disabled='^#FORM.controller.locked')
@@ -301,6 +308,8 @@ class FormHandler(BaseComponent):
     
     @struct_method          
     def fh_slotbar_form_delete(self,pane,parentForm=True,**kwargs):
+        if self.fh_tableForbidden(pane,'del'):
+            return
         pane.formButton(topic='deleteItem',
                         iconClass="iconbox delete_record",parentForm=parentForm,
                         disabled='==_newrecord||_protected',
@@ -312,6 +321,8 @@ class FormHandler(BaseComponent):
 
     @struct_method          
     def fh_slotbar_form_archive(self,pane,parentForm=True,**kwargs):
+        if self.fh_tableForbidden(pane,'archive'):
+            return
         table = pane.getInheritedAttributes()['table']
         logicalDeletionField = self.db.table(table).logicalDeletionField
         pane.slotButton('!!Set Archiviation date',
@@ -356,6 +367,8 @@ class FormHandler(BaseComponent):
     
     @struct_method          
     def fh_slotbar_form_add(self,pane,parentForm=None,disabled=None,defaults=None,**kwargs):
+        if self.fh_tableForbidden(pane,'ins'):
+            return
         menupath = None
         disabled = disabled or '^#FORM.controller.locked'
         if defaults:

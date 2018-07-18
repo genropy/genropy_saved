@@ -424,7 +424,9 @@ class GnrWebUtils(GnrBaseProxy):
                 resmodule = gnrImport(node.attr['abs_path'])
 
                 tags = getattr(resmodule, 'tags', '')
-                if tags and not page.application.checkResourcePermission(tags, page.userTags):
+                permissions = getattr(resmodule, 'permissions', None)
+                if (tags and not page.application.checkResourcePermission(tags, page.userTags)) or \
+                    permissions and not page.checkTablePermission(table=table,permissions=permissions):
                     if node.label == '_doc':
                         forbiddenNodes.append('.'.join(_pathlist))
                     return

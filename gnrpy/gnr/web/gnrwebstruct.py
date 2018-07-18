@@ -299,7 +299,7 @@ class GnrDomSrc(GnrStructData):
         if childnode:
             return childnode._value
         
-    def child(self, tag, childname=None, childcontent=None, envelope=None,**kwargs):
+    def child(self, tag, childname=None, childcontent=None, envelope=None,_tablePermissions=None,**kwargs):
         """Set a new item of the ``tag`` type into the current structure through
         the :meth:`child() <gnr.core.gnrstructures.GnrStructData.child>` and return it
         
@@ -311,6 +311,9 @@ class GnrDomSrc(GnrStructData):
             kwargs['value'] = childname
             childname = None
         if '_tags' in kwargs and not self.page.application.checkResourcePermission(kwargs['_tags'], self.page.userTags):
+            kwargs['__forbidden__'] = True
+        if _tablePermissions and _tablePermissions.get('table') \
+            and not self.page.checkTablePermission(**_tablePermissions):
             kwargs['__forbidden__'] = True
         if not self.page.application.allowedByPreference(**kwargs):
             kwargs['__forbidden__'] = True

@@ -131,8 +131,7 @@ class TableHandlerForm(BaseComponent):
             formroot = pane
             if datapath:
                 formroot.attributes.update(datapath=datapath)
-        tblconfig = self.getUserTableConfig(table=table)
-        if tblconfig['tbl_permission'] == 'readonly':
+        if not self.checkTablePermission(table,'readonly'):
             resource_options['readOnly'] = True
         form = formroot.frameForm(frameCode=formId,formId=formId,table=table,
                              store_startKey=startKey,context_dbstore=dbstore,

@@ -68,8 +68,7 @@ class TableHandler(BaseComponent):
         tblattr = tblobj.attributes
 
         readOnly = readOnly or tblattr.get('readOnly')
-        tblconfig = self.getUserTableConfig(table=table)
-        if tblconfig['tbl_permission'] == 'readonly':
+        if not self.checkTablePermission(table,'readonly'):
             readOnly = True
         delrow = tblattr.get('deletable',delrow)
         if isinstance(delrow,basestring):
@@ -228,8 +227,7 @@ class TableHandler(BaseComponent):
     def th_checkPermission(self,pane,table=None):
         inattr = pane.getInheritedAttributes()
         table = table or inattr['table']
-        tblconfig = self.getUserTableConfig(table=table)
-        if tblconfig['tbl_permission'] == 'hidden':
+        if not self.checkTablePermission(table,'hidden'):
             return False
         dflt = self.pageAuthTags(method='main')
         tags = self._th_hook('tags',mangler=pane,dflt=dflt)()

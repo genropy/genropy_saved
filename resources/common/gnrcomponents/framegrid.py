@@ -25,12 +25,13 @@ class FrameGridTools(BaseComponent):
                                 opt_downloadAs=parameters.get('downloadAs'),
                                 opt_rawData=rawData, iconClass=_class,
                                 opt_localized_data=True,
+                                _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
+                                                        permissions='export'),
                                 ask=dict(title='Export selection',skipOn='Shift',
                                         fields=[dict(name='opt_downloadAs',lbl='Download as',placeholder=placeholder),
                                                 dict(name='opt_export_mode',wdg='filteringSelect',values='xls:Excel,csv:CSV',lbl='Mode'),
                                                 dict(name='opt_allRows',label='All rows',wdg='checkbox'),
                                                 dict(name='opt_localized_data',wdg='checkbox',label='Localized data')]),
-
                                 **kwargs) 
        
     @struct_method
@@ -52,12 +53,16 @@ class FrameGridTools(BaseComponent):
             if menubag:
                 pane.data('.addrow_menu_store',menubag)
         return pane.slotButton(label='!!Add',childname='addButton',publish='addrow',iconClass=_class,disabled=disabled,
+                                _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
+                                                        permissions='ins,readonly'),
                                 _delay=delay,menupath=menupath,**kwargs)
          
     @struct_method
     def fgr_slotbar_duprow(self,pane,_class='iconbox copy',disabled='^.disabledButton',enable=None,delay=300,defaults=None,**kwargs):
         kwargs.setdefault('visible',enable)
         return pane.slotButton(label='!!Duplicate',publish='duprow',iconClass=_class,disabled=disabled,
+                                _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
+                                                        permissions='ins,readonly'),
                                 _delay=delay,**kwargs)
 
     @struct_method
@@ -90,11 +95,17 @@ class FrameGridTools(BaseComponent):
                             disabled=disabled,deleteButtonClass=_class,frameCode=frameCode,_onBuilt=True,
                             **{str('subscribe_%s_grid_onSelectedRow' %frameCode):True})
         pane.data('.deleteButtonClass',_class)
-        return pane.slotButton(label='!!Delete',publish='delrow',iconClass='^.deleteButtonClass',disabled='^.deleteDisabled',**kwargs)
+        return pane.slotButton(label='!!Delete',publish='delrow',
+                            iconClass='^.deleteButtonClass',disabled='^.deleteDisabled',
+                            _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
+                                                    permissions='del,readonly'),
+                            **kwargs)
     
     @struct_method
     def fgr_slotbar_archive(self,pane,_class='box iconbox',enable=None,disabled='^.disabledButton',parentForm=True,**kwargs):
         button = pane.slotButton(label='!!Archive at date',publish='archive',iconClass=_class,
+                        _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
+                                                    permissions='archive,upd,readonly'),
                         disabled=disabled,parentForm=parentForm,**kwargs)
         return button
         
@@ -115,7 +126,10 @@ class FrameGridTools(BaseComponent):
     def fgr_slotbar_gridsave(self,pane,**kwargs):
         return pane.slotButton(label='!!Save',publish='saveChangedRows',
                                disabled='==status!="changed"',iconClass="iconbox save",
-                                status='^.grid.editor.status',**kwargs)
+                                status='^.grid.editor.status',
+                                _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
+                                                        permissions='archive,upd'),
+                                **kwargs)
     @struct_method
     def fgr_slotbar_gridsemaphore(self,pane,**kwargs):
         return pane.div(_class='editGrid_semaphore',padding_left='4px')

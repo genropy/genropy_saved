@@ -179,8 +179,10 @@ class Form(BaseComponent):
                         condition_tbl='=#FORM.record.tblid',
                         condition_item_type='FTREE',
                         hasDownArrow=True)
-        fb.checkBoxText(value='^.data.tbl_permission',values='hidden,readonly,/,ins,upd,del',cols=3,
-                        lbl='Permissions',colspan=2)
+        fb.checkBoxText(value='^.data.tbl_permission',values='hidden,readonly',cols=3,
+                        lbl='!!Restrictions',colspan=2)
+        fb.checkBoxText(value='^.data.tbl_forbidden',values='ins,upd,del,archive,export,import',cols=3,
+                        lbl='!!Forbidden actions',colspan=2)
         sc = bc.stackContainer(region='center')
         bc.dataController("sc.switchPage(tblid?1:0);",sc=sc.js_widget,tblid='^#FORM.record.tblid')
         sc.contentPane()
