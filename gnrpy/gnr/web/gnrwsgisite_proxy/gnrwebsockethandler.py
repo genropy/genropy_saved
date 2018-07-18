@@ -78,6 +78,15 @@ class WsgiWebSocketHandler(WebSocketHandler):
         self.socket_path= os.path.join(sockets_dir, '%s.tornado'% site.site_name)
         self.proxyurl='/wsproxy'
     
+    def checkSocket(self):
+        try:
+            self.socketConnection
+            return True
+        except socket.error, e:
+            if e.errno == CONNECTION_REFUSED:
+                return False
+        
+
     @property
     def socketConnection(self):
         http_conn = HTTPSocketConnection(self.socket_path,timeout=1000)

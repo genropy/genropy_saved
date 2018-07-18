@@ -291,7 +291,12 @@ class GnrWsgiSite(object):
         if not self.websockets:
             return
         if not hasattr(self,'_wsk'):
-            self._wsk = WsgiWebSocketHandler(self)
+            wsk = WsgiWebSocketHandler(self)
+            if self.websockets=='required' or wsk.checkSocket():
+                self._wsk = wsk
+            else:
+                self.websockets = False
+                return
         return self._wsk
 
     @property
