@@ -5170,6 +5170,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
                 r._('td')._('div',{_class:'slotbar_spacer'});
                 return;
             };
+
             cell = r._('td',objectUpdate({_slotname:slot},buildKw.cell));
             if(lblPos=='R'){
                 cellKwLbl['width'] = cellKwLbl['width'] || '1px';
@@ -5216,7 +5217,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
                         labelCell._('div',objectUpdate({'innerHTML':lbl,'text_align':'center'},kwLbl));
                     }
                 }else{
-                    var textSlot=kw[slot]?kw[slot]:slot;
+                    var textSlot = kw[slot];
                     if(textSlot){
                         cell.setItem('div_0',null,objectUpdate({innerHTML:textSlot,tag:'div'},objectExtract(kw,slot+'_*')));
                     }
