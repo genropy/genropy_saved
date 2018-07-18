@@ -62,7 +62,7 @@ class THPicker(BaseComponent):
                             dragTags=paletteCode,caption_field=picker_kwargs.get('caption_field'),
                             moveTreeNode=False,
                             onDrag="""function(dragValues, dragInfo, treeItem) {
-                                                if (treeItem.attr.child_count && treeItem.attr.child_count > 0 && !draggableFolders) {
+                                                if (treeItem.attr.child_count && treeItem.attr.child_count > 0 && !dragInfo.sourceNode.attr.draggableFolders) {
                                                     return false;
                                                 }
                                                 dragValues['text/plain'] = treeItem.attr.caption;

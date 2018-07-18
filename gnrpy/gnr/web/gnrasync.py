@@ -793,8 +793,8 @@ class GnrBaseAsyncServer(object):
         self.channels = dict()
         self.pages = dict()
         self.debug_queues=dict()
-        self.instance_name = instance
         self.gnrsite=GnrWsgiSite(instance)
+        self.instance_name = self.gnrsite.site_name
         self.gnrsite.ws_site = self
         self.gnrapp = self.gnrsite.gnrapp
         self.db = self.gnrapp.db
