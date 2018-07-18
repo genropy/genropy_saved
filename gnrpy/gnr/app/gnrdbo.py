@@ -16,6 +16,7 @@ from gnr.core.gnrstring import splitAndStrip,templateReplace,fromJson,slugify
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.core.gnrdict import dictExtract
 
+
 mimetypes.init() # Required for python 2.6 (fixes a multithread bug)
 
 class GnrDboPackage(object):

@@ -41,6 +41,7 @@ import threading
 __version__ = '1.0b'
 gnrlogger = logging.getLogger(__name__)
 
+DEFAULT_TABLE_PERMISSIONS = ['ins','upd','del','archive','export','import']
 
 
 class RecordUpdater(object):
@@ -439,6 +440,17 @@ class SqlTable(GnrObject):
         
     def counterColumns(self):
         return
+
+    def getAvailablePermissions(self):
+        customPermissions = self.attributes.get('customPermissions')
+        customPermissions = customPermissions.split(',') if customPermissions else []
+        customPermissions = DEFAULT_TABLE_PERMISSIONS+customPermissions
+       #for m in dir(self):
+       #    handler = getattr(self,m)
+       #    permissions = getattr(handler,'permissions',None)
+       #    if permissions:
+       #        customPermissions = customPermissions + permissions.split(',')
+        return ','.join(uniquify(customPermissions))
 
     def recordCoerceTypes(self, record, null='NULL'):
         """Check and coerce types in record.
