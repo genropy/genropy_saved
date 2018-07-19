@@ -441,14 +441,17 @@ class SqlTable(GnrObject):
     def counterColumns(self):
         return
 
-    def getAvailablePermissions(self):
-        customPermissions = dictExtract(self.attributes,'permission_').keys()
-        customPermissions = DEFAULT_TABLE_PERMISSIONS+customPermissions
-        for k,handler in self.__dict__.items():
-            permissions = getattr(handler,'permissions',None)
-            if permissions:
-                customPermissions = customPermissions + permissions.split(',')
-        return ','.join(uniquify(customPermissions))
+    @property
+    def availablePermissions(self):
+        if not hasattr(self,'_availablePermissions'):
+            customPermissions = dictExtract(self.attributes,'permission_').keys()
+            customPermissions = DEFAULT_TABLE_PERMISSIONS+customPermissions
+            for k,handler in self.__dict__.items():
+                permissions = getattr(handler,'permissions',None)
+                if permissions:
+                    customPermissions = customPermissions + permissions.split(',')
+            self._availablePermissions = ','.join(uniquify(customPermissions))
+        return self._availablePermissions
 
     def recordCoerceTypes(self, record, null='NULL'):
         """Check and coerce types in record.

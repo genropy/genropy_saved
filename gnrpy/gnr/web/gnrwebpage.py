@@ -1165,6 +1165,10 @@ class GnrWebPage(GnrBaseWebPage):
     def checkTablePermission(self,table=None,permissions=None):
         if not permissions:
             return True
+        permissions = set(permissions.split(',') if isinstance(permissions,basestring) else permissions)
+        availablePermissions = set(self.db.table(table).availablePermissions.split(','))
+        if not permissions.issubset(availablePermissions):
+            raise self.exception('generic',msg='Permissions %s are not defined in table %s' %(','.join(availablePermissions.difference(permissions)),table))
         tableconf = self.getUserTableConfig(table=table)
         tbl_forbidden = tableconf['tbl_forbidden']
         tbl_permission = tableconf['tbl_permission']
@@ -1173,7 +1177,7 @@ class GnrWebPage(GnrBaseWebPage):
             checkset = checkset.union(tbl_forbidden.split(','))
         if tbl_permission:
             checkset = checkset.union(tbl_permission.split(','))
-        permissions = set(permissions.split(',') if isinstance(permissions,basestring) else permissions)
+        
         forbidden = checkset.intersection(permissions)
         return not forbidden
 

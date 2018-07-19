@@ -189,9 +189,9 @@ class Table(object):
                                                     _editMode=True)
             record['data.cols_permission'] = current_full_data['cols_permission']
             record['$current_cols'] = self._colsPickerStore(record['tblid'])
-            record['$allPermissions'] = self.db.table(record['tblid']).getAvailablePermissions()
+            record['$allPermissions'] = self.db.table(record['tblid']).availablePermissions
         else:
-            record['$allPermissions'] = self.getAvailablePermissions()
+            record['$allPermissions'] = self.availablePermissions
 
     def _colsPickerStore(self,table=None):
         tblobj = self.db.table(table)
