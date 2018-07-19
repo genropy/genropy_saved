@@ -1166,9 +1166,9 @@ class GnrWebPage(GnrBaseWebPage):
         if not permissions:
             return True
         permissions = set(permissions.split(',') if isinstance(permissions,basestring) else permissions)
-        availablePermissions = set(self.db.table(table).availablePermissions.split(','))
+        availablePermissions = set(self.db.table(table).availablePermissions.split(',')).union(set(['hidden','readonly']))
         if not permissions.issubset(availablePermissions):
-            raise self.exception('generic',msg='Permissions %s are not defined in table %s' %(','.join(availablePermissions.difference(permissions)),table))
+            raise self.exception('generic',description='Permissions %s are not defined in table %s' %(','.join(permissions.difference(availablePermissions)),table))
         tableconf = self.getUserTableConfig(table=table)
         tbl_forbidden = tableconf['tbl_forbidden']
         tbl_permission = tableconf['tbl_permission']

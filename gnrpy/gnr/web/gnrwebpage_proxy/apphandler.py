@@ -1254,7 +1254,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         :returns: if it works, returns the primary key and the deleted attribute.
                   Else, return an exception"""
         if not self.page.checkTablePermission(table,'readonly,del'):
-            raise self.page.exception('generic',message='Delete not allowed in table % for user %s' %(table,self.user))
+            raise self.page.exception('generic',description='Delete not allowed in table % for user %s' %(table,self.user))
         try:
             tblobj = self.db.table(table)
             rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,excludeLogicalDeleted=False,

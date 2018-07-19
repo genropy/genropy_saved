@@ -489,11 +489,11 @@ class GnrBaseWebPage(GnrObject):
         promisedFields = dict()
         newrecord = recordClusterAttr.get('_newrecord')
         if not self.checkTablePermission(table,'readonly,hidden'):
-            raise self.exception('generic',msg='Table %s is readonly for user %s' %(table,self.user))
+            raise self.exception('generic',description='Table %s is readonly for user %s' %(table,self.user))
         if newrecord and not self.checkTablePermission(table,'add'):
-            raise self.exception('generic',msg='User %s cannot add record in table %s' %(self.user,table))
+            raise self.exception('generic',description='User %s cannot add record in table %s' %(self.user,table))
         elif not self.checkTablePermission(table,'upd'):
-            raise self.exception('generic',msg='User %s cannot update record in table %s' %(self.user,table))
+            raise self.exception('generic',description='User %s cannot update record in table %s' %(self.user,table))
         if newrecord:
             for k, promised in recordCluster.digest('#k,#a.promised'):
                 if promised:
@@ -565,9 +565,9 @@ class GnrBaseWebPage(GnrObject):
         recordCluster = node.value
         recordClusterAttr = node.getAttr()
         if not self.checkTablePermission(table,'readonly,hidden'):
-            raise self.exception('generic',msg='Table %s is readonly for user %s' %(table,self.user))
+            raise self.exception('generic',description='Table %s is readonly for user %s' %(table,self.user))
         if not self.checkTablePermission(table,'del'):
-            raise self.exception('generic',msg='User %s cannot delete records in table %s' %(self.user,table))
+            raise self.exception('generic',description='User %s cannot delete records in table %s' %(self.user,table))
         try: #try:
             self.onDeleting(recordCluster, recordClusterAttr)
             recordClusterAttr['_deleterecord'] = True
