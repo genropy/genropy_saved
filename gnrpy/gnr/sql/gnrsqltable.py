@@ -442,14 +442,12 @@ class SqlTable(GnrObject):
         return
 
     def getAvailablePermissions(self):
-        customPermissions = self.attributes.get('customPermissions')
-        customPermissions = customPermissions.split(',') if customPermissions else []
+        customPermissions = dictExtract(self.attributes,'permission_').keys()
         customPermissions = DEFAULT_TABLE_PERMISSIONS+customPermissions
-       #for m in dir(self):
-       #    handler = getattr(self,m)
-       #    permissions = getattr(handler,'permissions',None)
-       #    if permissions:
-       #        customPermissions = customPermissions + permissions.split(',')
+        for k,handler in self.__dict__.items():
+            permissions = getattr(handler,'permissions',None)
+            if permissions:
+                customPermissions = customPermissions + permissions.split(',')
         return ','.join(uniquify(customPermissions))
 
     def recordCoerceTypes(self, record, null='NULL'):
