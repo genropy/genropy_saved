@@ -490,8 +490,8 @@ class GnrBaseWebPage(GnrObject):
         newrecord = recordClusterAttr.get('_newrecord')
         if not self.checkTablePermission(table,'readonly,hidden'):
             raise self.exception('generic',description='Table %s is readonly for user %s' %(table,self.user))
-        if newrecord and not self.checkTablePermission(table,'add'):
-            raise self.exception('generic',description='User %s cannot add record in table %s' %(self.user,table))
+        if newrecord and not self.checkTablePermission(table,'ins'):
+            raise self.exception('generic',description='User %s cannot ins record in table %s' %(self.user,table))
         elif not self.checkTablePermission(table,'upd'):
             raise self.exception('generic',description='User %s cannot update record in table %s' %(self.user,table))
         if newrecord:
