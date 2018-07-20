@@ -361,7 +361,7 @@ class DashboardGallery(BaseComponent):
                                     this.widget.setTitle($1.objtype+' table '+$1.tbl);
                                     this.widget.show();
                                     SET .editing_dash = new gnr.GnrBag($1);
-                                    SET .editing_dash.build_ts = new Date();
+                                    SET .editing_dash.build_ts = new Date().getTime();
                                     """,
 
                                 subscribe_editUserObjectDashboardConfirmed="""

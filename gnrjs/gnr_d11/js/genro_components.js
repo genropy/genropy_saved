@@ -4567,16 +4567,26 @@ dojo.declare("gnr.widgets.TableSelect", gnr.widgets.gnrwdg, {
         kw.pkg = kw.pkg.replace('^','=')
         kw.onCreating = function(attributes){
             var that = this;
-            genro.serverCall('app.dbStructure',{path:''},function(result){
+            genro.serverCall('app.getTablesTree',{},function(result){
                 that._cbstore = result;
             });
         };
         kw.callback = function(cbkw){
             var currentPkg = this.sourceNode.getAttributeFromDatasource('pkg');
             var tblmapcb = function(n){
-                return {_pkey:currentPkg+'.'+n.label,tbl:n.label,name:n.attr.caption,caption:n.label,pkeyField:n.attr.pkey};
+                var caption = currentPkg?n.label:n.attr.tableid;
+                return {_pkey:n.attr.tableid,tbl:n.attr.tableid,pkg:n.attr.tableid.split('.')[1],name:caption,caption:caption,pkeyField:n.attr.tableid};
             };
-            var data = currentPkg?this.sourceNode._cbstore.getItem(currentPkg+'.tables').getNodes().map(tblmapcb):[];
+            var data;
+            if (currentPkg){
+                data = this.sourceNode._cbstore.getItem(currentPkg).getNodes();
+            }else{
+                data = [];
+                this.sourceNode._cbstore.values().forEach(function(pkgcontent){
+                    data = data.concat(pkgcontent.getNodes());
+                });
+            }
+            data = data.map(tblmapcb);
             var _id = cbkw._id;
             var _querystring = cbkw._querystring;
             var cbfilter = function(n){return true};
