@@ -757,6 +757,7 @@ class GnrSqlDb(GnrObject):
         :param omit: TODO
         :param tabletype: TODO"""
         result = Bag()
+        packages = self.packages.keys() if packages == '*' else packages
         for pkg, pkgobj in self.packages.items():
             if (pkg in packages and omit) or (not pkg in packages and not omit):
                 continue

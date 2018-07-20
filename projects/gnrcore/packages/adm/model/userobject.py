@@ -92,6 +92,7 @@ class Table(object):
     def checkResourceUserObject(self):
         def cbattr(nodeattr):
             return not (nodeattr['file_ext'] !='directory' and not '/userobjects/' in nodeattr['abs_path'])
+        tableindex = self.db.tableTreeBag(packages='*')
         def cbwalk(node,**kwargs):
             if node.attr['file_ext'] !='directory':
                 record = Bag(node.attr['abs_path'])
@@ -99,8 +100,8 @@ class Table(object):
                 record.pop('id')
                 identifier = self.uo_identifier(record)
                 if  not self.checkDuplicate(code=record['code'],pkg=record['pkg'],tbl=record['tbl'],objtype=record['objtype']):
-                    if record['tbl'] and not self.db.table(record['tbl']):
-                        print 'missing table',record['tbl']
+                    if record['tbl'] and not record['tbl'] in tableindex:
+                        print 'missing table',record['tbl'],'resource',node.attr['abs_path']
                         return
                     print 'inserting userobject %(code)s %(tbl)s %(pkg)s from resource' %record
                     self.insert(record)
