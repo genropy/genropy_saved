@@ -449,6 +449,7 @@ class DynamicForm(BaseComponent):
         attr.pop('id',None)
         attr.pop('pkey',None)
         attr.pop('maintable_id',None)
+        attr.pop('page',None)
         data_type = attr.pop('data_type','T')
         tag =  attr.pop('wdg_tag') or AUTOWDG[data_type]
         return self.df_makeDynamicField(fb,tag=tag,wdg_attr=attr,data_type=data_type,fields=fields,dbstore_kwargs=dbstore_kwargs,**kwargs)
