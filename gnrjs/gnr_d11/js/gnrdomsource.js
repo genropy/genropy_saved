@@ -1509,8 +1509,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         kwargs.sync = !async;
         if(objectPop(remoteAttr,'sendInheritedAttributes')){
             kwargs._inheritedAttributes = this.getInheritedAttributes();
-            console.log('adding inheritedattr',kwargs._inheritedAttributes);
-
         }
         
         if(remoteAttr._waitingMessage){
