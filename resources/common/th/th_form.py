@@ -58,7 +58,8 @@ class TableHandlerForm(BaseComponent):
     def th_prepareRemoteForm(self,pane,formId=None,**kwargs):
         kw = dict()
         kw['nodeId'] = 'remote_wrapper_%s' %formId
-        pane.contentPane(**kw).remote(self._th_remoteFormDispatcher,remoteFormId=formId,**kwargs)
+        pane.contentPane(**kw).remote(self._th_remoteFormDispatcher,remoteFormId=formId,
+                                            sendInheritedAttributes=True,**kwargs)
 
     @public_method
     def _th_remoteFormDispatcher(self,formRoot,remoteFormId=None,
