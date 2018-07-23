@@ -1491,7 +1491,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
         }
         var kwargs = {};
-        var mergeFb = objectPop(remoteAttr,'_merge');
         for (var attrname in remoteAttr) {
             var value = remoteAttr[attrname];
             if (value instanceof Date) {
@@ -1507,10 +1506,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         var method = this.attr.remote;
         var that = this;
-        
         kwargs.sync = !async;
-        kwargs._inheritedAttributes = this.getInheritedAttributes();
-        var currval;
+        if(objectPop(remoteAttr,'sendInheritedAttributes')){
+            kwargs._inheritedAttributes = this.getInheritedAttributes();
+            console.log('adding inheritedattr',kwargs._inheritedAttributes);
+
+        }
+        
         if(remoteAttr._waitingMessage){
             var waitingMessage = remoteAttr._waitingMessage===true?_T('Loading content'):remoteAttr._waitingMessage;
             waitingMessage = '<div style="height:130px;opacity:.8;" class="waiting"></div>'+'<div style="font-size:13px">'+waitingMessage+'</div>'
