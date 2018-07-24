@@ -360,6 +360,8 @@ class Server(object):
         self.gnr_config = getGnrConfig(config_path=self.config_path, set_environment=True)
         
         self.site_name = self.options.site_name or (self.args and self.args[0]) or os.getenv('GNR_CURRENT_SITE')
+        if not self.site_name:
+            self.site_name = os.path.basename(os.path.dirname(site_script))
         self.remote_db = ''
         if self.site_name:
             if ':' in self.site_name:
