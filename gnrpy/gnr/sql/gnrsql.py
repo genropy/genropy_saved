@@ -682,7 +682,7 @@ class GnrSqlDb(GnrObject):
         for k,v in deferred.items():
             print 'table ',k,
             print '\t\t bloccata da',v
-        raise GnrSqlException(message='Blocked dependencies')
+        raise GnrSqlException(description='Blocked dependencies')
 
 
     def _tablesMasterIndex_step(self,toImport=None,imported=None,dependencies=None,result=None,deferred=None,blocking=None):
