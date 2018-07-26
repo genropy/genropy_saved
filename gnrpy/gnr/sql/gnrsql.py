@@ -681,7 +681,7 @@ class GnrSqlDb(GnrObject):
             return result
         for k,v in deferred.items():
             print 'table ',k,
-            print '\t\t bloccata da',v
+            print '\t\t blocked by',v
         raise GnrSqlException(description='Blocked dependencies')
 
 
