@@ -56,7 +56,7 @@ def localize_number(obj, locale, format=None, currency=None):
         else:
             return numbers.format_decimal(obj, format=format, locale=locale)
     else:
-        return numbers.format_number(obj, locale=locale)
+        return numbers.format_decimal(obj, locale=locale)
         
 def localize_date(obj, locale, format=None, **kwargs):
     """TODO

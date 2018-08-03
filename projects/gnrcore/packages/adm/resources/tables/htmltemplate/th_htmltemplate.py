@@ -129,7 +129,8 @@ class Form(BaseComponent):
     def htmltemplate_tplInfo(self, pane):
         fb = pane.formbuilder(cols=2, border_spacing='3px')
         fb.field('name', width='12em',colspan=2)
-        fb.field('based_on', width='12em',hasDownArrow=True,colspan=2,lbl='Based on')
+        fb.field('based_on', width='12em',hasDownArrow=True,colspan=2,lbl='Based on',condition='$id!=:curr_id',
+                    curr_id='=#FORM.record.id')
         fb.dataRpc('#FORM.backgroundLetterhead',self.loadBasedOn,letterhead_id='^.based_on',_if='letterhead_id',_else='return "";')
         fb.field('type_code', width='7em',hasDownArrow=True,lbl='Type')
         fb.field('version', width='3em',lbl='V.')
