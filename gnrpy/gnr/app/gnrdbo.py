@@ -1115,7 +1115,8 @@ class AttachmentTable(GnrDboTable):
 
         self.sysFields(tbl,id=True, ins=False, upd=False,counter='maintable_id')
         tbl.column('id',size='22',group='_',name_long='Id')
-        tbl.column('filepath' ,name_long='!!Filepath',onDeleted='onDeletedAtc',onInserted='convertDocFile')
+        tbl.column('filepath' ,name_long='!!Filepath',onDeleted='onDeletedAtc',onInserted='convertDocFile',onInserting='checkExternalUrl')
+        tbl.column('external_url', name_long='!!External url')
         tbl.column('description' ,name_long='!!Description')
         tbl.column('mimetype' ,name_long='!!Mimetype')
         tbl.column('text_content',name_long='!!Content')
@@ -1123,7 +1124,7 @@ class AttachmentTable(GnrDboTable):
         tbl.column('maintable_id',size='22',group='*',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
                     mode='foreignkey', onDelete_sql='cascade',onDelete='cascade', relation_name='atc_attachments',
                     one_group='_',many_group='_',deferred=True)
-        tbl.formulaColumn('fileurl',"'/_vol/' || $filepath",name_long='Fileurl')
+        tbl.formulaColumn('fileurl',"COALESCE($external_url,'/_vol/' || $filepath)",name_long='Fileurl')
         if hasattr(self,'atc_types'):
             tbl.column('atc_type',values=self.atc_types())
         self.onTableConfig(tbl)
@@ -1195,14 +1196,22 @@ class AttachmentTable(GnrDboTable):
                         filepath=os.path.join(destFolder,filename))
         self.insert(record)
         return record
+    
+    def trigger_checkExternalUrl(self,record,**kwargs):
+        record['description'] = record['external_url']
 
 
     def trigger_convertDocFile(self,record,**kwargs):
-        p,ext = os.path.splitext(record['filepath'])
-        if ext.lower() in ('.doc','.docx'):
-            self.insertPdfFromDocAtc(record)
+        if not record['filepath']:
+            return
+        elif record['filepath']:
+            p,ext = os.path.splitext(record['filepath'])
+            if ext.lower() in ('.doc','.docx'):
+                self.insertPdfFromDocAtc(record)
 
     def trigger_onDeletedAtc(self,record,**kwargs):
+        if not record['filepath']:
+            return
         site = self.db.application.site
         fpath = site.getStaticPath('vol:%s' %record['filepath'])
         try:

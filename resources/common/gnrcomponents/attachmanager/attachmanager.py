@@ -319,13 +319,17 @@ class AttachManager(BaseComponent):
                 parentForm=True,deleteAction=False,disabled='==!_store || _store.len()==0 || _flock',
                 _store='^.store',_flock='^#FORM.controller.locked')
         table = frame.multiButtonView.itemsStore.attributes['table']
-        bar = frame.top.bar.replaceSlots('mbslot','mbslot,15,changeName,5,previewZoom')
+        bar = frame.top.bar.replaceSlots('mbslot','mbslot,15,changeName,5,previewZoom,externalUrl')
         bar.previewZoom.horizontalSlider(value='^.form.currentPreviewZoom', minimum=0, maximum=1,
                                  intermediateChanges=True, width='15em',default_value=1)
         fb = bar.changeName.div(_class='iconbox tag',hidden='^.form.controller.is_newrecord',tip='!!Change description').tooltipPane(
                 connect_onClose='FIRE .saveDescription;',
             ).div(padding='10px').formbuilder(cols=1,border_spacing='3px')
         fb.textbox(value='^.form.record.description',lbl='!!Description')
+        fb = bar.externalUrl.div(_class='iconbox globe',hidden='^.form.controller.filepath',tip='!!External url').tooltipPane(
+                connect_onClose='FIRE .saveDescription;',
+            ).div(padding='10px').formbuilder(cols=1,border_spacing='3px')
+        fb.textbox(value='^.form.record.external_url',lbl='!!External url')
         frame.dataController("""
             if(frm.getParentForm().isNewRecord()){
                 frame.setHiderLayer(true,{message:newrecordmessage,background_color:'white'});
