@@ -41,9 +41,6 @@ import threading
 __version__ = '1.0b'
 gnrlogger = logging.getLogger(__name__)
 
-DEFAULT_TABLE_PERMISSIONS = ['ins','upd','del','archive','export','import']
-
-
 class RecordUpdater(object):
     """TODO
     
@@ -443,9 +440,13 @@ class SqlTable(GnrObject):
 
     @property
     def availablePermissions(self):
+        default_table_permissions = ['ins','upd','del','archive','export','import','print','mail','action']
         if not hasattr(self,'_availablePermissions'):
-            customPermissions = dictExtract(self.attributes,'permission_').keys()
-            customPermissions = DEFAULT_TABLE_PERMISSIONS+customPermissions
+            customPermissions = dict()
+            for pkgid,pkgobj in self.db.packages.items():
+                customPermissions.update(dictExtract(pkgobj.attributes,'permission_'))
+            customPermissions.update(dictExtract(self.attributes,'permission_'))
+            customPermissions = default_table_permissions+customPermissions.keys()
             for k,handler in self.__dict__.items():
                 permissions = getattr(handler,'permissions',None)
                 if permissions:

@@ -652,6 +652,8 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_slotbar_resourcePrints(self,pane,flags=None,from_resource=None,hidden=None,**kwargs):
         pane.menudiv(iconClass='iconbox menubox print',hidden=hidden,storepath='.resources.print.menu',
+                    _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
+                                                        permissions='print'),
                     action="""FIRE .th_batch_run = {resource:$1.resource,template_id:$1.template_id,res_type:'print'};""")
 
     @public_method
@@ -660,12 +662,16 @@ class TableHandlerView(BaseComponent):
         
     @struct_method
     def th_slotbar_resourceActions(self,pane,**kwargs):
-        pane.menudiv(iconClass='iconbox gear',storepath='.resources.action.menu',action="""
+        pane.menudiv(iconClass='iconbox gear',storepath='.resources.action.menu',
+                            _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
+                                                        permissions='action'),action="""
                             FIRE .th_batch_run = {resource:$1.resource,res_type:"action"};
                             """,_class='smallmenu')
     @struct_method
     def th_slotbar_resourceMails(self,pane,from_resource=None,flags=None,**kwargs):
         pane.menudiv(iconClass='iconbox mail',storepath='.resources.mail.menu',
+                        _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
+                                                        permissions='mail'),
                         action="""FIRE .th_batch_run = {resource:$1.resource,template_id:$1.template_id,res_type:'mail'};""")
 
     @public_method
