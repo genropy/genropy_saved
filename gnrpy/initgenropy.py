@@ -89,4 +89,5 @@ def initgenropy(gnrpy_path=None,gnrdaemon_password=None):
 
 if __name__ == '__main__':
     import sys
-    initgenropy(gnrpy_path=os.getcwd(),gnrdaemon_password=sys.argv[1])
+    gnrdaemon_password=sys.argv[1] if len(sys.argv)>1 else None
+    initgenropy(gnrpy_path=os.getcwd(),gnrdaemon_password=gnrdaemon_password)
