@@ -27,7 +27,7 @@ import re
 
 from gnr.core import gnrstring
 from gnr.core.gnrlang import GnrObject,getUuid,uniquify
-from gnr.core.gnrdecorator import deprecated
+from gnr.core.gnrdecorator import deprecated,extract_kwargs
 from gnr.core.gnrbag import Bag, BagCbResolver
 from gnr.core.gnrdict import dictExtract
 #from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveException, GnrSqlApplicationException
@@ -40,8 +40,6 @@ import threading
 
 __version__ = '1.0b'
 gnrlogger = logging.getLogger(__name__)
-
-
 
 class RecordUpdater(object):
     """TODO
@@ -439,6 +437,22 @@ class SqlTable(GnrObject):
         
     def counterColumns(self):
         return
+
+    @property
+    def availablePermissions(self):
+        default_table_permissions = ['ins','upd','del','archive','export','import','print','mail','action']
+        if not hasattr(self,'_availablePermissions'):
+            customPermissions = dict()
+            for pkgid,pkgobj in self.db.packages.items():
+                customPermissions.update(dictExtract(pkgobj.attributes,'permission_'))
+            customPermissions.update(dictExtract(self.attributes,'permission_'))
+            customPermissions = default_table_permissions+customPermissions.keys()
+            for k,handler in self.__dict__.items():
+                permissions = getattr(handler,'permissions',None)
+                if permissions:
+                    customPermissions = customPermissions + permissions.split(',')
+            self._availablePermissions = ','.join(uniquify(customPermissions))
+        return self._availablePermissions
 
     def recordCoerceTypes(self, record, null='NULL'):
         """Check and coerce types in record.
@@ -864,6 +878,7 @@ class SqlTable(GnrObject):
     def createSysRecords(self):
         pass
 
+    @extract_kwargs(jc=True)
     def query(self, columns=None, where=None, order_by=None,
               distinct=None, limit=None, offset=None,
               group_by=None, having=None, for_update=False,
@@ -871,7 +886,8 @@ class SqlTable(GnrObject):
               excludeDraft=True,
               addPkeyColumn=True,
               ignoreTableOrderBy=False,ignorePartition=False, locale=None,
-              mode=None,_storename=None,checkPermissions=False,aliasPrefix=None, **kwargs):
+              mode=None,_storename=None,checkPermissions=False,aliasPrefix=None, 
+              joinConditions=None,jc_kwargs=None,**kwargs):
         """Return a SqlQuery (a method of ``gnr/sql/gnrsqldata``) object representing a query.
         This query is executable with different modes.
         
@@ -898,6 +914,14 @@ class SqlTable(GnrObject):
         :param locale: the current locale (e.g: en, en_us, it)
         :param mode: TODO
         :param \*\*kwargs: another way to pass sql query parameters"""
+        joinConditions = joinConditions or {}
+        for v in jc_kwargs.values():
+            rel,cond = v.split(':',1)
+            one_one = None
+            if rel.endswith('*'):
+                one_one = True
+                rel = rel[0:-1]
+            joinConditions[rel] = dict(condition=cond,params=dict(),one_one=one_one)
         query = SqlQuery(self, columns=columns, where=where, order_by=order_by,
                          distinct=distinct, limit=limit, offset=offset,
                          group_by=group_by, having=having, for_update=for_update,
@@ -906,8 +930,8 @@ class SqlTable(GnrObject):
                          ignorePartition=ignorePartition,
                          addPkeyColumn=addPkeyColumn,ignoreTableOrderBy=ignoreTableOrderBy,
                         locale=locale,_storename=_storename,
-                        checkPermissions=checkPermissions,
-                         aliasPrefix=aliasPrefix,**kwargs)
+                        checkPermissions=checkPermissions,jc_kwargs=jc_kwargs,
+                         aliasPrefix=aliasPrefix,joinConditions=joinConditions,**kwargs)
         return query
 
 
@@ -1843,7 +1867,6 @@ class SqlTable(GnrObject):
                 self.insert(record)
 
     def dependenciesTree(self,records=None,history=None,ascmode=False):
-        print 'dependencies from',self.fullname
         history = history or dict()
         for rel in self.relations_one:
             mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')
@@ -2086,6 +2109,9 @@ class SqlTable(GnrObject):
                 else:
                     attributes['group'] = attributes.get('one_group')
                     attributes['dtype'] = 'RO'
+                    fkeyattr = dict(relnode.attr)
+                    fkeyattr.pop('joiner')
+                    attributes['fkey'] = fkeyattr
                     relkey = '%(many_relation)s/%(one_relation)s' %attributes
                 relkey = str(hash(relkey) & 0xffffffff)
                 if relkey in relationStack.split('|'):

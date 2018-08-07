@@ -23,10 +23,13 @@ from gnrpkg.biz.dashboard import BaseDashboardItem
 
 caption = 'Dashboard count'
 description = 'Dashboard count records'
-item_parameters = [dict(value='^.table',lbl='Table')]
+objtype = 'dash_example_tablecounter'
+item_parameters = [{'value':'^.pkg','lbl':'Package','tag':'packageSelect'},
+                    {'value':'^.table','lbl':'Table','tag':'tableSelect','validate_notnull':True,'pkg':'=.pkg'}]
+
 
 class Main(BaseDashboardItem):
-    title_template = '$title $table colore $conf.color'
+    title_template = '$title $table color $conf.color'
 
     def content(self,pane,table=None,**kwargs):
         count = self.db.table(table).query().count()

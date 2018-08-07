@@ -129,7 +129,7 @@ class TableHandlerGroupBy(BaseComponent):
                             gridId=gridId)
         self._thg_structMenuData(frame,table=table,linkedTo=linkedTo)
         if configurable:
-            frame.viewConfigurator(table,queryLimit=False)
+            frame.viewConfigurator(table,queryLimit=False,toolbar=False)
         else:
             frame.grid.attributes['gridplugins'] = False
         frame.grid.attributes.setdefault('selfsubscribe_loadingData',"this.setRelativeData('.loadingData',$1.loading);if(this.attr.loadingHider!==false){this.setHiderLayer($1.loading,{message:'%s'});}" %self._th_waitingElement())
@@ -198,6 +198,7 @@ class TableHandlerGroupBy(BaseComponent):
             }
             var r = genro.groupth.getPivotGrid(flatStore,flatStruct);
             if(!r){
+                SET .store = new gnr.GnrBag();
                 return;
             }
             SET .grid.struct = r.struct;
@@ -256,10 +257,19 @@ class TableHandlerGroupBy(BaseComponent):
         return frame
         
     @public_method
-    def _thg_selectgroupby(self,struct=None,**kwargs):
+    def _thg_selectgroupby(self,struct=None,groupLimit=None,groupOrderBy=None,**kwargs):
         columns_list = list()
         group_list = list()
         having_list = list()
+        custom_order_by = list()
+        if groupOrderBy:
+            for v in groupOrderBy.values():
+                field = v['field']
+                if not field.startswith('@'):
+                    field = '$%s' %field
+                field = field if not v['group_aggr'] else '%s(%s)' %(v['group_aggr'],field)
+                custom_order_by.append('%s %s' %(field,('asc' if v['sorting'] else 'desc')))
+            custom_order_by = ' ,'.join(custom_order_by)
         def asName(field,group_aggr):
             return '%s_%s' %(field.replace('.','_').replace('@','_').replace('-','_'),
                     group_aggr.replace('.','_').replace('@','_').replace('-','_').replace(' ','_').lower())
@@ -311,10 +321,12 @@ class TableHandlerGroupBy(BaseComponent):
             return False
         kwargs['columns'] = ','.join(columns_list)
         kwargs['group_by'] = ','.join(group_list)
-        kwargs['order_by'] = kwargs['group_by']
+        kwargs['order_by'] = custom_order_by or kwargs['group_by']
         if having_list:
             kwargs['having'] = ' OR '.join(having_list)
         kwargs['hardQueryLimit'] = False
+        if groupLimit:
+            kwargs['limit'] = groupLimit
         return self.app._default_getSelection(_aggregateRows=False,**kwargs)
 
     @struct_method
@@ -343,3 +355,29 @@ class TableHandlerGroupBy(BaseComponent):
             loadmenu.update(userobjects)
             result.setItem('r_%s' %len(result),loadmenu,label='!!Load dashboard',action=loadAction)
         return result
+
+    @struct_method
+    def thgp_linkedGroupByAnalyzer(self,view,**kwargs):
+        linkedTo=view.attributes.get('frameCode')
+        table = view.grid.attributes.get('table')
+        frameCode = '%s_gp_analyzer' %linkedTo
+        pane = view.grid_envelope.contentPane(region='bottom',height='300px',closable='close',margin='2px',splitter=True,
+                                             border_top='1px solid #efefef')
+        view.dataController("""
+            var analyzerNode = genro.nodeById(analyzerId);
+            if(currentSelectedPkeys && currentSelectedPkeys.length){
+                analyzerNode.setRelativeData('.analyzer_condition', '$'+pkeyField+' IN :analyzed_pkeys');
+                analyzerNode.setRelativeData('.analyzed_pkeys',currentSelectedPkeys);
+            }else{
+                analyzerNode.setRelativeData('.analyzer_condition',null);
+                analyzerNode.setRelativeData('.analyzed_pkeys',null);
+            }
+        """,pkeyField='=.table?pkey',
+            currentSelectedPkeys='^.grid.currentSelectedPkeys',
+            analyzerId=frameCode,_delay=500)
+
+        pane.groupByTableHandler(frameCode=frameCode,linkedTo=linkedTo,
+                                    table=table,datapath='.analyzerPane',
+                                    condition='=.analyzer_condition',
+                                    condition_analyzed_pkeys='^.analyzed_pkeys')
+        

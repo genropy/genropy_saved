@@ -368,6 +368,32 @@ class CsvReader(object):
         for r in self.rows:
             yield GnrNamedList(self.index, r)
         self.filecsv.close()
+
+
+class XmlReader(object):
+    def __init__(self, docname,collection_path=None,row_tag=None,**kwargs):
+        from gnr.core.gnrbag import Bag
+        self.source = Bag(docname)
+        
+        if collection_path:
+            rows = [n.value.asDict(ascii=True) if n.value else n.attr for n in self.source[collection_path]]
+        else:
+            if not row_tag:
+                if len(self.source)==1:
+                    self.source = self.source['#0']
+                from collections import Counter
+                row_tag = Counter(self.source.keys()).most_common()[0][0]
+            rows = [n.value.asDict(ascii=True) if n.value else n.attr for n in self.source if n.label == row_tag]
+        self.rows = rows
+        r0 = rows[0]
+        self.headers = r0.keys()
+        self.index = dict([(k, i) for i, k in enumerate(self.headers)])
+        self.ncols = len(self.headers)
+
+    def __call__(self):
+        for r in self.rows:
+            yield GnrNamedList(self.index, r)
+        
             
 class GnrNamedList(list):
     """Row object. Allow access to data by column name. Allow also to add columns and alter data."""
@@ -523,6 +549,8 @@ def getReader(file_path,filetype=None,**kwargs):
     filename,ext = os.path.splitext(file_path)
     if filetype=='excel' or not filetype and ext in ('.xls','.xlsx'):
         reader = XlsReader(file_path,**kwargs)
+    elif ext=='.xml':
+        reader = XmlReader(file_path,**kwargs)
     else:
         dialect = None
         if filetype=='tab':

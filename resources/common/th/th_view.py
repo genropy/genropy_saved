@@ -205,7 +205,8 @@ class TableHandlerView(BaseComponent):
                                configurable=configurable,**kwargs)  
         if statsEnabled:
             self._th_handle_stats_pages(frame)
-            frame.linkedGroupByAnalyzer()
+            if extendedQuery == '*':
+                frame.viewLinkedDashboard()
         self._th_handle_page_hooks(frame,page_hooks)
         self._th_menu_sources(frame,extendedQuery=extendedQuery,bySample=bySample)
         self._th_viewController(frame,table=table,default_totalRowCount=extendedQuery == '*')
@@ -340,9 +341,6 @@ class TableHandlerView(BaseComponent):
             sc.contentPane(title='!!Pivot table',pageName='pandas').tableHandlerStats(datapath='.pandas')
         
 
-
-
-
     @struct_method
     def th_viewLeftDrawer(self,pane,table,th_root):
         bar = pane.slotBar('drawerStack',min_width='160px',closable='close',
@@ -359,18 +357,16 @@ class TableHandlerView(BaseComponent):
     def th_slotbar_importer(self,pane,frameCode=None,importer=None,**kwargs):
         options = self._th_hook('options',mangler=pane)() or dict()
         tags = options.get('uploadTags') or '_DEV_,superadmin'
-        if not self.application.checkResourcePermission(tags, self.userTags):
-            pane.div()
-            return
         inattr = pane.getInheritedAttributes()
         table = inattr['table']
         importerStructure = self.db.table(table).importerStructure()
         matchColumns= '*' if importerStructure else None
         pane.PaletteImporter(table=table,paletteCode='%(th_root)s_importer' %inattr,
                             matchColumns=matchColumns,
+                            _tags=tags,
+                            _tablePermissions=dict(table=table,permissions='ins,upd,import'),
                             match_values= ','.join(self.db.table(table).model.columns.keys()) if not matchColumns else None,
                             dockButton_iconClass='iconbox inbox',title='!!Importer',**kwargs)
-
 
     @struct_method
     def th_slotbar_sum(self,pane,label=None,format=None,width=None,**kwargs):
@@ -656,6 +652,8 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_slotbar_resourcePrints(self,pane,flags=None,from_resource=None,hidden=None,**kwargs):
         pane.menudiv(iconClass='iconbox menubox print',hidden=hidden,storepath='.resources.print.menu',
+                    _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
+                                                        permissions='print'),
                     action="""FIRE .th_batch_run = {resource:$1.resource,template_id:$1.template_id,res_type:'print'};""")
 
     @public_method
@@ -664,12 +662,16 @@ class TableHandlerView(BaseComponent):
         
     @struct_method
     def th_slotbar_resourceActions(self,pane,**kwargs):
-        pane.menudiv(iconClass='iconbox gear',storepath='.resources.action.menu',action="""
+        pane.menudiv(iconClass='iconbox gear',storepath='.resources.action.menu',
+                            _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
+                                                        permissions='action'),action="""
                             FIRE .th_batch_run = {resource:$1.resource,res_type:"action"};
                             """,_class='smallmenu')
     @struct_method
     def th_slotbar_resourceMails(self,pane,from_resource=None,flags=None,**kwargs):
         pane.menudiv(iconClass='iconbox mail',storepath='.resources.mail.menu',
+                        _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
+                                                        permissions='mail'),
                         action="""FIRE .th_batch_run = {resource:$1.resource,template_id:$1.template_id,res_type:'mail'};""")
 
     @public_method
@@ -734,8 +736,9 @@ class TableHandlerView(BaseComponent):
         if th_pkey:
             querybase = dict(column=self.db.table(table).pkey,op='equal',val=th_pkey,runOnStart=True)
         else:
-            querybase = self._th_hook('query',mangler=th_root)() or dict()
-        queryBag = self._prepareQueryBag(querybase,table=table)
+            
+            querybase = self._th_hook('query',mangler=th_root)() or dict(column=(tblobj.attributes.get('caption_field') or tblobj.pkey),op='contains',val='')
+        queryBag = self.th_prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
         options = self._th_hook('options',mangler=th_root)() or dict()
         pageOptions = self.pageOptions or dict()
@@ -845,6 +848,7 @@ class TableHandlerView(BaseComponent):
                                _sections='=.sections',
                                limit='=.query.limit',
                                queryExtraPars='=.query.extraPars',
+                               joinConditions='=.query.joinConditions',
                                hardQueryLimit='=.hardQueryLimit',
                               # sum_columns='=.sum_columns',
                                _onStart=_onStart,
@@ -969,7 +973,7 @@ class TableHandlerView(BaseComponent):
                                 SET .usersets.menu = new gnr.GnrBagCbResolver({method:cb});
 
                                 """,
-                        _onStart=True,th_root = inattr['th_root'],table = inattr['table'])
+                        _onBuilt=1,th_root = inattr['th_root'],table = inattr['table'])
 
         pane.menudiv(iconClass='iconbox heart',tip='!!User sets',storepath='.usersets.menu')
        
@@ -981,19 +985,8 @@ class TableHandlerView(BaseComponent):
         tablecode = table.replace('.','_')
         pane.dataController(
                """var th = TH(th_root);
-                  
-                  th.querymanager = th.querymanager || new gnr.QueryManager(th,this,table);
-               """ 
+                  th.querymanager = th.querymanager || new gnr.QueryManager(th,this,table);""" 
                , _init=True, _onBuilt=True, table=table,th_root = th_root)
-    
-        pane.dataController("""
-                   var qm = TH(th_root).querymanager;
-                   qm.createMenuesQueryEditor();
-                   dijit.byId(qm.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryColumn')));
-                   dijit.byId(qm.relativeId('qb_not_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryNot')));
-                   dijit.byId(qm.relativeId('qb_queryModes_menu')).bindDomNode(genro.domById(qm.relativeId('searchMenu_a')));
-                   qm.setFavoriteQuery();
-        """,_onStart=True,th_root=th_root)   
         fmenupath = 'gnr.qb.%s.fieldsmenu' %tablecode
         options = self._th_hook('options',mangler=pane)() or dict()
         pane.dataRemote(fmenupath,self.relationExplorer,item_type='QTREE',
@@ -1011,7 +1004,7 @@ class TableHandlerView(BaseComponent):
                               FIRE .updateCurrentQueryCount;
                                genro.dlg.alert(alertmsg,dlgtitle);
                                  """, _fired="^.showQueryCountDlg", waitmsg='!!Working.....',
-                              dlgtitle='!!Current query record count',alertmsg='^.currentQueryCountAsString')
+                              dlgtitle='!!Current query record count',alertmsg='=.currentQueryCountAsString')
         box = pane.div(datapath='.query.where',onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
         box.data('.#parent.queryMode','S',caption='!!Search')
         box.div('^.#parent.queryMode?caption',_class='gnrfieldlabel th_searchlabel',
@@ -1072,53 +1065,7 @@ class TableHandlerView(BaseComponent):
         pane.data('.excludeDraft', options.get('excludeDraft',True))
         pane.data('.tableRecordCount',options.get('tableRecordCount',default_totalRowCount))
 
-    def _prepareQueryBag(self,querybase,table=None):
-        result = Bag()
-        if not querybase:
-            return result
-        table = table or self.maintable
-        tblobj = self.db.table(table)
-        op_not = querybase.get('op_not', 'yes')
-        column = querybase.get('column')
-        column_dtype = None
-        val = querybase.get('val')
-        if column:
-            column_dtype = tblobj.column(column).getAttr('query_dtype') or tblobj.column(column).getAttr('dtype')
-        not_caption = '&nbsp;' if op_not == 'yes' else '!!not'
-        result.setItem('c_0', val,
-                       {'op': querybase.get('op'), 'column': column,
-                        'op_caption': self.db.whereTranslator.opCaption(querybase.get('op')),
-                        'not': op_not, 'not_caption': not_caption,
-                        'column_dtype': column_dtype,
-                        'column_caption': self.app._relPathToCaption(table, column),
-                        'value_caption':val})
-        return result
 
-    @struct_method
-    def thgp_linkedGroupByAnalyzer(self,view,**kwargs):
-        linkedTo=view.attributes.get('frameCode')
-        table = view.grid.attributes.get('table')
-        frameCode = '%s_gp_analyzer' %linkedTo
-        pane = view.grid_envelope.contentPane(region='bottom',height='300px',closable='close',margin='2px',splitter=True,
-                                             border_top='1px solid #efefef')
-        view.dataController("""
-            var analyzerNode = genro.nodeById(analyzerId);
-            if(currentSelectedPkeys && currentSelectedPkeys.length){
-                analyzerNode.setRelativeData('.analyzer_condition', '$'+pkeyField+' IN :analyzed_pkeys');
-                analyzerNode.setRelativeData('.analyzed_pkeys',currentSelectedPkeys);
-            }else{
-                analyzerNode.setRelativeData('.analyzer_condition',null);
-                analyzerNode.setRelativeData('.analyzed_pkeys',null);
-            }
-        """,pkeyField='=.table?pkey',
-            currentSelectedPkeys='^.grid.currentSelectedPkeys',
-            analyzerId=frameCode,_delay=500)
-
-        pane.groupByTableHandler(frameCode=frameCode,linkedTo=linkedTo,
-                                    table=table,datapath='.analyzerPane',
-                                    condition='=.analyzer_condition',
-                                    condition_analyzed_pkeys='^.analyzed_pkeys')
-        
 
 class THViewUtils(BaseComponent):
     js_requires='th/th_querytool,th/th_viewconfigurator'
@@ -1296,30 +1243,6 @@ class THViewUtils(BaseComponent):
         gridattr['selfsubscribe_refreshLinkedSelection'] = """SET .#parent.linkedSelectionPars.pkeys = null;
                                                                FIRE .#parent.runQueryDo;"""
 
-    @public_method
-    def th_searchRelationPath(self,table=None,destTable=None,**kwargs):
-        joiners = self.db.table(destTable).model.getTableJoinerPath(table)
-        result = []
-        values = []
-        cbdict = dict()
-        for j in joiners:
-            caption_path = []
-            relpath_list = []
-            for r in j:
-                relpath_list.append(r['relpath'])
-                tblobj = self.db.table(r['table'])
-                caption_path.append(self._(tblobj.name_plural if r['mode'] == 'M' else tblobj.name_long))
-            if len(relpath_list)>1:
-                relpath = '.'.join(relpath_list)
-            else:
-                relpath = relpath_list[0]
-                if not relpath.startswith('@'):
-                    relpath = '$%s' %relpath
-            result.append(relpath)
-            values.append('%s:%s' %(relpath,'/'.join(caption_path)))
-            cbdict[relpath] = caption_path
-
-        return dict(relpathlist=result,masterTableCaption=self._(self.db.table(table).name_long),cbvalues=','.join(values))
 
 
 

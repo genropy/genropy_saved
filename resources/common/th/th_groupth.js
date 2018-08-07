@@ -280,26 +280,33 @@ genro_plugin_groupth = {
   
     saveAsDashboard:function(sourceNode,kw){
         kw = kw || {};
-        var th = TH(sourceNode.attr._linkedTo);
+        var th = TH(sourceNode.attr._linkedTo || sourceNode.attr.nodeId+'_query');
         var queryParsBag = th.querymanager.queryParsBag();
         sourceNode.setRelativeData('.queryPars',queryParsBag);
         kw.dataIndex = {
             where:th.querymanager.sourceNode.absDatapath('.query.where'),
+            groupLimit:th.querymanager.sourceNode.absDatapath('.query.limit'),
+            groupOrderBy:th.querymanager.sourceNode.absDatapath('.query.customOrderBy'),
+            joinConditions:th.querymanager.sourceNode.absDatapath('.query.joinConditions'),
             groupByStruct:'.grid.struct',
             groupMode:'.groupMode',
             output:'.output',
-            queryPars:'.queryPars'
+            queryPars:'.queryPars',
         };
         kw.objtype = 'dash_groupby';
         kw.metadataPath = '.dashboardMeta';
         kw.table = sourceNode.attr.table;
         kw.title = _T('Save dashboard');
+        kw.preview = true;
         kw.defaultMetadata = {flags:'groupth|'+sourceNode.attr.nodeId};
-        var onSaved =function(result){
-            sourceNode.setRelativeData('.dashboardMeta',new gnr.GnrBag(result.attr));
-            sourceNode.fireEvent('.refreshDashboardsMenu',true);
-        };
-        genro.dev.userObjectSave(sourceNode,kw,onSaved);
+        var onSaved = objectPop(kw,'onSaved');
+        if(!onSaved){
+            onSaved =function(result){
+                sourceNode.setRelativeData('.dashboardMeta',new gnr.GnrBag(result.attr));
+                sourceNode.fireEvent('.refreshDashboardsMenu',true);
+            };
+        }
+        return genro.dev.userObjectSave(sourceNode,kw,onSaved);
     },
 
     loadDashboard:function(sourceNode,kw){
@@ -307,19 +314,24 @@ genro_plugin_groupth = {
         kw.metadataPath = '.dashboardMeta';
         kw.tbl = sourceNode.attr.table;
         kw.objtype = 'dash_groupby';
-        kw.onLoading = function(dataIndex,resultValue,resultAttr){
-            if(!sourceNode.attr._linkedTo){
-                dataIndex.setItem('where','.where');
-            }
-        };
         kw.onLoaded = function(dataIndex,resultValue,resultAttr){
             if(sourceNode.attr._linkedTo){
-                TH(sourceNode.attr._linkedTo).querymanager.sourceNode.fireEvent('.runQuery',true);
+                var qm = TH(sourceNode.attr._linkedTo).querymanager;
+                var qsn = qm.sourceNode;
+                var where = resultValue.getItem('where');
+                if(where && where.len()){
+                    qsn.setRelativeData('.query.currentQuery','__queryeditor__');
+                    qsn.setRelativeData('.query.queryAttributes.extended',true);
+                    qsn.setRelativeData('.query.queryEditor',true);
+                    qm.buildQueryPane();
+                }
+                qsn.fireEvent('.runQuery',true);
+
             }else{
                 sourceNode.fireEvent('.reloadMain',true);
             }
         };
-        genro.dev.userObjectLoad(sourceNode,kw);
+        return genro.dev.userObjectLoad(sourceNode,kw);
     },
 
     deleteCurrentDashboard:function(sourceNode,kw){

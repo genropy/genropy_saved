@@ -261,6 +261,7 @@ class GnrWebUtils(GnrBaseProxy):
                 import_modes.append('replace:Replace (remove %i records)' %sql_count)
             import_modes.append('insert_only:Insert only')
             import_modes.append('insert_or_update:Insert or update')
+            import_modes.append('update_only:Update only')
             result['import_modes'] = ','.join(import_modes)
             result['import_mode'] = 'insert_only'
             result['methodlist'] = ','.join([k[9:] for k in dir(tblobj) if k.startswith('importer_')])
@@ -333,12 +334,30 @@ class GnrWebUtils(GnrBaseProxy):
             if rows_to_insert:
                 tblobj.insertMany(rows_to_insert)
                 docommit=True
+        elif import_mode=='update_only':
+            _updater_keyfield = match_index.pop('_updater_keyfield',None)
+            if not _updater_keyfield:
+                return
+            for r in rows:
+                key = r.pop(_updater_keyfield)
+                missing_keys = []
+                updatekw = {_updater_keyfield:key,'raw':sql_mode,'ignoreMissing':True}
+                with tblobj.recordToUpdate(**updatekw) as rec:
+                    if rec is None:
+                        missing_keys.append(key)
+                    else:
+                        docommit = True
+                        rec.update(r)
+                if missing_keys:
+                    self.page.clientPublish('floating_message',message='Missing record to update %s' %','.join(missing_keys),
+                                            messageType='warning')
         else:
             for r in rows:
                 tblobj.importerInsertRow(r,import_mode=import_mode)
                 docommit=True
         if docommit:
             self.page.db.commit()
+       
         return 'OK'
     
     def adaptedRecords(self,tblobj=None,reader=None,match_index=None,sql_mode=None,constants=None):
@@ -405,7 +424,9 @@ class GnrWebUtils(GnrBaseProxy):
                 resmodule = gnrImport(node.attr['abs_path'])
 
                 tags = getattr(resmodule, 'tags', '')
-                if tags and not page.application.checkResourcePermission(tags, page.userTags):
+                permissions = getattr(resmodule, 'permissions', None)
+                if (tags and not page.application.checkResourcePermission(tags, page.userTags)) or \
+                    permissions and not page.checkTablePermission(table=table,permissions=permissions):
                     if node.label == '_doc':
                         forbiddenNodes.append('.'.join(_pathlist))
                     return

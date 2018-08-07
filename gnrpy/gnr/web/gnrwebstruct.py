@@ -37,6 +37,7 @@ def cellFromField(field,tableobj,checkPermissions=None):
     kwargs = dict()
     fldobj = tableobj.column(field)
     fldattr = dict(fldobj.attributes or dict())
+        
     if (fldattr.get('cell_edit') or fldattr.get('edit'))\
          and fldobj.table.fullname!=fldobj.fullname:
         fldattr.pop('cell_edit',None)
@@ -68,6 +69,9 @@ def cellFromField(field,tableobj,checkPermissions=None):
     kwargs['width'] = '%iem' % int(fldobj.print_width*.6) if fldobj.print_width else None
     if fldattr.get('caption_field'):
         kwargs['caption_field'] = fldattr['caption_field']
+    if fldattr.get('_owner_package'):
+        kwargs['_owner_package'] = fldattr['_owner_package']
+
     relfldlst = tableobj.fullRelationPath(field).split('.')
     validations = dictExtract(fldobj.attributes,'validate_',slice_prefix=False)
     if fldattr.get('user_readonly'):
@@ -225,17 +229,18 @@ class GnrDomSrc(GnrStructData):
         """TODO"""
         return self.js_sourceNode('f')
     
-    def makeRoot(cls, page, source=None):
+    def makeRoot(cls, page, source=None,rootAttributes=None):
         """Build the root through the :meth:`makeRoot()
         <gnr.core.gnrstructures.GnrStructData.makeRoot>` method and return it
         
         :param cls: the structure class
         :param page: the webpage instance
         :param source: the filepath of the xml file"""
-        root = GnrStructData.makeRoot(source=source, protocls=cls)
+        root = GnrStructData.makeRoot(source=source, protocls=cls,rootAttributes=rootAttributes)
         root._page = page
         return root
     makeRoot = classmethod(makeRoot)
+
 
     def _get_page(self):
         return self.root._page
@@ -294,7 +299,7 @@ class GnrDomSrc(GnrStructData):
         if childnode:
             return childnode._value
         
-    def child(self, tag, childname=None, childcontent=None, envelope=None,**kwargs):
+    def child(self, tag, childname=None, childcontent=None, envelope=None,_tablePermissions=None,**kwargs):
         """Set a new item of the ``tag`` type into the current structure through
         the :meth:`child() <gnr.core.gnrstructures.GnrStructData.child>` and return it
         
@@ -306,6 +311,9 @@ class GnrDomSrc(GnrStructData):
             kwargs['value'] = childname
             childname = None
         if '_tags' in kwargs and not self.page.application.checkResourcePermission(kwargs['_tags'], self.page.userTags):
+            kwargs['__forbidden__'] = True
+        if _tablePermissions and _tablePermissions.get('table') \
+            and not self.page.checkTablePermission(**_tablePermissions):
             kwargs['__forbidden__'] = True
         if not self.page.application.allowedByPreference(**kwargs):
             kwargs['__forbidden__'] = True
@@ -951,7 +959,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                
     #gnrNS=['menu','menuBar','menuItem','Tree','Select','DbSelect','Combobox','Data',
     #'Css','Script','Func','BagFilteringTable','DbTableFilter','TreeCheck']
-    gnrNS = ['DbSelect','CallBackSelect','RemoteSelect', 'DbComboBox', 'DbView', 'DbForm', 'DbQuery', 'DbField',
+    gnrNS = ['DbSelect','CallBackSelect','RemoteSelect','PackageSelect','TableSelect', 'DbComboBox', 'DbView', 'DbForm', 'DbQuery', 'DbField',
              'dataFormula', 'dataScript', 'dataRpc', 'dataController', 'dataRemote',
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
@@ -1729,8 +1737,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                        * **rowcaption**: the textual representation of a record in a user query.
                          For more information, check the :ref:`rowcaption` section
         """
-        newkwargs = self._fieldDecode(field, **kwargs)
-        kwargs.pop('lbl',None) #inside _fielddecode routine
+        newkwargs = self.prepareFieldAttributes(field, **kwargs)
+        kwargs.pop('lbl',None)
         newkwargs.update(kwargs)
         tag = newkwargs.pop('tag')
         handler = getattr(self,tag)
@@ -1739,7 +1747,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def placeFields(self, fieldlist=None, **kwargs):
         """TODO"""
         for field in fieldlist.split(','):
-            kwargs = self._fieldDecode(field)
+            kwargs = self.prepareFieldAttributes(field)
             tag = kwargs.pop('tag')
             self.child(tag, **kwargs)
         return self
@@ -1755,7 +1763,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             else:
                 pane.radioButton(label, group=group)
 
-    def _fieldDecode(self, fld, **kwargs):
+    def prepareFieldAttributes(self, fld, **kwargs):
         parentfb = self.parentfb
         tblobj = None
         if '.' in fld and not fld.startswith('@'):

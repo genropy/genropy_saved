@@ -25,16 +25,18 @@ class FrameGridTools(BaseComponent):
                                 opt_downloadAs=parameters.get('downloadAs'),
                                 opt_rawData=rawData, iconClass=_class,
                                 opt_localized_data=True,
+                                _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
+                                                        permissions='export'),
                                 ask=dict(title='Export selection',skipOn='Shift',
                                         fields=[dict(name='opt_downloadAs',lbl='Download as',placeholder=placeholder),
                                                 dict(name='opt_export_mode',wdg='filteringSelect',values='xls:Excel,csv:CSV',lbl='Mode'),
                                                 dict(name='opt_allRows',label='All rows',wdg='checkbox'),
                                                 dict(name='opt_localized_data',wdg='checkbox',label='Localized data')]),
-
                                 **kwargs) 
        
     @struct_method
-    def fgr_slotbar_addrow(self,pane,_class='iconbox add_row',disabled='^.disabledButton',enable=None,delay=300,defaults=None,**kwargs):
+    def fgr_slotbar_addrow(self,pane,_class='iconbox add_row',disabled='^.disabledButton',enable=None,delay=300,
+                                    defaults=None,**kwargs):
         kwargs.setdefault('visible',enable)
         menupath = None
         if defaults:
@@ -51,12 +53,16 @@ class FrameGridTools(BaseComponent):
             if menubag:
                 pane.data('.addrow_menu_store',menubag)
         return pane.slotButton(label='!!Add',childname='addButton',publish='addrow',iconClass=_class,disabled=disabled,
+                                _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
+                                                        permissions='ins,readonly'),
                                 _delay=delay,menupath=menupath,**kwargs)
          
     @struct_method
     def fgr_slotbar_duprow(self,pane,_class='iconbox copy',disabled='^.disabledButton',enable=None,delay=300,defaults=None,**kwargs):
         kwargs.setdefault('visible',enable)
         return pane.slotButton(label='!!Duplicate',publish='duprow',iconClass=_class,disabled=disabled,
+                                _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
+                                                        permissions='ins,readonly'),
                                 _delay=delay,**kwargs)
 
     @struct_method
@@ -89,11 +95,17 @@ class FrameGridTools(BaseComponent):
                             disabled=disabled,deleteButtonClass=_class,frameCode=frameCode,_onBuilt=True,
                             **{str('subscribe_%s_grid_onSelectedRow' %frameCode):True})
         pane.data('.deleteButtonClass',_class)
-        return pane.slotButton(label='!!Delete',publish='delrow',iconClass='^.deleteButtonClass',disabled='^.deleteDisabled',**kwargs)
+        return pane.slotButton(label='!!Delete',publish='delrow',
+                            iconClass='^.deleteButtonClass',disabled='^.deleteDisabled',
+                            _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
+                                                    permissions='del,readonly'),
+                            **kwargs)
     
     @struct_method
     def fgr_slotbar_archive(self,pane,_class='box iconbox',enable=None,disabled='^.disabledButton',parentForm=True,**kwargs):
         button = pane.slotButton(label='!!Archive at date',publish='archive',iconClass=_class,
+                        _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
+                                                    permissions='archive,upd,readonly'),
                         disabled=disabled,parentForm=parentForm,**kwargs)
         return button
         
@@ -114,7 +126,10 @@ class FrameGridTools(BaseComponent):
     def fgr_slotbar_gridsave(self,pane,**kwargs):
         return pane.slotButton(label='!!Save',publish='saveChangedRows',
                                disabled='==status!="changed"',iconClass="iconbox save",
-                                status='^.grid.editor.status',**kwargs)
+                                status='^.grid.editor.status',
+                                _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
+                                                        permissions='archive,upd'),
+                                **kwargs)
     @struct_method
     def fgr_slotbar_gridsemaphore(self,pane,**kwargs):
         return pane.div(_class='editGrid_semaphore',padding_left='4px')
@@ -176,24 +191,23 @@ class FrameGridTools(BaseComponent):
         pane.menudiv(iconClass= iconClass or 'iconbox list',datapath='.grid',storepath='.structMenuBag',selected_fullpath='.currViewPath')
 
     @struct_method
-    def fg_viewConfigurator(self,view,table=None,queryLimit=None,region=None,configurable=None):
+    def fg_viewConfigurator(self,view,table=None,queryLimit=None,region=None,configurable=None,toolbar=True):
         grid = view.grid
         grid.attributes['configurable'] = True
         right = view.grid_envelope.borderContainer(region=region or 'right',width='160px',closable='close',
                                         splitter=True,border_left='1px solid silver')
-
-        confBar = right.contentPane(region='top')
-        confBar = confBar.slotToolbar('viewsMenu,currviewCaption,*,defView,saveView,deleteView',background='whitesmoke',height='20px')
-        confBar.currviewCaption.div('^.grid.currViewAttrs.caption',font_size='.9em',color='#666',line_height='16px')
-
         gridId = grid.attributes.get('nodeId')
-        confBar.defView.slotButton('!!Favorite View',iconClass='th_favoriteIcon iconbox star',
-                                        action='genro.grid_configurator.setCurrentAsDefault(gridId);',gridId=gridId)
-        confBar.saveView.slotButton('!!Save View',iconClass='iconbox save',
-                                        action='genro.grid_configurator.saveGridView(gridId);',gridId=gridId)
-        confBar.deleteView.slotButton('!!Delete View',iconClass='iconbox trash',
-                                    action='genro.grid_configurator.deleteGridView(gridId);',
-                                    gridId=gridId,disabled='^.grid.currViewAttrs.pkey?=!#v')
+        if toolbar:
+            confBar = right.contentPane(region='top')
+            confBar = confBar.slotToolbar('viewsMenu,currviewCaption,*,defView,saveView,deleteView',background='whitesmoke',height='20px')
+            confBar.currviewCaption.div('^.grid.currViewAttrs.caption',font_size='.9em',color='#666',line_height='16px')
+            confBar.defView.slotButton('!!Favorite View',iconClass='th_favoriteIcon iconbox star',
+                                            action='genro.grid_configurator.setCurrentAsDefault(gridId);',gridId=gridId)
+            confBar.saveView.slotButton('!!Save View',iconClass='iconbox save',
+                                            action='genro.grid_configurator.saveGridView(gridId);',gridId=gridId)
+            confBar.deleteView.slotButton('!!Delete View',iconClass='iconbox trash',
+                                        action='genro.grid_configurator.deleteGridView(gridId);',
+                                        gridId=gridId,disabled='^.grid.currViewAttrs.pkey?=!#v')
         if queryLimit is not False and (table==getattr(self,'maintable',None) or configurable=='*'):
             footer = right.contentPane(region='bottom',height='25px',border_top='1px solid silver',overflow='hidden').formbuilder(cols=1,font_size='.8em',
                                                 fld_color='#555',fld_font_weight='bold')
@@ -226,7 +240,7 @@ class FrameGrid(BaseComponent):
         grid_kwargs.setdefault('_newGrid',_newGrid)
         grid_kwargs.setdefault('structpath',structpath)
         grid_kwargs.setdefault('sortedBy','^.sorted')
-        grid_kwargs['selfsubscribe_addrow'] = grid_kwargs.get('selfsubscribe_addrow','this.widget.addRows($1._counter,$1.evt);')
+        grid_kwargs['selfsubscribe_addrow'] = grid_kwargs.get('selfsubscribe_addrow','this.widget.addRows((($1.opt && $1.opt.default_kw)? [$1.opt.default_kw]: $1._counter),$1.evt);')
         grid_kwargs['selfsubscribe_duprow'] = grid_kwargs.get('selfsubscribe_duprow','this.widget.addRows($1._counter,$1.evt,true);')
         grid_kwargs['selfsubscribe_delrow'] = grid_kwargs.get('selfsubscribe_delrow','this.widget.deleteSelectedRows();')
         grid_kwargs['selfsubscribe_archive'] = grid_kwargs.get('selfsubscribe_archive','this.widget.archiveSelectedRows();')

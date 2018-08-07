@@ -32,7 +32,7 @@ class FormHandler(BaseComponent):
     @struct_method
     def formhandler_linkedForm(self,pane,frameCode=None,formRoot=None,store=True,table=None,
                         formId=None,dialog_kwargs=None,palette_kwargs=None,attachTo=None,
-                        iframe=False,default_kwargs=None,tree_kwargs=None,
+                        iframe=False,remoteForm=None,remotePars=None,default_kwargs=None,tree_kwargs=None,
                         loadEvent=None,link_kwargs=None,**kwargs):
         if loadEvent:
             link_kwargs['event'] = loadEvent
@@ -44,12 +44,16 @@ class FormHandler(BaseComponent):
                                     palette_kwargs=palette_kwargs,attachTo=attachTo,form_kwargs=kwargs)
         parentTag = pane.attributes['tag'].lower()
         if parentTag=='includedview' or parentTag=='newincludedview':
-            self.__linkToParentGrid(pane,formId=formId,iframe=iframe,link_kwargs=link_kwargs)
+            self.__linkToParentGrid(pane,formId=formId,iframe=iframe,link_kwargs=link_kwargs,remoteForm=remoteForm)
             kwargs['store_storeType'] = 'Collection'
             kwargs['store_parentStore'] = pane.attributes['store']
         if iframe:
             src=None if iframe is True else iframe
             return formRoot.formInIframe(table=table,formId=formId,default_kwargs=default_kwargs,src=src,**kwargs)
+        elif remoteForm:
+            remotePars.update(frameCode=frameCode,formId=formId,table=table,store=store)
+            remotePars.update(kwargs)
+            return formRoot
         form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=table,store=store,**kwargs)
         attachTo.form = form
         form.store.handler('load',default_kwargs=default_kwargs)
@@ -103,9 +107,10 @@ class FormHandler(BaseComponent):
             formRoot = attachTo.palette(**palette_kwargs)
         return formRoot
 
-    def __linkToParentGrid(self,grid,formId=None,iframe=None,link_kwargs=None):
+    def __linkToParentGrid(self,grid,formId=None,iframe=None,link_kwargs=None,remoteForm=None):
         gridattr = grid.attributes
         gridattr['_linkedFormId']=formId
+        gridattr['_watchOnVisible'] = True
         gridsubscribers = dict()
         if link_kwargs.get('event'):
             if self.isMobile:
@@ -158,17 +163,36 @@ class FormHandler(BaseComponent):
                                                     this.publish('editrow',newrecord_kw);
                                                 }"""
         gridattr['selfsubscribe_editrow'] = """
-                                    var pref = 'form_'+this.attr._linkedFormId;
-                                    if($1.pkey=='*newrecord*'){
-                                        var kw = {destPkey:$1.pkey};
-                                        if($1.default_kw){
-                                            kw.default_kw = $1.default_kw;
+                                    var linkedFormId = this.attr._linkedFormId;
+                                    var pref = 'form_'+linkedFormId;
+                                    var pkey = $1.pkey;
+                                    var default_kw = $1.default_kw;
+                                    var finalize = function(){
+                                        if(pkey=='*newrecord*'){
+                                            var kw = {destPkey:pkey};
+                                            if(default_kw){
+                                                kw.default_kw = default_kw;
+                                            }
+                                            genro.publish(pref+'_load',kw);
+                                        }else{
+                                            genro.publish(pref+'_goToRecord',pkey || '*norecord*');
                                         }
-                                        genro.publish(pref+'_load',kw);
-                                    }else{
-
-                                        genro.publish(pref+'_goToRecord',$1.pkey || '*norecord*');
                                     }
+                                    var remWrapper = genro.nodeById('remote_wrapper_'+linkedFormId);
+                                    if(remWrapper && !genro.formById(linkedFormId)){
+                                        var that = this;
+                                        genro.lockScreen(true,'buildingRemoteForm',{message:'<div style="height:130px;opacity:.8;" class="waiting"></div>'});
+                                        remWrapper.updateRemoteContent(true,true).addCallback(function(){
+                                            that.watch('linkedFormReady',function(){
+                                                return genro.formById(linkedFormId) && genro.formById(linkedFormId).formContentDomNode;
+                                            },function(){
+                                                genro.lockScreen(false,'buildingRemoteForm');
+                                                finalize();
+                                            });
+                                        });
+                                        return;
+                                    }
+                                    finalize();
                                     """
         gridattr['selfsubscribe_viewlocker'] = 'this.widget.collectionStore().setLocked("toggle");'
         gridsubscribers['onExternalChanged']= """
@@ -193,6 +217,16 @@ class FormHandler(BaseComponent):
                                                                 }
                                                             }
                                                               """
+        if remoteForm=='delayed':
+            gridattr['selfsubscribe_isVisible'] = """
+                var linkedFormId = this.attr._linkedFormId;
+                var remWrapper = genro.nodeById('remote_wrapper_'+linkedFormId);
+                if(!genro.formById(linkedFormId) && remWrapper){
+                    setTimeout(function(){
+                        remWrapper.updateRemoteContent(true,true);
+                    },1);
+                }
+            """
         subpref = 'subscribe_%(nodeId)s' %gridattr
         for k,v in gridsubscribers.items():
             gridattr['%s_%s' %(subpref,k)] = v
@@ -218,6 +252,11 @@ class FormHandler(BaseComponent):
         kwargs['_default_kwargs'] = default_kwargs
         return formRoot.contentPane(overflow='hidden',onCreated='this.iframeFormManager = new gnr.IframeFormManager(this);',**kwargs)
 
+    def fh_tableForbidden(self,pane,what):
+        table = pane.getInheritedAttributes().get('table')
+        if table and not self.checkTablePermission(table,what):
+            pane.div('&nbsp;')
+            return True
 
     @struct_method
     def fh_slotbar_form_navigation(self,pane,**kwargs):
@@ -255,6 +294,8 @@ class FormHandler(BaseComponent):
     
     @struct_method          
     def fh_slotbar_form_save(self,pane,always=False,**kwargs):
+        if self.fh_tableForbidden(pane,'upd'):
+            return
         pane.formButton('!!Save',topic='save',iconClass="iconbox save",
                         _shortcut='@save:f1',_shortcut_activeForm=True,
                         command=always,disabled='^#FORM.controller.locked')
@@ -267,6 +308,8 @@ class FormHandler(BaseComponent):
     
     @struct_method          
     def fh_slotbar_form_delete(self,pane,parentForm=True,**kwargs):
+        if self.fh_tableForbidden(pane,'del'):
+            return
         pane.formButton(topic='deleteItem',
                         iconClass="iconbox delete_record",parentForm=parentForm,
                         disabled='==_newrecord||_protected',
@@ -278,6 +321,8 @@ class FormHandler(BaseComponent):
 
     @struct_method          
     def fh_slotbar_form_archive(self,pane,parentForm=True,**kwargs):
+        if self.fh_tableForbidden(pane,'archive'):
+            return
         table = pane.getInheritedAttributes()['table']
         logicalDeletionField = self.db.table(table).logicalDeletionField
         pane.slotButton('!!Set Archiviation date',
@@ -322,6 +367,8 @@ class FormHandler(BaseComponent):
     
     @struct_method          
     def fh_slotbar_form_add(self,pane,parentForm=None,disabled=None,defaults=None,**kwargs):
+        if self.fh_tableForbidden(pane,'ins'):
+            return
         menupath = None
         disabled = disabled or '^#FORM.controller.locked'
         if defaults:

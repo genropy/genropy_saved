@@ -1618,6 +1618,9 @@ dojo.declare("gnr.GnrDomHandler", null, {
                     canvas = tempcanvas;
                 }
                 data = canvas.toDataURL("image/png");
+                if(typeof(sendPars)=='function'){
+                    return sendPars(data,canvas);
+                }
                 genro.dlg.prompt('Upload screenshot',{
                     cancelCb:kw.onResult,
                     widget:function(center){

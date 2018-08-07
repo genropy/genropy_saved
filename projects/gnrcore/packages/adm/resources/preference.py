@@ -23,7 +23,7 @@ class AppPref(object):
         return 'admin'
 
     def prefpane_adm(self, parent, **kwargs):
-        tc = parent.tabContainer(**kwargs)
+        tc = parent.tabContainer(margin='2px',**kwargs)
         self._adm_general(tc.borderContainer(title='!!General', datapath='.general'))
         self._adm_instance_data(tc.contentPane(title='!!Instance data', datapath='.instance_data'))
         self._adm_mail(tc.contentPane(title='!!Mail options', datapath='.mail'))
@@ -65,8 +65,6 @@ class AppPref(object):
         fb.textbox(value='^.confirm_user_message',width='30em',lbl='Confirm user message')
         fb.textbox(value='^.new_user_ok_message',width='30em',lbl='New user ok message')
 
-
-
     def _adm_backups(self, pane):
         fb = pane.div(padding='5px').formbuilder(cols=1, border_spacing='3px')
         fb.textbox(value='^.backup_folder',lbl='Folder path')
@@ -93,21 +91,25 @@ class AppPref(object):
     def _adm_instance_data(self, pane):
         fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px', width='100%', fld_width='100%',
                                                 tdl_width='10em')
-        fb.textbox(value='^.owner_name', lbl='!!Owner name')
+        fb.textbox(value='^.owner_name', lbl='!!Owner name',livePreference=True)
         fb.textbox(value='^.logo_url', lbl='Logo url')
-        fb.img(url='^.logo_url')
+        pane.div(margin='10px',margin_left='20px').img(src='^.logo_url',height='200px',
+                        placeholder=self.getResourceUri('images/missing_photo.png'),
+                        upload_folder='site:img/logo',edit=True,
+                        upload_filename='clientlogo',livePreference=True)
 
 
 class UserPref(object):
     def prefpane_adm(self, parent, **kwargs):
-        tc = parent.tabContainer(**kwargs)
+        tc = parent.tabContainer(margin='2px',**kwargs)
         self._adm_general(tc.contentPane(title='!!General options', datapath='.general'))
-
         self._adm_mail(tc.contentPane(title='!!Mail options', datapath='.mail'))
 
     def _adm_general(self, pane):
         fb = pane.formbuilder(cols=1,border_spacing='3px',margin='10px')
-        fb.numberTextBox(value='^.screenlock_timeout',lbl='!!Screenlock timeout (minutes)')
+        #fb.numberTextBox(value='^.screenlock_timeout',lbl='!!Screenlock timeout (minutes)')
+        fb.button('!!Change password',action="genro.mainGenroWindow.genro.publish('openNewPwd')")
+
 
     def _adm_mail(self, pane):
         fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px', width='100%', fld_width='100%')

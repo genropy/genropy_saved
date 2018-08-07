@@ -653,17 +653,14 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             dojo.stopEvent(e);
             return;
         }
-        var nodeWidget = dijit.getEnclosingWidget(e.target);
-       //if (nodeWidget.htmlLabel && (!dojo.hasClass(e.target, 'dijitTreeExpando'))) {
-       //    return;
-       //}
+        nodeWidget = dijit.getEnclosingWidget(e.target);
         if (nodeWidget == nodeWidget.tree.rootNode) {
             return;
         }
         nodeWidget.__eventmodifier = eventToString(e);
         this._onClick_replaced(e);
         if (genro.wdg.filterEvent(e, '*', 'dijitTreeLabel,dijitTreeContent,treeCellContent')) {
-            this.setSelected(nodeWidget);
+            this.setSelected(nodeWidget,e);
         }
     },
     versionpatch_15__onClick:function(nodeWidget, e) {
@@ -687,9 +684,9 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             return;
         }
         nodeWidget.__eventmodifier = eventToString(e);
-        this._onClick_replaced(nodeWidget, e);
+        this._onClick_replaced(nodeWidget);
         if (genro.wdg.filterEvent(e, '*', 'dijitTreeLabel,dijitTreeContent')) {
-            this.setSelected(nodeWidget);
+            this.setSelected(nodeWidget,e);
         }
     },
     mixin_getItemById: function(id) {
@@ -885,7 +882,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
         return treeNode;
      },
-    mixin_setSelected:function(node) {
+    mixin_setSelected:function(node,e) {
         if(node){
             if(node.item.attr._isSelectable===false || (this.sourceNode.attr.openOnClick===true && node.item.attr.child_count)){
                 return;
@@ -899,7 +896,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
         if (node) {
             node._updateItemClasses(node.item);
-            this._updateSelect(node.item, node);
+            this._updateSelect(node.item, node,e);
         }
         
     },

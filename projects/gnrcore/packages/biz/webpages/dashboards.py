@@ -18,7 +18,7 @@ class GnrCustomWebPage(object):
         pkg = callArgs.get('dash_pkg')
         code = callArgs.get('dash_code')
         title = '!!Dashboards'
-        dashboard_tbl = self.db.table('adm.dashboard')
+        dashboard_tbl = self.db.table('biz.dashboard')
         dashboard_record = None
         if pkg:
             if code:
@@ -40,7 +40,7 @@ class GnrCustomWebPage(object):
             else:
                 frame.data('main.selected_pkg',pkg)
             if not code:
-                fb.dbSelect(value='^main.selected_dashboard',lbl='!!Dashboard',dbtable='adm.dashboard',
+                fb.dbSelect(value='^main.selected_dashboard',lbl='!!Dashboard',dbtable='biz.dashboard',
                             condition='$pkgid=:pk',condition_pk='=main.selected_pkg',
                             selected_code='main.selected_code',
                             disabled='^main.selected_pkg?=!#v',hasDownArrow=True)
@@ -49,6 +49,6 @@ class GnrCustomWebPage(object):
         else:
             frame.data('main.selected_pkg',pkg)
             frame.data('main.selected_code',code)
-        frame.dashboardGallery(datapath='.gallery',pkg='^main.selected_pkg',code='^main.selected_code')
+        frame.dashboardGallery(nodeId='gallery',datapath='.gallery',pkg='^main.selected_pkg',code='^main.selected_code')
 
         

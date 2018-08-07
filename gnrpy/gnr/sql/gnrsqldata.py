@@ -263,7 +263,8 @@ class SqlQueryCompiler(object):
         """Internal method: called by getFieldAlias to get the alias (t1, t2...) for the join table.
         It is recursive to resolve paths like ``@rel.@rel2.@rel3.column``"""
         p = pathlist.pop(0)
-        joiner = curr['%s?joiner' % p]
+        currNode = curr.getNode(p)
+        joiner = currNode.attr['joiner']
         if joiner == None:
             tblalias = self.db.table(curr.tbl_name, pkg=curr.pkg_name).model.table_aliases[p]
             if tblalias == None:
@@ -276,14 +277,14 @@ class SqlQueryCompiler(object):
                 pathlist = tblalias.relation_path.split(
                         '.') + pathlist # set the alias table relation_path in the current path
         else:                                                           # then call _findRelationAlias recursively
-            alias, newpath = self.getAlias(joiner, newpath, basealias)
+            alias, newpath = self._getRelationAlias(currNode, newpath, basealias)
             basealias = alias
             curr = curr[p]
         if pathlist:
             alias, curr = self._findRelationAlias(pathlist, curr, basealias, newpath)
         return alias, curr
             
-    def getAlias(self, attrs, path, basealias):
+    def _getRelationAlias(self, relNode, path, basealias):
         """Internal method: returns the alias (t1, t2...) for the join table of the current relation.
         If the relation is traversed for the first time, it builds the join clause.
         Here case_insensitive relations and joinConditions are addressed.
@@ -292,7 +293,8 @@ class SqlQueryCompiler(object):
         :param path: TODO
         :param basealias: TODO"""
         #ref = attrs['many_relation'].split('.')[-1]
-        ref = attrs['many_relation'].split('.', 1)[-1] #fix 25-11-09
+        joiner = relNode.attr['joiner']
+        ref = joiner['many_relation'].split('.', 1)[-1] #fix 25-11-09
         newpath = path + [ref]
         pw = tuple(newpath+[basealias])
         if pw in self.aliases: # if the requested join table is yet added by previous columns
@@ -304,51 +306,39 @@ class SqlQueryCompiler(object):
         alias = self.aliasCode(len(self.aliases))
         self.aliases[pw] = alias
         manyrelation = False
-        if attrs['mode'] == 'O':
-            target_tbl = self.dbmodel.table(attrs['one_relation'])
-            target_column = attrs['one_relation'].split('.')[-1]
-            from_tbl = self.dbmodel.table(attrs['many_relation'])
-            from_column = attrs['many_relation'].split('.')[-1]
+        if joiner['mode'] == 'O':
+            target_tbl = self.dbmodel.table(joiner['one_relation'])
+            target_column = joiner['one_relation'].split('.')[-1]
+            from_tbl = self.dbmodel.table(joiner['many_relation'])
+            from_column = joiner['many_relation'].split('.')[-1]
         else:
-            target_tbl = self.dbmodel.table(attrs['many_relation'])
-            target_column = attrs['many_relation'].split('.')[-1]
-            from_tbl = self.dbmodel.table(attrs['one_relation'])
-            from_column = attrs['one_relation'].split('.')[-1]
-            manyrelation = not attrs.get('one_one', False)
+            target_tbl = self.dbmodel.table(joiner['many_relation'])
+            target_column = joiner['many_relation'].split('.')[-1]
+            from_tbl = self.dbmodel.table(joiner['one_relation'])
+            from_column = joiner['one_relation'].split('.')[-1]
+            manyrelation = not joiner.get('one_one', False)
         #target_sqlschema = target_tbl.sqlschema
         #target_sqltable = target_tbl.sqlname
         target_sqlfullname = target_tbl.sqlfullname
         target_sqlcolumn = target_tbl.sqlnamemapper[target_column]
         from_sqlcolumn = from_tbl.sqlnamemapper[from_column]
         
-        if (attrs.get('case_insensitive', False) == 'Y'):
+        if (joiner.get('case_insensitive', False) == 'Y'):
             cnd = 'lower(%s.%s) = lower(%s.%s)' % (alias, target_sqlcolumn, basealias, from_sqlcolumn)
         else:
             cnd = '%s.%s = %s.%s' % (alias, target_sqlcolumn, basealias, from_sqlcolumn)
             
         if self.joinConditions:
-            from_fld, target_fld = self._tablesFromRelation(attrs)
-            extracnd, one_one = self.getJoinCondition(target_fld, from_fld, alias)
+            from_fld, target_fld = self._tablesFromRelation(joiner)
+            extracnd, one_one = self.getJoinCondition(target_fld, from_fld, alias,relation=relNode.label)
             if extracnd:
+                extracnd = self.embedFieldPars(extracnd)
+                extracnd = self.updateFieldDict(extracnd)
                 cnd = '(%s AND %s)' % (cnd, extracnd)
                 if one_one:
                     manyrelation = False # if in the model a relation is defined as one_one 
-                    # it is used like a one relation in both ways
-
-        #ENV
-        #env_conditions = dictExtract(self.db.currentEnv,'env_%s_condition_' %target_tbl.fullname.replace('.','_'))
-        #if env_conditions:
-        #    pass
-        #    #print x
-        #    wherelist = [where] if where else []
-        #    for condition in env_conditions.values():
-        #        wherelist.append('( %s )' %condition)
-        #    where = ' AND '.join(wherelist)
-
         self.cpl.joins.append('LEFT JOIN %s AS %s ON %s' %
-                              (target_sqlfullname, alias, cnd))
-        #raise str('LEFT JOIN %s.%s AS %s ON %s' % (target_sqlschema, target_sqltable, alias, cnd))
-        
+                              (target_sqlfullname, alias, cnd))        
         # if a relation many is traversed the number of returned rows are more of the rows in the main table.
         # the columns causing the increment of rows number are saved for use by SqlSelection._aggregateRows
         if manyrelation:
@@ -359,7 +349,7 @@ class SqlQueryCompiler(object):
             
         return alias, newpath
         
-    def getJoinCondition(self, target_fld, from_fld, alias):
+    def getJoinCondition(self, target_fld, from_fld, alias,relation=None):
         """Internal method:  get optional condition for a join clause from the joinConditions dict.
         
         A joinCondition is a dict containing:
@@ -373,10 +363,10 @@ class SqlQueryCompiler(object):
         :param alias: TODO"""
         extracnd = None
         one_one = None
-        joinExtra = self.joinConditions.get('%s_%s' % (target_fld.replace('.', '_'), from_fld.replace('.', '_')))
+        joinExtra = self.joinConditions.get(relation or '%s_%s' % (target_fld.replace('.', '_'), from_fld.replace('.', '_')))
         if joinExtra:
             extracnd = joinExtra['condition'].replace('$tbl', alias)
-            params = joinExtra.get('params')
+            params = joinExtra.get('params') or dict()
             self.sqlparams.update(params)
             #raise str(self.sqlparams)
             one_one = joinExtra.get('one_one')
@@ -448,6 +438,13 @@ class SqlQueryCompiler(object):
         else:
             return ['$%s' % k for k, dtype in self.relations.digest('#k,#a.dtype') if
                     k.startswith(flt) and not k.startswith('@') and (dtype != 'X' or bagFields)]
+    
+    def embedFieldPars(self,sql):
+        for k,v in self.sqlparams.items():
+            if isinstance(v,basestring):
+                if v.startswith('@') or v.startswith('$'):
+                    sql = re.sub(':%s(\W|$)' % k, v, sql)
+        return sql
                     
     def compiledQuery(self, columns='', where='', order_by='',
                       distinct='', limit='', offset='',
@@ -533,6 +530,7 @@ class SqlQueryCompiler(object):
         wherelist.append(self.tblobj.dbtable.getPartitionCondition(ignorePartition=ignorePartition))
         where = ' AND '.join([w for w in wherelist if w])
         columns = self.updateFieldDict(columns)
+        where = self.embedFieldPars(where)
         where = self.updateFieldDict(where or '')
         order_by = self.updateFieldDict(order_by or '')
         group_by = self.updateFieldDict(group_by or '')
@@ -564,6 +562,11 @@ class SqlQueryCompiler(object):
             # self._currColKey manage exploding columns in recursive getFieldAlias without add too much parameters
             self._currColKey = key
             colPars[key] = self.getFieldAlias(value)
+        missingKeys = list(set(self.cpl.relationDict.keys()).difference(set(colPars.keys())))
+        for key in missingKeys:
+            self._currColKey = key
+            colPars[key] = self.getFieldAlias(self.cpl.relationDict[key])
+
         if count:               # if the query is executed in count mode...
             order_by = ''       # sort has no meaning
             if group_by:        # the number of rows is defined only from GROUP BY cols, so clean aggregate functions from columns.
@@ -615,7 +618,7 @@ class SqlQueryCompiler(object):
         order_by = gnrstring.templateReplace(order_by, colPars)
         having = gnrstring.templateReplace(having, colPars)
         group_by = gnrstring.templateReplace(group_by, colPars)
-        
+        self.cpl.joins = [gnrstring.templateReplace(j, colPars) for j in self.cpl.joins]
         if distinct:
             distinct = 'DISTINCT '
         elif distinct is None or distinct == '':
@@ -933,7 +936,7 @@ class SqlQuery(object):
         self.db = self.dbtable.db
         self._compiled = None
         
-    def setJoinCondition(self, target_fld, from_fld, condition, one_one=False, **kwargs):
+    def setJoinCondition(self, target_fld=None, from_fld=None, relation=None,condition=None, one_one=False, **kwargs):
         """TODO
         
         :param target_fld: TODO
@@ -941,8 +944,9 @@ class SqlQuery(object):
         :param condition: set a :ref:`sql_condition` for the join
         :param one_one: boolean. TODO
         """
+
         cond = dict(condition=condition, one_one=one_one, params=kwargs)
-        self.joinConditions['%s_%s' % (target_fld.replace('.', '_'), from_fld.replace('.', '_'))] = cond
+        self.joinConditions[relation or '%s_%s' % (target_fld.replace('.', '_'), from_fld.replace('.', '_'))] = cond
         
         #def resolver(self, mode='bag'):
         #return SqlSelectionResolver(self.dbtable.fullname,  db=self.db, mode=mode,
@@ -1019,20 +1023,24 @@ class SqlQuery(object):
         return [r[pkeyfield] for r in fetch]
 
         
-    def fetchAsDict(self, key=None, ordered=False):
+    def fetchAsDict(self, key=None, ordered=False, pkeyOnly=False):
         """Return the :meth:`~gnr.sql.gnrsqldata.SqlQuery.fetch` method as a dict with as key
         the parameter key you gave (or the pkey if you don't specify any key) and as value the
         record you get from the query
         
         :param key: the key you give (if ``None``, it takes the pkey). 
         :param ordered: boolean. if ``True``, return the fetch using a :class:`OrderedDict`,
-                        otherwise (``False``) return the fetch using a normal dict."""
+                        otherwise (``False``) return the fetch using a normal dict.
+        :pkeyOnly: boolean  if ``True``, the values of the dict are the pkeys and not the record"""
+        
         fetch = self.fetch()
         key = key or self.dbtable.pkey
         if ordered:
             factory = OrderedDict
         else:
             factory = dict
+        if pkeyOnly:
+            return factory([(r[key], r[self.dbtable.pkey]) for r in fetch])
         return factory([(r[key], r) for r in fetch])
         
     def fetchAsBag(self, key=None):

@@ -4,7 +4,7 @@
 # Created by Francesco Porcari on 2011-03-31.
 # Copyright (c) 2011 Softwell. All rights reserved.
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrdecorator import customizable
+from gnr.core.gnrdecorator import customizable,metadata
 
 class Form(BaseComponent):
 
@@ -33,13 +33,11 @@ class View(BaseComponent):
     def th_query(self):
         return dict(column='nome',op='contains', val='')
 
-
     def th_sections_zone(self):
-        return [dict(code='nord',caption='!![it]Nord',condition='@regione.zona=:zona',condition_zona='Nord'),
+        return [dict(code='nord',caption='!![it]Nord',condition='@regione.zona ILIKE :zona',condition_zona='%%Nord%%'),
                 dict(code='centro',caption='!![it]Centro',condition='@regione.zona=:zona',condition_zona='Centro'),
                 dict(code='sud',caption='!![it]Sud',condition='@regione.zona=:zona',condition_zona='Sud'),
-                dict(code='isole',caption='!![it]Isole',condition='@regione.zona=:zona',condition_zona='Isole')
-                ]
+                dict(code='isole',caption='!![it]Isole',condition='@regione.zona=:zona',condition_zona='Isole')]
                 
     def th_top_custom(self,top):
         top.bar.replaceSlots('searchOn','searchOn,sections@zone')

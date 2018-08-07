@@ -200,6 +200,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         savedAttrs['dropTargetCb_extra'] = objectExtract(attributes,'dropTargetCb_*');
         savedAttrs.connectedMenu = objectPop(attributes, 'connectedMenu');
         savedAttrs.onEnter = objectPop(attributes, 'onEnter');
+        savedAttrs._watchOnVisible = objectPop(attributes,'_watchOnVisible');
         objectUpdate(savedAttrs, this.creating(attributes, sourceNode));
         var formId = objectPop(attributes, 'formId');
         if (attributes._for) {
@@ -275,6 +276,13 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             sourceNode.attr_kw = objectExtract(sourceNode.attr,'attr_*',true);
         }
         this.created(newobj, savedAttrs, sourceNode);
+        if(savedAttrs._watchOnVisible){
+            sourceNode.watch('_watchOnVisible',function(){
+                return genro.dom.isVisible(sourceNode);
+            },function(){
+                sourceNode.publish('isVisible');
+            });
+        }
         if(this.formattedValueHandler){
             this.formattedValueHandler(newobj, savedAttrs, sourceNode);
         }
@@ -4718,6 +4726,9 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
         if(!url){
             return {};
         }
+        if(url.startsWith('data:')){
+            return {src:url};
+        }
         var parsedUrl = parseURL(url);
         var p = parsedUrl.params;
         if (!p._pc){
@@ -4759,6 +4770,10 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
     setSrc:function(domnode,v){
         //qui il valore non credo che abbia i valori di croppatura
         var sourceNode = domnode.sourceNode;
+        if(v && v.startsWith('data:')){
+            domnode.setAttribute('src',v);
+            return;
+        }
         var kwimg=this.decodeUrl(sourceNode,v);
         var src=objectPop(kwimg,'src');
         if(src){

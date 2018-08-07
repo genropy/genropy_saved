@@ -356,6 +356,9 @@ class GnrClassCatalog(object):
         if funcName.startswith('rpc_'):
             funcName = funcName[4:]
         proxy_name=getattr(func, 'proxy_name', None)
+        _gnrPublicName = getattr(func.im_class,'_gnrPublicName',None)
+        if _gnrPublicName:
+            proxy_name = _gnrPublicName
         if func.im_class.__name__=='SqlTable':
             proxy_name = "_table.%s" % func.im_self.fullname
         if proxy_name:

@@ -64,10 +64,14 @@ class PathResolver(object):
             projects = [expandpath(path) for path in self.gnr_config['gnr.environment_xml'].digest('projects:#a.path')
                         if os.path.isdir(expandpath(path))]
             for project_path in projects:
-                for path in glob.glob(os.path.join(project_path, '*/%s' % entity)):
-                    entity_path = os.path.join(path, entity_name)
-                    if os.path.isdir(entity_path):
-                        return expandpath(entity_path)
+                folders = glob.glob(os.path.join(project_path, '*',entity,entity_name))
+                if folders:
+                    return expandpath(folders[0])
+                elif entity_type=='site':
+                    folders = glob.glob(os.path.join(project_path, '*','instances',entity_name,'site'))
+                    if folders:
+                        return expandpath(folders[0])
+                        
         raise EntityNotFoundException('Error: %s %s not found' % (entity_type, entity_name))
         
     def site_name_to_path(self, site_name):
@@ -77,8 +81,38 @@ class PathResolver(object):
         return self.entity_name_to_path(site_name, 'site')
 
     def get_siteconfig(self,site_name):
-        return Bag(os.path.join(self.site_name_to_path(site_name),'siteconfig.xml'))
-        
+        site_config = self.gnr_config['gnr.siteconfig.default_xml']
+        site_config_path = self.site_name_to_config_path(site_name)
+        path_list = []
+        if 'projects' in self.gnr_config['gnr.environment_xml']:
+            projects = [(expandpath(path), site_template) for path, site_template in
+                        self.gnr_config['gnr.environment_xml.projects'].digest('#a.path,#a.site_template') if
+                        os.path.isdir(expandpath(path))]
+            for project_path, site_template in projects:
+                sites = glob.glob(os.path.join(project_path, '*/sites'))
+                path_list.extend([(site_path, site_template) for site_path in sites])
+            for path, site_template in path_list:
+                if path == site_name:
+                    if site_config:
+                        site_config.update(self.gnr_config['gnr.siteconfig.%s_xml' % site_template] or Bag())
+                    else:
+                        site_config = self.gnr_config['gnr.siteconfig.%s_xml' % site_template]
+        if site_config:
+            site_config.update(Bag(site_config_path))
+        else:
+            site_config = Bag(site_config_path)
+        return site_config
+
+
+    def site_name_to_config_path(self,site_name):
+        site_path = self.site_name_to_path(site_name)
+        site_config_path = os.path.join(site_path,'siteconfig.xml')
+        if os.path.exists(site_config_path):
+            return site_config_path
+        site_config_path = os.path.join(self.instance_name_to_path(site_name),'config','siteconfig.xml')
+        if os.path.exists(site_config_path):
+            return site_config_path
+
     def instance_name_to_path(self, instance_name):
         """TODO
         
@@ -374,7 +408,7 @@ class ResourceMaker(object):
                 os.mkdir(path)
         
 class ThPackageResourceMaker(object):
-    def __init__(self,application,package=None,tables=None,force=False,menu=False,columns=2,guess_size=False,indent=4):
+    def __init__(self,application,package=None,tables=None,force=False,menu=False,columns=2,guess_size=False,indent=4, bag_columns=None):
         self.option_force = force
         self.option_menu = menu
         self.option_columns = columns
@@ -383,6 +417,7 @@ class ThPackageResourceMaker(object):
         self.pkg_tables = defaultdict(list)
         self.app = application 
         self.package = package
+        self.bag_columns=bag_columns or dict(view=False, form=False)
         self.tables = tables if tables else self.app.db.packages[self.package].tables.keys() 
         self.packageFolder = self.app.packages(package).packageFolder
 
@@ -431,7 +466,7 @@ class ThPackageResourceMaker(object):
         self.write()
         self.write("def th_struct(self,struct):", indent=1)
         self.write('r = struct.view().rows()', indent=2)
-        for column, size in columns:
+        for column, size, dtype in columns:
             if self.option_guess_size:
                 self.write("r.fieldcell('%s', width='%iem')"%(column,size), indent=2)
             else:
@@ -461,7 +496,7 @@ class ThPackageResourceMaker(object):
             self.write("bc = form.center.borderContainer()", indent=2)
             self.write("top = bc.contentPane(region='top',datapath='.record')", indent=2)
             self.write("fb = top.formbuilder(cols=%i, border_spacing='4px')"%self.option_columns, indent=2)
-            for column, size in columns:
+            for column, size, dtype in columns:
                 self.write("fb.field('%s')"%column, indent=2)
             if len(children)>1:
                 self.write("tc = bc.tabContainer(region='center',margin='2px')", indent=2)
@@ -474,8 +509,13 @@ class ThPackageResourceMaker(object):
         else:
             self.write("pane = form.record", indent=2)
             self.write("fb = pane.formbuilder(cols=%i, border_spacing='4px')"%self.option_columns, indent=2)
-            for column, size in columns:
-                self.write("fb.field('%s')"%column, indent=2)
+            for column, size, dtype in columns:
+                tag=''
+                if dtype=='X':
+                    if isinstance( self.bag_columns['form'], basestring):
+                        tag = ", tag='%s'" %  self.bag_columns['form'] 
+                self.write("fb.field('%s' %s)"% (column, tag), indent=2)
+                
         self.write()
         self.write()
         self.write("def th_options(self):", indent=1)
@@ -498,11 +538,13 @@ class ThPackageResourceMaker(object):
         if os.path.exists(path) and not self.option_force:
             print '%s exist: will be skipped, use -f/--force to force replace' % name
             return
-        columns = []
+        view_columns=[]
+        form_columns=[]
         max_size = 35
         tbl_obj =  self.app.db.table('%s.%s'%(self.package,table))
         for col_name,column in tbl_obj.columns.items():
-            if column.attributes.get('_sysfield') or column.dtype in ('X','O'): 
+            dtype = column.dtype
+            if column.attributes.get('_sysfield') or dtype =='O': 
                 continue
             if column.dtype=='A':
                 size = column.attributes.get('size','')
@@ -514,13 +556,18 @@ class ThPackageResourceMaker(object):
                 size = max(int(size),max_size)
             else:
                 size = 7
-            columns.append((column.name,size))
+            if dtype!='X' or self.bag_columns['view']:
+                view_columns.append((column.name,size,dtype))
+            if dtype!='X' or self.bag_columns['form']:
+                form_columns.append((column.name,size,dtype))
+            
+
         with open(path,'w') as out_file:
             self.out_file = out_file
             self.writeHeaders()
             self.writeImports()
-            self.writeViewClass(tbl_obj, columns)
-            self.writeFormClass(tbl_obj, columns)
+            self.writeViewClass(tbl_obj, view_columns)
+            self.writeFormClass(tbl_obj, form_columns)
             print '%s created' % name
 
 

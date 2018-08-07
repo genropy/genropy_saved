@@ -423,10 +423,14 @@ class GnrSqlDb(GnrObject):
             storename = self.rootstore
         storename = storename or envargs.get('env_storename', self.rootstore)
         sqlargs = envargs
+        for k,v in sqlargs.items():
+            if isinstance(v,basestring) and (v.startswith(r'\$') or v.startswith(r'\@')):
+                sqlargs[k] = v[1:]
         if dbtable and self.table(dbtable).use_dbstores(**sqlargs) is False:
             storename = self.rootstore
         with self.tempEnv(storename=storename):
             if _adaptArguments:
+
                 sql, sqlargs = self.adapter.prepareSqlText(sql, sqlargs)
             #gnrlogger.info('Executing:%s - with kwargs:%s \n\n',sql,unicode(kwargs))
             #print 'sql:\n',sql
@@ -677,8 +681,8 @@ class GnrSqlDb(GnrObject):
             return result
         for k,v in deferred.items():
             print 'table ',k,
-            print '\t\t bloccata da',v
-        raise GnrSqlException(message='Blocked dependencies')
+            print '\t\t blocked by',v
+        raise GnrSqlException(description='Blocked dependencies')
 
 
     def _tablesMasterIndex_step(self,toImport=None,imported=None,dependencies=None,result=None,deferred=None,blocking=None):
@@ -753,6 +757,7 @@ class GnrSqlDb(GnrObject):
         :param omit: TODO
         :param tabletype: TODO"""
         result = Bag()
+        packages = self.packages.keys() if packages == '*' else packages
         for pkg, pkgobj in self.packages.items():
             if (pkg in packages and omit) or (not pkg in packages and not omit):
                 continue

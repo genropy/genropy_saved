@@ -6,6 +6,7 @@
 
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrdecorator import public_method
 import os
 
 class TableHandlerCommon(BaseComponent):
@@ -133,3 +134,52 @@ class TableHandlerCommon(BaseComponent):
             inattr = mangler.getInheritedAttributes()
             mangler = inattr.get('th_root') or inattr.get('frameCode') or inattr.get('nodeId')
         return self.mangledHook(method,mangler=mangler,asDict=asDict,dflt=dflt,defaultCb=defaultCb)
+
+    @public_method
+    def th_searchRelationPath(self,table=None,destTable=None,**kwargs):
+        joiners = self.db.table(destTable).model.getTableJoinerPath(table)
+        result = []
+        values = []
+        cbdict = dict()
+        for j in joiners:
+            caption_path = []
+            relpath_list = []
+            for r in j:
+                relpath_list.append(r['relpath'])
+                tblobj = self.db.table(r['table'])
+                caption_path.append(self._(tblobj.name_plural if r['mode'] == 'M' else tblobj.name_long))
+            if len(relpath_list)>1:
+                relpath = '.'.join(relpath_list)
+            else:
+                relpath = relpath_list[0]
+                if not relpath.startswith('@'):
+                    relpath = '$%s' %relpath
+            result.append(relpath)
+            values.append('%s:%s' %(relpath,'/'.join(caption_path)))
+            cbdict[relpath] = caption_path
+
+        return dict(relpathlist=result,masterTableCaption=self._(self.db.table(table).name_long),cbvalues=','.join(values))
+
+
+
+    def th_prepareQueryBag(self,querybase,table=None):
+        result = Bag()
+        if not querybase:
+            return result
+        table = table or self.maintable
+        tblobj = self.db.table(table)
+        op_not = querybase.get('op_not', 'yes')
+        column = querybase.get('column')
+        column_dtype = None
+        val = querybase.get('val')
+        if column:
+            column_dtype = tblobj.column(column).getAttr('query_dtype') or tblobj.column(column).getAttr('dtype')
+        not_caption = '&nbsp;' if op_not == 'yes' else '!!not'
+        result.setItem('c_0', val,
+                       {'op': querybase.get('op'), 'column': column,
+                        'op_caption': self.db.whereTranslator.opCaption(querybase.get('op')),
+                        'not': op_not, 'not_caption': not_caption,
+                        'column_dtype': column_dtype,
+                        'column_caption': self.app._relPathToCaption(table, column),
+                        'value_caption':val})
+        return result

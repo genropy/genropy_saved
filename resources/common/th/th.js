@@ -92,10 +92,13 @@ var th_dash_tableviewer = {
         kw.table = gridNode.attr.table;
         kw.title = _T('Save dashboard');
         kw.defaultMetadata = {flags:'grid|'+gridNode.attr.nodeId};
-        var onSaved =function(result){
-            sourceNode.setRelativeData('.dashboardMeta',new gnr.GnrBag(result.attr));
-            sourceNode.fireEvent('.refreshAdvancedToolsMenu',true);
-        };
+        var onSaved = objectPop(kw,'onSaved');
+        if(!onSaved){
+            onSaved =function(result){
+                sourceNode.setRelativeData('.dashboardMeta',new gnr.GnrBag(result.attr));
+                sourceNode.fireEvent('.refreshAdvancedToolsMenu',true);
+            };
+        }
         genro.dev.userObjectSave(sourceNode,kw,onSaved);
     },
 
@@ -161,6 +164,7 @@ var th_sections_manager = {
                 return;
             }
             var currents = sectionsbag.getItem('current').split(',');
+            var sectionsName = n.label;
             var orlist = [];
             var conditions = sectionsbag.getItem('data');
             currents.forEach(function(current){
@@ -169,7 +173,7 @@ var th_sections_manager = {
                 if(cond){
                     var condpars = objectExtract(cn.attr,'condition_*',true);
                     for(var k in condpars){
-                        var newcondkey = k+'_'+cn.attr.code;
+                        var newcondkey = k+'_'+sectionsName+'_'+cn.attr.code;
                         kwargs[newcondkey] = condpars[k];
                         cond = cond.replace(new RegExp('([^\w.$_])('+k+')\\b','g'),'$1'+newcondkey);
                     }
@@ -236,10 +240,10 @@ dojo.declare("gnr.widgets.ThIframe", gnr.widgets.gnrwdg, {
 
 dojo.declare("gnr.widgets.ThIframeDialog", gnr.widgets.ThIframe, {
     createContent:function(sourceNode, kw) {
-        var dialogAttrs = objectExtract(kw,'title,height,width');
+        var dialogAttrs = objectExtract(kw,'title,height,width,parentRatio,windowRatio');
         dialogAttrs.closable=true;
         dialogAttrs = objectUpdate({overflow:'hidden',_lazyBuild:true},dialogAttrs);
-        var dialog = sourceNode._('dialog',objectUpdate(objectExtract(dialogAttrs,'title,closable'),objectExtract(kw,'dialog_*')));
+        var dialog = sourceNode._('dialog',objectUpdate(objectExtract(dialogAttrs,'title,closable,windowRatio,parentRatio'),objectExtract(kw,'dialog_*')));
         var onStarted = objectPop(kw,'onStarted');
         kw.onStarted = function(){
             var wdg = dialog.getParentNode().widget;
@@ -250,7 +254,7 @@ dojo.declare("gnr.widgets.ThIframeDialog", gnr.widgets.ThIframe, {
                 onStarted.call(this);
             }
         }
-        this.thiframe(dialog._('div',dialogAttrs),kw);
+        this.thiframe(dialog._('borderContainer',dialogAttrs)._('contentPane',{region:'center',overflow:'hidden'}),kw);
         return dialog;
     }
 });
@@ -350,7 +354,11 @@ dojo.declare("gnr.LinkerManager", null, {
             if(this.formUrl){
                 iframeDialogKw.url = this.formUrl;
             }
+            if(this.dialog_kwargs.parentRatio || this.dialog_kwargs.windowRatio){
+                objectExtract(iframeDialogKw,'height,width');
+            }
             objectUpdate(iframeDialogKw,this.dialog_kwargs);
+            console.log('iframeDialogKw',iframeDialogKw);
             var thdialog = genro.src.create('thIframeDialog',iframeDialogKw,this.sourceNode.getStringId());
             this.thdialog = thdialog.getParentNode().getWidget();
             this.thdialog.show();

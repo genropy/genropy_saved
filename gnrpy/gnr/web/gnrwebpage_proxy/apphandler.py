@@ -680,7 +680,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 resultAttributes.update(applyresult)
         return result,resultAttributes
 
-    @public_method      
+    @public_method  
     def getSelection(self, table='', distinct=False, columns='', where='', condition=None,
                          order_by=None, limit=None, offset=None, group_by=None, having=None,
                          relationDict=None, sqlparams=None, row_start='0', row_count='0',filteringPkeys=None,
@@ -690,7 +690,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                          sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,hardQueryLimit=None,
                          savedQuery=None,savedView=None, externalChanges=None,prevSelectedDict=None,
                          checkPermissions=None,queryBySample=False,weakLogicalDeleted=False,
-                         customOrderBy=None,queryExtraPars=None,**kwargs):
+                         customOrderBy=None,queryExtraPars=None,joinConditions=None,**kwargs):
         """TODO
         
         ``getSelection()`` method is decorated with the :meth:`public_method
@@ -795,6 +795,9 @@ class GnrWebAppHandler(GnrBaseProxy):
                     order_by.append('%s %s' %(fieldpath,sorting))
                 order_by = ' , '.join(order_by)
                 sortedBy = None
+            if joinConditions:
+                joinConditions = self._decodeJoinConditions(tblobj,joinConditions,kwargs)
+                kwargs['joinConditions'] = joinConditions
             selection_pars = dict(tblobj=tblobj, table=table, distinct=distinct, columns=columns, where=where,
                                       condition=condition,queryMode=queryMode,
                                       order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
@@ -1067,6 +1070,15 @@ class GnrWebAppHandler(GnrBaseProxy):
         customOpCbDict = dict([(x[12:], getattr(page, x)) for x in dir(page) if x.startswith('customSqlOp_')])
         return tblobj.sqlWhereFromBag(where, kwargs, customOpCbDict=customOpCbDict)
 
+    def _decodeJoinConditions(self,tblobj,joinConditions,kwargs):
+        if not isinstance(joinConditions,Bag):
+            return joinConditions
+        result = dict()
+        for jc in joinConditions.values():
+            sqlcondition,kwargs = tblobj.sqlWhereFromBag(jc['condition'], kwargs)
+            result[jc['relation']] = dict(condition=sqlcondition,one_one=jc['one_one'])
+        return result
+
     def _columnsFromStruct(self, viewbag, columns=None):
         if columns is None:
             columns = []
@@ -1241,6 +1253,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param pkeys: TODO
         :returns: if it works, returns the primary key and the deleted attribute.
                   Else, return an exception"""
+        if not self.page.checkTablePermission(table,'readonly,del'):
+            raise self.page.exception('generic',description='Delete not allowed in table % for user %s' %(table,self.user))
         try:
             tblobj = self.db.table(table)
             rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,excludeLogicalDeleted=False,
@@ -1300,6 +1314,13 @@ class GnrWebAppHandler(GnrBaseProxy):
                 self.db.commit()
         except GnrSqlDeleteException, e:
             return ('archive_error', {'msg': e.message})
+
+    @public_method
+    def insertRecord(self,table=None,record=None,**kwargs):
+        tblobj = self.db.table(table)
+        tblobj.insert(record)
+        self.db.commit()
+        return record[tblobj.pkey]
 
     @public_method
     def duplicateRecord(self,pkey=None,table=None,**kwargs):

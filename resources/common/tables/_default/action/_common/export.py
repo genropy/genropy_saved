@@ -8,6 +8,7 @@ from gnr.web.batch.btcexport import BaseResourceExport
 
 caption = '!!Export'
 tags = 'user'
+permissions = 'export'
 description = '!!Export to xls,cvs,html'
 
 class Main(BaseResourceExport):

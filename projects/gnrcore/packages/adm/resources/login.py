@@ -251,21 +251,32 @@ class LoginComponent(BaseComponent):
     def login_newPassword(self,pane,gnrtoken=None,dlg_login=None):
         dlg = pane.dialog(_class='lightboxDialog',subscribe_closeNewPwd='this.widget.hide();',subscribe_openNewPwd='this.widget.show();')
         box = dlg.div(**self.loginboxPars())
+        
         topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
         topbar.wtitle.div('!!New Password')  
         fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE set_new_password;',
                                 datapath='new_password',width='100%',
                                 fld_width='100%',row_height='3ex')
-        fb.data('.gnrtoken',gnrtoken)
+        if not gnrtoken:
+            #change password by a logged user
+            dlg.div(_class='dlg_closebtn',connect_onclick="genro.publish('closeNewPwd');")
+            fb.textbox(value='^.current_password',lbl='!!Password',type='password')
+        else:
+            fb.data('.gnrtoken',gnrtoken)
         fb.textbox(value='^.password',lbl='!!New password',type='password')
         fb.textbox(value='^.password_confirm',lbl='!!Confirm password',type='password',
                     validate_call='return value==GET .password;',validate_call_message='!!Passwords must be equal')
         fb.div(width='100%',position='relative',row_hidden=False).button('!!Send',action='FIRE set_new_password',position='absolute',right='-5px',top='8px')
         fb.dataRpc('dummy',self.login_changePassword,_fired='^set_new_password',
+                    current_password='=.current_password',
                     password='=.password',password_confirm='=.password_confirm',
-                    _if='password==password_confirm',
-                    _else="genro.dlg.floatingMessage(sn,{message:'Passwords must be equal',messageType:'error',yRatio:.95})",
-                    gnrtoken=gnrtoken,_onResult='genro.publish("closeNewPwd");genro.publish("openLogin")')
+                    _if='password==password_confirm',_box=box,
+                    _else="genro.dlg.floatingMessage(_box,{message:'Passwords must be equal',messageType:'error',yRatio:.95})",
+                    gnrtoken=gnrtoken,_onResult="""if(result){
+                        genro.dlg.floatingMessage(kwargs._box,{message:'Wrong password',messageType:'error',yRatio:.95});
+                        return;
+                    }
+                    genro.publish("closeNewPwd");genro.publish("openLogin")""")
         return dlg
 
 
@@ -415,15 +426,20 @@ class LoginComponent(BaseComponent):
             #self.sendMailTemplate('confirm_new_pwd.xml', recordBag['email'], recordBag)
 
     @public_method
-    def login_changePassword(self,password=None,gnrtoken=None,**kwargs):
-        if not gnrtoken:
-            return
-        method,args,kwargs,user_id = self.db.table('sys.external_token').use_token(gnrtoken)
-        if not kwargs:
-            return
-        if kwargs.get('userid'):
-            self.db.table('adm.user').batchUpdate(dict(status='conf',md5pwd=password),_pkeys=kwargs['userid'])
-        self.db.commit()
+    def login_changePassword(self,password=None,gnrtoken=None,current_password=None,**kwargs):
+        if gnrtoken:
+            method,args,kwargs,user_id = self.db.table('sys.external_token').use_token(gnrtoken)
+            if not kwargs:
+                return
+            userid = kwargs.get('userid')
+        else:
+            if self.login_checkPwd(self.avatar.user,password=current_password):
+                userid = self.avatar.user_id
+            else:
+                return 'Wrong password'
+        if userid:
+            self.db.table('adm.user').batchUpdate(dict(status='conf',md5pwd=password),_pkeys=userid)
+            self.db.commit()
 
 
     @struct_method

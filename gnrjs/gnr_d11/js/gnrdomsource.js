@@ -861,7 +861,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
     },
     _registerNodeId: function(nodeId) {
-        var nodeId = this.attr.nodeId || nodeId;
+        nodeId = this.attr.nodeId || nodeId;
         if (nodeId) {
             var reg_node = genro.src._index[nodeId];
             if(reg_node){
@@ -906,7 +906,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var formsubscription = objectExtract(attributes, 'formsubscribe_*');
         
         var attrname;
-        var ind = ind || 0;
+        ind = ind || 0;
         var newobj = genro.wdg.create(tag, destination, attributes, ind, this);
         for (var selfsubscribe in selfsubscription){
             this.subscribe(selfsubscribe,selfsubscription[selfsubscribe]);
@@ -1460,13 +1460,19 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
 
     },
     
-    updateRemoteContent:function(forceUpdate) {
+    updateRemoteContent:function(forceUpdate,async) {
+
         var _onRemote = false;
         var currentValue = this.getValue('static');
         if (currentValue && currentValue.len() > 0 && !forceUpdate) {
             return;
         }
+        if(this._remotebuilding){
+          return;
+        }
+        
         var remoteAttr = this.evaluateOnNode(objectExtract(this.attr,'remote_*',true));
+        async = objectPop(remoteAttr,'_async',async);
         if(this._lastRemoteAttr && this.attr._cachedRemote && objectIsEqual(this._lastRemoteAttr,remoteAttr)){
             return;
         }
@@ -1485,7 +1491,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
         }
         var kwargs = {};
-        var mergeFb = objectPop(remoteAttr,'_merge');
         for (var attrname in remoteAttr) {
             var value = remoteAttr[attrname];
             if (value instanceof Date) {
@@ -1501,15 +1506,19 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         var method = this.attr.remote;
         var that = this;
-        kwargs.sync = true;
-        var currval;
+        kwargs.sync = !async;
+        if(objectPop(remoteAttr,'sendInheritedAttributes')){
+            kwargs._inheritedAttributes = this.getInheritedAttributes();
+        }
+        
         if(remoteAttr._waitingMessage){
             var waitingMessage = remoteAttr._waitingMessage===true?_T('Loading content'):remoteAttr._waitingMessage;
             waitingMessage = '<div style="height:130px;opacity:.8;" class="waiting"></div>'+'<div style="font-size:13px">'+waitingMessage+'</div>'
             this.setHiderLayer(true,{message:waitingMessage});
             kwargs.sync = false;
         }
-        genro.rpc.remoteCall(method, kwargs, null, 'POST', null,
+        this._remotebuilding = true;
+        return genro.rpc.remoteCall(method, kwargs, null, 'POST', null,
             function(result) {
                 //that.setValue(result);
                 if(result.error){
@@ -1521,12 +1530,17 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         if(remoteAttr._waitingMessage){
                             that.setHiderLayer(false);
                         }
+                        var t0 = new Date();
+                        //console.log('before building dom');
                         that.mergeRemoteContent(result);
+                        //console.log('after building dom stuck time',new Date()-t0);
                         if (_onRemote) {
                             _onRemote();
                         }
                     });
                 }
+                delete that._remotebuilding;
+                return result;
             });
     },
 
@@ -1675,7 +1689,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
 
     mergeRemoteContent:function(value){
-        var mergetable = this.attr.tag=='tbody'
+        var mergetable = this.attr.tag=='tbody';
         var currval = this._value;
         if(currval instanceof gnr.GnrDomSource){
             dojo.forEach(currval._nodes,function(n){

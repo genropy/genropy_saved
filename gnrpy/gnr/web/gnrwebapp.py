@@ -63,6 +63,7 @@ class GnrWsgiWebApp(GnrApp):
             else:
                 records = [recordOrPkey]
         for record in records:
+            print 'notify dbevent',record
             self.notifyDbEvent(tblobj, record, 'U')
 
     def notifyDbEvent(self, tblobj, record, event, old_record=None,**kwargs):

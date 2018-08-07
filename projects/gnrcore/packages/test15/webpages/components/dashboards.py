@@ -8,7 +8,7 @@
 from gnr.core.gnrdecorator import public_method
 
 class GnrCustomWebPage(object):
-    py_requires = "gnrcomponents/testhandler:TestHandlerBase,th/th:TableHandler,dashboard_component/dashboard_component:DashboardItem"
+    py_requires = "gnrcomponents/testhandler:TestHandlerBase,dashboard_component/dashboard_component:DashboardItem"
 
     def windowTitle(self):
         return 'Dashboards'
@@ -17,9 +17,5 @@ class GnrCustomWebPage(object):
         bc = pane.borderContainer(height='400px',width='800px')
         left = bc.contentPane(region='left',width='200px',background='lime')
         top = bc.contentPane(region='top')
-        fb = top.formbuilder()
-        fb.data('.table','glbl.provincia')
-        fb.filteringSelect(value='^.table',lbl='Table',values='glbl.provincia,glbl.regione')
-        
-        bc.contentPane(region='center').dashboardItem(table='adm.dashboard',
-                            itemName='tableview',itempar_table='^.table')
+        bc.contentPane(region='center').dashboardItem(table='fatt.cliente',
+                            itemName='edit_clienti')

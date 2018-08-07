@@ -179,8 +179,10 @@ class Form(BaseComponent):
                         condition_tbl='=#FORM.record.tblid',
                         condition_item_type='FTREE',
                         hasDownArrow=True)
-        fb.checkBoxText(value='^.data.tbl_permission',values='hidden,readonly,/,ins,upd,del',cols=3,
-                        lbl='Permissions',colspan=2)
+        fb.checkBoxText(value='^.data.tbl_permission',values='hidden,readonly',cols=3,
+                        lbl='!!Table Restrictions',colspan=2)
+        fb.checkBoxText(value='^.data.tbl_forbidden',values='^.$allPermissions',cols=3,
+                        lbl='!!Table forbidden actions',colspan=2,popup=True,width='100%')
         sc = bc.stackContainer(region='center')
         bc.dataController("sc.switchPage(tblid?1:0);",sc=sc.js_widget,tblid='^#FORM.record.tblid')
         sc.contentPane()
@@ -233,63 +235,20 @@ class Form(BaseComponent):
             }""")
 
 
-    @public_method
-    def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
-        if record['tblid']:
-            current_full_data = self.db.table('adm.user_config').getInfoBag(pkg=record['pkgid'],tbl=record['tblid'],
-                                                                            user=record['username'],
-                                                                            user_group=record['user_group'],
-                                                                            _editMode=True)
-            record['data.cols_permission'] = current_full_data['cols_permission']
-            record['$current_cols'] = self.colsPickerStore(record['tblid'])
-
     def th_top_custom(self,top):
         self.newRuleButton(top.bar.replaceSlots('form_add','newrule'))
 
     def th_options(self):
         return dict(dialog_parentRatio=.9)
 
-
-    @public_method
-    def colsPickerStore(self,table=None):
-        tblobj = self.db.table(table)
-        result = Bag()
-        for field,colobj in tblobj.model.columns.items():
-            colattr = colobj.attributes
-            result.setItem(field,None,colname=field,name_long=colattr.get('name_long'),
-                                    datatype=colattr.get('dtype','T'),_pkey=field)
-
-        for field,colobj in tblobj.model.virtual_columns.items():
-            colattr = colobj.attributes
-            result.setItem(field,None,colname=field,name_long=colattr.get('name_long'),datatype=colattr.get('dtype','T'),_customClasses='virtualCol',_pkey=field)
-
-        return result
-
-
 class FormFromGroup(Form):
     @public_method
     def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
         if not record['user_group']:
             recInfo['_protect_write'] = True
-        if record['tblid']:
-            current_full_data = self.db.table('adm.user_config').getInfoBag(pkg=record['pkgid'],tbl=record['tblid'],
-                                                                            user=record['username'],
-                                                                            user_group=record['user_group'],
-                                                                            _editMode=True)
-            record['data.cols_permission'] = current_full_data['cols_permission']
-            record['$current_cols'] = self.colsPickerStore(record['tblid'])
-
-
 
 class FormFromUser(Form):
     @public_method
     def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
         if not record['username']:
             recInfo['_protect_write'] = True
-        if record['tblid']:
-            current_full_data = self.db.table('adm.user_config').getInfoBag(pkg=record['pkgid'],tbl=record['tblid'],
-                                                                            user=record['username'],
-                                                                            user_group=record['user_group'],
-                                                                            _editMode=True)
-            record['data.cols_permission'] = current_full_data['cols_permission']
-            record['$current_cols'] = self.colsPickerStore(record['tblid'])

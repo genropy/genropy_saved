@@ -116,6 +116,8 @@ class FrameIndex(BaseComponent):
         self.prepareCenter(bc)
         if new_window:
             self.loginDialog(pane)
+        else:
+            self.login_newPassword(pane)
         return bc
         
     def prepareTop(self,bc,onCreatingTablist=None):

@@ -413,6 +413,9 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             sync = true;
         }
         var timeout = objectPop(callKwargs, 'timeout', 50000);
+        if(sync){
+            genro.dom.addClass(dojo.body(),'gnr_sync_rpc');
+        }
         var xhrKwargs = {'handleAs': handleAs,
             'timeout': timeout,
             'load': cb,
@@ -428,7 +431,10 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             }
             return result;
         }else{
-            var deferred = this._serverCall(callKwargs, xhrKwargs, httpMethod);        
+            var deferred = this._serverCall(callKwargs, xhrKwargs, httpMethod);     
+            if(sync){
+                genro.dom.removeClass(dojo.body(),'gnr_sync_rpc');
+            }   
             return sync? deferred.ioArgs.syncresult:deferred;
         }
         

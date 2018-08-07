@@ -1425,7 +1425,9 @@ dojo.declare("gnr.GridEditor", null, {
             }
             if(attr.mode=='dialog'){
                 var that = this;
+                var currdata = rowDataNode.getValue().getItem(attr.field);
                 genro.dlg.prompt(attr.original_name || attr.field,{widget:attr.contentCb || attr.fields,
+                                                                  dflt:currdata?currdata.deepCopy():null,
                                                                    mandatory:attr.validate_notnull,
                                                                    action:function(result){
                                                                         if(attr.rowTemplate){
@@ -1763,6 +1765,15 @@ dojo.declare("gnr.GridChangeManager", null, {
     resolveTotalizeColumns:function(){
         for(var k in this.totalizeColumns){
             this.updateTotalizer(k);
+        }
+    },
+
+    calculateFilteredTotals:function(){
+        var filteredStore = this.grid.storebag(true);
+        for(let k in this.totalizeColumns){
+            //this.updateTotalizer(k);
+            var totvalue = filteredStore.sum(this.grid.datamode=='bag'?k:'#a.'+k);
+            this.sourceNode.setRelativeData('.filtered_totalize.'+k,totvalue);
         }
     },
 

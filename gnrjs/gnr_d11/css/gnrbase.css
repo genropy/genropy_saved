@@ -1759,6 +1759,7 @@ div.dojoxDock {
 
 
 
+
 ._common_d11 .dojoxFloatingPaneContent {
     overflow:hidden !important;
 }
@@ -5439,6 +5440,7 @@ div[disabled='true'], div[disabled='disabled']{
     background-size: contain;
 }
 
+
 .showcase_light .showcase_next{
     background: url(icons/svg/right_arrow.svg) center center no-repeat;
     background-size: contain;
@@ -5480,6 +5482,7 @@ div[disabled='true'], div[disabled='disabled']{
     background-size: contain;
 }
 
+
 .menu_gray_svg{
     background: url(icons/svg/menu_gray.svg) center center no-repeat;
     background-size: contain;
@@ -5487,6 +5490,10 @@ div[disabled='true'], div[disabled='disabled']{
 
 .line_chart_white_svg{
     background: url(icons/svg/line_chart_white.svg) center center no-repeat;
+    background-size: contain;
+}
+.excel_white_svg{
+    background: url(icons/svg/excel_white.svg) center center no-repeat;
     background-size: contain;
 }
 
@@ -5558,7 +5565,8 @@ div[disabled='true'], div[disabled='disabled']{
 .gr_footer.gr_scrollbox .gr_itemcontainer{
     background: rgba(255, 227, 60, .2);
 }
-    
+
+
 
 .gr_columnset{
 }
@@ -5569,6 +5577,10 @@ div[disabled='true'], div[disabled='disabled']{
 .gr_noFooter .gr_footer.gr_scrollbox .gr_itemcontainer{
     background: transparent;
     min-height: 16px;
+}
+
+.gridFilterActive .gr_footer.gr_scrollbox .gr_itemcontainer{
+    background: rgba(221, 150, 90, 0.20);
 }
 
 
@@ -5627,3 +5639,8 @@ div[disabled='true'], div[disabled='disabled']{
 
 }
 
+
+.clientlogo{
+    background: transparent url(/_site/img/logo/clientlogo.png) no-repeat center center;
+    background-size: contain;    
+}

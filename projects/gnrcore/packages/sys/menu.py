@@ -13,5 +13,7 @@ def config(root,application=None):
     system.webpage("Localization editor", filepath="/sys/localizationeditor",
                     tags='_DEV_,_TRD_,superadmin')
     system.webpage("GnrIDE", filepath="/sys/gnride",tags='_DEV_')
+    system.webpage("POD dashboard", filepath="/sys/pod_dashboard",tags='_DEV_')
+
     system.thpage("Widgets", table='sys.widget')
 

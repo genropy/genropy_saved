@@ -29,6 +29,7 @@ import logging
 from gnr.core.gnrsys import expandpath, listdirs
 from gnr.core.gnrlog import enable_colored_logging
 from gnr.app.gnrconfig import getGnrConfig, gnrConfigPath
+from gnr.app.gnrdeploy import PathResolver
 
 fnull = open(os.devnull, 'w')
 MAXFD = 1024
@@ -359,6 +360,8 @@ class Server(object):
         self.gnr_config = getGnrConfig(config_path=self.config_path, set_environment=True)
         
         self.site_name = self.options.site_name or (self.args and self.args[0]) or os.getenv('GNR_CURRENT_SITE')
+        if not self.site_name:
+            self.site_name = os.path.basename(os.path.dirname(site_script))
         self.remote_db = ''
         if self.site_name:
             if ':' in self.site_name:
@@ -366,10 +369,12 @@ class Server(object):
             if not self.gnr_config:
                 raise ServerException(
                         'Error: no ~/.gnr/ or /etc/gnr/ found')
-            self.site_path, self.site_template = self.site_name_to_path(self.site_name)
+            self.site_path = self.site_name_to_path(self.site_name)
             self.site_script = os.path.join(self.site_path, 'root.py')
             if not os.path.isfile(self.site_script):
-                raise ServerException(
+                self.site_script = os.path.join(self.site_path, '..','root.py')
+                if not os.path.exists(self.site_script):
+                    raise ServerException(
                         'Error: no root.py in the site provided (%s)' % self.site_name)
         else:
             self.site_path = os.path.dirname(os.path.realpath(site_script))
@@ -379,26 +384,8 @@ class Server(object):
         return self.options.verbose and self.options.verbose>level
 
     def site_name_to_path(self, site_name):
-        path_list = []
-        if 'sites' in self.gnr_config['gnr.environment_xml']:
-            path_list.extend([(expandpath(path), site_template) for path, site_template in
-                              self.gnr_config['gnr.environment_xml.sites'].digest('#a.path,#a.site_template') if
-                              os.path.isdir(expandpath(path))])
-        if 'projects' in self.gnr_config['gnr.environment_xml']:
-            projects = [(expandpath(path), site_template) for path, site_template in
-                        self.gnr_config['gnr.environment_xml.projects'].digest('#a.path,#a.site_template') if
-                        os.path.isdir(expandpath(path))]
-            for project_path, site_template in projects:
-                sites = glob.glob(os.path.join(project_path, '*/sites'))
-                path_list.extend([(site_path, site_template) for site_path in sites])
-        for path, site_template in path_list:
-            site_path = os.path.join(path, site_name)
-            if os.path.isdir(site_path):
-                return site_path, site_template
-        raise ServerException(
-                'Error: no site named %s found' % site_name)
-
-
+        return PathResolver().site_name_to_path(site_name)
+    
     def init_options(self):
         self.siteconfig = self.get_config()
         options = self.options.__dict__
@@ -407,19 +394,6 @@ class Server(object):
             if options.get(option, None) is None: # not specified on the command-line
                 site_option = self.siteconfig['wsgi?%s' % option]
                 self.options.__dict__[option] = site_option or wsgi_options.get(option) or envopt.get(option)
-
-    def get_tunnel_db_params(self,ssh_connection,dbattrs=None):
-        conn_dict = self.parse_connection_string(ssh_connection)
-        if not dbattrs:
-            dbattrs = self.instance_config.getAttr('db')
-        conn_dict['ssh_port'] = int(conn_dict['ssh_port'] or 22)
-        conn_dict['db_user'] = conn_dict['db_user'] or dbattrs.get('user')
-        conn_dict['db_password'] = conn_dict['db_password'] or dbattrs.get('password')
-        conn_dict['db_host'] = conn_dict['db_host'] or dbattrs.get('host')
-        conn_dict['db_port'] = conn_dict['db_port'] or dbattrs.get('port')
-        if conn_dict['db_port']:
-            conn_dict['db_port'] = int(conn_dict['db_port'])
-        return conn_dict
 
     def parse_connection_string(self, connection_string):
         match = re.search(CONN_STRING, connection_string)
@@ -435,50 +409,13 @@ class Server(object):
     
 
     def get_config(self):
-        site_config_path = os.path.join(self.site_path, 'siteconfig.xml')
-        base_site_config = Bag(site_config_path)
-        site_config = self.gnr_config['gnr.siteconfig.default_xml'] or Bag()
-        template = site_config['site?template'] or getattr(self, 'site_template', None)
-        if template:
-            site_config.update(self.gnr_config['gnr.siteconfig.%s_xml' % template] or Bag())
-        if 'sites' in self.gnr_config['gnr.environment_xml']:
-            for path, site_template in self.gnr_config.digest('gnr.environment_xml.sites:#a.path,#a.site_template'):
-                if path == os.path.dirname(self.site_path):
-                    site_config.update(self.gnr_config['gnr.siteconfig.%s_xml' % site_template] or Bag())
-        site_config.update(base_site_config)
-        return site_config
+        return PathResolver().get_siteconfig(self.site_name)
 
     @property 
     def site_config(self):
         if not hasattr(self, '_site_config'):
             self._site_config = self.get_config()
         return self._site_config
-
-    @property 
-    def instance_config(self):
-        if not hasattr(self, '_instance_config'):
-            self._instance_config = self.get_instance_config()
-        return self._instance_config
-
-    def get_instance_config(self):
-        instance_path = os.path.join(self.site_path, 'instance')
-        if not os.path.isdir(instance_path):
-            instance_path = os.path.join(self.site_path, '..', '..', 'instances', self.site_name)
-        if not os.path.isdir(instance_path):
-            instance_path = self.site_config['instance?path'] or self.site_config['instances.#0?path']
-        instance_config_path = os.path.join(instance_path, 'instanceconfig.xml')
-        base_instance_config = Bag(instance_config_path)
-        instance_config = self.gnr_config['gnr.instanceconfig.default_xml'] or Bag()
-        template = instance_config['instance?template'] or getattr(self, 'instance_template', None)
-        if template:
-            instance_config.update(self.gnr_config['gnr.instanceconfig.%s_xml' % template] or Bag())
-        if 'instances' in self.gnr_config['gnr.environment_xml']:
-            for path, instance_template in self.gnr_config.digest('gnr.environment_xml.instances:#a.path,#a.instance_template'):
-                if path == os.path.dirname(instance_path):
-                    instance_config.update(self.gnr_config['gnr.instanceconfig.%s_xml' % instance_template] or Bag())
-        instance_config.update(base_instance_config)
-        return instance_config
-
 
     def run(self):
         if not (self.options.tornado or
@@ -506,21 +443,7 @@ class Server(object):
             else:
                 msg = 'Starting server.'
             print msg
-
         self.serve()
-#
-    #def handle_tunnel(self,first_run=None):
-    #    if self.remote_db :
-    #        dbattrs = self.instance_config.getAttr('db' )
-    #        remote_db = self.instance_config.getAttr('remote_db.%s' %self.remote_db)
-    #        dbattrs.update(remote_db)
-    #        if dbattrs.get('ssh_host'):
-    #            conn_dict = self.get_tunnel_db_params(dbattrs['ssh_host'],dbattrs=dbattrs)
-    #            self.remotesshdb = self.setup_tunnel(conn_dict,first_run=first_run)
-    #    elif hasattr(self.options,'remotesshdb') and self.options.remotesshdb:
-    #        conn_dict = self.get_tunnel_db_params(self.options.remotesshdb)
-    #        self.remotesshdb = self.setup_tunnel(conn_dict=conn_dict,first_run=first_run)
-#
 
     def serve(self):
         site_name='%s:%s' %(self.site_name,self.remote_db) if self.remote_db else self.site_name

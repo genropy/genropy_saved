@@ -30,13 +30,8 @@ from gnr.core.gnrdecorator import public_method
 from gnr.web.gnrwebstruct import struct_method
 
 
-
-
-class AppPrefHandler(BaseComponent):
-    py_requires='preference:AppPref,foundation/tools'
-
-    @struct_method
-    def ph_appPreferencesTabs(self,parent,packages='*',datapath=None,context_dbstore=None,**kwargs):
+class BasePreferenceTabs(BaseComponent):
+    def _pr_makePreferenceTabs(self,parent,packages='*',datapath=None,context_dbstore=None,**kwargs):
         if isinstance(packages,basestring):
             packages = self.application.packages.keys() if packages == '*' else packages.split(',')
         tc = parent.tabContainer(datapath=datapath,context_dbstore=context_dbstore,**kwargs)
@@ -52,6 +47,29 @@ class AppPrefHandler(BaseComponent):
             if panecb and auth:
                 panecb(tc, title=pkg.attributes.get('name_full'), datapath='.%s' % pkg.id, nodeId=pkg.id,
                         pkgId=pkg.id,_anchor=True,sqlContextRoot='%s.%s' % (datapath,pkg.id))
+        return tc
+
+
+
+class AppPrefHandler(BasePreferenceTabs):
+    py_requires='preference:AppPref,foundation/tools'
+
+    @struct_method
+    def ph_appPreferencesTabs(self,parent,packages='*',datapath=None,context_dbstore=None,**kwargs):
+        tc = self._pr_makePreferenceTabs(parent,packages=packages,datapath=datapath,context_dbstore=context_dbstore,**kwargs)
+        if context_dbstore:
+            tc.dataRpc(None,self.ph_updatePrefCache,formsubscribe_onSaved=True,prefdbstore=context_dbstore)
+    
+    @public_method
+    def ph_updatePrefCache(self,prefdbstore=None,**kwargs):
+        self.db.application.cache.updatedItem( '_storepref_%s' %prefdbstore)
+    
+class UserPrefHandler(BasePreferenceTabs):
+    py_requires='preference:UserPref,foundation/tools'
+
+    @struct_method
+    def ph_userPreferencesTabs(self,parent,packages='*',datapath=None,context_dbstore=None,**kwargs):
+        tc = self._pr_makePreferenceTabs(parent,packages=packages,datapath=datapath,context_dbstore=context_dbstore,**kwargs)
         if context_dbstore:
             tc.dataRpc(None,self.ph_updatePrefCache,formsubscribe_onSaved=True,prefdbstore=context_dbstore)
     

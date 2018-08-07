@@ -1058,6 +1058,7 @@ dojo.declare("gnr.widgets.TreeFrame", gnr.widgets.gnrwdg, {
         var treeId = objectPop(kw, 'treeId') || frameCode + '_tree';
         var storepath = objectPop(kw, 'storepath') || '.store';
         var draggableFolders = objectPop(kw,'draggableFolders');
+        var infoPanel = normalizeKwargs(kw,'infoPanel');
         var default_onDrag =  function(dragValues, dragInfo, treeItem) {
             if (treeItem.attr.child_count && treeItem.attr.child_count > 0 && !draggableFolders) {
                 return false;
@@ -1073,6 +1074,7 @@ dojo.declare("gnr.widgets.TreeFrame", gnr.widgets.gnrwdg, {
         objectUpdate(tree_kwargs, objectExtract(kw, 'tree_*'));
         var searchOn = objectPop(kw, 'searchOn');
         var pane = this.getRoot(sourceNode,kw);
+        var bc;
         if (searchOn) {
             pane._('SlotBar',{'side':'top',slots:'*,searchOn',searchOn:true,toolbar:true});
         }
@@ -1082,10 +1084,19 @@ dojo.declare("gnr.widgets.TreeFrame", gnr.widgets.gnrwdg, {
             tree_kwargs.selfsubscribe_onSelected = function(kw){                
                 genro.publish(bagNodeEditorId+'_currentPath',kw.item.getFullpath(null,origin!='*S'?genro._data:null))
             }
-            var bc = pane._('BorderContainer',{'side':'center'});
+            bc = pane._('BorderContainer',{'side':'center'});
             var bottom = bc._('ContentPane', {'region':'bottom',height:'30%',
                 splitter:true,overflow:'hidden'});
             bottom._('BagNodeEditor', {nodeId:bagNodeEditorId,datapath:'.bagNodeEditor',origin:origin});
+            pane = bc._('ContentPane',{'region':'center'});
+        }else if(infoPanel){
+            bc = pane._('BorderContainer',{'side':'center'});
+            infoPanel.region = infoPanel.region || 'right';
+            if(['left','right'].indexOf(infoPanel.region)>=0){
+                infoPanel.width = infoPanel.width || '300px';
+            }
+            infoPanel.remote = objectPop(infoPanel,'_');
+            bc._('ContentPane',infoPanel);
             pane = bc._('ContentPane',{'region':'center'});
         }
         if(subTagItems['column'] && subTagItems['column'].len()){
@@ -1147,7 +1158,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         var bar = frame._('SlotBar',{'side':'top',slots:slots,searchOn:true,_class:'pbl_roundedGroupLabel'});
         bar._('div','prevtitle',{innerHTML:"==_current_title || 'Import'",_current_title:'^.current_title',color:'#666'});
         if(!filetype){
-            bar._('filteringSelect','importselector',{value:'^.filetype',width:'4em',values:'excel,csv,tab',margin_top:'2px'});
+            bar._('filteringSelect','importselector',{value:'^.filetype',width:'4em',values:'excel,csv,tab,xml',margin_top:'2px'});
         }else{
             bar._('div','importseletor')
         }
@@ -1165,6 +1176,9 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         dropAreaKw.rpc_limit = limit;
         dropAreaKw.rpc_table = table;
         dropAreaKw.rpc_filetype = filetype|| '=.filetype';
+        dropAreaKw.rpc_collection_path = '=.collection_path';
+        dropAreaKw.rpc_row_tag= '=.row_tag';
+
         objectUpdate(dropAreaKw,objectExtract(kw,'drop_*',false,true));
         dropAreaKw.onResult = function(result){
                                 if(result.currentTarget.responseText){
@@ -1239,11 +1253,14 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
 
     gnrwdg_matchGrid:function(bc){
         var gnrwdg = this;
-        var frame = bc._('FramePane',{frameCode:this.uploaderId+'_matchframe',
+        var frame = bc._('FramePane',{frameCode:this.uploaderId+'_matchframe',_anchor:true,
                                         region:'left',_class:'pbl_roundedGroup',margin:'2px',
                                         drawer:'close',width:'320px',splitter:true})
         bar = frame._('slotBar',{slots:'2,matchtitle,*',side:'top',_class:'pbl_roundedGroupLabel'});
         bar._('div','matchtitle',{innerHTML:'Match columns'});
+       //bar._('div','lbl_action',{innerHTML:'Action'});
+       //bar._('filteringSelect','action_filter',{values:'insert,update',
+       //                        value:'^.import_action',width:'6em',default_value:'insert'})
         bar = frame._('slotBar',{slots:'2,fbbottom,*',side:'bottom',_class:'slotbar_dialog_footer'});
 
         var fb = genro.dev.formbuilder(bar._('div','fbbottom'),3,{border_spacing:'1px'});
@@ -1273,8 +1290,13 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         var onclick = "this.getParentNode().importer_gnrwdg.onCheckedMatch(this,kw);"
         var editdestpars = true;
         if(this.match_values){
-            editdestpars = {tag:'combobox',values:this.match_values};
+            editdestpars = {tag:'combobox',values:this.match_values,validate_onAccept:"if(value){this.setRelativeData('.do_import',true)}"};
         }
+        grid._('column',{name:'Key',field:'is_key',width:'2em',dtype:'B',
+                        hidden:'^#ANCHOR.import_mode?=#v!="update_only"',
+                        checkBoxColumn:{radioButton:true},
+                        cellStyles:'border-bottom:1px solid lightgray;background:white;'})
+
         grid._('column',{name:'Source Column',field:'source_field',width:'10em',
                 cellStyles:'background:#666;color:whitesmoke;text-align:right; border-left:0px;border-bottom:1px solid whitesmoke;'})
         grid._('column',{name:'Dest.Column',field:'dest_field',cellStyles:'border-bottom:1px solid lightgray;background:white;',edit:editdestpars,width:'10em'})
@@ -1324,7 +1346,6 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         uploaderNode.setRelativeData('.methodlist',data.getItem('methodlist'));
         uploaderNode.setRelativeData('.import_modes',data.getItem('import_modes'));
         uploaderNode.setRelativeData('.import_mode',data.getItem('import_mode'));
-
         uploaderNode.setRelativeData('.importing_data',data.getItem('rows'));
         uploaderNode.setRelativeData('.file_columns',columns);
         uploaderNode.setRelativeData('.match',match_data);
@@ -1355,6 +1376,9 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
             match.values().forEach(function(v){
                 if(v && v.getItem('do_import')){
                     match_index[v.getItem('source_field')] = v.getItem('dest_field') || v.getItem('source_field');
+                    if(v.getItem('is_key')){
+                        match_index._updater_keyfield = v.getItem('dest_field');
+                    }
                 }
             })
         }
@@ -1373,7 +1397,12 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         }
 
         genro.serverCall(this.importMethod || 'utils.tableImporterRun',importerKw,function(result){
+            
             genro.dlg.floatingMessage(that.rootNode,{message:_T('Import finished')});
+            if(result && result.warnings){
+                genro.dlg.floatingMessage(that.rootNode,{message:result.warnings});
+
+            }
             that.resetImporter();
             genro.lockScreen(false,'import_data');
         });
@@ -4202,7 +4231,8 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         });
     },
     getPaneId:function(childSourceNode){
-        return childSourceNode.attr.pageName || childSourceNode.attr.nodeId || childSourceNode.getStringId();
+        var result = childSourceNode.attr.pageName || childSourceNode.attr.nodeId || childSourceNode.getStringId();
+        return flattenString(result);
     },
     makeTabButton:function(sourceNode,childSourceNode,stackNode){
         var widget = childSourceNode.getWidget();
@@ -4413,7 +4443,7 @@ dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
             metadata.setItem('flags',that.userObjectPars.flags);
             genro.serverCall('_table.adm.userobject.saveUserObject',
                             {'objtype':that.userObjectPars.objtype,'metadata':metadata,
-                            'data':data,table:that.userObjectPars.table,asResource:modifiers=='Shift'},
+                            'data':data,table:that.userObjectPars.table},
                             function(result) {
                                 dlg.close_action();
                                 metadata.setItem('pkey',result.getValue());
@@ -4502,6 +4532,75 @@ dojo.declare("gnr.widgets.ComboArrow", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.PackageSelect", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode,kw,childSourceNode){
+        kw.hasDownArrow = true;
+        
+        kw.onCreating = function(attributes){
+            var that = this;
+            genro.serverCall('app.dbStructure',{path:''},function(result){
+                that._cbstore = result.getNodes().map(function(n){return {_pkey:n.label,pkg:n.label,caption:n.label,name:n.attr.caption};});
+            });
+        };
+
+        kw.callback = function(cbkw){
+            var _id = cbkw._id;
+            var _querystring = cbkw._querystring;
+            var cbfilter = function(n){return true};
+            if(_querystring){
+                _querystring = _querystring.slice(0,-1).toLowerCase();
+                cbfilter = function(n){return n.name.toLowerCase().indexOf(_querystring)>=0 || n.pkg.indexOf(_querystring)>=0;};
+            }else if(_id){
+                cbfilter = function(n){return n._pkey==_id;}
+            }
+            return {headers:'pkg:Pkgid,name:Name',data:this.sourceNode._cbstore.filter(cbfilter)}
+        };
+        
+        return sourceNode._('CallbackSelect',kw);
+    }
+});
+
+
+dojo.declare("gnr.widgets.TableSelect", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode,kw,childSourceNode){
+        kw.hasDownArrow = true;
+        kw.pkg = kw.pkg.replace('^','=')
+        kw.onCreating = function(attributes){
+            var that = this;
+            genro.serverCall('app.getTablesTree',{},function(result){
+                that._cbstore = result;
+            });
+        };
+        kw.callback = function(cbkw){
+            var currentPkg = this.sourceNode.getAttributeFromDatasource('pkg');
+            var tblmapcb = function(n){
+                var caption = currentPkg?n.label:n.attr.tableid;
+                return {_pkey:n.attr.tableid,tbl:n.attr.tableid,pkg:n.attr.tableid.split('.')[1],name:caption,caption:caption,pkeyField:n.attr.tableid};
+            };
+            var data;
+            if (currentPkg){
+                data = this.sourceNode._cbstore.getItem(currentPkg).getNodes();
+            }else{
+                data = [];
+                this.sourceNode._cbstore.values().forEach(function(pkgcontent){
+                    data = data.concat(pkgcontent.getNodes());
+                });
+            }
+            data = data.map(tblmapcb);
+            var _id = cbkw._id;
+            var _querystring = cbkw._querystring;
+            var cbfilter = function(n){return true};
+            if(_querystring){
+                _querystring = _querystring.slice(0,-1).toLowerCase();
+                cbfilter = function(n){return n.name.toLowerCase().indexOf(_querystring)>=0 || n.tbl.indexOf(_querystring)>=0;};
+            }else if(_id){
+                cbfilter = function(n){return n._pkey==_id;}
+            }
+            return {headers:'tbl:Table,name:Name,pkeyField:Pkey',data:data.filter(cbfilter)}
+        };
+        return sourceNode._('CallbackSelect',kw);
+    }
+});
 
 dojo.declare("gnr.widgets.ComboMenu", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw,childSourceNode){
@@ -5081,6 +5180,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
                 r._('td')._('div',{_class:'slotbar_spacer'});
                 return;
             };
+
             cell = r._('td',objectUpdate({_slotname:slot},buildKw.cell));
             if(lblPos=='R'){
                 cellKwLbl['width'] = cellKwLbl['width'] || '1px';
@@ -5127,7 +5227,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
                         labelCell._('div',objectUpdate({'innerHTML':lbl,'text_align':'center'},kwLbl));
                     }
                 }else{
-                    var textSlot=kw[slot]?kw[slot]:slot;
+                    var textSlot = kw[slot];
                     if(textSlot){
                         cell.setItem('div_0',null,objectUpdate({innerHTML:textSlot,tag:'div'},objectExtract(kw,slot+'_*')));
                     }
@@ -5652,14 +5752,24 @@ dojo.declare("gnr.stores._Collection",null,{
     
     onCounterChanges:function(counterField,changes){},
     
-    getData:function(){
+    getData:function(filtered){
         var result = this.storeNode.getRelativeData(this.storepath);
         if(!result){
             result = new gnr.GnrBag();
             this.storeNode.setRelativeData(this.storepath,result,null,null,'loadData');
         }
-        return result;
+        if(!(filtered && this._filtered)){
+            return result;
+        }
+        var filteredResult = new gnr.GnrBag();
+        var fn;
+        this._filtered.forEach(function(nodeIdx){
+            fn = result.getNode('#'+nodeIdx);
+            filteredResult.setItem(fn.label,fn._value instanceof gnr.GnrBag?fn._value.deepCopy():fn._value,objectUpdate({},fn.attr));
+        });
+        return filteredResult;
     },
+
     
     getItems:function(){
         return this.getData()._nodes;
@@ -5757,6 +5867,9 @@ dojo.declare("gnr.stores._Collection",null,{
     },
     resetFilter: function() {
         return this._filtered = null;
+    },
+    isFiltered:function(){
+        return this._filtered !==null;
     },
     
     compileFilter:function(grid,value,filterColumn,colType){

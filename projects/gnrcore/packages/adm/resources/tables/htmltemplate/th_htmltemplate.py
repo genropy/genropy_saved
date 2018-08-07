@@ -112,8 +112,7 @@ class Form(BaseComponent):
         else:
             bar.picker_flib.div()
         bar.atcPalette.palettePane(paletteCode='atcPalette',title='Attachments',dockButton=dict(label='Attachments'),
-                                height='800px',width='500px').attachmentPane(mode='headline',pbl_classes='*',
-                                viewResource='gnrcomponents/attachmanager/attachmanager:AttachManagerViewBase')
+                                height='800px',width='500px').attachmentGallery()
         bar.zoomfactor.horizontalSlider(value='^zoomFactor', minimum=0, maximum=1,
                                 intermediateChanges=True, width='15em', float='right')
 
@@ -129,7 +128,8 @@ class Form(BaseComponent):
     def htmltemplate_tplInfo(self, pane):
         fb = pane.formbuilder(cols=2, border_spacing='3px')
         fb.field('name', width='12em',colspan=2)
-        fb.field('based_on', width='12em',hasDownArrow=True,colspan=2,lbl='Based on')
+        fb.field('based_on', width='12em',hasDownArrow=True,colspan=2,lbl='Based on',condition='$id!=:curr_id',
+                    condition_curr_id='=#FORM.record.id')
         fb.dataRpc('#FORM.backgroundLetterhead',self.loadBasedOn,letterhead_id='^.based_on',_if='letterhead_id',_else='return "";')
         fb.field('type_code', width='7em',hasDownArrow=True,lbl='Type')
         fb.field('version', width='3em',lbl='V.')

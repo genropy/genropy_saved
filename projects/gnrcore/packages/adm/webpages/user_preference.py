@@ -10,55 +10,33 @@ from gnr.web.gnrwsgisite_proxy.gnrresourceloader import GnrMixinError
 from gnr.core.gnrdecorator import public_method
 class GnrCustomWebPage(object):
     """USER PREFERENCE BUILDER"""
-    maintable = 'adm.preference'
-    py_requires = """public:Public,preference:UserPref"""
+    maintable = 'adm.user'
+    py_requires = """public:Public,prefhandler/prefhandler:UserPrefHandler"""
 
     def windowTitle(self):
-        return '!!Preference panel'
+        return '!!User preference panel'
 
-    def mainLeftContent(self, parentBC, **kwargs):
-        return
+    def main(self, root, **kwargs):
+        """USER PREFERENCE BUILDER"""
+        form = root.frameForm(frameCode='user_preferences',store_startKey=self.avatar.user_id,
+                                table='adm.user',datapath='main',store=True,**kwargs)
+        self.controllers(form)
+        self.user_preference_bottom_bar(form.bottom)
+        form.dataController("""
+            var tkw = _triggerpars.kw;
+            if(tkw.reason && tkw.reason.attr && tkw.reason.attr.livePreference){
+                genro.mainGenroWindow.genro.publish({topic:'externalSetData',
+                iframe:'*'},{path:'gnr.user_preference.'+tkw.pathlist.slice(2).join('.'),value:tkw.value});
+            }""",preference='^#FORM.record.preferences')
+        form.center.userPreferencesTabs(datapath='#FORM.record.preferences',margin='2px')
 
-    def rootWidget(self, root, **kwargs):
-        return root.borderContainer(_class='pbl_dialog_center', **kwargs)
+    def user_preference_bottom_bar(self, bottom):
+        bar = bottom.slotBar('revertbtn,*,cancel,savebtn',margin_bottom='2px',_class='slotbar_dialog_footer')
+        #bottom.a('!!Zoom',float='left',href='/adm/app_preference')
+        bar.revertbtn.button('!!Revert',action='this.form.publish("reload")',disabled='^.controller.changed?=!#v')
+        bar.savebtn.slotButton('!!Save', action='this.form.publish("save",{destPkey:"*dismiss*"});')
+        bar.cancel.slotButton('!!Cancel', action='this.form.abort()')
 
-    def main(self, rootBC, **kwargs):
-        self.controllers(rootBC)
-        self.bottom(rootBC.contentPane(region='bottom', _class='dialog_bottom'))
-       #rootBC.dataController("""genro.bp();
-       #                        //genro.publish({iframe:'*',topic:'changed_user_preference'},{preference:_node.label,});""",preference="^preference")
-        tc = rootBC.tabContainer(region='center', datapath='preference', formId='preference')
-        for pkg in self.application.packages.values():
-            if pkg.disabled:
-                continue
-            panecb = getattr(self, 'prefpane_%s' % pkg.id, None)
-            if panecb:
-                panecb(tc, title=pkg.attributes.get('name_full'), datapath='.%s' % pkg.id, nodeId=pkg.id,
-                        pkgId=pkg.id,
-                        _anchor=True)
-
-    def bottom(self, bottom):
-        bottom.button('!!Save', baseClass='bottom_btn', float='right', margin='1px',
-                        margin_right='20px',
-                      action='genro.formById("preference").save(true)')
-        bottom.button('!!Cancel', baseClass='bottom_btn', float='right', margin='1px',
-                      action='window.parent.genro.wdgById("userpreference").hide();')
-
-    def controllers(self, pane):
-        pane.dataController("""parent.genro.fireEvent("#userpreference.close");""", _fired="^frame.close")
-        pane.dataController("genro.formById('preference').load()", _onStart=True)
-        pane.dataRpc('dummy', 'savePreference', data='=preference', nodeId='preference_saver',
-                     _onResult='genro.formById("preference").saved();FIRE frame.setOnParent;window.parent.genro.wdgById("userpreference").hide();')
-        pane.dataRpc('preference', 'loadPreference', nodeId='preference_loader',
-                     _onResult='genro.formById("preference").loaded();')
-
-    def rpc_loadPreference(self):
-        return self.getUserPreference('*')
-
-    def rpc_savePreference(self, data):
-        self.db.table('adm.user').setPreference(username=self.user, data=data)
-        self.setInClientData('gnr.serverEvent.refreshNode', value='gnr.user_preference', filters='user:%s' % self.user,
-                             fired=True, public=True)
-
-        return
- 
+    def controllers(self, form):
+        form.dataController('window.parent.genro.wdgById("userpreference").close();',
+                                formsubscribe_onDismissed=True)

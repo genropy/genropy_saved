@@ -708,7 +708,8 @@ class GnrWebPage(GnrBaseWebPage):
             if ',' in resource_name:
                 resource_name = resource_name.split(',')[0]
                 custom = True
-            respath = self.packageResourcePath(table=resource_table,filepath=filepath,custom=custom,inMainResource=inMainResource)
+            respath = self.packageResourcePath(table=resource_table,filepath=filepath,custom=custom,
+                                                forcedPackage=self.package.name if not inMainResource else None)
             data.toXml(respath,autocreate=True)
             return respath
         else:
@@ -951,6 +952,16 @@ class GnrWebPage(GnrBaseWebPage):
             sep='.'
             table_name,sep,submethod = submethod.rpartition(sep)
             proxy_object = self.db.table(table_name)
+            handler = getattr(proxy_object,submethod)
+            permissions = getattr(handler,'permissions',None)
+            if not self.checkTablePermission(table=table_name,permissions=permissions):
+                raise self.exception('business_logic',message='Operation %s is not allowed' %submethod)
+        elif proxy_name == '_tblscript':
+            table_pkg,table_name,table_respath,class_name,submethod = submethod.split('.')
+            proxy_object = self.loadTableScript(table='.'.join((table_pkg,table_name)),respath=table_respath,class_name=class_name)
+        elif proxy_name == '_resourcescript':
+            pkg_name,respath,class_name,submethod = submethod.split('.')
+            proxy_object = self.loadResourceScript(respath,class_name=class_name,pkg=pkg_name)
         else:
             proxy_object = getattr(self, proxy_name, None)
         if not proxy_object:
@@ -997,6 +1008,8 @@ class GnrWebPage(GnrBaseWebPage):
             userTags = self.userTags or self.basicAuthenticationTags()
             if not self.application.checkResourcePermission(handler.tags, userTags):
                 raise self.exception(GnrUserNotAllowed,method=method)
+        if not handler:
+            self.clientPublish('floating_message',message='missing public method %s' %method,messageType='error')
         return handler
 
     def basicAuthenticationTags(self):
@@ -1148,6 +1161,26 @@ class GnrWebPage(GnrBaseWebPage):
             return Bag()
         return self.db.table(table).getUserConfiguration(user=self.user,user_group=self.avatar.group_code)
         
+
+    def checkTablePermission(self,table=None,permissions=None):
+        if not permissions:
+            return True
+        permissions = set(permissions.split(',') if isinstance(permissions,basestring) else permissions)
+        availablePermissions = set(self.db.table(table).availablePermissions.split(',')).union(set(['hidden','readonly']))
+        if not permissions.issubset(availablePermissions):
+            raise self.exception('generic',description='Permissions %s are not defined in table %s' %(','.join(permissions.difference(availablePermissions)),table))
+        tableconf = self.getUserTableConfig(table=table)
+        tbl_forbidden = tableconf['tbl_forbidden']
+        tbl_permission = tableconf['tbl_permission']
+        checkset = set()
+        if tbl_forbidden:
+            checkset = checkset.union(tbl_forbidden.split(','))
+        if tbl_permission:
+            checkset = checkset.union(tbl_permission.split(','))
+        
+        forbidden = checkset.intersection(permissions)
+        return not forbidden
+
     def getDomainUrl(self, path='', **kwargs):
         """TODO
         
@@ -1200,9 +1233,9 @@ class GnrWebPage(GnrBaseWebPage):
         
     domSrcFactory = property(_get_domSrcFactory)
         
-    def newSourceRoot(self):
+    def newSourceRoot(self,rootAttributes=None):
         """TODO"""
-        return self.domSrcFactory.makeRoot(self)
+        return self.domSrcFactory.makeRoot(self,rootAttributes=rootAttributes)
         
     def newGridStruct(self, maintable=None):
         """It creates a :class:`GnrGridStruct <gnr.web.gnrwebstruct.GnrGridStruct>` class that
@@ -1500,19 +1533,18 @@ class GnrWebPage(GnrBaseWebPage):
             url = '%s?mtime=%0.0f' % (url, mtime)
         return url
     
-    def packageResourcePath(self,table=None,filepath=None,custom=False,inMainResource=None):
-        page_pkg = self.package.name 
+    def packageResourcePath(self,table=None,filepath=None,custom=False,forcedPackage=None):
         table_pkg = None
         if table:
             table_pkg,tblname = table.split('.')
             respath = 'tables/%s/%s' %(tblname,filepath)
         else:
             respath = filepath
-
         if custom:
-            return os.path.join(self.site.site_path, '_custom', page_pkg, '_resources',respath)
-        packageFolder = self.site.gnrapp.packages[self.package.name].packageFolder
-        if table_pkg and page_pkg != table_pkg and not inMainResource:
+            return os.path.join(self.site.site_path, '_custom', self.package.name, '_resources',respath)
+        packageFolder = self.site.gnrapp.packages[table_pkg].packageFolder
+        if forcedPackage and forcedPackage!=table_pkg:
+            packageFolder = self.site.gnrapp.packages[forcedPackage].packageFolder
             respath = 'tables/_packages/%s/%s/%s' %(table_pkg,tblname,filepath)        
         return os.path.join(packageFolder,'resources',respath)
             
@@ -1530,6 +1562,14 @@ class GnrWebPage(GnrBaseWebPage):
             return result[0]
             
     getResourcePath = getResource
+
+    def loadResourceScript(self,path,pkg=None,class_name=None,importAs=None):
+        if pkg=='*':
+            pkg = None
+        class_name = class_name or 'Main'
+        cl = self.importResource(path,classname=class_name,pkg=pkg,importAs=importAs)
+        return cl(page=self)
+        
             
     def importResource(self, path, classname=None, pkg=None,importAs=None):
         """TODO
@@ -1545,6 +1585,7 @@ class GnrWebPage(GnrBaseWebPage):
             if classname:
                 cl = getattr(m,classname,None)
                 if cl:
+                    cl._gnrPublicName = '_resourcescript.%s.%s.%s' %(pkg or '*',path,classname)
                     return cl
                 raise GnrMissingResourceException('Missing resource %(classname)s in %(resource_path)s',resource_path=path,classname=classname)
             return m
@@ -2096,7 +2137,7 @@ class GnrWebPage(GnrBaseWebPage):
         return result
     
     @public_method                                 
-    def remoteBuilder(self, handler=None,tag=None, py_requires=None,**kwargs):
+    def remoteBuilder(self, handler=None,tag=None, py_requires=None,_inheritedAttributes=None,**kwargs):
         """TODO
         
         :param handler: TODO"""
@@ -2109,7 +2150,7 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             handler = self.getPublicMethod('remote', handler)
         if handler:
-            pane = self.newSourceRoot()
+            pane = self.newSourceRoot(_inheritedAttributes)
             self._root = pane
             for k, v in kwargs.items():
                 if k.endswith('_path'):

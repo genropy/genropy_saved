@@ -180,3 +180,29 @@ class Table(object):
                 if v is not None:
                     result[k] = v
         return result
+
+    def onLoading_common(self, record, newrecord, loadingParameters, recInfo):
+        if record['tblid']:
+            current_full_data = self.getInfoBag(pkg=record['pkgid'],tbl=record['tblid'],
+                                                user=record['username'],
+                                                    user_group=record['user_group'],
+                                                    _editMode=True)
+            record['data.cols_permission'] = current_full_data['cols_permission']
+            record['$current_cols'] = self._colsPickerStore(record['tblid'])
+            record['$allPermissions'] = self.db.table(record['tblid']).availablePermissions
+        else:
+            record['$allPermissions'] = self.availablePermissions
+
+    def _colsPickerStore(self,table=None):
+        tblobj = self.db.table(table)
+        result = Bag()
+        for field,colobj in tblobj.model.columns.items():
+            colattr = colobj.attributes
+            result.setItem(field,None,colname=field,name_long=colattr.get('name_long'),
+                                    datatype=colattr.get('dtype','T'),_pkey=field)
+
+        for field,colobj in tblobj.model.virtual_columns.items():
+            colattr = colobj.attributes
+            result.setItem(field,None,colname=field,name_long=colattr.get('name_long'),datatype=colattr.get('dtype','T'),_customClasses='virtualCol',_pkey=field)
+        return result
+

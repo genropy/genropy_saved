@@ -110,12 +110,12 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         if (!where) {
             var wherenode = kw.where.getParentNode();
             if (wherenode) {
-                var where = wherenode.widget || wherenode.domNode;
+                where = wherenode.widget || wherenode.domNode;
                 if (!where) {
-                    alert('_trigger_ins error????');//|| dojo.byId(genro.domRootName);
+                    console.error('Missing destination node in trigger_ins',kw);
                 }
             } else {
-                var where = dojo.byId(genro.domRootName);
+                where = dojo.byId(genro.domRootName);
                 node.domNode = where;
             }
         }
@@ -387,6 +387,8 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         var sourceNode = genro.src.enclosingSourceNode(e.target);
         var func = funcCreate(code, 'kw,e', sourceNode);
         func(kw, e);
+        dojo.stopEvent(e);
+
     },
     checkSubscribedNodes:function(){
         var subscribedNodes = this._subscribedNodes;

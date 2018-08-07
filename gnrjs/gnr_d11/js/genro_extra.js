@@ -747,11 +747,17 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
          this.document.getBody()['$'].style.width = width;
     }, 
     mixin_gnr_assignConstrain:function(){
-        var constrainAttr = objectExtract(this.sourceNode.attr,'constrain_*',true);
-        constrainAttr = this.sourceNode.evaluateOnNode(constrainAttr);
-        var b = this.document.getBody()['$'];
-        b.style.cssText = objectAsStyle(objectUpdate(objectFromStyle(b.style.cssText),
-                                            genro.dom.getStyleDict(constrainAttr)));      
+        var that = this;
+        this.sourceNode.watch('hasDocument',function(){
+            return that.document;
+        },function(){
+            var constrainAttr = objectExtract(that.sourceNode.attr,'constrain_*',true);
+            constrainAttr = that.sourceNode.evaluateOnNode(constrainAttr);
+            var b = that.document.getBody()['$'];
+            b.style.cssText = objectAsStyle(objectUpdate(objectFromStyle(b.style.cssText),
+                                                genro.dom.getStyleDict(constrainAttr)));  
+        });
+            
 
     },
 

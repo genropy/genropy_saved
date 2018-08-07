@@ -636,7 +636,7 @@ class TableHandlerMain(BaseComponent):
     def _th_parentFrameMessageSubscription(self,form):
         form.dataController("""if(_subscription_kwargs.pkey){
                                     if(pkey=='*newrecord*'){
-                                    this.form.newrecord(objectExtract(_subscription_kwargs,'default_*'))
+                                        this.form.newrecord(objectExtract(_subscription_kwargs,'default_*'))
                                     }else{
                                         this.form.load({destPkey:pkey,discardChange:true});
                                     }

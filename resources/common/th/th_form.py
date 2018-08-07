@@ -6,7 +6,7 @@
 
 from gnr.web.gnrwebstruct import struct_method
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrdecorator import extract_kwargs
+from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import boolean
 from gnr.core.gnrdict import dictExtract
@@ -32,6 +32,10 @@ class TableHandlerForm(BaseComponent):
             grid =  pane.view.grid
             linkTo = grid
         #context_dbstore = pane.getInheritedAttributes().get('context_dbstore')
+        remoteForm = options.pop('remote',None) or (self.getPreference('experimental.remoteForm',pkg='sys'))
+        if formInIframe:
+            remoteForm = False
+        remotePars = dict()
         form = linkTo.linkedForm(frameCode=frameCode,
                                  th_root=frameCode,
                                  datapath='.form',
@@ -39,18 +43,43 @@ class TableHandlerForm(BaseComponent):
                                  table=table,
                                  formResource=formResource,
                                  iframe=formInIframe,
+                                 remoteForm=remoteForm,
+                                 remotePars=remotePars,
                                  #context_dbstore=context_dbstore,
                                  **options) 
         self._th_setDocumentation(table=table,resource = formResource or 'Form',doc=options.get('doc'),
                                     custdoc=options.get('custdoc'))
         if formInIframe:
             return form
-        self._th_applyOnForm(form,options=options,mangler=frameCode)   
+        elif remoteForm:
+            return self.th_prepareRemoteForm(form,**remotePars)
+        return self.th_finalizeForm(form,table=table,options=options,frameCode=frameCode)
+    
+    def th_prepareRemoteForm(self,pane,formId=None,**kwargs):
+        kw = dict()
+        kw['nodeId'] = 'remote_wrapper_%s' %formId
+        pane.contentPane(**kw).remote(self._th_remoteFormDispatcher,remoteFormId=formId,
+                                            sendInheritedAttributes=True,**kwargs)
+
+    @public_method
+    def _th_remoteFormDispatcher(self,formRoot,remoteFormId=None,
+                                    frameCode=None,th_root=None,datapath=None,childname=None,table=None,
+                                 formResource=None,iframe=None,remoteForm=None,remotePars=None,**kwargs):
+        form = formRoot.frameForm(formId=remoteFormId,frameCode=frameCode,
+                                 th_root=th_root,datapath=datapath,childname=childname,
+                                 table=table,formResource=formResource,
+                                 iframe=iframe,**kwargs)
+        formRoot.form = form
+        form.store.handler('load',default_kwargs=kwargs.get('default_kwargs'))
+        self._th_mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form') 
+        return self.th_finalizeForm(form,table=table,options=kwargs,frameCode=frameCode)
+    
+    def th_finalizeForm(self,form,table=None,options=None,frameCode=None):
+        self._th_applyOnForm(form,options=options,mangler=frameCode)  
         if table == self.maintable and hasattr(self,'th_form'):
             self.th_form(form)
         else:
             self._th_hook('form',mangler=frameCode)(form)
-            
         pluggedFieldHandler = self._th_hook('pluggedFields',mangler=frameCode,
                                             defaultCb=self.th_defaultPluggedFieldHandler)
         pluggedFieldHandler(form)
@@ -103,8 +132,7 @@ class TableHandlerForm(BaseComponent):
             formroot = pane
             if datapath:
                 formroot.attributes.update(datapath=datapath)
-        tblconfig = self.getUserTableConfig(table=table)
-        if tblconfig['tbl_permission'] == 'readonly':
+        if not self.checkTablePermission(table,'readonly'):
             resource_options['readOnly'] = True
         form = formroot.frameForm(frameCode=formId,formId=formId,table=table,
                              store_startKey=startKey,context_dbstore=dbstore,
@@ -243,9 +271,6 @@ class TableHandlerForm(BaseComponent):
                     leftkw['closable'] = 'open'      
             elif hierarchical=='closed':
                 leftkw['closable'] = 'close'
-            
-            
-
             bar = form.left.slotBar('htreeSearchbar,htreeSlot,0',width=tree_kwargs.pop('width','200px'),border_right='1px solid silver',**leftkw)
             searchCode = form.attributes['frameCode']
             treeslots = '2,searchOn,*'
@@ -262,7 +287,11 @@ class TableHandlerForm(BaseComponent):
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=mangler,asDict=True)
             for hook in hooks.values():
-                hook(getattr(form,side))    
+                hook(getattr(form,side))   
+        defaultPrompt = options.get('defaultPrompt')
+        if defaultPrompt:
+            form.attributes['form_defaultPrompt']  = defaultPrompt
+        
         form.store.handler('load',onLoadingHandler=self._th_hook('onLoading',mangler=mangler))
         form.store.handler('save',onSavingHandler=self._th_hook('onSaving',mangler=mangler),
                                  onSavedHandler=self._th_hook('onSaved',mangler=mangler))
