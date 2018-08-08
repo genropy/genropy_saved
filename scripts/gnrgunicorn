@@ -13,7 +13,6 @@ from gnr.app.gnrconfig import gnrConfigPath, getSiteHandler, getGnrConfig
 import subprocess
 import multiprocessing
 
-import atexit
 import signal
 import os
 from gnr.core.gnrstring import boolean
@@ -46,11 +45,11 @@ class GunicornRunner(object):
     conf_template = """
 
 bind = '0.0.0.0:%(port)s'
-pidfile = '%(site_path)s/pid'
-daemon = False
-#accesslog = '%(site_path)s/log/access.log'
-#errorlog = '%(site_path)s/log/error.log'
-#logfile = '%(site_path)s/log/main.log'
+pidfile = '%(site_path)s/gunicorn_pid'
+daemon = True
+accesslog = '%(site_path)s/access.log'
+errorlog = '%(site_path)s/error.log'
+logfile = '%(site_path)s/main.log'
 workers = %(workers)i
 loglevel = 'error'
 chdir = '%(site_path)s'
@@ -155,7 +154,6 @@ Connect on:\t\thttp://127.0.0.1:%(port)i"""%self.pars
                 self.gunicorn_master = subprocess.Popen(gunicorn_args,stderr=fp)
         else:
             self.gunicorn_master = subprocess.Popen(gunicorn_args)
-        atexit.register(self.stop)
         self.print_pars()
         self.gunicorn_master.wait()
 
@@ -184,7 +182,11 @@ if __name__ == '__main__':
     parser.add_option('-v', '--verbose',
                   dest='verbose',
                   action='store_true',
-                  help="Verbose UWSGI output")    
+                  help="Verbose")    
+    parser.add_option('-r', '--run',
+                  dest='run',
+                  action='store_true',
+                  help="Run gunicorn")    
 
     parser.add_option('--debug',
                       dest='debug',
@@ -232,4 +234,5 @@ if __name__ == '__main__':
             gunicorn_runner.stop_from_pidfile()
         else:
             gunicorn_runner.write_conf()
-            gunicorn_runner.run()
+            if getattr(options,'run'):
+                gunicorn_runner.run()
