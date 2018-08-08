@@ -104,6 +104,8 @@ class Table(object):
                         print 'missing table',record['tbl'],'resource',node.attr['abs_path']
                         return
                     print 'inserting userobject %(code)s %(tbl)s %(pkg)s from resource' %record
+                    record['__ins_ts'] = None
+                    record['__mod_ts'] = None
                     self.insert(record)
         for pkgid,pkgobj in self.db.application.packages.items():
             table_resource_folder = os.path.join(pkgobj.packageFolder,'resources','tables') 
