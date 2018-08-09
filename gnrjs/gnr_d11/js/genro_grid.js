@@ -2173,12 +2173,11 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             this.updateRowCount('*');
         }
         if(this.changeManager && objectNotEmpty(this.changeManager.totalizeColumns)){
-            if(this.currentFilterValue){
-                this.changeManager.calculateFilteredTotals();
-            }else{
+            if(isNullOrBlank(this.currentFilterValue)){
                 this.sourceNode.setRelativeData('.filtered_totalize',null);
+            }else{
+                this.changeManager.calculateFilteredTotals();
             }
-            
         }
         this.setClass('gridFilterActive',this.isFiltered());
     },
