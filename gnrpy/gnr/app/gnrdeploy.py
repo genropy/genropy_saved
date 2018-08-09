@@ -68,9 +68,9 @@ class PathResolver(object):
                 if folders:
                     return expandpath(folders[0])
                 elif entity_type=='site':
-                    folders = glob.glob(os.path.join(project_path, '*','instances',entity_name,'site'))
+                    folders = glob.glob(os.path.join(project_path, '*','instances',entity_name))
                     if folders:
-                        return expandpath(folders[0])
+                        return expandpath(os.path.join(folders[0],'site'))
                         
         raise EntityNotFoundException('Error: %s %s not found' % (entity_type, entity_name))
         

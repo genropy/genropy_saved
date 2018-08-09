@@ -65,7 +65,7 @@ def check_file(xml_path=None):
     if os.path.exists(xml_path):
         raise GnrConfigException("A file named %s already exists so i couldn't create a config file at same path" % xml_path)
 
-def initgenropy(gnrpy_path=None):
+def initgenropy(gnrpy_path=None,gnrdaemon_password=None):
     if not gnrpy_path or not os.path.basename(gnrpy_path)=='gnrpy':
         raise GnrConfigException("You are not running this script inside a valid gnrpy folder")
     config_path  = gnrConfigPath(force_return=True)
@@ -80,9 +80,7 @@ def initgenropy(gnrpy_path=None):
 
     for xml_path in (enviroment_xml_path, default_instanceconfig_xml_path, default_siteconfig_xml_path):
         check_file(xml_path=xml_path)
-
-    gnrdaemon_password = get_random_password()
-
+    gnrdaemon_password = gnrdaemon_password or get_random_password()
     build_environment_xml(path=enviroment_xml_path, gnrpy_path=gnrpy_path, gnrdaemon_password=gnrdaemon_password)
     build_instanceconfig_xml(path=default_instanceconfig_xml_path)
     build_siteconfig_xml(path=default_siteconfig_xml_path, gnrdaemon_password=gnrdaemon_password)
@@ -90,4 +88,6 @@ def initgenropy(gnrpy_path=None):
 
 
 if __name__ == '__main__':
-    initgenropy(gnrpy_path=os.getcwd())
+    import sys
+    gnrdaemon_password=sys.argv[1] if len(sys.argv)>1 else None
+    initgenropy(gnrpy_path=os.getcwd(),gnrdaemon_password=gnrdaemon_password)

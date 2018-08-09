@@ -330,19 +330,21 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var cell = infopars.cell;
             item.idx = infopars.rel_index;
             var value = objectPop(item,'value');
-            if(!value){
+            if(item.footerCell && !value){
                 if(cell.totalize){
                     value = '^'+cell.totalize;
+                    item._totalized_value = value;
+                    item._filtered_totalized_value = '^.filtered_totalize.'+cell.field;
                     item.text_align = 'right';
+                    item.innerHTML = '==_filtered_totalized_value!==null?_filtered_totalized_value:_totalized_value';
                 }else if(sum_columns && sum_columns.getItem(cell.field)){
                     //nothing
                 }else{
                     value = '&nbsp;';
                 }
+            }else{
+                item.innerHTML = value;
             }
-            item._totalized_value = value;
-            item._filtered_totalized_value = '^.filtered_totalize.'+cell.field;
-            item.innerHTML = '==_filtered_totalized_value!==null?_filtered_totalized_value:_totalized_value';
             itemlist.push(item);
         });
         itemlist.sort(function(a,b){return a.idx-b.idx;});
@@ -379,6 +381,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var cell = n.attr.cell;
             var footer_kw = objectExtract(cell,'footer_*',true);
             if(cell.totalize || objectNotEmpty(footer_kw)){
+                footer_kw.footerCell = true;
                 footer_kw.idx = cell.index;
                 footer_kw.field = cell.field;
                 footer_kw.dtype = cell.dtype;
@@ -2170,7 +2173,11 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             this.updateRowCount('*');
         }
         if(this.changeManager && objectNotEmpty(this.changeManager.totalizeColumns)){
-            this.changeManager.calculateFilteredTotals();
+            if(isNullOrBlank(this.currentFilterValue)){
+                this.sourceNode.setRelativeData('.filtered_totalize',null);
+            }else{
+                this.changeManager.calculateFilteredTotals();
+            }
         }
         this.setClass('gridFilterActive',this.isFiltered());
     },

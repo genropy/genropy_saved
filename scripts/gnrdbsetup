@@ -197,4 +197,5 @@ if __name__ == '__main__':
         if options.upgrade:
             app.pkgBroadcast('onDbUpgrade,onDbUpgrade_*')
             app.db.table('sys.upgrade').runUpgrades()
+            app.db.commit()
         app.db.closeConnection()

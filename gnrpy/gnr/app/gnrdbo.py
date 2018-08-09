@@ -917,6 +917,8 @@ class TableBase(object):
             kwargs['dtypes'] = tpl.getItem('main?dtypes')
             #virtual_columns = tpl.getItem('main?virtual_columns')
         r = Bag(dict(record))
+        if not isinstance(record,Bag):
+            tpl['main'] = tpl['main'].replace('@','_').replace('.','_')
         return templateReplace(tpl,r,**kwargs)
 
 
