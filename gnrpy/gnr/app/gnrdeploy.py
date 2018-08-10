@@ -594,7 +594,7 @@ SUPERVISOR_TEMPLATE = """
 loglevel='error'
 
 [program:gunicorn]
-command=%(bin_folder)sgunicorn -c %(gunicorn_conf_path)s
+command=%(bin_folder)sgunicorn -c %(gunicorn_conf_path)s root
 
 [program:gnrasync]
 command=%(bin_folder)sgnrasync %(site_name)s 
@@ -652,7 +652,7 @@ class GunicornDeployBuilder(object):
         self.pidfile_path = os.path.join(self.site_path, '%s_pid' % site_name)
         self.gunicorn_conf_path = os.path.join(self.gnr_path, 'gunicorns','%s.py' %self.site_name)
         self.websocket_socket_path = os.path.join(self.socket_path, '%s.tornado' %self.site_name)
-        self.gunicorn_socket_path = os.path.join(self.socket_path, '%s.gunicorn' %self.site_name)
+        self.gunicorn_socket_path = os.path.join(self.socket_path, '%s_gunicorn.sock' %self.site_name)
         self.create_dirs()
         import multiprocessing
         self.default_workers = multiprocessing.cpu_count()* 2 + 1

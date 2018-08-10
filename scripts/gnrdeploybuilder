@@ -58,7 +58,7 @@ if __name__ == '__main__':
             print """
 Now using run these commands
 
-$ sudo cp gnrsiterunner.service /lib/systemd/system/bong.service
+$ sudo cp gnrsiterunner.service /lib/systemd/system/siterunner.service
 $ sudo chmod 644 /lib/systemd/system/gnrsiterunner.service
 $ sudo systemctl daemon-reload  # Refresh the available service list
 $ sudo systemctl enable gnrsiterunner.service
