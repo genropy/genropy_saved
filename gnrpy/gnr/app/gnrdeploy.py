@@ -659,7 +659,7 @@ class GunicornDeployBuilder(object):
         self.options = kwargs
 
     def create_dirs(self):
-        for dir_path in (self.socket_path, self.site_path):
+        for dir_path in (self.socket_path, self.site_path,os.path.join(self.gnr_path, 'gunicorns')):
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
 
@@ -672,13 +672,14 @@ class GunicornDeployBuilder(object):
         pars['pidfile_path'] = self.pidfile_path
         pars['site_path'] = self.site_path
         conf_content = GUNICORN_DEFAULT_CONF_TEMPLATE %pars
+        print 'write gunicorn file',self.gunicorn_conf_path
         with open(self.gunicorn_conf_path,'w') as conf_file:
             conf_file.write(conf_content)
 
     def write_supervisor_conf(self):
         from gnr.app.gnrconfig import IniConfStruct
-        if os.path.isfile(self.supervisor_conf_path):
-            root = IniConfStruct(self.supervisor_conf_path)
+        if os.path.isfile(self.supervisor_conf_path_py):
+            root = IniConfStruct(self.supervisor_conf_path_py)
         else:
             root = IniConfStruct()
             supervisord = root.section(u"supervisord")
@@ -700,5 +701,5 @@ class GunicornDeployBuilder(object):
         pars['websocket_socket_path'] = self.websocket_socket_path
         pars['gunicorn_socket_path'] = self.gunicorn_socket_path
         conf_content = NGINX_TEMPLATE %pars
-        with open('%s.conf' %self.sitename,'w') as conf_file:
+        with open('%s.conf' %self.site_name,'w') as conf_file:
             conf_file.write(conf_content)

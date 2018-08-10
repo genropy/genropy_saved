@@ -138,7 +138,7 @@ class IniConfStruct(ConfigStruct):
             if tag=='section':
                 filehandle.write('\n')
                 section_name = kw.get('name')
-                filehandle.write('[%s]' %('%s:%s' %(key,section_name) if section_name else key))
+                filehandle.write('[%s]\n' %('%s:%s' %(key,section_name) if section_name else key))
                 if n.value:
                     subsections = defaultdict(list)
                     for sn in n.value.nodes:
@@ -146,9 +146,8 @@ class IniConfStruct(ConfigStruct):
                         if section:
                             subsections[section].append(sn.attr['name'])
                     if subsections:
-                        filehandle.write('\n')
                         for k,v in subsections.items():
-                            filehandle.write('%ss=%s' %(k,','.join(v)))
+                            filehandle.write('%ss=%s\n' %(k,','.join(v)))
                     
             elif tag=='parameter':
                 parameter_value = kw.pop('value')

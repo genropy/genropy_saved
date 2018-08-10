@@ -30,8 +30,8 @@ if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-d", "--domain", dest="domain",
                       help="The nginx domain")
-    parser.add_option("-s", "--make_service", dest="make_service",
-                      help="Make supervisord service")
+    parser.add_option('-s', '--make_service',dest='make_service',
+                      help="Make service")
 
     (options, args) = parser.parse_args()
     base_path = getattr(options,'base_path', None)
@@ -39,6 +39,8 @@ if __name__ == '__main__':
         print 'You should specify a site name'
     else:
         deployer = GunicornDeployBuilder(args[0])
+        deployer.write_gunicorn_conf()
+        deployer.write_supervisor_conf()
         if options.domain:
             print 'Writing nginx conf in cwd please copy in /etc/nginx/sites-enabled'
             deployer.write_nginx_conf(options.domain)
@@ -51,7 +53,7 @@ if __name__ == '__main__':
                 environments = ''
             binpath = os.path.join(binroot,'supervisord -c %s') %deployer.supervisor_conf_path_ini
             content = SERVICE_TPL %dict(environments=environments,binpath=binpath)
-            with open('gnrsiterunner.service','w') as service_file:
+            with open('siterunner.service','w') as service_file:
                 service_file.write(content)
             print """
 Now using run these commands
