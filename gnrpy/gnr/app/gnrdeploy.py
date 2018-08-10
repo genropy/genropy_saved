@@ -598,7 +598,6 @@ command=%(bin_folder)sgunicorn -c %(gunicorn_conf_path)s root
 
 [program:gnrasync]
 command=%(bin_folder)sgnrasync %(site_name)s 
-
 """
 
 NGINX_TEMPLATE = """
