@@ -589,16 +589,6 @@ timeout = 120
 graceful_timeout = 30
 """
 
-SUPERVISOR_TEMPLATE = """
-[supervisord]
-loglevel='error'
-
-[program:gunicorn]
-command=%(bin_folder)sgunicorn -c %(gunicorn_conf_path)s root
-
-[program:gnrasync]
-command=%(bin_folder)sgnrasync %(site_name)s 
-"""
 
 NGINX_TEMPLATE = """
 server {
@@ -687,7 +677,7 @@ class GunicornDeployBuilder(object):
         
         group = root.section('group',self.site_name)
         gunicorn = group.section('program','%s_gunicorn' %self.site_name)
-        gunicorn.parameter('command','%s -c %s' %(os.path.join(self.bin_folder,'gunicorn'),self.gunicorn_conf_path))
+        gunicorn.parameter('command','%s -c %s root' %(os.path.join(self.bin_folder,'gunicorn'),self.gunicorn_conf_path))
         gnrasync = group.section('program','%s_gnrasync' %self.site_name)
         gnrasync.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrasync'),self.site_name))
         root.toPython(self.supervisor_conf_path_py)
