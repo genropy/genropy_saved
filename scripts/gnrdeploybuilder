@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+"""
+create a new deploy gunicorn nginx websocket environment for a site
+usage: gnrdeploybuilder site
+
+"""
+import os,sys
+
+from gnr.app.gnrdeploy import GunicornDeployBuilder
+from optparse import OptionParser
+
+SERVICE_TPL = """
+[Unit]
+Description=GnrSupervisorSiteRunner Service
+After=multi-user.target
+
+[Service]
+Type=idle
+%(environments)s
+ExecStart=%(binpath)s
+
+[Install]
+WantedBy=multi-user.target
+"""
+
+
+if __name__ == '__main__':
+    parser = OptionParser()
+    parser.add_option("-d", "--domain", dest="domain",
+                      help="The nginx domain")
+    parser.add_option("-s", "--make_service", dest="make_service",
+                      help="Make supervisord service")
+
+    (options, args) = parser.parse_args()
+    base_path = getattr(options,'base_path', None)
+    if not args:
+        print 'You should specify a site name'
+    else:
+        deployer = GunicornDeployBuilder(args[0])
+        if options.domain:
+            print 'Writing nginx conf in cwd please copy in /etc/nginx/sites-enabled'
+            deployer.write_nginx_conf(options.domain)
+        if options.make_service:
+            binroot = ''
+            if os.environ.has_key('VIRTUAL_ENV'):
+                environments = "Environment=VIRTUAL_ENV=%s" %os.environ['VIRTUAL_ENV']
+                binroot = os.path.join(os.environ['VIRTUAL_ENV'],'bin')
+            else:
+                environments = ''
+            binpath = os.path.join(binroot,'supervisord -c %s') %deployer.supervisor_conf_path_ini
+            content = SERVICE_TPL %dict(environments=environments,binpath=binpath)
+            with open('gnrsiterunner.service','w') as service_file:
+                service_file.write(content)
+            print """
+Now using run these commands
+
+$ sudo cp gnrsiterunner.service /lib/systemd/system/bong.service
+$ sudo chmod 644 /lib/systemd/system/gnrsiterunner.service
+$ sudo systemctl daemon-reload  # Refresh the available service list
+$ sudo systemctl enable gnrsiterunner.service
+
+# Now watch your service auto run at bootup
+$ sudo reboot
+...
+$ sudo systemctl status gnrsiterunner.service
+# Blah blah blah you should see something happy and green
+# Want to check your logs?
+$ sudo journalctl -e -u gnrsiterunner.service
+        """

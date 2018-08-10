@@ -5,7 +5,7 @@ from gnr.core.gnrsys import expandpath
 from gnr.core.gnrlang import uniquify, GnrException
 from collections import defaultdict
 from gnr.app.gnrconfig import MenuStruct
-from gnr.app.gnrconfig import getGnrConfig, setEnvironment
+from gnr.app.gnrconfig import getGnrConfig,gnrConfigPath, setEnvironment
 
 
     
@@ -570,14 +570,135 @@ class ThPackageResourceMaker(object):
             self.writeFormClass(tbl_obj, form_columns)
             print '%s created' % name
 
+################################# DEPLOY CONF BUILDERS ################################
 
-class ModWsgiMaker(object):
-    """TODO"""
-    pass
+GUNICORN_DEFAULT_CONF_TEMPLATE ="""
 
-if __name__ == '__main__':
-    pather = PathResolver()
-    print pather.package_name_to_path('edicon')
-    print pather.project_name_to_path('trasporti')
-    print pather.instance_name_to_path('satlow')
-    print pather.site_name_to_path('moscati')
+bind = 'unix:%(gunicorn_socket_path)s'
+pidfile = '%(pidfile_path)s'
+daemon = True
+accesslog = '%(site_path)s/access.log'
+errorlog = '%(site_path)s/error.log'
+logfile = '%(site_path)s/main.log'
+workers = %(workers)i
+loglevel = 'error'
+chdir = '%(site_path)s'
+reload = False
+worker_class = 'gevent'
+timeout = 120
+graceful_timeout = 30
+"""
+
+SUPERVISOR_TEMPLATE = """
+[supervisord]
+loglevel='error'
+
+[program:gunicorn]
+command=%(bin_folder)sgunicorn -c %(gunicorn_conf_path)s
+
+[program:gnrasync]
+command=%(bin_folder)sgnrasync %(site_name)s 
+
+"""
+
+NGINX_TEMPLATE = """
+server {
+        listen [::]:80;
+
+        server_name %(domain)s;
+
+        root %(site_path)s;
+
+        access_log %(site_path)s/nginx_access.log;
+        error_log %(site_path)s/nginx_error.log;
+
+        location /websocket {
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "Upgrade";
+            proxy_set_header X-Forward-For $proxy_add_x_forwarded_for;
+            proxy_set_header Host $http_host;
+            proxy_pass http://unix:%(websocket_socket_path)s;
+        }
+        location / {
+            proxy_set_header X-Forward-For $proxy_add_x_forwarded_for;
+            proxy_set_header Host $http_host;
+            proxy_redirect off;
+            proxy_pass http://unix:%(gunicorn_socket_path)s;
+        }
+}
+
+"""
+
+
+class GunicornDeployBuilder(object):
+    default_port = 8080
+    default_processes = 1
+    default_threads = 8
+    conf_template = GUNICORN_DEFAULT_CONF_TEMPLATE
+    
+    
+
+    def __init__(self, site_name, **kwargs):
+        self.site_name = site_name
+        self.path_resolver = PathResolver()
+        self.site_path = self.path_resolver.site_name_to_path(site_name)
+        self.site_config = self.path_resolver.get_siteconfig(site_name)
+        self.gnr_path = gnrConfigPath()
+        self.supervisor_conf_path_py = os.path.join(self.gnr_path,'supervisord.py') 
+        self.supervisor_conf_path_ini = os.path.join(self.gnr_path,'supervisord.conf') 
+        self.bin_folder = os.path.join(os.environ.get('VIRTUAL_ENV'),'bin') if os.environ.has_key('VIRTUAL_ENV') else ''
+        self.socket_path = os.path.join(self.gnr_path, 'sockets')
+        self.pidfile_path = os.path.join(self.site_path, '%s_pid' % site_name)
+        self.gunicorn_conf_path = os.path.join(self.gnr_path, 'gunicorns','%s.py' %self.site_name)
+        self.websocket_socket_path = os.path.join(self.socket_path, '%s.tornado' %self.site_name)
+        self.gunicorn_socket_path = os.path.join(self.socket_path, '%s.gunicorn' %self.site_name)
+        self.create_dirs()
+        import multiprocessing
+        self.default_workers = multiprocessing.cpu_count()* 2 + 1
+        self.options = kwargs
+
+    def create_dirs(self):
+        for dir_path in (self.socket_path, self.site_path):
+            if not os.path.exists(dir_path):
+                os.makedirs(dir_path)
+
+    def write_gunicorn_conf(self):
+        pars = dict()
+        opt = self.options
+        pars['gunicorn_socket_path'] = self.gunicorn_socket_path
+        pars['pidfile_path'] = self.site_name
+        pars['workers'] = int(opt.get('workers') or self.default_workers)
+        pars['pidfile_path'] = self.pidfile_path
+        pars['site_path'] = self.site_path
+        conf_content = GUNICORN_DEFAULT_CONF_TEMPLATE %pars
+        with open(self.gunicorn_conf_path,'w') as conf_file:
+            conf_file.write(conf_content)
+
+    def write_supervisor_conf(self):
+        from gnr.app.gnrconfig import IniConfStruct
+        if os.path.isfile(self.supervisor_conf_path):
+            root = IniConfStruct(self.supervisor_conf_path)
+        else:
+            root = IniConfStruct()
+            supervisord = root.section(u"supervisord")
+            supervisord.parameter("loglevel",value="error")
+        root.pop(self.site_name)            
+        
+        group = root.section('group',self.site_name)
+        gunicorn = group.section('program','%s_gunicorn' %self.site_name)
+        gunicorn.parameter('command','%s -c %s' %(os.path.join(self.bin_folder,'gunicorn'),self.gunicorn_conf_path))
+        gnrasync = group.section('program','%s_gnrasync' %self.site_name)
+        gnrasync.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrasync'),self.site_name))
+        root.toPython(self.supervisor_conf_path_py)
+        root.toIniConf(self.supervisor_conf_path_ini)
+
+    def write_nginx_conf(self,domain=None):
+        pars = {}
+        pars['domain'] = domain
+        pars['site_path'] = self.site_path
+        pars['websocket_socket_path'] = self.websocket_socket_path
+        pars['gunicorn_socket_path'] = self.gunicorn_socket_path
+        conf_content = NGINX_TEMPLATE %pars
+        with open('%s.conf' %self.sitename,'w') as conf_file:
+            conf_file.write(conf_content)
