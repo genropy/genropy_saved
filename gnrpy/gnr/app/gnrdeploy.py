@@ -649,7 +649,7 @@ class GunicornDeployBuilder(object):
         self.options = kwargs
 
     def create_dirs(self):
-        for dir_path in (self.socket_path, self.site_path,os.path.join(self.gnr_path, 'gunicorns')):
+        for dir_path in (self.socket_path, self.site_path,os.path.join(self.gnr_path, 'gunicorn')):
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
 
