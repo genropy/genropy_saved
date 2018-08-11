@@ -582,7 +582,7 @@ errorlog = '%(site_path)s/error.log'
 logfile = '%(site_path)s/main.log'
 workers = %(workers)i
 loglevel = 'error'
-chdir = '%(site_path)s'
+chdir = '%(chdir)s'
 reload = False
 worker_class = 'gevent'
 timeout = 120
@@ -632,6 +632,7 @@ class GunicornDeployBuilder(object):
         self.site_name = site_name
         self.path_resolver = PathResolver()
         self.site_path = self.path_resolver.site_name_to_path(site_name)
+        self.instance_path = self.path_resolver.instance_name_to_path(site_name)
         self.site_config = self.path_resolver.get_siteconfig(site_name)
         self.gnr_path = gnrConfigPath()
         self.supervisor_conf_path_py = os.path.join(self.gnr_path,'supervisord.py') 
@@ -639,7 +640,7 @@ class GunicornDeployBuilder(object):
         self.bin_folder = os.path.join(os.environ.get('VIRTUAL_ENV'),'bin') if os.environ.has_key('VIRTUAL_ENV') else ''
         self.socket_path = os.path.join(self.gnr_path, 'sockets')
         self.pidfile_path = os.path.join(self.site_path, '%s_pid' % site_name)
-        self.gunicorn_conf_path = os.path.join(self.gnr_path, 'gunicorns','%s.py' %self.site_name)
+        self.gunicorn_conf_path = os.path.join(self.gnr_path, 'gunicorn','%s.py' %self.site_name)
         self.websocket_socket_path = os.path.join(self.socket_path, '%s.tornado' %self.site_name)
         self.gunicorn_socket_path = os.path.join(self.socket_path, '%s_gunicorn.sock' %self.site_name)
         self.create_dirs()
@@ -660,6 +661,7 @@ class GunicornDeployBuilder(object):
         pars['workers'] = int(opt.get('workers') or self.default_workers)
         pars['pidfile_path'] = self.pidfile_path
         pars['site_path'] = self.site_path
+        pars['chdir'] = self.site_path if os.path.exists(os.path.join(self.site_path,'root.py')) else self.instance_path
         conf_content = GUNICORN_DEFAULT_CONF_TEMPLATE %pars
         print 'write gunicorn file',self.gunicorn_conf_path
         with open(self.gunicorn_conf_path,'w') as conf_file:

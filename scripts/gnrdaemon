@@ -56,6 +56,7 @@ def getOptions():
     parser.add_argument('-L', '--loglevel', type=int,
                        help="Log level")
     arguments= parser.parse_args()
+
     return arguments.__dict__
 
 SERVICE_TPL = """
@@ -103,8 +104,6 @@ $ sudo systemctl enable gnrdaemon.service
 $ sudo reboot
 ...
 $ sudo systemctl status gnrdaemon.service
-# Blah blah blah you should see something happy and green
-# Want to check your logs?
 $ sudo journalctl -e -u gnrdaemon.service
         """
     else:
