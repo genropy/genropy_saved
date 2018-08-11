@@ -681,7 +681,7 @@ class GunicornDeployBuilder(object):
         gunicorn = group.section('program','%s_gunicorn' %self.site_name)
         gunicorn.parameter('command','%s -c %s root' %(os.path.join(self.bin_folder,'gunicorn'),self.gunicorn_conf_path))
         gnrasync = group.section('program','%s_gnrasync' %self.site_name)
-        gnrasync.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrasync'),self.site_name))
+        gnrasync.parameter('command','%s %s -s %s' %(os.path.join(self.bin_folder,'gnrasync'),self.site_name,self.gnrasync_socket_path))
         root.toPython(self.supervisor_conf_path_py)
         root.toIniConf(self.supervisor_conf_path_ini)
 
