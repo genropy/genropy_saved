@@ -785,9 +785,10 @@ class DelayedCall(object):
         
         
 class GnrBaseAsyncServer(object):
-    def __init__(self, port=None, instance=None, ssl_crt=None, ssl_key=None, web=None, autoreload=None,
+    def __init__(self, port=None, socket=None,instance=None, ssl_crt=None, ssl_key=None, web=None, autoreload=None,
         site_options=None):
         self.port=port
+        self.listen_socket = socket
         self.handlers=[]
         self.executors=dict()
         self.channels = dict()
@@ -888,6 +889,9 @@ class GnrBaseAsyncServer(object):
         if self.port:
             server.listen(int(self.port))
             #self.tornadoApp.listen(int(self.port))
+        elif self.listen_socket:
+            listen_socket = bind_unix_socket(self.listen_socket)
+            server.add_socket(listen_socket)
         sockets_dir = os.path.join(gnrConfigPath(), 'sockets')
         if not os.path.exists(sockets_dir):
             os.mkdir(sockets_dir)

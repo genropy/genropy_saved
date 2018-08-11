@@ -607,7 +607,7 @@ server {
             proxy_set_header Connection "Upgrade";
             proxy_set_header X-Forward-For $proxy_add_x_forwarded_for;
             proxy_set_header Host $http_host;
-            proxy_pass http://unix:%(websocket_socket_path)s;
+            proxy_pass http://unix:%(gnrasync_socket_path)s;
         }
         location / {
             proxy_set_header X-Forward-For $proxy_add_x_forwarded_for;
@@ -641,15 +641,15 @@ class GunicornDeployBuilder(object):
         self.socket_path = os.path.join(self.gnr_path, 'sockets')
         self.pidfile_path = os.path.join(self.site_path, '%s_pid' % site_name)
         self.gunicorn_conf_path = os.path.join(self.gnr_path, 'gunicorn','%s.py' %self.site_name)
-        self.websocket_socket_path = os.path.join(self.socket_path, '%s.tornado' %self.site_name)
-        self.gunicorn_socket_path = os.path.join(self.socket_path, '%s_gunicorn.sock' %self.site_name)
+        self.gnrasync_socket_path = os.path.join(self.socket_path, self.site_name,'gnrasync.sock')
+        self.gunicorn_socket_path = os.path.join(self.socket_path, self.site_name,'gunicorn.sock')
         self.create_dirs()
         import multiprocessing
         self.default_workers = multiprocessing.cpu_count()* 2 + 1
         self.options = kwargs
 
     def create_dirs(self):
-        for dir_path in (self.socket_path, self.site_path,os.path.join(self.gnr_path, 'gunicorn')):
+        for dir_path in (self.socket_path, self.site_path,os.path.join(self.gnr_path, 'gunicorn'),os.path.join(self.socket_path,self.site_name)):
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
 
@@ -689,7 +689,7 @@ class GunicornDeployBuilder(object):
         pars = {}
         pars['domain'] = domain
         pars['site_path'] = self.site_path
-        pars['websocket_socket_path'] = self.websocket_socket_path
+        pars['gnrasync_socket_path'] = self.gnrasync_socket_path
         pars['gunicorn_socket_path'] = self.gunicorn_socket_path
         conf_content = NGINX_TEMPLATE %pars
         with open('%s.conf' %self.site_name,'w') as conf_file:
