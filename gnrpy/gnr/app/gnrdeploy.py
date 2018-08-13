@@ -576,7 +576,7 @@ GUNICORN_DEFAULT_CONF_TEMPLATE ="""
 
 bind = 'unix:%(gunicorn_socket_path)s'
 pidfile = '%(pidfile_path)s'
-daemon = True
+daemon = False
 accesslog = '%(site_path)s/access.log'
 errorlog = '%(site_path)s/error.log'
 logfile = '%(site_path)s/main.log'
@@ -592,7 +592,7 @@ graceful_timeout = 30
 
 NGINX_TEMPLATE = """
 server {
-        listen [::]:80;
+        listen 80;
 
         server_name %(domain)s;
 
@@ -605,12 +605,12 @@ server {
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection "Upgrade";
-            proxy_set_header X-Forward-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header Host $http_host;
             proxy_pass http://unix:%(gnrasync_socket_path)s;
         }
         location / {
-            proxy_set_header X-Forward-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header Host $http_host;
             proxy_redirect off;
             proxy_pass http://unix:%(gunicorn_socket_path)s;
@@ -641,7 +641,7 @@ class GunicornDeployBuilder(object):
         self.socket_path = os.path.join(self.gnr_path, 'sockets')
         self.pidfile_path = os.path.join(self.site_path, '%s_pid' % site_name)
         self.gunicorn_conf_path = os.path.join(self.gnr_path, 'gunicorn','%s.py' %self.site_name)
-        self.gnrasync_socket_path = os.path.join(self.socket_path, self.site_name,'gnrasync.sock')
+        self.gnrasync_socket_path = os.path.join(self.socket_path, "%s.tornado" %self.site_name)
         self.gunicorn_socket_path = os.path.join(self.socket_path, self.site_name,'gunicorn.sock')
         self.create_dirs()
         import multiprocessing
@@ -681,7 +681,7 @@ class GunicornDeployBuilder(object):
         gunicorn = group.section('program','%s_gunicorn' %self.site_name)
         gunicorn.parameter('command','%s -c %s root' %(os.path.join(self.bin_folder,'gunicorn'),self.gunicorn_conf_path))
         gnrasync = group.section('program','%s_gnrasync' %self.site_name)
-        gnrasync.parameter('command','%s %s -s %s' %(os.path.join(self.bin_folder,'gnrasync'),self.site_name,self.gnrasync_socket_path))
+        gnrasync.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrasync'),self.site_name))
         root.toPython(self.supervisor_conf_path_py)
         root.toIniConf(self.supervisor_conf_path_ini)
 

@@ -132,7 +132,6 @@ class GnrWebPage(GnrBaseWebPage):
         dbstore = request_kwargs.pop('temp_dbstore',None) or None
         self.dbstore = dbstore if dbstore != self.application.db.rootstore else None
         self.user_agent = request.user_agent or []
-        self.user_ip = request.remote_addr
         self._environ = environ
         self._event_subscribers = {}
         self.forked = False # maybe redefine as _forked
@@ -145,6 +144,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.called_url = request.url
         self.path_url = request.path_url
         self.request = GnrWebRequest(request)
+        self.user_ip = self.request.remote_addr or '0.0.0.0'
         self.response = GnrWebResponse(response)
         self._request = self.request._request
         self._response = self.response._response
@@ -180,7 +180,6 @@ class GnrWebPage(GnrBaseWebPage):
             self.dojo_source = self.site.config['dojo?source']
         if 'dojo_source' in request_kwargs:
             self.dojo_source = request_kwargs.pop('dojo_source')
-
         self.connection = GnrWebConnection(self,
                                            connection_id=request_kwargs.pop('_connection_id', None),
                                            user=request_kwargs.pop('_user', None))
@@ -271,6 +270,7 @@ class GnrWebPage(GnrBaseWebPage):
         if not self.connection.connection_id:
             self.connection.electron_static = self._call_kwargs.get('_electron_static')
             self.connection.create()
+            
         self.page_id = page_id or getUuid()
         page_info = dict([(k,getattr(self,k,None)) for k in ATTRIBUTES_SIMPLEWEBPAGE])
         data = Bag()   
