@@ -36,7 +36,6 @@ from tornado.netutil import bind_unix_socket
 from tornado.tcpserver import TCPServer
 from tornado.httpserver import HTTPServer
 
-from gnr.app.gnrconfig import gnrConfigPath
 from gnr.core.gnrbag import Bag,TraceBackResolver
 from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import AsyncWebSocketHandler
 from gnr.web.gnrwsgisite import GnrWsgiSite
@@ -887,15 +886,16 @@ class GnrBaseAsyncServer(object):
         server = HTTPServer(self.tornadoApp, ssl_options=ssl_options)
         if self.port:
             server.listen(int(self.port))
-        sockets_dir = os.path.join(gnrConfigPath(), 'sockets')
+        sockets_dir = os.path.join(self.gnrsite.site_path, 'sockets')
+        print 'sockets_dir',sockets_dir
         if not os.path.exists(sockets_dir):
             os.mkdir(sockets_dir)
-        socket_path = os.path.join(sockets_dir, '%s.tornado'%self.instance_name)
+        socket_path = os.path.join(sockets_dir, 'async.tornado')
         main_socket = bind_unix_socket(socket_path)
         os.chmod(socket_path, 0666)
             #server = HTTPServer(self.tornadoApp)
         server.add_socket(main_socket)
-        debug_socket_path = os.path.join(sockets_dir, '%s_debug.tornado'%self.instance_name)
+        debug_socket_path = os.path.join(sockets_dir, 'debugger.tornado')
         debug_socket = bind_unix_socket(debug_socket_path)
         debug_server = GnrDebugServer(self.io_loop)
         #debug_server.listen(8888)

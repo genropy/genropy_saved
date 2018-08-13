@@ -40,7 +40,8 @@ if __name__ == '__main__':
     else:
         deployer = GunicornDeployBuilder(args[0])
         deployer.write_gunicorn_conf()
-        deployer.write_supervisor_conf()
+        deployer.local_supervisor_conf()
+        deployer.main_supervisor_conf()
         if options.domain:
             print 'Writing nginx conf in cwd please copy in /etc/nginx/sites-enabled'
             deployer.write_nginx_conf(options.domain)

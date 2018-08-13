@@ -77,11 +77,11 @@ virtualenv = %s
         self.gnr_config = getGnrConfig()
         self.site_config = self.get_config()
         self.gnr_path = gnrConfigPath()
-        self.socket_path = os.path.join(self.gnr_path, 'sockets')
+        self.socket_path = os.path.join(self.site_path, 'sockets')
         self.vassals_path = os.path.join(self.gnr_path, 'uwsgi', 'vassals')
         self.pidfile_path = os.path.join(self.vassals_path, '%s.pid' % site_name)
         self.vassal_ini_path = os.path.join(self.vassals_path, '%s.ini' % site_name)
-        self.websocket_socket_path = os.path.join(self.socket_path, '%s.tornado' % site_name)
+        self.websocket_socket_path = os.path.join('tornado.sock')
         self.create_dirs()
         self.verbose = verbose
         self.options = options

@@ -60,7 +60,7 @@ class GnrPdb(pdb.Pdb):
         self.pdb_id='D_%s' %id(self)
         self.pdb_counter=0
         self.debugger_page_id = debugger_page_id
-        self.socket_path = os.path.join(gnrConfigPath(), 'sockets', '%s_debug.tornado'%instance_name)
+        self.socket_path = os.path.join(page.site.site_path, 'sockets', 'debugger.sock')
         self.callcounter = callcounter
         self.methodname = methodname
         self.mybp = []

@@ -156,7 +156,7 @@ class IniConfStruct(ConfigStruct):
                 filehandle.write('%s=%s' %(key,parameter_value))
             if n.value:
                 self._toIniConfInner(filehandle,n.value)
-                filehandle.write('\n')
+            filehandle.write('\n')
 
     def toPython(self,filepath=None):
         with open(filepath,'w') as f:
