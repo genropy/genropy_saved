@@ -865,6 +865,10 @@ dojo.declare("gnr.GnrDevHandler", null, {
             }
             var metadata = new gnr.GnrBag(kw.defaultMetadata);
             metadata.update(genro.getData(datapath));
+            if (!metadata.getItem('code')){
+                genro.publish('floating_message',{message:_T('Missing code'),messageType:'error'});
+                return;
+            }
             return genro.serverCall('_table.adm.userobject.saveUserObject',
                 {'objtype':kw.objtype,'table':kw.table,flags:kw.flags,
                 'data':data,metadata:metadata},
