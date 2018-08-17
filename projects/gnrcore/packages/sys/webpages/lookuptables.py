@@ -17,7 +17,6 @@ class GnrCustomWebPage(object):
         root.attributes['datapath'] = 'main'
         pkg = callArgs.get('th_pkg')
         tbl = callArgs.get('th_table')
-        fixed_table =False
         title = '!!Lookup Tables' 
         if pkg:
             title = '%s' %self.db.model.package(pkg).attributes.get('name_long')
@@ -42,10 +41,10 @@ class GnrCustomWebPage(object):
                                 storecaption='.description',disabled='^.package?=!#v')
         else:
             root.dataFormula('.table','tbl',tbl='%(th_pkg)s.%(th_table)s' %callArgs,_onStart=1)
-            fixed_table = True
+            modal = callArgs.get('lookupModal')
         root.dataController("""
                 SET main.current_table=table;""",table='^main.table',status='=main.mainth.view.grid.status')
-        frame.center.contentPane(overflow='hidden').remote(self.remoteTh,table='^main.current_table',fixed_table=fixed_table,_onRemote='FIRE main.load_data;')
+        frame.center.contentPane(overflow='hidden').remote(self.remoteTh,table='^main.current_table',modal=modal,_onRemote='FIRE main.load_data;')
 
     def lookupTablesDefaultStruct(self,struct):
         r = struct.view().rows()
@@ -66,20 +65,20 @@ class GnrCustomWebPage(object):
             r.fieldcell('__syscode',edit=True)
 
     @public_method
-    def remoteTh(self,pane,table=None,fixed_table=None):
+    def remoteTh(self,pane,table=None,modal=None):
         pane.data('.mainth',Bag())
         if not table:
             pane.div('!!Select a table from the popup menu',margin_left='5em',margin_top='5px', color='#8a898a',text_align='center',font_size='large')
         else:
-            saveButton = not fixed_table
-            semaphore = not fixed_table
+            saveButton = not modal
+            semaphore = not modal
             tblobj= self.db.table(table)
             th = pane.inlineTableHandler(table=table,viewResource='LookupView',
                                     datapath='.mainth',autoSave=False,saveButton=saveButton,semaphore=semaphore,
                                     nodeId='mainth',configurable='*',
                                     view_structCb=self.lookupTablesDefaultStruct,condition_loaddata='^main.load_data',
                                     grid_selfDragRows=tblobj.attributes.get('counter'))
-            if fixed_table:
+            if modal:
                 bar = th.view.bottom.slotBar('10,revertbtn,*,cancel,savebtn,10',margin_bottom='2px',_class='slotbar_dialog_footer')
                 bar.revertbtn.slotButton('!!Revert',action='FIRE main.load_data;',disabled='==status!="changed"',status='^.grid.editor.status')
                 bar.cancel.slotButton('!!Cancel',action='genro.nodeById("lookup_root").publish("lookup_cancel");')
