@@ -18,6 +18,7 @@ class GnrCustomWebPage(object):
         pkg = callArgs.get('th_pkg')
         tbl = callArgs.get('th_table')
         title = '!!Lookup Tables' 
+        modal=None
         if pkg:
             title = '%s' %self.db.model.package(pkg).attributes.get('name_long')
             if tbl:
