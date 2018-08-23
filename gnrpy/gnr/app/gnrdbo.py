@@ -1200,7 +1200,8 @@ class AttachmentTable(GnrDboTable):
         return record
     
     def trigger_checkExternalUrl(self,record,**kwargs):
-        record['description'] = record['external_url']
+        if not record.get('description') and 'external_url' in record:
+            record['description'] = record['external_url']
 
 
     def trigger_convertDocFile(self,record,**kwargs):
