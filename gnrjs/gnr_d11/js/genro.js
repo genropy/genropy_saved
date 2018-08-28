@@ -1131,11 +1131,16 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     setUserPreference:function(path,data,pkg){
-        genro.serverCall('setUserPreference',{path:path,data:data,pkg:pkg});
+        genro.serverCall('setUserPreference',{path:path,data:data,pkg:pkg},function(){
+            //async
+        });
     },
 
     setAppPreference:function(path,data){
-        genro.serverCall('setPreference',{path:path,data:data,pkg:pkg});
+        genro.serverCall('setPreference',{path:path,data:data,pkg:pkg},
+            function(){
+                //async
+            });
     },
 
     chat:function(){
