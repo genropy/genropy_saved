@@ -94,7 +94,7 @@ class Table(object):
         if not result:
             result = self.loadRecord(username)['preferences']
             self.db.application.cache.setItem(pref_key, result)
-        result = result.deepcopy()
+        result = result.deepcopy() if result else Bag()
         if result and path != '*':
             result = result['%s.%s' % (pkg, path)]
         return result or dflt
