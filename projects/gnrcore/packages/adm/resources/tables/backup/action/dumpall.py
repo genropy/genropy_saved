@@ -43,8 +43,9 @@ class Main(BaseResourceBatch):
 
     def step_dumpmain(self):
         """Dump main db"""
-        self.filelist.append(self.db.dump(os.path.join(self.folderpath,'mainstore'),extras=self.getExcluded()))
-        
+        options = self.batch_parameters['options']
+        self.filelist.append(self.db.dump(os.path.join(self.folderpath,'mainstore'),
+                    excluded_schemas=self.getExcluded(), options=options))
 
     def step_dumpaux(self):
         """Dump aux db"""
@@ -52,11 +53,13 @@ class Main(BaseResourceBatch):
         checkedDbstores = checkedDbstores.split(',') if checkedDbstores else self.db.stores_handler.dbstores.keys()
         dbstoreconf = Bag()
         dbstorefolder = os.path.join(self.db.application.instanceFolder, 'dbstores')
+        options = self.batch_parameters['options']
         for s in self.btc.thermo_wrapper(checkedDbstores,line_code='dbl',message=lambda item, k, m, **kwargs: 'Dumping %s' %item):
             with self.db.tempEnv(storename=s):
                 self.filelist.append(self.db.dump(os.path.join(self.folderpath,s),
                                     dbname=self.db.stores_handler.dbstores[s]['database'],
-                                    extras=self.getExcluded()))
+                                    excluded_schemas=self.getExcluded(),
+                                    options=options))
                 dbstoreconf[s] = Bag(os.path.join(dbstorefolder,'%s.xml' %s))
         confpath = os.path.join(self.folderpath,'_dbstores.xml')
         dbstoreconf.toXml(confpath)
@@ -67,7 +70,6 @@ class Main(BaseResourceBatch):
         result = []
         for k in self.db.packages.keys():
             if not k in checked:
-                result.append('-N')
                 result.append(k)
         return result
 
@@ -94,17 +96,28 @@ class Main(BaseResourceBatch):
         resultAttr = dict(url=self.result_url)
         return 'Dump complete', resultAttr
 
-    def table_script_parameters_pane(self, pane, **kwargs):
+    def table_script_stores(self, tc, **kwargs):
         dbstores = self.db.dbstores
-        if dbstores:
-            bc = pane.borderContainer(height='500px',width='700px')
-            pane = bc.contentPane(region='top')
-            tc = bc.tabContainer(region='center')
-            pkgpane = tc.contentPane(title='Packages')
-            storespane = tc.contentPane(title='Stores',_workspace=True)
-        else:
-            pkgpane = pane
-        fb = pane.div(padding='10px').formbuilder(cols=1,border_spacing='3px',nodeId='dump_pars')
+        if not dbstores:
+            return
+        def _dbstorestruct(struct):
+            r=struct.view().rows()
+            r.checkboxcolumn(checkedId='#dump_pars.checkedDbstores',checkedField='dbstore',name='C.')
+            r.cell('dbstore',name='Db Store',width='30em')
+        storespane = tc.contentPane(title='Stores',_workspace=True)
+        self.mixinComponent('gnrcomponents/framegrid:FrameGrid')
+        dbstorebag = Bag()
+        for s in dbstores:
+            dbstorebag.setItem(s,None,dbstore=s,_checked=False)
+        fg = storespane.bagGrid(frameCode='dbstoregrid',struct=_dbstorestruct,
+                        datapath='#WORKSPACE.dbstores',storepath='#WORKSPACE.store',datamode='attr')
+        fg.data('#WORKSPACE._loadedstore',dbstorebag)
+        fg.dataFormula('#WORKSPACE.store','loadedstore',loadedstore='=#WORKSPACE._loadedstore',_onBuilt=True)
+        fg.top.bar.replaceSlots('#','*,searchOn,5')
+
+    def table_script_packages(self, tc, **kwargs):
+        pkgPane = tc.contentPane(title='Packages')
+        fb = pkgPane.div(padding='10px').formbuilder(cols=1,border_spacing='3px',nodeId='dump_pars')
         fb.textbox(value='^.name',lbl='!!Backup name')
         values = []
         defaultchecked = []
@@ -113,27 +126,26 @@ class Main(BaseResourceBatch):
                 defaultchecked.append(k)
             values.append('%s:%s,/' %(k,v.attributes.get('name_long',k)))
         fb.data('.dumppackages',','.join(defaultchecked))
-        fb = pkgpane.div(padding='10px').formbuilder(cols=1,border_spacing='3px')
+        fb = pkgPane.div(padding='10px').formbuilder(cols=1,border_spacing='3px')
         fb.checkBoxText(value='^.dumppackages',values=','.join(values))
-        def _dbstorestruct(struct):
-            r=struct.view().rows()
-            r.checkboxcolumn(checkedId='#dump_pars.checkedDbstores',checkedField='dbstore',name='C.')
-            r.cell('dbstore',name='Db Store',width='30em')
-        if dbstores:
-            self.mixinComponent('gnrcomponents/framegrid:FrameGrid')
-            dbstorebag = Bag()
-            for s in dbstores:
-                dbstorebag.setItem(s,None,dbstore=s,_checked=False)
-            fg = storespane.bagGrid(frameCode='dbstoregrid',struct=_dbstorestruct,
-                            datapath='#WORKSPACE.dbstores',storepath='#WORKSPACE.store',datamode='attr')
-            fg.data('#WORKSPACE._loadedstore',dbstorebag)
-            fg.dataFormula('#WORKSPACE.store','loadedstore',loadedstore='=#WORKSPACE._loadedstore',_onBuilt=True)
-            fg.top.bar.replaceSlots('#','*,searchOn,5')
-
-    
 
 
 
+    def table_script_options(self, tc, **kwargs):
+        optionsPane = tc.contentPane(title='Options', datapath='.options')
+        fb = optionsPane.div(padding='10px').formbuilder(cols=1,border_spacing='3px')
+        fb.checkBox(value='^.data_only', label='Data Only')
+        fb.checkBox(value='^.no_owner', label='No Owner')
+        fb.checkBox(value='^.schema_only', label='Schema Only')
+        fb.checkBox(value='^.no_privileges', label='No Privileges')
+        fb.checkBox(value='^.quote_all_identifiers', label='Quote all identifiers')
+        fb.checkBox(value='^.plain_text', label='Plain text')
+        fb.checkBox(value='^.clean', label='Clean', row_visible='^.plain_text')
+        fb.checkBox(value='^.if_exists', label='If exists', row_visible='^.plain_text')
+        fb.checkBox(value='^.create', label='Create', row_visible='^.plain_text')
 
-
-
+    def table_script_parameters_pane(self, pane, **kwargs):
+        tc = pane.tabContainer(height='500px',width='700px')
+        self.table_script_packages(tc)
+        self.table_script_stores(tc)
+        self.table_script_options(tc)

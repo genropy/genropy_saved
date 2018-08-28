@@ -181,10 +181,17 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         tablename = dbtable if isinstance(dbtable,basestring) else dbtable.model.sqlfullname
         self.dbroot.execute(command % tablename)
 
-    def dump(self, filename,dbname=None,extras=None,**kwargs):
+    def dump(self, filename,dbname=None,excluded_schemas=None, options=None,**kwargs):
         """Dump an existing database
-        
-        :param filename: db name"""
+        :param filename: db name
+        :param excluded_schemas: excluded schemas
+        :param filename: dump options"""
+        available_parameters = dict(
+            data_only='-a', clean='-c', create='-C', no_owner='-O',
+            schema_only='-s', no_privileges='-x', if_exists='--if-exists',
+            quote_all_identifiers='--quote-all-identifiers',
+            compress = '--compress='
+        )
         from subprocess import call
         dbname = dbname or self.dbroot.dbname
         pars = {'dbname':dbname,
@@ -192,11 +199,32 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                 'password':self.dbroot.password,
                 'host':self.dbroot.host or 'localhost',
                 'port':self.dbroot.port or '5432'}
-        extras = extras or []
-        if not filename.endswith('.pgd'):
-            filename = '%s.pgd' %filename
+        excluded_schemas = excluded_schemas or []
+        options = options or Bag()
+        dump_options = []
+        for excluded_schema in excluded_schemas:
+            dump_options.append('-N')
+            dump_options.append(excluded_schema)
+        if options['plain_text']:
+            dump_options.append('-Fp')
+            file_extension = '.sql'
+        else:
+            dump_options.append('-Fc')
+            file_extension = '.pgd'
+        for parameter_name, parameter_label in available_parameters.items():
+            parameter_value = options[parameter_name]
+            if parameter_value:
+                if parameter_label.endswith('='):
+                    parameter_value = '%s%s'%(parameter_label,parameter_value)
+                else:
+                    parameter_value = parameter_label
+                dump_options.append(parameter_value)
+        if not filename.endswith(file_extension):
+            filename = '%s%s' % (filename, file_extension)
         #args = ['pg_dump', dbname, '-U', self.dbroot.user, '-f', filename]+extras
-        args = ['pg_dump','--dbname=postgresql://%(user)s:%(password)s@%(host)s:%(port)s/%(dbname)s' %pars,'-Fc', '-f', filename]+extras
+        args = ['pg_dump',
+            '--dbname=postgresql://%(user)s:%(password)s@%(host)s:%(port)s/%(dbname)s' %pars, 
+            '-f', filename]+dump_options
         callresult = call(args)
         return filename
         
