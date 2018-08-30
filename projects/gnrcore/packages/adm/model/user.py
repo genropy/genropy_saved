@@ -64,6 +64,16 @@ class Table(object):
                                  msg='!!Username is not modifiable %(username)s')
         self.passwordTrigger(record)
 
+    def trigger_onUpdated(self,record=None,old_record=None):
+        if self.fieldsChanged('preferences',record,old_record):
+            self.db.application.pkgBroadcast('onSavedUserPreferences',preferences=record['preferences'])
+            pref_key = '%s_preference' %record['username']
+            self.db.application.cache.updatedItem(pref_key)
+            site = getattr(self.db.application,'site',None)
+            if site and site.currentPage:
+                site.currentPage.setInClientData('gnr.serverEvent.refreshNode', value='gnr.user_preference', filters='*',
+                             fired=True, public=True)
+
     def trigger_onInserting(self, record, **kwargs):
         self.passwordTrigger(record)
 
@@ -79,27 +89,31 @@ class Table(object):
             self.importFromXmlDump(dump_folder)
 
     def getPreference(self, path=None, pkg=None, dflt=None, username=None):
-        result = self.loadRecord(username)['preferences']
+        pref_key = '%s_preference' %username
+        result = self.db.application.cache.getItem(pref_key)
+        if not result:
+            result = self.loadRecord(username)['preferences']
+            self.db.application.cache.setItem(pref_key, result)
+        result = result.deepcopy() if result else Bag()
         if result and path != '*':
             result = result['%s.%s' % (pkg, path)]
         return result or dflt
 
     def setPreference(self, path='', data='', pkg='', username=''):
         with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
-            record = self.loadRecord(username, for_update=True)
-            old_record = self.recordAs(record,'dict')
-            record['preferences.%s.%s' % (pkg, path)] = data
-            self.update(record,old_record=old_record)
+            with self.recordToUpdate(username=username) as rec:
+                rec['preferences.%s.%s' % (pkg, path)] = data
             self.db.commit()
 
     def loadRecord(self, username, for_update=False):
         try:
-            record = self.record(username=username, for_update=for_update).output('bag')
+            record = self.record(username=username, for_update=for_update).output('record')
         except:
             record = Bag()
         return record
 
-    
+
+
     def syncExternalUser(self,externalUser):
         with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
             docommit = False

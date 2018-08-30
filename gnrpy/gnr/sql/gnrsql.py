@@ -860,12 +860,11 @@ class GnrSqlDb(GnrObject):
         col = self.model.column(column)
         self.adapter.dropColumn(col.table.sqlfullname,col.sqlname,cascade=cascade)
 
-    def dump(self, filename,dbname=None,extras=None,**kwargs):
+    def dump(self, filename,dbname=None,**kwargs):
         """Dump a database to a given path
         
         :param filename: the path on which the database will be dumped"""
-        extras = extras or []
-        return self.adapter.dump(filename,dbname=dbname,extras=extras)
+        return self.adapter.dump(filename,dbname=dbname,**kwargs)
         
     def restore(self, filename,dbname=None,sqltextCb=None,onRestored=None):
         """Restore db to a given path
