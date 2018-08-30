@@ -5239,7 +5239,9 @@ div[disabled='true'], div[disabled='disabled']{
     -webkit-overflow-scrolling:touch !important;    
 }
 
-
+.bodySize_phone .dojoxGrid{
+    font-family: 'PT Sans Narrow'
+}
 .detached_placeholder{
     position: relative;
 }
