@@ -6,7 +6,10 @@ create a new deploy gunicorn nginx websocket environment for a site
 usage: gnrdeploybuilder site
 
 """
-import os,sys
+import os
+import sys
+import pwd
+import shutil
 
 from gnr.app.gnrdeploy import GunicornDeployBuilder
 from optparse import OptionParser
@@ -17,9 +20,12 @@ Description=GnrSupervisorSiteRunner Service
 After=multi-user.target
 
 [Service]
-Type=idle
+Type=forking
 %(environments)s
+User=%(user)s
 ExecStart=%(binpath)s
+ExecReload=%(ctl_binpath) reload
+ExecStop=%(ctl_binpath) shutdown
 
 [Install]
 WantedBy=multi-user.target
@@ -46,26 +52,30 @@ if __name__ == '__main__':
             print 'Writing nginx conf in cwd please copy in /etc/nginx/sites-enabled'
             deployer.write_nginx_conf(options.domain)
         if options.make_service:
+            current_username = pwd.getpwuid(os.getuid())[0]
+            daemon_path = shutil.which('supervisord')
+            ctl_binpath = shutil.which('supervisorctl')
             binroot = ''
             if os.environ.has_key('VIRTUAL_ENV'):
                 environments = "Environment=VIRTUAL_ENV=%s" %os.environ['VIRTUAL_ENV']
                 binroot = os.path.join(os.environ['VIRTUAL_ENV'],'bin')
             else:
                 environments = ''
-            binpath = os.path.join(binroot,'supervisord -c %s') %deployer.supervisor_conf_path_ini
-            content = SERVICE_TPL %dict(environments=environments,binpath=binpath)
-            with open('siterunner.service','w') as service_file:
+            binpath = '%s -c %s -l %s' % (daemon_path,deployer.supervisor_conf_path_ini,
+                deployer.supervisor_log_path)
+            content = SERVICE_TPL %dict(environments=environments,binpath=binpath,
+                user=current_username, ctl_binpath=ctl_binpath)
+            with open('gnrsiterunner.service','w') as service_file:
                 service_file.write(content)
             print """
 Now using run these commands
 
-$ sudo cp gnrsiterunner.service /lib/systemd/system/siterunner.service
+$ sudo cp gnrsiterunner.service /lib/systemd/system/gnrsiterunner.service
 $ sudo chmod 644 /lib/systemd/system/gnrsiterunner.service
 $ sudo systemctl daemon-reload  # Refresh the available service list
 $ sudo systemctl enable gnrsiterunner.service
 
-# Now watch your service auto run at bootup
-$ sudo reboot
+$ sudo systemctl start gnrsiterunner.service
 ...
 $ sudo systemctl status gnrsiterunner.service
 # Blah blah blah you should see something happy and green

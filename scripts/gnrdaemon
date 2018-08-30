@@ -95,13 +95,11 @@ if __name__=="__main__":
         print """
 Now using run these commands
 
-$ sudo cp gnrdaemon.service /lib/systemd/system/bong.service
+$ sudo cp gnrdaemon.service /lib/systemd/system/gnrdaemon.service
 $ sudo chmod 644 /lib/systemd/system/gnrdaemon.service
 $ sudo systemctl daemon-reload  # Refresh the available service list
 $ sudo systemctl enable gnrdaemon.service
-
-# Now watch your service auto run at bootup
-$ sudo reboot
+$ sudo systemctl start gnrdaemon.service
 ...
 $ sudo systemctl status gnrdaemon.service
 $ sudo journalctl -e -u gnrdaemon.service

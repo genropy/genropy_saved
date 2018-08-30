@@ -640,7 +640,8 @@ class GunicornDeployBuilder(object):
             self.config_folder = os.path.join(self.instance_path,'config')
         self.gnr_path = gnrConfigPath()
         self.supervisor_conf_path_py = os.path.join(self.gnr_path,'supervisord.py') 
-        self.supervisor_conf_path_ini = os.path.join(self.gnr_path,'supervisord.conf') 
+        self.supervisor_conf_path_ini = os.path.join(self.gnr_path,'supervisord.conf')
+        self.supervisor_log_path = os.path.join(self.gnr_path,'supervisord.log')
         self.bin_folder = os.path.join(os.environ.get('VIRTUAL_ENV'),'bin') if os.environ.has_key('VIRTUAL_ENV') else ''
         self.socket_path = os.path.join(self.site_path, 'sockets')
         self.logs_path = os.path.join(self.site_path, 'logs')
