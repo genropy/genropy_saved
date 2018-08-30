@@ -18,11 +18,11 @@ class Main(GnrBaseService):
 
     def __call__(self,fullpath=None):
         platform = fullpath.split(os.path.sep)[-2]
-        service_url = 'http://services.genropy.net/electron/electron'
+        service_url = 'https://services.genropy.net/electron/electron'
         electron_pars = self.parent.config.getAttr('electron') or {}
         name = electron_pars.get('name') or self.parent.site_name
         url = self.parent.external_host
         result = NetBag(service_url,'make_electron' , name=name, platform=platform,app_url=url,recreate=True)
-        dlurl = 'http://services.genropy.net%s' %result()['result']
+        dlurl = 'https://services.genropy.net%s' %result()['result']
         self.parent.getService('download')(dlurl,filepath=fullpath)
 
