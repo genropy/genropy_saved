@@ -37,7 +37,7 @@ if __name__ == '__main__':
     parser.add_option("-d", "--domain", dest="domain",
                       help="The nginx domain")
     parser.add_option('-s', '--make_service',dest='make_service',
-                      help="Make service")
+                      action="store_true", help="Make service")
 
     (options, args) = parser.parse_args()
     base_path = getattr(options,'base_path', None)
