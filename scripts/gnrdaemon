@@ -66,6 +66,7 @@ After=multi-user.target
 
 [Service]
 Type=idle
+User=%(user)s
 %(environments)s
 ExecStart=%(binpath)s
 
@@ -82,14 +83,14 @@ if __name__=="__main__":
     elif command=='make_service':
         import os
         import sys
-
+        import pwd
         if os.environ.has_key('VIRTUAL_ENV'):
             environments = "Environment=VIRTUAL_ENV=%s" %os.environ['VIRTUAL_ENV']
         else:
             environments = ''
-        
+        current_username = pwd.getpwuid(os.getuid())[0]
         binpath = sys.argv[0]
-        content = SERVICE_TPL %dict(environments=environments,binpath=binpath)
+        content = SERVICE_TPL %dict(environments=environments,binpath=binpath, user= current_username)
         with open('gnrdaemon.service','w') as service_file:
             service_file.write(content)
         print """
