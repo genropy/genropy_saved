@@ -262,7 +262,7 @@ class Main(BaseResourceAction):
                             fld_width='100%',
                             colswidth='auto',
                             width='650px')
-        randomValues = dict()
+        randomValuesDict = dict()
         if hasattr(tblobj, 'randomValues'):
             randomValuesDict = getattr(tblobj, 'randomValues')()
         for col_name, col in tblobj.columns.items():
@@ -278,6 +278,7 @@ class Main(BaseResourceAction):
                 fb.data('.%s.dtype' %col_name, dtype)
                 if col_rules.pop('ask',None) == False or col_rules.get('equal_to') or col_rules.get('based_on'):
                     continue
+                print col_name
                 self.table_script_prepareColPars(fb,col_rules,col_name, dtype)
                 fb.numberTextBox(value='^.%s.null_perc' % col_name, lbl='NULL %', width='4em',lbl_width='6em', default_value=col_rules.pop('null_perc',0))
 
