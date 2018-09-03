@@ -596,7 +596,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 action:function(result){
                     objectUpdate(kw.default_kw,result.asDict());
                     if(defaultPrompt.doSave && that.store.table){
-                        genro.serverCall('app.insertRecord',{table:that.store.table,record:objectExtract(that.store.prepareDefaults('*newrecord*',kw.default_kw),'default_*')},function(resultPkey){
+                        genro.serverCall('app.insertRecord',{table:that.store.table,record:new gnr.GnrBag(objectExtract(that.store.prepareDefaults('*newrecord*',kw.default_kw),'default_*'))},function(resultPkey){
                             that.doload_store({destPkey:resultPkey});
                         });
                     }else{
