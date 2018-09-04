@@ -91,7 +91,7 @@ class Table(object):
         
     def checkResourceUserObject(self):
         def cbattr(nodeattr):
-            return not (nodeattr['file_ext'] !='directory' and not '/userobjects/' in nodeattr['abs_path'])
+            return not (nodeattr['file_ext'] !='directory' and not '%(sep)suserobjects%(sep)s' %{'sep':os.sep} in nodeattr['abs_path'])
         tableindex = self.db.tableTreeBag(packages='*')
         def cbwalk(node,**kwargs):
             if node.attr['file_ext'] !='directory':
