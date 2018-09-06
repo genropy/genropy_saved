@@ -80,11 +80,11 @@ class GridCustomizer(BaseComponent):
             var default_rows = new gnr.GnrBag();
             var v;
             base_structures.getItem(root).getItem(md_mode+'.view_0.rows_0').forEach(function(n){
-                if(n.attr.hidden){
+                if(n.attr.hidden && !n.attr.hiddenIsDefault){
                     return;
                 }
                 v = objectExtract(n.attr,'caption_field,field,name,width,format,style,mm_width',true);
-                v.enabled = true;
+                v.enabled = !n.attr.hiddenIsDefault;
                 default_rows.setItem(n.attr.field.replace(/\W/g, '_'),new gnr.GnrBag(v))
             });
             var curr_rows = that.getRelativeData('#FORM.record.'+field);
