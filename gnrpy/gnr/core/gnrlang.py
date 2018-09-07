@@ -746,6 +746,13 @@ def moduleClasses(m):
     modulename = m.__name__
     return [x for x in dir(m) if (not x.startswith('__')) and  getattr(getattr(m, x), '__module__', None) == modulename]
         
+def clonedClassMixin(target_class, source_class, methods=None, only_callables=True,
+               exclude='js_requires,css_requires,py_requires',**kwargs):
+    target_class = cloneClass('CustomResource', target_class)
+    classMixin(target_class,source_class,methods=methods,only_callables=only_callables,exclude=exclude,
+                **kwargs)
+    return target_class
+
 def classMixin(target_class, source_class, methods=None, only_callables=True,
                exclude='js_requires,css_requires,py_requires',**kwargs):
     """Add to the class methods from 'source'.

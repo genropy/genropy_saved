@@ -13,7 +13,7 @@ import inspect
 import glob
 import logging
 
-from gnr.core.gnrlang import gnrImport, classMixin, cloneClass
+from gnr.core.gnrlang import gnrImport, classMixin, cloneClass,clonedClassMixin
 from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrsys import expandpath
 from gnr.web.gnrwebpage import GnrWebPage
@@ -486,7 +486,26 @@ class ResourceLoader(object):
             page.mixin_set = set()
         page.mixin_set.add(((tuple(path),tuple(kwargs.items()))))
         
+    def _loadTableScript_getclass(self,modPathList,class_name):
+        modPathList.reverse()
+        basePath = modPathList.pop(0)
+        resource_module = gnrImport(basePath, avoidDup=True)
+        resource_class = getattr(resource_module, class_name, None)
+        for modPath in modPathList:
+            resource_module = gnrImport(modPath, avoidDup=True)
+            custom_resource_class = getattr(resource_module, class_name, None)
+            if resource_class:
+                resource_class = clonedClassMixin(resource_class,custom_resource_class,only_callables=False)
+        resource_class.py_extends = getattr(resource_class,'py_extends',None)
+        return resource_class
+
+
     def loadTableScript(self, page, table=None, respath=None, class_name=None):
+        resource_class,resource_table = self._loadTableScript_class(page,table=table,respath=respath,class_name=None)
+        resource_obj = resource_class(page=page, resource_table=resource_table)
+        return resource_obj
+
+    def _loadTableScript_class(self, page, table=None, respath=None, class_name=None,ignoreCust=None):
         """TODO
         
         :param page: TODO
@@ -496,6 +515,7 @@ class ResourceLoader(object):
         :param respath: TODO
         :param class_name: TODO
         """
+        
         class_name = class_name or 'Main'
         application = self.gnrapp
         if ':' in respath:
@@ -503,41 +523,43 @@ class ResourceLoader(object):
         if isinstance(table, basestring):
             table = application.db.table(table)
         if not table:
-            tablename = '_default'
-            pkgname = '_default'
-            modName = os.path.join('tables', tablename, *(respath.split('/')))
+            modPathList = self.getResourceList(page.resourceDirs,os.path.join('tables', '_default', *(respath.split('/'))))
+            if modPathList:
+                resource_class = self._loadTableScript_getclass(modPathList,class_name)
+                return resource_class,None
+            else:
+                raise GnrWebServerError('Cannot import component %s' % respath)
+        tablename = table.name
+        pkgname = table.pkg.name
+        table_modPathList = self.getResourceList(self.package_resourceDirs(table.pkg.name), 
+                                                        os.path.join('tables', tablename, *(respath.split('/'))), 'py')
+        if not table_modPathList:
+            table_modPathList = self.getResourceList(page.resourceDirs, 
+                                                            os.path.join('tables',  '_default', *(respath.split('/'))), 'py')
+        custpkg_modPathList = None
+        if not ignoreCust:
+            custpkg_modPathList = self.getResourceList(page.resourceDirs, 
+                                                   os.path.join('tables','_packages',pkgname, tablename, *(respath.split('/'))),'py')
+        if custpkg_modPathList:
+            resource_class = self._loadTableScript_getclass(custpkg_modPathList,class_name)
+        elif table_modPathList:
+            resource_class =  self._loadTableScript_getclass(table_modPathList,class_name)
         else:
-            tablename = table.name
-            pkgname = table.pkg.name
-            modName = os.path.join('tables','_packages',pkgname, tablename, *(respath.split('/')))
-        resourceDirs = page.resourceDirs
-        modPathList = self.getResourceList(resourceDirs, modName, 'py')
-        if not modPathList and table is not None:
-            resourceDirs = self.package_resourceDirs(table.pkg.name)
-            modName = os.path.join('tables', tablename, *(respath.split('/')))
-            modPathList = self.getResourceList(resourceDirs, modName, 'py')
-            if not modPathList:
-                tablename = '_default'
-                resourceDirs = page.resourceDirs
-                modName = os.path.join('tables', tablename, *(respath.split('/')))
-                modPathList = self.getResourceList(resourceDirs, modName, 'py')
-        modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
-        if modPathList:
-            modPathList.reverse()
-            basePath = modPathList.pop(0)
-            resource_module = gnrImport(basePath, avoidDup=True)
-            resource_class = getattr(resource_module, class_name, None)
-            resource_class._gnrPublicName = '_tblscript.%s.%s.%s.%s' %(pkgname,tablename,respath,class_name)
-            for modPath in modPathList:
-                resource_module = gnrImport(modPath, avoidDup=True)
-                resource_class =cloneClass('CustomResource', resource_class)
-                custom_resource_class = getattr(resource_module, class_name, None)
-                if resource_class:
-                    classMixin(resource_class, custom_resource_class, only_callables=False)
-            resource_obj = resource_class(page=page, resource_table=table)
-            return resource_obj
-        else:
-            raise GnrWebServerError('Cannot import component %s' % modName)
+            raise GnrWebServerError('Cannot import component %s %s' % respath,table.fullname)
+        py_extends = resource_class.py_extends
+        if py_extends =='*':
+            py_extends = respath
+            ignoreCust = True
+        if py_extends: 
+            parent_class,table = self._loadTableScript_class(page,table=table,respath=py_extends,class_name=class_name,
+                                                            ignoreCust=ignoreCust)
+            
+            resource_class = clonedClassMixin(parent_class,resource_class,
+                                            exclude='py_extends',only_callables=False)
+        
+        resource_class._gnrPublicName = '_tblscript.%s.%s.%s.%s' %(pkgname,tablename,respath,class_name)
+        return resource_class,table
+            
     
     def resourcesAtPath(self,page=None, pkg=None, path=None, ext='py'):
         """TODO
