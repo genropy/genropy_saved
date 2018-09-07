@@ -14,13 +14,13 @@ import string
 
 import random
 
-caption = '!!Create random records'
+caption = 'Create random records'
 tags = '_DEV_'
 description = '!!Create random records'
 
 class Main(BaseResourceAction):
     batch_prefix = 'crr'
-    batch_title = '!!Create random records'
+    batch_title = 'Create random records'
     batch_cancellable = False
     batch_delay = 0.5
     batch_immediate = True
@@ -79,17 +79,28 @@ class Main(BaseResourceAction):
                 r[field] = random.randint(1, 100) <= field_pars['true_value']
                 return
 
-            if dtype=='T':
+            if dtype in ('T','A'):
                 if field_pars['default_value']:
                     value =field_pars['default_value']
                     if '#P' in value:
                         value=value.replace('#P', self.batch_parameters['batch']['batch_prefix'])
                     if '#N' in value:
                         value=value.replace('#N', str(i+1))
-                    r[field]= value
+                    
                 if field_pars['random_value']:
-                    r[field]=self.randomTextValue(n_words=field_pars['n_words'],
+                    value=self.randomTextValue(n_words=field_pars['n_words'],
                                                   w_length=field_pars['w_length'])
+                if field_pars['size']:
+                    if ':' in field_pars['size']:
+                        s=field_pars['size'].split(':')
+                        l_max = int(s[1])
+                    else:
+                        l_max = int(field_pars['size'])
+                    
+                    if len(value)>l_max:
+                        value=value[:l_max]
+                r[field]= value
+
                 return
 
             if 'range' in field_pars:
@@ -128,7 +139,7 @@ class Main(BaseResourceAction):
         return v
 
     def randomValue(self, v_min,v_max, dtype):
-        if dtype in ('L','H','D','DH'):
+        if dtype in ('I','L','H','D','DH'):
             return random.randint(int(min(v_min,v_max)), int(max(v_min,v_max)))
         else:
             return random.uniform(min(v_min,v_max), max(v_min,v_max))
@@ -268,22 +279,22 @@ class Main(BaseResourceAction):
         for col_name, col in tblobj.columns.items():
             attr = col.attributes
             dtype=attr.get('dtype')
-
             if not col_name in randomValuesDict and (attr.get('_sysfield') or dtype == 'X'):
                 continue
             col_rules = randomValuesDict.get(col_name, dict())
             if col_rules is not False:
-                
+                if attr.get('size'):
+                    col_rules['size']=attr.get('size')
                 fb.data('.%s' %col_name, Bag(col_rules))
                 fb.data('.%s.dtype' %col_name, dtype)
                 if col_rules.pop('ask',None) == False or col_rules.get('equal_to') or col_rules.get('based_on'):
                     continue
-                print col_name
                 self.table_script_prepareColPars(fb,col_rules,col_name, dtype)
                 fb.numberTextBox(value='^.%s.null_perc' % col_name, lbl='NULL %', width='4em',lbl_width='6em', default_value=col_rules.pop('null_perc',0))
 
             
     def table_script_prepareColPars(self, fb, col_rules, col_name, col_dtype):
+        
         kw = fb.prepareFieldAttributes(col_name)
         dictExtract(kw, prefix='validate_',pop=True)
 
@@ -298,7 +309,7 @@ class Main(BaseResourceAction):
             fb.div('^.%s.true_value'%col_name, lbl='True %', _class='fakeTextBox')
             return
 
-        if col_dtype in ('L','N','R','DH','D','H'):
+        if col_dtype in ('I','L','N','R','DH','D','H'):
             lbl=kw.pop('lbl')
             kw.pop('value',None) #remove valuepath set by prepareFieldAttributes
             kw.pop('innerHTML',None) #remove innerHTML set by prepareFieldAttributes
@@ -331,10 +342,10 @@ class Main(BaseResourceAction):
                               validate_notnull=True,
                               **kw)
             return
-        if col_dtype =='T' and col_rules.get('random_value'):
+        if col_dtype in ('T','A') and col_rules.get('random_value'):
             lbl=kw.pop('lbl')
-            fb.textbox('^.%s.n_words' % col_name, lbl='%s N.Words' % lbl, default_value=col_rules.pop('n_words',None), placeholder='2:10')
-            fb.textbox('^.%s.w_length' % col_name, lbl='%s Word Length' % lbl, default_value=col_rules.pop('w_length',None), placeholder='4:10')
+            fb.textbox('^.%s.n_words' % col_name, lbl='%s N.Words' % lbl, default_value=col_rules.pop('n_words',None))
+            fb.textbox('^.%s.w_length' % col_name, lbl='%s Word Length' % lbl, default_value=col_rules.pop('w_length',None))
             return
         else:
             kw['colspan']=2
