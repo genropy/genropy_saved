@@ -214,3 +214,7 @@ class Main(BaseDashboardItem):
         grid.column('sorting',name='!!Aggr',dtype='B',format_trueclass='iconbox arrow_up',format_falseclass="iconbox arrow_down",
                     format_onclick="""var r = this.widget.storebag().getItem("#"+$1.rowIndex);
                                       r.setItem("sorting",!r.getItem("sorting"));""",width='3em')
+        grid.column('delrow',width='3em',
+                    format_isbutton=True,
+                    format_onclick='this.widget.storebag().popNode("#"+$1.rowIndex);',
+                    format_buttonclass='iconbox qb_del')
