@@ -35,9 +35,15 @@ class Main(BaseResourceAction):
                             addPkeyColumns=False,excludeLogicalDeleted=False,excludeDraft=False,columns='$%s' %tblobj.pkey
                             ).fetch()
             pkeysToAdd = set(pkeysToAdd)-set([r[tblobj.pkey] for r in f])
-            rlist = [dict(r) for r in records if r[tblobj.pkey] in pkeysToAdd]
+            rlist = [dict(r) for r in records if r[tblobj.pkey] in pkeysToAdd ]
             if rlist:
                 self.db.setConstraintsDeferred()
+                onArchiveImport = getattr(tblobj,'onArchiveImport',None)
+                if onArchiveImport:
+                    onArchiveImport(rlist)
+                for r in rlist:
+                    if r.get('__syscode'):
+                        r['__syscode'] = None
                 tblobj.insertMany(rlist)
         self.db.commit()
         

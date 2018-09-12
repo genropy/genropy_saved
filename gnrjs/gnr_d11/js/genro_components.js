@@ -6895,7 +6895,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
     loadBagPageFromServer:function(pageIdx,sync,buffer) {
         var that = this;
         var row_start = pageIdx * this.chunkSize;
-        var kw = this.getData().getParentNode().attr;
+        var kw = this.storeNode.attr;
         var result = genro.rpc.remoteCall(kw.method, {'selectionName':kw.selectionName,
             'row_start':row_start,
             'row_count':this.chunkSize,
@@ -6903,7 +6903,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             'table':kw.table,
             'recordResolver':false},
             null,
-            this.storeNode.attr.httpMethod,
+            kw.httpMethod,
             null,
             sync?null:function(result){return that.onChunkLoaded(result,pageIdx);});
         if(sync){
