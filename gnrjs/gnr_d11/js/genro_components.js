@@ -3949,8 +3949,13 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             }
         }
         containerKw.action = btn_action;
+        containerKw.selfsubscribe_appendItem = function(kw){
+            gnrwdg.appendItem(kw);
+        }
         var multibutton = sourceNode._('div','multibutton',objectUpdate(containerKw,kw));
         gnrwdg.multibuttonSource = multibutton;
+
+        
         if(items_bag){
             sourceNode.setRelativeData(sourceNode.attr.items,items_bag);
             gnrwdg.makeButtons(items_bag);
@@ -3981,6 +3986,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         });
         return result;
     },
+    
 
     gnrwdg_selectByNumber:function(buttonNumber,defaultLast){
         var items = this.getItems();
@@ -4001,8 +4007,14 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             if (value && mb){
                 value = value.split(',');
                 var identifier = this.identifier;
+                var code;
                 mb.forEach(function(n){
-                    var code = n.attr[identifier] || n.attr['code'] || n.label;
+                    if('multibutton_code' in n.attr){
+                        code = n.attr.multibutton_code;
+                    }else{
+                        console.warn('missing multibutton_code');
+                        code = n.attr[identifier] || n.attr['code'] || n.label;
+                    }
                     genro.dom.setClass(n,'multibutton_selected',value.indexOf(code)>=0);
                 });
             } 
@@ -4011,6 +4023,22 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
 
     gnrwdg_setValues:function(values,kw){
         this.sourceNode.setRelativeData(this.sourceNode.attr.items,this.itemsFromValues(values));
+    },
+
+    gnrwdg_appendItem:function(kw){
+        var selectLast = objectPop(kw,'selectLast');
+        var store = this.sourceNode.getRelativeData(this.sourceNode.attr.items);
+        var identifier = kw[this.identifier];
+        store.setItem(flattenString(identifier),null,kw);
+        if(selectLast){
+            this.sourceNode.setRelativeData(this.sourceNode.attr.value,identifier);
+        }
+    },
+
+    gnrwdg_defaultDeleteAction:function(key,value){
+        var store = this.sourceNode.getRelativeData(this.sourceNode.attr.items);
+        var nodeToDel = store.getNodeByAttr(this.identifier,key);
+        store.popNode(nodeToDel.label);
     },
 
     gnrwdg_setItems:function(items,kw,trigger_reason){
@@ -4083,7 +4111,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var code = kw[codeKey] || n.label;
         var btn_class = code==currentSelected?'multibutton multibutton_selected':'multibutton';
         var customDelete = kw.deleteAction;
-        if(customDelete){
+        if(typeof(customDelete)=='string'){
             customDelete = funcCreate(kw.deleteAction,'value,caption')
         }
         var deleteAction = customDelete===false?false:(customDelete || this.deleteAction);
@@ -4099,11 +4127,18 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         content_kw._class = (content_kw._class || '') + ' '+'multibutton_caption';
         var btn = mb._('lightbutton',kw);
         btn._('div',content_kw);
+        var gnrwdg = this;
         if(deleteAction){
             btn._('div',{_class:'multibutton_closer framecloserIcon'+(this.deleteSelectedOnly?' deleteSelectedOnly':''),
                 connect_onclick:function(e){
                 dojo.stopEvent(e);
-                deleteAction.call(this.sourceNode,code,caption);
+                if(deleteAction===true){
+                    console.log('defaultDeleteAction');
+                    gnrwdg.defaultDeleteAction(code,caption);
+                }else{
+                    deleteAction.call(this.sourceNode,code,caption);
+                }
+                
             }});
         }
     },
