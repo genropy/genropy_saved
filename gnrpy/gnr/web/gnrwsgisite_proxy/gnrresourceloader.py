@@ -523,10 +523,7 @@ class ResourceLoader(object):
         if isinstance(table, basestring):
             table = application.db.table(table)
         if not table:
-            modName = os.path.join('tables', '_default', *(respath.split('/')))
-            modPathList = self.getResourceList(page.resourceDirs,modName)
-            if not modPathList:
-                modPathList = self.getResourceList(page.resourceDirs, modName, 'py') or []
+            modPathList = self.getResourceList(page.resourceDirs, os.path.join('tables', '_default', *(respath.split('/'))), 'py') or []
             if modPathList:
                 resource_class = self._loadTableScript_getclass(modPathList,class_name)
                 return resource_class,None
