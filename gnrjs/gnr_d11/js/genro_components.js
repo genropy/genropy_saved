@@ -6729,6 +6729,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         this.rowtotal = resultattr.rowcount;
         this.totalRowCount = resultattr.totalRowCount;
         this.selectionName = resultattr.selectionName;
+        this.storeNode.setRelativeData(this.storepath,data,resultattr,null,'loadData');
         if(resultattr.prevSelectedIdx){
             var pagetoload = {};
             var cs = this.chunkSize;
@@ -6738,10 +6739,15 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             for(var page in pagetoload){
                 this.loadBagPageFromServer(page,true,data);
             }
+            this.gridBroadcast(function(grid){
+                grid.selection.select(resultattr.prevSelectedIdx);
+                grid.scrollToRow(resultattr.prevSelectedIdx);
+            });
         }
-        this.storeNode.setRelativeData(this.storepath,data,resultattr,null,'loadData');
         return result;
     },
+
+    
     onExternalChangeResult:function(changelist){
         if(changelist.length>0){
             var that = this;
@@ -6931,6 +6937,9 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         var that = this;
         var row_start = pageIdx * this.chunkSize;
         var kw = this.getData().getParentNode().attr;
+        if(!kw.method){
+            genro.bp(true);
+        }
         var result = genro.rpc.remoteCall(kw.method, {'selectionName':kw.selectionName,
             'row_start':row_start,
             'row_count':this.chunkSize,

@@ -298,7 +298,6 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         if (genro.debugRpc) {
             this.debugRpc(kw);
         }
-        ;
         if (delayOnCall) {
             //add this stuff to handle it
         } else {
