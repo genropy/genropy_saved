@@ -1143,8 +1143,8 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         //widget.sourceNode.setAttributeInDatasource('value',value);
         this._doChangeInData(widget.domNode, widget.sourceNode, value);
         this.onDataChanged(widget);
-
     },
+
     onDataChanged:function(widget) {
         
     },
@@ -3947,7 +3947,7 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
             attributes.hasDownArrow = false;
             attributes['tabindex'] = -1;
         }
-        var resolverAttrs = objectExtract(attributes, 'method,columns,limit,auxColumns,hiddenColumns,alternatePkey,rowcaption,order_by,preferred');
+        var resolverAttrs = objectExtract(attributes, 'method,columns,limit,auxColumns,hiddenColumns,alternatePkey,rowcaption,order_by,preferred,invalidItem');
         resolverAttrs['notnull'] = attributes['validate_notnull'];
         savedAttrs['auxColumns'] = resolverAttrs['auxColumns'];
         var selectedColumns = objectExtract(attributes, 'selected_*');
@@ -4033,7 +4033,6 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
         if(reskwargs.notnull){
             reskwargs = objectUpdate({},reskwargs);
             var reskwargs = objectUpdate(reskwargs,{limit:2,_querystring:'*',notnull:true});
-            console.log('check singleOption')
             var singleOption = genro.serverCall(objectPop(reskwargs,'method'),reskwargs);
             if(singleOption._value.len()==1){
                 currvalue = singleOption._value.getAttr('#0')[this.store._identifier];
@@ -4073,6 +4072,7 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
     connectForUpdate: function(widget, sourceNode) {
         return;
     },
+
     onDataChanged:function(widget){
        // widget.focusNode.blur()
     },

@@ -304,7 +304,7 @@ genropatches.comboBox = function() {
             var lfa = dataObject.store.lastFetchAttrs;
             var columns = lfa.columns.split(',');
             var headers = lfa.headers.split(',');
-            var tblclass = 'multiColumnSelect' + ' ' + lfa['resultClass'];
+            var tblclass = 'multiColumnSelect' + ' ' + lfa.resultClass;
             genro.dom.scrollableTable(this.domNode, results[0].getParentBag(), {'columns':columns,'headers':headers,'tblclass':tblclass});
             this.domNode.onmouseover = dojo.hitch(this, 'onmouseover');
             // this.nextButton.style.display='none';
