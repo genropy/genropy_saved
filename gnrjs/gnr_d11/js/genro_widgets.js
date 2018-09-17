@@ -3947,7 +3947,7 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
             attributes.hasDownArrow = false;
             attributes['tabindex'] = -1;
         }
-        var resolverAttrs = objectExtract(attributes, 'method,columns,limit,auxColumns,hiddenColumns,alternatePkey,rowcaption,order_by,preferred,invalidItem');
+        var resolverAttrs = objectExtract(attributes, 'method,columns,limit,auxColumns,hiddenColumns,alternatePkey,rowcaption,order_by,preferred,invalidItemCondition');
         resolverAttrs['notnull'] = attributes['validate_notnull'];
         savedAttrs['auxColumns'] = resolverAttrs['auxColumns'];
         var selectedColumns = objectExtract(attributes, 'selected_*');
