@@ -3642,7 +3642,7 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
     },
     mixin__updateSelect: function(item) {
         //var item=this.lastSelectedItem;
-        var row = item ? (item.attr || {}) : {};
+        var row = item && this.isValid() ? (item.attr || {}) : {};
         if (this.sourceNode.attr.selectedRecord) {
             var path = this.sourceNode.attrDatapath('selectedRecord');
             this.sourceNode.setRelativeData(path, new gnr.GnrBag(row));
@@ -4051,6 +4051,7 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
         if (!item.attr.caption) {
             return;
         }
+        
         if(priorityChange && !this.item){
             this.item = item;
         }

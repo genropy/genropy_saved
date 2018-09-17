@@ -2035,7 +2035,7 @@ dojo.declare("gnr.GnrValidator", null, {
         var result;
         if(sourceNode.widget.item && sourceNode.widget.item.attr._is_invalid_item){
             var invalidItemMsg = sourceNode.attr.invalidItem_message || _T('Invalid item');
-            result = {'errorcode':'invalidItem','message':invalidItemMsg}
+            result = {'errorcode':'invalidItem','message':invalidItemMsg,value:null};
             sourceNode.widget._lastValueReported = null;
             return result;
         }
