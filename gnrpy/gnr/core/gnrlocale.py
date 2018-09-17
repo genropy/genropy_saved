@@ -285,7 +285,7 @@ def getKeywords(sourcedict,keyword, locale=None):
     
     :param keyword: TODO
     :param locale: the current locale (e.g: en, en_us, it)"""
-    locale = (locale or DEFAULT_LOCALE).replace('-', '_')
+    locale = (locale or DEFAULT_LOCALE).replace('-', '_').lower()
     keydict = sourcedict.get(locale, {})
     if not keydict and len(locale) > 2: # like en_us
         keydict = sourcedict.get(locale[:2], {})
