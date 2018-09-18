@@ -508,8 +508,11 @@ class GnrPackage(object):
                 if not fromPkg:
                     instanceMixin(self.tableMixinDict[tbl], tbl_cls)
                 else:
-                    instanceMixin(self.tableMixinDict[tbl], tbl_cls, methods='config_db,trigger_*', suffix='%s'%fromPkg)
-                    instanceMixin(self.tableMixinDict[tbl], tbl_cls, exclude='config_db,trigger_*')
+                    special_methods = ['config_db','trigger_onInserting','trigger_onInserted','trigger_onUpdating',
+                                        'trigger_onUpdated','trigger_onDeleting','trigger_onDeleted']
+                    special_methods = ','.join(special_methods)
+                    instanceMixin(self.tableMixinDict[tbl], tbl_cls, methods=special_methods, suffix='%s'%fromPkg)
+                    instanceMixin(self.tableMixinDict[tbl], tbl_cls, exclude=special_methods)
                 
                 self.tableMixinDict[tbl]._plugins = dict()
                 #self.tableMixinDict[tbl]._filename = tbl
