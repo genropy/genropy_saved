@@ -1922,7 +1922,7 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
         childSourceNode.setValue(new gnr.GnrDomSource(),false);
         var childTag = objectPop(wrapperAttr,'tag');
         var childAttr = objectUpdate({},wrapperAttr);
-        objectExtract(wrapperAttr,'margin,background,style,_class,nodeId')
+        objectExtract(wrapperAttr,'margin,background,style,_class,nodeId,overflow');
         objectExtract(childAttr,'height,width,border,left,right,top,bottom')
         objectExtract(childAttr,'margin_*');
         objectExtract(childAttr,'border_*');
