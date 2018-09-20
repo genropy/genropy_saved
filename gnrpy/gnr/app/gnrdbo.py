@@ -1311,6 +1311,7 @@ class TotalizeTable(GnrDboTable):
                                         tot_record=None,**kwargs):
         addFromCurrent = (record is not None) and (self.totalize_exclude(record) is not True)
         subtractFromOld = (old_record is not None) and (self.totalize_exclude(old_record) is not True)
+        self.tt_totalize_allowed(record,old_record=old_record)
         with self.recordToUpdate(insertMissing=True,**tot_record) as tot:
             for totalizer_field,pars in tot_fields.items():
                 if addFromCurrent:
@@ -1321,6 +1322,9 @@ class TotalizeTable(GnrDboTable):
                     tot[totalizer_field] = (tot[totalizer_field] or old_value.__class__(0)) - old_value
             if tot['_refcount']<=0:
                 tot[self.pkey] = False
+    
+    def tt_totalize_allowed(self,record=None,old_record=None):
+        pass
 
     def tt_totalize_memory(self,record=None,old_record=None,
                                         tot_fields=None,
