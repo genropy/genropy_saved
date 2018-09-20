@@ -33,6 +33,7 @@ from gnr.core.gnrprinthandler import PrintHandler
 from gnr.core.gnrtaskhandler import TaskHandler
 from gnr.web.gnrwebreqresp import GnrWebRequest
 from gnr.web.gnrwsgisite_proxy.gnrservicehandler import ServiceHandlerManager
+from gnr.web.gnrwsgisite_proxy.gnrstoragehandler import StorageHandler
 from gnr.app.gnrdeploy import PathResolver
 from gnr.web.services.gnrmail import WebMailHandler
 
@@ -256,11 +257,15 @@ class GnrWsgiSite(object):
         self.page_factory_lock = RLock()
         self.webtools = self.resource_loader.find_webtools()
         self.services = ServiceHandlerManager(self)
+        
         self.print_handler = self.addService(PrintHandler, service_name='print')
         self.mail_handler = self.addService(WebMailHandler, service_name='mail')
         self.task_handler = self.addService(TaskHandler, service_name='task')
         self.register
         self.services.addSiteServices()
+
+        self.storages = GnrStorageHandler(self)
+        self.storages.addAllStorages()
         
         self._remote_edit = options.remote_edit if options else None
         if counter == 0 and self.debug:
@@ -360,6 +365,11 @@ class GnrWsgiSite(object):
         :param service_handler_factory: TODO"""
         return self.statics.add(static_handler_factory, **kwargs)
     
+
+    def storage(self,static,*args,**kwargs):
+        static_name, static_path = static.split(':',1)
+        return self.storages.get(static_name,self.storages['local']) 
+
 
     def getStaticPath(self, static, *args, **kwargs):
         """TODO
@@ -1445,4 +1455,3 @@ class GnrWsgiSite(object):
         return path
 
 
-        
