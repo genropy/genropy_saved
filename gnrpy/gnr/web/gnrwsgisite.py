@@ -359,28 +359,38 @@ class GnrWsgiSite(object):
         
         :param service_handler_factory: TODO"""
         return self.statics.add(static_handler_factory, **kwargs)
-        
+    
+
     def getStaticPath(self, static, *args, **kwargs):
         """TODO
         
         :param static: TODO"""
-        autocreate = kwargs.get('autocreate', False)
+        autocreate = kwargs.pop('autocreate', False)
+        openStatic = kwargs.pop('open', False)
         if not ':' in static:
             return static
         static_name, static_path = static.split(':',1)
         args = self.adaptStaticArgs(static_name, static_path, args)
-        dest_path = self.getStatic(static_name).path(*args)
-        if autocreate:
+        static_handler = self.getStatic(static_name)
+        if autocreate and static_handler.supports_autocreate:
             assert autocreate == True or autocreate < 0
             if autocreate != True:
                 autocreate_args = args[:autocreate]
             else:
                 autocreate_args = args
-            dest_dir = self.getStatic(static_name).path(*autocreate_args)
+            dest_dir = static_handler.path(*autocreate_args)
             if not os.path.exists(dest_dir):
                 os.makedirs(dest_dir)
-        return dest_path
+        if openStatic:
+            return static_handler.openStatic(*args)
+        else:
+            dest_path = static_handler.path(*args)
+            return dest_path
 
+    def openStaticPath(self, static, *args, **kwargs):
+        kwargs = kwargs or {}
+        kwargs['open'] = True
+        return self.getStaticPath(static, *args, **kwargs)
 
         
     def getStaticUrl(self, static, *args, **kwargs):

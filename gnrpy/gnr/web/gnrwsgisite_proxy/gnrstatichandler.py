@@ -12,6 +12,7 @@ from paste import fileapp
 from paste.httpheaders import ETAG
 import random
 import tempfile
+import builtins
 
 class StaticHandlerManager(object):
     """ This class handles the StaticHandlers"""
@@ -147,6 +148,12 @@ class StaticHandler(object):
 
         url = '%s?%s' % (url, '&'.join(['%s=%s' % (k, v) for k, v in kwargs.items()]))
         return url
+    
+    def openStatic(self, *args, **kwargs):
+        path = self.path(*args)
+        return builtins.open(path, **kwargs)
+
+
 
 
 class DojoStaticHandler(StaticHandler):
@@ -166,6 +173,26 @@ class VolumesStaticHandler(StaticHandler):
     def __init__(self, *args, **kwargs):
         super(VolumesStaticHandler, self).__init__(*args,**kwargs)
         self.volumes = dict()
+        sitevolumes = self.site.config.getItem('volumes')
+        if sitevolumes:
+            self.volumes = dict([(n.label,n.attr['path']) for n in sitevolumes])
+
+    def url(self, volume, *args, **kwargs):
+        return '%s_vol/%s/%s' % (self.home_uri, volume, '/'.join(args))
+
+    def path(self,volume,*args,**kwargs):
+        vpath = self.volumes.get(volume,volume)
+        #print 'volumes',self.volumes,'volume'
+        result = expandpath(os.path.join(self.site.site_static_dir,vpath, *args))
+        #print 'aaa',result
+        return result
+
+class CloudStaticHandler(StaticHandler):
+    prefix = 'cld'
+
+    def __init__(self, *args, **kwargs):
+        super(CloudStaticHandler, self).__init__(*args,**kwargs)
+        self.cloud_services = dict()
         sitevolumes = self.site.config.getItem('volumes')
         if sitevolumes:
             self.volumes = dict([(n.label,n.attr['path']) for n in sitevolumes])
