@@ -1966,6 +1966,7 @@ dojo.declare("gnr.GnrValidator", null, {
                 value = validreturn['value'];
             }
             errorcode = validreturn['errorcode'];
+            errormessage = validreturn.message;
         } else {
             if (validreturn == false) {
                 errorcode = iswarning ? 'warning' : 'error';
@@ -1975,7 +1976,7 @@ dojo.declare("gnr.GnrValidator", null, {
             validreturn = {};
         }
 
-        if (errorcode) {
+        if (errorcode && !errormessage) {
             var msgorder = [validation + '_' + errorcode];
             if (iswarning) {
                 msgorder.push(validation + '_warning');
@@ -2031,8 +2032,15 @@ dojo.declare("gnr.GnrValidator", null, {
         if (dojo.isIE > 0) {
             return;
         }
-        var validate_notnull = sourceNode.getAttributeFromDatasource('validate_notnull');//.attr.validate_notnull;
         var result;
+        if(sourceNode.widget.item && sourceNode.widget.item.attr._is_invalid_item){
+            var invalidItemMsg = sourceNode.attr.invalidItem_message || _T('Invalid item');
+            result = {'errorcode':'invalidItem','message':invalidItemMsg,value:null};
+            sourceNode.widget._lastValueReported = null;
+            return result;
+        }
+
+        var validate_notnull = sourceNode.getAttributeFromDatasource('validate_notnull');//.attr.validate_notnull;
         if ((value == undefined) || (value == '') || (value == null)) {
             if (sourceNode.widget._lastDisplayedValue != "") {
                 sourceNode.widget._updateSelect();

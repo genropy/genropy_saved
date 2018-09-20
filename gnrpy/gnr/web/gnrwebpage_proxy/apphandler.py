@@ -1523,7 +1523,8 @@ class GnrWebAppHandler(GnrBaseProxy):
     def dbSelect(self, dbtable=None, columns=None, auxColumns=None, hiddenColumns=None, rowcaption=None,
                      _id=None, _querystring='', querystring=None, ignoreCase=True, exclude=None, excludeDraft=True,
                      condition=None, limit=None, alternatePkey=None, order_by=None, selectmethod=None,
-                     notnull=None, weakCondition=False, _storename=None,preferred=None,**kwargs):
+                     notnull=None, weakCondition=False, _storename=None,preferred=None,
+                     invalidItemCondition=None,**kwargs):
         """dbSelect is a :ref:`filteringselect` that takes the values through a :ref:`query` on the
         database: user can choose between all the values contained into the linked :ref:`table` (the
         table is specified through the *dbtable* attribute). While user write in the dbSelect, partially
@@ -1622,6 +1623,9 @@ class GnrWebAppHandler(GnrBaseProxy):
             if preferred:
                 order_list.append('( %s ) desc' %preferred)
                 resultcolumns.append("""(CASE WHEN %s IS NOT TRUE THEN 'not_preferred_row' ELSE '' END) AS _customclasses_preferred""" %preferred)
+            if invalidItemCondition:
+                resultcolumns.append("""(%s IS TRUE) AS _is_invalid_item""" %invalidItemCondition)
+                #resultcolumns.append("""(CASE WHEN %s IS TRUE THEN 'is_invalid_row' ELSE '' END) AS _customclasses_invaliditemCondition""" %invalidItemCondition)
             #order_by = order_by or tblobj.attributes.get('order_by') or tblobj.attributes.get('caption_field')
             order_by = order_by or tblobj.attributes.get('order_by') or showcolumns[0]
             order_list.append(order_by if order_by[0] in ('$','@') else '$%s' %order_by)

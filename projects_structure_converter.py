@@ -7,16 +7,18 @@ from gnr.app.gnrdeploy import PathResolver
 from gnr.app.gnrconfig import gnrConfigPath
 
 class ProjectConverter(object):
-    def __init__(self):
+    def __init__(self,projects=None):
         self.environment = Bag(os.path.join(gnrConfigPath(),'environment.xml'))
         self.projects_paths = self.environment['projects'].digest('#a.path')
-    
+        self.projects = projects.split(',') if projects else None
+        self.inplace = self.projects is not None
+
     def run(self):
         for prpath in self.projects_paths:
-            print 'prpath',prpath
             for prjname,prgval in DirectoryResolver(os.path.expanduser(prpath))().items():
-                print 'project',prjname
-                self.convertProjectOne(prjname,prgval)
+                if not self.projects or prjname in self.projects:
+                    print 'converting project',prjname
+                    self.convertProjectOne(prjname,prgval)
     
     def relpath(self,path):
         userpath = os.path.expanduser('~')
@@ -36,6 +38,12 @@ class ProjectConverter(object):
         sourcepath = self.relpath(sourcepath)
         pathlist = sourcepath.split(os.sep)
         destpath = ['~']+os.path.join(['%s_new' %pathlist[0]]+pathlist[1:])
+        return os.path.expanduser(os.path.join(*destpath))
+
+    def getOldPath(self,sourcepath):
+        sourcepath = self.relpath(sourcepath)
+        pathlist = sourcepath.split(os.sep)
+        destpath = ['~']+os.path.join(['%s_old' %pathlist[0]]+pathlist[1:])
         return os.path.expanduser(os.path.join(*destpath))
 
     def convertProjectOne(self,prgname,prgcontent):
@@ -69,5 +77,6 @@ class ProjectConverter(object):
                         shutil.move(siteconfig,os.path.join(destConfigPath,'siteconfig.xml'))
 
 if __name__ == '__main__':
-    p = ProjectConverter()
+    projects = sys.argv[1]
+    p = ProjectConverter(projects=projects)
     p.run()

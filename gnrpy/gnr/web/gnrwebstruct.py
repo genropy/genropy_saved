@@ -489,6 +489,13 @@ class GnrDomSrc(GnrStructData):
                             
     def multibutton_item(self,code,caption=None,**kwargs):
         return self.child('multibutton_item',code=code,caption=caption or code,**kwargs)
+    
+    def multibutton_plusitem(self,caption='+',deleteAction=False,ask=None,selectLast=None,**kwargs):
+        return self.child('multibutton_item',code='plus_item',
+                            sticky=False,deleteAction=deleteAction,
+                            action="this.getParentNode().publish('appendItem',objectUpdate({selectLast:selectLast},_askResult));",
+                            caption=caption,ask=ask,selectLast=selectLast,**kwargs)
+    
 
     def multibutton_store(self,table=None,**kwargs):
         return self.child('multibutton_store',childname='itemsStore',table=table,**kwargs)

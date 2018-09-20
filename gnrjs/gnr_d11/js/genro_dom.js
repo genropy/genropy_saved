@@ -1306,11 +1306,15 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         thead = thead + "<th style='width:13px;'>&nbsp</th></thead>";
         var nodes = gridbag.getNodes();
-        var item,r, value,v,_customClasses;
+        var item,r, value,v,_customClasses,rowvalidation;
         var tbl = ["<tbody>"];
         for (var i = 0; i < nodes.length; i++) {
             r = "";
             item = nodes[i].attr;
+            rowvalidation = ' _is_valid_item="true" ';
+            if(item._is_invalid_item){
+                rowvalidation = ' onmouseup="dojo.stopEvent(arguments[0]);" _is_valid_item="false" '
+            }
             _customClasses = objectPop(item,'_customclasses') || objectPop(item,'_customClasses');
             more_customclasses = objectExtract(item,'_customclasses_*')
             if(more_customclasses){
@@ -1326,7 +1330,9 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 value = v==null?'&nbsp':v;
                 r = r + "<td>" + _F(value)+"</td>";
             }
-            tbl.push("<tr id='" + nodes[i].label + "' "+_customClasses+">" + r + "</tr>");
+
+            
+            tbl.push('<tr id="' + nodes[i].label + '"  '+_customClasses+ rowvalidation + '>' + r + '</tr>');
         }
         tbl.push("</tbody>");
         var tbody = tbl.join('');

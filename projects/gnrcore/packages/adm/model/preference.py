@@ -37,7 +37,7 @@ class Table(object):
             store_preference =  self.db.package('multidb').getStorePreference()
             for pkgid,pkgobj in self.db.application.packages.items():
                 if pkgobj.attributes.get('multidb_pref'):
-                    preference[pkgid] = store_preference[pkgid] or Bag()
+                    preference[pkgid] = store_preference[pkgid] or preference[pkgid] or Bag()
             self.db.application.cache.setItem(pref_cache_key,preference)
         return preference.deepcopy()
 

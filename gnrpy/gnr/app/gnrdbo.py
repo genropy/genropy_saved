@@ -1004,6 +1004,20 @@ class TableBase(object):
             for field in self.counterColumns():
                 self.db.table('adm.counter').assignCounter(tblobj=self,field=field,record=record)
 
+    @public_method
+    def guessCounter(self,record=None,field=None,**kwargs):
+        sequence,sequenceInfo = self.db.table('adm.counter').guessNextSequence(tblobj=self,field=field,record=record)
+        result = dict(promised=True,wdg_color='green',sequence=sequence)
+        pars = getattr(self,'counter_%s' %field)(record=record)
+        if sequenceInfo.get('recycled'):
+            result['wdg_color'] = 'darkblue'
+            fieldname = self.column(field).name_long or field
+            fieldname.replace('!!','')
+            message = pars.get('message_recycle','!!%(fieldname)s promised value (recycled)')
+            message = message %dict(fieldname=fieldname,sequence=sequence) 
+            result['wdg_tip'] = message
+        return result
+
     def _sequencesOnLoading(self,newrecord,recInfo=None):
         for field in self.counterColumns():
             pars = getattr(self,'counter_%s' %field)(record=newrecord)

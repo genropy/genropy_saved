@@ -198,6 +198,8 @@ class GnrWebPage(GnrBaseWebPage):
             self.page_item = dict(data=dict())
             self._workdate = datetime.date.today()
             self.page_id = page_id
+            self.isMobile = False
+            self.deviceScreenSize = None
             self._inited = True
             return
         if page_id:
