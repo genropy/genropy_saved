@@ -1169,13 +1169,21 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     }
                 };
             }else{
-                this.reset();
                 cb=function(result){
+                    result = result || {};
+                    if (result.error){
+                        //genro.dlg.alert(resultDict.error,'Error');
+                        that.publish('message',{message:'Error in save '+result.error,sound:'$onsaved',messageType:'error'});
+                        that.setOpStatus();
+                        return;
+                    }
+                    that.reset();
                     if(onSaved in that){
                         that[onSaved](result);
                     }else if(onSaved){
                         funcApply(onSaved,{result:result},this);
                     }
+                    return result;
                 };
             }
             if(deferred){
@@ -1183,6 +1191,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     cb(result);
                     return result;
                 });
+            }else{
+                this.reset();
             }
             return deferred;
         }
