@@ -28,7 +28,7 @@ from email.mime.application import MIMEApplication
 from email.utils import formatdate
 import re, htmlentitydefs
 import mimetypes
-from gnr.core.gnrbaseservice import GnrBaseService
+from gnr.services import GnrBaseService
 from gnr.core.gnrstring import templateReplace
 import thread
 import os

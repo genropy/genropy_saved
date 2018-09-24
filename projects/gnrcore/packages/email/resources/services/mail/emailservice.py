@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 from gnr.core.gnrbag import Bag
-from gnr.web.services.gnrmail import WebMailHandler
+from gnr.services.gnrmail import WebMailHandler
 
 class Main(WebMailHandler):
     def getDefaultMailAccount(self):      

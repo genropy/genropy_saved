@@ -23,7 +23,7 @@ except ImportError:
     HAS_PYPDF = False
 
 from gnr.core.gnrbag import Bag, DirectoryResolver
-from gnr.core.gnrbaseservice import GnrBaseService
+from gnr.services import GnrBaseService
 from gnr.core.gnrdecorator import extract_kwargs
 import sys
 

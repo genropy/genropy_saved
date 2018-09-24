@@ -35,7 +35,7 @@ from gnr.web.gnrwebreqresp import GnrWebRequest
 from gnr.web.gnrwsgisite_proxy.gnrservicehandler import ServiceHandlerManager
 from gnr.web.gnrwsgisite_proxy.gnrstoragehandler import StorageHandler
 from gnr.app.gnrdeploy import PathResolver
-from gnr.web.services.gnrmail import WebMailHandler
+from gnr.services.gnrmail import WebMailHandler
 
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager

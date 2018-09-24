@@ -5,7 +5,7 @@
 #  Copyright (c) 2013 Softwell. All rights reserved.
 
 
-from gnr.core.gnrbaseservice import GnrBaseService
+from gnr.services import GnrBaseService
 from gnr.core.gnrlang import GnrException
 import re
 SAFETRANSLATE = re.compile(r"""(?:\[tr-off\])(.*?)(?:\[tr-on\])""",flags=re.DOTALL)

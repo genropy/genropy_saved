@@ -3,7 +3,7 @@
 #
 #  Copyright (c) 2013 Softwell. All rights reserved.
 
-from gnr.core.gnrbaseservice import GnrBaseService
+from gnr.services import GnrBaseService
 #from gnr.core.gnrlang import componentFactory
 
 class Main(GnrBaseService):

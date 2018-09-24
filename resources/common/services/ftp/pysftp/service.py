@@ -10,7 +10,7 @@ from gnr.core import gnrstring
 from datetime import datetime
 from gnr.web.gnrbaseclasses import BaseComponent
 
-from gnr.core.gnrbaseservice import GnrBaseService
+from gnr.services import GnrBaseService
 from gnr.core.gnrlang import GnrException
 from gnr.core.gnrbag import Bag,DirectoryResolver,BagResolver
 
