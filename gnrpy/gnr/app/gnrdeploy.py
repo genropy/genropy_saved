@@ -584,6 +584,7 @@ workers = %(workers)i
 loglevel = 'error'
 chdir = '%(chdir)s'
 reload = False
+capture_output = True
 worker_class = 'gevent'
 timeout = 120
 graceful_timeout = 30
