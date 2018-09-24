@@ -540,7 +540,7 @@
 <en_loading fr="Chargement" de="Laden" en="Loading" it="Caricamento" base="Loading"></en_loading>
 <en_analyze_grid fr="Analyser Grille" de="Analysieren Grid" en="Analyze Grid" it="Analizzare griglia" base="Analyze Grid"></en_analyze_grid>
 <en_details_grid fr="Détails Grille" de="Details Grid" en="Details Grid" it="Dettagli Griglia" base="Details Grid"></en_details_grid>
-<en_hierarchical_view fr="Voir hiérarchique" de="Hierarchische Ansicht" en="Hierarchical View" it="Gerarchica View" base="Hierarchical View"></en_hierarchical_view>
+<en_hierarchical_view fr="Voir hiérarchique" de="Hierarchische Ansicht" en="Hierarchical View" it="Vista gerarchica" base="Hierarchical View"></en_hierarchical_view>
 <en_locker fr="Casier" de="Schließfach" en="Locker" it="Blocca/Sblocca" base="Locker"></en_locker></th_extra>
 <th_form path="resources/common/th/th_form.py" ext="py"><en_save_failed fr="Echec de la sauvegarde" de="Speichern fehlgeschlagen" en="Save failed" it="Salva fallita" base="Save failed"></en_save_failed>
 <en_you_cannot_save fr="Vous ne pouvez pas enregistrer" de="Sie können nicht speichern" en="You cannot save" it="Non è possibile salvare" base="You cannot save"></en_you_cannot_save>
@@ -554,7 +554,7 @@
 <th_picker path="resources/common/th/th_picker.py" ext="py"><en_pick_checked base="Pick checked"></en_pick_checked>
 <en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add></th_picker>
 <th_tree path="resources/common/th/th_tree.py" ext="py"><en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add>
-<en_show_inherited fr="Afficher Hérité" de="Geerbte anzeigen" en="Show Inherited" it="Mostra Inherited" base="Show Inherited"></en_show_inherited></th_tree>
+<en_show_inherited fr="Afficher Hérité" de="Geerbte anzeigen" en="Show Inherited" it="Contenuti ereditati" base="Show Inherited"></en_show_inherited></th_tree>
 <th_view path="resources/common/th/th_view.py" ext="py"><en_reload fr="Recharger" de="Nachladen" en="Reload" it="Ricaricare" base="Reload"></en_reload>
 <en_show_archived_records base="Show Archived Records"></en_show_archived_records>
 <en_totals_count fr="nombre de Totaux" de="Totals Zahl" en="Totals count" it="Conteggio Totali" base="Totals count"></en_totals_count>
