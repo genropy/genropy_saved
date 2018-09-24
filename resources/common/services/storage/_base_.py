@@ -7,8 +7,9 @@ from gnr.core.gnrbaseservice import GnrBaseService
 #from gnr.core.gnrlang import componentFactory
 
 class Main(GnrBaseService):
-    def __init__(self, parent=None):
-        self.parent = parent
-    
     def write(self,*args):
-        print 'write s3'
+        print 'write',args
+
+    def delete(self,*args):
+        print 'delete',args
+

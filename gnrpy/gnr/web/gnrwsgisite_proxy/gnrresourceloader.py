@@ -446,7 +446,7 @@ class ResourceLoader(object):
                     result.append(fpath)
         return uniquify(result)
         
-    def loadResource(self, *path, **kwargs):
+    def getResourceClass(self, *path, **kwargs):
         """TODO"""
         resource_class = cloneClass('CustomResource', BaseResource)
         pkg=kwargs.pop('pkg', None)
@@ -460,7 +460,10 @@ class ResourceLoader(object):
             resourceDirs = lookupDirs = page.resourceDirs
         resource_class.resourceDirs = resourceDirs
         self.mixinResource(resource_class, lookupDirs, *path)
-        return resource_class()
+        return resource_class
+
+    def loadResource(self, *path, **kwargs):
+        return self.getResourceClass(*path, **kwargs)()
                  
     def mixinPageComponent(self, page, *path,**kwargs):
         """This method is used to mixin a component to a :ref:`webpage` at any time

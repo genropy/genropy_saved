@@ -28,13 +28,27 @@ class View(BaseComponent):
 class Form(BaseComponent):
 
     def th_form(self, form):
-        pane = form.record
-        fb = pane.formbuilder(cols=2, border_spacing='4px')
-        fb.field('service_name')
-        fb.field('service_type')
-        fb.field('resource')
-        fb.field('parameters')
+        bc = form.center.borderContainer(datapath='.record')
+        fb = bc.contentPane(region='top').formbuilder(cols=2, border_spacing='4px')
+        fb.field('service_type',disabled=True)
+        fb.field('resource',disabled=True)
+        fb.field('service_name',colspan=2,validate_notnull=True,width='100%')
 
+        center = bc.roundedGroupFrame(title='Parameters',region='center')
+        center.center.contentPane().remote(self.buildServiceParameters,service_type='=.service_type',resource='=.resource',
+                                                    _if="service_type && resource",
+                                                    _fired='^#FORM.controller.loaded')
+
+
+    @public_method
+    def buildServiceParameters(self,pane,service_type=None,resource=None,**kwargs):
+        mixinpath = '/'.join(['services',service_type,resource])
+        self.mixinComponent('%s:ServiceParameters' %mixinpath,safeMode=True)
+        if hasattr(self,'service_parameters'):
+            self.service_parameters(pane,datapath='.parameters')
+
+    def th_options(self):
+        return dict(form_add=self.db.table('sys.service').getAvailableServiceTree())
 
     #def th_options(self):
     #    return dict(dialog_height='400px', dialog_width='600px',addrow=[(service_type,dict(service_type=service_type)) for service_type in service_types])

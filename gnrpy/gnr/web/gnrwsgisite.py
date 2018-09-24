@@ -261,11 +261,14 @@ class GnrWsgiSite(object):
         self.print_handler = self.addService(PrintHandler, service_name='print')
         self.mail_handler = self.addService(WebMailHandler, service_name='mail')
         self.task_handler = self.addService(TaskHandler, service_name='task')
-        self.register
         self.services.addSiteServices()
 
-        self.storages = GnrStorageHandler(self)
-        self.storages.addAllStorages()
+
+        self.register
+        
+
+       #self.storages = GnrStorageHandler(self)
+       #self.storages.addAllStorages()
         
         self._remote_edit = options.remote_edit if options else None
         if counter == 0 and self.debug:
@@ -350,14 +353,16 @@ class GnrWsgiSite(object):
         :param service_name: TODO"""
         return self.services.add(service_handler, service_name=service_name, **kwargs)
         
-    def getService(self, service_name):
+    def getService(self, service_type=None,service_name=None):
         """TODO
         
         :param service_name: TODO"""
+        service_name = service_type or service_name
+
         if self.currentPage and self.currentPage.rootenv:
             page = self.currentPage
             service_name = page.rootenv['custom_services.%s' %service_name] or service_name
-        return self.services.get(service_name)
+        return self.services.get(service_type,service_name)
         
     def addStatic(self, static_handler_factory, **kwargs):
         """TODO

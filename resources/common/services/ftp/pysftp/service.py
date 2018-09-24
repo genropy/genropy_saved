@@ -8,6 +8,8 @@ import os
 import re
 from gnr.core import gnrstring
 from datetime import datetime
+from gnr.web.gnrbaseclasses import BaseComponent
+
 from gnr.core.gnrbaseservice import GnrBaseService
 from gnr.core.gnrlang import GnrException
 from gnr.core.gnrbag import Bag,DirectoryResolver,BagResolver
@@ -180,3 +182,13 @@ class SftpDirectoryResolver(DirectoryResolver):
         return SftpDirectoryResolver(path,  os.path.basename(path), 
                                     **self.instanceKwargs)
         
+
+class ServiceParameters(BaseComponent):
+
+    def service_parameters(self,pane,datapath=None,**kwargs):
+        fb = pane.formbuilder(datapath=datapath)
+        fb.textbox(value='^.host',lbl='Host')
+        fb.textbox(value='^.username',lbl='Username')
+        fb.textbox(value='^.password',lbl='Username')
+        fb.textbox(value='^.private_key',lbl='Private key')
+        fb.textbox(value='^.port',lbl='Port')

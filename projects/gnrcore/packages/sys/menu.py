@@ -5,9 +5,9 @@ def config(root,application=None):
     system.thpage("Errors", table='sys.error')
     system.thpage("Batch log", table='sys.batch_log')
     system.thpage("Upgrades", table='sys.upgrade')
+    system.thpage("Services", table='sys.service')
     system.thpage("Tasks", table='sys.task',tags='_DEV_')
     system.webpage("Db Structure", filepath="/sys/dbstruct")
-
     system.webpage("Startup data manager", filepath="/sys/startupdata_manager",tags='_DEV_')
     system.webpage("Package editor", filepath="/sys/package_editor",tags='_DEV_')
     system.webpage("Localization editor", filepath="/sys/localizationeditor",

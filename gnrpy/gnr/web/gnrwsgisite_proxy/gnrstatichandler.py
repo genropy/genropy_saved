@@ -70,6 +70,7 @@ class StaticHandler(object):
 
     def __init__(self, site, **kwargs):
         self.site = site
+        self.supports_autocreate = True
 
     @property
     def home_uri(self):
