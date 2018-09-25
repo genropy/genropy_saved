@@ -586,6 +586,8 @@ chdir = '%(chdir)s'
 reload = False
 capture_output = True
 worker_class = 'gevent'
+max_requests = %(max_requests)i
+max_requests_jitter = %(max_requests_jitter)i
 timeout = 120
 graceful_timeout = 30
 """
@@ -601,7 +603,10 @@ server {
 
         access_log %(logs_path)s/nginx_access.log;
         error_log %(logs_path)s/nginx_error.log;
-
+        proxy_connect_timeout       1800;
+	    proxy_send_timeout          1800;
+	    proxy_read_timeout          1800;
+	    send_timeout                1800;
         location /websocket {
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
@@ -648,11 +653,13 @@ class GunicornDeployBuilder(object):
         self.logs_path = os.path.join(self.site_path, 'logs')
         self.pidfile_path = os.path.join(self.site_path, '%s_pid' % site_name)
         self.gunicorn_conf_path = os.path.join(self.config_folder,'gunicorn.py')
-        self.gnrasync_socket_path = os.path.join(self.socket_path, "tornado.sock" )
+        self.gnrasync_socket_path = os.path.join(self.socket_path, "async.tornado" )
         self.gunicorn_socket_path = os.path.join(self.socket_path,'gunicorn.sock')
         self.create_dirs()
         import multiprocessing
         self.default_workers = multiprocessing.cpu_count()* 2 + 1
+        self.default_max_requests = 300
+        self.default_max_requests_jitter = 50
         self.options = kwargs
 
     def create_dirs(self):
@@ -669,6 +676,8 @@ class GunicornDeployBuilder(object):
         pars['pidfile_path'] = self.pidfile_path
         pars['site_path'] = self.site_path
         pars['logs_path'] = self.logs_path
+        pars['max_requests'] = self.default_max_requests
+        pars['max_requests_jitter'] = self.default_max_requests_jitter
         pars['chdir'] = self.site_path if os.path.exists(os.path.join(self.site_path,'root.py')) else self.instance_path
         conf_content = GUNICORN_DEFAULT_CONF_TEMPLATE %pars
         print 'write gunicorn file',self.gunicorn_conf_path
