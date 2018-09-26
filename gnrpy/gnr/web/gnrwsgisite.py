@@ -32,8 +32,9 @@ from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrprinthandler import PrintHandler
 from gnr.core.gnrtaskhandler import TaskHandler
 from gnr.web.gnrwebreqresp import GnrWebRequest
+from gnr.services import ServiceHandler
 from gnr.web.gnrwsgisite_proxy.gnrservicehandler import ServiceHandlerManager
-from gnr.web.gnrwsgisite_proxy.gnrstoragehandler import StorageHandler
+#from gnr.web.gnrwsgisite_proxy.gnrstoragehandler import StorageHandler
 from gnr.app.gnrdeploy import PathResolver
 from gnr.services.gnrmail import WebMailHandler
 
@@ -257,11 +258,12 @@ class GnrWsgiSite(object):
         self.page_factory_lock = RLock()
         self.webtools = self.resource_loader.find_webtools()
         self.services = ServiceHandlerManager(self)
+        #self.services_handler = ServiceHandler(self)
         
         self.print_handler = self.addService(PrintHandler, service_name='print')
         self.mail_handler = self.addService(WebMailHandler, service_name='mail')
         self.task_handler = self.addService(TaskHandler, service_name='task')
-        self.services.addSiteServices()
+        #self.services.addSiteServices()
 
 
         self.register
@@ -282,6 +284,12 @@ class GnrWsgiSite(object):
         self.cleanup_interval = int(cleanup.get('interval') or 120)
         self.page_max_age = int(cleanup.get('page_max_age') or 120)
         self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
+
+    @property
+    def services_handler(self):
+        if not hasattr(self,'_services_handler'):
+            self._services_handler = ServiceHandler(self)
+        return self._services_handler
 
     def siteConfigPath(self):
         siteConfigPath = os.path.join(self.site_path,'siteconfig.xml')
@@ -352,18 +360,23 @@ class GnrWsgiSite(object):
         :param service_handler: TODO
         :param service_name: TODO"""
         return self.services.add(service_handler, service_name=service_name, **kwargs)
+    #   
+    #  
+    #def getService_old(self, service_type=None,service_name=None):
+    #    """TODO
+    #    
+    #    :param service_name: TODO"""
+    #    service_name = service_type or service_name
+#
+    #    if self.currentPage and self.currentPage.rootenv:
+    #        page = self.currentPage
+    #        service_name = page.rootenv['custom_services.%s' %service_name] or service_name
+    #    return self.services.get(service_type,service_name)
         
     def getService(self, service_type=None,service_name=None):
-        """TODO
+        return self.service_handler.get(service_type=service_type,service_name=service_name or service_type)
         
-        :param service_name: TODO"""
-        service_name = service_type or service_name
 
-        if self.currentPage and self.currentPage.rootenv:
-            page = self.currentPage
-            service_name = page.rootenv['custom_services.%s' %service_name] or service_name
-        return self.services.get(service_type,service_name)
-        
     def addStatic(self, static_handler_factory, **kwargs):
         """TODO
         

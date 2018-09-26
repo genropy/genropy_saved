@@ -5,7 +5,8 @@
 #  Copyright (c) 2013 Softwell. All rights reserved.
 
 
-from gnr.services import GnrBaseService
+from gnrpkg.sys.services.translation import TranslationService
+
 from gnr.core.gnrlang import GnrException
 import re
 SAFETRANSLATE = re.compile(r"""(?:\[tr-off\])(.*?)(?:\[tr-on\])""",flags=re.DOTALL)
@@ -15,7 +16,7 @@ try:
 except:
     YandexTranslate = False
 
-class Main(GnrBaseService):
+class Main(TranslationService):
     def __init__(self, parent=None,api_key=None):
         self.parent = parent
         self.api_key = api_key
