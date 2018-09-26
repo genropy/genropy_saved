@@ -133,7 +133,7 @@
 <gnrsqlxml2py path="gnrpy/gnr/sql/gnrsqlxml2py.py" ext="py"><en_s _tag="en__s" fr="% S" en="[0]" de="% S" it="% S" base="%s"></en_s></gnrsqlxml2py></sql>
 <web><_gnrbasewebpage path="gnrpy/gnr/web/_gnrbasewebpage.py" ext="py"><en_saving_error fr="Erreur de sauvegarde" de="Saving Fehler" en="Saving error" it="Errore di Salvataggio" base="Saving error"></en_saving_error>
 <en_fieldname_s_sequence_s_instead_of_promised_sequence_s _tag="en__fieldname_s_sequence_s_instead_of_promised_sequence_s" fr="  %(Fieldname)s:  %(séquence)s au lieu de  %(promised_sequence)s" en="[0]: [1] instead of [2]" de="  %(Fieldname)s:  %(Sequenz)s statt  %(promised_sequence)s" it="  %(Fieldname)s:  %(sequenza)s invece di  %(promised_sequence)s" base="%(fieldname)s: %(sequence)s instead of %(promised_sequence)s"></en_fieldname_s_sequence_s_instead_of_promised_sequence_s></_gnrbasewebpage>
-<batch><btcbase path="gnrpy/gnr/web/batch/btcbase.py" ext="py"><en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<batch><btcbase path="gnrpy/gnr/web/batch/btcbase.py" ext="py"><en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel>
 <en_confirm fr="Confirmer" de="Bestätigen" en="Confirm" it="Ok" base="Confirm"></en_confirm></btcbase>
 <btcmail path="gnrpy/gnr/web/batch/btcmail.py" ext="py"><en_cc fr="CC" de="CC" en="CC" it="CC" base="CC"></en_cc>
 <en_subject fr="Sujet" de="Gegenstand" en="Subject" it="Soggetto" base="Subject"></en_subject>
@@ -152,7 +152,7 @@
 <en_subject fr="Sujet" de="Gegenstand" en="Subject" it="Soggetto" base="Subject"></en_subject>
 <en_body fr="Corps" de="Körper" en="Body" it="Corpo" base="Body"></en_body>
 <en_deliver_mail fr="Distribuer le courrier" de="Geben Sie mail" en="Deliver mail" it="Consegna posta" base="Deliver mail"></en_deliver_mail>
-<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel>
 <en_print fr="Imprimer" de="Druck" en="Print" it="Stampa" base="Print"></en_print>
 <en_download fr="Télécharger" de="Herunterladen" en="Download" it="Scarica" base="Download"></en_download>
 <en_confirm fr="Confirmer" de="Bestätigen" en="Confirm" it="Ok" base="Confirm"></en_confirm></btcprint></batch>
@@ -188,7 +188,7 @@
 <en_forget_changes fr="Oubliez changements" de="Vergessen Änderungen" en="Forget changes" it="Dimenticate modifiche" base="Forget changes"></en_forget_changes>
 <en_record_saved fr="Notice sauvée" de="Datensatz gespeichert" en="Record saved" it="Record salvato" base="Record saved"></en_record_saved></standardRecordViews></_unused>
 <foundation><dialogs path="resources/common/foundation/dialogs.py" ext="py"><en_confirm fr="Confirmer" de="Bestätigen" en="Confirm" it="Ok" base="Confirm"></en_confirm>
-<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel>
 <en_are_you_sure_ fr="Êtes-vous sûr?" de="Sind Sie sicher?" en="Are you sure?" it="Sei sicuro?" base="Are you sure?"></en_are_you_sure_></dialogs>
 <htmltoframe path="resources/common/foundation/htmltoframe.py" ext="py"><en_pdf fr="Pdf" de="Pdf" en="Pdf" it="Pdf" base="PDF"></en_pdf>
 <en_print fr="Imprimer" de="Druck" en="Print" it="Stampa" base="Print"></en_print></htmltoframe>
@@ -211,7 +211,7 @@
 <recorddialog path="resources/common/foundation/recorddialog.py" ext="py"><en_not_valid_data_please_check_the_form fr="Les données ne sont pas valables. S'il vous plaît vérifier la forme" de="Keine gültigen Daten. Überprüfen Sie bitte das Formular" en="Not valid data. Please check the form" it="Dati non validi. Si prega di verificare la forma" base="Not valid data. Please check the form"></en_not_valid_data_please_check_the_form>
 <en_warning fr="Avertissement" de="Warnung" en="Warning" it="Avvertimento" base="Warning"></en_warning>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
-<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel></recorddialog>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel></recorddialog>
 <thermo path="resources/common/foundation/thermo.py" ext="py"><en_stop_the_batch_execution_ fr="Arrêter l'exécution du lot?" de="Stoppen Sie die Batch-Ausführung?" en="Stop the batch execution?" it="Interrompere l'esecuzione del batch?" base="Stop the batch execution?"></en_stop_the_batch_execution_></thermo>
 <userobject path="resources/common/foundation/userobject.py" ext="py"><en_you_cannot_undo_this_operation_are_you_sure_ fr="Vous ne pouvez pas annuler cette opération. Êtes-vous sûr?" de="Sie können diesen Vorgang nicht rückgängig gemacht werden. Sind Sie sicher?" en="You cannot undo this operation. Are you sure?" it="Non è possibile annullare questa operazione. Sei sicuro?" base="You cannot undo this operation. Are you sure?"></en_you_cannot_undo_this_operation_are_you_sure_>
 <en_quicklist fr="Quicklist" de="Quicklist" en="Quicklist" it="QuickList" base="Quicklist"></en_quicklist>
@@ -255,7 +255,7 @@
 <en_users fr="Utilisateurs" de="Benutzer" en="Users" it="Utenti" base="Users"></en_users></chat_component></chat_component>
 <datamover path="resources/common/gnrcomponents/datamover.py" ext="py"><en_save_mover fr="Sauvegarder Mover" de="Speichern Mover" en="Save Mover" it="Salva Mover" base="Save Mover"></en_save_mover>
 <en_name fr="Nom" de="Name" en="Name" it="Nome" base="Name"></en_name>
-<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
 <en_type fr="Type" de="Art" en="Type" it="Tipo" base="Type"></en_type>
 <en_table fr="Table" de="Tabelle" en="Table" it="Tabella" base="Table"></en_table>
@@ -405,7 +405,7 @@
 <en_there_are_unsaved_changes fr="Il ya des modifications non enregistrées" de="Es gibt nicht gespeicherte Änderungen" en="There are unsaved changes" it="Ci sono modifiche non salvate" base="There are unsaved changes"></en_there_are_unsaved_changes>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
 <en_do_not_save base="Do not save" en="Do not save" it="Non salvare"></en_do_not_save>
-<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel>
 <en_first fr="Premier" de="Erste" en="First" it="Primo" base="First"></en_first>
 <en_previous fr="Précédent" de="Früher" en="Previous" it="Precedente" base="Previous"></en_previous>
 <en_next fr="Prochaine" de="Nächste" en="Next" it="Il Prossimo" base="Next"></en_next>
@@ -473,7 +473,7 @@
 <en_zip_folder fr="dossier postal" de="Zip-Ordner" en="Zip folder" it="Cartella Zip" base="Zip folder"></en_zip_folder>
 <en_forked_process fr="Processus fourchue" de="Gegabelten Prozess" en="Forked process" it="Processo a forcella" base="Forked process"></en_forked_process>
 <en_general fr="Général" de="General" en="General" it="Generale" base="General"></en_general>
-<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel></print_utils>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel></print_utils>
 <print_utils_new path="resources/common/print_utils_new.py" ext="py"><en_no_printer_selected base="No printer selected" en="No printer selected" it="Nessun stampante selezionata"></en_no_printer_selected>
 <en_warning fr="Avertissement" de="Warnung" en="Warning" it="Avvertimento" base="Warning"></en_warning>
 <en_print_options fr="Les options d'impression" de="Druckoptionen" en="Print options" it="Opzioni di stampa" base="Print options"></en_print_options>
@@ -547,7 +547,7 @@
 <en_invalid_record fr="Enregistrement invalide" de="Ungültige Rekord" en="Invalid record" it="Campo non valido" base="Invalid record"></en_invalid_record>
 <en_no_change_to_save base="No change to save" en="No change to save" it="Nessuna modifica per salvare"></en_no_change_to_save>
 <en_revert fr="Revenir" en="Revert" de="Zurückkehren" it="Annulla modifiche" base="Revert"></en_revert>
-<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
 <en_record_history base="Record History"></en_record_history>
 <en_copy_and_paste fr="Copier coller" de="Kopieren und Einfügen" en="Copy and paste" it="Copia e incolla" base="Copy and paste"></en_copy_and_paste></th_form>
@@ -593,6 +593,6 @@
 <en_or fr="OU" de="ODER" en="OR" it="OR" base="OR"></en_or></th_view></th>
 <thermo_utils path="resources/common/thermo_utils.py" ext="py"><en_execution_completed fr="Exécution terminée" de="Ausführung abgeschlossen" en="Execution completed" it="Esecuzione completata" base="Execution completed"></en_execution_completed>
 <en_execution_stopped fr="Exécution arrêté" de="Ausführung gestoppt" en="Execution stopped" it="Esecuzione arrestata" base="Execution stopped"></en_execution_stopped>
-<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel>
 <en_confirm fr="Confirmer" de="Bestätigen" en="Confirm" it="Ok" base="Confirm"></en_confirm>
 <en_stop_the_batch_execution_ fr="Arrêter l'exécution du lot?" de="Stoppen Sie die Batch-Ausführung?" en="Stop the batch execution?" it="Interrompere l'esecuzione del batch?" base="Stop the batch execution?"></en_stop_the_batch_execution_></thermo_utils></common></resources></GenRoBag>
