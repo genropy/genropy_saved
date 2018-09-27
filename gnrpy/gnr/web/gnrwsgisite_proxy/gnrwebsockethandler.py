@@ -76,7 +76,7 @@ class WsgiWebSocketHandler(WebSocketHandler):
         sockets_dir = os.path.join(site.site_path, 'sockets')
         if not os.path.exists(sockets_dir):
             os.mkdir(sockets_dir)
-        self.socket_path= os.path.join(sockets_dir, 'async.sock')
+        self.socket_path= os.path.join(sockets_dir, 'async.tornado')
         self.proxyurl='/wsproxy'
     
     def checkSocket(self):
