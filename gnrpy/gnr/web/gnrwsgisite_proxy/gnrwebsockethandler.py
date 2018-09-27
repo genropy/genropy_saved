@@ -24,10 +24,13 @@ import os
 import httplib
 import socket
 import urllib
+from gnr.core.gnrbag import Bag
+
 from time import sleep
 CONNECTION_REFUSED = 61
 MAX_CONNECTION_ATTEMPT = 20 
 CONNECTION_ATTEMPT_DELAY = 1
+
 
 class WebSocketHandler(object):
     def sendCommandToPage(self,page_id,command,data):
