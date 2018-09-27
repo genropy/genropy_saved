@@ -1,15 +1,10 @@
 import os
-import datetime
+import re
+
+from datetime import datetime
 from gnr.core import gnrstring
 from gnr.core.gnrbag import Bag,DirectoryResolver,BagResolver
-
-from gnrpkg.sys.services import SysServiceType,GnrBaseService
-
-
-class ServiceType(SysServiceType):
-    def test(self):
-        print 'test'
-
+from gnr.services import GnrBaseService
 
 
 class SftpService(GnrBaseService):
@@ -60,7 +55,7 @@ class SftpDirectoryResolver(DirectoryResolver):
         extensions = dict([((ext.split(':') + (ext.split(':'))))[0:2] for ext in self.ext.split(',')]) if self.ext else dict()
         extensions['directory'] = 'directory'
         result = Bag()
-        ftp = self._page.getService(self.ftpservice)()
+        ftp = self._page.getService(service_type='ftp',service_name=self.ftpservice)()
         try:
             directory = sorted(ftp.listdir(self.path) if self.path else ftp.listdir())
         except OSError:

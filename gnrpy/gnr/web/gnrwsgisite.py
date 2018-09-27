@@ -374,8 +374,10 @@ class GnrWsgiSite(object):
     #    return self.services.get(service_type,service_name)
         
     def getService(self, service_type=None,service_name=None):
-        return self.service_handler.get(service_type=service_type,service_name=service_name or service_type)
-        
+        result =  self.services_handler.getService(service_type=service_type,service_name=service_name or service_type)
+        if not result:
+            result = self.services.get(service_name or service_type)
+        return result
 
     def addStatic(self, static_handler_factory, **kwargs):
         """TODO

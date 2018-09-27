@@ -7,7 +7,7 @@
 import os
 from gnr.web.gnrbaseclasses import BaseComponent
 
-from gnrpkg.sys.services.ftp import FtpService,SftpDirectoryResolver
+from gnrpkg.sys.services.ftp import SftpService,SftpDirectoryResolver
 from gnr.core.gnrlang import GnrException
 
 
@@ -16,8 +16,8 @@ try:
 except:
     pysftp = False
 
-class Main(FtpService):
-    def __init__(self, parent=None,host=None,username=None,password=None,private_key=None,port=None):
+class Service(SftpService):
+    def __init__(self, parent=None,host=None,username=None,password=None,private_key=None,port=None,service_name=None,**kwargs):
         self.parent = parent
         if not pysftp:
             raise GnrException('Missing pysftp. hint: pip install pysftp')
@@ -26,6 +26,7 @@ class Main(FtpService):
         self.password = password
         self.private_key = private_key
         self.port = port
+        self.service_name = service_name
 
     def __call__(self,host=None,username=None,password=None,private_key=None,port=None):
         port = port or self.port
@@ -100,6 +101,6 @@ class ServiceParameters(BaseComponent):
         fb = pane.formbuilder(datapath=datapath)
         fb.textbox(value='^.host',lbl='Host')
         fb.textbox(value='^.username',lbl='Username')
-        fb.textbox(value='^.password',lbl='Username')
+        fb.textbox(value='^.password',lbl='Password')
         fb.textbox(value='^.private_key',lbl='Private key')
         fb.textbox(value='^.port',lbl='Port')

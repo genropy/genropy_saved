@@ -22,6 +22,22 @@ class GnrCustomWebPage(object):
                       labelAttribute='nodecaption', autoCollapse=True)
         
 
+    def test_4_variable_ftp(self, pane):
+        c = self.site.services_handler('ftp').configurations()
+        fb = pane.formbuilder()
+        fb.filteringSelect(value='^.service_name',values=','.join([n['service_name'] for n in c]),lbl='Ftp')
+        pane.dataRpc('.root.ftp',self.test4getFtpres,service_name='^.service_name')
+        pane.tree(storepath='.root',hideValues=True, selectedLabelClass='selectedTreeNode',
+                      selected_abs_path='.abs_path',selected_file_ext='.file_ext',
+                      checked_abs_path='.checked_abs_path',
+                      labelAttribute='nodecaption', autoCollapse=True)
+
+    @public_method
+    def test4getFtpres(self,service_name=None):
+        return self.getService(service_type='ftp',service_name=service_name).sftpResolver()
+        
+        
+
     def test_3_dl(self, pane):
         bc = pane.borderContainer(height='900px')
         resolver = self.getService('ftp_genropy').sftpResolver()

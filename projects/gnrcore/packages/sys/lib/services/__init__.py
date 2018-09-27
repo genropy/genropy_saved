@@ -1,31 +1,20 @@
-from gnr.core.services import GnrBaseServiceType
+from gnr.services import GnrBaseServiceType
+from gnr.core.gnrbag import Bag
 
-class SysBaseServiceType(GnrBaseServiceType):
-    def __init__(self, site):
-        self.site = site
-        self.instances = {}
-
-    def add(self, service_name=None):
-        instance_config = self.getConfiguration(service_name)
-        self.instances[service_name] = instance
-        #service_name = service_name or self.service_name(service_handler_factory)
-        #service_handler = service_handler_factory(self.site, **kwargs)
-        #service_handler.service_name = service_name
-        #self.services.setItem(service_name, service_handler, **kwargs)
-        #return service_handler
-
+class SysServiceType(GnrBaseServiceType):
     def getConfiguration(self,service_name):
-        conf = self.site.config.getAttr('services.%s' %service_name)
+        service_record = self.site.db.table('sys.service').record(service_type=self.service_type,
+                                                            service_name=service_name,ignoreMissing=True).output('dict')
+        if not service_record:
+            return super(SysServiceType,self).getConfiguration(service_name)
+        conf =  Bag(service_record['parameters'])
+        conf['implementation'] = service_record['implementation']
+        return conf.asDict()
+    
+    def configurations(self):
+        l = super(SysServiceType,self).configurations()
+        dbservices = self.site.db.table('sys.service').query(where='$service_type=:st',st=self.service_type).fetch()
+        l += [dict(implementation=r['implementation'],service_name=r['service_name'],service_type=r['service_type']) for r in dbservices]
+        return l
 
-
-    def get(self, service_type=None,service_name=None):
-        service = self.services[service_name]
-        if service is None:
-            if ':' in service_name:
-                service_name, resource = service_name.split(':')
-            else:
-                resource = service_name
-            service_handler_factory = self.importServiceClass(service_type=service_name,resource=resource)
-            if service_handler_factory:
-                service = self.add(service_handler_factory,service_name=service_name)
-        return service
+BaseServiceType = SysServiceType

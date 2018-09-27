@@ -1,8 +1,4 @@
-from gnrpkg.sys.services import SysServiceType
 from gnr.services import GnrBaseService
-
-class ServiceType(SysServiceType):
-    pass
 
 class TranslationService(GnrBaseService):
     def __init__(self, parent=None,api_key=None):

@@ -3,8 +3,8 @@ from gnr.core.gnrbag import Bag
 import inspect
 import os
 import sys
-from gnr.services import GnrBaseService
-from gnr.core.gnrlang import  gnrImport,clonedClassMixin
+from gnr.core.gnrbaseservice import GnrBaseService
+from gnr.core.gnrlang import  gnrImport
 import logging
 
 log = logging.getLogger(__name__)
@@ -56,13 +56,6 @@ class ServiceHandlerManager(object):
                 self.add(service_handler_factory,**kw)
 
     def importServiceClass(self,service_type=None,resource=None):
-        base_class = self._getServiceClass(service_type=service_type,resource='_base_')
-        service_class = self._getServiceClass(service_type=service_type,resource=resource)
-        if base_class:
-            service_class = clonedClassMixin(base_class,service_class)
-        return service_class
-
-    def _getServiceClass(self,service_type=None,resource=None):
         resmodule,resclass = resource.split(':') if ':' in resource else resource,'Main'
         modules = self.site.resource_loader.getResourceList(self.site.resources_dirs, 'services/%s/%s.py' %(service_type,resmodule))
         if not modules:
@@ -84,7 +77,7 @@ class ServiceHandlerManager(object):
         self.services.setItem(service_name, service_handler, **kwargs)
         return service_handler
 
-    def get(self, service_type=None,service_name=None):
+    def get(self, service_name):
         service = self.services[service_name]
         if service is None:
             if ':' in service_name:
