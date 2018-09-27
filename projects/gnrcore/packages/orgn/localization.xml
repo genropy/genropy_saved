@@ -1,180 +1,140 @@
-<?xml version="1.0" ?>
-<GenRoBag>
-	<menu ext="py" path="menu.py">
-		<en_organizer base="Organizer" en="Organizer" it="Organizzatore"/>
-		<en_annotations base="Annotations" en="Annotations" it="annotazioni"/>
-		<en_action_types base="Action types" en="Action types" it="tipi di azione"/>
-		<en_annotation_types base="Annotation types" en="Annotation types" it="tipi di annotazione"/>
-	</menu>
-
-	<model>
-		<action_outcome ext="py" path="model/action_outcome.py">
-			<en_action_outcome base="Action outcome" en="Action outcome" it="esito Azione"/>
-				<en_outcomes base="Outcomes" en="Outcomes" it="risultati"/>
-				<en_description base="Description" en="Description" it="Descrizione"/>
-				<en_action_type base="Action type" en="Action type" it="tipo di azione"/>
-				<en_outcome base="Outcome" en="Outcome" it="Risultato"/>
-				<en_deadline_days base="Deadline days" en="Deadline days" it="G. prima/dopo"/>
-				<en_d_days base="D.Days" en="D.Days" it="D.Days"/>
-				<en_default_tag base="Default tag" en="Default tag" it="tag predefinito"/>
-				<en_priority base="Priority" en="Priority" it="Priorità"/>
-				<en_low base="Low" en="Low" it="Basso"/>
-				<en_medium base="Medium" en="Medium" it="medio"/>
-				<en_high base="High" en="High" it="alto"/>
-		</action_outcome>
-		<action_type ext="py" path="model/action_type.py">
-			<en_action_type base="Action type" en="Action type" it="tipo di azione"/>
-				<en_action_types base="Action types" en="Action types" it="tipi di azione"/>
-				<en_description base="Description" en="Description" it="Descrizione"/>
-				<en_extended_description base="Extended description" en="Extended description" it="descrizione estesa"/>
-				<en_restrictions base="Restrictions" en="Restrictions" it="restrizioni"/>
-				<en_priority base="Priority" en="Priority" it="Priorità"/>
-				<en_low base="Low" en="Low" it="Basso"/>
-				<en_medium base="Medium" en="Medium" it="medio"/>
-				<en_high base="High" en="High" it="alto"/>
-				<en_default_tag base="Default tag" en="Default tag" it="tag predefinito"/>
-				<en_show_to_all_in_tag base="Show to all in Tag" en="Show to all in Tag" it="Mostra a tutti in Tag"/>
-				<en_deadline_days base="Deadline days" en="Deadline days" it="G. prima/dopo"/>
-				<en_background base="Background" en="Background" it="Sfondo"/>
-				<en_text_color base="Text color" en="Text color" it="Colore del testo"/>
-				<en_text_template base="Text template" en="Text template" it="modello di testo"/>
-				<en_full_template base="Full template" en="Full template" it="modello completo"/>
-		</action_type>
-		<annotation ext="py" path="model/annotation.py">
-			<en_annotation base="Annotation" en="Annotation" it="Annotazione"/>
-				<en_action base="Action" en="Action" it="Azione"/>
-				<en_description base="Description" en="Description" it="Descrizione"/>
-				<en_annotation_type base="Annotation type" en="Annotation type" it="tipo di annotazione"/>
-				<en_annotation_fields base="Annotation Fields" en="Annotation Fields" it="campi di annotazione"/>
-				<en_date base="Date" de="Datum" en="Date" fr="Date" it="Data"/>
-				<en_time base="Time" en="Time" it="Tempo"/>
-				<en_annotation_ts base="Annotation ts" en="Annotation ts" it="ts annotazione"/>
-				<en_action_description base="Action Description" en="Action Description" it="Azione Descrizione"/>
-				<en_parent_annotation base="Parent annotation" en="Parent annotation" it="annotazione Parent"/>
-				<en_action_type base="Action type" en="Action type" it="tipo di azione"/>
-				<en_action_fields base="Action Fields" en="Action fields" it="campi d'azione"/>
-				<en_assigned_to base="Assigned to" en="Assigned to" it="Assegnato a"/>
-				<en_done_by base="Done by" en="Done by" it="Fatto da"/>
-				<en_user_tag base="User Tag" de="Benutzer Tag-" en="User Tag" fr="tag de l'utilisateur" it="Tag utente"/>
-				<en_priority base="Priority" en="Priority" it="Priorità"/>
-				<en_low base="Low" en="Low" it="Basso"/>
-				<en_medium base="Medium" en="Medium" it="medio"/>
-				<en_high base="High" en="High" it="alto"/>
-				<en_notice_days base="Notice days" en="Notice days" it="giorni di preavviso"/>
-				<en_date_due base="Date due" en="Date due" it="Data di scadenza"/>
-				<en_time_due base="Time due" en="Time due" it="tempo debito"/>
-				<en_done_ts base="Done ts" en="Done ts" it="ts Fatto"/>
-				<en_linked_table base="Linked table" en="Linked table" it="tabella collegata"/>
-				<en_linked_entity base="Linked entity" en="Linked entity" it="entità linked"/>
-				<en_linked_fkey base="Linked fkey" en="Linked fkey" it="Fkey linked"/>
-				<en_delay_history base="Delay history" en="Delay history" it="la storia di ritardo"/>
-				<en_assigned_username base="Assigned username" en="Assigned username" it="username assegnato"/>
-				<en_background base="Background" en="Background" it="Sfondo"/>
-				<en_foreground base="Foreground" en="Foreground" it="Primo piano"/>
-				<en_calc_due_ts base="Calc.Due ts" en="Calc.Due ts" it="Calc.Due ts"/>
-				<en_calc_date_due base="Calc.Date due" en="Calc.Date due" it="Calc.Date causa"/>
-				<en_pivot_date_due base="Pivot date due" en="Pivot date due" it="Data Pivot dovuta"/>
-				<en_following_actions base="Following actions" en="Following actions" it="azioni seguenti"/>
-				<en_calc_description base="Calc description" en="Calc description" it="descrizione Calc"/>
-				<en_countdown base="Countdown" en="Countdown" it="Conto alla rovescia"/>
-				<en_zoomlink base="Zoomlink" en="Zoomlink" it="ZoomLink"/>
-				<en_previous_action base="Previous Action" en="Previous Action" it="Azione Precedente"/>
-				<en_outcome base="Outcome" en="Outcome" it="Risultato"/>
-				<en_pivot_date base="Pivot date" en="Pivot date" it="data Pivot"/>
-				<en_new_annotation base="New annotation"/>
-				<en_new_action base="New action"/>
-		</annotation>
-		<annotation_type ext="py" path="model/annotation_type.py">
-			<en_annotation_type base="Annotation type" en="Annotation type" it="tipo di annotazione"/>
-				<en_annotation_types base="Annotation types" en="Annotation types" it="tipi di annotazione"/>
-				<en_code base="Code" en="Code" it="Codice"/>
-				<en_description base="Description" en="Description" it="Descrizione"/>
-				<en_restrictions base="Restrictions" en="Restrictions" it="restrizioni"/>
-				<en_background base="Background" en="Background" it="Sfondo"/>
-				<en_text_color base="Text color" en="Text color" it="Colore del testo"/>
-				<en_reserved base="Reserved" de="Reserviert" en="Reserved" fr="Réservé" it="Riservato"/>
-		</annotation_type>
-		<default_action ext="py" path="model/default_action.py">
-			<en_default_action base="Default action" en="Default action" it="azione predefinita"/>
-				<en_default_actions base="Default actions" en="Default actions" it="azioni predefinite"/>
-				<en_annotation_type base="Annotation type" en="Annotation type" it="tipo di annotazione"/>
-				<en_action_type base="Action type" en="Action type" it="tipo di azione"/>
-		</default_action>
-	</model>
-
-	<resources>
-		<frameplugin_organizer ext="py" path="resources/frameplugin_organizer.py">
-			<en_organizer base="Organizer" en="Organizer" it="Organizzatore"/>
-		</frameplugin_organizer>
-		<orgn_components ext="py" path="resources/orgn_components.py">
-			<en_record_annotations base="Record annotations" en="Record annotations" it="annotazioni Record"/>
-				<en_see_annotations base="See annotations" en="See annotations" it="Vedi annotazioni"/>
-		</orgn_components>
-		<preference ext="py" path="resources/preference.py">
-			<en_organizer_enabled base="Organizer enabled" en="Organizer enabled" it="Organizzatore abilitato"/>
-				<en_superuser_tag base="Superuser tag" en="Superuser tag" it="tag superuser"/>
-				<en_upd_author_only base="Upd author only" en="Upd author only" it="solo upd autore"/>
-		</preference>
-		<tables>
-			<action_type>
-				<th_action_type ext="py" path="resources/tables/action_type/th_action_type.py">
-					<en_all base="All" de="Alle" en="All" fr="Tous" it="Tutto"/>
-								<en_action_type_info base="Action type info" en="Action type info" it="tipo di azione informazioni"/>
-								<en_extended_description base="Extended description" en="Extended description" it="descrizione estesa"/>
-								<en_text_template base="Text template" en="Text template" it="modello di testo"/>
-								<en_outcomes base="Outcomes" en="Outcomes" it="risultati"/>
-								<en_action_fields base="Action fields" en="Action fields" it="campi d'azione"/>
-								<en_fields base="Fields" de="Felder" en="Fields" fr="Les champs" it="Campi"/>
-								<en_full_template base="Full template" en="Full template" it="modello completo"/>
-				</th_action_type>
-			</action_type>
-				<annotation>
-				<th_annotation ext="py" path="resources/tables/annotation/th_annotation.py">
-					<en_datetime base="Datetime" en="Datetime" it="Appuntamento"/>
-								<en_autor base="Autor" en="Autor" it="Autore"/>
-								<en_type base="Type" de="Art" en="Type" fr="Type" it="Tipo"/>
-								<en_date_due base="Date due" en="Date due" it="Data di scadenza"/>
-								<en_all base="All" de="Alle" en="All" fr="Tous" it="Tutto"/>
-								<en_last_upd_ base="Last upd." en="Last upd." it="Ultima upd."/>
-								<en_upd_user base="Upd.User" en="Upd.User" it="Upd.User"/>
-								<en_actions_and_annotations base="Actions and annotations"/>
-								<en_annotations base="Annotations" en="Annotations" it="annotazioni"/>
-								<en_actions base="Actions" de="Aktionen" en="Actions" fr="Actes" it="Azioni"/>
-								<en_more_info base="More info" en="More info" it="Ulteriori informazioni"/>
-								<en_confirm base="Confirm" de="Bestätigen" en="Confirm" fr="Confirmer" it="Ok"/>
-								<en_cancel base="Cancel" de="Stornieren" en="Cancel" fr="Annuler" it="Annulla"/>
-								<en_delay base="Delay" en="Delay" it="Ritardo"/>
-								<en_reschedule base="Reschedule" en="Reschedule" it="Riprogrammare"/>
-								<en_action_result base="Action result" en="Action result" it="risultato Azione"/>
-								<en_outcome_action base="Outcome action" en="Outcome action" it="azione esito"/>
-								<en_outcome_description base="Outcome description" en="Outcome description" it="descrizione esito"/>
-								<en_outcome_date_due base="Outcome date due" en="Outcome date due" it="Data Esito dovuta"/>
-								<en_time_due base="Time due" en="Time due" it="tempo debito"/>
-								<en_priority base="Priority" en="Priority" it="Priorità"/>
-								<en_low base="Low" en="Low" it="Basso"/>
-								<en_medium base="Medium" en="Medium" it="medio"/>
-								<en_high base="High" en="High" it="alto"/>
-								<en_assigned_tag base="Assigned tag" en="Assigned tag" it="assegnato tag"/>
-								<en_assigned_to base="Assigned to" en="Assigned to" it="Assegnato a"/>
-								<en_confirm_action base="Confirm Action" en="Confirm Action" it="confermare Azione"/>
-								<en_cancelling_reason base="Cancelling reason" en="Cancelling reason" it="Annullato per"/>
-								<en_cancel_action base="Cancel Action" en="Cancel Action" it="Annulla azione"/>
-								<en_details base="Details" en="Details" it="Dettagli"/>
-								<en_delay_action base="Delay Action" en="Delay Action" it="Azione di ritardo"/>
-								<en_rescheduling_reason base="Rescheduling reason" en="Rescheduling reason" it="motivo Ripianificazione"/>
-								<en_rescheduling_tag base="Rescheduling Tag" en="Rescheduling Tag" it="Ripianificazione Tag"/>
-								<en_rescheduling_user base="Rescheduling user" en="Rescheduling user" it="utente Ripianificazione"/>
-								<en_reschedule_action base="Reschedule Action" en="Reschedule Action" it="riprogrammare Azione"/>
-								<en_action_action_type_id_description base="Action $@action_type_id.description" en="Action $@action_type_id.description" it="Azione $@action_type_id.description"/>
-								<en_description base="Description" en="Description" it="Descrizione"/>
-				</th_annotation>
-			</annotation>
-				<annotation_type>
-				<th_annotation_type ext="py" path="resources/tables/annotation_type/th_annotation_type.py">
-					<en_all base="All" de="Alle" en="All" fr="Tous" it="Tutto"/>
-								<en_type_info base="Type info" en="Type info" it="informazioni tipo"/>
-				</th_annotation_type>
-			</annotation_type>
-		</tables>
-	</resources>
-</GenRoBag>
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><menu path="menu.py" ext="py"><en_organizer base="Organizer" en="Organizer" it="Organizzatore"></en_organizer>
+<en_annotations base="Annotations" en="Annotations" it="annotazioni"></en_annotations>
+<en_action_types base="Action types" en="Action types" it="tipi di azione"></en_action_types>
+<en_annotation_types base="Annotation types" en="Annotation types" it="tipi di annotazione"></en_annotation_types></menu>
+<model><action_outcome path="model/action_outcome.py" ext="py"><en_action_outcome base="Action outcome" en="Action outcome" it="esito Azione"></en_action_outcome>
+<en_outcomes base="Outcomes" en="Outcomes" it="risultati"></en_outcomes>
+<en_description base="Description" en="Description" it="Descrizione"></en_description>
+<en_action_type base="Action type" en="Action type" it="tipo di azione"></en_action_type>
+<en_outcome base="Outcome" en="Outcome" it="Risultato"></en_outcome>
+<en_deadline_days base="Deadline days" en="Deadline days" it="G. prima/dopo"></en_deadline_days>
+<en_d_days base="D.Days" en="D.Days" it="D.Days"></en_d_days>
+<en_default_tag base="Default tag" en="Default tag" it="tag predefinito"></en_default_tag>
+<en_priority base="Priority" en="Priority" it="Priorità"></en_priority>
+<en_low base="Low" en="Low" it="Basso"></en_low>
+<en_medium base="Medium" en="Medium" it="medio"></en_medium>
+<en_high base="High" en="High" it="alto"></en_high></action_outcome>
+<action_type path="model/action_type.py" ext="py"><en_action_type base="Action type" en="Action type" it="tipo di azione"></en_action_type>
+<en_action_types base="Action types" en="Action types" it="tipi di azione"></en_action_types>
+<en_description base="Description" en="Description" it="Descrizione"></en_description>
+<en_extended_description base="Extended description" en="Extended description" it="descrizione estesa"></en_extended_description>
+<en_restrictions base="Restrictions" en="Restrictions" it="restrizioni"></en_restrictions>
+<en_priority base="Priority" en="Priority" it="Priorità"></en_priority>
+<en_low base="Low" en="Low" it="Basso"></en_low>
+<en_medium base="Medium" en="Medium" it="medio"></en_medium>
+<en_high base="High" en="High" it="alto"></en_high>
+<en_default_tag base="Default tag" en="Default tag" it="tag predefinito"></en_default_tag>
+<en_show_to_all_in_tag base="Show to all in Tag" en="Show to all in Tag" it="Mostra a tutti in Tag"></en_show_to_all_in_tag>
+<en_deadline_days base="Deadline days" en="Deadline days" it="G. prima/dopo"></en_deadline_days>
+<en_background base="Background" en="Background" it="Sfondo"></en_background>
+<en_text_color base="Text color" en="Text color" it="Colore del testo"></en_text_color>
+<en_text_template base="Text template" en="Text template" it="modello di testo"></en_text_template>
+<en_full_template base="Full template" en="Full template" it="modello completo"></en_full_template></action_type>
+<annotation path="model/annotation.py" ext="py"><en_annotation base="Annotation" en="Annotation" it="Annotazione"></en_annotation>
+<en_action base="Action" en="Action" it="Azione"></en_action>
+<en_description base="Description" en="Description" it="Descrizione"></en_description>
+<en_annotation_type base="Annotation type" en="Annotation type" it="tipo di annotazione"></en_annotation_type>
+<en_annotation_fields base="Annotation Fields" en="Annotation Fields" it="campi di annotazione"></en_annotation_fields>
+<en_date fr="Date" de="Datum" en="Date" it="Data" base="Date"></en_date>
+<en_time base="Time" en="Time" it="Tempo"></en_time>
+<en_annotation_ts base="Annotation ts" en="Annotation ts" it="ts annotazione"></en_annotation_ts>
+<en_action_description base="Action Description" en="Action Description" it="Azione Descrizione"></en_action_description>
+<en_parent_annotation base="Parent annotation" en="Parent annotation" it="annotazione Parent"></en_parent_annotation>
+<en_action_type base="Action type" en="Action type" it="tipo di azione"></en_action_type>
+<en_action_fields base="Action Fields" en="Action fields" it="campi d'azione"></en_action_fields>
+<en_assigned_to base="Assigned to" en="Assigned to" it="Assegnato a"></en_assigned_to>
+<en_done_by base="Done by" en="Done by" it="Fatto da"></en_done_by>
+<en_user_tag fr="tag de l'utilisateur" de="Benutzer Tag-" en="User Tag" it="Tag utente" base="User Tag"></en_user_tag>
+<en_priority base="Priority" en="Priority" it="Priorità"></en_priority>
+<en_low base="Low" en="Low" it="Basso"></en_low>
+<en_medium base="Medium" en="Medium" it="medio"></en_medium>
+<en_high base="High" en="High" it="alto"></en_high>
+<en_notice_days base="Notice days" en="Notice days" it="giorni di preavviso"></en_notice_days>
+<en_date_due base="Date due" en="Date due" it="Data di scadenza"></en_date_due>
+<en_time_due base="Time due" en="Time due" it="tempo debito"></en_time_due>
+<en_done_ts base="Done ts" en="Done ts" it="ts Fatto"></en_done_ts>
+<en_linked_table base="Linked table" en="Linked table" it="tabella collegata"></en_linked_table>
+<en_linked_entity base="Linked entity" en="Linked entity" it="entità linked"></en_linked_entity>
+<en_linked_fkey base="Linked fkey" en="Linked fkey" it="Fkey linked"></en_linked_fkey>
+<en_delay_history base="Delay history" en="Delay history" it="la storia di ritardo"></en_delay_history>
+<en_assigned_username base="Assigned username" en="Assigned username" it="username assegnato"></en_assigned_username>
+<en_background base="Background" en="Background" it="Sfondo"></en_background>
+<en_foreground base="Foreground" en="Foreground" it="Primo piano"></en_foreground>
+<en_calc_due_ts base="Calc.Due ts" en="Calc.Due ts" it="Calc.Due ts"></en_calc_due_ts>
+<en_calc_date_due base="Calc.Date due" en="Calc.Date due" it="Calc.Date causa"></en_calc_date_due>
+<en_pivot_date_due base="Pivot date due" en="Pivot date due" it="Data Pivot dovuta"></en_pivot_date_due>
+<en_following_actions base="Following actions" en="Following actions" it="azioni seguenti"></en_following_actions>
+<en_calc_description base="Calc description" en="Calc description" it="descrizione Calc"></en_calc_description>
+<en_countdown base="Countdown" en="Countdown" it="Conto alla rovescia"></en_countdown>
+<en_zoomlink base="Zoomlink" en="Zoomlink" it="ZoomLink"></en_zoomlink>
+<en_previous_action base="Previous Action" en="Previous Action" it="Azione Precedente"></en_previous_action>
+<en_outcome base="Outcome" en="Outcome" it="Risultato"></en_outcome>
+<en_pivot_date base="Pivot date" en="Pivot date" it="data Pivot"></en_pivot_date>
+<en_new_annotation base="New annotation"></en_new_annotation>
+<en_new_action base="New action"></en_new_action></annotation>
+<annotation_type path="model/annotation_type.py" ext="py"><en_annotation_type base="Annotation type" en="Annotation type" it="tipo di annotazione"></en_annotation_type>
+<en_annotation_types base="Annotation types" en="Annotation types" it="tipi di annotazione"></en_annotation_types>
+<en_code base="Code" en="Code" it="Codice"></en_code>
+<en_description base="Description" en="Description" it="Descrizione"></en_description>
+<en_restrictions base="Restrictions" en="Restrictions" it="restrizioni"></en_restrictions>
+<en_background base="Background" en="Background" it="Sfondo"></en_background>
+<en_text_color base="Text color" en="Text color" it="Colore del testo"></en_text_color>
+<en_reserved fr="Réservé" de="Reserviert" en="Reserved" it="Riservato" base="Reserved"></en_reserved></annotation_type>
+<default_action path="model/default_action.py" ext="py"><en_default_action base="Default action" en="Default action" it="azione predefinita"></en_default_action>
+<en_default_actions base="Default actions" en="Default actions" it="azioni predefinite"></en_default_actions>
+<en_annotation_type base="Annotation type" en="Annotation type" it="tipo di annotazione"></en_annotation_type>
+<en_action_type base="Action type" en="Action type" it="tipo di azione"></en_action_type></default_action></model>
+<resources><frameplugin_organizer path="resources/frameplugin_organizer.py" ext="py"><en_organizer base="Organizer" en="Organizer" it="Organizzatore"></en_organizer></frameplugin_organizer>
+<orgn_components path="resources/orgn_components.py" ext="py"><en_record_annotations base="Record annotations" en="Record annotations" it="annotazioni Record"></en_record_annotations>
+<en_see_annotations base="See annotations" en="See annotations" it="Vedi annotazioni"></en_see_annotations></orgn_components>
+<preference path="resources/preference.py" ext="py"><en_organizer_enabled base="Organizer enabled" en="Organizer enabled" it="Organizzatore abilitato"></en_organizer_enabled>
+<en_superuser_tag base="Superuser tag" en="Superuser tag" it="tag superuser"></en_superuser_tag>
+<en_upd_author_only base="Upd author only" en="Upd author only" it="solo upd autore"></en_upd_author_only></preference>
+<tables><action_type><th_action_type path="resources/tables/action_type/th_action_type.py" ext="py"><en_all fr="Tous" de="Alle" en="All" it="Tutto" base="All"></en_all>
+<en_action_type_info base="Action type info" en="Action type info" it="tipo di azione informazioni"></en_action_type_info>
+<en_extended_description base="Extended description" en="Extended description" it="descrizione estesa"></en_extended_description>
+<en_text_template base="Text template" en="Text template" it="modello di testo"></en_text_template>
+<en_outcomes base="Outcomes" en="Outcomes" it="risultati"></en_outcomes>
+<en_action_fields base="Action fields" en="Action fields" it="campi d'azione"></en_action_fields>
+<en_fields fr="Les champs" de="Felder" en="Fields" it="Campi" base="Fields"></en_fields>
+<en_full_template base="Full template" en="Full template" it="modello completo"></en_full_template></th_action_type></action_type>
+<annotation><th_annotation path="resources/tables/annotation/th_annotation.py" ext="py"><en_datetime base="Datetime" en="Datetime" it="Appuntamento"></en_datetime>
+<en_autor base="Autor" en="Autor" it="Autore"></en_autor>
+<en_type fr="Type" de="Art" en="Type" it="Tipo" base="Type"></en_type>
+<en_date_due base="Date due" en="Date due" it="Data di scadenza"></en_date_due>
+<en_all fr="Tous" de="Alle" en="All" it="Tutto" base="All"></en_all>
+<en_last_upd_ base="Last upd." en="Last upd." it="Ultima upd."></en_last_upd_>
+<en_upd_user base="Upd.User" en="Upd.User" it="Upd.User"></en_upd_user>
+<en_actions_and_annotations base="Actions and annotations"></en_actions_and_annotations>
+<en_annotations base="Annotations" en="Annotations" it="annotazioni"></en_annotations>
+<en_actions fr="Actes" de="Aktionen" en="Actions" it="Azioni" base="Actions"></en_actions>
+<en_more_info base="More info" en="More info" it="Ulteriori informazioni"></en_more_info>
+<en_confirm fr="Confirmer" de="Bestätigen" en="Confirm" it="Ok" base="Confirm"></en_confirm>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel>
+<en_delay base="Delay" en="Delay" it="Ritardo"></en_delay>
+<en_reschedule base="Reschedule" en="Reschedule" it="Riprogrammare"></en_reschedule>
+<en_action_result base="Action result" en="Action result" it="risultato Azione"></en_action_result>
+<en_outcome_action base="Outcome action" en="Outcome action" it="azione esito"></en_outcome_action>
+<en_outcome_description base="Outcome description" en="Outcome description" it="descrizione esito"></en_outcome_description>
+<en_outcome_date_due base="Outcome date due" en="Outcome date due" it="Data Esito dovuta"></en_outcome_date_due>
+<en_time_due base="Time due" en="Time due" it="tempo debito"></en_time_due>
+<en_priority base="Priority" en="Priority" it="Priorità"></en_priority>
+<en_low base="Low" en="Low" it="Basso"></en_low>
+<en_medium base="Medium" en="Medium" it="medio"></en_medium>
+<en_high base="High" en="High" it="alto"></en_high>
+<en_assigned_tag base="Assigned tag" en="Assigned tag" it="assegnato tag"></en_assigned_tag>
+<en_assigned_to base="Assigned to" en="Assigned to" it="Assegnato a"></en_assigned_to>
+<en_confirm_action base="Confirm Action" en="Confirm Action" it="confermare Azione"></en_confirm_action>
+<en_cancelling_reason base="Cancelling reason" en="Cancelling reason" it="Annullato per"></en_cancelling_reason>
+<en_cancel_action base="Cancel Action" en="Cancel Action" it="Annulla azione"></en_cancel_action>
+<en_details base="Details" en="Details" it="Dettagli"></en_details>
+<en_delay_action base="Delay Action" en="Delay Action" it="Azione di ritardo"></en_delay_action>
+<en_rescheduling_reason base="Rescheduling reason" en="Rescheduling reason" it="motivo Ripianificazione"></en_rescheduling_reason>
+<en_rescheduling_tag base="Rescheduling Tag" en="Rescheduling Tag" it="Ripianificazione Tag"></en_rescheduling_tag>
+<en_rescheduling_user base="Rescheduling user" en="Rescheduling user" it="utente Ripianificazione"></en_rescheduling_user>
+<en_reschedule_action base="Reschedule Action" en="Reschedule Action" it="riprogrammare Azione"></en_reschedule_action>
+<en_action_action_type_id_description base="Action $@action_type_id.description" en="Action $@action_type_id.description" it="Azione $@action_type_id.description"></en_action_action_type_id_description>
+<en_description base="Description" en="Description" it="Descrizione"></en_description></th_annotation></annotation>
+<annotation_type><th_annotation_type path="resources/tables/annotation_type/th_annotation_type.py" ext="py"><en_all fr="Tous" de="Alle" en="All" it="Tutto" base="All"></en_all>
+<en_type_info base="Type info" en="Type info" it="informazioni tipo"></en_type_info></th_annotation_type></annotation_type></tables></resources></GenRoBag>

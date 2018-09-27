@@ -133,7 +133,7 @@
 <gnrsqlxml2py path="gnrpy/gnr/sql/gnrsqlxml2py.py" ext="py"><en_s _tag="en__s" fr="% S" en="[0]" de="% S" it="% S" base="%s"></en_s></gnrsqlxml2py></sql>
 <web><_gnrbasewebpage path="gnrpy/gnr/web/_gnrbasewebpage.py" ext="py"><en_saving_error fr="Erreur de sauvegarde" de="Saving Fehler" en="Saving error" it="Errore di Salvataggio" base="Saving error"></en_saving_error>
 <en_fieldname_s_sequence_s_instead_of_promised_sequence_s _tag="en__fieldname_s_sequence_s_instead_of_promised_sequence_s" fr="  %(Fieldname)s:  %(séquence)s au lieu de  %(promised_sequence)s" en="[0]: [1] instead of [2]" de="  %(Fieldname)s:  %(Sequenz)s statt  %(promised_sequence)s" it="  %(Fieldname)s:  %(sequenza)s invece di  %(promised_sequence)s" base="%(fieldname)s: %(sequence)s instead of %(promised_sequence)s"></en_fieldname_s_sequence_s_instead_of_promised_sequence_s></_gnrbasewebpage>
-<batch><btcbase path="gnrpy/gnr/web/batch/btcbase.py" ext="py"><en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<batch><btcbase path="gnrpy/gnr/web/batch/btcbase.py" ext="py"><en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel>
 <en_confirm fr="Confirmer" de="Bestätigen" en="Confirm" it="Ok" base="Confirm"></en_confirm></btcbase>
 <btcmail path="gnrpy/gnr/web/batch/btcmail.py" ext="py"><en_cc fr="CC" de="CC" en="CC" it="CC" base="CC"></en_cc>
 <en_subject fr="Sujet" de="Gegenstand" en="Subject" it="Soggetto" base="Subject"></en_subject>
@@ -152,7 +152,7 @@
 <en_subject fr="Sujet" de="Gegenstand" en="Subject" it="Soggetto" base="Subject"></en_subject>
 <en_body fr="Corps" de="Körper" en="Body" it="Corpo" base="Body"></en_body>
 <en_deliver_mail fr="Distribuer le courrier" de="Geben Sie mail" en="Deliver mail" it="Consegna posta" base="Deliver mail"></en_deliver_mail>
-<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel>
 <en_print fr="Imprimer" de="Druck" en="Print" it="Stampa" base="Print"></en_print>
 <en_download fr="Télécharger" de="Herunterladen" en="Download" it="Scarica" base="Download"></en_download>
 <en_confirm fr="Confirmer" de="Bestätigen" en="Confirm" it="Ok" base="Confirm"></en_confirm></btcprint></batch>
@@ -175,12 +175,12 @@
 <en_you_are_about_to_delete_count_records_br_some_of_them_cannot_be_deleted_but_will_be_hidden_instead_ base="You are about to delete $count records &lt;br/&gt; Some of them cannot be deleted but will be hidden instead." en="You are about to delete $count records &lt;br/&gt; Some of them cannot be deleted but will be hidden instead." it="Stai per eliminare $count record&lt;br/&gt; Alcuni di loro non possono essere eliminati, ma verranno invece nascosti."></en_you_are_about_to_delete_count_records_br_some_of_them_cannot_be_deleted_but_will_be_hidden_instead_>
 <en_you_are_about_to_remove_the_selected_record_from_current_master base="You are about to remove the selected record from current $master" en="You are about to remove the selected record from current $master" it="Stai per rimuovere il record selezionato dagli attuali $master"></en_you_are_about_to_remove_the_selected_record_from_current_master>
 <en_you_are_about_to_discard_the_selected_count_records_from_current_master base="You are about to discard the selected $count records from current $master" en="You are about to discard the selected $count records from current $master" it="Stai per scartare $count record selezionati corrente $master"></en_you_are_about_to_discard_the_selected_count_records_from_current_master>
-<en_you_are_about_to_set_archiviation_date_in_the_selected_record base="You are about to set archiviation date in the selected record"></en_you_are_about_to_set_archiviation_date_in_the_selected_record>
-<en_you_are_about_to_set_archiviation_date_in_the_selected_count_records base="You are about to set archiviation date in the selected $count records"></en_you_are_about_to_set_archiviation_date_in_the_selected_count_records></genro_components></js></gnr_d11></gnrjs>
+<en_you_are_about_to_set_archiviation_date_in_the_selected_record base="You are about to set archiviation date in the selected record" it="Stai per archiviare il record selezionato"></en_you_are_about_to_set_archiviation_date_in_the_selected_record>
+<en_you_are_about_to_set_archiviation_date_in_the_selected_count_records base="You are about to set archiviation date in the selected $count records" it="Stai per archiviare, impostando la data di archiviazione a $count records"></en_you_are_about_to_set_archiviation_date_in_the_selected_count_records></genro_components></js></gnr_d11></gnrjs>
 <resources><common><_unused><standardRecordViews path="resources/common/_unused/standardRecordViews.py" ext="py"><en_unlock fr="Ouvrir" de="Öffnen" en="Unlock" it="Sbloccare" base="Unlock"></en_unlock>
 <en_lock fr="Bloquer" de="Sperren" en="Lock" it="Serratura" base="Lock"></en_lock>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
-<en_revert fr="Revenir" de="Zurückkehren" en="Revert" it="Ritornare" base="Revert"></en_revert>
+<en_revert fr="Revenir" en="Revert" de="Zurückkehren" it="Annulla modifiche" base="Revert"></en_revert>
 <en_you_cannot_unlock_this_table fr="Vous ne pouvez pas déverrouiller ce tableau" de="Sie können diese Tabelle nicht entsperren" en="You cannot unlock this table" it="Non puoi sbloccare questa tabella" base="You cannot unlock this table"></en_you_cannot_unlock_this_table>
 <en_unsaved_changes fr="Les modifications non enregistrées" de="Nicht gespeicherte Änderungen" en="Unsaved changes" it="Le modifiche non salvate" base="Unsaved changes"></en_unsaved_changes>
 <en_there_are_unsaved_changes fr="Il ya des modifications non enregistrées" de="Es gibt nicht gespeicherte Änderungen" en="There are unsaved changes" it="Ci sono modifiche non salvate" base="There are unsaved changes"></en_there_are_unsaved_changes>
@@ -188,7 +188,7 @@
 <en_forget_changes fr="Oubliez changements" de="Vergessen Änderungen" en="Forget changes" it="Dimenticate modifiche" base="Forget changes"></en_forget_changes>
 <en_record_saved fr="Notice sauvée" de="Datensatz gespeichert" en="Record saved" it="Record salvato" base="Record saved"></en_record_saved></standardRecordViews></_unused>
 <foundation><dialogs path="resources/common/foundation/dialogs.py" ext="py"><en_confirm fr="Confirmer" de="Bestätigen" en="Confirm" it="Ok" base="Confirm"></en_confirm>
-<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel>
 <en_are_you_sure_ fr="Êtes-vous sûr?" de="Sind Sie sicher?" en="Are you sure?" it="Sei sicuro?" base="Are you sure?"></en_are_you_sure_></dialogs>
 <htmltoframe path="resources/common/foundation/htmltoframe.py" ext="py"><en_pdf fr="Pdf" de="Pdf" en="Pdf" it="Pdf" base="PDF"></en_pdf>
 <en_print fr="Imprimer" de="Druck" en="Print" it="Stampa" base="Print"></en_print></htmltoframe>
@@ -211,7 +211,7 @@
 <recorddialog path="resources/common/foundation/recorddialog.py" ext="py"><en_not_valid_data_please_check_the_form fr="Les données ne sont pas valables. S'il vous plaît vérifier la forme" de="Keine gültigen Daten. Überprüfen Sie bitte das Formular" en="Not valid data. Please check the form" it="Dati non validi. Si prega di verificare la forma" base="Not valid data. Please check the form"></en_not_valid_data_please_check_the_form>
 <en_warning fr="Avertissement" de="Warnung" en="Warning" it="Avvertimento" base="Warning"></en_warning>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
-<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel></recorddialog>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel></recorddialog>
 <thermo path="resources/common/foundation/thermo.py" ext="py"><en_stop_the_batch_execution_ fr="Arrêter l'exécution du lot?" de="Stoppen Sie die Batch-Ausführung?" en="Stop the batch execution?" it="Interrompere l'esecuzione del batch?" base="Stop the batch execution?"></en_stop_the_batch_execution_></thermo>
 <userobject path="resources/common/foundation/userobject.py" ext="py"><en_you_cannot_undo_this_operation_are_you_sure_ fr="Vous ne pouvez pas annuler cette opération. Êtes-vous sûr?" de="Sie können diesen Vorgang nicht rückgängig gemacht werden. Sind Sie sicher?" en="You cannot undo this operation. Are you sure?" it="Non è possibile annullare questa operazione. Sei sicuro?" base="You cannot undo this operation. Are you sure?"></en_you_cannot_undo_this_operation_are_you_sure_>
 <en_quicklist fr="Quicklist" de="Quicklist" en="Quicklist" it="QuickList" base="Quicklist"></en_quicklist>
@@ -245,7 +245,7 @@
 <en_batch_monitor fr="Batch Monitor" de="Batch Monitor" en="Batch monitor" it="Monitor Batch" base="Batch monitor"></en_batch_monitor>
 <en_s_i_ _tag="en__s_i_" base="%s (%i)" en="[0] ([1])" it="%s (%i)"></en_s_i_>
 <en_invalid_parameters base="Invalid parameters"></en_invalid_parameters>
-<en_invalid base="Invalid"></en_invalid></batch_handler></batch_handler>
+<en_invalid base="Invalid" it="Non valido"></en_invalid></batch_handler></batch_handler>
 <bottomplugins path="resources/common/gnrcomponents/bottomplugins.py" ext="py"><en_documentation fr="Documentation" de="Dokumentation" en="Documentation" it="Documentazione" base="Documentation"></en_documentation>
 <en_tickets fr="Billets" de="Tickets" en="Tickets" it="Biglietti" base="Tickets"></en_tickets></bottomplugins>
 <chat_component><chat_component path="resources/common/gnrcomponents/chat_component/chat_component.py" ext="py"><en_chat fr="Bavarder" de="Unterhaltung" en="Chat" it="Chat" base="Chat"></en_chat>
@@ -255,7 +255,7 @@
 <en_users fr="Utilisateurs" de="Benutzer" en="Users" it="Utenti" base="Users"></en_users></chat_component></chat_component>
 <datamover path="resources/common/gnrcomponents/datamover.py" ext="py"><en_save_mover fr="Sauvegarder Mover" de="Speichern Mover" en="Save Mover" it="Salva Mover" base="Save Mover"></en_save_mover>
 <en_name fr="Nom" de="Name" en="Name" it="Nome" base="Name"></en_name>
-<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
 <en_type fr="Type" de="Art" en="Type" it="Tipo" base="Type"></en_type>
 <en_table fr="Table" de="Tabelle" en="Table" it="Tabella" base="Table"></en_table>
@@ -265,7 +265,7 @@
 <en_mover_plug_in fr="Mover plug-in" de="Mover-Plug-in" en="Mover plug-in" it="Plug-in Mover" base="Mover plug-in"></en_mover_plug_in>
 <en_data_mover fr="Data Mover" de="Data Mover" en="Data Mover" it="Data Mover" base="Data Mover"></en_data_mover>
 <en_download fr="Télécharger" de="Herunterladen" en="Download" it="Scarica" base="Download"></en_download></datamover>
-<doc_handler><doc_handler path="resources/common/gnrcomponents/doc_handler/doc_handler.py" ext="py"><en_revert fr="Revenir" de="Zurückkehren" en="Revert" it="Ritornare" base="Revert"></en_revert>
+<doc_handler><doc_handler path="resources/common/gnrcomponents/doc_handler/doc_handler.py" ext="py"><en_revert fr="Revenir" en="Revert" de="Zurückkehren" it="Annulla modifiche" base="Revert"></en_revert>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
 <en_view fr="Vue" de="Ansicht" en="View" it="Vista" base="View"></en_view>
 <en_edit fr="Éditer" de="Bearbeiten" en="Edit" it="Modifica" base="Edit"></en_edit></doc_handler></doc_handler>
@@ -338,13 +338,13 @@
 <en_size fr="Taille" de="Größe" en="Size" it="Taglia" base="Size"></en_size></filepicker>
 <formhandler path="resources/common/gnrcomponents/formhandler.py" ext="py"><en_navigation fr="Navigation" de="Navigation" en="Navigation" it="Navigazione" base="Navigation"></en_navigation>
 <en_form_commands fr="Commandes Formulaire" de="Form-Befehle" en="Form Commands" it="Modulo Comandi" base="Form Commands"></en_form_commands>
-<en_dismiss fr="Rejeter" de="Entlassen" en="Dismiss" it="Chiudi" base="Dismiss"></en_dismiss>
+<en_dismiss fr="Rejeter" en="Dismiss" de="Entlassen" it="Esci" base="Dismiss"></en_dismiss>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
-<en_revert fr="Revenir" de="Zurückkehren" en="Revert" it="Ritornare" base="Revert"></en_revert>
+<en_revert fr="Revenir" en="Revert" de="Zurückkehren" it="Annulla modifiche" base="Revert"></en_revert>
 <en_this_record_cannot_be_deleted fr="Cet enregistrement ne peut pas être supprimé" de="Dieser Datensatz kann nicht gelöscht werden" en="This record cannot be deleted" it="Questo record non può essere eliminato" base="This record cannot be deleted"></en_this_record_cannot_be_deleted>
 <en_delete_current_record fr="Supprimer enregistrement en cours" de="Aktuellen Datensatz löschen" en="Delete current record" it="Elimina record corrente" base="Delete current record"></en_delete_current_record>
-<en_set_archiviation_date base="Set Archiviation date"></en_set_archiviation_date>
-<en_this_record_cannot_be_archived base="This record cannot be archived"></en_this_record_cannot_be_archived>
+<en_set_archiviation_date base="Set Archiviation date" it="Data di archiviazione"></en_set_archiviation_date>
+<en_this_record_cannot_be_archived base="This record cannot be archived" it="Questo record non può essere archiviato"></en_this_record_cannot_be_archived>
 <en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add>
 <en_duplicate fr="Dupliquer" de="Duplikat" en="Duplicate" it="Duplicare" base="Duplicate"></en_duplicate>
 <en_first fr="Premier" de="Erste" en="First" it="Primo" base="First"></en_first>
@@ -356,13 +356,13 @@
 <framegrid path="resources/common/gnrcomponents/framegrid.py" ext="py"><en_export fr="Exportation" de="Export" en="Export" it="Esportazione" base="Export"></en_export>
 <en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add>
 <en_delete fr="Effacer" de="Löschen" en="Delete" it="Cancellare" base="Delete"></en_delete>
-<en_archive_at_date base="Archive at date"></en_archive_at_date>
+<en_archive_at_date base="Archive at date" en="Archive at date" it="Archivia alla data"></en_archive_at_date>
 <en_locker fr="Casier" de="Schließfach" en="Locker" it="Blocca/Sblocca" base="Locker"></en_locker>
 <en_update fr="Mettre à jour" de="Aktualisierung" en="Update" it="Aggiornare" base="Update"></en_update>
-<en_reload fr="Recharger" de="Nachladen" en="Reload" it="Ricaricare" base="Reload"></en_reload>
+<en_reload fr="Recharger" en="Reload" de="Nachladen" it="Ricarica" base="Reload"></en_reload>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save></framegrid>
 <htablehandler path="resources/common/gnrcomponents/htablehandler.py" ext="py"><en_hierarchical fr="Hiérarchique" de="Hierarchische" en="Hierarchical" it="Gerarchica" base="Hierarchical"></en_hierarchical>
-<en_plain fr="Plaine" de="Ebene" en="Plain" it="Pianura" base="Plain"></en_plain>
+<en_plain fr="Plaine" en="Plain" de="Ebene" it="Piatta" base="Plain"></en_plain>
 <en_close fr="Près" de="Schließen" en="Close" it="Vicino" base="Close"></en_close>
 <en_lock fr="Bloquer" de="Sperren" en="Lock" it="Serratura" base="Lock"></en_lock>
 <en_unlock fr="Ouvrir" de="Öffnen" en="Unlock" it="Sbloccare" base="Unlock"></en_unlock>
@@ -371,7 +371,7 @@
 <en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add>
 <en_add_sibling fr="Ajouter fratrie" de="Geschwister hinzufügen" en="Add sibling" it="Aggiungere fratello" base="Add Sibling"></en_add_sibling>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
-<en_revert fr="Revenir" de="Zurückkehren" en="Revert" it="Ritornare" base="Revert"></en_revert>
+<en_revert fr="Revenir" en="Revert" de="Zurückkehren" it="Annulla modifiche" base="Revert"></en_revert>
 <en_delete fr="Effacer" de="Löschen" en="Delete" it="Cancellare" base="Delete"></en_delete>
 <en_tree fr="Arbre" de="Baum" en="Tree" it="Albero" base="Tree"></en_tree>
 <en_picker fr="Cueilleur" de="Pflücker" en="Picker" it="Picker" base="Picker"></en_picker>
@@ -385,7 +385,7 @@
 <en_the_system_is_going_to_be_restarted_finish_your_pending_tasks fr="Le système va être redémarré. Terminez vos tâches en attente" de="Das System wird neu gestartet werden. Beenden Sie Ihre anstehenden Aufgaben" en="The system is going to be restarted. Finish your pending tasks" it="Il sistema sta per essere riavviato. Finite le vostre attività in corso" base="The system is going to be restarted. Finish your pending tasks"></en_the_system_is_going_to_be_restarted_finish_your_pending_tasks>
 <en_exclude_guest fr="Exclure invité" de="Ausschließen Gast" en="Exclude guest" it="Escludi ospite" base="Exclude guest"></en_exclude_guest>
 <en_rpc_details fr="Détails Rpc" de="RPC-Details" en="Rpc details" it="Dettagli Rpc" base="Rpc details"></en_rpc_details></maintenance>
-<multiselect path="resources/common/gnrcomponents/multiselect.py" ext="py"><en_select_all fr="Tout Sélectionner" de="Alle auswählen" en="Select All" it="Seleziona Tutto" base="Select All"></en_select_all>
+<multiselect path="resources/common/gnrcomponents/multiselect.py" ext="py"><en_select_all fr="Tout Sélectionner" en="Select All" de="Alle auswählen" it="Seleziona Tutti" base="Select All"></en_select_all>
 <en_unselect_all fr="Tout Déselectionner" de="Auswahl aufheben" en="Unselect All" it="Deseleziona tutto" base="Unselect All"></en_unselect_all></multiselect>
 <printer_option_dialog path="resources/common/gnrcomponents/printer_option_dialog.py" ext="py"><en_printer fr="Imprimeur" de="Drucker" en="Printer" it="Stampante" base="Printer"></en_printer>
 <en_no_printer base="No printer" en="No printer" it="No stampante"></en_no_printer>
@@ -405,13 +405,13 @@
 <en_there_are_unsaved_changes fr="Il ya des modifications non enregistrées" de="Es gibt nicht gespeicherte Änderungen" en="There are unsaved changes" it="Ci sono modifiche non salvate" base="There are unsaved changes"></en_there_are_unsaved_changes>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
 <en_do_not_save base="Do not save" en="Do not save" it="Non salvare"></en_do_not_save>
-<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel>
 <en_first fr="Premier" de="Erste" en="First" it="Primo" base="First"></en_first>
 <en_previous fr="Précédent" de="Früher" en="Previous" it="Precedente" base="Previous"></en_previous>
 <en_next fr="Prochaine" de="Nächste" en="Next" it="Il Prossimo" base="Next"></en_next>
 <en_last fr="Dernier" de="Letzte" en="Last" it="Ultimo" base="Last"></en_last>
 <en_save_changes fr="Sauvegarder les changements" de="Änderungen speichern" en="Save changes" it="Salva i cambiamenti" base="Save changes"></en_save_changes>
-<en_revert fr="Revenir" de="Zurückkehren" en="Revert" it="Ritornare" base="Revert"></en_revert>
+<en_revert fr="Revenir" en="Revert" de="Zurückkehren" it="Annulla modifiche" base="Revert"></en_revert>
 <en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add>
 <en_delete fr="Effacer" de="Löschen" en="Delete" it="Cancellare" base="Delete"></en_delete></selectionhandler>
 <ticket_handler><ticket_handler path="resources/common/gnrcomponents/ticket_handler/ticket_handler.py" ext="py"><en_description base="Description" en="Description" it="Descrizione"></en_description>
@@ -430,7 +430,7 @@
 <en_date fr="Date" de="Datum" en="Date" it="Data" base="Date"></en_date>
 <en_print fr="Imprimer" de="Druck" en="Print" it="Stampa" base="Print"></en_print>
 <en_mail fr="Courrier" de="Post" en="Mail" it="Posta" base="Mail"></en_mail>
-<en_row fr="Rangée" de="Reihe" en="Row" it="Fila" base="Row"></en_row>
+<en_row fr="Rangée" en="Row" de="Reihe" it="Riga" base="Row"></en_row>
 <en_letterhead fr="Tête" de="Briefkopf" en="Letterhead" it="Carta intestata" base="Letterhead"></en_letterhead>
 <en_summary fr="Résumé" de="Zusammenfassung" en="Summary" it="Sommario" base="Summary"></en_summary>
 <en_flags fr="Drapeaux" de="Flags" en="Flags" it="Bandiere" base="Flags"></en_flags>
@@ -473,7 +473,7 @@
 <en_zip_folder fr="dossier postal" de="Zip-Ordner" en="Zip folder" it="Cartella Zip" base="Zip folder"></en_zip_folder>
 <en_forked_process fr="Processus fourchue" de="Gegabelten Prozess" en="Forked process" it="Processo a forcella" base="Forked process"></en_forked_process>
 <en_general fr="Général" de="General" en="General" it="Generale" base="General"></en_general>
-<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel></print_utils>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel></print_utils>
 <print_utils_new path="resources/common/print_utils_new.py" ext="py"><en_no_printer_selected base="No printer selected" en="No printer selected" it="Nessun stampante selezionata"></en_no_printer_selected>
 <en_warning fr="Avertissement" de="Warnung" en="Warning" it="Avvertimento" base="Warning"></en_warning>
 <en_print_options fr="Les options d'impression" de="Druckoptionen" en="Print options" it="Opzioni di stampa" base="Print options"></en_print_options>
@@ -489,7 +489,7 @@
 <en_zip_folder fr="dossier postal" de="Zip-Ordner" en="Zip folder" it="Cartella Zip" base="Zip folder"></en_zip_folder></print_utils_new>
 <public path="resources/common/public.py" ext="py"><en_logout fr="Se Déconnecter" de="Logout" en="Logout" it="Uscire" base="Logout"></en_logout>
 <en_continue fr="Continuer" de="Fortsetzen" en="Continue" it="Continuare" base="Continue"></en_continue>
-<en_the_date_is_changed_since_you_logged_in_logout_to_use_the_right_workdate fr="La date est changée depuis que vous avez connecté. Se déconnecter d'utiliser le droit workdate" de="Das Datum wird geändert, nachdem Sie angemeldet. Logout, um die richtige workdate verwenden" en="The date is changed since you logged in. Logout to use the right workdate" it="La data è cambiata da quando sei loggato. Logout per usare il dataLavoro destra" base="The date is changed since you logged in. Logout to use the right workdate"></en_the_date_is_changed_since_you_logged_in_logout_to_use_the_right_workdate>
+<en_the_date_is_changed_since_you_logged_in_logout_to_use_the_right_workdate fr="La date est changée depuis que vous avez connecté. Se déconnecter d'utiliser le droit workdate" en="The date is changed since you logged in. Logout to use the right workdate" de="Das Datum wird geändert, nachdem Sie angemeldet. Logout, um die richtige workdate verwenden" it="La data è cambiata dall'ultimo login. Rieffettua login nel sistema per adottare la data di lavoro corretta." base="The date is changed since you logged in. Logout to use the right workdate"></en_the_date_is_changed_since_you_logged_in_logout_to_use_the_right_workdate>
 <en_wrong_date fr="Mauvaise date" de="Falsches Datum" en="Wrong date" it="Data errata" base="Wrong date"></en_wrong_date>
 <en_errors_ fr="Erreurs:" de="Fehler:" en="Errors:" it="Errori:" base="Errors:"></en_errors_>
 <en_partition_not_allowed base="Partition not allowed"></en_partition_not_allowed>
@@ -546,8 +546,8 @@
 <en_you_cannot_save fr="Vous ne pouvez pas enregistrer" de="Sie können nicht speichern" en="You cannot save" it="Non è possibile salvare" base="You cannot save"></en_you_cannot_save>
 <en_invalid_record fr="Enregistrement invalide" de="Ungültige Rekord" en="Invalid record" it="Campo non valido" base="Invalid record"></en_invalid_record>
 <en_no_change_to_save base="No change to save" en="No change to save" it="Nessuna modifica per salvare"></en_no_change_to_save>
-<en_revert fr="Revenir" de="Zurückkehren" en="Revert" it="Ritornare" base="Revert"></en_revert>
-<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_revert fr="Revenir" en="Revert" de="Zurückkehren" it="Annulla modifiche" base="Revert"></en_revert>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
 <en_record_history base="Record History"></en_record_history>
 <en_copy_and_paste fr="Copier coller" de="Kopieren und Einfügen" en="Copy and paste" it="Copia e incolla" base="Copy and paste"></en_copy_and_paste></th_form>
@@ -555,8 +555,8 @@
 <en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add></th_picker>
 <th_tree path="resources/common/th/th_tree.py" ext="py"><en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add>
 <en_show_inherited fr="Afficher Hérité" de="Geerbte anzeigen" en="Show Inherited" it="Contenuti ereditati" base="Show Inherited"></en_show_inherited></th_tree>
-<th_view path="resources/common/th/th_view.py" ext="py"><en_reload fr="Recharger" de="Nachladen" en="Reload" it="Ricaricare" base="Reload"></en_reload>
-<en_show_archived_records base="Show Archived Records"></en_show_archived_records>
+<th_view path="resources/common/th/th_view.py" ext="py"><en_reload fr="Recharger" en="Reload" de="Nachladen" it="Ricarica" base="Reload"></en_reload>
+<en_show_archived_records base="Show Archived Records" it="Mostra records archiviati"></en_show_archived_records>
 <en_totals_count fr="nombre de Totaux" de="Totals Zahl" en="Totals count" it="Conteggio Totali" base="Totals count"></en_totals_count>
 <en_user_configuration base="User Configuration"></en_user_configuration>
 <en_configure_view fr="Configurer la vue" de="Konfigurieren anzeigen" en="Configure View" it="Configura vista" base="Configure View"></en_configure_view>
@@ -582,7 +582,7 @@
 <en_search fr="Recherche" de="Suche" en="Search" it="Cerca" base="Search"></en_search>
 <en_not fr="pas" de="nicht" en="not" it="non" base="not"></en_not>
 <en_new_set fr="Nouveau jeu" de="New Set" en="New Set" it="Nuovo set" base="New Set"></en_new_set>
-<en_plain_query fr="Plaine de requêtes" de="Plain-Abfrage" en="Plain Query" it="Plain Query" base="Plain Query"></en_plain_query>
+<en_plain_query fr="Plaine de requêtes" en="Plain Query" de="Plain-Abfrage" it="Query semplice" base="Plain Query"></en_plain_query>
 <en_query_editor fr="Editeur de requêtes" de="Abfrage-Editor" en="Query editor" it="Editor Query" base="Query editor"></en_query_editor>
 <en_new_query fr="Nouvelle recherche" de="Neue Abfrage" en="New query" it="Nuova ricerca" base="New query"></en_new_query>
 <en_union fr="Union" de="Union" en="Union" it="Unisci" base="Union"></en_union>
@@ -593,6 +593,6 @@
 <en_or fr="OU" de="ODER" en="OR" it="OR" base="OR"></en_or></th_view></th>
 <thermo_utils path="resources/common/thermo_utils.py" ext="py"><en_execution_completed fr="Exécution terminée" de="Ausführung abgeschlossen" en="Execution completed" it="Esecuzione completata" base="Execution completed"></en_execution_completed>
 <en_execution_stopped fr="Exécution arrêté" de="Ausführung gestoppt" en="Execution stopped" it="Esecuzione arrestata" base="Execution stopped"></en_execution_stopped>
-<en_cancel fr="Annuler" de="Stornieren" en="Cancel" it="Annulla" base="Cancel"></en_cancel>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel>
 <en_confirm fr="Confirmer" de="Bestätigen" en="Confirm" it="Ok" base="Confirm"></en_confirm>
 <en_stop_the_batch_execution_ fr="Arrêter l'exécution du lot?" de="Stoppen Sie die Batch-Ausführung?" en="Stop the batch execution?" it="Interrompere l'esecuzione del batch?" base="Stop the batch execution?"></en_stop_the_batch_execution_></thermo_utils></common></resources></GenRoBag>

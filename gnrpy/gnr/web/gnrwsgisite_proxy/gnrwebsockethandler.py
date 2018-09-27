@@ -24,10 +24,13 @@ import os
 import httplib
 import socket
 import urllib
+from gnr.core.gnrbag import Bag
+
 from time import sleep
 CONNECTION_REFUSED = 61
 MAX_CONNECTION_ATTEMPT = 20 
 CONNECTION_ATTEMPT_DELAY = 1
+
 
 class WebSocketHandler(object):
     def sendCommandToPage(self,page_id,command,data):
@@ -73,7 +76,7 @@ class WsgiWebSocketHandler(WebSocketHandler):
         sockets_dir = os.path.join(site.site_path, 'sockets')
         if not os.path.exists(sockets_dir):
             os.mkdir(sockets_dir)
-        self.socket_path= os.path.join(sockets_dir, 'tornado.sock')
+        self.socket_path= os.path.join(sockets_dir, 'async.tornado')
         self.proxyurl='/wsproxy'
     
     def checkSocket(self):
