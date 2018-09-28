@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 
-from gnr.services import GnrBaseService
+from gnr.lib.services import GnrBaseService
 
 class Main(GnrBaseService):
     def __init__(self, parent=None,**kwargs):

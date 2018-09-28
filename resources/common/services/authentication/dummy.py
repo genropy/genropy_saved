@@ -7,7 +7,7 @@
 #    pip install python-ntlm
 #
 
-from gnr.services import GnrBaseService
+from gnr.lib.services import GnrBaseService
 
 class Main(GnrBaseService):
     """

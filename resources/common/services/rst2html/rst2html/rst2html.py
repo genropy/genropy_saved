@@ -5,7 +5,7 @@
 #  Copyright (c) 2013 Softwell. All rights reserved.
 
 
-from gnr.services import GnrBaseService
+from gnr.lib.services import GnrBaseService
 import re
 try:
     from docutils.core import publish_string as renderRst

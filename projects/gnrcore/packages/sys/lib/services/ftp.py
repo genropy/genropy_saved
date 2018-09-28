@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 from gnr.core import gnrstring
 from gnr.core.gnrbag import Bag,DirectoryResolver,BagResolver
-from gnr.services import GnrBaseService
+from gnr.lib.services import GnrBaseService
 
 
 class SftpService(GnrBaseService):

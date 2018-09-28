@@ -32,11 +32,11 @@ from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrprinthandler import PrintHandler
 from gnr.core.gnrtaskhandler import TaskHandler
 from gnr.web.gnrwebreqresp import GnrWebRequest
-from gnr.services import ServiceHandler
+from gnr.lib.services import ServiceHandler
 from gnr.web.gnrwsgisite_proxy.gnrservicehandler import ServiceHandlerManager
 #from gnr.web.gnrwsgisite_proxy.gnrstoragehandler import StorageHandler
 from gnr.app.gnrdeploy import PathResolver
-from gnr.services.gnrmail import WebMailHandler
+from gnr.lib.services.gnrmail import WebMailHandler
 
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager

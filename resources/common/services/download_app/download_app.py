@@ -5,7 +5,7 @@
 #  Copyright (c) 2013 Softwell. All rights reserved.
 
 
-from gnr.services import GnrBaseService                                                  
+from gnr.lib.services import GnrBaseService                                                  
 import urllib2
 import os
 from gnr.core.gnrbag import NetBag

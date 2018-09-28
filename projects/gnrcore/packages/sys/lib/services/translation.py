@@ -1,4 +1,4 @@
-from gnr.services import GnrBaseService
+from gnr.lib.services import GnrBaseService
 
 class TranslationService(GnrBaseService):
     def __init__(self, parent=None,api_key=None):

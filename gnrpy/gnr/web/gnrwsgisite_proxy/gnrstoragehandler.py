@@ -3,7 +3,7 @@ from gnr.core.gnrbag import Bag
 import inspect
 import os
 import sys
-from gnr.services import GnrBaseService
+from gnr.lib.services import GnrBaseService
 from gnr.core.gnrlang import  gnrImport
 
 

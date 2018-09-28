@@ -5,7 +5,7 @@
 #  Copyright (c) 2013 Softwell. All rights reserved.
 
 
-from gnr.services import GnrBaseService
+from gnr.lib.services import GnrBaseService
 from subprocess import call
 import os
 

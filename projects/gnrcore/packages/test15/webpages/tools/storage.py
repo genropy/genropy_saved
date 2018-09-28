@@ -32,10 +32,28 @@ class GnrCustomWebPage(object):
         vol:
         storage:mybucket
         """
-        with storage.open('mario','antonio.txt') as f:
+        with self.getService(service_type='storage',service_name='documenti').open('mario','antonio.txt') as f:
             f.write(filecontent)
+        storage = self.site.storageOpen('storage:documenti','mario')
+        storage = self.site.storageOpen('site:','mario')
+        storage = self.site.storageOpen('vol:pippo','mario')
+        with storage.open('mario','antonio.txt'):
 
-        @public_method
+
+   #@public_method
+   #def writeContentWithStorage(self,filepath=None,filecontent=None):
+   #    storage = self.site.storage('vol:pippo') 
+   #    """
+   #    site:data
+   #    vol:documenti_locali
+   #    vol:
+   #    storage:mybucket
+   #    """
+   #    with storage.open('mario','antonio.txt') as f:
+   #        f.write(filecontent)
+
+
+    @public_method
     def writeContentWithService2(self,filepath=None,filecontent=None):
         with self.site.openFile(path) as f: # path = '_site:pippo' o '_vol:mario'
             f.write(filecontent)

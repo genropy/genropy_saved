@@ -1,4 +1,4 @@
-from gnr.services import GnrBaseServiceType
+from gnr.lib.services import GnrBaseServiceType
 from gnr.core.gnrbag import Bag
 
 class SysServiceType(GnrBaseServiceType):
