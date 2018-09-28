@@ -6730,7 +6730,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         this.totalRowCount = resultattr.totalRowCount;
         this.selectionName = resultattr.selectionName;
         this.storeNode.setRelativeData(this.storepath,data,resultattr,null,'loadData');
-        if(resultattr.prevSelectedIdx){
+        if(resultattr.prevSelectedIdx && resultattr.prevSelectedIdx.length>0){
             var pagetoload = {};
             var cs = this.chunkSize;
             dojo.forEach(resultattr.prevSelectedIdx,function(idx){
@@ -6937,9 +6937,6 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         var that = this;
         var row_start = pageIdx * this.chunkSize;
         var kw = this.getData().getParentNode().attr;
-        if(!kw.method){
-            genro.bp(true);
-        }
         var result = genro.rpc.remoteCall(kw.method, {'selectionName':kw.selectionName,
             'row_start':row_start,
             'row_count':this.chunkSize,

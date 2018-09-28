@@ -232,7 +232,7 @@ class TableBase(object):
     """TODO"""
 
     @extract_kwargs(counter=True)
-    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, user_ins=None, user_upd=None, 
+    def sysFields(self, tbl, id=True, ins=True, upd=True, full_upd=False, ldel=True, user_ins=None, user_upd=None, 
                   draftField=False, invalidFields=None,invalidRelations=None,md5=False,
                   counter=None,hierarchical=None,useProtectionTag=None,
                   group='zzz', group_name='!!System',
@@ -248,6 +248,7 @@ class TableBase(object):
                     Allow to know the time (date and hour) of a record modify
         :param ldel: boolean. If ``True``, create the ``__del_ts`` column.
                      Allow to know the time (date and hour) of a record delete
+                     
         :param draftField: TODO
         :param md5: boolean. TODO
         :param group: a hierarchical path of logical categories and subacategories the columns belong to.
@@ -275,6 +276,9 @@ class TableBase(object):
             lastTS = tbl.attributes.get('lastTS')
             if not lastTS:
                 tbl.attributes['lastTS'] = '__mod_ts'
+        if full_upd:
+            tbl.column('__full_mod_ts', dtype=tsType, name_long='!!Full Update TS', group=group, _sysfield=True, indexed=True)
+
         if md5:
             tbl.column('__rec_md5', name_long='!!Update date', onUpdating='setRecordMd5', onInserting='setRecordMd5',
                        group=group,_sysfield=True)
@@ -699,12 +703,14 @@ class TableBase(object):
         
         :param record: the record
         :param fldname: the field name"""
+         
         if not getattr(record, '_notUserChange', None):
             if self.column(fldname).dtype == 'DHZ':
                 record[fldname] = datetime.datetime.now(pytz.utc)
             else:
-                record[fldname] = datetime.datetime.now() 
-
+                record[fldname] = datetime.datetime.now()
+            if '__full_mod_ts' in self.columns:
+                record['__full_mod_ts'] = record[fldname]
 
     def trigger_setProtectionTag(self,record,fldname,**kwargs):
         record[fldname] = self.getProtectionTag(record=record)
@@ -1102,6 +1108,16 @@ class GnrDboTable(TableBase):
             currentEnv[p] = valuesset
         return valuesset
 
+    def deferredUpdateParentFullTs(self, record, relation_field):
+        parent_id=record[relation_field]
+        self.db.deferToCommit(self.updateParentFullTs, relation_field=relation_field, parent_id=parent_id, _deferredId=parent_id)
+
+    def updateParentFullTs(self, relation_field, parent_id=None):
+        relatedTbl = self.column(relation_field).relatedTable().dbtable
+        print self.name, 'updateParentFullTs', relation_field
+        relatedTbl.batchUpdate(dict(), pkey=parent_id)
+           
+
 
         
 class HostedTable(GnrDboTable):
@@ -1311,6 +1327,7 @@ class TotalizeTable(GnrDboTable):
                                         tot_record=None,**kwargs):
         addFromCurrent = (record is not None) and (self.totalize_exclude(record) is not True)
         subtractFromOld = (old_record is not None) and (self.totalize_exclude(old_record) is not True)
+        self.tt_totalize_allowed(record,old_record=old_record)
         with self.recordToUpdate(insertMissing=True,**tot_record) as tot:
             for totalizer_field,pars in tot_fields.items():
                 if addFromCurrent:
@@ -1321,6 +1338,9 @@ class TotalizeTable(GnrDboTable):
                     tot[totalizer_field] = (tot[totalizer_field] or old_value.__class__(0)) - old_value
             if tot['_refcount']<=0:
                 tot[self.pkey] = False
+    
+    def tt_totalize_allowed(self,record=None,old_record=None):
+        pass
 
     def tt_totalize_memory(self,record=None,old_record=None,
                                         tot_fields=None,
