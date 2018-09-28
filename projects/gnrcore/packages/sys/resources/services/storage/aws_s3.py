@@ -10,6 +10,7 @@ from smart_open import smart_open
 import boto3
 import os
 import tempfile
+import mimetypes
 
 class S3LocalFile(object):
     def __init__(self, mode='rb', bucket=None, key=None, s3_session=None):
@@ -66,12 +67,11 @@ class S3LocalFile(object):
 
 class Service(StorageService):
 
-    def __init__(self, parent=None, name=None, bucket=None, 
+    def __init__(self, parent=None, bucket=None, 
         base_path=None, aws_access_key_id=None,
         aws_secret_access_key=None, aws_session_token=None,
         region_name=None, url_expiration=None, **kwargs):
         self.parent = parent
-        self.name = name
         self.bucket = bucket
         self.base_path = base_path
         self.aws_access_key_id=aws_access_key_id
@@ -79,7 +79,6 @@ class Service(StorageService):
         self.aws_session_token=aws_session_token
         self.region_name=None
         self.url_expiration = url_expiration or 3600
-
     @property
     def location_identifier(self):
         return 's3/%s/%s' % (self.region_name, self.bucket)
@@ -87,6 +86,7 @@ class Service(StorageService):
     def internal_path(self, path):
         return '%s/%s'% (self.base_path, path)
 
+    @property
     def _session(self):
         return boto3.Session(
             aws_access_key_id=self.aws_access_key_id,
@@ -109,10 +109,14 @@ class Service(StorageService):
     def delete(self, path):
         self._client.delete_object(Bucket=self.bucket, Key=self.internal_path(path))
 
-    def url(self, path, **kwargs):
+    def url(self, path, _content_disposition=None, **kwargs):
+        _content_disposition = _content_disposition or 'inline'
+        _content_type = mimetypes.guess_type(path)[0]
         expiration = kwargs.pop('expiration', self.url_expiration)
         return self._client.generate_presigned_url('get_object', 
-            Params={'Bucket': self.bucket,'Key': path}, 
+            Params={'Bucket': self.bucket,'Key': self.internal_path(path),
+                'ResponseContentDisposition':_content_disposition,
+                'ResponseContentType':_content_type}, 
             ExpiresIn=expiration)
 
     def open(self, path, mode=None,  **kwargs):
@@ -130,6 +134,16 @@ class Service(StorageService):
             source_key=sourceNode.internal_path,
             dest_bucket=destNode.bucket, dest_key=destNode.bucket)
         self.delete(sourceNode.path)
+    
+    def serve(self, path, environ, start_response, download=False, download_name=None, **kwargs):
+        if download or download_name:
+            download_name = download_name or self.base_name
+            content_disposition = "attachment; filename=%s" % download_name
+        else:
+            content_disposition = "inline"
+        url = self.url(path, _content_disposition=content_disposition)
+        if url:
+            return self.parent.redirect(environ, start_response, location=url)
 
 
 

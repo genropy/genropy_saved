@@ -11,49 +11,20 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^.path',lbl='Path',width='40em')
         fb.simpleTextArea(value='^.content',lbl='Content')
         fb.button('Write no service',fire='.write_noservice')
-        fb.dataRpc(None,self.writeContentNoService,_fired='^.write_noservice',filepath='=.path',filecontent='=.content')
+        fb.dataRpc(None,self.writeContent,_fired='^.write_noservice',filepath='=.path',filecontent='=.content')
 
-        fb.button('Write with service',fire='.write_service')
-        fb.dataRpc(None,self.writeContentWithService,_fired='^.write_service',filepath='=.path',filecontent='=.content')
+        fb.textbox(value='^.url',lbl='Url',width='40em', readOnly=True)
+        fb.dataRpc('.url',self.url,filepath='^.path')
 
     @public_method
-    def writeContentNoService(self,filepath=None,filecontent=None):
-        realpath = self.site.getStaticPath(filepath)
-        with open(realpath,'w') as f:
-            f.write(filecontent)
+    def writeContent(self,filepath=None,filecontent=None):
+        storageNode = self.site.storage(filepath)
+        with storageNode.open(mode='wb') as f:
+            f.write(str(filecontent))
+
+    @public_method
+    def url(self,filepath=None,filecontent=None):
+        storageNode = self.site.storage(filepath)
+        print storageNode
+        return storageNode.url
         
-
-    @public_method
-    def writeContentWithService(self,filepath=None,filecontent=None):
-        storage = self.site.storage('vol:pippo') 
-        """
-        site:data
-        vol:documenti_locali
-        vol:
-        storage:mybucket
-        """
-        with self.getService(service_type='storage',service_name='documenti').open('mario','antonio.txt') as f:
-            f.write(filecontent)
-        storage = self.site.storageOpen('storage:documenti','mario')
-        storage = self.site.storageOpen('site:','mario')
-        storage = self.site.storageOpen('vol:pippo','mario')
-        with storage.open('mario','antonio.txt'):
-
-
-   #@public_method
-   #def writeContentWithStorage(self,filepath=None,filecontent=None):
-   #    storage = self.site.storage('vol:pippo') 
-   #    """
-   #    site:data
-   #    vol:documenti_locali
-   #    vol:
-   #    storage:mybucket
-   #    """
-   #    with storage.open('mario','antonio.txt') as f:
-   #        f.write(filecontent)
-
-
-    @public_method
-    def writeContentWithService2(self,filepath=None,filecontent=None):
-        with self.site.openFile(path) as f: # path = '_site:pippo' o '_vol:mario'
-            f.write(filecontent)

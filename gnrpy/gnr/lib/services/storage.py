@@ -15,7 +15,7 @@ class StorageNode(object):
         must_exist=False):
         self.parent = parent
         self.path = path
-        self.service = path
+        self.service = service
         if must_exist and not self.service.exists(self.path):
             raise NotExistingStorageNode
 
@@ -53,8 +53,8 @@ class StorageNode(object):
     def copy(self, dest=None):
         return self.service.copy(source=self.path, dest=dest)
 
-    def serve(self):
-        return self.service.serve(self.path)
+    def serve(self, environ, start_response):
+        return self.service.serve(self.path, environ, start_response)
 
 class StorageService(GnrBaseService):
 

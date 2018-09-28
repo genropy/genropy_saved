@@ -61,6 +61,9 @@ class ServiceHandler(object):
                                 service_type_factory = base_service_type
                         service_type_module = gnrImport(m)
                         service_type_factory = getattr(service_type_module,'ServiceType',None) or service_type_factory
+                    ### TODO: RIVEDERE BENE se funziona, 
+                    # se non esiste un service type in sys allora non prende la configurazione 
+                    # tramite db
                 self.service_types[service_type] = service_type_factory(self.site,service_type=service_type)
     
     def getService(self,service_type=None,service_name=None):
@@ -85,6 +88,7 @@ class GnrBaseServiceType(object):
 
     def addService(self, service_name=None):
         service_conf = self.getConfiguration(service_name)
+        print service_conf
         instance = None
         implementation = None
         if service_conf:
