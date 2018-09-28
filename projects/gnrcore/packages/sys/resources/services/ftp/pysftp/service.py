@@ -17,7 +17,7 @@ except:
     pysftp = False
 
 class Service(SftpService):
-    def __init__(self, parent=None,host=None,username=None,password=None,private_key=None,port=None,service_name=None,**kwargs):
+    def __init__(self, parent=None,host=None,username=None,password=None,private_key=None,port=None,**kwargs):
         self.parent = parent
         if not pysftp:
             raise GnrException('Missing pysftp. hint: pip install pysftp')
@@ -26,7 +26,6 @@ class Service(SftpService):
         self.password = password
         self.private_key = private_key
         self.port = port
-        self.service_name = service_name
 
     def __call__(self,host=None,username=None,password=None,private_key=None,port=None):
         port = port or self.port
@@ -88,12 +87,6 @@ class Service(SftpService):
                     putkw['confirm'] = confirm
                 sftp.put(filepath,os.path.join(destfolder,basename),**putkw)
 
-    def sftpResolver(self,path=None,**kwargs):
-        return SftpDirectoryResolver(path,_page=self.parent.currentPage,
-                                        ftpservice=self.service_name,
-                                        **kwargs)
-    
-        
 
 class ServiceParameters(BaseComponent):
 

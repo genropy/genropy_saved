@@ -92,7 +92,9 @@ class GnrBaseServiceType(object):
         service_factory = self.getServiceFactory(implementation)
         if not service_factory:
             return
-        service = service_factory(self.site,service_name=service_name,**service_conf)
+        service_conf = service_conf or {}
+        service = service_factory(self.site,**service_conf)
+        service.service_name = service_name
         self.service_instances[service_name] = service
         return service
 
@@ -101,6 +103,7 @@ class GnrBaseServiceType(object):
         if not typeconf:
             result = []
             for k,attr in self.site.config['services'].digest('#k,#a'):
+                attr = dict(attr)
                 service_type = attr.pop('service_type',None) or k
                 if service_type == self.service_type:
                     result.append(dict(service_name=k, service_type=service_type,**attr))
@@ -112,18 +115,19 @@ class GnrBaseServiceType(object):
         conf = self.site.config.getAttr('services.%s' %service_name)
         if not conf:
             conf = self.site.config.getAttr('services.%s.%s' %(self.service_type,service_name))
-        return conf
+        return dict(conf) if conf else {}
 
     @property
     def implementations(self):
         if not hasattr(self,'_implementations'):
             self._implementations = {}
             dirs = self.site.resource_loader.getResourceList(self.site.resources_dirs, 'services/%s' %(self.service_type))
+            dirs.reverse()
             self.baseImplementation = None
             for d in dirs:
                 for impl in os.listdir(d):
+                    implname,implext = os.path.splitext(impl)
                     impl = os.path.join(d,impl)
-                    implname,implext = os.path.split(impl)
                     if os.path.isdir(impl):
                         impl = os.path.join(d,impl,'service.py')
                         if not os.path.exists(impl):
