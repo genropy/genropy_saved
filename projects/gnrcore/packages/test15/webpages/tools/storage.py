@@ -10,8 +10,8 @@ class GnrCustomWebPage(object):
         fb = root.formbuilder()
         fb.textbox(value='^.path',lbl='Path',width='40em')
         fb.simpleTextArea(value='^.content',lbl='Content')
-        fb.button('Write no service',fire='.write_noservice')
-        fb.dataRpc(None,self.writeContent,_fired='^.write_noservice',filepath='=.path',filecontent='=.content')
+        fb.button('Write',fire='.write')
+        fb.dataRpc(None,self.writeContent,_fired='^.write',filepath='=.path',filecontent='=.content')
 
         fb.textbox(value='^.url',lbl='Url',width='40em', readOnly=True)
         fb.dataRpc('.url',self.url,filepath='^.path')

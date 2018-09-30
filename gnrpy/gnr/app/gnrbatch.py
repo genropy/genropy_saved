@@ -301,8 +301,7 @@ class PrintDbData(GnrBatch):
             self.printer_name = printParams.pop('printer_name')
             self.outputFilePath = None
         self.thermo_maximum[1] = len(self.data)
-        self.print_handler = self.page.getService('print')
-        self.print_connection = self.print_handler.getPrinterConnection(self.printer_name, printParams)
+        self.print_connection = self.page.getService('networkprint').getPrinterConnection(self.printer_name, printParams)
         self.file_list = []
         self.commitAfterPrint = commitAfterPrint
         
@@ -328,7 +327,7 @@ class PrintDbData(GnrBatch):
         else:
             orientation='Portrait'
         if html != False:
-            self.file_list.append(self.print_handler.htmlToPdf(self.htmlMaker.filepath, self.folder, orientation=orientation))
+            self.file_list.append(self.getService('htmltopdf').htmlToPdf(self.htmlMaker.filepath, self.folder, orientation=orientation))
             
     def thermo_chunk_message(self, chunk, row):
         if self.thermofield == '*':

@@ -2181,16 +2181,16 @@ class GnrWebPage(GnrBaseWebPage):
          
     def rpc_getPrinters(self):
         """TODO"""
-        print_handler = self.getService('print')
-        if print_handler:
-            return print_handler.getPrinters()
+        networkprint = self.getService('networkprint')
+        if networkprint:
+            return networkprint.getPrinters()
             
     def rpc_getPrinterAttributes(self, printer_name,**kwargs):
         """TODO
         
         :param printer_name: TODO"""
         if printer_name and printer_name != 'PDF':
-            attributes = self.getService('print').getPrinterAttributes(printer_name)
+            attributes = self.getService('networkprint').getPrinterAttributes(printer_name)
             return attributes
 
     def windowTitle(self):

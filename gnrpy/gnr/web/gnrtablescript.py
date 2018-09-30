@@ -180,7 +180,7 @@ class RecordToHtmlPage(TableScriptOnRecord):
                 html = f.read()
         if pdf:
             temp = tempfile.NamedTemporaryFile(suffix='.pdf')
-            self.page.getService('print').htmlToPdf(self.filepath, temp.name, orientation = self.orientation)
+            self.page.getService('htmltopdf').htmlToPdf(self.filepath, temp.name, orientation = self.orientation)
             with open(temp.name, 'rb') as f:
                 html = f.read()
         self.onRecordExit(self.getData('record'))
@@ -546,7 +546,7 @@ class RecordToHtml(TableScriptOnRecord):
                 html = f.read()
         if pdf:
             temp = tempfile.NamedTemporaryFile(suffix='.pdf')
-            self.page.getService('print').htmlToPdf(self.filepath, temp.name, orientation=self.orientation)
+            self.page.getService('htmltopdf').htmlToPdf(self.filepath, temp.name, orientation=self.orientation)
             with open(temp.name, 'rb') as f:
                 html = f.read()
         return html

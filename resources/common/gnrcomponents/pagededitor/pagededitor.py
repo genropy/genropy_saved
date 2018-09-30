@@ -18,7 +18,7 @@ class PagedEditor(BaseComponent):
     @struct_method
     def pe_pagedEditor(self,pane,value=None,editor_kwargs=None,letterhead_id=None,pagedText=None,printAction=None,bodyStyle=None,
                         datasource=None,extra_bottom=None,tpl_kwargs=True,**kwargs):
-        bodyStyle = bodyStyle or self.getPreference('print.bodyStyle',pkg='adm') or self.getService('print').printBodyStyle()
+        bodyStyle = bodyStyle or self.getPreference('print.bodyStyle',pkg='adm') or self.getService('htmltopdf').printBodyStyle()
         frame = pane.framePane(_workspace=True,selfsubscribe_print='FIRE #WORKSPACE.print;',**kwargs)
         right = frame.right
         right.attributes.update(background='white')
@@ -67,7 +67,7 @@ class PagedEditor(BaseComponent):
 
     @public_method
     def pe_printPages(self,pages=None,bodyStyle=None):
-        self.getService('print').htmlToPdf(pages,self.site.getStaticPath('page:temp','pe_preview.pdf',autocreate=-1),pdf_margin_top='0mm',
+        self.getService('htmltopdf').htmlToPdf(pages,self.site.getStaticPath('page:temp','pe_preview.pdf',autocreate=-1),pdf_margin_top='0mm',
                                                                                                   pdf_margin_bottom='0mm',
                                                                                                   pdf_margin_left='0mm',
                                                                                                   pdf_margin_right='0mm',

@@ -121,13 +121,13 @@ class PrintUtils(BaseComponent):
                            storepath='.printer_attributes.tray_supported')
 
     def rpc_getPrinters(self):
-        print_handler = self.getService('print')
+        print_handler = self.getService('networkprint')
         if print_handler:
             return print_handler.getPrinters()
 
     def rpc_getPrinterAttributes(self, printer_name,**kwargs):
         if printer_name and printer_name != 'PDF':
-            attributes = self.getService('print').getPrinterAttributes(printer_name)
+            attributes = self.getService('networkprint').getPrinterAttributes(printer_name)
             return attributes
 
     def _utl_pdf_opt(self, tc):

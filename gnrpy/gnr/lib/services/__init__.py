@@ -85,10 +85,8 @@ class GnrBaseServiceType(object):
         self.service_type = service_type
         self.service_instances = {}
 
-
     def addService(self, service_name=None):
         service_conf = self.getConfiguration(service_name)
-        print service_conf
         instance = None
         implementation = None
         if service_conf:

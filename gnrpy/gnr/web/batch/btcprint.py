@@ -42,7 +42,8 @@ class BaseResourcePrint(BaseResourceBatch):
         self.print_mode = self.batch_options['print_mode']
         self.server_print_options = self.batch_parameters['_printerOptions']
         self.print_options = self.batch_options[self.print_mode]
-        self.print_handler = self.page.getService('print')
+        self.network_printer = self.page.getService('networkprint')
+        self.pdf_handler = self.page.getService('pdf')
         self.pdf_make = self.print_mode != 'client_print'
 
     def print_selection(self, thermo_selection=None, thermo_record=None):
@@ -129,20 +130,23 @@ class BaseResourcePrint(BaseResourceBatch):
         mailmanager.sendmail(**mailpars)
         
     def result_handler_server_print(self, resultAttr):
-        printer = self.print_handler.getPrinterConnection(self.server_print_options.pop('printer_name'),
+        printer = self.network_printer.getPrinterConnection(self.server_print_options.pop('printer_name'),
                                                           **self.server_print_options.asDict(True))
-        return printer.printCups(self.results.values(), self.batch_title)
+        return printer.printFiles(self.results.values(), self.batch_title)
 
 
     def result_handler_html(self, resultAttr):
         print x
         
     def result_handler_pdf(self, resultAttr):
-        pdfprinter = self.print_handler.getPrinterConnection('PDF', self.print_options)
         save_as = slugify(self.print_options['save_as'] or self.batch_title)
-        filename = pdfprinter.printPdf(self.results.values(), self.batch_title,
-                                       outputFilePath=self.page.site.getStaticPath('user:output', 'pdf', save_as,
-                                                                                   autocreate=-1))
+        outputFilePath=self.page.site.getStaticPath('user:output', 'pdf', save_as,autocreate=-1)
+        if self.print_options.get('zipped'):
+            outputFilePath +='.zip'
+            filename = self.pdf_handler.zipPdf(self.results.values(), outputFilePath)
+        else:
+            outputFilePath +='.pdf'
+            filename = self.pdf_handler.joinPdf(self.results.values(), outputFilePath)
         if filename:
             self.fileurl = self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True, download=True)
             resultAttr['url'] = self.fileurl
