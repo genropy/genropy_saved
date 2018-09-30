@@ -22,7 +22,11 @@ class Main(BaseResourceAction):
     #batch_steps = 'get_dependencies,archive,delete_archived'
 
     def do(self):
-        path = self.page.site.getStaticPath('page:archive_to_import','last_archive.pik')
+        filepath = self.batch_parameters.get('filepath')
+        if filepath:
+            path = self.page.site.getStaticPath(filepath)
+        else:
+            path = self.page.site.getStaticPath('page:archive_to_import','last_archive.pik')
         archive = Bag(path)
         tables = archive.keys()
         for tbl in self.btc.thermo_wrapper(tables, maximum=len(tables),message=lambda item, k, m, **kwargs: '%s %i/%i' % (item, k, m), line_code='tables'):
@@ -51,6 +55,7 @@ class Main(BaseResourceAction):
 
     def table_script_parameters_pane(self, pane, table=None,**kwargs):
         fb = pane.div(padding='10px').formbuilder(cols=1,border_spacing='3px')
+        fb.textbox(value='^.filepath',lbl='Filepath')
         fb.dropUploader(label='Drop the archive here',width='230px',
                         uploadPath='page:archive_to_import',
                         filename='last_archive.pik',

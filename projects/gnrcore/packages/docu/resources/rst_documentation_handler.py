@@ -68,7 +68,7 @@ class RstDocumentationHandler(BaseComponent):
         bc.dataFormula('.snippet_code',"name?flattenString(name,['.',' ','(',')','=','%']).toLowerCase():null",name='^.name')
         fb = bc.contentPane(region='top').formbuilder(cols=1,border_spacing='3px')
         fb.textbox(value='^.name',lbl='Name',validate_notnull=True)
-        bc.roundedGroupFrame(title='Snippet',region='center',overflow='hidden').codemirror(value='^.snippet',lbl='Snippet',
+        bc.roundedGroupFrame(title='Snippet',region='center',overflow='hidden').codemirror(value='^.snippet',
                                     height='100%',config_lineNumbers=True,
                                 config_mode='rst',config_keyMap='softTab',
                                 config_addon='search')
