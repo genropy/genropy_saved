@@ -1143,8 +1143,8 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         //widget.sourceNode.setAttributeInDatasource('value',value);
         this._doChangeInData(widget.domNode, widget.sourceNode, value);
         this.onDataChanged(widget);
-
     },
+
     onDataChanged:function(widget) {
         
     },
@@ -1922,7 +1922,7 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
         childSourceNode.setValue(new gnr.GnrDomSource(),false);
         var childTag = objectPop(wrapperAttr,'tag');
         var childAttr = objectUpdate({},wrapperAttr);
-        objectExtract(wrapperAttr,'margin,background,style,_class,nodeId')
+        objectExtract(wrapperAttr,'margin,background,style,_class,nodeId,overflow');
         objectExtract(childAttr,'height,width,border,left,right,top,bottom')
         objectExtract(childAttr,'margin_*');
         objectExtract(childAttr,'border_*');
@@ -3642,7 +3642,7 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
     },
     mixin__updateSelect: function(item) {
         //var item=this.lastSelectedItem;
-        var row = item ? (item.attr || {}) : {};
+        var row = item && this.isValid() ? (item.attr || {}) : {};
         if (this.sourceNode.attr.selectedRecord) {
             var path = this.sourceNode.attrDatapath('selectedRecord');
             this.sourceNode.setRelativeData(path, new gnr.GnrBag(row));
@@ -3947,7 +3947,7 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
             attributes.hasDownArrow = false;
             attributes['tabindex'] = -1;
         }
-        var resolverAttrs = objectExtract(attributes, 'method,columns,limit,auxColumns,hiddenColumns,alternatePkey,rowcaption,order_by,preferred');
+        var resolverAttrs = objectExtract(attributes, 'method,columns,limit,auxColumns,hiddenColumns,alternatePkey,rowcaption,order_by,preferred,invalidItemCondition');
         resolverAttrs['notnull'] = attributes['validate_notnull'];
         savedAttrs['auxColumns'] = resolverAttrs['auxColumns'];
         var selectedColumns = objectExtract(attributes, 'selected_*');
@@ -4033,7 +4033,6 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
         if(reskwargs.notnull){
             reskwargs = objectUpdate({},reskwargs);
             var reskwargs = objectUpdate(reskwargs,{limit:2,_querystring:'*',notnull:true});
-            console.log('check singleOption')
             var singleOption = genro.serverCall(objectPop(reskwargs,'method'),reskwargs);
             if(singleOption._value.len()==1){
                 currvalue = singleOption._value.getAttr('#0')[this.store._identifier];
@@ -4052,6 +4051,7 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
         if (!item.attr.caption) {
             return;
         }
+        
         if(priorityChange && !this.item){
             this.item = item;
         }
@@ -4073,6 +4073,7 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
     connectForUpdate: function(widget, sourceNode) {
         return;
     },
+
     onDataChanged:function(widget){
        // widget.focusNode.blur()
     },

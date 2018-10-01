@@ -132,3 +132,13 @@ class GnrCustomWebPage(object):
 
        #fb.dbSelect(value='^.provincia',dbtable='glbl.provincia',condition='$regione=:r',
        #            condition_r='^.regione',lbl='Provincia',hasDownArrow=True,validate_notnull=True)
+
+    def test_8_invaliditemCondition(self,pane):
+        form = pane.frameForm(frameCode='pippo',store='memory',height='300px',store_startKey='*newrcord*')
+        fb = form.record.formbuilder(cols=1, border_spacing='4px')
+        fb.dbSelect(dbtable='glbl.provincia',value='^.sigla',
+                        lbl='Provincia corta',width='25em',invalidItemCondition='(char_length($nome)>10)',
+                        selected_regione='.regione',
+                        invalidItemCondition_message='troppo lungo',auxColumns='$regione')
+        fb.div('^.regione')
+        fb.numberTextBox(value='^.prova',format='#,###.00',validate_min='10',nodeId='numbervalidate')

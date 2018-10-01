@@ -68,7 +68,7 @@ class RstDocumentationHandler(BaseComponent):
         bc.dataFormula('.snippet_code',"name?flattenString(name,['.',' ','(',')','=','%']).toLowerCase():null",name='^.name')
         fb = bc.contentPane(region='top').formbuilder(cols=1,border_spacing='3px')
         fb.textbox(value='^.name',lbl='Name',validate_notnull=True)
-        bc.roundedGroupFrame(title='Snippet',region='center',overflow='hidden').codemirror(value='^.snippet',lbl='Snippet',
+        bc.roundedGroupFrame(title='Snippet',region='center',overflow='hidden').codemirror(value='^.snippet',
                                     height='100%',config_lineNumbers=True,
                                 config_mode='rst',config_keyMap='softTab',
                                 config_addon='search')
@@ -107,9 +107,9 @@ class RstDocumentationHandler(BaseComponent):
 
 
     @struct_method
-    def rst_rstHelpDrawer(self,parent,drawer='close',region='right',width='300px',margin='2px',**kwargs):
+    def rst_rstHelpDrawer(self,parent,closable='close',region='right',width='300px',margin='2px',**kwargs):
         tc = parent.tabContainer(overflow='hidden',
-                       closable='close',
+                       closable=closable,
                        splitter=True,datapath='#FORM',region='right',width=width,**kwargs)
         self.rst_snippetTab(tc.contentPane(title='Snippet',overflow='hidden'),path=self.getResource('rst_snippets.xml'))
         self.rst_imageTab(tc.contentPane(title='Images',overflow='hidden'))

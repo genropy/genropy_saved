@@ -41,8 +41,8 @@ class Form(BaseComponent):
         for lang in self.db.table('docu.language').query().fetch():
             rsttc.fullEditorPane(title=lang['name'],lang=lang['code'],pageName=lang['code'])
         if self.isDeveloper():
-            self.sourceEditor(docpage.framePane(region='bottom',height='50%',splitter=True,closable='close',
-                            datapath='#FORM.versionsFrame'))
+            source_footer = docpage.contentPane(region='bottom',height='50%',splitter=True,closable='close')
+            self.sourceEditor(source_footer.framePane(datapath='#FORM.versionsFrame'))
 
         sc.contentPane(title='!!Parameters',datapath='#FORM').fieldsGrid() #ok
 

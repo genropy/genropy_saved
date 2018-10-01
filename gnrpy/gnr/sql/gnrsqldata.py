@@ -1881,6 +1881,8 @@ class SqlSelection(object):
             for k,v in content.items():
                 if self.dbtable.column(k) is not None and self.dbtable.column(k).attributes.get('dtype')=='X':
                     content[k] = Bag(content[k])
+            if pkey is not None:
+                content['_pkey'] = pkey
             result.setItem(label,content , _pkey=pkey)
         return result
         

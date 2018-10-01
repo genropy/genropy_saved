@@ -397,8 +397,13 @@ dojo.declare("gnr.QueryManager", null, {
         data.setItem('currViewPath',currViewPath);
         var that = this;
         saveCb = function(dlg) {
+            var metadata = genro.getData(datapath);
+            if (!metadata.getItem('code')){
+                genro.publish('floating_message',{message:_T('Missing code'),messageType:'error'});
+                return;
+            }
             genro.serverCall('_table.adm.userobject.saveUserObject',
-            {'objtype':'query','table':that.maintable,'data':data,metadata:genro.getData(datapath)},
+            {'objtype':'query','table':that.maintable,'data':data,metadata:metadata},
             function(result) {
                 dlg.close_action();
                 that.sourceNode.setRelativeData('.query.currentQuery',result.attr.code);

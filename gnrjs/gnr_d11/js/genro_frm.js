@@ -596,7 +596,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 action:function(result){
                     objectUpdate(kw.default_kw,result.asDict());
                     if(defaultPrompt.doSave && that.store.table){
-                        genro.serverCall('app.insertRecord',{table:that.store.table,record:objectExtract(that.store.prepareDefaults('*newrecord*',kw.default_kw),'default_*')},function(resultPkey){
+                        genro.serverCall('app.insertRecord',{table:that.store.table,record:new gnr.GnrBag(objectExtract(that.store.prepareDefaults('*newrecord*',kw.default_kw),'default_*'))},function(resultPkey){
                             that.doload_store({destPkey:resultPkey});
                         });
                     }else{
@@ -1169,13 +1169,21 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     }
                 };
             }else{
-                this.reset();
                 cb=function(result){
+                    result = result || {};
+                    if (result.error){
+                        //genro.dlg.alert(resultDict.error,'Error');
+                        that.publish('message',{message:'Error in save '+result.error,sound:'$onsaved',messageType:'error'});
+                        that.setOpStatus();
+                        return;
+                    }
+                    that.reset();
                     if(onSaved in that){
                         that[onSaved](result);
                     }else if(onSaved){
                         funcApply(onSaved,{result:result},this);
                     }
+                    return result;
                 };
             }
             if(deferred){
@@ -1183,6 +1191,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     cb(result);
                     return result;
                 });
+            }else{
+                this.reset();
             }
             return deferred;
         }
@@ -1966,6 +1976,7 @@ dojo.declare("gnr.GnrValidator", null, {
                 value = validreturn['value'];
             }
             errorcode = validreturn['errorcode'];
+            errormessage = validreturn.message;
         } else {
             if (validreturn == false) {
                 errorcode = iswarning ? 'warning' : 'error';
@@ -1975,7 +1986,7 @@ dojo.declare("gnr.GnrValidator", null, {
             validreturn = {};
         }
 
-        if (errorcode) {
+        if (errorcode && !errormessage) {
             var msgorder = [validation + '_' + errorcode];
             if (iswarning) {
                 msgorder.push(validation + '_warning');
@@ -2031,8 +2042,15 @@ dojo.declare("gnr.GnrValidator", null, {
         if (dojo.isIE > 0) {
             return;
         }
-        var validate_notnull = sourceNode.getAttributeFromDatasource('validate_notnull');//.attr.validate_notnull;
         var result;
+        if(sourceNode.widget.item && sourceNode.widget.item.attr._is_invalid_item){
+            var invalidItemMsg = sourceNode.attr.invalidItem_message || _T('Invalid item');
+            result = {'errorcode':'invalidItem','message':invalidItemMsg,value:null};
+            sourceNode.widget._lastValueReported = null;
+            return result;
+        }
+
+        var validate_notnull = sourceNode.getAttributeFromDatasource('validate_notnull');//.attr.validate_notnull;
         if ((value == undefined) || (value == '') || (value == null)) {
             if (sourceNode.widget._lastDisplayedValue != "") {
                 sourceNode.widget._updateSelect();

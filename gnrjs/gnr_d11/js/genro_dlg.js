@@ -485,6 +485,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var wdg = kw.widget || 'textbox';
         var remote = kw.remote;
         var dflt = kw.dflt;
+        var cols = objectPop(kw,'cols') || 1;
         genro.dlg.prompt_counter = genro.dlg.prompt_counter || 0;
         genro.dlg.prompt_counter++;
         var prompt_datapath = 'gnr.promptDlg.prompt_'+genro.dlg.prompt_counter;
@@ -567,10 +568,10 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                 box._('div',{innerHTML:msg,color:'#666',margin_bottom:'10px',_class:'selectable'});
             }
             if(typeof(wdg)=='string'){
-                fb = genro.dev.formbuilder(box,1,{border_spacing:'1px',onEnter:onEnter,width:'100%',fld_width:'100%'});
+                fb = genro.dev.formbuilder(box,cols,{border_spacing:'1px',onEnter:onEnter,width:'100%',fld_width:'100%'});
                 fb.addField(wdg,objectUpdate({value:'^.promptvalue',lbl:kw.lbl,lbl_color:'#666',lbl_text_align:'right'},objectExtract(kw,'wdg_*')));
             }else{
-                fb = genro.dev.formbuilder(box,1,{border_spacing:'4px',width:'100%',onEnter:onEnter,fld_width:'100%',datapath:'.promptvalue'});
+                fb = genro.dev.formbuilder(box,cols,{border_spacing:'4px',width:'100%',onEnter:onEnter,fld_width:'100%',datapath:'.promptvalue'});
                 wdg.forEach(function(n){
                     n = objectUpdate({},n);
                     var w = objectPop(n,'wdg','textbox');

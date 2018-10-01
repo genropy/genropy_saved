@@ -106,7 +106,7 @@ class UrlInfo(object):
                 self.basepath =  os.path.join(pkg_obj.packageFolder,'webpages')
             self.pkg = pkg_obj.id
         if self.request_kwargs.pop('_mobile',False):
-            mobilepath = os.path.join(self.basepath,'webpages_mobile')
+            mobilepath= self.basepath.replace('webpages','webpages_mobile')
             if os.path.exists(mobilepath):
                 self.basepath = mobilepath
         currpath = []
@@ -1201,7 +1201,7 @@ class GnrWsgiSite(object):
 
     def sqlDebugger(self,**kwargs):
         page = self.currentPage
-        if page and self.debug:
+        if page and self.debug and page.debug_sql:
             page.dev.sqlDebugger.output(page, **kwargs)
             page.sql_count = page.sql_count + 1
             page.sql_time = page.sql_time + kwargs.get('delta_time',0)

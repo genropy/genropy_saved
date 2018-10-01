@@ -1237,8 +1237,9 @@ dojo.declare("gnr.GridEditor", null, {
                                     objectUpdate(kw,{handlerName:this.remoteRowController,
                                     rows:rows,_sourceNode:this.grid.sourceNode})
                                     );
+        var grid = this.grid;
         result.forEach(function(n){
-            that.updateRowFromRemote(n.label,n.getValue());
+            that.updateRowFromRemote(grid.rowIdentity(grid.rowFromBagNode(n)) || n.label,n.getValue());
         },'static');
         this.updateStatus();
         this.grid.sourceNode.publish('remoteRowControllerDone',{result:result})

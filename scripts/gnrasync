@@ -20,7 +20,7 @@ if __name__ == '__main__':
     parser = OptionParser(usage)
     parser.add_option('-p', '--port',
                   dest='port',
-                  help="Listen port")    
+                  help="Listen port")     
     parser.add_option('-c', '--crt',
                   dest='ssl_crt',
                   help="SSL Certificate path")        
