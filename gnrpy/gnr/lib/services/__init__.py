@@ -37,8 +37,14 @@ PKGMARKER = '%spackages%s' %(os.sep,os.sep)
 
 class ServiceHandler(object):
 
+    
     def __init__(self,site):
         self.site = site
+        #cerco definizioni core
+        #cerco definizioni per ogni package
+        #cerco implementazioni core
+        #cerco implementazioni per ogni package
+        
         resdirs = site.resource_loader.getResourceList(site.resources_dirs,'services')
         resdirs.reverse()
         self.service_types = {}

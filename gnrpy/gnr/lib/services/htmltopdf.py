@@ -69,6 +69,7 @@ class HtmlToPdfService(GnrBaseService):
             os.remove(srcPath)
             return
         pdf_pref = self.parent.getPreference('.pdf_render',pkg='sys') if self.parent else None
+        #preference should be in sys.service service_parameters
         keep_html = False
         if pdf_pref:
             pdf_pref = pdf_pref.asDict(ascii=True)
@@ -93,5 +94,6 @@ class HtmlToPdfService(GnrBaseService):
     
     def writePdf(self,srcPath, destPath, orientation=None, page_height=None, page_width=None, 
                         pdf_kwargs=None,htmlTemplate=None,bodyStyle=None,**kwargs):
+        #override
         pass
 
