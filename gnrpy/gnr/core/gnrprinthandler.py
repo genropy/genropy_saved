@@ -186,3 +186,4 @@ class PrintHandler(object):
         :param zipPath: TODO"""
         self.parent.zipFiles(file_list=file_list, zipPath=zipPath)
         
+        

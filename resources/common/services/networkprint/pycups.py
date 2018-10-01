@@ -14,6 +14,8 @@ from gnr.lib.services.networkprint import NetworkPrintService
 class PrinterConnection(object):
     def __init__(self,parent,printer_name=None, printerParams=None, **kwargs):
         self.parent = parent
+        printerParams = printerParams or {}
+        self.orientation = printerParams.get('orientation')
         printerParams = printerParams or Bag()
         self.cups_connection = cups.Connection()
         self.printer_name = printer_name
@@ -38,8 +40,9 @@ class Service(NetworkPrintService):
 
     def getPrinters(self):
         """TODO"""
+
         printersBag = Bag()
-        if self.hasCups:
+        if HAS_CUPS:
             cups_connection = cups.Connection()
             for printer_name, printer in cups_connection.getPrinters().items():
                 printer.update(dict(name=printer_name))

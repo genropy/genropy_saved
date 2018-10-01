@@ -141,25 +141,30 @@ class BaseResourcePrint(BaseResourceBatch):
     def result_handler_pdf(self, resultAttr):
         save_as = slugify(self.print_options['save_as'] or self.batch_title)
         outputFilePath=self.page.site.getStaticPath('user:output', 'pdf', save_as,autocreate=-1)
-        if self.print_options.get('zipped'):
+        zipped =  self.print_options.get('zipped')
+        immediate_mode = self.batch_immediate
+        if immediate_mode is True:
+            immediate_mode = self.batch_parameters.get('immediate_mode')
+        if immediate_mode and zipped:
+            immediate_mode = 'download'
+        if zipped:
             outputFilePath +='.zip'
-            filename = self.pdf_handler.zipPdf(self.results.values(), outputFilePath)
+            self.page.site.zipFiles(self.results.values(), outputFilePath)
         else:
             outputFilePath +='.pdf'
-            filename = self.pdf_handler.joinPdf(self.results.values(), outputFilePath)
-        if filename:
-            self.fileurl = self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True, download=True)
-            resultAttr['url'] = self.fileurl
-            resultAttr['document_name'] = save_as
-            resultAttr['url_print'] = 'javascript:genro.openWindow("%s","%s");' %(self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True),save_as)
-            if self.batch_immediate:
-                resultAttr['autoDestroy'] = 5
-            if self.batch_immediate is True:
-                self.batch_immediate = self.batch_parameters.get('immediate_mode')
-            if self.batch_immediate=='print':
-                self.page.setInClientData(path='gnr.clientprint',value=self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True),fired=True)
-            elif self.batch_immediate=='download':
-                self.page.setInClientData(path='gnr.downloadurl',value=self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True),fired=True)
+            self.pdf_handler.joinPdf(self.results.values(), outputFilePath)
+        filename = os.path.basename(outputFilePath)
+        self.fileurl = self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True, download=True)
+        inlineurl = self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True)
+        resultAttr['url'] = self.fileurl
+        resultAttr['document_name'] = save_as
+        resultAttr['url_print'] = 'javascript:genro.openWindow("%s","%s");' %(inlineurl,save_as)
+        if immediate_mode:
+            resultAttr['autoDestroy'] = 5
+        if immediate_mode=='print':
+            self.page.setInClientData(path='gnr.clientprint',value=inlineurl,fired=True)
+        elif immediate_mode=='download':
+            self.page.setInClientData(path='gnr.downloadurl',value=inlineurl,fired=True)
 
     def table_script_option_pane(self, pane,print_modes=None, mail_modes=None,**kwargs):
         frame = pane.framePane(height='220px',width='400px')
