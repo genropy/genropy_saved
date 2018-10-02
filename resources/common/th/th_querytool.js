@@ -587,7 +587,11 @@ dojo.declare("gnr.QueryManager", null, {
                                 if(code!='__newset__'){
                                     genro.serverCall('_table.adm.userobject.loadUserObject',{pkey:item.pkey,table:that.maintable},
                                     function(result){
-                                        helperBag.setItem('items',result._value);
+                                        if(typeof(result._value)=='string'){
+                                            helperBag.setItem('items',result._value);//legacy
+                                        }else{
+                                            helperBag.setItem('items',result._value.getItem('items'));//savedbag
+                                        }
                                         result.attr.caption = result.attr.description;
                                         helperBag.setItem('currentsetAttr',new gnr.GnrBag(result.attr));
                                     });
@@ -598,7 +602,7 @@ dojo.declare("gnr.QueryManager", null, {
         var saveAction = function(){
             var savepath = datapath+'.currentsetAttr';
             var kw = {'objtype':'list_in','table':that.maintable,
-                     'data':helperBag.getItem('items'),
+                     'data':new gnr.GnrBag({'items':helperBag.getItem('items')}),
                      metadata:genro.getData(savepath)}
             genro.dev.userObjectDialog(_T('Save set'),savepath,function(dialog) {
                 genro.serverCall('_table.adm.userobject.saveUserObject',kw,function(result) {
