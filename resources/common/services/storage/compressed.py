@@ -23,6 +23,7 @@ class Service(StorageService):
         return "%s.%s"%(os.path.join(self.base_path, *(path.split('/'))),self.compression_mode)
 
     def delete(self, path):
+        
         return os.unlink(self.internal_path(path))
 
     def open(self, path, mode='rb'):

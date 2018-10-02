@@ -7,10 +7,25 @@ import re
 from datetime import datetime
 from gnr.core import gnrstring
 from gnr.core.gnrbag import Bag,DirectoryResolver,BagResolver
-from gnr.lib.services import GnrBaseService
+from gnr.lib.services import GnrBaseService,BaseServiceType
 
 class NotExistingStorageNode(Exception):
     pass
+
+class ServiceType(BaseServiceType):
+    def conf_site(self):
+        return dict(implementation='local',base_path=self.site.site_static_dir)
+    
+    def conf_rsrc(self):
+        return dict(implementation='symbolic')
+
+    def conf_pkg(self):
+        return dict(implementation='symbolic')
+
+    def conf_dojo(self):
+        return dict(implementation='symbolic')
+
+
 
 class StorageNode(object):
 
