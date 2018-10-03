@@ -4,6 +4,7 @@
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('nazione', pkey='code', name_long='Nazione', rowcaption='code,name', lookup=True,
+                        caption_field='name',
                         inStartupData=True)
         tbl.column('code', size='2', group='_', readOnly=True, name_long='!![it]Code')
         tbl.column('name', size=':48', name_long='!![it]Name')
