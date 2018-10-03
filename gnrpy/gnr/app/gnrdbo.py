@@ -1114,7 +1114,6 @@ class GnrDboTable(TableBase):
 
     def updateParentFullTs(self, relation_field, parent_id=None):
         relatedTbl = self.column(relation_field).relatedTable().dbtable
-        print self.name, 'updateParentFullTs', relation_field
         relatedTbl.batchUpdate(dict(), pkey=parent_id)
            
 
