@@ -16,11 +16,11 @@ class GnrCustomWebPage(object):
 
         fb.textbox(value='^.url',lbl='Url',width='40em', readOnly=True)
         fb.dataRpc('.url',self.url,filepath='^.path')
-        left=root.contentPane(region='left',width='200px',splitter=True,background='#eee',
-                           datapath='.tree',overflow_y='auto')
         root.data('.store',StorageResolver(self.site.storage('locale:'),cacheTime=10,
                             include='*.txt', exclude='_*,.*',dropext=True,readOnly=False)()
                             )
+        root.tree(storepath='.store', hideValues=True, inspect='shift', draggable=True, dragClass='draggedItem')
+
         
     @public_method
     def writeContent(self,filepath=None,filecontent=None):

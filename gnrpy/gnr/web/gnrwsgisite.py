@@ -388,7 +388,8 @@ class GnrWsgiSite(object):
         return self.statics.add(static_handler_factory, **kwargs)
 
 
-    def storage(self,path,*args,**kwargs):
+    def storage(self,*args,**kwargs):
+        path = '/'.join(args)
         service_name, storage_path = path.split(':',1)
         service = self.getService(service_type='storage',service_name=service_name)
         if not service: return
@@ -1513,17 +1514,21 @@ class GnrWsgiSite(object):
         :param file_list: a string with the files names to be zipped
         :param zipPath: the result path of the zipped file"""
         import zipfile
-
         zipresult = open(zipPath, 'wb')
-        zip_archive = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED,allowZip64=True)
-        for fpath in file_list:
-            if isinstance(fpath,tuple):
-                fpath,newname = fpath
-            else:
-                newname = os.path.basename(fpath)
-            zip_archive.write(fpath, newname)
-        zip_archive.close()
-        zipresult.close()
+        if isinstance(zipPath, StorageNode):
+            openfile = lambda:StorageNode.open(mode='wb')
+        else:
+            openfile = lambda:open(zipPath, 'wb')
+        with openfile() as zipresult:
+            zip_archive = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED,allowZip64=True)
+            for fpath in file_list:
+                if isinstance(fpath,tuple):
+                    fpath,newname = fpath
+                else:
+                    newname = os.path.basename(fpath)
+                zip_archive.write(fpath, newname)
+            zip_archive.close()
+        #zipresult.close()
 
     def externalUrl(self, path,serveAsLocalhost=None, _link=False,**kwargs):
         """TODO
