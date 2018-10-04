@@ -202,6 +202,11 @@ dojo.declare("gnr.QueryManager", null, {
         var palette = genro.wdgById(this.th_root+'_queryEditor_floating');
         if(!queryEditor){
             if(currentQuery=='__basequery__' || currentQuery=='__newquery__'){
+                var where = this.sourceNode.getRelativeData('.query.where');
+                where.keys().slice(1).forEach(function(label){
+                    where.popNode(label);
+                });
+                this.buildQueryPane();
                 this.sourceNode.setRelativeData('.query.queryAttributes.extended',false);
             }
             if(palette){
