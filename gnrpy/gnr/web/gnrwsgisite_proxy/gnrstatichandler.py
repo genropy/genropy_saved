@@ -45,6 +45,7 @@ class StaticHandlerManager(object):
         return StaticHandler(self.site).serve(f, environ,start_response, download=download, **kwargs)
 
     def static_dispatcher(self, path_list, environ, start_response, download=False, **kwargs):
+        print 'Calling static_dispatcher %s ' % path_list 
         handler = self.get(path_list[0][1:])
         if handler:
             result = handler.serve(path_list, environ, start_response, download=download, **kwargs)

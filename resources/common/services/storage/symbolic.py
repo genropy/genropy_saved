@@ -1,26 +1,94 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 
-
-from gnr.lib.services.storage import StorageService
+from gnr.lib.services.storage import BaseLocalService
 from gnr.web.gnrbaseclasses import BaseComponent
 import os
-import shutil
-from paste import fileapp
-from paste.httpheaders import ETAG
+import tempfile
+from gnr.core.gnrsys import expandpath
 
-class Service(Local):
+class Service(BaseLocalService):
 
     @property
-    def location_identifier(self):
-        return 'symbolic '
+    def home_uri(self):
+        return self.parent.default_uri
+    
+    @property
+    def site_path(self):
+        return self.parent.storage('site:').internal_path()
 
-    def internal_path(self, path):
-        path_list = path.split('/')
-        base_path = self.site.resources.get(path_list[0])
-        if base_path:
-            return os.path.join(base_path, *(path[1:]))
+    def path_rsrc(self, resource_id, *args, **kwargs):
+        resource_path = self.parent.resources.get(resource_id)
+        if resource_path:
+            return os.path.join(resource_path, *args)
 
-    def url(self, path):
-        url = '%s/_rsrc/%s/%s' %(self.parent.external_host, path)
-        return url
+    def path_page(self, connection_id, page_id, *args, **kwargs):
+        os.path.join(self.site_path, 'data', '_connections', connection_id, page_id, *args)
+
+    def path_pages(self,  *args, **kwargs):
+        os.path.join(self.site_path, 'pages', *args)
+
+    def path_conn(self, connection_id, *args, **kwargs):
+        return os.path.join(self.site_path, 'data', '_connections', connection_id, *args)
+
+    def path_dojo(self, version, *args, **kwargs):
+        return expandpath(os.path.join(self.parent.dojo_path[version], *args))
+
+    def path_pkg(self, pkg, *args, **kwargs):
+        return os.path.join(self.parent.gnrapp.packages[pkg].packageFolder, *args)
+
+    def path_gnr(self, version, *args, **kwargs):
+        return expandpath(os.path.join(self.parent.gnr_path[version], *args))
+
+    def path_temp(self, *args, **kwargs):
+        return os.path.join(tempfile.gettempdir(), *args)
+
+    def path_user(self, user, *args, **kwargs):
+        return os.path.join(self.site_path, 'data', '_users', user, *args)
+
+    def url_site(self, *args, **kwargs):
+        return '%s_site/%s' % (self.home_uri, '/'.join(args))
+
+    def url_rsrc(self, resource_id, *args, **kwargs):
+        return '%s_rsrc/%s/%s' % (self.home_uri, resource_id, '/'.join(args))
+
+    def url_page(self, connection_id, page_id, *args, **kwargs):
+        return '%s_page/%s/%s/%s' % (self.home_uri, connection_id, page_id, '/'.join(args))
+
+    def url_pages(self,  *args, **kwargs):
+        return '%s_pages/%s' % (self.home_uri, '/'.join(args))
+
+
+    def url_conn(self, connection_id, *args, **kwargs):
+        return '%s_conn/%s/%s' % (self.home_uri, connection_id, '/'.join(args))
+
+    def url_dojo(self, version, *args, **kwargs):
+        if kwargs.get('_localroot'):
+            return '%s_dojo/%s/%s' % (kwargs.get('_localroot'), version, '/'.join(args))
+        return '%s_dojo/%s/%s' % (self.home_uri, version, '/'.join(args))
+
+    def url_pkg(self, pkg, *args, **kwargs):
+        return '%s_pkg/%s/%s' % (self.home_uri, pkg, '/'.join(args))
+
+    def url_gnr(self, version, *args, **kwargs):
+        if kwargs.get('_localroot'):
+            return '%s_gnr/%s/%s' % (kwargs.get('_localroot'), version, '/'.join(args))
+        else:
+            return '%s_gnr/%s/%s' % (self.home_uri, version, '/'.join(args))
+
+    def url_temp(self, path):
+        pass
+
+    def url_user(self, user, *args, **kwargs):
+        return '%s_user/%s/%s' % (self.home_uri, user, '/'.join(args))
+
+    def internal_path(self, path, **kwargs):
+        path_getter = getattr(self, 'path_%s'%self.service_name, None)
+        if path_getter:
+            return path_getter(*(path.split('/')), **kwargs)
+
+    def url(self, path, **kwargs):
+        url_getter = getattr(self, 'url_%s'%self.service_name, None)
+        if url_getter:
+            return url_getter(*(path.split('/')), **kwargs)
+

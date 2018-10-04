@@ -53,10 +53,13 @@ class ServiceHandler(object):
             pkglibroot = os.path.join(pkgobj.packageFolder,'lib','services')
             if os.path.isdir(pkglibroot):
                 services_roots.append(pkglibroot)
-        default_service_type_factory = None
+        default_service_type_factory = BaseServiceType
+        all_service_types = set()
         for service_root in services_roots:
-            service_types = [service_type for service_type, ext in map(os.path.splitext, os.path.listdir(service_root)) if ext=='.py']
+            service_types = [service_type for service_type, ext in map(os.path.splitext, os.listdir(service_root)) if ext=='.py']
             for service_type in service_types:
+                if service_type=='__init__': continue
+                all_service_types.add(service_type)
                 m = gnrImport(os.path.join(service_root,'%s.py' %service_type))
                 service_type_factory = getattr(m,'ServiceType',None)
                 if service_type_factory:
@@ -64,13 +67,12 @@ class ServiceHandler(object):
         resdirs = site.resource_loader.getResourceList(site.resources_dirs,'services')
         resdirs.reverse()
         for service_root in resdirs:
-            for service_type in service_types:
+            for service_type in list(all_service_types):
                 if not os.path.isdir(os.path.join(service_root,service_type)):
                     continue
                 service_type_factory = service_types_factories.get(service_type) or default_service_type_factory
                 self.service_types[service_type] = service_type_factory(self.site,service_type=service_type)
-
-
+        
     def getService(self,service_type=None,service_name=None):
         if not service_type in self.service_types:
             servattr = self.site.config.getAttr('services.%s' %service_type) #backward
@@ -108,7 +110,7 @@ class BaseServiceType(object):
 
     def getConfiguration(self,service_name):
         return self.getServiceConfigurationFromDb(service_name) or \
-                self.serviceConfigurationsFromSiteConfig(service_name) or \
+                self.getServiceConfigurationFromSiteConfig(service_name) or \
                 self.getServiceConfigurationFromSelf(service_name)
        
     
@@ -189,7 +191,7 @@ class BaseServiceType(object):
     def __call__(self, service_name=None):
         service = self.service_instances.get(service_name)
         if service is None:
-            service = self.addService(service_name)            
+            service = self.addService(service_name)
         return service
 
 

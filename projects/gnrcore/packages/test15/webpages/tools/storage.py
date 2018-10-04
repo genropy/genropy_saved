@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.core.gnrbag import Bag
+from gnr.lib.services.storage import StorageResolver
 
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
@@ -15,7 +16,12 @@ class GnrCustomWebPage(object):
 
         fb.textbox(value='^.url',lbl='Url',width='40em', readOnly=True)
         fb.dataRpc('.url',self.url,filepath='^.path')
-
+        left=root.contentPane(region='left',width='200px',splitter=True,background='#eee',
+                           datapath='.tree',overflow_y='auto')
+        root.data('.store',StorageResolver(self.site.storage('locale:'),cacheTime=10,
+                            include='*.txt', exclude='_*,.*',dropext=True,readOnly=False)()
+                            )
+        
     @public_method
     def writeContent(self,filepath=None,filecontent=None):
         storageNode = self.site.storage(filepath)
@@ -23,8 +29,7 @@ class GnrCustomWebPage(object):
             f.write(str(filecontent))
 
     @public_method
-    def url(self,filepath=None,filecontent=None):
+    def url(self,filepath=None,filecontent=None, **kwargs):
         storageNode = self.site.storage(filepath)
-        print storageNode
-        return storageNode.url
+        return storageNode.url(**kwargs)
         

@@ -399,11 +399,19 @@ class GnrWsgiSite(object):
             autocreate=autocreate, must_exist=must_exist)
 
     def storageDispatcher(self,path_list,environ, start_response,**kwargs):
-        storage_name = path_list[0]
-        path = '/'.join(path_list[1:])
-        print storage_name, ' - ',path
+        prefix = path_list.pop(0)[1:]
+        if prefix not in ('storage','vol'):
+            storage_name = prefix
+        else:
+            storage_name = path_list.pop(0)
+        path = '/'.join(path_list)
+        #print storage_name, ' - ',path
         storageNode = self.storage('%s:%s'%(storage_name,path))
-        return storageNode.serve(environ, start_response)
+        if storageNode:
+            return storageNode.serve(environ, start_response)
+        else:
+            print '-'
+            return self.not_found_exception(environ,start_response)
 
 
     def getStaticPath(self, static, *args, **kwargs):
@@ -812,9 +820,14 @@ class GnrWsgiSite(object):
         if path_list and path_list[0].startswith('_tools'):
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='TOOLS')
             return self.serve_tool(path_list, environ, start_response, **request_kwargs)
-        elif path_list and path_list[0].startswith('_storage'):
+        elif path_list and (path_list[0].startswith('_storage') or \
+            path_list[0].startswith('_site') or path_list[0].startswith('_rsrc') or \
+            path_list[0].startswith('_dojo') or path_list[0].startswith('_pkg') or \
+            path_list[0].startswith('_gnr') or path_list[0].startswith('_pages') or \
+            path_list[0].startswith('_conn') or path_list[0].startswith('_user') or \
+            path_list[0].startswith('_pages') or path_list[0].startswith('_vol')):
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='STORAGE')
-            return self.storageDispatcher(path_list[1:], environ, start_response, **request_kwargs)
+            return self.storageDispatcher(path_list, environ, start_response, **request_kwargs)
         elif path_list and path_list[0].startswith('_'):
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='STATIC')
             try:
