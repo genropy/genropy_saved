@@ -3,7 +3,7 @@ from gnr.core.gnrdecorator import public_method
 from gnr.web.gnrwebstruct import struct_method
 
 class BottomPlugins(BaseComponent):
-    py_requires='gnrcomponents/doc_handler/doc_handler:DocHandler,gnrcomponents/ticket_handler/ticket_handler:TicketHandler'
+    py_requires='gnrcomponents/doc_handler/doc_handler:DocHandler,ticket_handler/ticket_handler:TicketHandler'
     documentation = False
     tickets = False
 

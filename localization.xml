@@ -414,7 +414,6 @@
 <en_revert fr="Revenir" en="Revert" de="Zurückkehren" it="Annulla modifiche" base="Revert"></en_revert>
 <en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add>
 <en_delete fr="Effacer" de="Löschen" en="Delete" it="Cancellare" base="Delete"></en_delete></selectionhandler>
-<ticket_handler><ticket_handler path="resources/common/gnrcomponents/ticket_handler/ticket_handler.py" ext="py"><en_description base="Description" en="Description" it="Descrizione"></en_description>
 <en_title fr="Titre" de="Titel" en="Title" it="Titolo" base="Title"></en_title>
 <en_type fr="Type" de="Art" en="Type" it="Tipo" base="Type"></en_type>
 <en_date fr="Date" de="Datum" en="Date" it="Data" base="Date"></en_date>

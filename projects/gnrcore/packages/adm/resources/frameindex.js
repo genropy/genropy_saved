@@ -442,11 +442,11 @@ dojo.declare("gnr.FramedIndexManager", null, {
         }
     },
 
-    openDocForCurrentIframe:function(){
+    openHelpForCurrentIframe:function(){
         this.newBrowserWindowPage({
-            pageName:'DOCUMENTATION',
-            file:'/sys/docpage',
-            label: _T("Documentation")
+            pageName:'HELP_PAGE',
+            file:'/adm/helpdesk',
+            label: _T("Help")
         });
     },
 
