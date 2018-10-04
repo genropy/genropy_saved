@@ -1,12 +1,26 @@
 import os
 import glob
-from gnr.core.gnrbag import Bag
+from gnr.core.gnrbag import Bag,DirectoryResolver
 from gnr.core.gnrsys import expandpath
 from gnr.core.gnrlang import uniquify, GnrException
 from collections import defaultdict
 from gnr.app.gnrconfig import MenuStruct,IniConfStruct
 from gnr.app.gnrconfig import getGnrConfig,gnrConfigPath, setEnvironment
 
+
+
+def projectBag(project_name):
+    p=PathResolver()
+    result = Bag()
+    dr = DirectoryResolver(p.project_name_to_path(project_name),include='*.py',dropext=True)
+    for pkg,pkgval in dr['packages'].items():
+        tables = Bag()
+        result[pkg] = tables
+        for tbl in pkgval['model'].keys():
+            if tbl=='_packages':
+                continue
+            tables[tbl] = '%s.%s' %(pkg,tbl)
+    return result
 
     
 class EntityNotFoundException(GnrException):
