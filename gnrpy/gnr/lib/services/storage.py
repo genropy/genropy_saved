@@ -317,9 +317,7 @@ class StorageResolver(BagResolver):
                     cbres = self.callback(nodeattr=nodeattr)
                     if cbres is False:
                         continue
-                print label, 'dddd'
                 result.setItem(label, handler(storagenode) ,**nodeattr)
-            print result
         return result
 
     def makeLabel(self, name, ext):

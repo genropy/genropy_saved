@@ -3,7 +3,7 @@
 #
 #  Copyright (c) 2013 Softwell. All rights reserved.
 
-from gnr.lib.services.storage import StorageService
+from gnr.lib.services.storage import StorageService,StorageNode
 from gnr.web.gnrbaseclasses import BaseComponent
 #from gnr.core.gnrlang import componentFactory
 from smart_open import smart_open
@@ -73,7 +73,7 @@ class Service(StorageService):
         region_name=None, url_expiration=None, **kwargs):
         self.parent = parent
         self.bucket = bucket
-        self.base_path = base_path
+        self.base_path = base_path or ''
         self.aws_access_key_id=aws_access_key_id
         self.aws_secret_access_key=aws_secret_access_key
         self.aws_session_token=aws_session_token
@@ -84,7 +84,30 @@ class Service(StorageService):
         return 's3/%s/%s' % (self.region_name, self.bucket)
 
     def internal_path(self, path):
-        return '%s/%s'% (self.base_path, path)
+        outpath = '%s/%s'% (self.base_path, path) if path else self.base_path
+        return outpath.strip('/')
+
+    def _parent_path(self, path):
+        internalpath = self.internal_path(path)
+        path_list = internalpath.split('/')
+
+    def exists(self, path):
+        pass
+
+    def isdir(self, path):
+        internalpath = self.internal_path(path)
+        if internalpath =='':
+            return True
+        parent_path = '/'.join(internalpath.split('/')[:-1])
+        s3 = self._client
+        if parent_path and not parent_path.endswith('/'):
+            parent_path='%s/'%parent_path
+        response=s3.list_objects_v2(Bucket=self.bucket, Prefix=parent_path, Delimiter='/')
+        common_prefixes = response.get('CommonPrefixes')
+        dirnames = [c['Prefix'] for c in common_prefixes]
+        if  not internalpath.endswith('/'):
+            internalpath='%s/'%internalpath
+        return internalpath in dirnames
 
     @property
     def _session(self):
@@ -145,7 +168,34 @@ class Service(StorageService):
         if url:
             return self.parent.redirect(environ, start_response, location=url)
 
-
+    def listdir(self, path, **kwargs):
+        print 'listdir:', path
+        def strip_prefix(inpath, prefix=None):
+            prefix = prefix or self.base_path
+            return inpath.replace(prefix,'',1).strip('/')
+        s3 = self._client
+        dirpath = self.internal_path(path)
+        out = []
+        if dirpath and not dirpath.endswith('/'):
+            dirpath='%s/'%dirpath
+        response=s3.list_objects_v2(Bucket=self.bucket, Prefix=dirpath, Delimiter='/')
+        contents = response.get('Contents') or []
+        common_prefixes = response.get('CommonPrefixes') or []
+        for subdir in common_prefixes:
+            subprefix = subdir['Prefix']
+            if subprefix == dirpath:
+                continue
+            subpath = strip_prefix(subprefix)
+            out.append(StorageNode(parent=self.parent,
+                path=subpath,
+                service=self))
+        for rfile in contents:
+            key = rfile['Key']
+            if key == dirpath:
+                continue
+            out.append(StorageNode(parent=self.parent, 
+                path=strip_prefix(key), service=self))
+        return out
 
 class ServiceParameters(BaseComponent):
 
