@@ -71,11 +71,12 @@ class GnrWebDeveloper(GnrBaseProxy):
         return result
 
     @public_method
-    def saveTicket(self,record=None,**kwargs):
+    def saveNewTicket(self,record=None,**kwargs):
         helpdesk = self.page.getPreference('helpdesk',pkg='adm')
         result = NetBag(self.maintenanceServerUrl(),'save_ticket',record=record,
                             client_reference=helpdesk['client_reference'],
-                            task_reference=self.getTaskReference())()
+                            task_reference=self.getTaskReference(),
+                            report_user=self.page.user)()
         #return dict(path=filepath)
 
     @public_method

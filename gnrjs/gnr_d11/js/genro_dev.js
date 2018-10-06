@@ -1034,9 +1034,11 @@ dojo.declare("gnr.GnrDevHandler", null, {
             var bottom;
             if(idx>0){
                 bottom = bc._('contentPane',{region:'bottom',height:'40px'});
-                bottom._('lightbutton',{innerHTML:_T('Index'),action:"SET .page=pageName;",pageName:pages[0][0],
+                if(!page[2]){ //nobutton
+                    bottom._('lightbutton',{innerHTML:_T('Back'),action:"SET .page=pageName;",pageName:pages[0][0],
                                         _class:'helpdesk_btn helpdesk_footer',
                                         position:'absolute',left:'3px',top:'2px'});
+                }
             }
             genro.dev['openHelpDesk_'+page[0]](bc._('contentPane',{region:'center'}),bottom,pages);
         });
@@ -1072,7 +1074,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
     openHelpDesk_new_ticket:function(pane,bottom){
         var fb = genro.dev.formbuilder(pane._('div',{margin:'5px'}), 1, {border_spacing:'6px',datapath:'.record'});
-        fb.addField('textbox',{lbl:_T('Subject'),width:'30em'});
+        fb.addField('textbox',{value:'^.title',lbl:_T('Subject'),width:'30em'});
+        var sn = pane.getParentNode();
 
         genro.serverCall('dev.getNewTicketInfo',{},function(result){
             var priorities = result.getItem('priorities');
@@ -1083,32 +1086,41 @@ dojo.declare("gnr.GnrDevHandler", null, {
             if(questions){
                 fb.addField('checkboxText',{value:'^.ticket_answers',values:questions,cols:1});
             }
+            if(result.getItem('tasks')){
+                fb.addField('filteringSelect',{value:'^.task_id',values:result.getItem('tasks'),lbl:_T('Topic'),
+                                placeholder:_T('Current page')});
+            }
             fb.addField('filteringSelect',{value:'^.priority',values:priorities,lbl:_T('Priority')});
-            fb.addField('simpleTextArea',{value:'^.ticket_notes',lbl:'Notes'});
+            fb.addField('simpleTextArea',{value:'^.notes',lbl:'Notes',
+                                        lbl_vertical_align:'top',height:'80px',width:'300px'});
+            fb.addField('button',{action:function(){
+                var that = this;
+                genro.wdgById('helpdesk_floating').hide();
+                genro.dev.takePicture(function(data){
+                    genro.wdgById('helpdesk_floating').show(); 
+                    sn.setRelativeData('.record.screenshot',data);
+                });
+            },label:_T('Screenshot')});
+            fb.addField('br',{});
+            fb.addField('img',{src:'^.screenshot',height:'100px',width:'300px',boder:'1px solid silver'});
 
         });
 
-
-
-
-        var ticket_buttons = bottom._('div',{position:'absolute',right:'3px',top:'2px'});
         var savekw = {innerHTML:_T('Save ticket'),
                     _class:'helpdesk_btn helpdesk_footer',
-                    float:'right'};
-        var sn = pane.getParentNode();
+                    position:'absolute',right:'3px',top:'2px'};
         savekw.action = function(){
             genro.serverCall('dev.saveNewTicket',{
                 record:sn.getRelativeData('.record')
             },function(){
                 pane.getParentNode().setRelativeData('.record',new gnr.GnrBag());
+                genro.wdgById('helpdesk_floating').hide();
             });
         }
-        ticket_buttons._('lightbutton',savekw);
-
-        ticket_buttons._('lightbutton',{innerHTML:_T('Back'),_class:'helpdesk_btn helpdesk_footer',
-                                    float:'right',action:'SET .page=pageName',pageName:'bug_report'});
-
-
+        bottom._('lightbutton',savekw);
+        bottom._('lightbutton',{innerHTML:_T('Back'),_class:'helpdesk_btn helpdesk_footer',
+                                    action:'SET .page=pageName',pageName:'bug_report',
+                                    left:'3px',top:'2px'});
 
     },
 

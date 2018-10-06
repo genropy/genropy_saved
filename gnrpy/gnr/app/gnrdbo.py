@@ -1234,9 +1234,9 @@ class AttachmentTable(GnrDboTable):
 
 
     def trigger_convertDocFile(self,record,**kwargs):
-        if not record['filepath']:
+        if not record.get('filepath'):
             return
-        elif record['filepath']:
+        else:
             p,ext = os.path.splitext(record['filepath'])
             if ext.lower() in ('.doc','.docx'):
                 self.insertPdfFromDocAtc(record)
