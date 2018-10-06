@@ -8,8 +8,10 @@
 
 import os
 import datetime
+import urlparse
+
 from time import time
-from gnr.core.gnrbag import Bag
+from gnr.core.gnrbag import Bag,NetBag
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.core.gnrdecorator import public_method
 
@@ -29,6 +31,56 @@ class GnrWebDeveloper(GnrBaseProxy):
     @property
     def db(self):
         return self.page.db
+
+
+    def maintenanceServerUrl(self):
+        helpdesk = self.page.getPreference('helpdesk',pkg='adm')
+        url = helpdesk['url']
+        user = helpdesk['user']
+        password = helpdesk['password']
+        sp = urlparse.urlsplit(url)
+        return '%s://%s:%s@%s%s' %(sp.scheme,user,password,sp.netloc,sp.path)
+    
+
+    def getTaskReference(self):
+        task_reference = getattr(self.page,'task_reference',None) 
+        if task_reference:
+            return task_reference
+        maintable = getattr(self.page,'maintable',None)
+        project_code = self.db.application.packages[self.page.package.name].project
+        siteName = self.page.siteName
+        pagename = 'gnrwebpage.%s' %self.page.pagename
+        return '%s/%s/%s' %(project_code,self.page.package.name,maintable or pagename)
+
+
+    @public_method
+    def getCurrentTickets(self,**kwargs):
+        helpdesk = self.page.getPreference('helpdesk',pkg='adm')
+        result = NetBag(self.maintenanceServerUrl(),'get_tickets',
+                            client_reference=helpdesk['client_reference'],
+                            task_reference=self.getTaskReference())()
+        
+        return result
+
+
+    @public_method
+    def getNewTicketInfo(self,**kwargs):
+        helpdesk = self.page.getPreference('helpdesk',pkg='adm')
+        result = NetBag(self.maintenanceServerUrl(),'get_newticket_info',
+                    task_reference=self.getTaskReference())()
+        return result
+
+    @public_method
+    def saveTicket(self,record=None,**kwargs):
+        helpdesk = self.page.getPreference('helpdesk',pkg='adm')
+        result = NetBag(self.maintenanceServerUrl(),'save_ticket',record=record,
+                            client_reference=helpdesk['client_reference'],
+                            task_reference=self.getTaskReference())()
+        #return dict(path=filepath)
+
+    @public_method
+    def loadTicket(self,pkey=None,**kwargs):
+        return NetBag(self.maintenanceServerUrl(),'load_ticket',pkey=pkey)()
 
 
     def event_onCollectDatachanges(self):

@@ -5647,3 +5647,38 @@ div[disabled='true'], div[disabled='disabled']{
     background: transparent url(/_site/img/logo/clientlogo.png) no-repeat center center;
     background-size: contain;    
 }
+
+.helpdesk_btn{
+    font-size:12pt;
+    cursor:pointer;
+    min-width: 80px;
+    padding:3px;
+    padding-left:10px;
+    padding-right:10px;
+    border-radius: 4px;
+    margin: 5px;
+    color:#666;
+    text-align: center;
+    background-color: silver;
+    color:#444;
+    border:1px solid #ddd;
+}
+
+/*
+.helpdesk_btn.helpdesk_documentation{
+    color:white;
+}
+
+.helpdesk_btn.helpdesk_help{
+    color:white;
+}
+
+.helpdesk_btn.helpdesk_bug_reporting{
+    background-color: darkred;
+    color:white;
+}
+*/
+
+.helpdesk_btn.helpdesk_footer{
+    display: inline-block;
+}

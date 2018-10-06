@@ -154,7 +154,5 @@ class TicketHandler(BaseComponent):
 
     @public_method
     def tk_saveTicket(self,data=None,**kwargs):
-        print x
-        result = NetBag(self.tk_calcServiceUrl(),'save_ticket',record=data)()
-        print x
+        result = NetBag(self.tk_calcServiceUrl(),'save_ticket',record=data['record'])()
         #return dict(path=filepath)

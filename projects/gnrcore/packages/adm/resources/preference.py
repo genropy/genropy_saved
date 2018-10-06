@@ -37,6 +37,7 @@ class AppPref(object):
         fb.textbox(value='^.user',lbl='User',width='20em')
         fb.textbox(value='^.password',lbl='Password',width='15em',type='password')
         fb.textbox(value='^.client_reference',lbl='Client reference')
+        fb.textbox(value='^.documentation_url',lbl='Documentation url',width='40em')
         
 
     def _adm_dev(self,pane):
