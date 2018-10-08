@@ -83,7 +83,6 @@ class BaseResourceExport(BaseResourceBatch):
             columnsets[None]=''
             for columnset in info['columnsets']:
                 columnsets[columnset.getAttr('code')]=columnset.getAttr('name')
-            print columnsets
         for view in struct.values():
             for row in view.values():
                 curr_columnset = dict(start=0, name='')
