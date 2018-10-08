@@ -1097,9 +1097,11 @@ dojo.declare("gnr.GnrDevHandler", null, {
             var questions = result.getItem('questions');
             var locale = genro.locale();
             var lang = (locale=='it-IT')? 'it':'en';
-            questions = questions.getItem(lang);
             if(questions){
-                fb.addField('checkboxText',{value:'^.ticket_answers',values:questions,cols:1});
+                questions = questions.getItem(lang);
+                if (questions){
+                    fb.addField('checkboxText',{value:'^.ticket_answers',values:questions,cols:1});
+                }
             }
             if(result.getItem('tasks')){
                 fb.addField('filteringSelect',{value:'^.task_id',values:result.getItem('tasks'),lbl:_T('Topic'),
@@ -1127,6 +1129,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         savekw.action = function(){
             var record = sn.getRelativeData('.record');
             var extra_info = new gnr.GnrBag();
+            /*ACTIVE FORM VIENE MESSA QUELLA DEL TICKET...
             if(genro.activeForm){
                 var formInfo = new gnr.GnrBag();
                 try {
@@ -1139,6 +1142,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
                     //
                 }
             }
+            */
             if(genro.getData('gnr.errors')){
                 extra_info.setItem('js_errors',genro.getData('gnr.errors').deepCopy());
             }
