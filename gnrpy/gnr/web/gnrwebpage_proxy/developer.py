@@ -76,7 +76,7 @@ class GnrWebDeveloper(GnrBaseProxy):
         result = NetBag(self.maintenanceServerUrl(),'save_ticket',record=record,
                             client_reference=helpdesk['client_reference'],
                             task_reference=self.getTaskReference(),
-                            report_user=self.page.user)()
+                            report_avatar=Bag(self.page.avatar.as_dict()))()
         #return dict(path=filepath)
 
     @public_method

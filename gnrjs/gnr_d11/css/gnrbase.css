@@ -5682,3 +5682,50 @@ div[disabled='true'], div[disabled='disabled']{
 .helpdesk_btn.helpdesk_footer{
     display: inline-block;
 }
+
+.helpdesk_ticket_box{
+    display: block;
+    border:1px solid silver;
+    border-radius: 4px;
+    color:#444;
+    font-size:.9em;
+    margin:2px;
+    background: white;
+}
+.helpdesk_ticket_top{
+    background:#711B2A;
+    color:white;
+    font-weight: bold;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    position: relative;
+    height: 16px;
+}
+.helpdesk_ticket_subject{
+    position: absolute;
+    left:5px;
+    top:1px;
+    right:5px;
+    text-align: center;
+}
+
+.helpdesk_ticket_date{
+    position: absolute;
+    top:1px;
+    left:5px;
+    text-align: left;
+}
+
+.helpdesk_ticket_status{
+    position: absolute;
+    top:1px;
+    right:5px;
+    text-align: left;
+}
+
+.helpdesk_ticket_summary{
+    color:#888;
+    font-style: italic;
+    text-align: justify;
+    padding:5px;
+}

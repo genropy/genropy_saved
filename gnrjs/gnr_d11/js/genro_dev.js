@@ -1060,12 +1060,27 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
     },
 
+    _helpDeskTicketTemplate : function(){
+        var t = '';
+            t += '<div class="helpdesk_ticket_top">';
+                t += '<div class="helpdesk_ticket_subject">$subject</div>';
+                t += '<div class="helpdesk_ticket_date">$date</div>';
+            t += '</div>';
+            t += '<div class"helpdesk_ticket_body">';
+                t += '<div class"helpdesk_ticket_summary">$summary</div>';
+            t += '</div>';
+            t += '<div class"helpdesk_ticket_bottom">';
+                t += '&nbsp;';
+            t += '</div>';
+        return t;
+    },
 
     openHelpDesk_bug_report:function(pane,bottom){
+        var template = this._helpDeskTicketTemplate();
         genro.serverCall('dev.getCurrentTickets',{},function(reported_tickets){
             if(reported_tickets){
                 reported_tickets.forEach(function(n){
-                    pane._('lightbutton',{innerHTML:n.attr.title,_class:'helpdesk_btn helpdesk_ticket'});
+                    pane._('div',{innerHTML:dataTemplate(template,n.attr),_class:'helpdesk_ticket_box'});
                 });
             }
             bottom._('lightbutton',{innerHTML:_T('New ticket'),'float':'right',_class:'helpdesk_btn helpdesk_footer',
@@ -1110,8 +1125,26 @@ dojo.declare("gnr.GnrDevHandler", null, {
                     _class:'helpdesk_btn helpdesk_footer',
                     position:'absolute',right:'3px',top:'2px'};
         savekw.action = function(){
+            var record = sn.getRelativeData('.record');
+            var extra_info = new gnr.GnrBag();
+            if(genro.activeForm){
+                var formInfo = new gnr.GnrBag();
+                try {
+                    formInfo.setItem('formId',genro.activeForm.formId);
+                    formInfo.setItem('controller',genro.activeForm.getControllerData().deepCopy());
+                    formInfo.setItem('record',genro.activeForm.getControllerData().deepCopy());
+                    extra_info.setRelativeData('activeForm',formInfo.getFormData().deepCopy());
+                } catch (error) {
+                    console.log('error',error);
+                    //
+                }
+            }
+            if(genro.getData('gnr.errors')){
+                extra_info.setItem('js_errors',genro.getData('gnr.errors').deepCopy());
+            }
+            record.setItem('extra_info',extra_info);
             genro.serverCall('dev.saveNewTicket',{
-                record:sn.getRelativeData('.record')
+                record:record
             },function(){
                 pane.getParentNode().setRelativeData('.record',new gnr.GnrBag());
                 genro.wdgById('helpdesk_floating').hide();
@@ -1164,7 +1197,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         });
 
         dojo.connect(overlay,'mouseup',function(event){
-           isSelection = false
+           isSelection = false;
            if(isBottomRight){
              x2 = event.pageX - pos[0]
              y2 = event.pageY - pos[1]
