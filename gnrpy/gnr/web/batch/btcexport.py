@@ -98,7 +98,6 @@ class BaseResourceExport(BaseResourceBatch):
                     self.coltypes[col] = cell.getAttr('dtype')
                     columnset = cell.getAttr('columnset')
                     columnset_name = columnsets.get(columnset)
-                    print columnset_name
                     if columnset_name!=curr_columnset.get('name'):
                         curr_columnset['end']=curr_column-1
                         if curr_columnset.get('name'):
