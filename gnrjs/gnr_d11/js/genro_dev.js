@@ -1024,7 +1024,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
         parent.freeze();
         genro.setData('gnr.helpdesk',new gnr.GnrBag());
         var pane = parent._('palettePane',{'paletteCode':'helpdesk','dockTo':false,
-                                        title:_T('Helpdesk'),height:'550px',width:'400px'});
+                                        title:_T('Helpdesk'),height:'550px',width:'400px',
+                                        'z_index':100000});
         var sc = pane._('stackContainer',{selectedPage:'^.page',datapath:'gnr.helpdesk'});
         var pages = [['index',_T('Index'),true],['documentation',_T('Documentation')],
                     ['help',_T('Help')],['bug_report',_T('Report a bug')],
