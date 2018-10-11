@@ -1022,9 +1022,10 @@ dojo.declare("gnr.GnrDevHandler", null, {
         genro.src.getNode()._('div', '_helpdesk_');
         var parent = genro.src.getNode('_helpdesk_').clearValue();
         parent.freeze();
+        genro.setData('gnr.helpdesk',new gnr.GnrBag());
         var pane = parent._('palettePane',{'paletteCode':'helpdesk','dockTo':false,
                                         title:_T('Helpdesk'),height:'550px',width:'400px'});
-        var sc = pane._('stackContainer',{selectedPage:'^.page',datapath:'helpdesk'});
+        var sc = pane._('stackContainer',{selectedPage:'^.page',datapath:'gnr.helpdesk'});
         var pages = [['index',_T('Index'),true],['documentation',_T('Documentation')],
                     ['help',_T('Help')],['bug_report',_T('Report a bug')],
                     ['new_ticket',_T('New ticket'),true]];
@@ -1149,9 +1150,13 @@ dojo.declare("gnr.GnrDevHandler", null, {
             record.setItem('extra_info',extra_info);
             genro.serverCall('dev.saveNewTicket',{
                 record:record
-            },function(){
-                pane.getParentNode().setRelativeData('.record',new gnr.GnrBag());
-                genro.wdgById('helpdesk_floating').hide();
+            },function(result){
+                if(result && result.getItem('error')){
+                    genro.dlg.floatingMessage(pane.getParentNode(),{message:result.getItem('error'),messageType:'error'});
+                }else{
+                    pane.getParentNode().setRelativeData('.record',new gnr.GnrBag());
+                    genro.wdgById('helpdesk_floating').hide();
+                }
             });
         }
         bottom._('lightbutton',savekw);

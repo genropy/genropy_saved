@@ -77,6 +77,7 @@ class GnrWebDeveloper(GnrBaseProxy):
                             client_reference=helpdesk['client_reference'],
                             task_reference=self.getTaskReference(),
                             report_avatar=Bag(self.page.avatar.as_dict()))()
+        return result
         #return dict(path=filepath)
 
     @public_method
