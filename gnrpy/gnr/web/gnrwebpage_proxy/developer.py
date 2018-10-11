@@ -47,10 +47,11 @@ class GnrWebDeveloper(GnrBaseProxy):
         if task_reference:
             return task_reference
         maintable = getattr(self.page,'maintable',None)
-        project_code = self.db.application.packages[self.page.package.name].project
+        pkg = maintable.split('.')[0] or self.page.package.name
+        project_code = self.db.application.packages[pkg].project
         siteName = self.page.siteName
         pagename = 'gnrwebpage.%s' %self.page.pagename
-        return '%s/%s/%s' %(project_code,self.page.package.name,maintable or pagename)
+        return '%s/%s/%s' %(project_code,pkg,maintable or pagename)
 
 
     @public_method
