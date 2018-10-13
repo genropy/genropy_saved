@@ -234,7 +234,7 @@ class TableBase(object):
     @extract_kwargs(counter=True)
     def sysFields(self, tbl, id=True, ins=True, upd=True, full_upd=False, ldel=True, user_ins=None, user_upd=None, 
                   draftField=False, invalidFields=None,invalidRelations=None,md5=False,
-                  counter=None,hierarchical=None,useProtectionTag=None,
+                  counter=None,hierarchical=None,hierarchical_root_id=False,useProtectionTag=None,
                   group='zzz', group_name='!!System',
                   df=None,counter_kwargs=None,**kwargs):
         """Add some useful columns for tables management (first of all, the ``id`` column)
@@ -299,6 +299,10 @@ class TableBase(object):
                                                                                         one_group=group,many_group=group)
             tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname),group='*')
             tbl.formulaColumn('hlevel',"""length($hierarchical_pkey)-length(replace($hierarchical_pkey,'/',''))+1""",group='*')
+            if hierarchical_root_id:
+                tbl.column('root_id',sql_value="(CASE WHEN :parent_id IS NOT NULL THEN substring(:hierarchical_pkey from 1 for 22) ELSE NULL END)",
+                            group='*',size='22').relation('%s.id' %tblname,relation_name='_grandchildren',mode='foreignkey',one_name='!!Root',many_name='!!Grandchildren',
+                                                onDelete='ignore')
 
             hfields = []
             for fld in hierarchical.split(','):
@@ -320,6 +324,7 @@ class TableBase(object):
             tbl.attributes['hierarchical'] = ','.join(hfields)
             if not counter:
                 tbl.attributes.setdefault('order_by','$hierarchical_%s' %hfields[0] )
+            
             broadcast = tbl.attributes.get('broadcast')
             broadcast = broadcast.split(',') if broadcast else []
             if 'parent_id' not in broadcast:
