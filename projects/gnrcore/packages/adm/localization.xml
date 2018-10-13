@@ -245,7 +245,7 @@
 <en_open_the_page_outside_frame fr="Ouvrez le cadre extérieur de la page" de="Öffnen Sie die Seite Außenrahmen" en="Open the page outside frame" it="Aprire la pagina in tab esterna" base="Open the page outside frame"></en_open_the_page_outside_frame>
 <en_open_documentation fr="Ouvrir la documentation" de="Öffnen Dokumentation" en="Open documentation" it="Documentazione Aperto" base="Open documentation"></en_open_documentation>
 <en_open_genro_ide base="Open Genro IDE"></en_open_genro_ide>
-<en_application_preference fr="Préférence d'application" de="Anwendungseinstellung" en="Application preference" it="Secondo l'applicazione" base="Application preference"></en_application_preference>
+<en_application_preference fr="Préférence d'application" en="Application preference" de="Anwendungseinstellung" it="Configurazione applicazione" base="Application preference"></en_application_preference>
 <en_user_preference fr="la préférence de l'utilisateur" de="Benutzereinstellungen" en="User preference" it="Preferenza per l'uso" base="User preference"></en_user_preference>
 <en_show_hide_the_left_pane fr="Afficher / Masquer le volet de gauche" de="Show / Hide linken Bereich" en="Show/Hide the left pane" it="Mostra / Nascondi riquadro di sinistra" base="Show/Hide the left pane"></en_show_hide_the_left_pane>
 <en_refresh_the_current_page fr="Rafraîchir la page actuelle" de="Aktualisiere die aktuelle Seite" en="Refresh the current page" it="Aggiorna la pagina corrente" base="Refresh the current page"></en_refresh_the_current_page>
