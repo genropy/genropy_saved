@@ -694,14 +694,14 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
     },
     mixin_saveExpanded:function(){
         var that = this;
-        this._savedExpandedStatus = dojo.query('.dijitTreeContentExpanded',that.domNode).map(function(n){
+        this.sourceNode._savedExpandedStatus = dojo.query('.dijitTreeContentExpanded',that.domNode).map(function(n){
                                             return that.model.store.getIdentity(dijit.getEnclosingWidget(n).item);});
     },
     
     mixin_restoreExpanded:function(){
-        if (this._savedExpandedStatus){
+        if (this.sourceNode._savedExpandedStatus){
             var that = this;
-            dojo.forEach(this._savedExpandedStatus,function(n){
+            dojo.forEach(this.sourceNode._savedExpandedStatus,function(n){
                 if(n){
                     var tn = that._itemNodeMap[n];
                     if(tn){
@@ -710,6 +710,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                 }
             });
         }
+        delete this.sourceNode._savedExpandedStatus;
     },
     mixin_expandAll:function(rootNode){
         var that = this;
