@@ -300,7 +300,7 @@ class TableBase(object):
             tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname),group='*')
             tbl.formulaColumn('hlevel',"""length($hierarchical_pkey)-length(replace($hierarchical_pkey,'/',''))+1""",group='*')
             if hierarchical_root_id:
-                tbl.column('root_id',sql_value="(CASE WHEN :parent_id IS NOT NULL THEN substring(:hierarchical_pkey from 1 for 22) ELSE NULL END)",
+                tbl.column('root_id',sql_value="substring(:hierarchical_pkey from 1 for 22)",
                             group='*',size='22').relation('%s.id' %tblname,relation_name='_grandchildren',mode='foreignkey',one_name='!!Root',many_name='!!Grandchildren',
                                                 onDelete='ignore')
 
