@@ -399,6 +399,19 @@ class GnrWsgiSite(object):
         return StorageNode(parent=self, path=storage_path, service=service,
             autocreate=autocreate, must_exist=must_exist)
 
+    def build_lazydoc(self,lazydoc,fullpath=None):
+        ext = os.path.splitext(fullpath)[1]
+        ext = ext.replace('.','') if ext else None 
+        if lazydoc.startswith('service:'):
+            return  self.getService(lazydoc.split(':')[1])(fullpath=fullpath) is not False
+        table,pkey,method = gnrstring.splitAndStrip(lazydoc,sep=',',fixed=3)
+        dflt_method = 'create_cached_document_%s' %ext if ext else 'create_cached_document'
+        m = getattr(self.db.table(table),(method or dflt_method),None)
+        if m:
+            self.currentPage = self.dummyPage
+            result = m(pkey)
+            return result is not False
+
     def storageDispatcher(self,path_list,environ, start_response,**kwargs):
         prefix = path_list.pop(0)[1:]
         if prefix not in ('storage','vol'):
@@ -406,14 +419,18 @@ class GnrWsgiSite(object):
         else:
             storage_name = path_list.pop(0)
         path = '/'.join(path_list)
-        #print storage_name, ' - ',path
         storageNode = self.storage('%s:%s'%(storage_name,path))
-        if storageNode:
-            return storageNode.serve(environ, start_response)
-        else:
-            print '-'
-            return self.not_found_exception(environ,start_response)
-
+        exists = storageNode and storageNode.exists
+        if not exists and '_lazydoc' in kwargs:
+            fullpath = None ### QUI NON DOBBIAMO USARE I FULLPATH
+            exists = self.build_lazydoc(kwargs['_lazydoc'],fullpath=fullpath)
+        if not exists:
+            if kwargs.get('_lazydoc'):
+                headers = []
+                start_response('200 OK', headers)
+                return ['']
+            return self.site.not_found_exception(environ, start_response)
+        return storageNode.serve(environ, start_response)
 
     def getStaticPath(self, static, *args, **kwargs):
         """TODO

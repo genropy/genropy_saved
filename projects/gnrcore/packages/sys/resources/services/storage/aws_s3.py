@@ -8,6 +8,7 @@ from gnr.web.gnrbaseclasses import BaseComponent
 #from gnr.core.gnrlang import componentFactory
 from smart_open import smart_open
 import boto3
+import botocore
 import os
 import tempfile
 import mimetypes
@@ -23,17 +24,17 @@ class S3LocalFile(object):
         self.close_called = False
         self.session = s3_session
         self.s3 = self.session.client('s3')
-        
+
     def __getattr__(self, name):
         file = self.__dict__['file']
         a = getattr(file, name)
         if not issubclass(type(a), type(0)):
             setattr(self, name, a)
         return a
-    
+
     def __del__(self):
         self.close()
-    
+
     def open(self):
         self.fd,self.name = tempfile.mkstemp()
         self.file = os.fdopen(self.fd, 'w+b')
@@ -64,10 +65,31 @@ class S3LocalFile(object):
     def __exit__(self, exc, value, tb):
         return self.close(exit_args=(exc, value, tb))
 
+class S3TemporaryFilename(object):
+    def __init__(self, bucket=None, key=None, s3_session=None):
+        self.bucket = bucket
+        self.key = key
+        self.mode = mode
+        self.write_mode = ('w' in mode) or False
+        self.read_mode = not self.write_mode
+        self.file = None
+        self.close_called = False
+        self.session = s3_session
+        self.s3 = self.session.client('s3')
+
+    def __enter__(self):
+        self.fd,self.name = tempfile.mkstemp()
+        return self.name
+
+    def __exit__(self, exc, value, tb):
+        self.file = os.fdopen(self.fd, 'w+b')
+        self.s3.upload_fileobj(self.file, self.bucket,self.key)
+        self.file.close()
+        os.unlink(self.name)
 
 class Service(StorageService):
 
-    def __init__(self, parent=None, bucket=None, 
+    def __init__(self, parent=None, bucket=None,
         base_path=None, aws_access_key_id=None,
         aws_secret_access_key=None, aws_session_token=None,
         region_name=None, url_expiration=None, **kwargs):
@@ -92,7 +114,23 @@ class Service(StorageService):
         path_list = internalpath.split('/')
 
     def exists(self, path):
-        pass
+        s3 = self._client
+        internalpath = self.internal_path(path)
+        try:
+            response = s3.head_object(
+                    Bucket=self.bucket,
+                    Key=internalpath)
+        except botocore.exceptions.ClientError as e:
+            if e.response['Error']['Code'] == "404":
+                return False
+            else:
+                raise
+        return True
+
+    def workable_path(self, path):
+        internalpath = self.internal_path(path)
+        return S3TemporaryFilename(bucket=self.bucket, key=internalpath,
+            s3_session=self._session)
 
     def isdir(self, path):
         internalpath = self.internal_path(path)
@@ -117,7 +155,7 @@ class Service(StorageService):
             aws_secret_access_key= self.aws_secret_access_key,
             region_name= self.region_name)
 
-    def _s3_copy(self, source_bucket=None, source_key=None, 
+    def _s3_copy(self, source_bucket=None, source_key=None,
         dest_bucket=None, dest_key=None):
         source_pars = {'Bucket' : source_bucket,
                     'Key':source_key}
@@ -136,10 +174,16 @@ class Service(StorageService):
         _content_disposition = _content_disposition or 'inline'
         _content_type = mimetypes.guess_type(path)[0]
         expiration = kwargs.pop('expiration', self.url_expiration)
-        return self._client.generate_presigned_url('get_object', 
+        return self._client.generate_presigned_url('get_object',
             Params={'Bucket': self.bucket,'Key': self.internal_path(path),
                 'ResponseContentDisposition':_content_disposition,
-                'ResponseContentType':_content_type}, 
+                'ResponseContentType':_content_type},
+            ExpiresIn=expiration)
+
+    def upload_url(self, path, **kwargs):
+        expiration = kwargs.pop('expiration', self.url_expiration)
+        return self._client.generate_presigned_url('put_object',
+            Params={'Bucket': self.bucket,'Key': self.internal_path(path)},
             ExpiresIn=expiration)
 
     def open(self, path, mode=None,  **kwargs):
@@ -157,7 +201,7 @@ class Service(StorageService):
             source_key=sourceNode.internal_path,
             dest_bucket=destNode.bucket, dest_key=destNode.bucket)
         self.delete(sourceNode.path)
-    
+
     def serve(self, path, environ, start_response, download=False, download_name=None, **kwargs):
         if download or download_name:
             download_name = download_name or self.base_name
@@ -169,7 +213,6 @@ class Service(StorageService):
             return self.parent.redirect(environ, start_response, location=url)
 
     def listdir(self, path, **kwargs):
-        print 'listdir:', path
         def strip_prefix(inpath, prefix=None):
             prefix = prefix or self.base_path
             return inpath.replace(prefix,'',1).strip('/')
@@ -193,7 +236,7 @@ class Service(StorageService):
             key = rfile['Key']
             if key == dirpath:
                 continue
-            out.append(StorageNode(parent=self.parent, 
+            out.append(StorageNode(parent=self.parent,
                 path=strip_prefix(key), service=self))
         return out
 
