@@ -38,6 +38,9 @@ class GnrWebDeveloper(GnrBaseProxy):
         url = helpdesk['url']
         user = helpdesk['user']
         password = helpdesk['password']
+        return self.authenticatedUrl(url=url,user=user,password=password)
+        
+    def authenticatedUrl(self,url=None,user=None,password=None):
         sp = urlparse.urlsplit(url)
         return '%s://%s:%s@%s%s' %(sp.scheme,user,password,sp.netloc,sp.path)
     

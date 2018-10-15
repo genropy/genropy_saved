@@ -888,11 +888,12 @@ class TableBase(object):
         else:
             for r in rows:
                 fieldpath = r['code']
-                fullcaption = r['description']
+                description = r.get('description') or fieldpath.title()
+                fullcaption = description
                 if df_field:
                     fieldpath='%s.%s' %(df_field,r['code'])
                     fullcaption='%s/%s' %(df_caption,r['description'])
-                result.setItem(r['code'],None,caption=r['description'],dtype=r['data_type'],
+                result.setItem(r['code'],None,caption=description,dtype=r.get('data_type','T'),
                                 fieldpath=fieldpath,fullcaption=fullcaption)
         return result
                      

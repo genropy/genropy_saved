@@ -9,17 +9,29 @@ from gnr.app.gnrconfig import getGnrConfig,gnrConfigPath, setEnvironment
 
 
 
-def projectBag(project_name):
+def projectBag(project_name,packages=None,branches=None,exclude_branches=None):
     p=PathResolver()
     result = Bag()
+    branches = branches.split(',') if isinstance(branches,basestring) else (branches or [])
+    packages = packages.split(',') if isinstance(packages,basestring) else (packages or [])
+
     dr = DirectoryResolver(p.project_name_to_path(project_name),include='*.py',dropext=True)
     for pkg,pkgval in dr['packages'].items():
-        tables = Bag()
-        result[pkg] = tables
+        if packages and pkg not in packages:
+            continue
+        packagecontent = Bag()
+        result[pkg] = packagecontent
         for tbl in pkgval['model'].keys():
             if tbl=='_packages':
                 continue
-            tables[tbl] = '%s.%s' %(pkg,tbl)
+            packagecontent['tables.%s' %tbl] = '%s.%s' %(pkg,tbl)
+        for branch in branches:
+            branchbag = Bag()
+            packagecontent[branch.replace('.','_')] = branchbag
+            branchval  = pkgval.pop(branch)
+            if branchval:
+                for path in branchval.getIndexList():
+                    branchbag[path] = path.split('.')[-1]
     return result
 
     
