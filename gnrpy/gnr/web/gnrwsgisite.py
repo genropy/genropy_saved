@@ -258,13 +258,10 @@ class GnrWsgiSite(object):
         self.resource_loader = ResourceLoader(self)
         self.page_factory_lock = RLock()
         self.webtools = self.resource_loader.find_webtools()
-        self.services = ServiceHandlerManager(self)
-        #self.services_handler = ServiceHandler(self)
-
-        self.mail_handler = self.addService(WebMailHandler, service_name='mail')
+        self.services = ServiceHandlerManager(self) #legacy services
+        self.addLegacyService(PrintHandler, service_name='print') #legacy print 
+        self.addLegacyService(WebMailHandler, service_name='mail')
         #self.services.addSiteServices()
-
-
         self.register
 
 
@@ -284,16 +281,6 @@ class GnrWsgiSite(object):
         self.page_max_age = int(cleanup.get('page_max_age') or 120)
         self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
 
-  
-        
-    @deprecated
-    @property
-    def print_handler(self):
-        """.. warning:: deprecated mail"""
-
-        if not hasattr(self,'_print_handler'):
-            self._print_handler = self.addService(PrintHandler, service_name='print')
-        return self._print_handler
 
     @property
     def services_handler(self):
@@ -364,29 +351,14 @@ class GnrWsgiSite(object):
                     for k,v in attr.items():
                         self.extraFeatures['%s_%s' %(n.label,k)] = v
 
-    def addService(self, service_handler, service_name=None,**kwargs):
-        """TODO
-
-        :param service_handler: TODO
-        :param service_name: TODO"""
+    def addLegacyService(self, service_handler, service_name=None,**kwargs):
         return self.services.add(service_handler, service_name=service_name, **kwargs)
-    #
-    #
-    #def getService_old(self, service_type=None,service_name=None):
-    #    """TODO
-    #
-    #    :param service_name: TODO"""
-    #    service_name = service_type or service_name
-#
-    #    if self.currentPage and self.currentPage.rootenv:
-    #        page = self.currentPage
-    #        service_name = page.rootenv['custom_services.%s' %service_name] or service_name
-    #    return self.services.get(service_type,service_name)
+    
 
     def getService(self, service_type=None,service_name=None):
         result =  self.services_handler.getService(service_type=service_type,service_name=service_name or service_type)
         if not result:
-            result = self.services.get(service_name or service_type)
+            result = self.services.get(service_name or service_type) #legacy mode
         return result
 
     def addStatic(self, static_handler_factory, **kwargs):
