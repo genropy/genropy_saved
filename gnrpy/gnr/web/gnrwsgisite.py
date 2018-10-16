@@ -15,6 +15,7 @@ import urllib
 import urllib2
 import httplib2
 import locale
+from gnr.core import gnrstring
 
 from time import time
 from collections import defaultdict
@@ -368,10 +369,13 @@ class GnrWsgiSite(object):
         return self.statics.add(static_handler_factory, **kwargs)
 
 
-    def storage(self,*args,**kwargs):
+    def storage(self, storage_name,**kwargs):
+        return self.getService(service_type='storage',service_name=storage_name)
+
+    def storageNode(self,*args,**kwargs):
         path = '/'.join(args)
         service_name, storage_path = path.split(':',1)
-        service = self.getService(service_type='storage',service_name=service_name)
+        service = self.storage(service_name)
         if not service: return
         autocreate = kwargs.pop('autocreate', False)
         must_exist = kwargs.pop('must_exist', False)
@@ -399,7 +403,7 @@ class GnrWsgiSite(object):
         else:
             storage_name = path_list.pop(0)
         path = '/'.join(path_list)
-        storageNode = self.storage('%s:%s'%(storage_name,path))
+        storageNode = self.storageNode('%s:%s'%(storage_name,path))
         exists = storageNode and storageNode.exists
         if not exists and '_lazydoc' in kwargs:
             fullpath = None ### QUI NON DOBBIAMO USARE I FULLPATH
@@ -409,7 +413,7 @@ class GnrWsgiSite(object):
                 headers = []
                 start_response('200 OK', headers)
                 return ['']
-            return self.site.not_found_exception(environ, start_response)
+            return self.not_found_exception(environ, start_response)
         return storageNode.serve(environ, start_response)
 
     def getStaticPath(self, static, *args, **kwargs):

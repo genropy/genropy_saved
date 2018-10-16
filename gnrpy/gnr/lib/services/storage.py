@@ -16,7 +16,7 @@ from paste.httpheaders import ETAG
 class NotExistingStorageNode(Exception):
     pass
 
-class WorkablePath(object):
+class LocalPath(object):
     def __init__(self, fullpath=None):
         self.fullpath = fullpath
 
@@ -114,6 +114,9 @@ class StorageNode(object):
     def serve(self, environ, start_response):
         return self.service.serve(self.path, environ, start_response)
 
+    def local_path(self, mode='r'):
+        return self.service.local_path(self.path, mode=mode)
+
 class StorageService(GnrBaseService):
 
     def _getNode(self, node=None):
@@ -197,9 +200,9 @@ class BaseLocalService(StorageService):
     def exists(self, path):
         return os.path.exists(self.internal_path(path))
 
-    def workable_path(self, path): #TODO: vedere se fare così o con altro metodo
+    def local_path(self, path): #TODO: vedere se fare così o con altro metodo
         internalpath = self.internal_path(path)
-        return WorkablePath(fullpath=internalpath)
+        return LocalPath(fullpath=internalpath)
 
     def isdir(self, path):
         return os.path.isdir(self.internal_path(path))
