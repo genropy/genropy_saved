@@ -262,9 +262,7 @@ class GnrWsgiSite(object):
         self.services = ServiceHandlerManager(self)
         #self.services_handler = ServiceHandler(self)
 
-        self.print_handler = self.addService(PrintHandler, service_name='print')
         self.mail_handler = self.addService(WebMailHandler, service_name='mail')
-        self.task_handler = self.addService(TaskHandler, service_name='task')
         #self.services.addSiteServices()
 
 
@@ -286,6 +284,17 @@ class GnrWsgiSite(object):
         self.cleanup_interval = int(cleanup.get('interval') or 120)
         self.page_max_age = int(cleanup.get('page_max_age') or 120)
         self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
+
+  
+        
+    @deprecated
+    @property
+    def print_handler(self):
+        """.. warning:: deprecated mail"""
+
+        if not hasattr(self,'_print_handler'):
+            self._print_handler = self.addService(PrintHandler, service_name='print')
+        return self._print_handler
 
     @property
     def services_handler(self):

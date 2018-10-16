@@ -456,7 +456,6 @@
 <en_copy_from fr="Copiez De" de="Kopieren Sie aus" en="Copy From" it="Copia da" base="Copy From"></en_copy_from>
 <en_custom fr="Coutume" de="Brauch" en="Custom" it="Abitudine" base="Custom"></en_custom>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save></tpleditor></gnrcomponents>
-<print_utils path="resources/common/print_utils.py" ext="py"><en_no_printer_selected base="No printer selected" en="No printer selected" it="Nessun stampante selezionata"></en_no_printer_selected>
 <en_warning fr="Avertissement" de="Warnung" en="Warning" it="Avvertimento" base="Warning"></en_warning>
 <en_print_options fr="Les options d'impression" de="Druckoptionen" en="Print options" it="Opzioni di stampa" base="Print options"></en_print_options>
 <en_close fr="Près" de="Schließen" en="Close" it="Vicino" base="Close"></en_close>
@@ -470,7 +469,6 @@
 <en_forked_process fr="Processus fourchue" de="Gegabelten Prozess" en="Forked process" it="Processo a forcella" base="Forked process"></en_forked_process>
 <en_general fr="Général" de="General" en="General" it="Generale" base="General"></en_general>
 <en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel></print_utils>
-<print_utils_new path="resources/common/print_utils_new.py" ext="py"><en_no_printer_selected base="No printer selected" en="No printer selected" it="Nessun stampante selezionata"></en_no_printer_selected>
 <en_warning fr="Avertissement" de="Warnung" en="Warning" it="Avvertimento" base="Warning"></en_warning>
 <en_print_options fr="Les options d'impression" de="Druckoptionen" en="Print options" it="Opzioni di stampa" base="Print options"></en_print_options>
 <en_close fr="Près" de="Schließen" en="Close" it="Vicino" base="Close"></en_close>
