@@ -53,7 +53,7 @@ class GnrWebDeveloper(GnrBaseProxy):
         pkg = maintable.split('.')[0] or self.page.package.name
         project_code = self.db.application.packages[pkg].project
         siteName = self.page.siteName
-        pagename = 'gnrwebpage.%s' %self.page.pagename
+        pagename = 'webpage.%s' %self.page.pagename
         return '%s/%s/%s' %(project_code,pkg,maintable or pagename)
 
 
