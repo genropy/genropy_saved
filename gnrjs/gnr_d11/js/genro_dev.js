@@ -996,7 +996,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
     errorPalette:function(parent){
         if(!parent){
             var root = genro.src.newRoot();
-            genro.src.getNode()._('div', '_devErrors_');
+            genro.src.getNode()._('div', '_helpdesk_');
             var parent = genro.src.getNode('_devErrors_').clearValue();
         }
         parent.freeze();
@@ -1006,16 +1006,172 @@ dojo.declare("gnr.GnrDevHandler", null, {
                     border:'1px solid silver',background:'whitesmoke',rounded:6,margin:'5px'});
         parent.unfreeze();
     },
+
     formatErrors:function(errorbag){
         var errors = [];
         errorbag.forEach(function(n){
             n.getValue().forEach(function(errorNode){
-                errors.push(errorNode.getValue())
+                errors.push(errorNode.getValue());
             })
         })
         return errors.join('<br/><hr/>');
     },
 
+    openHelpDesk:function(){
+        var root = genro.src.newRoot();
+        genro.src.getNode()._('div', '_helpdesk_');
+        var parent = genro.src.getNode('_helpdesk_').clearValue();
+        parent.freeze();
+        genro.setData('gnr.helpdesk',new gnr.GnrBag());
+        var pane = parent._('palettePane',{'paletteCode':'helpdesk','dockTo':false,
+                                        title:_T('Helpdesk'),height:'550px',width:'400px',
+                                        'z_index':100000});
+        var sc = pane._('stackContainer',{selectedPage:'^.page',datapath:'gnr.helpdesk'});
+        var pages = [['index',_T('Index'),true],['documentation',_T('Documentation')],
+                    ['help',_T('Help')],['bug_report',_T('Report a bug')],
+                    ['new_ticket',_T('New ticket'),true]];
+        
+        pages.forEach(function(page,idx){
+            var bc = sc._('borderContainer',{'pageName':page[0]});
+            var bottom;
+            if(idx>0){
+                bottom = bc._('contentPane',{region:'bottom',height:'40px'});
+                if(!page[2]){ //nobutton
+                    bottom._('lightbutton',{innerHTML:_T('Back'),action:"SET .page=pageName;",pageName:pages[0][0],
+                                        _class:'helpdesk_btn helpdesk_footer',
+                                        position:'absolute',left:'3px',top:'2px'});
+                }
+            }
+            genro.dev['openHelpDesk_'+page[0]](bc._('contentPane',{region:'center'}),bottom,pages);
+        });
+        parent.unfreeze();
+    },
+
+    openHelpDesk_index:function(pane,bottom,pages){
+        pages.forEach(function(p){
+            var nobutton = p[2];
+            if(nobutton){
+                return;
+            }
+            pane._('lightbutton',{innerHTML:p[1],action:"SET .page=pageName;",pageName:p[0],
+                                  _class:'helpdesk_btn helpdesk_'+p[0]});
+        });
+    },
+
+    openHelpDesk_documentation:function(pane){
+
+    },
+
+    _helpDeskTicketTemplate : function(){
+        var t = '';
+            t += '<div class="helpdesk_ticket_top">';
+                t += '<div class="helpdesk_ticket_subject">$subject</div>';
+                t += '<div class="helpdesk_ticket_date">$date</div>';
+            t += '</div>';
+            t += '<div class"helpdesk_ticket_body">';
+                t += '<div class"helpdesk_ticket_summary">$summary</div>';
+            t += '</div>';
+            t += '<div class"helpdesk_ticket_bottom">';
+                t += '&nbsp;';
+            t += '</div>';
+        return t;
+    },
+
+    openHelpDesk_bug_report:function(pane,bottom){
+        var template = this._helpDeskTicketTemplate();
+        genro.serverCall('dev.getCurrentTickets',{},function(reported_tickets){
+            if(reported_tickets){
+                reported_tickets.forEach(function(n){
+                    pane._('div',{innerHTML:dataTemplate(template,n.attr),_class:'helpdesk_ticket_box'});
+                });
+            }
+            bottom._('lightbutton',{innerHTML:_T('New ticket'),'float':'right',_class:'helpdesk_btn helpdesk_footer',
+                                    position:'absolute',right:'3px',top:'2px',action:'SET .page=pageName',pageName:'new_ticket'});
+        });
+    },
+    openHelpDesk_new_ticket:function(pane,bottom){
+        var fb = genro.dev.formbuilder(pane._('div',{margin:'5px'}), 1, {border_spacing:'6px',datapath:'.record'});
+        fb.addField('textbox',{value:'^.title',lbl:_T('Subject'),width:'30em'});
+        var sn = pane.getParentNode();
+
+        genro.serverCall('dev.getNewTicketInfo',{},function(result){
+            var priorities = result.getItem('priorities');
+            var questions = result.getItem('questions');
+            var locale = genro.locale();
+            var lang = (locale=='it-IT')? 'it':'en';
+            if(questions){
+                questions = questions.getItem(lang);
+                if (questions){
+                    fb.addField('checkboxText',{value:'^.ticket_answers',values:questions,cols:1});
+                }
+            }
+            if(result.getItem('tasks')){
+                fb.addField('filteringSelect',{value:'^.task_id',values:result.getItem('tasks'),lbl:_T('Topic'),
+                                placeholder:_T('Current page')});
+            }
+            fb.addField('filteringSelect',{value:'^.priority',values:priorities,lbl:_T('Priority')});
+            fb.addField('simpleTextArea',{value:'^.notes',lbl:'Notes',
+                                        lbl_vertical_align:'top',height:'80px',width:'300px'});
+            fb.addField('button',{action:function(){
+                var that = this;
+                genro.wdgById('helpdesk_floating').hide();
+                genro.dev.takePicture(function(data){
+                    genro.wdgById('helpdesk_floating').show(); 
+                    sn.setRelativeData('.record.screenshot',data);
+                });
+            },label:_T('Screenshot')});
+            fb.addField('br',{});
+            fb.addField('img',{src:'^.screenshot',height:'100px',width:'300px',boder:'1px solid silver'});
+
+        });
+
+        var savekw = {innerHTML:_T('Save ticket'),
+                    _class:'helpdesk_btn helpdesk_footer',
+                    position:'absolute',right:'3px',top:'2px'};
+        savekw.action = function(){
+            var record = sn.getRelativeData('.record');
+            var extra_info = new gnr.GnrBag();
+            /*ACTIVE FORM VIENE MESSA QUELLA DEL TICKET...
+            if(genro.activeForm){
+                var formInfo = new gnr.GnrBag();
+                try {
+                    formInfo.setItem('formId',genro.activeForm.formId);
+                    formInfo.setItem('controller',genro.activeForm.getControllerData().deepCopy());
+                    formInfo.setItem('record',genro.activeForm.getControllerData().deepCopy());
+                    extra_info.setRelativeData('activeForm',formInfo.getFormData().deepCopy());
+                } catch (error) {
+                    console.log('error',error);
+                    //
+                }
+            }
+            */
+            if(genro.getData('gnr.errors')){
+                extra_info.setItem('js_errors',genro.getData('gnr.errors').deepCopy());
+            }
+            record.setItem('extra_info',extra_info);
+            genro.serverCall('dev.saveNewTicket',{
+                record:record
+            },function(result){
+                if(result && result.getItem('error')){
+                    genro.dlg.floatingMessage(pane.getParentNode(),{message:result.getItem('error'),messageType:'error'});
+                }else{
+                    pane.getParentNode().setRelativeData('.record',new gnr.GnrBag());
+                    genro.wdgById('helpdesk_floating').hide();
+                }
+            });
+        }
+        bottom._('lightbutton',savekw);
+        bottom._('lightbutton',{innerHTML:_T('Back'),_class:'helpdesk_btn helpdesk_footer',
+                                    action:'SET .page=pageName',pageName:'bug_report',
+                                    left:'3px',top:'2px'});
+
+    },
+
+
+
+    openHelpDesk_help:function(pane){
+
+    },
 
     takePicture:function(sendPars,onResult){
         genro.publish('onPageSnapshot',{setting:true});
@@ -1029,7 +1185,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
         sendPars = sendPars || {uploadPath:'site:screenshots/'+genro.getData('gnr.pagename')};
         if(typeof(sendPars)=='string'){
-             sendPars = {uploadPath:sendPars}
+             sendPars = {uploadPath:sendPars};
         }
         var pos = [0, 0];
         var x1,x2,y1,y2, xDif, yDif = 0;
@@ -1051,7 +1207,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         });
 
         dojo.connect(overlay,'mouseup',function(event){
-           isSelection = false
+           isSelection = false;
            if(isBottomRight){
              x2 = event.pageX - pos[0]
              y2 = event.pageY - pos[1]

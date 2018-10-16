@@ -246,8 +246,6 @@
 <en_s_i_ _tag="en__s_i_" base="%s (%i)" en="[0] ([1])" it="%s (%i)"></en_s_i_>
 <en_invalid_parameters base="Invalid parameters"></en_invalid_parameters>
 <en_invalid base="Invalid" it="Non valido"></en_invalid></batch_handler></batch_handler>
-<bottomplugins path="resources/common/gnrcomponents/bottomplugins.py" ext="py"><en_documentation fr="Documentation" de="Dokumentation" en="Documentation" it="Documentazione" base="Documentation"></en_documentation>
-<en_tickets fr="Billets" de="Tickets" en="Tickets" it="Biglietti" base="Tickets"></en_tickets></bottomplugins>
 <chat_component><chat_component path="resources/common/gnrcomponents/chat_component/chat_component.py" ext="py"><en_chat fr="Bavarder" de="Unterhaltung" en="Chat" it="Chat" base="Chat"></en_chat>
 <en_connected_users fr="Utilisateurs connectés" de="Verbundenen Benutzer" en="Connected users" it="Utenti connessi" base="Connected users"></en_connected_users>
 <en_chat_plug_in fr="Chat plug-in" de="Chat-Plug-in" en="Chat plug-in" it="Chat plug-in" base="Chat plug-in"></en_chat_plug_in>
@@ -414,11 +412,9 @@
 <en_revert fr="Revenir" en="Revert" de="Zurückkehren" it="Annulla modifiche" base="Revert"></en_revert>
 <en_add fr="Ajouter" de="Hinzufügen" en="Add" it="Aggiungere" base="Add"></en_add>
 <en_delete fr="Effacer" de="Löschen" en="Delete" it="Cancellare" base="Delete"></en_delete></selectionhandler>
-<ticket_handler><ticket_handler path="resources/common/gnrcomponents/ticket_handler/ticket_handler.py" ext="py"><en_description base="Description" en="Description" it="Descrizione"></en_description>
 <en_title fr="Titre" de="Titel" en="Title" it="Titolo" base="Title"></en_title>
 <en_type fr="Type" de="Art" en="Type" it="Tipo" base="Type"></en_type>
 <en_date fr="Date" de="Datum" en="Date" it="Data" base="Date"></en_date>
-<en_status fr="Statut" de="Status" en="Status" it="Stato" base="Status"></en_status></ticket_handler></ticket_handler>
 <timetable path="resources/common/gnrcomponents/timetable.py" ext="py"><en_configuration fr="Configuration" de="Konfiguration" en="Configuration" it="Configurazione" base="Configuration"></en_configuration></timetable>
 <tpleditor path="resources/common/gnrcomponents/tpleditor.py" ext="py"><en_metadata fr="Métadonnées" de="Metadata" en="Metadata" it="Metadata" base="Metadata"></en_metadata>
 <en_edit fr="Éditer" de="Bearbeiten" en="Edit" it="Modifica" base="Edit"></en_edit>
