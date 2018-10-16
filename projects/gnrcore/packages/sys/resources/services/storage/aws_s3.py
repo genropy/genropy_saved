@@ -66,7 +66,7 @@ class S3LocalFile(object):
         return self.close(exit_args=(exc, value, tb))
 
 class S3TemporaryFilename(object):
-    def __init__(self, bucket=None, key=None, s3_session=None):
+    def __init__(self, bucket=None, key=None, s3_session=None, mode='r'):
         self.bucket = bucket
         self.key = key
         self.mode = mode
@@ -79,12 +79,13 @@ class S3TemporaryFilename(object):
 
     def __enter__(self):
         self.fd,self.name = tempfile.mkstemp()
+        if self.read_mode:
+            self.s3.download_file(self.bucket,self.key, self.name)
         return self.name
 
     def __exit__(self, exc, value, tb):
-        self.file = os.fdopen(self.fd, 'w+b')
-        self.s3.upload_fileobj(self.file, self.bucket,self.key)
-        self.file.close()
+        if self.write_mode:
+            self.s3.upload_file(self.name, self.bucket,self.key)
         os.unlink(self.name)
 
 class Service(StorageService):
@@ -127,10 +128,10 @@ class Service(StorageService):
                 raise
         return True
 
-    def workable_path(self, path):
+    def local_path(self, path, mode='r'):
         internalpath = self.internal_path(path)
         return S3TemporaryFilename(bucket=self.bucket, key=internalpath,
-            s3_session=self._session)
+            s3_session=self._session, mode=mode)
 
     def isdir(self, path):
         internalpath = self.internal_path(path)
