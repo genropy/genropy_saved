@@ -66,19 +66,20 @@ class S3LocalFile(object):
         return self.close(exit_args=(exc, value, tb))
 
 class S3TemporaryFilename(object):
-    def __init__(self, bucket=None, key=None, s3_session=None, mode='r'):
+    def __init__(self, bucket=None, key=None, s3_session=None, mode=None):
         self.bucket = bucket
         self.key = key
-        self.mode = mode
-        self.write_mode = ('w' in mode) or False
+        self.mode = mode or 'r'
+        self.write_mode = ('w' in self.mode) or False
         self.read_mode = not self.write_mode
         self.file = None
         self.close_called = False
         self.session = s3_session
         self.s3 = self.session.client('s3')
+        self.ext = os.path.splitext(self.key)[-1]
 
     def __enter__(self):
-        self.fd,self.name = tempfile.mkstemp()
+        self.fd,self.name = tempfile.mkstemp(suffix=self.ext)
         if self.read_mode:
             self.s3.download_file(self.bucket,self.key, self.name)
         return self.name

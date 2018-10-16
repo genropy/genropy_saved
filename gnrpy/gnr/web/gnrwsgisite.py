@@ -399,9 +399,10 @@ class GnrWsgiSite(object):
         if not service: return
         autocreate = kwargs.pop('autocreate', False)
         must_exist = kwargs.pop('must_exist', False)
+        mode = kwargs.pop('mode', None)
 
         return StorageNode(parent=self, path=storage_path, service=service,
-            autocreate=autocreate, must_exist=must_exist)
+            autocreate=autocreate, must_exist=must_exist, mode=mode)
 
     def build_lazydoc(self,lazydoc,fullpath=None):
         ext = os.path.splitext(fullpath)[1]
