@@ -227,8 +227,8 @@ class FrameIndex(BaseComponent):
         sb.count_errors.div('^gnr.errors?counter',hidden='==!_error_count',_error_count='^gnr.errors?counter',
                             _msg='!!Errors:',_class='countBoxErrors',connect_onclick='genro.dev.errorPalette();')
         sb.devlink.a(href=formula,_iframes='=iframes',_selectedFrame='^selectedFrame').div(_class="iconbox flash",tip='!!Open the page outside frame',_tags='_DEV_')
-        sb.manageDocumentation.slotButton("!!Open documentation",iconClass='iconbox icnBottomDocumentation',
-                            action='genro.framedIndexManager.openDocForCurrentIframe();')
+        sb.manageDocumentation.slotButton("!!Help",iconClass='iconbox help',
+                            action='genro.framedIndexManager.openHelpForCurrentIframe();')
         if not self.isMobile :
             self.electronAppDownload(sb)
         sb.openGnrIDE.div().slotButton("!!Open Genro IDE",iconClass='iconbox laptop',

@@ -3,7 +3,7 @@ from weberror.evalexception import EvalException
 #from paste.exceptions.errormiddleware import ErrorMiddleware
 from weberror.errormiddleware import ErrorMiddleware
 from webob import Request, Response
-from webob.exc import WSGIHTTPException, HTTPNotFound, HTTPForbidden, HTTPPreconditionFailed, HTTPClientError, HTTPMovedPermanently
+from webob.exc import WSGIHTTPException, HTTPInternalServerError, HTTPNotFound, HTTPForbidden, HTTPPreconditionFailed, HTTPClientError, HTTPMovedPermanently
 from gnr.web.gnrwebapp import GnrWsgiWebApp
 from gnr.web.gnrwebpage import GnrUnsupportedBrowserException, GnrMaintenanceException
 import os
@@ -759,6 +759,13 @@ class GnrWsgiSite(object):
                 if self.debug and ((page and page.isDeveloper()) or self.force_debug):
                     raise
                 self.writeException(exception=e,traceback=tracebackBag())
+                exc = HTTPInternalServerError(
+                    'Internal server error',
+                    comment='SCRIPT_NAME=%r; PATH_INFO=%r;'
+                    % (environ.get('SCRIPT_NAME'), environ.get('PATH_INFO')))
+                return exc(environ, start_response)
+
+
 
 
 
@@ -1566,5 +1573,4 @@ class GnrWsgiSite(object):
         if _link:
             return '<a href="%s" target="_blank">%s</a>' %(path,_link if _link is not True else '')
         return path
-
 

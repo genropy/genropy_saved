@@ -17,7 +17,7 @@ import os
 
 class PublicBase(BaseComponent):
     #css_requires = 'public'
-    py_requires = """public:PublicSlots,gnrcomponents/ticket_handler/ticket_handler:TicketHandler"""
+    py_requires = """public:PublicSlots"""
                      
     def userRecord(self, path=None):
         if not hasattr(self, '_userRecord'):
@@ -249,9 +249,6 @@ class PublicSlots(BaseComponent):
                     draggable=True,onDrag='dragValues["webpage"] = genro.page_id;',
                     childname='captionbox',**kwargs)
 
-    @struct_method
-    def public_publicRoot_testmobile(self,pane,**kwargs):  
-        pane.slotButton('Test',action='')
              
 #######################OLD SLOTS#######################
        
@@ -301,8 +298,7 @@ class PublicSlots(BaseComponent):
 class TableHandlerMain(BaseComponent):
     py_requires = """public:Public,
                     th/th:TableHandler,
-                    gnrcomponents/doc_handler/doc_handler:DocHandler,
-                    gnrcomponents/ticket_handler/ticket_handler:TicketHandler"""
+                    gnrcomponents/doc_handler/doc_handler:DocHandler"""
     formResource = None
     viewResource = None
     formInIframe = False

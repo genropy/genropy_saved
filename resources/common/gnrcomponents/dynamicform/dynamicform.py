@@ -451,7 +451,7 @@ class DynamicForm(BaseComponent):
         attr.pop('maintable_id',None)
         attr.pop('page',None)
         data_type = attr.pop('data_type','T')
-        tag =  attr.pop('wdg_tag') or AUTOWDG[data_type]
+        tag =  attr.pop('wdg_tag',None) or AUTOWDG[data_type]
         return self.df_makeDynamicField(fb,tag=tag,wdg_attr=attr,data_type=data_type,fields=fields,dbstore_kwargs=dbstore_kwargs,**kwargs)
 
     @customizable
@@ -463,7 +463,7 @@ class DynamicForm(BaseComponent):
         wdg_attr['tag'] =tag
         #wdg_attr['colspan'] = col_max if data_type == 'TL' else 1
         code = wdg_attr.get('code')
-        description = wdg_attr.pop('description','')
+        description = wdg_attr.pop('description',None) or code.title()
         fieldPrefix = fieldPrefix or '.'
         wdg_attr['value']='^%s%s' %(fieldPrefix,code)
         if tag.lower() in ('checkbox' or 'radiobutton'):

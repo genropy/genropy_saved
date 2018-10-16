@@ -1899,6 +1899,10 @@ class GnrWebPage(GnrBaseWebPage):
         page.data('gnr.root_page_id',self.root_page_id)
         page.data('gnr.workdate', self.workdate) #serverpath='rootenv.workdate')
         page.data('gnr.language', self.language,serverpath='rootenv.language',dbenv=True)
+        
+        page.data('gnr.table',getattr(self,'maintable',None))
+        page.data('gnr.project_code',self.db.application.packages[self.package.name].project)
+
         page.dataController("""genro.publish({topic:'changedLanguage',iframe:'*',kw:{lang:language}})""",language='^gnr.language')
         page.dataController('SET gnr.language = lang;',subscribe_changedLanguage=True)
         #page.data('gnr.userTags', self.userTags)

@@ -193,7 +193,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
 
     onSelectedFrame:function(rootPageName){
         if(rootPageName=='indexpage'){
-            return
+            return;
         }
         var that = this;
         this.stackSourceNode.watch('pageReady',function(){
@@ -202,7 +202,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
                 return true;
             }
             if(iframe && iframe.contentWindow && iframe.contentWindow.genro && iframe.contentWindow.genro._pageStarted){
-                return true
+                return true;
             }
         },function(){
              genro.publish({extWin:'DOCUMENTATION',topic:'onSelectedFrame'});
@@ -437,17 +437,21 @@ dojo.declare("gnr.FramedIndexManager", null, {
                                 finalizeCb();
                             }});
             }else{
-                finalizeCb()
+                finalizeCb();
             }
         }
     },
 
-    openDocForCurrentIframe:function(){
-        this.newBrowserWindowPage({
-            pageName:'DOCUMENTATION',
-            file:'/sys/docpage',
-            label: _T("Documentation")
-        });
+    openHelpForCurrentIframe:function(){
+        var iframe = this.getCurrentIframe(this.stackSourceNode.getRelativeData('selectedFrame'));
+        if(!iframe){
+            genro.dev.openHelpDesk(true);
+        }else if(iframe.sourceNode && iframe.sourceNode._genro){
+            iframe.sourceNode._genro.dev.openHelpDesk();
+        }else{
+            genro.dev.openHelpDesk(true);
+        }
+        
     },
 
 
@@ -575,8 +579,8 @@ dojo.declare("gnr.FramedIndexManager", null, {
             if(external_menucode){
                 var menubag = genro.getData('gnr.appmenu.root');
                 var n = menubag.getNodeByAttr('menucode',external_menucode);
-                var inattr = n.getInheritedAttributes()
-                var kw = objectUpdate({name:n.label,pkg_menu:inattr.pkg_menu,"file":null,table:null,formResource:null,
+                inattr = n.getInheritedAttributes()
+                kw = objectUpdate({name:n.label,pkg_menu:inattr.pkg_menu,"file":null,table:null,formResource:null,
                                       viewResource:null,fullpath:n.getFullpath(null,true),modifiers:null},n.attr);
                 kw.openKw = kw.openKw || {};
                 objectUpdate(kw.openKw,{topic:'frameindex_external'});
@@ -598,7 +602,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var paletteCode = attr.pageName;
         var kw = {height:_px(iframedomnode.clientHeight),width:_px(iframedomnode.clientWidth),maxable:true,evt:evt,
                 title:title,palette__class:'detachPalette',dockTo:false};
-        kw['palette_connect_close'] = function(){
+        kw.palette_connect_close = function(){
             that.stackSourceNode._value.getNode(attr.pageName).widget.domNode.appendChild(iframedomnode);
         }
         var paletteNode = genro.dlg.quickPalette(paletteCode,kw);
