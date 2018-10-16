@@ -120,9 +120,12 @@ class StorageNode(object):
 class StorageService(GnrBaseService):
 
     def _getNode(self, node=None):
-        return node if isinstance(node, StorageNode) else self.parent.storage(node)
+        return node if isinstance(node, StorageNode) else self.parent.storageNode(node)
 
     def internal_path(self, path=None):
+        pass
+
+    def local_path(self, path=None, mode=None):
         pass
 
     def base_name(self, path=None):
@@ -200,7 +203,7 @@ class BaseLocalService(StorageService):
     def exists(self, path):
         return os.path.exists(self.internal_path(path))
 
-    def local_path(self, path): #TODO: vedere se fare così o con altro metodo
+    def local_path(self, path=None, mode='r'): #TODO: vedere se fare così o con altro metodo
         internalpath = self.internal_path(path)
         return LocalPath(fullpath=internalpath)
 
@@ -287,7 +290,7 @@ class StorageResolver(BagResolver):
         result = Bag()
         try:
             if isinstance(self.storage, basestring):
-                self.storage = self.site.storage(self.storage)
+                self.storage = self.site.storageNode(self.storage)
             directory = sorted(self.storage.listdir())
         except OSError:
             directory = []
