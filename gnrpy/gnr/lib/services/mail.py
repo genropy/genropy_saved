@@ -29,6 +29,7 @@ from email.utils import formatdate
 import re, htmlentitydefs
 import mimetypes
 from gnr.lib.services import GnrBaseService
+from gnr.core.gnrlang import GnrException
 from gnr.core.gnrstring import templateReplace
 import thread
 import os
@@ -68,11 +69,18 @@ def clean_and_unescape(text):
     text = re.sub(TAG_SELECTOR, '', text)
     return re.sub("&#?\w+;", fixup, text)
 
-class MailHandler(GnrBaseService):
+
+
+class MailError(GnrException):
+    pass
+
+
+class MailService(GnrBaseService):
     """A class for mail management."""
     service_name = 'mail'
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, account_name=None, from_address=None, smtp_host=None, username=None,
+                         password=None, port=None, ssl=False, default=None):
         self.parent = parent
         self.smtp_accounts = {}
         self.default_smtp_account = None
@@ -80,6 +88,9 @@ class MailHandler(GnrBaseService):
         self.default_pop_account = None
         self.imap_accounts = {}
         self.default_imap_account = None
+        if account_name:
+            self.set_smtp_account(account_name,from_address=from_address, smtp_host=smtp_host, username=username,
+                         password=password, port=port, ssl=ssl, default=True if default is None else default)
         
     def set_smtp_account(self, name, from_address=None, smtp_host=None, username=None,
                          password=None, port=None, ssl=False, default=False):

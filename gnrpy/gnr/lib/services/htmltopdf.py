@@ -9,13 +9,18 @@ from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrlang import  GnrException
 
 
-from gnr.lib.services import GnrBaseService
+from gnr.lib.services import GnrBaseService,BaseServiceType
 
 
 
 class HtmlToPdfError(GnrException):
     pass
     
+
+class ServiceType(BaseServiceType):
+    def conf_htmltopdf(self):
+        return dict(implementation='wk')
+
 
 class HtmlToPdfService(GnrBaseService):
     def __init__(self,parent,**kwargs):

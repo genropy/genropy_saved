@@ -33,7 +33,7 @@ from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrprinthandler import PrintHandler
 from gnr.web.gnrwebreqresp import GnrWebRequest
 from gnr.lib.services import ServiceHandler
-from gnr.lib.services.gnrmail import WebMailHandler
+#from gnr.lib.services.gnrmail import WebMailHandler
 from gnr.lib.services.storage import StorageNode
 from gnr.web.gnrwsgisite_proxy.gnrservicehandler import ServiceHandlerManager #legacy
 #from gnr.web.gnrwsgisite_proxy.gnrstoragehandler import StorageHandler
@@ -261,7 +261,7 @@ class GnrWsgiSite(object):
         self.webtools = self.resource_loader.find_webtools()
         self.services = ServiceHandlerManager(self) #legacy services
         self.addLegacyService(PrintHandler, service_name='print') #legacy print 
-        self.addLegacyService(WebMailHandler, service_name='mail')
+        #self.addLegacyService(WebMailHandler, service_name='mail')
         #self.services.addSiteServices()
         self.register
 

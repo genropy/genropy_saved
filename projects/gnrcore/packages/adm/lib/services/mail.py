@@ -23,12 +23,12 @@
 #Created by Giovanni Porcari on 2007-03-24.
 #Copyright (c) 2007 Softwell. All rights reserved.
 
-from gnr.core.gnrmailhandler import MailHandler
+from gnr.lib.services.mail import MailService,MailError
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrbaseclasses import TableTemplateToHtml
 from gnr.core.gnrstring import templateReplace
 
-class WebMailHandler(MailHandler):
+class AdmMailService(MailService):
     def getDefaultMailAccount(self):
         mp = self.parent.getUserPreference('mail', pkg='adm') or Bag()
         if not mp['smtp_host'] and not mp['email_account_id']:

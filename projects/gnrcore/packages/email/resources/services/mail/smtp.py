@@ -2,11 +2,11 @@
 # -*- coding: UTF-8 -*-
 
 from gnr.core.gnrbag import Bag
-from gnr.lib.services.gnrmail import WebMailHandler
+from gnrpkg.sys.services.mail import AdmMailService
 
-class Main(WebMailHandler):
+class Service(AdmMailService):
     def getDefaultMailAccount(self):      
-        mp = super(Main, self).getDefaultMailAccount()
+        mp = super(Service, self).getDefaultMailAccount()
         if mp.get('email_account_id'):
             result =  self.parent.db.table('email.account').getSmtpAccountPref(mp['email_account_id'])
             result['account_id'] = mp.get('email_account_id')
@@ -24,4 +24,4 @@ class Main(WebMailHandler):
             db.table('email.message').newMessage(account_id=account_id,
                                                         moveAttachment=moveAttachment,**kwargs)
         else:
-            super(Main, self).sendmail(account_id=account_id,**kwargs)
+            super(Service, self).sendmail(account_id=account_id,**kwargs)
