@@ -174,19 +174,19 @@ class BaseServiceType(object):
                     if implext!='.py':
                         continue
                     try:
-                        module = gnrImport(impl)
+                        module = gnrImport(impl,avoidDup=True)
                         service_class = getattr(module,'Service',None) or getattr(module,'Main',None) #backward compatibility
                     except ImportError as imperr:
                         log.exception("Could not import %s"%impl)
                         log.exception(str(imperr))
                     self._implementations[implname] =  service_class
                     if not self.baseImplementation:
-                        self.baseImplementation = service_class
+                        self.baseImplementation = implname
 
         return self._implementations
 
-    def getServiceFactory(self,implementation):
-        return self.implementations.get(implementation) or self.baseImplementation
+    def getServiceFactory(self,implementation=None):
+        return self.implementations.get(implementation) or self.implementations.get(self.baseImplementation)
 
     def __call__(self, service_name=None):
         service = self.service_instances.get(service_name)

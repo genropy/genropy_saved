@@ -28,6 +28,7 @@ from email.mime.application import MIMEApplication
 from email.utils import formatdate
 import re, htmlentitydefs
 import mimetypes
+from gnr.core.gnrbag import Bag
 from gnr.lib.services import GnrBaseService
 from gnr.core.gnrlang import GnrException
 from gnr.core.gnrstring import templateReplace
@@ -134,7 +135,10 @@ class MailService(GnrBaseService):
         elif smtp_host:
             account_params = dict(smtp_host=smtp_host, port=port, user=user, password=password,
                                   ssl=ssl, tls=tls, from_address=from_address,timeout=timeout)
-        return account_params
+        return dict(account_params)
+    
+    def getDefaultMailAccount(self):
+        return Bag(self.get_account_params)
         
     def get_smtp_connection(self, account=None, smtp_host=None, port=None,
                             user=None, password=None, ssl=False, tls=False, timeout=None,**kwargs):
