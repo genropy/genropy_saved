@@ -87,7 +87,7 @@ class MailService(GnrBaseService):
         self.default_smtp_account = '_main_'
 
         self.set_smtp_account('_main_',from_address=from_address, smtp_host=smtp_host, user=user,
-                            password=password, port=port, ssl=ssl,tls=tls, default=default,system_bcc=system_bcc,**kwargs)
+                            password=password, port=port, ssl=ssl,tls=tls,system_bcc=system_bcc,**kwargs)
         
     def set_smtp_account(self, name, from_address=None, smtp_host=None, user=None,
                          password=None, port=None, ssl=False,tls=False,system_bcc=None, **kwargs):
