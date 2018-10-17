@@ -75,12 +75,13 @@ class MailError(GnrException):
     pass
 
 
+
 class MailService(GnrBaseService):
     """A class for mail management."""
     service_name = 'mail'
     
     def __init__(self, parent=None, account_name=None, from_address=None, smtp_host=None, username=None,
-                         password=None, port=None, ssl=False, default=None):
+                         password=None, port=None, ssl=False,tls=False, default=None):
         self.parent = parent
         self.smtp_accounts = {}
         self.default_smtp_account = None
@@ -90,10 +91,10 @@ class MailService(GnrBaseService):
         self.default_imap_account = None
         if account_name:
             self.set_smtp_account(account_name,from_address=from_address, smtp_host=smtp_host, username=username,
-                         password=password, port=port, ssl=ssl, default=True if default is None else default)
+                         password=password, port=port, ssl=ssl,tls=tls, default=True if default is None else default)
         
     def set_smtp_account(self, name, from_address=None, smtp_host=None, username=None,
-                         password=None, port=None, ssl=False, default=False):
+                         password=None, port=None, ssl=False,tls=False, default=False):
         """Set the smtp account
         
         :param name: the account's name
@@ -106,7 +107,7 @@ class MailService(GnrBaseService):
         :param default: boolean. TODO"""
         self.smtp_accounts[name] = dict(from_address=from_address,
                                         smtp_host=smtp_host, username=username,
-                                        password=password, port=port, ssl=ssl)
+                                        password=password, port=port, ssl=ssl,tls=tls)
         if default:
             self.default_smtp_account = name
             
