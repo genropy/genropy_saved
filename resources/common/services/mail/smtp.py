@@ -3,8 +3,8 @@
 
 from gnr.core.gnrdecorator import extract_kwargs
 
-from gnrpkg.sys.services.mail import AdmMailService
+from gnr.lib.services.mail import MailService
 
 
-class Service(AdmMailService):
+class Service(MailService):
     pass

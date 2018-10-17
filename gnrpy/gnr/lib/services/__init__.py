@@ -177,7 +177,7 @@ class BaseServiceType(object):
                         module = gnrImport(impl)
                         service_class = getattr(module,'Service',None) or getattr(module,'Main',None) #backward compatibility
                     except ImportError as imperr:
-                        log.exception("Could not import %s"%module)
+                        log.exception("Could not import %s"%impl)
                         log.exception(str(imperr))
                     self._implementations[implname] =  service_class
                     if not self.baseImplementation:

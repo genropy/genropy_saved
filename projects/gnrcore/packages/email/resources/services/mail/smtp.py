@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 from gnr.core.gnrbag import Bag
-from gnrpkg.sys.services.mail import AdmMailService
+from gnrpkg.adm.services.mail import AdmMailService
 
 class Service(AdmMailService):
     def getDefaultMailAccount(self):      
