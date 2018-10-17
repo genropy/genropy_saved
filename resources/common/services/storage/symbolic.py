@@ -15,7 +15,7 @@ class Service(BaseLocalService):
     
     @property
     def site_path(self):
-        return self.parent.storage('site:').internal_path()
+        return self.parent.storageNode('site:').internal_path
 
     def path_rsrc(self, resource_id, *args, **kwargs):
         resource_path = self.parent.resources.get(resource_id)

@@ -29,28 +29,20 @@ from gnr.web.gnrbaseclasses import TableTemplateToHtml
 from gnr.core.gnrstring import templateReplace
 
 class AdmMailService(MailService):
-    def getDefaultMailAccount(self):
-        mp = self.parent.getUserPreference('mail', pkg='adm') or Bag()
-        if not mp['smtp_host'] and not mp['email_account_id']:
-            mp = self.parent.getPreference('mail', pkg='adm')
-        if not mp['smtp_host'] and not mp['email_account_id']:
-            mp = self.parent.db.application.config.getNode('mail').attr
-        return mp
-
     def sendUserTemplateMail(self,record_id=None,letterhead_id=None,
                             template_id=None,table=None,template_code=None,
                             attachments=None,to_address=None, subject=None,
-                            cc_address=None,bcc_address=None,from_address=None, account_id=None, **kwargs):
+                            cc_address=None,bcc_address=None,from_address=None,**kwargs):
 
         self.sendmail(**self.mailParsFromUserTemplate(record_id=record_id,letterhead_id=letterhead_id,
                             template_id=template_id,table=table,template_code=template_code,
                             attachments=attachments,to_address=to_address,subject=subject,
-                            cc_address=cc_address,bcc_address=bcc_address,from_address=from_address, account_id=account_id, **kwargs))
+                            cc_address=cc_address,bcc_address=bcc_address,from_address=from_address, **kwargs))
     
     def mailParsFromUserTemplate(self,record_id=None,letterhead_id=None,
                             template_id=None,table=None,template_code=None,
                             attachments=None,to_address=None,subject=None,
-                            cc_address=None,bcc_address=None,from_address=None, account_id=None, **kwargs):
+                            cc_address=None,bcc_address=None,from_address=None, **kwargs):
         if template_id:
             tpl,table = self.parent.db.table('adm.userobject').readColumns(pkey=template_id,columns='$data,$tbl',bagFields=True)
         elif template_code and table:
@@ -73,12 +65,7 @@ class AdmMailService(MailService):
         bcc_address = bcc_address or templateReplace(email_compiled.getItem('bcc_address',''),htmlbuilder.record)
         from_address =from_address or templateReplace(email_compiled.getItem('from_address',''),htmlbuilder.record)
         if not from_address:
-            account_id = account_id or templateReplace(email_compiled.getItem('account_id',''),htmlbuilder.record)
-            if account_id:
-                mp = self.parent.db.table('email.account').getSmtpAccountPref(account_id)
-            else:
-                mp = self.getDefaultMailAccount()
-            from_address = mp['from_address']
+            from_address = self.get_account_params(**kwargs)['from_address']
         attachments = attachments or templateReplace(email_compiled.getItem('attachments',''),htmlbuilder.record)
         if attachments and isinstance(attachments,basestring):
             attachments = attachments.replace('\n',',').split(',')
