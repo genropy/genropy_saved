@@ -48,7 +48,7 @@ class AppPref(object):
         top = bc.contentPane(region='top')
         fb = top.formbuilder(cols=1,border_spacing='3px')
         if 'email' in self.db.packages:
-            fb.dbSelect(value='^.mail.email_account_id',lbl='Default smtp account')
+            fb.dbSelect(value='^.#parent.mail.email_account_id',lbl='Default smtp account',dbtable='email.account')
 
         #fb.numberTextBox(value='^.screenlock_timeout',lbl='!!Screenlock timeout (minutes)')
         fb.checkbox(value='^.forgot_password',label='Allow password recovery')
