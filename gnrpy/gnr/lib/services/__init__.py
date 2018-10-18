@@ -74,7 +74,7 @@ class ServiceHandler(object):
                 self.service_types[service_type] = service_type_factory(self.site,service_type=service_type)
         
     def getService(self,service_type=None,service_name=None):
-        if not service_type in self.service_types:
+        if service_type not in self.service_types:
             servattr = self.site.config.getAttr('services.%s' %service_type) #backward
             if servattr:
                 service_type = servattr['service_type']

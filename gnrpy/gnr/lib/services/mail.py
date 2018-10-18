@@ -84,7 +84,7 @@ class MailService(GnrBaseService):
     def __init__(self, parent=None, account_name=None, from_address=None, smtp_host=None, user=None,
                          password=None, port=None, ssl=False,tls=False, system_bcc=None,**kwargs):
         self.parent = parent
-        self.smtp_accounts = {}
+        self.smtp_account = {}
         self.default_smtp_account = '_main_'
 
         self.set_smtp_account('_main_',from_address=from_address, smtp_host=smtp_host, user=user,
@@ -102,15 +102,13 @@ class MailService(GnrBaseService):
         :param port: if a non standard port is used then it can be overridden
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
         :param default: boolean. TODO"""
-        self.smtp_accounts['_main_'] = dict(from_address=from_address,
+        self.smtp_account = dict(from_address=from_address,
                                         smtp_host=smtp_host, user=user,
                                         password=password, port=port, 
                                         system_bcc=system_bcc,ssl=ssl,tls=tls)
    
- 
 
-    def get_account_params(self, account=None, from_address=None, smtp_host=None, port=None,
-                           user=None, password=None, ssl=False, tls=False,timeout=None, **kwargs):
+    def get_account_params(self,  **kwargs):
         """Set the account parameters and return them
         
         :param account: if an account has been defined previously with :meth:`set_smtp_account()`
@@ -128,14 +126,9 @@ class MailService(GnrBaseService):
                     #. ssl -> all data is encrypted on a ssl layer
                     #. tls -> server and client begin communitation in a unsecure way and after a starttls
                        command they start to encrypt data (this is the way you use to connect to gmail smtp)"""
-        account = account or self.default_smtp_account
-        account_params = {}
-        if account:
-            account_params = self.smtp_accounts[account]
-        elif smtp_host:
-            account_params = dict(smtp_host=smtp_host, port=port, user=user, password=password,
-                                  ssl=ssl, tls=tls, from_address=from_address,timeout=timeout)
-        return dict(account_params)
+        account_params = dict(self.smtp_account)
+        account_params.update(kwargs)
+        return account_params
     
     def getDefaultMailAccount(self):
         return Bag(self.get_account_params)
