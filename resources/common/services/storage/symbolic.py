@@ -82,12 +82,14 @@ class Service(BaseLocalService):
     def url_user(self, user, *args, **kwargs):
         return '%s_user/%s/%s' % (self.home_uri, user, '/'.join(args))
 
-    def internal_path(self, path, **kwargs):
+    def internal_path(self, *args, **kwargs):
+        path = self._argstopath(*args)
         path_getter = getattr(self, 'path_%s'%self.service_name, None)
         if path_getter:
             return path_getter(*(path.split('/')), **kwargs)
 
-    def url(self, path, **kwargs):
+    def url(self, *args, **kwargs):
+        path = self._argstopath(*args)
         url_getter = getattr(self, 'url_%s'%self.service_name, None)
         if url_getter:
             return url_getter(*(path.split('/')), **kwargs)

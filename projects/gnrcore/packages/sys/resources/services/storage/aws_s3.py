@@ -107,17 +107,19 @@ class Service(StorageService):
     def location_identifier(self):
         return 's3/%s/%s' % (self.region_name, self.bucket)
 
-    def internal_path(self, path):
-        outpath = '%s/%s'% (self.base_path, path) if path else self.base_path
+    def internal_path(self, *args):
+        out_list = [self.base_path]
+        out_list.extend(args)
+        outpath = '/'.join(out_list)
         return outpath.strip('/')
 
-    def _parent_path(self, path):
-        internalpath = self.internal_path(path)
+    def _parent_path(self, *args):
+        internalpath = self.internal_path(*args)
         path_list = internalpath.split('/')
 
-    def exists(self, path):
+    def exists(self, *args):
         s3 = self._client
-        internalpath = self.internal_path(path)
+        internalpath = self.internal_path(*args)
         try:
             response = s3.head_object(
                     Bucket=self.bucket,
@@ -129,13 +131,25 @@ class Service(StorageService):
                 raise
         return True
 
-    def local_path(self, path, mode='r'):
-        internalpath = self.internal_path(path)
+    def mtime(self, *args):
+        s3 = self._client
+        internalpath = self.internal_path(*args)
+        try:
+            response = s3.head_object(
+                    Bucket=self.bucket,
+                    Key=internalpath)
+            return response['Last-Modified']
+        except botocore.exceptions.ClientError as e:
+            return
+
+    def local_path(self, *args, **kwargs):
+        mode = kwargs.get('mode', 'r')
+        internalpath = self.internal_path(*args)
         return S3TemporaryFilename(bucket=self.bucket, key=internalpath,
             s3_session=self._session, mode=mode)
 
-    def isdir(self, path):
-        internalpath = self.internal_path(path)
+    def isdir(self, *args):
+        internalpath = self.internal_path(*args)
         if internalpath =='':
             return True
         parent_path = '/'.join(internalpath.split('/')[:-1])
@@ -172,20 +186,22 @@ class Service(StorageService):
     def delete(self, path):
         self._client.delete_object(Bucket=self.bucket, Key=self.internal_path(path))
 
-    def url(self, path, _content_disposition=None, **kwargs):
-        _content_disposition = _content_disposition or 'inline'
-        _content_type = mimetypes.guess_type(path)[0]
+    def url(self, *args , **kwargs):
+        _content_disposition = kwargs.get('_content_disposition') or 'inline'
+        internal_path = self.internal_path(*args)
+        _content_type = mimetypes.guess_type(internal_path)[0]
         expiration = kwargs.pop('expiration', self.url_expiration)
         return self._client.generate_presigned_url('get_object',
-            Params={'Bucket': self.bucket,'Key': self.internal_path(path),
+            Params={'Bucket': self.bucket,'Key': internal_path,
                 'ResponseContentDisposition':_content_disposition,
                 'ResponseContentType':_content_type},
             ExpiresIn=expiration)
 
-    def upload_url(self, path, **kwargs):
+    def upload_url(self, *args, **kwargs):
+        internal_path = self.internal_path(*args)
         expiration = kwargs.pop('expiration', self.url_expiration)
         return self._client.generate_presigned_url('put_object',
-            Params={'Bucket': self.bucket,'Key': self.internal_path(path)},
+            Params={'Bucket': self.bucket,'Key': internal_path},
             ExpiresIn=expiration)
 
     def open(self, path, mode=None,  **kwargs):

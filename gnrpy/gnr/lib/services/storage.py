@@ -210,6 +210,10 @@ class StorageNode(object):
     @property
     def exists(self):
         return self.service.exists(self.path)
+    
+    @property
+    def mtime(self):
+        return self.service.mtime(self.path)
 
     def open(self, mode='rb'):
         return self.service.open(self.path, mode=mode)
@@ -236,13 +240,16 @@ class StorageNode(object):
 
 class StorageService(GnrBaseService):
 
+    def _argstopath(self, *args, **kwargs):
+        return '/'.join(args)
+
     def _getNode(self, node=None):
         return node if isinstance(node, StorageNode) else self.parent.storageNode(node)
 
-    def internal_path(self, path=None):
+    def internal_path(self, *args, **kwargs):
         pass
 
-    def local_path(self, path=None, mode=None):
+    def local_path(self, *args, **kwargs):
         pass
 
     def base_name(self, path=None):
@@ -330,24 +337,33 @@ class BaseLocalService(StorageService):
     def location_identifier(self):
         return 'localfs'
 
-    def internal_path(self, path, **kwargs):
-        return os.path.join(self.base_path, *(path.split('/')))
+    def internal_path(self, *args, **kwargs):
+        out_list = [self.base_path]
+        out_list.extend(args)
+        outpath = os.path.join(*out_list)
+        return outpath
+        
+    def delete(self, *args):
+        return os.unlink(self.internal_path(*args))
 
-    def delete(self, path):
-        return os.unlink(self.internal_path(path))
+    def open(self, *args, **kwargs):
+        return open(self.internal_path(*args), **kwargs)
 
-    def open(self, path, mode='rb'):
-        return open(self.internal_path(path), mode=mode)
+    def exists(self, *args):
+        return os.path.exists(self.internal_path(*args))
 
-    def exists(self, path):
-        return os.path.exists(self.internal_path(path))
+    def mtime(self, *args):
+        stats = os.stat(self.internal_path(*args))
+        return stats.st_mtime
 
-    def local_path(self, path=None, mode='r'): #TODO: vedere se fare così o con altro metodo
-        internalpath = self.internal_path(path)
+    def local_path(self, *args, **kwargs): #TODO: vedere se fare così o con altro metodo
+        mode = kwargs.get('mode', 'r')
+        #path = self._argstopath(*args)
+        internalpath = self.internal_path(*args)
         return LocalPath(fullpath=internalpath)
 
-    def isdir(self, path):
-        return os.path.isdir(self.internal_path(path))
+    def isdir(self, *args):
+        return os.path.isdir(self.internal_path(*args))
 
     def renameNode(self, sourceNode=None, destNode=None):
         shutil.move(sourceNode.internal_path(), destNode.internal_path())
@@ -355,9 +371,10 @@ class BaseLocalService(StorageService):
     def duplicateNode(self, sourceNode=None, destNode=None):
         shutil.copy2(sourceNode.internal_path(), destNode.internal_path())
 
-    def url(self, path, **kwargs):
-        url = '%s/_storage/%s/%s' %(self.parent.external_host, self.service_name, path)
-        return url
+    def url(self, *args, **kwargs):
+        outlist = [self.parent.external_host, '_storage', self.service_name]
+        outlist.extend(args)
+        return '/'.join(outlist)
 
     def serve(self, path, environ, start_response, download=False, download_name=None, **kwargs):
         fullpath = self.internal_path(path)
@@ -393,11 +410,11 @@ class BaseLocalService(StorageService):
             file_responder.cache_control(max_age=self.parent.cache_max_age)
         return file_responder(environ, start_response)
 
-    def listdir(self, path, **kwargs):
-        directory = os.listdir(self.internal_path(path))
+    def listdir(self, *args, **kwargs):
+        directory = os.listdir(self.internal_path(*args))
         out = []
         for d in directory:
-            subpath = os.path.join(path,d)
+            subpath = os.path.join(self._argstopath(*args),d)
             out.append(StorageNode(parent=self.parent, path=subpath, service=self))
         return out
 
