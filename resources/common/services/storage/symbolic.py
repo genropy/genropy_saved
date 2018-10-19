@@ -82,6 +82,18 @@ class Service(BaseLocalService):
     def url_user(self, user, *args, **kwargs):
         return '%s_user/%s/%s' % (self.home_uri, user, '/'.join(args))
 
+
+    def url_vol(self, volume, *args, **kwargs):
+        return '%s_vol/%s/%s' % (self.home_uri, volume, '/'.join(args))
+
+    def path_vol(self,volume,*args,**kwargs):
+        sitevolumes = self.parent.config.getItem('volumes')
+        if sitevolumes and volume in sitevolumes:
+            vpath = sitevolumes.getAttr(volume,'path')
+        else:
+            vpath = volume
+        return expandpath(os.path.join(self.parent.site_static_dir,vpath, *args))
+
     def internal_path(self, *args, **kwargs):
         path = self._argstopath(*args)
         path_getter = getattr(self, 'path_%s'%self.service_name, None)

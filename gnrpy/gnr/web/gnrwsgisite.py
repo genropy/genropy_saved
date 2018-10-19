@@ -380,7 +380,7 @@ class GnrWsgiSite(object):
 
     def storageDispatcher(self,path_list,environ, start_response,**kwargs):
         prefix = path_list.pop(0)[1:]
-        if prefix not in ('storage','vol'):
+        if prefix != 'storage':
             storage_name = prefix
         else:
             storage_name = path_list.pop(0)
@@ -388,8 +388,8 @@ class GnrWsgiSite(object):
         storageNode = self.storageNode('%s:%s'%(storage_name,path))
         exists = storageNode and storageNode.exists
         if not exists and '_lazydoc' in kwargs:
-            fullpath = None ### QUI NON DOBBIAMO USARE I FULLPATH
-            exists = self.build_lazydoc(kwargs['_lazydoc'],fullpath=fullpath)
+            #fullpath = None ### QUI NON DOBBIAMO USARE I FULLPATH
+            exists = self.build_lazydoc(kwargs['_lazydoc'],fullpath=storageNode.internal_path)
         if not exists:
             if kwargs.get('_lazydoc'):
                 headers = []
