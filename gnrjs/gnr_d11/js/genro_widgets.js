@@ -731,9 +731,6 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         else {
             var v = v || this.prepareSrc(domnode);
         }
-        if (sourceNode.currentSetTimeout) {
-            clearTimeout(sourceNode.currentSetTimeout);
-        }
         if(main_call){
             v = v || window.location.pathname;
             src_kwargs['main_call'] = main_call;
@@ -758,7 +755,6 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
                     domnode.src = v;
                 });
             }
-            
         }else{
             domnode.src = '';
         }
