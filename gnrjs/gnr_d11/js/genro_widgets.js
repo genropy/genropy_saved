@@ -731,9 +731,6 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         else {
             var v = v || this.prepareSrc(domnode);
         }
-        if (sourceNode.currentSetTimeout) {
-            clearTimeout(sourceNode.currentSetTimeout);
-        }
         if(main_call){
             v = v || window.location.pathname;
             src_kwargs['main_call'] = main_call;
@@ -748,17 +745,16 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             v = genro.dom.detectPdfViewer(v,sourceNode.attr.jsPdfViewer);
             var doset = this.initContentHtml(domnode,v);
             if (doset){
-                sourceNode.currentSetTimeout = setTimeout(function(d, url) {
-                    var absUrl = document.location.protocol + '//' + document.location.host + url;
-                    if (absUrl != d.src) {
-                        if (d.src && sourceNode.attr.onUpdating) {
-                            sourceNode.attr.onUpdating();
-                        }
-                        d.src = url;
+                sourceNode.watch('absurlUpdating',function(){
+                    var absUrl = document.location.protocol + '//' + document.location.host + v;
+                    return absUrl != domnode.src;
+                },function(){
+                    if (domnode.src && sourceNode.attr.onUpdating) {
+                        sourceNode.attr.onUpdating();
                     }
-                }, sourceNode.attr.delay || 1, domnode, v);
+                    domnode.src = v;
+                });
             }
-            
         }else{
             domnode.src = '';
         }
