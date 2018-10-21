@@ -20,7 +20,7 @@ from gnr.core import gnrstring
 from time import time
 from collections import defaultdict
 from gnr.core.gnrlang import deprecated,GnrException,GnrDebugException,tracebackBag
-from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrdecorator import public_method, callers
 from gnr.app.gnrconfig import getGnrConfig
 from threading import RLock
 import thread
@@ -373,7 +373,14 @@ class GnrWsgiSite(object):
         return self.getService(service_type='storage',service_name=storage_name)
 
     def storageNode(self,*args,**kwargs):
+        if isinstance(args[0], StorageNode):
+            if args[1:]:
+                return self.storageNode(args[0].fullpath, args[1:])
+            else:
+                return args[0]
         path = '/'.join(args)
+        if not ':' in path:
+            path = '_raw_:%s'%path
         service_name, storage_path = path.split(':',1)
         service = self.storage(service_name)
         if not service: return
@@ -417,6 +424,7 @@ class GnrWsgiSite(object):
             return self.not_found_exception(environ, start_response)
         return storageNode.serve(environ, start_response)
 
+    @callers()
     def getStaticPath(self, static, *args, **kwargs):
         """TODO
 
@@ -445,11 +453,6 @@ class GnrWsgiSite(object):
             dest_path = static_handler.path(*args)
             return dest_path
 
-    def openStaticPath(self, static, *args, **kwargs):
-        kwargs = kwargs or {}
-        kwargs['open'] = True
-        return self.getStaticPath(static, *args, **kwargs)
-
 
     def getStaticUrl(self, static, *args, **kwargs):
         """TODO
@@ -459,10 +462,7 @@ class GnrWsgiSite(object):
             return static
         static_name, static_url = static.split(':',1)
         args = self.adaptStaticArgs(static_name, static_url, args)
-        if kwargs:
-            return self.getStatic(static_name).kwargs_url(*args, **kwargs)
-        else:
-            return self.getStatic(static_name).url(*args)
+        return self.storage(static_name).url(*args, **kwargs)
 
     def adaptStaticArgs(self, static_name, static_path, args):
         """TODO
@@ -726,7 +726,6 @@ class GnrWsgiSite(object):
             c = r.get_cookie(self.site_name,'marshal', secret=self.config['secret'])
             user = c.value.get('user') if c else None
             return self.register.isInMaintenance(user)
-
 
     def dispatcher(self, environ, start_response):
         self.currentRequest = Request(environ)
@@ -1422,12 +1421,12 @@ class GnrWsgiSite(object):
     @deprecated
     def site_static_path(self, *args):
         """.. warning:: deprecated since version 0.7"""
-        return self.getStatic('site').path(*args)
+        return self.storage('site').path(*args)
 
     @deprecated
     def site_static_url(self, *args):
         """.. warning:: deprecated since version 0.7"""
-        return self.getStatic('site').url(*args)
+        return self.storage('site').url(*args)
 
 
     def shellCall(self,*args):
@@ -1523,19 +1522,18 @@ class GnrWsgiSite(object):
         :param file_list: a string with the files names to be zipped
         :param zipPath: the result path of the zipped file"""
         import zipfile
-        zipresult = open(zipPath, 'wb')
-        if isinstance(zipPath, StorageNode):
-            openfile = lambda:StorageNode.open(mode='wb')
-        else:
-            openfile = lambda:open(zipPath, 'wb')
-        with openfile() as zipresult:
+        zipresult = StorageNode.fromPath(zipPath, parent=self)
+        with zipresult.open(mode='wb') as zipresult:
             zip_archive = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED,allowZip64=True)
             for fpath in file_list:
+                newname = None
                 if isinstance(fpath,tuple):
                     fpath,newname = fpath
-                else:
-                    newname = os.path.basename(fpath)
-                zip_archive.write(fpath, newname)
+                fpath = StorageNode.fromPath(fpath, parent=self)
+                if not newname:
+                    newname = os.path.basename(fpath.base_name)
+                with fpath.local_path(mode='r') as local_path:
+                    zip_archive.write(local_path, newname)
             zip_archive.close()
         #zipresult.close()
 

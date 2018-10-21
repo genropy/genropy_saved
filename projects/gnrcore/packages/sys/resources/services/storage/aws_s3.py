@@ -131,6 +131,9 @@ class Service(StorageService):
                 raise
         return True
 
+    def makedirs(self, *args, **kwargs):
+        pass
+
     def mtime(self, *args):
         s3 = self._client
         internalpath = self.internal_path(*args)

@@ -10,7 +10,7 @@ from gnr.core.gnrlang import  GnrException
 
 
 from gnr.lib.services import GnrBaseService,BaseServiceType
-
+from gnr.lib.services.storage import StorageNode
 
 
 class HtmlToPdfError(GnrException):
@@ -68,11 +68,13 @@ class HtmlToPdfService(GnrBaseService):
         :param destPath: TODO
         :param orientation: TODO"""
 
-        if '<' in srcPath:
+        if not isinstance(srcPath, StorageNode) and '<' in srcPath:
             srcPath = self.createTempHtmlFile(srcPath,htmlTemplate=htmlTemplate,bodyStyle=bodyStyle)
             self.htmlToPdf(srcPath,destPath,orientation,pdf_kwargs=pdf_kwargs)
             os.remove(srcPath)
             return
+        srcNode = self.parent.storageNode(srcPath)
+        destNode = self.parent.storageNode(destPath)
         pdf_pref = self.parent.getPreference('.pdf_render',pkg='sys') if self.parent else None
         #preference should be in sys.service service_parameters
         keep_html = False
@@ -88,9 +90,9 @@ class HtmlToPdfService(GnrBaseService):
             now = datetime.now()
             baseName = os.path.splitext(os.path.basename(destPath))[0]
             debugName = "%s_%02i_%02i_%02i.html"%(baseName, now.hour,now.minute,now.second)
-            htmlfilepath = self.parent.getStaticPath('site:print_debug',
+            htmlfilenode = self.parent.storageNode('site:print_debug',
                 date.today().isoformat(), debugName ,autocreate=-1)
-            shutil.copy(srcPath, htmlfilepath)
+            srcNode.copy(htmlfilenode)
 
         return self.writePdf(srcPath, destPath, orientation=orientation, page_height=page_height, 
                     page_width=page_width, pdf_kwargs=pdf_kwargs,

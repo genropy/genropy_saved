@@ -23,10 +23,10 @@ class Service(BaseLocalService):
             return os.path.join(resource_path, *args)
 
     def path_page(self, connection_id, page_id, *args, **kwargs):
-        os.path.join(self.site_path, 'data', '_connections', connection_id, page_id, *args)
+        return os.path.join(self.site_path, 'data', '_connections', connection_id, page_id, *args)
 
     def path_pages(self,  *args, **kwargs):
-        os.path.join(self.site_path, 'pages', *args)
+        return os.path.join(self.site_path, 'pages', *args)
 
     def path_conn(self, connection_id, *args, **kwargs):
         return os.path.join(self.site_path, 'data', '_connections', connection_id, *args)

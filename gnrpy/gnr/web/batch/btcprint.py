@@ -140,7 +140,7 @@ class BaseResourcePrint(BaseResourceBatch):
         
     def result_handler_pdf(self, resultAttr):
         save_as = slugify(self.print_options['save_as'] or self.batch_title)
-        outputFilePath=self.page.site.getStaticPath('user:output', 'pdf', save_as,autocreate=-1)
+        outputFileNode=self.page.site.storageNode('user:output', 'pdf', save_as,autocreate=-1)
         zipped =  self.print_options.get('zipped')
         immediate_mode = self.batch_immediate
         if immediate_mode is True:
@@ -148,14 +148,13 @@ class BaseResourcePrint(BaseResourceBatch):
         if immediate_mode and zipped:
             immediate_mode = 'download'
         if zipped:
-            outputFilePath +='.zip'
-            self.page.site.zipFiles(self.results.values(), outputFilePath)
+            outputFileNode.path +='.zip'
+            self.page.site.zipFiles(self.results.values(), outputFileNode)
         else:
-            outputFilePath +='.pdf'
-            self.pdf_handler.joinPdf(self.results.values(), outputFilePath)
-        filename = os.path.basename(outputFilePath)
-        self.fileurl = self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True, download=True)
-        inlineurl = self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True)
+            outputFileNode.path +='.pdf'
+            self.pdf_handler.joinPdf(self.results.values(), outputFileNode)
+        self.fileurl = outputFileNode.url(nocache=True, download=True)
+        inlineurl = outputFileNode.url(nocache=True)
         resultAttr['url'] = self.fileurl
         resultAttr['document_name'] = save_as
         resultAttr['url_print'] = 'javascript:genro.openWindow("%s","%s");' %(inlineurl,save_as)

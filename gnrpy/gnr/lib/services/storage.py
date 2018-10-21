@@ -3,7 +3,7 @@
 
 import os
 import re
-
+import random
 from datetime import datetime
 from gnr.core import gnrstring
 from gnr.core.gnrbag import Bag,DirectoryResolver,BagResolver
@@ -171,8 +171,19 @@ class ServiceType(BaseServiceType):
 
     def conf_user(self):
         return dict(implementation='symbolic')
+    
+    def conf__raw_(self):
+        return dict(implementation='raw')
 
 class StorageNode(object):
+
+    @classmethod
+    def fromPath(cls, path, parent=None):
+        if isinstance(path, cls):
+            return path
+        if not ':' in path:
+            path = '_raw_:%s'%path
+        return parent.storageNode(path)
 
     def __init__(self, parent=None, path=None, service=None, autocreate=None,
         must_exist=False, mode='r'):
@@ -182,6 +193,7 @@ class StorageNode(object):
         if must_exist and not self.service.exists(self.path):
             raise NotExistingStorageNode
         self.mode = mode
+        self.autocreate = autocreate
 
     @property
     def fullpath(self):
@@ -216,6 +228,7 @@ class StorageNode(object):
         return self.service.mtime(self.path)
 
     def open(self, mode='rb'):
+        self.service.autocreate(self.path, autocreate=self.autocreate)
         return self.service.open(self.path, mode=mode)
 
     def url(self, **kwargs):
@@ -236,7 +249,11 @@ class StorageNode(object):
         return self.service.serve(self.path, environ, start_response)
 
     def local_path(self, mode=None):
+        self.service.autocreate(self.path, autocreate=self.autocreate)
         return self.service.local_path(self.path, mode=mode or self.mode)
+
+    def child(self, path=None):
+        return self.service.parent.storageNode('%s/%s'%(self.fullpath,path))
 
 class StorageService(GnrBaseService):
 
@@ -276,6 +293,22 @@ class StorageService(GnrBaseService):
     def delete(self,*args, **kwargs):
         pass
 
+    def autocreate(self, *args, **kwargs):
+
+        autocreate=kwargs.pop('autocreate', None)
+        if not autocreate:
+            return
+        args = ('/'.join(args)).split('/')
+        if autocreate != True:
+            autocreate_args = args[:autocreate]
+        else:
+            autocreate_args = args
+        
+        dest_dir = StorageNode(parent=self.parent,
+            service=self,path='/'.join(autocreate_args))
+        if not dest_dir.exists:
+            self.makedirs(dest_dir.path)
+
     def copyNodeContent(self, sourceNode=None, destNode=None):
         with sourceNode.open(mode='rb') as sourceFile:
             with destNode.open(mode='wb') as destFile:
@@ -312,11 +345,11 @@ class StorageService(GnrBaseService):
                 if isinstance(arg, StorageNode):
                     arg = stack.enter_context(arg.local_path())
                 args_list.append(arg)
-            call(args_list, **call_kwargs)
+            return call(args_list, **call_kwargs)
             if cb:
                 cb(*cb_args, **cb_kwargs)
 
-    def call(self, *args, **kwargs):
+    def call(self, args, **kwargs):
         cb = kwargs.pop('cb', None)
         cb_args = kwargs.pop('cb', None)
         cb_kwargs = kwargs.pop('cb', None)
@@ -326,7 +359,7 @@ class StorageService(GnrBaseService):
             import thread
             thread.start_new_thread(self._call,(),call_params)
         else:
-            self._call(**call_params)
+            return self._call(**call_params)
 
 class BaseLocalService(StorageService):
     def __init__(self, parent=None, base_path=None,**kwargs):
@@ -362,6 +395,9 @@ class BaseLocalService(StorageService):
         internalpath = self.internal_path(*args)
         return LocalPath(fullpath=internalpath)
 
+    def makedirs(self, *args, **kwargs):
+        os.makedirs(self.internal_path(*args))
+
     def isdir(self, *args):
         return os.path.isdir(self.internal_path(*args))
 
@@ -374,7 +410,19 @@ class BaseLocalService(StorageService):
     def url(self, *args, **kwargs):
         outlist = [self.parent.external_host, '_storage', self.service_name]
         outlist.extend(args)
-        return '/'.join(outlist)
+        url = '/'.join(outlist)
+        if not kwargs:
+            return url
+        nocache = kwargs.pop('nocache', None)
+        if nocache:
+            if self.exists(*args):
+                mtime = self.mtime(*args)
+            else:
+                mtime = random.random() * 100000
+            kwargs['mtime'] = '%0.0f' % (mtime)
+
+        url = '%s?%s' % (url, '&'.join(['%s=%s' % (k, v) for k, v in kwargs.items()]))
+        return url
 
     def serve(self, path, environ, start_response, download=False, download_name=None, **kwargs):
         fullpath = self.internal_path(path)
