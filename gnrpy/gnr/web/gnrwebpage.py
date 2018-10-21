@@ -828,12 +828,12 @@ class GnrWebPage(GnrBaseWebPage):
         """TODO"""
         pass
         
-    def getService(self, service_type=None,service_name=None):
+    def getService(self, service_type=None,service_name=None, **kwargs):
         """TODO
         
         :param service_type: TODO"""
         service_name = service_name or service_type
-        return self.site.getService(service_type=service_type,service_name=service_name)
+        return self.site.getService(service_type=service_type,service_name=service_name, **kwargs)
         
     def _onEnd(self):
         self._publish_event('onEnd')

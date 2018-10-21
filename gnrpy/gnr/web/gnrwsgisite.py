@@ -340,8 +340,8 @@ class GnrWsgiSite(object):
 
 
 
-    def getService(self, service_type=None,service_name=None):
-        return self.services_handler.getService(service_type=service_type,service_name=service_name or service_type)
+    def getService(self, service_type=None,service_name=None, **kwargs):
+        return self.services_handler.getService(service_type=service_type,service_name=service_name or service_type, **kwargs)
 
     def addStatic(self, static_handler_factory, **kwargs):
         """TODO
@@ -349,9 +349,21 @@ class GnrWsgiSite(object):
         :param service_handler_factory: TODO"""
         return self.statics.add(static_handler_factory, **kwargs)
 
+    def getVolumeService(self, storage_name=None):
+        sitevolumes = self.config.getItem('volumes')
+        if sitevolumes and storage_name in sitevolumes:
+            vpath = sitevolumes.getAttr(storage_name,'path')
+        else:
+            vpath = storage_name
+        volume_path = expandpath(os.path.join(self.site_static_dir,vpath))
+        return self.getService(service_type='storage',service_name=storage_name
+            ,implementation='local',base_path=volume_path)
 
     def storage(self, storage_name,**kwargs):
-        return self.getService(service_type='storage',service_name=storage_name)
+        storage = self.getService(service_type='storage',service_name=storage_name)
+        if not storage: 
+            storage = self.getVolumeService(storage_name=storage_name)
+        return storage
 
     def storageNode(self,*args,**kwargs):
         if isinstance(args[0], StorageNode):
@@ -363,6 +375,8 @@ class GnrWsgiSite(object):
         if not ':' in path:
             path = '_raw_:%s'%path
         service_name, storage_path = path.split(':',1)
+        if service_name == 'vol':
+            service_name, storage_path = storage_path.split('/', 1)
         service = self.storage(service_name)
         if not service: return
         autocreate = kwargs.pop('autocreate', False)
@@ -396,16 +410,16 @@ class GnrWsgiSite(object):
         exists = storageNode and storageNode.exists
         if not exists and '_lazydoc' in kwargs:
             #fullpath = None ### QUI NON DOBBIAMO USARE I FULLPATH
-            exists = self.build_lazydoc(kwargs['_lazydoc'],fullpath=storageNode.internal_path)
+            exists = self.build_lazydoc(kwargs['_lazydoc'],fullpath=storageNode.internal_path) 
+            exists = exists and storageNode.exists
         if not exists:
             if kwargs.get('_lazydoc'):
                 headers = []
                 start_response('200 OK', headers)
                 return ['']
             return self.not_found_exception(environ, start_response)
-        return storageNode.serve(environ, start_response)
-
-    @callers()
+        return storageNode.serve(environ, start_response,**kwargs)
+    #@callers()
     def getStaticPath(self, static, *args, **kwargs):
         """TODO
 

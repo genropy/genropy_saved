@@ -175,9 +175,11 @@ class ServiceType(BaseServiceType):
     def conf__raw_(self):
         return dict(implementation='raw')
 
-    def conf_vol(self):
-        return dict(implementation='symbolic')
-
+    #def conf_vol(self):
+    #    return dict(implementation='symbolic')
+    def getServiceFactory(self,implementation=None):
+        return self.implementations.get(implementation)
+    
 class StorageNode(object):
 
     @classmethod
@@ -248,8 +250,8 @@ class StorageNode(object):
     def copy(self, dest=None):
         return self.service.copy(source=self.path, dest=dest)
 
-    def serve(self, environ, start_response):
-        return self.service.serve(self.path, environ, start_response)
+    def serve(self, environ, start_response, **kwargs):
+        return self.service.serve(self.path, environ, start_response, **kwargs)
 
     def local_path(self, mode=None):
         self.service.autocreate(self.path, autocreate=self.autocreate)
@@ -338,7 +340,7 @@ class StorageService(GnrBaseService):
         sourceNode.delete()
         return destNode
 
-    def serve(self, path):
+    def serve(self, path, **kwargs):
         pass
 
     def _call(self, call_args=None, call_kwargs=None, cb=None, cb_args=None, cb_kwargs=None):
@@ -374,7 +376,6 @@ class BaseLocalService(StorageService):
         return 'localfs'
 
     def internal_path(self, *args, **kwargs):
-        print 'args',self.base_path,args,
         out_list = [self.base_path]
         out_list.extend(args)
         outpath = os.path.join(*out_list)
@@ -433,13 +434,7 @@ class BaseLocalService(StorageService):
         if not fullpath:
             return self.parent.not_found_exception(environ, start_response)
         existing_doc = os.path.exists(fullpath)
-        if not existing_doc and '_lazydoc' in kwargs:
-            existing_doc = self.build_lazydoc(kwargs['_lazydoc'],fullpath=fullpath)
         if not existing_doc:
-            if kwargs.get('_lazydoc'):
-                headers = []
-                start_response('200 OK', headers)
-                return ['']
             return self.parent.not_found_exception(environ, start_response)
         if_none_match = environ.get('HTTP_IF_NONE_MATCH')
         if if_none_match:

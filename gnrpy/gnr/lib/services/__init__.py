@@ -73,10 +73,11 @@ class ServiceHandler(object):
                 service_type_factory = service_types_factories.get(service_type) or default_service_type_factory
                 self.service_types[service_type] = service_type_factory(self.site,service_type=service_type)
         
-    def getService(self,service_type=None,service_name=None):
+    def getService(self,service_type=None,service_name=None, **kwargs):
+        
         if service_type not in self.service_types:
-            self.service_types[service_type] = BaseServiceType(self.site,service_type=service_type)
-        return self(service_type)(service_name)
+            self.service_types[service_type] = BaseServiceType(site=self.site,service_type=service_type)
+        return self(service_type)(service_name, **kwargs)
     
     def __call__(self,service_type):
         return self.service_types[service_type]
@@ -84,14 +85,13 @@ class ServiceHandler(object):
 
 class BaseServiceType(object):
     
-    def __init__(self, site=None,service_type=None):
+    def __init__(self, site=None,service_type=None, **kwargs):
         self.site = site
         self.service_type = service_type
         self.service_instances = {}
 
-    def addService(self, service_name=None):
-        service_conf = self.getConfiguration(service_name)
-        instance = None
+    def addService(self, service_name=None, **kwargs):
+        service_conf = kwargs or self.getConfiguration(service_name)
         implementation = None
         if service_conf:
             implementation = service_conf.pop('implementation',None) or service_conf.pop('resource',None) #resource is the oldname for implementation
@@ -188,11 +188,11 @@ class BaseServiceType(object):
     def default_service_name(self):
         return self.service_type
 
-    def __call__(self, service_name=None):
+    def __call__(self, service_name=None, **kwargs):
         service_name = service_name or self.default_service_name
         service = self.service_instances.get(service_name)
         if service is None:
-            service = self.addService(service_name)
+            service = self.addService(service_name, **kwargs)
         return service
 
 
