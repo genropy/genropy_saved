@@ -197,41 +197,28 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         if(!dlgNode){
             var root = genro.src.getNode()._('div', '_dlg_iframe');
             var parentRatio = objectPop(kw,'parentRatio');
-            var windowRatio = objectPop(kw,'windowRatio');
+            var windowRatio = objectPop(kw,'windowRatio')
             var dlg = root._('dialog',{title:kw.title,closable:kw.closable,nodeId:dialogId,parentRatio:parentRatio,windowRatio:windowRatio});
             var iframekw = {src:kw.src,border:0,height:'100%',width:'100%',nodeId:iframeId};
-            objectUpdate(iframekw,objectExtract(kw,'iframe_*'));
             iframekw.selfsubscribe_close = "this.dialog.hide();";
-            var onIframeStarted = objectPop(kw,'onIframeStarted');
-            if(onIframeStarted){
-                iframekw.onStarted = function(){
-                    onIframeStarted(this,genro.wdgById(dialogId));
-                    if(kw.openKw){
-                        this.domNode.gnr.postMessage(this,kw.openKw);
-                    }
-                };
-            }
             objectUpdate(iframekw,objectExtract(kw,'selfsubscribe_*',true,true));
-            var iframe;
             if(!(parentRatio || windowRatio)){
-                iframe = dlg._('div',{height:kw.height,width:kw.width,overflow:'hidden'})._('iframe','iframe',iframekw);
+                var iframe = dlg._('div',{height:kw.height,width:kw.width,overflow:'hidden'})._('iframe','iframe',iframekw);
             }else{
-                iframe = dlg._('borderContainer')._('ContentPane',{'region':'center',overflow:'hidden'})._('iframe','iframe',iframekw);
+                var iframe = dlg._('borderContainer')._('ContentPane',{'region':'center',overflow:'hidden'})._('iframe','iframe',iframekw);
             }
+            
             dlgNode = dlg.getParentNode();
             dlgNode._iframeNode = iframe.getParentNode();
             dlgNode._iframeNode.dialog = dlgNode.widget;
-            dlgNode.widget.show();
             //create dlg and iframe
-        }else{
-            dlgNode.widget.show();
-            if(kw.openKw){
-                dlgNode._iframeNode.domNode.gnr.postMessage(dlgNode._iframeNode,kw.openKw);
-            }
         }
-        
-        return dlgNode;
+        dlgNode.widget.show();
+        if(kw.openKw){
+            dlgNode._iframeNode.domNode.gnr.postMessage(dlgNode._iframeNode,kw.openKw);
+        }
     },
+
 
     thIframeDialog:function(kw,openKw){
         kw.src = this._prepareThIframeUrl(kw); 
