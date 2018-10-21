@@ -644,7 +644,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
                     return;
                 }
             }catch(e){
-                console.warn('not loaded frame')
+                console.warn('not loaded frame');
                 return
             }
             genro.dom.removeClass(this,'waiting');
@@ -721,7 +721,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         var src_kwargs = objectExtract(attributes,'src_*') || {};
         objectUpdate(src_kwargs,main_kwargs);
         if(!sourceNode.savedAttrs.externalSite){
-            src_kwargs['_calling_page_id'] = genro.page_id;
+            src_kwargs._calling_page_id = genro.page_id;
         }
         if (attributes._if && !sourceNode.getAttributeFromDatasource('_if')) {
             var v = '';
@@ -730,9 +730,6 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         }
         else {
             var v = v || this.prepareSrc(domnode);
-        }
-        if (sourceNode.currentSetTimeout) {
-            clearTimeout(sourceNode.currentSetTimeout);
         }
         if(main_call){
             v = v || window.location.pathname;
@@ -748,17 +745,16 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             v = genro.dom.detectPdfViewer(v,sourceNode.attr.jsPdfViewer);
             var doset = this.initContentHtml(domnode,v);
             if (doset){
-                sourceNode.currentSetTimeout = setTimeout(function(d, url) {
-                    var absUrl = document.location.protocol + '//' + document.location.host + url;
-                    if (absUrl != d.src) {
-                        if (d.src && sourceNode.attr.onUpdating) {
-                            sourceNode.attr.onUpdating();
-                        }
-                        d.src = url;
+                sourceNode.watch('absurlUpdating',function(){
+                    var absUrl = document.location.protocol + '//' + document.location.host + v;
+                    return absUrl != domnode.src;
+                },function(){
+                    if (domnode.src && sourceNode.attr.onUpdating) {
+                        sourceNode.attr.onUpdating();
                     }
-                }, sourceNode.attr.delay || 1, domnode, v);
+                    domnode.src = v;
+                });
             }
-            
         }else{
             domnode.src = '';
         }

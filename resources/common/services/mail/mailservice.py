@@ -23,6 +23,3 @@ class ServiceParameters(BaseComponent):
         fb.checkbox(value='^.ssl',label='SSL')
         fb.checkbox(value='^.tls',label='TLS')
         self.extra_account_parameter(fb)
-    
-    def extra_account_parameter(self,fb):
-        pass

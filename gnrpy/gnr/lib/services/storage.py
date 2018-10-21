@@ -175,6 +175,9 @@ class ServiceType(BaseServiceType):
     def conf__raw_(self):
         return dict(implementation='raw')
 
+    def conf_vol(self):
+        return dict(implementation='symbolic')
+
 class StorageNode(object):
 
     @classmethod
@@ -371,6 +374,7 @@ class BaseLocalService(StorageService):
         return 'localfs'
 
     def internal_path(self, *args, **kwargs):
+        print 'args',self.base_path,args,
         out_list = [self.base_path]
         out_list.extend(args)
         outpath = os.path.join(*out_list)

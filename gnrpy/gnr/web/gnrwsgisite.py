@@ -33,10 +33,7 @@ from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrprinthandler import PrintHandler
 from gnr.web.gnrwebreqresp import GnrWebRequest
 from gnr.lib.services import ServiceHandler
-#from gnr.lib.services.gnrmail import WebMailHandler
 from gnr.lib.services.storage import StorageNode
-from gnr.web.gnrwsgisite_proxy.gnrservicehandler import ServiceHandlerManager #legacy
-#from gnr.web.gnrwsgisite_proxy.gnrstoragehandler import StorageHandler
 from gnr.app.gnrdeploy import PathResolver
 
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
@@ -240,8 +237,6 @@ class GnrWsgiSite(object):
         self.secret = self.config['wsgi?secret'] or 'supersecret'
         self.config['secret'] = self.secret
         self.setDebugAttribute(options)
-        #self.option_restore = options.restore if options else None
-        #self.profile = boolean(options.profile) if options else boolean(self.config['wsgi?profile'])
         self.statics = StaticHandlerManager(self)
         self.statics.addAllStatics()
         self.compressedJsPath = None
@@ -259,16 +254,7 @@ class GnrWsgiSite(object):
         self.resource_loader = ResourceLoader(self)
         self.page_factory_lock = RLock()
         self.webtools = self.resource_loader.find_webtools()
-        self.services = ServiceHandlerManager(self) #legacy services
-        self.addLegacyService(PrintHandler, service_name='print') #legacy print 
-        #self.addLegacyService(WebMailHandler, service_name='mail')
-        #self.services.addSiteServices()
         self.register
-
-
-       #self.storages = GnrStorageHandler(self)
-       #self.storages.addAllStorages()
-
         self._remote_edit = options.remote_edit if options else None
         if counter == 0 and self.debug:
             self.onInited(clean=not noclean)
@@ -352,15 +338,10 @@ class GnrWsgiSite(object):
                     for k,v in attr.items():
                         self.extraFeatures['%s_%s' %(n.label,k)] = v
 
-    def addLegacyService(self, service_handler, service_name=None,**kwargs):
-        return self.services.add(service_handler, service_name=service_name, **kwargs)
-    
+
 
     def getService(self, service_type=None,service_name=None):
-        result =  self.services_handler.getService(service_type=service_type,service_name=service_name or service_type)
-        if not result:
-            result = self.services.get(service_name or service_type) #legacy mode
-        return result
+        return self.services_handler.getService(service_type=service_type,service_name=service_name or service_type)
 
     def addStatic(self, static_handler_factory, **kwargs):
         """TODO
@@ -406,7 +387,7 @@ class GnrWsgiSite(object):
 
     def storageDispatcher(self,path_list,environ, start_response,**kwargs):
         prefix = path_list.pop(0)[1:]
-        if prefix not in ('storage','vol'):
+        if prefix != 'storage':
             storage_name = prefix
         else:
             storage_name = path_list.pop(0)
@@ -414,8 +395,8 @@ class GnrWsgiSite(object):
         storageNode = self.storageNode('%s:%s'%(storage_name,path))
         exists = storageNode and storageNode.exists
         if not exists and '_lazydoc' in kwargs:
-            fullpath = None ### QUI NON DOBBIAMO USARE I FULLPATH
-            exists = self.build_lazydoc(kwargs['_lazydoc'],fullpath=fullpath)
+            #fullpath = None ### QUI NON DOBBIAMO USARE I FULLPATH
+            exists = self.build_lazydoc(kwargs['_lazydoc'],fullpath=storageNode.internal_path)
         if not exists:
             if kwargs.get('_lazydoc'):
                 headers = []

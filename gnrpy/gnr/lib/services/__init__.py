@@ -74,12 +74,8 @@ class ServiceHandler(object):
                 self.service_types[service_type] = service_type_factory(self.site,service_type=service_type)
         
     def getService(self,service_type=None,service_name=None):
-        if not service_type in self.service_types:
-            servattr = self.site.config.getAttr('services.%s' %service_type) #backward
-            if servattr:
-                service_type = servattr['service_type']
-            else:
-                return
+        if service_type not in self.service_types:
+            self.service_types[service_type] = BaseServiceType(self.site,service_type=service_type)
         return self(service_type)(service_name)
     
     def __call__(self,service_type):
@@ -187,12 +183,18 @@ class BaseServiceType(object):
 
     def getServiceFactory(self,implementation=None):
         return self.implementations.get(implementation) or self.implementations.get(self.baseImplementation)
+    
+    @property
+    def default_service_name(self):
+        return self.service_type
 
     def __call__(self, service_name=None):
+        service_name = service_name or self.default_service_name
         service = self.service_instances.get(service_name)
         if service is None:
             service = self.addService(service_name)
         return service
+
 
 
 class GnrBaseService(object):
