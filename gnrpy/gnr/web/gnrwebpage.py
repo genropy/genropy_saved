@@ -101,7 +101,7 @@ class GnrBasicAuthenticationError(GnrException):
 
 EXCEPTIONS = {'user_not_allowed': GnrUserNotAllowed,
               'missing_resource': GnrMissingResourceException,
-              'unsupported_browsr': GnrUnsupportedBrowserException,
+              'unsupported_browser': GnrUnsupportedBrowserException,
               'generic': GnrWebPageException,
               'basic_authentication':GnrBasicAuthenticationError,
               'maintenance': GnrMaintenanceException}
