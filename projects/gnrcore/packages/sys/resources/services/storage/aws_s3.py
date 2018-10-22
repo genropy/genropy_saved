@@ -226,9 +226,9 @@ class Service(StorageService):
             Params={'Bucket': self.bucket,'Key': internal_path},
             ExpiresIn=expiration)
 
-    def open(self, path, mode=None,  **kwargs):
-        return smart_open("s3://%s/%s"%(self.bucket,self.internal_path(path)),
-            s3_session=self._session, mode=mode)
+    def open(self, *args, **kwargs):
+        return smart_open("s3://%s/%s"%(self.bucket,self.internal_path(*args)),
+            s3_session=self._session, **kwargs)
 
 
     def duplicateNode(self, sourceNode=None, destNode=None): # will work only in the same bucket
