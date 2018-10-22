@@ -1468,46 +1468,10 @@ class GnrWsgiSite(object):
         if not file_ext:
             filename = '%s%s' %(filename,original_ext)
             file_ext = original_ext
-        file_path = self.getStaticPath(uploadPath, filename,autocreate=-1)
-        file_url = self.getStaticUrl(uploadPath, filename)
-        dirname = os.path.dirname(file_path)
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
-        with file(file_path, 'wb') as outfile:
-            outfile.write(content)
-        return file_path,file_url
-
-    def uploadFile_new(self,file_handle=None,dataUrl=None,filename=None,uploadPath=None):
-        if file_handle is not None:
-            f = file_handle.file
-            content = f.read()
-            original_filename = os.path.basename(file_handle.filename)
-            original_ext = os.path.splitext(original_filename)[1]
-            filename = filename or original_filename
-        elif dataUrl:
-            import base64
-            dataUrlPattern = re.compile('data:(.*);base64,(.*)$')
-            g= dataUrlPattern.match(dataUrl)#.group(2)
-            mimetype,base64Content = g.groups()
-            original_ext = mimetypes.guess_extension(mimetype)
-            content = base64.b64decode(base64Content)
-        else:
-            return None,None
-        file_ext = os.path.splitext(filename)[1]
-        if not file_ext:
-            filename = '%s%s' %(filename,original_ext)
-            file_ext = original_ext
-        storageHandler = self.storage(uploadPath,filename,autocreate=-1)
-        with storageHandler.open() as outfile:
-            outfile.write(content)
-        return storageHandler.path,storageHandler.url
-
-        file_path = self.getStaticPath(uploadPath, filename,autocreate=-1)
-        file_url = self.getStaticUrl(uploadPath, filename)
-        dirname = os.path.dirname(file_path)
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
-        with file(file_path, 'wb') as outfile:
+        file_node = self.storageNode(uploadPath, filename,autocreate=-1)
+        file_path = file_node.fullpath
+        file_url = file_node.url()
+        with file_node.open(mode='wb') as outfile:
             outfile.write(content)
         return file_path,file_url
 
@@ -1517,20 +1481,19 @@ class GnrWsgiSite(object):
         :param file_list: a string with the files names to be zipped
         :param zipPath: the result path of the zipped file"""
         import zipfile
-        zipresult = StorageNode.fromPath(zipPath, parent=self)
+        zipresult = self.storageNode(zipPath)
         with zipresult.open(mode='wb') as zipresult:
             zip_archive = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED,allowZip64=True)
             for fpath in file_list:
                 newname = None
                 if isinstance(fpath,tuple):
                     fpath,newname = fpath
-                fpath = StorageNode.fromPath(fpath, parent=self)
+                fpath = self.storageNode(fpath)
                 if not newname:
                     newname = os.path.basename(fpath.base_name)
                 with fpath.local_path(mode='r') as local_path:
                     zip_archive.write(local_path, newname)
             zip_archive.close()
-        #zipresult.close()
 
     def externalUrl(self, path,serveAsLocalhost=None, _link=False,**kwargs):
         """TODO

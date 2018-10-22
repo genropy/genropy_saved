@@ -80,12 +80,12 @@ class S3TemporaryFilename(object):
 
     def __enter__(self):
         self.fd,self.name = tempfile.mkstemp(suffix=self.ext)
-        if self.read_mode:
-            self.s3.download_file(self.bucket,self.key, self.name)
+        self.s3.download_file(self.bucket,self.key, self.name)
+        self.enter_mtime = os.stat(self.name).st_mtime
         return self.name
 
     def __exit__(self, exc, value, tb):
-        if self.write_mode:
+        if os.stat(self.name).st_mtime != self.enter_mtime:
             self.s3.upload_file(self.name, self.bucket,self.key)
         os.unlink(self.name)
 
