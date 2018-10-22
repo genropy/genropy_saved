@@ -1141,6 +1141,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var onReload = objectPop(kw,'onReload');
             this.setLastSavedValues();
             var deferred=this.store.save(kw);
+            if(deferred===false){
+                //onSaving interuption
+                this.setOpStatus();
+                return;
+            }
             var that,cb;
             that = this;
             if(onSaved=='reload' || (destPkey&&(destPkey!=this.getCurrentPkey())) || (this.isNewRecord() && onSaved=='lazyReload')){
@@ -2541,8 +2546,7 @@ dojo.declare("gnr.formstores.Base", null, {
         if(onSaving){
             var dosave = funcApply(onSaving,rpckw,this);
             if(dosave===false){
-                this.form.setOpStatus(null);
-                return;
+                return false;
             }
         }
         var waitingStatus = objectPop(rpckw,'waitingStatus');
