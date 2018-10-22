@@ -1848,7 +1848,8 @@ class Bag(GnrObject):
             b = self._fromSource(*self._sourcePrepare(source))
             if not b: b = Bag()
             self._nodes[:] = b._nodes[:]
-
+        elif hasattr(source, 'read'):
+            self.fillFrom(source.read())
         elif isinstance(source, Bag):
             self._nodes = [BagNode(self, *x.asTuple()) for x in source]
             
