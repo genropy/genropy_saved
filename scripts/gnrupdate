@@ -246,6 +246,8 @@ def main(instances,options):
         updater = ApacheUpdater(**kw)
     elif options.uwsgi:
         updater = UwsgiUpdater(**kw)
+    elif options.gunicorn:
+        updater = GunicornUpdater(**kw)
     if options.stop:
         updater.web_stop()
     else:
