@@ -194,31 +194,46 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     iframeDialog:function(iframeId,kw){
         var dialogId = iframeId+'_dlg';
         var dlgNode = genro.nodeById(dialogId);
+        var openKw = kw.openKw;
         if(!dlgNode){
             var root = genro.src.getNode()._('div', '_dlg_iframe');
             var parentRatio = objectPop(kw,'parentRatio');
-            var windowRatio = objectPop(kw,'windowRatio')
+            var windowRatio = objectPop(kw,'windowRatio');
             var dlg = root._('dialog',{title:kw.title,closable:kw.closable,nodeId:dialogId,parentRatio:parentRatio,windowRatio:windowRatio});
             var iframekw = {src:kw.src,border:0,height:'100%',width:'100%',nodeId:iframeId};
+            objectUpdate(iframekw,objectExtract(kw,'iframe_*'));
             iframekw.selfsubscribe_close = "this.dialog.hide();";
-            objectUpdate(iframekw,objectExtract(kw,'selfsubscribe_*',true,true));
-            if(!(parentRatio || windowRatio)){
-                var iframe = dlg._('div',{height:kw.height,width:kw.width,overflow:'hidden'})._('iframe','iframe',iframekw);
-            }else{
-                var iframe = dlg._('borderContainer')._('ContentPane',{'region':'center',overflow:'hidden'})._('iframe','iframe',iframekw);
+            var onIframeStarted = objectPop(kw,'onIframeStarted');
+            if(onIframeStarted || openKw){
+                iframekw.onStarted = function(){
+                    if(onIframeStarted){
+                        onIframeStarted(this,genro.wdgById(dialogId));
+                    }
+                    if(openKw){
+                        this.domNode.gnr.postMessage(this,openKw);
+                    }
+                };
             }
-            
+            objectUpdate(iframekw,objectExtract(kw,'selfsubscribe_*',true,true));
+            var iframe;
+            if(!(parentRatio || windowRatio)){
+                iframe = dlg._('div',{height:kw.height,width:kw.width,overflow:'hidden'})._('iframe','iframe',iframekw);
+            }else{
+                iframe = dlg._('borderContainer')._('ContentPane',{'region':'center',overflow:'hidden'})._('iframe','iframe',iframekw);
+            }
             dlgNode = dlg.getParentNode();
             dlgNode._iframeNode = iframe.getParentNode();
             dlgNode._iframeNode.dialog = dlgNode.widget;
+            dlgNode.widget.show();
             //create dlg and iframe
+        }else{
+            dlgNode.widget.show();
+            if(openKw){
+                dlgNode._iframeNode.domNode.gnr.postMessage(dlgNode._iframeNode,openKw);
+            }
         }
-        dlgNode.widget.show();
-        if(kw.openKw){
-            dlgNode._iframeNode.domNode.gnr.postMessage(dlgNode._iframeNode,kw.openKw);
-        }
+        return dlgNode;
     },
-
 
     thIframeDialog:function(kw,openKw){
         kw.src = this._prepareThIframeUrl(kw); 
