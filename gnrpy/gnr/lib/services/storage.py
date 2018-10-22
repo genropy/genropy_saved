@@ -295,8 +295,12 @@ class StorageService(GnrBaseService):
     def symbolic_url(self,*args, **kwargs):
         pass
 
-    def delete(self,*args, **kwargs):
-        pass
+    def delete(self, *args):
+        if self.isdir(*args):
+            self.delete_dir(*args)
+        else:
+            self.delete_file(*args)
+
 
     def autocreate(self, *args, **kwargs):
 
@@ -381,12 +385,6 @@ class BaseLocalService(StorageService):
         outpath = os.path.join(*out_list)
         return outpath
         
-    def delete(self, *args):
-        if self.isdir(*args):
-            self.delete_dir(*args)
-        else:
-            self.delete_file(*args)
-
     def delete_dir(self, *args):
         os.rmtree(self.internal_path(*args))
 

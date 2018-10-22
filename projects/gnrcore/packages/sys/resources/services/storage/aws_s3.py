@@ -186,12 +186,6 @@ class Service(StorageService):
     def _client(self):
         return self._session.client('s3')
 
-    def delete(self, *args):
-        if self.isdir(*args):
-            self.delete_dir(*args)
-        else:
-            self.delete_file(*args)
-
     def delete_file(self, *args):
         self._client.delete_object(Bucket=self.bucket, Key=self.internal_path(*args))
 
