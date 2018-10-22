@@ -7,17 +7,18 @@ from gnr.web.gnrbaseclasses import BaseComponent
 
 class Service(AdmMailService):
 
+    def get_account_params(self, account_id=None, **kwargs):
+        result = dict(self.smtp_account)
+        email_account_id = account_id or self.parent.getPreference('mail.email_account_id',pkg='adm')
+        if email_account_id:
+            account_params =  self.parent.db.table('email.account').getSmtpAccountPref(email_account_id)
+            result.update(account_params)
+            result['account_id'] = email_account_id
+        result.update(kwargs)
+        return result
+
     def set_smtp_account(self, email_account_id=None,**kwargs):
         self.smtp_account = dict(email_account_id=email_account_id)
-
-    def getDefaultMailAccount(self):      
-        mp = super(Service, self).getDefaultMailAccount()
-        email_account_id = self.parent.getPreference('mail.email_account_id',pkg='adm') or mp.get('email_account_id')
-        if email_account_id:
-            result =  self.parent.db.table('email.account').getSmtpAccountPref(email_account_id)
-            result['account_id'] = email_account_id
-            return result
-        return mp
     
     def sendmail(self,scheduler=None,account_id=None,moveAttachment=None,**kwargs):
         db = self.parent.db
