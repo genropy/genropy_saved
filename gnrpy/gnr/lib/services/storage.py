@@ -382,6 +382,15 @@ class BaseLocalService(StorageService):
         return outpath
         
     def delete(self, *args):
+        if self.isdir(*args):
+            self.delete_dir(*args)
+        else:
+            self.delete_file(*args)
+
+    def delete_dir(self, *args):
+        os.rmtree(self.internal_path(*args))
+
+    def delete_file(self, *args):
         return os.unlink(self.internal_path(*args))
 
     def open(self, *args, **kwargs):

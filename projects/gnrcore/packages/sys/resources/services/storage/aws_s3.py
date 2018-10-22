@@ -186,8 +186,33 @@ class Service(StorageService):
     def _client(self):
         return self._session.client('s3')
 
-    def delete(self, path):
-        self._client.delete_object(Bucket=self.bucket, Key=self.internal_path(path))
+    def delete(self, *args):
+        if self.isdir(*args):
+            self.delete_dir(*args)
+        else:
+            self.delete_file(*args)
+
+    def delete_file(self, *args):
+        self._client.delete_object(Bucket=self.bucket, Key=self.internal_path(*args))
+
+    def delete_dir(self, *args):
+        prefix = self.internal_path(*args)
+        client = self._client
+        prefix = prefix.strip('/')+'/' if prefix else ''
+        paginator = client.get_paginator('list_objects_v2')
+        pages = paginator.paginate(Bucket=self.bucket, Prefix=prefix)
+        delete_us = dict(Objects=[])
+        for item in pages.search('Contents'):
+            delete_us['Objects'].append(dict(Key=item['Key']))
+
+            # flush once aws limit reached
+            if len(delete_us['Objects']) >= 1000:
+                client.delete_objects(Bucket=self.bucket, Delete=delete_us)
+                delete_us = dict(Objects=[])
+
+        # flush rest
+        if len(delete_us['Objects']):
+            client.delete_objects(Bucket=self.bucket, Delete=delete_us)
 
     def url(self, *args , **kwargs):
         _content_disposition = kwargs.get('_content_disposition') or 'inline'
