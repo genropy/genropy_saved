@@ -24,8 +24,7 @@ class GnrBaseDojoFrontend(GnrBaseFrontend):
         self.dojo_release= None
         if boolean(self.page.dojo_source):
             dojofolder = 'dojo_src'
-            dojofolderNode = self.page.site.storageNode('dojo:', self.dojo_version, dojofolder)
-            if not dojo_storage_handler.exists(self.dojo_version, dojofolder):
+            if not self.dojo_storage_handler.exists(self.dojo_version, dojofolder):
                 dojofolder = 'dojo'
         else:
             dojofolder = 'dojo'
