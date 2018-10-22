@@ -232,7 +232,7 @@ class UwsgiUpdater(BaseUpdater):
 
 
 def main(instances,options):
-    if not(options.apache or options.uwsgi):
+    if not(options.apache or options.uwsgi or options.gunicorn):
         print 'select an option'
         return
     daemonRestart = False
