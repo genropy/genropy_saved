@@ -162,8 +162,11 @@ class Form(BaseComponent):
         fb.field('topics',width='12em',tag='checkBoxText',table='docu.topic',popup=True)
         fb.field('publish_date',width='7em')
         fb.field('base_language',width='7em')
-        fb.field('doctype',disabled='^.doctype')
-        fb.div('Old html',hidden='^.old_html?=!#v').tooltipPane().div(height='150px',width='200px',overflow='auto',_class='selectable').div('^.old_html')
+        fb.field('doctype',disabled='^.doctype',width='20em')
+        fb.field('ext_ref',width='10em')
+        fb.field('revision')
+
+        #fb.div('Old html',hidden='^.old_html?=!#v').tooltipPane().div(height='150px',width='200px',overflow='auto',_class='selectable').div('^.old_html')
 
     def th_options(self):
         return dict(dialog_parentRatio=.9,hierarchical='open',audit=True,annotations=True,tree_excludeRoot=True,
