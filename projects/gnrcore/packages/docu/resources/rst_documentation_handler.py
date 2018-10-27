@@ -111,7 +111,7 @@ class RstDocumentationHandler(BaseComponent):
         tc = parent.tabContainer(overflow='hidden',
                        closable=closable,
                        splitter=True,datapath='#FORM',region='right',width=width,**kwargs)
-        self.rst_snippetTab(tc.contentPane(title='Snippet',overflow='hidden'),path=self.getResource('rst_snippets.xml'))
+        self.rst_snippetTab(tc.contentPane(title='Snippet',overflow='hidden'),path=self.getResource('rst_snippets.xml',pkg='docu'))
         self.rst_imageTab(tc.contentPane(title='Images',overflow='hidden'))
 
     @struct_method

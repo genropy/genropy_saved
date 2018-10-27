@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<GenRoBag>
+	<sections>
+		<snippet_code>sections</snippet_code>
+		<name>sections</name>
+		<snippet>****</snippet>
+	</sections>
+
+	<video>
+		<snippet_code>video</snippet_code>
+		<name>video</name>
+		<snippet>.. raw:: html
+
+    &lt;ziframe width=&quot;560&quot; height=&quot;315&quot; src=&quot;&quot; frameborder=&quot;0&quot; allowfullscreen&gt;&lt;/iframe&gt;</snippet>
+	</video>
+</GenRoBag>
