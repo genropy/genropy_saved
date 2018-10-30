@@ -417,7 +417,7 @@ class GnrWsgiSite(object):
         else:
             storage_name = path_list.pop(0)
         path = '/'.join(path_list)
-        storageNode = self.storageNode('%s:%s'%(storage_name,path))
+        storageNode = self.storageNode('%s:%s'%(storage_name,path),_adapt=False)
         exists = storageNode and storageNode.exists
         if not exists and '_lazydoc' in kwargs:
             #fullpath = None ### QUI NON DOBBIAMO USARE I FULLPATH
