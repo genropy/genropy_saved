@@ -22,14 +22,16 @@ class Service(BaseLocalService):
         if resource_path:
             return os.path.join(resource_path, *args)
 
-    def path_page(self, connection_id, page_id, *args, **kwargs):
-        return os.path.join(self.site_path, 'data', '_connections', connection_id, page_id, *args)
+    def path_page(self, *args, **kwargs):
+        page = self.parent.currentPage
+        return os.path.join(self.site_path, 'data', '_connections', page.connection_id, page.page_id, *args)
 
     def path_pages(self,  *args, **kwargs):
         return os.path.join(self.site_path, 'pages', *args)
 
-    def path_conn(self, connection_id, *args, **kwargs):
-        return os.path.join(self.site_path, 'data', '_connections', connection_id, *args)
+    def path_conn(self, *args, **kwargs):
+        page = self.parent.currentPage
+        return os.path.join(self.site_path, 'data', '_connections', page.connection_id, *args)
 
     def path_dojo(self, version, *args, **kwargs):
         return expandpath(os.path.join(self.parent.dojo_path[version], *args))
@@ -43,8 +45,9 @@ class Service(BaseLocalService):
     def path_temp(self, *args, **kwargs):
         return os.path.join(tempfile.gettempdir(), *args)
 
-    def path_user(self, user, *args, **kwargs):
-        return os.path.join(self.site_path, 'data', '_users', user, *args)
+    def path_user(self, *args, **kwargs):
+        page = self.parent.currentPage
+        return os.path.join(self.site_path, 'data', '_users', page.user, *args)
 
     def url_site(self, *args, **kwargs):
         return '%s_site/%s' % (self.home_uri, '/'.join(args))

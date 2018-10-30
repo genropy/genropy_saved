@@ -228,7 +228,7 @@ class GnrWebUtils(GnrBaseProxy):
         if table:
             importerStructure = importerStructure or self.page.db.table(table).importerStructure()
             checkCb = checkCb or self.page.db.table(table).importerCheck
-        reader = getReader(file_path,filetype=filetype)
+        reader = self.getReader(file_path,filetype=filetype)
         importerStructure = importerStructure or dict()
         mainsheet = importerStructure.get('mainsheet')
         if mainsheet is None and importerStructure.get('sheets'):
@@ -291,7 +291,7 @@ class GnrWebUtils(GnrBaseProxy):
         tblobj = self.page.db.table(table)
         docommit = False
         importerStructure = tblobj.importerStructure() or dict()
-        reader = getReader(file_path,filetype=filetype)
+        reader = self.getReader(file_path,filetype=filetype)
         if importerStructure:
             sheets = importerStructure.get('sheets')
             if not sheets:
@@ -375,7 +375,9 @@ class GnrWebUtils(GnrBaseProxy):
             
 
     def getReader(self,file_path,filetype=None,**kwargs):
-        return getReader(file_path=file_path,filetype=filetype,**kwargs)
+        readerfile = self.page.site.storageNode(file_path)
+        with readerfile.local_path() as local_path:
+            return getReader(file_path=local_path,filetype=filetype,**kwargs)
 
     @public_method
     def exportPdfFromNodes(self,pages=None,name=None,
