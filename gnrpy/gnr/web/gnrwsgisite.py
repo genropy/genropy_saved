@@ -359,12 +359,12 @@ class GnrWsgiSite(object):
         return self.getService(service_type='storage',service_name=storage_name
             ,implementation='local',base_path=volume_path)
 
-    def storageArgs(self, storage_name, storage_path):
+    def storagePath(self, storage_name, storage_path):
         if storage_name == 'user':
             return '%s/%s'%(self.currentPage.user, storage_path)
-        elif static_name == 'conn':
+        elif storage_name == 'conn':
             return '%s/%s'%(self.currentPage.connection_id, storage_path)
-        elif static_name == 'page':
+        elif storage_name == 'page':
             return '%s/%s/%s'% (self.currentPage.connection_id, self.currentPage.page_id, storage_path)
         return storage_path
 
@@ -388,7 +388,7 @@ class GnrWsgiSite(object):
             service_name, storage_path = storage_path.split('/', 1)
         service = self.storage(service_name)
         if kwargs.pop('_adapt', True):
-            storage_path = self.adaptStoragePath(service_name, storage_path)
+            storage_path = self.storagePath(service_name, storage_path)
         if not service: return
         autocreate = kwargs.pop('autocreate', False)
         must_exist = kwargs.pop('must_exist', False)
