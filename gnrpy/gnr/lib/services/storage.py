@@ -191,7 +191,7 @@ class StorageNode(object):
         return parent.storageNode(path)
 
     def __init__(self, parent=None, path=None, service=None, autocreate=None,
-        must_exist=False, mode='r', _adapt=None):
+        must_exist=False, mode='r'):
         self.parent = parent
         self.path = path
         self.service = service
@@ -199,7 +199,6 @@ class StorageNode(object):
             raise NotExistingStorageNode
         self.mode = mode
         self.autocreate = autocreate
-        self._adapt = _adapt
 
     @property
     def fullpath(self):
