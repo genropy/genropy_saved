@@ -366,6 +366,7 @@ class GnrWsgiSite(object):
         return storage
 
     def storageNode(self,*args,**kwargs):
+        
         if isinstance(args[0], StorageNode):
             if args[1:]:
                 return self.storageNode(args[0].fullpath, args[1:])
@@ -384,7 +385,7 @@ class GnrWsgiSite(object):
         mode = kwargs.pop('mode', None)
 
         return StorageNode(parent=self, path=storage_path, service=service,
-            autocreate=autocreate, must_exist=must_exist, mode=mode)
+            autocreate=autocreate, must_exist=must_exist, mode=mode, _adapt=_adapt)
 
     def build_lazydoc(self,lazydoc,fullpath=None):
         ext = os.path.splitext(fullpath)[1]
@@ -406,7 +407,7 @@ class GnrWsgiSite(object):
         else:
             storage_name = path_list.pop(0)
         path = '/'.join(path_list)
-        storageNode = self.storageNode('%s:%s'%(storage_name,path))
+        storageNode = self.storageNode('%s:%s'%(storage_name,path),_adapt=False)
         exists = storageNode and storageNode.exists
         if not exists and '_lazydoc' in kwargs:
             #fullpath = None ### QUI NON DOBBIAMO USARE I FULLPATH
