@@ -19,6 +19,8 @@ class HTableTree(BaseComponent):
         attr = dbselect.attributes
         dbselect_condition = attr.get('condition')
         dbselect_condition_kwargs = dictExtract(attr,'condition_',slice_prefix=False)
+        dbselect_selected_kwargs = dictExtract(attr,'selected_',slice_prefix=False)
+        tree_kwargs.update(dbselect_selected_kwargs)
         if not folderSelectable:
             attr['condition'] = '$child_count=0' if not dbselect_condition else ' ( %s ) AND $child_count=0' %dbselect_condition
         attr['hasDownArrow'] = True
