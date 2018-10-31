@@ -949,9 +949,14 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             setterNode.setRelativeData(path, itemFullPath, objectUpdate(attributes, item.attr), null, reason);
         }
         var selattr = objectExtract(this.sourceNode.attr, 'selected_*', true);
+        var attrval;
         for (var sel in selattr) {
             path = this.sourceNode.attrDatapath('selected_' + sel,setterNode);
-            setterNode.setRelativeData(path, item.attr[sel], attributes, null, reason);
+            attrval = item.attr[sel];
+            if(isNullOrBlank(attrval) && item.attr._record){
+                attrval = item.attr._record[sel];
+            }
+            setterNode.setRelativeData(path,attrval , attributes, null, reason);
         }
         if(this.sourceNode.attr.onSelectedFire){
             setterNode.fireEvent(this.sourceNode.attr.onSelectedFire,true);

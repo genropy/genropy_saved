@@ -532,7 +532,8 @@ class TableBase(object):
         condition_kwargs = condition_kwargs or dict()
         condition_kwargs.update(dictExtract(kwargs,'condition_'))
         caption_field = caption_field or self.attributes.get('caption_field') or self.pkey
-        f = self.query(where=condition,columns='*,$%s' %caption_field,**condition_kwargs).fetch()
+        columns = columns or '*'
+        f = self.query(where=condition,columns='%s,$%s' %(columns,caption_field),**condition_kwargs).fetch()
         related_tblobj = self.db.table(related_kwargs['table'])
         related_caption_field = related_kwargs.get('caption_field') or related_tblobj.attributes.get('caption_field')
         for r in f:
