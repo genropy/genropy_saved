@@ -19,6 +19,8 @@ class HTableTree(BaseComponent):
         attr = dbselect.attributes
         dbselect_condition = attr.get('condition')
         dbselect_condition_kwargs = dictExtract(attr,'condition_',slice_prefix=False)
+        dbselect_selected_kwargs = dictExtract(attr,'selected_',slice_prefix=False)
+        tree_kwargs.update(dbselect_selected_kwargs)
         if not folderSelectable:
             attr['condition'] = '$child_count=0' if not dbselect_condition else ' ( %s ) AND $child_count=0' %dbselect_condition
         attr['hasDownArrow'] = True
@@ -39,10 +41,15 @@ class HTableTree(BaseComponent):
 
     @struct_method
     def ht_treemenu(self,pane,storepath=None,table=None,condition=None,condition_kwargs=None,cacheTime=None,
-                    caption_field=None,dbstore=None,modifiers=None,max_height=None,min_width=None,menuId=None,**kwargs):
+                    caption_field=None,dbstore=None,modifiers=None,max_height=None,min_width=None,menuId=None,columns=None,**kwargs):
+        selected_kwargs = dictExtract(kwargs,'selected_')
+        columns = columns or '*'
+        selected_kwargs.pop('pkey',None)
+        if selected_kwargs:
+            columns = '%s,%s' %(columns,','.join(['$%s' %k for k in selected_kwargs.keys()])) 
         pane.dataRemote(storepath,self.db.table(table).getHierarchicalData,
                         condition=condition,
-                        table=table,
+                        table=table,columns=columns,
                         cacheTime=cacheTime or -1,caption_field=caption_field,dbstore=dbstore,
                         **condition_kwargs)
         menu = pane.menu(modifiers=modifiers,_class='menupane',connectToParent=False,id=menuId,connect_onOpeningPopup="""

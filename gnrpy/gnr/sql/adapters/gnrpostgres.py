@@ -590,8 +590,12 @@ class GnrDictCursor(_cursor):
 
     def _build_index(self):
         if self._query_executed == 1 and self.description:
-            for i in xrange(len(self.description)):
-                self.index[self.description[i][0]] = i
+            i = 0
+            for desc_rec in self.description:
+                desc = desc_rec[0]
+                if desc not in self.index:
+                    self.index[desc] = i
+                    i+=1
             self._query_executed = 0
 
 class GnrWhereTranslatorPG(GnrWhereTranslator):
