@@ -418,7 +418,7 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         var that = this;
         var action = function(sn,editActivity){
                             if(sn.attr._cal_attr){
-                                that.sourceNode.publish('edit_calendar',sn.attr._cal_attr);
+                                that.sourceNode.publish('edit_timesheet',sn.attr._cal_attr);
                             }else if(sn.attr._slot_attr){
                                 that.sourceNode.publish('edit_slot',sn.attr._slot_attr);
                             }
