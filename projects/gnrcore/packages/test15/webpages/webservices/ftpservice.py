@@ -112,5 +112,5 @@ class GnrCustomWebPage(object):
             return '<br/>'.join(sftp.listdir())
 
 
-    def test_4_component(self, pane):
-        pane.sftpClientLayout('ftp_genropy',height='600px',widht='900px')
+   #def test_4_component(self, pane):
+   #    pane.sftpClientLayout('ftp_genropy',height='600px',widht='900px')

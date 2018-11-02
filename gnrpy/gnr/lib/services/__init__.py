@@ -134,6 +134,8 @@ class BaseServiceType(object):
         return handler() if handler else None
 
     def serviceConfigurationsFromSiteConfig(self):
+        if not self.site.config['services']:
+            return []
         typeconf = self.site.config['services.%s' %self.service_type]
         if not typeconf:
             result = []
