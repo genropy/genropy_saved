@@ -14,6 +14,7 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         this.sourceNode = sourceNode;
         this.slotFiller = objectPop(kw,'slotFiller');
         this.slot_duration = kw.slot_duration;
+        this.minute_height = kw.minute_height || 1.3;
 
         this.max_slots = (this.work_end*60 - this.work_start*60)/this.slot_duration;
 
@@ -419,7 +420,7 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         if(!dataNode){
             return;
         }
-        var minute_height = 1.3;
+        var minute_height = this.minute_height;
         sourceNode.freeze().clearValue();
         var header_container = sourceNode._('div',{background:'gray',position:'absolute',top:'0',left:'0',right:'0',height:'20px'});
         var header = header_container._('div',{background:'gray',color:'white',_class:'header_wd',position:'absolute',top:'0',left:'0',right:'0',bottom:'0',left:'40px'})
@@ -523,7 +524,6 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         if(busy && busy.len()){
             var that = this;
             busy.forEach(function(n){
-
                 tc = that.timeCoords(n.attr.time_start,n.attr.time_end,minute_height);
                 var content = cellNode._('div',{top:tc.top,height:tc.height,position:'absolute',
                                                 left:'7px',_class:'channel_slot channel_busy',
@@ -532,7 +532,12 @@ dojo.declare('gnr.TimesheetViewerController',null,{
                 if(dayview){
                     var kw = objectUpdate({},n.attr);
                     var template = objectPop(kw,'template');
-                    content._('div',{innerHTML:dataTemplate(template,kw),background_color:n.attr.background_color,
+                    var background = n.attr.background_color;
+                    var foreground = n.attr.color;
+                    if(background && !foreground){
+                        foreground = chroma.contrast((background),"white")>chroma.contrast((background),"#444")?"white":"#444";
+                    }
+                    content._('div',{innerHTML:dataTemplate(template,kw),background_color:background,color:foreground,
                                     position:'absolute',top:'2px',left:'2px',right:'2px',bottom:'0px',rounded:4});
                 }
             });

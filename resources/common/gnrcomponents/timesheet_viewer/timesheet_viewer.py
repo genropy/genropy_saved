@@ -14,6 +14,7 @@ class TimesheetViewer(BaseComponent):
     def ts_timesheetViewer(self,parent,value=None,date_start=None,date_end=None,
                             selected_date=None,
                             work_start=None,work_end=None,slotFiller=None,slot_duration=None,
+                            minute_height=None,
                             viewerMode=None,**kwargs):
         if viewerMode is None:
             viewerMode = 'stackCalendar'
@@ -34,7 +35,8 @@ class TimesheetViewer(BaseComponent):
                                                                                  work_start:work_start,
                                                                                  work_end:work_end,
                                                                                  slotFiller:slotFiller,
-                                                                                 slot_duration:slot_duration});
+                                                                                 slot_duration:slot_duration,
+                                                                                 minute_height:minute_height});
                             }
                             frame.viewerController.setData(data);
                             if(viewerMode=='stackCalendar'){
@@ -48,7 +50,7 @@ class TimesheetViewer(BaseComponent):
                            date_start=date_start,
                            date_end = date_end,slotFiller=slotFiller,
                            work_end=work_end,work_start=work_start,slot_duration=slot_duration,
-                           data=value,frame=frame,viewerMode=viewerMode)
+                           data=value,frame=frame,viewerMode=viewerMode,minute_height=minute_height)
 
         frame.dataController("""if(viewerPage=='calendarViewer' && lastRebuilt){
             SET .lastRebuilt = null;
