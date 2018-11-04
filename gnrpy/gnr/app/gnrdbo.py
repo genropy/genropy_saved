@@ -946,6 +946,7 @@ class TableBase(object):
         pkey = self.pkey
         source_rows = source_tbl.query(addPkeyColumn=False,excludeLogicalDeleted=False,
               excludeDraft=False,**kwargs).fetch()
+        onSelectedSourceRows = onSelectedSourceRows or getattr(self,'hosting_copyToInstance_onSelectedSourceRows',None)
         if onSelectedSourceRows:
             onSelectedSourceRows(source_instance=source_instance,dest_instance=dest_instance,source_rows=source_rows)
         all_dest = dest_tbl.query(addPkeyColumn=False,for_update=True,excludeLogicalDeleted=False,
