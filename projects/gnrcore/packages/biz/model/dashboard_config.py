@@ -11,11 +11,3 @@ class Table(object):
                     ).relation('dashboard.dashboard_key', relation_name='user_configurations', mode='foreignkey', onDelete='cascade')
         tbl.column('data', dtype='X', name_long='!!Data')
 
-    def hosting_copyToInstance_onSelectedSourceRows(self,source_instance=None,dest_instance=None,source_rows=None):
-        userobjects = []
-        for r in source_rows:
-            data = Bag(r['data'])
-            userobjects += filter(lambda r: r, data['items'].digest('#v.parameters.userobject_id'))
-        
-        self.db.table('adm.userobject').hosting_copyToInstance(source_instance=source_instance,
-                                        dest_instance=dest_instance,where='$id IN :pk',pk=userobjects)
