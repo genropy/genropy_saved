@@ -115,11 +115,11 @@ class GnrCustomWebPage(object):
                 locbag.toXml(locbagpath)
 
     @public_method
-    def rebuildLocalizationFiles(self,enabledLanguages=None):
+    def rebuildLocalizationFiles(self,enabledLanguages=None,localizationBlock=None):
         localizer = self.db.application.localizer
         if localizer.translator and enabledLanguages:
             localizer.autoTranslate(enabledLanguages)
-        self.db.application.localizer.updateLocalizationFiles()
+        self.db.application.localizer.updateLocalizationFiles(localizationBlock=localizationBlock)
 
     def localizerToolbar(self,form):
         items = Bag()
@@ -132,8 +132,9 @@ class GnrCustomWebPage(object):
         languages = self.db.application.localizer.languages
         bar.fblang.formbuilder(cols=1,border_spacing='3px').checkboxText(value='^#FORM.enabledLanguages',values=','.join(["%s:%s" %(k,languages[k]) for k in sorted(languages.keys())]),popup=True,cols=4,lbl='!!Languages')
         bar.updateLoc.slotButton('Rebuild localization',fire='#FORM.rebuildLocalization')
-        bar.dataRpc('dummy',self.rebuildLocalizationFiles,_fired='^#FORM.rebuildLocalization',enabledLanguages='=#FORM.enabledLanguages',
-                    _onResult='this.form.reload()')
+        bar.dataRpc('dummy',self.rebuildLocalizationFiles,_fired='^#FORM.rebuildLocalization',
+                        enabledLanguages='=#FORM.enabledLanguages',
+                    _onResult='this.form.reload()',localizationBlock='=.currentLocalizationBlock')
         form.dataController("""var attr = blocks.getAttr(currentLocalizationBlock);
                                 this.form.goToRecord(attr.folderPath);""",
                                 currentLocalizationBlock='^.currentLocalizationBlock',blocks='=.blocks',
