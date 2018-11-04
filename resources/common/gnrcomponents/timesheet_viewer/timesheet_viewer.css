@@ -141,7 +141,7 @@ slot_caption{
 
 .channel_free{
     border-radius: 4px;
-    background: #C3DFFF;
+    background: rgba(67,67,187,0.2)
 }
 
 .dayview .channel_free{

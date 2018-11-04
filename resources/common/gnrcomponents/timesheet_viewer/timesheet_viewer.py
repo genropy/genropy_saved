@@ -16,9 +16,13 @@ class TimesheetViewer(BaseComponent):
                             work_start=None,work_end=None,slotFiller=None,slot_duration=None,
                             viewerMode=None,**kwargs):
         if viewerMode is None:
-            viewerMode = 'stack'
+            viewerMode = 'stackCalendar'
         selected_date = selected_date or self.workdate
-        frame = self.ts_stackCalendarViewer(parent,selected_date=selected_date,**kwargs)
+        if viewerMode=='stackCalendar':
+            frame = self.ts_stackCalendarViewer(parent,selected_date=selected_date,**kwargs)
+        elif viewerMode=='singleDay':
+            frame = self.ts_singleDayViewer(parent,selected_date=selected_date,**kwargs)
+
         parent.dataController("""
                             date_start = date_start || selected_date;
                             date_end = date_end || addDaysToDate(date_start,90);
@@ -33,14 +37,18 @@ class TimesheetViewer(BaseComponent):
                                                                                  slot_duration:slot_duration});
                             }
                             frame.viewerController.setData(data);
-                            frame.viewerController.showMonthly();
-                            frame.setRelativeData('.lastRebuilt',new Date());
+                            if(viewerMode=='stackCalendar'){
+                                frame.viewerController.showMonthly();
+                                frame.setRelativeData('.lastRebuilt',new Date());
+                            }else if(viewerMode=='singleDay'){
+                                frame.viewerController.fillFullDay(selected_date);
+                            }
                            """,
                            selected_date = selected_date,
                            date_start=date_start,
                            date_end = date_end,slotFiller=slotFiller,
                            work_end=work_end,work_start=work_start,slot_duration=slot_duration,
-                           data=value,frame=frame)
+                           data=value,frame=frame,viewerMode=viewerMode)
 
         frame.dataController("""if(viewerPage=='calendarViewer' && lastRebuilt){
             SET .lastRebuilt = null;
@@ -55,6 +63,23 @@ class TimesheetViewer(BaseComponent):
         #    }""", table='base.event')
         return frame
                                                                             
+
+
+    def ts_singleDayViewer(self,pane,frameCode=None,
+                    datapath=None,selected_date=None,**kwargs):
+        if not frameCode:
+            frameCode = 'timesheet_viewer'
+        daypage_nodeId = '%s_day_viewer' %frameCode
+        daypage = pane.framePane(frameCode=frameCode,
+                                datapath=datapath,_anchor=True,
+                                **kwargs)
+        selected_date = selected_date or self.workdate
+        daybar = daypage.top.slotToolbar('*,refresh,10')
+        daybar.data('.selectedDate',selected_date)
+        daybar.refresh.slotButton('!!Refesh',iconClass='iconbox arrow_circle_right',action='FIRE #ANCHOR.refresh;')
+        daypage.center.contentPane(nodeId=daypage_nodeId,_class='dayview')
+        return daypage
+
 
 
     def ts_stackCalendarViewer(self,pane,frameCode=None,
@@ -108,10 +133,6 @@ class TimesheetViewer(BaseComponent):
         daybar.refresh.slotButton('!!Refesh',iconClass='iconbox arrow_circle_right',action='FIRE #ANCHOR.refresh;')
         daypage.center.contentPane(nodeId=daypage_nodeId,_class='dayview')
         return frame
-
-
-
-
 
 
 
