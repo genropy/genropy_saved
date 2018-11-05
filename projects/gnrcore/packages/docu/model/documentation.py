@@ -18,6 +18,8 @@ class Table(object):
         tbl.column('sourcebag',dtype='X',name_long='Python Source',_sendback=True)
         tbl.column('docbag',dtype='X',name_long='Rst data',_sendback=True)
         tbl.column('doctype',name_long='!!Doc. type')
+        tbl.column('ext_ref', name_long='!!External reference')
+        tbl.column('revision',size=':3', name_long='!!Revision',values='001:Draft,050:Work in progress,080:Pre-release,100:Final')
         tbl.column('base_language',size='2',name_long='Base language').relation('docu.language.code',mode='foreignkey')
         tbl.column('old_html')
         tbl.formulaColumn('example_url',"'/webpages/docu_examples/'||$hierarchical_name")

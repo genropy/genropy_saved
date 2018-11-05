@@ -8,22 +8,9 @@ except ImportError:
     HAS_CUPS = False
     
 import os.path
-import tempfile
-from subprocess import call
-
-try:
-    import warnings
-
-    warnings.filterwarnings(category=DeprecationWarning, module='pyPdf', action='ignore')
-    from pyPdf import PdfFileWriter, PdfFileReader
-    from cStringIO import StringIO
-
-    HAS_PYPDF = True
-except ImportError:
-    HAS_PYPDF = False
 
 from gnr.core.gnrbag import Bag, DirectoryResolver
-from gnr.core.gnrbaseservice import GnrBaseService
+from gnr.lib.services import GnrBaseService
 from gnr.core.gnrdecorator import extract_kwargs
 import sys
 
@@ -123,110 +110,16 @@ class PrintHandler(object):
     }
         
     def __init__(self, parent=None):
-        global HAS_CUPS, HAS_PYPDF
+        global HAS_CUPS
         self.hasCups = HAS_CUPS
-        self.hasPyPdf = HAS_PYPDF
         self.parent = parent
-
-    def printBodyStyle(self):
-        return "font-size:12px;font-family: Arial, Verdana, sans-serif;margin-top:0;margin-bottom:0;margin-left:0;margin-right:0;-webkit-text-size-adjust:auto;"
-    
-    def standardPageHtmlTemplate(self,bodyStyle=None):
-        bodyStyle = bodyStyle or self.printBodyStyle()
-        head ="""<head> 
-                    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
-                    <style> 
-                        .gnrlayout{position:absolute;} 
-                        body{%s}
-                        .letterhead_page{page-break-before:always;} 
-                        .letterhead_page:first-child{page-break-before:avoid;}
-                    </style>
-                </head>
-                     """%bodyStyle
-        body = "<body>%s</body>"
-        return """<html> 
-                    %s 
-                    %s
-                 </html>""" %(head,body)
-
-    def createTempHtmlFile(self,htmlText,htmlTemplate=None,bodyStyle=None):
-        if not '<html' in htmlText:
-            htmlTemplate = htmlTemplate or self.standardPageHtmlTemplate(bodyStyle)
-            htmlText = htmlTemplate %htmlText
-        tmp = tempfile.NamedTemporaryFile(prefix='temp', suffix='.html',delete=False)
-        tmp.write(htmlText)
-        url = tmp.name
-        tmp.close()
-        return url
 
     @extract_kwargs(pdf=True)
     def htmlToPdf(self, srcPath, destPath, orientation=None, page_height=None, page_width=None, pdf_kwargs=None,htmlTemplate=None,bodyStyle=None): #srcPathList per ridurre i processi?
-            
-        """TODO
-        
-        :param src_path: TODO
-        :param destPath: TODO
-        :param orientation: TODO"""
+        return self.parent.getService('htmltopdf').htmlToPdf(srcPath, destPath, orientation=orientation, page_height=page_height,
+                                                     page_width=page_width, pdf_kwargs=pdf_kwargs,
+                                                     htmlTemplate=htmlTemplate,bodyStyle=bodyStyle)
 
-        if '<' in srcPath:
-            srcPath = self.createTempHtmlFile(srcPath,htmlTemplate=htmlTemplate,bodyStyle=bodyStyle)
-            self.htmlToPdf(srcPath,destPath,orientation,pdf_kwargs=pdf_kwargs)
-            os.remove(srcPath)
-            return
-        pdf_pref = self.parent.getPreference('.pdf_render',pkg='sys') if self.parent else None
-        keep_html = False
-        if pdf_pref:
-            pdf_pref = pdf_pref.asDict(ascii=True)
-            keep_html = pdf_pref.pop('keep_html', False)
-            pdf_kwargs = pdf_kwargs or dict()
-            pdf_pref.update(pdf_kwargs)
-            pdf_kwargs = pdf_pref
-
-        pdf_kwargs['orientation'] = orientation or 'Portrait'
-        
-        if page_height:
-            if pdf_kwargs['orientation'] == 'Portrait':
-                pdf_kwargs['page_height'] = page_height
-            else:
-                pdf_kwargs['page_width'] = page_height
-        if page_width:
-            if pdf_kwargs['orientation'] == 'Portrait':
-                pdf_kwargs['page_width'] = page_width
-            else:
-                pdf_kwargs['page_height'] = page_width
-        if not 'quiet' in pdf_kwargs:
-            pdf_kwargs['quiet'] = True
-        args = ['wkhtmltopdf']
-        pdf_kwargs.pop('page_height', None)
-        pdf_kwargs.pop('page_width', None)
-        for k,v in pdf_kwargs.items():
-            if v is not False and v is not None and v!='':
-                args.append('--%s' %k.replace('_','-'))
-                if v is not True:
-                    args.append(str(v))
-        if os.path.isdir(destPath):
-            baseName = os.path.splitext(os.path.basename(srcPath))[0]
-            destPath = os.path.join(destPath, '%s.pdf' % baseName)
-        args.append(srcPath)
-        args.append(destPath)
-        if keep_html:
-            import shutil
-            from datetime import datetime, date
-            now = datetime.now()
-            baseName = os.path.splitext(os.path.basename(destPath))[0]
-            debugName = "%s_%02i_%02i_%02i.html"%(baseName, now.hour,now.minute,now.second)
-            htmlfilepath = self.parent.getStaticPath('site:print_debug',
-                date.today().isoformat(), debugName ,autocreate=-1)
-            shutil.copy(srcPath, htmlfilepath)
-        result = call(args)
-
-       #if sys.platform.startswith('linux'):
-       #    result = call(['wkhtmltopdf', '-q', '-O', orientation, srcPath, destPath])
-       #else:
-       #    result = call(['wkhtmltopdf', '-q', '-O', orientation, srcPath, destPath,])
-        if result < 0:
-            raise PrintHandlerError('wkhtmltopdf error')
-        return destPath
 
     def autoConvertFiles(self, files, storeFolder, orientation=None):
         """TODO
@@ -239,20 +132,10 @@ class PrintHandler(object):
             baseName, ext = os.path.splitext(os.path.basename(filename))
             if ext.lower() == '.html':
                 resultList.append(self.htmlToPdf(filename, storeFolder, orientation=orientation))
-                
-                #destPath=os.path.join(storeFolder, '%s.pdf' % baseName)
-                
-                #if sys.platform.startswith('linux'):
-                #    result = call(['wkhtmltopdf','-q',filename,destPath])
-                #else:
-                #    result = call(['wkhtmltopdf','-q',filename,destPath])
-                #if result < 0:
-                #    raise PrintHandlerError('wkhtmltopdf error')
-                #resultList.append(destPath)
             elif ext.lower() == '.pdf':
                 resultList.append(filename)
             else:
-                raise
+                raise PrintHandlerError('not pdf file')
         return resultList
         
     def getPrinters(self):
@@ -294,21 +177,7 @@ class PrintHandler(object):
         
         :param pdf_list: TODO
         :param output_filepath: TODO"""
-        output_pdf = PdfFileWriter()
-        open_files = []
-        for input_path in pdf_list:
-            input_file = open(input_path, 'rb')
-            memory_file = StringIO(input_file.read())
-            open_files.append(memory_file)
-            input_file.close()
-            input_pdf = PdfFileReader(memory_file)
-            for page in input_pdf.pages:
-                output_pdf.addPage(page)
-        output_file = open(output_filepath, 'wb')
-        output_pdf.write(output_file)
-        output_file.close()
-        for input_file in open_files:
-            input_file.close()
+        self.parent.getService('pdf').joinPdf(pdf_list, output_filepath)
             
     def zipPdf(self, file_list=None, zipPath=None):
         """TODO
@@ -316,4 +185,5 @@ class PrintHandler(object):
         :param file_list: TODO
         :param zipPath: TODO"""
         self.parent.zipFiles(file_list=file_list, zipPath=zipPath)
+        
         

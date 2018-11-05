@@ -811,7 +811,8 @@ class SqlTable(GnrObject):
     def duplicateRecord(self,recordOrKey=None, howmany=None,destination_store=None,**kwargs):
         duplicatedRecords=[]
         howmany = howmany or 1
-        record = self.recordAs(recordOrKey,mode='dict')
+        original_record = self.recordAs(recordOrKey,mode='dict')
+        record = dict(original_record)
         pkey = record.pop(self.pkey,None)
         for colname,obj in self.model.columns.items():
             if colname == self.draftField or colname == 'parent_id':
@@ -842,6 +843,8 @@ class SqlTable(GnrObject):
                         r = dict(r)
                         r[fkey] = dupRec[self.pkey]
                         manytable.duplicateRecord(r,destination_store=destination_store)
+        if hasattr(self,'onDuplicated'):
+            self.onDuplicated(duplicated_records=duplicatedRecords,original_record=original_record)
         return duplicatedRecords[0]
             
     def recordAs(self, record, mode='bag', virtual_columns=None,ignoreMissing=True):

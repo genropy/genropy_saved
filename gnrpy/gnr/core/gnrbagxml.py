@@ -373,13 +373,15 @@ class BagToXml(object):
             result = result.toprettyxml()
             result = result.replace('\t\n','').replace('\t\n','')
         if filename:
-            if autocreate:
-                dirname = os.path.dirname(filename)
-                if dirname and not os.path.exists(dirname):
-                    os.makedirs(dirname)
-            output = open(filename, 'w')
-            output.write(result)
-            output.close()
+            if hasattr(filename,'write'):
+                filename.write(result)
+            else:
+                if autocreate:
+                    dirname = os.path.dirname(filename)
+                    if dirname and not os.path.exists(dirname):
+                        os.makedirs(dirname)
+                with open(filename, 'w') as output:
+                    output.write(result)
         return result
         
     def buildTag(self, tagName, value, attributes=None, cls='', xmlMode=False,localize=True,namespaces=None):
@@ -504,8 +506,10 @@ class XmlOutputBag(object):
         self.typevalue=typevalue
         if not output:
             if filepath:
-                output=open(filepath,'w')
-    
+                if hasattr(filepath, 'write'):
+                    output = filepath
+                else:
+                    output=open(filepath,'w')
             else:
                 output = StringIO.StringIO()
         self.output = output
@@ -538,7 +542,8 @@ class XmlOutputBag(object):
             self.output.write('</GenRoBag>')
         if not self.filepath:
             self.content = self.output.getvalue()
-        self.output.close()
+        if self.filepath!=self.output:
+            self.output.close()
         
 
 

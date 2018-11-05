@@ -400,7 +400,7 @@ class GnrClassCatalog(object):
             
         :param txt: TODO
         :param workdate: the :ref:`workdate`"""
-        raise
+        raise Exception
 
         
     def serialize_timedelta(self,td):

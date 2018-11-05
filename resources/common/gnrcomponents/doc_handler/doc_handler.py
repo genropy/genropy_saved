@@ -177,7 +177,7 @@ class DocHandler(BaseComponent):
         output = self.site.getStaticUrl if asUrl else os.path.join
         language = language or self.language
         doctype = doctype or 'html'
-        webpagespath = self.site.getStaticPath('pkg:%s' %self.package.name,'webpages')
+        webpagespath = self.site.storageNode('pkg:%s' %self.package.name,'webpages').internal_path
         m = sys.modules[self.__module__]
         basename =  os.path.splitext(m.__file__.replace(webpagespath,''))[0][1:]
         fileargs = []
@@ -191,10 +191,11 @@ class DocHandler(BaseComponent):
         else:
             fileargs = ['pkg:%s' %self.package.name,'doc','*lang*',doctype,'webpages',
                                         os.path.dirname(basename),filepath]
-        fpath = self.site.getStaticPath(*fileargs) 
-        if not os.path.exists(fpath.replace('*lang*',language)):
+        fpath = '/'.join(fileargs)
+        if not self.site.storageNode(fpath.replace('*lang*',language)).exists:
             language = BASELANGUAGE
-        return output(*[a if a!='*lang*' else language for a in fileargs])
+        outNode = self.site.storageNode(fpath.replace('*lang*',language))
+        return outNode.url() if asUrl else outNode.fullpath
 
 
     def de_isDocWriter(self):

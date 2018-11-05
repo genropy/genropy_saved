@@ -190,15 +190,15 @@ class GnrHtmlDojoPage(GnrHtmlPage):
     srcfactory = GnrHtmlDojoSrc
         
     def dojo(self, version=None, theme=None):
-        self.dojo_static_handler = self.site.getStatic('dojo')
+        self.dojo_storage_handler = self.site.storage('dojo')
         theme = theme or self.theme
         version = version or self.dojo_version
         djConfig = "parseOnLoad: true, isDebug: %s, locale: '%s'" % (
         self.isDeveloper() and 'true' or 'false', self.locale)
         css_dojo = self.frontend.css_frontend(theme=theme)
         import_statements = ';\n    '.join(
-                ['@import url("%s")' % self.dojo_static_handler.url(version, 'dojo', f) for f in css_dojo])
-        self.body.script(src=self.dojo_static_handler.url(version, 'dojo', 'dojo', 'dojo.js'), djConfig=djConfig)
+                ['@import url("%s")' % self.dojo_storage_handler.url(version, 'dojo', f) for f in css_dojo])
+        self.body.script(src=self.dojo_storage_handler.url(version, 'dojo', 'dojo', 'dojo.js'), djConfig=djConfig)
         self.builder.head.style(import_statements + ';\n', type="text/css")
             
     def finalizeDojo(self):

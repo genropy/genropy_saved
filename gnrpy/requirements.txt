@@ -15,4 +15,5 @@ xlrd
 xlwt
 docutils
 redbaron
+future
 

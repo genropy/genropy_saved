@@ -1,6 +1,7 @@
 import xlwt
 import os
 from gnr.core.gnrstring import toText
+from gnr.lib.services.storage import StorageNode
 
 class XlsWriter(object):
     """TODO"""
@@ -9,7 +10,14 @@ class XlsWriter(object):
        #self.headers = headers
        #self.columns = columns
         self.sheets = {}
-        self.filepath = '%s.xls' % os.path.splitext(filepath)[0]
+        self.filenode = None
+        if isinstance(filepath, StorageNode):
+            self.filenode = filepath
+            filepath = self.filenode.path
+        filepath = '%s.xls' % os.path.splitext(filepath)[0]
+        if self.filenode:
+            self.filenode.path = filepath
+        self.filepath = filepath
         self.workbook = xlwt.Workbook(encoding='latin-1')
         if sheet_base_name is not False:
             self.sheet_base_name = sheet_base_name or os.path.basename(self.filepath)[:31]
@@ -103,11 +111,15 @@ class XlsWriter(object):
             sheet.write(current_row, c, header, self.hstyle)
             colsizes[c] = max(colsizes.get(c, 0), self.fitwidth(header))
         self.sheets[sheet_name]['current_row'] = current_row
-        
+
     def workbookSave(self):
         """TODO"""
-        self.workbook.save(self.filepath)
-        
+        if self.filenode:
+            with self.filenode.open(mode='wb') as outfile:
+                self.workbook.save(outfile)
+        else:
+            self.workbook.save(self.filepath)
+
     def writeRow(self, row, sheet_name=None):
         """TODO
         

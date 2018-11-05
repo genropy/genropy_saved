@@ -26,7 +26,7 @@ class AppPref(object):
         tc = parent.tabContainer(margin='2px',**kwargs)
         self._adm_general(tc.borderContainer(title='!!General', datapath='.general'))
         self._adm_instance_data(tc.contentPane(title='!!Instance data', datapath='.instance_data'))
-        self._adm_mail(tc.contentPane(title='!!Mail options', datapath='.mail'))
+        #self._adm_mail(tc.contentPane(title='!!Mail options', datapath='.mail'))
         self._adm_backups(tc.contentPane(title='!!Backups', datapath='.backups'))
         self._adm_dev(tc.contentPane(title='!!Developers', datapath='.dev'))
         self._adm_helpdesk(tc.contentPane(title='!!Helpdesk', datapath='.helpdesk',_tags='_DEV_'))
@@ -47,7 +47,10 @@ class AppPref(object):
     def _adm_general(self, bc):
         top = bc.contentPane(region='top')
         fb = top.formbuilder(cols=1,border_spacing='3px')
-        fb.numberTextBox(value='^.screenlock_timeout',lbl='!!Screenlock timeout (minutes)')
+        if 'email' in self.db.packages:
+            fb.dbSelect(value='^.#parent.mail.email_account_id',lbl='Default smtp account',dbtable='email.account')
+
+        #fb.numberTextBox(value='^.screenlock_timeout',lbl='!!Screenlock timeout (minutes)')
         fb.checkbox(value='^.forgot_password',label='Allow password recovery')
         fb.checkbox(value='^.new_user',label='New user registration')
         center = bc.tabContainer(region='center',margin='2px')

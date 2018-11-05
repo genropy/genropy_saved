@@ -187,7 +187,9 @@ class TableScriptToHtml(BagToHtml):
         self.maintable = resource_table.fullname
         self.templateLoader = self.db.table('adm.htmltemplate').getTemplate
         self.thermo_wrapper = self.page.btc.thermo_wrapper
-        self.print_handler = self.page.getService('print')
+        self.print_handler = self.page.getService('htmltopdf')
+        self.pdf_handler = self.page.getService('htmltopdf')
+
         self.letterhead_sourcedata = None
         self.record = None
         
@@ -241,7 +243,7 @@ class TableScriptToHtml(BagToHtml):
             self.print_handler.htmlToPdf(fp, curPdfPath, orientation=self.orientation(), page_height=self.page_height, 
                                         page_width=self.page_width,pdf_kwargs=pdf_kw)
             os.remove(fp)
-        self.print_handler.joinPdf(pdfToJoin,self.pdfpath)
+        self.pdf_handler.joinPdf(pdfToJoin,self.pdfpath)
         for pdf in pdfToJoin:
             os.remove(pdf)
 
@@ -344,7 +346,8 @@ class TableTemplateToHtml(BagToHtml):
         self.maintable = table.fullname
         self.templateLoader = self.db.table('adm.htmltemplate').getTemplate
         self.letterhead_sourcedata = letterhead_sourcedata
-        self.print_handler = self.site.getService('print')
+        self.print_handler = self.site.getService('htmltopdf')
+        self.pdf_handler = self.site.getService('pdf')
         self.record = None
 
     def __call__(self,record=None,template=None, htmlContent=None, locale=None,**kwargs):
