@@ -3,7 +3,7 @@
 
 from gnr.core.gnrbag import Bag
 from gnr.app.gnrapp import GnrApp
-from gnr.app.gnrconfig import gnrConfigPath, getGnrConfig
+from gnr.app.gnrconfig import gnrConfigPath, getGnrConfig,IniConfStruct
 from subprocess import Popen
 from gnr.web.gnrdaemonhandler import GnrDaemonProxy
 
@@ -20,7 +20,7 @@ UWSGIVASSALFINDER = re.compile('(?:^pyargv *= *)(\w+)$',re.I |re.M)
 APACHECONFFINDER = re.compile('(?:WSGIScriptAlias[ /\w]*sites/)(\w*)(?:/root\.py)$',re.I |re.M)
 
 class BaseUpdater(object):
-    def __init__(self,instances=None,daemonRestart=None,skip_dbsetup=False,upgrade=None):
+    def __init__(self,instances=None,daemonRestart=None,skip_dbsetup=False,upgrade=None,**kwargs):
         self.instances = self.getInstances()
         self.daemonRestart = daemonRestart
         self.daemonProxy = GnrDaemonProxy(use_environment=True)
@@ -141,6 +141,28 @@ class ApacheUpdater(BaseUpdater):
                     result.append(q.group(1))
         return list(set(result))
 
+class GunicornUpdater(BaseUpdater):
+    def __init__(self,**kwargs):
+        self.gnr_vassal_options = dict()
+        self.gnr_config = getGnrConfig()
+        self.gnr_path = gnrConfigPath()
+        conf = IniConfStruct(os.path.join(self.gnr_path,'supervisord.py'))
+        self.instances = filter(lambda r: r,conf.digest('#a.name'))
+        super(GunicornUpdater,self).__init__(**kwargs)
+
+    def web_stop(self):
+        #sudo apache2ctl stop
+        print 'gnrsiterunner stop'
+        Popen(['sudo service gnrsiterunner stop'], shell=True)
+
+
+    def web_start(self):
+        #sudo apache2ctl start
+        print 'gnrsiterunner start'
+        Popen(['sudo service gnrsiterunner start'], shell=True)
+
+    def getInstances(self):
+        return self.instances
 
 class UwsgiUpdater(BaseUpdater):
     def __init__(self,**kwargs):
@@ -210,7 +232,7 @@ class UwsgiUpdater(BaseUpdater):
 
 
 def main(instances,options):
-    if not(options.apache or options.uwsgi):
+    if not(options.apache or options.uwsgi or options.gunicorn):
         print 'select an option'
         return
     daemonRestart = False
@@ -224,6 +246,8 @@ def main(instances,options):
         updater = ApacheUpdater(**kw)
     elif options.uwsgi:
         updater = UwsgiUpdater(**kw)
+    elif options.gunicorn:
+        updater = GunicornUpdater(**kw)
     if options.stop:
         updater.web_stop()
     else:
@@ -265,6 +289,10 @@ if __name__ == '__main__':
                   dest='uwsgi',
                   action='store_true',
                   help="Uwsgi")  
+    parser.add_option('--gunicorn',
+                  dest='gunicorn',
+                  action='store_true',
+                  help="Gunicorn")  
 
     (options, args) = parser.parse_args()
     instances = args[0] if args else None

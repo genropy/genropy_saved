@@ -7,7 +7,7 @@ class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('userobject', pkey='id', name_long='!!User Object',name_plural='!!User Objects',rowcaption='$code,$objtype',broadcast='objtype')
         self.sysFields(tbl, id=True, ins=True, upd=True)
-        tbl.column('identifier',size=':120',indexed=True,sql_value="COALESCE(:tbl,:pkg,'')||:objtype||:code",unique=True)
+        tbl.column('identifier',size=':120',indexed=True,sql_value="COALESCE(:tbl,:pkg,'')||:objtype||:code|| CASE WHEN :private THEN :userid ELSE '' END",unique=True)
         tbl.column('code', name_long='!!Code', indexed='y') # a code unique for the same type / pkg / tbl
         tbl.column('objtype', name_long='!!Object Type', indexed='y')
         tbl.column('pkg', name_long='!!Package').relation('pkginfo.pkgid',relation_name='objects') # package code

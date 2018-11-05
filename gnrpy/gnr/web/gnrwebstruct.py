@@ -1187,7 +1187,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                             folders=folders,include=include,columns=columns,
                             **kwargs)
 
-    def rpcStore(self,rpcmethod=None,storepath=None,storeCode=None,include='*.xml',columns=None,**kwargs):
+    def rpcStore(self,rpcmethod=None,storepath=None,storeCode=None,columns=None,**kwargs):
         """RpcBase Store
         """
         attr = self.attributes

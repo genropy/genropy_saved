@@ -29,6 +29,16 @@ class AppPref(object):
         self._adm_mail(tc.contentPane(title='!!Mail options', datapath='.mail'))
         self._adm_backups(tc.contentPane(title='!!Backups', datapath='.backups'))
         self._adm_dev(tc.contentPane(title='!!Developers', datapath='.dev'))
+        self._adm_helpdesk(tc.contentPane(title='!!Helpdesk', datapath='.helpdesk',_tags='_DEV_'))
+
+    def _adm_helpdesk(self,pane):
+        fb = pane.formbuilder(cols=1)
+        fb.textbox(value='^.url',lbl='Url',width='40em')
+        fb.textbox(value='^.user',lbl='User',width='20em')
+        fb.textbox(value='^.password',lbl='Password',width='15em',type='password')
+        fb.textbox(value='^.client_reference',lbl='Client reference')
+        fb.textbox(value='^.documentation_url',lbl='Documentation url',width='40em')
+        
 
     def _adm_dev(self,pane):
         fb = pane.formbuilder(cols=1,border_spacing='3px')

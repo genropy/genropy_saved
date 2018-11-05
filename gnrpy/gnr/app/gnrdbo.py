@@ -234,7 +234,7 @@ class TableBase(object):
     @extract_kwargs(counter=True)
     def sysFields(self, tbl, id=True, ins=True, upd=True, full_upd=False, ldel=True, user_ins=None, user_upd=None, 
                   draftField=False, invalidFields=None,invalidRelations=None,md5=False,
-                  counter=None,hierarchical=None,useProtectionTag=None,
+                  counter=None,hierarchical=None,hierarchical_root_id=False,useProtectionTag=None,
                   group='zzz', group_name='!!System',
                   df=None,counter_kwargs=None,**kwargs):
         """Add some useful columns for tables management (first of all, the ``id`` column)
@@ -299,6 +299,10 @@ class TableBase(object):
                                                                                         one_group=group,many_group=group)
             tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname),group='*')
             tbl.formulaColumn('hlevel',"""length($hierarchical_pkey)-length(replace($hierarchical_pkey,'/',''))+1""",group='*')
+            if hierarchical_root_id:
+                tbl.column('root_id',sql_value="substring(:hierarchical_pkey from 1 for 22)",
+                            group='*',size='22').relation('%s.id' %tblname,relation_name='_grandchildren',mode='foreignkey',one_name='!!Root',many_name='!!Grandchildren',
+                                                onDelete='ignore')
 
             hfields = []
             for fld in hierarchical.split(','):
@@ -320,6 +324,7 @@ class TableBase(object):
             tbl.attributes['hierarchical'] = ','.join(hfields)
             if not counter:
                 tbl.attributes.setdefault('order_by','$hierarchical_%s' %hfields[0] )
+            
             broadcast = tbl.attributes.get('broadcast')
             broadcast = broadcast.split(',') if broadcast else []
             if 'parent_id' not in broadcast:
@@ -527,7 +532,8 @@ class TableBase(object):
         condition_kwargs = condition_kwargs or dict()
         condition_kwargs.update(dictExtract(kwargs,'condition_'))
         caption_field = caption_field or self.attributes.get('caption_field') or self.pkey
-        f = self.query(where=condition,columns='*,$%s' %caption_field,**condition_kwargs).fetch()
+        columns = columns or '*'
+        f = self.query(where=condition,columns='%s,$%s' %(columns,caption_field),**condition_kwargs).fetch()
         related_tblobj = self.db.table(related_kwargs['table'])
         related_caption_field = related_kwargs.get('caption_field') or related_tblobj.attributes.get('caption_field')
         for r in f:
@@ -883,11 +889,12 @@ class TableBase(object):
         else:
             for r in rows:
                 fieldpath = r['code']
-                fullcaption = r['description']
+                description = r.get('description') or fieldpath.title()
+                fullcaption = description
                 if df_field:
                     fieldpath='%s.%s' %(df_field,r['code'])
                     fullcaption='%s/%s' %(df_caption,r['description'])
-                result.setItem(r['code'],None,caption=r['description'],dtype=r['data_type'],
+                result.setItem(r['code'],None,caption=description,dtype=r.get('data_type','T'),
                                 fieldpath=fieldpath,fullcaption=fullcaption)
         return result
                      
@@ -939,6 +946,7 @@ class TableBase(object):
         pkey = self.pkey
         source_rows = source_tbl.query(addPkeyColumn=False,excludeLogicalDeleted=False,
               excludeDraft=False,**kwargs).fetch()
+        onSelectedSourceRows = onSelectedSourceRows or getattr(self,'hosting_copyToInstance_onSelectedSourceRows',None)
         if onSelectedSourceRows:
             onSelectedSourceRows(source_instance=source_instance,dest_instance=dest_instance,source_rows=source_rows)
         all_dest = dest_tbl.query(addPkeyColumn=False,for_update=True,excludeLogicalDeleted=False,
@@ -1114,7 +1122,6 @@ class GnrDboTable(TableBase):
 
     def updateParentFullTs(self, relation_field, parent_id=None):
         relatedTbl = self.column(relation_field).relatedTable().dbtable
-        print self.name, 'updateParentFullTs', relation_field
         relatedTbl.batchUpdate(dict(), pkey=parent_id)
            
 
@@ -1235,9 +1242,9 @@ class AttachmentTable(GnrDboTable):
 
 
     def trigger_convertDocFile(self,record,**kwargs):
-        if not record['filepath']:
+        if not record.get('filepath'):
             return
-        elif record['filepath']:
+        else:
             p,ext = os.path.splitext(record['filepath'])
             if ext.lower() in ('.doc','.docx'):
                 self.insertPdfFromDocAtc(record)

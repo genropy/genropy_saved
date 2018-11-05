@@ -644,7 +644,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
                     return;
                 }
             }catch(e){
-                console.warn('not loaded frame')
+                console.warn('not loaded frame');
                 return
             }
             genro.dom.removeClass(this,'waiting');
@@ -721,7 +721,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         var src_kwargs = objectExtract(attributes,'src_*') || {};
         objectUpdate(src_kwargs,main_kwargs);
         if(!sourceNode.savedAttrs.externalSite){
-            src_kwargs['_calling_page_id'] = genro.page_id;
+            src_kwargs._calling_page_id = genro.page_id;
         }
         if (attributes._if && !sourceNode.getAttributeFromDatasource('_if')) {
             var v = '';

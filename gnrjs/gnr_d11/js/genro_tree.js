@@ -694,14 +694,14 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
     },
     mixin_saveExpanded:function(){
         var that = this;
-        this._savedExpandedStatus = dojo.query('.dijitTreeContentExpanded',that.domNode).map(function(n){
+        this.sourceNode._savedExpandedStatus = dojo.query('.dijitTreeContentExpanded',that.domNode).map(function(n){
                                             return that.model.store.getIdentity(dijit.getEnclosingWidget(n).item);});
     },
     
     mixin_restoreExpanded:function(){
-        if (this._savedExpandedStatus){
+        if (this.sourceNode._savedExpandedStatus){
             var that = this;
-            dojo.forEach(this._savedExpandedStatus,function(n){
+            dojo.forEach(this.sourceNode._savedExpandedStatus,function(n){
                 if(n){
                     var tn = that._itemNodeMap[n];
                     if(tn){
@@ -710,6 +710,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                 }
             });
         }
+        delete this.sourceNode._savedExpandedStatus;
     },
     mixin_expandAll:function(rootNode){
         var that = this;
@@ -948,9 +949,14 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             setterNode.setRelativeData(path, itemFullPath, objectUpdate(attributes, item.attr), null, reason);
         }
         var selattr = objectExtract(this.sourceNode.attr, 'selected_*', true);
+        var attrval;
         for (var sel in selattr) {
             path = this.sourceNode.attrDatapath('selected_' + sel,setterNode);
-            setterNode.setRelativeData(path, item.attr[sel], attributes, null, reason);
+            attrval = item.attr[sel];
+            if(isNullOrBlank(attrval) && item.attr._record){
+                attrval = item.attr._record[sel];
+            }
+            setterNode.setRelativeData(path,attrval , attributes, null, reason);
         }
         if(this.sourceNode.attr.onSelectedFire){
             setterNode.fireEvent(this.sourceNode.attr.onSelectedFire,true);
