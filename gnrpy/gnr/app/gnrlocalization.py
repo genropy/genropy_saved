@@ -72,13 +72,15 @@ class AppLocalizer(object):
                 self._translator = self.application.site.getService('translation')
             else:
                 self._translator = False
-                self._languages = dict(en='English',it='Italian')
         return self._translator
 
     @property
     def languages(self):
         if not self._languages:
-            self._languages = self.translator.languages
+            if self.translator:
+                self._languages = self.translator.languages
+            else:
+                self._languages = dict(en='English',it='Italian',fr='French')
         return self._languages
 
     def buildLocalizationDict(self):
@@ -190,8 +192,11 @@ class AppLocalizer(object):
             locbag.walk(cb)
         self.localizationDict.update(locdict)    
         
-    def updateLocalizationFiles(self,scan_all=True):
-        for s in self.slots:
+    def updateLocalizationFiles(self,scan_all=True,localizationBlock=None):
+        slots = self.slots
+        if localizationBlock:
+            slots = filter(lambda r: r.get('code')==localizationBlock,slots)
+        for s in slots:
             if scan_all or s['destFolder'] != self.genroroot:
                 locbag = Bag()
                 for root in s['roots']:

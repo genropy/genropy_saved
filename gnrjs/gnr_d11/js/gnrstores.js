@@ -222,7 +222,7 @@ dojo.declare("gnr.GnrStoreBag", null, {
             }
         };
         var _fetchHandler = function(items, requestObject, fetchMetadata) {
-            var fetchMetadata = fetchMetadata || {};
+            fetchMetadata = fetchMetadata || {};
             var oldAbortFunction = requestObject.abort || null;
             var aborted = false;
             var startIndex, endIndex;
@@ -386,6 +386,9 @@ dojo.declare("gnr.GnrStoreBag", null, {
         // if this._identifier is 'xx' we use the attribute 'xx'  of the node
         if (!( item instanceof gnr.GnrBagNode)) {
             return item.id;
+        }
+        if(item && item.attr._is_invalid_item){
+            return null;
         }
         genro.debug('getIdentity: item=' + item.label);
         var identifier = this._identifier;

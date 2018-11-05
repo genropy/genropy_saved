@@ -21,6 +21,14 @@ class Table(object):
         data['items'] = Bag()
         return dict(data=data)
 
+    def hosting_copyToInstance_onSelectedSourceRows(self,source_instance=None,dest_instance=None,source_rows=None):
+        userobjects = []
+        for r in source_rows:
+            data = Bag(r['data'])
+            userobjects += filter(lambda r: r, data['items'].digest('#v.parameters.userobject_id'))
+        self.db.table('adm.userobject').hosting_copyToInstance(source_instance=source_instance,
+                                        dest_instance=dest_instance,where='$id IN :pk',pk=userobjects)
+                                        
     def trigger_onUpdating(self,record=None,old_record=None):
         if self.fieldsChanged('data',record,old_record):
             self.db.table('biz.dashboard_config').deleteSelection(where='$dashboard_key=:dk',dk=record['dashboard_key'])

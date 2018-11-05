@@ -14,6 +14,7 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         this.sourceNode = sourceNode;
         this.slotFiller = objectPop(kw,'slotFiller');
         this.slot_duration = kw.slot_duration;
+        this.minute_height = kw.minute_height || 1.3;
 
         this.max_slots = (this.work_end*60 - this.work_start*60)/this.slot_duration;
 
@@ -41,7 +42,11 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         
         if(this.colors){
             var bc = genro.getFrameNode(this.frameCode);
-            var bottom = genro.getFrameNode(this.frameCode,'bottom').getValue();
+            var bottom = genro.getFrameNode(this.frameCode,'bottom');
+            if(!bottom){
+                return;
+            }
+            bottom = bottom.getValue();
             bottom.popNode('captions');
             var box = bottom._('div','captions',{position:'absolute',top:'2px',bottom:'2px',right:'50px'});
             var colors = this.colors;
@@ -68,6 +73,9 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         this.m_hy_top = 20;
         this.m_hy_bottom = 10;
         this.m_header_h = 20;
+        if(!this.cal_sourceNode()){
+            return;
+        }
         var calDomNode = this.cal_sourceNode().widget.domNode;
         this.m_dy = Math.floor((calDomNode.clientHeight-this.m_header_h-2)/6);
         this.m_dx = Math.floor((calDomNode.clientWidth-10)/7);
@@ -77,6 +85,9 @@ dojo.declare('gnr.TimesheetViewerController',null,{
     showMonthly:function(){
         this.setSizes();
         var cal_sourceNode = this.cal_sourceNode();
+        if(!cal_sourceNode){
+            return;
+        }
         cal_sourceNode.freeze().clearValue();
         var currmonth = cal_sourceNode.getRelativeData('.selectedMonth');
         cal_sourceNode.setRelativeData('.selectedMonth',null);
@@ -99,6 +110,9 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         //var tc = sourceNode._('StackContainer',{position:'absolute',top:'2px',bottom:'2px',right:'2px',left:'2px',tabPosition:'left-h'});
         date = this.date_start;
         var calnode = this.cal_sourceNode();
+        if(!calnode){
+            return;
+        }
         var sc = calnode.getValue();
         this.month_redraw = {};
         var selectedMonth= calnode.getRelativeData('.selectedMonth');
@@ -402,13 +416,11 @@ dojo.declare('gnr.TimesheetViewerController',null,{
 
 
     fillFullDay_draw:function(sourceNode,date){
-        
         var dataNode = this.data.getNode(_F(date,{pattern:'yyyy_MM_dd'},'D'));
         if(!dataNode){
             return;
         }
-
-        var minute_height = 1.3;
+        var minute_height = this.minute_height;
         sourceNode.freeze().clearValue();
         var header_container = sourceNode._('div',{background:'gray',position:'absolute',top:'0',left:'0',right:'0',height:'20px'});
         var header = header_container._('div',{background:'gray',color:'white',_class:'header_wd',position:'absolute',top:'0',left:'0',right:'0',bottom:'0',left:'40px'})
@@ -418,7 +430,7 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         var that = this;
         var action = function(sn,editActivity){
                             if(sn.attr._cal_attr){
-                                that.sourceNode.publish('edit_calendar',sn.attr._cal_attr);
+                                that.sourceNode.publish('edit_timesheet',sn.attr._cal_attr);
                             }else if(sn.attr._slot_attr){
                                 that.sourceNode.publish('edit_slot',sn.attr._slot_attr);
                             }
@@ -455,61 +467,6 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         }
         sourceNode.unfreeze();
         return;
-
-        //var that = this;
-        //var kw,slots;
-        //var n_locations = 0;
-        //var locations = {};
-        //var location_names = [];
-        //this.location_columns = false;
-        //var h_height = this.location_columns?45:25;
-        //var header = sourceNode._('div',{background:'white',position:'absolute',top:'0',left:'0',right:'0',height:_px(h_height),background:'gray',color:'white',_class:'header_wd'});
-        //header._('div',{'innerHTML':genro.formatter.asText(date,{format:'full'}),text_align:'center',font_size:'11pt',color:'white',margin_top:'3px'});
-        //if(this.location_columns){
-        //    dojo.forEach(slots,function(slot){
-        //        if(!(slot.location_id in locations)){
-        //            locations[slot.location_id] = n_locations;
-        //            location_names.push(slot.location_name);
-        //            n_locations++;
-        //        }
-        //    }); 
-        //    var header_loc = header._('table',{width:'100%',border_collapse:'collapse',border:0,margin_left:'40px',margin_top:'3px'})._('tbody')._('tr');
-        //    var w = (500-10-10*(n_locations-1+2))/n_locations;
-        //    location_names.forEach(function(n){
-        //        header_loc._('td')._('div',{innerHTML:n,text_align:'center',background:'gray',color:'white',rounded:that.rounded,width:w+'px',_class:'header_wd'})
-        //    })
-        //}
-//
-        //var container = sourceNode._('div','slotContainer',{background:'whitesmoke',
-        //                                position:'absolute',top:_px(h_height),left:'0',right:'0',bottom:'0',overflow:'auto'})
-        //var action = function(sn,editActivity){
-        //                    var hh = sn.attr._hh;
-        //                    if(!hh){
-        //                        return;
-        //                    }
-        //                    var st = that.toStrTime(hh.split(':'))+'::H';
-        //                    var d = sn.getRelativeData('.selectedDate');
-        //                    if(editActivity){
-        //                        genro.publish('edit_activity',{event_id:false, evt_date:d, s_time:st,activity_location:null,location_id:null});
-        //                    }else{
-        //                        genro.publish('edit_event',{event_id:false, evt_date:d, s_time:st,location_id:null,referrer_id:null});
-        //                    }
-        //                }
-        //var box = container._('div','slotBox',{position:'absolute',top:'10px',left:'40px',right:0,bottom:0,
-        //                            dropTypes:'eventSlot',
-        //                            connect_ondblclick:function(e){
-        //                                action(e.target.sourceNode,e.shiftKey);
-        //                            }})
-        //box._('tooltip',{modifiers:'Shift',validclass:'eventSlot',
-        //                recordTemplate:{table:'base.event',pkeyCb:function(){
-        //                    return this._slot.event_id;
-        //                }}});
-        //var tbox = container._('div',{position:'absolute',top:'4px',left:'0',width:'40px',bottom:0});
-        //this.prepareTimeGrid(box,tbox,slots);  
-        //dojo.forEach(slots,function(slot){
-        //    that.fillSlotDetail(box,slot,that.location_columns?locations[slot.location_id]:0,that.location_columns?n_locations:1,date);
-        //});
-        //sourceNode.unfreeze();
     },
 
     fillDay:function(cell,date){
@@ -567,7 +524,6 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         if(busy && busy.len()){
             var that = this;
             busy.forEach(function(n){
-
                 tc = that.timeCoords(n.attr.time_start,n.attr.time_end,minute_height);
                 var content = cellNode._('div',{top:tc.top,height:tc.height,position:'absolute',
                                                 left:'7px',_class:'channel_slot channel_busy',
@@ -576,7 +532,12 @@ dojo.declare('gnr.TimesheetViewerController',null,{
                 if(dayview){
                     var kw = objectUpdate({},n.attr);
                     var template = objectPop(kw,'template');
-                    content._('div',{innerHTML:dataTemplate(template,kw),background_color:n.attr.background_color,
+                    var background = n.attr.background_color;
+                    var foreground = n.attr.color;
+                    if(background && !foreground){
+                        foreground = chroma.contrast((background),"white")>chroma.contrast((background),"#444")?"white":"#444";
+                    }
+                    content._('div',{innerHTML:dataTemplate(template,kw),background_color:background,color:foreground,
                                     position:'absolute',top:'2px',left:'2px',right:'2px',bottom:'0px',rounded:4});
                 }
             });
