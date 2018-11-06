@@ -6,7 +6,6 @@
 from gnr.lib.services.storage import StorageService,StorageNode
 from gnr.web.gnrbaseclasses import BaseComponent
 #from gnr.core.gnrlang import componentFactory
-from smart_open import smart_open
 import boto3
 import botocore
 import os
@@ -227,6 +226,7 @@ class Service(StorageService):
             ExpiresIn=expiration)
 
     def open(self, *args, **kwargs):
+        from smart_open import smart_open
         return smart_open("s3://%s/%s"%(self.bucket,self.internal_path(*args)),
             s3_session=self._session, **kwargs)
 
