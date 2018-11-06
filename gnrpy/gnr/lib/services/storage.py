@@ -327,8 +327,8 @@ class StorageService(GnrBaseService):
         sourceNode = self._getNode(source)
         destNode = self._getNode(dest)
         if destNode.service.location_identifier == sourceNode.service.location_identifier:
-            sourceNode.service.duplicateNode(source=sourceNode,
-                dest = destNode)
+            sourceNode.service.duplicateNode(sourceNode=sourceNode,
+                destNode = destNode)
         else:
             self.copyNodeContent(sourceNode=sourceNode, destNode=destNode)
         return destNode
@@ -414,10 +414,12 @@ class BaseLocalService(StorageService):
         return os.path.isdir(self.internal_path(*args))
 
     def renameNode(self, sourceNode=None, destNode=None):
-        shutil.move(sourceNode.internal_path(), destNode.internal_path())
+        self.autocreate(destNode.internal_path, autocreate=-1)
+        shutil.move(sourceNode.internal_path, destNode.internal_path)
 
     def duplicateNode(self, sourceNode=None, destNode=None):
-        shutil.copy2(sourceNode.internal_path(), destNode.internal_path())
+        self.autocreate(destNode.internal_path, autocreate=-1)
+        shutil.copy2(sourceNode.internal_path, destNode.internal_path)
 
     def url(self, *args, **kwargs):
         outlist = [self.parent.external_host, '_storage', self.service_name]
