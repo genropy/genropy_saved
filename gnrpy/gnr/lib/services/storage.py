@@ -275,8 +275,7 @@ class StorageService(GnrBaseService):
         pass
 
     def base_name(self, path=None):
-
-        return self.split_path(path)[-1]
+        return path.split('/')[-1]
 
     def extension(self, path=None):
         base_name = self.base_name(path)
@@ -296,35 +295,19 @@ class StorageService(GnrBaseService):
     def symbolic_url(self,*args, **kwargs):
         pass
 
-    def _url(self, url, **kwargs):
-        if not kwargs:
-            return url
-        nocache = kwargs.pop('nocache', None)
-        if nocache:
-            if self.exists(*args):
-                mtime = self.mtime(*args)
-            else:
-                mtime = random.random() * 100000
-            kwargs['mtime'] = '%0.0f' % (mtime)
-
-        url = '%s?%s' % (url, '&'.join(['%s=%s' % (k, v) for k, v in kwargs.items()]))
-        return url
-
     def delete(self, *args):
         if self.isdir(*args):
             self.delete_dir(*args)
         else:
             self.delete_file(*args)
 
-    def split_path(self, path):
-        return path.replace('/','\t').replace(os.path.sep,'/').replace('\t','/').split('/')
 
     def autocreate(self, *args, **kwargs):
 
         autocreate=kwargs.pop('autocreate', None)
         if not autocreate:
             return
-        args = self.split_path('/'.join(args))
+        args = ('/'.join(args)).split('/')
         if autocreate != True:
             autocreate_args = args[:autocreate]
         else:
@@ -438,13 +421,22 @@ class BaseLocalService(StorageService):
         self.autocreate(destNode.internal_path, autocreate=-1)
         shutil.copy2(sourceNode.internal_path, destNode.internal_path)
 
-
     def url(self, *args, **kwargs):
         outlist = [self.parent.external_host, '_storage', self.service_name]
         outlist.extend(args)
         url = '/'.join(outlist)
-        return self._url(url, **kwargs)
-        
+        if not kwargs:
+            return url
+        nocache = kwargs.pop('nocache', None)
+        if nocache:
+            if self.exists(*args):
+                mtime = self.mtime(*args)
+            else:
+                mtime = random.random() * 100000
+            kwargs['mtime'] = '%0.0f' % (mtime)
+
+        url = '%s?%s' % (url, '&'.join(['%s=%s' % (k, v) for k, v in kwargs.items()]))
+        return url
 
     def serve(self, path, environ, start_response, download=False, download_name=None, **kwargs):
         fullpath = self.internal_path(path)

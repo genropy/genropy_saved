@@ -6,7 +6,7 @@ from gnr.web.gnrbaseclasses import BaseComponent
 import os
 import tempfile
 from gnr.core.gnrsys import expandpath
-
+import random
 class Service(BaseLocalService):
 
     @property
@@ -105,5 +105,17 @@ class Service(BaseLocalService):
         path = self._argstopath(*args)
         url_getter = getattr(self, 'url_%s'%self.service_name, None)
         if url_getter:
-            return self._url(url_getter(*(path.split('/')), **kwargs),**kwargs)
+            url = url_getter(*(path.split('/')), **kwargs)
+            kwargs.pop('_localroot',None)
+            if not kwargs:
+                return url
+            nocache = kwargs.pop('nocache', None)
+            if nocache:
+                if self.exists(*args):
+                    mtime = self.mtime(*args)
+                else:
+                    mtime = random.random() * 100000
+                kwargs['mtime'] = '%0.0f' % (mtime)
+            url = '%s?%s' % (url, '&'.join(['%s=%s' % (k, v) for k, v in kwargs.items()]))
+            return url
 
