@@ -22,16 +22,15 @@ class Service(BaseLocalService):
         if resource_path:
             return os.path.join(resource_path, *args)
 
-    def path_page(self, *args, **kwargs):
-        page = self.parent.currentPage
-        return os.path.join(self.site_path, 'data', '_connections', page.connection_id, page.page_id, *args)
+    def path_page(self, connection_id, page_id, *args, **kwargs):
+        return os.path.join(self.site_path, 'data', '_connections', connection_id, page_id, *args)
 
     def path_pages(self,  *args, **kwargs):
         return os.path.join(self.site_path, 'pages', *args)
 
-    def path_conn(self, *args, **kwargs):
+    def path_conn(self, connection_id, *args, **kwargs):
         page = self.parent.currentPage
-        return os.path.join(self.site_path, 'data', '_connections', page.connection_id, *args)
+        return os.path.join(self.site_path, 'data', '_connections', connection_id, *args)
 
     def path_dojo(self, version, *args, **kwargs):
         return expandpath(os.path.join(self.parent.dojo_path[version], *args))
@@ -106,5 +105,5 @@ class Service(BaseLocalService):
         path = self._argstopath(*args)
         url_getter = getattr(self, 'url_%s'%self.service_name, None)
         if url_getter:
-            return url_getter(*(path.split('/')), **kwargs)
+            return self._url(url_getter(*(path.split('/')), **kwargs),**kwargs)
 
