@@ -4687,6 +4687,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         gnrwdg._valuelabel = kw._valuelabel;
         gnrwdg.remoteValuesRpc = objectPop(kw,'remoteValues');
         gnrwdg.valuesCb = objectPop(kw,'valuesCb');
+        gnrwdg.tree_extrakw = objectExtract(kw,'tree_*');
         var onOpening;
         if(codeSeparator!==false){
             codeSeparator =  codeSeparator || ':'
@@ -4844,7 +4845,8 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
                         checked_pkey:valuepath,
                         checkedPaths:this.checkedpath,
                         checked_caption:valuepath+'?_displayedValue',
-                        onChecked:true,checkChildren:this.sourceNode.attr.checkChildren};
+                        onChecked:true};
+        objectUpdate(treekw,this.tree_extrakw);
         var tree = this.rootNode._('tree',treekw);
         this.treeNode = tree.getParentNode();
     },
