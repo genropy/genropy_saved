@@ -99,13 +99,13 @@ class Service(BaseLocalService):
         path = self._argstopath(*args)
         path_getter = getattr(self, 'path_%s'%self.service_name, None)
         if path_getter:
-            return path_getter(*(path.split('/')), **kwargs)
+            return path_getter(*(self.split_path(path)), **kwargs)
 
     def url(self, *args, **kwargs):
         path = self._argstopath(*args)
         url_getter = getattr(self, 'url_%s'%self.service_name, None)
         if url_getter:
-            url = url_getter(*(path.split('/')), **kwargs)
+            url = url_getter(*(self.split_path(path)), **kwargs)
             kwargs.pop('_localroot',None)
             if not kwargs:
                 return url

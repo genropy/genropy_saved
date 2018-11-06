@@ -275,11 +275,14 @@ class StorageService(GnrBaseService):
         pass
 
     def base_name(self, path=None):
-        return path.split('/')[-1]
+        return self.split_path(path)[-1]
 
     def extension(self, path=None):
         base_name = self.base_name(path)
         return os.path.splitext(base_name)[-1]
+
+    def split_path(self, path):
+        return path.replace('/','\t').replace(os.path.sep,'/').replace('\t','/').split('/')
 
 
     @property
@@ -307,7 +310,7 @@ class StorageService(GnrBaseService):
         autocreate=kwargs.pop('autocreate', None)
         if not autocreate:
             return
-        args = ('/'.join(args)).split('/')
+        args = self.split_path('/'.join(args))
         if autocreate != True:
             autocreate_args = args[:autocreate]
         else:
