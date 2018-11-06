@@ -45,9 +45,8 @@ class Service(BaseLocalService):
     def path_temp(self, *args, **kwargs):
         return os.path.join(tempfile.gettempdir(), *args)
 
-    def path_user(self, *args, **kwargs):
-        page = self.parent.currentPage
-        return os.path.join(self.site_path, 'data', '_users', page.user, *args)
+    def path_user(self, user,*args, **kwargs):
+        return os.path.join(self.site_path, 'data', '_users',user, *args)
 
     def url_site(self, *args, **kwargs):
         return '%s_site/%s' % (self.home_uri, '/'.join(args))
