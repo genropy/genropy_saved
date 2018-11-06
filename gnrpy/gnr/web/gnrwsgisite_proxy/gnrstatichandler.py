@@ -12,7 +12,6 @@ from paste import fileapp
 from paste.httpheaders import ETAG
 import random
 import tempfile
-import builtins
 from gnr.core.gnrdecorator import callers
 
 class StaticHandlerManager(object):
@@ -152,11 +151,6 @@ class StaticHandler(object):
 
         url = '%s?%s' % (url, '&'.join(['%s=%s' % (k, v) for k, v in kwargs.items()]))
         return url
-    
-    def openStatic(self, *args, **kwargs):
-        path = self.path(*args)
-        return builtins.open(path, **kwargs)
-
 
 
 
