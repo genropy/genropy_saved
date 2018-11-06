@@ -8,7 +8,6 @@ import os
 import shutil
 from paste import fileapp
 from paste.httpheaders import ETAG
-from smart_open import smart_open
 class Service(StorageService):
     def __init__(self, parent=None, base_path=None, **kwargs):
         self.parent = parent
@@ -23,11 +22,10 @@ class Service(StorageService):
         return "%s.%s"%(os.path.join(self.base_path, *(path.split('/'))),self.compression_mode)
 
     def delete(self, path):
-        
         return os.unlink(self.internal_path(path))
 
     def open(self, path, mode='rb'):
-        print self.internal_path(path)
+        from smart_open import smart_open
         return smart_open(self.internal_path(path), mode=mode)
 
     def renameNode(self, sourceNode=None, destNode=None):

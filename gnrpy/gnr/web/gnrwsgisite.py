@@ -438,7 +438,6 @@ class GnrWsgiSite(object):
         static_name, static_path = static.split(':',1)
         
         autocreate = kwargs.pop('autocreate', False)
-        openStatic = kwargs.pop('open', False)
         if not ':' in static:
             return static
 
@@ -453,11 +452,8 @@ class GnrWsgiSite(object):
             dest_dir = static_handler.path(*autocreate_args)
             if not os.path.exists(dest_dir):
                 os.makedirs(dest_dir)
-        if openStatic:
-            return static_handler.openStatic(*args)
-        else:
-            dest_path = static_handler.path(*args)
-            return dest_path
+        dest_path = static_handler.path(*args)
+        return dest_path
 
 
     def getStaticUrl(self, static, *args, **kwargs):
