@@ -4838,13 +4838,14 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
 
     gnrwdg_createTreeCheckbox:function(){
         var valuepath = this.sourceNode.attr.value.replace('^','');
-        var tree = this.rootNode._('tree',{storepath:this.treestorepath,hideValues:true,identifier:'treeIdentifier',
-                                labelAttribute:'caption',
-                                selectedLabelClass:'',_class:'pickerCheckboxTree',
-                                checked_pkey:valuepath,
-                                checkedPaths:this.checkedpath,
-                                checked_caption:valuepath+'?_displayedValue',
-                                onChecked:true});
+        var treekw = {storepath:this.treestorepath,hideValues:true,identifier:'treeIdentifier',
+                        labelAttribute:'caption',
+                        selectedLabelClass:'',_class:'pickerCheckboxTree',
+                        checked_pkey:valuepath,
+                        checkedPaths:this.checkedpath,
+                        checked_caption:valuepath+'?_displayedValue',
+                        onChecked:true,checkChildren:this.sourceNode.attr.checkChildren};
+        var tree = this.rootNode._('tree',treekw);
         this.treeNode = tree.getParentNode();
     },
 
