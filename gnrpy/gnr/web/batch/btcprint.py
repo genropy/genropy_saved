@@ -64,6 +64,7 @@ class BaseResourcePrint(BaseResourceBatch):
             self.print_record(record=record, thermo=thermo_r, storagekey=record[pkeyfield],idx=k)
 
     def print_record(self, record=None, thermo=None, storagekey=None,idx=None):
+        self.onRecordPrinting(record)
         result = self.do_print_record(record=record)
         self.onRecordExit(record)
         if not result:
@@ -84,12 +85,16 @@ class BaseResourcePrint(BaseResourceBatch):
                                 **self.batch_parameters)
         return result
     
+
     def onRecordExit(self, record=None):
         """Hook method.
         
         :param record: the result records of the executed batch"""
         pass
     
+    def onRecordPrinting(self,record):
+        return 
+
     def onRecordPrinted(self,record=None,filepath=None):
         return
         
