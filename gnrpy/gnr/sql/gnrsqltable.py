@@ -608,7 +608,7 @@ class SqlTable(GnrObject):
 
     def tableCachedData(self,topic,cb,**kwargs):
         currentPage = self.db.currentPage
-        cacheKey = '%s.%s' %(topic,self.fullname)
+        cacheKey = '%s.%s.%s' %(self.db.dbname,topic,self.fullname)
         if currentPage:
             cacheInPage = self.db.currentEnv.get('cacheInPage')
             if cacheInPage:
