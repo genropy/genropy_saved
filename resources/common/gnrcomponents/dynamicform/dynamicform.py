@@ -405,7 +405,7 @@ class DynamicForm(BaseComponent):
         if len(fdict)<2:
             pane.div(margin_right='10px',datapath=datapath,padding='10px').dynamicFormGroup(fields=fields,ncol=ncol,colswidth=colswidth or None,**kwargs)
             return
-        pages = fdict.keys()
+        pages = sorted(fdict.keys())
         tc = pane.tabContainer(datapath=datapath,margin='2px')
         if 'Main' in pages:
             pages.remove('Main')
