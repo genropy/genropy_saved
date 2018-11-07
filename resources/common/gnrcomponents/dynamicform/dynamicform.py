@@ -188,7 +188,7 @@ class DynamicForm(BaseComponent):
         frametree.top.div('!!Fields',font_size='.9em',font_weight='bold')
         treepane = frametree.center.contentPane().div(position='absolute',top='2px',bottom='2px',left='2px',right='4px',overflow='auto')
         treepane.tree(storepath='#FORM.dynamicFormTester.subfields',_fired='^#FORM.dynamicFormTester.subfields_tree',
-                      _class='fieldsTree noIcon',hideValues=True,margin_top='6px',font_size='.9em',
+                      _class='branchtree noIcon',hideValues=True,margin_top='6px',font_size='.9em',
                       labelAttribute='caption',draggable=True,onDrag='dragValues["text/plain"] = "$"+treeItem.attr.fieldpath;')
         treepane.dataRpc('#FORM.dynamicFormTester.subfields',self.db.table(table).df_subFieldsBag,
                         pkey='^#FORM.pkey',_fired='^#FORM.dynamicFormTester._refresh_fields',
