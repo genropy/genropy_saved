@@ -891,11 +891,18 @@ class TableBase(object):
                 fieldpath = r['code']
                 description = r.get('description') or fieldpath.title()
                 fullcaption = description
+                caption=description
+                page = r.get('page')
+                label = r['code']
                 if df_field:
                     fieldpath='%s.%s' %(df_field,r['code'])
                     fullcaption='%s/%s' %(df_caption,r['description'])
-                result.setItem(r['code'],None,caption=description,dtype=r.get('data_type','T'),
-                                fieldpath=fieldpath,fullcaption=fullcaption)
+                if page:
+                    fullcaption = '%s/%s' %(page,fullcaption)
+                    label ='%s.%s' %(page.replace('.','_'),label)
+
+                result.setItem(label,None,caption=caption,dtype=r.get('data_type','T'),
+                                fieldpath=fieldpath,fullcaption=fullcaption,page=page)
         return result
                      
     def setTagColumn(self, tbl, name_long=None, group=None):
