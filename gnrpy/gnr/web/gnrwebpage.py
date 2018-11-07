@@ -1972,7 +1972,7 @@ class GnrWebPage(GnrBaseWebPage):
         if clientCachedRecord:
             for table in clientCachedRecord.split(','):
                 root.data('gnr.cachedRecord.%s' %table,None,
-                            serverpath='cachedRecord.%s' %table)
+                            serverpath=self.db.table(table).cachedKey('cachedRecord'))
         if self.root_page_id and self.root_page_id==self.parent_page_id:
             root.dataController("""var openMenu = genro.isMobile?false:openMenu;
                                if(openMenu===false){

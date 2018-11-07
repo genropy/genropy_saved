@@ -567,7 +567,6 @@ class SqlTable(GnrObject):
     def cachedRecord(self,pkey=None,virtual_columns=None,keyField=None,createCb=None):
         keyField = keyField or self.pkey
         ignoreMissing = createCb is not None
-
         def recordFromCache(cache=None,pkey=None,virtual_columns_set=None):
             cacheNode = cache.getNode(pkey)
             if cacheNode:
@@ -606,9 +605,12 @@ class SqlTable(GnrObject):
         translator = self.db.adapter.getWhereTranslator()
         return translator.prepareCondition(column, op, value, dtype, sqlArgs,tblobj=self)
 
+    def cachedKey(self,topic):
+        return '%s.%s.%s' %(self.db.dbname,topic,self.fullname)
+
     def tableCachedData(self,topic,cb,**kwargs):
         currentPage = self.db.currentPage
-        cacheKey = '%s.%s' %(topic,self.fullname)
+        cacheKey = self.cachedKey(topic)
         if currentPage:
             cacheInPage = self.db.currentEnv.get('cacheInPage')
             if cacheInPage:
