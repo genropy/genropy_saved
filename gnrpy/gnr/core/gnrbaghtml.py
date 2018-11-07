@@ -389,17 +389,17 @@ class BagToHtml(object):
                 self.isLastRow = rowDataNode is lastNode
                 self.currRowDataNode = rowDataNode
                 for copy in range(self.copies_per_page):
-                    self.onNewRow()
+                    extra_row_height = self.onNewRow() or 0
                     self.copy = copy
                     rowheight = self.calcRowHeight()
                     availableSpace = self.grid_height - self.copyValue('grid_body_used') -\
                                      self.calcGridHeaderHeight() - self.calcGridFooterHeight()
-                    if rowheight > (availableSpace -self.grid_body_adjustment):
+                    if (rowheight+extra_row_height) > (availableSpace -self.grid_body_adjustment):
                         self._newPage()
                     if not self.rowData:
                         continue
                     row = self.copyValue('body_grid').row(height=rowheight)
-                    self.copies[self.copy]['grid_body_used'] = self.copyValue('grid_body_used') + rowheight
+                    self.copies[self.copy]['grid_body_used'] = self.copyValue('grid_body_used') + rowheight+extra_row_height
                     self.currColumn = 0
                     self.currRow = row
                     self.prepareRow(row)
