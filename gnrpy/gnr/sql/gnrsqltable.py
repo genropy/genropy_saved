@@ -606,7 +606,7 @@ class SqlTable(GnrObject):
         return translator.prepareCondition(column, op, value, dtype, sqlArgs,tblobj=self)
 
     def cachedKey(self,topic):
-        return '%s.%s.%s' %(self.db.dbname,topic,self.fullname)
+        return '%s.%s.%s' %(self.db.currentStorename,topic,self.fullname)
 
     def tableCachedData(self,topic,cb,**kwargs):
         currentPage = self.db.currentPage
