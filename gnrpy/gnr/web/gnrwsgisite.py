@@ -437,6 +437,9 @@ class GnrWsgiSite(object):
         :param static: TODO"""
         static_name, static_path = static.split(':',1)
         
+        symbolic = kwargs.pop('symbolic', False)
+        if symbolic:
+            return self.storageNode(static, *args).fullpath
         autocreate = kwargs.pop('autocreate', False)
         if not ':' in static:
             return static

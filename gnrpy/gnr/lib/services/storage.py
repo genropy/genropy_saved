@@ -232,6 +232,10 @@ class StorageNode(object):
     def mtime(self):
         return self.service.mtime(self.path)
 
+    @property
+    def size(self):
+        return self.service.size(self.path)
+
     def open(self, mode='rb'):
         self.service.autocreate(self.path, autocreate=-1)
         return self.service.open(self.path, mode=mode)
@@ -287,6 +291,32 @@ class StorageService(GnrBaseService):
     def split_path(self, path):
         return path.replace('/','\t').replace(os.path.sep,'/').replace('\t','/').split('/')
 
+    def sync_to_service(self, dest_service, subpath='', skip_existing=True, skip_same_size=False,
+        thermo=None):
+        assert not (skip_existing and skip_same_size), 'use either skip_existing or skip_same_size'
+        storage_resolver = StorageResolver(self.parent.storageNode('%s:%s'%(self.service_name,subpath)))
+        to_copy = []
+        def checkSync(node):
+            if node.attr.get('file_ext') == 'directory':
+                return
+            fullpath = node.attr.get('abs_path')
+            src_node = self.parent.storageNode(fullpath)
+            rel_path = fullpath.replace('%s:'%self.service_name,'',1)
+            dest_node = self.parent.storageNode('%s:%s'%(dest_service,rel_path))
+            if skip_existing or skip_same_size:
+                if dest_node.exists:
+                    size = dest_node.size if skip_same_size else node.attr.get('size')
+                    if size == node.attr.get('size')==dest_node.size:
+                        return
+
+            to_copy.append((src_node, dest_node))
+        storage_resolver().walk(checkSync, _mode='')
+        to_copy = thermo(to_copy) if thermo else to_copy
+        for srcNode, destNode in to_copy:
+            self.copy(srcNode, destNode)
+
+
+
 
     @property
     def location_identifier(self):
@@ -299,6 +329,12 @@ class StorageService(GnrBaseService):
         pass
 
     def symbolic_url(self,*args, **kwargs):
+        pass
+
+    def mtime(self, path):
+        pass
+
+    def size(self, path):
         pass
 
     def delete(self, *args):
@@ -407,6 +443,10 @@ class BaseLocalService(StorageService):
         stats = os.stat(self.internal_path(*args))
         return stats.st_mtime
 
+    def size(self, *args):
+        stats = os.stat(self.internal_path(*args))
+        return stats.st_mtime
+
     def local_path(self, *args, **kwargs): #TODO: vedere se fare così o con altro metodo
         mode = kwargs.get('mode', 'r')
         #path = self._argstopath(*args)
@@ -488,18 +528,18 @@ class StorageResolver(BagResolver):
                    'readOnly': True,
                    'invisible': False,
                    'relocate': '',
-                   'ext': 'xml',
+                   'ext': None,
                    'include': '',
                    'exclude': '',
                    'callback': None,
                    'dropext': False,
                    'processors': None
     }
-    classArgs = ['storage','relocate']
+    classArgs = ['storageNode','relocate']
 
     @property
-    def site(self):
-        return self._page.site
+    def service(self):
+        return self.storageNode.service
 
     def load(self):
         """TODO"""
@@ -507,9 +547,7 @@ class StorageResolver(BagResolver):
         extensions['directory'] = 'directory'
         result = Bag()
         try:
-            if isinstance(self.storage, basestring):
-                self.storage = self.site.storageNode(self.storage)
-            directory = sorted(self.storage.listdir())
+            directory = sorted(self.storageNode.listdir())
         except OSError:
             directory = []
         if not self.invisible:
@@ -538,18 +576,15 @@ class StorageResolver(BagResolver):
                 handler = handler or self.processor_default
                 try:
                     mtime = storagenode.mtime
-                    atime = storagenode.atime
-                    ctime = storagenode.size
+                    size = storagenode.size
                 except:
                     mtime = None
-                    ctime = None
-                    atime = None
                     size = None
                 caption = fname.replace('_',' ').strip()
                 m=re.match(r'(\d+) (.*)',caption)
                 caption = '!!%s %s' % (str(int(m.group(1))),m.group(2).capitalize()) if m else caption.capitalize()
                 nodeattr = dict(file_name=fname, file_ext=ext, storage=storagenode.service.service_name,
-                               abs_path=fullpath, mtime=mtime, atime=atime, ctime=ctime, nodecaption=nodecaption,
+                               abs_path=fullpath, mtime=mtime, nodecaption=nodecaption,
                                caption=caption,size=size)
                 if self.callback:
                     cbres = self.callback(nodeattr=nodeattr)
@@ -571,7 +606,7 @@ class StorageResolver(BagResolver):
         """TODO
 
         :param path: TODO"""
-        return StorageResolver(storagenode.fullpath, "%s/%s"%(self.relocate, storagenode.base_name), **self.instanceKwargs)
+        return StorageResolver(storagenode, "%s/%s"%(self.relocate, storagenode.base_name), **self.instanceKwargs)
 
     def processor_xml(self, storagenode):
         """TODO

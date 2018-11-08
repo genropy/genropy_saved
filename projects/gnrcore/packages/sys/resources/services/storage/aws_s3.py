@@ -79,8 +79,11 @@ class S3TemporaryFilename(object):
 
     def __enter__(self):
         self.fd,self.name = tempfile.mkstemp(suffix=self.ext)
-        self.s3.download_file(self.bucket,self.key, self.name)
-        self.enter_mtime = os.stat(self.name).st_mtime
+        try:
+            self.s3.download_file(self.bucket,self.key, self.name)
+            self.enter_mtime = os.stat(self.name).st_mtime
+        except botocore.exceptions.ClientError as e:
+            self.enter_mtime = None
         return self.name
 
     def __exit__(self, exc, value, tb):
@@ -96,7 +99,7 @@ class Service(StorageService):
         region_name=None, url_expiration=None, **kwargs):
         self.parent = parent
         self.bucket = bucket
-        self.base_path = base_path or ''
+        self.base_path = (base_path or '').rstrip('/')
         self.aws_access_key_id=aws_access_key_id
         self.aws_secret_access_key=aws_secret_access_key
         self.aws_session_token=aws_session_token
@@ -110,7 +113,7 @@ class Service(StorageService):
         out_list = [self.base_path]
         out_list.extend(args)
         outpath = '/'.join(out_list)
-        return outpath.strip('/')
+        return outpath.strip('/').replace('//','/')
 
     def _parent_path(self, *args):
         internalpath = self.internal_path(*args)
@@ -144,6 +147,17 @@ class Service(StorageService):
         except botocore.exceptions.ClientError as e:
             return
 
+    def size(self, *args):
+        s3 = self._client
+        internalpath = self.internal_path(*args)
+        try:
+            response = s3.head_object(
+                    Bucket=self.bucket,
+                    Key=internalpath)
+            return response['ContentLength']
+        except botocore.exceptions.ClientError as e:
+            return
+
     def local_path(self, *args, **kwargs):
         mode = kwargs.get('mode', 'r')
         internalpath = self.internal_path(*args)
@@ -159,7 +173,7 @@ class Service(StorageService):
         if parent_path and not parent_path.endswith('/'):
             parent_path='%s/'%parent_path
         response=s3.list_objects_v2(Bucket=self.bucket, Prefix=parent_path, Delimiter='/')
-        common_prefixes = response.get('CommonPrefixes')
+        common_prefixes = response.get('CommonPrefixes') or []
         dirnames = [c['Prefix'] for c in common_prefixes]
         if  not internalpath.endswith('/'):
             internalpath='%s/'%internalpath
