@@ -17,6 +17,28 @@ class Service(BaseLocalService):
     def site_path(self):
         return self.parent.storageNode('site:').internal_path
 
+    def fullpath(self, path):
+        handler = getattr(self, 'fullpath_%s'%self.service_name, self.fullpath_default)
+        return handler(path)
+
+    def fullpath_default(self, path):
+        return "%s:%s"%(self.service_name, path)
+
+    def fullpath_page(self, path):
+        relative_path = self._strip_path(path, 2)
+        return self.fullpath_default(relative_path)
+
+    def fullpath_conn(self, path):
+        relative_path = self._strip_path(path, 1)
+        return self.fullpath_default(relative_path)
+
+    def fullpath_user(self, path):
+        relative_path = self._strip_path(path, 1)
+        return self.fullpath_default(relative_path)
+
+    def _strip_path(self, path, to_strip):
+        return '/'.join(self.split_path(path)[to_strip:])
+
     def path_rsrc(self, resource_id, *args, **kwargs):
         resource_path = self.parent.resources.get(resource_id)
         if resource_path:
@@ -29,7 +51,6 @@ class Service(BaseLocalService):
         return os.path.join(self.site_path, 'pages', *args)
 
     def path_conn(self, connection_id, *args, **kwargs):
-        page = self.parent.currentPage
         return os.path.join(self.site_path, 'data', '_connections', connection_id, *args)
 
     def path_dojo(self, version, *args, **kwargs):

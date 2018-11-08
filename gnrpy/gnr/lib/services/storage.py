@@ -202,7 +202,7 @@ class StorageNode(object):
 
     @property
     def fullpath(self):
-        return "%s:%s"%(self.service.service_name, self.path)
+        return self.service.fullpath(self.path)
 
     @property
     def ext(self):
@@ -233,7 +233,7 @@ class StorageNode(object):
         return self.service.mtime(self.path)
 
     def open(self, mode='rb'):
-        self.service.autocreate(self.path, autocreate=self.autocreate)
+        self.service.autocreate(self.path, autocreate=-1)
         return self.service.open(self.path, mode=mode)
 
     def url(self, **kwargs):
@@ -254,7 +254,7 @@ class StorageNode(object):
         return self.service.serve(self.path, environ, start_response, **kwargs)
 
     def local_path(self, mode=None):
-        self.service.autocreate(self.path, autocreate=self.autocreate)
+        self.service.autocreate(self.path, autocreate=-1)
         return self.service.local_path(self.path, mode=mode or self.mode)
 
     def child(self, path=None):
@@ -270,6 +270,9 @@ class StorageService(GnrBaseService):
 
     def internal_path(self, *args, **kwargs):
         pass
+
+    def fullpath(self, path):
+        return "%s:%s"%(self.service_name, path)
 
     def local_path(self, *args, **kwargs):
         pass

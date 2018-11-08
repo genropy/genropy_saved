@@ -131,14 +131,9 @@ class GnrWebRpc(GnrBaseProxy):
         dataUrl = kwargs.get('dataUrl')
         uploadPath = kwargs.get('uploadPath')
         uploaderId = kwargs.get('uploaderId')
-
-
-
         onUploadedMethod = kwargs.get('onUploadedMethod')
-
         filename = kwargs.get('filename')
         site = self.page.site
-
         #kwargs = site.parse_kwargs(kwargs) it's provided by gnrwsgisite
         file_actions = dictExtract(kwargs, 'process_') or {}
         if not uploadPath:
