@@ -4687,6 +4687,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         gnrwdg._valuelabel = kw._valuelabel;
         gnrwdg.remoteValuesRpc = objectPop(kw,'remoteValues');
         gnrwdg.valuesCb = objectPop(kw,'valuesCb');
+        gnrwdg.tree_extrakw = objectExtract(kw,'tree_*');
         var onOpening;
         if(codeSeparator!==false){
             codeSeparator =  codeSeparator || ':'
@@ -4838,13 +4839,15 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
 
     gnrwdg_createTreeCheckbox:function(){
         var valuepath = this.sourceNode.attr.value.replace('^','');
-        var tree = this.rootNode._('tree',{storepath:this.treestorepath,hideValues:true,identifier:'treeIdentifier',
-                                labelAttribute:'caption',
-                                selectedLabelClass:'',_class:'pickerCheckboxTree',
-                                checked_pkey:valuepath,
-                                checkedPaths:this.checkedpath,
-                                checked_caption:valuepath+'?_displayedValue',
-                                onChecked:true});
+        var treekw = {storepath:this.treestorepath,hideValues:true,identifier:'treeIdentifier',
+                        labelAttribute:'caption',
+                        selectedLabelClass:'',_class:'pickerCheckboxTree',
+                        checked_pkey:valuepath,
+                        checkedPaths:this.checkedpath,
+                        checked_caption:valuepath+'?_displayedValue',
+                        onChecked:true};
+        objectUpdate(treekw,this.tree_extrakw);
+        var tree = this.rootNode._('tree',treekw);
         this.treeNode = tree.getParentNode();
     },
 
