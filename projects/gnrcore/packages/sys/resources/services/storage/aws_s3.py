@@ -74,7 +74,7 @@ class S3TemporaryFilename(object):
         self.file = None
         self.close_called = False
         self.session = s3_session
-        self.s3 = self.session.client('s3')
+        self.s3 = self.session.client('s3',config= boto3.session.Config(signature_version='s3v4'))
         self.ext = os.path.splitext(self.key)[-1]
 
     def __enter__(self):
@@ -103,7 +103,7 @@ class Service(StorageService):
         self.aws_access_key_id=aws_access_key_id
         self.aws_secret_access_key=aws_secret_access_key
         self.aws_session_token=aws_session_token
-        self.region_name=None
+        self.region_name=region_name
         self.url_expiration = url_expiration or 3600
     @property
     def location_identifier(self):
@@ -197,7 +197,7 @@ class Service(StorageService):
 
     @property
     def _client(self):
-        return self._session.client('s3')
+        return self._session.client('s3', config= boto3.session.Config(signature_version='s3v4'))
 
     def delete_file(self, *args):
         self._client.delete_object(Bucket=self.bucket, Key=self.internal_path(*args))
