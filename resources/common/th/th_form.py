@@ -106,8 +106,9 @@ class TableHandlerForm(BaseComponent):
             fb.field(f,**kwargs)
 
     def _th_getPluggedCols(self,table):
-        collist = self.db.table(table).model['columns']
-        return [(col,collist[col].attributes.get('_pluggedBy'),collist[col].attributes['plugToForm']) for col in collist if collist[col].attributes.get('plugToForm')]
+        tblobj = self.db.table(table)
+        collist = tblobj.columns.items()+tblobj.model['virtual_columns'].items()
+        return [(col,colobj.attributes.get('_pluggedBy'),colobj.attributes['plugToForm']) for col,colobj in collist if colobj.attributes.get('plugToForm')]
 
 
     @extract_kwargs(default=True,store=True,dialog=True,palette=True,tree=dict(slice_prefix=False,pop=True))

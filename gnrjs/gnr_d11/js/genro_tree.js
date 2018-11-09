@@ -555,6 +555,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                         var allUnchecked = dojo.every(v.getNodes(), function(cn) {
                             return cn.attr.checked === false;
                         });
+
                         checkedStatus = allUnchecked ? false : -1;
                     }
                     n.setAttr({'checked':checkedStatus}, true, true);
@@ -575,9 +576,11 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         bagnode.setAttr({'checked':checked}, true, true);
         var parentNode = bagnode.getParentNode();
         var rootNodeId = genro.getDataNode(this.model.store.datapath)._id;
-        while (parentNode && (parentNode._id != rootNodeId)) {
-            parentNode.setAttr({'checked':this.checkBoxCalcStatus(parentNode)}, true, true);
-            parentNode = parentNode.getParentNode();
+        if(this.sourceNode.attr.checkChildren!==false){
+            while (parentNode && (parentNode._id != rootNodeId)) {
+                parentNode.setAttr({'checked':this.checkBoxCalcStatus(parentNode)}, true, true);
+                parentNode = parentNode.getParentNode();
+            }
         }
         if (this.sourceNode.attr.nodeId) {
             genro.publish(this.sourceNode.attr.nodeId + '_checked', bagnode);
