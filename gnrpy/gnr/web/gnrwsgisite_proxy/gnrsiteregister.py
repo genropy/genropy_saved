@@ -123,41 +123,49 @@ class RemoteStoreBag(object):
         return RemoteStoreBag(uri=self.uri,register_name=self.register_name,
                             register_item_id=self.register_item_id,rootpath=self.rootpath,
                             hmac_key=self.hmac_key)
+
         
     @remotebag_wrapper
     def __str__(self,*args,**kwargs):
-        return self.proxy.asString(*args,**kwargs)
+        with self.proxy as p:
+            return p.asString(*args,**kwargs)
 
     @remotebag_wrapper 
     def __getitem__(self,*args,**kwargs):
-        return self.proxy.__getitem__(*args,**kwargs)
+        with self.proxy as p:
+            return p.__getitem__(*args,**kwargs)
 
     @remotebag_wrapper 
     def __setitem__(self,*args,**kwargs):
-        return self.proxy.__setitem__(*args,**kwargs)
+        with self.proxy as p:
+            return p.__setitem__(*args,**kwargs)
 
     @remotebag_wrapper 
     def __len__(self,*args,**kwargs):
-        return self.proxy.__len__(*args,**kwargs)
+        with self.proxy as p:
+            return p.__len__(*args,**kwargs)
 
     @remotebag_wrapper 
     def __contains__(self,*args,**kwargs):
-        return self.proxy.__contains__(*args,**kwargs)
+        with self.proxy as p:
+            return p.__contains__(*args,**kwargs)
 
     @remotebag_wrapper 
     def __eq__(self,*args,**kwargs):
-        return self.proxy.__eq__(*args,**kwargs)
+        with self.proxy as p:
+            return p.__eq__(*args,**kwargs)
 
     def __getattr__(self,name):
-        h = getattr(self.proxy,name) 
-        if not callable(h):
-            return h
-        def decore(*args,**kwargs):
-            kwargs['_pyrosubbag'] = self.rootpath
-            kwargs['_siteregister_register_name'] = self.register_name
-            kwargs['_siteregister_register_item_id'] = self.register_item_id
-            return h(*args,**kwargs)
-        return decore
+        with self.proxy as p:
+            h = getattr(p,name) 
+            if not callable(h):
+                return h
+            def decore(*args,**kwargs):
+                kwargs['_pyrosubbag'] = self.rootpath
+                kwargs['_siteregister_register_name'] = self.register_name
+                kwargs['_siteregister_register_item_id'] = self.register_item_id
+                return h(*args,**kwargs)
+            return decore
 
 #------------------------------- END REMOTEBAG  ---------------------------
 
