@@ -292,14 +292,17 @@ class StorageService(GnrBaseService):
         return path.replace('/','\t').replace(os.path.sep,'/').replace('\t','/').split('/')
 
     def sync_to_service(self, dest_service, subpath='', skip_existing=True, skip_same_size=False,
-        thermo=None):
+        thermo=None, done_list=None, doneCb=None):
         assert not (skip_existing and skip_same_size), 'use either skip_existing or skip_same_size'
+        done_list = done_list or []
         storage_resolver = StorageResolver(self.parent.storageNode('%s:%s'%(self.service_name,subpath)))
         to_copy = []
         def checkSync(node):
             if node.attr.get('file_ext') == 'directory':
                 return
             fullpath = node.attr.get('abs_path')
+            if fullpath in done_list:
+                return
             src_node = self.parent.storageNode(fullpath)
             rel_path = fullpath.replace('%s:'%self.service_name,'',1)
             dest_node = self.parent.storageNode('%s:%s'%(dest_service,rel_path))
@@ -314,6 +317,8 @@ class StorageService(GnrBaseService):
         to_copy = thermo(to_copy) if thermo else to_copy
         for srcNode, destNode in to_copy:
             self.copy(srcNode, destNode)
+            if doneCb:
+                doneCb(srcNode)
 
 
 
