@@ -28,27 +28,7 @@ class Main(BaseResourceAction):
         else:
             path = self.page.site.getStaticPath('page:archive_to_import','last_archive.pik')
         archive = Bag(path)
-        tables = archive.keys()
-        for tbl in self.btc.thermo_wrapper(tables, maximum=len(tables),message=lambda item, k, m, **kwargs: '%s %i/%i' % (item, k, m), line_code='tables'):
-            records = archive[tbl]
-            if not records:
-                continue
-            tblobj = self.db.table(tbl.replace('/','.'))
-            pkeysToAdd = [r[tblobj.pkey] for r in records] 
-            f = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey,pkeys=pkeysToAdd,
-                            addPkeyColumns=False,excludeLogicalDeleted=False,excludeDraft=False,columns='$%s' %tblobj.pkey
-                            ).fetch()
-            pkeysToAdd = set(pkeysToAdd)-set([r[tblobj.pkey] for r in f])
-            rlist = [dict(r) for r in records if r[tblobj.pkey] in pkeysToAdd ]
-            if rlist:
-                self.db.setConstraintsDeferred()
-                onArchiveImport = getattr(tblobj,'onArchiveImport',None)
-                if onArchiveImport:
-                    onArchiveImport(rlist)
-                for r in rlist:
-                    if r.get('__syscode'):
-                        r['__syscode'] = None
-                tblobj.insertMany(rlist)
+        self.db.application.importArchive(archive,thermo_wrapper=self.btc.thermo_wrapper)
         self.db.commit()
         
         
@@ -56,6 +36,7 @@ class Main(BaseResourceAction):
     def table_script_parameters_pane(self, pane, table=None,**kwargs):
         fb = pane.div(padding='10px').formbuilder(cols=1,border_spacing='3px')
         fb.textbox(value='^.filepath',lbl='Filepath')
+        
         fb.dropUploader(label='Drop the archive here',width='230px',
                         uploadPath='page:archive_to_import',
                         filename='last_archive.pik',

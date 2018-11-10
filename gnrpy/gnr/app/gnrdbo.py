@@ -1175,6 +1175,12 @@ class AttachmentTable(GnrDboTable):
             tbl.column('atc_type',values=self.atc_types())
         self.onTableConfig(tbl)
 
+    def onArchiveExport(self,records,files=None):
+        site = self.db.application.site
+        for r in records:
+            files[r['id']].append(site.getStaticPath('vol:%(filepath)s' %r))
+    
+
     def onTableConfig(self,tbl):
         pass
 

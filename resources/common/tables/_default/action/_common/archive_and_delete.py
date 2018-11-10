@@ -6,6 +6,8 @@
 
 from gnr.web.batch.btcaction import BaseResourceAction
 from gnr.core.gnrbag import Bag
+from collections import defaultdict
+import shutil
 import gzip
 import os
 
@@ -16,9 +18,8 @@ description = 'Archive and delete'
 class Main(BaseResourceAction):
     batch_prefix = 'aad'
     batch_title = 'Archive and delete'
-    batch_cancellable = False
+    batch_cancellable = True
     batch_delay = 0.5
-    batch_immediate = True
     batch_steps = 'get_dependencies,archive,delete_archived'
 
     def step_get_dependencies(self):
@@ -26,8 +27,11 @@ class Main(BaseResourceAction):
         self.curr_records = self.tblobj.query(where='$id IN :pkeys',pkeys=self.get_selection_pkeys(),addPkeyColumns=False,
                                     excludeLogicalDelete=False,excludeDraft=False).fetch()
         name = self.batch_parameters.get('name') or 'archive_for_%s' %self.tblobj.fullname.replace('.','_')
-        self.archive_path = self.page.site.getStaticPath('site:archived_records',name,autocreate=True)
-        self.archive_url = self.page.site.getStaticUrl('site:archived_records',name)
+        self.source_folder = self.page.site.getStaticPath('site:export_archive','source',name)
+        self.archive_path = self.page.site.getStaticPath('site:export_archive','source',name,'records',autocreate=True)
+        self.files_to_copy = self.page.site.getStaticPath('site:export_archive','source',name,'files',autocreate=True)
+        self.result_path = self.page.site.getStaticPath('site:export_archive','results','%s.zip' %name,autocreate=-1)
+        self.result_url = self.page.site.getStaticUrl('site:archived_records','results','%s.zip' %name)
         self.tableDependencies = self.tblobj.dependenciesTree(self.curr_records)
         self.index_tables = self.db.tablesMasterIndex(hard=True)['_index_'].keys()
 
@@ -47,8 +51,25 @@ class Main(BaseResourceAction):
                                                 pkeys=list(pkeys),
                                                 addPkeyColumn=False,bagFields=True,
                                                 excludeDraft=False,excludeLogicalDeleted=False).fetch()
+            archivingTable = self.db.table(tablename)         
+            if hasattr(archivingTable,'onArchiveExport') and (t in archive):
+                files = defaultdict(list)
+                filelist = []
+                reltblobj.onArchiveExport(archive[t],files=files)
+                for pkey,pathlist in files.items():
+                    destfolder = os.path.join(self.files_to_copy,tablename,pkey)
+                    if not os.path.exists(destfolder):
+                        os.makedirs(destfolder)
+                    for path in pathlist:
+                        if not os.path.exists(path):
+                            continue
+                        basename = os.path.basename(path)
+                        destpath = os.path.join(destfolder,basename)
+                        shutil.copy(path,destpath)        
         archive.makePicklable()
         archive.pickle('%s.pik' %self.archive_path)
+        self.page.site.zipFiles(self.source_folder,self.result_path)
+
        #zipPath = '%s.gz' %self.archive_path
        #with open('%s.pik' %self.archive_path,'rb') as sfile:
        #    with gzip.open(zipPath, 'wb') as f_out:
@@ -71,7 +92,7 @@ class Main(BaseResourceAction):
         self.db.commit()
 
     def result_handler(self):
-        resultAttr = dict(url='%s.pik' %self.archive_url)
+        resultAttr = dict(url=self.result_url)
         return 'Archived %s' %self.tblobj.name_plural, resultAttr
 
     def table_script_parameters_pane(self, pane, table=None,**kwargs):
