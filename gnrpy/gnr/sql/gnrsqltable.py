@@ -1875,7 +1875,7 @@ class SqlTable(GnrObject):
                 self.insert(record)
 
     def dependenciesTree(self,records=None,history=None,ascmode=False):
-        history = history or dict()
+        history = history or dict() 
         for rel in self.relations_one:
             mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')
             opkg, otbl, ofld = rel.attr['one_relation'].split('.')
@@ -1890,8 +1890,8 @@ class SqlTable(GnrObject):
             if sel:
                 one_history_set.update([r[relatedTable.pkey] for r in sel])
                 relatedTable.dependenciesTree(sel,history=history,ascmode=True)
-        if ascmode:
-            return history
+        #if ascmode:
+        #    return history
  
         for rel in self.relations_many:
             mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')
@@ -1900,6 +1900,9 @@ class SqlTable(GnrObject):
             tablename=relatedTable.fullname
             if not tablename in history:
                 history[tablename] = dict(one=set(),many=set())
+            if ascmode and not (len(relatedTable.relations_one) == 1 and len(relatedTable.relations_many)==0 \
+                    and relatedTable.relations_one.getAttr('#0','onDelete')=="cascade"):
+                continue
             many_history_set = history[tablename]['many']
             sel = relatedTable.query(columns='*', where='%s in :rkeys AND $%s NOT IN :pklist' % (mfld,relatedTable.pkey),
                                         pklist = list(many_history_set),

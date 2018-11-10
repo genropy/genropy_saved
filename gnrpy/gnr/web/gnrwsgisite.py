@@ -1,4 +1,4 @@
-from gnr.core.gnrbag import Bag
+from gnr.core.gnrbag import Bag,DirectoryResolver
 from weberror.evalexception import EvalException
 #from paste.exceptions.errormiddleware import ErrorMiddleware
 from weberror.errormiddleware import ErrorMiddleware
@@ -1492,9 +1492,14 @@ class GnrWsgiSite(object):
         :param zipPath: the result path of the zipped file"""
         import zipfile
         zipresult = self.storageNode(zipPath)
+        if isinstance(file_list,basestring):
+            file_list = file_list.split(',')
         with zipresult.open(mode='wb') as zipresult:
             zip_archive = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED,allowZip64=True)
             for fpath in file_list:
+                if os.path.isdir(fpath):
+                    self._zipDirectory(fpath,zip_archive)
+                    continue
                 newname = None
                 if isinstance(fpath,tuple):
                     fpath,newname = fpath
@@ -1505,6 +1510,16 @@ class GnrWsgiSite(object):
                     zip_archive.write(local_path, newname)
             zip_archive.close()
 
+    def _zipDirectory(self,path, zip_archive):
+        def cb(n):
+            if n.attr.get('file_ext')!='directory':
+                fpath = self.storageNode(n.attr['abs_path'])
+                with fpath.local_path(mode='r') as local_path:
+                    zip_archive.write(local_path,n.attr['rel_path'])
+        dirres = DirectoryResolver(path)
+        dirres().walk(cb,_mode='')
+
+        
     def externalUrl(self, path,serveAsLocalhost=None, _link=False,**kwargs):
         """TODO
 

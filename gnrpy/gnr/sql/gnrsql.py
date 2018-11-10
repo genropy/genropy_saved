@@ -184,6 +184,32 @@ class GnrSqlDb(GnrObject):
     @property
     def localizer(self):
         return self.application.localizer if self.application else DbLocalizer
+
+    def importArchive(self,archive,thermo_wrapper=None):
+        tables = archive.keys()
+        if thermo_wrapper:
+            tables = thermo_wrapper(tables, maximum=len(tables),message=lambda item, k, m, **kwargs: '%s %i/%i' % (item, k, m), line_code='tables')
+        for tbl in tables:
+            records = archive[tbl]
+            if not records:
+                continue
+            tblobj = self.table(tbl.replace('/','.'))
+            pkeysToAdd = [r[tblobj.pkey] for r in records] 
+            f = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey,pkeys=pkeysToAdd,
+                            addPkeyColumns=False,excludeLogicalDeleted=False,
+                            excludeDraft=False,columns='$%s' %tblobj.pkey
+                            ).fetch()
+            pkeysToAdd = set(pkeysToAdd)-set([r[tblobj.pkey] for r in f])
+            rlist = [dict(r) for r in records if r[tblobj.pkey] in pkeysToAdd ]
+            if rlist:
+                self.setConstraintsDeferred()
+                onArchiveImport = getattr(tblobj,'onArchiveImport',None)
+                if onArchiveImport:
+                    onArchiveImport(rlist)
+                for r in rlist:
+                    if r.get('__syscode'):
+                        r['__syscode'] = None
+                tblobj.insertMany(rlist)
         
     def autoRestore(self,path,sqltextCb=None,onRestored=None):
         assert os.path.exists(path),'Restore archive %s does not exist' %path
