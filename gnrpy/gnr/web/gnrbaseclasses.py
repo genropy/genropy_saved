@@ -188,7 +188,7 @@ class TableScriptToHtml(BagToHtml):
         self.templateLoader = self.db.table('adm.htmltemplate').getTemplate
         self.thermo_wrapper = self.page.btc.thermo_wrapper
         self.print_handler = self.page.getService('htmltopdf')
-        self.pdf_handler = self.page.getService('htmltopdf')
+        self.pdf_handler = self.page.getService('pdf')
 
         self.letterhead_sourcedata = None
         self.record = None
