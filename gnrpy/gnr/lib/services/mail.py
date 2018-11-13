@@ -85,16 +85,14 @@ class MailService(GnrBaseService):
                          password=None, port=None, ssl=False,tls=False, system_bcc=None,**kwargs):
         self.parent = parent
         self.smtp_account = {}
-        self.default_smtp_account = '_main_'
 
-        self.set_smtp_account('_main_',from_address=from_address, smtp_host=smtp_host, user=user,
+        self.set_smtp_account(from_address=from_address, smtp_host=smtp_host, user=user,
                             password=password, port=port, ssl=ssl,tls=tls,system_bcc=system_bcc,**kwargs)
         
-    def set_smtp_account(self, name, from_address=None, smtp_host=None, user=None,
+    def set_smtp_account(self, from_address=None, smtp_host=None, user=None,
                          password=None, port=None, ssl=False,tls=False,system_bcc=None, **kwargs):
         """Set the smtp account
         
-        :param name: the account's name
         :param from_address: the email sender
         :param smtp_host: the smtp host to send this email
         :param username: the username
