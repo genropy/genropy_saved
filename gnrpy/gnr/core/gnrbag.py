@@ -172,6 +172,15 @@ class BagNode(object):
         """Set node's label"""
         self.label = label
 
+    @property
+    def position(self):
+        if self.parentbag is not None:
+            return self.parentbag.nodes.index(self)
+
+    @property
+    def tag(self):
+        return self.attr.get('tag') or self.label
+
     def getValue(self, mode=''):
         """Return the value of the BagNode. It is called by the property .value
             
