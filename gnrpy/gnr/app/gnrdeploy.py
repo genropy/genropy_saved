@@ -614,8 +614,8 @@ capture_output = True
 worker_class = 'gevent'
 max_requests = %(max_requests)i
 max_requests_jitter = %(max_requests_jitter)i
-timeout = 120
-graceful_timeout = 30
+timeout = 1800
+graceful_timeout = 600
 """
 
 
