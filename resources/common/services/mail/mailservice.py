@@ -22,4 +22,3 @@ class ServiceParameters(BaseComponent):
         fb.numberTextBox(value='^.port',lbl='Port',width='5em',places=0)
         fb.checkbox(value='^.ssl',label='SSL')
         fb.checkbox(value='^.tls',label='TLS')
-        self.extra_account_parameter(fb)
