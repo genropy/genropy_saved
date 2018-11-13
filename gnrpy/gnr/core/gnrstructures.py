@@ -117,7 +117,7 @@ class GnrStructData(Bag):
 
     def validate(self):
         def validateNode(node):
-            method = getattr(self,node.attr.get('tag'),None)
+            method = getattr(self,node.tag,None)
             if not method:
                 return
             valid_children = getattr(method,'_valid_children',None)
@@ -125,7 +125,7 @@ class GnrStructData(Bag):
                 return
             mandatoryTags = self._parseValidChildrenValues(valid_children)
             for n in node.value:
-                tag = n.attr.get('tag')
+                tag = n.tag
                 if not tag:
                     return
                 validpars = valid_children.get(tag)
@@ -139,7 +139,7 @@ class GnrStructData(Bag):
                     else:
                         mandatoryTags.pop(tag)
                 minval,maxval = validpars
-                if maxval and len(n.value.filter(lambda n: n.attr['tag'] == tag))>=int(maxval):
+                if maxval and len(n.value.filter(lambda n: n.tag == tag))>=int(maxval):
                     raise GnrException(self.exceptions['already_inserted_child_tag'] %dict(tag=tag,maxval=maxval))
             if mandatoryTags:
                 raise GnrException(self.exceptions['missing_mandatory_children'] %dict(mandatory_children=','.join(mandatoryTags.keys())))
@@ -239,7 +239,7 @@ class GnrStructObj(GnrObject):
         :param objclassdict: dictionary of the classes"""
         if isinstance(structnode, Bag):
             structnode = structnode.getNode('#0')
-        tag = structnode.getAttr('tag').lower()
+        tag = structnode.tag.lower()
         if tag in objclassdict:
             return objclassdict[tag](structnode=structnode, parent=parent, objclassdict=objclassdict, **kwargs)
             
@@ -288,7 +288,7 @@ class GnrStructObj(GnrObject):
         :param children: TODO"""
         objclassdict = self.root.objclassdict
         for child in children:
-            tag = child.getAttr('tag')
+            tag = child.tag
             if tag == 'meta':
                 self.metadata.setItem(child.label, child.value, _attributes=dict(child.attr))
             if tag:
@@ -313,7 +313,7 @@ class GnrStructObj(GnrObject):
         
         :param childnode: the child node"""
         objclassdict = self.root.objclassdict
-        tag = childnode.getAttr('tag').lower()
+        tag = childnode.tag.lower()
         if tag in objclassdict:
             return objclassdict[tag](structnode=childnode, parent=self, **kwargs)
 
