@@ -19,12 +19,15 @@ class Main(BaseResourceAction):
     
     def do(self):
         values = self.batch_parameters.get('values')
+        batchflags= self.batch_parameters.get('batchflags')
         do_trigger = self.batch_parameters.get('do_trigger')
         def updater(row):
-            for k,v,forced_null,replace in values.digest('#k,#v,#a.force_null,#a.replace'):
-                if forced_null:
+            
+            for k,v in values.items():
+                f=batchflags[k] 
+                if f['forced_null']:
                     row[k] = None
-                elif v is not None and (row[k] is None or replace):
+                elif v is not None and (row[k] is None or f['replace']):
                     row[k] = v
         self.batchUpdate(updater,_raw_update=not do_trigger,message='setting_values')
         self.db.commit()
@@ -34,7 +37,7 @@ class Main(BaseResourceAction):
         tblobj = self.db.table(table)
         do_trigger = False
         box = pane.div(max_height='600px',overflow='auto')
-        fb = box.formbuilder(margin='5px',cols=3,border_spacing='3px',dbtable=table,datapath='.values')
+        fb = box.formbuilder(margin='5px',cols=3,border_spacing='3px',dbtable=table)
         for k,v in tblobj.columns.items():
             attr = v.attributes
             batch_assign = attr.get('batch_assign')
@@ -47,12 +50,12 @@ class Main(BaseResourceAction):
             if not self.application.checkResourcePermission(kw.pop('tags',None),self.userTags):
                 continue
             do_trigger = kw.pop('do_trigger',False) or do_trigger
-            fb.field(k,validate_notnull=False,html_label=True,zoom=False,lbl_fieldname=k,
-                        validate_onAccept='SET .%s?forced_null=false;' %k, **kw)
-            fb.checkbox(value='^.%s?force_null' %k,label='!!Set NULL',validate_onAccept="""if(userChange && value){
+            fb.field(k,validate_notnull=False,html_label=True,zoom=False,lbl_fieldname=k, datapath='.values',
+                        validate_onAccept='SET .#parent.batchflags.%s.forced_null=false;' %k, **kw)
+            fb.checkbox(value='^.%s.forced_null' %k , datapath='.batchflags',label='SET NULL', validate_onAccept="""if(userChange && value){
                 SET .%s = null;
             }""" %k)
-            fb.checkbox(value='^.%s?replace' %k,label='!!Replace')
+            fb.checkbox(value='^.%s.replace' %k,label='!!Replace', datapath='.batchflags')
         box.data('.do_trigger',do_trigger)
 
 
