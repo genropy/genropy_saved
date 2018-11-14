@@ -40,13 +40,11 @@ class Main(BaseResourceAction):
         do_trigger = False
         box = pane.div(max_height='600px',overflow='auto')
         fb = box.formbuilder(margin='5px',cols=3,border_spacing='3px',dbtable=table,datapath='.values')
-        i = 0
         for k,v in tblobj.columns.items():
             attr = v.attributes
             batch_assign = attr.get('batch_assign')
             if not batch_assign:
                 continue
-            i += 1
             auth = 'user'
             kw = {}
             if batch_assign is not True:
