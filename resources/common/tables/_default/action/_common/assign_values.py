@@ -21,14 +21,23 @@ class Main(BaseResourceAction):
         values = self.batch_parameters.get('values')
         batchflags= self.batch_parameters.get('batchflags')
         do_trigger = self.batch_parameters.get('do_trigger')
+        self.tblobj
+
+        def isBoolCol(col):
+            return self.tblobj.column(col).dtype=='B'
+
         def updater(row):
-            
             for k,v in values.items():
-                f=batchflags[k] 
+                f=batchflags[k]
+                if row[k] is not None and not f['replace']:
+                    return
                 if f['forced_null']:
                     row[k] = None
-                elif v is not None and (row[k] is None or f['replace']):
-                    row[k] = v
+                    return
+                if v is None and isBoolCol(k):
+                    v=False
+                row[k] = v
+                
         self.batchUpdate(updater,_raw_update=not do_trigger,message='setting_values')
         self.db.commit()
 
