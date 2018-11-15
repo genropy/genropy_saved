@@ -1007,6 +1007,11 @@ class GnrApp(object):
         :param page: TODO"""
         if user:
             authmethods = self.config['authentication']
+            if user=='gnrtoken':
+                user = self.db.table('sys.external_token').authenticatedUser(password)
+                if not user:
+                    return
+                authenticate = False
             if authmethods:
                 for node in self.config['authentication'].nodes:
                     nodeattr = node.attr
@@ -1014,7 +1019,6 @@ class GnrApp(object):
                     avatar = getattr(self, 'auth_%s' % authmode)(node, user, password=password,
                                                                  authenticate=authenticate,
                                                                  **kwargs)
-                                                                             
                     if not (avatar is None):
                         avatar.page = page
                         avatar.authmode = authmode
