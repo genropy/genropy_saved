@@ -1022,10 +1022,10 @@ class GnrWebPage(GnrBaseWebPage):
         if authmode!='Basic':
             raise GnrBasicAuthenticationError('Wrong Authorization Mode')
         user,pwd = b64decode(login).split(':')
-        avatar = self.application.getAvatar(user,pwd,authenticate=True)
-        if not avatar:
+        self.avatar = self.application.getAvatar(user,pwd,authenticate=True)
+        if not self.avatar:
             raise GnrBasicAuthenticationError('Wrong Authorization Login')
-        return avatar.user_tags
+        return self.avatar.user_tags
         
     def getWsMethod(self, method):
         """TODO
