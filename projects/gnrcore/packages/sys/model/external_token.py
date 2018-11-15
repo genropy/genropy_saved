@@ -38,11 +38,12 @@ class Table(object):
         record = self.record(id=token, ignoreMissing=True).output('bag')
         record = self.check_token(record, host)
         if record:
-            self.db.table('sys.external_token_use').insert(
-                    dict(external_token_id=record['id'], host=host, datetime=datetime.now()))
+            if record['max_usages']:
+                self.db.table('sys.external_token_use').insert(
+                        dict(external_token_id=record['id'], host=host, datetime=datetime.now()))
+                if commit:
+                    self.db.commit()
             user = record['exec_user']
-            if commit:
-                self.db.commit()
             return record['method'], [], dict(record['parameters'] or {}), user
         return None, None, None, None
 
@@ -61,3 +62,13 @@ class Table(object):
                 return False
         return record
         
+
+    def authenticatedUser(self,token):
+        token_record = self.check_token(token)
+        if token_record and token_record.get('exec_user'):
+            user = token_record.get('exec_user')
+            if not user:
+                return None
+            if token_record['max_usage']:
+                self.use_token(token_record['id'])
+            return user
