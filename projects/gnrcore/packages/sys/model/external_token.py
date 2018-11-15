@@ -19,7 +19,7 @@ class Table(object):
         tbl.column('exec_user', size=':32', name_long='!!Execute as user').relation('adm.user.username')
 
 
-    def create_token(self, page_path, expiry=None, allowed_host=None, allowed_user=None,
+    def create_token(self, page_path=None, expiry=None, allowed_host=None, allowed_user=None,
                      connection_id=None, max_usages=None, method=None, parameters=None, exec_user=None):
         record = dict(
                 page_path=page_path,
@@ -69,6 +69,6 @@ class Table(object):
             user = token_record.get('exec_user')
             if not user:
                 return None
-            if token_record['max_usage']:
+            if token_record['max_usages']:
                 self.use_token(token_record['id'])
             return user
