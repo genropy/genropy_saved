@@ -216,6 +216,12 @@ class IAMManager(BaseAwsService):
         if not user in iam.users.all():
             user.create()
 
+    def delete_user(self, username=None):
+        iam = self.resource
+        user = iam.User(username)
+        if not user in iam.users.all():
+            user.delete()
+
     def get_user(self, username=None):
         return self.resource.User(username)
 
@@ -236,12 +242,16 @@ class IAMManager(BaseAwsService):
 class S3Manager(BaseAwsService):
     service_label = 's3'
 
-    def get_s3_policy(self, bucket=None):
+    def get_s3_policy(self, bucket=None, folder=None):
+        if folder:
+            fullpath = '%s/%s' % (bucket, folder)
+        else:
+            fullpath = bucket
         policy = { 'Version' : '2012-10-17'}
         policy['Statement'] = [{'Sid' : 'AwsIamUserPython', 
                 'Effect': 'Allow', 'Action': 's3:*', 
                 'Resource': ['arn:aws:s3:::%s'%bucket,
-                    'arn:aws:s3:::%s/*'%bucket]}]
+                    'arn:aws:s3:::%s/*'%fullpath]}]
         return json.dumps(policy, indent=2)
 
 
@@ -252,10 +262,17 @@ class S3Manager(BaseAwsService):
         s3.create_bucket(Bucket=bucket, 
             CreateBucketConfiguration={
                 'LocationConstraint': region})
-        user = self.IAM.get_user(username)
+        #user = self.IAM.get_user(username)
         access_policy = self.get_s3_policy(bucket=bucket)
         self.IAM.put_user_policy(username=username, 
             policyname='s3-%s-%s'%(username, bucket),
+            policydocument=access_policy)
+
+    def allow_s3_folder_for_user(self, username=None, bucket=None, folder=None):
+        #user = self.IAM.get_user(username)
+        access_policy = self.get_s3_policy(bucket=bucket, folder=folder)
+        self.IAM.put_user_policy(username=username, 
+            policyname='s3-%s-%s-%s'%(username, bucket, folder),
             policydocument=access_policy)
 
 class ELBV2Manager(BaseAwsService):
