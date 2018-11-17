@@ -41,18 +41,20 @@ class View(BaseComponent):
                        _if='pkeys',_onResult='FIRE .runQueryDo;',
                         _lockScreen=True)
     
-    def th_condition(self):
-        return dict(condition="$system_userobject IS NOT TRUE")
-
-    
     def th_top_custom(self,top):
-        top.slotToolbar('2,sections@packages,*,sections@types',childname='upper',_position='<bar')
+        top.slotToolbar('2,sections@packages,*,sections@types,sections@systemuserobject',childname='upper',_position='<bar')
 
     def th_sections_packages(self):
         return self.th_distinctSections(table='adm.userobject',field='pkg')
 
     def th_sections_types(self):
         return self.th_distinctSections(table='adm.userobject',field='objtype')
+
+    def th_sections_systemuserobject(self):
+        return [dict(code='standard',caption='Standard',
+                    condition="$system_userobject IS NOT TRUE"),
+                dict(code='system',caption='System',
+                    condition="$system_userobject IS TRUE")]
 
 class Form(BaseComponent):
     def th_form(self, form):

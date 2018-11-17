@@ -327,7 +327,20 @@ class TableHandlerGroupBy(BaseComponent):
         kwargs['hardQueryLimit'] = False
         if groupLimit:
             kwargs['limit'] = groupLimit
-        return self.app._default_getSelection(_aggregateRows=False,**kwargs)
+        selection = self.app._default_getSelection(_aggregateRows=False,**kwargs)
+
+        #_thgroup_pkey column 
+        group_list_keys = [c.replace('@','_').replace('.','_').replace('$','_') for c in group_list]
+        def cb(row):
+            resdict = {}
+            resdict['_thgroup_pkey'] = '|'.join([(row.get(c) or '_') for c in group_list_keys])
+            return resdict
+        selection.apply(cb)
+        
+        return selection    
+
+
+
 
     @struct_method
     def thg_slotbar_dashboardsMenu(self,pane,linkedTo=None,**kwargs):

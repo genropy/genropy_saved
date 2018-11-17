@@ -486,6 +486,10 @@ dojo.declare("gnr.DashboardManager", null, {
             if(kw.item_parameters && kw.item_parameters.length){
                 item_parameters = item_parameters.concat(kw.item_parameters);
             }
+            item_parameters = item_parameters.map(function(elem){
+                elem.dashboardIdentifier = that.identifier;
+                return elem;
+            });
             genro.dlg.prompt(_T('Parameters ')+kw.caption,
                     {widget:item_parameters,
                     action:function(result){
