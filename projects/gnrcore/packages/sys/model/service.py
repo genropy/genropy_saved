@@ -42,3 +42,10 @@ class Table(object):
                     result.setItem([service_type,resname],None,implementation=resource,service_type=service_type,
                                         default_kw=dict(implementation=resource,service_type=service_type))
         return result
+
+    def addService(self,service_type=None,service_name=None,implementation=None,**kwargs):
+        parameters = Bag(kwargs)
+        record = self.newrecord(service_type=service_type,service_name=service_name,implementation=implementation,
+                                parameters=parameters)
+        self.insert(record)
+        return record
